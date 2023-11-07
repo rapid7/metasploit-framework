@@ -1350,6 +1350,7 @@ class Core
       # Save the framework's datastore
       begin
         framework.save_config
+        driver.framework.dns_resolver.save_config
 
         if active_module
           active_module.save_config

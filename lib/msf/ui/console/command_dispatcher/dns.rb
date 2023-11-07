@@ -114,7 +114,6 @@ class DNS
       case opt
       when '--rule', '-r'
         raise ::ArgumentError.new('No rule specified') if val.nil?
-        raise ::ArgumentError.new("Invalid rule: #{val}") unless valid_rule(val)
 
         rules << val
       when '--session', '-s'
@@ -162,13 +161,8 @@ class DNS
   end
 
   #
-  # Is the given wildcard DNS entry valid?
-  def valid_rule(rule)
-    rule =~ /^(\*\.)?([a-z\d][a-z\d-]*[a-z\d]\.)+[a-z]+$/
-  end
-
-  #
   # Remove all matching user-configured DNS entries
+  #
   def remove_dns(*args)
     remove_ids = []
     @@remove_opts.parse(args) do |opt, idx, val|
@@ -184,12 +178,14 @@ class DNS
 
   #
   # Delete all user-configured DNS settings
+  #
   def purge_dns
     driver.framework.dns_resolver.purge
   end
 
   #
   # Display the user-configured DNS settings
+  #
   def print_dns
     results = driver.framework.dns_resolver.nameserver_entries
     columns = ['ID','Rule(s)', 'DNS Server(s)', 'Comm channel']
@@ -204,6 +200,7 @@ class DNS
 
   #
   # Get user-friendly text for displaying the session that this entry would go through
+  #
   def prettify_comm(comm, dns_server)
     if comm.nil?
       channel = Rex::Socket::SwitchBoard.best_comm(dns_server)
@@ -213,7 +210,7 @@ class DNS
         "Session #{channel.sid} (route)"
       end
     else
-      if comm.alive
+      if comm.alive?
         "Session #{comm.sid}"
       else
         "Closed session (#{comm.sid})"

@@ -94,6 +94,7 @@ class Framework
   def initialize_dns_resolver
     self.dns_resolver = Rex::Proto::DNS::CachedResolver.new
     self.dns_resolver.extend(Rex::Proto::DNS::CustomNameserverProvider)
+    self.dns_resolver.load_config
     Rex::Socket._install_global_resolver(self.dns_resolver)
   end
 

@@ -7,6 +7,28 @@ module DNS
   # for different requests, based on the domain being queried.
   ##
   module CustomNameserverProvider
+    CONFIG_KEY = 'framework/dns'
+
+    #
+    # A Comm implementation that always reports as dead, so should never
+    # be used. This is used to prevent DNS leaks of saved DNS rules that 
+    # were attached to a specific channel.
+    ##
+    class CommSink
+      include Msf::Session::Comm
+      def alive?
+        false
+      end
+
+      def supports_udp?
+        # It won't be used anyway, so let's just say we support it
+        true
+      end
+
+      def sid
+        'previous MSF session'
+      end
+    end
 
     def init
       self.entries_with_rules = []
@@ -14,11 +36,71 @@ module DNS
       self.next_id = 0
     end
 
+    def save_config
+      new_config = {}
+      [self.entries_with_rules, self.entries_without_rules].each do |entry_set|
+        entry_set.each do |entry|
+          key = entry[:id].to_s
+          val = [entry[:wildcard_rules].join(','),
+                 entry[:dns_server],
+                 (!entry[:comm].nil?).to_s
+                ].join(';')
+          new_config[key] = val
+        end
+      end
+
+      Msf::Config.save(CONFIG_KEY => new_config)
+    end
+
+    def load_config
+      config = Msf::Config.load
+
+      with_rules = []
+      without_rules = []
+      next_id = 0
+
+      dns_settings = config.fetch(CONFIG_KEY, {}).each do |name, value|
+        id = name.to_i
+        wildcard_rules, dns_server, uses_comm = value.split(';')
+        wildcard_rules = wildcard_rules.split(',')
+
+        raise Msf::Config::ConfigError.new('DNS parsing failed: Comm must be true or false') unless ['true','false'].include?(uses_comm)
+        raise Msf::Config::ConfigError.new('Invalid DNS config: Invalid DNS server') unless Rex::Socket.is_ip_addr?(dns_server)
+        raise Msf::Config::ConfigError.new('Invalid DNS config: Invalid rule') unless wildcard_rules.all? {|rule| valid_rule?(rule)}
+
+        comm = uses_comm == 'true' ? CommSink.new : nil
+        entry = {
+          :wildcard_rules => wildcard_rules,
+          :dns_server => dns_server,
+          :comm => comm,
+          :id => id
+        }
+
+        if wildcard_rules.empty?
+          without_rules << entry
+        else
+          with_rules << entry
+        end
+
+        next_id = [id, next_id].max
+      end
+
+      # Now that config has successfully read, update the global values
+      self.entries_with_rules = with_rules
+      self.entries_without_rules = without_rules
+      self.next_id = next_id
+    end
+
     # Add a custom nameserver entry to the custom provider
     # @param [wildcard_rules] Array<String> The wildcard rules to match a DNS request against
     # @param [dns_server] Array<String> The list of IP addresses that would be used for this custom rule
-    # @param comm [Integer] The communication channel to be used for these DNS requests
+    # @param comm [Msf::Session::Comm] The communication channel to be used for these DNS requests
     def add_nameserver(wildcard_rules, dns_server, comm)
+      raise ::ArgumentError.new("Invalid DNS server: #{dns_server}") unless Rex::Socket.is_ip_addr?(dns_server)
+      wildcard_rules.each do |rule|
+        raise ::ArgumentError.new("Invalid rule: #{rule}") unless valid_rule?(rule)
+      end
+
       entry = {
         :wildcard_rules => wildcard_rules,
         :dns_server => dns_server,
@@ -103,6 +185,13 @@ module DNS
     end
 
     private
+    #
+    # Is the given wildcard DNS entry valid?
+    #
+    def valid_rule?(rule)
+      rule =~ /^(\*\.)?([a-z\d][a-z\d-]*[a-z\d]\.)+[a-z]+$/
+    end
+
 
     def matches(domain, pattern)
       if pattern.start_with?('*.')
