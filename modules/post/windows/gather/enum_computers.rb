@@ -61,10 +61,10 @@ class MetasploitModule < Msf::Post
   #
   # @param [String] host Hostname
   # @return [String] ip The resolved IP
-  def gethost(hostname)
+  def gethost(hostname, family)
     ## get IP for host
     vprint_status("Looking up IP for #{hostname}")
-    resolve_host(hostname).join(', ')
+    resolve_host(hostname, family)
   end
 
   def get_domain_computers
@@ -87,6 +87,7 @@ class MetasploitModule < Msf::Post
   end
 
   def list_computers(domain, hosts)
+    meterpreter_dns_resolving_errors = []
     tbl = Rex::Text::Table.new(
       'Header' => 'List of identified Hosts.',
       'Indent' => 1,
@@ -98,11 +99,28 @@ class MetasploitModule < Msf::Post
         ]
     )
     hosts.each do |hostname|
-      hostip = gethost(hostname)
-      tbl << [domain, hostname, hostip]
+      begin
+        hostipv4 = gethost(hostname, AF_INET)
+      rescue Rex::Post::Meterpreter::RequestError => e
+        meterpreter_dns_resolving_errors << "IPV4: #{hostname} could not be resolved - #{e}"
+      end
+
+      begin
+        hostname = "google.com"
+        hostipv6 = gethost(hostname, AF_INET6)
+      rescue Rex::Post::Meterpreter::RequestError => e
+        meterpreter_dns_resolving_errors << "IPV6: #{hostname} could not be resolved - #{e}"
+      end
+
+      hostipv4.each { |ip| tbl << [domain, hostname, ip] } unless hostipv4.nil?
+      hostipv6.each { |ip| tbl << [domain, hostname, ip] } unless hostipv6.nil?
     end
 
     print_line("\n#{tbl}\n")
+
+    meterpreter_dns_resolving_errors.each do | error |
+      print_warning(error)
+    end
 
     report_note(
       host: session,

@@ -13,9 +13,9 @@ module Msf
         #
         # @param [String] host Hostname
         # @return [Array, nil] result[:ips], ips The resolved IPs
-        def resolve_host(host)
+        def resolve_host(host, family)
           if client.respond_to?(:net) && client.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_NET_RESOLVE_HOST)
-            result = client.net.resolve.resolve_host(host)
+            result = client.net.resolve.resolve_host(host, family)
             result[:ips]
           else
             ips = []
