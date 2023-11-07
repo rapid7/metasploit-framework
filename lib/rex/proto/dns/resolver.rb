@@ -159,6 +159,9 @@ module DNS
         if use_tcp? or !(proxies.nil? or proxies.empty?) # User requested TCP
           @logger.info "Sending #{packet_size} bytes using TCP due to tcp flag"
           method = :send_tcp
+        elsif !supports_udp?(nameservers)
+          @logger.info "Sending #{packet_size} bytes using TCP due to the presence of a non-UDP-compatible comm channel"
+          method = :send_tcp
         else # Finally use UDP
           @logger.info "Sending #{packet_size} bytes using UDP"
           method = :send_udp unless method == :send_tcp
@@ -334,7 +337,7 @@ module DNS
               socket = Rex::Socket::Udp.create(config)
             rescue
               @logger.warn "UDP Socket could not be established to #{ns}:#{@config[:port]}"
-              return nil
+              throw :next_ds
             end
             @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
             #socket.sendto(packet_data, ns.to_s, @config[:port].to_i, 0)
@@ -402,6 +405,17 @@ module DNS
 
       return send(name,type,cls)
 
+    end
+
+    private
+
+    def supports_udp?(nameserver_results)
+      nameserver_results.each do |nameserver, socket_options|
+        comm = socket_options.fetch('Comm') { @config.fetch(:comm) { Rex::Socket::SwitchBoard.best_comm(ns) }}
+        next if comm.nil?
+        return false unless comm.supports_udp?
+      end
+      true
     end
   end # Resolver
 
