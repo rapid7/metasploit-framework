@@ -100,6 +100,8 @@ module Metasploit
 
                         # unmanaged thread, such as the main VM thread
                         unless thread_uuid
+                          error_lines << "Thread has no uuid, thread name #{thread_name}"
+                          error_lines << "The thread backtrace was:\n#{thread.backtrace ? thread.backtrace.join("\n") : 'nil (no backtrace)'}\n"
                           next
                         end
 

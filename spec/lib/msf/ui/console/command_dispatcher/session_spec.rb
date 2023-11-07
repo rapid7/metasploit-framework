@@ -1,6 +1,6 @@
 RSpec.shared_examples_for 'session command dispatcher' do
   include_context 'Msf::Simple::Framework'
-  include_context 'Msf::Framework#threads cleaner', verify_cleanup_required: false
+  # include_context 'Msf::Framework#threads cleaner', verify_cleanup_required: false
 
   describe '#client' do
     subject { command_dispatcher.client }
