@@ -14,6 +14,10 @@ class DNS
     ['-s', '--session'] => [true, 'Force the DNS request to occur over a particular channel (override routing rules)' ],
   )
 
+  @@remove_opts = Rex::Parser::Arguments.new(
+    ['-i'] => [true, 'Index to remove']
+  )
+
   def initialize(driver)
     super
   end
@@ -109,9 +113,8 @@ class DNS
       end
       case opt
       when '--rule', '-r'
-        if val.nil?
-          raise ::ArgumentError.new('No rule specified')
-        end
+        raise ::ArgumentError.new('No rule specified') if val.nil?
+        raise ::ArgumentError.new("Invalid rule: #{val}") unless valid_rule(val)
 
         rules << val
       when '--session', '-s'
@@ -143,26 +146,50 @@ class DNS
       end
     end
 
+    comm_obj = nil
+
     unless comm.nil?
       raise ::ArgumentError.new("Not a valid number: #{comm}") unless comm =~ /^\d+$/
       comm_int = comm.to_i
       raise ::ArgumentError.new("Session does not exist: #{comm}") unless driver.framework.sessions.include?(comm_int)
-
+      comm_obj = driver.framework.sessions[comm_int]
     end
 
     # Split each DNS server entry up into a separate entry
     servers.each do |server|
-      driver.framework.dns_resolver.add_nameserver(rules, server, comm_int)
+      driver.framework.dns_resolver.add_nameserver(rules, server, comm_obj)
     end
   end
 
-  def remove_dns(*args)
+  #
+  # Is the given wildcard DNS entry valid?
+  def valid_rule(rule)
+    rule =~ /^(\*\.)?([a-z\d][a-z\d-]*[a-z\d]\.)+[a-z]+$/
   end
 
+  #
+  # Remove all matching user-configured DNS entries
+  def remove_dns(*args)
+    remove_ids = []
+    @@remove_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-i'
+        raise ::ArgumentError.new("Not a valid number: #{val}") unless val =~ /^\d+$/
+        remove_ids << val.to_i
+      end
+    end
+
+    driver.framework.dns_resolver.remove_ids(remove_ids)
+  end
+
+  #
+  # Delete all user-configured DNS settings
   def purge_dns
     driver.framework.dns_resolver.purge
   end
 
+  #
+  # Display the user-configured DNS settings
   def print_dns
     results = driver.framework.dns_resolver.nameserver_entries
     columns = ['ID','Rule(s)', 'DNS Server(s)', 'Comm channel']
@@ -175,19 +202,21 @@ class DNS
 
   private
 
+  #
+  # Get user-friendly text for displaying the session that this entry would go through
   def prettify_comm(comm, dns_server)
     if comm.nil?
       channel = Rex::Socket::SwitchBoard.best_comm(dns_server)
       if channel.nil?
-        comm_text = nil
+        nil
       else
-        comm_text = "Session #{channel.sid} (auto)"
+        "Session #{channel.sid} (route)"
       end
     else
-      if driver.framework.sessions.include?(comm)
-        comm_text = "Session #{comm}"
+      if comm.alive
+        "Session #{comm.sid}"
       else
-        comm_text = "Broken session (#{comm})"
+        "Closed session (#{comm.sid})"
       end
     end
   end

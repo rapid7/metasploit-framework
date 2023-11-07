@@ -34,6 +34,16 @@ module DNS
     end
 
     #
+    # Remove entries with the given IDs
+    # Ignore entries that are not found
+    def remove_ids(ids)
+      ids.each do |id|
+        self.entries_with_rules.delete_if {|entry| entry[:id] == id}
+        self.entries_without_rules.delete_if {|entry| entry[:id] == id}
+      end
+    end
+
+    #
     # The custom nameserver entries that have been configured
     # @return [Array<Array>] An array containing two elements: The entries with rules, and the entries without rules
     def nameserver_entries
@@ -45,25 +55,47 @@ module DNS
     end
 
     def nameservers_for_packet(packet)
-      name = packet.question.qName
-      dns_servers = []
+      # Leaky abstraction: a packet could have multiple question entries,
+      # and each of these could have different nameservers, or travel via
+      # different comm channels. We can't allow DNS leaks, so for now, we
+      # will throw an error here.
+      results_from_all_questions = []
+      packet.question.each do |question|
+        name = question.qname.to_s
+        dns_servers = []
 
-      self.entries_with_rules.each do |entry|
-        entry[:wildcard_rules].each do |rule|
-          if matches(name, rule)
-            dns_servers.concat([entry[:dns_server], entry[:comm]])
-            break
+        self.entries_with_rules.each do |entry|
+          entry[:wildcard_rules].each do |rule|
+            socket_options = {}
+            socket_options['Comm'] = entry[:comm] unless entry[:comm].nil?
+            if matches(name, rule)
+              dns_servers.append([entry[:dns_server], socket_options])
+              break
+            end
           end
         end
+
+        # Only look at the rule-less entries if no rules were found (avoids DNS leaks)
+        if dns_servers.empty?
+          self.entries_without_rules.each do |entry|
+            socket_options = {}
+            socket_options['Comm'] = entry[:comm] unless entry[:comm].nil?
+            dns_servers.append([entry[:dns_server], socket_options])
+          end
+        end
+
+        if dns_servers.empty?
+          # Fall back to default nameservers
+          dns_servers = super
+        end
+        results_from_all_questions << dns_servers.uniq
+      end
+      results_from_all_questions.uniq!
+      if results_from_all_questions.size != 1
+        raise ResolverError.new('Inconsistent nameserver entries attempted to be sent in the one packet')
       end
 
-      # Only look at the rule-less entries if no rules were found (avoids DNS leaks)
-      if dns_servers.empty?
-        self.entries_without_rules.each do |entry|
-          dns_servers.concat([entry[:dns_server], entry[:comm]])
-        end
-      end
-      dns_servers.uniq!
+      results_from_all_questions[0]
     end
 
     def self.extended(mod)
@@ -73,7 +105,11 @@ module DNS
     private
 
     def matches(domain, pattern)
-      true
+      if pattern.start_with?('*.')
+        domain.downcase.end_with?(pattern[1..-1].downcase)
+      else
+        domain.casecmp?(pattern)
+      end
     end
 
     attr_accessor :entries_with_rules # Set of custom nameserver entries that specify a rule

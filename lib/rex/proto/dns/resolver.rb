@@ -14,7 +14,7 @@ module DNS
   class Resolver < Net::DNS::Resolver
 
     Defaults = {
-      :config_file => "/dev/null", # default can lead to info leaks
+      :config_file => "/etc/resolv.conf",
       :log_file => "/dev/null", # formerly $stdout, should be tied in with our loggers
       :port => 53,
       :searchlist => [],
@@ -141,7 +141,8 @@ module DNS
         packet = Rex::Proto::DNS::Packet.encode_drb(net_packet)
       end
 
-      if nameservers_for_packet(packet).size == 0
+      nameservers = nameservers_for_packet(packet)
+      if nameservers.size == 0
         raise ResolverError, "No nameservers specified!"
       end
 
@@ -210,6 +211,7 @@ module DNS
           socket = nil
           @config[:tcp_timeout].timeout do
             catch(:next_ns) do
+              suffix = ''
               begin
                 config = {
                   'PeerHost' => ns.to_s,
@@ -219,7 +221,12 @@ module DNS
                   'Comm' => @config[:comm]
                 }
                 config.update(socket_options)
+                unless config['Comm'].nil? || config['Comm'].alive?
+                  @logger.warn("Session #{config['Comm'].sid} not active, and cannot be used to resolve DNS")
+                  throw :next_ns
+                end
 
+                suffix = " over session #{@config['Comm'].sid}" unless @config['Comm'].nil?
                 if @config[:source_port] > 0
                   config['LocalPort'] = @config[:source_port]
                 end
@@ -228,11 +235,11 @@ module DNS
                 end
                 socket = Rex::Socket::Tcp.create(config)
               rescue
-                @logger.warn "TCP Socket could not be established to #{ns}:#{@config[:port]} #{@config[:proxies]}"
+                @logger.warn "TCP Socket could not be established to #{ns}:#{@config[:port]} #{@config[:proxies]}#{suffix}"
                 throw :next_ns
               end
               next unless socket #
-              @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
+              @logger.info "Contacting nameserver #{ns} port #{@config[:port]}#{suffix}"
               socket.write(length+packet_data)
               got_something = false
               loop do
@@ -241,7 +248,7 @@ module DNS
                 begin
                   ans = socket.recv(2)
                 rescue Errno::ECONNRESET
-                  @logger.warn "TCP Socket got Errno::ECONNRESET from #{ns}:#{@config[:port]} #{@config[:proxies]}"
+                  @logger.warn "TCP Socket got Errno::ECONNRESET from #{ns}:#{@config[:port]} #{@config[:proxies]}#{suffix}"
                   attempts -= 1
                   retry if attempts > 0
                 end
@@ -249,7 +256,7 @@ module DNS
                   if got_something
                     break #Proper exit from loop
                   else
-                    @logger.warn "Connection reset to nameserver #{ns}, trying next."
+                    @logger.warn "Connection reset to nameserver #{ns}#{suffix}, trying next."
                     throw :next_ns
                   end
                 end
@@ -259,7 +266,7 @@ module DNS
                 @logger.info "Receiving #{len} bytes..."
 
                 if len.nil? or len == 0
-                  @logger.warn "Receiving 0 length packet from nameserver #{ns}, trying next."
+                  @logger.warn "Receiving 0 length packet from nameserver #{ns}#{suffix}, trying next."
                   throw :next_ns
                 end
 
@@ -270,7 +277,7 @@ module DNS
                 end
 
                 unless buffer.size == len
-                  @logger.warn "Malformed packet from nameserver #{ns}, trying next."
+                  @logger.warn "Malformed packet from nameserver #{ns}#{suffix}, trying next."
                   throw :next_ns
                 end
                 if block_given?
@@ -282,7 +289,7 @@ module DNS
             end
           end
         rescue Timeout::Error
-          @logger.warn "Nameserver #{ns} not responding within TCP timeout, trying next one"
+          @logger.warn "Nameserver #{ns}#{suffix} not responding within TCP timeout, trying next one"
           next
         ensure
           socket.close if socket
@@ -313,6 +320,11 @@ module DNS
                 'Comm' => @config[:comm]
               }
               config.update(socket_options)
+              unless config['Comm'].nil? || config['Comm'].alive?
+                @logger.warn("Session #{config['Comm'].sid} not active, and cannot be used to resolve DNS")
+                throw :next_ns
+              end
+
               if @config[:source_port] > 0
                 config['LocalPort'] = @config[:source_port]
               end
