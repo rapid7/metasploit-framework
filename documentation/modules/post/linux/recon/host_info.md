@@ -5,11 +5,12 @@ is intended to add more information for the framework to utilize when running
 more modules against the same target.
 
 ## Verification Steps
+
 1. Start msfconsole
 2. Get (any) session
-3. Do: `use post/linux/recon/host_info`
-4. Do: `set SESSION <session id>`
-5. Do: `run`
+3. `use post/linux/recon/host_info`
+4. `set SESSION <session id>`
+5. `run`
 
 ## Options
 
