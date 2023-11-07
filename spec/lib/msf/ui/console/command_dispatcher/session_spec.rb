@@ -1,4 +1,7 @@
 RSpec.shared_examples_for 'session command dispatcher' do
+  include_context 'Msf::Simple::Framework'
+  include_context 'Msf::Framework#threads cleaner', verify_cleanup_required: false
+
   describe '#client' do
     subject { command_dispatcher.client }
     it { is_expected.to be(client) }
@@ -28,7 +31,6 @@ RSpec.shared_examples_for 'session command dispatcher' do
     end
 
     describe '#cmd_irb' do
-      let(:framework) { double('framework') }
       let(:history_manager) { double('history_manager') }
       before(:each) do
         allow(client).to receive(:framework).and_return(framework)
