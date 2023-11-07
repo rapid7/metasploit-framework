@@ -282,7 +282,7 @@ class MetasploitModule < Msf::Post
       @flow_json_string = JSON.pretty_generate(flow_json) # so we can save an unencrypted version as well
 
       # NIFI_PBKDF2_AES_GCM_256 is the default as of 1.14.0
-      # leave this as a if statement so it can be expanded to include more algorithms in the future
+      # leave this as an if statement so it can be expanded to include more algorithms in the future
       if algorithm == 'NIFI_PBKDF2_AES_GCM_256'
         # https://gist.github.com/tylerpace/8f64b7e00ffd9fb1ef5ea70df0f9442f
         @decrypted_key = OpenSSL::PKCS5.pbkdf2_hmac(key, salt, datastore['ITERATIONS'], 32, OpenSSL::Digest.new('SHA512'))
