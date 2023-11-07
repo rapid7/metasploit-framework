@@ -37,6 +37,61 @@ class DNS
     commands
   end
 
+  #
+  # Tab completion for the dns command
+  #
+  # @param str [String] the string currently being typed before tab was hit
+  # @param words [Array<String>] the previously completed words on the command line.  words is always
+  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  def cmd_dns_tabs(str, words)
+    if words.length == 1
+      options = ['add','del','remove','flush','print']
+      return options.select { |opt| opt.start_with?(str) }
+    end
+
+    cmd = words[1]
+    case cmd
+    when 'flush','print'
+      # These commands don't have any arguments
+      return
+    when 'add'
+      # We expect a repeating pattern of tag (e.g. -r) and then a value (e.g. *.metasploit.com)
+      # Once this pattern is violated, we're just specifying DNS servers at that point.
+      tag_is_expected = true
+      if words.length > 2
+        words[2..-1].each do |word|
+          if tag_is_expected && !word.start_with?('-')
+            return # They're trying to specify a DNS server - we can't help them from here on out
+          end
+          tag_is_expected = !tag_is_expected
+        end
+      end
+
+      case words[-1]
+      when '-s', '--session'
+        session_ids = driver.framework.sessions.keys.map { |k| k.to_s }
+        return session_ids.select { |id| id.start_with?(str) }
+      when '-r', '--rule'
+        # Hard to auto-complete a rule with any meaningful value; just return
+        return
+      when /^-/
+        # Unknown tag
+        return
+      end
+
+      options = @@add_opts.option_keys.select { |opt| opt.start_with?(str) }
+      options << '' # Prevent tab-completion of a dash, given they could provide an IP address at this point
+      return options
+    when 'del','remove'
+      if words[-1] == '-i'
+        ids = driver.framework.dns_resolver.nameserver_entries.flatten.map { |entry| entry[:id].to_s }
+        return ids.select { |id| id.start_with? str }
+      else
+        return @@remove_opts.option_keys.select { |opt| opt.start_with?(str) }
+      end
+    end
+  end
+
   def cmd_dns_help
     print_line 'Usage: dns'
     print_line
