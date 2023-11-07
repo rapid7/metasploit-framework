@@ -276,7 +276,7 @@ class MetasploitModule < Msf::Post
       flow_json = Zlib.gunzip(read_file(flow_file))
 
       path = store_loot('nifi.flow.json', 'application/json', session, flow_json, 'flow.json', 'nifi flow data')
-      print_good("Encrypted data saved in: #{path}")
+      print_good("Original data containing encrypted fields saved in: #{path}")
 
       flow_json = JSON.parse(flow_json)
       @flow_json_string = JSON.pretty_generate(flow_json) # so we can save an unencrypted version as well
