@@ -65,7 +65,8 @@ class MetasploitModule < Msf::Post
 
     cipher = OpenSSL::Cipher.new('aes-256-cfb8')
     cipher.decrypt
-    cipher.key = "\x9C\x1C\xEE\xF3\x8A\x3A\x24\x86\x0C\x3D\x2E\x85\xD2\x9E\x7A\x70\x34\xC1\xD8\x5F\x9C\x1C\xEE\xF3\x8A\x3A\x24\x86\x0C\x3D\x2E\x85"
+    hash = Digest::SHA1.digest('PL/SQL developer + Oracle 11.0.x')
+    cipher.key = hash + hash[0..11]
     cipher.iv = bytes[0..7] + "\x00" * 8
 
     return cipher.update(bytes[8..]) + cipher.final
