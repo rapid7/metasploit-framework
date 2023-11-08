@@ -82,7 +82,7 @@ module DNS
           with_rules << entry
         end
 
-        next_id = [id, next_id].max
+        next_id = [id + 1, next_id].max
       end
 
       # Now that config has successfully read, update the global values
@@ -118,11 +118,23 @@ module DNS
     #
     # Remove entries with the given IDs
     # Ignore entries that are not found
+    # @param [Array<Integer>] The IDs to removed
+    # @return [Array<Hash>] The removed entries
+    #
     def remove_ids(ids)
+      removed= []
       ids.each do |id|
-        self.entries_with_rules.delete_if {|entry| entry[:id] == id}
-        self.entries_without_rules.delete_if {|entry| entry[:id] == id}
+        removed_with, remaining_with = self.entries_with_rules.partition {|entry| entry[:id] == id}
+        self.entries_with_rules.replace(remaining_with)
+
+        removed_without, remaining_without = self.entries_without_rules.partition {|entry| entry[:id] == id}
+        self.entries_without_rules.replace(remaining_without)
+
+        removed.concat(removed_with)
+        removed.concat(removed_without)
       end
+
+      removed
     end
 
     #

@@ -209,10 +209,15 @@ class DNS
       comm_obj = driver.framework.sessions[comm_int]
     end
 
+    rules.each do |rule|
+      print_warning("DNS rule #{rule} does not contain wildcards, so will not match subdomains") unless rule.include?('*')
+    end
+
     # Split each DNS server entry up into a separate entry
     servers.each do |server|
       driver.framework.dns_resolver.add_nameserver(rules, server, comm_obj)
     end
+    print_good("DNS #{servers.length > 1 ? 'entries' : 'entry'} added")
   end
 
   #
@@ -228,7 +233,13 @@ class DNS
       end
     end
 
-    driver.framework.dns_resolver.remove_ids(remove_ids)
+    removed = driver.framework.dns_resolver.remove_ids(remove_ids)
+    difference = remove_ids.difference(removed.map { |entry| entry[:id] })
+    print_warning("Some entries were not removed: #{difference.join(', ')}") unless difference.empty?
+    if removed.length > 0
+      print_good("#{removed.length} DNS #{removed.length > 1 ? 'entries' : 'entry'} removed") 
+      print_dns_set('Deleted entries', ['ID', 'Rules(s)', 'DNS Server', 'Commm channel'], removed.map {|hash| [hash[:id], hash[:wildcard_rules].join(','), hash[:dns_server], prettify_comm(hash[:comm], hash[:dns_server])]})
+    end
   end
 
   #
@@ -236,6 +247,7 @@ class DNS
   #
   def purge_dns
     driver.framework.dns_resolver.purge
+    print_good('DNS entries purged')
   end
 
   #
@@ -243,11 +255,11 @@ class DNS
   #
   def print_dns
     results = driver.framework.dns_resolver.nameserver_entries
-    columns = ['ID','Rule(s)', 'DNS Server(s)', 'Comm channel']
+    columns = ['ID','Rule(s)', 'DNS Server', 'Comm channel']
     print_dns_set('Custom nameserver rules', columns, results[0].map {|hash| [hash[:id], hash[:wildcard_rules].join(','), hash[:dns_server], prettify_comm(hash[:comm], hash[:dns_server])]})
 
     # Default nameservers don't include a rule
-    columns = ['ID', 'DNS Server(s)', 'Comm channel']
+    columns = ['ID', 'DNS Server', 'Comm channel']
     print_dns_set('Default nameservers', columns, results[1].map {|hash| [hash[:id], hash[:dns_server], prettify_comm(hash[:comm], hash[:dns_server])]})
   end
 
