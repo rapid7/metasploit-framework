@@ -111,4 +111,14 @@ RSpec.describe Rex::Proto::DNS::CustomNameserverProvider do
      expect(ns).to eq([[ruled_nameserver, {}], [ruled_nameserver2, {}]])
    end
   end
+
+  context 'When a packet contains multiple questions that have different nameserver results' do
+   it 'Throws an error' do
+     packet = packet_for('subdomain.metasploit.com')
+     q = Dnsruby::Question.new('subdomain.notmetasploit.com', Dnsruby::Types::A, Dnsruby::Classes::IN)
+
+     packet.question.append(q)
+     expect {many_ruled_provider.nameservers_for_packet(packet)}.to raise_error(ResolverError)
+   end
+  end
 end

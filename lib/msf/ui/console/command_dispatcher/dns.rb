@@ -44,6 +44,8 @@ class DNS
   # @param words [Array<String>] the previously completed words on the command line.  words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
   def cmd_dns_tabs(str, words)
+    return if driver.framework.dns_resolver.nil?
+
     if words.length == 1
       options = ['add','del','remove','flush','print']
       return options.select { |opt| opt.start_with?(str) }
@@ -132,6 +134,8 @@ class DNS
   # Manage Metasploit's DNS resolution rules
   #
   def cmd_dns(*args)
+    return if driver.framework.dns_resolver.nil?
+
     args << 'print' if args.length == 0
     # Short-circuit help
     if args.delete("-h") || args.delete("--help")

@@ -15,7 +15,7 @@ module DNS
 
     Defaults = {
       :config_file => "/etc/resolv.conf",
-      :log_file => "/dev/null", # formerly $stdout, should be tied in with our loggers
+      :log_file => File::NULL, # formerly $stdout, should be tied in with our loggers
       :port => 53,
       :searchlist => [],
       :nameservers => [IPAddr.new("127.0.0.1")],

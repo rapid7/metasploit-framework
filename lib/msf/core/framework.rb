@@ -81,7 +81,11 @@ class Framework
     # Configure the SSL certificate generator
     require 'msf/core/cert_provider'
     Rex::Socket::Ssl.cert_provider = Msf::Ssl::CertProvider
-    initialize_dns_resolver
+
+    if options.include?('CustomDnsResolver')
+      self.dns_resolver = options['CustomDnsResolver']
+      Rex::Socket._install_global_resolver(self.dns_resolver)
+    end
 
     subscriber = FrameworkEventSubscriber.new(self)
     events.add_exploit_subscriber(subscriber)
@@ -89,13 +93,6 @@ class Framework
     events.add_general_subscriber(subscriber)
     events.add_db_subscriber(subscriber)
     events.add_ui_subscriber(subscriber)
-  end
-
-  def initialize_dns_resolver
-    self.dns_resolver = Rex::Proto::DNS::CachedResolver.new
-    self.dns_resolver.extend(Rex::Proto::DNS::CustomNameserverProvider)
-    self.dns_resolver.load_config
-    Rex::Socket._install_global_resolver(self.dns_resolver)
   end
 
   def dns_resolver
