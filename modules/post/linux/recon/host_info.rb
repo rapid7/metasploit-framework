@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Post
         'Name' => 'Update information about session host',
         'Description' => %q{
           Collects as much basic information on the current session as possible.
-          Metherpreter sessions may do (most) of these functions automatically,
+          Meterpreter sessions may do (most) of these functions automatically,
           but this module allows gathering even on basic shells in case a
           meterpreter session isnt viable.
           This is meant to help recon more data on a target or correct data assumed
