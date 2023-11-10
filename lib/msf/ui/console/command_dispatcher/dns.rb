@@ -109,7 +109,6 @@ class DNS
     print_line "  add - add a DNS resolution entry to resolve certain domain names through a particular DNS server"
     print_line "  remove - delete a DNS resolution entry; 'del' is an alias"
     print_line "  flush - remove all DNS resolution entries"
-    print_line "  get - display the DNS server(s) and communication channel that would be used for a given target"
     print_line "  print - show all active DNS resolution entries"
     print_line
     print_line "Examples:"
@@ -124,9 +123,6 @@ class DNS
     print_line
     print_line "  Set the DNS server to be used for all requests that match no rules"
     print_line "    route add 8.8.8.8 8.8.4.4"
-    print_line
-    print_line "  Display the DNS server that would be used for the given domain name"
-    print_line "    route get subdomain.metasploit.com"
     print_line
   end
 
