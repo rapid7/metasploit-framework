@@ -115,6 +115,7 @@ module DNS
     # @param dns_message [Dnsruby::Message] The DNS message to be sent
     #
     # @return [Array<Array>] A list of nameservers, each with Rex::Socket options
+    #
     def nameservers_for_packet(dns_message)
       @config[:nameservers].map {|ns| [ns, {}]}
     end
@@ -125,8 +126,8 @@ module DNS
     # @param argument [Object] An object holding the DNS message to be processed.
     # @param type [Fixnum] Type of record to look up
     # @param cls [Fixnum] Class of question to look up
-    #
     # @return [Dnsruby::Message] DNS response
+    #
     def send(argument, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
       method = self.use_tcp? ? :send_tcp : :send_udp
 

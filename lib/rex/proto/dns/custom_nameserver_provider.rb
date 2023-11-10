@@ -36,6 +36,9 @@ module DNS
       self.next_id = 0
     end
 
+    #
+    # Save the custom settings to the MSF config file
+    #
     def save_config
       new_config = {}
       [self.entries_with_rules, self.entries_without_rules].each do |entry_set|
@@ -52,6 +55,9 @@ module DNS
       Msf::Config.save(CONFIG_KEY => new_config)
     end
 
+    #
+    # Load the custom settings from the MSF config file
+    #
     def load_config
       config = Msf::Config.load
 
@@ -92,8 +98,8 @@ module DNS
     end
 
     # Add a custom nameserver entry to the custom provider
-    # @param [wildcard_rules] Array<String> The wildcard rules to match a DNS request against
-    # @param [dns_server] Array<String> The list of IP addresses that would be used for this custom rule
+    # @param wildcard_rules [Array<String>] The wildcard rules to match a DNS request against
+    # @param dns_server [Array<String>] The list of IP addresses that would be used for this custom rule
     # @param comm [Msf::Session::Comm] The communication channel to be used for these DNS requests
     def add_nameserver(wildcard_rules, dns_server, comm)
       raise ::ArgumentError.new("Invalid DNS server: #{dns_server}") unless Rex::Socket.is_ip_addr?(dns_server)
@@ -118,7 +124,7 @@ module DNS
     #
     # Remove entries with the given IDs
     # Ignore entries that are not found
-    # @param [Array<Integer>] The IDs to removed
+    # @param ids [Array<Integer>] The IDs to removed
     # @return [Array<Hash>] The removed entries
     #
     def remove_ids(ids)
@@ -140,6 +146,7 @@ module DNS
     #
     # The custom nameserver entries that have been configured
     # @return [Array<Array>] An array containing two elements: The entries with rules, and the entries without rules
+    #
     def nameserver_entries
       [entries_with_rules, entries_without_rules]
     end
@@ -148,6 +155,11 @@ module DNS
       init
     end
 
+    # The nameservers that match the given packet
+    # @param packet [Dnsruby::Message] The DNS packet to be sent
+    # @raise [ResolveError] If the packet contains multiple questions, which would end up sending to a different set of nameservers
+    # @return [Array<Array>] A list of nameservers, each with Rex::Socket options
+    #
     def nameservers_for_packet(packet)
       # Leaky abstraction: a packet could have multiple question entries,
       # and each of these could have different nameservers, or travel via
