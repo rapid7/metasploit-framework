@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Post
       )
     )
     register_options([
-      OptBool.new('RECON_HOSTNAME', [false, 'Report current session's true hostname', true]),
+      OptBool.new('RECON_HOSTNAME', [false, 'Report current session\'s true hostname', true]),
       OptBool.new('RECON_ADDRESS', [false, 'Reports true address mac and interface', true]),
       OptBool.new('RECON_ARCH', [false, 'Reports systems true architecture', true]),
       OptBool.new('RECON_OS', [false, 'Reports true data on OS', true]),
