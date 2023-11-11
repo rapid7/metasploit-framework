@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'Get the sessions current user',
+        'Name' => 'Update information about session host',
         'Description' => %q{
           Collects as much basic information on the current session as possible.
           Metherpreter sessions may do (most) of these functions automatically,
@@ -101,7 +101,7 @@ class MetasploitModule < Msf::Post
                   when '64-bit'
                     'x64'
                   when '32-bit'
-                    'x32'
+                    'x86'
                   end
     else
       host_arch = case cmd_exec('echo %PROCESSOR_ARCHITECTURE%').strip
