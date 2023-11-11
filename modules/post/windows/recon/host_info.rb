@@ -108,7 +108,7 @@ class MetasploitModule < Msf::Post
                   when /amd64/i || /x64/i
                     'x64'
                   else
-                    'x32'
+                    'x86'
                   end
     end
     print_good("The hosts architecture is #{host_arch}")
