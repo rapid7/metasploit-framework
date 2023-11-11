@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'Get the sessions current user',
+        'Name' => 'Update information about session host',
         'Description' => %q{
           Collects as much basic information on the current session as possible.
           Metherpreter sessions may do (most) of these functions automatically,
