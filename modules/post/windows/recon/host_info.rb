@@ -101,7 +101,7 @@ class MetasploitModule < Msf::Post
                   when '64-bit'
                     'x64'
                   when '32-bit'
-                    'x32'
+                    'x86'
                   end
     else
       host_arch = case cmd_exec('echo %PROCESSOR_ARCHITECTURE%').strip
