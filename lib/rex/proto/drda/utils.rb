@@ -10,8 +10,8 @@ class Utils
   # a reponse from the target server.
   def self.client_probe(dbname=nil)
     pkt = [
-      EXCSAT_DDM.new,
-      ACCSEC_DDM.new(:dbname => dbname)
+      Rex::Proto::DRDA::Packet::EXCSAT_DDM.new,
+      Rex::Proto::DRDA::Packet::ACCSEC_DDM.new(:dbname => dbname)
     ]
     pkt.map {|x| x.to_s}.join
   end
@@ -23,15 +23,15 @@ class Utils
     dbuser = args[:dbuser]
     dbpass = args[:dbpass]
     pkt = [
-      ACCSEC_DDM.new(:format => 0x41),
-      SECCHK_DDM.new(:dbname => dbname, :dbuser => dbuser, :dbpass => dbpass)
+      Rex::Proto::DRDA::Packet::ACCSEC_DDM.new(:format => 0x41),
+      Rex::Proto::DRDA::Packet::SECCHK_DDM.new(:dbname => dbname, :dbuser => dbuser, :dbpass => dbpass)
     ]
     pkt.map {|x| x.to_s}.join
   end
 
   def self.server_packet_info(obj)
     info_hash = {}
-    return info_hash unless obj.kind_of? Rex::Proto::DRDA::SERVER_PACKET
+    return info_hash unless obj.kind_of? Rex::Proto::DRDA::Packet::SERVER_PACKET
     obj.each do |ddm|
       case ddm.codepoint
       when Constants::EXCSATRD
