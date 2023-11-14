@@ -183,6 +183,7 @@ module Scriptable
         execute_file(full_path, args)
         framework.events.on_session_script_run(self, full_path)
       rescue StandardError => e
+        elog("Could not execute #{script_name}: #{e.class} #{e}", error: e)
         print_error("Could not execute #{script_name}: #{e.class} #{e}")
       end
     end

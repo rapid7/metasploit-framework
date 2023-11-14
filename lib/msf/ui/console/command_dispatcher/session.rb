@@ -39,8 +39,8 @@ module Msf
               cmd_background_help
               return
             end
-            print_status("Backgrounding session #{client.name}...")
-            client.interacting = false
+            print_status("Backgrounding session #{session.name}...")
+            session.interacting = false
           end
 
           alias cmd_bg cmd_background
@@ -50,8 +50,8 @@ module Msf
           # Terminates the session.
           #
           def cmd_exit(*args)
-            print_status("Shutting down session: #{client.sid}")
-            client.exit
+            print_status("Shutting down session: #{session.sid}")
+            session.exit
           end
 
           alias cmd_quit cmd_exit
@@ -85,14 +85,13 @@ module Msf
               end
             end
 
-            session = client
-            framework = client.framework
+            framework = session.framework
 
             if expressions.empty?
               print_status('Starting IRB shell...')
-              print_status("You are in the \"client\" (session) object\n")
+              print_status("You are in the session object\n")
               framework.history_manager.with_context(name: :irb) do
-                Rex::Ui::Text::IrbShell.new(client).run
+                Rex::Ui::Text::IrbShell.new(session).run
               end
             else
               # XXX: No vprint_status here
@@ -128,11 +127,11 @@ module Msf
             end
 
             print_status('Starting Pry shell...')
-            print_status("You are in the \"client\" (session) object\n")
+            print_status("You are in the session object\n")
 
             Pry.config.history_load = false
-            client.framework.history_manager.with_context(history_file: Msf::Config.pry_history, name: :pry) do
-              client.pry
+            session.framework.history_manager.with_context(history_file: Msf::Config.pry_history, name: :pry) do
+              session.pry
             end
           end
 
@@ -147,14 +146,14 @@ module Msf
           def cmd_sessions(*args)
             if args.empty? || args[0].to_i == 0
               cmd_sessions_help
-            elsif args[0].to_s == client.name.to_s
-              print_status("Session #{client.name} is already interactive.")
+            elsif args[0].to_s == session.name.to_s
+              print_status("Session #{session.name} is already interactive.")
             else
-              print_status("Backgrounding session #{client.name}...")
+              print_status("Backgrounding session #{session.name}...")
               # store the next session id so that it can be referenced as soon
               # as this session is no longer interacting
-              client.next_session = args[0]
-              client.interacting = false
+              session.next_session = args[0]
+              session.interacting = false
             end
           end
 
@@ -195,7 +194,7 @@ module Msf
                 next
               end
 
-              client.console.load_resource(good_res)
+              session.console.load_resource(good_res)
             end
           end
 
