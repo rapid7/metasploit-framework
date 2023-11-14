@@ -20,6 +20,7 @@ module Msf
     MANAGER_COMMANDS = 'manager_commands'
     METASPLOIT_PAYLOAD_WARNINGS = 'metasploit_payload_warnings'
     DEFER_MODULE_LOADS = 'defer_module_loads'
+    LOG_ALL_CLOSE_METHOD_CALLS = 'log_all_close_method_calls'
     DEFAULTS = [
       {
         name: WRAPPED_TABLES,
@@ -51,6 +52,12 @@ module Msf
       {
         name: DEFER_MODULE_LOADS,
         description: 'When enabled will not eagerly load all modules',
+        requires_restart: true,
+        default_value: false
+      }.freeze,
+      {
+        name: LOG_ALL_CLOSE_METHOD_CALLS,
+        description: 'Log all close method calls - used to debug crashes reported in https://github.com/rapid7/metasploit-framework/issues/18462',
         requires_restart: true,
         default_value: false
       }.freeze

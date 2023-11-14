@@ -67,6 +67,28 @@ class Framework
     self.features = FeatureManager.instance
     self.features.load_config
 
+    if self.features.enabled?(Msf::FeatureManager::LOG_ALL_CLOSE_METHOD_CALLS)
+      log_directory = File.join(Msf::Config.log_directory, "close")
+      FileUtils.mkdir_p(log_directory)
+      close_logger = Logger.new(File.join(log_directory, "#{Time.now.to_s.gsub(' ', '-')}.log"))
+      TracePoint.new(:c_call) do |tp|
+        if tp.method_id == :close
+          event = {
+            lineno: tp.lineno,
+            defined_class: tp.defined_class,
+            tp: tp.method_id,
+            event: tp.event
+          }
+          details = <<~EOF
+        [DEBUG] Close called:
+        #{(caller || []).join("\n")}
+        #{JSON.pretty_generate(event)}
+          EOF
+          close_logger.info details
+        end
+      end.enable
+    end
+
     self.events    = EventDispatcher.new(self)
     self.modules   = ModuleManager.new(self,types)
     self.datastore = DataStore.new
