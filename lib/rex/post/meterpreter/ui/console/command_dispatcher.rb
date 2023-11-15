@@ -13,7 +13,7 @@ module Ui
 ###
 module Console::CommandDispatcher
 
-  include Rex::Ui::Text::DispatcherShell::CommandDispatcher
+  include Msf::Ui::Console::CommandDispatcher::Session
 
   #
   # The hash of file names to class names after a module has already been
