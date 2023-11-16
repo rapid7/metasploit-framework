@@ -33,11 +33,6 @@ class Console::CommandDispatcher::Core
     @transport_map = {}
   end
 
-  @@irb_opts = Rex::Parser::Arguments.new(
-    '-h' => [false, 'Help menu.'             ],
-    '-e' => [true,  'Expression to evaluate.']
-  )
-
   @@load_opts = Rex::Parser::Arguments.new(
     '-h' => [false, 'Help menu.'                    ],
     '-l' => [false, 'List all available extensions.']
@@ -301,48 +296,11 @@ class Console::CommandDispatcher::Core
     print_good("Successfully created #{opts[:type]} pivot.")
   end
 
-  def cmd_sessions_help
-    print_line('Usage: sessions <id>')
-    print_line
-    print_line('Interact with a different session Id.')
-    print_line('This works the same as calling this from the MSF shell: sessions -i <session id>')
-    print_line
-  end
-
-  def cmd_sessions(*args)
-    if args.length == 0 || args[0].to_i == 0
-      cmd_sessions_help
-    elsif args[0].to_s == client.name.to_s
-      print_status("Session #{client.name} is already interactive.")
-    else
-      print_status("Backgrounding session #{client.name}...")
-      # store the next session id so that it can be referenced as soon
-      # as this session is no longer interacting
-      client.next_session = args[0]
-      client.interacting = false
-    end
-  end
-
   def cmd_secure
     print_status('Negotiating new encryption key ...')
     client.core.secure
     print_good('Done.')
   end
-
-  def cmd_background_help
-    print_line('Usage: background')
-    print_line
-    print_line('Stop interacting with this session and return to the parent prompt')
-    print_line
-  end
-
-  def cmd_background
-    print_status("Backgrounding session #{client.name}...")
-    client.interacting = false
-  end
-
-  alias cmd_bg cmd_background
-  alias cmd_bg_help cmd_background_help
 
   #
   # Displays information about active channels
@@ -500,18 +458,6 @@ class Console::CommandDispatcher::Core
     return tab_complete_channels
   end
 
-  #
-  # Terminates the meterpreter session.
-  #
-  def cmd_exit(*args)
-    print_status('Shutting down Meterpreter...')
-    client.core.shutdown rescue nil
-    client.shutdown_passive_dispatcher
-    shell.stop
-  end
-
-  alias cmd_quit cmd_exit
-
   def cmd_detach_help
     print_line('Detach from the victim. Only possible for non-stream sessions (http/https)')
     print_line
@@ -564,85 +510,6 @@ class Console::CommandDispatcher::Core
   end
 
   alias cmd_interact_tabs cmd_close_tabs
-
-  def cmd_irb_help
-    print_line('Usage: irb')
-    print_line
-    print_line('Open an interactive Ruby shell on the current session.')
-    print @@irb_opts.usage
-  end
-
-  def cmd_irb_tabs(str, words)
-    return [] if words.length > 1
-    @@irb_opts.option_keys
-  end
-
-  #
-  # Open an interactive Ruby shell on the current session
-  #
-  def cmd_irb(*args)
-    expressions = []
-
-    # Parse the command options
-    @@irb_opts.parse(args) do |opt, idx, val|
-      case opt
-      when '-e'
-        expressions << val
-      when '-h'
-        return cmd_irb_help
-      end
-    end
-
-    session = client
-    framework = client.framework
-
-    if expressions.empty?
-      print_status('Starting IRB shell...')
-      print_status("You are in the \"client\" (session) object\n")
-      framework.history_manager.with_context(name: :irb) do
-        Rex::Ui::Text::IrbShell.new(client).run
-      end
-    else
-      # XXX: No vprint_status here
-      if framework.datastore['VERBOSE'].to_s == 'true'
-        print_status("You are executing expressions in #{binding.receiver}")
-      end
-
-      expressions.each { |expression| eval(expression, binding) }
-    end
-  end
-
-  def cmd_pry_help
-    print_line 'Usage: pry'
-    print_line
-    print_line 'Open the Pry debugger on the current session.'
-    print_line
-  end
-
-  #
-  # Open the Pry debugger on the current session
-  #
-  def cmd_pry(*args)
-    if args.include?('-h')
-      cmd_pry_help
-      return
-    end
-
-    begin
-      require 'pry'
-    rescue LoadError
-      print_error('Failed to load Pry, try "gem install pry"')
-      return
-    end
-
-    print_status('Starting Pry shell...')
-    print_status("You are in the \"client\" (session) object\n")
-
-    Pry.config.history_load = false
-    client.framework.history_manager.with_context(history_file: Msf::Config.pry_history, name: :pry) do
-      client.pry
-    end
-  end
 
   @@set_timeouts_opts = Rex::Parser::Arguments.new(
     '-c' => [true, 'Comms timeout (seconds)'],
@@ -1729,76 +1596,6 @@ class Console::CommandDispatcher::Core
     end
 
     return true
-  end
-
-  def cmd_resource_help
-    print_line "Usage: resource path1 [path2 ...]"
-    print_line
-    print_line "Run the commands stored in the supplied files. (- for stdin, press CTRL+D to end input from stdin)"
-    print_line "Resource files may also contain ERB or Ruby code between <ruby></ruby> tags."
-    print_line
-  end
-
-  def cmd_resource(*args)
-    if args.empty?
-      cmd_resource_help
-      return false
-    end
-
-    args.each do |res|
-      good_res = nil
-      if res == '-'
-        good_res = res
-      elsif ::File.exist?(res)
-        good_res = res
-      elsif
-        # let's check to see if it's in the scripts/resource dir (like when tab completed)
-        [
-          ::Msf::Config.script_directory + ::File::SEPARATOR + 'resource' + ::File::SEPARATOR + 'meterpreter',
-          ::Msf::Config.user_script_directory + ::File::SEPARATOR + 'resource' + ::File::SEPARATOR + 'meterpreter'
-        ].each do |dir|
-          res_path = dir + ::File::SEPARATOR + res
-          if ::File.exist?(res_path)
-            good_res = res_path
-            break
-          end
-        end
-      end
-      if good_res
-        client.console.load_resource(good_res)
-      else
-        print_error("#{res} is not a valid resource file")
-        next
-      end
-    end
-  end
-
-  def cmd_resource_tabs(str, words)
-    tabs = []
-    #return tabs if words.length > 1
-    if ( str and str =~ /^#{Regexp.escape(::File::SEPARATOR)}/ )
-      # then you are probably specifying a full path so let's just use normal file completion
-      return tab_complete_filenames(str,words)
-    elsif (not words[1] or not words[1].match(/^\//))
-      # then let's start tab completion in the scripts/resource directories
-      begin
-        [
-          ::Msf::Config.script_directory + ::File::SEPARATOR + 'resource' + ::File::SEPARATOR + 'meterpreter',
-          ::Msf::Config.user_script_directory + ::File::SEPARATOR + 'resource' + ::File::SEPARATOR + 'meterpreter',
-          '.'
-        ].each do |dir|
-          next if not ::File.exist? dir
-          tabs += ::Dir.new(dir).find_all { |e|
-            path = dir + ::File::SEPARATOR + e
-            ::File.file?(path) and ::File.readable?(path)
-          }
-        end
-      rescue Exception
-      end
-    else
-      tabs += tab_complete_filenames(str,words)
-    end
-    return tabs
   end
 
   def cmd_enable_unicode_encoding
