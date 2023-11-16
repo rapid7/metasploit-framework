@@ -73,7 +73,7 @@ module Rex
           end
 
           #
-          # Open the Pry debugger on the current session
+          # View and interact with shares
           #
           def cmd_shares(*args)
             if args.include?('-h') || args.include?('--help')
@@ -146,7 +146,7 @@ module Rex
           end
 
           #
-          # Open the Pry debugger on the current session
+          # Display the contents of your current working directory
           #
           def cmd_ls(*args)
             if args.include?('-h') || args.include?('--help')
@@ -195,7 +195,7 @@ module Rex
           end
 
           #
-          # Open the Pry debugger on the current session
+          # Print the current working directory
           #
           def cmd_pwd(*args)
             if args.include?('-h') || args.include?('--help')
@@ -222,7 +222,7 @@ module Rex
           end
 
           #
-          # Print the current remote working directory
+          # Change directory
           #
           def cmd_cd(*args)
             if args.include?('-h') || args.include?('--help') || args.length != 1
@@ -240,10 +240,16 @@ module Rex
               directory = RubySMB::SMB2::File.new(name: new_path, tree: active_share, response: response, encrypt: @tree_connect_encrypt_data)
               directory.close
             rescue RubySMB::Error::UnexpectedStatusCode => e
-              print_error('Path does not exist')
+              # Special case this error to provide better feedback to the user
+              # since I think trying to `cd` to a non-existent directory is pretty likely to accidentally happen
+              if e.status_code == WindowsError::NTStatus::STATUS_OBJECT_NAME_NOT_FOUND
+                print_error("The path `#{new_path}` is not a valid directory")
+              end
+              print_error(e.message)
+              elog(e)
               return
             rescue StandardError => e
-              print_error('Unknown error ocurred while trying to change directory')
+              print_error('Unknown error occurred while trying to change directory')
               elog(e)
               return
             end
@@ -259,7 +265,7 @@ module Rex
           end
 
           #
-          # Print the current remote working directory
+          # Print the contents of a file
           #
           def cmd_cat(*args)
             if args.include?('-h') || args.include?('--help') || args.length != 1
