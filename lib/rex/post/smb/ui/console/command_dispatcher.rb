@@ -69,7 +69,7 @@ module Rex
 
           def unknown_command(cmd, line)
             if @filtered_commands.include?(cmd)
-              print_error("The \"#{cmd}\" command is not supported by this session type (#{client.session_type})")
+              print_error("The \"#{cmd}\" command is not supported by this session type (#{session.session_type})")
               return :handled
             end
 

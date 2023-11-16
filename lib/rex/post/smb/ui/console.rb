@@ -125,7 +125,7 @@ module Rex
 
           def format_prompt(val)
             if active_share
-              share_name = active_share.share[/[^\\].*$/, 0] # active_share.share[/[^\\]+$/, 0]
+              share_name = active_share.share[/[^\\].*$/, 0]
               cwd = self.cwd.blank? ? '' : "\\#{self.cwd}"
               return substitute_colors("%undSMB%clr (#{share_name}#{cwd}) > ", true)
             end
