@@ -31,6 +31,7 @@ RSpec.describe 'kerberos keytab' do
         subject.datastore['DOMAIN_SID'] = 'S-1-5-21-1266190811-2419310613-1856291569'
         subject.datastore['NTHASH'] = '767400b2c71afa35a5dca216f2389cd9'
         subject.datastore['USER'] = 'Administrator'
+        subject.datastore['RPORT'] = ''
         # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/81d92bba-d22b-4a8c-908a-554ab29148ab
         subject.datastore['EXTRA_SIDS'] = ' S-1-18-1,  S-1-5-21-1266190811-2419310613-1856291569-519, '
         subject.datastore['SessionKey'] = 'A' * 16
