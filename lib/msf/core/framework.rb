@@ -95,10 +95,6 @@ class Framework
     events.add_ui_subscriber(subscriber)
   end
 
-  def dns_resolver
-    self.dns_resolver
-  end
-
   def inspect
     "#<Framework (#{sessions.length} sessions, #{jobs.length} jobs, #{plugins.length} plugins#{db.active ? ", #{db.driver} database active" : ""})>"
   end

@@ -314,41 +314,43 @@ module DNS
       response = ""
       nameservers = nameservers_for_packet(packet)
       nameservers.each do |ns, socket_options|
-        begin
-          @config[:udp_timeout].timeout do
-            begin
-              config = {
-                'PeerHost' => ns.to_s,
-                'PeerPort' => @config[:port].to_i,
-                'Context' => @config[:context],
-                'Comm' => @config[:comm]
-              }
-              config.update(socket_options)
-              unless config['Comm'].nil? || config['Comm'].alive?
-                @logger.warn("Session #{config['Comm'].sid} not active, and cannot be used to resolve DNS")
+        catch(:next_ns) do
+          begin
+            @config[:udp_timeout].timeout do
+              begin
+                config = {
+                  'PeerHost' => ns.to_s,
+                  'PeerPort' => @config[:port].to_i,
+                  'Context' => @config[:context],
+                  'Comm' => @config[:comm]
+                }
+                config.update(socket_options)
+                unless config['Comm'].nil? || config['Comm'].alive?
+                  @logger.warn("Session #{config['Comm'].sid} not active, and cannot be used to resolve DNS")
+                  throw :next_ns
+                end
+
+                if @config[:source_port] > 0
+                  config['LocalPort'] = @config[:source_port]
+                end
+                if @config[:source_host] != IPAddr.new('0.0.0.0')
+                  config['LocalHost'] = @config[:source_host] unless @config[:source_host].nil?
+                end
+                socket = Rex::Socket::Udp.create(config)
+              rescue
+                @logger.warn "UDP Socket could not be established to #{ns}:#{@config[:port]}"
                 throw :next_ns
               end
-
-              if @config[:source_port] > 0
-                config['LocalPort'] = @config[:source_port]
-              end
-              if @config[:source_host] != IPAddr.new('0.0.0.0')
-                config['LocalHost'] = @config[:source_host] unless @config[:source_host].nil?
-              end
-              socket = Rex::Socket::Udp.create(config)
-            rescue
-              @logger.warn "UDP Socket could not be established to #{ns}:#{@config[:port]}"
-              throw :next_ds
+              @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
+              #socket.sendto(packet_data, ns.to_s, @config[:port].to_i, 0)
+              socket.write(packet_data)
+              ans = socket.recvfrom(@config[:packet_size])
             end
-            @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
-            #socket.sendto(packet_data, ns.to_s, @config[:port].to_i, 0)
-            socket.write(packet_data)
-            ans = socket.recvfrom(@config[:packet_size])
+            break if ans
+          rescue Timeout::Error
+            @logger.warn "Nameserver #{ns} not responding within UDP timeout, trying next one"
+            throw :next_ds
           end
-          break if ans
-        rescue Timeout::Error
-          @logger.warn "Nameserver #{ns} not responding within UDP timeout, trying next one"
-          next
         end
       end
       return ans
