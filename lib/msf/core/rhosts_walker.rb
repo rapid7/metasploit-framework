@@ -39,9 +39,15 @@ module Msf
     end
 
     class InvalidSchemaError < StandardError
+      MESSAGE = 'Invalid schema'
     end
 
     class InvalidCIDRError < StandardError
+      MESSAGE = 'Invalid CIDR'
+    end
+
+    class RhostResolveError < StandardError
+      MESSAGE = 'Host resolution failed'
     end
 
     def initialize(value = '', datastore = Msf::ModuleDataStore.new(nil))
@@ -135,20 +141,30 @@ module Msf
             schema = Regexp.last_match(:schema)
             raise InvalidSchemaError unless SUPPORTED_SCHEMAS.include?(schema)
 
+            found = false
             parse_method = "parse_#{schema}_uri"
             parsed_options = send(parse_method, value, datastore)
             Rex::Socket::RangeWalker.new(parsed_options['RHOSTS']).each_ip do |ip|
               results << datastore.merge(
                 parsed_options.merge('RHOSTS' => ip, 'UNPARSED_RHOSTS' => value)
               )
+              found = true
+            end
+            unless found
+              raise RhostResolveError.new(value)
             end
           else
+            found = false
             Rex::Socket::RangeWalker.new(value).each_host do |rhost|
               overrides = {}
               overrides['UNPARSED_RHOSTS'] = value
               overrides['RHOSTS'] = rhost[:address]
               set_hostname(datastore, overrides, rhost[:hostname])
               results << datastore.merge(overrides)
+              found = true
+            end
+            unless found
+              raise RhostResolveError.new(value)
             end
           end
         rescue ::Interrupt
