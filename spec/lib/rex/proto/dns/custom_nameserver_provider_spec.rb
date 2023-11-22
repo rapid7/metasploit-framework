@@ -33,6 +33,20 @@ RSpec.describe Rex::Proto::DNS::CustomNameserverProvider do
     {:dns_cache_no_start => true}
   end
 
+  let (:framework_with_dns_enabled) do
+    framework = Object.new
+    def framework.features
+      f = Object.new
+      def f.enabled?(_name)
+        true
+      end
+
+      f
+    end
+
+    framework
+  end
+
   subject(:many_ruled_provider) do
     dns_resolver = Rex::Proto::DNS::CachedResolver.new(config)
     dns_resolver.extend(Rex::Proto::DNS::CustomNameserverProvider)
@@ -41,6 +55,7 @@ RSpec.describe Rex::Proto::DNS::CustomNameserverProvider do
     dns_resolver.add_nameserver(['*.metasploit.com'], ruled_nameserver, nil)
     dns_resolver.add_nameserver(['*.metasploit.com'], ruled_nameserver2, nil)
     dns_resolver.add_nameserver(['*.notmetasploit.com'], ruled_nameserver3, nil)
+    dns_resolver.set_framework(framework_with_dns_enabled)
 
     dns_resolver
   end
@@ -51,6 +66,7 @@ RSpec.describe Rex::Proto::DNS::CustomNameserverProvider do
     dns_resolver.nameservers = [base_nameserver]
     dns_resolver.add_nameserver([], ruleless_nameserver, nil)
     dns_resolver.add_nameserver(['*.metasploit.com'], ruled_nameserver, nil)
+    dns_resolver.set_framework(framework_with_dns_enabled)
 
     dns_resolver
   end
@@ -60,6 +76,7 @@ RSpec.describe Rex::Proto::DNS::CustomNameserverProvider do
     dns_resolver.extend(Rex::Proto::DNS::CustomNameserverProvider)
     dns_resolver.nameservers = [base_nameserver]
     dns_resolver.add_nameserver([], ruleless_nameserver, nil)
+    dns_resolver.set_framework(framework_with_dns_enabled)
 
     dns_resolver
   end
@@ -68,6 +85,7 @@ RSpec.describe Rex::Proto::DNS::CustomNameserverProvider do
     dns_resolver = Rex::Proto::DNS::CachedResolver.new(config)
     dns_resolver.extend(Rex::Proto::DNS::CustomNameserverProvider)
     dns_resolver.nameservers = [base_nameserver]
+    dns_resolver.set_framework(framework_with_dns_enabled)
 
     dns_resolver
   end

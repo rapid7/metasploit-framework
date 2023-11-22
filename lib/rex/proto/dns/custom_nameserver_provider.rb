@@ -161,6 +161,9 @@ module DNS
     # @return [Array<Array>] A list of nameservers, each with Rex::Socket options
     #
     def nameservers_for_packet(packet)
+      unless feature_set.enabled?(Msf::FeatureManager::DNS_FEATURE)
+        return super
+      end
       # Leaky abstraction: a packet could have multiple question entries,
       # and each of these could have different nameservers, or travel via
       # different comm channels. We can't allow DNS leaks, so for now, we
@@ -172,9 +175,9 @@ module DNS
 
         self.entries_with_rules.each do |entry|
           entry[:wildcard_rules].each do |rule|
-            socket_options = {}
-            socket_options['Comm'] = entry[:comm] unless entry[:comm].nil?
             if matches(name, rule)
+              socket_options = {}
+              socket_options['Comm'] = entry[:comm] unless entry[:comm].nil?
               dns_servers.append([entry[:dns_server], socket_options])
               break
             end
@@ -208,6 +211,10 @@ module DNS
       mod.init
     end
 
+    def set_framework(framework)
+      self.feature_set = framework.features
+    end
+
     private
     #
     # Is the given wildcard DNS entry valid?
@@ -228,6 +235,7 @@ module DNS
     attr_accessor :entries_with_rules # Set of custom nameserver entries that specify a rule
     attr_accessor :entries_without_rules # Set of custom nameserver entries that do not include a rule
     attr_accessor :next_id # The next ID to have been allocated to an entry
+    attr_accessor :feature_set
   end
 end
 end

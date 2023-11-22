@@ -112,11 +112,11 @@ module DNS
 
     #
     # Find the nameservers to use for a given DNS request
-    # @param dns_message [Dnsruby::Message] The DNS message to be sent
+    # @param _dns_message [Dnsruby::Message] The DNS message to be sent
     #
     # @return [Array<Array>] A list of nameservers, each with Rex::Socket options
     #
-    def nameservers_for_packet(dns_message)
+    def nameservers_for_packet(_dns_message)
       @config[:nameservers].map {|ns| [ns, {}]}
     end
 
@@ -174,7 +174,7 @@ module DNS
         method = :send_tcp
       end
 
-      ans = self.__send__(method, packet, packet_data)
+      ans = self.__send__(method, packet, packet_data, nameservers)
 
       unless (ans and ans[0].length > 0)
         @logger.fatal "No response from nameservers list: aborting"
@@ -203,13 +203,13 @@ module DNS
     #
     # @param packet [Net::DNS::Packet] Packet associated with packet_data
     # @param packet_data [String] Data segment of DNS request packet
+    # @param nameservers [Array<[String,Hash]>] List of nameservers to use for this request, and their associated socket options
     # @param prox [String] Proxy configuration for TCP socket
     #
     # @return ans [String] Raw DNS reply
-    def send_tcp(packet,packet_data,prox = @config[:proxies])
+    def send_tcp(packet, packet_data, nameservers, prox = @config[:proxies])
       ans = nil
       length = [packet_data.size].pack("n")
-      nameservers = nameservers_for_packet(packet)
       nameservers.each do |ns, socket_options|
         begin
           socket = nil
@@ -307,12 +307,12 @@ module DNS
     #
     # @param packet [Net::DNS::Packet] Packet associated with packet_data
     # @param packet_data [String] Data segment of DNS request packet
+    # @param nameservers [Array<[String,Hash]>] List of nameservers to use for this request, and their associated socket options
     #
     # @return ans [String] Raw DNS reply
-    def send_udp(packet,packet_data)
+    def send_udp(packet,packet_data, nameservers)
       ans = nil
       response = ""
-      nameservers = nameservers_for_packet(packet)
       nameservers.each do |ns, socket_options|
         catch(:next_ns) do
           begin
@@ -414,7 +414,7 @@ module DNS
 
     def supports_udp?(nameserver_results)
       nameserver_results.each do |nameserver, socket_options|
-        comm = socket_options.fetch('Comm') { @config.fetch(:comm) { Rex::Socket::SwitchBoard.best_comm(ns) }}
+        comm = socket_options.fetch('Comm') { @config[:comm] || Rex::Socket::SwitchBoard.best_comm(nameserver) }
         next if comm.nil?
         return false unless comm.supports_udp?
       end

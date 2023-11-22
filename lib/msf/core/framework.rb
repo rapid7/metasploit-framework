@@ -84,6 +84,7 @@ class Framework
 
     if options.include?('CustomDnsResolver')
       self.dns_resolver = options['CustomDnsResolver']
+      self.dns_resolver.set_framework(self)
       Rex::Socket._install_global_resolver(self.dns_resolver)
     end
 

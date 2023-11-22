@@ -41,19 +41,19 @@ class DNS
   # Tab completion for the dns command
   #
   # @param str [String] the string currently being typed before tab was hit
-  # @param words [Array<String>] the previously completed words on the command line.  words is always
-  # at least 1 when tab completion has reached this stage since the command itself has been completed
+  # @param words [Array<String>] the previously completed words on the command line. The array
+  # contains at least one entry when tab completion has reached this stage since the command itself has been completed
   def cmd_dns_tabs(str, words)
     return if driver.framework.dns_resolver.nil?
 
     if words.length == 1
-      options = ['add','del','remove','flush','print']
+      options = ['add','del','remove','purge','print']
       return options.select { |opt| opt.start_with?(str) }
     end
 
     cmd = words[1]
     case cmd
-    when 'flush','print'
+    when 'purge','print'
       # These commands don't have any arguments
       return
     when 'add'
@@ -95,33 +95,41 @@ class DNS
   end
 
   def cmd_dns_help
-    print_line 'Usage: dns'
-    print_line
     print_line "Manage Metasploit's DNS resolution behaviour"
     print_line
     print_line "Usage:"
-    print_line "  dns [add/remove] [--session <session_id>] [--rule <wildcard DNS entry>] <IP Address> <IP Address> ..."
-    print_line "  dns [get] <hostname>"
-    print_line "  dns [flush]"
+    print_line "  dns [add] [--session <session_id>] [--rule <wildcard DNS entry>] <IP Address> <IP Address> ..."
+    print_line "  dns [remove/del] -i <entry id> [-i <entry id> ...]"
+    print_line "  dns [purge]"
     print_line "  dns [print]"
     print_line
     print_line "Subcommands:"
     print_line "  add - add a DNS resolution entry to resolve certain domain names through a particular DNS server"
     print_line "  remove - delete a DNS resolution entry; 'del' is an alias"
-    print_line "  flush - remove all DNS resolution entries"
+    print_line "  purge - remove all DNS resolution entries"
     print_line "  print - show all active DNS resolution entries"
     print_line
     print_line "Examples:"
-    print_line "  Set the DNS server to be used for *.metasploit.com to 192.168.1.10"
+    print_line "  Display all current DNS nameserver entries"
+    print_line "    dns"
+    print_line "    dns print"
+    print_line
+    print_line "  Set the DNS server(s) to be used for *.metasploit.com to 192.168.1.10"
     print_line "    route add --rule *.metasploit.com 192.168.1.10"
     print_line
-    print_line "  Set the DNS server to be used for *.metasploit.com to 192.168.1.10, but specifically to go through session 2"
+    print_line "  Add multiple entries at once"
+    print_line "    route add --rule *.metasploit.com --rule *.google.com 192.168.1.10 192.168.1.11"
+    print_line
+    print_line "  Set the DNS server(s) to be used for *.metasploit.com to 192.168.1.10, but specifically to go through session 2"
     print_line "    route add --session 2 --rule *.metasploit.com 192.168.1.10"
     print_line
-    print_line "  Delete the above DNS resolution rule"
-    print_line "    route remove --session 2 --rule *.metasploit.com 192.168.1.10"
+    print_line "  Delete the DNS resolution rule with ID 3"
+    print_line "    route remove -i 3"
     print_line
-    print_line "  Set the DNS server to be used for all requests that match no rules"
+    print_line "  Delete multiple entries in one command"
+    print_line "    route remove -i 3 -i 4 -i 5"
+    print_line
+    print_line "  Set the DNS server(s) to be used for all requests that match no rules"
     print_line "    route add 8.8.8.8 8.8.4.4"
     print_line
   end
@@ -217,7 +225,7 @@ class DNS
     servers.each do |server|
       driver.framework.dns_resolver.add_nameserver(rules, server, comm_obj)
     end
-    print_good("DNS #{servers.length > 1 ? 'entries' : 'entry'} added")
+    print_good("#{servers.length} DNS #{servers.length > 1 ? 'entries' : 'entry'} added")
   end
 
   #
@@ -238,7 +246,7 @@ class DNS
     print_warning("Some entries were not removed: #{difference.join(', ')}") unless difference.empty?
     if removed.length > 0
       print_good("#{removed.length} DNS #{removed.length > 1 ? 'entries' : 'entry'} removed") 
-      print_dns_set('Deleted entries', ['ID', 'Rules(s)', 'DNS Server', 'Commm channel'], removed.map {|hash| [hash[:id], hash[:wildcard_rules].join(','), hash[:dns_server], prettify_comm(hash[:comm], hash[:dns_server])]})
+      print_dns_set('Deleted entries', removed)
     end
   end
 
@@ -256,11 +264,13 @@ class DNS
   def print_dns
     results = driver.framework.dns_resolver.nameserver_entries
     columns = ['ID','Rule(s)', 'DNS Server', 'Comm channel']
-    print_dns_set('Custom nameserver rules', columns, results[0].map {|hash| [hash[:id], hash[:wildcard_rules].join(','), hash[:dns_server], prettify_comm(hash[:comm], hash[:dns_server])]})
+    print_dns_set('Custom nameserver rules', results[0])
 
     # Default nameservers don't include a rule
     columns = ['ID', 'DNS Server', 'Comm channel']
-    print_dns_set('Default nameservers', columns, results[1].map {|hash| [hash[:id], hash[:dns_server], prettify_comm(hash[:comm], hash[:dns_server])]})
+    print_dns_set('Default nameservers', results[1])
+
+    print_line('No custom DNS nameserver entries configured') if results[0].length + results[1].length == 0
   end
 
   private
@@ -285,7 +295,14 @@ class DNS
     end
   end
 
-  def print_dns_set(heading, columns, result_set)
+  def print_dns_set(heading, result_set)
+    return if result_set.length == 0
+    if result_set[0][:wildcard_rules].any?
+      columns = ['ID', 'Rules(s)', 'DNS Server', 'Commm channel']
+    else
+      columns = ['ID', 'DNS Server', 'Commm channel']
+    end
+
     tbl = Table.new(
         Table::Style::Default,
         'Header'  => heading,
@@ -293,8 +310,12 @@ class DNS
         'Postfix' => "\n",
         'Columns' => columns
         )
-    result_set.each do |row|
-      tbl << row
+    result_set.each do |hash|
+      if columns.size == 4
+        tbl << [hash[:id], hash[:wildcard_rules].join(','), hash[:dns_server], prettify_comm(hash[:comm], hash[:dns_server])]
+      else
+        tbl << [hash[:id], hash[:dns_server], prettify_comm(hash[:comm], hash[:dns_server])]
+      end
     end
 
     print(tbl.to_s) if tbl.rows.length > 0
