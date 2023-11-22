@@ -160,6 +160,8 @@ class DNS
         print_dns
       when "help"
         cmd_dns_help
+      else
+        print_error("Invalid command. To view help: dns -h")
       end
     rescue ::ArgumentError => e
       print_error(e.message)
@@ -298,7 +300,7 @@ class DNS
   def print_dns_set(heading, result_set)
     return if result_set.length == 0
     if result_set[0][:wildcard_rules].any?
-      columns = ['ID', 'Rules(s)', 'DNS Server', 'Commm channel']
+      columns = ['ID', 'Rules(s)', 'DNS Server', 'Comm channel']
     else
       columns = ['ID', 'DNS Server', 'Commm channel']
     end

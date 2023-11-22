@@ -117,7 +117,7 @@ module DNS
     # @return [Array<Array>] A list of nameservers, each with Rex::Socket options
     #
     def nameservers_for_packet(_dns_message)
-      @config[:nameservers].map {|ns| [ns, {}]}
+      @config[:nameservers].map {|ns| [ns.to_s, {}]}
     end
 
     #
@@ -213,30 +213,30 @@ module DNS
       nameservers.each do |ns, socket_options|
         begin
           socket = nil
+          config = {
+            'PeerHost' => ns.to_s,
+            'PeerPort' => @config[:port].to_i,
+            'Proxies' => prox,
+            'Context' => @config[:context],
+            'Comm' => @config[:comm]
+          }
+          config.update(socket_options)
+          unless config['Comm'].nil? || config['Comm'].alive?
+            @logger.warn("Session #{config['Comm'].sid} not active, and cannot be used to resolve DNS")
+            throw :next_ns
+          end
+
+          suffix = " over session #{@config['Comm'].sid}" unless @config['Comm'].nil?
+          if @config[:source_port] > 0
+            config['LocalPort'] = @config[:source_port]
+          end
+          if @config[:source_host].to_s != '0.0.0.0'
+            config['LocalHost'] = @config[:source_host] unless @config[:source_host].nil?
+          end
           @config[:tcp_timeout].timeout do
             catch(:next_ns) do
               suffix = ''
               begin
-                config = {
-                  'PeerHost' => ns.to_s,
-                  'PeerPort' => @config[:port].to_i,
-                  'Proxies' => prox,
-                  'Context' => @config[:context],
-                  'Comm' => @config[:comm]
-                }
-                config.update(socket_options)
-                unless config['Comm'].nil? || config['Comm'].alive?
-                  @logger.warn("Session #{config['Comm'].sid} not active, and cannot be used to resolve DNS")
-                  throw :next_ns
-                end
-
-                suffix = " over session #{@config['Comm'].sid}" unless @config['Comm'].nil?
-                if @config[:source_port] > 0
-                  config['LocalPort'] = @config[:source_port]
-                end
-                if @config[:source_host].to_s != '0.0.0.0'
-                  config['LocalHost'] = @config[:source_host] unless @config[:source_host].nil?
-                end
                 socket = Rex::Socket::Tcp.create(config)
               rescue
                 @logger.warn "TCP Socket could not be established to #{ns}:#{@config[:port]} #{@config[:proxies]}#{suffix}"
