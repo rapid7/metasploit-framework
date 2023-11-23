@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptPath.new('USER_FILE', [ false, 'File containing usernames, one per line' ], conditions: %w[ACTION == BRUTE_FORCE]),
         OptBool.new('USE_RC4_HMAC', [ true, 'Request using RC4 hash instead of default encryption types (faster to crack)', true]),
-        OptString.new('LDAP::Rhostname', [ true, "The LDAP server's hostname", true]),
+        OptString.new('RHostname', [ true, "The domain controller's hostname"], aliases: ['LDAP::Rhostname']),
       ]
     )
 
@@ -66,6 +66,9 @@ class MetasploitModule < Msf::Auxiliary
   def run_brute
     result_count = 0
     user_file = datastore['USER_FILE']
+    if user_file.nil?
+      fail_with(Msf::Module::Failure::BadConfig, 'User file must be specified when brute forcing')
+    end
     if user_file.present?
       File.open(user_file, 'rb') do |user_fd|
         user_fd.each_line do |user_from_file|
@@ -79,17 +82,19 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
       if result_count == 0
-        print_error("No entries could be found for #{filter_string}!")
+        print_error('No users found without preauth required')
       else
         print_line
         print_status("Query returned #{result_count} result#{result_count == 1 ? '' : 's'}.")
       end
     else
-      print_error('User file is not present')
+      fail_with(Msf::Module::Failure::BadConfig, 'User file not found')
     end
   end
 
   def run_ldap
+    fail_with(Msf::Module::Failure::BadConfig, 'Must provide a username for connecting to LDAP') if (datastore['USERNAME'].nil? || datastore['USERNAME'].empty?)
+
     ldap_connect do |ldap|
       validate_bind_success!(ldap)
       unless (base_dn = discover_base_dn(ldap))
@@ -125,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def roast(username)
     res = send_request_tgt(
-      server_name: datastore['LDAP::Rhostname'],
+      server_name: datastore['RHostname'],
       client_name: username,
       realm: datastore['DOMAIN'],
       offered_etypes: etypes,
