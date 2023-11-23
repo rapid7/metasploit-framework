@@ -29,7 +29,8 @@ class Driver < Msf::Ui::Driver
     CommandDispatcher::Resource,
     CommandDispatcher::Db,
     CommandDispatcher::Creds,
-    CommandDispatcher::Developer
+    CommandDispatcher::Developer,
+    CommandDispatcher::DNS
   ]
 
   #
@@ -79,8 +80,16 @@ class Driver < Msf::Ui::Driver
 
     # Initialize attributes
 
+    dns_resolver = Rex::Proto::DNS::CachedResolver.new
+    dns_resolver.extend(Rex::Proto::DNS::CustomNameserverProvider)
+    dns_resolver.load_config
+
     # Defer loading of modules until paths from opts can be added below
-    framework_create_options = opts.merge('DeferModuleLoads' => true)
+    framework_create_options = opts.merge({
+                                            'DeferModuleLoads' => true,
+                                            'CustomDnsResolver' => dns_resolver
+                                          }
+                                         )
     self.framework = opts['Framework'] || Msf::Simple::Framework.create(framework_create_options)
 
     if self.framework.datastore['Prompt']

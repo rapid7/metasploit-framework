@@ -82,6 +82,12 @@ class Framework
     require 'msf/core/cert_provider'
     Rex::Socket::Ssl.cert_provider = Msf::Ssl::CertProvider
 
+    if options.include?('CustomDnsResolver')
+      self.dns_resolver = options['CustomDnsResolver']
+      self.dns_resolver.set_framework(self)
+      Rex::Socket._install_global_resolver(self.dns_resolver)
+    end
+
     subscriber = FrameworkEventSubscriber.new(self)
     events.add_exploit_subscriber(subscriber)
     events.add_session_subscriber(subscriber)
@@ -147,6 +153,10 @@ class Framework
     Version
   end
 
+  #
+  # DNS resolver for the framework
+  #
+  attr_reader   :dns_resolver
   #
   # Event management interface for registering event handler subscribers and
   # for interacting with the correlation engine.
@@ -278,6 +288,7 @@ protected
   #   @return [Hash]
   attr_accessor :options
 
+  attr_writer   :dns_resolver #:nodoc:
   attr_writer   :events # :nodoc:
   attr_writer   :modules # :nodoc:
   attr_writer   :datastore # :nodoc:

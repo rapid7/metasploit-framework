@@ -22,6 +22,13 @@ module Comm
   def create(param)
     raise NotImplementedError
   end
+
+  #
+  # Does the Comm support sending UDP messages?
+  #
+  def supports_udp?
+    raise NotImplementedError
+  end
 end
 
 end

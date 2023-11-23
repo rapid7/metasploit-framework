@@ -602,6 +602,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     sock
   end
 
+  def supports_udp?
+    true
+  end
+
   #
   # Get a string representation of the current session platform
   #

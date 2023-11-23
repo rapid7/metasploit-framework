@@ -975,7 +975,7 @@ module Net # :nodoc:
           end
         end
 
-        ans = self.old_send(method,packet,packet_data)
+        ans = self.old_send(method,packet,packet_data, nameservers.map {|ns| [ns, {}]})
 
         unless ans
           @logger.fatal "No response from nameservers list: aborting"
@@ -1027,7 +1027,8 @@ module Net # :nodoc:
 
         answers = []
         soa = 0
-        self.old_send(method, packet, packet_data) do |ans|
+        nameservers_and_hash = nameservers.map {|ns| [ns, {}]}
+        self.old_send(method, packet, packet_data, nameservers_and_hash) do |ans|
           @logger.info "Received #{ans[0].size} bytes from #{ans[1][2]+":"+ans[1][1].to_s}"
 
           begin
@@ -1161,12 +1162,12 @@ module Net # :nodoc:
 
       end
 
-      def send_tcp(packet,packet_data)
+      def send_tcp(packet,packet_data, nameservers)
 
         ans = nil
         length = [packet_data.size].pack("n")
 
-        @config[:nameservers].each do |ns|
+        nameservers.each do |ns, _unused|
           begin
             socket = Socket.new(Socket::AF_INET,Socket::SOCK_STREAM,0)
             socket.bind(Socket.pack_sockaddr_in(@config[:source_port],@config[:source_address].to_s))
@@ -1233,13 +1234,13 @@ module Net # :nodoc:
         return nil
       end
 
-      def send_udp(packet,packet_data)
+      def send_udp(packet, packet_data, nameservers)
         socket = UDPSocket.new
         socket.bind(@config[:source_address].to_s,@config[:source_port])
 
         ans = nil
         response = ""
-        @config[:nameservers].each do |ns|
+        nameservers.each do |ns, _unused|
           begin
             @config[:udp_timeout].timeout do
               @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
