@@ -20,4 +20,9 @@ module Msf::OptionalSession
       )
     end
   end
+
+  def session
+    return nil unless framework.features.enabled?(Msf::FeatureManager::SMB_SESSION_TYPE)
+    super
+  end
 end

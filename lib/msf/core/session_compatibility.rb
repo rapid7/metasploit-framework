@@ -79,7 +79,6 @@ module Msf
     # @return [nil] if the id provided in the datastore does not
     #   correspond to a session
     def session
-      return nil unless framework.features.enabled?(Msf::FeatureManager::SMB_SESSION_TYPE)
       # Try the cached one
       return @session if @session && !session_changed?
 
@@ -95,6 +94,8 @@ module Msf
     def session_display_info
       "Session: #{session.sid} (#{session.session_host})"
     end
+
+    alias :client :session
 
     #
     # Can be overridden by individual modules to add new commands
