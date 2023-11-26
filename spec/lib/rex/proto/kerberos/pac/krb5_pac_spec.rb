@@ -139,7 +139,6 @@ RSpec.describe Rex::Proto::Kerberos::Pac::Krb5Pac do
       pac.assign(pac_elements: pac_elements_with_upn)
       pac.sign!
       data = pac.to_binary_s
-      print("data is #{data.inspect}\n")
       result = Rex::Proto::Kerberos::Pac::Krb5Pac.read(data)
       expect(result).to eq(pac)
     end
