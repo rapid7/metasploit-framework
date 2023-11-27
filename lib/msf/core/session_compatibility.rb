@@ -176,19 +176,25 @@ module Msf
 
       # Check to make sure architectures match
       mod_arch = module_info['Arch']
-      if s.arch.blank?
-        issues << 'Unknown session arch'
-      elsif mod_arch
-        mod_arch = Array.wrap(mod_arch)
-        # Assume ARCH_CMD modules can work on supported SessionTypes since both shell and meterpreter types can execute commands
-        issues << "incompatible session architecture: #{s.arch}" unless mod_arch.include?(s.arch) || mod_arch.include?(ARCH_CMD)
+
+      if mod_arch
+        if s.arch.blank?
+          issues << 'Unknown session arch'
+        else
+          mod_arch = Array.wrap(mod_arch)
+          # Assume ARCH_CMD modules can work on supported SessionTypes since both shell and meterpreter types can execute commands
+          issues << "incompatible session architecture: #{s.arch}" unless mod_arch.include?(s.arch) || mod_arch.include?(ARCH_CMD)
+        end
       end
 
       # Arch is okay, now check the platform.
-      if s.platform.blank?
-        issues << 'Unknown session platform'
-      elsif platform && platform.is_a?(Msf::Module::PlatformList) && !platform.supports?(Msf::Module::PlatformList.transform(s.platform))
-        issues << "incompatible session platform: #{s.platform}"
+
+      if platform && platform.is_a?(Msf::Module::PlatformList) && !platform.empty?
+        if s.platform.blank?
+          issues << 'Unknown session platform'
+        elsif !platform.supports?(Msf::Module::PlatformList.transform(s.platform))
+          issues << "incompatible session platform: #{s.platform}"
+        end
       end
 
       # Check all specified meterpreter commands are provided by the remote session
