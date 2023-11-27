@@ -47,6 +47,11 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('RHostname', [ true, "The domain controller's hostname"], aliases: ['LDAP::Rhostname']),
       ]
     )
+    register_advanced_options(
+      [
+        OptEnum.new('LDAP::Auth', [true, 'The Authentication mechanism to use', Msf::Exploit::Remote::AuthOption::NTLM, Msf::Exploit::Remote::AuthOption::LDAP_OPTIONS]),
+      ]
+    )
 
     default_config_file_path = File.join(::Msf::Config.data_directory, 'auxiliary', 'gather', 'ldap_query', 'ldap_queries_default.yaml')
     loaded_queries = safe_load_queries(default_config_file_path) || []
