@@ -144,7 +144,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def forge_diamond
     validate_remote
-    validate_key!
+    validate_aes256_key!
 
     begin
       domain = datastore['DOMAIN']
@@ -220,9 +220,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def validate_remote
-    if datastore['RHOST'].nil? || datastore['RHOST'].empty?
-      fail_with(Msf::Exploit::Failure::BadConfig, 'Must specify RHOST for sapphire and diamond tickets')
-    elsif datastore['REQUEST_USER'].nil? || datastore['REQUEST_USER'].empty?
+    if datastore['RHOSTS'].blank?
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Must specify RHOSTS for sapphire and diamond tickets')
+    elsif datastore['REQUEST_USER'].blank?
       fail_with(Msf::Exploit::Failure::BadConfig, 'Must specify REQUEST_USER for sapphire and diamond tickets')
     end
   end
@@ -259,7 +259,6 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['NTHASH']
       enc_type = Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC
       key = datastore['NTHASH']
-      print_warning('Warning: newer Windows systems may not accept tickets encrypted with RC4_HMAC (NT hash). Consider using AES.')
     elsif datastore['AES_KEY']
       key = datastore['AES_KEY']
       if datastore['AES_KEY'].size == 64
@@ -285,6 +284,24 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def validate_aes256_key!
+    unless datastore['NTHASH'].blank?
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Must set an AES256 key for diamond tickets (NTHASH is currently set)')
+    end
+
+    if datastore['AES_KEY'].blank?
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Must set an AES256 key for diamond tickets')
+    end
+
+    if datastore['AES_KEY'].size == 32
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Must set an AES256 key for diamond tickets (currently set to an AES128 key)')
+    end
+
+    if datastore['AES_KEY'].size != 64
+      fail_with(Msf::Exploit::Failure::BadConfig, 'Must set an AES256 key for diamond tickets (incorrect length)')
+    end
+  end
+
   def validate_key!
     if datastore['NTHASH'].blank? && datastore['AES_KEY'].blank?
       fail_with(Msf::Exploit::Failure::BadConfig, 'NTHASH or AES_KEY must be set for forging a ticket')
@@ -298,6 +315,10 @@ class MetasploitModule < Msf::Auxiliary
 
     if datastore['AES_KEY'].present? && (datastore['AES_KEY'].size != 32 && datastore['AES_KEY'].size != 64)
       fail_with(Msf::Exploit::Failure::BadConfig, "AES key length was #{datastore['AES_KEY'].size} should be 32 or 64")
+    end
+
+    if datastore['NTHASH'].present?
+      print_warning('Warning: newer Windows systems may not accept tickets encrypted with RC4_HMAC (NT hash). Consider using AES.')
     end
   end
 
