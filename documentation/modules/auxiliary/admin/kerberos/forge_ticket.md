@@ -224,7 +224,7 @@ high-privilege) user:
 
 - Authenticating to the KDC
 - Using the S4U2Self and U2U extensions to request a TGS for a high-privilege user (this mirrors what the real user's PAC would look like, but the ticket is unusable in high-privilege contexts)
-- Using the krbtgt hash to decrypt this information
+- Decrypt this information
 - Setting properties of the forged PAC to mirror those in the valid TGT
 - Encrypting the forged ticket with the krbtgt hash
 
