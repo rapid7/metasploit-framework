@@ -29,7 +29,8 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
         ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'SessionTypes' => %w[SMB]
     )
 
     register_options([
