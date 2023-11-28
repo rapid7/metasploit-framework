@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS],
           'Reliability' => [],
-          'AKA' => ['Silver Ticket', 'Golden Ticket', 'diamond', 'sapphire', 'Ticketer', 'Klist']
+          'AKA' => ['Ticketer', 'Klist']
         },
         'Actions' => [
           ['FORGE_SILVER', { 'Description' => 'Forge a Silver Ticket' } ],
