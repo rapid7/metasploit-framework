@@ -144,7 +144,7 @@ module Msf
     def hash_job(jtr_type, cracker)
       # create the base data
       job = { 'type' => jtr_type, 'formatted_hashlist' => [], 'creds' => [], 'cred_ids_left_to_crack' => [] }
-      job['db_formats'] = jtr_to_db(jtr_type)
+      job['db_formats'] = Metasploit::Framework::PasswordCracker::JtR::Formatter.jtr_to_db(jtr_type)
       if jtr_type == 'dynamic_1034' # postgres
         creds = framework.db.creds(workspace: myworkspace, type: 'Metasploit::Credential::PostgresMD5')
       elsif ['lm', 'nt'].include? jtr_type
@@ -168,9 +168,9 @@ module Msf
         job['creds'] << core
         job['cred_ids_left_to_crack'] << core.id
         if cracker == 'john'
-          job['formatted_hashlist'] << hash_to_jtr(core)
+          job['formatted_hashlist'] << Metasploit::Framework::PasswordCracker::JtR::Formatter.hash_to_jtr(core)
         elsif cracker == 'hashcat'
-          job['formatted_hashlist'] << hash_to_hashcat(core)
+          job['formatted_hashlist'] << Metasploit::Framework::PasswordCracker::Hashcat::Formatter.hash_to_hashcat(core)
         end
       end
 
