@@ -35,8 +35,10 @@ class Msf::Modules::External::Shim
     ERB.new(File.read(template)).result(binding)
   end
 
-  def self.common_metadata(meta = {})
-    render_template('common_metadata.erb', meta)
+  def self.common_metadata(meta = {}, default_options: {})
+    # Combine any template defaults with the defaults specified within the external module's metadata
+    default_options = default_options.merge(meta[:default_options])
+    render_template('common_metadata.erb', meta.merge(default_options: default_options))
   end
 
   def self.common_check(meta = {})
@@ -54,12 +56,8 @@ class Msf::Modules::External::Shim
     meta[:capabilities]     = mod.meta['capabilities']
     meta[:notes]            = transform_notes(mod.meta['notes'])
 
-    if mod.meta['describe_payload_options'].nil?
-      mod.meta['describe_payload_options'] = {}
-    end
-    meta[:default_options]  = mod.meta['describe_payload_options'].map do |name, value|
-      "#{name.dump} => #{value.inspect}"
-    end.join(",\n          ")
+    # Additionally check the 'describe_payload_options' key for backwards compatibility
+    meta[:default_options] = (mod.meta['default_options'] || mod.meta['describe_payload_options'] || {})
 
     meta
   end
