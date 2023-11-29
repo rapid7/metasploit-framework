@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-require 'activesupport/lib/active_support/hash_with_indifferent_access'
+require 'active_support/hash_with_indifferent_access'
 
 module Msf
 module RPC
