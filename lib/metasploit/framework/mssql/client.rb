@@ -1,4 +1,3 @@
-require 'metasploit/framework/tcp/client'
 require 'metasploit/framework/mssql/tdssslproxy'
 require 'metasploit/framework/mssql/base'
 
@@ -8,8 +7,29 @@ module Metasploit
 
       module Client
         extend ActiveSupport::Concern
-        include Metasploit::Framework::Tcp::Client
         include Metasploit::Framework::MSSQL::Base
+
+        attr_accessor :sock
+        attr_accessor :max_send_size
+        attr_accessor :send_delay
+
+        included do
+          include ActiveModel::Validations
+          validates :max_send_size,
+                    presence: true,
+                    numericality: {
+                        only_integer:             true,
+                        greater_than_or_equal_to: 0
+                    }
+
+          validates :send_delay,
+                    presence: true,
+                    numericality: {
+                        only_integer:             true,
+                        greater_than_or_equal_to: 0
+                    }
+
+        end
 
         #
         # This method connects to the server over TCP and attempts
@@ -164,6 +184,7 @@ module Metasploit
 
             workstation_name = Rex::Text.rand_text_alpha(rand(8)+1)
 
+            #auth logic
             ntlm_client = ::Net::NTLM::Client.new(
               user,
               pass,
@@ -502,6 +523,75 @@ module Metasploit
 
         def mssql_ssl_send_recv(req, tdsproxy, timeout=15, check_status=true)
           tdsproxy.send_recv(req)
+        end
+
+        def connect(global = true, opts={})
+
+          dossl = false
+          if(opts.has_key?('SSL'))
+            dossl = opts['SSL']
+          else
+            dossl = ssl
+          end
+
+          nsock = Rex::Socket::Tcp.create(
+              'PeerHost'      =>  opts['RHOST'] || rhost,
+              'PeerHostname'  =>  opts['SSLServerNameIndication'] || opts['RHOSTNAME'],
+              'PeerPort'      => (opts['RPORT'] || rport).to_i,
+              'LocalHost'     =>  opts['CHOST'] || chost || "0.0.0.0",
+              'LocalPort'     => (opts['CPORT'] || cport || 0).to_i,
+              'SSL'           =>  dossl,
+              'SSLVersion'    =>  opts['SSLVersion'] || ssl_version,
+              'SSLVerifyMode' =>  opts['SSLVerifyMode'] || ssl_verify_mode,
+              'SSLCipher'     =>  opts['SSLCipher'] || ssl_cipher,
+              'Proxies'       => proxies,
+              'Timeout'       => (opts['ConnectTimeout'] || connection_timeout || 10).to_i,
+              'Context'       => { 'Msf' => framework, 'MsfExploit' => framework_module }
+              )
+          # enable evasions on this socket
+          set_tcp_evasions(nsock)
+
+          # Set this socket to the global socket as necessary
+          self.sock = nsock if (global)
+
+          return nsock
+        end
+
+        def disconnect(nsock = self.sock)
+          begin
+            if (nsock)
+              nsock.shutdown
+              nsock.close
+            end
+          rescue IOError
+          end
+
+          if (nsock == sock)
+            self.sock = nil
+          end
+
+        end
+
+        def set_tcp_evasions(socket)
+
+          if( max_send_size.to_i == 0 and send_delay.to_i == 0)
+            return
+          end
+
+          return if socket.respond_to?('evasive')
+
+          socket.extend(EvasiveTCP)
+
+          if ( max_send_size.to_i > 0)
+            socket._send_size = max_send_size
+            socket.denagle
+            socket.evasive = true
+          end
+
+          if ( send_delay.to_i > 0)
+            socket._send_delay = send_delay
+            socket.evasive = true
+          end
         end
 
         protected
