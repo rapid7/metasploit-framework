@@ -141,7 +141,7 @@ class Memory
     request.add_tlv(TLV_TYPE_PID, process.pid)
     needles.each do | needle |
       request.add_tlv(TLV_TYPE_MEMORY_SEARCH_NEEDLE, needle)
-      request.add_tlv(TLV_TYPE_MEMORY_SEARCH_NEEDLE_LEN, needle.length)
+      request.add_tlv(TLV_TYPE_MEMORY_SEARCH_NEEDLE_LEN, needle.bytesize)
     end
     request.add_tlv(TLV_TYPE_MEMORY_SEARCH_MATCH_LEN, match_len)
     request.add_tlv(TLV_TYPE_UINT, min_search_len)
