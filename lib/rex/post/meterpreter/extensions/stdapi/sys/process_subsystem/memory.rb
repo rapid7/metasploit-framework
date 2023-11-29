@@ -139,7 +139,10 @@ class Memory
     request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_SEARCH)
 
     request.add_tlv(TLV_TYPE_PID, process.pid)
-    needles.each { | needle | request.add_tlv(TLV_TYPE_MEMORY_SEARCH_NEEDLE, needle) }
+    needles.each do | needle |
+      request.add_tlv(TLV_TYPE_MEMORY_SEARCH_NEEDLE, needle)
+      request.add_tlv(TLV_TYPE_MEMORY_SEARCH_NEEDLE_LEN, needle.length)
+    end
     request.add_tlv(TLV_TYPE_MEMORY_SEARCH_MATCH_LEN, match_len)
     request.add_tlv(TLV_TYPE_UINT, min_search_len)
 
