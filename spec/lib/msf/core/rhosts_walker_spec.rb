@@ -40,12 +40,16 @@ RSpec::Matchers.define :match_errors do |expected|
     return false if actual.count != expected.count
 
     expected.zip(actual).all? do |(expected, actual)|
-      actual.instance_of?(expected.class) && actual.message == expected.message
+
+      same_message = actual.instance_of?(expected.class) && actual.message == expected.message
+      same_cause = (actual.cause.nil? && expected.cause.nil?) || (actual.cause.class == expected.cause.class)
+
+      same_message && same_cause
     end
   end
 
   failure_message do |actual|
-    "\nexpected:\n#{expected.to_a.join(",\n")}\n\ngot:\n#{actual.to_a.join(",\n")}\n\n(compared using ==)\n"
+    "\nexpected:\n#{expected.to_a.map {|e| "#{e.message} (#{e.cause})"}.join(",\n")}\n\ngot:\n#{actual.to_a.map {|e| "#{e.message} (#{e.cause})"}.join(",\n")}\n\n(compared using ==)\n"
   end
 
   failure_message_when_negated do |_actual|
@@ -321,6 +325,9 @@ RSpec.describe Msf::RhostsWalker do
   before(:each) do
     @temp_files = []
 
+    allow(::Addrinfo).to receive(:getaddrinfo).with('nonexistent.com', 0, ::Socket::AF_UNSPEC, ::Socket::SOCK_STREAM) do |*_args|
+      []
+    end
     allow(::Addrinfo).to receive(:getaddrinfo).with('example.com', 0, ::Socket::AF_UNSPEC, ::Socket::SOCK_STREAM) do |*_args|
       [::Addrinfo.new(['AF_INET', 0, 'example.com', '192.0.2.2'])]
     end
@@ -420,20 +427,23 @@ RSpec.describe Msf::RhostsWalker do
       { 'expected' => [] },
       { 'RHOSTS' => nil, 'expected' => [] },
       { 'RHOSTS' => '', 'expected' => [] },
-      { 'RHOSTS' => '-1', 'expected' => [] },
-      { 'RHOSTS' => 'http:', 'expected' => [Msf::RhostsWalker::Error.new('http:')] },
-      { 'RHOSTS' => '127.0.0.1 http:', 'expected' => [Msf::RhostsWalker::Error.new('http:')] },
-      { 'RHOSTS' => '127.0.0.1 http: 127.0.0.1 https:', 'expected' => [Msf::RhostsWalker::Error.new('http:'), Msf::RhostsWalker::Error.new('https:')] },
+      { 'RHOSTS' => '-1', 'expected' => [Msf::RhostsWalker::Error.new('-1', cause: Msf::RhostsWalker::RhostResolveError.new)] },
+      { 'RHOSTS' => 'http:', 'expected' => [Msf::RhostsWalker::Error.new('http:', cause: Addressable::URI::InvalidURIError.new)] },
+      { 'RHOSTS' => '127.0.0.1 http:', 'expected' => [Msf::RhostsWalker::Error.new('http:', cause: Addressable::URI::InvalidURIError.new)] },
+      { 'RHOSTS' => '127.0.0.1 http: 127.0.0.1 https:', 'expected' => [Msf::RhostsWalker::Error.new('http:', cause: Addressable::URI::InvalidURIError.new), Msf::RhostsWalker::Error.new('https:', cause: Addressable::URI::InvalidURIError.new)] },
       # Unknown protocols aren't validated, as there may be potential ambiguity over ipv6 addresses
       # which may technically start with a 'schema': AAA:1450:4009:822::2004. The existing rex socket
       # range walker will silently drop this value though, and it may be treated as an overall error.
-      { 'RHOSTS' => 'unknown_protocol://127.0.0.1 127.0.0.1', 'expected' => [ ] },
+      { 'RHOSTS' => 'unknown_protocol://127.0.0.1 127.0.0.1', 'expected' => [ Msf::RhostsWalker::Error.new('unknown_protocol://127.0.0.1', cause: Msf::RhostsWalker::RhostResolveError.new)] },
 
       # cidr validation
-      { 'RHOSTS' => 'cidr:127.0.0.1', 'expected' => [Msf::RhostsWalker::Error.new('cidr:127.0.0.1')] },
-      { 'RHOSTS' => 'cidr:abc/127.0.0.1', 'expected' => [Msf::RhostsWalker::Error.new('cidr:abc/127.0.0.1')] },
-      { 'RHOSTS' => 'cidr:/1000:127.0.0.1', 'expected' => [Msf::RhostsWalker::Error.new('cidr:/1000:127.0.0.1')] },
-      { 'RHOSTS' => 'cidr:%eth2:127.0.0.1', 'expected' => [Msf::RhostsWalker::Error.new('cidr:%eth2:127.0.0.1')] },
+      { 'RHOSTS' => 'cidr:127.0.0.1', 'expected' => [Msf::RhostsWalker::Error.new('cidr:127.0.0.1', cause: Msf::RhostsWalker::InvalidCIDRError.new)] },
+      { 'RHOSTS' => 'cidr:abc/127.0.0.1', 'expected' => [Msf::RhostsWalker::Error.new('cidr:abc/127.0.0.1', cause: Msf::RhostsWalker::InvalidCIDRError.new)] },
+      { 'RHOSTS' => 'cidr:/1000:127.0.0.1', 'expected' => [Msf::RhostsWalker::Error.new('cidr:/1000:127.0.0.1', cause: Msf::RhostsWalker::InvalidCIDRError.new)] },
+      { 'RHOSTS' => 'cidr:%eth2:127.0.0.1', 'expected' => [Msf::RhostsWalker::Error.new('cidr:%eth2:127.0.0.1', cause: Msf::RhostsWalker::InvalidCIDRError.new)] },
+
+      # host resolution
+      { 'RHOSTS' => 'https://nonexistent.com:9000/foo', 'expected' => [Msf::RhostsWalker::Error.new('https://nonexistent.com:9000/foo', cause: Msf::RhostsWalker::RhostResolveError.new)] },
     ].each do |test|
       it "handles the input #{test['RHOSTS'].inspect} as having the errors #{test['expected']}" do
         aux_mod.datastore['RHOSTS'] = test['RHOSTS']

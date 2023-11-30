@@ -160,7 +160,7 @@ RSpec.describe Msf::OptionContainer do
         expect { options_with_rhosts.validate(datastore) }.to raise_error(Msf::OptionValidateError) { |error|
           expected_reasons = {
             'RHOSTS' => [
-              'unexpected values: http://198.51.100.1:8080path, http://foo:bar@198.51.100.1:8080path'
+              'Unexpected values: http://198.51.100.1:8080path, http://foo:bar@198.51.100.1:8080path'
             ]
           }
           expect(error.options).to eq(['RHOSTS', 'HttpUsername', 'HttpPassword'])
