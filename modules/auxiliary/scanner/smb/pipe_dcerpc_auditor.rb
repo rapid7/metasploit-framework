@@ -14,12 +14,15 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
+  include Msf::OptionalSession
+
   def initialize
     super(
       'Name'        => 'SMB Session Pipe DCERPC Auditor',
       'Description' => 'Determine what DCERPC services are accessible over a SMB pipe',
       'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'SessionTypes' => %w[SMB]
     )
 
     deregister_options('RPORT')
@@ -251,48 +254,57 @@ class MetasploitModule < Msf::Auxiliary
 
   # Fingerprint a single host
   def run_host(ip)
+    ports = [139, 445]
 
-    [[139, false], [445, true]].each do |info|
-
-    datastore['RPORT'] = info[0]
-    datastore['SMBDirect'] = info[1]
-
-    begin
-      connect()
-      smb_login()
-
-      @@target_uuids.each do |uuid|
-
-        handle = dcerpc_handle(
-          uuid[0], uuid[1],
-          'ncacn_np', ["\\#{datastore['SMBPIPE']}"]
-        )
-
-        begin
-          dcerpc_bind(handle)
-          print_line("UUID #{uuid[0]} #{uuid[1]} OPEN VIA #{datastore['SMBPIPE']}")
-          # Add Report
-          report_note(
-            :host	=> ip,
-            :proto => 'tcp',
-            :sname	=> 'smb',
-            :port	=> rport,
-            :type	=> "UUID #{uuid[0]} #{uuid[1]}",
-            :data	=> "UUID #{uuid[0]} #{uuid[1]} OPEN VIA #{datastore['SMBPIPE']}"
-          )
-        rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-          #print_line("UUID #{uuid[0]} #{uuid[1]} ERROR 0x%.8x" % e.error_code)
-        rescue ::Exception => e
-          #print_line("UUID #{uuid[0]} #{uuid[1]} ERROR #{$!}")
-        end
-      end
-
-      disconnect()
-
-      return
-    rescue ::Exception
-      print_line($!.to_s)
+    if session
+      print_status("Using existing session #{session.sid}")
+      client = session.client
+      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
+      ports = [simple.port]
+      self.simple.connect("\\\\#{simple.address}\\IPC$") # smb_login connects to this share for some reason and it doesn't work unless we do too
     end
+
+    ports.each do |port|
+      datastore['RPORT'] = port
+
+      begin
+        unless session
+          connect()
+          smb_login()
+        end
+
+        @@target_uuids.each do |uuid|
+
+          handle = dcerpc_handle_target(
+            uuid[0], uuid[1],
+            'ncacn_np', ["\\#{datastore['SMBPIPE']}"], self.simple.address
+          )
+
+          begin
+            dcerpc_bind(handle)
+            print_line("UUID #{uuid[0]} #{uuid[1]} OPEN VIA #{datastore['SMBPIPE']}")
+            # Add Report
+            report_note(
+              :host	=> ip,
+              :proto => 'tcp',
+              :sname	=> 'smb',
+              :port	=> rport,
+              :type	=> "UUID #{uuid[0]} #{uuid[1]}",
+              :data	=> "UUID #{uuid[0]} #{uuid[1]} OPEN VIA #{datastore['SMBPIPE']}"
+            )
+          rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
+            print_line("UUID #{uuid[0]} #{uuid[1]} ERROR 0x%.8x" % e.error_code)
+          rescue StandardError => e
+            print_line("UUID #{uuid[0]} #{uuid[1]} ERROR #{$!}")
+          end
+        end
+
+        disconnect()
+
+        return
+      rescue ::Exception
+        print_line($!.to_s)
+      end
     end
   end
 

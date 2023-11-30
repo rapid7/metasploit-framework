@@ -14,6 +14,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
+  include Msf::OptionalSession
+
   def initialize(info = {})
     super(
       update_info(
@@ -38,7 +40,8 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'DefaultOptions' => {
           'DCERPC::fake_bind_multi' => false
-        }
+        },
+        'SessionTypes' => %w[SMB]
       )
     )
 
@@ -285,15 +288,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    shares = []
-
-    [{ port: SMB1_PORT }, { port: SMB2_3_PORT } ].each do |info|
-      # Assign @rport so that it is accessible via the rport method in this module,
-      # as well as making it accessible to the module mixins
-      @rport = info[:port]
-
-      begin
-        print_status 'Starting module'
+    if session
+      print_status("Using existing session #{session.sid}")
+      client = session.client
+      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
+      enum_shares(session.address)
+    else
+      [{ port: SMB1_PORT }, { port: SMB2_3_PORT } ].each do |info|
+        vprint_status("Connecting to the server...")
+        # Assign @rport so that it is accessible via the rport method in this module,
+        # as well as making it accessible to the module mixins
+        @rport = info[:port]
         if rport == SMB1_PORT
           # force library in smb1 mode otherwise simple.client is a
           # `Rex::Proto::SMB::Client` that does not supply `net_share_enum_all`
@@ -302,52 +307,7 @@ class MetasploitModule < Msf::Auxiliary
           connect(versions: [1, 2, 3])
         end
         smb_login
-
-        begin
-          # Return all shares if `Shares` option has not been set
-          if datastore['Share'].nil?
-            shares = simple.client.net_share_enum_all(ip)
-          else
-            # Return specific share if the `Share` option has been set
-            simple.client.net_share_enum_all(ip).each { |share| shares = [share] if share[:name] == datastore['Share'] }
-            # Return an error if `Share` option has been set but no matches were found
-            if shares.empty?
-              print_error("No shares match #{datastore['Share']}")
-            end
-          end
-        rescue RubySMB::Error::UnexpectedStatusCode => e
-          print_error("Error when trying to enumerate shares - #{e.status_code.name}")
-          next
-        rescue RubySMB::Error::InvalidPacket => e
-          print_error("Invalid packet received when trying to enumerate shares - #{e}")
-          next
-        end
-
-        os_info = get_os_info(ip)
-        print_status(os_info) if os_info
-
-        if shares.empty?
-          print_status('No shares available')
-        else
-          shares.each do |share|
-            print_good("#{share[:name]} - (#{share[:type]}) #{share[:comment]}")
-          end
-
-          # Map RubySMB shares to the same data format as it was with Rex SMB
-          report_shares = shares.map { |share| [share[:name], share[:type], share[:comment]] }
-          report_note(
-            host: ip,
-            proto: 'tcp',
-            port: rport,
-            type: 'smb.shares',
-            data: { shares: report_shares },
-            update: :unique_data
-          )
-
-          if datastore['SpiderShares']
-            get_files_info(ip, shares)
-          end
-        end
+        break unless enum_shares(ip).empty?
       rescue ::Interrupt
         raise $ERROR_INFO
       rescue Errno::ECONNRESET => e
@@ -358,23 +318,69 @@ class MetasploitModule < Msf::Auxiliary
         retry
       rescue Rex::ConnectionTimeout => e
         print_error(e.to_s)
-        next
       rescue Rex::Proto::SMB::Exceptions::LoginError => e
         print_error(e.to_s)
       rescue RubySMB::Error::RubySMBError => e
         print_error("RubySMB encountered an error: #{e}")
-        next
       rescue RuntimeError => e
         print_error e.to_s
-        next
       rescue StandardError => e
         vprint_error("Error: '#{ip}' '#{e.class}' '#{e}'")
       ensure
         disconnect
       end
-
-      # if we already got results, not need to try on another port
-      return unless shares.empty?
     end
+  end
+
+  def enum_shares(ip)
+    shares = []
+
+    begin
+      # Return all shares if `Shares` option has not been set
+      if datastore['Share'].nil?
+        shares = simple.client.net_share_enum_all(ip)
+      else
+        # Return specific share if the `Share` option has been set
+        simple.client.net_share_enum_all(ip).each { |share| shares = [share] if share[:name] == datastore['Share'] }
+        # Return an error if `Share` option has been set but no matches were found
+        if shares.empty?
+          print_error("No shares match #{datastore['Share']}")
+        end
+      end
+    rescue RubySMB::Error::UnexpectedStatusCode => e
+      print_error("Error when trying to enumerate shares - #{e.status_code.name}")
+      return
+    rescue RubySMB::Error::InvalidPacket => e
+      print_error("Invalid packet received when trying to enumerate shares - #{e}")
+      return
+    end
+
+    os_info = get_os_info(ip)
+    print_status(os_info) if os_info
+
+    if shares.empty?
+      print_status('No shares available')
+    else
+      shares.each do |share|
+        print_good("#{share[:name]} - (#{share[:type]}) #{share[:comment]}")
+      end
+
+      # Map RubySMB shares to the same data format as it was with Rex SMB
+      report_shares = shares.map { |share| [share[:name], share[:type], share[:comment]] }
+      report_note(
+        host: ip,
+        proto: 'tcp',
+        port: rport,
+        type: 'smb.shares',
+        data: { shares: report_shares },
+        update: :unique_data
+      )
+
+      if datastore['SpiderShares']
+        get_files_info(ip, shares)
+      end
+    end
+
+    shares
   end
 end

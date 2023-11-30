@@ -14,6 +14,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
+  include Msf::OptionalSession
+
   def initialize
     super(
       'Name'        => 'SMB Domain User Enumeration',
@@ -27,7 +29,8 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'URL', 'https://docs.microsoft.com/en-us/windows/win32/api/lmwksta/nf-lmwksta-netwkstauserenum' ]
         ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'SessionTypes' => %w[SMB]
     )
 
     deregister_options('RPORT')
@@ -122,81 +125,91 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
 
-    [[139, false], [445, true]].each do |info|
+    ports = [139, 445]
 
-    @rport = info[0]
-    @smbdirect = info[1]
+    if session
+      print_status("Using existing session #{session.sid}")
+      client = session.client
+      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
+      ports = [simple.port]
+      self.simple.connect("\\\\#{simple.address}\\IPC$") # smb_login connects to this share for some reason and it doesn't work unless we do too
+    end
 
-    begin
-      connect()
-      smb_login()
+    ports.each do |port|
 
-      uuid = [ '6bffd098-a112-3610-9833-46c3f87e345a', '1.0' ]
-
-      handle = dcerpc_handle(
-        uuid[0], uuid[1], 'ncacn_np', ["\\wkssvc"]
-      )
+      @rport = port
       begin
-        dcerpc_bind(handle)
-        stub =
-          NDR.uwstring("\\\\" + ip) + # Server Name
-          NDR.long(1) +           # Level
-          NDR.long(1) +           # Ctr
-          NDR.long(rand(0xffffffff)) +  # ref id
-          NDR.long(0) +           # entries read
-          NDR.long(0) +           # null ptr to user0
+        unless session
+          connect()
+          smb_login()
+        end
 
-          NDR.long(0xffffffff) +      # Prefmaxlen
-          NDR.long(rand(0xffffffff)) +  # ref id
-          NDR.long(0)             # null ptr to resume handle
+        uuid = [ '6bffd098-a112-3610-9833-46c3f87e345a', '1.0' ]
 
-        dcerpc.call(2,stub)
+        handle = dcerpc_handle_target(
+          uuid[0], uuid[1], 'ncacn_np', ["\\wkssvc"], simple.address
+        )
+        begin
+          dcerpc_bind(handle)
+          stub =
+            NDR.uwstring("\\\\" + simple.address) + # Server Name
+            NDR.long(1) +           # Level
+            NDR.long(1) +           # Ctr
+            NDR.long(rand(0xffffffff)) +  # ref id
+            NDR.long(0) +           # entries read
+            NDR.long(0) +           # null ptr to user0
 
-        resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
+            NDR.long(0xffffffff) +      # Prefmaxlen
+            NDR.long(rand(0xffffffff)) +  # ref id
+            NDR.long(0)             # null ptr to resume handle
 
-        accounts = parse_net_wksta_enum_users_info(resp)
-        accounts.shift
+          dcerpc.call(2,stub)
 
-        if datastore['VERBOSE']
+          resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
+
+          accounts = parse_net_wksta_enum_users_info(resp)
+          accounts.shift
+
+          if datastore['VERBOSE']
+            accounts.each do |x|
+              print_status x[:logon_domain] + "\\" + x[:account_name] +
+                "\t(logon_server: #{x[:logon_server]}, other_domains: #{x[:other_domains]})"
+            end
+          else
+            print_status "#{accounts.collect{|x| x[:logon_domain] + "\\" + x[:account_name]}.join(", ")}"
+          end
+
+          found_accounts = []
           accounts.each do |x|
-            print_status x[:logon_domain] + "\\" + x[:account_name] +
-              "\t(logon_server: #{x[:logon_server]}, other_domains: #{x[:other_domains]})"
-          end
-        else
-          print_status "#{accounts.collect{|x| x[:logon_domain] + "\\" + x[:account_name]}.join(", ")}"
-        end
-
-        found_accounts = []
-        accounts.each do |x|
-          comp_user = x[:logon_domain] + "\\" + x[:account_name]
-          found_accounts.push(comp_user.scan(/[[:print:]]/).join) unless found_accounts.include?(comp_user.scan(/[[:print:]]/).join)
-        end
-
-        found_accounts.each do |comp_user|
-          if comp_user.to_s =~ /\$$/
-            next
+            comp_user = x[:logon_domain] + "\\" + x[:account_name]
+            found_accounts.push(comp_user.scan(/[[:print:]]/).join) unless found_accounts.include?(comp_user.scan(/[[:print:]]/).join)
           end
 
-          print_good("Found user: #{comp_user}")
-          store_username(comp_user, resp, ip, rport)
+          found_accounts.each do |comp_user|
+            if comp_user.to_s =~ /\$$/
+              next
+            end
+
+            print_good("Found user: #{comp_user}")
+            store_username(comp_user, resp, simple.address, rport)
+          end
+
+        rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
+          print_error("UUID #{uuid[0]} #{uuid[1]} ERROR 0x%.8x" % e.error_code)
+          #puts e
+          #return
+        rescue ::Exception => e
+          print_error("UUID #{uuid[0]} #{uuid[1]} ERROR #{$!}")
+          #puts e
+          #return
         end
 
-      rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-        print_error("UUID #{uuid[0]} #{uuid[1]} ERROR 0x%.8x" % e.error_code)
-        #puts e
-        #return
-      rescue ::Exception => e
-        print_error("UUID #{uuid[0]} #{uuid[1]} ERROR #{$!}")
-        #puts e
-        #return
+        disconnect()
+        return
+      rescue ::Exception
+        print_line($!.to_s)
       end
-
-      disconnect()
-      return
-    rescue ::Exception
-      print_line($!.to_s)
     end
   end
-end
 
 end
