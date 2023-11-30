@@ -117,8 +117,8 @@ class MetasploitModule < Msf::Auxiliary
         username = result.samaccountname[0]
         begin
           roast(username)
-        rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError
-          print_error("#{username} reported as ASREP-roastable, but received error when attempting to retrieve TGT")
+        rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
+          print_error("#{username} reported as ASREP-roastable, but received error when attempting to retrieve TGT (#{e})")
         end
       end
       if result_count == 0
