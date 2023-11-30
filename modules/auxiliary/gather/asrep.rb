@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error('No users found without preauth required')
       else
         print_line
-        print_status("Query returned #{result_count} #{pluralize(result_count, 'result')}.")
+        print_status("Query returned #{result_count} #{'result'.pluralize(result_count)}.")
       end
     else
       fail_with(Msf::Module::Failure::BadConfig, 'User file not found')
@@ -125,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error("No entries could be found for #{filter_string}!")
       else
         print_line
-        print_status("Query returned #{result_count} result#{result_count == 1 ? '' : 's'}.")
+        print_status("Query returned #{result_count} #{'result'.pluralize(result_count)}.")
       end
     end
   end
