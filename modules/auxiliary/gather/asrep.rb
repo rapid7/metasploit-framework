@@ -77,19 +77,17 @@ class MetasploitModule < Msf::Auxiliary
     if user_file.present?
       File.open(user_file, 'rb') do |file|
         file.each_line(chomp: true) do |user_from_file|
-          begin
-            roast(user_from_file)
-            result_count += 1
-          rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError
-            # User either not present, or requires preauth
-          end
+          roast(user_from_file)
+          result_count += 1
+        rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError
+          # User either not present, or requires preauth
         end
       end
       if result_count == 0
         print_error('No users found without preauth required')
       else
         print_line
-        print_status("Query returned #{result_count} result#{result_count == 1 ? '' : 's'}.")
+        print_status("Query returned #{result_count} #{pluralize(result_count, 'result')}.")
       end
     else
       fail_with(Msf::Module::Failure::BadConfig, 'User file not found')
@@ -97,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_ldap
-    fail_with(Msf::Module::Failure::BadConfig, 'Must provide a username for connecting to LDAP') if (datastore['USERNAME'].blank?)
+    fail_with(Msf::Module::Failure::BadConfig, 'Must provide a username for connecting to LDAP') if datastore['USERNAME'].blank?
 
     ldap_connect do |ldap|
       validate_bind_success!(ldap)
