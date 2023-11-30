@@ -29,7 +29,7 @@ The Fully Qualified Domain Name (FQDN). Ex: mydomain.local.
 ### USER_FILE
 The file containing a list of usernames, each on a new line.
 
-### RHostname
+### Rhostname
 
 The hostname of the domain controller. Must be accurate otherwise the module will silently fail, even if users exist without pre-auth required.
 
