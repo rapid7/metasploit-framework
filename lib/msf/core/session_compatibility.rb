@@ -27,6 +27,10 @@ module Msf
         raise Msf::OptionValidateError, ['SESSION']
       end
 
+      if options['SESSION'] && session.nil?
+        raise Msf::OptionValidateError, ['SESSION']
+      end
+
       # Msf::Exploit#setup for exploits, NoMethodError for post modules
       super rescue NoMethodError
 
