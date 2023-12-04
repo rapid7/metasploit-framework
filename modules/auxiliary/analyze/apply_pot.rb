@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
     hashlist = Rex::Quickfile.new("hashes_tmp")
     framework.db.creds(workspace: myworkspace).each do |core|
       next if core.private.type == 'Metasploit::Credential::Password'
-      jtr_hash = hash_to_jtr(core)
+      jtr_hash = Metasploit::Framework::PasswordCracker::JtR::Formatter.hash_to_jtr(core)
       hashlist.puts jtr_hash
       lookups << HashLookup.new(core.private.data, jtr_hash, core.public, core.id)
     end

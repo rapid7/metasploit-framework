@@ -10,7 +10,7 @@
   Formats:
 
 | Common               | John | Hashcat |
-|----------------------| -----|---------|
+| -------------------- | ---- | ------- |
 | android-md5          | n/a  | 10      |
 | android-samsung-sha1 | n/a  | 5800    |
 | android-sha1         | n/a  | 110     |
@@ -29,62 +29,62 @@
 
 ## Actions
 
-   **hashcat**
+### hashcat
 
-   Use hashcat (default).
+Use hashcat (default).
 
 ## Options
 
-   **MD5**
+### MD5
 
-   Crack `android-md5` based passwords.  Default is `true`
+Crack `android-md5` based passwords.  Default is `true`
 
-   **SHA1**
+### SHA1
 
-   Crack `android-sha1` (non-samsung) based passwords.  Default is `true`
+Crack `android-sha1` (non-samsung) based passwords.  Default is `true`
 
-   **SAMSUNG**
+### SAMSUNG
 
-   Crack `android-samsung-sha1` based passwords.  Default is `true`
+Crack `android-samsung-sha1` based passwords.  Default is `true`
 
-   **CONFIG**
+### CONFIG
 
-   The path to a John config file (JtR option: `--config`).  Default is `metasploit-framework/data/john.conf`
+The path to a John config file (JtR option: `--config`).  Default is `metasploit-framework/data/john.conf`
 
-   **CRACKER_PATH**
+### CRACKER_PATH
 
-   The absolute path to the cracker executable.  Default behavior is to search `path`.
+The absolute path to the cracker executable.  Default behavior is to search `path`.
 
-   **CUSTOM_WORDLIST**
+### CUSTOM_WORDLIST
 
-   The path to an optional custom wordlist.  This file is added to the new wordlist which may include the other
-   `USE` items like `USE_CREDS`, and have `MUTATE` or `KORELOGIC` applied to it.
+The path to an optional custom wordlist.  This file is added to the new wordlist which may include the other
+`USE` items like `USE_CREDS`, and have `MUTATE` or `KORELOGIC` applied to it.
 
-   **DeleteTempFiles**
+### DeleteTempFiles
 
-   This option will prevent deletion of the wordlist and file containing hashes.  This may be useful for
-   running the hashes through john if it wasn't cracked, or for debugging. Default is `false`.
+This option will prevent deletion of the wordlist and file containing hashes.  This may be useful for
+running the hashes through john if it wasn't cracked, or for debugging. Default is `false`.
 
-   **Fork**
+### Fork
 
-   This option will set how many forks to use on john the ripper.  Default is `1` (no forking).
+This option will set how many forks to use on john the ripper.  Default is `1` (no forking).
 
-   **INCREMENTAL**
+### INCREMENTAL
 
-   Run the cracker in incremental mode.  Default is `true`
+Run the cracker in incremental mode.  Default is `true`
 
-   **ITERATION_TIMEOUT**
+### ITERATION_TIMEOUT
 
-   The max-run-time for each iteration of cracking
+The max-run-time for each iteration of cracking
 
-   **KORELOGIC**
+### KORELOGIC
 
-   Apply the [KoreLogic rules](http://contest-2010.korelogic.com/rules.html) to Wordlist Mode (slower).
-   Default is `false`.
+Apply the [KoreLogic rules](http://contest-2010.korelogic.com/rules.html) to Wordlist Mode (slower).
+Default is `false`.
 
-   **MUTATE**
+### MUTATE
 
-   Apply common mutations to the Wordlist (SLOW).  Mutations are:
+Apply common mutations to the Wordlist (SLOW).  Mutations are:
 
    * `'@' => 'a'`
    * `'0' => 'o'`
@@ -94,44 +94,44 @@
    * `'1' => 'l'`
    * `'5' => 's'`
 
-   Default is `false`.
+Default is `false`.
 
-   **POT**
+### POT
 
-   The path to a John POT file (JtR option: `--pot`) to use instead.  The `pot` file is the data file which
-   records cracked password hashes.  Kali linux's default location is `/root/.john/john.pot`.
-   Default is `~/.msf4/john.pot`.
+The path to a John POT file (JtR option: `--pot`) to use instead.  The `pot` file is the data file which
+records cracked password hashes.  Kali linux's default location is `/root/.john/john.pot`.
+Default is `~/.msf4/john.pot`.
 
-   **SHOWCOMMAND**
+### SHOWCOMMAND
 
-   Show the command being used run from the command line for debugging.  Default is `false`
+Show the command being used run from the command line for debugging.  Default is `false`
 
-   **USE_CREDS**
+### USE_CREDS
 
-   Use existing credential data saved in the database.  Default is `true`.
+Use existing credential data saved in the database.  Default is `true`.
 
-   **USE_DB_INFO**
+### USE_DB_INFO
 
-   Use looted database schema info to seed the wordlist.  This includes the Database Name, each Table Name,
-   and each Column Name.  If the DB is MSSQL, the Instance Name is also used.  Default is `true`.
+Use looted database schema info to seed the wordlist.  This includes the Database Name, each Table Name,
+and each Column Name.  If the DB is MSSQL, the Instance Name is also used.  Default is `true`.
 
-   **USE_DEFAULT_WORDLIST**
+### USE_DEFAULT_WORDLIST
 
-   Use the default metasploit wordlist in `metasploit-framework/data/wordlists/password.lst`.  Default is
-   `true`.
+Use the default metasploit wordlist in `metasploit-framework/data/wordlists/password.lst`.  Default is
+`true`.
 
-   **USE_HOSTNAMES**
+### USE_HOSTNAMES
 
    Seed the wordlist with hostnames from the workspace.  Default is `true`.
 
-   **USE_ROOT_WORDS**
+### USE_ROOT_WORDS
 
-   Use the Common Root Words Wordlist in `metasploit-framework/data/wordlists/common_roots.txt`.  Default
-   is true.
+Use the Common Root Words Wordlist in `metasploit-framework/data/wordlists/common_roots.txt`.  Default
+is true.
 
-   **WORDLIST**
+### WORDLIST
 
-   Run the cracker in dictionary/wordlist mode.  Default is `true`
+Run the cracker in dictionary/wordlist mode.  Default is `true`
 
 ## Scenarios
 
@@ -141,7 +141,9 @@ The following is data which can be used to test integration, including adding en
 to a wordlist and pot file to test various aspects of the cracker.
 
 ```
-creds add user:androidsha1 hash:D1B19A90B87FC10C304E657F37162445DAE27D16:a006983800cc3dd1 jtr:android-sha1
+creds add user:samsungsha1 hash:D1B19A90B87FC10C304E657F37162445DAE27D16:a006983800cc3dd1 jtr:android-samsung-sha1
+creds add user:androidsha1 hash:9860A48CA459D054F3FEF0F8518CF6872923DAE2:81fcb23bcadd6c5 jtr:android-sha1
+creds add user:androidmd5 hash:1C0A0FDB673FBA36BEAEB078322C7393:81fcb23bcadd6c5 jtr:android-md5
 ```
 
 ### Hashcat
