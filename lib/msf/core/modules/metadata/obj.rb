@@ -8,6 +8,8 @@ module Modules
 module Metadata
 
 class Obj
+  # @return [Hash]
+  attr_reader :actions
   # @return [String]
   attr_reader :name
   # @return [String]
@@ -98,6 +100,15 @@ class Obj
     @ref_name           = module_instance.class.refname
     @needs_cleanup      = module_instance.respond_to?(:needs_cleanup) && module_instance.needs_cleanup
 
+    if module_instance.respond_to?(:actions)
+      @actions = module_instance.actions.sort_by(&:name).map do |action|
+        {
+          'name' => action.name,
+          'description' => action.description
+        }
+      end
+    end
+
     if module_instance.respond_to?(:autofilter_ports)
       @autofilter_ports = module_instance.autofilter_ports
     end
@@ -171,6 +182,8 @@ class Obj
       'needs_cleanup'      => @needs_cleanup,
     }
 
+    data['actions'] = @actions if @actions
+
     if @payload_type
       payload_data = {
         'payload_type'       => @payload_type,
@@ -211,6 +224,7 @@ class Obj
   #######
 
   def init_from_hash(obj_hash)
+    @actions             = obj_hash['actions']
     @name                = obj_hash['name']
     @fullname            = obj_hash['fullname']
     @aliases             = obj_hash['aliases'] || []
@@ -257,6 +271,16 @@ class Obj
   end
 
   def force_encoding(encoding)
+    if @actions
+      # Encode the actions hashes, assumes that there are no nested hashes
+      @actions = @actions.map do |action|
+        action.map do |k, v|
+          new_key = k.dup.force_encoding(encoding)
+          new_value = v.is_a?(String) ? v.dup.force_encoding(encoding) : v
+          [new_key, new_value]
+        end.to_h
+      end
+    end
     @name = @name.dup.force_encoding(encoding)
     @fullname = @fullname.dup.force_encoding(encoding)
     @description = @description.dup.force_encoding(encoding)

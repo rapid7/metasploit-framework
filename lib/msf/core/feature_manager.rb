@@ -21,6 +21,7 @@ module Msf
     METASPLOIT_PAYLOAD_WARNINGS = 'metasploit_payload_warnings'
     DEFER_MODULE_LOADS = 'defer_module_loads'
     DNS_FEATURE = 'dns_feature'
+    HIERARCHICAL_SEARCH_TABLE = 'hierarchical_search_table'
     DEFAULTS = [
       {
         name: WRAPPED_TABLES,
@@ -58,6 +59,12 @@ module Msf
       {
         name: DNS_FEATURE,
         description: 'When enabled, allows configuration of DNS resolution behaviour in Metasploit',
+        requires_restart: false,
+        default_value: false
+      }.freeze,
+      {
+        name: HIERARCHICAL_SEARCH_TABLE,
+        description: 'When enabled, the search table is enhanced to show details on module actions and targets',
         requires_restart: false,
         default_value: false
       }.freeze
