@@ -202,7 +202,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     rescue ::Exception => e
       print_error("#{simple.address}: #{e.class} #{e}")
-      u    ensure
+    ensure
       disconnect
     end
   end
