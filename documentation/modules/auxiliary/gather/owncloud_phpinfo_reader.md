@@ -85,7 +85,7 @@ You may need to add an aditional entry to `OWNCLOUD_TRUSTED_DOMAINS` which has t
 If the `graph` app needs to be installed, use the following instructions:
 
 ```
-docker exec -it owncloud /bin/bash
+docker exec -it owncloud_server /bin/bash
 cd apps
 wget "$(curl 'https://marketplace.owncloud.com/ajax/apps/graphapi/0.3.0' | sed 's/\\//g' | cut -d '"' -f 4)" -O graphapi-0.3.0.tar.gz
 rm -rf graphapi
