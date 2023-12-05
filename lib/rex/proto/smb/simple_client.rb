@@ -53,7 +53,7 @@ class SimpleClient
         'obscure_trans_pipe' => EVADE::EVASION_NONE,
       }
     end
-    @address, @port = self.client.dispatcher.tcp_socket.peerinfo.split(':')
+    @address, @port = self.socket.peerinfo.split(':')
   end
 
   def login(name = '', user = '', pass = '', domain = '',
