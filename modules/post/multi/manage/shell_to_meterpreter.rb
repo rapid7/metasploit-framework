@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Post
   include Post::Architecture
   include Post::Windows::Powershell
 
-  VALID_PSH_ARCH_OVERRIDE = ['x64', 'x86', '']
+  VALID_PSH_ARCH_OVERRIDE = ['x64', 'x86']
   VALID_PLATFORM_OVERRIDE = Msf::Platform.find_children.map { |plat| plat.realname.downcase }
 
   def initialize(info = {})
