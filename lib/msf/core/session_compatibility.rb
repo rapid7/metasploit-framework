@@ -27,7 +27,7 @@ module Msf
         raise Msf::OptionValidateError, ['SESSION']
       end
 
-      if options['SESSION'] && session.nil?
+      if datastore['SESSION'] && session.nil?
         raise Msf::OptionValidateError, ['SESSION']
       end
 
