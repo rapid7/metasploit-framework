@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Common
   include Msf::Post::Windows::UserProfiles
 
-  def initialize(info={})
+  def initialize(info = {})
     super(
       update_info(
         info,
@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Post
   def check_appdata(path)
     client.fs.file.stat(path)
     print_good("Found File at #{path}")
-  
+
     if datastore['VERBOSE']
       print_hexdump(path)
     end
