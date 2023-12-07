@@ -28,7 +28,7 @@ This attack assumes that the attacker has:
 3. A compromised domain account (no special privileges are necessary).
 4. The ability to fully compromise a target system through some means.
 5. (Optional but recommended) Metasploit running with an attached database so the Kerberos ticket cache can be used.
-  Verify this using `db_status` command.
+  Verify this using the `db_status` command.
 
 At a high-level the summary to leverage this attack chain is:
 
@@ -113,7 +113,7 @@ CN=DC OU=Domain Controllers DC=msflab DC=local
 msf6 auxiliary(gather/ldap_query) >
 ```
 
-This show that DC is a domain controller and should be removed from the list, leaving WS01 as the only viable target.
+This shows that DC is a domain controller and should be removed from the list, leaving WS01 as the only viable target.
 
 ### Exploitation
 Now the WS01 system needs to be compromised through some means to obtain a Meterpreter session. Once a Meterpreter
