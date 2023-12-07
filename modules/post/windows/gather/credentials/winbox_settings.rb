@@ -40,16 +40,9 @@ class MetasploitModule < Msf::Post
         }
       )
     )
-
-    register_options(
-      [
-        OptBool.new('VERBOSE', [false, 'HexDump settings.cfg.viw files', false])
-      ]
-    )
   end
 
   def run
-    print_status("VERBOSE: #{datastore['VERBOSE']}")
     print_status('Checking Default Locations...')
     grab_user_profiles.each do |user|
       next if user['AppData'].nil?
