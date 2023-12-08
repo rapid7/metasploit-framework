@@ -292,7 +292,7 @@ queries:
     references:
       - http://www.ldapexplorer.com/en/manual/109050000-famous-filters.htm
   - action: ENUM_UNCONSTRAINED_DELEGATION
-    description: 'Dump info about all known objects that allow uncontrained delegation.'
+    description: 'Dump info about all known objects that allow unconstrained delegation.'
     filter: '(userAccountControl:1.2.840.113556.1.4.803:=524288)'
     attributes:
       - cn

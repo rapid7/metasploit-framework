@@ -135,9 +135,7 @@ class MetasploitModule < Msf::Post
       addr = session.railgun.util.alloc_and_write_wstring('Kali-Team')
       client.railgun.user32.SendMessageW(window_hwnd, 'WM_GETTEXT', 1024, addr)
       text = session.railgun.util.read_wstring(addr)
-      client.railgun.multi([
-        ['kernel32', 'VirtualFree', [addr, 0, MEM_RELEASE]],
-      ])
+      session.railgun.util.free_data(addr)
       if text.strip == ''
         return nil
       else

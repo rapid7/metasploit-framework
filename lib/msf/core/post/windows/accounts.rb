@@ -475,10 +475,7 @@ module Msf
             0x0
           ].pack(client.arch == ARCH_X86 ? 'VVVVVVVV' : 'QQVVQQVQ')
           result = client.railgun.netapi32.NetUserAdd(server_name, 1, user_info, 4)
-          client.railgun.multi([
-            ['kernel32', 'VirtualFree', [addr_username, 0, MEM_RELEASE]], #  addr_username
-            ['kernel32', 'VirtualFree', [addr_password, 0, MEM_RELEASE]], #  addr_password
-          ])
+          session.railgun.util.free_data(addr_username, addr_password)
           return result
         end
 
@@ -505,9 +502,7 @@ module Msf
             0x0 #  lgrpi1_comment
           ].pack(client.arch == ARCH_X86 ? 'VV' : 'QQ')
           result = client.railgun.netapi32.NetLocalGroupAdd(server_name, 1, localgroup_info, 4)
-          client.railgun.multi([
-            ['kernel32', 'VirtualFree', [addr_group, 0, MEM_RELEASE]], #  addr_group
-          ])
+          session.railgun.util.free_data(addr_group)
           return result
         end
 
@@ -533,9 +528,7 @@ module Msf
             0x0
           ].pack(client.arch == ARCH_X86 ? 'VV' : 'QQ')
           result = client.railgun.netapi32.NetGroupAdd(server_name, 1, group_info_1, 4)
-          client.railgun.multi([
-            ['kernel32', 'VirtualFree', [addr_group, 0, MEM_RELEASE]], #  addr_group
-          ])
+          session.railgun.util.free_data(addr_group)
           return result
         end
 
@@ -561,9 +554,7 @@ module Msf
             addr_username,
           ].pack(client.arch == ARCH_X86 ? 'V' : 'Q')
           result = client.railgun.netapi32.NetLocalGroupAddMembers(server_name, localgroup, 3, localgroup_members, 1)
-          client.railgun.multi([
-            ['kernel32', 'VirtualFree', [addr_username, 0, MEM_RELEASE]],
-          ])
+          session.railgun.util.free_data(addr_username)
           return result
         end
 
