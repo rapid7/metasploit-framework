@@ -317,6 +317,7 @@ class  Util
   def initialize(railgun, arch)
     @railgun = railgun
     @is_64bit = arch == ARCH_X64
+    @process_heap = nil
   end
 
   #
@@ -346,6 +347,28 @@ class  Util
     end
 
     return pointer.nil? || pointer == 0
+  end
+
+  def alloc_and_write_data(data)
+    return nil if data.nil? || process_heap.nil?
+
+    result = railgun.kernel32.HeapAlloc(process_heap, railgun.const('HEAP_ZERO'), data.length)
+    return nil if result['return'].nil?
+
+    addr = result['return']
+    return nil unless railgun.memwrite(addr, data, data.length)
+
+    addr
+  end
+
+  def free_data(*ptrs)
+    return false if ptrs.empty?
+    return false if process_heap.nil?
+
+    results = railgun.multi(
+      ptrs.map { |ptr| ['kernel32', 'HeapFree', [process_heap, 0, ptr.to_i]] }
+    )
+    results.map { |res| res['return'] }.all?
   end
 
   #
@@ -382,20 +405,12 @@ class  Util
   # InitializeUnicodeStr(&uStr, sL"string");
   #
   def alloc_and_write_wstring(value)
-    return nil if value == nil
+    return nil if value.nil?
 
-    data = str_to_uni_z(value)
-    result = railgun.kernel32.VirtualAlloc(nil, data.length, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE)
-    if result['return'].nil?
-      return nil
-    end
-    addr = result['return']
-    if railgun.memwrite(addr, data, data.length)
-      return addr
-    else
-      return nil
-    end
+    alloc_and_write_data(str_to_uniz_a(value))
   end
+
+  alias free_wstring free_data
 
   #
   # Write ASCII strings to memory.
@@ -404,20 +419,12 @@ class  Util
   # InitializeStr(&Str,"string");
   #
   def alloc_and_write_string(value)
-    return nil if value == nil
+    return nil if value.nil?
 
-    data = str_to_ascii_z(value)
-    result = railgun.kernel32.VirtualAlloc(nil, data.length, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE)
-    if result['return'].nil?
-      return nil
-    end
-    addr = result['return']
-    if railgun.memwrite(addr, data, data.length)
-      return addr
-    else
-      return nil
-    end
+    alloc_and_write_data(str_to_ascii_z(value))
   end
+
+  alias free_string free_data
 
   #
   # Reads null-terminated ASCII strings from memory.
@@ -704,6 +711,16 @@ class  Util
   protected
 
   attr_accessor :railgun, :is_64bit
+
+  private
+
+  def process_heap
+    return @process_heap unless @process_heap.nil?
+
+    handle = railgun.kernel32.GetProcessHeap()['return']
+    return nil if handle == 0
+    @process_heap = handle
+  end
 end # Util
 end # Railgun
 end # Stdapi

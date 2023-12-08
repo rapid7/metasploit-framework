@@ -749,4 +749,32 @@ module Rex::Proto::MsDtyp
       offset
     end
   end
+
+  # [2.3.7 LUID](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/48cbee2a-0790-45f2-8269-931d7083b2c3)
+  class MsDtypLuid < BinData::Record
+    endian :little
+
+    uint32 :low_part
+    int32  :high_part
+
+    def to_s
+      "0x#{high_part.to_i.to_s(16)}#{low_part.to_i.to_s(16).rjust(8, '0')}"
+    end
+  end
+
+  # [2.3.5 LARGE_INTEGER](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/e904b1ba-f774-4203-ba1b-66485165ab1a)
+  class MsDtypLargeInteger < BinData::Record
+    endian :big_and_little
+
+    uint32 :low_part
+    int32  :high_part
+
+    def to_datetime
+      RubySMB::Field::FileTime.new(to_i).to_datetime
+    end
+
+    def to_i
+      (high_part.to_i << 32) | low_part.to_i
+    end
+  end
 end

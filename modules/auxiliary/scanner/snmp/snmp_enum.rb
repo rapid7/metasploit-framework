@@ -19,7 +19,9 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://en.wikipedia.org/wiki/Simple_Network_Management_Protocol' ],
           [ 'URL', 'https://net-snmp.sourceforge.io/docs/man/snmpwalk.html' ],
           [ 'URL', 'http://www.nothink.org/codes/snmpcheck/index.php' ],
-        ],
+          [ 'CVE', '1999-0508' ], # Weak password
+          [ 'CVE', '1999-0517' ],
+          [ 'CVE', '1999-0516' ]        ],
       'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
       'License'     => MSF_LICENSE
     ))

@@ -44,15 +44,16 @@ class Library
   include LibraryHelper
 
   @@datatype_map = {
-    'HANDLE'  => 'LPVOID',
+    'HANDLE'   => 'LPVOID',
     # really should be PVOID* but LPVOID is handled specially with the 'L' prefix to *not* treat it as a pointer, and
     # for railgun's purposes LPVOID == ULONG_PTR
-    'PHANDLE' => 'PULONG_PTR',
-    'SIZE_T'  => 'ULONG_PTR',
-    'PSIZE_T' => 'PULONG_PTR',
-    'PLPVOID' => 'PULONG_PTR',
-    'ULONG'   => 'DWORD',
-    'PULONG'  => 'PDWORD'
+    'PHANDLE'  => 'PULONG_PTR',
+    'SIZE_T'   => 'ULONG_PTR',
+    'PSIZE_T'  => 'PULONG_PTR',
+    'PLPVOID'  => 'PULONG_PTR',
+    'ULONG'    => 'DWORD',
+    'PULONG'   => 'PDWORD',
+    'NTSTATUS' => 'DWORD'
   }.freeze
 
   attr_accessor :functions
@@ -206,10 +207,14 @@ class Library
       #puts "  processing (#{param_desc[0]}, #{param_desc[1]}, #{param_desc[2]})"
       buffer = nil
       # is it a pointer to a buffer on our stack
-      if ['PULONG_PTR', 'PDWORD', 'PWCHAR', 'PCHAR', 'PBLOB'].include? param_desc[0]
-        #puts '   pointer'
-        if args[param_idx] == nil # null pointer?
-          buffer  = [0].pack(native) # type: DWORD  (so the library does not rebase it)
+      if ['PULONG_PTR', 'PDWORD', 'PWCHAR', 'PCHAR', 'PBLOB'].include?(param_desc[0])
+        if ['PWCHAR', 'PCHAR', 'PBLOB'].include?(param_desc[0]) && param_desc[2] == 'in' && args[param_idx].is_a?(Integer)
+          # allow PWCHAR, PCHAR and PBLOB to also be passed as a pointer instead of a buffer
+          buffer  = [0].pack(native)
+          num     = param_to_number(args[param_idx])
+          buffer += [num].pack(native)
+        elsif args[param_idx] == nil # null pointer?
+          buffer  = [0].pack(native) # type: LPVOID  (so the library does not rebase it)
           buffer += [0].pack(native) # value: 0
         elsif param_desc[2] == 'in'
           buffer  = [1].pack(native)
