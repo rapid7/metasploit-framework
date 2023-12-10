@@ -83,3 +83,10 @@ msf6 auxiliary(scanner/nessus/nessus_rest_login) > run
 msf6 auxiliary(scanner/nessus/nessus_rest_login) >
 ```
 
+## Installation Steps
+This is a serise of instalation steps for downloading, installing and running nessus on Debian. They are as follows:
+1. Go to tenable.com.
+2. Download the latest version of nessus. Take note of the version number.
+3. Run the following command in the same directory as the .deb file: ```dpkg -i Nessus-<version number>-debian6_amd64.deb```
+4. Restart nessus with the ```systemctl start nessusd``` command.
+5. Use your browser to access port 8834 on local host (https://localhost:8834).
