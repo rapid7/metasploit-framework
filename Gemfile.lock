@@ -80,7 +80,7 @@ PATH
       rex-zip
       ruby-macho
       ruby-mysql
-      ruby_smb (~> 3.2.0)
+      ruby_smb (~> 3.3.0)
       rubyntlm
       rubyzip
       sinatra
@@ -473,7 +473,7 @@ GEM
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (3.2.6)
+    ruby_smb (3.3.0)
       bindata
       openssl-ccm
       openssl-cmac
