@@ -1,4 +1,6 @@
 # -*- coding: binary -*-
+require 'active_support/hash_with_indifferent_access'
+
 module Msf
 module RPC
 class RPC_Plugin < RPC_Base
@@ -17,7 +19,7 @@ class RPC_Plugin < RPC_Base
   #  # Load the nexpose plugin
   #  rpc.call('plugin.load', 'nexpose')
   def rpc_load(path, xopts = {})
-    opts = {}
+    opts = ActiveSupport::HashWithIndifferentAccess.new
 
     xopts.each do |k, v|
       if k.class == String
