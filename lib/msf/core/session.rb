@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+require 'rex'
+
 module Msf
 
 

@@ -49,6 +49,12 @@ module Console::CommandDispatcher
     shell.client
   end
 
+  # A meterpreter session *is* a client but for the smb session it *has* a (ruby smb) client
+  # adding this here for parity with the smb session
+  def session
+    shell.client
+  end
+
   #
   # Returns the commands that meet the requirements
   #

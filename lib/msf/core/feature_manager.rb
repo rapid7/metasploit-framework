@@ -22,6 +22,7 @@ module Msf
     DEFER_MODULE_LOADS = 'defer_module_loads'
     DNS_FEATURE = 'dns_feature'
     HIERARCHICAL_SEARCH_TABLE = 'hierarchical_search_table'
+    SMB_SESSION_TYPE = 'smb_session_type'
     DEFAULTS = [
       {
         name: WRAPPED_TABLES,
@@ -61,6 +62,12 @@ module Msf
         requires_restart: true,
         default_value: false,
         developer_notes: 'Planned for default enablement in: Metasploit 6.4.x'
+      }.freeze,
+      {
+        name: SMB_SESSION_TYPE,
+        description: 'When enabled will allow for the creation/use of smb sessions',
+        requires_restart: true,
+        default_value: false
       }.freeze,
       {
         name: DNS_FEATURE,
