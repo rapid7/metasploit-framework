@@ -51,6 +51,7 @@ RUN mkdir -p $TOOLS_HOME/bin && \
 
 FROM ruby:3.1.4-alpine3.18
 LABEL maintainer="Rapid7"
+ARG TARGETARCH
 
 ENV APP_HOME=/usr/src/metasploit-framework
 ENV TOOLS_HOME=/usr/src/tools
@@ -62,7 +63,13 @@ RUN addgroup -S $METASPLOIT_GROUP
 
 RUN apk add --no-cache bash sqlite-libs nmap nmap-scripts nmap-nselibs \
     postgresql-libs python3 py3-pip ncurses libcap su-exec alpine-sdk \
-    openssl-dev nasm mingw-w64-gcc
+    openssl-dev nasm
+RUN\
+    if [ "${TARGETARCH}" = "arm64" ];\
+	then apk add --no-cache gcc musl-dev python3-dev libffi-dev gcompat;\
+    else apk add --no-cache mingw-w64-gcc;\
+    fi
+
 
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which ruby)
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which nmap)
