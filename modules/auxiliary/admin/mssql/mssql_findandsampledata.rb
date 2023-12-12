@@ -346,7 +346,7 @@ class MetasploitModule < Msf::Auxiliary
       column_data = result[:rows]
       print_good("Successfully connected to #{rhost}:#{rport}")
     rescue
-      print_error("Failed to connect to #{rhost}:#{rport}.")
+      print_error("Failed to connect to #{rhost}:#{rport}")
     return
     end
 

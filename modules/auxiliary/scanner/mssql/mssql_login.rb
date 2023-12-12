@@ -6,12 +6,13 @@
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/mssql'
 require 'rex/proto/mssql/client'
+require 'rex/post/mssql'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
-
+  include Msf::Auxiliary::CommandShell
   include Msf::Auxiliary::Scanner
 
   def initialize
@@ -35,14 +36,36 @@ class MetasploitModule < Msf::Auxiliary
       OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', true]),
     ])
 
-    deregister_options('PASSWORD_SPRAY')
+    options_to_deregister = %w[PASSWORD_SPRAY]
+    if framework.features.enabled?(Msf::FeatureManager::MSSQL_SESSION_TYPE)
+      add_info('New in Metasploit 6.4 - The %grnCreateSession%clr option within this module can open an interactive session')
+    else
+      options_to_deregister << 'CreateSession'
+    end
+    deregister_options(*options_to_deregister)
+  end
+
+  def create_session?
+    if framework.features.enabled?(Msf::FeatureManager::MSSQL_SESSION_TYPE)
+      datastore['CreateSession']
+    else
+      false
+    end
   end
 
   def run_host(ip)
     print_status("#{rhost}:#{rport} - MSSQL - Starting authentication scanner.")
 
     if datastore['TDSENCRYPTION']
-      print_status("Manually enabled TLS/SSL to encrypt TDS payloads.")
+      if create_session?
+        raise Msf::OptionValidateError.new(
+          {
+            'TDSENCRYPTION' => "Cannot create sessions when encryption is enabled. See https://github.com/rapid7/metasploit-framework/issues/18745 to vote for this feature"
+          }
+        )
+      else
+        print_status("TDS Encryption enabled")
+      end
     end
 
     cred_collection = build_credential_collection(
@@ -68,6 +91,7 @@ class MetasploitModule < Msf::Auxiliary
         tdsencryption: datastore['TDSENCRYPTION'],
         framework: framework,
         framework_module: self,
+        use_client_as_proof: create_session?,
         ssl: datastore['SSL'],
         ssl_version: datastore['SSLVersion'],
         ssl_verify_mode: datastore['SSLVerifyMode'],
@@ -86,12 +110,37 @@ class MetasploitModule < Msf::Auxiliary
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
-
         print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
+
+        if create_session?
+          begin
+            mssql_client = result.proof
+            session_setup(result, mssql_client)
+          rescue ::StandardError => e
+            elog('Failed: ', error: e)
+            print_error(e)
+            result.proof.conn.close if result.proof&.conn
+          end
+        end
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
+  end
+
+  def session_setup(result, client)
+    return unless (result && client)
+    rstream = client.sock
+    my_session = Msf::Sessions::MSSQL.new(rstream, { client: client }) # is cwd right?
+    merging = {
+      'USERPASS_FILE' => nil,
+      'USER_FILE'     => nil,
+      'PASS_FILE'     => nil,
+      'USERNAME'      => result.credential.public,
+      'PASSWORD'      => result.credential.private
+    }
+
+    start_session(self, nil, merging, false, my_session.rstream, my_session)
   end
 end
