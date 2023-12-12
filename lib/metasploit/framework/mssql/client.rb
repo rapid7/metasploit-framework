@@ -22,7 +22,20 @@ module Metasploit
         attr_accessor :tdsencryption
         attr_accessor :sock
         attr_accessor :auth
-
+        attr_accessor :ssl
+        attr_accessor :ssl_version
+        attr_accessor :ssl_verify_mode
+        attr_accessor :ssl_cipher
+        attr_accessor :proxies
+        attr_accessor :connection_timeout
+        attr_accessor :send_lm
+        attr_accessor :send_ntlm
+        attr_accessor :send_spn
+        attr_accessor :use_lmkey
+        attr_accessor :use_ntlm2_session
+        attr_accessor :use_ntlmv2
+        attr_accessor :windows_authentication
+        
         # @!attribute max_send_size
         #   @return [Integer] The max size of the data to encapsulate in a single packet
         attr_accessor :max_send_size
@@ -393,7 +406,6 @@ module Metasploit
           info = {:errors => []}
           info = mssql_parse_reply(resp, info)
 
-          disconnect
 
           return false if not info
           info[:login_ack] ? true : false
@@ -748,40 +760,44 @@ module Metasploit
         protected
 
         # def auth
+        #   Msf::Exploit::Remote::AuthOption::AUTO
+        # end
+
+        # def tdsencryption
+        #   false
+        # end
+
+        # def domain_controller_rhost
         #   raise NotImplementedError
         # end
 
-        def domain_controller_rhost
-          raise NotImplementedError
-        end
+        # def hostname
+        #   raise NotImplementedError
+        # end
 
-        def hostname
-          raise NotImplementedError
-        end
+        # def windows_authentication
+        #   raise NotImplementedError
+        # end
 
-        def windows_authentication
-          raise NotImplementedError
-        end
+        # def use_ntlm2_session
+        #   raise NotImplementedError
+        # end
 
-        def use_ntlm2_session
-          raise NotImplementedError
-        end
+        # def use_ntlmv2
+        #   raise NotImplementedError
+        # end
 
-        def use_ntlmv2
-          raise NotImplementedError
-        end
+        # def send_lm
+        #   raise NotImplementedError
+        # end
 
-        def send_lm
-          raise NotImplementedError
-        end
+        # def send_ntlm
+        #   raise NotImplementedError
+        # end
 
-        def send_ntlm
-          raise NotImplementedError
-        end
-
-        def send_spn
-          raise NotImplementedError
-        end
+        # def send_spn
+        #   raise NotImplementedError
+        # end
 
       end
 

@@ -68,6 +68,7 @@ module Metasploit
           begin
             if mssql_login(credential.public, credential.private, '', credential.realm)
               result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
+              disconnect
             else
               result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
             end

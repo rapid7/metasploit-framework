@@ -2,10 +2,10 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
+require 'metasploit/framework/mssql/client'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::MSSQL
+  include Metasploit::Framework::MSSQL::Client
 
   def initialize(info = {})
     super(update_info(info,
@@ -28,13 +28,20 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptInt.new('FuzzNum', [true, 'Number of principal_ids to fuzz.', 300]),
+        Opt::RHOST,
+        Opt::RPORT(1433),
+        OptString.new('USERNAME', [ false, 'The username to authenticate as', 'sa']),
+        OptString.new('PASSWORD', [ false, 'The password for the specified username', '']),
+        OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', false]),
+        OptBool.new('USE_WINDOWS_AUTHENT', [ true, 'Use windows authentication (requires DOMAIN option set)', false]),
       ])
   end
 
   def run
     # Check connection and issue initial query
+    set_sane_defaults
     print_status("Attempting to connect to the database server at #{rhost}:#{rport} as #{datastore['USERNAME']}...")
-    if mssql_login_datastore
+    if mssql_login(datastore['USERNAME'], datastore['PASSWORD'])
       print_good('Connected.')
     else
       print_error('Login was unsuccessful. Check your credentials.')
@@ -165,5 +172,22 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     verified_sql_logins
+  end
+
+  def set_sane_defaults
+    self.connection_timeout    ||= 30
+    self.max_send_size         ||= 0
+    self.send_delay            ||= 0
+
+    # Don't use ||= with booleans
+    self.send_lm                = true if self.send_lm.nil?
+    self.send_ntlm              = true if self.send_ntlm.nil?
+    self.send_spn               = true if self.send_spn.nil?
+    self.use_lmkey              = false if self.use_lmkey.nil?
+    self.use_ntlm2_session      = true if self.use_ntlm2_session.nil?
+    self.use_ntlmv2             = true if self.use_ntlmv2.nil?
+    self.auth                   = Msf::Exploit::Remote::AuthOption::AUTO if self.auth.nil?
+    self.windows_authentication = false if self.windows_authentication.nil?
+    self.tdsencryption = datastore['TDSENCRYPTION']
   end
 end

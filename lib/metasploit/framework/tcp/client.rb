@@ -80,7 +80,6 @@ module Metasploit
           else
             dossl = ssl
           end
-
           nsock = Rex::Socket::Tcp.create(
               'PeerHost'      =>  opts['RHOST'] || rhost,
               'PeerHostname'  =>  opts['SSLServerNameIndication'] || opts['RHOSTNAME'],
@@ -93,10 +92,11 @@ module Metasploit
               'SSLCipher'     =>  opts['SSLCipher'] || ssl_cipher,
               'Proxies'       => proxies,
               'Timeout'       => (opts['ConnectTimeout'] || connection_timeout || 10).to_i,
-              'Context'       => { 'Msf' => framework, 'MsfExploit' => framework_module }
+              'Context'       => { 'Msf' => framework, 'MsfExploit' => self }
               )
           # enable evasions on this socket
           set_tcp_evasions(nsock)
+
 
           # Set this socket to the global socket as necessary
           self.sock = nsock if (global)
