@@ -48,7 +48,6 @@ module Rex
           #
           # Returns the active share
           #
-          # TODO Add smb1 share data type
           # @return [RubySMB::SMB2::Tree]
           def active_share
             console = shell
@@ -81,7 +80,7 @@ module Rex
           # to find usage documentation
           #
           def docs_dir
-            File.join(super, 'meterpreter')
+            File.join(super, 'smb_session')
           end
 
           #
