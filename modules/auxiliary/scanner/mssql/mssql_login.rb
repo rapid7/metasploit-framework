@@ -5,9 +5,10 @@
 
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/mssql'
+require 'metasploit/framework/mssql/client' 
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::MSSQL
+  include Metasploit::Framework::MSSQL::Client
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
 
@@ -30,6 +31,17 @@ class MetasploitModule < Msf::Auxiliary
           'BLANK_PASSWORDS' => true
         }
     )
+    register_options(
+      [
+        Opt::RHOST,
+        Opt::RPORT(1433),
+        OptString.new('USERNAME', [ false, 'The username to authenticate as', 'sa']),
+        OptString.new('PASSWORD', [ false, 'The password for the specified username', '']),
+        OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', false]),
+        OptBool.new('USE_WINDOWS_AUTHENT', [ true, 'Use windows authentication (requires DOMAIN option set)', false]),
+      ])
+
+    set_sane_defaults
 
     deregister_options('PASSWORD_SPRAY')
   end
@@ -90,4 +102,22 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
+
+  def set_sane_defaults
+    self.connection_timeout    ||= 30
+    self.max_send_size         ||= 0
+    self.send_delay            ||= 0
+
+    # Don't use ||= with booleans
+    self.send_lm                = true if self.send_lm.nil?
+    self.send_ntlm              = true if self.send_ntlm.nil?
+    self.send_spn               = true if self.send_spn.nil?
+    self.use_lmkey              = false if self.use_lmkey.nil?
+    self.use_ntlm2_session      = true if self.use_ntlm2_session.nil?
+    self.use_ntlmv2             = true if self.use_ntlmv2.nil?
+    self.auth                   = Msf::Exploit::Remote::AuthOption::AUTO if self.auth.nil?
+
+    self.windows_authentication = datastore['USE_WINDOWS_AUTHENT']
+    self.tdsencryption          = datastore['TDSENCRYPTION']
+  end  
 end

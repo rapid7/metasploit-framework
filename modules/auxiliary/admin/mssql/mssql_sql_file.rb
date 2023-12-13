@@ -2,9 +2,10 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+require 'metasploit/framework/mssql/client'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::MSSQL
+  include Metasploit::Framework::MSSQL::Client
 
   def initialize(info = {})
     super(update_info(info,
@@ -22,12 +23,19 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptPath.new('SQL_FILE', [ true, "File containing multiple SQL queries execute (one per line)"]),
         OptString.new('QUERY_PREFIX', [ false, "string to append each line of the file",""]),
-        OptString.new('QUERY_SUFFIX', [ false, "string to prepend each line of the file",""])
+        OptString.new('QUERY_SUFFIX', [ false, "string to prepend each line of the file",""]),
+        Opt::RHOST,
+        Opt::RPORT(1433),
+        OptString.new('USERNAME', [ false, 'The username to authenticate as', 'sa']),
+        OptString.new('PASSWORD', [ false, 'The password for the specified username', '']),
+        OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', false]),
+        OptBool.new('USE_WINDOWS_AUTHENT', [ true, 'Use windows authentication (requires DOMAIN option set)', false]),
       ])
   end
 
 
   def run
+    set_sane_defaults
     queries = File.readlines(datastore['SQL_FILE'])
 
     prefix = datastore['QUERY_PREFIX']
@@ -36,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       queries.each do |sql_query|
         vprint_status("Executing: #{sql_query}")
-        mssql_query(prefix+sql_query.chomp+suffix,true) if mssql_login_datastore
+        mssql_query(prefix+sql_query.chomp+suffix,true) if mssql_login(datastore['USERNAME'], datastore['PASSWORD'])
       end
     rescue Rex::ConnectionRefused, Rex::ConnectionTimeout
       print_error "Error connecting to server: #{$!}"

@@ -2,9 +2,10 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+require 'metasploit/framework/mssql/client'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::MSSQL
+  include Metasploit::Framework::MSSQL::Client
   include Msf::Auxiliary::Report
 
   include Msf::Auxiliary::Scanner
@@ -21,11 +22,23 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         => ['theLightCosine'],
       'License'        => MSF_LICENSE
     )
+
+    register_options(
+      [
+        Opt::RHOST,
+        Opt::RPORT(1433),
+        OptString.new('USERNAME', [ false, 'The username to authenticate as', 'sa']),
+        OptString.new('PASSWORD', [ false, 'The password for the specified username', '']),
+        OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', false]),
+        OptBool.new('USE_WINDOWS_AUTHENT', [ true, 'Use windows authentication (requires DOMAIN option set)', false]),
+      ])
+
+    set_sane_defaults
   end
 
   def run_host(ip)
 
-    if !mssql_login_datastore
+    if !mssql_login(datastore['USERNAME'], datastore['PASSWORD'])
       print_error("Invalid SQL Server credentials")
       return
     end
@@ -70,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
 
     # Grabs the Instance Name and Version of MSSQL(2k,2k5,2k8)
-    instancename= mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')[1]
+    instancename= mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')[0]
     print_status("Instance Name: #{instancename.inspect}")
     version = mssql_query(mssql_sql_info())[:rows][0][0]
     version_year = version.split('-')[0].slice(/\d\d\d\d/)
@@ -170,6 +183,4 @@ class MetasploitModule < Msf::Auxiliary
     return results
 
   end
-
-
 end

@@ -2,9 +2,10 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+require 'metasploit/framework/mssql/client'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::MSSQL
+  include Metasploit::Framework::MSSQL::Client
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -19,12 +20,24 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
       'License'        => MSF_LICENSE
     ))
+
+    register_options(
+      [
+        OptInt.new('FuzzNum', [true, 'Number of principal_ids to fuzz.', 10000]),
+        Opt::RHOST,
+        Opt::RPORT(1433),
+        OptString.new('USERNAME', [ false, 'The username to authenticate as', 'sa']),
+        OptString.new('PASSWORD', [ false, 'The password for the specified username', '']),
+        OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', false]),
+        OptBool.new('USE_WINDOWS_AUTHENT', [ true, 'Use windows authentication (requires DOMAIN option set)', false]),
+      ])
   end
 
   def run
+    set_sane_defaults
     print_status("Running MS SQL Server Enumeration...")
 
-    if !mssql_login_datastore
+    if !mssql_login(datastore['USERNAME'], datastore['PASSWORD'])
       print_error("Login was unsuccessful. Check your credentials.")
       disconnect
       return

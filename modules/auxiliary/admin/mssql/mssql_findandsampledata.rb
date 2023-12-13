@@ -2,9 +2,10 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+require 'metasploit/framework/mssql/client'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::MSSQL
+  include Metasploit::Framework::MSSQL::Client
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -34,7 +35,15 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('KEYWORDS', [ true, 'Keywords to search for','passw|credit|card']),
         OptInt.new('SAMPLE_SIZE', [ true, 'Number of rows to sample',  1]),
+        Opt::RHOST,
+        Opt::RPORT(1433),
+        OptString.new('USERNAME', [ false, 'The username to authenticate as', 'sa']),
+        OptString.new('PASSWORD', [ false, 'The password for the specified username', '']),
+        OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', false]),
+        OptBool.new('USE_WINDOWS_AUTHENT', [ true, 'Use windows authentication (requires DOMAIN option set)', false]),
       ])
+
+    set_sane_defaults
   end
 
   def print_with_underline(str)
@@ -47,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def sql_statement()
-
+    
     # DEFINED HEADER TEXT
     headings = [
       ["Server","Database", "Schema", "Table", "Column", "Data Type", "Sample Data","Row Count"]
@@ -342,7 +351,9 @@ class MetasploitModule < Msf::Auxiliary
 
     # CREATE DATABASE CONNECTION AND SUBMIT QUERY WITH ERROR HANDLING
     begin
-      result = mssql_query(sql, false) if mssql_login_datastore
+      #here
+      result = mssql_query(sql, false) if mssql_login(datastore['USERNAME'], datastore['PASSWORD'])
+
       column_data = result[:rows]
       print_good("Successfully connected to #{rhost}:#{rport}")
     rescue

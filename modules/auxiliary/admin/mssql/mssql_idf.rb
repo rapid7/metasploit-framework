@@ -11,9 +11,10 @@
 # 'interesting' columns and data
 #
 ##
+require 'metasploit/framework/mssql/client'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::MSSQL
+  include Metasploit::Framework::MSSQL::Client
 
   def initialize(info = {})
     super(update_info(info,
@@ -35,6 +36,12 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('NAMES', [ true, 'Pipe separated list of column names',  'passw|bank|credit|card']),
+        Opt::RHOST,
+        Opt::RPORT(1433),
+        OptString.new('USERNAME', [ false, 'The username to authenticate as', 'sa']),
+        OptString.new('PASSWORD', [ false, 'The password for the specified username', '']),
+        OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', false]),
+        OptBool.new('USE_WINDOWS_AUTHENT', [ true, 'Use windows authentication (requires DOMAIN option set)', false]),
       ])
   end
 
@@ -44,6 +51,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    set_sane_defaults
     headings = [
       ["Database", "Schema", "Table", "Column", "Data Type", "Row Count"]
     ]

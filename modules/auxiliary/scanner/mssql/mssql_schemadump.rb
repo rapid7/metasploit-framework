@@ -2,13 +2,12 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
+require 'metasploit/framework/mssql/client'
 require 'yaml'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::MSSQL
+  include Metasploit::Framework::MSSQL::Client
   include Msf::Auxiliary::Report
-
   include Msf::Auxiliary::Scanner
 
   def initialize
@@ -26,8 +25,15 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
-      OptBool.new('DISPLAY_RESULTS', [true, "Display the Results to the Screen", true])
-      ])
+      OptBool.new('DISPLAY_RESULTS', [true, "Display the Results to the Screen", true]),
+      Opt::RHOST,
+      Opt::RPORT(1433),
+      OptString.new('USERNAME', [ false, 'The username to authenticate as', 'sa']),
+      OptString.new('PASSWORD', [ false, 'The password for the specified username', '']),
+      OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', false]),
+      OptBool.new('USE_WINDOWS_AUTHENT', [ true, 'Use windows authentication (requires DOMAIN option set)', false]),
+    ])
+    set_sane_defaults
   end
 
   def run_host(ip)
@@ -38,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Grabs the Instance Name and Version of MSSQL(2k,2k5,2k8)
-    instancename = mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')[1]
+    instancename = mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')[0]
     print_status("Instance Name: #{instancename.inspect}")
     version = mssql_query(mssql_sql_info())[:rows][0][0]
     output = "Microsoft SQL Server Schema \n Host: #{datastore['RHOST']} \n Port: #{datastore['RPORT']} \n Instance: #{instancename} \n Version: #{version} \n====================\n\n"
@@ -121,6 +127,4 @@ class MetasploitModule < Msf::Auxiliary
     results = mssql_query("Select syscolumns.name,systypes.name,syscolumns.length from #{db_name}..syscolumns JOIN #{db_name}..systypes ON syscolumns.xtype=systypes.xtype WHERE syscolumns.id=#{table_id}")[:rows]
     return results
   end
-
-
 end

@@ -2,10 +2,10 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
+require 'metasploit/framework/mssql/client'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::MSSQL
+  include Metasploit::Framework::MSSQL::Client
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -30,13 +30,20 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptInt.new('FuzzNum', [true, 'Number of principal_ids to fuzz.', 10000]),
+        Opt::RHOST,
+        Opt::RPORT(1433),
+        OptString.new('USERNAME', [ false, 'The username to authenticate as', 'sa']),
+        OptString.new('PASSWORD', [ false, 'The password for the specified username', '']),
+        OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', false]),
+        OptBool.new('USE_WINDOWS_AUTHENT', [ true, 'Use windows authentication (requires DOMAIN option set)', false]),
       ])
   end
 
   def run
+    set_sane_defaults
     # Check connection and issue initial query
     print_status("Attempting to connect to the database server at #{rhost}:#{rport} as #{datastore['USERNAME']}...")
-    if mssql_login_datastore
+    if mssql_login(datastore['USERNAME'], datastore['PASSWORD'])
       print_good('Connected.')
     else
       print_error('Login was unsuccessful. Check your credentials.')
@@ -176,7 +183,6 @@ class MetasploitModule < Msf::Auxiliary
 
   # Get windows domain
   def get_windows_domain
-
     # Setup query to check the domain
     sql = "SELECT DEFAULT_DOMAIN() as mydomain"
 

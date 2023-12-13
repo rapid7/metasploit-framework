@@ -2,9 +2,11 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+require 'metasploit/framework/mssql/client'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::MSSQL
+  include Metasploit::Framework::MSSQL::Client
+
   include Msf::Auxiliary::Fuzzer
 
   def initialize(info = {})
@@ -16,6 +18,16 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         => [ 'hdm' ],
       'License'        => MSF_LICENSE
     ))
+
+    register_options(
+      [
+        Opt::RHOST,
+        Opt::RPORT(1433),
+        OptString.new('USERNAME', [ false, 'The username to authenticate as', 'sa']),
+        OptString.new('PASSWORD', [ false, 'The password for the specified username', '']),
+        OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', false]),
+        OptBool.new('USE_WINDOWS_AUTHENT', [ true, 'Use windows authentication (requires DOMAIN option set)', false]),
+      ])
   end
 
   # A copy of the mssql_login method with the ability to overload each option
@@ -117,6 +129,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    set_sane_defaults
     last_str = nil
     last_inp = nil
     last_err = nil

@@ -2,9 +2,11 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+require 'metasploit/framework/mssql/client'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::MSSQL
+  include Metasploit::Framework::MSSQL::Client
+
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -16,6 +18,12 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE
     )
 
+    register_options(
+      [
+        Opt::RHOST,
+        OptInt.new('THREADS', [true, "The number of concurrent threads (max one per host)", 1]),
+      ])
+    set_sane_defaults
     deregister_options('RPORT')
   end
 

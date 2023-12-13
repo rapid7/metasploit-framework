@@ -202,9 +202,10 @@ module Msf::Module::Alert
   def alert_user
     self.you_have_been_warned ||= {}
 
-    errors.each do |msg|
+    errors.each do |msg| 
+      # require 'pry-byebug'; binding.pry
       if msg && !self.you_have_been_warned[msg.hash]
-        print_error(msg)
+        print_error(msg.full_message)
         self.you_have_been_warned[msg.hash] = true
       end
     end

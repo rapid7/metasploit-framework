@@ -173,21 +173,4 @@ class MetasploitModule < Msf::Auxiliary
 
     verified_sql_logins
   end
-
-  def set_sane_defaults
-    self.connection_timeout    ||= 30
-    self.max_send_size         ||= 0
-    self.send_delay            ||= 0
-
-    # Don't use ||= with booleans
-    self.send_lm                = true if self.send_lm.nil?
-    self.send_ntlm              = true if self.send_ntlm.nil?
-    self.send_spn               = true if self.send_spn.nil?
-    self.use_lmkey              = false if self.use_lmkey.nil?
-    self.use_ntlm2_session      = true if self.use_ntlm2_session.nil?
-    self.use_ntlmv2             = true if self.use_ntlmv2.nil?
-    self.auth                   = Msf::Exploit::Remote::AuthOption::AUTO if self.auth.nil?
-    self.windows_authentication = false if self.windows_authentication.nil?
-    self.tdsencryption = datastore['TDSENCRYPTION']
-  end
 end
