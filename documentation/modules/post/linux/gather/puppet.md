@@ -4,7 +4,7 @@ This module will grab Puppet config files, credentials, host information, and fi
 
 ### Docker-compose Install
 
-Use the poppet files located [here](https://github.com/voxpupuli/crafty/tree/main/puppet/oss) by following this script:
+Use the puppet files located [here](https://github.com/voxpupuli/crafty/tree/main/puppet/oss) by following this script:
 
 ```
 mkdir /tmp/puppet
