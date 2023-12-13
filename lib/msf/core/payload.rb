@@ -288,9 +288,9 @@ class Payload < Msf::Module
 
   #
   # Generates the payload and returns the raw buffer to the caller.
-  #
-  def generate(_opts = {})
-    internal_generate
+  # @param opts [Hash]
+  def generate(opts = {})
+    internal_generate(opts)
   end
 
   #
@@ -611,9 +611,10 @@ protected
   #
   # @see PayloadSet#check_blob_cache
   # @param asm [String] Assembly code to be assembled into a raw payload
+  # @param opts [Hash]
   # @return [String] The final, assembled payload
   # @raise ArgumentError if +asm+ is blank
-  def build(asm, off={})
+  def build(asm, off={}, opts = {})
     if(asm.nil? or asm.empty?)
       raise ArgumentError, "Assembly must not be empty"
     end
@@ -644,7 +645,7 @@ protected
     end
 
     # Assemble the payload from the assembly
-    a = self.arch
+    a = opts[:arch] || self.arch
     if a.kind_of? Array
       a = self.arch.first
     end
@@ -677,11 +678,11 @@ protected
   #
   # Generate the payload using our local payload blob and offsets
   #
-  def internal_generate
+  def internal_generate(opts = {})
     # Build the payload, either by using the raw payload blob defined in the
     # module or by actually assembling it
     if assembly and !assembly.empty?
-      raw = build(assembly, offsets)
+      raw = build(assembly, offsets, opts)
     else
       raw = payload.dup
     end
