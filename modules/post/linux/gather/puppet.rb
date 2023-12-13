@@ -140,7 +140,8 @@ class MetasploitModule < Msf::Post
     columns = ['Module', 'Version']
     table = Rex::Text::Table.new('Header' => 'Puppet Modules', 'Indent' => 1, 'Columns' => columns)
     mods = cmd_exec("#{puppet_exe} module list")
-    # XXX store this
+    l = store_loot('puppet.modules', 'text/plain', session, mods, 'Puppet modules list')
+    print_good("Stored facter to: #{l}")
     mods.lines.each do |line|
       next if line.start_with? '/' # showing paths of where things are installed to like '/etc/puppetlabs/code/modules (no modules installed)'
 
