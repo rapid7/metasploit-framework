@@ -39,7 +39,7 @@ module Net
 
         # The initial public key exchange
         pubkey_method = Net::SSH::Authentication::Methods::Publickey.new(auth)
-        pubkey_method.send(:send_request, key,user, "ssh-connection")
+        pubkey_method.send(:send_request, key, user, "ssh-connection", key.ssh_type)
 
         # Check the response to see if the public key is good
         response_message = auth.next_message

@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     deregister_options(
-      'RHOST','PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS', 'USERPASS_FILE', 'DB_ALL_PASS', 'DB_ALL_CREDS'
+      'PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS', 'USERPASS_FILE', 'DB_ALL_PASS', 'DB_ALL_CREDS'
     )
 
     @good_credentials = {}
