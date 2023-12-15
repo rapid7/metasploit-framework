@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
     report_service(service_data)
 
     begin
-      tree = simple.client.tree_connect("\\\\#{sock.peerhost}\\IPC$")
+      @tree = simple.client.tree_connect("\\\\#{sock.peerhost}\\IPC$")
     rescue RubySMB::Error::RubySMBError => e
       raise StandardError, "Unable to connect to the remote IPC$ share ([#{e.class}] #{e})."
     end
@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::BadConfig, "Invalid pipe: #{datastore['PIPE']}") unless handle_args
 
     # rename tree_file
-    @pipe = tree.open_file(filename: handle_args[:filename], write: true, read: true)
+    @pipe = @tree.open_file(filename: handle_args[:filename], write: true, read: true)
     handle = dcerpc_handle(
       handle_args[:endpoint]::UUID,
       handle_args.fetch(:version, '1.0'),
@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
           # rebind if we got a DCERPC error (as indicated by no response) and there are more methods to try
           vprint_status("Rebinding to #{handle} ...")
           @pipe.close
-          @pipe = tree.open_file(filename: handle_args[:filename], write: true, read: true)
+          @pipe = @tree.open_file(filename: handle_args[:filename], write: true, read: true)
           @pipe.bind(
             endpoint: handle_args[:endpoint],
             auth_level: RubySMB::Dcerpc::RPC_C_AUTHN_LEVEL_PKT_PRIVACY,
@@ -148,6 +148,20 @@ class MetasploitModule < Msf::Auxiliary
         print_status("Server responded with #{win32_error.name} (#{win32_error.description})")
       end
     end
+  end
+
+  def cleanup
+    if @pipe
+      @pipe.close
+      @pipe = nil
+    end
+
+    if @tree
+      @tree.disconnect!
+      @tree = nil
+    end
+
+    super
   end
 
   def efs_call(name, **kwargs)
