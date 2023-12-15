@@ -7,7 +7,7 @@ require 'windows_error'
 require 'ruby_smb'
 require 'ruby_smb/error'
 require 'ruby_smb/dcerpc/lsarpc'
-require 'ruby_smb/dcerpc/encrypting_file_system'
+require 'ruby_smb/dcerpc/efsrpc'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DCERPC
@@ -15,19 +15,16 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  EncryptingFileSystem = RubySMB::Dcerpc::EncryptingFileSystem
-
   METHODS = %w[EfsRpcOpenFileRaw EfsRpcEncryptFileSrv EfsRpcDecryptFileSrv EfsRpcQueryUsersOnFile EfsRpcQueryRecoveryAgents].freeze
-  ### UPDATE ME
   # The LSARPC UUID should be used for all pipe handles, except for the efsrpc one. For that one use
-  # EncryptingFileSystem and it's normal UUID
+  # Efsrpc and it's normal UUID
   PIPE_HANDLES = {
     lsarpc: {
       endpoint: RubySMB::Dcerpc::Lsarpc,
       filename: 'lsarpc'.freeze
     },
     efsrpc: {
-      endpoint: RubySMB::Dcerpc::EncryptingFileSystem,
+      endpoint: RubySMB::Dcerpc::Efsrpc,
       filename: 'efsrpc'.freeze
     },
     samr: {
@@ -154,7 +151,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def efs_call(name, **kwargs)
-    request = EncryptingFileSystem.const_get("#{name}Request").new(**kwargs)
+    request = RubySMB::Dcerpc::Efsrpc.const_get("#{name}Request").new(**kwargs)
 
     begin
       raw_response = @pipe.dcerpc_request(
@@ -167,7 +164,7 @@ class MetasploitModule < Msf::Auxiliary
       return nil
     end
 
-    EncryptingFileSystem.const_get("#{name}Response").read(raw_response)
+    RubySMB::Dcerpc::Efsrpc.const_get("#{name}Response").read(raw_response)
   end
 
   def service_data
