@@ -1349,6 +1349,7 @@ module Msf
             print_line 'Usage: favorites'
             print_line
             print_line 'Print the list of favorite modules (alias for `show favorites`)'
+            print_line 'You can use the %grnfavorite%clr command to add the current module to your favorites list'
             print @@favorites_opts.usage
           end
 
@@ -1570,7 +1571,7 @@ module Msf
               end
               @module_search_results = filtered_results.flatten.sort_by(&:fullname)
             end
-            @module_search_results_with_usage_metadata = @module_search_results
+            @module_search_results_with_usage_metadata = @module_search_results.map { |mod| { mod: mod, datastore: {} } }
 
             show_module_metadata('Favorites', fav_modules)
             print_module_search_results_usage
