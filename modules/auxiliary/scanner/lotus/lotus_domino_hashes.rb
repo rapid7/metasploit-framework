@@ -190,6 +190,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def report_cred(opts)
 
+    service_data = service_details.merge({workspace_id: myworkspace_id})
+
     credential_data = {
       origin_type: :service,
       module_fullname: fullname,
@@ -197,7 +199,7 @@ class MetasploitModule < Msf::Auxiliary
       private_data: opts[:password],
       private_type: :nonreplayable_hash,
       jtr_format: 'dominosec'
-    }.merge(service_details)
+    }.merge(service_data)
 
     login_data = {
       core: create_credential(credential_data),

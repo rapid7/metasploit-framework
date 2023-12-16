@@ -185,12 +185,12 @@ class MetasploitModule < Msf::Auxiliary
     logins << ["http", httpuser, httppass]
 
     report_cred(
-      :ip => ip,
-      :port => 80,
-      :service_name => 'http',
-      :user => httpuser,
-      :password => httppass,
-      :proof => proof
+      ip: ip,
+      port: rport,
+      service_name: 'http',
+      user: httpuser,
+      password: httppass,
+      proof: proof
     )
 
     logins << ["scada-write", "", writecreds[1]]
