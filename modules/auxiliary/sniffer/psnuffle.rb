@@ -102,7 +102,6 @@ end
 
 # Basic class for taking care of sessions
 class BaseProtocolParser
-  include Msf::Auxiliary::Report
 
   attr_accessor :framework, :module, :sessions, :dport, :sigs
 
@@ -155,7 +154,7 @@ class BaseProtocolParser
     end
 
     login_data = {
-      core: create_credential(credential_data),
+      core: self.module.create_credential(credential_data),
       status: opts[:status],
       proof: opts[:proof]
     }.merge(service_data)
@@ -164,7 +163,7 @@ class BaseProtocolParser
       login_data.merge!(last_attempted_at: DateTime.now)
     end
 
-    create_credential_login(login_data)
+    self.module.create_credential_login(login_data)
   end
 
   def report_note(*s)
