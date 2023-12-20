@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-This module will attempt to authenticate to a Nessus server RPC interface.
+This module will attempt to authenticate to a Nessus server's RPC interface.
 
 ## Verification Steps
 1. Start msfconsole
@@ -11,6 +11,15 @@ This module will attempt to authenticate to a Nessus server RPC interface.
 ```
 [+] 127.0.0.1:8834 - Successful: nessus:4x15pa$$w0rd
 ```
+
+### Installation Steps
+This is a summary of installation steps for downloading, installing and running Nessus on Debian. They are as follows:
+
+1. Go to tenable.com.
+2. Download the latest version of nessus. Take note of the version number.
+3. Run the following command in the same directory as the .deb file: `dpkg -i Nessus-<version number>-debian6_amd64.deb`
+4. Restart nessus with the `systemctl start nessusd` command.
+5. Use your browser to access port 8834 on localhost (https://localhost:8834).
 
 ## Options
 ### BLANK_PASSWORDS
@@ -65,7 +74,6 @@ Whether to print output for all attempts
 HTTP server virtual host
 
 ## Scenarios
-Specific demo of using the module that might be useful in a real world scenario.
 
 ```
 msf > use scanner/nessus/nessus_rest_login
@@ -82,11 +90,3 @@ msf6 auxiliary(scanner/nessus/nessus_rest_login) > run
 [*] Auxiliary module execution completed
 msf6 auxiliary(scanner/nessus/nessus_rest_login) >
 ```
-
-## Installation Steps
-This is a serise of instalation steps for downloading, installing and running nessus on Debian. They are as follows:
-1. Go to tenable.com.
-2. Download the latest version of nessus. Take note of the version number.
-3. Run the following command in the same directory as the .deb file: ```dpkg -i Nessus-<version number>-debian6_amd64.deb```
-4. Restart nessus with the ```systemctl start nessusd``` command.
-5. Use your browser to access port 8834 on local host (https://localhost:8834).
