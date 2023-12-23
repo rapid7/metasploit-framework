@@ -44,6 +44,10 @@ which includes `/usr/local/bin/ansible-playbook`, `/usr/bin/ansible-playbook`. D
 
 File to be read. Defaults to `/etc/shadow`
 
+### FULLOUTPUT
+
+If the entire command output should be displayed, or only the error line. Defaults to `false`
+
 ## Scenarios
 
 ### Docker compose as mentioned above

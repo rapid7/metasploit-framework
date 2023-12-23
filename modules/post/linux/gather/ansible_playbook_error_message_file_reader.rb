@@ -42,6 +42,12 @@ class MetasploitModule < Msf::Post
         OptString.new('FILE', [true, 'File to read the first line of', '/etc/shadow']),
       ], self.class
     )
+
+    register_advanced_options(
+      [
+        OptString.new('FULLOUTPUT', [false, 'Show the full output without cleanup', false]),
+      ], self.class
+    )
   end
 
   def ansible_exe
@@ -91,6 +97,10 @@ class MetasploitModule < Msf::Post
     # root:!::0:::::
     # ^ here
     # we want to take the 2nd to last line.
-    print_good(output.lines[-2].strip)
+    if datastore['FULLOUTPUT']
+      print_good(output)
+    else
+      print_good(output.lines[-2].strip)
+    end
   end
 end

