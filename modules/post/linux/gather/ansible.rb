@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Local::Ansible
 
   def initialize(info = {})
     super(
@@ -33,24 +34,16 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptString.new('ANSIBLE', [true, 'Ansible executable location', '']),
-        OptString.new('ANSIBLEINVENTORY', [true, 'Ansible-inventory executable location', '']),
         OptString.new('ANSIBLECFG', [true, 'Ansible config file location', '']),
         OptString.new('HOSTS', [ true, 'Which ansible hosts to target', 'all' ]),
       ], self.class
     )
-  end
 
-  def ansible_exe
-    return @ansible if @ansible
-
-    ['/usr/local/bin/ansible', datastore['ANSIBLE']].each do |exec|
-      next unless file?(exec)
-      next unless executable?(exec)
-
-      @ansible = exec
-    end
-    @ansible
+    register_advanced_options(
+      [
+        OptString.new('ANSIBLEINVENTORY', [true, 'Ansible-inventory executable location', '']),
+      ], self.class
+    )
   end
 
   def ansible_inventory
@@ -68,7 +61,8 @@ class MetasploitModule < Msf::Post
   def ansible_cfg
     return @ansible_cfg if @ansible_cfg
 
-    ['/etc/ansible/ansible.cfg', datastore['ANSIBLECFG']].each do |f|
+    [datastore['ANSIBLECFG'], '/etc/ansible/ansible.cfg', '/playbook/ansible.cfg'].each do |f|
+      next if f.empty?
       next unless file?(f)
 
       @ansible_cfg = f
@@ -76,25 +70,24 @@ class MetasploitModule < Msf::Post
     @ansible_cfg
   end
 
-  def ping_hosts
-    results = cmd_exec("#{ansible_exe} #{datastore['HOSTS']} -m ping -o")
-    pings = store_loot('ansible.ping', 'text/plain', session, results, 'ansible.ping', 'Ansible ping status')
-    print_good("Stored pings to: #{pings}")
+  def ping_hosts_print
+    results = ping_hosts
+
     columns = ['Host', 'Status', 'Ping', 'Changed']
     table = Rex::Text::Table.new('Header' => 'Ansible Pings', 'Indent' => 1, 'Columns' => columns)
-    # here's a regex with test: https://rubular.com/r/FMHhWx8QlVnidA
-    regex = /(\S+)\s+\|\s+([A-Z]+)\s+=>\s+({.+})$/
-    matches = results.scan(regex)
 
-    matches.each do |match|
-      match[2] = JSON.parse(match[2])
-      table << [match[0], match[1], match[2]['ping'], match[2]['changed']]
+    results.each do |match|
+      table << [match['host'], match['status'], match['ping'], match['changed']]
+      count + 1 if match['ping'] == 'pong'
     end
     print_good(table.to_s) unless table.rows.empty?
   end
 
   def conf
-    return unless file?(ansible_cfg)
+    unless file?(ansible_cfg)
+      print_bad('Unable to find config file')
+      return
+    end
 
     ansible_config = read_file(ansible_cfg)
     stored_config = store_loot('ansible.cfg', 'text/plain', session, ansible_config, 'ansible.cfg', 'Ansible config file')
@@ -129,7 +122,7 @@ class MetasploitModule < Msf::Post
   def run
     fail_with(Failure::NotFound, 'Ansible executable not found') if ansible_exe.nil?
     hosts_list
-    ping_hosts
+    ping_hosts_print
     conf
   end
 end
