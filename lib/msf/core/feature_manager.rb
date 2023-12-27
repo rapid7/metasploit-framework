@@ -53,7 +53,7 @@ module Msf
         name: METASPLOIT_PAYLOAD_WARNINGS,
         description: 'When enabled Metasploit will output warnings about missing Metasploit payloads, for instance if they were removed by antivirus etc',
         requires_restart: true,
-        default_value: false,
+        default_value: true,
         developer_notes: 'Planned for default enablement in: Metasploit 6.4.x'
       }.freeze,
       {
