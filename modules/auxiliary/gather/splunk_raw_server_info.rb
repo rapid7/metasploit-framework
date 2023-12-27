@@ -92,7 +92,6 @@ class MetasploitModule < Msf::Auxiliary
         'output_mode' => 'json'
       }
     }
-    request['cookie'] = cookie unless cookie.nil?
     res = send_request_cgi(request)
 
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
