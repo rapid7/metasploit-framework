@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def primer
     service.processed_pdu_handler(Net::LDAP::PDU::BindRequest) do |processed_data|
-      unless processed_data[:post_pdu]
+      if processed_data[:post_pdu]
         if processed_data[:error_msg]
           print_error(processed_data[:error_msg])
         else
