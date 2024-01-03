@@ -5,19 +5,18 @@ module Msf::Payload::Adapter::Fetch
     register_options(
       [
         Msf::OptBool.new('FETCH_DELETE', [true, 'Attempt to delete the binary after execution', false]),
-        Msf::OptString.new('FETCH_FILENAME', [ false, 'Name to use on remote system when storing payload; cannot contain spaces.', Rex::Text.rand_text_alpha(rand(8..12))], regex:/^[\S]*$/),
+        Msf::OptString.new('FETCH_FILENAME', [ false, 'Name to use on remote system when storing payload; cannot contain spaces or slashes', Rex::Text.rand_text_alpha(rand(8..12))], regex: /^[^\s\/\\]*$/),
         Msf::OptPort.new('FETCH_SRVPORT', [true, 'Local port to use for serving payload', 8080]),
         Msf::OptAddressRoutable.new('FETCH_SRVHOST', [ false, 'Local IP to use for serving payload']),
         Msf::OptString.new('FETCH_URIPATH', [ false, 'Local URI to use for serving payload', '']),
-        Msf::OptString.new('FETCH_WRITABLE_DIR', [ true, 'Remote writable dir to store payload; cannot contain spaces.', ''], regex:/^[\S]*$/)
+        Msf::OptString.new('FETCH_WRITABLE_DIR', [ true, 'Remote writable dir to store payload; cannot contain spaces', ''], regex:/^[\S]*$/)
       ]
     )
     register_advanced_options(
       [
         Msf::OptAddress.new('FetchListenerBindAddress', [ false, 'The specific IP address to bind to to serve the payload if different from FETCH_SRVHOST']),
         Msf::OptPort.new('FetchListenerBindPort', [false, 'The port to bind to if different from FETCH_SRVPORT']),
-        Msf::OptBool.new('FetchHandlerDisable', [true, 'Disable fetch handler', false]),
-        Msf::OptString.new('FetchServerName', [true, 'Fetch Server Name', 'Apache'])
+        Msf::OptBool.new('FetchHandlerDisable', [true, 'Disable fetch handler', false])
       ]
     )
     @delete_resource = true
@@ -27,7 +26,6 @@ module Msf::Payload::Adapter::Fetch
     @remote_destination_win = nil
     @remote_destination_nix = nil
     @windows = nil
-
   end
 
   # If no fetch URL is provided, we generate one based off the underlying payload data
@@ -75,6 +73,10 @@ module Msf::Payload::Adapter::Fetch
 
   def fetch_bindport
     datastore['FetchListenerBindPort'].blank? ? srvport : datastore['FetchListenerBindPort']
+  end
+
+  def fetch_bindnetloc
+    Rex::Socket.to_authority(fetch_bindhost, fetch_bindport)
   end
 
   def generate(opts = {})
@@ -130,13 +132,7 @@ module Msf::Payload::Adapter::Fetch
   end
 
   def srvnetloc
-    netloc = srvhost
-    if Rex::Socket.is_ipv6?(netloc)
-      netloc = "[#{netloc}]:#{srvport}"
-    else
-      netloc = "#{netloc}:#{srvport}"
-    end
-    netloc
+    Rex::Socket.to_authority(srvhost, srvport)
   end
 
   def srvport
@@ -146,10 +142,6 @@ module Msf::Payload::Adapter::Fetch
   def srvuri
     return datastore['FETCH_URIPATH'] unless datastore['FETCH_URIPATH'].blank?
     default_srvuri
-  end
-
-  def srvname
-    datastore['FetchServerName']
   end
 
   def windows?
@@ -242,7 +234,6 @@ module Msf::Payload::Adapter::Fetch
     end
     cmd + _execute_add
   end
-
 
   def _generate_ftp_command
     case fetch_protocol

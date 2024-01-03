@@ -10,7 +10,11 @@ module Msf::Payload::Adapter::Fetch::TFTP
   end
 
   def cleanup_handler
-    cleanup_tftp_fetch_service(@fetch_service)
+    if @fetch_service
+      cleanup_tftp_fetch_service(@fetch_service)
+      @fetch_service = nil
+    end
+
     super
   end
 
