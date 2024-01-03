@@ -25,7 +25,7 @@ module Msf
     end
 
     def normalize(value = self.value)
-      if valid?(value)
+      if valid?(value) && !value.nil?
         value.to_s
       else
         nil
