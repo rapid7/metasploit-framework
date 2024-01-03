@@ -6,6 +6,7 @@ module Msf
       module ModulePaths
 
         attr_accessor :configured_module_paths
+        attr_accessor :module_paths_inited
 
         # Initialize the module paths
         #
@@ -43,8 +44,7 @@ module Msf
           end
 
           # Remove any duplicate paths
-          @configured_module_paths.uniq
-
+          @configured_module_paths.uniq!
           # return early if we're deferring module loading
           return if opts.delete(:defer_module_loads)
 
