@@ -334,6 +334,7 @@ end
 autoload :Faker, 'faker'
 autoload :BinData, 'bindata'
 autoload :RubySMB, 'ruby_smb'
+autoload :MetasploitPayloads, 'metasploit-payloads'
 
 require 'rexml/document'
 
