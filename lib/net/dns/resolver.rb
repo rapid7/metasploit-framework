@@ -1093,7 +1093,7 @@ module Net # :nodoc:
             when /^\s*search\s+(.*)/
               self.searchlist = $1.split(" ")
             when /^\s*nameserver\s+(.*)/
-              self.nameservers = $1.split(" ")
+              self.nameservers += $1.split(" ")
             end
           end
         end
@@ -1295,4 +1295,3 @@ end
 class Hash # :nodoc:
   include ExtendHash
 end
-
