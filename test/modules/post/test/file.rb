@@ -158,7 +158,7 @@ class MetasploitModule < Msf::Post
       final_contents = read_file(datastore['BaseFileName'])
       ret &&= final_contents == 'foobarbaz'
       unless ret
-        vprint_status("Didn't read what we wrote, actual file on target: |#{file_contents.inspect}| - #{file_contents.bytes.inspect}")
+        vprint_status("Didn't read what we wrote, actual file on target: |#{final_contents.inspect}| - #{final_contents.bytes.inspect}")
       end
 
       ret
