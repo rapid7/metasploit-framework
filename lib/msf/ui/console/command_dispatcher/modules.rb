@@ -890,7 +890,7 @@ module Msf
             end
 
             # If any additional datastore values were provided, set these values
-            unless additional_datastore_values.nil?
+            unless additional_datastore_values.nil? || additional_datastore_values.empty?
               mod.datastore.update(additional_datastore_values)
               print_status("Additionally setting #{additional_datastore_values.map { |k,v| "#{k} => #{v}" }.join(", ")}")
             end
