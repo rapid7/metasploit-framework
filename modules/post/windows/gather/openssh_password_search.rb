@@ -72,10 +72,6 @@ class MetasploitModule < Msf::Post
     session.send_request(request)
   end
 
-  def non_printable?(byte)
-    byte < 0x21 || byte > 0x7E
-  end
-
   def print_results(results: [])
     if results.empty?
       print_status 'No regular expression matches were found in memory'
@@ -102,7 +98,7 @@ class MetasploitModule < Msf::Post
       region_start_size = result.get_tlv(::Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MEMORY_SEARCH_SECT_LEN).value.to_s(16).upcase
 
       if replace_non_printable_bytes
-        match_buffer = match_buffer.bytes.map { |byte| non_printable?(byte) ? '.' : byte.chr }.join
+        match_buffer = match_buffer.bytes.map { |byte| /[[:print:]]/.match?(byte.chr) ? byte.chr : '.' }.join
       end
 
       results_table << [
