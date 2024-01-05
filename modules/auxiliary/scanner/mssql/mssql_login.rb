@@ -5,7 +5,7 @@
 
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/mssql'
-require 'metasploit/framework/mssql/client' 
+require 'metasploit/framework/mssql/client'
 
 class MetasploitModule < Msf::Auxiliary
   include Metasploit::Framework::MSSQL::Client
@@ -119,5 +119,5 @@ class MetasploitModule < Msf::Auxiliary
 
     self.windows_authentication = datastore['USE_WINDOWS_AUTHENT']
     self.tdsencryption          = datastore['TDSENCRYPTION']
-  end  
+  end
 end

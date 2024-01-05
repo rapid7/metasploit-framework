@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def sql_statement()
-    
+
     # DEFINED HEADER TEXT
     headings = [
       ["Server","Database", "Schema", "Table", "Column", "Data Type", "Sample Data","Row Count"]
