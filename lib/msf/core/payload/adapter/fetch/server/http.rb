@@ -34,7 +34,7 @@ module Msf::Payload::Adapter::Fetch::Server::HTTP
   rescue  ::Exception => e
     # When we clean up, we need to leave resources alone, because we never added one.
     @delete_resource = false
-    fail_with(Msf::Exploit::Failure::Unknown, "Failed to add resource\n #{e}")
+    fail_with(Msf::Exploit::Failure::Unknown, "Failed to add resource\n#{e}")
   end
 
   def cleanup_http_fetch_service(fetch_service, delete_resource)
@@ -43,14 +43,6 @@ module Msf::Payload::Adapter::Fetch::Server::HTTP
       fetch_service.remove_resource(escaped_srvuri)
     end
     fetch_service.deref
-    if fetch_service.resources.empty?
-      # if we don't call deref, we cannot start another httpserver
-      # this is a reimplementation of the cleanup_service method
-      # in Exploit::Remote::SocketServer
-      temp_service = fetch_service
-      temp_service.cleanup
-      temp_service.deref
-    end
   end
 
   def start_http_fetch_handler(srvname, srvexe, ssl=false, ssl_cert=nil, ssl_compression=nil, ssl_cipher=nil, ssl_version=nil)
