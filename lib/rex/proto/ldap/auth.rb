@@ -38,7 +38,7 @@ module Rex
             auth_info = handle_anonymous_request(user_login, auth_info)
           elsif !user_login.name.empty? # Simple
             auth_info = handle_simple_request(user_login, auth_info)
-          elsif user_login.authentication[0] == 'GSS-SPNEGO' # SASL especially SPNEGO
+          elsif sasl?(user_login)
             auth_info = handle_sasl_request(user_login, auth_info)
           else
             auth_info[:result_code] = Net::LDAP::ResultCodeUnwillingToPerform
@@ -145,8 +145,21 @@ module Rex
           auth_info
         end
 
-
         private
+
+        #
+        # Determine if the supplied request is formatted for SASL auth
+        #
+        # @param user_login [OpenStruct] User login information
+        #
+        # @return [bool] True if the request can be processed for SASL auth
+        def sasl?(user_login)
+          if user_login.authentication.is_a?(Array) && SUPPORTS_SASL.include?(user_login.authentication[0])
+            return true
+          end
+
+          false
+        end
 
         #
         # Generate NTLM Type2 response from NTLM Type1 message
@@ -160,6 +173,9 @@ module Rex
           @domain = dom if dom
           @server = ws if ws
           server_hash = MESSAGE.process_type1_message(message.encode64, @challenge, @domain, @server, @dnsname, @dnsdomain)
+          domain = dom.empty? ? @domain : dom
+          server = ws.empty? ? @server : ws
+          server_hash = MESSAGE.process_type1_message(message.encode64, @challenge, domain, server, @dnsname, @dnsdomain)
           Rex::Text.decode_base64(server_hash)
         end
 

@@ -261,7 +261,7 @@ module Rex
           ]
 
           if context_data && context_code
-            tag_sequence << [context_data.to_ber].to_ber_contextspecific(context_code)
+            tag_sequence << context_data.to_ber_contextspecific(context_code)
           end
 
           [
