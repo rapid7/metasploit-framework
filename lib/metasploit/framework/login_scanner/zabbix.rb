@@ -68,7 +68,7 @@ module Metasploit
 
         # Sends a HTTP request with Rex
         #
-        # @param (see Rex::Proto::Http::Resquest#request_raw)
+        # @param (see Rex::Proto::Http::Request#request_raw)
         # @return [Rex::Proto::Http::Response] The HTTP response
         def send_request(opts)
           res = super(opts)

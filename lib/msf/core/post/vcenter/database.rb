@@ -48,7 +48,7 @@ module Msf
 
         #
         # Returns a list of postgres users and password hashes from the database
-        # @param pg_password [String] postgress password
+        # @param pg_password [String] postgresql password
         # @param vcdb_user [String] virtual center database username
         # @param vcdb_name [String] virtual center database name
         # @return [Array] list of hash tables where each table is a user, nil on error
@@ -79,7 +79,7 @@ module Msf
 
         #
         # Returns a list of postgres users and password hashes from the database
-        # @param pg_password [String] postgress password
+        # @param pg_password [String] postgresql password
         # @param vcdb_user [String] virtual center database username
         # @param vcdb_name [String] virtual center database name
         # @return [Array] list of hash tables where each table is a user, nil on error
@@ -110,7 +110,7 @@ module Msf
 
         #
         # Returns a list of vpx users and password hashes from the database
-        # @param pg_password [String] postgress password
+        # @param pg_password [String] postgresql password
         # @param vcdb_user [String] virtual center database username
         # @param vcdb_name [String] virtual center database name
         # @param symkey [String] string of they symkey
@@ -163,8 +163,8 @@ module Msf
         end
 
         #
-        # A helper function to return the command line statement string to connect to the postgress server
-        # @param pg_password [String] postgress password
+        # A helper function to return the command line statement string to connect to the postgresql server
+        # @param pg_password [String] postgresql password
         # @param vcdb_user [String] virtual center database username
         # @param vcdb_name [String] virtual center database name
         # @param vcdb_host [String] virtual center hostname. Defaults to 'localhost'
@@ -180,7 +180,7 @@ module Msf
 
         #
         # Returns a list of vpc customization contents
-        # @param pg_password [String] postgress password
+        # @param pg_password [String] postgresql password
         # @param vcdb_user [String] virtual center database username
         # @param vcdb_name [String] virtual center database name
         # @return [Hash] where the customization name is the key and value is the parsed xml doc, nil on error
@@ -214,7 +214,7 @@ module Msf
 
         #
         # Returns a list of virtual machines located on the server
-        # @param pg_password [String] postgress password
+        # @param pg_password [String] postgresql password
         # @param vcdb_user [String] virtual center database username
         # @param vcdb_name [String] virtual center database name
         # @param _vc_sym_key [String] sym key from virtual center
@@ -248,7 +248,7 @@ module Msf
 
         #
         # Returns a list of vpc customization contents
-        # @param pg_password [String] postgress password
+        # @param pg_password [String] postgresql password
         # @param vcdb_user [String] virtual center database username
         # @param vcdb_name [String] virtual center database name
         # @param vc_sym_key [String] sym key from virtual center

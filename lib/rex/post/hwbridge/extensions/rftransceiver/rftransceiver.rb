@@ -94,7 +94,7 @@ class RFTransceiver < Extension
   # Receives a packet
   # @param idx [Integer] HW Index
   # @param opt [Hash] Optional parameters: "timeout" => Integer, "blocksize" => Integer
-  # @return [Hash] "data" => <recieved data> "timestamp" => When it was received
+  # @return [Hash] "data" => <received data> "timestamp" => When it was received
   def rfrecv(idx, opt={})
     request = "/rftransceiver/#{idx}/rfrecv"
     if opt.size() > 0

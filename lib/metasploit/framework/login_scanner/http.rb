@@ -235,9 +235,9 @@ module Metasploit
         # @option opts [Credential] 'credential' A credential object
         # @option opts [Rex::Proto::Http::Client] 'http_client' object that can be used by the function
         # @option opts ['Hash'] 'context' A context
-        # @raise [Rex::ConnectionError] One of these errors has occured: EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
+        # @raise [Rex::ConnectionError] One of these errors has occurred: EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
         # @return [Rex::Proto::Http::Response] The HTTP response
-        # @return [NilClass] An error has occured while reading the response (see #Rex::Proto::Http::Client#read_response)
+        # @return [NilClass] An error has occurred while reading the response (see #Rex::Proto::Http::Client#read_response)
         def send_request(opts)
           close_client = !opts.key?(:http_client)
           cli = opts.fetch(:http_client) { create_client(opts) }
@@ -418,7 +418,7 @@ module Metasploit
           self.http_success_codes = DEFAULT_HTTP_SUCCESS_CODES if self.http_success_codes.nil?
 
           # Note that this doesn't cover the case where ssl is unset and
-          # port is something other than a default. In that situtation,
+          # port is something other than a default. In that situation,
           # we don't know what the user has in mind so we have to trust
           # that they're going to do something sane.
           if !(self.ssl) && self.port.nil?

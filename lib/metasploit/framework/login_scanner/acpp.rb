@@ -24,7 +24,7 @@ module Metasploit
 
 
         # This method attempts a single login with a single credential against the target
-        # @param credential [Credential] The credential object to attmpt to login with
+        # @param credential [Credential] The credential object to attempt to login with
         # @return [Metasploit::Framework::LoginScanner::Result] The LoginScanner Result object
         def attempt_login(credential)
           result_options = {

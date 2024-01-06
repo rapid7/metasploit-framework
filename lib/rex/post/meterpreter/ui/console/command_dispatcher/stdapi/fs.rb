@@ -1120,7 +1120,7 @@ class Console::CommandDispatcher::Stdapi::Fs
   #
   # Provide a generic tab completion for client file names.
   # This tab complete method would create request to the client, so
-  # sometimes it wouldn't execute successfully especailly on bad network.
+  # sometimes it wouldn't execute successfully especially on bad network.
   #
   def tab_complete_cfilenames(str, words)
     tab_complete_path(str, words, false)

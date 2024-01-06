@@ -5,7 +5,7 @@ require 'rex/post/io'
 module Rex
 module Post
 
-# make this a module so we can mix it in, and have inheritence like..
+# make this a module so we can mix it in, and have inheritance like..
 # => [Rex::Post::DispatchNinja::File, Rex::Post::File,
 # Rex::Post::DispatchNinja::IO, Rex::Post::IO, Object, Kernel]
 
@@ -47,7 +47,7 @@ module File
   def File.extname(*a)
     ::File.extname(*a)
   end
-  # !!! we might actually want to handle this File::SEPERATOR stuff
+  # !!! we might actually want to handle this File::SEPARATOR stuff
   # for win32 support, etc.
   def File.join(*a)
     ::File.join(*a)
@@ -79,7 +79,7 @@ module File
   end
 
   # this, along with all the other globbing/search stuff, probably
-  # won't get implemented, atleast for a bit...
+  # won't get implemented, at least for a bit...
   def File.expand_path
     raise NotImplementedError
   end

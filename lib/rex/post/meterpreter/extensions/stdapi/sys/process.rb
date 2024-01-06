@@ -54,7 +54,7 @@ class Process < Rex::Post::Process
   end
 
   #
-  # Attachs to the supplied process with a given set of permissions.
+  # Attaches to the supplied process with a given set of permissions.
   #
   def Process.open(pid = nil, perms = nil)
     real_perms = 0
@@ -388,7 +388,7 @@ class Process < Rex::Post::Process
 
   #
   # Block until this process terminates on the remote side.
-  # By default we choose not to allow a packet responce timeout to
+  # By default we choose not to allow a packet response timeout to
   # occur as we may be waiting indefinatly for the process to terminate.
   #
   def wait( timeout = -1 )

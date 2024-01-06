@@ -69,7 +69,7 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
 
     print_status( "Starting DHCP server ...")
     client.lanattacks.dhcp.start
-    print_good( "DHCP server startd.")
+    print_good( "DHCP server started.")
   end
 
   @@dhcp_stop_opts = Rex::Parser::Arguments.new(

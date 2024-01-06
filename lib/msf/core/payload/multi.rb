@@ -7,7 +7,7 @@
 ###
 module Msf::Payload::Multi
 
-  # TOOD: require the appropriate stuff!
+  # TODO: require the appropriate stuff!
   # TODO: figure out what to do here
   def apply_prepends(raw)
     ''

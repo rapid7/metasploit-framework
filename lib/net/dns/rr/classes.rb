@@ -102,7 +102,7 @@ module Net # :nodoc:
           end
         end
 
-        # Contructor for numeric data class
+        # Constructor for numeric data class
         # *PRIVATE* method
         def new_from_num(cls)
           raise ClassArgumentError, "Invalid class #{cls}" if cls < 0 || cls > 0xFFFF

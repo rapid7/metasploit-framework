@@ -28,7 +28,7 @@ class RawSocket # :nodoc:
     # Set correct protocol version in the header
     @version = @dest_addr.ipv4? ? "0100" : "0110"
     
-    # Total lenght: must be overridden by subclasses
+    # Total length: must be overridden by subclasses
     @tot_lenght = 20
 
     # Protocol: must be overridden by subclasses
@@ -121,7 +121,7 @@ class UdpRawSocket < RawSocket # :nodoc:
     @src_port  = check_port src_port
     @dest_port = check_port dest_port
     
-    # Total lenght: must be overridden by subclasses
+    # Total length: must be overridden by subclasses
     @tot_lenght = 20 + 8 # 8 bytes => UDP Header
 
     # Protocol: must be overridden by subclasses

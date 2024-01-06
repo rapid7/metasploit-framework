@@ -22,7 +22,7 @@ module Net # :nodoc:
     # Size of the question portion (type and class)
     QFIXEDSZ = 4
     
-    # Size of an RR portion (type,class,lenght and ttl)
+    # Size of an RR portion (type,class,length and ttl)
     RRFIXEDSZ = 10
     
     # Size of an int 32 bit

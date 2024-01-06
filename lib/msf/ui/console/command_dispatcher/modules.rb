@@ -1044,7 +1044,7 @@ module Msf
           #
           # @param str [String] the string currently being typed before tab was hit
           # @param words [Array<String>] the previously completed words on the command line.  words is always
-          # at least 1 when tab completion has reached this stage since the command itself has been completd
+          # at least 1 when tab completion has reached this stage since the command itself has been completed
 
           def cmd_use_tabs(str, words)
             return [] if words.length > 1

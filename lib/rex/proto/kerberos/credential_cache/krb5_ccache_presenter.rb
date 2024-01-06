@@ -141,7 +141,7 @@ module Rex::Proto::Kerberos::CredentialCache
         end
       end
 
-      # calculate the bit length; we can't rely on BinData's `num_bytes` in the senario of the model being 4 bits wide.
+      # calculate the bit length; we can't rely on BinData's `num_bytes` in the scenario of the model being 4 bits wide.
       calculated_bit_length = values.sum { |value| BIN_DATA_BIT_LENGTHS.fetch(value.class) }
       bit_length ||= calculated_bit_length
 

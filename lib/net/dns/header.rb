@@ -89,7 +89,7 @@ module Net # :nodoc:
       # =Description
       #
       # The RCode class represents the RCode field in the Header portion of a  
-      # DNS packet. This field (called Response Code) is used to get informations  
+      # DNS packet. This field (called Response Code) is used to get information  
       # about the status of a DNS operation, such as a query or an update. These
       # are the values in the original Mockapetris's standard (RFC1035):
       #
@@ -318,7 +318,7 @@ module Net # :nodoc:
       #     #  |               0               |
       #     #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #
-      # This can be very usefull for didactical purpouses :)
+      # This can be very useful for didactical purpouses :)
       #
       def format 
         del = ("+-" * 16) + "+\n"
@@ -488,7 +488,7 @@ module Net # :nodoc:
       #
       # The truncated flag is used in response packets to indicate
       # that the amount of data to be trasmitted exceedes the 
-      # maximum allowed by the protocol in use, tipically UDP, and 
+      # maximum allowed by the protocol in use, typically UDP, and 
       # that the data present in the packet has been truncated. 
       # A different protocol (such has TCP) need to be used to 
       # retrieve full data.

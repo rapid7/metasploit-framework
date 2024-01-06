@@ -71,7 +71,7 @@ module Metasploit
                 # This is just md5(unicode($p)), where $p is the password.
                 # Avira uses to store their passwords, there may be other apps that also use this though.
                 # The trailing : shows an empty salt. This is because hashcat only has one unicode hash
-                # format which is combatible, type 30, but that is listed as md5(utf16le($pass).$salt)
+                # format which is compatible, type 30, but that is listed as md5(utf16le($pass).$salt)
                 # with a sample hash of b31d032cfdcf47a399990a71e43c5d2a:144816. So this just outputs
                 # The hash as *hash*: so that it is both JTR and hashcat compatible
                 return "#{cred.private.data}:"

@@ -12,7 +12,7 @@ class Net::LDAP
   # Reference the old initialize method, and ensure `reload_lib -a` doesn't attempt to refine the method
   alias_method :_old_initialize, :initialize unless defined?(_old_initialize)
 
-  # Orignal Source:
+  # Original Source:
   # https://github.com/ruby-ldap/ruby-net-ldap/blob/95cec3822cd2f60787971e19714f74fd5999595c/lib/net/ldap.rb#L548
   # Additionally tracks proxies configuration, used when making a new_connection
   def initialize(args = {})

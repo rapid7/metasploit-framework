@@ -15,7 +15,7 @@ module Metasploit
         #   @return [Credential] the Credential object the result is for
         attr_accessor :credential
         # @!attribute host
-        #   @return [String] the addess of the target host for this result
+        #   @return [String] the address of the target host for this result
         attr_accessor :host
         # @!attribute port
         #   @return [Integer] the port number of the service for this result

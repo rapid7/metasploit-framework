@@ -354,7 +354,7 @@ class RbMysql
       end
 
       # @private
-      # retrun corresponding Ruby encoding
+      # return corresponding Ruby encoding
       # @return [Encoding] encoding
       def encoding
         enc = CHARSET_ENCODING[@name.downcase]
@@ -363,7 +363,7 @@ class RbMysql
       end
 
       # @private
-      # convert encoding to corrensponding to MySQL charset
+      # convert encoding to corresponding to MySQL charset
       # @param [String] value
       # @return [String]
       def convert(value)

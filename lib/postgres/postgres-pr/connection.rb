@@ -100,7 +100,7 @@ class Connection
         raise "unknown auth type '#{msg.auth_type}' with buffer content:\n#{Rex::Text.to_hex_dump(msg.buffer.content)}"
 
       when AuthentificationKerberosV4, AuthentificationKerberosV5, AuthentificationSCMCredential
-        raise "unsupported authentification"
+        raise "unsupported authentication"
 
       when AuthentificationOk
       when ErrorResponse

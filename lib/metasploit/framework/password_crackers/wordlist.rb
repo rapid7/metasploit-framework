@@ -360,7 +360,7 @@ module Metasploit
           results.flatten.uniq
         end
 
-        # A getter for a memoized version fo the mutation keys list
+        # A getter for a memoized version of the mutation keys list
         #
         # @return [Array<Array>] a 2D array of all mutation combinations
         def mutation_keys

@@ -2430,7 +2430,7 @@ class Core
       print_line "Usage: unset [-g] var1 var2 var3 ..."
       print_line
       print_line "The unset command is used to unset one or more variables."
-      print_line "To flush all entires, specify 'all' as the variable name."
+      print_line "To flush all entries, specify 'all' as the variable name."
       print_line "With -g, operates on global datastore variables."
       print_line
     else
@@ -2719,7 +2719,7 @@ class Core
     all_lines.each_with_index do |line, line_num|
       next if (output_mods[:skip] and line_num < output_mods[:skip])
       our_lines << line if (output_mods[:keep] and line_num < output_mods[:keep])
-      # we don't wan't to keep processing if we have a :max and we've reached it already (not counting skips/keeps)
+      # we don't want to keep processing if we have a :max and we've reached it already (not counting skips/keeps)
       break if match_mods[:max] and count >= match_mods[:max]
       if eval statement
         count += 1
@@ -2874,7 +2874,7 @@ class Core
   # from all_lines by supplying the +before+ and/or +after+ parameters which are always positive
   #
   # @param all_lines [Array<String>] An array of all lines being considered for matching
-  # @param line_num [Integer] The line number in all_lines which has satisifed the match
+  # @param line_num [Integer] The line number in all_lines which has satisfied the match
   # @param after [Integer] The number of lines after the match line to include (should always be positive)
   # @param before [Integer] The number of lines before the match line to include (should always be positive)
   # @return [Array<String>] Array of lines including the line at line_num and any +before+ and/or +after+

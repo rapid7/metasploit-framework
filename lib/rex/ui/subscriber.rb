@@ -114,7 +114,7 @@ module Subscriber
     end
 
     #
-    # The user intput handle.
+    # The user input handle.
     #
     attr_accessor :user_input
 

@@ -102,7 +102,7 @@ module Anemone
     end
 
     #
-    # Add one ore more Regex patterns for URLs which should not be
+    # Add one or more Regex patterns for URLs which should not be
     # followed
     #
     def skip_links_like(*patterns)

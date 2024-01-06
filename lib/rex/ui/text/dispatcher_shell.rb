@@ -393,7 +393,7 @@ module DispatcherShell
   def initialize(prompt, prompt_char = '>', histfile = nil, framework = nil, name = nil)
     super
 
-    # Initialze the dispatcher array
+    # Initialize the dispatcher array
     self.dispatcher_stack = []
 
     # Initialize the tab completion array

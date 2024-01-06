@@ -35,14 +35,14 @@ module Net # :nodoc:
           'RT'        => 21,      # RFC 1183, Section 3.3
           'NSAP'      => 22,      # RFC 1706, Section 5
           'NSAP_PTR'  => 23,      # RFC 1348 (obsolete)
-          # The following 2 RRs are impemented in Net::DNS::SEC, TODO
+          # The following 2 RRs are implemented in Net::DNS::SEC, TODO
           'SIG'       => 24,      # RFC 2535, Section 4.1
           'KEY'       => 25,      # RFC 2535, Section 3.1
           'PX'        => 26,      # RFC 2163,
           'GPOS'      => 27,      # RFC 1712 (obsolete)
           'AAAA'      => 28,      # RFC 1886, Section 2.1
           'LOC'       => 29,      # RFC 1876
-          # The following RR is impemented in Net::DNS::SEC, TODO
+          # The following RR is implemented in Net::DNS::SEC, TODO
           'NXT'       => 30,      # RFC 2535, Section 5.2
           'EID'       => 31,      # draft-ietf-nimrod-dns-xx.txt
           'NIMLOC'    => 32,      # draft-ietf-nimrod-dns-xx.txt
@@ -53,7 +53,7 @@ module Net # :nodoc:
           'CERT'      => 37,      # RFC 2538
           'DNAME'     => 39,      # RFC 2672
           'OPT'       => 41,      # RFC 2671
-          # The following 4 RRs are impemented in Net::DNS::SEC TODO
+          # The following 4 RRs are implemented in Net::DNS::SEC TODO
           'DS'        => 43,      # draft-ietf-dnsext-delegation-signer
           'SSHFP'     => 44,      # draft-ietf-secsh-dns (No RFC # yet at time of coding)
           'RRSIG'     => 46,      # draft-ietf-dnsext-dnssec-2535typecode-change
@@ -180,7 +180,7 @@ module Net # :nodoc:
           end
         end
 
-        # Contructor for numeric data type
+        # Constructor for numeric data type
         # *PRIVATE* method
         def new_from_num(type)
           raise TypeArgumentError, "Invalid type #{type}" if type < 0 || type > 0xFFFF

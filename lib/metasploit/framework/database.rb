@@ -17,7 +17,7 @@ module Metasploit
       # Module Methods
       #
 
-      # Returns first configuration pathname from configuration_pathnames or the overridding `:path`.
+      # Returns first configuration pathname from configuration_pathnames or the overriding `:path`.
       #
       # @param options [Hash{Symbol=>String}]
       # @option options [String] :path Path to use instead of first element of configurations_pathnames

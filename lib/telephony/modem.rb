@@ -171,7 +171,7 @@ class Modem
     while @sp.getc; end
   end
 
-  # TODO: confert all calls to Modem.params to Modem.modem_params and remove this def
+  # TODO: convert all calls to Modem.params to Modem.modem_params and remove this def
   def params=(params)
     @sp.modem_params = params
   end

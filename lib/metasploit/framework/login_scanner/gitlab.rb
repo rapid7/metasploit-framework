@@ -46,7 +46,7 @@ module Metasploit
             auth_token = res.body.scan(/<input name="authenticity_token" type="hidden" value="(.*?)"/).flatten[0]
 
             # New versions of GitLab use an alternative scheme
-            # Try it, if the old one was not successfull
+            # Try it, if the old one was not successful
             auth_token = res.body.scan(/<input type="hidden" name="authenticity_token" value="(.*?)"/).flatten[0] unless auth_token
 
             fail RuntimeError, 'Unable to get Session Cookie' unless local_session_cookie

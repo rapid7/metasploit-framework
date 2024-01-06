@@ -64,7 +64,7 @@ module Rex
 
       #
       # Get the file from the MFT number
-      # The size must be gived because the $FILENAME attribute
+      # The size must be given because the $FILENAME attribute
       # in the MFT entry does not contain it
       # The file is in $DATA (128) Attribute
       #

@@ -196,7 +196,7 @@ class Console::CommandDispatcher::Core
   def cmd_status_help
     print_line("Usage: status")
     print_line
-    print_line "Retrives the devices current status and statistics"
+    print_line "Retrieves the devices current status and statistics"
   end
 
   #

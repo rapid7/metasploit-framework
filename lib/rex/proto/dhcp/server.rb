@@ -36,7 +36,7 @@ class Server
     if ipstart
       self.start_ip = Rex::Socket.addr_atoi(ipstart)
     else
-      # Use the first 3 octects of the server's IP to construct the
+      # Use the first 3 octets of the server's IP to construct the
       # default range of x.x.x.32-254
       self.start_ip = "#{self.ipstring[0..2]}\x20".unpack("N").first
     end
@@ -46,7 +46,7 @@ class Server
     if ipend
       self.end_ip = Rex::Socket.addr_atoi(ipend)
     else
-      # Use the first 3 octects of the server's IP to construct the
+      # Use the first 3 octets of the server's IP to construct the
       # default range of x.x.x.32-254
       self.end_ip = "#{self.ipstring[0..2]}\xfe".unpack("N").first
     end
@@ -88,7 +88,7 @@ class Server
     end
 
     self.leasetime = 600
-    self.relayip = "\x00\x00\x00\x00" # relay ip - not currently suported
+    self.relayip = "\x00\x00\x00\x00" # relay ip - not currently supported
     self.pxeconfigfile = "update2"
     self.pxealtconfigfile = "update0"
     self.pxepathprefix = ""

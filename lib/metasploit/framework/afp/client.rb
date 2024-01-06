@@ -83,7 +83,7 @@ module Metasploit
           when -5001 #kFPAuthContinue
             return parse_login_response_add_send_login_count(response, {:p => p, :g => g, :ra => ra, :ma => ma,
                                                                         :password => pass, :user => user})
-          when -5023 #kFPUserNotAuth (User dosen't exists)
+          when -5023 #kFPUserNotAuth (User doesn't exists)
             return :skip_user
           else
             return :connection_error
@@ -273,7 +273,7 @@ module Metasploit
               parsed_addreses << IPAddr.ntop(address[1..4]).to_s
             when 2 # Four-byte IP address followed by a two-byte port number
               parsed_addreses <<  "#{IPAddr.ntop(address[1..4])}:#{address[5..6].unpack("n").first}"
-            when 3 # DDP address (depricated)
+            when 3 # DDP address (deprecated)
               next
             when 4 # DNS name (maximum of 254 bytes)
               parsed_addreses << address[1..address.length - 1]

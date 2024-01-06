@@ -390,7 +390,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 
     keyscan_opts = Rex::Parser::Arguments.new(
       "-h" => [ false, "Help Banner." ],
-      "-v" => [ false, "Verbose logging: tracks the current active window in which keystrokes are occuring." ]
+      "-v" => [ false, "Verbose logging: tracks the current active window in which keystrokes are occurring." ]
     )
 
     keyscan_opts.parse(args) { | opt |

@@ -346,7 +346,7 @@ Shell Banner:
       print_status("Using `script` to pop up an interactive shell")
       # Payload: script /dev/null
       # Using /dev/null to make sure there is no log file on the target machine
-      # Prevent being detected by the admin or antivirus softwares
+      # Prevent being detected by the admin or antivirus software
       shell_command("#{script_path} /dev/null")
       return
     end

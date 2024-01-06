@@ -45,7 +45,7 @@ end
 ###
 module PacketDispatcher
 
-  # Defualt time, in seconds, to wait for a response after sending a packet
+  # Default time, in seconds, to wait for a response after sending a packet
   PACKET_TIMEOUT = 600
 
   # Number of seconds to wait without getting any packets before we try to

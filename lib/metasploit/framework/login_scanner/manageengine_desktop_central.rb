@@ -12,7 +12,7 @@ module Metasploit
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
 
-        # Checks if the target is ManageEngine Dekstop Central.
+        # Checks if the target is ManageEngine Desktop Central.
         #
         # @return [Boolean] TrueClass if target is MSP, otherwise FalseClass
         def check_setup
