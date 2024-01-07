@@ -333,7 +333,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
     allow(double).to receive(:sessions).and_return([])
     allow_any_instance_of(Msf::Post).to receive(:framework).and_return(double)
 
-    # Test for setting uncomplete option
+    # Test for setting incomplete option
     output = core.cmd_set_tabs(option, ["set"])
     expect(output).to be_kind_of(Array).or eq(nil)
 

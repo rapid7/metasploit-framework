@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 RSpec.describe 'Rex::Proto::SIP::Response parsing' do
-  describe 'Parses vaild responses correctly' do
+  describe 'Parses valid responses correctly' do
     specify do
       resp = 'SIP/1.0 123 Sure, OK'
       r = ::Rex::Proto::SIP::Response.parse(resp)

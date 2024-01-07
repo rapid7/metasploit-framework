@@ -333,7 +333,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
         end
       end
 
-      context 'when the -i option is provided with 2 valid ids (comma seperated)' do
+      context 'when the -i option is provided with 2 valid ids (comma separated)' do
         it 'should show both tickets' do
           subject.cmd_klist '-i', "#{valid_ccache_id},#{expired_ccache_id}"
           expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
@@ -347,7 +347,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
         end
       end
 
-      context 'when the -i option is provided with 2 valid ids (quoted and space seperated)' do
+      context 'when the -i option is provided with 2 valid ids (quoted and space separated)' do
         it 'should show both tickets' do
           subject.cmd_klist '-i', "#{valid_ccache_id} #{expired_ccache_id}"
           expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
@@ -361,7 +361,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
         end
       end
 
-      context 'when the -i option is provided with 2 valid ids (quoted and comma + space seperated)' do
+      context 'when the -i option is provided with 2 valid ids (quoted and comma + space separated)' do
         it 'should show both tickets' do
           subject.cmd_klist '-i', "#{valid_ccache_id}, #{expired_ccache_id}"
           expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE

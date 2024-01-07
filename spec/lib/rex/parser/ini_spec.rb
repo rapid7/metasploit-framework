@@ -2,7 +2,7 @@
 RSpec.describe Rex::Parser::Ini do
   let(:ini_contents) { <<EOF
 # global comment
-global settting = blah
+global setting = blah
 [foo]
 a = b
 [bar]
