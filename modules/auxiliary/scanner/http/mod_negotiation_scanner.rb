@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
 
       return if not res
 
-      # Sheck for alternates header
+      # Check for alternates header
       if(res.code == 406)
         print_status(ip.to_s)
       end

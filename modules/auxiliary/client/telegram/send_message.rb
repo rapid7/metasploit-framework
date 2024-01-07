@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('CHAT_ID', [false, 'Chat ID for the BOT', '']),
         OptPath.new('DOCUMENT', [false, 'The path to the document(binary, video etc)']),
         OptPath.new('IDFILE', [false, 'File containing chat IDs, one per line']),
-        OptEnum.new('FORMATTING', [false, 'Message formating option (Markdown|MarkdownV2|HTML)', 'Markdown', [ 'Markdown', 'MarkdownV2', 'HTML']])
+        OptEnum.new('FORMATTING', [false, 'Message formatting option (Markdown|MarkdownV2|HTML)', 'Markdown', [ 'Markdown', 'MarkdownV2', 'HTML']])
       ], self.class
     )
   end

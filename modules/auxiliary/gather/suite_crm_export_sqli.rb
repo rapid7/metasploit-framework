@@ -134,7 +134,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  # This module sends this same request multiple times. In order to reduce code it has beed moved it into it's owm method
+  # This module sends this same request multiple times. In order to reduce code it has been moved it into it's owm method
   def send_injection_request_cgi(payload)
     res = send_request_cgi({
       'method' => 'POST',

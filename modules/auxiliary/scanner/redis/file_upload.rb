@@ -135,8 +135,8 @@ class MetasploitModule < Msf::Auxiliary
     # setting a key/value pair in the database to something such that when the
     # redis db is saved, the contents of what we are uploading will appear
     # intact in the middle of the db itself.  The hope is that something
-    # interpretting this file will ignore or be OK-enough with the rest of the
-    # file such that what we uploaded will be interpretted as if it contained
+    # interpreting this file will ignore or be OK-enough with the rest of the
+    # file such that what we uploaded will be interpreted as if it contained
     # only the contents of what we uploaded.  For example, here is a nearly
     # empty redis database that started with a single key (foo) value (bar)
     # pair, and the contents of what we uploaded was the current date:

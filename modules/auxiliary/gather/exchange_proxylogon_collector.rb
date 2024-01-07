@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           All components are vulnerable by default.
         },
         'Author' => [
-          'Orange Tsai', # Dicovery (Officially acknowledged by MSRC)
+          'Orange Tsai', # Discovery (Officially acknowledged by MSRC)
           'GreyOrder', # PoC (https://github.com/GreyOrder)
           'mekhalleh (RAMELLA Sébastien)' # Module author independent researcher (work at Zeop Entreprise)
         ],
@@ -88,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
 
     response = send_xml('POST', ssrf, soap_countitems(action['id_attribute']))
     if response.body =~ /Success/
-      print_good("Successfuly connected to: #{action['id_attribute']}")
+      print_good("Successfully connected to: #{action['id_attribute']}")
       xml = Nokogiri::XML.parse(response.body)
 
       folder_id = xml.at_xpath('//t:ContactsFolder/t:FolderId', XMLNS)&.values&.at(0)
@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
 
     response = send_xml('POST', ssrf, soap_countitems(datastore['FOLDER']))
     if response.body =~ /Success/
-      print_good("Successfuly connected to: #{datastore['FOLDER']}")
+      print_good("Successfully connected to: #{datastore['FOLDER']}")
       xml = Nokogiri::XML.parse(response.body)
 
       folder_id = xml.at_xpath('//t:Folder/t:FolderId', XMLNS)&.values&.at(0)
@@ -393,7 +393,7 @@ class MetasploitModule < Msf::Auxiliary
     server_name = response.headers['X-FEServer']
     print_status("Internal server name (#{server_name})")
 
-    # get informations by autodiscover request.
+    # get information by autodiscover request.
     print_status(message('Sending autodiscover request'))
     server_id, legacy_dn, owa_urls = request_autodiscover(server_name)
 

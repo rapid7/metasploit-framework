@@ -108,9 +108,9 @@ class MetasploitModule < Msf::Auxiliary
       if res.nil? || res.body.nil?
         fail_with(Failure::UnexpectedReply, 'Unexpected reply while deleting the alias')
       elsif res.body =~ %r{<ul class="flash-error">.*<li.*#{target_alias}.*</li>.*</ul>}mi
-        fail_with(Failure::NotVulnerable, 'It seems the target is not vulerable, the deletion of the target alias failed.')
+        fail_with(Failure::NotVulnerable, 'It seems the target is not vulnerable, the deletion of the target alias failed.')
       else
-        fail_with(Failure::Unknown, 'An unexpected failure occured.')
+        fail_with(Failure::Unknown, 'An unexpected failure occurred.')
       end
     end
     print_good('Deleted the old alias')
@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
       elsif res.body =~ /<ul class="flash-error">/mi
         fail_with(Failure::UnexpectedReply, 'It seems the new alias couldn\'t be added.')
       else
-        fail_with(Failure::Unknown, 'An unexpected failure occured.')
+        fail_with(Failure::Unknown, 'An unexpected failure occurred.')
       end
     end
     print_good('New alias created')

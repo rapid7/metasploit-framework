@@ -98,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
         return false
       end
       method,hash = request.headers['Authorization'].split(/\s+/,2)
-      # If the method isn't NTLM something odd is goign on.
+      # If the method isn't NTLM something odd is going on.
       # Regardless, this won't get what we want, 404 them
       if(method != "NTLM")
         print_status("Unrecognized Authorization header, responding with 404")
@@ -463,7 +463,7 @@ class MetasploitModule < Msf::Auxiliary
     return files
   end
 
-  # start a service. This methos copies a lot of logic/code from psexec (and smb_relay)
+  # start a service. This method copies a lot of logic/code from psexec (and smb_relay)
   def smb_pwn(ser_sock, cli_sock)
 
     # filename is a little finicky, it needs to be in a format like

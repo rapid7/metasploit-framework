@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   #
-  # Stub fucntion to test custom methods
+  # Stub function to test custom methods
   # Defines a method "sample_cmd" with one argument "data" which is required
   #
   def get_custom_methods
@@ -172,7 +172,7 @@ class MetasploitModule < Msf::Auxiliary
   # data = string of hex bytes to send
   # OPT = Options
   #    timeout = optional int to timeout on lack of response
-  #    maxpkts = max number of packets to recieve
+  #    maxpkts = max number of packets to receive
   #    padding = append bytes to end of packet (Doesn't increase reported ISO-TP size)
   #    fc = flow control, if true forces flow control packets
   def isotp_send_and_wait(bus, srcid, dstid, data, opt = {})
@@ -258,7 +258,7 @@ class MetasploitModule < Msf::Auxiliary
   #
   def sample_custom_method(data)
     res = {}
-    res["value"] = "Succesfully processed: #{data}"
+    res["value"] = "Successfully processed: #{data}"
     res
   end
 

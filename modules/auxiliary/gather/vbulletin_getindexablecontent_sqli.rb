@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     table_prfx = table_name.split('language')[0]
-    print_good("Sucessfully retrieved table to get prefix from #{table_name}.")
+    print_good("Successfully retrieved table to get prefix from #{table_name}.")
 
     table_prfx
   end
@@ -114,7 +114,7 @@ class MetasploitModule < Msf::Auxiliary
 
     return nil unless res && res.code == 200 && (parsed_resp = res.get_json_document) && !parsed_resp['errors']
 
-    print_good("Sucessfully found node at id #{id}")
+    print_good("Successfully found node at id #{id}")
     true
   end
 

@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
           of SQL queries without authentication, using this vulnerability, it's
           possible to retrieve usernames and password hashes of registered users,
           device configuration, and other data, it's also possible to add users,
-          or edit database informations.
+          or edit database information.
         },
         'License' => MSF_LICENSE,
         'Author' => [

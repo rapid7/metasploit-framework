@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
   def netbios_spam
     payload =
         "\xff\xff"   + # TX ID (will brute force this)
-        "\x85\x00"   + # Flags = response + authoratative + recursion desired
+        "\x85\x00"   + # Flags = response + authoritative + recursion desired
         "\x00\x00"   + # Questions = 0
         "\x00\x01"   + # Answer RRs = 1
         "\x00\x00"   + # Authority RRs = 0

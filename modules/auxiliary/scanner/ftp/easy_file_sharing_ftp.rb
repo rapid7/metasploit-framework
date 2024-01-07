@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
       connect_login
       sock = data_connect
       if sock.nil?
-        error_msg = 'data_connect failed; posssible invalid response'
+        error_msg = 'data_connect failed; possible invalid response'
         print_status(error_msg)
         elog(error_msg)
       else
@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
         # read the file data from the socket that we opened
         # dont assume theres still a sock to read from. Per #7582
         if sock.nil?
-          error_msg = 'data_connect failed; posssible invalid response'
+          error_msg = 'data_connect failed; possible invalid response'
           print_status(error_msg)
           elog(error_msg)
           return

@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptInt.new('ErrorCode', [ true,  "The expected http code for non existant directories", 404]),
+        OptInt.new('ErrorCode', [ true,  "The expected http code for non existent directories", 404]),
         OptPath.new('HTTP404Sigs', [ false, "Path of 404 signatures to use",
           File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt")
         ]),

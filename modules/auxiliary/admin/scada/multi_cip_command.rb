@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
         raise ::Rex::ConnectionTimeout
       end
     rescue ::Interrupt
-      print_error("#{rhost}:#{rport} - CIP - Interrupt during session negotation")
+      print_error("#{rhost}:#{rport} - CIP - Interrupt during session negotiation")
       raise $!
     rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused => e
       print_error("#{rhost}:#{rport} - CIP - Network error during session negotiation: #{e}")

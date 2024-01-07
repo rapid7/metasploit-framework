@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [ true,  "The test path to the page to analize", '/']),
+        OptString.new('PATH', [ true,  "The test path to the page to analyze", '/']),
         OptRegexp.new('PATTERN', [ true,  "The regex to use (default regex is a sample to grab page title)", '<title>(.*)</title>'])
 
       ])

@@ -519,7 +519,7 @@ class MetasploitModule < Msf::Auxiliary
     print_line
 
     # Sort the tests by reliability, descending.
-    # I don't like doing this directly (wihout a !), but any other sort wasn't sticking - NE
+    # I don't like doing this directly (without a !), but any other sort wasn't sticking - NE
     @all_tests = @all_tests.sort.reverse
 
     # This matters a lot less for noscript exploits since they basically
@@ -892,7 +892,7 @@ class MetasploitModule < Msf::Auxiliary
   # able to autodetect).  If the currently connected client's ua_name
   # is nil, then the fingerprinting didn't work for some reason.
   # Lastly, check to see if the client's browser matches the browser
-  # targetted by this group of exploits. In all of these cases, we
+  # targeted by this group of exploits. In all of these cases, we
   # need to send all the exploits in the list.
   #
   # In contrast, if we have all of that info and it doesn't match, we

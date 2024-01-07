@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
       if data =~ /101/   #This is the expected HTTP status code. IF it's present, we have a valid upgrade response.
         print_error("WebSocket Upgrade request Successful, service not vulnerable.")
       else
-        fail_with(Failure::Unknown, "An unknown error occured")
+        fail_with(Failure::Unknown, "An unknown error occurred")
       end
 
       disconnect

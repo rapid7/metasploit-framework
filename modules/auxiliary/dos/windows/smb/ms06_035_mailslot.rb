@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
             print_error("Failed to write any data to the mailslot: #{e}")
             break
           end
-          print_error("Exception occurred on interation #{i}")
+          print_error("Exception occurred on iteration #{i}")
           print_error("Error: #{e.class} > #{e}")
           break
         end

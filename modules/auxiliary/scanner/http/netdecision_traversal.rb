@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
     file = file[1,file.length] if file[0,1] == "\\"
 
     uri = "/#{trav}#{file}"
-    print_status("#{ip}:#{rport} - Retriving #{file}")
+    print_status("#{ip}:#{rport} - Retrieving #{file}")
 
     res = send_request_raw({
       'method' => 'GET',

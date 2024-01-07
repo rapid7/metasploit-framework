@@ -174,7 +174,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     #
-    # Define our tranfer parameters
+    # Define our transfer parameters
     #
     xenv =
     [

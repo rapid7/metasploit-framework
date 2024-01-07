@@ -125,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
     else
-      vprint_status("#{full_url} - not found (No Repsonse code Received)")
+      vprint_status("#{full_url} - not found (No Response code Received)")
     end
   end
 

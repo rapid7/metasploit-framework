@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
         results.each do |result|
           unless result.empty?
             if result['username'] and result['password']
-              print_good("Retrived #{result['type']} credentials for #{architecture[0]}")
+              print_good("Retrieved #{result['type']} credentials for #{architecture[0]}")
               creds_found = true
               domain = ""
               domain = result['domain'] if result['domain']

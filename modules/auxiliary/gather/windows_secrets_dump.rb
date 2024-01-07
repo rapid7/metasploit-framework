@@ -151,7 +151,7 @@ class MetasploitModule < Msf::Auxiliary
       @lm_hash_not_stored = false
     end
   rescue RubySMB::Dcerpc::Error::WinregError => e
-    vprint_warning("An error occured when checking NoLMHash policy: #{e}")
+    vprint_warning("An error occurred when checking NoLMHash policy: #{e}")
   end
 
   def save_registry_key(hive_name)
@@ -364,7 +364,7 @@ class MetasploitModule < Msf::Auxiliary
 
     svc_config.lp_service_start_name.to_s
   rescue RubySMB::Dcerpc::Error::SvcctlError => e
-    vprint_warning("An error occured when getting #{service_name} service account: #{e}")
+    vprint_warning("An error occurred when getting #{service_name} service account: #{e}")
     return nil
   ensure
     @svcctl.close_service_handle(svc_handle) if svc_handle
@@ -379,7 +379,7 @@ class MetasploitModule < Msf::Auxiliary
         bind: false
       )
     rescue RubySMB::Dcerpc::Error::WinregError => e
-      vprint_warning("An error occured when getting the default user name: #{e}")
+      vprint_warning("An error occurred when getting the default user name: #{e}")
       return nil
     end
     return nil if username.nil? || username.empty?
@@ -1001,7 +1001,7 @@ class MetasploitModule < Msf::Auxiliary
       @svcctl.change_service_config_w(svc_handle, start_type: RubySMB::Dcerpc::Svcctl::SERVICE_DISABLED)
     end
   rescue RubySMB::Dcerpc::Error::SvcctlError => e
-    vprint_warning("An error occured when cleaning up: #{e}")
+    vprint_warning("An error occurred when cleaning up: #{e}")
   ensure
     @svcctl.close_service_handle(svc_handle) if svc_handle
   end

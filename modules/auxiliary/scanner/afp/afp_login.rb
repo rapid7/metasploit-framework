@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::Proxies,
-        OptInt.new('LoginTimeOut', [ true, "Timout on login", 23 ]),
+        OptInt.new('LoginTimeOut', [ true, "Timeout on login", 23 ]),
         OptBool.new('RECORD_GUEST', [ false, "Record guest login to the database", false]),
         OptBool.new('CHECK_GUEST', [ false, "Check for guest login", true])
       ], self)

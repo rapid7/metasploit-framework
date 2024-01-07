@@ -133,7 +133,7 @@ class MetasploitModule < Msf::Auxiliary
 
   end
 
-  # Examine the monlist reponse +data+ and extract all peer tuples (saddd, dport, daddr)
+  # Examine the monlist response +data+ and extract all peer tuples (saddd, dport, daddr)
   def extract_peer_tuples(data)
     return [] if data.length < 76
 

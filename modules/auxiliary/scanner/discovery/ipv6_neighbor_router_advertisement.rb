@@ -154,7 +154,7 @@ class MetasploitModule < Msf::Auxiliary
     @prefix = generate_prefix()
     @netifaces = true
     if not netifaces_implemented?
-      print_error("WARNING : Pcaprub is not uptodate, some functionality will not be available")
+      print_error("WARNING : Pcaprub is not up-to-date, some functionality will not be available")
       @netifaces = false
     end
 

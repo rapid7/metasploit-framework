@@ -139,7 +139,7 @@ class MetasploitModule < Msf::Auxiliary
         elsif res.code == 200
           parsed = res.get_json_document
           if parsed.empty?
-            print_error('Response recieved, but no JSON content was provided.')
+            print_error('Response received, but no JSON content was provided.')
           else
             parsed.map do |child|
               name = child['name']

@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
     if check_setup
       print_status("XMLRPC enabled, Hello message received!")
     else
-      print_error("Abborting the attack.")
+      print_error("Aborting the attack.")
       return
     end
 

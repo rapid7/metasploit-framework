@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
         },
     }, 25)
 
-    print_good "File retreived successfully"
+    print_good "File retrieved successfully"
 
     # Show data if needed
     if res and res.code == 200

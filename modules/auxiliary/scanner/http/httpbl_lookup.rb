@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       print_status ""
-      print_status "#{ip} resloves to #{result} which means: #{typestring}"
+      print_status "#{ip} resolves to #{result} which means: #{typestring}"
       print_status "=> it was last seen #{lastseen} day ago and has a threat score of #{threatnum} or \'#{threat} spam messages\'"
       print_status "=> more info here: http://www.projecthoneypot.org/ip_#{ip}\n"
     end

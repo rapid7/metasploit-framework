@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
       '0000' +  # opcode
       '0' +     # conflict
       '0' +     # truncation
-      '0' +     # tenative
+      '0' +     # tentative
       '0000' +  # zero (reserved)
       '0000'    # rcode
       )].pack('B16')

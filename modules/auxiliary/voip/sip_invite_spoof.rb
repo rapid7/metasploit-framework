@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
       conn_string = ''
 
       if not ext.nil? and not ext.empty?
-        # set extesion name/number
+        # set extension name/number
         conn_string = "#{ext}@"
       end
 

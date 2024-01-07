@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
     when "\xab\x06"
       print_error('Slave Device Busy: Slave is engaged in processing a long-duration program command.')
     when "\xab\x07"
-      print_error('Negative Acknowledge: Slave cannot perform the programming function recieved in the query.')
+      print_error('Negative Acknowledge: Slave cannot perform the programming function received in the query.')
     when "\xab\x08"
       print_error('Memory Parity Error: Slave detected a parity error in memory.')
     when "\xab\x0a"

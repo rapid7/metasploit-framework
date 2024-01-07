@@ -110,11 +110,11 @@ class MetasploitModule < Msf::Auxiliary
     f1_hex = File.binread(ns_kek_f1)
     f2_hex = File.binread(ns_kek_f2)
     unless f1_hex.match?(/^[0-9a-f]+$/i)
-      print_error('Provided F1.key is not valid hexidecimal data')
+      print_error('Provided F1.key is not valid hexadecimal data')
       raise Msf::OptionValidateError, ['NS_KEK_F1']
     end
     unless f2_hex.match?(/^[0-9a-f]+$/i)
-      print_error('Provided F2.key is not valid hexidecimal data')
+      print_error('Provided F2.key is not valid hexadecimal data')
       raise Msf::OptionValidateError, ['NS_KEK_F2']
     end
     f1_key = f1_hex[66..130].scan(/../).map(&:hex).pack('C*')
@@ -152,7 +152,7 @@ class MetasploitModule < Msf::Auxiliary
           end
           print_status("Config line:\n#{config_entry}")
           if is_kek && !@ns_kek_key
-            print_warning('Entry was encrypted with KEK but no KEK fragement files provided, decryption will not be possible')
+            print_warning('Entry was encrypted with KEK but no KEK fragment files provided, decryption will not be possible')
             next
           end
           username = parse_username_from_config(config_entry)

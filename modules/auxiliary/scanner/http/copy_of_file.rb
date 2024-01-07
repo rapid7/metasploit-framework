@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     ecode = datastore['ErrorCode'].to_i
     dm = datastore['NoDetailMessages']
 
-    # Required to calculate error code for each case as special charcters amd spaces
+    # Required to calculate error code for each case as special characters amd spaces
     # trigger different responses
 
     prestr = [

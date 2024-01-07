@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           OptString.new('OUTINF',    [true, 'The external interface connected to the internet', 'eth1']),
           OptString.new('ININF',     [true, 'The internal interface connected to the network', 'eth2']),
-          OptString.new('CLIENTIP',  [true, 'The ip of the client behing the BNAT router', '192.168.3.2']),
+          OptString.new('CLIENTIP',  [true, 'The ip of the client behind the BNAT router', '192.168.3.2']),
           OptString.new('SERVERIP',  [true, 'The ip of the server you are targeting', '1.1.2.1']),
           OptString.new('BNATIP',    [true, 'The ip of the bnat response you are getting', '1.1.2.2']),
         ])

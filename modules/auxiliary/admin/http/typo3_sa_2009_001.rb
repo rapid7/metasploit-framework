@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
       final = datastore['ENC_KEY']
       print_status('Using provided Encryption Key')
     else
-      # build the encrption key to check
+      # build the encryption key to check
       seed = seed.to_s
       rnd1 = Digest::MD5.hexdigest(seed)
       rnd2 = Digest::MD5.hexdigest(rnd1)

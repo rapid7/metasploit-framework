@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
           print_good("#{rhost}:#{rport} - Credentials successfully extracted")
         end
 
-        # store all details as loot -> there is some usefull stuff in the response
+        # store all details as loot -> there is some useful stuff in the response
         loot = store_loot('dlink.dsl320b.config', 'text/plain', rhost, res.body)
         print_good("#{rhost}:#{rport} - Configuration of DSL 320B downloaded to: #{loot}")
 
