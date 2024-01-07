@@ -240,7 +240,7 @@ class MsftidyDoc
         in_options = false
       end
 
-      if in_options && ln =~ /^\s*\*\*[a-z]+\*\*$/i # catch options in old format like **command** instead of ### comand
+      if in_options && ln =~ /^\s*\*\*[a-z]+\*\*$/i # catch options in old format like **command** instead of ### command
         warn("Options should use ### instead of bolds (**)", idx)
       end
 

@@ -70,7 +70,7 @@ class CPassword
       plaintext = aes.update(decoded)
       plaintext << aes.final
     rescue OpenSSL::Cipher::CipherError
-      # Decryption failed possibily due to bad input
+      # Decryption failed possibly due to bad input
       return ''
     end
 

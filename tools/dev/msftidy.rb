@@ -320,7 +320,7 @@ class MsftidyRunner
 
   # See if 'require "rubygems"' or equivalent is used, and
   # warn if so. Since Ruby 1.9 this has not been necessary and
-  # the framework only suports 1.9+
+  # the framework only supports 1.9+
   def check_rubygems
     @lines.each do |line|
       if line_has_require?(line, 'rubygems')

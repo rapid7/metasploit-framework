@@ -35,7 +35,7 @@ $framework = Msf::Simple::Framework.create('DisableDatabase' => true)
 all_modules = $framework.exploits
 
 # If you give an argument (any argument will do), you really want a sorted
-# list of mixins, regardles of the module they're in.
+# list of mixins, regardless of the module they're in.
 if ARGV[0]
   mod_hash = {}
   longest_name = 0
