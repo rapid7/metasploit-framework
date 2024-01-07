@@ -27,7 +27,7 @@ logs = nil
 def usage
   print_line "Meterpreter Script for searching and downloading files that"
   print_line "match a specific pattern. First save files to a file, edit and"
-  print_line("use that same file to download the choosen files.")
+  print_line("use that same file to download the chosen files.")
   print_line(@opts.usage)
   raise Rex::Script::Completed
 end

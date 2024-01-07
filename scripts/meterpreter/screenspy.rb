@@ -8,7 +8,7 @@
 
 # Author:Roni Bachar (@roni_bachar) roni.bachar.blog@gmail.com
 #
-# Thie script will open an interactive view of remote hosts
+# This script will open an interactive view of remote hosts
 # You will need firefox installed on your machine
 
 
@@ -109,11 +109,11 @@ begin
 
     if (localsys == "windows")
 
-      print_status("Runing in local mode => windows")
+      print_status("Running in local mode => windows")
       print_status("Opening Interactive view...")
       localcmd="start firefox -width 530 -height 660 \"file:///#{Msf::Config.install_root}/logs/screenshot/#{host}/video.html\""
     else
-      print_status("Runing in local mode => Linux")
+      print_status("Running in local mode => Linux")
       print_status("Opening Interactive view...")
       localcmd="bash firefox -width 530 -height 660 \"file:///#{Msf::Config.install_root}/logs/screenshot/#{host}/video.html\""
     end

@@ -21,7 +21,7 @@ session = client
 def usage
   print_line("Keylogger Recorder Meterpreter Script")
   print_line("This script will start the Meterpreter Keylogger and save all keys")
-  print_line("in a log file for later anlysis. To stop capture hit Ctrl-C")
+  print_line("in a log file for later analysis. To stop capture hit Ctrl-C")
   print_line("Usage:" + @@exec_opts.usage)
   raise Rex::Script::Completed
 end

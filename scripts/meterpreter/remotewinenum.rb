@@ -57,7 +57,7 @@ wmic = [
 ]
 ################## Function Declarations ##################
 
-# Function for running a list of WMIC commands stored in a array, returs string
+# Function for running a list of WMIC commands stored in a array, returns string
 def wmicexec(session,wmic,user,pass,trgt)
   print_status("Running WMIC Commands ....")
   tmpout = ''
@@ -137,7 +137,7 @@ end
 # Function Help Message
 def helpmsg
   print("Remote Windows Enumeration Meterpreter Script\n" +
-    "This script will enumerate windows hosts in the target enviroment\n" +
+    "This script will enumerate windows hosts in the target environment\n" +
     "given a username and password or using the credential under witch\n" +
     "Meterpreter is running using WMI wmic windows native tool.\n" +
     "Usage:\n" +

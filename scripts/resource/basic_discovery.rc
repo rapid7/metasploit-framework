@@ -2,7 +2,7 @@
 # Author: m-1-k-3 (Web: http://www.s3cur1ty.de / Twitter: @s3cur1ty_de)
 
 # This Metasploit RC-File could be used to portscan the network via nmap or via the internal portscanner module
-# it also uses the udp_sweep module and some more metasploit modules for getting more infos ans vulns
+# it also uses the udp_sweep module and some more metasploit modules for getting more infos and vulns
 # RHOSTS is used from the global datastore
 # VERBOSE is used from the global datastore
 # you can define your own Nmap options via the global NMAPOPTS variable
