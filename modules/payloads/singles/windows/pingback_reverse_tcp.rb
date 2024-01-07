@@ -69,7 +69,7 @@ module MetasploitModule
 
           mov eax, 0x0190         ; EAX = sizeof( struct WSAData )
           sub esp, eax            ; alloc some space for the WSAData structure
-          push esp                ; push a pointer to this stuct
+          push esp                ; push a pointer to this struct
           push eax                ; push the wVersionRequested parameter
           push #{Rex::Text.block_api_hash('ws2_32.dll', 'WSAStartup')}
           call ebp                ; WSAStartup( 0x0190, &WSAData );
@@ -110,7 +110,7 @@ module MetasploitModule
           jnz try_connect
         failure:
           call exitfunk
-          ; this  lable is required so that reconnect attempts include
+          ; this  label is required so that reconnect attempts include
           ; the UUID stuff if required.
         connected:
         send_pingback:

@@ -149,7 +149,7 @@ loop_modname:              ;
 not_lowercase:             ;
   ror edi, 13            ; Rotate right our hash value
   add edi, eax           ; Add the next byte of the name
-  loop loop_modname      ; Loop untill we have read enough
+  loop loop_modname      ; Loop until we have read enough
   ; We now have the module hash computed
   push edx               ; Save the current position in the module list for later
   push edi               ; Save the current module hash for later
@@ -198,7 +198,7 @@ finish:
   pop ebx                ; Clear off the current modules hash
   pop ebx                ; Clear off the current position in the module list
   popad                  ; Restore all of the callers registers, bar EAX, ECX and EDX which are clobbered
-  pop ecx                ; Pop off the origional return address our caller will have pushed
+  pop ecx                ; Pop off the original return address our caller will have pushed
   pop edx                ; Pop off the hash value our caller will have pushed
   push ecx               ; Push back the correct return value
   jmp eax                ; Jump into the required function

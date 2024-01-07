@@ -90,7 +90,7 @@ loop:
   li(      $10,#{reg_5})                 ; cacheflush() nbytes parameter
   nor   $5, $10, $0                      ; same as above
 
-  li      ($2, 4147)                     ; 0x33100224 - cacheflush sytem call
+  li      ($2, 4147)                     ; 0x33100224 - cacheflush system call
   syscall 0x52950                        ; 0x0c544a01
   nop                                    ; encoded shellcoded must be here (xor key right here ;) after decoding will result in a nop
 EOS

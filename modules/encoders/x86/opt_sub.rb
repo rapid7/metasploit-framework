@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Encoder
   end
 
   #
-  # Conver the shellcode into a set of 4-byte chunks that can be
+  # Convert the shellcode into a set of 4-byte chunks that can be
   # encoding while making sure it is 4-byte aligned.
   #
   def prepare_shellcode(sc, protect_payload)
@@ -165,7 +165,7 @@ class MetasploitModule < Msf::Encoder
       raise EncodingError, "Invalid base register"
     end
 
-    # get the offset from the specified base register, or default to zero if not specifed
+    # get the offset from the specified base register, or default to zero if not specified
     reg_offset = (datastore['BufferOffset'] || 0).to_i
 
     # calculate two opposing values which we can use for zeroing out EAX

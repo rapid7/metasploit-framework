@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Encoder
 
       if (state.badchars.match(/\(|\)/))
 
-        # No paranthesis...
+        # No parenthesis...
         raise EncodingError
       end
 
@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Encoder
     else
       if (state.badchars.match(/\(|\)/))
         if (state.badchars.include?(" "))
-          # No spaces allowed, no paranthesis, give up...
+          # No spaces allowed, no parenthesis, give up...
           raise EncodingError
         end
 

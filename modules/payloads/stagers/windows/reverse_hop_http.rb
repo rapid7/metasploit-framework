@@ -136,7 +136,7 @@ finish:
   pop ebx                ; Clear off the current modules hash
   pop ebx                ; Clear off the current position in the module list
   popad                  ; Restore all of the callers registers, bar EAX, ECX and EDX
-  pop ecx                ; Pop off the origional return address our caller will have pushed
+  pop ecx                ; Pop off the original return address our caller will have pushed
   pop edx                ; Pop off the hash value our caller will have pushed
   push ecx               ; Push back the correct return value
   jmp eax                ; Jump into the required function
