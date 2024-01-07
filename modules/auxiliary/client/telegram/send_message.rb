@@ -8,18 +8,18 @@ require 'faraday'
 class MetasploitModule < Msf::Auxiliary
   def initialize
     super(
-    'Name' => 'Telegram Message Client',
-    'Description' => %q{
+      'Name' => 'Telegram Message Client',
+      'Description' => %q{
         This module can be used to send a document and/or message to
         multiple chats on telegram. Please refer to the module
         documentation for info on how to retrieve the bot token and corresponding chat
         ID values.
         },
-    'Author' => [
-      'Ege Balcı <egebalci[at]pm.me>', # Aka @egeblc of https://pentest.blog
-      'Gaurav Purswani' # @pingport80
-    ],
-    'License' => MSF_LICENSE,
+      'Author' => [
+        'Ege Balcı <egebalci[at]pm.me>', # Aka @egeblc of https://pentest.blog
+        'Gaurav Purswani' # @pingport80
+      ],
+      'License' => MSF_LICENSE,
     )
 
     register_options(
