@@ -46,7 +46,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('Server', [ false, 'The default server to use for NTLM authentication', 'SERVER']),
         OptString.new('DnsName', [ false, 'The default DNS server name to use for NTLM authentication', 'SERVER']),
         OptString.new('DnsDomain', [ false, 'The default DNS domain name to use for NTLM authentication', 'example.com']),
-        OptBool.new('ForceDefault', [ false, 'Force the default settings', false]),
         OptPath.new('LDIF_FILE', [ false, 'Directory LDIF file path'])
       ]
     )
