@@ -494,7 +494,7 @@ module Msf
       begin
         require 'metasploit/aggregator'
       rescue LoadError
-        raise 'WARNING: metasploit/aggregator is not avaiable for now.'
+        raise 'WARNING: metasploit/aggregator is not available for now.'
       end
 
       add_console_dispatcher(AggregatorCommandDispatcher)

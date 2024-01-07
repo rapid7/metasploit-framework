@@ -851,7 +851,7 @@ module Msf
         print_good "\n"
         print_line tbl.to_s
         print_status('You can:')
-        print_status('Get detailed scan infromation about a specfic port: nessus_report_host_detail <hostname> <port> <protocol> <report id>')
+        print_status('Get detailed scan information about a specific port: nessus_report_host_detail <hostname> <port> <protocol> <report id>')
       end
 
       def cmd_nessus_report_del(*args)
@@ -1792,7 +1792,7 @@ module Msf
         elsif status == '500'
           print_error("The server failed to delete the user account having user ID #{user_id}")
         else
-          print_error("Unknown problem occured by deleting the user account having user ID #{user_id}.")
+          print_error("Unknown problem occurred by deleting the user account having user ID #{user_id}.")
         end
       end
 
@@ -1835,7 +1835,7 @@ module Msf
         elsif status == '500'
           print_error('Nessus server failed to changed the user password')
         else
-          print_error('Unknown problem occured while changing the user password')
+          print_error('Unknown problem occurred while changing the user password')
         end
       end
 
@@ -1913,7 +1913,7 @@ module Msf
         elsif status == '405'
           print_error("Policy ID #{policy_id} is currently in use and cannot be deleted")
         else
-          print_error("Unknown problem occured by deleting the user account having user ID #{user_id}.")
+          print_error("Unknown problem occurred by deleting the user account having user ID #{user_id}.")
         end
       end
     end

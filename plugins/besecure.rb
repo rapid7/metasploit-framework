@@ -152,7 +152,7 @@ module Msf
         end
 
         if body['error']
-          print_error("#{@hostname} - An error occured:")
+          print_error("#{@hostname} - An error occurred:")
           print_error(body)
           return ''
         end
@@ -207,7 +207,7 @@ module Msf
         end
 
         if body['error']
-          print_error("#{@hostname} - An error occured:")
+          print_error("#{@hostname} - An error occurred:")
           print_error(body)
           return ''
         end
@@ -257,7 +257,7 @@ module Msf
           end
 
           if body['error']
-            print_error("#{@hostname} - An error occured:")
+            print_error("#{@hostname} - An error occurred:")
             print_error(body)
             return ''
           end

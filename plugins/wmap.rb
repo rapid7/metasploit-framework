@@ -327,7 +327,7 @@ module Msf
         self.nmaxdisplay = false
         self.runlocal = false
 
-        # Formating
+        # Formatting
         sizeline = 60
 
         wmap_show = 2**0
@@ -1091,7 +1091,7 @@ module Msf
 
           #
           # Handle modules that need to be after all tests, once.
-          # Good place to have modules that analize the test results and/or
+          # Good place to have modules that analyze the test results and/or
           # launch exploits.
           # :wmap_generic
           #
@@ -1409,7 +1409,7 @@ module Msf
           sites = serv.web_sites.where('vhost = ? and service_id = ?', vhost, serv.id)
 
           sites.each do |site|
-            # Initial defaul path
+            # Initial default path
             inipath = target.path
             if target.path.empty?
               inipath = '/'
