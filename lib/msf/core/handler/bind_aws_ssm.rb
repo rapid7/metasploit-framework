@@ -211,7 +211,7 @@ module BindAwsSsm
       ctimeout = exploit_config['active_timeout'].to_i
     end
 
-    # Ignore this if one of the requried options is missing
+    # Ignore this if one of the required options is missing
     return if datastore['EC2_ID'].blank?
 
     # Only try the same host/port combination once

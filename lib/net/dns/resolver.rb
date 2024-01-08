@@ -121,7 +121,7 @@ module Net # :nodoc:
       # do, look at the description of each.
       # Some example:
       #
-      #   # Use the sistem defaults
+      #   # Use the system defaults
       #   res = Net::DNS::Resolver.new
       #
       #   # Specify a configuration file
@@ -402,12 +402,12 @@ module Net # :nodoc:
       #
       #   res.source_port = 40000
       #
-      # Note that if you want to set a port you need root priviledges, as
+      # Note that if you want to set a port you need root privileges, as
       # raw sockets will be used to generate packets. The class will then
       # generate the exception ResolverPermissionError if you're not root.
       #
       # The default is 0, which means that the port will be chosen by the
-      # underlaying layers.
+      # underlying layers.
       #
       def source_port=(num)
         unless root?
@@ -445,11 +445,11 @@ module Net # :nodoc:
       #
       # Another way to use this option is for some kind of spoofing attacks
       # towards weak nameservers, to probe the security of your network.
-      # This includes specifing ranged attacks such as DoS and others. For
+      # This includes specifying ranged attacks such as DoS and others. For
       # a paper on DNS security, checks http://www.marcoceresa.com/security/
       #
       # Note that if you want to set a non-binded source address you need
-      # root priviledges, as raw sockets will be used to generate packets.
+      # root privileges, as raw sockets will be used to generate packets.
       # The class will then generate an exception if you're not root.
       #
       # The default is 0.0.0.0, meaning any local address (chosen on routing
@@ -562,7 +562,7 @@ module Net # :nodoc:
       end
       alias_method :recurse=, :recursive=
 
-      # Return a string rapresenting the resolver state, suitable
+      # Return a string representing the resolver state, suitable
       # for printing on the screen.
       #
       #   puts "Resolver state:"
@@ -681,7 +681,7 @@ module Net # :nodoc:
       # Return an object representing the value of the stored TCP
       # timeout the resolver will use in is queries. This object
       # is an instance of the class +TcpTimeout+, and two methods
-      # are available for printing informations: TcpTimeout#to_s
+      # are available for printing information: TcpTimeout#to_s
       # and TcpTimeout#pretty_to_s.
       #
       # Here's some example:
@@ -714,7 +714,7 @@ module Net # :nodoc:
       # Return an object representing the value of the stored UDP
       # timeout the resolver will use in is queries. This object
       # is an instance of the class +UdpTimeout+, and two methods
-      # are available for printing informations: UdpTimeout#to_s
+      # are available for printing information: UdpTimeout#to_s
       # and UdpTimeout#pretty_to_s.
       #
       # Here's some example:
@@ -751,7 +751,7 @@ module Net # :nodoc:
       #
       #   res.log_file = $stderr
       #
-      # Note that a new logging facility will be create, destroing
+      # Note that a new logging facility will be create, destroying
       # the old one, which will then be impossibile to recover.
       #
       def log_file=(log)
@@ -801,7 +801,7 @@ module Net # :nodoc:
       # -d switch is used at the command line) the logger level is
       # automatically set at DEGUB.
       #
-      # For further informations, see Logger documentation in the
+      # For further information, see Logger documentation in the
       # Ruby standard library.
       #
       def log_level=(level)

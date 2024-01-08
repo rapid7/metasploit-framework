@@ -461,7 +461,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
           stat.call(msg, src_file, dest_file)
         end while (data != nil)
       else
-        # do the simple copying quiting on the first error
+        # do the simple copying quitting on the first error
         while ((data = src_fd.read(block_size)) != nil)
           dst_fd.write(data)
           percent = dst_fd.pos.to_f / src_stat.size.to_f * 100.0
@@ -515,7 +515,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
   ##
   #
-  # IO implementators
+  # IO implementers
   #
   ##
 

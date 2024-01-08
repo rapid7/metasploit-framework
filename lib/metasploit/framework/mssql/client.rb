@@ -32,7 +32,7 @@ module Metasploit
               0x0000, #length
               0x0000, # SPID
               0x01,   # PacketID (unused upon specification
-              # but ms network monitor stil prefer 1 to decode correctly, wireshark don't care)
+              # but ms network monitor still prefer 1 to decode correctly, wireshark don't care)
               0x00   #Window
             ]
 
@@ -138,7 +138,7 @@ module Metasploit
                 0x0000, #length
                 0x0000, # SPID
                 0x01,   # PacketID (unused upon specification
-                # but ms network monitor stil prefer 1 to decode correctly, wireshark don't care)
+                # but ms network monitor still prefer 1 to decode correctly, wireshark don't care)
                 0x00   #Window
             ]
 
@@ -262,7 +262,7 @@ module Metasploit
               resp = mssql_send_recv(pkt)
             end
 
-            #SQL Server Authentification
+            #SQL Server Authentication
           else
             idx = 0
             pkt = ''

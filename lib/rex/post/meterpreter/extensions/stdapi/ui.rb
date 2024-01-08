@@ -203,7 +203,7 @@ class UI < Rex::Post::UI
       request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_BUFFER, screenshot_dll, false, true )
     end
 
-    # send the request and return the jpeg image if successfull.
+    # send the request and return the jpeg image if successful.
     response = client.send_request( request )
     if( response.result == 0 )
       return response.get_tlv_value( TLV_TYPE_DESKTOP_SCREENSHOT )

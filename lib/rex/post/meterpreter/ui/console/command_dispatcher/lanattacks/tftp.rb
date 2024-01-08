@@ -65,7 +65,7 @@ class Console::CommandDispatcher::Lanattacks::Tftp
 
     print_status( "Starting TFTP server ..." )
     client.lanattacks.tftp.start
-    print_good( "TFTP server startd." )
+    print_good( "TFTP server started." )
   end
 
   @@tftp_stop_opts = Rex::Parser::Arguments.new(

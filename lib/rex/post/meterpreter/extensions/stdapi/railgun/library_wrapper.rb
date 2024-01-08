@@ -14,8 +14,8 @@ class LibraryWrapper
     @_client = client
   end
 
-  # For backwards compatability. People check if functions are added this way
-  # XXX: Depricate this
+  # For backwards compatibility. People check if functions are added this way
+  # XXX: Deprecate this
   def functions
     # warn 'Depricated.'
     _library.functions

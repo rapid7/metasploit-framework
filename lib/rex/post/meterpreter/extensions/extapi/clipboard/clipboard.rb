@@ -67,7 +67,7 @@ class Clipboard
   end
 
   #
-  # Dump the conents of the clipboard monitor to the local machine.
+  # Dump the contents of the clipboard monitor to the local machine.
   #
   def monitor_dump(opts)
     pull_img = opts[:include_images]

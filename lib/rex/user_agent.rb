@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 #
-# A helper module for using and referencing comming user agent strings.
+# A helper module for using and referencing coming user agent strings.
 #
 module Rex::UserAgent
 

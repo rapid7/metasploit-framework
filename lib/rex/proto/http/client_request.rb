@@ -513,7 +513,7 @@ class ClientRequest
   end
 
   #
-  # Return the HTTP seperator and body string
+  # Return the HTTP separator and body string
   #
   def set_body(bdata)
     return "\r\n" + bdata if opts['chunked_size'] == 0

@@ -619,7 +619,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     # A signed 16-bit signed integer that represents the server's time zone, in minutes,
     # from UTC. The time zone of the server MUST be expressed in minutes, plus or minus,
     # from UTC.
-    # NOTE: althought the spec says +/- it doesn't say that it should be inverted :-/
+    # NOTE: although the spec says +/- it doesn't say that it should be inverted :-/
     system_zone = ack['Payload'].v['ServerTimeZone']
     # Convert the ServerTimeZone to _seconds_ and back into a signed integer :-/
     if (system_zone & 0x8000) == 0x8000

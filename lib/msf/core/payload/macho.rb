@@ -14,7 +14,7 @@ class Msf::Payload::MachO
   end
 
   #
-  # Return the VM respresentation of a macho file
+  # Return the VM representation of a macho file
   #
   def flatten
     raw_data = @macho.serialize

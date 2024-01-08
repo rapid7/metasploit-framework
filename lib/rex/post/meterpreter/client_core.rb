@@ -603,7 +603,7 @@ class ClientCore < Extension
     target_process         = nil
     current_process        = nil
 
-    # Load in the stdapi extension if not allready present so we can determine the target pid architecture...
+    # Load in the stdapi extension if not already present so we can determine the target pid architecture...
     client.core.use('stdapi') if not client.ext.aliases.include?('stdapi')
 
     current_pid = client.sys.process.getpid

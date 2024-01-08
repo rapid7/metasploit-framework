@@ -16,7 +16,7 @@ module Metasploit
           #   @return [Object] The framework instance object
           attr_accessor :framework
           # @!attribute framework_module
-          #   @return [Object] The framework module caller, if availale
+          #   @return [Object] The framework module caller, if available
           attr_accessor :framework_module
           # @!attribute connection_timeout
           #   @return [Integer] The timeout in seconds for a single SSH connection
@@ -91,7 +91,7 @@ module Metasploit
           # Attempt a single login against the service with the given
           # {Credential credential}.
           #
-          # @param credential [Credential] The credential object to attmpt to
+          # @param credential [Credential] The credential object to attempt to
           #   login with
           # @return [Result] A Result object indicating success or failure
           # @abstract Protocol-specific scanners must implement this for their

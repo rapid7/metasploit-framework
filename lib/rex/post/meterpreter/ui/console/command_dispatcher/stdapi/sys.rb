@@ -660,7 +660,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 
   #
   # validates an array of pids against the running processes on target host
-  # behavior can be controlled to allow/deny proces 0 and the session's process
+  # behavior can be controlled to allow/deny process 0 and the session's process
   # the pids:
   # - are converted to integers
   # - have had pid 0 removed unless allow_pid_0
@@ -686,7 +686,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     # get the current session pid so we don't suspend it later
     mypid = client.sys.process.getpid.to_i
 
-    # remove nils & redundant pids, conver to int
+    # remove nils & redundant pids, convert to int
     clean_pids = pids.compact.uniq.map{|x| x.to_i}
     # now we look up the pids & remove bad stuff if nec
     clean_pids.delete_if do |p|

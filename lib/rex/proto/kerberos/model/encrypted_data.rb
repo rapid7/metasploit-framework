@@ -160,7 +160,7 @@ module Rex
           # Decodes the cipher from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Sting]
+          # @return [String]
           def decode_cipher(input)
             input.value[0].value
           end

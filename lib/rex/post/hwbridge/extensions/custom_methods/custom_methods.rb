@@ -33,7 +33,7 @@ class CustomMethods < Extension
   # cmd is the cmd without a path
   # args are all KEY=value pairs.  All checks are assumed to have already been done
   # methods is a hash of all methods and their formatting
-  # returns a formated response
+  # returns a formatted response
   #
   def send_request(cmd, args, methods)
     arguments = ""

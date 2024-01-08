@@ -337,7 +337,7 @@ module Metasploit
         # This method returns the version of John the Ripper or Hashcat being used.
         #
         # @raise [PasswordCrackerNotFoundError] if a suitable cracker binary was never found
-        # @return [Sring] the version detected
+        # @return [String] the version detected
         def cracker_version
           if cracker == 'john'
             cmd = binary_path
@@ -527,7 +527,7 @@ module Metasploit
 
         # This runs the show command in john and yields cracked passwords.
         #
-        # @return [Array] the output from teh command split on newlines
+        # @return [Array] the output from the command split on newlines
         def each_cracked_password
           ::IO.popen(show_command, 'rb').readlines
         end

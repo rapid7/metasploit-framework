@@ -7,7 +7,7 @@ module DRDA
 class Utils
 
   # Creates a packet with EXCSAT_DDM and an ACCSEC_DDM. This will elicit
-  # a reponse from the target server.
+  # a response from the target server.
   def self.client_probe(dbname=nil)
     pkt = [
       Rex::Proto::DRDA::Packet::EXCSAT_DDM.new,
@@ -111,7 +111,7 @@ class Utils
         next
       end
     end
-    if info_hash[:serverity].to_i.zero? and info_hash[:security_check_code].to_i.zero?
+    if info_hash[:severity_code].to_i.zero? and info_hash[:security_check_code].to_i.zero?
       info_hash[:db_login_success] = true
     end
     return info_hash

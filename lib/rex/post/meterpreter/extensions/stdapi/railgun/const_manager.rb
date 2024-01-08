@@ -94,7 +94,7 @@ class ConstManager
     consts[name] = value
   end
 
-  # parses a string constaining constants and returns an integer
+  # parses a string containing constants and returns an integer
   # the string can be either "CONST" or "CONST1 | CONST2"
   #
   # this function will NOT throw an exception but return "nil" if it can't parse a string

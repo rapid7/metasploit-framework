@@ -118,7 +118,7 @@ module Rex
             OpenSSL::ASN1::GeneralString.new(self.salt)
           end
 
-          # Encodes the parms
+          # Encodes the params
           #
           # @return [OpenSSL::ASN1::OctetString]
           def encode_s2kparams

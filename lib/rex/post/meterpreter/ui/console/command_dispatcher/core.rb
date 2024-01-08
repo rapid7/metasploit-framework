@@ -513,7 +513,7 @@ class Console::CommandDispatcher::Core
 
   @@set_timeouts_opts = Rex::Parser::Arguments.new(
     '-c' => [true, 'Comms timeout (seconds)'],
-    '-x' => [true, 'Expiration timout (seconds)'],
+    '-x' => [true, 'Expiration timeout (seconds)'],
     '-t' => [true, 'Retry total time (seconds)'],
     '-w' => [true, 'Retry wait time (seconds)'],
     '-h' => [false, 'Help menu'])
@@ -748,7 +748,7 @@ class Console::CommandDispatcher::Core
     '-N' => [true, 'Proxy password for HTTP/S transports (optional)'],
     '-B' => [true, 'Proxy type for HTTP/S transports (optional: http, socks; default: http)'],
     '-C' => [true, 'Comms timeout (seconds) (default: same as current session)'],
-    '-X' => [true, 'Expiration timout (seconds) (default: same as current session)'],
+    '-X' => [true, 'Expiration timeout (seconds) (default: same as current session)'],
     '-T' => [true, 'Retry total time (seconds) (default: same as current session)'],
     '-W' => [true, 'Retry wait time (seconds) (default: same as current session)'],
     '-v' => [false, 'Show the verbose format of the transport list'],

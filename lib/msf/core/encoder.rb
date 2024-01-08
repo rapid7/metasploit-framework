@@ -266,7 +266,7 @@ class Encoder < Module
     # If this encoder is key-based and we don't already have a key, find one
     if ((decoder_key_size) and
         (state.key == nil))
-      # Find a key that doesn't contain and wont generate any bad
+      # Find a key that doesn't contain and won't generate any bad
       # characters
       state.init_key(obtain_key(buf, badchars, state))
 

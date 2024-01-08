@@ -61,7 +61,7 @@ module Metasploit
         #   and the socket is not immediately closed
         attr_accessor :use_client_as_proof
 
-        # If login is successul and {Result#access_level} is not set
+        # If login is successful and {Result#access_level} is not set
         # then arbitrary credentials are accepted. If it is set to
         # Guest, then arbitrary credentials are accepted, but given
         # Guest permissions.

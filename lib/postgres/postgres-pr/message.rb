@@ -109,7 +109,7 @@ class UnknownMessageType < Message
   end
 end
 
-class Authentification < Message
+class Authentication < Message
   register_message_type 'R'
 
   AuthTypeMap = {}
@@ -152,7 +152,7 @@ class Authentification < Message
   end
 end
 
-class UnknownAuthType < Authentification
+class UnknownAuthType < Authentication
   attr_reader :auth_type
   attr_reader :buffer
 
@@ -162,19 +162,19 @@ class UnknownAuthType < Authentification
   end
 end
 
-class AuthentificationOk < Authentification
+class AuthentificationOk < Authentication
   register_auth_type 0
 end
 
-class AuthentificationKerberosV4 < Authentification
+class AuthentificationKerberosV4 < Authentication
   register_auth_type 1
 end
 
-class AuthentificationKerberosV5 < Authentification
+class AuthentificationKerberosV5 < Authentication
   register_auth_type 2
 end
 
-class AuthentificationClearTextPassword < Authentification
+class AuthentificationClearTextPassword < Authentication
   register_auth_type 3
 end
 
@@ -201,20 +201,20 @@ module SaltedAuthentificationMixin
   end
 end
 
-class AuthentificationCryptPassword < Authentification
+class AuthentificationCryptPassword < Authentication
   register_auth_type 4
   include SaltedAuthentificationMixin
   def salt_size; 2 end
 end
 
 
-class AuthentificationMD5Password < Authentification
+class AuthentificationMD5Password < Authentication
   register_auth_type 5
   include SaltedAuthentificationMixin
   def salt_size; 4 end
 end
 
-class AuthentificationSCMCredential < Authentification
+class AuthentificationSCMCredential < Authentication
   register_auth_type 6
 end
 
@@ -223,7 +223,7 @@ end
 #
 # Binary format:
 # https://www.postgresql.org/docs/current/protocol-message-formats.html
-class AuthenticationSASL < Authentification
+class AuthenticationSASL < Authentication
   # Int32(10) - Specifies that SASL authentication is required.
   register_auth_type 10
 
@@ -264,7 +264,7 @@ end
 
 # AuthenticationSASLContinue (B)
 # https://www.postgresql.org/docs/current/protocol-message-formats.html
-class AuthenticationSASLContinue < Authentification
+class AuthenticationSASLContinue < Authentication
   # Int32(11) - Specifies that this message contains a SASL challenge.
   register_auth_type 11
 
@@ -294,7 +294,7 @@ end
 
 # AuthenticationSASLFinal (B)
 # https://www.postgresql.org/docs/current/protocol-message-formats.html
-class AuthenticationSASLFinal < Authentification
+class AuthenticationSASLFinal < Authentication
   # Int32(11) - Specifies that this message contains a SASL challenge.
   register_auth_type 12
 

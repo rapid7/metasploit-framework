@@ -125,8 +125,8 @@ protected
       # Judge the user wants to abort the reverse shell session
       # Or just want to abort the process running on the target machine
       # If the latter, just send ASCII Control Character \u0003 (End of Text) to the socket fd
-      # The character will be handled by the line dicipline program of the pseudo-terminal on target machine
-      # It will send the SEGINT singal to the foreground process
+      # The character will be handled by the line discipline program of the pseudo-terminal on target machine
+      # It will send the SEGINT signal to the foreground process
       if !intent
         # TODO: Check the shell is interactive or not
         # If the current shell is not interactive, the ASCII Control Character will not work

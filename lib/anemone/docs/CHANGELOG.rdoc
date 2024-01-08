@@ -16,7 +16,7 @@
 
 == 0.4.0 / 2010-04-08
 
-* Major enchancements
+* Major enhancements
 
   * Cookies can be accepted and sent with each HTTP request.
 
@@ -38,7 +38,7 @@
 
 == 0.3.0 / 2009-12-15
 
-* Major enchancements
+* Major enhancements
 
   * Option for persistent storage of pages during crawl with TokyoCabinet or PStore
 
