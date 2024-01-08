@@ -39,7 +39,7 @@ filters = ['all','exploit','payload','post','nop','encoder','auxiliary']
 
 opts = Rex::Parser::Arguments.new(
   "-h" => [ false, "Help menu." ],
-  "-M" => [ true, "Set Maxmimum Rank [Manual,Low,Average,Normal,Good,Great,Excellent] (Default = Excellent)." ],
+  "-M" => [ true, "Set Maximum Rank [Manual,Low,Average,Normal,Good,Great,Excellent] (Default = Excellent)." ],
   "-m" => [ true, "Set Minimum Rank [Manual,Low,Average,Normal,Good,Great,Excellent] (Default = Manual)."],
   "-s" => [ false, "Sort by Rank instead of Module Type."],
   "-r" => [ false, "Reverse Sort by Rank"],

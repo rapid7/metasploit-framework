@@ -36,7 +36,7 @@ end
 hash = pass = chall = nil
 
 $args = Rex::Parser::Arguments.new(
-  "-n" => [ true,  "The encypted LM hash to crack"                                    ],
+  "-n" => [ true,  "The encrypted LM hash to crack"                                    ],
   "-p" => [ true,  "The decrypted LANMAN password for bytes 1-7"                      ],
   "-s" => [ true,  "The server challenge (default value 1122334455667788)"            ],
   "-h" => [ false, "Display this help information"                                      ])

@@ -267,7 +267,7 @@ module Md5LookupUtility
     # Returns the parsed options from ARGV
     #
     # raise [OptionParser::InvalidOption] Invalid option found
-    # @return [OptionParser, Hash] The OptionParser object and an hash containg the options
+    # @return [OptionParser, Hash] The OptionParser object and an hash containing the options
     def self.get_parsed_options
       options = {}
       parser = OptionParser.new do |opt|
@@ -368,11 +368,11 @@ module Md5LookupUtility
       input = @opts[:input]
       dbs   = @opts[:databases]
 
-      disclamer = Md5LookupUtility::Disclaimer.new
+      disclaimer = Md5LookupUtility::Disclaimer.new
 
-      unless disclamer.has_waiver?
-        disclamer.ack
-        disclamer.save_waiver
+      unless disclaimer.has_waiver?
+        disclaimer.ack
+        disclaimer.save_waiver
       end
 
       get_hash_results(input, dbs) do |result|

@@ -55,7 +55,7 @@ def print_error(msg='')
   $stdout.puts "[-] #{msg}"
 end
 
-# Base ELM327 Class for the Realy
+# Base ELM327 Class for the Relay
 module ELM327HWBridgeRelay
 
   class ELM327Relay < Msf::Auxiliary
@@ -146,7 +146,7 @@ module ELM327HWBridgeRelay
       resp
     end
 
-    # Connects to the ELM327, resets paramters, gets device version and sets up general comms.
+    # Connects to the ELM327, resets parameters, gets device version and sets up general comms.
     # Serial params are set via command options or during initialization
     #
     # @return [SerialPort] SerialPort object for communications. Also available as @ser
@@ -160,7 +160,7 @@ module ELM327HWBridgeRelay
       resp = send_cmd("ATZ")  # Turn off ECHO
       if resp =~ /ELM327/
         send_cmd("ATE0")  # Turn off ECHO
-        send_cmd("ATL0")  # Disble linefeeds
+        send_cmd("ATL0")  # Disable linefeeds
         @device_name = send_cmd("ATI")
         send_cmd("ATH1") # Show Headers
         @operational_status = 1
@@ -301,7 +301,7 @@ module ELM327HWBridgeRelay
       { "status" => "not supported" }
     end
 
-    # Handles incomming URI requests and calls their respective API functions
+    # Handles incoming URI requests and calls their respective API functions
     #
     # @param cli [Socket] Socket for the browser
     # @param request [Rex::Proto::Http::Request] HTTP Request sent by the browser
