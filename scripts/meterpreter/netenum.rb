@@ -9,7 +9,7 @@
 #Meterpreter script for ping sweeps on Windows 2003, Windows Vista
 #Windows 2008 and Windows XP targets using native windows commands.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-#Verion: 0.1.2
+#Version: 0.1.2
 #Note:
 ################## Variable Declarations ##################
 @@exec_opts = Rex::Parser::Arguments.new(
@@ -335,7 +335,7 @@ if client.platform == 'windows'
     elsif hostlist == nil
       print_error("Please add a file with host list for DNS forward lookup: -hl <value>")
     else
-      print_error("Something went wront")
+      print_error("Something went wrong")
     end
   elsif stdlkp == 1
     if dom != nil

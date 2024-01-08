@@ -33,7 +33,7 @@ meter_type = client.platform
 # Usage Message Function
 #-------------------------------------------------------------------------------
 def usage
-  print_line "Meterpreter script for injecting a reverce tcp Meterpreter payload"
+  print_line "Meterpreter script for injecting a reverse tcp Meterpreter payload"
   print_line "in to memory of multiple PIDs. If none is provided, a notepad process"
   print_line "will be created and a Meterpreter payload will be injected in to each."
   print_line(@exec_opts.usage)

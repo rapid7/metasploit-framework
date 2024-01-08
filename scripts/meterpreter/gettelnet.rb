@@ -19,7 +19,7 @@ logs = ::File.join(Msf::Config.log_directory,'scripts', 'gettelnet')
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
 
-# Cleaup script file name
+# Cleanup script file name
 @dest = logs + "/clean_up_" + filenameinfo + ".rc"
 
 @@exec_opts = Rex::Parser::Arguments.new(

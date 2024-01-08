@@ -62,7 +62,7 @@ def priv_check
   if not is_uac_enabled? or is_admin?
     return true
   else
-    print_error("Insuficient Privileges")
+    print_error("Insufficient Privileges")
     raise Rex::Script::Completed
   end
 

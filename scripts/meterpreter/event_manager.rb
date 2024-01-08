@@ -27,7 +27,7 @@ opts = Rex::Parser::Arguments.new(
   "-c" => [ true,  "Clear a given Event Log (or ALL if no argument specified)"],
   "-f" => [ true,  "Event ID to filter events on"],
   "-s" => [ true,  "Save logs to local CSV file, optionally specify alternate folder in which to save logs"],
-  "-p" => [ false, "Supress printing filtered logs to screen"]
+  "-p" => [ false, "Suppress printing filtered logs to screen"]
 )
 
 
@@ -91,7 +91,7 @@ end
 # Function for Printing Event Log Details
 #-------------------------------------------------------------------------------
 def print_log_details
-  print_status("Retriving Event Log Configuration")
+  print_status("Retrieving Event Log Configuration")
   tbl = Rex::Text::Table.new(
     'Header'  => "Event Logs on System",
     'Indent'  => 1,

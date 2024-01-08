@@ -10,7 +10,7 @@
 #by scheduling and running a list of command against one or more targets
 #using schtasks command to run them as system. This script works with Windows XP,
 #Windows 2003, Windows Vista and Windows 2008.
-#Verion: 0.1.1
+#Version: 0.1.1
 #Note: in Vista UAC must be disabled to be able to perform scheduling
 #and the meterpreter must be running under the profile of local admin
 #or system.
@@ -47,7 +47,7 @@ def abuse(session,targets,commands,username,password,delay)
   targets.each do |t|
     next if t.strip.length < 1
     next if t[0,1] == "#"
-    #for eacg command
+    #for each command
     commands.each do |c|
       next if c.strip.length < 1
       next if c[0,1] == "#"
