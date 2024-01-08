@@ -111,7 +111,7 @@ class Utils
         next
       end
     end
-    if info_hash[:severity].to_i.zero? and info_hash[:security_check_code].to_i.zero?
+    if info_hash[:severity_code].to_i.zero? and info_hash[:security_check_code].to_i.zero?
       info_hash[:db_login_success] = true
     end
     return info_hash
