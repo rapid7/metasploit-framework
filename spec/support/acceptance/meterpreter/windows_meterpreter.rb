@@ -15,7 +15,7 @@ module Acceptance::Meterpreter
         datastore: {
           global: {},
           module: {
-            # Not suported by Windows Meterpreter
+            # Not supported by Windows Meterpreter
             # MeterpreterTryToFork: false,
             MeterpreterDebugBuild: true
           }

@@ -110,7 +110,7 @@ RSpec.describe Rex::Proto::PJL::Client do
     end
 
     context "#fsdirlist" do
-      it "should reaise an exception due to an invalid path" do
+      it "should raise an exception due to an invalid path" do
         expect { cli.fsdirlist("BAD") }.to raise_error(ArgumentError)
       end
 

@@ -336,7 +336,7 @@ RSpec.describe Msf::Post::Windows::TaskScheduler do
       subject.send(:get_system_privs)
     end
 
-    context 'when the session is alreay in SYSTEM user context' do
+    context 'when the session is already in SYSTEM user context' do
       it 'does not try to get SYSTEM privileges' do
         allow(subject).to receive(:is_system?).and_return(true)
         expect(subject).to_not receive(:session)

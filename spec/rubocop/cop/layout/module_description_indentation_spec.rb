@@ -59,7 +59,7 @@ RSpec.describe RuboCop::Cop::Layout::ModuleDescriptionIndentation do
     RUBY
   end
 
-  it 'registers an offense when a multiline description requires a preceeding new line' do
+  it 'registers an offense when a multiline description requires a preceding new line' do
     expect_offense(<<~RUBY)
       class DummyModule
         def initialize(info = {})
@@ -110,7 +110,7 @@ RSpec.describe RuboCop::Cop::Layout::ModuleDescriptionIndentation do
     RUBY
   end
 
-  it 'registers an offense when a multiline description requires a preceeding new line' do
+  it 'registers an offense when a multiline description requires a preceding new line' do
     expect_offense(<<~RUBY)
       class DummyModule
         def initialize(info = {})
