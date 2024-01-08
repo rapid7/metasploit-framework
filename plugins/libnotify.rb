@@ -45,7 +45,7 @@ module Msf
 
     def on_db_host(host)
       notify_send('normal', 'New host',
-                  "Addess: #{host.address}\nOS: #{host.os_name}")
+                  "Address: #{host.address}\nOS: #{host.os_name}")
     end
 
     def on_db_host_state(host, _ostate)

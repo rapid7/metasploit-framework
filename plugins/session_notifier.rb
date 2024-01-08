@@ -273,7 +273,7 @@ module Msf
         request.body = json_post_data
         res = http.request(request)
         if res.nil? || res.body.blank?
-          print_error('No response recieved from the DingTalk server!')
+          print_error('No response received from the DingTalk server!')
           return nil
         end
         begin
@@ -309,7 +309,7 @@ module Msf
         request.body = json_post_data
         res = http.request(request)
         if res.nil? || res.body.blank?
-          print_error('No response recieved from the Gotify server!')
+          print_error('No response received from the Gotify server!')
           return nil
         end
         begin

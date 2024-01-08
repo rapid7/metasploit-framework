@@ -195,7 +195,7 @@ module Msf
         [options, opt_parser]
       end
 
-      # Perform an HTTPS request based on the user specifed options.
+      # Perform an HTTPS request based on the user specified options.
       #
       # @param opts [Hash] The options to use for making the HTTPS request.
       # @option opts [String] :auth_username An optional username to use with
@@ -226,7 +226,7 @@ module Msf
         handle_request_http(opts, opt_parser)
       end
 
-      # Perform an HTTP request based on the user specifed options.
+      # Perform an HTTP request based on the user specified options.
       #
       # @param opts [Hash] The options to use for making the HTTP request.
       # @option opts [String] :auth_username An optional username to use with

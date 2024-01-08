@@ -545,7 +545,7 @@ module Msf
             print_status(" >> Scan has been completed with ID ##{sid}") if opt_verbose
           rescue ::Interrupt
             rep = false
-            print_status(" >> Terminating scan ID ##{sid} due to console interupt") if opt_verbose
+            print_status(" >> Terminating scan ID ##{sid} due to console interrupt") if opt_verbose
             @nsc.stop_scan(sid)
             break
           end

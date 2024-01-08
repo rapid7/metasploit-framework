@@ -424,7 +424,7 @@ module Msf
       # Converts a value to a wiki link
       # @param [String] text value to convert to a link
       # @param [String] namespace optional namespace to set for the link
-      # @return [String] the formated wiki link
+      # @return [String] the formatted wiki link
       def to_wikilink(text, namespace = '')
         return '[[' + namespace + text + ']]'
       end
@@ -537,7 +537,7 @@ module Msf
           end
           # Setup the table with some standard formatting options
           str << "{|class=\"wikitable\"\n"
-          # Output formated column names as the first row
+          # Output formatted column names as the first row
           unless columns.count.eql? 0
             str << '!'
             str << columns.join('!!')
