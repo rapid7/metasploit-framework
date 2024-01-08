@@ -102,6 +102,19 @@ module Msf
     alias :client :session
 
     #
+    # Cached sysinfo, returns nil for non-meterpreter sessions
+    #
+    # @return [Hash,nil]
+    def sysinfo
+      begin
+        @sysinfo ||= session.sys.config.sysinfo
+      rescue NoMethodError
+        @sysinfo = nil
+      end
+      @sysinfo
+    end
+
+    #
     # Can be overridden by individual modules to add new commands
     #
     def post_commands
