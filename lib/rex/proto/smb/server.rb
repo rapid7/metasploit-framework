@@ -18,7 +18,7 @@ class Server
   include Proto
   extend Forwardable
 
-  def_delegators :@rubysmb_server, :add_share, :dialects, :guid, :shares
+  def_delegators :@rubysmb_server, :dialects, :guid, :shares, :add_share, :remove_share
 
   def initialize(port = 445, listen_host = '0.0.0.0', context = {}, comm = nil, gss_provider: nil, logger: nil)
     self.listen_host     = listen_host
@@ -97,10 +97,6 @@ class Server
 
   def wait
     @listener_thread.join if @listener_thread
-  end
-
-  def add_share(share_provider, *arg)
-
   end
 
   attr_accessor :context, :comm, :listener, :listen_host, :listen_port, :on_client_connect_proc

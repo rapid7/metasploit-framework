@@ -52,3 +52,6 @@ group :test do
   # Manipulate Time.now in specs
   gem 'timecop'
 end
+
+# remove after https://github.com/rapid7/ruby_smb/pull/260 is landed
+gem 'ruby_smb', git: 'https://github.com/zeroSteiner/ruby_smb', branch: 'feat/server/remove-share'

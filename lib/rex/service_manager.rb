@@ -59,7 +59,7 @@ class ServiceManager < Hash
       return inst
     end
 
-    inst = klass.new(*args)
+    inst = klass.new(*args, **kwargs)
     als  = inst.alias
 
     # Find an alias that isn't taken.
