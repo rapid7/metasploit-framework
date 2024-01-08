@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Evasion
       OptString.new('REPLACED_WITH_FILE', [
         false,
         'File to replace the target with. If not set, the target file will be '\
-          'filled with random bytes (WARNING! it is likely to be catched by AV).',
+          'filled with random bytes (WARNING! it is likely to be caught by AV).',
         '%SystemRoot%\\System32\\calc.exe'
       ])
     ])

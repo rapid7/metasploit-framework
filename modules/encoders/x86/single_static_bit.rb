@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Encoder
     bit_val = (datastore['BitValue'] || true)
 
     # variables:
-    # bit to ignore                                  (global - harcoded)
+    # bit to ignore                                  (global - hardcoded)
     # buf len (can be deduced with a jmp/call/pop)   (global - ebx)
     # current source byte ptr                        (global - esi)
     # current dest byte ptr                          (global - edi) ?

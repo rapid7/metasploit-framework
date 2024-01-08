@@ -5,7 +5,7 @@
 
 class MetasploitModule < Msf::Encoder
 
-  # Set to ManualRanking because actually using ths encoder will
+  # Set to ManualRanking because actually using this encoder will
   # certainly destroy any possibility of a successful shell.
   #
   Rank = ManualRanking

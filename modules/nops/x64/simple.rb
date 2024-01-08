@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Nop
   end
 
   # This instruction list is far from complete (Only single byte instructions and some multi byte ADD/MOV instructions are used).
-  # A more complete list might warrent an pseudo assembler (Rex::Arch::X64) instead of hardcoding these.
+  # A more complete list might warrant an pseudo assembler (Rex::Arch::X64) instead of hardcoding these.
   INSTRUCTIONS = [	[ "\x90",             0, "nop" ],
             [ "\x91",             0, "xchg eax, ecx" ],
             [ "\x92",             0, "xchg eax, edx" ],
@@ -159,7 +159,7 @@ class MetasploitModule < Msf::Nop
       end
       next if try_another
 
-      # Get the first bytes of the chosed instructions opcodes...
+      # Get the first bytes of the chosen instructions opcodes...
       opcodes = instruction[I_OP]
 
       # If their are additional bytes to append, do it now...
@@ -182,7 +182,7 @@ class MetasploitModule < Msf::Nop
         next
       end
 
-      # Reset the try_count for the next itteration.
+      # Reset the try_count for the next iteration.
       try_count = 32
 
       # save the opcodes we just generated.
@@ -228,7 +228,7 @@ class MetasploitModule < Msf::Nop
 
     # After we have pruned the instruction list we can proceed to generate a sled...
     if good_instructions.empty?
-      # If we are left with no valid instructions to use we simple cant generate a sled.
+      # If we are left with no valid instructions to use we simple can't generate a sled.
       sled = nil
     elsif not random
       if not badchars.include?( "\x90" )
