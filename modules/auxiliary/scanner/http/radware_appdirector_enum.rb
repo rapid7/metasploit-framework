@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", true]),
         OptString.new('USERNAME', [true, "A specific username to authenticate as, default 'radware'", "radware"]),
-        OptString.new('PASSWORD', [true, "A specific password to authenticate with, deault 'radware'", "radware"])
+        OptString.new('PASSWORD', [true, "A specific password to authenticate with, default 'radware'", "radware"])
       ])
 
     deregister_options('HttpUsername', 'HttpPassword')

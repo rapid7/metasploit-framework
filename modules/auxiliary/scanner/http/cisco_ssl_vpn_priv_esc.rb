@@ -128,7 +128,7 @@ class MetasploitModule < Msf::Auxiliary
     password = Rex::Text.rand_text_alphanumeric(20)
 
     tries.times do |i|
-      vprint_good("Attemping to add User: #{username}, Pass: #{password}")
+      vprint_good("Attempting to add User: #{username}, Pass: #{password}")
       command = "username #{username} password #{password} privilege 15"
       resp = run_command(command, cookie)
 

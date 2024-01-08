@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
 
   # Attempts to negotiate the rsync protocol with the endpoint.
   def rsync_negotiate
-    # rsync is promiscuous and will send the negotitation and motd
+    # rsync is promiscuous and will send the negotiation and motd
     # upon connecting.  abort if we get nothing
     return unless (greeting = sock.get_once(-1, read_timeout))
 

@@ -114,7 +114,7 @@ func ReportValidUsers(ip string, validUsers []string) {
 			"address":      ip,
 			"protocol":     protocol,
 		}
-		module.LogInfo("Loging user: " + user)
+		module.LogInfo("Logging user: " + user)
 		module.ReportCredentialLogin(user, "", opts)
 	}
 }

@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
     ]
   }
 
-  attr_accessor :endianess
+  attr_accessor :endianness
   attr_accessor :credentials
 
   def initialize(info={})
@@ -61,12 +61,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    print_status("Attempting to connect and check endianess...")
-    @endianess = fingerprint_endian
+    print_status("Attempting to connect and check endianness...")
+    @endianness = fingerprint_endian
     @credentials = {}
 
-    if endianess.nil?
-      print_error("Failed to check endianess, aborting...")
+    if endianness.nil?
+      print_error("Failed to check endianness, aborting...")
       return
     end
     print_good("#{string_endianess} device found...")
@@ -114,11 +114,11 @@ class MetasploitModule < Msf::Auxiliary
   private
 
   def little_endian?
-    return endianess == 'LE'
+    return endianness == 'LE'
   end
 
   def big_endian?
-    return endianess == 'BE'
+    return endianness == 'BE'
   end
 
   def string_endianess

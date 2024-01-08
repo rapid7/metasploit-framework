@@ -8,18 +8,18 @@ require 'faraday'
 class MetasploitModule < Msf::Auxiliary
   def initialize
     super(
-    'Name' => 'Telegram Message Client',
-    'Description' => %q{
+      'Name' => 'Telegram Message Client',
+      'Description' => %q{
         This module can be used to send a document and/or message to
         multiple chats on telegram. Please refer to the module
         documentation for info on how to retrieve the bot token and corresponding chat
         ID values.
         },
-    'Author' => [
-      'Ege Balcı <egebalci[at]pm.me>', # Aka @egeblc of https://pentest.blog
-      'Gaurav Purswani' # @pingport80
-    ],
-    'License' => MSF_LICENSE,
+      'Author' => [
+        'Ege Balcı <egebalci[at]pm.me>', # Aka @egeblc of https://pentest.blog
+        'Gaurav Purswani' # @pingport80
+      ],
+      'License' => MSF_LICENSE,
     )
 
     register_options(
@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('CHAT_ID', [false, 'Chat ID for the BOT', '']),
         OptPath.new('DOCUMENT', [false, 'The path to the document(binary, video etc)']),
         OptPath.new('IDFILE', [false, 'File containing chat IDs, one per line']),
-        OptEnum.new('FORMATTING', [false, 'Message formating option (Markdown|MarkdownV2|HTML)', 'Markdown', [ 'Markdown', 'MarkdownV2', 'HTML']])
+        OptEnum.new('FORMATTING', [false, 'Message formatting option (Markdown|MarkdownV2|HTML)', 'Markdown', [ 'Markdown', 'MarkdownV2', 'HTML']])
       ], self.class
     )
   end

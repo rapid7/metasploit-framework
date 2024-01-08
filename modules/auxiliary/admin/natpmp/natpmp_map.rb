@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('EXTERNAL_PORTS', [true, 'The external ports to foward from (0 to let the target choose)', 0]),
+        OptString.new('EXTERNAL_PORTS', [true, 'The external ports to forward from (0 to let the target choose)', 0]),
         OptString.new('INTERNAL_PORTS', [true, 'The internal ports to forward to', '22,135-139,80,443,445'])
       ],
       self.class

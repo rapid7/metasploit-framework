@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
     peer = "#{host}:#{datastore['RPORT']}"
     if (result == 0)
       # we always ask to map an external port to the same port on us.  If
-      # we get a successful reponse back but the port we requested be forwarded
+      # we get a successful response back but the port we requested be forwarded
       # is different, that means that someone else already has it open
       if (int != ext)
         state = Msf::ServiceState::Open

@@ -133,7 +133,7 @@ def run(args):
     a = bytearray(a)
     b = bytearray(b)
 
-    #Send hello and recieve the sesison id
+    #Send hello and receive the sesison id
     s.send(a)
     try:
         d = bytearray(s.recv(1024))

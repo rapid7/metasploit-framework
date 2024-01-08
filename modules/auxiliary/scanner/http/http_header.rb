@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    # Header Names are case insensitve so convert them to upcase
+    # Header Names are case insensitive so convert them to upcase
     headers_uppercase = headers.inject({}) do |hash, keys|
       hash[keys[0].upcase] = keys[1]
       hash

@@ -36,12 +36,12 @@ class MetasploitModule < Msf::Auxiliary
     ])
 
     register_advanced_options([
-      OptString.new('LOCALSMAC',    	[false, 'The MAC address of the local interface to use for hosts detection, this is usefull only if you want to spoof to another host with SMAC']),
+      OptString.new('LOCALSMAC',    	[false, 'The MAC address of the local interface to use for hosts detection, this is useful only if you want to spoof to another host with SMAC']),
       OptString.new('LOCALSIP',    	[false, 'The IP address of the local interface to use for hosts detection']),
       OptInt.new(   'PKT_DELAY',    	[true, 'The delay in milliseconds between each packet during poisoning', 100]),
       OptInt.new('TIMEOUT', [true, 'The number of seconds to wait for new data during host detection', 2]),
       # This mode will generate address ip conflict pop up  on most systems
-      OptBool.new(  'BROADCAST',    	[true, 'If set, the module will send replies on the broadcast address witout consideration of DHOSTS', false])
+      OptBool.new(  'BROADCAST',    	[true, 'If set, the module will send replies on the broadcast address without consideration of DHOSTS', false])
     ])
 
     deregister_options('SNAPLEN', 'FILTER', 'PCAPFILE','RHOST','SECRET','GATEWAY_PROBE_HOST','GATEWAY_PROBE_PORT')
@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
     open_pcap({'SNAPLEN' => 68, 'FILTER' => "arp[6:2] == 0x0002"})
     @netifaces = true
     if not netifaces_implemented?
-      print_error("WARNING : Pcaprub is not uptodate, some functionality will not be available")
+      print_error("WARNING : Pcaprub is not up-to-date, some functionality will not be available")
       @netifaces = false
     end
     @spoofing = false
@@ -247,7 +247,7 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['LISTENER']
       start_listener(@dsthosts_cache, @srchosts_cache)
     end
-    # Do the job until user interupt it
+    # Do the job until user interrupt it
     print_status("ARP poisoning in progress...")
     @spoofing = true
     while(true)

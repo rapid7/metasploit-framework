@@ -205,7 +205,7 @@ class MetasploitModule < Msf::Auxiliary
     # Flags: RC=1, DQ=7 (Direct Format Type), F=1 (MessagePropertiesHeader present), J=1 (HTTP used)
     user_header.flags = 18620418
 
-    # An arbitrary ip address and queue name was choosen to send the message.
+    # An arbitrary ip address and queue name was chosen to send the message.
     # Usually this need to match an existing IP address and queue name, however
     # for this Proof-of-Concept it doesn't matter what values are used.
     user_header.destination_queue = "http://192.168.10.100/msmq/private$/queuejumper\x00".encode('utf-16le')

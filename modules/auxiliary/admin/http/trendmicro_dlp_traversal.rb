@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name' => 'TrendMicro Data Loss Prevention 5.5 Directory Traversal',
       'Description' => %q{
-        This module tests whether a directory traversal vulnerablity is present
+        This module tests whether a directory traversal vulnerability is present
         in Trend Micro DLP (Data Loss Prevention) Appliance v5.5 build <= 1294.
         The vulnerability appears to be actually caused by the Tomcat UTF-8
         bug which is implemented in module tomcat_utf8_traversal CVE 2008-2938.
@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8443),
         OptBool.new('SSL', [true, 'Use SSL', true]),
         OptPath.new('SENSITIVE_FILES', [
-          true, 'File containing senstive files, one per line',
+          true, 'File containing sensitive files, one per line',
           File.join(Msf::Config.data_directory, 'wordlists', 'sensitive_files.txt')
         ]),
       ]

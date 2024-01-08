@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptPath.new('KEY_FILE', [false, 'Filename of a private key.', nil]),
-        OptPath.new('KEY_DIR', [false, 'Directory of several keys. Filenames will be recursivley found matching id_* (Ex: /home/user/.ssh)', nil]),
+        OptPath.new('KEY_DIR', [false, 'Directory of several keys. Filenames will be recursively found matching id_* (Ex: /home/user/.ssh)', nil]),
         OptString.new('GITSERVER', [true, 'Parameter to specify alternate Git Server (GitHub, GitLab, etc)', 'github.com'])
       ]
     )

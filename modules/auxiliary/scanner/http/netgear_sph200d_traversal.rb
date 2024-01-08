@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'        => 'Netgear SPH200D Directory Traversal Vulnerability',
       'Description' => %q{
-          This module exploits a directory traversal vulnerablity which is present in
+          This module exploits a directory traversal vulnerability which is present in
         Netgear SPH200D Skype telephone.
       },
       'References'  =>

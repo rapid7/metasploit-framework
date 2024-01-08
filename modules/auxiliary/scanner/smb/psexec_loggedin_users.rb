@@ -85,12 +85,12 @@ class MetasploitModule < Msf::Auxiliary
       output.each_line { |line| cleanout << line.chomp if line.include?("HKEY") && line.split("-").size == 8 && !line.split("-")[7].include?("_")}
       return cleanout
     rescue StandardError => hku_error
-      print_error("Error runing query against HKU. #{hku_error.class}. #{hku_error}")
+      print_error("Error running query against HKU. #{hku_error.class}. #{hku_error}")
       return nil
     end
   end
 
-  # This method will retrive output from a specified textfile on the remote host
+  # This method will retrieve output from a specified textfile on the remote host
   def get_output(ip, smbshare, file)
     begin
       simple.connect("\\\\#{ip}\\#{smbshare}")
@@ -192,7 +192,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  # Method trys to use "query session" to determine logged in user
+  # Method tries to use "query session" to determine logged in user
   def query_session(smbshare, ip, cmd, text, bat)
     begin
       command = "#{cmd} /C echo query session ^> %SYSTEMDRIVE%#{text} > #{bat} & #{cmd} /C start cmd.exe /C #{bat}"

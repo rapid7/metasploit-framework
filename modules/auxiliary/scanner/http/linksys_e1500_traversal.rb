@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptPath.new('SENSITIVE_FILES',  [ true, "File containing senstive files, one per line",
+        OptPath.new('SENSITIVE_FILES',  [ true, "File containing sensitive files, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
         OptString.new('HttpUsername',[ true, 'User to login with', 'admin']),
         OptString.new('HttpPassword',[ true, 'Password to login with', 'password']),

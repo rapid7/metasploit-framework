@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8080),
         OptString.new('TARGETURI', [true, 'URI to the Tomcat instance', '/']),
         OptPath.new('SENSITIVE_FILES', [
-          true, 'File containing senstive files, one per line',
+          true, 'File containing sensitive files, one per line',
           File.join(Msf::Config.data_directory, 'wordlists', 'sensitive_files.txt')
         ]),
         OptInt.new('MAXDIRS', [ true, 'The maximum directory depth to search', 7]),

@@ -339,10 +339,10 @@ class MetasploitModule < Msf::Auxiliary
     # print_status("A")
 
     # DETECTION A
-    # Very simple way to compare responses, this can be improved alot , at this time just the simple way
+    # Very simple way to compare responses, this can be improved a lot , at this time just the simple way
 
     if normalr and truer
-      #Very simple way to compare responses, this can be improved alot , at this time just the simple way
+      #Very simple way to compare responses, this can be improved a lot , at this time just the simple way
       reltruesize = truer.body.length-(truer.body.scan(/#{tarr[1]}/).length*tarr[1].length)
       normalsize = normalr.body.length
 

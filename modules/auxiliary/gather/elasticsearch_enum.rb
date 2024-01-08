@@ -18,10 +18,10 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q{
           This module enumerates Elasticsearch instances. It uses the REST API
           in order to gather information about the server, the cluster, nodes,
-          in the cluster, indicies, and pull data from those indicies.
+          in the cluster, indices, and pull data from those indices.
         },
         'Author' => [
-          'Silas Cutler <Silas.Cutler[at]BlackListThisDomain.com>', # original indicies enum module
+          'Silas Cutler <Silas.Cutler[at]BlackListThisDomain.com>', # original indices enum module
           'h00die' # generic enum module
         ],
         'References' => [
@@ -136,12 +136,12 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
-    indicies = []
+    indices = []
 
     json_body.each do |index|
       next if datastore['VERBOSE'] == false && index['index'].starts_with?('.fleet')
 
-      indicies << index['index'] if index['docs.count'].to_i > 0 # avoid querying something with no data
+      indices << index['index'] if index['docs.count'].to_i > 0 # avoid querying something with no data
       elastic_table << [
         index['index'],
         index['health'],
@@ -161,7 +161,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_good(elastic_table.to_s)
-    indicies.each do |index|
+    indices.each do |index|
       get_results(index)
     end
   end

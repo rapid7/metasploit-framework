@@ -108,7 +108,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.nil?
-      return Exploit::CheckCode::Unknown('No response recieved from the target!')
+      return Exploit::CheckCode::Unknown('No response received from the target!')
     elsif res && res.code == 200
       xml_res = res.get_xml_document
       print_status('Following users are available for password reset...')

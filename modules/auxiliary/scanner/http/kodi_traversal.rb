@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if res and res.code != 200
-      print_error("Unable to read '#{datastore['FILE']}', possibily because:")
+      print_error("Unable to read '#{datastore['FILE']}', possibly because:")
       print_error("\t1. File does not exist.")
       print_error("\t2. No permission.")
 

@@ -412,7 +412,7 @@ class MetasploitModule < Msf::Auxiliary
         obj_cnt -= 1
         obj_id_pos = obj_id_pos + obj_len + 2
         if obj_id_pos > max_ref_size
-          print_error('Out of bounds reference occured whilst processing READ ID operation! Check sender data!')
+          print_error('Out of bounds reference occurred whilst processing READ ID operation! Check sender data!')
           break
         end
         break unless obj_cnt > 0

@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
   #
   # Data we will report:
   # - The path of any URL found by the crawler (web.uri, :path => page.path)
-  # - The occurence of any form (web.form :path, :type (get|post|path_info), :params)
+  # - The occurrence of any form (web.form :path, :type (get|post|path_info), :params)
   #
   def crawler_process_page(t, page, cnt)
     return if page.nil? # Skip over pages that don't contain any info aka page is nil. We can't process these types of pages since there is no data to process.

@@ -112,7 +112,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if datastore['VERIFYCONNECT']
-        # Verifiying CONNECT we check only the return code
+        # Verifying CONNECT we check only the return code
         if valid_codes.include?(res.code.to_s)
 
           print_good("#{peer} - Potentially open proxy [#{res.code}][#{target_method}]#{proxy_headers}")

@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
       # additional check per https://github.com/bwatters-r7/metasploit-framework/blob/b44568dd85759a1aa2160a9d41397f2edc30d16f/modules/auxiliary/scanner/ftp/bison_ftp_traversal.rb
       # and  #7582
       if sock.nil?
-        error_msg = __FILE__ <<'::'<< __method__.to_s << ':' << 'data_connect failed; posssible invalid response'
+        error_msg = __FILE__ <<'::'<< __method__.to_s << ':' << 'data_connect failed; possible invalid response'
         print_status(error_msg)
         elog(error_msg)
       else
@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
         # read the file data from the socket that we opened
         # dont assume theres still a sock to read from. Per #7582
         if sock.nil?
-          error_msg = __FILE__ <<'::'<< __method__.to_s << ':' << 'data_connect failed; posssible invalid response'
+          error_msg = __FILE__ <<'::'<< __method__.to_s << ':' << 'data_connect failed; possible invalid response'
           print_status(error_msg)
           elog(error_msg)
           return

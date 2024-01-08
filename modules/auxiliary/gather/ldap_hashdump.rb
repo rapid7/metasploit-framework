@@ -366,7 +366,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
-      # higlight unresolved hashes
+      # highlight unresolved hashes
       hash_format = '{crypt}' if hash =~ /{crypt}/i
 
       print_good("#{peer} Credentials (#{hash_format.empty? ? 'password' : hash_format}) found in #{attr}: #{dn}:#{hash}")

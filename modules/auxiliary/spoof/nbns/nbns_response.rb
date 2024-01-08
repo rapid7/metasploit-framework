@@ -98,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # time to build a response packet - Oh YEAH!
     response = nbnsq_transid +
-      "\x85\x00" + # Flags = response + authoratative + recursion desired +
+      "\x85\x00" + # Flags = response + authoritative + recursion desired +
       "\x00\x00" + # Questions = 0
       "\x00\x01" + # Answer RRs = 1
       "\x00\x00" + # Authority RRs = 0

@@ -104,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
     when :sql_error
       case res[:sql_error]
       when /^C42501/
-        print_error "#{datastore['RHOST']}:#{datastore['RPORT']} Postgres - Insufficent permissions."
+        print_error "#{datastore['RHOST']}:#{datastore['RPORT']} Postgres - Insufficient permissions."
       else
         print_error "#{datastore['RHOST']}:#{datastore['RPORT']} Postgres - #{res[:sql_error]}"
       end

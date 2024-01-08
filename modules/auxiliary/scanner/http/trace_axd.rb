@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'HTTP trace.axd Content Scanner',
-      'Description' => 'Detect trace.axd files and analize its content',
+      'Description' => 'Detect trace.axd files and analyze its content',
       'Author'       => ['c4an'],
       'License'     => MSF_LICENSE
     )

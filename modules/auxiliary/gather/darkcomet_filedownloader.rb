@@ -262,7 +262,7 @@ class MetasploitModule < Msf::Auxiliary
       brute_max = 4
 
       if missing_bytecount > brute_max
-        print_status("Using inferrence attack ...")
+        print_status("Using inference attack ...")
 
         # Offsets to monitor for changes
         target_offset_range = []
@@ -317,7 +317,7 @@ class MetasploitModule < Msf::Auxiliary
           end
         end
 
-        # Inferrence attack done, reconstruct final keystream segment
+        # Inference attack done, reconstruct final keystream segment
         inf_seg = ["\x00"] * (keystream.length + missing_bytecount)
         inferrence_results.each do |x, val|
           inf_seg[x] = val

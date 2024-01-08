@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
 
   end
 
-  # Not all hash formats include an 'id' field, which coresponds which db entry
+  # Not all hash formats include an 'id' field, which corresponds which db entry
   # an item is to its hash.  This can be problematic, especially when a username
   # is used as a salt.  Due to all the variations, we make a small HashLookup
   # class to handle all the fields for easier lookup later.

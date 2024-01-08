@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
     # slice of:
     #   * channel, packetno, window
     #   * login header
-    #   * client name lengt & offset
+    #   * client name length & offset
     login_hdr = data.slice!(0,4 + 36 + 4)
 
     username_offset = data.slice!(0,2).unpack('v')[0]
