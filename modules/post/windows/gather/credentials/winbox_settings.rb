@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['Pasquale \'sid\' Fiorillo'], # www.pasqualefiorillo.it - Thanks to: www.isgroup.biz
         'Platform' => ['win'],
-        'SessionTypes' => ['meterpreter', 'shell'],
+        'SessionTypes' => ['meterpreter', 'shell', 'powershell'],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [REPEATABLE_SESSION],
