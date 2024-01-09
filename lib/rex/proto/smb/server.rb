@@ -46,9 +46,17 @@ class Server
   def self.hardcore_alias(*args, **kwargs)
     gss_alias = ''
     if (gss_provider = kwargs[:gss_provider])
-      gss_alias << "#{gss_provider.class}(allow_anonymous=#{gss_provider.allow_anonymous}, allow_guests=#{gss_provider.allow_guests}"
-      gss_alias << ", default_domain=#{gss_provider.default_domain}" if gss_provider.respond_to?(:default_domain)
-      gss_alias << ", ntlm_type3_status=#{gss_provider.ntlm_type3_status&.name}" if gss_provider.respond_to?(:ntlm_type3_status)
+      gss_alias << "#{gss_provider.class}("
+      attrs = {}
+      if gss_provider.is_a?(RubySMB::Gss::Provider::NTLM)
+        allows = []
+        allows << 'ANONYMOUS' if gss_provider.allow_anonymous
+        allows << 'GUESTS' if gss_provider.allow_guests
+        attrs['allow'] = allows.join('|') unless allows.empty?
+        attrs['default_domain'] = gss_provider.default_domain if gss_provider.respond_to?(:default_domain) && gss_provider.default_domain.present?
+        attrs['ntlm_status'] = gss_provider.ntlm_type3_status.name if gss_provider.respond_to?(:ntlm_type3_status) && gss_provider.ntlm_type3_status.present?
+      end
+      gss_alias << attrs.map { |k,v| "#{k}=#{v}"}.join(', ')
       gss_alias << ')'
     end
     "#{(args[0] || '')}-#{(args[1] || '')}-#{args[3] || ''}-#{gss_alias}"
