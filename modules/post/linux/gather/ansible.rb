@@ -72,6 +72,10 @@ class MetasploitModule < Msf::Post
 
   def ping_hosts_print
     results = ping_hosts
+    if results.nil?
+      print_error('Unable to parse ping hosts results')
+      return
+    end
 
     columns = ['Host', 'Status', 'Ping', 'Changed']
     table = Rex::Text::Table.new('Header' => 'Ansible Pings', 'Indent' => 1, 'Columns' => columns)
