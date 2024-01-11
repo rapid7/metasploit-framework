@@ -191,3 +191,75 @@ Calling Net::SSH::Buffer methods on HostKeyEntries PubKey is deprecated
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
+
+## Confirming using NMAP
+
+Utilizing the [ssh2-enum-algos](https://nmap.org/nsedoc/scripts/ssh2-enum-algos.html) NMAP script.
+
+```
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-11 14:55 EST
+Nmap scan report for 172.17.0.2
+Host is up (0.000099s latency).
+
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 6.6p1 Ubuntu 2ubuntu1 (Ubuntu Linux; protocol 2.0)
+| ssh2-enum-algos: 
+|   kex_algorithms: (8)
+|       curve25519-sha256@libssh.org
+|       ecdh-sha2-nistp256
+|       ecdh-sha2-nistp384
+|       ecdh-sha2-nistp521
+|       diffie-hellman-group-exchange-sha256
+|       diffie-hellman-group-exchange-sha1
+|       diffie-hellman-group14-sha1
+|       diffie-hellman-group1-sha1
+|   server_host_key_algorithms: (4)
+|       ssh-rsa
+|       ssh-dss
+|       ecdsa-sha2-nistp256
+|       ssh-ed25519
+|   encryption_algorithms: (16)
+|       aes128-ctr
+|       aes192-ctr
+|       aes256-ctr
+|       arcfour256
+|       arcfour128
+|       aes128-gcm@openssh.com
+|       aes256-gcm@openssh.com
+|       chacha20-poly1305@openssh.com
+|       aes128-cbc
+|       3des-cbc
+|       blowfish-cbc
+|       cast128-cbc
+|       aes192-cbc
+|       aes256-cbc
+|       arcfour
+|       rijndael-cbc@lysator.liu.se
+|   mac_algorithms: (19)
+|       hmac-md5-etm@openssh.com
+|       hmac-sha1-etm@openssh.com
+|       umac-64-etm@openssh.com
+|       umac-128-etm@openssh.com
+|       hmac-sha2-256-etm@openssh.com
+|       hmac-sha2-512-etm@openssh.com
+|       hmac-ripemd160-etm@openssh.com
+|       hmac-sha1-96-etm@openssh.com
+|       hmac-md5-96-etm@openssh.com
+|       hmac-md5
+|       hmac-sha1
+|       umac-64@openssh.com
+|       umac-128@openssh.com
+|       hmac-sha2-256
+|       hmac-sha2-512
+|       hmac-ripemd160
+|       hmac-ripemd160@openssh.com
+|       hmac-sha1-96
+|       hmac-md5-96
+|   compression_algorithms: (2)
+|       none
+|_      zlib@openssh.com
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 0.22 seconds
+```
