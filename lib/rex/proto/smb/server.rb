@@ -9,8 +9,8 @@ module SMB
 
 ###
 #
-# Acts as an HTTP server, processing requests and dispatching them to
-# registered procs.  Some of this server was modeled after webrick.
+# Acts as an SMB server, processing requests and dispatching them to
+# registered procs.
 #
 ###
 class Server
@@ -32,16 +32,13 @@ class Server
     @rubysmb_server      = nil
   end
 
-  # More readable inspect that only shows the url and resources
   # @return [String]
   def inspect
-    resources_str = resources.keys.map{|r| r.inspect }.join ", "
-
     "#<#{self.class} smb://#{listen_host}:#{listen_port} >"
   end
 
   #
-  # Returns the hardcore alias for the HTTP service
+  # Returns the hardcore alias for the SMB service
   #
   def self.hardcore_alias(*args, **kwargs)
     gss_alias = ''
