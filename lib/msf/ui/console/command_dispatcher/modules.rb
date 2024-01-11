@@ -893,6 +893,9 @@ module Msf
             unless additional_datastore_values.nil? || additional_datastore_values.empty?
               mod.datastore.update(additional_datastore_values)
               print_status("Additionally setting #{additional_datastore_values.map { |k,v| "#{k} => #{v}" }.join(", ")}")
+              if additional_datastore_values['TARGET'] && (mod.exploit? || mod.evasion?)
+                mod.import_target_defaults
+              end
             end
 
             # Choose a default payload when the module is used, not run
