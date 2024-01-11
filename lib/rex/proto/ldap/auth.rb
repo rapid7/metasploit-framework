@@ -41,7 +41,7 @@ module Rex
           elsif sasl?(user_login)
             auth_info = handle_sasl_request(user_login, auth_info)
           else
-            auth_info[:result_code] = Net::LDAP::ResultCodeUnwillingToPerform
+            auth_info = handle_unknown_request(user_login, auth_info)
           end
 
           auth_info
@@ -61,9 +61,20 @@ module Rex
             auth_info[:domain] = nil
             auth_info[:result_code] = Net::LDAP::ResultCodeSuccess
             auth_info[:auth_type] = 'Anonymous'
-
-            auth_info
           end
+          auth_info
+        end
+
+        #
+        # Handle Unknown authentication requests
+        #
+        # @param user_login [OpenStruct] User login information
+        # @param auth_info [Hash] Processed authentication information
+        #
+        # @return auth_info [Hash] Processed authentication information
+        def handle_unknown_request(user_login, auth_info = {})
+          auth_info[:result_code] = Net::LDAP::ResultCodeUnwillingToPerform
+          auth_info
         end
 
         #
@@ -130,9 +141,9 @@ module Rex
         #
         # @return auth_info [Hash] Processed authentication information
         def handle_sasl_request(user_login, auth_info = {})
-          if user_login.authentication[1] =~ /NTLMSSP/
+          case user_login.authentication[1]
+          when /NTLMSSP/
             message = Net::NTLM::Message.parse(user_login.authentication[1])
-
             if message.is_a?(::Net::NTLM::Message::Type1)
               auth_info[:server_creds] = generate_type2_response(message)
               auth_info[:result_code] = Net::LDAP::ResultCodeSaslBindInProgress
@@ -140,6 +151,8 @@ module Rex
               auth_info = handle_type3_message(message, auth_info)
               auth_info[:result_code] = Net::LDAP::ResultCodeAuthMethodNotSupported
             end
+          else
+            auth_info[:result_code] = Net::LDAP::ResultCodeAuthMethodNotSupported
           end
           auth_info[:auth_type] = 'SASL'
           auth_info

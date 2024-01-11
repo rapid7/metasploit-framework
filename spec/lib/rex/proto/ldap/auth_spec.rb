@@ -4,7 +4,6 @@ require 'rex/text'
 require 'rex/proto/ntlm/message'
 
 RSpec.describe Rex::Proto::LDAP::Auth do
-
   subject(:nil_parameter_auth) do
     described_class.new(nil, nil, nil, nil, nil)
   end
@@ -14,7 +13,6 @@ RSpec.describe Rex::Proto::LDAP::Auth do
   end
 
   before do
-
     @type3 = "0\x82\x01D\x02\x01\x01`\x82\x01=\x02\x01\x03\x04\x00\xA3\x82\x014\x04\nGSS-SPNEGO\x04\x82\x01$NTLMSSP\x00\x03\x00\x00\x00\x18\x00\x18\x00@"\
       "\x00\x00\x00\x92\x00\x92\x00X\x00\x00\x00\f\x00\f\x00\xEA\x00\x00\x00\b\x00\b\x00\xF6\x00\x00\x00\x16\x00\x16\x00\xFE\x00\x00\x00\x10\x00\x10"\
       "\x00\x14\x01\x00\x00\x05\x02\x80BN\x98\xF8\x84,\x8At\b\x98\xEC\xB7\xC8\x15\x12l\x01\x92\xDDO\x88<\xFA\x0F\xF4Q\x9AA\x12\xC4\x991\xE2\xA0\xCETk"\
@@ -123,10 +121,8 @@ RSpec.describe Rex::Proto::LDAP::Auth do
     it 'handles requests with invalid DN and CN components' do
       user_login.name = 'cn=user,name,mydomain,dc=com'
       user_login.authentication = 'password'
-      #
-      # result = parameter_auth.handle_simple_request(user_login)
 
-      expect{ parameter_auth.handle_simple_request(user_login) }.to raise_error(Net::LDAP::InvalidDNError)
+      expect { parameter_auth.handle_simple_request(user_login) }.to raise_error(Net::LDAP::InvalidDNError)
     end
 
     it 'handles requests with username and domain in NETBIOS format' do
@@ -162,16 +158,15 @@ RSpec.describe Rex::Proto::LDAP::Auth do
     context 'using GSS-SPNEGO mechanism' do
       context 'using LM/NTLM authentication' do
         it 'handles NTLM Type1 requests with an NTLM type2 response' do
-
           result = parameter_auth.handle_sasl_request(ntlm_type1)
 
           expect(result[:server_creds]).to be_a(String)
+          expect(Net::NTLM::Message.parse(result[:server_creds])).to(be_a(Net::NTLM::Message::Type2))
           expect(result[:result_code]).to eq(Net::LDAP::ResultCodeSaslBindInProgress)
           expect(result[:auth_type]).to eq('SASL')
         end
 
         it 'handles NTLM Type3 requests containing client information' do
-
           result = parameter_auth.handle_sasl_request(ntlm_type3)
 
           expect(result[:domain]).to eq('DOMAIN')
@@ -181,6 +176,25 @@ RSpec.describe Rex::Proto::LDAP::Auth do
           expect(result[:auth_type]).to eq('SASL')
           expect(result[:result_code]).to eq(Net::LDAP::ResultCodeAuthMethodNotSupported)
           expect(result[:auth_type]).to eq('SASL')
+        end
+      end
+
+      context 'unsupprted SASL value' do
+        let(:request) do
+          auth_message = 'INVALIDSSP'
+          sasl = ['GSS-SPNEGO'.to_ber, auth_message.to_ber].to_ber_contextspecific(3)
+          br = [
+            Net::LDAP::Connection::LdapVersion.to_ber, ''.to_ber, sasl
+          ].to_ber_appsequence(Net::LDAP::PDU::BindRequest)
+
+          type1 = [0.to_ber, br, nil].compact.to_ber_sequence.read_ber(Net::LDAP::AsnSyntax)
+          pdu = Net::LDAP::PDU.new(type1)
+          pdu.bind_parameters
+        end
+        it 'hanldes and unknown SASL header as unsuppoted' do
+          result = parameter_auth.handle_sasl_request(request)
+          expect(result[:auth_type]).to eq('SASL')
+          expect(result[:result_code]).to eq(Net::LDAP::ResultCodeAuthMethodNotSupported)
         end
       end
     end
