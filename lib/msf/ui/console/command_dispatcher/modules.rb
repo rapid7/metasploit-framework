@@ -596,7 +596,7 @@ module Msf
                   end
                 end
               end
-              if @module_search_results_with_usage_metadata.length == 1 && use
+              if @module_search_results.length == 1 && use
                 used_module = @module_search_results_with_usage_metadata.first[:mod].fullname
                 cmd_use(used_module, true)
               end
