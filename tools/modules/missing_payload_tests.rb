@@ -26,7 +26,7 @@ options_set_by_ancestor_reference_name = Hash.new { |hash, ancestor_reference_na
   hash[ancestor_reference_name] = Set.new
 }
 
-framework.payloads.each { |reference_name, payload_class|
+framework.payloads.each_module { |reference_name, payload_class|
   next unless payload_class
   module_ancestors = payload_class.ancestors.select { |ancestor|
     # need to use try because name may be nil for anonymous Modules

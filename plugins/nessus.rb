@@ -104,7 +104,7 @@ module Msf
         File.open(xindex.to_s, 'w+') do |f|
           # need to add version line.
           f.puts(Msf::Framework::Version)
-          framework.exploits.sort.each do |refname, mod|
+          framework.exploits.each_module do |refname, mod|
             stuff = ''
             o = nil
             begin

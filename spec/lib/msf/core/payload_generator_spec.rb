@@ -1128,7 +1128,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
 
         it 'calls the generate_war on the payload' do
-          allow(framework).to receive_message_chain(:payloads, :keys).and_return ['java/meterpreter/reverse_tcp']
+          allow(framework).to receive_message_chain(:payloads, :module_refnames).and_return ['java/meterpreter/reverse_tcp']
           allow(framework).to receive_message_chain(:payloads, :create).and_return(payload_module)
           expect(payload_module).to receive(:generate_war).and_call_original
           payload_generator.generate_java_payload
@@ -1194,7 +1194,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
 
         it 'calls the generate_jar on the payload' do
-          allow(framework).to receive_message_chain(:payloads, :keys).and_return ['java/meterpreter/reverse_tcp']
+          allow(framework).to receive_message_chain(:payloads, :module_refnames).and_return ['java/meterpreter/reverse_tcp']
           allow(framework).to receive_message_chain(:payloads, :create).and_return(payload_module)
           expect(payload_module).to receive(:generate_jar).and_call_original
           payload_generator.generate_java_payload
@@ -1232,7 +1232,7 @@ RSpec.describe Msf::PayloadGenerator do
         }
 
         it 'calls #generate' do
-          allow(framework).to receive_message_chain(:payloads, :keys).and_return ['java/jsp_shell_reverse_tcp']
+          allow(framework).to receive_message_chain(:payloads, :module_refnames).and_return ['java/jsp_shell_reverse_tcp']
           allow(framework).to receive_message_chain(:payloads, :create).and_return(payload_module)
           expect(payload_module).to receive(:generate).and_call_original
           payload_generator.generate_java_payload

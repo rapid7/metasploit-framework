@@ -25,11 +25,13 @@ class Msf::Module::PlatformList
   # convenient.
   #
   def self.transform(src)
-    if (src.kind_of?(Array))
-      from_a(src)
+    if src.is_a?(String)
+      # Platforms are stored in the metadata cache as a comma separated string
+      platforms = src.split(',')
     else
-      from_a([src])
+      platforms = Array.wrap(src)
     end
+    from_a(platforms)
   end
 
   #

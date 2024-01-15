@@ -572,7 +572,7 @@ protected
   end
 
   def tab_complete_postmods
-    tabs = client.framework.modules.post.map { |name, klass|
+    tabs = client.framework.modules.post.module_refnames.each { | name |
       mod = client.framework.modules.post.create(name)
       if mod && mod.session_compatible?(client)
         mod.fullname.dup

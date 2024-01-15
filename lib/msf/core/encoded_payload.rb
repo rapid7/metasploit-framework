@@ -140,7 +140,7 @@ class EncodedPayload
       # as the framework's list of encoder names so we can compare them later.
       # This is important for when we get input from RPC.
       if reqs['Encoder']
-        reqs['Encoder'] = reqs['Encoder'].encode(framework.encoders.keys[0].encoding)
+        reqs['Encoder'] = reqs['Encoder'].encode(framework.encoders.module_refnames[0].encoding)
       end
 
       # If the caller had a preferred encoder, use this encoder only
@@ -342,7 +342,7 @@ class EncodedPayload
         wlog("#{pinst.refname}: Failed to find preferred nop #{reqs['Nop']}")
       end
 
-      nops.each { |nopname, nopmod|
+      nops.each_module { |nopname, nopmod|
         # Create an instance of the nop module
         self.nop = nopmod.new
 
