@@ -12,6 +12,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::RemotePaths
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::OptionalSession
 
   def initialize
     super(
@@ -28,7 +29,8 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
         ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'SessionTypes' => %w[SMB]
     )
 
     register_options([
@@ -41,12 +43,19 @@ class MetasploitModule < Msf::Auxiliary
     validate_lpaths!
     validate_rpaths!
     begin
-      vprint_status("Connecting to the server...")
-      connect
-      smb_login()
+      if session
+        print_status("Using existing session #{session.sid}")
+        client = session.client
+        self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
 
-      vprint_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
-      self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
+      else
+        vprint_status("Connecting to the server...")
+        connect
+        smb_login()
+      end
+
+      vprint_status("Mounting the remote share \\\\#{simple.address}\\#{datastore['SMBSHARE']}'...")
+      self.simple.connect("\\\\#{simple.address}\\#{datastore['SMBSHARE']}")
 
       remote_path = remote_paths.first
 

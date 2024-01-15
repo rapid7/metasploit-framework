@@ -14,12 +14,15 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
+  include Msf::OptionalSession
+
   def initialize
     super(
       'Name'        => 'SMB Session Pipe Auditor',
       'Description' => 'Determine what named pipes are accessible over SMB',
       'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'SessionTypes' => %w[SMB]
     )
 
     deregister_options('RPORT', 'SMBDirect')
@@ -30,25 +33,31 @@ class MetasploitModule < Msf::Auxiliary
 
     pipes = []
 
-    [[139, false], [445, true]].each do |info|
+    if session
+      print_status("Using existing session #{session.sid}")
+      client = session.client
+      datastore['RPORT'] = session.port
+      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
+      self.simple.connect("\\\\#{session.address}\\IPC$")
+      pipes += check_pipes
+    else
+      [[139, false], [445, true]].each do |info|
 
-      datastore['RPORT'] = info[0]
-      datastore['SMBDirect'] = info[1]
+        datastore['RPORT'] = info[0]
+        datastore['SMBDirect'] = info[1]
 
-      begin
-        connect
-        smb_login()
-        check_named_pipes.each do |pipe_name, _|
-          pipes.push(pipe_name)
+        begin
+          connect
+          smb_login
+          pipes += check_pipes
+          disconnect
+          break
+        rescue Rex::Proto::SMB::Exceptions::SimpleClientError, Rex::ConnectionError => e
+          vprint_error("SMB client Error with RPORT=#{info[0]} SMBDirect=#{info[1]}: #{e.to_s}")
         end
-
-        disconnect()
-
-        break
-      rescue Rex::Proto::SMB::Exceptions::SimpleClientError, Rex::ConnectionError => e
-        vprint_error("SMB client Error with RPORT=#{info[0]} SMBDirect=#{info[1]}: #{e.to_s}")
       end
     end
+
 
     if(pipes.length > 0)
       print_good("Pipes: #{pipes.join(", ")}")
@@ -64,5 +73,11 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-
+  def check_pipes
+    pipes = []
+    check_named_pipes.each do |pipe_name, _|
+      pipes.push(pipe_name)
+    end
+    pipes
+  end
 end
