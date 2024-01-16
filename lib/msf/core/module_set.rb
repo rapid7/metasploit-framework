@@ -226,7 +226,7 @@ class Msf::ModuleSet < Hash
       # Filter out incompatible platforms
       if (opts['Platform'])
         if (!platforms_by_module[name])
-          platforms_by_module[name] = Msf::Module::PlatformList.transform(module_metadata.platform)
+          platforms_by_module[name] = module_metadata.platform_list
         end
 
         next if ((platforms_by_module[name] & opts['Platform']).empty? == true)
