@@ -174,21 +174,25 @@ class MetasploitModule < Msf::Auxiliary
     if httpcreds
       httpuser = httpcreds[1].split(/[\r\n]+/)[0]
       httppass = httpcreds[1].split(/[\r\n]+/)[1]
+      proof = "FTP PASV data socket: #{httpcreds}"
     else
       # Usual defaults
       httpuser = "USER"
       httppass = "USER"
+      proof = "Usual defaults"
     end
     print_status("#{rhost}:#{rport} - FTP - Storing HTTP credentials")
     logins << ["http", httpuser, httppass]
-    report_auth_info(
-      :host	=> ip,
-      :port	=> 80,
-      :sname	=> "http",
-      :user	=> httpuser,
-      :pass	=> httppass,
-      :active	=> true
+
+    report_cred(
+      ip: ip,
+      port: rport,
+      service_name: 'http',
+      user: httpuser,
+      password: httppass,
+      proof: proof
     )
+
     logins << ["scada-write", "", writecreds[1]]
     if writecreds # This is like an enable password, used after HTTP authentication.
       report_note(

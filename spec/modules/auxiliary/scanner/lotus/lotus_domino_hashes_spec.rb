@@ -41,7 +41,7 @@ RSpec.describe 'Lotus Domino Hashes' do
   before(:each) do
     allow(subject).to receive(:send_request_raw).and_return(result)
     allow(subject).to receive(:report_service).and_return(service)
-    allow(subject).to receive(:report_auth_info)
+    allow(subject).to receive(:report_cred)
   end
 
   describe '#dump_hashes' do
@@ -49,7 +49,7 @@ RSpec.describe 'Lotus Domino Hashes' do
       context 'when the database is connected' do
         it 'reports the extracted user and password' do
           subject.dump_hashes(view_id, cookie, uri)
-          expect(subject).to have_received(:report_auth_info).with(hash_including({ user: 'Bdn Alln', pass: '(Da2Bd765Be64aF01b5652ce32eaA283d)', proof: a_string_matching(/USER_MAIL=NULL/) }))
+          expect(subject).to have_received(:report_cred).with(hash_including({ user: 'Bdn Alln', password: '(Da2Bd765Be64aF01b5652ce32eaA283d)', proof: a_string_matching(/USER_MAIL=NULL/) }))
         end
       end
 
@@ -60,7 +60,7 @@ RSpec.describe 'Lotus Domino Hashes' do
 
         it 'reports the extracted user and password' do
           subject.dump_hashes(view_id, cookie, uri)
-          expect(subject).to have_received(:report_auth_info).with(hash_including({ user: 'Bdn Alln', pass: '(Da2Bd765Be64aF01b5652ce32eaA283d)', proof: a_string_matching(/USER_MAIL=NULL/) }))
+          expect(subject).to have_received(:report_cred).with(hash_including({ user: 'Bdn Alln', password: '(Da2Bd765Be64aF01b5652ce32eaA283d)', proof: a_string_matching(/USER_MAIL=NULL/) }))
         end
       end
     end
@@ -71,7 +71,7 @@ RSpec.describe 'Lotus Domino Hashes' do
       end
       it 'when provided valid XML missing a credential' do
         subject.dump_hashes(view_id, cookie, uri)
-        expect(subject).not_to have_received(:report_auth_info)
+        expect(subject).not_to have_received(:report_cred)
       end
     end
   end

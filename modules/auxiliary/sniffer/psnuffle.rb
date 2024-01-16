@@ -132,8 +132,38 @@ class BaseProtocolParser
     self.module.print_error(msg)
   end
 
-  def report_auth_info(*s)
-    self.module.report_auth_info(*s)
+  def report_cred(opts)
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: self.module.myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: self.module.fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: opts[:type]
+    }.merge(service_data)
+
+    if opts[:type] == :nonreplayable_hash
+      credential_data.merge!(jtr_format: opts[:jtr_format])
+    end
+
+    login_data = {
+      core: self.module.create_credential(credential_data),
+      status: opts[:status],
+      proof: opts[:proof]
+    }.merge(service_data)
+
+    unless opts[:status] == Metasploit::Model::Login::Status::UNTRIED
+      login_data.merge!(last_attempted_at: DateTime.now)
+    end
+
+    self.module.create_credential_login(login_data)
   end
 
   def report_note(*s)
