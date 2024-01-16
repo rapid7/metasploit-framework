@@ -250,7 +250,7 @@ RSpec.describe Msf::ModuleSet do
     end
   end
 
-  describe 'create' do
+  describe '#create' do
     let(:module_refname) { 'module_refname' }
     let(:framework) { instance_double(Msf::Framework) }
     let(:module_manager) { instance_double(Msf::ModuleManager) }

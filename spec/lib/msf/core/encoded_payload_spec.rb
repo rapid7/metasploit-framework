@@ -17,6 +17,11 @@ RSpec.describe Msf::EncodedPayload do
       module_type: 'encoder',
       modules_path: modules_path,
     )
+    allow(framework.encoders).to receive(:each_module_ranked)
+                                   .and_yield('x86/shikata_ga_nai', framework.encoders['x86/shikata_ga_nai'])
+                                   .and_yield('x86/xor_dynamic', framework.encoders['x86/xor_dynamic'])
+                                   .and_yield('x86/call4_dword_xor', framework.encoders['x86/call4_dword_xor'])
+                                   .and_yield('generic/none', framework.encoders['generic/none'])
   end
 
   let(:ancestor_reference_names) {
