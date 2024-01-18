@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        ::Msf::OptString.new('PROCESS_NAMES_GLOB', [false, 'Regular expression used to target processes', 'ssh.*']),
+        ::Msf::OptString.new('PROCESS_NAMES_GLOB', [false, 'Glob used to target processes', 'ssh.*']),
         ::Msf::OptString.new('PROCESS_IDS', [false, 'Comma delimited process ID/IDs to search through']),
         ::Msf::OptString.new('REGEX', [true, 'Regular expression to search for within memory', 'publickey,password.*']),
         ::Msf::OptInt.new('MIN_MATCH_LEN', [true, 'The minimum number of bytes to match', 5]),
@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Post
     session_processes = session.sys.process.get_processes
     session_processes.each do |session_process|
       pid, _ppid, name, _path, _session, _user, _arch = *session_process.values
-      if (name.match?(process_names_glob) unless process_names_glob.empty?) || (target_pids.include? pid)
+      if (::File.fnmatch(process_names_glob, name, ::File::FNM_EXTGLOB) unless process_names_glob.empty?) || (target_pids.include? pid)
         target_processes.append session_process
       end
     end
