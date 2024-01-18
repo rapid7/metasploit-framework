@@ -146,8 +146,10 @@ class MetasploitModule < Msf::Post
     address_length = session.native_arch == ARCH_X64 ? 16 : 8
     result_group_tlvs.each do |result_group_tlv|
       match_address = result_group_tlv.get_tlv(::Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MEMORY_SEARCH_MATCH_ADDR).value.to_s(16).upcase
-      match_length = result_group_tlv.get_tlv(::Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MEMORY_SEARCH_MATCH_LEN).value
       match_buffer = result_group_tlv.get_tlv(::Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MEMORY_SEARCH_MATCH_STR).value
+      # Mettle doesn't return this TLV. We can get the match length from the buffer instead.
+      match_length = result_group_tlv.get_tlv(::Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MEMORY_SEARCH_MATCH_LEN)&.value
+      match_length ||= match_buffer.bytesize
       region_start_address = result_group_tlv.get_tlv(::Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MEMORY_SEARCH_START_ADDR).value.to_s(16).upcase
       region_start_size = result_group_tlv.get_tlv(::Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MEMORY_SEARCH_SECT_LEN).value.to_s(16).upcase
 
