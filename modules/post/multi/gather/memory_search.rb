@@ -142,9 +142,8 @@ class MetasploitModule < Msf::Post
       'Indent' => 1,
       'Columns' => ['Match Address', 'Match Length', 'Match Buffer', 'Memory Region Start', 'Memory Region Size']
     )
-    x64_architectures = [ ARCH_X64, ARCH_AARCH64 ].freeze
 
-    address_length = x64_architectures.include?(session.native_arch) ? 16 : 8
+    address_length = session.native_arch == ARCH_X64 ? 16 : 8
     result_group_tlvs.each do |result_group_tlv|
       match_address = result_group_tlv.get_tlv(::Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MEMORY_SEARCH_MATCH_ADDR).value.to_s(16).upcase
       match_length = result_group_tlv.get_tlv(::Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MEMORY_SEARCH_MATCH_LEN).value
