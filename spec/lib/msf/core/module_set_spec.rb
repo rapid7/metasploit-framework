@@ -185,6 +185,25 @@ RSpec.describe Msf::ModuleSet do
         end
       end
     end
+
+    context 'with the same rank' do
+      before(:example) do
+        allow(module_metadata_a).to receive(:rank).and_return(Msf::AverageRanking)
+        allow(module_metadata_b).to receive(:rank).and_return(Msf::AverageRanking)
+        allow(module_metadata_c).to receive(:rank).and_return(Msf::AverageRanking)
+        allow(Msf::Modules::Metadata::Cache.instance).to receive(:module_metadata).with(anything).and_return(module_metadata)
+      end
+
+      it 'ranks the modules consistently' do
+        expect(rank_modules).to eq(
+          [
+            ['c', module_metadata_c],
+            ['b', module_metadata_b],
+            ['a', module_metadata_a]
+          ]
+        )
+      end
+    end
   end
 
   describe '#[]' do
