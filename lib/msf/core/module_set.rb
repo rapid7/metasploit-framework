@@ -274,7 +274,7 @@ class Msf::ModuleSet < Hash
   # @return [Array<Array<String, Class>>] Array of arrays where the inner array is a pair of the module reference name
   #   and the module class.
   def rank_modules
-    module_metadata.sort_by { |refname, _metadata| module_rank(refname) }.reverse!
+    module_metadata.sort_by { |refname, _metadata| "#{module_rank(refname)}-#{refname}" }.reverse!
   end
 
   # Retrieves the rank from a loaded, not-yet-loaded, or unloadable Metasploit Module.
