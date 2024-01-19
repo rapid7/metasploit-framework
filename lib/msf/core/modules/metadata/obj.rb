@@ -295,7 +295,13 @@ class Obj
   def parse_platform_list(platform_string)
     return nil if platform_string.nil?
 
-    Msf::Module::PlatformList.transform(@platform.split(','))
+    if platform_string.casecmp('All')
+      # empty string represents all platforms in Msf::Module::PlatformList
+      platforms = ['']
+    else
+      platforms = platform_string.split(',')
+    end
+    Msf::Module::PlatformList.transform(platforms)
   end
 
 end

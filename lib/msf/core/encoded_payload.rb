@@ -238,8 +238,8 @@ class EncodedPayload
           begin
             eout = self.encoder.encode(eout, reqs['BadChars'], nil, pinst.platform)
           rescue EncodingError => e
-            wlog("#{err_start}: Encoder #{encoder.refname} failed: #{$!}", 'core', LEV_1)
-            dlog("#{err_start}: Call stack\n#{$@.join("\n")}", 'core', LEV_3)
+            wlog("#{err_start}: Encoder #{encoder.refname} failed: #{e}", 'core', LEV_1)
+            dlog("#{err_start}: Call stack\n#{e.backtrace}", 'core', LEV_3)
             next_encoder = true
             break
 
