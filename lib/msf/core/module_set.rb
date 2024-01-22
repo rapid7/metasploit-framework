@@ -274,17 +274,9 @@ class Msf::ModuleSet < Hash
   # @return [Array<Array<String, Class>>] Array of arrays where the inner array is a pair of the module reference name
   #   and the module class.
   def rank_modules
-    module_metadata.sort_by { |refname, _metadata| "#{module_rank(refname)}-#{refname}" }.reverse!
-  end
-
-  # Retrieves the rank from a loaded, not-yet-loaded, or unloadable Metasploit Module.
-  #
-  # @param reference_name [String] The reference name of the Metasploit Module
-  # @return [Integer] an `Msf::*Ranking`.  `Msf::ManualRanking` if `metasploit_module_class` is `nil` or
-  #   {Msf::SymbolicModule} and it could not be loaded by {#create}.  Otherwise, the `Rank` constant of the
-  #   `metasploit_module_class` or {Msf::NormalRanking} if `metasploit_module_class` does not define `Rank`.
-  def module_rank(reference_name)
-    module_metadata[reference_name].rank || Msf::NormalRanking
+    module_metadata.sort_by do |refname, metadata|
+      [metadata.rank || Msf::NormalRanking, refname]
+    end.reverse!
   end
 
   def module_metadata
