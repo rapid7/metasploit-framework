@@ -165,8 +165,9 @@ RSpec.describe 'Meterpreter' do
           def get_file_attachment_contents(path)
             return 'none resent' unless File.exist?(path)
 
-            content = File.binread(path)
-            content.blank? ? 'file created - but empty' : content
+            # content = File.binread(path)
+            # content.blank? ? 'file created - but empty' : content
+            'placeholder as file.binread dies on large files'
           end
 
           before :each do |example|
