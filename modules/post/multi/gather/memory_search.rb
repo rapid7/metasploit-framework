@@ -203,6 +203,11 @@ class MetasploitModule < Msf::Post
       return
     end
 
+    if process_ids && !process_ids.match?(/^(\s*\d(\s*,\s*\d+\s*)*)*$/)
+      print_error 'PROCESS_IDS is not a comma-separated list of integers'
+      return
+    end
+
     print_status "Running module against - #{session.info} (#{session.session_host}). This might take a few seconds..."
 
     print_status 'Getting target processes...'
