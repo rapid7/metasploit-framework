@@ -61,11 +61,10 @@ module Rex
           end
 
           def cmd_shell(*args)
-            cmd_shell_help && return if help_args?(args)
-
-            prompt_proc_before = ::Reline.prompt_proc
-
-            ::Reline.prompt_proc = proc { |line_buffer| line_buffer.each_with_index.map { |_line, i| i > 0 ? 'SQL *> ' : 'SQL >> ' } }
+            if help_args?(args)
+              cmd_shell_help
+              return
+            end
 
             stop_words = %w[stop s exit e end quit q].freeze
 
@@ -73,13 +72,19 @@ module Rex
             finished = false
             until finished
               begin
+                # This needs to be here, otherwise the `ensure` block would reset it to the previous
+                # value after a single query, meaning future queries would have the default prompt_block.
+                prompt_proc_before = ::Reline.prompt_proc
+                ::Reline.prompt_proc = proc { |line_buffer| line_buffer.each_with_index.map { |_line, i| i > 0 ? 'SQL *> ' : 'SQL >> ' } }
+
                 # This will loop until it receives `true`.
                 raw_query = ::Reline.readmultiline('SQL >> ', use_history = true) do |multiline_input|
-                  finished = stop_words.include?(multiline_input.split.last)
+                  # In the case only a stop word was input, exit out of the REPL shell
+                  finished = multiline_input.split.count == 1 && stop_words.include?(multiline_input.split.last)
                   # Accept the input until the current line does not end with '\', similar to a shell
-                  finished || !multiline_input.split.last.end_with?('\\')
+                  finished || multiline_input.split.empty? || !multiline_input.split.last&.end_with?('\\')
                 end
-              rescue ::Interrupt
+              rescue ::Interrupt => _e
                 finished = true
               ensure
                 ::Reline.prompt_proc = prompt_proc_before
@@ -92,16 +97,22 @@ module Rex
 
               formatted_query = raw_query.split.map { |word| word.chomp('\\') }.reject(&:empty?).compact.join(' ')
 
-              print_status "Running SQL Command: '#{formatted_query}'"
-              cmd_query(formatted_query)
+              unless formatted_query.empty?
+                print_status "Running SQL Command: '#{formatted_query}'"
+                cmd_query(formatted_query)
+              end
             end
           end
 
           def cmd_query_help
             print_line 'Usage: query'
             print_line
-            print_line 'You can also use `sql`.'
             print_line 'Run a raw SQL query on the target.'
+            print_line
+            print_line 'Examples:'
+            print_line "\tquery SELECT user;"
+            print_line "\tquery SELECT version();"
+            print_line "\tquery SELECT * FROM pg_catalog.pg_tables;"
             print_line
           end
 
@@ -123,16 +134,27 @@ module Rex
           end
 
           def cmd_query(*args)
-            cmd_query_help && return if help_args?(args)
+            if help_args?(args)
+              cmd_query_help
+              return
+            end
 
-            result = client.query(args.join(' ').to_s)
-            table = format_result(result)
+            begin
+              result = client.query(args.join(' ').to_s)
+            rescue ::RuntimeError => e
+              print_error "Query result: #{e}"
+              print_line
+              return
+            end
 
-            print_line(table.to_s)
+            print_status result.cmd_tag
+            print_line
+
+            unless result.rows.empty?
+              table = format_result(result)
+              print_line(table.to_s)
+            end
           end
-
-          alias cmd_sql cmd_query
-          alias cmd_sql_help cmd_query_help
         end
       end
     end
