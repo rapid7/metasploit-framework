@@ -37,9 +37,13 @@ module Rex
           end
 
           def cmd_run_help
-            print_line 'Usage: Modules'
+            print_line 'Usage: run'
             print_line
-            print_line 'Run a module.'
+            print_line 'Run a module or script against the current session.'
+            print_line
+            print_line 'Example:'
+            print_line "\trun auxiliary/scanner/postgres/postgres_schemadump"
+            print_line "\trun my_erb_script.rc"
             print_line
           end
 
