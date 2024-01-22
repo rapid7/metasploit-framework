@@ -31,13 +31,21 @@ class Msf::Sessions::PostgreSQL
     @info = "PostgreSQL #{datastore['USERNAME']} @ #{@peer_info}"
   end
 
+  def execute_file(full_path, args)
+    if File.extname(full_path) == '.rb'
+      Rex::Script::Shell.new(self, full_path).run(args)
+    else
+      console.load_resource(full_path)
+    end
+  end
+
   def process_autoruns(datastore)
     ['InitialAutoRunScript', 'AutoRunScript'].each do |key|
       next if datastore[key].nil? || datastore[key].empty?
 
       args = Shellwords.shellwords(datastore[key])
-      print_status("Session ID #{session.sid} (#{session.tunnel_to_s}) processing #{key} '#{datastore[key]}'")
-      session.execute_script(args.shift, *args)
+      print_status("Session ID #{self.sid} (#{self.tunnel_to_s}) processing #{key} '#{datastore[key]}'")
+      self.execute_script(args.shift, *args)
     end
   end
 
