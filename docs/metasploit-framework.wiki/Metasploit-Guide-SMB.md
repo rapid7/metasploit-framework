@@ -8,7 +8,7 @@ There are two main ports for SMB:
 - 445/TCP - Newer versions of SMB use this port, were NetBIOS is not used.
 
 Other terminology to be aware of:
-- SMB - Serer Message Blocks
+- SMB - Server Message Blocks
 - CIFS - Common Internet File System
 - Samba - A free software re-implementation of SMB, which is frequently found on unix-like systems
 
