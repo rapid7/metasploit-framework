@@ -245,5 +245,6 @@ Gem::Specification.new do |spec|
   # to generate PNG files, not to parse untrusted PNG files.
   spec.add_runtime_dependency 'chunky_png'
 
+  # Needed for multiline REPL support for interactive SQL sessions
   spec.add_runtime_dependency 'reline'
 end
