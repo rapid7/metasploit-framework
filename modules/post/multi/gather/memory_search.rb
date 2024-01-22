@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        ::Msf::OptString.new('PROCESS_NAMES_GLOB', [false, 'Glob used to target processes', 'ssh.*']),
+        ::Msf::OptString.new('PROCESS_NAMES_GLOB', [false, 'Glob used to target processes', 'ssh*']),
         ::Msf::OptString.new('PROCESS_IDS', [false, 'Comma delimited process ID/IDs to search through']),
         ::Msf::OptString.new('REGEX', [true, 'Regular expression to search for within memory', 'publickey,password.*']),
         ::Msf::OptInt.new('MIN_MATCH_LEN', [true, 'The minimum number of bytes to match', 5]),
