@@ -6,28 +6,25 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::LDAP::Server
 
-  def initialize(info = {})
+  def initialize(_info = {})
     super(
-      update_info(
-        info,
-        'Name' => 'Authentication Capture: LDAP',
-        'Description' => %q{
-          This module mocks an LDAP service to capture authentication
-          information of a client trying to authenticate against an LDAP service
-        },
-        'Author' => 'JustAnda7',
-        'License' => MSF_LICENSE,
-        'Action' => [
-          [ 'Capture', { 'Description' => 'Run an LDAP capture server' } ]
-        ],
-        'PassiveActions' => [ 'Capture' ],
-        'DefaultActions' => 'Capture',
-        'Notes' => {
-          'Stability' => [],
-          'Reliability' => [],
-          'SideEffects' => []
-        }
-      )
+      'Name' => 'Authentication Capture: LDAP',
+      'Description' => %q{
+        This module mocks an LDAP service to capture authentication
+        information of a client trying to authenticate against an LDAP service
+      },
+      'Author' => 'JustAnda7',
+      'License' => MSF_LICENSE,
+      'Actions' => [
+        [ 'Capture', { 'Description' => 'Run an LDAP capture server' } ]
+      ],
+      'PassiveActions' => [ 'Capture' ],
+      'DefaultAction' => 'Capture',
+      'Notes' => {
+        'Stability' => [],
+        'Reliability' => [],
+        'SideEffects' => []
+      }
     )
 
     register_options(
