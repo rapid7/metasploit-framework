@@ -95,7 +95,7 @@ module Rex
                 return
               end
 
-              formatted_query = raw_query.split.map { |word| word.chomp('\\') }.reject(&:empty?).compact.join(' ')
+              formatted_query = process_query(query: raw_query)
 
               unless formatted_query.empty?
                 print_status "Running SQL Command: '#{formatted_query}'"
@@ -154,6 +154,12 @@ module Rex
               table = format_result(result)
               print_line(table.to_s)
             end
+          end
+
+          def process_query(query: '')
+            return '' if query.empty?
+
+            query.lines.each.map { |line| line.chomp("\\\n").strip }.reject(&:empty?).compact.join(' ')
           end
         end
       end
