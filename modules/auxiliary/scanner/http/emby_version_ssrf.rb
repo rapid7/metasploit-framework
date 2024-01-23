@@ -17,11 +17,11 @@ class MetasploitModule < Msf::Auxiliary
       'Author' => 'Btnz',
       'License' => MSF_LICENSE,
       'Disclosure Date' => '2020-10-01',
-      'Notes'               => {
-        'Stability'         => [],
-        'SideEffects'       => [],
-        'Reliability'       => [],
-        'RelatedModules'    => ['auxiliary/scanner/http/emby_ssrf_scanner'],
+      'Notes' => {
+        'Stability' => [],
+        'SideEffects' => [],
+        'Reliability' => [],
+        'RelatedModules' => ['auxiliary/scanner/http/emby_ssrf_scanner']
       },
       'References' => [
         ['CVE', '2020-26948'],
@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Identifying Media Server Version on #{peer}")
     print_good("[Media Server] URI: http://#{peer}#{datastore['TARGETURI']}")
     print_good("[Media Server] Version: #{result['Version']}")
-    print_good("[Media Server] Internal IP: #{result['LocalAddress']}") if ((result['LocalAddress']).to_s) != ''
+    print_good("[Media Server] Internal IP: #{result['LocalAddress']}") if (result['LocalAddress']).to_s != ''
     print_good('*** Vulnerable to SSRF module auxiliary/scanner/http/emby_ssrf_scanner! ***') if Rex::Version.new((result['Version']).to_s) < Rex::Version.new('4.5.0')
     report_service(
       host: rhost,
