@@ -22,8 +22,6 @@ RSpec.describe Rex::Post::SMB::Ui::Console::CommandDispatcher::Shares do
 
   subject(:command_dispatcher) { described_class.new(session.console) }
 
-  # it_behaves_like 'session command dispatcher'
-
   describe '#as_ntpath' do
     let(:valid_windows_path) { 'some\\path\\that\\is\\valid' }
 
