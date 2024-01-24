@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Postgres
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::OptionalSession
 
   def initialize
     super(
@@ -16,10 +17,10 @@ class MetasploitModule < Msf::Auxiliary
           Postgres server.
       ),
       'Author' => ['theLightCosine'],
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'SessionTypes' => %w[PostgreSQL]
     )
     register_options([
-      OptString.new('DATABASE', [ true, 'The database to authenticate against', 'postgres']),
       OptBool.new('DISPLAY_RESULTS', [true, 'Display the Results to the Screen', true]),
       OptString.new('IGNORED_DATABASES', [true, 'Comma separated list of databases to ignore during the schema dump', 'template1,template0'])
     ])
@@ -27,33 +28,34 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(_ip)
+    print_status 'When targeting a session, only the current database can be dumped.' if session
     pg_schema = get_schema
     pg_schema.each do |db|
       report_note(
-        host: datastore['RHOST'],
+        host: rhost,
         type: 'postgres.db.schema',
         data: db,
-        port: datastore['RPORT'],
+        port: rport,
         proto: 'tcp',
         update: :unique_data
       )
     end
-    output = "Postgres SQL Server Schema \n Host: #{datastore['RHOST']} \n Port: #{datastore['RPORT']} \n ====================\n\n"
+    output = "Postgres SQL Server Schema \n Host: #{rhost} \n Port: #{rport} \n ====================\n\n"
     output << YAML.dump(pg_schema)
     this_service = report_service(
-      host: datastore['RHOST'],
-      port: datastore['RPORT'],
+      host: rhost,
+      port: rport,
       name: 'postgres',
       proto: 'tcp'
     )
-    store_loot('postgres_schema', 'text/plain', datastore['RHOST'], output, "#{datastore['RHOST']}_postgres_schema.txt", 'Postgres SQL Schema', this_service)
+    store_loot('postgres_schema', 'text/plain', rhost, output, "#{rhost}_postgres_schema.txt", 'Postgres SQL Schema', this_service)
     print_good output if datastore['DISPLAY_RESULTS']
   end
 
   def get_schema
     ignored_databases = datastore['IGNORED_DATABASES'].split(',').map(&:strip)
     pg_schema = []
-    database_names = smart_query('SELECT datname FROM pg_database').to_a.flatten
+    database_names = session ? [session.client.params['database']] : smart_query('SELECT datname FROM pg_database').to_a.flatten
     if database_names.empty?
       print_status("#{rhost}:#{rport} - No databases found")
       return pg_schema
@@ -104,9 +106,9 @@ class MetasploitModule < Msf::Auxiliary
     when :sql_error
       case res[:sql_error]
       when /^C42501/
-        print_error "#{datastore['RHOST']}:#{datastore['RPORT']} Postgres - Insufficient permissions."
+        print_error "#{rhost}:#{rport} Postgres - Insufficient permissions."
       else
-        print_error "#{datastore['RHOST']}:#{datastore['RPORT']} Postgres - #{res[:sql_error]}"
+        print_error "#{rhost}:#{rport} Postgres - #{res[:sql_error]}"
       end
       return nil
     when :complete

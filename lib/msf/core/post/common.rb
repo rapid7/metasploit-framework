@@ -25,11 +25,13 @@ module Msf::Post::Common
   def rhost
     return super unless defined?(session) and session
 
-    case session.type
+    case session.type.downcase
     when 'meterpreter'
       session.sock.peerhost
     when 'shell', 'powershell'
       session.session_host
+    when 'postgresql'
+      session.address
     end
   rescue
     return nil
@@ -38,11 +40,13 @@ module Msf::Post::Common
   def rport
     return super unless defined?(session) and session
 
-    case session.type
+    case session.type.downcase
     when 'meterpreter'
       session.sock.peerport
     when 'shell', 'powershell'
       session.session_port
+    when 'postgresql'
+      session.port
     end
   rescue
     return nil

@@ -221,6 +221,13 @@ class Config < Hash
     self.new.smb_session_history
   end
 
+  # Returns the full path to the PostgreSQL session history file.
+  #
+  # @return [String] path to the history file.
+  def self.postgresql_session_history
+    self.new.postgresql_session_history
+  end
+
   def self.pry_history
     self.new.pry_history
   end
@@ -328,6 +335,10 @@ class Config < Hash
 
   def smb_session_history
     config_directory + FileSep + "smb_session_history"
+  end
+
+  def postgresql_session_history
+    config_directory + FileSep + "postgresql_session_history"
   end
 
   def pry_history
