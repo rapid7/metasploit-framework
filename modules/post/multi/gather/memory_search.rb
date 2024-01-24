@@ -76,19 +76,45 @@ class MetasploitModule < Msf::Post
     datastore['SAVE_LOOT']
   end
 
+  ARCH_MAP =
+    {
+      'i686' => ARCH_X86,
+      'x86' => ARCH_X86,
+      'x64' => ARCH_X64,
+      'x86_64' => ARCH_X64
+    }.freeze
+
   def get_target_processes
     raw_target_pids = process_ids || ''
     target_pids = raw_target_pids.split(',').map(&:to_i)
     target_processes = []
 
     session_processes = session.sys.process.get_processes
-    session_processes.each do |session_process|
+    process_table = session_processes.to_table
+    process_table.columns.unshift 'Matched?'
+
+    process_table.colprops.unshift(
+      {
+        'Formatters' => [],
+        'Stylers' => [::Msf::Ui::Console::TablePrint::CustomColorStyler.new('true' => '%grn', 'false' => '%red')],
+        'ColumnStylers' => []
+      }
+    )
+
+    process_table.sort_index += 1
+
+    session_processes.each.with_index do |session_process, index|
       pid, _ppid, name, _path, _session, _user, _arch = *session_process.values
-      if (::File.fnmatch(process_names_glob, name, ::File::FNM_EXTGLOB) unless process_names_glob.empty?) || (target_pids.include? pid)
+
+      if target_pids.include?(pid) || ::File.fnmatch(process_names_glob || '', name, ::File::FNM_EXTGLOB)
         target_processes.append session_process
+        process_table.rows[index].unshift 'true'
+      else
+        process_table.rows[index].unshift 'false'
       end
     end
 
+    vprint_status(process_table.to_s)
     target_processes
   end
 
@@ -100,7 +126,12 @@ class MetasploitModule < Msf::Post
       status = nil
 
       begin
-        response = memory_search(process['pid'], regex, min_match_len, max_match_len)
+        response = session.sys.process.memory_search(
+          pid: process['pid'],
+          needles: [regex],
+          min_match_length: min_match_len,
+          max_match_length: max_match_len
+        )
         status = :success
       rescue ::Rex::Post::Meterpreter::RequestError => e
         response = e
@@ -113,27 +144,37 @@ class MetasploitModule < Msf::Post
     results
   end
 
-  def memory_search(pid, needle, min_search_len, match_len)
-    request = ::Rex::Post::Meterpreter::Packet.create_request(::Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_SEARCH)
-    request.add_tlv(::Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PID, pid)
-    request.add_tlv(::Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MEMORY_SEARCH_NEEDLE, needle)
-    request.add_tlv(::Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MEMORY_SEARCH_MATCH_LEN, match_len)
-    request.add_tlv(::Rex::Post::Meterpreter::TLV_TYPE_UINT, min_search_len)
-    client.send_request(request)
-  end
-
   def print_result(result: nil)
     return unless result
 
     process_info = "#{result[:process]['name']} (pid: #{result[:process]['pid']})"
     unless result[:status] == :success
-      print_warning "Memory search request for #{process_info} failed. Reason: #{result[:response]}"
+      warning_message = "Memory search request for #{process_info} failed. Return code: #{result[:response]}"
+      if result[:process]['arch'].empty? || result[:process]['path'].empty?
+        warning_message << "\n    Potential reasons:"
+        warning_message << "\n\tInsufficient permissions."
+      end
+      print_warning warning_message
       return
     end
 
     result_group_tlvs = result[:response].get_tlvs(::Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MEMORY_SEARCH_RESULTS)
     if result_group_tlvs.empty?
-      print_status "No regular expression matches were found in memory for #{process_info}"
+      match_not_found_msg = "No regular expression matches were found in memory for #{process_info}."
+      normalised_process_arch = ARCH_MAP[result[:process]['arch']] || result[:process]['arch']
+
+      potential_failure_reasons = []
+
+      if session.arch != normalised_process_arch
+        potential_failure_reasons.append "Architecture mismatch (session: #{session.arch}) (process: #{normalised_process_arch})"
+      end
+
+      if potential_failure_reasons.any?
+        match_not_found_msg << "\n    Potential reasons:"
+        potential_failure_reasons.each { |potential_reason| match_not_found_msg << "\n\t#{potential_reason}" }
+      end
+
+      print_status match_not_found_msg
       return
     end
 
