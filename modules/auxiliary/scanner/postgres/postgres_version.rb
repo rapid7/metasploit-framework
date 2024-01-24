@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Postgres
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::OptionalSession
 
   # Creates an instance of this module.
   def initialize(info = {})
@@ -20,7 +21,8 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'URL', 'https://www.postgresql.org/' ]
-        ]
+        ],
+        'SessionTypes' => %w[PostgreSQL]
     ))
 
     register_options([ ]) # None needed.
@@ -31,6 +33,7 @@ class MetasploitModule < Msf::Auxiliary
   # Loops through each host in turn. Note the current IP address is both
   # ip and datastore['RHOST']
   def run_host(ip)
+    self.postgres_conn = session.client if session
     user = datastore['USERNAME']
     pass = postgres_password
     do_fingerprint(user,pass,datastore['DATABASE'])
@@ -76,34 +79,34 @@ class MetasploitModule < Msf::Auxiliary
     begin
       msg = "#{rhost}:#{rport} Postgres -"
       password = pass || postgres_password
-      vprint_status("#{msg} Trying username:'#{user}' with password:'#{password}' against #{rhost}:#{rport} on database '#{database}'")
+      vprint_status("#{msg} Trying username:'#{user}' with password:'#{password}' against #{rhost}:#{rport} on database '#{database}'") unless postgres_conn
       result = postgres_fingerprint(
         :db => database,
         :username => user,
         :password => password
       )
       if result[:auth]
-        vprint_good "#{rhost}:#{rport} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'"
-        print_status "#{rhost}:#{rport} Postgres - Version #{result[:auth]} (Post-Auth)"
+        vprint_good "#{postgres_conn.address}:#{postgres_conn.port} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'" unless session
+        print_status "#{postgres_conn.address}:#{postgres_conn.port} Postgres - Version #{result[:auth]} (Post-Auth)"
       elsif result[:preauth]
-        print_good "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
+        print_good "#{postgres_conn.address}:#{postgres_conn.port} Postgres - Version #{result[:preauth]} (Pre-Auth)"
       else # It's something we don't know yet
-        vprint_status "#{rhost}:#{rport} Postgres - Authentication Error Fingerprint: #{result[:unknown]}"
-        print_status "#{rhost}:#{rport} Postgres - Version Unknown (Pre-Auth)"
+        vprint_status "#{postgres_conn.address}:#{postgres_conn.port} Postgres - Authentication Error Fingerprint: #{result[:unknown]}"
+        print_status "#{postgres_conn.address}:#{postgres_conn.port} Postgres - Version Unknown (Pre-Auth)"
       end
 
       # Reporting
       report_service(
-        :host => rhost,
-        :port => rport,
+        :host => postgres_conn.address,
+        :port => postgres_conn.port,
         :name => "postgres",
         :info => result.values.first
       )
 
       if self.postgres_conn
         report_cred(
-          ip: rhost,
-          port: rport,
+          ip: postgres_conn.address,
+          port: postgres_conn.port,
           service_name: 'postgres',
           user: user,
           password: password,
@@ -113,17 +116,17 @@ class MetasploitModule < Msf::Auxiliary
 
       if result[:unknown]
         report_note(
-          :host => rhost,
+          :host => postgres_conn.address,
           :proto => 'tcp',
           :sname => 'postgres',
-          :port => rport,
+          :port => postgres_conn.port,
           :ntype => 'postgresql.fingerprint',
           :data => "Unknown Pre-Auth fingerprint: #{result[:unknown]}"
         )
       end
 
       # Logout
-      postgres_logout
+      postgres_logout if self.postgres_conn && session.blank?
 
     rescue Rex::ConnectionError
       vprint_error "#{rhost}:#{rport} Connection Error: #{$!}"
