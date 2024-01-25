@@ -64,5 +64,8 @@ module Msf::Payload::Adapter::Fetch::Server::SMB
     fetch_service
   end
 
+  def on_client_connect(client)
+    vprint_status("Received SMB connection from #{client.peerhost}")
+  end
 end
 
