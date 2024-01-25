@@ -118,6 +118,7 @@ module Msf
             plat = nil
             keep = false
             verbose = false
+            mod_with_opts = mod.replicant
 
             @@generate_opts.parse(args) do |opt, _idx, val|
               case opt
@@ -164,16 +165,16 @@ module Msf
                   return false
                 end
 
-                mod.datastore.import_options_from_s(val)
+                mod_with_opts.datastore.import_options_from_s(val)
               end
             end
-            if encoder_name.nil? && mod.datastore['ENCODER']
-              encoder_name = mod.datastore['ENCODER']
+            if encoder_name.nil? && mod_with_opts.datastore['ENCODER']
+              encoder_name = mod_with_opts.datastore['ENCODER']
             end
 
             # Generate the payload
             begin
-              buf = mod.generate_simple(
+              buf = mod_with_opts.generate_simple(
                 'BadChars' => badchars,
                 'Encoder' => encoder_name,
                 'Format' => format,
