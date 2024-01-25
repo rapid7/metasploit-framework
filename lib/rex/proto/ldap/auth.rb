@@ -183,9 +183,6 @@ module Rex
         def generate_type2_response(message)
           dom = message.domain
           ws = message.workstation
-          @domain = dom if dom
-          @server = ws if ws
-          server_hash = MESSAGE.process_type1_message(message.encode64, @challenge, @domain, @server, @dnsname, @dnsdomain)
           domain = dom.empty? ? @domain : dom
           server = ws.empty? ? @server : ws
           server_hash = MESSAGE.process_type1_message(message.encode64, @challenge, domain, server, @dnsname, @dnsdomain)
