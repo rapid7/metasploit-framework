@@ -368,15 +368,27 @@ module Acceptance
     # @param [Hash] default_module_datastore
     # @return [String] The command which can be used on msfconsole to generate the payload
     def generate_command(default_module_datastore: {})
-      module_datastore = default_module_datastore.merge(@datastore[:module])
       generate_options = @generate_options.map do |key, value|
         "#{key} #{value}"
       end
+      "generate -o #{path} #{generate_options.join(' ')} #{datastore_options(default_module_datastore: default_module_datastore)}"
+    end
+
+    # @param [Hash] default_module_datastore
+    # @return [String] The command which can be used on msfconsole to create the listener
+    def handler_command(default_module_datastore: {})
+      "to_handler #{datastore_options(default_module_datastore: default_module_datastore)}"
+    end
+
+    # @param [Hash] default_module_datastore
+    # @return [String] The datastore options string
+    def datastore_options(default_module_datastore: {})
+      module_datastore = default_module_datastore.merge(@datastore[:module])
       module_options = module_datastore.map do |key, value|
         "#{key}=#{value}"
       end
 
-      "generate -o #{path} #{generate_options.join(' ')} #{module_options.join(' ')}"
+      module_options.join(' ')
     end
 
     # @param [Hash] default_global_datastore
@@ -394,7 +406,7 @@ module Acceptance
         #{generate_command(default_module_datastore: default_module_datastore)}
 
         ## Create listener
-        to_handler
+        #{handler_command(default_module_datastore: default_module_datastore)}
 
         ## Execute command
         #{Shellwords.join(execute_command)}
