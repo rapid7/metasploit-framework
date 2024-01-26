@@ -15,6 +15,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
+  include Msf::OptionalSession
+
   def initialize
     super(
       'Name'        => 'SMB SID User Enumeration (LookupSid)',
@@ -34,7 +36,8 @@ class MetasploitModule < Msf::Auxiliary
           ['LOCAL', { 'Description' => 'Enumerate local accounts' } ],
           ['DOMAIN', { 'Description' => 'Enumerate domain accounts' } ]
         ],
-      'DefaultAction' => 'LOCAL'
+      'DefaultAction' => 'LOCAL',
+      'SessionTypes' => %w[SMB]
     )
 
     register_options(
@@ -66,15 +69,17 @@ class MetasploitModule < Msf::Auxiliary
     found_pipe   = nil
     found_handle = nil
     pipes.each do |pipe_name|
-      connected = false
+      connected = session ? true : false
       begin
-        connect
-        smb_login
-        connected = true
+        unless connected
+          connect
+          smb_login
+          connected = true
+        end
 
-        handle = dcerpc_handle(
+        handle = dcerpc_handle_target(
           uuid, vers,
-          'ncacn_np', ["\\#{pipe_name}"]
+          'ncacn_np', ["\\#{pipe_name}"], simple.address
         )
 
         dcerpc_bind(handle)
@@ -141,14 +146,23 @@ class MetasploitModule < Msf::Auxiliary
 
   # Fingerprint a single host
   def run_host(ip)
-    [[139, false], [445, true]].each do |info|
+    ports = [139, 445]
 
-    @rport = info[0]
-    @smbdirect = info[1]
+    if session
+      print_status("Using existing session #{session.sid}")
+      client = session.client
+      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
+      ports = [simple.port]
+      self.simple.connect("\\\\#{simple.address}\\IPC$") # smb_login connects to this share for some reason and it doesn't work unless we do too
+    end
 
-    lsa_pipe   = nil
-    lsa_handle = nil
-    begin
+    ports.each do |port|
+
+      @rport = port
+
+      lsa_pipe   = nil
+      lsa_handle = nil
+      begin
       # find the lsarpc pipe
       lsa_pipe = smb_find_dcerpc_pipe(LSA_UUID, LSA_VERS, LSA_PIPES)
       break if not lsa_pipe

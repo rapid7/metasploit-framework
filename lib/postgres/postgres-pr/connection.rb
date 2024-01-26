@@ -60,7 +60,7 @@ class Connection
     uri ||= DEFAULT_URI
 
     @transaction_status = nil
-    @params = {}
+    @params = { 'username' => user, 'database' => database }
     establish_connection(uri)
 
     # Check if the password supplied is a Postgres-style md5 hash

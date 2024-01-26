@@ -16,9 +16,9 @@ class MetasploitModule < Msf::Encoder
         without being overly fancy.
       },
       'Author'      => ['egypt', 'wvu'],
-      'Platform'    => 'unix',
+      'Platform'    => %w[ linux unix ],
       'Arch'        => ARCH_CMD,
-      'EncoderType' => Msf::Encoder::Type::CmdUnixIFS
+      'EncoderType' => Msf::Encoder::Type::CmdPosixIFS
     )
   end
 

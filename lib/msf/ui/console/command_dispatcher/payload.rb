@@ -16,6 +16,10 @@ module Msf
             Msf::Simple::Buffer.transform_formats + \
             Msf::Util::EXE.to_executable_fmt_formats
 
+          @@to_handler_opts = Rex::Parser::Arguments.new(
+            '-h' => [ false, 'Show this message' ]
+          )
+
           @@generate_opts = Rex::Parser::Arguments.new(
             '-p' => [ true, 'The platform of the payload' ],
             '-n' => [ true, 'Prepend a nopsled of [length] size on to the payload' ],
@@ -45,12 +49,40 @@ module Msf
             )
           end
 
+          def cmd_to_handler_help
+            print_line 'Usage: to_handler [options]'
+            print_line
+            print_line 'Creates a handler a payload. Datastore options may be supplied after normal options.'
+            print_line 'This is convenient way of using multi/handler, setting the payload, and then setting datastore options.'
+            print_line
+            print_line 'Example: to_handler'
+            print_line 'Example: to_handler LHOST=192.168.123.1'
+            print @@to_handler_opts.usage
+          end
+
           def cmd_to_handler(*args)
             if args.include?('-r') || args.include?('--reload-libs')
               driver.run_single('reload_lib -a')
             end
 
+            mod_with_opts = mod.replicant
             handler = framework.modules.create('exploit/multi/handler')
+            handler.share_datastore(mod_with_opts.datastore)
+
+            @@to_handler_opts.parse(args) do |opt, _idx, val|
+              case opt
+              when '-h'
+                cmd_to_handler_help
+                return false
+              else
+                unless val.include?('=')
+                  cmd_to_handler_help
+                  return false
+                end
+
+                handler.datastore.import_options_from_s(val)
+              end
+            end
 
             handler_opts = {
               'Payload' => mod.refname,
@@ -61,8 +93,6 @@ module Msf
                 'ExitOnSession' => false
               }
             }
-
-            handler.share_datastore(mod.datastore)
 
             replicant_handler = nil
             handler.exploit_simple(handler_opts) do |yielded_replicant_handler|
@@ -82,6 +112,18 @@ module Msf
           end
 
           alias cmd_exploit cmd_to_handler
+
+          #
+          # Tab completion for the generate command
+          #
+          def cmd_to_handler_tabs(str, words)
+            fmt = {
+              '-h' => [ nil ],
+            }
+            flags = tab_complete_generic(fmt, str, words)
+            options = tab_complete_option(active_module, str, words)
+            flags + options
+          end
 
           #
           # Returns the command dispatcher name.
@@ -118,6 +160,7 @@ module Msf
             plat = nil
             keep = false
             verbose = false
+            mod_with_opts = mod.replicant
 
             @@generate_opts.parse(args) do |opt, _idx, val|
               case opt
@@ -164,16 +207,16 @@ module Msf
                   return false
                 end
 
-                mod.datastore.import_options_from_s(val)
+                mod_with_opts.datastore.import_options_from_s(val)
               end
             end
-            if encoder_name.nil? && mod.datastore['ENCODER']
-              encoder_name = mod.datastore['ENCODER']
+            if encoder_name.nil? && mod_with_opts.datastore['ENCODER']
+              encoder_name = mod_with_opts.datastore['ENCODER']
             end
 
             # Generate the payload
             begin
-              buf = mod.generate_simple(
+              buf = mod_with_opts.generate_simple(
                 'BadChars' => badchars,
                 'Encoder' => encoder_name,
                 'Format' => format,

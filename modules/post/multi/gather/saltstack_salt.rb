@@ -7,6 +7,7 @@ require 'yaml'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
+  include Msf::Exploit::Local::Saltstack
 
   def initialize(info = {})
     super(
@@ -138,21 +139,9 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def list_minions
-    # pull minions from a master
-    print_status('Attempting to list minions')
-    unless command_exists?('salt-key')
-      print_error('salt-key not present on system')
-      return
-    end
-    begin
-      out = cmd_exec('salt-key', '-L --output=yaml', datastore['TIMEOUT'])
-      vprint_status(out)
-      minions = YAML.safe_load(out)
-    rescue Psych::SyntaxError
-      print_error('Unable to load salt-key -L data')
-      return
-    end
+  def list_minions_printer
+    minions = list_minions
+    return if minions.nil?
 
     tbl = Rex::Text::Table.new(
       'Header' => 'Minions List',
@@ -160,9 +149,7 @@ class MetasploitModule < Msf::Post
       'Columns' => ['Status', 'Minion Name']
     )
 
-    store_path = store_loot('saltstack_minions', 'application/x-yaml', session, minions.to_yaml, 'minions.yaml', 'SaltStack Salt salt-key list')
-    print_good("#{peer} - minion file successfully retrieved and saved to #{store_path}")
-    minions['minions'].each do |minion|
+    minions.each do |minion|
       tbl << ['Accepted', minion]
     end
     minions['minions_pre'].each do |minion|
@@ -198,7 +185,7 @@ class MetasploitModule < Msf::Post
   end
 
   def master
-    list_minions
+    list_minions_printer
     gather_minion_data if datastore['GETOS'] || datastore['GETHOSTNAME'] || datastore['GETIP']
 
     # get sls files

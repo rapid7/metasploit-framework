@@ -30,8 +30,8 @@ module DNS
       :use_tcp => false,
       :ignore_truncated => false,
       :packet_size => 512,
-      :tcp_timeout => TcpTimeout.new(30),
-      :udp_timeout => UdpTimeout.new(30),
+      :tcp_timeout => 30,
+      :udp_timeout => 30,
       :context => {},
       :comm => nil
     }
@@ -46,7 +46,6 @@ module DNS
       # config.key_downcase!
       @config = Defaults.merge config
       @raw = false
-
       # New logger facility
       @logger = Logger.new(@config[:log_file])
       @logger.level = $DEBUG ? Logger::DEBUG : Logger::WARN
@@ -211,85 +210,82 @@ module DNS
       ans = nil
       length = [packet_data.size].pack("n")
       nameservers.each do |ns, socket_options|
-        begin
-          socket = nil
-          config = {
-            'PeerHost' => ns.to_s,
-            'PeerPort' => @config[:port].to_i,
-            'Proxies' => prox,
-            'Context' => @config[:context],
-            'Comm' => @config[:comm]
-          }
-          config.update(socket_options)
-          unless config['Comm'].nil? || config['Comm'].alive?
-            @logger.warn("Session #{config['Comm'].sid} not active, and cannot be used to resolve DNS")
-            throw :next_ns
-          end
+        socket = nil
+        config = {
+          'PeerHost' => ns.to_s,
+          'PeerPort' => @config[:port].to_i,
+          'Proxies' => prox,
+          'Context' => @config[:context],
+          'Comm' => @config[:comm],
+          'Timeout' => @config[:tcp_timeout]
+        }
+        config.update(socket_options)
+        unless config['Comm'].nil? || config['Comm'].alive?
+          @logger.warn("Session #{config['Comm'].sid} not active, and cannot be used to resolve DNS")
+          next
+        end
 
-          suffix = " over session #{@config['Comm'].sid}" unless @config['Comm'].nil?
-          if @config[:source_port] > 0
-            config['LocalPort'] = @config[:source_port]
+        suffix = " over session #{@config['Comm'].sid}" unless @config['Comm'].nil?
+        if @config[:source_port] > 0
+          config['LocalPort'] = @config[:source_port]
+        end
+        if @config[:source_host].to_s != '0.0.0.0'
+          config['LocalHost'] = @config[:source_host] unless @config[:source_host].nil?
+        end
+        begin
+          suffix = ''
+          begin
+            socket = Rex::Socket::Tcp.create(config)
+          rescue
+            @logger.warn "TCP Socket could not be established to #{ns}:#{@config[:port]} #{@config[:proxies]}#{suffix}"
+            next
           end
-          if @config[:source_host].to_s != '0.0.0.0'
-            config['LocalHost'] = @config[:source_host] unless @config[:source_host].nil?
-          end
-          @config[:tcp_timeout].timeout do
-            catch(:next_ns) do
-              suffix = ''
-              begin
-                socket = Rex::Socket::Tcp.create(config)
-              rescue
-                @logger.warn "TCP Socket could not be established to #{ns}:#{@config[:port]} #{@config[:proxies]}#{suffix}"
+          next unless socket #
+          @logger.info "Contacting nameserver #{ns} port #{@config[:port]}#{suffix}"
+          socket.write(length+packet_data)
+          got_something = false
+          loop do
+            buffer = ""
+            attempts = 3
+            begin
+              ans = socket.recv(2)
+            rescue Errno::ECONNRESET
+              @logger.warn "TCP Socket got Errno::ECONNRESET from #{ns}:#{@config[:port]} #{@config[:proxies]}#{suffix}"
+              attempts -= 1
+              retry if attempts > 0
+            end
+            if ans.size == 0
+              if got_something
+                break #Proper exit from loop
+              else
+                @logger.warn "Connection reset to nameserver #{ns}#{suffix}, trying next."
                 throw :next_ns
               end
-              next unless socket #
-              @logger.info "Contacting nameserver #{ns} port #{@config[:port]}#{suffix}"
-              socket.write(length+packet_data)
-              got_something = false
-              loop do
-                buffer = ""
-                attempts = 3
-                begin
-                  ans = socket.recv(2)
-                rescue Errno::ECONNRESET
-                  @logger.warn "TCP Socket got Errno::ECONNRESET from #{ns}:#{@config[:port]} #{@config[:proxies]}#{suffix}"
-                  attempts -= 1
-                  retry if attempts > 0
-                end
-                if ans.size == 0
-                  if got_something
-                    break #Proper exit from loop
-                  else
-                    @logger.warn "Connection reset to nameserver #{ns}#{suffix}, trying next."
-                    throw :next_ns
-                  end
-                end
-                got_something = true
-                len = ans.unpack("n")[0]
+            end
+            got_something = true
+            len = ans.unpack("n")[0]
 
-                @logger.info "Receiving #{len} bytes..."
+            @logger.info "Receiving #{len} bytes..."
 
-                if len.nil? or len == 0
-                  @logger.warn "Receiving 0 length packet from nameserver #{ns}#{suffix}, trying next."
-                  throw :next_ns
-                end
+            if len.nil? or len == 0
+              @logger.warn "Receiving 0 length packet from nameserver #{ns}#{suffix}, trying next."
+              throw :next_ns
+            end
 
-                while (buffer.size < len)
-                  left = len - buffer.size
-                  temp,from = socket.recvfrom(left)
-                  buffer += temp
-                end
+            while (buffer.size < len)
+              left = len - buffer.size
+              temp,from = socket.recvfrom(left)
+              buffer += temp
+            end
 
-                unless buffer.size == len
-                  @logger.warn "Malformed packet from nameserver #{ns}#{suffix}, trying next."
-                  throw :next_ns
-                end
-                if block_given?
-                  yield [buffer,["",@config[:port],ns.to_s,ns.to_s]]
-                else
-                  return [buffer,["",@config[:port],ns.to_s,ns.to_s]]
-                end
-              end
+            unless buffer.size == len
+              @logger.warn "Malformed packet from nameserver #{ns}#{suffix}, trying next."
+              throw :next_ns
+            end
+            if block_given?
+              yield [buffer,["",@config[:port],ns.to_s,ns.to_s]]
+            else
+              return [buffer,["",@config[:port],ns.to_s,ns.to_s]]
             end
           end
         rescue Timeout::Error
@@ -312,48 +308,42 @@ module DNS
     # @return ans [String] Raw DNS reply
     def send_udp(packet,packet_data, nameservers)
       ans = nil
-      response = ""
       nameservers.each do |ns, socket_options|
-        catch(:next_ns) do
-          begin
-            @config[:udp_timeout].timeout do
-              begin
-                config = {
-                  'PeerHost' => ns.to_s,
-                  'PeerPort' => @config[:port].to_i,
-                  'Context' => @config[:context],
-                  'Comm' => @config[:comm]
-                }
-                config.update(socket_options)
-                unless config['Comm'].nil? || config['Comm'].alive?
-                  @logger.warn("Session #{config['Comm'].sid} not active, and cannot be used to resolve DNS")
-                  throw :next_ns
-                end
-
-                if @config[:source_port] > 0
-                  config['LocalPort'] = @config[:source_port]
-                end
-                if @config[:source_host] != IPAddr.new('0.0.0.0')
-                  config['LocalHost'] = @config[:source_host] unless @config[:source_host].nil?
-                end
-                socket = Rex::Socket::Udp.create(config)
-              rescue
-                @logger.warn "UDP Socket could not be established to #{ns}:#{@config[:port]}"
-                throw :next_ns
-              end
-              @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
-              #socket.sendto(packet_data, ns.to_s, @config[:port].to_i, 0)
-              socket.write(packet_data)
-              ans = socket.recvfrom(@config[:packet_size])
-            end
-            break if ans
-          rescue Timeout::Error
-            @logger.warn "Nameserver #{ns} not responding within UDP timeout, trying next one"
-            throw :next_ds
+        begin
+          config = {
+            'PeerHost' => ns.to_s,
+            'PeerPort' => @config[:port].to_i,
+            'Context' => @config[:context],
+            'Comm' => @config[:comm],
+            'Timeout' => @config[:udp_timeout]
+          }
+          config.update(socket_options)
+          unless config['Comm'].nil? || config['Comm'].alive?
+            @logger.warn("Session #{config['Comm'].sid} not active, and cannot be used to resolve DNS")
+            next
           end
+
+          if @config[:source_port] > 0
+            config['LocalPort'] = @config[:source_port]
+          end
+          if @config[:source_host] != IPAddr.new('0.0.0.0')
+            config['LocalHost'] = @config[:source_host] unless @config[:source_host].nil?
+          end
+          socket = Rex::Socket::Udp.create(config)
+        rescue
+          @logger.warn "UDP Socket could not be established to #{ns}:#{@config[:port]}"
+          next
         end
+        @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
+        #socket.sendto(packet_data, ns.to_s, @config[:port].to_i, 0)
+        socket.write(packet_data)
+        ans = socket.recvfrom(@config[:packet_size])
+        break if ans
+      rescue Timeout::Error
+        @logger.warn "Nameserver #{ns} not responding within UDP timeout, trying next one"
+        next
       end
-      return ans
+      ans
     end
 
 

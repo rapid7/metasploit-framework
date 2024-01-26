@@ -14,8 +14,8 @@ class MetasploitModule < Msf::Encoder
       },
       'Author'           => 'hdm',
       'Arch'             => ARCH_CMD,
-      'Platform'         => 'unix',
-      'EncoderType'      => Msf::Encoder::Type::CmdUnixEcho)
+      'Platform'         => %w[ linux unix ],
+      'EncoderType'      => Msf::Encoder::Type::CmdPosixEcho)
   end
 
 

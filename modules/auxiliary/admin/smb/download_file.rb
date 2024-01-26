@@ -11,6 +11,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::RemotePaths
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::OptionalSession
 
   def initialize
     super(
@@ -24,7 +25,8 @@ class MetasploitModule < Msf::Auxiliary
         [
           'mubix' # copied from hdm upload_file module
         ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'SessionTypes' => %w[SMB]
     )
 
     register_options([
@@ -34,11 +36,18 @@ class MetasploitModule < Msf::Auxiliary
 
   def smb_download
     vprint_status("Connecting...")
-    connect
-    smb_login()
+    if session
 
-    vprint_status("#{peer}: Mounting the remote share \\\\#{rhost}\\#{datastore['SMBSHARE']}'...")
-    self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
+      print_status("Using existing session #{session.sid}")
+      client = session.client
+      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
+    else
+      connect
+      smb_login()
+    end
+
+    vprint_status("Mounting the remote share \\\\#{simple.address}\\#{datastore['SMBSHARE']}'...")
+    self.simple.connect("\\\\#{simple.address}\\#{datastore['SMBSHARE']}")
 
     remote_paths.each do |remote_path|
       begin
