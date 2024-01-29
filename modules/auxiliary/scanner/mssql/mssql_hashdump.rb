@@ -6,8 +6,8 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
-
   include Msf::Auxiliary::Scanner
+  include Msf::OptionalSession
 
   def initialize
     super(
@@ -19,14 +19,19 @@ class MetasploitModule < Msf::Auxiliary
         table names, which can be used to seed the wordlist.
       },
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'SessionTypes'   => %w[MSSQL],
     )
   end
 
   def run_host(ip)
-
-    if !mssql_login_datastore
-      print_error("Invalid SQL Server credentials")
+    if (datastore['SESSION'] && session)
+      set_session(session)
+    elsif (datastore['SESSION'] && !session)
+      print_error('Unable to connect to session')
+      return
+    elsif !mssql_login(datastore['USERNAME'], datastore['PASSWORD'])
+      print_error('Invalid SQL Server credentials')
       return
     end
 

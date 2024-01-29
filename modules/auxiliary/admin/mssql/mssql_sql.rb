@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
+  include Msf::OptionalSession
 
   def initialize(info = {})
     super(update_info(info,
@@ -19,7 +20,8 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'URL', 'http://www.attackresearch.com' ],
           [ 'URL', 'http://msdn.microsoft.com/en-us/library/cc448435(PROT.10).aspx'],
-        ]
+        ],
+      'SessionTypes'   => %w[MSSQL],
     ))
 
     register_options(
@@ -38,7 +40,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    mssql_query(datastore['SQL'], true) if mssql_login_datastore
-    disconnect
+    if (datastore['SESSION'] && session)
+      set_session(session)
+    end
+
+    mssql_query(datastore['SQL'], true) if (datastore['SESSION'] && session) || mssql_login_datastore
   end
 end

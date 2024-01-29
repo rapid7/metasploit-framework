@@ -8,6 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::OptionalSession
 
   def initialize
     super(
@@ -20,7 +21,8 @@ class MetasploitModule < Msf::Auxiliary
           as loot for easy reading.
       },
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'SessionTypes'   => %w[MSSQL],
     )
 
     register_options([
@@ -29,9 +31,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    if (datastore['SESSION'] && session)
+      set_session(session)
+    end
 
-    if !mssql_login_datastore
-      print_error("#{rhost}:#{rport} - Invalid SQL Server credentials")
+    unless (datastore['SESSION'] && session) || mssql_login_datastore
+      print_error("#{datastore['RHOST']}:#{datastore['RPORT']} - Invalid SQL Server credentials")
       return
     end
 

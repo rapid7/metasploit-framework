@@ -473,7 +473,6 @@ module Rex
           pkt_hdr[2] = pkt_data.length + 8
 
           pkt = pkt_hdr.pack("CCnnCC") + pkt_data
-
           resp = mssql_send_recv(pkt)
 
           idx = 0

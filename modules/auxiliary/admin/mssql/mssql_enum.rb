@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
+  include Msf::OptionalSession
 
   def initialize(info = {})
     super(update_info(info,
@@ -17,14 +18,18 @@ class MetasploitModule < Msf::Auxiliary
         supplied.
       },
       'Author'         => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'SessionTypes'   => %w[MSSQL],
     ))
   end
 
   def run
     print_status("Running MS SQL Server Enumeration...")
+    if (datastore['SESSION'] && session)
+      set_session(session)
+    end
 
-    if !mssql_login_datastore
+    unless (datastore['SESSION'] && session) || mssql_login_datastore
       print_error("Login was unsuccessful. Check your credentials.")
       disconnect
       return

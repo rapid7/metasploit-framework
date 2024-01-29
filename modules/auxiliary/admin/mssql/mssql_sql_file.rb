@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
+  include Msf::OptionalSession
 
   def initialize(info = {})
     super(update_info(info,
@@ -15,7 +16,8 @@ class MetasploitModule < Msf::Auxiliary
         the appropriate credentials.
       },
       'Author'         => [ 'j0hn__f : <jf[at]tinternet.org.uk>' ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'SessionTypes'   => %w[MSSQL]
     ))
 
     register_options(
@@ -34,9 +36,12 @@ class MetasploitModule < Msf::Auxiliary
     suffix = datastore['QUERY_SUFFIX']
 
     begin
+      if (datastore['SESSION'] && session)
+        set_session(session)
+      end
       queries.each do |sql_query|
         vprint_status("Executing: #{sql_query}")
-        mssql_query(prefix+sql_query.chomp+suffix,true) if mssql_login_datastore
+        mssql_query(prefix+sql_query.chomp+suffix,true) if (datastore['SESSION'] && session) || mssql_login_datastore
       end
     rescue Rex::ConnectionRefused, Rex::ConnectionTimeout
       print_error "Error connecting to server: #{$!}"

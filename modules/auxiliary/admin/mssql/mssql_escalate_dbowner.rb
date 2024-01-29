@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
+  include Msf::OptionalSession
 
   def initialize(info = {})
     super(update_info(info,
@@ -17,14 +18,19 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => [ 'nullbind <scott.sutherland[at]netspi.com>'],
       'License'        => MSF_LICENSE,
-      'References'     => [[ 'URL','http://technet.microsoft.com/en-us/library/ms188676(v=sql.105).aspx']]
+      'References'     => [[ 'URL','http://technet.microsoft.com/en-us/library/ms188676(v=sql.105).aspx']],
+      'SessionTypes'   => %w[MSSQL]
     ))
   end
 
   def run
     # Check connection and issue initial query
+    if (datastore['SESSION'] && session)
+      set_session(session)
+    end
+
     print_status("Attempting to connect to the database server at #{rhost}:#{rport} as #{datastore['USERNAME']}...")
-    if mssql_login_datastore
+    if (datastore['SESSION'] && session) || mssql_login_datastore
       print_good('Connected.')
     else
       print_error('Login was unsuccessful. Check your credentials.')

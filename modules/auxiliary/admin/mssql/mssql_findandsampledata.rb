@@ -4,9 +4,10 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::MSSQL
+  include Msf::OptionalSession
 
   def initialize(info = {})
     super(update_info(info,
@@ -27,7 +28,8 @@ class MetasploitModule < Msf::Auxiliary
         'todb'                                               # Help on GitHub
       ],
       'License'        => MSF_LICENSE,
-      'References'     => [[ 'URL', 'http://www.netspi.com/blog/author/ssutherland/' ]]
+      'References'     => [[ 'URL', 'http://www.netspi.com/blog/author/ssutherland/' ]],
+      'SessionTypes'   => %w[MSSQL],
     ))
 
     register_options(
@@ -342,7 +344,11 @@ class MetasploitModule < Msf::Auxiliary
 
     # CREATE DATABASE CONNECTION AND SUBMIT QUERY WITH ERROR HANDLING
     begin
-      result = mssql_query(sql, false) if mssql_login_datastore
+      if (datastore['SESSION'] && session)
+        set_session(session)
+      end
+      result = mssql_query(sql, false) if (datastore['SESSION'] && session) || mssql_login_datastore
+
       column_data = result[:rows]
       print_good("Successfully connected to #{rhost}:#{rport}")
     rescue
