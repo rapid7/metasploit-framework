@@ -49,6 +49,7 @@ module Msf
     #
     def initialize(opts = {})
       self.sorted = []
+      self.groups = {}
 
       add_options(opts)
     end
@@ -313,14 +314,33 @@ module Msf
       result.sort
     end
 
+    # Adds an option group to the container
+    #
+    # @param option_group [Msf::OptionGroup]
+    def add_group(option_group)
+      groups[option_group.name] = option_group
+    end
+
+    # Removes an option group from the container by name
+    #
+    # @param group_name [String]
+    def remove_group(group_name)
+      groups.delete(group_name)
+    end
+
     #
     # The sorted array of options.
     #
     attr_reader :sorted
 
+    # @return [Hash<String, Msf::OptionGroup>]
+    attr_reader :groups
+
     protected
 
     attr_writer :sorted # :nodoc:
+
+    attr_writer :groups
   end
 
 end
