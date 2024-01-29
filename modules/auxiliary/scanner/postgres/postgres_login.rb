@@ -61,6 +61,12 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  # Called when the module is set as the currently active module
+  def activate
+    super
+    add_info('New in Metasploit 6.4 - The %grnCreateSession%clr option within this module can open an interactive session')
+  end
+
   # Loops through each host in turn. Note the current IP address is both
   # ip and datastore['RHOST']
   def run_host(ip)

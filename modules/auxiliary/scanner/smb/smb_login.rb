@@ -84,6 +84,12 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  # Called when the module is set as the currently active module
+  def activate
+    super
+    add_info('New in Metasploit 6.4 - The %grnCreateSession%clr option within this module can open an interactive session')
+  end
+
   def run_host(ip)
     print_brute(level: :vstatus, ip: ip, msg: 'Starting SMB login bruteforce')
 

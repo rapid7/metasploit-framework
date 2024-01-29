@@ -37,4 +37,9 @@ module Msf::OptionalSession
 
     super
   end
+
+  def activate
+    super
+    add_info('New in Metasploit 6.4 - This module can target a %grnSESSION%clr or an %grnRHOST%clr')
+  end
 end

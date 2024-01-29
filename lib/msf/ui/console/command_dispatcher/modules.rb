@@ -596,10 +596,6 @@ module Msf
                   end
                 end
               end
-              if @module_search_results.length == 1 && use
-                used_module = @module_search_results_with_usage_metadata.first[:mod].fullname
-                cmd_use(used_module, true)
-              end
             rescue ArgumentError
               print_error("Invalid argument(s)\n")
               cmd_search_help
@@ -611,13 +607,18 @@ module Msf
               ::File.open(output_file, "wb") { |ofd|
                 ofd.write(tbl.to_csv)
               }
-            else
-              print_line(tbl.to_s)
-              print_module_search_results_usage
-
-              print_status("Using #{used_module}") if used_module
+              return true
             end
 
+            print_line(tbl.to_s)
+            print_module_search_results_usage
+
+            if @module_search_results.length == 1 && use
+              used_module = @module_search_results_with_usage_metadata.first[:mod].fullname
+              cmd_use(used_module, true)
+            end
+
+            print_status("Using #{used_module}") if used_module
             true
           end
 

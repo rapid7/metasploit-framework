@@ -40,6 +40,21 @@ module Msf::Module::Alert
       add_alert(:error, msg, &block)
     end
 
+    # Add an info message that will be provided to the user as early possible when using
+    # this instance of a module, either when they select it with the `use`
+    # command, when the module is about to start running, or when the module
+    # generates its output.
+    #
+    # @param msg [String] an optional info message
+    # @param block [Proc] an optional block that will be executed in the
+    #   context of the module instance at alert time to generate the
+    #   message. If provided the msg parameter is ignored.
+    # @return [true, nil] whether or not the message was added to the list of
+    #   info messages
+    def add_info(msg = nil, &block)
+      add_alert(:info, msg, &block)
+    end
+
     # @return [Array<String, Proc>] a list of warning message strings, or
     #   blocks (see #get_alerts)
     def warnings
@@ -50,6 +65,12 @@ module Msf::Module::Alert
     #   blocks (see #get_alerts)
     def errors
       get_alerts(:error)
+    end
+
+    # @return [Array<String, Proc>] a list of info message strings, or
+    #   blocks (see #get_alerts)
+    def infos
+      get_alerts(:info)
     end
 
     # @param level [Symbol] The alert level to return
@@ -135,6 +156,21 @@ module Msf::Module::Alert
     add_alert(:error, msg, &block)
   end
 
+  # Add an info message that will be provided to the user as early possible when using
+  # this instance of a module, either when they select it with the `use`
+  # command, when the module is about to start running, or when the module
+  # generates its output.
+  #
+  # @param msg [String] an optional info message
+  # @param block [Proc] an optional block that will be executed in the
+  #   context of the module instance at alert time to generate the
+  #   message. If provided the msg parameter is ignored.
+  # @return [true, nil] whether or not the message was added to the list of
+  #   info messages
+  def add_info(msg = nil, &block)
+    add_alert(:info, msg, &block)
+  end
+
   # This method allows modules to tell the framework if they are usable
   # on the system that they are being loaded on in a generic fashion.
   # By default, all modules are indicated as being usable.  An example of
@@ -158,6 +194,11 @@ module Msf::Module::Alert
   # @return [Array<String>] a list of error strings to show the user
   def errors
     get_alerts(:error)
+  end
+
+  # @return [Array<String>] a list of info strings to show the user
+  def infos
+    get_alerts(:info)
   end
 
   # Similar to {ClassMethods#get_alerts}, but executes each registered block in
@@ -212,6 +253,13 @@ module Msf::Module::Alert
     warnings.each do |msg|
       if msg && !self.you_have_been_warned[msg.hash]
         print_warning(msg)
+        self.you_have_been_warned[msg.hash] = true
+      end
+    end
+
+    infos.each do |msg|
+      if msg && !self.you_have_been_warned[msg.hash]
+        print_line(msg)
         self.you_have_been_warned[msg.hash] = true
       end
     end

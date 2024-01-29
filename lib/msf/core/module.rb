@@ -397,6 +397,7 @@ module Msf
       false
     end
 
+    def activate; end
     #
     # The array of zero or more platforms.
     #
