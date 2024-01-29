@@ -80,16 +80,16 @@ class Driver < Msf::Ui::Driver
 
     # Initialize attributes
 
-    dns_resolver = Rex::Proto::DNS::CachedResolver.new
-    dns_resolver.extend(Rex::Proto::DNS::CustomNameserverProvider)
-    dns_resolver.load_config
+    framework_create_options = opts.merge({ 'DeferModuleLoads' => true })
 
-    # Defer loading of modules until paths from opts can be added below
-    framework_create_options = opts.merge({
-                                            'DeferModuleLoads' => true,
-                                            'CustomDnsResolver' => dns_resolver
-                                          }
-                                         )
+    if Msf::FeatureManager.instance.enabled?(Msf::FeatureManager::DNS_FEATURE)
+      dns_resolver = Rex::Proto::DNS::CachedResolver.new
+      dns_resolver.extend(Rex::Proto::DNS::CustomNameserverProvider)
+      dns_resolver.load_config
+
+      # Defer loading of modules until paths from opts can be added below
+      framework_create_options = framework_create_options.merge({ 'CustomDnsResolver' => dns_resolver })
+    end
     self.framework = opts['Framework'] || Msf::Simple::Framework.create(framework_create_options)
 
     if self.framework.datastore['Prompt']

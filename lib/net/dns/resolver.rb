@@ -1084,17 +1084,21 @@ module Net # :nodoc:
           self.domain = arr[0]
           self.nameservers = arr[1]
         else
-          IO.foreach(@config[:config_file]) do |line|
-            line.gsub!(/\s*[;#].*/,"")
-            next unless line =~ /\S/
-            case line
-            when /^\s*domain\s+(\S+)/
-              self.domain = $1
-            when /^\s*search\s+(.*)/
-              self.searchlist = $1.split(" ")
-            when /^\s*nameserver\s+(.*)/
-              self.nameservers += $1.split(" ")
+          begin
+            IO.foreach(@config[:config_file]) do |line|
+              line.gsub!(/\s*[;#].*/,"")
+              next unless line =~ /\S/
+              case line
+              when /^\s*domain\s+(\S+)/
+                self.domain = $1
+              when /^\s*search\s+(.*)/
+                self.searchlist = $1.split(" ")
+              when /^\s*nameserver\s+(.*)/
+                self.nameservers += $1.split(" ")
+              end
             end
+          rescue => e
+            @logger.error(e)
           end
         end
       end
