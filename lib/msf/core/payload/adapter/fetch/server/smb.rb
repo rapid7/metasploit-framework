@@ -54,7 +54,12 @@ module Msf::Payload::Adapter::Fetch::Server::SMB
     fetch_service = start_smb_server(srvport, srvhost)
     if fetch_service.nil?
       cleanup_handler
-      fail_with(Msf::Exploit::Failure::BadConfig, "Fetch handler failed to start on #{Rex::Socket.to_authority(srvhost, srvport)}\n#{e}")
+      fail_with(Msf::Exploit::Failure::BadConfig, "Fetch handler failed to start on #{Rex::Socket.to_authority(srvhost, srvport)}")
+    end
+
+    if fetch_service.shares.key?(share_name)
+      cleanup_smb_fetch_service(fetch_service)
+      fail_with(Msf::Exploit::Failure::BadConfig, "The specified SMB share '#{share_name}' already exists.")
     end
 
     @fetch_virtual_disk = RubySMB::Server::Share::Provider::VirtualDisk.new(share_name)
