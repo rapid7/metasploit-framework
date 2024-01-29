@@ -9,6 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::OptionalSession
 
   def initialize
     super(
@@ -22,7 +23,8 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'http://pauldotcom.com/2013/01/mysql-file-system-enumeration.html' ],
         [ 'URL', 'http://www.digininja.org/projects/mysql_file_enum.php' ]
       ],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'SessionTypes'  => %w[MySQL]
     )
 
     register_options([
@@ -42,11 +44,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    vprint_status("Login...")
+    vprint_status("Login...") unless session
 
-    if (not mysql_login_datastore)
-      return
-    end
+    return unless mysql_login_datastore
 
     begin
       mysql_query_no_handle("USE " + datastore['DATABASE_NAME'])

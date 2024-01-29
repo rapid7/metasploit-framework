@@ -8,8 +8,8 @@ require 'yaml'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
-
   include Msf::Auxiliary::Scanner
+  include Msf::OptionalSession
 
   def initialize
     super(
@@ -19,7 +19,8 @@ class MetasploitModule < Msf::Auxiliary
           MySQL DB server.
       },
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'SessionTypes'  => %w[MySQL]
     )
 
     register_options([
@@ -29,10 +30,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    return unless mysql_login_datastore
 
-    if (not mysql_login_datastore)
-      return
-    end
     mysql_schema = get_schema
     mysql_schema.each do |db|
       report_note(

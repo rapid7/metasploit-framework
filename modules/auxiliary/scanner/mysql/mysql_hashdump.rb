@@ -6,8 +6,8 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
-
   include Msf::Auxiliary::Scanner
+  include Msf::OptionalSession
 
   def initialize
     super(
@@ -17,16 +17,16 @@ class MetasploitModule < Msf::Auxiliary
         hashes from a MySQL server and stores them for later cracking.
       ),
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+      'License'        => MSF_LICENSE,
+      'SessionTypes'  => %w[MySQL]
     )
   end
 
   def run_host(ip)
-
     return unless mysql_login_datastore
 
     service_data = {
-      address: ip,
+      address: rhost,
       port: rport,
       service_name: 'mysql',
       protocol: 'tcp',

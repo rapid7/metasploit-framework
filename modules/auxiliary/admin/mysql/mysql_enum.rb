@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::MYSQL
+  include Msf::OptionalSession
 
   def initialize(info = {})
     super(update_info(info,
@@ -16,6 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
         'License'       => MSF_LICENSE,
+        'SessionTypes'  => %w[MySQL],
         'References'    =>
         [
           [ 'URL', 'https://cisecurity.org/benchmarks.html' ]
@@ -53,6 +55,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     return if not mysql_login_datastore
+
     print_status("Running MySQL Enumerator...")
     print_status("Enumerating Parameters")
     #-------------------------------------------------------
