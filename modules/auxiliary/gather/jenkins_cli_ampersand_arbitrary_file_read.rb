@@ -149,7 +149,7 @@ class MetasploitModule < Msf::Auxiliary
     "\x03\x00\x00\x01\x31\x00\x00\x00"
   end
 
-  def data_generator(pad = false)
+  def data_generator(pad: false)
     data = []
     data << request_header
     data << parameter_one if pad == true
@@ -162,7 +162,7 @@ class MetasploitModule < Msf::Auxiliary
     data.join('')
   end
 
-  def upload_request(uuid, multi_line_file = true)
+  def upload_request(uuid, multi_line_file: true)
     # send upload request asking for file
 
     # In testing against Docker image on localhost, .01 seems to be the magic to get the download request to hit very slightly ahead of the upload request
