@@ -42,12 +42,12 @@ If file bucket items should be pulled. Defaults to `true`
 ### PUPPET
 
 Location of puppet executable if not in a standard location. This is added to a list of default locations
-which includes `/opt/puppetlabs/puppet/bin/puppet`. Defaults to ``
+which includes `/opt/puppetlabs/puppet/bin/puppet`.
 
 ### FACTER
 
 Location of facter executable if not in a standard location. This is added to a list of default locations
-which includes `/opt/puppetlabs/puppet/bin/facter`. Defaults to ``
+which includes `/opt/puppetlabs/puppet/bin/facter`.
 
 ## Scenarios
 
