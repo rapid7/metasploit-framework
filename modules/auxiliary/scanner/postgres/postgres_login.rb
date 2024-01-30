@@ -46,11 +46,12 @@ class MetasploitModule < Msf::Auxiliary
       ])
 
     options_to_deregister = %w[SQL PASSWORD_SPRAY]
-    unless framework.features.enabled?(Msf::FeatureManager::POSTGRESQL_SESSION_TYPE)
+    if framework.features.enabled?(Msf::FeatureManager::POSTGRESQL_SESSION_TYPE)
+      add_info('New in Metasploit 6.4 - The %grnCreateSession%clr option within this module can open an interactive session')
+    else
       options_to_deregister << 'CreateSession'
     end
     deregister_options(*options_to_deregister)
-
   end
 
   def create_session?
@@ -59,12 +60,6 @@ class MetasploitModule < Msf::Auxiliary
     else
       false
     end
-  end
-
-  # Called when the module is set as the currently active module
-  def activate
-    super
-    add_info('New in Metasploit 6.4 - The %grnCreateSession%clr option within this module can open an interactive session')
   end
 
   # Loops through each host in turn. Note the current IP address is both

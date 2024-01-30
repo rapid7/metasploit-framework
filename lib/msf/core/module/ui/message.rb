@@ -30,8 +30,9 @@ module Msf::Module::UI::Message
     prefix
   end
 
-  def print_status(msg='')
-    super(print_prefix + msg)
+  def print_status(msg='', prefix: nil)
+    msg_prefix = prefix.nil? ? print_prefix : prefix
+    super(msg_prefix + msg)
   end
 
   def print_warning(msg='')

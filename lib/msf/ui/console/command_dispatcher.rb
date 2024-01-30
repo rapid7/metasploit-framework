@@ -45,7 +45,6 @@ module CommandDispatcher
   #
   def active_module=(mod)
     driver.active_module = mod
-    mod.activate unless mod.nil?
   end
 
   #
