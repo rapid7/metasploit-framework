@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::OptionalSession
 
   def initialize
     super(
@@ -15,7 +16,8 @@ class MetasploitModule < Msf::Auxiliary
         Enumerates the version of MySQL servers.
       },
       'Author'      => 'kris katterjohn',
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'SessionTypes' => %w[MySQL],
     )
 
     register_options([
@@ -26,9 +28,22 @@ class MetasploitModule < Msf::Auxiliary
   # Based on my mysql-info NSE script
   def run_host(ip)
     begin
-      s = connect(false)
-      data = s.get_once(-1,10)
-      disconnect(s)
+      if session
+        version = session.client.server_info
+        print_good("#{rhost}:#{rport} is running MySQL #{version}")
+        report_service(
+          :host => rhost,
+          :port => rport,
+          :name => "mysql",
+          :info => version
+        )
+        return
+      else
+        socket = connect(false)
+        data = socket.get_once(-1, 10)
+        disconnect(socket)
+      end
+
       if data.nil?
         print_error "The connection to #{rhost}:#{rport} timed out"
         return
