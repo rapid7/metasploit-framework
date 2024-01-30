@@ -270,10 +270,13 @@ module Msf::Module::Alert
     # Temporarily set the prompt mode to false to ensure that there are not additional lines printed
     # A workaround for the prompting bug spotted in https://github.com/rapid7/metasploit-framework/pull/18761#issuecomment-1916645095
   def without_prompt(&block)
-    previous_prompting_value = user_output.prompting
-    user_output.prompting(false)
+    if user_output
+      previous_prompting_value = user_output.prompting?
+      user_output.prompting(false)
+    end
+
     yield
   ensure
-    user_output.prompting(previous_prompting_value)
+    user_output.prompting(previous_prompting_value) if user_output
   end
 end
