@@ -14,7 +14,7 @@ module DNS
   class Resolver < Net::DNS::Resolver
 
     Defaults = {
-      :config_file => "/etc/resolv.conf",
+      :config_file => nil,
       :log_file => File::NULL, # formerly $stdout, should be tied in with our loggers
       :port => 53,
       :searchlist => [],
@@ -40,11 +40,12 @@ module DNS
     #
     # Provide override for initializer to use local Defaults constant
     #
-    # @param config [Hash] Configuration options as conusumed by parent class
+    # @param config [Hash] Configuration options as consumed by parent class
     def initialize(config = {})
       raise ResolverArgumentError, "Argument has to be Hash" unless config.kind_of? Hash
       # config.key_downcase!
       @config = Defaults.merge config
+      @config[:config_file] ||= self.class.default_config_file
       @raw = false
       # New logger facility
       @logger = Logger.new(@config[:log_file])
@@ -398,6 +399,15 @@ module DNS
 
       return send(name,type,cls)
 
+    end
+
+    def self.default_config_file
+      %w[
+        /etc/resolv.conf
+        /data/data/com.termux/files/usr/etc/resolv.conf
+      ].find do |path|
+        File.file?(path) && File.readable?(path)
+      end
     end
 
     private
