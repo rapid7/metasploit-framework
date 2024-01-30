@@ -1,6 +1,37 @@
 ## Vulnerable Application
 
-Exploitation by hand can be done by downloading the CLI from the target: `wget http://<host>:8080/jnlpJars/jenkins-cli.jar`
+This module utilizes the Jenkins cli protocol to run the `help` command.
+The cli is accessible with read-only permissions by default, which are
+all thats required.
+
+Jenkins cli utilizes `args4j's` `parseArgument`, which calls `expandAtFiles` to
+replace any `@<filename>` with the contents of a file. We are then able to retrieve
+the error message to read up to the first two lines of a file.
+
+Exploitation by hand can be done with the cli, see markdown documents for additional
+instructions.
+
+There are a few exploitation oddities:
+1. The injection point for the `help` command requires 2 input arguments.
+When the `expandAtFiles` is called, each line of the `FILE_PATH` becomes an input argument.
+If a file only contains one line, it will throw an error: `ERROR: You must authenticate to access this Jenkins.`
+However, we can pad out the content by supplying a first argument.
+2. There is a strange timing requirement where the `download` (or first) request must get
+to the server first, but the `upload` (or second) request must be very close behind it.
+From testing against the docker image, it was found values between `.01` and `1.9` were
+viable. Due to the round trip time of the first request and response happening before
+request 2 would be received, it is necessary to use threading to ensure the requests
+happen within rapid succession.
+
+Files of value:
+
+ * /var/jenkins_home/secret.key
+ * /var/jenkins_home/secrets/master.key
+ * /var/jenkins_home/secrets/initialAdminPassword
+ * /etc/passwd
+ * /etc/shadow
+ * Project secrets and credentials
+ * Source code, build artifacts
 
 Vulnerable versions include:
 
