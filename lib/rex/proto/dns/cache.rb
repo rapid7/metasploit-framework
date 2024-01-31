@@ -76,6 +76,14 @@ module DNS
     end
 
     #
+    # Delete all cache entries, this is different from pruning because the
+    # record's expiration is ignored
+    #
+    def flush
+      self.records.each {|rec, _| delete(rec)}
+    end
+
+    #
     # Prune cache entries
     #
     # @param before [Fixnum] Time in seconds before which records are evicted

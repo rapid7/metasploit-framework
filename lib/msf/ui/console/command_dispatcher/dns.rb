@@ -52,7 +52,7 @@ class DNS
     return if driver.framework.dns_resolver.nil?
 
     if words.length == 1
-      options = %w[ add delete print purge query remove resolve ]
+      options = %w[ add delete flush-cache flush-entries print query remove resolve ]
       return options.select { |opt| opt.start_with?(str) }
     end
 
@@ -86,7 +86,7 @@ class DNS
       options = @@add_opts.option_keys.select { |opt| opt.start_with?(str) }
       options << '' # Prevent tab-completion of a dash, given they could provide an IP address at this point
       return options
-    when 'help','print','purge'
+    when 'flush-cache','flush-entries','help','print'
       # These commands don't have any arguments
       return
     when 'remove','delete'
@@ -112,16 +112,18 @@ class DNS
     print_line "Usage:"
     print_line "  dns [add] [--session <session_id>] [--rule <wildcard DNS entry>] <IP address> ..."
     print_line "  dns [remove/del] -i <entry id> [-i <entry id> ...]"
-    print_line "  dns [purge]"
+    print_line "  dns [flush-cache]"
+    print_line "  dns [flush-entries]"
     print_line "  dns [print]"
     print_line "  dns [resolve] <hostname> ..."
     print_line
     print_line "Subcommands:"
-    print_line "  add     - add a DNS resolution entry to resolve certain domain names through a particular DNS server"
-    print_line "  remove  - delete a DNS resolution entry; 'del' is an alias"
-    print_line "  purge   - remove all DNS resolution entries"
-    print_line "  print   - show all active DNS resolution entries"
-    print_line "  resolve - resolve a hostname"
+    print_line "  add           - add a DNS resolution entry to resolve certain domain names through a particular DNS server"
+    print_line "  remove        - delete a DNS resolution entry; 'del' is an alias"
+    print_line "  print         - show all configured DNS resolution entries"
+    print_line "  flush-entries - remove all configured DNS resolution entries"
+    print_line "  flush-cache   - remove all cached DNS answers"
+    print_line "  resolve       - resolve a hostname"
     print_line
     print_line "Examples:"
     print_line "  Display all current DNS nameserver entries"
@@ -169,12 +171,14 @@ class DNS
       case action
       when "add"
         add_dns(*args)
+      when "flush-entries"
+        flush_entries_dns
+      when "flush-cache"
+        flush_cache_dns
       when "help"
         cmd_dns_help
       when "print"
         print_dns
-      when "purge"
-        purge_dns
       when "remove", "rm", "delete", "del"
         remove_dns(*args)
       when "resolve", "query"
@@ -332,11 +336,19 @@ class DNS
   end
 
   #
+  # Delete all cached DNS answers
+  #
+  def flush_cache_dns
+    resolver.cache.flush
+    print_good('DNS cache flushed')
+  end
+
+  #
   # Delete all user-configured DNS settings
   #
-  def purge_dns
-    driver.framework.dns_resolver.purge
-    print_good('DNS entries purged')
+  def flush_entries_dns
+    resolver.purge
+    print_good('DNS entries flushed')
   end
 
   #
