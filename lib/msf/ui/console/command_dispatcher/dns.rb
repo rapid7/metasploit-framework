@@ -14,10 +14,13 @@ class DNS
     ['-s', '--session'] => [true, 'Force the DNS request to occur over a particular channel (override routing rules)' ],
   )
 
-  @@query_opts = Rex::Parser::Arguments.new([])
-
   @@remove_opts = Rex::Parser::Arguments.new(
     ['-i'] => [true, 'Index to remove']
+  )
+
+  @@resolve_opts = Rex::Parser::Arguments.new(
+    # same usage syntax as Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi
+    ['-f'] => [true,  'Address family - IPv4 or IPv6 (default IPv4)']
   )
 
   def initialize(driver)
@@ -33,7 +36,7 @@ class DNS
 
     if framework.features.enabled?(Msf::FeatureManager::DNS_FEATURE)
       commands = {
-        'dns'        => "Manage Metasploit's DNS resolving behaviour"
+        'dns' => "Manage Metasploit's DNS resolving behaviour"
       }
     end
     commands
@@ -49,15 +52,12 @@ class DNS
     return if driver.framework.dns_resolver.nil?
 
     if words.length == 1
-      options = ['add','del','remove','purge','print']
+      options = %w[ add delete print purge query remove resolve ]
       return options.select { |opt| opt.start_with?(str) }
     end
 
     cmd = words[1]
     case cmd
-    when 'purge','print'
-      # These commands don't have any arguments
-      return
     when 'add'
       # We expect a repeating pattern of tag (e.g. -r) and then a value (e.g. *.metasploit.com)
       # Once this pattern is violated, we're just specifying DNS servers at that point.
@@ -86,12 +86,22 @@ class DNS
       options = @@add_opts.option_keys.select { |opt| opt.start_with?(str) }
       options << '' # Prevent tab-completion of a dash, given they could provide an IP address at this point
       return options
-    when 'del','remove'
+    when 'help','print','purge'
+      # These commands don't have any arguments
+      return
+    when 'remove','delete'
       if words[-1] == '-i'
         ids = driver.framework.dns_resolver.nameserver_entries.flatten.map { |entry| entry[:id].to_s }
-        return ids.select { |id| id.start_with? str }
+        return ids.select { |id| id.start_with?(str) }
       else
         return @@remove_opts.option_keys.select { |opt| opt.start_with?(str) }
+      end
+    when 'resolve','query'
+      if words[-1] == '-f'
+        families = %w[ IPv4 IPv6 ] # The family argument is case-insensitive
+        return families.select { |family| family.downcase.start_with?(str.downcase) }
+      else
+        @@resolve_opts.option_keys.select { |opt| opt.start_with?(str) }
       end
     end
   end
@@ -104,14 +114,14 @@ class DNS
     print_line "  dns [remove/del] -i <entry id> [-i <entry id> ...]"
     print_line "  dns [purge]"
     print_line "  dns [print]"
-    print_line "  dns [query] <hostname> ..."
+    print_line "  dns [resolve] <hostname> ..."
     print_line
     print_line "Subcommands:"
-    print_line "  add    - add a DNS resolution entry to resolve certain domain names through a particular DNS server"
-    print_line "  remove - delete a DNS resolution entry; 'del' is an alias"
-    print_line "  purge  - remove all DNS resolution entries"
-    print_line "  print  - show all active DNS resolution entries"
-    print_line "  query  - resolve a hostname"
+    print_line "  add     - add a DNS resolution entry to resolve certain domain names through a particular DNS server"
+    print_line "  remove  - delete a DNS resolution entry; 'del' is an alias"
+    print_line "  purge   - remove all DNS resolution entries"
+    print_line "  print   - show all active DNS resolution entries"
+    print_line "  resolve - resolve a hostname"
     print_line
     print_line "Examples:"
     print_line "  Display all current DNS nameserver entries"
@@ -137,7 +147,7 @@ class DNS
     print_line "    dns add 8.8.8.8 8.8.4.4"
     print_line
     print_line "  Resolve a hostname using the current configuration"
-    print_line "    dns query www.metasploit.com "
+    print_line "    dns resolve -f IPv6 www.metasploit.com"
     print_line
   end
 
@@ -159,16 +169,16 @@ class DNS
       case action
       when "add"
         add_dns(*args)
-      when "remove", "del"
-        remove_dns(*args)
-      when "purge"
-        purge_dns
-      when "print"
-        print_dns
       when "help"
         cmd_dns_help
-      when "query"
-        query_dns(*args)
+      when "print"
+        print_dns
+      when "purge"
+        purge_dns
+      when "remove", "rm", "delete", "del"
+        remove_dns(*args)
+      when "resolve", "query"
+        resolve_dns(*args)
       else
         print_error("Invalid command. To view help: dns -h")
       end
@@ -243,14 +253,24 @@ class DNS
   # Query a hostname using the configuration. This is useful for debugging and
   # inspecting the active settings.
   #
-  def query_dns(*args)
+  def resolve_dns(*args)
     names = []
+    query_type = Dnsruby::Types::A
 
-    @@query_opts.parse(args) do |opt, idx, val|
+    @@resolve_opts.parse(args) do |opt, idx, val|
       unless names.empty? || opt.nil?
         raise ::ArgumentError.new("Invalid command near #{opt}")
       end
       case opt
+      when '-f'
+        case val.downcase
+        when 'ipv4'
+          query_type = Dnsruby::Types::A
+        when'ipv6'
+          query_type = Dnsruby::Types::AAAA
+        else
+          raise ::ArgumentError.new("Invalid family: #{val}")
+        end
       when nil
         names << val
       else
@@ -258,22 +278,31 @@ class DNS
       end
     end
 
+    if names.length < 1
+      raise ::ArgumentError.new('You must specify at least one hostname to resolve')
+    end
+
     tbl = Table.new(
       Table::Style::Default,
+      'Header'    => 'Host resolutions',
       'Prefix'  => "\n",
       'Postfix' => "\n",
-      'Columns' => %W[ Name Result ]
+      'Columns'   => ['Hostname', 'IP Address']
     )
     names.each do |name|
       begin
-        result = resolver.query(name)
+        result = resolver.query(name, query_type)
       rescue NoResponseError
-        tbl << [name, '']
+        tbl << [name, '[Failed To Resolve]']
       else
-        result.answer.select do |answer|
-          answer.type == Dnsruby::Types::A
-        end.map(&:address).map(&:to_s).each do |address|
-          tbl << [name, address]
+        if result.answer.empty?
+          tbl << [name, '[Failed To Resolve]']
+        else
+          result.answer.select do |answer|
+            answer.type == query_type
+          end.map(&:address).map(&:to_s).each do |address|
+            tbl << [name, address]
+          end
         end
       end
     end
