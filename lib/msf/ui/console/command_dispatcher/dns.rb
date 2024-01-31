@@ -14,6 +14,8 @@ class DNS
     ['-s', '--session'] => [true, 'Force the DNS request to occur over a particular channel (override routing rules)' ],
   )
 
+  @@query_opts = Rex::Parser::Arguments.new([])
+
   @@remove_opts = Rex::Parser::Arguments.new(
     ['-i'] => [true, 'Index to remove']
   )
@@ -98,16 +100,18 @@ class DNS
     print_line "Manage Metasploit's DNS resolution behaviour"
     print_line
     print_line "Usage:"
-    print_line "  dns [add] [--session <session_id>] [--rule <wildcard DNS entry>] <IP Address> <IP Address> ..."
+    print_line "  dns [add] [--session <session_id>] [--rule <wildcard DNS entry>] <IP address> ..."
     print_line "  dns [remove/del] -i <entry id> [-i <entry id> ...]"
     print_line "  dns [purge]"
     print_line "  dns [print]"
+    print_line "  dns [query] <hostname> ..."
     print_line
     print_line "Subcommands:"
-    print_line "  add - add a DNS resolution entry to resolve certain domain names through a particular DNS server"
+    print_line "  add    - add a DNS resolution entry to resolve certain domain names through a particular DNS server"
     print_line "  remove - delete a DNS resolution entry; 'del' is an alias"
-    print_line "  purge - remove all DNS resolution entries"
-    print_line "  print - show all active DNS resolution entries"
+    print_line "  purge  - remove all DNS resolution entries"
+    print_line "  print  - show all active DNS resolution entries"
+    print_line "  query  - resolve a hostname"
     print_line
     print_line "Examples:"
     print_line "  Display all current DNS nameserver entries"
@@ -115,22 +119,25 @@ class DNS
     print_line "    dns print"
     print_line
     print_line "  Set the DNS server(s) to be used for *.metasploit.com to 192.168.1.10"
-    print_line "    route add --rule *.metasploit.com 192.168.1.10"
+    print_line "    dns add --rule *.metasploit.com 192.168.1.10"
     print_line
     print_line "  Add multiple entries at once"
-    print_line "    route add --rule *.metasploit.com --rule *.google.com 192.168.1.10 192.168.1.11"
+    print_line "    dns add --rule *.metasploit.com --rule *.google.com 192.168.1.10 192.168.1.11"
     print_line
     print_line "  Set the DNS server(s) to be used for *.metasploit.com to 192.168.1.10, but specifically to go through session 2"
-    print_line "    route add --session 2 --rule *.metasploit.com 192.168.1.10"
+    print_line "    dns add --session 2 --rule *.metasploit.com 192.168.1.10"
     print_line
     print_line "  Delete the DNS resolution rule with ID 3"
-    print_line "    route remove -i 3"
+    print_line "    dns remove -i 3"
     print_line
     print_line "  Delete multiple entries in one command"
-    print_line "    route remove -i 3 -i 4 -i 5"
+    print_line "    dns remove -i 3 -i 4 -i 5"
     print_line
     print_line "  Set the DNS server(s) to be used for all requests that match no rules"
-    print_line "    route add 8.8.8.8 8.8.4.4"
+    print_line "    dns add 8.8.8.8 8.8.4.4"
+    print_line
+    print_line "  Resolve a hostname using the current configuration"
+    print_line "    dns query www.metasploit.com "
     print_line
   end
 
@@ -160,6 +167,8 @@ class DNS
         print_dns
       when "help"
         cmd_dns_help
+      when "query"
+        query_dns(*args)
       else
         print_error("Invalid command. To view help: dns -h")
       end
@@ -228,6 +237,47 @@ class DNS
       driver.framework.dns_resolver.add_nameserver(rules, server, comm_obj)
     end
     print_good("#{servers.length} DNS #{servers.length > 1 ? 'entries' : 'entry'} added")
+  end
+
+  #
+  # Query a hostname using the configuration. This is useful for debugging and
+  # inspecting the active settings.
+  #
+  def query_dns(*args)
+    names = []
+
+    @@query_opts.parse(args) do |opt, idx, val|
+      unless names.empty? || opt.nil?
+        raise ::ArgumentError.new("Invalid command near #{opt}")
+      end
+      case opt
+      when nil
+        names << val
+      else
+        raise ::ArgumentError.new("Unknown flag: #{opt}")
+      end
+    end
+
+    tbl = Table.new(
+      Table::Style::Default,
+      'Prefix'  => "\n",
+      'Postfix' => "\n",
+      'Columns' => %W[ Name Result ]
+    )
+    names.each do |name|
+      begin
+        result = resolver.query(name)
+      rescue NoResponseError
+        tbl << [name, '']
+      else
+        result.answer.select do |answer|
+          answer.type == Dnsruby::Types::A
+        end.map(&:address).map(&:to_s).each do |address|
+          tbl << [name, address]
+        end
+      end
+    end
+    print(tbl.to_s)
   end
 
   #
@@ -325,7 +375,7 @@ class DNS
     if result_set[0][:wildcard_rules]&.any?
       columns = ['ID', 'Rules(s)', 'DNS Server', 'Comm channel']
     else
-      columns = ['ID', 'DNS Server', 'Commm channel']
+      columns = ['ID', 'DNS Server', 'Comm channel']
     end
 
     tbl = Table.new(

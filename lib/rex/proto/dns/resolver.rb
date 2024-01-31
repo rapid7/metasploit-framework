@@ -18,7 +18,7 @@ module DNS
       :log_file => File::NULL, # formerly $stdout, should be tied in with our loggers
       :port => 53,
       :searchlist => [],
-      :nameservers => [IPAddr.new("127.0.0.1")],
+      :nameservers => [],
       :domain => "",
       :source_port => 0,
       :source_address => IPAddr.new("0.0.0.0"),
