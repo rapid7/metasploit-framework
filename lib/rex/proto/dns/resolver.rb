@@ -30,8 +30,8 @@ module DNS
       :use_tcp => false,
       :ignore_truncated => false,
       :packet_size => 512,
-      :tcp_timeout => 30,
-      :udp_timeout => 30,
+      :tcp_timeout => TcpTimeout.new(5),
+      :udp_timeout => UdpTimeout.new(5),
       :context => {},
       :comm => nil
     }
