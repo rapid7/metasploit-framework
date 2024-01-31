@@ -11,7 +11,7 @@ module DNS
 
     #
     # A Comm implementation that always reports as dead, so should never
-    # be used. This is used to prevent DNS leaks of saved DNS rules that 
+    # be used. This is used to prevent DNS leaks of saved DNS rules that
     # were attached to a specific channel.
     ##
     class CommSink
@@ -222,7 +222,6 @@ module DNS
     def valid_rule?(rule)
       rule =~ /^(\*\.)?([a-z\d][a-z\d-]*[a-z\d]\.)+[a-z]+$/
     end
-
 
     def matches(domain, pattern)
       if pattern.start_with?('*.')

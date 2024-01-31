@@ -265,14 +265,18 @@ class DNS
   #
   def print_dns
     results = driver.framework.dns_resolver.nameserver_entries
-    columns = ['ID','Rule(s)', 'DNS Server', 'Comm channel']
     print_dns_set('Custom nameserver rules', results[0])
 
     # Default nameservers don't include a rule
-    columns = ['ID', 'DNS Server', 'Comm channel']
-    print_dns_set('Default nameservers', results[1])
+    print_dns_set(
+      'Default nameservers',
+      # name servers loaded from the system environment are appended to the end
+      results[1] + resolver.nameservers.map { |ns| { id: '[system]', dns_server: ns } }
+    )
 
-    print_line('No custom DNS nameserver entries configured') if results[0].length + results[1].length == 0
+    if results[0].length + results[1].length + resolver.nameservers.length == 0
+      print_error('No DNS nameserver entries configured')
+    end
   end
 
   private
@@ -299,7 +303,7 @@ class DNS
 
   def print_dns_set(heading, result_set)
     return if result_set.length == 0
-    if result_set[0][:wildcard_rules].any?
+    if result_set[0][:wildcard_rules]&.any?
       columns = ['ID', 'Rules(s)', 'DNS Server', 'Comm channel']
     else
       columns = ['ID', 'DNS Server', 'Commm channel']
