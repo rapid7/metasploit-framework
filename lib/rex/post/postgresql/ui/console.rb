@@ -18,6 +18,10 @@ module Rex
           require 'rex/post/postgresql/ui/console/command_dispatcher/client'
           require 'rex/post/postgresql/ui/console/command_dispatcher/modules'
 
+          # Interactive channel, required for the REPL shell interaction and correct CTRL + Z handling.
+          # Zeitwerk ignored `rex/post` files so we need to `require` this file here.
+          require 'rex/post/postgresql/ui/console/interactive_sql_client'
+
           #
           # Initialize the PostgreSQL console.
           #
@@ -107,6 +111,22 @@ module Rex
             elog(msg, 'postgresql')
 
             dlog("Call stack:\n#{$@.join("\n")}", 'postgresql')
+          end
+
+          #
+          # Interacts with the supplied client.
+          #
+          def interact_with_client(client_dispatcher: nil)
+            return unless client_dispatcher
+
+            client.extend(InteractiveSqlClient) unless (client.kind_of?(InteractiveSqlClient) == true)
+            client.on_command_proc = self.on_command_proc if self.on_command_proc
+            client.on_print_proc   = self.on_print_proc if self.on_print_proc
+            client.on_log_proc = method(:log_output) if self.respond_to?(:log_output, true)
+            client.client_dispatcher = client_dispatcher
+
+            client.interact(input, output)
+            client.reset_ui
           end
 
           # @return [Msf::Sessions::PostgreSQL]
