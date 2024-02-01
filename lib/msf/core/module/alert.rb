@@ -245,14 +245,14 @@ module Msf::Module::Alert
     without_prompt do
       errors.each do |msg|
         if msg && !self.you_have_been_warned[msg.hash]
-          print_error(msg)
+          print_error(msg, prefix: '')
           self.you_have_been_warned[msg.hash] = true
         end
       end
 
       warnings.each do |msg|
         if msg && !self.you_have_been_warned[msg.hash]
-          print_warning(msg)
+          print_warning(msg, prefix: '')
           self.you_have_been_warned[msg.hash] = true
         end
       end
