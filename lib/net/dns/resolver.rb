@@ -253,7 +253,7 @@ module Net # :nodoc:
       #     #=> ["example.com","a.example.com","b.example.com"]
       #
       def searchlist
-        @config[:searchlist].inspect
+        @config[:searchlist].deep_dup
       end
 
       # Set the resolver searchlist.
@@ -350,7 +350,7 @@ module Net # :nodoc:
       # Return a string with the default domain
       #
       def domain
-        @config[:domain].inspect
+        @config[:domain].dup
       end
 
       # Set the domain for the query

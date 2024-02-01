@@ -247,7 +247,7 @@ class DNS
     difference = remove_ids.difference(removed.map { |entry| entry[:id] })
     print_warning("Some entries were not removed: #{difference.join(', ')}") unless difference.empty?
     if removed.length > 0
-      print_good("#{removed.length} DNS #{removed.length > 1 ? 'entries' : 'entry'} removed") 
+      print_good("#{removed.length} DNS #{removed.length > 1 ? 'entries' : 'entry'} removed")
       print_dns_set('Deleted entries', removed)
     end
   end
@@ -264,7 +264,26 @@ class DNS
   # Display the user-configured DNS settings
   #
   def print_dns
-    results = driver.framework.dns_resolver.nameserver_entries
+    default_domain = 'N/A'
+    if resolver.defname? && resolver.domain.present?
+      default_domain = resolver.domain
+    end
+    print_line("Default search domain: #{default_domain}")
+
+    searchlist = resolver.searchlist
+    case searchlist.length
+    when 0
+      print_line('Default search list:   N/A')
+    when 1
+      print_line("Default search list:   #{searchlist.first}")
+    else
+      print_line('Default search list:')
+      searchlist.each do |entry|
+        print_line("  * #{entry}")
+      end
+    end
+
+    results = resolver.nameserver_entries
     print_dns_set('Custom nameserver rules', results[0])
 
     # Default nameservers don't include a rule
