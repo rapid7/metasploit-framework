@@ -5,6 +5,7 @@ module Rex
   module Proto
     module LDAP
       class Auth
+        SUPPORTS_SASL = %w[GSS-SPNEGO NLTM]
         NTLM_CONST = Rex::Proto::NTLM::Constants
         NTLM_CRYPT = Rex::Proto::NTLM::Crypt
         MESSAGE = Rex::Proto::NTLM::Message
@@ -73,7 +74,7 @@ module Rex
         #
         # @return auth_info [Hash] Processed authentication information
         def handle_unknown_request(user_login, auth_info = {})
-          auth_info[:result_code] = Net::LDAP::ResultCodeUnwillingToPerform
+          auth_info[:result_code] = Net::LDAP::ResultCodeAuthMethodNotSupported
           auth_info
         end
 
