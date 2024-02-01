@@ -33,8 +33,7 @@ module DNS
     end
 
     def init
-      self.entries_with_rules = []
-      self.entries_without_rules = []
+      @upstream_entries = []
       self.next_id = 0
     end
 
@@ -43,15 +42,13 @@ module DNS
     #
     def save_config
       new_config = {}
-      [self.entries_with_rules, self.entries_without_rules].each do |entry_set|
-        entry_set.each do |entry|
-          key = entry[:id].to_s
-          val = [entry[:wildcard_rules].join(','),
-                 entry[:server],
-                 (!entry[:comm].nil?).to_s
-                ].join(';')
-          new_config[key] = val
-        end
+      @upstream_entries.each do |entry|
+        key = entry[:id].to_s
+        val = [entry[:wildcard_rule],
+               entry[:servers].join(','),
+               (!entry[:comm].nil?).to_s
+              ].join(';')
+        new_config[key] = val
       end
 
       Msf::Config.save(CONFIG_KEY => new_config)
@@ -64,65 +61,54 @@ module DNS
       config = Msf::Config.load
 
       with_rules = []
-      without_rules = []
       next_id = 0
 
       dns_settings = config.fetch(CONFIG_KEY, {}).each do |name, value|
         id = name.to_i
-        wildcard_rules, dns_server, uses_comm = value.split(';')
-        wildcard_rules = wildcard_rules.split(',')
+        wildcard_rule, dns_servers, uses_comm = value.split(';')
+        wildcard_rule = '*' if wildcard_rule.blank?
+        dns_servers = dns_servers.split(',')
 
         raise Rex::Proto::DNS::Exceptions::ConfigError.new('DNS parsing failed: Comm must be true or false') unless ['true','false'].include?(uses_comm)
-        raise Rex::Proto::DNS::Exceptions::ConfigError.new('Invalid DNS config: Invalid DNS server') unless Rex::Socket.is_ip_addr?(dns_server)
-        raise Rex::Proto::DNS::Exceptions::ConfigError.new('Invalid DNS config: Invalid rule') unless wildcard_rules.all? {|rule| valid_rule?(rule)}
+        raise Rex::Proto::DNS::Exceptions::ConfigError.new('Invalid DNS config: Invalid DNS server') unless dns_servers.all? {|dns_server| Rex::Socket.is_ip_addr?(dns_server)}
+        raise Rex::Proto::DNS::Exceptions::ConfigError.new('Invalid DNS config: Invalid rule') unless valid_rule?(wildcard_rule)
 
         comm = uses_comm == 'true' ? CommSink.new : nil
-        entry = {
-          :wildcard_rules => wildcard_rules,
-          :server => dns_server,
+        with_rules <<  {
+          :wildcard_rule => wildcard_rule,
+          :servers => dns_servers,
           :comm => comm,
           :id => id
         }
-
-        if wildcard_rules.empty?
-          without_rules << entry
-        else
-          with_rules << entry
-        end
 
         next_id = [id + 1, next_id].max
       end
 
       # Now that config has successfully read, update the global values
-      self.entries_with_rules = with_rules
-      self.entries_without_rules = without_rules
+      @upstream_entries = with_rules
       self.next_id = next_id
     end
 
     # Add a custom nameserver entry to the custom provider
-    # @param wildcard_rules [Array<String>] The wildcard rules to match a DNS request against
-    # @param dns_server [Array<String>] The list of IP addresses that would be used for this custom rule
+    # @param dns_servers [Array<String>] The list of IP addresses that would be used for this custom rule
     # @param comm [Msf::Session::Comm] The communication channel to be used for these DNS requests
-    def add_nameserver(wildcard_rules, dns_server, comm)
-      raise ::ArgumentError.new("Invalid DNS server: #{dns_server}") unless Rex::Socket.is_ip_addr?(dns_server)
-
-      wildcard_rules.each do |rule|
-        raise ::ArgumentError.new("Invalid rule: #{rule}") unless valid_rule?(rule)
+    #  @param wildcard_rule String The wildcard rule to match a DNS request against
+    def add_nameserver(dns_servers, comm: nil, wildcard_rule: '*')
+      dns_servers = [dns_servers] if dns_servers.is_a?(String) # coerce into an array of strings
+      if (dns_server = dns_servers.find {|dns_server| !Rex::Socket.is_ip_addr?(dns_server)})
+        raise ::ArgumentError.new("Invalid DNS server: #{dns_server}")
       end
 
-      entry = {
-        :wildcard_rules => wildcard_rules,
+      raise ::ArgumentError.new("Invalid rule: #{wildcard_rule}") unless valid_rule?(wildcard_rule)
+
+      @upstream_entries << {
+        :wildcard_rule => wildcard_rule,
         :type => UpstreamResolver::TYPE_DNS_SERVER,
-        :server => dns_server,
+        :servers => dns_servers,
         :comm => comm,
         :id => self.next_id
       }
       self.next_id += 1
-      if wildcard_rules.empty?
-        entries_without_rules << entry
-      else
-        entries_with_rules << entry
-      end
     end
 
     #
@@ -134,25 +120,12 @@ module DNS
     def remove_ids(ids)
       removed= []
       ids.each do |id|
-        removed_with, remaining_with = self.entries_with_rules.partition {|entry| entry[:id] == id}
-        self.entries_with_rules.replace(remaining_with)
-
-        removed_without, remaining_without = self.entries_without_rules.partition {|entry| entry[:id] == id}
-        self.entries_without_rules.replace(remaining_without)
-
+        removed_with, remaining_with = @upstream_entries.partition {|entry| entry[:id] == id}
+        @upstream_entries.replace(remaining_with)
         removed.concat(removed_with)
-        removed.concat(removed_without)
       end
 
       removed
-    end
-
-    #
-    # The custom nameserver entries that have been configured
-    # @return [Array<Array>] An array containing two elements: The entries with rules, and the entries without rules
-    #
-    def nameserver_entries
-      [entries_with_rules, entries_without_rules]
     end
 
     def purge
@@ -177,32 +150,19 @@ module DNS
         name = question.qname.to_s
         upstream_resolvers = []
 
-        self.entries_with_rules.each do |entry|
-          entry[:wildcard_rules].each do |rule|
-            next unless matches(name, rule)
+        self.upstream_entries.each do |entry|
+          next unless matches(name, entry[:wildcard_rule])
 
-            socket_options = {}
-            socket_options['Comm'] = entry[:comm] unless entry[:comm].nil?
+          socket_options = {}
+          socket_options['Comm'] = entry[:comm] unless entry[:comm].nil?
+          entry[:servers].each do |server|
             upstream_resolvers.append(UpstreamResolver.new(
               UpstreamResolver::TYPE_DNS_SERVER,
-              destination: entry[:server],
-              socket_options: socket_options
-            ))
-            break
-          end
-        end
-
-        # Only look at the rule-less entries if no rules were found (avoids DNS leaks)
-        if upstream_resolvers.empty?
-          self.entries_without_rules.each do |entry|
-            socket_options = {}
-            socket_options['Comm'] = entry[:comm] unless entry[:comm].nil?
-            upstream_resolvers.append(UpstreamResolver.new(
-              UpstreamResolver::TYPE_DNS_SERVER,
-              destination: entry[:dns_server],
+              destination: server,
               socket_options: socket_options
             ))
           end
+          break
         end
 
         if upstream_resolvers.empty?
@@ -227,24 +187,30 @@ module DNS
       self.feature_set = framework.features
     end
 
+    def upstream_entries
+      entries = @upstream_entries.dup
+      entries << { id: '', wildcard_rule: '*', servers: self.nameservers }
+      entries
+    end
+
     private
     #
     # Is the given wildcard DNS entry valid?
     #
     def valid_rule?(rule)
-      rule =~ /^(\*\.)?([a-z\d][a-z\d-]*[a-z\d]\.)+[a-z]+$/
+      rule == '*' || rule =~ /^(\*\.)?([a-z\d][a-z\d-]*[a-z\d]\.)+[a-z]+$/
     end
 
     def matches(domain, pattern)
-      if pattern.start_with?('*.')
+      if pattern == '*'
+        true
+      elsif pattern.start_with?('*.')
         domain.downcase.end_with?(pattern[1..-1].downcase)
       else
         domain.casecmp?(pattern)
       end
     end
 
-    attr_accessor :entries_with_rules # Set of custom nameserver entries that specify a rule
-    attr_accessor :entries_without_rules # Set of custom nameserver entries that do not include a rule
     attr_accessor :next_id # The next ID to have been allocated to an entry
     attr_accessor :feature_set
   end

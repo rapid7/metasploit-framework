@@ -91,7 +91,7 @@ class DNS
       return
     when 'remove','delete'
       if words[-1] == '-i'
-        ids = driver.framework.dns_resolver.nameserver_entries.flatten.map { |entry| entry[:id].to_s }
+        ids = driver.framework.dns_resolver.upstream_entries.map { |entry| entry[:id].to_s }
         return ids.select { |id| id.start_with?(str) }
       else
         return @@remove_opts.option_keys.select { |opt| opt.start_with?(str) }
@@ -192,7 +192,8 @@ class DNS
   end
 
   def add_dns(*args)
-    rules = []
+    rules = ['*']
+    first_rule = true
     comm = nil
     servers = []
     @@add_opts.parse(args) do |opt, idx, val|
@@ -203,6 +204,8 @@ class DNS
       when '--rule', '-r'
         raise ::ArgumentError.new('No rule specified') if val.nil?
 
+        rules.clear if first_rule # if the user defines even one rule, clear the defaults
+        first_rule = false
         rules << val
       when '--session', '-s'
         if val.nil?
@@ -244,13 +247,10 @@ class DNS
 
     rules.each do |rule|
       print_warning("DNS rule #{rule} does not contain wildcards, so will not match subdomains") unless rule.include?('*')
+      driver.framework.dns_resolver.add_nameserver(servers, comm: comm_obj, wildcard_rule: rule)
     end
 
-    # Split each DNS server entry up into a separate entry
-    servers.each do |server|
-      driver.framework.dns_resolver.add_nameserver(rules, server, comm_obj)
-    end
-    print_good("#{servers.length} DNS #{servers.length > 1 ? 'entries' : 'entry'} added")
+    print_good("#{rules.length} DNS #{rules.length > 1 ? 'entries' : 'entry'} added")
   end
 
   #
@@ -374,17 +374,10 @@ class DNS
       end
     end
 
-    results = resolver.nameserver_entries
-    print_dns_set('Custom nameserver rules', results[0])
+    upstream_entries = resolver.upstream_entries
+    print_dns_set('Resolver rule entries', upstream_entries)
 
-    # Default nameservers don't include a rule
-    print_dns_set(
-      'Default nameservers',
-      # name servers loaded from the system environment are appended to the end
-      results[1] + resolver.nameservers.map { |ns| { id: '', server: ns } }
-    )
-
-    if results[0].length + results[1].length + resolver.nameservers.length == 0
+    if upstream_entries.empty?
       print_error('No DNS nameserver entries configured')
     end
   end
@@ -413,24 +406,30 @@ class DNS
 
   def print_dns_set(heading, result_set)
     return if result_set.length == 0
-    if result_set[0][:wildcard_rules]&.any?
-      columns = ['ID', 'Rules(s)', 'DNS Server', 'Comm channel']
-    else
-      columns = ['ID', 'DNS Server', 'Comm channel']
-    end
+    columns = ['ID', 'Rule', 'Resolver', 'Comm channel']
 
     tbl = Table.new(
-        Table::Style::Default,
-        'Header'  => heading,
-        'Prefix'  => "\n",
-        'Postfix' => "\n",
-        'Columns' => columns
-        )
+      Table::Style::Default,
+      'Header'    => heading,
+      'Prefix'    => "\n",
+      'Postfix'   => "\n",
+      'Columns'   => columns,
+      'SortIndex' => -1,
+      'WordWrap'  => false,
+    )
     result_set.each do |hash|
-      if columns.size == 4
-        tbl << [hash[:id], hash[:wildcard_rules].join(','), hash[:server], prettify_comm(hash[:comm], hash[:server])]
-      else
-        tbl << [hash[:id], hash[:server], prettify_comm(hash[:comm], hash[:server])]
+      if hash[:servers].length == 1
+        tbl << [hash[:id], hash[:wildcard_rule], hash[:servers].first, prettify_comm(hash[:comm], hash[:servers].first)]
+      elsif hash[:servers].length > 1
+        # XXX: By default rex-text tables strip preceding whitespace:
+        #   https://github.com/rapid7/rex-text/blob/1a7b639ca62fd9102665d6986f918ae42cae244e/lib/rex/text/table.rb#L221-L222
+        #   So use https://en.wikipedia.org/wiki/Non-breaking_space as a workaround for now. A change should exist in Rex-Text to support this requirement
+        indent = "\xc2\xa0\xc2\xa0\\_ "
+
+        tbl << [hash[:id], hash[:wildcard_rule], '', '']
+        hash[:servers].each do |server|
+          tbl << ['.', indent, server, prettify_comm(hash[:comm], server)]
+        end
       end
     end
 
