@@ -615,10 +615,10 @@ module Msf
 
             if @module_search_results.length == 1 && use
               used_module = @module_search_results_with_usage_metadata.first[:mod].fullname
+              print_status("Using #{used_module}") if used_module
               cmd_use(used_module, true)
             end
 
-            print_status("Using #{used_module}") if used_module
             true
           end
 
