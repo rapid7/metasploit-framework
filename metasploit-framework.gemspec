@@ -62,6 +62,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'json'
   # Metasm compiler/decompiler/assembler
   spec.add_runtime_dependency 'metasm'
+  # Needed for aarch64 assembler support - as Metasm does not currently support Aarch64 fully
+  spec.add_runtime_dependency 'aarch64'
   # Metasploit::Concern hooks
   spec.add_runtime_dependency 'metasploit-concern'
   # Metasploit::Credential database models
