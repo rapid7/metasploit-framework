@@ -122,6 +122,12 @@ module DNS
       end
     end
 
+    def upstream_resolvers_for_query(name, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
+      name, type, cls = preprocess_query_arguments(name, type, cls)
+      packet = make_query_packet(name, type, cls)
+      upstream_resolvers_for_packet(packet)
+    end
+
     #
     # Send DNS request over appropriate transport and process response
     #
@@ -394,18 +400,9 @@ module DNS
     #
     # @return ans [Dnsruby::Message] DNS Response
     def query(name, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
-
-      return send(name,type,cls) if name.class == IPAddr
-
-      # If the name doesn't contain any dots then append the default domain.
-      if name !~ /\./ and name !~ /:/ and @config[:defname]
-        name += "." + @config[:domain]
-      end
-
+      name, type, cls = preprocess_query_arguments(name, type, cls)
       @logger.debug "Query(#{name},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
-
-      return send(name,type,cls)
-
+      send(name,type,cls)
     end
 
     def self.default_config_file
@@ -418,6 +415,16 @@ module DNS
     end
 
     private
+
+    def preprocess_query_arguments(name, type, cls)
+      return [name, type, cls] if name.class == IPAddr
+
+      # If the name doesn't contain any dots then append the default domain.
+      if name !~ /\./ and name !~ /:/ and @config[:defname]
+        name += "." + @config[:domain]
+      end
+      [name, type, cls]
+    end
 
     def supports_udp?(nameserver_results)
       nameserver_results.each do |nameserver, socket_options|
