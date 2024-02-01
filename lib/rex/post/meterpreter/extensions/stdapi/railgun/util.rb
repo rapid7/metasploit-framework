@@ -401,13 +401,12 @@ class  Util
   #
   # Write Unicode strings to memory.
   #
-  # Given a Unicode string, returns a pointer to a null terminated WCHARs array.
-  # InitializeUnicodeStr(&uStr, sL"string");
+  # Given a string, returns a pointer to a null terminated WCHARs array.
   #
   def alloc_and_write_wstring(value)
     return nil if value.nil?
 
-    alloc_and_write_data(str_to_uniz_a(value))
+    alloc_and_write_data(str_to_uni_z(value))
   end
 
   alias free_wstring free_data
