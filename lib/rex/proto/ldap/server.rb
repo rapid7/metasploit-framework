@@ -395,7 +395,7 @@ module Rex
 
           dispatch_request(cli, data)
         rescue EOFError => e
-          tcp_socket.close_client(cli) if cli
+          tcp_sock.close_client(cli) if cli
           raise e
         end
 
