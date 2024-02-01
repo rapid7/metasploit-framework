@@ -1,3 +1,5 @@
+require 'rex/proto/dns/upstream_resolver'
+
 module Rex
 module Proto
 module DNS
@@ -45,7 +47,7 @@ module DNS
         entry_set.each do |entry|
           key = entry[:id].to_s
           val = [entry[:wildcard_rules].join(','),
-                 entry[:dns_server],
+                 entry[:server],
                  (!entry[:comm].nil?).to_s
                 ].join(';')
           new_config[key] = val
@@ -70,14 +72,14 @@ module DNS
         wildcard_rules, dns_server, uses_comm = value.split(';')
         wildcard_rules = wildcard_rules.split(',')
 
-        raise Msf::Config::ConfigError.new('DNS parsing failed: Comm must be true or false') unless ['true','false'].include?(uses_comm)
-        raise Msf::Config::ConfigError.new('Invalid DNS config: Invalid DNS server') unless Rex::Socket.is_ip_addr?(dns_server)
-        raise Msf::Config::ConfigError.new('Invalid DNS config: Invalid rule') unless wildcard_rules.all? {|rule| valid_rule?(rule)}
+        raise Rex::Proto::DNS::Exceptions::ConfigError.new('DNS parsing failed: Comm must be true or false') unless ['true','false'].include?(uses_comm)
+        raise Rex::Proto::DNS::Exceptions::ConfigError.new('Invalid DNS config: Invalid DNS server') unless Rex::Socket.is_ip_addr?(dns_server)
+        raise Rex::Proto::DNS::Exceptions::ConfigError.new('Invalid DNS config: Invalid rule') unless wildcard_rules.all? {|rule| valid_rule?(rule)}
 
         comm = uses_comm == 'true' ? CommSink.new : nil
         entry = {
           :wildcard_rules => wildcard_rules,
-          :dns_server => dns_server,
+          :server => dns_server,
           :comm => comm,
           :id => id
         }
@@ -103,13 +105,15 @@ module DNS
     # @param comm [Msf::Session::Comm] The communication channel to be used for these DNS requests
     def add_nameserver(wildcard_rules, dns_server, comm)
       raise ::ArgumentError.new("Invalid DNS server: #{dns_server}") unless Rex::Socket.is_ip_addr?(dns_server)
+
       wildcard_rules.each do |rule|
         raise ::ArgumentError.new("Invalid rule: #{rule}") unless valid_rule?(rule)
       end
 
       entry = {
         :wildcard_rules => wildcard_rules,
-        :dns_server => dns_server,
+        :type => UpstreamResolver::TYPE_DNS_SERVER,
+        :server => dns_server,
         :comm => comm,
         :id => self.next_id
       }
@@ -160,7 +164,7 @@ module DNS
     # @raise [ResolveError] If the packet contains multiple questions, which would end up sending to a different set of nameservers
     # @return [Array<Array>] A list of nameservers, each with Rex::Socket options
     #
-    def nameservers_for_packet(packet)
+    def upstream_resolvers_for_packet(packet)
       unless feature_set.enabled?(Msf::FeatureManager::DNS_FEATURE)
         return super
       end
@@ -171,33 +175,41 @@ module DNS
       results_from_all_questions = []
       packet.question.each do |question|
         name = question.qname.to_s
-        dns_servers = []
+        upstream_resolvers = []
 
         self.entries_with_rules.each do |entry|
           entry[:wildcard_rules].each do |rule|
-            if matches(name, rule)
-              socket_options = {}
-              socket_options['Comm'] = entry[:comm] unless entry[:comm].nil?
-              dns_servers.append([entry[:dns_server], socket_options])
-              break
-            end
+            next unless matches(name, rule)
+
+            socket_options = {}
+            socket_options['Comm'] = entry[:comm] unless entry[:comm].nil?
+            upstream_resolvers.append(UpstreamResolver.new(
+              UpstreamResolver::TYPE_DNS_SERVER,
+              destination: entry[:server],
+              socket_options: socket_options
+            ))
+            break
           end
         end
 
         # Only look at the rule-less entries if no rules were found (avoids DNS leaks)
-        if dns_servers.empty?
+        if upstream_resolvers.empty?
           self.entries_without_rules.each do |entry|
             socket_options = {}
             socket_options['Comm'] = entry[:comm] unless entry[:comm].nil?
-            dns_servers.append([entry[:dns_server], socket_options])
+            upstream_resolvers.append(UpstreamResolver.new(
+              UpstreamResolver::TYPE_DNS_SERVER,
+              destination: entry[:dns_server],
+              socket_options: socket_options
+            ))
           end
         end
 
-        if dns_servers.empty?
+        if upstream_resolvers.empty?
           # Fall back to default nameservers
-          dns_servers = super
+          upstream_resolvers = super
         end
-        results_from_all_questions << dns_servers.uniq
+        results_from_all_questions << upstream_resolvers.uniq
       end
       results_from_all_questions.uniq!
       if results_from_all_questions.size != 1

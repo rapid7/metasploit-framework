@@ -381,7 +381,7 @@ class DNS
     print_dns_set(
       'Default nameservers',
       # name servers loaded from the system environment are appended to the end
-      results[1] + resolver.nameservers.map { |ns| { id: '[system]', dns_server: ns } }
+      results[1] + resolver.nameservers.map { |ns| { id: '', server: ns } }
     )
 
     if results[0].length + results[1].length + resolver.nameservers.length == 0
@@ -428,9 +428,9 @@ class DNS
         )
     result_set.each do |hash|
       if columns.size == 4
-        tbl << [hash[:id], hash[:wildcard_rules].join(','), hash[:dns_server], prettify_comm(hash[:comm], hash[:dns_server])]
+        tbl << [hash[:id], hash[:wildcard_rules].join(','), hash[:server], prettify_comm(hash[:comm], hash[:server])]
       else
-        tbl << [hash[:id], hash[:dns_server], prettify_comm(hash[:comm], hash[:dns_server])]
+        tbl << [hash[:id], hash[:server], prettify_comm(hash[:comm], hash[:server])]
       end
     end
 

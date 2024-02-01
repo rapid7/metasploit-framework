@@ -116,8 +116,10 @@ module DNS
     #
     # @return [Array<Array>] A list of nameservers, each with Rex::Socket options
     #
-    def nameservers_for_packet(_dns_message)
-      @config[:nameservers].map {|ns| [ns.to_s, {}]}
+    def upstream_resolvers_for_packet(_dns_message)
+      @config[:nameservers].map do |ns|
+        UpstreamResolver.new(UpstreamResolver::TYPE_DNS_SERVER, destination: ns.to_s)
+      end
     end
 
     #
@@ -142,7 +144,12 @@ module DNS
         packet = Rex::Proto::DNS::Packet.encode_drb(net_packet)
       end
 
-      nameservers = nameservers_for_packet(packet)
+      upstream_resolvers = upstream_resolvers_for_packet(packet)
+      nameservers = upstream_resolvers.select do |us|
+        us.type == UpstreamResolver::TYPE_DNS_SERVER
+      end.map do |us|
+        [us.destination, us.socket_options]
+      end
       if nameservers.size == 0
         raise ResolverError, "No nameservers specified!"
       end
