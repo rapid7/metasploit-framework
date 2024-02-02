@@ -228,6 +228,13 @@ class Config < Hash
     self.new.postgresql_session_history
   end
 
+  # Returns the full path to the MySQL session history file.
+  #
+  # @return [String] path to the history file.
+  def self.mysql_session_history
+    self.new.mysql_session_history
+  end
+
   def self.pry_history
     self.new.pry_history
   end
@@ -339,6 +346,10 @@ class Config < Hash
 
   def postgresql_session_history
     config_directory + FileSep + "postgresql_session_history"
+  end
+
+  def mysql_session_history
+    config_directory + FileSep + "mysql_session_history"
   end
 
   def pry_history

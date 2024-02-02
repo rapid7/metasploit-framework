@@ -30,7 +30,7 @@ module Msf::Post::Common
       session.sock.peerhost
     when 'shell', 'powershell'
       session.session_host
-    when 'postgresql'
+    when 'postgresql', 'mysql'
       session.address
     end
   rescue
@@ -45,7 +45,7 @@ module Msf::Post::Common
       session.sock.peerport
     when 'shell', 'powershell'
       session.session_port
-    when 'postgresql'
+    when 'postgresql', 'mysql'
       session.port
     end
   rescue

@@ -41,6 +41,8 @@ class MsfAutoload
         'Http'
       elsif basename == 'rftransceiver' && abspath.end_with?("#{__dir__}/rex/post/hwbridge/ui/console/command_dispatcher/rftransceiver.rb")
         'RFtransceiver'
+      elsif basename == 'mysql' && abspath.end_with?("#{__dir__}/msf/base/sessions/mysql.rb")
+        'MySQL'
       else
        super
     end
