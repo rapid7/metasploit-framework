@@ -6,7 +6,12 @@ module Msf
       include Msf::OptionalSession
 
       def initialize(info = {})
-        super
+        super(
+          update_info(
+            info,
+            'SessionTypes' => %w[PostgreSQL]
+          )
+        )
         if framework.features.enabled?(Msf::FeatureManager::POSTGRESQL_SESSION_TYPE)
           register_options(
             [

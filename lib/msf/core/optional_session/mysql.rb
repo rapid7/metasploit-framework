@@ -6,7 +6,13 @@ module Msf
       include Msf::OptionalSession
 
       def initialize(info = {})
-        super
+        super(
+          update_info(
+            info,
+            'SessionTypes' => %w[MySQL]
+          )
+        )
+
         if framework.features.enabled?(Msf::FeatureManager::MYSQL_SESSION_TYPE)
           register_options(
             [

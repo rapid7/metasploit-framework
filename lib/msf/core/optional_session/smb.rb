@@ -6,7 +6,14 @@ module Msf
       include Msf::OptionalSession
 
       def initialize(info = {})
-        super
+        super(
+          update_info(
+            info,
+            'SessionTypes' => %w[SMB]
+          )
+        )
+
+
         if framework.features.enabled?(Msf::FeatureManager::SMB_SESSION_TYPE)
           register_options(
             [

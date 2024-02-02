@@ -30,7 +30,6 @@ class MetasploitModule < Msf::Auxiliary
         [
         ],
       'License'     => MSF_LICENSE,
-      'SessionTypes' => %w[SMB]
     )
 
     register_options([

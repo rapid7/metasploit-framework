@@ -18,7 +18,6 @@ class MetasploitModule < Msf::Auxiliary
       ),
       'Author' => ['theLightCosine'],
       'License' => MSF_LICENSE,
-      'SessionTypes' => %w[PostgreSQL]
     )
     register_options([
       OptBool.new('DISPLAY_RESULTS', [true, 'Display the Results to the Screen', true]),

@@ -37,7 +37,6 @@ class MetasploitModule < Msf::Auxiliary
           ['DOMAIN', { 'Description' => 'Enumerate domain accounts' } ]
         ],
       'DefaultAction' => 'LOCAL',
-      'SessionTypes' => %w[SMB]
     )
 
     register_options(

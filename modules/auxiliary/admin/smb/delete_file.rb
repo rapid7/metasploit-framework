@@ -32,7 +32,6 @@ class MetasploitModule < Msf::Auxiliary
           'mubix' # copied from hdm upload_file module
         ],
       'License'     => MSF_LICENSE,
-      'SessionTypes' => %w[SMB]
       )
 
     register_options([

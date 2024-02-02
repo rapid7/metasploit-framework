@@ -74,8 +74,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'LSA', { 'Description' => 'Dump LSA secrets' } ],
           [ 'DOMAIN', { 'Description' => 'Dump domain secrets (credentials, password history, Kerberos keys, etc.)' } ]
         ],
-        'DefaultAction' => 'ALL',
-        'SessionTypes' => %w[SMB]
+        'DefaultAction' => 'ALL'
       )
     )
 

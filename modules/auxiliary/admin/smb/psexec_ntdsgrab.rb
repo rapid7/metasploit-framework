@@ -35,7 +35,6 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'http://sourceforge.net/projects/smbexec' ],
         [ 'URL', 'https://www.optiv.com/blog/owning-computers-without-shell-access' ]
       ],
-      'SessionTypes' => %w[SMB]
     ))
 
     register_options([

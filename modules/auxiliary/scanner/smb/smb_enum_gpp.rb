@@ -38,7 +38,6 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://labs.portcullis.co.uk/blog/are-you-considering-using-microsoft-group-policy-preferences-think-again/']
         ],
       'License'     => MSF_LICENSE,
-      'SessionTypes' => %w[SMB]
     )
     register_options([
       OptString.new('SMBSHARE', [true, 'The name of the share on the server', 'SYSVOL']),

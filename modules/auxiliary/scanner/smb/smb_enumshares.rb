@@ -41,7 +41,6 @@ class MetasploitModule < Msf::Auxiliary
         'DefaultOptions' => {
           'DCERPC::fake_bind_multi' => false
         },
-        'SessionTypes' => %w[SMB]
       )
     )
 

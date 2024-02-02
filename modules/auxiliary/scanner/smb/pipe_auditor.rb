@@ -22,7 +22,6 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => 'Determine what named pipes are accessible over SMB',
       'Author'      => 'hdm',
       'License'     => MSF_LICENSE,
-      'SessionTypes' => %w[SMB]
     )
 
     deregister_options('RPORT', 'SMBDirect')
