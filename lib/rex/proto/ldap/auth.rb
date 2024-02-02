@@ -75,6 +75,7 @@ module Rex
         # @return auth_info [Hash] Processed authentication information
         def handle_unknown_request(user_login, auth_info = {})
           auth_info[:result_code] = Net::LDAP::ResultCodeAuthMethodNotSupported
+          auth_info[:error_msg] = 'Invalid LDAP Login Attempt => Unknown Auhtentication Format'
           auth_info
         end
 
@@ -154,6 +155,7 @@ module Rex
             end
           else
             auth_info[:result_code] = Net::LDAP::ResultCodeAuthMethodNotSupported
+            auth_info[:error_msg] = 'Invalid LDAP Login Attempt => Unsupported SASL Format'
           end
           auth_info[:auth_type] = 'SASL'
           auth_info
