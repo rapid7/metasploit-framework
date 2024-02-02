@@ -9,15 +9,18 @@ class DNS
 
   include Msf::Ui::Console::CommandDispatcher
 
+  ADD_USAGE = 'dns [add] [--session <session id>] [--rule <wildcard DNS entry>] <resolver> ..."'.freeze
   @@add_opts = Rex::Parser::Arguments.new(
     ['-r', '--rule'] => [true, 'Set a DNS wildcard entry to match against' ],
     ['-s', '--session'] => [true, 'Force the DNS request to occur over a particular channel (override routing rules)' ]
   )
 
+  REMOVE_USAGE = 'dns [remove/del] -i <entry id> [-i <entry id> ...]"'.freeze
   @@remove_opts = Rex::Parser::Arguments.new(
     ['-i'] => [true, 'Index to remove']
   )
 
+  RESOLVE_USAGE = 'dns [resolve] [-f <address family>] <hostname> ..."'.freeze
   @@resolve_opts = Rex::Parser::Arguments.new(
     # same usage syntax as Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi
     ['-f'] => [true,  'Address family - IPv4 or IPv6 (default IPv4)']
@@ -106,50 +109,42 @@ class DNS
     end
   end
 
-  def cmd_dns_help
+  def cmd_dns_help(*args)
+    if args.first.present?
+      if respond_to?("#{args.first}_dns_help")
+        # if it is a valid command with dedicated help information
+        return send("#{args.first}_dns_help")
+      elsif respond_to?("#{args.first}_dns")
+        # if it is a valid command without dedicated help information
+        print_error("No help menu is available for #{args.first}")
+        return
+      else
+        print_error("Invalid subcommand: #{args.first}")
+      end
+    end
+
     print_line "Manage Metasploit's DNS resolution behaviour"
     print_line
-    print_line "Usage:"
-    print_line "  dns [add] [--session <session_id>] [--rule <wildcard DNS entry>] <IP address> ..."
-    print_line "  dns [remove/del] -i <entry id> [-i <entry id> ...]"
+    print_line "USAGE:"
+    print_line "  #{ADD_USAGE}"
+    print_line "  #{REMOVE_USAGE}"
     print_line "  dns [flush-cache]"
     print_line "  dns [flush-entries]"
     print_line "  dns [print]"
-    print_line "  dns [resolve] <hostname> ..."
+    print_line "  #{RESOLVE_USAGE}"
+    print_line "  dns [help] [subcommand]"
     print_line
-    print_line "Subcommands:"
-    print_line "  add           - add a DNS resolution entry to resolve certain domain names through a particular DNS server"
+    print_line "SUBCOMMANDS:"
+    print_line "  add           - add a DNS resolution entry to resolve certain domain names through a particular DNS resolver"
     print_line "  remove        - delete a DNS resolution entry; 'del' is an alias"
     print_line "  print         - show all configured DNS resolution entries"
     print_line "  flush-entries - remove all configured DNS resolution entries"
     print_line "  flush-cache   - remove all cached DNS answers"
     print_line "  resolve       - resolve a hostname"
     print_line
-    print_line "Examples:"
-    print_line "  Display all current DNS nameserver entries"
-    print_line "    dns"
-    print_line "    dns print"
-    print_line
-    print_line "  Set the DNS server(s) to be used for *.metasploit.com to 192.168.1.10"
-    print_line "    dns add --rule *.metasploit.com 192.168.1.10"
-    print_line
-    print_line "  Add multiple entries at once"
-    print_line "    dns add --rule *.metasploit.com --rule *.google.com 192.168.1.10 192.168.1.11"
-    print_line
-    print_line "  Set the DNS server(s) to be used for *.metasploit.com to 192.168.1.10, but specifically to go through session 2"
-    print_line "    dns add --session 2 --rule *.metasploit.com 192.168.1.10"
-    print_line
-    print_line "  Delete the DNS resolution rule with ID 3"
-    print_line "    dns remove -i 3"
-    print_line
-    print_line "  Delete multiple entries in one command"
-    print_line "    dns remove -i 3 -i 4 -i 5"
-    print_line
-    print_line "  Set the DNS server(s) to be used for all requests that match no rules"
-    print_line "    dns add 8.8.8.8 8.8.4.4"
-    print_line
-    print_line "  Resolve a hostname using the current configuration"
-    print_line "    dns resolve -f IPv6 www.metasploit.com"
+    print_line "EXAMPLES:"
+    print_line "  Display help information for the 'add' subcommand"
+    print_line "    dns help add"
     print_line
   end
 
@@ -162,7 +157,13 @@ class DNS
     args << 'print' if args.length == 0
     # Short-circuit help
     if args.delete("-h") || args.delete("--help")
-      cmd_dns_help
+      if respond_to?("#{args.first}_dns_help")
+        # if it is a valid command with dedicated help information
+        send("#{args.first}_dns_help")
+      else
+        # otherwise print the top-level help information
+        cmd_dns_help
+      end
       return
     end
 
@@ -176,7 +177,7 @@ class DNS
       when "flush-cache"
         flush_cache_dns
       when "help"
-        cmd_dns_help
+        cmd_dns_help(*args)
       when "print"
         print_dns
       when "remove", "rm", "delete", "del"
@@ -255,6 +256,26 @@ class DNS
     print_good("#{rules.length} DNS #{rules.length > 1 ? 'entries' : 'entry'} added")
   end
 
+  def add_dns_help
+    print_line "USAGE:"
+    print_line "  #{ADD_USAGE}"
+    print_line @@add_opts.usage
+    print_line "RESOLVERS:"
+    print_line "  ipv4 / ipv6 address - The IP address of an upstream DNS server to resolve from"
+    print_line "  system              - Use the host operating systems DNS resolution functionality (only for A/AAAA records)"
+    print_line "  blackhole           - Drop all queries"
+    print_line
+    print_line "EXAMPLES:"
+    print_line "  Set the DNS server(s) to be used for *.metasploit.com to 192.168.1.10"
+    print_line "    dns add --rule *.metasploit.com 192.168.1.10"
+    print_line
+    print_line "  Add multiple entries at once"
+    print_line "    dns add --rule *.metasploit.com --rule *.google.com 192.168.1.10 192.168.1.11"
+    print_line
+    print_line "  Set the DNS server(s) to be used for *.metasploit.com to 192.168.1.10, but specifically to go through session 2"
+    print_line "    dns add --session 2 --rule *.metasploit.com 192.168.1.10"
+  end
+
   #
   # Query a hostname using the configuration. This is useful for debugging and
   # inspecting the active settings.
@@ -315,6 +336,16 @@ class DNS
     print(tbl.to_s)
   end
 
+  def resolve_dns_help
+    print_line "USAGE:"
+    print_line "  #{RESOLVE_USAGE}"
+    print_line @@resolve_opts.usage
+    print_line "EXAMPLES:"
+    print_line "  Resolve a hostname to an IPv6 address using the current configuration"
+    print_line "    dns resolve -f IPv6 www.metasploit.com"
+    print_line
+  end
+
   #
   # Remove all matching user-configured DNS entries
   #
@@ -335,6 +366,19 @@ class DNS
       print_good("#{removed.length} DNS #{removed.length > 1 ? 'entries' : 'entry'} removed")
       print_dns_set('Deleted entries', removed)
     end
+  end
+
+  def remove_dns_help
+    print_line "USAGE:"
+    print_line "  #{REMOVE_USAGE}"
+    print_line(@@remove_opts.usage)
+    print_line "EXAMPLES:"
+    print_line "  Delete the DNS resolution rule with ID 3"
+    print_line "    dns remove -i 3"
+    print_line
+    print_line "  Delete multiple entries in one command"
+    print_line "    dns remove -i 3 -i 4 -i 5"
+    print_line
   end
 
   #
