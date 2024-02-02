@@ -70,7 +70,8 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
 
     # Grabs the Instance Name and Version of MSSQL(2k,2k5,2k8)
-    instancename= mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')[1]
+    instance_info = mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')
+    instancename = instance_info[1] || instance_info[0]
     print_status("Instance Name: #{instancename.inspect}")
     version = mssql_query(mssql_sql_info())[:rows][0][0]
     version_year = version.split('-')[0].slice(/\d\d\d\d/)
@@ -170,6 +171,4 @@ class MetasploitModule < Msf::Auxiliary
     return results
 
   end
-
-
 end
