@@ -195,9 +195,9 @@ class DNS
     rules = ['*']
     first_rule = true
     comm = nil
-    servers = []
+    resolvers = []
     @@add_opts.parse(args) do |opt, idx, val|
-      unless servers.empty? || opt.nil?
+      unless resolvers.empty? || opt.nil?
         raise ::ArgumentError.new("Invalid command near #{opt}")
       end
       case opt
@@ -218,20 +218,20 @@ class DNS
 
         comm = val
       when nil
-        servers << val
+        resolvers << val
       else
         raise ::ArgumentError.new("Unknown flag: #{opt}")
       end
     end
 
     # The remaining args should be the DNS servers
-    if servers.length < 1
-      raise ::ArgumentError.new("You must specify at least one DNS server")
+    if resolvers.length < 1
+      raise ::ArgumentError.new('You must specify at least one upstream DNS resolver')
     end
 
-    servers.each do |host|
-      unless Rex::Socket.is_ip_addr?(host) || host.casecmp?('system')
-        raise ::ArgumentError.new("Invalid DNS server: #{host}")
+    resolvers.each do |host|
+      unless Rex::Socket.is_ip_addr?(host) || SPECIAL_RESOLVERS.include?(host.downcase)
+        raise ::ArgumentError.new("Invalid DNS resolver: #{host}")
       end
     end
 
@@ -242,15 +242,14 @@ class DNS
       comm_int = comm.to_i
       raise ::ArgumentError.new("Session does not exist: #{comm}") unless driver.framework.sessions.include?(comm_int)
       comm_obj = driver.framework.sessions[comm_int]
-      if servers.include?('system')
-        comm_obj = nil if servers.length == 1
+      if resolvers.any? { |resolver| SPECIAL_RESOLVERS.include?(resolver.downcase) }
         print_warning("The session argument will be ignored for the system resolver")
       end
     end
 
     rules.each do |rule|
       print_warning("DNS rule #{rule} does not contain wildcards, so will not match subdomains") unless rule.include?('*')
-      driver.framework.dns_resolver.add_upstream_entry(servers, comm: comm_obj, wildcard_rule: rule)
+      driver.framework.dns_resolver.add_upstream_entry(resolvers, comm: comm_obj, wildcard_rule: rule)
     end
 
     print_good("#{rules.length} DNS #{rules.length > 1 ? 'entries' : 'entry'} added")
@@ -387,11 +386,16 @@ class DNS
 
   private
 
+  SPECIAL_RESOLVERS = [
+    Rex::Proto::DNS::UpstreamResolver::TYPE_BLACKHOLE.to_s.downcase,
+    Rex::Proto::DNS::UpstreamResolver::TYPE_SYSTEM.to_s.downcase
+  ].freeze
+
   #
   # Get user-friendly text for displaying the session that this entry would go through
   #
   def prettify_comm(comm, resolver)
-    if resolver.casecmp?('system')
+    if !Rex::Socket.is_ip_addr?(resolver)
       'N/A'
     elsif comm.nil?
       channel = Rex::Socket::SwitchBoard.best_comm(resolver)

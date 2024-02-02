@@ -98,6 +98,7 @@ module DNS
       if (resolver = resolvers.find {|resolver| !valid_resolver?(resolver)})
         raise ::ArgumentError.new("Invalid upstream DNS resolver: #{resolver}")
       end
+      resolvers = resolvers.map { |resolver| Rex::Socket.is_ip_addr?(resolver) ? resolver : resolver.downcase.to_sym }
 
       raise ::ArgumentError.new("Invalid rule: #{wildcard_rule}") unless valid_rule?(wildcard_rule)
 
@@ -156,7 +157,11 @@ module DNS
           socket_options = {}
           socket_options['Comm'] = entry[:comm] unless entry[:comm].nil?
           entry[:resolvers].each do |resolver|
-            if resolver.casecmp?('system')
+            if resolver == UpstreamResolver::TYPE_BLACKHOLE
+              upstream_resolvers.append(UpstreamResolver.new(
+                UpstreamResolver::TYPE_BLACKHOLE
+              ))
+            elsif resolver == UpstreamResolver::TYPE_SYSTEM
               upstream_resolvers.append(UpstreamResolver.new(
                 UpstreamResolver::TYPE_SYSTEM
               ))
@@ -208,7 +213,13 @@ module DNS
     end
 
     def valid_resolver?(resolver)
-      Rex::Socket.is_ip_addr?(resolver) || resolver.casecmp?('system')
+      return true if Rex::Socket.is_ip_addr?(resolver)
+
+      resolver = resolver.downcase.to_sym
+      [
+        UpstreamResolver::TYPE_BLACKHOLE,
+        UpstreamResolver::TYPE_SYSTEM
+      ].include?(resolver)
     end
 
     def matches(domain, pattern)

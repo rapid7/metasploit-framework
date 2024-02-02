@@ -441,6 +441,12 @@ module DNS
       ans
     end
 
+    def send_blackhole(upstream_resolver, packet, type, cls)
+      # do not just return nil because that will cause the next resolver to be used
+      @logger.info "No response from upstream resolvers: blackholed"
+      raise NoResponseError
+    end
+
     def send_system(upstream_resolver, packet, type, cls)
       # This system resolver will use host operating systems `getaddrinfo` (or equivalent function) to perform name
       # resolution. This is primarily useful if that functionality is hooked or modified by an external application such
