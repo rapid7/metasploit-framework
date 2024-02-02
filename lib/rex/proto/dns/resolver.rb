@@ -137,8 +137,6 @@ module DNS
     # @return [Dnsruby::Message] DNS response
     #
     def send(argument, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
-      method = self.use_tcp? ? :send_tcp : :send_udp
-
       case argument
       when Dnsruby::Message
         packet = argument
@@ -151,50 +149,27 @@ module DNS
       end
 
       upstream_resolvers = upstream_resolvers_for_packet(packet)
-      nameservers = upstream_resolvers.select do |us|
-        us.type == UpstreamResolver::TYPE_DNS_SERVER
-      end.map do |us|
-        [us.destination, us.socket_options]
-      end
-      if nameservers.size == 0
-        raise ResolverError, "No nameservers specified!"
+      if upstream_resolvers.empty?
+        raise ResolverError, "No upstream resolvers specified!"
       end
 
-      # Store packet_data for performance improvements,
-      # so methods don't keep on calling Packet#encode
-      packet_data = packet.encode
-      packet_size = packet_data.size
-
-      # Choose whether use TCP, UDP
-      if packet_size > @config[:packet_size] # Must use TCP
-        @logger.info "Sending #{packet_size} bytes using TCP due to size"
-        method = :send_tcp
-      else # Packet size is inside the boundaries
-        if use_tcp? or !(proxies.nil? or proxies.empty?) # User requested TCP
-          @logger.info "Sending #{packet_size} bytes using TCP due to tcp flag"
-          method = :send_tcp
-        elsif !supports_udp?(nameservers)
-          @logger.info "Sending #{packet_size} bytes using TCP due to the presence of a non-UDP-compatible comm channel"
-          method = :send_tcp
-        else # Finally use UDP
-          @logger.info "Sending #{packet_size} bytes using UDP"
-          method = :send_udp unless method == :send_tcp
+      ans = nil
+      upstream_resolvers.each do |upstream_resolver|
+        case upstream_resolver.type
+        when UpstreamResolver::TYPE_DNS_SERVER
+          ans = send_dns_server(upstream_resolver, packet, type, cls)
+        when UpstreamResolver::TYPE_SYSTEM
+          ans = send_system(upstream_resolver, packet, type, cls)
         end
-      end
 
-      if type == Dnsruby::Types::AXFR
-        @logger.warn "AXFR query, switching to TCP" unless method == :send_tcp
-        method = :send_tcp
+        break if (ans and ans[0].length > 0)
       end
-
-      ans = self.__send__(method, packet, packet_data, nameservers)
 
       unless (ans and ans[0].length > 0)
-        @logger.fatal "No response from nameservers list: aborting"
+        @logger.fatal "No response from upstream resolvers: aborting"
         raise NoResponseError
       end
 
-      @logger.info "Received #{ans[0].size} bytes from #{ans[1][2]+":"+ans[1][1].to_s}"
       # response = Net::DNS::Packet.parse(ans[0],ans[1])
       response = Dnsruby::Message.decode(ans[0])
 
@@ -426,12 +401,88 @@ module DNS
       [name, type, cls]
     end
 
-    def supports_udp?(nameserver_results)
-      nameserver_results.each do |nameserver, socket_options|
-        comm = socket_options.fetch('Comm') { @config[:comm] || Rex::Socket::SwitchBoard.best_comm(nameserver) }
-        next if comm.nil?
-        return false unless comm.supports_udp?
+    def send_dns_server(upstream_resolver, packet, type, _cls)
+      method = self.use_tcp? ? :send_tcp : :send_udp
+
+      # Store packet_data for performance improvements,
+      # so methods don't keep on calling Packet#encode
+      packet_data = packet.encode
+      packet_size = packet_data.size
+
+      # Choose whether use TCP, UDP
+      if packet_size > @config[:packet_size] # Must use TCP
+        @logger.info "Sending #{packet_size} bytes using TCP due to size"
+        method = :send_tcp
+      else # Packet size is inside the boundaries
+        if use_tcp? or !(proxies.nil? or proxies.empty?) # User requested TCP
+          @logger.info "Sending #{packet_size} bytes using TCP due to tcp flag"
+          method = :send_tcp
+        elsif !supports_udp?(upstream_resolver)
+          @logger.info "Sending #{packet_size} bytes using TCP due to the presence of a non-UDP-compatible comm channel"
+          method = :send_tcp
+        else # Finally use UDP
+          @logger.info "Sending #{packet_size} bytes using UDP"
+          method = :send_udp unless method == :send_tcp
+        end
       end
+
+      if type == Dnsruby::Types::AXFR
+        @logger.warn "AXFR query, switching to TCP" unless method == :send_tcp
+        method = :send_tcp
+      end
+
+      nameserver = [upstream_resolver.destination, upstream_resolver.socket_options]
+      ans = self.__send__(method, packet, packet_data, [nameserver])
+
+      if (ans and ans[0].length > 0)
+        @logger.info "Received #{ans[0].size} bytes from #{ans[1][2]+":"+ans[1][1].to_s}"
+      end
+
+      ans
+    end
+
+    def send_system(upstream_resolver, packet, type, cls)
+      # This system resolver will use host operating systems `getaddrinfo` (or equivalent function) to perform name
+      # resolution. This is primarily useful if that functionality is hooked or modified by an external application such
+      # as proxychains. This handler though can only process A and AAAA requests.
+      return nil unless cls == Dnsruby::Classes::IN
+
+      # todo: make sure this will work if the packet has multiple questions, figure out how that's handled
+      name = packet.question.first.qname.to_s
+      case type
+      when Dnsruby::Types::A
+        family = ::Socket::AF_INET
+      when Dnsruby::Types::AAAA
+        family = ::Socket::AF_INET6
+      else
+        return nil
+      end
+
+      begin
+        addrinfos = ::Addrinfo.getaddrinfo(name, 0, family, ::Socket::SOCK_STREAM)
+      rescue ::SocketError
+        return nil
+      end
+
+      message = Dnsruby::Message.new
+      message.add_question(name, type, cls)
+      addrinfos.each do |addrinfo|
+        message.add_answer(Dnsruby::RR.new_from_hash(
+          name: name,
+          type: type,
+          ttl: 0, # since we're querying the system, rely on that cache
+          address: addrinfo.ip_address
+        ))
+      end
+      [message.encode]
+    end
+
+    def supports_udp?(upstream_resolver)
+      return false unless upstream_resolver.type == UpstreamResolver::TYPE_DNS_SERVER
+
+      comm = upstream_resolver.socket_options.fetch('Comm') { @config[:comm] || Rex::Socket::SwitchBoard.best_comm(upstream_resolver.destination) }
+      return false if comm && !comm.supports_udp?
+
       true
     end
   end # Resolver

@@ -11,7 +11,7 @@ class DNS
 
   @@add_opts = Rex::Parser::Arguments.new(
     ['-r', '--rule'] => [true, 'Set a DNS wildcard entry to match against' ],
-    ['-s', '--session'] => [true, 'Force the DNS request to occur over a particular channel (override routing rules)' ],
+    ['-s', '--session'] => [true, 'Force the DNS request to occur over a particular channel (override routing rules)' ]
   )
 
   @@remove_opts = Rex::Parser::Arguments.new(
@@ -225,13 +225,12 @@ class DNS
     end
 
     # The remaining args should be the DNS servers
-
     if servers.length < 1
       raise ::ArgumentError.new("You must specify at least one DNS server")
     end
 
     servers.each do |host|
-      unless Rex::Socket.is_ip_addr?(host)
+      unless Rex::Socket.is_ip_addr?(host) || host.casecmp?('system')
         raise ::ArgumentError.new("Invalid DNS server: #{host}")
       end
     end
@@ -243,11 +242,15 @@ class DNS
       comm_int = comm.to_i
       raise ::ArgumentError.new("Session does not exist: #{comm}") unless driver.framework.sessions.include?(comm_int)
       comm_obj = driver.framework.sessions[comm_int]
+      if servers.include?('system')
+        comm_obj = nil if servers.length == 1
+        print_warning("The session argument will be ignored for the system resolver")
+      end
     end
 
     rules.each do |rule|
       print_warning("DNS rule #{rule} does not contain wildcards, so will not match subdomains") unless rule.include?('*')
-      driver.framework.dns_resolver.add_nameserver(servers, comm: comm_obj, wildcard_rule: rule)
+      driver.framework.dns_resolver.add_upstream_entry(servers, comm: comm_obj, wildcard_rule: rule)
     end
 
     print_good("#{rules.length} DNS #{rules.length > 1 ? 'entries' : 'entry'} added")
@@ -387,9 +390,11 @@ class DNS
   #
   # Get user-friendly text for displaying the session that this entry would go through
   #
-  def prettify_comm(comm, dns_server)
-    if comm.nil?
-      channel = Rex::Socket::SwitchBoard.best_comm(dns_server)
+  def prettify_comm(comm, resolver)
+    if resolver.casecmp?('system')
+      'N/A'
+    elsif comm.nil?
+      channel = Rex::Socket::SwitchBoard.best_comm(resolver)
       if channel.nil?
         nil
       else
@@ -418,17 +423,17 @@ class DNS
       'WordWrap'  => false,
     )
     result_set.each do |hash|
-      if hash[:servers].length == 1
-        tbl << [hash[:id], hash[:wildcard_rule], hash[:servers].first, prettify_comm(hash[:comm], hash[:servers].first)]
-      elsif hash[:servers].length > 1
+      if hash[:resolvers].length == 1
+        tbl << [hash[:id], hash[:wildcard_rule], hash[:resolvers].first, prettify_comm(hash[:comm], hash[:resolvers].first)]
+      elsif hash[:resolvers].length > 1
         # XXX: By default rex-text tables strip preceding whitespace:
         #   https://github.com/rapid7/rex-text/blob/1a7b639ca62fd9102665d6986f918ae42cae244e/lib/rex/text/table.rb#L221-L222
         #   So use https://en.wikipedia.org/wiki/Non-breaking_space as a workaround for now. A change should exist in Rex-Text to support this requirement
         indent = "\xc2\xa0\xc2\xa0\\_ "
 
         tbl << [hash[:id], hash[:wildcard_rule], '', '']
-        hash[:servers].each do |server|
-          tbl << ['.', indent, server, prettify_comm(hash[:comm], server)]
+        hash[:resolvers].each do |resolver|
+          tbl << ['.', indent, resolver, prettify_comm(hash[:comm], resolver)]
         end
       end
     end
