@@ -86,6 +86,14 @@ class Cache
     end
   end
 
+  def module_metadata(type)
+    @mutex.synchronize do
+      wait_for_load
+      # TODO: Should probably figure out a way to cache this
+      @module_metadata_cache.filter_map { |_, metadata| [metadata.ref_name, metadata] if metadata.type == type }.to_h
+    end
+  end
+
   #######
   private
   #######
@@ -154,7 +162,7 @@ class Cache
     @module_metadata_cache = {}
     @store_loaded = false
     @console = Rex::Ui::Text::Output::Stdio.new
-    @load_thread = Thread.new  {
+    @load_thread = Thread.new {
       init_store
       @store_loaded = true
     }

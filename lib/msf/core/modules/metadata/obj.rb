@@ -28,8 +28,10 @@ class Obj
   attr_reader :description
   # @return [Array<String>]
   attr_reader :references
-  # @return [Boolean]
+  # @return [String]
   attr_reader :platform
+  # @return [Msf::Module::PlatformList]
+  attr_reader :platform_list
   # @return [String]
   attr_reader :arch
   # @return [Integer]
@@ -90,6 +92,7 @@ class Obj
     @default_credential = module_instance.default_cred?
 
     @platform           = module_instance.platform_to_s
+    @platform_list      = module_instance.platform
     # Done to ensure that differences do not show up for the same array grouping
     sort_platform_string
 
@@ -235,6 +238,7 @@ class Obj
     @author              = obj_hash['author'].nil? ? [] : obj_hash['author']
     @references          = obj_hash['references']
     @platform            = obj_hash['platform']
+    @platform_list       = parse_platform_list(@platform)
     @arch                = obj_hash['arch']
     @rport               = obj_hash['rport']
     @mod_time            = Time.parse(obj_hash['mod_time'])
@@ -286,6 +290,18 @@ class Obj
     @description = @description.dup.force_encoding(encoding)
     @author = @author.map {|a| a.dup.force_encoding(encoding)}
     @references = @references.map {|r| r.dup.force_encoding(encoding)}
+  end
+
+  def parse_platform_list(platform_string)
+    return nil if platform_string.nil?
+
+    if platform_string.casecmp('All')
+      # empty string represents all platforms in Msf::Module::PlatformList
+      platforms = ['']
+    else
+      platforms = platform_string.split(',')
+    end
+    Msf::Module::PlatformList.transform(platforms)
   end
 
 end

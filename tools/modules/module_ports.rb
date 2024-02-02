@@ -23,7 +23,7 @@ require 'rex'
 
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create('DisableDatabase' => true)
-
+# XXX: this is weird, merging module sets together for different module types could lead to unforseen issues
 all_modules = $framework.exploits.merge($framework.auxiliary)
 all_ports = {}
 

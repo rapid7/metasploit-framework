@@ -305,14 +305,14 @@ module Msf
         # Provide valid nops options for the current exploit
         #
         def option_values_nops
-          framework.nops.map { |refname, _mod| refname }
+          framework.nops.module_refnames
         end
 
         #
         # Provide valid encoders options for the current exploit or payload
         #
         def option_values_encoders
-          framework.encoders.map { |refname, _mod| refname }
+          framework.encoders.module_refnames
         end
 
         #

@@ -256,7 +256,7 @@ module Msf
             fmt = {
               '-b' => [ true ],
               '-E' => [ nil ],
-              '-e' => [ framework.encoders.map { |refname, _mod| refname } ],
+              '-e' => [ framework.encoders.module_refnames ],
               '-h' => [ nil ],
               '-o' => [ :file ],
               '-P' => [ true ],
