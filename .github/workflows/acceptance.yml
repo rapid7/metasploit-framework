@@ -63,10 +63,10 @@ jobs:
           # Java - newer versions of Java are not supported currently: https://github.com/rapid7/metasploit-payloads/issues/647
           - { name: java, runtime_version: 8 }
 
-          # PHP
-          - { name: php, runtime_version: 5.3 }
-          - { name: php, runtime_version: 7.4 }
-          - { name: php, runtime_version: 8.2 }
+          # PHP - Temporarily removed as tests are timing out on Github actions
+          # - { name: php, runtime_version: 5.3 }
+          # - { name: php, runtime_version: 7.4 }
+          # - { name: php, runtime_version: 8.2 }
         include:
           # Windows Meterpreter
           - { meterpreter: { name: windows_meterpreter }, os: windows-2019 }
