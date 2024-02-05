@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Short circuit if we already won
     if results.length > 0
-      @mysql_handle = results.first
+      self.mysql_conn = results.first
       return dump_hashes
     end
 
@@ -157,7 +157,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if results.length > 0
       print_good("#{rhost}:#{rport} Successfully exploited the authentication bypass flaw, dumping hashes...")
-      @mysql_handle = results.first
+      self.mysql_conn = results.first
       return dump_hashes
     end
 

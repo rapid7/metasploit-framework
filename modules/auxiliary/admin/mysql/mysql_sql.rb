@@ -35,7 +35,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    return unless mysql_login_datastore
+    # If we have a session make use of it
+    if session
+      print_status("Using existing session #{session.sid}")
+      self.mysql_conn = session.client
+    else
+      # otherwise fallback to attempting to login
+      return unless mysql_login_datastore
+    end
 
     print_status("Sending statement: '#{datastore['SQL']}'...")
     res = mysql_query(datastore['SQL']) || []
