@@ -42,13 +42,15 @@ module DNS
     #
     def save_config
       new_config = {}
-      @upstream_entries.each do |entry|
-        key = entry[:id].to_s
-        val = [entry[:wildcard_rule],
-               entry[:resolvers].join(','),
-               (!entry[:comm].nil?).to_s
-              ].join(';')
-        new_config[key] = val
+      @upstream_entries.each_with_index do |entry, index|
+        val = [
+          entry.wildcard,
+          entry.resolvers.map do |resolver|
+            resolver.type == Rex::Proto::DNS::UpstreamResolver::TYPE_DNS_SERVER ? resolver.destination : resolver.type.to_s
+          end.join(','),
+          (!entry.comm.nil?).to_s
+        ].join(';')
+        new_config["##{index}"] = val
       end
 
       Msf::Config.save(CONFIG_KEY => new_config)
@@ -65,21 +67,21 @@ module DNS
 
       dns_settings = config.fetch(CONFIG_KEY, {}).each do |name, value|
         id = name.to_i
-        wildcard_rule, resolvers, uses_comm = value.split(';')
-        wildcard_rule = '*' if wildcard_rule.blank?
+        wildcard, resolvers, uses_comm = value.split(';')
+        wildcard = '*' if wildcard.blank?
         resolvers = resolvers.split(',')
+        uses_comm.downcase!
 
         raise Rex::Proto::DNS::Exceptions::ConfigError.new('DNS parsing failed: Comm must be true or false') unless ['true','false'].include?(uses_comm)
-        raise Rex::Proto::DNS::Exceptions::ConfigError.new('Invalid DNS config: Invalid upstream DNS resolver') unless resolvers.all? {|resolver| valid_resolver?(resolver) }
-        raise Rex::Proto::DNS::Exceptions::ConfigError.new('Invalid DNS config: Invalid rule') unless valid_rule?(wildcard_rule)
+        raise Rex::Proto::DNS::Exceptions::ConfigError.new('Invalid DNS config: Invalid upstream DNS resolver') unless resolvers.all? {|resolver| UpstreamRule.valid_resolver?(resolver) }
+        raise Rex::Proto::DNS::Exceptions::ConfigError.new('Invalid DNS config: Invalid rule') unless UpstreamRule.valid_wildcard?(wildcard)
 
         comm = uses_comm == 'true' ? CommSink.new : nil
-        with_rules <<  {
-          :wildcard_rule => wildcard_rule,
-          :resolvers => resolvers,
-          :comm => comm,
-          :id => id
-        }
+        with_rules <<  UpstreamRule.new(
+          wildcard: wildcard,
+          resolvers: resolvers,
+          comm: comm
+        )
 
         next_id = [id + 1, next_id].max
       end
@@ -92,24 +94,16 @@ module DNS
     # Add a custom nameserver entry to the custom provider
     # @param resolvers [Array<String>] The list of upstream resolvers that would be used for this custom rule
     # @param comm [Msf::Session::Comm] The communication channel to be used for these DNS requests
-    #  @param wildcard_rule String The wildcard rule to match a DNS request against
-    def add_upstream_entry(resolvers, comm: nil, wildcard_rule: '*')
+    # @param wildcard String The wildcard rule to match a DNS request against
+    def add_upstream_entry(resolvers, comm: nil, wildcard: '*')
       resolvers = [resolvers] if resolvers.is_a?(String) # coerce into an array of strings
-      if (resolver = resolvers.find {|resolver| !valid_resolver?(resolver)})
-        raise ::ArgumentError.new("Invalid upstream DNS resolver: #{resolver}")
-      end
-      resolvers = resolvers.map { |resolver| Rex::Socket.is_ip_addr?(resolver) ? resolver : resolver.downcase.to_sym }
 
-      raise ::ArgumentError.new("Invalid rule: #{wildcard_rule}") unless valid_rule?(wildcard_rule)
-
-      @upstream_entries << {
-        :wildcard_rule => wildcard_rule,
-        :type => UpstreamResolver::TYPE_DNS_SERVER,
-        :resolvers => resolvers,
-        :comm => comm,
-        :id => self.next_id
-      }
-      self.next_id += 1
+      @upstream_entries << UpstreamRule.new(
+        id: self.next_id,
+        wildcard: wildcard,
+        resolvers: resolvers,
+        comm: comm
+      )
     end
 
     #
@@ -149,34 +143,11 @@ module DNS
       results_from_all_questions = []
       packet.question.each do |question|
         name = question.qname.to_s
-        upstream_resolvers = []
+        upstream_entry = self.upstream_entries.find { |ue| ue.matches_name?(name) }
 
-        self.upstream_entries.each do |entry|
-          next unless matches(name, entry[:wildcard_rule])
-
-          socket_options = {}
-          socket_options['Comm'] = entry[:comm] unless entry[:comm].nil?
-          entry[:resolvers].each do |resolver|
-            if resolver == UpstreamResolver::TYPE_BLACKHOLE
-              upstream_resolvers.append(UpstreamResolver.new(
-                UpstreamResolver::TYPE_BLACKHOLE
-              ))
-            elsif resolver == UpstreamResolver::TYPE_SYSTEM
-              upstream_resolvers.append(UpstreamResolver.new(
-                UpstreamResolver::TYPE_SYSTEM
-              ))
-            elsif Rex::Socket.is_ip_addr?(resolver)
-              upstream_resolvers.append(UpstreamResolver.new(
-                UpstreamResolver::TYPE_DNS_SERVER,
-                destination: resolver,
-                socket_options: socket_options
-              ))
-            end
-          end
-          break
-        end
-
-        if upstream_resolvers.empty?
+        if upstream_entry
+          upstream_resolvers = upstream_entry.resolvers
+        else
           # Fall back to default nameservers
           upstream_resolvers = super
         end
@@ -200,37 +171,11 @@ module DNS
 
     def upstream_entries
       entries = @upstream_entries.dup
-      entries << { id: '', wildcard_rule: '*', resolvers: self.nameservers }
+      entries << UpstreamRule.new(resolvers: self.nameservers)
       entries
     end
 
     private
-    #
-    # Is the given wildcard DNS entry valid?
-    #
-    def valid_rule?(rule)
-      rule == '*' || rule =~ /^(\*\.)?([a-z\d][a-z\d-]*[a-z\d]\.)+[a-z]+$/
-    end
-
-    def valid_resolver?(resolver)
-      return true if Rex::Socket.is_ip_addr?(resolver)
-
-      resolver = resolver.downcase.to_sym
-      [
-        UpstreamResolver::TYPE_BLACKHOLE,
-        UpstreamResolver::TYPE_SYSTEM
-      ].include?(resolver)
-    end
-
-    def matches(domain, pattern)
-      if pattern == '*'
-        true
-      elsif pattern.start_with?('*.')
-        domain.downcase.end_with?(pattern[1..-1].downcase)
-      else
-        domain.casecmp?(pattern)
-      end
-    end
 
     attr_accessor :next_id # The next ID to have been allocated to an entry
     attr_accessor :feature_set

@@ -250,7 +250,7 @@ class DNS
 
     rules.each do |rule|
       print_warning("DNS rule #{rule} does not contain wildcards, so will not match subdomains") unless rule.include?('*')
-      driver.framework.dns_resolver.add_upstream_entry(resolvers, comm: comm_obj, wildcard_rule: rule)
+      driver.framework.dns_resolver.add_upstream_entry(resolvers, comm: comm_obj, wildcard: rule)
     end
 
     print_good("#{rules.length} DNS #{rules.length > 1 ? 'entries' : 'entry'} added")
@@ -312,23 +312,26 @@ class DNS
     tbl = Table.new(
       Table::Style::Default,
       'Header'    => 'Host resolutions',
-      'Prefix'  => "\n",
-      'Postfix' => "\n",
-      'Columns'   => ['Hostname', 'IP Address']
+      'Prefix'    => "\n",
+      'Postfix'   => "\n",
+      'Columns'   => ['Hostname', 'IP Address', 'ID', 'Rule', 'Resolver', 'Comm channel'],
+      'SortIndex' => -1,
+      'WordWrap'  => false
     )
     names.each do |name|
+      upstream_entry = resolver.upstream_entries.find { |ue| ue.matches_name?(name) }
       begin
         result = resolver.query(name, query_type)
       rescue NoResponseError
-        tbl << [name, '[Failed To Resolve]']
+        tbl = append_resolver_cells!(tbl, upstream_entry, prefix: [name, '[Failed To Resolve]'])
       else
         if result.answer.empty?
-          tbl << [name, '[Failed To Resolve]']
+          tbl = append_resolver_cells!(tbl, upstream_entry, prefix: [name, '[Failed To Resolve]'])
         else
           result.answer.select do |answer|
             answer.type == query_type
           end.map(&:address).map(&:to_s).each do |address|
-            tbl << [name, address]
+            tbl = append_resolver_cells!(tbl, upstream_entry, prefix: [name, address])
           end
         end
       end
@@ -438,11 +441,11 @@ class DNS
   #
   # Get user-friendly text for displaying the session that this entry would go through
   #
-  def prettify_comm(comm, resolver)
-    if !Rex::Socket.is_ip_addr?(resolver)
+  def prettify_comm(comm, upstream_resolver)
+    if SPECIAL_RESOLVERS.include?(upstream_resolver.type.to_s)
       'N/A'
     elsif comm.nil?
-      channel = Rex::Socket::SwitchBoard.best_comm(resolver)
+      channel = Rex::Socket::SwitchBoard.best_comm(upstream_resolver.destination)
       if channel.nil?
         nil
       else
@@ -470,23 +473,29 @@ class DNS
       'SortIndex' => -1,
       'WordWrap'  => false,
     )
-    result_set.each do |hash|
-      if hash[:resolvers].length == 1
-        tbl << [hash[:id], hash[:wildcard_rule], hash[:resolvers].first, prettify_comm(hash[:comm], hash[:resolvers].first)]
-      elsif hash[:resolvers].length > 1
-        # XXX: By default rex-text tables strip preceding whitespace:
-        #   https://github.com/rapid7/rex-text/blob/1a7b639ca62fd9102665d6986f918ae42cae244e/lib/rex/text/table.rb#L221-L222
-        #   So use https://en.wikipedia.org/wiki/Non-breaking_space as a workaround for now. A change should exist in Rex-Text to support this requirement
-        indent = "\xc2\xa0\xc2\xa0\\_ "
-
-        tbl << [hash[:id], hash[:wildcard_rule], '', '']
-        hash[:resolvers].each do |resolver|
-          tbl << ['.', indent, resolver, prettify_comm(hash[:comm], resolver)]
-        end
-      end
+    result_set.each do |entry|
+      tbl = append_resolver_cells!(tbl, entry)
     end
 
     print(tbl.to_s) if tbl.rows.length > 0
+  end
+
+  def append_resolver_cells!(tbl, entry, prefix: [], suffix: [])
+    alignment_prefix = prefix.empty? ? [] : (['.'] * prefix.length)
+    if entry.resolvers.length == 1
+      tbl << prefix + [entry.id, entry.wildcard, entry.resolvers.first, prettify_comm(entry.comm, entry.resolvers.first)] + suffix
+    elsif entry.resolvers.length > 1
+      # XXX: By default rex-text tables strip preceding whitespace:
+      #   https://github.com/rapid7/rex-text/blob/1a7b639ca62fd9102665d6986f918ae42cae244e/lib/rex/text/table.rb#L221-L222
+      #   So use https://en.wikipedia.org/wiki/Non-breaking_space as a workaround for now. A change should exist in Rex-Text to support this requirement
+      indent = "\xc2\xa0\xc2\xa0\\_ "
+
+      tbl << prefix + [entry.id, entry.wildcard, '', ''] + suffix
+      entry.resolvers.each do |resolver|
+        tbl << alignment_prefix + ['.', indent, resolver, prettify_comm(entry.comm, resolver)] + ([''] * suffix.length)
+      end
+    end
+    tbl
   end
 
   def resolver

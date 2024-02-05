@@ -124,7 +124,9 @@ module DNS
 
     def upstream_resolvers_for_query(name, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
       name, type, cls = preprocess_query_arguments(name, type, cls)
-      packet = make_query_packet(name, type, cls)
+      net_packet = make_query_packet(name, type, cls)
+      # This returns a Net::DNS::Packet. Convert to Dnsruby::Message for consistency
+      packet = Rex::Proto::DNS::Packet.encode_drb(net_packet)
       upstream_resolvers_for_packet(packet)
     end
 

@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
 
-require 'rex/socket'
-
 module Rex
 module Proto
 module DNS
@@ -15,6 +13,17 @@ module DNS
       @type = type
       @destination = destination
       @socket_options = socket_options
+    end
+
+    def to_s
+      case type
+      when TYPE_BLACKHOLE
+        'blackhole'
+      when TYPE_SYSTEM
+        'system'
+      else
+        destination.to_s
+      end
     end
   end
 end
