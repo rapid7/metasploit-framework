@@ -433,6 +433,7 @@ class DNS
         print_line("  * #{entry}")
       end
     end
+    print_line("Current cache size:    #{resolver.cache.records.length}")
 
     upstream_entries = resolver.upstream_entries
     print_dns_set('Resolver rule entries', upstream_entries)
