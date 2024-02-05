@@ -8,9 +8,8 @@ module Proto
 module DNS
   class UpstreamRule
 
-    attr_reader :id, :wildcard, :resolvers, :comm
-    def initialize(id: nil, wildcard: '*', resolvers: [], comm: nil)
-      @id = id
+    attr_reader :wildcard, :resolvers, :comm
+    def initialize(wildcard: '*', resolvers: [], comm: nil)
       ::ArgumentError.new("Invalid wildcard text: #{wildcard}") unless self.class.valid_wildcard?(wildcard)
       @wildcard = wildcard
       socket_options = {}
@@ -65,6 +64,16 @@ module DNS
         name.casecmp?(wildcard)
       end
     end
+
+    def eql?(other)
+      return false unless other.is_a?(self.class)
+      return false unless other.wildcard == wildcard
+      return false unless other.resolvers == resolvers
+      return false unless other.comm == comm
+      true
+    end
+
+    alias == eql?
   end
 end
 end

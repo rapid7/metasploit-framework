@@ -25,6 +25,16 @@ module DNS
         destination.to_s
       end
     end
+
+   def eql?(other)
+      return false unless other.is_a?(self.class)
+      return false unless other.type == type
+      return false unless other.destination == destination
+      return false unless other.socket_options == socket_options
+      true
+    end
+
+    alias == eql?
   end
 end
 end

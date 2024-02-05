@@ -11,13 +11,14 @@ class DNS
 
   ADD_USAGE = 'dns [add] [--session <session id>] [--rule <wildcard DNS entry>] <resolver> ..."'.freeze
   @@add_opts = Rex::Parser::Arguments.new(
+    ['-i', '--index'] => [true, 'Index to insert at'],
     ['-r', '--rule'] => [true, 'Set a DNS wildcard entry to match against' ],
     ['-s', '--session'] => [true, 'Force the DNS request to occur over a particular channel (override routing rules)' ]
   )
 
   REMOVE_USAGE = 'dns [remove/del] -i <entry id> [-i <entry id> ...]"'.freeze
   @@remove_opts = Rex::Parser::Arguments.new(
-    ['-i'] => [true, 'Index to remove']
+    ['-i', '--index'] => [true, 'Index to remove at']
   )
 
   RESOLVE_USAGE = 'dns [resolve] [-f <address family>] <hostname> ..."'.freeze
@@ -75,12 +76,12 @@ class DNS
       end
 
       case words[-1]
-      when '-s', '--session'
-        session_ids = driver.framework.sessions.keys.map { |k| k.to_s }
-        return session_ids.select { |id| id.start_with?(str) }
       when '-r', '--rule'
         # Hard to auto-complete a rule with any meaningful value; just return
         return
+      when '-s', '--session'
+        session_ids = driver.framework.sessions.keys.map { |k| k.to_s }
+        return session_ids.select { |id| id.start_with?(str) }
       when /^-/
         # Unknown tag
         return
@@ -197,18 +198,23 @@ class DNS
     first_rule = true
     comm = nil
     resolvers = []
+    position = -1
     @@add_opts.parse(args) do |opt, idx, val|
       unless resolvers.empty? || opt.nil?
         raise ::ArgumentError.new("Invalid command near #{opt}")
       end
       case opt
-      when '--rule', '-r'
+      when '-i', '--index'
+        raise ::ArgumentError.new("Not a valid index: #{val}") unless val.to_i > 0
+
+        position = val.to_i - 1
+      when '-r', '--rule'
         raise ::ArgumentError.new('No rule specified') if val.nil?
 
         rules.clear if first_rule # if the user defines even one rule, clear the defaults
         first_rule = false
         rules << val
-      when '--session', '-s'
+      when '-s', '--session'
         if val.nil?
           raise ::ArgumentError.new('No session specified')
         end
@@ -248,9 +254,14 @@ class DNS
       end
     end
 
-    rules.each do |rule|
+    rules.each_with_index do |rule, rule_index|
       print_warning("DNS rule #{rule} does not contain wildcards, so will not match subdomains") unless rule.include?('*')
-      driver.framework.dns_resolver.add_upstream_entry(resolvers, comm: comm_obj, wildcard: rule)
+      driver.framework.dns_resolver.add_upstream_entry(
+        resolvers,
+        comm: comm_obj,
+        wildcard: rule,
+        position: (position == -1 ? -1 : position + rule_index)
+      )
     end
 
     print_good("#{rules.length} DNS #{rules.length > 1 ? 'entries' : 'entry'} added")
@@ -314,7 +325,7 @@ class DNS
       'Header'    => 'Host resolutions',
       'Prefix'    => "\n",
       'Postfix'   => "\n",
-      'Columns'   => ['Hostname', 'IP Address', 'ID', 'Rule', 'Resolver', 'Comm channel'],
+      'Columns'   => ['Hostname', 'IP Address', 'Rule #', 'Rule', 'Resolver', 'Comm channel'],
       'SortIndex' => -1,
       'WordWrap'  => false
     )
@@ -356,15 +367,15 @@ class DNS
     remove_ids = []
     @@remove_opts.parse(args) do |opt, idx, val|
       case opt
-      when '-i'
-        raise ::ArgumentError.new("Not a valid number: #{val}") unless val =~ /^\d+$/
-        remove_ids << val.to_i
+      when '-i', '--index'
+        raise ::ArgumentError.new("Not a valid index: #{val}") unless val.to_i > 0
+
+        remove_ids << val.to_i - 1
       end
     end
 
-    removed = driver.framework.dns_resolver.remove_ids(remove_ids)
-    difference = remove_ids.difference(removed.map { |entry| entry[:id] })
-    print_warning("Some entries were not removed: #{difference.join(', ')}") unless difference.empty?
+    removed = resolver.remove_ids(remove_ids)
+    print_warning('Some entries were not removed') unless removed.length == remove_ids.length
     if removed.length > 0
       print_good("#{removed.length} DNS #{removed.length > 1 ? 'entries' : 'entry'} removed")
       print_dns_set('Deleted entries', removed)
@@ -376,7 +387,7 @@ class DNS
     print_line "  #{REMOVE_USAGE}"
     print_line(@@remove_opts.usage)
     print_line "EXAMPLES:"
-    print_line "  Delete the DNS resolution rule with ID 3"
+    print_line "  Delete the DNS resolution rule #3"
     print_line "    dns remove -i 3"
     print_line
     print_line "  Delete multiple entries in one command"
@@ -462,7 +473,7 @@ class DNS
 
   def print_dns_set(heading, result_set)
     return if result_set.length == 0
-    columns = ['ID', 'Rule', 'Resolver', 'Comm channel']
+    columns = ['#', 'Rule', 'Resolver', 'Comm channel']
 
     tbl = Table.new(
       Table::Style::Default,
@@ -482,15 +493,18 @@ class DNS
 
   def append_resolver_cells!(tbl, entry, prefix: [], suffix: [])
     alignment_prefix = prefix.empty? ? [] : (['.'] * prefix.length)
+    entry_index = resolver.upstream_entries.index(entry)
+    entry_index += 1 if entry_index
+
     if entry.resolvers.length == 1
-      tbl << prefix + [entry.id, entry.wildcard, entry.resolvers.first, prettify_comm(entry.comm, entry.resolvers.first)] + suffix
+      tbl << prefix + [entry_index, entry.wildcard, entry.resolvers.first, prettify_comm(entry.comm, entry.resolvers.first)] + suffix
     elsif entry.resolvers.length > 1
       # XXX: By default rex-text tables strip preceding whitespace:
       #   https://github.com/rapid7/rex-text/blob/1a7b639ca62fd9102665d6986f918ae42cae244e/lib/rex/text/table.rb#L221-L222
       #   So use https://en.wikipedia.org/wiki/Non-breaking_space as a workaround for now. A change should exist in Rex-Text to support this requirement
       indent = "\xc2\xa0\xc2\xa0\\_ "
 
-      tbl << prefix + [entry.id, entry.wildcard, '', ''] + suffix
+      tbl << prefix + [entry_index, entry.wildcard, '', ''] + suffix
       entry.resolvers.each do |resolver|
         tbl << alignment_prefix + ['.', indent, resolver, prettify_comm(entry.comm, resolver)] + ([''] * suffix.length)
       end

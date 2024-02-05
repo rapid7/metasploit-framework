@@ -34,7 +34,6 @@ module DNS
 
     def init
       @upstream_entries = []
-      self.next_id = 0
     end
 
     #
@@ -63,7 +62,6 @@ module DNS
       config = Msf::Config.load
 
       with_rules = []
-      next_id = 0
 
       dns_settings = config.fetch(CONFIG_KEY, {}).each do |name, value|
         id = name.to_i
@@ -82,45 +80,39 @@ module DNS
           resolvers: resolvers,
           comm: comm
         )
-
-        next_id = [id + 1, next_id].max
       end
 
       # Now that config has successfully read, update the global values
       @upstream_entries = with_rules
-      self.next_id = next_id
     end
 
     # Add a custom nameserver entry to the custom provider
     # @param resolvers [Array<String>] The list of upstream resolvers that would be used for this custom rule
     # @param comm [Msf::Session::Comm] The communication channel to be used for these DNS requests
     # @param wildcard String The wildcard rule to match a DNS request against
-    def add_upstream_entry(resolvers, comm: nil, wildcard: '*')
+    def add_upstream_entry(resolvers, comm: nil, wildcard: '*', position: -1)
       resolvers = [resolvers] if resolvers.is_a?(String) # coerce into an array of strings
 
-      @upstream_entries << UpstreamRule.new(
-        id: self.next_id,
+      @upstream_entries.insert(position, UpstreamRule.new(
         wildcard: wildcard,
         resolvers: resolvers,
         comm: comm
-      )
+      ))
     end
 
     #
     # Remove entries with the given IDs
     # Ignore entries that are not found
     # @param ids [Array<Integer>] The IDs to removed
-    # @return [Array<Hash>] The removed entries
+    # @return [Array<UpstreamRule>] The removed entries
     #
     def remove_ids(ids)
-      removed= []
-      ids.each do |id|
-        removed_with, remaining_with = @upstream_entries.partition {|entry| entry[:id] == id}
-        @upstream_entries.replace(remaining_with)
-        removed.concat(removed_with)
+      removed = []
+      ids.sort.reverse.each do |id|
+        removed << @upstream_entries.delete_at(id)
       end
 
-      removed
+      removed.reverse
     end
 
     def purge
@@ -177,7 +169,6 @@ module DNS
 
     private
 
-    attr_accessor :next_id # The next ID to have been allocated to an entry
     attr_accessor :feature_set
   end
 end
