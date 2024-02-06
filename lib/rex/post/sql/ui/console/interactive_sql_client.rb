@@ -1,8 +1,9 @@
 # -*- coding: binary -*-
 module Rex
 module Post
-module PostgreSQL
+module Sql
 module Ui
+module Console
 
 ###
 #
@@ -10,7 +11,7 @@ module Ui
 # manner that adds interactive capabilities.
 #
 ###
-module Console::InteractiveSqlClient
+module InteractiveSqlClient
 
   include Rex::Ui::Interactive
 
@@ -100,6 +101,7 @@ module Console::InteractiveSqlClient
 
     if finished
       self.interacting = false
+      print_status 'Exiting Shell mode.'
       return { status: :exit, result: nil }
     end
 
@@ -114,6 +116,7 @@ module Console::InteractiveSqlClient
 
       if stop_words.include? line.chomp.downcase
         self.interacting = false
+        print_status 'Exiting Shell mode.'
         return { status: :exit, result: nil }
       end
 
@@ -130,7 +133,7 @@ module Console::InteractiveSqlClient
   attr_accessor :on_log_proc, :client_dispatcher
 
 end
-
+end
 end
 end
 end

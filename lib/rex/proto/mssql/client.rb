@@ -558,7 +558,7 @@ module Rex
           tdsproxy.send_recv(req)
         end
 
-        def mssql_query(sqla, doprint=false, opts={})
+        def query(sqla, doprint=false, opts={})
           info = { :sql => sqla }
           opts[:timeout] ||= 15
           pkts = []
