@@ -71,7 +71,6 @@ int main() {
 
   def run
     vprint_line c_template
-    print_status c_template
     # The randomized code allows us to generate a unique EXE
     bin = Metasploit::Framework::Compiler::Windows.compile_random_c(c_template)
     print_status("Compiled executable size: #{bin.length}")
