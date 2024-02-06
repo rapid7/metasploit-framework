@@ -9,7 +9,7 @@ module DNS
   class StaticHostnames
     extend Forwardable
 
-    def_delegators :@hostnames, :each, :length, :empty?
+    def_delegators :@hostnames, :each, :each_with_index, :length, :empty?
 
     def initialize(hostnames: nil)
       @hostnames = {}

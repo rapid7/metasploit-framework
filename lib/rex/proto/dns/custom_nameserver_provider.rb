@@ -9,7 +9,7 @@ module DNS
   # for different requests, based on the domain being queried.
   ##
   module CustomNameserverProvider
-    CONFIG_KEY = 'framework/dns'
+    CONFIG_KEY_BASE = 'framework/dns'
 
     #
     # A Comm implementation that always reports as dead, so should never
@@ -40,50 +40,16 @@ module DNS
     # Save the custom settings to the MSF config file
     #
     def save_config
-      new_config = {}
-      @upstream_entries.each_with_index do |entry, index|
-        val = [
-          entry.wildcard,
-          entry.resolvers.map do |resolver|
-            resolver.type == Rex::Proto::DNS::UpstreamResolver::TYPE_DNS_SERVER ? resolver.destination : resolver.type.to_s
-          end.join(','),
-          (!entry.comm.nil?).to_s
-        ].join(';')
-        new_config["##{index}"] = val
-      end
-
-      Msf::Config.save(CONFIG_KEY => new_config)
+      save_config_entries
+      save_config_static_hostnames
     end
 
     #
     # Load the custom settings from the MSF config file
     #
     def load_config
-      config = Msf::Config.load
-
-      with_rules = []
-
-      dns_settings = config.fetch(CONFIG_KEY, {}).each do |name, value|
-        id = name.to_i
-        wildcard, resolvers, uses_comm = value.split(';')
-        wildcard = '*' if wildcard.blank?
-        resolvers = resolvers.split(',')
-        uses_comm.downcase!
-
-        raise Rex::Proto::DNS::Exceptions::ConfigError.new('DNS parsing failed: Comm must be true or false') unless ['true','false'].include?(uses_comm)
-        raise Rex::Proto::DNS::Exceptions::ConfigError.new('Invalid DNS config: Invalid upstream DNS resolver') unless resolvers.all? {|resolver| UpstreamRule.valid_resolver?(resolver) }
-        raise Rex::Proto::DNS::Exceptions::ConfigError.new('Invalid DNS config: Invalid rule') unless UpstreamRule.valid_wildcard?(wildcard)
-
-        comm = uses_comm == 'true' ? CommSink.new : nil
-        with_rules <<  UpstreamRule.new(
-          wildcard: wildcard,
-          resolvers: resolvers,
-          comm: comm
-        )
-      end
-
-      # Now that config has successfully read, update the global values
-      @upstream_entries = with_rules
+      load_config_entries
+      load_config_static_hostnames
     end
 
     # Add a custom nameserver entry to the custom provider
@@ -168,6 +134,78 @@ module DNS
     end
 
     private
+
+    def load_config_entries
+      config = Msf::Config.load
+
+      with_rules = []
+      config.fetch("#{CONFIG_KEY_BASE}/entries", {}).each do |_name, value|
+        wildcard, resolvers, uses_comm = value.split(';')
+        wildcard = '*' if wildcard.blank?
+        resolvers = resolvers.split(',')
+        uses_comm.downcase!
+
+        raise Rex::Proto::DNS::Exceptions::ConfigError.new('DNS parsing failed: Comm must be true or false') unless ['true','false'].include?(uses_comm)
+        raise Rex::Proto::DNS::Exceptions::ConfigError.new('Invalid DNS config: Invalid upstream DNS resolver') unless resolvers.all? {|resolver| UpstreamRule.valid_resolver?(resolver) }
+        raise Rex::Proto::DNS::Exceptions::ConfigError.new('Invalid DNS config: Invalid rule') unless UpstreamRule.valid_wildcard?(wildcard)
+
+        comm = uses_comm == 'true' ? CommSink.new : nil
+        with_rules <<  UpstreamRule.new(
+          wildcard: wildcard,
+          resolvers: resolvers,
+          comm: comm
+        )
+      end
+
+      # Now that config has successfully read, update the global values
+      @upstream_entries = with_rules
+    end
+
+    def load_config_static_hostnames
+      config = Msf::Config.load
+
+      config.fetch("#{CONFIG_KEY_BASE}/static_hostnames", {}).each do |_name, value|
+        values = value.split(';')
+        hostname = values.shift
+        values.each do |ip_address|
+          next if ip_address.blank?
+
+          unless Rex::Socket.is_ip_addr?(ip_address)
+            raise Rex::Proto::DNS::Exceptions::ConfigError.new('Invalid DNS config: Invalid IP address')
+          end
+
+          static_hostnames.add(hostname, ip_address)
+        end
+      end
+    end
+
+    def save_config_entries
+      new_config = {}
+      @upstream_entries.each_with_index do |entry, index|
+        val = [
+          entry.wildcard,
+          entry.resolvers.map do |resolver|
+            resolver.type == Rex::Proto::DNS::UpstreamResolver::TYPE_DNS_SERVER ? resolver.destination : resolver.type.to_s
+          end.join(','),
+          (!entry.comm.nil?).to_s
+        ].join(';')
+        new_config["##{index}"] = val
+      end
+      Msf::Config.save("#{CONFIG_KEY_BASE}/entries" => new_config)
+    end
+
+    def save_config_static_hostnames
+      new_config = {}
+      static_hostnames.each_with_index do |(hostname, addresses), index|
+        val = [
+          hostname,
+          addresses[Dnsruby::Types::A],
+          addresses[Dnsruby::Types::AAAA]
+        ].join(';')
+        new_config["##{index}"] = val
+      end
+      Msf::Config.save("#{CONFIG_KEY_BASE}/static_hostnames" => new_config)
+    end
 
     attr_accessor :feature_set
   end

@@ -85,6 +85,8 @@ class Driver < Msf::Ui::Driver
     if Msf::FeatureManager.instance.enabled?(Msf::FeatureManager::DNS_FEATURE)
       dns_resolver = Rex::Proto::DNS::CachedResolver.new
       dns_resolver.extend(Rex::Proto::DNS::CustomNameserverProvider)
+      dns_resolver.purge
+      dns_resolver.static_hostnames.flush
       dns_resolver.load_config
 
       # Defer loading of modules until paths from opts can be added below

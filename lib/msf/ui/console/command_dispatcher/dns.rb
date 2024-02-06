@@ -383,19 +383,20 @@ class DNS
     )
     names.each do |name|
       upstream_entry = resolver.upstream_entries.find { |ue| ue.matches_name?(name) }
+      upstream_entry_id = resolver.upstream_entries.index(upstream_entry) + 1
 
       begin
         result = resolver.query(name, query_type)
       rescue NoResponseError
-        tbl = append_resolver_cells!(tbl, upstream_entry, prefix: [name, '[Failed To Resolve]'])
+        tbl = append_resolver_cells!(tbl, upstream_entry, prefix: [name, '[Failed To Resolve]'], index: upstream_entry_id)
       else
         if result.answer.empty?
-          tbl = append_resolver_cells!(tbl, upstream_entry, prefix: [name, '[Failed To Resolve]'])
+          tbl = append_resolver_cells!(tbl, upstream_entry, prefix: [name, '[Failed To Resolve]'], index: upstream_entry_id)
         else
           result.answer.select do |answer|
             answer.type == query_type
           end.map(&:address).map(&:to_s).each do |address|
-            tbl = append_resolver_cells!(tbl, upstream_entry, prefix: [name, address])
+            tbl = append_resolver_cells!(tbl, upstream_entry, prefix: [name, address], index: upstream_entry_id)
           end
         end
       end
@@ -431,7 +432,7 @@ class DNS
     print_warning('Some entries were not removed') unless removed.length == remove_ids.length
     if removed.length > 0
       print_good("#{removed.length} DNS #{removed.length > 1 ? 'entries' : 'entry'} removed")
-      print_dns_set('Deleted entries', removed)
+      print_dns_set('Deleted entries', removed, ids: [nil] * removed.length)
     end
   end
 
@@ -548,7 +549,7 @@ class DNS
     print_line("Current cache size:    #{resolver.cache.records.length}")
 
     upstream_entries = resolver.upstream_entries
-    print_dns_set('Resolver rule entries', upstream_entries)
+    print_dns_set('Resolver rule entries', upstream_entries, ids: (1..upstream_entries.length).to_a)
     if upstream_entries.empty?
       print_error('No DNS nameserver entries configured')
     end
@@ -600,7 +601,7 @@ class DNS
     end
   end
 
-  def print_dns_set(heading, result_set)
+  def print_dns_set(heading, result_set, ids: [])
     return if result_set.length == 0
     columns = ['#', 'Rule', 'Resolver', 'Comm channel']
 
@@ -613,27 +614,25 @@ class DNS
       'SortIndex' => -1,
       'WordWrap'  => false
     )
-    result_set.each do |entry|
-      tbl = append_resolver_cells!(tbl, entry)
+    result_set.each_with_index do |entry, index|
+      tbl = append_resolver_cells!(tbl, entry, index: ids[index])
     end
 
     print(tbl.to_s) if tbl.rows.length > 0
   end
 
-  def append_resolver_cells!(tbl, entry, prefix: [], suffix: [])
+  def append_resolver_cells!(tbl, entry, prefix: [], suffix: [], index: nil)
     alignment_prefix = prefix.empty? ? [] : (['.'] * prefix.length)
-    entry_index = resolver.upstream_entries.index(entry)
-    entry_index += 1 if entry_index
 
     if entry.resolvers.length == 1
-      tbl << prefix + [entry_index, entry.wildcard, entry.resolvers.first, prettify_comm(entry.comm, entry.resolvers.first)] + suffix
+      tbl << prefix + [index.to_s, entry.wildcard, entry.resolvers.first, prettify_comm(entry.comm, entry.resolvers.first)] + suffix
     elsif entry.resolvers.length > 1
       # XXX: By default rex-text tables strip preceding whitespace:
       #   https://github.com/rapid7/rex-text/blob/1a7b639ca62fd9102665d6986f918ae42cae244e/lib/rex/text/table.rb#L221-L222
       #   So use https://en.wikipedia.org/wiki/Non-breaking_space as a workaround for now. A change should exist in Rex-Text to support this requirement
       indent = "\xc2\xa0\xc2\xa0\\_ "
 
-      tbl << prefix + [entry_index, entry.wildcard, '', ''] + suffix
+      tbl << prefix + [index.to_s, entry.wildcard, '', ''] + suffix
       entry.resolvers.each do |resolver|
         tbl << alignment_prefix + ['.', indent, resolver, prettify_comm(entry.comm, resolver)] + ([''] * suffix.length)
       end
