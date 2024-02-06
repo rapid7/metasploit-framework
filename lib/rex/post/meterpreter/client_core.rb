@@ -258,7 +258,8 @@ class ClientCore < Extension
       end
 
       if library_image
-        request.add_tlv(TLV_TYPE_DATA, library_image, false, client.capabilities[:zlib])
+        decrypted_library_image = ::MetasploitPayloads::Crypto.decrypt(ciphertext: library_image)
+        request.add_tlv(TLV_TYPE_DATA, decrypted_library_image, false, client.capabilities[:zlib])
       else
         raise RuntimeError, "Failed to serialize library #{library_path}.", caller
       end
@@ -353,12 +354,22 @@ class ClientCore < Extension
       # If client.sys isn't setup, it's a Windows meterpreter
       if client.respond_to?(:sys) && !client.sys.config.sysinfo['BuildTuple'].blank?
         # Query the payload gem directly for the extension image
-        image = MetasploitPayloads::Mettle.load_extension(client.sys.config.sysinfo['BuildTuple'], mod.downcase, suffix)
+        begin
+          image = MetasploitPayloads::Mettle.load_extension(client.sys.config.sysinfo['BuildTuple'], mod.downcase, suffix)
+        rescue MetasploitPayloads::Mettle::NotFoundError => e
+          elog(e)
+          image = nil
+        end
       else
         # Get us to the installation root and then into data/meterpreter, where
         # the file is expected to be
         modname = "ext_server_#{mod.downcase}"
-        path = MetasploitPayloads.meterpreter_path(modname, suffix, debug: client.debug_build)
+        begin
+          path = MetasploitPayloads.meterpreter_path(modname, suffix, debug: client.debug_build)
+        rescue ::StandardError => e
+          elog(e)
+          path = nil
+        end
 
         if opts['ExtensionPath']
           path = ::File.expand_path(opts['ExtensionPath'])
@@ -592,7 +603,7 @@ class ClientCore < Extension
     target_process         = nil
     current_process        = nil
 
-    # Load in the stdapi extension if not allready present so we can determine the target pid architecture...
+    # Load in the stdapi extension if not already present so we can determine the target pid architecture...
     client.core.use('stdapi') if not client.ext.aliases.include?('stdapi')
 
     current_pid = client.sys.process.getpid

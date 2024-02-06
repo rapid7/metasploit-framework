@@ -24,7 +24,7 @@ class Console::CommandDispatcher::AppApi
   def commands
     all = {
       'app_list'      => 'List installed apps in the device',
-      'app_run'       => 'Start Main Activty for package name',
+      'app_run'       => 'Start Main Activity for package name',
       'app_install'   => 'Request to install apk file',
       'app_uninstall' => 'Request to uninstall application'
     }
@@ -125,12 +125,12 @@ class Console::CommandDispatcher::AppApi
   end
 
   #
-  # Start Main Activty for installed application by Package name
+  # Start Main Activity for installed application by Package name
   #
   def cmd_app_run(*args)
     if (args.length < 1)
       print_error('[-] Usage: app_run <package_name>')
-      print_error('[-] Start Main Activty for package name.')
+      print_error('[-] Start Main Activity for package name.')
       print_error('[-] You can use "app_list" to pick your packagename.')
       print_status('eg. app_run com.corrm.clac')
       return
@@ -140,14 +140,14 @@ class Console::CommandDispatcher::AppApi
 
     case client.appapi.app_run(package_name)
     when 1
-      print_good("Main Activty for '#{package_name}' has started.")
+      print_good("Main Activity for '#{package_name}' has started.")
     when 2
       print_error("'#{package_name}' Not Found.")
     end
   end
 
   #
-  # Function to help printing list of informations
+  # Function to help printing list of information
   #
   def to_table(data)
     column_headers = ['Name', 'Package', 'Running', 'IsSystem']

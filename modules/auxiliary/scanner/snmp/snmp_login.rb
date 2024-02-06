@@ -20,7 +20,9 @@ class MetasploitModule < Msf::Auxiliary
       'Author'      => 'hdm',
       'References'     =>
         [
-          [ 'CVE', '1999-0508'] # Weak password
+          [ 'CVE', '1999-0508' ], # Weak password
+          [ 'CVE', '1999-0517' ],
+          [ 'CVE', '1999-0516' ],
         ],
       'License'     => MSF_LICENSE
     )

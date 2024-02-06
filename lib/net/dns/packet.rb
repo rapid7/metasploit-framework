@@ -113,7 +113,7 @@ module Net # :nodoc:
       attr_reader :answerfrom, :answersize
 
       # Create a new instance of Net::DNS::Packet class. Arguments are the
-      # canonical name of the resourse, an optional type field and an optional
+      # canonical name of the resource, an optional type field and an optional
       # class field. The record type and class can be omitted; they default 
       # to +A+ and +IN+.
       #
@@ -146,7 +146,7 @@ module Net # :nodoc:
       # the method will accept it.
       #
       # Be sure that your network data is clean from any UDP/TCP header, 
-      # expecially when using RAW sockets.
+      # especially when using RAW sockets.
       # 
       def Packet.parse(*args)
         o = allocate
@@ -300,7 +300,7 @@ module Net # :nodoc:
         @header.truncated?
       end
             
-      # Assing a Net::DNS::Header object to a Net::DNS::Packet 
+      # Assign a Net::DNS::Header object to a Net::DNS::Packet 
       # instance.
       #
       def header=(object)

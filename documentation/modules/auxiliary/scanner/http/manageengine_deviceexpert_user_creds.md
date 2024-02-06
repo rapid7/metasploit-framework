@@ -1,4 +1,4 @@
-## Decription
+## Description
 
   This module extracts usernames and salted MD5 password hashes
   from ManageEngine DeviceExpert version 5.9 build 5980 and prior.

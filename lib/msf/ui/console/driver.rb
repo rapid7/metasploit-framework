@@ -29,7 +29,8 @@ class Driver < Msf::Ui::Driver
     CommandDispatcher::Resource,
     CommandDispatcher::Db,
     CommandDispatcher::Creds,
-    CommandDispatcher::Developer
+    CommandDispatcher::Developer,
+    CommandDispatcher::DNS
   ]
 
   #
@@ -67,10 +68,28 @@ class Driver < Msf::Ui::Driver
 
     histfile = opts['HistFile'] || Msf::Config.history_file
 
+    begin
+      FeatureManager.instance.load_config
+    rescue StandardException => e
+      elog(e)
+    end
+
+    if opts['DeferModuleLoads'].nil?
+      opts['DeferModuleLoads'] = Msf::FeatureManager.instance.enabled?(Msf::FeatureManager::DEFER_MODULE_LOADS)
+    end
+
     # Initialize attributes
 
-    # Defer loading of modules until paths from opts can be added below
-    framework_create_options = opts.merge('DeferModuleLoads' => true)
+    framework_create_options = opts.merge({ 'DeferModuleLoads' => true })
+
+    if Msf::FeatureManager.instance.enabled?(Msf::FeatureManager::DNS_FEATURE)
+      dns_resolver = Rex::Proto::DNS::CachedResolver.new
+      dns_resolver.extend(Rex::Proto::DNS::CustomNameserverProvider)
+      dns_resolver.load_config
+
+      # Defer loading of modules until paths from opts can be added below
+      framework_create_options = framework_create_options.merge({ 'CustomDnsResolver' => dns_resolver })
+    end
     self.framework = opts['Framework'] || Msf::Simple::Framework.create(framework_create_options)
 
     if self.framework.datastore['Prompt']
@@ -127,12 +146,6 @@ class Driver < Msf::Ui::Driver
       dispatcher.load_config(opts['Config'])
     end
 
-    begin
-      FeatureManager.instance.load_config
-    rescue StandardException => e
-      elog(e)
-    end
-
     if !framework.db || !framework.db.active
       if framework.db.error == "disabled"
         print_warning("Database support has been disabled")
@@ -155,12 +168,12 @@ class Driver < Msf::Ui::Driver
     self.confirm_exit = opts['ConfirmExit']
 
     # Initialize the module paths only if we didn't get passed a Framework instance and 'DeferModuleLoads' is false
-    unless opts['Framework'] || opts['DeferModuleLoads']
+    unless opts['Framework']
       # Configure the framework module paths
-      self.framework.init_module_paths(module_paths: opts['ModulePath'])
+      self.framework.init_module_paths(module_paths: opts['ModulePath'], defer_module_loads: opts['DeferModuleLoads'])
     end
 
-    if framework.db && framework.db.active && framework.db.is_local? && !opts['DeferModuleLoads']
+    unless opts['DeferModuleLoads']
       framework.threads.spawn("ModuleCacheRebuild", true) do
         framework.modules.refresh_cache_from_module_files
       end
@@ -364,7 +377,25 @@ class Driver < Msf::Ui::Driver
 
     run_single("banner") unless opts['DisableBanner']
 
-    av_warning_message if framework.eicar_corrupted?
+    payloads_manifest_errors = []
+    begin
+      payloads_manifest_errors = ::MetasploitPayloads.manifest_errors if framework.features.enabled?(::Msf::FeatureManager::METASPLOIT_PAYLOAD_WARNINGS)
+    rescue ::StandardError => e
+      $stderr.print('Could not verify the integrity of the Metasploit Payloads manifest')
+      elog(e)
+    end
+
+    av_warning_message if (framework.eicar_corrupted? || payloads_manifest_errors.any?)
+
+    if framework.features.enabled?(::Msf::FeatureManager::METASPLOIT_PAYLOAD_WARNINGS)
+      if payloads_manifest_errors.any?
+        warn_msg = "Metasploit Payloads manifest errors:\n"
+        payloads_manifest_errors.each do |file|
+          warn_msg << "\t#{file[:path]} : #{file[:error]}\n"
+        end
+        $stderr.print(warn_msg)
+      end
+    end
 
     opts["Plugins"].each do |plug|
       run_single("load '#{plug}'")

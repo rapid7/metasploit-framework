@@ -147,7 +147,7 @@ This method is just a stub on the Base mixin. It will be overridden in each Logi
 
 For an example let's look at the attempt_login method from `Metasploit::Framework::LoginScanner::FTP (lib/metasploit/framework/login_scanner/ftp.rb)`
  
- ```ruby
+```ruby
  # (see Base#attempt_login)
 def attempt_login(credential)
   result_options = {
@@ -156,7 +156,7 @@ def attempt_login(credential)
 
   begin
     success = connect_login(credential.public, credential.private)
-  rescue ::EOFError,  Rex::AddressInUse, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error
+  rescue ::EOFError,  Rex::AddressInUse, Rex::ConnectionError, Rex::ConnectionProxyError, Rex::ConnectionTimeout, Rex::TimeoutError, Errno::ECONNRESET, Errno::EINTR, ::Timeout::Error
     result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
     success = false
   end
@@ -170,7 +170,7 @@ def attempt_login(credential)
 
   ::Metasploit::Framework::LoginScanner::Result.new(result_options)
 end
- ```
+```
  
 ### scan!
 

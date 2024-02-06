@@ -1,6 +1,6 @@
 GSoC Project Ideas in no particular order. When you've picked one, take a look at [[How-to-Apply-to-GSoC]] for how to make a proposal.
 
-Mentors: @zerosteiner, @jmartin-r7, @gwillcox-r7
+Mentors: [@zerosteiner](https://github.com/zerosteiner), [@jmartin-r7](https://github.com/jmartin-r7), [@gwillcox-r7](https://github.com/gwillcox-r7)
 
 Slack Contacts: @zeroSteiner, @Op3n4M3, @gwillcox-r7 on [Metasploit Slack](https://metasploit.slack.com/)
 
@@ -31,7 +31,7 @@ Difficulty: 3/5
 
 ### Enhanced LDAP Query & Collection
 
-When preforming security assessment on a network with centralized login such as LDAP or Active Directory these services are sometimes exposed directly on the network. While Metasploit has capabilities to collect various pieces of information from these services when a user has been able to gain code execution inside a target system by utilizing tooling such as `Sharphound` or by leveraging SMB services via the `secrets_dump` module, these methods are somewhat indirect. A network base capability to query exposed services may have value. An interactive terminal plugin allowing users to connect directly to LDAP or Active Directory providing capabilities similar to the existing `requests` plugin could enable users search for valuable information in these services without the need to compromise a target or interact with a secondary service. 
+When performing security assessment on a network with centralized login such as LDAP or Active Directory these services are sometimes exposed directly on the network. While Metasploit has capabilities to collect various pieces of information from these services when a user has been able to gain code execution inside a target system by utilizing tooling such as `Sharphound` or by leveraging SMB services via the `secrets_dump` module, these methods are somewhat indirect. A network base capability to query exposed services may have value. An interactive terminal plugin allowing users to connect directly to LDAP or Active Directory providing capabilities similar to the existing `requests` plugin could enable users search for valuable information in these services without the need to compromise a target or interact with a secondary service. 
 
 Size: Medium/Large (Depends on proposal)  
 Difficulty: 3/5

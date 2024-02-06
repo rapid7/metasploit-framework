@@ -203,7 +203,7 @@ class MetasploitModule < Msf::Auxiliary
           loot_data << "Device model: #{device.at_css('model').content}\n"
           loot_data << "Device S/N: #{device.at_css('serialNumber').content}\n"
           loot_data << "Device MAC: #{device.at_css('macAddress').content}\n"
-          loot_data << "Device firware version: #{device.at_css('firmwareVersion').content}\n"
+          loot_data << "Device firmware version: #{device.at_css('firmwareVersion').content}\n"
           loot_data << "Device firmware release: #{device.at_css('firmwareReleasedDate').content}\n"
           loot_data << "Device boot version: #{device.at_css('bootVersion').content}\n"
           loot_data << "Device boot release: #{device.at_css('bootReleasedDate').content}\n"

@@ -1,12 +1,12 @@
 GSoC Project Ideas in no particular order. When you've picked one, take a look at [[How-to-Apply-to-GSoC]] for how to make a proposal.
 
-Mentors: @zerosteiner, @jmartin-r7
+Mentors: [@zerosteiner](https://github.com/zerosteiner), [@jmartin-r7](https://github.com/jmartin-r7)
 
 ## Enhance Metasploit Framework
 
 ### Retain active status of authentication tokens
 
-Many testing techniques interacting with web servers such as `XSS` rely on ensuring authentication obtained on a target be kept active. A mechanism for regstering and maintaining open authentications identified during a test for the duration of the console session may provide an additional utility to enable more modules to target techniques that need valid authentication to be maintained. One such authentication token would be data retained in a cookie for a web service. This project would lay the groundwork for registering gathered or generated authenticaion tokens against a target to be refreshed and sustained until a console exits, or in some cases across console restarts.
+Many testing techniques interacting with web servers such as `XSS` rely on ensuring authentication obtained on a target be kept active. A mechanism for registering and maintaining open authentications identified during a test for the duration of the console session may provide an additional utility to enable more modules to target techniques that need valid authentication to be maintained. One such authentication token would be data retained in a cookie for a web service. This project would lay the groundwork for registering gathered or generated authenticaion tokens against a target to be refreshed and sustained until a console exits, or in some cases across console restarts.
 
 Difficulty: 2/5
 

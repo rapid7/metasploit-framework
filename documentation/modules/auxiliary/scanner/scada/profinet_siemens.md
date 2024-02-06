@@ -1,5 +1,5 @@
 Siemens Industrial controllers and most other industrial OEMs 
-use a proprietary protocol to discover their devices accross a network.
+use a proprietary protocol to discover their devices across a network.
 In the case of Siemens this is called the Profinet Discover Protocol. 
 Known in Wireshark as PN_DCP
 

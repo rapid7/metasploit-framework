@@ -6,7 +6,7 @@
 require 'rex'
 
 lib = File.join(Msf::Config.install_root, "test", "lib")
-$:.push(lib) unless $:.include?(lib)
+$LOAD_PATH.push(lib) unless $LOAD_PATH.include?(lib)
 require 'module_test'
 
 class MetasploitModule < Msf::Post
@@ -25,12 +25,15 @@ class MetasploitModule < Msf::Post
           'kernelsmith', # original
           'egypt',       # PostTest conversion
         ],
-        'Platform' => [ 'windows' ]
+        'Platform' => [ 'windows' ],
+        'SessionTypes' => [ 'meterpreter', 'shell', 'powershell' ]
       )
     )
   end
 
   def test_0_registry_read
+    return skip('session platform is not windows') unless session.platform == 'windows'
+
     it "should evaluate key existence" do
       k_exists = registry_key_exist?(%q#HKCU\Environment#)
       k_dne = registry_key_exist?(%q#HKLM\\Non\Existent\Key#)
@@ -132,6 +135,8 @@ class MetasploitModule < Msf::Post
   end
 
   def test_1_registry_write
+    return skip('session platform is not windows') unless session.platform == 'windows'
+
     it "should create keys" do
       ret = registry_createkey(%q#HKCU\test_key#)
     end

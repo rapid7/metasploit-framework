@@ -16,17 +16,17 @@ If listeners are externalized, then there is an API layer both for interactive i
 
 ### Integration of native tool-chains
 
-Tools like Veil, pwnlib, etc. have for a long time used native compilers and tooling to build payloads and evasions. Metasploit has opted mostly for native Ruby solutions, though it does have some implicit runtime dependencies like `apktool` for Android payload injection. However, these tools are getting harder to maintain and use (e.g. metasm has a diffcult time building any non-trivial C code, we just spent a month fixing a bug it had with Ruby 2.5 and Windows). It would be nice to have either be able to depend on a set of first-class toolchains being available in the environment, or have some way to package them natively with Metasploit itself. A full suite of compilers and tools does consume considerable amounts of space (e.g. mettle's toolchain is 1.8GB uncompressed), but this is probably less of a problem than it was 15 years ago.
+Tools like Veil, pwnlib, etc. have for a long time used native compilers and tooling to build payloads and evasions. Metasploit has opted mostly for native Ruby solutions, though it does have some implicit runtime dependencies like `apktool` for Android payload injection. However, these tools are getting harder to maintain and use (e.g. metasm has a difficult time building any non-trivial C code, we just spent a month fixing a bug it had with Ruby 2.5 and Windows). It would be nice to have either be able to depend on a set of first-class toolchains being available in the environment, or have some way to package them natively with Metasploit itself. A full suite of compilers and tools does consume considerable amounts of space (e.g. mettle's toolchain is 1.8GB uncompressed), but this is probably less of a problem than it was 15 years ago.
 
 ### Native first-class UUID-aware, async stager payload
 
-Make a new async payload type (based on pingback payload work) making secure comms, endpoint verification, and async communication first-class citizens, and on by default. These session types would support a much more limited set of actions than Meterpreter, only supporting sleep/upload/download/stage, but would be upgraded to Meterpreter directly as-needed (maybe even transparently). Network protocols can be much more exotic for this, and the listener/payload should be usable externally from Metasploit as well. Todo: pull in async payload proposal notes from @bwatters-r7.
+Make a new async payload type (based on pingback payload work) making secure comms, endpoint verification, and async communication first-class citizens, and on by default. These session types would support a much more limited set of actions than Meterpreter, only supporting sleep/upload/download/stage, but would be upgraded to Meterpreter directly as-needed (maybe even transparently). Network protocols can be much more exotic for this, and the listener/payload should be usable externally from Metasploit as well. Todo: pull in async payload proposal notes from [@bwatters-r7](https://github.com/bwatters-r7).
 
 ## Module Interface
 
 ### Overhaul network targeting
 
-Setting at least 5 variables RHOSTS/RPORT/SSL/VHOST/SSL_Version/User/Pass/etc... to target a single web application is very cumbersome. When these variables also do not apply to multiple RHOSTS exactly, the scheme of multiple variables falls apart futher. Metasploit should be able to target URLs directly, that can all have their own independent ports, users, hostnames, etc:
+Setting at least 5 variables RHOSTS/RPORT/SSL/VHOST/SSL_Version/User/Pass/etc... to target a single web application is very cumbersome. When these variables also do not apply to multiple RHOSTS exactly, the scheme of multiple variables falls apart further. Metasploit should be able to target URLs directly, that can all have their own independent ports, users, hostnames, etc:
 
 ```
 set TARGETS https://user:password@target_app:4343 https://target_app2

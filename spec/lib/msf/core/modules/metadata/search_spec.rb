@@ -47,6 +47,10 @@ RSpec.describe Msf::Modules::Metadata::Search do
     it { expect(described_class.parse_search_string("text:postgres:")).to eq({"text"=>[["postgres"], []]}) }
     it { expect(described_class.parse_search_string("postgres::::")).to eq({"text"=>[["postgres"], []]}) }
     it { expect(described_class.parse_search_string("turtle:bobcat postgres:")).to eq({"text"=>[["postgres"], []], "turtle"=>[["bobcat"], []]}) }
+    it { expect(described_class.parse_search_string("stage:linux/x64/meterpreter ")).to eq({"stage"=>[["linux/x64/meterpreter"], []]}) }
+    it { expect(described_class.parse_search_string("stager:linux/x64/reverse_tcp ")).to eq({"stager"=>[["linux/x64/reverse_tcp"], []]}) }
+    it { expect(described_class.parse_search_string("adapter:cmd/linux/http/mips64 ")).to eq({"adapter"=>[["cmd/linux/http/mips64"], []]}) }
+    it { expect(described_class.parse_search_string("action:forge_golden ")).to eq({"action"=>[["forge_golden"], []]}) }
   end
 
   describe '#find' do
@@ -125,6 +129,14 @@ RSpec.describe Msf::Modules::Metadata::Search do
       it_should_behave_like 'search_filter', :accept => accept, :reject => reject
     end
 
+    context 'on a module with actions' do
+      let(:opts) { ({ 'actions' => [{ 'name' => 'ACTION_NAME', 'description' => 'ACTION_DESCRIPTION'}] }) }
+      accept = %w(action:action_name action:action_description)
+      reject = %w(action:unrelated)
+
+      it_should_behave_like 'search_filter', :accept => accept, :reject => reject
+    end
+
     context 'on a module with the author "joev"' do
       let(:opts) { ({ 'author' => ['joev'] }) }
       accept = %w(author:joev author:joe)
@@ -139,6 +151,38 @@ RSpec.describe Msf::Modules::Metadata::Search do
       reject = %w(author:sinn3r)
 
       it_should_behave_like 'search_filter', :accept => accept, :reject => reject
+    end
+
+    context 'on a module with a #stage_refname of "linux/x64/meterpreter"' do
+      let(:opts) { { 'stage_refname' => 'linux/x64/meterpreter' } }
+      accept = %w[stage:linux/x64/meterpreter]
+      reject = %w[stage:unrelated]
+
+      it_should_behave_like 'search_filter', accept: accept, reject: reject
+    end
+
+    context 'on a module with a #stager_refname of "linux/x64/reverse_tcp"' do
+      let(:opts) { { 'stager_refname' => 'linux/x64/reverse_tcp' } }
+      accept = %w[stager:linux/x64/reverse_tcp]
+      reject = %w[stager:unrelated]
+
+      it_should_behave_like 'search_filter', accept: accept, reject: reject
+    end
+
+    context 'on a module with a #adapter_refname of "cmd/linux/http/mips64"' do
+      let(:opts) { { 'adapter_refname' => 'cmd/linux/http/mips64' } }
+      accept = %w[adapter:cmd/linux/http/mips64]
+      reject = %w[adapter:unrelated]
+
+      it_should_behave_like 'search_filter', accept: accept, reject: reject
+    end
+
+    context 'on a module with a #adapter_refname of "linux/x64/meterpreter_reverse_https"' do
+      let(:opts) { { 'adapter_refname' => 'linux/x64/meterpreter_reverse_https' } }
+      accept = %w[adapter:linux/x64/meterpreter_reverse_http adapter:linux/x64/meterpreter_reverse_https]
+      reject = %w[adapter:unrelated]
+
+      it_should_behave_like 'search_filter', accept: accept, reject: reject
     end
 
     context 'on a module that supports the osx platform' do
@@ -270,7 +314,7 @@ RSpec.describe Msf::Modules::Metadata::Search do
 
     REF_TYPES.each do |ref_type|
       ref_num = '1234-1111'
-      context 'on a module with reference #{ref_type}-#{ref_num}' do
+      context "on a module with reference #{ref_type}-#{ref_num}" do
         let(:opts) { ({ 'references' => ["#{ref_type}-#{ref_num}"] }) }
         accept = ["#{ref_type.downcase}:#{ref_num}"]
         reject = %w(1235-1111 1234-1112 bad).map { |n| "#{ref_type.downcase}:#{n}" }

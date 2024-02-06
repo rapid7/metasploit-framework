@@ -7,7 +7,7 @@ This module can abuse misconfigured web servers to upload and delete web content
 2. Do: ```set RHOSTS [IP]```
 3. Do: ```set RPORT [PORT]```
 4. Do: ```set PATH [PATH]```
-5. Do: ```set FILENAME [FILNAME]```
+5. Do: ```set FILENAME [FILENAME]```
 6. Do: ```set FILEDATA [PATH]```
 7. Do: ```run```
 

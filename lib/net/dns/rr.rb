@@ -28,7 +28,7 @@ module Net # :nodoc:
     # The Net::DNS::RR is the base class for DNS Resource
     # Record (RR) objects. A RR is a pack of data that represents
     # resources for a DNS zone. The form in which this data is
-    # shows can be drawed as follow:
+    # shows can be drawn as follow:
     #
     #   "name  ttl  class  type  data"
     #
@@ -75,7 +75,7 @@ module Net # :nodoc:
                                Net::DNS::RR::Classes.regexp +
                                "|CLASS\\d+)?\\s*(" +
                                Net::DNS::RR::Types.regexp +
-                               "|TYPE\\d+)?\\s*(.*)$", Regexp::IGNORECASE, 'n')
+                               "|TYPE\\d+)?\\s*(.*)$", Regexp::IGNORECASE | Regexp::NOENCODING)
 
       # Dimension of the sum of class, type, TTL and rdlength fields in a
       # RR portion of the packet, in bytes
@@ -92,7 +92,7 @@ module Net # :nodoc:
       # Create a new instance of Net::DNS::RR class, or an instance of
       # any of the subclass of the appropriate type.
       #
-      # Argument can be a string or an hash. With a sting, we can pass
+      # Argument can be a string or an hash. With a string, we can pass
       # a RR resource record in the canonical format:
       #
       #   a     = Net::DNS::RR.new("foo.example.com. 86400 A 10.1.2.3")
@@ -104,7 +104,7 @@ module Net # :nodoc:
       # respectively Net::DNS::RR::A, Net::DNS::RR::MX, Net::DNS::RR::CNAME and
       # Net::DNS::RR::TXT classes.
       #
-      # The name and RR data are required; all other informations are optional.
+      # The name and RR data are required; all other information are optional.
       # If omitted, the +TTL+ defaults to 10800, +type+ default to +A+ and the RR class
       # defaults to +IN+.  Omitting the optional fields is useful for creating the
       # empty RDATA sections required for certain dynamic update operations.
@@ -165,7 +165,7 @@ module Net # :nodoc:
       end
 
       # Same as RR.parse, but takes an entire packet binary data to
-      # perform name expansion. Default when analizing a packet
+      # perform name expansion. Default when analyzing a packet
       # just received from a network stream.
       #
       # Return an instance of appropriate class and the offset

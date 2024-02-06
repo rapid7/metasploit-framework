@@ -5,8 +5,8 @@ module Ui
 
 ###
 #
-# This class acts as a generic base class for outputing data.  It
-# only provides stubs for the simplest form of outputing information.
+# This class acts as a generic base class for outputting data.  It
+# only provides stubs for the simplest form of outputting information.
 #
 ###
 class Output

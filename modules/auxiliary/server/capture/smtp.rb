@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'metasploit/framework/hashes'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
@@ -55,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
     data = data.drop(1)
 
     # if only a username is submitted, it will appear as \00un\00
-    # we already cut off the empty username, so nowe we want to add on the empty password
+    # we already cut off the empty username, so now we want to add on the empty password
     if data.length == 1
       data << ''
     end

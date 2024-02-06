@@ -5,18 +5,25 @@
 
   * `LANMAN` based passwords
   * `NTLM` based passwords
+  * `M$ CASH hashes (1 and 2)` based passwords
+  * `NETNTLM` and `NETNTLMV2` based passwords
 
-| Common | John     | Hashcat |
-|--------|----------|---------|
-| lanman | lm       | 3000    |
-| ntlm   | nt       | 1000    |
+| Common    | John      | Hashcat |
+| --------- | --------- | ------- |
+| lanman    | lm        | 3000    |
+| ntlm      | nt        | 1000    |
+| mscash    | mscash    | 1100    |
+| mscash2   | mscash2   | 2100    |
+| netntlm   | netntlm   | 5500    |
+| netntlmv2 | netntlmv2 | 5600    |
+
 
   Sources of hashes can be found here:
   [source](https://openwall.info/wiki/john/sample-hashes), [source2](http://pentestmonkey.net/cheat-sheet/john-the-ripper-hash-formats)
 
 ## Verification Steps
 
-  1. Have at least one user with an `ntlm`, or `lanman` password hash in the database
+  1. Have at least one user with an uncracked windows based password hash in the database
   2. Start msfconsole
   3. Do: ```use auxiliary/analyze/crack_windows```
   4. Do: set cracker of choice
@@ -25,58 +32,62 @@
 
 ## Actions
 
-   **john**
+### john
 
-   Use john the ripper (default).
+Use john the ripper (default).
 
-   **hashcat**
+### hashcat
 
-   Use hashcat.
+Use hashcat.
 
 ## Options
 
-   **CONFIG**
+### CONFIG
 
-   The path to a John config file (JtR option: `--config`).  Default is `metasploit-framework/data/john.conf`
+The path to a John config file (JtR option: `--config`).  Default is `metasploit-framework/data/john.conf`
 
-   **CRACKER_PATH**
+### CRACKER_PATH
 
-   The absolute path to the cracker executable.  Default behavior is to search `path`.
+The absolute path to the cracker executable.  Default behavior is to search `path`.
 
-   **CUSTOM_WORDLIST**
+### CUSTOM_WORDLIST
 
-   The path to an optional custom wordlist.  This file is added to the new wordlist which may include the other
-   `USE` items like `USE_CREDS`, and have `MUTATE` or `KORELOGIC` applied to it.
+The path to an optional custom wordlist.  This file is added to the new wordlist which may include the other
+`USE` items like `USE_CREDS`, and have `MUTATE` or `KORELOGIC` applied to it.
 
-   **DeleteTempFiles**
+### DeleteTempFiles
 
-   This option will prevent deletion of the wordlist and file containing hashes.  This may be useful for
-   running the hashes through john if it wasn't cracked, or for debugging. Default is `false`.
+This option will prevent deletion of the wordlist and file containing hashes.  This may be useful for
+running the hashes through john if it wasn't cracked, or for debugging. Default is `false`.
 
-   **Fork**
+### Fork
 
-   This option will set how many forks to use on john the ripper.  Default is `1` (no forking).
+This option will set how many forks to use on john the ripper.  Default is `1` (no forking).
 
-   **INCREMENTAL**
+### INCREMENTAL
 
-   Run the cracker in incremental mode.  Default is `true`
+Run the cracker in incremental mode.  Default is `true`
 
-   **ITERATION_TIMEOUT**
+### ITERATION_TIMEOUT
 
-   The max-run-time for each iteration of cracking.
+The max-run-time for each iteration of cracking.
 
-   **KORELOGIC**
+### KORELOGIC
 
-   Apply the [KoreLogic rules](http://contest-2010.korelogic.com/rules.html) to Wordlist Mode (slower).
-   Default is `false`.
+Apply the [KoreLogic rules](http://contest-2010.korelogic.com/rules.html) to Wordlist Mode (slower).
+Default is `false`.
 
-   **LANMAN**
+### LANMAN
 
-   Crack LANMAN hashes.  Default is `true`.
+Crack LANMAN hashes.  Default is `true`.
 
-   **MUTATE**
+### MSCASH
 
-   Apply common mutations to the Wordlist (SLOW).  Mutations are:
+Crack MSCASH hashes.  Default is `true`.
+
+### MUTATE
+
+Apply common mutations to the Wordlist (SLOW).  Mutations are:
 
    * `'@' => 'a'`
    * `'0' => 'o'`
@@ -86,48 +97,56 @@
    * `'1' => 'l'`
    * `'5' => 's'`
 
-   Default is `false`.
+Default is `false`.
 
-   **NTLM**
+### NETNTLM
 
-   Crack NTLM hashes.  Default is `true`.
+Crack NETNTLM hashes.  Default is `true`.
 
-   **POT**
+### NETNTLMV2
 
-   The path to a John POT file (JtR option: `--pot`) to use instead.  The `pot` file is the data file which
-   records cracked password hashes.  Kali linux's default location is `/root/.john/john.pot`.
-   Default is `~/.msf4/john.pot`.
+Crack NETNTLMV2 hashes.  Default is `true`.
 
-   **SHOWCOMMAND**
+### NTLM
 
-   Show the command being used run from the command line for debugging.  Default is `false`
+Crack NTLM hashes.  Default is `true`.
 
-   **USE_CREDS**
+### POT
 
-   Use existing credential data saved in the database.  Default is `true`.
+The path to a John POT file (JtR option: `--pot`) to use instead.  The `pot` file is the data file which
+records cracked password hashes.  Kali linux's default location is `/root/.john/john.pot`.
+Default is `~/.msf4/john.pot`.
 
-   **USE_DB_INFO**
+### SHOWCOMMAND
 
-   Use looted database schema info to seed the wordlist.  This includes the Database Name, each Table Name,
-   and each Column Name.  If the DB is MSSQL, the Instance Name is also used.  Default is `true`.
+Show the command being used run from the command line for debugging.  Default is `false`
 
-   **USE_DEFAULT_WORDLIST**
+### USE_CREDS
 
-   Use the default metasploit wordlist in `metasploit-framework/data/wordlists/password.lst`.  Default is
-   `true`.
+Use existing credential data saved in the database.  Default is `true`.
 
-   **USE_HOSTNAMES**
+### USE_DB_INFO
 
-   Seed the wordlist with hostnames from the workspace.  Default is `true`.
+Use looted database schema info to seed the wordlist.  This includes the Database Name, each Table Name,
+and each Column Name.  If the DB is MSSQL, the Instance Name is also used.  Default is `true`.
 
-   **USE_ROOT_WORDS**
+### USE_DEFAULT_WORDLIST
 
-   Use the Common Root Words Wordlist in `metasploit-framework/data/wordlists/common_roots.txt`.  Default
-   is true.
+Use the default metasploit wordlist in `metasploit-framework/data/wordlists/password.lst`.  Default is
+`true`.
 
-   **WORDLIST**
+### USE_HOSTNAMES
 
-   Run the cracker in dictionary/wordlist mode.  Default is `true`
+Seed the wordlist with hostnames from the workspace.  Default is `true`.
+
+### USE_ROOT_WORDS
+
+Use the Common Root Words Wordlist in `metasploit-framework/data/wordlists/common_roots.txt`.  Default
+is `true`.
+
+### WORDLIST
+
+Run the cracker in dictionary/wordlist mode.  Default is `true`
 
 ## Scenarios
 
@@ -141,6 +160,11 @@ creds add user:lm_password ntlm:e52cac67419a9a224a3b108f3fa6cb6d:8846f7eaee8fb11
 creds add user:lm2_password ntlm:e52cac67419a9a224a3b108f3fa6cb6d:8846f7eaee8fb117ad06bdd830b7586c jtr:lm
 creds add user:lm2_pot_password ntlm:e52cac67419fafe2fafe108f3fa6cb6d:8846f7eaee8fb117ad06bdd830b7586c jtr:lm
 creds add user:nt_password ntlm:aad3b435b51404eeaad3b435b51404ee:8846f7eaee8fb117ad06bdd830b7586c jtr:nt
+creds add user:u4-netntlm hash:u4-netntlm::kNS:338d08f8e26de93300000000000000000000000000000000:9526fb8c23a90751cdd619b6cea564742e1e4bf33006ba41:cb8086049ec4736c jtr:netntlm
+creds add user:admin hash:admin::N46iSNekpT:08ca45b7d7ea58ee:88dcbe4446168966a153a0064958dac6:5c7830315c7830310000000000000b45c67103d07d7b95acd12ffa11230e0000000052920b85f78d013c31cdb3b92f5d765c783030 jtr:netntlmv2
+creds add user:mscash-hashcat hash:M$test1#64cd29e36a8431a2b111378564a10631 jtr:mscash
+creds add user:mscash2-hashcat hash:$DCC2$10240#tom#e4e938d12fe5974dc42a90120bd9c90f jtr:mscash2
+
 echo "" > /root/.msf4/john.pot
 echo "\$LM\$E52CAC67419FAFE2:passwor" >> /root/.msf4/john.pot
 echo "\$LM\$FAFE108F3FA6CB6D:d" >> /root/.msf4/john.pot

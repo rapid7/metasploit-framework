@@ -85,7 +85,7 @@ module BER #:nodoc:all
     # Returns a tuple containing the tag, the value, and any remaining
     # unprocessed data.
     #
-    # The data is not interpretted by this method.  Use one of the other
+    # The data is not interpreted by this method.  Use one of the other
     # decoding methods to interpret the data.
     #
     # Note that ASN.1 supports an indefinite length format where the end of

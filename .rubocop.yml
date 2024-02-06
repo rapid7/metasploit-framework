@@ -22,6 +22,7 @@ require:
   - ./lib/rubocop/cop/lint/module_disclosure_date_present.rb
   - ./lib/rubocop/cop/lint/deprecated_gem_version.rb
   - ./lib/rubocop/cop/lint/module_enforce_notes.rb
+  - ./lib/rubocop/cop/lint/detect_invalid_pack_directives.rb
 
 Layout/SpaceBeforeBrackets:
   Description: >-
@@ -78,6 +79,17 @@ Lint/UnexpectedBlockArity:
 
 Lint/UnmodifiedReduceAccumulator:
   Enabled: true
+
+Lint/UnusedMethodArgument:
+  Description: >-
+    Disabled on files under the lib/ directory (aka library files)
+    as this can break YARD documentation since YARD doesn't recognize
+    the _ prefix before parameter names and thinks its a different argument.
+    See https://github.com/rapid7/metasploit-framework/pull/17735
+    Also see https://github.com/rubocop/rubocop/pull/11020
+  Enabled: true
+  Exclude:
+    - 'lib/**/*'
 
 Style/ArgumentsForwarding:
   Enabled: true
@@ -155,6 +167,9 @@ Layout/ModuleHashValuesOnSameLine:
 Layout/ModuleDescriptionIndentation:
   Enabled: true
 
+Lint/DetectInvalidPackDirectives:
+  Enabled: true
+
 Lint/ModuleDisclosureDateFormat:
   Enabled: true
 
@@ -175,12 +190,13 @@ Lint/DeprecatedGemVersion:
   Exclude:
     - 'metasploit-framework.gemspec'
 
-Metrics/ClassLength:
+Metrics/ModuleLength:
   Description: 'Most Metasploit modules are quite large. This is ok.'
-  Enabled: true
-  Exclude:
-    - 'modules/**/*'
-    - 'test/modules/**/*'
+  Enabled: false
+
+Metrics/ClassLength:
+  Description: 'Most Metasploit classes are quite large. This is ok.'
+  Enabled: false
 
 Style/ClassAndModuleChildren:
   Enabled: false

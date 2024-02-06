@@ -31,7 +31,7 @@ session = client
 ################## Function Definition ##################
 # Function for checking the password policy of current system.
 # This policy may resemble the policy of other servers in the
-#target enviroment.
+#target environment.
 def chkpolicy(session)
   print_status("Checking password policy...")
   output = []
@@ -54,11 +54,11 @@ def chkpolicy(session)
       print_status "\tWARNING Lockout threshold configured, if #{lockout} attempts in #{failcount} minutes account will be locked"
       print_status "\tThe account will be locked out for #{lcktime}"
     end
-    # check for password lenght
+    # check for password length
     if minpass.to_s == "0"
-      print_status "\tNo minimun password lenght is configured"
+      print_status "\tNo minimum password length is configured"
     else
-      print_status "\tThe minumun password lengh configured is #{minpass}"
+      print_status "\tThe minimum password length configured is #{minpass}"
       print_status "\tyour dictionary should start with passwords of #{minpass} length"
     end
   rescue ::Exception => e
@@ -70,7 +70,7 @@ end
 # Function for brute forcing passwords using windows native tools
 def passbf(session,passlist,target,user,opt,logfile)
   print_status("Running Brute force attack against #{user}")
-  print_status("Successfull Username and Password pairs are being saved in #{logfile}")
+  print_status("Successful Username and Password pairs are being saved in #{logfile}")
   result = []
   output = []
   passfnd = 0

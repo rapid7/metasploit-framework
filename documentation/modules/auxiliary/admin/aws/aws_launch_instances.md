@@ -21,7 +21,7 @@ Shell #1:
 [*] instance i-12345678 status: initializing
 ...
 [*] instance i-12345678 status: ok
-[*] Instance i-12345678 has IP adrress 35.12.4.1
+[*] Instance i-12345678 has IP address 35.12.4.1
 [*] Auxiliary module execution completed
 ```
 
@@ -56,7 +56,7 @@ can be made available by assigning an Internet routable IP address to a host or
 routing traffic to it through an ELB (Elastic Load Balancer). In either case
 security-groups are used to open access to network ranges and specific TPC/UDP
 ports. Security-groups provide much of the functionality of traditional firewalls
-and can be configured by specifyig a protocol, a CIDR and a port. 
+and can be configured by specifying a protocol, a CIDR and a port. 
 
 ## How it Works
 
@@ -126,7 +126,7 @@ Advanced Options:
 
 * `INSTANCE_TYPE`: The instance type
 * `MaxCount`: Maximum number of instances to launch
-* `MinCount`: Minumum number of instances to launch
+* `MinCount`: Minimum number of instances to launch
 * `ROLE_NAME`: The instance profile/role name
 * `RPORT:` AWS EC2 Endpoint TCP Port
 * `SEC_GROUP_ID`: the EC2 security group to use

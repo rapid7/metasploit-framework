@@ -2,7 +2,35 @@
 
 Apache CouchDB is a nosql database server which communicates over HTTP.  This module will enumerate the server and databases hosted on it.
 
-The following was done on Ubuntu 16.04, and is largely base on [1and1.com](https://www.1and1.com/cloud-community/learn/database/couchdb/install-and-use-couchdb-on-ubuntu-1604/):
+### Docker setup
+  1. `docker run -p 5984:5984 --env COUCHDB_USER=admin --env COUCHDB_PASSWORD=password apache/couchdb:3.3.1`
+     After running this command you will see the server is returning errors, to resolve this we must run some cURL commands.
+
+  2. In another window, after startup, run the following three cURL commands:
+   ```
+   $ curl localhost:5984
+   {"couchdb":"Welcome","version":"2.1.1","features":["scheduler"],"vendor":{"name":"The Apache Software Foundation"}}
+   ```
+   ```
+   $ curl -X PUT http://admin:password@localhost:5984/_users
+   {"ok":true}
+   ```
+   ```
+   $ curl -X PUT http://admin:password@localhost:5984/_replicator
+   {"ok":true}
+   ```
+   ```
+   $ curl -X PUT http://admin:password@localhost:5984/_global_changes
+   {"ok":true}
+   ```
+
+  After running these commands you should get the following response when accessing http://localhost:5984/.
+   ```
+  {"couchdb":"Welcome","version":"3.3.1","git_sha":"1fd50b82a","uuid":"bb8a05afa55cd9407a9532d05de65736","features":["access-ready","partitioned","pluggable-storage-engines","reshard","scheduler"],"vendor":{"name":"The Apache Software Foundation"}}
+  ```
+
+### Ubuntu 16.04 Setup
+The following was done on Ubuntu 16.04, and is largely based on [1and1.com](https://www.1and1.com/cloud-community/learn/database/couchdb/install-and-use-couchdb-on-ubuntu-1604/):
   
   1. `sudo apt install software-properties-common`
   2. `sudo add-apt-repository ppa:couchdb/stable`

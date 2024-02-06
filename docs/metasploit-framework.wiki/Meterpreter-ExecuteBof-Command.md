@@ -10,7 +10,7 @@ Meterpreter even when running on the Windows platform.
 crashes, the Meterpreter session will die. It is suggested that users invoke this functionality through a dedicated
 session to avoid losing access altogether.
 
-The loader and execution environment are provided by [trustedsec/COFFLoader][3]. The extension is therefor subject to
+The loader and execution environment are provided by [trustedsec/COFFLoader][3]. The extension is therefore subject to
 the same limitations.
 
 The following functions are unavailable:
@@ -32,8 +32,6 @@ into that stream. BOFs should not use this for outputting binary data.
 The `bofloader` extension provides exactly one command, through which all of the provided functionality is accessed.
 
 `execute_bof </path/to/bof_file> [Options] -- [BOF Arguments]`
-
-
 
 * `-c` / `--compile` -- Compile the input file (requires mingw).
 * `-e` / `--entry` -- The entry point (default: `go`).
@@ -79,7 +77,7 @@ argument format string.
 # Usage Examples
 Executing [dir][4], passing the path argument and number of sub-directories to list.
 
-```
+```msf
 meterpreter > execute_bof CS-Situational-Awareness-BOF/SA/dir/dir.x64.o --format-string Zs C:\\ 0
 Contents of C:\*:
 	08/05/2022 15:17           <dir> $Recycle.Bin
@@ -103,7 +101,7 @@ meterpreter >
 Executing [nanodump][5]. First the PID of LSASS is found, then the argument string is constructed. The output must be
 written to disk. Once completed, the dump file can be downloaded from the remote host.
 
-```
+```msf
 meterpreter > ps lsass
 Filtering on 'lsass'
 

@@ -42,7 +42,7 @@ PIDs to ASCII.
 ```
 hwbridge > run post/hardware/automotive/getvinfo CANBUS=can2
 
-[*] Avaiable PIDS for pulling realitme data: 46 pids
+[*] Available PIDS for pulling realitme data: 46 pids
 [*]   [1, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 24, 25, 28, 31, 32, 32, 33, 44, 45, 46, 47, 48, 49, 50, 51, 60, 61, 64, 65, 66, 67, 68, 69, 70, 71, 73, 74, 76]
 [*]   MIL (Engine Light) : OFF
 [*]   Number of DTCs: 0

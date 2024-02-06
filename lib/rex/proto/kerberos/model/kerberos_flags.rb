@@ -53,7 +53,7 @@ module Rex
           # Override the equality test for KdcOptionFlags. Equality is
           # always tested against the #value of the KdcOptionFlags.
           #
-          # @param [Object] other_object the object to test equality against
+          # @param other [Object] The object to test equality against
           # @raise [ArgumentError] if the other object is not either another KdcOptionFlags or a Integer
           # @return [Boolean] whether the equality test passed
           def ==(other)

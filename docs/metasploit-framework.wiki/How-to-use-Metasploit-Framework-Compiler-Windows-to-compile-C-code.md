@@ -24,7 +24,7 @@ int main(void) {
 require 'metasploit/framework/compiler/windows'
 
 
-## Save as an exe varibale
+## Save as an exe variable
 exe = Metasploit::Framework::Compiler::Windows.compile_c(c_template)
 
 ## Save the binary as a file

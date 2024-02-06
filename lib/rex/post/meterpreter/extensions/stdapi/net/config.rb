@@ -230,7 +230,7 @@ class Config
   end
 
   #
-  # Get's the current proxy configuration
+  # Gets the current proxy configuration
   #
   def get_proxy_config()
     request = Packet.create_request(COMMAND_ID_STDAPI_NET_CONFIG_GET_PROXY)

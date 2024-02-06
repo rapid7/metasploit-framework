@@ -92,10 +92,7 @@ module Metasploit
               'ctype'   =>'text/xml'
             }
 
-          client = Rex::Proto::Http::Client.new(host, port, {}, ssl, ssl_version, proxies, http_username, http_password)
-          client.connect
-          req  = client.request_cgi(opts)
-          res  = client.send_recv(req)
+          res  = send_request(opts)
 
           if res && res.code != 200
             sleep(block_wait * 60)

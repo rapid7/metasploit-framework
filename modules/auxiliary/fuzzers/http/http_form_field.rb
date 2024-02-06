@@ -291,7 +291,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_field_val(input)
     tmp = input.split(/\=/)
-    # get delimeter
+    # get delimiter
     tmp2 = tmp[1].strip
     delim = tmp2[0,1]
     if delim != "'" && delim != '"'
@@ -377,7 +377,7 @@ class MetasploitModule < Msf::Auxiliary
           if subdata.size > 1
             subdata.each do | thisinput |
               if skipflag == 1
-                # first, find the delimeter
+                # first, find the delimiter
                 fielddata = thisinput.downcase.split(/>/)
                 fields = fielddata[0].split(/ /)
                 fieldname = ""

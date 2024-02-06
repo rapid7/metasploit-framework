@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(_ip)
-    tmpfile = Rex::Text.rand_text_alphanumeric(20) # Store the base64 encoded traveral data in a hard-to-brute filename, just in case.
+    tmpfile = Rex::Text.rand_text_alphanumeric(20) # Store the base64 encoded traversal data in a hard-to-brute filename, just in case.
 
     print_status("Attempting to connect to #{rhost}:#{rport}")
     res = send_request_raw(

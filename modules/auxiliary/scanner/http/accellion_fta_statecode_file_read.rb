@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
         res.body,
         fname
       )
-      print_good("#{peer} Sucessfully downloaded #{datastore['FILEPATH']} as #{path}")
+      print_good("#{peer} Successfully downloaded #{datastore['FILEPATH']} as #{path}")
     else
       vprint_status(
         "#{peer} Unexpected response headers: (Server=#{res.headers['Server'].inspect} Expected=#{expected_server.inspect}) " +

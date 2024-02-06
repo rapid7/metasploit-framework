@@ -81,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
     nbdghdr =
       "\x11" +              # DIRECT_GROUP datagram
       "\x02" +              # first and only fragment
-      [rand(0xffff)].pack('n') +  # Transation Id (DGM_ID)
+      [rand(0xffff)].pack('n') +  # Transaction Id (DGM_ID)
       ip_src +
       "\x00\x8a" +          # Source Port (138)
       "\x00\xa7" +          # DGM_LENGTH, patched in after

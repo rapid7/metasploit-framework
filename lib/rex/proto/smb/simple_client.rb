@@ -5,22 +5,22 @@ module SMB
 
 class SimpleClient
 
-require 'rex/text'
-require 'rex/struct2'
-require 'ruby_smb'
+  require 'rex/text'
+  require 'rex/struct2'
+  require 'ruby_smb'
 
-# Some short-hand class aliases
-CONST = Rex::Proto::SMB::Constants
-CRYPT = Rex::Proto::SMB::Crypt
-UTILS = Rex::Proto::SMB::Utils
-XCEPT = Rex::Proto::SMB::Exceptions
-EVADE = Rex::Proto::SMB::Evasions
+  # Some short-hand class aliases
+  CONST = Rex::Proto::SMB::Constants
+  CRYPT = Rex::Proto::SMB::Crypt
+  UTILS = Rex::Proto::SMB::Utils
+  XCEPT = Rex::Proto::SMB::Exceptions
+  EVADE = Rex::Proto::SMB::Evasions
 
-# Public accessors
-attr_accessor :last_error, :server_max_buffer_size
+  # Public accessors
+  attr_accessor :last_error, :server_max_buffer_size, :address, :port
 
-# Private accessors
-attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
+  # Private accessors
+  attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
 
   # Pass the socket object and a boolean indicating whether the socket is netbios or cifs
   def initialize(socket, direct = false, versions = [1, 2, 3], always_encrypt: true, backend: nil, client: nil)
@@ -53,6 +53,7 @@ attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
         'obscure_trans_pipe' => EVADE::EVASION_NONE,
       }
     end
+    @address, @port = self.socket.peerinfo.split(':')
   end
 
   def login(name = '', user = '', pass = '', domain = '',

@@ -8,135 +8,6 @@ module DNS
 
 class Server
 
-  class Cache
-    attr_reader :records, :lock, :monitor_thread
-    include Rex::Proto::DNS::Constants
-    # class DNSRecordError < ::Exception
-    #
-    # Create DNS Server cache
-    #
-    def initialize
-      @records = {}
-      @lock = Mutex.new
-    end
-
-    #
-    # Find entries in cache, substituting names for '*' in return
-    #
-    # @param search [String] Name or address to search for
-    # @param type [String] Record type to search for
-    #
-    # @return [Array] Records found
-    def find(search, type = 'A')
-      self.records.select do |record,expire|
-        record.type == type and (expire < 1 or expire > ::Time.now.to_i) and
-        (
-          record.name == '*' or
-          record.name == search or record.name[0..-2] == search or
-          ( record.respond_to?(:address) and record.address.to_s == search )
-        )
-      end.keys.map do |record|
-        if search.to_s.match(MATCH_HOSTNAME) and record.name == '*'
-          record = Dnsruby::RR.create(name: name, type: type, address: address)
-        else
-          record
-        end
-      end
-    end
-
-    #
-    # Add record to cache, only when "running"
-    #
-    # @param record [Dnsruby::RR] Record to cache
-    def cache_record(record)
-      return unless @monitor_thread
-      if record.is_a?(Dnsruby::RR) and
-      (!record.respond_to?(:address) or Rex::Socket.is_ip_addr?(record.address.to_s)) and
-      record.name.to_s.match(MATCH_HOSTNAME)
-        add(record, ::Time.now.to_i + record.ttl)
-      else
-        raise "Invalid record for cache entry - #{record.inspect}"
-      end
-    end
-
-    #
-    # Add static record to cache
-    #
-    # @param name [String] Name of record
-    # @param address [String] Address of record
-    # @param type [String] Record type to add
-    def add_static(name, address, type = 'A', replace = false)
-      if Rex::Socket.is_ip_addr?(address.to_s) and
-      ( name.to_s.match(MATCH_HOSTNAME) or name == '*')
-        find(name, type).each do |found|
-          delete(found)
-        end if replace
-        add(Dnsruby::RR.create(name: name, type: type, address: address),0)
-      else
-        raise "Invalid parameters for static entry - #{name}, #{address}, #{type}"
-      end
-    end
-
-    #
-    # Prune cache entries
-    #
-    # @param before [Fixnum] Time in seconds before which records are evicted
-    def prune(before = ::Time.now.to_i)
-      self.records.select do |rec, expire|
-        expire > 0 and expire < before
-      end.each {|rec, exp| delete(rec)}
-    end
-
-    #
-    # Start the cache monitor
-    #
-    def start
-      @monitor_thread = Rex::ThreadFactory.spawn("DNSServerCacheMonitor", false) {
-        while true
-          prune
-          Rex::ThreadSafe.sleep(0.5)
-        end
-      } unless @monitor_thread
-    end
-
-    #
-    # Stop the cache monitor
-    #
-    # @param flush [TrueClass,FalseClass] Remove non-static entries
-    def stop(flush = false)
-      self.monitor_thread.kill unless @monitor_thread.nil?
-      @monitor_thread = nil
-      if flush
-        self.records.select do |rec, expire|
-          rec.ttl > 0
-        end.each {|rec| delete(rec)}
-      end
-    end
-
-    protected
-
-    #
-    # Add a record to the cache with thread safety
-    #
-    # @param record [Dnsruby::RR] Record to add
-    # @param expire [Fixnum] Time in seconds when record becomes stale
-    def add(record, expire = 0)
-      self.lock.synchronize do
-        self.records[record] = expire
-      end
-    end
-
-    #
-    # Delete a record from the cache with thread safety
-    #
-    # @param record [Dnsruby::RR] Record to delete
-    def delete(record)
-      self.lock.synchronize do
-        self.records.delete(record)
-      end
-    end
-  end # Cache
-
   class MockDnsClient
     attr_reader :peerhost, :peerport, :srvsock
 
@@ -196,7 +67,7 @@ class Server
     self.dispatch_request_proc = dblock
     self.send_response_proc = sblock
     self.start_cache = start_cache
-    self.cache = Cache.new
+    self.cache = Rex::Proto::DNS::Cache.new
     @lock = Mutex.new
   end
 
@@ -289,18 +160,18 @@ class Server
     forward = req.dup
     # Find cached items, remove request from forwarded packet
     req.question.each do |ques|
-      cached = self.cache.find(ques.qname, ques.qtype.to_s)
+      cached = self.cache.find(ques.qname, ques.qtype)
       if cached.empty?
         next
       else
-        req.answer = req.answer + cached
+        req.instance_variable_set(:@answer, (req.answer + cached).uniq)
         forward.question.delete(ques)
       end
     end
     # Forward remaining requests, cache responses
     if forward.question.count > 0 and @fwd_res
-      forwarded = self.fwd_res.send(validate_packet(forward))
-      req.answer = req.answer + forwarded.answer
+      forwarded = self.fwd_res.send(forward)
+      req.instance_variable_set(:@answer, (req.answer + forwarded.answer).uniq)
       forwarded.answer.each do |ans|
         self.cache.cache_record(ans)
       end
@@ -312,7 +183,7 @@ class Server
       req.header.rCode = Dnsruby::RCode::NOERROR
     end
     req.header.qr = true # Set response bit
-    send_response(cli, validate_packet(req).data)
+    send_response(cli, req.data)
   end
 
   #

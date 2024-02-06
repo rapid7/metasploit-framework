@@ -57,7 +57,7 @@ The data or time cost of uploading `metsrv`, `stdapi` and `priv` for every singl
  
 It's hard to believe it possible, but in this case the following image could be considered a nightmare.
 
-```
+```msf
 [*] Sending stage (173056 bytes) to xxx.xxx.xxx.xxx
 [*] Meterpreter session 4684 opened ....
 [*] Sending stage (173056 bytes) to xxx.xxx.xxx.xxx
@@ -95,7 +95,7 @@ With this shellcode stub wired into the DOS header, Metasploit adds the entire b
 1. Loads the extension DLL into memory.
 1. Calculates the size of the DLL.
 1. Writes the size of the DLL as a 32-bit value to the configuration block.
-1. Writes the entire body of the DLL, as-is, to the end of the conifiguration block.
+1. Writes the entire body of the DLL, as-is, to the end of the configuration block.
  
 Once the end of the list of extensions is reached, the last thing that is written to the payload buffer is a 32-bit representation of `0` (`NULL`) which indicates that the list of extensions has been terminated. This `NULL` value is what `metsrv` will look for when iterating through the list of extensions so that it knows when to stop. After this, any extension initialisation scripts are wired in (though that's beyond the scope of this article).
  

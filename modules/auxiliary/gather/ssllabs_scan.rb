@@ -552,7 +552,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    # Renegotioation
+    # Renegotiation
     case
     when r.details.reneg_support == 0
       report_warning "Secure renegotiation is not supported"

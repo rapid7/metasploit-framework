@@ -1,4 +1,3 @@
-require 'metasploit/framework/hashes'
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -82,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
         'vars_post' => {
           'type' => 'lp_course',
           'context' => 'order-items',
-          'context_id' => Rex::Text.rand_text_numeric(2, 0), # avoid 0s incase leading 0 gives bad results
+          'context_id' => Rex::Text.rand_text_numeric(2, 0), # avoid 0s in case leading 0 gives bad results
           'term' => Rex::Text.rand_text_alpha(8),
           'paged' => 1,
           'lp-ajax' => 'modal_search_items',

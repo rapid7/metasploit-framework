@@ -63,10 +63,14 @@ module Buffer
         buf = Rex::Text.encode_base64(buf)
       when 'go','golang'
         buf = Rex::Text.to_golang(buf)
+      when 'masm'
+        buf = Rex::Text.to_masm(buf)
       when 'nim','nimlang'
         buf = Rex::Text.to_nim(buf)
       when 'rust', 'rustlang'
         buf = Rex::Text.to_rust(buf)
+      when 'octal'
+        buf = Rex::Text.to_octal(buf)
       else
         raise BufferFormatError, "Unsupported buffer format: #{fmt}", caller
     end
@@ -81,7 +85,8 @@ module Buffer
   def self.comment(buf, fmt = "ruby")
     case fmt
       when 'raw'
-      when 'num', 'dword', 'dw', 'hex'
+      when 'num', 'dword', 'dw', 'hex', 'octal', 'base64', 'base32'
+        # These are string encodings, not languages; default to the js comment.
         buf = Rex::Text.to_js_comment(buf)
       when 'ruby', 'rb', 'python', 'py'
         buf = Rex::Text.to_ruby_comment(buf)
@@ -101,6 +106,8 @@ module Buffer
         buf = Rex::Text.to_psh_comment(buf)
       when 'go','golang'
         buf = Rex::Text.to_golang_comment(buf)
+      when 'masm','ml64'
+        buf = Rex::Text.to_masm_comment(buf)
       when 'nim','nimlang'
         buf = Rex::Text.to_nim_comment(buf)
       when 'rust', 'rustlang'
@@ -130,9 +137,11 @@ module Buffer
       'java',
       'js_be',
       'js_le',
+      'masm',
       'nim',
       'nimlang',
       'num',
+      'octal',
       'perl',
       'pl',
       'powershell',

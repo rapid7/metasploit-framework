@@ -123,8 +123,8 @@ module Metasploit
         # This method takes a {framework.db.cred.private.jtr_format} (string), and
         # returns the string number associated to the hashcat format
         #
-        # @param[String] a jtr_format string
-        # @return [String] the format number for Hashcat
+        # @param format [String] A jtr_format string
+        # @return [String] The format number for Hashcat
         def jtr_format_to_hashcat_format(format)
           case format
           # nix
@@ -217,6 +217,8 @@ module Metasploit
             '1711'
           when 'Raw-MD5u'
             '30'
+          when 'pbkdf2-sha256'
+            '10900'
           end
         end
 
@@ -237,7 +239,7 @@ module Metasploit
 
         # This method sets the appropriate parameters to run a cracker in wordlist mode
         #
-        # @param[String] a file location of the wordlist to use
+        # @param file [String] A file location of the wordlist to use
         def mode_wordlist(file)
           self.increment_length = nil
           self.incremental = nil
@@ -278,7 +280,7 @@ module Metasploit
 
         # This method sets the john to single mode
         #
-        # @param[String] a file location of the wordlist to use
+        # @param file [String] A file location of the wordlist to use
         def mode_single(file)
           if cracker == 'john'
             self.wordlist = file
@@ -292,8 +294,7 @@ module Metasploit
         # This method follows a decision tree to determine the path
         # to the cracker binary we should use.
         #
-        # @return [NilClass] if a binary path could not be found
-        # @return [String] the path to the selected JtR binary
+        # @return [String, NilClass] Returns Nil if a binary path could not be found, or a String containing the path to the selected JTR binary on success.
         def binary_path
           # Always prefer a manually entered path
           if cracker_path && ::File.file?(cracker_path)
@@ -336,7 +337,7 @@ module Metasploit
         # This method returns the version of John the Ripper or Hashcat being used.
         #
         # @raise [PasswordCrackerNotFoundError] if a suitable cracker binary was never found
-        # @return [Sring] the version detected
+        # @return [String] the version detected
         def cracker_version
           if cracker == 'john'
             cmd = binary_path
@@ -444,7 +445,7 @@ module Metasploit
         # @return [Array] An array set up for {::IO.popen} to use
         def hashcat_crack_command
           cmd_string = binary_path
-          cmd = [cmd_string, '--session=' + cracker_session_id, '--logfile-disable']
+          cmd = [cmd_string, '--session=' + cracker_session_id, '--logfile-disable', '--quiet', '--username']
 
           if pot.present?
             cmd << ('--potfile-path=' + pot)
@@ -526,7 +527,7 @@ module Metasploit
 
         # This runs the show command in john and yields cracked passwords.
         #
-        # @return [Array] the output from teh command split on newlines
+        # @return [Array] the output from the command split on newlines
         def each_cracked_password
           ::IO.popen(show_command, 'rb').readlines
         end
@@ -562,7 +563,7 @@ module Metasploit
 
           pot_file = pot || john_pot_file
           if cracker == 'hashcat'
-            cmd = [cmd_string, '--show', "--potfile-path=#{pot_file}", "--hash-type=#{jtr_format_to_hashcat_format(format)}"]
+            cmd = [cmd_string, '--show', '--username', "--potfile-path=#{pot_file}", "--hash-type=#{jtr_format_to_hashcat_format(format)}"]
           elsif cracker == 'john'
             cmd = [cmd_string, '--show', "--pot=#{pot_file}", "--format=#{format}"]
 

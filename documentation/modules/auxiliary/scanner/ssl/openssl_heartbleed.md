@@ -77,7 +77,7 @@ $ curl https://localhost:8443 -k
 
   **TLS_VERSION**
 
-  The specific version of TLS (or SSL) to use, if only specific ones are avaialble.  Defaults to `1.0` (TLS1.0).
+  The specific version of TLS (or SSL) to use, if only specific ones are available.  Defaults to `1.0` (TLS1.0).
 
   **MAX_KEYTRIES**
 
@@ -90,7 +90,7 @@ $ curl https://localhost:8443 -k
 
   **DUMPFILTER**
 
-  A regular expresion (used in scan function) to use to filter the dump before storing.  Default is `nil`.
+  A regular expression (used in scan function) to use to filter the dump before storing.  Default is `nil`.
 
   **RESPONSE_TIMEOUT**
 

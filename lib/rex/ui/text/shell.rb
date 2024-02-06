@@ -130,54 +130,47 @@ module Shell
       # Pry is a development dependency, if not available suppressing history_load can be safely ignored.
     end
 
-    HistoryManager.push_context(history_file: histfile, name: name)
-    self.hist_last_saved = Readline::HISTORY.length
+    with_history_manager_context do
+      begin
+        while true
+          # If the stop flag was set or we've hit EOF, break out
+          break if self.stop_flag || self.stop_count > 1
 
-    begin
+          init_tab_complete
+          update_prompt
 
-      while true
-        # If the stop flag was set or we've hit EOF, break out
-        break if self.stop_flag || self.stop_count > 1
+          line = get_input_line
 
-        init_tab_complete
-        update_prompt
+          # If you have sessions active, this will give you a shot to exit
+          # gracefully. If you really are ambitious, 2 eofs will kick this out
+          if input.eof? || line == nil
+            self.stop_count += 1
+            next if self.stop_count > 1
 
-        line = get_input_line
+            if block
+              block.call('quit')
+            elsif respond_to?(:run_single)
+              # PseudoShell does not provide run_single
+              run_single('quit')
+            end
 
-        # If you have sessions active, this will give you a shot to exit
-        # gracefully. If you really are ambitious, 2 eofs will kick this out
-        if input.eof? || line == nil
-          self.stop_count += 1
-          next if self.stop_count > 1
+            # If a block was passed in, pass the line to it.  If it returns true,
+            # break out of the shell loop.
+          elsif block
+            break if block.call(line)
 
-          if block
-            block.call('quit')
-          elsif respond_to?(:run_single)
-            # PseudoShell does not provide run_single
-            run_single('quit')
+            # Otherwise, call what should be an overridden instance method to
+            # process the line.
+          else
+            run_single(line)
+            self.stop_count = 0
           end
-
-        # If a block was passed in, pass the line to it.  If it returns true,
-        # break out of the shell loop.
-        elsif block
-          break if block.call(line)
-
-        # Otherwise, call what should be an overridden instance method to
-        # process the line.
-        else
-          run_single(line)
-          self.stop_count = 0
         end
-
+        # Prevent accidental console quits
+      rescue ::Interrupt
+        output.print("Interrupt: use the 'exit' command to quit\n")
+        retry
       end
-    # Prevent accidental console quits
-    rescue ::Interrupt
-      output.print("Interrupt: use the 'exit' command to quit\n")
-      retry
-    ensure
-      HistoryManager.pop_context
-      HistoryManager.flush
-      self.hist_last_saved = Readline::HISTORY.length
     end
   end
 
@@ -298,9 +291,28 @@ module Shell
   attr_accessor :on_command_proc
   attr_accessor :on_print_proc
   attr_accessor :framework
+  attr_accessor :history_manager
   attr_accessor :hist_last_saved # the number of history lines when last saved/loaded
 
   protected
+
+  # Executes the yielded block under the context of a new HistoryManager context. The shell's history will be flushed
+  # to disk when no longer interacting with the shell. If no history manager is available, the history will not be persisted.
+  def with_history_manager_context
+    history_manager = self.history_manager || framework&.history_manager
+    return yield unless history_manager
+
+    begin
+      history_manager.with_context(history_file: histfile, name: name) do
+        self.hist_last_saved = Readline::HISTORY.length
+
+        yield
+      end
+    ensure
+      history_manager.flush
+      self.hist_last_saved = Readline::HISTORY.length
+    end
+  end
 
   def supports_color?
     true

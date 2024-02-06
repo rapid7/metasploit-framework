@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2016-6897'],
           ['EDB', '40288'],
-          ['OVEID', 'OVE-20160712-0036']
+          ['OVE', 'OVE-20160712-0036']
         ],
     ))
 

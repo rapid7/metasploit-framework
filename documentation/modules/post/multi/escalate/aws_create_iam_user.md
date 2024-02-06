@@ -18,13 +18,13 @@ allowed to make.
 This module depends on administrators being lazy and not using the least
 privileges possible. We often see instances assigned `*.*` roles that allow
 any user on the instance to make any API call including creating admin users.
-When this occours, a user with long lived credentials can be created and calls
+When this occurs, a user with long lived credentials can be created and calls
 against the AWS API can be made from anywhere on the Internet. Once an account
 is taken over in this manner instances can be spun up, other users can be locked
 out, networks can be traversed, and many other dangeous things can happen.
 
 Only on rare cases should hosts have the following privileges, these should be
-restriced.
+restricted.
 
 * iam:CreateUser
 * iam:CreateGroup
@@ -158,7 +158,7 @@ Module options (post/multi/escalate/aws_create_iam_user):
 
 Here we are assuming that we have taken over a host having an instance profile with
 overly permissive access. Once a session is established, we can load
-`aws_create_iam_user` and specify a meterpreter sesssion,
+`aws_create_iam_user` and specify a meterpreter session,
 e.g., `SESSION 1` and run the exploit.
 
 ```

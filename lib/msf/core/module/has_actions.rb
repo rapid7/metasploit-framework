@@ -8,15 +8,16 @@ module Msf::Module::HasActions
       [ Msf::Module::AuxiliaryAction ], 'AuxiliaryAction'
     )
 
-    self.passive = (info['Passive'] and info['Passive'] == true) || false
+    self.passive = (info['Stance'] and info['Stance'].include?(Msf::Exploit::Stance::Passive)) || false
     self.default_action = info['DefaultAction']
     self.passive_actions = info['PassiveActions'] || []
   end
 
   def action
-    sa = datastore['ACTION']
-    return find_action(default_action) if not sa
-    return find_action(sa)
+    sa = find_action(datastore['ACTION'])
+    return find_action(default_action) unless sa
+
+    sa
   end
 
   def find_action(name)
@@ -31,9 +32,10 @@ module Msf::Module::HasActions
   # Returns a boolean indicating whether this module should be run passively
   #
   def passive?
-    act = action()
-    return passive_action?(act.name) if act
-    return self.passive
+    act = action
+    return passive || passive_action?(act.name) if act
+
+    passive
   end
 
   #

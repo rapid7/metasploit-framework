@@ -183,7 +183,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # The response is a whitespace formatted table
     # We're only interested in the first two columns: username and secret
-    # To parse the table, we need the characer width of these two columns
+    # To parse the table, we need the character width of these two columns
     if res =~ /^(Username\s+)(Secret\s+)/
       user_len = $1.length
       pass_len = $2.length

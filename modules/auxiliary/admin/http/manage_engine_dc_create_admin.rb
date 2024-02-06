@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     })
 
-    # Yes, "sucess" is really mispelt, as is "Servelet" ... !
+    # Yes, "sucess" is really misspelt, as is "Servelet" ... !
     unless res && res.code == 200 && res.body && res.body.to_s =~ /sucess/
       print_error('Administrator account creation failed')
     end

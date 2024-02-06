@@ -85,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       # need a better parser so we can avoid shit like this
       ip = doc['reservationSet']['item']['instancesSet']['item']['networkInterfaceSet']['item']['privateIpAddressesSet']['item']['association']['publicIp']
-      print_status("Instance #{instance_id} has IP adrress #{ip}")
+      print_status("Instance #{instance_id} has IP address #{ip}")
     rescue NoMethodError
       print_error("Could not retrieve instance IP address")
     end
@@ -150,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
     if doc['Response'].nil?
       doc = print_results(doc, action)
       if doc['keyName'].nil? || doc['keyFingerprint'].nil?
-        print_error("Error creating key using privided key material (SSH_PUB_KEY)")
+        print_error("Error creating key using provided key material (SSH_PUB_KEY)")
       else
         print_status("Created #{doc['keyName']} (#{doc['keyFingerprint']})")
       end
@@ -158,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
       if doc['Response']['Errors'] && doc['Response']['Errors']['Error']
         print_error(doc['Response']['Errors']['Error']['Message'])
       else
-        print_error("Error creating key using privided key material (SSH_PUB_KEY)")
+        print_error("Error creating key using provided key material (SSH_PUB_KEY)")
       end
     end
   end

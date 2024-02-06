@@ -23,8 +23,8 @@ Users can set their own regular expressions so that it could be applied for the 
 By default verbose is turned off. When turned on, the module will show information on files which aren't extracted and information that is not directly related to the artifact output.
 
 ### STORE_LOOT
-This option is turned on by default and saves the stolen artifcats/files on the local machine,
+This option is turned on by default and saves the stolen artifacts/files on the local machine,
 this is required for also extracting credentials from files using regexp, JSON, XML, and SQLite queries.
 
 ### EXTRACT_DATA
-This option is turned on by defalt and will perform the data extraction using the predefined regular expression. The 'Store loot' options must be turned on in order for this to take work.
+This option is turned on by default and will perform the data extraction using the predefined regular expression. The 'Store loot' options must be turned on in order for this to take work.

@@ -19,6 +19,7 @@ class MetasploitModule < Msf::Nop
       'Alias'       => 'armle_simple',
       'Description' => 'Simple NOP generator',
       'License'     => MSF_LICENSE,
+      'Author'      => ['timwr'],
       'Arch'        => ARCH_AARCH64)
     register_advanced_options(
       [
@@ -41,4 +42,3 @@ class MetasploitModule < Msf::Nop
     return ([nops[0]].pack("V*") * (length/4))
   end
 end
-

@@ -104,7 +104,7 @@ class RbMysql
   # @param [String / nil] passwd password to connect to mysqld
   # @param [String / nil] db initial database name
   # @param [Integer / nil] port port number (used if host is not 'localhost' or nil)
-  # @param [String / nil] socket socket file name (used if host is 'localhost' or nil)
+  # @param [String / Socket / nil] socket socket file name (used if host is 'localhost' or nil), or an existing ::Socket instance
   # @param [Integer / nil] flag connection flag. RbMysql::CLIENT_* ORed
   # @return self
   def connect(host=nil, user=nil, passwd=nil, db=nil, port=nil, socket=nil, flag=0)
@@ -541,7 +541,7 @@ class RbMysql
     attr_reader :flags
     # @return [Integer] number of decimals
     attr_reader :decimals
-    # @return [String] defualt value
+    # @return [String] default value
     attr_reader :default
     alias :def :default
 

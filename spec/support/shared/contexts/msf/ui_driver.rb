@@ -13,7 +13,8 @@ RSpec.shared_context 'Msf::UIDriver' do
   let(:driver_output) do
     instance = double(
       Rex::Ui::Text::Output,
-      prompting?: false
+      prompting?: false,
+      prompting: false
     )
 
     capture_logging(instance)

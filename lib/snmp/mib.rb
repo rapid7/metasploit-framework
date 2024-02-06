@@ -152,7 +152,7 @@ class MIB
 
     ##
     # Returns a VarBindList for the provided list of objects.  If a
-    # string is provided it is interpretted as a symbolic OID.
+    # string is provided it is interpreted as a symbolic OID.
     #
     # This method accepts many different kinds of objects:
     # - single string object IDs e.g. "1.3.6.1" or "IF-MIB::ifTable.1.1"

@@ -289,7 +289,7 @@ msf5 auxiliary(gather/peplink_bauth_sqli) > run
 [+]                                             WAN
 [+]                                     port_type
 [+]                                             ethernet
-[+]                                     actiavted
+[+]                                     activated
 [+]                             name
 [+]                                     WAN
 [+]                             enable
@@ -355,7 +355,7 @@ msf5 auxiliary(gather/peplink_bauth_sqli) > run
 [+]                                             WAN
 [+]                                     port_type
 [+]                                             ethernet
-[+]                                     actiavted
+[+]                                     activated
 [+]                             name
 [+]                                     WAN
 [+]                             enable

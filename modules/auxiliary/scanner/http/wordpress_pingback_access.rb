@@ -152,7 +152,7 @@ class MetasploitModule < Msf::Auxiliary
   # main control method
   def run_host(ip)
     unless wordpress_and_online?
-      print_error("#{ip} does not seeem to be Wordpress site")
+      print_error("#{ip} does not seem to be Wordpress site")
       return
     end
 

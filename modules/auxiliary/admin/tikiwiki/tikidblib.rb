@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
     }, 25)
 
     if (res and res.message == "OK")
-      print_status("Get informations about database...")
+      print_status("Get information about database...")
 
       n = 0
       c = 0
@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if (c == 0)
-        print_status("Could not obtain informations about database.")
+        print_status("Could not obtain information about database.")
       end
 
     else

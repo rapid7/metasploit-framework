@@ -96,6 +96,7 @@ module Metasploit
 
                       thread_list.each do |thread|
                         thread_uuid = thread[Metasploit::Framework::Spec::Threads::Suite::UUID_THREAD_LOCAL_VARIABLE]
+                        thread_name = thread[:tm_name]
 
                         # unmanaged thread, such as the main VM thread
                         unless thread_uuid
@@ -104,10 +105,10 @@ module Metasploit
 
                         caller = caller_by_thread_uuid[thread_uuid]
 
-                        error_lines << "Thread #{thread_uuid}'s status is #{thread.status.inspect} " \
+                        error_lines << "Thread #{thread_uuid}'s (name=#{thread_name} status is #{thread.status.inspect} " \
                                        "and was started here:\n"
-
                         error_lines.concat(caller)
+                        error_lines << "The thread backtrace was:\n#{thread.backtrace ? thread.backtrace.join("\n") : 'nil (no backtrace)'}\n"
                       end
                     else
                       error_lines << "Run `rake spec` to log where Thread.new is called."

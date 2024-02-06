@@ -32,7 +32,7 @@ Grant Write privileges for sandy to the target machine, i.e. `WS01`:
 $TargetComputer = Get-ADComputer 'WS01'
 $User = Get-ADUser 'sandy'
 
-# Add GenericWrite access to the user against the target coputer
+# Add GenericWrite access to the user against the target computer
 $Rights = [System.DirectoryServices.ActiveDirectoryRights] "GenericWrite"
 $ControlType = [System.Security.AccessControl.AccessControlType] "Allow"
 $InheritanceType = [System.DirectoryServices.ActiveDirectorySecurityInheritance] "All"

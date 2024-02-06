@@ -62,6 +62,8 @@ class Framework
     # Allow specific module types to be loaded
     types = options[:module_types] || Msf::MODULE_TYPES
 
+    self.history_manager = Rex::Ui::Text::Shell::HistoryManager.new
+
     self.features = FeatureManager.instance
     self.features.load_config
 
@@ -79,6 +81,12 @@ class Framework
     # Configure the SSL certificate generator
     require 'msf/core/cert_provider'
     Rex::Socket::Ssl.cert_provider = Msf::Ssl::CertProvider
+
+    if options.include?('CustomDnsResolver') && Msf::FeatureManager.instance.enabled?(Msf::FeatureManager::DNS_FEATURE)
+      self.dns_resolver = options['CustomDnsResolver']
+      self.dns_resolver.set_framework(self)
+      Rex::Socket._install_global_resolver(self.dns_resolver)
+    end
 
     subscriber = FrameworkEventSubscriber.new(self)
     events.add_exploit_subscriber(subscriber)
@@ -146,6 +154,10 @@ class Framework
   end
 
   #
+  # DNS resolver for the framework
+  #
+  attr_reader   :dns_resolver
+  #
   # Event management interface for registering event handler subscribers and
   # for interacting with the correlation engine.
   #
@@ -190,15 +202,21 @@ class Framework
   #
   # The framework instance's feature manager. The feature manager is responsible
   # for configuring feature flags that can change characteristics of framework.
-  #
+  # @return [Msf::FeatureManager]
   attr_reader   :features
 
+  # The framework instance's history manager, responsible for managing command history
+  # in different contexts
+  # @return [Rex::Ui::Text::Shell::HistoryManager]
+  attr_reader :history_manager
 
   #
   # The framework instance's data service proxy
   #
   # @return [Metasploit::Framework::DataService::DataProxy]
   def db
+    return @db if @db
+
     synchronize {
       @db ||= get_db
     }
@@ -209,6 +227,8 @@ class Framework
   #
   # @return [Msf::SessionManager]
   def sessions
+    return @sessions if @sessions
+
     synchronize {
       @sessions ||= Msf::SessionManager.new(self)
     }
@@ -219,6 +239,8 @@ class Framework
   #
   # @return [Msf::ThreadManager]
   def threads
+    return @threads if @threads
+
     synchronize {
       @threads ||= Msf::ThreadManager.new(self)
     }
@@ -266,6 +288,7 @@ protected
   #   @return [Hash]
   attr_accessor :options
 
+  attr_writer   :dns_resolver #:nodoc:
   attr_writer   :events # :nodoc:
   attr_writer   :modules # :nodoc:
   attr_writer   :datastore # :nodoc:
@@ -275,7 +298,8 @@ protected
   attr_writer   :db # :nodoc:
   attr_writer   :browser_profiles # :nodoc:
   attr_writer   :analyze # :nodoc:
-  attr_writer   :features # :nodoc:
+  attr_writer   :features  # :nodoc:
+  attr_writer   :history_manager  # :nodoc:
 
   private
 

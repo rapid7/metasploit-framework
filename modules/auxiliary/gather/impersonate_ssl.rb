@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_status("Copying certificate from #{rhost}:#{rport}\n#{cert.subject} ")
-    vprint_status("Original Certifcate Details\n\n#{cert.to_text}")
+    vprint_status("Original Certificate Details\n\n#{cert.to_text}")
 
     begin
       keylength = /Key: \((\d+)/i.match(cert.signature_algorithm)[1] # Grab keylength from target cert

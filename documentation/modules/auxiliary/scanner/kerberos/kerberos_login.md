@@ -3,7 +3,9 @@
 The `auxiliary/scanner/kerberos/kerberos_login` module can verify Kerberos credentials against a range of machines and
 report successful logins. If you have loaded a database plugin
 and connected to a database this module will record successful
-logins and hosts so you can track your access.
+logins and hosts so you can track your access. It will also
+store kerberos tickets that can be used even after the user's
+password has been changed.
 
 Kerberos accounts which do not require pre-authentication will
 have the TGT logged for offline cracking, this technique is known as AS-REP Roasting.

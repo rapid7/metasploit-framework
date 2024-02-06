@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
 
     cnt = datastore['STARTLEN'] - 1
 
-    1.upto(datastore['INTERACTIONS']) do |interection|
+    1.upto(datastore['INTERACTIONS']) do |interaction|
       cnt += 1
 
       str = fuzzer_gen_string(cnt)
@@ -126,10 +126,10 @@ class MetasploitModule < Msf::Auxiliary
           disconnect
         end
 
-        print_status("Fuzzing with iteration #{interection}\n #{@result}")
+        print_status("Fuzzing with iteration #{interaction}\n #{@result}")
 
       rescue ::Interrupt
-        print_status("Exiting on interrupt: iteration #{interection} using string  #{str}")
+        print_status("Exiting on interrupt: iteration #{interaction} using string  #{str}")
         raise $!
       rescue ::Exception => e
         last_err = e

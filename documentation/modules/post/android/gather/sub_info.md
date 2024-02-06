@@ -10,7 +10,7 @@
   3. Do: `use android/gather/sub_info`
   4. Do: `set SESSION <session id>`
   5. Do: `run`
-  6. You should be able to see the extracted subsriber information.
+  6. You should be able to see the extracted subscriber information.
 
 ## Options
 

@@ -1,6 +1,6 @@
 ## Description
 
-This module will try to find Service Principal Names (SPN) that are associated with normal user accounts on the specified domain and then submit requests to retrive Ticket Granting Service (TGS) tickets for those accounts, which may be partially encrypted with the SPNs NTLM hash. After retrieving the TGS tickets, offline brute forcing attacks can be performed to retrieve the passwords for the SPN accounts.
+This module will try to find Service Principal Names (SPN) that are associated with normal user accounts on the specified domain and then submit requests to retrieve Ticket Granting Service (TGS) tickets for those accounts, which may be partially encrypted with the SPNs NTLM hash. After retrieving the TGS tickets, offline brute forcing attacks can be performed to retrieve the passwords for the SPN accounts.
 
 ## Verification Steps
 

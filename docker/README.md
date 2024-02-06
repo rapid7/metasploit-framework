@@ -1,3 +1,6 @@
+# Folder Purpose
+This folder contains files related to running Metasploit inside Docker.
+
 # Metasploit in Docker
 ## Getting Started
 

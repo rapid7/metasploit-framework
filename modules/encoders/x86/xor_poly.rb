@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Encoder::Xor
   def decoder_stub(state)
     state.decoder_key_size = 4
     state.decoder_key_pack = 'V'
-    # calculate the (negative) and positiv block count.
+    # calculate the (negative) and positive block count.
     block_count = [-(((state.buf.length - 1) / state.decoder_key_size) + 1)].pack('V')
     block_count_positive = [(((state.buf.length - 1) / state.decoder_key_size) + 1)].pack('V')
 

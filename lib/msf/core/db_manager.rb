@@ -123,7 +123,7 @@ class Msf::DBManager
 
   def initialize(framework, opts = {})
     self.framework = framework
-    self.migrated  = false
+    self.migrated  = nil
     self.modules_cached  = false
     self.modules_caching = false
 

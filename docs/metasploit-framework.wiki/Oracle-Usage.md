@@ -1,7 +1,7 @@
 # Install oracle InstantClient
 
 
-InstantClient 10 is recommneded to allow you to talk with 8,9,10,&11 server versions.
+InstantClient 10 is recommended to allow you to talk with 8,9,10,&11 server versions.
 
 Go to <https://www.oracle.com/database/technologies/instant-client/downloads.html> and select the link corresponding to your UNIX PC's architecture. Example for Linux x64, use the Instant Client for Linux x86-64 link, which should take you to <https://www.oracle.com/database/technologies/instant-client/linux-x86-64-downloads.html>
 

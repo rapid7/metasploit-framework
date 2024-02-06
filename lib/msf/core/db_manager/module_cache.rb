@@ -23,7 +23,7 @@ module Msf::DBManager::ModuleCache
   # +'ILIKE'+
   #
   # @param values [Set<String>, #each] a list of strings.
-  # @return [Arrray<String>] strings wrapped like %<string>%
+  # @return [Array<String>] strings wrapped like %<string>%
   def match_values(values)
     values.collect { |value| "%#{value}%" }
   end
@@ -122,7 +122,7 @@ module Msf::DBManager::ModuleCache
   #
   # @return [void]
   def purge_all_module_details
-    return if not self.migrated
+    return unless self.migrated
     return if self.modules_caching
 
     ::ApplicationRecord.connection_pool.with_connection do

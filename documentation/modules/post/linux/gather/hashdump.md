@@ -53,7 +53,7 @@ msf post(hashdump) > exploit
 [*] Post module execution completed
   ```
 
-  This module only works when you are root or have root permisions.  If you only have user permission, expect feedback:
+  This module only works when you are root or have root permissions.  If you only have user permission, expect feedback:
 
   ```
 msf > use auxiliary/scanner/ssh/ssh_login

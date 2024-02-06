@@ -141,6 +141,11 @@ class MetasploitModule < Msf::Auxiliary
     end
     result = mssql_query("select Credname, Username, Password from #{datastore['DATABASE']}.dbo.tsysCredentials WHERE LEN(Password)>64", false)
 
+    if result[:errors]
+      print_error("SQL Query returned error: #{result[:errors].first}")
+      return
+    end
+
     result[:rows].each do |row|""
       pw = lsw_decrypt(row[2])
 

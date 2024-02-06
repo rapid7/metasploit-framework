@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'MSDN', 'http://msdn.microsoft.com/en-us/library/dd891255(prot.20).aspx'],
+          [ 'URL', 'http://msdn.microsoft.com/en-us/library/dd891255(prot.20).aspx'],
           [ 'URL', 'http://rewtdance.blogspot.com/2012/11/windows-deployment-services-clear-text.html']
         ],
       ))
@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
         results.each do |result|
           unless result.empty?
             if result['username'] and result['password']
-              print_good("Retrived #{result['type']} credentials for #{architecture[0]}")
+              print_good("Retrieved #{result['type']} credentials for #{architecture[0]}")
               creds_found = true
               domain = ""
               domain = result['domain'] if result['domain']

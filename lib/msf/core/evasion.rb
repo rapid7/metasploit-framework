@@ -97,8 +97,7 @@ module Msf
     # Returns whether the requested payload is compatible with the module
     #
     # @param [String] name The payload name
-    # @param [TrueClass] Payload is compatible.
-    # @param [FlaseClass] Payload is not compatible.
+    # @return [Boolean] True if the payload is compatible, False if not.
     def is_payload_compatible?(name)
       p = framework.payloads[name]
       return false unless p

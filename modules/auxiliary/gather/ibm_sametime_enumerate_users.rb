@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('SpecialChars', [false, 'Specify special chars (e.g. -_+!@&$/\?)', '' ]),
         OptString.new('PREFIX', [ false,  'Defines set prefix for each guess (e.g. user)', '']),
-        OptString.new('SUFFIX', [ false,  'Defines set post for each quess (e.g. _adm)', '']),
+        OptString.new('SUFFIX', [ false,  'Defines set post for each guess (e.g. _adm)', '']),
         OptInt.new('TIMING', [ true,  'Set pause between requests', 0]),
         OptInt.new('Threads', [ true,  'Number of test threads', 10])
       ])
@@ -104,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     print_status("Testing for IBM Lotus Notes Sametime User Enumeration flaw")
 
-    # test for expected response code on non-existant uid/email
+    # test for expected response code on non-existent uid/email
     if datastore['TYPE'] == "UID"
       random_val = Rex::Text.rand_text_alpha(32)
     else
@@ -132,7 +132,7 @@ class MetasploitModule < Msf::Auxiliary
         # valid JSON response - valid response for check
         print_good("Response received, continuing to enumeration phase")
       end
-    rescue JSON::ParserError,
+    rescue JSON::ParserError
       print_error("Error parsing JSON: Invalid response from server")
       return
     end
@@ -140,7 +140,7 @@ class MetasploitModule < Msf::Auxiliary
     # start test handler
     test_handler
 
-    # ouput results
+    # output results
     output_results
   end
 

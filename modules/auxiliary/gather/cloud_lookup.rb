@@ -549,7 +549,7 @@ class MetasploitModule < Msf::Auxiliary
     domain_name = PublicSuffix.parse(datastore['HOSTNAME']).domain
     ip_list = []
 
-    # Start collecting informations for grabbing all IP adress(es).
+    # Start collecting information for grabbing all IP address(es).
 
     # ViewDNS.info
     ip_records = grab_domain_ip_history(domain_name)
@@ -597,7 +597,7 @@ class MetasploitModule < Msf::Auxiliary
     #  - addresses are not provided
 
     ip_blacklist = []
-    # Cleaning IP addresses if nessesary.
+    # Cleaning IP addresses if necessary.
     case @my_action.name
     when /ArvanCloud/
       ip_blacklist = arvancloud_ips

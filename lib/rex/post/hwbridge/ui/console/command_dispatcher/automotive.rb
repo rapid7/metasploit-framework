@@ -66,7 +66,7 @@ class Console::CommandDispatcher::Automotive
   end
 
   #
-  # Retrives the current confiugration of a bus
+  # Retrieves the current confiugration of a bus
   #
   def cmd_busconfig(*args)
     bus = ''
@@ -93,7 +93,7 @@ class Console::CommandDispatcher::Automotive
   end
 
   #
-  # 'connects' to a bus, this retrives the supported_methods
+  # 'connects' to a bus, this retrieves the supported_methods
   # specific to this bus
   #
   def cmd_connect(*args)

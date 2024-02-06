@@ -21,6 +21,7 @@
 # History with colors and e-mail addresses (respecting .mailmap):
 # git log --pretty=format:"%C(white)%ad %C(yellow)%h %Cblue'%aN' <%aE> %Cgreen%f%Creset" --date=short
 #
+require 'time'
 
 class GitLogLine < Struct.new(:date, :hash, :author, :message)
 end
@@ -44,7 +45,7 @@ def parse_date(date)
     seconds = $1.to_i* (60*60*24)
     calc_date = (Time.now - seconds).strftime("%Y-%m-%d")
   else
-    calc_date = Time.new(date).strftime("%Y-%m-%d")
+    calc_date = Time.parse(date).strftime("%Y-%m-%d")
   end
 end
 

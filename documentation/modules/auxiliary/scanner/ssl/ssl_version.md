@@ -17,7 +17,7 @@ versions installed on the system. List is dynamically generated. Defaults to `al
 
 ### SSLCipher
 
-Which SSL/TLS Cipher to use. `all` implies all ciphers avaiable for the version of SSL/TLS being used and which
+Which SSL/TLS Cipher to use. `all` implies all ciphers available for the version of SSL/TLS being used and which
 are usable by the metasploit + ruby + OpenSSL versions installed on the system.
 List is dynamically generated. Defaults to `all`
 

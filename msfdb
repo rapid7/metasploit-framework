@@ -78,7 +78,7 @@ require 'msfenv'
     retry_max: 10,
     retry_delay: 5.0,
     ws_user: nil,
-    add_data_service: true,
+    add_data_service: false,
     data_service_name: nil,
     use_defaults: false,
     delete_existing_data: true
@@ -337,6 +337,10 @@ end
 def reinit_db
   delete_db
   init_db
+end
+
+def print_webservice_removal_prompt
+  $stderr.puts "#{'[WARNING]'.red} The remote web service is being removed. Does this impact you? React here: https://github.com/rapid7/metasploit-framework/issues/18439"
 end
 
 class WebServicePIDStatus
@@ -672,13 +676,6 @@ def persist_data_service
   run_msfconsole_command(cmd)
 end
 
-def clear_default_data_service
-  puts 'Clearing http web data service credentials in msfconsole'
-  # execute msfconsole commands to clear the default data service connection
-  cmd = "db_disconnect --clear; exit"
-  run_msfconsole_command(cmd)
-end
-
 def get_db_connect_command
   data_service_name = "local-#{@options[:ssl] ? 'https' : 'http'}-data-service"
   if !@options[:data_service_name].nil?
@@ -921,6 +918,7 @@ def parse_args(args)
       if !n
         @options[:add_data_service] = false
       else
+        @options[:add_data_service] = true
         @options[:data_service_name] = n
       end
     }
@@ -987,8 +985,7 @@ def prompt_for_component(command)
     return :database
   end
 
-  enable_webservice = ask_yn("Would you like to #{command} the webservice? (Not Required)", default: 'no')
-  if enable_webservice
+  if @options[:add_data_service] == true
     :all
   else
     :database
@@ -996,23 +993,10 @@ def prompt_for_component(command)
 end
 
 def prompt_for_deletion(command)
-  destructive_operations = [:init, :reinit, :delete]
+  destructive_operations = [:reinit, :delete]
 
   if destructive_operations.include? command
-    if command == :init
-      return if web_service_pid_status != WebServicePIDStatus::NO_PID_FILE
-      if (@options[:component] == :all || @options[:component] == :webservice) && should_generate_web_service_ssl &&
-          (File.file?(@options[:ssl_key]) || File.file?(@options[:ssl_cert]))
-        @options[:delete_existing_data] = should_delete
-        return
-      end
-      if (@options[:component] == :all || @options[:component] == :database) && File.exist?(@db_conf)
-        @options[:delete_existing_data] = should_delete
-        return
-      end
-    else
-      @options[:delete_existing_data] = should_delete
-    end
+    @options[:delete_existing_data] = should_delete
   end
 end
 
@@ -1069,12 +1053,11 @@ if $PROGRAM_NAME == __FILE__
     @options[:component] = prompt_for_component(command)
   end
   prompt_for_deletion(command)
-  # Disable the locally configured webservice component
-  if command != :status && @options[:component] == :database
-    clear_default_data_service
-  end
   if @options[:component] == :all
     @components.each { |component|
+      if component == :webservice
+        3.times { print_webservice_removal_prompt }
+      end
       puts '===================================================================='
       puts "Running the '#{command}' command for the #{component}:"
       invoke_command(commands, component.to_sym, command)
@@ -1083,6 +1066,9 @@ if $PROGRAM_NAME == __FILE__
     }
   else
     puts "Running the '#{command}' command for the #{@options[:component]}:"
+    if @options[:component] == :webservice
+      3.times { print_webservice_removal_prompt }
+    end
     invoke_command(commands, @options[:component], command)
   end
 end

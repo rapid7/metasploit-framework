@@ -185,10 +185,8 @@ class UI < Rex::Post::UI
           raise RuntimeError, "screenshot.x64.dll not found", caller
         end
 
-        screenshot_dll  = ''
-        ::File.open( screenshot_path, 'rb' ) do |f|
-          screenshot_dll += f.read( f.stat.size )
-        end
+        encrypted_screenshot_dll = ::File.binread(screenshot_path)
+        screenshot_dll = ::MetasploitPayloads::Crypto.decrypt(ciphertext: encrypted_screenshot_dll)
 
         request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_BUFFER, screenshot_dll, false, true )
       end
@@ -199,15 +197,13 @@ class UI < Rex::Post::UI
         raise RuntimeError, "screenshot.x86.dll not found", caller
       end
 
-      screenshot_dll  = ''
-      ::File.open( screenshot_path, 'rb' ) do |f|
-        screenshot_dll += f.read( f.stat.size )
-      end
+      encrypted_screenshot_dll = ::File.binread(screenshot_path)
+      screenshot_dll = ::MetasploitPayloads::Crypto.decrypt(ciphertext: encrypted_screenshot_dll)
 
       request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_BUFFER, screenshot_dll, false, true )
     end
 
-    # send the request and return the jpeg image if successfull.
+    # send the request and return the jpeg image if successful.
     response = client.send_request( request )
     if( response.result == 0 )
       return response.get_tlv_value( TLV_TYPE_DESKTOP_SCREENSHOT )

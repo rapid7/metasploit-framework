@@ -131,8 +131,8 @@ LoadLibraryA:
   push eax                ; Push the address of linrary name string
   push #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}         ; ror13( "kernel32.dll", "LoadLibraryA" )
   call ebp                ; LoadLibraryA([esp+4])
-  pop edx                 ; Retreive edx
-  pop ecx                 ; Retreive ecx
+  pop edx                 ; Retrieve edx
+  pop ecx                 ; Retrieve ecx
   ret                     ; <-
 GetProcAddress:
   push ecx                ; Save ecx to stack

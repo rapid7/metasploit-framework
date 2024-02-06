@@ -43,7 +43,7 @@ Only download the chat logs.
 
 ### CONFIGS
 
-Only download teh config files.
+Only download the config files.
 
 ## Options
 

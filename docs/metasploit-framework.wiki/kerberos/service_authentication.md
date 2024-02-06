@@ -2,7 +2,7 @@
 
 Since version 6.3, Metasploit has included authentication via Kerberos for multiple types of modules. Kerberos
 authentication allows Metasploit users to request and utilize Ticket Granting Tickets (TGTs) and Ticket Granting
-Services (TGSs) to authenticate with supported modules. Metasploit uses an internal caching and storage machanism but
+Services (TGSs) to authenticate with supported modules. Metasploit uses an internal caching and storage mechanism but
 tickets are stored able to be both exported and imported from [MIT Credential Cache][1] (CCACHE) files. A converter for
 Kirbi to and from CCACHE files is also available in the `auxiliary/admin/kerberos/ticket_converter` module.
 
@@ -130,11 +130,13 @@ Required options:
 * `${Prefix}::Rhostname` -- The hostname of the target system. This value should be either the hostname `WIN-MIJZ318SQH` or
   the FQDN like `WIN-MIJZ318SQH.msflab.local`. i.e. `Smb::Rhostname=WIN-MIJZ318SQH.msflab.local`
 * `${Prefix}Domain` -- The domain name of the target system, e.g. `msflab.local`. i.e. `SmbDomain=msflab.local`
-* `DomainControllerRhost` -- The IP address of the domain controller to use for kerberos authentication. i.e. `DomainControllerRhost=192.168.123.13`
 
 Optional options:
+* `DomainControllerRhost` -- The IP address or hostname of the domain controller to use for Kerberos authentication.
+  i.e. `DomainControllerRhost=192.168.123.13`. If this value is not specified, Metasploit will look it up via the
+  realm's (the `${Prefix}Domain` option) SRV record in DNS.
 * `${Prefix}::Krb5Ccname` -- The path to a CCACHE file to use for authentication. This is comparable to setting the
-  `KRB5CCNAME` environment variable for other tools. If specified, the tickets it contains will be used. i.e. `KRB5CCNAME=/path/to/Administrator.ccache`
+  `KRB5CCNAME` environment variable for other tools. If specified, the tickets it contains will be used. i.e. `KRB5CCNAME=/path/to/Administrator.ccache`.
 * `KrbCacheMode` -- The cache storage mode to use, one of the following four options:
     * `none` -- No cache storage is used, new tickets are requested and no tickets are stored.
     * `read-only` -- Stored tickets from the cache will be used, but no new tickets are stored.
@@ -268,7 +270,7 @@ Simultaneous Users: 16777216
 
 ## Using external tickets with Metasploit
 A ticket obtained outside of Metasploit can be used for authentication by setting the `${Prefix}::Krb5Ccname` option
-which is prioritized over the cache. This file must be in the [MIT Credential Cache][1] (CCACHE) file formath. If the
+which is prioritized over the cache. This file must be in the [MIT Credential Cache][1] (CCACHE) file format. If the
 ticket is in the Kirbi format, it must first be converted using the `auxiliary/admin/kerberos/ticket_converter` module.
 
 When an explicit CCACHE file is specified to load a ticket from, Metasploit will first attempt to load a TGS ticket

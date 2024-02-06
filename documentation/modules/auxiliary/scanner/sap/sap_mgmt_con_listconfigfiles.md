@@ -5,7 +5,7 @@ This applies to all versions of SAP software.
 
 The SAP Management Console (SAP MC) provides a common framework for centralized system management. It allows you to monitor and perform basic administration tasks on the SAP system centrally, which simplifies system administration. (https://help.sap.com/doc/saphelp_nwpi711/7.1.1/en-US/fa/ec218eb89b4424a9a0b423b0643952/frameset.htm)
 
-SAP exposes an API on port tcp/50013 with the SOAP Management Console. Some webmethods are authenticated with a valid login/password and others are unauthenticated and reacheable by default.
+SAP exposes an API on port tcp/50013 with the SOAP Management Console. Some webmethods are authenticated with a valid login/password and others are unauthenticated and reachable by default.
 
 With this module you can list the config files that SAP loads when starts the SAP server. This unauthenticated information disclosure can be used in a more advanced attack to get knowledge about in which paths SAP stores the config files to, for example, retrieve sensitive data or trojanize the startup process.
 

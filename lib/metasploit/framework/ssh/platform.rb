@@ -101,7 +101,7 @@ module Metasploit
             'hpux'
           when /AIX/i
             'aix'
-          when /cygwin|Win32|Windows|Microsoft/i
+          when /MSYS_NT|cygwin|Win32|Windows|Microsoft/i
             'windows'
           when /Unknown command or computer name|Line has invalid autocommand/i
             'cisco-ios'

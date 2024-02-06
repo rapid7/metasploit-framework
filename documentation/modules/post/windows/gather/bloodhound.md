@@ -1,7 +1,7 @@
 ## Vulnerable Application
 
 This module will execute the BloodHound C# Ingestor (aka SharpHound) to gather sessions, local admin, domain trusts and more.
-With this information BloodHound will easily identify highly complex privilage elevation attack paths that would otherwise be
+With this information BloodHound will easily identify highly complex privilege elevation attack paths that would otherwise be
 impossible to quickly identify within an Active Directory environment.
 
 This module can take several/many minutes to run due to the volume of data being collected.

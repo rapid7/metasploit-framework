@@ -67,7 +67,10 @@ module Msf
             @dscache = {}
             @previous_module = nil
             @module_name_stack = []
+            # Array of individual modules that have been searched for
             @module_search_results = []
+            # Module search results, with additional metadata on what to do if the module is interacted with
+            @module_search_results_with_usage_metadata = []
             @@payload_show_results = []
             @dangerzone_map = nil
           end
@@ -137,6 +140,22 @@ module Msf
             end
           end
 
+          # Handles the index selection formatting
+          def print_module_search_results_usage
+            last_mod_with_usage_metadata = @module_search_results_with_usage_metadata.last
+            index_usage = "use #{@module_search_results_with_usage_metadata.length - 1}"
+            index_info = "info #{@module_search_results_with_usage_metadata.length - 1}"
+            name_usage = "use #{last_mod_with_usage_metadata[:mod].fullname}"
+
+            additional_usage_message = ""
+            additional_usage_example = (last_mod_with_usage_metadata[:datastore] || {}).first
+            if framework.features.enabled?(Msf::FeatureManager::HIERARCHICAL_SEARCH_TABLE) && additional_usage_example
+              key, value = additional_usage_example
+              additional_usage_message = "\nAfter interacting with a module you can manually set a #{key} with %grnset #{key} '#{value}'%clr"
+            end
+            print("Interact with a module by name or index. For example %grn#{index_info}%clr, %grn#{index_usage}%clr or %grn#{name_usage}%clr#{additional_usage_message}\n\n")
+          end
+
           #
           # Displays information about one or more module.
           #
@@ -170,12 +189,16 @@ module Msf
             args.each do |arg|
               mod_name = arg
 
+              additional_datastore_values = nil
+
               # Use a module by search index
-              index_from_list(@module_search_results, mod_name) do |mod|
+              index_from_list(@module_search_results_with_usage_metadata, mod_name) do |result|
+                mod = result&.[](:mod)
                 next unless mod && mod.respond_to?(:fullname)
 
-                # Module cache object from @module_search_results
+                # Module cache object
                 mod_name = mod.fullname
+                additional_datastore_values = result[:datastore]
               end
 
               # Ensure we have a reference name and not a path
@@ -183,6 +206,9 @@ module Msf
 
               # Creates an instance of the module
               mod = framework.modules.create(name)
+
+              # If any additional datastore values were provided, set these values
+              mod.datastore.update(additional_datastore_values) unless additional_datastore_values.nil?
 
               if mod.nil?
                 print_error("Invalid module: #{name}")
@@ -354,6 +380,7 @@ module Msf
             print_line
             print_line "Keywords:"
             {
+              'adapter'     => 'Modules with a matching adater reference name',
               'aka'         => 'Modules with a matching AKA (also-known-as) name',
               'author'      => 'Modules written by this author',
               'arch'        => 'Modules affecting this architecture',
@@ -372,20 +399,24 @@ module Msf
               'rank'        => 'Modules with a matching rank (Can be descriptive (ex: \'good\') or numeric with comparison operators (ex: \'gte400\'))',
               'ref'         => 'Modules with a matching ref',
               'reference'   => 'Modules with a matching reference',
+              'stage'       => 'Modules with a matching stage reference name',
+              'stager'      => 'Modules with a matching stager reference name',
               'target'      => 'Modules affecting this target',
               'type'        => 'Modules of a specific type (exploit, payload, auxiliary, encoder, evasion, post, or nop)',
+              'action'      => 'Modules with a matching action name or description',
             }.each_pair do |keyword, description|
               print_line "  #{keyword.ljust 17}:  #{description}"
             end
             print_line
             print_line "Supported search columns:"
             {
-              'rank'                 => 'Sort modules by their exploitabilty rank',
+              'rank'                 => 'Sort modules by their exploitability rank',
               'date'                 => 'Sort modules by their disclosure date. Alias for disclosure_date',
               'disclosure_date'      => 'Sort modules by their disclosure date',
               'name'                 => 'Sort modules by their name',
               'type'                 => 'Sort modules by their type',
               'check'                => 'Sort modules by whether or not they have a check method',
+              'action'                => 'Sort modules by whether or not they have actions',
             }.each_pair do |keyword, description|
               print_line "  #{keyword.ljust 17}:  #{description}"
             end
@@ -410,7 +441,7 @@ module Msf
             count        = -1
             search_terms = []
             sort_attribute  = 'name'
-            valid_sort_attributes = ['rank','disclosure_date','name','date','type','check']
+            valid_sort_attributes = ['action', 'rank','disclosure_date','name','date','type','check']
             reverse_sort = false
             ignore_use_exact_match = false
 
@@ -437,7 +468,7 @@ module Msf
             end
 
             if args.empty?
-              if @module_search_results.empty?
+              if @module_search_results_with_usage_metadata.empty?
                 cmd_search_help
                 return false
               end
@@ -458,7 +489,9 @@ module Msf
                 @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
 
                 @module_search_results.sort_by! do |module_metadata|
-                  if sort_attribute == 'check'
+                  if sort_attribute == 'action'
+                    module_metadata.actions&.any? ? 0 : 1
+                  elsif sort_attribute == 'check'
                     module_metadata.check ? 0 : 1
                   elsif sort_attribute == 'disclosure_date' || sort_attribute == 'date'
                     # Not all modules have disclosure_date, i.e. multi/handler
@@ -479,7 +512,7 @@ module Msf
               end
 
               if ignore_use_exact_match && @module_search_results.length == 1 &&
-                  @module_search_results.first.fullname == match.strip
+                @module_search_results.first.fullname == match.strip
                 return false
               end
 
@@ -492,20 +525,76 @@ module Msf
               # Generate the table used to display matches
               tbl = generate_module_table('Matching Modules', search_terms, row_filter)
 
+              @module_search_results_with_usage_metadata = []
               @module_search_results.each do |m|
+                @module_search_results_with_usage_metadata << { mod: m }
+                count += 1
                 tbl << [
-                    count += 1,
-                    m.fullname,
-                    m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
-                    m.rank,
-                    m.check ? 'Yes' : 'No',
-                    m.name,
+                  count,
+                  "#{m.fullname}",
+                  m.disclosure_date.nil? ? '' : m.disclosure_date.strftime("%Y-%m-%d"),
+                  m.rank,
+                  m.check ? 'Yes' : 'No',
+                  m.name,
                 ]
-              end
 
-              if @module_search_results.length == 1 && use
-                used_module = @module_search_results.first.fullname
-                cmd_use(used_module, true)
+                if framework.features.enabled?(Msf::FeatureManager::HIERARCHICAL_SEARCH_TABLE)
+                  total_children_rows = (m.actions&.length || 0) + (m.targets&.length || 0) + (m.notes&.[]('AKA')&.length || 0)
+                  show_child_items = total_children_rows > 1
+                  next unless show_child_items
+
+                  # XXX: By default rex-text tables strip preceding whitespace:
+                  #   https://github.com/rapid7/rex-text/blob/1a7b639ca62fd9102665d6986f918ae42cae244e/lib/rex/text/table.rb#L221-L222
+                  #   So use https://en.wikipedia.org/wiki/Non-breaking_space as a workaround for now. A change should exist in Rex-Text to support this requirement
+                  indent = "\xc2\xa0\xc2\xa0\\_ "
+                  # Note: We still use visual indicators for blank values as it's easier to read
+                  # We can't always use a generic formatter/styler, as it would be applied to the 'parent' rows too
+                  blank_value = '.'
+                  if (m.actions&.length || 0) > 1
+                    m.actions.each do |action|
+                      @module_search_results_with_usage_metadata << { mod: m, datastore: { 'ACTION' => action['name'] } }
+                      count += 1
+                      tbl << [
+                        count,
+                        "#{indent}action: #{action['name']}",
+                        blank_value,
+                        blank_value,
+                        blank_value,
+                        action['description'],
+                      ]
+                    end
+                  end
+
+                  if (m.targets&.length || 0) > 1
+                    m.targets.each do |target|
+                      @module_search_results_with_usage_metadata << { mod: m, datastore: { 'TARGET' => target } }
+                      count += 1
+                      tbl << [
+                        count,
+                        "#{indent}target: #{target}",
+                        blank_value,
+                        blank_value,
+                        blank_value,
+                        blank_value
+                      ]
+                    end
+                  end
+
+                  if (m.notes&.[]('AKA')&.length || 0) > 1
+                    m.notes['AKA'].each do |aka|
+                      @module_search_results_with_usage_metadata << { mod: m }
+                      count += 1
+                      tbl << [
+                        count,
+                        "#{indent}AKA: #{aka}",
+                        blank_value,
+                        blank_value,
+                        blank_value,
+                        blank_value
+                      ]
+                    end
+                  end
+                end
               end
             rescue ArgumentError
               print_error("Invalid argument(s)\n")
@@ -518,15 +607,16 @@ module Msf
               ::File.open(output_file, "wb") { |ofd|
                 ofd.write(tbl.to_csv)
               }
-            else
-              print_line(tbl.to_s)
-              index_usage = "use #{@module_search_results.length - 1}"
-              index_info = "info #{@module_search_results.length - 1}"
-              name_usage = "use #{@module_search_results.last.fullname}"
+              return true
+            end
 
-              print("Interact with a module by name or index. For example %grn#{index_info}%clr, %grn#{index_usage}%clr or %grn#{name_usage}%clr\n\n")
+            print_line(tbl.to_s)
+            print_module_search_results_usage
 
+            if @module_search_results.length == 1 && use
+              used_module = @module_search_results_with_usage_metadata.first[:mod].fullname
               print_status("Using #{used_module}") if used_module
+              cmd_use(used_module, true)
             end
 
             true
@@ -704,15 +794,19 @@ module Msf
             # Try to create an instance of the supplied module name
             mod_name = args[0]
 
+            additional_datastore_values = nil
+
             # Use a module by search index
-            index_from_list(@module_search_results, mod_name) do |mod|
+            index_from_list(@module_search_results_with_usage_metadata, mod_name) do |result|
+              mod = result&.[](:mod)
               unless mod && mod.respond_to?(:fullname)
                 print_error("Invalid module index: #{mod_name}")
                 return false
               end
 
-              # Module cache object from @module_search_results
+              # Module cache object from @module_search_results_with_usage_metadata
               mod_name = mod.fullname
+              additional_datastore_values = result[:datastore]
             end
 
             # See if the supplied module name has already been resolved
@@ -794,6 +888,15 @@ module Msf
             # If a datastore cache exists for this module, then load it up
             if @dscache[active_module.fullname]
               active_module.datastore.update(@dscache[active_module.fullname])
+            end
+
+            # If any additional datastore values were provided, set these values
+            unless additional_datastore_values.nil? || additional_datastore_values.empty?
+              mod.datastore.update(additional_datastore_values)
+              print_status("Additionally setting #{additional_datastore_values.map { |k,v| "#{k} => #{v}" }.join(", ")}")
+              if additional_datastore_values['TARGET'] && (mod.exploit? || mod.evasion?)
+                mod.import_target_defaults
+              end
             end
 
             # Choose a default payload when the module is used, not run
@@ -945,7 +1048,7 @@ module Msf
           #
           # @param str [String] the string currently being typed before tab was hit
           # @param words [Array<String>] the previously completed words on the command line.  words is always
-          # at least 1 when tab completion has reached this stage since the command itself has been completd
+          # at least 1 when tab completion has reached this stage since the command itself has been completed
 
           def cmd_use_tabs(str, words)
             return [] if words.length > 1
@@ -996,6 +1099,7 @@ module Msf
               wlog(log_msg)
             end
 
+            self.driver.run_single('reload')
             self.driver.run_single("banner")
           end
 
@@ -1250,6 +1354,7 @@ module Msf
             print_line 'Usage: favorites'
             print_line
             print_line 'Print the list of favorite modules (alias for `show favorites`)'
+            print_line 'You can use the %grnfavorite%clr command to add the current module to your favorites list'
             print @@favorites_opts.usage
           end
 
@@ -1275,6 +1380,10 @@ module Msf
           #
           def tab_complete_module(str, words)
             res = []
+            module_metadata = Msf::Modules::Metadata::Cache.instance.get_metadata
+            module_metadata.each do |m|
+              res << "#{m.type}/#{m.ref_name}"
+            end
             framework.modules.module_types.each do |mtyp|
               mset = framework.modules.module_names(mtyp)
               mset.each do |mref|
@@ -1283,7 +1392,7 @@ module Msf
             end
 
             return dangerzone_modules_to_codenames(res.sort) if dangerzone_active?
-            return res.sort
+            return res.uniq.sort
           end
 
           def print_april_fools_module_use
@@ -1436,12 +1545,41 @@ module Msf
 
             # create module set using the saved modules
             fav_modules = {}
-            saved_favs = File.readlines(favs_file)
+
+            # get the full module names from the favorites file and use then to search the MetaData Cache for matching modules
+            saved_favs = File.readlines(favs_file).map(&:strip)
             saved_favs.each do |mod|
-              module_name = mod.strip
-              fav_modules[module_name] = framework.modules[module_name]
+              # populate hash with module fullname and module object
+              fav_modules[mod] = framework.modules[mod]
             end
+
+            fav_modules.each do |fullname, mod_obj|
+              if mod_obj.nil?
+                print_warning("#{favs_file} contains a module that can not be found - #{fullname}.")
+              end
+            end
+
+            # find cache module instance and add it to @module_search_results
+            @module_search_results = Msf::Modules::Metadata::Cache.instance.find('fullname' => [saved_favs, []])
+
+            # This scenario is for when a module fullname is a substring of other module fullnames
+            # Example, searching for the payload/windows/meterpreter/reverse_tcp module can result in matches for:
+            #   - windows/meterpreter/reverse_tcp_allports
+            #   - windows/meterpreter/reverse_tcp_dns
+            # So if @module_search_results is greater than the amount of fav_modules, we need to filter the results to be more accurate
+            if fav_modules.length < @module_search_results.length
+              filtered_results = []
+              fav_modules.each do |fullname, _mod_obj|
+                filtered_results << @module_search_results.select do |search_result|
+                  search_result.fullname == fullname
+                end
+              end
+              @module_search_results = filtered_results.flatten.sort_by(&:fullname)
+            end
+            @module_search_results_with_usage_metadata = @module_search_results.map { |mod| { mod: mod, datastore: {} } }
+
             show_module_metadata('Favorites', fav_modules)
+            print_module_search_results_usage
           end
 
           def show_missing(mod) # :nodoc:
@@ -1635,12 +1773,15 @@ module Msf
           end
 
           def generate_module_table(type, search_terms = [], row_filter = nil) # :nodoc:
+            table_hierarchy_formatters = framework.features.enabled?(Msf::FeatureManager::HIERARCHICAL_SEARCH_TABLE) ? [Msf::Ui::Console::TablePrint::BlankFormatter.new] : []
+
               Table.new(
                 Table::Style::Default,
                 'Header'     => type,
                 'Prefix'     => "\n",
                 'Postfix'    => "\n",
                 'SearchTerm' => row_filter,
+                'SortIndex' => -1,
                 # For now, don't perform any word wrapping on the search table as it breaks the workflow of
                 # copying module names in conjunction with the `use <paste-buffer>` command
                 'WordWrap' => false,
@@ -1654,14 +1795,31 @@ module Msf
                 ],
                 'ColProps' => {
                   'Rank' => {
-                    'Formatters' => [Msf::Ui::Console::TablePrint::RankFormatter.new],
-                    'Stylers' => [Msf::Ui::Console::TablePrint::RankStyler.new]
+                    'Formatters' => [
+                      *table_hierarchy_formatters,
+                      Msf::Ui::Console::TablePrint::RankFormatter.new
+                    ],
+                    'Stylers' => [
+                      Msf::Ui::Console::TablePrint::RankStyler.new
+                    ]
                   },
                   'Name' => {
                     'Stylers' => [Msf::Ui::Console::TablePrint::HighlightSubstringStyler.new(search_terms)]
                   },
+                  'Check' => {
+                    'Formatters' => [
+                      *table_hierarchy_formatters,
+                    ]
+                  },
+                  'Disclosure Date' => {
+                    'Formatters' => [
+                      *table_hierarchy_formatters,
+                    ]
+                  },
                   'Description' => {
-                    'Stylers' => [Msf::Ui::Console::TablePrint::HighlightSubstringStyler.new(search_terms)]
+                    'Stylers' => [
+                      Msf::Ui::Console::TablePrint::HighlightSubstringStyler.new(search_terms)
+                    ]
                   }
                 }
               )

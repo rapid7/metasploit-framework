@@ -8,6 +8,14 @@ This module has been verified against:
   1. Jenkins 2.67 on Ubuntu 16.04 in Docker
   1. Jenkins 2.67 on Windows 7 SP 1
   1. Jenkins 2.60.1
+  1. Jenkins 2.411 Docker image
+  1. Jenkins 2.410 Windows 10
+  1. Jenkins 2.410 Docker image
+  1. Jenkins 2.409 Docker image
+  1. Jenkins 2.401.1 Docker image
+  1. Jenkins 2.346.3 Docker image
+  1. Jenkins 2.103 Docker image
+  1. Jenkins 1.565 Docker image
   1. Jenkins 1.56
 
 ## Verification Steps
@@ -45,6 +53,10 @@ keywords but obviously increases runtime on larger instances.
   This option saves interesting files and loot to disk. If set to
 false will simply output data to console.
 
+  **JENKINS_HOME**
+  This option can be set if we want to specify where the Jenkins
+data resides.
+
 ## Scenarios
 
 **Jenkins on Windows**
@@ -76,6 +88,7 @@ Provided by:
 Basic options:
   Name        Current Setting  Required  Description
   ----        ---------------  --------  -----------
+  JENKINS_HOME                 no        Set to the home directory of Jenkins. Linux versions default to /var/lib/jenkins, but C:\ProgramData\Jenkins\.jenkins on Windows.
   SEARCH_JOBS true             no        Search through job history logs for interesting keywords. Increases runtime.
   SESSION     17               yes       The session to run this module on.
   STORE_LOOT  true             no        Store files in loot (will simply output file to console if set to false).

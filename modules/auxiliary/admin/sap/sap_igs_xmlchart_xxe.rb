@@ -209,7 +209,7 @@ class MetasploitModule < Msf::Auxiliary
 
       # Check second HTTP response
       if second_response.nil? || second_response.code != 200 || !second_response.body.include?('area shape=rect')
-        return -2 # Reponse from second HTTP request was not what was expected!
+        return -2 # Response from second HTTP request was not what was expected!
       end
 
       get_file_content(second_response.body)

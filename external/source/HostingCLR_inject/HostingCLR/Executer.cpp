@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include "ReflectiveLoader.h"
+#include "ReflectiveFree.h"
 #include "HostingCLR.h"
 
 extern HINSTANCE hAppInstance;
@@ -21,8 +22,16 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD dwReason, LPVOID lpReserved)
 		hAppInstance = hinstDLL;
 		Execute(lpReserved);
 		fflush(stdout);
+
+		// Free the assembly and parameters
+		VirtualFree(lpReserved, 0, MEM_RELEASE);
+
+		ReflectiveFree(hinstDLL);
+
 		break;
 	case DLL_PROCESS_DETACH:
+		ReflectiveFree(hinstDLL);
+		break;
 	case DLL_THREAD_ATTACH:
 	case DLL_THREAD_DETACH:
 		break;

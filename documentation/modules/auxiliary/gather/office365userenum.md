@@ -14,7 +14,7 @@ Note this behaviour appears to be limited to Office365, MS Exchange does not app
 
 Microsoft Security Response Center stated on 2017-06-28 that this issue does not "meet the bar for security servicing". As such it is not expected to be fixed any time soon.
 
-This script is maintaing the ability to run independently of MSF.
+This script is maintaining the ability to run independently of MSF.
 
 Office365's implementation of ActiveSync is vulnerable.
 

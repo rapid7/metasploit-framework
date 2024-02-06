@@ -104,7 +104,7 @@ module Msf
         File.open(xindex.to_s, 'w+') do |f|
           # need to add version line.
           f.puts(Msf::Framework::Version)
-          framework.exploits.sort.each do |refname, mod|
+          framework.exploits.each_module do |refname, mod|
             stuff = ''
             o = nil
             begin
@@ -851,7 +851,7 @@ module Msf
         print_good "\n"
         print_line tbl.to_s
         print_status('You can:')
-        print_status('Get detailed scan infromation about a specfic port: nessus_report_host_detail <hostname> <port> <protocol> <report id>')
+        print_status('Get detailed scan information about a specific port: nessus_report_host_detail <hostname> <port> <protocol> <report id>')
       end
 
       def cmd_nessus_report_del(*args)
@@ -1190,6 +1190,7 @@ module Msf
         if is_scan_complete(scan_id)
           print_status("Exporting scan ID #{scan_id} is Nessus format...")
           export = @n.scan_export(scan_id, 'nessus')
+          status = {}
           if export['file']
             file_id = export['file']
             print_good("The export file ID for scan ID #{scan_id} is #{file_id}")
@@ -1485,6 +1486,7 @@ module Msf
         end
         if format.in?(['nessus', 'html', 'pdf', 'csv', 'db'])
           export = @n.scan_export(scan_id, format)
+          status = {}
           if export['file']
             file_id = export['file']
             print_good("The export file ID for scan ID #{scan_id} is #{file_id}")
@@ -1526,6 +1528,7 @@ module Msf
         when 2
           scan_id = args[0]
           file_id = args[1]
+          status = {}
           loop do
             status = @n.scan_export_status(scan_id, file_id)
             print_status('Export status: ' + status['status'])
@@ -1789,7 +1792,7 @@ module Msf
         elsif status == '500'
           print_error("The server failed to delete the user account having user ID #{user_id}")
         else
-          print_error("Unknown problem occured by deleting the user account having user ID #{user_id}.")
+          print_error("Unknown problem occurred by deleting the user account having user ID #{user_id}.")
         end
       end
 
@@ -1832,7 +1835,7 @@ module Msf
         elsif status == '500'
           print_error('Nessus server failed to changed the user password')
         else
-          print_error('Unknown problem occured while changing the user password')
+          print_error('Unknown problem occurred while changing the user password')
         end
       end
 
@@ -1910,7 +1913,7 @@ module Msf
         elsif status == '405'
           print_error("Policy ID #{policy_id} is currently in use and cannot be deleted")
         else
-          print_error("Unknown problem occured by deleting the user account having user ID #{user_id}.")
+          print_error("Unknown problem occurred by deleting the user account having user ID #{user_id}.")
         end
       end
     end

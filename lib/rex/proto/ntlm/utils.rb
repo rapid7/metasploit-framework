@@ -3,7 +3,7 @@
 module Rex::Proto::NTLM
   class Utils
 
-    # duplicate from lib/rex/proto/smb/utils cause we only need this fonction from Rex::Proto::SMB::Utils
+    # duplicate from lib/rex/proto/smb/utils cause we only need this function from Rex::Proto::SMB::Utils
     # Convert a unix timestamp to a 64-bit signed server time
     def self.time_unix_to_smb(unix_time)
       t64 = (unix_time + 11644473600) * 10000000
@@ -45,7 +45,7 @@ module Rex::Proto::NTLM
 
     # GSS functions
 
-    # GSS BLOB usefull for SMB_NEGOCIATE_RESPONSE message
+    # GSS BLOB useful for SMB_NEGOCIATE_RESPONSE message
     # mechTypes: 2 items :
     # 	-MechType: 1.3.6.1.4.1.311.2.2.30 (SNMPv2-SMI::enterprises.311.2.2.30)
     # 	-MechType: 1.3.6.1.4.1.311.2.2.10 (NTLMSSP - Microsoft NTLM Security Support Provider)
@@ -73,7 +73,7 @@ module Rex::Proto::NTLM
       return blob
     end
 
-    # GSS BLOB usefull for SMB_NEGOCIATE_RESPONSE message
+    # GSS BLOB useful for SMB_NEGOCIATE_RESPONSE message
     # mechTypes: 4 items :
     # 	MechType: 1.2.840.48018.1.2.2 (MS KRB5 - Microsoft Kerberos 5)
     # 	MechType: 1.2.840.113554.1.2.2 (KRB5 - Kerberos 5)
@@ -121,7 +121,7 @@ module Rex::Proto::NTLM
       return blob
     end
 
-    # BLOB without GSS usefull for ntlmssp type 1 message
+    # BLOB without GSS useful for ntlmssp type 1 message
     def self.make_ntlmssp_blob_init(domain = 'WORKGROUP', name = 'WORKSTATION', flags=0x80201)
       blob =	"NTLMSSP\x00" +
         [1, flags].pack('VV') +
@@ -142,7 +142,7 @@ module Rex::Proto::NTLM
       return blob
     end
 
-    # GSS BLOB usefull for ntlmssp type 1 message
+    # GSS BLOB useful for ntlmssp type 1 message
     def self.make_ntlmssp_secblob_init(domain = 'WORKGROUP', name = 'WORKSTATION', flags=0x80201)
       blob =
       "\x60" + self.asn1encode(
@@ -171,7 +171,7 @@ module Rex::Proto::NTLM
     end
 
 
-    # BLOB without GSS usefull for ntlm type 2 message
+    # BLOB without GSS useful for ntlm type 2 message
     def self.make_ntlmssp_blob_chall(win_domain, win_name, dns_domain, dns_name, chall, flags)
 
       addr_list  = ''
@@ -202,7 +202,7 @@ module Rex::Proto::NTLM
       return blob
     end
 
-    # GSS BLOB usefull for ntlmssp type 2 message
+    # GSS BLOB useful for ntlmssp type 2 message
     def self.make_ntlmssp_secblob_chall(win_domain, win_name, dns_domain, dns_name, chall, flags)
 
       blob =
@@ -229,7 +229,7 @@ module Rex::Proto::NTLM
       return blob
     end
 
-    # BLOB without GSS Usefull for ntlmssp type 3 message
+    # BLOB without GSS Useful for ntlmssp type 3 message
     def self.make_ntlmssp_blob_auth(domain, name, user, lm, ntlm, enc_session_key, flags = 0x080201)
       lm ||= "\x00" * 24
       ntlm ||= "\x00" * 24
@@ -292,7 +292,7 @@ module Rex::Proto::NTLM
 
     end
 
-    # GSS BLOB Usefull for ntlmssp type 3 message
+    # GSS BLOB Useful for ntlmssp type 3 message
     def self.make_ntlmssp_secblob_auth(domain, name, user, lm, ntlm, enc_session_key, flags = 0x080201)
 
       blob =
@@ -309,7 +309,7 @@ module Rex::Proto::NTLM
     end
 
 
-    # GSS BLOB Usefull for SMB Success
+    # GSS BLOB Useful for SMB Success
     def self.make_ntlmv2_secblob_success
       blob =
         "\xa1" + self.asn1encode(
@@ -363,7 +363,7 @@ module Rex::Proto::NTLM
     end
 
 
-    # Parse an ntlm type 2 challenge blob and return usefull data
+    # Parse an ntlm type 2 challenge blob and return useful data
     def self.parse_ntlm_type_2_blob(blob)
       data = {}
       # Extract the NTLM challenge key the lazy way
@@ -456,7 +456,7 @@ module Rex::Proto::NTLM
 
       # MAY BE USEFUL FOR FUTURE
       # Seven (client) add at least one more av that is of type MsAvRestrictions (8)
-      # maybe this will be usefull with future windows OSs but has no use at all for the moment afaik
+      # maybe this will be useful with future windows OSs but has no use at all for the moment afaik
       # restriction_encoding = 	[48,0,0,0].pack("VVV") + # Size, Z4, IntegrityLevel, SubjectIntegrityLevel
       # 			Rex::Text.rand_text(32)	 # MachineId generated on startup on win7 and above
       # addr_list  << [8, restriction_encoding.length].pack('vv') + restriction_encoding

@@ -23,7 +23,7 @@ Matching Modules
 
 There are two ways to launch a Post module, both require an existing session.
 
-Within a msf prompt you can use the `use` comand followed by the `run` command to execute the module against the required session. For instance to extract credentials from Chrome on the most recently opened Metasploit session:
+Within a msf prompt you can use the `use` command followed by the `run` command to execute the module against the required session. For instance to extract credentials from Chrome on the most recently opened Metasploit session:
 
 ```msf
 msf6 > use post/windows/gather/enum_chrome

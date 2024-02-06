@@ -3,7 +3,7 @@
 
 #
 # Update modules/auxiliary/scanner/http/wordpress_scanner.rb to have the most
-# up to date list of vuln compontents based on exploits/scanners in the framework
+# up to date list of vuln components based on exploits/scanners in the framework
 #
 # by h00die
 #

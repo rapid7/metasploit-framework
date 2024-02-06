@@ -4,7 +4,7 @@
   This is a well [documented](https://www.cisco.com/c/en/us/support/docs/ip/simple-network-management-protocol-snmp/15217-copy-configs-snmp.html#copying_startup)
   feature of IOS and many other networking devices, and is part of an administrator functionality.
   A read-write community string is required, as well as a tftp server (metasploit includes one).
-  After the config has been copied, the SNMP paramters are deleted.
+  After the config has been copied, the SNMP parameters are deleted.
 
 ## Verification Steps
 

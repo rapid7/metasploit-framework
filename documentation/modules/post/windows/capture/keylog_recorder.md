@@ -10,11 +10,11 @@ This module captures keystrokes from a Windows target and saves them to a text f
 
 - **INTERVAL** - The interval in seconds that the module uses for recording keystrokes. The log file goes to a new line at the end of each interval. Default value is 5 seconds.
 
-- **LOCKSCREEN** - This option locks the screen of the target when set to TRUE. CAPTURE_TYPE must be set to winlogon. MIGRATE must be set to TRUE or the session must already be in winlogon.exe. Defalt value is FALSE.
+- **LOCKSCREEN** - This option locks the screen of the target when set to TRUE. CAPTURE_TYPE must be set to winlogon. MIGRATE must be set to TRUE or the session must already be in winlogon.exe. Default value is FALSE.
 
 - **MIGRATE** - This option migrates the session based on the CAPTURE_TYPE. Explorer.exe for explorer, winlogon.exe for winlogon, or a specified PID for pid. Default value is FALSE.
 
-- **PID** - The PID of a process to migrate the session into. CAPTURE_TYPE of pid must be set, and the sepecified PID must exist on the target machine.
+- **PID** - The PID of a process to migrate the session into. CAPTURE_TYPE of pid must be set, and the specified PID must exist on the target machine.
 
 - **SESSION** - The session to run the module on.
 
@@ -26,11 +26,11 @@ This module captures keystrokes from a Windows target and saves them to a text f
 The Meterpreter session must be located in an appropriate process for keystroke recording to work properly. This is described in the below-listed capture types. This module can migrate the session if MIGRATE is set to TRUE. If winlogon or PID migration fails, the module will exit. Set MIGRATE to FALSE if migration will be performed manually or through another module. 
 
 ### Capture Types
-- **Explorer.exe** - __Session must be in explorer.exe__ - The most common capture type. Keystrokes are recorded from most user level applications. Applications running at an elevated level will likely not get recorded. **NOTE: Sessions running with elevated privileges are downgraded to user level when migrated into explorer.exe.** It is recommended that a second session be opened for keystroke recording if elevated priveledges are to be maintained.
+- **Explorer.exe** - __Session must be in explorer.exe__ - The most common capture type. Keystrokes are recorded from most user level applications. Applications running at an elevated level will likely not get recorded. **NOTE: Sessions running with elevated privileges are downgraded to user level when migrated into explorer.exe.** It is recommended that a second session be opened for keystroke recording if elevated privileges are to be maintained.
 
 - **Winlogon.exe** - __Session must be in winlogon.exe__ - Administrator or SYSTEM rights are required to migrate to winlogon.exe. Keylogging from this process records usernames and passwords as users log in. This capture type does not record keystrokes from any other process. Setting LOCKSCREEN to true locks Windows when the module is executed. This forces the user to unlock the computer, and their password is captured.
 
-- **PID** - __Session must be in the specific process to be recorded.__ - This option is useful for recording keystrokes in applications or process that run with elevated priveledges. However, admin or SYSTEM rights are required to migrate to these processes. Only keystrokes from the specified process are recorded.
+- **PID** - __Session must be in the specific process to be recorded.__ - This option is useful for recording keystrokes in applications or process that run with elevated privileges. However, admin or SYSTEM rights are required to migrate to these processes. Only keystrokes from the specified process are recorded.
 
 ## Running Module as a Job
 It is recommended to run this module as a job using: `exploit -j` or `run -j`. As a job, the module runs in the background preventing it from tying up the Framework's user interface. To stop capturing keystrokes, kill the job using `jobs -k`. The module records the last few keystrokes before exit. Stopping the job can take up to 30 seconds. If the session is killed, the key log job shuts down automatically.

@@ -18,6 +18,16 @@ RSpec.describe Metasploit::Framework::LoginScanner::Kerberos do
     )
   end
 
+  let(:expected_tgt_request_hmac) do
+    {
+      server_name: 'demo.local_server',
+      client_name: 'mock_public',
+      password: 'mock_private',
+      realm: 'DEMO.LOCAL',
+      offered_etypes: [::Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC]
+    }
+  end
+
   let(:expected_tgt_request) do
     {
       server_name: 'demo.local_server',
@@ -39,7 +49,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::Kerberos do
   let(:tgt_response_success) do
     Msf::Exploit::Remote::Kerberos::Model::TgtResponse.new(
       as_rep: instance_double(::Rex::Proto::Kerberos::Model::KdcResponse),
-      preauth_required: false,
+      preauth_required: true,
       krb_enc_key: {
         enctype: Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC,
         key: 'mock-key',
@@ -93,6 +103,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::Kerberos do
     context 'when the login does not require preauthentication' do
       before(:each) do
         allow(subject).to receive(:send_request_tgt).with(expected_tgt_request).and_return(tgt_response_no_preauth_required)
+        allow(subject).to receive(:send_request_tgt).with(expected_tgt_request_hmac).and_return(tgt_response_no_preauth_required)
       end
 
       it 'returns the correct login status' do

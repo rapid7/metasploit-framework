@@ -24,7 +24,7 @@ script = []
 outfile = nil
 
 ################## Function Declarations ##################
-# Function for running a list of WMIC commands stored in a array, returs string
+# Function for running a list of WMIC commands stored in a array, returns string
 def wmicexec(session,wmiccmds= nil)
   tmpout = ''
   session.response_timeout=120

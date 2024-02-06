@@ -37,6 +37,10 @@ The `CheckCode` also supports an optional description which is printed by the fr
 return CheckCode::Appears('Vulnerable component XYZ is installed')
 ```
 
+`MetasploitModule#check` methods should capture any known `raise` from methods called and return value of class
+`Msf::Exploit::CheckCode`. Basically, that means avoiding the use of `fail_with` or raising exceptions that are not
+handled within the check method.
+
 ## Remote Check Example
 
 Here's an abstract example of how a Metasploit check might be written:
@@ -54,7 +58,7 @@ def check
   http_body = get_http_body
   if http_body
     if http_body =~ /Something CMS v1\.0/
-      # We are able to find the version thefore more precise about the vuln state
+      # We are able to find the version therefore more precise about the vuln state
       return Exploit::CheckCode::Appears
     elsif http_body =~ /Something CMS/
       # All we can tell the vulnerable app is running, but no more info to
@@ -128,3 +132,27 @@ end
 ```
 
 Another possible way to inspect is grab the vulnerable file, and use Metasm. But of course, this is a lot slower and generates more network traffic.
+
+
+## AutoCheck Mixin
+
+Metasploit offers the possibility to automatically call the `check` method before the `exploit` or `run` method is run. Just prepend the `AutoCheck` module for this, nothing more:
+
+```ruby
+  prepend Msf::Exploit::Remote::AutoCheck
+```
+
+According to the `CheckCode` returned by the `check` method, Framework will decided if the module should be executed or not:
+
+| Checkcode | Module executed? |
+| --------- | ----------- |
+| **Exploit::CheckCode::Vulnerable** | yes |
+| **Exploit::CheckCode::Appears** | yes |
+| **Exploit::CheckCode::Detected** | yes |
+| **Exploit::CheckCode::Safe** | no |
+| **Exploit::CheckCode::Unsupported** | no |
+| **Exploit::CheckCode::Unknown** | no |
+
+This mixin brings two new options that let the operator control its behavior:
+- `AutoCheck`: Sets whether or not the `check` method will be run. Default is `true`.
+- `ForceExploit`: Override the check result. The `check` method is run but the module will be executed regardless of the result. Default is `false`.

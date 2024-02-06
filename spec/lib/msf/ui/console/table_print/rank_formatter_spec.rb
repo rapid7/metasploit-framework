@@ -20,6 +20,9 @@ RSpec.describe Msf::Ui::Console::TablePrint::RankFormatter do
       expect(formatter.format(42)).to eql 42
       expect(formatter.format([])).to eql []
       expect(formatter.format({})).to eql Hash.new
+      expect(formatter.format(nil)).to eql nil
+      expect(formatter.format('')).to eql ''
+      expect(formatter.format('.')).to eql '.'
     end
   end
 end

@@ -1,5 +1,5 @@
 ## Description
-When Microsoft FrontPage is run on a non-IIS web server it creates encrypted password files in the _vti_pvt folder. When this folder is accessible, these files can be downloaded and parsed to obtain encrytped passwords. These encrypted passwords can then be cracked offline and used to gain further access to the server.
+When Microsoft FrontPage is run on a non-IIS web server it creates encrypted password files in the _vti_pvt folder. When this folder is accessible, these files can be downloaded and parsed to obtain encrypted passwords. These encrypted passwords can then be cracked offline and used to gain further access to the server.
 
 Affected Files:
 

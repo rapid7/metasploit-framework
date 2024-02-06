@@ -11,28 +11,36 @@
   4. Do: ```run```
   5. You should hopefully crack a password.
 
+## Actions
+
+### john
+
+Use john the ripper (default).
+
+### hashcat
+
+Use hashcat.
+
 ## Options
 
+### CONFIG
 
-   **CONFIG**
+The path to a John config file (JtR option: `--config`).  Default is `metasploit-framework/data/john.conf`
 
-   The path to a John config file (JtR option: `--config`).  Default is `metasploit-framework/data/john.conf`
+### JOHN_PATH
 
-   **JOHN_PATH**
+The absolute path to the John the Ripper executable.  Default behavior is to search `path` for `john` and `john.exe`.
 
-   The absolute path to the John the Ripper executable.  Default behavior is to search `path` for
-   `john` and `john.exe`.
+### POT
 
-   **POT**
+The path to a John POT file (JtR option: `--pot`) to use instead.  The `pot` file is the data file which
+records cracked password hashes.  Kali linux's default location is `/root/.john/john.pot`.
+Default is `~/.msf4/john.pot`.
 
-   The path to a John POT file (JtR option: `--pot`) to use instead.  The `pot` file is the data file which
-   records cracked password hashes.  Kali linux's default location is `/root/.john/john.pot`.
-   Default is `~/.msf4/john.pot`.
+### DeleteTempFiles
 
-   **DeleteTempFiles**
-
-   This option will prevent deletion of the wordlist and file containing hashes.  This may be useful for
-   running the hashes through john if it wasn't cracked, or for debugging. Default is `false`.
+This option will prevent deletion of the wordlist and file containing hashes.  This may be useful for
+running the hashes through john if it wasn't cracked, or for debugging. Default is `false`.
 
 ## Scenarios
 

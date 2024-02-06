@@ -4,7 +4,7 @@ Recent changes to HTTP and HTTPS communications in both Meterpreter and its stag
 
 The Windows API comes with two ways to talk via HTTP/S, they are [WinInet][] and [WinHTTP][]. The APIs are consumed in a similar fashion; many of the functions in each have the same interface, or are at least close enough to make a transition between the two rather trivial. However, there are some underlying differences that are important.
 
-The [WinInet][] API was designed for use in desktop applications. It provides all the features required by applications to use HTTP/S while delegating much of the responsibilty of handling implementation detail to the underlying API and OS. This API can result in some user interface elements appearing if not handled correctly.
+The [WinInet][] API was designed for use in desktop applications. It provides all the features required by applications to use HTTP/S while delegating much of the responsibility of handling implementation detail to the underlying API and OS. This API can result in some user interface elements appearing if not handled correctly.
 
 [WinInet][] comes with some limitations, one of which is that it's close to impossible to do any kind of custom validation, parsing, or handling of SSL communications. One of the needs of Metasploit users is to be able to enable a [[Paranoid Mode|./meterpreter-paranoid-mode.md]] that forces Meterpreter to only talk with the appropriate endpoint. The goal is to prevent shells from being hijacked by unauthorised users. In order to do this, one of the things that was implemented was the verification of the SHA1 hash of the SSL certificate that Meterpreter reads from the server. If this hash doesn't match the one that Meterpreter is configured with, Meterpreter will shut down. [WinInet][] doesn't make this process possible without a _lot_ of custom work.
 
@@ -22,7 +22,7 @@ As indicated in a [blog post on MSDN][msdn_winhttp]:
 
 What this means is that from Windows 7 and onwards, the underlying [WinHTTP][] implementation requires proper HTTP/1.1 support from any proxies that are used. If a proxy uses HTTP/1.0, such as Squid 2.7, and requires `Keep-Alive` support, such as NTLM authentication, then [WinHTTP][] will refuse to talk to it. Instead of downgrading, it will expect a purely RFC-compliant implementation, and instead will return a `407` error the client. This means that for Meterpreter to work, [WinHTTP][] can't be used.
 
-In order to avoid this issue, [extra work][wininet_fallback] has beeen done to force Meterpreter to fall back to [WinInet][] when this happens. Given that [WinInet][] doesn't do certificate hash verification, this means that the user of Meterpreter loses the ability to use paranoid mode. It was decided that Meterpreter would not fallback to [WinInet][] if paranoid mode was enabled, as the intention of the user is clearly to avoid MITM.
+In order to avoid this issue, [extra work][wininet_fallback] has been done to force Meterpreter to fall back to [WinInet][] when this happens. Given that [WinInet][] doesn't do certificate hash verification, this means that the user of Meterpreter loses the ability to use paranoid mode. It was decided that Meterpreter would not fallback to [WinInet][] if paranoid mode was enabled, as the intention of the user is clearly to avoid MITM.
 
 To sum up, Meterpreter will use [WinHTTP][] where it can. If it can't, it'll fall back to [WinInet][] _unless_ paranoid mode is enabled.
 

@@ -74,7 +74,14 @@ class MetasploitModule < Msf::Auxiliary
             'The user on whose behalf a TGS is requested (it will use S4U2Self/S4U2Proxy to request the ticket)',
           ],
           conditions: %w[ACTION == GET_TGS]
-        )
+        ),
+        OptPath.new(
+          'Krb5Ccname', [
+            false,
+            'The Kerberos TGT to use when requesting the service ticket. If unset, the database will be checked'
+          ],
+          conditions: %w[ACTION == GET_TGS]
+        ),
       ]
     )
 
@@ -151,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
     msg = e.to_s
     if e.respond_to?(:error_code) &&
        e.error_code == ::Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_PREAUTH_REQUIRED
-      msg << ' - Check the authentication-related options (PASSWORD, NTHASH or AES_KEY)'
+      msg << ' - Check the authentication-related options (Krb5Ccname, PASSWORD, NTHASH or AES_KEY)'
     end
     fail_with(Failure::Unknown, msg)
   end
@@ -192,7 +199,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def action_get_tgs
     authenticator = init_authenticator({ ticket_storage: kerberos_ticket_storage(read: true, write: true) })
-    credential = authenticator.request_tgt_only(options)
+    tgt_request_options = {}
+    if datastore['Krb5Ccname'].present?
+      tgt_request_options[:cache_file] = datastore['Krb5Ccname']
+    end
+    credential = authenticator.request_tgt_only(tgt_request_options)
 
     if datastore['IMPERSONATE'].present?
       print_status("#{peer} - Getting TGS impersonating #{datastore['IMPERSONATE']}@#{@realm} (SPN: #{datastore['SPN']})")
@@ -227,6 +238,7 @@ class MetasploitModule < Msf::Auxiliary
         sname: sname,
         ticket_storage: kerberos_ticket_storage(read: false)
       }
+
       authenticator.request_tgs_only(credential, tgs_options)
     end
   end

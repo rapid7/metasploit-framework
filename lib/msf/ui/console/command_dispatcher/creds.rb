@@ -104,6 +104,7 @@ class Creds
       password:     'Private, private_type Password.',
       ntlm:         'Private, private_type NTLM Hash.',
       postgres:     'Private, private_type postgres MD5',
+      pkcs12:       'Private, private_type pkcs12 archive file, must be a file path.',
       'ssh-key' =>  'Private, private_type SSH key, must be a file path.',
       hash:         'Private, private_type Nonreplayable hash',
       jtr:          'Private, private_type John the Ripper hash type.',
@@ -126,6 +127,8 @@ class Creds
     print_line "   creds add ntlm:E2FC15074BF7751DD408E6B105741864:A1074A69B1BDE45403AB680504BBDD1A"
     print_line "   # Add a Postgres MD5"
     print_line "   creds add user:postgres postgres:md5be86a79bf2043622d58d5453c47d4860"
+    print_line "   # Add a user with a PKCS12 file archive"
+    print_line "   creds add user:alice pkcs12:/path/to/certificate.pfx"
     print_line "   # Add a user with an SSH key"
     print_line "   creds add user:sshadmin ssh-key:/path/to/id_rsa"
     print_line "   # Add a user and a NonReplayableHash"
@@ -203,14 +206,14 @@ class Creds
     end
 
     begin
-      params.assert_valid_keys('user','password','realm','realm-type','ntlm','ssh-key','hash','address','port','protocol', 'service-name', 'jtr', 'postgres')
+      params.assert_valid_keys('user','password','realm','realm-type','ntlm','ssh-key','hash','address','port','protocol', 'service-name', 'jtr', 'pkcs12', 'postgres')
     rescue ArgumentError => e
       print_error(e.message)
     end
 
     # Verify we only have one type of private
-    if params.slice('password','ntlm','ssh-key','hash', 'postgres').length > 1
-      private_keys = params.slice('password','ntlm','ssh-key','hash', 'postgres').keys
+    if params.slice('password','ntlm','ssh-key','hash', 'pkcs12', 'postgres').length > 1
+      private_keys = params.slice('password','ntlm','ssh-key','hash', 'pkcs12', 'postgres').keys
       print_error("You can only specify a single Private type. Private types given: #{private_keys.join(', ')}")
       return
     end
@@ -262,6 +265,17 @@ class Creds
       end
       data[:private_type] = :ssh_key
       data[:private_data] = key_data
+    end
+
+    if params.key? 'pkcs12'
+      begin
+        # pkcs12 is a binary format, but for persisting we Base64 encode it
+        pkcs12_data = Base64.strict_encode64(File.binread(params['pkcs12']))
+      rescue ::Errno::EACCES, ::Errno::ENOENT => e
+        print_error("Failed to add pkcs12 archive: #{e}")
+      end
+      data[:private_type] = :pkcs12
+      data[:private_data] = pkcs12_data
     end
 
     if params.key? 'hash'
@@ -323,7 +337,7 @@ class Creds
     set_rhosts = false
     truncate = true
 
-    cred_table_columns = [ 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type', 'JtR Format' ]
+    cred_table_columns = [ 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type', 'JtR Format', 'cracked_password' ]
     delete_count = 0
     search_term = nil
 
@@ -430,22 +444,25 @@ class Creds
     }
 
     opts[:workspace] = framework.db.workspace
-    query = framework.db.creds(opts)
+    cred_cores = framework.db.creds(opts).to_a
+    cred_cores.sort_by!(&:id)
     matched_cred_ids = []
+    cracked_cred_ids = []
 
     if output_file&.ends_with?('.hcat')
       output_file = ::File.open(output_file, 'wb')
-      output_formatter = method(:hash_to_hashcat)
+      output_formatter = Metasploit::Framework::PasswordCracker::Hashcat::Formatter.method(:hash_to_hashcat)
     elsif output_file&.ends_with?('.jtr')
       output_file = ::File.open(output_file, 'wb')
-      output_formatter = method(:hash_to_jtr)
+      output_formatter = Metasploit::Framework::PasswordCracker::JtR::Formatter.method(:hash_to_jtr)
     else
       output_file = ::File.open(output_file, 'wb') unless output_file.blank?
       tbl = Rex::Text::Table.new(tbl_opts)
     end
 
-    filtered_query(query, opts, origin_ranges, host_ranges) do |core, service, origin|
+    filter_cred_cores(cred_cores, opts, origin_ranges, host_ranges) do |core, service, origin, cracked_password_core|
       matched_cred_ids << core.id
+      cracked_cred_ids << cracked_password_core.id if cracked_password_core.present?
 
       if output_file && output_formatter
         formatted = output_formatter.call(core)
@@ -479,7 +496,7 @@ class Creds
           rhosts << host unless host.blank?
           service_info = build_service_info(service)
         end
-
+        cracked_password_val = cracked_password_core&.private&.data.to_s
         tbl << [
           host,
           origin,
@@ -488,7 +505,8 @@ class Creds
           private_val,
           realm_val,
           human_val, #private type
-          jtr_val
+          jtr_val,
+          cracked_password_val
         ]
       end
     end
@@ -502,7 +520,7 @@ class Creds
     end
 
     if mode == :delete
-      result = framework.db.delete_credentials(ids: matched_cred_ids.uniq)
+      result = framework.db.delete_credentials(ids: matched_cred_ids.concat(cracked_cred_ids).uniq)
       delete_count = result.size
     end
 
@@ -533,8 +551,31 @@ class Creds
 
   protected
 
-  def filtered_query(query, opts, origin_ranges, host_ranges)
-    query.each do |core|
+  # @param [Array<Metasploit::Credential::Core>] cores The list of cores to filter
+  # @param [Hash] opts
+  # @param [Array<Rex::Socket::RangeWalker>] origin_ranges
+  # @param [Array<Rex::Socket::RangeWalker>] host_ranges
+  # @yieldparam [Metasploit::Credential::Core] core
+  # @yieldparam [Mdm::Service] service
+  # @yieldparam [Metasploit::Credential::Origin] origin
+  # @yieldparam [Metasploit::Credential::Origin::CrackedPassword] cracked_password_core
+  def filter_cred_cores(cores, opts, origin_ranges, host_ranges)
+    # Some creds may have been cracked that exist outside of the filtered cores list, let's resolve them all to show the cracked value
+    cores_by_id = cores.each_with_object({}) { |core, hash| hash[core.id] = core }
+    # Map of any originating core ids that have been cracked; The value is cracked core value
+    cracked_core_id_to_cracked_value = cores.each_with_object({}) do |core, hash|
+      next unless core.origin.kind_of?(Metasploit::Credential::Origin::CrackedPassword)
+      hash[core.origin.metasploit_credential_core_id] = core
+    end
+
+    cores.each do |core|
+      # Skip the cracked password if it's planned to be shown on the originating core row in a separate column
+      is_duplicate_cracked_password_row = core.origin.kind_of?(Metasploit::Credential::Origin::CrackedPassword) &&
+        cracked_core_id_to_cracked_value.key?(core.origin.metasploit_credential_core_id) &&
+        # The core might exist outside of the currently available cores to render
+        cores_by_id.key?(core.origin.metasploit_credential_core_id)
+      next if is_duplicate_cracked_password_row
+
       # Exclude non-blank username creds if that's what we're after
       if opts[:user] == '' && core.public && !(core.public.username.blank?)
         next
@@ -558,11 +599,12 @@ class Creds
         next
       end
 
+      cracked_password_core = cracked_core_id_to_cracked_value.fetch(core.id, nil)
       if core.logins.empty?
         service = service_from_origin(core)
         next if service.nil? && host_ranges.present? # If we're filtering by login IP and we're here there's no associated login, so skip
 
-        yield core, service, origin
+        yield core, service, origin, cracked_password_core
       else
         core.logins.each do |login|
           service = framework.db.services(id: login.service_id).first
@@ -574,7 +616,7 @@ class Creds
             next
           end
 
-          yield core, service, origin
+          yield core, service, origin, cracked_password_core
         end
       end
     end

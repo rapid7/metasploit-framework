@@ -102,7 +102,7 @@ class Handler::Erb < Handler
   end
 
   #
-  # Evaulates the ERB context in a specific binding context.
+  # Evaluates the ERB context in a specific binding context.
   #
   def evaluate(erb, cli, request, response)
     # If the thing that created this handler wanted us to use a callback

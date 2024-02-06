@@ -1,6 +1,6 @@
 GSoC Project Ideas in no particular order. When you've picked one, take a look at [[How-to-Apply-to-GSoC]] for how to make a proposal.
 
-Mentors: @zerosteiner, @jmartin-r7
+Mentors: [@zerosteiner](https://github.com/zerosteiner), [@jmartin-r7](https://github.com/jmartin-r7)
 
 ## Enhance Metasploit Framework
 
@@ -28,7 +28,7 @@ Difficulty: 3/5
 
 ### Enhance Sql Injection Support
 
-Enable faster implementation of SQL injection based explot modules by adding library support for common injection attack vectors. Currently very few sql injection exploits are implemented for Metasploit possibly due to the high complexity of building out injection queries and posting them to a vulnerable URI.
+Enable faster implementation of SQL injection based exploit modules by adding library support for common injection attack vectors. Currently very few sql injection exploits are implemented for Metasploit possibly due to the high complexity of building out injection queries and posting them to a vulnerable URI.
 
 Difficulty: 3/5
 

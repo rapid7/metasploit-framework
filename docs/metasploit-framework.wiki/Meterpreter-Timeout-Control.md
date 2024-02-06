@@ -28,13 +28,13 @@ In the case of `HTTP/S` payloads it's slightly different because the protocols a
 
 With `TCP` transports, communication "times out" when the time between the last packet and the current socket poll is greater than the communications timeout value. This happens when there are network related issues that prevent data from being transmitted between the two endpoints, but doesn't cause the socket to completely disconnect. With `HTTP/S` transports, the communication "times out" for the same reason, but the evaluation of the condition is slightly different in that failure can occur because there is either no response at all from the remote server, or the response to a `GET` request results in no acknowledgement.
 
-By default, this value is set to `300` seconds (`5` minutes), but can be overidden by the user via the `SessionCommunicationTimeout` setting.
+By default, this value is set to `300` seconds (`5` minutes), but can be overridden by the user via the `SessionCommunicationTimeout` setting.
 
 If connectivity fails, or the communication is deemed to have timed out. Then the current transport is destroyed, and the next transport in the list of transports is invoked. From there, Meterpreter will use the Retry Total and Retry Wait values while attempting to re-establish a session with Metasploit.
 
 #### Retry Total and Retry Wait
 
-After a transport initialises inside Meterpreter, Meterpreter uses this transport to attempt to establish a new session with Metasploit. In some cases, Metasploit might not be availalble due to reasons like bad network connectivity, or a lack of configured listeners. If Meterpreter can't connect to Metasploit, it will attempt to retry for a period of time. Once that period of time expires, Meterpreter will deem this transport "dead" and will move to the next one in the transport list.
+After a transport initialises inside Meterpreter, Meterpreter uses this transport to attempt to establish a new session with Metasploit. In some cases, Metasploit might not be available due to reasons like bad network connectivity, or a lack of configured listeners. If Meterpreter can't connect to Metasploit, it will attempt to retry for a period of time. Once that period of time expires, Meterpreter will deem this transport "dead" and will move to the next one in the transport list.
 
 The total amount of time that Meterpreter will attempt to connect back to Metasploit on the given transport is indicated by the `retry total` value. That is, `retry total` is the total amount of time that Meterpreter will retry communication on the transport. The default value is `3600` seconds (`1` hour), and can be overridden via the `SessionRetryTotal` setting.
 
@@ -44,7 +44,7 @@ While the current time is within the `retry total` time, Meterpreter will consta
 
 Meterpreter supports the querying and updating of each of these timeouts via the console. In order to get the current timeout settings, users can invoke the `get_timeouts` command, which returns all four of the current timeout settings (one for the global session, and three for the transport-specific settings). An example of which is shown below:
 
-```
+```msf
 meterpreter > get_timeouts 
 Session Expiry  : @ 2015-06-09 19:56:05
 Comm Timeout    : 100000 seconds
@@ -56,7 +56,7 @@ The `Session Expiry` value is rendered as an absolute local time so that the use
 
 In order to update these values, users can invoke the `set_timeouts` command. Invoking it without parameters shows the help:
 
-```
+```msf
 meterpreter > set_timeouts 
 Usage: set_timeouts [options]
 
@@ -69,7 +69,7 @@ OPTIONS:
     -h        Help menu
     -t <opt>  Retry total time (seconds)
     -w <opt>  Retry wait time (seconds)
-    -x <opt>  Expiration timout (seconds)
+    -x <opt>  Expiration timeout (seconds)
 ```
 As the help implies, each of these settings takes a value that indicates the number of seconds. Each of the options of this command are optional, so the user can update only those values that they are interested in updating. When the command is invoked, Meterpreter is updated, and the result shows the updated values once the changes have been made.
 
@@ -77,7 +77,7 @@ In the case of the `-x` parameter, the value that is to be passed in should repr
 
 The following example updates the session expiration timeout to be `2` minutes from "now", and changes the retry wait time to `3` seconds:
 
-```
+```msf
 meterpreter > set_timeouts -x 120 -t 3
 Session Expiry  : @ 2015-06-02 22:45:13
 Comm Timeout    : 100000 seconds
@@ -86,7 +86,7 @@ Retry Wait Time : 2500 seconds
 ```
 
 This command can be invoked any number of times while the session is valid, but as soon as the session has expired, Metepreter will shut down and it's game over:
-```
+```msf
 meterpreter > 
 [*] 10.1.10.35 - Meterpreter session 2 closed.  Reason: Died
 ```

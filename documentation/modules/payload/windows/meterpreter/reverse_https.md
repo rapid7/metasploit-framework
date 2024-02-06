@@ -484,7 +484,7 @@ OPTIONS:
     -h        Help menu
     -t <opt>  Retry total time (seconds)
     -w <opt>  Retry wait time (seconds)
-    -x <opt>  Expiration timout (seconds)
+    -x <opt>  Expiration timeout (seconds)
 ```
 
 To see the current timeout configuration, you can use the ```get_timeouts``` command:

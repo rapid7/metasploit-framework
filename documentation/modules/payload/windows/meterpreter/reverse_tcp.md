@@ -343,7 +343,7 @@ meterpreter >
 One great feature of the extension is clipboard management. The Windows clipboard is interesting
 because it can store anything that is sensitive, such as files, user names, and passwords, but it is not well protected.
 
-For example, a password manager is a popular tool to store encryped passwords. It allows the user
+For example, a password manager is a popular tool to store encrypted passwords. It allows the user
 to create complex passwords without the need to memorize any of them. All the user needs to do is
 open the password manager, retrieve the password for a particular account by copying it, and then
 paste it on a login page.
@@ -353,7 +353,7 @@ in the operating system's clipboard. As an attacker, you can take advantage of t
 clipboard monitor from Meterpreter/extapi, and then collect whatever the user copies.
 
 To read whatever is currently stored in the target's clipboard, you can use the clipboard_get_data
-commnad:
+command:
 
 ```
 meterpreter > clipboard_get_data
@@ -590,7 +590,7 @@ OPTIONS:
     -h        Help menu
     -t <opt>  Retry total time (seconds)
     -w <opt>  Retry wait time (seconds)
-    -x <opt>  Expiration timout (seconds)
+    -x <opt>  Expiration timeout (seconds)
 ```
 
 To see the current timeout configuration, you can use the ```get_timeouts``` command:

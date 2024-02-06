@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => "#{normalize_uri(target_uri.path, 'wp-content', 'plugins', 'easy-wp-smtp')}/" # trailing / to browse directory
     })
     fail_with Failure::Unreachable, 'Connection failed' unless res
-    # find the debug file name, prefix during my testing was 14 alpha-numeric
+    # find the debug file name, prefix during my testing was 14 alphanumeric
     unless />\s*(?<debug_log>\w{5,15}_debug_log\.txt)/ =~ res.body
       unless aggressive
         fail_with Failure::NotVulnerable, 'Either debug log not turned on, or directory listings disabled.  Try AGGRESSIVE mode if this is a false positive'

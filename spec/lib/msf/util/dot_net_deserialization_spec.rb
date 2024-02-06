@@ -33,9 +33,9 @@ RSpec.describe Msf::Util::DotNetDeserialization do
       end
     end
 
-    Msf::Util::DotNetDeserialization::GadgetChains::NAMES.each do |gadget_chain|
+    Msf::Util::DotNetDeserialization.formatter_compatible_gadget_chains(:BinaryFormatter).each do |gadget_chain|
       describe "parsed gadget chain: #{gadget_chain}" do
-        serialized = Msf::Util::DotNetDeserialization.generate(COMMAND, gadget_chain: gadget_chain)
+        serialized = Msf::Util::DotNetDeserialization.generate(COMMAND, gadget_chain: gadget_chain, formatter: :BinaryFormatter)
         stream = Msf::Util::DotNetDeserialization::Types::SerializedStream.read(serialized)
 
         it_behaves_like 'a valid serialized stream', stream

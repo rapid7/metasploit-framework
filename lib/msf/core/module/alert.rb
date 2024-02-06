@@ -40,6 +40,21 @@ module Msf::Module::Alert
       add_alert(:error, msg, &block)
     end
 
+    # Add an info message that will be provided to the user as early possible when using
+    # this instance of a module, either when they select it with the `use`
+    # command, when the module is about to start running, or when the module
+    # generates its output.
+    #
+    # @param msg [String] an optional info message
+    # @param block [Proc] an optional block that will be executed in the
+    #   context of the module instance at alert time to generate the
+    #   message. If provided the msg parameter is ignored.
+    # @return [true, nil] whether or not the message was added to the list of
+    #   info messages
+    def add_info(msg = nil, &block)
+      add_alert(:info, msg, &block)
+    end
+
     # @return [Array<String, Proc>] a list of warning message strings, or
     #   blocks (see #get_alerts)
     def warnings
@@ -52,8 +67,14 @@ module Msf::Module::Alert
       get_alerts(:error)
     end
 
-    # @param [Symbol] the alert level to return
-    # @return [Array<String, Proc>] a list of `level` alerts, either in string
+    # @return [Array<String, Proc>] a list of info message strings, or
+    #   blocks (see #get_alerts)
+    def infos
+      get_alerts(:info)
+    end
+
+    # @param level [Symbol] The alert level to return
+    # @return [Array<String, Proc>] A list of `level` alerts, either in string
     #   or block form. Blocks expect to be executed in the context of a fully
     #   initialized module instance and will return `nil` if the alert they are
     #   looking for does not apply or a string or array of strings, each
@@ -135,6 +156,21 @@ module Msf::Module::Alert
     add_alert(:error, msg, &block)
   end
 
+  # Add an info message that will be provided to the user as early possible when using
+  # this instance of a module, either when they select it with the `use`
+  # command, when the module is about to start running, or when the module
+  # generates its output.
+  #
+  # @param msg [String] an optional info message
+  # @param block [Proc] an optional block that will be executed in the
+  #   context of the module instance at alert time to generate the
+  #   message. If provided the msg parameter is ignored.
+  # @return [true, nil] whether or not the message was added to the list of
+  #   info messages
+  def add_info(msg = nil, &block)
+    add_alert(:info, msg, &block)
+  end
+
   # This method allows modules to tell the framework if they are usable
   # on the system that they are being loaded on in a generic fashion.
   # By default, all modules are indicated as being usable.  An example of
@@ -160,10 +196,15 @@ module Msf::Module::Alert
     get_alerts(:error)
   end
 
+  # @return [Array<String>] a list of info strings to show the user
+  def infos
+    get_alerts(:info)
+  end
+
   # Similar to {ClassMethods#get_alerts}, but executes each registered block in
   # the context of this module instance and returns a flattened list of strings.
   # (see {ClassMethods#get_alerts})
-  # @param [Symbol] the alert level to return
+  # @param level [Symbol] The alert level to return
   # @return [Array<String>]
   def get_alerts(level)
     self.alerts ||= {}
@@ -201,19 +242,41 @@ module Msf::Module::Alert
   # with this method will not be displayed again.
   def alert_user
     self.you_have_been_warned ||= {}
+    without_prompt do
+      errors.each do |msg|
+        if msg && !self.you_have_been_warned[msg.hash]
+          print_error(msg, prefix: '')
+          self.you_have_been_warned[msg.hash] = true
+        end
+      end
 
-    errors.each do |msg|
-      if msg && !self.you_have_been_warned[msg.hash]
-        print_error(msg)
-        self.you_have_been_warned[msg.hash] = true
+      warnings.each do |msg|
+        if msg && !self.you_have_been_warned[msg.hash]
+          print_warning(msg, prefix: '')
+          self.you_have_been_warned[msg.hash] = true
+        end
+      end
+
+      infos.each do |msg|
+        if msg && !self.you_have_been_warned[msg.hash]
+          # Make prefix an empty string to avoid adding clutter (timestamps, rhost, rport, etc.) to the output
+          print_status(msg, prefix: '')
+          self.you_have_been_warned[msg.hash] = true
+        end
       end
     end
+  end
 
-    warnings.each do |msg|
-      if msg && !self.you_have_been_warned[msg.hash]
-        print_warning(msg)
-        self.you_have_been_warned[msg.hash] = true
-      end
+    # Temporarily set the prompt mode to false to ensure that there are not additional lines printed
+    # A workaround for the prompting bug spotted in https://github.com/rapid7/metasploit-framework/pull/18761#issuecomment-1916645095
+  def without_prompt(&block)
+    if user_output
+      previous_prompting_value = user_output.prompting?
+      user_output.prompting(false)
     end
+
+    yield
+  ensure
+    user_output.prompting(previous_prompting_value) if user_output
   end
 end

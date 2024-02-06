@@ -73,7 +73,7 @@ This module has a selection of inbuilt queries which can be configured via the `
 - `ENUM_ALL_OBJECT_CATEGORY` - Dump all objects containing any objectCategory field.
 - `ENUM_ALL_OBJECT_CLASS` - Dump all objects containing any objectClass field.
 - `ENUM_COMPUTERS` - Dump all objects containing an objectCategory or objectClass of Computer.
-- `ENUM_CONSTRAINED_DELEGATION` - Dump info about all known objects that allow contrained delegation.
+- `ENUM_CONSTRAINED_DELEGATION` - Dump info about all known objects that allow constrained delegation.
 - `ENUM_DNS_RECORDS` - Dump info about DNS records the server knows about using the dnsNode object class.
 - `ENUM_DNS_ZONES` - Dump info about DNS zones the server knows about using the dnsZone object class under the DC DomainDnsZones. This isneeded - as without this BASEDN prefix we often miss certain entries.
 - `ENUM_DOMAIN` - Dump info about the Active Directory domain.
@@ -89,7 +89,7 @@ This module has a selection of inbuilt queries which can be configured via the `
 - `ENUM_MACHINE_ACCOUNT_QUOTA` - Dump the number of computer accounts a user is allowed to create in a domain.
 - `ENUM_ORGROLES` - Dump info about all known organization roles in the LDAP environment.
 - `ENUM_ORGUNITS` - Dump info about all known organizational units in the LDAP environment.
-- `ENUM_UNCONSTRAINED_DELEGATION` - Dump info about all known objects that allow uncontrained delegation.
+- `ENUM_UNCONSTRAINED_DELEGATION` - Dump info about all known objects that allow unconstrained delegation.
 - `ENUM_USER_ACCOUNT_DISABLED` - Dump info about disabled user accounts.
 - `ENUM_USER_ACCOUNT_LOCKED_OUT` - Dump info about locked out user accounts.
 - `ENUM_USER_ASREP_ROASTABLE` - Dump info about all users who are configured not to require kerberos pre-authentication and are therefore AS-REP roastable.

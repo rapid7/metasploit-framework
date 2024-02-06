@@ -1,6 +1,6 @@
 GSoC Project Ideas in no particular order. When you've picked one, take a look at [[How-to-Apply-to-GSoC]] for how to make a proposal.
 
-Mentors: @jmartin-r7
+Mentors: [@jmartin-r7](https://github.com/jmartin-r7) 
 
 Slack Contacts: @Op3n4M3 on [Metasploit Slack](https://metasploit.slack.com/)
 

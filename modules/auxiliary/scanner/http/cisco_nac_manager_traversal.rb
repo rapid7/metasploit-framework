@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'           => 'Cisco Network Access Manager Directory Traversal Vulnerability',
       'Description'    => %q{
-        This module tests whether a directory traversal vulnerablity is present
+        This module tests whether a directory traversal vulnerability is present
         in versions of Cisco Network Access Manager 4.8.x You may wish to change
         FILE (e.g. passwd or hosts), MAXDIRS and RPORT depending on your environment.
         },

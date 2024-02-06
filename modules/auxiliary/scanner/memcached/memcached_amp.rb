@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def scanner_process(data, shost, sport)
-    # Check the response data for a "STAT" repsonse
+    # Check the response data for a "STAT" response
     if data =~ /\x0d\x0aSTAT\x20/
       @results[shost] ||= []
       @results[shost] << data

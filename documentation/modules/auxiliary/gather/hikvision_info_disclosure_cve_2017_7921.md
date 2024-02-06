@@ -52,7 +52,7 @@ camera snapshots.
 
 ## Actions
 ### Automatic
-Retrieves all information suported by this module
+Retrieves all information supported by this module
 ### Configuration
 Retrieves the camera hardware and software configuration
 ### Credentials
@@ -120,7 +120,7 @@ Device manufacturer: Hikvision.China
 Device model: DS-2CD2142FWD-IS
 Device S/N: DS-2CD2142FWD-IS2016HS77777777777
 Device MAC: bc:ad:28:ff:ff:ff
-Device firware version: V5.4.1
+Device firmware version: V5.4.1
 Device firmware release: build 160525
 Device boot version: V1.3.4
 Device boot release: 100316

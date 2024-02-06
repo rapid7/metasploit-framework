@@ -22,7 +22,7 @@ $  docker run -i -p 1883:1883  toke/mosquitto
 1513822879: Opening ipv6 listen socket on port 1883.
 ```
 
-#### Docker MQTT Server Without Anonymous Authenticaiton
+#### Docker MQTT Server Without Anonymous Authentication
 
 Msquitto can be configured to require credentials.  To run in this way:
 

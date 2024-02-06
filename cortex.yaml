@@ -1,0 +1,15 @@
+---
+info:
+  title: Metasploit Framework
+  description: Metasploit Framework
+  x-cortex-git:
+    github:
+      alias: r7org
+      repository: rapid7/metasploit-framework
+  x-cortex-tag: metasploit-framework
+  x-cortex-type: service
+  x-cortex-domain-parents:
+  - tag: metasploit
+openapi: 3.0.1
+servers:
+- url: "/"

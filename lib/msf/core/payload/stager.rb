@@ -188,15 +188,14 @@ module Msf::Payload::Stager
         end
       end
 
-      p = generate_stage(opts)
-
-      # Encode the stage if stage encoding is enabled
+      # Generate and encode the stage if stage encoding is enabled
       begin
+        p = generate_stage(opts)
         p = encode_stage(p)
-      rescue ::RuntimeError
+      rescue ::RuntimeError, ::StandardError => e
         warning_msg = "Failed to stage"
         warning_msg << " (#{conn.peerhost})"  if conn.respond_to? :peerhost
-        warning_msg << ": #{$!}"
+        warning_msg << ": #{e}"
         print_warning warning_msg
         if conn.respond_to? :close && !conn.closed?
           conn.close

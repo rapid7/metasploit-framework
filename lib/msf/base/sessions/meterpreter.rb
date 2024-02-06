@@ -95,6 +95,15 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     self.console = Rex::Post::Meterpreter::Ui::Console.new(self)
   end
 
+  def exit
+    begin
+      self.core.shutdown
+    rescue StandardError
+      nil
+    end
+    self.shutdown_passive_dispatcher
+    self.console.stop
+  end
   #
   # Returns the session type as being 'meterpreter'.
   #
@@ -591,6 +600,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     # Return the socket to the caller
     sock
+  end
+
+  def supports_udp?
+    true
   end
 
   #

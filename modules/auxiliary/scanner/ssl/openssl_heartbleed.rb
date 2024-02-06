@@ -562,7 +562,7 @@ class MetasploitModule < Msf::Auxiliary
   # Keydumping helper methods
   #
 
-  # Tries to retreive the private key
+  # Tries to retrieve the private key
   def get_keys
     connect_result = establish_connect
     disconnect

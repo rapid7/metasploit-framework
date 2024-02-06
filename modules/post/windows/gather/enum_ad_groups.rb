@@ -69,8 +69,8 @@ class MetasploitModule < Msf::Post
   # and records and usernames as {Metasploit::Credential::Core}s in
   # the database.
   #
-  # @param [Array<Array<Hash>>] the LDAP query results to parse
-  # @return [Rex::Text::Table] the table containing all the result data
+  # @param results [Array<Array<Hash>>] The LDAP query results to parse
+  # @return [Rex::Text::Table] The table containing all the result data
   def parse_results(results)
     # Results table holds raw string data
     results_table = Rex::Text::Table.new(

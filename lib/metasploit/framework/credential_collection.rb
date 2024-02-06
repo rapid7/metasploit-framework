@@ -113,6 +113,7 @@ module Metasploit::Framework
           pass_from_file.chomp!
           yield Metasploit::Framework::Credential.new(private: pass_from_file, realm: realm, private_type: private_type(pass_from_file))
         end
+        pass_fd.seek(0)
       end
       additional_privates.each do |add_private|
         yield Metasploit::Framework::Credential.new(private: add_private, realm: realm, private_type: private_type(add_private))
@@ -191,6 +192,11 @@ module Metasploit::Framework
     #   @return [String]
     attr_accessor :userpass_file
 
+    # @!attribute anonymous_login
+    #   Whether to attempt an anonymous login (blank user/pass)
+    #   @return [Boolean]
+    attr_accessor :anonymous_login
+
     # @option opts [Boolean] :blank_passwords See {#blank_passwords}
     # @option opts [String] :pass_file See {#pass_file}
     # @option opts [String] :password See {#password}
@@ -225,6 +231,10 @@ module Metasploit::Framework
 
       prepended_creds.each { |c| yield c }
 
+      if anonymous_login
+        yield Metasploit::Framework::Credential.new(public: '', private: '', realm: realm, private_type: :password)
+      end
+
       if username.present?
         if nil_passwords
           yield Metasploit::Framework::Credential.new(public: username, private: nil, realm: realm, private_type: :password)
@@ -243,6 +253,7 @@ module Metasploit::Framework
             pass_from_file.chomp!
             yield Metasploit::Framework::Credential.new(public: username, private: pass_from_file, realm: realm, private_type: private_type(pass_from_file))
           end
+          pass_fd.seek(0)
         end
         additional_privates.each do |add_private|
           yield Metasploit::Framework::Credential.new(public: username, private: add_private, realm: realm, private_type: private_type(add_private))
@@ -323,7 +334,7 @@ module Metasploit::Framework
     #
     # @return [Boolean]
     def empty?
-      prepended_creds.empty? && !has_users? || (has_users? && !has_privates?)
+      prepended_creds.empty? && !has_users? && !anonymous_login || (has_users? && !has_privates?)
     end
 
     # Returns true when there are any user values set

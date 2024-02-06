@@ -598,7 +598,7 @@ module Msf
     # @return [True] if the payload is a valid Metasploit Payload
     # @return [False] if the payload is not a valid Metasploit Payload
     def payload_is_valid?
-      (framework.payloads.keys + ['stdin']).include? payload
+      (framework.payloads.module_refnames + ['stdin']).include? payload
     end
 
   end

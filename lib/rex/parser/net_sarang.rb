@@ -77,12 +77,13 @@ module Rex
         end
       end
 
-      # parser xsh session file
+      # Parse xsh session file provided as a string.
       #
-      # @param ini [String]
-      # @return [version, host, port, username, password]
-      def parser_xsh(file)
-        ini = Rex::Parser::Ini.from_s(file)
+      # @param input [String] XSH Session file as a string
+      # @return [Array] An array containing the version, host,
+      #   port, username, and password obtained from the XSH session file.
+      def parser_xsh(input)
+        ini = Rex::Parser::Ini.from_s(input)
         version = ini['SessionInfo']['Version']
         port = ini['CONNECTION']['Port']
         host = ini['CONNECTION']['Host']

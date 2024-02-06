@@ -350,7 +350,7 @@ class MetasploitModule < Msf::Auxiliary
         :sname => 'oracle',
         :port => datastore['RPORT'],
         :type => 'ORA_ENUM',
-        :data => "Password Maximun Reuse Time: #{passreusemax[0].chomp}",
+        :data => "Password Maximum Reuse Time: #{passreusemax[0].chomp}",
         :update => :unique_data
       )
       print_status("\tThe Number of Times a Password can be reused is set to #{passreuse[0].chomp}")

@@ -17,11 +17,12 @@ module ModuleArgumentParsing
 
   # Options which are standard and predictable across all modules
   @@module_opts = Rex::Parser::Arguments.new(
-    ['-h', '--help']       => [ false, 'Help banner.'                                                       ],
-    ['-j', '--job']        => [ false, 'Run in the context of a job.'                                       ],
-    ['-J', '--foreground'] => [ false, 'Force running in the foreground, even if passive.'                  ],
-    ['-o', '--options']    => [ true,  'A comma separated list of options in VAR=VAL format.', '<options>'  ],
-    ['-q', '--quiet']      => [ false, 'Run the module in quiet mode with no output'                        ]
+    ['-h', '--help']        => [ false, 'Help banner.'                                                       ],
+    ['-j', '--job']         => [ false, 'Run in the context of a job.'                                       ],
+    ['-J', '--foreground']  => [ false, 'Force running in the foreground, even if passive.'                  ],
+    ['-o', '--options']     => [ true,  'A comma separated list of options in VAR=VAL format.', '<options>'  ],
+    ['-q', '--quiet']       => [ false, 'Run the module in quiet mode with no output'                        ],
+    ['-r', '--reload-libs'] => [ false, 'Reload all libraries before running.'                               ]
   )
 
   @@module_opts_with_action_support = @@module_opts.merge(
@@ -41,7 +42,7 @@ module ModuleArgumentParsing
     help_cmd = proc do |_result|
       cmd_check_help
     end
-    parse_opts(@@module_opts_with_action_support, args, help_cmd: help_cmd)&.slice(:datastore_options)
+    parse_opts(@@module_opts_with_action_support, args, help_cmd: help_cmd)&.slice(:datastore_options, :reload_libs)
   end
 
   def parse_run_opts(args, action: nil)
@@ -127,6 +128,8 @@ module ModuleArgumentParsing
         end
       when '-p'
         result[:payload] = val
+      when '-r'
+        result[:reload_libs] = true
       when '-t'
         result[:target] = val.to_i
       when '-z'

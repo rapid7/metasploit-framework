@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Encoder
     i = 0
     b64[i] = "chr(#{b64[i]})." while (b64[i].chr =~ %r{[0-9/+]})
 
-    # Similarly, when we seperate large payloads into chunks to avoid the
+    # Similarly, when we separate large payloads into chunks to avoid the
     # 998-byte problem mentioned above, we have to make sure that the first
     # character of each chunk is an alpha character.  This simple algorithm
     # will create a broken string in the case of 99 consecutive digits,

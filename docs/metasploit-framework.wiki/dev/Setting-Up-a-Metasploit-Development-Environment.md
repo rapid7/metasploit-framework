@@ -167,7 +167,7 @@ Making sure you're in the right directory to run `msfconsole` can become tedious
 echo 'alias msfconsole="pushd $HOME/git/metasploit-framework && ./msfconsole && popd"' >> ~/.bash_aliases
 ```
 
-Consider generating a GPG key to sign your commits.  Read about [why][git-horror] and [[how|./committer-keys.md#signing-your-commits-and-merges]. Once you have done this, consider enabling automatic signing of all your commits with the following command:
+Consider generating a GPG key to sign your commits.  Read about [why][git-horror] and [[how|./committer-keys.md#signing-your-commits-and-merges]]. Once you have done this, consider enabling automatic signing of all your commits with the following command:
 
 ```
 cd *path to your cloned MSF repository on disk*
@@ -176,7 +176,7 @@ git config commit.gpgsign true
 
 Developers tend to customize their own [git aliases] to speed up common commands, but here are a few common ones:
 
-```rc
+```ini
 [alias]
 # An easy, colored oneline log format that shows signed/unsigned status
 nicelog = log --pretty=format:'%Cred%h%Creset -%Creset %s %Cgreen(%cr) %C(bold blue)<%aE>%Creset [%G?]'
@@ -216,9 +216,9 @@ We're excited to see your upcoming contributions of new modules, documentation, 
 
 Finally, we welcome your feedback on this guide, so feel free to reach out to us on [Slack] or open a [new issue].  For their significant contributions to this guide, we would like to thank [@kernelsmith], [@corelanc0d3r], and [@ffmike].
 
-[commercial-installer]:http://metasploit.com/download
+[commercial-installer]:https://metasploit.com/download
 [kali-user-instructions]:https://docs.kali.org/general-use/starting-metasploit-framework-in-kali
-[parrot-user-instructions]:https://parrotsec.org/docs/installation.html
+[parrot-user-instructions]:https://parrotsec.org/docs/category/installation
 [CONTRIBUTING.md]:https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md
 
 [Ubuntu]:https://www.ubuntu.com/download/desktop

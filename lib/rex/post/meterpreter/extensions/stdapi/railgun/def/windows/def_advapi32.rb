@@ -1261,14 +1261,24 @@ class Def_windows_advapi32
       ["PBLOB","GenericMapping","in"],
       ])
 
+    dll.add_function('ConvertSidToStringSidA', 'BOOL',[
+      ["LPVOID", "Sid", "in"],
+      ["PLPVOID", "StringSid", "out"],
+      ])
+
+    dll.add_function('ConvertSidToStringSidW', 'BOOL',[
+      ["LPVOID", "Sid", "in"],
+      ["PLPVOID", "StringSid", "out"],
+      ])
+
     dll.add_function('ConvertStringSidToSidA', 'BOOL',[
       ["PCHAR","StringSid","in"],
-      ["PDWORD","pSid","out"],
+      ["PLPVOID","pSid","out"],
       ])
 
     dll.add_function('ConvertStringSidToSidW', 'BOOL',[
       ["PWCHAR","StringSid","in"],
-      ["PDWORD","pSid","out"],
+      ["PLPVOID","pSid","out"],
       ])
 
     dll.add_function('CopySid', 'BOOL',[
@@ -1796,6 +1806,10 @@ class Def_windows_advapi32
       ["PBLOB","lpLuid","out"],
       ])
 
+    dll.add_function('LsaNtStatusToWinError', 'ULONG',[
+      ["NTSTATUS", "Status", "in"]
+      ])
+
     dll.add_function('MakeAbsoluteSD', 'BOOL',[
       ["PBLOB","pSelfRelativeSecurityDescriptor","in"],
       ["PBLOB","pAbsoluteSecurityDescriptor","out"],
@@ -1936,13 +1950,13 @@ class Def_windows_advapi32
       ])
 
     dll.add_function('OpenProcessToken', 'BOOL',[
-      ["DWORD","ProcessHandle","in"],
+      ["HANDLE","ProcessHandle","in"],
       ["DWORD","DesiredAccess","in"],
       ["PHANDLE","TokenHandle","out"],
       ])
 
     dll.add_function('OpenThreadToken', 'BOOL',[
-      ["DWORD","ThreadHandle","in"],
+      ["HANDLE","ThreadHandle","in"],
       ["DWORD","DesiredAccess","in"],
       ["BOOL","OpenAsSelf","in"],
       ["PHANDLE","TokenHandle","out"],

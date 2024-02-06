@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
 
     @netifaces = true
     if not netifaces_implemented?
-      print_error("WARNING : Pcaprub is not uptodate, some functionality will not be available")
+      print_error("WARNING : Pcaprub is not up-to-date, some functionality will not be available")
       @netifaces = false
     end
 
@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
     ping6("ff02::1:2", {"DMAC" => dmac, "SHOST" => shost, "SMAC" =>  @smac, "WAIT" => false})  #All DHCP servers and relay agents on the local network site (defined in RFC 3315)
     ping6("ff05::1:3", {"DMAC" => dmac, "SHOST" => shost, "SMAC" =>  @smac, "WAIT" => false})  #All DHCP servers on the local network site (defined in RFC 3315)
 
-    # Listen for host advertisments
+    # Listen for host advertisements
     print_status("Listening for responses...")
     listen_for_ping_response()
 

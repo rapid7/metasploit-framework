@@ -53,7 +53,7 @@ Module options (auxiliary/client/telegram/send_message):
    BOT_TOKEN                    yes       Telegram BOT token
    CHAT_ID                      no        Chat ID for the BOT
    DOCUMENT                     no        The path to the document(binary, video etc)
-   FORMATTING  Markdown         no        Message formating option (Markdown|MarkdownV2|HTML) (Accepted: Markdown, MarkdownV2, HT
+   FORMATTING  Markdown         no        Message formatting option (Markdown|MarkdownV2|HTML) (Accepted: Markdown, MarkdownV2, HT
                                           ML)
    IDFILE                       no        File containing chat IDs, one per line
    MESSAGE                      no        The message to be sent

@@ -1,6 +1,6 @@
 ## Kerberos Ticket Forging (Golden/Silver tickets)
 
-The `auxiliary/admin/kerberos/forge_ticket` module allows the forging of a golden or silver ticket.
+The `auxiliary/admin/kerberos/forge_ticket` module allows the forging of a golden, silver, diamond or sapphire ticket.
 
 ## Vulnerable Application
 
@@ -12,6 +12,8 @@ There are two kind of actions the module can run:
 
 1. **FORGE_SILVER** - Forge a Silver ticket - forging a service ticket. [Default]
 2. **FORGE_GOLDEN** - Forge a Golden ticket - forging a ticket granting ticket.
+3. **FORGE_DIAMOND** - Forge a Diamond ticket - forging a ticket granting ticket by copying the PAC of another user.
+4. **FORGE_SAPPHIRE** - Forge a Golden ticket - forging a ticket granting ticket by copying the PAC of a particular user, using the S4U2Self+U2U trick.
 
 ## Pre-Verification steps
 
@@ -198,6 +200,39 @@ Example using a silver ticket with impacket:
 export KRB5CCNAME=/Users/user/.msf4/loot/20220901132003_default_192.168.123.13_kerberos_ticket._554255.bin
 python3 $code/impacket/examples/smbexec.py 'adf3.local/Administrator@dc3.adf3.local' -dc-ip 192.168.123.13 -k -no-pass
 ```
+
+### Forging Diamond ticket
+
+A diamond ticket is just a golden ticket (thus requiring knowledge of the krbtgt hash), with an attempt to be stealthier, by:
+
+- Performing an AS-REQ request to retrieve a TGT for any user
+- Using the krbtgt hash to decrypt the real ticket
+- Setting properties of the forged PAC to mirror those in the valid TGT
+- Encrypting the forged ticket with the krbtgt hash
+
+The primary requirement of a Diamond ticket is the same: knowledge of the krbtgt hash of the domain.
+The `DOMAIN_SID` property is not required, as this is retrieved from the valid TGT.
+
+To perform the first step (retrieving the TGT), you must provide sufficient information to authenticate to the domain
+(i.e. `RHOST`, `USERNAME` and `PASSWORD`).
+
+### Forging Sapphire ticket
+
+A sapphire ticket is similar to a Diamond ticket, in that it retrieves a real TGT, and copies data from that PAC onto the forged ticket. However,
+instead of using the ticket retrieved in the initial authentication, an additional step is performed to retrieve a PAC for another (presumably 
+high-privilege) user:
+
+- Authenticating to the KDC
+- Using the S4U2Self and U2U extensions to request a TGS for a high-privilege user (this mirrors what the real user's PAC would look like, but the ticket is unusable in high-privilege contexts)
+- Decrypt this information
+- Setting properties of the forged PAC to mirror those in the valid TGT
+- Encrypting the forged ticket with the krbtgt hash
+
+The primary requirement of a Sapphire ticket is the same as for Golden and Diamond tickets: knowledge of the krbtgt hash of the domain.
+The `DOMAIN_SID` and `DOMAIN_RID` properties are not required, as this is retrieved from the valid TGT.
+
+To perform the first step (retrieving the TGT), you must provide sufficient information to authenticate to the domain
+(i.e. `RHOST`, `USERNAME` and `PASSWORD`).
 
 ### Common Mistakes
 

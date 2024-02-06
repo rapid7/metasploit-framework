@@ -9,7 +9,7 @@
 #Meterpreter script for running multiple commands on Windows 2003, Windows Vista
 # and Windows XP and Windows 2008 targets.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
-#Verion: 0.1
+#Version: 0.1
 ################## Variable Declarations ##################
 session = client
 wininfo = client.sys.config.sysinfo
@@ -27,7 +27,7 @@ outfile = nil
 help = 0
 
 ################## Function Declarations ##################
-# Function for running a list of commands stored in a array, returs string
+# Function for running a list of commands stored in a array, returns string
 def list_exec(session,cmdlst)
   print_status("Running Command List ...")
   tmpout = ""

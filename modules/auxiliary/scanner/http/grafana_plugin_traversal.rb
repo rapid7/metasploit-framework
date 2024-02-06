@@ -26,14 +26,15 @@ class MetasploitModule < Msf::Auxiliary
           'Reliability' => [],
           'SideEffects' => [IOC_IN_LOGS]
         },
+        'DisclosureDate' => '2021-12-02',
         'References' => [
           ['CVE', '2021-43798'],
           ['URL', 'https://github.com/grafana/grafana/security/advisories/GHSA-8pjx-jj86-j47p'],
           ['URL', 'https://grafana.com/blog/2021/12/07/grafana-8.3.1-8.2.7-8.1.8-and-8.0.7-released-with-high-severity-security-fix/'],
           ['EDB', '50581'],
           ['URL', 'https://github.com/jas502n/Grafana-CVE-2021-43798'],
-          ['URL', 'https://github.com/grafana/grafana/commit/c798c0e958d15d9cc7f27c72113d572fa58545ce']
-
+          ['URL', 'https://github.com/grafana/grafana/commit/c798c0e958d15d9cc7f27c72113d572fa58545ce'],
+          ['URL', 'https://labs.detectify.com/security-guidance/how-i-found-the-grafana-zero-day-path-traversal-exploit-that-gave-me-access-to-your-logs/']
         ]
       )
     )
@@ -62,18 +63,29 @@ class MetasploitModule < Msf::Auxiliary
     })
     return Exploit::CheckCode::Unknown unless res && res.code == 200
 
-    /"subTitle":"Grafana v(?<version>\d{1,2}.\d{1,2}.\d{1,2}) \([0-9a-f]{10}\)",/ =~ res.body
-    return Exploit::CheckCode::Safe unless version
+    # We need to take into account beta versions, which end with -beta<digit>. See: https://grafana.com/docs/grafana/latest/release-notes/
+    # Also take into account preview versions, which end with -preview. See https://grafana.com/grafana/download/10.0.0-preview?edition=oss for more info.
+    /"subTitle":"Grafana v(?<full_version>\d{1,2}\.\d{1,2}\.\d{1,2}(?:(?:-beta\d)?|(?:-preview)?)) \([0-9a-f]{10}\)",/ =~ res.body
+    return Exploit::CheckCode::Safe unless full_version
 
-    version = Rex::Version.new(version)
+    # However, since 8.3.1 does not have a beta, we can safely ignore the -beta suffix when comparing versions
+    # In fact, this is necessary because Rex::Version doesn't correctly handle versions ending with -beta when comparing
+    if /-beta\d$/ =~ full_version
+      version = Rex::Version.new(full_version[0..-7])
+    elsif /-preview$/ =~ full_version
+      version = Rex::Version.new(full_version[0..-9])
+    else
+      version = Rex::Version.new(full_version)
+    end
+
     if version.between?(Rex::Version.new('8.0.0-beta1'), Rex::Version.new('8.0.7')) ||
        version.between?(Rex::Version.new('8.1.0'), Rex::Version.new('8.1.8')) ||
        version.between?(Rex::Version.new('8.2.0'), Rex::Version.new('8.2.7')) ||
        version.between?(Rex::Version.new('8.3.0'), Rex::Version.new('8.3.1'))
-      print_good("Detected vulnerable Grafina: #{version}")
+      print_good("Detected vulnerable Grafana: #{full_version}")
       return Exploit::CheckCode::Appears
     end
-    print_bad("Detected non-vulnerable Grafina: #{version}")
+    print_bad("Detected non-vulnerable Grafana: #{full_version}")
     return Exploit::CheckCode::Safe
   end
 

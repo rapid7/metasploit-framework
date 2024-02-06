@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'metasploit/framework/hashes'
 require 'bcrypt'
 
 =begin
@@ -312,6 +311,13 @@ RSpec.describe Metasploit::Framework::Hashes do
     it 'returns vnc on no leading star' do
       hash = described_class.identify_hash('00112233445566778899aabbccddeeff*6feb3cb1f07b66151656b5832341f223')
       expect(hash).to match('vnc')
+    end
+  end
+
+  describe 'identify_pbkdf2-sha256' do
+    it 'returns pbkdf2-sha256' do
+      hash = described_class.identify_hash('$pbkdf2-sha256$260000$Q1hzYjU5dFNMWm05QUJCTg$s.vmjGlIV0ZKV1Sp3dTdrcn/i9CTqxPZ0klve4HreeU')
+      expect(hash).to match('pbkdf2-sha256')
     end
   end
 

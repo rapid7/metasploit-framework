@@ -438,10 +438,10 @@ module Msf
             fmt = {
               '-h' => [ nil                                               ],
               '-x' => [ nil                                               ],
-              '-p' => [ framework.payloads.map { |refname, mod| refname } ],
+              '-p' => [ framework.payloads.module_refnames                ],
               '-P' => [ true                                              ],
               '-H' => [ :address                                          ],
-              '-e' => [ framework.encoders.map { |refname, mod| refname } ],
+              '-e' => [ framework.encoders.module_refnames                ],
               '-n' => [ true                                              ]
             }
             tab_complete_generic(fmt, str, words)

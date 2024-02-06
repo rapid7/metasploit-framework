@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(443),
         OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
         OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ]),
-        OptBool.new('SCREENSHOT', [true, "Wheter or not to try to take a screenshot", true])
+        OptBool.new('SCREENSHOT', [true, "Whether or not to try to take a screenshot", true])
       ])
   end
 

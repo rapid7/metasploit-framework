@@ -41,6 +41,8 @@ class MsfAutoload
         'Http'
       elsif basename == 'rftransceiver' && abspath.end_with?("#{__dir__}/rex/post/hwbridge/ui/console/command_dispatcher/rftransceiver.rb")
         'RFtransceiver'
+      elsif basename == 'mysql' && abspath.end_with?("#{__dir__}/msf/base/sessions/mysql.rb")
+        'MySQL'
       else
        super
     end
@@ -170,6 +172,7 @@ class MsfAutoload
       'pe_inject' => 'PEInject',
       'payload_db_conf' => 'PayloadDBConf',
       'reverse_tcp_x86' => 'ReverseTcp_x86',
+      'reverse_tcp_aarch64' => 'ReverseTcp_Aarch64',
       'ruby_dl' => 'RubyDL',
       'wmic' => 'WMIC',
       'net_api' => 'NetAPI',
@@ -186,6 +189,7 @@ class MsfAutoload
       'cli' => 'CLI',
       'sqlitei' => 'SQLitei',
       'mysqli' => 'MySQLi',
+      'postgresql' => 'PostgreSQL',
       'postgresqli' => 'PostgreSQLi',
       'ssh' => 'SSH',
       'winrm' => 'WinRM',
@@ -194,6 +198,7 @@ class MsfAutoload
       'jboss' => 'JBoss',
       'send_uuid_x64' => 'SendUUID_x64',
       'reverse_tcp_x64' => 'ReverseTcp_x64',
+      'reverse_sctp_x64' => 'ReverseSctp_x64',
       'block_api_x64' => 'BlockApi_x64',
       'exitfunk_x64' => 'Exitfunk_x64',
       'reverse_http_x64' => 'ReverseHttp_x64',
@@ -246,6 +251,7 @@ class MsfAutoload
       'meterpreter_mipsbe_linux' => 'Meterpreter_mipsbe_Linux',
       'meterpreter_aarch64_apple_ios' => 'Meterpreter_aarch64_Apple_iOS',
       'meterpreter_x64_osx' => 'Meterpreter_x64_OSX',
+      'meterpreter_aarch64_osx' => 'Meterpreter_aarch64_OSX',
       'meterpreter_ppc_linux' => 'Meterpreter_ppc_Linux',
       'meterpreter_x64_win' => 'Meterpreter_x64_Win',
       'meterpreter_php' => 'Meterpreter_Php_Php',
@@ -297,7 +303,7 @@ class MsfAutoload
   def config_paths
     [
       { path: "#{__dir__}/msf/", namespace: Msf },
-      { path: "#{__dir__}/rex/", namespace: Rex },
+      { path: "#{__dir__}/rex/", namespace: Rex }
     ]
   end
 
@@ -331,5 +337,9 @@ end
 autoload :Faker, 'faker'
 autoload :BinData, 'bindata'
 autoload :RubySMB, 'ruby_smb'
+autoload :MetasploitPayloads, 'metasploit-payloads'
 
 require 'rexml/document'
+
+# XXX: Should be removed once the `lib/metasploit` folder is loaded by Zeitwerk
+require 'metasploit/framework/hashes'

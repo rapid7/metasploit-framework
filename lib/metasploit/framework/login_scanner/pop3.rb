@@ -39,7 +39,7 @@ module Metasploit
             connect
             select([sock],nil,nil,0.4)
 
-            # Check to see if we recieved an OK?
+            # Check to see if we received an OK?
             result_options[:proof] = sock.get_once
             if result_options[:proof] && result_options[:proof][/^\+OK.*/]
               # If we received an OK we should send the USER

@@ -23,7 +23,7 @@ If you want to confirm the vulnerability before you add user or perform any othe
 Confirmation:
 
 Then go to meterpreter session and confirm running process (ps)
-If you see notepad.exe running as SYSYEM then that is as indication of vulnerable system.
+If you see notepad.exe running as SYSTEM then that is as indication of vulnerable system.
 
 ## Options
 

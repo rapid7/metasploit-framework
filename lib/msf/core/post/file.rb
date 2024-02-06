@@ -49,7 +49,7 @@ module Msf::Post::File
     if session.type == 'meterpreter'
       session.fs.dir.chdir(e_path)
     elsif session.type == 'powershell'
-      cmd_exec("Set-Location -Path \"#{e_path}\"")
+      cmd_exec("Set-Location -Path \"#{e_path}\";[System.IO.Directory]::SetCurrentDirectory($(Get-Location))")
     else
       session.shell_command_token("cd \"#{e_path}\"")
     end
@@ -156,7 +156,7 @@ module Msf::Post::File
       if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\\*\" ( echo true )")
       else
-        f = session.shell_command_token("test -d \"#{path}\" && echo true")
+        f = session.shell_command_token("test -d '#{path}' && echo true")
       end
       return false if f.nil? || f.empty?
       return false unless f =~ /true/
@@ -305,7 +305,7 @@ module Msf::Post::File
       end
       return !!stat
     elsif session.type == 'powershell'
-      return cmd_exec("[System.IO.File]::Exists( \"#{path}\")")&.include?('True')
+      return cmd_exec("Test-Path \"#{path}\"")&.include?('True')
     else
       if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\" ( echo true )")
@@ -559,7 +559,7 @@ module Msf::Post::File
   # Upload a binary and write it as an executable file +remote+ on the
   # remote filesystem.
   #
-  # @param remote [String] Destination file name on the remote filesystem
+  # @param path [String] Path to the destination file on the remote filesystem
   # @param data [String] Data to be uploaded
   def upload_and_chmodx(path, data)
     print_status "Writing '#{path}' (#{data.size} bytes) ..."
@@ -587,8 +587,8 @@ module Msf::Post::File
   #
   # Read a local exploit file binary from the data directory
   #
-  # @param path [String] Directory in the exploits folder
-  # @param path [String] Filename in the data folder
+  # @param data_directory [String] Name of data directory within the exploits folder
+  # @param file [String] Filename in the data folder to use.
   def exploit_data(data_directory, file)
     file_path = ::File.join(::Msf::Config.data_directory, 'exploits', data_directory, file)
     ::File.binread(file_path)
@@ -597,8 +597,8 @@ module Msf::Post::File
   #
   # Read a local exploit source file from the external exploits directory
   #
-  # @param path [String] Directory in the exploits folder
-  # @param path [String] Filename in the source folder
+  # @param source_directory [String] Directory in the external/source/exploits directory to use as the source directory.
+  # @param file [String] Filename in the source folder to use.
   def exploit_source(source_directory, file)
     file_path = ::File.join( Msf::Config.install_root, 'external', 'source', 'exploits', source_directory, file)
     ::File.read(file_path)
@@ -831,13 +831,14 @@ protected
   def _read_file_meterpreter(file_name)
     fd = session.fs.file.new(file_name, 'rb')
 
-    data = fd.read
+    data = ''.b
+    data << fd.read
     data << fd.read until fd.eof?
 
     data
   rescue EOFError
     # Sometimes fd isn't marked EOF in time?
-    ''
+    data
   rescue ::Rex::Post::Meterpreter::RequestError => e
     print_error("Failed to open file: #{file_name}: #{e}")
     return nil
@@ -1004,7 +1005,7 @@ protected
       # produces a 0-length string. Some also allow octal escapes
       # without a format string, and do not truncate, so start with
       # that and try %b if it doesn't work. The standalone version seems
-      # to be more likely to work than the buitin version, so try it
+      # to be more likely to work than the builtin version, so try it
       # first.
       #
       # Both of these work for sure on Linux and FreeBSD
@@ -1103,7 +1104,7 @@ protected
     token = "_#{::Rex::Text.rand_text_alpha(32)}"
     result = session.shell_command_token("#{cmd} && echo #{token}")
 
-    return result.include?(token)
+    return result&.include?(token)
   end
 
   #

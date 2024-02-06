@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q{
           This module exploits an unauthenticated directory traversal vulnerability in Cassandra Web
           'Cassandra Web' version 0.5.0 and earlier, allowing arbitrary file read with the web server privileges.
-          This vulnerability occured due to the disabled Rack::Protection module
+          This vulnerability occurred due to the disabled Rack::Protection module
         },
         'References' => [
           ['URL', 'https://github.com/avalanche123/cassandra-web/commit/f11e47a26f316827f631d7bcfec14b9dd94f44be'],

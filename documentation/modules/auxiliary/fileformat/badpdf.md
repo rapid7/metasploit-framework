@@ -85,7 +85,7 @@ msf auxiliary(fileformat/badpdf) > set pdfinject /root/Desktop/example.pdf
 pdfinject => /root/Desktop/example.pdf
 msf auxiliary(fileformat/badpdf) > exploit
 
-[+] Malicious file writen to /root/Desktop/example_malicious.pdf
+[+] Malicious file written to /root/Desktop/example_malicious.pdf
 [\*] Auxiliary module execution completed
 msf auxiliary(fileformat/badpdf) > 
  

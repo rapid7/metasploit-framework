@@ -25,11 +25,13 @@ module Msf::Post::Common
   def rhost
     return super unless defined?(session) and session
 
-    case session.type
+    case session.type.downcase
     when 'meterpreter'
       session.sock.peerhost
     when 'shell', 'powershell'
       session.session_host
+    when 'postgresql', 'mysql'
+      session.address
     end
   rescue
     return nil
@@ -38,11 +40,13 @@ module Msf::Post::Common
   def rport
     return super unless defined?(session) and session
 
-    case session.type
+    case session.type.downcase
     when 'meterpreter'
       session.sock.peerport
     when 'shell', 'powershell'
       session.session_port
+    when 'postgresql', 'mysql'
+      session.port
     end
   rescue
     return nil
@@ -254,7 +258,7 @@ module Msf::Post::Common
   # to determine if the execution was successful or not.
   #
   # @param [String] cmd The command to execute
-  # @param [String] arg The optional arguments of the command (can de included in +cmd+ instead)
+  # @param args [String] The optional arguments of the command (can de included in +cmd+ instead)
   # @param [Integer] timeout The time in sec. to wait before giving up
   # @param [Hash] opts An Hash of options (see {#cmd_exec})
   # @return [Array(String, Boolean)] Array containing the output string

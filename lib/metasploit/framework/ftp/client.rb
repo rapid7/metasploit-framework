@@ -165,7 +165,7 @@ module Metasploit
 
           # dispatch to the proper method
           if (type == "get")
-            # failed listings jsut disconnect..
+            # failed listings just disconnect..
             begin
               data = self.datasocket.get_once(-1, ftp_timeout)
             rescue ::EOFError

@@ -327,7 +327,7 @@ module Msf
         self.nmaxdisplay = false
         self.runlocal = false
 
-        # Formating
+        # Formatting
         sizeline = 60
 
         wmap_show = 2**0
@@ -1091,7 +1091,7 @@ module Msf
 
           #
           # Handle modules that need to be after all tests, once.
-          # Good place to have modules that analize the test results and/or
+          # Good place to have modules that analyze the test results and/or
           # launch exploits.
           # :wmap_generic
           #
@@ -1306,6 +1306,8 @@ module Msf
           return
         end
 
+        vhost = uri.hostname if vhost.nil?
+
         if uri.scheme !~ /^https?/
           print_error("Only http and https URLs are accepted: #{url}")
           return
@@ -1316,7 +1318,13 @@ module Msf
           ssl = true
         end
 
-        site = framework.db.report_web_site(wait: true, host: uri.host, port: uri.port, vhost: vhost, ssl: ssl, workspace: framework.db.workspace)
+        site = begin
+          framework.db.report_web_site(wait: true, host: uri.host, port: uri.port, vhost: vhost, ssl: ssl, workspace: framework.db.workspace)
+        rescue SocketError => e
+          elog("Could not get address for #{uri.host}", 'wmap', error: e)
+          print_status("Could not get address for #{uri.host}.")
+          nil
+        end
 
         return site
       end
@@ -1379,7 +1387,15 @@ module Msf
         target_whitelist.each do |ent|
           vhost, target = ent
 
-          host = framework.db.workspace.hosts.find_by_address(target.host)
+          begin
+            address = Rex::Socket.getaddress(target.host, true)
+          rescue SocketError => e
+            elog("Could not get address for #{target.host}", 'wmap', error: e)
+            print_status("Could not get address for #{target.host}. Skipping.")
+            next
+          end
+
+          host = framework.db.workspace.hosts.find_by_address(address)
           if !host
             print_error("No matching host for #{target.host}")
             next
@@ -1390,13 +1406,10 @@ module Msf
             next
           end
 
-          # print_status "aaa"
-          # print_status framework.db.workspace.name
-
           sites = serv.web_sites.where('vhost = ? and service_id = ?', vhost, serv.id)
 
           sites.each do |site|
-            # Initial defaul path
+            # Initial default path
             inipath = target.path
             if target.path.empty?
               inipath = '/'

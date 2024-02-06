@@ -35,7 +35,7 @@ class Console::CommandDispatcher::Peinjector
 
 
   @@injectpe_opts = Rex::Parser::Arguments.new(
-    '-p' => [true, 'Windows Payload to inject into the targer executable.'],
+    '-p' => [true, 'Windows Payload to inject into the target executable.'],
     '-t' => [true, 'Path of the target executable to be injected'],
     '-o' => [true, 'Comma separated list of additional options for payload if needed in \'opt1=val,opt2=val\' format.'],
     '-h' => [false, 'Help banner']

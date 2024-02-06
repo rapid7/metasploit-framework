@@ -1,5 +1,5 @@
 lib = File.join(Msf::Config.install_root, "test", "lib")
-$:.push(lib) unless $:.include?(lib)
+$LOAD_PATH.push(lib) unless $LOAD_PATH.include?(lib)
 require 'module_test'
 
 # load 'test/lib/module_test.rb'
@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Post
         'Description' => %q{ This module will test Post::File API methods },
         'License' => MSF_LICENSE,
         'Author' => [ 'egypt'],
-        'Platform' => [ 'linux', 'java' ],
+        'Platform' => [ 'linux', 'unix', 'java', 'osx' ],
         'SessionTypes' => [ 'meterpreter', 'shell' ]
       )
     )

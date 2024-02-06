@@ -18,7 +18,7 @@
 
 
 | Common         | John        | Hashcat |
-|----------------|-------------|---------|
+| -------------- | ----------- | ------- |
 | mysql          | mysql       | 200     |
 | mysql-sha1     | mysql-sha1  | 300     |
 | mssql          | mssql       | 131     |
@@ -43,62 +43,62 @@
 
 ## Actions
 
-   **john**
+### john
 
-   Use john the ripper (default).
+Use john the ripper (default).
 
-   **hashcat**
+### hashcat
 
-   Use hashcat.
+Use hashcat.
 
 ## Options
 
-   **CONFIG**
+### CONFIG
 
-   The path to a John config file (JtR option: `--config`).  Default is `metasploit-framework/data/john.conf`
+The path to a John config file (JtR option: `--config`).  Default is `metasploit-framework/data/john.conf`
 
-   **CRACKER_PATH**
+### CRACKER_PATH
 
-   The absolute path to the cracker executable.  Default behavior is to search `path`.
+The absolute path to the cracker executable.  Default behavior is to search `path`.
 
-   **CUSTOM_WORDLIST**
+### CUSTOM_WORDLIST
 
-   The path to an optional custom wordlist.  This file is added to the new wordlist which may include the other
-   `USE` items like `USE_CREDS`, and have `MUTATE` or `KORELOGIC` applied to it.
+The path to an optional custom wordlist.  This file is added to the new wordlist which may include the other
+`USE` items like `USE_CREDS`, and have `MUTATE` or `KORELOGIC` applied to it.
 
-   **DeleteTempFiles**
+### DeleteTempFiles
 
-   This option will prevent deletion of the wordlist and file containing hashes.  This may be useful for
-   running the hashes through john if it wasn't cracked, or for debugging. Default is `false`.
+This option will prevent deletion of the wordlist and file containing hashes.  This may be useful for
+running the hashes through john if it wasn't cracked, or for debugging. Default is `false`.
 
-   **Fork**
+### Fork
 
-   This option will set how many forks to use on john the ripper.  Default is `1` (no forking).
+This option will set how many forks to use on john the ripper.  Default is `1` (no forking).
 
-   **INCREMENTAL**
+### INCREMENTAL
 
-   Run the cracker in incremental mode.  Default is `true`
+Run the cracker in incremental mode.  Default is `true`
 
-   **ITERATION_TIMEOUT**
+### ITERATION_TIMEOUT
 
-   The max-run-time for each iteration of cracking.
+The max-run-time for each iteration of cracking.
 
-   **KORELOGIC**
+### KORELOGIC
 
-   Apply the [KoreLogic rules](http://contest-2010.korelogic.com/rules.html) to Wordlist Mode (slower).
-   Default is `false`.
+Apply the [KoreLogic rules](http://contest-2010.korelogic.com/rules.html) to Wordlist Mode (slower).
+Default is `false`.
 
-   **MSSQL**
+### MSSQL
 
-   Crack MSSQL hashes. Default is `true`.
+Crack MSSQL hashes. Default is `true`.
 
-   **MYSQL**
+### MYSQL
 
-   Crack MySQL hashes. Default is `true`.
+Crack MySQL hashes. Default is `true`.
 
-   **MUTATE**
+### MUTATE
 
-   Apply common mutations to the Wordlist (SLOW).  Mutations are:
+Apply common mutations to the Wordlist (SLOW).  Mutations are:
 
    * `'@' => 'a'`
    * `'0' => 'o'`
@@ -108,53 +108,53 @@
    * `'1' => 'l'`
    * `'5' => 's'`
 
-   Default is `false`.
+Default is `false`.
 
-   **ORACLE**
+### ORACLE
 
-   Crack oracle hashes. Default is `true`.
+Crack oracle hashes. Default is `true`.
 
 
-   **POSTGRES**
+### POSTGRES
 
-   Crack postgres hashes. Default is `true`.
+Crack postgres hashes. Default is `true`.
 
-   **POT**
+### POT
 
-   The path to a John POT file (JtR option: `--pot`) to use instead.  The `pot` file is the data file which
-   records cracked password hashes.  Kali linux's default location is `/root/.john/john.pot`.
-   Default is `~/.msf4/john.pot`.
+The path to a John POT file (JtR option: `--pot`) to use instead.  The `pot` file is the data file which
+records cracked password hashes.  Kali linux's default location is `/root/.john/john.pot`.
+Default is `~/.msf4/john.pot`.
 
-   **SHOWCOMMAND**
+### SHOWCOMMAND
 
-   Show the command being used run from the command line for debugging.  Default is `false`
+Show the command being used run from the command line for debugging.  Default is `false`
 
-   **USE_CREDS**
+### USE_CREDS
 
-   Use existing credential data saved in the database.  Default is `true`.
+Use existing credential data saved in the database.  Default is `true`.
 
-   **USE_DB_INFO**
+### USE_DB_INFO
 
-   Use looted database schema info to seed the wordlist.  This includes the Database Name, each Table Name,
-   and each Column Name.  If the DB is MSSQL, the Instance Name is also used.  Default is `true`.
+Use looted database schema info to seed the wordlist.  This includes the Database Name, each Table Name,
+and each Column Name.  If the DB is MSSQL, the Instance Name is also used.  Default is `true`.
 
-   **USE_DEFAULT_WORDLIST**
+### USE_DEFAULT_WORDLIST
 
-   Use the default metasploit wordlist in `metasploit-framework/data/wordlists/password.lst`.  Default is
-   `true`.
+Use the default metasploit wordlist in `metasploit-framework/data/wordlists/password.lst`.  Default is
+`true`.
 
-   **USE_HOSTNAMES**
+### USE_HOSTNAMES
 
-   Seed the wordlist with hostnames from the workspace.  Default is `true`.
+Seed the wordlist with hostnames from the workspace.  Default is `true`.
 
-   **USE_ROOT_WORDS**
+### USE_ROOT_WORDS
 
-   Use the Common Root Words Wordlist in `metasploit-framework/data/wordlists/common_roots.txt`.  Default
-   is true.
+Use the Common Root Words Wordlist in `metasploit-framework/data/wordlists/common_roots.txt`.  Default
+is true.
 
-   **WORDLIST**
+### WORDLIST
 
-   Run the cracker in dictionary/wordlist mode.  Default is `true`
+Run the cracker in dictionary/wordlist mode.  Default is `true`
 
 ## Scenarios
 
@@ -169,7 +169,7 @@ creds add user:mssql_foo hash:0x0100A607BA7C54A24D17B565C59F1743776A10250F581D48
 creds add user:mssql12_Password1! hash:0x0200F733058A07892C5CACE899768F89965F6BD1DED7955FE89E1C9A10E278$
 creds add user:mysql_probe hash:445ff82636a7ba59 jtr:mysql
 creds add user:mysql-sha1_tere hash:*5AD8F88516BD021DD43F171E2C785C69F8E54ADB jtr:mysql-sha1
-## oracle (10) uses usernames in the hashing, so we can't overide that here
+## oracle (10) uses usernames in the hashing, so we can't override that here
 creds add user:simon hash:4F8BC1809CB2AF77 jtr:des,oracle
 creds add user:SYSTEM hash:9EEDFA0AD26C6D52 jtr:des,oracle
 ## oracle 11/12 H value, username is used
@@ -177,7 +177,7 @@ creds add user:DEMO hash:'S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C
 ## oracle 11/12 uses a LONG format, see lib/msf/core/auxiliary/jtr.rb
 creds add user:oracle11_epsilon hash:'S:8F2D65FB5547B71C8DA3760F10960428CD307B1C6271691FC55C1F56554A;H:$
 creds add user:oracle12c_epsilon hash:'H:DC9894A01797D91D92ECA1DA66242209;T:E3243B98974159CC24FD2C9A8B3$
-##postgres uses username, so we can't overide that here
+##postgres uses username, so we can't override that here
 creds add user:example postgres:md5be86a79bf2043622d58d5453c47d4860
 creds add user:example postgres:md5be86a79bf20fake2d58d5453c47d4860
 echo "" > /root/.msf4/john.pot

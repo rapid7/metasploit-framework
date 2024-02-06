@@ -168,7 +168,7 @@ public
   #  * 'private_type' [String] Password type.
   #  * 'realm_value' [String] Realm.
   #  * 'realm_key' [String] Realm key.
-  #  * 'host' [String] Host (Only avilable if there's a :last_attempted_at and :status)
+  #  * 'host' [String] Host (Only available if there's a :last_attempted_at and :status)
   #  * 'sname' [String] Service name (only available if there's a :last_attempted_at and :status)
   #  * 'status' [Status] Login status (only available if there's a :last_attempted_at and :status)
   # @see https://github.com/rapid7/metasploit-credential/blob/master/lib/metasploit/credential/creation.rb#L107 #create_credential Documentation.
@@ -758,7 +758,7 @@ public
   # @option xopts [String] :address Same as :addr.
   # @option xopts [String] :host Same as :address.
   # @option xopts [Map<String, Object>]  :analyze_options  All returned modules will support these options
-  # * [Array<Sting>] :payloads Modules returned will be compatible with at least one payload
+  # * [Array<String>] :payloads Modules returned will be compatible with at least one payload
   # @raise [Msf::RPC::ServerException] You might get one of these errors:
   #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
   #  * 500 Database not loaded. Try: rpc.call('console.create')
@@ -1076,7 +1076,7 @@ end
   # @option xopts [String] :proto Along with +:host+ and +:port+, a service to associate with this note.
   # @option xopts [Hash] A hash that contains the following information.
   #  * :unique [Boolean] Allow only a single Note per +:host+/+:type+ pair.
-  #  * :unique_data [Boolean] Like +:uniqe+, but also compare +:data+.
+  #  * :unique_data [Boolean] Like +:unique+, but also compare +:data+.
   #  * :insert [Boolean] Always insert a new Note even if one with identical values exists.
   # @raise [Msf::RPC::ServerException] You might get one of these errors:
   #  * 500 ActiveRecord::ConnectionNotEstablished. Try: rpc.call('console.create').
@@ -1873,7 +1873,7 @@ end
   # @option [String] :driver Driver name. For example: 'postgresql'. If this option is not set,
   #                  then the method returns the current one.
   # @return [Hash] A hash that contains:
-  #  * 'result' [String] Indiciating whether we've successfully set the driver or not.
+  #  * 'result' [String] Indicating whether we've successfully set the driver or not.
   #  * 'driver' [String] If the :driver option isn't set, then this returns the current one.
   # @example Here's how you would use this from the client:
   #  # Sets a driver

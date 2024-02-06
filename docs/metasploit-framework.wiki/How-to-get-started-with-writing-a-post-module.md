@@ -62,6 +62,14 @@ The other one is ```inspect```, which returns a string of a human-readable repre
 session.inspect
 ```
 
+One commonly used method of the session object is the `platform` method. For example, if you're writing a post module for a windows exploit, in the check method you'll likely want to use `session.platform` to ensure the target session is affected:
+```ruby
+    unless session.platform == 'windows'
+      # Non-Windows systems are definitely not affected.
+      return Exploit::CheckCode::Safe
+    end
+```
+
 You can also look at [other current post modules](https://github.com/rapid7/metasploit-framework/tree/master/modules/post) and see how they use their session object.
 
 ### The Msf::Post Mixin

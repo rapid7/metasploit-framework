@@ -99,19 +99,18 @@ class Memory
   #
   # Deallocate a region of memory in the context of a process.
   #
-  def free(base, length = 0)
-    return _free(base, length)
+  def free(base)
+    return _free(base)
   end
 
   #
   # Low-level memory deallocation.
   #
-  def _free(base, length)
+  def _free(base)
     request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_FREE)
 
     request.add_tlv(TLV_TYPE_HANDLE, process.handle)
     request.add_tlv(TLV_TYPE_BASE_ADDRESS, base)
-    request.add_tlv(TLV_TYPE_LENGTH, length)
 
     process.client.send_request(request)
 
@@ -131,35 +130,6 @@ class Memory
     response = process.client.send_request(request)
 
     return response.get_tlv_value(TLV_TYPE_PROCESS_MEMORY)
-  end
-
-  #
-  # Search memory for supplied regexes and return matches
-  #
-  def search(needles, min_search_len = 5, match_len = 500)
-    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_SEARCH)
-
-    request.add_tlv(TLV_TYPE_PID, process.pid)
-    needles.each { | needle | request.add_tlv(TLV_TYPE_MEMORY_SEARCH_NEEDLE, needle) }
-    request.add_tlv(TLV_TYPE_MEMORY_SEARCH_MATCH_LEN, match_len)
-    request.add_tlv(TLV_TYPE_UINT, min_search_len)
-
-    response = process.client.send_request(request)
-
-    matches = []
-    if response.result == 0
-      response.each(TLV_TYPE_MEMORY_SEARCH_RESULTS) do |res|
-         match_data = {}
-         match_data['match_str'] = res.get_tlv_value(TLV_TYPE_MEMORY_SEARCH_MATCH_STR)
-         match_data['match_offset'] = res.get_tlv_value(TLV_TYPE_MEMORY_SEARCH_MATCH_ADDR)
-         match_data['sect_start'] = res.get_tlv_value(TLV_TYPE_MEMORY_SEARCH_START_ADDR)
-         match_data['sect_len'] = res.get_tlv_value(TLV_TYPE_MEMORY_SEARCH_SECT_LEN)
-
-         matches << match_data
-      end
-    end
-
-    matches
   end
 
   #

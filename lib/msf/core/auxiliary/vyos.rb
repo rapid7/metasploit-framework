@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
 
-require 'metasploit/framework/hashes'
-
 module Msf
   ###
   #
@@ -80,7 +78,7 @@ module Msf
       # in >= 1.3 'level' is no longer included and defaults to admin.
 
       r =  'user ([^ ]+) {\s*authentication {\s*'
-      r << 'encrypted-password (\$?[\w$\./\*]*)\s*' # leading $ is optional incase the password is all stars
+      r << 'encrypted-password (\$?[\w$\./\*]*)\s*' # leading $ is optional in case the password is all stars
       r << '(?:plaintext-password "([^"]*)")?\s*' # optional
       r << '}'
       r << '(?:\s*full-name "([^"]*)")?\s*' # optional

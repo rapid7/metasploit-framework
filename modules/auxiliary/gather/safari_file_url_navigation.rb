@@ -204,7 +204,7 @@ class MetasploitModule < Msf::Auxiliary
     start_service
 
     # Create our own HTTP server
-    # We will stay in this functino until we manually terminate execution
+    # We will stay in this function until we manually terminate execution
     start_http
   end
 

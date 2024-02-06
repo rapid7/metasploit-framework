@@ -10,8 +10,8 @@ module Session
 ###
 module Basic
 
-  include Session
-  include Interactive
+  include Msf::Session
+  include Msf::Session::Interactive
 
   #
   # Description of the session.
@@ -31,7 +31,7 @@ protected
 
   #
   # Performs the actual raw interaction with the remote side.  This can be
-  # overriden by derived classes if they wish to do this another way.
+  # overridden by derived classes if they wish to do this another way.
   #
   def _interact
     framework.events.on_session_interact(self)

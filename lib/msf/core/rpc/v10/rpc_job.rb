@@ -61,7 +61,7 @@ class RPC_Job < RPC_Base
         info[:uripath] = obj.ctx[0].get_resource
       end
       if obj.ctx[0].respond_to?(:datastore)
-        info[:datastore] = obj.ctx[0].datastore
+        info[:datastore] = obj.ctx[0].datastore.to_h
       end
     end
 

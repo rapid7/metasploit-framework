@@ -10,7 +10,12 @@ module Msf
 ###
 class OptAddressLocal < OptAddress
   def interfaces
-    NetworkInterface.interfaces || []
+    begin
+      NetworkInterface.interfaces || []
+    rescue NetworkInterface::Error => e
+      elog(e)
+      []
+    end
   end
 
   def normalize(value)
@@ -23,12 +28,15 @@ class OptAddressLocal < OptAddress
     addrs = addrs.map { |x| x['addr'].split('%').first }.select do |addr|
       begin
         IPAddr.new(addr)
-      rescue IPAddr::InvalidAddressError
+      rescue IPAddr::Error
         false
       end
     end
 
-    addrs.any? ? addrs.first : ''
+    # Sort for deterministic normalization; preference ipv4 addresses followed by their value
+    sorted_addrs = addrs.sort_by { |addr| ip_addr = IPAddr.new(addr); [ip_addr.ipv4? ? 0 : 1, ip_addr.to_i] }
+
+    sorted_addrs.any? ? sorted_addrs.first : ''
   end
 
   def valid?(value, check_empty: true)

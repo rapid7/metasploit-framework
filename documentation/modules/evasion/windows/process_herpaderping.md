@@ -64,7 +64,7 @@ removed automatically when the session is terminated or if an error occurs.
 
 ### REPLACED_WITH_FILE
 The file to replace the target with. If not set, the target file will be filled
-with random bytes (WARNING! it is likely to be catched by AV). Windows
+with random bytes (WARNING! it is likely to be caught by AV). Windows
 environment variables can be used in the path and the default is set to
 `%SystemRoot%\\System32\\calc.exe`.
 
@@ -125,7 +125,7 @@ Module options (evasion/windows/process_herpaderping):
    ----                ---------------                 --------  -----------
    ENCODER                                             no        A specific encoder to use (automatically selected if not set)
    FILENAME            raU.exe                         yes       Filename for the evasive file (default: random)
-   REPLACED_WITH_FILE  %SystemRoot%\System32\calc.exe  no        File to replace the target with. If not set, the target file will be filled with random bytes (WARNING! it is likely to be catched by AV).
+   REPLACED_WITH_FILE  %SystemRoot%\System32\calc.exe  no        File to replace the target with. If not set, the target file will be filled with random bytes (WARNING! it is likely to be caught by AV).
    WRITEABLE_DIR       %TEMP%                          yes       Where to write the loader on disk
 
 

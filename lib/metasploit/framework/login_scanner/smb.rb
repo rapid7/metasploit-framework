@@ -2,6 +2,7 @@ require 'metasploit/framework'
 require 'metasploit/framework/tcp/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/login_scanner/kerberos'
 require 'ruby_smb'
 
 module Metasploit
@@ -56,7 +57,11 @@ module Metasploit
         #     A factory method for creating a kerberos authenticator
         attr_accessor :kerberos_authenticator_factory
 
-        # If login is successul and {Result#access_level} is not set
+        # @returns [Boolean] If a login is successful and this attribute is true - a RubySMB::Client instance is used as proof,
+        #   and the socket is not immediately closed
+        attr_accessor :use_client_as_proof
+
+        # If login is successful and {Result#access_level} is not set
         # then arbitrary credentials are accepted. If it is set to
         # Guest, then arbitrary credentials are accepted, but given
         # Guest permissions.
@@ -128,6 +133,14 @@ module Metasploit
             case status_code
             when WindowsError::NTStatus::STATUS_SUCCESS, WindowsError::NTStatus::STATUS_PASSWORD_MUST_CHANGE, WindowsError::NTStatus::STATUS_PASSWORD_EXPIRED
               status = Metasploit::Model::Login::Status::SUCCESSFUL
+              # This module no long owns the socket, return it as proof so the calling context can perform additional operations
+              # Additionally assign values to nil to avoid closing the socket etc automatically
+              if use_client_as_proof
+                proof = client
+                client = nil
+                self.sock = nil
+                self.dispatcher = nil
+              end
             when WindowsError::NTStatus::STATUS_ACCOUNT_LOCKED_OUT
               status = Metasploit::Model::Login::Status::LOCKED_OUT
             when WindowsError::NTStatus::STATUS_LOGON_FAILURE, WindowsError::NTStatus::STATUS_ACCESS_DENIED

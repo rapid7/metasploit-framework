@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         'Platform' => 'linux',
         'Author' => [
           'colorlight2019', # Vulnerability Discovery and Exploit Code
-          'SSD Disclosure', # Vulnerabilty Writeup
+          'SSD Disclosure', # Vulnerability Writeup
           'Grant Willcox (tekwizz123)' # Metasploit Module
         ],
         'DefaultTarget' => 0,

@@ -13,7 +13,7 @@ class RPC_Module < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('module.exploits')
   def rpc_exploits
-    { "modules" => self.framework.exploits.keys }
+    { "modules" => self.framework.exploits.module_refnames }
   end
 
 
@@ -24,7 +24,7 @@ class RPC_Module < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('module.evasion')
   def rpc_evasion
-    { "modules" => self.framework.evasion.keys }
+    { "modules" => self.framework.evasion.module_refnames }
   end
 
 
@@ -35,7 +35,7 @@ class RPC_Module < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('module.auxiliary')
   def rpc_auxiliary
-    { "modules" => self.framework.auxiliary.keys }
+    { "modules" => self.framework.auxiliary.module_refnames }
   end
 
 
@@ -185,7 +185,7 @@ class RPC_Module < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('module.post')
   def rpc_post
-    { "modules" => self.framework.post.keys }
+    { "modules" => self.framework.post.module_refnames }
   end
 
 
@@ -224,6 +224,7 @@ class RPC_Module < RPC_Base
     res['platform'] = m.platform.platforms.map { |x| x.to_s }
     res['authors'] = m.author.map { |a| a.to_s }
     res['privileged'] = m.privileged?
+    res['check'] = m.has_check?
 
     res['references'] = []
     m.references.each do |r|
@@ -722,6 +723,10 @@ class RPC_Module < RPC_Base
 
 private
 
+  # @param [String] mtype The module type
+  # @param [String] mname The module name
+  # @return [Msf::Module] The module if found
+  # @raise [Msf::RPC::Exception] An exception is raised if the module is not found
   def _find_module(mtype,mname)
 
     if mname !~ /^(exploit|payload|nop|encoder|auxiliary|post|evasion)\//

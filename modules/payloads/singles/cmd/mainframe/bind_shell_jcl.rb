@@ -19,7 +19,7 @@ module MetasploitModule
     super(merge_info(info,
                      'Name'          => 'Z/OS (MVS) Command Shell, Bind TCP',
                      'Description'   => 'Provide JCL which creates a bind shell
-                     This implmentation does not include ebcdic character translation,
+                     This implementation does not include ebcdic character translation,
                      so a client with translation capabilities is required.  MSF handles
                      this automatically.',
                      'Author'        => 'Bigendian Smalls',

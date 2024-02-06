@@ -54,6 +54,7 @@ class Db
       "db_nmap"       => "Executes nmap and records the output automatically",
       "db_rebuild_cache" => "Rebuilds the database-stored module cache (deprecated)",
       "analyze"       => "Analyze database information about a specific address or address range",
+      "db_stats"         => "Show statistics for the database"
     }
 
     # Always include commands that only make sense when connected.
@@ -382,9 +383,13 @@ class Db
     opts[:workspace] = framework.db.workspace
     opts[:tag_name] = tag_name
 
+    # This will be the case if no IP was passed in, and we are just trying to delete all
+    # instances of a given tag within the database.
     if rws == [nil]
-      unless framework.db.delete_host_tag(opts)
-        print_error("Host #{opts[:address].to_s + " " if opts[:address]}could not be found.")
+      wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      wspace.hosts.each do |host|
+        opts[:address] = host.address
+        framework.db.delete_host_tag(opts)
       end
     else
       rws.each do |rw|
@@ -396,7 +401,6 @@ class Db
         end
       end
     end
-
   end
 
   @@hosts_columns = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments']
@@ -639,7 +643,7 @@ class Db
 
         tbl << columns
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address)
+          addr = (host.scope.to_s != "" ? host.address + '%' + host.scope : host.address)
           rhosts << addr
         end
       end
@@ -720,6 +724,122 @@ class Db
     [ '-S', '--search' ] => [ true, 'Search string to filter by.', '<filter>' ],
     [ '-h', '--help' ] => [ false, 'Show this help information.' ]
   )
+
+  def db_connection_info(framework)
+    unless framework.db.connection_established?
+      return "#{framework.db.driver} selected, no connection"
+    end
+
+    cdb = ''
+    if framework.db.driver == 'http'
+      cdb = framework.db.name
+    else
+      ::ApplicationRecord.connection_pool.with_connection do |conn|
+        if conn.respond_to?(:current_database)
+          cdb = conn.current_database
+        end
+      end
+    end
+
+    if cdb.empty?
+      output = "Connected Database Name could not be extracted. DB Connection type: #{framework.db.driver}."
+    else
+      output = "Connected to #{cdb}. Connection type: #{framework.db.driver}."
+    end
+
+    output
+  end
+
+  def cmd_db_stats(*args)
+    return unless active?
+    print_line "Session Type: #{db_connection_info(framework)}"
+
+    current_workspace = framework.db.workspace
+    example_workspaces = ::Mdm::Workspace.order(id: :desc)
+    ordered_workspaces = ([current_workspace] + example_workspaces).uniq.sort_by(&:id)
+
+    tbl = Rex::Text::Table.new(
+    'Indent'  => 2,
+    'Header'  => "Database Stats",
+    'Columns' =>
+      [
+        "IsTarget",
+        "ID",
+        "Name",
+        "Hosts",
+        "Services",
+        "Services per Host",
+        "Vulnerabilities",
+        "Vulns per Host",
+        "Notes",
+        "Creds",
+        "Kerberos Cache"
+      ],
+    'SortIndex' => 1,
+    'ColProps' => {
+      'IsTarget' => {
+        'Stylers' => [Msf::Ui::Console::TablePrint::RowIndicatorStyler.new],
+        'ColumnStylers' => [Msf::Ui::Console::TablePrint::OmitColumnHeader.new],
+        'Width' => 2
+      }
+    }
+    )
+
+    total_hosts = 0
+    total_services = 0
+    total_vulns = 0
+    total_notes = 0
+    total_creds = 0
+    total_tickets = 0
+
+    ordered_workspaces.map do |workspace|
+
+      hosts = workspace.hosts.count
+      services = workspace.services.count
+      vulns = workspace.vulns.count
+      notes = workspace.notes.count
+      creds = framework.db.creds(workspace: workspace.name).count # workspace.creds.count.to_fs(:delimited) is always 0 for whatever reason
+      kerbs = ticket_search([nil], nil, :workspace => workspace).count
+
+      total_hosts += hosts
+      total_services += services
+      total_vulns += vulns
+      total_notes += notes
+      total_creds += creds
+      total_tickets += kerbs
+
+      tbl << [
+        current_workspace.id == workspace.id,
+        workspace.id,
+        workspace.name,
+        hosts.to_fs(:delimited),
+        services.to_fs(:delimited),
+        hosts > 0 ? (services.to_f / hosts).truncate(2) : 0,
+        vulns.to_fs(:delimited),
+        hosts > 0 ? (vulns.to_f / hosts).truncate(2) : 0,
+        notes.to_fs(:delimited),
+        creds.to_fs(:delimited),
+        kerbs.to_fs(:delimited)
+      ]
+    end
+
+    # total row
+    tbl << [
+      "",
+      "Total",
+      ordered_workspaces.length.to_fs(:delimited),
+      total_hosts.to_fs(:delimited),
+      total_services.to_fs(:delimited),
+      total_hosts > 0 ? (total_services.to_f / total_hosts).truncate(2) : 0,
+      total_vulns,
+      total_hosts > 0 ? (total_vulns.to_f / total_hosts).truncate(2) : 0,
+      total_notes,
+      total_creds.to_fs(:delimited),
+      total_tickets.to_fs(:delimited)
+    ]
+
+    print_line tbl.to_s
+  end
 
   def cmd_services(*args)
     return unless active?
@@ -877,7 +997,7 @@ class Db
         columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
         tbl << columns
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address )
+          addr = (host.scope.to_s != "" ? host.address + '%' + host.scope : host.address )
           rhosts << addr
         end
       end
@@ -1053,7 +1173,7 @@ class Db
       tbl << row
 
       if set_rhosts
-        addr = (vuln.host.scope ? vuln.host.address + '%' + vuln.host.scope : vuln.host.address)
+        addr = (vuln.host.scope.to_s != "" ? vuln.host.address + '%' + vuln.host.scope : vuln.host.address)
         rhosts << addr
       end
     end
@@ -1277,7 +1397,7 @@ class Db
         host = note.host
         row << host.address
         if set_rhosts
-          addr = (host.scope ? host.address + '%' + host.scope : host.address)
+          addr = (host.scope.to_s != "" ? host.address + '%' + host.scope : host.address)
           rhosts << addr
         end
       else

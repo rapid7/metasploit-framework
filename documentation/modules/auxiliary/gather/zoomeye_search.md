@@ -4,7 +4,7 @@ and output the information gathered into a table which can then be saved for lat
 
 ## Note
 You need to register for ZoomEye by creating an account with Telnet404. You can register for a temp email
-at https://temp-mail.org and get a temp phone number to recieve the SMS's needed to sign up at https://smsreceivefree.com.
+at https://temp-mail.org and get a temp phone number to receive the SMS's needed to sign up at https://smsreceivefree.com.
 
 Then browse to https://www.zoomeye.org, click on the `Register` button, and follow the steps from there.
 

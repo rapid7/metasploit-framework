@@ -4,11 +4,11 @@ SMB (Server Message Blocks), is a way for sharing files across nodes on a networ
 
 There are two main ports for SMB:
 
-- 139/TCP - Initially Microsoft implemented SMB ontop of their existing NetBIOS network architecture, which allowed for Windows computers to communicate across the same network
+- 139/TCP - Initially Microsoft implemented SMB on top of their existing NetBIOS network architecture, which allowed for Windows computers to communicate across the same network
 - 445/TCP - Newer versions of SMB use this port, were NetBIOS is not used.
 
 Other terminology to be aware of:
-- SMB - Serer Message Blocks
+- SMB - Server Message Blocks
 - CIFS - Common Internet File System
 - Samba - A free software re-implementation of SMB, which is frequently found on unix-like systems
 
@@ -24,7 +24,7 @@ Metasploit has support for multiple SMB modules, including:
 There are more modules than listed here, for the full list of modules run the `search` command within msfconsole:
 
 ```msf
-msf6 > search mysql
+msf6 > search smb
 ```
 
 ### Lab Environment

@@ -8,7 +8,7 @@
 #  Author: scriptjunkie
 #
 # Simplify running webcam, whether grabbing a single frame or running
-# a continous loop.
+# a continuous loop.
 
 @client = client
 opts = Rex::Parser::Arguments.new(

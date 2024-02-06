@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-  [Jira](https://www.atlassian.com/software/jira) Jira is team managment software for agile teams.
+  [Jira](https://www.atlassian.com/software/jira) Jira is team management software for agile teams.
 
   This module has been tested successfully on:
 

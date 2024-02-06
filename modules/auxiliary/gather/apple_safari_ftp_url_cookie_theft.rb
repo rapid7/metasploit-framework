@@ -188,7 +188,7 @@ class MetasploitModule < Msf::Auxiliary
 
 
   #
-  # Handle HTTP requets and responses
+  # Handle HTTP requests and responses
   #
   def on_request_uri(cli, request)
     if request.method.downcase == 'post'

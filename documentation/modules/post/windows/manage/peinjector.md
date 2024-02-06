@@ -7,7 +7,7 @@ as a thread within the process with the same privs.
 LHOST  IP of host that will receive the connection from the payload.
 LPORT  Port for Payload to connect to.
 OPTIONS Comma separated list of additional options for payload if needed in 'opt=val,opt=val' format.
-PAYLOAD Windows Payload to inject into the targer executable.
+PAYLOAD Windows Payload to inject into the target executable.
 SESSION The session to run this module on.
 TARGETPE Path of the target executable to Path of the target executable to be injected
 
@@ -59,7 +59,7 @@ Module options (post/windows/manage/peinjector):
    LHOST                                        yes       IP of host that will receive the connection from the payload.
    LPORT     4433                               no        Port for Payload to connect to.
    OPTIONS                                      no        Comma separated list of additional options for payload if needed in 'opt=val,opt=val' format.
-   PAYLOAD   windows/meterpreter/reverse_https  no        Windows Payload to inject into the targer executable.
+   PAYLOAD   windows/meterpreter/reverse_https  no        Windows Payload to inject into the target executable.
    SESSION                                      yes       The session to run this module on.
    TARGETPE                                     no        Path of the target executable to be injected
 
@@ -82,7 +82,7 @@ Module options (post/windows/manage/peinjector):
    LHOST     192.168.135.111                          yes       IP of host that will receive the connection from the payload.
    LPORT     4561                                     no        Port for Payload to connect to.
    OPTIONS                                            no        Comma separated list of additional options for payload if needed in 'opt=val,opt=val' format.
-   PAYLOAD   windows/x64/meterpreter/reverse_https    no        Windows Payload to inject into the targer executable.
+   PAYLOAD   windows/x64/meterpreter/reverse_https    no        Windows Payload to inject into the target executable.
    SESSION   1                                        yes       The session to run this module on.
    TARGETPE  C:\users\msfuser\downloads\puttyx64.exe  no        Path of the target executable to be injected
 

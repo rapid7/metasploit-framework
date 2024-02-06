@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'CWE', '319'],
         # certificate expired
         [ 'CWE', '298' ],
-        # certificate broken or risky crypto aglorithms
+        # certificate broken or risky crypto algorithms
         [ 'CWE', '327' ],
         # certificate inadequate encryption strength
         [ 'CWE', '326' ]
@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
     # Next, we'll find that many ciphers in OpenSSL::Cipher.ciphers are not applicable for various SSL versions.
     # The loop we previously looked at has (at the time of writing on Kali Rollin, msf 6.2.23) 3060 rounds.
     # This is a lot of iterations when we already know there are many combinations that will not be applicable for our
-    # use. Luckily there is a 2nd way which is much more efficent.
+    # use. Luckily there is a 2nd way which is much more efficient.
     #
     # The OpenSSL library includes https://docs.ruby-lang.org/en/2.4.0/OpenSSL/SSL/SSLContext.html#method-i-ciphers
     # which we can use to generate a list of all ciphers, and SSL versions they work with. The structure is:
@@ -117,7 +117,7 @@ class MetasploitModule < Msf::Auxiliary
       return Array.new(OpenSSL::SSL::SSLContext.new.ciphers.length) { |i| (OpenSSL::SSL::SSLContext.new.ciphers[i][1]).to_s }.uniq.reverse
     end
 
-    datastore['SSLVersion']
+    [datastore['SSLVersion']]
   end
 
   def get_metasploit_ssl_cipher_suites(ssl_version)
@@ -509,8 +509,8 @@ class MetasploitModule < Msf::Auxiliary
           print_error("Exception encountered: #{e}")
         rescue StandardError => e
           if e.message.match(/connection was refused/) || e.message.match(/timed out/)
-            print_error("\tPort closed or timeout occured.")
-            return 'Port closed or timeout occured.'
+            print_error("\tPort closed or timeout occurred.")
+            return 'Port closed or timeout occurred.'
           end
           print_error("\tException encountered: #{e}")
         ensure

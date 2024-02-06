@@ -74,9 +74,9 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if res and res.code == 302
-      vprint_status("Login succesful")
+      vprint_status("Login successful")
     else
-      vprint_error("Login was not succesful!")
+      vprint_error("Login was not successful!")
       return
     end
 

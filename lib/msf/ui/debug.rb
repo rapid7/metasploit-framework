@@ -122,11 +122,11 @@ module Msf
         end
 
         # Retrieve and add more up to date information
-        add_hash_to_ini_group(ini, framework.datastore, driver.get_config_core)
+        add_hash_to_ini_group(ini, framework.datastore.to_h, driver.get_config_core)
         add_hash_to_ini_group(ini, driver.get_config, driver.get_config_group)
 
         if driver.active_module
-          add_hash_to_ini_group(ini, driver.active_module.datastore.dup, driver.active_module.refname)
+          add_hash_to_ini_group(ini, driver.active_module.datastore.to_h, driver.active_module.refname)
         end
 
         # Filter credentials

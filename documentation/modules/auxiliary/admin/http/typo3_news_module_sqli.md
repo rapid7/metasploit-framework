@@ -4,7 +4,7 @@ News module extensions v5.3.2 and earlier for TYPO3 contain an SQL injection vul
 
 ## Vulnerable Application
 
-In vulnerable versions of the news module for TYPO3, a filter for unsetting user specified values does not account for capitalization of the paramter name. This allows a user to inject values to an SQL query.
+In vulnerable versions of the news module for TYPO3, a filter for unsetting user specified values does not account for capitalization of the parameter name. This allows a user to inject values to an SQL query.
 
 To exploit the vulnerability, the module generates requests and sets a value for `order` and `OrderByAllowed`, which gets passed to the SQL query. The requests are constructed to reorder the display of news articles based on a character matching. This allows a blind SQL injection to be performed to retrieve a username and password hash.
 
@@ -28,7 +28,7 @@ The value for query parameter `id` of the page that the news extension is runnin
 - [ ] Enable the news extension
 - [ ] Import [vulnerable page](https://github.com/rapid7/metasploit-framework/files/1015777/T3D__2017-05-20_02-17-z.t3d.zip)
 - [ ] Enable page
-- [ ] Verify if page is visble to unauthenticated user and note the id
+- [ ] Verify if page is visible to unauthenticated user and note the id
 - [ ] `./msfconsole -q -x 'use auxiliary/admin/http/typo3_news_module_sqli; set rhost <rhost>; set id <id>; run'`
 - [ ] Username and password hash should have been retrieved
 

@@ -9,7 +9,7 @@ Using the discovery method, catalog information for a remote server can be autom
 
 1. `use auxiliary/scanner/db2/discovery`
 2. `set RHOSTS [target address range/cidr]`
-3. `set THREDS [number of threads]`
+3. `set THREADS [number of threads]`
 4. `run`
 
 ## Scenarios

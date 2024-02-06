@@ -1,4 +1,6 @@
 # -*- coding: binary -*-
+require 'active_support/hash_with_indifferent_access'
+
 module Msf
 module RPC
 class RPC_Plugin < RPC_Base
@@ -17,7 +19,7 @@ class RPC_Plugin < RPC_Base
   #  # Load the nexpose plugin
   #  rpc.call('plugin.load', 'nexpose')
   def rpc_load(path, xopts = {})
-    opts = {}
+    opts = ActiveSupport::HashWithIndifferentAccess.new
 
     xopts.each do |k, v|
       if k.class == String
@@ -28,7 +30,7 @@ class RPC_Plugin < RPC_Base
     if path !~ /#{File::SEPARATOR}/
       plugin_file_name = path
 
-      # If the plugin isn't in the user direcotry (~/.msf3/plugins/), use the base
+      # If the plugin isn't in the user directory (~/.msf3/plugins/), use the base
       path = Msf::Config.user_plugin_directory + File::SEPARATOR + plugin_file_name
       if not File.exist?(path + ".rb")
         # If the following "path" doesn't exist it will be caught when we attempt to load

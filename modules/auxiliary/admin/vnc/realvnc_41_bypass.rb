@@ -49,8 +49,8 @@ class MetasploitModule < Msf::Auxiliary
       'Context'   => { 'Msf' => framework, 'MsfExploit' => self }
     )
 
-    # If the autovnc option is set to true this will spawn a vncviewer on the lcoal machine
-    # targetting the proxy listener.
+    # If the autovnc option is set to true this will spawn a vncviewer on the local machine
+    # targeting the proxy listener.
     if (datastore['AUTOVNC'])
       unless (check_vncviewer())
         print_error("The vncviewer does not appear to be installed, exiting...")

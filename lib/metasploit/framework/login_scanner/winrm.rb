@@ -2,6 +2,7 @@
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
 require 'metasploit/framework/login_scanner/http'
+require 'metasploit/framework/login_scanner/kerberos'
 
 module Metasploit
   module Framework

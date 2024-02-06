@@ -205,7 +205,7 @@ class Msf::Analyze::Result
     # Special cases
     if set.include?('unix')
       # Skip archaic old HPUX bugs if we have a solid match against another OS
-      return false if set.include?("hpux") && mod.refname.include?("hpux") && !hos.inlcude?("hpux")
+      return false if set.include?("hpux") && mod.refname.include?("hpux") && !hos.include?("hpux")
       # Skip AIX bugs if we have a solid match against another OS
       return false if set.include?("aix") && mod.refname.include?("aix") && !hos.include?("aix")
       # Skip IRIX bugs if we have a solid match against another OS

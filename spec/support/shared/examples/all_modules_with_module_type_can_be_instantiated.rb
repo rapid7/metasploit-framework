@@ -1,4 +1,4 @@
-RSpec.shared_examples_for 'all modules with module type can be instantiated' do |options={}|
+RSpec.shared_examples_for 'all modules with module type can be instantiated' do |options = {}|
   options.assert_valid_keys(:module_type, :modules_pathname, :type_directory)
 
   module_type = options.fetch(:module_type)
@@ -14,7 +14,7 @@ RSpec.shared_examples_for 'all modules with module type can be instantiated' do 
 
   context module_type do
     type_pathname = modules_pathname.join(type_directory)
-    module_extension = ".rb"
+    module_extension = '.rb'
     module_extension_regexp = /#{Regexp.escape(module_extension)}$/
 
     Dir.glob(type_pathname.join('**', "*#{module_extension}")) do |module_path|
@@ -24,13 +24,15 @@ RSpec.shared_examples_for 'all modules with module type can be instantiated' do 
         module_reference_name = module_reference_pathname.to_path.gsub(module_extension_regexp, '')
 
         context module_reference_name do
-          it 'can be instantiated' do
+          subject do
             load_and_create_module(
-                module_type: module_type,
-                modules_path: modules_path,
-                reference_name: module_reference_name
+              module_type: module_type,
+              modules_path: modules_path,
+              reference_name: module_reference_name
             )
           end
+
+          it_behaves_like 'a module with valid metadata'
         end
       end
     end

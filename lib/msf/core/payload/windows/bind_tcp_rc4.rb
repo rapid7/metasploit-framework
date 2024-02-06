@@ -80,7 +80,7 @@ module Payload::Windows::BindTcpRc4
           lea ecx, [esi+0x100] ; ECX = stage length + S-box length (alloc length)
         push  0x40             ; PAGE_EXECUTE_READWRITE
         push 0x1000            ; MEM_COMMIT
-      ; push esi               ; push the newly recieved second stage length.
+      ; push esi               ; push the newly received second stage length.
           push ecx             ; push the alloc length
         push 0                 ; NULL as we dont care where the allocation is.
         push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}

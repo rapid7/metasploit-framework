@@ -34,8 +34,8 @@ module Msf::DBManager::Migration
     ActiveRecord::Migration.verbose = verbose
     ActiveRecord::Base.connection_pool.with_connection do
       begin
-        context = ActiveRecord::MigrationContext.new(gather_engine_migration_paths, ActiveRecord::SchemaMigration)
-        if context.needs_migration?
+        context = default_migration_context
+        if needs_migration?(context)
           ran = context.migrate
         end
           # ActiveRecord::Migrator#migrate rescues all errors and re-raises them
@@ -60,12 +60,27 @@ module Msf::DBManager::Migration
     return ran
   end
 
+  # Determine if the currently established database connection needs migration
+  #
+  # @param [ActiveRecord::MigrationContext,snil] context The migration context to check. Will default if not supplied
+  # @return [Boolean] True if migration is required, false otherwise
+  def needs_migration?(context = default_migration_context)
+    ActiveRecord::Base.connection_pool.with_connection do
+      return context.needs_migration?
+    end
+  end
+
   # Flag to indicate database migration has completed
   #
-  # @return [Boolean]
+  # @return [Boolean,nil]
   attr_accessor :migrated
 
   private
+
+  # @return [ActiveRecord::MigrationContext]
+  def default_migration_context
+    ActiveRecord::MigrationContext.new(gather_engine_migration_paths, ActiveRecord::SchemaMigration)
+  end
 
   # Loads gathers migration paths from all loaded Rails engines.
   #

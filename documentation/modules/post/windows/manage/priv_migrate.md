@@ -14,7 +14,7 @@ This module is a nice addition to the beginning of an autorun script for post-Me
 - **ANAME** - This option allows you to specify a system level process that the module attempts to migrate to first if the session has admin rights. 
 - **NAME** - This option allows you to specify the user level process that the module attempts to migrate to first if the session has user rights or if admin migration fails through all of the default processes.  
 - **KILL** - This option allows you to kill the original process after a successful migration. The default value is FALSE.
-- **NOFAIL** - This option allows you to specify whether or not the module will migrate the session into a user level process if admin level migration fails. If TRUE, this may downgrade priviliged shells. The default value is FALSE.
+- **NOFAIL** - This option allows you to specify whether or not the module will migrate the session into a user level process if admin level migration fails. If TRUE, this may downgrade privileged shells. The default value is FALSE.
 
 ## Module Process
 Here is the process that the module follows:

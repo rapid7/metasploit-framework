@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('USERNAME', [true, "A specific username to authenticate as, default 'admn'", "admn"]),
-        OptString.new('PASSWORD', [true, "A specific password to authenticate with, deault 'admn'", "admn"])
+        OptString.new('PASSWORD', [true, "A specific password to authenticate with, default 'admn'", "admn"])
       ])
   end
 
