@@ -22,8 +22,10 @@ module DNS
         case resolver
         when UpstreamResolver
           resolver
-        when UpstreamResolver::TYPE_BLACKHOLE
-          UpstreamResolver.new(UpstreamResolver::TYPE_BLACKHOLE)
+        when UpstreamResolver::TYPE_BLACK_HOLE
+          UpstreamResolver.new(UpstreamResolver::TYPE_BLACK_HOLE)
+        when UpstreamResolver::TYPE_STATIC
+          UpstreamResolver.new(UpstreamResolver::TYPE_STATIC)
         when UpstreamResolver::TYPE_SYSTEM
           UpstreamResolver.new(UpstreamResolver::TYPE_SYSTEM)
         else
@@ -46,7 +48,8 @@ module DNS
 
       resolver = resolver.downcase.to_sym
       [
-        UpstreamResolver::TYPE_BLACKHOLE,
+        UpstreamResolver::TYPE_BLACK_HOLE,
+        UpstreamResolver::TYPE_STATIC,
         UpstreamResolver::TYPE_SYSTEM
       ].include?(resolver)
     end

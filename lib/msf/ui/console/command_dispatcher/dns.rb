@@ -136,12 +136,12 @@ class DNS
     print_line "  dns [help] [subcommand]"
     print_line
     print_line "SUBCOMMANDS:"
-    print_line "  add           - add a DNS resolution entry to resolve certain domain names through a particular DNS resolver"
-    print_line "  remove        - delete a DNS resolution entry; 'del' is an alias"
-    print_line "  print         - show all configured DNS resolution entries"
-    print_line "  flush-entries - remove all configured DNS resolution entries"
-    print_line "  flush-cache   - remove all cached DNS answers"
-    print_line "  resolve       - resolve a hostname"
+    print_line "  add           - Add a DNS resolution entry to resolve certain domain names through a particular DNS resolver"
+    print_line "  remove        - Delete a DNS resolution entry; 'del' is an alias"
+    print_line "  print         - Show all configured DNS resolution entries"
+    print_line "  flush-entries - Remove all configured DNS resolution entries"
+    print_line "  flush-cache   - Remove all cached DNS answers"
+    print_line "  resolve       - Resolve a hostname"
     print_line
     print_line "EXAMPLES:"
     print_line "  Display help information for the 'add' subcommand"
@@ -236,9 +236,9 @@ class DNS
       raise ::ArgumentError.new('You must specify at least one upstream DNS resolver')
     end
 
-    resolvers.each do |host|
-      unless Rex::Socket.is_ip_addr?(host) || SPECIAL_RESOLVERS.include?(host.downcase)
-        raise ::ArgumentError.new("Invalid DNS resolver: #{host}")
+    resolvers.each do |resolver|
+      unless Rex::Proto::DNS::UpstreamRule.valid_resolver?(resolver)
+        raise ::ArgumentError.new("Invalid DNS resolver: #{resolver}")
       end
     end
 
@@ -273,8 +273,9 @@ class DNS
     print_line @@add_opts.usage
     print_line "RESOLVERS:"
     print_line "  ipv4 / ipv6 address - The IP address of an upstream DNS server to resolve from"
-    print_line "  system              - Use the host operating systems DNS resolution functionality (only for A/AAAA records)"
     print_line "  blackhole           - Drop all queries"
+    print_line "  static              - Reply with statically configured addresses (only for A/AAAA records)"
+    print_line "  system              - Use the host operating systems DNS resolution functionality (only for A/AAAA records)"
     print_line
     print_line "EXAMPLES:"
     print_line "  Set the DNS server(s) to be used for *.metasploit.com to 192.168.1.10"
@@ -331,6 +332,7 @@ class DNS
     )
     names.each do |name|
       upstream_entry = resolver.upstream_entries.find { |ue| ue.matches_name?(name) }
+
       begin
         result = resolver.query(name, query_type)
       rescue NoResponseError
@@ -437,16 +439,33 @@ class DNS
 
     upstream_entries = resolver.upstream_entries
     print_dns_set('Resolver rule entries', upstream_entries)
-
     if upstream_entries.empty?
       print_error('No DNS nameserver entries configured')
+    end
+
+    static_hosts = resolver.static_hosts
+    tbl = Table.new(
+      Table::Style::Default,
+      'Header'    => 'Static hostnames',
+      'Prefix'    => "\n",
+      'Postfix'   => "\n",
+      'Columns'   => ['Hostname', 'IPv4 Address', 'IPv6 Address'],
+      'SortIndex' => -1,
+      'WordWrap'  => false
+    )
+    static_hosts.each do |hostname, addresses|
+      tbl << [hostname, addresses[::Socket::AF_INET], addresses[::Socket::AF_INET6]]
+    end
+    print_line(tbl.to_s)
+    if static_hosts.empty?
+      print_line('No static hostname entries are configured')
     end
   end
 
   private
 
   SPECIAL_RESOLVERS = [
-    Rex::Proto::DNS::UpstreamResolver::TYPE_BLACKHOLE.to_s.downcase,
+    Rex::Proto::DNS::UpstreamResolver::TYPE_BLACK_HOLE.to_s.downcase,
     Rex::Proto::DNS::UpstreamResolver::TYPE_SYSTEM.to_s.downcase
   ].freeze
 
@@ -454,7 +473,7 @@ class DNS
   # Get user-friendly text for displaying the session that this entry would go through
   #
   def prettify_comm(comm, upstream_resolver)
-    if SPECIAL_RESOLVERS.include?(upstream_resolver.type.to_s)
+    if !Rex::Socket.is_ip_addr?(upstream_resolver.destination)
       'N/A'
     elsif comm.nil?
       channel = Rex::Socket::SwitchBoard.best_comm(upstream_resolver.destination)
@@ -483,7 +502,7 @@ class DNS
       'Postfix'   => "\n",
       'Columns'   => columns,
       'SortIndex' => -1,
-      'WordWrap'  => false,
+      'WordWrap'  => false
     )
     result_set.each do |entry|
       tbl = append_resolver_cells!(tbl, entry)

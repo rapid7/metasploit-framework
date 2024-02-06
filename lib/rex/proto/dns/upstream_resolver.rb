@@ -4,9 +4,10 @@ module Rex
 module Proto
 module DNS
   class UpstreamResolver
+    TYPE_BLACK_HOLE = %s[black-hole]
+    TYPE_DNS_SERVER = %s[dns-server]
+    TYPE_STATIC = :static
     TYPE_SYSTEM = :system
-    TYPE_DNS_SERVER = :dns_server
-    TYPE_BLACKHOLE = :blackhole
 
     attr_reader :type, :destination, :socket_options
     def initialize(type, destination: nil, socket_options: {})
@@ -16,13 +17,10 @@ module DNS
     end
 
     def to_s
-      case type
-      when TYPE_BLACKHOLE
-        'blackhole'
-      when TYPE_SYSTEM
-        'system'
-      else
+      if type == TYPE_DNS_SERVER
         destination.to_s
+      else
+        type.to_s
       end
     end
 

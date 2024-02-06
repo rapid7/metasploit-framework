@@ -33,7 +33,8 @@ module DNS
       :tcp_timeout => TcpTimeout.new(5),
       :udp_timeout => UdpTimeout.new(5),
       :context => {},
-      :comm => nil
+      :comm => nil,
+      :static_hosts => {}
     }
 
     attr_accessor :context, :comm
@@ -70,6 +71,11 @@ module DNS
       # Parsing ENV variables
       #------------------------------------------------------------
       parse_environment_variables
+
+      #------------------------------------------------------------
+      # Parsing ENV variables
+      #------------------------------------------------------------
+      parse_static_hosts_file
 
       #------------------------------------------------------------
       # Parsing arguments
@@ -150,6 +156,7 @@ module DNS
         packet = Rex::Proto::DNS::Packet.encode_drb(net_packet)
       end
 
+
       upstream_resolvers = upstream_resolvers_for_packet(packet)
       if upstream_resolvers.empty?
         raise ResolverError, "No upstream resolvers specified!"
@@ -158,8 +165,12 @@ module DNS
       ans = nil
       upstream_resolvers.each do |upstream_resolver|
         case upstream_resolver.type
+        when UpstreamResolver::TYPE_BLACK_HOLE
+          ans = send_blackhole(upstream_resolver, packet, type, cls)
         when UpstreamResolver::TYPE_DNS_SERVER
           ans = send_dns_server(upstream_resolver, packet, type, cls)
+        when UpstreamResolver::TYPE_STATIC
+          ans = send_static(upstream_resolver, packet, type, cls)
         when UpstreamResolver::TYPE_SYSTEM
           ans = send_system(upstream_resolver, packet, type, cls)
         end
@@ -391,6 +402,10 @@ module DNS
       end
     end
 
+    def static_hosts
+      @config[:static_hosts].dup
+    end
+
     private
 
     def preprocess_query_arguments(name, type, cls)
@@ -449,10 +464,24 @@ module DNS
       raise NoResponseError
     end
 
+   def send_static(upstream_resolver, packet, type, cls)
+      simple_name_lookup(upstream_resolver, packet, type, cls) do |name, family|
+        ip_address = static_hosts.fetch(name, {}).fetch(family, nil)
+        ip_address ? [ip_address] : nil
+      end
+   end
+
     def send_system(upstream_resolver, packet, type, cls)
       # This system resolver will use host operating systems `getaddrinfo` (or equivalent function) to perform name
       # resolution. This is primarily useful if that functionality is hooked or modified by an external application such
       # as proxychains. This handler though can only process A and AAAA requests.
+      simple_name_lookup(upstream_resolver, packet, type, cls) do |name, family|
+        addrinfos = ::Addrinfo.getaddrinfo(name, 0, family, ::Socket::SOCK_STREAM)
+        addrinfos.map(&:ip_address)
+      end
+    end
+
+    def simple_name_lookup(upstream_resolver, packet, type, cls, &block)
       return nil unless cls == Dnsruby::Classes::IN
 
       # todo: make sure this will work if the packet has multiple questions, figure out how that's handled
@@ -466,20 +495,22 @@ module DNS
         return nil
       end
 
+      ip_addresses = nil
       begin
-        addrinfos = ::Addrinfo.getaddrinfo(name, 0, family, ::Socket::SOCK_STREAM)
-      rescue ::SocketError
-        return nil
+        ip_addresses = block.call(name, family)
+      rescue StandardError => e
+        @logger.error("The #{upstream_resolver.type} name lookup block failed for #{name}")
       end
+      return nil unless ip_addresses && !ip_addresses.empty?
 
       message = Dnsruby::Message.new
       message.add_question(name, type, cls)
-      addrinfos.each do |addrinfo|
+      ip_addresses.each do |ip_address|
         message.add_answer(Dnsruby::RR.new_from_hash(
           name: name,
           type: type,
-          ttl: 0, # since we're querying the system, rely on that cache
-          address: addrinfo.ip_address
+          ttl: 0,
+          address: ip_address.to_s
         ))
       end
       [message.encode]
@@ -492,6 +523,25 @@ module DNS
       return false if comm && !comm.supports_udp?
 
       true
+    end
+
+    def parse_static_hosts_file
+      path = '/etc/hosts'
+      return unless File.file?(path) && File.readable?(path)
+
+      static_hosts = {}
+      ::IO.foreach(path) do |line|
+        words = line.split
+        next unless words.length > 1 && Rex::Socket.is_ip_addr?(words.first)
+
+        ip = IPAddr.new(words.shift)
+        words.each do |hostname|
+          this_host = static_hosts.fetch(hostname, {})
+          this_host[ip.family] = ip unless this_host.key?(ip.family) # only honor the first definition
+          static_hosts[hostname] = this_host
+        end
+      end
+      @config[:static_hosts].merge!(static_hosts)
     end
   end # Resolver
 
