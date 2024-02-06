@@ -9,14 +9,15 @@ class MetasploitModule < Msf::Evasion
 
   def initialize(info={})
     super(merge_info(info,
-      'Name'        => 'No shellcode defined, to reduce detection ratio',
+      'Name'        => 'Time obfuscation no shellcode',
       'Description' => %q{
-        This module allows you to generate a Windows EXE without having a large shellcode in the file. and rather have it generated at runtime. This is useful for reducing the detection ratio of your payload.
+        This module allows you to generate a Windows EXE without having a shellcode in the file. and rather have it generated at runtime. This is useful for reducing the detection ratio of your payload.
         it will also use few technique to avoid runtime detection such as, 
-        opening non existing files,
-        querying time from a distant server->sleep->query time again.
-        calling api function that are not fully emulated by avs.
-       },
+        time obfuscation server_time->sleep->server time again.
+        it also generat a lot of junk code to randomise the sum of the code.
+      
+        For better result use the payload with a secure channel such as HTTPS to avoid easy network detection.
+    },  
       'Author'      => [ 'Arthur RAOUT' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
