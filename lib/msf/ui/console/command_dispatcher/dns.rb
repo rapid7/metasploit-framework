@@ -16,12 +16,19 @@ class DNS
     ['-s', '--session'] => [true, 'Force the DNS request to occur over a particular channel (override routing rules)' ]
   )
 
-  REMOVE_USAGE = 'dns [remove/del] -i <entry id> [-i <entry id> ...]"'.freeze
+  ADD_STATIC_USAGE = 'dns [add-static] <hostname> <IP address>'.freeze
+
+  REMOVE_USAGE = 'dns [remove/del] -i <entry id> [-i <entry id> ...]'.freeze
   @@remove_opts = Rex::Parser::Arguments.new(
     ['-i', '--index'] => [true, 'Index to remove at']
   )
 
-  RESOLVE_USAGE = 'dns [resolve] [-f <address family>] <hostname> ..."'.freeze
+  REMOVE_STATIC_USAGE = 'dns [remove-static] [-f <address family>] <hostname> ...'.freeze
+  @@remove_static_opts = Rex::Parser::Arguments.new(
+    ['-f'] => [true,  'Address family - IPv4 or IPv6 (default both)']
+  )
+
+  RESOLVE_USAGE = 'dns [resolve] [-f <address family>] <hostname> ...'.freeze
   @@resolve_opts = Rex::Parser::Arguments.new(
     # same usage syntax as Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi
     ['-f'] => [true,  'Address family - IPv4 or IPv6 (default IPv4)']
@@ -56,7 +63,7 @@ class DNS
     return if driver.framework.dns_resolver.nil?
 
     if words.length == 1
-      options = %w[ add delete flush-cache flush-entries print query remove resolve ]
+      options = %w[ add add-static delete flush-cache flush-entries flush-static print query remove remove-static resolve ]
       return options.select { |opt| opt.start_with?(str) }
     end
 
@@ -100,6 +107,13 @@ class DNS
       else
         return @@remove_opts.option_keys.select { |opt| opt.start_with?(str) }
       end
+    when 'remove-static'
+      if words[-1] == '-f'
+        families = %w[ IPv4 IPv6 ] # The family argument is case-insensitive
+        return families.select { |family| family.downcase.start_with?(str.downcase) }
+      else
+        @@resolve_opts.option_keys.select { |opt| opt.start_with?(str) }
+      end
     when 'resolve','query'
       if words[-1] == '-f'
         families = %w[ IPv4 IPv6 ] # The family argument is case-insensitive
@@ -128,19 +142,25 @@ class DNS
     print_line
     print_line "USAGE:"
     print_line "  #{ADD_USAGE}"
+    print_line "  #{ADD_STATIC_USAGE}"
     print_line "  #{REMOVE_USAGE}"
+    print_line "  #{REMOVE_STATIC_USAGE}"
     print_line "  dns [flush-cache]"
     print_line "  dns [flush-entries]"
+    print_line "  dns [flush-static]"
     print_line "  dns [print]"
     print_line "  #{RESOLVE_USAGE}"
     print_line "  dns [help] [subcommand]"
     print_line
     print_line "SUBCOMMANDS:"
     print_line "  add           - Add a DNS resolution entry to resolve certain domain names through a particular DNS resolver"
-    print_line "  remove        - Delete a DNS resolution entry; 'del' is an alias"
-    print_line "  print         - Show all configured DNS resolution entries"
-    print_line "  flush-entries - Remove all configured DNS resolution entries"
+    print_line "  add-static    - Add a statically defined hostname"
     print_line "  flush-cache   - Remove all cached DNS answers"
+    print_line "  flush-entries - Remove all configured DNS resolution entries"
+    print_line "  flush-static  - Remove all statically defined hostnames"
+    print_line "  print         - Show all configured DNS resolution entries"
+    print_line "  remove        - Delete a DNS resolution entry"
+    print_line "  remove-static - Delete a statically defined hostname"
     print_line "  resolve       - Resolve a hostname"
     print_line
     print_line "EXAMPLES:"
@@ -158,9 +178,9 @@ class DNS
     args << 'print' if args.length == 0
     # Short-circuit help
     if args.delete("-h") || args.delete("--help")
-      if respond_to?("#{args.first}_dns_help")
+      if respond_to?("#{args.first.gsub('-', '_')}_dns_help")
         # if it is a valid command with dedicated help information
-        send("#{args.first}_dns_help")
+        send("#{args.first.gsub('-', '_')}_dns_help")
       else
         # otherwise print the top-level help information
         cmd_dns_help
@@ -173,16 +193,22 @@ class DNS
       case action
       when "add"
         add_dns(*args)
+      when "add-static"
+        add_static_dns(*args)
       when "flush-entries"
         flush_entries_dns
       when "flush-cache"
         flush_cache_dns
+      when "flush-static"
+        flush_static_dns
       when "help"
         cmd_dns_help(*args)
       when "print"
         print_dns
       when "remove", "rm", "delete", "del"
         remove_dns(*args)
+      when "remove-static"
+        remove_static_dns(*args)
       when "resolve", "query"
         resolve_dns(*args)
       else
@@ -288,8 +314,33 @@ class DNS
     print_line "    dns add --session 2 --rule *.metasploit.com 192.168.1.10"
   end
 
+  def add_static_dns(*args)
+    if args.length < 2
+      raise ::ArgumentError.new('A hostname and IP address must be provided')
+    elsif args.length > 2
+      raise ::ArgumentError.new("Unknown argument: #{args[2]}")
+    end
+
+    hostname, ip_address = args
+    if !Rex::Socket.is_ip_addr?(ip_address)
+      raise ::ArgumentError.new("Invalid IP address: #{ip_address}")
+    end
+
+    resolver.static_hostnames.add(hostname, ip_address)
+    print_status("Added static hostname mapping #{hostname} to #{ip_address}")
+  end
+
+  def add_static_dns_help
+    print_line "USAGE:"
+    print_line "  #{ADD_STATIC_USAGE}"
+    print_line
+    print_line "EXAMPLES:"
+    print_line "  Define a static entry mapping localhost6 to ::1"
+    print_line "    dns add-static localhost6 ::1"
+  end
+
   #
-  # Query a hostname using the configuration. This is useful for debugging and
+  # Query a hostname using the configuration. This is useful for debugging anddns
   # inspecting the active settings.
   #
   def resolve_dns(*args)
@@ -397,6 +448,60 @@ class DNS
     print_line
   end
 
+  def remove_static_dns(*args)
+    names = []
+    query_type = nil
+
+    @@resolve_opts.parse(args) do |opt, idx, val|
+      unless names.empty? || opt.nil?
+        raise ::ArgumentError.new("Invalid command near #{opt}")
+      end
+      case opt
+      when '-f'
+        case val.downcase
+        when 'ipv4'
+          query_type = Dnsruby::Types::A
+        when'ipv6'
+          query_type = Dnsruby::Types::AAAA
+        else
+          raise ::ArgumentError.new("Invalid family: #{val}")
+        end
+      when nil
+        names << val
+      else
+        raise ::ArgumentError.new("Unknown flag: #{opt}")
+      end
+    end
+
+    if names.length < 1
+      raise ::ArgumentError.new('You must specify at least one hostname to remove')
+    end
+
+    names.each do |name|
+      if query_type.nil? || query_type == Dnsruby::Types::A
+        resolver.static_hostnames.delete(name, Dnsruby::Types::A)
+      end
+
+      if query_type.nil? || query_type == Dnsruby::Types::AAAA
+        resolver.static_hostnames.delete(name, Dnsruby::Types::AAAA)
+      end
+    end
+    print_good('DNS hostnames have been deleted')
+  end
+
+  def remove_static_dns_help
+    print_line "USAGE:"
+    print_line "  #{REMOVE_STATIC_USAGE}"
+    print_line @@remove_static_opts.usage
+    print_line "EXAMPLES:"
+    print_line "  Remove IPv4 and IPv6 addresses for 'localhost'"
+    print_line "    dns remove-static localhost"
+    print_line
+    print_line "  Remove only IPv6 addresses for 'localhost6'"
+    print_line "    dns remove-static -f IPv6 localhost6"
+    print_line
+  end
+
   #
   # Delete all cached DNS answers
   #
@@ -411,6 +516,11 @@ class DNS
   def flush_entries_dns
     resolver.purge
     print_good('DNS entries flushed')
+  end
+
+  def flush_static_dns
+    resolver.static_hostnames.flush
+    print_good('DNS static hostnames flushed')
   end
 
   #
@@ -443,7 +553,6 @@ class DNS
       print_error('No DNS nameserver entries configured')
     end
 
-    static_hosts = resolver.static_hosts
     tbl = Table.new(
       Table::Style::Default,
       'Header'    => 'Static hostnames',
@@ -453,11 +562,11 @@ class DNS
       'SortIndex' => -1,
       'WordWrap'  => false
     )
-    static_hosts.each do |hostname, addresses|
-      tbl << [hostname, addresses[::Socket::AF_INET], addresses[::Socket::AF_INET6]]
+    resolver.static_hostnames.each do |hostname, addresses|
+      tbl << [hostname, addresses[Dnsruby::Types::A], addresses[Dnsruby::Types::AAAA]]
     end
     print_line(tbl.to_s)
-    if static_hosts.empty?
+    if resolver.static_hostnames.empty?
       print_line('No static hostname entries are configured')
     end
   end

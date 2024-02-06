@@ -37,7 +37,7 @@ module DNS
       :static_hosts => {}
     }
 
-    attr_accessor :context, :comm
+    attr_accessor :context, :comm, :static_hostnames
     #
     # Provide override for initializer to use local Defaults constant
     #
@@ -60,8 +60,6 @@ module DNS
       # 4) defaults (and /etc/resolv.conf for config)
       #------------------------------------------------------------
 
-
-
       #------------------------------------------------------------
       # Parsing config file
       #------------------------------------------------------------
@@ -73,15 +71,11 @@ module DNS
       parse_environment_variables
 
       #------------------------------------------------------------
-      # Parsing ENV variables
-      #------------------------------------------------------------
-      parse_static_hosts_file
-
-      #------------------------------------------------------------
       # Parsing arguments
       #------------------------------------------------------------
       comm = config.delete(:comm)
-      context = context = config.delete(:context)
+      context = config.delete(:context)
+      static_hosts = config.delete(:static_hosts)
       config.each do |key,val|
         next if key == :log_file or key == :config_file
         begin
@@ -90,6 +84,8 @@ module DNS
           raise ResolverArgumentError, "Option #{key} not valid"
         end
       end
+      self.static_hostnames = StaticHostnames.new(hostnames: static_hosts)
+      self.static_hostnames.parse_hosts_file
     end
     #
     # Provides current proxy setting if configured
@@ -402,10 +398,6 @@ module DNS
       end
     end
 
-    def static_hosts
-      @config[:static_hosts].dup
-    end
-
     private
 
     def preprocess_query_arguments(name, type, cls)
@@ -465,8 +457,8 @@ module DNS
     end
 
    def send_static(upstream_resolver, packet, type, cls)
-      simple_name_lookup(upstream_resolver, packet, type, cls) do |name, family|
-        ip_address = static_hosts.fetch(name, {}).fetch(family, nil)
+      simple_name_lookup(upstream_resolver, packet, type, cls) do |name, _family|
+        ip_address = static_hostnames.get(name, type)
         ip_address ? [ip_address] : nil
       end
    end
@@ -523,25 +515,6 @@ module DNS
       return false if comm && !comm.supports_udp?
 
       true
-    end
-
-    def parse_static_hosts_file
-      path = '/etc/hosts'
-      return unless File.file?(path) && File.readable?(path)
-
-      static_hosts = {}
-      ::IO.foreach(path) do |line|
-        words = line.split
-        next unless words.length > 1 && Rex::Socket.is_ip_addr?(words.first)
-
-        ip = IPAddr.new(words.shift)
-        words.each do |hostname|
-          this_host = static_hosts.fetch(hostname, {})
-          this_host[ip.family] = ip unless this_host.key?(ip.family) # only honor the first definition
-          static_hosts[hostname] = this_host
-        end
-      end
-      @config[:static_hosts].merge!(static_hosts)
     end
   end # Resolver
 
