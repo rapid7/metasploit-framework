@@ -33,7 +33,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::Proxies
+        Opt::Proxies,
+        OptBool.new('CreateSession', [false, 'Create a new session for every successful login', false])
       ])
 
     options_to_deregister = %w[PASSWORD_SPRAY]
