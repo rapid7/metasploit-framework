@@ -58,6 +58,7 @@ class MetasploitModule < Msf::Auxiliary
     if session
       print_status("Using existing session #{session.sid}")
       self.mysql_conn = session.client
+      self.sock = session.client.socket
     else
       # otherwise fallback to attempting to login
       return unless mysql_login_datastore
@@ -247,5 +248,7 @@ class MetasploitModule < Msf::Auxiliary
         print_status("\t\tUser: #{row[0]} Host: #{row[1]}")
       end
     end
+
+    mysql_logoff unless session
   end
 end
