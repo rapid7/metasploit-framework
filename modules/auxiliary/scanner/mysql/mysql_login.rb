@@ -38,7 +38,9 @@ class MetasploitModule < Msf::Auxiliary
       ])
 
     options_to_deregister = %w[PASSWORD_SPRAY]
-    unless framework.features.enabled?(Msf::FeatureManager::MYSQL_SESSION_TYPE)
+    if framework.features.enabled?(Msf::FeatureManager::MYSQL_SESSION_TYPE)
+      add_info('New in Metasploit 6.4 - The %grnCreateSession%clr option within this module can open an interactive session')
+    else
       options_to_deregister << 'CreateSession'
     end
     deregister_options(*options_to_deregister)
