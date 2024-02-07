@@ -21,9 +21,17 @@ module DNS
     end
 
     def parse_hosts_file
-      path = '/etc/hosts'
-      return unless File.file?(path) && File.readable?(path)
+      path = %w[
+        %WINDIR%\system32\drivers\etc\hosts
+        /etc/hosts
+        /data/data/com.termux/files/usr/etc/hosts
+      ].find do |path|
+        path = File.expand_path(path)
+        File.file?(path) && File.readable?(path)
+      end
+      return unless path
 
+      path = File.expand_path(path)
       hostnames = {}
       ::IO.foreach(path) do |line|
         words = line.split
