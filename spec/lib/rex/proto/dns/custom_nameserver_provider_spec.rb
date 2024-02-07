@@ -37,9 +37,9 @@ RSpec.describe Rex::Proto::DNS::CustomNameserverProvider do
 
   subject(:dns_resolver) do
     dns_resolver = Rex::Proto::DNS::CachedResolver.new(config)
-    dns_resolver.extend(Rex::Proto::DNS::CustomNameserverProvider)
     dns_resolver.nameservers = [default_nameserver]
-    dns_resolver.add_upstream_entry([metasploit_nameserver], wildcard: '*.metasploit.com')
+    dns_resolver.extend(Rex::Proto::DNS::CustomNameserverProvider)
+    dns_resolver.add_upstream_entry([metasploit_nameserver], wildcard: '*.metasploit.com', position: 0)
     dns_resolver.set_framework(framework_with_dns_enabled)
     dns_resolver
   end
@@ -48,7 +48,9 @@ RSpec.describe Rex::Proto::DNS::CustomNameserverProvider do
     it 'The correct resolver is returned' do
       packet = packet_for('subdomain.metasploit.com')
       ns = dns_resolver.upstream_resolvers_for_packet(packet)
-      expect(ns).to eq([Rex::Proto::DNS::UpstreamResolver.new_dns_server(metasploit_nameserver)])
+      expect(ns).to eq([
+        Rex::Proto::DNS::UpstreamResolver.new_dns_server(metasploit_nameserver)
+      ])
     end
   end
 
@@ -56,7 +58,10 @@ RSpec.describe Rex::Proto::DNS::CustomNameserverProvider do
     it 'The default resolver is returned' do
       packet = packet_for('subdomain.test.lan')
       ns = dns_resolver.upstream_resolvers_for_packet(packet)
-      expect(ns).to eq([Rex::Proto::DNS::UpstreamResolver.new_dns_server(default_nameserver)])
+      expect(ns).to eq([
+        Rex::Proto::DNS::UpstreamResolver.new_static,
+        Rex::Proto::DNS::UpstreamResolver.new_dns_server(default_nameserver)
+      ])
     end
   end
 end

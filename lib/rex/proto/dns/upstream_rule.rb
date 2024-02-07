@@ -54,8 +54,12 @@ module DNS
       wildcard == '*' || wildcard =~ /^(\*\.)?([a-z\d][a-z\d-]*[a-z\d]\.)+[a-z]+$/
     end
 
+    def matches_all?
+      wildcard == '*'
+    end
+
     def matches_name?(name)
-      if wildcard == '*'
+      if matches_all?
         true
       elsif wildcard.start_with?('*.')
         name.downcase.end_with?(wildcard[1..-1].downcase)

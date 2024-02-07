@@ -12,8 +12,8 @@ class DNS
   ADD_USAGE = 'dns [add] [--session <session id>] [--rule <wildcard DNS entry>] <resolver> ..."'.freeze
   @@add_opts = Rex::Parser::Arguments.new(
     ['-i', '--index'] => [true, 'Index to insert at'],
-    ['-r', '--rule'] => [true, 'Set a DNS wildcard entry to match against' ],
-    ['-s', '--session'] => [true, 'Force the DNS request to occur over a particular channel (override routing rules)' ]
+    ['-r', '--rule'] => [true, 'Set a DNS wildcard entry to match against'],
+    ['-s', '--session'] => [true, 'Force the DNS request to occur over a particular channel (override routing rules)']
   )
 
   ADD_STATIC_USAGE = 'dns [add-static] <hostname> <IP address>'.freeze
@@ -26,6 +26,12 @@ class DNS
   REMOVE_STATIC_USAGE = 'dns [remove-static] [-f <address family>] <hostname> ...'.freeze
   @@remove_static_opts = Rex::Parser::Arguments.new(
     ['-f'] => [true,  'Address family - IPv4 or IPv6 (default both)']
+  )
+
+  RESET_CONFIG_USAGE = 'dns [reset-config] [-y/--yes] [--system]'.freeze
+  @@reset_config_opts = Rex::Parser::Arguments.new(
+    ['-y', '--yes'] => [false, 'Assume yes and do not prompt for confirmation before resetting'],
+    ['--system'] => [false, 'Include the system resolver']
   )
 
   RESOLVE_USAGE = 'dns [resolve] [-f <address family>] <hostname> ...'.freeze
@@ -62,9 +68,9 @@ class DNS
   def cmd_dns_tabs(str, words)
     return if driver.framework.dns_resolver.nil?
 
+    subcommands = %w[ add add-static delete flush-cache flush-entries flush-static help print query remove remove-static reset-config resolve ]
     if words.length == 1
-      options = %w[ add add-static delete flush-cache flush-entries flush-static print query remove remove-static resolve ]
-      return options.select { |opt| opt.start_with?(str) }
+      return subcommands.select { |opt| opt.start_with?(str) }
     end
 
     cmd = words[1]
@@ -97,9 +103,9 @@ class DNS
       options = @@add_opts.option_keys.select { |opt| opt.start_with?(str) }
       options << '' # Prevent tab-completion of a dash, given they could provide an IP address at this point
       return options
-    when 'flush-cache','flush-entries','help','print'
+    when 'help'
       # These commands don't have any arguments
-      return
+      return subcommands.select { |sc| sc.start_with?(str) }
     when 'remove','delete'
       if words[-1] == '-i'
         ids = driver.framework.dns_resolver.upstream_entries.map { |entry| entry[:id].to_s }
@@ -114,6 +120,8 @@ class DNS
       else
         @@resolve_opts.option_keys.select { |opt| opt.start_with?(str) }
       end
+    when 'reset-config'
+      @@reset_config_opts.option_keys.select { |opt| opt.start_with?(str) }
     when 'resolve','query'
       if words[-1] == '-f'
         families = %w[ IPv4 IPv6 ] # The family argument is case-insensitive
@@ -126,10 +134,11 @@ class DNS
 
   def cmd_dns_help(*args)
     if args.first.present?
-      if respond_to?("#{args.first}_dns_help")
+      handler = "#{args.first.gsub('-', '_')}_dns"
+      if respond_to?("#{handler}_help")
         # if it is a valid command with dedicated help information
-        return send("#{args.first}_dns_help")
-      elsif respond_to?("#{args.first}_dns")
+        return send("#{handler}_help")
+      elsif respond_to?(handler)
         # if it is a valid command without dedicated help information
         print_error("No help menu is available for #{args.first}")
         return
@@ -149,6 +158,7 @@ class DNS
     print_line "  dns [flush-entries]"
     print_line "  dns [flush-static]"
     print_line "  dns [print]"
+    print_line "  #{RESET_CONFIG_USAGE}"
     print_line "  #{RESOLVE_USAGE}"
     print_line "  dns [help] [subcommand]"
     print_line
@@ -161,6 +171,7 @@ class DNS
     print_line "  print         - Show all configured DNS resolution entries"
     print_line "  remove        - Delete a DNS resolution entry"
     print_line "  remove-static - Delete a statically defined hostname"
+    print_line "  reset-config  - Reset the DNS configuration"
     print_line "  resolve       - Resolve a hostname"
     print_line
     print_line "EXAMPLES:"
@@ -209,6 +220,8 @@ class DNS
         remove_dns(*args)
       when "remove-static"
         remove_static_dns(*args)
+      when "reset-config"
+        reset_config_dns(*args)
       when "resolve", "query"
         resolve_dns(*args)
       else
@@ -340,7 +353,7 @@ class DNS
   end
 
   #
-  # Query a hostname using the configuration. This is useful for debugging anddns
+  # Query a hostname using the configuration. This is useful for debugging and
   # inspecting the active settings.
   #
   def resolve_dns(*args)
@@ -383,6 +396,11 @@ class DNS
     )
     names.each do |name|
       upstream_entry = resolver.upstream_entries.find { |ue| ue.matches_name?(name) }
+      if upstream_entry.nil?
+        tbl << [name, '[Failed To Resolve]', '', '', '', '']
+        next
+      end
+
       upstream_entry_id = resolver.upstream_entries.index(upstream_entry) + 1
 
       begin
@@ -503,6 +521,64 @@ class DNS
     print_line
   end
 
+  def reset_config_dns(*args)
+    add_system_resolver = false
+    should_confirm = true
+    @@reset_config_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '--system'
+        add_system_resolver = true
+      when '-y', '--yes'
+        should_confirm = false
+      end
+    end
+
+    if should_confirm
+      print("Are you sure you want to reset the DNS configuration? [y/N]: ")
+      response = gets.downcase.chomp
+      unless response.present? && 'yes'.start_with?(response)
+        return
+      end
+    end
+
+    resolver.reinit
+    print_status('The DNS configuration has been reset')
+
+    if add_system_resolver
+      # if the user requested that we add the system resolver
+      system_resolver = Rex::Proto::DNS::UpstreamResolver.new_system
+      # first find the default, catch-all rule
+      default_rule = resolver.upstream_entries.find { |ue| ue.matches_all? }
+      if default_rule.nil?
+        resolver.add_upstream_entries([ system_resolver ])
+      else
+        # if the first resolver is for static hostnames, insert after that one
+        if default_rule.resolvers.first&.type == Rex::Proto::DNS::UpstreamResolver::TYPE_STATIC
+          index = 1
+        else
+          index = 0
+        end
+        default_rule.resolvers.insert(index, system_resolver)
+      end
+    end
+
+    print_dns
+
+    if ENV['PROXYCHAINS_CONF_FILE'] && !add_system_resolver
+      print_warning('Detected proxychains but the system resolver was not added')
+    end
+  end
+
+  def reset_config_dns_help
+    print_line "USAGE:"
+    print_line "  #{RESET_CONFIG_USAGE}"
+    print_line @@reset_config_opts.usage
+    print_line "EXAMPLES:"
+    print_line "  Reset the configuration without prompting to confirm"
+    print_line "    dns reset-config --yes"
+    print_line
+  end
+
   #
   # Delete all cached DNS answers
   #
@@ -515,7 +591,7 @@ class DNS
   # Delete all user-configured DNS settings
   #
   def flush_entries_dns
-    resolver.purge
+    resolver.flush
     print_good('DNS entries flushed')
   end
 
@@ -551,6 +627,7 @@ class DNS
     upstream_entries = resolver.upstream_entries
     print_dns_set('Resolver rule entries', upstream_entries, ids: (1..upstream_entries.length).to_a)
     if upstream_entries.empty?
+      print_line
       print_error('No DNS nameserver entries configured')
     end
 
@@ -628,7 +705,8 @@ class DNS
       tbl << prefix + [index.to_s, entry.wildcard, entry.resolvers.first, prettify_comm(entry.comm, entry.resolvers.first)] + suffix
     elsif entry.resolvers.length > 1
       # XXX: By default rex-text tables strip preceding whitespace:
-      #   https://github.com/rapid7/rex-text/blob/1a7b639ca62fd9102665d6986f918ae42cae244e/lib/rex/text/table.rb#L221-L222
+      #   https://github.com/rapid7/rex-text/blob/1a7b63993
+      # ca62fd9102665d6986f918ae42cae244e/lib/rex/text/table.rb#L221-L222
       #   So use https://en.wikipedia.org/wiki/Non-breaking_space as a workaround for now. A change should exist in Rex-Text to support this requirement
       indent = "\xc2\xa0\xc2\xa0\\_ "
 

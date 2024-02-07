@@ -40,33 +40,51 @@ RSpec.describe Rex::Proto::DNS::UpstreamRule do
   context 'when using a wildcard condition' do
     let(:subject) { described_class.new(wildcard: '*.metasploit.com') }
 
-    it 'returns true for subdomains' do
-      expect(subject.matches_name?('www.metasploit.com')).to be_truthy
+    describe '#matches_all?' do
+      it 'does not return true for everything' do
+        expect(subject.matches_all?).to be_falsey
+      end
     end
 
-    it 'returns true for subsubdomains' do
-      expect(subject.matches_name?('one.two.metasploit.com')).to be_truthy
-    end
+    describe '#matches_name?' do
+      it 'returns true for subdomains' do
+        expect(subject.matches_name?('www.metasploit.com')).to be_truthy
+      end
 
-    it 'returns false for the domain' do
-      expect(subject.matches_name?('metasploit.com')).to be_falsey
-    end
+      it 'returns true for subsubdomains' do
+        expect(subject.matches_name?('one.two.metasploit.com')).to be_truthy
+      end
+
+      it 'returns false for the domain' do
+        expect(subject.matches_name?('metasploit.com')).to be_falsey
+      end
 
 
-    it 'returns false for other domains' do
-      expect(subject.matches_name?('notmetasploit.com')).to be_falsey
+      it 'returns false for other domains' do
+        expect(subject.matches_name?('notmetasploit.com')).to be_falsey
+      end
     end
   end
 
   context 'when not using a wildcard condition' do
     let(:subject) { described_class.new }
 
-    it 'defaults to *' do
-      expect(subject.wildcard).to eq '*'
+    describe '#wildcard' do
+      it 'defaults to *' do
+        expect(subject.wildcard).to eq '*'
+      end
     end
 
-    it 'returns true for everything' do
-      expect(subject.matches_name?("#{Rex::Text.rand_text_alphanumeric(10)}.#{Rex::Text.rand_text_alphanumeric(3)}")).to be_truthy
+    describe '#matches_all?' do
+      it 'returns true for everything' do
+        expect(subject.matches_all?).to be_truthy
+      end
+    end
+
+    describe '#matches_name?' do
+      it 'returns true for everything' do
+        expect(subject.matches_name?("#{Rex::Text.rand_text_alphanumeric(10)}.#{Rex::Text.rand_text_alphanumeric(3)}")).to be_truthy
+      end
     end
   end
 end

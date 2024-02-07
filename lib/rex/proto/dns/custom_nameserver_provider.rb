@@ -34,6 +34,38 @@ module DNS
 
     def init
       @upstream_entries = []
+
+      resolvers = [UpstreamResolver.new_static]
+      if @config[:nameservers].empty?
+        # if no nameservers are specified, fallback to the system
+        resolvers << UpstreamResolver.new_system
+      else
+        # migrate the originally configured name servers
+        resolvers += @config[:nameservers].map(&:to_s)
+        @config[:nameservers].clear
+      end
+
+      add_upstream_entry(resolvers)
+
+      nil
+    end
+
+    def reinit
+      parse_config_file
+      parse_environment_variables
+
+      self.static_hostnames.flush
+      self.static_hostnames.parse_hosts_file
+
+      init
+
+      cache.flush if respond_to?(:cache)
+
+      nil
+    end
+
+    def has_config?
+      Msf::Config.load.keys.any? { |group| group == CONFIG_KEY_BASE || group.starts_with?("#{CONFIG_KEY_BASE}/") }
     end
 
     #
@@ -67,7 +99,7 @@ module DNS
     end
 
     #
-    # Remove entries with the given IDs
+    # Remove entries with the given indexes
     # Ignore entries that are not found
     # @param ids [Array<Integer>] The IDs to removed
     # @return [Array<UpstreamRule>] The removed entries
@@ -81,8 +113,8 @@ module DNS
       removed.reverse
     end
 
-    def purge
-      init
+    def flush
+      @upstream_entries.clear
     end
 
     # The nameservers that match the given packet
@@ -128,9 +160,7 @@ module DNS
     end
 
     def upstream_entries
-      entries = @upstream_entries.dup
-      entries << UpstreamRule.new(resolvers: self.nameservers)
-      entries
+      @upstream_entries.dup
     end
 
     private
@@ -164,6 +194,7 @@ module DNS
     def load_config_static_hostnames
       config = Msf::Config.load
 
+      static_hostnames.flush
       config.fetch("#{CONFIG_KEY_BASE}/static_hostnames", {}).each do |_name, value|
         values = value.split(';')
         hostname = values.shift
