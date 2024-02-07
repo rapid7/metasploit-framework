@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Evasion
 
           For better result use the payload with a secure channel such as HTTPS to avoid easy network detection.
         },
-        'Author' => [ 'Arthur RAOUT' ],
+        'Author' => [ 'Arthur RAOUT@nbs-system' ],
         'License' => MSF_LICENSE,
         'Platform' => 'win',
         'Arch' => ARCH_X86,
