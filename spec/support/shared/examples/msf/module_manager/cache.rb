@@ -436,12 +436,12 @@ RSpec.shared_examples_for 'Msf::ModuleManager::Cache' do
         end
 
         context 'without reference_name' do
-          it 'should set reference_name value to Msf::SymbolicModule' do
+          it 'should set reference_name value to nil' do
             module_info_by_path_from_database!
 
             # have to use fetch because [] will trigger de-symbolization and
             # instantiation.
-            expect(typed_module_set.fetch(reference_name)).to eq Msf::SymbolicModule
+            expect(typed_module_set.fetch(reference_name)).to eq nil
           end
         end
       end

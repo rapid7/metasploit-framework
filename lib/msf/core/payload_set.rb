@@ -119,8 +119,7 @@ class PayloadSet < ModuleSet
 
     # Blow away anything that was cached but didn't exist during the
     # recalculation
-    self.delete_if do |k, v|
-      next if v == SymbolicModule
+    self.delete_if do |k, _v|
       !!(old_keys.include?(k) and not new_keys.include?(k))
     end
 
