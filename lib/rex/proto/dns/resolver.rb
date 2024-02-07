@@ -120,7 +120,7 @@ module DNS
     #
     def upstream_resolvers_for_packet(_dns_message)
       @config[:nameservers].map do |ns|
-        UpstreamResolver.new(UpstreamResolver::TYPE_DNS_SERVER, destination: ns.to_s)
+        UpstreamResolver.new_dns_server(ns.to_s)
       end
     end
 

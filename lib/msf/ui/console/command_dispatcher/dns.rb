@@ -76,7 +76,7 @@ class DNS
       if words.length > 2
         words[2..-1].each do |word|
           if tag_is_expected && !word.start_with?('-')
-            return # They're trying to specify a DNS server - we can't help them from here on out
+            return
           end
           tag_is_expected = !tag_is_expected
         end

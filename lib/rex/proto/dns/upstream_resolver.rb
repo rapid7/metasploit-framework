@@ -16,6 +16,26 @@ module DNS
       @socket_options = socket_options
     end
 
+    def self.new_black_hole
+      self.new(TYPE_BLACK_HOLE)
+    end
+
+    def self.new_dns_server(destination, socket_options: {})
+      self.new(
+        TYPE_DNS_SERVER,
+        destination: destination,
+        socket_options: socket_options
+      )
+    end
+
+    def self.new_static
+      self.new(TYPE_STATIC)
+    end
+
+    def self.new_system
+      self.new(TYPE_SYSTEM)
+    end
+
     def to_s
       if type == TYPE_DNS_SERVER
         destination.to_s

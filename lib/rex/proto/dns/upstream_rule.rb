@@ -23,18 +23,14 @@ module DNS
         when UpstreamResolver
           resolver
         when UpstreamResolver::TYPE_BLACK_HOLE
-          UpstreamResolver.new(UpstreamResolver::TYPE_BLACK_HOLE)
+          UpstreamResolver.new_black_hole
         when UpstreamResolver::TYPE_STATIC
-          UpstreamResolver.new(UpstreamResolver::TYPE_STATIC)
+          UpstreamResolver.new_static
         when UpstreamResolver::TYPE_SYSTEM
-          UpstreamResolver.new(UpstreamResolver::TYPE_SYSTEM)
+          UpstreamResolver.new_system
         else
           if Rex::Socket.is_ip_addr?(resolver)
-            UpstreamResolver.new(
-              UpstreamResolver::TYPE_DNS_SERVER,
-              destination: resolver,
-              socket_options: socket_options
-            )
+            UpstreamResolver.new_dns_server(resolver, socket_options: socket_options)
           else
             raise ::ArgumentError.new("Invalid upstream DNS resolver: #{resolver}")
           end
