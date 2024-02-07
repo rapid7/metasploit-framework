@@ -34,93 +34,7 @@ RSpec.describe Msf::ModuleSet do
       }
     end
 
-    context 'with Msf::SymbolicModule' do
-      before(:example) do
-        module_set['a'] = Msf::SymbolicModule
-        module_set['b'] = Msf::SymbolicModule
-        module_set['c'] = Msf::SymbolicModule
-      end
-
-      describe '#create' do
-        #
-        # lets
-        #
-
-        let(:b_class) do
-          Class.new
-        end
-
-        let(:c_class) do
-          Class.new
-        end
-
-        context 'returns nil' do
-          before(:example) do
-            allow(module_metadata_a).to receive(:rank).and_return(nil)
-            allow(module_metadata_b).to receive(:rank).and_return(Msf::AverageRanking)
-            allow(module_metadata_c).to receive(:rank).and_return(Msf::GoodRanking)
-            allow(Msf::Modules::Metadata::Cache.instance).to receive(:module_metadata).with(anything).and_return(module_metadata)
-          end
-
-          specify do
-            expect do
-              rank_modules
-            end.not_to raise_error
-          end
-
-          it 'is ranked as Normal' do
-            expect(rank_modules).to eq(
-              [
-                ['c', module_metadata_c],
-                ['a', module_metadata_a],
-                ['b', module_metadata_b]
-              ]
-            )
-          end
-        end
-
-        context 'does not return nil' do
-          #
-          # lets
-          #
-
-          let(:a_class) do
-            Class.new
-          end
-
-          #
-          # Callbacks
-          #
-
-          before(:example) do
-            allow(module_set).to receive(:create).with('a').and_return(a_class.new)
-            allow(module_set).to receive(:create).with('b').and_return(b_class.new)
-            allow(module_set).to receive(:create).with('c').and_return(c_class.new)
-          end
-
-          context 'with Rank' do
-            before(:example) do
-              allow(module_metadata_a).to receive(:rank).and_return(Msf::LowRanking)
-              allow(module_metadata_b).to receive(:rank).and_return(Msf::AverageRanking)
-              allow(module_metadata_c).to receive(:rank).and_return(Msf::GoodRanking)
-              allow(Msf::Modules::Metadata::Cache.instance).to receive(:module_metadata).with(anything).and_return(module_metadata)
-            end
-
-            it 'is ranked using Rank' do
-              expect(rank_modules).to eq(
-                [
-                  ['c', module_metadata_c],
-                  ['b', module_metadata_b],
-                  ['a', module_metadata_a]
-                ]
-              )
-            end
-          end
-        end
-      end
-    end
-
-    context 'without Msf::SymbolicModule' do
+    context 'with loaded modules' do
       #
       # lets
       #
@@ -229,7 +143,7 @@ RSpec.describe Msf::ModuleSet do
 
     context 'when the module set has symbolic modules' do
       before(:each) do
-        subject[module_refname] = Msf::SymbolicModule
+        subject[module_refname] = nil
       end
       it 'attempts to create the module' do
         subject[module_refname]

@@ -1,12 +1,6 @@
 # -*- coding: binary -*-
 require 'pathname'
 
-#
-# Define used for a place-holder module that is used to indicate that the
-# module has not yet been demand-loaded. Soon to go away.
-#
-Msf::SymbolicModule = '__SYMBOLIC__'
-
 ###
 #
 # A module set contains zero or more named module classes of an arbitrary
@@ -23,7 +17,7 @@ class Msf::ModuleSet < Hash
   # @return [Msf::Module] Class of the of the Msf::Module with the given reference name
   def [](name)
     module_class = super
-    if module_class == Msf::SymbolicModule || module_class.nil?
+    if module_class.nil?
       load_module_class(name)
     end
 
@@ -39,7 +33,7 @@ class Msf::ModuleSet < Hash
     klass = load_module_class(reference_name, cache_type: cache_type)
     instance = nil
     # If the klass is valid for this reference_name, try to create it
-    unless klass.nil? or klass == Msf::SymbolicModule
+    unless klass.nil?
       instance = klass.new
     end
 
@@ -180,7 +174,7 @@ class Msf::ModuleSet < Hash
     # don't want to trigger a create, so use fetch
     cached_module = self.fetch(reference_name, nil)
 
-    if (cached_module and cached_module != Msf::SymbolicModule)
+    if cached_module
       ambiguous_module_reference_name_set.add(reference_name)
 
       # TODO this isn't terribly helpful since the refnames will always match, that's why they are ambiguous.
@@ -287,7 +281,7 @@ class Msf::ModuleSet < Hash
     klass = fetch(reference_name, nil)
 
     # If there is no module associated with this class, then try to demand load it.
-    if klass.nil? || klass == Msf::SymbolicModule
+    if klass.nil?
       framework.modules.load_cached_module(module_type, reference_name, cache_type: cache_type)
       klass = fetch(reference_name, nil)
     end

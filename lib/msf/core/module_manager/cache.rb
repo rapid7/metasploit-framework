@@ -154,7 +154,7 @@ module Msf::ModuleManager::Cache
 
   # Return a module info from Msf::Modules::Metadata::Obj.
   #
-  # @note Also sets module_set(module_type)[module_reference_name] to Msf::SymbolicModule if it is not already set.
+  # @note Also sets module_set(module_type)[module_reference_name] to nil if it is not already set.
   #
   # @return [Hash{String => Hash{Symbol => Object}}] Maps path (Mdm::Module::Detail#file) to module information.  Module
   #   information is a Hash derived from Mdm::Module::Detail.  It includes :modification_time, :parent_path, :type,
@@ -193,7 +193,7 @@ module Msf::ModuleManager::Cache
       # which would potentially call {Msf::ModuleSet#create}.
       next unless typed_module_set
       unless typed_module_set.has_key?(reference_name)
-        typed_module_set[reference_name] = Msf::SymbolicModule
+        typed_module_set[reference_name] = nil
       end
     end
 
