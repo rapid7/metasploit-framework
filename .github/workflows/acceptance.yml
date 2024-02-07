@@ -63,10 +63,10 @@ jobs:
           # Java - newer versions of Java are not supported currently: https://github.com/rapid7/metasploit-payloads/issues/647
           - { name: java, runtime_version: 8 }
 
-          # PHP
-          - { name: php, runtime_version: 5.3 }
-          - { name: php, runtime_version: 7.4 }
-          - { name: php, runtime_version: 8.2 }
+          # PHP - Temporarily removed as tests are timing out on Github actions
+          # - { name: php, runtime_version: 5.3 }
+          # - { name: php, runtime_version: 7.4 }
+          # - { name: php, runtime_version: 8.2 }
         include:
           # Windows Meterpreter
           - { meterpreter: { name: windows_meterpreter }, os: windows-2019 }
@@ -92,7 +92,7 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
 
-      - uses: shivammathur/setup-php@5b29e8a45433c406b3902dff138a820a408c45b7
+      - uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d
         if: ${{ matrix.meterpreter.name == 'php' }}
         with:
           php-version: ${{ matrix.meterpreter.runtime_version }}

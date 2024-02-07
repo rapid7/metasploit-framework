@@ -65,7 +65,9 @@ class MetasploitModule < Msf::Auxiliary
 
     options_to_deregister = %w[USERNAME PASSWORD PASSWORD_SPRAY CommandShellCleanupCommand AutoVerifySession]
 
-    unless framework.features.enabled?(Msf::FeatureManager::SMB_SESSION_TYPE)
+    if framework.features.enabled?(Msf::FeatureManager::SMB_SESSION_TYPE)
+      add_info('New in Metasploit 6.4 - The %grnCreateSession%clr option within this module can open an interactive session')
+    else
       # Don't give the option to create a session unless smb sessions are enabled
       options_to_deregister << 'CreateSession'
     end

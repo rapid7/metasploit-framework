@@ -1,4 +1,4 @@
-require 'metasploit/framework/mssql/client'
+require 'rex/proto/mssql/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
 require 'metasploit/framework/login_scanner/ntlm'
@@ -14,7 +14,6 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::Base
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::LoginScanner::NTLM
-        include Metasploit::Framework::MSSQL::Client
 
         DEFAULT_PORT         = 1433
         DEFAULT_REALM         = 'WORKSTATION'
@@ -48,6 +47,9 @@ module Metasploit
         #   @return [Boolean] Whether to use Windows Authentication instead of SQL Server Auth.
         attr_accessor :windows_authentication
 
+        attr_accessor :max_send_size
+        attr_accessor :send_delay
+
         validates :windows_authentication,
           inclusion: { in: [true, false] }
 
@@ -66,7 +68,8 @@ module Metasploit
           }
 
           begin
-            if mssql_login(credential.public, credential.private, '', credential.realm)
+            client = Rex::Proto::MSSQL::Client.new(framework_module, framework, host, port)
+            if client.mssql_login(credential.public, credential.private, '', credential.realm)
               result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
             else
               result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
@@ -78,6 +81,8 @@ module Metasploit
             elog(e)
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             result_options[:proof] = e
+          ensure
+            client.disconnect
           end
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)

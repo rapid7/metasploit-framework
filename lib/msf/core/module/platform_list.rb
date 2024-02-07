@@ -25,11 +25,7 @@ class Msf::Module::PlatformList
   # convenient.
   #
   def self.transform(src)
-    if (src.kind_of?(Array))
-      from_a(src)
-    else
-      from_a([src])
-    end
+    from_a(Array.wrap(src))
   end
 
   #

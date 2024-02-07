@@ -2,13 +2,11 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
 require 'yaml'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
-
   include Msf::Auxiliary::Scanner
 
   def initialize
@@ -27,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptBool.new('DISPLAY_RESULTS', [true, "Display the Results to the Screen", true])
-      ])
+    ])
   end
 
   def run_host(ip)
@@ -38,7 +36,9 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Grabs the Instance Name and Version of MSSQL(2k,2k5,2k8)
-    instancename = mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')[1]
+    instance_info = mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')
+    instancename = instance_info[1] || instance_info[0]
+
     print_status("Instance Name: #{instancename.inspect}")
     version = mssql_query(mssql_sql_info())[:rows][0][0]
     output = "Microsoft SQL Server Schema \n Host: #{datastore['RHOST']} \n Port: #{datastore['RPORT']} \n Instance: #{instancename} \n Version: #{version} \n====================\n\n"
@@ -121,6 +121,4 @@ class MetasploitModule < Msf::Auxiliary
     results = mssql_query("Select syscolumns.name,systypes.name,syscolumns.length from #{db_name}..syscolumns JOIN #{db_name}..systypes ON syscolumns.xtype=systypes.xtype WHERE syscolumns.id=#{table_id}")[:rows]
     return results
   end
-
-
 end

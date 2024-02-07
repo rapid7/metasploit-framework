@@ -5,18 +5,28 @@ RSpec.describe Msf::EncodedPayload do
   include_context 'Msf::Simple::Framework#modules loading'
 
   before do
+    ancestor_reference_names = [
+      # Excellent rank
+      'x86/shikata_ga_nai',
+      # Great rank
+      'x86/call4_dword_xor',
+      'x86/xor_dynamic',
+      'generic/none',
+    ]
     expect_to_load_module_ancestors(
-      ancestor_reference_names: [
-        # Excellent rank
-        'x86/shikata_ga_nai',
-        # Great rank
-        'x86/call4_dword_xor',
-        'x86/xor_dynamic',
-        'generic/none',
-        ],
+      ancestor_reference_names: ancestor_reference_names,
       module_type: 'encoder',
       modules_path: modules_path,
     )
+
+    # Improve test performance - return only the test modules that we're interested in
+    allow(framework.encoders).to receive(:rank_modules).and_wrap_original do |original, *args|
+      ranked_modules = original.call(*args)
+
+      ranked_modules.select do |ref_name, _metadata|
+        ancestor_reference_names.include?(ref_name)
+      end
+    end
   end
 
   let(:ancestor_reference_names) {

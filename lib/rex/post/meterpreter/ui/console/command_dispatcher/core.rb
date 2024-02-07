@@ -1697,7 +1697,7 @@ protected
       end
     end
 
-    client.framework.modules.post.map do |name,klass|
+    client.framework.modules.post.module_refnames.each do | name |
       tabs << 'post/' + name
     end
     client.framework.modules.module_names('exploit').

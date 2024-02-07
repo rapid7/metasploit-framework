@@ -468,7 +468,7 @@ class RPC_Session < RPC_Base
     ret = []
 
     mtype = "post"
-    names = self.framework.post.keys.map{ |x| "post/#{x}" }
+    names = self.framework.post.module_refnames.map{ |x| "post/#{x}" }
     names.each do |mname|
       m = _find_module(mtype, mname)
       next if not m.session_compatible?(sid)

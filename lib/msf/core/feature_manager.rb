@@ -24,6 +24,7 @@ module Msf
     HIERARCHICAL_SEARCH_TABLE = 'hierarchical_search_table'
     SMB_SESSION_TYPE = 'smb_session_type'
     POSTGRESQL_SESSION_TYPE = 'postgresql_session_type'
+    MYSQL_SESSION_TYPE = 'mysql_session_type'
     DEFAULTS = [
       {
         name: WRAPPED_TABLES,
@@ -73,6 +74,12 @@ module Msf
       {
         name: POSTGRESQL_SESSION_TYPE,
         description: 'When enabled will allow for the creation/use of PostgreSQL sessions',
+        requires_restart: true,
+        default_value: false,
+      }.freeze,
+      {
+        name: MYSQL_SESSION_TYPE,
+        description: 'When enabled will allow for the creation/use of MySQL sessions',
         requires_restart: true,
         default_value: false
       }.freeze,
