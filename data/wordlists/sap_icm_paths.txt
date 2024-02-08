@@ -479,6 +479,9 @@
 /sap/public/icf_info/urlprefix
 /sap/public/icman
 /sap/public/icman/ping
+/sap/public/icmandir/its/kernel_version.info
+/sap/public/icmandir/last_update_ITS.txt
+/sap/public/icmandir/last_update_icmadmin.txt
 /sap/public/info
 /sap/public/myssocntl
 /sap/public/opu
