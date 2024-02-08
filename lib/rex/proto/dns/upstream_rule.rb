@@ -6,9 +6,16 @@ require 'rex/socket'
 module Rex
 module Proto
 module DNS
+  ##
+  # This represents a configuration rule for how names should be resolved. It matches a single wildcard which acts as a
+  # matching condition and maps it to 0 or more resolvers to use for lookups.
+  ##
   class UpstreamRule
 
     attr_reader :wildcard, :resolvers, :comm
+    # @param [String] wildcard The wildcard pattern to use for conditionally matching hostnames.
+    # @param [Array] resolvers The resolvers to use when this rule is applied.
+    # @param [Msf::Session::Comm] comm The communication channel to use when creating network connections.
     def initialize(wildcard: '*', resolvers: [], comm: nil)
       ::ArgumentError.new("Invalid wildcard text: #{wildcard}") unless self.class.valid_wildcard?(wildcard)
       @wildcard = wildcard
@@ -39,6 +46,10 @@ module DNS
       @comm = comm
     end
 
+    # Check whether or not the defined resolver is valid.
+    #
+    # @param [String] resolver The resolver string to check.
+    # @rtype Boolean
     def self.valid_resolver?(resolver)
       return true if Rex::Socket.is_ip_addr?(resolver)
 
@@ -50,14 +61,24 @@ module DNS
       ].include?(resolver)
     end
 
+    # Check whether or not the defined wildcard is a valid pattern.
+    #
+    # @param [String] wildcard The wildcard text to check.
+    # @rtype Boolean
     def self.valid_wildcard?(wildcard)
       wildcard == '*' || wildcard =~ /^(\*\.)?([a-z\d][a-z\d-]*[a-z\d]\.)+[a-z]+$/
     end
 
+    # Check whether or not the currently configured wildcard pattern will match all names.
+    #
+    # @rtype Boolean
     def matches_all?
       wildcard == '*'
     end
 
+    # Check whether or not the specified name matches the currently configured wildcard pattern.
+    #
+    # @rtype Boolean
     def matches_name?(name)
       if matches_all?
         true

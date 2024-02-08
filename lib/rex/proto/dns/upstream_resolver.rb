@@ -3,6 +3,9 @@
 module Rex
 module Proto
 module DNS
+  ##
+  # This represents a single upstream DNS resolver target of one of the predefined types.
+  ##
   class UpstreamResolver
     TYPE_BLACK_HOLE = %s[black-hole]
     TYPE_DNS_SERVER = %s[dns-server]
@@ -10,16 +13,26 @@ module DNS
     TYPE_SYSTEM = :system
 
     attr_reader :type, :destination, :socket_options
+
+    # @param [Symbol] type The resolver type.
+    # @param [String] destination An optional destination, as used by some resolver types.
+    # @param [Hash] socket_options Options to use for sockets when connecting to the destination, as used by some
+    #   resolver types.
     def initialize(type, destination: nil, socket_options: {})
       @type = type
       @destination = destination
       @socket_options = socket_options
     end
 
+    # Initialize a new black-hole resolver.
     def self.new_black_hole
       self.new(TYPE_BLACK_HOLE)
     end
 
+    # Initialize a new dns-server resolver.
+    #
+    # @param [String] destination The IP address of the upstream DNS server.
+    # @param [Hash] socket_options Options to use when connecting to the upstream DNS server.
     def self.new_dns_server(destination, socket_options: {})
       self.new(
         TYPE_DNS_SERVER,
@@ -28,10 +41,12 @@ module DNS
       )
     end
 
+    # Initialize a new static resolver.
     def self.new_static
       self.new(TYPE_STATIC)
     end
 
+    # Initialize a new system resolver.
     def self.new_system
       self.new(TYPE_SYSTEM)
     end

@@ -6,11 +6,16 @@ require 'forwardable'
 module Rex
 module Proto
 module DNS
+  ##
+  # This class manages statically defined hostnames for DNS resolution where each name is a mapping to an IPv4 and or
+  # an IPv6 address. A single hostname can only map to one address of each family.
+  ##
   class StaticHostnames
     extend Forwardable
 
     def_delegators :@hostnames, :each, :each_with_index, :length, :empty?
 
+    # @param [Hash<String, IPAddr>] hostnames The hostnames to IP address mappings to initialize with.
     def initialize(hostnames: nil)
       @hostnames = {}
       if hostnames
@@ -20,6 +25,8 @@ module DNS
       end
     end
 
+    # Locate and parse a hosts file on the system. Only the first hostname to IP address definition is used which
+    # replicates the behavior of /etc/hosts on Linux. Loaded definitions are merged with existing definitions.
     def parse_hosts_file
       path = %w[
         %WINDIR%\system32\drivers\etc\hosts
@@ -55,11 +62,22 @@ module DNS
       @hostnames.merge!(hostnames)
     end
 
+    # Get an IP address of the specified type for the hostname.
+    #
+    # @param [String] hostname The hostname to retrieve an address for.
+    # @param [Integer] type The family of address to return represented as a DNS type (either A or AAAA).
+    # @return Returns the IP address if it was found, otherwise nil.
+    # @rtype [IPAddr, nil]
     def get(hostname, type = Dnsruby::Types::A)
       hostname = hostname.downcase
       @hostnames.fetch(hostname, {}).fetch(type, nil)
     end
 
+    # Add an IP address for the specified hostname.
+    #
+    # @param [String] hostname The hostname whose IP address is being defined.
+    # @param [IPAddr, String] ip_address The IP address that is being defined for the hostname. If this value is a
+    #   string, it will be converted to an IPAddr instance.
     def add(hostname, ip_address)
       hostname = hostname.downcase
       ip_address = IPAddr.new(ip_address) if Rex::Socket.is_ip_addr?(ip_address)
@@ -74,11 +92,15 @@ module DNS
       nil
     end
 
+    # Delete an IP address for the specified hostname.
+    #
+    # @param [String] hostname The hostname whose IP address is being undefined.
+    # @param [Integer] type The family of address to undefine represented as a DNS type (either A or AAAA).
     def delete(hostname, type = Dnsruby::Types::A)
       hostname = hostname.downcase
       addresses = @hostnames.fetch(hostname, {})
       addresses.delete(type)
-      if addresses.length == 0
+      if addresses.empty?
         @hostnames.delete(hostname)
       else
         @hostnames[hostname] = addresses
@@ -87,6 +109,7 @@ module DNS
       nil
     end
 
+    # Delete all hostname to IP address definitions.
     def flush
       @hostnames.clear
     end

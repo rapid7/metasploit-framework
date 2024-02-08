@@ -50,6 +50,7 @@ module DNS
       nil
     end
 
+    # Reinitialize the configuration to its original state.
     def reinit
       parse_config_file
       parse_environment_variables
@@ -64,6 +65,7 @@ module DNS
       nil
     end
 
+    # Check whether or not there is configuration data in Metasploit's configuration file which is persisted on disk.
     def has_config?
       Msf::Config.load.keys.any? { |group| group == CONFIG_KEY_BASE || group.starts_with?("#{CONFIG_KEY_BASE}/") }
     end
