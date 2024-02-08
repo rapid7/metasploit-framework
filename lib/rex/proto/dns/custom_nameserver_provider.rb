@@ -10,6 +10,7 @@ module DNS
   ##
   module CustomNameserverProvider
     CONFIG_KEY_BASE = 'framework/dns'
+    CONFIG_VERSION = Rex::Version.new('1.0')
 
     #
     # A Comm implementation that always reports as dead, so should never
@@ -67,14 +68,38 @@ module DNS
 
     # Check whether or not there is configuration data in Metasploit's configuration file which is persisted on disk.
     def has_config?
-      Msf::Config.load.keys.any? { |group| group == CONFIG_KEY_BASE || group.starts_with?("#{CONFIG_KEY_BASE}/") }
+      config = Msf::Config.load
+      version = config.fetch(CONFIG_KEY_BASE, {}).fetch('configuration_version', nil)
+      if version.nil?
+        @logger.info 'DNS configuration can not be loaded because the version is missing'
+        return false
+      end
+
+      their_version = Rex::Version.new(version)
+      if their_version > CONFIG_VERSION # if the config is newer, it's incompatible (we only guarantee backwards compat)
+        @logger.info "DNS configuration version #{their_version} can not be loaded because it is too new"
+        return false
+      end
+
+      my_minimum_version = Rex::Version.new(CONFIG_VERSION.canonical_segments.first.to_s)
+      if their_version < my_minimum_version # can not be older than our major version
+        @logger.info "DNS configuration version #{their_version} can not be loaded because it is too old"
+        return false
+      end
+
+      true
     end
 
     #
     # Save the custom settings to the MSF config file
     #
     def save_config
-      save_config_entries
+      new_config = {
+        'configuration_version' => CONFIG_VERSION.to_s
+      }
+      Msf::Config.save(CONFIG_KEY_BASE => new_config)
+
+      save_config_upstream_rules
       save_config_static_hostnames
     end
 
@@ -82,6 +107,10 @@ module DNS
     # Load the custom settings from the MSF config file
     #
     def load_config
+      unless has_config?
+        raise ResolverError.new('There is no compatible configuration data to load')
+      end
+
       load_config_entries
       load_config_static_hostnames
     end
@@ -212,7 +241,7 @@ module DNS
       end
     end
 
-    def save_config_entries
+    def save_config_upstream_rules
       new_config = {}
       @upstream_rules.each_with_index do |entry, index|
         val = [
@@ -224,7 +253,7 @@ module DNS
         ].join(';')
         new_config["##{index}"] = val
       end
-      Msf::Config.save("#{CONFIG_KEY_BASE}/entries" => new_config)
+      Msf::Config.save("#{CONFIG_KEY_BASE}/upstream_rules" => new_config)
     end
 
     def save_config_static_hostnames
