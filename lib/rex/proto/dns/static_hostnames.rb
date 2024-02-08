@@ -78,7 +78,7 @@ module DNS
     # @param [IPAddr, String] ip_address The IP address that is being defined for the hostname. If this value is a
     #   string, it will be converted to an IPAddr instance.
     def add(hostname, ip_address)
-      ip_address = IPAddr.new(ip_address) if Rex::Socket.is_ip_addr?(ip_address)
+      ip_address = IPAddr.new(ip_address) if ip_address.is_a?(String) && Rex::Socket.is_ip_addr?(ip_address)
 
       hostname = hostname.downcase
       this_host = @hostnames.fetch(hostname, {})
@@ -100,7 +100,7 @@ module DNS
     # @param [IPAddr, String] ip_address The IP address that is being undefined. If this value is a string, it will be
     #   converted to an IPAddr instance.
     def delete(hostname, ip_address)
-      ip_address = IPAddr.new(ip_address) if Rex::Socket.is_ip_addr?(ip_address)
+      ip_address = IPAddr.new(ip_address) if ip_address.is_a?(String) && Rex::Socket.is_ip_addr?(ip_address)
       if ip_address.family == ::Socket::AF_INET
         type = Dnsruby::Types::A
       else
