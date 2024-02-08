@@ -89,8 +89,8 @@ class MetasploitModule < Msf::Evasion
     return fib(n-1) + fib(n-2);
   }
   |
-    bubbel_sort = %|
-  void bubbel_sort(int arr[], int n) {
+    bubble_sort = %|
+  void bubble_sort(int arr[], int n) {
     int i, j, temp;
     for (i = 0; i < n; i++) {
       for (j = 0; j < n - i - 1; j++) {
@@ -127,12 +127,12 @@ class MetasploitModule < Msf::Evasion
     fibonnacci_call = %|
   fib(#{rand(1..15)});
   |
-    # bubbel sort call example
+    # bubble sort call example
     arr_size = rand(1..100)
     arr_name = Rex::Text.rand_text_alpha(5)
-    bubbel_sort_call = %|
+    bubble_sort_call = %|
   int #{arr_name}[#{arr_size}] = {#{fill_array(arr_size)}};
-  bubbel_sort(#{arr_name}, #{arr_size});
+  bubble_sort(#{arr_name}, #{arr_size});
   |
     # euclide call example
     euclide_call = %|
@@ -146,17 +146,25 @@ class MetasploitModule < Msf::Evasion
   binary_search(#{arr_name}, 0, #{arr_size - 1}, #{rand(1..100)});
   |
     if flag == 0
-      return [fibonnacci, bubbel_sort, euclide, binary_search].shuffle
+      return [fibonnacci, bubble_sort, euclide, binary_search].shuffle
     else
-      return [fibonnacci_call, bubbel_sort_call, euclide_call, binary_search_call].sample
+      return [fibonnacci_call, bubble_sort_call, euclide_call, binary_search_call].sample
     end
   end
 
   def get_includes
-    rc4 = "#include \"#{File.join(Msf::Config.install_root, 'data', 'headers', 'windows')}/rc4.h\""
-    includes = ["#include <windows.h>\n", "#include <psapi.h>\n", "#include <wininet.h>\n", "#include <synchapi.h>\n", "#include <stdio.h>\n", rc4, "#include <time.h>\n", "#include <stdlib.h>\n", "#include <string.h>\n", '#include <winsock2.h>']
-    includes.shuffle
-    return includes.join
+    [
+      "#include \"#{File.join(Msf::Config.install_root, 'data', 'headers', 'windows')}/rc4.h\"",
+      '#include <windows.h>',
+      '#include <psapi.h>',
+      '#include <wininet.h>',
+      '#include <synchapi.h>',
+      '#include <stdio.h>',
+      '#include <time.h>',
+      '#include <stdlib.h>',
+      '#include <string.h>',
+      '#include <winsock2.h>'
+    ].shuffle.join("\n")
   end
 
   def get_time_distorsion
