@@ -191,9 +191,10 @@ class DNS
     args << 'print' if args.length == 0
     # Short-circuit help
     if args.delete("-h") || args.delete("--help")
-      if respond_to?("#{args.first.gsub('-', '_')}_dns_help")
+      subcommand = args.first
+      if subcommand && respond_to?("#{subcommand.gsub('-', '_')}_dns_help")
         # if it is a valid command with dedicated help information
-        send("#{args.first.gsub('-', '_')}_dns_help")
+        send("#{subcommand.gsub('-', '_')}_dns_help")
       else
         # otherwise print the top-level help information
         cmd_dns_help
