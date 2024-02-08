@@ -588,7 +588,15 @@ module DispatcherShell
   # If the command is unknown...
   #
   def unknown_command(method, line)
-    print_error("Unknown command: #{method}")
+    # Map each dispatchers commands to valid_commands
+    valid_commands = dispatcher_stack.flat_map { |dispatcher| dispatcher.commands.keys }
+
+    message = "Unknown command: #{method}."
+    suggestion = DidYouMean::SpellChecker.new(dictionary: valid_commands).correct(method).first
+    message << " Did you mean %grn#{suggestion}%clr?" if suggestion
+    message << ' Run the %grnhelp%clr command for more details.'
+
+    print_error(message)
   end
 
   #
