@@ -83,8 +83,8 @@ RSpec.describe Metasploit::Framework::LoginScanner::MSSQL do
       let(:client) { instance_double(Rex::Proto::MSSQL::Client) }
       it 'returns a result with the connection_error status' do
         my_scanner = login_scanner
-        allow_any_instance_of(Rex::Proto::MSSQL::Client).to receive(:initialize).and_return(client)
-        allow_any_instance_of(Rex::Proto::MSSQL::Client).to receive(:mssql_login).and_raise ::Rex::ConnectionError
+        allow(Rex::Proto::MSSQL::Client).to receive(:new).and_return(client)
+        allow(client).to receive(:mssql_login).and_raise ::Rex::ConnectionError
         allow(client).to receive(:disconnect)
         expect(my_scanner.attempt_login(pub_blank).status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
       end
@@ -94,8 +94,8 @@ RSpec.describe Metasploit::Framework::LoginScanner::MSSQL do
       let(:client) { instance_double(Rex::Proto::MSSQL::Client) }
       it 'returns a result object with a status of Metasploit::Model::Login::Status::INCORRECT' do
         my_scanner = login_scanner
-        allow_any_instance_of(Rex::Proto::MSSQL::Client).to receive(:initialize).and_return(client)
-        allow_any_instance_of(Rex::Proto::MSSQL::Client).to receive(:mssql_login).and_return(false)
+        allow(Rex::Proto::MSSQL::Client).to receive(:new).and_return(client)
+        allow(client).to receive(:mssql_login).and_return(false)
         allow(client).to receive(:disconnect)
         expect(my_scanner.attempt_login(pub_blank).status).to eq Metasploit::Model::Login::Status::INCORRECT
       end
@@ -105,12 +105,11 @@ RSpec.describe Metasploit::Framework::LoginScanner::MSSQL do
       let(:client) { instance_double(Rex::Proto::MSSQL::Client) }
       it 'returns a result object with a status of Metasploit::Model::Login::Status::SUCCESSFUL' do
         my_scanner = login_scanner
-        allow_any_instance_of(Rex::Proto::MSSQL::Client).to receive(:initialize).and_return(client)
-        allow_any_instance_of(Rex::Proto::MSSQL::Client).to receive(:mssql_login).and_return(true)
+        allow(Rex::Proto::MSSQL::Client).to receive(:new).and_return(client)
+        allow(client).to receive(:mssql_login).and_return(true)
         allow(client).to receive(:disconnect)
         expect(my_scanner.attempt_login(pub_blank).status).to eq Metasploit::Model::Login::Status::SUCCESSFUL
       end
     end
   end
-
 end
