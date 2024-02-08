@@ -39,7 +39,7 @@ RSpec.describe Rex::Proto::DNS::CustomNameserverProvider do
     dns_resolver = Rex::Proto::DNS::CachedResolver.new(config)
     dns_resolver.nameservers = [default_nameserver]
     dns_resolver.extend(Rex::Proto::DNS::CustomNameserverProvider)
-    dns_resolver.add_upstream_entry([metasploit_nameserver], wildcard: '*.metasploit.com', position: 0)
+    dns_resolver.add_upstream_rule([metasploit_nameserver], wildcard: '*.metasploit.com', index: 0)
     dns_resolver.set_framework(framework_with_dns_enabled)
     dns_resolver
   end

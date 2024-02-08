@@ -108,8 +108,7 @@ class DNS
       return subcommands.select { |sc| sc.start_with?(str) }
     when 'remove','delete'
       if words[-1] == '-i'
-        ids = driver.framework.dns_resolver.upstream_entries.map { |entry| entry[:id].to_s }
-        return ids.select { |id| id.start_with?(str) }
+        return
       else
         return @@remove_opts.option_keys.select { |opt| opt.start_with?(str) }
       end
@@ -237,7 +236,7 @@ class DNS
     first_rule = true
     comm = nil
     resolvers = []
-    position = -1
+    index = -1
     @@add_opts.parse(args) do |opt, idx, val|
       unless resolvers.empty? || opt.nil?
         raise ::ArgumentError.new("Invalid command near #{opt}")
@@ -246,7 +245,7 @@ class DNS
       when '-i', '--index'
         raise ::ArgumentError.new("Not a valid index: #{val}") unless val.to_i > 0
 
-        position = val.to_i - 1
+        index = val.to_i - 1
       when '-r', '--rule'
         raise ::ArgumentError.new('No rule specified') if val.nil?
 
@@ -293,13 +292,13 @@ class DNS
       end
     end
 
-    rules.each_with_index do |rule, rule_index|
+    rules.each_with_index do |rule, offset|
       print_warning("DNS rule #{rule} does not contain wildcards, so will not match subdomains") unless rule.include?('*')
-      driver.framework.dns_resolver.add_upstream_entry(
+      driver.framework.dns_resolver.add_upstream_rule(
         resolvers,
         comm: comm_obj,
         wildcard: rule,
-        position: (position == -1 ? -1 : position + rule_index)
+        index: (index == -1 ? -1 : offset + index)
       )
     end
 
@@ -395,26 +394,26 @@ class DNS
       'WordWrap'  => false
     )
     names.each do |name|
-      upstream_entry = resolver.upstream_entries.find { |ue| ue.matches_name?(name) }
-      if upstream_entry.nil?
+      upstream_rule = resolver.upstream_rules.find { |ur| ur.matches_name?(name) }
+      if upstream_rule.nil?
         tbl << [name, '[Failed To Resolve]', '', '', '', '']
         next
       end
 
-      upstream_entry_id = resolver.upstream_entries.index(upstream_entry) + 1
+      upstream_rule_idx = resolver.upstream_rules.index(upstream_rule) + 1
 
       begin
         result = resolver.query(name, query_type)
       rescue NoResponseError
-        tbl = append_resolver_cells!(tbl, upstream_entry, prefix: [name, '[Failed To Resolve]'], index: upstream_entry_id)
+        tbl = append_resolver_cells!(tbl, upstream_rule, prefix: [name, '[Failed To Resolve]'], index: upstream_rule_idx)
       else
         if result.answer.empty?
-          tbl = append_resolver_cells!(tbl, upstream_entry, prefix: [name, '[Failed To Resolve]'], index: upstream_entry_id)
+          tbl = append_resolver_cells!(tbl, upstream_rule, prefix: [name, '[Failed To Resolve]'], index: upstream_rule_idx)
         else
           result.answer.select do |answer|
             answer.type == query_type
           end.map(&:address).map(&:to_s).each do |address|
-            tbl = append_resolver_cells!(tbl, upstream_entry, prefix: [name, address], index: upstream_entry_id)
+            tbl = append_resolver_cells!(tbl, upstream_rule, prefix: [name, address], index: upstream_rule_idx)
           end
         end
       end
@@ -548,9 +547,9 @@ class DNS
       # if the user requested that we add the system resolver
       system_resolver = Rex::Proto::DNS::UpstreamResolver.new_system
       # first find the default, catch-all rule
-      default_rule = resolver.upstream_entries.find { |ue| ue.matches_all? }
+      default_rule = resolver.upstream_rules.find { |ur| ur.matches_all? }
       if default_rule.nil?
-        resolver.add_upstream_entries([ system_resolver ])
+        resolver.add_upstream_rule([ system_resolver ])
       else
         # if the first resolver is for static hostnames, insert after that one
         if default_rule.resolvers.first&.type == Rex::Proto::DNS::UpstreamResolver::TYPE_STATIC
@@ -624,9 +623,9 @@ class DNS
     end
     print_line("Current cache size:    #{resolver.cache.records.length}")
 
-    upstream_entries = resolver.upstream_entries
-    print_dns_set('Resolver rule entries', upstream_entries, ids: (1..upstream_entries.length).to_a)
-    if upstream_entries.empty?
+    upstream_rules = resolver.upstream_rules
+    print_dns_set('Resolver rule entries', upstream_rules, ids: (1..upstream_rules.length).to_a)
+    if upstream_rules.empty?
       print_line
       print_error('No DNS nameserver entries configured')
     end

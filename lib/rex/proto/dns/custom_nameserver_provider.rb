@@ -33,7 +33,7 @@ module DNS
     end
 
     def init
-      @upstream_entries = []
+      @upstream_rules = []
 
       resolvers = [UpstreamResolver.new_static]
       if @config[:nameservers].empty?
@@ -45,7 +45,7 @@ module DNS
         @config[:nameservers].clear
       end
 
-      add_upstream_entry(resolvers)
+      add_upstream_rule(resolvers)
 
       nil
     end
@@ -86,14 +86,16 @@ module DNS
       load_config_static_hostnames
     end
 
-    # Add a custom nameserver entry to the custom provider
-    # @param resolvers [Array<String>] The list of upstream resolvers that would be used for this custom rule
-    # @param comm [Msf::Session::Comm] The communication channel to be used for these DNS requests
-    # @param wildcard String The wildcard rule to match a DNS request against
-    def add_upstream_entry(resolvers, comm: nil, wildcard: '*', position: -1)
+    # Add a custom nameserver entry to the custom provider.
+    #
+    # @param [Array<String>] resolvers The list of upstream resolvers that would be used for this custom rule.
+    # @param [Msf::Session::Comm] comm The communication channel to be used for these DNS requests.
+    # @param [String] wildcard The wildcard rule to match a DNS request against.
+    # @param [Integer] index The index at which to insert the rule, defaults to -1 to append it at the end.
+    def add_upstream_rule(resolvers, comm: nil, wildcard: '*', index: -1)
       resolvers = [resolvers] if resolvers.is_a?(String) # coerce into an array of strings
 
-      @upstream_entries.insert(position, UpstreamRule.new(
+      @upstream_rules.insert(index, UpstreamRule.new(
         wildcard: wildcard,
         resolvers: resolvers,
         comm: comm
@@ -101,22 +103,21 @@ module DNS
     end
 
     #
-    # Remove entries with the given indexes
+    # Remove upstream rules with the given indexes
     # Ignore entries that are not found
     # @param ids [Array<Integer>] The IDs to removed
     # @return [Array<UpstreamRule>] The removed entries
-    #
     def remove_ids(ids)
       removed = []
       ids.sort.reverse.each do |id|
-        removed << @upstream_entries.delete_at(id)
+        removed << @upstream_rules.delete_at(id)
       end
 
       removed.reverse
     end
 
     def flush
-      @upstream_entries.clear
+      @upstream_rules.clear
     end
 
     # The nameservers that match the given packet
@@ -135,10 +136,10 @@ module DNS
       results_from_all_questions = []
       packet.question.each do |question|
         name = question.qname.to_s
-        upstream_entry = self.upstream_entries.find { |ue| ue.matches_name?(name) }
+        upstream_rule = self.upstream_rules.find { |ur| ur.matches_name?(name) }
 
-        if upstream_entry
-          upstream_resolvers = upstream_entry.resolvers
+        if upstream_rule
+          upstream_resolvers = upstream_rule.resolvers
         else
           # Fall back to default nameservers
           upstream_resolvers = super
@@ -161,8 +162,8 @@ module DNS
       self.feature_set = framework.features
     end
 
-    def upstream_entries
-      @upstream_entries.dup
+    def upstream_rules
+      @upstream_rules.dup
     end
 
     private
@@ -190,7 +191,7 @@ module DNS
       end
 
       # Now that config has successfully read, update the global values
-      @upstream_entries = with_rules
+      @upstream_rules = with_rules
     end
 
     def load_config_static_hostnames
@@ -214,7 +215,7 @@ module DNS
 
     def save_config_entries
       new_config = {}
-      @upstream_entries.each_with_index do |entry, index|
+      @upstream_rules.each_with_index do |entry, index|
         val = [
           entry.wildcard,
           entry.resolvers.map do |resolver|
