@@ -39,38 +39,37 @@ module DNS
       return unless path
 
       path = File.expand_path(path)
-      hostnames = {}
       ::IO.foreach(path) do |line|
         words = line.split
         next unless words.length > 1 && Rex::Socket.is_ip_addr?(words.first)
 
         ip_address = IPAddr.new(words.shift)
         words.each do |hostname|
-          hostname = hostname.downcase
-          this_host = hostnames.fetch(hostname, {})
-          if ip_address.family == ::Socket::AF_INET
-            type = Dnsruby::Types::A
-          else
-            type = Dnsruby::Types::AAAA
-          end
-          next if this_host.key?(type) # only honor the first definition
-
-          this_host[type] = ip_address
-          hostnames[hostname] = this_host
+          add(hostname, ip_address)
         end
       end
-      @hostnames.merge!(hostnames)
     end
 
-    # Get an IP address of the specified type for the hostname.
+    # Get an IP address of the specified type for the hostname. Only the first address is returned in cases where
+    # multiple addresses are defined.
     #
     # @param [String] hostname The hostname to retrieve an address for.
     # @param [Integer] type The family of address to return represented as a DNS type (either A or AAAA).
     # @return Returns the IP address if it was found, otherwise nil.
     # @rtype [IPAddr, nil]
+    def get1(hostname, type = Dnsruby::Types::A)
+      get(hostname, type).first
+    end
+
+    # Get all IP addresses of the specified type for the hostname.
+    #
+    # @param [String] hostname The hostname to retrieve an address for.
+    # @param [Integer] type The family of address to return represented as a DNS type (either A or AAAA).
+    # @return Returns an array of IP addresses.
+    # @rtype [Array<IPAddr>]
     def get(hostname, type = Dnsruby::Types::A)
       hostname = hostname.downcase
-      @hostnames.fetch(hostname, {}).fetch(type, nil)
+      @hostnames.fetch(hostname, {}).fetch(type, [])
     end
 
     # Add an IP address for the specified hostname.
@@ -79,31 +78,48 @@ module DNS
     # @param [IPAddr, String] ip_address The IP address that is being defined for the hostname. If this value is a
     #   string, it will be converted to an IPAddr instance.
     def add(hostname, ip_address)
-      hostname = hostname.downcase
       ip_address = IPAddr.new(ip_address) if Rex::Socket.is_ip_addr?(ip_address)
 
-      addresses = @hostnames.fetch(hostname, {})
+      hostname = hostname.downcase
+      this_host = @hostnames.fetch(hostname, {})
       if ip_address.family == ::Socket::AF_INET
-        addresses[Dnsruby::Types::A] = ip_address
-      elsif ip_address.family == ::Socket::AF_INET6
-        addresses[Dnsruby::Types::AAAA] = ip_address
+        type = Dnsruby::Types::A
+      else
+        type = Dnsruby::Types::AAAA
       end
-      @hostnames[hostname] = addresses
+      this_type = this_host.fetch(type, [])
+      this_type << ip_address unless this_type.include?(ip_address)
+      this_host[type] = this_type
+      @hostnames[hostname] = this_host
       nil
     end
 
     # Delete an IP address for the specified hostname.
     #
     # @param [String] hostname The hostname whose IP address is being undefined.
-    # @param [Integer] type The family of address to undefine represented as a DNS type (either A or AAAA).
-    def delete(hostname, type = Dnsruby::Types::A)
+    # @param [IPAddr, String] ip_address The IP address that is being undefined. If this value is a string, it will be
+    #   converted to an IPAddr instance.
+    def delete(hostname, ip_address)
+      ip_address = IPAddr.new(ip_address) if Rex::Socket.is_ip_addr?(ip_address)
+      if ip_address.family == ::Socket::AF_INET
+        type = Dnsruby::Types::A
+      else
+        type = Dnsruby::Types::AAAA
+      end
+
       hostname = hostname.downcase
-      addresses = @hostnames.fetch(hostname, {})
-      addresses.delete(type)
-      if addresses.empty?
+      this_host = @hostnames.fetch(hostname, {})
+      this_type = this_host.fetch(type, [])
+      this_type.delete(ip_address)
+      if this_type.empty?
+        this_host.delete(type)
+      else
+        this_host[type] = this_type
+      end
+      if this_host.empty?
         @hostnames.delete(hostname)
       else
-        @hostnames[hostname] = addresses
+        @hostnames[hostname] = this_host
       end
 
       nil

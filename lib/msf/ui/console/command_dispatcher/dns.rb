@@ -9,24 +9,21 @@ class DNS
 
   include Msf::Ui::Console::CommandDispatcher
 
-  ADD_USAGE = 'dns [add] [--session <session id>] [--rule <wildcard DNS entry>] <resolver> ..."'.freeze
+  ADD_USAGE = 'dns [add] [--index <insertion index>] [--rule <wildcard DNS entry>] [--session <session id>] <resolver> ...'.freeze
   @@add_opts = Rex::Parser::Arguments.new(
     ['-i', '--index'] => [true, 'Index to insert at'],
     ['-r', '--rule'] => [true, 'Set a DNS wildcard entry to match against'],
     ['-s', '--session'] => [true, 'Force the DNS request to occur over a particular channel (override routing rules)']
   )
 
-  ADD_STATIC_USAGE = 'dns [add-static] <hostname> <IP address>'.freeze
+  ADD_STATIC_USAGE = 'dns [add-static] <hostname> <IP address> ...'.freeze
 
   REMOVE_USAGE = 'dns [remove/del] -i <entry id> [-i <entry id> ...]'.freeze
   @@remove_opts = Rex::Parser::Arguments.new(
     ['-i', '--index'] => [true, 'Index to remove at']
   )
 
-  REMOVE_STATIC_USAGE = 'dns [remove-static] [-f <address family>] <hostname> ...'.freeze
-  @@remove_static_opts = Rex::Parser::Arguments.new(
-    ['-f'] => [true,  'Address family - IPv4 or IPv6 (default both)']
-  )
+  REMOVE_STATIC_USAGE = 'dns [remove-static] <hostname> [<IP address> ...]'.freeze
 
   RESET_CONFIG_USAGE = 'dns [reset-config] [-y/--yes] [--system]'.freeze
   @@reset_config_opts = Rex::Parser::Arguments.new(
@@ -103,6 +100,11 @@ class DNS
       options = @@add_opts.option_keys.select { |opt| opt.start_with?(str) }
       options << '' # Prevent tab-completion of a dash, given they could provide an IP address at this point
       return options
+    when 'add-static'
+      if words.length == 2
+        # tab complete existing hostnames because they can have more than one IP address
+        return resolver.static_hostnames.each.select { |hostname,_| hostname.downcase.start_with?(str.downcase) }.map { |hostname,_| hostname }
+      end
     when 'help'
       # These commands don't have any arguments
       return subcommands.select { |sc| sc.start_with?(str) }
@@ -113,11 +115,12 @@ class DNS
         return @@remove_opts.option_keys.select { |opt| opt.start_with?(str) }
       end
     when 'remove-static'
-      if words[-1] == '-f'
-        families = %w[ IPv4 IPv6 ] # The family argument is case-insensitive
-        return families.select { |family| family.downcase.start_with?(str.downcase) }
-      else
-        @@resolve_opts.option_keys.select { |opt| opt.start_with?(str) }
+      if words.length == 2
+        return resolver.static_hostnames.each.select { |hostname,_| hostname.downcase.start_with?(str.downcase) }.map { |hostname,_| hostname }
+      elsif words.length > 2
+        hostname = words[2]
+        ip_addresses = resolver.static_hostnames.get(hostname, Dnsruby::Types::A) + resolver.static_hostnames.get(hostname, Dnsruby::Types::AAAA)
+        return ip_addresses.map(&:to_s).select { |ip_address| ip_address.start_with?(str) }
       end
     when 'reset-config'
       @@reset_config_opts.option_keys.select { |opt| opt.start_with?(str) }
@@ -329,17 +332,17 @@ class DNS
   def add_static_dns(*args)
     if args.length < 2
       raise ::ArgumentError.new('A hostname and IP address must be provided')
-    elsif args.length > 2
-      raise ::ArgumentError.new("Unknown argument: #{args[2]}")
     end
 
-    hostname, ip_address = args
-    if !Rex::Socket.is_ip_addr?(ip_address)
+    hostname = args.shift
+    if (ip_address = args.find { |a| !Rex::Socket.is_ip_addr?(a) })
       raise ::ArgumentError.new("Invalid IP address: #{ip_address}")
     end
 
-    resolver.static_hostnames.add(hostname, ip_address)
-    print_status("Added static hostname mapping #{hostname} to #{ip_address}")
+    args.each do |ip_address|
+      resolver.static_hostnames.add(hostname, ip_address)
+      print_status("Added static hostname mapping #{hostname} to #{ip_address}")
+    end
   end
 
   def add_static_dns_help
@@ -467,56 +470,35 @@ class DNS
   end
 
   def remove_static_dns(*args)
-    names = []
-    query_type = nil
-
-    @@resolve_opts.parse(args) do |opt, idx, val|
-      unless names.empty? || opt.nil?
-        raise ::ArgumentError.new("Invalid command near #{opt}")
-      end
-      case opt
-      when '-f'
-        case val.downcase
-        when 'ipv4'
-          query_type = Dnsruby::Types::A
-        when'ipv6'
-          query_type = Dnsruby::Types::AAAA
-        else
-          raise ::ArgumentError.new("Invalid family: #{val}")
-        end
-      when nil
-        names << val
-      else
-        raise ::ArgumentError.new("Unknown flag: #{opt}")
-      end
+    if args.length < 1
+      raise ::ArgumentError.new('A hostname must be provided')
     end
 
-    if names.length < 1
-      raise ::ArgumentError.new('You must specify at least one hostname to remove')
+    hostname = args.shift
+    ip_addresses = args
+
+    if ip_addresses.empty?
+      ip_addresses = resolver.static_hostnames.get(hostname, Dnsruby::Types::A) + resolver.static_hostnames.get(hostname, Dnsruby::Types::AAAA)
+      if ip_addresses.empty?
+        print_status("There are no definitions for hostname: #{hostname}")
+      end
+    elsif (ip_address = ip_addresses.find { |ip| !Rex::Socket.is_ip_addr?(ip) })
+      raise ::ArgumentError.new("Invalid IP address: #{ip_address}")
     end
 
-    names.each do |name|
-      if query_type.nil? || query_type == Dnsruby::Types::A
-        resolver.static_hostnames.delete(name, Dnsruby::Types::A)
-      end
-
-      if query_type.nil? || query_type == Dnsruby::Types::AAAA
-        resolver.static_hostnames.delete(name, Dnsruby::Types::AAAA)
-      end
+    ip_addresses.each do |ip_address|
+      resolver.static_hostnames.delete(hostname, ip_address)
+      print_status("Removed static hostname mapping #{hostname} to #{ip_address}")
     end
-    print_good('DNS hostnames have been deleted')
   end
 
   def remove_static_dns_help
     print_line "USAGE:"
     print_line "  #{REMOVE_STATIC_USAGE}"
-    print_line @@remove_static_opts.usage
-    print_line "EXAMPLES:"
-    print_line "  Remove IPv4 and IPv6 addresses for 'localhost'"
-    print_line "    dns remove-static localhost"
     print_line
-    print_line "  Remove only IPv6 addresses for 'localhost6'"
-    print_line "    dns remove-static -f IPv6 localhost6"
+    print_line "EXAMPLES:"
+    print_line "  Remove all IPv4 and IPv6 addresses for 'localhost'"
+    print_line "    dns remove-static localhost"
     print_line
   end
 
@@ -640,7 +622,11 @@ class DNS
       'WordWrap'  => false
     )
     resolver.static_hostnames.each do |hostname, addresses|
-      tbl << [hostname, addresses[Dnsruby::Types::A], addresses[Dnsruby::Types::AAAA]]
+      ipv4_addresses = addresses.fetch(Dnsruby::Types::A, [])
+      ipv6_addresses = addresses.fetch(Dnsruby::Types::AAAA, [])
+      0.upto([ipv4_addresses.length, ipv6_addresses.length].max - 1) do |idx|
+        tbl << [idx == 0 ? hostname : TABLE_INDENT, ipv4_addresses[idx], ipv6_addresses[idx]]
+      end
     end
     print_line(tbl.to_s)
     if resolver.static_hostnames.empty?
@@ -654,6 +640,12 @@ class DNS
     Rex::Proto::DNS::UpstreamResolver::TYPE_BLACK_HOLE.to_s.downcase,
     Rex::Proto::DNS::UpstreamResolver::TYPE_SYSTEM.to_s.downcase
   ].freeze
+
+  # XXX: By default rex-text tables strip preceding whitespace:
+  #   https://github.com/rapid7/rex-text/blob/1a7b63993
+  # ca62fd9102665d6986f918ae42cae244e/lib/rex/text/table.rb#L221-L222
+  #   So use https://en.wikipedia.org/wiki/Non-breaking_space as a workaround for now. A change should exist in Rex-Text to support this requirement
+  TABLE_INDENT = "\xc2\xa0\xc2\xa0\\_ ".freeze
 
   #
   # Get user-friendly text for displaying the session that this entry would go through
@@ -703,15 +695,9 @@ class DNS
     if entry.resolvers.length == 1
       tbl << prefix + [index.to_s, entry.wildcard, entry.resolvers.first, prettify_comm(entry.comm, entry.resolvers.first)] + suffix
     elsif entry.resolvers.length > 1
-      # XXX: By default rex-text tables strip preceding whitespace:
-      #   https://github.com/rapid7/rex-text/blob/1a7b63993
-      # ca62fd9102665d6986f918ae42cae244e/lib/rex/text/table.rb#L221-L222
-      #   So use https://en.wikipedia.org/wiki/Non-breaking_space as a workaround for now. A change should exist in Rex-Text to support this requirement
-      indent = "\xc2\xa0\xc2\xa0\\_ "
-
       tbl << prefix + [index.to_s, entry.wildcard, '', ''] + suffix
       entry.resolvers.each do |resolver|
-        tbl << alignment_prefix + ['.', indent, resolver, prettify_comm(entry.comm, resolver)] + ([''] * suffix.length)
+        tbl << alignment_prefix + ['.', TABLE_INDENT, resolver, prettify_comm(entry.comm, resolver)] + ([''] * suffix.length)
       end
     end
     tbl

@@ -458,8 +458,7 @@ module DNS
 
    def send_static(upstream_resolver, packet, type, cls)
       simple_name_lookup(upstream_resolver, packet, type, cls) do |name, _family|
-        ip_address = static_hostnames.get(name, type)
-        ip_address ? [ip_address] : nil
+        static_hostnames.get(name, type)
       end
    end
 

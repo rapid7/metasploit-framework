@@ -199,9 +199,8 @@ module DNS
 
       static_hostnames.flush
       config.fetch("#{CONFIG_KEY_BASE}/static_hostnames", {}).each do |_name, value|
-        values = value.split(';')
-        hostname = values.shift
-        values.each do |ip_address|
+        hostname, ip_addresses = value.split(';', 2)
+        ip_addresses.split(',').each do |ip_address|
           next if ip_address.blank?
 
           unless Rex::Socket.is_ip_addr?(ip_address)
@@ -233,8 +232,7 @@ module DNS
       static_hostnames.each_with_index do |(hostname, addresses), index|
         val = [
           hostname,
-          addresses[Dnsruby::Types::A],
-          addresses[Dnsruby::Types::AAAA]
+          (addresses.fetch(Dnsruby::Types::A, []) + addresses.fetch(Dnsruby::Types::AAAA, [])).join(',')
         ].join(';')
         new_config["##{index}"] = val
       end
