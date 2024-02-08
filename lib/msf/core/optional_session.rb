@@ -26,7 +26,7 @@ module Msf::OptionalSession
         [
           Msf::OptInt.new('SESSION', [ false, 'The session to run this module on' ]),
           Msf::Opt::RHOST(nil, false),
-          Msf::Opt::RPORT(nil, false)
+          Msf::Opt::RPORT(3306, false)
         ]
       )
     end
