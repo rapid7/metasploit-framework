@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Post
     session_type = session.type
 
     module_results = []
-    framework.modules.post.each do |refname, _clazz|
+    framework.modules.post.module_refnames.each do |refname|
       next unless refname.start_with?('test/') && refname != self.refname
       mod = framework.modules.create(refname)
 

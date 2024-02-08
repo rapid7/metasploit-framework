@@ -129,19 +129,19 @@ class Encoder < Module
     #
     # perl encoding.
     #
-    CmdUnixPerl = 'perl'
+    CmdPosixPerl = 'perl'
     #
     # Bourne shell echo encoding.
     #
-    CmdUnixEcho = 'echo'
+    CmdPosixEcho = 'echo'
     #
     # Bourne shell ${IFS} encoding.
     #
-    CmdUnixIFS = 'ifs'
+    CmdPosixIFS = 'ifs'
     #
     # Bash brace expansion encoding.
     #
-    CmdUnixBrace = 'brace'
+    CmdPosixBrace = 'brace'
   end
 
   #

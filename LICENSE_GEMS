@@ -80,9 +80,9 @@ memory_profiler, 1.0.1, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 5.0.2, "New BSD"
 metasploit-credential, 6.0.6, "New BSD"
-metasploit-framework, 6.3.53, "New BSD"
+metasploit-framework, 6.3.56, "New BSD"
 metasploit-model, 5.0.2, "New BSD"
-metasploit-payloads, 2.0.161, "3-clause (or ""modified"") BSD"
+metasploit-payloads, 2.0.165, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 6.0.3, "New BSD"
 metasploit_payloads-mettle, 1.0.26, "3-clause (or ""modified"") BSD"
 method_source, 1.0.0, MIT
@@ -134,7 +134,7 @@ rb-readline, 0.5.5, BSD
 recog, 3.1.2, unknown
 redcarpet, 3.6.0, MIT
 regexp_parser, 2.8.1, MIT
-reline, 0.3.8, ruby
+reline, 0.4.1, ruby
 require_all, 3.0.0, MIT
 rex-arch, 0.1.15, "New BSD"
 rex-bin_tools, 0.1.9, "New BSD"
@@ -171,7 +171,7 @@ ruby-prof, 1.4.2, "Simplified BSD"
 ruby-progressbar, 1.13.0, MIT
 ruby-rc4, 0.1.5, MIT
 ruby2_keywords, 0.0.5, "ruby, Simplified BSD"
-ruby_smb, 3.3.1, "New BSD"
+ruby_smb, 3.3.2, "New BSD"
 rubyntlm, 0.6.3, MIT
 rubyzip, 2.3.2, "Simplified BSD"
 sawyer, 0.9.2, MIT

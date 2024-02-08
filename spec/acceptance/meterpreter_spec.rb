@@ -134,7 +134,7 @@ RSpec.describe 'Meterpreter' do
               expect(payload.size).to be > 0
             end
 
-            console.sendline 'to_handler'
+            console.sendline payload.handler_command(default_module_datastore: default_module_datastore)
             console.recvuntil(/Started reverse TCP handler[^\n]*\n/)
             payload_process = executed_payload
             session_id = nil

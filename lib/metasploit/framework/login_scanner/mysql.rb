@@ -15,6 +15,10 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Tcp::Client
 
+        # @returns [Boolean] If a login is successful and this attribute is true - a MySQL::Client instance is used as proof,
+        #   and the socket is not immediately closed
+        attr_accessor :use_client_as_proof
+
         DEFAULT_PORT         = 3306
         LIKELY_PORTS         = [3306]
         LIKELY_SERVICE_NAMES = ['mysql']
@@ -35,7 +39,7 @@ module Metasploit
             disconnect if self.sock
             connect
 
-            ::Mysql.connect(host, credential.public, credential.private, '', port, sock)
+            mysql_conn = ::Mysql.connect(host, credential.public, credential.private, '', port, sock)
 
           rescue ::SystemCallError, Rex::ConnectionError => e
             result_options.merge!({
@@ -64,8 +68,17 @@ module Metasploit
             })
           end
 
-          unless result_options[:status]
+          if mysql_conn
             result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
+
+            # This module no long owns the socket, return it as proof so the calling context can perform additional operations
+            # Additionally assign values to nil to avoid closing the socket etc automatically
+            if use_client_as_proof
+              result_options[:proof] = mysql_conn
+              nil
+            else
+              mysql_conn.close
+            end
           end
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)

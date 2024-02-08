@@ -14,7 +14,7 @@ RSpec.shared_examples_for 'Msf::DBManager#update_all_module_details refresh' do
     end
 
     before(:example) do
-      module_set[module_detail.refname] = Msf::SymbolicModule
+      module_set[module_detail.refname] = nil
 
       framework.modules.send(:module_info_by_path)[module_detail.file] = {
           :parent_path => Metasploit::Framework.root.join('modules').to_path,

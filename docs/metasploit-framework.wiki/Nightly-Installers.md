@@ -24,7 +24,9 @@ The latest OS X installer package can also be downloaded directly here: <https:/
 
 ## Installing Metasploit on Windows
 
-Download the [latest Windows installer](https://windows.metasploit.com/metasploitframework-latest.msi) or [view older builds](https://windows.metasploit.com/). To install, simply download the .msi package, adjust your Antivirus as-needed to ignore c:\metasploit-framework, double-click and enjoy. The msfconsole command and all related tools will be added to the system %PATH% environment variable.
+Download the [latest Windows installer](https://windows.metasploit.com/metasploitframework-latest.msi) or [view older builds](https://windows.metasploit.com/).
+To install, download the `.msi` package, adjust your Antivirus as-needed to ignore `c:\metasploit-framework` and execute the installer by right-clicking the installer file and selecting "Run as Administrator".
+The msfconsole command and all related tools will be added to the system `%PATH%` environment variable.
 
 ### Windows Anti-virus software flags the contents of these packages!
 

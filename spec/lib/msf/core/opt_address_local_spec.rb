@@ -8,11 +8,14 @@ RSpec.describe Msf::OptAddressLocal do
       IPAddr.new(addr).ipv4? && !addr[/^127.*/]
     rescue IPAddr::InvalidAddressError
       false
+    end.sort_by do |addr|
+      ip_addr = IPAddr.new(addr)
+      [ip_addr.ipv4? ? 0 : 1, ip_addr.to_i]
     end.first
     { name: iface, addr: ip_address }
   end.select { |name_addr| name_addr[:addr] }.sort_by do |name_addr|
     ip_addr = IPAddr.new(name_addr[:addr])
-    [ip_addr.ipv4?, ip_addr.to_i]
+    [ip_addr.ipv4? ? 0 : 1, ip_addr.to_i]
   end.first
 
   valid_values = [

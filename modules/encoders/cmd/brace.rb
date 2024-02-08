@@ -16,9 +16,9 @@ class MetasploitModule < Msf::Encoder
         to avoid whitespace without being overly fancy.
       },
       'Author'      => ['wvu', 'egypt'],
-      'Platform'    => 'unix',
+      'Platform'    => %w[ linux unix ],
       'Arch'        => ARCH_CMD,
-      'EncoderType' => Msf::Encoder::Type::CmdUnixBrace
+      'EncoderType' => Msf::Encoder::Type::CmdPosixBrace
     )
   end
 

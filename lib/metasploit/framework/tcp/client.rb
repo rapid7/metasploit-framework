@@ -73,7 +73,6 @@ module Metasploit
         # @see Rex::Socket::Tcp
         # @see Rex::Socket::Tcp.create
         def connect(global = true, opts={})
-
           dossl = false
           if(opts.has_key?('SSL'))
             dossl = opts['SSL']

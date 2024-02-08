@@ -131,7 +131,6 @@ class Msf::Module::Platform
   # the string).
   #
   def self.find_portion(mod, str)
-
     # Check to see if we've built the abbreviated cache
     if (not (
           mod.const_defined?('Abbrev') and

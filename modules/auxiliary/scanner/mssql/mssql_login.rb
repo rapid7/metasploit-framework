@@ -5,6 +5,7 @@
 
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/mssql'
+require 'rex/proto/mssql/client'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
@@ -30,6 +31,9 @@ class MetasploitModule < Msf::Auxiliary
           'BLANK_PASSWORDS' => true
         }
     )
+    register_options([
+      OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', true]),
+    ])
 
     deregister_options('PASSWORD_SPRAY')
   end

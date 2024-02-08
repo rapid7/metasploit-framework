@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Post
     print_status("Running module against #{sysinfo['Computer']}") if !sysinfo.nil?
 
     # Check that the payload is a Windows one and on the list
-    if !session.framework.payloads.keys.grep(/windows/).include?(datastore['PAYLOAD'])
+    if !session.framework.payloads.module_refnames.grep(/windows/).include?(datastore['PAYLOAD'])
       print_error("The Payload specified #{datastore['PAYLOAD']} is not a valid for this system")
       return
     end

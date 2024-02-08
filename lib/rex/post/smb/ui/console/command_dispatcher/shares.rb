@@ -276,7 +276,7 @@ module Rex
             return print_no_share_selected if !active_share
 
             path = args[0]
-            # TODO: Needs better normalization
+
             new_path = as_ntpath(Pathname.new(shell.cwd).join(path).to_s)
 
             begin
