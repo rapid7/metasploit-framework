@@ -449,6 +449,10 @@ class DNS
       end
     end
 
+    if remove_ids.empty?
+      raise ::ArgumentError.new('At least one index to remove must be provided')
+    end
+
     removed = resolver.remove_ids(remove_ids)
     print_warning('Some entries were not removed') unless removed.length == remove_ids.length
     if removed.length > 0
@@ -465,7 +469,7 @@ class DNS
     print_line "  Delete the DNS resolution rule #3"
     print_line "    dns remove -i 3"
     print_line
-    print_line "  Delete multiple entries in one command"
+    print_line "  Delete multiple rules in one command"
     print_line "    dns remove -i 3 -i 4 -i 5"
     print_line
   end

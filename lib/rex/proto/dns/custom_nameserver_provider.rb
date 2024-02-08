@@ -139,7 +139,8 @@ module DNS
     def remove_ids(ids)
       removed = []
       ids.sort.reverse.each do |id|
-        removed << @upstream_rules.delete_at(id)
+        upstream_rule = @upstream_rules.delete_at(id)
+        removed << upstream_rule if upstream_rule
       end
 
       removed.reverse
