@@ -121,6 +121,14 @@ class Connection
     end
   end
 
+  def address
+    @conn.peerhost
+  end
+
+  def port
+    @conn.peerport
+  end
+
   def close
     raise "connection already closed" if @conn.nil?
     @conn.shutdown
