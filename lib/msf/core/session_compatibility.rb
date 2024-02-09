@@ -74,7 +74,9 @@ module Msf
     #
     # Default cleanup handler does nothing
     #
-    def cleanup; end
+    def cleanup
+      super if defined?(super)
+    end
 
     #
     # Return the associated session or nil if there isn't one
