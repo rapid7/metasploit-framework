@@ -287,10 +287,12 @@ class DNS
     comm_obj = nil
 
     unless comm.nil?
-      raise ::ArgumentError.new("Not a valid number: #{comm}") unless comm =~ /^\d+$/
-      comm_int = comm.to_i
-      raise ::ArgumentError.new("Session does not exist: #{comm}") unless driver.framework.sessions.include?(comm_int)
-      comm_obj = driver.framework.sessions[comm_int]
+      raise ::ArgumentError.new("Not a valid session: #{comm}") unless comm =~ /\A-?[0-9]+\Z/
+
+      comm_obj = driver.framework.sessions.get(comm.to_i)
+      raise ::ArgumentError.new("Session does not exist: #{comm}") unless comm_obj
+      raise ::ArgumentError.new("Socket Comm (Session #{comm}) does not implement Rex::Socket::Comm") unless comm_obj.is_a? ::Rex::Socket::Comm
+
       if resolvers.any? { |resolver| SPECIAL_RESOLVERS.include?(resolver.downcase) }
         print_warning("The session argument will be ignored for the system resolver")
       end
