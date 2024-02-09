@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/zeroSteiner/rex-socket
+  revision: 764718bf3dd397c0a5ecc41ee0874d826e9c9144
+  branch: feat/util-is-name
+  specs:
+    rex-socket (0.1.56)
+      rex-core
+
 PATH
   remote: .
   specs:
@@ -419,8 +427,6 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.55)
-      rex-core
     rex-sslscan (0.1.10)
       rex-core
       rex-socket
@@ -562,6 +568,7 @@ DEPENDENCIES
   pry-byebug
   rake
   redcarpet
+  rex-socket!
   rspec-rails
   rspec-rerun
   rubocop

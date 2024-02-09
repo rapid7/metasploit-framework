@@ -69,7 +69,7 @@ module DNS
     # @rtype [Array<IPAddr>]
     def get(hostname, type = Dnsruby::Types::A)
       hostname = hostname.downcase
-      @hostnames.fetch(hostname, {}).fetch(type, [])
+      @hostnames.fetch(hostname, {}).fetch(type, []).dup
     end
 
     # Add an IP address for the specified hostname.
@@ -78,6 +78,12 @@ module DNS
     # @param [IPAddr, String] ip_address The IP address that is being defined for the hostname. If this value is a
     #   string, it will be converted to an IPAddr instance.
     def add(hostname, ip_address)
+      unless self.class.is_valid_hostname?(hostname)
+        # it is important to validate the hostname because assumptions about what characters it may contain are made
+        # when saving and loading it from the configuration
+        raise ::ArgumentError.new("Invalid hostname: #{hostname}")
+      end
+
       ip_address = IPAddr.new(ip_address) if ip_address.is_a?(String) && Rex::Socket.is_ip_addr?(ip_address)
 
       hostname = hostname.downcase
@@ -128,6 +134,16 @@ module DNS
     # Delete all hostname to IP address definitions.
     def flush
       @hostnames.clear
+    end
+
+    def self.is_valid_hostname?(name)
+      # check if it appears to be a fully qualified domain name, e.g. www.metasploit.com
+      return true if Rex::Socket.is_name?(name)
+
+      # check if it appears to at least be a valid hostname, e.g. localhost
+      return true if (name =~ /^([a-z0-9][a-z0-9\-]{0,61})?[a-z0-9]$/i) && (name =~ /\s/).nil?
+
+      false
     end
   end
 end

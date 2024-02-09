@@ -338,11 +338,16 @@ class DNS
     end
 
     hostname = args.shift
-    if (ip_address = args.find { |a| !Rex::Socket.is_ip_addr?(a) })
+    if !Rex::Proto::DNS::StaticHostnames.is_valid_hostname?(hostname)
+      raise ::ArgumentError.new("Invalid hostname: #{hostname}")
+    end
+
+    ip_addresses = args
+    if (ip_address = ip_addresses.find { |a| !Rex::Socket.is_ip_addr?(a) })
       raise ::ArgumentError.new("Invalid IP address: #{ip_address}")
     end
 
-    args.each do |ip_address|
+    ip_addresses.each do |ip_address|
       resolver.static_hostnames.add(hostname, ip_address)
       print_status("Added static hostname mapping #{hostname} to #{ip_address}")
     end
@@ -482,8 +487,11 @@ class DNS
     end
 
     hostname = args.shift
-    ip_addresses = args
+    if !Rex::Proto::DNS::StaticHostnames.is_valid_hostname?(hostname)
+      raise ::ArgumentError.new("Invalid hostname: #{hostname}")
+    end
 
+    ip_addresses = args
     if ip_addresses.empty?
       ip_addresses = resolver.static_hostnames.get(hostname, Dnsruby::Types::A) + resolver.static_hostnames.get(hostname, Dnsruby::Types::AAAA)
       if ip_addresses.empty?
