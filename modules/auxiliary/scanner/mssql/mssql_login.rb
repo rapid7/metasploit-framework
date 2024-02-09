@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         }
     )
     register_options([
-      OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', true]),
+      OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', false]),
     ])
 
     options_to_deregister = %w[PASSWORD_SPRAY]
