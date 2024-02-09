@@ -25,6 +25,7 @@ module Msf
     SMB_SESSION_TYPE = 'smb_session_type'
     POSTGRESQL_SESSION_TYPE = 'postgresql_session_type'
     MYSQL_SESSION_TYPE = 'mysql_session_type'
+    MSSQL_SESSION_TYPE = 'mssql_session_type'
     DEFAULTS = [
       {
         name: WRAPPED_TABLES,
@@ -80,6 +81,12 @@ module Msf
       {
         name: MYSQL_SESSION_TYPE,
         description: 'When enabled will allow for the creation/use of MySQL sessions',
+        requires_restart: true,
+        default_value: false
+      }.freeze,
+      {
+        name: MSSQL_SESSION_TYPE,
+        description: 'When enabled will allow for the creation/use of mssql sessions',
         requires_restart: true,
         default_value: false
       }.freeze,

@@ -49,7 +49,7 @@ module ClientMixin
 
       tbl = Rex::Text::Table.new(
         'Indent'    => 1,
-        'Header'    => "",
+        'Header'    => "Response",
         'Columns'   => info[:colnames],
         'SortIndex' => -1
       )
