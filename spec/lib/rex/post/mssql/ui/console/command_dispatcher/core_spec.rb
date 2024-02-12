@@ -6,6 +6,9 @@ require 'rex/post/mssql/ui/console/command_dispatcher/core'
 RSpec.describe Rex::Post::MSSQL::Ui::Console::CommandDispatcher::Core do
   let(:rstream) { instance_double(::Rex::Socket) }
   let(:client) { instance_double(Rex::Proto::MSSQL::Client) }
+  let(:query_result) do
+    { rows: [['mssql']]}
+  end
   let(:session) { Msf::Sessions::MSSQL.new(nil, { client: client, cwd: 'mssql' }) }
   let(:address) { '192.0.2.1' }
   let(:port) { '1433' }
@@ -18,6 +21,7 @@ RSpec.describe Rex::Post::MSSQL::Ui::Console::CommandDispatcher::Core do
 
   before(:each) do
     allow(client).to receive(:sock).and_return(rstream)
+    allow(client).to receive(:mssql_query).and_return(query_result)
     allow(rstream).to receive(:peerinfo).and_return(peer_info)
     allow(session).to receive(:client).and_return(client)
     allow(session).to receive(:console).and_return(console)

@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 RSpec.shared_examples_for 'session command dispatcher' do
   include_context 'Msf::Simple::Framework'
 
