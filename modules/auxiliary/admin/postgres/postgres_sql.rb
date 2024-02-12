@@ -5,7 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Postgres
-  include Msf::OptionalSession
+  include Msf::OptionalSession::PostgreSQL
 
   def initialize(info = {})
     super(update_info(info,

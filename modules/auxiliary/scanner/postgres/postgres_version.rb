@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Postgres
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
-  include Msf::OptionalSession
+  include Msf::OptionalSession::PostgreSQL
 
   # Creates an instance of this module.
   def initialize(info = {})

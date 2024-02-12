@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
-  include Msf::OptionalSession
+  include Msf::OptionalSession::MySQL
 
   def initialize
     super(

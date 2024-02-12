@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::MYSQL
-  include Msf::OptionalSession
+  include Msf::OptionalSession::MySQL
 
   def initialize(info = {})
     super(update_info(info,
