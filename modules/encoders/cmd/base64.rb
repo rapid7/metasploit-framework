@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Encoder
   # Encodes the payload
   #
   def encode_block(state, buf)
-    return buf if state.badchars.empty?
+    return buf if (buf.bytes & state.badchars.bytes).empty?
 
     raise EncodingError if (state.badchars.bytes & BASE64_BYTES).any?
     raise EncodingError if state.badchars.include?('-')
@@ -46,21 +46,22 @@ class MetasploitModule < Msf::Encoder
     base64_buf = Base64.strict_encode64(buf)
     case datastore['Base64Decoder']
     when 'base64'
+
       base64_decoder = 'base64 -d'
     when 'openssl'
       base64_decoder = 'openssl enc -base64 -d'
     else
       # find a decoder at runtime if we can use the necessary characters
-      if (state.badchars.bytes & '>()/|-&'.bytes).empty?
-        base64_decoder = '(which base64 >/dev/null && base64 -d || which openssl >/dev/null && openssl enc -base64 -d)'
+      if (state.badchars.bytes & '(|)>/&'.bytes).empty?
+        base64_decoder = '((command -v base64 >/dev/null && (base64 --decode || base64 -d)) || (command -v openssl >/dev/null && openssl enc -base64 -d))'
       else
         base64_decoder = 'base64 -d'
       end
     end
 
-    if (state.badchars.bytes & '-|'.bytes).empty?
+    if (state.badchars.bytes & '|'.bytes).empty?
       buf = "echo #{base64_buf}|#{base64_decoder}|sh"
-    elsif (state.badchars.bytes & '-<()'.bytes).empty?
+    elsif (state.badchars.bytes & '<()'.bytes).empty?
       buf = "sh < <(#{base64_decoder} < <(echo #{base64_buf}))"
     else
       raise EncodingError
