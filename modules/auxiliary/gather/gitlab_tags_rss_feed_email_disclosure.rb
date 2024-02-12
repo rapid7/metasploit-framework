@@ -44,14 +44,14 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def get_contents(t)
-    print_status('Check RSS tags feed for: ' + t)
+  def get_contents(tags)
+    print_status('Check RSS tags feed for: ' + tags)
 
     # Tag needs to be lower case, so...
-    t = t.split('/')[0] + '/' + t.split('/')[1].downcase
+    tags = tags.split('/')[0] + '/' + tags.split('/')[1].downcase
 
     res = send_request_cgi(
-      'uri' => normalize_uri(target_uri.path, t, '-', 'tags'),
+      'uri' => normalize_uri(target_uri.path, tags, '-', 'tags'),
       'method' => 'GET', 'vars_get' => { 'format' => 'atom' }
     )
 
@@ -102,8 +102,8 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, "#{peer} - Invalid credentials (response code: #{res.code})") unless res.code == 200
 
       res.get_json_document.each do |entry|
-        t = entry['path_with_namespace']
-        get_contents(t)
+        tags = entry['path_with_namespace']
+        get_contents(tags)
       end
 
     else
