@@ -423,15 +423,6 @@ class Db
     [ '-C', '--columns-until-restart' ] => [ true, 'Only show the given columns until the next restart (see list below)', '<columns>' ],
   )
 
-  def cmd_hosts_help(default_columns)
-    print_line "Usage: hosts [ options ] [addr1 addr2 ...]"
-    print_line
-    print @@hosts_opts.usage
-    print_line
-    print_line "Available columns: #{default_columns.join(", ")}"
-    print_line
-  end
-
   def cmd_hosts(*args)
     return unless active?
     onlyup = false
@@ -487,7 +478,12 @@ class Db
     @@hosts_opts.parse(args) do |opt, idx, val|
       case opt
       when '-h', '--help'
-        cmd_hosts_help(default_columns)
+        print_line "Usage: hosts [ options ] [addr1 addr2 ...]"
+        print_line
+        print @@hosts_opts.usage
+        print_line
+        print_line "Available columns: #{default_columns.join(", ")}"
+        print_line
         return
       when '-a', '--add'
         mode << :add
@@ -698,12 +694,12 @@ class Db
     []
   end
 
-  def cmd_services_help(default_columns)
+  def cmd_services_help
     print_line "Usage: services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-s <name1,name2>] [-o <filename>] [addr1 addr2 ...]"
     print_line
     print @@services_opts.usage
     print_line
-    print_line "Available columns: #{default_columns.join(", ")}"
+    print_line "Available columns: #{@@services_columns.join(", ")}"
     print_line
   end
 
@@ -918,7 +914,7 @@ class Db
         search_term = val
         opts[:search_term] = search_term
       when '-h', '--help'
-        cmd_services_help(@@services_columns)
+        cmd_services_help
         return
       else
         # Anything that wasn't an option is a host to search for
