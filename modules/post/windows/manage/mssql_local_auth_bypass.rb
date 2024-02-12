@@ -43,8 +43,8 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        OptString.new('DB_USERNAME', [true, 'New sysadmin login', '']),
-        OptString.new('DB_PASSWORD', [true, 'Password for new sysadmin login', '']),
+        OptString.new('DB_USERNAME', [true, 'New sysadmin login', nil]),
+        OptString.new('DB_PASSWORD', [true, 'Password for new sysadmin login', nil]),
         OptString.new('INSTANCE', [false, 'Name of target SQL Server instance', nil]),
         OptBool.new('REMOVE_LOGIN', [true, 'Remove DB_USERNAME login from database', false])
       ]
