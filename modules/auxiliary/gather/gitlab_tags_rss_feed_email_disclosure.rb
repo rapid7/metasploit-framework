@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
       # so forks of projects may show duplicate email addresses.
       unique_emails = Set.new
 
-      authors = xml_res.xpath('//xmlns:author').each do |authors|
+      xml_res.xpath('//xmlns:author').each do |authors|
         email = authors.at_xpath('xmlns:email').text
         next if unique_emails.include?(email)
 
@@ -101,13 +101,13 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
       fail_with(Failure::UnexpectedReply, "#{peer} - Invalid credentials (response code: #{res.code})") unless res.code == 200
 
-      j = res.get_json_document.each do |entry|
+      res.get_json_document.each do |entry|
         t = entry['path_with_namespace']
         get_contents(t)
       end
 
     else
-      get_contents("#{datastore['TARGETPROJECT']}")
+      get_contents(datastore['TARGETPROJECT'].to_s)
     end
   rescue ::Rex::ConnectionError
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to the web service")
