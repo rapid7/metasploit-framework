@@ -188,7 +188,7 @@ module Msf
 
       # Can't be compatible if it's the wrong type
       if session_types && !session_types.include?(s.type)
-        issues << "incompatible session type: #{s.type}"
+        issues << "incompatible session type: #{s.type}. This module works with: #{session_types.join(', ')}."
       end
 
       # Check to make sure architectures match
@@ -208,9 +208,9 @@ module Msf
 
       if platform && platform.is_a?(Msf::Module::PlatformList) && !platform.empty?
         if s.platform.blank?
-          issues << 'Unknown session platform'
+          issues << "Unknown session platform. This module works with: #{platform.names.join(', ')}."
         elsif !platform.supports?(Msf::Module::PlatformList.transform(s.platform))
-          issues << "incompatible session platform: #{s.platform}"
+          issues << "incompatible session platform: #{s.platform}. This module works with: #{platform.names.join(', ')}."
         end
       end
 
