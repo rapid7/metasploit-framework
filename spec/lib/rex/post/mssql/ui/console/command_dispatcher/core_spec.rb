@@ -21,7 +21,7 @@ RSpec.describe Rex::Post::MSSQL::Ui::Console::CommandDispatcher::Core do
 
   before(:each) do
     allow(client).to receive(:sock).and_return(rstream)
-    allow(client).to receive(:mssql_query).and_return(query_result)
+    allow(client).to receive(:mssql_query).with('SELECT DB_NAME();').and_return(query_result)
     allow(rstream).to receive(:peerinfo).and_return(peer_info)
     allow(session).to receive(:client).and_return(client)
     allow(session).to receive(:console).and_return(console)

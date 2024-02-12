@@ -31,7 +31,7 @@ RSpec.describe Msf::Sessions::MSSQL do
     allow(user_input).to receive(:intrinsic_shell?).and_return(true)
     allow(user_input).to receive(:output=)
     allow(client).to receive(:sock).and_return(rstream)
-    allow(client).to receive(:mssql_query).and_return(query_result)
+    allow(client).to receive(:mssql_query).with('SELECT DB_NAME();').and_return(query_result)
     allow(rstream).to receive(:peerinfo).and_return(peer_info)
   end
 
