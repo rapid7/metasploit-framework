@@ -31,13 +31,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    if (datastore['SESSION'] && session)
-      set_session(session)
-    end
-
-    unless (datastore['SESSION'] && session) || mssql_login_datastore
-      print_error("#{datastore['RHOST']}:#{datastore['RPORT']} - Invalid SQL Server credentials")
-      return
+    if session
+      set_session(session.client)
+    else
+      unless mssql_login_datastore
+        print_error("#{datastore['RHOST']}:#{datastore['RPORT']} - Invalid SQL Server credentials")
+        return
+      end
     end
 
     # Grabs the Instance Name and Version of MSSQL(2k,2k5,2k8)

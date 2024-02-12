@@ -39,10 +39,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    if (datastore['SESSION'] && session)
-      set_session(session)
+    if session
+      set_session(session.client)
+    else
+      return unless mssql_login_datastore
     end
-    return unless (datastore['SESSION'] && session) || mssql_login_datastore
 
     technique = datastore['TECHNIQUE']
     case technique

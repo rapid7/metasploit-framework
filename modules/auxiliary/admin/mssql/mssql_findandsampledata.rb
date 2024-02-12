@@ -339,18 +339,20 @@ class MetasploitModule < Msf::Auxiliary
 
 
     # STATUSING
-    print_line(" ")
-    print_status("Attempting to connect to the SQL Server at #{rhost}:#{rport}...")
 
     # CREATE DATABASE CONNECTION AND SUBMIT QUERY WITH ERROR HANDLING
     begin
-      if (datastore['SESSION'] && session)
-        set_session(session)
+      if session
+        set_session(session.client)
+      else
+        print_line(" ")
+        print_status("Attempting to connect to the SQL Server at #{rhost}:#{rport}...")
+        return unless mssql_login_datastore
+        print_good("Successfully connected to #{rhost}:#{rport}")
       end
-      result = mssql_query(sql, false) if (datastore['SESSION'] && session) || mssql_login_datastore
+      result = mssql_query(sql, false)
 
       column_data = result[:rows]
-      print_good("Successfully connected to #{rhost}:#{rport}")
     rescue
       print_error("Failed to connect to #{rhost}:#{rport}")
     return

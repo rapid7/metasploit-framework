@@ -36,17 +36,22 @@ class MetasploitModule < Msf::Auxiliary
     suffix = datastore['QUERY_SUFFIX']
 
     begin
-      if (datastore['SESSION'] && session)
-        set_session(session)
+      if session
+        set_session(session.client)
+      else
+        unless mssql_login_datastore
+          print_error("#{datastore['RHOST']}:#{datastore['RPORT']} - Invalid SQL Server credentials")
+          return
+        end
       end
       queries.each do |sql_query|
         vprint_status("Executing: #{sql_query}")
-        mssql_query(prefix+sql_query.chomp+suffix,true) if (datastore['SESSION'] && session) || mssql_login_datastore
+        mssql_query(prefix+sql_query.chomp+suffix,true)
       end
     rescue Rex::ConnectionRefused, Rex::ConnectionTimeout
       print_error "Error connecting to server: #{$!}"
     ensure
-      disconnect
+      disconnect unless session
     end
   end
 end

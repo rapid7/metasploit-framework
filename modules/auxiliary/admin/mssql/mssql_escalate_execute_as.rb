@@ -24,18 +24,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    if (datastore['SESSION'] && session)
-      set_session(session)
-    end
-    # Check connection and issue initial query
-    print_status("Attempting to connect to the database server at #{datastore['RHOST']}:#{datastore['RPORT']} as #{datastore['USERNAME']}...")
-
-    if (datastore['SESSION'] && session) || mssql_login_datastore
-      print_good('Connected.')
+    if session
+      set_session(session.client)
     else
-      print_error('Login was unsuccessful. Check your credentials.')
-      disconnect
-      return
+      print_status("Attempting to connect to the database server at #{rhost}:#{rport} as #{datastore['USERNAME']}...")
+      if mssql_login_datastore
+        print_good('Connected.')
+      else
+        print_error("Login was unsuccessful. Check your credentials.")
+        disconnect
+        return
+      end
     end
 
     # Query for sysadmin status

@@ -25,11 +25,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    if (datastore['SESSION'] && session)
-      set_session(session)
-    elsif (datastore['SESSION'] && !session)
-      print_error('Unable to connect to session')
-      return
+    if session
+      set_session(session.client)
     elsif !mssql_login(datastore['USERNAME'], datastore['PASSWORD'])
       print_error('Invalid SQL Server credentials')
       return

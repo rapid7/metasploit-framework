@@ -25,14 +25,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     print_status("Running MS SQL Server Enumeration...")
-    if (datastore['SESSION'] && session)
-      set_session(session)
-    end
-
-    unless (datastore['SESSION'] && session) || mssql_login_datastore
-      print_error("Login was unsuccessful. Check your credentials.")
-      disconnect
-      return
+    if session
+      set_session(session.client)
+    else
+      unless mssql_login_datastore
+        print_error("Login was unsuccessful. Check your credentials.")
+        disconnect
+        return
+      end
     end
 
     # Get Version

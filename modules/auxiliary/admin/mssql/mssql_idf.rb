@@ -88,16 +88,15 @@ class MetasploitModule < Msf::Auxiliary
     sql += "DEALLOCATE table_cursor "
 
     begin
-      if (datastore['SESSION'] && session)
-        set_session(session)
-      end
-
-      if (datastore['SESSION'] && session) || mssql_login_datastore
-        result = mssql_query(sql, false)
+      if session
+        set_session(session.client)
       else
-        print_error('Login failed')
-        return
+        unless mssql_login_datastore
+          print_error('Login failed')
+          return
+        end
       end
+      result = mssql_query(sql, false)
     rescue Rex::ConnectionRefused => e
       print_error("Connection failed: #{e}")
       return
