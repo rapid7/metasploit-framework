@@ -342,7 +342,7 @@ class EncodedPayload
         wlog("#{pinst.refname}: Failed to find preferred nop #{reqs['Nop']}")
       end
 
-      nops.each_module { |nopname, nopmod|
+      nops.each { |nopname, nopmod|
         # Create an instance of the nop module
         self.nop = nopmod.new
 
