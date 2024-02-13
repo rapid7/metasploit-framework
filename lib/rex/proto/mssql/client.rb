@@ -640,6 +640,14 @@ module Rex
           print_status("Be sure to cleanup #{var_payload}.exe...")
         end
 
+        def address
+          rhost
+        end
+
+        def port
+          rport
+        end
+
         protected
 
         def rhost
