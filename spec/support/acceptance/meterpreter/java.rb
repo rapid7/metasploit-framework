@@ -1,5 +1,3 @@
-require 'support/acceptance/meterpreter'
-
 module Acceptance::Meterpreter
   JAVA_METERPRETER = {
     payloads: [

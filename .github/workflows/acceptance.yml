@@ -38,6 +38,7 @@ on:
       - 'lib/msf/core/**'
       - 'tools/dev/**'
       - 'spec/acceptance/**'
+      - 'spec/support/acceptance/**'
       - 'spec/acceptance_spec_helper.rb'
 #   Example of running as a cron, to weed out flaky tests
 #  schedule:
