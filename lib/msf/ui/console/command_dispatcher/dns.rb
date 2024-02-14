@@ -532,9 +532,7 @@ class DNS
     if should_confirm
       print("Are you sure you want to reset the DNS configuration? [y/N]: ")
       response = gets.downcase.chomp
-      unless response.present? && 'yes'.start_with?(response)
-        return
-      end
+      return unless response =~ /^y/i
     end
 
     resolver.reinit
