@@ -12,10 +12,6 @@ class Msf::Sessions::MSSQL
   # @return [MSSQL::Client] The MSSQL client
   attr_accessor :client
   attr_accessor :platform, :arch
-  # @return [String] The address MSSQL is running on
-  attr_accessor :address
-  # @return [Integer] The port MSSQL is running on
-  attr_accessor :port
   attr_reader :framework
 
   def initialize(rstream, opts = {})

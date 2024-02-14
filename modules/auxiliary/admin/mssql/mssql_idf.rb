@@ -14,6 +14,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
+  include Msf::OptionalSession
 
   def initialize(info = {})
     super(update_info(info,
@@ -29,7 +30,8 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'URL', 'http://www.digininja.org/metasploit/mssql_idf.php' ],
-        ]
+        ],
+      'SessionTypes'   => %w[MSSQL]
     ))
 
     register_options(
@@ -86,12 +88,15 @@ class MetasploitModule < Msf::Auxiliary
     sql += "DEALLOCATE table_cursor "
 
     begin
-      if mssql_login_datastore
-        result = mssql_query(sql, false)
+      if session
+        set_session(session.client)
       else
-        print_error('Login failed')
-        return
+        unless mssql_login_datastore
+          print_error('Login failed')
+          return
+        end
       end
+      result = mssql_query(sql, false)
     rescue Rex::ConnectionRefused => e
       print_error("Connection failed: #{e}")
       return
