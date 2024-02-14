@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::MSSQL
-  include Msf::OptionalSession
+  include Msf::OptionalSession::MSSQL
 
   def initialize(info = {})
     super(update_info(info,

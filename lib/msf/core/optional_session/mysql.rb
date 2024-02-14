@@ -9,7 +9,7 @@ module Msf
         super(
           update_info(
             info,
-            'SessionTypes' => %w[MySQL]
+            'SessionTypes' => %w[mysql]
           )
         )
 
@@ -18,7 +18,7 @@ module Msf
             [
               Msf::OptInt.new('SESSION', [ false, 'The session to run this module on' ]),
               Msf::Opt::RHOST(nil, false),
-              Msf::Opt::RPORT(nil, false)
+              Msf::Opt::RPORT(3306, false)
             ]
           )
           add_info('New in Metasploit 6.4 - This module can target a %grnSESSION%clr or an %grnRHOST%clr')
