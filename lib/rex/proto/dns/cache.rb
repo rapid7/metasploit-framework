@@ -57,22 +57,11 @@ module DNS
     end
 
     #
-    # Add static record to cache
+    # Delete all cache entries, this is different from pruning because the
+    # record's expiration is ignored
     #
-    # @param name [String] Name of record
-    # @param address [String] Address of record
-    # @param type [Dnsruby::Types] Record type to add
-    # @param replace [TrueClass, FalseClass] Replace existing records
-    def add_static(name, address, type = Dnsruby::Types::A, replace = false)
-      if Rex::Socket.is_ip_addr?(address.to_s) and
-      ( name.to_s.match(MATCH_HOSTNAME) or name == '*')
-        find(name, type).each do |found|
-          delete(found)
-        end if replace
-        add(Dnsruby::RR.create(name: name, type: type, address: address),0)
-      else
-        raise "Invalid parameters for static entry - #{name}, #{address}, #{type}"
-      end
+    def flush
+      self.records.each {|rec, _| delete(rec)}
     end
 
     #

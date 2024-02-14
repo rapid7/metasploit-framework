@@ -1,3 +1,5 @@
+require 'rex/proto/dns/upstream_resolver'
+
 module Rex
 module Proto
 module DNS
@@ -7,11 +9,12 @@ module DNS
   # for different requests, based on the domain being queried.
   ##
   module CustomNameserverProvider
-    CONFIG_KEY = 'framework/dns'
+    CONFIG_KEY_BASE = 'framework/dns'
+    CONFIG_VERSION = Rex::Version.new('1.0')
 
     #
     # A Comm implementation that always reports as dead, so should never
-    # be used. This is used to prevent DNS leaks of saved DNS rules that 
+    # be used. This is used to prevent DNS leaks of saved DNS rules that
     # were attached to a specific channel.
     ##
     class CommSink
@@ -31,128 +34,120 @@ module DNS
     end
 
     def init
-      self.entries_with_rules = []
-      self.entries_without_rules = []
-      self.next_id = 0
+      @upstream_rules = []
+
+      resolvers = [UpstreamResolver.create_static]
+      if @config[:nameservers].empty?
+        # if no nameservers are specified, fallback to the system
+        resolvers << UpstreamResolver.create_system
+      else
+        # migrate the originally configured name servers
+        resolvers += @config[:nameservers].map(&:to_s)
+        @config[:nameservers].clear
+      end
+
+      add_upstream_rule(resolvers)
+
+      nil
+    end
+
+    # Reinitialize the configuration to its original state.
+    def reinit
+      parse_config_file
+      parse_environment_variables
+
+      self.static_hostnames.flush
+      self.static_hostnames.parse_hosts_file
+
+      init
+
+      cache.flush if respond_to?(:cache)
+
+      nil
+    end
+
+    # Check whether or not there is configuration data in Metasploit's configuration file which is persisted on disk.
+    def has_config?
+      config = Msf::Config.load
+      version = config.fetch(CONFIG_KEY_BASE, {}).fetch('configuration_version', nil)
+      if version.nil?
+        @logger.info 'DNS configuration can not be loaded because the version is missing'
+        return false
+      end
+
+      their_version = Rex::Version.new(version)
+      if their_version > CONFIG_VERSION # if the config is newer, it's incompatible (we only guarantee backwards compat)
+        @logger.info "DNS configuration version #{their_version} can not be loaded because it is too new"
+        return false
+      end
+
+      my_minimum_version = Rex::Version.new(CONFIG_VERSION.canonical_segments.first.to_s)
+      if their_version < my_minimum_version # can not be older than our major version
+        @logger.info "DNS configuration version #{their_version} can not be loaded because it is too old"
+        return false
+      end
+
+      true
     end
 
     #
     # Save the custom settings to the MSF config file
     #
     def save_config
-      new_config = {}
-      [self.entries_with_rules, self.entries_without_rules].each do |entry_set|
-        entry_set.each do |entry|
-          key = entry[:id].to_s
-          val = [entry[:wildcard_rules].join(','),
-                 entry[:dns_server],
-                 (!entry[:comm].nil?).to_s
-                ].join(';')
-          new_config[key] = val
-        end
-      end
+      new_config = {
+        'configuration_version' => CONFIG_VERSION.to_s
+      }
+      Msf::Config.save(CONFIG_KEY_BASE => new_config)
 
-      Msf::Config.save(CONFIG_KEY => new_config)
+      save_config_upstream_rules
+      save_config_static_hostnames
     end
 
     #
     # Load the custom settings from the MSF config file
     #
     def load_config
-      config = Msf::Config.load
-
-      with_rules = []
-      without_rules = []
-      next_id = 0
-
-      dns_settings = config.fetch(CONFIG_KEY, {}).each do |name, value|
-        id = name.to_i
-        wildcard_rules, dns_server, uses_comm = value.split(';')
-        wildcard_rules = wildcard_rules.split(',')
-
-        raise Msf::Config::ConfigError.new('DNS parsing failed: Comm must be true or false') unless ['true','false'].include?(uses_comm)
-        raise Msf::Config::ConfigError.new('Invalid DNS config: Invalid DNS server') unless Rex::Socket.is_ip_addr?(dns_server)
-        raise Msf::Config::ConfigError.new('Invalid DNS config: Invalid rule') unless wildcard_rules.all? {|rule| valid_rule?(rule)}
-
-        comm = uses_comm == 'true' ? CommSink.new : nil
-        entry = {
-          :wildcard_rules => wildcard_rules,
-          :dns_server => dns_server,
-          :comm => comm,
-          :id => id
-        }
-
-        if wildcard_rules.empty?
-          without_rules << entry
-        else
-          with_rules << entry
-        end
-
-        next_id = [id + 1, next_id].max
+      unless has_config?
+        raise ResolverError.new('There is no compatible configuration data to load')
       end
 
-      # Now that config has successfully read, update the global values
-      self.entries_with_rules = with_rules
-      self.entries_without_rules = without_rules
-      self.next_id = next_id
+      load_config_entries
+      load_config_static_hostnames
     end
 
-    # Add a custom nameserver entry to the custom provider
-    # @param wildcard_rules [Array<String>] The wildcard rules to match a DNS request against
-    # @param dns_server [Array<String>] The list of IP addresses that would be used for this custom rule
-    # @param comm [Msf::Session::Comm] The communication channel to be used for these DNS requests
-    def add_nameserver(wildcard_rules, dns_server, comm)
-      raise ::ArgumentError.new("Invalid DNS server: #{dns_server}") unless Rex::Socket.is_ip_addr?(dns_server)
-      wildcard_rules.each do |rule|
-        raise ::ArgumentError.new("Invalid rule: #{rule}") unless valid_rule?(rule)
-      end
+    # Add a custom nameserver entry to the custom provider.
+    #
+    # @param [Array<String>] resolvers The list of upstream resolvers that would be used for this custom rule.
+    # @param [Msf::Session::Comm] comm The communication channel to be used for these DNS requests.
+    # @param [String] wildcard The wildcard rule to match a DNS request against.
+    # @param [Integer] index The index at which to insert the rule, defaults to -1 to append it at the end.
+    def add_upstream_rule(resolvers, comm: nil, wildcard: '*', index: -1)
+      resolvers = [resolvers] if resolvers.is_a?(String) # coerce into an array of strings
 
-      entry = {
-        :wildcard_rules => wildcard_rules,
-        :dns_server => dns_server,
-        :comm => comm,
-        :id => self.next_id
-      }
-      self.next_id += 1
-      if wildcard_rules.empty?
-        entries_without_rules << entry
-      else
-        entries_with_rules << entry
-      end
+      @upstream_rules.insert(index, UpstreamRule.new(
+        wildcard: wildcard,
+        resolvers: resolvers,
+        comm: comm
+      ))
     end
 
     #
-    # Remove entries with the given IDs
+    # Remove upstream rules with the given indexes
     # Ignore entries that are not found
     # @param ids [Array<Integer>] The IDs to removed
-    # @return [Array<Hash>] The removed entries
-    #
+    # @return [Array<UpstreamRule>] The removed entries
     def remove_ids(ids)
-      removed= []
-      ids.each do |id|
-        removed_with, remaining_with = self.entries_with_rules.partition {|entry| entry[:id] == id}
-        self.entries_with_rules.replace(remaining_with)
-
-        removed_without, remaining_without = self.entries_without_rules.partition {|entry| entry[:id] == id}
-        self.entries_without_rules.replace(remaining_without)
-
-        removed.concat(removed_with)
-        removed.concat(removed_without)
+      removed = []
+      ids.sort.reverse.each do |id|
+        upstream_rule = @upstream_rules.delete_at(id)
+        removed << upstream_rule if upstream_rule
       end
 
-      removed
+      removed.reverse
     end
 
-    #
-    # The custom nameserver entries that have been configured
-    # @return [Array<Array>] An array containing two elements: The entries with rules, and the entries without rules
-    #
-    def nameserver_entries
-      [entries_with_rules, entries_without_rules]
-    end
-
-    def purge
-      init
+    def flush
+      @upstream_rules.clear
     end
 
     # The nameservers that match the given packet
@@ -160,7 +155,7 @@ module DNS
     # @raise [ResolveError] If the packet contains multiple questions, which would end up sending to a different set of nameservers
     # @return [Array<Array>] A list of nameservers, each with Rex::Socket options
     #
-    def nameservers_for_packet(packet)
+    def upstream_resolvers_for_packet(packet)
       unless feature_set.enabled?(Msf::FeatureManager::DNS_FEATURE)
         return super
       end
@@ -171,33 +166,15 @@ module DNS
       results_from_all_questions = []
       packet.question.each do |question|
         name = question.qname.to_s
-        dns_servers = []
+        upstream_rule = self.upstream_rules.find { |ur| ur.matches_name?(name) }
 
-        self.entries_with_rules.each do |entry|
-          entry[:wildcard_rules].each do |rule|
-            if matches(name, rule)
-              socket_options = {}
-              socket_options['Comm'] = entry[:comm] unless entry[:comm].nil?
-              dns_servers.append([entry[:dns_server], socket_options])
-              break
-            end
-          end
-        end
-
-        # Only look at the rule-less entries if no rules were found (avoids DNS leaks)
-        if dns_servers.empty?
-          self.entries_without_rules.each do |entry|
-            socket_options = {}
-            socket_options['Comm'] = entry[:comm] unless entry[:comm].nil?
-            dns_servers.append([entry[:dns_server], socket_options])
-          end
-        end
-
-        if dns_servers.empty?
+        if upstream_rule
+          upstream_resolvers = upstream_rule.resolvers
+        else
           # Fall back to default nameservers
-          dns_servers = super
+          upstream_resolvers = super
         end
-        results_from_all_questions << dns_servers.uniq
+        results_from_all_questions << upstream_resolvers.uniq
       end
       results_from_all_questions.uniq!
       if results_from_all_questions.size != 1
@@ -215,26 +192,83 @@ module DNS
       self.feature_set = framework.features
     end
 
-    private
-    #
-    # Is the given wildcard DNS entry valid?
-    #
-    def valid_rule?(rule)
-      rule =~ /^(\*\.)?([a-z\d][a-z\d-]*[a-z\d]\.)+[a-z]+$/
+    def upstream_rules
+      @upstream_rules.dup
     end
 
+    private
 
-    def matches(domain, pattern)
-      if pattern.start_with?('*.')
-        domain.downcase.end_with?(pattern[1..-1].downcase)
-      else
-        domain.casecmp?(pattern)
+    def load_config_entries
+      config = Msf::Config.load
+
+      with_rules = []
+      config.fetch("#{CONFIG_KEY_BASE}/entries", {}).each do |_name, value|
+        wildcard, resolvers, uses_comm = value.split(';')
+        wildcard = '*' if wildcard.blank?
+        resolvers = resolvers.split(',')
+        uses_comm.downcase!
+
+        raise Rex::Proto::DNS::Exceptions::ConfigError.new('DNS parsing failed: Comm must be true or false') unless ['true','false'].include?(uses_comm)
+        raise Rex::Proto::DNS::Exceptions::ConfigError.new('Invalid DNS config: Invalid upstream DNS resolver') unless resolvers.all? {|resolver| UpstreamRule.valid_resolver?(resolver) }
+        raise Rex::Proto::DNS::Exceptions::ConfigError.new('Invalid DNS config: Invalid rule') unless UpstreamRule.valid_wildcard?(wildcard)
+
+        comm = uses_comm == 'true' ? CommSink.new : nil
+        with_rules <<  UpstreamRule.new(
+          wildcard: wildcard,
+          resolvers: resolvers,
+          comm: comm
+        )
+      end
+
+      # Now that config has successfully read, update the global values
+      @upstream_rules = with_rules
+    end
+
+    def load_config_static_hostnames
+      config = Msf::Config.load
+
+      static_hostnames.flush
+      config.fetch("#{CONFIG_KEY_BASE}/static_hostnames", {}).each do |_name, value|
+        hostname, ip_addresses = value.split(';', 2)
+        ip_addresses.split(',').each do |ip_address|
+          next if ip_address.blank?
+
+          unless Rex::Socket.is_ip_addr?(ip_address)
+            raise Rex::Proto::DNS::Exceptions::ConfigError.new('Invalid DNS config: Invalid IP address')
+          end
+
+          static_hostnames.add(hostname, ip_address)
+        end
       end
     end
 
-    attr_accessor :entries_with_rules # Set of custom nameserver entries that specify a rule
-    attr_accessor :entries_without_rules # Set of custom nameserver entries that do not include a rule
-    attr_accessor :next_id # The next ID to have been allocated to an entry
+    def save_config_upstream_rules
+      new_config = {}
+      @upstream_rules.each_with_index do |entry, index|
+        val = [
+          entry.wildcard,
+          entry.resolvers.map do |resolver|
+            resolver.type == Rex::Proto::DNS::UpstreamResolver::Type::DNS_SERVER ? resolver.destination : resolver.type.to_s
+          end.join(','),
+          (!entry.comm.nil?).to_s
+        ].join(';')
+        new_config["##{index}"] = val
+      end
+      Msf::Config.save("#{CONFIG_KEY_BASE}/upstream_rules" => new_config)
+    end
+
+    def save_config_static_hostnames
+      new_config = {}
+      static_hostnames.each_with_index do |(hostname, addresses), index|
+        val = [
+          hostname,
+          (addresses.fetch(Dnsruby::Types::A, []) + addresses.fetch(Dnsruby::Types::AAAA, [])).join(',')
+        ].join(';')
+        new_config["##{index}"] = val
+      end
+      Msf::Config.save("#{CONFIG_KEY_BASE}/static_hostnames" => new_config)
+    end
+
     attr_accessor :feature_set
   end
 end

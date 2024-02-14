@@ -14,11 +14,11 @@ module DNS
   class Resolver < Net::DNS::Resolver
 
     Defaults = {
-      :config_file => "/etc/resolv.conf",
+      :config_file => nil,
       :log_file => File::NULL, # formerly $stdout, should be tied in with our loggers
       :port => 53,
       :searchlist => [],
-      :nameservers => [IPAddr.new("127.0.0.1")],
+      :nameservers => [],
       :domain => "",
       :source_port => 0,
       :source_address => IPAddr.new("0.0.0.0"),
@@ -30,21 +30,23 @@ module DNS
       :use_tcp => false,
       :ignore_truncated => false,
       :packet_size => 512,
-      :tcp_timeout => 30,
-      :udp_timeout => 30,
+      :tcp_timeout => TcpTimeout.new(5),
+      :udp_timeout => UdpTimeout.new(5),
       :context => {},
-      :comm => nil
+      :comm => nil,
+      :static_hosts => {}
     }
 
-    attr_accessor :context, :comm
+    attr_accessor :context, :comm, :static_hostnames
     #
     # Provide override for initializer to use local Defaults constant
     #
-    # @param config [Hash] Configuration options as conusumed by parent class
+    # @param config [Hash] Configuration options as consumed by parent class
     def initialize(config = {})
       raise ResolverArgumentError, "Argument has to be Hash" unless config.kind_of? Hash
       # config.key_downcase!
       @config = Defaults.merge config
+      @config[:config_file] ||= self.class.default_config_file
       @raw = false
       # New logger facility
       @logger = Logger.new(@config[:log_file])
@@ -57,8 +59,6 @@ module DNS
       # 3) config file
       # 4) defaults (and /etc/resolv.conf for config)
       #------------------------------------------------------------
-
-
 
       #------------------------------------------------------------
       # Parsing config file
@@ -74,7 +74,8 @@ module DNS
       # Parsing arguments
       #------------------------------------------------------------
       comm = config.delete(:comm)
-      context = context = config.delete(:context)
+      context = config.delete(:context)
+      static_hosts = config.delete(:static_hosts)
       config.each do |key,val|
         next if key == :log_file or key == :config_file
         begin
@@ -83,6 +84,8 @@ module DNS
           raise ResolverArgumentError, "Option #{key} not valid"
         end
       end
+      self.static_hostnames = StaticHostnames.new(hostnames: static_hosts)
+      self.static_hostnames.parse_hosts_file
     end
     #
     # Provides current proxy setting if configured
@@ -115,8 +118,18 @@ module DNS
     #
     # @return [Array<Array>] A list of nameservers, each with Rex::Socket options
     #
-    def nameservers_for_packet(_dns_message)
-      @config[:nameservers].map {|ns| [ns.to_s, {}]}
+    def upstream_resolvers_for_packet(_dns_message)
+      @config[:nameservers].map do |ns|
+        UpstreamResolver.create_dns_server(ns.to_s)
+      end
+    end
+
+    def upstream_resolvers_for_query(name, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
+      name, type, cls = preprocess_query_arguments(name, type, cls)
+      net_packet = make_query_packet(name, type, cls)
+      # This returns a Net::DNS::Packet. Convert to Dnsruby::Message for consistency
+      packet = Rex::Proto::DNS::Packet.encode_drb(net_packet)
+      upstream_resolvers_for_packet(packet)
     end
 
     #
@@ -128,8 +141,6 @@ module DNS
     # @return [Dnsruby::Message] DNS response
     #
     def send(argument, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
-      method = self.use_tcp? ? :send_tcp : :send_udp
-
       case argument
       when Dnsruby::Message
         packet = argument
@@ -141,46 +152,33 @@ module DNS
         packet = Rex::Proto::DNS::Packet.encode_drb(net_packet)
       end
 
-      nameservers = nameservers_for_packet(packet)
-      if nameservers.size == 0
-        raise ResolverError, "No nameservers specified!"
+
+      upstream_resolvers = upstream_resolvers_for_packet(packet)
+      if upstream_resolvers.empty?
+        raise ResolverError, "No upstream resolvers specified!"
       end
 
-      # Store packet_data for performance improvements,
-      # so methods don't keep on calling Packet#encode
-      packet_data = packet.encode
-      packet_size = packet_data.size
-
-      # Choose whether use TCP, UDP
-      if packet_size > @config[:packet_size] # Must use TCP
-        @logger.info "Sending #{packet_size} bytes using TCP due to size"
-        method = :send_tcp
-      else # Packet size is inside the boundaries
-        if use_tcp? or !(proxies.nil? or proxies.empty?) # User requested TCP
-          @logger.info "Sending #{packet_size} bytes using TCP due to tcp flag"
-          method = :send_tcp
-        elsif !supports_udp?(nameservers)
-          @logger.info "Sending #{packet_size} bytes using TCP due to the presence of a non-UDP-compatible comm channel"
-          method = :send_tcp
-        else # Finally use UDP
-          @logger.info "Sending #{packet_size} bytes using UDP"
-          method = :send_udp unless method == :send_tcp
+      ans = nil
+      upstream_resolvers.each do |upstream_resolver|
+        case upstream_resolver.type
+        when UpstreamResolver::Type::BLACK_HOLE
+          ans = resolve_via_blackhole(upstream_resolver, packet, type, cls)
+        when UpstreamResolver::Type::DNS_SERVER
+          ans = resolve_via_dns_server(upstream_resolver, packet, type, cls)
+        when UpstreamResolver::Type::STATIC
+          ans = resolve_via_static(upstream_resolver, packet, type, cls)
+        when UpstreamResolver::Type::SYSTEM
+          ans = resolve_via_system(upstream_resolver, packet, type, cls)
         end
-      end
 
-      if type == Dnsruby::Types::AXFR
-        @logger.warn "AXFR query, switching to TCP" unless method == :send_tcp
-        method = :send_tcp
+        break if (ans and ans[0].length > 0)
       end
-
-      ans = self.__send__(method, packet, packet_data, nameservers)
 
       unless (ans and ans[0].length > 0)
-        @logger.fatal "No response from nameservers list: aborting"
+        @logger.fatal "No response from upstream resolvers: aborting"
         raise NoResponseError
       end
 
-      @logger.info "Received #{ans[0].size} bytes from #{ans[1][2]+":"+ans[1][1].to_s}"
       # response = Net::DNS::Packet.parse(ans[0],ans[1])
       response = Dnsruby::Message.decode(ans[0])
 
@@ -386,28 +384,135 @@ module DNS
     #
     # @return ans [Dnsruby::Message] DNS Response
     def query(name, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN)
+      name, type, cls = preprocess_query_arguments(name, type, cls)
+      @logger.debug "Query(#{name},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
+      send(name,type,cls)
+    end
 
-      return send(name,type,cls) if name.class == IPAddr
+    def self.default_config_file
+      %w[
+        /etc/resolv.conf
+        /data/data/com.termux/files/usr/etc/resolv.conf
+      ].find do |path|
+        File.file?(path) && File.readable?(path)
+      end
+    end
+
+    private
+
+    def preprocess_query_arguments(name, type, cls)
+      return [name, type, cls] if name.class == IPAddr
 
       # If the name doesn't contain any dots then append the default domain.
       if name !~ /\./ and name !~ /:/ and @config[:defname]
         name += "." + @config[:domain]
       end
-
-      @logger.debug "Query(#{name},#{Dnsruby::Types.new(type)},#{Dnsruby::Classes.new(cls)})"
-
-      return send(name,type,cls)
-
+      [name, type, cls]
     end
 
-    private
+    def resolve_via_dns_server(upstream_resolver, packet, type, _cls)
+      method = self.use_tcp? ? :send_tcp : :send_udp
 
-    def supports_udp?(nameserver_results)
-      nameserver_results.each do |nameserver, socket_options|
-        comm = socket_options.fetch('Comm') { @config[:comm] || Rex::Socket::SwitchBoard.best_comm(nameserver) }
-        next if comm.nil?
-        return false unless comm.supports_udp?
+      # Store packet_data for performance improvements,
+      # so methods don't keep on calling Packet#encode
+      packet_data = packet.encode
+      packet_size = packet_data.size
+
+      # Choose whether use TCP, UDP
+      if packet_size > @config[:packet_size] # Must use TCP
+        @logger.info "Sending #{packet_size} bytes using TCP due to size"
+        method = :send_tcp
+      else # Packet size is inside the boundaries
+        if use_tcp? or !(proxies.nil? or proxies.empty?) # User requested TCP
+          @logger.info "Sending #{packet_size} bytes using TCP due to tcp flag"
+          method = :send_tcp
+        elsif !supports_udp?(upstream_resolver)
+          @logger.info "Sending #{packet_size} bytes using TCP due to the presence of a non-UDP-compatible comm channel"
+          method = :send_tcp
+        else # Finally use UDP
+          @logger.info "Sending #{packet_size} bytes using UDP"
+          method = :send_udp unless method == :send_tcp
+        end
       end
+
+      if type == Dnsruby::Types::AXFR
+        @logger.warn "AXFR query, switching to TCP" unless method == :send_tcp
+        method = :send_tcp
+      end
+
+      nameserver = [upstream_resolver.destination, upstream_resolver.socket_options]
+      ans = self.__send__(method, packet, packet_data, [nameserver])
+
+      if (ans and ans[0].length > 0)
+        @logger.info "Received #{ans[0].size} bytes from #{ans[1][2]+":"+ans[1][1].to_s}"
+      end
+
+      ans
+    end
+
+    def resolve_via_blackhole(upstream_resolver, packet, type, cls)
+      # do not just return nil because that will cause the next resolver to be used
+      @logger.info "No response from upstream resolvers: blackholed"
+      raise NoResponseError
+    end
+
+   def resolve_via_static(upstream_resolver, packet, type, cls)
+      simple_name_lookup(upstream_resolver, packet, type, cls) do |name, _family|
+        static_hostnames.get(name, type)
+      end
+   end
+
+    def resolve_via_system(upstream_resolver, packet, type, cls)
+      # This system resolver will use host operating systems `getaddrinfo` (or equivalent function) to perform name
+      # resolution. This is primarily useful if that functionality is hooked or modified by an external application such
+      # as proxychains. This handler though can only process A and AAAA requests.
+      simple_name_lookup(upstream_resolver, packet, type, cls) do |name, family|
+        addrinfos = ::Addrinfo.getaddrinfo(name, 0, family, ::Socket::SOCK_STREAM)
+        addrinfos.map(&:ip_address)
+      end
+    end
+
+    def simple_name_lookup(upstream_resolver, packet, type, cls, &block)
+      return nil unless cls == Dnsruby::Classes::IN
+
+      # todo: make sure this will work if the packet has multiple questions, figure out how that's handled
+      name = packet.question.first.qname.to_s
+      case type
+      when Dnsruby::Types::A
+        family = ::Socket::AF_INET
+      when Dnsruby::Types::AAAA
+        family = ::Socket::AF_INET6
+      else
+        return nil
+      end
+
+      ip_addresses = nil
+      begin
+        ip_addresses = block.call(name, family)
+      rescue StandardError => e
+        @logger.error("The #{upstream_resolver.type} name lookup block failed for #{name}")
+      end
+      return nil unless ip_addresses && !ip_addresses.empty?
+
+      message = Dnsruby::Message.new
+      message.add_question(name, type, cls)
+      ip_addresses.each do |ip_address|
+        message.add_answer(Dnsruby::RR.new_from_hash(
+          name: name,
+          type: type,
+          ttl: 0,
+          address: ip_address.to_s
+        ))
+      end
+      [message.encode]
+    end
+
+    def supports_udp?(upstream_resolver)
+      return false unless upstream_resolver.type == UpstreamResolver::Type::DNS_SERVER
+
+      comm = upstream_resolver.socket_options.fetch('Comm') { @config[:comm] || Rex::Socket::SwitchBoard.best_comm(upstream_resolver.destination) }
+      return false if comm && !comm.supports_udp?
+
       true
     end
   end # Resolver
