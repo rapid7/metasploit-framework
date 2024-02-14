@@ -10,7 +10,11 @@ module Msf::Payload::Adapter::Fetch::HTTP
   end
 
   def cleanup_handler
-    cleanup_http_fetch_service(@fetch_service, @delete_resource)
+    if @fetch_service
+      cleanup_http_fetch_service(@fetch_service, @delete_resource)
+      @fetch_service = nil
+    end
+
     super
   end
 
@@ -20,4 +24,3 @@ module Msf::Payload::Adapter::Fetch::HTTP
   end
 
 end
-
