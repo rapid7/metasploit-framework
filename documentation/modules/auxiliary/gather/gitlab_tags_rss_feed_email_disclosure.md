@@ -4,17 +4,16 @@ Information disclosure affecting all versions of GitLab
 before 16.6.6, 16.7 prior to 16.7.4, and 16.8 prior to 16.8.1
 by sending a GET request to the project URI and appending "-/tags"
 
-## Verification Steps
-
 ### Docker installation instructions can be found here:
 
 https://docs.gitlab.com/ee/install/docker.html
 
-Once installed, create a project. Once the projecte is
+Once installed, create a project. Once the project is
 created, add a new tag by expanding the Code menu item
 on the left, then selecting Tags. Then click on the 
 New Tag button in the top right corner.
 
+## Verification Steps
 
 1. Install the application
 1. Start msfconsole
@@ -24,9 +23,11 @@ New Tag button in the top right corner.
 1. You should receive output with user names and email addresses assocaited with project tags
 
 ## Options
-By default the `TARGETPROJECT` option is empty. This will gather information for ALL PUBLICLY ACCESSIBLE PROJECTS. If you
-know the specific project you would like to target, you would need to set that here.
 
+### TARGETPROJECT
+
+This will gather information for ALL PUBLICLY ACCESSIBLE PROJECTS. IF you know the specific project you would
+like to target, you would need to set that here.
 
 ## Scenarios
 ### Scrape all Workspaces/Projects
