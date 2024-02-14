@@ -53,5 +53,3 @@ group :test do
   gem 'timecop'
 end
 
-# remove after https://github.com/rapid7/rex-socket/pull/65 is landed
-gem 'rex-socket', git: 'https://github.com/zeroSteiner/rex-socket', branch: 'feat/util-is-name'
