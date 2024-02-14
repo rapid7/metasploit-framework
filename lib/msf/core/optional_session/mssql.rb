@@ -9,7 +9,7 @@ module Msf
         super(
           update_info(
             info,
-            'SessionTypes' => %w[MSSQL]
+            'SessionTypes' => %w[mssql]
           )
         )
 

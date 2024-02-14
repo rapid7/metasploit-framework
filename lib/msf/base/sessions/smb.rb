@@ -57,7 +57,7 @@ class Msf::Sessions::SMB
   # Returns the type of session.
   #
   def self.type
-    'SMB'
+    'smb'
   end
 
   def self.can_cleanup_files

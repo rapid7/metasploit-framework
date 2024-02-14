@@ -16,8 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         Enumerates the version of MySQL servers.
       },
       'Author'      => 'kris katterjohn',
-      'License'     => MSF_LICENSE,
-      'SessionTypes' => %w[MySQL],
+      'License'     => MSF_LICENSE
     )
 
     register_options([

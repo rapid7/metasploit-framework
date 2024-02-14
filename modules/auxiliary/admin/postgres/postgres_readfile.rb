@@ -18,8 +18,7 @@ class MetasploitModule < Msf::Auxiliary
           as well as read privileges to the target file.
       },
       'Author'         => [ 'todb' ],
-      'License'        => MSF_LICENSE,
-      'SessionTypes' => %w[PostgreSQL]
+      'License'        => MSF_LICENSE
     ))
 
     register_options(

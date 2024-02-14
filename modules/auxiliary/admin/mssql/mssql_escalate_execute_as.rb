@@ -18,8 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'      => ['nullbind <scott.sutherland[at]netspi.com>'],
       'License'     => MSF_LICENSE,
-      'References'  => [['URL','http://msdn.microsoft.com/en-us/library/ms178640.aspx']],
-      'SessionTypes' => %w[MSSQL]
+      'References'  => [['URL','http://msdn.microsoft.com/en-us/library/ms178640.aspx']]
     ))
   end
 

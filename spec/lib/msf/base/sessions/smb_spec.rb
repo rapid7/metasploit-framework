@@ -12,7 +12,7 @@ RSpec.describe Msf::Sessions::SMB do
   let(:user_output) { instance_double(Rex::Ui::Text::Output::Stdio) }
   let(:name) { 'name' }
   let(:log_source) { "session_#{name}" }
-  let(:type) { 'SMB' }
+  let(:type) { 'smb' }
   let(:description) { 'SMB' }
   let(:can_cleanup_files) { false }
   let(:address) { '192.0.2.1' }

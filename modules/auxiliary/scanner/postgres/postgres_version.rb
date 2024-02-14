@@ -21,8 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'URL', 'https://www.postgresql.org/' ]
-        ],
-        'SessionTypes' => %w[PostgreSQL]
+        ]
     ))
 
     register_options([ ]) # None needed.

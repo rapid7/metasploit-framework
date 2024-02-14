@@ -57,7 +57,7 @@ class Msf::Sessions::PostgreSQL
   # @return [String] The type of the session
   #
   def self.type
-    'PostgreSQL'
+    'postgresql'
   end
 
   #

@@ -49,7 +49,7 @@ class Msf::Sessions::MySQL
 
   # @return [String] The type of the session
   def self.type
-    'MySQL'
+    'mysql'
   end
 
   # @return [Boolean] Can the session clean up after itself

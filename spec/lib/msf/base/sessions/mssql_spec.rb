@@ -15,7 +15,7 @@ RSpec.describe Msf::Sessions::MSSQL do
     { rows: [['mssql']]}
   end
   let(:log_source) { "session_#{name}" }
-  let(:type) { 'MSSQL' }
+  let(:type) { 'mssql' }
   let(:description) { 'MSSQL' }
   let(:can_cleanup_files) { false }
   let(:address) { '192.0.2.1' }

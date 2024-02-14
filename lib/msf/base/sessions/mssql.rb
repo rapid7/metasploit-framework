@@ -53,7 +53,7 @@ class Msf::Sessions::MSSQL
   # Returns the type of session.
   #
   def self.type
-    'MSSQL'
+    'mssql'
   end
 
   def self.can_cleanup_files

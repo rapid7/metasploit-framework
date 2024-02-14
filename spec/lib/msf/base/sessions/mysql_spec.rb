@@ -12,7 +12,7 @@ RSpec.describe Msf::Sessions::MySQL do
   let(:user_output) { instance_double(Rex::Ui::Text::Output::Stdio) }
   let(:name) { 'mysql' }
   let(:log_source) { "session_#{name}" }
-  let(:type) { 'MySQL' }
+  let(:type) { 'mysql' }
   let(:description) { 'MySQL' }
   let(:can_cleanup_files) { false }
   let(:address) { '192.0.2.1' }

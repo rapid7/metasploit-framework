@@ -28,7 +28,6 @@ class MetasploitModule < Msf::Auxiliary
             [ 'URL', 'http://msdn.microsoft.com/en-us/library/cc448435(PROT.10).aspx'],
             [ 'URL', 'https://docs.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-oacreate-transact-sql'],
           ],
-        'SessionTypes' => %w[MSSQL],
       )
     )
 

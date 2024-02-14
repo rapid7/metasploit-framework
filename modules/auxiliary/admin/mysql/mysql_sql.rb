@@ -16,7 +16,6 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'		=> [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
       'License'		=> MSF_LICENSE,
-      'SessionTypes' => %w[MySQL]
     ))
 
     register_options(
