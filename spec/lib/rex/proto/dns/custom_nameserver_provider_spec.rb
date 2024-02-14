@@ -49,7 +49,7 @@ RSpec.describe Rex::Proto::DNS::CustomNameserverProvider do
       packet = packet_for('subdomain.metasploit.com')
       ns = dns_resolver.upstream_resolvers_for_packet(packet)
       expect(ns).to eq([
-        Rex::Proto::DNS::UpstreamResolver.new_dns_server(metasploit_nameserver)
+        Rex::Proto::DNS::UpstreamResolver.create_dns_server(metasploit_nameserver)
       ])
     end
   end
@@ -59,8 +59,8 @@ RSpec.describe Rex::Proto::DNS::CustomNameserverProvider do
       packet = packet_for('subdomain.test.lan')
       ns = dns_resolver.upstream_resolvers_for_packet(packet)
       expect(ns).to eq([
-        Rex::Proto::DNS::UpstreamResolver.new_static,
-        Rex::Proto::DNS::UpstreamResolver.new_dns_server(default_nameserver)
+        Rex::Proto::DNS::UpstreamResolver.create_static,
+        Rex::Proto::DNS::UpstreamResolver.create_dns_server(default_nameserver)
       ])
     end
   end

@@ -540,14 +540,14 @@ class DNS
 
     if add_system_resolver
       # if the user requested that we add the system resolver
-      system_resolver = Rex::Proto::DNS::UpstreamResolver.new_system
+      system_resolver = Rex::Proto::DNS::UpstreamResolver.create_system
       # first find the default, catch-all rule
       default_rule = resolver.upstream_rules.find { |ur| ur.matches_all? }
       if default_rule.nil?
         resolver.add_upstream_rule([ system_resolver ])
       else
         # if the first resolver is for static hostnames, insert after that one
-        if default_rule.resolvers.first&.type == Rex::Proto::DNS::UpstreamResolver::TYPE_STATIC
+        if default_rule.resolvers.first&.type == Rex::Proto::DNS::UpstreamResolver::Type::STATIC
           index = 1
         else
           index = 0
@@ -650,8 +650,8 @@ class DNS
   private
 
   SPECIAL_RESOLVERS = [
-    Rex::Proto::DNS::UpstreamResolver::TYPE_BLACK_HOLE.to_s.downcase,
-    Rex::Proto::DNS::UpstreamResolver::TYPE_SYSTEM.to_s.downcase
+    Rex::Proto::DNS::UpstreamResolver::Type::BLACK_HOLE.to_s.downcase,
+    Rex::Proto::DNS::UpstreamResolver::Type::SYSTEM.to_s.downcase
   ].freeze
 
   # XXX: By default rex-text tables strip preceding whitespace:

@@ -36,10 +36,10 @@ module DNS
     def init
       @upstream_rules = []
 
-      resolvers = [UpstreamResolver.new_static]
+      resolvers = [UpstreamResolver.create_static]
       if @config[:nameservers].empty?
         # if no nameservers are specified, fallback to the system
-        resolvers << UpstreamResolver.new_system
+        resolvers << UpstreamResolver.create_system
       else
         # migrate the originally configured name servers
         resolvers += @config[:nameservers].map(&:to_s)
@@ -248,7 +248,7 @@ module DNS
         val = [
           entry.wildcard,
           entry.resolvers.map do |resolver|
-            resolver.type == Rex::Proto::DNS::UpstreamResolver::TYPE_DNS_SERVER ? resolver.destination : resolver.type.to_s
+            resolver.type == Rex::Proto::DNS::UpstreamResolver::Type::DNS_SERVER ? resolver.destination : resolver.type.to_s
           end.join(','),
           (!entry.comm.nil?).to_s
         ].join(';')

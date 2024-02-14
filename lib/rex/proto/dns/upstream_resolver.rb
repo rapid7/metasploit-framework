@@ -7,10 +7,12 @@ module DNS
   # This represents a single upstream DNS resolver target of one of the predefined types.
   ##
   class UpstreamResolver
-    TYPE_BLACK_HOLE = %s[black-hole]
-    TYPE_DNS_SERVER = %s[dns-server]
-    TYPE_STATIC = :static
-    TYPE_SYSTEM = :system
+    module Type
+      BLACK_HOLE = :"black-hole"
+      DNS_SERVER = :"dns-server"
+      STATIC = :static
+      SYSTEM = :system
+    end
 
     attr_reader :type, :destination, :socket_options
 
@@ -25,34 +27,34 @@ module DNS
     end
 
     # Initialize a new black-hole resolver.
-    def self.new_black_hole
-      self.new(TYPE_BLACK_HOLE)
+    def self.create_black_hole
+      self.new(Type::BLACK_HOLE)
     end
 
     # Initialize a new dns-server resolver.
     #
     # @param [String] destination The IP address of the upstream DNS server.
     # @param [Hash] socket_options Options to use when connecting to the upstream DNS server.
-    def self.new_dns_server(destination, socket_options: {})
+    def self.create_dns_server(destination, socket_options: {})
       self.new(
-        TYPE_DNS_SERVER,
+        Type::DNS_SERVER,
         destination: destination,
         socket_options: socket_options
       )
     end
 
     # Initialize a new static resolver.
-    def self.new_static
-      self.new(TYPE_STATIC)
+    def self.create_static
+      self.new(Type::STATIC)
     end
 
     # Initialize a new system resolver.
-    def self.new_system
-      self.new(TYPE_SYSTEM)
+    def self.create_system
+      self.new(Type::SYSTEM)
     end
 
     def to_s
-      if type == TYPE_DNS_SERVER
+      if type == Type::DNS_SERVER
         destination.to_s
       else
         type.to_s

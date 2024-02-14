@@ -29,15 +29,15 @@ module DNS
         case resolver
         when UpstreamResolver
           resolver
-        when UpstreamResolver::TYPE_BLACK_HOLE
-          UpstreamResolver.new_black_hole
-        when UpstreamResolver::TYPE_STATIC
-          UpstreamResolver.new_static
-        when UpstreamResolver::TYPE_SYSTEM
-          UpstreamResolver.new_system
+        when UpstreamResolver::Type::BLACK_HOLE
+          UpstreamResolver.create_black_hole
+        when UpstreamResolver::Type::STATIC
+          UpstreamResolver.create_static
+        when UpstreamResolver::Type::SYSTEM
+          UpstreamResolver.create_system
         else
           if Rex::Socket.is_ip_addr?(resolver)
-            UpstreamResolver.new_dns_server(resolver, socket_options: socket_options)
+            UpstreamResolver.create_dns_server(resolver, socket_options: socket_options)
           else
             raise ::ArgumentError.new("Invalid upstream DNS resolver: #{resolver}")
           end
@@ -55,9 +55,9 @@ module DNS
 
       resolver = resolver.downcase.to_sym
       [
-        UpstreamResolver::TYPE_BLACK_HOLE,
-        UpstreamResolver::TYPE_STATIC,
-        UpstreamResolver::TYPE_SYSTEM
+        UpstreamResolver::Type::BLACK_HOLE,
+        UpstreamResolver::Type::STATIC,
+        UpstreamResolver::Type::SYSTEM
       ].include?(resolver)
     end
 

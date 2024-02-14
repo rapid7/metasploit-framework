@@ -120,7 +120,7 @@ module DNS
     #
     def upstream_resolvers_for_packet(_dns_message)
       @config[:nameservers].map do |ns|
-        UpstreamResolver.new_dns_server(ns.to_s)
+        UpstreamResolver.create_dns_server(ns.to_s)
       end
     end
 
@@ -161,14 +161,14 @@ module DNS
       ans = nil
       upstream_resolvers.each do |upstream_resolver|
         case upstream_resolver.type
-        when UpstreamResolver::TYPE_BLACK_HOLE
-          ans = send_blackhole(upstream_resolver, packet, type, cls)
-        when UpstreamResolver::TYPE_DNS_SERVER
-          ans = send_dns_server(upstream_resolver, packet, type, cls)
-        when UpstreamResolver::TYPE_STATIC
-          ans = send_static(upstream_resolver, packet, type, cls)
-        when UpstreamResolver::TYPE_SYSTEM
-          ans = send_system(upstream_resolver, packet, type, cls)
+        when UpstreamResolver::Type::BLACK_HOLE
+          ans = resolve_via_blackhole(upstream_resolver, packet, type, cls)
+        when UpstreamResolver::Type::DNS_SERVER
+          ans = resolve_via_dns_server(upstream_resolver, packet, type, cls)
+        when UpstreamResolver::Type::STATIC
+          ans = resolve_via_static(upstream_resolver, packet, type, cls)
+        when UpstreamResolver::Type::SYSTEM
+          ans = resolve_via_system(upstream_resolver, packet, type, cls)
         end
 
         break if (ans and ans[0].length > 0)
@@ -410,7 +410,7 @@ module DNS
       [name, type, cls]
     end
 
-    def send_dns_server(upstream_resolver, packet, type, _cls)
+    def resolve_via_dns_server(upstream_resolver, packet, type, _cls)
       method = self.use_tcp? ? :send_tcp : :send_udp
 
       # Store packet_data for performance improvements,
@@ -450,19 +450,19 @@ module DNS
       ans
     end
 
-    def send_blackhole(upstream_resolver, packet, type, cls)
+    def resolve_via_blackhole(upstream_resolver, packet, type, cls)
       # do not just return nil because that will cause the next resolver to be used
       @logger.info "No response from upstream resolvers: blackholed"
       raise NoResponseError
     end
 
-   def send_static(upstream_resolver, packet, type, cls)
+   def resolve_via_static(upstream_resolver, packet, type, cls)
       simple_name_lookup(upstream_resolver, packet, type, cls) do |name, _family|
         static_hostnames.get(name, type)
       end
    end
 
-    def send_system(upstream_resolver, packet, type, cls)
+    def resolve_via_system(upstream_resolver, packet, type, cls)
       # This system resolver will use host operating systems `getaddrinfo` (or equivalent function) to perform name
       # resolution. This is primarily useful if that functionality is hooked or modified by an external application such
       # as proxychains. This handler though can only process A and AAAA requests.
@@ -508,7 +508,7 @@ module DNS
     end
 
     def supports_udp?(upstream_resolver)
-      return false unless upstream_resolver.type == UpstreamResolver::TYPE_DNS_SERVER
+      return false unless upstream_resolver.type == UpstreamResolver::Type::DNS_SERVER
 
       comm = upstream_resolver.socket_options.fetch('Comm') { @config[:comm] || Rex::Socket::SwitchBoard.best_comm(upstream_resolver.destination) }
       return false if comm && !comm.supports_udp?
