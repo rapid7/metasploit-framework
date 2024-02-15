@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  include Msf::OptionalSession
+  include Msf::OptionalSession::SMB
 
   def initialize
     super(
@@ -30,7 +30,6 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://docs.microsoft.com/en-us/windows/win32/api/lmwksta/nf-lmwksta-netwkstauserenum' ]
         ],
       'License'     => MSF_LICENSE,
-      'SessionTypes' => %w[SMB]
     )
 
     deregister_options('RPORT')

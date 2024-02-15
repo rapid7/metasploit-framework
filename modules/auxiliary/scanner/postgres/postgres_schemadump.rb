@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Postgres
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
-  include Msf::OptionalSession
+  include Msf::OptionalSession::PostgreSQL
 
   def initialize
     super(
@@ -18,7 +18,6 @@ class MetasploitModule < Msf::Auxiliary
       ),
       'Author' => ['theLightCosine'],
       'License' => MSF_LICENSE,
-      'SessionTypes' => %w[PostgreSQL]
     )
     register_options([
       OptBool.new('DISPLAY_RESULTS', [true, 'Display the Results to the Screen', true]),

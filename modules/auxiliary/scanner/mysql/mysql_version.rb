@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
-  include Msf::OptionalSession
+  include Msf::OptionalSession::MySQL
 
   def initialize
     super(
@@ -16,8 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         Enumerates the version of MySQL servers.
       },
       'Author'      => 'kris katterjohn',
-      'License'     => MSF_LICENSE,
-      'SessionTypes' => %w[MySQL],
+      'License'     => MSF_LICENSE
     )
 
     register_options([

@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Util::WindowsRegistry
   include Msf::Util::WindowsCryptoHelpers
-  include Msf::OptionalSession
+  include Msf::OptionalSession::SMB
 
   # Mapping of MS-SAMR encryption keys to IANA Kerberos Parameter values
   #
@@ -74,8 +74,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'LSA', { 'Description' => 'Dump LSA secrets' } ],
           [ 'DOMAIN', { 'Description' => 'Dump domain secrets (credentials, password history, Kerberos keys, etc.)' } ]
         ],
-        'DefaultAction' => 'ALL',
-        'SessionTypes' => %w[SMB]
+        'DefaultAction' => 'ALL'
       )
     )
 

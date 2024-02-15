@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  include Msf::OptionalSession
+  include Msf::OptionalSession::SMB
 
   def initialize
     super(
@@ -26,7 +26,6 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultOptions' => {
         'DCERPC::fake_bind_multi' => false
       },
-      'SessionTypes' => %w[SMB]
     )
 
     register_options(

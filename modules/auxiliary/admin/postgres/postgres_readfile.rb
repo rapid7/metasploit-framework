@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Postgres
   include Msf::Auxiliary::Report
-  include Msf::OptionalSession
+  include Msf::OptionalSession::PostgreSQL
 
   def initialize(info = {})
     super(update_info(info,
@@ -18,8 +18,7 @@ class MetasploitModule < Msf::Auxiliary
           as well as read privileges to the target file.
       },
       'Author'         => [ 'todb' ],
-      'License'        => MSF_LICENSE,
-      'SessionTypes' => %w[PostgreSQL]
+      'License'        => MSF_LICENSE
     ))
 
     register_options(
