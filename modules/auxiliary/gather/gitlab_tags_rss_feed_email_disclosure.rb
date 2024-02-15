@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           'erruquill' # HackerOne Bug Bounty, analysis
         ],
         'References' => [
-          [ 'URL', 'https://gitlab.com/gitlab-org/gitlab/-/issues/428441' ],
+          [ 'URL', 'https://about.gitlab.com/releases/2024/01/25/critical-security-release-gitlab-16-8-1-released/' ],
           [ 'URL', 'https://hackerone.com/reports/2208790'],
           [ 'CVE', '2023-5612']
         ],
@@ -54,6 +54,8 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, tags, '-', 'tags'),
       'method' => 'GET', 'vars_get' => { 'format' => 'atom' }
     )
+
+    fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
 
     if res.code == 200
       xml_res = res.get_xml_document
