@@ -1,7 +1,8 @@
 FROM ruby:3.1.4-alpine3.18 AS builder
 LABEL maintainer="Rapid7"
 
-ARG BUNDLER_CONFIG_ARGS="set clean 'true' set no-cache 'true' set system 'true' set without 'development test coverage'"
+ARG BUNDLER_CONFIG_ARGS="set no-cache 'true' set system 'true' set without 'development test coverage'"
+ARG BUNDLER_FORCE_CLEAN="true"
 ENV APP_HOME=/usr/src/metasploit-framework
 ENV TOOLS_HOME=/usr/src/tools
 ENV BUNDLE_IGNORE_MESSAGES="true"
@@ -33,8 +34,11 @@ RUN apk add --no-cache \
       go \
     && echo "gem: --no-document" > /etc/gemrc \
     && gem update --system \
-    && bundle config $BUNDLER_ARGS \
+    && bundle config $BUNDLER_CONFIG_ARGS \
     && bundle install --jobs=8 \
+    && if [ "${BUNDLER_FORCE_CLEAN}" == "true" ]; then \
+         bundle clean --force; \
+       fi \
     # temp fix for https://github.com/bundler/bundler/issues/6680
     && rm -rf /usr/local/bundle/cache \
     # needed so non root users can read content of the bundle
