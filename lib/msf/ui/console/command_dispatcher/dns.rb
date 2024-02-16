@@ -401,6 +401,7 @@ class DNS
       'Prefix'    => "\n",
       'Postfix'   => "\n",
       'Columns'   => ['Hostname', 'IP Address', 'Rule #', 'Rule', 'Resolver', 'Comm channel'],
+      'ColProps'  => { 'Hostname' => { 'Strip' => false } },
       'SortIndex' => -1,
       'WordWrap'  => false
     )
@@ -631,6 +632,7 @@ class DNS
       'Prefix'    => "\n",
       'Postfix'   => "\n",
       'Columns'   => ['Hostname', 'IPv4 Address', 'IPv6 Address'],
+      'ColProps'  => { 'Hostname' => { 'Strip' => false } },
       'SortIndex' => -1,
       'WordWrap'  => false
     )
@@ -654,11 +656,7 @@ class DNS
     Rex::Proto::DNS::UpstreamResolver::Type::SYSTEM.to_s.downcase
   ].freeze
 
-  # XXX: By default rex-text tables strip preceding whitespace:
-  #   https://github.com/rapid7/rex-text/blob/1a7b63993
-  # ca62fd9102665d6986f918ae42cae244e/lib/rex/text/table.rb#L221-L222
-  #   So use https://en.wikipedia.org/wiki/Non-breaking_space as a workaround for now. A change should exist in Rex-Text to support this requirement
-  TABLE_INDENT = "\xc2\xa0\xc2\xa0\\_ ".freeze
+  TABLE_INDENT = "  \\_ ".freeze
 
   #
   # Get user-friendly text for displaying the session that this entry would go through
@@ -685,6 +683,7 @@ class DNS
   def print_dns_set(heading, result_set, ids: [])
     return if result_set.length == 0
     columns = ['#', 'Rule', 'Resolver', 'Comm channel']
+    col_props = { 'Rule' => { 'Strip' => false } }
 
     tbl = Table.new(
       Table::Style::Default,
@@ -692,6 +691,7 @@ class DNS
       'Prefix'    => "\n",
       'Postfix'   => "\n",
       'Columns'   => columns,
+      'ColProps' => col_props,
       'SortIndex' => -1,
       'WordWrap'  => false
     )
