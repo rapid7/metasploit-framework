@@ -23,6 +23,7 @@ module Rex
             # The mysql client context
             self.session = session
             self.client = session.client
+            self.client.socket ||= self.client.io
             prompt = "%undMySQL @ #{client.socket.peerinfo} (#{database_name})%clr"
             history_manager = Msf::Config.mysql_session_history
             super(prompt, '>', history_manager, nil, :mysql)
