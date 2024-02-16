@@ -29,7 +29,7 @@ All of the above features can also be logically separated within workspaces. By 
 
 ## Using msfdb
 
-Using msfdb is simple. If you are starting the database for the first time navigate to the folder Metasploit is saved to, and run `./msfdb init`.
+Using msfdb is simple. If you are starting the database for the first time navigate to the folder Metasploit is saved to, and run `./msfdb init`
 ```
 Creating database at /Users/your_current_account_name/.msf4/db
 Starting database at /Users/your_current_account_name/.msf4/db...success
@@ -39,9 +39,14 @@ Starting database at /Users/your_current_account_name/.msf4/db...success
 Creating initial database schema
 ```
 
-This looks like a lot of information, but all it's saying is that it's creating the database Metasploit will use to store information.
+This looks like a lot of information, but all it's saying is that it's creating the database Metasploit will use to store information.  If you start up msfconsole now it should automatically connect to the database, and if you run `db_status` you should see something like this:
 
-msfdb then needs to establish the credentials that are used in the Web Service. The Web Service is how Metasploit connects to the database we have just created. The first prompt asks you what username you want to use to connect to the database.
+```
+msf6 > db_status
+[*] Connected to msf. Connection type: postgresql.
+```
+
+You can also setup a Web Service, which Metasploit can use to connect to the database you have just created.  Msfdb needs to establish the credentials that are used in the Web Service. If you run `msfdb --component webservice init` the first prompt asks you what username you want to use to connect to the database:
 
 ```
 [?] Initial MSF web service account username? [your_current_account_name]:
