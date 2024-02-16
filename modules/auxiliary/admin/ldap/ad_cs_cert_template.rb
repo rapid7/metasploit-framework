@@ -393,7 +393,22 @@ class MetasploitModule < Msf::Auxiliary
     if obj['pkiextendedkeyusage'].present?
       print_status('  pKIExtendedKeyUsage:')
       obj['pkiextendedkeyusage'].each do |value|
-        print_status("    * #{value}")
+        if (oid = Rex::Proto::CryptoAsn1::OIDs.value(value)) && oid.label.present?
+          print_status("    * #{value} (#{oid.label})")
+        else
+          print_status("    * #{value}")
+        end
+      end
+    end
+
+    if obj['mspki-certificate-policy'].present?
+      if obj['mspki-certificate-policy'].length == 1
+        print_status("  msPKI-Certificate-Policy: #{obj['mspki-certificate-policy'].first}")
+      else
+        print_status('  msPKI-Certificate-Policy:')
+        obj['mspki-certificate-policy'].each do |value|
+          print_status("    * #{value}")
+        end
       end
     end
   end
