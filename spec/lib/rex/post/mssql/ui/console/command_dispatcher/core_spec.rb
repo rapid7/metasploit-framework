@@ -9,7 +9,7 @@ RSpec.describe Rex::Post::MSSQL::Ui::Console::CommandDispatcher::Core do
   let(:query_result) do
     { rows: [['mssql']]}
   end
-  let(:session) { Msf::Sessions::MSSQL.new(nil, { client: client, cwd: 'mssql' }) }
+  let(:session) { Msf::Sessions::MSSQL.new(nil, { client: client }) }
   let(:address) { '192.0.2.1' }
   let(:port) { '1433' }
   let(:peer_info) { "#{address}:#{port}" }

@@ -26,8 +26,7 @@ module Rex
             # The mssql client context
             self.session = session
             self.client = session.client
-            self.cwd = session.client.mssql_query('SELECT DB_NAME();')[:rows][0][0]
-            prompt = "%undMSSQL @ #{client.sock.peerinfo} (#{cwd})%clr"
+            prompt = "%undMSSQL @ #{client.sock.peerinfo} (#{database_name})%clr"
             history_manager = Msf::Config.mssql_session_history
             super(prompt, '>', history_manager, nil, :mssql)
 
@@ -126,13 +125,14 @@ module Rex
           attr_reader :client
 
           # @return [String]
-          attr_accessor :cwd
+          def database_name
+            session.client.mssql_query('SELECT DB_NAME();')[:rows][0][0]
+          end
 
           # @param [Object] val
           # @return [String]
           def format_prompt(val)
-            self.cwd ||= ''
-            prompt = "%undMSSQL @ #{client.sock.peerinfo} (#{@cwd})%clr > "
+            prompt = "%undMSSQL @ #{client.sock.peerinfo} (#{database_name})%clr > "
             substitute_colors(prompt, true)
           end
 
