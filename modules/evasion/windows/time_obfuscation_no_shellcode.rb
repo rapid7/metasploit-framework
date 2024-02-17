@@ -154,7 +154,6 @@ class MetasploitModule < Msf::Evasion
 
   def get_includes
     [
-      "#include \"#{File.join(Msf::Config.install_root, 'data', 'headers', 'windows')}/rc4.h\"",
       '#include <windows.h>',
       '#include <psapi.h>',
       '#include <wininet.h>',
@@ -163,8 +162,9 @@ class MetasploitModule < Msf::Evasion
       '#include <time.h>',
       '#include <stdlib.h>',
       '#include <string.h>',
-      '#include <winsock2.h>'
-    ].shuffle.join("\n")
+      '#include <winsock2.h>',
+      "#include \"#{File.join(Msf::Config.install_root, 'data', 'headers', 'windows')}/rc4.h\""
+    ].join("\n")
   end
 
   def get_time_distorsion
