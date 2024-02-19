@@ -121,16 +121,20 @@ class Connection
     end
   end
 
-  def address
+  def peerhost
     @conn.peerhost
   end
 
-  def port
+  def peerport
     @conn.peerport
   end
 
   def current_database
     @params['database']
+  end
+
+  def peerinfo
+    "#{peerhost}:#{peerport}"
   end
 
   def close

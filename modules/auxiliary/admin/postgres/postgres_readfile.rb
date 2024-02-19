@@ -47,13 +47,13 @@ class MetasploitModule < Msf::Auxiliary
     when :sql_error
       case ret[:sql_error]
       when /^C58P01/
-        print_error "#{postgres_conn.address}:#{postgres_conn.port} Postgres - No such file or directory."
-        vprint_status "#{postgres_conn.address}:#{postgres_conn.port} Postgres - #{ret[:sql_error]}"
+        print_error "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - No such file or directory."
+        vprint_status "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - #{ret[:sql_error]}"
       when /^C42501/
-        print_error "#{postgres_conn.address}:#{postgres_conn.port} Postgres - Insufficient file permissions."
-        vprint_status "#{postgres_conn.address}:#{postgres_conn.port} Postgres - #{ret[:sql_error]}"
+        print_error "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - Insufficient file permissions."
+        vprint_status "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - #{ret[:sql_error]}"
       else
-        print_error "#{postgres_conn.address}:#{postgres_conn.port} Postgres - #{ret[:sql_error]}"
+        print_error "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - #{ret[:sql_error]}"
       end
     when :complete
       loot = ''
@@ -62,9 +62,9 @@ class MetasploitModule < Msf::Auxiliary
         loot << row.first
       }
       # No idea what the actual ctype will be, text/plain is just a guess
-      path = store_loot('postgres.file', 'text/plain', postgres_conn.address, loot, datastore['RFILE'])
-      print_good("#{postgres_conn.address}:#{postgres_conn.port} Postgres - #{datastore['RFILE']} saved in #{path}")
-      vprint_good  "#{postgres_conn.address}:#{postgres_conn.port} Postgres - Command complete."
+      path = store_loot('postgres.file', 'text/plain', postgres_conn.peerhost, loot, datastore['RFILE'])
+      print_good("#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - #{datastore['RFILE']} saved in #{path}")
+      vprint_good  "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - Command complete."
     end
     postgres_logout if self.postgres_conn && session.blank?
   end

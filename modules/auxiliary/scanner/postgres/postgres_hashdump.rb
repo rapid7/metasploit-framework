@@ -42,8 +42,8 @@ class MetasploitModule < Msf::Auxiliary
     res = postgres_query('SELECT usename, passwd FROM pg_shadow',false)
 
     service_data = {
-        address: postgres_conn.address,
-        port: postgres_conn.port,
+        address: postgres_conn.peerhost,
+        port: postgres_conn.peerport,
         service_name: 'postgres',
         protocol: 'tcp',
         workspace_id: myworkspace_id
@@ -79,10 +79,10 @@ class MetasploitModule < Msf::Auxiliary
 
       case res[:sql_error]
       when /^C42501/
-        print_error "#{postgres_conn.address}:#{postgres_conn.port} Postgres - Insufficient permissions."
+        print_error "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - Insufficient permissions."
         return
       else
-        print_error "#{postgres_conn.address}:#{postgres_conn.port} Postgres - #{res[:sql_error]}"
+        print_error "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - #{res[:sql_error]}"
         return
       end
     when :complete
@@ -107,8 +107,8 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     service_data = {
-        address: postgres_conn.address,
-        port: postgres_conn.port,
+        address: postgres_conn.peerhost,
+        port: postgres_conn.peerport,
         service_name: 'postgres',
         protocol: 'tcp',
         workspace_id: myworkspace_id

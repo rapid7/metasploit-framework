@@ -18,6 +18,11 @@ module Rex
           io.remote_address.ip_port
         end
 
+        # @return [String] The remote peer information containing IP and port
+        def peerinfo
+          "#{peerhost}:#{peerport}"
+        end
+
         # @return [String] The database this client is currently connected to
         def current_database
           # Current database is stored as an array under the type 1 key.

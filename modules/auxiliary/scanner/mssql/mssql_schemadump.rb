@@ -45,29 +45,29 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Instance Name: #{instancename.inspect}")
     version = mssql_query(mssql_sql_info())[:rows][0][0]
-    output = "Microsoft SQL Server Schema \n Host: #{mssql_client.address} \n Port: #{mssql_client.port} \n Instance: #{instancename} \n Version: #{version} \n====================\n\n"
+    output = "Microsoft SQL Server Schema \n Host: #{mssql_client.peerhost} \n Port: #{mssql_client.peerport} \n Instance: #{instancename} \n Version: #{version} \n====================\n\n"
 
     # Grab all the DB schema and save it as notes
     mssql_schema = get_mssql_schema
     return nil if mssql_schema.nil? or mssql_schema.empty?
     mssql_schema.each do |db|
       report_note(
-        :host  => rhost,
+        :host  => mssql_client.peerhost,
         :type  => "mssql.db.schema",
         :data  => db,
-        :port  => mssql_client.port,
+        :port  => mssql_client.peerport,
         :proto => 'tcp',
         :update => :unique_data
       )
     end
     output << YAML.dump(mssql_schema)
     this_service = report_service(
-          :host  => mssql_client.address,
-          :port => mssql_client.port,
+          :host  => mssql_client.peerhost,
+          :port => mssql_client.peerport,
           :name => 'mssql',
           :proto => 'tcp'
           )
-    store_loot('mssql_schema', "text/plain", mssql_client.address, output, "#{mssql_client.address}_mssql_schema.txt", "MS SQL Schema", this_service)
+    store_loot('mssql_schema', "text/plain", mssql_client.peerhost, output, "#{mssql_client.peerhost}_mssql_schema.txt", "MS SQL Schema", this_service)
     print_good output if datastore['DISPLAY_RESULTS']
   end
 

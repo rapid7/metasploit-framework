@@ -661,12 +661,16 @@ module Rex
           self.initial_connection_info[:envs]&.select { |hash| hash[:type] == envchange }&.first || {}
         end
 
-        def address
+        def peerhost
           rhost
         end
 
-        def port
+        def peerport
           rport
+        end
+
+        def peerinfo
+          "#{peerhost}:#{peerport}"
         end
 
         protected

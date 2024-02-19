@@ -93,6 +93,13 @@ module Rex
             client.reset_ui
           end
 
+          # @param [Object] val
+          # @return [String]
+          def format_prompt(val)
+            prompt = "%und#{session.type} @ #{client.peerinfo} (#{current_database})%clr > "
+            substitute_colors(prompt, true)
+          end
+
           #
           # Log that an error occurred.
           #

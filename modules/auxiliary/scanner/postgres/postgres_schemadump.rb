@@ -26,6 +26,14 @@ class MetasploitModule < Msf::Auxiliary
     deregister_options('SQL', 'RETURN_ROWSET', 'VERBOSE')
   end
 
+  def rhost
+    self.postgres_conn.peerhost
+  end
+
+  def rport
+    self.postgres_conn.peerport
+  end
+
   def run_host(_ip)
     if session
       print_status 'When targeting a session, only the current database can be dumped.'

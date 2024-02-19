@@ -30,8 +30,6 @@ module Msf::Post::Common
       session.sock.peerhost
     when 'shell', 'powershell'
       session.session_host
-    when 'postgresql', 'mysql'
-      session.address
     end
   rescue
     return nil
@@ -45,8 +43,6 @@ module Msf::Post::Common
       session.sock.peerport
     when 'shell', 'powershell'
       session.session_port
-    when 'postgresql', 'mysql'
-      session.port
     end
   rescue
     return nil
