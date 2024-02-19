@@ -21,8 +21,7 @@ class MetasploitModule < Msf::Auxiliary
           as loot for easy reading.
       },
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE,
-      'SessionTypes'   => %w[MSSQL],
+      'License'        => MSF_LICENSE
     )
 
     register_options([

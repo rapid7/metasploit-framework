@@ -18,8 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         supplied.
       },
       'Author'         => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
-      'License'        => MSF_LICENSE,
-      'SessionTypes'   => %w[MSSQL],
+      'License'        => MSF_LICENSE
     ))
   end
 
