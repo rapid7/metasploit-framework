@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
         scanner = Metasploit::Framework::LoginScanner::MySQL.new(
             host: ip,
             port: rport,
-            proxies: datastore['PROXIES'],
+            proxies: datastore['Proxies'],
             cred_details: cred_collection,
             stop_on_success: datastore['STOP_ON_SUCCESS'],
             bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
@@ -183,7 +183,7 @@ class MetasploitModule < Msf::Auxiliary
   def session_setup(result, client)
     return unless (result && client)
 
-    rstream = client.socket
+    rstream = client.socket || client.io
 
     my_session = Msf::Sessions::MySQL.new(rstream, { client: client })
     merging = {
