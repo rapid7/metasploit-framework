@@ -17,8 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         hashes from a Postgres server and stores them for later cracking.
       },
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE,
-      'SessionTypes'   => %w[PostgreSQL]
+      'License'        => MSF_LICENSE
     )
     deregister_options('SQL', 'RETURN_ROWSET', 'VERBOSE')
 

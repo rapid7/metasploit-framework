@@ -20,8 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'URL', 'http://www.attackresearch.com' ],
           [ 'URL', 'http://msdn.microsoft.com/en-us/library/cc448435(PROT.10).aspx'],
-        ],
-      'SessionTypes'   => %w[MSSQL],
+        ]
     ))
 
     register_options(

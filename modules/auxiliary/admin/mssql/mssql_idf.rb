@@ -30,8 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'URL', 'http://www.digininja.org/metasploit/mssql_idf.php' ],
-        ],
-      'SessionTypes'   => %w[MSSQL]
+        ]
     ))
 
     register_options(
