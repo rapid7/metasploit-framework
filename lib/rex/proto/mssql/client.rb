@@ -43,7 +43,7 @@ module Rex
         #   @return [Integer] The delay between sending packets
         attr_accessor :send_delay
 
-        def initialize(framework_module, framework, rhost, rport = 1433)
+        def initialize(framework_module, framework, rhost, rport = 1433, proxies = nil)
           @framework_module       = framework_module
           @framework              = framework
           @connection_timeout     = framework_module.datastore['ConnectTimeout']      || 30
@@ -60,6 +60,7 @@ module Rex
           @domain_controller_rhost = framework_module.datastore['DomainControllerRhost'] || ''
           @rhost = rhost
           @rport = rport
+          @proxies = proxies
         end
 
         #
