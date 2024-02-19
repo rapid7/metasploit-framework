@@ -15,7 +15,32 @@ RSpec.describe Rex::Proto::LDAP::Server do
 
   let(:response) {}
 
+  let(:tcp_server_socket) do
+    double :tcp_server_socket,
+          start: nil,
+          :on_client_connect_proc= => nil,
+          :on_client_data_proc= => nil,
+          closed?: false,
+          close: nil
+  end
+
+  let(:udp_server_socket) do
+    double :udp_server_socket,
+           start: nil,
+           :on_client_connect_proc= => nil,
+           :on_client_data_proc= => nil,
+           closed?: false,
+           close: nil
+  end
+
+  let(:udp_monitor_thread) do
+    instance_double ::Thread, alive?: true
+  end
+
   before do
+    allow(Rex::Socket::TcpServer).to receive(:create).and_return(tcp_server_socket)
+    allow(Rex::Socket::Udp).to receive(:create).and_return(udp_server_socket)
+    allow(Rex::ThreadFactory).to receive(:spawn).with('UDPLDAPServerListener', false).and_return(udp_monitor_thread)
     server.processed_pdu_handler(Net::LDAP::PDU::BindRequest) do |processed_data|
       processed_data = 'Processed Data'
     end
@@ -54,17 +79,16 @@ RSpec.describe Rex::Proto::LDAP::Server do
     context 'start server with the provided options' do
       before { server.start }
 
-
       it 'starts the UDP server if serve_udp is true' do
         if server.serve_udp
-          expect(server.udp_sock).to be_a(Rex::Socket::Udp)
+          expect(server.udp_sock).to be udp_server_socket
           expect(server.running?).to be true
         end
       end
 
       it 'starts the TCP server if serve_tcp is true' do
         if server.serve_tcp
-          expect(server.tcp_sock).to be_a(Rex::Socket::TcpServer)
+          expect(server.tcp_sock).to be tcp_server_socket
           expect(server.running?).to be true
         end
       end
