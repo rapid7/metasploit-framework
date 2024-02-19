@@ -23,8 +23,7 @@ module Rex
             # The mysql client context
             self.session = session
             self.client = session.client
-            self.cwd = client.database
-            prompt = "%undMySQL @ #{client.socket.peerinfo} (#{cwd})%clr"
+            prompt = "%undMySQL @ #{client.socket.peerinfo} (#{database_name})%clr"
             history_manager = Msf::Config.mysql_session_history
             super(prompt, '>', history_manager, nil, :mysql)
 
@@ -119,13 +118,14 @@ module Rex
           attr_reader :client
 
           # @return [String]
-          attr_accessor :cwd
+          def database_name
+            client.database
+          end
 
           # @param [Object] val
           # @return [String]
           def format_prompt(val)
-            @cwd ||= client.database
-            prompt = "%undMySQL @ #{client.socket.peerinfo} (#{@cwd})%clr > "
+            prompt = "%undMySQL @ #{client.socket.peerinfo} (#{database_name})%clr > "
             substitute_colors(prompt, true)
           end
 

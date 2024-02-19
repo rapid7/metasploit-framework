@@ -6,7 +6,7 @@ require 'rex/post/mssql/ui/console/command_dispatcher/core'
 RSpec.describe Msf::Sessions::MSSQL do
   let(:rstream) { instance_double(::Rex::Socket) }
   let(:client) { instance_double(Rex::Proto::MSSQL::Client) }
-  let(:opts) { { client: client, cwd: 'name' } }
+  let(:opts) { { client: client } }
   let(:console_class) { Rex::Post::MSSQL::Ui::Console }
   let(:user_input) { instance_double(Rex::Ui::Text::Input::Readline) }
   let(:user_output) { instance_double(Rex::Ui::Text::Output::Stdio) }

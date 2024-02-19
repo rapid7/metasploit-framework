@@ -133,7 +133,7 @@ class MetasploitModule < Msf::Auxiliary
   def session_setup(result, client)
     return unless (result && client)
     rstream = client.sock
-    my_session = Msf::Sessions::MSSQL.new(rstream, { client: client }) # is cwd right?
+    my_session = Msf::Sessions::MSSQL.new(rstream, { client: client })
     merging = {
       'USERPASS_FILE' => nil,
       'USER_FILE'     => nil,
