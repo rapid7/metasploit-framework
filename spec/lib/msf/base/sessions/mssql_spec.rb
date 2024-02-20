@@ -11,9 +11,6 @@ RSpec.describe Msf::Sessions::MSSQL do
   let(:user_input) { instance_double(Rex::Ui::Text::Input::Readline) }
   let(:user_output) { instance_double(Rex::Ui::Text::Output::Stdio) }
   let(:name) { 'mssql' }
-  let(:query_result) do
-    { rows: [['mssql']]}
-  end
   let(:log_source) { "session_#{name}" }
   let(:type) { 'mssql' }
   let(:description) { 'MSSQL' }
@@ -26,12 +23,13 @@ RSpec.describe Msf::Sessions::MSSQL do
     console.disable_output = true
     console
   end
+  let(:envchange_result) { { type: 1, old: 'master', new: 'master' } }
 
   before(:each) do
     allow(user_input).to receive(:intrinsic_shell?).and_return(true)
     allow(user_input).to receive(:output=)
     allow(client).to receive(:sock).and_return(rstream)
-    allow(client).to receive(:mssql_query).with('SELECT DB_NAME();').and_return(query_result)
+    allow(client).to receive(:initial_info_for_envchange).with({ envchange: 1 }).and_return(envchange_result)
     allow(rstream).to receive(:peerinfo).and_return(peer_info)
   end
 

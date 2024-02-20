@@ -42,6 +42,10 @@ module Rex
         # @!attribute send_delay
         #   @return [Integer] The delay between sending packets
         attr_accessor :send_delay
+        # @!attribute initial_connection_info
+        #   @return [Hash] Key-value pairs received from the server during the initial MSSQL connection.
+        # See the spec here: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-tds/b46a581a-39de-4745-b076-ec4dbb7d13ec
+        attr_accessor :initial_connection_info
 
         def initialize(framework_module, framework, rhost, rport = 1433, proxies = nil)
           @framework_module       = framework_module
@@ -176,6 +180,7 @@ module Rex
 
             info = {:errors => []}
             info = mssql_parse_reply(resp, info)
+            self.initial_connection_info = info
 
             return false if not info
             return info[:login_ack] ? true : false
@@ -407,6 +412,7 @@ module Rex
 
           info = {:errors => []}
           info = mssql_parse_reply(resp, info)
+          self.initial_connection_info = info
 
           return false if not info
           info[:login_ack] ? true : false
@@ -639,6 +645,17 @@ module Rex
           print_status("Executing the payload...")
           mssql_xpcmdshell("%TEMP%\\#{var_payload}.exe", false, {:timeout => 1})
           print_status("Be sure to cleanup #{var_payload}.exe...")
+        end
+
+        # @param [ENVCHANGE] envchange The ENVCHANGE type to get the information for.
+        # @return [Hash] Returns a hash of values if the provided type exists.
+        # @return [Hash] Returns the whole connection info if envchange is nil.
+        # @return [Hash] Returns an empty hash if the provided type is not present.
+        def initial_info_for_envchange(envchange: nil)
+          return self.initial_connection_info if envchange.nil?
+          return nil unless (self.initial_connection_info && self.initial_connection_info.is_a?(::Hash))
+
+          self.initial_connection_info[:envs]&.select { |hash| hash[:type] == envchange }&.first || {}
         end
 
         def address
