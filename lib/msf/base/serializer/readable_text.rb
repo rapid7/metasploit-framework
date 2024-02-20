@@ -569,7 +569,7 @@ class ReadableText
   # @param missing [Boolean] dump only empty required options.
   # @return [String] the string form of the information.
   def self.dump_options(mod, indent = '', missing = false, advanced: false, evasion: false)
-    filtered_options = mod.options.filter_map { |_name, opt| opt if opt.advanced? == advanced && opt.evasion? == evasion }
+    filtered_options = mod.options.values.select { |opt| opt.advanced? == advanced && opt.evasion? == evasion }
 
     options_grouped_by_conditions = filtered_options.group_by(&:conditions)
 
@@ -591,6 +591,14 @@ class ReadableText
     result
   end
 
+  # Creates the table for the given module options
+  #
+  # @param missing [Boolean] dump only empty required options.
+  # @param mod [Msf::Module] the module.
+  # @param options [Array<Msf::OptBase>] The options to be added to the table
+  # @param indent [String] the indentation to use.
+  #
+  # @return [String] the string form of the table.
   def self.options_table(missing, mod, options, indent)
     tbl = Rex::Text::Table.new(
       'Indent' => indent.length,

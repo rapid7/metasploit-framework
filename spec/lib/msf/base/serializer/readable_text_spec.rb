@@ -246,7 +246,6 @@ RSpec.describe Msf::Serializer::ReadableText do
     end
   end
 
-
   describe '.dump_description' do
     context 'when the module description is nil' do
       it 'dumps the module description' do
