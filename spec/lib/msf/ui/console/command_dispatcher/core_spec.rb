@@ -83,7 +83,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
     end
   end
 
-  describe '#cmd_set', if: ENV['DATASTORE_FALLBACKS'] do
+  describe '#cmd_set' do
     let(:mod) { nil }
 
     before(:each) do
@@ -198,7 +198,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
     end
   end
 
-  describe '#cmd_unset', if: ENV['DATASTORE_FALLBACKS'] do
+  describe '#cmd_unset' do
     let(:mod) { nil }
 
     before(:each) do
