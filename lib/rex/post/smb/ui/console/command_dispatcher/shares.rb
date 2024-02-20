@@ -55,6 +55,7 @@ module Rex
             cmds = {
               'shares' => 'View the available shares and interact with one',
               'ls' => 'List all files in the current directory',
+              'dir' => 'List all files in the current directory (alias for ls)',
               'pwd' => 'Print the current remote working directory',
               'cd' => 'Change the current remote working directory',
               'cat' => 'Read the file at the given path'
@@ -181,11 +182,30 @@ module Rex
             print_line table.to_s
           end
 
+          def cmd_ls_help
+            print_line 'Usage:'
+            print_line 'ls [options] [path]'
+            print_line
+            print_line 'COMMAND ALIASES:'
+            print_line
+            print_line '    dir'
+            print_line
+            print_line 'Lists contents of directory or file info'
+            print_line @@ls_opts.usage
+          end
+
           def cmd_ls_tabs(_str, words)
             return [] if words.length > 1
 
             @@ls_opts.option_keys
           end
+
+          #
+          # Alias the ls command to dir, for those of us who have windows muscle-memory
+          #
+          alias cmd_dir cmd_ls
+          alias cmd_dir_help cmd_ls_help
+          alias cmd_dir_tabs cmd_ls_tabs
 
           def cmd_pwd_help
             print_line 'Usage: pwd'
