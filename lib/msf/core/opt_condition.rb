@@ -3,9 +3,10 @@
 module Msf
   module OptCondition
     # Check a condition's result
-    # @param [Msf::Module] mod The module module
-    # @param [Msf::OptBase] opt the option which has conditions present
-    # @return [String]
+    # @param [String] left_value The left hand side of the condition
+    # @param [String] operator The conditions comparison operator
+    # @param [String] right_value The right hand side of the condition
+    # @return [Boolean]
     def self.eval_condition(left_value, operator, right_value)
       case operator.to_sym
       when :==
@@ -16,6 +17,8 @@ module Msf
         right_value.include?(left_value)
       when :nin
         !right_value.include?(left_value)
+      else
+        raise ArgumentError("Operator: #{operator} is invalid")
       end
     end
 

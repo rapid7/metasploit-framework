@@ -571,7 +571,13 @@ class ReadableText
   def self.dump_options(mod, indent = '', missing = false, advanced: false, evasion: false)
     filtered_options = mod.options.values.select { |opt| opt.advanced? == advanced && opt.evasion? == evasion }
 
-    options_grouped_by_conditions = filtered_options.group_by(&:conditions)
+    option_groups = mod.options.groups.map { |_name, group| group }.sort_by(&:name)
+    options_by_group = option_groups.map do |group|
+      [group, group.option_names.map { |name| mod.options[name] }.compact]
+    end.to_h
+    grouped_option_names = option_groups.flat_map(&:option_names)
+    remaining_options = filtered_options.reject { |option| grouped_option_names.include?(option.name) }
+    options_grouped_by_conditions = remaining_options.group_by(&:conditions)
 
     option_tables = []
 
@@ -585,6 +591,11 @@ class ReadableText
       else
         option_tables << tbl.to_s
       end
+    end
+
+    options_by_group.each do |group, options|
+      tbl = options_table(missing, mod, options, indent)
+      option_tables << "#{indent}#{group.description}:\n\n#{tbl}"
     end
 
     result = option_tables.join("\n\n")

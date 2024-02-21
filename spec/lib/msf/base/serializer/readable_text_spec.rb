@@ -182,6 +182,89 @@ RSpec.describe Msf::Serializer::ReadableText do
         TABLE
       end
     end
+
+    context 'when some options are grouped' do
+      let(:group_name) { 'group_name' }
+      let(:group_description) { 'Used for example reasons' }
+      let(:option_names) { %w[RHOSTS SMBUser SMBDomain] }
+      let(:group) { Msf::OptionGroup.new(name: group_name, description: group_description, option_names: option_names) }
+      let(:aux_mod_with_grouped_options) do
+        mod = aux_mod_with_set_options.replicant
+        mod.options.add_group(group)
+        mod
+      end
+
+      it 'should return the grouped options separate to the rest of the options' do
+        expect(described_class.dump_options(aux_mod_with_grouped_options, indent_string, false)).to match_table <<~TABLE
+          Name                     Current Setting     Required  Description
+          ----                     ---------------     --------  -----------
+          FloatValue               5                   no        A FloatValue
+          NewOptionName                                yes       An option with a new name. Aliases ensure the old and new names are synchronized
+          OptionWithModuleDefault  false               yes       option with module default
+          RPORT                    3000                yes       The target port
+          baz                      baz_from_module     yes       baz option
+          fizz                     new_fizz            yes       fizz option
+          foo                      foo_from_framework  yes       Foo option
+
+
+          #{group_description}:
+
+          Name       Current Setting  Required  Description
+          ----       ---------------  --------  -----------
+          RHOSTS     192.0.2.2        yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+          SMBDomain  WORKGROUP        yes       The SMB username
+          SMBUser    username         yes       The SMB username
+        TABLE
+      end
+    end
+
+    context 'when there are multiple options groups' do
+      let(:group_name_1) { 'group_name_1' }
+      let(:group_description_1) { 'Used for example reasons_1' }
+      let(:option_names_1) {['RHOSTS']}
+      let(:group_name_2) { 'group_name_2' }
+      let(:group_description_2) { 'Used for example reasons_2' }
+      let(:option_names_2) { %w[SMBUser SMBDomain] }
+
+      let(:group_1) { Msf::OptionGroup.new(name: group_name_1, description: group_description_1, option_names: option_names_1) }
+      let(:group_2) { Msf::OptionGroup.new(name: group_name_2, description: group_description_2, option_names: option_names_2) }
+
+      let(:aux_mod_with_grouped_options) do
+        mod = aux_mod_with_set_options.replicant
+        mod.options.add_group(group_1)
+        mod.options.add_group(group_2)
+        mod
+      end
+
+      it 'should return the grouped options separate to the rest of the options' do
+        expect(described_class.dump_options(aux_mod_with_grouped_options, indent_string, false)).to match_table <<~TABLE
+          Name                     Current Setting     Required  Description
+          ----                     ---------------     --------  -----------
+          FloatValue               5                   no        A FloatValue
+          NewOptionName                                yes       An option with a new name. Aliases ensure the old and new names are synchronized
+          OptionWithModuleDefault  false               yes       option with module default
+          RPORT                    3000                yes       The target port
+          baz                      baz_from_module     yes       baz option
+          fizz                     new_fizz            yes       fizz option
+          foo                      foo_from_framework  yes       Foo option
+
+
+          #{group_description_1}:
+
+          Name    Current Setting  Required  Description
+          ----    ---------------  --------  -----------
+          RHOSTS  192.0.2.2        yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+
+
+          #{group_description_2}:
+
+          Name       Current Setting  Required  Description
+          ----       ---------------  --------  -----------
+          SMBDomain  WORKGROUP        yes       The SMB username
+          SMBUser    username         yes       The SMB username
+        TABLE
+      end
+    end
   end
 
   describe '.dump_advanced_options' do
