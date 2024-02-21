@@ -242,41 +242,44 @@ module Msf::Module::Alert
   # with this method will not be displayed again.
   def alert_user
     self.you_have_been_warned ||= {}
-    without_prompt do
-      errors.each do |msg|
-        if msg && !self.you_have_been_warned[msg.hash]
-          print_error(msg, prefix: '')
-          self.you_have_been_warned[msg.hash] = true
-        end
+    errors.each do |msg|
+      if msg && !self.you_have_been_warned[msg.hash]
+        without_prompt { print_error(msg, prefix: '') }
+        self.you_have_been_warned[msg.hash] = true
       end
+    end
 
-      warnings.each do |msg|
-        if msg && !self.you_have_been_warned[msg.hash]
-          print_warning(msg, prefix: '')
-          self.you_have_been_warned[msg.hash] = true
-        end
+    warnings.each do |msg|
+      if msg && !self.you_have_been_warned[msg.hash]
+        without_prompt { print_warning(msg, prefix: '') }
+        self.you_have_been_warned[msg.hash] = true
       end
+    end
 
-      infos.each do |msg|
-        if msg && !self.you_have_been_warned[msg.hash]
-          # Make prefix an empty string to avoid adding clutter (timestamps, rhost, rport, etc.) to the output
-          print_status(msg, prefix: '')
-          self.you_have_been_warned[msg.hash] = true
-        end
+    infos.each do |msg|
+      if msg && !self.you_have_been_warned[msg.hash]
+        # Make prefix an empty string to avoid adding clutter (timestamps, rhost, rport, etc.) to the output
+        without_prompt { print_status(msg, prefix: '') }
+        self.you_have_been_warned[msg.hash] = true
       end
     end
   end
 
-    # Temporarily set the prompt mode to false to ensure that there are not additional lines printed
-    # A workaround for the prompting bug spotted in https://github.com/rapid7/metasploit-framework/pull/18761#issuecomment-1916645095
+  # Temporarily set the prompt mode to false to ensure that there are not additional lines printed
+  # A workaround for the prompting bug spotted in https://github.com/rapid7/metasploit-framework/pull/18761#issuecomment-1916645095
   def without_prompt(&block)
-    if user_output
-      previous_prompting_value = user_output.prompting?
-      user_output.prompting(false)
-    end
+    # Some user outputs cannot have their prompting value configured, i.e. WebConsolePipe
+    return yield unless user_output.respond_to?(:prompting)
 
-    yield
-  ensure
-    user_output.prompting(previous_prompting_value) if user_output
+    begin
+      if user_output
+        previous_prompting_value = user_output.prompting?
+        user_output.prompting(false)
+      end
+
+      yield
+    ensure
+      user_output.prompting(previous_prompting_value) if user_output
+    end
   end
 end
