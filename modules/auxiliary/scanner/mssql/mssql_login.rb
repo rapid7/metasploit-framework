@@ -33,6 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         }
     )
     register_options([
+      Opt::Proxies,
       OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', false]),
       OptBool.new('CreateSession', [false, 'Create a new session for every successful login', false])
     ])
@@ -133,7 +134,7 @@ class MetasploitModule < Msf::Auxiliary
   def session_setup(result, client)
     return unless (result && client)
     rstream = client.sock
-    my_session = Msf::Sessions::MSSQL.new(rstream, { client: client }) # is cwd right?
+    my_session = Msf::Sessions::MSSQL.new(rstream, { client: client })
     merging = {
       'USERPASS_FILE' => nil,
       'USER_FILE'     => nil,

@@ -17,8 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         hashes from a MySQL server and stores them for later cracking.
       ),
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE,
-      'SessionTypes'  => %w[MySQL]
+      'License'        => MSF_LICENSE
     )
   end
 

@@ -19,8 +19,7 @@ class MetasploitModule < Msf::Auxiliary
         table names, which can be used to seed the wordlist.
       },
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE,
-      'SessionTypes'   => %w[MSSQL],
+      'License'        => MSF_LICENSE
     )
   end
 

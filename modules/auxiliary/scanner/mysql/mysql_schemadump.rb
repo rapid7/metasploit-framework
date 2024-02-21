@@ -19,8 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           MySQL DB server.
       },
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE,
-      'SessionTypes'  => %w[MySQL]
+      'License'        => MSF_LICENSE
     )
 
     register_options([

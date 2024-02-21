@@ -37,9 +37,9 @@ module Metasploit
           begin
             # manage our behind the scenes socket. Close any existing one and open a new one
             disconnect if self.sock
-            connect
+            self.sock = connect
 
-            mysql_conn = ::Mysql.connect(host, credential.public, credential.private, '', port, sock)
+            mysql_conn = ::Mysql.connect(host, credential.public, credential.private, '', port, io: self.sock)
 
           rescue ::SystemCallError, Rex::ConnectionError => e
             result_options.merge!({

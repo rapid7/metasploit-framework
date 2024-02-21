@@ -23,8 +23,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'http://pauldotcom.com/2013/01/mysql-file-system-enumeration.html' ],
         [ 'URL', 'http://www.digininja.org/projects/mysql_file_enum.php' ]
       ],
-      'License'        => MSF_LICENSE,
-      'SessionTypes'  => %w[MySQL]
+      'License'        => MSF_LICENSE
     )
 
     register_options([

@@ -17,7 +17,6 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
         'License'       => MSF_LICENSE,
-        'SessionTypes'  => %w[MySQL],
         'References'    =>
         [
           [ 'URL', 'https://cisecurity.org/benchmarks.html' ]

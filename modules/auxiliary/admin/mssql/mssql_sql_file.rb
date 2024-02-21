@@ -16,8 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         the appropriate credentials.
       },
       'Author'         => [ 'j0hn__f : <jf[at]tinternet.org.uk>' ],
-      'License'        => MSF_LICENSE,
-      'SessionTypes'   => %w[MSSQL]
+      'License'        => MSF_LICENSE
     ))
 
     register_options(

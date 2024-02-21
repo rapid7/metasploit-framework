@@ -21,8 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'  => [
         [ 'URL', 'https://dev.mysql.com/doc/refman/5.7/en/select-into.html' ]
       ],
-      'License'        => MSF_LICENSE,
-      'SessionTypes'  => %w[MySQL]
+      'License'        => MSF_LICENSE
     )
 
     register_options([
