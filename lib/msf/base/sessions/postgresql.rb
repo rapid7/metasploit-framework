@@ -2,10 +2,7 @@
 
 require 'rex/post/postgresql'
 
-class Msf::Sessions::PostgreSQL
-
-  include Msf::Sessions::Scriptable
-  include Msf::Sessions::Sql
+class Msf::Sessions::PostgreSQL < Msf::Sessions::Sql
 
   # @param[Rex::IO::Stream] rstream
   # @param [Hash] opts

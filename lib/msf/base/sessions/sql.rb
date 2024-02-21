@@ -1,9 +1,10 @@
 # -*- coding: binary -*-
 
-module Msf::Sessions::Sql
+class Msf::Sessions::Sql
 
   # This interface supports basic interaction.
   include Msf::Session::Basic
+  include Msf::Sessions::Scriptable
 
   # @return console The interactive console
   attr_accessor :console

@@ -2,10 +2,7 @@
 
 require 'rex/post/mssql'
 
-class Msf::Sessions::MSSQL
-
-  include Msf::Sessions::Scriptable
-  include Msf::Sessions::Sql
+class Msf::Sessions::MSSQL < Msf::Sessions::Sql
 
   # @return [String] The address MSSQL is running on
   attr_accessor :address

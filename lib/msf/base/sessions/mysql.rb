@@ -2,10 +2,7 @@
 
 require 'rex/post/mysql'
 
-class Msf::Sessions::MySQL
-
-  include Msf::Sessions::Scriptable
-  include Msf::Sessions::Sql
+class Msf::Sessions::MySQL < Msf::Sessions::Sql
 
   # @param[Rex::IO::Stream] rstream
   # @param [Hash] opts
