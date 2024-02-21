@@ -97,72 +97,42 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def query_ldap_server(raw_filter, attributes, base_prefix: nil)
-    ldap_connect do |ldap|
-      validate_bind_success!(ldap)
-
-      if !@base_dn.blank?
-        vprint_status("Using already discovered base DN: #{@base_dn}")
-      elsif (@base_dn = datastore['BASE_DN'])
-        print_status("User-specified base DN: #{@base_dn}")
-      else
-        print_status('Discovering base DN automatically')
-
-        unless (@base_dn = discover_base_dn(ldap))
-          print_warning("Couldn't discover base DN!")
-        end
-      end
-
-      if @base_dn.blank?
-        fail_with(Failure::BadConfig, 'No base DN was found or specified, cannot continue!')
-      end
-
-      if base_prefix.blank?
-        full_base_dn = @base_dn.to_s
-      else
-        full_base_dn = "#{base_prefix},#{@base_dn}"
-      end
-      begin
-        filter = Net::LDAP::Filter.construct(raw_filter)
-      rescue StandardError => e
-        fail_with(Failure::BadConfig, "Could not compile the filter! Error was #{e}")
-      end
-
-      # Set the value of LDAP_SERVER_SD_FLAGS_OID flag so everything but
-      # the SACL flag is set, as we need administrative privileges to retrieve
-      # the SACL from the ntSecurityDescriptor attribute on Windows AD LDAP servers.
-      #
-      # Note that without specifying the LDAP_SERVER_SD_FLAGS_OID control in this manner,
-      # the LDAP searchRequest will default to trying to grab all possible attributes of
-      # the ntSecurityDescriptor attribute, hence resulting in an attempt to retrieve the
-      # SACL even if the user is not an administrative user.
-      #
-      # Now one may think that we would just get the rest of the data without the SACL field,
-      # however in reality LDAP will cause that attribute to just be blanked out if a part of it
-      # cannot be retrieved, so we just will get nothing for the ntSecurityDescriptor attribute
-      # in these cases if the user doesn't have permissions to read the SACL.
-      all_but_sacl_flag = OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION
-      control_values = [all_but_sacl_flag].map(&:to_ber).to_ber_sequence.to_s.to_ber
-      controls = []
-      controls << [LDAP_SERVER_SD_FLAGS_OID.to_ber, true.to_ber, control_values].to_ber_sequence
-
-      returned_entries = ldap.search(base: full_base_dn, filter: filter, attributes: attributes, controls: controls)
-      query_result_table = ldap.get_operation_result.table
-
-      validate_query_result!(query_result_table, filter)
-
-      if returned_entries.blank?
-        vprint_error("No results found for #{filter}.")
-
-        nil
-      else
-
-        returned_entries
-      end
+    if base_prefix.blank?
+      full_base_dn = @base_dn.to_s
+    else
+      full_base_dn = "#{base_prefix},#{@base_dn}"
     end
-  rescue Rex::ConnectionTimeout
-    fail_with(Failure::Unreachable, "Couldn't reach #{datastore['RHOST']}!")
-  rescue Net::LDAP::Error => e
-    fail_with(Failure::UnexpectedReply, "Could not query #{datastore['RHOST']}! Error was: #{e.message}")
+    begin
+      filter = Net::LDAP::Filter.construct(raw_filter)
+    rescue StandardError => e
+      fail_with(Failure::BadConfig, "Could not compile the filter! Error was #{e}")
+    end
+
+    # Set the value of LDAP_SERVER_SD_FLAGS_OID flag so everything but
+    # the SACL flag is set, as we need administrative privileges to retrieve
+    # the SACL from the ntSecurityDescriptor attribute on Windows AD LDAP servers.
+    #
+    # Note that without specifying the LDAP_SERVER_SD_FLAGS_OID control in this manner,
+    # the LDAP searchRequest will default to trying to grab all possible attributes of
+    # the ntSecurityDescriptor attribute, hence resulting in an attempt to retrieve the
+    # SACL even if the user is not an administrative user.
+    #
+    # Now one may think that we would just get the rest of the data without the SACL field,
+    # however in reality LDAP will cause that attribute to just be blanked out if a part of it
+    # cannot be retrieved, so we just will get nothing for the ntSecurityDescriptor attribute
+    # in these cases if the user doesn't have permissions to read the SACL.
+    all_but_sacl_flag = OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION
+    control_values = [all_but_sacl_flag].map(&:to_ber).to_ber_sequence.to_s.to_ber
+    controls = []
+    controls << [LDAP_SERVER_SD_FLAGS_OID.to_ber, true.to_ber, control_values].to_ber_sequence
+
+    returned_entries = @ldap.search(base: full_base_dn, filter: filter, attributes: attributes, controls: controls)
+    query_result_table = @ldap.get_operation_result.table
+    validate_query_result!(query_result_table, filter)
+
+    return nil if returned_entries.empty?
+
+    returned_entries
   end
 
   def query_ldap_server_certificates(esc_raw_filter, esc_name)
@@ -372,11 +342,30 @@ class MetasploitModule < Msf::Auxiliary
     @base_dn = nil
     @vuln_certificate_details = {} # Initialize to empty hash since we want to only keep one copy of each certificate template along with its details.
 
-    find_esc1_vuln_cert_templates
-    find_esc2_vuln_cert_templates
-    find_esc3_vuln_cert_templates
+    ldap_connect do |ldap|
+      validate_bind_success!(ldap)
 
-    find_enrollable_vuln_certificate_templates
-    print_vulnerable_cert_info
+      if (@base_dn = datastore['BASE_DN'])
+        print_status("User-specified base DN: #{@base_dn}")
+      else
+        print_status('Discovering base DN automatically')
+
+        unless (@base_dn = discover_base_dn(ldap))
+          fail_with(Failure::NotFound, "Couldn't discover base DN!")
+        end
+      end
+      @ldap = ldap
+
+      find_esc1_vuln_cert_templates
+      find_esc2_vuln_cert_templates
+      find_esc3_vuln_cert_templates
+
+      find_enrollable_vuln_certificate_templates
+      print_vulnerable_cert_info
+    end
+  rescue Rex::ConnectionError => e
+    print_error("#{e.class}: #{e.message}")
+  rescue Net::LDAP::Error => e
+    print_error("#{e.class}: #{e.message}")
   end
 end
