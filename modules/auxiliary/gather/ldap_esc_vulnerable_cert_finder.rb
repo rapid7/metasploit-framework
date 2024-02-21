@@ -2,6 +2,12 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::LDAP
 
+  ADS_GROUP_TYPE_BUILTIN_LOCAL_GROUP = 0x00000001
+  ADS_GROUP_TYPE_GLOBAL_GROUP = 0x00000002
+  ADS_GROUP_TYPE_DOMAIN_LOCAL_GROUP = 0x00000004
+  ADS_GROUP_TYPE_SECURITY_ENABLED = 0x80000000
+  ADS_GROUP_TYPE_UNIVERSAL_GROUP = 0x00000008
+
   def initialize(info = {})
     super(
       update_info(
@@ -18,13 +24,17 @@ class MetasploitModule < Msf::Auxiliary
           allows enrollment in and which SIDs are authorized to use that certificate server to
           perform this enrollment operation.
 
-          Currently the module is capable of checking for ESC1, ESC2, and ESC3 vulnerable certificates.
+          Currently the module is capable of checking for certificates that are vulnerable to ESC1, ESC2, ESC3, and
+          ESC13. The module is limited to checking for these techniques due to them being identifiable remotely from a
+          normal user account by analyzing the objects in LDAP.
         },
         'Author' => [
           'Grant Willcox', # Original module author
+          'Spencer McIntyre' # ESC13 update
         ],
         'References' => [
-          'URL' => 'https://posts.specterops.io/certified-pre-owned-d95910965cd2'
+          [ 'URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
+          [ 'URL', 'https://posts.specterops.io/adcs-esc13-abuse-technique-fda4272fbd53' ] # ESC13
         ],
         'DisclosureDate' => '2021-06-17',
         'License' => MSF_LICENSE,
@@ -140,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
     base_prefix = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
     esc_entries = query_ldap_server(esc_raw_filter, attributes, base_prefix: base_prefix)
 
-    if esc_entries.blank?
+    if esc_entries.empty?
       print_warning("Couldn't find any vulnerable #{esc_name} templates!")
       return
     end
@@ -161,7 +171,7 @@ class MetasploitModule < Msf::Auxiliary
       if @vuln_certificate_details.key?(certificate_symbol)
         @vuln_certificate_details[certificate_symbol][:vulns] << esc_name
       else
-        @vuln_certificate_details[certificate_symbol] = { vulns: [esc_name], dn: entry[:dn][0], certificate_enrollment_sids: convert_sids_to_human_readable_name(allowed_sids), ca_servers_n_enrollment_sids: {} }
+        @vuln_certificate_details[certificate_symbol] = { vulns: [esc_name], dn: entry[:dn][0], certificate_enrollment_sids: convert_sids_to_human_readable_name(allowed_sids), ca_servers_n_enrollment_sids: {}, notes: [] }
       end
     end
   end
@@ -270,6 +280,65 @@ class MetasploitModule < Msf::Auxiliary
     query_ldap_server_certificates(esc3_template_2_raw_filter, 'ESC3_TEMPLATE_2')
   end
 
+  def find_esc13_vuln_cert_templates
+    esc_raw_filter = <<~FILTER
+      (&
+        (objectclass=pkicertificatetemplate)
+        (!(mspki-enrollment-flag:1.2.840.113556.1.4.804:=2))
+        (|(mspki-ra-signature=0)(!(mspki-ra-signature=*)))
+        (mspki-certificate-policy=*)
+      )
+    FILTER
+    attributes = ['cn', 'description', 'ntSecurityDescriptor', 'msPKI-Certificate-Policy']
+    base_prefix = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
+    esc_entries = query_ldap_server(esc_raw_filter, attributes, base_prefix: base_prefix)
+
+    if esc_entries.empty?
+      print_warning("Couldn't find any vulnerable ESC13 templates!")
+      return
+    end
+
+    # Grab a list of certificates that contain vulnerable settings.
+    # Also print out the list of SIDs that can enroll in that server.
+    esc_entries.each do |entry|
+      begin
+        security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(entry[:ntsecuritydescriptor][0])
+      rescue IOError => e
+        fail_with(Failure::UnexpectedReply, "Unable to read security descriptor! Error was: #{e.message}")
+      end
+
+      allowed_sids = parse_acl(security_descriptor.dacl) if security_descriptor.dacl
+      next if allowed_sids.empty?
+
+      groups = []
+      entry['mspki-certificate-policy'].each do |certificate_policy_oid|
+        policy = get_pki_object_by_oid(certificate_policy_oid)
+        next if policy['msds-oidtogrouplink'].blank?
+
+        # get the group and check it for two conditions
+        group = get_group_by_dn(policy['msds-oidtogrouplink'].first)
+
+        # condition 1: the group must be a universal group
+        next if (group['grouptype'].first.to_i & ADS_GROUP_TYPE_UNIVERSAL_GROUP) == 0
+
+        # condition 2: the group must have no members (this is enforced in the GUI but check it anyways)
+        next if group['member'].present?
+
+        groups << group['samaccountname'].first.to_s
+      end
+      next if groups.empty?
+
+      note = "ESC13 groups: #{groups.join(', ')}"
+      certificate_symbol = entry[:cn][0].to_sym
+      if @vuln_certificate_details.key?(certificate_symbol)
+        @vuln_certificate_details[certificate_symbol][:vulns] << 'ESC13'
+        @vuln_certificate_details[certificate_symbol][:notes] << note
+      else
+        @vuln_certificate_details[certificate_symbol] = { vulns: ['ESC13'], dn: entry[:dn][0], certificate_enrollment_sids: convert_sids_to_human_readable_name(allowed_sids), ca_servers_n_enrollment_sids: {}, notes: [note] }
+      end
+    end
+  end
+
   def find_enrollable_vuln_certificate_templates
     # For each of the vulnerable certificate templates, determine which servers
     # allows users to enroll in that certificate template and which users/groups
@@ -316,6 +385,14 @@ class MetasploitModule < Msf::Auxiliary
 
       print_status("   Distinguished Name: #{hash[:dn]}")
       print_status("   Vulnerable to: #{hash[:vulns].join(', ')}")
+      if hash[:notes].present? && hash[:notes].length == 1
+        print_status("   Notes: #{hash[:notes].first}")
+      elsif hash[:notes].present? && hash[:notes].length > 1
+        print_status('   Notes:')
+        hash[:notes].each do |note|
+          print_status("     * #{note}")
+        end
+      end
 
       print_status('   Certificate Template Enrollment SIDs:')
       for sid in hash[:certificate_enrollment_sids].split(' | ')
@@ -337,9 +414,43 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def get_pki_object_by_oid(oid)
+    pki_object = @ldap_mspki_enterprise_oids.find { |o| o['mspki-cert-template-oid'].first == oid }
+
+    if pki_object.nil?
+      pki_object = query_ldap_server(
+        "(&(objectClass=msPKI-Enterprise-Oid)(msPKI-Cert-Template-OID=#{oid}))",
+        nil,
+        base_prefix: 'CN=OID,CN=Public Key Services,CN=Services,CN=Configuration'
+      )&.first
+      @ldap_mspki_enterprise_oids << pki_object if pki_object
+    end
+
+    pki_object
+  end
+
+  def get_group_by_dn(group_dn)
+    group = @ldap_groups.find { |o| o['dn'].first == group_dn }
+
+    if group.nil?
+      cn, _, base = group_dn.partition(',')
+      base.delete_suffix!(",#{@base_dn}")
+      group = query_ldap_server(
+        "(#{cn})",
+        nil,
+        base_prefix: base
+      )&.first
+      @ldap_groups << group if group
+    end
+
+    group
+  end
+
   def run
     # Define our instance variables real quick.
     @base_dn = nil
+    @ldap_mspki_enterprise_oids = []
+    @ldap_groups = []
     @vuln_certificate_details = {} # Initialize to empty hash since we want to only keep one copy of each certificate template along with its details.
 
     ldap_connect do |ldap|
@@ -359,6 +470,7 @@ class MetasploitModule < Msf::Auxiliary
       find_esc1_vuln_cert_templates
       find_esc2_vuln_cert_templates
       find_esc3_vuln_cert_templates
+      find_esc13_vuln_cert_templates
 
       find_enrollable_vuln_certificate_templates
       print_vulnerable_cert_info
