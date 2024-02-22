@@ -1602,7 +1602,8 @@ class Core
           end
 
           begin
-            if session.type == 'meterpreter'
+            case session.type.downcase
+            when 'meterpreter'
               # If session.sys is nil, dont even try..
               unless session.sys
                 print_error("Session #{s} does not have stdapi loaded, skipping...")
@@ -1619,12 +1620,14 @@ class Core
                 print_line(data) unless data.blank?
               rescue ::Rex::Post::Meterpreter::RequestError
                 print_error("Failed: #{$!.class} #{$!}")
-              rescue Rex::TimeoutError
+              rescue ::Rex::TimeoutError
                 print_error("Operation timed out. Timeout currently #{session.response_timeout} seconds, you can configure this with %grnsessions -c <cmd> --timeout <value>%clr")
               end
-            elsif session.type == 'shell' || session.type == 'powershell'
+            when 'shell', 'powershell'
               output = session.shell_command(cmd)
               print_line(output) if output
+            when 'mssql', 'postgresql', 'mysql'
+              session.run_cmd(cmd, driver.output)
             end
           ensure
             # Restore timeout for each session

@@ -132,7 +132,7 @@ module ClientMixin
   def mssql_xpcmdshell(cmd, doprint=false, opts={})
     force_enable = false
     begin
-      res = mssql_query("EXEC master..xp_cmdshell '#{cmd}'", false, opts)
+      res = query("EXEC master..xp_cmdshell '#{cmd}'", false, opts)
       if res[:errors] && !res[:errors].empty?
         if res[:errors].join =~ /xp_cmdshell/
           if force_enable
@@ -140,7 +140,7 @@ module ClientMixin
             raise RuntimeError, "Failed to execute command"
           else
             print_status("The server may have xp_cmdshell disabled, trying to enable it...")
-            mssql_query(mssql_xpcmdshell_enable())
+            query(mssql_xpcmdshell_enable())
             raise RuntimeError, "xp_cmdshell disabled"
           end
         end

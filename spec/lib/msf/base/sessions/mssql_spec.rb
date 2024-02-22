@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'rex/post/mssql/ui/console/command_dispatcher/core'
+require 'rex/post/mssql'
 
 RSpec.describe Msf::Sessions::MSSQL do
   let(:rstream) { instance_double(::Rex::Socket) }
