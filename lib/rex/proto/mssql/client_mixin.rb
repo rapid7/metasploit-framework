@@ -32,6 +32,30 @@ module ClientMixin
   STATUS_RESETCONNECTION         = 0x08 # TDS 7.1+
   STATUS_RESETCONNECTIONSKIPTRAN = 0x10 # TDS 7.3+
 
+  # Mappings for ENVCHANGE types
+  # See the TDS Specification here: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-tds/2b3eb7e5-d43d-4d1b-bf4d-76b9e3afc791
+  module ENVCHANGE
+    DATABASE = 1
+    LANGUAGE = 2
+    CHARACTER_SET = 3
+    PACKET_SIZE = 4
+    UNICODE_LOCAL_ID = 5
+    UNICODE_COMPARISON_FLAGS = 6
+    SQL_COLLATION = 7
+    BEGIN_TRANSACTION = 8
+    COMMIT_TRANSACTION = 9
+    ROLLBACK_TRANSACTION = 10
+    ENLIST_DTC_TRANSACTION = 11
+    DEFECT_TRANSACTION = 12
+    REAL_TIME_LOG_SHIPPING = 13
+    PROMOTE_TRANSACTION = 15
+    TRANSACTION_MANAGER_ADDRESS = 16
+    TRANSACTION_ENDED = 17
+    COMPLETION_ACKNOWLEDGEMENT = 18
+    NAME_OF_USER_INSTANCE = 19
+    ROUTING_INFORMATION = 20
+  end
+
   def mssql_print_reply(info)
     print_status("SQL Query: #{info[:sql]}")
 
@@ -49,7 +73,7 @@ module ClientMixin
 
       tbl = Rex::Text::Table.new(
         'Indent'    => 1,
-        'Header'    => "",
+        'Header'    => "Response",
         'Columns'   => info[:colnames],
         'SortIndex' => -1
       )
@@ -108,7 +132,7 @@ module ClientMixin
   def mssql_xpcmdshell(cmd, doprint=false, opts={})
     force_enable = false
     begin
-      res = mssql_query("EXEC master..xp_cmdshell '#{cmd}'", false, opts)
+      res = query("EXEC master..xp_cmdshell '#{cmd}'", false, opts)
       if res[:errors] && !res[:errors].empty?
         if res[:errors].join =~ /xp_cmdshell/
           if force_enable
@@ -116,7 +140,7 @@ module ClientMixin
             raise RuntimeError, "Failed to execute command"
           else
             print_status("The server may have xp_cmdshell disabled, trying to enable it...")
-            mssql_query(mssql_xpcmdshell_enable())
+            query(mssql_xpcmdshell_enable())
             raise RuntimeError, "xp_cmdshell disabled"
           end
         end

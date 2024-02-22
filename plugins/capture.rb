@@ -198,6 +198,7 @@ module Msf
           'DRDA' => 'auxiliary/server/capture/drda',
           'FTP' => 'auxiliary/server/capture/ftp',
           'IMAP' => 'auxiliary/server/capture/imap',
+          'LDAP' => 'auxiliary/server/capture/ldap',
           'MSSQL' => 'auxiliary/server/capture/mssql',
           'MySQL' => 'auxiliary/server/capture/mysql',
           'POP3' => 'auxiliary/server/capture/pop3',
@@ -575,6 +576,11 @@ module Msf
 
       def configure_smb(datastore, config)
         datastore['SMBDOMAIN'] = config[:ntlm_domain]
+        datastore['CHALLENGE'] = config[:ntlm_challenge]
+      end
+
+      def configure_ldap(datastore, config)
+        datastore['DOMAIN'] = config[:ntlm_domain]
         datastore['CHALLENGE'] = config[:ntlm_challenge]
       end
 

@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::MYSQL
+  include Msf::OptionalSession::MySQL
 
   def initialize(info = {})
     super(update_info(info,
@@ -52,7 +53,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    return if not mysql_login_datastore
+    # If we have a session make use of it
+    if session
+      print_status("Using existing session #{session.sid}")
+      self.mysql_conn = session.client
+      self.sock = session.client.socket
+    else
+      # otherwise fallback to attempting to login
+      return unless mysql_login_datastore
+    end
+
     print_status("Running MySQL Enumerator...")
     print_status("Enumerating Parameters")
     #-------------------------------------------------------
@@ -111,8 +121,8 @@ class MetasploitModule < Msf::Auxiliary
       res.each do |row|
         print_good("\t\tUser: #{row[0]} Host: #{row[1]} Password Hash: #{row[2]}")
         report_cred(
-          ip: rhost,
-          port: rport,
+          ip: mysql_conn.host,
+          port: mysql_conn.port,
           user: row[0],
           password: row[2],
           service_name: 'mysql',
@@ -238,6 +248,6 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    mysql_logoff
+    mysql_logoff unless session
   end
 end

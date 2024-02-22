@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.3.56)
+    metasploit-framework (6.3.58)
       actionpack (~> 7.0.0)
       activerecord (~> 7.0.0)
       activesupport (~> 7.0.0)
@@ -33,7 +33,7 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 2.0.165)
+      metasploit-payloads (= 2.0.166)
       metasploit_data_models
       metasploit_payloads-mettle (= 1.0.26)
       mqtt
@@ -265,7 +265,7 @@ GEM
       activesupport (~> 7.0)
       railties (~> 7.0)
       zeitwerk
-    metasploit-credential (6.0.6)
+    metasploit-credential (6.0.7)
       metasploit-concern
       metasploit-model
       metasploit_data_models (>= 5.0.0)
@@ -279,7 +279,7 @@ GEM
       activemodel (~> 7.0)
       activesupport (~> 7.0)
       railties (~> 7.0)
-    metasploit-payloads (2.0.165)
+    metasploit-payloads (2.0.166)
     metasploit_data_models (6.0.3)
       activerecord (~> 7.0)
       activesupport (~> 7.0)
@@ -419,7 +419,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.55)
+    rex-socket (0.1.56)
       rex-core
     rex-sslscan (0.1.10)
       rex-core

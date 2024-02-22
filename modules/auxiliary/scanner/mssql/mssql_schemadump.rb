@@ -8,6 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::OptionalSession::MSSQL
 
   def initialize
     super(
@@ -29,10 +30,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-
-    if !mssql_login_datastore
-      print_error("#{rhost}:#{rport} - Invalid SQL Server credentials")
-      return
+    if session
+      set_session(session.client)
+    else
+      unless mssql_login_datastore
+        print_error("#{datastore['RHOST']}:#{datastore['RPORT']} - Invalid SQL Server credentials")
+        return
+      end
     end
 
     # Grabs the Instance Name and Version of MSSQL(2k,2k5,2k8)
@@ -41,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Instance Name: #{instancename.inspect}")
     version = mssql_query(mssql_sql_info())[:rows][0][0]
-    output = "Microsoft SQL Server Schema \n Host: #{datastore['RHOST']} \n Port: #{datastore['RPORT']} \n Instance: #{instancename} \n Version: #{version} \n====================\n\n"
+    output = "Microsoft SQL Server Schema \n Host: #{mssql_client.address} \n Port: #{mssql_client.port} \n Instance: #{instancename} \n Version: #{version} \n====================\n\n"
 
     # Grab all the DB schema and save it as notes
     mssql_schema = get_mssql_schema
@@ -51,19 +55,19 @@ class MetasploitModule < Msf::Auxiliary
         :host  => rhost,
         :type  => "mssql.db.schema",
         :data  => db,
-        :port  => rport,
+        :port  => mssql_client.port,
         :proto => 'tcp',
         :update => :unique_data
       )
     end
     output << YAML.dump(mssql_schema)
     this_service = report_service(
-          :host  => datastore['RHOST'],
-          :port => datastore['RPORT'],
+          :host  => mssql_client.address,
+          :port => mssql_client.port,
           :name => 'mssql',
           :proto => 'tcp'
           )
-    store_loot('mssql_schema', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_mssql_schema.txt", "MS SQL Schema", this_service)
+    store_loot('mssql_schema', "text/plain", mssql_client.address, output, "#{mssql_client.address}_mssql_schema.txt", "MS SQL Schema", this_service)
     print_good output if datastore['DISPLAY_RESULTS']
   end
 

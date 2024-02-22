@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Postgres
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
-  include Msf::OptionalSession
+  include Msf::OptionalSession::PostgreSQL
 
   def initialize
     super(
@@ -18,7 +18,6 @@ class MetasploitModule < Msf::Auxiliary
       ),
       'Author' => ['theLightCosine'],
       'License' => MSF_LICENSE,
-      'SessionTypes' => %w[PostgreSQL]
     )
     register_options([
       OptBool.new('DISPLAY_RESULTS', [true, 'Display the Results to the Screen', true]),
@@ -28,7 +27,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(_ip)
-    print_status 'When targeting a session, only the current database can be dumped.' if session
+    if session
+      print_status 'When targeting a session, only the current database can be dumped.'
+      self.postgres_conn = session.client
+    end
+
     pg_schema = get_schema
     pg_schema.each do |db|
       report_note(
@@ -70,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
       tmp_db = {}
       tmp_db['DBName'] = database_name
       tmp_db['Tables'] = []
-      postgres_login({ database: database_name })
+      postgres_login({ database: database_name }) unless session
       tmp_tblnames = smart_query("SELECT c.relname, n.nspname FROM pg_catalog.pg_class c LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname NOT IN ('pg_catalog','pg_toast') AND pg_catalog.pg_table_is_visible(c.oid);")
       if tmp_tblnames && !tmp_tblnames.empty?
         tmp_tblnames.each do |tbl_row|

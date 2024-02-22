@@ -47,7 +47,16 @@ module Metasploit
         #   @return [Boolean] Whether to use Windows Authentication instead of SQL Server Auth.
         attr_accessor :windows_authentication
 
+        # @!attribute use_client_as_proof
+        #   @return [Boolean] If a login is successful and this attribute is true - an MSSQL::Client instance is used as proof
+        attr_accessor :use_client_as_proof
+
+        # @!attribute max_send_size
+        #   @return [Integer] The max size of the data to encapsulate in a single packet
         attr_accessor :max_send_size
+
+        # @!attribute send_delay
+        #   @return [Integer] The delay between sending packets
         attr_accessor :send_delay
 
         validates :windows_authentication,
@@ -68,9 +77,14 @@ module Metasploit
           }
 
           begin
-            client = Rex::Proto::MSSQL::Client.new(framework_module, framework, host, port)
+            client = Rex::Proto::MSSQL::Client.new(framework_module, framework, host, port, proxies)
             if client.mssql_login(credential.public, credential.private, '', credential.realm)
               result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
+              if use_client_as_proof
+                result_options[:proof] = client
+              else
+                client.disconnect
+              end
             else
               result_options[:status] = Metasploit::Model::Login::Status::INCORRECT
             end
@@ -81,8 +95,6 @@ module Metasploit
             elog(e)
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             result_options[:proof] = e
-          ensure
-            client.disconnect
           end
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)

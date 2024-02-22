@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::RemotePaths
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
-  include Msf::OptionalSession
+  include Msf::OptionalSession::SMB
 
   # Aliases for common classes
   SIMPLE = Rex::Proto::SMB::SimpleClient
@@ -32,7 +32,6 @@ class MetasploitModule < Msf::Auxiliary
           'mubix' # copied from hdm upload_file module
         ],
       'License'     => MSF_LICENSE,
-      'SessionTypes' => %w[SMB]
       )
 
     register_options([

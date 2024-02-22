@@ -9,6 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::OptionalSession::MySQL
 
   def initialize
     super(
@@ -37,15 +38,20 @@ class MetasploitModule < Msf::Auxiliary
   # This function does not handle any errors, if you use this
   # make sure you handle the errors yourself
   def mysql_query_no_handle(sql)
-    res = @mysql_handle.query(sql)
+    res = self.mysql_conn.query(sql)
     res
   end
 
   def run_host(ip)
-    vprint_status("Login...")
+    vprint_status("Login...") unless session
 
-    if (not mysql_login_datastore)
-      return
+    # If we have a session make use of it
+    if session
+      print_status("Using existing session #{session.sid}")
+      self.mysql_conn = session.client
+    else
+      # otherwise fallback to attempting to login
+      return unless mysql_login_datastore
     end
 
     begin
@@ -84,20 +90,20 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Mysql::TextfileNotReadable
       print_good("#{dir} is a directory and exists")
       report_note(
-        :host  => rhost,
+        :host  => mysql_conn.host,
         :type  => "filesystem.dir",
         :data  => "#{dir} is a directory and exists",
-        :port  => rport,
+        :port  => mysql_conn.port,
         :proto => 'tcp',
         :update => :unique_data
       )
     rescue ::Mysql::DataTooLong, ::Mysql::TruncatedWrongValueForField
       print_good("#{dir} is a file and exists")
       report_note(
-        :host  => rhost,
+        :host  => mysql_conn.host,
         :type  => "filesystem.file",
         :data  => "#{dir} is a file and exists",
-        :port  => rport,
+        :port  => mysql_conn.port,
         :proto => 'tcp',
         :update => :unique_data
       )
@@ -112,10 +118,10 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_good("#{dir} is a file and exists")
       report_note(
-        :host  => rhost,
+        :host  => mysql_conn.host,
         :type  => "filesystem.file",
         :data  => "#{dir} is a file and exists",
-        :port  => rport,
+        :port  => mysql_conn.port,
         :proto => 'tcp',
         :update => :unique_data
       )

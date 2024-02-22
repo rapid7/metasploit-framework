@@ -33,11 +33,14 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::Proxies
+        Opt::Proxies,
+        OptBool.new('CreateSession', [false, 'Create a new session for every successful login', false])
       ])
 
     options_to_deregister = %w[PASSWORD_SPRAY]
-    unless framework.features.enabled?(Msf::FeatureManager::MYSQL_SESSION_TYPE)
+    if framework.features.enabled?(Msf::FeatureManager::MYSQL_SESSION_TYPE)
+      add_info('New in Metasploit 6.4 - The %grnCreateSession%clr option within this module can open an interactive session')
+    else
       options_to_deregister << 'CreateSession'
     end
     deregister_options(*options_to_deregister)
@@ -68,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
         scanner = Metasploit::Framework::LoginScanner::MySQL.new(
             host: ip,
             port: rport,
-            proxies: datastore['PROXIES'],
+            proxies: datastore['Proxies'],
             cred_details: cred_collection,
             stop_on_success: datastore['STOP_ON_SUCCESS'],
             bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
@@ -180,7 +183,7 @@ class MetasploitModule < Msf::Auxiliary
   def session_setup(result, client)
     return unless (result && client)
 
-    rstream = client.socket
+    rstream = client.socket || client.io
 
     my_session = Msf::Sessions::MySQL.new(rstream, { client: client })
     merging = {

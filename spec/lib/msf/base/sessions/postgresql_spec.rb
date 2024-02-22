@@ -12,7 +12,7 @@ RSpec.describe Msf::Sessions::PostgreSQL do
   let(:user_output) { instance_double(Rex::Ui::Text::Output::Stdio) }
   let(:name) { 'postgresql' }
   let(:log_source) { "session_#{name}" }
-  let(:type) { 'PostgreSQL' }
+  let(:type) { 'postgresql' }
   let(:description) { 'PostgreSQL' }
   let(:can_cleanup_files) { false }
   let(:address) { '192.0.2.1' }

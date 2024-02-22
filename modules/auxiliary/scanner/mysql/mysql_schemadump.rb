@@ -8,8 +8,8 @@ require 'yaml'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
-
   include Msf::Auxiliary::Scanner
+  include Msf::OptionalSession::MySQL
 
   def initialize
     super(
@@ -29,30 +29,35 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-
-    if (not mysql_login_datastore)
-      return
+    # If we have a session make use of it
+    if session
+      print_status("Using existing session #{session.sid}")
+      self.mysql_conn = session.client
+    else
+      # otherwise fallback to attempting to login
+      return unless mysql_login_datastore
     end
+
     mysql_schema = get_schema
     mysql_schema.each do |db|
       report_note(
-        :host  => rhost,
+        :host  => mysql_conn.host,
         :type  => "mysql.db.schema",
         :data  => db,
-        :port  => rport,
+        :port  => mysql_conn.port,
         :proto => 'tcp',
         :update => :unique_data
       )
     end
-    output = "MySQL Server Schema \n Host: #{datastore['RHOST']} \n Port: #{datastore['RPORT']} \n ====================\n\n"
+    output = "MySQL Server Schema \n Host: #{mysql_conn.host} \n Port: #{mysql_conn.port} \n ====================\n\n"
     output << YAML.dump(mysql_schema)
     this_service = report_service(
-          :host  => datastore['RHOST'],
-          :port => datastore['RPORT'],
+          :host  => mysql_conn.host,
+          :port => mysql_conn.port,
           :name => 'mysql',
           :proto => 'tcp'
           )
-    p = store_loot('mysql_schema', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_mysql_schema.txt", "MySQL Schema", this_service)
+    p = store_loot('mysql_schema', "text/plain", mysql_conn.host, output, "#{mysql_conn.host}_mysql_schema.txt", "MySQL Schema", this_service)
     print_good("Schema stored in: #{p}")
     print_good output if datastore['DISPLAY_RESULTS']
   end

@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+require 'rex/post/sql/ui/console'
+
 module Rex
   module Post
     module MySQL
@@ -7,6 +9,7 @@ module Rex
 
         # This class provides a shell driven interface to the MySQL client API.
         class Console
+          include Rex::Post::Sql::Ui::Console
           include Rex::Ui::Text::DispatcherShell
 
           # Dispatchers
@@ -23,8 +26,8 @@ module Rex
             # The mysql client context
             self.session = session
             self.client = session.client
-            self.cwd = client.database
-            prompt = "%undMySQL @ #{client.socket.peerinfo} (#{cwd})%clr"
+            self.client.socket ||= self.client.io
+            prompt = "%undMySQL @ #{client.socket.peerinfo} (#{database_name})%clr"
             history_manager = Msf::Config.mysql_session_history
             super(prompt, '>', history_manager, nil, :mysql)
 
@@ -44,74 +47,6 @@ module Rex
             end
           end
 
-          # Called when someone wants to interact with the mysql client.  It's
-          # assumed that init_ui has been called prior.
-          #
-          # @param [Proc] block
-          # @return [Integer]
-          def interact(&block)
-            # Run queued commands
-            commands.delete_if do |ent|
-              run_single(ent)
-              true
-            end
-
-            # Run the interactive loop
-            run do |line|
-              # Run the command
-              run_single(line)
-
-              # If a block was supplied, call it, otherwise return false
-              if block
-                block.call
-              else
-                false
-              end
-            end
-          end
-
-          # Queues a command to be run when the interactive loop is entered.
-          #
-          # @param [Object] cmd
-          # @return [Object]
-          def queue_cmd(cmd)
-            self.commands << cmd
-          end
-
-          # Runs the specified command wrapper in something to catch meterpreter
-          # exceptions.
-          #
-          # @param [Object] dispatcher
-          # @param [Object] method
-          # @param [Object] arguments
-          # @return [FalseClass]
-          def run_command(dispatcher, method, arguments)
-            begin
-              super
-            rescue ::Timeout::Error
-              log_error('Operation timed out.')
-            rescue ::Rex::InvalidDestination => e
-              log_error(e.message)
-            rescue ::Errno::EPIPE, ::OpenSSL::SSL::SSLError, ::IOError
-              self.session.kill
-            rescue ::StandardError => e
-              log_error("Error running command #{method}: #{e.class} #{e}")
-              elog(e)
-            end
-          end
-
-          # Logs that an error occurred and persists the callstack.
-          #
-          # @param [Object] msg
-          # @return [Object]
-          def log_error(msg)
-            print_error(msg)
-
-            elog(msg, 'mysql')
-
-            dlog("Call stack:\n#{$@.join("\n")}", 'mysql')
-          end
-
           # @return [Msf::Sessions::MySQL]
           attr_reader :session
 
@@ -119,13 +54,14 @@ module Rex
           attr_reader :client
 
           # @return [String]
-          attr_accessor :cwd
+          def database_name
+            client.database
+          end
 
           # @param [Object] val
           # @return [String]
           def format_prompt(val)
-            @cwd ||= client.database
-            prompt = "%undMySQL @ #{client.socket.peerinfo} (#{@cwd})%clr > "
+            prompt = "%undMySQL @ #{client.socket.peerinfo} (#{database_name})%clr > "
             substitute_colors(prompt, true)
           end
 

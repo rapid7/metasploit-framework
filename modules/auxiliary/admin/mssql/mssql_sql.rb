@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
+  include Msf::OptionalSession::MSSQL
 
   def initialize(info = {})
     super(update_info(info,
@@ -38,7 +39,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    mssql_query(datastore['SQL'], true) if mssql_login_datastore
-    disconnect
+    if session
+      set_session(session.client)
+    else
+      return unless mssql_login_datastore
+    end
+
+    mssql_query(datastore['SQL'], true)
   end
 end

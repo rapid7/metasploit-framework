@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MYSQL
+  include Msf::OptionalSession::MySQL
 
   def initialize(info = {})
     super(update_info(info,
@@ -14,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
           against a MySQL instance given the appropriate credentials.
       },
       'Author'		=> [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
-      'License'		=> MSF_LICENSE
+      'License'		=> MSF_LICENSE,
     ))
 
     register_options(
@@ -33,7 +34,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    return if not mysql_login_datastore
+    # If we have a session make use of it
+    if session
+      print_status("Using existing session #{session.sid}")
+      self.mysql_conn = session.client
+    else
+      # otherwise fallback to attempting to login
+      return unless mysql_login_datastore
+    end
+
     print_status("Sending statement: '#{datastore['SQL']}'...")
     res = mysql_query(datastore['SQL']) || []
     res.each do |row|

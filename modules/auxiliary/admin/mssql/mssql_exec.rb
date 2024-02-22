@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
+  include Msf::OptionalSession::MSSQL
 
   def initialize(info = {})
     super(
@@ -26,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           [
             [ 'URL', 'http://msdn.microsoft.com/en-us/library/cc448435(PROT.10).aspx'],
             [ 'URL', 'https://docs.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-oacreate-transact-sql'],
-          ]
+          ],
       )
     )
 
@@ -37,7 +38,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    return unless mssql_login_datastore
+    if session
+      set_session(session.client)
+    else
+      return unless mssql_login_datastore
+    end
 
     technique = datastore['TECHNIQUE']
     case technique

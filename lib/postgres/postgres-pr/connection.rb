@@ -56,12 +56,12 @@ class Connection
     end
   end
 
-  def initialize(database, user, password=nil, uri = nil)
+  def initialize(database, user, password=nil, uri = nil, proxies = nil)
     uri ||= DEFAULT_URI
 
     @transaction_status = nil
     @params = { 'username' => user, 'database' => database }
-    establish_connection(uri)
+    establish_connection(uri, proxies)
 
     # Check if the password supplied is a Postgres-style md5 hash
     md5_hash_match = password.match(/^md5([a-f0-9]{32})$/)
@@ -119,6 +119,14 @@ class Connection
         raise "unhandled message type"
       end
     end
+  end
+
+  def address
+    @conn.peerhost
+  end
+
+  def port
+    @conn.peerport
   end
 
   def close
@@ -235,14 +243,15 @@ class Connection
 
   # tcp://localhost:5432
   # unix:/tmp/.s.PGSQL.5432
-  def establish_connection(uri)
+  def establish_connection(uri, proxies)
     u = URI.parse(uri)
     case u.scheme
     when 'tcp'
       @conn = Rex::Socket.create(
       'PeerHost' => (u.host || DEFAULT_HOST).gsub(/[\[\]]/, ''),  # Strip any brackets off (IPv6)
       'PeerPort' => (u.port || DEFAULT_PORT),
-      'proto' => 'tcp'
+      'proto' => 'tcp',
+      'Proxies' => proxies
     )
     when 'unix'
       @conn = UNIXSocket.new(u.path)

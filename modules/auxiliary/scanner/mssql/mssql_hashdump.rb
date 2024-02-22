@@ -6,8 +6,8 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
-
   include Msf::Auxiliary::Scanner
+  include Msf::OptionalSession::MSSQL
 
   def initialize
     super(
@@ -24,15 +24,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-
-    if !mssql_login_datastore
-      print_error("Invalid SQL Server credentials")
+    if session
+      set_session(session.client)
+    elsif !mssql_login(datastore['USERNAME'], datastore['PASSWORD'])
+      print_error('Invalid SQL Server credentials')
       return
     end
 
     service_data = {
         address: ip,
-        port: rport,
+        port: mssql_client.port,
         service_name: 'mssql',
         protocol: 'tcp',
         workspace_id: myworkspace_id
@@ -100,8 +101,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     this_service = report_service(
-          :host  => datastore['RHOST'],
-          :port => datastore['RPORT'],
+          :host  => mssql_client.address,
+          :port => mssql_client.port,
           :name => 'mssql',
           :proto => 'tcp'
           )
@@ -113,8 +114,8 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     service_data = {
-        address: ::Rex::Socket.getaddress(rhost,true),
-        port: rport,
+        address: ::Rex::Socket.getaddress(mssql_client.address,true),
+        port: mssql_client.port,
         service_name: 'mssql',
         protocol: 'tcp',
         workspace_id: myworkspace_id

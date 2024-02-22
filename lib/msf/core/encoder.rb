@@ -142,6 +142,10 @@ class Encoder < Module
     # Bash brace expansion encoding.
     #
     CmdPosixBrace = 'brace'
+    #
+    # Base64 encoding.
+    #
+    CmdPosixBase64 = 'base64'
   end
 
   #
