@@ -11,6 +11,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
+  include Msf::Sessions::CreateSessionOptions
   include Msf::Auxiliary::CommandShell
 
   def initialize(info = {})
@@ -27,14 +28,14 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultOptions' =>
         {
           'USERNAME' => 'root',
-          'BLANK_PASSWORDS' => true
+          'BLANK_PASSWORDS' => true,
+          'CreateSession'  => false
         }
     ))
 
     register_options(
       [
         Opt::Proxies,
-        OptBool.new('CreateSession', [false, 'Create a new session for every successful login', false])
       ])
 
     options_to_deregister = %w[PASSWORD_SPRAY]

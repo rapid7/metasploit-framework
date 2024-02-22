@@ -13,6 +13,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::CommandShell
+  include Msf::Sessions::CreateSessionOptions
 
   # Creates an instance of this module.
   def initialize(info = {})
@@ -26,6 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => [ 'todb' ],
       'License'        => MSF_LICENSE,
+      'DefaultOptions' => { 'CreateSession' => false },
       'References'     =>
         [
           [ 'URL', 'https://www.postgresql.org/' ],
@@ -37,7 +39,6 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::Proxies,
-        OptBool.new('CreateSession', [false, 'Create a new session for every successful login', false]),
         OptPath.new('USERPASS_FILE',  [ false, "File containing (space-separated) users and passwords, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "postgres_default_userpass.txt") ]),
         OptPath.new('USER_FILE',      [ false, "File containing users, one per line",

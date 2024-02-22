@@ -15,6 +15,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::CommandShell
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::Kerberos::Ticket::Storage
+  include Msf::Sessions::CreateSessionOptions
 
   def initialize
     super(

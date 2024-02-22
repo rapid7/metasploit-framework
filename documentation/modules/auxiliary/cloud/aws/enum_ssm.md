@@ -4,7 +4,7 @@ Provided AWS credentials, this module will call the authenticated API of Amazon 
 instances accessible to the account. Once enumerated as SSM-enabled, the instances can be controlled using out-of-band
 WebSocket sessions provided by the AWS API (nominally, privileged out of the box). This module provides not only the API
 enumeration identifying EC2 instances accessible via SSM with given credentials, but enables session initiation for all
-identified targets (without requiring target-level credentials) using the CreateSession mixin option. The module also
+identified targets (without requiring target-level credentials) using the CreateSession datastore option. The module also
 provides an EC2 ID filter and a limiting throttle to prevent session stampedes or expensive messes.
 
 ## Verification Steps

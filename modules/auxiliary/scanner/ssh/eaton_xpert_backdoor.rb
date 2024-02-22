@@ -12,6 +12,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::CommandShell
   include Msf::Auxiliary::Report
+  include Msf::Sessions::CreateSessionOptions
 
   def initialize(info = {})
     super(update_info(info,

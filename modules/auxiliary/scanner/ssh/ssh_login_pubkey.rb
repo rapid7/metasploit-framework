@@ -15,6 +15,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::CommandShell
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::SSH::Options
+  include Msf::Sessions::CreateSessionOptions
 
   attr_accessor :ssh_socket, :good_key
 
