@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-
 RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
 
   if ENV['REMOTE_DB']
@@ -67,52 +66,55 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
         context 'when the credential is present' do
           it 'should show a user that matches the given expression' do
             creds.cmd_creds('-u', username)
-            expect(@output).to eq([
-              'Credentials',
-              '===========',
-              '',
-              'host  origin  service  public    private   realm  private_type  JtR Format  cracked_password',
-              '----  ------  -------  ------    -------   -----  ------------  ----------  ----------------',
-              '                       thisuser  thispass         Password                  '
-            ])
+            expect(@output.join("\n")).to match_table <<~TABLE
+              Credentials
+              ===========
+
+              host  origin  service  public    private   realm  private_type  JtR Format  cracked_password
+              ----  ------  -------  ------    -------   -----  ------------  ----------  ----------------
+                                     thisuser  thispass         Password
+
+            TABLE
           end
 
           it 'should not match a regular expression' do
             creds.cmd_creds('-u', "^#{username}$")
-            expect(@output).to_not eq([
-              'Credentials',
-              '===========',
-              '',
-              'host  origin  service  public    private   realm  private_type  JtR Format  cracked_password',
-              '----  ------  -------  ------    -------   -----  ------------  ----------  ----------------',
-              '                       thisuser  thispass         Password      '
-            ])
+            expect(@output.join("\n")).to match_table <<~TABLE
+              Credentials
+              ===========
+
+              host  origin  service  public  private  realm  private_type  JtR Format  cracked_password
+              ----  ------  -------  ------  -------  -----  ------------  ----------  ----------------
+
+            TABLE
           end
 
           context 'and when the username is blank' do
             it 'should show a user that matches the given expression' do
               creds.cmd_creds('-u', blank_username)
-              expect(@output).to eq([
-                'Credentials',
-                '===========',
-                '',
-                'host  origin  service  public  private        realm  private_type  JtR Format  cracked_password',
-                '----  ------  -------  ------  -------        -----  ------------  ----------  ----------------',
-                '                               nonblank_pass         Password                  '
-              ])
+              expect(@output.join("\n")).to match_table <<~TABLE
+                Credentials
+                ===========
+
+                host  origin  service  public  private        realm  private_type  JtR Format  cracked_password
+                ----  ------  -------  ------  -------        -----  ------------  ----------  ----------------
+                                               nonblank_pass         Password
+
+              TABLE
             end
           end
           context 'and when the password is blank' do
             it 'should show a user that matches the given expression' do
               creds.cmd_creds('-P', blank_password)
-              expect(@output).to eq([
-                'Credentials',
-                '===========',
-                '',
-                'host  origin  service  public         private  realm  private_type  JtR Format  cracked_password',
-                '----  ------  -------  ------         -------  -----  ------------  ----------  ----------------',
-                '                       nonblank_user                  Password                  '
-              ])
+              expect(@output.join("\n")).to match_table <<~TABLE
+                Credentials
+                ===========
+
+                host  origin  service  public         private  realm  private_type  JtR Format  cracked_password
+                ----  ------  -------  ------         -------  -----  ------------  ----------  ----------------
+                                       nonblank_user                  Password
+
+              TABLE
             end
           end
         end
@@ -121,25 +123,27 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
           context 'due to a nonmatching username' do
             it 'should return a blank set' do
               creds.cmd_creds('-u', nomatch_username)
-              expect(@output).to eq([
-                'Credentials',
-                '===========',
-                '',
-                'host  origin  service  public  private  realm  private_type  JtR Format  cracked_password',
-                '----  ------  -------  ------  -------  -----  ------------  ----------  ----------------'
-              ])
+              expect(@output.join("\n")).to match_table <<~TABLE
+                Credentials
+                ===========
+
+                host  origin  service  public  private  realm  private_type  JtR Format  cracked_password
+                ----  ------  -------  ------  -------  -----  ------------  ----------  ----------------
+
+              TABLE
             end
           end
           context 'due to a nonmatching password' do
             it 'should return a blank set' do
               creds.cmd_creds('-P', nomatch_password)
-              expect(@output).to eq([
-                'Credentials',
-                '===========',
-                '',
-                'host  origin  service  public  private  realm  private_type  JtR Format  cracked_password',
-                '----  ------  -------  ------  -------  -----  ------------  ----------  ----------------'
-              ])
+              expect(@output.join("\n")).to match_table <<~TABLE
+                Credentials
+                ===========
+
+                host  origin  service  public  private  realm  private_type  JtR Format  cracked_password
+                ----  ------  -------  ------  -------  -----  ------------  ----------  ----------------
+
+              TABLE
             end
           end
           context 'showing new column of cracked_password for all the cracked passwords' do
@@ -158,25 +162,26 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 realm: nil,
                 workspace: framework.db.workspace)
               creds.cmd_creds('-u', 'this_username')
-              expect(@output).to eq([
-                "Credentials",
-                "===========",
-                "",
-                "host  origin  service  public         private    realm  private_type        JtR Format  cracked_password",
-                "----  ------  -------  ------         -------    -----  ------------        ----------  ----------------",
-                "                       this_username  some_hash         Nonreplayable hash              this_cracked_password"
-              ])
+              expect(@output.join("\n")).to match_table <<~TABLE
+                Credentials
+                ===========
+
+                host  origin  service  public         private    realm  private_type        JtR Format  cracked_password
+                ----  ------  -------  ------         -------    -----  ------------        ----------  ----------------
+                                       this_username  some_hash         Nonreplayable hash              this_cracked_password
+              TABLE
             end
             it "should show the user given passwords on private column instead of cracked_password column" do
               creds.cmd_creds('-u', 'thisuser')
-              expect(@output).to eq([
-                "Credentials",
-                "===========",
-                "",
-                "host  origin  service  public    private   realm  private_type  JtR Format  cracked_password",
-                "----  ------  -------  ------    -------   -----  ------------  ----------  ----------------",
-                "                       thisuser  thispass         Password                  "
-              ])
+              expect(@output.join("\n")).to match_table <<~TABLE
+                Credentials
+                ===========
+
+                host  origin  service  public    private   realm  private_type  JtR Format  cracked_password
+                ----  ------  -------  ------    -------   -----  ------------  ----------  ----------------
+                                       thisuser  thispass         Password
+
+              TABLE
             end
           end
         end
@@ -238,15 +243,15 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
           context 'password' do
             it 'should show just the password' do
               creds.cmd_creds('-t', 'password')
-              # Table matching really sucks
-              expect(@output).to eq([
-                'Credentials',
-                '===========',
-                '',
-                'host  origin  service  public    private   realm  private_type  JtR Format  cracked_password',
-                '----  ------  -------  ------    -------   -----  ------------  ----------  ----------------',
-                '                       thisuser  thispass         Password                  '
-              ])
+              expect(@output.join("\n")).to match_table <<~TABLE
+                Credentials
+                ===========
+
+                host  origin  service  public    private   realm  private_type  JtR Format  cracked_password
+                ----  ------  -------  ------    -------   -----  ------------  ----------  ----------------
+                                       thisuser  thispass         Password
+
+              TABLE
             end
             it 'should show all the cores whose private is either password or the private is cracked password' do
               common_public = FactoryBot.create(:metasploit_credential_username, username: "this_username")
@@ -263,15 +268,16 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 realm: nil,
                 workspace: framework.db.workspace)
               creds.cmd_creds('-t', 'password')
-              expect(@output).to eq([
-                "Credentials",
-                "===========",
-                "",
-                "host  origin  service  public         private                realm  private_type  JtR Format  cracked_password",
-                "----  ------  -------  ------         -------                -----  ------------  ----------  ----------------",
-                "                       thisuser       thispass                      Password                  ",
-                "                       this_username  this_cracked_password         Password                  "
-                ])
+              expect(@output.join("\n")).to match_table <<~TABLE
+                Credentials
+                ===========
+
+                host  origin  service  public         private                realm  private_type  JtR Format  cracked_password
+                ----  ------  -------  ------         -------                -----  ------------  ----------  ----------------
+                                       thisuser       thispass                      Password
+                                       this_username  this_cracked_password         Password
+
+              TABLE
             end
           end
 
@@ -280,15 +286,15 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
               skip 'Weird uniqueness constraint on Core (workspace_id, public_id)'
 
               creds.cmd_creds('-t', 'ntlm')
-              # Table matching really sucks
-              expect(@output).to =~ [
-                'Credentials',
-                '===========',
-                '',
-                'host  service  public    private                                                            realm  private_type  JtR Format  cracked_password',
-                '----  -------  ------    -------                                                            -----  ------------  ----------  ----------------',
-                "               thisuser  #{ntlm_hash}         NTLM hash"
-              ]
+              expect(@output.join("\n")).to match_table <<~TABLE
+                Credentials
+                ===========
+
+                host  origin  service  public         private                                                            realm  private_type  JtR Format  cracked_password
+                ----  ------  -------  ------         -------                                                            -----  ------------  ----------  ----------------
+                                       thisuser       1443d06412d8c0e6e72c57ef50f76a05:27c433245e4763d074d30a05aae0af2c         NTLM hash
+
+              TABLE
             end
           end
         end
@@ -522,8 +528,6 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
             expect { create_core_with_login }.to change { Mdm::Host.count }.by 1
           end
         end
-
-
       end
     end
   end
