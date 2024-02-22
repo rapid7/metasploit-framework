@@ -15,6 +15,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::CommandShell
+  include Msf::Sessions::CreateSessionOptions
 
   Aliases = [
     'auxiliary/scanner/smb/login'
@@ -46,7 +47,8 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultOptions' => {
         'DB_ALL_CREDS' => false,
         'BLANK_PASSWORDS' => false,
-        'USER_AS_PASS' => false
+        'USER_AS_PASS' => false,
+        'CreateSession' => false
       }
     )
 
@@ -55,7 +57,6 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::Proxies,
-        OptBool.new('CreateSession', [false, 'Create a new session for every successful login', false]),
         OptBool.new('ABORT_ON_LOCKOUT', [ true, 'Abort the run when an account lockout is detected', false ]),
         OptBool.new('PRESERVE_DOMAINS', [ false, 'Respect a username that contains a domain name.', true ]),
         OptBool.new('RECORD_GUEST', [ false, 'Record guest-privileged random logins to the database', false ]),

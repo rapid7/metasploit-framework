@@ -8,6 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SSH
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::CommandShell
+  include Msf::Sessions::CreateSessionOptions
   include Msf::Auxiliary::Report
 
   def initialize(info = {})

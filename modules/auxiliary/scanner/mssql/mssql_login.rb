@@ -14,6 +14,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::CommandShell
   include Msf::Auxiliary::Scanner
+  include Msf::Sessions::CreateSessionOptions
 
   def initialize
     super(
@@ -29,13 +30,13 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultOptions' =>
         {
           'USERNAME' => 'sa',
-          'BLANK_PASSWORDS' => true
+          'BLANK_PASSWORDS' => true,
+          'CreateSession' => false
         }
     )
     register_options([
       Opt::Proxies,
-      OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', false]),
-      OptBool.new('CreateSession', [false, 'Create a new session for every successful login', false])
+      OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', false])
     ])
 
     options_to_deregister = %w[PASSWORD_SPRAY]
