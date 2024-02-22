@@ -21,7 +21,8 @@ module Msf
                                 option_names: ['SESSION'])
           register_option_group(name: 'RHOST',
                                 description: 'Used when making a new connection via RHOSTS',
-                                option_names: RHOST_GROUP_OPTIONS)
+                                option_names: RHOST_GROUP_OPTIONS,
+                                required_options: RHOST_GROUP_OPTIONS)
           register_options(
             [
               Msf::OptInt.new('SESSION', [ false, 'The session to run this module on' ]),

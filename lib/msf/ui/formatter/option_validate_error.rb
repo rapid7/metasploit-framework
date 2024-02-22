@@ -13,7 +13,11 @@ module Msf
           raise ArgumentError, "invalid error type #{error.class}, expected ::Msf::OptionValidateError" unless error.is_a?(::Msf::OptionValidateError)
 
           if error.reasons.empty?
-            mod.print_error("#{error.class} The following options failed to validate: #{error.options.join(', ')}")
+            if error.message
+              mod.print_error("#{error.class} #{error.message}")
+            else
+              mod.print_error("#{error.class} The following options failed to validate: #{error.options.join(', ')}")
+            end
           else
             mod.print_error("#{error.class} The following options failed to validate:")
             error.options.sort.each do |option_name|
