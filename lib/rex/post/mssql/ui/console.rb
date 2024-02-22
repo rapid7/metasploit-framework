@@ -58,7 +58,7 @@ module Rex
 
           # @return [String]
           def database_name
-            session.client.mssql_query('SELECT DB_NAME();')[:rows][0][0]
+            session.client.query('SELECT DB_NAME();')[:rows][0][0]
           end
 
           # @param [Object] val
