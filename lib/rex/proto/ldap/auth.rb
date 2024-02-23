@@ -5,7 +5,7 @@ module Rex
   module Proto
     module LDAP
       class Auth
-        SUPPORTS_SASL = %w[GSS-SPNEGO NLTM]
+        SUPPORTS_SASL = %w[GSS-SPNEGO NTLM]
         NTLM_CONST = Rex::Proto::NTLM::Constants
         NTLM_CRYPT = Rex::Proto::NTLM::Crypt
         MESSAGE = Rex::Proto::NTLM::Message
