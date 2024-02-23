@@ -2,7 +2,6 @@
 
 require 'rex/post/sql/ui/console/command_dispatcher/client'
 require 'rex/post/sql/ui/console/command_dispatcher/core'
-require 'rex/post/sql/ui/console/command_dispatcher/modules'
 
 module Rex
   module Post

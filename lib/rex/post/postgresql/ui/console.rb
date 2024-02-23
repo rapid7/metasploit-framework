@@ -19,7 +19,6 @@ module Rex
           require 'rex/post/postgresql/ui/console/command_dispatcher'
           require 'rex/post/postgresql/ui/console/command_dispatcher/core'
           require 'rex/post/postgresql/ui/console/command_dispatcher/client'
-          require 'rex/post/postgresql/ui/console/command_dispatcher/modules'
 
           #
           # Initialize the PostgreSQL console.
@@ -41,7 +40,6 @@ module Rex
 
             enstack_dispatcher(::Rex::Post::PostgreSQL::Ui::Console::CommandDispatcher::Core)
             enstack_dispatcher(::Rex::Post::PostgreSQL::Ui::Console::CommandDispatcher::Client)
-            enstack_dispatcher(::Rex::Post::PostgreSQL::Ui::Console::CommandDispatcher::Modules)
 
             # Set up logging to whatever logsink 'core' is using
             if ! $dispatcher['postgresql']
