@@ -39,7 +39,11 @@ module Rex
           # Decrypts the cipher using DES3-CBC-SHA1 schema
           def decrypt_basic(ciphertext, key)
             raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Ciphertext is not a multiple of block length' unless ciphertext.length % BLOCK_SIZE == 0
+
             cipher = OpenSSL::Cipher.new('des-ede3-cbc')
+            if key.length != cipher.key_len
+              raise Rex::Proto::Kerberos::Model::Error::KerberosError, "Decryption key length must be #{cipher.key_len} for des-ede3-cbc"
+            end
             cipher.decrypt
             cipher.key = key
             cipher.padding = 0
@@ -51,6 +55,9 @@ module Rex
           # Encrypts the cipher using DES3-CBC-SHA1 schema
           def encrypt_basic(plaintext, key)
             cipher = OpenSSL::Cipher.new('des-ede3-cbc')
+            if key.length != cipher.key_len
+              raise Rex::Proto::Kerberos::Model::Error::KerberosError, "Encryption key length must be #{cipher.key_len} for des-ede3-cbc"
+            end
             cipher.encrypt
             cipher.key = key
             cipher.padding = 0
@@ -66,9 +73,9 @@ module Rex
                 b &= ~1
                 b | (b.digits(2).count(1) + 1) % 2
               end
-              
+
               raise Rex::Proto::Kerberos::Model::Error::KerberosError unless seed.length == 7
-        
+
               firstbytes = seed.map {|b| parity(b & ~1)}
               tmp = 7.times.map { |i| (seed[i] & 1) << i+1 }
               lastbyte = parity(tmp.sum)
@@ -76,12 +83,12 @@ module Rex
               if _is_weak_des_key(keybytes)
                 keybytes[7] = keybytes[7] ^ 0xF0
               end
-              
+
               keybytes
             end
-        
+
             raise Rex::Proto::Kerberos::Model::Error::KerberosError unless seed.length == 21
-            
+
             subkeys = seed.each_slice(7).map { |slice| expand(slice) }
             subkeys.flatten
           end

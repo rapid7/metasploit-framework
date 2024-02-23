@@ -25,7 +25,7 @@ module Rex
             unicode_password = password.encode('utf-16le')
             password_digest = OpenSSL::Digest.digest('MD4', unicode_password)
           end
-          
+
           # Use this class's encryption routines to create a checksum of the data based on the key and message type
           #
           # @param key [String] the key to use to generate the checksum
@@ -261,7 +261,7 @@ module Rex
 
           def usage_str(msg_type)
             usage_table = {
-              Rex::Proto::Kerberos::Crypto::KeyUsage::AS_REP_ENCPART => Rex::Proto::Kerberos::Crypto::KeyUsage::TGS_REP_ENCPART_SESSION_KEY, 
+              Rex::Proto::Kerberos::Crypto::KeyUsage::AS_REP_ENCPART => Rex::Proto::Kerberos::Crypto::KeyUsage::TGS_REP_ENCPART_SESSION_KEY,
               Rex::Proto::Kerberos::Crypto::KeyUsage::GSS_ACCEPTOR_SIGN => Rex::Proto::Kerberos::Crypto::KeyUsage::KRB_PRIV_ENCPART
             }
             usage_mapped = usage_table.fetch(msg_type) { msg_type }
