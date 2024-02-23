@@ -16,7 +16,7 @@ module Rex
           HASH_FUNCTION = 'SHA1'
 
           # Subclasses must also define ENCRYPT_CIPHER_NAME and DECRYPT_CIPHER_NAME
-      
+
           # Derive an encryption key based on a password and salt for the given cipher type
           #
           # @param password [String] The password to use as the basis for key generation
@@ -30,11 +30,15 @@ module Rex
             tkey = random_to_key(seed)
             derive(tkey, 'kerberos'.encode('utf-8'))
           end
-      
+
           def encrypt_basic(plaintext, key)
             raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Ciphertext too short' if plaintext.length < BLOCK_SIZE
 
             cipher = OpenSSL::Cipher.new(self.class::ENCRYPT_CIPHER_NAME)
+            if key.length != cipher.key_len
+              raise Rex::Proto::Kerberos::Model::Error::KerberosError, "Encryption key length must be #{cipher.key_len} for #{self.class::ENCRYPT_CIPHER_NAME}"
+            end
+
             cipher.encrypt
             cipher.key = key
             cipher.padding = 0
@@ -51,11 +55,15 @@ module Rex
 
             ciphertext
           end
-      
+
           def decrypt_basic(ciphertext, key)
             raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Ciphertext too short' if ciphertext.length < BLOCK_SIZE
 
             cipher = OpenSSL::Cipher.new(self.class::DECRYPT_CIPHER_NAME)
+            if key.length != cipher.key_len
+              raise Rex::Proto::Kerberos::Model::Error::KerberosError, "Decryption key length must be #{cipher.key_len} for #{self.class::ENCRYPT_CIPHER_NAME}"
+            end
+
             cipher.decrypt
             cipher.key = key
             cipher.padding = 0

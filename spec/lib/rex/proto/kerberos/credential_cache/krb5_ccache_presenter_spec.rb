@@ -307,7 +307,7 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
 
     context 'when the decryption key is invalid' do
       it 'raises an exception' do
-        expect { subject.present(key: 'Invalid key') }.to raise_error(ArgumentError)
+        expect { subject.present(key: 'key length must be') }.to raise_error(Rex::Proto::Kerberos::Model::Error::KerberosError)
       end
     end
 
