@@ -224,6 +224,7 @@ queries:
       - adminCount
       - managedBy
       - groupAttributes
+      - objectSID
     references:
       - http://www.ldapexplorer.com/en/manual/109050000-famous-filters.htm
   - action: ENUM_GROUP_POLICY_OBJECTS
