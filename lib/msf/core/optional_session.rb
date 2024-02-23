@@ -11,7 +11,7 @@ module Msf
     # Validates options depending on whether we are using  SESSION or an RHOST for our connection
     def validate
       super
-      return unless framework.features.enabled?(Msf::FeatureManager::SMB_SESSION_TYPE)
+      return unless optional_session_enabled?
 
       # If the session is set use that by default regardless of rhost being (un)set
       if session
@@ -21,6 +21,12 @@ module Msf
       else
         raise Msf::OptionValidateError.new(message: 'A SESSION or RHOST must be provided')
       end
+    end
+
+    def session
+      return nil unless optional_session_enabled?
+
+      super
     end
 
     protected

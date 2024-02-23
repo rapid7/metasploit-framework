@@ -15,7 +15,7 @@ module Msf
           )
         )
 
-        if framework.features.enabled?(Msf::FeatureManager::MYSQL_SESSION_TYPE)
+        if optional_session_enabled?
           register_option_group(name: 'SESSION',
                                 description: 'Used when connecting via an existing SESSION',
                                 option_names: ['SESSION'])
@@ -35,10 +35,8 @@ module Msf
         end
       end
 
-      def session
-        return nil unless framework.features.enabled?(Msf::FeatureManager::MYSQL_SESSION_TYPE)
-
-        super
+      def optional_session_enabled?
+        framework.features.enabled?(Msf::FeatureManager::MYSQL_SESSION_TYPE)
       end
     end
   end
