@@ -136,23 +136,36 @@ module Msf
           end
 
           def cmd_sessions_help
-            print_line('Usage: sessions <id>')
+            print_line('Usage: sessions <id> or sessions -i <id>')
             print_line
             print_line('Interact with a different session Id.')
-            print_line('This works the same as calling this from the MSF shell: sessions -i <session id>')
             print_line
           end
 
           def cmd_sessions(*args)
-            if args.empty? || args[0].to_i == 0
+            if args.empty? ||
+               (args.length == 1 && args[0].to_i == 0) ||
+               (args.length == 2 && args[1].to_i == 0)
               cmd_sessions_help
-            elsif args[0].to_s == session.name.to_s
+              return
+            end
+
+            if args.length == 1 && args[0] =~ /-?\d+/
+              sid = args[0].to_i
+            elsif args.length == 2 && args[0] == '-i' && args[1] =~ /-?\d+/
+              sid = args[1].to_i
+            else
+              cmd_sessions_help
+              return
+            end
+
+            if sid.to_s == session.name.to_s
               print_status("Session #{session.name} is already interactive.")
             else
               print_status("Backgrounding session #{session.name}...")
               # store the next session id so that it can be referenced as soon
               # as this session is no longer interacting
-              session.next_session = args[0]
+              session.next_session = sid
               session.interacting = false
             end
           end
