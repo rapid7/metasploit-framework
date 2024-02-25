@@ -66,12 +66,12 @@ RSpec.shared_examples_for 'session command dispatcher' do
           allow(session).to receive(:next_session=)
         end
 
-        let(:new_session_id) { 2 }
+        let(:new_session_id) { '2' }
 
         it 'backgrounds the session and switches to the new session' do
-          subject.cmd_sessions(new_session_id)
+          subject.cmd_sessions('-i', new_session_id)
           expect(session).to have_received(:interacting=).with(false)
-          expect(session).to have_received(:next_session=).with(new_session_id)
+          expect(session).to have_received(:next_session=).with(new_session_id.to_i)
         end
       end
     end
