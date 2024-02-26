@@ -18,7 +18,6 @@ module Rex
           require 'rex/post/smb/ui/console/command_dispatcher'
           require 'rex/post/smb/ui/console/command_dispatcher/core'
           require 'rex/post/smb/ui/console/command_dispatcher/shares'
-          require 'rex/post/smb/ui/console/command_dispatcher/modules'
 
           #
           # Initialize the SMB console.
@@ -43,7 +42,6 @@ module Rex
 
             enstack_dispatcher(Rex::Post::SMB::Ui::Console::CommandDispatcher::Core)
             enstack_dispatcher(Rex::Post::SMB::Ui::Console::CommandDispatcher::Shares)
-            enstack_dispatcher(Rex::Post::SMB::Ui::Console::CommandDispatcher::Modules)
 
             # Set up logging to whatever logsink 'core' is using
             if !$dispatcher['smb']
