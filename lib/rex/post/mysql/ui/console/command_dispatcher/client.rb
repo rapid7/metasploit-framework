@@ -21,8 +21,8 @@ module Rex
           def cmd_query_help
             print_line 'Usage: query'
             print_line
-            print_line 'Run a raw SQL query on the target.'
-            print_line
+            print_line 'Run a single SQL query on the target.'
+            print_line @@query_opts.usage
             print_line 'Examples:'
             print_line
             print_line '    query SHOW DATABASES;'

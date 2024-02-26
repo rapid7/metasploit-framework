@@ -24,8 +24,8 @@ module Rex
           def cmd_query_help
             print_line 'Usage: query'
             print_line
-            print_line 'Run a raw SQL query on the target.'
-            print_line
+            print_line 'Run a single SQL query on the target.'
+            print_line @@query_opts.usage
             print_line 'Examples:'
             print_line
             print_line '    query select @@version;'
@@ -34,7 +34,7 @@ module Rex
             print_line
           end
 
-          # @param [Hash] result The MSQQL query result
+          # @param [Hash] result The MSSQL query result
           # @return [Hash] Hash containing rows, columns and errors.
           def normalise_sql_result(result)
             { rows: result[:rows], columns: result[:colnames], errors: result[:errors] }
