@@ -1,6 +1,8 @@
 # -*- coding: binary -*-
 
 require 'English'
+require 'rex/post/session_compatible_modules'
+
 module Rex
   module Post
     module SMB
@@ -13,6 +15,7 @@ module Rex
         class Console
 
           include Rex::Ui::Text::DispatcherShell
+          include Rex::Post::SessionCompatibleModules
 
           # Dispatchers
           require 'rex/post/smb/ui/console/command_dispatcher'
@@ -96,6 +99,12 @@ module Rex
           rescue ::StandardError => e
             log_error("Error running command #{method}: #{e.class} #{e}")
             elog(e)
+          end
+
+          # @param [Hash] opts
+          # @return [String]
+          def help_to_s(opts = {})
+            super + format_session_compatible_modules
           end
 
           #
