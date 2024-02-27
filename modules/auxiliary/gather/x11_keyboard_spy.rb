@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
           'SideEffects' => [],
-          'AKA' => ['xspy']
+          'AKA' => ['xspy'],
           'RelatedModules' => [
             'auxiliary/scanner/x11/open_x11',
           ]
@@ -185,7 +185,7 @@ class MetasploitModule < Msf::Auxiliary
     sock.put(X11CREATEGRAPHICALCONTEXTREQUEST.new(cid: connection.resource_id_base,
                                                   drawable: connection.screen_root,
                                                   gc_value_mask_background: 1).to_binary_s +
-             X11GETPROPERTY.new(window: connection.screen_root).to_binary_s) # not sure why we do this
+             X11GETPROPERTYREQUEST.new(window: connection.screen_root).to_binary_s) # not sure why we do this
     sock.get_once(-1, 1)
 
     vprint_status('(5/9) Checking on XKEYBOARD extension')
