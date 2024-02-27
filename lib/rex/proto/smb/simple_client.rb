@@ -214,6 +214,7 @@ class SimpleClient
       end
 
       file_id = self.client.open(path, mode, read: true, write: write || perm.include?('w'))
+
     else
       mode = UTILS.open_mode_to_mode(perm)
       access = UTILS.open_mode_to_access(perm)

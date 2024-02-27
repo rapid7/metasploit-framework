@@ -36,6 +36,7 @@ module Rex
             # The ruby smb client context
             self.session = session
             self.client = session.client
+            self.simple_client = session.simple_client
 
             # Queued commands array
             self.commands = []
@@ -125,6 +126,9 @@ module Rex
           # @return [RubySMB::Client]
           attr_reader :client # :nodoc:
 
+          # @return [Rex::Proto::SMB::SimpleClient]
+          attr_reader :simple_client
+
           # @return [RubySMB::SMB2::Tree]
           attr_accessor :active_share
 
@@ -134,7 +138,7 @@ module Rex
           def format_prompt(val)
             if active_share
               share_name = active_share.share[/[^\\].*$/, 0]
-              cwd = self.cwd.blank? ? '' : "\\#{self.cwd}"
+              cwd = self.cwd.blank? ? '' : "\\#{Rex::Ntpath.as_ntpath(self.cwd)}"
               prompt = "#{share_name}#{cwd}"
             else
               prompt = session.address.to_s
@@ -145,9 +149,8 @@ module Rex
 
           protected
 
-          attr_writer :session, :client # :nodoc: # :nodoc:
+          attr_writer :session, :client, :simple_client # :nodoc: # :nodoc:
           attr_accessor :commands # :nodoc:
-
         end
       end
     end
