@@ -12,6 +12,7 @@ end
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', '..', '..', 'lib')))
 require 'msfenv'
 require 'rex'
+require 'rex/exploit/view_state'
 require 'optparse'
 
 DND = Msf::Util::DotNetDeserialization
@@ -62,6 +63,28 @@ module YSoSerialDotNet
           options[:output_format] = v.downcase
         end
 
+        opt.on('--viewstate-validation-algorithm  <String>', 'The validation algorithm') do |v|
+          normalized = v.upcase.delete_prefix('HMAC')
+          unless %w[SHA1 SHA256 SHA384 SHA512 MD5].include?(normalized)
+            raise OptionParser::InvalidArgument, "--viewstate-validation-algorithm must be one of SHA1 HMACSHA256 HMACSHA384 HMACSHA512 MD5"
+          end
+
+          # in some instances OpenSSL may not include all the algorithms that we might expect, so check for that
+          unless OpenSSL::Digest.constants.include?(normalized.to_sym)
+            raise RuntimeError, "OpenSSL does not support the #{normalized} digest"
+          end
+
+          options[:viewstate_validation_algorithm] = normalized
+        end
+
+        opt.on('--viewstate-validation-key        <HexString>', 'The validationKey from the web.config file') do |v|
+          unless v=~ /^[a-f0-9]{2}+$/i
+            raise OptionParser::InvalidArgument, "--viewstate-validation-key must be in hex"
+          end
+
+          options[:viewstate_validation_key] = v.scan(/../).map { |x| x.hex.chr }.join
+        end
+
         opt.on_tail('--list-output-formats', 'List available output formats, for use with --output') do |v|
           puts_transform_formats
           exit
@@ -110,11 +133,18 @@ module YSoSerialDotNet
         formatter: @opts[:formatter]
       )
 
+      if @opts[:viewstate_validation_key]
+        serialized = Rex::Exploit::ViewState.generate_viewstate(
+          serialized,
+          algo: @opts.fetch(:viewstate_validation_algorithm, 'SHA1'),
+          key: @opts[:viewstate_validation_key]
+        )
+      end
+
       transformed = ::Msf::Simple::Buffer.transform(serialized, @opts[:output_format])
       $stderr.puts "Size:         #{transformed.length}"
       $stdout.puts transformed
     end
-
   end
 end
 
