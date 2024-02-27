@@ -232,6 +232,7 @@ module DispatcherShell
     #
     # Return a pretty, user-readable table of commands provided by this
     # dispatcher.
+    # The command column width can be modified by passing in :command_width.
     #
     def help_to_s(opts={})
       # If this dispatcher has no commands, we can't do anything useful.
@@ -250,7 +251,7 @@ module DispatcherShell
           {
             'Command' =>
               {
-                'Width' => 12
+                'Width' => opts[:command_width]
               }
           })
 
@@ -656,8 +657,10 @@ module DispatcherShell
   def help_to_s(opts = {})
     str = ''
 
+    max_command_length = dispatcher_stack.flat_map { |dispatcher| dispatcher.commands.to_a }.map { |(name, _description)| name.length }.max
+
     dispatcher_stack.reverse.each { |dispatcher|
-      str << dispatcher.help_to_s
+      str << dispatcher.help_to_s(opts.merge({ command_width: [max_command_length, 12].max }))
     }
 
     return str
