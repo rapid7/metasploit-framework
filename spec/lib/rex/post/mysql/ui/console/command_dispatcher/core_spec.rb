@@ -2,11 +2,11 @@
 
 require 'spec_helper'
 require 'rex/post/mysql/ui/console'
-require 'mysql'
+require 'rex/proto/mysql/client'
 
 RSpec.describe Rex::Post::MySQL::Ui::Console::CommandDispatcher::Core do
   let(:rstream) { instance_double(::Rex::Socket) }
-  let(:client) { instance_double(::Mysql) }
+  let(:client) { instance_double(::Rex::Proto::MySQL::Client) }
   let(:database) { 'database_name' }
   let(:address) { '192.0.2.1' }
   let(:port) { '3306' }

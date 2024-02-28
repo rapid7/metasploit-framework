@@ -179,7 +179,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # @param [Metasploit::Framework::LoginScanner::Result] result
-  # @param [::Mysql] client
+  # @param [::Rex::Proto::MySQL::Client] client
   # @return [Msf::Sessions::MySQL]
   def session_setup(result, client)
     return unless (result && client)

@@ -70,10 +70,10 @@ class MetasploitModule < Msf::Auxiliary
 
       print_good "#{rhost}:#{rport} The server accepted our first login as #{username} with a bad password. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
 
-    rescue ::Mysql::HostNotPrivileged
+    rescue ::Rex::Proto::MySQL::Client::HostNotPrivileged
       print_error "#{rhost}:#{rport} Unable to login from this host due to policy (may still be vulnerable)"
       return
-    rescue ::Mysql::AccessDeniedError
+    rescue ::Rex::Proto::MySQL::Client::AccessDeniedError
       print_good "#{rhost}:#{rport} The server allows logins, proceeding with bypass test"
     rescue ::Interrupt
       raise $!
@@ -125,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
             print_good "#{rhost}:#{rport} Successfully bypassed authentication after #{count} attempts. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
             results << mysql_client
             close_required = false
-          rescue ::Mysql::AccessDeniedError
+          rescue ::Rex::Proto::MySQL::Client::AccessDeniedError
           rescue ::Exception => e
             print_bad "#{rhost}:#{rport} Thread #{count}] caught an unhandled exception: #{e}"
           ensure

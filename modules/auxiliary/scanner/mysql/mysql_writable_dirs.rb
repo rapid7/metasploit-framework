@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       print_status("Checking #{dir}...")
       res = mysql_query_no_handle("SELECT _utf8'test' INTO DUMPFILE '#{dir}/" + datastore['FILE_NAME'] + "'")
-    rescue ::Mysql::ServerError => e
+    rescue ::Rex::Proto::MySQL::Client::ServerError => e
       print_warning(e.to_s)
     rescue Rex::ConnectionTimeout => e
       print_error("Timeout: #{e.message}")
