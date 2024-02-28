@@ -16,6 +16,8 @@ class SimpleClient
   XCEPT = Rex::Proto::SMB::Exceptions
   EVADE = Rex::Proto::SMB::Evasions
 
+  DEFAULT_VERSIONS = [1, 2, 3].freeze
+
   # Public accessors
   attr_accessor :last_error, :server_max_buffer_size, :address, :port
 
@@ -23,7 +25,7 @@ class SimpleClient
   attr_accessor :socket, :client, :direct, :shares, :last_share, :versions
 
   # Pass the socket object and a boolean indicating whether the socket is netbios or cifs
-  def initialize(socket, direct = false, versions = [1, 2, 3], always_encrypt: true, backend: nil, client: nil)
+  def initialize(socket, direct = false, versions = DEFAULT_VERSIONS, always_encrypt: true, backend: nil, client: nil)
     self.socket = socket
     self.direct = direct
     self.versions = versions
