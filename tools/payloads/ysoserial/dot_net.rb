@@ -45,12 +45,19 @@ module YSoSerialDotNet
       options = {
         formatter:     DND::DEFAULT_FORMATTER,
         gadget_chain:  DND::DEFAULT_GADGET_CHAIN,
-        output_format: 'raw'
+        output_format: 'raw',
+        viewstate_generator: '',
+        viewstate_validation_algorithm: 'SHA1'
       }
       parser = OptionParser.new do |opt|
         opt.banner = BANNER
         opt.separator ''
-        opt.separator 'Specific options:'
+        opt.separator 'General options:'
+
+        opt.on('-h', '--help', 'Show this message') do
+          $stdout.puts opt
+          exit
+        end
 
         opt.on('-c', '--command   <String>', 'The command to run') do |v|
           options[:command] = v
@@ -83,6 +90,22 @@ module YSoSerialDotNet
           options[:output_format] = v.downcase
         end
 
+        opt.on('--list-output-formats', 'List available output formats, for use with --output') do |v|
+          puts_transform_formats
+          exit
+        end
+
+        opt.separator ''
+        opt.separator 'ViewState related options:'
+
+        opt.on('--viewstate-generator             <String>', 'The ViewState generator string to use') do |v|
+          unless v =~ /^[a-f0-9]{8}$/i
+            raise OptionParser::InvalidArgument, 'must be 8 hex characters, e.g. DEAD1337'
+          end
+
+          options[:viewstate_generator] = [v.to_i(16)].pack('V')
+        end
+
         opt.on('--viewstate-validation-algorithm  <String>', 'The validation algorithm (default: SHA1, see: Available HMAC algorithms)') do |v|
           normalized = v.upcase.delete_prefix('HMAC')
           unless %w[SHA1 SHA256 SHA384 SHA512 MD5].include?(normalized)
@@ -98,21 +121,11 @@ module YSoSerialDotNet
         end
 
         opt.on('--viewstate-validation-key        <HexString>', 'The validationKey from the web.config file') do |v|
-          unless v=~ /^[a-f0-9]{2}+$/i
+          unless v =~ /^[a-f0-9]{2}+$/i
             raise OptionParser::InvalidArgument, 'must be in hex'
           end
 
           options[:viewstate_validation_key] = v.scan(/../).map { |x| x.hex.chr }.join
-        end
-
-        opt.on_tail('--list-output-formats', 'List available output formats, for use with --output') do |v|
-          puts_transform_formats
-          exit
-        end
-
-        opt.on_tail('-h', '--help', 'Show this message') do
-          $stdout.puts opt
-          exit
         end
       end
 
@@ -148,7 +161,8 @@ module YSoSerialDotNet
       if @opts[:viewstate_validation_key]
         serialized = Rex::Exploit::ViewState.generate_viewstate(
           serialized,
-          algo: @opts.fetch(:viewstate_validation_algorithm, 'SHA1'),
+          extra: @opts[:viewstate_generator],
+          algo: @opts[:viewstate_validation_algorithm],
           key: @opts[:viewstate_validation_key]
         )
       end
