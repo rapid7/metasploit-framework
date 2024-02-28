@@ -23,10 +23,15 @@ Generate a .NET deserialization payload that will execute an operating system
 command using the specified gadget chain and formatter.
 
 Available formatters:
-#{DND::Formatters::NAMES.map { |n| "    * #{n}\n"}.join}
+#{DND::Formatters::NAMES.map { |n| "  * #{n}\n"}.join}
 Available gadget chains:
-#{DND::GadgetChains::NAMES.map { |n| "    * #{n}\n"}.join}
-Example: #{__FILE__} -c "net user msf msf /ADD" -f BinaryFormatter -g TextFormattingRunProperties
+#{DND::GadgetChains::NAMES.map { |n| "  * #{n}\n"}.join}
+Available HMAC algorithms: SHA1, HMACSHA256, HMACSHA384, HMACSHA512, MD5
+
+Examples:
+  #{__FILE__} -c "net user msf msf /ADD" -f BinaryFormatter -g TypeConfuseDelegate -o base64
+  #{__FILE__} -c "calc.exe" -f LosFormatter -g TextFormattingRunProperties \\
+    --viewstate-validation-key deadbeef --viewstate-validation-algorithm SHA1
 }.strip
 
 def puts_transform_formats
@@ -63,7 +68,7 @@ module YSoSerialDotNet
           options[:output_format] = v.downcase
         end
 
-        opt.on('--viewstate-validation-algorithm  <String>', 'The validation algorithm') do |v|
+        opt.on('--viewstate-validation-algorithm  <String>', 'The validation algorithm (default: SHA1, see: Available HMAC algorithms)') do |v|
           normalized = v.upcase.delete_prefix('HMAC')
           unless %w[SHA1 SHA256 SHA384 SHA512 MD5].include?(normalized)
             raise OptionParser::InvalidArgument, "--viewstate-validation-algorithm must be one of SHA1 HMACSHA256 HMACSHA384 HMACSHA512 MD5"
