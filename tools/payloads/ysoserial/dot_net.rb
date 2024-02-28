@@ -43,9 +43,9 @@ module YSoSerialDotNet
   class OptsConsole
     def self.parse(args)
       options = {
-          formatter:     DND::DEFAULT_FORMATTER,
-          gadget_chain:  DND::DEFAULT_GADGET_CHAIN,
-          output_format: 'raw'
+        formatter:     DND::DEFAULT_FORMATTER,
+        gadget_chain:  DND::DEFAULT_GADGET_CHAIN,
+        output_format: 'raw'
       }
       parser = OptionParser.new do |opt|
         opt.banner = BANNER
@@ -57,21 +57,36 @@ module YSoSerialDotNet
         end
 
         opt.on('-f', '--formatter <String>', "The formatter to use (default: #{DND::DEFAULT_FORMATTER})") do |v|
-          options[:formatter] = v.to_sym
+          v = v.to_sym
+          unless DND::Formatters::NAMES.include?(v)
+            raise OptionParser::InvalidArgument, "#{v} is not a valid formatter"
+          end
+
+          options[:formatter] = v
         end
 
         opt.on('-g', '--gadget    <String>', "The gadget chain to use (default: #{DND::DEFAULT_GADGET_CHAIN})") do |v|
+          v = v.to_sym
+          unless DND::GadgetChains::NAMES.include?(v)
+            raise OptionParser::InvalidArgument, "#{v} is not a valid gadget chain"
+          end
+
           options[:gadget_chain] = v.to_sym
         end
 
         opt.on('-o', '--output    <String>', 'The output format to use (default: raw, see: --list-output-formats)') do |v|
+          normalized = o.downcase
+          unless Msf::Simple::Buffer.transform_formats.include?(normalized)
+            raise OptionParser::InvalidArgument, "#{v} is not a valid output format"
+          end
+
           options[:output_format] = v.downcase
         end
 
         opt.on('--viewstate-validation-algorithm  <String>', 'The validation algorithm (default: SHA1, see: Available HMAC algorithms)') do |v|
           normalized = v.upcase.delete_prefix('HMAC')
           unless %w[SHA1 SHA256 SHA384 SHA512 MD5].include?(normalized)
-            raise OptionParser::InvalidArgument, "--viewstate-validation-algorithm must be one of SHA1 HMACSHA256 HMACSHA384 HMACSHA512 MD5"
+            raise OptionParser::InvalidArgument, "#{v} is not a valid algorithm"
           end
 
           # in some instances OpenSSL may not include all the algorithms that we might expect, so check for that
@@ -84,7 +99,7 @@ module YSoSerialDotNet
 
         opt.on('--viewstate-validation-key        <HexString>', 'The validationKey from the web.config file') do |v|
           unless v=~ /^[a-f0-9]{2}+$/i
-            raise OptionParser::InvalidArgument, "--viewstate-validation-key must be in hex"
+            raise OptionParser::InvalidArgument, 'must be in hex'
           end
 
           options[:viewstate_validation_key] = v.scan(/../).map { |x| x.hex.chr }.join
@@ -103,16 +118,8 @@ module YSoSerialDotNet
 
       parser.parse!(args)
 
-      if options.empty?
-        raise OptionParser::MissingArgument, 'No options set, try -h for usage'
-      elsif options[:command].blank?
+      if options[:command].blank?
         raise OptionParser::MissingArgument, '-c is required'
-      elsif !DND::Formatters::NAMES.include?(options[:formatter])
-        raise OptionParser::InvalidArgument, "#{options[:formatter]} is not a valid formatter"
-      elsif !DND::GadgetChains::NAMES.include?(options[:gadget_chain])
-        raise OptionParser::InvalidArgument, "#{options[:gadget_chain]} is not a valid gadget chain"
-      elsif !Msf::Simple::Buffer.transform_formats.include?(options[:output_format])
-        raise OptionParser::InvalidArgument, "#{options[:output_format]} is not a valid output format"
       end
 
       options
