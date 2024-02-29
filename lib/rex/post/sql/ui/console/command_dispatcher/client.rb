@@ -137,11 +137,31 @@ module Rex
                 end
 
                 result = run_query(args.join(' '))
+                case result[:status]
+                when :success
+                  # When changing a database in MySQL, we get a nil result back.
+                  # When changing a database in MSSQL, we get a result, but it doesn't contain colnames or rows.
+                  normalised_result = normalise_sql_result(result[:result])
 
-                normalised_result = result[:status] == :success ? normalise_sql_result(result[:result]) : result[:result]
-                formatted_result = format_result(normalised_result)
+                  # MSSQL returns :success, even if the query failed due to wrong syntax.
+                  if normalised_result[:errors].any?
+                    print_error "Query has failed. Reasons: #{normalised_result[:errors].join(', ')}"
+                    return
+                  end
 
-                normalised_result[:errors].any? ? print_error(formatted_result.to_s) : print_line(formatted_result.to_s)
+                  if normalised_result[:rows].nil? || normalised_result[:columns].nil? # Should this be AND?
+                    print_status 'Query executed successfully'
+                    return
+                  end
+
+                  formatted_result = format_result(normalised_result)
+                  print_line(formatted_result.to_s)
+                when :error
+                  print_error "Query has failed. Reasons: #{result[:result][:errors].join(', ')}"
+                else
+                  elog "Unknown query status: #{result[:status]}"
+                  print_error "Unknown query status: #{result[:status]}"
+                end
               end
 
               def process_query(query: '')
