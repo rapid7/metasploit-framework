@@ -117,7 +117,7 @@ module InteractiveSqlClient
 
     if finished
       self.interacting = false
-      print_status 'Exiting Shell mode.'
+      print_status 'Exiting Interactive mode.'
       return { status: :exit, result: nil }
     end
 
@@ -132,7 +132,7 @@ module InteractiveSqlClient
 
       if stop_words.include? line.chomp.downcase
         self.interacting = false
-        print_status 'Exiting Shell mode.'
+        print_status 'Exiting Interactive mode.'
         return { status: :exit, result: nil }
       end
 

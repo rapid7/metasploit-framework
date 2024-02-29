@@ -16,6 +16,11 @@ module Rex
 
               include Rex::Post::Sql::Ui::Console::CommandDispatcher
 
+              @@query_opts = Rex::Parser::Arguments.new(
+                ['-h', '--help'] => [false, 'Help menu.'],
+                ['-i', '--interact'] => [false,  'Enter an interactive prompt for running multiple SQL queries'],
+                )
+
               #
               # Initializes an instance of the core command set using the supplied console
               # for interactivity.
@@ -32,8 +37,8 @@ module Rex
               #
               def commands
                 cmds = {
-                  'query'   => 'Run a raw SQL query',
-                  'shell'   => 'Enter a raw shell where SQL queries can be executed',
+                  'query'   => 'Run a single SQL query',
+                  'query_interactive'   => 'Enter an interactive prompt for running multiple SQL queries',
                 }
 
                 reqs = {}
@@ -54,17 +59,17 @@ module Rex
                 args.include?('-h') || args.include?('--help')
               end
 
-              def cmd_shell_help
-                print_line 'Usage: shell'
+              def cmd_query_interactive_help
+                print_line 'Usage: query_interactive'
                 print_line
-                print_line 'Go into a raw SQL shell where SQL queries can be executed.'
+                print_line 'Go into an interactive SQL shell where SQL queries can be executed.'
                 print_line "To exit, type 'exit', 'quit', 'end' or 'stop'."
                 print_line
               end
 
-              def cmd_shell(*args)
+              def cmd_query_interactive(*args)
                 if help_args?(args)
-                  cmd_shell_help
+                  cmd_query_interactive_help
                   return
                 end
 
@@ -120,9 +125,15 @@ module Rex
               end
 
               def cmd_query(*args)
-                if help_args?(args)
-                  cmd_query_help
-                  return
+                @@query_opts.parse(args) do |opt, idx, val|
+                  case opt
+                  when '-h', '--help'
+                    cmd_query_help
+                    return
+                  when '-i', '--interact'
+                    cmd_query_interactive
+                    return
+                  end
                 end
 
                 result = run_query(args.join(' '))
