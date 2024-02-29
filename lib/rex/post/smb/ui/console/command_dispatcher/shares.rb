@@ -225,7 +225,9 @@ module Rex
 
             return print_no_share_selected unless active_share
 
-            print_line shell.cwd || ''
+            share_name = active_share.share[/[^\\].*$/, 0]
+            cwd = shell.cwd.blank? ? '' : "\\#{shell.cwd}"
+            print_line "Current directory is \\\\#{share_name}#{cwd}\\"
           end
 
           def cmd_pwd_tabs(_str, words)
