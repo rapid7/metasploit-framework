@@ -28,7 +28,7 @@ module Rex
             # The postgresql client context
             self.session = session
             self.client = session.client
-            prompt = "%undPostgreSQL @ #{client.conn.peerinfo} (#{database_name})%clr"
+            prompt = "%undPostgreSQL @ #{client.conn.peerinfo} (#{current_database})%clr"
             history_manager = Msf::Config.postgresql_session_history
             super(prompt, '>', history_manager, nil, :postgresql)
 
@@ -53,13 +53,8 @@ module Rex
           # @return [PostgreSQL::Client]
           attr_reader :client # :nodoc:
 
-          # @return [String]
-          def database_name
-            client.params['database']
-          end
-
           def format_prompt(val)
-            prompt = "%undPostgreSQL @ #{client.conn.peerinfo} (#{database_name})%clr > "
+            prompt = "%undPostgreSQL @ #{client.conn.peerinfo} (#{current_database})%clr > "
             substitute_colors(prompt, true)
           end
 

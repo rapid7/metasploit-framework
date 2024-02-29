@@ -129,6 +129,10 @@ class Connection
     @conn.peerport
   end
 
+  def current_database
+    @params['database']
+  end
+
   def close
     raise "connection already closed" if @conn.nil?
     @conn.shutdown
