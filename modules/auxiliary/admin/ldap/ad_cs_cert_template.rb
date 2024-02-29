@@ -327,13 +327,13 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status('Certificate Template:')
     print_status("  distinguishedName: #{obj['distinguishedname'].first}")
-    print_status("  displayName:       #{obj['displayname'].first}") if obj['displayname'].first.present?
+    print_status("  displayName:       #{obj['displayname'].first}") if obj['displayname'].present?
     if obj['objectguid'].first.present?
       object_guid = Rex::Proto::MsDtyp::MsDtypGuid.read(obj['objectguid'].first)
       print_status("  objectGUID:        #{object_guid}")
     end
 
-    mspki_flag = obj['mspki-certificate-name-flag'].first
+    mspki_flag = obj['mspki-certificate-name-flag']&.first
     if mspki_flag.present?
       mspki_flag = [obj['mspki-certificate-name-flag'].first.to_i].pack('l').unpack1('L')
       print_status("  msPKI-Certificate-Name-Flag: 0x#{mspki_flag.to_s(16).rjust(8, '0')}")
@@ -358,7 +358,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    mspki_flag = obj['mspki-enrollment-flag'].first
+    mspki_flag = obj['mspki-enrollment-flag']&.first
     if mspki_flag.present?
       mspki_flag = [obj['mspki-enrollment-flag'].first.to_i].pack('l').unpack1('L')
       print_status("  msPKI-Enrollment-Flag: 0x#{mspki_flag.to_s(16).rjust(8, '0')}")
@@ -387,7 +387,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    mspki_flag = obj['mspki-private-key-flag'].first
+    mspki_flag = obj['mspki-private-key-flag']&.first
     if mspki_flag.present?
       mspki_flag = [obj['mspki-private-key-flag'].first.to_i].pack('l').unpack1('L')
       print_status("  msPKI-Private-Key-Flag: 0x#{mspki_flag.to_s(16).rjust(8, '0')}")
@@ -413,7 +413,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    mspki_flag = obj['mspki-ra-signature'].first
+    mspki_flag = obj['mspki-ra-signature']&.first
     if mspki_flag.present?
       mspki_flag = [obj['mspki-ra-signature'].first.to_i].pack('l').unpack1('L')
       print_status("  msPKI-RA-Signature: 0x#{mspki_flag.to_s(16).rjust(8, '0')}")
