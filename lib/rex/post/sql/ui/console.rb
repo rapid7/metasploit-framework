@@ -1,5 +1,6 @@
 require 'rex/post/sql/ui/console/command_dispatcher'
 require 'rex/post/sql/ui/console/interactive_sql_client'
+require 'rex/post/session_compatible_modules'
 
 module Rex
   module Post
@@ -12,6 +13,7 @@ module Rex
         module Console
 
           include Rex::Ui::Text::DispatcherShell
+          include Rex::Post::SessionCompatibleModules
 
           # Called when someone wants to interact with an SQL client.  It's
           # assumed that init_ui has been called prior.
@@ -67,6 +69,12 @@ module Rex
               log_error("Error running command #{method}: #{e.class} #{e}")
               elog(e)
             end
+          end
+
+          # @param [Hash] opts
+          # @return [String]
+          def help_to_s(opts = {})
+            super + format_session_compatible_modules
           end
 
           #

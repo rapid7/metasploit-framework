@@ -34,6 +34,7 @@ module Msf::Modules::Metadata::Search
       reference
       references
       rport
+      session_type
       stage
       stager
       target
@@ -213,6 +214,8 @@ module Msf::Modules::Metadata::Search
               match = [keyword, search_term] if module_metadata.stager_refname =~ regex
             when 'adapter'
               match = [keyword, search_term] if module_metadata.adapter_refname =~ regex
+            when 'session_type'
+              match = [keyword, search_term] if module_metadata.session_types && module_metadata.session_types.any? { |session_type| session_type =~ regex }
             when 'port', 'rport'
               match = [keyword, search_term] if module_metadata.rport.to_s =~ regex
             when 'rank'
