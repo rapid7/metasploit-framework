@@ -9,7 +9,7 @@ RSpec.describe Rex::Proto::MySQL::Client do
   [
     { method: :peerhost, return_type: String },
     { method: :peerport, return_type: Integer },
-    { method: :database_name, return_type: String }
+    { method: :current_database, return_type: String }
   ].each do |method_hash|
     it { is_expected.to respond_to method_hash[:method] }
   end
