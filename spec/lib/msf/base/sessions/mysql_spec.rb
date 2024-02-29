@@ -18,14 +18,14 @@ RSpec.describe Msf::Sessions::MySQL do
   let(:address) { '192.0.2.1' }
   let(:port) { '3306' }
   let(:peerinfo) { "#{address}:#{port}" }
-  let(:database) { 'database_name' }
+  let(:current_database) { 'database_name' }
 
   before(:each) do
     allow(user_input).to receive(:output=)
     allow(user_input).to receive(:intrinsic_shell?).and_return(true)
     allow(rstream).to receive(:peerinfo).and_return(peerinfo)
     allow(client).to receive(:socket).and_return(rstream)
-    allow(client).to receive(:database).and_return(database)
+    allow(client).to receive(:current_database).and_return(current_database)
     allow(::Rex::Proto::MySQL::Client).to receive(:connect).and_return(client)
   end
 
