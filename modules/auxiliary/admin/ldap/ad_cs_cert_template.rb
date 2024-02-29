@@ -333,10 +333,10 @@ class MetasploitModule < Msf::Auxiliary
       print_status("  objectGUID:        #{object_guid}")
     end
 
-    mspki_flag = obj['mspki-certificate-name-flag']&.first
-    if mspki_flag.present?
-      mspki_flag = [obj['mspki-certificate-name-flag'].first.to_i].pack('l').unpack1('L')
-      print_status("  msPKI-Certificate-Name-Flag: 0x#{mspki_flag.to_s(16).rjust(8, '0')}")
+    pki_flag = obj['mspki-certificate-name-flag']&.first
+    if pki_flag.present?
+      pki_flag = [obj['mspki-certificate-name-flag'].first.to_i].pack('l').unpack1('L')
+      print_status("  msPKI-Certificate-Name-Flag: 0x#{pki_flag.to_s(16).rjust(8, '0')}")
       %w[
         CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT
         CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT_ALT_NAME
@@ -352,16 +352,16 @@ class MetasploitModule < Msf::Auxiliary
         CT_FLAG_SUBJECT_REQUIRE_DIRECTORY_PATH
         CT_FLAG_OLD_CERT_SUPPLIES_SUBJECT_AND_ALT_NAME
       ].each do |flag_name|
-        if mspki_flag & Rex::Proto::MsCrtd.const_get(flag_name) != 0
+        if pki_flag & Rex::Proto::MsCrtd.const_get(flag_name) != 0
           print_status("    * #{flag_name}")
         end
       end
     end
 
-    mspki_flag = obj['mspki-enrollment-flag']&.first
-    if mspki_flag.present?
-      mspki_flag = [obj['mspki-enrollment-flag'].first.to_i].pack('l').unpack1('L')
-      print_status("  msPKI-Enrollment-Flag: 0x#{mspki_flag.to_s(16).rjust(8, '0')}")
+    pki_flag = obj['mspki-enrollment-flag']&.first
+    if pki_flag.present?
+      pki_flag = [obj['mspki-enrollment-flag'].first.to_i].pack('l').unpack1('L')
+      print_status("  msPKI-Enrollment-Flag: 0x#{pki_flag.to_s(16).rjust(8, '0')}")
       %w[
         CT_FLAG_INCLUDE_SYMMETRIC_ALGORITHMS
         CT_FLAG_PEND_ALL_REQUESTS
@@ -381,16 +381,16 @@ class MetasploitModule < Msf::Auxiliary
         CT_FLAG_ISSUANCE_POLICIES_FROM_REQUEST
         CT_FLAG_SKIP_AUTO_RENEWAL
       ].each do |flag_name|
-        if mspki_flag & Rex::Proto::MsCrtd.const_get(flag_name) != 0
+        if pki_flag & Rex::Proto::MsCrtd.const_get(flag_name) != 0
           print_status("    * #{flag_name}")
         end
       end
     end
 
-    mspki_flag = obj['mspki-private-key-flag']&.first
-    if mspki_flag.present?
-      mspki_flag = [obj['mspki-private-key-flag'].first.to_i].pack('l').unpack1('L')
-      print_status("  msPKI-Private-Key-Flag: 0x#{mspki_flag.to_s(16).rjust(8, '0')}")
+    pki_flag = obj['mspki-private-key-flag']&.first
+    if pki_flag.present?
+      pki_flag = [obj['mspki-private-key-flag'].first.to_i].pack('l').unpack1('L')
+      print_status("  msPKI-Private-Key-Flag: 0x#{pki_flag.to_s(16).rjust(8, '0')}")
       %w[
         CT_FLAG_REQUIRE_PRIVATE_KEY_ARCHIVAL
         CT_FLAG_EXPORTABLE_KEY
@@ -407,27 +407,16 @@ class MetasploitModule < Msf::Auxiliary
         CT_FLAG_EK_VALIDATE_KEY
         CT_FLAG_HELLO_LOGON_KEY
       ].each do |flag_name|
-        if mspki_flag & Rex::Proto::MsCrtd.const_get(flag_name) != 0
+        if pki_flag & Rex::Proto::MsCrtd.const_get(flag_name) != 0
           print_status("    * #{flag_name}")
         end
       end
     end
 
-    mspki_flag = obj['mspki-ra-signature']&.first
-    if mspki_flag.present?
-      mspki_flag = [obj['mspki-ra-signature'].first.to_i].pack('l').unpack1('L')
-      print_status("  msPKI-RA-Signature: 0x#{mspki_flag.to_s(16).rjust(8, '0')}")
-    end
-
-    if obj['pkiextendedkeyusage'].present?
-      print_status('  pKIExtendedKeyUsage:')
-      obj['pkiextendedkeyusage'].each do |value|
-        if (oid = Rex::Proto::CryptoAsn1::OIDs.value(value)) && oid.label.present?
-          print_status("    * #{value} (#{oid.label})")
-        else
-          print_status("    * #{value}")
-        end
-      end
+    pki_flag = obj['mspki-ra-signature']&.first
+    if pki_flag.present?
+      pki_flag = [pki_flag.to_i].pack('l').unpack1('L')
+      print_status("  msPKI-RA-Signature: 0x#{pki_flag.to_s(16).rjust(8, '0')}")
     end
 
     if obj['mspki-certificate-policy'].present?
@@ -447,6 +436,31 @@ class MetasploitModule < Msf::Auxiliary
           end
         end
       end
+    end
+
+    if obj['mspki-template-schema-version'].present?
+      print_status("  msPKI-Template-Schema-Version: #{obj['mspki-template-schema-version'].first.to_i}")
+    end
+
+    pki_flag = obj['pkikeyusage']&.first
+    if pki_flag.present?
+      pki_flag = [pki_flag.to_i].pack('l').unpack1('L')
+      print_status("  pKIKeyUsage: 0x#{pki_flag.to_s(16).rjust(8, '0')}")
+    end
+
+    if obj['pkiextendedkeyusage'].present?
+      print_status('  pKIExtendedKeyUsage:')
+      obj['pkiextendedkeyusage'].each do |value|
+        if (oid = Rex::Proto::CryptoAsn1::OIDs.value(value)) && oid.label.present?
+          print_status("    * #{value} (#{oid.label})")
+        else
+          print_status("    * #{value}")
+        end
+      end
+    end
+
+    if obj['pkimaxissuingdepth'].present?
+      print_status("  pKIMaxIssuingDepth: #{obj['pkimaxissuingdepth'].first.to_i}")
     end
   end
 
