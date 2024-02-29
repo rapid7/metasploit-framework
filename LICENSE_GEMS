@@ -38,7 +38,7 @@ crass, 1.0.6, MIT
 daemons, 1.4.1, MIT
 date, 3.3.3, "ruby, Simplified BSD"
 debug, 1.8.0, "ruby, Simplified BSD"
-diff-lcs, 1.5.0, "MIT, Artistic-2.0, GPL-2.0+"
+diff-lcs, 1.5.1, "MIT, Artistic-2.0, GPL-2.0-or-later"
 dnsruby, 1.70.0, "Apache 2.0"
 docile, 1.4.0, MIT
 domain_name, 0.5.20190701, "Simplified BSD, New BSD, Mozilla Public License 2.0"
@@ -80,7 +80,7 @@ memory_profiler, 1.0.1, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 5.0.2, "New BSD"
 metasploit-credential, 6.0.7, "New BSD"
-metasploit-framework, 6.3.58, "New BSD"
+metasploit-framework, 6.3.59, "New BSD"
 metasploit-model, 5.0.2, "New BSD"
 metasploit-payloads, 2.0.166, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 6.0.3, "New BSD"
@@ -152,17 +152,17 @@ rex-rop_builder, 0.1.5, "New BSD"
 rex-socket, 0.1.56, "New BSD"
 rex-sslscan, 0.1.10, "New BSD"
 rex-struct2, 0.1.4, "New BSD"
-rex-text, 0.2.53, "New BSD"
+rex-text, 0.2.56, "New BSD"
 rex-zip, 0.1.5, "New BSD"
 rexml, 3.2.6, "Simplified BSD"
 rkelly-remix, 0.0.7, MIT
-rspec, 3.12.0, MIT
-rspec-core, 3.12.2, MIT
-rspec-expectations, 3.12.3, MIT
-rspec-mocks, 3.12.6, MIT
+rspec, 3.13.0, MIT
+rspec-core, 3.13.0, MIT
+rspec-expectations, 3.13.0, MIT
+rspec-mocks, 3.13.0, MIT
 rspec-rails, 6.0.3, MIT
 rspec-rerun, 1.1.0, MIT
-rspec-support, 3.12.1, MIT
+rspec-support, 3.13.0, MIT
 rubocop, 1.56.4, MIT
 rubocop-ast, 1.29.0, MIT
 ruby-macho, 4.0.0, MIT
