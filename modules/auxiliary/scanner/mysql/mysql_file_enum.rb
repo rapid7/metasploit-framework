@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       mysql_query_no_handle("USE " + datastore['DATABASE_NAME'])
-    rescue ::Mysql::Error => e
+    rescue ::Rex::Proto::MySQL::Client::Error => e
       vprint_error("MySQL Error: #{e.class} #{e.to_s}")
       return
     rescue Rex::ConnectionTimeout => e
@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
   def check_dir dir
     begin
       res = mysql_query_no_handle("LOAD DATA INFILE '" + dir + "' INTO TABLE " + datastore['TABLE_NAME'])
-    rescue ::Mysql::TextfileNotReadable
+    rescue ::Rex::Proto::MySQL::Client::TextfileNotReadable
       print_good("#{dir} is a directory and exists")
       report_note(
         :host  => mysql_conn.host,
@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
         :proto => 'tcp',
         :update => :unique_data
       )
-    rescue ::Mysql::DataTooLong, ::Mysql::TruncatedWrongValueForField
+    rescue ::Rex::Proto::MySQL::Client::DataTooLong, ::Rex::Proto::MySQL::Client::TruncatedWrongValueForField
       print_good("#{dir} is a file and exists")
       report_note(
         :host  => mysql_conn.host,
@@ -107,9 +107,9 @@ class MetasploitModule < Msf::Auxiliary
         :proto => 'tcp',
         :update => :unique_data
       )
-    rescue ::Mysql::ServerError
+    rescue ::Rex::Proto::MySQL::Client::ServerError
       vprint_warning("#{dir} does not exist")
-    rescue ::Mysql::Error => e
+    rescue ::Rex::Proto::MySQL::Client::Error => e
       vprint_error("MySQL Error: #{e.class} #{e.to_s}")
       return
     rescue Rex::ConnectionTimeout => e

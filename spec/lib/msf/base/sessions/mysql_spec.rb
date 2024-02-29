@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'mysql'
+require 'rex/proto/mysql/client'
 
 RSpec.describe Msf::Sessions::MySQL do
   let(:rstream) { instance_double(::Rex::Socket) }
-  let(:client) { instance_double(::Mysql) }
+  let(:client) { instance_double(::Rex::Proto::MySQL::Client) }
   let(:opts) { { client: client } }
   let(:console_class) { Rex::Post::MySQL::Ui::Console }
   let(:user_input) { instance_double(Rex::Ui::Text::Input::Readline) }
@@ -26,7 +26,7 @@ RSpec.describe Msf::Sessions::MySQL do
     allow(rstream).to receive(:peerinfo).and_return(peerinfo)
     allow(client).to receive(:socket).and_return(rstream)
     allow(client).to receive(:database).and_return(database)
-    allow(::Mysql).to receive(:connect).and_return(client)
+    allow(::Rex::Proto::MySQL::Client).to receive(:connect).and_return(client)
   end
 
   subject(:session) do

