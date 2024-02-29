@@ -128,6 +128,8 @@ class MetasploitModule < Msf::Auxiliary
       send_delay: datastore['TCP::send_delay'],
       framework: framework,
       framework_module: self,
+      always_encrypt: datastore['SMB::AlwaysEncrypt'],
+      versions: datastore['SMB::ProtocolVersion'].split(',').map(&:strip).reject(&:blank?).map(&:to_i),
       kerberos_authenticator_factory: kerberos_authenticator_factory,
       use_client_as_proof: create_session?
     )
