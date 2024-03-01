@@ -136,6 +136,11 @@ module Rex
                   end
                 end
 
+                if args.empty?
+                  cmd_query_help
+                  return
+                end
+
                 result = run_query(args.join(' '))
                 case result[:status]
                 when :success
