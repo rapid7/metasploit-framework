@@ -116,7 +116,7 @@ module Rex
                   return { status: :error, result: { errors: [e] } }
                 end
 
-                if result.respond_to? :cmd_tag
+                if result.respond_to?(:cmd_tag) && result.cmd_tag
                   print_status result.cmd_tag
                   print_line
                 end
@@ -140,7 +140,11 @@ module Rex
                 case result[:status]
                 when :success
                   # When changing a database in MySQL, we get a nil result back.
-                  # When changing a database in MSSQL, we get a result, but it doesn't contain colnames or rows.
+                  if result[:result].nil?
+                    print_status 'Query executed successfully'
+                    return
+                  end
+
                   normalised_result = normalise_sql_result(result[:result])
 
                   # MSSQL returns :success, even if the query failed due to wrong syntax.
@@ -149,7 +153,8 @@ module Rex
                     return
                   end
 
-                  if normalised_result[:rows].nil? || normalised_result[:columns].nil? # Should this be AND?
+                  # When changing a database in MSSQL, we get a result, but it doesn't contain colnames or rows.
+                  if normalised_result[:rows].nil? || normalised_result[:columns].nil?
                     print_status 'Query executed successfully'
                     return
                   end
