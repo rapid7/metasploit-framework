@@ -202,6 +202,13 @@ module ClientMixin
         col[:id] = :int
         col[:int_size] = data.slice!(0, 1).unpack('C')[0]
 
+      when 50
+        col[:id] = :bit
+
+      when 104
+        col[:id] = :bitn
+        col[:int_size] = data.slice!(0, 1).unpack('C')[0]
+
       when 127
         col[:id] = :bigint
 
@@ -314,6 +321,17 @@ module ClientMixin
         row << [data.slice!(0, 3)].pack("Z4").unpack("V")[0]
 
       when :tinyint
+        row << data.slice!(0, 1).unpack("C")[0]
+
+      when :bitn
+        has_value = data.slice!(0, 1).unpack("C")[0]
+        if has_value == 0
+          row << nil
+        else
+          row << data.slice!(0, 1).unpack("C")[0]
+        end
+
+      when :bit
         row << data.slice!(0, 1).unpack("C")[0]
 
       when :image

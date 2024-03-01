@@ -324,7 +324,7 @@ module Rex
           protected
 
           def print_no_share_selected
-            print_error('No active share selected')
+            print_error('No active share selected. Use the %grnshares%clr command to view available shares, and %grnshares -i <id>%clr to interact with one')
             nil
           end
 

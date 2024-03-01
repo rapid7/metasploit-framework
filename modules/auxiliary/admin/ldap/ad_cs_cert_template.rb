@@ -121,7 +121,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_certificate_template
     obj = ldap_get(
-      "(&(cn=#{datastore['CERT_TEMPLATE']})(objectClass=pkicertificatetemplate))",
+      "(&(cn=#{datastore['CERT_TEMPLATE']})(objectClass=pKICertificateTemplate))",
       base: "CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,#{@base_dn}",
       controls: [ms_security_descriptor_control(DACL_SECURITY_INFORMATION)]
     )
@@ -147,6 +147,35 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::NotFound, 'The domain SID was not found!') unless obj&.fetch('objectsid', nil)
 
     Rex::Proto::MsDtyp::MsDtypSid.read(obj['objectsid'].first)
+  end
+
+  def get_pki_oids
+    return @pki_oids if @pki_oids.present?
+
+    raw_objs = @ldap.search(
+      base: "CN=OID,CN=Public Key Services,CN=Services,CN=Configuration,#{@base_dn}",
+      filter: '(objectClass=msPKI-Enterprise-OID)'
+    )
+    validate_query_result!(@ldap.get_operation_result.table)
+    return nil unless raw_objs
+
+    @pki_oids = []
+    raw_objs.each do |raw_obj|
+      obj = {}
+      raw_obj.attribute_names.each do |attr|
+        obj[attr.to_s] = raw_obj[attr].map(&:to_s)
+      end
+
+      @pki_oids << obj
+    end
+    @pki_oids
+  end
+
+  def get_pki_oid_displayname(oid)
+    oid_obj = get_pki_oids.find { |o| o['mspki-cert-template-oid'].first == oid }
+    return nil unless oid_obj && oid_obj['displayname'].present?
+
+    oid_obj['displayname'].first
   end
 
   def dump_to_json(template)
@@ -393,7 +422,30 @@ class MetasploitModule < Msf::Auxiliary
     if obj['pkiextendedkeyusage'].present?
       print_status('  pKIExtendedKeyUsage:')
       obj['pkiextendedkeyusage'].each do |value|
-        print_status("    * #{value}")
+        if (oid = Rex::Proto::CryptoAsn1::OIDs.value(value)) && oid.label.present?
+          print_status("    * #{value} (#{oid.label})")
+        else
+          print_status("    * #{value}")
+        end
+      end
+    end
+
+    if obj['mspki-certificate-policy'].present?
+      if obj['mspki-certificate-policy'].length == 1
+        if (oid_name = get_pki_oid_displayname(obj['mspki-certificate-policy'].first)).present?
+          print_status("  msPKI-Certificate-Policy: #{obj['mspki-certificate-policy'].first} (#{oid_name})")
+        else
+          print_status("  msPKI-Certificate-Policy: #{obj['mspki-certificate-policy'].first}")
+        end
+      else
+        print_status('  msPKI-Certificate-Policy:')
+        obj['mspki-certificate-policy'].each do |value|
+          if (oid_name = get_pki_oid_displayname(value)).present?
+            print_status("    * #{value} (#{oid_name})")
+          else
+            print_status("    * #{value}")
+          end
+        end
       end
     end
   end

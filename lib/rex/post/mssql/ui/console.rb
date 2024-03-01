@@ -19,7 +19,6 @@ module Rex
           require 'rex/post/mssql/ui/console/command_dispatcher'
           require 'rex/post/mssql/ui/console/command_dispatcher/core'
           require 'rex/post/mssql/ui/console/command_dispatcher/client'
-          require 'rex/post/mssql/ui/console/command_dispatcher/modules'
 
           #
           # Initialize the MSSQL console.
@@ -42,7 +41,6 @@ module Rex
 
             enstack_dispatcher(::Rex::Post::MSSQL::Ui::Console::CommandDispatcher::Core)
             enstack_dispatcher(::Rex::Post::MSSQL::Ui::Console::CommandDispatcher::Client)
-            enstack_dispatcher(::Rex::Post::MSSQL::Ui::Console::CommandDispatcher::Modules)
 
             # Set up logging to whatever logsink 'core' is using
             if ! $dispatcher['mssql']
