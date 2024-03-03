@@ -90,12 +90,17 @@ rhosts => 172.17.0.2
 msf6 auxiliary(scanner/ssh/ssh_version) > set verbose true
 verbose => true
 msf6 auxiliary(scanner/ssh/ssh_version) > run
-Calling Net::SSH::Buffer methods on HostKeyEntries PubKey is deprecated
 
-[*] 172.17.0.2 - Key Fingerprint: 49:43:e7:e8:ee:41:bb:36:83:e4:8c:2d:0a:81:dd:77
+[*] 172.17.0.2 - Key Fingerprint: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG52hWkobwr57akGxiK6eeMN9/M5MH+sQsNPv8Mci049
+[*] 172.17.0.2 - SSH server version: SSH-2.0-OpenSSH_6.6p1 Ubuntu-2ubuntu1
+[+] 172.17.0.2 - Key Exchange (kex) diffie-hellman-group-exchange-sha1 is deprecated and should not be used.
+[+] 172.17.0.2 - Key Exchange (kex) diffie-hellman-group1-sha1 is deprecated and should not be used.
+[+] 172.17.0.2 - Host Key Encryption ecdsa-sha2-nistp256 uses a weak elliptic curve and should not be used.
+[+] 172.17.0.2 - HMAC hmac-md5 is deprecated and should not be used.
+[+] 172.17.0.2 - HMAC hmac-ripemd160 is deprecated and should not be used.
+[+] 172.17.0.2 - HMAC hmac-sha1-96 is deprecated and should not be used.
+[+] 172.17.0.2 - HMAC hmac-md5-96 is deprecated and should not be used.
 [+] 172.17.0.2 - Encryption arcfour256 is deprecated and should not be used.
-[+] 172.17.0.2 - Encryption arcfour256 is deprecated and should not be used.
-[+] 172.17.0.2 - Encryption arcfour128 is deprecated and should not be used.
 [+] 172.17.0.2 - Encryption arcfour128 is deprecated and should not be used.
 [+] 172.17.0.2 - Encryption aes128-cbc is deprecated and should not be used.
 [+] 172.17.0.2 - Encryption 3des-cbc is deprecated and should not be used.
@@ -105,88 +110,73 @@ Calling Net::SSH::Buffer methods on HostKeyEntries PubKey is deprecated
 [+] 172.17.0.2 - Encryption aes256-cbc is deprecated and should not be used.
 [+] 172.17.0.2 - Encryption arcfour is deprecated and should not be used.
 [+] 172.17.0.2 - Encryption rijndael-cbc@lysator.liu.se is deprecated and should not be used.
-[+] 172.17.0.2 - HMAC hmac-md5-etm@openssh.com is deprecated and should not be used.
-[+] 172.17.0.2 - HMAC hmac-ripemd160-etm@openssh.com is deprecated and should not be used.
-[+] 172.17.0.2 - HMAC hmac-sha1-96-etm@openssh.com is deprecated and should not be used.
-[+] 172.17.0.2 - HMAC hmac-md5-96-etm@openssh.com is deprecated and should not be used.
-[+] 172.17.0.2 - HMAC hmac-md5-96-etm@openssh.com is deprecated and should not be used.
-[+] 172.17.0.2 - HMAC hmac-md5 is deprecated and should not be used.
-[+] 172.17.0.2 - HMAC hmac-ripemd160 is deprecated and should not be used.
-[+] 172.17.0.2 - HMAC hmac-ripemd160@openssh.com is deprecated and should not be used.
-[+] 172.17.0.2 - HMAC hmac-sha1-96 is deprecated and should not be used.
-[+] 172.17.0.2 - HMAC hmac-md5-96 is deprecated and should not be used.
-[+] 172.17.0.2 - HMAC hmac-md5-96 is deprecated and should not be used.
-[+] 172.17.0.2 - Host Key Encryption ecdsa-sha2-nistp256 uses a weak elliptic curve and should not be used.
-[+] 172.17.0.2 - Key Exchange (kex) diffie-hellman-group-exchange-sha1 is deprecated and should not be used.
-[+] 172.17.0.2 - Key Exchange (kex) diffie-hellman-group1-sha1 is deprecated and should not be used.
-[*] 172.17.0.2 - SSH server version: SSH-2.0-OpenSSH_6.6p1 Ubuntu-2ubuntu1
-        service.version: 6.6p1
-        openssh.comment: Ubuntu-2ubuntu1
-        service.vendor: OpenBSD
-        service.family: OpenSSH
-        service.product: OpenSSH
-        service.cpe23: cpe:/a:openbsd:openssh:6.6p1
-        os.vendor: Ubuntu
-        os.family: Linux
-        os.product: Linux
-        os.version: 14.04
-        os.cpe23: cpe:/o:canonical:ubuntu_linux:14.04
-        service.protocol: ssh
-        fingerprint_db: ssh.banner
-[*] 172.17.0.2 - Server Encryption
-=================
+[*] 172.17.0.2 - Server Information and Encryption
+=================================
 
-  Type                Value
-  ----                -----
-  Compression         none
-  Compression         zlib@openssh.com
-  Encryption          aes128-ctr
-  Encryption          aes192-ctr
-  Encryption          aes256-ctr
-  Encryption          arcfour256
-  Encryption          arcfour128
-  Encryption          aes128-gcm@openssh.com
-  Encryption          aes256-gcm@openssh.com
-  Encryption          chacha20-poly1305@openssh.com
-  Encryption          aes128-cbc
-  Encryption          3des-cbc
-  Encryption          blowfish-cbc
-  Encryption          cast128-cbc
-  Encryption          aes192-cbc
-  Encryption          aes256-cbc
-  Encryption          arcfour
-  Encryption          rijndael-cbc@lysator.liu.se
-  HMAC                hmac-md5-etm@openssh.com
-  HMAC                hmac-sha1-etm@openssh.com
-  HMAC                umac-64-etm@openssh.com
-  HMAC                umac-128-etm@openssh.com
-  HMAC                hmac-sha2-256-etm@openssh.com
-  HMAC                hmac-sha2-512-etm@openssh.com
-  HMAC                hmac-ripemd160-etm@openssh.com
-  HMAC                hmac-sha1-96-etm@openssh.com
-  HMAC                hmac-md5-96-etm@openssh.com
-  HMAC                hmac-md5
-  HMAC                hmac-sha1
-  HMAC                umac-64@openssh.com
-  HMAC                umac-128@openssh.com
-  HMAC                hmac-sha2-256
-  HMAC                hmac-sha2-512
-  HMAC                hmac-ripemd160
-  HMAC                hmac-ripemd160@openssh.com
-  HMAC                hmac-sha1-96
-  HMAC                hmac-md5-96
-  Host Key            ssh-rsa
-  Host Key            ssh-dss
-  Host Key            ecdsa-sha2-nistp256
-  Host Key            ssh-ed25519
-  Key Exchange (kex)  curve25519-sha256@libssh.org
-  Key Exchange (kex)  ecdh-sha2-nistp256
-  Key Exchange (kex)  ecdh-sha2-nistp384
-  Key Exchange (kex)  ecdh-sha2-nistp521
-  Key Exchange (kex)  diffie-hellman-group-exchange-sha256
-  Key Exchange (kex)  diffie-hellman-group-exchange-sha1
-  Key Exchange (kex)  diffie-hellman-group14-sha1
-  Key Exchange (kex)  diffie-hellman-group1-sha1
+  Type                           Value                                 Note
+  ----                           -----                                 ----
+  encryption.compression         none
+  encryption.compression         zlib@openssh.com
+  encryption.encryption          aes128-ctr
+  encryption.encryption          aes192-ctr
+  encryption.encryption          aes256-ctr
+  encryption.encryption          arcfour256                            Deprecated
+  encryption.encryption          arcfour128                            Deprecated
+  encryption.encryption          aes128-gcm@openssh.com
+  encryption.encryption          aes256-gcm@openssh.com
+  encryption.encryption          chacha20-poly1305@openssh.com
+  encryption.encryption          aes128-cbc                            Deprecated
+  encryption.encryption          3des-cbc                              Deprecated
+  encryption.encryption          blowfish-cbc                          Deprecated
+  encryption.encryption          cast128-cbc                           Deprecated
+  encryption.encryption          aes192-cbc                            Deprecated
+  encryption.encryption          aes256-cbc                            Deprecated
+  encryption.encryption          arcfour                               Deprecated
+  encryption.encryption          rijndael-cbc@lysator.liu.se           Deprecated
+  encryption.hmac                hmac-md5-etm@openssh.com
+  encryption.hmac                hmac-sha1-etm@openssh.com
+  encryption.hmac                umac-64-etm@openssh.com
+  encryption.hmac                umac-128-etm@openssh.com
+  encryption.hmac                hmac-sha2-256-etm@openssh.com
+  encryption.hmac                hmac-sha2-512-etm@openssh.com
+  encryption.hmac                hmac-ripemd160-etm@openssh.com
+  encryption.hmac                hmac-sha1-96-etm@openssh.com
+  encryption.hmac                hmac-md5-96-etm@openssh.com
+  encryption.hmac                hmac-md5                              Deprecated
+  encryption.hmac                hmac-sha1
+  encryption.hmac                umac-64@openssh.com
+  encryption.hmac                umac-128@openssh.com
+  encryption.hmac                hmac-sha2-256
+  encryption.hmac                hmac-sha2-512
+  encryption.hmac                hmac-ripemd160                        Deprecated
+  encryption.hmac                hmac-ripemd160@openssh.com
+  encryption.hmac                hmac-sha1-96                          Deprecated
+  encryption.hmac                hmac-md5-96                           Deprecated
+  encryption.host_key            ssh-rsa
+  encryption.host_key            ssh-dss
+  encryption.host_key            ecdsa-sha2-nistp256                   Weak elliptic curve
+  encryption.host_key            ssh-ed25519
+  encryption.key_exchange_(kex)  curve25519-sha256@libssh.org
+  encryption.key_exchange_(kex)  ecdh-sha2-nistp256
+  encryption.key_exchange_(kex)  ecdh-sha2-nistp384
+  encryption.key_exchange_(kex)  ecdh-sha2-nistp521
+  encryption.key_exchange_(kex)  diffie-hellman-group-exchange-sha256
+  encryption.key_exchange_(kex)  diffie-hellman-group-exchange-sha1    Deprecated
+  encryption.key_exchange_(kex)  diffie-hellman-group14-sha1
+  encryption.key_exchange_(kex)  diffie-hellman-group1-sha1            Deprecated
+  fingerprint_db                 ssh.banner
+  openssh.comment                Ubuntu-2ubuntu1
+  os.cpe23                       cpe:/o:canonical:ubuntu_linux:14.04
+  os.family                      Linux
+  os.product                     Linux
+  os.vendor                      Ubuntu
+  os.version                     14.04
+  service.cpe23                  cpe:/a:openbsd:openssh:6.6p1
+  service.family                 OpenSSH
+  service.product                OpenSSH
+  service.protocol               ssh
+  service.vendor                 OpenBSD
+  service.version                6.6p1
 
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
