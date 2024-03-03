@@ -1,11 +1,11 @@
-## Description
-
-SSH, Secure SHell, is an encrypted network protocol used to remotely interact with an Operating System at a command line level.  SSH is available on most every system, including Windows, but is mainly used by *nix administrators.
-
-This module identifies the version of SSH service in use by the server based on the server's banner. Any SSH server should return this information. It also identifies
-the varous cryptographic settings and vulnerabilities associated with those.
-
 ## Vulnerable Application
+
+SSH, Secure SHell, is an encrypted network protocol used to remotely interact with an Operating System at a command line level.
+SSH is available on most every system, including Windows, but is mainly used by *nix administrators.
+
+This module identifies the version of SSH service in use by the server based on the server's banner.
+Any SSH server should return this information. It also identifies the varous cryptographic settings
+and vulnerabilities associated with those.
 
 This module is tested on several different SSH services, such as:
 
@@ -32,6 +32,12 @@ CMD ["/usr/sbin/sshd","-D"]
   1. Do: `use auxiliary/scanner/ssh/ssh_version`
   2. Do: `set rhosts [ips]`
   3. Do: `run`
+
+## Options
+
+### ENCRYPTION
+
+Check encryption for issues. Defaults to `true`
 
 ## Scenarios
 
