@@ -51,13 +51,6 @@ module Rex
           # @return [MySQL::Client]
           attr_reader :client
 
-          # @param [Object] val
-          # @return [String]
-          def format_prompt(val)
-            prompt = "%undMySQL @ #{client.socket.peerinfo} (#{current_database})%clr > "
-            substitute_colors(prompt, true)
-          end
-
           protected
 
           attr_writer :session, :client # :nodoc:

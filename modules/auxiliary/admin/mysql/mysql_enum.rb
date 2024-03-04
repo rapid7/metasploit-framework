@@ -121,8 +121,8 @@ class MetasploitModule < Msf::Auxiliary
       res.each do |row|
         print_good("\t\tUser: #{row[0]} Host: #{row[1]} Password Hash: #{row[2]}")
         report_cred(
-          ip: mysql_conn.host,
-          port: mysql_conn.port,
+          ip: mysql_conn.peerhost,
+          port: mysql_conn.peerport,
           user: row[0],
           password: row[2],
           service_name: 'mysql',

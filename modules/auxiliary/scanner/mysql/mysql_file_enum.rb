@@ -90,20 +90,20 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Rex::Proto::MySQL::Client::TextfileNotReadable
       print_good("#{dir} is a directory and exists")
       report_note(
-        :host  => mysql_conn.host,
+        :host  => mysql_conn.peerhost,
         :type  => "filesystem.dir",
         :data  => "#{dir} is a directory and exists",
-        :port  => mysql_conn.port,
+        :port  => mysql_conn.peerport,
         :proto => 'tcp',
         :update => :unique_data
       )
     rescue ::Rex::Proto::MySQL::Client::DataTooLong, ::Rex::Proto::MySQL::Client::TruncatedWrongValueForField
       print_good("#{dir} is a file and exists")
       report_note(
-        :host  => mysql_conn.host,
+        :host  => mysql_conn.peerhost,
         :type  => "filesystem.file",
         :data  => "#{dir} is a file and exists",
-        :port  => mysql_conn.port,
+        :port  => mysql_conn.peerport,
         :proto => 'tcp',
         :update => :unique_data
       )
@@ -118,10 +118,10 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_good("#{dir} is a file and exists")
       report_note(
-        :host  => mysql_conn.host,
+        :host  => mysql_conn.peerhost,
         :type  => "filesystem.file",
         :data  => "#{dir} is a file and exists",
-        :port  => mysql_conn.port,
+        :port  => mysql_conn.peerport,
         :proto => 'tcp',
         :update => :unique_data
       )

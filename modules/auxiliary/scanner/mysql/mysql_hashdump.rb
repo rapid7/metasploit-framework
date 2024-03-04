@@ -32,8 +32,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     service_data = {
-      address: ip,
-      port: mysql_conn.port,
+      address: mysql_conn.peerhost,
+      port: mysql_conn.peerport,
       service_name: 'mysql',
       protocol: 'tcp',
       workspace_id: myworkspace_id
@@ -81,8 +81,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     service_data = {
-      address: ::Rex::Socket.getaddress(mysql_conn.host, true),
-      port: mysql_conn.port,
+      address: ::Rex::Socket.getaddress(mysql_conn.peerhost, true),
+      port: mysql_conn.peerport,
       service_name: 'mysql',
       protocol: 'tcp',
       workspace_id: myworkspace_id

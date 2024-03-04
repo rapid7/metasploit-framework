@@ -53,11 +53,6 @@ module Rex
           # @return [PostgreSQL::Client]
           attr_reader :client # :nodoc:
 
-          def format_prompt(val)
-            prompt = "%undPostgreSQL @ #{client.conn.peerinfo} (#{current_database})%clr > "
-            substitute_colors(prompt, true)
-          end
-
           protected
 
           attr_writer :session, :client # :nodoc:

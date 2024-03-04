@@ -152,8 +152,8 @@ class MetasploitModule < Msf::Auxiliary
       print_good("Credential name: #{row[0]} | username: #{row[1]} | password: #{pw}")
 
       report_cred(
-        :host => mssql_client.address,
-        :port => mssql_client.port,
+        :host => mssql_client.peerhost,
+        :port => mssql_client.peerport,
         :creds_name => row[0],
         :user => row[1],
         :password => pw

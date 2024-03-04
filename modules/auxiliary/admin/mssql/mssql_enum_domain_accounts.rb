@@ -106,16 +106,16 @@ class MetasploitModule < Msf::Auxiliary
 
     # Create output file
     this_service = report_service(
-      :host  => mssql_client.address,
-      :port => mssql_client.port,
+      :host  => mssql_client.peerhost,
+      :port => mssql_client.peerport,
       :name => 'mssql',
       :proto => 'tcp'
     )
-    file_name = "#{mssql_client.address}-#{mssql_client.port}_windows_domain_accounts.csv"
+    file_name = "#{mssql_client.peerhost}-#{mssql_client.peerport}_windows_domain_accounts.csv"
     path = store_loot(
       'mssql.domain.accounts',
       'text/plain',
-      mssql_client.address,
+      mssql_client.peerhost,
       windows_domain_login_table.to_csv,
       file_name,
       'Domain Users enumerated through SQL Server',
