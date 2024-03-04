@@ -134,7 +134,7 @@ module ClientMixin
         0x04, # ThreadIdLength
 
         0xFF
-    ].pack("CnnCnnCnnCnnC")
+    ].pack('CnnCnnCnnCnnC')
 
     pkt_data << pkt_data_token
     pkt_data << version
@@ -144,7 +144,7 @@ module ClientMixin
 
     pkt_hdr[2] = pkt_data.length + 8
 
-    pkt = pkt_hdr.pack("CCnnCC") + pkt_data
+    pkt = pkt_hdr.pack('CCnnCC') + pkt_data
     pkt
   end
 
@@ -155,21 +155,47 @@ module ClientMixin
     pkt = mssql_prelogin_packet
 
     resp = mssql_send_recv(pkt)
+    return unless resp
+
+    data = {}
     while resp
       token = resp.slice!(0, 1)
       if token.unpack('C')[0] == 255
-        major =  resp.slice!(0, 1).unpack('C')[0]
-        minor =  resp.slice!(0, 1).unpack('C')[0]
+        major = resp.slice!(0, 1).unpack('C')[0]
+        minor = resp.slice!(0, 1).unpack('C')[0]
         build = resp.slice!(0, 2).unpack('n')[0]
         break
       end
     end
 
     if major && minor && build
-      return "#{major}.#{minor}.#{build}"
-    else
-      return nil
+      build = "#{major}.#{minor}.#{build}"
     end
+    if resp
+      resp.slice!(0,2)
+      enc = resp.slice!(0,1).unpack('C')[0]
+      case enc
+      when ENCRYPT_OFF
+        enc_value = 'off'
+      when ENCRYPT_ON
+        enc_value = 'on'
+      when ENCRYPT_NOT_SUP
+        enc_value = 'unsupported'
+      when ENCRYPT_REQ
+        enc_value = 'required'
+      end
+    end
+
+    if build
+      data['Version'] = build
+    end
+
+    if enc_value
+      data['Encryption'] = enc_value
+    end
+    data['Status'] = 'open'
+    return data
+
   end
 
   def mssql_send_recv(req, timeout=15, check_status = true)
