@@ -86,9 +86,7 @@ module ClientMixin
     end
   end
 
-  def mssql_get_version
-    disconnect if self.sock
-    connect
+  def mssql_prelogin_packet
     pkt = ""
     pkt_hdr = ""
     pkt_data_token = ""
@@ -147,6 +145,14 @@ module ClientMixin
     pkt_hdr[2] = pkt_data.length + 8
 
     pkt = pkt_hdr.pack("CCnnCC") + pkt_data
+    pkt
+  end
+
+  def mssql_get_version
+    disconnect if self.sock
+    connect
+
+    pkt = mssql_prelogin_packet
 
     resp = mssql_send_recv(pkt)
     while resp
