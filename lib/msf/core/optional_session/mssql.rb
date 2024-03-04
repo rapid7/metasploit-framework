@@ -15,13 +15,14 @@ module Msf
           )
         )
 
-        if framework.features.enabled?(Msf::FeatureManager::MSSQL_SESSION_TYPE)
+        if optional_session_enabled?
           register_option_group(name: 'SESSION',
                                 description: 'Used when connecting via an existing SESSION',
                                 option_names: ['SESSION'])
           register_option_group(name: 'RHOST',
                                 description: 'Used when making a new connection via RHOSTS',
-                                option_names: RHOST_GROUP_OPTIONS)
+                                option_names: RHOST_GROUP_OPTIONS,
+                                required_options: RHOST_GROUP_OPTIONS)
           register_options(
             [
               Msf::OptInt.new('SESSION', [ false, 'The session to run this module on' ]),
@@ -36,10 +37,8 @@ module Msf
         end
       end
 
-      def session
-        return nil unless framework.features.enabled?(Msf::FeatureManager::MSSQL_SESSION_TYPE)
-
-        super
+      def optional_session_enabled?
+        framework.features.enabled?(Msf::FeatureManager::MSSQL_SESSION_TYPE)
       end
     end
   end

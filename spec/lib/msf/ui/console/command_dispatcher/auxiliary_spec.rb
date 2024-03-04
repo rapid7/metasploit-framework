@@ -168,7 +168,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
 
         subject.cmd_check
         expected_output = [
-          'Msf::OptionValidateError The following options failed to validate: RHOSTS'
+          'Msf::OptionValidateError One or more options failed to validate: RHOSTS.'
         ]
 
         expect(@combined_output).to match_array(expected_output)
@@ -296,7 +296,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
         current_mod.datastore['RHOSTS'] = ''
         subject.cmd_check
         expected_output = [
-          'Msf::OptionValidateError The following options failed to validate: RHOSTS'
+          'Msf::OptionValidateError One or more options failed to validate: RHOSTS.'
         ]
 
         expect(@combined_output).to match_array(expected_output)
@@ -397,7 +397,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
 
         subject.cmd_run
         expected_output = [
-          'Msf::OptionValidateError The following options failed to validate: RHOSTS'
+          'Msf::OptionValidateError One or more options failed to validate: RHOSTS.'
         ]
 
         expect(@combined_output).to match_array(expected_output)
@@ -508,7 +508,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
 
         subject.cmd_run
         expected_output = [
-          'Msf::OptionValidateError The following options failed to validate: RHOSTS'
+          'Msf::OptionValidateError One or more options failed to validate: RHOSTS.'
         ]
 
         expect(@combined_output).to match_array(expected_output)
@@ -609,7 +609,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
         current_mod.datastore['RHOSTS'] = ''
         subject.cmd_run
         expected_output = [
-          'Msf::OptionValidateError The following options failed to validate: RHOSTS'
+          'Msf::OptionValidateError One or more options failed to validate: RHOSTS.'
         ]
 
         expect(@combined_output).to match_array(expected_output)
