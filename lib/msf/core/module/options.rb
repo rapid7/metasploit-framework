@@ -73,6 +73,7 @@ module Msf::Module::Options
   # @param name [String] Name for the group
   # @param description [String] Description of the group
   # @param option_names [Array<String>] List of datastore option names
+  # @param required_options [Array<String>] List of required datastore option names
   # @param merge [Boolean] whether to merge or overwrite the groups option names
   def register_option_group(name:, description:, option_names: [], required_options: [], merge: true)
     existing_group = options.groups[name]
