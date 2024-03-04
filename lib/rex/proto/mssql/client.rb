@@ -46,6 +46,9 @@ module Rex
         #   @return [Hash] Key-value pairs received from the server during the initial MSSQL connection.
         # See the spec here: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-tds/b46a581a-39de-4745-b076-ec4dbb7d13ec
         attr_accessor :initial_connection_info
+        # @!attribute current_database
+        #   @return [String] The database name this client is currently connected to.
+        attr_accessor :current_database
 
         def initialize(framework_module, framework, rhost, rport = 1433, proxies = nil)
           @framework_module       = framework_module

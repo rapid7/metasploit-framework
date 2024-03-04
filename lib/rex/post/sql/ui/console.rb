@@ -103,6 +103,10 @@ module Rex
 
             dlog("Call stack:\n#{$ERROR_POSITION.join("\n")}", session.type)
           end
+
+          def current_database
+            client.current_database
+          end
         end
       end
     end

@@ -18,14 +18,15 @@ RSpec.describe Msf::Sessions::PostgreSQL do
   let(:address) { '192.0.2.1' }
   let(:port) { '5432' }
   let(:peer_info) { "#{address}:#{port}" }
-  let(:postgres_db) { 'template1' }
+  let(:current_database) { 'template1' }
 
   before(:each) do
     allow(user_input).to receive(:intrinsic_shell?).and_return(true)
     allow(user_input).to receive(:output=)
     allow(rstream).to receive(:peerinfo).and_return(peer_info)
     allow(client).to receive(:conn).and_return(rstream)
-    allow(client).to receive(:params).and_return({ 'database' => postgres_db })
+    allow(client).to receive(:params).and_return({ 'database' => current_database })
+    allow(client).to receive(:current_database).and_return(current_database)
   end
 
   subject(:session) do

@@ -420,6 +420,9 @@ module ClientMixin
 
     info[:envs] ||= []
     info[:envs] << { :type => type, :old => oval, :new => nval }
+
+    self.current_database = nval if type == ENVCHANGE::DATABASE
+
     info
   end
 

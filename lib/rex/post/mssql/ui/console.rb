@@ -54,15 +54,14 @@ module Rex
           # @return [MSSQL::Client]
           attr_reader :client
 
-          # @return [String]
-          def database_name
-            session.client.query('SELECT DB_NAME();')[:rows][0][0]
-          end
-
           # @param [Object] val
           # @return [String]
           def format_prompt(val)
-            prompt = "%undMSSQL @ #{client.sock.peerinfo} (#{database_name})%clr > "
+            # TODO: Once the client peerhost alignment is landed, extract this out to the generic SQL class.
+            # prompt = "%und#{session.type} @ #{client.peerhost}:#{client.peerport} (#{current_database})%clr > "
+            # or
+            # prompt = "%und#{session.type} @ #{client.peerinfo} (#{current_database})%clr > "
+            prompt = "%undMSSQL @ #{client.sock.peerinfo} (#{current_database})%clr > "
             substitute_colors(prompt, true)
           end
 
