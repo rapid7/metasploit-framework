@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status('Check RSS tags feed for: ' + tags)
 
     # Tag needs to be lower case, so...
-    tags.sub!(/^\//, '') if tags.start_with?("/")
+    tags.sub!(%r{^/}, '') if tags.start_with?('/')
     tags = "#{tags.split('/')[0]}/#{tags.split('/')[1].downcase}"
 
     res = send_request_cgi(
