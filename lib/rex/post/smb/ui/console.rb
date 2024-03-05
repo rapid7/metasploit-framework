@@ -134,10 +134,12 @@ module Rex
             if active_share
               share_name = active_share.share[/[^\\].*$/, 0]
               cwd = self.cwd.blank? ? '' : "\\#{self.cwd}"
-              return substitute_colors("%undSMB%clr (#{share_name}#{cwd}) > ", true)
+              prompt = "#{share_name}#{cwd}"
+            else
+              prompt = session.address.to_s
             end
 
-            super
+            substitute_colors("%undSMB%clr (#{prompt}) > ", true)
           end
 
           protected
