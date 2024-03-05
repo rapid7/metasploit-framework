@@ -35,9 +35,9 @@ CMD ["/usr/sbin/sshd","-D"]
 
 ## Options
 
-### ENCRYPTION
+### EXTENDED_CHECKS
 
-Check encryption for issues. Defaults to `true`
+Check for cryptographic issues. Defaults to `true`
 
 ## Scenarios
 
@@ -49,39 +49,38 @@ msf5 auxiliary(scanner/ssh/ssh_version) > set RHOSTS github.com
 RHOSTS => github.com
 msf5 auxiliary(scanner/ssh/ssh_version) > run
 
-[*] 140.82.113.3 - Key Fingerprint: 65:96:2d:fc:e8:d5:a9:11:64:0c:0f:ea:00:6e:5b:bd
-[+] 140.82.113.3 - Host Key Encryption ecdsa-sha2-nistp256 uses a weak elliptic curve and should not be used.
-[*] 140.82.113.3 - SSH server version: SSH-2.0-babeld-8e18a363
-[*] 140.82.113.3 - Server Encryption
-=================
+[*] 140.82.113.4 - Key Fingerprint: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
+[*] 140.82.113.4 - SSH server version: SSH-2.0-babeld-8405f9f3
+[*] 140.82.113.4 - Server Information and Encryption
+=================================
 
-  Type                Value
-  ----                -----
-  Compression         none
-  Compression         zlib@openssh.com
-  Compression         zlib
-  Encryption          chacha20-poly1305@openssh.com
-  Encryption          aes256-gcm@openssh.com
-  Encryption          aes128-gcm@openssh.com
-  Encryption          aes256-ctr
-  Encryption          aes192-ctr
-  Encryption          aes128-ctr
-  HMAC                hmac-sha2-512-etm@openssh.com
-  HMAC                hmac-sha2-256-etm@openssh.com
-  HMAC                hmac-sha2-512
-  HMAC                hmac-sha2-256
-  Host Key            ssh-ed25519
-  Host Key            ecdsa-sha2-nistp256
-  Host Key            rsa-sha2-512
-  Host Key            rsa-sha2-256
-  Host Key            ssh-rsa
-  Key Exchange (kex)  curve25519-sha256
-  Key Exchange (kex)  curve25519-sha256@libssh.org
-  Key Exchange (kex)  ecdh-sha2-nistp256
-  Key Exchange (kex)  ecdh-sha2-nistp384
-  Key Exchange (kex)  ecdh-sha2-nistp521
-  Key Exchange (kex)  diffie-hellman-group-exchange-sha256
-  Key Exchange (kex)  kex-strict-s-v00@openssh.com
+  Type                           Value                                 Note
+  ----                           -----                                 ----
+  encryption.compression         none
+  encryption.compression         zlib@openssh.com
+  encryption.compression         zlib
+  encryption.encryption          chacha20-poly1305@openssh.com
+  encryption.encryption          aes256-gcm@openssh.com
+  encryption.encryption          aes128-gcm@openssh.com
+  encryption.encryption          aes256-ctr
+  encryption.encryption          aes192-ctr
+  encryption.encryption          aes128-ctr
+  encryption.hmac                hmac-sha2-512-etm@openssh.com
+  encryption.hmac                hmac-sha2-256-etm@openssh.com
+  encryption.hmac                hmac-sha2-512
+  encryption.hmac                hmac-sha2-256
+  encryption.host_key            ssh-ed25519
+  encryption.host_key            ecdsa-sha2-nistp256                   Weak elliptic curve
+  encryption.host_key            rsa-sha2-512
+  encryption.host_key            rsa-sha2-256
+  encryption.host_key            ssh-rsa
+  encryption.key_exchange_(kex)  curve25519-sha256
+  encryption.key_exchange_(kex)  curve25519-sha256@libssh.org
+  encryption.key_exchange_(kex)  ecdh-sha2-nistp256
+  encryption.key_exchange_(kex)  ecdh-sha2-nistp384
+  encryption.key_exchange_(kex)  ecdh-sha2-nistp521
+  encryption.key_exchange_(kex)  diffie-hellman-group-exchange-sha256
+  encryption.key_exchange_(kex)  kex-strict-s-v00@openssh.com
 
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed

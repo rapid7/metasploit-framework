@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(22),
         OptInt.new('TIMEOUT', [true, 'Timeout for the SSH probe', 30]),
-        OptBool.new('ENCRYPTION', [false, 'Check encryption for issues', true])
+        OptBool.new('EXTENDED_CHECKS', [true, 'Check for cryptographic issues', true])
       ],
       self.class
     )
@@ -235,7 +235,7 @@ class MetasploitModule < Msf::Auxiliary
 
       report_service(host: target_host, port: rport, name: 'ssh', proto: 'tcp', info: ident)
 
-      return unless datastore['ENCRYPTION']
+      return unless datastore['EXTENDED_CHECKS']
 
       table = Rex::Text::Table.new(
         'Header' => 'Server Information and Encryption',
