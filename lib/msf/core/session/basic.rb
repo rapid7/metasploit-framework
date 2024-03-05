@@ -10,8 +10,8 @@ module Session
 ###
 module Basic
 
-  include Session
-  include Interactive
+  include Msf::Session
+  include Msf::Session::Interactive
 
   #
   # Description of the session.

@@ -87,7 +87,7 @@ module Rex
           def encrypt(plaintext, key, msg_type, confounder: nil)
             k1 = OpenSSL::HMAC.digest('MD5', key, usage_str(msg_type))
 
-            confounder = Rex::Text::rand_text(CONFOUNDER_SIZE) if confounder == nil
+            confounder = Random.urandom(CONFOUNDER_SIZE) if confounder == nil
             data_encrypt = confounder + plaintext
 
             checksum = OpenSSL::HMAC.digest('MD5', k1, data_encrypt)
@@ -103,7 +103,7 @@ module Rex
             res
           end
 
-          def gss_unwrap(ciphertext, key, expected_sequence_number, is_initiator, use_acceptor_subkey: true)
+          def gss_unwrap(ciphertext, key, expected_sequence_number, is_initiator, opts={})
             # Always 32-bit sequence number
             expected_sequence_number &= 0xFFFFFFFF
 
@@ -157,15 +157,17 @@ module Rex
             raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Checksum error' unless verification_eight_checksum_bytes == eight_checksum_bytes
 
             # Remove padding, if present (seems MS may not send it back?)
-            pad_char = plaintext[-1]
-            if pad_char == "\x01"
-              plaintext = plaintext[0, plaintext.length-1]
+            pad_char = plaintext[-1].ord
+            if 1 <= pad_char && pad_char <= 8
+              plaintext = plaintext[0, plaintext.length-pad_char]
             end
 
             plaintext
           end
 
-          def gss_wrap(plaintext, key, sequence_number, is_initiator, use_acceptor_subkey: true)
+          # @option options [Boolean] :dce_style Whether the interaction is a 3-leg DCERPC interaction
+          def gss_wrap(plaintext, key, sequence_number, is_initiator, opts={})
+            dce_style = opts.fetch(:dce_style) { false }
             # Always 32-bit sequence number
             sequence_number &= 0xFFFFFFFF
 
@@ -175,8 +177,9 @@ module Rex
             seal_alg = 0x1000
             filler = 0xFFFF
             header = [tok_id, alg, seal_alg, filler].pack('nnnn')
-            # Add a byte of padding (see RFC1964 section 1.2.2.3) 
-            plaintext += "\x01"
+            # Add padding (see RFC1964 section 1.2.2.3)
+            pad_num = (8 - (plaintext.length % 8))
+            plaintext += (pad_num.chr * pad_num)
 
             send_seq = [sequence_number].pack('N')
             # See errata on RFC4757
@@ -184,8 +187,7 @@ module Rex
             initiator_bytes = "\x00" * 4 if is_initiator
             send_seq += initiator_bytes
 
-            confounder = Rex::Text::rand_text(CONFOUNDER_SIZE)
-            #confounder = ['cd85a6ad14bcf4a4'].pack('H*')
+            confounder = Random.urandom(CONFOUNDER_SIZE)
             chksum_input = usage_str(Rex::Proto::Kerberos::Crypto::KeyUsage::KRB_PRIV_ENCPART) + header + confounder
             ksign = OpenSSL::HMAC.digest('MD5', key.value, "signaturekey\x00")
             sgn_cksum = Rex::Text.md5_raw(chksum_input+plaintext)
@@ -219,14 +221,21 @@ module Rex
             token = header + encrypted_sequence_num + eight_checksum_bytes + encrypted_confounder
             size_prior = (token+encrypted).length
 
-            wrapped_token = wrap_pseudo_asn1(
-                ::Rex::Proto::Gss::OID_KERBEROS_5,
-                token + encrypted
-            )
+            if dce_style
+              wrapped_token = wrap_pseudo_asn1(
+                  ::Rex::Proto::Gss::OID_KERBEROS_5,
+                  token
+              ) + encrypted
+            else
+              wrapped_token = wrap_pseudo_asn1(
+                  ::Rex::Proto::Gss::OID_KERBEROS_5,
+                  token + encrypted
+              )
+            end
             asn1_length = wrapped_token.length - size_prior
             token_length = asn1_length + token.length
 
-            [wrapped_token, token_length, 0x01]
+            [wrapped_token, token_length, pad_num]
           end
 
           #
@@ -241,6 +250,11 @@ module Rex
           #
           def trailing_byte_count
             0
+          end
+
+          def calculate_encrypted_length(plaintext_len)
+            # We add 1-8 bytes of padding, per RFC1964 section 1.2.2.3
+            plaintext_len + (8 - (plaintext_len % 8))
           end
 
           private

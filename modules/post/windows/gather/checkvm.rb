@@ -40,26 +40,90 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  def get_services
-    @services ||= registry_enumkeys('HKLM\\SYSTEM\\ControlSet001\\Services')
-    @services
+  # enumerates through a list of VM signature processes and compares them to
+  # the processes running, returns true upon a match.
+  def processes_exist?(vm_processes)
+    vm_processes.each do |x|
+      @processes.each do |p|
+        return true if p['name'].casecmp?(x)
+      end
+    end
+    false
+  end
+
+  # loops over a list of services that are known to be signatures of vm's and
+  # compares them to the list of running services.
+  def services_exist?(vm_services)
+    vm_services.each do |srvc|
+      return true if service_exists?(srvc)
+    end
+    false
   end
 
   def service_exists?(service)
-    get_services && get_services.include?(service)
+    @services.include?(service)
+  end
+
+  # registers relevant keys and stores them in a hash
+  def register_keys(key_list)
+    @keys = {}
+    key_list.each do |k|
+      srvals = get_srval(k)
+      srvals = [] if srvals.nil?
+      @keys.store(k, srvals)
+    end
+    @keys
+  end
+
+  # checks the values of the keys and compares them to vm_k
+  def key_present?(vm_k)
+    @keys.each_value do |v|
+      return true if v.include?(vm_k)
+    end
+    false
+  end
+
+  def get_srval(key)
+    srvals = registry_enumkeys(key)
+    srvals = [] if srvals.nil?
+    srvals
+  end
+
+  # returns true if regval matches a regex
+  def regval_match?(key, val, rgx)
+    return true if get_regval_str(key, val) =~ rgx
+
+    false
+  end
+
+  # returns true if regval is eql to a string
+  def regval_eql?(key, val, str)
+    get_regval_str(key, val) == str
   end
 
   def get_regval_str(key, valname)
     ret = registry_getvaldata(key, valname)
-    if ret.kind_of(Array)
+    if ret.is_a?(Array)
       ret = ret.join
     end
     ret
   end
 
+  def parallels?
+    @system_bios_version = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion')
+
+    @video_bios_version = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'VideoBiosVersion')
+
+    if @system_bios_version =~ /parallels/i || @video_bios_version =~ /parallels/i
+      return true
+    end
+
+    false
+  end
 
   def hyperv?
     physical_host = get_regval_str('HKLM\\SOFTWARE\\Microsoft\\Virtual Machine\\Guest\\Parameters', 'PhysicalHostNameFullyQualified')
+
     if physical_host
       report_note(
         host: session,
@@ -67,46 +131,59 @@ class MetasploitModule < Msf::Post
         data: { physicalHost: physical_host },
         update: :unique_data
       )
+
       print_good("This is a Hyper-V Virtual Machine running on physical host #{physical_host}")
       return true
     end
 
     sfmsvals = registry_enumkeys('HKLM\\SOFTWARE\\Microsoft')
     if sfmsvals
-      return true if sfmsvals.include?('Hyper-V')
-      return true if sfmsvals.include?('VirtualMachine')
+      %w[Hyper-V VirtualMachine].each do |vm|
+        return true if sfmsvals.include?(vm)
+      end
     end
 
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion') =~ /vrtual/i
-
-    %w[HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT].each do |key|
-      srvvals = registry_enumkeys(key)
-      return true if srvvals && srvvals.include?('VRTUAL')
+    if @system_bios_version =~ /vrtual/i || @system_bios_version == 'Hyper-V'
+      return true
     end
 
-    %w[vmicexchange vmicheartbeat vmicshutdown vmicvss].each do |service|
-      return true if service_exists?(service)
-    end
+    keys = %w[HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT HKLM\\HARDWARE\\ACPI\\DSDT]
 
-    key_path = 'HKLM\\HARDWARE\\DESCRIPTION\\System'
-    system_bios_version = get_regval_str(key_path, 'SystemBiosVersion')
-    return true if system_bios_version && system_bios_version.include?('Hyper-V')
+    register_keys(keys)
 
-    key_path = 'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0'
-    return true if get_regval_str(key_path, 'Identifier') =~ /Msft    Virtual Disk    1.0/i
+    return true if key_present?('VRTUAL')
+
+    hyperv_services = %w[vmicexchange]
+
+    return true if services_exist?(hyperv_services)
 
     false
   end
 
   def vmware?
-    %w[vmdebug vmmouse VMTools VMMEMCTL tpautoconnsvc tpvcgateway vmware wmci vmx86].each do |service|
-      return true if service_exists?(service)
-    end
+    vmware_services = %w[
+      vmdebug vmmouse VMTools VMMEMCTL tpautoconnsvc
+      tpvcgateway vmware wmci vmx86
+    ]
 
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemManufacturer') =~ /vmware/i
-    return true if get_regval_str('HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0', 'Identifier') =~ /vmware/i
-    return true if get_regval_str('HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 1\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0', 'Identifier') =~ /vmware/i
-    return true if get_regval_str('HKLM\\SYSTEM\\ControlSet001\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000', 'DriverDesc') =~ /cl_vmx_svga|VMWare/i
+    return true if services_exist?(vmware_services)
+
+    @system_manufacturer = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS',
+                                          'SystemManufacturer')
+
+    return true if @system_manufacturer =~ /vmware/i
+
+    @scsi_port_1 = get_regval_str('HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 1\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0',
+                                  'Identifier')
+
+    return true if @scsi_port_1 =~ /vmware/i
+
+    return true if regval_match?(
+      'HKLM\\SYSTEM\\ControlSet001\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000',
+      'DriverDesc',
+      /cl_vmx_svga|VMWare/i
+    )
+
 
     vmwareprocs = [
       'vmtoolsd.exe',
@@ -114,11 +191,8 @@ class MetasploitModule < Msf::Post
       'vmwaretray.exe',
       'vmwareuser.exe'
     ]
-    get_processes.each do |x|
-      vmwareprocs.each do |p|
-        return true if p == x['name'].downcase
-      end
-    end
+
+    return true if processes_exist?(vmwareprocs)
 
     false
   end
@@ -128,28 +202,29 @@ class MetasploitModule < Msf::Post
       'vboxservice.exe',
       'vboxtray.exe'
     ]
-    get_processes.each do |x|
-      vboxprocs.each do |p|
-        return true if p == x['name'].downcase
-      end
+
+    vbox_srvcs = %w[VBoxMouse VBoxGuest VBoxService VBoxSF VBoxVideo]
+
+    if services_exist?(vbox_srvcs) || processes_exist?(vboxprocs)
+      return true
     end
 
-    %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT].each do |key|
-      srvvals = registry_enumkeys(key)
-      return true if srvvals && srvvals.include?('VBOX__')
-    end
+    return true if key_present?('VBOX__')
 
     for i in 0..2 do
-          return true if get_regval_str("HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port #{i}0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0", 'Identifier') =~ /vbox/i
+      return true if regval_match?(
+        "HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port #{i}0\\Scsi Bus 0\\Target
+         Id 0\\Logical Unit Id 0",
+        'Identifier',
+        /vbox/i
+      )
     end
 
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion') =~ /vbox/i
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'VideoBiosVersion') =~ /virtualbox/i
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemProductName') =~ /virtualbox/i
+    return true if @system_bios_version =~ /vbox/i || @video_bios_version =~ /virtualbox/i
 
-    %w[VBoxMouse VBoxGuest VBoxService VBoxSF VBoxVideo].each do |service|
-      return true if service_exists?(service)
-    end
+    @system_product_name = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemProductName')
+
+    return true if @system_product_name =~ /virtualbox/i
 
     false
   end
@@ -158,52 +233,36 @@ class MetasploitModule < Msf::Post
     xenprocs = [
       'xenservice.exe'
     ]
-    get_processes.each do |x|
-      xenprocs.each do |p|
-        return true if p == x['name'].downcase
-      end
+
+    xen_srvcs = %w[xenevtchn xennet xennet6 xensvc xenvdb]
+
+    if processes_exist?(xenprocs) || services_exist?(xen_srvcs)
+      return true
     end
 
-    %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT].each do |key|
-      srvvals = registry_enumkeys(key)
-      return true if srvvals && srvvals.include?('Xen')
-    end
+    return true if key_present?('Xen')
 
-    %w[xenevtchn xennet xennet6 xensvc xenvdb].each do |service|
-      return true if service_exists?(service)
-    end
-
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemProductName') =~ /xen/i
+    return true if @system_product_name =~ /xen/i
 
     false
   end
 
   def qemu?
-    key_path = 'HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 0\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0'
-    return true if get_regval_str(key_path, 'Identifier') =~ /qemu|virtio/i
-
-    key_path = 'HKLM\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0'
-    return true if get_regval_str(key_path, 'ProcessorNameString') =~ /qemu/i
-
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion') =~ /qemu/i
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'VideoBiosVersion') =~ /qemu/i
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemManufacturer') =~ /qemu/i
-
-    %w[HKLM\\HARDWARE\\ACPI\\DSDT HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT].each do |key|
-      srvvals = registry_enumkeys(key)
-      return true if srvvals && srvvals.include?('BOCHS_')
+    if @system_bios_version =~ /qemu/i || @video_bios_version =~ /qemu/i
+      return true
     end
 
-    false
-  end
-
-   def parallels?
-    bios_version = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion')
-    if bios_version.kind_of?(Array)
-      bios_version = bios_version.join
+    if @scsi_port_0 =~ /qemu|virtio/i || @system_manufacturer =~ /qemu/i
+      return true
     end
-    return true if bios_version =~ /parallels/i
-    return true if get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'VideoBiosVersion') =~ /parallels/i
+
+    return true if regval_match?(
+      'HKLM\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0',
+      'ProcessorNameString',
+      /qemu/i
+    )
+
+    return true if key_present?('BOCHS_')
 
     false
   end
@@ -221,6 +280,11 @@ class MetasploitModule < Msf::Post
 
   def run
     print_status('Checking if the target is a Virtual Machine ...')
+    @processes = get_processes
+    @processes = [] if @processes.nil?
+
+    @services = registry_enumkeys('HKLM\\SYSTEM\\ControlSet001\\Services')
+    @services = [] if @services.nil?
 
     if parallels?
       report_vm('Parallels')

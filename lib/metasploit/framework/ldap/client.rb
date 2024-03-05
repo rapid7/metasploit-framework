@@ -55,13 +55,12 @@ module Metasploit
           when Msf::Exploit::Remote::AuthOption::KERBEROS
             raise Msf::ValidationError, 'The Ldap::Rhostname option is required when using Kerberos authentication.' if opts[:ldap_rhostname].blank?
             raise Msf::ValidationError, 'The DOMAIN option is required when using Kerberos authentication.' if opts[:domain].blank?
-            raise Msf::ValidationError, 'The DomainControllerRhost is required when using Kerberos authentication.' if opts[:domain_controller_rhost].blank?
 
             offered_etypes = Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(opts[:ldap_krb_offered_enc_types])
             raise Msf::ValidationError, 'At least one encryption type is required when using Kerberos authentication.' if offered_etypes.empty?
 
             kerberos_authenticator = Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::LDAP.new(
-              host: opts[:domain_controller_rhost],
+              host: opts[:domain_controller_rhost].blank? ? nil : opts[:domain_controller_rhost],
               hostname: opts[:ldap_rhostname],
               realm: opts[:domain],
               username: opts[:username],

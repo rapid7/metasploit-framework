@@ -205,9 +205,8 @@ module Payload::Windows::DllInject
     data = library_name + "\x00"
 
     begin
-      File.open(library_path, "rb") { |f|
-        data += f.read
-      }
+      encrypted_contents = ::File.binread(library_path)
+      data += ::MetasploitPayloads::Crypto.decrypt(ciphertext: encrypted_contents)
     rescue
       print_error("Failed to load DLL: #{$!}.")
 

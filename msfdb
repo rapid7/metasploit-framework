@@ -339,6 +339,10 @@ def reinit_db
   init_db
 end
 
+def print_webservice_removal_prompt
+  $stderr.puts "#{'[WARNING]'.red} The remote web service is being removed. Does this impact you? React here: https://github.com/rapid7/metasploit-framework/issues/18439"
+end
+
 class WebServicePIDStatus
   RUNNING = 0
   INACTIVE = 1
@@ -1051,6 +1055,9 @@ if $PROGRAM_NAME == __FILE__
   prompt_for_deletion(command)
   if @options[:component] == :all
     @components.each { |component|
+      if component == :webservice
+        3.times { print_webservice_removal_prompt }
+      end
       puts '===================================================================='
       puts "Running the '#{command}' command for the #{component}:"
       invoke_command(commands, component.to_sym, command)
@@ -1059,6 +1066,9 @@ if $PROGRAM_NAME == __FILE__
     }
   else
     puts "Running the '#{command}' command for the #{@options[:component]}:"
+    if @options[:component] == :webservice
+      3.times { print_webservice_removal_prompt }
+    end
     invoke_command(commands, @options[:component], command)
   end
 end

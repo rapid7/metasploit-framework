@@ -198,7 +198,8 @@ module Msf
               puts(buf)
             else
               print_status("Writing #{buf.length} bytes to #{ofile}...")
-              fd = File.open(ofile, 'wb')
+              f = File.expand_path(ofile)
+              fd = File.open(f, 'wb')
               fd.write(buf)
               fd.close
             end

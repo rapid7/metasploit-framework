@@ -24,7 +24,7 @@ Metasploit has support for multiple SMB modules, including:
 There are more modules than listed here, for the full list of modules run the `search` command within msfconsole:
 
 ```msf
-msf6 > search mysql
+msf6 > search smb
 ```
 
 ### Lab Environment

@@ -202,13 +202,23 @@ class Config < Hash
 
   # Returns the full path to the history file.
   #
-  # @return [String] path the history file.
+  # @return [String] path to the history file.
   def self.history_file
     self.new.history_file
   end
 
+  # Returns the full path to the meterpreter history file.
+  #
+  # @return [String] path to the history file.
   def self.meterpreter_history
     self.new.meterpreter_history
+  end
+
+  # Returns the full path to the smb session history file.
+  #
+  # @return [String] path to the history file.
+  def self.smb_session_history
+    self.new.smb_session_history
   end
 
   def self.pry_history
@@ -216,14 +226,14 @@ class Config < Hash
   end
   # Returns the full path to the fav_modules file.
   #
-  # @return [String] path the fav_modules file.
+  # @return [String] path to the fav_modules file.
   def self.fav_modules_file
     self.new.fav_modules_file
   end
 
   # Returns the full path to the handler file.
   #
-  # @return [String] path the handler file.
+  # @return [String] path to the handler file.
   def self.persist_file
     self.new.persist_file
   end
@@ -314,6 +324,10 @@ class Config < Hash
 
   def meterpreter_history
     config_directory + FileSep + "meterpreter_history"
+  end
+
+  def smb_session_history
+    config_directory + FileSep + "smb_session_history"
   end
 
   def pry_history

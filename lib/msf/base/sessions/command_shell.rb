@@ -30,7 +30,7 @@ class CommandShell
   include Rex::Ui::Text::Resource
 
   @@irb_opts = Rex::Parser::Arguments.new(
-    '-h' => [false, 'Help menu.'             ],
+    ['-h', '--help'] => [false, 'Help menu.'             ],
     '-e' => [true,  'Expression to evaluate.']
   )
 
@@ -235,35 +235,35 @@ Shell Banner:
   end
 
   def cmd_sessions(*args)
-    if args.length.zero? || args[0].to_i <= 0
-      # No args
-      return cmd_sessions_help
-    end
-
-    if args.length == 1 && (args[1] == '-h' || args[1] == 'help')
-      # One arg, and args[1] => '-h' '-H' 'help'
-      return cmd_sessions_help
-    end
-
     if args.length != 1
-      # More than one argument
+      print_status "Wrong number of arguments expected: 1, received: #{args.length}"
       return cmd_sessions_help
     end
 
-    if args[0].to_s == self.name.to_s
+    if args[0] == '-h' || args[0] == '--help'
+      return cmd_sessions_help
+    end
+
+    session_id = args[0].to_i
+    if session_id <= 0
+      print_status 'Invalid session id'
+      return cmd_sessions_help
+    end
+
+    if session_id == self.sid
       # Src == Dst
       print_status("Session #{self.name} is already interactive.")
     else
       print_status("Backgrounding session #{self.name}...")
       # store the next session id so that it can be referenced as soon
       # as this session is no longer interacting
-      self.next_session = args[0]
+      self.next_session = session_id
       self.interacting = false
     end
   end
 
   def cmd_resource(*args)
-    if args.empty?
+    if args.empty? || args[0] == '-h' || args[0] == '--help'
       cmd_resource_help
       return false
     end
@@ -320,9 +320,9 @@ Shell Banner:
   end
 
   def cmd_shell(*args)
-    if args.length == 1 && (args[1] == '-h' || args[1] == 'help')
-      # One arg, and args[1] => '-h' '-H' 'help'
-      return cmd_sessions_help
+    if args.length == 1 && (args[0] == '-h' || args[0] == '--help')
+      # One arg, and args[0] => '-h' '--help'
+      return cmd_shell_help
     end
 
     if platform == 'windows'
@@ -570,7 +570,7 @@ Shell Banner:
   # Open the Pry debugger on the current session
   #
   def cmd_pry(*args)
-    if args.include?('-h')
+    if args.include?('-h') || args.include?('--help')
       cmd_pry_help
       return
     end

@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::LDAP
+  include Msf::Exploit::Remote::LDAP::Queries
   require 'json'
   require 'yaml'
 
@@ -123,337 +124,21 @@ class MetasploitModule < Msf::Auxiliary
     [actions, default_action]
   end
 
-  def safe_load_queries(filename)
-    begin
-      settings = YAML.safe_load(File.binread(filename))
-    rescue StandardError => e
-      elog("Couldn't parse #{filename}", error: e)
-      return
-    end
-
-    return unless settings['queries'].is_a? Array
-
-    settings['queries']
-  end
-
-  def perform_ldap_query(ldap, filter, attributes, base: nil, scope: nil)
-    results = []
-    perform_ldap_query_streaming(ldap, filter, attributes, base: base, scope: scope) do |result|
-      results << result
-    end
-
-    query_result_table = ldap.get_operation_result.table
-    validate_query_result!(query_result_table, filter)
-
-    if results.nil? || results.empty?
-      print_error("No results found for #{filter}.")
-      return nil
-    end
-
-    results
-  end
-
-  def perform_ldap_query_streaming(ldap, filter, attributes, base: nil, scope: nil)
-    query_attributes_data(ldap, attributes.map(&:to_sym))
-
-    base ||= @base_dn
-    scope ||= Net::LDAP::SearchScope_WholeSubtree
-    result_count = 0
-    ldap.search(base: base, filter: filter, attributes: attributes, scope: scope, return_result: false) do |result|
-      result_count += 1
-      yield result if block_given?
-    end
-
-    result_count
-  end
-
-  def generate_rex_tables(entry, format)
-    tbl = Rex::Text::Table.new(
-      'Header' => entry[:dn][0].split(',').join(' '),
-      'Indent' => 1,
-      'Columns' => %w[Name Attributes]
-    )
-
-    entry.each_key do |attr|
-      if format == 'table'
-        tbl << [attr, entry[attr].join(' || ')] unless attr == :dn # Skip over DN entries for tables since DN information is shown in header.
-      else
-        tbl << [attr, entry[attr].join(' || ')] # DN information is not shown in CSV output as a header so keep DN entries in.
-      end
-    end
-
-    case format
-    when 'table'
-      print_line(tbl.to_s)
-    when 'csv'
-      print_line(tbl.to_csv)
-    else
-      fail_with(Failure::BadConfig, "Invalid format #{format} passed to generate_rex_tables!")
-    end
-  end
-
-  def convert_nt_timestamp_to_time_string(nt_timestamp)
-    Time.at((nt_timestamp.to_i - 116444736000000000) / 10000000).utc.to_s
-  end
-
-  def convert_pwd_age_to_time_string(timestamp)
-    seconds = (timestamp.to_i / -1) / 10000000 # Convert always negative number to positive then convert to seconds from tick count.
-    days = seconds / 86400
-    hours = (seconds % 86400) / 3600
-    minutes = ((seconds % 86400) % 3600) / 60
-    real_seconds = (((seconds % 86400) % 3600) % 60)
-    return "#{days}:#{hours.to_s.rjust(2, '0')}:#{minutes.to_s.rjust(2, '0')}:#{real_seconds.to_s.rjust(2, '0')}"
-  end
-
-  # Read in a DER formatted certificate file and transform it into a
-  # OpenSSL::X509::Certificate object before then using that object to
-  # read the properties of the certificate and return this info as a string.
-  def read_der_certificate_file(cert)
-    openssl_certificate = OpenSSL::X509::Certificate.new(cert)
-    version = openssl_certificate.version
-    subject = openssl_certificate.subject
-    issuer = openssl_certificate.issuer
-    algorithm = openssl_certificate.signature_algorithm
-    extensions = openssl_certificate.extensions.join(' | ')
-    extensions.strip!
-    extensions.gsub!(/ \|$/, '') # Strip whitespace and then strip trailing | from end of string.
-    [openssl_certificate, "Version: 0x#{version}, Subject: #{subject}, Issuer: #{issuer}, Signature Algorithm: #{algorithm}, Extensions: #{extensions}"]
-  end
-
-  # Taken from https://www.powershellgallery.com/packages/S.DS.P/2.1.3/Content/Transforms%5CsystemFlags.ps1
-  # and from https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/1e38247d-8234-4273-9de3-bbf313548631
-  FLAG_DISALLOW_DELETE = 0x80000000
-  FLAG_CONFIG_ALLOW_RENAME = 0x40000000
-  FLAG_CONFIG_ALLOW_MOVE = 0x20000000
-  FLAG_CONFIG_ALLOW_LIMITED_MOVE = 0x10000000
-  FLAG_DOMAIN_DISALLOW_RENAME = 0x8000000
-  FLAG_DOMAIN_DISALLOW_MOVE = 0x4000000
-  FLAG_DISALLOW_MOVE_ON_DELETE = 0x2000000
-  FLAG_ATTR_IS_RDN = 0x20
-  FLAG_SCHEMA_BASE_OBJECT = 0x10
-  FLAG_ATTR_IS_OPERATIONAL = 0x8
-  FLAG_ATTR_IS_CONSTRUCTED = 0x4
-  FLAG_ATTR_REQ_PARTIAL_SET_MEMBER = 0x2
-  FLAG_NOT_REPLICATED = 0x1
-
-  def convert_system_flags_to_string(flags)
-    flags_converted = flags.to_i
-    flag_string = ''
-    flag_string << 'FLAG_DISALLOW_DELETE | ' if flags_converted & FLAG_DISALLOW_DELETE > 0
-    flag_string << 'FLAG_CONFIG_ALLOW_RENAME | ' if flags_converted & FLAG_CONFIG_ALLOW_RENAME > 0
-    flag_string << 'FLAG_CONFIG_ALLOW_MOVE | ' if flags_converted & FLAG_CONFIG_ALLOW_MOVE > 0
-    flag_string << 'FLAG_CONFIG_ALLOW_LIMITED_MOVE | ' if flags_converted & FLAG_CONFIG_ALLOW_LIMITED_MOVE > 0
-    flag_string << 'FLAG_DOMAIN_DISALLOW_RENAME | ' if flags_converted & FLAG_DOMAIN_DISALLOW_RENAME > 0
-    flag_string << 'FLAG_DOMAIN_DISALLOW_MOVE | ' if flags_converted & FLAG_DOMAIN_DISALLOW_MOVE > 0
-    flag_string << 'FLAG_DISALLOW_MOVE_ON_DELETE | ' if flags_converted & FLAG_DISALLOW_MOVE_ON_DELETE > 0
-    flag_string << 'FLAG_ATTR_IS_RDN | ' if flags_converted & FLAG_ATTR_IS_RDN > 0
-    flag_string << 'FLAG_SCHEMA_BASE_OBJECT | ' if flags_converted & FLAG_SCHEMA_BASE_OBJECT > 0
-    flag_string << 'FLAG_ATTR_IS_OPERATIONAL | ' if flags_converted & FLAG_ATTR_IS_OPERATIONAL > 0
-    flag_string << 'FLAG_ATTR_IS_CONSTRUCTED | ' if flags_converted & FLAG_ATTR_IS_CONSTRUCTED > 0
-    flag_string << 'FLAG_ATTR_REQ_PARTIAL_SET_MEMBER | ' if flags_converted & FLAG_ATTR_REQ_PARTIAL_SET_MEMBER > 0
-    flag_string << 'FLAG_NOT_REPLICATED | ' if flags_converted & FLAG_NOT_REPLICATED > 0
-    flag_string.strip.gsub!(/ \|$/, '')
-  end
-
-  def output_json_data(entry)
-    data = {}
-    entry.each_key do |attr|
-      data[attr] = entry[attr].length == 1 ? entry[attr][0] : entry[attr]
-    end
-    print_status(entry[:dn][0].split(',').join(' '))
-    print_line(JSON.pretty_generate(data))
-  end
-
-  def output_data_table(entry)
-    generate_rex_tables(entry, 'table')
-  end
-
-  def output_data_csv(entry)
-    generate_rex_tables(entry, 'csv')
-  end
-
-  def find_schema_dn(ldap)
-    results = ldap.search(attributes: ['objectCategory'], base: @base_dn, filter: '(objectClass=*)', scope: Net::LDAP::SearchScope_BaseObject)
-    validate_query_result!(ldap.get_operation_result.table)
-    if results.blank?
-      fail_with(Failure::UnexpectedReply, "LDAP server didn't respond to our request to find the root DN!")
-    end
-
-    # Double check that the entry has an instancetype attribute.
-    unless results[0].to_h.key?(:objectcategory)
-      fail_with(Failure::UnexpectedReply, "LDAP server didn't respond to the root DN request with the objectcategory attribute field!")
-    end
-
-    object_category_raw = results[0][:objectcategory][0]
-    schema_dn = object_category_raw.gsub(/CN=[A-Za-z0-9-]+,/, '')
-    print_good("#{peer} Discovered schema DN: #{schema_dn}")
-
-    schema_dn
-  end
-
-  def query_attributes_data(ldap, attributes)
-    @attribute_properties = {} if @attribute_properties.nil?
-
-    filter = '(|'
-    attributes.each do |key|
-      next if @attribute_properties.key?(key) # Skip if we already have this one
-      next if key == :dn # Skip DN as it will never have a schema entry
-
-      filter += "(LDAPDisplayName=#{key})"
-    end
-    filter += ')'
-    return unless filter.include?('LDAPDisplayName=')
-
-    attributes_data = ldap.search(base: ['CN=Schema,CN=Configuration', @schema_dn].join(','), filter: filter, attributes: %i[LDAPDisplayName isSingleValued oMSyntax attributeSyntax])
-    query_result_table = ldap.get_operation_result.table
-    validate_query_result!(query_result_table)
-
-    attributes_data.each do |entry|
-      ldap_display_name = entry[:ldapdisplayname][0].to_s.downcase.to_sym
-      @attribute_properties[ldap_display_name] = {
-        issinglevalued: entry[:issinglevalued][0] == 'TRUE',
-        omsyntax: entry[:omsyntax][0].to_i,
-        attributesyntax: entry[:attributesyntax][0]
-      }
-    end
-  end
-
-  def normalize_entry(entry)
-    # Convert to a hash so we get the raw data we need from within the Net::LDAP::Entry object
-    entry = entry.to_h
-    normalized_entry = { dn: entry[:dn] }
-    entry.each_key do |attribute_name|
-      next if attribute_name == :dn # Skip the DN case as there will be no attributes_properties entry for it.
-
-      normalized_attribute = entry[attribute_name].map { |v| Rex::Text.to_hex_ascii(v) }
-      attribute_property = @attribute_properties[attribute_name]
-      unless attribute_property
-        normalized_entry[attribute_name] = normalized_attribute
-        next
-      end
-
-      case attribute_property[:omsyntax]
-      when 1 # Boolean
-        normalized_attribute[0] = entry[attribute_name][0] != 0
-      when 2 # Integer
-        if attribute_name == :systemflags
-          flags = entry[attribute_name][0]
-          converted_flags_string = convert_system_flags_to_string(flags)
-          normalized_attribute[0] = converted_flags_string
-        end
-      when 4 # OctetString or SID String
-        if attribute_property[:attributesyntax] == '2.5.5.17' # SID String
-          # Advice taken from https://ldapwiki.com/wiki/ObjectSID
-          object_sid_raw = entry[attribute_name][0]
-          begin
-            sid_data = Rex::Proto::MsDtyp::MsDtypSid.read(object_sid_raw)
-            sid_string = sid_data.to_s
-          rescue IOError => e
-            fail_with(Failure::UnexpectedReply, "Failed to read SID. Error was #{e.message}")
-          end
-          normalized_attribute[0] = sid_string
-        elsif attribute_property[:attributesyntax] == '2.5.5.10' # OctetString
-          if attribute_name.to_s.match(/guid$/i)
-            # Get the entry[attribute_name] object will be an array containing a single string entry,
-            # so reach in and extract that string, which will contain binary data.
-            bin_guid = entry[attribute_name][0]
-            if bin_guid.length == 16 # Length of binary data in bytes since this is what .length uses. In bits its 128 bits.
-              begin
-                decoded_guid = Rex::Proto::MsDtyp::MsDtypGuid.read(bin_guid)
-                decoded_guid_string = decoded_guid.get
-              rescue IOError => e
-                fail_with(Failure::UnexpectedReply, "Failed to read GUID. Error was #{e.message}")
-              end
-              normalized_attribute[0] = decoded_guid_string
-            end
-          elsif attribute_name == :cacertificate || attribute_name == :usercertificate
-            normalized_attribute = entry[attribute_name].map do |raw_key_data|
-              _certificate_file, read_data = read_der_certificate_file(raw_key_data)
-
-              read_data
-            end
-          end
-        end
-      when 6 # String (Object-Identifier)
-      when 10 # Enumeration
-      when 18 # NumbericString
-      when 19 # PrintableString
-      when 20 # Case-Ignore String
-      when 22 # IA5String
-      when 23 # GeneralizedTime String (UTC-Time)
-      when 24 # GeneralizedTime String (GeneralizedTime)
-      when 27 # Case Sensitive String
-      when 64 # DirectoryString String(Unicode)
-      when 65 # LargeInteger
-        if attribute_name == :creationtime || attribute_name.to_s.match(/lastlog(?:on|off)/)
-          timestamp = entry[attribute_name][0]
-          time_string = convert_nt_timestamp_to_time_string(timestamp)
-        elsif attribute_name.to_s.match(/lockoutduration$/i) || attribute_name.to_s.match(/pwdage$/)
-          timestamp = entry[attribute_name][0]
-          time_string = convert_pwd_age_to_time_string(timestamp)
-        end
-        normalized_attribute[0] = time_string
-      when 66 # String (Nt Security Descriptor)
-      when 127 # Object
-      else
-        print_error("Unknown oMSyntax entry: #{attribute_property[:omsyntax]}")
-      end
-      normalized_entry[attribute_name] = normalized_attribute
-    end
-
-    normalized_entry
-  end
-
-  def show_output(entry)
-    case datastore['OUTPUT_FORMAT']
-    when 'csv'
-      output_data_csv(entry)
-    when 'table'
-      output_data_table(entry)
-    when 'json'
-      output_json_data(entry)
-    else
-      fail_with(Failure::BadConfig, 'Supported OUTPUT_FORMAT values are csv, table and json')
-    end
-  end
-
-  def run_queries_from_file(ldap, queries)
-    queries.each do |query|
-      unless query['action'] && query['filter'] && query['attributes']
-        fail_with(Failure::BadConfig, "Each query in the query file must at least contain a 'action', 'filter' and 'attributes' attribute!")
-      end
-      attributes = query['attributes']
-      if attributes.nil? || attributes.empty?
-        print_warning('At least one attribute needs to be specified per query in the query file for entries to work!')
-        break
-      end
-      filter = Net::LDAP::Filter.construct(query['filter'])
-      print_status("Running #{query['action']}...")
-      query_base = query['base_dn_prefix'] ? [query['base_dn_prefix'], @base_dn].join(',') : nil
-
-      result_count = perform_ldap_query_streaming(ldap, filter, attributes, base: query_base) do |result|
-        show_output(normalize_entry(result))
-      end
-
-      print_warning("Query #{query['filter']} from #{query['action']} didn't return any results!") if result_count == 0
-    end
-  end
-
   def run
     ldap_connect do |ldap|
       validate_bind_success!(ldap)
 
-      if (@base_dn = datastore['BASE_DN'])
-        print_status("User-specified base DN: #{@base_dn}")
+      if (base_dn = datastore['BASE_DN'])
+        print_status("User-specified base DN: #{base_dn}")
       else
         print_status('Discovering base DN automatically')
 
-        unless (@base_dn = discover_base_dn(ldap))
+        unless (base_dn = discover_base_dn(ldap))
           fail_with(Failure::UnexpectedReply, "Couldn't discover base DN!")
         end
       end
 
-      @schema_dn = find_schema_dn(ldap)
+      schema_dn = find_schema_dn(ldap, base_dn)
 
       case action.name
       when 'RUN_QUERY_FILE'
@@ -467,7 +152,7 @@ class MetasploitModule < Msf::Auxiliary
           fail_with(Failure::BadConfig, "No queries loaded from #{datastore['QUERY_FILE_PATH']}!")
         end
 
-        run_queries_from_file(ldap, parsed_queries)
+        run_queries_from_file(ldap, parsed_queries, datastore['OUTPUT_FORMAT'])
         return
       when 'RUN_SINGLE_QUERY'
         unless datastore['QUERY_FILTER'] && datastore['QUERY_ATTRIBUTES']
@@ -487,14 +172,14 @@ class MetasploitModule < Msf::Auxiliary
         # Strip out leading and trailing whitespace from the attributes before using them.
         attributes.map(&:strip!)
         filter_string = datastore['QUERY_FILTER']
-        query_base = nil
+        query_base = base_dn
       else
         query = @loaded_queries[datastore['ACTION']].nil? ? @loaded_queries[default_action] : @loaded_queries[datastore['ACTION']]
         fail_with(Failure::BadConfig, "Invalid action: #{datastore['ACTION']}") unless query
 
         filter_string = query['filter']
         attributes = query['attributes']
-        query_base = (query['base_dn_prefix'] ? [query['base_dn_prefix'], @base_dn].join(',') : nil)
+        query_base = (query['base_dn_prefix'] ? [query['base_dn_prefix'], base_dn].join(',') : base_dn)
       end
 
       begin
@@ -503,8 +188,8 @@ class MetasploitModule < Msf::Auxiliary
         fail_with(Failure::BadConfig, "Could not compile the filter #{filter_string}. Error was #{e}")
       end
 
-      result_count = perform_ldap_query_streaming(ldap, filter, attributes, base: query_base) do |result|
-        show_output(normalize_entry(result))
+      result_count = perform_ldap_query_streaming(ldap, filter, attributes, query_base, schema_dn) do |result, attribute_properties|
+        show_output(normalize_entry(result, attribute_properties), datastore['OUTPUT_FORMAT'])
       end
 
       if result_count == 0
@@ -518,4 +203,6 @@ class MetasploitModule < Msf::Auxiliary
   rescue Net::LDAP::Error => e
     fail_with(Failure::UnexpectedReply, "Could not query #{datastore['RHOST']}! Error was: #{e.message}")
   end
+
+  attr_reader :loaded_queries # Queries loaded from the yaml config file
 end

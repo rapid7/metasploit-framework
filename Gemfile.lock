@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.3.41)
+    metasploit-framework (6.3.49)
       actionpack (~> 7.0.0)
       activerecord (~> 7.0.0)
       activesupport (~> 7.0.0)
@@ -33,7 +33,7 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 2.0.156)
+      metasploit-payloads (= 2.0.161)
       metasploit_data_models
       metasploit_payloads-mettle (= 1.0.26)
       mqtt
@@ -80,7 +80,7 @@ PATH
       rex-zip
       ruby-macho
       ruby-mysql
-      ruby_smb (~> 3.2.0)
+      ruby_smb (~> 3.3.0)
       rubyntlm
       rubyzip
       sinatra
@@ -278,7 +278,7 @@ GEM
       activemodel (~> 7.0)
       activesupport (~> 7.0)
       railties (~> 7.0)
-    metasploit-payloads (2.0.156)
+    metasploit-payloads (2.0.161)
     metasploit_data_models (6.0.3)
       activerecord (~> 7.0)
       activesupport (~> 7.0)
@@ -418,7 +418,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.54)
+    rex-socket (0.1.55)
       rex-core
     rex-sslscan (0.1.10)
       rex-core
@@ -473,7 +473,7 @@ GEM
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (3.2.5)
+    ruby_smb (3.3.1)
       bindata
       openssl-ccm
       openssl-cmac

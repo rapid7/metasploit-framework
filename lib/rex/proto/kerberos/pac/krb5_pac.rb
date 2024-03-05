@@ -743,6 +743,15 @@ module Rex::Proto::Kerberos::Pac
       ms_dtyp_sid
     end
 
+    def do_num_bytes
+      if has_s_flag?
+        result = sid_offset + sid_length
+      else
+        result = dns_domain_name_offset + dns_domain_name_length
+      end
+      result
+    end
+
     # def initialize_instance(*args)
     #   super
     #   set_offsets!

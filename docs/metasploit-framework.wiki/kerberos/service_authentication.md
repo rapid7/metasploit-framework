@@ -130,11 +130,13 @@ Required options:
 * `${Prefix}::Rhostname` -- The hostname of the target system. This value should be either the hostname `WIN-MIJZ318SQH` or
   the FQDN like `WIN-MIJZ318SQH.msflab.local`. i.e. `Smb::Rhostname=WIN-MIJZ318SQH.msflab.local`
 * `${Prefix}Domain` -- The domain name of the target system, e.g. `msflab.local`. i.e. `SmbDomain=msflab.local`
-* `DomainControllerRhost` -- The IP address of the domain controller to use for kerberos authentication. i.e. `DomainControllerRhost=192.168.123.13`
 
 Optional options:
+* `DomainControllerRhost` -- The IP address or hostname of the domain controller to use for Kerberos authentication.
+  i.e. `DomainControllerRhost=192.168.123.13`. If this value is not specified, Metasploit will look it up via the
+  realm's (the `${Prefix}Domain` option) SRV record in DNS.
 * `${Prefix}::Krb5Ccname` -- The path to a CCACHE file to use for authentication. This is comparable to setting the
-  `KRB5CCNAME` environment variable for other tools. If specified, the tickets it contains will be used. i.e. `KRB5CCNAME=/path/to/Administrator.ccache`
+  `KRB5CCNAME` environment variable for other tools. If specified, the tickets it contains will be used. i.e. `KRB5CCNAME=/path/to/Administrator.ccache`.
 * `KrbCacheMode` -- The cache storage mode to use, one of the following four options:
     * `none` -- No cache storage is used, new tickets are requested and no tickets are stored.
     * `read-only` -- Stored tickets from the cache will be used, but no new tickets are stored.

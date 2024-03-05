@@ -13,7 +13,7 @@ module Ui
 ###
 module Console::CommandDispatcher
 
-  include Rex::Ui::Text::DispatcherShell::CommandDispatcher
+  include Msf::Ui::Console::CommandDispatcher::Session
 
   #
   # The hash of file names to class names after a module has already been
@@ -46,6 +46,12 @@ module Console::CommandDispatcher
   # Returns the meterpreter client context.
   #
   def client
+    shell.client
+  end
+
+  # A meterpreter session *is* a client but for the smb session it *has* a (ruby smb) client
+  # adding this here for parity with the smb session
+  def session
     shell.client
   end
 

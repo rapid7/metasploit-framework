@@ -445,7 +445,7 @@ module Metasploit
         # @return [Array] An array set up for {::IO.popen} to use
         def hashcat_crack_command
           cmd_string = binary_path
-          cmd = [cmd_string, '--session=' + cracker_session_id, '--logfile-disable']
+          cmd = [cmd_string, '--session=' + cracker_session_id, '--logfile-disable', '--quiet', '--username']
 
           if pot.present?
             cmd << ('--potfile-path=' + pot)
@@ -563,7 +563,7 @@ module Metasploit
 
           pot_file = pot || john_pot_file
           if cracker == 'hashcat'
-            cmd = [cmd_string, '--show', "--potfile-path=#{pot_file}", "--hash-type=#{jtr_format_to_hashcat_format(format)}"]
+            cmd = [cmd_string, '--show', '--username', "--potfile-path=#{pot_file}", "--hash-type=#{jtr_format_to_hashcat_format(format)}"]
           elsif cracker == 'john'
             cmd = [cmd_string, '--show', "--pot=#{pot_file}", "--format=#{format}"]
 

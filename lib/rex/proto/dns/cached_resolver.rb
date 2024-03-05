@@ -21,6 +21,7 @@ module DNS
     #
     # @return [nil]
     def initialize(config = {})
+      dns_cache_no_start = config.delete(:dns_cache_no_start)
       super(config)
       self.cache = Rex::Proto::DNS::Cache.new
       # Read hostsfile into cache
@@ -72,7 +73,7 @@ module DNS
         end
       end
       # TODO: inotify or similar on hostsfile for live updates? Easy-button functionality
-      self.cache.start unless config[:dns_cache_no_start]
+      self.cache.start unless dns_cache_no_start
       return
     end
 

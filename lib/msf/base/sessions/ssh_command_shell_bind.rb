@@ -287,6 +287,10 @@ module Msf::Sessions
       sock
     end
 
+    def supports_udp?
+      false
+    end
+
     def create_server_channel(params)
       msf_channel = nil
       mutex = Mutex.new

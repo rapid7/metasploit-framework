@@ -88,10 +88,32 @@ RSpec.describe Rex::Proto::Kerberos::Pac::Krb5Pac do
     )
   end
 
+  let(:upn_dns_info) do
+    element = Rex::Proto::Kerberos::Pac::Krb5UpnDnsInfo.new(
+      upn: 'juan@demo.local',
+      dns_domain_name: 'DEMO.LOCAL',
+      flags: 3,
+      sam_name: 'juan',
+      sid: 'S-1-5-21-1755879683-3641577184-3486455962-1038'
+    )
+    element.set_offsets!
+    element
+  end
+
   let(:pac_elements) do
     [
       logon_info,
       client_info,
+      server_checksum,
+      priv_srv_checksum
+    ]
+  end
+
+  let(:pac_elements_with_upn) do
+    [
+      logon_info,
+      client_info,
+      upn_dns_info,
       server_checksum,
       priv_srv_checksum
     ]
@@ -109,6 +131,16 @@ RSpec.describe Rex::Proto::Kerberos::Pac::Krb5Pac do
       pac.assign(pac_elements: pac_elements)
       pac.sign!
       expect(pac.to_binary_s).to eq(sample)
+    end
+  end
+
+  describe '#write' do
+    it 'writes then reads back to its original state' do
+      pac.assign(pac_elements: pac_elements_with_upn)
+      pac.sign!
+      data = pac.to_binary_s
+      result = Rex::Proto::Kerberos::Pac::Krb5Pac.read(data)
+      expect(result).to eq(pac)
     end
   end
 

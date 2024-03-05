@@ -217,10 +217,15 @@ module Msf
         rhosts_walker = Msf::RhostsWalker.new(datastore['RHOSTS'], datastore)
         rhosts_count = rhosts_walker.count
         unless rhosts_walker.valid?
-          invalid_values = rhosts_walker.to_enum(:errors).take(5).map(&:value)
+          errors = rhosts_walker.to_enum(:errors).to_a
+          grouped = errors.group_by { |err| err.cause.nil? ? nil : (err.cause.class.const_defined?(:MESSAGE) ? err.cause.class::MESSAGE : nil) }
           error_options << 'RHOSTS'
-          if invalid_values.any?
-            error_reasons['RHOSTS'] << "unexpected values: #{invalid_values.join(', ')}"
+          if grouped.any?
+            grouped.each do | message, error_subset |
+              invalid_values = error_subset.map(&:value).take(5)
+              message = 'Unexpected values' if message.nil?
+              error_reasons['RHOSTS'] << "#{message}: #{invalid_values.join(', ')}"
+            end
           end
         end
 

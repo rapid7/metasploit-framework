@@ -2300,7 +2300,7 @@ class Def_windows_kernel32
       ["HANDLE","hResInfo","in"],
       ])
 
-    dll.add_function( 'LocalAlloc', 'DWORD',[
+    dll.add_function( 'LocalAlloc', 'HANDLE',[
       ["DWORD","uFlags","in"],
       ["DWORD","uBytes","in"],
       ])
@@ -2318,7 +2318,7 @@ class Def_windows_kernel32
       ["HANDLE","hMem","in"],
       ])
 
-    dll.add_function( 'LocalFree', 'DWORD',[
+    dll.add_function( 'LocalFree', 'HANDLE',[
       ["HANDLE","hMem","in"],
       ])
 

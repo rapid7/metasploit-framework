@@ -87,7 +87,6 @@ RSpec.describe Rex::Proto::Kerberos::Crypto::Aes256CtsSha1 do
   end
 
   it 'Decryption inverts encryption' do
-    print("\n\nDECRYPTING\n\n")
     plaintext = "The quick brown fox jumps over the lazy dog"
     key = "\xfe\x69\x7b\x52\xbc\x0d\x3c\xe1\x44\x32\xba\x03\x6a\x92\xe6\x5b\xbb\x52\x28\x09\x90\xa2\xfa\x27\x88\x39\x98\xd7\x2a\xf3\x01\x61"
     msg_type = 4

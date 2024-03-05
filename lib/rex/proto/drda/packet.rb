@@ -12,7 +12,7 @@ class RespError < Error; end
 # http://publib.boulder.ibm.com/infocenter/dzichelp/v2r2/index.jsp?topic=/com.ibm.db29.doc.drda/db2z_excsat.htm
 class MGRLVLLS_PARAM < Struct.new(:length, :codepoint, :payload)
   def initialize(args={})
-    self[:codepoint] = Constants::MGRLVLLS
+    self[:codepoint] = Rex::Proto::DRDA::Constants::MGRLVLLS
     self[:payload] = "\x14\x03\x00\x0a\x24\x07\x00\x0a" +
       "\x14\x74\x00\x05\x24\x0f\x00\x08" +
       "\x14\x40\x00\x09\x1c\x08\x04\xb8"
@@ -32,7 +32,7 @@ class EXCSAT_DDM < Struct.new(:length, :magic, :format, :correlid, :length2,
     self[:magic] = 0xd0
     self[:format] = 0x41
     self[:correlid] = 1
-    self[:codepoint] = Constants::EXCSAT
+    self[:codepoint] = Rex::Proto::DRDA::Constants::EXCSAT
     self[:mgrlvlls] = args[:mgrlvlls] || MGRLVLLS_PARAM.new.to_s
     self[:length] = (10 + self[:mgrlvlls].to_s.size)
     self[:length2] = self[:length]-6
@@ -50,7 +50,7 @@ end
 class SECMEC_PARAM < Struct.new(:length, :codepoint, :payload)
   def initialize(args={})
     self[:length] = 6
-    self[:codepoint] = Constants::SECMEC
+    self[:codepoint] = Rex::Proto::DRDA::Constants::SECMEC
     self[:payload] = 3 # Plaintext username and password.
   end
   def to_s
@@ -62,7 +62,7 @@ end
 class RDBNAM_PARAM < Struct.new(:length, :codepoint, :payload)
   def initialize(args={})
     self[:length] = 22 # Since the database name is padded out.
-    self[:codepoint] = Constants::RDBNAM
+    self[:codepoint] = Rex::Proto::DRDA::Constants::RDBNAM
     self[:payload] = encode(args[:payload].to_s)
   end
 
@@ -90,7 +90,7 @@ class ACCSEC_DDM < Struct.new(:length, :magic, :format, :correlid, :length2,
     self[:magic] = 0xd0
     self[:format] = args[:format] || 0x01
     self[:correlid] = 2
-    self[:codepoint] = Constants::ACCSEC
+    self[:codepoint] = Rex::Proto::DRDA::Constants::ACCSEC
     self[:secmec] = SECMEC_PARAM.new.to_s
     if args[:dbname] # Include a database name if we're given one.
       self[:rdbnam] = RDBNAM_PARAM.new(:payload => args[:dbname]).to_s
@@ -144,7 +144,7 @@ class BASIC_DDM < Struct.new(:length, :magic, :format, :correlid,
     rest = str[10,self[:length2]-4]
     i = 0
     while (i < rest.size)
-      if self[:codepoint] == Constants::SQLCARD # These aren't DDM's.
+      if self[:codepoint] == Rex::Proto::DRDA::Constants::SQLCARD # These aren't DDM's.
         this_param = rest[i,self[:length]-10]
       else
         this_param = DDM_PARAM.new.read(rest[i,rest.size])
@@ -193,7 +193,7 @@ end
 
 class PASSWORD_PARAM < Struct.new(:length, :codepoint, :payload)
   def initialize(args={})
-    self[:codepoint] = Constants::PASSWORD
+    self[:codepoint] = Rex::Proto::DRDA::Constants::PASSWORD
     self[:payload] = Rex::Text.to_ebcdic(args[:payload].to_s)
     self[:length] = self[:payload].size + 4
   end
@@ -207,7 +207,7 @@ end
 
 class USERID_PARAM < Struct.new(:length, :codepoint, :payload)
   def initialize(args={})
-    self[:codepoint] = Constants::USERID
+    self[:codepoint] = Rex::Proto::DRDA::Constants::USERID
     self[:payload] = Rex::Text.to_ebcdic(args[:payload].to_s)
     self[:length] = self[:payload].size + 4
   end
@@ -225,7 +225,7 @@ class SECCHK_DDM < Struct.new(:length, :magic, :format, :correlid, :length2,
     self[:magic] = 0xd0
     self[:format] = 0x01
     self[:correlid] = 2
-    self[:codepoint] = Constants::SECCHK
+    self[:codepoint] = Rex::Proto::DRDA::Constants::SECCHK
     self[:secmec] = SECMEC_PARAM.new.to_s
     if args[:dbname] # Include a database name if we're given one.
       self[:rdbnam] = RDBNAM_PARAM.new(:payload => args[:dbname]).to_s
