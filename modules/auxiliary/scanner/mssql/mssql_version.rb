@@ -35,26 +35,28 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
+    data[:status] = 'open' if data[:version] || data[:encryption]
+
     print_status("SQL Server for #{mssql_client.address}:")
-    if data['Version']
-      print_good("Version: #{data['Version']}")
+    if data[:version]
+      print_good("Version: #{data[:version]}")
     else
       print_error('Unknown Version')
     end
-    if data['Encryption']
-      case data['Encryption']
+    if data[:encryption]
+      case data[:encryption]
       when ENCRYPT_OFF
-        data['Encryption'] = 'off'
+        data[:encryption] = 'off'
       when ENCRYPT_ON
-        data['Encryption'] = 'on'
+        data[:encryption] = 'on'
       when ENCRYPT_NOT_SUP
-        data['Encryption'] = 'unsupported'
+        data[:encryption] = 'unsupported'
       when ENCRYPT_REQ
-        data['Encryption'] = 'required'
+        data[:encryption] = 'required'
       else
-        data['Encryption'] = 'unknown'
+        data[:encryption] = 'unknown'
       end
-      print_good("Encryption is #{data['Encryption']}")
+      print_good("Encryption is #{data[:encryption]}")
     else
       print_error('Unknown encryption status')
     end
@@ -65,8 +67,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def report_mssql_service(ip, data)
     mssql_info = 'Version: %<version>s, Encryption: %<encryption>s' % [
-      version: data['Version'] || 'unknown',
-      encryption: data['Encryption'] || 'unknown'
+      version: data[:version] || 'unknown',
+      encryption: data[:encryption] || 'unknown'
     ]
     report_service(
       host: ip,

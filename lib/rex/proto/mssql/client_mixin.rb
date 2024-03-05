@@ -158,15 +158,12 @@ module ClientMixin
       build = resp.slice(version_index+2, 2).unpack('n')[0]
 
       enc_index = resp.slice(6, 2).unpack('n')[0]
-      data['Encryption'] = resp.slice(enc_index, 1).unpack('C')[0]
+      data[:encryption] = resp.slice(enc_index, 1).unpack('C')[0]
     end
 
     if major && minor && build
-      data['Version'] = "#{major}.#{minor}.#{build}"
+      data[:version] = "#{major}.#{minor}.#{build}"
     end
-
-
-    data['Status'] = 'open' if data['Version'] || data['Encryption']
 
     return data
   end
