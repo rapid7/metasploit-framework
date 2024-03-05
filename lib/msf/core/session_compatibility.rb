@@ -212,7 +212,7 @@ module Msf
         if s.platform.blank?
           issues << "Unknown session platform. This module works with: #{platform.names.join(', ')}."
         elsif !platform.supports?(Msf::Module::PlatformList.transform(s.platform))
-          issues << "incompatible session platform: #{s.platform}. This module works with: #{platform.names.join(', ')}."
+          issues << "incompatible session platform: #{s.platform}. This module works with: #{platform ? platform.names.join(', ') : platform.inspect}."
         end
       end
 

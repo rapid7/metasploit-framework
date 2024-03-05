@@ -7,7 +7,7 @@ create handlers, etc.
 The test suite runs on the current host, so the Meterpreter runtimes should be available.
 There is no remote host support currently.
 
-### Examples
+### Meterpreter
 
 Useful environment variables:
 - `METERPRETER` - Filter the test suite for specific Meterpreter instances, example: `METERPRETER=java`
@@ -31,6 +31,20 @@ Run a specific Meterpreter/module test Unix / Windows:
 SPEC_OPTS='--tag acceptance' METERPRETER=php METERPRETER_MODULE_TEST=test/unix bundle exec rspec './spec/acceptance/meterpreter_spec.rb'
 
 $env:SPEC_OPTS='--tag acceptance'; $env:SPEC_HELPER_LOAD_METASPLOIT=$false; $env:METERPRETER = 'php'; bundle exec rspec './spec/acceptance/meterpreter_spec.rb'
+```
+
+### Postgres
+
+Run a target:
+
+```
+docker run -it --rm --publish 127.0.0.1:9000:5432 -e POSTGRES_PASSWORD=password postgres:14
+```
+
+Run the test suite:
+
+```
+POSTGRES_RPORT=9000 SPEC_HELPER_LOAD_METASPLOIT=false bundle exec rspec ./spec/acceptance/postgres_spec.rb
 ```
 
 #### Allure reports

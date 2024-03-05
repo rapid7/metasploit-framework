@@ -21,6 +21,7 @@ AllureRspec.configure do |config|
       environment_properties[:meterpreter_runtime_version] = "#{meterpreter_name}#{meterpreter_runtime_version}"
     end
   end
+  environment_properties[:runtime_version] = ENV['RUNTIME_VERSION']
 
   config.environment_properties = environment_properties.compact
 end

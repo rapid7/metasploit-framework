@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Post
   end
 
   def select_available_modules
-    session_platform = Msf::Module::Platform.find_platform(session.platform)
+    session_platform = session.platform ? Msf::Module::Platform.find_platform(session.platform) : nil
     session_type = session.type
 
     module_results = []

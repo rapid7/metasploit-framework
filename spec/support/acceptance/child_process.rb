@@ -499,7 +499,7 @@ module Acceptance
     end
 
     def close
-      close_processes(@payload_processes + [console])
+      close_processes(@payload_processes + [@console])
     end
 
     def self.finalizer_proc_for(instance)
