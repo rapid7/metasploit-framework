@@ -430,10 +430,10 @@ module Rex
           idx = 0
           data = parse_prelogin_response(resp)
 
-          unless data['Encryption']
+          unless data[:encryption]
             framework_module.print_error("Unable to parse encryption req " \
               "during pre-login, this may not be a MSSQL server")
-            data['Encryption'] = ENCRYPT_NOT_SUP
+            data[:encryption] = ENCRYPT_NOT_SUP
           end
 
           ##########################################################
@@ -451,7 +451,7 @@ module Rex
           #
           ##########################################################
 
-          if data['Encryption'] == ENCRYPT_REQ
+          if data[:encryption] == ENCRYPT_REQ
             # restart prelogin process except that we tell SQL Server
             # than we are now able to encrypt
             disconnect if self.sock
@@ -466,10 +466,10 @@ module Rex
             resp = mssql_send_recv(pkt)
             data = parse_prelogin_response(resp)
 
-            unless data['Encryption']
+            unless data[:encryption]
               framework_module.print_error("Unable to parse encryption req " \
                 "during pre-login, this may not be a MSSQL server")
-                data['Encryption'] = ENCRYPT_NOT_SUP
+              data[:encryption] = ENCRYPT_NOT_SUP
             end
           end
           data
