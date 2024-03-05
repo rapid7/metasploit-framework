@@ -129,8 +129,6 @@ module Rex
         #
 
         def mssql_login(user='sa', pass='', db='', domain_name='')
-          disconnect if self.sock
-          connect
           mssql_prelogin
 
           if auth == Msf::Exploit::Remote::AuthOption::KERBEROS
@@ -477,28 +475,20 @@ module Rex
         #this method send a prelogin packet and check if encryption is off
         #
         def mssql_prelogin(enc_error=false)
+          disconnect if self.sock
+          connect
+
           pkt = mssql_prelogin_packet
 
           resp = mssql_send_recv(pkt)
 
           idx = 0
+          data = parse_prelogin_response(resp)
 
-          while resp && resp[0, 1] != "\xff" && resp.length > 5
-            token = resp.slice!(0, 5)
-            token = token.unpack("Cnn")
-            idx -= 5
-            if token[0] == 0x01
-
-              idx += token[1]
-              break
-            end
-          end
-          if idx > 0
-            encryption_mode = resp[idx, 1].unpack("C")[0]
-          else
+          unless data['Encryption']
             framework_module.print_error("Unable to parse encryption req " \
               "during pre-login, this may not be a MSSQL server")
-            encryption_mode = ENCRYPT_NOT_SUP
+            data['Encryption'] = ENCRYPT_NOT_SUP
           end
 
           ##########################################################
@@ -516,7 +506,7 @@ module Rex
           #
           ##########################################################
 
-          if encryption_mode == ENCRYPT_REQ
+          if data['Encryption'] == ENCRYPT_REQ
             # restart prelogin process except that we tell SQL Server
             # than we are now able to encrypt
             disconnect if self.sock
@@ -529,27 +519,15 @@ module Rex
               "been enabled based on server response.")
 
             resp = mssql_send_recv(pkt)
+            data = parse_prelogin_response(resp)
 
-            idx = 0
-
-            while resp && resp[0, 1] != "\xff" && resp.length > 5
-              token = resp.slice!(0, 5)
-              token = token.unpack("Cnn")
-              idx -= 5
-              if token[0] == 0x01
-                idx += token[1]
-                break
-              end
-            end
-            if idx > 0
-              encryption_mode = resp[idx, 1].unpack("C")[0]
-            else
+            unless data['Encryption']
               framework_module.print_error("Unable to parse encryption req " \
                 "during pre-login, this may not be a MSSQL server")
-              encryption_mode = ENCRYPT_NOT_SUP
+                data['Encryption'] = ENCRYPT_NOT_SUP
             end
           end
-          encryption_mode
+          data
         end
 
         def mssql_ssl_send_recv(req, tdsproxy, timeout=15, check_status=true)

@@ -23,28 +23,44 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     if session
-      set_session(session.client)
+      set_mssql_session(session.client)
+    else
+      create_mssql_client
     end
 
-    data = mssql_get_version
+    data = mssql_prelogin
+
     if data.nil? || data.empty?
       print_error("Unable to retrieve version information for #{mssql_client.address}")
       return
     end
 
     print_status("SQL Server for #{mssql_client.address}:")
-    if data['Version'] && !data['Version'].empty?
+    if data['Version']
       print_good("Version: #{data['Version']}")
     else
       print_error('Unknown Version')
     end
-    if data['Encryption'] && !data['Encryption'].empty?
+    if data['Encryption']
+      case data['Encryption']
+      when ENCRYPT_OFF
+        data['Encryption'] = 'off'
+      when ENCRYPT_ON
+        data['Encryption'] = 'on'
+      when ENCRYPT_NOT_SUP
+        data['Encryption'] = 'unsupported'
+      when ENCRYPT_REQ
+        data['Encryption'] = 'required'
+      else
+        data['Encryption'] = 'unknown'
+      end
       print_good("Encryption is #{data['Encryption']}")
     else
       print_error('Unknown encryption status')
     end
 
     report_mssql_service(mssql_client.address, data)
+    mssql_client.disconnect
   end
 
   def report_mssql_service(ip, data)

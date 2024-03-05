@@ -148,54 +148,27 @@ module ClientMixin
     pkt
   end
 
-  def mssql_get_version
-    disconnect if self.sock
-    connect
-
-    pkt = mssql_prelogin_packet
-
-    resp = mssql_send_recv(pkt)
-    return unless resp
-
+  def parse_prelogin_response(resp)
     data = {}
-    while resp
-      token = resp.slice!(0, 1)
-      if token.unpack('C')[0] == 255
-        major = resp.slice!(0, 1).unpack('C')[0]
-        minor = resp.slice!(0, 1).unpack('C')[0]
-        build = resp.slice!(0, 2).unpack('n')[0]
-        break
-      end
+    if resp.length > 5 # minimum size for response specification
+      version_index = resp.slice(1, 2).unpack('n')[0]
+
+      major = resp.slice(version_index, 1).unpack('C')[0]
+      minor = resp.slice(version_index+1, 1).unpack('C')[0]
+      build = resp.slice(version_index+2, 2).unpack('n')[0]
+
+      enc_index = resp.slice(6, 2).unpack('n')[0]
+      data['Encryption'] = resp.slice(enc_index, 1).unpack('C')[0]
     end
 
     if major && minor && build
-      build = "#{major}.#{minor}.#{build}"
-    end
-    if resp
-      resp.slice!(0,2)
-      enc = resp.slice!(0,1).unpack('C')[0]
-      case enc
-      when ENCRYPT_OFF
-        enc_value = 'off'
-      when ENCRYPT_ON
-        enc_value = 'on'
-      when ENCRYPT_NOT_SUP
-        enc_value = 'unsupported'
-      when ENCRYPT_REQ
-        enc_value = 'required'
-      end
+      data['Version'] = "#{major}.#{minor}.#{build}"
     end
 
-    if build
-      data['Version'] = build
-    end
 
-    if enc_value
-      data['Encryption'] = enc_value
-    end
-    data['Status'] = 'open'
+    data['Status'] = 'open' if data['Version'] || data['Encryption']
+
     return data
-
   end
 
   def mssql_send_recv(req, timeout=15, check_status = true)
