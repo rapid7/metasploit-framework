@@ -45,8 +45,8 @@ class Msf::Sessions::SMB
       next if datastore[key].nil? || datastore[key].empty?
 
       args = Shellwords.shellwords(datastore[key])
-      print_status("Session ID #{session.sid} (#{session.tunnel_to_s}) processing #{key} '#{datastore[key]}'")
-      session.execute_script(args.shift, *args)
+      print_status("Session ID #{sid} (#{tunnel_to_s}) processing #{key} '#{datastore[key]}'")
+      execute_script(args.shift, *args)
     end
   end
 
