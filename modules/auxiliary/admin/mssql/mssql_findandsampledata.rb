@@ -342,7 +342,7 @@ class MetasploitModule < Msf::Auxiliary
     # CREATE DATABASE CONNECTION AND SUBMIT QUERY WITH ERROR HANDLING
     begin
       if session
-        set_session(session.client)
+        set_mssql_session(session.client)
       else
         print_line(" ")
         print_status("Attempting to connect to the SQL Server at #{rhost}:#{rport}...")
