@@ -180,7 +180,7 @@ class MetasploitModule < Msf::Auxiliary
         )
         note = 'Deprecated'
       end
-      table << ['encryption.key_exchange_(kex)', kex, note]
+      table << ['encryption.key_exchange', kex, note]
     end
     table
   end

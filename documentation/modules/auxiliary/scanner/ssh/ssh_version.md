@@ -74,13 +74,13 @@ msf5 auxiliary(scanner/ssh/ssh_version) > run
   encryption.host_key            rsa-sha2-512
   encryption.host_key            rsa-sha2-256
   encryption.host_key            ssh-rsa
-  encryption.key_exchange_(kex)  curve25519-sha256
-  encryption.key_exchange_(kex)  curve25519-sha256@libssh.org
-  encryption.key_exchange_(kex)  ecdh-sha2-nistp256
-  encryption.key_exchange_(kex)  ecdh-sha2-nistp384
-  encryption.key_exchange_(kex)  ecdh-sha2-nistp521
-  encryption.key_exchange_(kex)  diffie-hellman-group-exchange-sha256
-  encryption.key_exchange_(kex)  kex-strict-s-v00@openssh.com
+  encryption.key_exchange        curve25519-sha256
+  encryption.key_exchange        curve25519-sha256@libssh.org
+  encryption.key_exchange        ecdh-sha2-nistp256
+  encryption.key_exchange        ecdh-sha2-nistp384
+  encryption.key_exchange        ecdh-sha2-nistp521
+  encryption.key_exchange        diffie-hellman-group-exchange-sha256
+  encryption.key_exchange        kex-strict-s-v00@openssh.com
 
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
@@ -161,14 +161,14 @@ msf6 auxiliary(scanner/ssh/ssh_version) > run
   encryption.host_key            ssh-dss
   encryption.host_key            ecdsa-sha2-nistp256                   Weak elliptic curve
   encryption.host_key            ssh-ed25519
-  encryption.key_exchange_(kex)  curve25519-sha256@libssh.org
-  encryption.key_exchange_(kex)  ecdh-sha2-nistp256
-  encryption.key_exchange_(kex)  ecdh-sha2-nistp384
-  encryption.key_exchange_(kex)  ecdh-sha2-nistp521
-  encryption.key_exchange_(kex)  diffie-hellman-group-exchange-sha256
-  encryption.key_exchange_(kex)  diffie-hellman-group-exchange-sha1    Deprecated
-  encryption.key_exchange_(kex)  diffie-hellman-group14-sha1
-  encryption.key_exchange_(kex)  diffie-hellman-group1-sha1            Deprecated
+  encryption.key_exchange        curve25519-sha256@libssh.org
+  encryption.key_exchange        ecdh-sha2-nistp256
+  encryption.key_exchange        ecdh-sha2-nistp384
+  encryption.key_exchange        ecdh-sha2-nistp521
+  encryption.key_exchange        diffie-hellman-group-exchange-sha256
+  encryption.key_exchange        diffie-hellman-group-exchange-sha1    Deprecated
+  encryption.key_exchange        diffie-hellman-group14-sha1
+  encryption.key_exchange        diffie-hellman-group1-sha1            Deprecated
   fingerprint_db                 ssh.banner
   openssh.comment                Ubuntu-2ubuntu1
   os.cpe23                       cpe:/o:canonical:ubuntu_linux:14.04
