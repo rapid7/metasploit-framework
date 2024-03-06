@@ -1184,8 +1184,11 @@ class MetasploitModule < Msf::Auxiliary
     end
     @winreg.close if @winreg
     @tree.disconnect! if @tree
-    simple.client.disconnect! if simple&.client.is_a?(RubySMB::Client)
-    disconnect
+    # Don't disconnect the client if it's coming from the session so it can be reused
+    unless session
+      simple.client.disconnect! if simple&.client.is_a?(RubySMB::Client)
+      disconnect
+    end
   end
 
   private
