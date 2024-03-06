@@ -53,7 +53,8 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, tags, '-', 'tags'),
-      'method' => 'GET', 'vars_get' => { 'format' => 'atom' }
+      'method' => 'GET',
+      'vars_get' => { 'format' => 'atom' }
     )
 
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
@@ -72,7 +73,6 @@ class MetasploitModule < Msf::Auxiliary
 
       # Error out with an unreachable or any other error code
     else
-      fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
       fail_with(Failure::UnexpectedReply, "#{peer} - Project does not exist or is not public (response code: #{res.code})")
     end
 
@@ -101,7 +101,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    unless datastore['TARGETPROJECT'].nil?
+    unless datastore['TARGETPROJECT'].blank?
       get_contents(datastore['TARGETPROJECT'].to_s)
       return
     end
