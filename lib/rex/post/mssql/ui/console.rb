@@ -41,6 +41,7 @@ module Rex
 
             enstack_dispatcher(::Rex::Post::MSSQL::Ui::Console::CommandDispatcher::Core)
             enstack_dispatcher(::Rex::Post::MSSQL::Ui::Console::CommandDispatcher::Client)
+            enstack_dispatcher(Msf::Ui::Console::CommandDispatcher::LocalFileSystem)
 
             # Set up logging to whatever logsink 'core' is using
             if ! $dispatcher['mssql']

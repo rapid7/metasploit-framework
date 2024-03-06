@@ -17,7 +17,6 @@ module Rex
           require 'rex/post/mysql/ui/console/command_dispatcher/core'
           require 'rex/post/mysql/ui/console/command_dispatcher/client'
 
-
           # Initialize the MySQL console.
           #
           # @param [Msf::Sessions::MySQL] session
@@ -38,6 +37,7 @@ module Rex
 
             enstack_dispatcher(::Rex::Post::MySQL::Ui::Console::CommandDispatcher::Core)
             enstack_dispatcher(::Rex::Post::MySQL::Ui::Console::CommandDispatcher::Client)
+            enstack_dispatcher(Msf::Ui::Console::CommandDispatcher::LocalFileSystem)
 
             # Set up logging to whatever logsink 'core' is using
             if ! $dispatcher['mysql']

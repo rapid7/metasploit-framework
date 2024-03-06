@@ -3,6 +3,7 @@ require 'tempfile'
 require 'filesize'
 require 'rex/post/meterpreter'
 require 'rex/post/meterpreter/extensions/stdapi/command_ids'
+require 'msf/ui/console/local_file_system'
 
 module Rex
 module Post
@@ -20,6 +21,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   include Console::CommandDispatcher
   include Rex::Post::Meterpreter::Extensions::Stdapi
+  include Msf::Ui::Console::LocalFileSystem
 
   CHECKSUM_ALGORITHMS = %w{ md5 sha1 }
   private_constant :CHECKSUM_ALGORITHMS
@@ -65,16 +67,6 @@ class Console::CommandDispatcher::Stdapi::Fs
     "-R" => [ false, "Recursively list subdirectories encountered" ])
 
   #
-  # Options for the lls command
-  #
-  @@lls_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner" ],
-    "-S" => [ true,  "Search string on filename (as regular expression)" ],
-    "-t" => [ false, "Sort by time" ],
-    "-s" => [ false, "Sort by size" ],
-    "-r" => [ false, "Reverse sort order" ])
-
-  #
   # List of supported commands.
   #
   def commands
@@ -86,14 +78,8 @@ class Console::CommandDispatcher::Stdapi::Fs
       'dir'        => 'List files (alias for ls)',
       'download'   => 'Download a file or directory',
       'edit'       => 'Edit a file',
-      'getlwd'     => 'Print local working directory',
       'getwd'      => 'Print working directory',
-      'lcat'       => 'Read the contents of a local file to the screen',
-      'lcd'        => 'Change local working directory',
-      'lmkdir'     => 'Create new directory on local machine',
-      'lpwd'       => 'Print local working directory',
       'ls'         => 'List files',
-      'lls'        => 'List local files',
       'mkdir'      => 'Make directory',
       'pwd'        => 'Print working directory',
       'rm'         => 'Delete the specified file',
@@ -114,14 +100,8 @@ class Console::CommandDispatcher::Stdapi::Fs
       'dir'        => [COMMAND_ID_STDAPI_FS_STAT, COMMAND_ID_STDAPI_FS_LS],
       'download'   => [],
       'edit'       => [],
-      'getlwd'     => [],
       'getwd'      => [COMMAND_ID_STDAPI_FS_GETWD],
-      'lcat'       => [],
-      'lcd'        => [],
-      'lmkdir'     => [],
-      'lpwd'       => [],
       'ls'         => [COMMAND_ID_STDAPI_FS_STAT, COMMAND_ID_STDAPI_FS_LS],
-      'lls'        => [],
       'mkdir'      => [COMMAND_ID_STDAPI_FS_MKDIR],
       'pwd'        => [COMMAND_ID_STDAPI_FS_GETWD],
       'rmdir'      => [COMMAND_ID_STDAPI_FS_DELETE_DIR],
@@ -134,7 +114,8 @@ class Console::CommandDispatcher::Stdapi::Fs
       'show_mount' => [COMMAND_ID_STDAPI_FS_MOUNT_SHOW],
     }
 
-    filter_commands(all, reqs)
+    # Merge the local file system commands into the filtered commands hash
+    filter_commands(all.merge(local_fs_commands), reqs)
   end
 
   #
@@ -311,43 +292,6 @@ class Console::CommandDispatcher::Stdapi::Fs
   end
 
   #
-  # Reads the contents of a local file and prints them to the screen.
-  #
-  def cmd_lcat(*args)
-    if (args.length == 0 || args.include?('-h') || args.include?('--help'))
-      print_line("Usage: lcat file")
-      return true
-    end
-
-    path = args[0]
-    path = ::File.expand_path(path) if path =~ path_expand_regex
-
-
-    if (::File.stat(path).directory?)
-      print_error("#{path} is a directory")
-    else
-      fd = ::File.new(path, "rb")
-      begin
-        until fd.eof?
-          print(fd.read)
-        end
-        # EOFError is raised if file is empty, do nothing, just catch
-      rescue EOFError
-      end
-      fd.close
-    end
-
-    true
-  end
-
-  #
-  # Tab completion for the lcat command
-  #
-  def cmd_lcat_tabs(str, words)
-    tab_complete_filenames(str, words)
-  end
-
-  #
   # Change the working directory.
   #
   def cmd_cd(*args)
@@ -370,48 +314,6 @@ class Console::CommandDispatcher::Stdapi::Fs
   def cmd_cd_tabs(str, words)
     tab_complete_cdirectory(str, words)
   end
-
-  #
-  # Change the local working directory.
-  #
-  def cmd_lcd(*args)
-    if (args.length == 0)
-      print_line("Usage: lcd directory")
-      return true
-    end
-
-    ::Dir.chdir(args[0])
-
-    return true
-  end
-
-  #
-  # Tab completion for the lcd command
-  #
-  def cmd_lcd_tabs(str, words)
-    tab_complete_directory(str, words)
-  end
-
-  #
-  # Create new directory on local machine
-  # 
- def cmd_lmkdir(*args)
-   if (args.length == 0)
-     print_line("Usage: lmkdir </path/to/directory>")
-     return
-   end
-
-   args.each do |path|
-     begin
-       ::FileUtils.mkdir_p(path)
-       print_line("Directory '#{path}' created successfully.")
-     rescue ::StandardError => e
-       print_error("Error creating #{path} directory: #{e}")
-     end
-   end
-
-  
- end
 
   #
   # Retrieve the checksum of a file
@@ -703,17 +605,6 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   alias :cmd_edit_tabs :cmd_cat_tabs
 
-  #
-  # Display the local working directory.
-  #
-  def cmd_lpwd(*args)
-    print_line(::Dir.pwd)
-    return true
-  end
-
-  alias cmd_getlwd cmd_lpwd
-
-
   def cmd_ls_help
     print_line "Usage: ls [options] [glob/path]"
     print_line
@@ -861,130 +752,6 @@ class Console::CommandDispatcher::Stdapi::Fs
   alias :cmd_dir :cmd_ls
   alias :cmd_dir_help :cmd_ls_help
   alias :cmd_dir_tabs :cmd_ls_tabs
-
-  def cmd_lls_help
-    print_line "Usage: lls [options]"
-    print_line
-    print_line "Lists contents of a local directory or file info"
-    print_line @@lls_opts.usage
-  end
-
-  #
-  # Get list local path information for lls command
-  #
-  def list_local_path(path, sort, order, search_term = nil)
-    # Single file as path
-    if !::File.directory?(path)
-      perms = pretty_perms(path)
-      stat = ::File.stat(path)
-      print_line("#{perms}  #{stat.size}  #{stat.ftype[0,3]}  #{stat.mtime}  #{path}")
-      return
-    end
-
-    # Enumerate each item...
-    # No need to sort as Table will do it for us
-    columns = [ 'Mode', 'Size', 'Type', 'Last modified', 'Name' ]
-    tbl = Rex::Text::Table.new(
-      'Header'  => "Listing Local: #{path}",
-      'SortIndex' => columns.index(sort),
-      'SortOrder' => order,
-      'Columns' => columns)
-
-    items = 0
-    files = ::Dir.entries(path)
-
-    files.each do |file|
-      file_path = ::File.join(path, file)
-
-      perms = pretty_perms(file_path)
-      stat = ::File.stat(file_path)
-
-      row = [
-        perms ? perms                : '',
-        stat.size ? stat.size.to_s   : '',
-        stat.ftype ? stat.ftype[0,3] : '',
-        stat.mtime ? stat.mtime      : '',
-        file
-      ]
-      if file != '.' && file != '..'
-        if row.join(' ') =~ /#{search_term}/
-          tbl << row
-          items += 1
-        end
-      end
-    end
-    if items > 0
-      print_line(tbl.to_s)
-    else
-      print_line("No entries exist in #{path}")
-    end
-  end
-
-  # Code from prettymode in lib/rex/post/file_stat.rb
-  # adapted for local file usage
-  def pretty_perms(path)
-    m  = ::File.stat(path).mode
-    om = '%04o' % m
-    perms = ''
-
-    3.times {
-      perms = ((m & 01) == 01 ? 'x' : '-') + perms
-      perms = ((m & 02) == 02 ? 'w' : '-') + perms
-      perms = ((m & 04) == 04 ? 'r' : '-') + perms
-      m >>= 3
-    }
-
-    return "#{om}/#{perms}"
-  end
-
-  #
-  # List local files
-  #
-  def cmd_lls(*args)
-    # Set Defaults
-    path = ::Dir.pwd
-    sort = 'Name'
-    order = :forward
-    search_term = nil
-
-    # Parse the args
-    @@lls_opts.parse(args) { |opt, idx, val|
-      case opt
-      # Sort options
-      when '-s'
-        sort = 'Size'
-      when '-t'
-        sort = 'Last modified'
-      # Output options
-      when '-r'
-        order = :reverse
-      # Search
-      when '-S'
-        search_term = val
-        if search_term.nil?
-          print_error("Enter a search term")
-          return true
-        else
-          search_term = /#{search_term}/nmi
-        end
-      # Help and path
-      when "-h"
-        cmd_lls_help
-        return 0
-      when nil
-        path = val
-      end
-    }
-
-    list_local_path(path, sort, order, search_term)
-  end
-
-  alias :cmd_lls_tabs :cmd_lcd_tabs
-
-  #
-  # Alias the lls command to dir, for those of us who have windows muscle-memory
-  #
-  alias :cmd_ldir :cmd_lls
 
   #
   # Make one or more directory.
