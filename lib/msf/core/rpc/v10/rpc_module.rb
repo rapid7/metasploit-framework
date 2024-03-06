@@ -350,6 +350,8 @@ class RPC_Module < RPC_Base
   def rpc_compatible_sessions(mname)
     if mname.start_with? 'exploit/'
       m = _find_module('exploit',mname)
+    elsif mname.start_with? 'auxiliary/'
+      m = _find_module('auxiliary', mname)
     else
       m = _find_module('post',mname)
     end
