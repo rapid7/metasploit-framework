@@ -67,6 +67,15 @@ module Rex
                 print_line
               end
 
+              def query_interactive_help
+                print_line 'Interactive SQL prompt'
+                print_line
+                print_line 'You are in an interactive SQL shell where SQL queries can be executed.'
+                print_line 'SQL commands ending with ; will be executed on the remote server.'
+                print_line "To exit, type 'exit', 'quit', 'end' or 'stop'."
+                print_line
+              end
+
               def cmd_query_interactive(*args)
                 if help_args?(args)
                   cmd_query_interactive_help

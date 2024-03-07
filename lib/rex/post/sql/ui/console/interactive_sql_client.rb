@@ -22,6 +22,11 @@ module InteractiveSqlClient
     while self.interacting
       sql_input = _multiline_with_fallback
       self.interacting = (sql_input[:status] != :exit)
+
+      if sql_input[:status] == :help
+        client_dispatcher.query_interactive_help
+      end
+
       # We need to check that the user is still interacting, i.e. if ctrl+z is triggered when requesting user input
       break unless (self.interacting && sql_input[:result])
 
@@ -77,8 +82,10 @@ module InteractiveSqlClient
     end
 
     stop_words = %w[stop s exit e end quit q].freeze
+    help_words = %w[help h].freeze
 
     finished = false
+    help = false
     begin
       result = nil
       prompt_proc_before = ::Reline.prompt_proc
@@ -100,10 +107,14 @@ module InteractiveSqlClient
           next true
         end
 
-        # In the case only a stop word was input, exit out of the REPL shell
-        finished = (multiline_input.split.count == 1 && stop_words.include?(multiline_input.split.last))
+        if multiline_input.split.count == 1
+          # In the case only a stop word was input, exit out of the REPL shell
+          finished = stop_words.include?(multiline_input.split.last)
+          # In the case when only a help word was input call the help command
+          help = help_words.include?(multiline_input.split.last)
+        end
 
-        finished || multiline_input.split.last&.end_with?(';')
+        finished || help || multiline_input.split.last&.end_with?(';')
       end
     rescue ::StandardError => e
       elog('Failed to get multi-line SQL query from user', e)
@@ -113,6 +124,10 @@ module InteractiveSqlClient
 
     if result
       return result
+    end
+
+    if help
+      return { status: :help, result: nil }
     end
 
     if finished
