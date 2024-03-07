@@ -28,8 +28,8 @@ class HistoryManager
   # @param [Proc] block
   # @return [nil]
   def with_context(history_file: nil, name: nil, input_library: nil, &block)
-    input_library ||= :readline # Default to Readline for backwards compatibility.
-    push_context(history_file: history_file, name: name, input_library: input_library)
+    # Default to Readline for backwards compatibility.
+    push_context(history_file: history_file, name: name, input_library: input_library || :readline)
 
     begin
       block.call
@@ -69,7 +69,7 @@ class HistoryManager
 
   def push_context(history_file: nil, name: nil, input_library: nil)
     $stderr.puts("Push context before\n#{JSON.pretty_generate(_contexts)}") if debug?
-    new_context = { history_file: history_file, name: name, input_library: input_library }
+    new_context = { history_file: history_file, name: name, input_library: input_library || :readline }
 
     switch_context(new_context, @contexts.last)
     @contexts.push(new_context)
