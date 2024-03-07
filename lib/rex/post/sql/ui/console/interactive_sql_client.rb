@@ -114,8 +114,7 @@ module InteractiveSqlClient
           help = help_words.include?(multiline_input.split.last)
         end
 
-        finished || multiline_input.split.last&.end_with?(';')
-        help || multiline_input.split.last&.end_with?(';')
+        finished || help || multiline_input.split.last&.end_with?(';')
       end
     rescue ::StandardError => e
       elog('Failed to get multi-line SQL query from user', e)
