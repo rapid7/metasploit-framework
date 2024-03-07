@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
 
     data = mssql_prelogin
 
-    if data.nil? || data.empty?
+    if data.blank?
       print_error("Unable to retrieve version information for #{mssql_client.address}")
       return
     end
