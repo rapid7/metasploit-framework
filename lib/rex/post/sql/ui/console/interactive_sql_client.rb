@@ -67,8 +67,20 @@ module InteractiveSqlClient
 
   # Try getting multi-line input support provided by Reline, fall back to Readline.
   def _multiline_with_fallback
-    query = _multiline
-    query = _fallback if query[:status] == :fail
+    name = session.type
+    query = {}
+    history_file = Msf::Config.send("#{name}_session_interactive_history")
+
+    # Multiline (Reline) and fallback (Readline) have separate history contexts as they are two different libraries.
+    framework.history_manager.with_context(history_file: history_file , name: name, input_library: :reline) do
+      query = _multiline
+    end
+
+    if query[:status] == :fail
+      framework.history_manager.with_context(history_file: history_file, name: name, input_library: :readline) do
+        query = _fallback
+      end
+    end
 
     query
   end
@@ -158,10 +170,20 @@ module InteractiveSqlClient
       break if line.end_with? ';'
     end
 
-    { status: :success, result: line_buffer.join }
+    { status: :success, result: line_buffer.join(' ') }
   end
 
   attr_accessor :on_log_proc, :client_dispatcher
+
+  private
+
+  def framework
+    client_dispatcher.shell.framework
+  end
+
+  def session
+    client_dispatcher.shell.session
+  end
 
 end
 end
