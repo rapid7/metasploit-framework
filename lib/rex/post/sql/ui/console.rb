@@ -78,11 +78,30 @@ module Rex
           end
 
           #
+          # Notification to display when initially interacting with the client via the query_interactive command
+          #
+          # @return [String]
+          def interact_with_client_notification
+            print_status("Starting interactive SQL shell for #{sql_prompt}")
+            print_status('SQL commands ending with ; will be executed on the remote server. Use the %grnexit%clr command to exit.')
+            print_line
+          end
+
+          #
+          # Create prompt via client and session data
+          #
+          # @return [String]
+          def sql_prompt
+            "#{session.type} @ #{client.peerinfo} (#{current_database})"
+          end
+
+          #
           # Interacts with the supplied client.
           #
           def interact_with_client(client_dispatcher: nil)
             return unless client_dispatcher
 
+            interact_with_client_notification
             client.extend(InteractiveSqlClient) unless client.is_a?(InteractiveSqlClient)
             client.on_command_proc = self.on_command_proc if self.on_command_proc && client.respond_to?(:on_command_proc)
             client.on_print_proc   = self.on_print_proc if self.on_print_proc && client.respond_to?(:on_print_proc)
@@ -96,8 +115,7 @@ module Rex
           # @param [Object] val
           # @return [String]
           def format_prompt(val)
-            prompt = "%und#{session.type} @ #{client.peerinfo} (#{current_database})%clr > "
-            substitute_colors(prompt, true)
+            substitute_colors("%und#{sql_prompt}%clr > ", true)
           end
 
           #
