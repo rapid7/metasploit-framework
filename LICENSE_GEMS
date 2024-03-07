@@ -80,7 +80,7 @@ memory_profiler, 1.0.1, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 5.0.2, "New BSD"
 metasploit-credential, 6.0.7, "New BSD"
-metasploit-framework, 6.3.59, "New BSD"
+metasploit-framework, 6.3.60, "New BSD"
 metasploit-model, 5.0.2, "New BSD"
 metasploit-payloads, 2.0.166, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 6.0.3, "New BSD"
@@ -207,5 +207,5 @@ windows_error, 0.1.5, BSD
 winrm, 2.3.6, "Apache 2.0"
 xdr, 3.0.3, "Apache 2.0"
 xmlrpc, 0.3.3, "ruby, Simplified BSD"
-yard, 0.9.34, MIT
+yard, 0.9.36, MIT
 zeitwerk, 2.6.12, MIT
