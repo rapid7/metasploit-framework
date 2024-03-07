@@ -3,6 +3,8 @@ Request certificates via MS-ICPR (Active Directory Certificate Services). Depend
 template's configuration the resulting certificate can be used for various operations such as authentication.
 PFX certificate files that are saved are encrypted with a blank password.
 
+This module is capable of exploiting ESC1, ESC2, ESC3 and ESC13.
+
 ## Module usage 
 
 1. From msfconsole

@@ -42,11 +42,15 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'AD CS Certificate Template Management',
         'Description' => %q{
-          This module can read, write, update, and delete AD CS certificate templates from a Active Directory Domain
+          This module can create, read, update, and delete AD CS certificate templates from a Active Directory Domain
           Controller.
 
           The READ, UPDATE, and DELETE actions will write a copy of the certificate template to disk that can be
-          restored using the CREATE or UPDATE actions.
+          restored using the CREATE or UPDATE actions. The CREATE and UPDATE actions require a certificate template data
+          file to be specified to define the attributes. Template data files are provided to create a template that is
+          vulnerable to ESC1, ESC2, and ESC3.
+
+          This module is capable of exploiting ESC4.
         },
         'Author' => [
           'Will Schroeder', # original idea/research
@@ -69,7 +73,8 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'Stability' => [],
           'SideEffects' => [CONFIG_CHANGES],
-          'Reliability' => []
+          'Reliability' => [],
+          'AKA' => [ 'Certifry', 'Certipy' ]
         }
       )
     )
