@@ -24,10 +24,12 @@ class HistoryManager
   #
   # @param [String,nil] history_file The file to load and persist commands to
   # @param [String] name Human readable history context name
+  # @param [Symbol] input_library The input library to provide context for. :reline, :readline
   # @param [Proc] block
   # @return [nil]
-  def with_context(history_file: nil, name: nil, &block)
-    push_context(history_file: history_file, name: name)
+  def with_context(history_file: nil, name: nil, input_library: nil, &block)
+    input_library ||= :readline # Default to Readline for backwards compatibility.
+    push_context(history_file: history_file, name: name, input_library: input_library)
 
     begin
       block.call
@@ -65,9 +67,9 @@ class HistoryManager
     @debug
   end
 
-  def push_context(history_file: nil, name: nil)
+  def push_context(history_file: nil, name: nil, input_library: nil)
     $stderr.puts("Push context before\n#{JSON.pretty_generate(_contexts)}") if debug?
-    new_context = { history_file: history_file, name: name }
+    new_context = { history_file: history_file, name: name, input_library: input_library }
 
     switch_context(new_context, @contexts.last)
     @contexts.push(new_context)
@@ -91,30 +93,72 @@ class HistoryManager
     defined?(::Readline)
   end
 
+  def reline_available?
+    begin
+      require 'reline'
+      defined?(::Reline)
+    rescue ::LoadError => _e
+      false
+    end
+  end
+
   def clear_readline
     return unless readline_available?
 
     ::Readline::HISTORY.length.times { ::Readline::HISTORY.pop }
   end
 
-  def load_history_file(history_file)
-    return unless readline_available?
+  def clear_reline
+    return unless reline_available?
 
-    clear_readline
-    if File.exist?(history_file)
-      File.readlines(history_file).each do |e|
-        ::Readline::HISTORY << e.chomp
+    ::Reline::HISTORY.length.times { ::Reline::HISTORY.pop }
+  end
+
+  def load_history_file(context)
+    history_file = context[:history_file]
+    case context[:input_library]
+    when :readline
+      return unless readline_available?
+
+      clear_readline
+      if File.exist?(history_file)
+        File.readlines(history_file).each do |e|
+          ::Readline::HISTORY << safe_undump(e.chomp)
+        end
+      end
+    when :reline
+      return unless reline_available?
+
+      clear_reline
+      if File.exist?(history_file)
+        File.readlines(history_file).each do |e|
+          ::Reline::HISTORY << safe_undump(e.chomp)
+        end
       end
     end
   end
 
-  def store_history_file(history_file)
-    return unless readline_available?
+  def store_history_file(context)
     cmds = []
-    history_diff = ::Readline::HISTORY.length < MAX_HISTORY ? ::Readline::HISTORY.length : MAX_HISTORY
-    history_diff.times do
-      entry = ::Readline::HISTORY.pop
-      cmds.push(entry) unless entry.nil?
+    history_file = context[:history_file]
+
+    case context[:input_library]
+    when :readline
+      return unless readline_available?
+
+      history_diff = ::Readline::HISTORY.length < MAX_HISTORY ? ::Readline::HISTORY.length : MAX_HISTORY
+      history_diff.times do
+        entry = ::Readline::HISTORY.pop.dump
+        cmds.push(entry) unless entry.nil?
+      end
+    when :reline
+      return unless reline_available?
+
+      history_diff = ::Reline::HISTORY.length < MAX_HISTORY ? ::Reline::HISTORY.length : MAX_HISTORY
+      history_diff.times do
+        entry = ::Reline::HISTORY.pop.dump
+        cmds.push(entry) unless entry.nil?
+      end
     end
 
     write_history_file(history_file, cmds)
@@ -122,16 +166,18 @@ class HistoryManager
 
   def switch_context(new_context, old_context=nil)
     if old_context && old_context[:history_file]
-      store_history_file(old_context[:history_file])
+      store_history_file(old_context)
     end
 
     if new_context && new_context[:history_file]
-      load_history_file(new_context[:history_file])
+      load_history_file(new_context)
     else
       clear_readline
+      clear_reline
     end
-  rescue SignalException => e
+  rescue SignalException => _e
     clear_readline
+    clear_reline
   end
 
   def write_history_file(history_file, cmds)
@@ -158,6 +204,16 @@ class HistoryManager
     event = { type: :write, history_file: history_file, cmds: cmds }
     @write_queue << event
     @remaining_work << event
+  end
+
+  # @param [String] dumped A string that has been previously dumped
+  # @return [String] A string that is undumped if possible or the input if it can't be undumped.
+  def safe_undump(dumped)
+    begin
+      dumped.undump
+    rescue ::RuntimeError => _e
+      dumped
+    end
   end
 end
 
