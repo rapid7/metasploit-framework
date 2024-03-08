@@ -25,24 +25,38 @@ module Parser
     when "host"
       @state[:has_text] = true
     when 'ref'
+      ref_type = ''
+      ref_id = ''
+      if defined?(attrs) && attrs.kind_of?(Array)
+        attrs.each do |attr|
+          next if !defined?(attr) || !attr.kind_of?(Array) || attr.length != 2
+          if defined?(attr[0]) && defined?(attr[1]) && attr[0] == 'type'
+            ref_type = attr[1]
+          end
+          if defined?(attr[0]) && defined?(attr[1]) && attr[0] == 'id'
+            ref_id = attr[1]
+          end
+        end
+      end
       if in_tag('result') && in_tag('nvt') && in_tag('refs') &&
-         defined?(attrs[0][0]) && defined?(attrs[0][1]) &&
-         defined?(attrs[1][0]) && defined?(attrs[1][1]) &&
-         attrs[1][0] == 'id' && attrs[0][0] == 'type'
-        case attrs[0][1].upcase
+          !ref_type.empty? && !ref_type.empty?
+        case ref_type.upcase
         when 'CVE'
           @state[:ref_cve] = [] if @state[:ref_cve].nil?
-          @state[:ref_cve].append(attrs[1][1].strip)
+          @state[:ref_cve].append(ref_id.strip)
         when 'URL'
           @state[:ref_url] = [] if @state[:ref_url].nil?
-          @state[:ref_url].append(attrs[1][1].strip)
-        # Uncomment this to import DFN-CERT and CERT-BUND
-        #when 'DFN-CERT'
-          #@state[:ref_dfn] = [] if @state[:ref_dfn].nil?
-          #@state[:ref_dfn].append(attrs[1][1].strip)
-        #when 'CERT-BUND'
-          #@state[:ref_cb] = [] if @state[:ref_cb].nil?
-          #@state[:ref_cb].append(attrs[1][1].strip)
+          @state[:ref_url].append(ref_id.strip)
+        when 'DFN-CERT'
+          if defined?(@args[:options][:openvas_dfn]) && @args[:options][:openvas_dfn]
+            @state[:ref_dfn] = [] if @state[:ref_dfn].nil?
+            @state[:ref_dfn].append(ref_id.strip)
+          end
+        when 'CERT-BUND'
+          if defined?(@args[:options][:openvas_cert]) && @args[:options][:openvas_cert]
+            @state[:ref_cb] = [] if @state[:ref_cb].nil?
+            @state[:ref_cb].append(ref_id.strip)
+          end
         end
       end
     end
