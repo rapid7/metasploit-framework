@@ -86,6 +86,88 @@ module ClientMixin
     end
   end
 
+  def mssql_prelogin_packet
+    pkt = ""
+    pkt_hdr = ""
+    pkt_data_token = ""
+    pkt_data = ""
+
+
+    pkt_hdr = [
+        TYPE_PRE_LOGIN_MESSAGE, #type
+        STATUS_END_OF_MESSAGE, #status
+        0x0000, #length
+        0x0000, # SPID
+        0x00, # PacketID
+        0x00 #Window
+    ]
+
+    version = [0x55010008, 0x0000].pack("Vv")
+
+    # if manually set, we will honour
+    if tdsencryption == true
+      encryption = ENCRYPT_ON
+    else
+      encryption = ENCRYPT_NOT_SUP
+    end
+
+    instoptdata = "MSSQLServer\0"
+
+    threadid = "\0\0" + Rex::Text.rand_text(2)
+
+    idx = 21 # size of pkt_data_token
+    pkt_data_token << [
+        0x00, # Token 0 type Version
+        idx , # VersionOffset
+        version.length, # VersionLength
+
+        0x01, # Token 1 type Encryption
+        idx = idx + version.length, # EncryptionOffset
+        0x01, # EncryptionLength
+
+        0x02, # Token 2 type InstOpt
+        idx = idx + 1, # InstOptOffset
+        instoptdata.length, # InstOptLength
+
+        0x03, # Token 3 type Threadid
+        idx + instoptdata.length, # ThreadIdOffset
+        0x04, # ThreadIdLength
+
+        0xFF
+    ].pack('CnnCnnCnnCnnC')
+
+    pkt_data << pkt_data_token
+    pkt_data << version
+    pkt_data << encryption
+    pkt_data << instoptdata
+    pkt_data << threadid
+
+    pkt_hdr[2] = pkt_data.length + 8
+
+    pkt = pkt_hdr.pack('CCnnCC') + pkt_data
+    pkt
+  end
+
+  def parse_prelogin_response(resp)
+    data = {}
+    if resp.length > 5 # minimum size for response specification
+      version_index = resp.slice(1, 2).unpack('n')[0]
+
+      major = resp.slice(version_index, 1).unpack('C')[0]
+      minor = resp.slice(version_index+1, 1).unpack('C')[0]
+      build = resp.slice(version_index+2, 2).unpack('n')[0]
+
+      enc_index = resp.slice(6, 2).unpack('n')[0]
+      data[:encryption] = resp.slice(enc_index, 1).unpack('C')[0]
+    end
+
+    if major && minor && build
+      data[:version] = "#{major}.#{minor}.#{build}"
+    end
+
+    return data
+  end
+
   def mssql_send_recv(req, timeout=15, check_status = true)
     sock.put(req)
 

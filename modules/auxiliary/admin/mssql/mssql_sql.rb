@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     if session
-      set_session(session.client)
+      set_mssql_session(session.client)
     else
       return unless mssql_login_datastore
     end
