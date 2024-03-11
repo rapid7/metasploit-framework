@@ -202,7 +202,7 @@ module DNS
       config = Msf::Config.load
 
       with_rules = []
-      config.fetch("#{CONFIG_KEY_BASE}/entries", {}).each do |_name, value|
+      config.fetch("#{CONFIG_KEY_BASE}/rules", {}).each do |_name, value|
         wildcard, resolvers, uses_comm = value.split(';')
         wildcard = '*' if wildcard.blank?
         resolvers = resolvers.split(',')
@@ -254,7 +254,7 @@ module DNS
         ].join(';')
         new_config["##{index}"] = val
       end
-      Msf::Config.save("#{CONFIG_KEY_BASE}/upstream_rules" => new_config)
+      Msf::Config.save("#{CONFIG_KEY_BASE}/rules" => new_config)
     end
 
     def save_config_static_hostnames
