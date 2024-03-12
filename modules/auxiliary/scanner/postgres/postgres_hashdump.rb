@@ -114,23 +114,27 @@ class MetasploitModule < Msf::Auxiliary
         workspace_id: myworkspace_id
     }
 
-    credential_data = {
-        origin_type: :service,
-        jtr_format: 'raw-md5,postgres',
-        module_fullname: self.fullname,
-        private_type: :postgres_md5
-    }
-
-    credential_data.merge!(service_data)
-
-
     res[:complete].rows.each do |row|
       next if row[0].nil? or row[1].nil?
       next if row[0].empty? or row[1].empty?
+
       password = row[1]
 
-      credential_data[:username]     = row[0]
-      credential_data[:private_data] = password
+      credential_data = {
+        origin_type: :service,
+        module_fullname: self.fullname,
+        private_data: password,
+        username: row[0]
+      }
+
+      if password.start_with?('md5')
+        credential_data[:private_type] = :postgres_md5
+        credential_data[:jtr_format] = 'raw-md5,postgres'
+      else
+        credential_data[:private_type] = :nonreplayable_hash
+      end
+
+      credential_data.merge!(service_data)
 
       credential_core = create_credential(credential_data)
       login_data = {
