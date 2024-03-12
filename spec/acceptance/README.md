@@ -44,7 +44,7 @@ docker run -it --rm --publish 127.0.0.1:9000:5432 -e POSTGRES_PASSWORD=password 
 Run the test suite:
 
 ```
-POSTGRES_RPORT=9000 SPEC_HELPER_LOAD_METASPLOIT=false bundle exec rspec ./spec/acceptance/postgres_spec.rb
+POSTGRES_RPORT=9000 SPEC_OPTS='--tag acceptance' SPEC_HELPER_LOAD_METASPLOIT=false bundle exec rspec ./spec/acceptance/postgres_spec.rb
 ```
 
 #### Allure reports
