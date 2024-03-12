@@ -48,7 +48,7 @@ class DNS
   def commands
     commands = {}
 
-    if framework.features.enabled?(Msf::FeatureManager::DNS_FEATURE)
+    if framework.features.enabled?(Msf::FeatureManager::DNS)
       commands = {
         'dns' => "Manage Metasploit's DNS resolving behaviour"
       }
@@ -186,7 +186,10 @@ class DNS
   # Manage Metasploit's DNS resolution rules
   #
   def cmd_dns(*args)
-    return if driver.framework.dns_resolver.nil?
+    if driver.framework.dns_resolver.nil?
+      print_warning("Run the #{Msf::Ui::Tip.highlight("save")} command and restart the console for this feature configuration to take effect.")
+      return
+    end
 
     args << 'print' if args.length == 0
     # Short-circuit help

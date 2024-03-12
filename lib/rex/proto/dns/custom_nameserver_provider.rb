@@ -156,7 +156,7 @@ module DNS
     # @return [Array<Array>] A list of nameservers, each with Rex::Socket options
     #
     def upstream_resolvers_for_packet(packet)
-      unless feature_set.enabled?(Msf::FeatureManager::DNS_FEATURE)
+      unless feature_set.enabled?(Msf::FeatureManager::DNS)
         return super
       end
       # Leaky abstraction: a packet could have multiple question entries,
