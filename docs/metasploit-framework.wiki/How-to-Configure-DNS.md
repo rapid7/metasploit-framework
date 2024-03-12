@@ -14,11 +14,11 @@ Starting in Metasploit 6.4, Metasploit uses an internal DNS resolution system th
 control over the process of DNS queries.
 
 ## The DNS command
-Metasploit's DNS configuration is controlled by the `dns` command which has multiple subcommands. This command is only
-available when the `dns` feature is enabled (`features set dns true`). Once enabled, the current configuration can be
-printed by running `dns print`.
+Metasploit's DNS configuration is controlled by the `dns` command which has multiple subcommands.
 
-```
+The current configuration can be printed by running `dns print`:
+
+```msf6
 msf6 > dns print
 Default search domain: N/A
 Default search list:   lab.lan

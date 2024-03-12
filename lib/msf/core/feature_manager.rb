@@ -57,52 +57,56 @@ module Msf
         description: 'When enabled Metasploit will output warnings about missing Metasploit payloads, for instance if they were removed by antivirus etc',
         requires_restart: true,
         default_value: true,
-        developer_notes: 'Planned for default enablement in: Metasploit 6.4.x'
+        developer_notes: 'Enabled in Metasploit 6.4.x'
       }.freeze,
       {
         name: DEFER_MODULE_LOADS,
         description: 'When enabled will not eagerly load all modules',
         requires_restart: true,
         default_value: false,
-        developer_notes: 'Planned for default enablement in: Metasploit 6.4.x'
+        developer_notes: 'Needs a final round of testing. Can be enabled after 6.4.0 is released.'
       }.freeze,
       {
         name: SMB_SESSION_TYPE,
         description: 'When enabled will allow for the creation/use of smb sessions',
         requires_restart: true,
-        default_value: false
+        default_value: true,
+        developer_notes: 'Enabled in Metasploit 6.4.x'
       }.freeze,
       {
         name: POSTGRESQL_SESSION_TYPE,
         description: 'When enabled will allow for the creation/use of PostgreSQL sessions',
         requires_restart: true,
-        default_value: false,
+        default_value: true,
+        developer_notes: 'Enabled in Metasploit 6.4.x'
       }.freeze,
       {
         name: MYSQL_SESSION_TYPE,
         description: 'When enabled will allow for the creation/use of MySQL sessions',
         requires_restart: true,
-        default_value: false
+        default_value: true,
+        developer_notes: 'Enabled in Metasploit 6.4.x'
       }.freeze,
       {
         name: MSSQL_SESSION_TYPE,
         description: 'When enabled will allow for the creation/use of mssql sessions',
         requires_restart: true,
-        default_value: false
+        default_value: true,
+        developer_notes: 'Enabled in Metasploit 6.4.x'
       }.freeze,
       {
         name: DNS,
         description: 'When enabled allows configuration of DNS resolution behaviour in Metasploit',
         requires_restart: true,
-        default_value: false,
-        developer_notes: 'Planned for default enablement in: Metasploit 6.4.x'
+        default_value: true,
+        developer_notes: 'Enabled in Metasploit 6.4.x'
       }.freeze,
       {
         name: HIERARCHICAL_SEARCH_TABLE,
         description: 'When enabled the search table is enhanced to show details on module actions and targets',
         requires_restart: false,
-        default_value: false,
-        developer_notes: 'Planned for default enablement in: Metasploit 6.4.x'
+        default_value: true,
+        developer_notes: 'Enabled in Metasploit 6.4.x'
       }.freeze
     ].freeze
 
