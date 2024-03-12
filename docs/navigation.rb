@@ -326,6 +326,9 @@ NAVIGATION_CONFIG = [
             path: 'Metasploit-Web-Service.md'
           },
           {
+            path: 'How-to-Configure-DNS.md'
+          },
+          {
             title: 'Meterpreter',
             folder: 'meterpreter',
             children: [
