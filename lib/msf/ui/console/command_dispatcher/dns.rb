@@ -187,7 +187,7 @@ class DNS
   #
   def cmd_dns(*args)
     if driver.framework.dns_resolver.nil?
-      print_warning("Run the #{Msf::Ui::Tip.highlight("save")} command and restart the console for this feature to take effect.")
+      print_warning("Run the #{Msf::Ui::Tip.highlight("save")} command and restart the console for this feature configuration to take effect.")
       return
     end
 
