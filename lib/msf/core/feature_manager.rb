@@ -20,7 +20,7 @@ module Msf
     MANAGER_COMMANDS = 'manager_commands'
     METASPLOIT_PAYLOAD_WARNINGS = 'metasploit_payload_warnings'
     DEFER_MODULE_LOADS = 'defer_module_loads'
-    DNS_FEATURE = 'dns_feature'
+    DNS = 'dns'
     HIERARCHICAL_SEARCH_TABLE = 'hierarchical_search_table'
     SMB_SESSION_TYPE = 'smb_session_type'
     POSTGRESQL_SESSION_TYPE = 'postgresql_session_type'
@@ -91,15 +91,15 @@ module Msf
         default_value: false
       }.freeze,
       {
-        name: DNS_FEATURE,
-        description: 'When enabled, allows configuration of DNS resolution behaviour in Metasploit',
-        requires_restart: false,
+        name: DNS,
+        description: 'When enabled allows configuration of DNS resolution behaviour in Metasploit',
+        requires_restart: true,
         default_value: false,
         developer_notes: 'Planned for default enablement in: Metasploit 6.4.x'
       }.freeze,
       {
         name: HIERARCHICAL_SEARCH_TABLE,
-        description: 'When enabled, the search table is enhanced to show details on module actions and targets',
+        description: 'When enabled the search table is enhanced to show details on module actions and targets',
         requires_restart: false,
         default_value: false,
         developer_notes: 'Planned for default enablement in: Metasploit 6.4.x'

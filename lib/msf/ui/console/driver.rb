@@ -70,7 +70,7 @@ class Driver < Msf::Ui::Driver
 
     begin
       FeatureManager.instance.load_config
-    rescue StandardException => e
+    rescue StandardError => e
       elog(e)
     end
 
@@ -82,7 +82,7 @@ class Driver < Msf::Ui::Driver
 
     framework_create_options = opts.merge({ 'DeferModuleLoads' => true })
 
-    if Msf::FeatureManager.instance.enabled?(Msf::FeatureManager::DNS_FEATURE)
+    if Msf::FeatureManager.instance.enabled?(Msf::FeatureManager::DNS)
       dns_resolver = Rex::Proto::DNS::CachedResolver.new
       dns_resolver.extend(Rex::Proto::DNS::CustomNameserverProvider)
       dns_resolver.load_config if dns_resolver.has_config?

@@ -15,8 +15,8 @@ control over the process of DNS queries.
 
 ## The DNS command
 Metasploit's DNS configuration is controlled by the `dns` command which has multiple subcommands. This command is only
-available when the `dns_feature` is enabled (`features set dns_feature true`). Once enabled, the current configuration
-can be printed by running `dns print`.
+available when the `dns` feature is enabled (`features set dns true`). Once enabled, the current configuration can be
+printed by running `dns print`.
 
 ```
 msf6 > dns print
