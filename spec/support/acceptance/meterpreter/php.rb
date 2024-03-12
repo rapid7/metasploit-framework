@@ -19,7 +19,7 @@ module Acceptance::Meterpreter
     ],
     module_tests: [
       {
-        name: "test/services",
+        name: "post/test/services",
         platforms: [
           [
             :linux,
@@ -61,7 +61,7 @@ module Acceptance::Meterpreter
         }
       },
       {
-        name: "test/cmd_exec",
+        name: "post/test/cmd_exec",
         platforms: [:linux, :osx, :windows],
         skipped: false,
         lines: {
@@ -79,7 +79,7 @@ module Acceptance::Meterpreter
         }
       },
       {
-        name: "test/extapi",
+        name: "post/test/extapi",
         platforms: [:linux, :osx, :windows],
         skipped: false,
         lines: {
@@ -95,7 +95,7 @@ module Acceptance::Meterpreter
         }
       },
       {
-        name: "test/file",
+        name: "post/test/file",
         platforms: [:linux, :osx, :windows],
         skipped: false,
         lines: {
@@ -119,7 +119,7 @@ module Acceptance::Meterpreter
         }
       },
       {
-        name: "test/get_env",
+        name: "post/test/get_env",
         platforms: [:linux, :osx, :windows],
         skipped: false,
         lines: {
@@ -135,7 +135,7 @@ module Acceptance::Meterpreter
         }
       },
       {
-        name: "test/meterpreter",
+        name: "post/test/meterpreter",
         platforms: [:linux, :osx, :windows],
         skipped: false,
         lines: {
@@ -153,7 +153,7 @@ module Acceptance::Meterpreter
         }
       },
       {
-        name: "test/railgun",
+        name: "post/test/railgun",
         platforms: [:linux, :osx, :windows],
         skipped: false,
         lines: {
@@ -169,7 +169,7 @@ module Acceptance::Meterpreter
         }
       },
       {
-        name: "test/railgun_reverse_lookups",
+        name: "post/test/railgun_reverse_lookups",
         platforms: [:linux, :osx, :windows],
         skipped: false,
         lines: {
@@ -185,7 +185,7 @@ module Acceptance::Meterpreter
         }
       },
       {
-        name: "test/registry",
+        name: "post/test/registry",
         platforms: [
           [
             :linux,
@@ -227,7 +227,7 @@ module Acceptance::Meterpreter
         }
       },
       {
-        name: "test/search",
+        name: "post/test/search",
         platforms: [:linux, :osx, :windows],
         skipped: false,
         lines: {
@@ -243,7 +243,7 @@ module Acceptance::Meterpreter
         }
       },
       {
-        name: "test/unix",
+        name: "post/test/unix",
         platforms: [
           :linux,
           :osx,
