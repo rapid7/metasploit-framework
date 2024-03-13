@@ -37,6 +37,7 @@ on:
       - 'lib/msf/core/payload/**'
       - 'lib/msf/core/**'
       - 'tools/dev/**'
+      - 'test/**'
       - 'spec/acceptance/**'
       - 'spec/support/acceptance/**'
       - 'spec/acceptance_spec_helper.rb'

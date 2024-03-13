@@ -1,6 +1,7 @@
 lib = File.join(Msf::Config.install_root, 'test', 'lib')
 $LOAD_PATH.push(lib) unless $LOAD_PATH.include?(lib)
 require 'module_test'
+require 'securerandom'
 
 # load 'test/lib/module_test.rb'
 # load 'lib/rex/text.rb'
@@ -205,47 +206,12 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def test_binary_files
-    # binary_data = ::File.read("/bin/ls")
-    # binary_data = ::File.read('/bin/echo')
-    # binary_data = "\xff\x00\xff\xfe\xff\`$(echo blha)\`"
-    binary_data = ((0..255).to_a * 500).shuffle.pack("c*")
-    it 'should write binary data' do
-      vprint_status "Writing #{binary_data.length} bytes"
-      t = Time.now
-      ret = write_file(datastore['BaseFileName'], binary_data)
-      vprint_status("Finished in #{Time.now - t}")
+  def test_binary_files_small
+    upload_and_verify_binary_file_contents(size_in_bytes: 130560)
+  end
 
-      ret &&= file_exist?(datastore['BaseFileName'])
-      ret
-    end
-
-    it 'should read the binary data we just wrote' do
-      bin = read_file(datastore['BaseFileName'])
-      vprint_status "Read #{bin.length} bytes" if bin
-
-      bin == binary_data
-    end
-
-    it 'should delete binary files' do
-      rm_f(datastore['BaseFileName'])
-
-      !file_exist?(datastore['BaseFileName'])
-    end
-
-    it 'should append binary data' do
-      write_file(datastore['BaseFileName'], "\xde\xad")
-      append_file(datastore['BaseFileName'], "\xbe\xef")
-      bin = read_file(datastore['BaseFileName'])
-      rm_f(datastore['BaseFileName'])
-
-      test_string = "\xde\xad\xbe\xef"
-
-      vprint_status "expected: #{test_string.bytes} - #{test_string.encoding}"
-      vprint_status "actual: #{bin.bytes} - #{bin.encoding}"
-
-      bin == test_string
-    end
+  def test_binary_file_large
+    upload_and_verify_binary_file_contents(size_in_bytes: 33_554_432)
   end
 
   def test_path_expansion_nix
@@ -293,6 +259,49 @@ class MetasploitModule < Msf::Post
   end
 
   def register_dir_for_cleanup(path)
+  end
+
+  def upload_and_verify_binary_file_contents(size_in_bytes:)
+    # binary_data = ::File.read("/bin/ls")
+    # binary_data = ::File.read('/bin/echo')
+    # binary_data = "\xff\x00\xff\xfe\xff\`$(echo blha)\`"
+    binary_data = SecureRandom.random_bytes(size_in_bytes)
+    it 'should write binary data' do
+      vprint_status "Writing #{binary_data.length} bytes"
+      t = Time.now
+      ret = write_file(datastore['BaseFileName'], binary_data)
+      vprint_status("Finished in #{Time.now - t}")
+
+      ret &&= file_exist?(datastore['BaseFileName'])
+      ret
+    end
+
+    it 'should read the binary data we just wrote' do
+      bin = read_file(datastore['BaseFileName'])
+      vprint_status "Read #{bin.length} bytes" if bin
+
+      bin == binary_data
+    end
+
+    it 'should delete binary files' do
+      rm_f(datastore['BaseFileName'])
+
+      !file_exist?(datastore['BaseFileName'])
+    end
+
+    it 'should append binary data' do
+      write_file(datastore['BaseFileName'], "\xde\xad")
+      append_file(datastore['BaseFileName'], "\xbe\xef")
+      bin = read_file(datastore['BaseFileName'])
+      rm_f(datastore['BaseFileName'])
+
+      test_string = "\xde\xad\xbe\xef"
+
+      vprint_status "expected: #{test_string.bytes} - #{test_string.encoding}"
+      vprint_status "actual: #{bin.bytes} - #{bin.encoding}"
+
+      bin == test_string
+    end
   end
 
 end
