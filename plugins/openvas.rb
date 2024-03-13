@@ -186,7 +186,7 @@ module Msf
           rescue OpenVASOMP::OMPAuthError => e
             print_error("Authentication failed: #{e.reason}")
             return
-          rescue OpenVASOMP::OMPConnectionError => e
+          rescue OpenVASOMP::OMPError => e
             print_error("Connection failed: #{e.reason}")
             return
           end
