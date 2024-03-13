@@ -1421,10 +1421,14 @@ class Core
     color = driver.output.config[:color]
 
     if args[0] == "off"
-      driver.init_ui(driver.input, Rex::Ui::Text::Output::Stdio.new)
+      stdout = Rex::Ui::Text::Output::Stdio.new
+      driver.init_ui(driver.input, stdout)
+      active_module.init_ui(driver.input, stdout) if defined?(active_module) && active_module
       msg = "Spooling is now disabled"
     else
-      driver.init_ui(driver.input, Rex::Ui::Text::Output::Tee.new(args[0]))
+      stdout = Rex::Ui::Text::Output::Tee.new(args[0])
+      driver.init_ui(driver.input, stdout)
+      active_module.init_ui(driver.input, stdout) if defined?(active_module) && active_module
       msg = "Spooling to file #{args[0]}..."
     end
 
