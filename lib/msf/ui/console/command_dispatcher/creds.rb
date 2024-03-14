@@ -321,8 +321,7 @@ class Creds
 
   def build_service_info(service)
     if service.name.present?
-      info = "#{service.port}/
-#{service.proto} (#{service.name})"
+      info = "#{service.port}/#{service.proto} (#{service.name})"
     else
       info = "#{service.port}/#{service.proto}"
     end
