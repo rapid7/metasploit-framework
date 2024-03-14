@@ -37,6 +37,14 @@ module Rex
           end
 
           #
+          # Returns the smb simple client.
+          #
+          # @return [Rex::Proto::SMB::SimpleClient]
+          def simple_client
+            shell.simple_client
+          end
+
+          #
           # Returns the smb session context.
           #
           # @return [Msf::Sessions::SMB]

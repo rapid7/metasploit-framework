@@ -13,6 +13,8 @@ class Msf::Sessions::SMB
   attr_accessor :console
   # @return [RubySMB::Client] The SMB client
   attr_accessor :client
+  # @return [Rex::Proto::SMB::SimpleClient]
+  attr_accessor :simple_client
   attr_accessor :platform, :arch
   attr_reader :framework
 
@@ -21,6 +23,7 @@ class Msf::Sessions::SMB
   # @option opts [RubySMB::Client] :client
   def initialize(rstream, opts = {})
     @client = opts.fetch(:client)
+    @simple_client = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
     self.console = Rex::Post::SMB::Ui::Console.new(self)
     super(rstream, opts)
   end

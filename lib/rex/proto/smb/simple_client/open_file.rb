@@ -30,35 +30,36 @@ module Rex::Proto::SMB
       end
 
       def read_ruby_smb(length, offset, depth = 0)
+        file_size = client.open_files[client.last_file_id].size
+        file_size_remaining = file_size - offset
         if length.nil?
-          max_size = client.open_files[client.last_file_id].size
-          fptr = offset
-
-          chunk = [max_size, chunk_size].min
-
-          data = client.read(file_id, fptr, chunk).pack('C*')
-          fptr = data.length
-
-          while data.length < max_size
-            if (max_size - data.length) < chunk
-              chunk = max_size - data.length
-            end
-            data << client.read(file_id, fptr, chunk).pack('C*')
-            fptr = data.length
-          end
+          max_size = file_size_remaining
         else
-          begin
-            data = client.read(file_id, offset, length).pack('C*')
-          rescue RubySMB::Error::UnexpectedStatusCode => e
-            if e.message == 'STATUS_PIPE_EMPTY' && depth < 20
-              data = read_ruby_smb(length, offset, depth + 1)
-            else
-              raise e
-            end
+          max_size = [length, file_size_remaining].min
+        end
+
+        fptr = offset
+        chunk = [max_size, chunk_size].min
+
+        data = client.read(file_id, fptr, chunk).pack('C*')
+        fptr += data.length
+
+        while data.length < max_size
+          if (max_size - data.length) < chunk
+            chunk = max_size - data.length
           end
+          new_data = client.read(file_id, fptr, chunk).pack('C*')
+          data << new_data
+          fptr += new_data.length
         end
 
         data
+      rescue RubySMB::Error::UnexpectedStatusCode => e
+        if e.message == 'STATUS_PIPE_EMPTY' && depth < 20
+          read_ruby_smb(max_size, offset, depth + 1)
+        else
+          raise e
+        end
       end
 
       def read_rex_smb(length, offset)
@@ -139,6 +140,7 @@ module Rex::Proto::SMB
           fptr += cl
           chunk = data.slice!(0, chunk_size)
         end
+        fptr
       end
     end
   end
