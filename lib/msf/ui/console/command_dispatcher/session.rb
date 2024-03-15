@@ -11,6 +11,12 @@ module Msf
             %w[-h --help] => [false, 'Help menu.' ],
             '-e' => [true, 'Expression to evaluate.']
           )
+
+          @@sessions_opts = Rex::Parser::Arguments.new(
+            ['-h', '--help'] => [ false, 'Show this message' ],
+            ['-i', '--interact'] => [ true, 'Interact with a provided session ID', '<id>' ]
+          )
+
           def commands
             {
               '?' => 'Help menu',
@@ -136,27 +142,41 @@ module Msf
           end
 
           def cmd_sessions_help
-            print_line('Usage: sessions <id> or sessions -i <id>')
+            print_line('Usage: sessions [options] or sessions [id]')
             print_line
-            print_line('Interact with a different session Id.')
+            print_line('Interact with a different session ID.')
+            print(@@sessions_opts.usage)
             print_line
           end
 
           def cmd_sessions(*args)
-            if args.empty? ||
-               (args.length == 1 && args[0].to_i == 0) ||
-               (args.length == 2 && args[1].to_i == 0)
+            if args.empty?
               cmd_sessions_help
-              return
+              return false
             end
+
+            sid = nil
 
             if args.length == 1 && args[0] =~ /-?\d+/
               sid = args[0].to_i
-            elsif args.length == 2 && args[0] == '-i' && args[1] =~ /-?\d+/
-              sid = args[1].to_i
             else
+              @@sessions_opts.parse(args) do |opt, _idx, val|
+                case opt
+                when '-h', '--help'
+                  cmd_sessions_help
+                  return false
+                when '-i', '--interact'
+                  sid = val.to_i
+                else
+                  cmd_sessions_help
+                  return false
+                end
+              end
+            end
+
+            if sid == 0 || sid.nil?
               cmd_sessions_help
-              return
+              return false
             end
 
             if sid.to_s == session.name.to_s
