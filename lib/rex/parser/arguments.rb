@@ -175,7 +175,7 @@ module Rex
         short_args.sort_by! { |value| value.downcase }.reverse!
         short_args.each do |short_arg|
           break if compare_arg.empty?
-          if compare_arg.include? short_arg
+          if compare_arg == short_arg
             found_args[arg.index(short_arg)] = short_arg
             compare_arg.gsub!(short_arg, '')
           end
