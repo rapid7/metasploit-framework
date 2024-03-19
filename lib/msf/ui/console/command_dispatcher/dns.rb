@@ -283,7 +283,12 @@ class DNS
 
     resolvers.each do |resolver|
       unless Rex::Proto::DNS::UpstreamRule.valid_resolver?(resolver)
-        raise ::ArgumentError.new("Invalid DNS resolver: #{resolver}")
+        message = "Invalid DNS resolver: #{resolver}."
+        if (suggestions = Rex::Proto::DNS::UpstreamRule.spell_check_resolver(resolver)).present?
+          message << " Did you mean #{suggestions.first}?"
+        end
+
+        raise ::ArgumentError.new(message)
       end
     end
 
@@ -302,7 +307,7 @@ class DNS
     end
 
     rules.each_with_index do |rule, offset|
-      print_warning("DNS rule #{rule} does not contain wildcards, so will not match subdomains") unless rule.include?('*')
+      print_warning("DNS rule #{rule} does not contain wildcards, it will not match subdomains") unless rule.include?('*')
       driver.framework.dns_resolver.add_upstream_rule(
         resolvers,
         comm: comm_obj,
