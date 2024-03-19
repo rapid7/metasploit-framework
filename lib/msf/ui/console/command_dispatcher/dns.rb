@@ -644,11 +644,16 @@ class DNS
       'SortIndex' => -1,
       'WordWrap'  => false
     )
-    resolver.static_hostnames.each do |hostname, addresses|
-      ipv4_addresses = addresses.fetch(Dnsruby::Types::A, [])
-      ipv6_addresses = addresses.fetch(Dnsruby::Types::AAAA, [])
-      0.upto([ipv4_addresses.length, ipv6_addresses.length].max - 1) do |idx|
-        tbl << [idx == 0 ? hostname : TABLE_INDENT, ipv4_addresses[idx], ipv6_addresses[idx]]
+    resolver.static_hostnames.sort_by { |hostname, _| hostname }.each do |hostname, addresses|
+      ipv4_addresses = addresses.fetch(Dnsruby::Types::A, []).sort_by(&:to_i)
+      ipv6_addresses = addresses.fetch(Dnsruby::Types::AAAA, []).sort_by(&:to_i)
+      if (ipv4_addresses.length <= 1 && ipv6_addresses.length <= 1) && ((ipv4_addresses + ipv6_addresses).length > 0)
+        tbl << [hostname, ipv4_addresses.first, ipv6_addresses.first]
+      else
+        tbl << [hostname, '', '']
+        0.upto([ipv4_addresses.length, ipv6_addresses.length].max - 1) do |idx|
+          tbl << [TABLE_INDENT, ipv4_addresses[idx], ipv6_addresses[idx]]
+        end
       end
     end
     print_line(tbl.to_s)
