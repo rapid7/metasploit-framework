@@ -663,7 +663,7 @@ module DispatcherShell
       str << dispatcher.help_to_s(opts.merge({ command_width: [max_command_length, 12].max }))
     }
 
-    return str
+    return str << "For more info on a specific command, use %grn<command> -h%clr or %grnhelp <command>%clr.\n\n"
   end
 
 

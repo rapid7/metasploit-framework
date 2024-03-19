@@ -134,19 +134,30 @@ module Rex
               end
 
               def cmd_query(*args)
-                @@query_opts.parse(args) do |opt, idx, val|
+                show_help = false
+                call_interactive = false
+
+                @@query_opts.parse(args) do |opt, _idx, val|
                   case opt
+                  when nil
+                    show_help = true if val == 'help'
+                    break
                   when '-h', '--help'
-                    cmd_query_help
-                    return
+                    show_help = true
+                    break
                   when '-i', '--interact'
-                    cmd_query_interactive
-                    return
+                    call_interactive = true
+                    break
                   end
                 end
 
-                if args.empty?
+                if args.empty? || show_help
                   cmd_query_help
+                  return
+                end
+
+                if call_interactive
+                  cmd_query_interactive
                   return
                 end
 
