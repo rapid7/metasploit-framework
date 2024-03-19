@@ -64,9 +64,9 @@ handling the request. Different resolver types can be specified to handle querie
 in numeric order starting at position 1. Rules can be added to or removed from specific positions in a similar manner to
 how iptables rules can be added to and removed from a specific chain.
 
-### The Blackhole Resolver
-The blackhole resolver can be used to prevent queries from being resolved. It handles all query types and will prevent
-resolvers defined after it from being used. The blackhole resolver is specified by using the `blackhole` keyword.
+### The Black Hole Resolver
+The black hole resolver can be used to prevent queries from being resolved. It handles all query types and will prevent
+resolvers defined after it from being used. The black hole resolver is specified by using the `black-hole` keyword.
 
 ### The Upstream Resolver
 An upstream resolver can be used by specifying either an IPv4 or IPv6 address. When Metasploit uses this resolver, the
@@ -106,6 +106,12 @@ Append a rule to the end that will handle all queries for `*.lab.lan` using an u
 dns add --rule *.lab.lan --session 1 192.0.2.1
 ```
 
+Append a rule to drop all queries for `*.noresolve.lan` using the black hole resolver.
+
+```
+dns add --rule *.noresolve.lan black-hole
+```
+
 ## Static DNS Entries
 Static entries used by the static resolver are configured through the `add-static` and `remove-static` subcommands. The
 currently configured entries can be viewed in the `dns print` output and all entries can be flushed with the
@@ -113,6 +119,28 @@ currently configured entries can be viewed in the `dns print` output and all ent
 is specified. In order for the static entry to be used, at least one rule must match the hostname, and that rule must be
 configured to use the static resolver. A single hostname can be associated with multiple IP addresses and the same IP
 address can be associated with multiple hostnames.
+
+### Example Static Entries
+
+Define static entries for `localhost` and common variations.
+
+```
+dns add-static localhost  127.0.0.1 ::1
+dns add-static localhost4 127.0.0.1
+dns add-static localhost6 ::1
+```
+
+Remove all static entries for `localhost`.
+
+```
+dns remove-static localhost
+```
+
+Remove all static entries.
+
+```
+dns flush-static
+```
 
 ## The DNS Cache
 DNS query replies are cached internally by Metasploit based on their TTL. This intends to minimize the amount of network
