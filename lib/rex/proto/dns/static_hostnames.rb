@@ -13,7 +13,7 @@ module DNS
   class StaticHostnames
     extend Forwardable
 
-    def_delegators :@hostnames, :each, :each_with_index, :length, :empty?
+    def_delegators :@hostnames, :each, :each_with_index, :length, :empty?, :sort_by
 
     # @param [Hash<String, IPAddr>] hostnames The hostnames to IP address mappings to initialize with.
     def initialize(hostnames: nil)

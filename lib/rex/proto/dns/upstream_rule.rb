@@ -61,6 +61,23 @@ module DNS
       ].include?(resolver)
     end
 
+    # Perform a spell check on resolver to suggest corrections.
+    #
+    # @param [String] resolver The resolver string to check.
+    # @rtype [Nil, Array<String>] The suggestions if resolver is invalid.
+    def self.spell_check_resolver(resolver)
+      return nil if Rex::Socket.is_ip_addr?(resolver)
+
+      suggestions = DidYouMean::SpellChecker.new(dictionary: [
+        UpstreamResolver::Type::BLACK_HOLE,
+        UpstreamResolver::Type::STATIC,
+        UpstreamResolver::Type::SYSTEM
+      ]).correct(resolver).map(&:to_s)
+      return nil if suggestions.empty?
+
+      suggestions
+    end
+
     # Check whether or not the defined wildcard is a valid pattern.
     #
     # @param [String] wildcard The wildcard text to check.
