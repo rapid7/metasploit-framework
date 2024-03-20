@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['CreateSession']
       print_status("#{sessions.size} MSSQL sessions were opened successfully.")
     else
-      print_status('You can open an MSSQL session with these credentials and CreateSession set to true')
+      print_status('You can open an MSSQL session with these credentials and %grnCreateSession%clr set to true')
     end
     results
   end
