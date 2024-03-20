@@ -325,7 +325,7 @@ class DNS
     print_line @@add_opts.usage
     print_line "RESOLVERS:"
     print_line "  ipv4 / ipv6 address - The IP address of an upstream DNS server to resolve from"
-    print_line "  blackhole           - Drop all queries"
+    print_line "  black-hole          - Drop all queries"
     print_line "  static              - Reply with statically configured addresses (only for A/AAAA records)"
     print_line "  system              - Use the host operating systems DNS resolution functionality (only for A/AAAA records)"
     print_line
