@@ -203,6 +203,7 @@ Shell Banner:
     end
 
     print(tbl.to_s)
+    print("For more info on a specific command, use %grn<command> -h%clr or %grnhelp <command>%clr.\n\n")
   end
 
   def cmd_background_help
