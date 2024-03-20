@@ -98,6 +98,10 @@ module Rex
             log_error(e.message)
           rescue ::Errno::EPIPE, ::OpenSSL::SSL::SSLError, ::IOError
             session.kill
+          rescue ::RubySMB::Error::CommunicationError => e
+            log_error("Error running command #{method}: #{e.class} #{e}")
+            elog(e)
+            session.alive = false
           rescue ::StandardError => e
             log_error("Error running command #{method}: #{e.class} #{e}")
             elog(e)

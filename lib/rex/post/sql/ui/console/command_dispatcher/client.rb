@@ -120,7 +120,7 @@ module Rex
               def run_query(query)
                 begin
                   result = client.query(query)
-                rescue ::RuntimeError, ::StandardError => e
+                rescue => e
                   elog("Running query '#{query}' failed on session #{self.inspect}", error: e)
                   return { status: :error, result: { errors: [e] } }
                 end
@@ -177,6 +177,9 @@ module Rex
                   print_line(formatted_result.to_s)
                 when :error
                   print_error "Query has failed. Reasons: #{result[:result][:errors].join(', ')}"
+                  result[:result][:errors].each do |error|
+                    handle_error(error)
+                  end
                 else
                   elog "Unknown query status: #{result[:status]}"
                   print_error "Unknown query status: #{result[:status]}"
@@ -187,6 +190,29 @@ module Rex
                 return '' if query.empty?
 
                 query.lines.each.map { |line| line.chomp.chomp('\\').strip }.reject(&:empty?).compact.join(' ')
+              end
+
+              # Handles special cased error for each protocol
+              # that are return when a session has died resulting in a session
+              # needing to be closed
+              #
+              # @param [Object] e
+              def handle_error(e)
+                case e
+                when EOFError
+                  _close_session
+                end
+              end
+
+              private
+
+              # Sets session.alive to close sessions and handle setting session.client.interacting
+              # if currently in the context of the `query_interactive` command
+              #
+              # @return [FalseClass]
+              def _close_session
+                session.alive = false
+                session.client.interacting = false if session.client && session.client.respond_to?(:interacting)
               end
             end
           end
