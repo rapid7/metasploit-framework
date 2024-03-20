@@ -270,6 +270,7 @@ class DNS
 
         comm = val
       when nil
+        val = 'black-hole' if val.casecmp?('blackhole')
         resolvers << val
       else
         raise ::ArgumentError.new("Unknown flag: #{opt}")
@@ -325,9 +326,9 @@ class DNS
     print_line @@add_opts.usage
     print_line "RESOLVERS:"
     print_line "  ipv4 / ipv6 address - The IP address of an upstream DNS server to resolve from"
-    print_line "  blackhole           - Drop all queries"
-    print_line "  static              - Reply with statically configured addresses (only for A/AAAA records)"
-    print_line "  system              - Use the host operating systems DNS resolution functionality (only for A/AAAA records)"
+    print_line "  #{Rex::Proto::DNS::UpstreamResolver::Type::BLACK_HOLE.to_s.ljust(19)} - Drop all queries"
+    print_line "  #{Rex::Proto::DNS::UpstreamResolver::Type::STATIC.to_s.ljust(19)    } - Reply with statically configured addresses (only for A/AAAA records)"
+    print_line "  #{Rex::Proto::DNS::UpstreamResolver::Type::SYSTEM.to_s.ljust(19)    } - Use the host operating systems DNS resolution functionality (only for A/AAAA records)"
     print_line
     print_line "EXAMPLES:"
     print_line "  Set the DNS server(s) to be used for *.metasploit.com to 192.168.1.10"

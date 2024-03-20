@@ -162,7 +162,7 @@ module DNS
       upstream_resolvers.each do |upstream_resolver|
         case upstream_resolver.type
         when UpstreamResolver::Type::BLACK_HOLE
-          ans = resolve_via_blackhole(upstream_resolver, packet, type, cls)
+          ans = resolve_via_black_hole(upstream_resolver, packet, type, cls)
         when UpstreamResolver::Type::DNS_SERVER
           ans = resolve_via_dns_server(upstream_resolver, packet, type, cls)
         when UpstreamResolver::Type::STATIC
@@ -450,9 +450,9 @@ module DNS
       ans
     end
 
-    def resolve_via_blackhole(upstream_resolver, packet, type, cls)
+    def resolve_via_black_hole(upstream_resolver, packet, type, cls)
       # do not just return nil because that will cause the next resolver to be used
-      @logger.info "No response from upstream resolvers: blackholed"
+      @logger.info "No response from upstream resolvers: black-hole"
       raise NoResponseError
     end
 
