@@ -56,6 +56,19 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def run
+    results = super
+    logins = results.flat_map { |_k, v| v[:successful_logins] }
+    sessions = results.flat_map { |_k, v| v[:successful_sessions] }
+    print_status("Bruteforce completed, #{logins.size} #{logins.size == 1 ? 'credential was' : 'credentials were'} successful.")
+    if datastore['CreateSession']
+      print_status("#{sessions.size} MSSQL #{sessions.size == 1 ? 'session was' : 'sessions were'} opened successfully.")
+    else
+      print_status('You can open an MSSQL session with these credentials and %grnCreateSession%clr set to true')
+    end
+    results
+  end
+
   def run_host(ip)
     print_status("#{rhost}:#{rport} - MSSQL - Starting authentication scanner.")
 
@@ -102,7 +115,8 @@ class MetasploitModule < Msf::Auxiliary
         local_port: datastore['CPORT'],
         local_host: datastore['CHOST']
     )
-
+    successful_logins = []
+    successful_sessions = []
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
@@ -114,11 +128,12 @@ class MetasploitModule < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
         print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
+        successful_logins << result
 
         if create_session?
           begin
             mssql_client = result.proof
-            session_setup(result, mssql_client)
+            successful_sessions << session_setup(result, mssql_client)
           rescue ::StandardError => e
             elog('Failed: ', error: e)
             print_error(e)
@@ -130,6 +145,7 @@ class MetasploitModule < Msf::Auxiliary
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
+    { successful_logins: successful_logins, successful_sessions: successful_sessions }
   end
 
   def session_setup(result, client)

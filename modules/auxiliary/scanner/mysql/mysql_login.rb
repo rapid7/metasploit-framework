@@ -60,6 +60,18 @@ class MetasploitModule < Msf::Auxiliary
     [rhost,rport].join(":")
   end
 
+  def run
+    results = super
+    logins = results.flat_map { |_k, v| v[:successful_logins] }
+    sessions = results.flat_map { |_k, v| v[:successful_sessions] }
+    print_status("Bruteforce completed, #{logins.size} #{logins.size == 1 ? 'credential was' : 'credentials were'} successful.")
+    if datastore['CreateSession']
+      print_status("#{sessions.size} MySQL #{sessions.size == 1 ? 'session was' : 'sessions were'} opened successfully.")
+    else
+      print_status('You can open an MySQL session with these credentials and %grnCreateSession%clr set to true')
+    end
+    results
+  end
 
   def run_host(ip)
     begin
@@ -90,6 +102,8 @@ class MetasploitModule < Msf::Auxiliary
             local_host: datastore['CHOST']
         )
 
+        successful_logins = []
+        successful_sessions = []
         scanner.scan! do |result|
           credential_data = result.to_h
           credential_data.merge!(
@@ -102,11 +116,12 @@ class MetasploitModule < Msf::Auxiliary
             create_credential_login(credential_data)
 
             print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+            successful_logins << result
 
             if create_session?
               begin
                 mysql_client = result.proof
-                session_setup(result, mysql_client)
+                successful_sessions << session_setup(result, mysql_client)
               rescue ::StandardError => e
                 elog('Failed: ', error: e)
                 print_error(e)
@@ -125,6 +140,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Rex::ConnectionError, ::EOFError => e
       vprint_error "#{target} - Unable to connect: #{e.to_s}"
     end
+    { successful_logins: successful_logins, successful_sessions: successful_sessions }
   end
 
   # Tmtm's rbmysql is only good for recent versions of mysql, according

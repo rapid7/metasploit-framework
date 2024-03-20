@@ -64,6 +64,19 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def run
+    results = super
+    logins = results.flat_map { |_k, v| v[:successful_logins] }
+    sessions = results.flat_map { |_k, v| v[:successful_sessions] }
+    print_status("Bruteforce completed, #{logins.size} #{logins.size == 1 ? 'credential was' : 'credentials were'} successful.")
+    if datastore['CreateSession']
+      print_status("#{sessions.size} Postgres #{sessions.size == 1 ? 'session was' : 'sessions were'} opened successfully.")
+    else
+      print_status('You can open a Postgres session with these credentials and %grnCreateSession%clr set to true')
+    end
+    results
+  end
+
   # Loops through each host in turn. Note the current IP address is both
   # ip and datastore['RHOST']
   def run_host(ip)
@@ -85,7 +98,8 @@ class MetasploitModule < Msf::Auxiliary
       framework_module: self,
       use_client_as_proof: create_session?
     )
-
+    successful_logins = []
+    successful_sessions = []
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
@@ -98,11 +112,12 @@ class MetasploitModule < Msf::Auxiliary
         create_credential_login(credential_data)
 
         print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
+        successful_logins << result
 
         if create_session?
           begin
             postgresql_client = result.proof
-            session_setup(result, postgresql_client)
+            successful_sessions << session_setup(result, postgresql_client)
           rescue ::StandardError => e
             elog('Failed: ', error: e)
             print_error(e)
@@ -114,7 +129,7 @@ class MetasploitModule < Msf::Auxiliary
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
-
+    { successful_logins: successful_logins, successful_sessions: successful_sessions }
   end
 
   # Alias for RHOST
