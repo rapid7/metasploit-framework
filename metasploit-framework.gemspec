@@ -83,8 +83,7 @@ Gem::Specification.new do |spec|
   # NTLM authentication
   spec.add_runtime_dependency 'rubyntlm'
   # Needed by anemone crawler
-  # Locked until build env can handle newer version due to native compile issue in 1.15.x
-  spec.add_runtime_dependency 'nokogiri', '~> 1.14.0'
+  spec.add_runtime_dependency 'nokogiri'
   # Needed by db.rb and Msf::Exploit::Capture
   spec.add_runtime_dependency 'packetfu'
   # For sniffer and raw socket modules
