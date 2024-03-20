@@ -92,7 +92,7 @@ module Rex
           #
           # @return [String]
           def sql_prompt
-            "#{session.type} @ #{client.peerinfo} (#{current_database})"
+            "#{session.type} @ #{client.peerinfo}#{current_database.blank? ? '' : " (#{current_database})"}"
           end
 
           #
