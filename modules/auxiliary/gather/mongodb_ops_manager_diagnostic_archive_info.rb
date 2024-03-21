@@ -171,7 +171,7 @@ class MetasploitModule < Msf::Auxiliary
     return if res.nil?
     return unless res.code == 200
 
-    l = store_loot('mongodb.ops_manager.project_diagnostics', 'application/gzip', rhost, res.body, "project_diagnostics.#{project}.tar.gz", "Project diagnostics for MongoDB Project #{project}")
+    loot_location = store_loot('mongodb.ops_manager.project_diagnostics', 'application/gzip', rhost, res.body, "project_diagnostics.#{project}.tar.gz", "Project diagnostics for MongoDB Project #{project}")
     print_good("Stored Project Diagnostics files to #{l}")
     vprint_status('    Opening project_diagnostics.tar.gz')
     gz_reader = Zlib::GzipReader.new(StringIO.new(res.body))
