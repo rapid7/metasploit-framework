@@ -35,11 +35,13 @@ Username for Rancher. user must be in one or more of the following groups:
 * `Project Members`
 * `User Base`
 
-## Password
+### Password
 
 Password for Rancher.
 
-### Version and OS
+## Scenarios
+
+### Docker Image
 
 ```
 msf6 > use auxiliary/gather/rancher_authenticated_api_cred_exposure 
