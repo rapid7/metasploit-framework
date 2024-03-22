@@ -40,12 +40,12 @@ class MetasploitModule < Msf::Auxiliary
 
   # Alias for RHOST
   def rhost
-    datastore['RHOST']
+    postgres_conn&.peerhost || datastore['RHOST']
   end
 
   # Alias for RPORT
   def rport
-    datastore['RPORT']
+    postgres_conn&.peerport || datastore['RPORT']
   end
 
   def report_cred(opts)
@@ -85,27 +85,27 @@ class MetasploitModule < Msf::Auxiliary
         :password => password
       )
       if result[:auth]
-        vprint_good "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'" unless session
-        print_status "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - Version #{result[:auth]} (Post-Auth)"
+        vprint_good "#{rhost}:#{rport} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'" unless session
+        print_status "#{rhost}:#{rport} Postgres - Version #{result[:auth]} (Post-Auth)"
       elsif result[:preauth]
-        print_good "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
+        print_good "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
       else # It's something we don't know yet
-        vprint_status "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - Authentication Error Fingerprint: #{result[:unknown]}"
-        print_status "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - Version Unknown (Pre-Auth)"
+        vprint_status "#{rhost}:#{rport} Postgres - Authentication Error Fingerprint: #{result[:unknown]}"
+        print_status "#{rhost}:#{rport} Postgres - Version Unknown (Pre-Auth)"
       end
 
       # Reporting
       report_service(
-        :host => postgres_conn.peerhost,
-        :port => postgres_conn.peerport,
+        :host => rhost,
+        :port => rport,
         :name => "postgres",
         :info => result.values.first
       )
 
       if self.postgres_conn
         report_cred(
-          ip: postgres_conn.peerhost,
-          port: postgres_conn.peerport,
+          ip: rhost,
+          port: rport,
           service_name: 'postgres',
           user: user,
           password: password,
@@ -115,10 +115,10 @@ class MetasploitModule < Msf::Auxiliary
 
       if result[:unknown]
         report_note(
-          :host => postgres_conn.peerhost,
+          :host => rhost,
           :proto => 'tcp',
           :sname => 'postgres',
-          :port => postgres_conn.peerport,
+          :port => rport,
           :ntype => 'postgresql.fingerprint',
           :data => "Unknown Pre-Auth fingerprint: #{result[:unknown]}"
         )
