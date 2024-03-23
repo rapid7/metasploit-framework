@@ -1061,7 +1061,7 @@ class ReadableText
         persist_list.each do |e|
           handler_ctx = framework.jobs[job_id.to_s].ctx[1]
           if handler_ctx && handler_ctx.respond_to?(:datastore)
-             row[7] = 'true' if e['mod_options']['Options'] == handler_ctx.datastore
+             row[7] = 'true' if e['mod_options']['Options'] == handler_ctx.datastore.to_h
           end
         end
 

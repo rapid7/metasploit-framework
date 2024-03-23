@@ -206,9 +206,23 @@ class Driver < Msf::Ui::Driver
     if restore_handlers
       print_status("Starting persistent handler(s)...")
 
-      restore_handlers.each do |handler_opts|
+      restore_handlers.each.with_index do |handler_opts, index|
         handler = framework.modules.create(handler_opts['mod_name'])
-        handler.exploit_simple(handler_opts['mod_options'])
+        handler.init_ui(self.input, self.output)
+        replicant_handler = nil
+        handler.exploit_simple(handler_opts['mod_options']) do |yielded_replicant_handler|
+          replicant_handler = yielded_replicant_handler
+        end
+
+        if replicant_handler.nil? || replicant_handler.error
+          print_status("Failed to start persistent payload handler ##{index} (#{handler_opts['mod_name']})")
+          next
+        end
+
+        if replicant_handler.error.nil?
+          job_id = handler.job_id
+          print_status "Persistent payload handler started as Job #{job_id}"
+        end
       end
     end
 
