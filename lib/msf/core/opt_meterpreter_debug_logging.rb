@@ -39,9 +39,9 @@ module Msf
       result = {}
       errors = []
 
-      return result if value.nil?
+      value = value.to_s.strip
+      return result if value.empty?
 
-      value = value.strip
       # Match 'rpath:./file', 'rpath:/file', and drive letters e.g. 'rpath:C:/file'
       rpath_regex = %r{^rpath:((\.?/\p{ASCII}+)|(\p{ASCII}:/\p{ASCII}+))}i
 

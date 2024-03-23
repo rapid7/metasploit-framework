@@ -257,7 +257,7 @@ module Msf
 
               payload_opts = {
                 'Payload'        => payload.refname,
-                'Options'        => payload.datastore,
+                'Options'        => payload.datastore.to_h,
                 'RunAsJob'       => true
               }
 
