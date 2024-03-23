@@ -134,7 +134,7 @@ module Msf
                 job_list = build_range_array(val)
                 kill_job = true
               when "-K"
-                print_line("Stopping all jobs...")
+                print_status("Stopping all jobs...")
                 framework.jobs.each_key do |i|
                   framework.jobs.stop_job(i)
                 end
@@ -154,7 +154,7 @@ module Msf
                   add_persist_job(job_id)
                 end
               when "-P"
-                print_line("Making all jobs persistent ...")
+                print_status("Making all jobs persistent...")
                 job_list = framework.jobs.map do |k,v|
                   v.jid.to_s
                 end
@@ -257,7 +257,7 @@ module Msf
 
               payload_opts = {
                 'Payload'        => payload.refname,
-                'Options'        => payload.datastore,
+                'Options'        => payload.datastore.user_defined.to_h,
                 'RunAsJob'       => true
               }
 
@@ -275,9 +275,9 @@ module Msf
               File.open(Msf::Config.persist_file,"w") do |file|
                 file.puts(JSON.pretty_generate(persist_list))
               end
-              print_line("Added persistence to job #{job_id}.")
+              print_good("Added persistence to job #{job_id}.")
             else
-              print_line("Invalid Job ID")
+              print_error("Invalid Job ID")
             end
           end
 
