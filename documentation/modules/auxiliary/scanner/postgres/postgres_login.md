@@ -4,12 +4,12 @@ This auxiliary module is a brute-force login tool for Postgres servers.
 
 ## Verification Steps
 
-1. Do: ```use auxiliary/scanner/postgres/postgres_login```
-2. Do: ```set PASS_FILE [file containing passwords]```
-3. Do: ```set RHOSTS [IP]```
-4. Do: ```set USER_FILE [file containing usernames]```
-5. Do: ```set DATABASE [template name]```
-6. Do: ```run```
+1. Do: `use auxiliary/scanner/postgres/postgres_login`
+2. Do: `set PASS_FILE [file containing passwords]`
+3. Do: `set RHOSTS [IP]`
+4. Do: `set USER_FILE [file containing usernames]`
+5. Do: `set DATABASE [template name]`
+6. Do: `run`
 
 The above USER_FILE and PASS_FILE options can be replaced with USERNAME
 and PASSWORD if you know the credentials.
@@ -107,7 +107,7 @@ This session also works with the following modules:
   exploit/windows/postgres/postgres_payload
 ```
 
-Once you've done that, you can run any Postgres query against the target using the `query` command.
+Once you've done that, you can run any Postgres query against the target using the `query` command:
 
 ```msf
 postgresql @ 127.0.0.1:5432 (template1) > query -h

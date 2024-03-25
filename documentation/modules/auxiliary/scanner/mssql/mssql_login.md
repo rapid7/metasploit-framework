@@ -24,7 +24,7 @@ session within the MSSQL instance. Running the following commands with all other
 msf6 auxiliary(scanner/mssql/mssql_login) > run CreateSession=true RPORT=1433 RHOSTS=192.168.2.242 USERNAME=user PASSWORD=password
 ```
 
-Should give you output containing
+Should give you output containing:
 
 ```msf
 [*] 192.168.2.242:1433    - 192.168.2.242:1433 - MSSQL - Starting authentication scanner.
@@ -35,7 +35,7 @@ Should give you output containing
 [*] Auxiliary module execution completed
 ```
 
-Which you can interact with using `sessions -i <session id>` or `sessions -1` to interact with the most recently opened session.
+Which you can interact with using `sessions -i <session id>` or `sessions -i -1` to interact with the most recently opened session.
 
 ```msf
 msf6 auxiliary(scanner/mssql/mssql_login) > sessions
@@ -43,10 +43,9 @@ msf6 auxiliary(scanner/mssql/mssql_login) > sessions
 Active sessions
 ===============
 
-  Id  Name  Type   Information                     Connection
-  --  ----  ----   -----------                     ----------
-  1         mssql  MSSQL test @ 192.168.2.242:143  192.168.2.1:60963 -> 192.168.2
-                   3                               .242:1433 (192.168.2.242)
+  Id  Name  Type   Information                      Connection
+  --  ----  ----   -----------                      ----------
+  1         mssql  MSSQL test @ 192.168.2.242:1433  192.168.2.1:60963 -> 192.168.2.242:1433 (192.168.2.242)
 
 msf6 auxiliary(scanner/mssql/mssql_login) > sessions -i 1
 [*] Starting interaction with 1...

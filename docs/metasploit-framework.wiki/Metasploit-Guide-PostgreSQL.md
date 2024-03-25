@@ -17,6 +17,13 @@ There are more modules than listed here, for the full list of modules run the `s
 msf6 > search postgres
 ```
 
+Or to search for modules that work with a specific session type:
+
+```msf
+msf6 > search session_type:postgres
+```
+
+
 ### Lab Environment
 
 When testing in a lab environment PostgreSQL can either be installed on the host machine or within Docker:
@@ -172,7 +179,7 @@ This session also works with the following modules:
   exploit/windows/postgres/postgres_payload
 ```
 
-Once you've done that, you can run any Postgres query against the target using the `query` command.
+Once you've done that, you can run any Postgres query against the target using the `query` command:
 
 ```msf
 postgresql @ 127.0.0.1:5432 (template1) > query -h

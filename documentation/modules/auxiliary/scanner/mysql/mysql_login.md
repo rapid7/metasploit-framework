@@ -156,7 +156,7 @@ This session also works with the following modules:
   exploit/windows/mysql/mysql_start_up
 ```
 
-Once you've done that, you can run any MySQL query against the target using the `query` command.
+Once you've done that, you can run any MySQL query against the target using the `query` command:
 
 ```msf
 mysql @ 127.0.0.1:4306 > query -h
@@ -212,5 +212,3 @@ Response
 
 SQL >>
 ```
-
-

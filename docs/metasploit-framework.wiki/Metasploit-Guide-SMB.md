@@ -27,6 +27,12 @@ There are more modules than listed here, for the full list of modules run the `s
 msf6 > search smb
 ```
 
+Or to search for modules that work with a specific session type:
+
+```msf
+msf6 > search session_type:smb
+```
+
 ### Lab Environment
 
 When testing in a lab environment - SMB can be used on a Window's host machine, or within Docker.
@@ -80,14 +86,14 @@ Should give you output similar to
 [*] SMB session 1 opened (172.16.158.1:62793 -> 172.14.2.164:445) at 2024-03-12 17:03:09 +0000
 [*] 172.14.2.164:445    - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/smb/smb_login) > sessions -1
+msf6 auxiliary(scanner/smb/smb_login) > sessions -i -1
 [*] Starting interaction with 1...
 ```
 
-Which you can interact with using `sessions -i <session id>` or `sessions -1` to interact with the most recently opened session.
+Which you can interact with using `sessions -i <session id>` or `sessions -i -1` to interact with the most recently opened session.
 
 ```msf
-msf6 auxiliary(scanner/smb/smb_login) > sessions -1
+msf6 auxiliary(scanner/smb/smb_login) > sessions -i -1
 [*] Starting interaction with 1...
 
 SMB (172.14.2.164) > shares

@@ -17,6 +17,12 @@ There are more modules than listed here, for the full list of modules run the `s
 msf6 > search mysql
 ```
 
+Or to search for modules that work with a specific session type:
+
+```msf
+msf6 > search session_type:mysql
+```
+
 ### Lab Environment
 
 When testing in a lab environment MySQL can either be installed on the host machine or within Docker:
@@ -81,12 +87,13 @@ run cidr:/24:mysql://user@192.168.222.0 threads=50 pass_file=./wordlist.txt
 
 ### Obtaining an Interactive Session on the Target
 
-The CreateSession option in `scanner/mysql/msql_login` allows you to obtain an interactive session
+The CreateSession option in `auxiliary/scanner/mysql/msql_login` allows you to obtain an interactive session
 for the MySQL client you're connecting to. The run command with CreateSession
 set to true should give you an interactive session:
 
 ```msf
-run rhost=127.0.0.1 rport=4306 username=root password=password createsession=true
+msf6 > use scanner/mysql/mysql_login 
+msf6 auxiliary(scanner/mysql/mysql_login) > run rhost=127.0.0.1 rport=4306 username=root password=password createsession=true
 
 [+] 127.0.0.1:4306        - 127.0.0.1:4306 - Found remote MySQL version 11.2.2
 [+] 127.0.0.1:4306        - 127.0.0.1:4306 - Success: 'root:password'
@@ -173,7 +180,7 @@ This session also works with the following modules:
   exploit/windows/mysql/mysql_start_up
 ```
 
-Once you've done that, you can run any MySQL query against the target using the `query` command.
+Once you've done that, you can run any MySQL query against the target using the `query` command:
 
 ```msf
 mysql @ 127.0.0.1:4306 > query -h

@@ -8,6 +8,18 @@ MSSQL is frequently found on port on the following ports:
 - 1433/TCP
 - 1434/UDP
 
+For a full list of MSSQL modules run the `search` command within msfconsole:
+
+```msf
+msf6 > search mssql
+```
+
+Or to search for modules that work with a specific session type:
+
+```msf
+msf6 > search session_type:mssql
+```
+
 ### Lab Environment
 
 Environment setup:
@@ -46,7 +58,7 @@ on a successful login:
 [*] Auxiliary module execution completed
 ```
 
-Which you can interact with using `sessions -i <session id>` or `sessions -1` to interact with the most recently opened session.
+Which you can interact with using `sessions -i <session id>` or `sessions -i -1` to interact with the most recently opened session.
 
 ```msf
 msf6 auxiliary(scanner/mssql/mssql_login) > sessions
@@ -54,10 +66,9 @@ msf6 auxiliary(scanner/mssql/mssql_login) > sessions
 Active sessions
 ===============
 
-  Id  Name  Type   Information                     Connection
-  --  ----  ----   -----------                     ----------
-  1         mssql  MSSQL test @ 192.168.2.242:143  192.168.2.1:60963 -> 192.168.2
-                   3                               .242:1433 (192.168.2.242)
+  Id  Name  Type   Information                      Connection
+  --  ----  ----   -----------                      ----------
+  1         mssql  MSSQL test @ 192.168.2.242:1433  192.168.2.1:60963 -> 192.168.23.242:1433 (192.168.2.242)
 
 msf6 auxiliary(scanner/mssql/mssql_login) > sessions -i 1
 [*] Starting interaction with 1...
@@ -101,8 +112,7 @@ MSSQL Client Commands
     Command            Description
     -------            -----------
     query              Run a single SQL query
-    query_interactive  Enter an interactive prompt for running multiple SQL queri
-                       es
+    query_interactive  Enter an interactive prompt for running multiple SQL queries
 
 
 Local File System Commands
@@ -181,17 +191,20 @@ mssql @ 192.168.2.242:1433 (master) > query_interactive
 [*] Starting interactive SQL shell for mssql @ 192.168.2.242:1433 (master)
 [*] SQL commands ending with ; will be executed on the remote server. Use the exit command to exit.
 
-SQL >> select top 2 table_catalog, table_schema
-SQL *> from information_schema.tables;
-[*] Executing query: select top 2 table_catalog, table_schema from information_schema.tables;
+SQL >> select *
+SQL *> from information_schema.tables
+SQL *> where table_type = 'BASE TABLE';
+[*] Executing query: select * from information_schema.tables where table_type = 'BASE TABLE';
 Response
 ========
-
-    #  table_catalog  table_schema
-    -  -------------  ------------
-    0  master         dbo
-    1  master         dbo
-
+    #  TABLE_CATALOG  TABLE_SCHEMA  TABLE_NAME             TABLE_TYPE
+    -  -------------  ------------  ----------             ----------
+    0  master         dbo           spt_fallback_db        BASE TABLE
+    1  master         dbo           spt_fallback_dev       BASE TABLE
+    2  master         dbo           spt_fallback_usg       BASE TABLE
+    4  master         dbo           Users                  BASE TABLE
+    5  master         dbo           spt_monitor            BASE TABLE
+    6  master         dbo           MSreplication_options  BASE TABLE
 SQL >>
 ```
 
