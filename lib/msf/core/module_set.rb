@@ -229,7 +229,10 @@ class Msf::ModuleSet < Hash
       # Custom filtering
       next if (each_module_filter(opts, name, entry) == true)
 
-      block.call(name, self[name])
+      mod = self[name]
+      next if mod.nil?
+
+      block.call(name, mod)
     end
   end
 
