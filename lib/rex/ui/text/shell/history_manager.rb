@@ -116,52 +116,30 @@ class HistoryManager
 
   def load_history_file(context)
     history_file = context[:history_file]
-    case context[:input_library]
-    when :readline
-      return unless readline_available?
+    history = context[:input_library] == :reline ? ::Reline::HISTORY : ::Readline::HISTORY
 
-      clear_readline
-      if File.exist?(history_file)
-        File.readlines(history_file).each do |e|
-          ::Readline::HISTORY << safe_undump(e.chomp)
-        end
-      end
-    when :reline
-      return unless reline_available?
-
-      clear_reline
-      if File.exist?(history_file)
-        File.readlines(history_file).each do |e|
-          ::Reline::HISTORY << safe_undump(e.chomp)
+    if File.exist?(history_file)
+      File.open(history_file, 'r') do |f|
+        f.each do |line|
+          chomped_line = line.chomp
+          if context[:input_library] == :reline && history.last&.end_with?("\\")
+            history.last.delete_suffix!("\\")
+            history.last << "\n" << chomped_line
+          else
+            history << chomped_line
+          end
         end
       end
     end
   end
 
   def store_history_file(context)
-    cmds = []
     history_file = context[:history_file]
+    history = context[:input_library] == :reline ? ::Reline::HISTORY : ::Readline::HISTORY
 
-    case context[:input_library]
-    when :readline
-      return unless readline_available?
+    history_to_save = history.map { |line| line.scrub.split("\n").join("\\\n") }
 
-      history_diff = ::Readline::HISTORY.length < MAX_HISTORY ? ::Readline::HISTORY.length : MAX_HISTORY
-      history_diff.times do
-        entry = ::Readline::HISTORY.pop.dump
-        cmds.push(entry) unless entry.nil?
-      end
-    when :reline
-      return unless reline_available?
-
-      history_diff = ::Reline::HISTORY.length < MAX_HISTORY ? ::Reline::HISTORY.length : MAX_HISTORY
-      history_diff.times do
-        entry = ::Reline::HISTORY.pop.dump
-        cmds.push(entry) unless entry.nil?
-      end
-    end
-
-    write_history_file(history_file, cmds)
+    write_history_file(history_file, history_to_save)
   end
 
   def switch_context(new_context, old_context=nil)
@@ -190,7 +168,7 @@ class HistoryManager
           cmds = event[:cmds]
 
           File.open(history_file, 'wb+') do |f|
-            f.puts(cmds.reverse)
+            f.puts(cmds)
           end
 
         rescue => e
@@ -204,16 +182,6 @@ class HistoryManager
     event = { type: :write, history_file: history_file, cmds: cmds }
     @write_queue << event
     @remaining_work << event
-  end
-
-  # @param [String] dumped A string that has been previously dumped
-  # @return [String] A string that is undumped if possible or the input if it can't be undumped.
-  def safe_undump(dumped)
-    begin
-      dumped.undump
-    rescue ::RuntimeError => _e
-      dumped
-    end
   end
 end
 
