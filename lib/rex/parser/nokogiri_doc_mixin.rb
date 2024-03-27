@@ -92,6 +92,10 @@ module Parser
           else
             "#{ref_type}-#{ref_value}"
           end
+        when "CB"
+          ref_value
+        when "DFN-CERT"
+          ref_value
         else # Handle others?
           "#{ref_type}-#{ref_value}"
         end

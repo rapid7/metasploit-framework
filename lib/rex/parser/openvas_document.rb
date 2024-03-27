@@ -24,6 +24,41 @@ module Parser
     case name
     when "host"
       @state[:has_text] = true
+    when 'ref'
+      ref_type = ''
+      ref_id = ''
+      if defined?(attrs) && attrs.kind_of?(Array)
+        attrs.each do |attr|
+          next if !defined?(attr) || !attr.kind_of?(Array) || attr.length != 2
+          if defined?(attr[0]) && defined?(attr[1]) && attr[0] == 'type'
+            ref_type = attr[1]
+          end
+          if defined?(attr[0]) && defined?(attr[1]) && attr[0] == 'id'
+            ref_id = attr[1]
+          end
+        end
+      end
+      if in_tag('result') && in_tag('nvt') && in_tag('refs') &&
+          !ref_type.empty? && !ref_type.empty?
+        case ref_type.upcase
+        when 'CVE'
+          @state[:ref_cve] = [] if @state[:ref_cve].nil?
+          @state[:ref_cve].append(ref_id.strip)
+        when 'URL'
+          @state[:ref_url] = [] if @state[:ref_url].nil?
+          @state[:ref_url].append(ref_id.strip)
+        when 'DFN-CERT'
+          if defined?(@args[:options][:openvas_dfn]) && @args[:options][:openvas_dfn]
+            @state[:ref_dfn] = [] if @state[:ref_dfn].nil?
+            @state[:ref_dfn].append(ref_id.strip)
+          end
+        when 'CERT-BUND'
+          if defined?(@args[:options][:openvas_cert]) && @args[:options][:openvas_cert]
+            @state[:ref_cb] = [] if @state[:ref_cb].nil?
+            @state[:ref_cb].append(ref_id.strip)
+          end
+        end
+      end
     end
   end
 
@@ -148,6 +183,30 @@ module Parser
       @state[:bid].split(',').each do |bid|
         references.append({ :source => "BID", :value => bid})
       end
+    end
+    if @state[:ref_cve] && @state[:ref_cve].kind_of?(Array)
+      @state[:ref_cve].each do |cve|
+        references.append({ :source => "CVE", :value => cve.dup}) if !cve.empty?
+      end
+      @state[:ref_cve].clear
+    end
+    if @state[:ref_url] && @state[:ref_url].kind_of?(Array)
+      @state[:ref_url].each do |url|
+        references.append({ :source => "URL", :value => url.dup}) if !url.empty?
+      end
+      @state[:ref_url].clear
+    end
+    if @state[:ref_cb] && @state[:ref_cb].kind_of?(Array)
+      @state[:ref_cb].each do |cb|
+        references.append({ :source => "CB", :value => cb.dup}) if !cb.empty?
+      end
+      @state[:ref_cb].clear
+    end
+    if @state[:ref_dfn] && @state[:ref_dfn].kind_of?(Array)
+      @state[:ref_dfn].each do |dfn|
+        references.append({ :source => "DFN-CERT", :value => dfn.dup}) if !dfn.empty?
+      end
+      @state[:ref_dfn].clear
     end
 
     vuln_info = {}

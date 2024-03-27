@@ -1712,7 +1712,7 @@ class Db
     print_line "    Nikto XML"
     print_line "    Nmap XML"
     print_line "    OpenVAS Report"
-    print_line "    OpenVAS XML"
+    print_line "    OpenVAS XML (optional arguments -cert -dfn)"
     print_line "    Outpost24 XML"
     print_line "    Qualys Asset XML"
     print_line "    Qualys Scan XML"
@@ -1727,12 +1727,22 @@ class Db
   #
   def cmd_db_import(*args)
     return unless active?
+    openvas_cert = false
+    openvas_dfn = false
   ::ApplicationRecord.connection_pool.with_connection {
     if args.include?("-h") || ! (args && args.length > 0)
       cmd_db_import_help
       return
     end
+    if args.include?("-dfn")
+      openvas_dfn = true
+    end
+    if args.include?("-cert")
+      openvas_cert = true
+    end
+    options = {:openvas_dfn => openvas_dfn, :openvas_cert => openvas_cert}
     args.each { |glob|
+      next if (glob.include?("-cert") || glob.include?("-dfn"))
       files = ::Dir.glob(::File.expand_path(glob))
       if files.empty?
         print_error("No such file #{glob}")
@@ -1745,7 +1755,7 @@ class Db
         end
         begin
           warnings = 0
-          framework.db.import_file(:filename => filename) do |type,data|
+          framework.db.import_file(:filename => filename, :options => options) do |type,data|
             case type
             when :debug
               print_error("DEBUG: #{data.inspect}")
