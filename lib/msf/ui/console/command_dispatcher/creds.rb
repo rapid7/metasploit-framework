@@ -328,7 +328,7 @@ class Creds
     info
   end
 
-  def creds_fill(*args) # sets the creds from database into a module
+  def creds_fill(*args)
     if active_module
       mydatastore = active_module.datastore
     else
@@ -336,64 +336,63 @@ class Creds
       return
     end
     opts = {}
-    usernames = [] #store public values
-    passwords = [] #store private values
-    realms = [] #store realm values
+    usernames = []
+    passwords = []
+    realms = []
     query = framework.db.creds(opts)
     query.each do |core|
       user = core.public ? core.public.username : ''
       usernames << user
       passwd = core.private ? core.private.data : ''
       passwords << passwd
-      realm_val = core.realm ? core.realm.value : '.' # Basic domain is .
+      realm_val = core.realm ? core.realm.value : '.'
       realms << realm_val
     end
     if !args.empty?
-      arguments = args.split(' ')
-      choice = arguments[0][1].split(':') if !arguments[0][1].nil?
-      clength = (choice.nil?) ? 0 : choice.length
-      indices = arguments[0][0].split('-').map! {|i| i.to_i}
+      cred_type = arguments[1].split(':') if !arguments[1].nil?
+      cred_types = (cred_type.nil?) ? 0 : cred_type.length
+      cred_idx = arguments[0].split('-').map {|i| i.to_i}
       multi_creds = 0
     else
       print_error("Invalid Arguments. Usage - creds fill <index>")
       return
     end
-    if (indices.length == 2) && (indices[0] != indices[1])
+    if (cred_idx.length == 2) && (cred_idx[0] != cred_idx[1])
       multi_creds += 1
-      if (indices[0].empty?) || (indices[1] < 0)
+      if (cred_idx[0].to_s.empty?) || (cred_idx[1] < 0)
         print_error("Invalid parameter, #{arguments[0]}. Use correct index")
         return
       end
-      if clength == 0
-        user = usernames[indices[0]..indices[1]]
-        pass = passwords[indices[0]..indices[1]]
-        realm = realms[indices[0]..indices[1]]
+      if cred_types == 0
+        user = usernames[cred_idx[0]..cred_idx[1]]
+        pass = passwords[cred_idx[0]..cred_idx[1]]
+        realm = realms[cred_idx[0]..cred_idx[1]]
         if (user.empty? && pass.empty?)
-          print_status("Invalid Credentials, #{args}. Check for the range of credential indices.")
+          print_status("Invalid Credentials, #{args}. Check for the range of credential index.")
         end
         set_creds_from_database(user, pass, realm, multi_creds)
       else
-        print_error("Invalid Arguments. Unable to fill the creds to #{choice}. ")
+        print_error("Invalid Arguments. Unable to fill the creds to #{cred_type}. ")
         return
       end
-    elsif indices.length == 1
-      if  (indices[0].empty?)
+    elsif cred_idx.length == 1
+      if (cred_idx[0].to_s.empty?)
         print_error("Invalid parameter, #{arguments[0]}. Use correct index")
         return
       end
-      if clength == 0
-        user = usernames[indices[0]..indices[0]]
-        pass = passwords[indices[0]..indices[0]]
-        realm = realms[indices[0]..indices[0]]
+      if cred_types == 0
+        user = usernames[cred_idx[0]..cred_idx[0]]
+        pass = passwords[cred_idx[0]..cred_idx[0]]
+        realm = realms[cred_idx[0]..cred_idx[0]]
         set_creds_from_database(user, pass, realm, multi_creds)
       else
-        if mydatastore.options.include?(choice[0]) && mydatastore.options.include?(choice[1])
-          mydatastore[choice[0]] = usernames[indices[0]]
-          mydatastore[choice[1]] = passwords[indices[0]]
-          print_line "#{choice[0]} => #{mydatastore[choice[0]]}"
-          print_line "#{choice[1]} => #{mydatastore[choice[1]]}"
+        if mydatastore.options.include?(cred_type[0]) && mydatastore.options.include?(cred_type[1])
+          mydatastore[cred_type[0]] = usernames[cred_idx[0]]
+          mydatastore[cred_type[1]] = passwords[cred_idx[0]]
+          print_line "#{cred_type[0]} => #{mydatastore[cred_type[0]]}"
+          print_line "#{cred_type[1]} => #{mydatastore[cred_type[1]]}"
         else
-          print_error("Invalid arguments. #{choice} are not present as options.")
+          print_error("Invalid arguments. #{cred_type} are not present as options.")
           return
         end
       end
