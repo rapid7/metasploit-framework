@@ -42,7 +42,16 @@ class MetasploitModule < Msf::Auxiliary
     if session
       set_session(session.client)
     else
-      return unless mssql_login_datastore
+      unless mssql_login_datastore
+        print_error("Error with mssql_login call")
+        info = self.mssql_client.initial_connection_info
+        if info[:errors] && !info[:errors].empty?
+          info[:errors].each do |err|
+            print_error(err)
+          end
+        end
+        return
+      end
     end
 
     mssql_query(datastore['SQL'], true)
