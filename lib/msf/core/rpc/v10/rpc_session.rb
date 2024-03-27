@@ -457,24 +457,25 @@ class RPC_Session < RPC_Base
   end
 
 
-  # Returns all the compatible post modules for this session.
+  # Returns all the compatible modules for this session.
   #
   # @param [Integer] sid Session ID.
-  # @return [Hash] Post modules. It contains the following key:
-  #  * 'modules' [Array<string>] An array of post module names. Example: ['post/windows/wlan/wlan_profile']
+  # @return [Hash] Modules. It contains the following key:
+  #  * 'modules' [Array<string>] An array of module names. Example: ['post/windows/wlan/wlan_profile', 'auxiliary/scanner/postgres_version', 'exploit/windows/local/alpc_taskscheduler']
   # @example Here's how you would use this from the client:
   #  rpc.call('session.compatible_modules', 3)
-  def rpc_compatible_modules( sid)
-    ret = []
+  def rpc_compatible_modules(sid)
+    session_type = self.framework.sessions[sid].type
+    search_params = { 'session_type' => [[session_type], []] }
+    cached_modules = Msf::Modules::Metadata::Cache.instance.find(search_params)
 
-    mtype = "post"
-    names = self.framework.post.module_refnames.map{ |x| "post/#{x}" }
-    names.each do |mname|
-      m = _find_module(mtype, mname)
-      next if not m.session_compatible?(sid)
-      ret << m.fullname
+    compatible_modules = []
+    cached_modules.each do |cached_module|
+      m = _find_module(cached_module.type, cached_module.fullname)
+      compatible_modules << m.fullname if m.session_compatible?(sid)
     end
-    { "modules" => ret }
+
+    { "modules" => compatible_modules }
   end
 
 private
