@@ -86,7 +86,7 @@ module DNS
 
       ip_address = IPAddr.new(ip_address) if ip_address.is_a?(String) && Rex::Socket.is_ip_addr?(ip_address)
 
-      hostname = hostname.downcase
+      hostname = hostname.downcase.delete_suffix('.')
       this_host = @hostnames.fetch(hostname, {})
       if ip_address.family == ::Socket::AF_INET
         type = Dnsruby::Types::A
