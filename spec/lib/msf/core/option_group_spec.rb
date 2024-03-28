@@ -66,7 +66,7 @@ RSpec.describe Msf::OptionGroup do
         end
 
         it 'validates the options in the group' do
-          expect { subject.validate(options, datastore) }.not_to raise_error(Msf::OptionValidateError)
+          expect { subject.validate(options, datastore) }.not_to raise_error
         end
       end
 
@@ -78,7 +78,7 @@ RSpec.describe Msf::OptionGroup do
         end
 
         it 'validates the options in the group' do
-          expect { subject.validate(options, datastore) }.not_to raise_error(Msf::OptionValidateError)
+          expect { subject.validate(options, datastore) }.not_to raise_error
         end
       end
 
@@ -89,7 +89,7 @@ RSpec.describe Msf::OptionGroup do
         end
 
         it 'does not attempt to validate the options' do
-          expect { subject.validate(options, datastore) }.not_to raise_error(Msf::OptionValidateError)
+          expect { subject.validate(options, datastore) }.not_to raise_error
         end
       end
     end
@@ -118,7 +118,7 @@ RSpec.describe Msf::OptionGroup do
         end
 
         it 'validates the options in the group' do
-          expect { subject.validate(options, datastore) }.not_to raise_error(Msf::OptionValidateError)
+          expect { subject.validate(options, datastore) }.not_to raise_error
         end
       end
 
@@ -129,7 +129,7 @@ RSpec.describe Msf::OptionGroup do
         end
 
         it 'does not attempt to validate the options' do
-          expect { subject.validate(options, datastore) }.not_to raise_error(Msf::OptionValidateError)
+          expect { subject.validate(options, datastore) }.not_to raise_error
         end
       end
     end

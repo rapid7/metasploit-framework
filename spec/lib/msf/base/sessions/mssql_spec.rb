@@ -15,7 +15,7 @@ RSpec.describe Msf::Sessions::MSSQL do
   let(:description) { 'MSSQL' }
   let(:can_cleanup_files) { false }
   let(:address) { '192.0.2.1' }
-  let(:port) { '1433' }
+  let(:port) { 1433 }
   let(:peer_info) { "#{address}:#{port}" }
   let(:console) do
     console = Rex::Post::MSSQL::Ui::Console.new(session)
@@ -29,6 +29,8 @@ RSpec.describe Msf::Sessions::MSSQL do
     allow(user_input).to receive(:output=)
     allow(client).to receive(:initial_info_for_envchange).with({ envchange: 1 }).and_return(envchange_result)
     allow(client).to receive(:peerinfo).and_return(peer_info)
+    allow(client).to receive(:peerport).and_return(port)
+    allow(client).to receive(:peerhost).and_return(address)
   end
 
   it_behaves_like 'client session'

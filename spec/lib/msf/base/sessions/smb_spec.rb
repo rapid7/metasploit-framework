@@ -16,7 +16,7 @@ RSpec.describe Msf::Sessions::SMB do
   let(:description) { 'SMB' }
   let(:can_cleanup_files) { false }
   let(:address) { '192.0.2.1' }
-  let(:port) { '1337' }
+  let(:port) { 1337 }
   let(:peer_info) { "#{address}:#{port}" }
 
   before(:each) do
