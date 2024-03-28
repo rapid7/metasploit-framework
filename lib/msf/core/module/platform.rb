@@ -383,7 +383,7 @@ class Msf::Module::Platform
   #
   class Linux < Msf::Module::Platform
     Rank = 100
-    Alias = "linux"
+    Aliases = [ 'linux', 'debian-linux-gnu' ]
   end
 
   #
