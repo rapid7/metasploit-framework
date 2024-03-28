@@ -69,6 +69,8 @@ module Buffer
         buf = Rex::Text.to_nim(buf)
       when 'rust', 'rustlang'
         buf = Rex::Text.to_rust(buf)
+      when 'zig','ziglang'
+        buf = Rex::Text.to_zig(buf)
       when 'octal'
         buf = Rex::Text.to_octal(buf)
       else
@@ -112,6 +114,8 @@ module Buffer
         buf = Rex::Text.to_nim_comment(buf)
       when 'rust', 'rustlang'
         buf = Rex::Text.to_rust_comment(buf)
+      when 'zig','ziglang'
+        buf = Rex::Text.to_zig_comment(buf)
       else
         raise BufferFormatError, "Unsupported buffer format: #{fmt}", caller
     end
@@ -155,7 +159,8 @@ module Buffer
       'rustlang',
       'sh',
       'vbapplication',
-      'vbscript'
+      'vbscript',
+      'zig'
     ]
   end
 
