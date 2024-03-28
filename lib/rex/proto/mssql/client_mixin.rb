@@ -196,7 +196,8 @@ module ClientMixin
         col[:value]         = data.slice!(0, col[:value_length]  * 2).gsub("\x00", '')
 
       when 36
-        col[:id] = :string
+        col[:id] = :guid
+        col[:value_length] = data.slice!(0, 1).unpack('C')[0]
 
       when 38
         col[:id] = :int
@@ -229,6 +230,10 @@ module ClientMixin
 
       else
         col[:id] = :unknown
+
+        # See https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-tds/ce3183a6-9d89-47e8-a02f-de5a1a1303de for details about column types
+        info[:errors] << "Unsupported column type: #{col[:type]}. "
+        return info
       end
 
       col[:msg_len] = data.slice!(0, 1).unpack('C')[0]
@@ -246,29 +251,39 @@ module ClientMixin
   def mssql_parse_reply(data, info)
     info[:errors] = []
     return if not data
-    until data.empty?
+    states = []
+    until data.empty? || info[:errors].any?
       token = data.slice!(0, 1).unpack('C')[0]
       case token
       when 0x81
+        states << :mssql_parse_tds_reply
         mssql_parse_tds_reply(data, info)
       when 0xd1
+        states << :mssql_parse_tds_row
         mssql_parse_tds_row(data, info)
       when 0xe3
+        states << :mssql_parse_env
         mssql_parse_env(data, info)
       when 0x79
+        states << :mssql_parse_ret
         mssql_parse_ret(data, info)
       when 0xfd, 0xfe, 0xff
+        states << :mssql_parse_done
         mssql_parse_done(data, info)
       when 0xad
+        states << :mssql_parse_login_ack
         mssql_parse_login_ack(data, info)
       when 0xab
+        states << :mssql_parse_info
         mssql_parse_info(data, info)
       when 0xaa
+        states << :mssql_parse_error
         mssql_parse_error(data, info)
       when nil
         break
       else
-        info[:errors] << "unsupported token: #{token}"
+        info[:errors] << "unsupported token: #{token}. Previous states: #{states}"
+        break
       end
     end
     info
@@ -296,6 +311,14 @@ module ClientMixin
           str << data.slice!(0, len)
         end
         row << str.unpack("H*")[0]
+
+      when :guid
+        read_length = data.slice!(0, 1).unpack1('C')
+        if read_length == 0
+          row << nil
+        else
+          row << Rex::Text.to_guid(data.slice!(0, read_length))
+        end
 
       when :string
         str = ""
