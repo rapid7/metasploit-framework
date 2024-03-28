@@ -1,9 +1,13 @@
-## RBCD Exploitation
+## AD CS Certificate Template Exploitation
 
 This module can read, write, update, and delete AD CS certificate templates from a Active Directory Domain Controller.
 
-The READ, UPDATE, and DELETE actions will write a copy of the certificate template to disk that can be restored using
-the CREATE or UPDATE actions.
+The READ, UPDATE, and DELETE actions will write a copy of the certificate template to disk that can be
+restored using the CREATE or UPDATE actions. The CREATE and UPDATE actions require a certificate template data
+file to be specified to define the attributes. Template data files are provided to create a template that is
+vulnerable to ESC1, ESC2, and ESC3.
+
+This module is capable of exploiting ESC4.
 
 In order for the `auxiliary/admin/ldap/ad_cs_cert_template` module to succeed, the authenticated user must have the 
 necessary permissions to perform the specified action on the target object (the certificate specified in
