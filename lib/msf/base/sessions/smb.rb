@@ -75,17 +75,11 @@ class Msf::Sessions::SMB
   end
 
   def address
-    return @address if @address
-
-    @address, @port = self.client.dispatcher.tcp_socket.peerinfo.split(':')
-    @address
+    @address ||= simple_client.peerhost
   end
 
   def port
-    return @port if @port
-
-    @address, @port = self.client.dispatcher.tcp_socket.peerinfo.split(':')
-    @port
+    @port ||= simple_client.peerport
   end
 
   ##
