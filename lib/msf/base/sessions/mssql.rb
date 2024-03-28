@@ -44,14 +44,14 @@ class Msf::Sessions::MSSQL < Msf::Sessions::Sql
   def address
     return @address if @address
 
-    @address, @port = client.sock.peerinfo.split(':')
+    @address, @port = client.peerinfo.split(':')
     @address
   end
 
   def port
     return @port if @port
 
-    @address, @port = client.sock.peerinfo.split(':')
+    @address, @port = client.peerinfo.split(':')
     @port
   end
 end

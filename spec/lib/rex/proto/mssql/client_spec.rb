@@ -3,28 +3,25 @@
 require 'spec_helper'
 require 'rex/proto/mysql/client'
 
-RSpec.describe Rex::Proto::MySQL::Client do
+RSpec.describe Rex::Proto::MSSQL::Client do
   let(:host) { '127.0.0.1' }
   let(:port) { 1234 }
   let(:info) { "#{host}:#{port}" }
   let(:db_name) { 'my_db_name' }
+  let(:framework_module) { ::Msf::Module.new }
 
   subject do
-    addr_info = instance_double(Addrinfo, ip_address: host, ip_port: port)
-    socket = instance_double(Socket, remote_address: addr_info)
-    client = described_class.new(io: socket)
-    allow(client).to receive(:session_track).and_return({ 1 => [db_name] })
+    client = described_class.new(framework_module, nil, host, port)
+    client.current_database = db_name
     client
   end
-
-  it { is_expected.to be_a ::Mysql }
 
   it_behaves_like 'session compatible SQL client'
 
   describe '#current_database' do
     context 'we have not selected a database yet' do
-      before(:each) do
-        allow(subject).to receive(:session_track).and_return({})
+      subject do
+        described_class.new(framework_module, nil, host, port)
       end
 
       it 'returns an empty database name' do

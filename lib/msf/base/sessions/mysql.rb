@@ -19,7 +19,7 @@ class Msf::Sessions::MySQL < Msf::Sessions::Sql
     session = self
     session.init_ui(user_input, user_output)
 
-    @info = "MySQL #{datastore['USERNAME']} @ #{client.socket.peerinfo}"
+    @info = "MySQL #{datastore['USERNAME']} @ #{client.peerinfo}"
   end
 
   # @return [String] The type of the session
@@ -41,7 +41,7 @@ class Msf::Sessions::MySQL < Msf::Sessions::Sql
   def address
     return @address if @address
 
-    @address, @port = @client.socket.peerinfo.split(':')
+    @address, @port = @client.peerinfo.split(':')
     @address
   end
 
@@ -49,7 +49,7 @@ class Msf::Sessions::MySQL < Msf::Sessions::Sql
   def port
     return @port if @port
 
-    @address, @port = @client.socket.peerinfo.split(':')
+    @address, @port = @client.peerinfo.split(':')
     @port
   end
 end

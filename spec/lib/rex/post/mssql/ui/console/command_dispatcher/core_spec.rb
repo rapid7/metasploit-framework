@@ -4,7 +4,6 @@ require 'spec_helper'
 require 'rex/post/mssql'
 
 RSpec.describe Rex::Post::MSSQL::Ui::Console::CommandDispatcher::Core do
-  let(:rstream) { instance_double(::Rex::Socket) }
   let(:client) { instance_double(Rex::Proto::MSSQL::Client) }
   let(:session) { Msf::Sessions::MSSQL.new(nil, { client: client }) }
   let(:address) { '192.0.2.1' }
@@ -18,9 +17,8 @@ RSpec.describe Rex::Post::MSSQL::Ui::Console::CommandDispatcher::Core do
   let(:envchange_result) { { type: 1, old: 'master', new: 'master' } }
 
   before(:each) do
-    allow(client).to receive(:sock).and_return(rstream)
     allow(client).to receive(:initial_info_for_envchange).with({ envchange: 1 }).and_return(envchange_result)
-    allow(rstream).to receive(:peerinfo).and_return(peer_info)
+    allow(client).to receive(:peerinfo).and_return(peer_info)
     allow(session).to receive(:client).and_return(client)
     allow(session).to receive(:console).and_return(console)
     allow(session).to receive(:name).and_return('test client name')
