@@ -23,6 +23,8 @@ RSpec.describe Msf::Sessions::PostgreSQL do
     allow(user_input).to receive(:intrinsic_shell?).and_return(true)
     allow(user_input).to receive(:output=)
     allow(client).to receive(:peerinfo).and_return(peer_info)
+    allow(client).to receive(:peerhost).and_return(address)
+    allow(client).to receive(:peerport).and_return(port)
     allow(client).to receive(:params).and_return({ 'database' => current_database })
     allow(client).to receive(:current_database).and_return(current_database)
   end

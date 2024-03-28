@@ -15,7 +15,7 @@ RSpec.describe Msf::Sessions::MySQL do
   let(:description) { 'MySQL' }
   let(:can_cleanup_files) { false }
   let(:address) { '192.0.2.1' }
-  let(:port) { '3306' }
+  let(:port) { 3306 }
   let(:peerinfo) { "#{address}:#{port}" }
   let(:current_database) { 'database_name' }
 
@@ -23,6 +23,8 @@ RSpec.describe Msf::Sessions::MySQL do
     allow(user_input).to receive(:output=)
     allow(user_input).to receive(:intrinsic_shell?).and_return(true)
     allow(client).to receive(:peerinfo).and_return(peerinfo)
+    allow(client).to receive(:peerport).and_return(port)
+    allow(client).to receive(:peerhost).and_return(address)
     allow(client).to receive(:current_database).and_return(current_database)
     allow(::Rex::Proto::MySQL::Client).to receive(:connect).and_return(client)
   end

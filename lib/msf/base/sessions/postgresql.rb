@@ -39,18 +39,4 @@ class Msf::Sessions::PostgreSQL < Msf::Sessions::Sql
   def desc
     'PostgreSQL'
   end
-
-  def address
-    return @address if @address
-
-    @address, @port = @client.peerinfo.split(':')
-    @address
-  end
-
-  def port
-    return @port if @port
-
-    @address, @port = @client.peerinfo.split(':')
-    @port
-  end
 end

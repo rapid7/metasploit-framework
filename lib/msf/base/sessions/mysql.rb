@@ -36,20 +36,4 @@ class Msf::Sessions::MySQL < Msf::Sessions::Sql
   def desc
     'MySQL'
   end
-
-  # @return [Object] The peer address
-  def address
-    return @address if @address
-
-    @address, @port = @client.peerinfo.split(':')
-    @address
-  end
-
-  # @return [Object] The peer host
-  def port
-    return @port if @port
-
-    @address, @port = @client.peerinfo.split(':')
-    @port
-  end
 end
