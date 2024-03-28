@@ -8,6 +8,8 @@ class Msf::Sessions::MySQL < Msf::Sessions::Sql
   # @param [Hash] opts
   def initialize(rstream, opts = {})
     @client = opts.fetch(:client)
+    self.platform = opts.fetch(:platform)
+    self.arch = opts.fetch(:arch)
     self.console = ::Rex::Post::MySQL::Ui::Console.new(self)
     super(rstream, opts)
   end
