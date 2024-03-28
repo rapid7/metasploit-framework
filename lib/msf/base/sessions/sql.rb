@@ -73,14 +73,14 @@ class Msf::Sessions::Sql
     raise ::NotImplementedError
   end
 
-  # @return [Object] The peer address
+  # @return [String] The peer address
   def address
-    raise ::NotImplementedError
+    client.peerhost
   end
 
-  # @return [Object] The peer host
+  # @return [Integer] The peer port
   def port
-    raise ::NotImplementedError
+    client.peerport
   end
 
   # Initializes the console's I/O handles.

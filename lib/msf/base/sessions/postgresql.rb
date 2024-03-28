@@ -6,7 +6,7 @@ class Msf::Sessions::PostgreSQL < Msf::Sessions::Sql
 
   # @param[Rex::IO::Stream] rstream
   # @param [Hash] opts
-  # @param opts [PostgreSQL::Client] :client
+  # @param opts [Msf::Db::PostgresPR::Connection] :client
   def initialize(rstream, opts = {})
     @client = opts.fetch(:client)
     @console = ::Rex::Post::PostgreSQL::Ui::Console.new(self)
@@ -38,19 +38,5 @@ class Msf::Sessions::PostgreSQL < Msf::Sessions::Sql
   #
   def desc
     'PostgreSQL'
-  end
-
-  def address
-    return @address if @address
-
-    @address, @port = @client.conn.peerinfo.split(':')
-    @address
-  end
-
-  def port
-    return @port if @port
-
-    @address, @port = @client.conn.peerinfo.split(':')
-    @port
   end
 end

@@ -4,10 +4,6 @@ require 'rex/post/mssql'
 
 class Msf::Sessions::MSSQL < Msf::Sessions::Sql
 
-  # @return [String] The address MSSQL is running on
-  attr_accessor :address
-  # @return [Integer] The port MSSQL is running on
-  attr_accessor :port
   attr_reader :framework
 
   def initialize(rstream, opts = {})
@@ -39,19 +35,5 @@ class Msf::Sessions::MSSQL < Msf::Sessions::Sql
   #
   def desc
     'MSSQL'
-  end
-
-  def address
-    return @address if @address
-
-    @address, @port = client.sock.peerinfo.split(':')
-    @address
-  end
-
-  def port
-    return @port if @port
-
-    @address, @port = client.sock.peerinfo.split(':')
-    @port
   end
 end
