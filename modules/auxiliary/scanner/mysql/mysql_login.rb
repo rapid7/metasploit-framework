@@ -211,6 +211,12 @@ class MetasploitModule < Msf::Auxiliary
       'PASSWORD'      => result.credential.private
     }
 
+    server_vars = my_session.client.query_server_vars
+    my_session.arch = server_vars[:arch]
+    my_session.platform = server_vars[:platform]
+    my_session.server_datadir = server_vars[:datadir]
+    my_session.server_hostname = server_vars[:hostname]
+
     start_session(self, nil, merging, false, my_session.rstream, my_session)
   end
 end

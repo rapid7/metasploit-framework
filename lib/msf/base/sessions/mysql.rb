@@ -4,6 +4,14 @@ require 'rex/post/mysql'
 
 class Msf::Sessions::MySQL < Msf::Sessions::Sql
 
+  # @return [String] The server hostname.
+  # Populated during session setup using query_server_vars
+  attr_accessor :server_hostname
+
+  # @return [String] The server data directory.
+  # # Populated during session setup using query_server_vars
+  attr_accessor :server_datadir
+
   # @param[Rex::IO::Stream] rstream
   # @param [Hash] opts
   def initialize(rstream, opts = {})
