@@ -1,3 +1,15 @@
+GIT
+  remote: https://github.com/zeroSteiner/ruby_smb
+  revision: 3dceda095d4218156afbbfc197c85827ffb2ef4c
+  branch: fix/server/smb2-related-operations-state
+  specs:
+    ruby_smb (3.3.5)
+      bindata (= 2.4.15)
+      openssl-ccm
+      openssl-cmac
+      rubyntlm
+      windows_error (>= 0.1.4)
+
 PATH
   remote: .
   specs:
@@ -474,12 +486,6 @@ GEM
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (3.3.4)
-      bindata (= 2.4.15)
-      openssl-ccm
-      openssl-cmac
-      rubyntlm
-      windows_error (>= 0.1.4)
     rubyntlm (0.6.3)
     rubyzip (2.3.2)
     sawyer (0.9.2)
@@ -566,6 +572,7 @@ DEPENDENCIES
   rspec-rerun
   rubocop
   ruby-prof (= 1.4.2)
+  ruby_smb!
   simplecov (= 0.18.2)
   test-prof
   timecop
