@@ -111,10 +111,17 @@ class MetasploitModule < Msf::Auxiliary
     query = "use mysql"
     mysql_query(query)
 
+    # Starting from MySQL 5.7, the 'password' column was changed to 'authentication_string'.
+    if vparm['version'][0..2].to_f > 5.6
+      password_field = 'authentication_string'
+    else
+      password_field = 'password'
+    end
+
     # Account Enumeration
     # Enumerate all accounts with their password hashes
     print_status("Enumerating Accounts:")
-    query = "select user, host, password from mysql.user"
+    query = "select user, host, #{password_field} from mysql.user"
     res = mysql_query(query)
     if res and res.size > 0
       print_status("\tList of Accounts with Password Hashes:")
@@ -229,7 +236,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Blank Password Check
-    queryblankpass = "select user, host, password from mysql.user where length(password) = 0 or password is null"
+    queryblankpass = "select user, host, #{password_field} from mysql.user where length(#{password_field}) = 0 or #{password_field} is null"
     res = mysql_query(queryblankpass)
     if res and res.size > 0
       print_status("\tThe following accounts have empty passwords:")
