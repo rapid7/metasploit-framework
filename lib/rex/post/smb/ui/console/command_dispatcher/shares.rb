@@ -125,8 +125,7 @@ module Rex
             # Perform action
             case method
             when :list
-              @share_search_results = client.net_share_enum_all(session.address)
-              @valid_share_names = @share_search_results.map { |result| result[:name] }
+              populate_shares
 
               table = Rex::Text::Table.new(
                 'Header' => 'Shares',
@@ -139,6 +138,7 @@ module Rex
 
               print_line table.to_s
             when :interact
+              populate_shares if @valid_share_names.nil?
               # Share names can be comprised only of digits so prioritise a share name over the share index
               if share_name.match?(/\A\d+\z/) && !@valid_share_names.include?(share_name)
                 share_name = (@share_search_results[share_name.to_i] || {})[:name]
@@ -625,6 +625,13 @@ module Rex
               src_fd.close unless src_fd.nil?
               dst_fd.close unless dst_fd.nil?
             end
+          end
+
+          private
+
+          def populate_shares
+            @share_search_results = client.net_share_enum_all(session.address)
+            @valid_share_names = @share_search_results.map { |result| result[:name] }
           end
         end
       end
