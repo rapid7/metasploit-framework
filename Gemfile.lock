@@ -426,7 +426,7 @@ GEM
       rex-socket
       rex-text
     rex-struct2 (0.1.4)
-    rex-text (0.2.56)
+    rex-text (0.2.57)
     rex-zip (0.1.5)
       rex-text
     rexml (3.2.6)
