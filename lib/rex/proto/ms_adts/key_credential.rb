@@ -6,7 +6,7 @@ module Rex::Proto::MsAdts
 
     KEY_USAGE_NGC = 0x01
     KEY_USAGE_FIDO = 0x07
-    KEY_USAGE_FIDO = 0x08
+    KEY_USAGE_FEK = 0x08
 
     def initialize
       self.key_source = 0
@@ -128,10 +128,10 @@ module Rex::Proto::MsAdts
     def calculate_raw_key_material
       case self.key_usage
       when KEY_USAGE_NGC
-        result = BcryptPublicKey.new
+        result = Rex::Proto::BcryptPublicKey.new
         result.magic = 0x31415352
-        n = int_to_bytes(self.public_key.n)
-        e = int_to_bytes(self.public_key.e)
+        n = self.class.int_to_bytes(self.public_key.n)
+        e = self.class.int_to_bytes(self.public_key.e)
         result.exponent = e
         result.modulus = n
         result.prime1 = ''
@@ -140,7 +140,7 @@ module Rex::Proto::MsAdts
         self.raw_key_material = result.to_binary_s
       end
       sha256 = OpenSSL::Digest.new('SHA256')
-      self.key_id = sha256.digest(self.raw_key_material.to_der)
+      self.key_id = sha256.digest(self.raw_key_material)
     end
 
     def self.construct_cert_from_raw_material(obj)
