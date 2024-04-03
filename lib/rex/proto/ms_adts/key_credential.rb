@@ -1,5 +1,4 @@
 require 'securerandom'
-require 'pry-byebug'
 
 module Rex::Proto::MsAdts
   class KeyCredential

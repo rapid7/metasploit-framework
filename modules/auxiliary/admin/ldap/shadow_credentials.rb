@@ -273,6 +273,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def bytes_to_uuid(bytes)
+    if bytes.nil?
+      return '(no device ID)'
+    end
+
     # Convert each byte to a 2-digit hexadecimal string
     hex_strings = bytes.bytes.map { |b| b.to_s(16).rjust(2, '0') }
 

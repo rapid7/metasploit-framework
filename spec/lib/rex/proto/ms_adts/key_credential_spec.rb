@@ -1,5 +1,4 @@
 require 'rex/proto/ms_adts/key_credential'
-require 'pry-byebug'
 
 RSpec.describe Rex::Proto::MsAdts::KeyCredential do
 
