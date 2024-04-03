@@ -132,7 +132,7 @@ module Rex::Proto::MsAdts
       case self.key_usage
       when KEY_USAGE_NGC
         result = Rex::Proto::BcryptPublicKey.new
-        result.magic = 0x31415352
+        result.magic = Rex::Proto::BcryptPublicKey::MAGIC
         result.key_length = self.public_key.n.num_bits
         n = self.class.int_to_bytes(self.public_key.n)
         e = self.class.int_to_bytes(self.public_key.e)
@@ -140,8 +140,10 @@ module Rex::Proto::MsAdts
         result.modulus = n
         result.prime1 = ''
         result.prime2 = ''
-
         self.raw_key_material = result.to_binary_s
+      else
+        # Unknown key type
+        return
       end
       sha256 = OpenSSL::Digest.new('SHA256')
       self.key_id = sha256.digest(self.raw_key_material)
@@ -150,18 +152,20 @@ module Rex::Proto::MsAdts
     def self.construct_public_key_from_raw_material(obj)
       case obj.key_usage
       when KEY_USAGE_NGC
-        result = Rex::Proto::BcryptPublicKey.read(obj.raw_key_material)
-        key = OpenSSL::PKey::RSA.new
-        exponent = OpenSSL::BN.new(bytes_to_int(result.exponent))
-        modulus = OpenSSL::BN.new(bytes_to_int(result.modulus))
-        if key.respond_to?(:set_key)
-          # Ruby 2.4+
-          key.set_key(modulus, exponent, nil)
-        else
-          key.e = exponent
-          key.n = modulus
+        if obj.raw_key_material.start_with?([Rex::Proto::BcryptPublicKey::MAGIC].pack('I'))
+          result = Rex::Proto::BcryptPublicKey.read(obj.raw_key_material)
+          key = OpenSSL::PKey::RSA.new
+          exponent = OpenSSL::BN.new(bytes_to_int(result.exponent))
+          modulus = OpenSSL::BN.new(bytes_to_int(result.modulus))
+          if key.respond_to?(:set_key)
+            # Ruby 2.4+
+            key.set_key(modulus, exponent, nil)
+          else
+            key.e = exponent
+            key.n = modulus
+          end
+          obj.public_key = key
         end
-        obj.public_key = key
       end
     end
   end

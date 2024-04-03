@@ -86,14 +86,13 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::Unknown, "Unknown LDAP error occurred: result: #{ldap_result[:code]} message: #{ldap_result[:error_message].strip}")
   end
 
-  def warn_on_likely_user_error(existing_entries: false)
+  def warn_on_likely_user_error
     ldap_result = @ldap.get_operation_result.table
     if ldap_result[:code] == 50
       if (datastore['USERNAME'] == datastore['TARGET_USER'] ||
           datastore['USERNAME'] == datastore['TARGET_USER'] + '$') &&
          datastore['USERNAME'].end_with?('$') &&
-         ['add', 'remove'].include?(action.name.downcase) &&
-         existing_entries
+         ['add', 'remove'].include?(action.name.downcase)
         print_warning('By default, computer accounts can only update their key credentials if no value already exists. If there is already a value present, you can remove it, and add your own, but any users relying on the existing credentials will not be able to authenticate until you replace the existing value(s).')
       elsif datastore['USERNAME'] == datastore['TARGET_USER'] && !datastore['USERNAME'].end_with?('$')
         print_warning('By default, only computer accounts can modify their own properties (not user accounts).')
@@ -144,14 +143,18 @@ class MetasploitModule < Msf::Auxiliary
       end
       @ldap = ldap
 
-      target_user = datastore['TARGET_USER']
-      obj = ldap_get("(sAMAccountName=#{target_user})", attributes: ['sAMAccountName', 'ObjectSID', ATTRIBUTE])
-      if obj.nil? && !target_user.end_with?('$')
-        obj = ldap_get("(sAMAccountName=#{target_user}$)", attributes: ['sAMAccountName', 'ObjectSID', ATTRIBUTE])
-      end
-      fail_with(Failure::NotFound, "Failed to find sAMAccountName: #{target_user}") unless obj
+      begin
+        target_user = datastore['TARGET_USER']
+        obj = ldap_get("(sAMAccountName=#{target_user})", attributes: ['sAMAccountName', 'ObjectSID', ATTRIBUTE])
+        if obj.nil? && !target_user.end_with?('$')
+          obj = ldap_get("(sAMAccountName=#{target_user}$)", attributes: ['sAMAccountName', 'ObjectSID', ATTRIBUTE])
+        end
+        fail_with(Failure::NotFound, "Failed to find sAMAccountName: #{target_user}") unless obj
 
-      send("action_#{action.name.downcase}", obj)
+        send("action_#{action.name.downcase}", obj)
+      rescue ::IOError => e
+        fail_with(Failure::UnexpectedReply, e.message)
+      end
     end
   rescue Net::LDAP::Error => e
     print_error("#{e.class}: #{e.message}")
@@ -217,7 +220,7 @@ class MetasploitModule < Msf::Auxiliary
     update_list = credentials_to_ldap_format(credential_entries, obj['dn'])
 
     unless @ldap.replace_attribute(obj['dn'], ATTRIBUTE, update_list)
-      warn_on_likely_user_error(!credential_entries.length == 1)
+      warn_on_likely_user_error
       fail_with_ldap_error("Failed to update the #{ATTRIBUTE} attribute.")
     end
 

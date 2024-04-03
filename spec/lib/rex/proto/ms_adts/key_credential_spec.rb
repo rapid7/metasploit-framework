@@ -1,8 +1,7 @@
 require 'rex/proto/ms_adts/key_credential'
 require 'pry-byebug'
 
-RSpec.describe Rex::Proto::MsAdts::KeyCredentialStruct do
-  subject(:object) { described_class.new }
+RSpec.describe Rex::Proto::MsAdts::KeyCredential do
 
   let(:credential_str) do
     ["00020000200001767b3c80129f41b40503d78436c1c2084c2b79dd81ac19" +

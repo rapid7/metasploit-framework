@@ -4,6 +4,7 @@ require 'bindata'
 
 module Rex::Proto
   class BcryptPublicKey < BinData::Record
+    MAGIC = 0x31415352
     endian :little
 
     uint32              :magic
