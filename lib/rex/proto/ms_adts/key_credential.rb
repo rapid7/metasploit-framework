@@ -8,10 +8,13 @@ module Rex::Proto::MsAdts
     KEY_USAGE_FIDO = 0x07
     KEY_USAGE_FEK = 0x08
 
+    KEY_CREDENTIAL_VERSION_2 = 0x200
+    DEFAULT_KEY_INFORMATION = "\x01\x00" # Version and flags
+
     def initialize
       self.key_source = 0
       self.device_id = SecureRandom.bytes(16)
-      self.custom_key_information = "\x01\x00" # Version and flags
+      self.custom_key_information = DEFAULT_KEY_INFORMATION
     end
 
     def set_key(public_key, key_usage)
@@ -31,7 +34,7 @@ module Rex::Proto::MsAdts
     # Creates a KeyCredentialStruct, including calculating the value for key_hash
     def to_struct
       result = KeyCredentialStruct.new
-      result.version = 0x200
+      result.version = KEY_CREDENTIAL_VERSION_2
       add_entry(result, 3, self.raw_key_material)
       add_entry(result, 4, [self.key_usage].pack('C'))
       add_entry(result, 5, [self.key_source].pack('C'))
