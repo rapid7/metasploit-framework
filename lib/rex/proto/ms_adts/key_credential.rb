@@ -66,7 +66,7 @@ module Rex::Proto::MsAdts
       obj.key_creation_time_raw = ft
       obj.key_creation_time = RubySMB::Field::FileTime.new(ft.unpack('Q')[0]).to_time
 
-      construct_cert_from_raw_material(obj)
+      construct_public_key_from_raw_material(obj)
 
       obj
     end
@@ -130,6 +130,7 @@ module Rex::Proto::MsAdts
       when KEY_USAGE_NGC
         result = Rex::Proto::BcryptPublicKey.new
         result.magic = 0x31415352
+        result.key_length = self.public_key.n.num_bits
         n = self.class.int_to_bytes(self.public_key.n)
         e = self.class.int_to_bytes(self.public_key.e)
         result.exponent = e
@@ -143,7 +144,7 @@ module Rex::Proto::MsAdts
       self.key_id = sha256.digest(self.raw_key_material)
     end
 
-    def self.construct_cert_from_raw_material(obj)
+    def self.construct_public_key_from_raw_material(obj)
       case obj.key_usage
       when KEY_USAGE_NGC
         result = Rex::Proto::BcryptPublicKey.read(obj.raw_key_material)

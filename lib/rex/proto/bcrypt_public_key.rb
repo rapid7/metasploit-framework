@@ -7,7 +7,7 @@ module Rex::Proto
     endian :little
 
     uint32              :magic
-    uint32              :key_length, :value => lambda { exponent.length + modulus.length + prime1.length + prime2.length  }
+    uint32              :key_length
     uint32              :exponent_length, :value => lambda { exponent.length }
     uint32              :modulus_length, :value => lambda { modulus.length }
     uint32              :prime1_length, :value => lambda { prime1.length }

