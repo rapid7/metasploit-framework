@@ -49,6 +49,13 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('TARGET_USER', [ true, 'The target to write to' ]),
       OptString.new('DEVICE_ID', [ false, 'The specific certificate ID to operate on' ], conditions: %w[ACTION == REMOVE]),
     ])
+
+    # Default authentication will be basic auth, which won't work on Windows LDAP servers; so overwrite default to NTLM
+    register_advanced_options(
+      [
+        OptEnum.new('LDAP::Auth', [true, 'The Authentication mechanism to use', Msf::Exploit::Remote::AuthOption::NTLM, Msf::Exploit::Remote::AuthOption::LDAP_OPTIONS]),
+      ]
+    )
   end
 
   def fail_with_ldap_error(message)
@@ -61,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
     when 1
       fail_with(Failure::Unknown, "An LDAP operational error occurred. The error was: #{ldap_result[:error_message].strip}")
     when 16
-      fail_with(Failure::NotFound, 'The LDAP operation failed because the referenced attribute does not exist.')
+      fail_with(Failure::NotFound, 'The LDAP operation failed because the referenced attribute does not exist. Ensure you are targeting a domain controller running at least Server 2016.')
     when 50
       fail_with(Failure::NoAccess, 'The LDAP operation failed due to insufficient access rights.')
     when 51
@@ -77,6 +84,21 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     fail_with(Failure::Unknown, "Unknown LDAP error occurred: result: #{ldap_result[:code]} message: #{ldap_result[:error_message].strip}")
+  end
+
+  def warn_on_likely_user_error(existing_entries: false)
+    ldap_result = @ldap.get_operation_result.table
+    if ldap_result[:code] == 50
+      if (datastore['USERNAME'] == datastore['TARGET_USER'] ||
+          datastore['USERNAME'] == datastore['TARGET_USER'] + '$') &&
+         datastore['USERNAME'].end_with?('$') &&
+         ['add', 'remove'].include?(action.name.downcase) &&
+         existing_entries
+        print_warning('By default, computer accounts can only update their key credentials if no value already exists. If there is already a value present, you can remove it, and add your own, but any users relying on the existing credentials will not be able to authenticate until you replace the existing value(s).')
+      elsif datastore['USERNAME'] == datastore['TARGET_USER'] && !datastore['USERNAME'].end_with?('$')
+        print_warning('By default, only computer accounts can modify their own properties (not user accounts).')
+      end
+    end
   end
 
   def ldap_get(filter, attributes: [])
@@ -124,10 +146,10 @@ class MetasploitModule < Msf::Auxiliary
 
       target_user = datastore['TARGET_USER']
       obj = ldap_get("(sAMAccountName=#{target_user})", attributes: ['sAMAccountName', 'ObjectSID', ATTRIBUTE])
-      if obj.nil? && !delegate_to.end_with?('$')
+      if obj.nil? && !target_user.end_with?('$')
         obj = ldap_get("(sAMAccountName=#{target_user}$)", attributes: ['sAMAccountName', 'ObjectSID', ATTRIBUTE])
       end
-      fail_with(Failure::NotFound, "Failed to find sAMAccountName: #{delegate_to}") unless obj
+      fail_with(Failure::NotFound, "Failed to find sAMAccountName: #{target_user}") unless obj
 
       send("action_#{action.name.downcase}", obj)
     end
@@ -155,12 +177,13 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     length_before = credential_entries.length
-    credential_entries.delete_if { |entry| entry.device_id == datastore['DEVICE_ID'] }
+    credential_entries.delete_if { |entry| bytes_to_uuid(entry.device_id) == datastore['DEVICE_ID'] }
     if credential_entries.length == length_before
       print_status('No matching entries found - check device ID')
     else
       update_list = credentials_to_ldap_format(credential_entries, obj['dn'])
       unless @ldap.replace_attribute(obj['dn'], ATTRIBUTE, update_list)
+        warn_on_likely_user_error
         fail_with_ldap_error("Failed to update the #{ATTRIBUTE} attribute.")
       end
       print_good("Deleted entry with device ID #{datastore['DEVICE_ID']}")
@@ -194,6 +217,7 @@ class MetasploitModule < Msf::Auxiliary
     update_list = credentials_to_ldap_format(credential_entries, obj['dn'])
 
     unless @ldap.replace_attribute(obj['dn'], ATTRIBUTE, update_list)
+      warn_on_likely_user_error(!credential_entries.length == 1)
       fail_with_ldap_error("Failed to update the #{ATTRIBUTE} attribute.")
     end
 
