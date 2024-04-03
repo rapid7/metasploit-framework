@@ -11,6 +11,9 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::LDAP
+  include Msf::Sessions::CreateSessionOptions
+  include Msf::Auxiliary::CommandShell
+
   def initialize(info = {})
     super(
       update_info(
@@ -37,12 +40,32 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     # A password must be supplied unless doing anonymous login
-    deregister_options('BLANK_PASSWORDS')
+    options_to_deregister = %w[BLANK_PASSWORDS]
+
+    if framework.features.enabled?(Msf::FeatureManager::LDAP_SESSION_TYPE)
+      add_info('The %grnCreateSession%clr option within this module can open an interactive session')
+    else
+      # Don't give the option to create a session unless ldap sessions are enabled
+      options_to_deregister << 'CreateSession'
+    end
+
+    deregister_options(*options_to_deregister)
+  end
+
+  def create_session?
+    # The CreateSession option is de-registered if LDAP_SESSION_TYPE is not enabled
+    # but the option can still be set/saved so check to see if we should use it
+    if framework.features.enabled?(Msf::FeatureManager::LDAP_SESSION_TYPE)
+      datastore['CreateSession']
+    else
+      false
+    end
   end
 
   def run
     validate_connect_options!
     super
+    # TODO: collect and log sessions/creds
   end
 
   def validate_connect_options!
@@ -92,7 +115,8 @@ class MetasploitModule < Msf::Auxiliary
         framework: framework,
         framework_module: self,
         realm_key: realm_key,
-        opts: opts
+        opts: opts,
+        use_client_as_proof: create_session?
       )
     )
 
@@ -112,10 +136,46 @@ class MetasploitModule < Msf::Auxiliary
           create_credential_and_login(credential_data)
           print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}'"
         end
+        create_session(result) if create_session?
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
+  end
+
+  private
+
+  def create_session(result)
+    session_setup(result, result.proof)
+  rescue StandardError => e
+    elog('Failed to setup the session', error: e)
+    print_brute level: :error, ip: 'fake_ip', msg: "Failed to setup the session - #{e.class} #{e.message}"
+  end
+
+  # @param [Metasploit::Framework::LoginScanner::Result] result
+  # @param [Rex::Proto::LDAP::Client] client
+  # @return [Msf::Sessions::LDAP]
+  def session_setup(result, client)
+    return unless client
+
+    # Create a new session
+    # rstream = client.dispatcher.tcp_socket
+    sess = Msf::Sessions::LDAP.new(
+      nil, # TODO: make this nil, don't think we need it anymore for the new(er) session types
+      {
+        client: client
+      }
+    )
+
+    merge_me = {
+      'USERPASS_FILE' => nil,
+      'USER_FILE' => nil,
+      'PASS_FILE' => nil,
+      'USERNAME' => result.credential.public,
+      'PASSWORD' => result.credential.private
+    }
+
+    start_session(self, nil, merge_me, false, sess.rstream, sess)
   end
 end

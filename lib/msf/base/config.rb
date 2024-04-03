@@ -221,6 +221,13 @@ class Config < Hash
     self.new.smb_session_history
   end
 
+  # Returns the full path to the ldap session history file.
+  #
+  # @return [String] path to the history file.
+  def self.ldap_session_history
+    self.new.ldap_session_history
+  end
+
   # Returns the full path to the PostgreSQL session history file.
   #
   # @return [String] path to the history file.
@@ -349,6 +356,10 @@ class Config < Hash
 
   def smb_session_history
     config_directory + FileSep + "smb_session_history"
+  end
+
+  def ldap_session_history
+    config_directory + FileSep + "ldap_session_history"
   end
 
   def postgresql_session_history
