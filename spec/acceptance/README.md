@@ -75,6 +75,31 @@ Run the test suite:
 MSSQL_RPORT=1433 SPEC_OPTS='--tag acceptance' SPEC_HELPER_LOAD_METASPLOIT=false bundle exec rspec ./spec/acceptance/mssql_spec.rb
 ```
 
+### SMB
+
+Build the Docker image:
+
+```
+docker compose build
+```
+
+Run a target:
+
+```
+docker compose up -d --wait
+```
+
+Run the test suite:
+
+```
+SMB_USERNAME=acceptance_tests_user SMB_PASSWORD=acceptance_tests_password SPEC_OPTS='--tag acceptance' SPEC_HELPER_LOAD_METASPLOIT=false bundle exec rspec ./spec/acceptance/smb_spec.rb
+```
+
+Shut down the container:
+```
+docker compose down
+```
+
 #### Allure reports
 
 Generate allure reports locally:

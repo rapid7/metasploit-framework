@@ -1,0 +1,166 @@
+name: Acceptance
+
+# Optional, enabling concurrency limits: https://docs.github.com/en/actions/using-jobs/using-concurrency
+#concurrency:
+#  group: ${{ github.ref }}-${{ github.workflow }}
+#  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  id-token: none
+  issues: none
+  discussions: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+on:
+  push:
+    branches-ignore:
+      - gh-pages
+      - metakitty
+  pull_request:
+    branches:
+      - '*'
+    paths:
+      - 'metsploit-framework.gemspec'
+      - 'Gemfile.lock'
+      - '**/**smb**'
+      - 'spec/acceptance/**'
+      - 'spec/support/acceptance/**'
+      - 'spec/acceptance_spec_helper.rb'
+#   Example of running as a cron, to weed out flaky tests
+#  schedule:
+#    - cron: '*/15 * * * *'
+
+jobs:
+  smb:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+
+    strategy:
+      fail-fast: true
+      matrix:
+        ruby:
+          - '3.2'
+        os:
+          - ubuntu-latest
+
+    env:
+      RAILS_ENV: test
+      SMB_USERNAME: acceptance_tests_user
+      SMB_PASSWORD: acceptance_tests_password
+
+    name: SMB Acceptance - ${{ matrix.os }} - Ruby ${{ matrix.ruby }}
+    steps:
+      - name: Install system dependencies
+        run: sudo apt-get install -y --no-install-recommends libpcap-dev graphviz
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run docker container
+        working-directory: 'test/smb'
+        run: |
+          docker compose build
+          docker compose up --wait -d
+
+      - name: Setup Ruby
+        env:
+          BUNDLE_WITHOUT: "coverage development pcap"
+          # Nokogiri doesn't release pre-compiled binaries for preview versions of Ruby; So force compilation with BUNDLE_FORCE_RUBY_PLATFORM
+          BUNDLE_FORCE_RUBY_PLATFORM: "${{ contains(matrix.ruby, 'preview') && 'true' || 'false' }}"
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '${{ matrix.ruby }}'
+          bundler-cache: true
+
+      - name: acceptance
+        env:
+          SPEC_HELPER_LOAD_METASPLOIT: false
+          SPEC_OPTS: "--tag acceptance --require acceptance_spec_helper.rb --color --format documentation --format AllureRspec::RSpecFormatter"
+          RUNTIME_VERSION: 'latest'
+        # Unix run command:
+        #   SPEC_HELPER_LOAD_METASPLOIT=false bundle exec ./spec/acceptance
+        # Windows cmd command:
+        #   set SPEC_HELPER_LOAD_METASPLOIT=false
+        #   bundle exec rspec .\spec\acceptance
+        # Note: rspec retry is intentionally not used, as it can cause issues with allure's reporting
+        # Additionally - flakey tests should be fixed or marked as flakey instead of silently retried
+        run: |
+          bundle exec rspec spec/acceptance/smb_spec.rb
+
+      - name: Archive results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          # Provide a unique artifact for each matrix os, otherwise race conditions can lead to corrupt zips
+          name: smb_acceptance-${{ matrix.os }}
+          path: tmp/allure-raw-data
+
+  # Generate a final report from the previous test results
+  report:
+    name: Generate report
+    needs:
+      - smb
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        if: always()
+
+      - name: Install system dependencies (Linux)
+        if: always()
+        run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
+
+      - name: Setup Ruby
+        if: always()
+        env:
+          BUNDLE_WITHOUT: "coverage development"
+          BUNDLE_FORCE_RUBY_PLATFORM: true
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '${{ matrix.ruby }}'
+          bundler-cache: true
+          cache-version: 4
+          # Github actions with Ruby requires Bundler 2.2.18+
+          # https://github.com/ruby/setup-ruby/tree/d2b39ad0b52eca07d23f3aa14fdf2a3fcc1f411c#windows
+          bundler: 2.2.33
+
+      - uses: actions/download-artifact@v4
+        id: download
+        if: always()
+        with:
+          # Note: Not specifying a name will download all artifacts from the previous workflow jobs
+          path: raw-data
+
+      - name: allure generate
+        if: always()
+        run: |
+          export VERSION=2.22.1
+
+          curl -o allure-$VERSION.tgz -Ls https://github.com/allure-framework/allure2/releases/download/$VERSION/allure-$VERSION.tgz
+          tar -zxvf allure-$VERSION.tgz -C .
+
+          ls -la ${{steps.download.outputs.download-path}}
+          ./allure-$VERSION/bin/allure generate ${{steps.download.outputs.download-path}}/* -o ./allure-report
+
+          find ${{steps.download.outputs.download-path}}
+          bundle exec ruby tools/dev/report_generation/support_matrix/generate.rb --allure-data ${{steps.download.outputs.download-path}} > ./allure-report/support_matrix.html
+
+      - name: archive results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-report-${{ github.run_id }}
+          path: |
+            ./allure-report
