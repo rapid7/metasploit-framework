@@ -79,7 +79,7 @@ module ClientMixin
       )
 
       info[:rows].each do |row|
-        tbl << row
+        tbl << row.map{ |x| x.nil? ? 'nil' : x }
       end
 
       print_line(tbl.to_s)
@@ -206,6 +206,15 @@ module ClientMixin
       when 50
         col[:id] = :bit
 
+      when 99
+        col[:id] = :ntext
+        col[:max_size] = data.slice!(0, 4).unpack('V')[0]
+        col[:codepage] = data.slice!(0, 2).unpack('v')[0]
+        col[:cflags] = data.slice!(0, 2).unpack('v')[0]
+        col[:charset_id] =  data.slice!(0, 1).unpack('C')[0]
+        col[:namelen] = data.slice!(0, 1).unpack('C')[0]
+        col[:table_name] = data.slice!(0, (col[:namelen] * 2) + 1).gsub("\x00", '')
+
       when 104
         col[:id] = :bitn
         col[:int_size] = data.slice!(0, 1).unpack('C')[0]
@@ -327,6 +336,22 @@ module ClientMixin
           str << data.slice!(0, len)
         end
         row << str.gsub("\x00", '')
+
+      when :ntext
+        str = nil
+        ptrlen = data.slice!(0, 1).unpack("C")[0]
+        ptr = data.slice!(0, ptrlen)
+        unless ptrlen == 0
+          timestamp = data.slice!(0, 8)
+          datalen = data.slice!(0, 4).unpack("V")[0]
+          if datalen > 0 && datalen < 65535
+            str = data.slice!(0, datalen).gsub("\x00", '')
+          else
+            str = ''
+          end
+        end
+        row << str
+
 
       when :datetime
         row << data.slice!(0, 8).unpack("H*")[0]
