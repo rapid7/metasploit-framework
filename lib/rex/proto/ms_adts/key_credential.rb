@@ -16,6 +16,9 @@ module Rex::Proto::MsAdts
       self.custom_key_information = DEFAULT_KEY_INFORMATION
     end
 
+    # Set the key material for this credential object
+    # @param public_key [OpenSSL::RSA::PKey] Public key used for authentication
+    # @param key_usage [Enumeration] From the KEY_USAGE constants in this class
     def set_key(public_key, key_usage)
       self.public_key = public_key
       self.key_usage = key_usage
@@ -23,6 +26,9 @@ module Rex::Proto::MsAdts
       calculate_raw_key_material
     end
 
+    # Set the time data for this credential object
+    # @param last_logon_time [Time] Last time this credential was used to log on
+    # @param creation_time [Time] Time that this key was created
     def set_times(last_logon_time, creation_time)
       self.key_approximate_last_logon_time_stamp = last_logon_time
       self.key_approximate_last_logon_time_stamp_raw = RubySMB::Field::FileTime.new(self.key_approximate_last_logon_time_stamp).to_binary_s
@@ -31,6 +37,7 @@ module Rex::Proto::MsAdts
     end
 
     # Creates a KeyCredentialStruct, including calculating the value for key_hash
+    # @return [KeyCredentialStruct] A structured object able to be converted to binary and sent to a DCc
     def to_struct
       result = KeyCredentialStruct.new
       result.version = KEY_CREDENTIAL_VERSION_2
@@ -50,7 +57,8 @@ module Rex::Proto::MsAdts
       result
     end
 
-
+    # Construct a KeyCredential object from a KeyCredentialStruct (likely received from a Domain Controller)
+    # @param cred_struct [KeyCredentialStruct] Credential structure to convert
     def self.from_struct(cred_struct)
       obj = KeyCredential.new
       obj.key_id = get_entry(cred_struct, 1)
@@ -87,6 +95,10 @@ module Rex::Proto::MsAdts
     attr_accessor :key_approximate_last_logon_time_stamp # Approximate time this key was last used
     attr_accessor :key_creation_time # Approximate time this key was created
 
+    # Find the entry with the given identifier
+    # @param struct [KeyCredentialStruct] Structure containing entries to search through
+    # @param struct [Integer] Identifier to search for, from https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/a99409ea-4982-4f72-b7ef-8596013a36c7
+    # @return [String] The data associated with this identifier, or nil if not found
     def self.get_entry(struct, identifier)
       struct.credential_entries.each do |entry|
         if entry.identifier == identifier
@@ -97,6 +109,11 @@ module Rex::Proto::MsAdts
 
     private
 
+    # Create a KeyCredentialEntryStruct from the provided data, and insert it in to the provided structure
+    # @param struct [KeyCredentialStruct] Structure to insert the resulting entry into
+    # @param identifier [Integer] Identifier associated with this entry, from https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/a99409ea-4982-4f72-b7ef-8596013a36c7
+    # @param data [String] The data to create an entry from
+    # @param insert_at_end [Boolean] Whether to insert the new entry at the end of the credential_entries; otherwise will insert at start
     def add_entry(struct, identifier, data, insert_at_end: true)
       entry = KeyCredentialEntryStruct.new
       entry.identifier = identifier
@@ -148,6 +165,8 @@ module Rex::Proto::MsAdts
       self.key_id = sha256.digest(self.raw_key_material)
     end
 
+    # Parse the object's raw key material field into a OpenSSL::RSA::PKey object
+    # @param obj [KeyCredential] The object for which to parse the key
     def self.construct_public_key_from_raw_material(obj)
       case obj.key_usage
       when KEY_USAGE_NGC
