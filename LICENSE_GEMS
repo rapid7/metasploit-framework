@@ -80,7 +80,7 @@ memory_profiler, 1.0.1, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 5.0.2, "New BSD"
 metasploit-credential, 6.0.7, "New BSD"
-metasploit-framework, 6.4.2, "New BSD"
+metasploit-framework, 6.4.3, "New BSD"
 metasploit-model, 5.0.2, "New BSD"
 metasploit-payloads, 2.0.166, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 6.0.3, "New BSD"
@@ -152,7 +152,7 @@ rex-rop_builder, 0.1.5, "New BSD"
 rex-socket, 0.1.57, "New BSD"
 rex-sslscan, 0.1.10, "New BSD"
 rex-struct2, 0.1.4, "New BSD"
-rex-text, 0.2.56, "New BSD"
+rex-text, 0.2.57, "New BSD"
 rex-zip, 0.1.5, "New BSD"
 rexml, 3.2.6, "Simplified BSD"
 rkelly-remix, 0.0.7, MIT
