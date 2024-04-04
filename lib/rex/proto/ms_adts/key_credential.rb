@@ -153,16 +153,11 @@ module Rex::Proto::MsAdts
       when KEY_USAGE_NGC
         if obj.raw_key_material.start_with?([Rex::Proto::BcryptPublicKey::MAGIC].pack('I'))
           result = Rex::Proto::BcryptPublicKey.read(obj.raw_key_material)
-          key = OpenSSL::PKey::RSA.new
-          exponent = OpenSSL::BN.new(bytes_to_int(result.exponent))
-          modulus = OpenSSL::BN.new(bytes_to_int(result.modulus))
-          if key.respond_to?(:set_key)
-            # Ruby 2.4+
-            key.set_key(modulus, exponent, nil)
-          else
-            key.e = exponent
-            key.n = modulus
-          end
+          exponent = OpenSSL::ASN1::Integer.new(bytes_to_int(result.exponent))
+          modulus = OpenSSL::ASN1::Integer.new(bytes_to_int(result.modulus))
+          # OpenSSL's API has changed over time - constructing from DER has been consistent
+          data_sequence = OpenSSL::ASN1::Sequence([modulus, exponent])
+          key = OpenSSL::PKey::RSA.new(data_sequence.to_der)
           obj.public_key = key
         end
       end
