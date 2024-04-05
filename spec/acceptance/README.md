@@ -61,6 +61,20 @@ Run the test suite:
 MYSQL_RPORT=9000 SPEC_OPTS='--tag acceptance' SPEC_HELPER_LOAD_METASPLOIT=false bundle exec rspec ./spec/acceptance/mysql_spec.rb
 ```
 
+### MSSQL
+
+Run a target:
+
+```
+docker run -e "ACCEPT_EULA=Y" -e 'MSSQL_SA_PASSWORD=yourStrong(!)Password' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-latest
+```
+
+Run the test suite:
+
+```
+MSSQL_RPORT=1433 SPEC_OPTS='--tag acceptance' SPEC_HELPER_LOAD_METASPLOIT=false bundle exec rspec ./spec/acceptance/mssql_spec.rb
+```
+
 #### Allure reports
 
 Generate allure reports locally:

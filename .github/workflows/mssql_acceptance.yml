@@ -1,0 +1,182 @@
+name: Acceptance
+
+# Optional, enabling concurrency limits: https://docs.github.com/en/actions/using-jobs/using-concurrency
+#concurrency:
+#  group: ${{ github.ref }}-${{ github.workflow }}
+#  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  id-token: none
+  issues: none
+  discussions: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+on:
+  push:
+    branches-ignore:
+      - gh-pages
+      - metakitty
+  pull_request:
+    branches:
+      - '*'
+    paths:
+      - 'metsploit-framework.gemspec'
+      - 'Gemfile.lock'
+      - '**/**mssql**'
+      - 'spec/acceptance/**'
+      - 'spec/support/acceptance/**'
+      - 'spec/acceptance_spec_helper.rb'
+#   Example of running as a cron, to weed out flaky tests
+#  schedule:
+#    - cron: '*/15 * * * *'
+
+jobs:
+  mssql:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+
+    services:
+      mssql:
+        image: ${{ matrix.docker_image }}
+        ports: ["1433:1433"]
+        env:
+          MSSQL_SA_PASSWORD: yourStrong(!)Password
+          ACCEPT_EULA: 'Y'
+        options: >-
+          --health-cmd "/opt/mssql-tools/bin/sqlcmd -U sa -P 'yourStrong(!)Password' -Q 'select 1' -b -o /dev/null"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    strategy:
+      fail-fast: true
+      matrix:
+        ruby:
+          - '3.2'
+        os:
+          - ubuntu-latest
+        docker_image:
+          - mcr.microsoft.com/mssql/server:2022-latest
+          - mcr.microsoft.com/mssql/server:2019-latest
+
+    env:
+      RAILS_ENV: test
+
+    name: ${{ matrix.docker_image }} - ${{ matrix.os }} - Ruby ${{ matrix.ruby }}
+    steps:
+      - name: Install system dependencies
+        run: sudo apt-get install -y --no-install-recommends libpcap-dev graphviz
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        env:
+          BUNDLE_WITHOUT: "coverage development pcap"
+          # Nokogiri doesn't release pre-compiled binaries for preview versions of Ruby; So force compilation with BUNDLE_FORCE_RUBY_PLATFORM
+          BUNDLE_FORCE_RUBY_PLATFORM: "${{ contains(matrix.ruby, 'preview') && 'true' || 'false' }}"
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '${{ matrix.ruby }}'
+          bundler-cache: true
+
+      - name: Extract runtime version
+        run: |
+          echo "RUNTIME_VERSION=$(echo $DOCKER_IMAGE | awk -F: '{ print $2 }')" >> $GITHUB_ENV
+          echo "DOCKER_IMAGE_FILENAME=$(echo $DOCKER_IMAGE | tr -d '/:')" >> $GITHUB_ENV
+        env:
+          DOCKER_IMAGE: ${{ matrix.docker_image }}
+          OS: ${{ matrix.os }}
+
+      - name: acceptance
+        env:
+          SPEC_HELPER_LOAD_METASPLOIT: false
+          SPEC_OPTS: "--tag acceptance --require acceptance_spec_helper.rb --color --format documentation --format AllureRspec::RSpecFormatter"
+          RUNTIME_VERSION: ${{ env.RUNTIME_VERSION }}
+        # Unix run command:
+        #   SPEC_HELPER_LOAD_METASPLOIT=false bundle exec ./spec/acceptance
+        # Windows cmd command:
+        #   set SPEC_HELPER_LOAD_METASPLOIT=false
+        #   bundle exec rspec .\spec\acceptance
+        # Note: rspec retry is intentionally not used, as it can cause issues with allure's reporting
+        # Additionally - flakey tests should be fixed or marked as flakey instead of silently retried
+        run: |
+          bundle exec rspec spec/acceptance/mssql_spec.rb
+
+      - name: Archive results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          # Provide a unique artifact for each matrix os, otherwise race conditions can lead to corrupt zips
+          name: ${{ env.DOCKER_IMAGE_FILENAME }}-${{ matrix.os }}
+          path: tmp/allure-raw-data
+
+  # Generate a final report from the previous test results
+  report:
+    name: Generate report
+    needs:
+      - mssql
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        if: always()
+
+      - name: Install system dependencies (Linux)
+        if: always()
+        run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
+
+      - name: Setup Ruby
+        if: always()
+        env:
+          BUNDLE_WITHOUT: "coverage development"
+          BUNDLE_FORCE_RUBY_PLATFORM: true
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '${{ matrix.ruby }}'
+          bundler-cache: true
+          cache-version: 4
+          # Github actions with Ruby requires Bundler 2.2.18+
+          # https://github.com/ruby/setup-ruby/tree/d2b39ad0b52eca07d23f3aa14fdf2a3fcc1f411c#windows
+          bundler: 2.2.33
+
+      - uses: actions/download-artifact@v4
+        id: download
+        if: always()
+        with:
+          # Note: Not specifying a name will download all artifacts from the previous workflow jobs
+          path: raw-data
+
+      - name: allure generate
+        if: always()
+        run: |
+          export VERSION=2.22.1
+
+          curl -o allure-$VERSION.tgz -Ls https://github.com/allure-framework/allure2/releases/download/$VERSION/allure-$VERSION.tgz
+          tar -zxvf allure-$VERSION.tgz -C .
+
+          ls -la ${{steps.download.outputs.download-path}}
+          ./allure-$VERSION/bin/allure generate ${{steps.download.outputs.download-path}}/* -o ./allure-report
+
+          find ${{steps.download.outputs.download-path}}
+          bundle exec ruby tools/dev/report_generation/support_matrix/generate.rb --allure-data ${{steps.download.outputs.download-path}} > ./allure-report/support_matrix.html
+
+      - name: archive results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-report-${{ github.run_id }}
+          path: |
+            ./allure-report
