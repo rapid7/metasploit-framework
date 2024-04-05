@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 require 'spec_helper'
-require 'rex/proto/smb/simple_client'
+require 'rex/proto/ldap/client'
 
 RSpec.describe Rex::Proto::LDAP::Client do
   let(:host) { '127.0.0.1' }

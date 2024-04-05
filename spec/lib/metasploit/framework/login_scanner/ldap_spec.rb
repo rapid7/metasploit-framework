@@ -43,7 +43,7 @@ RSpec.shared_examples_for 'Metasploit::Framework::LoginScanner::LDAP' do |ldap_a
   let(:ldap) { spy }
   before(:each) do
     allow(subject).to receive(:ldap_connect_opts).and_return({})
-    allow(subject).to receive(:ldap_open).and_yield(ldap)
+    allow(Rex::Proto::LDAP::Client).to receive(:_open).and_return(ldap)
   end
 
   it 'successfully authenticates' do
