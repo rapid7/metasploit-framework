@@ -80,7 +80,7 @@ module Metasploit
             # Additionally assign values to nil to avoid closing the socket etc automatically
             if use_client_as_proof
               result_options[:proof] = pg_conn
-              pg_conn = nil
+              result_options[:connection] = pg_conn.conn
             else
               pg_conn.close
             end

@@ -132,12 +132,11 @@ class MetasploitModule < Msf::Auxiliary
 
         if create_session?
           begin
-            mssql_client = result.proof
-            successful_sessions << session_setup(result, mssql_client)
+            successful_sessions << session_setup(result)
           rescue ::StandardError => e
-            elog('Failed: ', error: e)
-            print_error(e)
-            result.proof.conn.close if result.proof&.conn
+            elog('Failed to setup the session', error: e)
+            print_brute level: :error, ip: ip, msg: "Failed to setup the session - #{e.class} #{e.message}"
+            result.connection.close unless result.connection.nil?
           end
         end
       else
@@ -148,11 +147,13 @@ class MetasploitModule < Msf::Auxiliary
     { successful_logins: successful_logins, successful_sessions: successful_sessions }
   end
 
-  def session_setup(result, client)
-    return unless (result && client)
-    rstream = client.sock
-    my_session = Msf::Sessions::MSSQL.new(rstream, { client: client })
-    merging = {
+  # @param [Metasploit::Framework::LoginScanner::Result] result
+  # @return [Msf::Sessions::MSSQL]
+  def session_setup(result)
+    return unless (result.connection && result.proof)
+
+    my_session = Msf::Sessions::MSSQL.new(result.connection, { client: result.proof })
+    merge_me = {
       'USERPASS_FILE' => nil,
       'USER_FILE'     => nil,
       'PASS_FILE'     => nil,
@@ -160,6 +161,6 @@ class MetasploitModule < Msf::Auxiliary
       'PASSWORD'      => result.credential.private
     }
 
-    start_session(self, nil, merging, false, my_session.rstream, my_session)
+    start_session(self, nil, merge_me, false, my_session.rstream, my_session)
   end
 end

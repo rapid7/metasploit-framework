@@ -191,11 +191,11 @@ class MetasploitModule < Msf::Auxiliary
         report_creds(ip, rport, result)
         if create_session?
           begin
-            smb_client = result.proof
-            successful_sessions << session_setup(result, smb_client)
-          rescue StandardError => e
+            successful_sessions << session_setup(result)
+          rescue ::StandardError => e
             elog('Failed to setup the session', error: e)
             print_brute level: :error, ip: ip, msg: "Failed to setup the session - #{e.class} #{e.message}"
+            result.connection.close unless result.connection.nil?
           end
         end
         :next_user
@@ -296,20 +296,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # @param [Metasploit::Framework::LoginScanner::Result] result
-  # @param [RubySMB::Client] client
   # @return [Msf::Sessions::SMB]
-  def session_setup(result, client)
-    return unless client
+  def session_setup(result)
+    return unless (result.connection && result.proof)
 
-    # Create a new session
-    rstream = client.dispatcher.tcp_socket
-    sess = Msf::Sessions::SMB.new(
-      rstream,
-      {
-        client: client
-      }
-    )
-
+    my_session = Msf::Sessions::SMB.new(result.connection, { client: result.proof })
     merge_me = {
       'USERPASS_FILE' => nil,
       'USER_FILE'     => nil,
@@ -318,7 +309,7 @@ class MetasploitModule < Msf::Auxiliary
       'PASSWORD'      => result.credential.private
     }
 
-    start_session(self, nil, merge_me, false, sess.rstream, sess)
+    start_session(self, nil, merge_me, false, my_session.rstream, my_session)
   end
 
 end
