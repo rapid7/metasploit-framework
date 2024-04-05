@@ -68,6 +68,7 @@ module Rex
           @rhost = rhost
           @rport = rport
           @proxies = proxies
+          @current_database = ''
         end
 
         #

@@ -200,9 +200,7 @@ class MetasploitModule < Msf::Auxiliary
   def session_setup(result, client)
     return unless (result && client)
 
-    rstream = client.socket || client.io
-
-    my_session = Msf::Sessions::MySQL.new(rstream, { client: client })
+    my_session = Msf::Sessions::MySQL.new(client.io, { client: client })
     merging = {
       'USERPASS_FILE' => nil,
       'USER_FILE'     => nil,
