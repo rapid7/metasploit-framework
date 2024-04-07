@@ -24,7 +24,6 @@ Successfully tested against MongoDB Ops Manager v6.0.11.
 7. `sudo systemctl start mongod.service`
 8. `sudo systemctl start mongodb-mms.service` (wait a little while for it to initialize and run)
 9. Browse to http://<ip>>:8080/account/register and perform the install, the SMTP fields can use values for a server which doesn't exist.
-    password: PassW0rd1!
 10. Top left corner of the page after install should be "Project 0", click the drop down and create new project. Any name is fine, I called it 'test'
 11. Top right of the screen, click Admin, API Keys, Create API Key. Create a new key, for permissions select
 `Global Monitoring Admin` or `Global Owner` (or both).
@@ -34,20 +33,20 @@ Successfully tested against MongoDB Ops Manager v6.0.11.
 1. Install the application
 1. Start msfconsole
 1. Do: `use auxiliary/gather/mongodb_ops_manager_diagnostic_archive_info`
-1. Do: `set API_USERNAME [api_username]`
-1. Do: `set API_PASSWORD [api_password]`
+1. Do: `set API_PUBKEY [API_PUBKEY]`
+1. Do: `set API_PRIVKEY [API_PRIVKEY]`
 1. Do: `run`
 1. You should find similar output to the following: `Found ubuntu22-0-bgrid's unredacted mms.saml.ssl.PEMKeyFilePassword: FINDME`
 
 ## Options
 
-### API_USERNAME
+### API_PUBKEY
 
-Username for the API key that was created with `Global Monitoring Admin` or `Global Owner` permissions.
+Public Key for the API key that was created with `Global Monitoring Admin` or `Global Owner` permissions.
 
-### API_PASSWORD
+### API_PRIVKEY
 
-Password for the API key that was created with `Global Monitoring Admin` or `Global Owner` permissions.
+Private Key for the API key that was created with `Global Monitoring Admin` or `Global Owner` permissions.
 
 ## Scenarios
 
@@ -55,10 +54,10 @@ Password for the API key that was created with `Global Monitoring Admin` or `Glo
 
 ```
 msf6 > use auxiliary/gather/mongodb_ops_manager_diagnostic_archive_info
-msf6 auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) > set API_USERNAME zmdhriti
-API_USERNAME => zmdhriti
-msf6 auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) > set API_PASSWORD fd2faf05-18bc-4e6b-8ea1-419f3e8f95bc
-API_PASSWORD => fd2faf05-18bc-4e6b-8ea1-419f3e8f95bc
+msf6 auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) > set API_PUBKEY zmdhriti
+API_PUBKEY => zmdhriti
+msf6 auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) > set API_PRIVKEY fd2faf05-18bc-4e6b-8ea1-419f3e8f95bc
+API_PRIVKEY => fd2faf05-18bc-4e6b-8ea1-419f3e8f95bc
 msf6 auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) > set verbose true
 verbose => true
 msf6 auxiliary(gather/mongodb_ops_manager_diagnostic_archive_info) > set rhosts 127.0.0.1

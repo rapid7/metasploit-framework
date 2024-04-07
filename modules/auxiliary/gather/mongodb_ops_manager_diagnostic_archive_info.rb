@@ -52,8 +52,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8080),
-        OptString.new('API_USERNAME', [ true, 'User to login with for API requests', '']),
-        OptString.new('API_PASSWORD', [ true, 'Password to login with for API requests', '']),
+        OptString.new('API_PUBKEY', [ true, 'Public Key to login with for API requests', '']),
+        OptString.new('API_PRIVKEY', [ true, 'Password to login with for API requests', '']),
         OptString.new('TARGETURI', [ true, 'The URI of MongoDB Ops Manager', '/'])
       ]
     )
@@ -84,11 +84,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def username
-    datastore['API_USERNAME']
+    datastore['API_PUBKEY']
   end
 
   def password
-    datastore['API_PASSWORD']
+    datastore['API_PRIVKEY']
   end
 
   def digest_auth(url)
@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
-    fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") unless res.code == 401
+    fail_with(Failure::UnexpectedReply, "#{peer} - Basic auth not enabled, but is expected") unless res.code == 401
 
     # Define the regular expression pattern to capture key-value pairs
     pattern = /(\w+)="(.*?)"/
@@ -149,8 +149,7 @@ class MetasploitModule < Msf::Auxiliary
         'authorization' => auth_response
       }
     )
-    return [] if res.nil?
-    return [] if res.code == 401
+    return [] if res.nil? || res.code == 401
 
     res.get_json_document['results']
   end
@@ -168,8 +167,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'vars_get' => { 'pretty' => 'true' }
     )
-    return if res.nil?
-    return unless res.code == 200
+    return unless res&.code == 200
 
     loot_location = store_loot('mongodb.ops_manager.project_diagnostics', 'application/gzip', rhost, res.body, "project_diagnostics.#{project}.tar.gz", "Project diagnostics for MongoDB Project #{project}")
     print_good("Stored Project Diagnostics files to #{loot_location}")
