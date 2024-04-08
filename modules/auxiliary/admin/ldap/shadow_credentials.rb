@@ -250,29 +250,6 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def bytes_to_uuid(bytes)
-    if bytes.nil?
-      return '(no device ID)'
-    end
-
-    # Convert each byte to a 2-digit hexadecimal string
-    hex_strings = bytes.bytes.map { |b| b.to_s(16).rjust(2, '0') }
-
-    # Arrange the hex strings in the correct order for UUID format
-    uuid_parts = [
-      hex_strings[0..3].reverse.join,  # First 4 bytes (little-endian)
-      hex_strings[4..5].reverse.join,  # Next 2 bytes (little-endian)
-      hex_strings[6..7].reverse.join,  # Next 2 bytes (little-endian)
-      hex_strings[8..9].join,  # Next 2 bytes (big-endian)
-      hex_strings[10..15].join # Last 6 bytes (big-endian)
-    ]
-
-    # Join the parts with hyphens to form the complete UUID
-    uuid = uuid_parts.join('-')
-
-    return uuid
-  end
-
   def generate_key_and_cert(subject)
     key = OpenSSL::PKey::RSA.new(2048)
     cert = OpenSSL::X509::Certificate.new
