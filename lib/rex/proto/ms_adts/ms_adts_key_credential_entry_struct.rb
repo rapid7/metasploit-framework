@@ -4,7 +4,7 @@
 require 'bindata'
 
 module Rex::Proto::MsAdts
-  class KeyCredentialEntryStruct < BinData::Record
+  class MsAdtsKeyCredentialEntryStruct < BinData::Record
     endian :little
 
     uint16              :struct_length

