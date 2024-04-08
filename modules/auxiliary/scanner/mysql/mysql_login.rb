@@ -120,12 +120,11 @@ class MetasploitModule < Msf::Auxiliary
 
             if create_session?
               begin
-                mysql_client = result.proof
-                successful_sessions << session_setup(result, mysql_client)
+                successful_sessions << session_setup(result)
               rescue ::StandardError => e
-                elog('Failed: ', error: e)
-                print_error(e)
-                result.proof.conn.close if result.proof&.conn
+                elog('Failed to setup the session', error: e)
+                print_brute level: :error, ip: ip, msg: "Failed to setup the session - #{e.class} #{e.message}"
+                result.connection.close unless result.connection.nil?
               end
             end
           else
@@ -195,13 +194,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # @param [Metasploit::Framework::LoginScanner::Result] result
-  # @param [::Rex::Proto::MySQL::Client] client
   # @return [Msf::Sessions::MySQL]
-  def session_setup(result, client)
-    return unless (result && client)
+  def session_setup(result)
+    return unless (result.connection && result.proof)
 
-    my_session = Msf::Sessions::MySQL.new(client.io, { client: client })
-    merging = {
+    my_session = Msf::Sessions::MySQL.new(result.connection, { client: result.proof })
+    merge_me = {
       'USERPASS_FILE' => nil,
       'USER_FILE'     => nil,
       'PASS_FILE'     => nil,
@@ -209,6 +207,6 @@ class MetasploitModule < Msf::Auxiliary
       'PASSWORD'      => result.credential.private
     }
 
-    start_session(self, nil, merging, false, my_session.rstream, my_session)
+    start_session(self, nil, merge_me, false, my_session.rstream, my_session)
   end
 end

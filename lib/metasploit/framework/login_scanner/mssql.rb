@@ -82,6 +82,7 @@ module Metasploit
               result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
               if use_client_as_proof
                 result_options[:proof] = client
+                result_options[:connection] = client.sock
               else
                 client.disconnect
               end
