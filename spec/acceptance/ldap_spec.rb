@@ -1,6 +1,6 @@
 require 'acceptance_spec_helper'
 
-RSpec.describe 'MySQL sessions and MySQL modules' do
+RSpec.describe 'LDAP modules' do
   include_context 'wait_for_expect'
 
   RHOST_REGEX = /\d+\.\d+\.\d+\.\d+:\d+/
@@ -8,30 +8,24 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
   TESTS = {
     mysql: {
       target: {
-        session_module: "auxiliary/scanner/mysql/mysql_login",
-        type: 'MySQL',
+        session_module: "auxiliary/scanner/ldap/ldap_login",
+        type: 'LDAP',
         platforms: [:linux, :osx, :windows],
         datastore: {
           global: {},
           module: {
-            username: ENV.fetch('MYSQL_USERNAME', 'root'),
-            password: ENV.fetch('MYSQL_PASSWORD', 'password'),
-            rhost: ENV.fetch('MYSQL_RHOST', '127.0.0.1'),
-            rport: ENV.fetch('MYSQL_RPORT', '3306'),
+            username: ENV.fetch('LDAP_USERNAME', 'cn=admin,dc=example,dc=org'),
+            password: ENV.fetch('LDAP_PASSWORD', 'admin'),
+            rhost: ENV.fetch('LDAP_RHOST', '127.0.0.1'),
+            rport: ENV.fetch('LDAP_RPORT', '389'),
           }
         }
       },
       module_tests: [
         {
-          name: "post/test/mysql",
+          name: "auxiliary/gather/ldap_query",
           platforms: [:linux, :osx, :windows],
-          targets: [:session],
-          skipped: false,
-        },
-        {
-          name: "auxiliary/scanner/mysql/mysql_hashdump",
-          platforms: [:linux, :osx, :windows],
-          targets: [:session, :rhost],
+          targets: [:rhost],
           skipped: false,
           lines: {
             all: {
@@ -42,44 +36,58 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
           }
         },
         {
-          name: "auxiliary/scanner/mysql/mysql_version",
+          name: "auxiliary/gather/ldap_query",
           platforms: [:linux, :osx, :windows],
-          targets: [:session, :rhost],
+          targets: [:rhost],
           skipped: false,
+          datastore: {ACTION: 'ENUM_ACCOUNTS'},
           lines: {
             all: {
               required: [
-                /#{RHOST_REGEX} is running MySQL \d+.\d+.*/
+                /Saving HashString as Loot/
               ]
             },
           }
         },
-        {
-          name: "auxiliary/admin/mysql/mysql_sql",
-          platforms: [:linux, :osx, :windows],
-          targets: [:session, :rhost],
-          skipped: false,
-          lines: {
-            all: {
-              required: [
-                /\| \d+.\d+.*/,
-              ]
-            },
-          }
-        },
-        {
-          name: "auxiliary/admin/mysql/mysql_enum",
-          platforms: [:linux, :osx, :windows],
-          targets: [:session, :rhost],
-          skipped: false,
-          lines: {
-            all: {
-              required: [
-                /MySQL Version: \d+.\d+.*/,
-              ]
-            },
-          }
-        },
+        # {
+        #   name: "auxiliary/scanner/mysql/mysql_version",
+        #   platforms: [:linux, :osx, :windows],
+        #   targets: [:session, :rhost],
+        #   skipped: false,
+        #   lines: {
+        #     all: {
+        #       required: [
+        #         /#{RHOST_REGEX} is running MySQL \d+.\d+.*/
+        #       ]
+        #     },
+        #   }
+        # },
+        # {
+        #   name: "auxiliary/admin/mysql/mysql_sql",
+        #   platforms: [:linux, :osx, :windows],
+        #   targets: [:session, :rhost],
+        #   skipped: false,
+        #   lines: {
+        #     all: {
+        #       required: [
+        #         /\| \d+.\d+.*/,
+        #       ]
+        #     },
+        #   }
+        # },
+        # {
+        #   name: "auxiliary/admin/mysql/mysql_enum",
+        #   platforms: [:linux, :osx, :windows],
+        #   targets: [:session, :rhost],
+        #   skipped: false,
+        #   lines: {
+        #     all: {
+        #       required: [
+        #         /MySQL Version: \d+.\d+.*/,
+        #       ]
+        #     },
+        #   }
+        # },
       ]
     }
   }
@@ -113,7 +121,7 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
     # console.recv_available
 
     features = %w[
-      mysql_session_type
+      ldap_session_type
     ]
 
     features.each do |feature|
@@ -281,7 +289,7 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
             # Set global options
             console.sendline target.setg_commands(default_global_datastore: default_global_datastore)
             console.recvuntil(Acceptance::Console.prompt)
-
+            # TODO: update this when we add sessions
             console.sendline target.run_command(default_module_datastore: { PASS_FILE: nil, USER_FILE: nil, CreateSession: true })
 
             session_id = nil
@@ -347,7 +355,8 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
             ) do
               with_test_harness(module_test) do |replication_commands|
                 use_module = "use #{module_test[:name]}"
-                run_module = "run #{target.datastore_options(default_module_datastore: default_module_datastore)} Verbose=true"
+                # require 'pry-byebug'; binding.pry
+                run_module = "run #{target.datastore_options(default_module_datastore: default_module_datastore.merge(module_test.fetch(:datastore, {})))} Verbose=true"
 
                 replication_commands << use_module
                 console.sendline(use_module)
