@@ -45,6 +45,7 @@ class MetasploitModule < Msf::Auxiliary
           File.join(Msf::Config.data_directory, "wordlists", "postgres_default_user.txt") ]),
         OptPath.new('PASS_FILE',      [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "postgres_default_pass.txt") ]),
+        OptBool.new('CreateSession', [false, 'Create a new session for every successful login', false])
       ])
 
     options_to_deregister = %w[SQL PASSWORD_SPRAY]
