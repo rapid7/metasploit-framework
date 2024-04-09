@@ -27,7 +27,7 @@ module Msf::Sessions
 
         escaped_cmd_and_args = cmd_and_args.map do |arg|
           # Double-up all quote chars
-          arg.gsub!('"', '""')
+          arg = arg.gsub('"', '""')
 
           # Now the fun begins
           current_token = ""

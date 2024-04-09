@@ -1,4 +1,3 @@
-
 RSpec.describe Msf::Sessions::PowerShell::Mixin do
   let(:obj) do
     o = Object.new
