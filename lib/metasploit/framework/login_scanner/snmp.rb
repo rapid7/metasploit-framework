@@ -206,20 +206,16 @@ module Metasploit
           res = nil
           if protocol == 'udp'
             res = sock.recvfrom(max_size, timeout)
-          end
-
-          if protocol == 'tcp'
+          elsif protocol == 'tcp'
             ready = ::IO.select([sock], nil, nil, timeout)
             if ready
               res = sock.recv_nonblock(max_size)
               # Put into an array to mimic recvfrom
               res = [res, host, port]
-            else
-              # print("timeout\n")
             end
           end
 
-          return res
+          res
         end
 
         # Process any responses on the UDP socket and queue the results
@@ -389,15 +385,10 @@ module Metasploit
         def configure_socket
           shutdown_socket if sock
 
-          klass = ::Rex::Socket::Udp
-
-          if protocol == 'tcp'
-            klass = ::Rex::Socket::Tcp
-          end
-
-          self.sock = klass.create({
+          self.sock = ::Rex::Socket.create({
             'PeerHost' => host,
             'PeerPort' => port,
+            'Proto' => protocol,
             'Timeout'  => connection_timeout,
             'Context' =>
               { 'Msf' => framework, 'MsfExploit' => framework_module }
