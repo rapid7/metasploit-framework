@@ -54,7 +54,7 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
       cmd_and_args.each_with_index do |arg, index|
         needs_single_quoting = false
         if arg.include?("'")
-          arg.gsub!("'", "''")
+          arg = arg.gsub("'", "''")
           needs_single_quoting = true
         end
         
@@ -62,10 +62,10 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
           # PowerShell acts weird around quotes and backslashes
           # First we need to escape backslashes immediately prior to a double-quote, because
           # they're treated differently than backslashes anywhere else
-          arg.gsub!(/(\\+)"/, '\\1\\1"')
+          arg = arg.gsub(/(\\+)"/, '\\1\\1"')
 
           # Then we can safely prepend a backslash to escape our double-quote
-          arg.gsub!('"', '\\"')
+          arg = arg.gsub('"', '\\"')
           needs_single_quoting = true
         end
         
