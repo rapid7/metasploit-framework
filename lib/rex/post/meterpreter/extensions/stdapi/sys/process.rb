@@ -166,9 +166,18 @@ class Process < Rex::Post::Process
 
     request.add_tlv(TLV_TYPE_PROCESS_PATH, client.unicode_filter_decode( path ));
 
+    # Add arguments
     # If process arguments were supplied
     if (arguments != nil)
-      request.add_tlv(TLV_TYPE_PROCESS_ARGUMENTS, arguments);
+      if arguments.kind_of?(Array)
+        arguments.each do |arg|
+          request.add_tlv(TLV_TYPE_PROCESS_ARGUMENT, arg);
+        end
+      elsif arguments.kind_of?(String)
+        request.add_tlv(TLV_TYPE_PROCESS_ARGUMENTS, arguments)
+      else
+        raise ArgumentError.new('Unknown type for arguments')
+      end
     end
 
     request.add_tlv(TLV_TYPE_PROCESS_FLAGS, flags);

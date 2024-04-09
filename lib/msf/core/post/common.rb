@@ -52,6 +52,33 @@ module Msf::Post::Common
     "#{rhost}:#{rport}"
   end
 
+  def create_process(executable, args: [], time_out: 15, opts: {})
+    case session.type
+    when 'meterpreter'
+      session.response_timeout = time_out
+      opts = {
+        'Hidden' => true,
+        'Channelized' => true,
+      }.merge(opts)
+
+      if opts['Channelized']
+        o = session.sys.process.capture_output(executable, args, opts, time_out)
+      else
+        session.sys.process.execute(executable, args, opts)
+      end
+    when 'powershell'
+      cmd = session.to_cmd(executable, args)
+      o = session.shell_command("#{cmd}", time_out)
+      o.chomp! if o
+    when 'shell'
+      cmd = session.to_cmd(executable, args)
+      o = session.shell_command_token("#{cmd}", time_out)
+      o.chomp! if o
+    end
+    return "" if o.nil?
+    return o
+  end
+
   #
   # Executes +cmd+ on the remote system
   #
