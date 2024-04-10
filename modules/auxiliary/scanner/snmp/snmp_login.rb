@@ -30,6 +30,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
     [
       Opt::RPORT(161),
+      OptEnum.new('PROTOCOL', [true, 'The SNMP protocol to use', 'udp', ['udp', 'tcp']]),
       OptEnum.new('VERSION', [true, 'The SNMP version to scan', '1', ['1', '2c', 'all']]),
       OptString.new('PASSWORD', [ false, 'The password to test' ]),
       OptPath.new('PASS_FILE',  [ false, "File containing communities, one per line",
@@ -51,6 +52,7 @@ class MetasploitModule < Msf::Auxiliary
     scanner = Metasploit::Framework::LoginScanner::SNMP.new(
         host: ip,
         port: rport,
+        protocol: datastore['PROTOCOL'],
         cred_details: collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
         bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
@@ -89,6 +91,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def rport
     datastore['RPORT']
+  end
+
+  def protocol
+    datastore['PROTOCOL']
   end
 
 
