@@ -5,7 +5,7 @@ require 'rex/proto/mysql/client'
 
 RSpec.describe Msf::Sessions::MySQL do
   let(:client) { instance_double(::Rex::Proto::MySQL::Client) }
-  let(:opts) { { client: client } }
+  let(:opts) { { client: client, platform: Msf::Platform::Linux.realname, arch: ARCH_X86_64 } }
   let(:console_class) { Rex::Post::MySQL::Ui::Console }
   let(:user_input) { instance_double(Rex::Ui::Text::Input::Readline) }
   let(:user_output) { instance_double(Rex::Ui::Text::Output::Stdio) }

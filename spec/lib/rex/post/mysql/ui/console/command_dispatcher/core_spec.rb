@@ -10,7 +10,7 @@ RSpec.describe Rex::Post::MySQL::Ui::Console::CommandDispatcher::Core do
   let(:address) { '192.0.2.1' }
   let(:port) { '3306' }
   let(:peerinfo) { "#{address}:#{port}" }
-  let(:session) { Msf::Sessions::MySQL.new(nil, { client: client }) }
+  let(:session) { Msf::Sessions::MySQL.new(nil, { client: client, platform: Msf::Platform::Linux.realname, arch: ARCH_X86_64 }) }
   let(:console) do
     console = Rex::Post::MySQL::Ui::Console.new(session)
     console.disable_output = true
