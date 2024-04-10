@@ -5,7 +5,7 @@ contain a vulnerability where sensitive data is leaked into the audit logs.
 Rancher Audit Logging is an opt-in feature, only deployments that have it
 enabled and have AUDIT_LEVEL set to 1 or above are impacted by this issue.
 
-Tested against rancher 2.6.0.
+Tested against rancher 2.6.0 and 2.8.1.
 
 ### Install
 

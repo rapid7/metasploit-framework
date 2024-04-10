@@ -116,6 +116,7 @@ class MetasploitModule < Msf::Post
       table << ['Username', username, 'Requests']
     end
 
-    print_good(table.to_s)
+    print_line
+    print_line(table.to_s)
   end
 end
