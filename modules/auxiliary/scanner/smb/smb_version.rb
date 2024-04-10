@@ -47,6 +47,8 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
+    deregister_options('SMB::ProtocolVersion')
+
   end
 
   def smb_direct
