@@ -61,6 +61,12 @@ module Msf::Post::Common
         'Channelized' => true,
       }.merge(opts)
 
+      if session.platform == 'windows'
+        opts[:legacy_args] = Msf::Sessions::CommandShellWindows.to_cmd(executable, args)
+      else
+        opts[:legacy_args] = Msf::Sessions::CommandShellUnix.to_cmd(executable, args)
+      end
+
       if opts['Channelized']
         o = session.sys.process.capture_output(executable, args, opts, time_out)
       else

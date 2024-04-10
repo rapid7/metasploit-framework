@@ -107,13 +107,22 @@ class Process < Rex::Post::Process
 
   #
   # Executes an application using the arguments provided
-  #
-  # Hash arguments supported:
-  #
-  #   Hidden      => true/false
-  #   Channelized => true/false
-  #   Suspended   => true/false
-  #   InMemory    => true/false
+  # @param path [String] Path on the remote system to the executable to run
+  # @param arguments [String,Array<String>] Arguments to the process. When passed as a String (rather than an array of Strings), 
+  #                                         this is treated as a string containing all arguments.
+  # @param opts [Hash] Optional settings to parameterise the process launch
+  # @option Hidden [Boolean] Is the process launched without creating a visible window
+  # @option Channelized [Boolean] The process is launched with pipes connected to a channel, e.g. for sending input/receiving output
+  # @option Suspended [Boolean] Start the process suspended
+  # @option UseThreadToken [Boolean] Use the thread token (as opposed to the process token) to launch the process
+  # @option Desktop [Boolean] Run on meterpreter's current desktopt
+  # @option Session [Integer] Execute process in a given session as the session user
+  # @option Subshell [Boolean] Execute process in a subshell
+  # @option Pty [Boolean] Execute process in a pty (if available)
+  # @option ParentId [Integer] Spoof the parent PID (if possible)
+  # @option InMemory [Boolean,String] Execute from memory (`path` is treated as a local file to upload, and the actual path passed
+  #                                   to meterpreter is this parameter's value, if provided as a String)
+  # @option :legacy_args [String] When arguments is an array, this is the command to execute if the receiving Meterpreter does not support arguments as an array
   #
   def Process.execute(path, arguments = nil, opts = nil)
     request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_EXECUTE)
@@ -172,6 +181,9 @@ class Process < Rex::Post::Process
       if arguments.kind_of?(Array)
         arguments.each do |arg|
           request.add_tlv(TLV_TYPE_PROCESS_ARGUMENT, arg);
+        end
+        if opts[:legacy_args]
+          request.add_tlv(TLV_TYPE_PROCESS_ARGUMENTS, opts[:legacy_args])
         end
       elsif arguments.kind_of?(String)
         request.add_tlv(TLV_TYPE_PROCESS_ARGUMENTS, arguments)
