@@ -6,95 +6,96 @@ RSpec.describe 'LDAP modules' do
   RHOST_REGEX = /\d+\.\d+\.\d+\.\d+:\d+/
 
   TESTS = {
-    mysql: {
+    ldap: {
       target: {
-        session_module: "auxiliary/scanner/ldap/ldap_login",
+        session_module: 'auxiliary/scanner/ldap/ldap_login',
         type: 'LDAP',
-        platforms: [:linux, :osx, :windows],
+        platforms: %i[linux osx windows],
         datastore: {
           global: {},
           module: {
-            username: ENV.fetch('LDAP_USERNAME', 'cn=admin,dc=example,dc=org'),
-            password: ENV.fetch('LDAP_PASSWORD', 'admin'),
+            username: ENV.fetch('LDAP_USERNAME', 'uid=admin,ou=system'),
+            password: ENV.fetch('LDAP_PASSWORD', 'secret'),
             rhost: ENV.fetch('LDAP_RHOST', '127.0.0.1'),
-            rport: ENV.fetch('LDAP_RPORT', '389'),
+            rport: ENV.fetch('LDAP_RPORT', '10389'),
+            ssl: ENV.fetch('LDAP_SSL', 'false')
           }
         }
       },
       module_tests: [
         {
-          name: "auxiliary/gather/ldap_query",
-          platforms: [:linux, :osx, :windows],
+          name: 'auxiliary/gather/ldap_query',
+          platforms: %i[linux osx windows],
           targets: [:rhost],
           skipped: false,
+          action: 'run_query_file',
+          datastore: { QUERY_FILE_PATH: 'data/auxiliary/gather/ldap_query/ldap_queries_default.yaml' },
           lines: {
             all: {
               required: [
-                /Saving HashString as Loot/
+                /Loading queries from/,
+                /ldap_queries_default.yaml.../,
+                /Discovered base DN/,
+                /Running ENUM_ACCOUNTS.../,
+                /Running ENUM_USER_SPNS_KERBEROAST.../,
+                /Running ENUM_USER_PASSWORD_NOT_REQUIRED.../,
+
               ]
-            },
+            }
           }
         },
         {
-          name: "auxiliary/gather/ldap_query",
-          platforms: [:linux, :osx, :windows],
+          name: 'auxiliary/gather/ldap_query',
+          platforms: %i[linux osx windows],
           targets: [:rhost],
           skipped: false,
-          datastore: {ACTION: 'ENUM_ACCOUNTS'},
+          action: 'enum_accounts',
           lines: {
             all: {
               required: [
-                /Saving HashString as Loot/
+                /Discovered base DN/,
+                /Query returned 1 result/
               ]
-            },
+            }
           }
         },
-        # {
-        #   name: "auxiliary/scanner/mysql/mysql_version",
-        #   platforms: [:linux, :osx, :windows],
-        #   targets: [:session, :rhost],
-        #   skipped: false,
-        #   lines: {
-        #     all: {
-        #       required: [
-        #         /#{RHOST_REGEX} is running MySQL \d+.\d+.*/
-        #       ]
-        #     },
-        #   }
-        # },
-        # {
-        #   name: "auxiliary/admin/mysql/mysql_sql",
-        #   platforms: [:linux, :osx, :windows],
-        #   targets: [:session, :rhost],
-        #   skipped: false,
-        #   lines: {
-        #     all: {
-        #       required: [
-        #         /\| \d+.\d+.*/,
-        #       ]
-        #     },
-        #   }
-        # },
-        # {
-        #   name: "auxiliary/admin/mysql/mysql_enum",
-        #   platforms: [:linux, :osx, :windows],
-        #   targets: [:session, :rhost],
-        #   skipped: false,
-        #   lines: {
-        #     all: {
-        #       required: [
-        #         /MySQL Version: \d+.\d+.*/,
-        #       ]
-        #     },
-        #   }
-        # },
+        {
+          name: 'auxiliary/gather/ldap_hashdump',
+          platforms: %i[linux osx windows],
+          targets: [:rhost],
+          skipped: false,
+          lines: {
+            all: {
+              required: [
+                /Discovering base DN\(s\) automatically/,
+                /Storing LDAP data for base DN='dc=wimpi,dc=net' in loot/,
+                /5 entries, 1 creds found in 'dc=wimpi,dc=net'/
+              ]
+            }
+          }
+        },
+        {
+          name: 'auxiliary/admin/ldap/shadow_credentials',
+          platforms: %i[linux osx windows],
+          targets: [:rhost],
+          skipped: false,
+          datastore: { TARGET_USER: 'test' },
+          lines: {
+            all: {
+              required: [
+                /Discovering base DN automatically/,
+                /The msDS-KeyCredentialLink field is empty./
+              ]
+            }
+          }
+        }
       ]
     }
   }
 
   TEST_ENVIRONMENT = AllureRspec.configuration.environment_properties
 
-  let_it_be(:current_platform) { Acceptance::Meterpreter::current_platform }
+  let_it_be(:current_platform) { Acceptance::Meterpreter.current_platform }
 
   # Driver instance, keeps track of all open processes/payloads/etc, so they can be closed cleanly
   let_it_be(:driver) do
@@ -176,6 +177,7 @@ RSpec.describe 'LDAP modules' do
         # Assert all expected lines are present
         required_lines.each do |required|
           next unless required.if?(test_environment)
+
           if required.value.is_a?(Regexp)
             expect(test_result).to match(required.value)
           else
@@ -203,7 +205,7 @@ RSpec.describe 'LDAP modules' do
     current_console_data = console.all_data
     begin
       console.reset
-    rescue => e
+    rescue StandardError => e
       console_reset_error = e
       Allure.add_attachment(
         name: 'console.reset failure information',
@@ -242,7 +244,7 @@ RSpec.describe 'LDAP modules' do
     test_assertions = JSON.pretty_generate(
       {
         required_lines: required_lines.map(&:to_h),
-        known_failures: known_failures.map(&:to_h),
+        known_failures: known_failures.map(&:to_h)
       }
     )
     Allure.add_attachment(
@@ -262,15 +264,13 @@ RSpec.describe 'LDAP modules' do
       test_config[:module_tests].each do |module_test|
         describe(
           module_test[:name],
-          if: (
+          if:
             Acceptance::Meterpreter.supported_platform?(module_test)
-          )
         ) do
           let(:target) { Acceptance::Target.new(test_config[:target]) }
 
           let(:default_global_datastore) do
-            {
-            }
+            {}
           end
 
           let(:test_environment) { TEST_ENVIRONMENT }
@@ -324,14 +324,14 @@ RSpec.describe 'LDAP modules' do
             console.reset
           end
 
-          context "when targeting a session", if: module_test[:targets].include?(:session) do
+          context 'when targeting a session', if: module_test[:targets].include?(:session) do
             it(
               "#{Acceptance::Meterpreter.current_platform}/#{runtime_name} session opens and passes the #{module_test[:name].inspect} tests"
             ) do
               with_test_harness(module_test) do |replication_commands|
                 # Ensure we have a valid session id; We intentionally omit this from a `before(:each)` to ensure the allure attachments are generated if the session dies
                 expect(session_id).to_not(be_nil, proc do
-                  "There should be a session present"
+                  'There should be a session present'
                 end)
 
                 use_module = "use #{module_test[:name]}"
@@ -349,14 +349,14 @@ RSpec.describe 'LDAP modules' do
             end
           end
 
-          context "when targeting an rhost", if: module_test[:targets].include?(:rhost) do
+          context 'when targeting an rhost', if: module_test[:targets].include?(:rhost) do
             it(
               "#{Acceptance::Meterpreter.current_platform}/#{runtime_name} rhost opens and passes the #{module_test[:name].inspect} tests"
             ) do
               with_test_harness(module_test) do |replication_commands|
                 use_module = "use #{module_test[:name]}"
-                # require 'pry-byebug'; binding.pry
-                run_module = "run #{target.datastore_options(default_module_datastore: default_module_datastore.merge(module_test.fetch(:datastore, {})))} Verbose=true"
+                run_command = module_test.key?(:action) ? module_test.fetch(:action) : 'run'
+                run_module = "#{run_command} #{target.datastore_options(default_module_datastore: default_module_datastore.merge(module_test.fetch(:datastore, {})))} Verbose=true"
 
                 replication_commands << use_module
                 console.sendline(use_module)

@@ -48,9 +48,7 @@ jobs:
     services:
       ldap:
         image: ${{ matrix.target.version }}
-        ports: ["389:389", "636:636"]
-        env:
-          LDAP_ROOT_PASSWORD: password
+        ports: [ "10389:10389" ]
         options: >-
           --health-cmd "${{ matrix.target.health_cmd }}"
           --health-interval 10s
@@ -64,7 +62,7 @@ jobs:
         os:
           - ubuntu-latest
         target:
-          - { version: "osixia/openldap:1.5.0", health_cmd: 'ldapsearch -x -H ldap://localhost -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin' }
+          - { version: "dwimberger/ldap-ad-it:latest", health_cmd: 'apk update; apk add openldap-clients; ldapsearch -x -H ldap://localhost:10389 -D uid=admin,ou=system -w secret -b dc=wimpi,dc=net' }
 
     env:
       RAILS_ENV: test
@@ -90,7 +88,7 @@ jobs:
       - name: Extract runtime version
         run: |
           echo "RUNTIME_VERSION=$(echo $DOCKER_IMAGE | awk -F: '{ print $2 }')" >> $GITHUB_ENV
-          echo "DOCKER_IMAGE_FILENAME=$(echo $DOCKER_IMAGE | tr -d ':')" >> $GITHUB_ENV
+          echo "DOCKER_IMAGE_FILENAME=$(echo $DOCKER_IMAGE | tr -d '/:')" >> $GITHUB_ENV
         env:
           DOCKER_IMAGE: ${{ matrix.target.version }}
           OS: ${{ matrix.os }}
