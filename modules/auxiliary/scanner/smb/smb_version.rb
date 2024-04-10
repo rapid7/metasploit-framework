@@ -47,15 +47,10 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
-    deregister_options('RPORT', 'SMBDIRECT', 'SMB::ProtocolVersion')
-  end
-
-  def rport
-    @smb_port
   end
 
   def smb_direct
-    (@smb_port == 445)
+    @smbdirect || datastore['SMBDirect']
   end
 
   def seconds_to_timespan(seconds)
