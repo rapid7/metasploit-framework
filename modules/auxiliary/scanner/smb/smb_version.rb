@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
-    deregister_options('RPORT', 'SMBDIRECT', 'SMB::ProtocolVersion')
+    deregister_options('SMBDIRECT', 'SMB::ProtocolVersion')
   end
 
   def rport
@@ -189,7 +189,11 @@ class MetasploitModule < Msf::Auxiliary
   # Fingerprint a single host
   #
   def run_host(ip)
-    smb_ports = [445, 139]
+    # Use a set, rather than an array, so that we can add the user provided
+    #  RPORTS
+    smb_ports = Set[445, 139]
+    smb_ports.add(datastore['RPORT'])
+
     lines = [] # defer status output to the very end to group lines together by host
     smb_ports.each do |pnum|
       @smb_port = pnum
