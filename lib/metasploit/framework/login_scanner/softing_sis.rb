@@ -37,7 +37,9 @@ module Metasploit
         # get the authentication token
         #
         # @param user [String] The username
-        # @return [String] The authentication token
+        # @return [Hash]
+        #   * status [Metasploit::Model::Login::Status]
+        #   * proof [String] the authentication token 
         def get_auth_token(user)
           auth_token_uri = normalize_uri("#{uri}/runtime/core/user/#{user}/authentication-token")
 
@@ -73,7 +75,7 @@ module Metasploit
             return { status: LOGIN_STATUS::INCORRECT, proof: auth_res.body.to_s }
           end
 
-          auth_token
+          { status: LOGIN_STATUS::SUCCESSFUL, proof: auth_token }
         end
 
         # generate a signature from the authentication token, username, and password
@@ -97,8 +99,16 @@ module Metasploit
           # prep the data needed for login
           protocol = ssl ? 'https' : 'http'
           # attempt to get an authentication token
-          auth_token = get_auth_token(user)
+          auth_token_res = get_auth_token(user)
+          # get_auth_token always returns a hash - check that status is SUCCESSFUL
+          # if not, just return as it is
+          unless auth_token_res[:status] == LOGIN_STATUS::SUCCESSFUL
+            return auth_token_res
+          end
 
+          # extract the authentication token from the hash
+          auth_token = auth_token_res[:proof]
+          
           login_uri = normalize_uri("#{uri}/runtime/core/user/#{user}/authentication")
           # calculate signature to use when logging in
           signature = generate_signature(auth_token, user, pass)
