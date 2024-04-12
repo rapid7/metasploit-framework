@@ -14,7 +14,7 @@ module Msf::Sessions
     # @param executable [String] The process to launch
     # @param args [Array<String>] The arguments to the process
     def to_cmd(executable, args)
-      self.class.to_cmd
+      self.class.to_cmd(executable, args)
     end
 
     # Convert the executable and argument array to a command that can be run in this command shell
