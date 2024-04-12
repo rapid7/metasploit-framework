@@ -5,7 +5,7 @@ require 'postgres/postgres-pr/connection'
 
 RSpec.describe Msf::Sessions::PostgreSQL do
   let(:client) { instance_double(Msf::Db::PostgresPR::Connection) }
-  let(:opts) { { client: client } }
+  let(:opts) { { client: client, platform: Msf::Platform::Linux.realname, arch: ARCH_X86_64 } }
   let(:console_class) { Rex::Post::PostgreSQL::Ui::Console }
   let(:user_input) { instance_double(Rex::Ui::Text::Input::Readline) }
   let(:user_output) { instance_double(Rex::Ui::Text::Output::Stdio) }

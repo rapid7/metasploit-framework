@@ -9,6 +9,8 @@ class Msf::Sessions::PostgreSQL < Msf::Sessions::Sql
   # @param opts [Msf::Db::PostgresPR::Connection] :client
   def initialize(rstream, opts = {})
     @client = opts.fetch(:client)
+    self.platform = opts.fetch(:platform)
+    self.arch = opts.fetch(:arch)
     @console = ::Rex::Post::PostgreSQL::Ui::Console.new(self)
     super(rstream, opts)
   end
