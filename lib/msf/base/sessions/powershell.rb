@@ -49,7 +49,6 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
   # @param executable [String] The process to launch
   # @param args [Array<String>] The arguments to the process
   def self.to_cmd(executable, args)
-  
     # The principle here is that we want to launch a process such that it receives *exactly* what is in `args`. 
     # This means we need to:
     # - Escape all special characters
