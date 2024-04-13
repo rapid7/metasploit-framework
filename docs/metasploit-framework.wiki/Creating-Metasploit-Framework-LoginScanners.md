@@ -342,7 +342,7 @@ The result object now as a `.to_h` method which returns a hash compatible with o
 
 In the case of a success we build some info hashes and call `create_credential`. This is a method found in the metasploit-credential gem under `lib/metasploit/credential/creation.rb` in a mixin called `Metasploit::Credential::Creation`. This mixin is included in the Report mixin, so if your module includes that mixin you'll get these methods for free.
 
-`create_credential` creates a `Metasploit::Credential::Core`. We then take that core, the service data, and merge it with some additional data. This additional data includes the access level, the current time (to update last_attempted_at on the `Metasploit::Credential::Login`), the the status. 
+`create_credential` creates a `Metasploit::Credential::Core`. We then take that core, the service data, and merge it with some additional data. This additional data includes the access level, the current time (to update last_attempted_at on the `Metasploit::Credential::Login`), the status. 
 
 Finally, for a success, we output the result to the console.
 

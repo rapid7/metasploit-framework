@@ -456,7 +456,7 @@ To learn more about the Python extension, please read this [wiki](https://docs.m
 There are three mains ways that you can use for moving around inside a network:
 
  - The route command in the msf prompt
- - The route command in the the Meterpreter prompt
+ - The route command in the Meterpreter prompt
  - The portfwd command
 
 ***Routing through msfconsole***

@@ -64,7 +64,7 @@ Basic options:
 Description:
   This module dependent on the given filename extension creates either 
   a .lnk, .scf, .url, desktop.ini file which includes a reference to 
-  the the specified remote host, causing SMB connections to be 
+  the specified remote host, causing SMB connections to be 
   initiated from any user that views the file.
 
 References:
