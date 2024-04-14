@@ -17,6 +17,54 @@ module Msf::Sessions
       self.class.to_cmd(executable, args)
     end
 
+    # Convert the executable and argument array to a commandline that can be passed to CreateProcessAsUserW.
+    # @param executable [String] The process to launch
+    # @param args [Array<String>] The arguments to the process
+    # @remark The difference between this and `to_cmd` is that the output of `to_cmd` is expected to be passed
+    #         to cmd.exe, whereas this is expected to be passed directly to the Win32 API, anticipating that it
+    #         will in turn be interpreted by CommandLineToArgvW.
+    def self.argv_to_commandline(executable, args)
+      space_chars = [' ', '\t', '\v']
+
+      # The first argument is treated differently for the purposes of backslash escaping (and should not contain double-quotes)
+      needs_quoting = space_chars.any? do |char|
+        executable.include?(char)
+      end
+
+      if needs_quoting
+        executable = "\"#{executable}\""
+      end
+
+      escaped_args = args.map do |arg|
+        needs_quoting = space_chars.any? do |char|
+          arg.include?(char)
+        end
+
+        # Fix the weird behaviour when backslashes are treated differently when immediately prior to a double-quote
+        # We need to send double the number of backslashes to make it work as expected
+        # See: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-commandlinetoargvw#remarks
+        arg = arg.gsub(/(\\*)"/, '\\1\\1"')
+
+        # Quotes need to be escaped
+        arg = arg.gsub('"', '\\"')
+
+        if needs_quoting
+          # At the end of the argument, we're about to add another quote - so any backslashes need to be doubled here too
+          arg = arg.gsub(/(\\*)$/, '\\1\\1')
+          arg = "\"#{arg}\""
+        end
+
+        # Empty string needs to be coerced to have a value
+        arg = '""' if arg == ''
+
+        arg
+      end
+
+      cmd_and_args = [executable] + escaped_args
+
+      cmd_and_args.join(' ')
+    end
+
     # Convert the executable and argument array to a command that can be run in this command shell
     # @param executable [String] The process to launch
     # @param args [Array<String>] The arguments to the process
@@ -37,7 +85,7 @@ module Msf::Sessions
       # (if we've been inside them in the current "token"), and then start a new "token".
 
       cmd_and_args = [executable] + args
-      quote_requiring = ['"', '^', ' ', '&', '<', '>', '|']
+      quote_requiring = ['"', '^', ' ', "\t", "\v", '&', '<', '>', '|']
 
       escaped_cmd_and_args = cmd_and_args.map do |arg|
         # Double-up all quote chars
@@ -74,6 +122,14 @@ module Msf::Sessions
           current_token = "\"#{current_token}\""
         end
         result += current_token
+
+        # Fix the weird behaviour when backslashes are treated differently when immediately prior to a double-quote
+        # We need to send double the number of backslashes to make it work as expected
+        # See: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-commandlinetoargvw#remarks
+        result.gsub!(/(\\*)"/, '\\1\\1"')
+
+        # Empty string needs to be coerced to have a value
+        result = '""' if result == ''
 
         result
       end
