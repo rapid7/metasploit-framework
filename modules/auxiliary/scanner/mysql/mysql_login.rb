@@ -36,6 +36,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::Proxies,
+        OptBool.new('CreateSession', [false, 'Create a new session for every successful login', false])
       ])
 
     options_to_deregister = %w[PASSWORD_SPRAY]
@@ -198,7 +199,7 @@ class MetasploitModule < Msf::Auxiliary
   def session_setup(result)
     return unless (result.connection && result.proof)
 
-    my_session = Msf::Sessions::MySQL.new(result.connection, { client: result.proof })
+    my_session = Msf::Sessions::MySQL.new(result.connection, { client: result.proof, **result.proof.detect_platform_and_arch })
     merge_me = {
       'USERPASS_FILE' => nil,
       'USER_FILE'     => nil,

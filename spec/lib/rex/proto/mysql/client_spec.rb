@@ -32,4 +32,49 @@ RSpec.describe Rex::Proto::MySQL::Client do
       end
     end
   end
+
+  describe '#map_compile_os_to_platform' do
+    [
+      { info: 'linux', expected: Msf::Platform::Linux.realname },
+      { info: 'linux2.6', expected: Msf::Platform::Linux.realname },
+      { info: 'debian-linux-gnu', expected: Msf::Platform::Linux.realname },
+      { info: 'win', expected: Msf::Platform::Windows.realname },
+      { info: 'windows', expected: Msf::Platform::Windows.realname },
+      { info: 'darwin', expected: Msf::Platform::OSX.realname },
+      { info: 'osx', expected: Msf::Platform::OSX.realname },
+      { info: 'macos', expected: Msf::Platform::OSX.realname },
+      { info: 'unix', expected: Msf::Platform::Unix.realname },
+      { info: 'solaris', expected: Msf::Platform::Solaris.realname },
+      { info: '', expected: Msf::Platform::Unknown.realname },
+      { info: 'blank', expected: Msf::Platform::Unknown.realname },
+      { info: nil, expected: Msf::Platform::Unknown.realname },
+    ].each do |test|
+      it "correctly identifies '#{test[:info]}' as '#{test[:expected]}'" do
+        expect(subject.map_compile_os_to_platform(test[:info])).to eq(test[:expected])
+      end
+    end
+  end
+
+  describe '#map_compile_arch_to_architecture' do
+    [
+      { info: 'x86_64', expected: ARCH_X86_64 },
+      { info: 'x86_x64', expected: ARCH_X86_64 },
+      { info: 'x64', expected: ARCH_X86_64 },
+      { info: '64', expected: ARCH_X86_64 },
+      { info: 'x86', expected: ARCH_X86 },
+      { info: '86', expected: ARCH_X86 },
+      { info: 'i686', expected: ARCH_X86 },
+      { info: 'arm64', expected: ARCH_AARCH64 },
+      { info: 'arm', expected: ARCH_AARCH64 },
+      { info: 'sparc', expected: ARCH_SPARC },
+      { info: 'sparc64', expected: ARCH_SPARC64 },
+      { info: '', expected: '' },
+      { info: 'blank', expected: '' },
+      { info: nil, expected: '' },
+    ].each do |test|
+      it "correctly identifies '#{test[:info]}' as '#{test[:expected]}'" do
+        expect(subject.map_compile_arch_to_architecture(test[:info])).to eq(test[:expected])
+      end
+    end
+  end
 end
