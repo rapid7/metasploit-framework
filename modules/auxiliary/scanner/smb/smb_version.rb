@@ -39,6 +39,12 @@ class MetasploitModule < Msf::Auxiliary
       'Author' => ['hdm', 'Spencer McIntyre', 'Christophe De La Fuente'],
       'License' => MSF_LICENSE
     )
+    register_options(
+      [
+        OptString.new('SMB_RPORT', [false, 'A non-default SMB port', 0]),
+        OptString.new('RPC_RPORT', [false, 'A non-default RPC port', 0])
+      ]
+    )
 
     register_advanced_options(
       [
@@ -191,12 +197,25 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     # Use a set, rather than an array, so that we can add the user provided
     #  RPORTS
-    smb_ports = Set[445, 139]
-    smb_ports.add(datastore['RPORT'])
+    smb_ports = [['smb', 445], ['rpc', 139]]
+
+    if datastore['SMB_RPORT'] != 0
+      smb_ports = [['smb', datastore['SMB_RPORT']]]
+    end
+
+    if datastore['RPC_RPORT'] != 0
+      smb_ports = [['rpc', datastore['RPC_RPORT']]]
+    end
 
     lines = [] # defer status output to the very end to group lines together by host
     smb_ports.each do |pnum|
-      @smb_port = pnum
+      @smb_port = pnum[1]
+      if pnum[0] == 'smb'
+        datastore["SMBDirect"] = true
+      else
+        datastore["SMBDirect"] = false
+      end
+
       self.simple = nil
 
       begin
