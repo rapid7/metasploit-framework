@@ -62,7 +62,7 @@ module Msf::Post::Common
       }.merge(opts)
 
       if session.platform == 'windows'
-        opts[:legacy_args] = Msf::Sessions::CommandShellWindows.to_cmd(executable, args)
+        opts[:legacy_args] = Msf::Sessions::CommandShellWindows.argv_to_commandline(executable, args)
       else
         opts[:legacy_args] = Msf::Sessions::CommandShellUnix.to_cmd(executable, args)
       end

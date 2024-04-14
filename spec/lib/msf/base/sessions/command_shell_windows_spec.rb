@@ -33,6 +33,12 @@ RSpec.describe Msf::Sessions::CommandShellWindows do
       expect(described_class.to_cmd('test.exe', ['env', 'var', 'is', '%temp%'])).to eq('test.exe env var is ^%temp^%')
     end
 
+    it 'should handle the weird backslash escaping behaviour in front of quotes' do
+      expect(described_class.to_cmd('test.exe', ['quote\\\\"'])).to eq('test.exe "quote\\\\\\\\"""')
+      expect(described_class.to_cmd('test.exe', ['will be quoted\\\\'])).to eq('test.exe "will be quoted\\\\\\\\"')
+      expect(described_class.to_cmd('test.exe', ['will be quoted\\\\ '])).to eq('test.exe "will be quoted\\\\ "') # Should not be doubled up
+    end
+
     it 'should handle combinations of quoting and percent-escaping' do
       expect(described_class.to_cmd('test.exe', ['env var is %temp%'])).to eq('test.exe "env var is "^%temp^%')
       expect(described_class.to_cmd('test.exe', ['env var is %temp%, yes, %TEMP%'])).to eq('test.exe "env var is "^%temp^%", yes, "^%TEMP^%')
@@ -42,6 +48,40 @@ RSpec.describe Msf::Sessions::CommandShellWindows do
     it 'should handle single percents' do
       expect(described_class.to_cmd('test.exe', ['%single percent'])).to eq('test.exe ^%"single percent"')
       expect(described_class.to_cmd('test.exe', ['100%'])).to eq('test.exe 100^%')
+    end
+
+    it 'should handle empty args' do
+      expect(described_class.to_cmd('test.exe', [''])).to eq('test.exe ""')
+      expect(described_class.to_cmd('test.exe', ['', ''])).to eq('test.exe "" ""')
+    end
+  end
+
+  describe 'argv_to_commandline processing' do
+    it 'should not do anything for simple args' do
+      expect(described_class.argv_to_commandline('test.exe', [])).to eq('test.exe')
+      expect(described_class.argv_to_commandline('test.exe', ['basic','args'])).to eq('test.exe basic args')
+      expect(described_class.argv_to_commandline('test.exe', ['!@#$%^&*(){}><.,\''])).to eq('test.exe !@#$%^&*(){}><.,\'')
+    end
+
+    it 'should quote space characters' do
+      expect(described_class.argv_to_commandline('test.exe', [])).to eq('test.exe')
+      expect(described_class.argv_to_commandline('test.exe', ['basic','args'])).to eq('test.exe basic args')
+    end
+
+    it 'should escape double-quote characters' do
+      expect(described_class.argv_to_commandline('test.exe', ['"one','"two"'])).to eq('test.exe \\"one \\"two\\"')
+      expect(described_class.argv_to_commandline('test.exe', ['"one "two"'])).to eq('test.exe "\\"one \\"two\\""')
+    end
+
+    it 'should handle the weird backslash escaping behaviour in front of quotes' do
+      expect(described_class.argv_to_commandline('test.exe', ['\\\\"'])).to eq('test.exe \\\\\\\\\\"')
+      expect(described_class.argv_to_commandline('test.exe', ['space \\\\'])).to eq('test.exe "space \\\\\\\\"')
+      expect(described_class.argv_to_commandline('te st.exe\\', [])).to eq('"te st.exe\\"') # First arg shouldn't obey these strange rules
+    end
+
+    it 'should handle empty args' do
+      expect(described_class.argv_to_commandline('test.exe', [''])).to eq('test.exe ""')
+      expect(described_class.argv_to_commandline('test.exe', ['', ''])).to eq('test.exe "" ""')
     end
   end
 end

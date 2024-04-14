@@ -179,6 +179,8 @@ class Process < Rex::Post::Process
     # If process arguments were supplied
     if (arguments != nil)
       if arguments.kind_of?(Array)
+        # This flag is needed to disambiguate how to handle escaping special characters in the path when no arguments are provided
+        flags |= PROCESS_EXECUTE_FLAG_ARG_ARRAY
         arguments.each do |arg|
           request.add_tlv(TLV_TYPE_PROCESS_ARGUMENT, arg);
         end
