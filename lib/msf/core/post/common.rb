@@ -52,6 +52,22 @@ module Msf::Post::Common
     "#{rhost}:#{rport}"
   end
 
+  # Create a new process, receiving the program's output
+  # @param executable [String] The path to the executable; either absolute or relative to the session's current directory
+  # @param args [Array<String>] The arguments to the executable
+  # @time_out [Integer] Number of seconds before the call will time out
+  # @param opts [Hash] Optional settings to parameterise the process launch
+  # @option Hidden [Boolean] Is the process launched without creating a visible window
+  # @option Channelized [Boolean] The process is launched with pipes connected to a channel, e.g. for sending input/receiving output
+  # @option Suspended [Boolean] Start the process suspended
+  # @option UseThreadToken [Boolean] Use the thread token (as opposed to the process token) to launch the process
+  # @option Desktop [Boolean] Run on meterpreter's current desktopt
+  # @option Session [Integer] Execute process in a given session as the session user
+  # @option Subshell [Boolean] Execute process in a subshell
+  # @option Pty [Boolean] Execute process in a pty (if available)
+  # @option ParentId [Integer] Spoof the parent PID (if possible)
+  # @option InMemory [Boolean,String] Execute from memory (`path` is treated as a local file to upload, and the actual path passed
+  #                                   to meterpreter is this parameter's value, if provided as a String)
   def create_process(executable, args: [], time_out: 15, opts: {})
     case session.type
     when 'meterpreter'
