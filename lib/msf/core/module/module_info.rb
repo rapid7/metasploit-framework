@@ -1,4 +1,12 @@
 module Msf::Module::ModuleInfo
+
+  #
+  # Attributes
+  #
+
+  # @!attribute module_info
+  attr_accessor :module_info
+
   #
   # CONSTANTS
   #
@@ -48,13 +56,6 @@ module Msf::Module::ModuleInfo
   end
 
   protected
-
-  #
-  # Attributes
-  #
-
-  # @!attribute module_info
-  attr_accessor :module_info
 
   #
   # Instance Methods

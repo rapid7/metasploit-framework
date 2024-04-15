@@ -470,6 +470,24 @@ class RPC_Module < RPC_Base
     res
   end
 
+  # Returns the module's information metadata.
+  #
+  # @param [String] mtype Module type. Supported types include (case-sensitive):
+  #                       * exploit
+  #                       * auxiliary
+  #                       * post
+  #                       * nop
+  #                       * payload
+  # @param [String] mname Module name. For example: 'windows/wlan/wlan_profile'.
+  # @raise [Msf::RPC::Exception] Module not found (either wrong type or name).
+  # @return [Hash] The module's info metadata.
+  # @example Here's how you would use this from the client:
+  #  rpc.call('module.module_metadata', 'exploit', 'windows/smb/ms08_067_netapi')
+  def rpc_module_metadata(mtype, mname)
+    m = _find_module(mtype,mname)
+    m.module_info
+  end
+
   # Executes a module.
   #
   # @param [String] mtype Module type. Supported types include (case-sensitive):
