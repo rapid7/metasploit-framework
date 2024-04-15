@@ -238,7 +238,7 @@ class RPC_Module < RPC_Base
         res['targets'][i] = m.targets[i].name
       end
 
-      if (m.default_target)
+      if m.default_target
         res['default_target'] = m.default_target
       end
 
