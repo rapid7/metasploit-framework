@@ -369,7 +369,7 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
 
         it_behaves_like(
           '#each_user_pass',
-          context: 'when the the user / password files contain duplicate values',
+          context: 'when the user / password files contain duplicate values',
           datastore: {
             'USER_FILE' => tempfile("user1\nuser2\nuser3\n" * 3),
             'PASS_FILE' => tempfile("pass1\npass2\npass3\n" * 3),

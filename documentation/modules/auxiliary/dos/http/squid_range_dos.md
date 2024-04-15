@@ -26,7 +26,7 @@ Security bulletin from Squid: https://github.com/squid-cache/squid/security/advi
 
 ### REQUEST_COUNT
 
-REQUEST_COUNT is both the the number of HTTP requests which are sent to the server in
+REQUEST_COUNT is both the number of HTTP requests which are sent to the server in
 order to perform the actual Denial of Service (i.e. accepted requests by the server),
 and the number of requests that are sent to confirm that the Squid host is actually
 dead.

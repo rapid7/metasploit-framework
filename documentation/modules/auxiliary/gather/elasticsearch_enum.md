@@ -7,7 +7,7 @@ in the cluster, indices, and pull data from those indices.
 ### Docker
 
 Docker install is quite simple, however it won't come with any data making the results rather boring.
-However, we can use the the [oliver006/elasticsearch-test-data](https://github.com/oliver006/elasticsearch-test-data)
+However, we can use the [oliver006/elasticsearch-test-data](https://github.com/oliver006/elasticsearch-test-data)
 repo to help auto populate our data.
 
 ```

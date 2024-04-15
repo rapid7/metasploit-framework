@@ -160,7 +160,7 @@ msf6 auxiliary(admin/dcerpc/samr_computer) > run
 msf6 auxiliary(admin/dcerpc/samr_computer) > use auxiliary/admin/ldap/rbcd
 ```
 
-Now use the RBCD module to read the the current value of `msDS-AllowedToActOnBehalfOfOtherIdentity`:
+Now use the RBCD module to read the current value of `msDS-AllowedToActOnBehalfOfOtherIdentity`:
 
 ```msf
 msf6 auxiliary(admin/ldap/rbcd) > set USERNAME sandy@msflab.local
