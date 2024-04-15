@@ -340,6 +340,8 @@ autoload :RubySMB, 'ruby_smb'
 autoload :MetasploitPayloads, 'metasploit-payloads'
 
 require 'rexml/document'
+# Load IO#expect moneypatch
+require 'expect'
 
 # XXX: Should be removed once the `lib/metasploit` folder is loaded by Zeitwerk
 require 'metasploit/framework/hashes'
