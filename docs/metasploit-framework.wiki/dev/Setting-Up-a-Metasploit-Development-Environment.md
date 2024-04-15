@@ -202,13 +202,33 @@ git fetch upstream
 git checkout fixes-to-pr-12345 upstream/pr/12345
 ```
 
-If you're writing test cases (which you should), then make sure [rspec] works:
+## Running and writing tests
+
+If you're writing test cases (which you should), you should first configure your local database:
 
 ```bash
-rake spec
+bundle exec rake db:create db:migrate db:seed RAILS_ENV=test
 ```
 
-You should see over 9000 tests run, mostly resulting in green dots, a few in yellow stars, and no red errors.
+Then make sure [rspec] works:
+
+```bash
+bundle exec rspec
+```
+
+To run tests defined in file(s):
+
+```bash
+bundle exec rspec ./spec/path/to/your/tests_1.rb ./spec/path/to/your/tests_2.rb
+```
+
+To run run the tests defined at a line number - for instance line 23:
+
+```
+bundle exec rspec ./spec/path/to/your/tests_1.rb:23
+```
+
+Newly contributed tests should follow the conventions defined by [BetterSpecs.org] - with the additional requirement that all `it` blocks should have a human readable description.
 
 # Great!  Now what?
 
@@ -250,3 +270,5 @@ Finally, we welcome your feedback on this guide, so feel free to reach out to us
 [@kernelsmith]:https://github.com/kernelsmith
 [@corelanc0d3r]:https://github.com/corelanc0d3r
 [@ffmike]:https://github.com/ffmike
+
+[BetterSpecs.org]:https://www.betterspecs.org/
