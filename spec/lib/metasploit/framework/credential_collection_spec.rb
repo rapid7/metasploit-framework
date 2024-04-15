@@ -128,7 +128,7 @@ RSpec.describe Metasploit::Framework::CredentialCollection do
       let(:user_file) do
         filename = "user_file"
         stub_file = StringIO.new("user1\nuser2\nuser3\n")
-        allow(File).to receive(:open).with(filename,/^r/).and_yield stub_file
+        allow(File).to receive(:open).with(filename,/^r/).and_return stub_file
 
         filename
       end
