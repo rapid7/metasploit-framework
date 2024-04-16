@@ -99,19 +99,23 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     print_good("#{samr_con.domain_name} [ #{users.values.map { |name| name.encode('UTF-8') }.join(', ') } ] ( LockoutTries=#{lockout_info.lockout_threshold} PasswordMin=#{password_info.min_password_length} )")
+    if datastore['DB_ALL_USERS']
+      users.values.each do |username|
+        report_username(samr_con.domain_name, username.encode('UTF-8'))
+      end
+    end
   ensure
     samr_con.samr.close_handle(samr_con.domain_handle) if samr_con.domain_handle
     samr_con.samr.close_handle(samr_con.server_handle) if samr_con.server_handle
   end
 
-  def store_username(username, domain, ip, rport, resp)
+  def report_username(domain, username)
     service_data = {
-      address: ip,
+      address: rhost,
       port: rport,
       service_name: 'smb',
       protocol: 'tcp',
-      workspace_id: myworkspace_id,
-      proof: resp
+      workspace_id: myworkspace_id
     }
 
     credential_data = {
