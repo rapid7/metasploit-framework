@@ -4,15 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
-  # Exploit mixins should be called first
-  include Msf::Exploit::Remote::SMB::Client
-  include Msf::Exploit::Remote::SMB::Client::Authenticated
-
-  include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::MsSamr
-
-  # Scanner mixin should be near last
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
@@ -21,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'SMB User Enumeration (SAM EnumUsers)',
-      'Description' => 'Determine what local users exist via the SAM RPC service',
+      'Description' => 'Determine what users exist via the SAM RPC service',
       'Author'      => 'hdm',
       'License'     => MSF_LICENSE,
       'DefaultOptions' => {
@@ -39,13 +31,55 @@ class MetasploitModule < Msf::Auxiliary
     @rport || super
   end
 
-  def smb_direct
-    @smbdirect || super
+  def domain
+    @smb_domain || super
+  end
+
+  def connect(*args, **kwargs)
+    super(*args, **kwargs, direct: @smb_direct)
+  end
+
+  def run_host(_ip)
+    if datastore['RPORT'].blank? || datastore['RPORT'] == 0
+      smb_services = [
+        { port: 139, direct: false },
+        { port: 445, direct: true }
+      ]
+    else
+      smb_services = [
+        { port: datastore['RPORT'], direct: datastore['SMBDirect'] }
+      ]
+    end
+
+    smb_services.each do |smb_service|
+      run_service(smb_service[:port], smb_service[:direct])
+    end
+  end
+
+  def run_service(port, direct)
+    @rport = port
+    @smb_direct = direct
+
+    tree = connect_ipc
+
+    run_service_domain(tree)
+    run_service_domain(tree, smb_domain: 'Builtin')
+  rescue ::Timeout::Error
+  rescue ::Interrupt
+    raise $!
+  rescue ::Rex::ConnectionError
+  rescue ::Rex::Proto::SMB::Exceptions::LoginError
+    return
+  rescue ::Exception => e
+    print_error("Error: #{e.class} #{e}")
+  ensure
+    tree.disconnect! if tree
+    disconnect
   end
 
   # Fingerprint a single host
-  def run_host(ip)
-    tree = connect_ipc
+  def run_service_domain(tree, smb_domain: nil)
+    @smb_domain = smb_domain
 
     samr_con = connect_samr(tree)
 
@@ -95,5 +129,4 @@ class MetasploitModule < Msf::Auxiliary
 
     create_credential_login(login_data)
   end
-
 end
