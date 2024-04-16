@@ -199,8 +199,12 @@ class MetasploitModule < Msf::Auxiliary
     #  RPORTS
     smb_ports = [['smb', 445], ['rpc', 139]]
 
+    if datastore['RPORT'] != 0
+      smb_ports = [['smb', datastore['RPORT']]]
+    end
+
     if datastore['SMB_RPORT'] != 0
-      smb_ports = [['smb', datastore['SMB_RPORT']]]
+      smb_ports = [['smb', datastore['RPORT']]]
     end
 
     if datastore['RPC_RPORT'] != 0
