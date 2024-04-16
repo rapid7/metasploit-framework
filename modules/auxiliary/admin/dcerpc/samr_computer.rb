@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Exploit::Remote::DCERPC
   include Msf::Auxiliary::Report
-  include Msf::Exploit::Remote::MsSamr
+  include Msf::Exploit::Remote::MsSamr::Computer
   include Msf::OptionalSession::SMB
 
   def initialize(info = {})

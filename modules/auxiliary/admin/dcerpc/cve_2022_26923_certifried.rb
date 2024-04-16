@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::LDAP
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::MsIcpr
-  include Msf::Exploit::Remote::MsSamr
+  include Msf::Exploit::Remote::MsSamr::Computer
 
   def initialize(info = {})
     super(
