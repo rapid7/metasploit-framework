@@ -52,7 +52,7 @@ RSpec.describe Msf::Db::PostgresPR::Connection do
       { info: '86', expected: ARCH_X86 },
       { info: 'i686', expected: ARCH_X86 },
       { info: 'arm64', expected: ARCH_AARCH64 },
-      { info: 'arm', expected: ARCH_AARCH64 },
+      { info: 'arm', expected: ARCH_ARMLE },
       { info: 'sparc', expected: ARCH_SPARC },
       { info: 'sparc64', expected: ARCH_SPARC64 },
       { info: 'ppc', expected: ARCH_PPC },
@@ -65,13 +65,16 @@ RSpec.describe Msf::Db::PostgresPR::Connection do
   end
 
   describe '#detect_platform_and_arch' do
-    context "when the 'select version()' query is ran" do
-      it 'matches the regex' do
-        [
-          { version: '9.4', select_version_query_output: [['PostgreSQL 9.4.26 on x86_64-pc-linux-gnu (Debian 9.4.26-1.pgdg90+1), compiled by gcc (Debian 6.3.0-18+deb9u1) 6.3.0 20170516, 64-bit']] },
-          { version: '14', select_version_query_output: [['PostgreSQL 14.11 (Debian 14.11-1.pgdg120+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14) 12.2.0, 64-bit']] },
-        ].each do |test|
-          expect(test[:select_version_query_output].join).to match(/.*on (\w+-\w+-\w+-\w+)/)
+    [
+      { version: 'PostgreSQL 9.4.26 on x86_64-pc-linux-gnu (Debian 9.4.26-1.pgdg90+1), compiled by gcc (Debian 6.3.0-18+deb9u1) 6.3.0 20170516, 64-bit', expected: { arch: 'x86_64', platform: 'Linux' } },
+      { version: 'PostgreSQL 14.11 (Debian 14.11-1.pgdg120+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14) 12.2.0, 64-bit', expected: { arch: 'x86_64', platform: 'Linux' } },
+    ].each do |test|
+      context "when the database is version #{test[:version]}" do
+        it "returns #{test[:expected]}" do
+          mock_query_result = instance_double Msf::Db::PostgresPR::Connection::Result, rows: [[test[:version]]]
+          allow(subject).to receive(:query).with('select version()').and_return(mock_query_result)
+
+          expect(subject.detect_platform_and_arch).to eq test[:expected]
         end
       end
     end

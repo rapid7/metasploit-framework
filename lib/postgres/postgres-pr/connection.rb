@@ -190,7 +190,7 @@ class Connection
     elsif compile_arch.include?('ppc')
       arch = ARCH_PPC
     elsif compile_arch.match?('arm')
-      arch = ARCH_AARCH64
+      arch = ARCH_ARMLE
     elsif compile_arch.match?('64')
       arch = ARCH_X86_64
     elsif compile_arch.match?('86') || compile_arch.match?('i686')
@@ -203,17 +203,16 @@ class Connection
     arch
   end
 
-  # @return [Hash] Detect the platform and architecture of the MySQL server:
+  # @return [Hash] Detect the platform and architecture of the PostgreSQL server:
   #  * :arch [String] The server architecture.
   #  * :platform [String] The server platform.
   def detect_platform_and_arch
     result = {}
 
-    query_result = query('select version()').rows.join.match(/.*on (\w+-\w+-\w+-\w+)/).captures
-    server_var = query_result.join.split('-', 2)
+    query_result = query('select version()').rows.join.match(/on (?<architecture>\w+)-\w+-(?<platform>\w+)-\w+/)
     server_vars = {
-      'version_compile_machine' => server_var[0],
-      'version_compile_os' => server_var[1]
+      'version_compile_machine' => query_result[:architecture],
+      'version_compile_os' => query_result[:platform]
     }
 
     result[:arch] = map_compile_arch_to_architecture(server_vars['version_compile_machine'])
