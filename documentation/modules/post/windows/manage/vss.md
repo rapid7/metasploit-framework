@@ -59,7 +59,7 @@ meterpreter > background
 [*] Backgrounding session 2...
 ```
 
-Next, use the VSS module to the the storage information and then create a shadow copy of the `C:` drive (the default
+Next, use the VSS module to the storage information and then create a shadow copy of the `C:` drive (the default
 value).
 
 ```
