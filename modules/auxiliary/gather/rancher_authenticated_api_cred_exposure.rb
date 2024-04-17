@@ -46,8 +46,8 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_options(
       [
-        OptString.new('USERNAME', [ true, 'User to login with', '']),
-        OptString.new('PASSWORD', [ true, 'Password to login with', '']),
+        OptString.new('USERNAME', [ true, 'User to login with']),
+        OptString.new('PASSWORD', [ true, 'Password to login with']),
         OptString.new('TARGETURI', [ true, 'The URI of Rancher instance', '/'])
       ]
     )
@@ -66,14 +66,11 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, 'dashboard/'),
       'keep_cookies' => true
     })
-    return false if res.nil?
-    return false unless res.code == 200
+    return false unless res&.code == 200
 
     html = res.get_html_document
     title = html.at('title').text
-    return true if title == 'dashboard' # this is a VERY weak check
-
-    false
+    title == 'dashboard' # this is a VERY weak check
   end
 
   def login
@@ -83,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
       'keep_cookies' => true
     })
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
-    fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") unless res.code == 200
+    fail_with(Failure::UnexpectedReply, "#{peer} - Could not connect to web service - no response") unless res.code == 200
 
     json_post_data = JSON.pretty_generate(
       {
