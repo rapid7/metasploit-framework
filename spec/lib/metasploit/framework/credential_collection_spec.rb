@@ -19,6 +19,13 @@ RSpec.describe Metasploit::Framework::CredentialCollection do
     )
   end
 
+  before(:each) do
+    # The test suite overrides File.open(...) calls; fall back to the normal behavior for any File.open calls that aren't explicitly mocked
+    allow(File).to receive(:open).with(anything).and_call_original
+    allow(File).to receive(:open).with(anything, anything).and_call_original
+    allow(File).to receive(:open).with(anything, anything, anything).and_call_original
+  end
+
   let(:nil_passwords) { nil }
   let(:blank_passwords) { nil }
   let(:username) { "user" }
