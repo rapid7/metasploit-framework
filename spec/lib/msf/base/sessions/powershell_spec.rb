@@ -44,5 +44,9 @@ RSpec.describe Msf::Sessions::PowerShell do
     it 'should not split comma args' do
       expect(described_class.to_cmd(".\\test.exe", ['arg1,notarg2'])).to eq(".\\test.exe 'arg1,notarg2'")
     end
+
+    it 'should handle empty strings' do
+      expect(described_class.to_cmd(".\\test.exe", ['', 'a', '', 'b'])).to eq(".\\test.exe '\"\"' a '\"\"' b")
+    end
   end
 end

@@ -124,7 +124,7 @@ class Process < Rex::Post::Process
   #                                   to meterpreter is this parameter's value, if provided as a String)
   # @option :legacy_args [String] When arguments is an array, this is the command to execute if the receiving Meterpreter does not support arguments as an array
   #
-  def Process.execute(path, arguments = nil, opts = nil)
+  def Process.execute(path, arguments = '', opts = nil)
     request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_EXECUTE)
     flags   = 0
 
@@ -173,28 +173,26 @@ class Process < Rex::Post::Process
       end
     end
 
-    request.add_tlv(TLV_TYPE_PROCESS_UNESCAPED_PATH, client.unicode_filter_decode( path ));
-
     # Add arguments
     # If process arguments were supplied
-    if (arguments != nil)
-      if arguments.kind_of?(Array)
-        # This flag is needed to disambiguate how to handle escaping special characters in the path when no arguments are provided
-        flags |= PROCESS_EXECUTE_FLAG_ARG_ARRAY
-        arguments.each do |arg|
-          request.add_tlv(TLV_TYPE_PROCESS_ARGUMENT, arg);
-        end
-        if opts[:legacy_path]
-          request.add_tlv(TLV_TYPE_PROCESS_PATH, opts[:legacy_path])
-        end
-        if opts[:legacy_args]
-          request.add_tlv(TLV_TYPE_PROCESS_ARGUMENTS, opts[:legacy_args])
-        end
-      elsif arguments.kind_of?(String)
-        request.add_tlv(TLV_TYPE_PROCESS_ARGUMENTS, arguments)
-      else
-        raise ArgumentError.new('Unknown type for arguments')
+    if arguments.kind_of?(Array)
+      request.add_tlv(TLV_TYPE_PROCESS_UNESCAPED_PATH, client.unicode_filter_decode( path ));
+      # This flag is needed to disambiguate how to handle escaping special characters in the path when no arguments are provided
+      flags |= PROCESS_EXECUTE_FLAG_ARG_ARRAY
+      arguments.each do |arg|
+        request.add_tlv(TLV_TYPE_PROCESS_ARGUMENT, arg);
       end
+      if opts[:legacy_path]
+        request.add_tlv(TLV_TYPE_PROCESS_PATH, opts[:legacy_path])
+      end
+      if opts[:legacy_args]
+        request.add_tlv(TLV_TYPE_PROCESS_ARGUMENTS, opts[:legacy_args])
+      end
+    elsif arguments.kind_of?(String)
+      request.add_tlv(TLV_TYPE_PROCESS_PATH, client.unicode_filter_decode( path ));
+      request.add_tlv(TLV_TYPE_PROCESS_ARGUMENTS, arguments)
+    else
+      raise ArgumentError.new('Unknown type for arguments')
     end
 
     request.add_tlv(TLV_TYPE_PROCESS_FLAGS, flags);
@@ -220,7 +218,7 @@ class Process < Rex::Post::Process
   #
   # Execute an application and capture the output
   #
-  def Process.capture_output(path, arguments = nil, opts = nil, time_out = 15)
+  def Process.capture_output(path, arguments = '', opts = nil, time_out = 15)
     start = Time.now.to_i
     process = execute(path, arguments, opts)
     data = ""

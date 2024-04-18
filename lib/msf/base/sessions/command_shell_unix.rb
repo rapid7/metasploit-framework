@@ -30,7 +30,12 @@ module Msf::Sessions
       end
 
       escaped = cmd_and_args.map do |arg|
-        CommandShell._glue_cmdline_escape(arg, quote_requiring, "'", "\\'", "'")
+        result = CommandShell._glue_cmdline_escape(arg, quote_requiring, "'", "\\'", "'")
+        if result == ''
+          result = "''"
+        end
+
+        result
       end
 
       escaped.join(' ')
