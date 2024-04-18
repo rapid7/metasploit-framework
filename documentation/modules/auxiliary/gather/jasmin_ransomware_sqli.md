@@ -83,18 +83,13 @@ Logins
 Victims
 =======
 
- machine_name    computer_user  ip              systemid         password
- ------------    -------------  --              --------         --------
- Bollywood       Salman Khan    47.247.223.177  df545f454f5d4f5  M9M99EvNpZVOWpy9
-                                                d4af5            Q8sZLHEP
- DESKTOP-37Q74Q  cyberstair     47.247.223.177  96457DF79A87C7C  xAS4NinH/HQKNJws
- H                                              0008A7BE7        NtTWN5yD
- FiFa            Leone Messi    47.247.223.177  cfhsfkdjkfvdd45  JDNAaz6e3oyM8cN+
-                                                4s5g4            AGFdMl/5
- Indian Cricket  Virat Kohli    47.247.223.177  SDGFs4F4S4FD4F4  3tIHrYJqqTSBpw4l
-                                                545fs            gMMck1GD
- White House     Donald Trump   47.247.223.177  fgighefesdgvrd5  RJtCd9QqiCfBaSU0
-                                                g45rd4h          zQf84dvd
+ machine_name     computer_user  ip              systemid                  password
+ ------------     -------------  --              --------                  --------
+ Bollywood        Salman Khan    47.247.223.177  df545f454f5d4f5d4af5      M9M99EvNpZVOWpy9Q8sZLHEP
+ DESKTOP-37Q74QH  cyberstair     47.247.223.177  96457DF79A87C7C0008A7BE7  xAS4NinH/HQKNJwsNtTWN5yD
+ FiFa             Leone Messi    47.247.223.177  cfhsfkdjkfvdd454s5g4      JDNAaz6e3oyM8cN+AGFdMl/5
+ Indian Cricket   Virat Kohli    47.247.223.177  SDGFs4F4S4FD4F4545fs      3tIHrYJqqTSBpw4lgMMck1GD
+ White House      Donald Trump   47.247.223.177  fgighefesdgvrd5g45rd4h    RJtCd9QqiCfBaSU0zQf84dvd
 
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
