@@ -82,8 +82,10 @@ module Msf::Post::Common
 
       if session.platform == 'windows'
         opts[:legacy_args] = Msf::Sessions::CommandShellWindows.argv_to_commandline(args)
+        opts[:legacy_path] = Msf::Sessions::CommandShellWindows.escape_cmd(executable)
       else
         opts[:legacy_args] = Msf::Sessions::CommandShellUnix.to_cmd(nil, args)
+        opts[:legacy_path] = Msf::Sessions::CommandShellUnix.to_cmd(executable, [])
       end
 
       if opts['Channelized']

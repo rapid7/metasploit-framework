@@ -17,6 +17,21 @@ module Msf::Sessions
       self.class.to_cmd(executable, args)
     end
 
+    # Escape a process for the command line
+    # @param executable [String] The process to launch
+    def self.escape_cmd(executable)
+      space_chars = [' ', '\t', '\v']
+      needs_quoting = space_chars.any? do |char|
+        executable.include?(char)
+      end
+
+      if needs_quoting
+        executable = "\"#{executable}\""
+      end
+
+      executable
+    end
+
     # Convert the executable and argument array to a commandline that can be passed to CreateProcessAsUserW.
     # @param args [Array<String>] The arguments to the process
     # @remark The difference between this and `to_cmd` is that the output of `to_cmd` is expected to be passed
