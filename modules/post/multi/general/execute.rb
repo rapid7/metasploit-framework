@@ -19,16 +19,14 @@ class MetasploitModule < Msf::Post
     )
     register_options(
       [
-        OptString.new('COMMAND', [false, 'The entire command line to execute on the session']),
-        OptString.new('ARG1', [false, 'The entire command line to execute on the session']),
-        OptString.new('ARG2', [false, 'The entire command line to execute on the session'])
+        OptString.new('COMMAND', [false, 'The entire command line to execute on the session'])
       ]
     )
   end
 
   def run
     print_status("Executing #{datastore['COMMAND']} on #{session.inspect}...")
-    res = create_process(datastore['COMMAND'], args: [datastore['ARG1'], datastore['ARG2']])
-    print_status("Response: #{res}")
+    res = cmd_exec(datastore['COMMAND'])
+    print_status("Response: \n#{res}")
   end
 end
