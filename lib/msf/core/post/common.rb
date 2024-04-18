@@ -75,6 +75,9 @@ module Msf::Post::Common
       opts = {
         'Hidden' => true,
         'Channelized' => true,
+        # Well-behaving meterpreters will ignore the Subshell flag when using arg arrays.
+        # This is still provided for supporting old meterpreters.
+        'Subshell' => true
       }.merge(opts)
 
       if session.platform == 'windows'
@@ -90,11 +93,11 @@ module Msf::Post::Common
       end
     when 'powershell'
       cmd = session.to_cmd(executable, args)
-      o = session.shell_command("#{cmd}", time_out)
+      o = session.shell_command(cmd, time_out)
       o.chomp! if o
     when 'shell'
       cmd = session.to_cmd(executable, args)
-      o = session.shell_command_token("#{cmd}", time_out)
+      o = session.shell_command_token(cmd, time_out)
       o.chomp! if o
     end
     return "" if o.nil?

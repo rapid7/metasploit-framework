@@ -39,9 +39,6 @@ module Msf::Sessions
           arg = "\"#{arg}\""
         end
 
-        if arg.include?("'")
-        end
-
         arg
       end
 
