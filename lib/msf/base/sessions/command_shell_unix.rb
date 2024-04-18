@@ -21,9 +21,7 @@ module Msf::Sessions
     # @param executable [String] The process to launch, or nil if only processing arguments
     # @param args [Array<String>] The arguments to the process
     def self.to_cmd(executable, args)
-      always_quote = /[']/
-      always_escape = /([$"])/
-      escape_if_not_quoted = /([\\`\(\)<>&| ])/
+      quote_requiring = ['\\', '`', '(', ')', '<', '>', '&', '|', ' ', '@', '"', '$', ';']
 
       if executable.nil?
         cmd_and_args = args
@@ -32,20 +30,7 @@ module Msf::Sessions
       end
 
       escaped = cmd_and_args.map do |arg|
-        needs_quoting = false
-        if arg.match(always_quote)
-          needs_quoting = true
-        else
-          arg = arg.gsub(escape_if_not_quoted, "\\\\\\1")
-        end
-        arg = arg.gsub(always_escape, "\\\\\\1")
-
-        # Do this at the end, so we don't get confused between the double-quotes we're escaping, and the ones we're using to wrap.
-        if needs_quoting
-          arg = "\"#{arg}\""
-        end
-
-        arg
+        CommandShell._glue_cmdline_escape(arg, quote_requiring, "'", "\\'", "'")
       end
 
       escaped.join(' ')

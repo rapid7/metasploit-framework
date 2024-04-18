@@ -93,37 +93,7 @@ module Msf::Sessions
         # Double-up all quote chars
         arg = arg.gsub('"', '""')
 
-        # Now the fun begins
-        current_token = ""
-        result = ""
-        in_quotes = false
-
-        arg.each_char do |char|
-          if char == '%'
-            if in_quotes
-              # This token has been in an inside-quote context, so let's properly wrap that before continuing
-              current_token = "\"#{current_token}\""
-            end
-            result += current_token
-            result += '^%' # Escape the offending percent
-
-            # Start a new token - we'll assume we're remaining outside quotes
-            current_token = ''
-            in_quotes = false
-            next
-          elsif quote_requiring.include?(char)
-            # Oh, it turns out we should have been inside quotes for this token.
-            # Let's note that, so that when we actually append the token
-            in_quotes = true
-          end
-          current_token += char
-        end
-
-        if in_quotes
-          # This token has been in an inside-quote context, so let's properly wrap that before continuing
-          current_token = "\"#{current_token}\""
-        end
-        result += current_token
+        result = CommandShell._glue_cmdline_escape(arg, quote_requiring, '%', '^%', '"')
 
         # Fix the weird behaviour when backslashes are treated differently when immediately prior to a double-quote
         # We need to send double the number of backslashes to make it work as expected
