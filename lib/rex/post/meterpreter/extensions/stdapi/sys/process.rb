@@ -173,7 +173,7 @@ class Process < Rex::Post::Process
       end
     end
 
-    request.add_tlv(TLV_TYPE_PROCESS_PATH, client.unicode_filter_decode( path ));
+    request.add_tlv(TLV_TYPE_PROCESS_UNESCAPED_PATH, client.unicode_filter_decode( path ));
 
     # Add arguments
     # If process arguments were supplied
@@ -183,6 +183,9 @@ class Process < Rex::Post::Process
         flags |= PROCESS_EXECUTE_FLAG_ARG_ARRAY
         arguments.each do |arg|
           request.add_tlv(TLV_TYPE_PROCESS_ARGUMENT, arg);
+        end
+        if opts[:legacy_path]
+          request.add_tlv(TLV_TYPE_PROCESS_PATH, opts[:legacy_path])
         end
         if opts[:legacy_args]
           request.add_tlv(TLV_TYPE_PROCESS_ARGUMENTS, opts[:legacy_args])
