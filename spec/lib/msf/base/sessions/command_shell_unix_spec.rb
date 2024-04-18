@@ -4,6 +4,7 @@ RSpec.describe Msf::Sessions::CommandShellUnix do
       expect(described_class.to_cmd('./test', [])).to eq('./test')
       expect(described_class.to_cmd('sh', [])).to eq('sh')
       expect(described_class.to_cmd('./test', ['basic','args'])).to eq('./test basic args')
+      expect(described_class.to_cmd(nil, ['basic','args'])).to eq('basic args')
     end
 
     it 'should escape spaces' do
@@ -34,11 +35,6 @@ RSpec.describe Msf::Sessions::CommandShellUnix do
       expect(described_class.to_cmd('./test', ["it's $PATH"])).to eq("./test \"it's \\$PATH\"")
       expect(described_class.to_cmd('./test', ["\"$PATH\""])).to eq("./test \\\"\\$PATH\\\"")
       expect(described_class.to_cmd('./test', ["it's \"$PATH\""])).to eq("./test \"it's \\\"\\$PATH\\\"\"")
-    end
-
-    it 'should not quote and escape every character' do
-      expect(described_class.to_cmd('/home/user/some folder/some program', [])).to eq('/home/user/some\\ folder/some\\ program')
-      expect(described_class.to_cmd('./test', ['with space'])).to eq('./test with\\ space')
     end
   end
 end

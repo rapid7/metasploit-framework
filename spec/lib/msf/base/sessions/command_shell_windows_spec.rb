@@ -58,30 +58,29 @@ RSpec.describe Msf::Sessions::CommandShellWindows do
 
   describe 'argv_to_commandline processing' do
     it 'should not do anything for simple args' do
-      expect(described_class.argv_to_commandline('test.exe', [])).to eq('test.exe')
-      expect(described_class.argv_to_commandline('test.exe', ['basic','args'])).to eq('test.exe basic args')
-      expect(described_class.argv_to_commandline('test.exe', ['!@#$%^&*(){}><.,\''])).to eq('test.exe !@#$%^&*(){}><.,\'')
+      expect(described_class.argv_to_commandline([])).to eq('')
+      expect(described_class.argv_to_commandline(['basic','args'])).to eq('basic args')
+      expect(described_class.argv_to_commandline(['!@#$%^&*(){}><.,\''])).to eq('!@#$%^&*(){}><.,\'')
     end
 
     it 'should quote space characters' do
-      expect(described_class.argv_to_commandline('test.exe', [])).to eq('test.exe')
-      expect(described_class.argv_to_commandline('test.exe', ['basic','args'])).to eq('test.exe basic args')
+      expect(described_class.argv_to_commandline([])).to eq('')
+      expect(described_class.argv_to_commandline(['basic','args'])).to eq('basic args')
     end
 
     it 'should escape double-quote characters' do
-      expect(described_class.argv_to_commandline('test.exe', ['"one','"two"'])).to eq('test.exe \\"one \\"two\\"')
-      expect(described_class.argv_to_commandline('test.exe', ['"one "two"'])).to eq('test.exe "\\"one \\"two\\""')
+      expect(described_class.argv_to_commandline(['"one','"two"'])).to eq('\\"one \\"two\\"')
+      expect(described_class.argv_to_commandline(['"one "two"'])).to eq('"\\"one \\"two\\""')
     end
 
     it 'should handle the weird backslash escaping behaviour in front of quotes' do
-      expect(described_class.argv_to_commandline('test.exe', ['\\\\"'])).to eq('test.exe \\\\\\\\\\"')
-      expect(described_class.argv_to_commandline('test.exe', ['space \\\\'])).to eq('test.exe "space \\\\\\\\"')
-      expect(described_class.argv_to_commandline('te st.exe\\', [])).to eq('"te st.exe\\"') # First arg shouldn't obey these strange rules
+      expect(described_class.argv_to_commandline(['\\\\"'])).to eq('\\\\\\\\\\"')
+      expect(described_class.argv_to_commandline(['space \\\\'])).to eq('"space \\\\\\\\"')
     end
 
     it 'should handle empty args' do
-      expect(described_class.argv_to_commandline('test.exe', [''])).to eq('test.exe ""')
-      expect(described_class.argv_to_commandline('test.exe', ['', ''])).to eq('test.exe "" ""')
+      expect(described_class.argv_to_commandline([''])).to eq('""')
+      expect(described_class.argv_to_commandline(['', ''])).to eq('"" ""')
     end
   end
 end
