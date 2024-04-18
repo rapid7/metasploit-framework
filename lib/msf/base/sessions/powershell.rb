@@ -92,6 +92,11 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
       if needs_single_quoting
         arg = "'#{arg}'"
       end
+
+      if arg == ''
+        # Pass in empty strings
+        arg = '\'""\''
+      end
   
       if index == 0
         if needs_single_quoting
