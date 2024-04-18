@@ -5,7 +5,7 @@ require 'rex/post/mssql'
 
 RSpec.describe Rex::Post::MSSQL::Ui::Console::CommandDispatcher::Core do
   let(:client) { instance_double(Rex::Proto::MSSQL::Client) }
-  let(:session) { Msf::Sessions::MSSQL.new(nil, { client: client }) }
+  let(:session) { Msf::Sessions::MSSQL.new(nil, { client: client, platform: Msf::Platform::Linux.realname, arch: ARCH_X86_64 }) }
   let(:address) { '192.0.2.1' }
   let(:port) { '1433' }
   let(:peer_info) { "#{address}:#{port}" }

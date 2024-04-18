@@ -5,7 +5,7 @@ require 'rex/post/mssql'
 
 RSpec.describe Msf::Sessions::MSSQL do
   let(:client) { instance_double(Rex::Proto::MSSQL::Client) }
-  let(:opts) { { client: client } }
+  let(:opts) { { client: client, platform: Msf::Platform::Linux.realname, arch: ARCH_X86_64 } }
   let(:console_class) { Rex::Post::MSSQL::Ui::Console }
   let(:user_input) { instance_double(Rex::Ui::Text::Input::Readline) }
   let(:user_output) { instance_double(Rex::Ui::Text::Output::Stdio) }

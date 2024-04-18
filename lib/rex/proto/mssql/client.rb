@@ -71,6 +71,57 @@ module Rex
           @current_database = ''
         end
 
+        # MS SQL Server only supports Windows and Linux
+        def map_compile_os_to_platform(server_info)
+          return '' if server_info.blank?
+
+          os_data = server_info.downcase.encode(::Encoding::BINARY)
+
+          if os_data.match?('linux')
+            platform = Msf::Platform::Linux.realname
+          elsif os_data.match?('windows')
+            platform = Msf::Platform::Windows.realname
+          elsif os_data.match?('win')
+            platform = Msf::Platform::Windows.realname
+          else
+            platform = os_data
+          end
+          platform
+        end
+
+        # MS SQL Server currently only supports 64 bit but older installs may be x86
+        def map_compile_arch_to_architecture(server_info)
+          return '' if server_info.blank?
+
+          arch_data = server_info.downcase.encode(::Encoding::BINARY)
+
+          if arch_data.match?('x64')
+            arch = ARCH_X86_64
+          elsif arch_data.match?('x86')
+            arch = ARCH_X86
+          elsif arch_data.match?('64')
+            arch = ARCH_X86_64
+          elsif arch_data.match?('32-bit')
+            arch = ARCH_X86
+          else
+            arch = arch_data
+          end
+          arch
+        end
+
+        # @return [Hash] Detect the platform and architecture of the MSSQL server:
+        #  * :arch [String] The server architecture.
+        #  * :platform [String] The server platform.
+        def detect_platform_and_arch
+          result = {}
+
+          server_vars = query('select @@version')[:rows][0][0]
+
+          result[:arch]     = map_compile_arch_to_architecture(server_vars)
+          result[:platform] = map_compile_os_to_platform(server_vars)
+          result
+        end
+
         #
         # This method connects to the server over TCP and attempts
         # to authenticate with the supplied username and password

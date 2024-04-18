@@ -8,6 +8,8 @@ class Msf::Sessions::MSSQL < Msf::Sessions::Sql
 
   def initialize(rstream, opts = {})
     @client = opts.fetch(:client)
+    self.platform = opts.fetch(:platform)
+    self.arch = opts.fetch(:arch)
     self.console = ::Rex::Post::MSSQL::Ui::Console.new(self, opts)
 
     super(rstream, opts)
