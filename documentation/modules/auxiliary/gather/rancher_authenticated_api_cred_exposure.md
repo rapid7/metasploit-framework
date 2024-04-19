@@ -10,7 +10,42 @@ version of those sensitive data.
 
 ### Install
 
-https://github.com/fe-ax/tf-cve-2021-36782
+* Clone the repository from: https://github.com/fe-ax/tf-cve-2021-36782
+* Create a Digital Ocean API Token
+    * Log into Digital Ocean and navigate to: API > Tokens
+    * Select "Generate New Token"
+    * Enter a token name and then select either Full Access or Custom Scopes
+        * If selecting Custom Scopes, use the values provided below
+* Back in the `tf-cve-2021-36782`, copy the `example.tfvars` file to `yourown.tfvars`
+* Edit `yourown.tfvars` and add the newly generated DO API token as `do_token`
+    * Optionally set the region for the clusters to one closer to you (e.g. `nyc3`)
+* Run `terraform init`
+* Run `terraform apply -var-file yourown.tfvars`, this can take about 20 minutes to run
+* Take the hostname from the `rancher_admin_url` output from terraform and use that as the `RHOST` value for the module
+* Take the password from the `rancher_password` file and use that with the username "admin" for the module
+
+#### Digital Ocean API Token Custom Scopes
+It's possible that there are unnecessary privileges contained within the following settings, however it does permit the
+test environment to start without a full access token.
+
+* Fully Scoped Access:
+    * 1click (2): create, read
+    * account (1): read
+    * actions (1): read
+    * billing (1): read
+    * kubernetes (5): create, read, update, delete, access_cluster
+    * load_balancer (4): create, read, update, delete
+    * monitoring (4): create, read, update, delete
+    * project (4): create, read, update, delete
+    * regions (1): read
+    * registry (4): create, read, update, delete
+    * sizes (1): read
+* Create Access:
+    * app / droplet / firewall / ssh_key
+* Read Access:
+    * app / block_storage / block_storage_action / block_storage_snapshot / cdn / certificate / database / domain / droplet / firewall / function / image / reserved_ip / snapshot / ssh_key / tag / uptime / vpc
+* Update Access:
+    * ssh_key
 
 ## Verification Steps
 

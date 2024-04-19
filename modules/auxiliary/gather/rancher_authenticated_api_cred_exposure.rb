@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    return Exploit::CheckCode::Unknown("#{peer} - Could not connect to web service, or doesnt seem to be a rancher website") unless rancher?
+    return Exploit::CheckCode::Unknown("#{peer} - Could not connect to web service, or does not seem to be a rancher website") unless rancher?
 
     Exploit::CheckCode::Detected('Seems to be rancher, but unable to determine version')
   end
@@ -121,7 +121,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     vprint_status('Attempting login')
     login
-    vprint_good('login successful, querying APIs')
+    vprint_good('Login successful, querying APIs')
     [
       '/v1/management.cattle.io.catalogs',
       '/v1/management.cattle.io.clusters',
