@@ -82,8 +82,8 @@ module Metasploit
         def ldap_auth_opts_ntlm(opts)
           auth_opts = {}
           ntlm_client = RubySMB::NTLM::Client.new(
-            opts[:username],
-            opts[:password],
+            (opts[:username].nil? ? '' : opts[:username]),
+            (opts[:password].nil? ? '' : opts[:password]),
             workstation: 'WORKSTATION',
             domain: opts[:domain].blank? ? '.' : opts[:domain],
             flags:

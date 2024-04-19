@@ -140,9 +140,6 @@ class MetasploitModule < Msf::Auxiliary
     returned_entries = @ldap.search(base: full_base_dn, filter: filter, attributes: attributes, controls: controls)
     query_result_table = @ldap.get_operation_result.table
     validate_query_result!(query_result_table, filter)
-
-    return nil if returned_entries.empty?
-
     returned_entries
   end
 
@@ -184,8 +181,8 @@ class MetasploitModule < Msf::Auxiliary
       attributes = ['sAMAccountName', 'name']
       base_prefix = 'CN=Configuration'
       sid_entry = query_ldap_server(raw_filter, attributes, base_prefix: base_prefix) # First try with prefix to find entries that may be group specific.
-      sid_entry = query_ldap_server(raw_filter, attributes) if sid_entry.blank? # Retry without prefix if blank.
-      if sid_entry.blank?
+      sid_entry = query_ldap_server(raw_filter, attributes) if sid_entry.empty? # Retry without prefix if blank.
+      if sid_entry.empty?
         print_warning("Could not find any details on the LDAP server for SID #{sid}!")
         output << [sid, nil, nil] # Still want to print out the SID even if we couldn't get additional information.
       elsif sid_entry[0][:samaccountname][0]
@@ -350,7 +347,7 @@ class MetasploitModule < Msf::Auxiliary
       attributes = ['cn', 'dnsHostname', 'ntsecuritydescriptor']
       base_prefix = 'CN=Enrollment Services,CN=Public Key Services,CN=Services,CN=Configuration'
       enrollment_ca_data = query_ldap_server(certificate_enrollment_raw_filter, attributes, base_prefix: base_prefix)
-      next if enrollment_ca_data.blank?
+      next if enrollment_ca_data.empty?
 
       enrollment_ca_data.each do |ca_server|
         begin
