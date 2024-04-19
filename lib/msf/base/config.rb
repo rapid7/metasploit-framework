@@ -228,13 +228,6 @@ class Config < Hash
     self.new.postgresql_session_history
   end
 
-  # Returns the full path to the PostgreSQL interactive query history file
-  #
-  # @return [String] path to the interactive query history file.
-  def self.postgresql_session_history_interactive
-    self.new.postgresql_session_history_interactive
-  end
-
   # Returns the full path to the MSSQL session history file.
   #
   # @return [String] path to the history file.
@@ -242,25 +235,11 @@ class Config < Hash
     self.new.mssql_session_history
   end
 
-  # Returns the full path to the MSSQL interactive query history file
-  #
-  # @return [String] path to the interactive query history file.
-  def self.mssql_session_history_interactive
-    self.new.mssql_session_history_interactive
-  end
-
   # Returns the full path to the MySQL session history file.
   #
   # @return [String] path to the history file.
   def self.mysql_session_history
     self.new.mysql_session_history
-  end
-
-  # Returns the full path to the MySQL interactive query history file
-  #
-  # @return [String] path to the interactive query history file.
-  def self.mysql_session_history_interactive
-    self.new.mysql_session_history_interactive
   end
 
   def self.pry_history
@@ -376,24 +355,12 @@ class Config < Hash
     config_directory + FileSep + "postgresql_session_history"
   end
 
-  def postgresql_session_history_interactive
-    postgresql_session_history + "_interactive"
-  end
-
   def mysql_session_history
     config_directory + FileSep + "mysql_session_history"
   end
 
-  def mysql_session_history_interactive
-    mysql_session_history + "_interactive"
-  end
-
   def mssql_session_history
     config_directory + FileSep + "mssql_session_history"
-  end
-
-  def mssql_session_history_interactive
-    mssql_session_history + "_interactive"
   end
 
   def pry_history
