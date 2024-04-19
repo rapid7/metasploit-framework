@@ -65,7 +65,11 @@ module Rex
               arch = ARCH_SPARC
             end
           elsif compile_arch.match?('arm')
-            arch = ARCH_AARCH64
+            if compile_arch.match?('64')
+              arch = ARCH_AARCH64
+            elsif compile_arch.match?('arm')
+              arch = ARCH_ARMLE
+            end
           elsif compile_arch.match?('64')
             arch = ARCH_X86_64
           elsif compile_arch.match?('86') || compile_arch.match?('i686')

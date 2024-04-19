@@ -10,7 +10,7 @@ RSpec.describe Rex::Post::PostgreSQL::Ui::Console::CommandDispatcher::Core do
   let(:port) { '5432' }
   let(:current_database) { 'template1' }
   let(:peer_info) { "#{address}:#{port}" }
-  let(:session) { Msf::Sessions::PostgreSQL.new(nil, { client: client }) }
+  let(:session) { Msf::Sessions::PostgreSQL.new(nil, { client: client, platform: Msf::Platform::Linux.realname, arch: ARCH_X86_64 }) }
   let(:console) do
     console = Rex::Post::PostgreSQL::Ui::Console.new(session)
     console.disable_output = true
