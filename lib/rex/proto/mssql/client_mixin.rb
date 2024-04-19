@@ -175,7 +175,6 @@ module ClientMixin
       col[:utype] = data.slice!(0, 2).unpack('v')[0]
       col[:flags] = data.slice!(0, 2).unpack('v')[0]
       col[:type]  = data.slice!(0, 1).unpack('C')[0]
-
       case col[:type]
       when 48
         col[:id] = :tinyint
@@ -194,6 +193,50 @@ module ClientMixin
         col[:max_size]      = data.slice!(0, 4).unpack('V')[0]
         col[:value_length]  = data.slice!(0, 2).unpack('v')[0]
         col[:value]         = data.slice!(0, col[:value_length]  * 2).gsub("\x00", '')
+
+      when 109
+        col[:id] = :float
+        col[:value_length] = data.slice!(0, 1).unpack('C')[0]
+
+      when 108
+        col[:id] = :numeric
+        col[:value_length] = data.slice!(0, 1).unpack('C')[0]
+        col[:precision] = data.slice!(0, 1).unpack('C')[0]
+        col[:scale] = data.slice!(0, 1).unpack('C')[0]
+
+      when 60
+        col[:id] = :money
+
+      when 110
+        col[:value_length] = data.slice!(0, 1).unpack('C')[0]
+        case col[:value_length]
+        when 8
+          col[:id] = :money
+        when 4
+          col[:id] = :smallmoney
+        else
+          col[:id] = :unknown
+        end
+
+      when 111
+        col[:value_length] = data.slice!(0, 1).unpack('C')[0]
+        case col[:value_length]
+        when 4
+          col[:id] = :smalldatetime
+        when 8
+          col[:id] = :datetime
+        else
+          col[:id] = :unknown
+        end
+
+      when 122
+        col[:id] = :smallmoney
+
+      when 59
+        col[:id] = :float
+
+      when 58
+        col[:id] = :smalldatetime
 
       when 36
         col[:id] = :guid
@@ -352,9 +395,85 @@ module ClientMixin
         end
         row << str
 
+      when :float
+        datalen = data.slice!(0, 1).unpack('C')[0]
+        case datalen
+        when 8
+          row << data.slice!(0, datalen).unpack('E')[0]
+        when 4
+          row << data.slice!(0, datalen).unpack('e')[0]
+        else
+          row << nil
+        end
+
+      when :numeric
+        varlen = data.slice!(0, 1).unpack('C')[0]
+        if varlen == 0
+          row << nil
+        else
+          sign = data.slice!(0, 1).unpack('C')[0]
+          raw = data.slice!(0, varlen - 1)
+          value = ''
+
+          case varlen
+          when 5
+            value = raw.unpack('L')[0]/(10**col[:scale]).to_f
+          when 9
+            value = raw.unpack('Q')[0]/(10**col[:scale]).to_f
+          when 13
+            chunks = raw.unpack('L3')
+            value = chunks[2] << 64 | chunks[1] << 32 | chunks[0]
+            value /= (10**col[:scale]).to_f
+          when 17
+            chunks = raw.unpack('L4')
+            value = chunks[3] << 96 | chunks[2] << 64 | chunks[1] << 32 | chunks[0]
+            value /= (10**col[:scale]).to_f
+          end
+          case sign
+          when 1
+            row << value
+          when 0
+            row << value * -1
+          end
+        end
+
+      when :money
+        datalen = data.slice!(0, 1).unpack('C')[0]
+        if datalen == 0
+          row << nil
+        else
+          raw = data.slice!(0, datalen)
+          rev = raw.slice(4, 4) << raw.slice(0, 4)
+          row << rev.unpack('q')[0]/10000.0
+        end
+
+      when :smallmoney
+        datalen = data.slice!(0, 1).unpack('C')[0]
+        if datalen == 0
+          row << nil
+        else
+          row << data.slice!(0, datalen).unpack('l')[0] / 10000.0
+        end
+
+      when :smalldatetime
+        datalen = data.slice!(0, 1).unpack('C')[0]
+        if datalen == 0
+          row << nil
+        else
+          days = data.slice!(0, 2).unpack('S')[0]
+          minutes = data.slice!(0, 2).unpack('S')[0] / 1440.0
+          row << DateTime.new(1900, 1, 1) + days + minutes
+        end
 
       when :datetime
-        row << data.slice!(0, 8).unpack("H*")[0]
+        datalen = data.slice!(0, 1).unpack('C')[0]
+        if datalen == 0
+          row << nil
+        else
+          days = data.slice!(0, 4).unpack('l')[0]
+          minutes = data.slice!(0, 4).unpack('l')[0] / 1440.0
+          row << DateTime.new(1900, 1, 1) + days + minutes
+        end
 
       when :rawint
         row << data.slice!(0, 4).unpack('V')[0]

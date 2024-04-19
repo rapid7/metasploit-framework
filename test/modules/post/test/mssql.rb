@@ -42,11 +42,31 @@ class MetasploitModule < Msf::Post
   end
 
   def test_datatypes
-    it "should support ntext TDS datatype" do
-      stdout = with_mocked_console(session) {|console| console.run_single(%{ query "select cast('foo' as ntext);"})}
-      ret = true
-      ret &&= stdout.buf.match?(/0  foo/)
-      ret
+    [
+      {query: "select cast('1990-01-02' as datetime);", expected: [[DateTime.new(1990, 1, 2)]]},
+      {query: "select cast(null as datetime);", expected: [[nil]]},
+      {query: "select cast('1990-01-02' as smalldatetime);", expected: [[DateTime.new(1990, 1, 2)]]},
+      {query: "select cast(null as smalldatetime);", expected: [[nil]]},
+      {query: "select cast('19900' as float);", expected: [[19900.0]]},
+      {query: "select cast(null as float);", expected: [[nil]]},
+      {query: "select cast('19900' as real);", expected: [[19900.0]]},
+      {query: "select cast(null as real);", expected: [[nil]]},
+      {query: "select cast('12.50' as money);", expected: [[12.5]]},
+      {query: "select cast(null as money);", expected: [[nil]]},
+      {query: "select cast('12.50' as smallmoney);", expected: [[12.5]]},
+      {query: "select cast(null as smallmoney);", expected: [[nil]]},
+      {query: "select cast('1999999900' as numeric(16, 6));", expected: [[1999999900.0]]},
+      {query: "select cast(null as numeric(16, 6));", expected: [[nil]]},
+      {query: "select cast('foo' as ntext);", expected: [['foo']]},
+      {query: "select cast(null as ntext);", expected: [[nil]]},
+    ].each do |test|
+      it "should execute the query #{test[:query]} and return #{test[:expected].inspect}" do
+        console = session.console
+        result = console.client.query(test[:query])
+        ret = result[:rows] == test[:expected]
+        ret &&= result[:errors].empty?
+        ret
+      end
     end
   end
 
