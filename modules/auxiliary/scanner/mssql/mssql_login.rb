@@ -153,7 +153,7 @@ class MetasploitModule < Msf::Auxiliary
   def session_setup(result)
     return unless (result.connection && result.proof)
 
-    my_session = Msf::Sessions::MSSQL.new(result.connection, { client: result.proof })
+    my_session = Msf::Sessions::MSSQL.new(result.connection, { client: result.proof, **result.proof.detect_platform_and_arch })
     merge_me = {
       'USERPASS_FILE' => nil,
       'USER_FILE'     => nil,

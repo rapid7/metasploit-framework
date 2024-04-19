@@ -45,9 +45,9 @@ RSpec.describe Rex::Proto::MySQL::Client do
       { info: 'macos', expected: Msf::Platform::OSX.realname },
       { info: 'unix', expected: Msf::Platform::Unix.realname },
       { info: 'solaris', expected: Msf::Platform::Solaris.realname },
-      { info: '', expected: Msf::Platform::Unknown.realname },
-      { info: 'blank', expected: Msf::Platform::Unknown.realname },
-      { info: nil, expected: Msf::Platform::Unknown.realname },
+      { info: '', expected: '' },
+      { info: 'blank', expected: 'blank' },
+      { info: nil, expected: '' },
     ].each do |test|
       it "correctly identifies '#{test[:info]}' as '#{test[:expected]}'" do
         expect(subject.map_compile_os_to_platform(test[:info])).to eq(test[:expected])
@@ -69,7 +69,7 @@ RSpec.describe Rex::Proto::MySQL::Client do
       { info: 'sparc', expected: ARCH_SPARC },
       { info: 'sparc64', expected: ARCH_SPARC64 },
       { info: '', expected: '' },
-      { info: 'blank', expected: '' },
+      { info: 'blank', expected: 'blank' },
       { info: nil, expected: '' },
     ].each do |test|
       it "correctly identifies '#{test[:info]}' as '#{test[:expected]}'" do

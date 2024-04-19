@@ -32,25 +32,25 @@ module Rex
         # List of supported MySQL platforms & architectures:
         # https://www.mysql.com/support/supportedplatforms/database.html
         def map_compile_os_to_platform(compile_os)
-          return Msf::Platform::Unknown.realname if compile_os.blank?
+          return '' if compile_os.blank?
 
           compile_os = compile_os.downcase.encode(::Encoding::BINARY)
 
           if compile_os.match?('linux')
-            platform = Msf::Platform::Linux
+            platform = Msf::Platform::Linux.realname
           elsif compile_os.match?('unix')
-            platform = Msf::Platform::Unix
+            platform = Msf::Platform::Unix.realname
           elsif compile_os.match?(/(darwin|mac|osx)/)
-            platform = Msf::Platform::OSX
+            platform = Msf::Platform::OSX.realname
           elsif compile_os.match?('win')
-            platform = Msf::Platform::Windows
+            platform = Msf::Platform::Windows.realname
           elsif compile_os.match?('solaris')
-            platform = Msf::Platform::Solaris
+            platform = Msf::Platform::Solaris.realname
           else
-            platform = Msf::Platform::Unknown
+            platform = compile_os
           end
 
-          platform.realname
+          platform
         end
 
         def map_compile_arch_to_architecture(compile_arch)
@@ -75,7 +75,7 @@ module Rex
           elsif compile_arch.match?('86') || compile_arch.match?('i686')
             arch = ARCH_X86
           else
-            arch = ''
+            arch = compile_arch
           end
 
           arch
