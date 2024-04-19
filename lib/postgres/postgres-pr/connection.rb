@@ -190,7 +190,11 @@ class Connection
     elsif compile_arch.include?('ppc')
       arch = ARCH_PPC
     elsif compile_arch.match?('arm')
-      arch = ARCH_ARMLE
+      if compile_arch.match?('64')
+        arch = ARCH_AARCH64
+      elsif compile_arch.match?('arm')
+        arch = ARCH_ARMLE
+      end
     elsif compile_arch.match?('64')
       arch = ARCH_X86_64
     elsif compile_arch.match?('86') || compile_arch.match?('i686')
@@ -209,7 +213,7 @@ class Connection
   def detect_platform_and_arch
     result = {}
 
-    query_result = query('select version()').rows.join.match(/on (?<architecture>\w+)-\w+-(?<platform>\w+)-\w+/)
+    query_result = query('select version()').rows.join.match(/on (?<architecture>\w+)-\w+-(?<platform>\w+)/)
     server_vars = {
       'version_compile_machine' => query_result[:architecture],
       'version_compile_os' => query_result[:platform]

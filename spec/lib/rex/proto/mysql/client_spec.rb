@@ -65,7 +65,7 @@ RSpec.describe Rex::Proto::MySQL::Client do
       { info: '86', expected: ARCH_X86 },
       { info: 'i686', expected: ARCH_X86 },
       { info: 'arm64', expected: ARCH_AARCH64 },
-      { info: 'arm', expected: ARCH_AARCH64 },
+      { info: 'arm', expected: ARCH_ARMLE },
       { info: 'sparc', expected: ARCH_SPARC },
       { info: 'sparc64', expected: ARCH_SPARC64 },
       { info: '', expected: '' },
