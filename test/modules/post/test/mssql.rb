@@ -41,6 +41,15 @@ class MetasploitModule < Msf::Post
     end
   end
 
+  def test_datatypes
+    it "should support ntext TDS datatype" do
+      stdout = with_mocked_console(session) {|console| console.run_single(%{ query "select cast('foo' as ntext);"})}
+      ret = true
+      ret &&= stdout.buf.match?(/0  foo/)
+      ret
+    end
+  end
+
   def test_console_help
     it "should support the help command" do
       stdout = with_mocked_console(session) { |console| console.run_single("help") }

