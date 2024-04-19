@@ -1,0 +1,18 @@
+version: '3.7'
+
+services:
+  samba:
+    tty: true
+    network_mode: bridge
+    ports:
+      - "139:139"
+      - "445:445"
+    healthcheck:
+      test: smbclient -U 'acceptance_tests_user%acceptance_tests_password' -L 127.0.0.1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    build:
+      context: .
+      dockerfile: Dockerfile
