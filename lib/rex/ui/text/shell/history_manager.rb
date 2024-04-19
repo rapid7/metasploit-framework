@@ -24,12 +24,10 @@ class HistoryManager
   #
   # @param [String,nil] history_file The file to load and persist commands to
   # @param [String] name Human readable history context name
-  # @param [Symbol] input_library The input library to provide context for. :reline, :readline
   # @param [Proc] block
   # @return [nil]
-  def with_context(history_file: nil, name: nil, input_library: nil, &block)
-    # Default to Readline for backwards compatibility.
-    push_context(history_file: history_file, name: name, input_library: input_library || :readline)
+  def with_context(history_file: nil, name: nil, &block)
+    push_context(history_file: history_file, name: name)
 
     begin
       block.call
@@ -67,9 +65,9 @@ class HistoryManager
     @debug
   end
 
-  def push_context(history_file: nil, name: nil, input_library: nil)
+  def push_context(history_file: nil, name: nil)
     $stderr.puts("Push context before\n#{JSON.pretty_generate(_contexts)}") if debug?
-    new_context = { history_file: history_file, name: name, input_library: input_library || :readline }
+    new_context = { history_file: history_file, name: name }
 
     switch_context(new_context, @contexts.last)
     @contexts.push(new_context)
@@ -93,69 +91,47 @@ class HistoryManager
     defined?(::Readline)
   end
 
-  def reline_available?
-    begin
-      require 'reline'
-      defined?(::Reline)
-    rescue ::LoadError => _e
-      false
-    end
-  end
-
   def clear_readline
     return unless readline_available?
 
     ::Readline::HISTORY.length.times { ::Readline::HISTORY.pop }
   end
 
-  def clear_reline
-    return unless reline_available?
+  def load_history_file(history_file)
+    return unless readline_available?
 
-    ::Reline::HISTORY.length.times { ::Reline::HISTORY.pop }
-  end
-
-  def load_history_file(context)
-    history_file = context[:history_file]
-    history = context[:input_library] == :reline ? ::Reline::HISTORY : ::Readline::HISTORY
-
+    clear_readline
     if File.exist?(history_file)
-      File.open(history_file, 'r') do |f|
-        f.each do |line|
-          chomped_line = line.chomp
-          if context[:input_library] == :reline && history.last&.end_with?("\\")
-            history.last.delete_suffix!("\\")
-            history.last << "\n" << chomped_line
-          else
-            history << chomped_line
-          end
-        end
+      File.readlines(history_file).each do |e|
+        ::Readline::HISTORY << e.chomp
       end
     end
   end
 
-  def store_history_file(context)
-    history_file = context[:history_file]
-    history = context[:input_library] == :reline ? ::Reline::HISTORY : ::Readline::HISTORY
+  def store_history_file(history_file)
+    return unless readline_available?
+    cmds = []
+    history_diff = ::Readline::HISTORY.length < MAX_HISTORY ? ::Readline::HISTORY.length : MAX_HISTORY
+    history_diff.times do
+      entry = ::Readline::HISTORY.pop
+      cmds.push(entry) unless entry.nil?
+    end
 
-    history_to_save = history.map { |line| line.scrub.split("\n").join("\\\n") }
-
-    write_history_file(history_file, history_to_save)
+    write_history_file(history_file, cmds)
   end
 
   def switch_context(new_context, old_context=nil)
     if old_context && old_context[:history_file]
-      store_history_file(old_context)
+      store_history_file(old_context[:history_file])
     end
 
     if new_context && new_context[:history_file]
-      load_history_file(new_context)
+      load_history_file(new_context[:history_file])
     else
       clear_readline
-      clear_reline
     end
-  rescue SignalException => _e
+  rescue SignalException => e
     clear_readline
-    clear_reline
   end
 
   def write_history_file(history_file, cmds)
@@ -168,7 +144,7 @@ class HistoryManager
           cmds = event[:cmds]
 
           File.open(history_file, 'wb+') do |f|
-            f.puts(cmds)
+            f.puts(cmds.reverse)
           end
 
         rescue => e
