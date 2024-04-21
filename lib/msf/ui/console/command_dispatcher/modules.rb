@@ -405,6 +405,7 @@ module Msf
               'target'      => 'Modules affecting this target',
               'type'        => 'Modules of a specific type (exploit, payload, auxiliary, encoder, evasion, post, or nop)',
               'action'      => 'Modules with a matching action name or description',
+              'privileged'  => 'Modules with a matching "privileged" value set'
             }.each_pair do |keyword, description|
               print_line "  #{keyword.ljust 17}:  #{description}"
             end
