@@ -233,7 +233,7 @@ module Metasploit::Framework
       additional_publics << public_str
     end
 
-    # When password spraying is enabled, do first passwords then userames
+    # When password spraying is enabled, do first passwords then usernames
     #  i.e.
     #   username1:password1
     #   username2:password1
@@ -243,6 +243,8 @@ module Metasploit::Framework
     #   username2:password2
     #   username3:password2
     # ...
+    # @yieldparam credential [Metasploit::Framework::Credential]
+    # @return [void]
     def each_unfiltered_password_first
       if user_file.present?
         user_fd = File.open(user_file, 'r:binary')
@@ -270,7 +272,7 @@ module Metasploit::Framework
         if user_fd
           user_fd.each_line do |user_from_file|
             user_from_file.chomp!
-            yield Metasploit::Framework::Credential.new(public: user_from_file, private: password, realm: realm, private_type: private_type(pass_from_file))
+            yield Metasploit::Framework::Credential.new(public: user_from_file, private: password, realm: realm, private_type: private_type(password))
           end
           user_fd.seek(0)
         end
@@ -336,7 +338,7 @@ module Metasploit::Framework
       user_fd.close if user_fd && !user_fd.closed?
     end
 
-    # When password spraying is not enabled, do first usersnames then passwords
+    # When password spraying is not enabled, do first usernames then passwords
     #  i.e.
     #   username1:password1
     #   username1:password2
@@ -345,6 +347,8 @@ module Metasploit::Framework
     #   username2:password1
     #   username2:password2
     #   username2:password3
+    # @yieldparam credential [Metasploit::Framework::Credential]
+    # @return [void]
     def each_unfiltered_username_first
       if pass_file.present?
         pass_fd = File.open(pass_file, 'r:binary')
