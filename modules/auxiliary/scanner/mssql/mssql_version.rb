@@ -24,20 +24,20 @@ class MetasploitModule < Msf::Auxiliary
   def run
     if session
       set_mssql_session(session.client)
+      data = mssql_client.initial_connection_info[:prelogin_data]
     else
       create_mssql_client
+      data = mssql_prelogin
     end
 
-    data = mssql_prelogin
-
     if data.blank?
-      print_error("Unable to retrieve version information for #{mssql_client.address}")
+      print_error("Unable to retrieve version information for #{mssql_client.peerhost}")
       return
     end
 
     data[:status] = 'open' if data[:version] || data[:encryption]
 
-    print_status("SQL Server for #{mssql_client.address}:")
+    print_status("SQL Server for #{mssql_client.peerhost}:")
     if data[:version]
       print_good("Version: #{data[:version]}")
     else
@@ -56,13 +56,12 @@ class MetasploitModule < Msf::Auxiliary
       else
         data[:encryption] = 'unknown'
       end
-      print_good("Encryption is #{data[:encryption]}")
+      print_good("Encryption: #{data[:encryption]}")
     else
       print_error('Unknown encryption status')
     end
 
-    report_mssql_service(mssql_client.address, data)
-    mssql_client.disconnect
+    report_mssql_service(mssql_client.peerhost, data)
   end
 
   def report_mssql_service(ip, data)
@@ -72,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
     ]
     report_service(
       host: ip,
-      port: mssql_client.port,
+      port: mssql_client.peerport,
       name: 'mssql',
       info: mssql_info,
       state: (data['Status'].nil? ? 'closed' : data['Status'])

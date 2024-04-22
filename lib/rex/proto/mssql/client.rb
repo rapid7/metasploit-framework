@@ -129,8 +129,7 @@ module Rex
         #
 
         def mssql_login(user='sa', pass='', db='', domain_name='')
-          mssql_prelogin
-
+          prelogin_data = mssql_prelogin
           if auth == Msf::Exploit::Remote::AuthOption::KERBEROS
             idx = 0
             pkt = ''
@@ -234,6 +233,7 @@ module Rex
             info = {:errors => []}
             info = mssql_parse_reply(resp, info)
             self.initial_connection_info = info
+            self.initial_connection_info[:prelogin_data] = prelogin_data
 
             return false if not info
             return info[:login_ack] ? true : false
@@ -466,6 +466,7 @@ module Rex
           info = {:errors => []}
           info = mssql_parse_reply(resp, info)
           self.initial_connection_info = info
+          self.initial_connection_info[:prelogin_data] = prelogin_data
 
           return false if not info
           info[:login_ack] ? true : false

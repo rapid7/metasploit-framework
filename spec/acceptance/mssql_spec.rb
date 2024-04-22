@@ -41,6 +41,20 @@ RSpec.describe 'MSSQL sessions and MSSQL modules' do
           }
         },
         {
+          name: "auxiliary/scanner/mssql/mssql_version",
+          platforms: [:linux, :osx, :windows],
+          targets: [:session, :rhost],
+          skipped: false,
+          lines: {
+            all: {
+              required: [
+                /Version: \d+.\d+.\d+/,
+                /Encryption: (?:on|off|unsupported|required|unknown)/
+              ]
+            },
+          }
+        },
+        {
           name: "auxiliary/admin/mssql/mssql_enum",
           platforms: [:linux, :osx, :windows],
           targets: [:session, :rhost],
