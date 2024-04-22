@@ -27,10 +27,6 @@ class MetasploitModule < Msf::Auxiliary
       ])
   end
 
-  def rport
-    @rport || super
-  end
-
   def domain
     @smb_domain || super
   end
@@ -40,6 +36,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(_ip)
+    if session
+      run_session
+      return
+    end
+
     if datastore['RPORT'].blank? || datastore['RPORT'] == 0
       smb_services = [
         { port: 139, direct: false },
@@ -54,6 +55,24 @@ class MetasploitModule < Msf::Auxiliary
     smb_services.each do |smb_service|
       run_service(smb_service[:port], smb_service[:direct])
     end
+  end
+
+  def run_session
+    simple = session.simple_client
+    @rhost = simple.peerhost
+    @rport = simple.peerport
+    ipc_connect_result = simple.connect("\\\\#{simple.address}\\IPC$")
+    unless ipc_connect_result
+      print_error "Failed to connect to IPC in session #{session.sid}"
+      return
+    end
+    tree = simple.client.tree_connects.last
+
+    run_service_domain(tree)
+    run_service_domain(tree, smb_domain: 'Builtin')
+  rescue ::Timeout::Error
+  rescue ::Exception => e
+    print_error("Error: #{e.class} #{e}")
   end
 
   def run_service(port, direct)
