@@ -58,7 +58,8 @@ class MetasploitModule < Msf::Auxiliary
       password: datastore['PASSWORD'],
       realm: datastore['DOMAIN'],
       anonymous_login: datastore['ANONYMOUS_LOGIN'],
-      blank_passwords: false
+      blank_passwords: false,
+      password_spray: datastore['PASSWORD_SPRAY']
     )
 
     opts = {

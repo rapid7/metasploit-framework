@@ -15,7 +15,8 @@ RSpec.describe Metasploit::Framework::CredentialCollection do
       userpass_file: userpass_file,
       prepended_creds: prepended_creds,
       additional_privates: additional_privates,
-      additional_publics: additional_publics
+      additional_publics: additional_publics,
+      password_spray: password_spray
     )
   end
 
@@ -37,6 +38,7 @@ RSpec.describe Metasploit::Framework::CredentialCollection do
   let(:prepended_creds) { [] }
   let(:additional_privates) { [] }
   let(:additional_publics) { [] }
+  let(:password_spray) { false }
 
   describe "#each" do
     specify do
@@ -78,7 +80,6 @@ RSpec.describe Metasploit::Framework::CredentialCollection do
         )
       end
     end
-
 
     context "when given a userspass_file" do
       let(:username) { nil }
@@ -123,6 +124,37 @@ RSpec.describe Metasploit::Framework::CredentialCollection do
           Metasploit::Framework::Credential.new(public: "asdf", private: "jkl"),
           Metasploit::Framework::Credential.new(public: "jkl", private: "asdf"),
           Metasploit::Framework::Credential.new(public: "jkl", private: "jkl"),
+        )
+      end
+    end
+
+    context "when given a pass_file and user_file and password spray" do
+      let(:password) { nil }
+      let(:username) { nil }
+      let(:password_spray) { true }
+      let(:pass_file) do
+        filename = "pass_file"
+        stub_file = StringIO.new("password1\npassword2\n")
+        allow(File).to receive(:open).with(filename,/^r/).and_yield stub_file
+
+        filename
+      end
+      let(:user_file) do
+        filename = "user_file"
+        stub_file = StringIO.new("user1\nuser2\nuser3\n")
+        allow(File).to receive(:open).with(filename,/^r/).and_return stub_file
+
+        filename
+      end
+
+      specify  do
+        expect { |b| collection.each(&b) }.to yield_successive_args(
+          Metasploit::Framework::Credential.new(public: "user1", private: "password1"),
+          Metasploit::Framework::Credential.new(public: "user2", private: "password1"),
+          Metasploit::Framework::Credential.new(public: "user3", private: "password1"),
+          Metasploit::Framework::Credential.new(public: "user1", private: "password2"),
+          Metasploit::Framework::Credential.new(public: "user2", private: "password2"),
+          Metasploit::Framework::Credential.new(public: "user3", private: "password2"),
         )
       end
     end
