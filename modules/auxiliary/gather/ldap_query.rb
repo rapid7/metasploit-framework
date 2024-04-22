@@ -128,18 +128,10 @@ class MetasploitModule < Msf::Auxiliary
     ldap_connect do |ldap|
       validate_bind_success!(ldap)
 
-      if (base_dn = datastore['BASE_DN'])
-        print_status("User-specified base DN: #{base_dn}")
-      else
-        print_status('Discovering base DN automatically')
+      fail_with(Failure::UnexpectedReply, "Couldn't discover base DN!") unless ldap.base_dn
 
-        unless (base_dn = discover_base_dn(ldap))
-          fail_with(Failure::UnexpectedReply, "Couldn't discover base DN!")
-        end
-      end
-
-      schema_dn = find_schema_naming_context(ldap)
-
+      base_dn = ldap.base_dn
+      schema_dn = ldap.schema_dn
       case action.name
       when 'RUN_QUERY_FILE'
         unless datastore['QUERY_FILE_PATH']
@@ -152,7 +144,7 @@ class MetasploitModule < Msf::Auxiliary
           fail_with(Failure::BadConfig, "No queries loaded from #{datastore['QUERY_FILE_PATH']}!")
         end
 
-        run_queries_from_file(ldap, parsed_queries, base_dn, schema_dn, datastore['OUTPUT_FORMAT'])
+        run_queries_from_file(ldap, parsed_queries, schema_dn, datastore['OUTPUT_FORMAT'])
         return
       when 'RUN_SINGLE_QUERY'
         unless datastore['QUERY_FILTER'] && datastore['QUERY_ATTRIBUTES']

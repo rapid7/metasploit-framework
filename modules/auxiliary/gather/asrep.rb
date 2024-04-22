@@ -103,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
         fail_with(Failure::UnexpectedReply, "Couldn't discover base DN!")
       end
 
-      schema_dn = find_schema_dn(ldap, base_dn)
+      schema_dn = ldap.schema_dn
       filter_string = ldap_query['filter']
       attributes = ldap_query['attributes']
       begin

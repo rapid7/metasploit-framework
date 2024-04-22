@@ -8,7 +8,28 @@ module Rex
       # are consistent between various session clients.
       class Client < Net::LDAP
 
+        # @return [Rex::Socket]
         attr_reader :socket
+
+        def initialize(args)
+          @base_dn = args[:base]
+          super
+        end
+
+        # @return [Array<String>] LDAP servers naming contexts
+        def naming_contexts
+          @naming_contexts ||= search_root_dse[:namingcontexts]
+        end
+
+        # @return [String] LDAP servers Base DN
+        def base_dn
+          @base_dn ||= discover_base_dn
+        end
+
+        # @return [String, nil] LDAP servers Schema DN, nil if one isn't found
+        def schema_dn
+          @schema_dn ||= discover_schema_naming_context
+        end
 
         # @return [String] The remote IP address that LDAP is running on
         def peerhost
@@ -48,6 +69,35 @@ module Rex
           end
         end
 
+        def discover_schema_naming_context
+          result = search(base: '', attributes: [:schemanamingcontext], scope: Net::LDAP::SearchScope_BaseObject)
+          if result.first && result.first[:schemanamingcontext]
+            schema_dn = result.first[:schemanamingcontext].first
+            ilog("#{peerinfo} Discovered Schema DN: #{schema_dn}")
+            schema_dn
+          end
+          wlog("#{peerinfo} Could not discover Schema DN")
+          nil
+        end
+
+        def discover_base_dn
+          unless naming_contexts
+            elog("#{peerinfo} Base DN cannot be determined, no naming contexts available")
+            return
+          end
+
+          # NOTE: Find the first entry that starts with `DC=` as this will likely be the base DN.
+          result = naming_contexts.select { |context| context =~ /^([Dd][Cc]=[A-Za-z0-9-]+,?)+$/ }
+                                  .reject { |context| context =~ /(Configuration)|(Schema)|(ForestDnsZones)/ }
+          if result.blank?
+            elog("#{peerinfo} A base DN matching the expected format could not be found!")
+            return
+          end
+          base_dn = result[0]
+
+          dlog("#{peerinfo} Discovered base DN: #{base_dn}")
+          base_dn
+        end
       end
     end
   end

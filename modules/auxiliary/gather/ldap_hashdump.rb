@@ -100,18 +100,8 @@ class MetasploitModule < Msf::Auxiliary
       else
         vprint_status("#{peer} Discovering base DN(s) automatically")
 
-        begin
-          # HACK: fix lack of read/write timeout in Net::LDAP
-          Timeout.timeout(@read_timeout) do
-            naming_contexts = get_naming_contexts(ldap)
-          end
-        rescue Timeout::Error
-          fail_with(Failure::TimeoutExpired, 'The timeout expired while reading naming contexts')
-        ensure
-          unless ldap.get_operation_result.code == 0
-            print_ldap_error(ldap)
-          end
-        end
+        naming_contexts = ldap.naming_contexts
+        print_ldap_error(ldap) unless ldap.get_operation_result.code == 0
 
         if naming_contexts.nil? || naming_contexts.empty?
           vprint_warning("#{peer} Falling back to an empty base DN")

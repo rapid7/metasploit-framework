@@ -20,6 +20,7 @@ module Rex
           # Dispatchers
           require 'rex/post/ldap/ui/console/command_dispatcher'
           require 'rex/post/ldap/ui/console/command_dispatcher/core'
+          require 'rex/post/ldap/ui/console/command_dispatcher/client'
 
           #
           # Initialize the LDAP console.
@@ -38,6 +39,7 @@ module Rex
             # Point the input/output handles elsewhere
             reset_ui
 
+            enstack_dispatcher(Rex::Post::LDAP::Ui::Console::CommandDispatcher::Client)
             enstack_dispatcher(Rex::Post::LDAP::Ui::Console::CommandDispatcher::Core)
             enstack_dispatcher(Msf::Ui::Console::CommandDispatcher::LocalFileSystem)
 

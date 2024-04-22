@@ -182,7 +182,8 @@ class Net::LDAP::Connection # :nodoc:
       @conn = Rex::Socket::Tcp.create(
         'PeerHost' => server[:host],
         'PeerPort' => server[:port],
-        'Proxies' => server[:proxies]
+        'Proxies' => server[:proxies],
+        'Timeout' => server[:connect_timeout]
       )
       @conn.extend(SynchronousRead)
 

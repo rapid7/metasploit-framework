@@ -147,7 +147,7 @@ class MetasploitModule < Msf::Auxiliary
           create_credential_and_login(credential_data)
           print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}'"
         end
-        successful_sessions << create_session(result) if create_session?
+        successful_sessions << create_session(result, ip) if create_session?
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
@@ -158,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
 
   private
 
-  def create_session(result)
+  def create_session(result, ip)
     session_setup(result)
   rescue StandardError => e
     elog('Failed to setup the session', error: e)
