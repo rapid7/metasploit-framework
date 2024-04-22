@@ -42,36 +42,40 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     connect
-    sock.put(X11CONNECTIONREQUEST.new.to_binary_s) # x11 session establish
-    packet = sock.get_once(-1, 1)
+    sock.put(X11ConnectionRequest.new.to_binary_s) # x11 session establish
+    packet = ''
+    connection = nil
     begin
-      connection = X11CONNECTION.read(packet)
-    rescue EOFError
-      vprint_bad("Connection packet malformed (size: #{packet.length}), attempting to get read more data")
-      packet += sock.get_once(-1, 1)
-      begin
-        connection = X11CONNECTION.read(packet)
-        if connection.success == 1
-          print_good("#{ip} - Successly established X11 connection")
-          vprint_status("  Vendor: #{connection.vendor}")
-          vprint_status("  Version: #{connection.protocol_version_major}.#{connection.protocol_version_minor}")
-          vprint_status("  Screen Resolution: #{connection.screen_width_in_pixels}x#{connection.screen_height_in_pixels}")
-          vprint_status("  Resource ID: #{connection.resource_id_base.inspect}")
-          vprint_status("  Screen root: #{connection.screen_root.inspect}")
-          report_note(
-            host: ip,
-            proto: 'tcp',
-            sname: 'x11',
-            port: rport,
-            type: 'x11.server_vendor',
-            data: "Open X Server (#{connection.vendor})"
-          )
-        else
-          vprint_error("#{ip} Access Denied")
+      loop do
+        new_data = sock.get_once(-1, 1)
+        break if new_data.nil?
+
+        packet += new_data
+        begin
+          connection = X11ConnectionResponse.read(packet)
+          break # Break loop if packet is successfully read
+        rescue EOFError
+          vprint_bad("Connection packet malformed (size: #{packet.length}), attempting to read more data")
+          # Continue looping to try and receive more data
         end
-      rescue StandardError
-        vprint_bad('Failed to parse X11 connection initialization response packet')
       end
+    rescue StandardError => e
+      vprint_bad("Error processing data: #{e}")
+    end
+
+    if connection.nil?
+      vprint_bad('No connection, or bad X11 response received')
+      return
+    end
+
+    begin
+      if connection.success == 1
+        print_connection_info(connection, ip, rport)
+      else
+        vprint_error("#{ip} Access Denied")
+      end
+    rescue StandardError
+      vprint_bad('Failed to parse X11 connection initialization response packet')
     end
 
     disconnect

