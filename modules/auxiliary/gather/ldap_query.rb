@@ -129,8 +129,9 @@ class MetasploitModule < Msf::Auxiliary
       validate_bind_success!(ldap)
 
       fail_with(Failure::UnexpectedReply, "Couldn't discover base DN!") unless ldap.base_dn
-
       base_dn = ldap.base_dn
+      print_status("#{ldap.peerinfo} Discovered base DN: #{base_dn}")
+
       schema_dn = ldap.schema_dn
       case action.name
       when 'RUN_QUERY_FILE'
