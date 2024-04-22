@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'metasploit/framework/ldap/ntlm_encryptor'
 require 'metasploit/framework/ldap/spnego_kerberos_encryptor'
+require 'rex/proto/ldap/auth_adapter'
 
 module Metasploit
   module Framework
@@ -71,19 +71,23 @@ module Metasploit
             use_gss_checksum: sign_and_seal
           )
 
-          encryptor = SpnegoKerberosEncryptor.new(kerberos_authenticator)
-
           auth_opts[:auth] = {
             method: :sasl,
             mechanism: 'GSS-SPNEGO',
-            initial_credential: proc do
-              encryptor.get_initial_credential
-            end,
             challenge_response: true
           }
 
           if sign_and_seal
+            encryptor = SpnegoKerberosEncryptor.new(kerberos_authenticator)
             auth_opts[:auth][:auth_context_setup] = encryptor.method(:kerberos_setup)
+            auth_opts[:auth][:initial_credential] = proc do
+              encryptor.get_initial_credential
+            end
+          else
+            auth_opts[:auth][:initial_credential] = proc do
+              kerberos_result = kerberos_authenticator.authenticate
+              kerberos_result[:security_blob]
+            end
           end
 
           auth_opts
@@ -91,51 +95,17 @@ module Metasploit
 
         def ldap_auth_opts_ntlm(opts, ssl)
           auth_opts = {}
-          flags = RubySMB::NTLM::NEGOTIATE_FLAGS[:UNICODE] |
-                RubySMB::NTLM::NEGOTIATE_FLAGS[:REQUEST_TARGET] |
-                RubySMB::NTLM::NEGOTIATE_FLAGS[:NTLM] |
-                RubySMB::NTLM::NEGOTIATE_FLAGS[:ALWAYS_SIGN] |
-                RubySMB::NTLM::NEGOTIATE_FLAGS[:EXTENDED_SECURITY] |
-                RubySMB::NTLM::NEGOTIATE_FLAGS[:KEY_EXCHANGE] |
-                RubySMB::NTLM::NEGOTIATE_FLAGS[:TARGET_INFO] |
-                RubySMB::NTLM::NEGOTIATE_FLAGS[:VERSION_INFO]
-
-          sign_and_seal = opts.fetch(:sign_and_seal, !ssl)
-          if sign_and_seal
-            flags = flags |
-                RubySMB::NTLM::NEGOTIATE_FLAGS[:SIGN] |
-                RubySMB::NTLM::NEGOTIATE_FLAGS[:SEAL] |
-                RubySMB::NTLM::NEGOTIATE_FLAGS[:KEY128] |
-                RubySMB::NTLM::NEGOTIATE_FLAGS[:KEY56]
-          end
-          ntlm_client = RubySMB::NTLM::Client.new(
-            (opts[:username].nil? ? '' : opts[:username]),
-            (opts[:password].nil? ? '' : opts[:password]),
-            workstation: 'WORKSTATION',
-            domain: opts[:domain].blank? ? '.' : opts[:domain],
-            flags: flags
-          )
-
-          negotiate = proc do |challenge|
-            ntlmssp_offset = challenge.index('NTLMSSP')
-            type2_blob = challenge.slice(ntlmssp_offset..-1)
-            challenge = [type2_blob].pack('m')
-            type3_message = ntlm_client.init_context(challenge)
-            type3_message.serialize
-          end
-
-          encryptor = NtlmEncryptor.new(ntlm_client)
 
           auth_opts[:auth] = {
-            method: :sasl,
-            mechanism: 'GSS-SPNEGO',
-            initial_credential: ntlm_client.init_context.serialize,
-            challenge_response: negotiate
+            # use the rex one provided by us to support TLS channel binding (see: ruby-ldap/ruby-net-ldap#407) and blank
+            # passwords (see: WinRb/rubyntlm#45)
+            method: :rex_ntlm,
+            username: opts[:username],
+            password: opts[:password],
+            domain: opts[:domain],
+            workstation: 'WORKSTATION',
+            sign_and_seal: opts.fetch(:sign_and_seal, !ssl)
           }
-
-          if sign_and_seal
-            auth_opts[:auth][:auth_context_setup] = encryptor.method(:ntlm_setup)
-          end
 
           auth_opts
         end
