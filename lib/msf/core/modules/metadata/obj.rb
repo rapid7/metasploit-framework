@@ -138,7 +138,7 @@ class Obj
 
     @session_types = module_instance.respond_to?(:session_types) && module_instance.session_types
 
-    if module_instance.respond_to(:privileged)
+    if module_instance.respond_to?(:privileged)
       @privileged = module_instance.privileged
     end
     if module_instance.respond_to?(:payload_type)
