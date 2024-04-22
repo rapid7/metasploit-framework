@@ -219,7 +219,7 @@ module Msf::Modules::Metadata::Search
             when 'port', 'rport'
               match = [keyword, search_term] if module_metadata.rport.to_s =~ regex
             when 'privileged'
-              # if it 'nil' it means the module don't have privileged property set
+              # If 'nil' is returned the module does not have the privileged property set
               match = [keyword, search_term] if module_metadata.privileged.nil? || module_metadata.privileged == search_term
             when 'rank'
               # Determine if param was prepended with gt, lt, gte, lte, or eq
