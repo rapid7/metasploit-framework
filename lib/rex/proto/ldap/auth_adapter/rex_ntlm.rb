@@ -38,7 +38,7 @@ module Rex::Proto::LDAP::AuthAdapter
         type2_message = Net::NTLM::Message.parse(challenge)
         channel_binding = nil
         if @connection.socket.respond_to?(:peer_cert)
-          channel_binding = Net::NTLM::ChannelBinding.create(@connection.socket.peer_cert)
+          channel_binding = Rex::Proto::Gss::ChannelBinding.create(@connection.socket.peer_cert)
         end
 
         type3_message = ntlm_client.init_context(type2_message.encode64, channel_binding)

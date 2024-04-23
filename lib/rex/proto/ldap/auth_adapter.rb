@@ -1,3 +1,4 @@
+require 'rex/proto/ldap/auth_adapter/rex_kerberos'
 require 'rex/proto/ldap/auth_adapter/rex_ntlm'
 
 module Rex

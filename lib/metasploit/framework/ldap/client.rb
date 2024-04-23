@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'metasploit/framework/ldap/spnego_kerberos_encryptor'
 require 'rex/proto/ldap/auth_adapter'
 
 module Metasploit
@@ -68,27 +67,14 @@ module Metasploit
             ticket_storage: opts[:kerberos_ticket_storage],
             offered_etypes: offered_etypes,
             mutual_auth: true,
-            use_gss_checksum: sign_and_seal
+            use_gss_checksum: sign_and_seal || ssl
           )
 
           auth_opts[:auth] = {
-            method: :sasl,
-            mechanism: 'GSS-SPNEGO',
-            challenge_response: true
+            method: :rex_kerberos,
+            kerberos_authenticator: kerberos_authenticator,
+            sign_and_seal: sign_and_seal
           }
-
-          if sign_and_seal
-            encryptor = SpnegoKerberosEncryptor.new(kerberos_authenticator)
-            auth_opts[:auth][:auth_context_setup] = encryptor.method(:kerberos_setup)
-            auth_opts[:auth][:initial_credential] = proc do
-              encryptor.get_initial_credential
-            end
-          else
-            auth_opts[:auth][:initial_credential] = proc do
-              kerberos_result = kerberos_authenticator.authenticate
-              kerberos_result[:security_blob]
-            end
-          end
 
           auth_opts
         end
