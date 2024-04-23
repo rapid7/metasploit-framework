@@ -3,6 +3,28 @@ require 'spec_helper'
 require 'rex/text'
 
 RSpec.describe Rex::Proto::DNS::UpstreamRule do
+  describe '.spell_check_resolver' do
+    it 'returns nil for IPv4 addresses' do
+      address = Rex::Socket.addr_ntoa(Random.new.bytes(4))
+      expect(described_class.spell_check_resolver(address)).to be_nil
+    end
+
+    it 'returns nil for IPv6 addresses' do
+      address = Rex::Socket.addr_ntoa(Random.new.bytes(16))
+      expect(described_class.spell_check_resolver(address)).to be_nil
+    end
+
+    it 'returns nil for "black-hole"' do
+      expect(described_class.spell_check_resolver('black-hole')).to be_nil
+    end
+
+    it 'returns a populated array for "blackhole"' do
+      suggestions = described_class.spell_check_resolver('blackhole')
+      expect(suggestions).to be_a Array
+      expect(suggestions.first).to eq 'black-hole'
+    end
+  end
+
   describe '.valid_resolver?' do
     it 'returns true for "black-hole"' do
       expect(described_class.valid_resolver?('black-hole')).to be_truthy

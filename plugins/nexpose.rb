@@ -40,7 +40,7 @@ module Msf
 
       def nexpose_verify_db
         if !(framework.db && framework.db.usable && framework.db.active)
-          print_error('No database has been configured, please use db_create/db_connect first')
+          print_error('No database has been configured, please use db_connect first')
           return false
         end
 

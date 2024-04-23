@@ -11,7 +11,7 @@ module Metasploit
       class Postgres
         include Metasploit::Framework::LoginScanner::Base
 
-        # @returns [Boolean] If a login is successful and this attribute is true - a PostgreSQL::Client instance is used as proof,
+        # @returns [Boolean] If a login is successful and this attribute is true - a Msf::Db::PostgresPR::Connection instance is used as proof,
         #   and the socket is not immediately closed
         attr_accessor :use_client_as_proof
 
@@ -80,7 +80,7 @@ module Metasploit
             # Additionally assign values to nil to avoid closing the socket etc automatically
             if use_client_as_proof
               result_options[:proof] = pg_conn
-              pg_conn = nil
+              result_options[:connection] = pg_conn.conn
             else
               pg_conn.close
             end

@@ -225,6 +225,7 @@ class RPC_Module < RPC_Base
     res['authors'] = m.author.map { |a| a.to_s }
     res['privileged'] = m.privileged?
     res['check'] = m.has_check?
+    res['default_options'] = m.default_options
 
     res['references'] = []
     m.references.each do |r|
@@ -237,7 +238,7 @@ class RPC_Module < RPC_Base
         res['targets'][i] = m.targets[i].name
       end
 
-      if (m.default_target)
+      if m.default_target
         res['default_target'] = m.default_target
       end
 

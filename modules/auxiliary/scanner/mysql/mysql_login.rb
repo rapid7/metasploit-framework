@@ -36,6 +36,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::Proxies,
+        OptBool.new('CreateSession', [false, 'Create a new session for every successful login', false])
       ])
 
     options_to_deregister = %w[PASSWORD_SPRAY]
@@ -60,6 +61,18 @@ class MetasploitModule < Msf::Auxiliary
     [rhost,rport].join(":")
   end
 
+  def run
+    results = super
+    logins = results.flat_map { |_k, v| v[:successful_logins] }
+    sessions = results.flat_map { |_k, v| v[:successful_sessions] }
+    print_status("Bruteforce completed, #{logins.size} #{logins.size == 1 ? 'credential was' : 'credentials were'} successful.")
+    if datastore['CreateSession']
+      print_status("#{sessions.size} MySQL #{sessions.size == 1 ? 'session was' : 'sessions were'} opened successfully.")
+    else
+      print_status('You can open an MySQL session with these credentials and %grnCreateSession%clr set to true')
+    end
+    results
+  end
 
   def run_host(ip)
     begin
@@ -90,6 +103,8 @@ class MetasploitModule < Msf::Auxiliary
             local_host: datastore['CHOST']
         )
 
+        successful_logins = []
+        successful_sessions = []
         scanner.scan! do |result|
           credential_data = result.to_h
           credential_data.merge!(
@@ -102,15 +117,15 @@ class MetasploitModule < Msf::Auxiliary
             create_credential_login(credential_data)
 
             print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+            successful_logins << result
 
             if create_session?
               begin
-                mysql_client = result.proof
-                session_setup(result, mysql_client)
+                successful_sessions << session_setup(result)
               rescue ::StandardError => e
-                elog('Failed: ', error: e)
-                print_error(e)
-                result.proof.conn.close if result.proof&.conn
+                elog('Failed to setup the session', error: e)
+                print_brute level: :error, ip: ip, msg: "Failed to setup the session - #{e.class} #{e.message}"
+                result.connection.close unless result.connection.nil?
               end
             end
           else
@@ -125,6 +140,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Rex::ConnectionError, ::EOFError => e
       vprint_error "#{target} - Unable to connect: #{e.to_s}"
     end
+    { successful_logins: successful_logins, successful_sessions: successful_sessions }
   end
 
   # Tmtm's rbmysql is only good for recent versions of mysql, according
@@ -179,15 +195,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # @param [Metasploit::Framework::LoginScanner::Result] result
-  # @param [::Rex::Proto::MySQL::Client] client
   # @return [Msf::Sessions::MySQL]
-  def session_setup(result, client)
-    return unless (result && client)
+  def session_setup(result)
+    return unless (result.connection && result.proof)
 
-    rstream = client.socket || client.io
-
-    my_session = Msf::Sessions::MySQL.new(rstream, { client: client })
-    merging = {
+    my_session = Msf::Sessions::MySQL.new(result.connection, { client: result.proof, **result.proof.detect_platform_and_arch })
+    merge_me = {
       'USERPASS_FILE' => nil,
       'USER_FILE'     => nil,
       'PASS_FILE'     => nil,
@@ -195,6 +208,6 @@ class MetasploitModule < Msf::Auxiliary
       'PASSWORD'      => result.credential.private
     }
 
-    start_session(self, nil, merging, false, my_session.rstream, my_session)
+    start_session(self, nil, merge_me, false, my_session.rstream, my_session)
   end
 end

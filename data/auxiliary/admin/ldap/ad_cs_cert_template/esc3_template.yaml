@@ -1,0 +1,30 @@
+---
+# Creates a template that will be vulnerable to ESC3 (certificate request agent EKU).
+# Fields are based on the SubCA template. For field descriptions,
+# see: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-crtd/b2df0c1c-8657-4684-bb5f-4f6b89c8d434
+showInAdvancedViewOnly: 'TRUE'
+# this security descriptor grants all permissions to all authenticated users
+nTSecurityDescriptor: D:PAI(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;AU)
+flags: 0
+pKIDefaultKeySpec: 2
+pKIKeyUsage: !binary |-
+  hgA=
+pKIMaxIssuingDepth: 0
+pKICriticalExtensions:
+- 2.5.29.19
+- 2.5.29.15
+pKIExtendedKeyUsage:
+# Certificate Request Agent OID
+- 1.3.6.1.4.1.311.20.2.1
+pKIExpirationPeriod: !binary |-
+  AEAepOhl+v8=
+pKIOverlapPeriod: !binary |-
+  AICmCv/e//8=
+pKIDefaultCSPs: 1,Microsoft Enhanced Cryptographic Provider v1.0
+msPKI-RA-Signature: 0
+msPKI-Enrollment-Flag: 0
+# CT_FLAG_EXPORTABLE_KEY
+msPKI-Private-Key-Flag: 0x10
+# CT_FLAG_SUBJECT_ALT_REQUIRE_UPN | CT_FLAG_SUBJECT_REQUIRE_DIRECTORY_PATH
+msPKI-Certificate-Name-Flag: 0x82000000
+msPKI-Minimal-Key-Size: 2048

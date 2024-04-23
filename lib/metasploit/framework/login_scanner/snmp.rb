@@ -14,6 +14,7 @@ module Metasploit
 
         DEFAULT_TIMEOUT = 2
         DEFAULT_PORT = 161
+        DEFAULT_PROTOCOL = 'udp'.freeze
         DEFAULT_VERSION = '1'.freeze
         DEFAULT_QUEUE_SIZE = 100
         LIKELY_PORTS = [ 161, 162 ].freeze
@@ -27,6 +28,10 @@ module Metasploit
         # @return [String]
         attr_accessor :version
 
+        # The SNMP protocol to use
+        # @return [String]
+        attr_accessor :protocol
+
         # The number of logins to try in each batch
         # @return [Integer]
         attr_accessor :queue_size
@@ -35,6 +40,12 @@ module Metasploit
                   presence: true,
                   inclusion: {
                     in: ['1', '2c', 'all']
+                  }
+
+        validates :protocol,
+                  presence: true,
+                  inclusion: {
+                    in: ['udp', 'tcp']
                   }
 
         validates :queue_size,
@@ -191,10 +202,26 @@ module Metasploit
           process_responses(1.0)
         end
 
+        def recv_wrapper(sock, max_size, timeout)
+          res = nil
+          if protocol == 'udp'
+            res = sock.recvfrom(max_size, timeout)
+          elsif protocol == 'tcp'
+            ready = ::IO.select([sock], nil, nil, timeout)
+            if ready
+              res = sock.recv_nonblock(max_size)
+              # Put into an array to mimic recvfrom
+              res = [res, host, port]
+            end
+          end
+
+          res
+        end
+
         # Process any responses on the UDP socket and queue the results
         def process_responses(timeout = 1.0)
           queue = []
-          while (res = sock.recvfrom(65535, timeout))
+          while (res = recv_wrapper(sock, 65535, timeout))
 
             # Ignore invalid responses
             break if !(res[1])
@@ -212,7 +239,7 @@ module Metasploit
               community: response[:community],
               host: host,
               port: port,
-              protocol: 'udp',
+              protocol: protocol,
               service_name: 'snmp',
               proof: response[:proof],
               status: Metasploit::Model::Login::Status::SUCCESSFUL,
@@ -237,12 +264,22 @@ module Metasploit
           )
         end
 
+        def send_wrapper(sock, pkt, host, port, flags)
+          if protocol == 'tcp'
+            return sock.send(pkt, flags)
+          end
+
+          if protocol == 'udp'
+            return sock.sendto(pkt, host, port, 0)
+          end
+        end
+
         # Send a SNMP request on the existing socket
         def send_snmp_request(pkt)
           resend_count = 0
 
           begin
-            sock.sendto(pkt, host, port, 0)
+            send_wrapper(sock, pkt, host, port, 0)
           rescue ::Errno::ENOBUFS
             resend_count += 1
             if resend_count > MAX_RESEND_COUNT
@@ -347,10 +384,15 @@ module Metasploit
         # Create a new socket for this scanner
         def configure_socket
           shutdown_socket if sock
-          self.sock = ::Rex::Socket::Udp.create(
+
+          self.sock = ::Rex::Socket.create({
+            'PeerHost' => host,
+            'PeerPort' => port,
+            'Proto' => protocol,
+            'Timeout'  => connection_timeout,
             'Context' =>
               { 'Msf' => framework, 'MsfExploit' => framework_module }
-          )
+          })
         end
 
         # Close any open socket if it exists
@@ -362,6 +404,7 @@ module Metasploit
         # Sets the SNMP parameters if not specified
         def set_sane_defaults
           self.connection_timeout = DEFAULT_TIMEOUT if connection_timeout.nil?
+          self.protocol = DEFAULT_PROTOCOL if protocol.nil?
           self.port = DEFAULT_PORT if port.nil?
           self.version = DEFAULT_VERSION if version.nil?
           self.queue_size = DEFAULT_QUEUE_SIZE if queue_size.nil?

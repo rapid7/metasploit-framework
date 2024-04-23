@@ -39,6 +39,14 @@ module Rex
             # meaning we don't have that in the Result object.
             { rows: result.entries, columns: result.fields.each.map(&:name), errors: [] }
           end
+
+          def handle_error(e)
+            case e
+            when Mysql::ClientError::ServerLost
+              _close_session
+            end
+            super
+          end
         end
       end
     end

@@ -34,10 +34,8 @@ Using Metasploit
 --
 Metasploit can do all sorts of things. The first thing you'll want to do
 is start `msfconsole`, but after that, you'll probably be best served by
-reading [Metasploit Unleashed][unleashed], the [great community
-resources](https://metasploit.github.io), or take a look at the
-[Using Metasploit](https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html)
-page on the documentation website.
+reading the basics of [using Metasploit](https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html)
+or [Metasploit Unleashed][unleashed].
 
 Contributing
 --

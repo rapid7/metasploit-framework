@@ -152,6 +152,7 @@ module Metasploit
               # Additionally assign values to nil to avoid closing the socket etc automatically
               if use_client_as_proof
                 proof = client
+                connection = self.sock
                 client = nil
                 self.sock = nil
                 self.dispatcher = nil
@@ -184,7 +185,11 @@ module Metasploit
             access_level ||= AccessLevels::GUEST
           end
 
-          result = Result.new(credential: credential, status: status, proof: proof, access_level: access_level)
+          result = Result.new(credential: credential,
+                              status: status,
+                              proof: proof,
+                              access_level: access_level,
+                              connection: connection)
           result.host = host
           result.port = port
           result.protocol = 'tcp'

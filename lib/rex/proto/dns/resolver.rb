@@ -84,8 +84,15 @@ module DNS
           raise ResolverArgumentError, "Option #{key} not valid"
         end
       end
+
       self.static_hostnames = StaticHostnames.new(hostnames: static_hosts)
-      self.static_hostnames.parse_hosts_file
+      begin
+        self.static_hostnames.parse_hosts_file
+      rescue StandardError => e
+        @logger.error 'Failed to parse the hosts file, ignoring it'
+        # if the hosts file is corrupted, just use a default instance with any specified hostnames
+        self.static_hostnames = StaticHostnames.new(hostnames: static_hosts)
+      end
     end
     #
     # Provides current proxy setting if configured
@@ -162,7 +169,7 @@ module DNS
       upstream_resolvers.each do |upstream_resolver|
         case upstream_resolver.type
         when UpstreamResolver::Type::BLACK_HOLE
-          ans = resolve_via_blackhole(upstream_resolver, packet, type, cls)
+          ans = resolve_via_black_hole(upstream_resolver, packet, type, cls)
         when UpstreamResolver::Type::DNS_SERVER
           ans = resolve_via_dns_server(upstream_resolver, packet, type, cls)
         when UpstreamResolver::Type::STATIC
@@ -450,9 +457,9 @@ module DNS
       ans
     end
 
-    def resolve_via_blackhole(upstream_resolver, packet, type, cls)
+    def resolve_via_black_hole(upstream_resolver, packet, type, cls)
       # do not just return nil because that will cause the next resolver to be used
-      @logger.info "No response from upstream resolvers: blackholed"
+      @logger.info "No response from upstream resolvers: black-hole"
       raise NoResponseError
     end
 
