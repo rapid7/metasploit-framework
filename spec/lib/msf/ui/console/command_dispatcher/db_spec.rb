@@ -97,7 +97,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "    Nikto XML",
           "    Nmap XML",
           "    OpenVAS Report",
-          "    OpenVAS XML",
+          "    OpenVAS XML (optional arguments -cert -dfn)",
           "    Outpost24 XML",
           "    Qualys Asset XML",
           "    Qualys Scan XML",
