@@ -15,7 +15,7 @@ module Rex::Proto::LDAP::AuthAdapter
       options = {}
       if @connection.socket.respond_to?(:peer_cert)
         options = {
-          gss_channel_binding: Rex::Proto::Gss::ChannelBinding.create(
+          gss_channel_binding: Rex::Proto::Gss::ChannelBinding.from_tls_cert(
             @connection.socket.peer_cert
           ),
           # when TLS channel binding is in use, disable the sign and seal flags
