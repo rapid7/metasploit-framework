@@ -107,7 +107,7 @@ RSpec.describe ModuleValidation::Validator do
       end
 
       it 'has errors' do
-        expect(subject.errors.full_messages).to eq ['Reliability contains invalid values ["FIRST_ATTEMPT_FAIL"] - only ["first-attempt-fail", "repeatable-session", "unreliable-session"] is allowed']
+        expect(subject.errors.full_messages).to eq ['Reliability contains invalid values ["FIRST_ATTEMPT_FAIL"] - only ["first-attempt-fail", "repeatable-session", "unreliable-session", "event-dependent"] is allowed']
       end
     end
 

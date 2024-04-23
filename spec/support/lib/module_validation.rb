@@ -66,7 +66,8 @@ module ModuleValidation
     VALID_RELIABILITY_VALUES = [
       Msf::FIRST_ATTEMPT_FAIL,
       Msf::REPEATABLE_SESSION,
-      Msf::UNRELIABLE_SESSION
+      Msf::UNRELIABLE_SESSION,
+      Msf::EVENT_DEPENDENT
     ]
 
     #
