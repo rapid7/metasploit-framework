@@ -115,10 +115,12 @@ module Rex
         def detect_platform_and_arch
           result = {}
 
-          server_vars = query('select @@version')[:rows][0][0]
+          version_string = query('select @@version')[:rows][0][0]
+          arch = version_string[/\b\d+\.\d+\.\d+\.\d+\s\(([^)]*)\)/, 1] || version_string
+          plat = version_string[/\bon\b\s+(\w+)/, 1] || version_string
 
-          result[:arch]     = map_compile_arch_to_architecture(server_vars)
-          result[:platform] = map_compile_os_to_platform(server_vars)
+          result[:arch]     = map_compile_arch_to_architecture(arch)
+          result[:platform] = map_compile_os_to_platform(plat)
           result
         end
 
