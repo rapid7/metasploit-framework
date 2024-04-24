@@ -138,7 +138,7 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
-      schema_dn = find_schema_dn(ldap, base_dn)
+      schema_dn = find_schema_naming_context(ldap)
 
       case action.name
       when 'RUN_QUERY_FILE'
@@ -152,7 +152,7 @@ class MetasploitModule < Msf::Auxiliary
           fail_with(Failure::BadConfig, "No queries loaded from #{datastore['QUERY_FILE_PATH']}!")
         end
 
-        run_queries_from_file(ldap, parsed_queries, datastore['OUTPUT_FORMAT'])
+        run_queries_from_file(ldap, parsed_queries, base_dn, schema_dn, datastore['OUTPUT_FORMAT'])
         return
       when 'RUN_SINGLE_QUERY'
         unless datastore['QUERY_FILTER'] && datastore['QUERY_ATTRIBUTES']

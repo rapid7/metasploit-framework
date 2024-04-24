@@ -1,92 +1,104 @@
 require 'acceptance_spec_helper'
 
-RSpec.describe 'MySQL sessions and MySQL modules' do
+RSpec.describe 'LDAP modules' do
   include_context 'wait_for_expect'
 
   RHOST_REGEX = /\d+\.\d+\.\d+\.\d+:\d+/
 
   TESTS = {
-    mysql: {
+    ldap: {
       target: {
-        session_module: "auxiliary/scanner/mysql/mysql_login",
-        type: 'MySQL',
-        platforms: [:linux, :osx, :windows],
+        session_module: 'auxiliary/scanner/ldap/ldap_login',
+        type: 'LDAP',
+        platforms: %i[linux osx windows],
         datastore: {
           global: {},
           module: {
-            username: ENV.fetch('MYSQL_USERNAME', 'root'),
-            password: ENV.fetch('MYSQL_PASSWORD', 'password'),
-            rhost: ENV.fetch('MYSQL_RHOST', '127.0.0.1'),
-            rport: ENV.fetch('MYSQL_RPORT', '3306'),
+            username: ENV.fetch('LDAP_USERNAME', "'DEV-AD\\Administrator'"),
+            password: ENV.fetch('LDAP_PASSWORD', 'admin123!'),
+            rhost: ENV.fetch('LDAP_RHOST', '127.0.0.1'),
+            rport: ENV.fetch('LDAP_RPORT', '389'),
+            ssl: ENV.fetch('LDAP_SSL', 'false')
           }
         }
       },
       module_tests: [
         {
-          name: "post/test/mysql",
-          platforms: [:linux, :osx, :windows],
-          targets: [:session],
+          name: 'auxiliary/gather/ldap_query',
+          platforms: %i[linux osx windows],
+          targets: [:rhost],
           skipped: false,
+          action: 'run_query_file',
+          datastore: { QUERY_FILE_PATH: 'data/auxiliary/gather/ldap_query/ldap_queries_default.yaml' },
+          lines: {
+            all: {
+              required: [
+                /Loading queries from/,
+                /ldap_queries_default.yaml.../,
+                /Discovered base DN/,
+                /Running ENUM_ACCOUNTS.../,
+                /Running ENUM_USER_SPNS_KERBEROAST.../,
+                /Running ENUM_USER_PASSWORD_NOT_REQUIRED.../,
+
+              ]
+            }
+          }
         },
         {
-          name: "auxiliary/scanner/mysql/mysql_hashdump",
-          platforms: [:linux, :osx, :windows],
-          targets: [:session, :rhost],
+          name: 'auxiliary/gather/ldap_query',
+          platforms: %i[linux osx windows],
+          targets: [:rhost],
+          skipped: false,
+          action: 'enum_accounts',
+          lines: {
+            all: {
+              required: [
+                /Discovered base DN/,
+                /Query returned 4 results/
+              ]
+            }
+          }
+        },
+        {
+          name: 'auxiliary/gather/ldap_hashdump',
+          platforms: %i[linux osx windows],
+          targets: [:rhost],
           skipped: false,
           lines: {
             all: {
               required: [
-                /Saving HashString as Loot/
+                /Discovering base DN\(s\) automatically/,
+                /Dumping data for root DSE/,
+                /Searching base DN='DC=ldap,DC=example,DC=com'/,
+                /Storing LDAP data for base DN='DC=ldap,DC=example,DC=com' in loot/,
+                /266 entries, 0 creds found in 'DC=ldap,DC=example,DC=com'./
               ]
-            },
+            }
           }
         },
         {
-          name: "auxiliary/scanner/mysql/mysql_version",
-          platforms: [:linux, :osx, :windows],
-          targets: [:session, :rhost],
+          name: 'auxiliary/admin/ldap/shadow_credentials',
+          platforms: %i[linux osx windows],
+          targets: [:rhost],
           skipped: false,
+          datastore: { TARGET_USER: 'administrator' },
           lines: {
             all: {
               required: [
-                /#{RHOST_REGEX} is running MySQL \d+.\d+.*/
+                /Discovering base DN automatically/,
+                /Discovered base DN: DC=ldap,DC=example,DC=com/,
+                /The msDS-KeyCredentialLink field is empty./
               ]
-            },
+            }
           }
-        },
-        {
-          name: "auxiliary/admin/mysql/mysql_sql",
-          platforms: [:linux, :osx, :windows],
-          targets: [:session, :rhost],
-          skipped: false,
-          lines: {
-            all: {
-              required: [
-                /\| \d+.\d+.*/,
-              ]
-            },
-          }
-        },
-        {
-          name: "auxiliary/admin/mysql/mysql_enum",
-          platforms: [:linux, :osx, :windows],
-          targets: [:session, :rhost],
-          skipped: false,
-          lines: {
-            all: {
-              required: [
-                /MySQL Version: \d+.\d+.*/,
-              ]
-            },
-          }
-        },
+        }
       ]
     }
   }
 
   TEST_ENVIRONMENT = AllureRspec.configuration.environment_properties
 
-  let_it_be(:current_platform) { Acceptance::Meterpreter::current_platform }
+  let_it_be(:current_platform) { Acceptance::Meterpreter.current_platform }
 
   # Driver instance, keeps track of all open processes/payloads/etc, so they can be closed cleanly
   let_it_be(:driver) do
@@ -113,7 +125,7 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
     # console.recv_available
 
     features = %w[
-      mysql_session_type
+      ldap_session_type
     ]
 
     features.each do |feature|
@@ -168,6 +180,7 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
         # Assert all expected lines are present
         required_lines.each do |required|
           next unless required.if?(test_environment)
+
           if required.value.is_a?(Regexp)
             expect(test_result).to match(required.value)
           else
@@ -195,7 +208,7 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
     current_console_data = console.all_data
     begin
       console.reset
-    rescue => e
+    rescue StandardError => e
       console_reset_error = e
       Allure.add_attachment(
         name: 'console.reset failure information',
@@ -234,7 +247,7 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
     test_assertions = JSON.pretty_generate(
       {
         required_lines: required_lines.map(&:to_h),
-        known_failures: known_failures.map(&:to_h),
+        known_failures: known_failures.map(&:to_h)
       }
     )
     Allure.add_attachment(
@@ -254,15 +267,13 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
       test_config[:module_tests].each do |module_test|
         describe(
           module_test[:name],
-          if: (
+          if:
             Acceptance::Meterpreter.supported_platform?(module_test)
-          )
         ) do
           let(:target) { Acceptance::Target.new(test_config[:target]) }
 
           let(:default_global_datastore) do
-            {
-            }
+            {}
           end
 
           let(:test_environment) { TEST_ENVIRONMENT }
@@ -281,7 +292,7 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
             # Set global options
             console.sendline target.setg_commands(default_global_datastore: default_global_datastore)
             console.recvuntil(Acceptance::Console.prompt)
-
+            # TODO: update this when we add sessions
             console.sendline target.run_command(default_module_datastore: { PASS_FILE: nil, USER_FILE: nil, CreateSession: true })
 
             session_id = nil
@@ -316,14 +327,14 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
             console.reset
           end
 
-          context "when targeting a session", if: module_test[:targets].include?(:session) do
+          context 'when targeting a session', if: module_test[:targets].include?(:session) do
             it(
               "#{Acceptance::Meterpreter.current_platform}/#{runtime_name} session opens and passes the #{module_test[:name].inspect} tests"
             ) do
               with_test_harness(module_test) do |replication_commands|
                 # Ensure we have a valid session id; We intentionally omit this from a `before(:each)` to ensure the allure attachments are generated if the session dies
                 expect(session_id).to_not(be_nil, proc do
-                  "There should be a session present"
+                  'There should be a session present'
                 end)
 
                 use_module = "use #{module_test[:name]}"
@@ -341,13 +352,14 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
             end
           end
 
-          context "when targeting an rhost", if: module_test[:targets].include?(:rhost) do
+          context 'when targeting an rhost', if: module_test[:targets].include?(:rhost) do
             it(
               "#{Acceptance::Meterpreter.current_platform}/#{runtime_name} rhost opens and passes the #{module_test[:name].inspect} tests"
             ) do
               with_test_harness(module_test) do |replication_commands|
                 use_module = "use #{module_test[:name]}"
-                run_module = "run #{target.datastore_options(default_module_datastore: default_module_datastore)} Verbose=true"
+                run_command = module_test.key?(:action) ? module_test.fetch(:action) : 'run'
+                run_module = "#{run_command} #{target.datastore_options(default_module_datastore: default_module_datastore.merge(module_test.fetch(:datastore, {})))} Verbose=true"
 
                 replication_commands << use_module
                 console.sendline(use_module)
