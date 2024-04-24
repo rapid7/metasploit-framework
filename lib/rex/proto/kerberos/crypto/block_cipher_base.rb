@@ -90,11 +90,11 @@ module Rex
             encrypt_basic(plaintext, ke) + hmac[0,self.class::MAC_SIZE]
           end
 
-          def gss_wrap(plaintext, key, sequence_number, is_initiator, use_acceptor_subkey: true)
+          def gss_wrap(plaintext, key, sequence_number, is_initiator, opts={})
             raise NotImplementedError
           end
 
-          def gss_unwrap(ciphertext, key, expected_sequence_number, is_initiator, use_acceptor_subkey: true)
+          def gss_unwrap(ciphertext, key, expected_sequence_number, is_initiator, opts={})
             raise NotImplementedError
           end
 
