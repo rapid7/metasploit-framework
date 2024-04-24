@@ -164,6 +164,7 @@ class Net::LDAP::Connection # :nodoc:
   module ConnectionSaslIO
     # Provide the encryption wrapper for the caller to set up
     def wrap_read_write(wrap_read, wrap_write)
+      @conn.extend(SocketSaslIO)
       @conn.setup(wrap_read, wrap_write)
     end
 
@@ -197,7 +198,6 @@ class Net::LDAP::Connection # :nodoc:
 
       # Set up read/write wrapping
       self.extend(ConnectionSaslIO)
-      @conn.extend(SocketSaslIO)
     rescue SocketError
       raise Net::LDAP::LdapError, 'No such address or other socket error.'
     rescue Errno::ECONNREFUSED
