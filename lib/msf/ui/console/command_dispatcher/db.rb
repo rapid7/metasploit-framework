@@ -1230,12 +1230,13 @@ class Db
   @@notes_opts = Rex::Parser::Arguments.new(
     [ '-a', '--add' ] => [ false, 'Add a note to the list of addresses, instead of listing.' ],
     [ '-d', '--delete' ] => [ false, 'Delete the notes instead of searching.' ],
-    [ '-n', '--note' ] => [ true, 'Set the data for a new note (only with -a).', '<note>' ],
-    [ '-t', '--type' ] => [ true, 'Search for a list of types, or set single type for add.', '<type1,type2>' ],
     [ '-h', '--help' ] => [ false, 'Show this help information.' ],
-    [ '-R', '--rhosts' ] => [ false, 'Set RHOSTS from the results of the search.' ],
-    [ '-o', '--output' ] => [ true, 'Save the notes to a csv file.', '<filename>' ],
+    [ '-n', '--note' ] => [ true, 'Set the data for a new note (only with -a).', '<note>' ],
     [ '-O', '--order' ] => [ true, 'Order rows by specified column number.', '<column id>' ],
+    [ '-o', '--output' ] => [ true, 'Save the notes to a csv file.', '<filename>' ],
+    [ '-R', '--rhosts' ] => [ false, 'Set RHOSTS from the results of the search.' ],
+    [ '-S', '--search' ] => [ true, 'Search string to filter by.', '<filter>' ],
+    [ '-t', '--type' ] => [ true, 'Search for a list of types, or set single type for add.', '<type1,type2>' ],
     [ '-u', '--update' ] => [ false, 'Update a note. Not officially supported.' ]
   )
 

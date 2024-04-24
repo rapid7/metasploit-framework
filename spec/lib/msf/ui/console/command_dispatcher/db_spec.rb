@@ -180,6 +180,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "    -O, --order <column id>   Order rows by specified column number.",
           "    -o, --output <filename>   Save the notes to a csv file.",
           "    -R, --rhosts              Set RHOSTS from the results of the search.",
+          "    -S, --search <filter>     Search string to filter by.",
           "    -t, --type <type1,type2>  Search for a list of types, or set single type for add.",
           "    -u, --update              Update a note. Not officially supported.",
           "",
