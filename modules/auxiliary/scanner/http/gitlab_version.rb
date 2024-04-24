@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     version = gitlab_version
     if version
-      print_good("Gitlab version range for #{ip}: #{version}")
+      print_good("Gitlab version range for #{ip}:#{datastore['RPORT']}: #{version}")
       report_note(
         host: ip,
         port: datastore['RPORT'],
