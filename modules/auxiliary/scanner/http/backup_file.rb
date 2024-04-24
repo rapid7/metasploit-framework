@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [ true,  "The path/file to identify backups", '/index.asp'])
+        OptString.new('PATH', [ true,  "The path/file to identify backups, use ':' as a delimiter for multi-path/file input", '/index.asp'])
       ])
 
   end
@@ -41,13 +41,17 @@ class MetasploitModule < Msf::Auxiliary
       '~'
     ]
 
-    bakextensions.each do |ext|
-      file = normalize_uri(datastore['PATH'])+ext
-      check_for_file(file, ip)
-    end
-    if datastore['PATH'] =~ %r#(.*)(/.+$)#
-      file = $1 + $2.sub('/', '/.') + '.swp'
-      check_for_file(file, ip)
+    # If there is ':' use it as a delimiter
+    pathes = datastore['PATH'].split(":")
+    pathes.each do |path|
+      bakextensions.each do |ext|
+        file = normalize_uri(path)+ext
+        check_for_file(file, ip)
+      end
+      if path =~ %r#(.*)(/.+$)#
+        file = $1 + $2.sub('/', '/.') + '.swp'
+        check_for_file(file, ip)
+      end
     end
   end
   def check_for_file(file, ip)
