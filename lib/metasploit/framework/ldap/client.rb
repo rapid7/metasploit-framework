@@ -157,6 +157,7 @@ module Metasploit
           offered_etypes = Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(opts[:ldap_krb_offered_enc_types])
           raise Msf::ValidationError, 'At least one encryption type is required when using Kerberos authentication.' if offered_etypes.empty?
 
+          use_gss_checksum = opts[:should_encrypt]
           kerberos_authenticator = Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::LDAP.new(
             host: opts[:domain_controller_rhost].blank? ? nil : opts[:domain_controller_rhost],
             hostname: opts[:ldap_rhostname],
@@ -169,7 +170,7 @@ module Metasploit
             ticket_storage: opts[:kerberos_ticket_storage],
             offered_etypes: offered_etypes,
             mutual_auth: true,
-            use_gss_checksum: true
+            use_gss_checksum: use_gss_checksum
           )
 
           encryptor = SpnegoKerberosEncryptor.new(kerberos_authenticator)
@@ -180,32 +181,40 @@ module Metasploit
             initial_credential: proc do
               encryptor.get_initial_credential
             end,
-            auth_context_setup: encryptor.method(:kerberos_setup),
             challenge_response: true
           }
+
+          if opts[:should_encrypt]
+            auth_opts[:auth][:auth_context_setup] = encryptor.method(:kerberos_setup)
+          end
+
           auth_opts
         end
 
         def ldap_auth_opts_ntlm(opts)
           auth_opts = {}
-          ntlm_client = RubySMB::NTLM::Client.new(
-            (opts[:username].nil? ? '' : opts[:username]),
-            (opts[:password].nil? ? '' : opts[:password]),
-            workstation: 'WORKSTATION',
-            domain: opts[:domain].blank? ? '.' : opts[:domain],
-            flags:
-              RubySMB::NTLM::NEGOTIATE_FLAGS[:UNICODE] |
+          flags = RubySMB::NTLM::NEGOTIATE_FLAGS[:UNICODE] |
                 RubySMB::NTLM::NEGOTIATE_FLAGS[:REQUEST_TARGET] |
-                RubySMB::NTLM::NEGOTIATE_FLAGS[:SIGN] |
-                RubySMB::NTLM::NEGOTIATE_FLAGS[:SEAL] |
                 RubySMB::NTLM::NEGOTIATE_FLAGS[:NTLM] |
                 RubySMB::NTLM::NEGOTIATE_FLAGS[:ALWAYS_SIGN] |
                 RubySMB::NTLM::NEGOTIATE_FLAGS[:EXTENDED_SECURITY] |
                 RubySMB::NTLM::NEGOTIATE_FLAGS[:KEY_EXCHANGE] |
                 RubySMB::NTLM::NEGOTIATE_FLAGS[:TARGET_INFO] |
-                RubySMB::NTLM::NEGOTIATE_FLAGS[:KEY128] |
-                RubySMB::NTLM::NEGOTIATE_FLAGS[:KEY56] |
                 RubySMB::NTLM::NEGOTIATE_FLAGS[:VERSION_INFO]
+
+          if opts[:should_encrypt]
+            flags = flags |
+                RubySMB::NTLM::NEGOTIATE_FLAGS[:SIGN] |
+                RubySMB::NTLM::NEGOTIATE_FLAGS[:SEAL] |
+                RubySMB::NTLM::NEGOTIATE_FLAGS[:KEY128] |
+                RubySMB::NTLM::NEGOTIATE_FLAGS[:KEY56]
+          end
+          ntlm_client = RubySMB::NTLM::Client.new(
+            (opts[:username].nil? ? '' : opts[:username]),
+            (opts[:password].nil? ? '' : opts[:password]),
+            workstation: 'WORKSTATION',
+            domain: opts[:domain].blank? ? '.' : opts[:domain],
+            flags: flags
           )
 
           negotiate = proc do |challenge|
@@ -222,9 +231,13 @@ module Metasploit
             method: :sasl,
             mechanism: 'GSS-SPNEGO',
             initial_credential: ntlm_client.init_context.serialize,
-            challenge_response: negotiate,
-            auth_context_setup: encryptor.method(:ntlm_setup)
+            challenge_response: negotiate
           }
+
+          if opts[:should_encrypt]
+            auth_opts[:auth][:auth_context_setup] = encryptor.method(:ntlm_setup)
+          end
+
           auth_opts
         end
 
