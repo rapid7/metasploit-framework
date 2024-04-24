@@ -198,10 +198,14 @@ class MetasploitModule < Msf::Auxiliary
         print_status("Query returned #{result_count} result#{result_count == 1 ? '' : 's'}.")
       end
     end
-  rescue Rex::ConnectionTimeout
-    fail_with(Failure::Unreachable, "Couldn't reach #{datastore['RHOST']}!")
+  rescue Errno::ECONNRESET
+    fail_with(Failure::Disconnected, 'The connection was reset.')
+  rescue Rex::ConnectionError => e
+    fail_with(Failure::Unreachable, e.message)
+  rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
+    fail_with(Failure::NoAccess, e.message)
   rescue Net::LDAP::Error => e
-    fail_with(Failure::UnexpectedReply, "Could not query #{datastore['RHOST']}! Error was: #{e.message}")
+    fail_with(Failure::Unknown, "#{e.class}: #{e.message}")
   end
 
   attr_reader :loaded_queries # Queries loaded from the yaml config file
