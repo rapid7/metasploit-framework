@@ -116,6 +116,7 @@ Module options (auxiliary/gather/ldap_esc_vulnerable_cert_finder):
    BIND_DN               DAFOREST\Administrator  no        The username to authenticate to LDAP server
    BIND_PW               theAdmin123             no        Password for the BIND_DN
    REPORT_NONENROLLABLE  false                   yes       Report nonenrollable certificate templates
+   REQUIRE_SIGNING       true                    yes       Use signed and encrypted LDAP
    RHOSTS                172.26.104.157          yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit
    RPORT                 389                     yes       The target port
    SSL                   false                   no        Enable SSL on the LDAP connection

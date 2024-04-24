@@ -107,15 +107,16 @@ msf6 auxiliary(admin/ldap/shadow_credentials) > show options
 
 Module options (auxiliary/admin/ldap/shadow_credentials):
 
-   Name         Current Setting  Required  Description
-   ----         ---------------  --------  -----------
-   DOMAIN                        no        The domain to authenticate to
-   PASSWORD                      no        The password to authenticate with
-   RHOSTS                        yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
-   RPORT        389              yes       The target port
-   SSL          false            no        Enable SSL on the LDAP connection
-   TARGET_USER                   yes       The target to write to
-   USERNAME                      no        The username to authenticate with
+   Name             Current Setting  Required  Description
+   ----             ---------------  --------  -----------
+   DOMAIN                            no        The domain to authenticate to
+   PASSWORD                          no        The password to authenticate with
+   REQUIRE_SIGNING  true             yes       Use signed and encrypted LDAP
+   RHOSTS                            yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+   RPORT            389              yes       The target port
+   SSL              false            no        Enable SSL on the LDAP connection
+   TARGET_USER                       yes       The target to write to
+   USERNAME                          no        The username to authenticate with
 
 
    When ACTION is REMOVE:

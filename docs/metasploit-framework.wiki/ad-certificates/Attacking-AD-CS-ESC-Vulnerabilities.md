@@ -196,6 +196,7 @@ Module options (auxiliary/gather/ldap_esc_vulnerable_cert_finder):
    DOMAIN                                 no        The domain to authenticate to
    PASSWORD                               no        The password to authenticate with
    REPORT_NONENROLLABLE  false            yes       Report nonenrollable certificate templates
+   REQUIRE_SIGNING       true             yes       Use signed and encrypted LDAP
    RHOSTS                                 yes       The target host(s), see https://github.com/rapid7/metasploit
                                                     -framework/wiki/Using-Metasploit
    RPORT                 389              yes       The target port
