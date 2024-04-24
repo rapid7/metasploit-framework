@@ -14,10 +14,10 @@ RSpec.describe 'LDAP modules' do
         datastore: {
           global: {},
           module: {
-            username: ENV.fetch('LDAP_USERNAME', 'uid=admin,ou=system'),
-            password: ENV.fetch('LDAP_PASSWORD', 'secret'),
+            username: ENV.fetch('LDAP_USERNAME', "'DEV-AD\\Administrator'"),
+            password: ENV.fetch('LDAP_PASSWORD', 'admin123!'),
             rhost: ENV.fetch('LDAP_RHOST', '127.0.0.1'),
-            rport: ENV.fetch('LDAP_RPORT', '10389'),
+            rport: ENV.fetch('LDAP_RPORT', '389'),
             ssl: ENV.fetch('LDAP_SSL', 'false')
           }
         }
@@ -54,7 +54,7 @@ RSpec.describe 'LDAP modules' do
             all: {
               required: [
                 /Discovered base DN/,
-                /Query returned 1 result/
+                /Query returned 4 results/
               ]
             }
           }
@@ -68,8 +68,10 @@ RSpec.describe 'LDAP modules' do
             all: {
               required: [
                 /Discovering base DN\(s\) automatically/,
-                /Storing LDAP data for base DN='dc=wimpi,dc=net' in loot/,
-                /5 entries, 1 creds found in 'dc=wimpi,dc=net'/
+                /Dumping data for root DSE/,
+                /Searching base DN='DC=ldap,DC=example,DC=com'/,
+                /Storing LDAP data for base DN='DC=ldap,DC=example,DC=com' in loot/,
+                /266 entries, 0 creds found in 'DC=ldap,DC=example,DC=com'./
               ]
             }
           }
@@ -79,11 +81,12 @@ RSpec.describe 'LDAP modules' do
           platforms: %i[linux osx windows],
           targets: [:rhost],
           skipped: false,
-          datastore: { TARGET_USER: 'test' },
+          datastore: { TARGET_USER: 'administrator' },
           lines: {
             all: {
               required: [
                 /Discovering base DN automatically/,
+                /Discovered base DN: DC=ldap,DC=example,DC=com/,
                 /The msDS-KeyCredentialLink field is empty./
               ]
             }

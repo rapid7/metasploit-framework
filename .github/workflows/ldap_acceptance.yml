@@ -45,15 +45,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
 
-    services:
-      ldap:
-        image: ${{ matrix.target.version }}
-        ports: [ "10389:10389" ]
-        options: >-
-          --health-cmd "${{ matrix.target.health_cmd }}"
-          --health-interval 10s
-          --health-timeout 10s
-          --health-retries 5
     strategy:
       fail-fast: true
       matrix:
@@ -61,19 +52,23 @@ jobs:
           - '3.2'
         os:
           - ubuntu-latest
-        target:
-          - { version: "dwimberger/ldap-ad-it:latest", health_cmd: 'apk update; apk add openldap-clients; ldapsearch -x -H ldap://localhost:10389 -D uid=admin,ou=system -w secret -b dc=wimpi,dc=net' }
 
     env:
       RAILS_ENV: test
 
-    name: ${{ matrix.target.version }} - ${{ matrix.os }} - Ruby ${{ matrix.ruby }}
+    name: LDAP Acceptance - ${{ matrix.os }} - Ruby ${{ matrix.ruby }}
     steps:
       - name: Install system dependencies
         run: sudo apt-get install -y --no-install-recommends libpcap-dev graphviz
 
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Run samba/ldap docker container
+        working-directory: 'test/ldap'
+        run: |
+          docker compose build
+          docker compose up --wait -d
 
       - name: Setup Ruby
         env:
@@ -85,19 +80,11 @@ jobs:
           ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true
 
-      - name: Extract runtime version
-        run: |
-          echo "RUNTIME_VERSION=$(echo $DOCKER_IMAGE | awk -F: '{ print $2 }')" >> $GITHUB_ENV
-          echo "DOCKER_IMAGE_FILENAME=$(echo $DOCKER_IMAGE | tr -d '/:')" >> $GITHUB_ENV
-        env:
-          DOCKER_IMAGE: ${{ matrix.target.version }}
-          OS: ${{ matrix.os }}
-
       - name: acceptance
         env:
           SPEC_HELPER_LOAD_METASPLOIT: false
           SPEC_OPTS: "--tag acceptance --require acceptance_spec_helper.rb --color --format documentation --format AllureRspec::RSpecFormatter"
-          RUNTIME_VERSION: ${{ env.RUNTIME_VERSION }}
+          RUNTIME_VERSION: latest
         # Unix run command:
         #   SPEC_HELPER_LOAD_METASPLOIT=false bundle exec ./spec/acceptance
         # Windows cmd command:
@@ -113,7 +100,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           # Provide a unique artifact for each matrix os, otherwise race conditions can lead to corrupt zips
-          name: ${{ env.DOCKER_IMAGE_FILENAME }}-${{ matrix.os }}
+          name: ldap-acceptance-${{ matrix.os }}
           path: tmp/allure-raw-data
 
   # Generate a final report from the previous test results
