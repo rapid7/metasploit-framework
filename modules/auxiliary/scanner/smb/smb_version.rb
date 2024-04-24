@@ -200,6 +200,9 @@ class MetasploitModule < Msf::Auxiliary
 
         info = smb_proto_info
         desc = "SMB Detected (versions:#{info[:versions].join(', ')}) (preferred dialect:#{info[:preferred_dialect]})"
+        if info[:versions].include?(1)
+          desc << ' (SMBv1: true)'
+        end
         info[:capabilities].each do |name, values|
           desc << " (#{name} capabilities:#{values.join(', ')})"
         end
