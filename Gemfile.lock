@@ -520,7 +520,7 @@ GEM
       tzinfo (>= 1.0.0)
     unf (0.1.4)
       unf_ext
-    unf_ext (0.0.9.1)
+    unf_ext (0.0.8.2)
     unicode-display_width (2.5.0)
     unix-crypt (1.3.1)
     uuid (2.3.9)
