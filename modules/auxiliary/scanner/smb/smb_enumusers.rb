@@ -4,14 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-
-  # Exploit mixins should be called first
-  include Msf::Exploit::Remote::SMB::Client
-  include Msf::Exploit::Remote::SMB::Client::Authenticated
-
-  include Msf::Exploit::Remote::DCERPC
-
-  # Scanner mixin should be near last
+  include Msf::Exploit::Remote::MsSamr
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
@@ -20,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'SMB User Enumeration (SAM EnumUsers)',
-      'Description' => 'Determine what local users exist via the SAM RPC service',
+      'Description' => 'Determine what users exist via the SAM RPC service',
       'Author'      => 'hdm',
       'License'     => MSF_LICENSE,
       'DefaultOptions' => {
@@ -32,337 +25,122 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptBool.new('DB_ALL_USERS', [ false, "Add all enumerated usernames to the database", false ]),
       ])
-
-    deregister_options('RPORT')
   end
 
-  def rport
-    @rport || super
+  def domain
+    @smb_domain || super
   end
 
-  def smb_direct
-    @smbdirect || super
+  def connect(*args, **kwargs)
+    super(*args, **kwargs, direct: @smb_direct)
   end
 
-  # Locate an available SMB PIPE for the specified service
-  def smb_find_dcerpc_pipe(uuid, vers, pipes)
-    found_pipe   = nil
-    found_handle = nil
-    pipes.each do |pipe_name|
-      connected = session ? true : false
-      begin
-        unless connected
-          connect
-          smb_login
-          connected = true
-        end
-
-        handle = dcerpc_handle_target(
-          uuid, vers,
-          'ncacn_np', ["\\#{pipe_name}"], simple.address
-        )
-
-        dcerpc_bind(handle)
-        return pipe_name
-
-      rescue ::Interrupt => e
-        raise e
-      rescue ::Exception => e
-        raise e if not connected
-      end
-      disconnect
-    end
-    nil
-  end
-
-  def smb_pack_sid(str)
-    [1,5,0].pack('CCv') + str.split('-').map{|x| x.to_i}.pack('NVVVV')
-  end
-
-  def smb_parse_sam_domains(data)
-    ret = []
-    idx = 0
-
-    cnt = data[8, 4].unpack("V")[0]
-    return ret if cnt == 0
-    idx += 20
-    idx += 12 * cnt
-
-    1.upto(cnt) do
-      v = data[idx,data.length].unpack('V*')
-      l = v[2] * 2
-
-      while(l % 4 != 0)
-        l += 1
-      end
-
-      idx += 12
-      ret << data[idx, v[2] * 2].gsub("\x00", '')
-      idx += l
-    end
-    ret
-  end
-
-  def smb_parse_sam_users(data)
-    ret = {}
-    rid = []
-    idx = 0
-
-    cnt = data[8, 4].unpack("V")[0]
-    return ret if cnt == 0
-    idx += 20
-
-    1.upto(cnt) do
-      v = data[idx,12].unpack('V3')
-      rid << v[0]
-      idx += 12
+  def run_host(_ip)
+    if session
+      run_session
+      return
     end
 
-    1.upto(cnt) do
-      v = data[idx,32].unpack('V*')
-      l = v[2] * 2
-
-      while(l % 4 != 0)
-        l += 1
-      end
-
-      uid = rid.shift
-
-      idx += 12
-      ret[uid] = data[idx, v[2] * 2].gsub("\x00", '')
-      idx += l
+    if datastore['RPORT'].blank? || datastore['RPORT'] == 0
+      smb_services = [
+        { port: 139, direct: false },
+        { port: 445, direct: true }
+      ]
+    else
+      smb_services = [
+        { port: datastore['RPORT'], direct: datastore['SMBDirect'] }
+      ]
     end
 
-    ret
+    smb_services.each do |smb_service|
+      run_service(smb_service[:port], smb_service[:direct])
+    end
   end
 
-  @@sam_uuid     = '12345778-1234-abcd-ef00-0123456789ac'
-  @@sam_vers     = '1.0'
-  @@sam_pipes    = %W{ SAMR LSARPC NETLOGON BROWSER SRVSVC }
+  def run_session
+    simple = session.simple_client
+    @rhost = simple.peerhost
+    @rport = simple.peerport
+    ipc_connect_result = simple.connect("\\\\#{simple.address}\\IPC$")
+    unless ipc_connect_result
+      print_error "Failed to connect to IPC in session #{session.sid}"
+      return
+    end
+    tree = simple.client.tree_connects.last
+
+    run_service_domain(tree)
+    run_service_domain(tree, smb_domain: 'Builtin')
+  rescue ::Timeout::Error
+  rescue ::Exception => e
+    print_error("Error: #{e.class} #{e}")
+  end
+
+  def run_service(port, direct)
+    @rport = port
+    @smb_direct = direct
+
+    tree = connect_ipc
+
+    run_service_domain(tree)
+    run_service_domain(tree, smb_domain: 'Builtin')
+  rescue ::Timeout::Error
+  rescue ::Interrupt
+    raise $!
+  rescue ::Rex::ConnectionError
+  rescue ::Rex::Proto::SMB::Exceptions::LoginError
+    return
+  rescue ::Exception => e
+    print_error("Error: #{e.class} #{e}")
+  ensure
+    tree.disconnect! if tree
+    disconnect
+  end
 
   # Fingerprint a single host
-  def run_host(ip)
-    ports = [139, 445]
+  def run_service_domain(tree, smb_domain: nil)
+    @smb_domain = smb_domain
 
-    if session
-      print_status("Using existing session #{session.sid}")
-      client = session.client
-      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
-      ports = [simple.port]
-      self.simple.connect("\\\\#{simple.address}\\IPC$") # smb_login connects to this share for some reason and it doesn't work unless we do too
-    end
+    samr_con = connect_samr(tree)
 
-    ports.each do |port|
+    lockout_info = samr_con.samr.samr_query_information_domain(
+      domain_handle: samr_con.domain_handle,
+      info_class: RubySMB::Dcerpc::Samr::DOMAIN_LOCKOUT_INFORMATION
+    )
 
-      @rport = port
+    password_info = samr_con.samr.samr_query_information_domain(
+      domain_handle: samr_con.domain_handle,
+      info_class: RubySMB::Dcerpc::Samr::DOMAIN_PASSWORD_INFORMATION
+    )
 
-      sam_pipe   = nil
-      sam_handle = nil
-      begin
-        # Find the SAM pipe
-        sam_pipe = smb_find_dcerpc_pipe(@@sam_uuid, @@sam_vers, @@sam_pipes)
-        break if not sam_pipe
+    users = samr_con.samr.samr_enumerate_users_in_domain(
+      domain_handle: samr_con.domain_handle,
+      user_account_control: RubySMB::Dcerpc::Samr::USER_NORMAL_ACCOUNT
+    )
 
-        # Connect4
-        stub =
-          NDR.uwstring("\\\\" + simple.address) +
-          NDR.long(2) +
-          NDR.long(0x30)
-
-        dcerpc.call(62, stub)
-        resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
-
-        if ! (resp and resp.length == 24)
-          print_error("Invalid response from the Connect5 request")
-          disconnect
-          return
-        end
-
-        phandle = resp[0,20]
-        perror  = resp[20,4].unpack("V")[0]
-
-        if(perror == 0xc0000022)
-          disconnect
-          return
-        end
-
-        if(perror != 0)
-          print_error("Received error #{"0x%.8x" % perror} from the OpenPolicy2 request")
-          disconnect
-          return
-        end
-
-        # EnumDomains
-        stub = phandle + NDR.long(0) + NDR.long(8192)
-        dcerpc.call(6, stub)
-        resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
-        domlist = smb_parse_sam_domains(resp)
-        domains = {}
-
-        # LookupDomain
-        domlist.each do |domain|
-          next if domain == 'Builtin'
-
-          # Round up the name to match NDR.uwstring() behavior
-          dlen = (domain.length + 1) * 2
-
-          # The SAM functions are picky on Windows 2000
-          stub =
-            phandle +
-            [(domain.length + 0) * 2].pack("v") + # NameSize
-            [(domain.length + 1) * 2].pack("v") + # NameLen (includes null)
-            NDR.long(rand(0x100000000)) +
-            [domain.length + 1].pack("V") +	      # MaxCount (includes null)
-            NDR.long(0) +
-            [domain.length + 0].pack("V") +	      # ActualCount (ignores null)
-            Rex::Text.to_unicode(domain)          # No null appended
-
-          dcerpc.call(5, stub)
-          resp    = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
-          raw_sid = resp[12, 20]
-          txt_sid = raw_sid.unpack("NVVVV").join("-")
-
-          domains[domain] = {
-            :sid_raw => raw_sid,
-            :sid_txt => txt_sid
-          }
-        end
-
-
-        # OpenDomain, QueryDomainInfo, CloseDomain
-        domains.each_key do |domain|
-
-          # Open
-          stub =
-            phandle +
-            NDR.long(0x00000305) +
-            NDR.long(4) +
-            [1,4,0].pack('CvC') +
-            domains[domain][:sid_raw]
-
-          dcerpc.call(7, stub)
-          resp    = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
-          dhandle = resp[0,20]
-          derror  = resp[20,4].unpack("V")[0]
-
-          # Catch access denied replies to OpenDomain
-          if(derror != 0)
-            next
-          end
-
-          # Password information
-          stub = dhandle + [0x01].pack('v')
-          dcerpc.call(8, stub)
-          resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
-          if(resp and resp[-4,4].unpack('V')[0] == 0)
-            mlen,hlen = resp[8,4].unpack('vv')
-            domains[domain][:pass_min] = mlen
-            domains[domain][:pass_min_history] = hlen
-          end
-
-          # Server Role
-          stub = dhandle + [0x07].pack('v')
-          dcerpc.call(8, stub)
-          if(resp and resp[-4,4].unpack('V')[0] == 0)
-            resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
-            domains[domain][:server_role] = resp[8,2].unpack('v')[0]
-          end
-
-          # Lockout Threshold
-          stub = dhandle + [12].pack('v')
-          dcerpc.call(8, stub)
-          resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
-
-          if(resp and resp[-4,4].unpack('V')[0] == 0)
-            lduration = resp[8,8]
-            lwindow   = resp[16,8]
-            lthresh   = resp[24, 2].unpack('v')[0]
-
-            domains[domain][:lockout_threshold] = lthresh
-            domains[domain][:lockout_duration]  = Rex::Proto::SMB::Utils.time_smb_to_unix(*(lduration.unpack('V2')))
-            domains[domain][:lockout_window]    = Rex::Proto::SMB::Utils.time_smb_to_unix(*(lwindow.unpack('V2')))
-          end
-
-          # Users
-          stub = dhandle + NDR.long(0) + NDR.long(0x10) + NDR.long(1024*1024)
-          dcerpc.call(13, stub)
-          resp  = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
-          if(resp and resp[-4,4].unpack('V')[0] == 0)
-            domains[domain][:users] = smb_parse_sam_users(resp)
-          end
-
-
-          # Close Domain
-          dcerpc.call(1, dhandle)
-        end
-
-        # Close Policy
-        dcerpc.call(1, phandle)
-
-
-        domains.each_key do |domain|
-
-          # Delete the no longer used raw SID value
-          domains[domain].delete(:sid_raw)
-
-          # Store the domain name itself
-          domains[domain][:name] = domain
-
-          # Store the domain information
-          report_note(
-            :host => simple.address,
-            :proto => 'tcp',
-            :port => rport,
-            :type => 'smb.domain.enumusers',
-            :data => domains[domain]
-          )
-
-          users = domains[domain][:users] || {}
-          extra = ""
-          if (domains[domain][:lockout_threshold])
-            extra = "( "
-            extra << "LockoutTries=#{domains[domain][:lockout_threshold]} "
-            extra << "PasswordMin=#{domains[domain][:pass_min]} "
-            extra << ")"
-          end
-          print_good("#{domain.upcase} [ #{users.keys.map{|k| users[k]}.join(", ")} ] #{extra}")
-          if datastore['DB_ALL_USERS']
-            users.each { |user|
-              store_username(user, domain, simple.address, rport, resp)
-            }
-          end
-        end
-
-        # cleanup
-        disconnect
-        return
-      rescue ::Timeout::Error
-      rescue ::Interrupt
-        raise $!
-      rescue ::Rex::ConnectionError
-      rescue ::Rex::Proto::SMB::Exceptions::LoginError
-        next
-      rescue ::Exception => e
-        print_line("Error: #{simple.address} #{e.class} #{e}")
+    print_good("#{samr_con.domain_name} [ #{users.values.map { |name| name.encode('UTF-8') }.join(', ') } ] ( LockoutTries=#{lockout_info.lockout_threshold} PasswordMin=#{password_info.min_password_length} )")
+    if datastore['DB_ALL_USERS']
+      users.values.each do |username|
+        report_username(samr_con.domain_name, username.encode('UTF-8'))
       end
     end
+  ensure
+    samr_con.samr.close_handle(samr_con.domain_handle) if samr_con.domain_handle
+    samr_con.samr.close_handle(samr_con.server_handle) if samr_con.server_handle
   end
 
-
-  def store_username(username, domain, ip, rport, resp)
+  def report_username(domain, username)
     service_data = {
-      address: ip,
+      address: rhost,
       port: rport,
       service_name: 'smb',
       protocol: 'tcp',
-      workspace_id: myworkspace_id,
-      proof: resp
+      workspace_id: myworkspace_id
     }
 
     credential_data = {
       origin_type: :service,
       module_fullname: fullname,
-      username: username[1],
+      username: username,
       realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
       realm_value: domain,
     }.merge(service_data)
@@ -374,5 +152,4 @@ class MetasploitModule < Msf::Auxiliary
 
     create_credential_login(login_data)
   end
-
 end

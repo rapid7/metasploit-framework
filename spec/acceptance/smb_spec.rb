@@ -45,23 +45,19 @@ RSpec.describe 'SMB sessions and SMB modules' do
         #     },
         #   }
         # },
-        # Flaky:
-        # RubySMB::Error::CommunicationError Communication error with the remote host: Read timeout expired when reading from the Socket (timeout=30).
-        # The server supports encryption and this error may have been caused by encryption issues, but not always.
-        # Fixed here: https://github.com/rapid7/metasploit-framework/pull/19095
-        # {
-        #   name: "auxiliary/scanner/smb/smb_enumusers",
-        #   platforms: [:linux, :osx, :windows],
-        #   targets: [:session, :rhost],
-        #   skipped: false,
-        #   lines: {
-        #     all: {
-        #       required: [
-        #         "acceptance_tests_user",
-        #       ],
-        #     },
-        #   }
-        # },
+        {
+          name: "auxiliary/scanner/smb/smb_enumusers",
+          platforms: [:linux, :osx, :windows],
+          targets: [:session, :rhost],
+          skipped: false,
+          lines: {
+            all: {
+              required: [
+                "acceptance_tests_user",
+              ],
+            },
+          }
+        },
         {
           name: "auxiliary/scanner/smb/pipe_auditor",
           platforms: [:linux, :osx, :windows],
