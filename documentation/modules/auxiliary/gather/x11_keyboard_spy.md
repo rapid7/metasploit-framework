@@ -123,7 +123,7 @@ msf6 auxiliary(gather/x11_keyboard_spy) > run
 [*] 127.0.0.1:6000 - Establishing TCP Connection
 [*] 127.0.0.1:6000 - [1/9] Establishing X11 connection
 [-] 127.0.0.1:6000 - Connection packet malfored (size: 8192), attempting to get read more data
-[+] 127.0.0.1:6000 - Successly established X11 connection
+[+] 127.0.0.1:6000 - Successfully established X11 connection
 [*] 127.0.0.1:6000 - Version: 11.0
 [*] 127.0.0.1:6000 - Screen Resolution: 958x832
 [*] 127.0.0.1:6000 - Resource ID: 33554432
