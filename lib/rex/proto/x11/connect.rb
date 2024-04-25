@@ -6,7 +6,7 @@
 # Wireshark dissector: https://wiki.wireshark.org/X11
 #
 
-module Msf::Exploit::Remote::X11::Connect
+module Rex::Proto::X11::Connect
   # https://xcb.freedesktop.org/manual/structxcb__visualtype__t.html
   class X11VisualType < BinData::Record
     endian :little
@@ -42,14 +42,16 @@ module Msf::Exploit::Remote::X11::Connect
     uint32 :pad1
   end
 
+  class X11ConnectionError < BinData::Record
+    endian :little
+
+    rest :reason
+  end
+
   # https://xcb.freedesktop.org/manual/structxcb__setup__t.html
   class X11ConnectionResponse < BinData::Record
     endian :little
-    uint8 :success # 8bit boolean, \x01 == true \x00 == false
-    uint8 :pad0
-    uint16 :protocol_version_major
-    uint16 :protocol_version_minor
-    uint16 :response_length
+
     uint32 :release_number
     uint32 :resource_id_base
     uint32 :resource_id_mask
@@ -92,6 +94,24 @@ module Msf::Exploit::Remote::X11::Connect
           initial_length: :screen_allowed_depths_len
   end
 
+  class X11ConnectHeader < BinData::Record
+    endian :little
+    uint8 :success # 8bit boolean, \x01 == true \x00 == false
+    uint8 :pad0
+    uint16 :protocol_version_major
+    uint16 :protocol_version_minor
+    uint16 :response_length
+  end
+
+  class X11Connection < BinData::Record
+    endian :little
+    x11_connect_header :header
+    choice :body, selection: -> { header.success } do
+      x11_connection_response 1
+      x11_connection_error 0
+    end
+  end
+
   # https://xcb.freedesktop.org/manual/structxcb__setup__request__t.html
   class X11ConnectionRequest < BinData::Record
     # only 1/2 implemented since we dont have any authorization items added
@@ -103,22 +123,5 @@ module Msf::Exploit::Remote::X11::Connect
     uint16 :authorization_protocol_name_length, value: 0
     uint16 :authorization_protocol_data_length, value: 0
     uint16 :pad1, value: 0
-  end
-
-  def print_connection_info(connection, ip, port)
-    print_good("#{ip} - Successly established X11 connection")
-        vprint_status("  Vendor: #{connection.vendor}")
-        vprint_status("  Version: #{connection.protocol_version_major}.#{connection.protocol_version_minor}")
-        vprint_status("  Screen Resolution: #{connection.screen_width_in_pixels}x#{connection.screen_height_in_pixels}")
-        vprint_status("  Resource ID: #{connection.resource_id_base.inspect}")
-        vprint_status("  Screen root: #{connection.screen_root.inspect}")
-        report_note(
-          host: ip,
-          proto: 'tcp',
-          sname: 'x11',
-          port: port,
-          type: 'x11.server_vendor',
-          data: "Open X Server (#{connection.vendor})"
-        )
   end
 end

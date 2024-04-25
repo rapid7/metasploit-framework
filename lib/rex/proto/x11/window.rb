@@ -6,7 +6,7 @@
 # Wireshark dissector: https://wiki.wireshark.org/X11
 #
 
-module Msf::Exploit::Remote::X11::Window
+module Rex::Proto::X11::Window
   # 3 =  https://xcb.freedesktop.org/manual/structxcb__get__window__attributes__request__t.html
   # 14 = https://xcb.freedesktop.org/manual/structxcb__get__geometry__request__t.html
   class X11GetRequest < BinData::Record

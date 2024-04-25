@@ -9,7 +9,7 @@
 # skips https://github.com/D-Programming-Deimos/libX11/blob/master/c/X11/keysymdef.h#L137-L166
 #
 
-module Msf::Exploit::Remote::X11::Keysymdef
+module Rex::Proto::X11::Keysymdef
   X11KEYSYM_HASH = {
     65288 => '[BackSpace]',    # XK_BackSpace
     65289 => '[Tab]',          # XK_Tab

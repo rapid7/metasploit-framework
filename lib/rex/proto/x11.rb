@@ -6,12 +6,24 @@
 # Wireshark dissector: https://wiki.wireshark.org/X11
 #
 
-module Msf::Exploit::Remote::X11
-  include Msf::Exploit::Remote::X11::Connect
-  include Msf::Exploit::Remote::X11::Extensions
-  include Msf::Exploit::Remote::X11::Xkeyboard
-  include Msf::Exploit::Remote::X11::Keysymdef
-  include Msf::Exploit::Remote::X11::Window
+module Rex::Proto::X11
+  include Rex::Proto::X11::Connect
+  include Rex::Proto::X11::Extensions
+  include Rex::Proto::X11::Xkeyboard
+  include Rex::Proto::X11::Keysymdef
+  include Rex::Proto::X11::Window
+
+  # https://xcb.freedesktop.org/manual/structxcb__generic__error__t.html
+  class X11Error < BinData::Record
+    endian :little
+    uint8 :response_type # 0 = Error, 1 = Reply
+    uint8 :error_code # 8 = BadMatch
+    uint16 :sequence_number
+    uint32 :bad_value
+    uint16 :minor_opcode
+    uint16 :major_opcode
+    uint8 :pad0
+  end
 
   # https://xcb.freedesktop.org/manual/structxcb__get__property__reply__t.html
   class X11GetPropertyResponse < BinData::Record
@@ -29,12 +41,22 @@ module Msf::Exploit::Remote::X11
     string :value_data, read_length: -> { value_length }
   end
 
-  # https://xcb.freedesktop.org/manual/structxcb__get__property__request__t.html
-  class X11GetPropertyRequest < BinData::Record
+  # https://xcb.freedesktop.org/manual/structxcb__intern__atom__reply__t.html
+  class X11InternAtomResponse < BinData::Record
     endian :little
-    uint8 :opcode, value: 20 # GetProperty
+    uint8 :reply
+    uint8 :pad0
+    uint16 :sequence_number
+    uint32 :response_length
+    uint32 :atom
+    rest :pad1
+  end
+
+  # https://xcb.freedesktop.org/manual/structxcb__get__property__request__t.html
+  class X11GetPropertyRequestBody < BinData::Record
+    endian :little
     uint8 :delete_field, initial_value: 0 # \x00 false, assuming \x01 true?
-    uint16 :request_length, value: -> { num_bytes / 4 }
+    uint16 :request_length, value: -> { (num_bytes / 4) +1 } # +1 for header opcode
     uint32 :window # X11ConnectionResponse.screen_root
     uint32 :property, initial_value: 23 # "\x17\x00\x00\x00" RESOURCE_MANAGER
     uint32 :get_property_type, initial_value: 31 # "\x1f\x00\x00\x00" # get-property-type (31 = string)
@@ -43,11 +65,10 @@ module Msf::Exploit::Remote::X11
   end
 
   # https://xcb.freedesktop.org/manual/structxcb__create__gc__request__t.html
-  class X11CreateGraphicalContextRequest < BinData::Record
+  class X11CreateGraphicalContextRequestBody < BinData::Record
     endian :little
-    uint8 :opcode, value: 55 # CreateGC (CreateGraphicalContext)
     uint8 :pad0
-    uint16 :request_length, value: -> { num_bytes / 4 }
+    uint16 :request_length, value: -> { (num_bytes / 4) +1 } # +1 for header opcode
     uint32 :cid # X11ConnectionResponse.resource_id
     uint32 :drawable # X11ConnectionResponse.screen_root
     # gc-value-mask mappings from wireshark, uint32 total size
@@ -107,53 +128,46 @@ module Msf::Exploit::Remote::X11
   end
 
   # https://xcb.freedesktop.org/manual/structxcb__free__gc__request__t.html
-  class X11FreeGraphicalContextRequest < BinData::Record
+  class X11FreeGraphicalContextRequestBody < BinData::Record
     endian :little
-    uint8 :opcode, value: 60 # FreeGC
     uint8 :pad0, value: 1
-    uint16 :request_length, value: -> { num_bytes / 4 }
+    uint16 :request_length, value: -> { (num_bytes / 4) +1 } # +1 for header opcode
     uint32 :gc # X11ConnectionResponse.resource_id_base
   end
 
   # https://xcb.freedesktop.org/manual/structxcb__get__input__focus__request__t.html
-  class X11GetInputFocusRequest < BinData::Record
+  class X11GetInputFocusRequestBody < BinData::Record
     endian :little
-    uint8 :opcode, value: 43 # GetInputFocus
     uint8 :pad0
-    uint16 :request_length, value: -> { num_bytes / 4 }
+    uint16 :request_length, value: -> { (num_bytes / 4) +1 } # +1 for header opcode
   end
 
   # https://xcb.freedesktop.org/manual/structxcb__intern__atom__request__t.html
-  class X11InternAtomRequest < BinData::Record
+  class X11InternAtomRequestBody < BinData::Record
     endian :little
-    uint8 :opcode, value: 16 # InternAtom
     uint8 :only_if_exists, initial_value: 0 # 0 false, 1 true?
-    uint16 :request_length, value: -> { num_bytes / 4 }
+    uint16 :request_length, value: -> { (num_bytes / 4) +1 } # +1 for header opcode
     uint16 :name_length, value: -> { name.to_s.gsub(/\x00+\z/, '').length } # cut off the \x00 padding
     uint16 :pad0, initial_value: 0
     string :name, trim_padding: true
   end
 
-  # https://xcb.freedesktop.org/manual/structxcb__intern__atom__reply__t.html
-  class X11InternAtomResponse < BinData::Record
+  # header used for creating requests
+  class X11RequestHeader < BinData::Record
     endian :little
-    uint8 :reply
-    uint8 :pad0
-    uint16 :sequence_number
-    uint32 :response_length
-    uint32 :atom
-    rest :pad1
+    uint8 :opcode
   end
 
-  # https://xcb.freedesktop.org/manual/structxcb__generic__error__t.html
-  class X11Error < BinData::Record
+  # x11 request meta class for handling headers and bodies
+  class X11Request < BinData::Record
     endian :little
-    uint8 :response_type # 0 = Error, 1 = Reply
-    uint8 :error_code # 8 = BadMatch
-    uint16 :sequence_number
-    uint32 :bad_value
-    uint16 :minor_opcode
-    uint16 :major_opcode
-    uint8 :pad0
+    x11_request_header :header
+    choice             :body, selection: -> { header.opcode } do
+      x11_intern_atom_request_body 16
+      x11_get_property_request_body 20
+      x11_get_input_focus_request_body 43
+      x11_create_graphical_context_request_body 55
+      x11_free_graphical_context_request_body 60
+    end
   end
 end

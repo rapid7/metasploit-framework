@@ -6,7 +6,7 @@
 # Wireshark dissector: https://wiki.wireshark.org/X11
 #
 
-module Msf::Exploit::Remote::X11::Extensions
+module Rex::Proto::X11::Extensions
   # https://xcb.freedesktop.org/manual/structxcb__query__extension__reply__t.html
   class X11QueryExtensionResponse < BinData::Record
     endian :little

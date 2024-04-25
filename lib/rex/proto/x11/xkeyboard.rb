@@ -6,7 +6,7 @@
 # Wireshark dissector: https://wiki.wireshark.org/X11
 #
 
-module Msf::Exploit::Remote::X11::Xkeyboard
+module Rex::Proto::X11::Xkeyboard
   # https://xcb.freedesktop.org/manual/structxcb__xkb__key__mod__map__t.html
   class X11KeyModMap < BinData::Record
     endian :little
