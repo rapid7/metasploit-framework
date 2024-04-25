@@ -5,9 +5,9 @@
 
 class MetasploitModule < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::LDAP
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::LDAP
 
   def initialize(info = {})
     super(
@@ -33,7 +33,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DefaultAction' => 'Dump',
         'DefaultOptions' => {
-          'SSL' => true
+          'SSL' => true,
+          'RPORT' => 636
         },
         'Notes' => {
           'Stability' => [CRASH_SAFE],
@@ -44,7 +45,6 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
-      Opt::RPORT(636), # SSL/TLS
       OptInt.new('MAX_LOOT', [false, 'Maximum number of LDAP entries to loot', nil]),
       OptInt.new('READ_TIMEOUT', [false, 'LDAP read timeout in seconds', 600]),
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),

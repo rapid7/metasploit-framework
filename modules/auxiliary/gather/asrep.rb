@@ -99,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
 
     ldap_connect do |ldap|
       validate_bind_success!(ldap)
-      unless (base_dn = discover_base_dn(ldap))
+      unless (base_dn = ldap.base_dn)
         fail_with(Failure::UnexpectedReply, "Couldn't discover base DN!")
       end
 

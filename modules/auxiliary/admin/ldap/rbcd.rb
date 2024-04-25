@@ -138,7 +138,7 @@ class MetasploitModule < Msf::Auxiliary
       else
         print_status('Discovering base DN automatically')
 
-        unless (@base_dn = discover_base_dn(ldap))
+        unless (@base_dn = ldap.base_dn)
           print_warning("Couldn't discover base DN!")
         end
       end

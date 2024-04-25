@@ -71,10 +71,10 @@ module Rex
 
         def discover_schema_naming_context
           result = search(base: '', attributes: [:schemanamingcontext], scope: Net::LDAP::SearchScope_BaseObject)
-          if result.first && result.first[:schemanamingcontext]
+          if result.first && !result.first[:schemanamingcontext].empty?
             schema_dn = result.first[:schemanamingcontext].first
             ilog("#{peerinfo} Discovered Schema DN: #{schema_dn}")
-            schema_dn
+            return schema_dn
           end
           wlog("#{peerinfo} Could not discover Schema DN")
           nil

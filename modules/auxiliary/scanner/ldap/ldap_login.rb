@@ -169,7 +169,7 @@ class MetasploitModule < Msf::Auxiliary
   # @param [Metasploit::Framework::LoginScanner::Result] result
   # @return [Msf::Sessions::LDAP]
   def session_setup(result)
-    return unless (result.connection && result.proof)
+    return unless result.connection && result.proof
 
     # Create a new session
     my_session = Msf::Sessions::LDAP.new(result.connection, { client: result.proof })
