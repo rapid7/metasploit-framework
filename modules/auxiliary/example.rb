@@ -42,12 +42,9 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Running the simple auxiliary module with action #{action.name}")
   end
 
-  # auxiliary modules can register new commands, they all call cmd_* to
-  # dispatch them
-  def auxiliary_commands
-    { 'aux_extra_command' => 'Run this auxiliary test commmand' }
-  end
-
+  # Framework automatically registers `cmd_*` methods to be dispatched when the
+  # corresponding command is used. For example, here this method will be called
+  # when entering the `aux_extra_command` command in the console.
   def cmd_aux_extra_command(*args)
     print_status("Running inside aux_extra_command(#{args.join(' ')})")
   end

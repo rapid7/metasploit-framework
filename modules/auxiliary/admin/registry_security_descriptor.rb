@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def run
+  def do_connect
     if session
       print_status("Using existing session #{session.sid}")
       client = session.client
@@ -104,6 +104,10 @@ class MetasploitModule < Msf::Auxiliary
     rescue RubySMB::Error::RubySMBError => e
       fail_with(Module::Failure::Unreachable, "Error when connecting to 'winreg' interface ([#{e.class}] #{e}).")
     end
+  end
+
+  def run
+    do_connect
 
     case action.name
     when 'READ'
@@ -123,14 +127,9 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def auxiliary_commands
-    {
-      'read' => 'Read a Windows registry security descriptor',
-      'write' => 'Write a Windows registry security descriptor'
-    }
-  end
-
   def cmd_read
+    do_connect unless @winreg
+
     fail_with(Failure::BadConfig, 'Unknown registry key, please set the `KEY` option') if datastore['KEY'].blank?
 
     sd = @winreg.get_key_security_descriptor(datastore['KEY'], datastore['SECURITY_INFORMATION'], bind: false)
@@ -138,12 +137,14 @@ class MetasploitModule < Msf::Auxiliary
 
     unless datastore['FILE'].blank?
       remote_reg = Msf::Util::WindowsRegistry::RemoteRegistry.new(@winreg, name: :sam)
-      remote_reg.backup_to_file(datastore['KEY'], sd, datastore['SECURITY_INFORMATION'], datastore['FILE'])
+      remote_reg.save_to_file(datastore['KEY'], sd, datastore['SECURITY_INFORMATION'], datastore['FILE'])
       print_good("Saved to file #{datastore['FILE']}")
     end
   end
 
   def cmd_write
+    do_connect unless @winreg
+
     if datastore['FILE'].blank?
       fail_with(Failure::BadConfig, 'Unknown security descriptor, please set the `SD` option') if datastore['SD'].blank?
       fail_with(Failure::BadConfig, 'Unknown registry key, please set the `KEY` option') if datastore['KEY'].blank?
