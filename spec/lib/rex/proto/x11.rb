@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Msf::Exploit::Remote::X11 do
+RSpec.describe Rex::Proto::X11 do
   subject do
     mod = ::Msf::Exploit.new
     mod.extend described_class
@@ -50,83 +50,120 @@ RSpec.describe Msf::Exploit::Remote::X11 do
     "\x56\x45\x52\x4c\x41\x59\x5f\x56\x49\x53\x55\x41\x4c\x53\x00\x00"
   end
 
-  describe 'handles GetProperty response' do
-    it do
-      response = Msf::Exploit::Remote::X11::X11GetPropertyResponse.read(get_property_resp)
-      expect(response.get_property_type).to eq(31) # \x1f\x00\x00\x00
-      expect(response.sequence_number).to eq(4) # \x04\x00
-      expect(response.value_data).to eq("Xft.dpi:\t96\nXft.antialias:\t1\nXft.hinting:\t1\nXft.hintstyle:\thintslight\nXft.rgba:\trgb\nXcursor.size:\t24\nXcursor.theme:\tYaru\n")
+  describe 'X11GetPropertyResponseHeader' do
+    context '#read' do
+      it do
+        response = Rex::Proto::X11::X11GetPropertyResponseHeader.read(get_property_resp)
+        expect(response.get_property_type).to eq(31) # \x1f\x00\x00\x00
+        expect(response.sequence_number).to eq(4) # \x04\x00
+        expect(response.value_length).to eq(121)
+      end
     end
   end
 
-  describe 'handles GetProperty request' do
-    it do
-      request = Msf::Exploit::Remote::X11::X11GetPropertyRequest.new(window: 1320)
-      expect(request.to_binary_s).to eq(get_property)
-      request = Msf::Exploit::Remote::X11::X11GetPropertyRequest.read(get_property)
-      expect(request.content_length).to eq(100_000_000)
-      expect(request.window).to eq(1320)
+  describe 'X11GetPropertyRequest' do
+    context '#initialize' do
+      it do
+        header = Rex::Proto::X11::X11RequestHeader.new(opcode: 20)
+        body = Rex::Proto::X11::X11GetPropertyRequestBody.new(window: 1320)
+        expect(header.to_binary_s + body.to_binary_s).to eq(get_property)
+      end
+    end
+
+    context '#read' do
+      it do
+        request = Rex::Proto::X11::X11Request.read(get_property)
+        expect(request.header.opcode).to eq(20)
+        expect(request.body.content_length).to eq(100_000_000)
+        expect(request.body.window).to eq(1320)
+      end
     end
   end
 
-  describe 'creates a graphical context request' do
-    it do
-      request = Msf::Exploit::Remote::X11::X11CreateGraphicalContextRequest.read(creategc)
-      expect(request.opcode).to eq(55)
-      expect(request.request_length).to eq(5)
-      expect(request.cid).to eq(16777216)
-      expect(request.drawable).to eq(1320)
-      expect(request.gc_value_mask_background).to eq(1)
-      expect(request.background).to eq(16777215)
-      request = Msf::Exploit::Remote::X11::X11CreateGraphicalContextRequest.new(
-        cid: 16777216,
-        drawable: 1320,
-        gc_value_mask_background: 1
-      )
-      expect(request.to_binary_s).to eq(creategc)
+  describe 'X11CreateGraphicalContextRequest' do
+    context '#initialize' do
+      it do
+        header = Rex::Proto::X11::X11RequestHeader.new(opcode: 55)
+        body = Rex::Proto::X11::X11CreateGraphicalContextRequestBody.new(
+          cid: 16777216,
+          drawable: 1320,
+          gc_value_mask_background: 1
+        )
+        expect(header.to_binary_s + body.to_binary_s).to eq(creategc)
+      end
+    end
+
+    context '#read' do
+      it do
+        request = Rex::Proto::X11::X11Request.read(creategc)
+        expect(request.header.opcode).to eq(55)
+        expect(request.body.request_length).to eq(5)
+        expect(request.body.cid).to eq(16777216)
+        expect(request.body.drawable).to eq(1320)
+        expect(request.body.gc_value_mask_background).to eq(1)
+        expect(request.body.background).to eq(16777215)
+      end
     end
   end
 
-  describe 'handles GetInputFocus request' do
-    it do
-      request = Msf::Exploit::Remote::X11::X11GetInputFocusRequest.new
-      expect(request.to_binary_s).to eq(get_input_focus)
-      request = Msf::Exploit::Remote::X11::X11GetInputFocusRequest.read(get_input_focus)
-      expect(request.opcode).to eq(43)
+  describe 'X11GetInputFocusRequest' do
+    context '#initialize' do
+      it do
+        header = Rex::Proto::X11::X11RequestHeader.new(opcode: 43)
+        body = Rex::Proto::X11::X11GetInputFocusRequestBody.new
+        expect(header.to_binary_s + body.to_binary_s).to eq(get_input_focus)
+      end
+    end
+    context '#read' do
+      it do
+        request = Rex::Proto::X11::X11Request.read(get_input_focus)
+        expect(request.header.opcode).to eq(43)
+      end
     end
   end
 
-  describe 'handles FreeGraphicalContext request' do
-    it do
-      request = Msf::Exploit::Remote::X11::X11FreeGraphicalContextRequest.new(
-        gc: 33554432
-      )
-      expect(request.to_binary_s).to eq(free_gc)
-      request = Msf::Exploit::Remote::X11::X11FreeGraphicalContextRequest.read(free_gc)
-      expect(request.opcode).to eq(60)
-      expect(request.gc).to eq(33554432)
+  describe 'X11FreeGraphicalContextRequest' do
+    context '#initialize' do
+      it do
+        header = Rex::Proto::X11::X11RequestHeader.new(opcode: 60)
+        body = Rex::Proto::X11::X11FreeGraphicalContextRequestBody.new(
+          gc: 33554432
+        )
+        expect(header.to_binary_s + body.to_binary_s).to eq(free_gc)
+      end
+    end
+    context '#read' do
+      it do
+        request = Rex::Proto::X11::X11Request.read(free_gc)
+        expect(request.header.opcode).to eq(60)
+        expect(request.body.gc).to eq(33554432)
+      end
     end
   end
 
-  describe 'creates InternAtom requests' do
-    it do
-      request = Msf::Exploit::Remote::X11::X11InternAtomRequest.new(
-        name: 'Wait'
-      )
-      expect(request.to_binary_s).to eq(intern_atom_wait)
-      expect(request.opcode).to eq(16)
-      expect(request.request_length).to eq(3)
-      expect(request.name).to eq('Wait')
-      expect(request.only_if_exists).to eq(0)
+  describe 'X11InternAtomRequest' do
+    context '#initialize' do
+      it do
+        header = Rex::Proto::X11::X11RequestHeader.new(opcode: 16)
+        body = Rex::Proto::X11::X11InternAtomRequestBody.new(
+          name: 'Wait'
+        )
+        expect(header.to_binary_s + body.to_binary_s).to eq(intern_atom_wait)
+        expect(header.opcode).to eq(16)
+        expect(body.request_length).to eq(3)
+        expect(body.name).to eq('Wait')
+        expect(body.only_if_exists).to eq(0)
 
-      request = Msf::Exploit::Remote::X11::X11InternAtomRequest.new(
-        name: "SERVER_OVERLAY_VISUALS\x00\x00", only_if_exists: 1
-      )
-      expect(request.to_binary_s).to eq(intern_atom_server_overlay_visuals)
-      expect(request.opcode).to eq(16)
-      expect(request.request_length).to eq(8)
-      expect(request.name).to eq('SERVER_OVERLAY_VISUALS')
-      expect(request.only_if_exists).to eq(1)
+        header = Rex::Proto::X11::X11RequestHeader.new(opcode: 16)
+        body = Rex::Proto::X11::X11InternAtomRequestBody.new(
+          name: "SERVER_OVERLAY_VISUALS\x00\x00", only_if_exists: 1
+        )
+        expect(header.to_binary_s + body.to_binary_s).to eq(intern_atom_server_overlay_visuals)
+        expect(header.opcode).to eq(16)
+        expect(body.request_length).to eq(8)
+        expect(body.name).to eq('SERVER_OVERLAY_VISUALS')
+        expect(body.only_if_exists).to eq(1)
+      end
     end
   end
 end

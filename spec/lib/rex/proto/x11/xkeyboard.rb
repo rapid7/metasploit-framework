@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Msf::Exploit::Remote::X11::Xkeyboard do
+RSpec.describe Rex::Proto::X11::Xkeyboard do
   subject do
     mod = ::Msf::Exploit.new
     mod.extend described_class
@@ -385,7 +385,7 @@ RSpec.describe Msf::Exploit::Remote::X11::Xkeyboard do
 
   describe 'handles xkeyboard GetMap response' do
     it do
-      response = Msf::Exploit::Remote::X11::Xkeyboard::X11GetMapReply.read(get_keyboardmap_resp)
+      response = Rex::Proto::X11::Xkeyboard::X11GetMapReply.read(get_keyboardmap_resp)
       expect(response.min_key_code).to eq(8)
       expect(response.max_key_code).to eq(255)
 
@@ -413,7 +413,7 @@ RSpec.describe Msf::Exploit::Remote::X11::Xkeyboard do
 
   describe 'handles QueryKeymap response' do
     it do
-      response = Msf::Exploit::Remote::X11::Xkeyboard::X11QueryKeyMapReply.read(get_querykeymap_resp)
+      response = Rex::Proto::X11::Xkeyboard::X11QueryKeyMapReply.read(get_querykeymap_resp)
       expect(response.reply).to eq(1)
       expect(response.sequence_number).to eq(9487)
       expect(response.response_length).to eq(2)
@@ -426,9 +426,9 @@ RSpec.describe Msf::Exploit::Remote::X11::Xkeyboard do
 
   describe 'creates QueryKeymap request' do
     it do
-      request = Msf::Exploit::Remote::X11::Xkeyboard::X11QueryKeyMapRequest.new
+      request = Rex::Proto::X11::Xkeyboard::X11QueryKeyMapRequest.new
       expect(request.to_binary_s).to eq(key_map_request)
-      request = Msf::Exploit::Remote::X11::Xkeyboard::X11QueryKeyMapRequest.read(key_map_request)
+      request = Rex::Proto::X11::Xkeyboard::X11QueryKeyMapRequest.read(key_map_request)
       expect(request.opcode).to eq(44)
     end
   end
@@ -436,7 +436,7 @@ RSpec.describe Msf::Exploit::Remote::X11::Xkeyboard do
   describe 'creates new keyboard notify request' do
     it do
       # test against packet pulled from wireshark
-      request = Msf::Exploit::Remote::X11::Xkeyboard::X11SelectEvents.read(keyboard_select_events_new_keyboard_notify)
+      request = Rex::Proto::X11::Xkeyboard::X11SelectEvents.read(keyboard_select_events_new_keyboard_notify)
       expect(request.xkeyboard_id).to eq(136)
       expect(request.extension_minor).to eq(1)
       expect(request.request_length).to eq(5)
@@ -445,7 +445,7 @@ RSpec.describe Msf::Exploit::Remote::X11::Xkeyboard do
       expect(request.affect_new_keyboard_key_codes).to eq(1)
       expect(request.affect_new_keyboard_device_id).to eq(1)
       # build packet and ensure it matches
-      request = Msf::Exploit::Remote::X11::Xkeyboard::X11SelectEvents.new(
+      request = Rex::Proto::X11::Xkeyboard::X11SelectEvents.new(
         xkeyboard_id: 136,
         extension_minor: 1,
         device_spec: 3,
@@ -462,7 +462,7 @@ RSpec.describe Msf::Exploit::Remote::X11::Xkeyboard do
   describe 'creates map notify request' do
     it do
       # test against packet pulled from wireshark
-      request = Msf::Exploit::Remote::X11::Xkeyboard::X11SelectEvents.read(keyboard_select_events_map_notify)
+      request = Rex::Proto::X11::Xkeyboard::X11SelectEvents.read(keyboard_select_events_map_notify)
       expect(request.xkeyboard_id).to eq(136)
       expect(request.extension_minor).to eq(1)
       expect(request.request_length).to eq(4)
@@ -471,7 +471,7 @@ RSpec.describe Msf::Exploit::Remote::X11::Xkeyboard do
       expect(request.map_key_types).to eq(1)
       expect(request.map_key_syms).to eq(1)
       expect(request.map_modifier_map).to eq(1)
-      request = Msf::Exploit::Remote::X11::Xkeyboard::X11SelectEvents.new(
+      request = Rex::Proto::X11::Xkeyboard::X11SelectEvents.new(
         xkeyboard_id: 136,
         extension_minor: 1,
         device_spec: 3,
@@ -489,7 +489,7 @@ RSpec.describe Msf::Exploit::Remote::X11::Xkeyboard do
     describe 'creates bell request' do
       it do
         # test against packet pulled from wireshark
-        request = Msf::Exploit::Remote::X11::Xkeyboard::X11BellRequest.read(set_bell)
+        request = Rex::Proto::X11::Xkeyboard::X11BellRequest.read(set_bell)
         expect(request.xkeyboard_id).to eq(136)
         expect(request.extension_minor).to eq(3)
         expect(request.request_length).to eq(7)
@@ -504,7 +504,7 @@ RSpec.describe Msf::Exploit::Remote::X11::Xkeyboard do
         expect(request.window).to eq(0)
         expect(request.name).to eq(814)
 
-        request = Msf::Exploit::Remote::X11::Xkeyboard::X11BellRequest.new(
+        request = Rex::Proto::X11::Xkeyboard::X11BellRequest.new(
           xkeyboard_id: 136
         )
         expect(request.to_binary_s).to eq(set_bell)

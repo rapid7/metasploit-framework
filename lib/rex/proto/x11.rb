@@ -8,7 +8,7 @@
 
 module Rex::Proto::X11
   include Rex::Proto::X11::Connect
-  include Rex::Proto::X11::Extensions
+  include Rex::Proto::X11::Extension
   include Rex::Proto::X11::Xkeyboard
   include Rex::Proto::X11::Keysymdef
   include Rex::Proto::X11::Window
@@ -26,7 +26,7 @@ module Rex::Proto::X11
   end
 
   # https://xcb.freedesktop.org/manual/structxcb__get__property__reply__t.html
-  class X11GetPropertyResponse < BinData::Record
+  class X11GetPropertyResponseHeader < BinData::Record
     endian :little
     uint8 :reply
     uint8 :format
@@ -38,7 +38,16 @@ module Rex::Proto::X11
     uint32 :pad0
     uint32 :pad1
     uint32 :pad2
-    string :value_data, read_length: -> { value_length }
+  end
+
+  # https://xcb.freedesktop.org/manual/structxcb__get__property__reply__t.html
+  class X11GetPropertyResponseData < BinData::Record
+    rest :value_data
+  end
+
+  class X11GetPropertyResponse < BinData::Record
+    x11_get_property_response_header :header
+    x11_get_property_response_data   :data
   end
 
   # https://xcb.freedesktop.org/manual/structxcb__intern__atom__reply__t.html
@@ -56,7 +65,7 @@ module Rex::Proto::X11
   class X11GetPropertyRequestBody < BinData::Record
     endian :little
     uint8 :delete_field, initial_value: 0 # \x00 false, assuming \x01 true?
-    uint16 :request_length, value: -> { (num_bytes / 4) +1 } # +1 for header opcode
+    uint16 :request_length, value: -> { (num_bytes / 4) + 1 } # +1 for header opcode
     uint32 :window # X11ConnectionResponse.screen_root
     uint32 :property, initial_value: 23 # "\x17\x00\x00\x00" RESOURCE_MANAGER
     uint32 :get_property_type, initial_value: 31 # "\x1f\x00\x00\x00" # get-property-type (31 = string)
@@ -68,7 +77,7 @@ module Rex::Proto::X11
   class X11CreateGraphicalContextRequestBody < BinData::Record
     endian :little
     uint8 :pad0
-    uint16 :request_length, value: -> { (num_bytes / 4) +1 } # +1 for header opcode
+    uint16 :request_length, value: -> { (num_bytes / 4) + 1 } # +1 for header opcode
     uint32 :cid # X11ConnectionResponse.resource_id
     uint32 :drawable # X11ConnectionResponse.screen_root
     # gc-value-mask mappings from wireshark, uint32 total size
@@ -131,7 +140,7 @@ module Rex::Proto::X11
   class X11FreeGraphicalContextRequestBody < BinData::Record
     endian :little
     uint8 :pad0, value: 1
-    uint16 :request_length, value: -> { (num_bytes / 4) +1 } # +1 for header opcode
+    uint16 :request_length, value: -> { (num_bytes / 4) + 1 } # +1 for header opcode
     uint32 :gc # X11ConnectionResponse.resource_id_base
   end
 
@@ -139,14 +148,14 @@ module Rex::Proto::X11
   class X11GetInputFocusRequestBody < BinData::Record
     endian :little
     uint8 :pad0
-    uint16 :request_length, value: -> { (num_bytes / 4) +1 } # +1 for header opcode
+    uint16 :request_length, value: -> { (num_bytes / 4) + 1 } # +1 for header opcode
   end
 
   # https://xcb.freedesktop.org/manual/structxcb__intern__atom__request__t.html
   class X11InternAtomRequestBody < BinData::Record
     endian :little
     uint8 :only_if_exists, initial_value: 0 # 0 false, 1 true?
-    uint16 :request_length, value: -> { (num_bytes / 4) +1 } # +1 for header opcode
+    uint16 :request_length, value: -> { (num_bytes / 4) + 1 } # +1 for header opcode
     uint16 :name_length, value: -> { name.to_s.gsub(/\x00+\z/, '').length } # cut off the \x00 padding
     uint16 :pad0, initial_value: 0
     string :name, trim_padding: true

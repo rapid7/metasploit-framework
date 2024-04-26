@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Msf::Exploit::Remote::X11::Connect do
+RSpec.describe Rex::Proto::X11::Connect do
   subject do
     mod = ::Msf::Exploit.new
     mod.extend described_class
@@ -13,6 +13,10 @@ RSpec.describe Msf::Exploit::Remote::X11::Connect do
 
   let(:conn_request) do
     "\x6c\x00\x0b\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+  end
+
+  let(:conn_error) do
+    "\x00\x40\x0b\x00\x00\x00\x10\x00Authorization required, but no authorization protocol specified\x0a"
   end
 
   let(:conn_resp) do
@@ -1219,34 +1223,50 @@ RSpec.describe Msf::Exploit::Remote::X11::Connect do
     "\x00\x00\x00\x00"
   end
 
-  describe 'creates connection request' do
-    it do
-      request = Msf::Exploit::Remote::X11::X11ConnectionRequest.read(conn_request)
-      expect(request.to_binary_s).to eq(conn_request)
-      request = Msf::Exploit::Remote::X11::X11ConnectionRequest.new
-      expect(request.to_binary_s).to eq(conn_request)
+  describe 'X11ConnectionRequest' do
+    context '#read' do
+      it do
+        request = Rex::Proto::X11::X11ConnectionRequest.read(conn_request)
+        expect(request.to_binary_s).to eq(conn_request)
+      end
+    end
+    context '#initialize' do
+      it do
+        request = Rex::Proto::X11::X11ConnectionRequest.new
+        expect(request.to_binary_s).to eq(conn_request)
+      end
     end
   end
 
-  describe 'handles connection response' do
-    it do
-      response = Msf::Exploit::Remote::X11::X11ConnectionResponse.read(conn_resp)
-      expect(response.success).to eq(1)
-      expect(response.resource_id_base).to eq(16777216)
-      expect(response.vendor).to eq('The X.Org Foundation')
-      expect(response.screen_width_in_pixels).to eq(1024)
-      expect(response.screen_height_in_pixels).to eq(768)
+  describe 'X11Connection' do
+    context '#read Error Response' do
+      it do
+        request = Rex::Proto::X11::X11Connection.read(conn_error)
+        expect(request.body.reason).to eq("Authorization required, but no authorization protocol specified\n")
+        expect(request.to_binary_s).to eq(conn_error)
+      end
     end
-  end
 
-  describe 'handles connection response 2' do
-    it do
-      response = Msf::Exploit::Remote::X11::X11ConnectionResponse.read(conn_resp2)
-      expect(response.success).to eq(1)
-      expect(response.resource_id_base).to eq(52428800)
-      expect(response.vendor).to eq('The X.Org Foundation')
-      expect(response.screen_width_in_pixels).to eq(958)
-      expect(response.screen_height_in_pixels).to eq(832)
+    context '#read Success Response' do
+      it do
+        response = Rex::Proto::X11::X11Connection.read(conn_resp)
+        expect(response.header.success).to eq(1)
+        expect(response.body.resource_id_base).to eq(16777216)
+        expect(response.body.vendor).to eq('The X.Org Foundation')
+        expect(response.body.screen_width_in_pixels).to eq(1024)
+        expect(response.body.screen_height_in_pixels).to eq(768)
+      end
+    end
+
+    context '#read Success Response 2' do
+      it do
+        response = Rex::Proto::X11::X11Connection.read(conn_resp2)
+        expect(response.header.success).to eq(1)
+        expect(response.body.resource_id_base).to eq(52428800)
+        expect(response.body.vendor).to eq('The X.Org Foundation')
+        expect(response.body.screen_width_in_pixels).to eq(958)
+        expect(response.body.screen_height_in_pixels).to eq(832)
+      end
     end
   end
 end

