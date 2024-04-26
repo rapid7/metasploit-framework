@@ -258,7 +258,7 @@ class MetasploitModule < Msf::Auxiliary
 
     quota = nil
     begin
-      ldap_open do |ldap|
+      ldap_connection do |ldap|
         ldap_options = {
           filter: Net::LDAP::Filter.eq('objectclass', 'domainDNS'),
           attributes: 'ms-DS-MachineAccountQuota',
@@ -290,7 +290,7 @@ class MetasploitModule < Msf::Auxiliary
     print_error("#{peer} #{msg}")
   end
 
-  def ldap_open
+  def ldap_connection
     ldap_peer = "#{rhost}:#{datastore['LDAP_PORT']}"
     base = datastore['DOMAIN'].split('.').map { |dc| "dc=#{dc}" }.join(',')
     ldap_options = {
@@ -327,7 +327,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def impersonate_dc(computer_name)
-    ldap_open do |ldap|
+    ldap_connection do |ldap|
       dc_dnshostname = get_dnshostname(ldap, datastore['DC_NAME'])
       print_status("Attempting to set the DNS hostname for the computer #{computer_name} to the DNS hostname for the DC: #{datastore['DC_NAME']}")
       domain_to_ldif = datastore['DOMAIN'].split('.').map { |dc| "dc=#{dc}" }.join(',')
