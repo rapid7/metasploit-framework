@@ -213,6 +213,8 @@ module WindowsRegistry
       when :security
         require_relative 'security'
         extend Security
+      else
+        wlog("[Msf::Util::WindowsRegistry::RegistryParser] Unknown :name argument: #{name}") unless name.blank?
       end
     end
 

