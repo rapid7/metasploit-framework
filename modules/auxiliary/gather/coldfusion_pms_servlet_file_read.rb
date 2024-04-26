@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::Unknown, 'No response received') unless res
 
     if res.code == 200
-      print_good("File content received:")
+      print_good('File content received:')
     else
       fail_with(Failure::UnexpectedReply, "Failed to retrieve file content, server responded with status code: #{res.code}")
     end
