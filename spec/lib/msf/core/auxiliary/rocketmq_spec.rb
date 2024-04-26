@@ -9,11 +9,11 @@ RSpec.describe Msf::Auxiliary::Rocketmq do
   end
 
   let(:mock_name_server_response) do
-    "\x00\x00\x00\xC7\x00\x00\x00\xC3{\"code\":105,\"extFields\":{\"Signature\":\"/u5P/wZUbhjanu4LM/UzEdo2u2I=\",\"topic\":\"TBW102\",\"AccessKey\":\"rocketmq2\"},\"flag\":0,\"language\":\"JAVA\",\"opaque\":1,\"serializeTypeCurrentRPC\":\"JSON\",\"version\":401}".b
+    "\x00\x00\x00_{\"code\":105,\"extFields\":{\"Signature\":\"/u5P/wZUbhjanu4LM/UzEdo2u2I=\",\"topic\":\"TBW102\",\"AccessKey\":\"rocketmq2\"},\"flag\":0,\"language\":\"JAVA\",\"opaque\":1,\"serializeTypeCurrentRPC\":\"JSON\",\"version\":401}".b
   end
 
   let(:expected_name_server_response) do
-    "\x00\x00\x01a\x00\x00\x00_{\"code\":0,\"flag\":1,\"language\":\"JAVA\",\"opaque\":1,\"serializeTypeCurrentRPC\":\"JSON\",\"version\":403}{\"brokerDatas\":[{\"brokerAddrs\":{\"0\":\"172.16.199.135:10911\"},\"brokerName\":\"DESKTOP-8ATHH6O\",\"cluster\":\"DefaultCluster\"}],\"filterServerTable\":{},\"queueDatas\":[{\"brokerName\":\"DESKTOP-8ATHH6O\",\"perm\":7,\"readQueueNums\":8,\"topicSysFlag\":0,\"writeQueueNums\":8}]}".b
+    "\x00\x00\x00_{\"code\":0,\"flag\":1,\"language\":\"JAVA\",\"opaque\":1,\"serializeTypeCurrentRPC\":\"JSON\",\"version\":403}{\"brokerDatas\":[{\"brokerAddrs\":{\"0\":\"172.16.199.135:10911\"},\"brokerName\":\"DESKTOP-8ATHH6O\",\"cluster\":\"DefaultCluster\"}],\"filterServerTable\":{},\"queueDatas\":[{\"brokerName\":\"DESKTOP-8ATHH6O\",\"perm\":7,\"readQueueNums\":8,\"topicSysFlag\":0,\"writeQueueNums\":8}]}".b
   end
 
   let(:expected_parsed_data_response) do
