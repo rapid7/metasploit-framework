@@ -394,40 +394,44 @@ module Msf
         #
         def get_container_type
           # Checking file paths for solution
-          if file?('/.dockerenv') || file?('/.dockerinit')
-            return 'Docker'
-          elsif file?('/run/.containerenv')
-            return 'Podman'
-          elsif directory?('/dev/lxc')
-            return 'LXC'
-          end
-
-          # Check for WSL, as suggested in https://github.com/Microsoft/WSL/issues/423#issuecomment-221627364
-          if file?('/proc/sys/kernel/osrelease') && read_file('/proc/sys/kernel/osrelease').grep(/WSL|Microsoft/i).any?
-            return 'WSL'
-          end
-
-          # Check cgroup on PID 1
-          cgroup = read_file('/proc/1/cgroup')
-          if cgroup
-            case cgroup.tr("\n", ' ')
-            when /docker/i
-              return 'Docker'
-            when /lxc/i
-              return 'LXC'
+          container_type =
+            if file?('/.dockerenv') || file?('/.dockerinit')
+              'Docker'
+            elsif file?('/run/.containerenv')
+              'Podman'
+            elsif directory?('/dev/lxc')
+              'LXC'
+            elsif file?('/proc/sys/kernel/osrelease') && read_file('/proc/sys/kernel/osrelease').grep(/WSL|Microsoft/i).any?
+              # Check for WSL, as suggested in https://github.com/Microsoft/WSL/issues/423#issuecomment-221627364
+              'WSL'
+            elsif (cgroup = read_file('/proc/1/cgroup'))
+              # Check cgroup on PID 1
+              case cgroup.tr("\n", ' ')
+              when /docker/i
+                return 'Docker'
+              when /lxc/i
+                return 'LXC'
+              end
+            else
+              # Check for the "container" environment variable
+              case get_env('container')
+              when 'lxc'
+                return 'LXC'
+              when 'systemd-nspawn'
+                return 'systemd nspawn'
+              when 'podman'
+                return 'Podman'
+              else
+                'Unknown'
+              end
             end
+          unless container_type == 'Unknown'
+            report_host({
+              host: rhost,
+              virtual_host: container_type
+            })
           end
-
-          # Check for the "container" environment variable
-          case get_env('container')
-          when 'lxc'
-            return 'LXC'
-          when 'systemd-nspawn'
-            return 'systemd nspawn'
-          when 'podman'
-            return 'podman'
-          end
-          'unknown'
+          container_type
         end
         # System
       end

@@ -33,11 +33,10 @@ class MetasploitModule < Msf::Post
   def run
     container = get_container_type
 
-    if container
-      print_good("This appears to be a '#{container}' container")
-      report_virtualization(container)
-    else
+    if container == 'Unknown'
       print_status('This does not appear to be a container')
+    else
+      print_good("This appears to be a '#{container}' container")
     end
   end
 end
