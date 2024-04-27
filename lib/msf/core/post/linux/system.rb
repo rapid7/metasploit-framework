@@ -174,11 +174,12 @@ module Msf
         # @return [String]
         #
         def get_hostname
-          hostname = if command_exists?('uname')
-                       cmd_exec('uname -n').to_s
-                     else
-                       read_file('/proc/sys/kernel/hostname').to_s.chomp
-                     end
+          hostname =
+            if command_exists?('uname')
+              cmd_exec('uname -n').to_s
+            else
+              read_file('/proc/sys/kernel/hostname').to_s.chomp
+            end
           report_host({ host: rhost, name: hostname })
           hostname
         rescue StandardError
