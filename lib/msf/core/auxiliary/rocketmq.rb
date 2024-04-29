@@ -25,7 +25,9 @@ module Msf
       begin
         connect
         sock.send(header + data_length + data, 0)
-        res_length = sock.timed_read(4).unpack1('N')
+        res_length = sock.timed_read(4)&.unpack1('N')
+        return nil if res_length.nil?
+
         res = sock.timed_read(res_length)
       rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
         print_error("Unable to connect: #{e.class} #{e.message}\n#{e.backtrace * "\n"}")
