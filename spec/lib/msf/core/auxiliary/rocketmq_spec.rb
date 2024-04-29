@@ -9,7 +9,7 @@ RSpec.describe Msf::Auxiliary::Rocketmq do
   end
 
   let(:mock_name_server_response) do
-    "\x00\x00\x00_{\"code\":105,\"extFields\":{\"Signature\":\"/u5P/wZUbhjanu4LM/UzEdo2u2I=\",\"topic\":\"TBW102\",\"AccessKey\":\"rocketmq2\"},\"flag\":0,\"language\":\"JAVA\",\"opaque\":1,\"serializeTypeCurrentRPC\":\"JSON\",\"version\":401}".b
+    "\x00\x00\x00\xC7\x00\x00\x00\xC3{\"code\":105,\"extFields\":{\"Signature\":\"/u5P/wZUbhjanu4LM/UzEdo2u2I=\",\"topic\":\"TBW102\",\"AccessKey\":\"rocketmq2\"},\"flag\":0,\"language\":\"JAVA\",\"opaque\":1,\"serializeTypeCurrentRPC\":\"JSON\",\"version\":401}".b
   end
 
   let(:expected_name_server_response) do
@@ -55,6 +55,9 @@ RSpec.describe Msf::Auxiliary::Rocketmq do
   describe '#send_version_request' do
     it 'returns version info' do
       expect(mock_sock).to receive(:send).with(mock_name_server_response, 0)
+      expect(mock_sock).to receive(:timed_read).with(4).and_return([expected_name_server_response.length].pack('N'))
+      expect(mock_sock).to receive(:timed_read).with(expected_name_server_response.length).and_return(expected_name_server_response)
+
       expect(subject.send_version_request).to eq(expected_name_server_response)
     end
   end
