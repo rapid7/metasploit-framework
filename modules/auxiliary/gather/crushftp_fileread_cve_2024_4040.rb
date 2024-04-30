@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
       store_loot(File.basename(file_name), 'text/plain', datastore['RHOST'], file_data, file_name, 'File read from CrushFTP server')
     else
       # A new line is sent before file contents for better readability
-      print_good("File read succeeded! \n #{file_data.to_s}")
+      print_good("File read succeeded! \n#{file_data.to_s}")
     end
   end
 
