@@ -2,7 +2,7 @@ Metasploit [![Maintainability](https://api.codeclimate.com/v1/badges/943e398e619
 ==
 The Metasploit Framework is released under a BSD-style license. See
 [COPYING](COPYING) for more details.
-test
+
 The latest version of this software is available from: https://docs.metasploit.com/docs/using-metasploit/getting-started/nightly-installers.html
 
 You can find documentation on Metasploit and how to use it at:
