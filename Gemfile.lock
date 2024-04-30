@@ -333,7 +333,7 @@ GEM
       ast (~> 2.4.1)
       racc
     patch_finder (1.0.2)
-    pcaprub (0.13.1)
+    pcaprub (0.13.2)
     pdf-reader (2.12.0)
       Ascii85 (~> 1.0)
       afm (~> 0.2.1)
