@@ -860,7 +860,8 @@ class MetasploitModule < Msf::Auxiliary
     dc_infos = dcerpc_client.drs_domain_controller_info(ph_drs, domain_name)
     user_info = {}
     dc_infos.each do |dc_info|
-      users.each_key do |sid|
+      users.each do |user|
+        sid = user[0]
         crack_names = dcerpc_client.drs_crack_names(ph_drs, rp_names: [sid])
         crack_names.each do |crack_name|
           user_record = dcerpc_client.drs_get_nc_changes(
