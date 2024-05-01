@@ -7,6 +7,10 @@ module WindowsRegistry
   #
   module Sam
 
+    def normalize_key(key)
+      @root.blank? ? key : key.delete_prefix(@root)
+    end
+
     # Returns the HashedBootKey from a given BootKey.
     #
     # @param boot_key [String] The BootKey
@@ -16,7 +20,7 @@ module WindowsRegistry
       qwerty = "!@#$%^&*()qwertyUIOPAzxcvbnmQQQQQQQQQQQQ)(*@&%\0"
       digits = "0123456789012345678901234567890123456789\0"
 
-      _value_type, value_data = get_value('SAM\\Domains\\Account', 'F')
+      _value_type, value_data = get_value(normalize_key('HKLM\\SAM\\SAM\\Domains\\Account'), 'F')
       revision = value_data[0x68, 4].unpack('V')[0]
       case revision
       when 1
@@ -49,15 +53,20 @@ module WindowsRegistry
     #     <User RID>: { V: <V value>, Name: <User name> },
     #     ...
     #   }
-    def get_user_keys
+    def get_user_keys(&block)
       users = {}
-      users_key = 'SAM\\Domains\\Account\\Users'
+      users_key = normalize_key('HKLM\\SAM\\SAM\\Domains\\Account\\Users')
       rids = enum_key(users_key)
       if rids
         rids.delete('Names')
 
         rids.each do |rid|
-          _value_type, value_data = get_value("#{users_key}\\#{rid}", 'V')
+          rid = rid.to_s
+          rid.encode!(::Encoding::UTF_8) unless rid.encoding == ::Encoding::UTF_8
+          key = "#{users_key}\\#{rid}"
+          yield key if block
+          _value_type, value_data = get_value(key, 'V')
+          next unless value_data
           users[rid.to_i(16)] ||= {}
           users[rid.to_i(16)][:V] = value_data
 
@@ -75,7 +84,11 @@ module WindowsRegistry
       names = enum_key("#{users_key}\\Names")
       if names
         names.each do |name|
-          value_type, _value_data = get_value("#{users_key}\\Names\\#{name}", '')
+          name = name.to_s
+          name.encode!(::Encoding::UTF_8) unless name.encoding == ::Encoding::UTF_8
+          key = "#{users_key}\\Names\\#{name}"
+          yield key if block
+          value_type, _value_data = get_value(key, '')
           users[value_type] ||= {}
           # Apparently, key names are ISO-8859-1 encoded
           users[value_type][:Name] = name.dup.force_encoding(::Encoding::ISO_8859_1).encode(::Encoding::UTF_8)
