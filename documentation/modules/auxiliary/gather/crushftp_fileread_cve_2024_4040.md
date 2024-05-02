@@ -15,7 +15,7 @@ in payloads not being fully redacted from CrushFTP logs.
 
 ## Testing
 To set up a test environment:
-1. Download an affected version of CrushFTP [here](https://github.com/the-emmons/CVE-2023-43177/releases/download/crushftp_software/CrushFTP10.zip).
+1. Download an affected version of CrushFTP [here](https://github.com/the-emmons/CVE-2023-43177/releases/download/crushftp_software/CrushFTP10.zip) (SHA256: adc3619937ebb57b3a95c50f78fda5c388d072c0d34a317b9ed64a31127a6d3f).
 2. Configure `CRUSH_DIR` in `crushftp_init.sh` to point to the correct install directory.
 3. Execute `java -jar CrushFTP.jar` to show a local client GUI interface that can be used to set up an admin account.
 4. Execute `sudo crushftp_init.sh start` to launch the software on Linux or Mac. If on Windows, run `CrushFTP.exe` as an administrator.
