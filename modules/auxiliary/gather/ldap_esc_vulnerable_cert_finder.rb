@@ -1,6 +1,7 @@
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::LDAP
+  include Msf::OptionalSession::LDAP
 
   ADS_GROUP_TYPE_BUILTIN_LOCAL_GROUP = 0x00000001
   ADS_GROUP_TYPE_GLOBAL_GROUP = 0x00000002
@@ -459,7 +460,7 @@ class MetasploitModule < Msf::Auxiliary
       else
         print_status('Discovering base DN automatically')
 
-        unless (@base_dn = discover_base_dn(ldap))
+        unless (@base_dn = ldap.base_dn)
           fail_with(Failure::NotFound, "Couldn't discover base DN!")
         end
       end

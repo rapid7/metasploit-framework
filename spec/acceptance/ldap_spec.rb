@@ -87,7 +87,34 @@ RSpec.describe 'LDAP modules' do
               ]
             }
           }
-        }
+        },
+        {
+          name: 'auxiliary/gather/ldap_esc_vulnerable_cert_finder',
+          platforms: %i[linux osx windows],
+          targets: [:session, :rhost],
+          skipped: false,
+          lines: {
+            all: {
+              required: [
+                /Successfully queried/
+              ]
+            }
+          }
+        },
+        {
+          name: 'auxiliary/admin/ldap/rbcd',
+          platforms: %i[linux osx windows],
+          targets: [:session, :rhost],
+          skipped: false,
+          datastore: { DELEGATE_TO: 'administrator' },
+          lines: {
+            all: {
+              required: [
+                /The msDS-AllowedToActOnBehalfOfOtherIdentity field is empty./
+              ]
+            }
+          }
+        },
       ]
     }
   }

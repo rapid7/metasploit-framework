@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::LDAP
+  include Msf::OptionalSession::LDAP
   include Msf::Auxiliary::Report
 
   IGNORED_ATTRIBUTES = [

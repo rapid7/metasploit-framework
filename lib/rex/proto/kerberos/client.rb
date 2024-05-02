@@ -45,7 +45,7 @@ module Rex
         # @raise [RuntimeError] if the connection can not be created
         def connect
           return connection if connection
-
+          raise ArgumentError, 'Missing remote address' unless self.host && self.port
           case protocol
           when 'tcp'
             self.connection = create_tcp_connection
