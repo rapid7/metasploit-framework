@@ -282,19 +282,19 @@ module Metasploit::Framework
         File.open(pass_file, 'r:binary') do |pass_fd|
           pass_fd.each_line do |pass_from_file|
             pass_from_file.chomp!
+            if username.present?
+              yield Metasploit::Framework::Credential.new(public: username, private: pass_from_file, realm: realm, private_type: :password)
+            end
             if user_as_pass
               yield Metasploit::Framework::Credential.new(public: pass_from_file, private: pass_from_file, realm: realm, private_type: :password)
             end
-            if user_fd
-              user_fd.each_line do |user_from_file|
-                user_from_file.chomp!
-                yield Metasploit::Framework::Credential.new(public: user_from_file, private: pass_from_file, realm: realm, private_type: private_type(pass_from_file))
-              end
-              user_fd.seek(0)
+            next unless user_fd
+
+            user_fd.each_line do |user_from_file|
+              user_from_file.chomp!
+              yield Metasploit::Framework::Credential.new(public: user_from_file, private: pass_from_file, realm: realm, private_type: private_type(pass_from_file))
             end
-            additional_privates.each do |add_private|
-              yield Metasploit::Framework::Credential.new(public: user_from_file, private: add_private, realm: realm, private_type: private_type(add_private))
-            end
+            user_fd.seek(0)
           end
         end
       end
@@ -311,6 +311,17 @@ module Metasploit::Framework
             yield Metasploit::Framework::Credential.new(public: user, private: pass, realm: realm)
           end
         end
+      end
+
+      additional_privates.each do |add_private|
+        if username.present?
+          yield Metasploit::Framework::Credential.new(public: username, private: add_private, realm: realm, private_type: private_type(add_private))
+        end
+        user_fd.each_line do |user_from_file|
+          user_from_file.chomp!
+          yield Metasploit::Framework::Credential.new(public: user_from_file, private: add_private, realm: realm, private_type: private_type(add_private))
+        end
+        user_fd.seek(0)
       end
 
       additional_publics.each do |add_public|
