@@ -1,4 +1,4 @@
 module Rex::Proto::LDAP
- class LdapException < RuntimeError
- end
+  class LdapException < RuntimeError
+  end
 end

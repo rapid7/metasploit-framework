@@ -28,27 +28,25 @@ msf5 auxiliary(gather/ldap_hashdump) > options
 
 Module options (auxiliary/gather/ldap_hashdump):
 
-   Name             Current Setting                                        Required  Description
-   ----             ---------------                                        --------  -----------
-   BASE_DN                                                                 no        LDAP base DN if you already have it
-   DOMAIN                                                                  no        The domain to authenticate to
-   MAX_LOOT                                                                no        Maximum number of LDAP entries to loot
-   PASSWORD                                                                no        The password to authenticate with
-   PASS_ATTR        userPassword, sambantpassword, sambalmpassword, mailu  yes       LDAP attribute, that contains password hashes
-                    serpassword, password, pwdhistory, passwordhistory, c
-                    learpassword
-   READ_TIMEOUT     600                                                    no        LDAP read timeout in seconds
-   REQUIRE_SIGNING  true                                                   yes       Use signed and encrypted LDAP
-   RHOSTS           127.0.0.1                                              yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.ht
-                                                                                     ml
-   RPORT            1389                                                   yes       The target port
-   SSL              true                                                   no        Enable SSL on the LDAP connection
-   THREADS          1                                                      yes       The number of concurrent threads (max one per host)
-   USERNAME                                                                no        The username to authenticate with
-   USER_ATTR        dn                                                     no        LDAP attribute(s), that contains username
+   Name          Current Setting                                        Required  Description
+   ----          ---------------                                        --------  -----------
+   BASE_DN                                                              no        LDAP base DN if you already have it]
+   DOMAIN                                                               no        The domain to authenticate to
+   MAX_LOOT                                                             no        Maximum number of LDAP entries to loot
+   PASSWORD                                                             no        The password to authenticate with
+   PASS_ATTR     userPassword, sambantpassword, sambalmpassword, mailu  yes       LDAP attribute, that contains password hashes
+                 serpassword, password, pwdhistory, passwordhistory, c
+                 learpassword
+   READ_TIMEOUT  600                                                    no        LDAP read timeout in seconds
+   RHOSTS        127.0.0.1                                              yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.h
+                                                                                  tml
+   RPORT         1389                                                   yes       The target port
+   SSL           true                                                   no        Enable SSL on the LDAP connection
+   THREADS       1                                                      yes       The number of concurrent threads (max one per host)
+   USERNAME                                                             no        The username to authenticate with
+   USER_ATTR     dn                                                     no        LDAP attribute(s), that contains username
 
                                                                                                                                                                                            Auxiliary action:
-
    Name  Description
    ----  -----------
    Dump  Dump all LDAP data
