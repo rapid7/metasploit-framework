@@ -29,10 +29,10 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
-          'SideEffects' => [IOC_IN_LOGS],
           # The CrushFTP.log file will contain a log of the HTTP requests
           # Similarly, files in logs/session_logs/ will contain a log of the HTTP requests
           # The sessions.obj file will temporarily persist details of recent requests
+          'SideEffects' => [IOC_IN_LOGS],
           'Reliability' => []
         }
       )
