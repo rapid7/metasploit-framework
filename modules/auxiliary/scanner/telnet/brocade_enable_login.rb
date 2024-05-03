@@ -41,8 +41,6 @@ class MetasploitModule < Msf::Auxiliary
       ], self.class
     )
 
-    deregister_options('PASSWORD_SPRAY')
-
     @no_pass_prompt = []
   end
 
@@ -96,6 +94,7 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       scanner = Metasploit::Framework::LoginScanner::Telnet.new(
+      configure_login_scanner(
           host: ip,
           port: rport,
           proxies: datastore['PROXIES'],
@@ -116,6 +115,7 @@ class MetasploitModule < Msf::Auxiliary
           ssl_cipher: datastore['SSLCipher'],
           local_port: datastore['CPORT'],
           local_host: datastore['CHOST']
+        )
       )
 
       scanner.scan! do |result|

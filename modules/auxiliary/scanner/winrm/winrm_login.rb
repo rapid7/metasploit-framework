@@ -33,8 +33,6 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'License' => MSF_LICENSE
     )
-
-    deregister_options('PASSWORD_SPRAY')
   end
 
   def run
@@ -74,17 +72,19 @@ class MetasploitModule < Msf::Auxiliary
     keep_connection_alive = datastore['CreateSession']
 
     scanner = Metasploit::Framework::LoginScanner::WinRM.new(
-      host: ip,
-      port: rport,
-      proxies: datastore['Proxies'],
-      cred_details: cred_collection,
-      stop_on_success: datastore['STOP_ON_SUCCESS'],
-      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-      connection_timeout: 10,
-      framework: framework,
-      framework_module: self,
-      kerberos_authenticator_factory: kerberos_authenticator_factory,
-      keep_connection_alive: keep_connection_alive
+      configure_login_scanner(
+        host: ip,
+        port: rport,
+        proxies: datastore['Proxies'],
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 10,
+        framework: framework,
+        framework_module: self,
+        kerberos_authenticator_factory: kerberos_authenticator_factory,
+        keep_connection_alive: keep_connection_alive
+      )
     )
 
     scanner.scan! do |result|

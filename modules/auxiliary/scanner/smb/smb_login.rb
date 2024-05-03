@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
-    options_to_deregister = %w[USERNAME PASSWORD PASSWORD_SPRAY CommandShellCleanupCommand AutoVerifySession]
+    options_to_deregister = %w[USERNAME PASSWORD CommandShellCleanupCommand AutoVerifySession]
 
     if framework.features.enabled?(Msf::FeatureManager::SMB_SESSION_TYPE)
       add_info('New in Metasploit 6.4 - The %grnCreateSession%clr option within this module can open an interactive session')
@@ -131,21 +131,23 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     @scanner = Metasploit::Framework::LoginScanner::SMB.new(
-      host: ip,
-      port: rport,
-      local_port: datastore['CPORT'],
-      stop_on_success: datastore['STOP_ON_SUCCESS'],
-      proxies: datastore['Proxies'],
-      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-      connection_timeout: 5,
-      max_send_size: datastore['TCP::max_send_size'],
-      send_delay: datastore['TCP::send_delay'],
-      framework: framework,
-      framework_module: self,
-      always_encrypt: datastore['SMB::AlwaysEncrypt'],
-      versions: datastore['SMB::ProtocolVersion'].split(',').map(&:strip).reject(&:blank?).map(&:to_i),
-      kerberos_authenticator_factory: kerberos_authenticator_factory,
-      use_client_as_proof: create_session?
+      configure_login_scanner(
+        host: ip,
+        port: rport,
+        local_port: datastore['CPORT'],
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        proxies: datastore['Proxies'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 5,
+        max_send_size: datastore['TCP::max_send_size'],
+        send_delay: datastore['TCP::send_delay'],
+        framework: framework,
+        framework_module: self,
+        always_encrypt: datastore['SMB::AlwaysEncrypt'],
+        versions: datastore['SMB::ProtocolVersion'].split(',').map(&:strip).reject(&:blank?).map(&:to_i),
+        kerberos_authenticator_factory: kerberos_authenticator_factory,
+        use_client_as_proof: create_session?
+      )
     )
 
     if datastore['DETECT_ANY_AUTH']

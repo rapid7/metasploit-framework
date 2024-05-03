@@ -43,8 +43,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [false, 'The path to Syncovery', '/'])
       ]
     )
-
-    deregister_options('PASSWORD_SPRAY')
   end
 
   def scanner(ip)

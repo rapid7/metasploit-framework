@@ -34,8 +34,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWORD', [false, 'The password to PhpMyAdmin', '']),
         OptString.new('TARGETURI', [true, 'The path to PhpMyAdmin', '/index.php'])
       ])
-
-    deregister_options('PASSWORD_SPRAY')
   end
 
   def scanner(ip)

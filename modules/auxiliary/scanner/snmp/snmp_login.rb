@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       ])
     ])
 
-    deregister_options('USERNAME', 'USER_FILE', 'USERPASS_FILE', 'PASSWORD_SPRAY')
+    deregister_options('USERNAME', 'USER_FILE', 'USERPASS_FILE')
   end
 
   # Operate on a single host so that we can take advantage of multithreading
@@ -50,6 +50,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     scanner = Metasploit::Framework::LoginScanner::SNMP.new(
+      configure_login_scanner(
         host: ip,
         port: rport,
         protocol: datastore['PROTOCOL'],
@@ -60,6 +61,7 @@ class MetasploitModule < Msf::Auxiliary
         framework: framework,
         framework_module: self,
         queue_size: 100
+      )
     )
 
     scanner.scan! do |result|

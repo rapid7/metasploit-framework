@@ -40,8 +40,6 @@ class MetasploitModule < Msf::Auxiliary
           File.join(Msf::Config.data_directory, 'wordlists', 'unix_passwords.txt') ])
       ])
 
-    deregister_options('PASSWORD_SPRAY')
-
     # We don't currently support an auth mechanism that uses usernames, so we'll ignore any
     # usernames that are passed in.
     @strip_usernames = true
@@ -70,14 +68,15 @@ class MetasploitModule < Msf::Auxiliary
       username: '<BLANK>'
     )
     scanner = Metasploit::Framework::LoginScanner::VarnishCLI.new(
-      host: ip,
-      port: rport,
-      cred_details: cred_collection,
-      stop_on_success: true,
-      connection_timeout: 10,
-      framework: framework,
-      framework_module: self,
-
+      configure_login_scanner(
+        host: ip,
+        port: rport,
+        cred_details: cred_collection,
+        stop_on_success: true,
+        connection_timeout: 10,
+        framework: framework,
+        framework_module: self,
+      )
     )
     scanner.scan! do |result|
       credential_data = result.to_h
