@@ -49,8 +49,6 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
       ]
     )
-
-    deregister_options('PASSWORD_SPRAY')
   end
 
   def rport
@@ -88,14 +86,16 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     scanner = Metasploit::Framework::LoginScanner::SSH.new(
-      host: ip,
-      port: rport,
-      cred_details: cred_collection,
-      proxies: datastore['Proxies'],
-      stop_on_success: datastore['STOP_ON_SUCCESS'],
-      connection_timeout: datastore['SSH_TIMEOUT'],
-      framework: framework,
-      framework_module: self,
+      configure_login_scanner(
+        host: ip,
+        port: rport,
+        cred_details: cred_collection,
+        proxies: datastore['Proxies'],
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        connection_timeout: datastore['SSH_TIMEOUT'],
+        framework: framework,
+        framework_module: self,
+      )
     )
 
     scanner.scan! do |result|

@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
     deregister_options(
       'DB_ALL_CREDS', 'DB_ALL_USERS', 'DB_SKIP_EXISTING', 'BLANK_PASSWORDS',
       'USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE',
-      'PASSWORD_SPRAY', 'STOP_ON_SUCCESS'
+      'STOP_ON_SUCCESS'
     )
   end
 
@@ -67,11 +67,13 @@ class MetasploitModule < Msf::Auxiliary
     cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::FreeswitchEventSocket.new(
-      host: ip,
-      port: rport,
-      cred_details: cred_collection,
-      stop_on_success: true, # this will have no effect due to the scanner behaviour when scanning without username
-      connection_timeout: 10
+      configure_login_scanner(
+        host: ip,
+        port: rport,
+        cred_details: cred_collection,
+        stop_on_success: true, # this will have no effect due to the scanner behaviour when scanning without username
+        connection_timeout: 10
+      )
     )
 
     scanner.scan! do |result|

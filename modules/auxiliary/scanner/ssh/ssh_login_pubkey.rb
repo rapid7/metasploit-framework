@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     deregister_options(
-      'PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS','USERPASS_FILE','PASSWORD_SPRAY',
+      'PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS','USERPASS_FILE',
       'DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_SKIP_EXISTING'
     )
 
@@ -153,16 +153,18 @@ class MetasploitModule < Msf::Auxiliary
 
     print_brute :level => :vstatus, :ip => ip, :msg => "Testing #{key_count} #{'key'.pluralize(key_count)} from #{key_sources.join(' and ')}"
     scanner = Metasploit::Framework::LoginScanner::SSH.new(
-      host: ip,
-      port: rport,
-      cred_details: keys,
-      stop_on_success: datastore['STOP_ON_SUCCESS'],
-      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-      proxies: datastore['Proxies'],
-      connection_timeout: datastore['SSH_TIMEOUT'],
-      framework: framework,
-      framework_module: self,
-      skip_gather_proof: !datastore['GatherProof']
+      configure_login_scanner(
+        host: ip,
+        port: rport,
+        cred_details: keys,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        proxies: datastore['Proxies'],
+        connection_timeout: datastore['SSH_TIMEOUT'],
+        framework: framework,
+        framework_module: self,
+        skip_gather_proof: !datastore['GatherProof']
+      )
     )
 
     scanner.verbosity = :debug if datastore['SSH_DEBUG']

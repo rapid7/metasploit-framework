@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
-    deregister_options('USERNAME', 'PASSWORD', 'PASSWORD_SPRAY')
+    deregister_options('USERNAME', 'PASSWORD')
   end
 
   def to_uri(uri)

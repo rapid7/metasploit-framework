@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
 
     deregister_options(
       'DB_ALL_CREDS', 'DB_ALL_USERS', 'DB_SKIP_EXISTING',
-      'HttpUsername', 'PASSWORD_SPRAY', 'STOP_ON_SUCCESS', 'USERNAME', 'USERPASS_FILE', 'USER_AS_PASS', 'USER_FILE'
+      'HttpUsername', 'STOP_ON_SUCCESS', 'USERNAME', 'USERPASS_FILE', 'USER_AS_PASS', 'USER_FILE'
     )
 
     register_autofilter_ports([ 80, 443, 8888 ])

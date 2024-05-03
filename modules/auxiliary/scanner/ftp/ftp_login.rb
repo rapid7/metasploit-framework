@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
-    deregister_options('FTPUSER','FTPPASS', 'PASSWORD_SPRAY') # Can use these, but should use 'username' and 'password'
+    deregister_options('FTPUSER','FTPPASS') # Can use these, but should use 'username' and 'password'
     @accepts_all_logins = {}
   end
 
@@ -64,6 +64,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     scanner = Metasploit::Framework::LoginScanner::FTP.new(
+      configure_login_scanner(
         host: ip,
         port: rport,
         proxies: datastore['PROXIES'],
@@ -82,6 +83,7 @@ class MetasploitModule < Msf::Auxiliary
         ssl_cipher: datastore['SSLCipher'],
         local_port: datastore['CPORT'],
         local_host: datastore['CHOST']
+      )
     )
 
     scanner.scan! do |result|

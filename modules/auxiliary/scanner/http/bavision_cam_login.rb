@@ -28,8 +28,6 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptBool.new('TRYDEFAULT', [false, 'Try the default credential admin:123456', false])
       ])
-
-    deregister_options('PASSWORD_SPRAY')
   end
 
 

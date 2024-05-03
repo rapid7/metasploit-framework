@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('CreateSession', [false, 'Create a new session for every successful login', false])
       ])
 
-    options_to_deregister = %w[SQL PASSWORD_SPRAY]
+    options_to_deregister = %w[SQL]
     if framework.features.enabled?(Msf::FeatureManager::POSTGRESQL_SESSION_TYPE)
       add_info('New in Metasploit 6.4 - The %grnCreateSession%clr option within this module can open an interactive session')
     else
@@ -88,16 +88,18 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     scanner = Metasploit::Framework::LoginScanner::Postgres.new(
-      host: ip,
-      port: rport,
-      proxies: datastore['Proxies'],
-      cred_details: cred_collection,
-      stop_on_success: datastore['STOP_ON_SUCCESS'],
-      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-      connection_timeout: 30,
-      framework: framework,
-      framework_module: self,
-      use_client_as_proof: create_session?
+      configure_login_scanner(
+        host: ip,
+        port: rport,
+        proxies: datastore['Proxies'],
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 30,
+        framework: framework,
+        framework_module: self,
+        use_client_as_proof: create_session?
+      )
     )
     successful_logins = []
     successful_sessions = []

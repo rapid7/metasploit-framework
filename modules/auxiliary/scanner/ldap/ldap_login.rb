@@ -58,8 +58,7 @@ class MetasploitModule < Msf::Auxiliary
       password: datastore['PASSWORD'],
       realm: datastore['DOMAIN'],
       anonymous_login: datastore['ANONYMOUS_LOGIN'],
-      blank_passwords: false,
-      password_spray: datastore['PASSWORD_SPRAY']
+      blank_passwords: false
     )
 
     opts = {
@@ -83,16 +82,18 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     scanner = Metasploit::Framework::LoginScanner::LDAP.new(
-      host: ip,
-      port: rport,
-      cred_details: cred_collection,
-      stop_on_success: datastore['STOP_ON_SUCCESS'],
-      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-      connection_timeout: datastore['LDAP::ConnectTimeout'].to_i,
-      framework: framework,
-      framework_module: self,
-      realm_key: realm_key,
-      opts: opts
+      configure_login_scanner(
+        host: ip,
+        port: rport,
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: datastore['LDAP::ConnectTimeout'].to_i,
+        framework: framework,
+        framework_module: self,
+        realm_key: realm_key,
+        opts: opts
+      )
     )
 
     scanner.scan! do |result|

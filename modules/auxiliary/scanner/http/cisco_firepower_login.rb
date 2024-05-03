@@ -34,8 +34,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The base path to Cisco Firepower Management console', '/']),
         OptBool.new('TRYDEFAULT', [false, 'Try the default credential admin:Admin123', false])
       ])
-
-    deregister_options('PASSWORD_SPRAY')
   end
 
 

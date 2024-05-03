@@ -36,8 +36,6 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
-    deregister_options('PASSWORD_SPRAY')
-
     # credentials are "admin:admin" by default
     register_options(
       [

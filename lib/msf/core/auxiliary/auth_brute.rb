@@ -9,6 +9,8 @@ module Msf
 
 module Auxiliary::AuthBrute
 
+  include Msf::Auxiliary::LoginScanner
+
   def initialize(info = {})
     super
 

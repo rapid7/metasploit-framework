@@ -28,8 +28,6 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(80),
         OptString.new('TARGETURI', [true, 'URI for login. Default is /api/users/login', '/api/users/login'])
       ])
-
-    deregister_options('PASSWORD_SPRAY')
   end
 
   def run_host(ip)
