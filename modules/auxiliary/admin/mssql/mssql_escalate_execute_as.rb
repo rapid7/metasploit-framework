@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     if session
-      set_session(session.client)
+      set_mssql_session(session.client)
     else
       print_status("Attempting to connect to the database server at #{rhost}:#{rport} as #{datastore['USERNAME']}...")
       if mssql_login_datastore

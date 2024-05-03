@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     if session
-      set_session(session.client)
+      set_mssql_session(session.client)
     elsif !mssql_login(datastore['USERNAME'], datastore['PASSWORD'])
       info = self.mssql_client.initial_connection_info
       if info[:errors] && !info[:errors].empty?

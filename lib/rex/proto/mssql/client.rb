@@ -131,10 +131,7 @@ module Rex
         #
 
         def mssql_login(user='sa', pass='', db='', domain_name='')
-          disconnect if self.sock
-          connect
-          mssql_prelogin
-
+          prelogin_data = mssql_prelogin
           if auth == Msf::Exploit::Remote::AuthOption::KERBEROS
             idx = 0
             pkt = ''
@@ -238,6 +235,7 @@ module Rex
             info = {:errors => []}
             info = mssql_parse_reply(resp, info)
             self.initial_connection_info = info
+            self.initial_connection_info[:prelogin_data] = prelogin_data
 
             return false if not info
             return info[:login_ack] ? true : false
@@ -470,6 +468,7 @@ module Rex
           info = {:errors => []}
           info = mssql_parse_reply(resp, info)
           self.initial_connection_info = info
+          self.initial_connection_info[:prelogin_data] = prelogin_data
 
           return false if not info
           info[:login_ack] ? true : false
@@ -479,85 +478,20 @@ module Rex
         #this method send a prelogin packet and check if encryption is off
         #
         def mssql_prelogin(enc_error=false)
-          pkt = ""
-          pkt_hdr = ""
-          pkt_data_token = ""
-          pkt_data = ""
+          disconnect if self.sock
+          connect
 
-
-          pkt_hdr = [
-              TYPE_PRE_LOGIN_MESSAGE, #type
-              STATUS_END_OF_MESSAGE, #status
-              0x0000, #length
-              0x0000, # SPID
-              0x00, # PacketID
-              0x00 #Window
-          ]
-
-          version = [0x55010008, 0x0000].pack("Vv")
-
-          # if manually set, we will honour
-          if tdsencryption == true
-            encryption = ENCRYPT_ON
-          else
-            encryption = ENCRYPT_NOT_SUP
-          end
-
-          instoptdata = "MSSQLServer\0"
-
-          threadid = "\0\0" + Rex::Text.rand_text(2)
-
-          idx = 21 # size of pkt_data_token
-          pkt_data_token << [
-              0x00, # Token 0 type Version
-              idx , # VersionOffset
-              version.length, # VersionLength
-
-              0x01, # Token 1 type Encryption
-              idx = idx + version.length, # EncryptionOffset
-              0x01, # EncryptionLength
-
-              0x02, # Token 2 type InstOpt
-              idx = idx + 1, # InstOptOffset
-              instoptdata.length, # InstOptLength
-
-              0x03, # Token 3 type Threadid
-              idx + instoptdata.length, # ThreadIdOffset
-              0x04, # ThreadIdLength
-
-              0xFF
-          ].pack("CnnCnnCnnCnnC")
-
-          pkt_data << pkt_data_token
-          pkt_data << version
-          pkt_data << encryption
-          pkt_data << instoptdata
-          pkt_data << threadid
-
-          pkt_hdr[2] = pkt_data.length + 8
-
-          pkt = pkt_hdr.pack("CCnnCC") + pkt_data
+          pkt = mssql_prelogin_packet
 
           resp = mssql_send_recv(pkt)
 
           idx = 0
+          data = parse_prelogin_response(resp)
 
-          while resp && resp[0, 1] != "\xff" && resp.length > 5
-            token = resp.slice!(0, 5)
-            token = token.unpack("Cnn")
-            idx -= 5
-            if token[0] == 0x01
-
-              idx += token[1]
-              break
-            end
-          end
-          if idx > 0
-            encryption_mode = resp[idx, 1].unpack("C")[0]
-          else
+          unless data[:encryption]
             framework_module.print_error("Unable to parse encryption req " \
               "during pre-login, this may not be a MSSQL server")
-            encryption_mode = ENCRYPT_NOT_SUP
+            data[:encryption] = ENCRYPT_NOT_SUP
           end
 
           ##########################################################
@@ -575,7 +509,7 @@ module Rex
           #
           ##########################################################
 
-          if encryption_mode == ENCRYPT_REQ
+          if data[:encryption] == ENCRYPT_REQ
             # restart prelogin process except that we tell SQL Server
             # than we are now able to encrypt
             disconnect if self.sock
@@ -588,27 +522,15 @@ module Rex
               "been enabled based on server response.")
 
             resp = mssql_send_recv(pkt)
+            data = parse_prelogin_response(resp)
 
-            idx = 0
-
-            while resp && resp[0, 1] != "\xff" && resp.length > 5
-              token = resp.slice!(0, 5)
-              token = token.unpack("Cnn")
-              idx -= 5
-              if token[0] == 0x01
-                idx += token[1]
-                break
-              end
-            end
-            if idx > 0
-              encryption_mode = resp[idx, 1].unpack("C")[0]
-            else
+            unless data[:encryption]
               framework_module.print_error("Unable to parse encryption req " \
                 "during pre-login, this may not be a MSSQL server")
-              encryption_mode = ENCRYPT_NOT_SUP
+              data[:encryption] = ENCRYPT_NOT_SUP
             end
           end
-          encryption_mode
+          data
         end
 
         def mssql_ssl_send_recv(req, tdsproxy, timeout=15, check_status=true)
