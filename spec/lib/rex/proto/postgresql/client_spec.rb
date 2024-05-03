@@ -68,7 +68,14 @@ RSpec.describe Msf::Db::PostgresPR::Connection do
     [
       { version: 'PostgreSQL 9.4.26 on x86_64-pc-linux-gnu (Debian 9.4.26-1.pgdg90+1), compiled by gcc (Debian 6.3.0-18+deb9u1) 6.3.0 20170516, 64-bit', expected: { arch: 'x86_64', platform: 'Linux' } },
       { version: 'PostgreSQL 14.11 (Debian 14.11-1.pgdg120+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14) 12.2.0, 64-bit', expected: { arch: 'x86_64', platform: 'Linux' } },
-      { version: 'PostgreSQL 14.11 (Homebrew) on x86_64-apple-darwin22.6.0, compiled by Apple clang version 15.0.0 (clang-1500.1.0.2.5), 64-bit', expected: { arch: 'x86_64', platform: 'OSX' } }
+      { version: 'PostgreSQL 14.11 (Homebrew) on x86_64-apple-darwin22.6.0, compiled by Apple clang version 15.0.0 (clang-1500.1.0.2.5), 64-bit', expected: { arch: 'x86_64', platform: 'OSX' } },
+      {
+        version: 'PostgreSQL 14.11 (Homebrew) <arch>-<platform>, compiled by <platform> clang version 15.0.0 (clang-1500.1.0.2.5), <arch>',
+        expected: {
+          arch: 'postgresql 14.11 (homebrew) <arch>-<platform>, compiled by <platform> clang version 15.0.0 (clang-1500.1.0.2.5), <arch>',
+          platform: 'postgresql 14.11 (homebrew) <arch>-<platform>, compiled by <platform> clang version 15.0.0 (clang-1500.1.0.2.5), <arch>'
+        }
+      }
     ].each do |test|
       context "when the database is version #{test[:version]}" do
         it "returns #{test[:expected]}" do
