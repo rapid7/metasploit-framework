@@ -4,9 +4,9 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  prepend Msf::Exploit::Remote::AutoCheck
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
+  prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
     super(
@@ -54,7 +54,9 @@ class MetasploitModule < Msf::Auxiliary
     return Exploit::CheckCode::Unknown("#{peer} - Could not connect to web service - no response") if res.nil?
     return Exploit::CheckCode::Safe("#{peer} - Check URI Path, unexpected HTTP response code: #{res.code}") unless res.code == 200
 
-    Exploit::CheckCode::Detected('Jasmin Login page detected') if res.body.include? '<title>Jasmin Dashboard</title>'
+    return Exploit::CheckCode::Detected('Jasmin Login page detected') if res.body.include? '<title>Jasmin Dashboard</title>'
+
+    Exploit::CheckCode::Safe("#{peer} - Jasmin login page not found")
   end
 
   def run
