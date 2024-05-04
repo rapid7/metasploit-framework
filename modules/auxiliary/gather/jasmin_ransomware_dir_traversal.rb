@@ -4,6 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
+  prepend Msf::Exploit::Remote::AutoCheck
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -65,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
     )
     fail_with(Failure::Unknown, 'No response from server') if res.nil?
     fail_with(Failure::NotFound, 'Check FILE or DEPTH, file not found on server') if res.body.empty?
-    fail_with(Failure::UnexpectedReply, "Server returned an unexpected HTTP code: #{res.code}") unless res.code == 200
+    fail_with(Failure::UnexpectedReply, "Server returned an unexpected HTTP code: #{res.code}") unless res.code == 302
 
     print_good(res.body)
     # store loot
