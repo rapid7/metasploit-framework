@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Post
           path: 'AppData',
           dir: 'halloy',
           artifact_file_name: 'config.toml',
-          description: "Saved Bookmarks",
+          description: 'Saved Bookmarks',
           credential_type: 'text',
           regex_search: [
             {
@@ -88,8 +88,8 @@ class MetasploitModule < Msf::Post
     # used to grab files for each user on the remote host
     grab_user_profiles.each do |userprofile|
       run_packrat(userprofile, ARTIFACTS)
-  end
+    end
 
     print_status 'PackRat credential sweep Completed'
-end
+  end
 end
