@@ -48,10 +48,10 @@ class MetasploitModule < Msf::Post
         },
         'License' => MSF_LICENSE,
         'Author' => [
+          'Jacob Tierney',
           'Kazuyoshi Maruta',
           'Daniel Hallsworth',
           'Barwar Salim M',
-          'Jacob Tierney',
           'Z. Cliffe Schreuders' # http://z.cliffe.schreuders.org
         ],
         'Platform' => ['win'],
