@@ -37,7 +37,7 @@ regular expression. The 'Store loot' options must be turned on in order for this
 ## Scenarios
 ### Default Output
 ```
-msf6 post(windows/gather/credentials/halloy_irc_v2) > run
+msf6 post(windows/gather/credentials/halloy_irc) > run
 
 [*] Filtering based on these selections:  
 [*] ARTIFACTS: All
