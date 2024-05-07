@@ -60,14 +60,17 @@ msf5 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > options
 
 Module options (auxiliary/admin/ldap/vmware_vcenter_vmdir_auth_bypass):
 
-   Name      Current Setting  Required  Description
-   ----      ---------------  --------  -----------
-   BASE_DN                    no        LDAP base DN if you already have it
-   NEW_PASSWORD               no        Password of admin user to add
-   RHOSTS                     yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
-   RPORT     636              yes       The target port
-   SSL       true             no        Enable SSL on the LDAP connection
-   NEW_USERNAME               no        Username of admin user to add
+   Name          Current Setting  Required  Description
+   ----          ---------------  --------  -----------
+   BASE_DN                        no        LDAP base DN if you already have it
+   DOMAIN                         no        The domain to authenticate to
+   NEW_PASSWORD                   no        Password of admin user to add
+   NEW_USERNAME                   no        Username of admin user to add
+   PASSWORD                       no        The password to authenticate with
+   RHOSTS                         yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+   RPORT         636              yes       The target port
+   SSL           true             no        Enable SSL on the LDAP connection
+   USERNAME                       no        The username to authenticate with
 
 
 Auxiliary action:

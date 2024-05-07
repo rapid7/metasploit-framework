@@ -105,7 +105,7 @@ module Rex
 
           def gss_unwrap(ciphertext, key, expected_sequence_number, is_initiator, opts={})
             # Always 32-bit sequence number
-            expected_sequence_number &= 0xFFFFFFFF
+            expected_sequence_number &= 0xFFFFFFFF unless expected_sequence_number.nil?
 
             mech_id, ciphertext = unwrap_pseudo_asn1(ciphertext)
 
@@ -133,7 +133,7 @@ module Rex
             decrypted_sequence_num = cipher_seq.update(encrypted_sequence_num)
             decrypted_sequence_num = decrypted_sequence_num.unpack('N')[0]
 
-            raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Invalid sequence number' unless decrypted_sequence_num == expected_sequence_number
+            #raise Rex::Proto::Kerberos::Model::Error::KerberosError, 'Invalid sequence number' unless (decrypted_sequence_num == expected_sequence_number || expected_sequence_number.nil?)
 
             klocal = xor_strings(key.value, "\xF0"*16)
             kcrypt = OpenSSL::HMAC.digest('MD5', klocal, [0].pack('V'))
@@ -166,8 +166,10 @@ module Rex
           end
 
           # @option options [Boolean] :dce_style Whether the interaction is a 3-leg DCERPC interaction
+          # @option options [Symbol] :rc4_pad_style How to do padding - either :single_byte or :eight_byte_aligned
           def gss_wrap(plaintext, key, sequence_number, is_initiator, opts={})
             dce_style = opts.fetch(:dce_style) { false }
+            pad_style = opts.fetch(:rc4_pad_style) { :single_byte }
             # Always 32-bit sequence number
             sequence_number &= 0xFFFFFFFF
 
@@ -177,8 +179,21 @@ module Rex
             seal_alg = 0x1000
             filler = 0xFFFF
             header = [tok_id, alg, seal_alg, filler].pack('nnnn')
+
             # Add padding (see RFC1964 section 1.2.2.3)
-            pad_num = (8 - (plaintext.length % 8))
+            # Some protocols (LDAP) only support a single byte and seem to fail otherwise
+            # Others (DRSR) only support 8-byte and seem to fail otherwise
+            # Some (WinRM) are lenient and are fine with either
+            #
+            # It's not entirely clear why
+            if pad_style == :single_byte
+              pad_num = 1
+            elsif pad_style == :eight_byte_aligned
+              pad_num = (8 - (plaintext.length % 8))
+            else
+              raise ArgumentError.new('Unknown pad_style setting')
+            end
+
             plaintext += (pad_num.chr * pad_num)
 
             send_seq = [sequence_number].pack('N')

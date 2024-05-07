@@ -515,7 +515,7 @@ class Client
       return resp unless response
 
       decoded = Rex::Text.decode_base64(response)
-      mutual_auth_result = self.kerberos_authenticator.parse_gss_init_response(decoded, auth_result[:session_key], mechanism: 'kerberos')
+      mutual_auth_result = self.kerberos_authenticator.parse_gss_init_response(decoded, auth_result[:session_key])
       self.krb_encryptor = self.kerberos_authenticator.get_message_encryptor(mutual_auth_result[:ap_rep_subkey], 
                                                                                   auth_result[:client_sequence_number],
                                                                                   mutual_auth_result[:server_sequence_number])

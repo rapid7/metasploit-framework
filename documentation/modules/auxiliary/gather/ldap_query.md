@@ -214,23 +214,33 @@ QUERY_FILE_PATH => /home/gwillcox/git/metasploit-framework/test.yaml
 msf6 auxiliary(gather/ldap_query) > show options
 
 Module options (auxiliary/gather/ldap_query):
-
-   Name             Current Setting                     Required  Description
-   ----             ---------------                     --------  -----------
-   BASE_DN                                              no        LDAP base DN if you already have it
-   BIND_DN          normal@daforest.com                 no        The username to authenticate to LDAP server
-   BIND_PW          thePassword123                      no        Password for the BIND_DN
-   OUTPUT_FORMAT    table                               yes       The output format to use (Accepted: csv, table, json)
-   QUERY_FILE_PATH  /home/gwillcox/git/metasploit-fram  no        Path to the JSON or YAML file to load and run queries from
-                    ework/test.yaml
-   RHOSTS           172.27.51.83                        yes       The target host(s), see https://github.com/rapid7/metasploit-f
-                                                                  ramework/wiki/Using-Metasploit
-   RPORT            389                                 yes       The target port
-   SSL              false                               no        Enable SSL on the LDAP connection
+                                                                                                                                                                                              Name             Current Setting      Required  Description
+   ----           ---------------      --------  -----------
+   BASE_DN                             no        LDAP base DN if you already have it
+   DOMAIN                              no        The domain to authenticate to
+   OUTPUT_FORMAT  table                yes       The output format to use (Accepted: csv, table, json)
+   PASSWORD       thePassword123       no        The password to authenticate with
+   RHOSTS         172.27.51.83         yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+   RPORT          389                  yes       The target port
+   SSL            false                no        Enable SSL on the LDAP connection
+   USERNAME       normal@daforest.com  no        The username to authenticate with
 
 
-Auxiliary action:
+   When ACTION is RUN_QUERY_FILE:
 
+   Name             Current Setting                                    Required  Description
+   ----             ---------------                                    --------  -----------
+   QUERY_FILE_PATH  /home/gwillcox/git/metasploit-framework/test.yaml  no        Path to the JSON or YAML file to load and run queries from
+
+
+   When ACTION is RUN_SINGLE_QUERY:
+
+   Name              Current Setting  Required  Description
+   ----              ---------------  --------  -----------
+   QUERY_ATTRIBUTES                   no        Comma separated list of attributes to retrieve from the server
+   QUERY_FILTER                       no        Filter to send to the target LDAP server to perform the query
+
+                                                                                                                                                                                           Auxiliary action:
    Name            Description
    ----            -----------
    RUN_QUERY_FILE  Execute a custom set of LDAP queries from the JSON or YAML file specified by QUERY_FILE.

@@ -28,20 +28,25 @@ msf5 auxiliary(gather/ldap_hashdump) > options
 
 Module options (auxiliary/gather/ldap_hashdump):
 
-   Name       Current Setting  Required  Description
-   ----       ---------------  --------  -----------
-   BASE_DN                     no        LDAP base DN if you already have it
-   BIND_DN                     no        The username to authenticate to LDAP server
-   BIND_PW                     no        Password for the BIND_DN
-   PASS_ATTR  userPassword     yes       LDAP attribute, that contains password hashes
-   RHOSTS     127.0.0.1        yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
-   RPORT      1389             yes       The target port
-   SSL        false            no        Enable SSL on the LDAP connection
-   USER_ATTR  dn               no        LDAP attribute, that contains username
+   Name          Current Setting                                        Required  Description
+   ----          ---------------                                        --------  -----------
+   BASE_DN                                                              no        LDAP base DN if you already have it]
+   DOMAIN                                                               no        The domain to authenticate to
+   MAX_LOOT                                                             no        Maximum number of LDAP entries to loot
+   PASSWORD                                                             no        The password to authenticate with
+   PASS_ATTR     userPassword, sambantpassword, sambalmpassword, mailu  yes       LDAP attribute, that contains password hashes
+                 serpassword, password, pwdhistory, passwordhistory, c
+                 learpassword
+   READ_TIMEOUT  600                                                    no        LDAP read timeout in seconds
+   RHOSTS        127.0.0.1                                              yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.h
+                                                                                  tml
+   RPORT         1389                                                   yes       The target port
+   SSL           true                                                   no        Enable SSL on the LDAP connection
+   THREADS       1                                                      yes       The number of concurrent threads (max one per host)
+   USERNAME                                                             no        The username to authenticate with
+   USER_ATTR     dn                                                     no        LDAP attribute(s), that contains username
 
-
-Auxiliary action:
-
+                                                                                                                                                                                           Auxiliary action:
    Name  Description
    ----  -----------
    Dump  Dump all LDAP data
