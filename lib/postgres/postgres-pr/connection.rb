@@ -213,14 +213,18 @@ class Connection
   def detect_platform_and_arch
     result = {}
 
-    query_result = query('select version()').rows.join.match(/on (?<architecture>\w+)-\w+-(?<platform>\w+)/)
-    server_vars = {
-      'version_compile_machine' => query_result[:architecture],
-      'version_compile_os' => query_result[:platform]
-    }
+    query_result = query('select version()').rows[0][0]
+    match_platform_and_arch = query_result.match(/on (?<architecture>\w+)-\w+-(?<platform>\w+)/)
 
-    result[:arch] = map_compile_arch_to_architecture(server_vars['version_compile_machine'])
-    result[:platform] = map_compile_os_to_platform(server_vars['version_compile_os'])
+    if match_platform_and_arch.nil?
+      arch = platform = query_result
+    else
+      arch = match_platform_and_arch[:architecture]
+      platform = match_platform_and_arch[:platform]
+    end
+
+    result[:arch] = map_compile_arch_to_architecture(arch)
+    result[:platform] = map_compile_os_to_platform(platform)
 
     result
   end
