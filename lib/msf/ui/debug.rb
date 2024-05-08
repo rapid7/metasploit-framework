@@ -101,6 +101,7 @@ module Msf
         all_information = preamble
         all_information << datastore(framework, driver)
         all_information << database_configuration(framework)
+        all_information << framework_config(framework)
         all_information << history(driver)
         all_information << errors
         all_information << logs
@@ -198,6 +199,23 @@ module Msf
           'Database Configuration',
           ERROR_BLURB,
           section_build_error('Failed to extract Database configuration', e)
+        )
+      end
+
+      def self.framework_config(framework)
+        required_features = framework.features.all.map { |feature| [feature[:name], feature[:enabled].to_s] }
+        markdown_formatted_features = required_features.map { |feature| "| #{feature.join(' | ')} |" }
+        required_fields = %w[name enabled]
+
+        table = "| #{required_fields.join(' | ')} |\n"
+        table += '|' + '-:|' * required_fields.count + "\n"
+        table += markdown_formatted_features.join("\n").to_s
+
+        # The markdown table can't be placed in a code block or it will not render as a table.
+        build_section_no_block(
+          'Framework Configuration',
+          'The features are configured as follows:',
+          table
         )
       end
 
