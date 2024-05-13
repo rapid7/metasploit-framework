@@ -36,7 +36,7 @@ RSpec.describe 'SMB sessions and SMB modules' do
           lines: {
             all: {
               required: [
-                "PIPE(LSARPC) LOCAL",
+                "PIPE(lsarpc) LOCAL",
                 /User( *)(Administrator|nobody)/,
                 /Group( *)(None|Domain (Admins|Users|Guests|Computers))/,
               ],

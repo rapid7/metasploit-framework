@@ -46,19 +46,41 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  # Fingerprint a single host
-  def run_host(ip)
-    sids_table = Rex::Text::Table.new(
-      'Indent'  => 4,
-      'Header'  => "SMB Lookup SIDs Output",
-      'Columns' =>
-        [
-          'Type',
-          'Name',
-          'RID'
-        ],
-      'SortIndex' => 2, # Sort by RID
-    )
+  def rport
+    @rport
+  end
+
+  def smb_direct
+    @smb_direct
+  end
+
+  def connect(*args, **kwargs)
+    super(*args, **kwargs, direct: @smb_direct)
+  end
+
+  def run_session
+    smb_services = [{ port: self.simple.peerport, direct: self.simple.direct }]
+    smb_services.map { |smb_service| run_service(smb_service[:port], smb_service[:direct]) }
+  end
+
+  def run_rhost
+    if datastore['RPORT'].blank? || datastore['RPORT'] == 0
+      smb_services = [
+        { port: 445, direct: true },
+        { port: 139, direct: false }
+      ]
+    else
+      smb_services = [
+        { port: datastore['RPORT'], direct: datastore['SMBDirect'] }
+      ]
+    end
+
+    smb_services.map { |smb_service| run_service(smb_service[:port], smb_service[:direct]) }
+  end
+
+  def run_service(port, direct)
+    @rport = port
+    @smb_direct = direct
 
     ipc_tree = connect_ipc
     lsarpc_pipe = connect_lsarpc(ipc_tree)
@@ -95,20 +117,22 @@ class MetasploitModule < Msf::Auxiliary
     print_status(all_info)
 
     target_sid = case action.name.upcase
-                 when 'LOCAL'
-                   info[:local][:sid] == 'null' ? info[:domain][:sid] : info[:local][:sid]
-                 when 'DOMAIN'
-                   # Fallthrough to the host SID if no domain SID was returned
-                   if info[:domain][:sid] == 'null'
-                     print_error 'No domain SID identified, falling back to the local SID...'
-                     info[:local][:sid]
-                   else
-                     info[:domain][:sid]
-                   end
-                 end
+      when 'LOCAL'
+        info[:local][:sid] == 'null' ? info[:domain][:sid] : info[:local][:sid]
+      when 'DOMAIN'
+        # Fallthrough to the host SID if no domain SID was returned
+        if info[:domain][:sid] == 'null'
+          print_error 'No domain SID identified, falling back to the local SID...'
+          info[:local][:sid]
+        else
+          info[:domain][:sid]
+          end
+      end
 
     min_rid = datastore['MinRID']
     max_rid = datastore['MaxRID']
+
+    output = []
 
     # Brute force through a common RID range
     min_rid.upto(max_rid) do |rid|
@@ -117,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
         sid = "#{target_sid}-#{rid}"
         sids = lookup_sids(policy_handle, sid, endpoint::LSAP_LOOKUP_WKSTA)
         sids.each do |sid|
-          sids_table << [ map_security_principal_to_string(sid[:type]), sid[:name], rid ]
+          output << [ map_security_principal_to_string(sid[:type]), sid[:name], rid ]
         end
       rescue RubySMB::Dcerpc::Error::LsarpcError => e
         # Ignore unmapped RIDs
@@ -127,9 +151,11 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    print_line
-    print_status sids_table.to_s
+    output
 
+  rescue Msf::Exploit::Remote::SMB::Client::Ipc::SmbIpcAuthenticationError => e
+    print_warning e.message
+    nil
   rescue ::Timeout::Error
   rescue ::Exception => e
     print_error("Error: #{e.class} #{e}")
@@ -137,5 +163,42 @@ class MetasploitModule < Msf::Auxiliary
     close_policy(policy_handle)
     disconnect_lsarpc
     disconnect_ipc(ipc_tree)
+  end
+
+  def format_results(results)
+    sids_table = Rex::Text::Table.new(
+      'Indent'  => 4,
+      'Header'  => "SMB Lookup SIDs Output",
+      'Columns' =>
+        [
+          'Type',
+          'Name',
+          'RID'
+        ],
+      'SortIndex' => 2, # Sort by RID
+      )
+
+    # Each result contains 0 or more arrays containing: SID Type, Name, RID
+    results.compact.each do |result_set|
+      result_set.each { |result| sids_table << result }
+    end
+
+    sids_table
+  end
+
+  # Fingerprint a single host
+  def run_host(_ip)
+    if session
+      self.simple = session.simple_client
+      results = run_session
+    else
+      results = run_rhost
+    end
+
+    results_table = format_results(results)
+    results_table.rows = results_table.rows.uniq # Remove potentially duplicate entries from port 139 & 445
+
+    print_line
+    print_line results_table.to_s
   end
 end
