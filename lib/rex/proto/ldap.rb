@@ -167,16 +167,6 @@ class Net::LDAP::Connection # :nodoc:
       @conn.extend(SocketSaslIO)
       @conn.setup(wrap_read, wrap_write)
     end
-
-    # Monkey patch the bind function, so that the caller can set up its encryption wrapper
-    def bind(auth)
-      result = super(auth)
-
-      auth_context_setup = auth[:auth_context_setup]
-      auth_context_setup.call(result.result[:serverSaslCreds], self) if auth_context_setup
-
-      result
-    end
   end
 
   # Initialize the LDAP connection using Rex::Socket::TCP,

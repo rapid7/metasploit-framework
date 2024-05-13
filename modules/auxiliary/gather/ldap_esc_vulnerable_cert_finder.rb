@@ -473,9 +473,13 @@ class MetasploitModule < Msf::Auxiliary
       find_enrollable_vuln_certificate_templates
       print_vulnerable_cert_info
     end
+  rescue Errno::ECONNRESET
+    fail_with(Failure::Disconnected, 'The connection was reset.')
   rescue Rex::ConnectionError => e
-    print_error("#{e.class}: #{e.message}")
+    fail_with(Failure::Unreachable, e.message)
+  rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
+    fail_with(Failure::NoAccess, e.message)
   rescue Net::LDAP::Error => e
-    print_error("#{e.class}: #{e.message}")
+    fail_with(Failure::Unknown, "#{e.class}: #{e.message}")
   end
 end

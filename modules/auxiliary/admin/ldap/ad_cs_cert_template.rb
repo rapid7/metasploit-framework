@@ -118,10 +118,14 @@ class MetasploitModule < Msf::Auxiliary
       send("action_#{action.name.downcase}")
       print_good('The operation completed successfully!')
     end
+  rescue Errno::ECONNRESET
+    fail_with(Failure::Disconnected, 'The connection was reset.')
   rescue Rex::ConnectionError => e
-    print_error("#{e.class}: #{e.message}")
+    fail_with(Failure::Unreachable, e.message)
+  rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
+    fail_with(Failure::NoAccess, e.message)
   rescue Net::LDAP::Error => e
-    print_error("#{e.class}: #{e.message}")
+    fail_with(Failure::Unknown, "#{e.class}: #{e.message}")
   end
 
   def get_certificate_template
