@@ -6,7 +6,7 @@ module Rex
       module Ui
         ###
         #
-        # Core SMB client commands
+        # Core LDAP client commands
         #
         ###
         class Console::CommandDispatcher::Client
@@ -41,17 +41,18 @@ module Rex
           end
 
           #
-          # Shares
+          # Client
           #
           def name
             'Client'
           end
 
+          #
           # Query the LDAP server
           #
           def cmd_query(*args)
             if args.include?('-h') || args.include?('--help')
-              cmd_shares_help
+              cmd_query_help
               return
             end
 

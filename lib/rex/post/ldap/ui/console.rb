@@ -85,7 +85,6 @@ module Rex
           # Runs the specified command wrapper in something to catch exceptions.
           #
           def run_command(dispatcher, method, arguments)
-            # TODO: double check these are the correct errors to handle
             super
           rescue Timeout::Error
             log_error('Operation timed out.')

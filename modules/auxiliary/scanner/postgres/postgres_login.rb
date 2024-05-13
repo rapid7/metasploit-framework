@@ -70,7 +70,9 @@ class MetasploitModule < Msf::Auxiliary
     logins = results.flat_map { |_k, v| v[:successful_logins] }
     sessions = results.flat_map { |_k, v| v[:successful_sessions] }
     print_status("Bruteforce completed, #{logins.size} #{logins.size == 1 ? 'credential was' : 'credentials were'} successful.")
-    if datastore['CreateSession']
+    return results unless framework.features.enabled?(Msf::FeatureManager::POSTGRESQL_SESSION_TYPE)
+
+    if create_session?
       print_status("#{sessions.size} Postgres #{sessions.size == 1 ? 'session was' : 'sessions were'} opened successfully.")
     else
       print_status('You can open a Postgres session with these credentials and %grnCreateSession%clr set to true')
