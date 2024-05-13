@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('KEY', [ false, 'Registry key to read or write' ]),
-        OptString.new('SD', [ false, 'Security Descriptor to write as a hex string' ], conditions: %w[ACTION == WRITE]),
+        OptString.new('SD', [ false, 'Security Descriptor to write as a hex string' ], conditions: %w[ACTION == WRITE], regex: /^([a-fA-F0-9]{2})+$/),
         OptInt.new('SECURITY_INFORMATION', [
           true,
           'Security Information to read or write (see '\
@@ -111,9 +111,9 @@ class MetasploitModule < Msf::Auxiliary
 
     case action.name
     when 'READ'
-      cmd_read
+      action_read
     when 'WRITE'
-      cmd_write
+      action_write
     else
       print_error("Unknown action #{action.name}")
     end
@@ -127,9 +127,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def cmd_read
-    do_connect unless @winreg
-
+  def action_read
     fail_with(Failure::BadConfig, 'Unknown registry key, please set the `KEY` option') if datastore['KEY'].blank?
 
     sd = @winreg.get_key_security_descriptor(datastore['KEY'], datastore['SECURITY_INFORMATION'], bind: false)
@@ -142,9 +140,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def cmd_write
-    do_connect unless @winreg
-
+  def action_write
     if datastore['FILE'].blank?
       fail_with(Failure::BadConfig, 'Unknown security descriptor, please set the `SD` option') if datastore['SD'].blank?
       fail_with(Failure::BadConfig, 'Unknown registry key, please set the `KEY` option') if datastore['KEY'].blank?
