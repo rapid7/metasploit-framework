@@ -72,7 +72,8 @@ jobs:
         include:
           # Windows Meterpreter
           - { meterpreter: { name: windows_meterpreter }, os: windows-2019 }
-          - { meterpreter: { name: windows_meterpreter }, os: windows-2022 }
+          # Temporarily required for failing pcaprub compilation:
+          # - { meterpreter: { name: windows_meterpreter }, os: windows-2022 }
 
           # Mettle
           - { meterpreter: { name: mettle }, os: macos-11 }
