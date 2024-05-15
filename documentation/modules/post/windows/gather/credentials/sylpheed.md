@@ -1,12 +1,12 @@
 ## Vulnerable Application
 
-  This post-exploitation module extracts clear text credentials from the Sylpheed Email Client.
+This post-exploitation module extracts clear text credentials from the Sylpheed Email Client.
 
-  The Sylpheed Email Client is avaialble from (https://sylpheed.sraoss.jp/en/).
+The Sylpheed Email Client is avaialble from (https://sylpheed.sraoss.jp/en/).
 
-  This module extracts information from the accountrc file in the "AppData\Roaming\Sylpheed" directory.
+This module extracts information from the accountrc file in the "AppData\Roaming\Sylpheed" directory.
 
-  This module extracts server information such as account name, username, email address and password.
+This module extracts server information such as account name, username, email address and password.
 
 
 ## Verification Steps
