@@ -1,12 +1,12 @@
 ## Vulnerable Application
 
-  This post-exploitation module extracts clear text credentials from the Adi IRC Client.
+This post-exploitation module extracts clear text credentials from the Adi IRC Client.
 
-  The Adi IRC Client is avaialble from (https://www.adiirc.com/).
+The Adi IRC Client is avaialble from (https://www.adiirc.com/).
 
-  This module extracts information from the config.ini and networks.ini files in the "AppData\Local\AdiIRC" directory.
+This module extracts information from the config.ini and networks.ini files in the "AppData\Local\AdiIRC" directory.
 
-  This module extracts server information such as server name, server port, user name, and password.
+This module extracts server information such as server name, server port, user name, and password.
 
 
 ## Verification Steps
