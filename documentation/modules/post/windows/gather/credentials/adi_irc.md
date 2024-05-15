@@ -164,6 +164,4 @@ msf6 post(windows/gather/credentials/adi_irc) > run
 [*] undefined method `each' for nil:NilClass
 [*] PackRat credential sweep Completed
 [*] Post module execution completed
-
-
 ```
