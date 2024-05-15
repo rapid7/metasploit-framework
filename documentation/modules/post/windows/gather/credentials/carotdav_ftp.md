@@ -1,12 +1,12 @@
 ## Vulnerable Application
 
-  This post-exploitation module extracts clear text credentials from the CarotDAV ftp Client.
+This post-exploitation module extracts clear text credentials from the CarotDAV ftp Client.
 
-  The CarotDAV FTP Client is avaialble from (https://rei.to/carotdav_en.html).
+The CarotDAV FTP Client is avaialble from (https://rei.to/carotdav_en.html).
 
-  This module extracts information from the Setting file in the "AppData\Roaming\Rei Software\CarotDAV" directory.
+This module extracts information from the Setting file in the "AppData\Roaming\Rei Software\CarotDAV" directory.
 
-  This module extracts server information such as connection name, target URI, username and password.
+This module extracts server information such as connection name, target URI, username and password.
 
 
 ## Verification Steps
