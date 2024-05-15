@@ -49,7 +49,7 @@ module Rex
         # https://github.com/ruby-ldap/ruby-net-ldap/issues/11
         # We want to keep the ldap connection open to use later
         # but there's no built in way within the `Net::LDAP` library to do that
-        # so we're
+        # so we're adding this function to do it instead
         # @param connect_opts [Hash] Options for the LDAP connection.
         def self._open(connect_opts)
           client = new(connect_opts)

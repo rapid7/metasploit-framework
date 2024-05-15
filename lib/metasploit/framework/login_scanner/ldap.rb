@@ -39,7 +39,7 @@ module Metasploit
 
           connect_opts = ldap_connect_opts(host, port, connection_timeout, ssl: opts[:ssl], opts: opts)
           begin
-            ldap_client = Rex::Proto::LDAP::Client._open(connect_opts)
+            ldap_client = ldap_open(connect_opts, keep_open: true)
             return status_code(ldap_client)
           rescue StandardError => e
             { status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e }
