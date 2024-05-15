@@ -71,7 +71,6 @@ class MetasploitModule < Msf::Post
 
     register_options(
       [
-        # OptRegexp.new('REGEX', [false, 'Match a regular expression', '^secret']),
         OptBool.new('STORE_LOOT', [false, 'Store artifacts into loot database', true]),
         OptBool.new('EXTRACT_DATA', [false, 'Extract data and stores in a separate file', true]),
         # enumerates the options based on the artifacts that are defined below
