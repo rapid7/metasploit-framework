@@ -1,12 +1,12 @@
 ## Vulnerable Application
 
-  This post-exploitation module extracts clear text credentials from the Quassel IRC Client.
+This post-exploitation module extracts clear text credentials from the Quassel IRC Client.
 
-  The Quassel IRC Client is avaialble from (https://quassel-irc.org/downloads).
+The Quassel IRC Client is avaialble from (https://quassel-irc.org/downloads).
 
-  This module extracts information from the quasselclient.ini file in the "AppData\Roaming\quassel-irc.org" directory.
+This module extracts information from the quasselclient.ini file in the "AppData\Roaming\quassel-irc.org" directory.
 
-  This module extracts server information such as host name, port, account name, password and proxy password.
+This module extracts server information such as host name, port, account name, password and proxy password.
 
 
 ## Verification Steps
