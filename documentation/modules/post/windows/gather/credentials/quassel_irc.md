@@ -73,7 +73,6 @@ msf6 post(windows/gather/credentials/quassel_irc) > run
 
 ### Verbose Output
 ```
-
 msf6 post(windows/gather/credentials/quassel_irc) > run
 
 [*] Filtering based on these selections:  
