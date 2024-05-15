@@ -43,8 +43,8 @@ class MetasploitModule < Msf::Auxiliary
 
     if datastore['RPORT'].blank? || datastore['RPORT'] == 0
       smb_services = [
-        { port: 139, direct: false },
-        { port: 445, direct: true }
+        { port: 445, direct: true },
+        { port: 139, direct: false }
       ]
     else
       smb_services = [

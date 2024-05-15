@@ -1,12 +1,12 @@
 ## Vulnerable Application
 
-  This post-exploitation module extracts clear text credentials from the Halloy IRC Client.
+This post-exploitation module extracts clear text credentials from the Halloy IRC Client.
 
-  The Halloy IRC Client is avaialble from (https://github.com/squidowl/halloy).
+The Halloy IRC Client is avaialble from (https://github.com/squidowl/halloy).
 
-  This module extracts information from the config.toml file in the "AppData\Roaming\Halloy" directory.
+This module extracts information from the config.toml file in the "AppData\Roaming\Halloy" directory.
 
-  This module extracts server information such as server, port, nickname, password and proxy password.
+This module extracts server information such as server, port, nickname, password and proxy password.
 
 
 ## Verification Steps

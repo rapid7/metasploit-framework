@@ -40,6 +40,10 @@ class MetasploitModule < Msf::Auxiliary
       'License' => MSF_LICENSE
     )
 
+    register_options([
+      Msf::Opt::RPORT(nil, false)
+    ])
+
     register_advanced_options(
       [
         *kerberos_storage_options(protocol: 'SMB'),
@@ -47,15 +51,15 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
-    deregister_options('RPORT', 'SMBDIRECT', 'SMB::ProtocolVersion')
+    deregister_options('SMB::ProtocolVersion')
   end
 
   def rport
-    @smb_port
+    @rport
   end
 
-  def smb_direct
-    (@smb_port == 445)
+  def connect(*args, **kwargs)
+    super(*args, **kwargs, direct: @smb_direct)
   end
 
   def seconds_to_timespan(seconds)
@@ -189,10 +193,21 @@ class MetasploitModule < Msf::Auxiliary
   # Fingerprint a single host
   #
   def run_host(ip)
-    smb_ports = [445, 139]
+    if datastore['RPORT'].blank? || datastore['RPORT'] == 0
+      smb_services = [
+        { port: 445, direct: true },
+        { port: 139, direct: false }
+      ]
+    else
+      smb_services = [
+        { port: datastore['RPORT'], direct: datastore['SMBDirect'] }
+      ]
+    end
+
     lines = [] # defer status output to the very end to group lines together by host
-    smb_ports.each do |pnum|
-      @smb_port = pnum
+    smb_services.each do |smb_service|
+      @rport = smb_service[:port]
+      @smb_direct = smb_service[:direct]
       self.simple = nil
 
       begin
