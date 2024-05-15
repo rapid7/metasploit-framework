@@ -49,7 +49,10 @@ module Msf
           session.client.base = opts[:base]
         end
         return yield session.client if session
+
         ldap_open(get_connect_opts.merge(opts), &block)
+      rescue ::StandardError => e
+        handle_error(e)
       end
 
       # Create a new LDAP connection using Rex::Proto::LDAP::Client.new and yield the
@@ -64,7 +67,27 @@ module Msf
           session.client.base = opts[:base]
         end
         return yield session.client if session
+
         super
+      rescue ::StandardError => e
+        handle_error(e)
+      end
+
+      private
+
+      def handle_error(e)
+        case e
+        when ::Net::LDAP::ResponseMissingOrInvalidError
+          elog("LDAP Client response missing or invalid: #{e.class}", error: e)
+          if session
+            print_error("Killing session #{session.sid} due to missing or invalid response from the server.")
+            session.kill
+          end
+        else
+          elog("LDAP Client: #{e.class}", error: e)
+          # Re-raise other exceptions so they can be handled elsewhere
+          raise e
+        end
       end
     end
   end

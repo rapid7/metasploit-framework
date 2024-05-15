@@ -90,7 +90,7 @@ module Rex
             log_error('Operation timed out.')
           rescue Rex::InvalidDestination => e
             log_error(e.message)
-          rescue ::Errno::EPIPE, ::OpenSSL::SSL::SSLError, ::IOError
+          rescue ::Errno::EPIPE, ::OpenSSL::SSL::SSLError, ::IOError, Net::LDAP::ResponseMissingOrInvalidError
             session.kill
           rescue ::StandardError => e
             log_error("Error running command #{method}: #{e.class} #{e}")

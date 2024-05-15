@@ -80,6 +80,8 @@ module Rex
                   raise ArgumentError, "Invalid output format: #{val}, must be one of #{OUTPUT_FORMATS}"
                 end
               end
+            rescue StandardError => e
+              handle_error(e)
             end
 
             perform_ldap_query_streaming(client, filter, attributes, base_dn, schema_dn, scope: scope) do |result, attribute_properties|
