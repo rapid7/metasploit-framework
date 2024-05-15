@@ -35,7 +35,7 @@ This option is turned on by default and will perform the data extraction using t
 regular expression. The 'Store loot' options must be turned on in order for this to take work.
 
 ## Scenarios
-### Default Output
+### Quassel Client v0.14.0 on Microsoft Windows 10 Home 10.0.19045 N/A Build 19045 - Default Output
 ```
 msf6 post(windows/gather/credentials/quassel_irc) > run
 
@@ -71,7 +71,7 @@ msf6 post(windows/gather/credentials/quassel_irc) > run
 
 ```
 
-### Verbose Output
+### Quassel Client v0.14.0 on Microsoft Windows 10 Home 10.0.19045 N/A Build 19045 - Verbose Output
 ```
 msf6 post(windows/gather/credentials/quassel_irc) > run
 
