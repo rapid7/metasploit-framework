@@ -35,7 +35,7 @@ This option is turned on by default and will perform the data extraction using t
 regular expression. The 'Store loot' options must be turned on in order for this to take work.
 
 ## Scenarios
-### Default Output
+### AdiIRC Client v4.4 on Microsoft Windows 10 Home 10.0.19045 N/A Build 19045 - Default Output
 ```
 msf6 post(windows/gather/credentials/adi_irc) > run
 
@@ -87,7 +87,7 @@ msf6 post(windows/gather/credentials/adi_irc) > run
 [*] Post module execution completed
 ```
 
-### Verbose Output
+### AdiIRC Client v4.4 on Microsoft Windows 10 Home 10.0.19045 N/A Build 19045 - Verbose Output
 ```
 msf6 post(windows/gather/credentials/adi_irc) > run
 
