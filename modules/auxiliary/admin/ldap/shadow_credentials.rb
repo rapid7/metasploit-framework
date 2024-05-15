@@ -5,8 +5,9 @@
 
 class MetasploitModule < Msf::Auxiliary
 
-  include Msf::Exploit::Remote::LDAP
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::LDAP
+  include Msf::OptionalSession::LDAP
 
   ATTRIBUTE = 'msDS-KeyCredentialLink'.freeze
 
@@ -114,7 +115,9 @@ class MetasploitModule < Msf::Auxiliary
       else
         print_status('Discovering base DN automatically')
 
-        unless (@base_dn = discover_base_dn(ldap))
+        if (@base_dn = ldap.base_dn)
+          print_status("#{ldap.peerinfo} Discovered base DN: #{@base_dn}")
+        else
           print_warning("Couldn't discover base DN!")
         end
       end

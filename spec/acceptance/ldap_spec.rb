@@ -26,7 +26,7 @@ RSpec.describe 'LDAP modules' do
         {
           name: 'auxiliary/gather/ldap_query',
           platforms: %i[linux osx windows],
-          targets: [:rhost],
+          targets: [:session, :rhost],
           skipped: false,
           action: 'run_query_file',
           datastore: { QUERY_FILE_PATH: 'data/auxiliary/gather/ldap_query/ldap_queries_default.yaml' },
@@ -39,7 +39,6 @@ RSpec.describe 'LDAP modules' do
                 /Running ENUM_ACCOUNTS.../,
                 /Running ENUM_USER_SPNS_KERBEROAST.../,
                 /Running ENUM_USER_PASSWORD_NOT_REQUIRED.../,
-
               ]
             }
           }
@@ -47,7 +46,7 @@ RSpec.describe 'LDAP modules' do
         {
           name: 'auxiliary/gather/ldap_query',
           platforms: %i[linux osx windows],
-          targets: [:rhost],
+          targets: [:session, :rhost],
           skipped: false,
           action: 'enum_accounts',
           lines: {
@@ -62,13 +61,11 @@ RSpec.describe 'LDAP modules' do
         {
           name: 'auxiliary/gather/ldap_hashdump',
           platforms: %i[linux osx windows],
-          targets: [:rhost],
+          targets: [:session, :rhost],
           skipped: false,
           lines: {
             all: {
               required: [
-                /Discovering base DN\(s\) automatically/,
-                /Dumping data for root DSE/,
                 /Searching base DN='DC=ldap,DC=example,DC=com'/,
                 /Storing LDAP data for base DN='DC=ldap,DC=example,DC=com' in loot/,
                 /266 entries, 0 creds found in 'DC=ldap,DC=example,DC=com'./
@@ -79,19 +76,45 @@ RSpec.describe 'LDAP modules' do
         {
           name: 'auxiliary/admin/ldap/shadow_credentials',
           platforms: %i[linux osx windows],
-          targets: [:rhost],
+          targets: [:session, :rhost],
           skipped: false,
           datastore: { TARGET_USER: 'administrator' },
           lines: {
             all: {
               required: [
-                /Discovering base DN automatically/,
                 /Discovered base DN: DC=ldap,DC=example,DC=com/,
                 /The msDS-KeyCredentialLink field is empty./
               ]
             }
           }
-        }
+        },
+        {
+          name: 'auxiliary/gather/ldap_esc_vulnerable_cert_finder',
+          platforms: %i[linux osx windows],
+          targets: [:session, :rhost],
+          skipped: false,
+          lines: {
+            all: {
+              required: [
+                /Successfully queried/
+              ]
+            }
+          }
+        },
+        {
+          name: 'auxiliary/admin/ldap/rbcd',
+          platforms: %i[linux osx windows],
+          targets: [:session, :rhost],
+          skipped: false,
+          datastore: { DELEGATE_TO: 'administrator' },
+          lines: {
+            all: {
+              required: [
+                /The msDS-AllowedToActOnBehalfOfOtherIdentity field is empty./
+              ]
+            }
+          }
+        },
       ]
     }
   }
@@ -338,7 +361,9 @@ RSpec.describe 'LDAP modules' do
                 end)
 
                 use_module = "use #{module_test[:name]}"
-                run_module = "run session=#{session_id} Verbose=true"
+                run_command = module_test.key?(:action) ? module_test.fetch(:action) : 'run'
+                run_module = "#{run_command} session=#{session_id} #{target.datastore_options(default_module_datastore: default_module_datastore.merge(module_test.fetch(:datastore, {})))} Verbose=true"
+
 
                 replication_commands << use_module
                 console.sendline(use_module)

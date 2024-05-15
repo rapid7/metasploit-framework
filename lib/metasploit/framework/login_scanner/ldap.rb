@@ -11,8 +11,10 @@ module Metasploit
         include Metasploit::Framework::LDAP::Client
         include Msf::Exploit::Remote::LDAP
 
-        attr_accessor :opts
-        attr_accessor :realm_key
+        attr_accessor :opts, :realm_key
+        # @!attribute use_client_as_proof
+        #   @return [Boolean] If a login is successful and this attribute is true - an LDAP::Client instance is used as proof
+        attr_accessor :use_client_as_proof
 
         def attempt_login(credential)
           result_opts = {
@@ -36,17 +38,24 @@ module Metasploit
           }.merge(@opts)
 
           connect_opts = ldap_connect_opts(host, port, connection_timeout, ssl: opts[:ssl], opts: opts)
-          ldap_open(connect_opts) do |ldap|
-            return status_code(ldap.get_operation_result.table)
+          begin
+            ldap_client = ldap_open(connect_opts, keep_open: true)
+            return status_code(ldap_client)
           rescue StandardError => e
             { status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e }
           end
         end
 
-        def status_code(operation_result)
-          case operation_result[:code]
+        def status_code(ldap_client)
+          operation_result = ldap_client.get_operation_result.table[:code]
+          case operation_result
           when 0
-            { status: Metasploit::Model::Login::Status::SUCCESSFUL }
+            result = { status: Metasploit::Model::Login::Status::SUCCESSFUL }
+            if use_client_as_proof
+              result[:proof] = ldap_client
+              result[:connection] = ldap_client.socket
+            end
+            result
           else
             { status: Metasploit::Model::Login::Status::INCORRECT, proof: "Bind Result: #{operation_result}" }
           end
@@ -84,7 +93,6 @@ module Metasploit
               credential.public = "#{credential.public}@#{opts[:domain]}"
               yield credential
             end
-
           end
         end
       end

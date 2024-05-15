@@ -107,6 +107,9 @@ class Net::LDAP::Connection # :nodoc:
         end
         # SASL buffer length
         length_bytes = read(4)
+        # The implementation in net-ldap returns nil if it doesn't read any data
+        return nil unless length_bytes
+
         length = length_bytes.unpack('N')[0]
 
         # Now read the actual data
@@ -182,7 +185,8 @@ class Net::LDAP::Connection # :nodoc:
       @conn = Rex::Socket::Tcp.create(
         'PeerHost' => server[:host],
         'PeerPort' => server[:port],
-        'Proxies' => server[:proxies]
+        'Proxies' => server[:proxies],
+        'Timeout' => server[:connect_timeout]
       )
       @conn.extend(SynchronousRead)
 
