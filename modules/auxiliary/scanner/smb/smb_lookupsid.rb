@@ -7,7 +7,8 @@
 class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
-  include Msf::Exploit::Remote::MsLsarpc
+  include Msf::Exploit::Remote::MsLsad
+  include Msf::Exploit::Remote::MsLsat
   include Msf::Exploit::Remote::DCERPC
 
   # Scanner mixin should be near last
