@@ -28,23 +28,21 @@ RSpec.describe 'SMB sessions and SMB modules' do
           targets: [:session],
           skipped: false,
         },
-        # Flaky:
-        # Error: RubySMB::Error::UnexpectedStatusCode The server responded with an unexpected status code: STATUS_PIPE_BROKEN
-        # {
-        #   name: "auxiliary/scanner/smb/smb_lookupsid",
-        #   platforms: [:linux, :osx, :windows],
-        #   targets: [:session, :rhost],
-        #   skipped: false,
-        #   lines: {
-        #     all: {
-        #       required: [
-        #         "GROUP=None",
-        #         "USER=nobody",
-        #         "PIPE(LSARPC) LOCAL",
-        #       ],
-        #     },
-        #   }
-        # },
+        {
+          name: "auxiliary/scanner/smb/smb_lookupsid",
+          platforms: [:linux, :osx, :windows],
+          targets: [:session, :rhost],
+          skipped: false,
+          lines: {
+            all: {
+              required: [
+                "PIPE(lsarpc) LOCAL",
+                /User( *)(Administrator|nobody)/,
+                /Group( *)(None|Domain (Admins|Users|Guests|Computers))/,
+              ],
+            },
+          }
+        },
         {
           name: "auxiliary/scanner/smb/smb_enumusers",
           platforms: [:linux, :osx, :windows],

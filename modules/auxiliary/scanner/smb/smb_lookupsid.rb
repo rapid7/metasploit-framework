@@ -3,12 +3,12 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+
 class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
-  include Msf::Exploit::Remote::SMB::Client
-  include Msf::Exploit::Remote::SMB::Client::Authenticated
-
+  include Msf::Exploit::Remote::MsLsad
+  include Msf::Exploit::Remote::MsLsat
   include Msf::Exploit::Remote::DCERPC
 
   # Scanner mixin should be near last
@@ -43,270 +43,163 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptInt.new('MinRID', [ false, "Starting RID to check", 500 ]),
         OptInt.new('MaxRID', [ false, "Maximum RID to check", 4000 ])
-      ],
-      self.class
+      ]
     )
-
-    deregister_options('RPORT')
   end
 
-  # Constants used by this module
-  LSA_UUID     = '12345778-1234-abcd-ef00-0123456789ab'
-  LSA_VERS     = '0.0'
-  LSA_PIPES    = %W{ LSARPC NETLOGON SAMR BROWSER SRVSVC }
-
   def rport
-    @rport || datastore['RPORT']
+    @rport
   end
 
   def smb_direct
-    @smbdirect || datastore['SMBDirect']
+    @smb_direct
   end
 
-  # Locate an available SMB PIPE for the specified service
-  def smb_find_dcerpc_pipe(uuid, vers, pipes)
-    found_pipe   = nil
-    found_handle = nil
-    pipes.each do |pipe_name|
-      connected = session ? true : false
-      begin
-        unless connected
-          connect
-          smb_login
-          connected = true
-        end
+  def connect(*args, **kwargs)
+    super(*args, **kwargs, direct: @smb_direct)
+  end
 
-        handle = dcerpc_handle_target(
-          uuid, vers,
-          'ncacn_np', ["\\#{pipe_name}"], simple.address
-        )
+  def run_session
+    smb_services = [{ port: self.simple.peerport, direct: self.simple.direct }]
+    smb_services.map { |smb_service| run_service(smb_service[:port], smb_service[:direct]) }
+  end
 
-        dcerpc_bind(handle)
-        return pipe_name
+  def run_rhost
+    if datastore['RPORT'].blank? || datastore['RPORT'] == 0
+      smb_services = [
+        { port: 445, direct: true },
+        { port: 139, direct: false }
+      ]
+    else
+      smb_services = [
+        { port: datastore['RPORT'], direct: datastore['SMBDirect'] }
+      ]
+    end
 
-      rescue ::Interrupt => e
-        raise e
-      rescue ::Exception => e
-        raise e if not connected
+    smb_services.map { |smb_service| run_service(smb_service[:port], smb_service[:direct]) }
+  end
+
+  def run_service(port, direct)
+    @rport = port
+    @smb_direct = direct
+
+    ipc_tree = connect_ipc
+    lsarpc_pipe = connect_lsarpc(ipc_tree)
+    endpoint = RubySMB::Dcerpc::Lsarpc.freeze
+    policy_handle = open_policy2(endpoint::SECURITY_IMPERSONATION, endpoint::SECURITY_CONTEXT_CONTINUOUS_UPDATES, endpoint::MAXIMUM_ALLOWED)
+
+    account_policy = query_information_policy(policy_handle, endpoint::POLICY_ACCOUNT_DOMAIN_INFORMATION)
+    primary_policy = query_information_policy(policy_handle, endpoint::POLICY_PRIMARY_DOMAIN_INFORMATION)
+
+    info = {
+      local: {
+        name: primary_policy[:policy_information][:name].encode('ASCII-8BIT'),
+        sid: primary_policy[:policy_information][:sid].to_s.encode('ASCII-8BIT')
+      },
+      domain: {
+        name: account_policy[:policy_information][:domain_name].encode('ASCII-8BIT'),
+        sid: account_policy[:policy_information][:domain_sid].to_s.encode('ASCII-8BIT')
+      }
+    }
+
+    # Store the domain information
+    report_note(
+      :host => self.simple.peerhost,
+      :proto => 'tcp',
+      :port => self.simple.peerport,
+      :type => 'smb.domain.lookupsid',
+      :data => info[:domain]
+    )
+
+    pipe_info = "PIPE(#{lsarpc_pipe.name})"
+    local_info = "LOCAL(#{info[:local][:name]} - #{info[:local][:sid]})"
+    domain_info = "DOMAIN(#{info[:domain][:name]} - #{info[:domain][:sid]})"
+    all_info = "#{pipe_info} #{local_info} #{domain_info}"
+    print_status(all_info)
+
+    target_sid = case action.name.upcase
+      when 'LOCAL'
+        info[:local][:sid] == 'null' ? info[:domain][:sid] : info[:local][:sid]
+      when 'DOMAIN'
+        # Fallthrough to the host SID if no domain SID was returned
+        if info[:domain][:sid] == 'null'
+          print_error 'No domain SID identified, falling back to the local SID...'
+          info[:local][:sid]
+        else
+          info[:domain][:sid]
+          end
       end
-      disconnect
+
+    min_rid = datastore['MinRID']
+    max_rid = datastore['MaxRID']
+
+    output = []
+
+    # Brute force through a common RID range
+    min_rid.upto(max_rid) do |rid|
+      print "%bld%blu[*]%clr Trying RID #{rid} / #{max_rid}\r"
+      begin
+        sid = "#{target_sid}-#{rid}"
+        sids = lookup_sids(policy_handle, sid, endpoint::LSAP_LOOKUP_WKSTA)
+        sids.each do |sid|
+          output << [ map_security_principal_to_string(sid[:type]), sid[:name], rid ]
+        end
+      rescue RubySMB::Dcerpc::Error::LsarpcError => e
+        # Ignore unmapped RIDs
+        unless e.message.match?(/STATUS_NONE_MAPPED/) || e.message.match?(/STATUS_SOME_MAPPED/)
+          wlog e
+        end
+      end
     end
+
+    output
+
+  rescue Msf::Exploit::Remote::SMB::Client::Ipc::SmbIpcAuthenticationError => e
+    print_warning e.message
     nil
+  rescue ::Timeout::Error
+  rescue ::Exception => e
+    print_error("Error: #{e.class} #{e}")
+  ensure
+    close_policy(policy_handle)
+    disconnect_lsarpc
+    disconnect_ipc(ipc_tree)
   end
 
-  def smb_parse_sid(data)
-    fields = data.unpack('VvvvvVVVVV')
-    domain = data[32, fields[3]]
-    domain.gsub!("\x00", '')
+  def format_results(results)
+    sids_table = Rex::Text::Table.new(
+      'Indent'  => 4,
+      'Header'  => "SMB Lookup SIDs Output",
+      'Columns' =>
+        [
+          'Type',
+          'Name',
+          'RID'
+        ],
+      'SortIndex' => 2, # Sort by RID
+      )
 
-    if(fields[6] == 0)
-      return [nil, domain]
+    # Each result contains 0 or more arrays containing: SID Type, Name, RID
+    results.compact.each do |result_set|
+      result_set.each { |result| sids_table << result }
     end
 
-    while(fields[3] % 4 != 0)
-      fields[3] += 1
-    end
-
-    buff = data[32 + fields[3], data.length].unpack('VCCvNVVVVV')
-    sid  = buff[4..8].map{|x| x.to_s }.join("-")
-    return [sid, domain]
-  end
-
-  def smb_pack_sid(str)
-    [1,5,0].pack('CCv') + str.split('-').map{|x| x.to_i}.pack('NVVVV')
-  end
-
-  def smb_parse_sid_lookup(data)
-
-    fields = data.unpack('VVVVVvvVVVVV')
-    if(fields[0] == 0)
-      return nil
-    end
-
-    domain = data[44, fields[5]]
-    domain.gsub!("\x00", '')
-
-    while(fields[5] % 4 != 0)
-      fields[5] += 1
-    end
-
-    ginfo = data[44 + fields[5], data.length].unpack('VCCvNVVVV')
-    uinfo = data[72 + fields[5], data.length].unpack('VVVVvvVVVVV')
-
-    if(uinfo[3] == 8)
-      return [8, nil]
-    end
-
-    name = data[112 + fields[5], uinfo[4]]
-    name.gsub!("\x00", '')
-
-    [ uinfo[3], name ]
+    sids_table
   end
 
   # Fingerprint a single host
-  def run_host(ip)
-    ports = [139, 445]
-
+  def run_host(_ip)
     if session
-      print_status("Using existing session #{session.sid}")
-      client = session.client
-      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
-      ports = [simple.port]
-      self.simple.connect("\\\\#{simple.address}\\IPC$") # smb_login connects to this share for some reason and it doesn't work unless we do too
+      self.simple = session.simple_client
+      results = run_session
+    else
+      results = run_rhost
     end
 
-    ports.each do |port|
+    results_table = format_results(results)
+    results_table.rows = results_table.rows.uniq # Remove potentially duplicate entries from port 139 & 445
 
-      @rport = port
-
-      lsa_pipe   = nil
-      lsa_handle = nil
-      begin
-      # find the lsarpc pipe
-      lsa_pipe = smb_find_dcerpc_pipe(LSA_UUID, LSA_VERS, LSA_PIPES)
-      break if not lsa_pipe
-
-      # OpenPolicy2()
-      stub =
-        NDR.uwstring(ip) +
-        NDR.long(24) +
-        NDR.long(0) +
-        NDR.long(0) +
-        NDR.long(0) +
-        NDR.long(0) +
-        NDR.long(rand(0x10000000)) +
-        NDR.long(12) +
-        [
-          2, # Impersonation
-          1, # Context
-          0  # Effective
-        ].pack('vCC') +
-        NDR.long(0x02000000)
-
-      dcerpc.call(44, stub)
-      resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
-
-      if ! (resp and resp.length == 24)
-        print_error("Invalid response from the OpenPolicy request")
-        disconnect
-        return
-      end
-
-      phandle = resp[0,20]
-      perror  = resp[20,4].unpack("V")[0]
-
-      # Recent versions of Windows restrict this by default
-      if(perror == 0xc0000022)
-        disconnect
-        return
-      end
-
-      if(perror != 0)
-        print_error("Received error #{"0x%.8x" % perror} from the OpenPolicy2 request")
-        disconnect
-        return
-      end
-
-      # QueryInfoPolicy(Local)
-      stub = phandle + NDR.long(5)
-      dcerpc.call(7, stub)
-      resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
-      host_sid, host_name = smb_parse_sid(resp)
-
-      # QueryInfoPolicy(Domain)
-      stub = phandle + NDR.long(3)
-      dcerpc.call(7, stub)
-      resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
-      domain_sid, domain_name = smb_parse_sid(resp)
-
-      # Store SID, local domain name, joined domain name
-      print_status("PIPE(#{lsa_pipe}) LOCAL(#{host_name} - #{host_sid}) DOMAIN(#{domain_name} - #{domain_sid})")
-
-      domain = {
-        :name    => host_name,
-        :txt_sid => host_sid,
-        :users   => {},
-        :groups  => {}
-      }
-
-      target_sid = case action.name.upcase
-      when 'LOCAL'
-        host_sid
-      when 'DOMAIN'
-        # Fallthrough to the host SID if no domain SID was returned
-        unless domain_sid
-          print_error("No domain SID identified, falling back to the local SID...")
-        end
-        domain_sid || host_sid
-      end
-
-      min_rid = datastore['MinRID']
-      # Brute force through a common RID range
-
-      min_rid.upto(datastore['MaxRID']) do |rid|
-
-        stub =
-          phandle +
-          NDR.long(1) +
-          NDR.long(rand(0x10000000)) +
-          NDR.long(1) +
-          NDR.long(rand(0x10000000)) +
-          NDR.long(5) +
-          smb_pack_sid(target_sid) +
-          NDR.long(rid) +
-          NDR.long(0) +
-          NDR.long(0) +
-          NDR.long(1) +
-          NDR.long(0)
-
-        dcerpc.call(15, stub)
-        resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
-
-        # Skip the "not mapped" error message
-        if(resp and resp[-4,4].unpack("V")[0] == 0xc0000073)
-          next
-        end
-
-        # Stop if we are seeing access denied
-        if(resp and resp[-4,4].unpack("V")[0] == 0xc0000022)
-          break
-        end
-
-        utype,uname = smb_parse_sid_lookup(resp)
-        case utype
-        when 1
-          print_status("USER=#{uname} RID=#{rid}")
-          domain[:users][rid] = uname
-        when 2
-          domain[:groups][rid] = uname
-          print_status("GROUP=#{uname} RID=#{rid}")
-        else
-          print_status("TYPE=#{utype} NAME=#{uname} rid=#{rid}")
-        end
-      end
-
-      # Store the domain information
-      report_note(
-        :host => ip,
-        :proto => 'tcp',
-        :port => rport,
-        :type => 'smb.domain.lookupsid',
-        :data => domain
-      )
-
-      print_status("#{domain[:name].upcase} [#{domain[:users].keys.map{|k| domain[:users][k]}.join(", ")} ]")
-      disconnect
-      return
-
-    rescue ::Timeout::Error
-    rescue ::Interrupt
-      raise $!
-    rescue ::Rex::ConnectionError
-    rescue ::Rex::Proto::SMB::Exceptions::LoginError
-      next
-    rescue ::Exception => e
-      print_line("Error: #{e.class} #{e}")
-    end
-    end
+    print_line
+    print_line results_table.to_s
   end
 end
