@@ -905,7 +905,7 @@ module Msf
               print_status("No payload configured, defaulting to #{chosen_payload}") if chosen_payload
             end
 
-            if mod.actions.size > 1
+            if framework.features.enabled?(Msf::FeatureManager::DISPLAY_MODULE_ACTION) && mod.actions.size > 1
               print_status "This module has #{mod.actions.size} actions to select from"
               print_status 'Display them all with the %grnshow actions%clr command'
               print_status "The current action is set to %grn#{mod.action.name}%clr"
