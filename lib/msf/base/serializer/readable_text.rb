@@ -569,15 +569,15 @@ class ReadableText
   # @param missing [Boolean] dump only empty required options.
   # @return [String] the string form of the information.
   def self.dump_options(mod, indent = '', missing = false, advanced: false, evasion: false)
-    filtered_options = mod.options.values.select { |opt| opt.advanced? == advanced && opt.evasion? == evasion }
+    filtered_options = mod.options.select { |_name, opt| opt.advanced? == advanced && opt.evasion? == evasion }
 
-    option_groups = mod.options.groups.map { |_name, group| group }.sort_by(&:name)
+    option_groups = mod.options.groups.values.select { |group| group.option_names.any? { |name| filtered_options.keys.include?(name) } }
     options_by_group = option_groups.map do |group|
-      [group, group.option_names.map { |name| mod.options[name] }.compact]
+      [group, group.option_names.map { |name| filtered_options[name] }.compact]
     end.to_h
     grouped_option_names = option_groups.flat_map(&:option_names)
-    remaining_options = filtered_options.reject { |option| grouped_option_names.include?(option.name) }
-    options_grouped_by_conditions = remaining_options.group_by(&:conditions)
+    remaining_options = filtered_options.reject { |_name, option| grouped_option_names.include?(option.name) }
+    options_grouped_by_conditions = remaining_options.values.group_by(&:conditions)
 
     option_tables = []
 

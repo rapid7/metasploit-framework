@@ -186,7 +186,7 @@ RSpec.describe Msf::Serializer::ReadableText do
     context 'when some options are grouped' do
       let(:group_name) { 'group_name' }
       let(:group_description) { 'Used for example reasons' }
-      let(:option_names) { %w[RHOSTS SMBUser SMBDomain] }
+      let(:option_names) { %w[DigestAlgorithm RHOSTS SMBUser SMBDomain] }
       let(:group) { Msf::OptionGroup.new(name: group_name, description: group_description, option_names: option_names) }
       let(:aux_mod_with_grouped_options) do
         mod = aux_mod_with_set_options.replicant
@@ -294,6 +294,35 @@ RSpec.describe Msf::Serializer::ReadableText do
           Winrm::Krb5Ccname                                                                   no        The ccache file to use for kerberos authentication
           Winrm::KrbOfferedEncryptionTypes  AES256,AES128,RC4-HMAC,DES-CBC-MD5,DES3-CBC-SHA1  yes       Kerberos encryption types to offer
           Winrm::Rhostname                                                                    no        The rhostname which is required for kerberos - the SPN
+        TABLE
+      end
+    end
+
+    context 'when some options are grouped' do
+      let(:group_name) { 'group_name' }
+      let(:group_description) { 'Used for example reasons' }
+      let(:option_names) { %w[DigestAlgorithm RHOSTS SMBUser SMBDomain] }
+      let(:group) { Msf::OptionGroup.new(name: group_name, description: group_description, option_names: option_names) }
+      let(:aux_mod_with_grouped_options) do
+        mod = aux_mod_with_set_options.replicant
+        mod.options.add_group(group)
+        mod
+      end
+
+      it 'should return the grouped options separate to the rest of the options' do
+        expect(described_class.dump_advanced_options(aux_mod_with_grouped_options, indent_string)).to match_table <<~TABLE
+          Name       Current Setting  Required  Description
+          ----       ---------------  --------  -----------
+          VERBOSE    false            no        Enable detailed status messages
+          WORKSPACE                   no        Specify the workspace for this module
+
+
+          #{group_description}:
+
+          Name             Current Setting  Required  Description
+          ----             ---------------  --------  -----------
+          DigestAlgorithm  SHA256           yes       The digest algorithm to use (Accepted: SHA1, SHA256)
+
         TABLE
       end
     end
