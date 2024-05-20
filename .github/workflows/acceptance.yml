@@ -53,7 +53,8 @@ jobs:
       matrix:
         os:
           - macos-11
-          - windows-2019
+          # Temporarily disabled for failing pcaprub compilation:
+          # - windows-2019
           - ubuntu-20.04
         ruby:
           - 3.0.2
@@ -71,8 +72,8 @@ jobs:
           # - { name: php, runtime_version: 8.2 }
         include:
           # Windows Meterpreter
-          - { meterpreter: { name: windows_meterpreter }, os: windows-2019 }
-          # Temporarily required for failing pcaprub compilation:
+          # Temporarily disabled for failing pcaprub compilation:
+          # - { meterpreter: { name: windows_meterpreter }, os: windows-2019 }
           # - { meterpreter: { name: windows_meterpreter }, os: windows-2022 }
 
           # Mettle
