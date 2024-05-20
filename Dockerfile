@@ -1,4 +1,4 @@
-FROM ruby:3.1.4-alpine3.18 AS builder
+FROM ruby:3.1.5-alpine3.18 AS builder
 LABEL maintainer="Rapid7"
 
 ARG BUNDLER_CONFIG_ARGS="set no-cache 'true' set system 'true' set without 'development test coverage'"
@@ -53,7 +53,7 @@ RUN mkdir -p $TOOLS_HOME/bin && \
     cd go/src && \
     ./make.bash
 
-FROM ruby:3.1.4-alpine3.18
+FROM ruby:3.1.5-alpine3.18
 LABEL maintainer="Rapid7"
 ARG TARGETARCH
 
