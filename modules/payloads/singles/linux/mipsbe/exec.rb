@@ -1,3 +1,5 @@
+# -*- coding: binary -*-
+
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -70,7 +72,9 @@ module MetasploitModule
     shellcode = shellcode + command_string + "\x00"
 
     # we need to align our shellcode to 4 bytes
-    (shellcode = shellcode + "\x00") while shellcode.length%4 != 0
+    while shellcode.bytesize%4 != 0
+      shellcode = shellcode + "\x00"
+    end
 
     return super + shellcode
 
