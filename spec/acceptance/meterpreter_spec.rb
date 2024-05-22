@@ -163,7 +163,7 @@ RSpec.describe 'Meterpreter' do
           # @param [String] path The file path to read the content of
           # @return [String] The file contents if found
           def get_file_attachment_contents(path)
-            return 'none resent' unless File.exists?(path)
+            return 'none resent' unless File.exist?(path)
 
             content = File.binread(path)
             content.blank? ? 'file created - but empty' : content
