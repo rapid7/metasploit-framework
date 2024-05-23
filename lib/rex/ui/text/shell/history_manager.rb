@@ -73,6 +73,30 @@ class HistoryManager
     @debug
   end
 
+  # A wrapper around mapping the input library to its history; this way we can mock the return value of this method.
+  def map_library_to_history(input_library)
+    case input_library
+    when :readline
+      ::Readline::HISTORY
+    when :reline
+      ::Reline::HISTORY
+    else
+      $stderr.puts("Unknown input library: #{input_library}") if debug?
+      []
+    end
+  end
+
+  def clear_library(input_library)
+    case input_library
+    when :readline
+      clear_readline
+    when :reline
+      clear_reline
+    else
+      $stderr.puts("Unknown input library: #{input_library}") if debug?
+    end
+  end
+
   def push_context(history_file: nil, name: nil, input_library: nil)
     $stderr.puts("Push context before\n#{JSON.pretty_generate(_contexts)}") if debug?
     new_context = { history_file: history_file, name: name, input_library: input_library || :readline }
@@ -122,11 +146,11 @@ class HistoryManager
 
   def load_history_file(context)
     history_file = context[:history_file]
-    history = context[:input_library] == :reline ? ::Reline::HISTORY : ::Readline::HISTORY
+    history = map_library_to_history(context[:input_library])
 
     begin
       File.open(history_file, 'r') do |f|
-        context[:input_library] == :reline ? clear_reline : clear_readline
+        clear_library(context[:input_library])
         f.each do |line|
           chomped_line = line.chomp
           if context[:input_library] == :reline && history.last&.end_with?("\\")
@@ -144,7 +168,7 @@ class HistoryManager
 
   def store_history_file(context)
     history_file = context[:history_file]
-    history = context[:input_library] == :reline ? ::Reline::HISTORY : ::Readline::HISTORY
+    history = map_library_to_history(context[:input_library])
 
     history_diff = history.length < MAX_HISTORY ? history.length : MAX_HISTORY
 

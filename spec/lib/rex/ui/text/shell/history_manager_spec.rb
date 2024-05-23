@@ -131,105 +131,83 @@ RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
   end
 
   describe '#store_history_file' do
-    context 'when storing above max history lines' do
-      def clear_readline
-        ::Readline::HISTORY.pop until ::Readline::HISTORY.empty?
-      end
+    let(:initial_history) { [] }
+    let(:history_mock) { initial_history }
+    let(:history_choices) { %w[sessions run query help] }
+    let(:history_file) { ::Tempfile.new('history') }
 
-      def clear_reline
-        ::Reline::HISTORY.pop until ::Reline::HISTORY.empty?
-      end
+    after(:each) do
+      # https://ruby-doc.org/stdlib-2.5.3/libdoc/tempfile/rdoc/Tempfile.html#class-Tempfile-label-Explicit+close
+      history_file.unlink
+    end
 
-      before(:each) do
-        @history_file = ::Tempfile.new('history')
+    [
+      { history_size: described_class::MAX_HISTORY + 10, expected_size: described_class::MAX_HISTORY },
+      { history_size: described_class::MAX_HISTORY, expected_size: described_class::MAX_HISTORY },
+      { history_size: described_class::MAX_HISTORY - 10, expected_size: described_class::MAX_HISTORY - 10 },
+    ].each do |test|
+      context "when storing #{test[:history_size]} lines" do
+        it "correctly stores #{test[:expected_size]} lines" do
+          allow(subject).to receive(:_remaining_work).and_call_original
+          allow(subject).to receive(:store_history_file).and_call_original
+          allow(subject).to receive(:map_library_to_history).and_return(history_mock)
 
-        # Store the current history & clear Readline && Reline
-        @readline_history_before = ::Readline::HISTORY.to_a
-        @reline_history_before = ::Reline::HISTORY.to_a
+          test[:history_size].times do
+            # This imitates the user typing in a command and pressing the 'enter' key.
+            history_mock << history_choices.sample
+          end
 
-        clear_readline
-        clear_reline
-      end
+          context = { input_library: :readline, history_file: history_file.path, name: 'history'}
 
-      after(:each) do
-        clear_readline
-        @readline_history_before.each { |line| ::Readline::HISTORY << line }
+          subject.send(:store_history_file, context)
 
-        clear_reline
-        @reline_history_before.each { |line| ::Reline::HISTORY << line }
-      end
+          sleep(0.1) until subject._remaining_work.empty?
 
-      it 'truncates to max allowed history' do
-        allow(subject).to receive(:_remaining_work).and_call_original
-        allow(subject).to receive(:store_history_file).and_call_original
-
-        history_choices = %w[sessions run query help]
-        max_history = subject.class::MAX_HISTORY
-        # Populate example history we want to store
-        total_times = max_history + 10
-        total_times.times do
-          ::Readline::HISTORY << history_choices[rand(history_choices.count)]
+          expect(history_file.read.split("\n").count).to eq(test[:expected_size])
         end
-
-        context = { input_library: :readline, history_file: @history_file.path, name: 'history'}
-
-        subject.send(:store_history_file, context)
-
-        sleep(0.1) until subject._remaining_work.empty?
-
-        expect(@history_file.read.split("\n").count).to eq(max_history)
       end
     end
   end
 
   describe '#load_history_file' do
-    def clear_readline
-      ::Readline::HISTORY.pop until ::Readline::HISTORY.empty?
-    end
-
-    def clear_reline
-      ::Reline::HISTORY.pop until ::Reline::HISTORY.empty?
-    end
-
-    before(:each) do
-      @history_file = ::Tempfile.new('history')
-
-      # Store the current history & clear Readline && Reline
-      @readline_history_before = ::Readline::HISTORY.to_a
-      @reline_history_before = ::Reline::HISTORY.to_a
-
-      clear_readline
-      clear_reline
-    end
+    let(:initial_history) { [] }
+    let(:history_mock) { initial_history }
+    let(:history_choices) { %w[sessions run query help] }
+    let(:history_file) { ::Tempfile.new('history') }
 
     after(:each) do
-      clear_readline
-      @readline_history_before.each { |line| ::Readline::HISTORY << line }
-
-      clear_reline
-      @reline_history_before.each { |line| ::Reline::HISTORY << line }
+      history_file.unlink
     end
 
     context 'when history file is not accessible' do
       it 'the library history remains unchanged' do
+        allow(subject).to receive(:map_library_to_history).and_return(history_mock)
         history_file = ::File.join('does/not/exist/history')
         context = { input_library: :readline, history_file: history_file, name: 'history' }
 
         subject.send(:load_history_file, context)
-        expect(::Readline::HISTORY.to_a).to eq(@readline_history_before)
+        expect(history_mock).to eq(initial_history)
       end
     end
 
     context 'when history file is accessible' do
       it 'correctly loads the history' do
-        history_file = ::File.join(Msf::Config.history_file)
-        history_lines = ::File.read(history_file).split("\n")
+        allow(subject).to receive(:map_library_to_history).and_return(history_mock)
 
-        context = { input_library: :readline, history_file: history_file, name: 'history' }
+        # Populate our own history file with random entries.
+        # Using this allows us to not have to worry about history files present/not present on disk.
+        new_history = []
+        50.times do
+          new_history << history_choices.sample
+        end
+        history_file.puts new_history
+        history_file.rewind
+
+        context = { input_library: :readline, history_file: history_file.path, name: 'history' }
 
         subject.send(:load_history_file, context)
 
-        expect(::Readline::HISTORY.to_a).to eq(history_lines)
+        expect(history_mock).to eq(new_history)
       end
     end
   end
