@@ -248,4 +248,17 @@ Gem::Specification.new do |spec|
 
   # Needed for multiline REPL support for interactive SQL sessions
   spec.add_runtime_dependency 'reline'
+
+  # Standard libraries: https://www.ruby-lang.org/en/news/2023/12/25/ruby-3-3-0-released/
+  %w[
+    abbrev
+    base64
+    bigdecimal
+    csv
+    drb
+    getoptlong
+    mutex_m
+  ].each do |library|
+    spec.add_runtime_dependency library
+  end
 end
