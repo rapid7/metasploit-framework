@@ -200,8 +200,9 @@ class HistoryManager
   def write_history_file(history_file, cmds)
     write_queue_ref = @write_queue
     remaining_work_ref = @remaining_work
+
     @write_thread ||= Rex::ThreadFactory.spawn("HistoryManagerWriter", false) do
-      while (event = write_queue_ref.pop)
+      while (write_queue_ref.size > 0 && event = write_queue_ref.pop)
         begin
           history_file = event[:history_file]
           cmds = event[:cmds]
