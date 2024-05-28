@@ -24,7 +24,12 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['URL', 'https://github.com/klsecservices/Publications/blob/master/A_journey_into_forgotten_Null_Session_and_MS-RPC_interfaces.pdf']
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        }
       )
     )
     register_options(
@@ -76,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
     raw_response
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     usernames = load_usernames(datastore['USER_FILE'])
     bind_to_netlogon_service
 
