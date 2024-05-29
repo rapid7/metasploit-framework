@@ -4,16 +4,16 @@
 # we must manually define the project root
 if ENV['MSF_ROOT']
   lib = File.realpath(File.expand_path('lib', ENV['MSF_ROOT']))
+  $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+  require 'metasploit/framework/version'
+  require 'metasploit/framework/rails_version_constraint'
+  require 'msf/util/helper'
 else
-  # have to use realpath as metasploit-framework is often loaded through a symlink and tools like Coverage and debuggers
-  # require realpaths.
-  lib = File.realpath(File.expand_path('../lib', __FILE__))
+  # XXX: Use explicit calls to require_relative to ensure that static analysis tools such as dependabot work
+  require_relative 'lib/metasploit/framework/version'
+  require_relative 'lib/metasploit/framework/rails_version_constraint'
+  require_relative 'lib/msf/util/helper'
 end
-
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'metasploit/framework/version'
-require 'metasploit/framework/rails_version_constraint'
-require 'msf/util/helper'
 
 Gem::Specification.new do |spec|
   spec.name          = 'metasploit-framework'
