@@ -38,7 +38,7 @@ module Msf::DBManager::Import::Retina
       yield(:address, data[:host]) if block
 
       # Import Host
-      hobj = report_host(data)
+      hobj = msf_import_host(data)
       report_import_note(wspace, hobj)
 
       # Import OS fingerprint
@@ -52,7 +52,7 @@ module Msf::DBManager::Import::Retina
             :os => host["os"]
           }
         }
-        report_note(note)
+        msf_import_note(note)
       end
 
       # Import vulnerabilities
@@ -76,7 +76,7 @@ module Msf::DBManager::Import::Retina
           )
         end
 
-        report_vuln(vuln_info)
+        msf_import_vuln(vuln_info)
       end
     end
 

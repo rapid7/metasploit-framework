@@ -144,7 +144,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
       if ::File.exist?(new_task)
         ::File.unlink new_task # Delete it, and don't report it.
       else
-        report_task(task_info) # It's new, so report it.
+        msf_import_task(task_info) # It's new, so report it.
       end
       ::FileUtils.copy(task_info[:orig_path], new_task)
       yield(:msf_task, new_task) if block

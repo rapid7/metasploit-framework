@@ -28,7 +28,7 @@ module Msf::DBManager::Import::Spiceworks
 
 
       if os
-        report_note(
+        msf_import_note(
           :workspace => wspace,
           :task => args[:task],
           :host => ip,
@@ -44,7 +44,7 @@ module Msf::DBManager::Import::Spiceworks
       info << "Location: #{location}" unless location.blank?
       conf[:info] = info.join(", ") unless info.empty?
 
-      host = report_host(conf)
+      host = msf_import_host(conf)
       report_import_note(wspace, host)
     end
   end

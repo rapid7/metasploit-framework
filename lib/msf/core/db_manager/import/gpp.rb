@@ -27,7 +27,7 @@ module Msf::DBManager::Import::GPP
     end
 
     # Store entire file as loot, including metadata
-    report_loot(
+    msf_import_loot(
       workspace: wspace,
       path:      args[:filename],
       name:      File.basename(args[:filename]),

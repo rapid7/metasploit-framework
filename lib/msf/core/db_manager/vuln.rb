@@ -226,7 +226,7 @@ module Msf::DBManager::Vuln
 
     # Finalize
     if vuln.changed?
-      msf_import_timestamps(opts,vuln)
+      msf_assign_timestamps(opts, vuln)
       vuln.save!
     end
 

@@ -77,13 +77,13 @@ module Msf::DBManager::Import::Qualys::Asset
         (netbios_el.text if netbios_el) ||
          (dns_el.text if dns_el) ||
          "" )
-      hobj = report_host(:workspace => wspace, :host => addr, :name => hname, :state => Msf::HostState::Alive, :task => args[:task])
+      hobj = msf_import_host(:workspace => wspace, :host => addr, :name => hname, :state => Msf::HostState::Alive, :task => args[:task])
       report_import_note(wspace,hobj)
 
       os_el = host.xpath("OPERATING_SYSTEM").first
       if os_el
         hos = os_el.text
-        report_note(
+        msf_import_note(
           :workspace => wspace,
           :task => args[:task],
           :host => hobj,
