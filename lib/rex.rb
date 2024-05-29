@@ -110,3 +110,10 @@ Kernel.class_eval(<<-EOF, __FILE__, __LINE__ + 1)
     Rex::ThreadSafe.select(rfd, wfd, efd, to)
   end
 EOF
+
+# Add the deprecated File.exists? method to call non-deprecated File.exist?
+File.class_eval(<<-EOF, __FILE__, __LINE__ + 1)
+  def File.exists?(fname)
+    File.exist?(fname)
+  end
+EOF
