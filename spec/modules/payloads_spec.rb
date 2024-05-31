@@ -2228,6 +2228,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'nodejs/shell_reverse_tcp_ssl'
   end
 
+  context 'osx/x64/exec' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/osx/aarch64/exec'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'osx/aarch64/exec'
+  end
+
   context 'osx/aarch64/meterpreter/reverse_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [

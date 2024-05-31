@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     metasploit-framework (6.4.12)
+      aarch64
       actionpack (~> 7.0.0)
       activerecord (~> 7.0.0)
       activesupport (~> 7.0.0)
@@ -104,6 +105,8 @@ GEM
   remote: https://rubygems.org/
   specs:
     Ascii85 (1.1.1)
+    aarch64 (2.1.0)
+      racc (~> 1.6)
     actionpack (7.0.8.1)
       actionview (= 7.0.8.1)
       activesupport (= 7.0.8.1)
