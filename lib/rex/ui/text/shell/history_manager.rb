@@ -61,10 +61,10 @@ class HistoryManager
     @debug = value
   end
 
-  # Return a queue of threads that have not yet finished saving the history file to disk.
-  # @return [Queue] a queue of threads that have not yet finished saving the history file to disk.
-  def _remaining_work
-    @remaining_work
+  def _close
+    event = { type: :close }
+    @write_queue << event
+    @remaining_work << event
   end
 
   private
@@ -149,20 +149,19 @@ class HistoryManager
     history = map_library_to_history(context[:input_library])
 
     begin
-      File.open(history_file, 'r') do |f|
+      File.open(history_file, 'rb') do |f|
         clear_library(context[:input_library])
-        f.each do |line|
-          chomped_line = line.chomp
+        f.each_line(chomp: true) do |line|
           if context[:input_library] == :reline && history.last&.end_with?("\\")
             history.last.delete_suffix!("\\")
-            history.last << "\n" << chomped_line
+            history.last << "\n" << line
           else
-            history << chomped_line
+            history << line
           end
         end
-        end
+      end
     rescue Errno::EACCES, Errno::ENOENT => e
-      $stderr.puts("Failed to open history file: #{history_file} with error: #{e}") if debug?
+      elog "Failed to open history file: #{history_file} with error: #{e}"
     end
   end
 
@@ -202,8 +201,10 @@ class HistoryManager
     remaining_work_ref = @remaining_work
 
     @write_thread ||= Rex::ThreadFactory.spawn("HistoryManagerWriter", false) do
-      while (write_queue_ref.size > 0 && event = write_queue_ref.pop)
+      while (event = write_queue_ref.pop)
         begin
+          break if event[:type] == :close
+
           history_file = event[:history_file]
           cmds = event[:cmds]
 

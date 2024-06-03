@@ -236,46 +236,11 @@ class Config < Hash
     self.new.ldap_session_history
   end
 
-  # Returns the full path to the PostgreSQL session history file.
-  #
-  # @return [String] path to the history file.
-  def self.postgresql_session_history
-    self.new.postgresql_session_history
-  end
-
-  # Returns the full path to the PostgreSQL interactive query history file
-  #
-  # @return [String] path to the interactive query history file.
-  def self.postgresql_session_interactive_history
-    self.new.postgresql_session_interactive_history
-  end
-
-  # Returns the full path to the MSSQL session history file.
-  #
-  # @return [String] path to the history file.
-  def self.mssql_session_history
-    self.new.mssql_session_history
-  end
-
-  # Returns the full path to the MSSQL interactive query history file
-  #
-  # @return [String] path to the interactive query history file.
-  def self.mssql_session_interactive_history
-    self.new.mssql_session_interactive_history
-  end
-
-  # Returns the full path to the MySQL session history file.
-  #
-  # @return [String] path to the history file.
-  def self.mysql_session_history
-    self.new.mysql_session_history
-  end
-
   # Returns the full path to the MySQL interactive query history file
   #
   # @return [String] path to the interactive query history file.
-  def self.mysql_session_interactive_history
-    self.new.mysql_session_interactive_history
+  def self.history_file_for_session_type(opts)
+    self.new.history_file_for_session_type(opts)
   end
 
   def self.pry_history
@@ -398,28 +363,24 @@ class Config < Hash
     config_directory + FileSep + "ldap_session_history"
   end
 
-  def postgresql_session_history
-    histories_directory + FileSep + "postgresql_session_history"
+  def history_options_valid?(opts)
+    return false if (opts[:session_type].nil? || opts[:interactive].nil?)
+
+    true
   end
 
-  def postgresql_session_interactive_history
-    histories_directory + FileSep + "postgresql_session_interactive_history"
+  def interactive_to_string_map(interactive)
+    # Check for true explicitly rather than just a value that is truthy.
+    interactive == true ? '_interactive' : ''
   end
 
-  def mysql_session_history
-    histories_directory + FileSep + "mysql_session_history"
-  end
+  def history_file_for_session_type(opts)
+    return nil unless history_options_valid?(opts)
 
-  def mysql_session_interactive_history
-    histories_directory + FileSep + "mysql_session_interactive_history"
-  end
+    session_type_name = opts[:session_type]
+    interactive = interactive_to_string_map(opts[:interactive])
 
-  def mssql_session_history
-    histories_directory + FileSep + "mssql_session_history"
-  end
-
-  def mssql_session_interactive_history
-    histories_directory + FileSep + "mssql_session_interactive_history"
+    histories_directory + FileSep + "#{session_type_name}_session#{interactive}_history"
   end
 
   def pry_history

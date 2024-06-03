@@ -6,6 +6,8 @@ require 'reline'
 require 'tempfile'
 
 RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
+  include_context 'wait_for_expect'
+
   subject { described_class.send(:new) }
   let(:readline_available) { false }
   let(:reline_available) { false }
@@ -139,6 +141,7 @@ RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
     after(:each) do
       # https://ruby-doc.org/stdlib-2.5.3/libdoc/tempfile/rdoc/Tempfile.html#class-Tempfile-label-Explicit+close
       history_file.unlink
+      subject._close
     end
 
     [
@@ -148,7 +151,6 @@ RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
     ].each do |test|
       context "when storing #{test[:history_size]} lines" do
         it "correctly stores #{test[:expected_size]} lines" do
-          allow(subject).to receive(:_remaining_work).and_call_original
           allow(subject).to receive(:store_history_file).and_call_original
           allow(subject).to receive(:map_library_to_history).and_return(history_mock)
 
@@ -161,9 +163,9 @@ RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
 
           subject.send(:store_history_file, context)
 
-          sleep(0.1) until subject._remaining_work.empty?
-
-          expect(history_file.read.split("\n").count).to eq(test[:expected_size])
+          wait_for_expect do
+            expect(history_file.read.split("\n").count).to eq(test[:expected_size])
+          end
         end
       end
     end
@@ -177,12 +179,13 @@ RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
 
     after(:each) do
       history_file.unlink
+      subject._close
     end
 
     context 'when history file is not accessible' do
       it 'the library history remains unchanged' do
         allow(subject).to receive(:map_library_to_history).and_return(history_mock)
-        history_file = ::File.join('does/not/exist/history')
+        history_file = ::File.join('does', 'not', 'exist', 'history')
         context = { input_library: :readline, history_file: history_file, name: 'history' }
 
         subject.send(:load_history_file, context)
