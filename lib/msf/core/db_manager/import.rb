@@ -481,57 +481,57 @@ module Msf::DBManager::Import
   end
 
   def msf_import_service(opts)
-    normalised_import_timestamp_opts = normalise_import_timestamps(opts)
+    normalised_import_timestamp_opts = msf_normalise_import_timestamps(opts)
     report_service(normalised_import_timestamp_opts)
   end
 
   def msf_import_vuln(opts)
-    normalised_import_timestamp_opts = normalise_import_timestamps(opts)
+    normalised_import_timestamp_opts = msf_normalise_import_timestamps(opts)
     report_vuln(normalised_import_timestamp_opts)
   end
 
   def msf_import_note(opts)
-    normalised_import_timestamp_opts = normalise_import_timestamps(opts)
+    normalised_import_timestamp_opts = msf_normalise_import_timestamps(opts)
     report_note(normalised_import_timestamp_opts)
   end
 
   def msf_import_host(opts)
-    normalised_import_timestamp_opts = normalise_import_timestamps(opts)
+    normalised_import_timestamp_opts = msf_normalise_import_timestamps(opts)
     report_host(normalised_import_timestamp_opts)
   end
 
   def msf_import_task(opts)
-    normalised_import_timestamp_opts = normalise_import_timestamps(opts)
+    normalised_import_timestamp_opts = msf_normalise_import_timestamps(opts)
     report_task(normalised_import_timestamp_opts)
   end
 
   def msf_import_user(opts)
-    normalised_import_timestamp_opts = normalise_import_timestamps(opts)
+    normalised_import_timestamp_opts = msf_normalise_import_timestamps(opts)
     report_user(normalised_import_timestamp_opts)
   end
 
   def msf_import_loot(opts)
-    normalised_import_timestamp_opts = normalise_import_timestamps(opts)
+    normalised_import_timestamp_opts = msf_normalise_import_timestamps(opts)
     report_loot(normalised_import_timestamp_opts)
   end
 
   def msf_import_web_site(opts)
-    normalised_import_timestamp_opts = normalise_import_timestamps(opts)
+    normalised_import_timestamp_opts = msf_normalise_import_timestamps(opts)
     report_web_site(normalised_import_timestamp_opts)
   end
 
   def msf_import_web_page(opts)
-    normalised_import_timestamp_opts = normalise_import_timestamps(opts)
+    normalised_import_timestamp_opts = msf_normalise_import_timestamps(opts)
     report_web_page(normalised_import_timestamp_opts)
   end
 
   def msf_import_web_vuln(opts)
-    normalised_import_timestamp_opts = normalise_import_timestamps(opts)
+    normalised_import_timestamp_opts = msf_normalise_import_timestamps(opts)
     report_web_vuln(normalised_import_timestamp_opts)
   end
 
   def msf_import_artifact(opts)
-    normalised_import_timestamp_opts = normalise_import_timestamps(opts)
+    normalised_import_timestamp_opts = msf_normalise_import_timestamps(opts)
     report_artifact(normalised_import_timestamp_opts)
   end
 
@@ -544,7 +544,7 @@ module Msf::DBManager::Import
   end
 
   # Handles timestamps from Metasploit Express/Pro imports.
-  def normalise_import_timestamps(opts)
+  def msf_normalise_import_timestamps(opts)
     opts[:created_at] ||= (opts["created_at"] || ::Time.now.utc)
     opts[:updated_at] ||= (opts["updated_at"] || opts[:created_at])
     opts
