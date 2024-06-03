@@ -74,7 +74,7 @@ module Msf::DBManager::Import::Nmap
             next if port_states.compact.empty?
           end
           yield(:address,data[:host]) if block
-          hobj = report_host(data)
+          hobj = msf_import_host(data)
           report_import_note(wspace,hobj)
         end
       end
@@ -97,11 +97,11 @@ module Msf::DBManager::Import::Nmap
           note[:data][:os_match] = h['os_match']
         end
 
-        report_note(note)
+        msf_import_note(note)
       end
 
       if (h["last_boot"])
-        report_note(
+        msf_import_note(
           :workspace => wspace,
           :host => hobj || addr,
           :type => 'host.last_boot',
@@ -122,7 +122,7 @@ module Msf::DBManager::Import::Nmap
             "name"    => hop["host"].to_s
           }
         end
-        report_note(
+        msf_import_note(
           :workspace => wspace,
           :host => hobj || addr,
           :type => 'host.nmap.traceroute',
@@ -164,7 +164,7 @@ module Msf::DBManager::Import::Nmap
         data[:info]  = extra if not extra.empty?
         data[:task]  = args[:task]
         data[:name]  = p['tunnel'] ? "#{p['tunnel']}/#{p['name'] || 'unknown'}" : p['name']
-        report_service(data)
+        msf_import_service(data)
       }
       #Parse the scripts output
       if h["scripts"]
@@ -186,7 +186,7 @@ module Msf::DBManager::Import::Nmap
                   'MSF-Microsoft Server Service Relative Path Stack Corruption',
                   'NSS-34476']
               }
-              report_vuln(vuln_info)
+              msf_import_vuln(vuln_info)
             end
             if val =~ /MS06-025: VULNERABLE/
               vuln_info = {
@@ -206,7 +206,7 @@ module Msf::DBManager::Import::Nmap
                   'MSF-Microsoft RRAS Service RASMAN Registry Overflow',
                   'NSS-21689']
               }
-              report_vuln(vuln_info)
+              msf_import_vuln(vuln_info)
             end
             # This one has NOT been  Tested , remove this comment if confirmed working
             if val =~ /MS07-029: VULNERABLE/
@@ -223,7 +223,7 @@ module Msf::DBManager::Import::Nmap
                   'MSF-Microsoft DNS RPC Service extractQuotedChar()',
                   'NSS-25168']
               }
-              report_vuln(vuln_info)
+              msf_import_vuln(vuln_info)
             end
           end
         end

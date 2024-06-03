@@ -89,7 +89,7 @@ module Msf::DBManager::Loot
     loot.name         = name if name
     loot.info         = info if info
     loot.workspace    = wspace
-    msf_import_timestamps(opts,loot)
+    msf_assign_timestamps(opts, loot)
     loot.save!
 
     ret[:loot] = loot
