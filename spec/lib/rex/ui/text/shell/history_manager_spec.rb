@@ -1,8 +1,6 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 require 'rex/ui/text/shell/history_manager'
-require 'readline'
-require 'reline'
 require 'tempfile'
 
 RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
