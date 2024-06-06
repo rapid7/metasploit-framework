@@ -211,7 +211,7 @@ module Msf::DBManager::Cred
 
     # Update the timestamp
     if cred.changed?
-      msf_import_timestamps(opts,cred)
+      msf_assign_timestamps(opts, cred)
       cred.save!
     end
 

@@ -82,14 +82,6 @@ module Msf::DBManager::Service
     end
 
     ret  = {}
-=begin
-    host = get_host(:workspace => wspace, :address => addr)
-    if host
-      host.updated_at = host.created_at
-      host.state      = HostState::Alive
-      host.save!
-    end
-=end
 
     proto = opts[:proto] || Msf::DBManager::DEFAULT_SERVICE_PROTO
 
@@ -120,7 +112,6 @@ module Msf::DBManager::Service
     end
 
     if (service and service.changed?)
-      msf_import_timestamps(opts,service)
       service.save!
     end
 

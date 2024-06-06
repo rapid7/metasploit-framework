@@ -45,7 +45,7 @@ module Msf::DBManager::Import::Nuclei
         task: args[:task]
       }
 
-      report_note(note)
+      msf_import_note(note)
 
       next unless %w[low medium high critical].include?(severity)
 
@@ -68,7 +68,7 @@ module Msf::DBManager::Import::Nuclei
         task: args[:task]
       }
 
-      report_vuln(vuln)
+      msf_import_vuln(vuln)
     end
   end
 
@@ -122,7 +122,7 @@ module Msf::DBManager::Import::Nuclei
         task: args[:task]
       }
 
-      report_note(note)
+      msf_import_note(note)
 
       next unless %w[low medium high critical].include?(severity)
 
@@ -145,7 +145,7 @@ module Msf::DBManager::Import::Nuclei
         task: args[:task]
       }
 
-      report_vuln(vuln)
+      msf_import_vuln(vuln)
     end
   end
 end

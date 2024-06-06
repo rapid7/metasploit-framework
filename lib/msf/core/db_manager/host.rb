@@ -274,7 +274,7 @@ module Msf::DBManager::Host
       host_state_changed(host, ostate) if host.state != ostate
 
       if host.changed?
-        msf_import_timestamps(opts, host)
+        msf_assign_timestamps(opts, host)
         host.save!
       end
     rescue ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid

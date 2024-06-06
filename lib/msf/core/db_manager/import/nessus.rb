@@ -30,7 +30,7 @@ module Msf::DBManager::Import::Nessus
     if name and name != "unknown" and name[-1,1] != "?"
       info[:name] = name
     end
-    report_service(info)
+    msf_import_service(info)
 
     if nasl.nil? || nasl.empty? || nasl == 0 || nasl == "0"
       return
@@ -78,6 +78,6 @@ module Msf::DBManager::Import::Nessus
       :refs => refs,
       :task => task,
     }
-    report_vuln(vuln_info)
+    msf_import_vuln(vuln_info)
   end
 end

@@ -42,7 +42,7 @@ module Msf::DBManager::Import::Report
       # Update to full path
       artifact_opts[:file_path].gsub!(/^\./, tmp)
 
-      report_artifact(artifact_opts)
+      msf_import_artifact(artifact_opts)
     end
   end
 end

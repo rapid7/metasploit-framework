@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.4.12)
+    metasploit-framework (6.4.13)
       aarch64
       actionpack (~> 7.0.0)
       activerecord (~> 7.0.0)

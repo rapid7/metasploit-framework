@@ -92,7 +92,7 @@ module Msf::DBManager::Import::Netsparker
           end
 
           # Report the web page to the database
-          report_web_page(info)
+          msf_import_web_page(info)
 
           yield(:web_page, url) if block
         end
@@ -145,7 +145,7 @@ module Msf::DBManager::Import::Netsparker
 
       next if vuln['type'].to_s.empty?
 
-      report_web_vuln(info)
+      msf_import_web_vuln(info)
       yield(:web_vuln, url) if block
     end
 
