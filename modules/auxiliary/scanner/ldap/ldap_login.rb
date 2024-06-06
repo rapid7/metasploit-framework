@@ -13,6 +13,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::LDAP
   include Msf::Sessions::CreateSessionOptions
   include Msf::Auxiliary::CommandShell
+  include Msf::Auxiliary::ReportSummary
 
   def initialize(info = {})
     super(
