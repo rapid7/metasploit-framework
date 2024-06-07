@@ -195,7 +195,7 @@ jobs:
                   close: true,
                   comment: `
                     Thanks for your contribution to Metasploit Framework! We've looked at this issue, and unfortunately we do not currently have the bandwidth to prioritize this issue.
-            
+
                     We've labeled this as \`attic\` and closed it for now. If you believe this issue has been closed in error, or that it should be prioritized, please comment with additional information.
                   `
                 }

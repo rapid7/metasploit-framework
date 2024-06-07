@@ -89,6 +89,7 @@ jobs:
       HOST_RUNNER_IMAGE: ${{ matrix.os }}
       METERPRETER: ${{ matrix.meterpreter.name }}
       METERPRETER_RUNTIME_VERSION: ${{ matrix.meterpreter.runtime_version }}
+      BUNDLE_WITHOUT: "coverage development"
 
     name: ${{ matrix.meterpreter.name }} ${{ matrix.meterpreter.runtime_version }} ${{ matrix.os }}
     steps:
@@ -134,7 +135,6 @@ jobs:
 
       - name: Setup Ruby
         env:
-          BUNDLE_WITHOUT: "coverage development"
           BUNDLE_FORCE_RUBY_PLATFORM: true
         uses: ruby/setup-ruby@v1
         with:
@@ -186,7 +186,6 @@ jobs:
       - name: Setup Ruby
         if: always()
         env:
-          BUNDLE_WITHOUT: "coverage development"
           BUNDLE_FORCE_RUBY_PLATFORM: true
         uses: ruby/setup-ruby@v1
         with:

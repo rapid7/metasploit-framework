@@ -27,6 +27,9 @@ on:
       - weekly-dependency-updates
 
 jobs:
+  env:
+    BUNDLE_WITHOUT: "coverage development pcap"
+
   msftidy:
     runs-on: ubuntu-latest
     timeout-minutes: 40
@@ -53,8 +56,6 @@ jobs:
         with:
           ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true
-        env:
-          BUNDLE_WITHOUT: "coverage development pcap"
 
       - name: Run msftidy
         run: |
