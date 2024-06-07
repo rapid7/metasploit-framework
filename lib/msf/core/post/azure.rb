@@ -1,22 +1,21 @@
 # -*- coding: binary -*-
 
 module Msf::Post::Azure
-  def process_tokens_file(file_path, file_data)
+  def process_tokens_file(content)
     table_data = []
-    data = parse_json(file_path, file_data)
-    if data
-      dic = {}
-      data.each do |item|
-        if dic.key?(item['userId'])
-          dic[item['userId']] = dic[item['userId']] + 1
-        else
-          dic[item['userId']] = 1
-        end
-      end
-      dic.each do |key, value|
-        table_data << [file_path, key, value]
+
+    dic = {}
+    content.each do |item|
+      if dic.key?(item['userId'])
+        dic[item['userId']] = dic[item['userId']] + 1
+      else
+        dic[item['userId']] = 1
       end
     end
+    dic.each do |key, value|
+      table_data << [file_path, key, value]
+    end
+
     table_data
   end
 
@@ -91,7 +90,7 @@ module Msf::Post::Azure
     content.each_line.with_index do |line, index|
       commands_of_value.each do |command|
         if line.downcase.include? command.downcase
-          output.append("Line #{index+1} may contain sensitive information. Manual search recommended, keyword hit: #{command}")
+          output.append("Line #{index + 1} may contain sensitive information. Manual search recommended, keyword hit: #{command}")
         end
       end
     end
