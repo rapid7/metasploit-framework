@@ -543,18 +543,30 @@ RSpec.describe Msf::Post::Azure do
 
     describe '' do
       [
-        { input: "$creds = New-Object System.Management.Automation.PSCredential('example', $password)", 
-          output: ["Line 1 may contain sensitive information. Manual search recommended, keyword hit: System.Management.Automation.PSCredential"]},
-        { input: "$password = ConvertTo-SecureString 'example' -AsPlainText -Force", 
-        output: ["Line 1 may contain sensitive information. Manual search recommended, keyword hit: ConvertTo-SecureString"]},
-        { input: "Connect-AzAccount -AccessToken $AccessToken -AccountId 11111111-1111-1111-1111-111111111111", 
-        output: ["Line 1 may contain sensitive information. Manual search recommended, keyword hit: Connect-AzAccount"]},
-        { input: "$server = New-PSSession -ComputerName 1.1.1.1 -Credential $creds", 
-        output: ["Line 1 may contain sensitive information. Manual search recommended, keyword hit: New-PSSession"]},
-        { input: %q|Set-AzVMExtension -ResourceGroupName "example" -ExtensionName "ExecCmd" -VMName "server" -Location "Example" -Publisher Microsoft.Compute -ExtensionType CustomScriptExtension -TypeHandlerVersion 1.8 -SettingString '{"commandToExecute":"powershell net users example example /add /Y; net localgroup administrators example /add"}'|, 
-        output: ["Line 1 may contain sensitive information. Manual search recommended, keyword hit: commandToExecute"]},
-        { input: "Invoke-Command -Session $infradminsrv -ScriptBlock{hostname}", 
-        output: ["Line 1 may contain sensitive information. Manual search recommended, keyword hit: -ScriptBlock"]},
+        {
+          input: "$creds = New-Object System.Management.Automation.PSCredential('example', $password)",
+          output: ['Line 1 may contain sensitive information. Manual search recommended, keyword hit: System.Management.Automation.PSCredential']
+        },
+        {
+          input: "$password = ConvertTo-SecureString 'example' -AsPlainText -Force",
+          output: ['Line 1 may contain sensitive information. Manual search recommended, keyword hit: ConvertTo-SecureString']
+        },
+        {
+          input: 'Connect-AzAccount -AccessToken $AccessToken -AccountId 11111111-1111-1111-1111-111111111111',
+          output: ['Line 1 may contain sensitive information. Manual search recommended, keyword hit: Connect-AzAccount']
+        },
+        {
+          input: '$server = New-PSSession -ComputerName 1.1.1.1 -Credential $creds',
+          output: ['Line 1 may contain sensitive information. Manual search recommended, keyword hit: New-PSSession']
+        },
+        {
+          input: %q|Set-AzVMExtension -ResourceGroupName "example" -ExtensionName "ExecCmd" -VMName "server" -Location "Example" -Publisher Microsoft.Compute -ExtensionType CustomScriptExtension -TypeHandlerVersion 1.8 -SettingString '{"commandToExecute":"powershell net users example example /add /Y; net localgroup administrators example /add"}'|,
+          output: ['Line 1 may contain sensitive information. Manual search recommended, keyword hit: commandToExecute']
+        },
+        {
+          input: 'Invoke-Command -Session $infradminsrv -ScriptBlock{hostname}',
+          output: ['Line 1 may contain sensitive information. Manual search recommended, keyword hit: -ScriptBlock']
+        },
       ].each do |test|
         it 'return Array with hits' do
           expect(subject.send(:print_consolehost_history, test[:input])).to eq(test[:output])
@@ -562,6 +574,4 @@ RSpec.describe Msf::Post::Azure do
       end
     end
   end
-
-  
 end
