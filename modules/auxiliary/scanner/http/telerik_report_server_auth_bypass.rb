@@ -98,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
 
     html_doc = res.get_html_document
     return Exploit::CheckCode::Safe unless html_doc&.xpath('//head/title')&.text&.end_with?('Telerik Report Server')
-    return Exploit::CheckCode::Detected unless html_doc&.xpath('//head/script')&.text =~ /['"]dimension2['"]:\s*['"](?<version>(?<d1>\d+\.)+(?<d2>\d+))['"]/
+    return Exploit::CheckCode::Detected unless html_doc&.xpath('//head/script')&.text =~ /['"](?<key>dimension2|version)['"]:\s*['"](?<version>(?<d1>\d+\.)+(?<d2>\d+))['"]/
 
     version = Rex::Version.new(Regexp.last_match('version'))
     details = { version: version }
