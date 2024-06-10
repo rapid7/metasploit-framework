@@ -4,9 +4,11 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::DCERPC
   Netlogon = RubySMB::Dcerpc::Netlogon
+  @@dport = nil
 
   def initialize(info = {})
     super(
@@ -35,50 +37,64 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptPort.new('RPORT', [false, 'The netlogon RPC port']),
-        OptPath.new('USER_FILE', [true, 'Path to the file containing the list of usernames to enumerate'])
+        OptPath.new('USER_FILE', [true, 'Path to the file containing the list of usernames to enumerate']),
+        OptBool.new('DB_ALL_USERS', [ false, "Add all enumerated usernames to the database", false ])
       ]
     )
   end
 
-  class DsrGetDCNameEx2Request < BinData::Record
-    attr_reader :opnum
-
-    endian :little
-
-    uint32 :computer_name, initial_value: 0x00000000
-    logonsrv_handle :account_name
-    ndr_uint32 :allowable_account_control_bits, initial_value: 0x200
-    uint32 :domain_name, initial_value: 0x00000000
-    uint32 :guid, initial_value: 0x00000000
-    uint32 :site_name, initial_value: 0x00000000
-    uint32 :flags, initial_value: 0x00000000
-
-    def initialize_instance
-      super
-      @opnum = 34
-    end
-  end
-
   def bind_to_netlogon_service
-    @dport = datastore['RPORT']
-    if @dport.nil? || @dport == 0
-      @dport = dcerpc_endpoint_find_tcp(datastore['RHOST'], Netlogon::UUID, '1.0', 'ncacn_ip_tcp')
-      fail_with(Failure::NotFound, 'Could not determine the RPC port used by the Microsoft Netlogon Server') unless @dport
+    @@dport = datastore['RPORT']
+    if @@dport.nil? || @@dport == 0
+      @@dport = dcerpc_endpoint_find_tcp(datastore['RHOST'], Netlogon::UUID, '1.0', 'ncacn_ip_tcp')
+      fail_with(Failure::NotFound, 'Could not determine the RPC port used by the Microsoft Netlogon Server') unless @@dport
     end
-    handle = dcerpc_handle(Netlogon::UUID, '1.0', 'ncacn_ip_tcp', [@dport])
+    handle = dcerpc_handle(Netlogon::UUID, '1.0', 'ncacn_ip_tcp', [@@dport])
     print_status("Binding to #{handle}...")
     dcerpc_bind(handle)
   end
 
   def dsr_get_dc_name_ex2(username)
-    request = DsrGetDCNameEx2Request.new(account_name: username)
-
+    request = Netlogon.const_get("DsrGetDcNameEx2Request").new(
+      computer_name: nil,
+      account_name: username,
+      allowable_account_control_bits: 0x200,
+      domain_name: nil,
+      domain_guid: nil,
+      site_name: nil,
+      flags: 0x00000000
+    )
     begin
       raw_response = dcerpc.call(request.opnum, request.to_binary_s)
     rescue Rex::Proto::DCERPC::Exceptions::Fault
       fail_with(Failure::UnexpectedReply, "The Netlogon RPC request failed for username: #{username}")
     end
-    raw_response
+    Netlogon.const_get("DsrGetDcNameEx2Response").read(raw_response)
+  end
+
+  def report_username(domain, username)
+    service_data = {
+      address: datastore['RHOST'],
+      port: @@dport,
+      service_name: 'netlogon',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: username,
+      realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+      realm_value: domain,
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def run_host(_ip)
@@ -106,8 +122,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def enumerate_user(username)
     response = dsr_get_dc_name_ex2(username)
-    if response[-4, 4] == "\x00\x00\x00\x00"
-      print_good("#{username} exists")
+    if response.error_status == 0
+      print_good("#{username} exists -> DC: #{response.domain_controller_info.domain_controller_name.encode('UTF-8')}")
+      if datastore['DB_ALL_USERS']
+        report_username(response.domain_controller_info.domain_name.encode('UTF-8'), username)
+      end
     else
       print_error("#{username} does not exist")
     end
