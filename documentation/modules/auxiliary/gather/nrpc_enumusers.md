@@ -19,7 +19,7 @@ It has been tested with Windows servers 2012, 2016, 2019 and 2022
 
 ## Options
 
-1- `USER_FILE` (required)
+### USER_FILE
 
 **Description:** Path to the file containing the list of usernames to enumerate. Each username should be on a separate line.
 
