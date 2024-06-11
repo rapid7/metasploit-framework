@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
     super(
@@ -15,8 +16,6 @@ class MetasploitModule < Msf::Auxiliary
           The module use the ZoomEye API to search ZoomEye. ZoomEye is a search
           engine for cyberspace that lets the user find specific network
           components(ip, services, etc.).
-          Mind to enclose the whole request with quotes and limit the span of filters:
-          `set zoomeye_dork 'country:"france"+some+query'`
 
           Setting facets will output a simple report on the overall search. It's values are:
           Host search: app, device, service, os, port, country, city
@@ -41,8 +40,7 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_options(
       [
-        OptString.new('USERNAME', [true, 'The ZoomEye username']),
-        OptString.new('PASSWORD', [true, 'The ZoomEye password']),
+        OptString.new('ZOOMEYE_APIKEY', [true, 'The ZoomEye api key']),
         OptString.new('ZOOMEYE_DORK', [true, 'The ZoomEye dork']),
         OptString.new('FACETS', [false, 'A comma-separated list of properties to get summary information on query', nil]),
         OptEnum.new('RESOURCE', [true, 'ZoomEye Resource Type', 'host', ['host', 'web']]),
@@ -51,6 +49,13 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('DATABASE', [false, 'Add search results to the database', false])
       ]
     )
+
+    register_advanced_options(
+      [
+        OptString.new('UserAgent', [false, 'The User-Agent header to use for all requests', 'Wget/1.21.2 (linux-gnu)' ])
+      ]
+    )
+    deregister_http_client_options
   end
 
   # save output to file
@@ -64,50 +69,21 @@ class MetasploitModule < Msf::Auxiliary
   # Check to see if api.zoomeye.org resolves properly
   def zoomeye_resolvable?
     begin
-      Rex::Socket.resolv_to_dotted('api.zoomeye.org')
+      Rex::Socket.resolv_to_dotted('api.zoomeye.hk')
     rescue RuntimeError, SocketError
       return false
     end
     true
   end
 
-  def login(username, password)
-    # See more: https://www.zoomeye.org/api/doc#login
-
-    access_token = ''
-    begin
-      @cli = Rex::Proto::Http::Client.new('api.zoomeye.org', 443, {}, true)
-      @cli.connect
-
-      data = { 'username' => username, 'password' => password }
-      req = @cli.request_cgi({
-        'uri' => '/user/login',
-        'method' => 'POST',
-        'data' => data.to_json
-      })
-
-      res = @cli.send_recv(req)
-    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT, Errno::ECONNRESET, Rex::ConnectionRefused
-      print_error('HTTP Connection Failed')
-      return
-    end
-
-    unless res
-      print_error('server_response_error')
-      return
-    end
-
-    records = ActiveSupport::JSON.decode(res.body)
-    access_token = records['access_token'] if records && records.key?('access_token')
-    access_token
-  end
-
-  def dork_search(resource, dork, page, facets)
-    begin
-      req = @cli.request_cgi({
+  def dork_search(resource, dork, page, facets, api_key)
+      res = send_request_cgi({
         'uri' => "/#{resource}/search",
         'method' => 'GET',
-        'headers' => { 'Authorization' => "JWT #{@zoomeye_token}" },
+        'rhost' => 'api.zoomeye.hk',
+        'rport' => 443,
+        'SSL' => true,
+        'headers' => { 'API-KEY' => api_key },
         'vars_get' => {
           'query' => dork,
           'page' => page,
@@ -115,22 +91,17 @@ class MetasploitModule < Msf::Auxiliary
         }
       })
 
-      res = @cli.send_recv(req)
-    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT, Errno::ECONNRESET, Rex::ConnectionRefused
-      print_error('HTTP Connection Failed')
-    end
-
-    unless res
-      print_error('server_response_error')
-      return
-    end
-
-    # Invalid Token, Not enough segments
-    # Invalid Token, Signature has expired
-    if res.body =~ /Invalid Token, /
+    if res && res.code == 401
       fail_with(Failure::BadConfig, '401 Unauthorized. Your ZOOMEYE_APIKEY is invalid')
     end
-    res.get_json_document
+    # Check if we can resolve host, got a response,
+    # then parse the JSON, and return it
+    if res
+      results = ActiveSupport::JSON.decode(res.body)
+      return results
+    else
+      return 'server_response_error'
+    end
   end
 
   def match_records?(records)
@@ -142,23 +113,16 @@ class MetasploitModule < Msf::Auxiliary
     resource = datastore['RESOURCE']
     maxpage = datastore['MAXPAGE']
     facets = datastore['FACETS']
+    api_key = datastore['ZOOMEYE_APIKEY']
     # check to ensure api.zoomeye.org is resolvable
     unless zoomeye_resolvable?
-      print_error('Unable to resolve api.zoomeye.org')
+      print_error('Unable to resolve api.zoomeye.hk')
       return
-    end
-
-    @zoomeye_token = login(datastore['USERNAME'], datastore['PASSWORD'])
-    if @zoomeye_token.blank? || @zoomeye_token.nil?
-      print_error('Unable to login api.zoomeye.org')
-      return
-    else
-      print_status('Logged in to zoomeye')
     end
 
     first_page = 0
     results = []
-    results[first_page] = dork_search(resource, dork, 1, facets)
+    results[first_page] = dork_search(resource, dork, 1, facets, api_key)
 
     if results[first_page].nil? || results[first_page]['total'].nil? || results[first_page]['total'] == 0
       msg = 'No results.'
@@ -199,7 +163,7 @@ class MetasploitModule < Msf::Auxiliary
         print_status('Collecting data, please wait...')
         page = 1
         while page < maxpage
-          page_result = dork_search(resource, dork, page + 1, facets)
+          page_result = dork_search(resource, dork, page + 1, facets, api_key)
           if page_result['matches'].nil?
             next
           end
