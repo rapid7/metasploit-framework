@@ -251,8 +251,11 @@ module Metasploit
                   break if total_error_count >= 10
                 end
               end
-            rescue Rex::ConnectionRefused, Rex::SocketError, Rex::HostCommunicationError, Rex::ConnectionError, Rex::TimeoutError, OpenSSL::Cipher::CipherError, Rex::ConnectionProxyError, Errno::ECONNRESET, Errno::EINTR, Errno::EPIPE, ::SystemCallError, ::EOFError, Errno::ENOTCONN, ::Timeout::Error, Rex::Proto::Kerberos::Model::Error::KerberosEncryptionNotSupported, ::JSON::ParserError, Errno::ECONNRESET, OpenSSL::SSL::SSLError, Rex::StreamClosedError, ::Rex::Proto::Kerberos::Model::Error::KerberosError, Errno::ETIMEDOUT => e
-              framework_module.print_error("Error, scan may not produce results: #{e.message}")
+            rescue => e
+              if framework_module
+                prefix = framework_module.respond_to?(:peer) ? "#{framework_module.peer} - LOGIN FAILED:" : "LOGIN FAILED:"
+                framework_module.print_warning("#{prefix} #{credential.to_h} - Unhandled error - scan may not produce correct results: #{e.message} - #{e.backtrace}")
+              end
               elog("Scan Error: #{e.message}", error: e)
               consecutive_error_count += 1
               total_error_count += 1
