@@ -53,8 +53,7 @@ jobs:
       matrix:
         os:
           - macos-11
-          # Temporarily disabled for failing pcaprub compilation:
-          # - windows-2019
+          - windows-2019
           - ubuntu-20.04
         ruby:
           - 3.0.2
@@ -72,9 +71,8 @@ jobs:
           # - { name: php, runtime_version: 8.2 }
         include:
           # Windows Meterpreter
-          # Temporarily disabled for failing pcaprub compilation:
-          # - { meterpreter: { name: windows_meterpreter }, os: windows-2019 }
-          # - { meterpreter: { name: windows_meterpreter }, os: windows-2022 }
+          - { meterpreter: { name: windows_meterpreter }, os: windows-2019 }
+          - { meterpreter: { name: windows_meterpreter }, os: windows-2022 }
 
           # Mettle
           - { meterpreter: { name: mettle }, os: macos-11 }
@@ -89,7 +87,8 @@ jobs:
       HOST_RUNNER_IMAGE: ${{ matrix.os }}
       METERPRETER: ${{ matrix.meterpreter.name }}
       METERPRETER_RUNTIME_VERSION: ${{ matrix.meterpreter.runtime_version }}
-      BUNDLE_WITHOUT: "coverage development"
+      # pcaprub skipped until new version released: https://github.com/pcaprub/pcaprub/issues/70
+      BUNDLE_WITHOUT: "coverage development pcaprub"
 
     name: ${{ matrix.meterpreter.name }} ${{ matrix.meterpreter.runtime_version }} ${{ matrix.os }}
     steps:
@@ -132,6 +131,14 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # pcaprub skipped until new version released: https://github.com/pcaprub/pcaprub/issues/70
+      - name: Remove pcaprub dependency
+        shell: pwsh
+        if: runner.os == 'Windows':
+        run: |
+          Set-Content -Path "Gemfile.lock" -Value (Get-Content -Path "Gemfile.lock" | Select-String -Pattern 'pcaprub' -NotMatch)
+          Set-Content -Path "metasploit-framework.gemspec" -Value (Get-Content -Path "metasploit-framework.gemspec" | Select-String -Pattern 'pcaprub' -NotMatch)
 
       - name: Setup Ruby
         env:
