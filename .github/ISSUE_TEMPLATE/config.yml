@@ -3,3 +3,6 @@ contact_links:
   - name: Termux Issues?
     url: https://github.com/rapid7/metasploit-framework/issues/11023
     about: Termux is not officially supported, check here for more info
+  - name: Android Payload Issues?
+    url: https://github.com/rapid7/metasploit-framework/issues/19154
+    about: Check here for more info
