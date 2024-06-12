@@ -16,7 +16,7 @@ The target file to read (default: /etc/shadow). This should be a full Linux file
 
 ## Testing
 To set up a test environment:
-1. Download an affected version of Check Point Security Gateway [here](https://support.checkpoint.com/results/download/124397) (Check_Point_R81.20_T631.iso, SHA1: 42e25f45ab6b1694a97f76ca363d58040802e6d6).
+1. Download an affected version of Check Point Security Gateway (Such as Check_Point_R81.20_T631.iso, SHA1: 42e25f45ab6b1694a97f76ca363d58040802e6d6).
 2. Install the ISO within a virtual machine.
 3. Browse to the administrator web dashboard on port 443 and complete the first-time setup tasks.
 4. On a Windows system, download and install a copy of Check Point SmartConsole, then use it to authenticate to Security Gateway.
