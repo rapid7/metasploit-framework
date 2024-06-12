@@ -141,7 +141,14 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['STORE_LOOT'] == true
       print_status('Storing the file data to loot...')
 
-      store_loot(internal_file, 'text/plain', datastore['RHOST'], res.body, datastore['TARGETFILE'], 'File read from SolarWinds Serv-U server')
+      store_loot(
+        internal_file,
+        res.body.ascii_only? ? 'text/plain' : 'application/octet-stream',
+        datastore['RHOST'],
+        res.body,
+        datastore['TARGETFILE'],
+        'File read from SolarWinds Serv-U server'
+      )
     else
       print_line(res.body)
     end
