@@ -42,9 +42,6 @@ on:
 #    - cron: '*/15 * * * *'
 
 jobs:
-  env:
-    BUNDLE_WITHOUT: "coverage development pcap"
-
   mysql:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
@@ -69,12 +66,11 @@ jobs:
           - ubuntu-latest
         target:
           - { version: "mariadb:latest", health_cmd: "mariadb -uroot -ppassword -e 'SELECT version()'" }
-          - { version: "mariadb:5.5.42", health_cmd: "mysql -uroot -ppassword -e 'SELECT version()'" }
           - { version: "mysql:latest", health_cmd: "mysql -uroot -ppassword -e 'SELECT version()'" }
-          - { version: "mysql:5.5.42", health_cmd: "mysql -uroot -ppassword -e 'SELECT version()'" }
 
     env:
       RAILS_ENV: test
+      BUNDLE_WITHOUT: "coverage development pcap"
 
     name: ${{ matrix.target.version }} - ${{ matrix.os }} - Ruby ${{ matrix.ruby }}
     steps:

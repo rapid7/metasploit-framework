@@ -42,9 +42,6 @@ on:
 #    - cron: '*/15 * * * *'
 
 jobs:
-  env:
-    BUNDLE_WITHOUT: "coverage development pcap"
-
   mssql:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
@@ -75,6 +72,8 @@ jobs:
 
     env:
       RAILS_ENV: test
+      BUNDLE_WITHOUT: "coverage development pcap"
+
 
     name: ${{ matrix.docker_image }} - ${{ matrix.os }} - Ruby ${{ matrix.ruby }}
     steps:
