@@ -29,7 +29,7 @@ To set up a test environment:
 3. `set RHOSTS <TARGET_IP_ADDRESS>`
 4. `set RPORT <TARGET_PORT>`
 5. `set TARGETFILE <TARGET_FILE_TO_READ>`
-6. `set STORE_LOOT false` if you want to display file on the console instead of storing it as loot.
+6. `set STORE_LOOT false` if you want to display the target file on the console instead of storing it as loot.
 7. `run`
 
 ## Scenarios
