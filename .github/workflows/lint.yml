@@ -27,18 +27,18 @@ on:
       - weekly-dependency-updates
 
 jobs:
-  env:
-    BUNDLE_WITHOUT: "coverage development pcap"
-
   msftidy:
     runs-on: ubuntu-latest
     timeout-minutes: 40
+
+    env:
+      BUNDLE_WITHOUT: "coverage development pcap"
 
     strategy:
       fail-fast: true
       matrix:
         ruby:
-          - '3.0'
+          - '3.1'
 
     name: Lint msftidy
     steps:
