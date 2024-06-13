@@ -3,6 +3,8 @@ This module exploits an unauthenticated file read vulnerability, due to director
 SolarWinds Serv-U FTP Server 15.4, Serv-U Gateway 15.4, and Serv-U MFT Server 15.4. All versions prior to
 the vendor supplied hotfix "15.4.2 Hotfix 2" (version 15.4.2.157) are affected.
 
+For a technical analysis of the vulnerability, read our [Rapid7 Analysis](https://attackerkb.com/topics/2k7UrkHyl3/cve-2024-28995/rapid7-analysis).
+
 ## Testing
 Follow the below instruction for either Linux or Windows.
 * Download a vulnerable version of SolarWinds Serv-U MFT Server, for example version `15.4.2.126`.
