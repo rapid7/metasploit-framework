@@ -27,6 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           'SideEffects' => [],
           'Reliability' => []
         },
+        'DefaultOptions' => { 'SSL' => true },
         'References' => [
           # Vendor advisory
           [ 'URL', 'https://support.checkpoint.com/results/sk/sk182336' ],
