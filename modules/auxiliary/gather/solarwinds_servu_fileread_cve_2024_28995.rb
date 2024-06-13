@@ -139,7 +139,7 @@ class MetasploitModule < Msf::Auxiliary
 
     fail_with(Failure::UnexpectedReply, "Unexpected response from server. HTTP code #{res.code}.") unless res.code == 200
 
-    if datastore['STORE_LOOT'] == true
+    if datastore['STORE_LOOT']
       print_status('Storing the file data to loot...')
 
       store_loot(
