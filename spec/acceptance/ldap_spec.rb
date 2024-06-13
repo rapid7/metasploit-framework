@@ -5,7 +5,7 @@ RSpec.describe 'LDAP modules' do
 
   RHOST_REGEX = /\d+\.\d+\.\d+\.\d+:\d+/
 
-  TESTS = {
+  tests = {
     ldap: {
       target: {
         session_module: 'auxiliary/scanner/ldap/ldap_login',
@@ -119,7 +119,7 @@ RSpec.describe 'LDAP modules' do
     }
   }
 
-  TEST_ENVIRONMENT = AllureRspec.configuration.environment_properties
+  allure_test_environment = AllureRspec.configuration.environment_properties
 
   let_it_be(:current_platform) { Acceptance::Meterpreter.current_platform }
 
@@ -283,7 +283,7 @@ RSpec.describe 'LDAP modules' do
     raise console_reset_error if console_reset_error
   end
 
-  TESTS.each do |runtime_name, test_config|
+  tests.each do |runtime_name, test_config|
     runtime_name = "#{runtime_name}#{ENV.fetch('RUNTIME_VERSION', '')}"
 
     describe "#{Acceptance::Meterpreter.current_platform}/#{runtime_name}", focus: test_config[:focus] do
@@ -299,7 +299,7 @@ RSpec.describe 'LDAP modules' do
             {}
           end
 
-          let(:test_environment) { TEST_ENVIRONMENT }
+          let(:test_environment) { allure_test_environment }
 
           let(:default_module_datastore) do
             {
