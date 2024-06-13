@@ -34,6 +34,22 @@ Windows target, as it is locked by the `Serv-U.exe` process and cannot be opened
 6. `check`
 7. `run`
 
+## Options
+
+### STORE_LOOT
+Whether the read file's contents should be stored as loot in the Metasploit database. If set to false, the files
+content will be displayed in the console. (default: true).
+
+### TARGETURI
+The base URI path to the web application (default: /).
+
+### TARGETFILE
+The absolute path of a target file to read (default: /etc/passwd).
+
+### PATH_TRAVERSAL_COUNT
+The number of double dot (..) path segments needed to traverse to the root folder. For a default install of Serv-U
+on both Linux and Windows, the value for this is 4. (default: 4).
+
 ## Scenarios
 
 ### A vulnerable Linux target
