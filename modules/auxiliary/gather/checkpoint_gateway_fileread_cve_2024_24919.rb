@@ -76,9 +76,9 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::NotFound, 'The requested file was not found - the target file does not exist or the system cannot read it')
     end
 
-    # If the vulnerable server responds with a status other than the expected 200 or 404 (for example, a WAF 403), fail with Unknown
+    # If the vulnerable server responds with a status other than the expected 200 or 404 (for example, a WAF 403), fail with UnexpectedReply
     if res_read_file&.code != 200
-      fail_with(Failure::Unknown, 'The application did not respond as expected - the response did not return a 200 status')
+      fail_with(Failure::UnexpectedReply, 'The application did not respond with a 200 as expected - the HTTP response code was: #{res_read_file&.code} ')
     end
 
     # Assign variable with file contents, then store the file in loot or print the contents
