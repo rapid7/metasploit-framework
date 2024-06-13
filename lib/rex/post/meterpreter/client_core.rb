@@ -25,7 +25,7 @@ module Meterpreter
 #
 ###
 class ClientCore < Extension
-
+  
   METERPRETER_TRANSPORT_TCP   = 0
   METERPRETER_TRANSPORT_HTTP  = 1
   METERPRETER_TRANSPORT_HTTPS = 2
@@ -710,7 +710,7 @@ class ClientCore < Extension
 
     # Renegotiate TLV encryption on the migrated session
     secure
-
+  
     # Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)
     client.ext.aliases.keys.each { |e|
       client.core.use(e)
@@ -768,9 +768,16 @@ class ClientCore < Extension
       response = client.send_request(request, timeout)
       key_enc = response.get_tlv_value(TLV_TYPE_ENC_SYM_KEY)
       key_type = response.get_tlv_value(TLV_TYPE_SYM_KEY_TYPE)
-
+      is_weak_key = false
       if key_enc
-        sym_key = rsa_key.private_decrypt(key_enc, OpenSSL::PKey::RSA::PKCS1_PADDING)
+        key_dec_data = rsa_key.private_decrypt(key_enc, OpenSSL::PKey::RSA::PKCS1_PADDING)
+
+        if key_dec_data.length == 17 || key_dec_data.length == 33
+          sym_key = key_dec_data[0, key_dec_data.length - 1]
+          is_weak_key = key_dec_data[key_dec_data.length - 1] == "\x01"
+        else
+          sym_key = key_dec_data
+        end
       else
         sym_key = response.get_tlv_value(TLV_TYPE_SYM_KEY)
       end
@@ -781,7 +788,8 @@ class ClientCore < Extension
 
     {
       key:  sym_key,
-      type: key_type
+      type: key_type,
+      is_weak_key: is_weak_key
     }
   end
 
