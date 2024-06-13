@@ -12,16 +12,38 @@ tracked as CVE-2024-24919.
 Whether the read file's contents should be outputted to the console or stored as loot (default: false).
 
 ### TARGETFILE
-The target file to read (default: /etc/shadow). This should be a full Linux file path. Files containing binary data may not be read accurately.
+The target file to read (default: /etc/shadow). This should be a full Linux file path. Files containing binary data may
+not be read accurately.
 
 ## Testing
 To set up a test environment:
-1. Download an affected version of Check Point Security Gateway (Such as Check_Point_R81.20_T631.iso, SHA1: 42e25f45ab6b1694a97f76ca363d58040802e6d6).
-2. Install the ISO within a virtual machine.
-3. Browse to the administrator web dashboard on port 443 and complete the first-time setup tasks.
-4. On a Windows system, download and install a copy of Check Point SmartConsole, then use it to authenticate to Security Gateway.
-5. In SmartConsole, enable and configure the vulnerable Mobile Access or IPSec VPN blades.
-6. Publish and push the configuration changes to the device.
+1. Download an affected version of Check Point Security Gateway (Such as Check_Point_R81.20_T631.iso, SHA1:
+42e25f45ab6b1694a97f76ca363d58040802e6d6).
+1. Install the ISO within a virtual machine.
+1. Browse to the administrator web dashboard on port 443 and complete the first-time setup tasks.
+1. On a Windows system, download and install a copy of Check Point SmartConsole, then use it to authenticate to Security Gateway.
+1. In SmartConsole, enable and configure the vulnerable Mobile Access or IPSec VPN blades. These instructions focus on Mobile Access:
+   1. Open the Gateway Properties:
+      1. Navigate to Gateways & Servers in the left-hand menu.
+      1. Select the gateway you want to configure.
+      1. Right-click on the gateway and select Edit.
+   1. Enable Mobile Access:
+      1. In the General Properties tab, under Network Security, check the box for Mobile Access.
+      1. Click on Mobile Access in the left-hand menu of the gateway properties window to access the Mobile Access settings.
+   1. Configure Mobile Access:
+      1. Set up the authentication methods under Authentication (e.g., LDAP, RADIUS, etc.).
+      1. Configure the Portal Settings, specifying the URL for the Mobile Access Portal.
+      1. Under Applications, define which applications and resources will be accessible via the Mobile Access portal.
+      1. Click OK to close the properties window.
+1. Publish and push the configuration changes to the device.
+   1. In SmartConsole, after completing your configuration, click on the Publish button at the top right corner of the
+      SmartConsole window. This will save your changes to the management database.
+   1. After publishing the changes, click on the Install Policy button located at the top of the SmartConsole window.
+   1. In the Install Policy window, select the policy package you want to install. This is typically your main security policy package.
+   1. Choose the gateways on which you want to install the policy. Make sure to select the gateway that you configured
+      for Mobile Access and/or IPSec VPN.
+   1. Click Install to begin the installation process. Once this process completes the gateway should then be vulnerable to this module.
+
 
 ## Verification Steps
 1. Start msfconsole
