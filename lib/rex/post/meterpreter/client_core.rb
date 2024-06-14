@@ -774,7 +774,7 @@ class ClientCore < Extension
 
         if key_dec_data.length == 17 || key_dec_data.length == 33
           sym_key = key_dec_data[0, key_dec_data.length - 1]
-          is_weak_key = key_dec_data[key_dec_data.length - 1] == "\x01"
+          is_weak_key = key_dec_data[key_dec_data.length - 1] != "\x00"
         else
           sym_key = key_dec_data
         end
@@ -789,7 +789,7 @@ class ClientCore < Extension
     {
       key:  sym_key,
       type: key_type,
-      is_weak_key: is_weak_key
+      weak_key?: is_weak_key
     }
   end
 
