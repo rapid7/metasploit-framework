@@ -761,22 +761,24 @@ class ClientCore < Extension
     rsa_key = OpenSSL::PKey::RSA.new(2048)
     rsa_pub_key = rsa_key.public_key
 
-    request  = Packet.create_request(COMMAND_ID_CORE_NEGOTIATE_TLV_ENCRYPTION)
+    request = Packet.create_request(COMMAND_ID_CORE_NEGOTIATE_TLV_ENCRYPTION)
     request.add_tlv(TLV_TYPE_RSA_PUB_KEY, rsa_pub_key.to_der)
 
     begin
       response = client.send_request(request, timeout)
       key_enc = response.get_tlv_value(TLV_TYPE_ENC_SYM_KEY)
       key_type = response.get_tlv_value(TLV_TYPE_SYM_KEY_TYPE)
+      key_length = { Packet::ENC_FLAG_AES128 => 16, Packet::ENC_FLAG_AES256 => 32 }[key_type]
       is_weak_key = false
       if key_enc
         key_dec_data = rsa_key.private_decrypt(key_enc, OpenSSL::PKey::RSA::PKCS1_PADDING)
-
-        if key_dec_data.length == 17 || key_dec_data.length == 33
-          sym_key = key_dec_data[0, key_dec_data.length - 1]
-          is_weak_key = key_dec_data[key_dec_data.length - 1] != "\x00"
-        else
-          sym_key = key_dec_data
+        sym_key = key_dec_data[0..key_length - 1]
+        if key_dec_data.length > key_length
+          key_dec_data = key_dec_data[key_length...]
+          if key_dec_data.length > 0
+            key_strength = key_dec_data[0]
+            is_weak_key = key_strength != "\x00"
+          end
         end
       else
         sym_key = response.get_tlv_value(TLV_TYPE_SYM_KEY)
