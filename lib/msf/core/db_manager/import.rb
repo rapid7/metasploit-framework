@@ -10,8 +10,6 @@ require 'uri'
 # Gems
 #
 
-require 'packetfu'
-
 module Msf::DBManager::Import
   autoload :Acunetix, 'msf/core/db_manager/import/acunetix'
   autoload :Amap, 'msf/core/db_manager/import/amap'
