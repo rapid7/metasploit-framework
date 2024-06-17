@@ -51,9 +51,7 @@ module Msf::Post::Azure
     content['Contexts'].each_value do |account|
       username = account.dig('Account', 'Id')
       type = account.dig('Account', 'Type')
-      if type == 'ServicePrincipal'
-        account.dig('Account', 'ExtendedProperties', 'ServicePrincipalSecret')
-      end
+      principal_secret = account.dig('Account', 'ExtendedProperties', 'ServicePrincipalSecret') # only in 'ServicePrincipal' types
       access_token = account.dig('Account', 'ExtendedProperties', 'AccessToken')
       graph_access_token = account.dig('Account', 'ExtendedProperties', 'GraphAccessToken')
       # example of parsing these out to get an expiration for the token
@@ -63,7 +61,7 @@ module Msf::Post::Azure
       # end
       ms_graph_access_token = account.dig('Account', 'ExtendedProperties', 'MicrosoftGraphAccessToken')
       key_vault_token = account.dig('Account', 'ExtendedProperties', 'KeyVault')
-      table_data.append([username, type, access_token, graph_access_token, ms_graph_access_token, key_vault_token])
+      table_data.append([username, type, access_token, graph_access_token, ms_graph_access_token, key_vault_token, principal_secret])
     end
     table_data
   end

