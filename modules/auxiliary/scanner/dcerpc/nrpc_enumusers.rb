@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::DCERPC
   Netlogon = RubySMB::Dcerpc::Netlogon
-  @@dport = nil
+  @dport = nil
 
   def initialize(info = {})
     super(
@@ -44,12 +44,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def bind_to_netlogon_service
-    @@dport = datastore['RPORT']
-    if @@dport.nil? || @@dport == 0
-      @@dport = dcerpc_endpoint_find_tcp(datastore['RHOST'], Netlogon::UUID, '1.0', 'ncacn_ip_tcp')
-      fail_with(Failure::NotFound, 'Could not determine the RPC port used by the Microsoft Netlogon Server') unless @@dport
+    @dport = datastore['RPORT']
+    if @dport.nil? || @dport == 0
+      @dport = dcerpc_endpoint_find_tcp(datastore['RHOST'], Netlogon::UUID, '1.0', 'ncacn_ip_tcp')
+      fail_with(Failure::NotFound, 'Could not determine the RPC port used by the Microsoft Netlogon Server') unless @dport
     end
-    handle = dcerpc_handle(Netlogon::UUID, '1.0', 'ncacn_ip_tcp', [@@dport])
+    handle = dcerpc_handle(Netlogon::UUID, '1.0', 'ncacn_ip_tcp', [@dport])
     print_status("Binding to #{handle}...")
     dcerpc_bind(handle)
   end
@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
   def report_username(domain, username)
     service_data = {
       address: datastore['RHOST'],
-      port: @@dport,
+      port: @dport,
       service_name: 'netlogon',
       protocol: 'tcp',
       workspace_id: myworkspace_id
