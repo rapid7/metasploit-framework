@@ -178,7 +178,7 @@ class MetasploitModule < Msf::Auxiliary
   def convert_sids_to_human_readable_name(sids_array)
     output = []
     for sid in sids_array
-      raw_filter = "(objectSID=#{sid})"
+      raw_filter = "(objectSID=#{ldap_escape_filter(sid.to_s)})"
       attributes = ['sAMAccountName', 'name']
       base_prefix = 'CN=Configuration'
       sid_entry = query_ldap_server(raw_filter, attributes, base_prefix: base_prefix) # First try with prefix to find entries that may be group specific.
@@ -344,7 +344,7 @@ class MetasploitModule < Msf::Auxiliary
     # have permissions to enroll in certificates on each server.
 
     @vuln_certificate_details.each_key do |certificate_template|
-      certificate_enrollment_raw_filter = "(&(objectClass=pKIEnrollmentService)(certificateTemplates=#{certificate_template}))"
+      certificate_enrollment_raw_filter = "(&(objectClass=pKIEnrollmentService)(certificateTemplates=#{ldap_escape_filter(certificate_template.to_s)}))"
       attributes = ['cn', 'dnsHostname', 'ntsecuritydescriptor']
       base_prefix = 'CN=Enrollment Services,CN=Public Key Services,CN=Services,CN=Configuration'
       enrollment_ca_data = query_ldap_server(certificate_enrollment_raw_filter, attributes, base_prefix: base_prefix)
@@ -418,7 +418,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if pki_object.nil?
       pki_object = query_ldap_server(
-        "(&(objectClass=msPKI-Enterprise-Oid)(msPKI-Cert-Template-OID=#{oid}))",
+        "(&(objectClass=msPKI-Enterprise-Oid)(msPKI-Cert-Template-OID=#{ldap_escape_filter(oid.to_s)}))",
         nil,
         base_prefix: 'CN=OID,CN=Public Key Services,CN=Services,CN=Configuration'
       )&.first
