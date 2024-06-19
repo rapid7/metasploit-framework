@@ -52,7 +52,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-11
+          - macos-12
           - windows-2019
           - ubuntu-20.04
         ruby:
@@ -62,20 +62,21 @@ jobs:
           - { name: python, runtime_version: 3.6 }
           - { name: python, runtime_version: 3.11 }
 
-          # Java - newer versions of Java are not supported currently: https://github.com/rapid7/metasploit-payloads/issues/647
+          # Java
           - { name: java, runtime_version: 8 }
+          - { name: java, runtime_version: 21 }
 
-          # PHP - Temporarily removed as tests are timing out on Github actions
-          # - { name: php, runtime_version: 5.3 }
-          # - { name: php, runtime_version: 7.4 }
-          # - { name: php, runtime_version: 8.2 }
+          # PHP
+          - { name: php, runtime_version: 5.3 }
+          - { name: php, runtime_version: 7.4 }
+          - { name: php, runtime_version: 8.3 }
         include:
           # Windows Meterpreter
           - { meterpreter: { name: windows_meterpreter }, os: windows-2019 }
           - { meterpreter: { name: windows_meterpreter }, os: windows-2022 }
 
           # Mettle
-          - { meterpreter: { name: mettle }, os: macos-11 }
+          - { meterpreter: { name: mettle }, os: macos-12 }
           - { meterpreter: { name: mettle }, os: ubuntu-20.04 }
 
     runs-on: ${{ matrix.os }}
@@ -96,7 +97,7 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
 
-      - uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d
+      - uses: shivammathur/setup-php@fc14643b0a99ee9db10a3c025a33d76544fa3761
         if: ${{ matrix.meterpreter.name == 'php' }}
         with:
           php-version: ${{ matrix.meterpreter.runtime_version }}
