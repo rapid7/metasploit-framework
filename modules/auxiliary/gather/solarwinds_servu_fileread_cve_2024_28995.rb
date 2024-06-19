@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
       native_path_sep = '/'
       target_path_sep = '\\'
       target_filepath = datastore['TARGETFILE']
-    elsif datastore['TARGETFILE'].downcase.start_with? 'c:\\\\'
+    elsif datastore['TARGETFILE'][1,3] == ':\\\\'
       native_path_sep = '\\'
       target_path_sep = '/'
       target_filepath = datastore['TARGETFILE'][3..]
