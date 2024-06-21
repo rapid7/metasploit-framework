@@ -758,6 +758,7 @@ class ClientCore < Extension
   #
   def negotiate_tlv_encryption(timeout: client.comm_timeout)
     sym_key = nil
+    is_weak_key = nil
     rsa_key = OpenSSL::PKey::RSA.new(2048)
     rsa_pub_key = rsa_key.public_key
 
@@ -769,10 +770,13 @@ class ClientCore < Extension
       key_enc = response.get_tlv_value(TLV_TYPE_ENC_SYM_KEY)
       key_type = response.get_tlv_value(TLV_TYPE_SYM_KEY_TYPE)
       key_length = { Packet::ENC_FLAG_AES128 => 16, Packet::ENC_FLAG_AES256 => 32 }[key_type]
-      is_weak_key = false
       if key_enc
         key_dec_data = rsa_key.private_decrypt(key_enc, OpenSSL::PKey::RSA::PKCS1_PADDING)
+        if !key_dec_data
+          raise Rex::Post::Meterpreter::RequestError
+        end
         sym_key = key_dec_data[0..key_length - 1]
+        is_weak_key = false
         if key_dec_data.length > key_length
           key_dec_data = key_dec_data[key_length...]
           if key_dec_data.length > 0
