@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptPort.new('RPORT', [false, 'The netlogon RPC port']),
         OptPath.new('USER_FILE', [true, 'Path to the file containing the list of usernames to enumerate']),
-        OptBool.new('DB_ALL_USERS', [ false, "Add all enumerated usernames to the database", false ])
+        OptBool.new('DB_ALL_USERS', [ false, 'Add all enumerated usernames to the database', false ])
       ]
     )
   end
@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def dsr_get_dc_name_ex2(username)
-    request = Netlogon.const_get("DsrGetDcNameEx2Request").new(
+    request = Netlogon.const_get('DsrGetDcNameEx2Request').new(
       computer_name: nil,
       account_name: username,
       allowable_account_control_bits: 0x200,
@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue Rex::Proto::DCERPC::Exceptions::Fault
       fail_with(Failure::UnexpectedReply, "The Netlogon RPC request failed for username: #{username}")
     end
-    Netlogon.const_get("DsrGetDcNameEx2Response").read(raw_response)
+    Netlogon.const_get('DsrGetDcNameEx2Response').read(raw_response)
   end
 
   def report_username(domain, username)
@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
       module_fullname: fullname,
       username: username,
       realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
-      realm_value: domain,
+      realm_value: domain
     }.merge(service_data)
 
     login_data = {
