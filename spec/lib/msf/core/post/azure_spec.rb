@@ -251,6 +251,43 @@ RSpec.describe Msf::Post::Azure do
         },
         'ExtendedProperties' => {}
       },
+      'Example (aaaaaaaa-1111-1111-aaaa-111111111112) - aaaaaaaa-1111-1111-aaaa-111111111112 - aaaaaaaa-1111-1111-aaaa-111111111112' => {
+        'Account' => {
+          'Id' => 'aaaaaaaa-1111-1111-aaaa-111111111112',
+          'Credential' => nil,
+          'Type' => 'ServicePrincipal',
+          'TenantMap' => {},
+          'ExtendedProperties' => {
+            'Subscriptions' => 'aaaaaaaa-1111-1111-aaaa-111111111112',
+            'Tenants' => 'aaaaaaaa-1111-1111-aaaa-111111111112'
+          }
+        },
+        'Tenant' => {
+          'Id' => 'aaaaaaaa-1111-1111-aaaa-111111111112',
+          'Directory' => nil,
+          'IsHome' => true,
+          'ExtendedProperties' => {}
+        },
+        'Subscription' => {
+          'Id' => 'aaaaaaaa-1111-1111-aaaa-111111111112',
+          'Name' => 'Example',
+          'State' => 'Enabled',
+          'ExtendedProperties' => {
+            'SubscriptionPolices' => '{"locationPlacementId":"Public_2014-09-01","quotaId":"PayAsYouGo_2014-09-01","spendingLimit":"Off"}',
+            'Account' => 'aaaaaaaa-1111-1111-aaaa-111111111112',
+            'AuthorizationSource' => 'RoleBased',
+            'HomeTenant' => 'aaaaaaaa-1111-1111-aaaa-111111111112',
+            'Tenants' => 'aaaaaaaa-1111-1111-aaaa-111111111112',
+            'Environment' => 'AzureCloud'
+          }
+        },
+        'Environment' => {},
+        'VersionProfile' => nil,
+        'TokenCache' => {
+          'CacheData' => nil
+        },
+        'ExtendedProperties' => {}
+      },
       'Example (aaaaaaaa-1111-1111-aaaa-111111111122) - aaaaaaaa-1111-1111-aaaa-111111111111 - aaaaaaaa-1111-1111-aaaa-111111111111' => {
         'Account' => {
           'Id' => 'aaaaaaaa-1111-1111-aaaa-111111111122',
@@ -496,6 +533,7 @@ RSpec.describe Msf::Post::Azure do
       expect(subject.send(:process_context_contents, azure_rm_context)).to eql([
         ['user1@example.onmicrosoft.com', 'User', nil, nil, nil, nil, nil],
         ['aaaaaaaa-1111-1111-aaaa-111111111111', 'ServicePrincipal', nil, nil, nil, nil, 'aaA1A~aaA~a~a1AAA1AAAa1aAA1AA1A11AAAAaaa'],
+        ['aaaaaaaa-1111-1111-aaaa-111111111112', 'ServicePrincipal', nil, nil, nil, nil, nil],
         [
           'aaaaaaaa-1111-1111-aaaa-111111111122', 'AccessToken',
           'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkwxS2ZLRklfam5YYndXYzIyeFp4dzFzVUhIMCIsImtpZCI6IkwxS2ZLRklfam5YYndXYzIyeFp4dzFzVUhIMCJ9.eyJhdWQiOiJodHRwczovL21hbmFnZW1lbnQuYXp1cmUuY29tIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvMmQ1MGNiMjktNWY3Yi00OGE0LTg3Y2UtZmU3NWE5NDFhZGI2LyIsImlhdCI6MTcxNzQ3OTc5NywibmJmIjoxNzE3NDc5Nzk3LCJleHAiOjE3MTc1NjY0OTcsImFpbyI6IkUyTmdZSWliOGY3QndmVi8yUE5idXF3M1M0bzdBZ0E9IiwiYXBwaWQiOiIyZTkxYTRmZS1hMGYyLTQ2ZWUtODIxNC1mYTJmZjZhYTlhYmMiLCJhcHBpZGFjciI6IjIiLCJpZHAiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC8yZDUwY2IyOS01ZjdiLTQ4YTQtODdjZS1mZTc1YTk0MWFkYjYvIiwiaWR0eXAiOiJhcHAiLCJvaWQiOiIzMGU2NzcyNy1hOGI4LTQ4ZDktODMwMy1mMjQ2OWRmOTdjYjIiLCJyaCI6IjAuQUhBQUtjdFFMWHRmcEVpSHp2NTFxVUd0dGtaSWYza0F1dGRQdWtQYXdmajJNQlBFQUFBLiIsInN1YiI6IjMwZTY3NzI3LWE4YjgtNDhkOS04MzAzLWYyNDY5ZGY5N2NiMiIsInRpZCI6IjJkNTBjYjI5LTVmN2ItNDhhNC04N2NlLWZlNzVhOTQxYWRiNiIsInV0aSI6IkJ6YmQwak85ODBxR3lDZnFvOVZFQUEiLCJ2ZXIiOiIxLjAiLCJ4bXNfbWlyaWQiOiIvc3Vic2NyaXB0aW9ucy9iNDEzODI2Zi0xMDhkLTQwNDktOGMxMS1kNTJkNWQzODg3NjgvcmVzb3VyY2Vncm91cHMvUmVzZWFyY2gvcHJvdmlkZXJzL01pY3Jvc29mdC5XZWIvc2l0ZXMvdmF1bHRmcm9udGVuZCIsInhtc190Y2R0IjoxNjE1Mzc1NjI5fQ.HohJOJpOV-FVI5h5uCD3aRXm2CWQxxEPGeYhzmvbupRjwCJPQW7BQ4hiGdRk9KuEHiQ_WYrPNqVMOah948V2UjtqiDhPQg01H_qriQXhaIdmVa0ou7_ptZy9rmBR2iLLtUZFU3yCAEdNxJkdho-o5vlP6bWDld_EE5CTnqI0bO-PeVSNSAYFxAEmO4qqzMgqM-QzDOF9paMVnHDmiBhN76wUFIera6JRmeEjlkKiNknW_jsmgV_u4F5EoRmdlGivZ1DDYvpndOofuhvnCggK56HL8WNmIotmmNVQgUM0OPaorFhhxWmeJ9_wrPdFgI5uiTw9sE9gxOKj7Qdw1nxcHg',

