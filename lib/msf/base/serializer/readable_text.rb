@@ -937,6 +937,7 @@ class ReadableText
       sess_type    = session.type.to_s
       sess_uuid    = session.payload_uuid.to_s
       sess_luri    = session.exploit_datastore['LURI'] || "" if session.exploit_datastore
+      sess_sessionexpirationtimeout = session.exploit_datastore['SessionExpirationTimeout'] || Msf::Sessions::MeterpreterOptions::TIMEOUT_SESSION if session.exploit_datastore
       sess_enc     = 'No'
       if session.respond_to?(:tlv_enc_key) && session.tlv_enc_key && session.tlv_enc_key[:key]
         sess_enc   = "Yes (AES-#{session.tlv_enc_key[:key].length * 8}-CBC)"
@@ -972,6 +973,9 @@ class ReadableText
       out << "  Registered: #{sess_registration}\n"
       unless (sess_luri || '').empty?
         out << "        LURI: #{sess_luri}\n"
+      end
+      if sess_sessionexpirationtimeout != Msf::Sessions::MeterpreterOptions::TIMEOUT_SESSION
+        out << "  SessionExpirationTimeout: #{sess_sessionexpirationtimeout}\n"
       end
 
       out << "\n"
