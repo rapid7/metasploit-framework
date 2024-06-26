@@ -84,7 +84,8 @@ module Msf::DBManager::Vuln
   # opts can contain
   # +:info+::   a human readable description of the vuln, free-form text
   # +:refs+::   an array of Ref objects or string names of references
-  # +:details:: a hash with :key pointed to a find criteria hash and the rest containing VulnDetail fields
+  # +:details+:: a hash with :key pointed to a find criteria hash and the rest containing VulnDetail fields
+  # +:sname+:: the name of the service this vulnerability relates to, used to associate it or create it.
   #
   def report_vuln(opts)
     return if not active
@@ -150,6 +151,7 @@ module Msf::DBManager::Vuln
         case opts[:proto].to_s.downcase # Catch incorrect usages, as in report_note
         when 'tcp','udp'
           proto = opts[:proto]
+          sname = opts[:sname]
         when 'dns','snmp','dhcp'
           proto = 'udp'
           sname = opts[:proto]
@@ -158,7 +160,9 @@ module Msf::DBManager::Vuln
           sname = opts[:proto]
         end
 
-        service = host.services.where(port: opts[:port].to_i, proto: proto).first_or_create
+        services = host.services.where(port: opts[:port].to_i, proto: proto)
+        services = services.where(name: sname) if sname.present?
+        service = services.first_or_create
       end
 
       # Try to find an existing vulnerability with the same service & references
