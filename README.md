@@ -18,7 +18,7 @@ New bugs and feature requests should be directed to:
   https://r-7.co/MSF-BUGv1
 
 API documentation for writing modules can be found at:
-  https://docs.metasploit.com/api/
+  https://docs.metasploit.com/api/ 
 
 Questions and suggestions can be sent to: Freenode IRC channel or e-mail the metasploit-hackers mailing list
 
