@@ -8,6 +8,36 @@ Note that Redis does not require a username to log in; login is done purely via 
 
 A complete installation guide for Redis can be found [here](https://redis.io/topics/quickstart)
 
+## Setup
+
+Run redis in docker without auth:
+
+```
+docker run --rm -p 6379:6379 redis
+```
+
+Optionally setting the default password for the implicit `default` username account, connect to the running Redis instance and set a password:
+
+```
+$ nc 127.0.0.1 6379
+config set requirepass mypass
++OK
+```
+
+Optionally creating an enabled `test_user` user account with password `mypass` - if ACL is supported (Redis >= 6.0.0):
+
+```
+$ nc 127.0.0.1 6379
+ACL SETUSER test_user allkeys on +@string +@set -SADD >mypass
+```
+
+Optionally creating a disabled `test_user_disabled` user account with password `mypass` - if ACL is supported (Redis >= 6.0.0):
+
+```
+$ nc 127.0.0.1 6379
+ACL SETUSER test_user_disabled allkeys off +@string +@set -SADD >mypass
+```
+
 ## Verification Steps
 1. Do: `use auxiliary/scanner/redis/redis_login`
 2. Do: `set RHOSTS [ips]`
