@@ -152,6 +152,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'net-imap' # Used in Postgres auth for its SASL stringprep implementation
   spec.add_runtime_dependency 'net-ldap'
   spec.add_runtime_dependency 'net-smtp'
+  spec.add_runtime_dependency 'net-sftp'
   spec.add_runtime_dependency 'winrm'
 
   #
