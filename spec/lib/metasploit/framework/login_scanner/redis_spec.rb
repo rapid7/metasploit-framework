@@ -2,9 +2,9 @@ require 'spec_helper'
 require 'metasploit/framework/login_scanner/redis'
 
 RSpec.describe Metasploit::Framework::LoginScanner::Redis do
+  let(:socket) { double('Socket') }
 
   def update_socket_res(res)
-    socket = double('Socket')
     allow(socket).to receive(:put)
     allow(socket).to receive(:get_once).and_return(res)
     allow(subject).to receive(:sock).and_return(socket)
@@ -39,45 +39,79 @@ RSpec.describe Metasploit::Framework::LoginScanner::Redis do
       allow(subject).to receive(:select)
     end
 
-    context 'when server returns no password is set' do
-      let(:res) do
-        'but no password is set'
+    context 'with Redis version < 6' do
+      context 'when server returns no password is set' do
+        let(:res) { '-ERR Client sent AUTH, but no password is set' }
+
+        before do
+          update_socket_res(res)
+        end
+
+        it 'returns NO_AUTH_REQUIRED' do
+          expect(subject.attempt_login(credential).status).to eq(Metasploit::Model::Login::Status::NO_AUTH_REQUIRED)
+        end
       end
 
-      before do
-        update_socket_res(res)
+      context 'when server returns invalid password' do
+        let(:res) { '-ERR invalid password' }
+
+        before do
+          update_socket_res(res)
+        end
+
+        it 'returns INCORRECT' do
+          expect(subject.attempt_login(credential).status).to eq(Metasploit::Model::Login::Status::INCORRECT)
+        end
       end
 
-      it 'returns NO_AUTH_REQUIRED' do
-        expect(subject.attempt_login(credential).status).to eq(Metasploit::Model::Login::Status::NO_AUTH_REQUIRED)
+      context 'when server returns OK' do
+        let(:res) { '+OK' }
+
+        before do
+          update_socket_res(res)
+        end
+
+        it 'returns SUCCESSFUL' do
+          expect(subject.attempt_login(credential).status).to eq(Metasploit::Model::Login::Status::SUCCESSFUL)
+        end
       end
     end
 
-    context 'when server returns invalid password' do
-      let(:res) do
-        '-ERR invalid password'
+    context 'with Redis version > 6' do
+      context 'when server returns no password is set' do
+        let(:res) { '-ERR AUTH <password> called without any password configured for the default user. Are you sure your configuration is correct?' }
+
+        before do
+          update_socket_res(res)
+        end
+
+        it 'returns NO_AUTH_REQUIRED' do
+          expect(subject.attempt_login(credential).status).to eq(Metasploit::Model::Login::Status::NO_AUTH_REQUIRED)
+        end
       end
 
-      before do
-        update_socket_res(res)
+      context 'when server returns invalid password' do
+        let(:res) { '-WRONGPASS invalid username-password pair or user is disabled' }
+
+        before do
+          update_socket_res(res)
+        end
+
+        it 'returns INCORRECT' do
+          expect(subject.attempt_login(credential).status).to eq(Metasploit::Model::Login::Status::INCORRECT)
+        end
       end
 
-      it 'returns INCORRECT' do
-        expect(subject.attempt_login(credential).status).to eq(Metasploit::Model::Login::Status::INCORRECT)
-      end
-    end
+      context 'when server returns OK' do
+        let(:res) { '+OK' }
 
-    context 'when server returns OK' do
-      let(:res) do
-        '+OK'
-      end
+        before do
+          update_socket_res(res)
+        end
 
-      before do
-        update_socket_res(res)
-      end
-
-      it 'returns SUCCESSFUL' do
-        expect(subject.attempt_login(credential).status).to eq(Metasploit::Model::Login::Status::SUCCESSFUL)
+        it 'returns SUCCESSFUL' do
+          expect(subject.attempt_login(credential).status).to eq(Metasploit::Model::Login::Status::SUCCESSFUL)
+        end
       end
     end
   end
