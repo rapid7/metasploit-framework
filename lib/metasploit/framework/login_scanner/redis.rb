@@ -1,6 +1,7 @@
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
 require 'metasploit/framework/tcp/client'
+require 'rex/proto/redis'
 
 module Metasploit
   module Framework
@@ -19,11 +20,6 @@ module Metasploit
         LIKELY_SERVICE_NAMES  = [ 'redis' ]
         PRIVATE_TYPES         = [ :password ]
         REALM_KEY             = nil
-        OLD_PASSWORD_NOT_SET  = /but no password is set/i
-        PASSWORD_NOT_SET      = /without any password configured/i
-        WRONG_PASSWORD_SET    = /^-WRONGPASS/i
-        INVALID_PASSWORD_SET  = /^-ERR invalid password/i
-        OK                    = /^\+OK/
 
         # This method can create redis command which can be read by redis server
         def redis_proto(command_parts)
@@ -84,13 +80,21 @@ module Metasploit
         def validate_login(data)
           return if data.nil?
 
-          return Metasploit::Model::Login::Status::NO_AUTH_REQUIRED if data =~ OLD_PASSWORD_NOT_SET
-          return Metasploit::Model::Login::Status::NO_AUTH_REQUIRED if data =~ PASSWORD_NOT_SET
-          return Metasploit::Model::Login::Status::INCORRECT if (data =~ INVALID_PASSWORD_SET) == 0
-          return Metasploit::Model::Login::Status::INCORRECT if (data =~ WRONG_PASSWORD_SET) == 0
-          return Metasploit::Model::Login::Status::SUCCESSFUL if (data =~ OK) == 0
+          return Metasploit::Model::Login::Status::NO_AUTH_REQUIRED if no_password_set?(data)
+          return Metasploit::Model::Login::Status::INCORRECT if invalid_password?(data)
+          return Metasploit::Model::Login::Status::SUCCESSFUL if data.match(::Rex::Proto::Redis::Base::Constants::OKAY)
 
           nil
+        end
+
+        def no_password_set?(data)
+          data.match(::Rex::Proto::Redis::Base::Constants::NO_PASSWORD_SET) ||
+            data.match(::Rex::Proto::Redis::Version6::Constants::NO_PASSWORD_SET)
+        end
+
+        def invalid_password?(data)
+          data.match(::Rex::Proto::Redis::Base::Constants::WRONG_PASSWORD) ||
+            data.match(::Rex::Proto::Redis::Version6::Constants::WRONG_PASSWORD)
         end
 
         # (see Base#set_sane_defaults)

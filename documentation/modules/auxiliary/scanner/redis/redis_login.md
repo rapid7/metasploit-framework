@@ -4,9 +4,18 @@ database with optional durability. Redis supports different kinds of abstract da
 such as strings, lists, maps, sets, sorted sets, HyperLogLogs, bitmaps, streams, and spatial indexes.
 
 This module is login utility to find the password of the Redis server by bruteforcing the login portal.
-Note that Redis does not require a username to log in; login is done purely via supplying a valid password.
 
 A complete installation guide for Redis can be found [here](https://redis.io/topics/quickstart)
+
+### Redis Authentication
+
+Redis has several ways to support secure connections to the in-memory database:
+
+* Prior to Redis 6, the `requirepass` directive could be set, setting a master password for all connections.
+  This requires the usage of the `AUTH <password>` command before executing any commands on the cluster.
+* After Redis 6, the `requirepass` directive sets a password for the default user `default`
+  * The `AUTH` command now takes two arguments instead of one: `AUTH <username> <password>`
+  * The `AUTH` command still accepts a single arguments, but defaults to the user `default`
 
 ## Setup
 
