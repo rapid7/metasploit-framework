@@ -521,6 +521,22 @@ require 'digest/sha1'
     pushes
   end
 
+  # self.to_winaarch64pe
+  #
+  # @param framework  [Msf::Framework]  The framework of you want to use
+  # @param  code      [String]
+  # @param  opts      [Hash]
+  def self.to_winaarch64pe(framework, code, opts = {})
+    payload = code.dup
+
+    # Allow the user to specify their own EXE template
+    set_template_default(opts, 'template_aarch64_windows.exe')
+    mo = get_file_contents(opts[:template])
+    bo = find_payload_tag(mo, 'Invalid win Aarch64 template: missing "PAYLOAD:" tag')
+    mo[bo, code.length] = payload
+    mo
+  end
+
   # self.exe_sub_method
   #
   # @param  code [String]
@@ -2068,6 +2084,8 @@ require 'digest/sha1'
         to_win32pe(framework, code, exeopts)
       when ARCH_X64
         to_win64pe(framework, code, exeopts)
+      when ARCH_AARCH64
+        to_winaarch64pe(framework, code, exeopts)
       end
     when 'exe-service'
       case arch
