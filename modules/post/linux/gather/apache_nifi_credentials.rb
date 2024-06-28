@@ -266,7 +266,10 @@ class MetasploitModule < Msf::Post
     key = properties.scan(/^nifi.sensitive.props.key=(.+)$/).flatten.first.strip
     fail_with(Failure::NotFound, 'Unable to find nifi.properties and/or flow.json.gz files') if key.nil?
     print_good("Key: #{key}")
-    algorithm = properties.scan(/^nifi.sensitive.props.algorithm=(\w+)$/).flatten.first.strip
+    # https://rubular.com/r/N0w0WHTjjdKXHZ
+    # https://nifi.apache.org/docs/nifi-docs/html/administration-guide.html#property-encryption-algorithms
+    # https://nifi.apache.org/docs/nifi-docs/html/administration-guide.html#java-cryptography-extension-jce-limited-strength-jurisdiction-policies
+    algorithm = properties.scan(/^nifi.sensitive.props.algorithm=([\w-]+)$/).flatten.first.strip
     fail_with(Failure::NotFound, 'Unable to find nifi.properties and/or flow.json.gz files') if algorithm.nil?
 
     columns = ['Name', 'Username', 'Password', 'Other Information']
