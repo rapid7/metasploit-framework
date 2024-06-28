@@ -251,8 +251,13 @@ module Metasploit
                   break if total_error_count >= 10
                 end
               end
-            rescue => e
-              elog('Attempt may not yield a result', error: e)
+            rescue Rex::ConnectionRefused, Rex::SocketError, Rex::ConnectionError, Rex::ConnectionProxyError, Rex::StreamClosedError, Rex::TimeoutError, ::Timeout::Error, Errno::ETIMEDOUT, Errno::ENOTCONN, Errno::ECONNRESET => e
+              framework_module.print_warning("Error, scan may not produce results: #{e.message}") if framework_module
+              elog("Scan Error: #{e.message}", error: e)
+              consecutive_error_count += 1
+              total_error_count += 1
+              break if consecutive_error_count >= 3
+              break if total_error_count >= 10
             end
             nil
           end
