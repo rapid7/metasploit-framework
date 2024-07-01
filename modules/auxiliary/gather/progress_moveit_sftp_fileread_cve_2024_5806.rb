@@ -32,8 +32,9 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['CVE', '2024-5806'],
-          # ['URL', 'https://attackerkb.com/topics/2k7UrkHyl3/cve-2024-5806/rapid7-analysis']
+          ['URL', 'https://attackerkb.com/topics/44EZLG2xgL/cve-2024-5806/rapid7-analysis'] # AttackerKB Rapid7 Analysis.
         ],
+        'DisclosureDate' => '2024-06-25',
         'DefaultOptions' => {
           'RPORT' => 22,
           'SSL' => true
