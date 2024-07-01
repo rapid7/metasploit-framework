@@ -4,9 +4,9 @@ require 'metasploit/framework/login_scanner/redis'
 RSpec.describe Metasploit::Framework::LoginScanner::Redis do
   let(:socket) { double('Socket') }
 
-  def update_socket_res(res)
+  def update_socket_res(*res)
     allow(socket).to receive(:put)
-    allow(socket).to receive(:get_once).and_return(res)
+    allow(socket).to receive(:get_once).and_return(*res)
     allow(subject).to receive(:sock).and_return(socket)
   end
 
@@ -40,6 +40,21 @@ RSpec.describe Metasploit::Framework::LoginScanner::Redis do
     end
 
     context 'with Redis version < 6' do
+      context 'when server returns incorrect arguments' do
+        let(:res) do
+          [
+            "-ERR wrong number of arguments for 'auth' command",
+            '+OK'
+          ]
+        end
+
+        before { update_socket_res(*res) }
+
+        it 'successfully retries and gets the correct response' do
+          expect(subject.attempt_login(credential).status).to eq(Metasploit::Model::Login::Status::SUCCESSFUL)
+        end
+      end
+
       context 'when server returns no password is set' do
         let(:res) { '-ERR Client sent AUTH, but no password is set' }
 
