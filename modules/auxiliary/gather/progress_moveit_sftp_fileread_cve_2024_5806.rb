@@ -35,10 +35,6 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://attackerkb.com/topics/44EZLG2xgL/cve-2024-5806/rapid7-analysis'] # AttackerKB Rapid7 Analysis.
         ],
         'DisclosureDate' => '2024-06-25',
-        'DefaultOptions' => {
-          'RPORT' => 22,
-          'SSL' => true
-        },
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS],
@@ -50,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RHOST,
-        Opt::RPORT(80),
+        Opt::RPORT(22),
         OptBool.new('STORE_LOOT', [false, 'Store the target file as loot', true]),
         OptString.new('TARGETUSER', [true, 'A valid username to authenticate as.', nil]),
         OptString.new('TARGETFILE', [true, 'The full path of a target file or directory to read.', '/'])
