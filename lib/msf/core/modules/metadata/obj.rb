@@ -66,6 +66,8 @@ class Obj
   attr_reader :adapter_refname
   # @return [String, nil] Name of the adapted payload if applicable
   attr_reader :adapted_refname
+  # @return [Boolean] Whether or not we are privileged
+  attr_reader :privileged
   # @return [Boolean] Whether or not the payload is staged
   attr_reader :staged
   # @return [String, nil] Name of the stage if applicable
@@ -136,6 +138,9 @@ class Obj
 
     @session_types = module_instance.respond_to?(:session_types) && module_instance.session_types
 
+    if module_instance.respond_to?(:privileged)
+      @privileged = module_instance.privileged
+    end
     if module_instance.respond_to?(:payload_type)
       @payload_type = module_instance.payload_type
       @staged = module_instance.staged?
@@ -183,6 +188,7 @@ class Obj
       'notes'              => @notes,
       'session_types'      => @session_types,
       'needs_cleanup'      => @needs_cleanup,
+      'privileged'         => @privileged,
     }
 
     data['actions'] = @actions if @actions
@@ -260,6 +266,7 @@ class Obj
     @staged              = obj_hash['staged']
     @stage_refname       = obj_hash['stage_refname']
     @stager_refname      = obj_hash['stager_refname']
+    @privileged          = obj_hash['privileged']
   end
 
   def sort_platform_string
