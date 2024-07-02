@@ -38,6 +38,83 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
 
   include Mixin
 
+  # Convert the executable and argument array to a command that can be run in this command shell
+  # @param executable [String] The process to launch
+  # @param args [Array<String>] The arguments to the process
+  def to_cmd(executable, args)
+    self.class.to_cmd(executable, args)
+  end
+
+  # Convert the executable and argument array to a command that can be run in this command shell
+  # @param executable [String] The process to launch
+  # @param args [Array<String>] The arguments to the process
+  def self.to_cmd(executable, args)
+    # The principle here is that we want to launch a process such that it receives *exactly* what is in `args`. 
+    # This means we need to:
+    # - Escape all special characters
+    # - Not escape environment variables
+    # - Side-step any PowerShell magic
+    # If someone specifically wants to use the PowerShell magic, they can use other APIs
+  
+    needs_wrapping_chars = ['$', '`', '(', ')', '@', '>', '<', '{','}', '&', ',', ' ']
+  
+    result = ""
+    cmd_and_args = [executable] + args
+    cmd_and_args.each_with_index do |arg, index|
+      needs_single_quoting = false
+      if arg.include?("'")
+        arg = arg.gsub("'", "''")
+        needs_single_quoting = true
+      end
+      
+      if arg.include?('"')
+        # PowerShell acts weird around quotes and backslashes
+        # First we need to escape backslashes immediately prior to a double-quote, because
+        # they're treated differently than backslashes anywhere else
+        arg = arg.gsub(/(\\+)"/, '\\1\\1"')
+
+        # Then we can safely prepend a backslash to escape our double-quote
+        arg = arg.gsub('"', '\\"')
+        needs_single_quoting = true
+      end
+      
+      needs_wrapping_chars.each do |char|
+        if arg.include?(char)
+          needs_single_quoting = true
+        end
+      end
+
+      # PowerShell magic - https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_special_characters?view=powershell-7.4#stop-parsing-token---
+      if arg == '--%'
+        needs_single_quoting = true
+      end
+
+      if needs_single_quoting
+        arg = "'#{arg}'"
+      end
+
+      if arg == ''
+        # Pass in empty strings
+        arg = '\'""\''
+      end
+  
+      if index == 0
+        if needs_single_quoting
+          # If the executable name (i.e. index 0) has beeen wrapped, then we'll have converted it to a string.
+          # We then need to use the call operator ('&') to call it.
+          # https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_operators?view=powershell-7.3#call-operator-
+          result = "& #{arg}"
+        else
+          result = arg
+        end
+      else
+        result = "#{result} #{arg}"
+      end
+    end
+
+    result
+  end
+
   #
   # Execute any specified auto-run scripts for this session
   #
