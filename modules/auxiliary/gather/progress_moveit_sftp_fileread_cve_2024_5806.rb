@@ -160,11 +160,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def read_file(sftp, file_path)
-    sftp.open(file_path) do |open_response|
+    sftp.open!(file_path) do |open_response|
       if open_response.ok?
         file_size = sftp.fstat!(open_response[:handle]).size
 
-        sftp.read(open_response[:handle], 0, file_size) do |read_response|
+        sftp.read!(open_response[:handle], 0, file_size) do |read_response|
           if read_response.ok?
 
             file_data = read_response[:data].to_s
@@ -192,7 +192,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error('SFTP open failed. Is the TARGETFILE path correct?')
       end
     ensure
-      sftp.close(open_response[:handle]) if open_response.ok?
+      sftp.close!(open_response[:handle]) if open_response.ok?
     end
   end
 
