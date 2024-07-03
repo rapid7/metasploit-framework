@@ -188,11 +188,11 @@ class MetasploitModule < Msf::Auxiliary
             print_error('SFTP read failed.')
           end
         end
-
-        sftp.close(open_response[:handle])
       else
         print_error('SFTP open failed. Is the TARGETFILE path correct?')
       end
+    ensure
+      sftp.close(open_response[:handle]) if open_response.ok?
     end
   end
 
