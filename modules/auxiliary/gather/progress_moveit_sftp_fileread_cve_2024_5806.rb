@@ -49,7 +49,8 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(22),
         OptBool.new('STORE_LOOT', [false, 'Store the target file as loot', true]),
         OptString.new('TARGETUSER', [true, 'A valid username to authenticate as.', nil]),
-        OptString.new('TARGETFILE', [true, 'The full path of a target file or directory to read.', '/'])
+        OptString.new('TARGETFILE', [true, 'The full path of a target file or directory to read.', '/']),
+        Opt::Proxies
       ]
     )
   end
