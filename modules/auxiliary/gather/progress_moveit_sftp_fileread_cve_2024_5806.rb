@@ -129,7 +129,16 @@ class MetasploitModule < Msf::Auxiliary
       if File.directory? datastore['TARGETFILE']
         print_status("Listing directory: #{datastore['TARGETFILE']}")
 
-        recurse_dir(sftp, datastore['TARGETFILE'])
+        sftp.dir.glob(datastore['TARGETFILE'], '**/*') do |entry|
+          # When we print the entry, we want to print the full path for each entry, so that further use of this module
+          # can set the TARGETFILE correctly to the full path of a target file. The longname will contain (along with
+          # permission, sizes and timestamps) a file/dir name but no path information. As we are using glob to
+          # recursively list the contents of all sub folders, we reconstitute the full path for every entry before
+          # printing it.
+          entry_full_path = File.join(datastore['TARGETFILE'], entry.name)
+
+          print_line(entry.longname.gsub(File.basename(entry.name), entry_full_path))
+        end
       else
         print_status("Downloading file: #{datastore['TARGETFILE']}")
 
@@ -148,19 +157,6 @@ class MetasploitModule < Msf::Auxiliary
     print_error('SFTP Connection Timeout.')
   ensure
     ::Net::SSH::Authentication::Methods::Publickey.send(:alias_method, :build_request, :orig_build_request)
-  end
-
-  def recurse_dir(sftp, base_path)
-    sftp.dir.foreach(base_path) do |entry|
-      entry_full_path = base_path.dup
-      entry_full_path << '/' unless base_path.end_with? '/'
-      entry_full_path << entry.name
-      entry_full_path << '/' if entry.directory?
-
-      print_line(entry.longname.gsub(entry.name, entry_full_path))
-
-      recurse_dir(sftp, entry_full_path) if entry.directory?
-    end
   end
 
   def read_file(sftp, file_path)
