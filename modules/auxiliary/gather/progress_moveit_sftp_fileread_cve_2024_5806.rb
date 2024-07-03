@@ -55,8 +55,8 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  # This method will be used by net/ssh when creating a new TCP socket. We neet this so the net/ssh library will
-  # honor Metasploits network pivots, and route a connection through the expected session if applicable.
+  # This method will be used by net/ssh when creating a new TCP socket. We need this so the net/ssh library will
+  # honor Metasploit's network pivots, and route a connection through the expected session if applicable.
   def open(host, port, _connection_options = nil)
     vprint_status("Creating Rex::Socket::Tcp to #{host}:#{port}...")
     Rex::Socket::Tcp.create(
