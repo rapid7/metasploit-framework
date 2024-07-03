@@ -107,6 +107,7 @@ net-ldap, 0.19.0, MIT
 net-protocol, 0.2.2, "ruby, Simplified BSD"
 net-smtp, 0.5.0, "ruby, Simplified BSD"
 net-ssh, 7.2.3, MIT
+net-sftp, 4.0.0, MIT
 network_interface, 0.0.4, MIT
 nexpose, 7.3.0, "New BSD"
 nio4r, 2.7.3, "MIT, Simplified BSD"
