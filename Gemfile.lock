@@ -49,6 +49,7 @@ PATH
       nessus_rest
       net-imap
       net-ldap
+      net-sftp
       net-smtp
       net-ssh
       network_interface
@@ -324,6 +325,8 @@ GEM
     net-ldap (0.19.0)
     net-protocol (0.2.2)
       timeout
+    net-sftp (4.0.0)
+      net-ssh (>= 5.0.0, < 8.0.0)
     net-smtp (0.5.0)
       net-protocol
     net-ssh (7.2.3)
