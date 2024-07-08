@@ -93,6 +93,14 @@ module SingleCommandShell
     output
   end
 
+  def to_cmd(cmd, args)
+    if platform == 'windows'
+      result = Msf::Sessions::CommandShellWindows.to_cmd(cmd, args)
+    else
+      result = Msf::Sessions::CommandShellUnix.to_cmd(cmd, args)
+    end
+  end
+
   # We don't know initially whether the shell we have is one that
   # echos input back to the output stream. If it is, we need to
   # take this into account when using tokens to extract the data corresponding

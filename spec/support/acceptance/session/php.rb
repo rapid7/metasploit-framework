@@ -73,7 +73,6 @@ module Acceptance::Session
           },
           windows: {
             known_failures: [
-              "[-] FAILED: should return the stderr output"
             ]
           }
         }
