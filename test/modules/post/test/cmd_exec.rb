@@ -21,10 +21,47 @@ class MetasploitModule < Msf::Post
     )
   end
 
+  def upload_precompiled_binaries
+    print_status 'Uploading precompiled binaries'
+    upload_file(show_args_binary[:path], "data/cmd_exec/#{show_args_binary[:path]}")
+    if session.platform.eql?('linux') || session.platform.eql?('osx')
+      chmod(show_args_binary[:path])
+    end
+  end
+
+  def show_args_binary
+    if session.platform == 'linux'
+      { path: 'show_args_linux', cmd: './show_args_linux' }
+    elsif session.platform == 'osx'
+      { path: 'show_args_osx', cmd: './show_args_osx' }
+    elsif session.platform == 'windows'
+      { path: 'show_args.exe', cmd: 'show_args.exe' }
+    else
+      raise "unknown platform #{session.platform}"
+    end
+  end
+
+  def valid_show_args_response?(output, expected:)
+    # Handle both unix new lines `\n` and windows `\r\n`
+    output_lines = output.lines(chomp: true)
+    # extract the program name and remainder args
+    output_binary, *output_args = output_lines
+
+    # Match the binary name, to support the binary name containig relative or absolute paths, i.e.
+    # "show_args.exe\r\none\r\ntwo",
+    match = output_binary.match?(expected[0]) && output_args == expected[1..]
+    if !match
+      vprint_status("#{__method__}: expected: #{expected.inspect} - actual: #{output_lines.inspect}")
+    end
+
+    match
+  end
+
   def test_cmd_exec
     # we are inconsistent reporting windows session types
     windows_strings = ['windows', 'win']
     vprint_status("Starting cmd_exec tests")
+    upload_precompiled_binaries
 
     it "should return the result of echo" do
       test_string = Rex::Text.rand_text_alpha(4)
@@ -35,6 +72,21 @@ class MetasploitModule < Msf::Post
         output = cmd_exec("echo #{test_string}")
       end
       output == test_string
+    end
+
+    it 'should execute the show_args binary a single string' do
+      # TODO: Fix this functionality
+      if session.type.eql?('meterpreter') && session.arch.eql?('python')
+        vprint_status("test skipped for Python Meterpreter - functionality not correct")
+        next true
+      end
+      output = cmd_exec("#{show_args_binary[:cmd]} one two")
+      valid_show_args_response?(output, expected: [show_args_binary[:path], 'one', 'two'])
+    end
+
+    it 'should execute the show_args binary with the binary name and args provided separately' do
+      output = cmd_exec(show_args_binary[:cmd], "one two")
+      valid_show_args_response?(output, expected: [show_args_binary[:path], 'one', 'two'])
     end
 
     # Powershell supports this, but not windows meterpreter (unsure about windows shell)

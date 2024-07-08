@@ -22,6 +22,16 @@ permissions:
   statuses: none
 
 on:
+  workflow_dispatch:
+    inputs:
+      metasploitPayloadsCommit:
+        description: 'metasploit-payloads branch would like to test'
+        required: true
+        default: 'master'
+      mettleCommit:
+        description: 'mettle branch you would like to test'
+        required: true
+        default: 'master'
   push:
     branches-ignore:
       - gh-pages
@@ -81,10 +91,12 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    timeout-minutes: 25
+    timeout-minutes: 50
 
     env:
       RAILS_ENV: test
+      metasploitPayloadsCommit: ${{ github.event.inputs.metasploitPayloadsCommit || 'master' }}
+      mettleCommit: ${{ github.event.inputs.mettleCommit|| 'master' }}
       HOST_RUNNER_IMAGE: ${{ matrix.os }}
       METERPRETER: ${{ matrix.meterpreter.name }}
       METERPRETER_RUNTIME_VERSION: ${{ matrix.meterpreter.runtime_version }}
@@ -129,8 +141,58 @@ jobs:
           dir %WINDIR%
           type %WINDIR%\\system32\\drivers\\etc\\hosts
 
-      - name: Checkout code
+      # The job checkout structure is:
+      #  .
+      #  ├── metasploit-framework
+      #  └── metasploit-payloads (Only if the "payload-testing-branch" GitHub label is applied)
+      #  └── mettle (Only if the "payload-testing-mettle-branch" GitHub label is applied)
+
+      - name: Install Docker - macOS
+        if: ${{ ( matrix.meterpreter.name == 'java') && (runner.os == 'macos' ) && (contains(github.event.issue.labels.*.name, 'payload-testing-mettle-branch')) }}
+        run: |
+          brew install docker
+          colima delete
+          colima start --arch x86_64
+
+      - name: Checkout mettle
+        if: ${{ matrix.meterpreter.name == 'mettle' && (contains(github.event.issue.labels.*.name, 'payload-testing-mettle-branch')) }}
         uses: actions/checkout@v4
+        with:
+          repository: rapid7/mettle
+          path: mettle
+          ref: ${{ env.mettleCommit }}
+
+      - name: Get mettle version
+        if: ${{ matrix.meterpreter.name == 'mettle' && (contains(github.event.issue.labels.*.name, 'payload-testing-mettle-branch')) }}
+        run: |
+          echo "METTLE_VERSION=$(grep -oh '[0-9].[0-9].[0-9]*' lib/metasploit_payloads/mettle/version.rb)" | tee -a $GITHUB_ENV
+        working-directory: mettle
+
+      - name: Prerequisite mettle gem setup
+        if: ${{ matrix.meterpreter.name == 'mettle' && (contains(github.event.issue.labels.*.name, 'payload-testing-mettle-branch')) }}
+        run: |
+          set -x
+          ruby -pi.bak -e "gsub(/${{ env.METTLE_VERSION }}/, '${{ env.METTLE_VERSION }}-dev')" lib/metasploit_payloads/mettle/version.rb
+        working-directory: mettle
+
+      - name: Compile mettle payloads
+        if: ${{ matrix.meterpreter.name == 'mettle' && runner.os != 'macos' && (contains(github.event.issue.labels.*.name, 'payload-testing-mettle-branch')) }}
+        run: |
+          docker run --rm=true --tty --volume=$(pwd):/mettle --workdir=/mettle rapid7/build:mettle rake mettle:build mettle:check
+          rake build
+        working-directory: mettle
+
+      - name: Compile mettle payloads - macOS
+        if: ${{ matrix.meterpreter.name == 'mettle' && runner.os == 'macos' && (contains(github.event.issue.labels.*.name, 'payload-testing-mettle-branch')) }}
+        run: |
+          make TARGET=x86_64-apple-darwin
+          rake build
+        working-directory: mettle
+
+      - name: Checkout metasploit-framework code
+        uses: actions/checkout@v4
+        with:
+          path: metasploit-framework
 
       - name: Setup Ruby
         env:
@@ -140,11 +202,66 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
           cache-version: 4
+          working-directory: metasploit-framework
           # Github actions with Ruby requires Bundler 2.2.18+
           # https://github.com/ruby/setup-ruby/tree/d2b39ad0b52eca07d23f3aa14fdf2a3fcc1f411c#windows
           bundler: 2.2.33
 
-      - name: acceptance
+      - name: Move mettle gem into framework
+        if: ${{ matrix.meterpreter.name == 'mettle' && (contains(github.event.issue.labels.*.name, 'mettle-testing-branch')) }}
+        run: |
+          cp ./mettle/pkg/metasploit_payloads-mettle-${{ env.METTLE_VERSION }}.pre.dev.gem ./metasploit-framework
+        working-directory: metasploit-framework
+
+      - name: Install mettle gem
+        if: ${{ matrix.meterpreter.name == 'mettle' && (contains(github.event.issue.labels.*.name, 'payload-testing-mettle-branch')) }}
+        run: |
+          set -x
+          bundle exec gem install metasploit_payloads-mettle-${{ env.METTLE_VERSION }}.pre.dev.gem
+          ruby -pi.bak -e "gsub(/'metasploit_payloads-mettle', '${{ env.METTLE_VERSION }}'/, '\'metasploit_payloads-mettle\', \'${{ env.METTLE_VERSION }}.pre.dev\'')" metasploit-framework.gemspec
+          bundle config unset deployment
+          bundle update metasploit_payloads-mettle
+          bundle install
+        working-directory: metasploit-framework
+
+      - name: Checkout metasploit-payloads
+        if: contains(github.event.issue.labels.*.name, 'payload-testing-branch')
+        uses: actions/checkout@v4
+        with:
+          repository: rapid7/metasploit-payloads
+          path: metasploit-payloads
+          ref: ${{ env.metasploitPayloadsCommit }}
+
+      - name: Build Java and Android payloads
+        if: ${{ (matrix.meterpreter.name == 'java') && (runner.os != 'Windows') && (contains(github.event.issue.labels.*.name, 'payload-testing-branch')) }}
+        run: |
+          docker run --rm -w "$(pwd)" -v "$(pwd):$(pwd)" rapid7/msf-ubuntu-x64-meterpreter:latest /bin/bash -c "cd metasploit-payloads/java && make clean && make android && mvn -P deploy package"
+
+      - name: Build Windows payloads via Visual Studio 2019 Build (Windows)
+        shell: cmd
+        if: ${{ (runner.os == 'Windows') && (matrix.os == 'windows-2019') && (contains(github.event.issue.labels.*.name, 'payload-testing-branch')) }}
+        run: |
+          cd c/meterpreter
+          git submodule init && git submodule update
+          "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat" && make.bat
+        working-directory: metasploit-payloads
+
+      - name: Build Windows payloads via Visual Studio 2022 Build (Windows)
+        shell: cmd
+        if: ${{ (runner.os == 'Windows') && (matrix.os == 'windows-2022') && (contains(github.event.issue.labels.*.name, 'payload-testing-branch'))}}
+        run: |
+          cd c/meterpreter
+          git submodule init && git submodule update
+          make.bat
+        working-directory: metasploit-payloads
+
+      - name: Build PHP, Python and Windows payloads
+        if: ${{ ((matrix.meterpreter.name == 'php') || (matrix.meterpreter.name == 'python') || (runner.os == 'Windows')) && (contains(github.event.issue.labels.*.name, 'payload-testing-branch'))}}
+        run: |
+          make install-php install-python install-windows
+        working-directory: metasploit-payloads
+
+      - name: Acceptance
         env:
           SPEC_HELPER_LOAD_METASPLOIT: false
           SPEC_OPTS: "--tag acceptance --require acceptance_spec_helper.rb --color --format documentation --format AllureRspec::RSpecFormatter"
@@ -157,6 +274,7 @@ jobs:
         # Additionally - flakey tests should be fixed or marked as flakey instead of silently retried
         run: |
           bundle exec rspec spec/acceptance/meterpreter_spec.rb
+        working-directory: metasploit-framework
 
       - name: Archive results
         if: always()
@@ -164,7 +282,7 @@ jobs:
         with:
           # Provide a unique artifact for each matrix os, otherwise race conditions can lead to corrupt zips
           name: raw-data-${{ matrix.meterpreter.name }}-${{ matrix.meterpreter.runtime_version }}-${{ matrix.os }}
-          path: tmp/allure-raw-data
+          path: metasploit-framework/tmp/allure-raw-data
 
   # Generate a final report from the previous test results
   report:
