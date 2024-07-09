@@ -22,7 +22,7 @@ This guide has details for setting up both **Linux** and **Windows**.
 
 ### Linux
 
-1. Open a terminal on your Linux host and set up Git, build tools, and Ruby dependencies:
+* Open a terminal on your Linux host and set up Git, build tools, and Ruby dependencies:
 
 ```bash
 sudo apt update && sudo apt install -y git autoconf build-essential libpcap-dev libpq-dev zlib1g-dev libsqlite3-dev
@@ -32,9 +32,9 @@ sudo apt update && sudo apt install -y git autoconf build-essential libpcap-dev 
 
 If you are running a Windows machine
 
-1. Install [chocolatey](https://chocolatey.org/)
-2. Install [Ruby x64 with DevKit](https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.0.3-1/rubyinstaller-devkit-3.0.3-1-x64.exe)
-3. Install pcaprub dependencies from your cmd.exe terminal:
+* Install [chocolatey](https://chocolatey.org/)
+* Install [Ruby x64 with DevKit](https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.0.3-1/rubyinstaller-devkit-3.0.3-1-x64.exe)
+* Install pcaprub dependencies from your cmd.exe terminal:
 
 ```
 powershell -Command "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true} ; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object System.Net.WebClient).DownloadFile('https://www.winpcap.org/install/bin/WpdPack_4_1_2.zip', 'C:\Windows\Temp\WpdPack_4_1_2.zip')"
@@ -43,7 +43,7 @@ choco install 7zip
 7z x "C:\Windows\Temp\WpdPack_4_1_2.zip" -o"C:\"
 ```
 
-4. Install a version of PostgreSQL:
+Install a version of PostgreSQL:
 
 ```
 choco install postgresql12
@@ -53,9 +53,8 @@ choco install postgresql12
 
 You will need to use Github to create a fork for your contributions and receive the latest updates from our repository.
 
-1. Login to Github and click the "Fork" button in the top-right corner of the [metasploit-framework] repository.
-
-2.  Create a `git` directory in your home folder and clone your fork to your local machine:
+* Login to Github and click the "Fork" button in the top-right corner of the [metasploit-framework] repository.
+* Create a `git` directory in your home folder and clone your fork to your local machine:
 
 ```bash
 export GITHUB_USERNAME=YOUR_USERNAME_FOR_GITHUB
@@ -66,9 +65,8 @@ git clone git@github.com:$GITHUB_USERNAME/metasploit-framework
 cd ~/git/metasploit-framework
 ```
 
-3. If you encounter a "permission denied" error on the above command, research the error message.  If there isn't an explicit reason given, confirm that your [Github SSH key is configured correctly][github-ssh-instructions]. You will need to associate your [public SSH key][ssh-key] with your GitHub account, otherwise if you set up a SSH key and don't associate it with your GitHub account, you will receive this "permission denied" error.
-
-4. To receive updates, you will create an `upstream-master` branch to track the Rapid7 remote repository, alongside your `master` branch which will point to your personal repository's fork:
+* If you encounter a "permission denied" error on the above command, research the error message.  If there isn't an explicit reason given, confirm that your [Github SSH key is configured correctly][github-ssh-instructions]. You will need to associate your [public SSH key][ssh-key] with your GitHub account, otherwise if you set up a SSH key and don't associate it with your GitHub account, you will receive this "permission denied" error.
+* To receive updates, you will create an `upstream-master` branch to track the Rapid7 remote repository, alongside your `master` branch which will point to your personal repository's fork:
 
 ```bash
 git remote add upstream git@github.com:rapid7/metasploit-framework.git
@@ -76,7 +74,7 @@ git fetch upstream
 git checkout -b upstream-master --track upstream/master
 ```
 
-5. Configure your Github username, email address, and username.  Ensure your `user.email` matches the email address you registered with your Github account.
+* Configure your Github username, email address, and username.  Ensure your `user.email` matches the email address you registered with your Github account.
 
 ```bash
 git config --global user.name "$GITHUB_USERNAME"
@@ -84,7 +82,7 @@ git config --global user.email "$GITHUB_EMAIL"
 git config --global github.user "$GITHUB_USERNAME"
 ```
 
-6. Set up [msftidy] to run before each `git commit` and after each `git merge` to quickly identify potential issues with your contributions:
+* Set up [msftidy] to run before each `git commit` and after each `git merge` to quickly identify potential issues with your contributions:
 
 ```bash
 cd ~/git/metasploit-framework
@@ -129,27 +127,60 @@ Congratulations! You have now set up a development environment and the latest ve
 
 ## Optional: Set up the REST API and PostgreSQL database
 
-The following optional section describes how to manually install PostgreSQL and set up the Metasploit database.  Alternatively, use our Omnibus installer which handles this more reliably.
+Installing the REST API and PostgreSQL is optional, and can be done in two ways.
+Recommended is to use the Docker approach, and fairly simple to do once you have docker installed on your
+system, [Docker Desktop][docker-desktop] is recommended, but not mandatory.
+On Linux systems, simply having docker-cli is sufficient.
 
-1. Confirm that the PostgreSQL server and client are installed:
+### Docker Installation
+
+**Make sure, you have docker available on your system: [Docker Installation Guide][docker-installation]**
+
+**Note**: Depending on your environment, these commands might require `sudo`
+
+* Start the postgres container:
+
+```bash
+docker run --rm -it -p 127.0.0.1:5433:5432 -e POSTGRES_PASSWORD="mysecretpassword" postgres:14
+```
+
+Wait till the postgres container is fully running.
+
+* Configure the Metasploit database:
+
+```
+cd ~/git/metasploit-framework
+./msfdb init --connection-string="postgres://postgres:mysecretpassword@127.0.0.1:5433/postgres"
+```
+
+* If the `msfdb init` command succeeds, then confirm that the database is accessible to Metasploit:
+
+```bash
+$ ./msfconsole -qx "db_status; exit"
+```
+
+### Manual Installation
+
+The following optional section describes how to manually install PostgreSQL and set up the Metasploit database.
+Alternatively, use our Omnibus installer which handles this more reliably.
+
+* Confirm that the PostgreSQL server and client are installed:
 
 ```bash
 sudo apt update && sudo apt-get install -y postgresql postgresql-client
 sudo service postgresql start && sudo update-rc.d postgresql enable
 ```
 
-2. Ensure that you are not running as the root user.
-
-3. Initialize the Metasploit database:
+* Ensure that you are not running as the root user.
+* Initialize the Metasploit database:
 
 ```bash
 cd ~/git/metasploit-framework
 ./msfdb init
 ```
 
-4. If you receive an error about a component not being installed, confirm that the binaries shown are in your path using the [which] and [find] commands, then modifying your [$PATH] environment variable.  If it was something else, open a [new issue] to let us know what happened.
-
-5. If the `msfdb init` command succeeds, then confirm that the database is accessible to Metasploit:
+* If you receive an error about a component not being installed, confirm that the binaries shown are in your path using the [which] and [find] commands, then modifying your [$PATH] environment variable.  If it was something else, open a [new issue] to let us know what happened.
+* If the `msfdb init` command succeeds, then confirm that the database is accessible to Metasploit:
 
 ```bash
 $ ./msfconsole -qx "db_status; exit"
@@ -272,3 +303,5 @@ Finally, we welcome your feedback on this guide, so feel free to reach out to us
 [@ffmike]:https://github.com/ffmike
 
 [BetterSpecs.org]:https://www.betterspecs.org/
+[docker-desktop]:https://www.docker.com/products/docker-desktop/
+[docker-installation]:https://www.docker.com/get-started/
