@@ -138,48 +138,25 @@ On Linux systems, simply having docker-cli is sufficient.
 
 **Note**: Depending on your environment, these commands might require `sudo`
 
-* Pull the Docker container: `docker pull postgres:14`
-* Start the container:
+* Start the postgres container:
 
 ```bash
-docker run --rm -p 127.0.0.1:5432:5432 -e POSTGRESS_PASSWORD="mysecretpassword" postgres:14
+docker run --rm -it -p 127.0.0.1:5433:5432 -e POSTGRES_PASSWORD="mysecretpassword" postgres:14
 ```
 
-Wait till the container is fully running.
-We need to make some changes in the container to be able to connect to it remotely using the `psql` client.
+Wait till the postgres container is fully running.
 
-* Open a shell to the running container: `docker exec -it "postgres" bash`
-* Install an editor: `sudo apt update && sudo apt install -y nano`
-* Edit `/var/lib/postgresql/data/postgresql.conf` and uncomment: `# password_encryption = scram-sha-256	# scram-sha-256 or md5`
-* Exit the shell on the container
-* Ensure the postgres client is installed on your host system
-* connect to the running container (the password is `mysecretpassword`): `psql -h 127.0.0.1 -U postgres`
+* Configure the Metasploit database:
 
-After this you should be able to connect with the `postgres` user using the password from the commands.
-We highly recommend to use the same credentials and use the `database.yml` below as example.
-With this approach you do not require the `./msfdb init` command. The standard Rails commands for creating
-the database are sufficient: `bundle exec rails db:create db:migrate db:seed`
+```
+cd ~/git/metasploit-framework
+./msfdb init --connection-string="postgres://postgres:mysecretpassword@127.0.0.1:5433/postgres"
+```
 
-### database.yml
+* If the `msfdb init` command succeeds, then confirm that the database is accessible to Metasploit:
 
-```yaml
-development: &defaults
-  adapter: postgresql
-  database: metasploit_pro_development
-  username: postgres
-  password: mysecretpassword
-  host: 127.0.0.1
-  port: 5432
-  pool: 200
-  timeout: 5
-
-production:
-  <<: *defaults
-  database: metasploit_pro_production
-
-test:
-  <<: *defaults
-  database: metasploit_pro_test
+```bash
+$ ./msfconsole -qx "db_status; exit"
 ```
 
 ### Manual Installation
