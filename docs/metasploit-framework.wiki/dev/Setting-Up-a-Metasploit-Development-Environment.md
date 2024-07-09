@@ -253,7 +253,7 @@ To run tests defined in file(s):
 bundle exec rspec ./spec/path/to/your/tests_1.rb ./spec/path/to/your/tests_2.rb
 ```
 
-To run run the tests defined at a line number - for instance line 23:
+To run the tests defined at a line number - for instance line 23:
 
 ```
 bundle exec rspec ./spec/path/to/your/tests_1.rb:23
