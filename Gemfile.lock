@@ -29,6 +29,7 @@ PATH
       faraday (= 2.7.11)
       faraday-retry
       faye-websocket
+      ffi (= 1.16.3)
       filesize
       getoptlong
       hrr_rb_ssh-ed25519
@@ -236,7 +237,7 @@ GEM
     faye-websocket (0.11.3)
       eventmachine (>= 0.12.0)
       websocket-driver (>= 0.5.1)
-    ffi (1.17.0)
+    ffi (1.16.3)
     filesize (0.2.0)
     fivemat (1.3.7)
     getoptlong (0.2.1)
