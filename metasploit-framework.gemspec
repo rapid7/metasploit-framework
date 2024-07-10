@@ -154,6 +154,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'net-smtp'
   spec.add_runtime_dependency 'net-sftp'
   spec.add_runtime_dependency 'winrm'
+  spec.add_runtime_dependency 'ffi', '1.16.3'
 
   #
   # REX Libraries
