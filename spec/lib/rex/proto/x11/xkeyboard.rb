@@ -383,110 +383,136 @@ RSpec.describe Rex::Proto::X11::Xkeyboard do
     "\x00\x00\x00\x00\x2e\x03\x00\x00\x00\x00\x00\x00"
   end
 
-  describe 'handles xkeyboard GetMap response' do
-    it do
-      response = Rex::Proto::X11::Xkeyboard::X11GetMapReply.read(get_keyboardmap_resp)
-      expect(response.min_key_code).to eq(8)
-      expect(response.max_key_code).to eq(255)
+  describe 'X11GetMapReply' do
+    context '#read' do
+      it do
+        response = Rex::Proto::X11::Xkeyboard::X11GetMapReply.read(get_keyboardmap_resp)
+        expect(response.min_key_code).to eq(8)
+        expect(response.max_key_code).to eq(255)
 
-      expect(response.n_types).to eq(28)
-      expect(response.key_types_array.length).to eq(28)
-      # spot check a few of the key_types_array items
-      expect(response.key_types_array[12].mods_mask).to eq(141)
-      expect(response.key_types_array[12].key_map_array.length).to eq(4)
-      expect(response.key_types_array[12].key_mods_array.length).to eq(4)
-      expect(response.key_types_array[13].mods_mask).to eq(135)
-      expect(response.key_types_array[13].key_map_array.length).to eq(15)
+        expect(response.n_types).to eq(28)
+        expect(response.key_types_array.length).to eq(28)
+        # spot check a few of the key_types_array items
+        expect(response.key_types_array[12].mods_mask).to eq(141)
+        expect(response.key_types_array[12].key_map_array.length).to eq(4)
+        expect(response.key_types_array[12].key_mods_array.length).to eq(4)
+        expect(response.key_types_array[13].mods_mask).to eq(135)
+        expect(response.key_types_array[13].key_map_array.length).to eq(15)
 
-      expect(response.n_key_sym).to eq(248)
-      # spot check a few of the key_map_array items
-      expect(response.key_map_array[247].key_sym_array[0].syms).to eq(269025205)
+        expect(response.n_key_sym).to eq(248)
+        # spot check a few of the key_map_array items
+        expect(response.key_map_array[247].key_sym_array[0].syms).to eq(269025205)
 
-      expect(response.total_mod_map_key).to eq(15)
-      # spot check a few of the key_mod_map_array items
-      expect(response.key_mod_map_array[0].keycode).to eq(37)
-      expect(response.key_mod_map_array[0].mods).to eq(4)
-      expect(response.key_mod_map_array[14].keycode).to eq(207)
-      expect(response.key_mod_map_array[14].mods).to eq(64)
+        expect(response.total_mod_map_key).to eq(15)
+        # spot check a few of the key_mod_map_array items
+        expect(response.key_mod_map_array[0].keycode).to eq(37)
+        expect(response.key_mod_map_array[0].mods).to eq(4)
+        expect(response.key_mod_map_array[14].keycode).to eq(207)
+        expect(response.key_mod_map_array[14].mods).to eq(64)
+      end
     end
   end
 
-  describe 'handles QueryKeymap response' do
-    it do
-      response = Rex::Proto::X11::Xkeyboard::X11QueryKeyMapReply.read(get_querykeymap_resp)
-      expect(response.reply).to eq(1)
-      expect(response.sequence_number).to eq(9487)
-      expect(response.response_length).to eq(2)
-      expect(response.data).to eq([
-        0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-      ])
+  describe 'X11QueryKeyMapRequest' do
+    context '#read' do
+      it do
+        response = Rex::Proto::X11::Xkeyboard::X11QueryKeyMapReply.read(get_querykeymap_resp)
+        expect(response.reply).to eq(1)
+        expect(response.sequence_number).to eq(9487)
+        expect(response.response_length).to eq(2)
+        expect(response.data).to eq([
+          0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        ])
+      end
     end
   end
 
-  describe 'creates QueryKeymap request' do
-    it do
-      request = Rex::Proto::X11::Xkeyboard::X11QueryKeyMapRequest.new
-      expect(request.to_binary_s).to eq(key_map_request)
-      request = Rex::Proto::X11::Xkeyboard::X11QueryKeyMapRequest.read(key_map_request)
-      expect(request.opcode).to eq(44)
+  describe 'X11QueryKeyMapRequest' do
+    context '#initialize' do
+      it do
+        request = Rex::Proto::X11::Xkeyboard::X11QueryKeyMapRequest.new
+        expect(request.to_binary_s).to eq(key_map_request)
+      end
+    end
+    context '#read' do
+      it do
+        request = Rex::Proto::X11::Xkeyboard::X11QueryKeyMapRequest.read(key_map_request)
+        expect(request.opcode).to eq(44)
+      end
     end
   end
 
-  describe 'creates new keyboard notify request' do
-    it do
-      # test against packet pulled from wireshark
-      request = Rex::Proto::X11::Xkeyboard::X11SelectEvents.read(keyboard_select_events_new_keyboard_notify)
-      expect(request.xkeyboard_id).to eq(136)
-      expect(request.extension_minor).to eq(1)
-      expect(request.request_length).to eq(5)
-      expect(request.device_spec).to eq(3)
-      expect(request.affect_which_new_keyboard_notify).to eq(1)
-      expect(request.affect_new_keyboard_key_codes).to eq(1)
-      expect(request.affect_new_keyboard_device_id).to eq(1)
-      # build packet and ensure it matches
-      request = Rex::Proto::X11::Xkeyboard::X11SelectEvents.new(
-        xkeyboard_id: 136,
-        extension_minor: 1,
-        device_spec: 3,
-        affect_which_new_keyboard_notify: 1,
-        affect_new_keyboard_key_codes: 1,
-        affect_new_keyboard_device_id: 1,
-        new_keyboard_details_key_codes: 1,
-        new_keyboard_details_device_id: 1
-      )
-      expect(request.to_binary_s).to eq(keyboard_select_events_new_keyboard_notify)
+  describe 'X11SelectEvents' do
+    context '#read' do
+      it do
+        # test against packet pulled from wireshark
+        request = Rex::Proto::X11::Xkeyboard::X11SelectEvents.read(keyboard_select_events_new_keyboard_notify)
+        expect(request.xkeyboard_id).to eq(136)
+        expect(request.extension_minor).to eq(1)
+        expect(request.request_length).to eq(5)
+        expect(request.device_spec).to eq(3)
+        expect(request.affect_which_new_keyboard_notify).to eq(1)
+        expect(request.affect_new_keyboard_key_codes).to eq(1)
+        expect(request.affect_new_keyboard_device_id).to eq(1)
+        # build packet and ensure it matches
+      end
+    end
+
+    context '#initialize' do
+      it do
+        request = Rex::Proto::X11::Xkeyboard::X11SelectEvents.new(
+          xkeyboard_id: 136,
+          extension_minor: 1,
+          device_spec: 3,
+          affect_which_new_keyboard_notify: 1,
+          affect_new_keyboard_key_codes: 1,
+          affect_new_keyboard_device_id: 1,
+          new_keyboard_details_key_codes: 1,
+          new_keyboard_details_device_id: 1
+        )
+        expect(request.to_binary_s).to eq(keyboard_select_events_new_keyboard_notify)
+      end
     end
   end
 
-  describe 'creates map notify request' do
-    it do
-      # test against packet pulled from wireshark
-      request = Rex::Proto::X11::Xkeyboard::X11SelectEvents.read(keyboard_select_events_map_notify)
-      expect(request.xkeyboard_id).to eq(136)
-      expect(request.extension_minor).to eq(1)
-      expect(request.request_length).to eq(4)
-      expect(request.device_spec).to eq(3)
-      expect(request.affect_which_map_notify).to eq(1)
-      expect(request.map_key_types).to eq(1)
-      expect(request.map_key_syms).to eq(1)
-      expect(request.map_modifier_map).to eq(1)
-      request = Rex::Proto::X11::Xkeyboard::X11SelectEvents.new(
-        xkeyboard_id: 136,
-        extension_minor: 1,
-        device_spec: 3,
-        affect_which_map_notify: 1,
-        affect_map_key_types: 1,
-        affect_map_key_syms: 1,
-        affect_map_modifier_map: 1,
-        map_key_types: 1,
-        map_key_syms: 1,
-        map_modifier_map: 1
-      )
-      expect(request.to_binary_s).to eq(keyboard_select_events_map_notify)
+  describe 'X11SelectEvents' do
+    context '#read' do
+      it do
+        # test against packet pulled from wireshark
+        request = Rex::Proto::X11::Xkeyboard::X11SelectEvents.read(keyboard_select_events_map_notify)
+        expect(request.xkeyboard_id).to eq(136)
+        expect(request.extension_minor).to eq(1)
+        expect(request.request_length).to eq(4)
+        expect(request.device_spec).to eq(3)
+        expect(request.affect_which_map_notify).to eq(1)
+        expect(request.map_key_types).to eq(1)
+        expect(request.map_key_syms).to eq(1)
+        expect(request.map_modifier_map).to eq(1)
+      end
     end
 
-    describe 'creates bell request' do
+    context '#initialize' do
+      it do
+        request = Rex::Proto::X11::Xkeyboard::X11SelectEvents.new(
+          xkeyboard_id: 136,
+          extension_minor: 1,
+          device_spec: 3,
+          affect_which_map_notify: 1,
+          affect_map_key_types: 1,
+          affect_map_key_syms: 1,
+          affect_map_modifier_map: 1,
+          map_key_types: 1,
+          map_key_syms: 1,
+          map_modifier_map: 1
+        )
+        expect(request.to_binary_s).to eq(keyboard_select_events_map_notify)
+      end
+    end
+  end
+
+  describe 'X11BellRequest' do
+    context '#read' do
       it do
         # test against packet pulled from wireshark
         request = Rex::Proto::X11::Xkeyboard::X11BellRequest.read(set_bell)
@@ -503,7 +529,10 @@ RSpec.describe Rex::Proto::X11::Xkeyboard do
         expect(request.duration).to eq(0)
         expect(request.window).to eq(0)
         expect(request.name).to eq(814)
-
+      end
+    end
+    context '#initialize' do
+      it do
         request = Rex::Proto::X11::Xkeyboard::X11BellRequest.new(
           xkeyboard_id: 136
         )

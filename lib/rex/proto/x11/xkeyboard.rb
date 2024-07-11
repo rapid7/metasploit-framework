@@ -158,7 +158,7 @@ module Rex::Proto::X11::Xkeyboard
     uint8 :device_id
     uint16 :sequence_number # xkb-GetMap
     uint32 :response_length
-    uint16 :pad0
+    uint16 :pad0 # 2x uint8 pads, we just combine
     uint8 :min_key_code
     uint8 :max_key_code
     uint16 :presents # needs to be converted to bits...
@@ -185,7 +185,7 @@ module Rex::Proto::X11::Xkeyboard
     uint8 :total_vmod_map_key
     uint8 :pad1
     uint16 :virtual_mods # bit array
-    # next we have a list of KEYTYPE, length is :total_types
+    # next we have a list of KEYTYPE, length is :n_types
     array :key_types_array,
           type: :X11KeyType,
           initial_length: :n_types
@@ -197,11 +197,7 @@ module Rex::Proto::X11::Xkeyboard
     array :key_mod_map_array,
           type: :X11KeyModMap,
           initial_length: :total_mod_map_key
-    uint16 :pad2, onlyif: :padding? # this onlyif may be wrong, its a guess for the time being
-
-    def padding?
-      total_mod_map_key.nonzero?
-    end
+    rest :pad2
   end
 
   # https://xcb.freedesktop.org/manual/structxcb__xkb__select__events__request__t.html
@@ -385,7 +381,7 @@ module Rex::Proto::X11::Xkeyboard
     uint16 :pitch, initial_value: 0
     uint16 :duration, initial_value: 0
     uint16 :pad1
-    uint32 :name, initial_value: 814  # XXX do we see this elsewhere?
+    uint32 :name, initial_value: 814 # XXX do we see this elsewhere?
     uint32 :window
   end
 end
