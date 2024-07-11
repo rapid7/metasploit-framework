@@ -210,19 +210,23 @@ def create_overlay_map(screen_width, screen_height, windows)
 end
 
 class X11Image
-  def initialize(width, height, image_reply, color_reply)
-    @width = width
-    @height = height
-    @image_reply = image_reply
-    @color_reply = color_reply
+  def initialize(width, height, image_data, color_data)
+    @width = width # integer, 1024 in 1024×768
+    @height = height # integer, 768 in 1024×768
+    @image_data = image_data # from X11GetImageResponse
+    @color_data = color_data # from X11GetColorsResponse
+  end
+
+  self.from_replies(width, height, image_reply, color_reply)
+    self.new(width, height, image_reply.image_data, color_reply.colors)
   end
 
   def create_image
-    # Extract relevant data from @image_reply and @color_reply
+    # Extract relevant data from @image_data and @color_data
     width = @width
     height = @height
-    pixel_data = @image_reply.image_data
-    colors = @color_reply.colors
+    pixel_data = @image_data
+    colors = @color_data
 
     # Create an image object
     image = ChunkyPNG::Image.new(width, height, ChunkyPNG::Color::TRANSPARENT)

@@ -15,9 +15,7 @@ module Rex::Proto::X11::Xkeyboard
   end
 
   # https://xcb.freedesktop.org/manual/structxcb__xkb__key__sym__map__iterator__t.html
-  class X11Sym < BinData::Record
-    endian :little
-    uint32 :syms
+  class X11Sym < BinData::Uint32le
   end
 
   # https://xcb.freedesktop.org/manual/structxcb__xkb__key__sym__map__t.html

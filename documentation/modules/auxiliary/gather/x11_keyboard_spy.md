@@ -101,10 +101,14 @@ Getting X11 to listen on a TCP port is rather taxing, so we use socat to facilit
 
 ## Options
 
-### ListenerTimeout
+### LISTENER_TIMEOUT
 
 How many seconds to keylog for.
 If set to `0`, wait forever. Defaults to `600`, 10 minutes.
+
+### PRINTERVAL
+
+The interval to print keylogs in seconds. Defaults to `60`.
 
 ## Scenarios
 

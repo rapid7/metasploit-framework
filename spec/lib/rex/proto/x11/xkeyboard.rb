@@ -401,7 +401,7 @@ RSpec.describe Rex::Proto::X11::Xkeyboard do
 
         expect(response.n_key_sym).to eq(248)
         # spot check a few of the key_map_array items
-        expect(response.key_map_array[247].key_sym_array[0].syms).to eq(269025205)
+        expect(response.key_map_array[247].key_sym_array[0]).to eq(269025205)
 
         expect(response.total_mod_map_key).to eq(15)
         # spot check a few of the key_mod_map_array items

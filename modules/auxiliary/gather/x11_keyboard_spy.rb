@@ -53,8 +53,8 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
     register_options [
-      OptInt.new('ListenerTimeout', [ true, 'The maximum number of seconds to keylog', 600 ]), # 10 minutes
-      OptInt.new('PRINTERVAL', [ true, 'The interval to print keyloggs in seconds', 60 ]) # 1 minutes
+      OptInt.new('LISTENER_TIMEOUT', [ true, 'The maximum number of seconds to keylog', 600 ]), # 10 minutes
+      OptInt.new('PRINTERVAL', [ true, 'The interval to print keylogs in seconds', 60 ]) # 1 minutes
     ]
   end
 
@@ -233,7 +233,7 @@ class MetasploitModule < Msf::Auxiliary
     # loop mechanics stolen from exploit/multi/handler
     stime = Time.now.to_f
     print_timer = Time.now.to_f
-    timeout = datastore['ListenerTimeout'].to_i
+    timeout = datastore['LISTENER_TIMEOUT'].to_i
     printerval = datastore['PRINTERVAL'].to_i
     begin
       loop do
