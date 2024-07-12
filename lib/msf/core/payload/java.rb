@@ -110,12 +110,12 @@ module Msf::Payload::Java
     zip.add_file('WEB-INF/', '')
     zip.add_file('WEB-INF/web.xml', web_xml)
     zip.add_file("WEB-INF/classes/", "")
-    zip.add_file('metasploit/', '') # Create the metasploit dir
+    zip.add_file('WEB-INF/classes/metasploit/', '') # Create the metasploit dir
 
     paths.each do |path_parts|
       path = ['java', path_parts].flatten.join('/')
       contents = ::MetasploitPayloads.read(path)
-      zip.add_file(path_parts.join('/'), contents)
+      zip.add_file("WEB-INF/classes/" + path_parts.join('/'), contents)
     end
 
     zip.add_file("WEB-INF/classes/metasploit.dat", stager_config(opts))

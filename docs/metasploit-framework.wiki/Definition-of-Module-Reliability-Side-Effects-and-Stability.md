@@ -70,3 +70,4 @@ Example:
 | FIRST_ATTEMPT_FAIL | The module may fail for the first attempt |
 | REPEATABLE_SESSION | The module is expected to get a session every time it runs |
 | UNRELIABLE_SESSION | The module isn't expected to get a shell reliably (such as only once) |
+| EVENT_DEPENDENT    | The module may not execute the payload until an external event occurs. For instance, a cron job, machine restart, user interaction within a GUI element, etc |

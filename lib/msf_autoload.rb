@@ -35,17 +35,17 @@ class MsfAutoload
         'PowerShell'
       elsif basename == 'ui' && abspath.end_with?("#{__dir__}/msf/core/module/ui", "#{__dir__}/msf/core/module/ui.rb", "#{__dir__}/rex/post/ui", "#{__dir__}/rex/post/ui.rb", "#{__dir__}/rex/post/meterpreter/extensions/stdapi/ui.rb")
         'UI'
+      elsif basename == 'mysql' && abspath.end_with?("#{__dir__}/msf/core/exploit/remote/mysql.rb")
+        'MYSQL'
       elsif basename == 'ssh' && abspath.end_with?("#{__dir__}/rex/proto/ssh")
         'Ssh'
       elsif basename == 'http' && abspath.end_with?("#{__dir__}/rex/proto/http")
         'Http'
       elsif basename == 'rftransceiver' && abspath.end_with?("#{__dir__}/rex/post/hwbridge/ui/console/command_dispatcher/rftransceiver.rb")
         'RFtransceiver'
-      elsif basename == 'mysql' && abspath.end_with?("#{__dir__}/msf/base/sessions/mysql.rb")
-        'MySQL'
       else
-       super
-    end
+        super
+      end
     end
   end
 
@@ -145,7 +145,7 @@ class MsfAutoload
       'dcerpc_lsa' => 'DCERPC_LSA',
       'wdbrpc_client' => 'WDBRPC_Client',
       'sunrpc' => 'SunRPC',
-      'mysql' => 'MYSQL',
+      'mysql' => 'MySQL',
       'ldap' => 'LDAP',
       'sqli' => 'SQLi',
       'dhcp_server' => 'DHCPServer',
@@ -297,6 +297,7 @@ class MsfAutoload
       'appapi' => 'AppApi',
       'uds_errors' => 'UDSErrors',
       'smb_hash_capture' => 'SMBHashCapture',
+      'rex_ntlm' => 'RexNTLM'
     }
   end
 
@@ -338,8 +339,11 @@ autoload :Faker, 'faker'
 autoload :BinData, 'bindata'
 autoload :RubySMB, 'ruby_smb'
 autoload :MetasploitPayloads, 'metasploit-payloads'
+autoload :PacketFu, 'packetfu'
 
 require 'rexml/document'
+# Load IO#expect moneypatch
+require 'expect'
 
 # XXX: Should be removed once the `lib/metasploit` folder is loaded by Zeitwerk
 require 'metasploit/framework/hashes'

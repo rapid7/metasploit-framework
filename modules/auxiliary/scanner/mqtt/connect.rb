@@ -36,8 +36,6 @@ class MetasploitModule < Msf::Auxiliary
           'PASS_FILE' => 'data/wordlists/unix_passwords.txt'
         }
     )
-
-    deregister_options('PASSWORD_SPRAY')
   end
 
   def test_login(username, password)
@@ -76,25 +74,27 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     scanner = Metasploit::Framework::LoginScanner::MQTT.new(
-      host: rhost,
-      port: rport,
-      read_timeout: datastore['READ_TIMEOUT'],
-      client_id: client_id,
-      proxies: datastore['PROXIES'],
-      cred_details: cred_collection,
-      stop_on_success: datastore['STOP_ON_SUCCESS'],
-      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-      connection_timeout: datastore['ConnectTimeout'],
-      max_send_size: datastore['TCP::max_send_size'],
-      send_delay: datastore['TCP::send_delay'],
-      framework: framework,
-      framework_module: self,
-      ssl: datastore['SSL'],
-      ssl_version: datastore['SSLVersion'],
-      ssl_verify_mode: datastore['SSLVerifyMode'],
-      ssl_cipher: datastore['SSLCipher'],
-      local_port: datastore['CPORT'],
-      local_host: datastore['CHOST']
+      configure_login_scanner(
+        host: rhost,
+        port: rport,
+        read_timeout: datastore['READ_TIMEOUT'],
+        client_id: client_id,
+        proxies: datastore['PROXIES'],
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: datastore['ConnectTimeout'],
+        max_send_size: datastore['TCP::max_send_size'],
+        send_delay: datastore['TCP::send_delay'],
+        framework: framework,
+        framework_module: self,
+        ssl: datastore['SSL'],
+        ssl_version: datastore['SSLVersion'],
+        ssl_verify_mode: datastore['SSLVerifyMode'],
+        ssl_cipher: datastore['SSLCipher'],
+        local_port: datastore['CPORT'],
+        local_host: datastore['CHOST']
+      )
     )
 
     scanner.scan! do |result|

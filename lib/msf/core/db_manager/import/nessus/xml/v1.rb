@@ -34,13 +34,13 @@ module Msf::DBManager::Import::Nessus::XML::V1
 
       # Record the hostname
       hinfo.merge!(:name => hname.to_s.strip) if hname
-      hobj = report_host(hinfo)
+      hobj = msf_import_host(hinfo)
       report_import_note(wspace,hobj)
 
       # Record the OS
       os ||= host.elements["os_name"]
       if os
-        report_note(
+        msf_import_note(
           :workspace => wspace,
           :task => args[:task],
           :host => hobj,

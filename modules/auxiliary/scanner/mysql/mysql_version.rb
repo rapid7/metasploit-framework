@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
-  include Msf::OptionalSession
+  include Msf::OptionalSession::MySQL
 
   def initialize
     super(
@@ -16,8 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         Enumerates the version of MySQL servers.
       },
       'Author'      => 'kris katterjohn',
-      'License'     => MSF_LICENSE,
-      'SessionTypes' => %w[MySQL],
+      'License'     => MSF_LICENSE
     )
 
     register_options([
@@ -31,10 +30,10 @@ class MetasploitModule < Msf::Auxiliary
       if session
         sql_conn = session.client
         version = sql_conn.server_info
-        print_good("#{sql_conn.host}:#{sql_conn.port} is running MySQL #{version}")
+        print_good("#{sql_conn.peerhost}:#{sql_conn.peerport} is running MySQL #{version}")
         report_service(
-          :host => sql_conn.host,
-          :port => sql_conn.port,
+          :host => sql_conn.peerhost,
+          :port => sql_conn.peerport,
           :name => "mysql",
           :info => version
         )

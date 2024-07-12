@@ -2,6 +2,20 @@ require 'spec_helper'
 
 RSpec.describe Msf::Ui::Debug do
   let(:file_fixtures_path) { File.join(Msf::Config.install_root, 'spec', 'file_fixtures') }
+  let(:features) do
+    [
+      {
+        name: 'filtered_options',
+        description: 'Add option filtering functionality to Metasploit',
+        enabled: false
+      },
+      {
+        name: 'new_search_capabilities',
+        description: 'Add new search capabilities to Metasploit',
+        enabled: true
+      }
+    ]
+  end
 
   it 'error parsing correctly parses framework.log and msf-ws.log' do
     allow(::Msf::Config).to receive(:log_directory).and_return(Pathname.new(file_fixtures_path).join('debug', 'error_logs', 'basic'))
@@ -1267,6 +1281,39 @@ RSpec.describe Msf::Ui::Debug do
     E_LOG
 
     expect(subject.logs).to eql(error_log_output)
+  end
+
+  it 'correctly retrieves features and outputs them' do
+    db = instance_double(
+      Msf::DBManager,
+      connection_established?: false,
+      driver: 'driver'
+    )
+
+    framework = instance_double(
+      ::Msf::Framework,
+      features: instance_double(Msf::FeatureManager, all: features),
+      db: db
+    )
+
+    expected_output = <<~OUTPUT
+      ##  %grnFramework Configuration%clr
+
+      The features are configured as follows:
+      <details>
+      <summary>Collapse</summary>
+
+      | name | enabled |
+      |-:|-:|
+      | filtered_options | false |
+      | new_search_capabilities | true |
+
+      </details>
+
+
+    OUTPUT
+
+    expect(subject.framework_config(framework)).to eql(expected_output)
   end
 
   it 'correctly retrieves version information with no connected DB' do

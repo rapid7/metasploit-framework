@@ -399,6 +399,7 @@ module Msf
               'rank'        => 'Modules with a matching rank (Can be descriptive (ex: \'good\') or numeric with comparison operators (ex: \'gte400\'))',
               'ref'         => 'Modules with a matching ref',
               'reference'   => 'Modules with a matching reference',
+              'session_type' => 'Modules with a matching session type (SMB, MySQL, Meterpreter, etc)',
               'stage'       => 'Modules with a matching stage reference name',
               'stager'      => 'Modules with a matching stager reference name',
               'target'      => 'Modules affecting this target',
@@ -543,10 +544,7 @@ module Msf
                   show_child_items = total_children_rows > 1
                   next unless show_child_items
 
-                  # XXX: By default rex-text tables strip preceding whitespace:
-                  #   https://github.com/rapid7/rex-text/blob/1a7b639ca62fd9102665d6986f918ae42cae244e/lib/rex/text/table.rb#L221-L222
-                  #   So use https://en.wikipedia.org/wiki/Non-breaking_space as a workaround for now. A change should exist in Rex-Text to support this requirement
-                  indent = "\xc2\xa0\xc2\xa0\\_ "
+                  indent = "  \\_ "
                   # Note: We still use visual indicators for blank values as it's easier to read
                   # We can't always use a generic formatter/styler, as it would be applied to the 'parent' rows too
                   blank_value = '.'
@@ -1804,6 +1802,7 @@ module Msf
                     ]
                   },
                   'Name' => {
+                    'Strip' => false,
                     'Stylers' => [Msf::Ui::Console::TablePrint::HighlightSubstringStyler.new(search_terms)]
                   },
                   'Check' => {

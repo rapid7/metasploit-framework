@@ -198,11 +198,14 @@ module WindowsRegistry
 
     # @param hive_data [String] The binary registry data
     # @param name [Symbol] The key name to add specific helpers. Only `:sam`
+    # @param root [String] The root key and subkey corresponding to the hive_data
     #   and `:security` are supported at the moment.
-    def initialize(hive_data, name: nil)
+    def initialize(hive_data, name: nil, root: nil)
       @hive_data = hive_data.b
       @regf = RegRegf.read(@hive_data)
-      @root_key = find_root_key
+      @root_key_block = find_root_key
+      @root = root
+      @root << '\\' unless root.end_with?('\\')
       case name
       when :sam
         require_relative 'sam'
@@ -210,6 +213,8 @@ module WindowsRegistry
       when :security
         require_relative 'security'
         extend Security
+      else
+        wlog("[Msf::Util::WindowsRegistry::RegistryParser] Unknown :name argument: #{name}") unless name.blank?
       end
     end
 
@@ -224,10 +229,10 @@ module WindowsRegistry
       @hive_data.unpack('a4096' * (@hive_data.size / 4096)).each do |data|
         next unless data[0,4] == 'hbin'
         reg_hbin = RegHbin.read(data)
-        root_key = reg_hbin.reg_hbin_blocks.find do |block|
+        root_key_block = reg_hbin.reg_hbin_blocks.find do |block|
           block.data.respond_to?(:magic) && block.data.magic == NK_MAGIC && block.data.nk_type == ROOT_KEY
         end
-        return root_key if root_key
+        return root_key_block if root_key_block
       rescue IOError
         raise StandardError, 'Cannot parse the RegHbin structure'
       end
@@ -265,7 +270,7 @@ module WindowsRegistry
       # only asking for the root node
       key = key[1..-1] if key[0] == '\\' && key.size > 1
 
-      parent_key = @root_key
+      parent_key = @root_key_block
       if key.size > 0 && key[0] != '\\'
         key.split('\\').each do |sub_key|
           res = find_sub_key(parent_key, sub_key)
@@ -450,11 +455,11 @@ module WindowsRegistry
       res = []
       value_list = get_value_blocks(key_obj.data.offset_value_list, key_obj.data.num_values + 1)
       value_list.each do |value|
+        # TODO: use #to_s to make sure value.data.name is a String
         res << (value.data.flag > 0 ? value.data.name : nil)
       end
       res
     end
-
   end
 
 end

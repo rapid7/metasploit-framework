@@ -477,8 +477,8 @@ class Creds
         else
           private_val = ''
         end
-        if truncate && private_val.to_s.length > 87
-          private_val = "#{private_val[0,87]} (TRUNCATED)"
+        if truncate && private_val.to_s.length > 88
+          private_val = "#{private_val[0,76]} (TRUNCATED)"
         end
         realm_val = core.realm ? core.realm.value : ''
         human_val = core.private ? core.private.class.model_name.human : ''

@@ -9,7 +9,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Exploit::Remote::DCERPC
   include Msf::Auxiliary::Report
-  include Msf::Exploit::Remote::MsSamr
+  include Msf::Exploit::Remote::MsSamr::Computer
+  include Msf::OptionalSession::SMB
 
   def initialize(info = {})
     super(
@@ -67,17 +68,38 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_add_computer
-    add_computer
+    with_ipc_tree do |opts|
+      add_computer(opts)
+    end
   end
 
   def action_delete_computer
     fail_with(Failure::BadConfig, 'This action requires COMPUTER_NAME to be specified.') if datastore['COMPUTER_NAME'].blank?
-    delete_computer
+    with_ipc_tree do |opts|
+      delete_computer(opts)
+    end
   end
 
   def action_lookup_computer
     fail_with(Failure::BadConfig, 'This action requires COMPUTER_NAME to be specified.') if datastore['COMPUTER_NAME'].blank?
-    lookup_computer
+    with_ipc_tree do |opts|
+      lookup_computer(opts)
+    end
   end
 
+  # @yieldparam options [Hash] If a SMB session is present, a hash with the IPC tree present. Empty hash otherwise.
+  # @return [void]
+  def with_ipc_tree
+    opts = {}
+    if session
+      print_status("Using existing session #{session.sid}")
+      client = session.client
+      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
+      opts[:tree] = simple.client.tree_connect("\\\\#{client.dispatcher.tcp_socket.peerhost}\\IPC$")
+    end
+
+    yield opts
+  ensure
+    opts[:tree].disconnect! if opts[:tree]
+  end
 end

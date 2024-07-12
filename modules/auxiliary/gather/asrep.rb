@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Kerberos::Client
   include Msf::Exploit::Remote::LDAP
   include Msf::Exploit::Remote::LDAP::Queries
+  include Msf::OptionalSession::LDAP
 
   def initialize(info = {})
     super(
@@ -42,11 +43,16 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
+        Opt::RHOSTS(nil, true, 'The target KDC, see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html'),
         OptPath.new('USER_FILE', [ false, 'File containing usernames, one per line' ], conditions: %w[ACTION == BRUTE_FORCE]),
         OptBool.new('USE_RC4_HMAC', [ true, 'Request using RC4 hash instead of default encryption types (faster to crack)', true]),
         OptString.new('Rhostname', [ true, "The domain controller's hostname"], aliases: ['LDAP::Rhostname']),
       ]
     )
+    register_option_group(name: 'SESSION',
+                          description: 'Used when connecting to LDAP over an existing SESSION',
+                          option_names: %w[RHOSTS],
+                          required_options: %w[SESSION RHOSTS])
     register_advanced_options(
       [
         OptEnum.new('LDAP::Auth', [true, 'The Authentication mechanism to use', Msf::Exploit::Remote::AuthOption::NTLM, Msf::Exploit::Remote::AuthOption::LDAP_OPTIONS]),
@@ -99,11 +105,11 @@ class MetasploitModule < Msf::Auxiliary
 
     ldap_connect do |ldap|
       validate_bind_success!(ldap)
-      unless (base_dn = discover_base_dn(ldap))
+      unless (base_dn = ldap.base_dn)
         fail_with(Failure::UnexpectedReply, "Couldn't discover base DN!")
       end
 
-      schema_dn = find_schema_dn(ldap, base_dn)
+      schema_dn = ldap.schema_dn
       filter_string = ldap_query['filter']
       attributes = ldap_query['attributes']
       begin
@@ -136,7 +142,8 @@ class MetasploitModule < Msf::Auxiliary
       client_name: username,
       realm: datastore['DOMAIN'],
       offered_etypes: etypes,
-      rport: 88
+      rport: 88,
+      rhost: datastore['RHOST']
     )
     hash = format_as_rep_to_john_hash(res.as_rep)
     print_line(hash)

@@ -24,55 +24,6 @@ module DNS
       dns_cache_no_start = config.delete(:dns_cache_no_start)
       super(config)
       self.cache = Rex::Proto::DNS::Cache.new
-      # Read hostsfile into cache
-      hf = Rex::Compat.is_windows ? '%WINDIR%/system32/drivers/etc/hosts' : '/etc/hosts'
-      entries = begin
-        File.read(hf).lines.map(&:strip).select do |entry|
-          Rex::Socket.is_ip_addr?(entry.gsub(/\s+/,' ').split(' ').first) and
-          not entry.match(/::.*ip6-/) # Ignore Debian/Ubuntu-specific notation for IPv6 hosts
-        end.map do |entry|
-          entry.gsub(/\s+/,' ').split(' ')
-        end
-      rescue => e
-        @logger.error(e)
-        []
-      end
-      entries.each do |ent|
-        next if ent.first =~ /^127\./
-        # Deal with multiple hostnames per address
-        while ent.length > 2
-          hostname = ent.pop
-          next unless MATCH_HOSTNAME.match hostname
-          begin
-            if Rex::Socket.is_ipv4?(ent.first)
-              self.cache.add_static(hostname, ent.first, Dnsruby::Types::A)
-            elsif Rex::Socket.is_ipv6?(ent.first)
-              self.cache.add_static(hostname, ent.first, Dnsruby::Types::AAAA)
-            else
-              raise "Unknown IP address format #{ent.first} in hosts file!"
-            end
-          rescue => e
-            # Deal with edge-cases in users' hostsfile
-            @logger.error(e)
-          end
-        end
-        hostname = ent.pop
-        begin
-          if MATCH_HOSTNAME.match hostname
-            if Rex::Socket.is_ipv4?(ent.first)
-              self.cache.add_static(hostname, ent.first, Dnsruby::Types::A)
-            elsif Rex::Socket.is_ipv6?(ent.first)
-              self.cache.add_static(hostname, ent.first, Dnsruby::Types::AAAA)
-            else
-              raise "Unknown IP address format #{ent.first} in hosts file!"
-            end
-          end
-        rescue => e
-          # Deal with edge-cases in users' hostsfile
-          @logger.error(e)
-        end
-      end
-      # TODO: inotify or similar on hostsfile for live updates? Easy-button functionality
       self.cache.start unless dns_cache_no_start
       return
     end

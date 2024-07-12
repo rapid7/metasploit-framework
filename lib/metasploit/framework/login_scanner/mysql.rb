@@ -1,7 +1,7 @@
 require 'metasploit/framework/tcp/client'
-require 'mysql'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'rex/proto/mysql/client'
 
 module Metasploit
   module Framework
@@ -39,29 +39,29 @@ module Metasploit
             disconnect if self.sock
             connect
 
-            mysql_conn = ::Mysql.connect(host, credential.public, credential.private, '', port, sock)
+            mysql_conn = ::Rex::Proto::MySQL::Client.connect(host, credential.public, credential.private, '', port, io: self.sock)
 
           rescue ::SystemCallError, Rex::ConnectionError => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
               proof: e
             })
-          rescue Mysql::ClientError => e
+          rescue Rex::Proto::MySQL::Client::ClientError => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
               proof: e
             })
-          rescue Mysql::HostNotPrivileged => e
+          rescue Rex::Proto::MySQL::Client::HostNotPrivileged => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
               proof: e
             })
-          rescue Mysql::AccessDeniedError => e
+          rescue Rex::Proto::MySQL::Client::AccessDeniedError => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::INCORRECT,
               proof: e
             })
-          rescue Mysql::HostIsBlocked => e
+          rescue Rex::Proto::MySQL::Client::HostIsBlocked => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
               proof: e
@@ -75,7 +75,8 @@ module Metasploit
             # Additionally assign values to nil to avoid closing the socket etc automatically
             if use_client_as_proof
               result_options[:proof] = mysql_conn
-              nil
+              result_options[:connection] = self.sock
+              self.sock = nil
             else
               mysql_conn.close
             end

@@ -38,7 +38,8 @@ class MetasploitModule < Msf::Auxiliary
           [ 'GET_TGS', { 'Description' => 'Request a Ticket-Granting-Service (TGS)' } ],
           [ 'GET_HASH', { 'Description' => 'Request a TGS to recover the NTLM hash' } ]
         ],
-        'DefaultAction' => 'GET_TGT'
+        'DefaultAction' => 'GET_TGT',
+        'AKA' => ['PKINIT']
       )
     )
 

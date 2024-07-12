@@ -16,6 +16,8 @@ services:
     enabled: yes
   - type: IMAP
     enabled: yes
+  - type: LDAP
+    enabled: yes
   - type: MSSQL
     enabled: yes
   - type: MySQL

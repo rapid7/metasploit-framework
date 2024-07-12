@@ -39,14 +39,15 @@ If you already have the LDAP base DN, you may set it in this option.
 msf5 > use auxiliary/gather/vmware_vcenter_vmdir_ldap
 msf5 auxiliary(gather/vmware_vcenter_vmdir_ldap) > options
 
-Module options (auxiliary/gather/vmware_vcenter_vmdir_ldap):
-
-   Name     Current Setting  Required  Description
-   ----     ---------------  --------  -----------
-   BASE_DN                   no        LDAP base DN if you already have it
-   RHOSTS                    yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
-   RPORT    636              yes       The target port
-   SSL      true             no        Enable SSL on the LDAP connection
+   Name      Current Setting  Required  Description
+   ----      ---------------  --------  -----------
+   BASE_DN                    no        LDAP base DN if you already have it
+   DOMAIN                     no        The domain to authenticate to
+   PASSWORD                   no        The password to authenticate with
+   RHOSTS                     yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+   RPORT     636              yes       The target port
+   SSL       true             no        Enable SSL on the LDAP connection
+   USERNAME                   no        The username to authenticate with
 
 
 Auxiliary action:

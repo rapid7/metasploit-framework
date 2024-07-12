@@ -54,8 +54,15 @@ RSpec.describe Msf::Serializer::ReadableText do
     ]
   end
 
+  let(:default_evasion_module_options) do
+    [
+      Msf::OptInt.new('EVASION_TEST_OPTION', [ true, 'The evasion test option'])
+    ]
+  end
+
   let(:module_options) { default_module_options }
   let(:advanced_module_options) { default_advanced_module_options }
+  let(:evasion_module_options) { default_evasion_module_options }
 
   # (see Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::Options#kerberos_auth_options)
   def kerberos_auth_options(protocol:, auth_methods:)
@@ -83,6 +90,7 @@ RSpec.describe Msf::Serializer::ReadableText do
     mod = mod_klass.new
     mod.send(:register_options, module_options)
     mod.send(:register_advanced_options, advanced_module_options)
+    mod.send(:register_evasion_options, evasion_module_options)
     mock_framework = instance_double(::Msf::Framework, datastore: Msf::DataStore.new)
     allow(mod).to receive(:framework).and_return(mock_framework)
     mod
@@ -105,7 +113,7 @@ RSpec.describe Msf::Serializer::ReadableText do
     allow(Rex::Text::Table).to receive(:wrapped_tables?).and_return(true)
   end
 
-  describe '.dump_datastore', if: ENV['DATASTORE_FALLBACKS'] do
+  describe '.dump_datastore' do
     context 'when the datastore is empty' do
       it 'returns the datastore as a table' do
         expect(described_class.dump_datastore('Table name', Msf::DataStore.new, indent_length)).to match_table <<~TABLE
@@ -126,6 +134,7 @@ RSpec.describe Msf::Serializer::ReadableText do
           Name                     Value
           ----                     -----
           DigestAlgorithm          SHA256
+          EVASION_TEST_OPTION
           FloatValue               5
           NewOptionName
           OptionWithModuleDefault  false
@@ -144,7 +153,7 @@ RSpec.describe Msf::Serializer::ReadableText do
     end
   end
 
-  describe '.dump_options', if: ENV['DATASTORE_FALLBACKS'] do
+  describe '.dump_options' do
     context 'when missing is false' do
       it 'returns the options as a table' do
         expect(described_class.dump_options(aux_mod_with_set_options, indent_string, false)).to match_table <<~TABLE
@@ -173,9 +182,92 @@ RSpec.describe Msf::Serializer::ReadableText do
         TABLE
       end
     end
+
+    context 'when some options are grouped' do
+      let(:group_name) { 'group_name' }
+      let(:group_description) { 'Used for example reasons' }
+      let(:option_names) { %w[DigestAlgorithm RHOSTS SMBUser SMBDomain] }
+      let(:group) { Msf::OptionGroup.new(name: group_name, description: group_description, option_names: option_names) }
+      let(:aux_mod_with_grouped_options) do
+        mod = aux_mod_with_set_options.replicant
+        mod.options.add_group(group)
+        mod
+      end
+
+      it 'should return the grouped options separate to the rest of the options' do
+        expect(described_class.dump_options(aux_mod_with_grouped_options, indent_string, false)).to match_table <<~TABLE
+          Name                     Current Setting     Required  Description
+          ----                     ---------------     --------  -----------
+          FloatValue               5                   no        A FloatValue
+          NewOptionName                                yes       An option with a new name. Aliases ensure the old and new names are synchronized
+          OptionWithModuleDefault  false               yes       option with module default
+          RPORT                    3000                yes       The target port
+          baz                      baz_from_module     yes       baz option
+          fizz                     new_fizz            yes       fizz option
+          foo                      foo_from_framework  yes       Foo option
+
+
+          #{group_description}:
+
+          Name       Current Setting  Required  Description
+          ----       ---------------  --------  -----------
+          RHOSTS     192.0.2.2        yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+          SMBDomain  WORKGROUP        yes       The SMB username
+          SMBUser    username         yes       The SMB username
+        TABLE
+      end
+    end
+
+    context 'when there are multiple options groups' do
+      let(:group_name_1) { 'group_name_1' }
+      let(:group_description_1) { 'Used for example reasons_1' }
+      let(:option_names_1) {['RHOSTS']}
+      let(:group_name_2) { 'group_name_2' }
+      let(:group_description_2) { 'Used for example reasons_2' }
+      let(:option_names_2) { %w[SMBUser SMBDomain] }
+
+      let(:group_1) { Msf::OptionGroup.new(name: group_name_1, description: group_description_1, option_names: option_names_1) }
+      let(:group_2) { Msf::OptionGroup.new(name: group_name_2, description: group_description_2, option_names: option_names_2) }
+
+      let(:aux_mod_with_grouped_options) do
+        mod = aux_mod_with_set_options.replicant
+        mod.options.add_group(group_1)
+        mod.options.add_group(group_2)
+        mod
+      end
+
+      it 'should return the grouped options separate to the rest of the options' do
+        expect(described_class.dump_options(aux_mod_with_grouped_options, indent_string, false)).to match_table <<~TABLE
+          Name                     Current Setting     Required  Description
+          ----                     ---------------     --------  -----------
+          FloatValue               5                   no        A FloatValue
+          NewOptionName                                yes       An option with a new name. Aliases ensure the old and new names are synchronized
+          OptionWithModuleDefault  false               yes       option with module default
+          RPORT                    3000                yes       The target port
+          baz                      baz_from_module     yes       baz option
+          fizz                     new_fizz            yes       fizz option
+          foo                      foo_from_framework  yes       Foo option
+
+
+          #{group_description_1}:
+
+          Name    Current Setting  Required  Description
+          ----    ---------------  --------  -----------
+          RHOSTS  192.0.2.2        yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+
+
+          #{group_description_2}:
+
+          Name       Current Setting  Required  Description
+          ----       ---------------  --------  -----------
+          SMBDomain  WORKGROUP        yes       The SMB username
+          SMBUser    username         yes       The SMB username
+        TABLE
+      end
+    end
   end
 
-  describe '.dump_advanced_options', if: ENV['DATASTORE_FALLBACKS'] do
+  describe '.dump_advanced_options' do
     context 'when kerberos options are present' do
       let(:advanced_module_options) do
         [
@@ -194,7 +286,66 @@ RSpec.describe Msf::Serializer::ReadableText do
           Winrm::Auth      auto             yes       The Authentication mechanism to use (Accepted: auto, ntlm, kerberos, plaintext)
 
 
-          Active when Winrm::Auth is kerberos:
+          When Winrm::Auth is kerberos:
+
+          Name                              Current Setting                                   Required  Description
+          ----                              ---------------                                   --------  -----------
+          DomainControllerRhost                                                               no        The resolvable rhost for the Domain Controller
+          Winrm::Krb5Ccname                                                                   no        The ccache file to use for kerberos authentication
+          Winrm::KrbOfferedEncryptionTypes  AES256,AES128,RC4-HMAC,DES-CBC-MD5,DES3-CBC-SHA1  yes       Kerberos encryption types to offer
+          Winrm::Rhostname                                                                    no        The rhostname which is required for kerberos - the SPN
+        TABLE
+      end
+    end
+
+    context 'when some options are grouped' do
+      let(:group_name) { 'group_name' }
+      let(:group_description) { 'Used for example reasons' }
+      let(:option_names) { %w[DigestAlgorithm RHOSTS SMBUser SMBDomain] }
+      let(:group) { Msf::OptionGroup.new(name: group_name, description: group_description, option_names: option_names) }
+      let(:aux_mod_with_grouped_options) do
+        mod = aux_mod_with_set_options.replicant
+        mod.options.add_group(group)
+        mod
+      end
+
+      it 'should return the grouped options separate to the rest of the options' do
+        expect(described_class.dump_advanced_options(aux_mod_with_grouped_options, indent_string)).to match_table <<~TABLE
+          Name       Current Setting  Required  Description
+          ----       ---------------  --------  -----------
+          VERBOSE    false            no        Enable detailed status messages
+          WORKSPACE                   no        Specify the workspace for this module
+
+
+          #{group_description}:
+
+          Name             Current Setting  Required  Description
+          ----             ---------------  --------  -----------
+          DigestAlgorithm  SHA256           yes       The digest algorithm to use (Accepted: SHA1, SHA256)
+
+        TABLE
+      end
+    end
+  end
+
+  describe '.dump_evasion_options' do
+    context 'when kerberos options are present' do
+      let(:evasion_module_options) do
+        [
+          *default_evasion_module_options,
+          *kerberos_auth_options(protocol: 'Winrm', auth_methods: Msf::Exploit::Remote::AuthOption::WINRM_OPTIONS),
+        ]
+      end
+
+      it 'returns the options as a table' do
+        expect(described_class.dump_evasion_options(aux_mod_with_set_options, indent_string)).to match_table <<~TABLE
+          Name                 Current Setting  Required  Description
+          ----                 ---------------  --------  -----------
+          EVASION_TEST_OPTION                   yes       The evasion test option
+          Winrm::Auth          auto             yes       The Authentication mechanism to use (Accepted: auto, ntlm, kerberos, plaintext)
+
+
+          When Winrm::Auth is kerberos:
 
           Name                              Current Setting                                   Required  Description
           ----                              ---------------                                   --------  -----------

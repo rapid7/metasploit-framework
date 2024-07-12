@@ -1,5 +1,5 @@
 ---
-# Creates a template that will be vulnerable to ESC 1 (subject name supplied in
+# Creates a template that will be vulnerable to ESC1 (subject name supplied in
 # the request). Fields are based on the SubCA template. For field descriptions,
 # see: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-crtd/b2df0c1c-8657-4684-bb5f-4f6b89c8d434
 showInAdvancedViewOnly: 'TRUE'

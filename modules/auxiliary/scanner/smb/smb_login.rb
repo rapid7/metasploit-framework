@@ -15,6 +15,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::CommandShell
+  include Msf::Sessions::CreateSessionOptions
+  include Msf::Auxiliary::ReportSummary
 
   Aliases = [
     'auxiliary/scanner/smb/login'
@@ -46,7 +48,8 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultOptions' => {
         'DB_ALL_CREDS' => false,
         'BLANK_PASSWORDS' => false,
-        'USER_AS_PASS' => false
+        'USER_AS_PASS' => false,
+        'CreateSession' => false
       }
     )
 
@@ -55,16 +58,16 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::Proxies,
-        OptBool.new('CreateSession', [false, 'Create a new session for every successful login', false]),
         OptBool.new('ABORT_ON_LOCKOUT', [ true, 'Abort the run when an account lockout is detected', false ]),
         OptBool.new('PRESERVE_DOMAINS', [ false, 'Respect a username that contains a domain name.', true ]),
         OptBool.new('RECORD_GUEST', [ false, 'Record guest-privileged random logins to the database', false ]),
         OptBool.new('DETECT_ANY_AUTH', [false, 'Enable detection of systems accepting any authentication', false]),
-        OptBool.new('DETECT_ANY_DOMAIN', [false, 'Detect if domain is required for the specified user', false])
+        OptBool.new('DETECT_ANY_DOMAIN', [false, 'Detect if domain is required for the specified user', false]),
+        OptBool.new('CreateSession', [false, 'Create a new session for every successful login', false])
       ]
     )
 
-    options_to_deregister = %w[USERNAME PASSWORD PASSWORD_SPRAY CommandShellCleanupCommand AutoVerifySession]
+    options_to_deregister = %w[USERNAME PASSWORD CommandShellCleanupCommand AutoVerifySession]
 
     if framework.features.enabled?(Msf::FeatureManager::SMB_SESSION_TYPE)
       add_info('New in Metasploit 6.4 - The %grnCreateSession%clr option within this module can open an interactive session')
@@ -85,6 +88,21 @@ class MetasploitModule < Msf::Auxiliary
     else
       false
     end
+  end
+
+  def run
+    results = super
+    logins = results.flat_map { |_k, v| v[:successful_logins] }
+    sessions = results.flat_map { |_k, v| v[:successful_sessions] }
+    print_status("Bruteforce completed, #{logins.size} #{logins.size == 1 ? 'credential was' : 'credentials were'} successful.")
+    return results unless framework.features.enabled?(Msf::FeatureManager::SMB_SESSION_TYPE)
+
+    if create_session?
+      print_status("#{sessions.size} SMB #{sessions.size == 1 ? 'session was' : 'sessions were'} opened successfully.")
+    else
+      print_status('You can open an SMB session with these credentials and %grnCreateSession%clr set to true')
+    end
+    results
   end
 
   def run_host(ip)
@@ -116,19 +134,23 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     @scanner = Metasploit::Framework::LoginScanner::SMB.new(
-      host: ip,
-      port: rport,
-      local_port: datastore['CPORT'],
-      stop_on_success: datastore['STOP_ON_SUCCESS'],
-      proxies: datastore['Proxies'],
-      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-      connection_timeout: 5,
-      max_send_size: datastore['TCP::max_send_size'],
-      send_delay: datastore['TCP::send_delay'],
-      framework: framework,
-      framework_module: self,
-      kerberos_authenticator_factory: kerberos_authenticator_factory,
-      use_client_as_proof: create_session?
+      configure_login_scanner(
+        host: ip,
+        port: rport,
+        local_port: datastore['CPORT'],
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        proxies: datastore['Proxies'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: 5,
+        max_send_size: datastore['TCP::max_send_size'],
+        send_delay: datastore['TCP::send_delay'],
+        framework: framework,
+        framework_module: self,
+        always_encrypt: datastore['SMB::AlwaysEncrypt'],
+        versions: datastore['SMB::ProtocolVersion'].split(',').map(&:strip).reject(&:blank?).map(&:to_i),
+        kerberos_authenticator_factory: kerberos_authenticator_factory,
+        use_client_as_proof: create_session?
+      )
     )
 
     if datastore['DETECT_ANY_AUTH']
@@ -153,7 +175,8 @@ class MetasploitModule < Msf::Auxiliary
     cred_collection = prepend_db_hashes(cred_collection)
 
     @scanner.cred_details = cred_collection
-
+    successful_logins = []
+    successful_sessions = []
     @scanner.scan! do |result|
       case result.status
       when Metasploit::Model::Login::Status::LOCKED_OUT
@@ -170,14 +193,15 @@ class MetasploitModule < Msf::Auxiliary
         :next_user
       when Metasploit::Model::Login::Status::SUCCESSFUL
         print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}' #{result.access_level}"
+        successful_logins << result
         report_creds(ip, rport, result)
         if create_session?
           begin
-            smb_client = result.proof
-            session_setup(result, smb_client)
-          rescue StandardError => e
+            successful_sessions << session_setup(result)
+          rescue ::StandardError => e
             elog('Failed to setup the session', error: e)
             print_brute level: :error, ip: ip, msg: "Failed to setup the session - #{e.class} #{e.message}"
+            result.connection.close unless result.connection.nil?
           end
         end
         :next_user
@@ -214,6 +238,7 @@ class MetasploitModule < Msf::Auxiliary
         )
       end
     end
+    { successful_logins: successful_logins, successful_sessions: successful_sessions }
   end
 
   # This logic is not universal ie a local account will not care about workgroup
@@ -277,20 +302,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # @param [Metasploit::Framework::LoginScanner::Result] result
-  # @param [RubySMB::Client] client
   # @return [Msf::Sessions::SMB]
-  def session_setup(result, client)
-    return unless client
+  def session_setup(result)
+    return unless (result.connection && result.proof)
 
-    # Create a new session
-    rstream = client.dispatcher.tcp_socket
-    sess = Msf::Sessions::SMB.new(
-      rstream,
-      {
-        client: client
-      }
-    )
-
+    my_session = Msf::Sessions::SMB.new(result.connection, { client: result.proof })
     merge_me = {
       'USERPASS_FILE' => nil,
       'USER_FILE'     => nil,
@@ -299,7 +315,7 @@ class MetasploitModule < Msf::Auxiliary
       'PASSWORD'      => result.credential.private
     }
 
-    start_session(self, nil, merge_me, false, sess.rstream, sess)
+    start_session(self, nil, merge_me, false, my_session.rstream, my_session)
   end
 
 end

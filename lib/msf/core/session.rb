@@ -227,10 +227,11 @@ module Session
   #
   def cleanup
     if db_record and framework.db.active
-      ::ApplicationRecord.connection_pool.with_connection {
+      ::ApplicationRecord.connection_pool.with_connection do
         framework.db.update_session(id: db_record.id, closed_at: Time.now.utc, close_reason: db_record.close_reason)
-        db_record = nil
-      }
+      rescue ActiveRecord::RecordNotFound
+        nil  # this will fail if the workspace was deleted before the session was closed, see #18561
+      end
     end
   end
 

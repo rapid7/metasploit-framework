@@ -14,6 +14,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::CommandShell
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::SSH::Options
+  include Msf::Sessions::CreateSessionOptions
+  include Msf::Auxiliary::ReportSummary
 
   def initialize
     super(
@@ -47,8 +49,6 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('GatherProof', [true, 'Gather proof of access via pre-session shell commands', true])
       ]
     )
-
-    deregister_options('PASSWORD_SPRAY')
   end
 
   def rport
@@ -99,16 +99,18 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     scanner = Metasploit::Framework::LoginScanner::SSH.new(
-      host: ip,
-      port: rport,
-      cred_details: cred_collection,
-      proxies: datastore['Proxies'],
-      stop_on_success: datastore['STOP_ON_SUCCESS'],
-      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-      connection_timeout: datastore['SSH_TIMEOUT'],
-      framework: framework,
-      framework_module: self,
-      skip_gather_proof: !datastore['GatherProof']
+      configure_login_scanner(
+        host: ip,
+        port: rport,
+        cred_details: cred_collection,
+        proxies: datastore['Proxies'],
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+        connection_timeout: datastore['SSH_TIMEOUT'],
+        framework: framework,
+        framework_module: self,
+        skip_gather_proof: !datastore['GatherProof']
+      )
     )
 
     scanner.verbosity = :debug if datastore['SSH_DEBUG']

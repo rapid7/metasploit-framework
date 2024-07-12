@@ -9,6 +9,8 @@ module Msf
 
 module Auxiliary::AuthBrute
 
+  include Msf::Auxiliary::LoginScanner
+
   def initialize(info = {})
     super
 
@@ -61,6 +63,7 @@ module Auxiliary::AuthBrute
       user_file: datastore['USER_FILE'],
       userpass_file: datastore['USERPASS_FILE'],
       user_as_pass: datastore['USER_AS_PASS'],
+      password_spray: datastore['PASSWORD_SPRAY']
     }.merge(opts))
 
     if framework.db.active

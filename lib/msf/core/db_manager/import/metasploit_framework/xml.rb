@@ -85,7 +85,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
         note_data[datum.gsub("-","_")] = nils_for_nulls(note.at(datum).text.to_s.strip)
       end
     }
-    report_note(note_data)
+    msf_import_note(note_data)
   end
 
   # Imports web_form element using Msf::DBManager#report_web_form.
@@ -294,7 +294,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
       end
     }
 
-    report_web_site(info)
+    msf_import_web_site(info)
     yield(:web_site, "#{info[:host]}:#{info[:port]} (#{info[:vhost]})") if block
   end
 
@@ -331,7 +331,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
       end
     }
     host_address = host_data[:host].dup # Preserve after report_host() deletes
-    hobj = report_host(host_data)
+    hobj = msf_import_host(host_data)
 
     host.xpath("host_details/host_detail").each do |hdet|
       hdet_data = {}
@@ -371,7 +371,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
           end
         end
       }
-      report_service(service_data)
+      msf_import_service(service_data)
     end
 
     host.xpath('notes/note').each do |note|
@@ -417,7 +417,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
         end
       end
 
-      vobj = report_vuln(vuln_data)
+      vobj = msf_import_vuln(vuln_data)
 
       vuln.xpath("notes/note").each do |note|
         note_data = {}

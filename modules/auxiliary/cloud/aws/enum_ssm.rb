@@ -10,6 +10,9 @@ class MetasploitModule < Msf::Auxiliary
   include Rex::Proto::Http::WebSocket::AmazonSsm
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::CommandShell
+  include Msf::Sessions::CreateSessionOptions
+  include Msf::Auxiliary::ReportSummary
+
   def initialize(info = {})
     super(
       update_info(
@@ -24,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           This module provides not only the API enumeration identifying EC2
           instances accessible via SSM with given credentials, but enables
           session initiation for all identified targets (without requiring
-          target-level credentials) using the CreateSession mixin option.
+          target-level credentials) using the CreateSession datastore option.
           The module also provides an EC2 ID filter and a limiting throttle
           to prevent session stampedes or expensive messes.
         },

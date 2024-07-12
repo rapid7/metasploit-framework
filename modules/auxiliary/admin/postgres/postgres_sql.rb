@@ -5,7 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Postgres
-  include Msf::OptionalSession
+  include Msf::OptionalSession::PostgreSQL
 
   def initialize(info = {})
     super(update_info(info,
@@ -18,9 +18,8 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'URL', 'www.postgresql.org' ]
-        ],
-      'SessionTypes' => %w[PostgreSQL]
+          [ 'URL', 'https://www.postgresql.org' ]
+        ]
     ))
   end
 
@@ -48,9 +47,9 @@ class MetasploitModule < Msf::Auxiliary
     when :conn_error
       print_error "#{rhost}:#{rport} Postgres - Authentication failure, could not connect."
     when :sql_error
-      print_error "#{postgres_conn.address}:#{postgres_conn.port} Postgres - #{ret[:sql_error]}"
+      print_error "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - #{ret[:sql_error]}"
     when :complete
-      vprint_good "#{postgres_conn.address}:#{postgres_conn.port} Postgres - Command complete."
+      vprint_good "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - Command complete."
     end
     postgres_logout if self.postgres_conn && session.blank?
   end

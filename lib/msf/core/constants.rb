@@ -99,6 +99,8 @@ FIRST_ATTEMPT_FAIL = 'first-attempt-fail'
 REPEATABLE_SESSION = 'repeatable-session'
 # The module isn't expected to get a shell reliably (such as only once).
 UNRELIABLE_SESSION = 'unreliable-session'
+# The module may not execute the payload until an external event occurs. For instance, a cron job, machine restart, user interaction within a GUI element, etc.
+EVENT_DEPENDENT = 'event-dependent'
 
 module HttpClients
   IE = "MSIE"

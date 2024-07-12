@@ -41,8 +41,6 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(4848),
         OptString.new('USERNAME',[true, 'A specific username to authenticate as','admin']),
       ])
-
-    deregister_options('PASSWORD_SPRAY')
   end
 
   #

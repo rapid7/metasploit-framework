@@ -71,7 +71,8 @@ module Auxiliary
     run_uuid = Rex::Text.rand_text_alphanumeric(24)
     job_listener.waiting run_uuid
     ctx = [mod, run_uuid, job_listener]
-    if(mod.passive? or opts['RunAsJob'])
+    run_as_job = opts['RunAsJob'].nil? ? mod.passive? : opts['RunAsJob']
+    if run_as_job
       mod.job_id = mod.framework.jobs.start_bg_job(
         "Auxiliary: #{mod.refname}",
         ctx,
@@ -240,4 +241,3 @@ end
 
 end
 end
-

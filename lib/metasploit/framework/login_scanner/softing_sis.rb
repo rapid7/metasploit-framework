@@ -34,17 +34,13 @@ module Metasploit
           false
         end
 
-        # the actual login method, called by #attempt_login
+        # get the authentication token
         #
-        # @param user [String] The username to try
-        # @param pass [String] The password to try
+        # @param user [String] The username
         # @return [Hash]
         #   * status [Metasploit::Model::Login::Status]
-        #   * proof [String] the HTTP response body
-        def do_login(user, pass)
-          # prep the data needed for login
-          protocol = ssl ? 'https' : 'http'
-          # attempt to get an authentication token
+        #   * proof [String] the authentication token 
+        def get_auth_token(user)
           auth_token_uri = normalize_uri("#{uri}/runtime/core/user/#{user}/authentication-token")
 
           # send the request to get an authentication token
@@ -79,9 +75,43 @@ module Metasploit
             return { status: LOGIN_STATUS::INCORRECT, proof: auth_res.body.to_s }
           end
 
+          { status: LOGIN_STATUS::SUCCESSFUL, proof: auth_token }
+        end
+
+        # generate a signature from the authentication token, username, and password
+        #
+        # @param auth_token [String] The authentication token retrieved by calling get_auth_token
+        # @param user [String] The username
+        # @param pass [String] The password
+        # @return [String] A hexadecimal string representation of the signature
+        def generate_signature(auth_token, user, pass)
+          Digest::MD5.hexdigest(auth_token + pass + auth_token + user + auth_token)
+        end
+
+        # the actual login method, called by #attempt_login
+        #
+        # @param user [String] The username to try
+        # @param pass [String] The password to try
+        # @return [Hash]
+        #   * status [Metasploit::Model::Login::Status]
+        #   * proof [String] the HTTP response body
+        def do_login(user, pass)
+          # prep the data needed for login
+          protocol = ssl ? 'https' : 'http'
+          # attempt to get an authentication token
+          auth_token_res = get_auth_token(user)
+          # get_auth_token always returns a hash - check that status is SUCCESSFUL
+          # if not, just return as it is
+          unless auth_token_res[:status] == LOGIN_STATUS::SUCCESSFUL
+            return auth_token_res
+          end
+
+          # extract the authentication token from the hash
+          auth_token = auth_token_res[:proof]
+          
           login_uri = normalize_uri("#{uri}/runtime/core/user/#{user}/authentication")
           # calculate signature to use when logging in
-          signature = Digest::MD5.hexdigest(auth_token + pass + auth_token + user + auth_token)
+          signature = generate_signature(auth_token, user, pass)
           # GET parameters for login
           vars_get = {
             'Signature' => signature,

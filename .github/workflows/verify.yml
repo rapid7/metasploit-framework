@@ -33,7 +33,7 @@ jobs:
     name: Docker Build
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: docker-compose build
         run: |
@@ -64,19 +64,16 @@ jobs:
       fail-fast: true
       matrix:
         ruby:
-          - '3.0'
           - '3.1'
           - '3.2'
-          - '3.3.0-preview3'
+          - '3.3'
+          - '3.4.0-preview1'
         os:
           - ubuntu-20.04
           - ubuntu-latest
         exclude:
           - { os: ubuntu-latest, ruby: '3.0' }
         include:
-          - os: ubuntu-latest
-            ruby: '3.1'
-            test_cmd: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" MSF_FEATURE_DATASTORE_FALLBACKS=1'
           - os: ubuntu-latest
             ruby: '3.1'
             test_cmd: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" MSF_FEATURE_DEFER_MODULE_LOADS=1'
@@ -89,6 +86,7 @@ jobs:
 
     env:
       RAILS_ENV: test
+      BUNDLE_WITHOUT: "coverage development pcap"
 
     name: ${{ matrix.os }} - Ruby ${{ matrix.ruby }} - ${{ matrix.test_cmd }}
     steps:
@@ -96,11 +94,10 @@ jobs:
         run: sudo apt-get install -y --no-install-recommends libpcap-dev graphviz
 
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Ruby
         env:
-          BUNDLE_WITHOUT: "coverage development pcap"
           # Nokogiri doesn't release pre-compiled binaries for preview versions of Ruby; So force compilation with BUNDLE_FORCE_RUBY_PLATFORM
           BUNDLE_FORCE_RUBY_PLATFORM: "${{ contains(matrix.ruby, 'preview') && 'true' || 'false' }}"
         uses: ruby/setup-ruby@v1

@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
-    deregister_options('PASSWORD_SPRAY', 'VHOST', 'USER_AS_PASS',
+    deregister_options('VHOST', 'USER_AS_PASS',
                        'USERPASS_FILE', 'STOP_ON_SUCCESS', 'Proxies',
                        'DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_ALL_USERS',
                        'BLANK_PASSWORDS', 'RHOSTS')

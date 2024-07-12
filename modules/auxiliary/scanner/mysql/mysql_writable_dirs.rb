@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
-  include Msf::OptionalSession
+  include Msf::OptionalSession::MySQL
 
   def initialize
     super(
@@ -21,8 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'  => [
         [ 'URL', 'https://dev.mysql.com/doc/refman/5.7/en/select-into.html' ]
       ],
-      'License'        => MSF_LICENSE,
-      'SessionTypes'  => %w[MySQL]
+      'License'        => MSF_LICENSE
     )
 
     register_options([
@@ -63,17 +62,17 @@ class MetasploitModule < Msf::Auxiliary
     begin
       print_status("Checking #{dir}...")
       res = mysql_query_no_handle("SELECT _utf8'test' INTO DUMPFILE '#{dir}/" + datastore['FILE_NAME'] + "'")
-    rescue ::Mysql::ServerError => e
+    rescue ::Rex::Proto::MySQL::Client::ServerError => e
       print_warning(e.to_s)
     rescue Rex::ConnectionTimeout => e
       print_error("Timeout: #{e.message}")
     else
       print_good("#{dir} is writeable")
       report_note(
-        :host  => mysql_conn.host,
+        :host  => mysql_conn.peerhost,
         :type  => "filesystem.file",
         :data  => "#{dir} is writeable",
-        :port  => mysql_conn.port,
+        :port  => mysql_conn.peerport,
         :proto => 'tcp',
         :update => :unique_data
       )

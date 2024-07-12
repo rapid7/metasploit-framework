@@ -1,7 +1,7 @@
 module Msf::Payload::Adapter::Fetch::Server::TFTP
 
   def start_tftp_server(srvport, srvhost)
-    vprint_status("Starting TFTP server on #{srvhost}:#{srvport}")
+    vprint_status("Starting TFTP server on #{Rex::Socket.to_authority(srvhost, srvport)}")
     Rex::Proto::TFTP::Server.new(srvport, srvhost, {})
   end
 
@@ -14,7 +14,7 @@ module Msf::Payload::Adapter::Fetch::Server::TFTP
     )
   end
   def cleanup_tftp_fetch_service(fetch_service)
-    fetch_service.stop unless fetch_service.nil?
+    fetch_service.stop
   end
 
   def fetch_protocol
@@ -25,7 +25,7 @@ module Msf::Payload::Adapter::Fetch::Server::TFTP
     fetch_service = start_tftp_server(srvport, srvhost)
     if fetch_service.nil?
       cleanup_handler
-      fail_with(Msf::Exploit::Failure::BadConfig, "Fetch Handler failed to start on #{srvhost}:#{srvport}\n #{e}")
+      fail_with(Msf::Exploit::Failure::BadConfig, "Fetch handler failed to start on #{srvhost}:#{srvport}\n#{e}")
     end
     fetch_service.register_file(srvuri, srvexe, datastore['FETCH_SRVONCE'])
     fetch_service.start

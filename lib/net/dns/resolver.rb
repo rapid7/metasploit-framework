@@ -253,7 +253,7 @@ module Net # :nodoc:
       #     #=> ["example.com","a.example.com","b.example.com"]
       #
       def searchlist
-        @config[:searchlist].inspect
+        @config[:searchlist].deep_dup
       end
 
       # Set the resolver searchlist.
@@ -350,7 +350,7 @@ module Net # :nodoc:
       # Return a string with the default domain
       #
       def domain
-        @config[:domain].inspect
+        @config[:domain].dup
       end
 
       # Set the domain for the query
@@ -1094,7 +1094,17 @@ module Net # :nodoc:
               when /^\s*search\s+(.*)/
                 self.searchlist = $1.split(" ")
               when /^\s*nameserver\s+(.*)/
-                self.nameservers += $1.split(" ")
+                $1.split(/\s+/).each do |nameserver|
+                  # per https://man7.org/linux/man-pages/man5/resolv.conf.5.html nameserver values must be IP addresses
+                  begin
+                    ip_addr = IPAddr.new(nameserver)
+                  rescue IPAddr::InvalidAddressError
+                    @logger.warn "Ignoring invalid name server '#{nameserver}' from configuration file"
+                    next
+                  else
+                    self.nameservers += [ip_addr]
+                  end
+                end
               end
             end
           rescue => e

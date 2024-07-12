@@ -4,9 +4,10 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::MSSQL
+  include Msf::OptionalSession::MSSQL
 
   def initialize(info = {})
     super(update_info(info,
@@ -337,14 +338,20 @@ class MetasploitModule < Msf::Auxiliary
 
 
     # STATUSING
-    print_line(" ")
-    print_status("Attempting to connect to the SQL Server at #{rhost}:#{rport}...")
 
     # CREATE DATABASE CONNECTION AND SUBMIT QUERY WITH ERROR HANDLING
     begin
-      result = mssql_query(sql, false) if mssql_login_datastore
+      if session
+        set_mssql_session(session.client)
+      else
+        print_line(" ")
+        print_status("Attempting to connect to the SQL Server at #{rhost}:#{rport}...")
+        return unless mssql_login_datastore
+        print_good("Successfully connected to #{mssql_client.peerhost}:#{mssql_client.peerport}")
+      end
+      result = mssql_query(sql, false)
+
       column_data = result[:rows]
-      print_good("Successfully connected to #{rhost}:#{rport}")
     rescue
       print_error("Failed to connect to #{rhost}:#{rport}")
     return
@@ -436,8 +443,8 @@ class MetasploitModule < Msf::Auxiliary
     this_service = nil
     if framework.db and framework.db.active
       this_service = report_service(
-        :host  => rhost,
-        :port => rport,
+        :host  => mssql_client.peerhost,
+        :port => mssql_client.peerport,
         :name => 'mssql',
         :proto => 'tcp'
       )
@@ -445,8 +452,8 @@ class MetasploitModule < Msf::Auxiliary
 
     # CONVERT TABLE TO CSV AND WRITE TO FILE
     if (save_loot=="yes")
-      filename= "#{datastore['RHOST']}-#{datastore['RPORT']}_sqlserver_query_results.csv"
-      path = store_loot("mssql.data", "text/plain", datastore['RHOST'], sql_data_tbl.to_csv, filename, "SQL Server query results",this_service)
+      filename= "#{mssql_client.peerhost}-#{mssql_client.peerport}_sqlserver_query_results.csv"
+      path = store_loot("mssql.data", "text/plain", mssql_client.peerhost, sql_data_tbl.to_csv, filename, "SQL Server query results",this_service)
       print_good("Query results have been saved to: #{path}")
     end
 

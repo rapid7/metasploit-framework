@@ -13,7 +13,7 @@ RSpec.describe Msf::Auxiliary::Rocketmq do
   end
 
   let(:expected_name_server_response) do
-    "\x00\x00\x01a\x00\x00\x00_{\"code\":0,\"flag\":1,\"language\":\"JAVA\",\"opaque\":1,\"serializeTypeCurrentRPC\":\"JSON\",\"version\":403}{\"brokerDatas\":[{\"brokerAddrs\":{\"0\":\"172.16.199.135:10911\"},\"brokerName\":\"DESKTOP-8ATHH6O\",\"cluster\":\"DefaultCluster\"}],\"filterServerTable\":{},\"queueDatas\":[{\"brokerName\":\"DESKTOP-8ATHH6O\",\"perm\":7,\"readQueueNums\":8,\"topicSysFlag\":0,\"writeQueueNums\":8}]}".b
+    "\x00\x00\x00_{\"code\":0,\"flag\":1,\"language\":\"JAVA\",\"opaque\":1,\"serializeTypeCurrentRPC\":\"JSON\",\"version\":403}{\"brokerDatas\":[{\"brokerAddrs\":{\"0\":\"172.16.199.135:10911\"},\"brokerName\":\"DESKTOP-8ATHH6O\",\"cluster\":\"DefaultCluster\"}],\"filterServerTable\":{},\"queueDatas\":[{\"brokerName\":\"DESKTOP-8ATHH6O\",\"perm\":7,\"readQueueNums\":8,\"topicSysFlag\":0,\"writeQueueNums\":8}]}".b
   end
 
   let(:expected_parsed_data_response) do
@@ -55,6 +55,9 @@ RSpec.describe Msf::Auxiliary::Rocketmq do
   describe '#send_version_request' do
     it 'returns version info' do
       expect(mock_sock).to receive(:send).with(mock_name_server_response, 0)
+      expect(mock_sock).to receive(:timed_read).with(4).and_return([expected_name_server_response.length].pack('N'))
+      expect(mock_sock).to receive(:timed_read).with(expected_name_server_response.length).and_return(expected_name_server_response)
+
       expect(subject.send_version_request).to eq(expected_name_server_response)
     end
   end

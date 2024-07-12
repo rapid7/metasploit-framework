@@ -88,6 +88,7 @@ strtab:
  db 0
  db 0
 strtabsz equ $ - strtab
+
+align 16
 global _start
 _start:
-

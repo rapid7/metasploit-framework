@@ -36,7 +36,7 @@ module Msf::DBManager::Task
     task.path = path
     task.progress = prog
     task.result = result if result
-    msf_import_timestamps(opts,task)
+    msf_assign_timestamps(opts, task)
     # Having blank completed_ats, while accurate, will cause unstoppable tasks.
     if completed_at.nil? || completed_at.empty?
       task.completed_at = opts[:updated_at]

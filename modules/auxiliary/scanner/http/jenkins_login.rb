@@ -28,8 +28,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [ false, 'The path to the Jenkins-CI application'])
       ])
 
-    deregister_options('PASSWORD_SPRAY')
-
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000 ])
   end
 

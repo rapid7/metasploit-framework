@@ -1421,10 +1421,14 @@ class Core
     color = driver.output.config[:color]
 
     if args[0] == "off"
-      driver.init_ui(driver.input, Rex::Ui::Text::Output::Stdio.new)
+      stdout = Rex::Ui::Text::Output::Stdio.new
+      driver.init_ui(driver.input, stdout)
+      active_module.init_ui(driver.input, stdout) if defined?(active_module) && active_module
       msg = "Spooling is now disabled"
     else
-      driver.init_ui(driver.input, Rex::Ui::Text::Output::Tee.new(args[0]))
+      stdout = Rex::Ui::Text::Output::Tee.new(args[0])
+      driver.init_ui(driver.input, stdout)
+      active_module.init_ui(driver.input, stdout) if defined?(active_module) && active_module
       msg = "Spooling to file #{args[0]}..."
     end
 
@@ -1602,7 +1606,8 @@ class Core
           end
 
           begin
-            if session.type == 'meterpreter'
+            case session.type.downcase
+            when 'meterpreter'
               # If session.sys is nil, dont even try..
               unless session.sys
                 print_error("Session #{s} does not have stdapi loaded, skipping...")
@@ -1619,12 +1624,14 @@ class Core
                 print_line(data) unless data.blank?
               rescue ::Rex::Post::Meterpreter::RequestError
                 print_error("Failed: #{$!.class} #{$!}")
-              rescue Rex::TimeoutError
+              rescue ::Rex::TimeoutError
                 print_error("Operation timed out. Timeout currently #{session.response_timeout} seconds, you can configure this with %grnsessions -c <cmd> --timeout <value>%clr")
               end
-            elsif session.type == 'shell' || session.type == 'powershell'
+            when 'shell', 'powershell'
               output = session.shell_command(cmd)
               print_line(output) if output
+            when 'mssql', 'postgresql', 'mysql'
+              session.run_cmd(cmd, driver.output)
             end
           ensure
             # Restore timeout for each session

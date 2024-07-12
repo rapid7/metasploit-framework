@@ -60,7 +60,7 @@ module Msf::DBManager::User
 
       # Finalize
       if user.changed?
-        msf_import_timestamps(opts, user)
+        msf_assign_timestamps(opts, user)
         user.save!
       end
 

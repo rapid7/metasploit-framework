@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   # Exploit mixins should be called first
   include Msf::Exploit::Remote::SMB::Client::Psexec
   include Msf::Auxiliary::Report
-  include Msf::OptionalSession
+  include Msf::OptionalSession::SMB
 
   # Aliases for common classes
   SIMPLE = Rex::Proto::SMB::SimpleClient
@@ -35,7 +35,6 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'http://sourceforge.net/projects/smbexec' ],
         [ 'URL', 'https://www.optiv.com/blog/owning-computers-without-shell-access' ]
       ],
-      'SessionTypes' => %w[SMB]
     ))
 
     register_options([

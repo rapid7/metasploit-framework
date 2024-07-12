@@ -94,6 +94,9 @@ module Rex
 
 
             cipher = OpenSSL::Cipher.new('des-cbc')
+            if key.length != cipher.key_len
+              raise Rex::Proto::Kerberos::Model::Error::KerberosError, "Decryption key length must be #{cipher.key_len} for des-cbc"
+            end
             cipher.decrypt
             cipher.padding = 0
             cipher.key = key
@@ -137,6 +140,9 @@ module Rex
             plaintext = confounder + checksum + padded_data
 
             cipher = OpenSSL::Cipher.new('des-cbc')
+            if key.length != cipher.key_len
+              raise Rex::Proto::Kerberos::Model::Error::KerberosError, "Encryption key length must be #{cipher.key_len} for des-cbc"
+            end
             cipher.encrypt
             cipher.padding = 0
             cipher.key = key

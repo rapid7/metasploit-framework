@@ -21,7 +21,7 @@ module Msf::DBManager::Import::Qualys
     end
 
     if info[:host] && info[:port] && info[:proto]
-      report_service(info)
+      msf_import_service(info)
     end
 
     fixed_refs = []
@@ -39,7 +39,7 @@ module Msf::DBManager::Import::Qualys
     return if qid == 0
     title = 'QUALYS-' + qid if title.nil? or title.empty?
     if addr
-      report_vuln(
+      msf_import_vuln(
         :workspace => wspace,
         :task => task,
         :host => hobj,

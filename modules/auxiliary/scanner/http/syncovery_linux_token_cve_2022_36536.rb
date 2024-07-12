@@ -60,8 +60,8 @@ class MetasploitModule < Msf::Auxiliary
     deregister_options(
       'USERNAME', 'USER_AS_PASS', 'DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_ALL_USERS', 'DB_SKIP_EXISTING',
       'NTLM::SendLM', 'NTLM::SendNTLM', 'NTLM::SendSPN', 'NTLM::UseLMKey', 'NTLM::UseNTLM2_session', 'NTLM::UseNTLMv2',
-      'REMOVE_USERPASS_FILE', 'REMOVE_USER_FILE', 'DOMAIN', 'HttpUsername', 'PASSWORD_SPRAY', 'BLANK_PASSWORDS',
-      'USER_FILE', 'USERPASS_FILE', 'PASS_FILE', 'PASSWORD'
+      'REMOVE_USERPASS_FILE', 'REMOVE_USER_FILE', 'DOMAIN', 'HttpUsername', 'BLANK_PASSWORDS', 'USER_FILE',
+      'USERPASS_FILE', 'PASS_FILE', 'PASSWORD'
     )
   end
 
@@ -124,11 +124,13 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("#{peer.strip} - Starting Brute-Forcer")
     scanner = Metasploit::Framework::LoginScanner::SyncoveryFileSyncBackup.new(
-      host: ip,
-      port: rport,
-      cred_details: cred_collection,
-      stop_on_success: true, # this will have no effect due to the scanner behaviour when scanning without username
-      connection_timeout: 10
+      configure_login_scanner(
+        host: ip,
+        port: rport,
+        cred_details: cred_collection,
+        stop_on_success: true, # this will have no effect due to the scanner behaviour when scanning without username
+        connection_timeout: 10
+      )
     )
 
     scanner.scan! do |result|

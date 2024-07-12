@@ -175,7 +175,11 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     end
 
     session.commands.concat(session.core.get_loaded_extension_commands('core'))
-
+    if session.tlv_enc_key[:weak_key?]
+      print_warning("Meterpreter session #{session.sid} is using a weak encryption key.")
+      print_warning('Meterpreter start up operations have been aborted. Use the session at your own risk.')
+      return nil
+    end
     # Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP
     if datastore['AutoUnhookProcess'] == true
       console.run_single('load unhook')
@@ -421,7 +425,11 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
   def update_session_info
     # sys.config.getuid, and fs.dir.getwd cache their results, so update them
-    fs&.dir&.getwd
+    begin
+      fs&.dir&.getwd
+    rescue Rex::Post::Meterpreter::RequestError => e
+      elog('failed retrieving working directory', error: e)
+    end
     username = self.sys.config.getuid
     sysinfo  = self.sys.config.sysinfo
 

@@ -25,10 +25,14 @@ module Msf
       begin
         connect
         sock.send(header + data_length + data, 0)
-        res = sock.recv(1024)
+        res_length = sock.timed_read(4)&.unpack1('N')
+        return nil if res_length.nil?
+
+        res = sock.timed_read(res_length)
       rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
         print_error("Unable to connect: #{e.class} #{e.message}\n#{e.backtrace * "\n"}")
-        elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+        elog('Error sending the rocketmq version request', error: e)
+        return nil
       ensure
         disconnect
       end
@@ -64,7 +68,11 @@ module Msf
     # @return [Hash] Hash including RocketMQ versions info and Broker info if found
     def parse_rocketmq_data(res)
       # remove a response header so we have json-ish data
-      res = res[8..]
+      res = res.split(/\x00_/)[1]
+      unless res.starts_with?("{")
+        print_error("Failed to successfully remove the response header and now cannot parse the response.")
+        return nil
+      end
 
       # we have 2 json objects appended to each other, so we now need to split that out and make it usable
       res = res.split('}{')
@@ -111,13 +119,20 @@ module Msf
       # Example of brokerData:
       # [{"brokerAddrs"=>{"0"=>"172.16.199.135:10911"}, "brokerName"=>"DESKTOP-8ATHH6O", "cluster"=>"DefaultCluster"}]
 
+      if broker_datas['brokerDatas'].blank?
+        print_status("brokerDatas field is missing from the response, assuming default broker port of #{default_broker_port}")
+        return default_broker_port
+      end
       broker_datas['brokerDatas'].each do |broker_data|
+        if broker_data['brokerAddrs'].blank?
+          print_status("brokerAddrs field is missing from the response, assuming default broker port of #{default_broker_port}")
+          return default_broker_port
+        end
         broker_data['brokerAddrs'].values.each do |broker_endpoint|
           next unless broker_endpoint.start_with?("#{rhost}:")
           return broker_endpoint.match(/\A#{rhost}:(\d+)\z/)[1].to_i
         end
       end
-
 
       print_status("autodetection failed, assuming default port of #{default_broker_port}")
       default_broker_port

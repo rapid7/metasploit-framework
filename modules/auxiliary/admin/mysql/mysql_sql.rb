@@ -5,7 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MYSQL
-  include Msf::OptionalSession
+  include Msf::OptionalSession::MySQL
 
   def initialize(info = {})
     super(update_info(info,
@@ -16,7 +16,6 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'		=> [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
       'License'		=> MSF_LICENSE,
-      'SessionTypes' => %w[MySQL]
     ))
 
     register_options(

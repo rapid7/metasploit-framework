@@ -11,6 +11,12 @@ module Msf
             %w[-h --help] => [false, 'Help menu.' ],
             '-e' => [true, 'Expression to evaluate.']
           )
+
+          @@sessions_opts = Rex::Parser::Arguments.new(
+            ['-h', '--help'] => [ false, 'Show this message' ],
+            ['-i', '--interact'] => [ true, 'Interact with a provided session ID', '<id>' ]
+          )
+
           def commands
             {
               '?' => 'Help menu',
@@ -136,23 +142,50 @@ module Msf
           end
 
           def cmd_sessions_help
-            print_line('Usage: sessions <id>')
+            print_line('Usage: sessions [options] or sessions [id]')
             print_line
-            print_line('Interact with a different session Id.')
-            print_line('This works the same as calling this from the MSF shell: sessions -i <session id>')
+            print_line('Interact with a different session ID.')
+            print(@@sessions_opts.usage)
             print_line
           end
 
           def cmd_sessions(*args)
-            if args.empty? || args[0].to_i == 0
+            if args.empty?
               cmd_sessions_help
-            elsif args[0].to_s == session.name.to_s
+              return false
+            end
+
+            sid = nil
+
+            if args.length == 1 && args[0] =~ /-?\d+/
+              sid = args[0].to_i
+            else
+              @@sessions_opts.parse(args) do |opt, _idx, val|
+                case opt
+                when '-h', '--help'
+                  cmd_sessions_help
+                  return false
+                when '-i', '--interact'
+                  sid = val.to_i
+                else
+                  cmd_sessions_help
+                  return false
+                end
+              end
+            end
+
+            if sid == 0 || sid.nil?
+              cmd_sessions_help
+              return false
+            end
+
+            if sid.to_s == session.name.to_s
               print_status("Session #{session.name} is already interactive.")
             else
               print_status("Backgrounding session #{session.name}...")
               # store the next session id so that it can be referenced as soon
               # as this session is no longer interacting
-              session.next_session = args[0]
+              session.next_session = sid
               session.interacting = false
             end
           end

@@ -48,6 +48,12 @@ module Metasploit
           ].freeze
         end
 
+        # @returns [Array[Integer]] The SMB versions to negotiate
+        attr_accessor :versions
+
+        # @returns [Boolean] By default the client uses encryption even if it is not required by the server. Disable this by setting always_encrypt to false
+        attr_accessor :always_encrypt
+
         # @!attribute dispatcher
         #   @return [RubySMB::Dispatcher::Socket]
         attr_accessor :dispatcher
@@ -104,7 +110,16 @@ module Metasploit
             realm = (credential.realm || '').dup.force_encoding('UTF-8')
             username = (credential.public || '').dup.force_encoding('UTF-8')
             password = (credential.private || '').dup.force_encoding('UTF-8')
-            client = RubySMB::Client.new(dispatcher, username: username, password: password, domain: realm)
+            client = RubySMB::Client.new(
+               dispatcher,
+               username: username,
+               password: password,
+               domain: realm,
+               smb1: versions.include?(1),
+               smb2: versions.include?(2),
+               smb3: versions.include?(3),
+               always_encrypt: always_encrypt
+            )
 
             if kerberos_authenticator_factory
               client.extend(Msf::Exploit::Remote::SMB::Client::KerberosAuthentication)
@@ -137,6 +152,7 @@ module Metasploit
               # Additionally assign values to nil to avoid closing the socket etc automatically
               if use_client_as_proof
                 proof = client
+                connection = self.sock
                 client = nil
                 self.sock = nil
                 self.dispatcher = nil
@@ -169,7 +185,11 @@ module Metasploit
             access_level ||= AccessLevels::GUEST
           end
 
-          result = Result.new(credential: credential, status: status, proof: proof, access_level: access_level)
+          result = Result.new(credential: credential,
+                              status: status,
+                              proof: proof,
+                              access_level: access_level,
+                              connection: connection)
           result.host = host
           result.port = port
           result.protocol = 'tcp'
@@ -187,6 +207,8 @@ module Metasploit
           self.connection_timeout = 10 if connection_timeout.nil?
           self.max_send_size = 0 if max_send_size.nil?
           self.send_delay = 0 if send_delay.nil?
+          self.always_encrypt = true if always_encrypt.nil?
+          self.versions = ::Rex::Proto::SMB::SimpleClient::DEFAULT_VERSIONS if versions.nil?
         end
 
       end

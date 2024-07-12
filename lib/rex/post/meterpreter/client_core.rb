@@ -25,7 +25,7 @@ module Meterpreter
 #
 ###
 class ClientCore < Extension
-
+  
   METERPRETER_TRANSPORT_TCP   = 0
   METERPRETER_TRANSPORT_HTTP  = 1
   METERPRETER_TRANSPORT_HTTPS = 2
@@ -710,7 +710,7 @@ class ClientCore < Extension
 
     # Renegotiate TLV encryption on the migrated session
     secure
-
+  
     # Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)
     client.ext.aliases.keys.each { |e|
       client.core.use(e)
@@ -758,19 +758,32 @@ class ClientCore < Extension
   #
   def negotiate_tlv_encryption(timeout: client.comm_timeout)
     sym_key = nil
+    is_weak_key = nil
     rsa_key = OpenSSL::PKey::RSA.new(2048)
     rsa_pub_key = rsa_key.public_key
 
-    request  = Packet.create_request(COMMAND_ID_CORE_NEGOTIATE_TLV_ENCRYPTION)
+    request = Packet.create_request(COMMAND_ID_CORE_NEGOTIATE_TLV_ENCRYPTION)
     request.add_tlv(TLV_TYPE_RSA_PUB_KEY, rsa_pub_key.to_der)
 
     begin
       response = client.send_request(request, timeout)
       key_enc = response.get_tlv_value(TLV_TYPE_ENC_SYM_KEY)
       key_type = response.get_tlv_value(TLV_TYPE_SYM_KEY_TYPE)
-
+      key_length = { Packet::ENC_FLAG_AES128 => 16, Packet::ENC_FLAG_AES256 => 32 }[key_type]
       if key_enc
-        sym_key = rsa_key.private_decrypt(key_enc, OpenSSL::PKey::RSA::PKCS1_PADDING)
+        key_dec_data = rsa_key.private_decrypt(key_enc, OpenSSL::PKey::RSA::PKCS1_PADDING)
+        if !key_dec_data
+          raise Rex::Post::Meterpreter::RequestError
+        end
+        sym_key = key_dec_data[0..key_length - 1]
+        is_weak_key = false
+        if key_dec_data.length > key_length
+          key_dec_data = key_dec_data[key_length...]
+          if key_dec_data.length > 0
+            key_strength = key_dec_data[0]
+            is_weak_key = key_strength != "\x00"
+          end
+        end
       else
         sym_key = response.get_tlv_value(TLV_TYPE_SYM_KEY)
       end
@@ -781,7 +794,8 @@ class ClientCore < Extension
 
     {
       key:  sym_key,
-      type: key_type
+      type: key_type,
+      weak_key?: is_weak_key
     }
   end
 

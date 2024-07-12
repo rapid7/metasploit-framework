@@ -77,11 +77,12 @@ module Metasploit
           }
 
           begin
-            client = Rex::Proto::MSSQL::Client.new(framework_module, framework, host, port)
+            client = Rex::Proto::MSSQL::Client.new(framework_module, framework, host, port, proxies)
             if client.mssql_login(credential.public, credential.private, '', credential.realm)
               result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
               if use_client_as_proof
                 result_options[:proof] = client
+                result_options[:connection] = client.sock
               else
                 client.disconnect
               end

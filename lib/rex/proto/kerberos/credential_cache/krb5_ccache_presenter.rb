@@ -250,6 +250,17 @@ module Rex::Proto::Kerberos::CredentialCache
       output.join("\n")
     end
 
+    def present_credential_info(credential_info)
+      output = []
+
+      output << 'Credential Information:'
+      output << "Version: #{credential_info.version}".indent(2)
+      output << "Encryption Type: #{credential_info.encryption_type} (#{Rex::Proto::Kerberos::Crypto::Encryption.const_name(credential_info.encryption_type)})".indent(2)
+      output << "Serialized Data: #{credential_info.serialized_data.map { |x| x.to_i.to_s(16).rjust(2, '0').to_s }.join}".indent(2)
+
+      output.join("\n")
+    end
+
     # @param [Rex::Proto::Kerberos::Pac::Krb5ClientInfo] client_info
     # @return [String] A human readable representation of a Client Info
     def present_client_info(client_info)
@@ -349,6 +360,8 @@ module Rex::Proto::Kerberos::CredentialCache
       case ul_type
       when Rex::Proto::Kerberos::Pac::Krb5PacElementType::LOGON_INFORMATION
         present_logon_info(pac_element)
+      when Rex::Proto::Kerberos::Pac::Krb5PacElementType::CREDENTIAL_INFORMATION
+        present_credential_info(pac_element)
       when Rex::Proto::Kerberos::Pac::Krb5PacElementType::CLIENT_INFORMATION
         present_client_info(pac_element)
       when Rex::Proto::Kerberos::Pac::Krb5PacElementType::SERVER_CHECKSUM

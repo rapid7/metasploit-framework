@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
     # username is hardcoded into application
     deregister_options(
       'DB_ALL_CREDS', 'DB_ALL_USERS', 'DB_SKIP_EXISTING',
-      'USERNAME', 'USER_FILE', 'USER_AS_PASS', 'PASSWORD_SPRAY')
+      'USERNAME', 'USER_FILE', 'USER_AS_PASS')
   end
 
   def setup

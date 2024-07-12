@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  include Msf::OptionalSession
+  include Msf::OptionalSession::SMB
 
   def initialize
     super(
@@ -22,7 +22,6 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => 'Determine what named pipes are accessible over SMB',
       'Author'      => 'hdm',
       'License'     => MSF_LICENSE,
-      'SessionTypes' => %w[SMB]
     )
 
     deregister_options('RPORT', 'SMBDirect')

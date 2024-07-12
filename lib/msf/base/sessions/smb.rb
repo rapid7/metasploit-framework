@@ -13,6 +13,8 @@ class Msf::Sessions::SMB
   attr_accessor :console
   # @return [RubySMB::Client] The SMB client
   attr_accessor :client
+  # @return [Rex::Proto::SMB::SimpleClient]
+  attr_accessor :simple_client
   attr_accessor :platform, :arch
   attr_reader :framework
 
@@ -21,6 +23,7 @@ class Msf::Sessions::SMB
   # @option opts [RubySMB::Client] :client
   def initialize(rstream, opts = {})
     @client = opts.fetch(:client)
+    @simple_client = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
     self.console = Rex::Post::SMB::Ui::Console.new(self)
     super(rstream, opts)
   end
@@ -45,8 +48,8 @@ class Msf::Sessions::SMB
       next if datastore[key].nil? || datastore[key].empty?
 
       args = Shellwords.shellwords(datastore[key])
-      print_status("Session ID #{session.sid} (#{session.tunnel_to_s}) processing #{key} '#{datastore[key]}'")
-      session.execute_script(args.shift, *args)
+      print_status("Session ID #{sid} (#{tunnel_to_s}) processing #{key} '#{datastore[key]}'")
+      execute_script(args.shift, *args)
     end
   end
 
@@ -57,7 +60,7 @@ class Msf::Sessions::SMB
   # Returns the type of session.
   #
   def self.type
-    'SMB'
+    'smb'
   end
 
   def self.can_cleanup_files
@@ -72,17 +75,11 @@ class Msf::Sessions::SMB
   end
 
   def address
-    return @address if @address
-
-    @address, @port = self.client.dispatcher.tcp_socket.peerinfo.split(':')
-    @address
+    @address ||= simple_client.peerhost
   end
 
   def port
-    return @port if @port
-
-    @address, @port = self.client.dispatcher.tcp_socket.peerinfo.split(':')
-    @port
+    @port ||= simple_client.peerport
   end
 
   ##

@@ -14,7 +14,7 @@ RSpec.describe 'Meterpreter' do
     }
   )
 
-  TEST_ENVIRONMENT = AllureRspec.configuration.environment_properties
+  allure_test_environment = AllureRspec.configuration.environment_properties
 
   let_it_be(:current_platform) { Acceptance::Meterpreter::current_platform }
 
@@ -92,7 +92,7 @@ RSpec.describe 'Meterpreter' do
             }
           end
 
-          let(:test_environment) { TEST_ENVIRONMENT }
+          let(:test_environment) { allure_test_environment }
 
           let(:default_module_datastore) do
             {
@@ -163,7 +163,7 @@ RSpec.describe 'Meterpreter' do
           # @param [String] path The file path to read the content of
           # @return [String] The file contents if found
           def get_file_attachment_contents(path)
-            return 'none resent' unless File.exists?(path)
+            return 'none resent' unless File.exist?(path)
 
             content = File.binread(path)
             content.blank? ? 'file created - but empty' : content
@@ -342,7 +342,7 @@ RSpec.describe 'Meterpreter' do
                       Acceptance::Meterpreter.supported_platform?(payload_config) &&
                       Acceptance::Meterpreter.supported_platform?(module_test) &&
                       # Skip tests that are explicitly skipped, or won't pass in the current environment
-                      !Acceptance::Meterpreter.skipped_module_test?(module_test, TEST_ENVIRONMENT)
+                      !Acceptance::Meterpreter.skipped_module_test?(module_test, allure_test_environment)
                   ),
                   # test metadata - will appear in allure report
                   module_test: module_test[:name]

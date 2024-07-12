@@ -6,6 +6,11 @@
 require 'metasploit/framework/login_scanner/redis'
 require 'metasploit/framework/credential_collection'
 
+# Metasploit Module - Redis Login Scanner
+#
+# @example
+#   use auxiliary/scanner/redis/login
+#
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
@@ -38,14 +43,19 @@ class MetasploitModule < Msf::Auxiliary
     # redis does not have an username, there's only password
     deregister_options(
       'DB_ALL_CREDS', 'DB_ALL_USERS', 'DB_SKIP_EXISTING',
-      'USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'PASSWORD_SPRAY'
+      'USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE'
     )
   end
 
   def requires_password?(_ip)
     connect
     command_response = send_redis_command('INFO')
-    !(command_response && REDIS_UNAUTHORIZED_RESPONSE !~ command_response)
+
+    ## Check against the old and new password required response to support all Redis versions
+    !(
+      (command_response && Rex::Proto::Redis::Base::Constants::AUTHENTICATION_REQUIRED !~ command_response) ||
+        (command_response && Rex::Proto::Redis::Version6::Constants::AUTHENTICATION_REQUIRED !~ command_response)
+    )
   end
 
   def run_host(ip)
@@ -70,12 +80,14 @@ class MetasploitModule < Msf::Auxiliary
     cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::Redis.new(
-      host: ip,
-      port: rport,
-      proxies: datastore['PROXIES'],
-      cred_details: cred_collection,
-      stop_on_success: datastore['STOP_ON_SUCCESS'],
-      connection_timeout: 30
+      configure_login_scanner(
+        host: ip,
+        port: rport,
+        proxies: datastore['PROXIES'],
+        cred_details: cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        connection_timeout: 30
+      )
     )
 
     scanner.scan! do |result|

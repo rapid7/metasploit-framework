@@ -1230,12 +1230,13 @@ class Db
   @@notes_opts = Rex::Parser::Arguments.new(
     [ '-a', '--add' ] => [ false, 'Add a note to the list of addresses, instead of listing.' ],
     [ '-d', '--delete' ] => [ false, 'Delete the notes instead of searching.' ],
-    [ '-n', '--note' ] => [ true, 'Set the data for a new note (only with -a).', '<note>' ],
-    [ '-t', '--type' ] => [ true, 'Search for a list of types, or set single type for add.', '<type1,type2>' ],
     [ '-h', '--help' ] => [ false, 'Show this help information.' ],
-    [ '-R', '--rhosts' ] => [ false, 'Set RHOSTS from the results of the search.' ],
-    [ '-o', '--output' ] => [ true, 'Save the notes to a csv file.', '<filename>' ],
+    [ '-n', '--note' ] => [ true, 'Set the data for a new note (only with -a).', '<note>' ],
     [ '-O', '--order' ] => [ true, 'Order rows by specified column number.', '<column id>' ],
+    [ '-o', '--output' ] => [ true, 'Save the notes to a csv file.', '<filename>' ],
+    [ '-R', '--rhosts' ] => [ false, 'Set RHOSTS from the results of the search.' ],
+    [ '-S', '--search' ] => [ true, 'Search string to filter by.', '<filter>' ],
+    [ '-t', '--type' ] => [ true, 'Search for a list of types, or set single type for add.', '<type1,type2>' ],
     [ '-u', '--update' ] => [ false, 'Update a note. Not officially supported.' ]
   )
 
@@ -1712,7 +1713,7 @@ class Db
     print_line "    Nikto XML"
     print_line "    Nmap XML"
     print_line "    OpenVAS Report"
-    print_line "    OpenVAS XML"
+    print_line "    OpenVAS XML (optional arguments -cert -dfn)"
     print_line "    Outpost24 XML"
     print_line "    Qualys Asset XML"
     print_line "    Qualys Scan XML"
@@ -1727,12 +1728,22 @@ class Db
   #
   def cmd_db_import(*args)
     return unless active?
+    openvas_cert = false
+    openvas_dfn = false
   ::ApplicationRecord.connection_pool.with_connection {
     if args.include?("-h") || ! (args && args.length > 0)
       cmd_db_import_help
       return
     end
+    if args.include?("-dfn")
+      openvas_dfn = true
+    end
+    if args.include?("-cert")
+      openvas_cert = true
+    end
+    options = {:openvas_dfn => openvas_dfn, :openvas_cert => openvas_cert}
     args.each { |glob|
+      next if (glob.include?("-cert") || glob.include?("-dfn"))
       files = ::Dir.glob(::File.expand_path(glob))
       if files.empty?
         print_error("No such file #{glob}")
@@ -1745,7 +1756,7 @@ class Db
         end
         begin
           warnings = 0
-          framework.db.import_file(:filename => filename) do |type,data|
+          framework.db.import_file(:filename => filename, :options => options) do |type,data|
             case type
             when :debug
               print_error("DEBUG: #{data.inspect}")

@@ -1,6 +1,8 @@
 # -*- coding: binary -*-
 
 require 'English'
+require 'rex/post/session_compatible_modules'
+
 module Rex
   module Post
     module SMB
@@ -13,12 +15,12 @@ module Rex
         class Console
 
           include Rex::Ui::Text::DispatcherShell
+          include Rex::Post::SessionCompatibleModules
 
           # Dispatchers
           require 'rex/post/smb/ui/console/command_dispatcher'
           require 'rex/post/smb/ui/console/command_dispatcher/core'
           require 'rex/post/smb/ui/console/command_dispatcher/shares'
-          require 'rex/post/smb/ui/console/command_dispatcher/modules'
 
           #
           # Initialize the SMB console.
@@ -34,6 +36,7 @@ module Rex
             # The ruby smb client context
             self.session = session
             self.client = session.client
+            self.simple_client = session.simple_client
 
             # Queued commands array
             self.commands = []
@@ -43,7 +46,7 @@ module Rex
 
             enstack_dispatcher(Rex::Post::SMB::Ui::Console::CommandDispatcher::Core)
             enstack_dispatcher(Rex::Post::SMB::Ui::Console::CommandDispatcher::Shares)
-            enstack_dispatcher(Rex::Post::SMB::Ui::Console::CommandDispatcher::Modules)
+            enstack_dispatcher(Msf::Ui::Console::CommandDispatcher::LocalFileSystem)
 
             # Set up logging to whatever logsink 'core' is using
             if !$dispatcher['smb']
@@ -95,9 +98,19 @@ module Rex
             log_error(e.message)
           rescue ::Errno::EPIPE, ::OpenSSL::SSL::SSLError, ::IOError
             session.kill
+          rescue ::RubySMB::Error::CommunicationError => e
+            log_error("Error running command #{method}: #{e.class} #{e}")
+            elog(e)
+            session.alive = false
           rescue ::StandardError => e
             log_error("Error running command #{method}: #{e.class} #{e}")
             elog(e)
+          end
+
+          # @param [Hash] opts
+          # @return [String]
+          def help_to_s(opts = {})
+            super + format_session_compatible_modules
           end
 
           #
@@ -117,6 +130,9 @@ module Rex
           # @return [RubySMB::Client]
           attr_reader :client # :nodoc:
 
+          # @return [Rex::Proto::SMB::SimpleClient]
+          attr_reader :simple_client
+
           # @return [RubySMB::SMB2::Tree]
           attr_accessor :active_share
 
@@ -126,18 +142,19 @@ module Rex
           def format_prompt(val)
             if active_share
               share_name = active_share.share[/[^\\].*$/, 0]
-              cwd = self.cwd.blank? ? '' : "\\#{self.cwd}"
-              return substitute_colors("%undSMB%clr (#{share_name}#{cwd}) > ", true)
+              cwd = self.cwd.blank? ? '' : "\\#{Rex::Ntpath.as_ntpath(self.cwd)}"
+              prompt = "#{share_name}#{cwd}"
+            else
+              prompt = session.address.to_s
             end
 
-            super
+            substitute_colors("%undSMB%clr (#{prompt}) > ", true)
           end
 
           protected
 
-          attr_writer :session, :client # :nodoc: # :nodoc:
+          attr_writer :session, :client, :simple_client # :nodoc: # :nodoc:
           attr_accessor :commands # :nodoc:
-
         end
       end
     end

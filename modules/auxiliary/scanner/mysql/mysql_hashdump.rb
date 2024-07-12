@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
-  include Msf::OptionalSession
+  include Msf::OptionalSession::MySQL
 
   def initialize
     super(
@@ -17,8 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         hashes from a MySQL server and stores them for later cracking.
       ),
       'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE,
-      'SessionTypes'  => %w[MySQL]
+      'License'        => MSF_LICENSE
     )
   end
 
@@ -33,8 +32,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     service_data = {
-      address: ip,
-      port: mysql_conn.port,
+      address: mysql_conn.peerhost,
+      port: mysql_conn.peerport,
       service_name: 'mysql',
       protocol: 'tcp',
       workspace_id: myworkspace_id
@@ -82,8 +81,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     service_data = {
-      address: ::Rex::Socket.getaddress(mysql_conn.host, true),
-      port: mysql_conn.port,
+      address: ::Rex::Socket.getaddress(mysql_conn.peerhost, true),
+      port: mysql_conn.peerport,
       service_name: 'mysql',
       protocol: 'tcp',
       workspace_id: myworkspace_id

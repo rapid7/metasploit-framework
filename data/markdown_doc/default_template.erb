@@ -83,6 +83,8 @@
 <% description = "The module is expected to get a shell every time it runs." %>
 <% elsif reliability == "unreliable-session" %>
 <% description = "The module isn't expected to get a shell reliably (such as only once)." %>
+<% elsif reliability == "event-dependent" %>
+<% description = "The module may not execute the payload until an external event occurs. For instance, a cron job, machine restart, user interaction within a GUI element, etc." %>
 <% end %>
 
 * **<%= reliability %>:** <%= description %>
