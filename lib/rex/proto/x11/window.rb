@@ -217,8 +217,8 @@ class X11Image
     @color_data = color_data # from X11GetColorsResponse
   end
 
-  self.from_replies(width, height, image_reply, color_reply)
-    self.new(width, height, image_reply.image_data, color_reply.colors)
+  def self.from_replies(width, height, image_reply, color_reply)
+    new(width, height, image_reply.image_data, color_reply.colors)
   end
 
   def create_image

