@@ -1,5 +1,6 @@
 # -*- coding:binary -*-
 require 'spec_helper'
+require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 
 RSpec.describe Msf::RPC::RPC_Session do
   include_context 'Msf::Simple::Framework'
@@ -7,12 +8,38 @@ RSpec.describe Msf::RPC::RPC_Session do
   include_context 'Msf::Framework#threads cleaner', verify_cleanup_required: false
   include_context 'wait_for_expect'
 
+  def command_ids_for(base_extension_command_id)
+    (base_extension_command_id..base_extension_command_id+Rex::Post::Meterpreter::COMMAND_ID_RANGE).to_a
+  end
+
   def create_mock_session(klass)
     instance_double(
       klass,
       sid: target_sid,
-      type: klass.type
+      type: klass.type,
     )
+  end
+
+  def create_mock_meterpreter_session(klass)
+    new_klass_with_core_alias = Class.new(klass) do
+      # This methods is dynamically registered on a real session; so we need to define it
+      # upfront for instance_double to work
+      def core
+        nil
+      end
+    end
+    instance = instance_double(
+      new_klass_with_core_alias,
+      sid: target_sid,
+      type: klass.type,
+      platform: 'linux',
+      base_platform: 'linux',
+      arch: ARCH_PYTHON,
+      commands: command_ids_for(Rex::Post::Meterpreter::EXTENSION_ID_CORE) + command_ids_for(Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI),
+      ext: instance_double(Rex::Post::Meterpreter::ObjectAliasesContainer, aliases: []),
+      core: instance_double(Rex::Post::Meterpreter::ClientCore, use: nil)
+    )
+    instance
   end
 
   let(:service) { Msf::RPC::Service.new(framework) }
@@ -41,7 +68,7 @@ RSpec.describe Msf::RPC::RPC_Session do
     instance_double(Rex::IO::Stream)
   end
 
-  let(:meterpreter_session) { create_mock_session(::Msf::Sessions::Meterpreter_x64_Win) }
+  let(:meterpreter_session) { create_mock_meterpreter_session(::Msf::Sessions::Meterpreter_x64_Win) }
   let(:postgresql_session) { create_mock_session(::Msf::Sessions::PostgreSQL) }
   let(:shell_session) { create_mock_session(::Msf::Sessions::CommandShell) }
 
@@ -127,6 +154,27 @@ RSpec.describe Msf::RPC::RPC_Session do
         it 'returns result: success and pushes command to user_input' do
           expect(response).to eq({ 'result' => 'success' })
         end
+      end
+    end
+  end
+
+  describe '#rpc_compatible_modules' do
+    context 'when the session does not exist' do
+      let(:session) { meterpreter_session }
+
+      it 'returns an empty array' do
+        expect(rpc.rpc_compatible_modules(-1)).to eq({ "modules" => [] })
+      end
+    end
+
+    context 'when the session exists' do
+      let(:session) { meterpreter_session }
+
+      it 'returns compatible modules' do
+        expected = {
+          "modules" => array_including("auxiliary/cloud/kubernetes/enum_kubernetes")
+        }
+        expect(rpc.rpc_compatible_modules(target_sid)).to match(expected)
       end
     end
   end

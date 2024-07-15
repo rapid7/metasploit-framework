@@ -506,14 +506,18 @@ class RPC_Session < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('session.compatible_modules', 3)
   def rpc_compatible_modules(sid)
-    session_type = self.framework.sessions[sid].type
-    search_params = { 'session_type' => [[session_type], []] }
-    cached_modules = Msf::Modules::Metadata::Cache.instance.find(search_params)
-
+    session = self.framework.sessions[sid]
     compatible_modules = []
-    cached_modules.each do |cached_module|
-      m = _find_module(cached_module.type, cached_module.fullname)
-      compatible_modules << m.fullname if m.session_compatible?(sid)
+
+    if session
+      session_type = session.type
+      search_params = { 'session_type' => [[session_type], []] }
+      cached_modules = Msf::Modules::Metadata::Cache.instance.find(search_params)
+
+      cached_modules.each do |cached_module|
+        m = _find_module(cached_module.type, cached_module.fullname)
+        compatible_modules << m.fullname if m.session_compatible?(sid)
+      end
     end
 
     { "modules" => compatible_modules }
