@@ -14,34 +14,14 @@ class MetasploitModule < Msf::Auxiliary
     super({
             'Name' => 'Authentication Capture: SMB',
             'Description' => %q{
-        This module provides a SMB service that can be used to capture the challenge-response
-        password NTLMv1 & NTLMv2 hashes used with SMB1, SMB2, or SMB3 client systems.
-        Responses sent by this service by default use a random 8 byte challenge string.
-        A specific value (such as `1122334455667788`) can be set using the CHALLENGE option,
-        allowing for easy cracking using Cain & Abel (NTLMv1) or John the Ripper
-        (with jumbo patch).
-
-        To exploit this, the target system must try to authenticate to this
-        module. One way to force an SMB authentication attempt is by embedding
-        a UNC path (\\\\SERVER\\SHARE) into a web page or email message. When
-        the victim views the web page or email, their system will
-        automatically connect to the server specified in the UNC share (the IP
-        address of the system running this module) and attempt to
-        authenticate. Another option is using auxiliary/spoof/{nbns,llmnr} to
-        respond to queries for names the victim is already looking for.
-
-        Documentation of the above spoofing methods can be found by running `info -d`.
       },
             'Author' => [
-              'hdm',                 # Author of original module
-              'Spencer McIntyre',    # Creator of RubySMB::Server
-              'agalway-r7',          # Port of existing module to use RubySMB::Server
-              'sjanusz-r7',          # Port of existing module to use RubySMB::Server
+              'bwatters-r7',          # Port of existing module to use RubySMB::Server
             ],
             'License' => MSF_LICENSE,
-            'Actions' => [[ 'Capture', { 'Description' => 'Run SMB capture server' } ]],
-            'PassiveActions' => [ 'Capture' ],
-            'DefaultAction' => 'Capture'
+            'Actions' => [[ 'Relay', { 'Description' => 'Run SMB capture server' } ]],
+            'PassiveActions' => [ 'Relay' ],
+            'DefaultAction' => 'Relay'
           })
 
     register_options(
