@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::HttpServer
-
+  prepend Msf::Exploit::Remote::AutoCheck
   CheckCode = Exploit::CheckCode
 
   def initialize(info = {})
