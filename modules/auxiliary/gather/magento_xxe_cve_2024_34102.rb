@@ -150,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    if datastore['SRVHOST'] == '0.0.0.0' or datastore['SRVHOST'] == "::"
+    if datastore['SRVHOST'] == '0.0.0.0' || datastore['SRVHOST'] == '::'
       fail_with(Failure::BadConfig, 'SRVHOST must be set to an IP address (0.0.0.0 is invalid) for exploitation to be successful')
     end
 
