@@ -97,7 +97,7 @@ The path to the Magento (Default: `/`).
 
 ### SRVHOST (required)
 
-The local host or network interface to listen on. This must be an address on the local machine or 0.0.0.0 to listen on all addresses.
+The local IP address to listen on. This must be a routable IP address on the local machine (0.0.0.0 is invalid). 
 
 ### SRVPORT (required)
 
