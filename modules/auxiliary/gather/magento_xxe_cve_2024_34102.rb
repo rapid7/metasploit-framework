@@ -168,7 +168,6 @@ class MetasploitModule < Msf::Auxiliary
     })
     datastore['SSL'] = true if ssl_restore
     xxe_request
-    sleep(5)
   rescue Timeout::Error => e
     fail_with(Failure::TimeoutExpired, e.message)
   end
