@@ -29,7 +29,7 @@ PATH
       faraday (= 2.7.11)
       faraday-retry
       faye-websocket
-      ffi (= 1.16.3)
+      ffi (< 1.17.0)
       filesize
       getoptlong
       hrr_rb_ssh-ed25519
