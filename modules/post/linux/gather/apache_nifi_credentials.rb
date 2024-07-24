@@ -256,7 +256,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    unless ((flow_file && properties_file) || identity_file)
+    unless (flow_file && properties_file) || identity_file
       fail_with(Failure::NotFound, 'Unable to find login-identity-providers.xml, nifi.properties and/or flow.json.gz files')
     end
 
@@ -336,7 +336,7 @@ class MetasploitModule < Msf::Post
         name = c.xpath('identifier').text
         username = c.xpath('property[@name="Username"]').text
         hash = c.xpath('property[@name="Password"]').text
-        next if (username.blank? || hash.blank?)
+        next if username.blank? || hash.blank?
 
         table << [name, username, hash, 'From login-identity-providers.xml']
 
@@ -366,7 +366,7 @@ class MetasploitModule < Msf::Post
         username = "Directory/Tenant ID: #{c.xpath('property[@name="Directory ID"]').text}" \
                    ", Application ID: #{c.xpath('property[@name="Application ID"]').text}"
         password = c.xpath('property[@name="Client Secret"]').text
-        next if (username.blank? || hash.blank?)
+        next if username.blank? || hash.blank?
 
         table << [name, username, password, 'From authorizers.xml']
       end

@@ -156,7 +156,7 @@ class MetasploitModule < Msf::Auxiliary
     loop do
       data, host, port = lsocket.recvfrom(65535, datastore['TIMEOUT'])
       data2, host2, port2 = ssocket.recvfrom(65535, datastore['TIMEOUT'])
-      break if (host.nil? && host2.nil?)
+      break if host.nil? && host2.nil?
 
       cap << [data, host, port] if host
       cap << [data2, host2, port2] if host2
