@@ -569,10 +569,16 @@ protected
   def handle_session_logging(val)
     if (val =~ /^(y|t|1)/i)
       Msf::Logging.enable_session_logging(true)
-      print_line("Session logging will be enabled for future sessions.")
+      framework.sessions.values.each do |session|
+        Msf::Logging.start_session_log(session)
+      end
+      print_line("Session logging enabled.")
     else
       Msf::Logging.enable_session_logging(false)
-      print_line("Session logging will be disabled for future sessions.")
+      framework.sessions.values.each do |session|
+        Msf::Logging.stop_session_log(session)
+      end
+      print_line("Session logging disabled.")
     end
   end
 
