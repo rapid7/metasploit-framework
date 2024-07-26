@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Post
     end
 
     sync_all_list = []
-    sync_all.each do |key, _result|
+    sync_all.each_key do |key|
       sync_all_list.push(key)
     end
 

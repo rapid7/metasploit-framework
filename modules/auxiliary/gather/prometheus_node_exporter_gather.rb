@@ -57,11 +57,10 @@ class MetasploitModule < Msf::Auxiliary
 
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected response from server (response code #{res.code})") unless res.code == 200
-    fail_with(Failure::UnexpectedReply, "#{peer} - Prometheus Node Exporter not found") unless (
+    fail_with(Failure::UnexpectedReply, "#{peer} - Prometheus Node Exporter not found") unless
       res.body.include?('<h2>Prometheus Node Exporter</h2>') ||
       res.body.include?('<title>Node Exporter</title>') || # version 0.15.2
       res.body.include?('<h2>Prometheus Exporter for Windows servers</h2>')
-    )
 
     vprint_good("#{peer} - Prometheus Node Exporter version: #{Regexp.last_match(1)}") if res.body =~ /version=([\d.]+)/
 

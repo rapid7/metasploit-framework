@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.4.19)
+    metasploit-framework (6.4.20)
       aarch64
       abbrev
       actionpack (~> 7.0.0)
@@ -29,7 +29,7 @@ PATH
       faraday (= 2.7.11)
       faraday-retry
       faye-websocket
-      ffi (= 1.16.3)
+      ffi (< 1.17.0)
       filesize
       getoptlong
       hrr_rb_ssh-ed25519

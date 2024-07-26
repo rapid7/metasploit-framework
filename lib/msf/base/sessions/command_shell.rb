@@ -654,6 +654,7 @@ Shell Banner:
   def shell_read(length=-1, timeout=1)
     begin
       rv = rstream.get_once(length, timeout)
+      rlog(rv, self.log_source) if rv && self.log_source
       framework.events.on_session_output(self, rv) if rv
       return rv
     rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE => e
@@ -672,6 +673,7 @@ Shell Banner:
     return unless buf
 
     begin
+      rlog(buf, self.log_source) if self.log_source
       framework.events.on_session_command(self, buf.strip)
       rstream.write(buf)
     rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE => e

