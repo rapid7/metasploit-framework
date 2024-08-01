@@ -12,14 +12,16 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::Base
         include Metasploit::Framework::LoginScanner::RexSocket
 
-        DEFAULT_REALM        = nil
-        DEFAULT_PORT         = 80
-        DEFAULT_SSL_PORT     = 443
-        DEFAULT_HTTP_SUCCESS_CODES = [ 200, 201 ].append(*(300..309))
-        LIKELY_PORTS         = [ 80, 443, 8000, 8080 ]
-        LIKELY_SERVICE_NAMES = [ 'http', 'https' ]
-        PRIVATE_TYPES        = [ :password ]
-        REALM_KEY            = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+        AUTHORIZATION_HEADER        = 'WWW-Authenticate'.freeze
+        DEFAULT_REALM               = nil
+        DEFAULT_PORT                = 80
+        DEFAULT_SSL_PORT            = 443
+        DEFAULT_HTTP_SUCCESS_CODES  = [200, 201].append(*(300..309))
+        DEFAULT_AUTHORIZATION_CODES = [401]
+        LIKELY_PORTS                = [80, 443, 8000, 8080]
+        LIKELY_SERVICE_NAMES        = %w[http https]
+        PRIVATE_TYPES               = [:password]
+        REALM_KEY                   = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
 
         # @!attribute uri
         #   @return [String] The path and query string on the server to
@@ -213,11 +215,11 @@ module Metasploit
             # authentication
             response = http_client._send_recv(request)
           rescue ::EOFError, Errno::ETIMEDOUT, OpenSSL::SSL::SSLError, Rex::ConnectionError, ::Timeout::Error
-            return "Unable to connect to target"
+            return 'Unable to connect to target'
           end
 
-          if !(response && response.code == 401 && response.headers['WWW-Authenticate'])
-            error_message = "No authentication required"
+          if no_authentication_required?(response)
+            error_message = 'No authentication required'
           else
             error_message = false
           end
@@ -313,6 +315,19 @@ module Metasploit
           end
 
           Result.new(result_opts)
+        end
+
+        protected
+
+        # Returns a boolean value indicating whether the request requires authentication or not.
+        #
+        # @param [Rex::Proto::Http::Response] response The response received from the HTTP endpoint
+        # @return [Boolean] True if the request required authentication; otherwise false.
+        def no_authentication_required?(response)
+          return true unless response
+
+          !(self.class::DEFAULT_AUTHORIZATION_CODES.include?(response.code) &&
+            response.headers[self.class::AUTHORIZATION_HEADER])
         end
 
         private

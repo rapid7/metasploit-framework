@@ -5,13 +5,13 @@ module Metasploit
     module LoginScanner
       # Jenkins login scanner
       class Jenkins < HTTP
-
         include Msf::Exploit::Remote::HTTP::Jenkins
 
         # Inherit LIKELY_PORTS,LIKELY_SERVICE_NAMES, and REALM_KEY from HTTP
-        CAN_GET_SESSION = true
-        DEFAULT_PORT    = 8080
-        PRIVATE_TYPES   = [ :password ]
+        CAN_GET_SESSION             = true
+        DEFAULT_AUTHORIZATION_CODES = [403]
+        DEFAULT_PORT                = 8080
+        PRIVATE_TYPES               = [:password]
 
         # (see Base#set_sane_defaults)
         def set_sane_defaults
@@ -49,6 +49,18 @@ module Metasploit
           result_opts.merge!(status: status, proof: proof)
 
           Result.new(result_opts)
+        end
+
+        protected
+
+        # Returns a boolean value indicating whether the request requires authentication or not.
+        #
+        # @param [Rex::Proto::Http::Response] response The response received from the HTTP endpoint
+        # @return [Boolean] True if the request required authentication; otherwise false.
+        def no_authentication_required?(response)
+          return true unless response
+
+          !self.class::DEFAULT_AUTHORIZATION_CODES.include?(response.code)
         end
       end
     end
