@@ -11,7 +11,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
-  include Msf::Exploit::Remote::HTTP::Jenkins
 
   def initialize
     super(
@@ -32,16 +31,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_warning("#{self.fullname} is still calling the deprecated LOGIN_URL option! This is no longer supported.") unless datastore['LOGIN_URL'].nil?
+    print_warning("#{fullname} is still calling the deprecated LOGIN_URL option! This is no longer supported.") unless datastore['LOGIN_URL'].nil?
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
       password: datastore['PASSWORD']
     )
 
-    login_uri = jenkins_uri_check(target_uri)
     scanner = Metasploit::Framework::LoginScanner::Jenkins.new(
       configure_http_login_scanner(
-        uri: normalize_uri(login_uri),
+        uri: datastore['TARGETURI'],
+        ssl: datastore['SSL'],
         method: datastore['HTTP_METHOD'],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
@@ -52,12 +51,17 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
+    message = scanner.check_setup
+
+    if message
+      print_brute level: :error, ip: ip, msg: message
+      return
+    end
+
     scanner.scan! do |result|
       credential_data = result.to_h
-      credential_data.merge!(
-          module_fullname: fullname,
-          workspace_id: myworkspace_id
-      )
+      credential_data.merge!(module_fullname: fullname, workspace_id: myworkspace_id)
+
       if result.success?
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core

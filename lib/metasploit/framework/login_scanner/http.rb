@@ -1,4 +1,3 @@
-
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
 
@@ -12,14 +11,16 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::Base
         include Metasploit::Framework::LoginScanner::RexSocket
 
-        DEFAULT_REALM        = nil
-        DEFAULT_PORT         = 80
-        DEFAULT_SSL_PORT     = 443
-        DEFAULT_HTTP_SUCCESS_CODES = [ 200, 201 ].append(*(300..309))
-        LIKELY_PORTS         = [ 80, 443, 8000, 8080 ]
-        LIKELY_SERVICE_NAMES = [ 'http', 'https' ]
-        PRIVATE_TYPES        = [ :password ]
-        REALM_KEY            = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+        AUTHORIZATION_HEADER = 'WWW-Authenticate'.freeze
+        DEFAULT_REALM = nil
+        DEFAULT_PORT = 80
+        DEFAULT_SSL_PORT = 443
+        DEFAULT_HTTP_SUCCESS_CODES = [200, 201].append(*(300..309))
+        DEFAULT_HTTP_NOT_AUTHED_CODES = [401]
+        LIKELY_PORTS = [80, 443, 8000, 8080]
+        LIKELY_SERVICE_NAMES = %w[http https]
+        PRIVATE_TYPES = [:password]
+        REALM_KEY = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
 
         # @!attribute uri
         #   @return [String] The path and query string on the server to
@@ -213,16 +214,14 @@ module Metasploit
             # authentication
             response = http_client._send_recv(request)
           rescue ::EOFError, Errno::ETIMEDOUT, OpenSSL::SSL::SSLError, Rex::ConnectionError, ::Timeout::Error
-            return "Unable to connect to target"
+            return 'Unable to connect to target'
           end
 
-          if !(response && response.code == 401 && response.headers['WWW-Authenticate'])
-            error_message = "No authentication required"
-          else
-            error_message = false
+          if authentication_required?(response)
+            return false
           end
 
-          error_message
+          'No authentication required'
         end
 
         # Sends a HTTP request with Rex
@@ -252,7 +251,7 @@ module Metasploit
                   else
                     cli._send_recv(req)
                   end
-          rescue ::EOFError, Errno::ETIMEDOUT ,Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
+          rescue ::EOFError, Errno::ETIMEDOUT, Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
             raise Rex::ConnectionError, e.message
           ensure
             # If we didn't create the client, don't close it
@@ -315,18 +314,31 @@ module Metasploit
           Result.new(result_opts)
         end
 
+        protected
+
+        # Returns a boolean value indicating whether the request requires authentication or not.
+        #
+        # @param [Rex::Proto::Http::Response] response The response received from the HTTP endpoint
+        # @return [Boolean] True if the request required authentication; otherwise false.
+        def authentication_required?(response)
+          return false unless response
+
+          self.class::DEFAULT_HTTP_NOT_AUTHED_CODES.include?(response.code) &&
+            response.headers[self.class::AUTHORIZATION_HEADER]
+        end
+
         private
 
         def create_client(opts)
-          rhost           = opts['host'] || host
-          rport           = opts['rport'] || port
-          cli_ssl         = opts['ssl'] || ssl
+          rhost = opts['host'] || host
+          rport = opts['rport'] || port
+          cli_ssl = opts['ssl'] || ssl
           cli_ssl_version = opts['ssl_version'] || ssl_version
-          cli_proxies     = opts['proxies'] || proxies
-          username        = opts['credential'] ? opts['credential'].public : http_username
-          password        = opts['credential'] ? opts['credential'].private : http_password
-          realm           = opts['credential'] ? opts['credential'].realm : nil
-          context         = opts['context'] || { 'Msf' => framework, 'MsfExploit' => framework_module}
+          cli_proxies = opts['proxies'] || proxies
+          username = opts['credential'] ? opts['credential'].public : http_username
+          password = opts['credential'] ? opts['credential'].private : http_password
+          realm = opts['credential'] ? opts['credential'].realm : nil
+          context = opts['context'] || { 'Msf' => framework, 'MsfExploit' => framework_module}
 
           kerberos_authenticator = nil
           if kerberos_authenticator_factory
@@ -441,10 +453,22 @@ module Metasploit
 
         # Combine the base URI with the target URI in a sane fashion
         #
-        # @param [String] target_uri the target URL
+        # @param [Array<String>] target_uri the target URL
         # @return [String] the final URL mapped against the base
-        def normalize_uri(target_uri)
-          (self.uri.to_s + "/" + target_uri.to_s).gsub(/\/+/, '/')
+        def normalize_uri(*target_uri)
+          if target_uri.count == 1
+            (uri.to_s + '/' + target_uri.first.to_s).gsub(%r{/+}, '/')
+          else
+            new_str = target_uri * '/'
+            new_str = new_str.gsub!('//', '/') while new_str.index('//')
+
+            # Makes sure there's a starting slash
+            unless new_str[0,1] == '/'
+              new_str = '/' + new_str
+            end
+
+            new_str
+          end
         end
 
         private
