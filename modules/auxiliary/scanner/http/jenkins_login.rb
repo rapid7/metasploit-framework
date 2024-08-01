@@ -11,7 +11,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
-  include Msf::Exploit::Remote::HTTP::Jenkins
 
   def initialize
     super(
@@ -32,16 +31,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    print_warning("#{self.fullname} is still calling the deprecated LOGIN_URL option! This is no longer supported.") unless datastore['LOGIN_URL'].nil?
+    print_warning("#{fullname} is still calling the deprecated LOGIN_URL option! This is no longer supported.") unless datastore['LOGIN_URL'].nil?
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
       password: datastore['PASSWORD']
     )
 
-    login_uri = jenkins_uri_check(target_uri)
     scanner = Metasploit::Framework::LoginScanner::Jenkins.new(
       configure_http_login_scanner(
-        uri: normalize_uri(login_uri),
+        uri: target_uri,
         method: datastore['HTTP_METHOD'],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
@@ -54,10 +52,8 @@ class MetasploitModule < Msf::Auxiliary
 
     scanner.scan! do |result|
       credential_data = result.to_h
-      credential_data.merge!(
-          module_fullname: fullname,
-          workspace_id: myworkspace_id
-      )
+      credential_data.merge!(module_fullname: fullname, workspace_id: myworkspace_id)
+
       if result.success?
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
@@ -69,5 +65,36 @@ class MetasploitModule < Msf::Auxiliary
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status})"
       end
     end
+  end
+
+  private
+
+  # This method uses the provided URI to determine whether login is possible for Jenkins.
+  # Based on the contents of the provided URI, the method looks for the login form and
+  # extracts the endpoint used to authenticate against.
+  #
+  # @param [URI, String] target_uri The targets URI
+  # @return [String, nil] URI for successful login
+  def jenkins_uri_check(target_uri, keep_cookies: false)
+    # if keep_cookies is true we get the first cookie that's needed by newer Jenkins versions
+    res = send_request_cgi({ 'uri' => normalize_uri(target_uri, 'login'), 'keep_cookies' => keep_cookies })
+
+    fail_with(Msf::Module::Failure::UnexpectedReply, 'Unexpected reply from server') unless valid_response?(res)
+
+    if res&.body =~ /action="(j_([a-z0-9_]+))"/
+      uri = Regexp.last_match(1)
+    else
+      fail_with(Msf::Module::Failure::UnexpectedReply, 'Failed to identify the login resource.')
+    end
+
+    normalize_uri(target_uri, uri)
+  end
+
+  # Determines whether the provided response is considered valid or not.
+  #
+  # @param [Rex::Proto::Http::Response, nil] response The response received from the HTTP request.
+  # @return [Boolean] True if the response if valid; otherwise false.
+  def valid_response?(response)
+    response&.code == 200
   end
 end
