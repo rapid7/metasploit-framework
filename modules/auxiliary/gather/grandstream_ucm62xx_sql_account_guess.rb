@@ -117,7 +117,6 @@ class MetasploitModule < Msf::Auxiliary
 
       wsock.put_wstext(create_injection_request(payload))
       recv_wsframe_status(wsock) == 0
-
     rescue Rex::Proto::Http::WebSocket::ConnectionError => e
       res = e.http_response
       fail_with(Failure::Unreachable, e.message) if res.nil?
