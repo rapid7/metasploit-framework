@@ -88,6 +88,7 @@ loop:
 	swi 0
 	cmp r0, #0
 	blt failed
+ 	mov r0, r12        @ replace return code with sockfd
 	b loop
 last:
 	add r2,#1000       @ len
