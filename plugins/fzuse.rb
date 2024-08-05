@@ -43,11 +43,6 @@ module Msf
       # This method handles the fuzzy_use command.
       #
       def cmd_fzuse(*args)
-        unless Msf::Util::Helper.which('fzf')
-          print_error('This command requires that the `fzf` utility be installed.')
-          return
-        end
-
         previewer = File.join(Msf::Config.install_root, 'tools', 'modules', 'print.py')
 
         module_types = framework.modules.module_types
@@ -87,6 +82,17 @@ module Msf
     #
     def initialize(framework, opts)
       super
+      
+      missing_requirements = []
+      missing_requirements << 'fzf' unless Msf::Util::Helper.which('fzf')
+      missing_requirements << 'python' unless Msf::Util::Helper.which('python')
+      missing_requirements << 'python-rich' unless system("python -c 'import rich'", out: File::NULL, err: File::NULL)
+
+      unless missing_requirements.empty?
+        print_error("The FuzzyUse plugin has loaded but the following requirements are missing: #{missing_requirements.join(', ')}")
+        print_error("Please install the missing requirements, then reload the plugin by running: `unload fzuse` and `load fzuse`.")
+        return
+      end
 
       # If this plugin is being loaded in the context of a console application
       # that uses the framework's console user interface driver, register
