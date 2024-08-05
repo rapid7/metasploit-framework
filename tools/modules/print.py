@@ -23,6 +23,7 @@ RANKS = {
 }
 
 framework_root = pathlib.Path(__file__).parent.parent.parent
+default_metadata_path = (framework_root / 'db' / 'modules_metadata_base.json')
 
 def get_notes(module_metadata):
     tree = Tree('Notes', hide_root=True)
@@ -64,10 +65,11 @@ def get_bulleted_list(items):
 def main():
     parser = argparse.ArgumentParser(description='fzuse helper', conflict_handler='resolve')
     parser.add_argument('module_name', help='module name to display')
+    parser.add_argument('--metadata-path', default=default_metadata_path, type=pathlib.Path, help='the path to the module metadata')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s Version: ' + __version__)
     arguments = parser.parse_args()
 
-    with (framework_root / 'db' / 'modules_metadata_base.json').open('r') as file_h:
+    with arguments.metadata_path.open('r') as file_h:
         all_metadata = json.load(file_h)
     module_metadata = next((metadata for metadata in all_metadata.values() if metadata['fullname'] == arguments.module_name), None)
     if not module_metadata:
@@ -84,7 +86,7 @@ def main():
     table.add_row('[bold]Rank[/bold]', RANKS[module_metadata['rank']])
     table.add_row('[bold]Disclosed[/bold]', module_metadata['disclosure_date'])
 
-    console = Console()
+    console = Console(color_system='256')
     console.print(table)
     
     panel_title = lambda v: f"[bold]{v}[/bold]"
@@ -96,8 +98,13 @@ def main():
     if module_metadata.get('references'):
         console.print(Panel(get_references(module_metadata), title=panel_title('References'), title_align='left'))
     if module_metadata.get('path', ''):
-        syntax = Syntax.from_path(framework_root / module_metadata['path'][1:], background_color='default', line_numbers=True)
-        console.print(Panel(syntax, title=panel_title('Source code'), title_align='left'))
+        if pathlib.Path(module_metadata['path']).is_file():
+            module_path = pathlib.Path(module_metadata['path'])
+        elif pathlib.Path(framework_root / module_metadata['path'][1:]).is_file():
+            module_path = pathlib.Path(framework_root / module_metadata['path'][1:])
+        if module_path:
+            syntax = Syntax.from_path(module_path, background_color='default', line_numbers=True)
+            console.print(Panel(syntax, title=panel_title('Source code'), title_align='left'))
 
 if __name__ == '__main__':
     main()

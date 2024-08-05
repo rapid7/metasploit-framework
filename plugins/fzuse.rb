@@ -44,6 +44,7 @@ module Msf
       #
       def cmd_fzuse(*args)
         previewer = File.join(Msf::Config.install_root, 'tools', 'modules', 'print.py')
+        metadata_path = Msf::Modules::Metadata::Cache.instance.get_user_store
 
         module_types = framework.modules.module_types
 
@@ -52,7 +53,7 @@ module Msf
         selection = nil
         # alternative preview:
         # jq \'to_entries[] | select(.value.fullname == "{1}") | .value\' db/modules_metadata_base.json | bat --language=json --color=always
-        stdin, stdout, stderr, wait_thr = Open3.popen3('fzf', '--select-1', '--query', query, '--preview', "#{previewer} {1}", '--preview-label', "Module Information") do |stdin, stdout, stderr, wait_thr|
+        stdin, stdout, stderr, wait_thr = Open3.popen3('fzf', '--select-1', '--query', query, '--preview', "#{previewer} --metadata-path '#{metadata_path}' '{1}'", '--preview-label', "Module Information") do |stdin, stdout, stderr, wait_thr|
           module_types
           module_types.each do |module_type|
             framework.modules.module_names(module_type).each do |module_name|
