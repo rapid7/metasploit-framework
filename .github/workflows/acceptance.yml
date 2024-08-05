@@ -88,8 +88,7 @@ jobs:
       HOST_RUNNER_IMAGE: ${{ matrix.os }}
       METERPRETER: ${{ matrix.meterpreter.name }}
       METERPRETER_RUNTIME_VERSION: ${{ matrix.meterpreter.runtime_version }}
-      # pcaprub skipped until new version released: https://github.com/pcaprub/pcaprub/issues/70
-      BUNDLE_WITHOUT: "coverage development pcaprub"
+      BUNDLE_WITHOUT: "coverage development"
 
     name: ${{ matrix.meterpreter.name }} ${{ matrix.meterpreter.runtime_version }} ${{ matrix.os }}
     steps:
@@ -132,14 +131,6 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v4
-
-      # pcaprub skipped until new version released: https://github.com/pcaprub/pcaprub/issues/70
-      - name: Remove pcaprub dependency
-        shell: pwsh
-        if: runner.os == 'Windows'
-        run: |
-          Set-Content -Path "Gemfile.lock" -Value (Get-Content -Path "Gemfile.lock" | Select-String -Pattern 'pcaprub' -NotMatch | Select-String -Pattern 'packetfu' -NotMatch)
-          Set-Content -Path "metasploit-framework.gemspec" -Value (Get-Content -Path "metasploit-framework.gemspec" | Select-String -Pattern 'pcaprub' -NotMatch | Select-String -Pattern 'packetfu' -NotMatch)
 
       - name: Setup Ruby
         env:
