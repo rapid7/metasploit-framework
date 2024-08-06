@@ -965,7 +965,7 @@ private
     # Create the migrate stager
     migrate_stager = c.new()
 
-    migrate_stager.stage_meterpreter
+    migrate_stager.stage_meterpreter({datastore: {'MeterpreterDebugBuild' => client.debug_build}})
   end
 
   #
