@@ -1,0 +1,16 @@
+## Load test modules
+loadpath test/modules
+
+## Session module 
+use auxiliary/scanner/smb/smb_login
+
+## Set global datastore
+irb -e '(self.respond_to?(:framework) ? framework : self).datastore.user_defined.clear'
+
+## Run command
+run lhost=127.0.0.1 username=acceptance_tests_user password=acceptance_tests_password rhost=127.0.0.1 rport=445
+
+
+## Replication commands
+use auxiliary/scanner/smb/smb_lookupsid
+run lhost=127.0.0.1 username=acceptance_tests_user password=acceptance_tests_password rhost=127.0.0.1 rport=445 Verbose=true

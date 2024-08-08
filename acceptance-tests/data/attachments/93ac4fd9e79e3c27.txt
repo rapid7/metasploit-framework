@@ -1,0 +1,36 @@
+use auxiliary/scanner/smb/pipe_auditor
+Stopping all jobs...
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/pipe_auditor[0m) [0m> run lhost=127.0.0.1 username=acceptance_tests_user password=acceptance_tests_password rhost=127.0.0.1 rport=445 Verbose=true
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/pipe_auditor[0m) [0m> [-] 127.0.0.1:139 - Inaccessible named pipe: \netlogon - The server responded with an unexpected status code: STATUS_OBJECT_NAME_NOT_FOUND
+[*] 127.0.0.1:139 - Connected to named pipe: \lsarpc
+[*] 127.0.0.1:139 - Connected to named pipe: \samr
+[-] 127.0.0.1:139 - Inaccessible named pipe: \browser - The server responded with an unexpected status code: STATUS_OBJECT_NAME_NOT_FOUND
+[-] 127.0.0.1:139 - Inaccessible named pipe: \atsvc - The server responded with an unexpected status code: STATUS_OBJECT_NAME_NOT_FOUND
+[-] 127.0.0.1:139 - Inaccessible named pipe: \DAV RPC SERVICE - The server responded with an unexpected status code: STATUS_OBJECT_NAME_NOT_FOUND
+[-] 127.0.0.1:139 - Inaccessible named pipe: \epmapper - The server responded with an unexpected status code: STATUS_OBJECT_NAME_NOT_FOUND
+[*] 127.0.0.1:139 - Connected to named pipe: \eventlog
+[*] 127.0.0.1:139 - Connected to named pipe: \InitShutdown
+[-] 127.0.0.1:139 - Inaccessible named pipe: \keysvc - The server responded with an unexpected status code: STATUS_OBJECT_NAME_NOT_FOUND
+[*] 127.0.0.1:139 - Connected to named pipe: \lsass
+[-] 127.0.0.1:139 - Inaccessible named pipe: \LSM_API_service - The server responded with an unexpected status code: STATUS_OBJECT_NAME_NOT_FOUND
+[*] 127.0.0.1:139 - Connected to named pipe: \ntsvcs
+[*] 127.0.0.1:139 - Connected to named pipe: \plugplay
+[-] 127.0.0.1:139 - Inaccessible named pipe: \protected_storage - The server responded with an unexpected status code: STATUS_OBJECT_NAME_NOT_FOUND
+[-] 127.0.0.1:139 - Inaccessible named pipe: \router - The server responded with an unexpected status code: STATUS_OBJECT_NAME_NOT_FOUND
+[-] 127.0.0.1:139 - Inaccessible named pipe: \SapiServerPipeS-1-5-5-0-70123 - The server responded with an unexpected status code: STATUS_OBJECT_NAME_NOT_FOUND
+[-] 127.0.0.1:139 - Inaccessible named pipe: \scerpc - The server responded with an unexpected status code: STATUS_OBJECT_NAME_NOT_FOUND
+[*] 127.0.0.1:139 - Connected to named pipe: \srvsvc
+[-] 127.0.0.1:139 - Inaccessible named pipe: \tapsrv - The server responded with an unexpected status code: STATUS_OBJECT_NAME_NOT_FOUND
+[-] 127.0.0.1:139 - Inaccessible named pipe: \trkwks - The server responded with an unexpected status code: STATUS_OBJECT_NAME_NOT_FOUND
+[-] 127.0.0.1:139 - Inaccessible named pipe: \W32TIME_ALT - The server responded with an unexpected status code: STATUS_OBJECT_NAME_NOT_FOUND
+[*] 127.0.0.1:139 - Connected to named pipe: \wkssvc
+[-] 127.0.0.1:139 - Inaccessible named pipe: \PIPE_EVENTROOT\CIMV2SCM EVENT PROVIDER - The server responded with an unexpected status code: STATUS_OBJECT_NAME_NOT_FOUND
+[-] 127.0.0.1:139 - Inaccessible named pipe: \db2remotecmd - The server responded with an unexpected status code: STATUS_OBJECT_NAME_NOT_FOUND
+[+] 127.0.0.1:139 - Pipes: \lsarpc, \samr, \eventlog, \InitShutdown, \lsass, \ntsvcs, \plugplay, \srvsvc, \wkssvc
+[*] 127.0.0.1:445 - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+sessions -K
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/pipe_auditor[0m) [0m> jobs -K
+[*] Killing all sessions...
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/pipe_auditor[0m) [0m> 

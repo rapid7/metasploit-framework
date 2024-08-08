@@ -1,0 +1,27 @@
+{
+  "required_lines": [
+    {
+      "values": [
+        "(?-mix:Pipes: (\\\\([a-zA-Z]*)(, )?)*)"
+      ],
+      "options": {
+      }
+    }
+  ],
+  "known_failures": [
+    {
+      "values": [
+        "(?-mix:Inaccessible named pipe:)"
+      ],
+      "options": {
+      }
+    },
+    {
+      "values": [
+        "(?-mix:The server responded with an unexpected status code: STATUS_OBJECT_NAME_NOT_FOUND)"
+      ],
+      "options": {
+      }
+    }
+  ]
+}

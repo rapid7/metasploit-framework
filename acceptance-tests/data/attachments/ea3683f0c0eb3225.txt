@@ -1,0 +1,28 @@
+{
+  "required_lines": [
+    {
+      "values": [
+        "PIPE(lsarpc) LOCAL"
+      ],
+      "options": {
+      }
+    },
+    {
+      "values": [
+        "(?-mix:User( *)(Administrator|nobody))"
+      ],
+      "options": {
+      }
+    },
+    {
+      "values": [
+        "(?-mix:Group( *)(None|Domain (Admins|Users|Guests|Computers)))"
+      ],
+      "options": {
+      }
+    }
+  ],
+  "known_failures": [
+
+  ]
+}

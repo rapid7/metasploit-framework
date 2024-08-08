@@ -1,0 +1,14 @@
+{
+  "required_lines": [
+    {
+      "values": [
+        "acceptance_tests_user"
+      ],
+      "options": {
+      }
+    }
+  ],
+  "known_failures": [
+
+  ]
+}

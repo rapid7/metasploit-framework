@@ -1,0 +1,19 @@
+use auxiliary/scanner/smb/smb_enumusers
+Stopping all jobs...
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/smb_lookupsid[0m) [0m> run lhost=127.0.0.1 username=acceptance_tests_user password=acceptance_tests_password rhost=127.0.0.1 rport=445 Verbose=true
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/smb_enumusers[0m) [0m> [*] 127.0.0.1:445 - Connecting to Security Account Manager (SAM) Remote Protocol
+[*] 127.0.0.1:445 - Binding to \samr...
+[+] 127.0.0.1:445 - Bound to \samr
+[*] 127.0.0.1:445 - Using automatically identified domain: 8D8FCB037C94
+[+] 127.0.0.1:445 - 8D8FCB037C94 [ acceptance_tests_user ] ( LockoutTries=0 PasswordMin=5 )
+[*] 127.0.0.1:445 - Connecting to Security Account Manager (SAM) Remote Protocol
+[*] 127.0.0.1:445 - Binding to \samr...
+[+] 127.0.0.1:445 - Bound to \samr
+[+] 127.0.0.1:445 - Builtin [  ] ( LockoutTries=0 PasswordMin=5 )
+[*] 127.0.0.1:445 - Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+sessions -K
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/smb_enumusers[0m) [0m> jobs -K
+[*] Killing all sessions...
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/smb_enumusers[0m) [0m> 

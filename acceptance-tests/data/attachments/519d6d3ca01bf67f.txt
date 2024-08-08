@@ -1,0 +1,28 @@
+{
+  "required_lines": [
+    {
+      "values": [
+        "modifiable - (DISK)"
+      ],
+      "options": {
+      }
+    },
+    {
+      "values": [
+        "readonly - (DISK)"
+      ],
+      "options": {
+      }
+    },
+    {
+      "values": [
+        "IPC$ - (IPC|SPECIAL) IPC Service"
+      ],
+      "options": {
+      }
+    }
+  ],
+  "known_failures": [
+
+  ]
+}

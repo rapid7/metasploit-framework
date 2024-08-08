@@ -1,0 +1,37 @@
+use auxiliary/scanner/smb/smb_login
+Stopping all jobs...
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/smb_enumshares[0m) [0m> irb -e '(self.respond_to?(:framework) ? framework : self).datastore.user_defined.clear'
+[*] New in Metasploit 6.4 - The CreateSession option within this module can open an interactive session
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/smb_login[0m) [0m> run PASS_FILE= USER_FILE= CreateSession=true username=acceptance_tests_user password=acceptance_tests_password rhost=127.0.0.1 rport=445
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/smb_login[0m) [0m> [*] 127.0.0.1:445         - 127.0.0.1:445 - Starting SMB login bruteforce
+[+] 127.0.0.1:445         - 127.0.0.1:445 - Success: '.\acceptance_tests_user:acceptance_tests_password'
+[!] 127.0.0.1:445         - No active DB -- Credential data will not be saved!
+[*] SMB session 4 opened (127.0.0.1:36641 -> 127.0.0.1:445) at 2024-08-08 08:46:26 +0000
+use post/test/smb
+[*] 127.0.0.1:445         - Scanned 1 of 1 hosts (100% complete)
+[*] 127.0.0.1:445         - Bruteforce completed, 1 credential was successful.
+[*] 127.0.0.1:445         - 1 SMB session was opened successfully.
+[*] Auxiliary module execution completed
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/smb_login[0m) [0m> run session=4 Verbose=true
+[4mmsf6[0m post([1m[31mtest/smb[0m) [0m> [!] SESSION may not be compatible with this module:
+[!]  * Unknown session platform. This module works with: Apple_iOS, Hardware, Multi, Mainframe, Firefox, NodeJS, Python, JavaScript, PHP, Unix, Irix, HPUX, AIX, FreeBSD, NetBSD, BSDi, OpenBSD, BSD, OSX, Solaris, Arista, Mikrotik, Brocade, Unifi, Juniper, Cisco, Linux, Ruby, R, Java, Android, Netware, Windows, Unknown.
+[*] Running against session 4
+[*] Session type is smb and platform is 
+[+] should support uploading files
+[+] should not upload to readonly share
+[+] should support deleting files
+[+] should support downloading files
+[+] should support changing a directory
+[+] should support creating a new directory
+[+] should support deleting a directory
+[+] should support switching shares
+[+] should output files in the current directory
+[+] should support the help command
+[*] Testing complete in 0.3 seconds
+[*] Passed: 10; Failed: 0; Skipped: 0
+[*] Post module execution completed
+sessions -K
+[4mmsf6[0m post([1m[31mtest/smb[0m) [0m> jobs -K
+[*] Killing all sessions...
+[*] 127.0.0.1 - SMB session 4 closed.
+[4mmsf6[0m post([1m[31mtest/smb[0m) [0m> 

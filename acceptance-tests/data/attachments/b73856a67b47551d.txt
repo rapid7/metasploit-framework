@@ -1,0 +1,32 @@
+use auxiliary/scanner/smb/smb_login
+Stopping all jobs...
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/smb_enumusers[0m) [0m> irb -e '(self.respond_to?(:framework) ? framework : self).datastore.user_defined.clear'
+[*] New in Metasploit 6.4 - The CreateSession option within this module can open an interactive session
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/smb_login[0m) [0m> run PASS_FILE= USER_FILE= CreateSession=true username=acceptance_tests_user password=acceptance_tests_password rhost=127.0.0.1 rport=445
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/smb_login[0m) [0m> [*] 127.0.0.1:445         - 127.0.0.1:445 - Starting SMB login bruteforce
+[+] 127.0.0.1:445         - 127.0.0.1:445 - Success: '.\acceptance_tests_user:acceptance_tests_password'
+[!] 127.0.0.1:445         - No active DB -- Credential data will not be saved!
+[*] SMB session 2 opened (127.0.0.1:42665 -> 127.0.0.1:445) at 2024-08-08 08:46:24 +0000
+use auxiliary/scanner/smb/smb_enumusers
+[*] 127.0.0.1:445         - Scanned 1 of 1 hosts (100% complete)
+[*] 127.0.0.1:445         - Bruteforce completed, 1 credential was successful.
+[*] 127.0.0.1:445         - 1 SMB session was opened successfully.
+[*] Auxiliary module execution completed
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/smb_login[0m) [0m> run session=2 Verbose=true
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/smb_enumusers[0m) [0m> [*] Connecting to Security Account Manager (SAM) Remote Protocol
+[*] Binding to \samr...
+[+] Bound to \samr
+[*] Using automatically identified domain: 8D8FCB037C94
+[+] 8D8FCB037C94 [ acceptance_tests_user ] ( LockoutTries=0 PasswordMin=5 )
+[*] Connecting to Security Account Manager (SAM) Remote Protocol
+[*] Binding to \samr...
+[+] Bound to \samr
+[+] Builtin [  ] ( LockoutTries=0 PasswordMin=5 )
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+sessions -K
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/smb_enumusers[0m) [0m> jobs -K
+[*] Killing all sessions...
+[*] 127.0.0.1 - SMB session 2 closed.
+[4mmsf6[0m auxiliary([1m[31mscanner/smb/smb_enumusers[0m) [0m> 

@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Meterpreter Support matrix</title>
+  <style>
+      :root {
+          --background-color-yes: green;
+          --background-color-yes-highlight: #007a00;
+          --background-color-no: red;
+          --background-color-no-highlight: #d90000;
+      }
+
+      html {
+      }
+
+      table {
+          border-collapse: collapse;
+          border: 2px solid rgb(200, 200, 200);
+          letter-spacing: 1px;
+          font-size: 0.8rem;
+      }
+
+      thead, tr th:nth-child(1) {
+          background: white;
+          position: sticky;
+          top: 0;
+          border: none;
+          outline: 2px solid rgb(200, 200, 200);
+          z-index: 20;
+      }
+
+      .summary-row {
+          background: white;
+          position: sticky;
+          top: 40px;
+          border: none;
+          outline: 1px solid rgb(200, 200, 200);
+          z-index: 20;
+      }
+
+      .summary-row th:first-child::before, .toggle-extensions::before {
+          content: '- '
+      }
+
+      td {
+          text-align: center;
+      }
+
+      td, th {
+          position: relative;
+      }
+
+      .yes {
+          background-color: var(--background-color-yes);
+      }
+
+      .no {
+          background-color: var(--background-color-no);
+      }
+
+      .highlight, .highlight th:nth-child(1) {
+          background-color: #f3f3f3;
+      }
+
+      .highlight.yes, .highlight .yes {
+          background-color: var(--background-color-yes-highlight);
+      }
+
+      .highlight.no, .highlight .no {
+          background-color: var(--background-color-no-highlight);
+      }
+
+      td, th {
+          border: 1px solid rgb(190, 190, 190);
+          padding: 10px 20px;
+      }
+
+      tr th:nth-child(1) {
+          position: sticky;
+          top: 0;
+          left: 0;
+          z-index: 10;
+      }
+
+      .tooltip .tooltip-inner {
+          text-align:left;
+          max-width: 800px;
+      }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <script>
+      $(function () {
+          var allClosed = false;
+
+          function columnSelector(index) {
+              return "tr :nth-child(" + (index + 1) + ")";
+          }
+
+          var addTableHighlights = function () {
+              var columnIndex = $(this).index();
+              $(this).parent().addClass("highlight");
+              $(this).closest('table').find(columnSelector(columnIndex)).addClass('highlight');
+          };
+
+          var removeTableHighlights = function () {
+              var columnIndex = $(this).index();
+              $(this).parent().removeClass("highlight");
+              $(this).closest('table').find(columnSelector(columnIndex)).removeClass('highlight');
+          };
+
+          var toggleAllExtensions = function () {
+              var extensions = $(this).closest('table').find('.summary-row').nextUntil();
+              allClosed = !allClosed;
+              if (allClosed) {
+                  extensions.hide();
+              } else {
+                  extensions.show();
+              }
+          };
+
+          var toggleExtension = function () {
+              $(this).closest('.summary-row').nextUntil().toggle();
+          }
+
+          // Table highlighting events
+          $('table')
+              .delegate('th, td', 'mouseover', addTableHighlights)
+              .delegate('th, td', 'mouseleave', removeTableHighlights)
+              .delegate('.toggle-extensions', 'mouseup', toggleAllExtensions)
+              .delegate('.summary-row', 'mouseup', toggleExtension)
+
+          // Tooltip handling
+          $('[data-toggle="tooltip"]').tooltip();
+      })
+  </script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+
+<main>
+  <table>
+    <colgroup>
+    </colgroup>
+
+    <thead>
+
+        <th class="toggle-extensions" style="width: 45ch">Meterpreter Feature</th>
+    </tr>
+    </thead>
+
+      <tbody>
+      <tr class="summary-row">
+            <th>core</th>
+      </tr>
+        <tr style="display: none">
+              <th>core_pivot_session_died</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_pivot_session_new</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_transport_set_timeouts</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_loadlib</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_set_uuid</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_set_session_guid</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_get_session_guid</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_machine_id</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_native_arch</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_transport_remove</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_transport_add</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_transport_change</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_transport_sleep</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_transport_next</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_transport_prev</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_transport_setcerthash</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_transport_getcerthash</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_migrate</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_shutdown</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_negotiate_tlv_encryption</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_pivot_add</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_enumextcmd</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_transport_list</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_channel_close</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_channel_eof</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_channel_interact</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_channel_open</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_channel_read</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_channel_seek</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_channel_tell</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_channel_write</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_console_write</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_patch_url</th>
+        </tr>
+        <tr style="display: none">
+              <th>core_pivot_remove</th>
+        </tr>
+      </tbody>
+      <tbody>
+      <tr class="summary-row">
+            <th>stdapi</th>
+      </tr>
+        <tr style="display: none">
+              <th>stdapi_ui_desktop_screenshot</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_ui_desktop_set</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_ui_enable_keyboard</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_ui_enable_mouse</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_ui_get_idle_time</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_ui_get_keys_utf8</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_ui_send_keyevent</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_ui_send_keys</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_ui_send_mouse</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_ui_start_keyscan</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_ui_stop_keyscan</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_ui_unlock_desktop</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_webcam_audio_record</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_webcam_get_frame</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_webcam_list</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_webcam_start</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_webcam_stop</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_audio_mic_start</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_audio_mic_stop</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_audio_mic_list</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_memory_search</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_config_update_token</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_set_term_size</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_fs_chdir</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_fs_chmod</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_fs_delete_dir</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_fs_delete_file</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_fs_file_copy</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_fs_file_expand_path</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_fs_file_move</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_fs_getwd</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_fs_ls</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_fs_md5</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_fs_mkdir</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_fs_mount_show</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_fs_search</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_fs_separator</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_fs_sha1</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_fs_stat</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_net_config_add_route</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_net_config_get_arp_table</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_net_config_get_interfaces</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_net_config_get_netstat</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_net_config_get_proxy</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_net_config_get_routes</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_net_config_remove_route</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_net_resolve_host</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_net_resolve_hosts</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_net_socket_tcp_shutdown</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_net_tcp_channel_open</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_railgun_api</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_railgun_api_multi</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_railgun_memread</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_railgun_memwrite</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_registry_check_key_exists</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_registry_close_key</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_registry_create_key</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_registry_delete_key</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_registry_delete_value</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_registry_enum_key</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_registry_enum_key_direct</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_registry_enum_value</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_registry_enum_value_direct</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_registry_load_key</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_registry_open_key</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_registry_open_remote_key</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_registry_query_class</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_registry_query_value</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_registry_query_value_direct</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_registry_set_value</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_registry_set_value_direct</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_registry_unload_key</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_config_driver_list</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_config_drop_token</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_config_getenv</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_config_getprivs</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_config_getsid</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_config_getuid</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_config_localtime</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_config_rev2self</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_config_steal_token</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_config_sysinfo</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_eventlog_clear</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_eventlog_close</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_eventlog_numrecords</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_eventlog_oldest</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_eventlog_open</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_eventlog_read</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_power_exitwindows</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_attach</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_close</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_execute</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_get_info</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_get_processes</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_getpid</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_image_get_images</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_image_get_proc_address</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_image_load</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_image_unload</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_kill</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_memory_allocate</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_memory_free</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_memory_lock</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_memory_protect</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_memory_query</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_memory_read</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_memory_unlock</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_memory_write</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_thread_close</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_thread_create</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_thread_get_threads</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_thread_open</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_thread_query_regs</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_thread_resume</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_thread_set_regs</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_thread_suspend</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_thread_terminate</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_sys_process_wait</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_ui_desktop_enum</th>
+        </tr>
+        <tr style="display: none">
+              <th>stdapi_ui_desktop_get</th>
+        </tr>
+      </tbody>
+      <tbody>
+      <tr class="summary-row">
+            <th>sniffer</th>
+      </tr>
+        <tr style="display: none">
+              <th>sniffer_capture_start</th>
+        </tr>
+        <tr style="display: none">
+              <th>sniffer_capture_stop</th>
+        </tr>
+        <tr style="display: none">
+              <th>sniffer_capture_stats</th>
+        </tr>
+        <tr style="display: none">
+              <th>sniffer_capture_release</th>
+        </tr>
+        <tr style="display: none">
+              <th>sniffer_capture_dump</th>
+        </tr>
+        <tr style="display: none">
+              <th>sniffer_capture_dump_read</th>
+        </tr>
+        <tr style="display: none">
+              <th>sniffer_interfaces</th>
+        </tr>
+      </tbody>
+      <tbody>
+      <tr class="summary-row">
+            <th>extapi</th>
+      </tr>
+        <tr style="display: none">
+              <th>extapi_adsi_domain_query</th>
+        </tr>
+        <tr style="display: none">
+              <th>extapi_clipboard_get_data</th>
+        </tr>
+        <tr style="display: none">
+              <th>extapi_clipboard_monitor_dump</th>
+        </tr>
+        <tr style="display: none">
+              <th>extapi_clipboard_monitor_pause</th>
+        </tr>
+        <tr style="display: none">
+              <th>extapi_clipboard_monitor_purge</th>
+        </tr>
+        <tr style="display: none">
+              <th>extapi_clipboard_monitor_resume</th>
+        </tr>
+        <tr style="display: none">
+              <th>extapi_clipboard_monitor_start</th>
+        </tr>
+        <tr style="display: none">
+              <th>extapi_clipboard_monitor_stop</th>
+        </tr>
+        <tr style="display: none">
+              <th>extapi_clipboard_set_data</th>
+        </tr>
+        <tr style="display: none">
+              <th>extapi_ntds_parse</th>
+        </tr>
+        <tr style="display: none">
+              <th>extapi_pageant_send_query</th>
+        </tr>
+        <tr style="display: none">
+              <th>extapi_service_control</th>
+        </tr>
+        <tr style="display: none">
+              <th>extapi_service_enum</th>
+        </tr>
+        <tr style="display: none">
+              <th>extapi_service_query</th>
+        </tr>
+        <tr style="display: none">
+              <th>extapi_window_enum</th>
+        </tr>
+        <tr style="display: none">
+              <th>extapi_wmi_query</th>
+        </tr>
+      </tbody>
+      <tbody>
+      <tr class="summary-row">
+            <th>kiwi</th>
+      </tr>
+        <tr style="display: none">
+              <th>kiwi_exec_cmd</th>
+        </tr>
+      </tbody>
+      <tbody>
+      <tr class="summary-row">
+            <th>python</th>
+      </tr>
+        <tr style="display: none">
+              <th>python_reset</th>
+        </tr>
+        <tr style="display: none">
+              <th>python_execute</th>
+        </tr>
+      </tbody>
+      <tbody>
+      <tr class="summary-row">
+            <th>unhook</th>
+      </tr>
+        <tr style="display: none">
+              <th>unhook_pe</th>
+        </tr>
+      </tbody>
+      <tbody>
+      <tr class="summary-row">
+            <th>appapi</th>
+      </tr>
+        <tr style="display: none">
+              <th>appapi_app_list</th>
+        </tr>
+        <tr style="display: none">
+              <th>appapi_app_uninstall</th>
+        </tr>
+        <tr style="display: none">
+              <th>appapi_app_install</th>
+        </tr>
+        <tr style="display: none">
+              <th>appapi_app_run</th>
+        </tr>
+      </tbody>
+      <tbody>
+      <tr class="summary-row">
+            <th>winpmem</th>
+      </tr>
+        <tr style="display: none">
+              <th>winpmem_dump_ram</th>
+        </tr>
+      </tbody>
+      <tbody>
+      <tr class="summary-row">
+            <th>powershell</th>
+      </tr>
+        <tr style="display: none">
+              <th>powershell_assembly_load</th>
+        </tr>
+        <tr style="display: none">
+              <th>powershell_session_remove</th>
+        </tr>
+        <tr style="display: none">
+              <th>powershell_execute</th>
+        </tr>
+        <tr style="display: none">
+              <th>powershell_shell</th>
+        </tr>
+      </tbody>
+      <tbody>
+      <tr class="summary-row">
+            <th>lanattacks</th>
+      </tr>
+        <tr style="display: none">
+              <th>lanattacks_add_tftp_file</th>
+        </tr>
+        <tr style="display: none">
+              <th>lanattacks_dhcp_log</th>
+        </tr>
+        <tr style="display: none">
+              <th>lanattacks_reset_dhcp</th>
+        </tr>
+        <tr style="display: none">
+              <th>lanattacks_reset_tftp</th>
+        </tr>
+        <tr style="display: none">
+              <th>lanattacks_set_dhcp_option</th>
+        </tr>
+        <tr style="display: none">
+              <th>lanattacks_start_dhcp</th>
+        </tr>
+        <tr style="display: none">
+              <th>lanattacks_start_tftp</th>
+        </tr>
+        <tr style="display: none">
+              <th>lanattacks_stop_dhcp</th>
+        </tr>
+        <tr style="display: none">
+              <th>lanattacks_stop_tftp</th>
+        </tr>
+      </tbody>
+      <tbody>
+      <tr class="summary-row">
+            <th>priv</th>
+      </tr>
+        <tr style="display: none">
+              <th>priv_elevate_getsystem</th>
+        </tr>
+        <tr style="display: none">
+              <th>priv_passwd_get_sam_hashes</th>
+        </tr>
+        <tr style="display: none">
+              <th>priv_fs_blank_directory_mace</th>
+        </tr>
+        <tr style="display: none">
+              <th>priv_fs_blank_file_mace</th>
+        </tr>
+        <tr style="display: none">
+              <th>priv_fs_get_file_mace</th>
+        </tr>
+        <tr style="display: none">
+              <th>priv_fs_set_file_mace</th>
+        </tr>
+        <tr style="display: none">
+              <th>priv_fs_set_file_mace_from_file</th>
+        </tr>
+      </tbody>
+      <tbody>
+      <tr class="summary-row">
+            <th>incognito</th>
+      </tr>
+        <tr style="display: none">
+              <th>incognito_list_tokens</th>
+        </tr>
+        <tr style="display: none">
+              <th>incognito_impersonate_token</th>
+        </tr>
+        <tr style="display: none">
+              <th>incognito_add_user</th>
+        </tr>
+        <tr style="display: none">
+              <th>incognito_add_group_user</th>
+        </tr>
+        <tr style="display: none">
+              <th>incognito_add_localgroup_user</th>
+        </tr>
+        <tr style="display: none">
+              <th>incognito_snarf_hashes</th>
+        </tr>
+      </tbody>
+      <tbody>
+      <tr class="summary-row">
+            <th>peinjector</th>
+      </tr>
+        <tr style="display: none">
+              <th>peinjector_inject_shellcode</th>
+        </tr>
+      </tbody>
+      <tbody>
+      <tr class="summary-row">
+            <th>espia</th>
+      </tr>
+        <tr style="display: none">
+              <th>espia_image_get_dev_screen</th>
+        </tr>
+      </tbody>
+      <tbody>
+      <tr class="summary-row">
+            <th>android</th>
+      </tr>
+        <tr style="display: none">
+              <th>android_geolocate</th>
+        </tr>
+        <tr style="display: none">
+              <th>android_dump_calllog</th>
+        </tr>
+        <tr style="display: none">
+              <th>android_check_root</th>
+        </tr>
+        <tr style="display: none">
+              <th>android_hide_app_icon</th>
+        </tr>
+        <tr style="display: none">
+              <th>android_activity_start</th>
+        </tr>
+        <tr style="display: none">
+              <th>android_set_wallpaper</th>
+        </tr>
+        <tr style="display: none">
+              <th>android_send_sms</th>
+        </tr>
+        <tr style="display: none">
+              <th>android_wlan_geolocate</th>
+        </tr>
+        <tr style="display: none">
+              <th>android_sqlite_query</th>
+        </tr>
+        <tr style="display: none">
+              <th>android_wakelock</th>
+        </tr>
+        <tr style="display: none">
+              <th>android_device_shutdown</th>
+        </tr>
+        <tr style="display: none">
+              <th>android_set_audio_mode</th>
+        </tr>
+        <tr style="display: none">
+              <th>android_interval_collect</th>
+        </tr>
+        <tr style="display: none">
+              <th>android_dump_sms</th>
+        </tr>
+        <tr style="display: none">
+              <th>android_dump_contacts</th>
+        </tr>
+      </tbody>
+      <tbody>
+      <tr class="summary-row">
+            <th>bofloader</th>
+      </tr>
+        <tr style="display: none">
+              <th>bofloader_execute</th>
+        </tr>
+      </tbody>
+  </table>
+</main>
+</body>
+</html>
