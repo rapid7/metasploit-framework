@@ -31,7 +31,7 @@ bindata, 2.4.15, "Simplified BSD"
 bootsnap, 1.18.3, MIT
 bson, 5.0.0, "Apache 2.0"
 builder, 3.2.4, MIT
-bundler, 2.1.4, MIT
+bundler, 2.2.3, MIT
 byebug, 11.1.3, "Simplified BSD"
 chunky_png, 1.4.0, MIT
 coderay, 1.1.3, MIT
@@ -86,7 +86,7 @@ memory_profiler, 1.0.1, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 5.0.2, "New BSD"
 metasploit-credential, 6.0.9, "New BSD"
-metasploit-framework, 6.4.21, "New BSD"
+metasploit-framework, 6.4.22, "New BSD"
 metasploit-model, 5.0.2, "New BSD"
 metasploit-payloads, 2.0.166, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 6.0.3, "New BSD"
@@ -121,7 +121,7 @@ packetfu, 2.0.0, "New BSD"
 parallel, 1.24.0, MIT
 parser, 3.3.2.0, MIT
 patch_finder, 1.0.2, "New BSD"
-pcaprub, 0.13.2, LGPL-2.1
+pcaprub, 0.13.3, LGPL-2.1
 pdf-reader, 2.12.0, MIT
 pg, 1.5.6, "Simplified BSD"
 pry, 0.14.2, MIT
