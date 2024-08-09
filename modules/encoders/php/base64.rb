@@ -76,15 +76,15 @@ class MetasploitModule < Msf::Encoder
     # Plus characters ('+') in a uri are converted to spaces, so replace
     # them with something that PHP will turn into a plus.  Slashes cause
     # parse errors on the server side, so do the same for them.
-    b64.gsub!('+', '.chr(43).')
-    b64.gsub!('/', '.chr(47).')
+    b64.gsub!('+', "#{quote}.chr(43).#{quote}")
+    b64.gsub!('/', "#{quote}.chr(47).#{quote}")
 
     state.badchars.each_byte do |byte|
       # Last ditch effort, if any of the normal characters used by base64
       # are badchars, try to replace them with something that will become
       # the appropriate thing on the other side.
       if b64.include?(byte.chr)
-        b64.gsub!(byte.chr, ".chr(#{byte}).")
+        b64.gsub!(byte.chr, "#{quote}.chr(#{byte}).#{quote}")
       end
     end
 
