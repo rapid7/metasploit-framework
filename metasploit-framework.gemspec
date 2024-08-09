@@ -109,7 +109,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'puma'
   spec.add_runtime_dependency 'ruby-mysql'
   spec.add_runtime_dependency 'thin'
-  spec.add_runtime_dependency 'sinatra'
+  spec.add_runtime_dependency 'sinatra', '~> 3'
   spec.add_runtime_dependency 'warden'
   spec.add_runtime_dependency 'swagger-blocks'
   # Required for JSON-RPC client
