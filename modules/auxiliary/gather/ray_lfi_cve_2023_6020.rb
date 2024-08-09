@@ -30,8 +30,8 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2023-11-15',
         'Notes' => {
           'Stability' => [ CRASH_SAFE, ],
-          'SideEffects' => [],
-          'Reliability' => [ IOC_IN_LOGS, ]
+          'SideEffects' => [ IOC_IN_LOGS, ],
+          'Reliability' => []
         }
       )
     )
