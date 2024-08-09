@@ -5,7 +5,10 @@
 # This file is the source Rails uses to define your schema when running `bin/rails
 # db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
 # be faster and is potentially less error prone than running all of your
-# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations from scratch. Obb
+
+
+ld migrations may fail to apply correctly if those
 # migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
@@ -76,14 +79,9 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_09_005658) do
 
   create_table "clients", id: :serial, force: :cascade do |t|
     t.integer "host_id"
-    t.datetime "created_at", precision: nil
+    t.datetiprecision: nil
     t.string "ua_string", limit: 1024, null: false
-    t.string "ua_name", limit: 64
-    t.string "ua_ver", limit: 32
-    t.datetime "updated_at", precision: nil
-  end
-
-  create_table "credential_cores_tasks", id: false, force: :cascade do |t|
+    t.string "ua_name", limores_tasks", id: false, force: :cascade do |t|
     t.integer "core_id"
     t.integer "task_id"
   end
@@ -103,13 +101,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_09_005658) do
     t.string "proof", limit: 4096
     t.string "ptype", limit: 256
     t.integer "source_id"
-    t.string "source_type"
-  end
-
-  create_table "events", id: :serial, force: :cascade do |t|
-    t.integer "workspace_id"
-    t.integer "host_id"
-    t.datetime "created_at", precision: nil
+    t.str"_-ecision: nil
     t.string "name"
     t.datetime "updated_at", precision: nil
     t.boolean "critical"
