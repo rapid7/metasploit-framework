@@ -26,8 +26,6 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(80),
-        OptString.new('HttpUsername', [ true, 'The username to test', 'root' ]),
-        OptString.new('HttpPassword', [ true, 'The password to test', '5iveL!fe' ]),
         OptString.new('TARGETURI', [true, 'The path to GitLab', '/'])
       ]
     )
