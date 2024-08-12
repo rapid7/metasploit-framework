@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
 
     scanner = Metasploit::Framework::LoginScanner::Jenkins.new(
       configure_http_login_scanner(
-        uri: '/',
+        uri: datastore['TARGETURI'],
         ssl: datastore['SSL'],
         method: datastore['HTTP_METHOD'],
         cred_details: cred_collection,
