@@ -15,7 +15,7 @@ module Metasploit
 
         # (see Base#set_sane_defaults)
         def set_sane_defaults
-          self.uri = "/j_acegi_security_check" if self.uri.nil?
+          self.uri = "/" if self.uri.nil?
           self.method = "POST" if self.method.nil?
 
           if self.uri[0] != '/'
@@ -23,6 +23,30 @@ module Metasploit
           end
 
           super
+        end
+
+        # (see Base#check_setup)
+        def check_setup
+          login_uri = jenkins_login_uri
+          if login_uri.nil?
+            error_message = 'Unable to locate the Jenkins login path'
+          else
+            self.uri = normalize_uri(login_uri)
+            error_message = false
+          end
+
+          error_message
+        end
+
+        def jenkins_login_uri
+          res = send_request({ 'uri' => normalize_uri('login') })
+          if res&.code == 200 && res&.body =~ Msf::Exploit::Remote::HTTP::Jenkins::LOGIN_PATH_REGEX
+            login_path = Regexp.last_match(1)
+            ilog("Found jenkins login path: #{login_path}")
+            return login_path
+          end
+          wlog('Failed to identify the login resource.')
+          nil
         end
 
         def attempt_login(credential)

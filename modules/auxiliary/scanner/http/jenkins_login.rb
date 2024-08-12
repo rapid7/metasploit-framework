@@ -38,10 +38,10 @@ class MetasploitModule < Msf::Auxiliary
       password: datastore['PASSWORD']
     )
 
-    login_uri = jenkins_uri_check(target_uri)
     scanner = Metasploit::Framework::LoginScanner::Jenkins.new(
       configure_http_login_scanner(
-        uri: normalize_uri(login_uri),
+        uri: '/',
+        ssl: datastore['SSL'],
         method: datastore['HTTP_METHOD'],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
@@ -51,6 +51,12 @@ class MetasploitModule < Msf::Auxiliary
         http_password: datastore['HttpPassword']
       )
     )
+
+    msg = scanner.check_setup
+    if msg
+      print_brute level: :error, ip: ip, msg: msg
+      return
+    end
 
     scanner.scan! do |result|
       credential_data = result.to_h
