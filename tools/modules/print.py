@@ -28,7 +28,7 @@ default_metadata_path = (framework_root / 'db' / 'modules_metadata_base.json')
 def get_notes(module_metadata):
     tree = Tree('Notes', hide_root=True)
     for key, values in module_metadata.get('notes', {}).items():
-        node = tree.add(key)
+        node = tree.add(f"[italic]{key}[/italic]")
         for value in values:
             node.add(value)
     return tree
@@ -79,17 +79,17 @@ def main():
     table.add_column(justify='right')
     table.add_column()
 
-    table.add_row('[bold]Name[/bold]', module_metadata['name'])
-    table.add_row('[bold]Module[/bold]', module_metadata['fullname'])
-    table.add_row('[bold]Platform[/bold]', module_metadata['platform'])
-    table.add_row('[bold]Arch[/bold]', module_metadata['arch'])
-    table.add_row('[bold]Rank[/bold]', RANKS[module_metadata['rank']])
-    table.add_row('[bold]Disclosed[/bold]', module_metadata['disclosure_date'])
+    table.add_row('[bold yellow]Name[/bold yellow]', module_metadata['name'])
+    table.add_row('[bold yellow]Module[/bold yellow]', module_metadata['fullname'])
+    table.add_row('[bold yellow]Platform[/bold yellow]', module_metadata['platform'])
+    table.add_row('[bold yellow]Arch[/bold yellow]', module_metadata['arch'])
+    table.add_row('[bold yellow]Rank[/bold yellow]', RANKS[module_metadata['rank']])
+    table.add_row('[bold yellow]Disclosed[/bold yellow]', module_metadata['disclosure_date'])
 
     console = Console(color_system='256')
     console.print(table)
     
-    panel_title = lambda v: f"[bold]{v}[/bold]"
+    panel_title = lambda v: f"[bold yellow]{v}[/bold yellow]"
     console.print(Panel(get_authors(module_metadata), title=panel_title('Provided by'), title_align='left'))
     console.print(Panel(get_notes(module_metadata), title=panel_title('Notes'), title_align='left'))
     if module_metadata.get('targets'):
