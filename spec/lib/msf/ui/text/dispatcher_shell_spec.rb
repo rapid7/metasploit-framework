@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'readline'
+require 'reline'
 
 RSpec.describe Rex::Ui::Text::DispatcherShell do
   let(:prompt) { '%undmsf6%clr' }

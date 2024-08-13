@@ -7,13 +7,6 @@ RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
   include_context 'wait_for_expect'
 
   subject { described_class.send(:new) }
-  let(:readline_available) { false }
-  let(:reline_available) { false }
-
-  before(:each) do
-    allow(subject).to receive(:readline_available?).and_return(readline_available)
-    allow(subject).to receive(:reline_available?).and_return(reline_available)
-  end
 
   describe '#with_context' do
     context 'when there is not an existing stack' do
@@ -30,7 +23,7 @@ RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
         (expect do |block|
           subject.with_context(name: 'a') do
             expected_contexts = [
-              { history_file: nil, input_library: :readline, name: 'a' },
+              { history_file: nil, name: 'a' },
             ]
             expect(subject._contexts).to eq(expected_contexts)
             block.to_proc.call
@@ -41,7 +34,7 @@ RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
 
     context 'when there is an existing stack' do
       before(:each) do
-        subject.send(:push_context, history_file: nil, input_library: :readline, name: 'a')
+        subject.send(:push_context, history_file: nil, name: 'a')
       end
 
       it 'continues to have the previous existing stack' do
@@ -49,7 +42,7 @@ RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
           # noop
         }
         expected_contexts = [
-          { history_file: nil, input_library: :readline, name: 'a' },
+          { history_file: nil, name: 'a' },
         ]
         expect(subject._contexts).to eq(expected_contexts)
       end
@@ -58,8 +51,8 @@ RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
         (expect do |block|
           subject.with_context(name: 'b') do
             expected_contexts = [
-              { history_file: nil, input_library: :readline, name: 'a' },
-              { history_file: nil, input_library: :readline, name: 'b' },
+              { history_file: nil, name: 'a' },
+              { history_file: nil, name: 'b' },
             ]
             expect(subject._contexts).to eq(expected_contexts)
             block.to_proc.call
@@ -74,7 +67,7 @@ RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
           }
         end.to raise_exception ArgumentError, 'Mock error'
         expected_contexts = [
-          { history_file: nil, input_library: :readline, name: 'a' },
+          { history_file: nil, name: 'a' },
         ]
         expect(subject._contexts).to eq(expected_contexts)
       end
@@ -84,9 +77,9 @@ RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
   describe '#push_context' do
     context 'when the stack is empty' do
       it 'stores the history contexts' do
-        subject.send(:push_context, history_file: nil, input_library: :readline, name: 'a')
+        subject.send(:push_context, history_file: nil, name: 'a')
         expected_contexts = [
-          { history_file: nil, input_library: :readline, name: 'a' }
+          { history_file: nil, name: 'a' }
         ]
         expect(subject._contexts).to eq(expected_contexts)
       end
@@ -95,12 +88,12 @@ RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
     context 'when multiple values are pushed' do
       it 'stores the history contexts' do
         subject.send(:push_context, history_file: nil, name: 'a')
-        subject.send(:push_context, history_file: nil, input_library: :readline, name: 'b')
-        subject.send(:push_context, history_file: nil, input_library: :reline, name: 'c')
+        subject.send(:push_context, history_file: nil, name: 'b')
+        subject.send(:push_context, history_file: nil, name: 'c')
         expected_contexts = [
-          { history_file: nil, input_library: :readline, name: 'a' },
-          { history_file: nil, input_library: :readline, name: 'b' },
-          { history_file: nil, input_library: :reline, name: 'c' },
+          { history_file: nil, name: 'a' },
+          { history_file: nil, name: 'b' },
+          { history_file: nil, name: 'c' },
         ]
         expect(subject._contexts).to eq(expected_contexts)
       end
@@ -123,7 +116,7 @@ RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
         subject.send(:push_context, history_file: nil, name: 'b')
         subject.send(:pop_context)
         expected_contexts = [
-          { history_file: nil, input_library: :readline, name: 'a' },
+          { history_file: nil, name: 'a' },
         ]
         expect(subject._contexts).to eq(expected_contexts)
       end
@@ -150,14 +143,14 @@ RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
       context "when storing #{test[:history_size]} lines" do
         it "correctly stores #{test[:expected_size]} lines" do
           allow(subject).to receive(:store_history_file).and_call_original
-          allow(subject).to receive(:map_library_to_history).and_return(history_mock)
+          allow(subject).to receive(:history).and_return(history_mock)
 
           test[:history_size].times do
             # This imitates the user typing in a command and pressing the 'enter' key.
             history_mock << history_choices.sample
           end
 
-          context = { input_library: :readline, history_file: history_file.path, name: 'history'}
+          context = { history_file: history_file.path, name: 'history' }
 
           subject.send(:store_history_file, context)
 
@@ -176,15 +169,16 @@ RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
     let(:history_file) { ::Tempfile.new('history') }
 
     after(:each) do
+      history_file.close
       history_file.unlink
       subject._close
     end
 
     context 'when history file is not accessible' do
       it 'the library history remains unchanged' do
-        allow(subject).to receive(:map_library_to_history).and_return(history_mock)
+        allow(subject).to receive(:history).and_return(history_mock)
         history_file = ::File.join('does', 'not', 'exist', 'history')
-        context = { input_library: :readline, history_file: history_file, name: 'history' }
+        context = { history_file: history_file, name: 'history' }
 
         subject.send(:load_history_file, context)
         expect(history_mock).to eq(initial_history)
@@ -193,7 +187,7 @@ RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
 
     context 'when history file is accessible' do
       it 'correctly loads the history' do
-        allow(subject).to receive(:map_library_to_history).and_return(history_mock)
+        allow(subject).to receive(:history).and_return(history_mock)
 
         # Populate our own history file with random entries.
         # Using this allows us to not have to worry about history files present/not present on disk.
@@ -204,7 +198,7 @@ RSpec.describe Rex::Ui::Text::Shell::HistoryManager do
         history_file.puts new_history
         history_file.rewind
 
-        context = { input_library: :readline, history_file: history_file.path, name: 'history' }
+        context = { history_file: history_file.path, name: 'history' }
 
         subject.send(:load_history_file, context)
 

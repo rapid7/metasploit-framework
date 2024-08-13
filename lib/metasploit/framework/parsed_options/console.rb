@@ -16,7 +16,6 @@ class Metasploit::Framework::ParsedOptions::Console < Metasploit::Framework::Par
         options.console.plugins = []
         options.console.quiet = false
         options.console.readline = true
-        options.console.real_readline = false
         options.console.resources = []
         options.console.subcommand = :run
       }
@@ -54,7 +53,11 @@ class Metasploit::Framework::ParsedOptions::Console < Metasploit::Framework::Par
         end
 
         option_parser.on('-L', '--real-readline', 'Use the system Readline library instead of RbReadline') do
-          options.console.real_readline = true
+          message = "The RealReadline option has been marked as deprecated, and is currently a noop.\n"
+          message << "Metasploit Framework now uses Reline exclusively as the input handling library.\n"
+          message << "If you require this functionality, please use the following link to tell us:\n"
+          message << '  https://github.com/rapid7/metasploit-framework/issues/19399'
+          warn message
         end
 
         option_parser.on('-o', '--output FILE', 'Output to the specified file') do |file|
