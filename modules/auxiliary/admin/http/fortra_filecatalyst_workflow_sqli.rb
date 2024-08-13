@@ -257,6 +257,7 @@ class MetasploitModule < Msf::Auxiliary
     if title_block
       title_text = title_block.text.strip
       if title_text.include?('Administration')
+        store_valid_credential(user: datastore['NEW_USERNAME'], private: datastore['NEW_PASSWORD'], proof: html)
         print_good('Login successful!')
       else
         fail_with(Failure::UnexpectedReply, 'Expected string "Administration" not found.')
