@@ -153,6 +153,7 @@ class MetasploitModule < Msf::Auxiliary
       if json.key?('error_message')
         fail_with(Failure::UnexpectedReply, json['error_message'])
       else
+        store_valid_credential(user: datastore['USER'], private: datastore['NEW_PASSWORD'], proof: json)
         print_good("Password for the #{datastore['USER']} user was successfully updated: #{datastore['NEW_PASSWORD']}")
         print_good("Login at: http://#{datastore['RHOSTS']}:#{datastore['RPORT']}/#/logIn?redirectURL=%2F") end
     else
