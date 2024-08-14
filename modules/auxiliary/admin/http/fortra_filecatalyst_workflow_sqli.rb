@@ -53,8 +53,7 @@ class MetasploitModule < Msf::Auxiliary
     unless res
       fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
     end
-    case res.code
-    when 200
+    if res.code == 200
       print_good('Server reachable.')
     else
       fail_with(Failure::UnexpectedReply, 'Unexpected reply from the target.')
