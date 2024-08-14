@@ -1,13 +1,24 @@
 ## Vulnerable Application
 
-This module exploits an access control issue in Ivanti Virtual Traffic Manager (VTM) 22.7R1, by adding a new
+This module exploits an access control issue in Ivanti Virtual Traffic Manager (vTM), by adding a new
 administrative user to the web interface of the application.
 
-The original advisory is available [here](https://packetstormsecurity.com/files/179906).
+Affected versions include:
+* 22.2
+* 22.3
+* 22.3R2
+* 22.5R1
+* 22.6R1
+* 22.7R1
+
+The vendor published an advisory [here]
+(https://forums.ivanti.com/s/article/Security-Advisory-Ivanti-Virtual-Traffic-Manager-vTM-CVE-2024-7593?language=en_US).
+
+A proof-of-concept is available [here](https://packetstormsecurity.com/files/179906).
 
 ## Testing
 
-The software can be obtained from [here](https://hubgw.docker.com/r/pulsesecure/vtm).
+Docker images with the software are available from [here](https://hubgw.docker.com/r/pulsesecure/vtm).
 
 **Successfully tested on**
 
@@ -15,7 +26,7 @@ The software can be obtained from [here](https://hubgw.docker.com/r/pulsesecure/
 
 ## Verification Steps
 
-1. Deploy Ivanti Virtual Traffic Manager (VTM)
+1. Deploy Ivanti Virtual Traffic Manager (vTM)
 2. Start `msfconsole`
 3. `use auxiliary/admin/http/ivanti_vtm_admin`
 4. `set RHOSTS <IP>`
@@ -32,7 +43,7 @@ Password to be used when creating a new user with admin privileges.
 
 ## Scenarios
 
-Running the module against Virtual Traffic Manager (VTM) 22.7R1 should result in an output
+Running the module against Virtual Traffic Manager (vTM) 22.7R1 should result in an output
 similar to the following:
 
 ```

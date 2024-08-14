@@ -6,17 +6,20 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Ivanti Virtual Traffic Manager Authentication Bypass',
+        'Name' => 'Ivanti Virtual Traffic Manager Authentication Bypass (CVE-2024-7593)',
         'Description' => %q{
-          This module exploits an access control issue in Ivanti Virtual Traffic Manager 22.7R1, by adding a new
+          This module exploits an access control issue in Ivanti Virtual Traffic Manager (vTM), by adding a new
           administrative user to the web interface of the application.
         },
         'Author' => [
           'Michael Heinzl', # MSF Module
-          'ohnoisploited' # Discovery and PoC
+          'ohnoisploited', # PoC
+          'mxalias' # Credited in the vendor advisory for the discovery, https://hackerone.com/mxalias?type=user
         ],
         'References' => [
-          ['PACKETSTORM', '179906']
+          ['PACKETSTORM', '179906'],
+          ['CVE', '2024-7593'],
+          ['URL', 'https://forums.ivanti.com/s/article/Security-Advisory-Ivanti-Virtual-Traffic-Manager-vTM-CVE-2024-7593?language=en_US']
         ],
         'DisclosureDate' => '2024-08-05',
         'DefaultOptions' => {
