@@ -4,12 +4,12 @@ This module exploits an access control issue in Ivanti Virtual Traffic Manager (
 administrative user to the web interface of the application.
 
 Affected versions include:
-* 22.2
-* 22.3
-* 22.3R2
-* 22.5R1
-* 22.6R1
 * 22.7R1
+* 22.6R1
+* 22.5R1
+* 22.3R2
+* 22.3
+* 22.2
 
 The vendor published an advisory [here]
 (https://forums.ivanti.com/s/article/Security-Advisory-Ivanti-Virtual-Traffic-Manager-vTM-CVE-2024-7593?language=en_US).
@@ -23,6 +23,10 @@ Docker images with the software are available from [here](https://hubgw.docker.c
 **Successfully tested on**
 
 - 22.7R1 on Ubuntu 20.04.6 LTS
+- 22.6R1 on Ubuntu 20.04.6 LTS
+- 22.5R1 on Ubuntu 20.04.6 LTS
+- 22.3R1 on Ubuntu 20.04.5 LTS
+- 22.2 on Ubuntu 20.04.4 LTS
 
 ## Verification Steps
 
