@@ -10,6 +10,8 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q{
           This module exploits an access control issue in Ivanti Virtual Traffic Manager (vTM), by adding a new
           administrative user to the web interface of the application.
+
+          Affected versions include 22.7R1, 22.6R1, 22.5R1, 22.3R2, 22.3, 22.2.
         },
         'Author' => [
           'Michael Heinzl', # MSF Module
