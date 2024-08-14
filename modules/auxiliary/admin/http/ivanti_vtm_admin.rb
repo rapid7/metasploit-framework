@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
             'data' => form.to_s
           }
         )
-        if res && res.code == 302 && res.headers.key?('Set-Cookie') && res.headers['Set-Cookie'].include?('ZeusTMZAUTH_')
+        if res && res.code == 302 && res.get_cookies.include?('ZeusTMZAUTH_')
           store_valid_credential(user: datastore['NEW_USERNAME'], private: datastore['NEW_PASSWORD'], proof: html)
           print_good("New admin user was successfully added:\n\t#{datastore['NEW_USERNAME']}:#{datastore['NEW_PASSWORD']}")
           print_good("Login at: https://#{datastore['RHOSTS']}:#{datastore['RPORT']}#{datastore['TARGETURI']}apps/zxtm/login.cgi")
