@@ -1,5 +1,5 @@
 ## Vulnerable Application
-  electerm is free and open source universal database tool for developers and database administrators.
+  electerm is free and open source Terminal/ssh/telnet/serialport/RDP/VNC/sftp client.
 
   This module will determine if electerm is installed on the target system and, if it is, it will try to
   dump all saved session information from the target. The passwords for these saved sessions will then be decrypted
