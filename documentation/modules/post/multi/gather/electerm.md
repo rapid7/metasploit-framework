@@ -21,7 +21,7 @@
   1. Get a session.
   2. Do: `set session <session number>`
   3. Do: `run post/multi/gather/credentials/electerm`
-  4. If the system has registry keys for electerm passwords they will be printed out.
+  4. If the system has saved passwords, they will be printed out.
 
 ## Options
 
