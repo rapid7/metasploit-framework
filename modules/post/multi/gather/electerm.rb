@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Post
 
       row = []
       row << value['title'] || ''
-      row << value['type'] || 'ssh'
+      row << value.fetch('type', 'ssh')
       row << value['host'] || ''
       row << value['port'] || ''
       row << value['username'] || ''
