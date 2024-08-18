@@ -157,7 +157,7 @@ class MetasploitModule < Msf::Post
     when 'windows'
       app_data = get_env('AppData')
       if app_data.present?
-        bookmarks_dir = app_data + '\Roaming\electerm\users\default_user'
+        bookmarks_dir = app_data + '\electerm\users\default_user'
       end
     when 'linux', 'osx', 'unix'
       home = get_env('HOME')
