@@ -45,10 +45,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    @file_content = lfi
-    return Exploit::CheckCode::Safe if @file_content.nil?
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'api/version')
+    })
+    return Exploit::CheckCode::Unknown unless res && res.code == 200
 
-    Exploit::CheckCode::Vulnerable
+    ray_version = res.get_json_document['ray_version']
+
+    return Exploit::CheckCode::Unknown unless ray_version
+
+    return Exploit::CheckCode::Safe unless Rex::Version.new(ray_version) <= Rex::Version.new('2.6.3')
+
+    return Exploit::CheckCode::Appears
   end
 
   def lfi
