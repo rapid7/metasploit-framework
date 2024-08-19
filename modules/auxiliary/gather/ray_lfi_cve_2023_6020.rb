@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
     file_content = lfi('/etc/passwd')
     return Exploit::CheckCode::Vulnerable unless file_content.nil?
 
-    return Exploit::CheckCode::Appears
+    Exploit::CheckCode::Appears
   end
 
   def lfi(filepath)
