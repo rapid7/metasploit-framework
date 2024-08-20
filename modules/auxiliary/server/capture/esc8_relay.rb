@@ -26,10 +26,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('CAINPWFILE', [ false, 'Name of file to store Cain&Abel hashes in. Only supports NTLMv1 hashes. Can be a path.', nil ]),
-        OptString.new('JOHNPWFILE', [ false, 'Name of file to store JohnTheRipper hashes in. Supports NTLMv1 and NTLMv2 hashes, each of which is stored in separate files. Can also be a path.', nil ]),
-        OptString.new('CHALLENGE', [ false, 'The 8 byte server challenge. Set values must be a valid 16 character hexadecimal pattern. If unset a valid random challenge is used.' ], regex: /^([a-fA-F0-9]{16})$/),
-        OptString.new('SMBDomain', [ true, 'The domain name used during SMB exchange.', 'WORKGROUP'], aliases: ['DOMAIN_NAME']),
         OptAddress.new('SRVHOST', [ true, 'The local host to listen on.', '0.0.0.0' ]),
         OptPort.new('SRVPORT', [ true, 'The local port to listen on.', 445 ]),
         OptInt.new('TIMEOUT', [ true, 'Seconds that the server socket will wait for a response after the client has initiated communication.', 5])
@@ -51,12 +47,12 @@ class MetasploitModule < Msf::Auxiliary
     ntlm_provider.netbios_hostname = datastore['SMBDomain']
     validate_smb_hash_capture_datastore(datastore, ntlm_provider)
     opts[:gss_provider] = ntlm_provider
-
     super(opts)
   end
 
   def on_client_connect(client)
     print_good('Received SMB connection on Auth Capture Server!')
+
   end
 
   alias :run :exploit
