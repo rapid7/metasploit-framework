@@ -130,6 +130,10 @@ module Shell
       # Pry is a development dependency, if not available suppressing history_load can be safely ignored.
     end
 
+    if framework.features.enabled?(Msf::FeatureManager::SHOW_AUTOCOMPLETION_PROMPT)
+      Reline.autocompletion = true
+    end
+
     with_history_manager_context do
       begin
         while true
