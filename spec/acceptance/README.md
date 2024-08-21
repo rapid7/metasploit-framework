@@ -27,9 +27,14 @@ SPEC_OPTS='--tag acceptance' SPEC_HELPER_LOAD_METASPLOIT=false bundle exec rspec
 ```
 
 Run a specific Meterpreter/module test Unix / Windows:
-```
-SPEC_OPTS='--tag acceptance' METERPRETER=php METERPRETER_MODULE_TEST=test/unix bundle exec rspec './spec/acceptance/meterpreter_spec.rb'
 
+Bash command:
+```
+SPEC_OPTS='--tag acceptance' METERPRETER=php METERPRETER_MODULE_TEST=post/test/unix bundle exec rspec './spec/acceptance/meterpreter_spec.rb'
+```
+
+Powershell command:
+```
 $env:SPEC_OPTS='--tag acceptance'; $env:SPEC_HELPER_LOAD_METASPLOIT=$false; $env:METERPRETER = 'php'; bundle exec rspec './spec/acceptance/meterpreter_spec.rb'
 ```
 
