@@ -25,7 +25,7 @@
 
 ## Options
 
- **BOOKMARKS_FILE_PATH**
+### BOOKMARKS_FILE_PATH
 
 Specifies the `electerm.bookmarks.nedb` file path for electerm. (eg.
 `C:\Users\FireEye\AppData\Roaming\electerm\users\default_user\electerm.bookmarks.nedb`).
