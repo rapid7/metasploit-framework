@@ -139,7 +139,7 @@ class MetasploitModule < Msf::Post
         nedb_data.each_line do |line|
           some_result << parse_jsonlines(line)
         end
-        credentials_config_loot_path = store_loot('electerm.creds', 'text/json', session, JSON.pretty_generate(some_result), bookmarks_path)
+        credentials_config_loot_path = store_loot('host.electerm.creds', 'text/json', session, JSON.pretty_generate(some_result), bookmarks_path)
         print_good("electerm electerm.bookmarks.nedb saved to #{credentials_config_loot_path}")
         print_status("Finished processing #{bookmarks_path}")
       else
