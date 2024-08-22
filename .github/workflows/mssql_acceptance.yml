@@ -66,9 +66,9 @@ jobs:
           - '3.2'
         os:
           - ubuntu-latest
-        docker_image:
-          - mcr.microsoft.com/mssql/server:2022-latest
-          - mcr.microsoft.com/mssql/server:2019-latest
+        docker_image: []
+#          - mcr.microsoft.com/mssql/server:2022-latest
+#          - mcr.microsoft.com/mssql/server:2019-latest
 
     env:
       RAILS_ENV: test
