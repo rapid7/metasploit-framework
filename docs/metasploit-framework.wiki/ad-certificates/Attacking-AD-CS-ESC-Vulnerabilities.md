@@ -190,17 +190,19 @@ msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > show options
 
 Module options (auxiliary/gather/ldap_esc_vulnerable_cert_finder):
 
-   Name                  Current Setting  Required  Description
-   ----                  ---------------  --------  -----------
-   BASE_DN                                no        LDAP base DN if you already have it
-   DOMAIN                                 no        The domain to authenticate to
-   PASSWORD                               no        The password to authenticate with
-   REPORT_NONENROLLABLE  false            yes       Report nonenrollable certificate templates
-   RHOSTS                                 yes       The target host(s), see https://github.com/rapid7/metasploit
-                                                    -framework/wiki/Using-Metasploit
-   RPORT                 389              yes       The target port
-   SSL                   false            no        Enable SSL on the LDAP connection
-   USERNAME                               no        The username to authenticate with
+   Name                   Current Setting  Required  Description
+   ----                   ---------------  --------  -----------
+   BASE_DN                                 no        LDAP base DN if you already have it
+   DOMAIN                                  no        The domain to authenticate to
+   PASSWORD                                no        The password to authenticate with
+   REPORT_NONENROLLABLE   false            yes       Report nonenrollable certificate templates
+   REPORT_PRIVENROLLABLE  false            yes       Report certificate templates restricted to domain
+                                                      and enterprise admin
+   RHOSTS                                  yes       The target host(s), see https://github.com/rapid7/metasploit
+                                                     -framework/wiki/Using-Metasploit
+   RPORT                  389              yes       The target port
+   SSL                    false            no        Enable SSL on the LDAP connection
+   USERNAME                                no        The username to authenticate with
 
 
 View the full module info with the info, or info -d command.
@@ -218,114 +220,81 @@ msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
 
 [*] Discovering base DN automatically
 [+] 172.30.239.85:389 Discovered base DN: DC=daforest,DC=com
-[*] Template: SubCA
-[*]    Distinguished Name: CN=SubCA,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=daforest,DC=com
-[*]    Vulnerable to: ESC1, ESC2, ESC3_TEMPLATE_2
-[*]    Certificate Template Enrollment SIDs:
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-512 (Domain Admins)
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-519 (Enterprise Admins)
-[*]    Issuing CAs:
-[*]       * daforest-WIN-BR0CCBA815B-CA
-[*]          Server: WIN-BR0CCBA815B.daforest.com
-[*]          Enrollment SIDs:
-[*]             * S-1-5-11 (Authenticated Users)
-[*] Template: ESC1-Template
-[*]    Distinguished Name: CN=ESC1-Template,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=daforest,DC=com
-[*]    Vulnerable to: ESC1
-[*]    Certificate Template Enrollment SIDs:
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-512 (Domain Admins)
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-513 (Domain Users)
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-519 (Enterprise Admins)
-[*]    Issuing CAs:
-[*]       * daforest-WIN-BR0CCBA815B-CA
-[*]          Server: WIN-BR0CCBA815B.daforest.com
-[*]          Enrollment SIDs:
-[*]             * S-1-5-11 (Authenticated Users)
-[*] Template: ESC2-Template
-[*]    Distinguished Name: CN=ESC2-Template,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=daforest,DC=com
-[*]    Vulnerable to: ESC2
-[*]    Certificate Template Enrollment SIDs:
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-512 (Domain Admins)
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-513 (Domain Users)
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-519 (Enterprise Admins)
-[*]    Issuing CAs:
-[*]       * daforest-WIN-BR0CCBA815B-CA
-[*]          Server: WIN-BR0CCBA815B.daforest.com
-[*]          Enrollment SIDs:
-[*]             * S-1-5-11 (Authenticated Users)
-[*] Template: ESC3-Template1
-[*]    Distinguished Name: CN=ESC3-Template1,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=daforest,DC=com
-[*]    Vulnerable to: ESC3_TEMPLATE_1
-[*]    Certificate Template Enrollment SIDs:
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-512 (Domain Admins)
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-513 (Domain Users)
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-519 (Enterprise Admins)
-[*]    Issuing CAs:
-[*]       * daforest-WIN-BR0CCBA815B-CA
-[*]          Server: WIN-BR0CCBA815B.daforest.com
-[*]          Enrollment SIDs:
-[*]             * S-1-5-11 (Authenticated Users)
-[*] Template: User
-[*]    Distinguished Name: CN=User,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=daforest,DC=com
-[*]    Vulnerable to: ESC3_TEMPLATE_2
-[*]    Certificate Template Enrollment SIDs:
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-512 (Domain Admins)
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-513 (Domain Users)
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-519 (Enterprise Admins)
-[*]    Issuing CAs:
-[*]       * daforest-WIN-BR0CCBA815B-CA
-[*]          Server: WIN-BR0CCBA815B.daforest.com
-[*]          Enrollment SIDs:
-[*]             * S-1-5-11 (Authenticated Users)
-[*] Template: Administrator
-[*]    Distinguished Name: CN=Administrator,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=daforest,DC=com
-[*]    Vulnerable to: ESC3_TEMPLATE_2
-[*]    Certificate Template Enrollment SIDs:
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-512 (Domain Admins)
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-519 (Enterprise Admins)
-[*]    Issuing CAs:
-[*]       * daforest-WIN-BR0CCBA815B-CA
-[*]          Server: WIN-BR0CCBA815B.daforest.com
-[*]          Enrollment SIDs:
-[*]             * S-1-5-11 (Authenticated Users)
-[*] Template: Machine
-[*]    Distinguished Name: CN=Machine,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=daforest,DC=com
-[*]    Vulnerable to: ESC3_TEMPLATE_2
-[*]    Certificate Template Enrollment SIDs:
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-512 (Domain Admins)
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-515 (Domain Computers)
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-519 (Enterprise Admins)
-[*]    Issuing CAs:
-[*]       * daforest-WIN-BR0CCBA815B-CA
-[*]          Server: WIN-BR0CCBA815B.daforest.com
-[*]          Enrollment SIDs:
-[*]             * S-1-5-11 (Authenticated Users)
-[*] Template: DomainController
-[*]    Distinguished Name: CN=DomainController,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=daforest,DC=com
-[*]    Vulnerable to: ESC3_TEMPLATE_2
-[*]    Certificate Template Enrollment SIDs:
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-498 (Enterprise Read-only Domain Controllers)
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-512 (Domain Admins)
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-516 (Domain Controllers)
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-519 (Enterprise Admins)
-[*]       * S-1-5-9 (Enterprise Domain Controllers)
-[*]    Issuing CAs:
-[*]       * daforest-WIN-BR0CCBA815B-CA
-[*]          Server: WIN-BR0CCBA815B.daforest.com
-[*]          Enrollment SIDs:
-[*]             * S-1-5-11 (Authenticated Users)
-[*] Template: ESC3-Template2
-[*]    Distinguished Name: CN=ESC3-Template2,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=daforest,DC=com
-[*]    Vulnerable to: ESC3_TEMPLATE_2
-[*]    Certificate Template Enrollment SIDs:
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-512 (Domain Admins)
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-513 (Domain Users)
-[*]       * S-1-5-21-3290009963-1772292745-3260174523-519 (Enterprise Admins)
-[*]    Issuing CAs:
-[*]       * daforest-WIN-BR0CCBA815B-CA
-[*]          Server: WIN-BR0CCBA815B.daforest.com
-[*]          Enrollment SIDs:
-[*]             * S-1-5-11 (Authenticated Users)
+[+] Template: ESC1-Template
+[*]   Distinguished Name: CN=ESC1-Template,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=daforest,DC=com
+[*]   Manager Approval: Disabled
+[*]   Required Signatures: 0
+[+]   Vulnerable to: ESC1
+[*]   Notes: ESC1: Request can specify a subjectAltName (msPKI-Certificate-Name-Flag)
+[*]   Certificate Template Enrollment SIDs:
+[*]     * S-1-5-21-3290009963-1772292745-3260174523-512 (Domain Admins)
+[*]     * S-1-5-21-3290009963-1772292745-3260174523-513 (Domain Users)
+[*]     * S-1-5-21-3290009963-1772292745-3260174523-519 (Enterprise Admins)
+[+]   Issuing CA: daforest-WIN-BR0CCBA815B-CA (WIN-BR0CCBA815B.daforest.com)
+[*]     Enrollment SIDs:
+[*]       * S-1-5-11 (Authenticated Users)
+[+] Template: ESC2-Template
+[*]   Distinguished Name: CN=ESC2-Template,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=daforest,DC=com
+[*]   Manager Approval: Disabled
+[*]   Required Signatures: 0
+[+]   Vulnerable to: ESC2
+[*]   Notes: ESC2: Template defines the Any Purpose OID or no EKUs (PkiExtendedKeyUsage)
+[*]   Certificate Template Enrollment SIDs:
+[*]     * S-1-5-21-3290009963-1772292745-3260174523-512 (Domain Admins)
+[*]     * S-1-5-21-3290009963-1772292745-3260174523-513 (Domain Users)
+[*]     * S-1-5-21-3290009963-1772292745-3260174523-519 (Enterprise Admins)
+[+]   Issuing CA: daforest-WIN-BR0CCBA815B-CA (WIN-BR0CCBA815B.daforest.com)
+[*]     Enrollment SIDs:
+[*]       * S-1-5-11 (Authenticated Users)
+[+] Template: ESC3-Template1
+[*]   Distinguished Name: CN=ESC3-Template1,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=daforest,DC=com
+[*]   Manager Approval: Disabled
+[*]   Required Signatures: 0
+[+]   Vulnerable to: ESC3_TEMPLATE_1
+[*]   Notes: ESC3: Template defines the Certificate Request Agent OID (PkiExtendedKeyUsage)
+[*]   Certificate Template Enrollment SIDs:
+[*]     * S-1-5-21-3290009963-1772292745-3260174523-512 (Domain Admins)
+[*]     * S-1-5-21-3290009963-1772292745-3260174523-513 (Domain Users)
+[*]     * S-1-5-21-3290009963-1772292745-3260174523-519 (Enterprise Admins)
+[+]   Issuing CA: daforest-WIN-BR0CCBA815B-CA (WIN-BR0CCBA815B.daforest.com)
+[*]     Enrollment SIDs:
+[*]       * S-1-5-11 (Authenticated Users)
+[+] Template: User
+[*]   Distinguished Name: CN=User,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=daforest,DC=com
+[*]   Manager Approval: Disabled
+[*]   Required Signatures: 0
+[+]   Vulnerable to: ESC3_TEMPLATE_2
+[*]   Certificate Template Enrollment SIDs:
+[*]     * S-1-5-21-3290009963-1772292745-3260174523-512 (Domain Admins)
+[*]     * S-1-5-21-3290009963-1772292745-3260174523-513 (Domain Users)
+[*]     * S-1-5-21-3290009963-1772292745-3260174523-519 (Enterprise Admins)
+[+]   Issuing CA: daforest-WIN-BR0CCBA815B-CA (WIN-BR0CCBA815B.daforest.com)
+[*]     Enrollment SIDs:
+[*]       * S-1-5-11 (Authenticated Users)
+[+] Template: Machine
+[*]   Distinguished Name: CN=Machine,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=daforest,DC=com
+[*]   Manager Approval: Disabled
+[*]   Required Signatures: 0
+[+]   Vulnerable to: ESC3_TEMPLATE_2
+[*]   Certificate Template Enrollment SIDs:
+[*]     * S-1-5-21-3290009963-1772292745-3260174523-512 (Domain Admins)
+[*]     * S-1-5-21-3290009963-1772292745-3260174523-515 (Domain Computers)
+[*]     * S-1-5-21-3290009963-1772292745-3260174523-519 (Enterprise Admins)
+[+]   Issuing CA: daforest-WIN-BR0CCBA815B-CA (WIN-BR0CCBA815B.daforest.com)
+[*]     Enrollment SIDs:
+[*]       * S-1-5-11 (Authenticated Users)
+[+] Template: ESC3-Template2
+[*]   Distinguished Name: CN=ESC3-Template2,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=daforest,DC=com
+[*]   Manager Approval: Disabled
+[*]   Required Signatures: 0
+[+]   Vulnerable to: ESC3_TEMPLATE_2
+[*]   Certificate Template Enrollment SIDs:
+[*]     * S-1-5-21-3290009963-1772292745-3260174523-512 (Domain Admins)
+[*]     * S-1-5-21-3290009963-1772292745-3260174523-513 (Domain Users)
+[*]     * S-1-5-21-3290009963-1772292745-3260174523-519 (Enterprise Admins)
+[+]   Issuing CA: daforest-WIN-BR0CCBA815B-CA (WIN-BR0CCBA815B.daforest.com)
+[*]     Enrollment SIDs:
+[*]       * S-1-5-11 (Authenticated Users)
 [*] Auxiliary module execution completed
 msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) >
 ```
@@ -893,21 +862,21 @@ ESC13-Test template is vulenerable to ESC13 and will yield a ticket including th
 ```
 msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
 ...
-[*] Template: ESC13-Test
-[*]    Distinguished Name: CN=ESC13-Test,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=collalabs1,DC=local
-[*]    Vulnerable to: ESC13
-[*]    Notes: ESC13 groups: ESC13-Group
-[*]    Certificate Template Enrollment SIDs:
-[*]       * S-1-5-21-3474343397-3755413101-2031708755-512 (Domain Admins)
-[*]       * S-1-5-21-3474343397-3755413101-2031708755-513 (Domain Users)
+[+] Template: ESC13-Test
+[*]   Distinguished Name: CN=ESC13-Test,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=collalabs1,DC=local
+[*]   Manager Approval: Disabled
+[*]   Required Signatures: 0
+[+]   Vulnerable to: ESC13
+[*]   Notes: ESC13 groups: ESC13-Group
+[*]   Certificate Template Enrollment SIDs:
+[*]     * S-1-5-21-3474343397-3755413101-2031708755-512 (Domain Admins)
+[*]     * S-1-5-21-3474343397-3755413101-2031708755-513 (Domain Users)
+[*]     * S-1-5-21-3474343397-3755413101-2031708755-519 (Enterprise Admins)
+[+]   Issuing CA: collalabs1-SRV-ADDS01-CA (SRV-ADDS01.collalabs1.local)
+[*]     Enrollment SIDs:
+[*]       * S-1-5-11 (Authenticated Users)
 [*]       * S-1-5-21-3474343397-3755413101-2031708755-519 (Enterprise Admins)
-[*]    Issuing CAs:
-[*]       * collalabs1-SRV-ADDS01-CA
-[*]          Server: SRV-ADDS01.collalabs1.local
-[*]          Enrollment SIDs:
-[*]             * S-1-5-11 (Authenticated Users)
-[*]             * S-1-5-21-3474343397-3755413101-2031708755-519 (Enterprise Admins)
-[*]             * S-1-5-21-3474343397-3755413101-2031708755-512 (Domain Admins)
+[*]       * S-1-5-21-3474343397-3755413101-2031708755-512 (Domain Admins)
 ```
 
 In this case, the ticket can be issued with the `icpr_cert` module. No additional options are required to issue the
