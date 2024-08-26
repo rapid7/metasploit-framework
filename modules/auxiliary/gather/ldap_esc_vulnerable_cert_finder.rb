@@ -2,12 +2,23 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::LDAP
   include Msf::OptionalSession::LDAP
+  include Rex::Proto::Secauthz
 
   ADS_GROUP_TYPE_BUILTIN_LOCAL_GROUP = 0x00000001
   ADS_GROUP_TYPE_GLOBAL_GROUP = 0x00000002
   ADS_GROUP_TYPE_DOMAIN_LOCAL_GROUP = 0x00000004
   ADS_GROUP_TYPE_SECURITY_ENABLED = 0x80000000
   ADS_GROUP_TYPE_UNIVERSAL_GROUP = 0x00000008
+
+  SID = Struct.new(:value, :name) do
+    def to_s
+      name.present? ? "#{value} (#{name})" : value
+    end
+
+    def rid
+      value.split('-').last.to_i
+    end
+  end
 
   def initialize(info = {})
     super(
@@ -53,7 +64,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
-      OptBool.new('REPORT_NONENROLLABLE', [true, 'Report nonenrollable certificate templates', false])
+      OptBool.new('REPORT_NONENROLLABLE', [true, 'Report nonenrollable certificate templates', false]),
+      OptBool.new('REPORT_PRIVENROLLABLE', [true, 'Report certificate templates restricted to domain and enterprise admins', false]),
     ])
   end
 
@@ -144,8 +156,8 @@ class MetasploitModule < Msf::Auxiliary
     returned_entries
   end
 
-  def query_ldap_server_certificates(esc_raw_filter, esc_name)
-    attributes = ['cn', 'description', 'ntSecurityDescriptor']
+  def query_ldap_server_certificates(esc_raw_filter, esc_name, notes: [])
+    attributes = ['cn', 'description', 'ntSecurityDescriptor', 'msPKI-Enrollment-Flag', 'msPKI-RA-Signature', 'PkiExtendedKeyUsage']
     base_prefix = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
     esc_entries = query_ldap_server(esc_raw_filter, attributes, base_prefix: base_prefix)
 
@@ -165,12 +177,22 @@ class MetasploitModule < Msf::Auxiliary
 
       allowed_sids = parse_acl(security_descriptor.dacl) if security_descriptor.dacl
       next if allowed_sids.empty?
+      next if allowed_sids.empty?
 
       certificate_symbol = entry[:cn][0].to_sym
       if @vuln_certificate_details.key?(certificate_symbol)
         @vuln_certificate_details[certificate_symbol][:vulns] << esc_name
+        @vuln_certificate_details[certificate_symbol][:notes] += notes
       else
-        @vuln_certificate_details[certificate_symbol] = { vulns: [esc_name], dn: entry[:dn][0], certificate_enrollment_sids: convert_sids_to_human_readable_name(allowed_sids), ca_servers_n_enrollment_sids: {}, notes: [] }
+        @vuln_certificate_details[certificate_symbol] = {
+          vulns: [esc_name],
+          dn: entry[:dn][0],
+          certificate_enrollment_sids: convert_sids_to_human_readable_name(allowed_sids),
+          ca_servers_n_enrollment_sids: {},
+          manager_approval: ([entry[%s(mspki-enrollment-flag)].first.to_i].pack('l').unpack1('L') & Rex::Proto::MsCrtd::CT_FLAG_PEND_ALL_REQUESTS) != 0,
+          required_signatures: [entry[%s(mspki-ra-signature)].first.to_i].pack('l').unpack1('L'),
+          notes: notes
+        }
       end
     end
   end
@@ -193,16 +215,12 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    result = []
+    results = []
     output.each do |sid_string, sid_name, sam_account_name|
-      if sam_account_name
-        result << "#{sid_string} (#{sam_account_name})"
-      else
-        result << "#{sid_string} (#{sid_name})"
-      end
+      results << SID.new(sid_string, sam_account_name || sid_name)
     end
 
-    result.join(' | ')
+    results
   end
 
   def find_esc1_vuln_cert_templates
@@ -219,7 +237,10 @@ class MetasploitModule < Msf::Auxiliary
       ')'\
       '(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=1)'\
     ')'
-    query_ldap_server_certificates(esc1_raw_filter, 'ESC1')
+    notes = [
+      'ESC1: Request can specify a subjectAltName (msPKI-Certificate-Name-Flag)'
+    ]
+    query_ldap_server_certificates(esc1_raw_filter, 'ESC1', notes: notes)
   end
 
   def find_esc2_vuln_cert_templates
@@ -232,8 +253,10 @@ class MetasploitModule < Msf::Auxiliary
         '(!(pkiextendedkeyusage=*))'\
       ')'\
     ')'
-
-    query_ldap_server_certificates(esc2_raw_filter, 'ESC2')
+    notes = [
+      'ESC2: Template defines the Any Purpose OID or no EKUs (PkiExtendedKeyUsage)'
+    ]
+    query_ldap_server_certificates(esc2_raw_filter, 'ESC2', notes: notes)
   end
 
   def find_esc3_vuln_cert_templates
@@ -249,7 +272,10 @@ class MetasploitModule < Msf::Auxiliary
       ')'\
       '(pkiextendedkeyusage=1.3.6.1.4.1.311.20.2.1)'\
     ')'
-    query_ldap_server_certificates(esc3_template_1_raw_filter, 'ESC3_TEMPLATE_1')
+    notes = [
+      'ESC3: Template defines the Certificate Request Agent OID (PkiExtendedKeyUsage)'
+    ]
+    query_ldap_server_certificates(esc3_template_1_raw_filter, 'ESC3_TEMPLATE_1', notes: notes)
 
     # Find the second vulnerable types of ESC3 templates, those that
     # have the right template schema version and, for those with a template
@@ -369,48 +395,79 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def print_vulnerable_cert_info
-    @vuln_certificate_details.each do |key, hash|
-      enrollable = true
-      if hash[:ca_servers_n_enrollment_sids].blank?
-        next unless datastore['REPORT_NONENROLLABLE']
-
-        enrollable = false
+    vuln_certificate_details = @vuln_certificate_details.select do |_key, hash|
+      select = true
+      select = false unless datastore['REPORT_PRIVENROLLABLE'] || hash[:certificate_enrollment_sids].any? do |sid|
+        # compare based on RIDs to avoid issues language specific issues
+        !(sid.value.starts_with?("#{WellKnownSids::SECURITY_NT_NON_UNIQUE}-") && [
+          # RID checks
+          WellKnownSids::DOMAIN_GROUP_RID_ADMINS,
+          WellKnownSids::DOMAIN_GROUP_RID_ENTERPRISE_ADMINS,
+          WellKnownSids::DOMAIN_GROUP_RID_ENTERPRISE_READONLY_DOMAIN_CONTROLLERS,
+          WellKnownSids::DOMAIN_GROUP_RID_CONTROLLERS,
+          WellKnownSids::DOMAIN_GROUP_RID_SCHEMA_ADMINS
+        ].include?(sid.rid)) && ![
+          # SID checks
+          WellKnownSids::SECURITY_ENTERPRISE_CONTROLLERS_SID
+        ].include?(sid.value)
       end
 
-      print_status("Template: #{key}")
-      unless enrollable
-        print_warning("   #{key} not published as an enrollable certificate!")
-      end
+      select = false unless datastore['REPORT_NONENROLLABLE'] || hash[:ca_servers_n_enrollment_sids].any?
+      select
+    end
 
-      print_status("   Distinguished Name: #{hash[:dn]}")
-      print_status("   Vulnerable to: #{hash[:vulns].join(', ')}")
+    any_esc3t1 = vuln_certificate_details.values.any? do |hash|
+      hash[:vulns].include?('ESC3_TEMPLATE_1') && (datastore['REPORT_NONENROLLABLE'] || hash[:ca_servers_n_enrollment_sids].any?)
+    end
+
+    vuln_certificate_details.each do |key, hash|
+      vulns = hash[:vulns]
+      vulns.delete('ESC3_TEMPLATE_2') unless any_esc3t1 # don't report ESC3_TEMPLATE_2 if there are no instances of ESC3_TEMPLATE_1
+      next if vulns.empty?
+
+      print_good("Template: #{key}")
+
+      print_status("  Distinguished Name: #{hash[:dn]}")
+      print_status("  Manager Approval: #{hash[:manager_approval] ? '%redRequired' : '%grnDisabled'}%clr")
+      print_status("  Required Signatures: #{hash[:required_signatures] == 0 ? '%grn0' : '%red' + hash[:required_signatures].to_s}%clr")
+      print_good("  Vulnerable to: #{vulns.join(', ')}")
       if hash[:notes].present? && hash[:notes].length == 1
-        print_status("   Notes: #{hash[:notes].first}")
+        print_status("  Notes: #{hash[:notes].first}")
       elsif hash[:notes].present? && hash[:notes].length > 1
-        print_status('   Notes:')
+        print_status('  Notes:')
         hash[:notes].each do |note|
-          print_status("     * #{note}")
+          print_status("    * #{note}")
         end
       end
 
-      print_status('   Certificate Template Enrollment SIDs:')
-      for sid in hash[:certificate_enrollment_sids].split(' | ')
-        print_status("      * #{sid}")
+      print_status('  Certificate Template Enrollment SIDs:')
+      hash[:certificate_enrollment_sids].each do |sid|
+        print_status("    * #{highlight_sid(sid)}")
       end
 
-      next unless enrollable
-
-      for ca_hostname, ca_hash in hash[:ca_servers_n_enrollment_sids]
-        print_status('   Issuing CAs:')
-        print_status("      * #{ca_hash[:cn]}")
-        print_status("         Server: #{ca_hostname}")
-        print_status('         Enrollment SIDs:')
-        sid_list_string = convert_sids_to_human_readable_name(ca_hash[:ca_enrollment_sids])
-        for sid_info in sid_list_string.split(' | ')
-          print_status("            * #{sid_info}")
+      if hash[:ca_servers_n_enrollment_sids].any?
+        hash[:ca_servers_n_enrollment_sids].each do |ca_hostname, ca_hash|
+          print_good("  Issuing CA: #{ca_hash[:cn]} (#{ca_hostname})")
+          print_status('    Enrollment SIDs:')
+          convert_sids_to_human_readable_name(ca_hash[:ca_enrollment_sids]).each do |sid|
+            print_status("      * #{highlight_sid(sid)}")
+          end
         end
+      else
+        print_warning('   Issuing CAs: none (not published as an enrollable certificate)')
       end
     end
+  end
+
+  def highlight_sid(sid)
+    color = ''
+    color = '%grn' if sid.value == WellKnownSids::SECURITY_AUTHENTICATED_USER_SID
+    if sid.value.starts_with?("#{WellKnownSids::SECURITY_NT_NON_UNIQUE}-")
+      color = '%grn' if sid.rid == WellKnownSids::DOMAIN_GROUP_RID_USERS
+      color = '%grn' if sid.rid == WellKnownSids::DOMAIN_GROUP_RID_GUESTS
+      color = '%grn' if sid.rid == WellKnownSids::DOMAIN_GROUP_RID_COMPUTERS
+    end
+    "#{color}#{sid.value} (#{sid.name})%clr"
   end
 
   def get_pki_object_by_oid(oid)
