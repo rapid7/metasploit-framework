@@ -17,6 +17,11 @@ class MetasploitModule < Msf::Encoder
       'Author' => 'egypt',
       'License' => BSD_LICENSE,
       'Arch' => ARCH_PHP)
+    register_options(
+      [
+        OptBool.new('Compress', [ true, 'Compress the payload with zlib', false ]) # Disabled by default as it relies on having php compiled with zlib, which might not be available on come exotic setups.
+      ],
+      self.class)
   end
 
   def encode_block(state, buf)
@@ -26,12 +31,22 @@ class MetasploitModule < Msf::Encoder
       raise BadcharError if state.badchars.include?(c)
     end
 
+    if datastore['Compress']
+      %w[g z u n c o m p r e s s].uniq.each do |c|
+        raise BadcharError if state.badchars.include?(c)
+      end
+    end
+
     # Modern versions of PHP choke on unquoted literal strings.
     quote = "'"
     if state.badchars.include?("'")
       raise BadcharError.new, "The #{self.name} encoder failed to encode the decoder stub without bad characters." if state.badchars.include?('"')
 
       quote = '"'
+    end
+
+    if datastore['Compress']
+      buf = Zlib::Deflate.deflate(buf)
     end
 
     # PHP escapes quotes by default with magic_quotes_gpc, so we use some
@@ -98,6 +113,10 @@ class MetasploitModule < Msf::Encoder
     # cause a syntax error.  Remove any trailing dots.
     b64.chomp!('.')
 
-    return 'eval(base64_decode(' + quote + b64 + quote + '));'
+    if datastore['Compress']
+      return 'eval(gzuncompress(base64_decode(' + quote + b64 + quote + ')));'
+    else
+      return 'eval(base64_decode(' + quote + b64 + quote + '));'
+    end
   end
 end
