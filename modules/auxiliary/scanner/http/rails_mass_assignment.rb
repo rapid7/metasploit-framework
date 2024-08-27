@@ -44,9 +44,9 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     case datastore['METHOD']
     when 'POST'
-      parsed_data = queryparse(URI.unescape(datastore['DATA']))
+      parsed_data = queryparse(URI.decode_www_form_component(datastore['DATA']))
     when 'GET'
-      parsed_data = queryparse(URI.unescape(datastore['QUERY']))
+      parsed_data = queryparse(URI.decode_www_form_component(datastore['QUERY']))
     end
     data_base_params = get_base_params(parsed_data)
 
