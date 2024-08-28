@@ -65,6 +65,12 @@ module Kernel
     return ARCH_AARCH64 if arch == 'aarch64' || arch == 'arm64'
     return ARCH_ARMLE if arch.start_with?'arm'
     return ARCH_X86 if arch.end_with?'86'
+    return ARCH_PPC if arch == 'ppc'
+    return ARCH_PPC64 if arch == 'ppc64'
+    return ARCH_PPC64LE if arch == 'ppc64le'
+    return ARCH_MIPS if arch == 'mips'
+    return ARCH_MIPS64 if arch == 'mips64'
+    return ARCH_SPARC if arch == 'sparc'
     arch
   end
 
@@ -74,8 +80,8 @@ module Kernel
   # @return [Array]
   #
   def kernel_config
-   return unless cmd_exec('test -r /boot/config-`uname -r` && echo true').include? 'true'
-    output = cmd_exec("cat /boot/config-`uname -r`").to_s.strip
+    release = kernel_release
+    output = read_file("/boot/config-#{release}").to_s.strip
     return if output.empty?
     config = output.split("\n").map(&:strip).reject(&:empty?).reject {|i| i.start_with? '#'}
     config
@@ -250,7 +256,7 @@ module Kernel
   # Returns true if grsecurity is installed
   #
   def grsec_installed?
-    cmd_exec('test -c /dev/grsec && echo true').to_s.strip.include? 'true'
+    File.exists?('/dev/grsec') && File.chardev?('/dev/grsec')
   rescue
     raise 'Could not determine grsecurity status'
   end
