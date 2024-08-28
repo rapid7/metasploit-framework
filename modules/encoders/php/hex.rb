@@ -21,7 +21,8 @@ class MetasploitModule < Msf::Encoder
       [
         OptBool.new('Compress', [ true, 'Compress the payload with zlib', false ]) # Disabled by default as it relies on having php compiled with zlib, which might not be available on come exotic setups.
       ],
-      self.class)
+      self.class
+    )
   end
 
   def encode_block(state, buf)
@@ -55,12 +56,12 @@ class MetasploitModule < Msf::Encoder
       # Last ditch effort, if any of the normal characters used by hex
       # are badchars, try to replace them with something that will become
       # the appropriate thing on the other side.
-      if hex.include?(byte.chr)
-        %w[c h r ( ) .].uniq.each do |c|
-          raise BadcharError if state.badchars.include?(c)
-        end
-        hex.gsub!(byte.chr, "#{quote}.chr(#{byte}).#{quote}")
+      next unless hex.include?(byte.chr)
+
+      %w[c h r ( ) .].uniq.each do |c|
+        raise BadcharError if state.badchars.include?(c)
       end
+      hex.gsub!(byte.chr, "#{quote}.chr(#{byte}).#{quote}")
     end
 
     if datastore['Compress']
