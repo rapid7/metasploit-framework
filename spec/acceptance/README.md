@@ -10,8 +10,8 @@ There is no remote host support currently.
 ### Meterpreter
 
 Useful environment variables:
-- `METERPRETER` - Filter the test suite for specific Meterpreter instances, example: `METERPRETER=java`
-- `METERPRETER_MODULE_TEST` - Filter the post modules to run, example: `METERPRETER_MODULE_TEST=test/meterpreter`
+- `SESSION` - Filter the test suite for specific Meterpreter instances, example: `SESSION=meterpreter/java`
+- `SESSION_MODULE_TEST` - Filter the post modules to run, example: `SESSION_MODULE_TEST=test/meterpreter`
 - `SPEC_HELPER_LOAD_METASPLOIT` - Skip RSpec from loading Metasploit framework and requiring a connected msfdb instance, example: `SPEC_HELPER_LOAD_METASPLOIT=false`
 
 Running Meterpreter test suite:
@@ -30,13 +30,17 @@ Run a specific Meterpreter/module test Unix / Windows:
 
 Bash command:
 ```
-SPEC_OPTS='--tag acceptance' METERPRETER=php METERPRETER_MODULE_TEST=post/test/unix bundle exec rspec './spec/acceptance/meterpreter_spec.rb'
+SPEC_OPTS='--tag acceptance' SESSION=meterpreter/php SESSION_MODULE_TEST=post/test/unix bundle exec rspec './spec/acceptance/meterpreter_spec.rb'
 ```
 
 Powershell command:
 ```
-$env:SPEC_OPTS='--tag acceptance'; $env:SPEC_HELPER_LOAD_METASPLOIT=$false; $env:METERPRETER = 'php'; bundle exec rspec './spec/acceptance/meterpreter_spec.rb'
+$env:SPEC_OPTS='--tag acceptance'; $env:SPEC_HELPER_LOAD_METASPLOIT=$false; $env:SESSION = 'meterpreter/php'; bundle exec rspec './spec/acceptance/meterpreter_spec.rb'
 ```
+
+Session types can be specified via the `SESSION` argument. Meterpreter and command shell are support and use the following notation:
+- SESSION=meterpreter/php
+- SESSION=command_shell/php
 
 ### Postgres
 

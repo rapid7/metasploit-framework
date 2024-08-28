@@ -4,19 +4,19 @@ RSpec.describe 'Meterpreter' do
   include_context 'wait_for_expect'
 
   # Tests to ensure that Meterpreter is consistent across all implementations/operation systems
-  METERPRETER_PAYLOADS = Acceptance::Meterpreter.with_meterpreter_name_merged(
+  METERPRETER_PAYLOADS = Acceptance::Session.with_session_name_merged(
     {
-      python: Acceptance::Meterpreter::PYTHON_METERPRETER,
-      php: Acceptance::Meterpreter::PHP_METERPRETER,
-      java: Acceptance::Meterpreter::JAVA_METERPRETER,
-      mettle: Acceptance::Meterpreter::METTLE_METERPRETER,
-      windows_meterpreter: Acceptance::Meterpreter::WINDOWS_METERPRETER
+      python: Acceptance::Session::PYTHON_METERPRETER,
+      php: Acceptance::Session::PHP_METERPRETER,
+      java: Acceptance::Session::JAVA_METERPRETER,
+      mettle: Acceptance::Session::METTLE_METERPRETER,
+      windows_meterpreter: Acceptance::Session::WINDOWS_METERPRETER
     }
   )
 
   allure_test_environment = AllureRspec.configuration.environment_properties
 
-  let_it_be(:current_platform) { Acceptance::Meterpreter::current_platform }
+  let_it_be(:current_platform) { Acceptance::Session::current_platform }
 
   # @!attribute [r] port_allocator
   #   @return [Acceptance::PortAllocator]
@@ -55,10 +55,10 @@ RSpec.describe 'Meterpreter' do
     describe meterpreter_runtime_name, focus: meterpreter_config[:focus] do
       meterpreter_config[:payloads].each.with_index do |payload_config, payload_config_index|
         describe(
-          Acceptance::Meterpreter.human_name_for_payload(payload_config).to_s,
+          Acceptance::Session.human_name_for_payload(payload_config).to_s,
           if: (
-            Acceptance::Meterpreter.run_meterpreter?(meterpreter_config) &&
-              Acceptance::Meterpreter.supported_platform?(payload_config)
+            Acceptance::Session.run_meterpreter?(meterpreter_config) &&
+              Acceptance::Session.supported_platform?(payload_config)
           )
         ) do
           let(:payload) { Acceptance::Payload.new(payload_config) }
@@ -183,18 +183,18 @@ RSpec.describe 'Meterpreter' do
             console.reset
           end
 
-          context "#{Acceptance::Meterpreter.current_platform}" do
-            describe "#{Acceptance::Meterpreter.current_platform}/#{meterpreter_runtime_name} Meterpreter successfully opens a session for the #{payload_config[:name].inspect} payload" do
+          context "#{Acceptance::Session.current_platform}" do
+            describe "#{Acceptance::Session.current_platform}/#{meterpreter_runtime_name} Meterpreter successfully opens a session for the #{payload_config[:name].inspect} payload" do
               it(
                 "exposes available metasploit commands",
                 if: (
                   # Assume that regardless of payload, staged/unstaged/etc, the Meterpreter will have the same commands available
                   # So only run this test when config_index == 0
-                  payload_config_index == 0 && Acceptance::Meterpreter.supported_platform?(payload_config)
-                  # Run if ENV['METERPRETER'] = 'java php' etc
-                  Acceptance::Meterpreter.run_meterpreter?(meterpreter_config) &&
+                  payload_config_index == 0 && Acceptance::Session.supported_platform?(payload_config)
+                  # Run if ENV['SESSION'] = 'java php' etc
+                  Acceptance::Session.run_meterpreter?(meterpreter_config) &&
                     # Only run payloads / tests, if the host machine can run them
-                    Acceptance::Meterpreter.supported_platform?(payload_config)
+                    Acceptance::Session.supported_platform?(payload_config)
                 )
               ) do
                 begin
@@ -332,17 +332,17 @@ RSpec.describe 'Meterpreter' do
             meterpreter_config[:module_tests].each do |module_test|
               describe module_test[:name].to_s, focus: module_test[:focus] do
                 it(
-                  "#{Acceptance::Meterpreter.current_platform}/#{meterpreter_runtime_name} meterpreter successfully opens a session for the #{payload_config[:name].inspect} payload and passes the #{module_test[:name].inspect} tests",
+                  "#{Acceptance::Session.current_platform}/#{meterpreter_runtime_name} meterpreter successfully opens a session for the #{payload_config[:name].inspect} payload and passes the #{module_test[:name].inspect} tests",
                   if: (
-                    # Run if ENV['METERPRETER'] = 'java php' etc
-                    Acceptance::Meterpreter.run_meterpreter?(meterpreter_config) &&
-                      # Run if ENV['METERPRETER_MODULE_TEST'] = 'test/cmd_exec' etc
-                      Acceptance::Meterpreter.run_meterpreter_module_test?(module_test[:name]) &&
+                    # Run if ENV['SESSION'] = 'java php' etc
+                    Acceptance::Session.run_meterpreter?(meterpreter_config) &&
+                      # Run if ENV['SESSION_MODULE_TEST'] = 'test/cmd_exec' etc
+                      Acceptance::Session.run_meterpreter_module_test?(module_test[:name]) &&
                       # Only run payloads / tests, if the host machine can run them
-                      Acceptance::Meterpreter.supported_platform?(payload_config) &&
-                      Acceptance::Meterpreter.supported_platform?(module_test) &&
+                      Acceptance::Session.supported_platform?(payload_config) &&
+                      Acceptance::Session.supported_platform?(module_test) &&
                       # Skip tests that are explicitly skipped, or won't pass in the current environment
-                      !Acceptance::Meterpreter.skipped_module_test?(module_test, allure_test_environment)
+                      !Acceptance::Session.skipped_module_test?(module_test, allure_test_environment)
                   ),
                   # test metadata - will appear in allure report
                   module_test: module_test[:name]
@@ -406,7 +406,7 @@ RSpec.describe 'Meterpreter' do
                       end
 
                       validated_lines.each do |test_line|
-                        test_line = Acceptance::Meterpreter.uncolorize(test_line)
+                        test_line = Acceptance::Session.uncolorize(test_line)
                         expect(test_line).to_not include('FAILED', '[-] FAILED', '[-] Exception', '[-] '), "Unexpected error: #{test_line}"
                       end
 

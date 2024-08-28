@@ -1,36 +1,20 @@
-module Acceptance::Meterpreter
-  METTLE_METERPRETER = {
+module Acceptance::Session
+  WINDOWS_METERPRETER = {
     payloads: [
       {
-        name: "linux/x64/meterpreter/reverse_tcp",
-        extension: "",
-        platforms: [:linux],
-        executable: true,
+        name: "windows/meterpreter/reverse_tcp",
+        extension: ".exe",
+        platforms: [:windows],
         execute_cmd: ["${payload_path}"],
+        executable: true,
         generate_options: {
-          '-f': "elf"
+          '-f': "exe"
         },
         datastore: {
           global: {},
           module: {
-            MeterpreterTryToFork: false,
-            MeterpreterDebugBuild: true
-          }
-        }
-      },
-      {
-        name: "osx/x64/meterpreter_reverse_tcp",
-        extension: "",
-        platforms: [:osx],
-        executable: true,
-        execute_cmd: ["${payload_path}"],
-        generate_options: {
-          '-f': "macho"
-        },
-        datastore: {
-          global: {},
-          module: {
-            MeterpreterTryToFork: false,
+            # Not supported by Windows Meterpreter
+            # MeterpreterTryToFork: false,
             MeterpreterDebugBuild: true
           }
         }
@@ -72,15 +56,21 @@ module Acceptance::Meterpreter
       {
         name: "post/test/cmd_exec",
         platforms: [
-          :linux,
-          :osx,
           [
-            :windows,
+            :linux,
             {
               skip: true,
               reason: "Payload not compiled for platform"
             }
-          ]
+          ],
+          [
+            :osx,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ],
+          :windows
         ],
         skipped: false,
         lines: {
@@ -98,15 +88,21 @@ module Acceptance::Meterpreter
       {
         name: "post/test/extapi",
         platforms: [
-          :linux,
-          :osx,
           [
-            :windows,
+            :linux,
             {
               skip: true,
               reason: "Payload not compiled for platform"
             }
-          ]
+          ],
+          [
+            :osx,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ],
+          :windows
         ],
         skipped: false,
         lines: {
@@ -124,15 +120,21 @@ module Acceptance::Meterpreter
       {
         name: "post/test/file",
         platforms: [
-          :linux,
-          :osx,
           [
-            :windows,
+            :linux,
             {
               skip: true,
               reason: "Payload not compiled for platform"
             }
-          ]
+          ],
+          [
+            :osx,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ],
+          :windows
         ],
         skipped: false,
         lines: {
@@ -150,15 +152,21 @@ module Acceptance::Meterpreter
       {
         name: "post/test/get_env",
         platforms: [
-          :linux,
-          :osx,
           [
-            :windows,
+            :linux,
             {
               skip: true,
               reason: "Payload not compiled for platform"
             }
-          ]
+          ],
+          [
+            :osx,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ],
+          :windows
         ],
         skipped: false,
         lines: {
@@ -176,15 +184,21 @@ module Acceptance::Meterpreter
       {
         name: "post/test/meterpreter",
         platforms: [
-          :linux,
-          :osx,
           [
-            :windows,
+            :linux,
             {
               skip: true,
               reason: "Payload not compiled for platform"
             }
-          ]
+          ],
+          [
+            :osx,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ],
+          :windows
         ],
         skipped: false,
         lines: {
@@ -192,10 +206,7 @@ module Acceptance::Meterpreter
             known_failures: []
           },
           osx: {
-            known_failures: [
-              "[-] FAILED: should return network interfaces",
-              "[-] FAILED: should have an interface that matches session_host"
-            ]
+            known_failures: []
           },
           windows: {
             known_failures: []
@@ -205,15 +216,21 @@ module Acceptance::Meterpreter
       {
         name: "post/test/railgun",
         platforms: [
-          :linux,
-          :osx,
           [
-            :windows,
+            :linux,
             {
               skip: true,
               reason: "Payload not compiled for platform"
             }
-          ]
+          ],
+          [
+            :osx,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ],
+          :windows
         ],
         skipped: false,
         lines: {
@@ -231,15 +248,21 @@ module Acceptance::Meterpreter
       {
         name: "post/test/railgun_reverse_lookups",
         platforms: [
-          :linux,
-          :osx,
           [
-            :windows,
+            :linux,
             {
               skip: true,
               reason: "Payload not compiled for platform"
             }
-          ]
+          ],
+          [
+            :osx,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ],
+          :windows
         ],
         skipped: false,
         lines: {
@@ -289,21 +312,21 @@ module Acceptance::Meterpreter
       {
         name: "post/test/search",
         platforms: [
-          :linux,
           [
-            :osx,
-            {
-              skip: true,
-              reason: "skipped - test/search hangs in osx and CPU spikes to >300%"
-            }
-          ],
-          [
-            :windows,
+            :linux,
             {
               skip: true,
               reason: "Payload not compiled for platform"
             }
-          ]
+          ],
+          [
+            :osx,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ],
+          :windows
         ],
         skipped: false,
         lines: {
