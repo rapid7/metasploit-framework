@@ -411,7 +411,7 @@ RSpec.describe 'CommandShell' do
 
                       validated_lines.each do |test_line|
                         test_line = Acceptance::CommandShell.uncolorize(test_line)
-                        expect(test_line).to_not include('FAILED', '[-] FAILED', '[-] Exception', '[-] '), "Unexpected error: #{test_line}"
+                        expect(test_line).to_not include('FAILED', '[-] '), "Unexpected error: #{test_line}"
                       end
 
                       # Assert all expected lines are present

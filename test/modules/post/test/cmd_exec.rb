@@ -38,6 +38,8 @@ class MetasploitModule < Msf::Post
       { path: 'show_args.exe', cmd: "#{pwd}\\show_args.exe" }
     elsif session.platform == 'windows' && session.type == 'shell'
       { path: 'show_args.exe', cmd: 'show_args.exe' }
+    elsif session.platform == 'windows' && session.arch == 'php'
+      { path: 'show_args.exe', cmd: '.\\show_args.exe' }
     elsif session.platform == 'windows'
       { path: 'show_args.exe', cmd: './show_args.exe' }
       elsif session.type == 'meterpreter' && session.arch == 'java'

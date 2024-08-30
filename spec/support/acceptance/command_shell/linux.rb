@@ -3,10 +3,10 @@ module Acceptance::CommandShell
     payloads: [
       {
         name: "cmd/unix/reverse_bash",
-        extension: "",
+        extension: ".sh",
         platforms: [:linux],
         executable: true,
-        execute_cmd: ["${payload_path}"],
+        execute_cmd: ["sh ${payload_path}"],
         generate_options: {
           '-f': "raw"
         },
