@@ -34,7 +34,6 @@ To get started with Metasploit:
 
 1. **Start `msfconsole`:** This is the primary interface for interacting with Metasploit.
 2. **Explore Resources:** 
-   - Read [Metasploit Unleashed](https://www.offensive-security.com/metasploit-unleashed/) for an in-depth guide.
    - Visit the [Using Metasploit](https://docs.metasploit.com/docs/using-metasploit/getting-started/index.html) section of the documentation.
 
 ## Contributing
