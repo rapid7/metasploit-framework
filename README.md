@@ -13,7 +13,7 @@ Comprehensive documentation, including usage guides, is available at [Metasploit
 To set up a development environment, visit the [Development Setup Guide](https://docs.metasploit.com/docs/development/get-started/setting-up-a-metasploit-development-environment.html).
 
 ## Bug and Feature Requests
-Submit bugs and feature requests via the [GitHub Issues](https://github.com/rapid7/metasploit-framework/issues) tracker. New submissions can be made through the [MSF-BUGv1 form](https://r-7.co/MSF-BUGv1).
+Submit bugs and feature requests via the [GitHub Issues](https://github.com/rapid7/metasploit-framework/issues) tracker. New submissions can be made through the [MSF-BUGv1 form](https://github.com/rapid7/metasploit-framework/issues/new/choose).
 
 ## API Documentation
 For information on writing modules, refer to the [API Documentation](https://docs.metasploit.com/api/).
