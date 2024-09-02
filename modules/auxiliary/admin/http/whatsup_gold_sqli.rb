@@ -53,9 +53,10 @@ class MetasploitModule < Msf::Auxiliary
 
     return CheckCode::Unknown unless res && res.code == 200
 
-    data = res.body
-    version = data.match(/"path":"app-(.*?)\.js"/)[1]
-
+    data = res.get_json_document
+    data_js = data['js']
+    version_path = data_js.find { |item| item["path"] =~ /app-/ }["path"]
+    version = version_path[/app-(.*)\.js/, 1]
     if version.nil?
       return CheckCode::Unknown
     else
@@ -97,8 +98,7 @@ class MetasploitModule < Msf::Auxiliary
       range: rand(1..9).to_s,
       n: rand(1..9).to_s,
       start: rand(1..9).to_s,
-      end: rand(1..9).to_s,
-      businesdsHoursId: rand(1..9).to_s
+      end: rand(1..9).to_s
     }.to_json
 
     res = send_request_cgi(
@@ -133,7 +133,7 @@ class MetasploitModule < Msf::Auxiliary
     json_body = JSON.parse(body)
 
     result = json_body.find { |item| item['DisplayName'].start_with?(marker.to_s) }
-    unless result || result.nil
+    unless result
       fail_with(Failure::UnexpectedReply, 'Coud not find DisplayName match with marker.')
     end
 
@@ -150,8 +150,7 @@ class MetasploitModule < Msf::Auxiliary
       range: rand(1..9).to_s,
       n: rand(1..9).to_s,
       start: rand(1..9).to_s,
-      end: rand(1..9).to_s,
-      businesdsHoursId: rand(1..9).to_s
+      end: rand(1..9).to_s
     }.to_json
 
     res = send_request_cgi(
