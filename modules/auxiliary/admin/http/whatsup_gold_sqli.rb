@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
 
     data = res.get_json_document
     data_js = data['js']
-    version_path = data_js.find { |item| item["path"] =~ /app-/ }["path"]
+    version_path = data_js.find { |item| item['path'] =~ /app-/ }['path']
     version = version_path[/app-(.*)\.js/, 1]
     if version.nil?
       return CheckCode::Unknown
