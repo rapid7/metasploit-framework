@@ -71,10 +71,6 @@ class MetasploitModule < Msf::Encoder
     # raw string, so strip it off.
     b64.gsub!(/[=\n]+/, '')
 
-    # The first character must not be a non-alpha character or PHP chokes.
-    i = 0
-    b64[i] = "chr(#{b64[i]})." while (b64[i].chr =~ %r{[0-9/+]})
-
     # Similarly, when we separate large payloads into chunks to avoid the
     # 998-byte problem mentioned above, we have to make sure that the first
     # character of each chunk is an alpha character.  This simple algorithm
