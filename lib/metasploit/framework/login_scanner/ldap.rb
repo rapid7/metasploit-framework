@@ -11,7 +11,6 @@ module Metasploit
         include Metasploit::Framework::LDAP::Client
         include Msf::Exploit::Remote::LDAP
 
-        # TODO: Verify if we need this additional metadata: https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/login_scanner/http.rb#L15-L23
         LIKELY_PORTS         = [ 389, 636 ]
         LIKELY_SERVICE_NAMES = [ 'ldap', 'ldaps', 'ldapssl' ]
 
