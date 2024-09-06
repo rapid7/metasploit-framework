@@ -11,10 +11,21 @@ module Metasploit
         include Metasploit::Framework::LDAP::Client
         include Msf::Exploit::Remote::LDAP
 
+        LIKELY_PORTS         = [ 389, 636 ]
+        LIKELY_SERVICE_NAMES = [ 'ldap', 'ldaps', 'ldapssl' ]
+
         attr_accessor :opts, :realm_key
         # @!attribute use_client_as_proof
         #   @return [Boolean] If a login is successful and this attribute is true - an LDAP::Client instance is used as proof
         attr_accessor :use_client_as_proof
+
+        # This method sets the sane defaults for things
+        # like timeouts and TCP evasion options
+        def set_sane_defaults
+          self.opts ||= {}
+          self.connection_timeout = 30 if self.connection_timeout.nil?
+          nil
+        end
 
         def attempt_login(credential)
           result_opts = {
@@ -23,7 +34,8 @@ module Metasploit
             proof: nil,
             host: host,
             port: port,
-            protocol: 'ldap'
+            protocol: 'tcp',
+            service_name: 'ldap'
           }
 
           result_opts.merge!(do_login(credential))
@@ -34,7 +46,8 @@ module Metasploit
           opts = {
             username: credential.public,
             password: credential.private,
-            framework_module: framework_module
+            framework_module: framework_module,
+            ldap_auth: 'auto'
           }.merge(@opts)
 
           connect_opts = ldap_connect_opts(host, port, connection_timeout, ssl: opts[:ssl], opts: opts)
