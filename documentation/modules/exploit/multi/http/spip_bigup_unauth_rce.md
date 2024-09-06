@@ -69,10 +69,7 @@ This option is particularly useful when the default pages (`login` and `contact`
 **Steps**:
 
 1. Start `msfconsole`.
-2. Load the module:
-```bash
-use exploit/multi/http/spip_bigup_unauth_rce
-```
+2. Load the module via `use exploit/multi/http/spip_bigup_unauth_rce`
 3. Set `RHOSTS` to the local IP (e.g., 127.0.0.1).
 4. Configure other necessary options (`TARGETURI`, `SSL`, etc.).
 5. Launch the exploit:
