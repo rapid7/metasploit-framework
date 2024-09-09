@@ -11,39 +11,46 @@ module Compile
     super
     register_options( [
       OptEnum.new('COMPILE', [true, 'Compile on target', 'Auto', ['Auto', 'True', 'False']]),
+      OptEnum.new('COMPILER', [true, 'Compiler to use on target', 'gcc', ['gcc', 'clang']]),
     ], self.class)
   end
 
   def live_compile?
     return false unless %w{ Auto True }.include?(datastore['COMPILE'])
 
-    if has_gcc?
+    if datastore['COMPILER'] == 'gcc' && has_gcc?
       vprint_good 'gcc is installed'
+      return true
+    elsif datastore['COMPILER'] == 'clang' && has_clang?
+      vprint_good 'clang is installed'
       return true
     end
 
     unless datastore['COMPILE'] == 'Auto'
-      fail_with Module::Failure::BadConfig, 'gcc is not installed. Set COMPILE False to upload a pre-compiled executable.'
+      fail_with Module::Failure::BadConfig, "#{datastore['COMPILER']} is not installed. Set COMPILE False to upload a pre-compiled executable."
     end
+
+    false
   end
 
-  def upload_and_compile(path, data, gcc_args='')
+  def upload_and_compile(path, data, compiler_args='')
     write_file "#{path}.c", strip_comments(data)
 
-    gcc_cmd = "gcc -o '#{path}' '#{path}.c'"
+    compiler_cmd = "#{datastore['COMPILER']} -o '#{path}' '#{path}.c'"
     if session.type == 'shell'
-      gcc_cmd = "PATH=\"$PATH:/usr/bin/\" #{gcc_cmd}"
+      compiler_cmd = "PATH=\"$PATH:/usr/bin/\" #{compiler_cmd}"
     end
 
-    unless gcc_args.to_s.blank?
-      gcc_cmd << " #{gcc_args}"
+    unless compiler_args.to_s.blank?
+      compiler_cmd << " #{compiler_args}"
     end
 
-    output = cmd_exec gcc_cmd
+    verification_token = Rex::Text.rand_text_alphanumeric(8)
+    success = cmd_exec("#{compiler_cmd} && echo #{verification_token}")&.include?(verification_token)
+
     rm_f "#{path}.c"
 
-    unless output.blank?
-      print_error output
+    unless success
       message = "#{path}.c failed to compile."
       # don't mention the COMPILE option if it was deregistered
       message << ' Set COMPILE to False to upload a pre-compiled executable.' if options.include?('COMPILE')
