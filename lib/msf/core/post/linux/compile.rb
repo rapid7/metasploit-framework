@@ -25,12 +25,11 @@ module Compile
       vprint_good 'clang is installed'
       return true
     end
-    end
 
     unless datastore['COMPILE'] == 'Auto'
       fail_with Module::Failure::BadConfig, "#{datastore['COMPILER']} is not installed. Set COMPILE False to upload a pre-compiled executable."
     end
-    
+
     false
   end
 
