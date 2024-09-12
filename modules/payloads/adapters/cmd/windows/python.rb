@@ -18,7 +18,8 @@ module MetasploitModule
         'License' => MSF_LICENSE,
         'AdaptedArch' => ARCH_PYTHON,
         'AdaptedPlatform' => 'python',
-        'RequiredCmd' => 'python'
+        'RequiredCmd' => 'python',
+        'PayloadType' => 'cmd'
       )
     )
     register_advanced_options(

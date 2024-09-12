@@ -19,7 +19,8 @@ module MetasploitModule
         'License' => MSF_LICENSE,
         'AdaptedArch' => ARCH_X86,
         'AdaptedPlatform' => 'win',
-        'RequiredCmd' => 'powershell'
+        'RequiredCmd' => 'powershell',
+        'PayloadType' => 'cmd'
       )
     )
   end

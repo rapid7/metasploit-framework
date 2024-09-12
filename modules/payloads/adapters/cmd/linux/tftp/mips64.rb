@@ -18,7 +18,8 @@ module MetasploitModule
         'Arch' => ARCH_CMD,
         'License' => MSF_LICENSE,
         'AdaptedArch' => ARCH_MIPS64,
-        'AdaptedPlatform' => 'linux'
+        'AdaptedPlatform' => 'linux',
+        'PayloadType' => 'cmd'
       )
     )
   end
