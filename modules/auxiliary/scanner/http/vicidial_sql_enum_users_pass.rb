@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
           to dump admin credentials (usernames and passwords) via SQL injection.
         },
         'Author' => [
-          'Valentin Lobstein', # Metasploit Module
+          'Valentin Lobstein',              # Metasploit Module
           'Jaggar Henry of KoreLogic, Inc.' # Vulnerability Discovery
         ],
         'License' => MSF_LICENSE,
@@ -26,6 +26,10 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2024-8503']
         ],
         'DisclosureDate' => '2024-09-10',
+        'DefaultOptions' => {
+          'SqliDelay' => 1,
+          'VERBOSE' => true
+        },
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS],
@@ -36,10 +40,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RHOST(),
-        Opt::RPORT(80),
         OptString.new('TARGETURI', [true, 'Base path of the VICIdial instance', '/']),
-        OptInt.new('SqliDelay', [true, 'Delay in seconds for SQL Injection sleep', 1]),
         OptInt.new('COUNT', [true, 'Number of records to dump', 1])
       ]
     )
@@ -66,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
         private_type: :password,
         private_data: user[1],
         service_name: 'VICIdial',
-        address: datastore['RHOSTS'],
+        address: datastore['RHOST'],
         port: datastore['RPORT'],
         protocol: 'tcp',
         status: Metasploit::Model::Login::Status::UNTRIED
