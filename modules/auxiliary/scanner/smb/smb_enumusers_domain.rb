@@ -91,28 +91,6 @@ class MetasploitModule < Msf::Auxiliary
     disconnect_wkssvc
   end
 
-  def format_results(results)
-    users_table = Rex::Text::Table.new(
-      'Indent'  => 4,
-      'Header'  => "Logged-on Users",
-      'Columns' =>
-        [
-          'Name',
-          'Domain',
-          'Other Domains',
-          'Logon Server'
-        ],
-      'SortIndex' => 0,
-      )
-
-    results.compact.each do |result_set|
-      result_set.each { |result| users_table << [result.wkui1_username, result.wkui1_logon_domain, result.wkui1_oth_domains, result.wkui1_logon_server] }
-    end
-
-    users_table
-
-  end
-
   def run_host(_ip)
     if session
       self.simple = session.simple_client
@@ -122,11 +100,40 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless results.to_s.empty?
-      results_table = format_results(results)
-      results_table.rows = results_table.rows.uniq # Remove potentially duplicate entries from port 139 & 445
-      
-      print_line
-      print_line results_table.to_s
+
+      accounts = [ Hash.new() ]
+      results.compact.each do |result_set|
+        result_set.each { |result| accounts << {
+          :account_name => result.wkui1_username.encode('UTF-8'),
+          :logon_domain => result.wkui1_logon_domain.encode('UTF-8'),
+          :other_domains => result.wkui1_oth_domains.encode('UTF-8'),
+          :logon_server => result.wkui1_logon_server.encode('UTF-8')} }
+      end
+      accounts.shift
+
+      if datastore['VERBOSE']
+        accounts.each do |x|
+          print_status x[:logon_domain] + "\\" + x[:account_name] +
+            "\t(logon_server: #{x[:logon_server]}, other_domains: #{x[:other_domains]})"
+        end
+      else
+        print_status "#{accounts.collect{|x| x[:logon_domain] + "\\" + x[:account_name]}.join(", ")}"
+      end
+
+      found_accounts = []
+      accounts.each do |x|
+        comp_user = x[:logon_domain] + "\\" + x[:account_name]
+        found_accounts.push(comp_user.scan(/[[:print:]]/).join) unless found_accounts.include?(comp_user.scan(/[[:print:]]/).join)
+      end
+
+      found_accounts.each do |comp_user|
+        if comp_user.to_s =~ /\$$/
+          next
+        end
+
+        print_good("Found user: #{comp_user}")
+      end
+
     end
 
   end
