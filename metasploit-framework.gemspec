@@ -251,6 +251,9 @@ Gem::Specification.new do |spec|
   # Needed for multiline REPL support for interactive SQL sessions
   spec.add_runtime_dependency 'reline'
 
+  # Needed to parse sections of ELF files in order to retrieve symbols
+  spec.add_runtime_dependency 'elftools'
+
   # Standard libraries: https://www.ruby-lang.org/en/news/2023/12/25/ruby-3-3-0-released/
   %w[
     abbrev
