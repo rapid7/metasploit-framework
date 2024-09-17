@@ -87,6 +87,7 @@ class MetasploitModule < Msf::Auxiliary
   rescue ::Timeout::Error
   rescue ::Exception => e
     print_error("Error: #{e.class} #{e}")
+    nil
   ensure
     disconnect_wkssvc
   end
@@ -100,7 +101,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless results.to_s.empty?
-
       accounts = [ Hash.new() ]
       results.compact.each do |result_set|
         result_set.each { |result| accounts << {
