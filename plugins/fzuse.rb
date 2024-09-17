@@ -1,3 +1,18 @@
+require 'socket'
+
+# this is the main routine that's executed in the grandchild process (msfconsole -> fzf -> this)
+if $PROGRAM_NAME == __FILE__
+  exit 64 unless ARGV.length == 2
+
+  UNIXSocket.open(ARGV[0]) do |sock|
+    sock.write ARGV[1] + "\n"
+    sock.flush
+
+    puts sock.read
+  end
+  exit 0
+end
+
 module Msf
   ###
   #
@@ -39,37 +54,60 @@ module Msf
         }
       end
 
+      def start_pipe_server(socket_path)
+        def pipe_server(socket_path)
+          server = UNIXServer.new(socket_path)
+          File.chmod(0600, socket_path)
+          loop do
+            client = server.accept
+            unless (input_string = client.gets&.chomp).blank?
+              if (mod = framework.modules.create(input_string))
+                client.puts(Serializer::ReadableText.dump_module(mod))
+              end
+            end
+            client.close
+          end
+        rescue EOFError
+        ensure
+          server.close if server
+          File.delete(socket_path) if File.exist?(socket_path)
+        end
+
+        Thread.new do
+          pipe_server(socket_path)
+        end
+      end
+
       #
       # This method handles the fuzzy_use command.
       #
       def cmd_fzuse(*args)
-        previewer = File.join(Msf::Config.install_root, 'tools', 'modules', 'print.py')
-        metadata_path = Msf::Modules::Metadata::Cache.instance.get_user_store
-
-        module_types = framework.modules.module_types
-
-        query = args.empty? ? '' : args.first
-      
         selection = nil
-        # alternative preview:
-        # jq \'to_entries[] | select(.value.fullname == "{1}") | .value\' db/modules_metadata_base.json | bat --language=json --color=always
-        stdin, stdout, stderr, wait_thr = Open3.popen3('fzf', '--select-1', '--query', query, '--preview', "#{previewer} --metadata-path '#{metadata_path}' '{1}'", '--preview-label', "Module Information") do |stdin, stdout, stderr, wait_thr|
-          module_types
-          module_types.each do |module_type|
-            framework.modules.module_names(module_type).each do |module_name|
-              stdin.puts "#{module_type}/#{module_name}"
-            end
-          end
-          stdin.close
 
-          exit_status = wait_thr.value
-          
-          selection = stdout.read
+        Dir.mktmpdir('msf-fzuse-') do |dir|
+          File.chmod(0700, dir)
+          socket_path = File.join(dir, "msf-fzuse.sock")
+          server_thread = start_pipe_server(socket_path)
+
+          query = args.empty? ? '' : args.first
+          ruby = RbConfig::CONFIG['bindir'] + '/' + RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT']
+
+          Open3.popen3('fzf', '--select-1', '--query', query, '--preview', "'#{ruby}' '#{__FILE__}' '#{socket_path}' '{1}'", '--preview-label', "Module Information") do |stdin, stdout, stderr, wait_thr|
+            framework.modules.module_types.each do |module_type|
+              framework.modules.module_names(module_type).each do |module_name|
+                stdin.puts "#{module_type}/#{module_name}"
+              end
+            end
+            stdin.close
+            selection = stdout.read
+          end
+
+          server_thread.kill
         end
 
-        selection.strip!
         return if selection.blank?
-        
+
+        selection.strip!
         @module_dispatcher.cmd_use(selection)
       end
     end
@@ -83,11 +121,9 @@ module Msf
     #
     def initialize(framework, opts)
       super
-      
+
       missing_requirements = []
       missing_requirements << 'fzf' unless Msf::Util::Helper.which('fzf')
-      missing_requirements << 'python' unless Msf::Util::Helper.which('python')
-      missing_requirements << 'python-rich' unless system("python -c 'import rich'", out: File::NULL, err: File::NULL)
 
       unless missing_requirements.empty?
         print_error("The FuzzyUse plugin has loaded but the following requirements are missing: #{missing_requirements.join(', ')}")
