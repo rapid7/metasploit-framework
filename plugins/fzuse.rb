@@ -32,6 +32,24 @@ module Msf
     class ConsoleCommandDispatcher
       include Msf::Ui::Console::CommandDispatcher
 
+      FZF_THEME = {
+        'fg' => '-1',
+        'fg+' => 'white:regular:bold',
+        'bg' => '-1',
+        'bg+' => '-1',
+        'hl' => '-1',
+        'hl+' => 'red:regular:bold',
+        'info' => '-1',
+        'marker' => '-1',
+        'prompt' => '-1',
+        'spinner' => '-1',
+        'pointer' => 'blue:bold',
+        'header' => '-1',
+        'border' => '-1',
+        'label' => '-1',
+        'query' => '-1'
+      }.freeze
+
       def initialize(driver)
         super
 
@@ -92,7 +110,8 @@ module Msf
           query = args.empty? ? '' : args.first
           ruby = RbConfig::CONFIG['bindir'] + '/' + RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT']
 
-          Open3.popen3('fzf', '--select-1', '--query', query, '--preview', "'#{ruby}' '#{__FILE__}' '#{socket_path}' '{1}'", '--preview-label', "Module Information") do |stdin, stdout, stderr, wait_thr|
+          color = "--color=#{FZF_THEME.map { |key, value| "#{key}:#{value}" }.join(',')}"
+          Open3.popen3('fzf', '--select-1', '--query', query, '--pointer=->', color, '--preview', "'#{ruby}' '#{__FILE__}' '#{socket_path}' '{1}'", '--preview-label', "Module Information") do |stdin, stdout, stderr, wait_thr|
             framework.modules.module_types.each do |module_type|
               framework.modules.module_names(module_type).each do |module_name|
                 stdin.puts "#{module_type}/#{module_name}"
