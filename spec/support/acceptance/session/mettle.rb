@@ -1,19 +1,37 @@
-module Acceptance::Meterpreter
-  PYTHON_METERPRETER = {
+module Acceptance::Session
+  METTLE_METERPRETER = {
     payloads: [
       {
-        name: "python/meterpreter_reverse_tcp",
-        extension: ".py",
-        platforms: [:osx, :linux, :windows],
-        execute_cmd: ["python", "${payload_path}"],
+        name: "linux/x64/meterpreter/reverse_tcp",
+        extension: "",
+        platforms: [:linux],
+        executable: true,
+        execute_cmd: ["${payload_path}"],
         generate_options: {
-          '-f': "raw"
+          '-f': "elf"
         },
         datastore: {
           global: {},
           module: {
             MeterpreterTryToFork: false,
-            PythonMeterpreterDebug: true
+            MeterpreterDebugBuild: true
+          }
+        }
+      },
+      {
+        name: "osx/x64/meterpreter_reverse_tcp",
+        extension: "",
+        platforms: [:osx],
+        executable: true,
+        execute_cmd: ["${payload_path}"],
+        generate_options: {
+          '-f': "macho"
+        },
+        datastore: {
+          global: {},
+          module: {
+            MeterpreterTryToFork: false,
+            MeterpreterDebugBuild: true
           }
         }
       }
@@ -47,34 +65,23 @@ module Acceptance::Meterpreter
             known_failures: []
           },
           windows: {
-            known_failures: [
-              "[-] [should start W32Time] FAILED: should start W32Time",
-              "[-] [should start W32Time] Exception: RuntimeError: Could not open service. OpenServiceA error: FormatMessage failed to retrieve the error for value 0x6.",
-              "[-] [should stop W32Time] FAILED: should stop W32Time",
-              "[-] [should stop W32Time] Exception: RuntimeError: Could not open service. OpenServiceA error: FormatMessage failed to retrieve the error for value 0x6.",
-              "[-] [should list services] FAILED: should list services",
-              "[-] [should list services] Exception: NoMethodError: undefined method `service' for nil:NilClass",
-              "[-] [should return info on a given service winmgmt] FAILED: should return info on a given service winmgmt",
-              "[-] [should return info on a given service winmgmt] Exception: NoMethodError: undefined method `service' for nil:NilClass",
-              "[-] FAILED: should create a service testes",
-              "[-] [should return info on the newly-created service testes] FAILED: should return info on the newly-created service testes",
-              "[-] [should return info on the newly-created service testes] Exception: NoMethodError: undefined method `service' for nil:NilClass",
-              "[-] [should delete the new service testes] FAILED: should delete the new service testes",
-              "[-] [should delete the new service testes] Exception: RuntimeError: Could not open service. OpenServiceA error: FormatMessage failed to retrieve the error for value 0x6.",
-              "[-] [should return status on a given service winmgmt] FAILED: should return status on a given service winmgmt",
-              "[-] [should return status on a given service winmgmt] Exception: RuntimeError: Could not open service. OpenServiceA error: FormatMessage failed to retrieve the error for value 0x6.",
-              "[-] [should modify config on a given service] FAILED: should modify config on a given service",
-              "[-] [should modify config on a given service] Exception: RuntimeError: Could not open service. OpenServiceA error: FormatMessage failed to retrieve the error for value 0x6.",
-              "[-] FAILED: should start a disabled service",
-              "[-] [should restart a started service W32Time] FAILED: should restart a started service W32Time",
-              "[-] [should restart a started service W32Time] Exception: RuntimeError: Could not open service. OpenServiceA error: FormatMessage failed to retrieve the error for value 0x6."
-            ]
+            known_failures: []
           }
         }
       },
       {
         name: "post/test/cmd_exec",
-        platforms: [:linux, :osx, :windows],
+        platforms: [
+          :linux,
+          :osx,
+          [
+            :windows,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ]
+        ],
         skipped: false,
         lines: {
           linux: {
@@ -90,7 +97,17 @@ module Acceptance::Meterpreter
       },
       {
         name: "post/test/extapi",
-        platforms: [:linux, :osx, :windows],
+        platforms: [
+          :linux,
+          :osx,
+          [
+            :windows,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ]
+        ],
         skipped: false,
         lines: {
           linux: {
@@ -100,18 +117,23 @@ module Acceptance::Meterpreter
             known_failures: []
           },
           windows: {
-            known_failures: [
-              "[-] [should return clipboard jpg dimensions] FAILED: should return clipboard jpg dimensions",
-              "[-] [should return clipboard jpg dimensions] Exception: NoMethodError: undefined method `clipboard' for nil:NilClass",
-              "[-] [should download clipboard jpg data] FAILED: should download clipboard jpg data",
-              "[-] [should download clipboard jpg data] Exception: NoMethodError: undefined method `clipboard' for nil:NilClass"
-            ]
+            known_failures: []
           }
         }
       },
       {
         name: "post/test/file",
-        platforms: [:linux, :osx, :windows],
+        platforms: [
+          :linux,
+          :osx,
+          [
+            :windows,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ]
+        ],
         skipped: false,
         lines: {
           linux: {
@@ -127,7 +149,17 @@ module Acceptance::Meterpreter
       },
       {
         name: "post/test/get_env",
-        platforms: [:linux, :osx, :windows],
+        platforms: [
+          :linux,
+          :osx,
+          [
+            :windows,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ]
+        ],
         skipped: false,
         lines: {
           linux: {
@@ -143,25 +175,46 @@ module Acceptance::Meterpreter
       },
       {
         name: "post/test/meterpreter",
-        platforms: [:linux, :osx, :windows],
+        platforms: [
+          :linux,
+          :osx,
+          [
+            :windows,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ]
+        ],
         skipped: false,
         lines: {
           linux: {
             known_failures: []
           },
           osx: {
-            known_failures: []
+            known_failures: [
+              "[-] FAILED: should return network interfaces",
+              "[-] FAILED: should have an interface that matches session_host"
+            ]
           },
           windows: {
-            known_failures: [
-              "[-] FAILED: should return the proper directory separator"
-            ]
+            known_failures: []
           }
         }
       },
       {
         name: "post/test/railgun",
-        platforms: [:linux, :osx, :windows],
+        platforms: [
+          :linux,
+          :osx,
+          [
+            :windows,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ]
+        ],
         skipped: false,
         lines: {
           linux: {
@@ -177,7 +230,17 @@ module Acceptance::Meterpreter
       },
       {
         name: "post/test/railgun_reverse_lookups",
-        platforms: [:linux, :osx, :windows],
+        platforms: [
+          :linux,
+          :osx,
+          [
+            :windows,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ]
+        ],
         skipped: false,
         lines: {
           linux: {
@@ -225,7 +288,23 @@ module Acceptance::Meterpreter
       },
       {
         name: "post/test/search",
-        platforms: [:linux, :osx, :windows],
+        platforms: [
+          :linux,
+          [
+            :osx,
+            {
+              skip: true,
+              reason: "skipped - test/search hangs in osx and CPU spikes to >300%"
+            }
+          ],
+          [
+            :windows,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ]
+        ],
         skipped: false,
         lines: {
           linux: {

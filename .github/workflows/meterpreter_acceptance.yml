@@ -98,8 +98,8 @@ jobs:
       metasploitPayloadsCommit: ${{ github.event.inputs.metasploitPayloadsCommit || 'master' }}
       mettleCommit: ${{ github.event.inputs.mettleCommit|| 'master' }}
       HOST_RUNNER_IMAGE: ${{ matrix.os }}
-      METERPRETER: ${{ matrix.meterpreter.name }}
-      METERPRETER_RUNTIME_VERSION: ${{ matrix.meterpreter.runtime_version }}
+      SESSION: 'meterpreter/${{ matrix.meterpreter.name }}'
+      SESSION_RUNTIME_VERSION: ${{ matrix.meterpreter.runtime_version }}
       BUNDLE_WITHOUT: "coverage development"
 
     name: ${{ matrix.meterpreter.name }} ${{ matrix.meterpreter.runtime_version }} ${{ matrix.os }}

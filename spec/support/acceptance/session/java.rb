@@ -1,4 +1,4 @@
-module Acceptance::Meterpreter
+module Acceptance::Session
   JAVA_METERPRETER = {
     payloads: [
       {

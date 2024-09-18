@@ -1,4 +1,4 @@
-module Acceptance::Meterpreter
+module Acceptance::Session
   # @return [Symbol] The current platform
   def self.current_platform
     host_os = RbConfig::CONFIG['host_os']
@@ -17,18 +17,35 @@ module Acceptance::Meterpreter
   # Allows restricting the tests of a specific Meterpreter's test suite with the METERPRETER environment variable
   # @return [TrueClass, FalseClass] True if the given Meterpreter should be run, false otherwise.
   def self.run_meterpreter?(meterpreter_config)
-    return true if ENV['METERPRETER'].blank?
+    return true if ENV['SESSION'].blank?
 
     name = meterpreter_config[:name].to_s
-    ENV['METERPRETER'].include?(name)
+    ENV['SESSION'].include?(name)
   end
 
   # Allows restricting the tests of a specific Meterpreter's test suite with the METERPRETER environment variable
   # @return [TrueClass, FalseClass] True if the given Meterpreter should be run, false otherwise.
   def self.run_meterpreter_module_test?(module_test)
-    return true if ENV['METERPRETER_MODULE_TEST'].blank?
+    return true if ENV['SESSION_MODULE_TEST'].blank?
 
-    ENV['METERPRETER_MODULE_TEST'].include?(module_test)
+    ENV['SESSION_MODULE_TEST'].include?(module_test)
+  end
+
+  # Allows restricting the tests of a specific session's test suite with the SESSION environment variable
+  # @return [TrueClass, FalseClass] True if the given session should be run, false otherwise.
+  def self.run_session?(session_config)
+    return true if ENV['SESSION'].blank?
+
+    name = session_config[:name].to_s
+    ENV['SESSION'].include?("command_shell/#{name}")
+  end
+
+  # Allows restricting the tests of a specific session's test suite with the SESSION environment variable
+  # @return [TrueClass, FalseClass] True if the given session should be run, false otherwise.
+  def self.run_session_module_test?(module_test)
+    return true if ENV['SESSION_MODULE_TEST'].blank?
+
+    ENV['SESSION_MODULE_TEST'].include?(module_test)
   end
 
   # @param [String] string A console string with ANSI escape codes present
@@ -54,8 +71,8 @@ module Acceptance::Meterpreter
   # @param [Hash] payload_config
   # @return [String] The human readable name for the given payload configuration
   def self.human_name_for_payload(payload_config)
-    is_stageless = payload_config[:name].include?('meterpreter_reverse_tcp')
-    is_staged = payload_config[:name].include?('meterpreter/reverse_tcp')
+    is_stageless = payload_config[:name].include?('_reverse_tcp')
+    is_staged = payload_config[:name].include?('/reverse_tcp')
 
     details = []
     details << 'stageless' if is_stageless
@@ -67,7 +84,7 @@ module Acceptance::Meterpreter
 
   # @param [Object] hash A hash of key => hash
   # @return [Object] Returns a new hash with the 'key' merged into hash value and all payloads
-  def self.with_meterpreter_name_merged(hash)
+  def self.with_session_name_merged(hash)
     hash.each_with_object({}) do |(name, config), acc|
       acc[name] = config.merge({ name: name })
     end
@@ -81,7 +98,7 @@ module Acceptance::Meterpreter
     case value
     when Array
       left_operand, operator, right_operand = value
-      # Map values such as `:meterpreter_name` to the runtime value
+      # Map values such as `:session_name` to the runtime value
       left_operand = environment[left_operand] if environment.key?(left_operand)
       right_operand = environment[right_operand] if environment.key?(right_operand)
 

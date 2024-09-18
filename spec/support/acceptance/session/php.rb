@@ -1,4 +1,4 @@
-module Acceptance::Meterpreter
+module Acceptance::Session
   PHP_METERPRETER = {
     payloads: [
       {
