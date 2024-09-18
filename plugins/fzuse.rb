@@ -78,10 +78,13 @@ module Msf
           File.chmod(0600, socket_path)
           loop do
             client = server.accept
-            unless (input_string = client.gets&.chomp).blank?
-              if (mod = framework.modules.create(input_string))
-                client.puts(Serializer::ReadableText.dump_module(mod))
+            begin
+              unless (input_string = client.gets&.chomp).blank?
+                if (mod = framework.modules.create(input_string))
+                  client.puts(Serializer::ReadableText.dump_module(mod))
+                end
               end
+            rescue StandardError
             end
             client.close
           end
@@ -103,7 +106,6 @@ module Msf
         selection = nil
 
         Dir.mktmpdir('msf-fzuse-') do |dir|
-          File.chmod(0700, dir)
           socket_path = File.join(dir, "msf-fzuse.sock")
           server_thread = start_pipe_server(socket_path)
 
@@ -122,6 +124,7 @@ module Msf
           end
 
           server_thread.kill
+          server_thread.join
         end
 
         return if selection.blank?
