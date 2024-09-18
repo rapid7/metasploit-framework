@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
         service_name: 'Wordpress',
         address: ip,
         port: datastore['RPORT'],
-        protocol: 'tcp',
+        protocol: 'http',
         status: Metasploit::Model::Login::Status::UNTRIED
       })
       table << user
