@@ -14,21 +14,7 @@ if $PROGRAM_NAME == __FILE__
 end
 
 module Msf
-  ###
-  #
-  # This class illustrates a fuzzy_use plugin.  Plugins can change the behavior of
-  # the framework by adding new features, new user interface commands, or
-  # through any other arbitrary means.  They are designed to have a very loose
-  # definition in order to make them as useful as possible.
-  #
-  ###
   class Plugin::FuzzyUse < Msf::Plugin
-
-    ###
-    #
-    # This class implements a fuzzy_use console command dispatcher.
-    #
-    ###
     class ConsoleCommandDispatcher
       include Msf::Ui::Console::CommandDispatcher
 
@@ -56,9 +42,6 @@ module Msf
         @module_dispatcher = Msf::Ui::Console::CommandDispatcher::Modules.new(driver)
       end
 
-      #
-      # The dispatcher's name.
-      #
       def name
         'FuzzyUse'
       end
@@ -68,7 +51,7 @@ module Msf
       #
       def commands
         {
-          'fzuse' => 'A fuzzy_use command added by the fuzzy_use plugin'
+          'fzuse' => 'A fuzzy use command added by the FuzzyUse plugin'
         }
       end
 
@@ -100,7 +83,7 @@ module Msf
       end
 
       #
-      # This method handles the fuzzy_use command.
+      # This method handles the fzuse command.
       #
       def cmd_fzuse(*args)
         selection = nil
@@ -134,13 +117,6 @@ module Msf
       end
     end
 
-    #
-    # The constructor is called when an instance of the plugin is created.  The
-    # framework instance that the plugin is being associated with is passed in
-    # the framework parameter.  Plugins should call the parent constructor when
-    # inheriting from Msf::Plugin to ensure that the framework attribute on
-    # their instance gets set.
-    #
     def initialize(framework, opts)
       super
 
@@ -153,38 +129,21 @@ module Msf
         return
       end
 
-      # If this plugin is being loaded in the context of a console application
-      # that uses the framework's console user interface driver, register
-      # console dispatcher commands.
       add_console_dispatcher(ConsoleCommandDispatcher)
 
       print_status('FuzzyUse plugin loaded.')
     end
 
-    #
-    # The cleanup routine for plugins gives them a chance to undo any actions
-    # they may have done to the framework.  For instance, if a console
-    # dispatcher was added, then it should be removed in the cleanup routine.
-    #
     def cleanup
-      # If we had previously registered a console dispatcher with the console,
-      # deregister it now.
       remove_console_dispatcher('FuzzyUse')
     end
 
-    #
-    # This method returns a short, friendly name for the plugin.
-    #
     def name
       'fuzzy_use'
     end
 
-    #
-    # This method returns a brief description of the plugin.  It should be no
-    # more than 60 characters, but there are no hard limits.
-    #
     def desc
-      'Demonstrates using framework plugins'
+      'A plugin offering a fuzzy use command'
     end
 
   end
