@@ -55,31 +55,25 @@ module Msf
         }
       end
 
-      def start_pipe_server(socket_path)
-        def pipe_server(socket_path)
-          server = UNIXServer.new(socket_path)
-          File.chmod(0600, socket_path)
-          loop do
-            client = server.accept
-            begin
-              unless (input_string = client.gets&.chomp).blank?
-                if (mod = framework.modules.create(input_string))
-                  client.puts(Serializer::ReadableText.dump_module(mod))
-                end
+      def pipe_server(socket_path)
+        server = UNIXServer.new(socket_path)
+        File.chmod(0600, socket_path)
+        loop do
+          client = server.accept
+          begin
+            unless (input_string = client.gets&.chomp).blank?
+              if (mod = framework.modules.create(input_string))
+                client.puts(Serializer::ReadableText.dump_module(mod))
               end
-            rescue StandardError
             end
-            client.close
+          rescue StandardError
           end
-        rescue EOFError
-        ensure
-          server.close if server
-          File.delete(socket_path) if File.exist?(socket_path)
+          client.close
         end
-
-        Thread.new do
-          pipe_server(socket_path)
-        end
+      rescue EOFError
+      ensure
+        server.close if server
+        File.delete(socket_path) if File.exist?(socket_path)
       end
 
       #
@@ -90,7 +84,7 @@ module Msf
 
         Dir.mktmpdir('msf-fzuse-') do |dir|
           socket_path = File.join(dir, "msf-fzuse.sock")
-          server_thread = start_pipe_server(socket_path)
+          server_thread = Thread.new { pipe_server(socket_path) }
 
           query = args.empty? ? '' : args.first
           ruby = RbConfig::CONFIG['bindir'] + '/' + RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT']
@@ -119,6 +113,12 @@ module Msf
 
     def initialize(framework, opts)
       super
+
+      unless defined?(UNIXSocket)
+        # This isn't a requirement that can be fixed by installing something
+        print_error("The FuzzyUse plugin has loaded but the Ruby environment does not support UNIX sockets.")
+        return
+      end
 
       missing_requirements = []
       missing_requirements << 'fzf' unless Msf::Util::Helper.which('fzf')
