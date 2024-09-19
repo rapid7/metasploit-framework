@@ -23,8 +23,14 @@ class MetasploitModule < Msf::Auxiliary
       'Author'      => 'hdm',
       'License'     => MSF_LICENSE,
     )
+  end
 
-    deregister_options('RPORT', 'SMBDirect')
+  def connect(*args, **kwargs)
+    super(*args, **kwargs, direct: @smb_direct)
+  end
+
+  def rport
+    @rport
   end
 
   # Fingerprint a single host
@@ -40,10 +46,20 @@ class MetasploitModule < Msf::Auxiliary
       self.simple.connect("\\\\#{session.address}\\IPC$")
       pipes += check_pipes
     else
-      [[139, false], [445, true]].each do |info|
+      if datastore['RPORT'].blank? || datastore['RPORT'] == 0
+        smb_services = [
+          { port: 445, direct: true },
+          { port: 139, direct: false }
+        ]
+      else
+        smb_services = [
+          { port: datastore['RPORT'], direct: datastore['SMBDirect'] }
+        ]
+      end
 
-        datastore['RPORT'] = info[0]
-        datastore['SMBDirect'] = info[1]
+      smb_services.each do |smb_service|
+        @rport = smb_service[:port]
+        @smb_direct = smb_service[:direct]
 
         begin
           connect
@@ -52,11 +68,11 @@ class MetasploitModule < Msf::Auxiliary
           disconnect
           break
         rescue Rex::Proto::SMB::Exceptions::SimpleClientError, Rex::ConnectionError => e
-          vprint_error("SMB client Error with RPORT=#{info[0]} SMBDirect=#{info[1]}: #{e.to_s}")
+          vprint_error("SMB client Error with RPORT=#{@rport} SMBDirect=#{@smb_direct}: #{e.to_s}")
         end
+
       end
     end
-
 
     if(pipes.length > 0)
       print_good("Pipes: #{pipes.join(", ")}")
