@@ -14,7 +14,6 @@ module Acceptance::CommandShell
     end
   end
 
-
   # Allows restricting the tests of a specific command shell's test suite with the command shell environment variable
   # @return [TrueClass, FalseClass] True if the given command shell should be run, false otherwise.
   def self.run_command_shell?(command_shell_config)
