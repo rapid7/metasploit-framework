@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::SQLi
   include Msf::Auxiliary::Scanner
-  include Msf::Exploit::Remote::HTTP::WordPress
+  include Msf::Exploit::Remote::HTTP::Wordpress
 
   def initialize(info = {})
     super(
