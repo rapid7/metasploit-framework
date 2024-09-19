@@ -1,4 +1,4 @@
-module Acceptance::CommandShell
+module Acceptance::Session
   POWERSHELL = {
     payloads: [
       {

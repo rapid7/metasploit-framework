@@ -86,8 +86,8 @@ jobs:
     env:
       RAILS_ENV: test
       HOST_RUNNER_IMAGE: ${{ matrix.os }}
-      COMMAND_SHELL: ${{ matrix.command_shell.name }}
-      COMMAND_SHELL_RUNTIME_VERSION: ${{ matrix.command_shell.runtime_version }}
+      SESSION: 'command_shell/${{ matrix.command_shell.name }}'
+      SESSION_RUNTIME_VERSION: ${{ matrix.command_shell.runtime_version }}
       BUNDLE_WITHOUT: "coverage development"
 
     name: ${{ matrix.command_shell.name }} ${{ matrix.command_shell.runtime_version }} ${{ matrix.os }}

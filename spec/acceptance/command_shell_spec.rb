@@ -5,17 +5,17 @@ RSpec.describe 'CommandShell' do
   include_context 'wait_for_expect'
 
   # Tests to ensure that CMD/Powershell/Linux is consistent across all implementations/operation systems
-  COMMAND_SHELL_PAYLOADS = Acceptance::CommandShell.with_command_shell_name_merged(
+  COMMAND_SHELL_PAYLOADS = Acceptance::Session.with_session_name_merged(
     {
-      powershell: Acceptance::CommandShell::POWERSHELL,
-      cmd: Acceptance::CommandShell::CMD,
-      linux: Acceptance::CommandShell::LINUX
+      powershell: Acceptance::Session::POWERSHELL,
+      cmd: Acceptance::Session::CMD,
+      linux: Acceptance::Session::LINUX
     }
   )
 
   allure_test_environment = AllureRspec.configuration.environment_properties
 
-  let_it_be(:current_platform) { Acceptance::CommandShell::current_platform }
+  let_it_be(:current_platform) { Acceptance::Session::current_platform }
 
   # @!attribute [r] port_allocator
   #   @return [Acceptance::PortAllocator]
@@ -54,10 +54,10 @@ RSpec.describe 'CommandShell' do
     describe command_shell_runtime_name, focus: command_shell_config[:focus] do
       command_shell_config[:payloads].each.with_index do |payload_config, payload_config_index|
         describe(
-          Acceptance::CommandShell.human_name_for_payload(payload_config).to_s,
+          Acceptance::Session.human_name_for_payload(payload_config).to_s,
           if: (
-            Acceptance::CommandShell.run_command_shell?(command_shell_config) &&
-              Acceptance::CommandShell.supported_platform?(payload_config)
+            Acceptance::Session.run_session?(command_shell_config) &&
+              Acceptance::Session.supported_platform?(payload_config)
           )
         ) do
           let(:payload) { Acceptance::Payload.new(payload_config) }
@@ -182,163 +182,20 @@ RSpec.describe 'CommandShell' do
             console.reset
           end
 
-          context "#{Acceptance::CommandShell.current_platform}" do
-            describe "#{Acceptance::CommandShell.current_platform}/#{command_shell_runtime_name} command shell successfully opens a session for the #{payload_config[:name].inspect} payload" do
-              it(
-                "exposes available metasploit commands",
-                if: (
-                  # Assume that regardless of payload, staged/unstaged/etc, the command shell will have the same commands available
-                  # So only run this test when config_index == 0
-                  payload_config_index == 0 && Acceptance::CommandShell.supported_platform?(payload_config)
-                  # Run if ENV['METERPRETER'] = 'java php' etc
-                  Acceptance::CommandShell.run_command_shell?(command_shell_config) &&
-                    # Only run payloads / tests, if the host machine can run them
-                    Acceptance::CommandShell.supported_platform?(payload_config)
-                )
-              ) do
-                begin
-                  replication_commands = []
-                  current_payload_status = ''
-
-                  # Ensure we have a valid session id; We intentionally omit this from a `before(:each)` to ensure the allure attachments are generated if the session dies
-                  payload_process, session_id = payload_process_and_session_id
-                  expect(payload_process).to(be_alive, proc do
-                    current_payload_status = "Expected Payload process to be running. Instead got: payload process exited with #{payload_process.wait_thread.value} - when running the command #{payload_process.cmd.inspect}"
-
-                    Allure.add_attachment(
-                      name: 'Failed payload blob',
-                      source: Base64.strict_encode64(File.binread(payload_process.payload_path)),
-                      type: Allure::ContentType::TXT
-                    )
-
-                    current_payload_status
-                  end)
-                  expect(session_id).to_not(be_nil, proc do
-                    "There should be a session present"
-                  end)
-
-                  resource_command = "resource scripts/resource/meterpreter_compatibility.rc"
-                  replication_commands << resource_command
-                  console.sendline(resource_command)
-                  result = console.recvuntil(Acceptance::Console.prompt)
-
-                  available_commands = result.lines(chomp: true).find do |line|
-                    line.start_with?("{") && line.end_with?("}") && JSON.parse(line)
-                  rescue JSON::ParserError => _e
-                    next
-                  end
-                  expect(available_commands).to_not be_nil
-
-                  available_commands_json = JSON.parse(available_commands, symbolize_names: true)
-                  # Generate an allure attachment, a report can be generated afterwards
-                  Allure.add_attachment(
-                    name: 'available commands',
-                    source: JSON.pretty_generate(available_commands_json),
-                    type: Allure::ContentType::JSON,
-                    test_case: false
-                  )
-                rescue RSpec::Expectations::ExpectationNotMetError, StandardError => e
-                  test_run_error = e
-                end
-
-                # Test cleanup. We intentionally omit cleanup from an `after(:each)` to ensure the allure attachments are
-                # still generated if the session dies in a weird way etc
-
-                # Payload process cleanup / verification
-                # The payload process wasn't initially marked as dead - let's close it
-                if payload_process.present? && current_payload_status.blank?
-                  begin
-                    if payload_process.alive?
-                      current_payload_status = "Process still alive after running test suite"
-                      payload_process.close
-                    else
-                      current_payload_status = "Expected Payload process to be running. Instead got: payload process exited with #{payload_process.wait_thread.value} - when running the command #{payload_process.cmd.inspect}"
-                    end
-                  rescue => e
-                    Allure.add_attachment(
-                      name: 'driver.close_payloads failure information',
-                      source: "Error: #{e.class} - #{e.message}\n#{(e.backtrace || []).join("\n")}",
-                      type: Allure::ContentType::TXT
-                    )
-                  end
-                end
-
-                console_reset_error = nil
-                current_console_data = console.all_data
-                begin
-                  console.reset
-                rescue => e
-                  console_reset_error = e
-                  Allure.add_attachment(
-                    name: 'console.reset failure information',
-                    source: "Error: #{e.class} - #{e.message}\n#{(e.backtrace || []).join("\n")}",
-                    type: Allure::ContentType::TXT
-                  )
-                end
-
-                payload_configuration_details = payload.as_readable_text(
-                  default_global_datastore: default_global_datastore,
-                  default_module_datastore: default_module_datastore
-                )
-
-                replication_steps = <<~EOF
-                  ## Load test modules
-                  loadpath test/modules
-
-                  #{payload_configuration_details}
-
-                  ## Replication commands
-                  #{replication_commands.empty? ? 'no additional commands run' : replication_commands.join("\n")}
-                EOF
-
-                Allure.add_attachment(
-                  name: 'payload configuration and replication',
-                  source: replication_steps,
-                  type: Allure::ContentType::TXT
-                )
-
-                Allure.add_attachment(
-                  name: 'payload output if available',
-                  source: "Final status:\n#{current_payload_status}\nstdout and stderr:\n#{get_file_attachment_contents(payload_stdout_and_stderr_file.path)}",
-                  type: Allure::ContentType::TXT
-                )
-
-                Allure.add_attachment(
-                  name: 'payload debug log if available',
-                  source: get_file_attachment_contents(command_shell_logging_file.path),
-                  type: Allure::ContentType::TXT
-                )
-
-                Allure.add_attachment(
-                  name: 'session tlv logging if available',
-                  source: get_file_attachment_contents(session_tlv_logging_file.path),
-                  type: Allure::ContentType::TXT
-                )
-
-                Allure.add_attachment(
-                  name: 'console data',
-                  source: current_console_data,
-                  type: Allure::ContentType::TXT
-                )
-
-                raise test_run_error if test_run_error
-                raise console_reset_error if console_reset_error
-              end
-            end
-
+          context "#{Acceptance::Session.current_platform}" do
             command_shell_config[:module_tests].each do |module_test|
               describe module_test[:name].to_s, focus: module_test[:focus] do
                 it(
-                  "#{Acceptance::CommandShell.current_platform}/#{command_shell_runtime_name} command shell successfully opens a session for the #{payload_config[:name].inspect} payload and passes the #{module_test[:name].inspect} tests",
+                  "#{Acceptance::Session.current_platform}/#{command_shell_runtime_name} command shell successfully opens a session for the #{payload_config[:name].inspect} payload and passes the #{module_test[:name].inspect} tests",
                   if: (
-                    Acceptance::CommandShell.run_command_shell?(command_shell_config) &&
-                      # Run if ENV['METERPRETER_MODULE_TEST'] = 'post/test/cmd_exec' etc
-                      Acceptance::CommandShell.run_command_shell_module_test?(module_test[:name]) &&
+                    Acceptance::Session.run_session?(command_shell_config) &&
+                      # Run if ENV['SESSION_MODULE_TEST'] = 'post/test/cmd_exec' etc
+                      Acceptance::Session.run_session_module_test?(module_test[:name]) &&
                       # Only run payloads / tests, if the host machine can run them
-                      Acceptance::CommandShell.supported_platform?(payload_config) &&
-                      Acceptance::CommandShell.supported_platform?(module_test) &&
+                      Acceptance::Session.supported_platform?(payload_config) &&
+                      Acceptance::Session.supported_platform?(module_test) &&
                       # Skip tests that are explicitly skipped, or won't pass in the current environment
-                      !Acceptance::CommandShell.skipped_module_test?(module_test, allure_test_environment)
+                      !Acceptance::Session.skipped_module_test?(module_test, allure_test_environment)
                   ),
                   # test metadata - will appear in allure report
                   module_test: module_test[:name]
@@ -410,7 +267,7 @@ RSpec.describe 'CommandShell' do
                       end
 
                       validated_lines.each do |test_line|
-                        test_line = Acceptance::CommandShell.uncolorize(test_line)
+                        test_line = Acceptance::Session.uncolorize(test_line)
                         expect(test_line).to_not include('FAILED', '[-] '), "Unexpected error: #{test_line}"
                       end
 

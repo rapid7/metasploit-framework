@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  def upload_create_process_precompiled_binaries
+  def upload_show_args_binary
     print_status 'Uploading precompiled binaries'
     upload_file(show_args_binary[:path], "data/cmd_exec/#{show_args_binary[:path]}")
     unless session.platform.eql?('windows')
@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Post
     # we are inconsistent reporting windows session types
     windows_strings = ['windows', 'win']
     vprint_status("Starting cmd_exec tests")
-    upload_create_process_precompiled_binaries
+    upload_show_args_binary
 
     it "should return the result of echo" do
       test_string = Rex::Text.rand_text_alpha(4)
@@ -189,9 +189,9 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  # TODO: This can be added back in once Smashery's create process API has been landed
+  # TODO: These tests are in preparation for Smashery's create process API
   # def test_create_process
-  #   upload_create_process_precompiled_binaries
+  #   upload_show_args_binary
   #
   #   test_string = Rex::Text.rand_text_alpha(4)
   #
@@ -281,30 +281,4 @@ class MetasploitModule < Msf::Post
   #     end
   #   end
   # end
-
-  # TODO: example in case `show_args_binary` needs some more massaging once we are able to test the API changes again
-  #
-  #  if session.platform.eql? 'windows'
-  #    output = create_process('./show_args.exe', args: [test_string, '', test_string, '', test_string])
-  #    if session.type.eql? 'powershell'
-  #      output.rstrip == "#{pwd}\\show_args.exe\r\n#{test_string}\r\n\r\n#{test_string}\r\n\r\n#{test_string}"
-  #    elsif session.type.eql? 'shell'
-  #      output = create_process('show_args.exe', args: [test_string, '', test_string, '', test_string])
-  #      output.rstrip == "show_args.exe\r\n#{test_string}\r\n\r\n#{test_string}\r\n\r\n#{test_string}"
-  #    elsif (session.type.eql?('meterpreter') && session.arch.eql?('java'))
-  #      output.rstrip == ".\\show_args.exe\r\n#{test_string}\r\n\r\n#{test_string}\r\n\r\n#{test_string}"
-  #    elsif session.arch.eql?("php")
-  #      # output = create_process('.\\show_args.exe', args: [test_string, '', test_string, '', test_string])
-  #      # $stderr.puts output.rstrip.inspect
-  #      # output.rstrip == ".\\show_args.exe\r\n#{test_string}\r\n\r\n#{test_string}\r\n\r\n#{test_string}"
-  #      # TODO: Fix this functionality
-  #      vprint_status("test skipped for PHP - functionality not correct")
-  #      true
-  #    else
-  #      output.rstrip == "./show_args.exe\r\n#{test_string}\r\n\r\n#{test_string}\r\n\r\n#{test_string}"
-  #    end
-  #  else
-  #    output = create_process('./show_args', args: [test_string, '', test_string, '', test_string])
-  #    output.rstrip == "./show_args\n#{test_string}\n\n#{test_string}\n\n#{test_string}"
-  #  end
 end
