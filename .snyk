@@ -1,0 +1,9 @@
+version: v1.25.0
+ignore: {}
+patch: {}
+exclude:
+  global:
+    # includes our unit tests which include hard coded passwords and encrypting keys for testing purposes.
+    - spec/
+    # includes the source code to local exploits and utilities which have to be written in a particular way to exploit the vulnerabilities that we're targeting.
+    - external/source/
