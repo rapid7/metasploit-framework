@@ -248,7 +248,7 @@ jobs:
 
       - name: Build Windows payloads via Visual Studio 2022 Build (Windows)
         shell: cmd
-        if: ${{ (runner.os == 'Windows') && (matrix.os == 'windows-2022') && (contains(github.event.issue.labels.*.name, 'payload-testing-branch'))}}
+        if: ${{ (runner.os == 'Windows') && (matrix.os == 'windows-2022') && (contains(github.event.issue.labels.*.name, 'payload-testing-branch')) }}
         run: |
           cd c/meterpreter
           git submodule init && git submodule update

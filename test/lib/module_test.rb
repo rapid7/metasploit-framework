@@ -144,7 +144,15 @@ module Msf
       @directory_stack.push(_file_system.pwd)
 
       # Find the temp directory
-      tmp = _file_system.get_env("TMP") || _file_system.get_env("TMPDIR")
+
+      # TODO: This caused issue with random jobs, will add some logic below to unblock for now
+      # tmp = _file_system.get_env("TMP")&.strip&.presence || _file_system&.get_env("TMPDIR").strip&.presence
+      if session.platform == 'unix'
+        tmp = _file_system.get_env("TMP").strip.presence || _file_system.get_env("TMPDIR").strip.presence
+      else
+        tmp = _file_system.get_env("TMP") || _file_system.get_env("TMPDIR")
+      end
+
       # mettle fallback
       tmp = '/tmp' if tmp.nil? && _file_system.directory?('/tmp')
       raise "Could not find tmp directory" if tmp == nil || !_file_system.directory?(tmp)
