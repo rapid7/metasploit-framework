@@ -1,4 +1,3 @@
-require 'msf/core'
 require 'rex'
 require 'base64'
 require 'sqlite3'
