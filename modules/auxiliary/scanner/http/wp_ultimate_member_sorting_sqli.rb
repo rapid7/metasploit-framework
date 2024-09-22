@@ -44,8 +44,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options [
       OptInt.new('COUNT', [false, 'Number of rows to retrieve', 1]),
-      OptInt.new('DIR_ID_MIN', [true, 'Minimum value for bruteforcing directory IDs', 1]), # Default: 1
-      OptInt.new('DIR_ID_MAX', [true, 'Maximum value for bruteforcing directory IDs', 100]) # Default: 100
+      OptInt.new('DIR_ID_MIN', [true, 'Minimum value for bruteforcing directory IDs', 1]),
+      OptInt.new('DIR_ID_MAX', [true, 'Maximum value for bruteforcing directory IDs', 100])
     ]
   end
 
