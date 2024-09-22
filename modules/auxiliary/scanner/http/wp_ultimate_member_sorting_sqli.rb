@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if nonce && directory_id
       @sqli = create_sqli(dbms: MySQLi::TimeBasedBlind, opts: { hex_encode_strings: true }) do |payload|
-        random_negative_number = rand(99)
+        random_negative_number = -rand(99)
         random_characters = Rex::Text.rand_text_alphanumeric(5)
 
         res = send_request_cgi({
