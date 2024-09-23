@@ -402,7 +402,7 @@ GEM
     reline (0.5.8)
       io-console (~> 0.5)
     require_all (3.0.0)
-    rex-arch (0.1.15)
+    rex-arch (0.1.16)
       rex-text
     rex-bin_tools (0.1.9)
       metasm
