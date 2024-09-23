@@ -135,7 +135,7 @@ module Msf::Payload::Php
     "
 
     exec_methods = [passthru, shell_exec, system, exec, proc_open, popen];
-    shuffle(exec_methods);
+    exec_methods = exec_methods.shuffle
     buf = setup + exec_methods.join("") + fail_block
 
     return buf
