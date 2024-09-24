@@ -135,9 +135,6 @@ jobs:
           bundler-cache: true
           working-directory: metasploit-framework
           cache-version: 5
-          # Github actions with Ruby requires Bundler 2.2.18+
-          # https://github.com/ruby/setup-ruby/tree/d2b39ad0b52eca07d23f3aa14fdf2a3fcc1f411c#windows
-          bundler: 2.2.33
 
       - name: Acceptance
         env:
@@ -187,9 +184,6 @@ jobs:
           ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true
           cache-version: 4
-          # Github actions with Ruby requires Bundler 2.2.18+
-          # https://github.com/ruby/setup-ruby/tree/d2b39ad0b52eca07d23f3aa14fdf2a3fcc1f411c#windows
-          bundler: 2.2.33
 
       - uses: actions/download-artifact@v4
         id: download
