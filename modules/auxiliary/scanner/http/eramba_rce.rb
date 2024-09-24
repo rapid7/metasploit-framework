@@ -4,14 +4,13 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  Rank = ExcellentRanking
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name' => 'Eramba <=3.19.1 Remote Code Execution Exploit',
+        'Name' => 'Eramba (up to 3.19.1) Remote Code Execution Exploit',
         'Description' => %q{
           This module exploits a remote code execution vulnerability in Eramba.
           An authenticated user can execute arbitrary commands on the server by
