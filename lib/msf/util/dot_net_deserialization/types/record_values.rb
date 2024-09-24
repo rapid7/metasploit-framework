@@ -137,6 +137,16 @@ module RecordValues
 
     extend Primitives::MemberValues::Factory
   end
+
+  class MethodReturn < BinData::Record
+    # see: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/1b34e743-38ac-47bd-8c8d-2fca1cd417b7
+    RECORD_TYPE =          Enums::RecordTypeEnum[:MethodReturn]
+    endian                :little
+    message_flags         :message_enum
+
+    # todo: implement the missing fields here but until then, add an assertion to raise an exception when an undefined field is present
+    virtual assert: -> { message_enum.return_value_inline == 0 && message_enum.context_inline == 0 && message_enum.args_inline == 0 }
+  end
 end
 end
 end

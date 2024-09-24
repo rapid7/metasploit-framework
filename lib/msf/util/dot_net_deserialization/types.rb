@@ -16,6 +16,7 @@ module Types
     endian                 :little
     uint8                  :record_type
     choice                 :record_value, selection: -> { record_type } do
+      # see: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/954a0657-b901-4813-9398-4ec732fe8b32
       serialization_header_record             Enums::RecordTypeEnum[:SerializedStreamHeader]
       class_with_id                           Enums::RecordTypeEnum[:ClassWithId]
       system_class_with_members               Enums::RecordTypeEnum[:SystemClassWithMembers]
@@ -35,7 +36,7 @@ module Types
       #array_single_object                     Enums::RecordTypeEnum[:ArraySingleObject]
       array_single_string                     Enums::RecordTypeEnum[:ArraySingleString]
       #method_call                             Enums::RecordTypeEnum[:MethodCall]
-      #method_return                           Enums::RecordTypeEnum[:MethodReturn]
+      method_return                           Enums::RecordTypeEnum[:MethodReturn]
     end
 
     def self.from_value(record_value, parent: nil)
