@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
     if session
       print_status("Using existing session #{session.sid}")
       client = session.client
-      datastore['RPORT'] = session.port
+      @rport = datastore['RPORT'] = session.port
       self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
       self.simple.connect("\\\\#{session.address}\\IPC$")
       pipes += check_pipes
@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
           smb_login
           pipes += check_pipes
           disconnect
-          break
+          report_pipes(pipes)
         rescue Rex::Proto::SMB::Exceptions::SimpleClientError, Rex::ConnectionError => e
           vprint_error("SMB client Error with RPORT=#{@rport} SMBDirect=#{@smb_direct}: #{e.to_s}")
         end
@@ -74,6 +74,17 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
+  end
+
+  def check_pipes
+    pipes = []
+    check_named_pipes.each do |pipe_name, _|
+      pipes.push(pipe_name)
+    end
+    pipes
+  end
+
+  def report_pipes(pipes)
     if(pipes.length > 0)
       print_good("Pipes: #{pipes.join(", ")}")
       # Add Report
@@ -88,11 +99,4 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def check_pipes
-    pipes = []
-    check_named_pipes.each do |pipe_name, _|
-      pipes.push(pipe_name)
-    end
-    pipes
-  end
 end
