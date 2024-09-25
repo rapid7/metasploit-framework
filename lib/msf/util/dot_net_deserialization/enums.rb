@@ -6,6 +6,16 @@ module Enums
 #
 # .NET Serialization Enumerations
 #
+BinaryArrayTypeEnum = {
+  # see: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/4dbbf3a8-6bc4-4dfc-aa7e-36a35be6ff58
+  Single: 0,
+  Jagged: 0,
+  Rectangular: 2,
+  SingleOffset: 3,
+  JaggedOffset: 4,
+  RectangularOffset: 5
+}
+
 BinaryTypeEnum = {
   # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/054e5c58-be21-4c86-b1c3-f6d3ce17ec72
   Primitive: 0,
