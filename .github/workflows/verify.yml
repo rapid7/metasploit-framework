@@ -37,11 +37,7 @@ jobs:
 
       - name: docker-compose build
         run: |
-          curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-`uname -s`-`uname -m` > docker-compose
-          chmod +x docker-compose
-          sudo mv docker-compose /usr/bin
-
-          /usr/bin/docker-compose build
+          docker compose build
 
   test:
     runs-on: ${{ matrix.os }}
