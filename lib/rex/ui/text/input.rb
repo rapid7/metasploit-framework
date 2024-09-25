@@ -79,6 +79,10 @@ class Input
     false
   end
 
+  def tty?
+    true
+  end
+
   def update_prompt(new_prompt = '', new_prompt_char = '')
     self.prompt = new_prompt + new_prompt_char
   end

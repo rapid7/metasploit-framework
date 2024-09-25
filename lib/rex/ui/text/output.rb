@@ -86,6 +86,10 @@ class Output < Rex::Ui::Output
 
     nil
   end
+
+  def tty?
+    true
+  end
 end
 
 end
