@@ -39,8 +39,12 @@ class MetasploitModule < Msf::Post
 
   def show_args_binary_special
     result = show_args_binary_base
-    result[:upload_path] = result[:path].gsub('show_args','~!@#$%^&*(){}')
-    result[:cmd] = result[:cmd].gsub('show_args','~!@#$%^&*(){}')
+    chars = '~!@#$%^&*(){}`\'"<>,.;:=?+|'
+    if session.platform == 'windows'
+      chars = '~!@#$%^&(){}`\',.;=+'
+    end
+    result[:upload_path] = result[:path].gsub('show_args', chars)
+    result[:cmd] = result[:cmd].gsub('show_args', chars)
 
     result
   end
@@ -252,11 +256,6 @@ class MetasploitModule < Msf::Post
     end
   
     it 'should accept special characters and return the create_process output' do
-      if session.platform.eql? 'windows'
-        # TODO: Fix this functionality
-        vprint_status('test skipped for Windows - functionality not correct')
-        true
-      end
       output = create_process(show_args_binary[:cmd], args: ['~!@#$%^&*(){`1234567890[]",.\'<>'])
       valid_show_args_response?(output, expected: [show_args_binary[:upload_path], '~!@#$%^&*(){`1234567890[]",.\'<>'])
     end
@@ -284,23 +283,11 @@ class MetasploitModule < Msf::Post
     end
   
     it 'should accept spaces in the filename and return the create_process output' do
-      if session.platform.eql? 'windows'
-        # TODO: Fix this functionality
-        vprint_status('test skipped for Windows CMD - functionality not correct')
-        true
-      end
-  
       output = create_process(show_args_binary_space[:cmd], args: [test_string, test_string])
       valid_show_args_response?(output, expected: [show_args_binary_space[:cmd], test_string, test_string])
     end
   
     it 'should accept special characters in the filename and return the create_process output' do
-      if session.platform.eql? 'windows'
-        # TODO: Fix this functionality
-        vprint_status('test skipped for Windows CMD - functionality not correct')
-        true
-      end
-  
       output = create_process(show_args_binary_special[:cmd], args: [test_string, test_string])
       valid_show_args_response?(output, expected: [show_args_binary_special[:cmd], test_string, test_string])
     end
