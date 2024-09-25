@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
       @rport = datastore['RPORT'] = session.port
       self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
       self.simple.connect("\\\\#{session.address}\\IPC$")
-      pipes += check_pipes
+      report_pipes(ip, check_pipes)
     else
       if datastore['RPORT'].blank? || datastore['RPORT'] == 0
         smb_services = [
