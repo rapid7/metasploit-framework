@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
     pipes
   end
 
-  def report_pipes(pipes)
+  def report_pipes(ip, pipes)
     if(pipes.length > 0)
       print_good("Pipes: #{pipes.join(", ")}")
       # Add Report
