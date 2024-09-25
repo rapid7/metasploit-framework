@@ -202,7 +202,6 @@ class MetasploitModule < Msf::Post
           true
         else
           output = cmd_exec("cmd.exe", "/c echo #{test_string} 1>&2")
-          print_status("line is #{output}")
           output.rstrip == test_string
         end
       else

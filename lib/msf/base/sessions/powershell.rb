@@ -56,7 +56,7 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
     # - Side-step any PowerShell magic
     # If someone specifically wants to use the PowerShell magic, they can use other APIs
   
-    needs_wrapping_chars = ['$', '`', '(', ')', '@', '>', '<', '{','}', '&', ',', ' ']
+    needs_wrapping_chars = ['$', '`', '(', ')', '@', '>', '<', '{','}', '&', ',', ' ', ';']
   
     result = ""
     cmd_and_args = [executable] + args

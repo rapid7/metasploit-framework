@@ -740,6 +740,7 @@ module Msf::Post::File
     else
       file_mode = 'Create'
     end
+    file_name = file_name.gsub("'","''")
     pwsh_code = <<~PSH
       try {
       $encoded='#{encoded_chunk}';
