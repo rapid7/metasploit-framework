@@ -210,7 +210,7 @@ jobs:
       - name: Move mettle gem into framework
         if: ${{ matrix.meterpreter.name == 'mettle' && (contains(github.event.issue.labels.*.name, 'mettle-testing-branch')) }}
         run: |
-          cp ./mettle/pkg/metasploit_payloads-mettle-${{ env.METTLE_VERSION }}.pre.dev.gem ./metasploit-framework
+          cp ../mettle/pkg/metasploit_payloads-mettle-${{ env.METTLE_VERSION }}.pre.dev.gem .
         working-directory: metasploit-framework
 
       - name: Install mettle gem
@@ -218,7 +218,7 @@ jobs:
         run: |
           set -x
           bundle exec gem install metasploit_payloads-mettle-${{ env.METTLE_VERSION }}.pre.dev.gem
-          ruby -pi.bak -e "gsub(/'metasploit_payloads-mettle', '${{ env.METTLE_VERSION }}'/, '\'metasploit_payloads-mettle\', \'${{ env.METTLE_VERSION }}.pre.dev\'')" metasploit-framework.gemspec
+          ruby -pi.bak -e "gsub(/'metasploit_payloads-mettle', '.*'/, '\'metasploit_payloads-mettle\', \'${{ env.METTLE_VERSION }}.pre.dev\'')" metasploit-framework.gemspec
           bundle config unset deployment
           bundle update metasploit_payloads-mettle
           bundle install
