@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
           smb_login
           pipes += check_pipes
           disconnect
-          report_pipes(pipes)
+          report_pipes(ip, pipes)
         rescue Rex::Proto::SMB::Exceptions::SimpleClientError, Rex::ConnectionError => e
           vprint_error("SMB client Error with RPORT=#{@rport} SMBDirect=#{@smb_direct}: #{e.to_s}")
         end
