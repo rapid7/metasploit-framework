@@ -109,11 +109,6 @@ class MetasploitModule < Msf::Post
     end
 
     it 'should execute the show_args binary with a string' do
-      # TODO: Fix this functionality
-      if session.type.eql?('meterpreter') && session.arch.eql?('python')
-        vprint_status("test skipped for Python Meterpreter - functionality not correct")
-        next true
-      end
       output = cmd_exec("#{show_args_binary[:cmd]} one two")
       valid_show_args_response?(output, expected: [show_args_binary[:path], 'one', 'two'])
     end
@@ -161,8 +156,8 @@ class MetasploitModule < Msf::Post
           output = cmd_exec("cmd.exe", "/c echo \"#{test_string}\"")
           output == test_string
         # TODO: Fix this functionality
-        elsif session.type.eql?('shell') || session.type.eql?('powershell')
-          vprint_status("test skipped for Windows CMD and Powershell - functionality not correct")
+        elsif session.type.eql?('powershell')
+          vprint_status("test skipped for Powershell - functionality not correct")
           true
         else
           output = cmd_exec("cmd.exe", "/c echo '#{test_string}'")
@@ -181,8 +176,8 @@ class MetasploitModule < Msf::Post
           output = cmd_exec("cmd.exe", "/c echo \"#{test_string}\"")
           output == test_string
         # TODO: Fix this functionality
-        elsif session.type.eql?('shell') || session.type.eql?('powershell')
-          vprint_status("test skipped for Windows CMD and Powershell - functionality not correct")
+        elsif session.type.eql?('powershell')
+          vprint_status("test skipped for Powershell - functionality not correct")
           true
         else
           output = cmd_exec("cmd.exe", "/c echo \"#{test_string}\"")
@@ -202,11 +197,12 @@ class MetasploitModule < Msf::Post
       test_string = Rex::Text.rand_text_alpha(4)
       if session.platform.eql? 'windows'
         # TODO: Fix this functionality
-        if session.type.eql?('shell') || session.arch.eql?("php") || session.type.eql?("powershell")
-          vprint_status("test skipped for Windows CMD, Powershell and PHP - functionality not correct")
+        if session.type.eql?("powershell")
+          vprint_status("test skipped for Powershell - functionality not correct")
           true
         else
           output = cmd_exec("cmd.exe", "/c echo #{test_string} 1>&2")
+          print_status("line is #{output}")
           output.rstrip == test_string
         end
       else
@@ -225,12 +221,6 @@ class MetasploitModule < Msf::Post
     test_string = Rex::Text.rand_text_alpha(4)
   
     it 'should accept blank strings and return the create_process output' do
-      if session.arch.eql?("php")
-        # TODO: Fix this functionality
-  
-        vprint_status("test skipped for PHP - functionality not correct")
-        true
-      end
       output = create_process(show_args_binary[:cmd], args: [test_string, '', test_string, '', test_string])
       valid_show_args_response?(output, expected: [show_args_binary[:upload_path], test_string, '', test_string, '', test_string])
     end
@@ -261,23 +251,11 @@ class MetasploitModule < Msf::Post
     end
   
     it 'should accept command line commands and return the create_process output' do
-      if session.arch.eql?("php")
-        # TODO: Fix this functionality
-        vprint_status("test skipped for PHP - functionality not correct")
-        true
-      end
-  
       output = create_process(show_args_binary[:cmd], args: ['run&echo'])
       valid_show_args_response?(output, expected: [show_args_binary[:upload_path], 'run&echo'])
     end
   
     it 'should accept semicolons to separate multiple command on a single line and return the create_process output' do
-      if session.arch.eql?("php")
-        # TODO: Fix this functionality
-        vprint_status("test skipped for PHP - functionality not correct")
-        true
-      end
-  
       output = create_process(show_args_binary[:cmd], args: ['run&echo;test'])
       valid_show_args_response?(output, expected: [show_args_binary[:upload_path], 'run&echo;test'])
     end
