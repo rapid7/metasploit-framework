@@ -7,6 +7,7 @@ module Types
 
   require 'msf/util/dot_net_deserialization/types/primitives'
   require 'msf/util/dot_net_deserialization/types/general'
+  require 'msf/util/dot_net_deserialization/types/common_structures'
   require 'msf/util/dot_net_deserialization/types/record_values'
 
   #
@@ -35,8 +36,8 @@ module Types
       array_single_primitive                  Enums::RecordTypeEnum[:ArraySinglePrimitive]
       #array_single_object                     Enums::RecordTypeEnum[:ArraySingleObject]
       array_single_string                     Enums::RecordTypeEnum[:ArraySingleString]
-      #method_call                             Enums::RecordTypeEnum[:MethodCall]
-      method_return                           Enums::RecordTypeEnum[:MethodReturn]
+      binary_method_call                      Enums::RecordTypeEnum[:MethodCall]
+      binary_method_return                    Enums::RecordTypeEnum[:MethodReturn]
     end
 
     def self.from_value(record_value, parent: nil)

@@ -138,14 +138,25 @@ module RecordValues
     extend Primitives::MemberValues::Factory
   end
 
-  class MethodReturn < BinData::Record
+  class BinaryMethodCall < BinData::Record
+    # see: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/ddb4da3d-8cd7-414f-b984-1a509d985bd2
+    RECORD_TYPE =          Enums::RecordTypeEnum[:MethodCall]
+    endian                   :little
+    message_flags            :message_enum
+    string_value_with_code   :method_name
+    string_value_with_code   :type_name
+    string_value_with_code   :call_context, onlyif: -> { message_enum.context_inline != 0 }
+    array_of_value_with_code :args, onlyif: -> {message_enum.args_inline != 0 }
+  end
+
+  class BinaryMethodReturn < BinData::Record
     # see: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/1b34e743-38ac-47bd-8c8d-2fca1cd417b7
     RECORD_TYPE =          Enums::RecordTypeEnum[:MethodReturn]
-    endian                :little
-    message_flags         :message_enum
-
-    # todo: implement the missing fields here but until then, add an assertion to raise an exception when an undefined field is present
-    virtual assert: -> { message_enum.return_value_inline == 0 && message_enum.context_inline == 0 && message_enum.args_inline == 0 }
+    endian                 :little
+    message_flags          :message_enum
+    value_with_code        :return_value, onlyif: -> { message_enum.return_value_inline != 0 }
+    string_value_with_code :call_context, onlyif: -> { message_enum.context_inline != 0 }
+    array_of_value_with_code :args, onlyif: -> {message_enum.args_inline != 0 }
   end
 end
 end
