@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status('Version retrieved: ' + version)
     end
 
-    return Exploit::CheckCode::Appears("Version: #{version}") if version <= Rex::Version.new('23.1.3')
+    return Exploit::CheckCode::Appears("Version: #{version}") if Rex::Version.new(version) <= Rex::Version.new('23.1.3')
 
     Exploit::CheckCode::Safe
   end
@@ -129,8 +129,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, 'Unexpected server response received.')
     end
 
-    body = res.body.to_s
-    json_body = JSON.parse(body)
+    json_body = res.get_json_document
 
     result = json_body.find { |item| item['DisplayName'].start_with?(marker.to_s) }
     unless result
