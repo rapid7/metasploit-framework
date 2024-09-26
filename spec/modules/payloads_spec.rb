@@ -765,7 +765,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_perl'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_perl'
   end
@@ -775,7 +775,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/unix/bind_perl_ipv6'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/unix/bind_perl_ipv6'
   end
