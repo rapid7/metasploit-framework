@@ -66,7 +66,10 @@ module Shell
   def init_tab_complete
     if (self.input and self.input.supports_readline)
       # Unless cont_flag because there's no tab complete for continuation lines
-      self.input = Input::Readline.new(lambda { |str| tab_complete(str) unless cont_flag })
+      tab_complete_lambda = proc do |str, preposing = nil, postposing = nil|
+        next tab_complete(str, opts: { preposing: preposing, postposing: postposing }).map { |result| result[preposing.to_s.length..] } unless cont_flag
+      end
+      self.input = Input::Readline.new(tab_complete_lambda)
       self.input.output = self.output
     end
   end
@@ -114,8 +117,8 @@ module Shell
   #
   # Performs tab completion on the supplied string.
   #
-  def tab_complete(str)
-    return tab_complete_proc(str) if (tab_complete_proc)
+  def tab_complete(str, opts: {})
+    tab_complete_proc(str, opts: opts) if tab_complete_proc
   end
 
   #
@@ -304,13 +307,13 @@ module Shell
 
     begin
       history_manager.with_context(history_file: histfile, name: name) do
-        self.hist_last_saved = Readline::HISTORY.length
+        self.hist_last_saved = ::Reline::HISTORY.length
 
         yield
       end
     ensure
       history_manager.flush
-      self.hist_last_saved = Readline::HISTORY.length
+      self.hist_last_saved = ::Reline::HISTORY.length
     end
   end
 
@@ -510,7 +513,6 @@ module Shell
   attr_reader   :cont_flag # :nodoc:
   attr_accessor :name
 private
-
   def try_exec(command)
     begin
       %x{ #{ command } }

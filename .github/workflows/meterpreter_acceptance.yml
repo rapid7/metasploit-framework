@@ -98,8 +98,8 @@ jobs:
       metasploitPayloadsCommit: ${{ github.event.inputs.metasploitPayloadsCommit || 'master' }}
       mettleCommit: ${{ github.event.inputs.mettleCommit|| 'master' }}
       HOST_RUNNER_IMAGE: ${{ matrix.os }}
-      METERPRETER: ${{ matrix.meterpreter.name }}
-      METERPRETER_RUNTIME_VERSION: ${{ matrix.meterpreter.runtime_version }}
+      SESSION: 'meterpreter/${{ matrix.meterpreter.name }}'
+      SESSION_RUNTIME_VERSION: ${{ matrix.meterpreter.runtime_version }}
       BUNDLE_WITHOUT: "coverage development"
 
     name: ${{ matrix.meterpreter.name }} ${{ matrix.meterpreter.runtime_version }} ${{ matrix.os }}
@@ -210,7 +210,7 @@ jobs:
       - name: Move mettle gem into framework
         if: ${{ matrix.meterpreter.name == 'mettle' && (contains(github.event.issue.labels.*.name, 'mettle-testing-branch')) }}
         run: |
-          cp ./mettle/pkg/metasploit_payloads-mettle-${{ env.METTLE_VERSION }}.pre.dev.gem ./metasploit-framework
+          cp ../mettle/pkg/metasploit_payloads-mettle-${{ env.METTLE_VERSION }}.pre.dev.gem .
         working-directory: metasploit-framework
 
       - name: Install mettle gem
@@ -218,7 +218,7 @@ jobs:
         run: |
           set -x
           bundle exec gem install metasploit_payloads-mettle-${{ env.METTLE_VERSION }}.pre.dev.gem
-          ruby -pi.bak -e "gsub(/'metasploit_payloads-mettle', '${{ env.METTLE_VERSION }}'/, '\'metasploit_payloads-mettle\', \'${{ env.METTLE_VERSION }}.pre.dev\'')" metasploit-framework.gemspec
+          ruby -pi.bak -e "gsub(/'metasploit_payloads-mettle', '.*'/, '\'metasploit_payloads-mettle\', \'${{ env.METTLE_VERSION }}.pre.dev\'')" metasploit-framework.gemspec
           bundle config unset deployment
           bundle update metasploit_payloads-mettle
           bundle install
@@ -248,7 +248,7 @@ jobs:
 
       - name: Build Windows payloads via Visual Studio 2022 Build (Windows)
         shell: cmd
-        if: ${{ (runner.os == 'Windows') && (matrix.os == 'windows-2022') && (contains(github.event.issue.labels.*.name, 'payload-testing-branch'))}}
+        if: ${{ (runner.os == 'Windows') && (matrix.os == 'windows-2022') && (contains(github.event.issue.labels.*.name, 'payload-testing-branch')) }}
         run: |
           cd c/meterpreter
           git submodule init && git submodule update

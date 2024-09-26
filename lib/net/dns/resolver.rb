@@ -1081,7 +1081,7 @@ module Net # :nodoc:
         if RUBY_PLATFORM =~ /mswin32|cygwin|mingw|bccwin/
           require 'win32/resolv'
           arr = Win32::Resolv.get_resolv_info
-          self.domain = arr[0]
+          self.searchlist = arr[0]
           self.nameservers = arr[1]
         else
           begin

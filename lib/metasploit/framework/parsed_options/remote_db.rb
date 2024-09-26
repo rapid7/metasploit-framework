@@ -13,7 +13,6 @@ class Metasploit::Framework::ParsedOptions::RemoteDB < Metasploit::Framework::Pa
         options.console.local_output = nil
         options.console.plugins = []
         options.console.quiet = false
-        options.console.real_readline = false
         options.console.resources = []
         options.console.subcommand = :run
       }

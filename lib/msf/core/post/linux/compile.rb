@@ -11,8 +11,18 @@ module Compile
     super
     register_options( [
       OptEnum.new('COMPILE', [true, 'Compile on target', 'Auto', ['Auto', 'True', 'False']]),
-      OptEnum.new('COMPILER', [true, 'Compiler to use on target', 'gcc', ['gcc', 'clang']]),
+      OptEnum.new('COMPILER', [true, 'Compiler to use on target', 'Auto', ['Auto', 'gcc', 'clang']]),
     ], self.class)
+  end
+
+  def get_compiler
+    if has_gcc?
+      return 'gcc'
+    elsif has_clang?
+      return 'clang'
+    else
+      return nil
+    end
   end
 
   def live_compile?
@@ -23,6 +33,8 @@ module Compile
       return true
     elsif datastore['COMPILER'] == 'clang' && has_clang?
       vprint_good 'clang is installed'
+      return true
+    elsif datastore['COMPILER'] == 'Auto' && get_compiler.present?
       return true
     end
 
@@ -36,7 +48,13 @@ module Compile
   def upload_and_compile(path, data, compiler_args='')
     write_file "#{path}.c", strip_comments(data)
 
-    compiler_cmd = "#{datastore['COMPILER']} -o '#{path}' '#{path}.c'"
+    compiler = datastore['COMPILER']
+    if datastore['COMPILER'] == 'Auto'
+      compiler = get_compiler
+      fail_with(Module::Failure::BadConfig, "Unable to find a compiler on the remote target.") unless compiler.present?
+    end
+
+    compiler_cmd = "#{compiler} -o '#{path}' '#{path}.c'"
     if session.type == 'shell'
       compiler_cmd = "PATH=\"$PATH:/usr/bin/\" #{compiler_cmd}"
     end

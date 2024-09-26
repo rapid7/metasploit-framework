@@ -71,6 +71,9 @@ module Kernel
     return ARCH_MIPS if arch == 'mips'
     return ARCH_MIPS64 if arch == 'mips64'
     return ARCH_SPARC if arch == 'sparc'
+    return ARCH_RISCV32LE if arch == 'riscv32'
+    return ARCH_RISCV64LE if arch == 'riscv64'
+    return ARCH_LOONGARCH64 if arch == 'loongarch64'
     arch
   end
 
