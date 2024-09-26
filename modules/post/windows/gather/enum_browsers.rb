@@ -489,7 +489,7 @@ class MetasploitModule < Msf::Post
 
   def extract_json_data(json_path, data_type, browser)
     return unless file?(json_path)
-    
+
     json_data = read_file(json_path)
     browser_clean = browser.gsub('\\', '_').chomp('_')
     timestamp = Time.now.strftime('%Y%m%d%H%M')
