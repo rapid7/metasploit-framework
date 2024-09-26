@@ -83,11 +83,12 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     jbody = JSON.parse(body)
-    print_good('Successfully authenticated and tickets retrieved. The first 1000 characters are displayed below:')
-    print_good(JSON.pretty_generate(jbody).slice(0, 1000))
+    print_good("Successfully authenticated and tickets retrieved. Displaying the first #{datastore['TICKETSTODUMP']} tickets retrieved:")
+    tickets_to_display = jbody.first(datastore['TICKETSTODUMP'])
+    print_good(JSON.pretty_generate(tickets_to_display))
 
     file = store_loot('solarwinds_webhelpdesk.json', 'text/json', datastore['USER'], jbody)
-    print_good("Saved tickets to #{file}")
+    print_good("Saved #{jbody.length} tickets to #{file}")
 
     report_vuln(
       host: rhost,
