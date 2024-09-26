@@ -27,6 +27,10 @@ class MetasploitModule < Msf::Auxiliary
       ])
   end
 
+  def rport
+    @rport
+  end
+
   def domain
     @smb_domain || super
   end
