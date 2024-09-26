@@ -91,8 +91,6 @@ class MetasploitModule < Msf::Auxiliary
       if json_body && json_body['success'] == true
         print_good("Valid directory ID found: #{id} (tested with #{num})")
         return id
-      else
-        next
       end
     end
 
