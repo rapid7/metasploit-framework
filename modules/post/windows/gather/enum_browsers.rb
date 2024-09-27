@@ -236,7 +236,7 @@ class MetasploitModule < Msf::Post
       if json_state['os_crypt'] && json_state['os_crypt']['encrypted_key']
         encrypted_key = json_state['os_crypt']['encrypted_key']
         encrypted_key_bin = begin
-          Base64.decode64(encrypted_key)[5..]
+          Rex::Text.decode_base64(encrypted_key)[5..]
         rescue StandardError
           nil
         end
