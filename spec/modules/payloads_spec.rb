@@ -2692,7 +2692,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/php/bind_perl'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'php/bind_perl'
   end
@@ -2702,7 +2702,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/php/bind_perl_ipv6'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'php/bind_perl_ipv6'
   end
