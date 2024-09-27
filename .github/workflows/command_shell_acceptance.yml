@@ -1,5 +1,5 @@
 
-name: Acceptance
+name: Command Shell Acceptance
 
 # Optional, enabling concurrency limits: https://docs.github.com/en/actions/using-jobs/using-concurrency
 #concurrency:

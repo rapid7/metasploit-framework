@@ -1,4 +1,4 @@
-name: Acceptance
+name: Meterpreter Acceptance
 
 # Optional, enabling concurrency limits: https://docs.github.com/en/actions/using-jobs/using-concurrency
 #concurrency:
@@ -56,8 +56,41 @@ on:
 #    - cron: '*/15 * * * *'
 
 jobs:
+  # Compile Java Meterpreter via docker if required, we can't always do this on the
+  # host environment (i.e. for macos). So it instead gets compiled first on a linux
+  # host, then the artifacts are copied back to the host later
+  java_meterpreter_compilation:
+    name: Compile Java Meterpreter
+    runs-on: ubuntu-latest
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') }}
+
+    env:
+      metasploitPayloadsCommit: ${{ github.event.inputs.metasploitPayloadsCommit || 'master' }}
+
+    steps:
+      - name: Checkout metasploit-payloads
+        uses: actions/checkout@v4
+        with:
+          repository: rapid7/metasploit-payloads
+          path: metasploit-payloads
+          ref: ${{ env.metasploitPayloadsCommit }}
+
+      - name: Build Java and Android payloads
+        run: |
+          mkdir $(pwd)/java-artifacts
+          docker run --rm -w "$(pwd)" -v "$(pwd):$(pwd)" rapid7/msf-ubuntu-x64-meterpreter:latest /bin/bash -c "set -x && cd metasploit-payloads/java && mvn package -Dandroid.sdk.path=/usr/local/android-sdk -Dandroid.release=true -Ddeploy.path=../../java-artifacts -Dmaven.test.skip=true -P deploy && mvn -Dmaven.test.skip=true -Ddeploy.path=../../java-artifacts -P deploy package"
+
+      - name: Store Java artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-artifacts
+          path: java-artifacts
+
   # Run all test individually, note there is a separate final job for aggregating the test results
   test:
+    needs: java_meterpreter_compilation
+    if: always() && (needs.java_meterpreter_compilation.result == 'success' || needs.java_meterpreter_compilation.result == 'skipped')
+
     strategy:
       fail-fast: false
       matrix:
@@ -146,16 +179,8 @@ jobs:
       #  ├── metasploit-framework
       #  └── metasploit-payloads (Only if the "payload-testing-branch" GitHub label is applied)
       #  └── mettle (Only if the "payload-testing-mettle-branch" GitHub label is applied)
-
-      - name: Install Docker - macOS
-        if: ${{ ( matrix.meterpreter.name == 'java') && (runner.os == 'macos' ) && (contains(github.event.issue.labels.*.name, 'payload-testing-mettle-branch')) }}
-        run: |
-          brew install docker
-          colima delete
-          colima start --arch x86_64
-
       - name: Checkout mettle
-        if: ${{ matrix.meterpreter.name == 'mettle' && (contains(github.event.issue.labels.*.name, 'payload-testing-mettle-branch')) }}
+        if: ${{ matrix.meterpreter.name == 'mettle' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}
         uses: actions/checkout@v4
         with:
           repository: rapid7/mettle
@@ -163,27 +188,27 @@ jobs:
           ref: ${{ env.mettleCommit }}
 
       - name: Get mettle version
-        if: ${{ matrix.meterpreter.name == 'mettle' && (contains(github.event.issue.labels.*.name, 'payload-testing-mettle-branch')) }}
+        if: ${{ matrix.meterpreter.name == 'mettle' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}
         run: |
           echo "METTLE_VERSION=$(grep -oh '[0-9].[0-9].[0-9]*' lib/metasploit_payloads/mettle/version.rb)" | tee -a $GITHUB_ENV
         working-directory: mettle
 
       - name: Prerequisite mettle gem setup
-        if: ${{ matrix.meterpreter.name == 'mettle' && (contains(github.event.issue.labels.*.name, 'payload-testing-mettle-branch')) }}
+        if: ${{ matrix.meterpreter.name == 'mettle' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}
         run: |
           set -x
           ruby -pi.bak -e "gsub(/${{ env.METTLE_VERSION }}/, '${{ env.METTLE_VERSION }}-dev')" lib/metasploit_payloads/mettle/version.rb
         working-directory: mettle
 
       - name: Compile mettle payloads
-        if: ${{ matrix.meterpreter.name == 'mettle' && runner.os != 'macos' && (contains(github.event.issue.labels.*.name, 'payload-testing-mettle-branch')) }}
+        if: ${{ matrix.meterpreter.name == 'mettle' && runner.os != 'macos' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}
         run: |
           docker run --rm=true --tty --volume=$(pwd):/mettle --workdir=/mettle rapid7/build:mettle rake mettle:build mettle:check
           rake build
         working-directory: mettle
 
       - name: Compile mettle payloads - macOS
-        if: ${{ matrix.meterpreter.name == 'mettle' && runner.os == 'macos' && (contains(github.event.issue.labels.*.name, 'payload-testing-mettle-branch')) }}
+        if: ${{ matrix.meterpreter.name == 'mettle' && runner.os == 'macos' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}
         run: |
           make TARGET=x86_64-apple-darwin
           rake build
@@ -203,18 +228,39 @@ jobs:
           bundler-cache: true
           cache-version: 4
           working-directory: metasploit-framework
-          # Github actions with Ruby requires Bundler 2.2.18+
-          # https://github.com/ruby/setup-ruby/tree/d2b39ad0b52eca07d23f3aa14fdf2a3fcc1f411c#windows
-          bundler: 2.2.33
 
       - name: Move mettle gem into framework
-        if: ${{ matrix.meterpreter.name == 'mettle' && (contains(github.event.issue.labels.*.name, 'mettle-testing-branch')) }}
+        if: ${{ matrix.meterpreter.name == 'mettle' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}
         run: |
           cp ../mettle/pkg/metasploit_payloads-mettle-${{ env.METTLE_VERSION }}.pre.dev.gem .
         working-directory: metasploit-framework
 
+      - uses: actions/download-artifact@v4
+        name: Download Java meterpreter
+        id: download_java_meterpreter
+        if: ${{ matrix.meterpreter.name == 'java' && contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') }}
+        with:
+          # Note: Not specifying a name will download all artifacts from the previous workflow jobs
+          path: raw-data
+
+      - name: Extract Java Meterpreter (Unix)
+        if: ${{ matrix.meterpreter.name == 'java' && runner.os != 'Windows' && contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') }}
+        shell: bash
+        run: |
+          set -x
+          download_path=${{steps.download_java_meterpreter.outputs.download-path}}
+          cp -r  $download_path/java-artifacts/data/* ./metasploit-framework/data
+
+      - name: Extract Java Meterpreter (Windows)
+        if: ${{ matrix.meterpreter.name == 'java' && runner.os == 'Windows' && contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') }}
+        shell: bash
+        run: |
+          set -x
+          download_path=$(cygpath -u '${{steps.download_java_meterpreter.outputs.download-path}}')
+          cp -r  $download_path/java-artifacts/data/* ./metasploit-framework/data
+
       - name: Install mettle gem
-        if: ${{ matrix.meterpreter.name == 'mettle' && (contains(github.event.issue.labels.*.name, 'payload-testing-mettle-branch')) }}
+        if: ${{ matrix.meterpreter.name == 'mettle' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}
         run: |
           set -x
           bundle exec gem install metasploit_payloads-mettle-${{ env.METTLE_VERSION }}.pre.dev.gem
@@ -225,21 +271,16 @@ jobs:
         working-directory: metasploit-framework
 
       - name: Checkout metasploit-payloads
-        if: contains(github.event.issue.labels.*.name, 'payload-testing-branch')
+        if: contains(github.event.pull_request.labels.*.name, 'payload-testing-branch')
         uses: actions/checkout@v4
         with:
           repository: rapid7/metasploit-payloads
           path: metasploit-payloads
           ref: ${{ env.metasploitPayloadsCommit }}
 
-      - name: Build Java and Android payloads
-        if: ${{ (matrix.meterpreter.name == 'java') && (runner.os != 'Windows') && (contains(github.event.issue.labels.*.name, 'payload-testing-branch')) }}
-        run: |
-          docker run --rm -w "$(pwd)" -v "$(pwd):$(pwd)" rapid7/msf-ubuntu-x64-meterpreter:latest /bin/bash -c "cd metasploit-payloads/java && make clean && make android && mvn -P deploy package"
-
       - name: Build Windows payloads via Visual Studio 2019 Build (Windows)
         shell: cmd
-        if: ${{ (runner.os == 'Windows') && (matrix.os == 'windows-2019') && (contains(github.event.issue.labels.*.name, 'payload-testing-branch')) }}
+        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2019' && contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') }}
         run: |
           cd c/meterpreter
           git submodule init && git submodule update
@@ -248,7 +289,7 @@ jobs:
 
       - name: Build Windows payloads via Visual Studio 2022 Build (Windows)
         shell: cmd
-        if: ${{ (runner.os == 'Windows') && (matrix.os == 'windows-2022') && (contains(github.event.issue.labels.*.name, 'payload-testing-branch')) }}
+        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2022' && contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') }}
         run: |
           cd c/meterpreter
           git submodule init && git submodule update
@@ -256,7 +297,7 @@ jobs:
         working-directory: metasploit-payloads
 
       - name: Build PHP, Python and Windows payloads
-        if: ${{ ((matrix.meterpreter.name == 'php') || (matrix.meterpreter.name == 'python') || (runner.os == 'Windows')) && (contains(github.event.issue.labels.*.name, 'payload-testing-branch'))}}
+        if: ${{ (matrix.meterpreter.name == 'php' || matrix.meterpreter.name == 'python' || runner.os == 'Windows') && contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') }}
         run: |
           make install-php install-python install-windows
         working-directory: metasploit-payloads
@@ -287,9 +328,9 @@ jobs:
   # Generate a final report from the previous test results
   report:
     name: Generate report
-    needs: test
+    needs: [test]
     runs-on: ubuntu-latest
-    if: always()
+    if: always() && needs.test.result != 'skipped'
 
     steps:
       - name: Checkout code
@@ -306,15 +347,12 @@ jobs:
           BUNDLE_FORCE_RUBY_PLATFORM: true
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '${{ matrix.ruby }}'
+          ruby-version: '3.3'
           bundler-cache: true
           cache-version: 4
-          # Github actions with Ruby requires Bundler 2.2.18+
-          # https://github.com/ruby/setup-ruby/tree/d2b39ad0b52eca07d23f3aa14fdf2a3fcc1f411c#windows
-          bundler: 2.2.33
 
       - uses: actions/download-artifact@v4
-        id: download
+        id: raw_report_data
         if: always()
         with:
           # Note: Not specifying a name will download all artifacts from the previous workflow jobs
@@ -328,11 +366,11 @@ jobs:
           curl -o allure-$VERSION.tgz -Ls https://github.com/allure-framework/allure2/releases/download/$VERSION/allure-$VERSION.tgz
           tar -zxvf allure-$VERSION.tgz -C .
 
-          ls -la ${{steps.download.outputs.download-path}}
-          ./allure-$VERSION/bin/allure generate ${{steps.download.outputs.download-path}}/* -o ./allure-report
+          ls -la ${{steps.raw_report_data.outputs.download-path}}
+          ./allure-$VERSION/bin/allure generate ${{steps.raw_report_data.outputs.download-path}}/* -o ./allure-report
 
-          find ${{steps.download.outputs.download-path}}
-          bundle exec ruby tools/dev/report_generation/support_matrix/generate.rb --allure-data ${{steps.download.outputs.download-path}} > ./allure-report/support_matrix.html
+          find ${{steps.raw_report_data.outputs.download-path}}
+          bundle exec ruby tools/dev/report_generation/support_matrix/generate.rb --allure-data ${{steps.raw_report_data.outputs.download-path}} > ./allure-report/support_matrix.html
 
       - name: archive results
         if: always()
