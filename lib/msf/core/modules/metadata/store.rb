@@ -22,13 +22,6 @@ module Msf::Modules::Metadata::Store
     load_metadata
   end
 
-  def get_user_store
-    store_dir = ::File.join(Msf::Config.config_directory, "store")
-    FileUtils.makedirs(store_dir) if !::File.exist?(store_dir)
-    return ::File.join(store_dir, UserMetaDataFile)
-  end
-
-
   #######
   private
   #######
@@ -112,6 +105,12 @@ module Msf::Modules::Metadata::Store
     end
 
     return copied
+  end
+
+  def get_user_store
+    store_dir = ::File.join(Msf::Config.config_directory, "store")
+    FileUtils.makedirs(store_dir) if !::File.exist?(store_dir)
+    return ::File.join(store_dir, UserMetaDataFile)
   end
 
   def load_cache_from_file_store
