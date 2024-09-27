@@ -1,5 +1,3 @@
-require 'rex'
-require 'base64'
 require 'sqlite3'
 
 IV_SIZE = 12
