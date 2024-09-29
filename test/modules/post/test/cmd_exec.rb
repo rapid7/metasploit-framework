@@ -197,8 +197,8 @@ class MetasploitModule < Msf::Post
       test_string = Rex::Text.rand_text_alpha(4)
       if session.platform.eql? 'windows'
         # TODO: Fix this functionality
-        if session.type.eql?("powershell")
-          vprint_status("test skipped for Powershell - functionality not correct")
+        if session.type.eql?('shell') || session.arch.eql?("php") || session.type.eql?("powershell")
+          vprint_status("test skipped for Windows CMD, Powershell and PHP - functionality not correct")
           true
         else
           output = cmd_exec("cmd.exe", "/c echo #{test_string} 1>&2")
