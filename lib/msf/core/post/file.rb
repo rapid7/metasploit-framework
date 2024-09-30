@@ -580,7 +580,7 @@ module Msf::Post::File
     if session.type == 'meterpreter' && session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_FS_CHMOD)
       session.fs.file.chmod(path, mode)
     else
-      cmd_exec("chmod #{mode.to_s(8)} '#{path}'")
+      create_process('chmod', args: [mode.to_s(8), path])
     end
   end
 
