@@ -17,12 +17,17 @@ module Msf::Sessions
       self.class.to_cmd(executable, args)
     end
 
+    #
+    # Escape an individual argument per Unix shell rules
+    # @param arg [String] Shell argument
+    def escape_arg(arg)
+      self.class.escape_arg(arg)
+    end
+
     # Convert the executable and argument array to a command that can be run in this command shell
     # @param executable [String] The process to launch, or nil if only processing arguments
     # @param args [Array<String>] The arguments to the process
     def self.to_cmd(executable, args)
-      quote_requiring = ['\\', '`', '(', ')', '<', '>', '&', '|', ' ', '@', '"', '$', ';']
-
       if executable.nil?
         cmd_and_args = args
       else
@@ -30,15 +35,23 @@ module Msf::Sessions
       end
 
       escaped = cmd_and_args.map do |arg|
-        result = CommandShell._glue_cmdline_escape(arg, quote_requiring, "'", "\\'", "'")
-        if result == ''
-          result = "''"
-        end
-
-        result
+        escape_arg(arg)
       end
 
       escaped.join(' ')
+    end
+
+    #
+    # Escape an individual argument per Unix shell rules
+    # @param arg [String] Shell argument
+    def self.escape_arg(arg)
+      quote_requiring = ['\\', '`', '(', ')', '<', '>', '&', '|', ' ', '@', '"', '$', ';']
+      result = CommandShell._glue_cmdline_escape(arg, quote_requiring, "'", "\\'", "'")
+      if result == ''
+        result = "''"
+      end
+
+      result
     end
   end
 
