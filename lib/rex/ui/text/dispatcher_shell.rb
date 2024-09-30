@@ -459,6 +459,8 @@ module DispatcherShell
         res = tab_complete_helper(dispatcher, current_word, tab_words)
       end
 
+      res.map! { |item| item.dup.force_encoding(::Encoding::UTF_8) } if self.input.respond_to?(:utf8?) && self.input.utf8?
+
       if res.nil?
         # A nil response indicates no optional arguments
         return [''] if items.empty?
@@ -466,6 +468,8 @@ module DispatcherShell
         if res.second == :override_completions
           return res.first
         else
+          next if res.empty?
+
           # Otherwise we add the completion items to the list
           items.concat(res)
         end
