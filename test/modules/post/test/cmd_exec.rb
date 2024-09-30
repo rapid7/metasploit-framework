@@ -213,7 +213,6 @@ class MetasploitModule < Msf::Post
   end
 
   def test_create_process
-    space_filename = 'showargs file'
     upload_show_args_binary(show_args_binary)
     upload_show_args_binary(show_args_binary_space)
     upload_show_args_binary(show_args_binary_special)
