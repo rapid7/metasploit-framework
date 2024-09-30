@@ -76,13 +76,13 @@ class MetasploitModule < Msf::Auxiliary
           print_good("Retrieved enumeration ID: #{enum_id}. Waiting #{datastore['ENUM_DELAY']} seconds for the address book to populate.")
           sleep(datastore['ENUM_DELAY'])
 
-          # Continue with the next steps...
+  
         else
           print_error("Failed to retrieve enumeration ID from the response on #{ip}")
         end
       else
         print_error("Failed to create address book enumeration on #{ip}")
-        print_status("Full HTML response: #{res.body}") # Add this to capture the HTML response
+        print_status("Full HTML response: #{res.body}") # capture the HTML response
       end
     else
       print_error("No response received from #{ip}")
@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
     xml_doc = Nokogiri::XML(body)
     print_status("Parsed XML for enum ID: #{xml_doc.to_xml}")
 
-    # Adjust XPath here if needed, based on the actual response
+    # Adjust XPath here based on the actual response
     xml_doc.at_xpath('//kmaddrbook:enumeration', 'kmaddrbook' => 'http://www.kyoceramita.com/ws/km-wsdl/setting/address_book')&.text
   end
 end
