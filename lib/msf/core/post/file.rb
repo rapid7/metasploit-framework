@@ -912,7 +912,7 @@ protected
       success = _win_ansi_write_file(b64_filename, b64_data, chunk_size)
       return false unless success
       vprint_status("Uploaded Base64-encoded file. Decoding using certutil")
-      success = _shell_command_with_success_code("certutil -f -decode #{b64_filename} #{file_name}")
+      success = _shell_process_with_success_code('certutil', ['-f', '-decode', b64_filename, file_name])
       return false unless success
     rescue ::Exception => e
       print_error("Exception while running #{__method__}: #{e}")
@@ -938,10 +938,10 @@ protected
       success = _win_ansi_write_file(b64_filename, b64_data, chunk_size)
       return false unless success
       vprint_status("Uploaded Base64-encoded file. Decoding using certutil")
-      success = _shell_command_with_success_code("certutil -decode #{b64_filename} #{tmp_filename}")
+      success = _shell_process_with_success_code('certutil', ['-decode', b64_filename, tmp_filename])
       return false unless success
       vprint_status("Certutil succeeded. Appending using copy")
-      success = _shell_command_with_success_code("copy /b #{file_name}+#{tmp_filename} #{file_name}")
+      success = _shell_process_with_success_code('copy', ['/b', "#{file_name}+#{tmp_filename}", file_name])
       return false unless success
     rescue ::Exception => e
       print_error("Exception while running #{__method__}: #{e}")
@@ -1107,6 +1107,15 @@ protected
 
     return result&.include?(token)
   end
+
+  def _shell_process_with_success_code(executable, args)
+    cmd = session.to_cmd(executable, args)
+    token = "_#{::Rex::Text.rand_text_alpha(32)}"
+    result = session.shell_command_token("#{cmd} && echo #{token}")
+
+    return result&.include?(token)
+  end
+
 
   #
   # Calculate the maximum line length for a unix shell.
