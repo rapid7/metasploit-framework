@@ -981,7 +981,7 @@ protected
     # Short-circuit an empty string. The : builtin is part of posix
     # standard and should theoretically exist everywhere.
     if data.empty?
-      return _shell_command_with_success_code(": #{redirect} #{file_name}")
+      return _shell_command_with_success_code(": #{redirect} #{session.escape_arg(file_name)}")
     end
 
     d = data.dup
@@ -1082,7 +1082,7 @@ protected
     # The first command needs to use the provided redirection for either
     # appending or truncating.
     cmd = command.sub('CONTENTS') { chunks.shift }
-    succeeded = _shell_command_with_success_code("#{cmd} #{redirect} \"#{file_name}\"")
+    succeeded = _shell_command_with_success_code("#{cmd} #{redirect} #{session.escape_arg(file_name)}")
     return false unless succeeded
 
     # After creating/truncating or appending with the first command, we
@@ -1091,7 +1091,7 @@ protected
       vprint_status("Next chunk is #{chunk.length} bytes")
       cmd = command.sub('CONTENTS') { chunk }
 
-      succeeded = _shell_command_with_success_code("#{cmd} >> '#{file_name}'")
+      succeeded = _shell_command_with_success_code("#{cmd} >> #{session.escape_arg(file_name)}")
       unless succeeded
         print_warning("Write partially succeeded then failed. May need to manually clean up #{file_name}")
         return false

@@ -6,6 +6,10 @@ module Msf::Sessions
       super
     end
 
+    def self.space_chars
+      [' ', '\t', '\v']
+    end
+
     def shell_command_token(cmd,timeout = 10)
       shell_command_token_win32(cmd,timeout)
     end
@@ -20,7 +24,6 @@ module Msf::Sessions
     # Escape a process for the command line
     # @param executable [String] The process to launch
     def self.escape_cmd(executable)
-      space_chars = [' ', '\t', '\v']
       needs_quoting = space_chars.any? do |char|
         executable.include?(char)
       end
@@ -38,8 +41,17 @@ module Msf::Sessions
     #         to cmd.exe, whereas this is expected to be passed directly to the Win32 API, anticipating that it
     #         will in turn be interpreted by CommandLineToArgvW.
     def self.argv_to_commandline(args)
-      space_chars = [' ', '\t', '\v']
       escaped_args = args.map do |arg|
+        escape_arg(arg)
+      end
+
+      escaped_args.join(' ')
+    end
+
+    #
+    # Escape an individual argument per Windows shell rules
+    # @param arg [String] Shell argument
+    def self.escape_arg(arg)
         needs_quoting = space_chars.any? do |char|
           arg.include?(char)
         end
@@ -62,9 +74,6 @@ module Msf::Sessions
         arg = '""' if arg == ''
 
         arg
-      end
-
-      escaped_args.join(' ')
     end
 
     # Convert the executable and argument array to a command that can be run in this command shell
