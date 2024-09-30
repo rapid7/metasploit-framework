@@ -123,7 +123,7 @@ module SingleCommandShell
   end
 
   def shell_command_token_win32(cmd, timeout=10)
-    shell_command_token_base(cmd, timeout, ' & ')
+    shell_command_token_base(cmd, timeout, '&')
   end
 
   def shell_command_token_unix(cmd, timeout=10)
