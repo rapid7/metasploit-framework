@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
         email = address&.text  # using `kmaddrbook:address` for email
         login_name = address.at_xpath('kmaddrbook:login_name')&.text
         login_password = address.at_xpath('kmaddrbook:login_password')&.text
-        name = address.at_xpath('kmaddrbook:name')
+        name = address.at_xpath('kmaddrbook:name_information')&.text
 
         # Only print relevant information: email, login name, and password
         print_good("Email: #{email}") if email
