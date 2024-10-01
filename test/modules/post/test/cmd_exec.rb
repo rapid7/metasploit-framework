@@ -153,11 +153,7 @@ class MetasploitModule < Msf::Post
     it "should return the result of echo with single quotes" do
       test_string = Rex::Text.rand_text_alpha(4)
       if session.platform.eql? 'windows'
-        if session.arch == ARCH_PYTHON
-          output = cmd_exec("cmd.exe", "/c echo \"#{test_string}\"")
-          output == test_string
-        # TODO: Fix this functionality
-        elsif session.type.eql?('powershell')
+        if session.type.eql?('powershell')
           vprint_status("test skipped for Powershell - functionality not correct")
           true
         else
@@ -173,11 +169,7 @@ class MetasploitModule < Msf::Post
     it "should return the result of echo with double quotes" do
       test_string = Rex::Text.rand_text_alpha(4)
       if session.platform.eql? 'windows'
-        if session.platform.eql? 'windows' and session.arch == ARCH_PYTHON
-          output = cmd_exec("cmd.exe", "/c echo \"#{test_string}\"")
-          output == test_string
-        # TODO: Fix this functionality
-        elsif session.type.eql?('powershell')
+        if session.type.eql?('powershell')
           vprint_status("test skipped for Powershell - functionality not correct")
           true
         else
