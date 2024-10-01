@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/text/color'
+require 'rex/ui/text/input/utf8_readline'
 
 module Rex
 module Ui
@@ -63,13 +64,21 @@ module Shell
     self.framework = framework
   end
 
+  def default_tab_complete_lambda
+    # Unless cont_flag because there's no tab complete for continuation lines
+    proc do |str, preposing = nil, postposing = nil|
+      next nil if cont_flag
+
+      values = tab_complete(str, opts: { preposing: preposing, postposing: postposing }).map { |result| result[preposing.to_s.length..] }
+      values.map! { |val| val.dup.encode(::Encoding::UTF_8) } if self.input.respond_to?(:utf8?) && self.input.utf8?
+
+      next values
+    end
+  end
+
   def init_tab_complete
     if (self.input and self.input.supports_readline)
-      # Unless cont_flag because there's no tab complete for continuation lines
-      tab_complete_lambda = proc do |str, preposing = nil, postposing = nil|
-        next tab_complete(str, opts: { preposing: preposing, postposing: postposing }).map { |result| result[preposing.to_s.length..] } unless cont_flag
-      end
-      self.input = Input::Readline.new(tab_complete_lambda)
+      self.input = Input::Utf8Readline.new(default_tab_complete_lambda)
       self.input.output = self.output
     end
   end
