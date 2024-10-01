@@ -1081,36 +1081,34 @@ module Net # :nodoc:
         if RUBY_PLATFORM =~ /mswin32|cygwin|mingw|bccwin/
           require 'win32/resolv'
           arr = Win32::Resolv.get_resolv_info
-          self.searchlist = arr[0]
+          self.searchlist = arr[0] if arr[0]
           self.nameservers = arr[1]
         else
-          begin
-            IO.foreach(@config[:config_file]) do |line|
-              line.gsub!(/\s*[;#].*/,"")
-              next unless line =~ /\S/
-              case line
-              when /^\s*domain\s+(\S+)/
-                self.domain = $1
-              when /^\s*search\s+(.*)/
-                self.searchlist = $1.split(" ")
-              when /^\s*nameserver\s+(.*)/
-                $1.split(/\s+/).each do |nameserver|
-                  # per https://man7.org/linux/man-pages/man5/resolv.conf.5.html nameserver values must be IP addresses
-                  begin
-                    ip_addr = IPAddr.new(nameserver)
-                  rescue IPAddr::InvalidAddressError
-                    @logger.warn "Ignoring invalid name server '#{nameserver}' from configuration file"
-                    next
-                  else
-                    self.nameservers += [ip_addr]
-                  end
+          IO.foreach(@config[:config_file]) do |line|
+            line.gsub!(/\s*[;#].*/, "")
+            next unless line =~ /\S/
+            case line
+            when /^\s*domain\s+(\S+)/
+              self.domain = $1
+            when /^\s*search\s+(.*)/
+              self.searchlist = $1.split(" ")
+            when /^\s*nameserver\s+(.*)/
+              $1.split(/\s+/).each do |nameserver|
+                # per https://man7.org/linux/man-pages/man5/resolv.conf.5.html nameserver values must be IP addresses
+                begin
+                  ip_addr = IPAddr.new(nameserver)
+                rescue IPAddr::InvalidAddressError
+                  @logger.warn "Ignoring invalid name server '#{nameserver}' from configuration file"
+                  next
+                else
+                  self.nameservers += [ip_addr]
                 end
               end
             end
-          rescue => e
-            @logger.error(e)
           end
         end
+      rescue => e
+        @logger.error(e)
       end
 
       # Parse environment variables
