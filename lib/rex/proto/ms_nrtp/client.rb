@@ -72,6 +72,28 @@ class Rex::Proto::MsNrtp::Client
     @conn = nil
   end
 
+  def recv
+    remaining = @timeout
+    message, elapsed_time = Rex::Stopwatch.elapsed_time do
+      ::Timeout.timeout(remaining) do
+        MsNrtpMessage.read(@conn)
+      end
+    end
+    return nil unless message.operation_type == 2 && message.content_length?
+
+    remaining -= elapsed_time
+    body = ''
+    while body.length < message.content_length
+      chunk, elapsed_time = Rex::Stopwatch.elapsed_time do
+        @conn.read(message.content_length - body.length, remaining)
+      end
+      remaining -= elapsed_time
+      body << chunk
+    end
+
+    body
+  end
+
   def send(data, content_type)
     message = MsNrtpMessage.new(
       content_length: data.length,
@@ -82,5 +104,14 @@ class Rex::Proto::MsNrtp::Client
       ]
     )
     @conn.put(message.to_binary_s + data)
+  end
+
+  def send_recv(data, content_type)
+    send(data, content_type)
+    recv
+  end
+
+  def send_binary(serialized_stream)
+    send(serialized_stream.to_binary_s, 'application/octet-stream'.encode('UTF-8'))
   end
 end
