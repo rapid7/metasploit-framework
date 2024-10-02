@@ -53,6 +53,8 @@ class Driver < Msf::Ui::Driver
   # @option opts [Boolean] 'AllowCommandPassthru' (true) Whether to allow
   #   unrecognized commands to be executed by the system shell
   # @option opts [Boolean] 'Readline' (true) Whether to use the readline or not
+  # @option opts [Boolean] 'RealReadline' (false) Whether to use the system's
+  #   readline library instead of RBReadline
   # @option opts [String] 'HistFile' (Msf::Config.history_file) Path to a file
   #   where we can store command history
   # @option opts [Array<String>] 'Resources' ([]) A list of resource files to
@@ -62,6 +64,8 @@ class Driver < Msf::Ui::Driver
   # @option opts [Boolean] 'SkipDatabaseInit' (false) Whether to skip
   #   connecting to the database and running migrations
   def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
+    choose_readline(opts)
+
     histfile = opts['HistFile'] || Msf::Config.history_file
 
     begin
@@ -127,6 +131,14 @@ class Driver < Msf::Ui::Driver
     # Add the core command dispatcher as the root of the dispatcher
     # stack
     enstack_dispatcher(CommandDispatcher::Core)
+
+    # Report readline error if there was one..
+    if !@rl_err.nil?
+      print_error("***")
+      print_error("* Unable to load readline: #{@rl_err}")
+      print_error("* Falling back to RbReadLine")
+      print_error("***")
+    end
 
     # Load the other "core" command dispatchers
     CommandDispatchers.each do |dispatcher_class|
@@ -311,11 +323,11 @@ class Driver < Msf::Ui::Driver
   # Saves the recent history to the specified file
   #
   def save_recent_history(path)
-    num = ::Reline::HISTORY.length - hist_last_saved - 1
+    num = Readline::HISTORY.length - hist_last_saved - 1
 
     tmprc = ""
     num.times { |x|
-      tmprc << ::Reline::HISTORY[hist_last_saved + x] + "\n"
+      tmprc << Readline::HISTORY[hist_last_saved + x] + "\n"
     }
 
     if tmprc.length > 0
@@ -327,7 +339,7 @@ class Driver < Msf::Ui::Driver
 
     # Always update this, even if we didn't save anything. We do this
     # so that we don't end up saving the "makerc" command itself.
-    self.hist_last_saved = ::Reline::HISTORY.length
+    self.hist_last_saved = Readline::HISTORY.length
   end
 
   #
@@ -689,6 +701,44 @@ protected
     end
 
     false
+  end
+
+  # Require the appropriate readline library based on the user's preference.
+  #
+  # @return [void]
+  def choose_readline(opts)
+    # Choose a readline library before calling the parent
+    @rl_err = nil
+    if opts['RealReadline']
+      # Remove the gem version from load path to be sure we're getting the
+      # stdlib readline.
+      gem_dir = Gem::Specification.find_all_by_name('rb-readline').first.gem_dir
+      rb_readline_path = File.join(gem_dir, "lib")
+      index = $LOAD_PATH.index(rb_readline_path)
+      # Bundler guarantees that the gem will be there, so it should be safe to
+      # assume we found it in the load path, but check to be on the safe side.
+      if index
+        $LOAD_PATH.delete_at(index)
+      end
+    end
+
+    begin
+      require 'readline'
+    rescue ::LoadError => e
+      if @rl_err.nil? && index
+        # Then this is the first time the require failed and we have an index
+        # for the gem version as a fallback.
+        @rl_err = e
+        # Put the gem back and see if that works
+        $LOAD_PATH.insert(index, rb_readline_path)
+        index = rb_readline_path = nil
+        retry
+      else
+        # Either we didn't have the gem to fall back on, or we failed twice.
+        # Nothing more we can do here.
+        raise e
+      end
+    end
   end
 end
 

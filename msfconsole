@@ -6,8 +6,6 @@
 #
 
 require 'pathname'
-require 'reline'
-
 begin
 
   # Silences warnings as they only serve to confuse end users

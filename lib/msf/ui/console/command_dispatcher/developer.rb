@@ -131,7 +131,6 @@ class Msf::Ui::Console::CommandDispatcher::Developer
 
       framework.history_manager.with_context(name: :irb) do
         begin
-          reline_autocomplete = Reline.autocompletion
           if active_module
             print_status("You are in #{active_module.fullname}\n")
             Rex::Ui::Text::IrbShell.new(active_module).run
@@ -141,8 +140,6 @@ class Msf::Ui::Console::CommandDispatcher::Developer
           end
         rescue
           print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
-        ensure
-          Reline.autocompletion = reline_autocomplete if defined? reline_autocomplete
         end
       end
 
@@ -518,10 +515,6 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   private
 
   def modified_files
-    # Temporary work-around until Open3 gets fixed on Windows 11:
-    # https://github.com/ruby/open3/issues/9
-    return [] if Rex::Compat.is_cygwin || Rex::Compat.is_windows
-
     # Using an array avoids shelling out, so we avoid escaping/quoting
     changed_files = %w[git diff --name-only]
     begin

@@ -8,7 +8,7 @@ begin
 
   ###
   #
-  # This class implements standard input using Reline against
+  # This class implements standard input using readline against
   # standard input.  It supports tab completion.
   #
   ###
@@ -18,12 +18,16 @@ begin
     # Initializes the readline-aware Input instance for text.
     #
     def initialize(tab_complete_proc = nil)
-      self.extend(::Reline)
+      if(not Object.const_defined?('Readline'))
+        require 'readline'
+      end
+
+      self.extend(::Readline)
 
       if tab_complete_proc
-        ::Reline.basic_word_break_characters = ""
+        ::Readline.basic_word_break_characters = ""
         @rl_saved_proc = with_error_handling(tab_complete_proc)
-        ::Reline.completion_proc = @rl_saved_proc
+        ::Readline.completion_proc = @rl_saved_proc
       end
     end
 
@@ -31,8 +35,8 @@ begin
     # Reattach the original completion proc
     #
     def reset_tab_completion(tab_complete_proc = nil)
-      ::Reline.basic_word_break_characters = "\x00"
-      ::Reline.completion_proc = tab_complete_proc ? with_error_handling(tab_complete_proc) : @rl_saved_proc
+      ::Readline.basic_word_break_characters = "\x00"
+      ::Readline.completion_proc = tab_complete_proc ? with_error_handling(tab_complete_proc) : @rl_saved_proc
     end
 
 
@@ -40,7 +44,11 @@ begin
     # Retrieve the line buffer
     #
     def line_buffer
-      ::Reline.line_buffer
+      if defined? RbReadline
+        RbReadline.rl_line_buffer
+      else
+        ::Readline.line_buffer
+      end
     end
 
     attr_accessor :prompt
@@ -89,7 +97,7 @@ begin
 
         output.prompting
         line = readline_with_output(prompt, true)
-        ::Reline::HISTORY.pop if (line and line.empty?)
+        ::Readline::HISTORY.pop if (line and line.empty?)
       ensure
         Thread.current.priority = orig || 0
       end
@@ -124,8 +132,13 @@ begin
     private
 
     def readline_with_output(prompt, add_history=false)
-      # Output needs to be set so that colorization works for the prompt on Windows.
-
+      # rb-readlines's Readline.readline hardcodes the input and output to
+      # $stdin and $stdout, which means setting `Readline.input` or
+      # `Readline.ouput` has no effect when running `Readline.readline` with
+      # rb-readline, so need to reimplement
+      # []`Readline.readline`](https://github.com/luislavena/rb-readline/blob/ce4908dae45dbcae90a6e42e3710b8c3a1f2cd64/lib/readline.rb#L36-L58)
+      # for rb-readline to support setting input and output.  Output needs to
+      # be set so that colorization works for the prompt on Windows.
       self.prompt = prompt
 
       # TODO: there are unhandled quirks in async output buffering that
@@ -140,17 +153,38 @@ begin
 =end
       reset_sequence = ""
 
-      ::Reline.input = fd
-      ::Reline.output = output
+      if defined? RbReadline
+        RbReadline.rl_instream = fd
+        RbReadline.rl_outstream = output
 
-      line = ::Reline.readline(reset_sequence + prompt, add_history)
+        begin
+          line = RbReadline.readline(reset_sequence + prompt)
+        rescue ::Exception => exception
+          RbReadline.rl_cleanup_after_signal()
+          RbReadline.rl_deprep_terminal()
 
-      # Don't add duplicate lines to history
-      if ::Reline::HISTORY.length > 1 && line == ::Reline::HISTORY[-2]
-        ::Reline::HISTORY.pop
+          raise exception
+        end
+
+        if add_history && line && !line.start_with?(' ')
+          # Don't add duplicate lines to history
+          if ::Readline::HISTORY.empty? || line.strip != ::Readline::HISTORY[-1]
+            RbReadline.add_history(line.strip)
+          end
+        end
+
+        line.try(:dup)
+      else
+        # The line that's read is immediately added to history
+        line = ::Readline.readline(reset_sequence + prompt, true)
+
+        # Don't add duplicate lines to history
+        if ::Readline::HISTORY.length > 1 && line == ::Readline::HISTORY[-2]
+          ::Readline::HISTORY.pop
+        end
+
+        line
       end
-
-      line
     end
 
     private
