@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'reline'
+require 'readline'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
@@ -104,9 +104,9 @@ class MetasploitModule < Msf::Post
   def prompt_show
     promptshell = "#{@vusername}@#{@vhostname}:#{pwd.strip}#{@vpromptchar} "
     comp = proc { |s| LIST.grep(/^#{Regexp.escape(s)}/) }
-    Reline.completion_append_character = ' '
-    Reline.completion_proc = comp
-    input = Reline.readline(promptshell, true)
+    Readline.completion_append_character = ' '
+    Readline.completion_proc = comp
+    input = Readline.readline(promptshell, true)
     return nil if input.nil?
 
     input

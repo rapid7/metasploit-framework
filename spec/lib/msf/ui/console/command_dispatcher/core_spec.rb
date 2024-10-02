@@ -1,5 +1,6 @@
 require 'spec_helper'
-require 'reline'
+
+require 'readline'
 
 RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do
   include_context 'Msf::DBManager'

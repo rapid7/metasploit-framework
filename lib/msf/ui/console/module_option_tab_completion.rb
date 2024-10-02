@@ -53,18 +53,18 @@ module Msf
             option_name = str.chop
             option_value = ''
 
-            ::Reline.completion_append_character = ' '
+            ::Readline.completion_append_character = ' '
             return tab_complete_option_values(mod, option_value, words, opt: option_name).map { |value| "#{str}#{value}" }
           elsif str.include?('=')
             str_split = str.split('=')
             option_name = str_split[0].strip
             option_value = str_split[1].strip
 
-            ::Reline.completion_append_character = ' '
+            ::Readline.completion_append_character = ' '
             return tab_complete_option_values(mod, option_value, words, opt: option_name).map { |value| "#{option_name}=#{value}" }
           end
 
-          ::Reline.completion_append_character = ''
+          ::Readline.completion_append_character = ''
           tab_complete_option_names(mod, str, words).map { |name| "#{name}=" }
         end
 

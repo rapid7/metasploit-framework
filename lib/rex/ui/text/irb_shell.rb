@@ -39,18 +39,21 @@ class IrbShell
     # commands will work.
     IRB.conf[:MAIN_CONTEXT] = irb.context
 
-    begin
-      old_sigint = trap("SIGINT") do
+    # Trap interrupt
+    old_sigint = trap("SIGINT") do
+      begin
         irb.signal_handle
-      end
-
-      # Keep processing input until the cows come home...
-      catch(:IRB_EXIT) do
+      rescue RubyLex::TerminateLineInput
         irb.eval_input
       end
-    ensure
-      trap("SIGINT", old_sigint) if old_sigint
     end
+
+    # Keep processing input until the cows come home...
+    catch(:IRB_EXIT) do
+      irb.eval_input
+    end
+
+    trap("SIGINT", old_sigint)
   end
 
 end

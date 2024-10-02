@@ -220,13 +220,13 @@ module Msf
       end
 
       def self.history(driver)
-        end_pos = ::Reline::HISTORY.length - 1
+        end_pos = Readline::HISTORY.length - 1
         start_pos = end_pos - COMMAND_HISTORY_TOTAL > driver.hist_last_saved ? end_pos - (COMMAND_HISTORY_TOTAL - 1) : driver.hist_last_saved
 
         commands = ''
         while start_pos <= end_pos
           # Formats command position in history to 6 characters in length
-          commands += "#{'%-6.6s' % start_pos.to_s} #{::Reline::HISTORY[start_pos]}\n"
+          commands += "#{'%-6.6s' % start_pos.to_s} #{Readline::HISTORY[start_pos]}\n"
           start_pos += 1
         end
 

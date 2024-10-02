@@ -20,7 +20,7 @@ module InteractiveSqlClient
   #
   def _interact
     while self.interacting
-      sql_input = reline_multiline
+      sql_input = _multiline_with_fallback
       self.interacting = (sql_input[:status] != :exit)
 
       if sql_input[:status] == :help
@@ -65,21 +65,35 @@ module InteractiveSqlClient
     # noop
   end
 
-  # Get multi-line input support provided by Reline.
-  def reline_multiline
+  # Try getting multi-line input support provided by Reline, fall back to Readline.
+  def _multiline_with_fallback
     name = session.type
     query = {}
     history_file = Msf::Config.history_file_for_session_type(session_type: name, interactive: true)
     return { status: :fail, errors: ["Unable to get history file for session type: #{name}"] } if history_file.nil?
 
-    framework.history_manager.with_context(history_file: history_file , name: name) do
+    # Multiline (Reline) and fallback (Readline) have separate history contexts as they are two different libraries.
+    framework.history_manager.with_context(history_file: history_file , name: name, input_library: :reline) do
       query = _multiline
+    end
+
+    if query[:status] == :fail
+      framework.history_manager.with_context(history_file: history_file, name: name, input_library: :readline) do
+        query = _fallback
+      end
     end
 
     query
   end
 
   def _multiline
+    begin
+      require 'reline' unless defined?(::Reline)
+    rescue ::LoadError => e
+      elog('Failed to load Reline', e)
+      return { status: :fail, errors: [e] }
+    end
+
     stop_words = %w[stop s exit e end quit q].freeze
     help_words = %w[help h].freeze
 
@@ -136,6 +150,28 @@ module InteractiveSqlClient
     end
 
     { status: :success, result: raw_query }
+  end
+
+  def _fallback
+    stop_words = %w[stop s exit e end quit q].freeze
+    line_buffer = []
+    while (line = ::Readline.readline(prompt = line_buffer.empty? ? 'SQL >> ' : 'SQL *> ', add_history = true))
+      return { status: :exit, result: nil } unless self.interacting
+
+      if stop_words.include? line.chomp.downcase
+        self.interacting = false
+        print_status 'Exiting Interactive mode.'
+        return { status: :exit, result: nil }
+      end
+
+      next if line.empty?
+
+      line_buffer.append line
+
+      break if line.end_with? ';'
+    end
+
+    { status: :success, result: line_buffer.join(' ') }
   end
 
   attr_accessor :on_log_proc, :client_dispatcher

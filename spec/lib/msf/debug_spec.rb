@@ -212,7 +212,7 @@ RSpec.describe Msf::Ui::Debug do
   end
 
   it 'correctly retrieves and parses a command history shorter than the command total' do
-    stub_const('Reline::HISTORY', Array.new(4) { |i| "Command #{i + 1}" })
+    stub_const('Readline::HISTORY', Array.new(4) { |i| "Command #{i + 1}" })
 
     driver = instance_double(
       Msf::Ui::Console::Driver,
@@ -251,7 +251,7 @@ RSpec.describe Msf::Ui::Debug do
 
     stub_const('Msf::Ui::Debug::COMMAND_HISTORY_TOTAL', 10)
 
-    stub_const('Reline::HISTORY', Array.new(10) { |i| "Command #{i + 1}" })
+    stub_const('Readline::HISTORY', Array.new(10) { |i| "Command #{i + 1}" })
 
     history_output = <<~E_LOG
       ##  %grnHistory%clr
@@ -288,7 +288,7 @@ RSpec.describe Msf::Ui::Debug do
     )
 
     stub_const('Msf::Ui::Debug::COMMAND_HISTORY_TOTAL', 10)
-    stub_const('Reline::HISTORY', Array.new(15) { |i| "Command #{i + 1}" })
+    stub_const('Readline::HISTORY', Array.new(15) { |i| "Command #{i + 1}" })
 
     history_output = <<~E_LOG
       ##  %grnHistory%clr
@@ -325,7 +325,7 @@ RSpec.describe Msf::Ui::Debug do
     )
 
     stub_const('Msf::Ui::Debug::COMMAND_HISTORY_TOTAL', 10)
-    stub_const('Reline::HISTORY', Array.new(15) { |i| "Command #{i + 1}" })
+    stub_const('Readline::HISTORY', Array.new(15) { |i| "Command #{i + 1}" })
 
     history_output = <<~E_LOG
       ##  %grnHistory%clr
