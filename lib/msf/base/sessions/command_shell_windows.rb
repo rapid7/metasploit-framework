@@ -15,10 +15,9 @@ module Msf::Sessions
     end
 
     # Convert the executable and argument array to a command that can be run in this command shell
-    # @param executable [String] The process to launch
-    # @param args [Array<String>] The arguments to the process
-    def to_cmd(executable, args)
-      self.class.to_cmd(executable, args)
+    # @param cmd_and_args [Array<String>] The process path and the arguments to the process
+    def to_cmd(cmd_and_args)
+      self.class.to_cmd(cmd_and_args)
     end
 
     # Escape a process for the command line
@@ -77,9 +76,8 @@ module Msf::Sessions
     end
 
     # Convert the executable and argument array to a command that can be run in this command shell
-    # @param executable [String] The process to launch
-    # @param args [Array<String>] The arguments to the process
-    def self.to_cmd(executable, args)
+    # @param cmd_and_args [Array<String>] The process path and the arguments to the process
+    def self.to_cmd(cmd_and_args)
       # The space, caret and quote chars need to be inside double-quoted strings.
       # The percent character needs to be escaped using a caret char, while being outside a double-quoted string.
       #
@@ -95,7 +93,6 @@ module Msf::Sessions
       # To do this, we'll consider each argument character-by-character. Each time we encounter a percent sign, we break out of any quotes
       # (if we've been inside them in the current "token"), and then start a new "token".
 
-      cmd_and_args = [executable] + args
       quote_requiring = ['"', '^', ' ', "\t", "\v", '&', '<', '>', '|']
 
       escaped_cmd_and_args = cmd_and_args.map do |arg|

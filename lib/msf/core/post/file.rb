@@ -1109,7 +1109,7 @@ protected
   end
 
   def _shell_process_with_success_code(executable, args)
-    cmd = session.to_cmd(executable, args)
+    cmd = session.to_cmd([executable] + args)
     token = "_#{::Rex::Text.rand_text_alpha(32)}"
     result = session.shell_command_token("#{cmd} && echo #{token}")
 
