@@ -28,6 +28,7 @@ module Msf
     MSSQL_SESSION_TYPE = 'mssql_session_type'
     LDAP_SESSION_TYPE = 'ldap_session_type'
     SHOW_SUCCESSFUL_LOGINS = 'show_successful_logins'
+    SHOW_AUTOCOMPLETION_PROMPT = 'show_autocompletion_prompt'
 
     DEFAULTS = [
       {
@@ -124,6 +125,13 @@ module Msf
         requires_restart: false,
         default_value: true,
         developer_notes: 'Enabled in Metasploit 6.4.x'
+      }.freeze,
+      {
+        name: SHOW_AUTOCOMPLETION_PROMPT,
+        description: 'When enabled, an autocompletion prompt will be shown when typing in commands',
+        requires_restart: true,
+        default_value: false,
+        developer_notes: 'To be enabled once the Readline to Reline upgrade has been confirmed to not cause issues'
       }.freeze
     ].freeze
 

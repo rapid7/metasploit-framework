@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'singleton'
+require 'reline'
 
 module Rex
 module Ui
@@ -24,12 +25,11 @@ class HistoryManager
   #
   # @param [String,nil] history_file The file to load and persist commands to
   # @param [String] name Human readable history context name
-  # @param [Symbol] input_library The input library to provide context for. :reline, :readline
   # @param [Proc] block
   # @return [nil]
-  def with_context(history_file: nil, name: nil, input_library: nil, &block)
+  def with_context(history_file: nil, name: nil, &block)
     # Default to Readline for backwards compatibility.
-    push_context(history_file: history_file, name: name, input_library: input_library || :readline)
+    push_context(history_file: history_file, name: name)
 
     begin
       block.call
@@ -73,33 +73,9 @@ class HistoryManager
     @debug
   end
 
-  # A wrapper around mapping the input library to its history; this way we can mock the return value of this method.
-  def map_library_to_history(input_library)
-    case input_library
-    when :readline
-      ::Readline::HISTORY
-    when :reline
-      ::Reline::HISTORY
-    else
-      $stderr.puts("Unknown input library: #{input_library}") if debug?
-      []
-    end
-  end
-
-  def clear_library(input_library)
-    case input_library
-    when :readline
-      clear_readline
-    when :reline
-      clear_reline
-    else
-      $stderr.puts("Unknown input library: #{input_library}") if debug?
-    end
-  end
-
-  def push_context(history_file: nil, name: nil, input_library: nil)
+  def push_context(history_file: nil, name: nil)
     $stderr.puts("Push context before\n#{JSON.pretty_generate(_contexts)}") if debug?
-    new_context = { history_file: history_file, name: name, input_library: input_library || :readline }
+    new_context = { history_file: history_file, name: name }
 
     switch_context(new_context, @contexts.last)
     @contexts.push(new_context)
@@ -119,40 +95,18 @@ class HistoryManager
     nil
   end
 
-  def readline_available?
-    defined?(::Readline)
-  end
-
-  def reline_available?
-    begin
-      require 'reline'
-      defined?(::Reline)
-    rescue ::LoadError => _e
-      false
-    end
-  end
-
-  def clear_readline
-    return unless readline_available?
-
-    ::Readline::HISTORY.length.times { ::Readline::HISTORY.pop }
-  end
-
-  def clear_reline
-    return unless reline_available?
-
-    ::Reline::HISTORY.length.times { ::Reline::HISTORY.pop }
+  def clear_history
+    history.clear
   end
 
   def load_history_file(context)
     history_file = context[:history_file]
-    history = map_library_to_history(context[:input_library])
 
     begin
       File.open(history_file, 'rb') do |f|
-        clear_library(context[:input_library])
+        clear_history
         f.each_line(chomp: true) do |line|
-          if context[:input_library] == :reline && history.last&.end_with?("\\")
+          if history.last&.end_with?("\\")
             history.last.delete_suffix!("\\")
             history.last << "\n" << line
           else
@@ -167,8 +121,6 @@ class HistoryManager
 
   def store_history_file(context)
     history_file = context[:history_file]
-    history = map_library_to_history(context[:input_library])
-
     history_diff = history.length < MAX_HISTORY ? history.length : MAX_HISTORY
 
     cmds = []
@@ -188,12 +140,10 @@ class HistoryManager
     if new_context && new_context[:history_file]
       load_history_file(new_context)
     else
-      clear_readline
-      clear_reline
+      clear_history
     end
   rescue SignalException => _e
-    clear_readline
-    clear_reline
+    clear_history
   end
 
   def write_history_file(history_file, cmds)
@@ -223,6 +173,10 @@ class HistoryManager
     event = { type: :write, history_file: history_file, cmds: cmds }
     @write_queue << event
     @remaining_work << event
+  end
+
+  def history
+    ::Reline::HISTORY
   end
 end
 

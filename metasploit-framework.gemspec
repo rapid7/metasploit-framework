@@ -197,6 +197,8 @@ Gem::Specification.new do |spec|
   # Library for exploit development helpers
   spec.add_runtime_dependency 'rex-exploitation'
   # Command line editing, history, and tab completion in msfconsole
+  spec.add_runtime_dependency 'reline'
+  # Legacy support for FILENAME_COMPLETION_PROC, not present in Reline
   spec.add_runtime_dependency 'rb-readline'
   # Needed by some modules
   spec.add_runtime_dependency 'rubyzip'
@@ -247,9 +249,6 @@ Gem::Specification.new do |spec|
   # Do not use this to process untrusted PNG files! This is only to be used
   # to generate PNG files, not to parse untrusted PNG files.
   spec.add_runtime_dependency 'chunky_png'
-
-  # Needed for multiline REPL support for interactive SQL sessions
-  spec.add_runtime_dependency 'reline'
 
   # Standard libraries: https://www.ruby-lang.org/en/news/2023/12/25/ruby-3-3-0-released/
   %w[

@@ -760,7 +760,7 @@ class Core
   end
 
   def cmd_history(*args)
-    length = Readline::HISTORY.length
+    length = ::Reline::HISTORY.length
 
     if length < @history_limit
       limit = length
@@ -780,14 +780,7 @@ class Core
           limit = val.to_i
         end
       when '-c'
-        if Readline::HISTORY.respond_to?(:clear)
-          Readline::HISTORY.clear
-        elsif defined?(RbReadline)
-          RbReadline.clear_history
-        else
-          print_error('Could not clear history, skipping file')
-          return false
-        end
+        ::Reline::HISTORY.clear
 
         # Portable file truncation?
         if File.writable?(Msf::Config.history_file)
@@ -808,7 +801,7 @@ class Core
 
     (start..length-1).each do |pos|
       cmd_num = (pos + 1).to_s
-      print_line "#{cmd_num.ljust(pad_len)}  #{Readline::HISTORY[pos]}"
+      print_line "#{cmd_num.ljust(pad_len)}  #{::Reline::HISTORY[pos]}"
     end
   end
 
