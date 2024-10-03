@@ -84,6 +84,12 @@ module Msf::Post::Common
         if session.arch == 'php'
           opts[:legacy_args] = Msf::Sessions::CommandShellWindows.to_cmd(args)
           opts[:legacy_path] = Msf::Sessions::CommandShellWindows.to_cmd([executable])
+        elsif session.arch == 'python'
+          opts[:legacy_path] = executable
+          # Yes, Unix. Old Python meterp had a bug where it used posix shell splitting
+          # syntax even on Windows. For backwards-compatibility, we can trick it into
+          # doing the right thing by using Unix escaping.
+          opts[:legacy_args] = Msf::Sessions::CommandShellUnix.to_cmd(args)
         else
           opts[:legacy_args] = Msf::Sessions::CommandShellWindows.argv_to_commandline(args)
           opts[:legacy_path] = Msf::Sessions::CommandShellWindows.escape_cmd(executable)
