@@ -93,11 +93,11 @@ module SingleCommandShell
     output
   end
 
-  def to_cmd(cmd, args)
+  def to_cmd(cmd_and_args)
     if platform == 'windows'
-      result = Msf::Sessions::CommandShellWindows.to_cmd(cmd, args)
+      result = Msf::Sessions::CommandShellWindows.to_cmd(cmd_and_args)
     else
-      result = Msf::Sessions::CommandShellUnix.to_cmd(cmd, args)
+      result = Msf::Sessions::CommandShellUnix.to_cmd(cmd_and_args)
     end
   end
 

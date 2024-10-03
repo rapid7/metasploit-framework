@@ -39,16 +39,14 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
   include Mixin
 
   # Convert the executable and argument array to a command that can be run in this command shell
-  # @param executable [String] The process to launch
-  # @param args [Array<String>] The arguments to the process
-  def to_cmd(executable, args)
-    self.class.to_cmd(executable, args)
+  # @param cmd_and_args [Array<String>] The process path and the arguments to the process
+  def to_cmd(cmd_and_args)
+    self.class.to_cmd(cmd_and_args)
   end
 
   # Convert the executable and argument array to a command that can be run in this command shell
-  # @param executable [String] The process to launch
-  # @param args [Array<String>] The arguments to the process
-  def self.to_cmd(executable, args)
+  # @param cmd_and_args [Array<String>] The process path and the arguments to the process
+  def self.to_cmd(cmd_and_args)
     # The principle here is that we want to launch a process such that it receives *exactly* what is in `args`. 
     # This means we need to:
     # - Escape all special characters
@@ -59,7 +57,6 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
     needs_wrapping_chars = ['$', '`', '(', ')', '@', '>', '<', '{','}', '&', ',', ' ', ';']
   
     result = ""
-    cmd_and_args = [executable] + args
     cmd_and_args.each_with_index do |arg, index|
       needs_single_quoting = false
       if arg.include?("'")

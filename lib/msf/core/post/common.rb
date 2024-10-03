@@ -81,11 +81,16 @@ module Msf::Post::Common
       }.merge(opts)
 
       if session.platform == 'windows'
-        opts[:legacy_args] = Msf::Sessions::CommandShellWindows.argv_to_commandline(args)
-        opts[:legacy_path] = Msf::Sessions::CommandShellWindows.escape_cmd(executable)
+        if session.arch == 'php'
+          opts[:legacy_args] = Msf::Sessions::CommandShellWindows.to_cmd(args)
+          opts[:legacy_path] = Msf::Sessions::CommandShellWindows.to_cmd([executable])
+        else
+          opts[:legacy_args] = Msf::Sessions::CommandShellWindows.argv_to_commandline(args)
+          opts[:legacy_path] = Msf::Sessions::CommandShellWindows.escape_cmd(executable)
+        end
       else
-        opts[:legacy_args] = Msf::Sessions::CommandShellUnix.to_cmd(nil, args)
-        opts[:legacy_path] = Msf::Sessions::CommandShellUnix.to_cmd(executable, [])
+        opts[:legacy_args] = Msf::Sessions::CommandShellUnix.to_cmd(args)
+        opts[:legacy_path] = Msf::Sessions::CommandShellUnix.to_cmd([executable])
       end
 
       if opts['Channelized']
@@ -94,11 +99,11 @@ module Msf::Post::Common
         session.sys.process.execute(executable, args, opts)
       end
     when 'powershell'
-      cmd = session.to_cmd(executable, args)
+      cmd = session.to_cmd([executable] + args)
       o = session.shell_command(cmd, time_out)
       o.chomp! if o
     when 'shell'
-      cmd = session.to_cmd(executable, args)
+      cmd = session.to_cmd([executable] + args)
       o = session.shell_command_token(cmd, time_out)
       o.chomp! if o
     end
