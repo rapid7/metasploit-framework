@@ -1,11 +1,12 @@
 
 # Vulnerable Application
 
-This post-exploitation module extracts saved user data from various Chromium-based and Gecko-based browsers and decrypts sensitive information, such as passwords and cookies. The module can also extract history & bookmarks. Chromium encrypts sensitive data (e.g., passwords and cookies) using Windows Data Protection API (DPAPI), which can only be decrypted with the **same** logon credentials. This module uses the current user's credentials to decrypt the sensitive data unless specified otherwise.
+This post-exploitation module extracts sensitive browser data from both Chromium-based and Gecko-based browsers on the target system. It supports the decryption of passwords and cookies using Windows Data Protection API (DPAPI) and can extract additional data such as browsing history, keyword search history, download history, autofill data, and credit card information.
 
 ## Supported Browsers
 
 ### Chromium-Based Browsers
+
 - Microsoft Edge
 - Google Chrome
 - Opera
@@ -46,6 +47,7 @@ This post-exploitation module extracts saved user data from various Chromium-bas
 - Bookmarks
 
 ### Gecko-Based Browsers
+
 - Mozilla Firefox
 - Thunderbird
 - SeaMonkey

