@@ -26,7 +26,6 @@ class MetasploitModule < Msf::Auxiliary
     'displayName',
     'instanceType',
     'revision',
-    'msPKI-Template-Schema-Version',
     'msPKI-Template-Minor-Revision',
   ].freeze
 
