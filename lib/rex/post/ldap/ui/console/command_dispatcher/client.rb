@@ -32,7 +32,8 @@ module Rex
           #
           def commands
             cmds = {
-              'query' => 'Run an LDAP query'
+              'query' => 'Run an LDAP query',
+              'getuid' => 'Get the user that the connection is running as'
             }
 
             reqs = {}
@@ -100,6 +101,12 @@ module Rex
             print_line
             print_line 'Run the query against the session.'
             print @@query_opts.usage
+          end
+
+          def cmd_getuid
+            username = client.ldapwhoami
+            username.delete_prefix!('u:')
+            print_status("Server username: #{username}")
           end
 
           private
