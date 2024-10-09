@@ -27,7 +27,7 @@ on:
       metasploitPayloadsCommit:
         description: 'metasploit-payloads branch would like to test'
         required: true
-        default: 'master'
+        default: 'fix/msf/19543'
       mettleCommit:
         description: 'mettle branch you would like to test'
         required: true
@@ -65,13 +65,13 @@ jobs:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') }}
 
     env:
-      metasploitPayloadsCommit: ${{ github.event.inputs.metasploitPayloadsCommit || 'master' }}
+      metasploitPayloadsCommit: ${{ github.event.inputs.metasploitPayloadsCommit || 'fix/msf/19543' }}
 
     steps:
       - name: Checkout metasploit-payloads
         uses: actions/checkout@v4
         with:
-          repository: rapid7/metasploit-payloads
+          repository: zeroSteiner/metasploit-payloads
           path: metasploit-payloads
           ref: ${{ env.metasploitPayloadsCommit }}
 
@@ -128,7 +128,7 @@ jobs:
 
     env:
       RAILS_ENV: test
-      metasploitPayloadsCommit: ${{ github.event.inputs.metasploitPayloadsCommit || 'master' }}
+      metasploitPayloadsCommit: ${{ github.event.inputs.metasploitPayloadsCommit || 'fix/msf/19543' }}
       mettleCommit: ${{ github.event.inputs.mettleCommit|| 'master' }}
       HOST_RUNNER_IMAGE: ${{ matrix.os }}
       SESSION: 'meterpreter/${{ matrix.meterpreter.name }}'
@@ -274,7 +274,7 @@ jobs:
         if: contains(github.event.pull_request.labels.*.name, 'payload-testing-branch')
         uses: actions/checkout@v4
         with:
-          repository: rapid7/metasploit-payloads
+          repository: zeroSteiner/metasploit-payloads
           path: metasploit-payloads
           ref: ${{ env.metasploitPayloadsCommit }}
 
