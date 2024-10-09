@@ -16,7 +16,6 @@ module Msf::Sessions
       self.class.to_cmd(cmd_and_args)
     end
 
-    #
     # Escape an individual argument per Unix shell rules
     # @param arg [String] Shell argument
     def escape_arg(arg)
@@ -33,7 +32,6 @@ module Msf::Sessions
       escaped.join(' ')
     end
 
-    #
     # Escape an individual argument per Unix shell rules
     # @param arg [String] Shell argument
     def self.escape_arg(arg)
