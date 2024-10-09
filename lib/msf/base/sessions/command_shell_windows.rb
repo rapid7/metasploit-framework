@@ -47,7 +47,6 @@ module Msf::Sessions
       escaped_args.join(' ')
     end
 
-    #
     # Escape an individual argument per Windows shell rules
     # @param arg [String] Shell argument
     def self.escape_arg(arg)

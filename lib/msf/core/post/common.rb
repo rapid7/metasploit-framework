@@ -61,7 +61,7 @@ module Msf::Post::Common
   # @option Channelized [Boolean] The process is launched with pipes connected to a channel, e.g. for sending input/receiving output
   # @option Suspended [Boolean] Start the process suspended
   # @option UseThreadToken [Boolean] Use the thread token (as opposed to the process token) to launch the process
-  # @option Desktop [Boolean] Run on meterpreter's current desktopt
+  # @option Desktop [Boolean] Run on meterpreter's current desktop
   # @option Session [Integer] Execute process in a given session as the session user
   # @option Subshell [Boolean] Execute process in a subshell
   # @option Pty [Boolean] Execute process in a pty (if available)
