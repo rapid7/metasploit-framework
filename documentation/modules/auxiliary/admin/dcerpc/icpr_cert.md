@@ -31,6 +31,7 @@ Some useful OIDs for this purpose include:
 * `1.3.6.1.5.5.7.3.1` -- Server Authentication
 * `1.3.6.1.5.5.7.3.2` -- Client Authentication
 * `1.3.6.1.5.5.7.3.3` -- Code Signing
+* `1.3.6.1.4.1.311.20.2.1` -- Certificate Request Agent
 
 ### ALT_DNS
 Alternative DNS name to specify in the certificate. Useful in certain attack scenarios.
