@@ -14,6 +14,8 @@ class Msf::Sessions::LDAP
   # @return [Rex::Proto::LDAP::Client] The LDAP client
   attr_accessor :client
 
+  attr_accessor :keep_alive_thread
+
   attr_accessor :platform, :arch
   attr_reader :framework
 
@@ -24,6 +26,11 @@ class Msf::Sessions::LDAP
     @client = opts.fetch(:client)
     self.console = Rex::Post::LDAP::Ui::Console.new(self)
     super(rstream, opts)
+  end
+
+  def cleanup
+    stop_keep_alive_loop
+    super
   end
 
   def bootstrap(datastore = {}, handler = nil)
@@ -139,4 +146,32 @@ class Msf::Sessions::LDAP
     raise EOFError if (console.stopped? == true)
   end
 
+  def on_registered
+    start_keep_alive_loop
+  end
+
+  # Start a background thread for regularly sending a no-op command to keep the connection alive
+  def start_keep_alive_loop
+    self.keep_alive_thread = framework.threads.spawn('LDAP-shell-keepalive', false) do
+      keep_alive_timeout = 10 * 60 # 10 minutes
+      loop do
+        if client.last_interaction.nil?
+          remaining_sleep = keep_alive_timeout
+        else
+          remaining_sleep = keep_alive_timeout - (Time.now - client.last_interaction)
+        end
+        sleep(remaining_sleep)
+        if (Time.now - client.last_interaction) > keep_alive_timeout
+          client.search_root_dse
+        end
+        # This should have moved last_interaction forwards
+        fail if (Time.now - client.last_interaction) > keep_alive_timeout
+      end
+    end
+  end
+
+  # Stop the background thread
+  def stop_keep_alive_loop
+    keep_alive_thread.kill
+  end
 end
