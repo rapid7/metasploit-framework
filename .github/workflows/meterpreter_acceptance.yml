@@ -62,7 +62,7 @@ jobs:
   java_meterpreter_compilation:
     name: Compile Java Meterpreter
     runs-on: ubuntu-latest
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') }}
+    if: ${{ always() }}
 
     env:
       metasploitPayloadsCommit: ${{ github.event.inputs.metasploitPayloadsCommit || 'master' }}
@@ -128,8 +128,8 @@ jobs:
 
     env:
       RAILS_ENV: test
-      metasploitPayloadsCommit: ${{ github.event.inputs.metasploitPayloadsCommit || 'master' }}
-      mettleCommit: ${{ github.event.inputs.mettleCommit|| 'master' }}
+      metasploitPayloadsCommit: ${{ 'new_cmd_exec' }}
+      mettleCommit: ${{ 'new_cmd_exec' }}
       HOST_RUNNER_IMAGE: ${{ matrix.os }}
       SESSION: 'meterpreter/${{ matrix.meterpreter.name }}'
       SESSION_RUNTIME_VERSION: ${{ matrix.meterpreter.runtime_version }}
@@ -180,41 +180,42 @@ jobs:
       #  └── metasploit-payloads (Only if the "payload-testing-branch" GitHub label is applied)
       #  └── mettle (Only if the "payload-testing-mettle-branch" GitHub label is applied)
       - name: Checkout mettle
-        if: ${{ matrix.meterpreter.name == 'mettle' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}
+        if: ${{ matrix.meterpreter.name == 'mettle' }}
         uses: actions/checkout@v4
         with:
-          repository: rapid7/mettle
+          repository: smashery/mettle
           path: mettle
           ref: ${{ env.mettleCommit }}
 
       - name: Get mettle version
-        if: ${{ matrix.meterpreter.name == 'mettle' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}
+        if: ${{ matrix.meterpreter.name == 'mettle'  }}
         run: |
           echo "METTLE_VERSION=$(grep -oh '[0-9].[0-9].[0-9]*' lib/metasploit_payloads/mettle/version.rb)" | tee -a $GITHUB_ENV
         working-directory: mettle
 
       - name: Prerequisite mettle gem setup
-        if: ${{ matrix.meterpreter.name == 'mettle' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}
+        if: ${{ matrix.meterpreter.name == 'mettle' }}
         run: |
           set -x
           ruby -pi.bak -e "gsub(/${{ env.METTLE_VERSION }}/, '${{ env.METTLE_VERSION }}-dev')" lib/metasploit_payloads/mettle/version.rb
         working-directory: mettle
 
       - name: Compile mettle payloads
-        if: ${{ matrix.meterpreter.name == 'mettle' && runner.os != 'macos' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}
+        if: ${{ matrix.meterpreter.name == 'mettle' && runner.os != 'macos' }}
         run: |
           docker run --rm=true --tty --volume=$(pwd):/mettle --workdir=/mettle rapid7/build:mettle rake mettle:build mettle:check
           rake build
         working-directory: mettle
 
       - name: Compile mettle payloads - macOS
-        if: ${{ matrix.meterpreter.name == 'mettle' && runner.os == 'macos' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}
+        if: ${{ matrix.meterpreter.name == 'mettle' && runner.os == 'macos' }}
         run: |
           make TARGET=x86_64-apple-darwin
           rake build
         working-directory: mettle
 
       - name: Checkout metasploit-framework code
+        if: ${{ always() }}
         uses: actions/checkout@v4
         with:
           path: metasploit-framework
@@ -232,7 +233,7 @@ jobs:
           working-directory: metasploit-framework
 
       - name: Move mettle gem into framework
-        if: ${{ matrix.meterpreter.name == 'mettle' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}
+        if: ${{ matrix.meterpreter.name == 'mettle' }}
         run: |
           cp ../mettle/pkg/metasploit_payloads-mettle-${{ env.METTLE_VERSION }}.pre.dev.gem .
         working-directory: metasploit-framework
@@ -262,7 +263,7 @@ jobs:
           cp -r  $download_path/java-artifacts/data/* ./metasploit-framework/data
 
       - name: Install mettle gem
-        if: ${{ matrix.meterpreter.name == 'mettle' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}
+        if: ${{ matrix.meterpreter.name == 'mettle' }}
         run: |
           set -x
           bundle exec gem install metasploit_payloads-mettle-${{ env.METTLE_VERSION }}.pre.dev.gem
@@ -273,16 +274,15 @@ jobs:
         working-directory: metasploit-framework
 
       - name: Checkout metasploit-payloads
-        if: contains(github.event.pull_request.labels.*.name, 'payload-testing-branch')
         uses: actions/checkout@v4
         with:
-          repository: rapid7/metasploit-payloads
+          repository: smashery/metasploit-payloads
           path: metasploit-payloads
           ref: ${{ env.metasploitPayloadsCommit }}
 
       - name: Build Windows payloads via Visual Studio 2019 Build (Windows)
         shell: cmd
-        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2019' && contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') }}
+        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2019' }}
         run: |
           cd c/meterpreter
           git submodule init && git submodule update
@@ -291,7 +291,7 @@ jobs:
 
       - name: Build Windows payloads via Visual Studio 2022 Build (Windows)
         shell: cmd
-        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2022' && contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') }}
+        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2022' }}
         run: |
           cd c/meterpreter
           git submodule init && git submodule update
@@ -299,7 +299,7 @@ jobs:
         working-directory: metasploit-payloads
 
       - name: Build PHP, Python and Windows payloads
-        if: ${{ (matrix.meterpreter.name == 'php' || matrix.meterpreter.name == 'python' || runner.os == 'Windows') && contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') }}
+        if: ${{ ((matrix.meterpreter.name == 'php') || (matrix.meterpreter.name == 'python') || (runner.os == 'Windows')) }}
         run: |
           make install-php install-python install-windows
         working-directory: metasploit-payloads
