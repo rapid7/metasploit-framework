@@ -76,16 +76,21 @@ This post-exploitation module extracts sensitive browser data from both Chromium
 2. Obtain a meterpreter session on the target system.
 3. Run the module: `use post/windows/gather/enum_browsers`
 4. Set the appropriate session ID: `set SESSION <session id>`
-5. (Optional) Enable verbose mode if you want detailed output: `set VERBOSE true`
-6. (Optional) Kill browser processes before extraction to avoid file access issues: `set KILL_BROWSER true`
-7. (Optional) Migrate the session to `explorer.exe` before extraction: `set USER_MIGRATION true`
-8. Run the module: `run`
-9. You should see the extracted browser data in the loot files.
+5. (Optional) Specify which browser data to extract: `set BROWSER_TYPE <chromium|gecko|all>` (default is `all`).
+6. (Optional) Enable verbose mode if you want detailed output: `set VERBOSE true`
+7. (Optional) Kill browser processes before extraction to avoid file access issues: `set KILL_BROWSER true`
+8. (Optional) Migrate the session to `explorer.exe` before extraction: `set USER_MIGRATION true`
+9. Run the module: `run`
+10. You should see the extracted browser data in the loot files.
 
 ## Options
 
 - **KILL_BROWSER** - Kills browser processes before data extraction. This can help avoid file access issues if the browser is running, particularly for cookies. Default is `false`.
 - **USER_MIGRATION** - Migrates the session to `explorer.exe` (if available) before extracting data. This ensures the module is run in the user's context, avoiding potential access issues for user-specific data. Default is `false`.
+- **BROWSER_TYPE** - Specifies which browser data to extract. The options are:
+  - `chromium`: Extracts data only from Chromium-based browsers.
+  - `gecko`: Extracts data only from Gecko-based browsers.
+  - `all`: Extracts data from both Chromium and Gecko browsers. This is the default setting.
 - **VERBOSE** - Prints more detailed output for each step, including encryption key extraction and DPAPI decryption. Default is `false`.
 - **SESSION** - The session to run the module on. Required.
 
