@@ -455,7 +455,7 @@ class MetasploitModule < Msf::Auxiliary
         next if vuln == 'ESC3_TEMPLATE_2'
 
         prefix = "#{vuln}:"
-        info = hash[:notes].select { |note| note.start_with?(prefix) }.map { |note| note.delete_prefix(prefix) }.join("\n")
+        info = hash[:notes].select { |note| note.start_with?(prefix) }.map { |note| note.delete_prefix(prefix).strip }.join("\n")
         info = nil if info.blank?
 
         report_vuln(
