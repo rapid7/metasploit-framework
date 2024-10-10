@@ -36,7 +36,8 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new(
           'APPEND_DOMAIN', [true, 'Appends `@<DOMAIN> to the username for authentication`', false],
           conditions: ['LDAP::Auth', 'in', [Msf::Exploit::Remote::AuthOption::AUTO, Msf::Exploit::Remote::AuthOption::PLAINTEXT]]
-        )
+        ),
+        OptInt.new('SessionKeepalive', [true, 'Time (in seconds) for sending protocol-level keepalive messages', 10 * 60])
       ]
     )
 
@@ -48,6 +49,7 @@ class MetasploitModule < Msf::Auxiliary
     else
       # Don't give the option to create a session unless ldap sessions are enabled
       options_to_deregister << 'CreateSession'
+      options_to_deregister << 'SessionKeepalive'
     end
 
     deregister_options(*options_to_deregister)
@@ -175,7 +177,7 @@ class MetasploitModule < Msf::Auxiliary
     return unless result.connection && result.proof
 
     # Create a new session
-    my_session = Msf::Sessions::LDAP.new(result.connection, { client: result.proof })
+    my_session = Msf::Sessions::LDAP.new(result.connection, { client: result.proof, keepalive_seconds: datastore['SessionKeepalive'] })
 
     merge_me = {
       'USERPASS_FILE' => nil,
