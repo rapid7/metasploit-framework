@@ -27,6 +27,6 @@ class MetasploitModule < Msf::Post
   def run
     print_status("Executing #{datastore['COMMAND']} on #{session.inspect}...")
     res = cmd_exec(datastore['COMMAND'])
-    print_status("Response: #{res}")
+    print_status("Response: \n#{res}")
   end
 end
