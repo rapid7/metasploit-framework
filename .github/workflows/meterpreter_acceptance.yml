@@ -95,7 +95,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-12
+          - macos-13
           - windows-2019
           - ubuntu-20.04
         ruby:
@@ -119,7 +119,7 @@ jobs:
           - { meterpreter: { name: windows_meterpreter }, os: windows-2022 }
 
           # Mettle
-          - { meterpreter: { name: mettle }, os: macos-12 }
+          - { meterpreter: { name: mettle }, os: macos-13 }
           - { meterpreter: { name: mettle }, os: ubuntu-20.04 }
 
     runs-on: ${{ matrix.os }}
@@ -141,7 +141,7 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
 
-      - uses: shivammathur/setup-php@fc14643b0a99ee9db10a3c025a33d76544fa3761
+      - uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231
         if: ${{ matrix.meterpreter.name == 'php' }}
         with:
           php-version: ${{ matrix.meterpreter.runtime_version }}
@@ -222,11 +222,13 @@ jobs:
       - name: Setup Ruby
         env:
           BUNDLE_FORCE_RUBY_PLATFORM: true
+          # Required for macos13 pg gem compilation
+          PKG_CONFIG_PATH: "/usr/local/opt/libpq/lib/pkgconfig"
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-          cache-version: 4
+          cache-version: 5
           working-directory: metasploit-framework
 
       - name: Move mettle gem into framework
@@ -349,7 +351,7 @@ jobs:
         with:
           ruby-version: '3.3'
           bundler-cache: true
-          cache-version: 4
+          cache-version: 5
 
       - uses: actions/download-artifact@v4
         id: raw_report_data
