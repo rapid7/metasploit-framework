@@ -47,12 +47,12 @@ class MetasploitModule < Msf::Post
     user_account = session.sys.config.getuid
 
     if user_account.downcase.include?('nt authority\\system')
-      print_error('Session is running with SYSTEM privileges. Enable USER_MIGRATION to run under a user context.')
-      return
-    end
-
-    if datastore['USER_MIGRATION']
-      migrate_to_explorer
+      if datastore['USER_MIGRATION']
+        migrate_to_explorer
+      else
+        print_error('Session is running with SYSTEM privileges. Enable USER_MIGRATION to run under a user context.')
+        return
+      end
     end
 
     user_profile = get_env('USERPROFILE')
