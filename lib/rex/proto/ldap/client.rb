@@ -25,7 +25,7 @@ module Rex
         end
 
         def register_interaction
-          @last_interaction = Time.now
+          @last_interaction = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         end
 
         # @return [Array<String>] LDAP servers naming contexts

@@ -15,6 +15,9 @@ class Msf::Sessions::LDAP
   attr_accessor :client
 
   attr_accessor :keep_alive_thread
+  
+  # @return [Integer] Seconds between keepalive requests
+  attr_accessor :keepalive_seconds
 
   attr_accessor :platform, :arch
   attr_reader :framework
@@ -22,8 +25,10 @@ class Msf::Sessions::LDAP
   # @param[Rex::IO::Stream] rstream
   # @param [Hash] opts
   # @option opts [Rex::Proto::LDAP::Client] :client
+  # @option opts [Integer] :keepalive
   def initialize(rstream, opts = {})
     @client = opts.fetch(:client)
+    @keepalive_seconds = opts.fetch(:keepalive_seconds)
     self.console = Rex::Post::LDAP::Ui::Console.new(self)
     super(rstream, opts)
   end
@@ -152,20 +157,19 @@ class Msf::Sessions::LDAP
 
   # Start a background thread for regularly sending a no-op command to keep the connection alive
   def start_keep_alive_loop
-    self.keep_alive_thread = framework.threads.spawn('LDAP-shell-keepalive', false) do
-      keep_alive_timeout = 10 * 60 # 10 minutes
+    self.keep_alive_thread = framework.threads.spawn("LDAP-shell-keepalive-#{sid}", false) do
       loop do
         if client.last_interaction.nil?
-          remaining_sleep = keep_alive_timeout
+          remaining_sleep = @keepalive_seconds
         else
-          remaining_sleep = keep_alive_timeout - (Time.now - client.last_interaction)
+          remaining_sleep = @keepalive_seconds - (Process.clock_gettime(Process::CLOCK_MONOTONIC) - client.last_interaction)
         end
         sleep(remaining_sleep)
-        if (Time.now - client.last_interaction) > keep_alive_timeout
+        if (Process.clock_gettime(Process::CLOCK_MONOTONIC) - client.last_interaction) > @keepalive_seconds
           client.search_root_dse
         end
         # This should have moved last_interaction forwards
-        fail if (Time.now - client.last_interaction) > keep_alive_timeout
+        fail if (Process.clock_gettime(Process::CLOCK_MONOTONIC) - client.last_interaction) > @keepalive_seconds
       end
     end
   end
