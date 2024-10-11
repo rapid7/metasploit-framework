@@ -100,7 +100,7 @@ module Msf::Ui::Console::CommandDispatcher::Db::Klist
     else
       tbl = Rex::Text::Table.new(
         {
-          'Columns' => ['id', 'host', 'principal', 'sname', 'issued', 'status', 'path'],
+          'Columns' => ['id', 'host', 'principal', 'sname', 'enctype', 'issued', 'status', 'path'],
           'SortIndex' => -1,
           # For now, don't perform any word wrapping on the table as it breaks the workflow of
           # copying file paths and pasting them into applications
@@ -111,6 +111,7 @@ module Msf::Ui::Console::CommandDispatcher::Db::Klist
               ticket.host_address,
               ticket.principal,
               ticket.sname,
+              Rex::Proto::Kerberos::Crypto::Encryption.const_name(ticket.enctype),
               ticket.starttime,
               ticket_status(ticket),
               ticket.path
