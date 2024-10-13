@@ -18,25 +18,24 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SMB Session Pipe DCERPC Auditor',
+      'Name' => 'SMB Session Pipe DCERPC Auditor',
       'Description' => 'Determine what DCERPC services are accessible over a SMB pipe',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE,
     )
 
     register_options(
       [
-        OptString.new('SMBPIPE', [ true,  "The pipe name to use (BROWSER)", 'BROWSER']),
-      ])
+        OptString.new('SMBPIPE', [ true, 'The pipe name to use (BROWSER)', 'BROWSER']),
+      ]
+    )
   end
 
   def connect(*args, **kwargs)
     super(*args, **kwargs, direct: @smb_direct)
   end
 
-  def rport
-    @rport
-  end
+  attr_reader :rport
 
   @@target_uuids = [
     [ '00000131-0000-0000-c000-000000000046', '0.0' ],
@@ -255,8 +254,7 @@ class MetasploitModule < Msf::Auxiliary
     [ 'fdb3a030-065f-11d1-bb9b-00a024ea5525', '1.0' ],
     [ 'ffe561b8-bf15-11cf-8c5e-08002bb49649', '2.0' ]
 
-
-]
+  ]
 
   # Fingerprint a single host
   def run_host(ip)
@@ -265,7 +263,7 @@ class MetasploitModule < Msf::Auxiliary
       client = session.client
       @rport = datastore['RPORT'] = session.port
       self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
-      self.simple.connect("\\\\#{simple.address}\\IPC$") # smb_login connects to this share for some reason and it doesn't work unless we do too
+      simple.connect("\\\\#{simple.address}\\IPC$") # smb_login connects to this share for some reason and it doesn't work unless we do too
       check_uuids(ip)
     else
       if datastore['RPORT'].blank? || datastore['RPORT'] == 0
@@ -282,7 +280,7 @@ class MetasploitModule < Msf::Auxiliary
       smb_services.each do |smb_service|
         @rport = smb_service[:port]
         @smb_direct = smb_service[:direct]
-  
+
         begin
           connect
           smb_login
@@ -291,18 +289,15 @@ class MetasploitModule < Msf::Auxiliary
         rescue ::Exception
           print_line($!.to_s)
         end
-
       end
     end
-
   end
 
   def check_uuids(ip)
     @@target_uuids.each do |uuid|
-  
       handle = dcerpc_handle_target(
         uuid[0], uuid[1],
-        'ncacn_np', ["\\#{datastore['SMBPIPE']}"], self.simple.address
+        'ncacn_np', ["\\#{datastore['SMBPIPE']}"], simple.address
       )
 
       begin
@@ -310,12 +305,12 @@ class MetasploitModule < Msf::Auxiliary
         print_line("UUID #{uuid[0]} #{uuid[1]} OPEN VIA #{datastore['SMBPIPE']}")
         # Add Report
         report_note(
-          :host	=> ip,
-          :proto => 'tcp',
-          :sname	=> 'smb',
-          :port	=> rport,
-          :type	=> "UUID #{uuid[0]} #{uuid[1]}",
-          :data	=> "UUID #{uuid[0]} #{uuid[1]} OPEN VIA #{datastore['SMBPIPE']}"
+          host: ip,
+          proto: 'tcp',
+          sname: 'smb',
+          port: rport,
+          type: "UUID #{uuid[0]} #{uuid[1]}",
+          data: "UUID #{uuid[0]} #{uuid[1]} OPEN VIA #{datastore['SMBPIPE']}"
         )
       rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
         print_line("UUID #{uuid[0]} #{uuid[1]} ERROR 0x%.8x" % e.error_code)
