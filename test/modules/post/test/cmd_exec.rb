@@ -236,6 +236,11 @@ class MetasploitModule < Msf::Post
       valid_show_args_response?(output, expected: [show_args_binary[:upload_path], "it's $PATH"])
     end
   
+    it 'should deal with weird windows edge cases' do
+      output = create_process(show_args_binary[:cmd], args: ['"test"', 'test\\"', 'test\\\\"', 'test words\\\\\\\\ ', 'test words\\\\\\ ', '\\\\'])
+      valid_show_args_response?(output, expected: [show_args_binary[:upload_path], '"test"', 'test\\"', 'test\\\\"', 'test words\\\\\\\\ ', 'test words\\\\\\ ', '\\\\'])
+    end
+
     it 'should accept special characters and return the create_process output' do
       output = create_process(show_args_binary[:cmd], args: ['~!@#$%^&*(){`1234567890[]",.\'<>'])
       valid_show_args_response?(output, expected: [show_args_binary[:upload_path], '~!@#$%^&*(){`1234567890[]",.\'<>'])
