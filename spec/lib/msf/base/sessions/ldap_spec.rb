@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Msf::Sessions::LDAP do
   let(:client) { instance_double(Rex::Proto::LDAP::Client) }
-  let(:opts) { { client: client } }
+  let(:opts) { { client: client, keepalive_seconds: 600 } }
   let(:console_class) { Rex::Post::LDAP::Ui::Console }
   let(:user_input) { instance_double(Rex::Ui::Text::Input::Readline) }
   let(:user_output) { instance_double(Rex::Ui::Text::Output::Stdio) }
