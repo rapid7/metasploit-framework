@@ -95,8 +95,9 @@ module Msf::Sessions
       quote_requiring = ['"', '^', ' ', "\t", "\v", '&', '<', '>', '|']
 
       escaped_cmd_and_args = cmd_and_args.map do |arg|
-        # Double-up all quote chars
-        arg = arg.gsub('"', '""')
+        # Escape quote chars by doubling them up, except those preceeded by a backslash (which are already effectively escaped, and handled below)
+        arg = arg.gsub(/([^\\])"/, '\\1""')
+        arg = arg.gsub(/^"/, '""')
 
         result = CommandShell._glue_cmdline_escape(arg, quote_requiring, '%', '^%', '"')
 

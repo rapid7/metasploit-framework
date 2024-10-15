@@ -763,14 +763,14 @@ Shell Banner:
         next
       elsif quote_requiring.include?(char)
         # Oh, it turns out we should have been inside quotes for this token.
-        # Let's note that, so that when we actually append the token
+        # Let's note that, for when we actually append the token
         in_quotes = true
       end
       current_token += char
     end
 
     if in_quotes
-      # This token has been in an inside-quote context, so let's properly wrap that before continuing
+      # The final token has been in an inside-quote context, so let's properly wrap that before continuing
       current_token = "#{quote_char}#{current_token}#{quote_char}"
     end
     result += current_token
