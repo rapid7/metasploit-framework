@@ -405,7 +405,7 @@ GEM
       nokogiri
     redcarpet (3.6.0)
     regexp_parser (2.9.2)
-    reline (0.5.10)
+    reline (0.5.11)
       io-console (~> 0.5)
     require_all (3.0.0)
     rex-arch (0.1.16)

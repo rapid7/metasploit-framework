@@ -73,7 +73,7 @@ module InteractiveSqlClient
     return { status: :fail, errors: ["Unable to get history file for session type: #{name}"] } if history_file.nil?
 
     # Multiline (Reline) and fallback (Readline) have separate history contexts as they are two different libraries.
-    framework.history_manager.with_context(history_file: history_file , name: name, input_library: :reline) do
+    framework.history_manager.with_context(history_file: history_file, name: name, input_library: :reline) do
       query = _multiline
     end
 

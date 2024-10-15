@@ -347,3 +347,17 @@ require 'expect'
 
 # XXX: Should be removed once the `lib/metasploit` folder is loaded by Zeitwerk
 require 'metasploit/framework/hashes'
+
+# TODO: Remove this monkey-patch once the following issue is addressed over on Reline's repository here:
+# https://github.com/ruby/reline/issues/756
+require 'reline'
+class ::Reline::Core
+  alias old_completion_append_character= completion_append_character=
+  alias old_completion_append_character completion_append_character
+
+  def completion_append_character=(v)
+    self.old_completion_append_character = v
+    # Additionally keep the line_editor in sync
+    line_editor.completion_append_character = self.old_completion_append_character
+  end
+end

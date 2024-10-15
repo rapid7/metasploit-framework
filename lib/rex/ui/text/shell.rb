@@ -63,10 +63,21 @@ module Shell
     self.framework = framework
   end
 
+  def create_tab_complete_proc
+    # Unless cont_flag because there's no tab complete for continuation lines
+    proc do |str, preposing = nil, postposting = nil|
+      next nil if cont_flag
+
+      result = tab_complete(str, opts: { preposing: preposing, postposting: postposting })
+      result.map! { |val| val[preposing.to_s.length..] } if result && Msf::Ui::Console::MsfReadline.instance.using_reline?
+
+      next result
+    end
+  end
+
   def init_tab_complete
     if (self.input and self.input.supports_readline)
-      # Unless cont_flag because there's no tab complete for continuation lines
-      self.input = Input::Readline.new(lambda { |str| tab_complete(str) unless cont_flag })
+      self.input = Input::Readline.new(create_tab_complete_proc)
       self.input.output = self.output
     end
   end
@@ -114,8 +125,8 @@ module Shell
   #
   # Performs tab completion on the supplied string.
   #
-  def tab_complete(str)
-    return tab_complete_proc(str) if (tab_complete_proc)
+  def tab_complete(str, opts: {})
+    return tab_complete_proc(str, opts: opts) if (tab_complete_proc)
   end
 
   #
@@ -304,13 +315,13 @@ module Shell
 
     begin
       history_manager.with_context(history_file: histfile, name: name) do
-        self.hist_last_saved = Readline::HISTORY.length
+        self.hist_last_saved = Msf::Ui::Console::MsfReadline.instance.history.length
 
         yield
       end
     ensure
       history_manager.flush
-      self.hist_last_saved = Readline::HISTORY.length
+      self.hist_last_saved = Msf::Ui::Console::MsfReadline.instance.history.length
     end
   end
 

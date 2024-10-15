@@ -28,6 +28,7 @@ class IrbShell
 
       IRB.setup(nil)
       IRB.conf[:PROMPT_MODE]  = :SIMPLE
+      IRB.conf[:USE_MULTILINE] = true
 
       @@IrbInitialized = true
     end

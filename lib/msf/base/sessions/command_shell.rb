@@ -547,9 +547,11 @@ Shell Banner:
     if expressions.empty?
       print_status('Starting IRB shell...')
       print_status("You are in the \"self\" (session) object\n")
-      framework.history_manager.with_context(name: :irb) do
+      Msf::Ui::Console::MsfReadline.instance.cache_current_config
+      framework.history_manager.with_context(name: :irb, input_library: :reline) do
         Rex::Ui::Text::IrbShell.new(self).run
       end
+      Msf::Ui::Console::MsfReadline.instance.restore_cached_config
     else
       # XXX: No vprint_status here
       if framework.datastore['VERBOSE'].to_s == 'true'
@@ -586,7 +588,7 @@ Shell Banner:
     print_status('Starting Pry shell...')
     print_status("You are in the \"self\" (session) object\n")
     Pry.config.history_load = false
-    framework.history_manager.with_context(history_file: Msf::Config.pry_history, name: :pry) do
+    framework.history_manager.with_context(history_file: Msf::Config.pry_history, name: :pry, input_library: Pry.input) do
       self.pry
     end
   end
