@@ -4,8 +4,6 @@ module Rex
 module Ui
 module Text
 
-begin
-
   ###
   #
   # This class implements standard input using readline against
@@ -18,16 +16,13 @@ begin
     # Initializes the readline-aware Input instance for text.
     #
     def initialize(tab_complete_proc = nil)
-      if(not Object.const_defined?('Readline'))
-        require 'readline'
-      end
-
-      self.extend(::Readline)
+      @input_library = Msf::Ui::Console::Driver.input_lib
+      self.extend(@input_library)
 
       if tab_complete_proc
-        ::Readline.basic_word_break_characters = ""
+        @input_library.basic_word_break_characters = ""
         @rl_saved_proc = with_error_handling(tab_complete_proc)
-        ::Readline.completion_proc = @rl_saved_proc
+        @input_library.completion_proc = @rl_saved_proc
       end
     end
 
@@ -35,8 +30,8 @@ begin
     # Reattach the original completion proc
     #
     def reset_tab_completion(tab_complete_proc = nil)
-      ::Readline.basic_word_break_characters = "\x00"
-      ::Readline.completion_proc = tab_complete_proc ? with_error_handling(tab_complete_proc) : @rl_saved_proc
+      @input_library.basic_word_break_characters = "\x00"
+      @input_library.completion_proc = tab_complete_proc ? with_error_handling(tab_complete_proc) : @rl_saved_proc
     end
 
 
@@ -44,11 +39,9 @@ begin
     # Retrieve the line buffer
     #
     def line_buffer
-      if defined? RbReadline
-        RbReadline.rl_line_buffer
-      else
-        ::Readline.line_buffer
-      end
+      return @input_library.line_buffer if @input_library.respond_to?(:line_buffer)
+
+      nil
     end
 
     attr_accessor :prompt
@@ -97,9 +90,10 @@ begin
 
         output.prompting
         line = readline_with_output(prompt, true)
-        ::Readline::HISTORY.pop if (line and line.empty?)
+        @input_library::HISTORY.pop if (line and line.empty?)
       ensure
         Thread.current.priority = orig || 0
+        output.prompting(false)
       end
 
       line
@@ -132,13 +126,6 @@ begin
     private
 
     def readline_with_output(prompt, add_history=false)
-      # rb-readlines's Readline.readline hardcodes the input and output to
-      # $stdin and $stdout, which means setting `Readline.input` or
-      # `Readline.ouput` has no effect when running `Readline.readline` with
-      # rb-readline, so need to reimplement
-      # []`Readline.readline`](https://github.com/luislavena/rb-readline/blob/ce4908dae45dbcae90a6e42e3710b8c3a1f2cd64/lib/readline.rb#L36-L58)
-      # for rb-readline to support setting input and output.  Output needs to
-      # be set so that colorization works for the prompt on Windows.
       self.prompt = prompt
 
       # TODO: there are unhandled quirks in async output buffering that
@@ -151,40 +138,14 @@ begin
         reset_sequence = ""
       end
 =end
-      reset_sequence = ""
 
-      if defined? RbReadline
-        RbReadline.rl_instream = fd
-        RbReadline.rl_outstream = output
-
-        begin
-          line = RbReadline.readline(reset_sequence + prompt)
-        rescue ::Exception => exception
-          RbReadline.rl_cleanup_after_signal()
-          RbReadline.rl_deprep_terminal()
-
-          raise exception
-        end
-
-        if add_history && line && !line.start_with?(' ')
-          # Don't add duplicate lines to history
-          if ::Readline::HISTORY.empty? || line.strip != ::Readline::HISTORY[-1]
-            RbReadline.add_history(line.strip)
-          end
-        end
-
-        line.try(:dup)
+      if Msf::Ui::Console::Driver.using_reline?
+        line = input_reline(prompt, add_history)
       else
-        # The line that's read is immediately added to history
-        line = ::Readline.readline(reset_sequence + prompt, true)
-
-        # Don't add duplicate lines to history
-        if ::Readline::HISTORY.length > 1 && line == ::Readline::HISTORY[-2]
-          ::Readline::HISTORY.pop
-        end
-
-        line
+        line = input_rbreadline(prompt, add_history)
       end
+
+      line
     end
 
     private
@@ -192,16 +153,56 @@ begin
     def with_error_handling(proc)
       proc do |*args|
         proc.call(*args)
-      rescue StandardError => e
+      rescue ::StandardError => e
         elog("tab_complete_proc has failed with args #{args}", error: e)
         []
       end
     end
 
+    def input_rbreadline(prompt, add_history = false)
+      # rb-readlines's Readline.readline hardcodes the input and output to
+      # $stdin and $stdout, which means setting `Readline.input` or
+      # `Readline.ouput` has no effect when running `Readline.readline` with
+      # rb-readline, so need to reimplement
+      # []`Readline.readline`](https://github.com/luislavena/rb-readline/blob/ce4908dae45dbcae90a6e42e3710b8c3a1f2cd64/lib/readline.rb#L36-L58)
+      # for rb-readline to support setting input and output.  Output needs to
+      # be set so that colorization works for the prompt on Windows.
+      RbReadline.rl_instream = fd
+      RbReadline.rl_outstream = output
+      begin
+        line = RbReadline.readline(prompt.to_s)
+      rescue ::StandardError => e
+        RbReadline.rl_cleanup_after_signal
+        RbReadline.rl_deprep_terminal
+
+        raise e
+      end
+
+      if add_history && line && !line.start_with?(' ')
+        # Don't add duplicate lines to history
+        if ::Readline::HISTORY.empty? || line.strip != ::Readline::HISTORY[-1]
+          RbReadline.add_history(line.strip)
+        end
+      end
+
+      line.dup
+    end
+
+    def input_reline(prompt, add_history = false)
+      @input_library.input = fd
+      @input_library.output = output
+      line = @input_library.readline(prompt.to_s, add_history)
+
+      # Don't add duplicate lines to history
+      if @input_library::HISTORY.length > 1 && line == @input_library::HISTORY[-2]
+        @input_library::HISTORY.pop
+      end
+
+      line
+    end
+
   end
-rescue LoadError
 end
 
-end
 end
 end
