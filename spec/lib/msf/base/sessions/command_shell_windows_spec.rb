@@ -34,7 +34,7 @@ RSpec.describe Msf::Sessions::CommandShellWindows do
     end
 
     it 'should handle the weird backslash escaping behaviour in front of quotes' do
-      expect(described_class.to_cmd(['test.exe'] + ['quote\\\\"'])).to eq('test.exe "quote\\\\\\\\"""')
+      expect(described_class.to_cmd(['test.exe'] + ['quote\\\\"'])).to eq('test.exe "quote\\\\\\\\""')
       expect(described_class.to_cmd(['test.exe'] + ['will be quoted\\\\'])).to eq('test.exe "will be quoted\\\\\\\\"')
       expect(described_class.to_cmd(['test.exe'] + ['will be quoted\\\\ '])).to eq('test.exe "will be quoted\\\\ "') # Should not be doubled up
       expect(described_class.to_cmd(['test.exe'] + ['"test"', 'test\\"', 'test\\\\"', 'test words\\\\\\\\', 'test words\\\\\\', '\\\\'])).to eq('test.exe """test""" "test\\\\"" "test\\\\\\\\"" "test words\\\\\\\\\\\\\\\\" "test words\\\\\\\\\\\\" \\\\')

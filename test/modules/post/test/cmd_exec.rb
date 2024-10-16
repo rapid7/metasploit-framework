@@ -84,6 +84,10 @@ class MetasploitModule < Msf::Post
 
     # Match the binary name, to support the binary name containing relative or absolute paths, i.e.
     # "show_args.exe\r\none\r\ntwo",
+    if output_binary.nil?
+      vprint_status("#{__method__}: Malformed output: no process binary returned")
+      return false
+    end
     match = output_binary.include?(expected[0]) && output_args == expected[1..]
     if !match
       vprint_status("#{__method__}: expected: #{expected.inspect} - actual: #{output_lines.inspect}")

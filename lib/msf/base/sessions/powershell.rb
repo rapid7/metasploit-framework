@@ -86,6 +86,17 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
         needs_single_quoting = true
       end
 
+      will_be_double_quoted_by_powershell = [' ', '\t', '\v'].any? do |bad_char|
+        arg.include?(bad_char)
+      end
+
+      if will_be_double_quoted_by_powershell
+        # This is horrible, and I'm so so sorry.
+        # If an argument ends with a series of backslashes, and it will be quoted by PowerShell when *it* launches the process (e.g. because the arg contains a space),
+        # PowerShell will not correctly handle backslashes immediately preceeding the quote that it *itself* adds. So we need to be responsible for this.
+        arg = arg.gsub(/(\\*)$/, '\\1\\1')
+      end
+
       if needs_single_quoting
         arg = "'#{arg}'"
       end
