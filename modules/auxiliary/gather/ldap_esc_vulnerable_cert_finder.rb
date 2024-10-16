@@ -1,5 +1,6 @@
 class MetasploitModule < Msf::Auxiliary
 
+  include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::LDAP
   include Msf::OptionalSession::LDAP
   include Rex::Proto::Secauthz
@@ -9,6 +10,14 @@ class MetasploitModule < Msf::Auxiliary
   ADS_GROUP_TYPE_DOMAIN_LOCAL_GROUP = 0x00000004
   ADS_GROUP_TYPE_SECURITY_ENABLED = 0x80000000
   ADS_GROUP_TYPE_UNIVERSAL_GROUP = 0x00000008
+
+  REFERENCES = {
+    'ESC1' => [ 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
+    'ESC2' => [ 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
+    'ESC3' => [ 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
+    'ESC13' => [ 'https://posts.specterops.io/adcs-esc13-abuse-technique-fda4272fbd53' ],
+    'ESC15' => [ 'https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc' ]
+  }.freeze
 
   SID = Struct.new(:value, :name) do
     def to_s
@@ -238,7 +247,7 @@ class MetasploitModule < Msf::Auxiliary
       '(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=1)'\
     ')'
     notes = [
-      'ESC1: Request can specify a subjectAltName (msPKI-Certificate-Name-Flag)'
+      'ESC1: Request can specify a subjectAltName (msPKI-Certificate-Name-Flag) and EKUs permit authentication'
     ]
     query_ldap_server_certificates(esc1_raw_filter, 'ESC1', notes: notes)
   end
@@ -424,6 +433,25 @@ class MetasploitModule < Msf::Auxiliary
       vulns = hash[:vulns]
       vulns.delete('ESC3_TEMPLATE_2') unless any_esc3t1 # don't report ESC3_TEMPLATE_2 if there are no instances of ESC3_TEMPLATE_1
       next if vulns.empty?
+
+      vulns.each do |vuln|
+        vuln = 'ESC3' if vuln == 'ESC3_TEMPLATE_1'
+        next if vuln == 'ESC3_TEMPLATE_2'
+
+        prefix = "#{vuln}:"
+        info = hash[:notes].select { |note| note.start_with?(prefix) }.map { |note| note.delete_prefix(prefix) }.join("\n")
+        info = nil if info.blank?
+
+        report_vuln(
+          host: rhost,
+          port: rport,
+          proto: 'tcp',
+          sname: 'AD CS',
+          name: "#{vuln} - #{key}",
+          info: info,
+          refs: REFERENCES[vuln]
+        )
+      end
 
       print_good("Template: #{key}")
 
