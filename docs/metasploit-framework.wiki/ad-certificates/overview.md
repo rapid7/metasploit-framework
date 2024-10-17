@@ -112,3 +112,19 @@ The following steps assume that you have installed an AD CS on either a new or e
 6. Click `Apply` and then click `OK` to issue the certificate.
 7. Go back to the `certsrv` screen and right click on the `Certificate Templates` folder. Then click `New` followed by `Certificate Template to Issue`.
 8. Scroll down and select the `ESC3-Template2` certificate, or whatever you named the ESC3 template number 2 template you just created, and select `OK`. The certificate should now be available to be issued by the CA server.
+
+### Setting up a ESC8 Vulnerable Host
+1. Follow instructions for creating an AD CS enabled server
+2. Select Add Roles and Features
+3. Under "Select Server Roles" expand Active Directory Certificate Services and add `Certificate Enrollment Policy Web Service`, `Certificate Enrollment Web Service`, and `Certificate Authority Web Enrollment`.
+4. For each selection, accept the default for any pop-up.
+5. Accept the default features and install.
+6. When the installation is complete, click on the warning in the Dashboard for post-deployment configuration.
+7. Under Credentials, accept the default
+8. Under Role Services, select `Certificate Authority Web Enrollment`, `Certificate Enrollment Web Service`, and `Certificate Enrollment Policy Web Service`
+9. In CA for CES, accept the defaults
+10. In Authentication Types, accept the default integrated authentication
+11. In Service account for CES, select `Use built-in application pool identity`
+12. Accept default integrated authentication for CEP
+13. Select the domain certificate in Server Certificate (the one that starts with the domain name by default) if more than one appears.
+14. Accept the remaining defaults.
