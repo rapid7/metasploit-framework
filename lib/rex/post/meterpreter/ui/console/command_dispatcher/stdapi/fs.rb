@@ -901,8 +901,9 @@ class Console::CommandDispatcher::Stdapi::Fs
   end
 
   def tab_complete_path(str, words, dir_only)
+    lib = Msf::Ui::Console::Driver.input_lib
     if client.platform == 'windows'
-        ::Readline.completion_case_fold = true
+      lib.completion_case_fold = true
     end
     if client.commands.include?(COMMAND_ID_STDAPI_FS_LS)
       expanded = str
@@ -915,7 +916,7 @@ class Console::CommandDispatcher::Stdapi::Fs
         # This is annoying if we're recursively tab-traversing our way through subdirectories -
         # we may want to continue traversing, but MSF will add a space, requiring us to back up to continue
         # tab-completing our way through successive subdirectories.
-        ::Readline.completion_append_character = nil
+        lib.completion_append_character = nil
       end
       results
     else

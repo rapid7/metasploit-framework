@@ -49,22 +49,23 @@ module Msf
         # Tab completion options values
         #
         def tab_complete_option(mod, str, words)
+          lib = Msf::Ui::Console::Driver.input_lib
           if str.end_with?('=')
             option_name = str.chop
             option_value = ''
 
-            ::Readline.completion_append_character = ' '
+            lib.completion_append_character = ' '
             return tab_complete_option_values(mod, option_value, words, opt: option_name).map { |value| "#{str}#{value}" }
           elsif str.include?('=')
             str_split = str.split('=')
             option_name = str_split[0].strip
             option_value = str_split[1].strip
 
-            ::Readline.completion_append_character = ' '
+            lib.completion_append_character = ' '
             return tab_complete_option_values(mod, option_value, words, opt: option_name).map { |value| "#{option_name}=#{value}" }
           end
 
-          ::Readline.completion_append_character = ''
+          lib.completion_append_character = ''
           tab_complete_option_names(mod, str, words).map { |name| "#{name}=" }
         end
 

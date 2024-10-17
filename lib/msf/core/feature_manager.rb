@@ -28,6 +28,7 @@ module Msf
     MSSQL_SESSION_TYPE = 'mssql_session_type'
     LDAP_SESSION_TYPE = 'ldap_session_type'
     SHOW_SUCCESSFUL_LOGINS = 'show_successful_logins'
+    USE_RELINE = 'use_reline'
 
     DEFAULTS = [
       {
@@ -124,6 +125,13 @@ module Msf
         requires_restart: false,
         default_value: true,
         developer_notes: 'Enabled in Metasploit 6.4.x'
+      }.freeze,
+      {
+        name: USE_RELINE,
+        description: 'When enabled, the new Reline library will be used instead of the legacy Readline library for input/output. New UI sessions will be using Reline, but sessions that existed before this feature has been set will continue to be Readline-based.',
+        requires_restart: false,
+        default_value: false,
+        developer_notes: 'To be enabled by default after sufficient testing and Reline fixes the issues raised here: https://github.com/ruby/reline/issues/created_by/sjanusz-r7'
       }.freeze
     ].freeze
 

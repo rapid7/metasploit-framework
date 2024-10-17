@@ -311,7 +311,8 @@ module DispatcherShell
         # This is annoying if we're recursively tab-traversing our way through subdirectories -
         # we may want to continue traversing, but MSF will add a space, requiring us to back up to continue
         # tab-completing our way through successive subdirectories.
-        ::Readline.completion_append_character = nil
+        lib = Msf::Ui::Console::Driver.input_lib
+        lib.completion_append_character = nil
       end
 
       if dirs.length == 0 && File.directory?(str)
@@ -408,9 +409,14 @@ module DispatcherShell
   # a design problem in the Readline module and depends on the
   # Readline.basic_word_break_characters variable being set to \x00
   #
-  def tab_complete(str)
-    ::Readline.completion_append_character = ' '
-    ::Readline.completion_case_fold = false
+  def tab_complete(str, opts: {})
+    lib = Msf::Ui::Console::Driver.input_lib
+    lib.completion_append_character = ' '
+    lib.completion_case_fold = false
+
+    if opts[:preposing] && Msf::Ui::Console::Driver.using_reline?
+      str = "#{opts[:preposing]}#{str}"
+    end
 
     # Check trailing whitespace so we can tell 'x' from 'x '
     str_match = str.match(/[^\\]([\\]{2})*\s+$/)
@@ -424,11 +430,7 @@ module DispatcherShell
 
     # Pop the last word and pass it to the real method
     result = tab_complete_stub(str, split_str)
-    if result
-      result.uniq
-    else
-      result
-    end
+    result&.uniq
   end
 
   # Performs tab completion of a command, if supported

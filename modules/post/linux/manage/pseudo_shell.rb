@@ -4,6 +4,7 @@
 ##
 
 require 'readline'
+require 'reline'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
@@ -104,9 +105,10 @@ class MetasploitModule < Msf::Post
   def prompt_show
     promptshell = "#{@vusername}@#{@vhostname}:#{pwd.strip}#{@vpromptchar} "
     comp = proc { |s| LIST.grep(/^#{Regexp.escape(s)}/) }
-    Readline.completion_append_character = ' '
-    Readline.completion_proc = comp
-    input = Readline.readline(promptshell, true)
+    lib = Msf::Ui::Console::Driver.input_lib
+    lib.completion_append_character = ' '
+    lib.completion_proc = comp
+    input = lib.readline(promptshell, true)
     return nil if input.nil?
 
     input
