@@ -28,7 +28,7 @@ module Msf::DBManager::ModuleCache
     values.collect { |value| "%#{value}%" }
   end
 
-  def module_to_details_hash(m)
+  def module_to_details_hash(m, with_mixins: true)
     res  = {}
     bits = []
 
@@ -92,8 +92,10 @@ module Msf::DBManager::ModuleCache
       res[:stance] = m.stance.to_s.index("aggressive") ? "aggressive" : "passive"
 
 
-      m.class.mixins.each do |x|
-         bits << [ :mixin, { :name => x.to_s } ]
+      if with_mixins
+        m.class.mixins.each do |x|
+           bits << [ :mixin, { :name => x.to_s } ]
+        end
       end
     end
 
@@ -269,7 +271,6 @@ module Msf::DBManager::ModuleCache
       }
 
       Mdm::Module::Detail.find_each do |md|
-
         unless md.ready
           refresh << md
           next
@@ -291,6 +292,7 @@ module Msf::DBManager::ModuleCache
 
       refresh.each { |md| md.destroy }
 
+      new_modules = []
       [
           ['exploit', framework.exploits],
           ['auxiliary', framework.auxiliary],
@@ -305,13 +307,11 @@ module Msf::DBManager::ModuleCache
           next if skip_reference_name_set.include? mn
           obj = mt[1].create(mn)
           next if not obj
-          begin
-            update_module_details(obj)
-          rescue ::Exception => e
-            elog("Error updating module details for #{obj.fullname}", error: e)
-          end
+          new_modules <<= obj
         end
       end
+
+      insert_all(new_modules)
 
       self.framework.cache_initialized = true
     end
@@ -332,7 +332,7 @@ module Msf::DBManager::ModuleCache
     return if not self.migrated
 
     ApplicationRecord.connection_pool.with_connection do
-      info = module_to_details_hash(module_instance)
+      info = module_to_details_hash(module_instance, with_mixins: false)
       bits = info.delete(:bits) || []
       module_detail = Mdm::Module::Detail.create!(info)
 
@@ -358,5 +358,63 @@ module Msf::DBManager::ModuleCache
       module_detail.ready = true
       module_detail.save!
     end
+  end
+
+  private
+
+  # Insert the Msf::Module array into the Mdm::Module::Detail database class
+  #
+  # @param [Array<Msf::Module>] modules
+  def insert_all(modules)
+    module_hashes = modules.filter_map do |mod|
+      begin
+        hash = module_to_details_hash(mod, with_mixins: false)
+        # The insert_all API requires all hashes to have the same keys present, so explicitly set these potentially missing keys
+        hash[:disclosure_date] ||= nil
+        hash[:default_target] ||= nil
+        hash[:default_action] ||= nil
+        hash[:stance] ||= nil
+        hash
+      rescue ::Exception => e
+        elog("Error updating module details for #{mod.fullname}", error: e)
+        nil
+      end
+    end
+    return if module_hashes.empty?
+
+    # 1) Bulk insert the module detail entries
+    module_details = module_hashes.map { |mod_hash| mod_hash.except(:bits) }
+    module_detail_ids = Mdm::Module::Detail.insert_all!(module_details, returning: %w[id]).map { |returning| returning['id'] }
+
+    # 2) Build the hashes for the associations
+    associations = module_hashes.zip(module_detail_ids).each_with_object(Hash.new { |hash, key| hash[key] = [] }) do |(module_hash, detail_id), acc|
+      module_hash[:bits].each do |args|
+        otype, vals = args
+
+        case otype
+        when :action
+          acc[Mdm::Module::Action] << { detail_id: detail_id, name: vals[:name] }
+        when :arch
+          acc[Mdm::Module::Arch] << { detail_id: detail_id, name: vals[:name] }
+        when :author
+          acc[Mdm::Module::Author] << { detail_id: detail_id, name: vals[:name], email: vals[:email] }
+        when :platform
+          acc[Mdm::Module::Platform] << { detail_id: detail_id, name: vals[:name] }
+        when :ref
+          acc[Mdm::Module::Ref] << { detail_id: detail_id, name: vals[:name] }
+        when :target
+          acc[Mdm::Module::Target] << { detail_id: detail_id, index: vals[:index], name: vals[:name] }
+        end
+      end
+    end
+
+    # 3) Insert all of the associations
+    associations.each do |association_clazz, entries|
+      next if entries.empty?
+
+      association_clazz.insert_all!(entries)
+    end
+
+    nil
   end
 end
