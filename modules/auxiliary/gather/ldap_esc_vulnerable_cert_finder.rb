@@ -45,17 +45,18 @@ class MetasploitModule < Msf::Auxiliary
           allows enrollment in and which SIDs are authorized to use that certificate server to
           perform this enrollment operation.
 
-          Currently the module is capable of checking for certificates that are vulnerable to ESC1, ESC2, ESC3, and
-          ESC13. The module is limited to checking for these techniques due to them being identifiable remotely from a
-          normal user account by analyzing the objects in LDAP.
+          Currently the module is capable of checking for certificates that are vulnerable to ESC1, ESC2, ESC3, ESC13,
+          and ESC15. The module is limited to checking for these techniques due to them being identifiable remotely from
+          a normal user account by analyzing the objects in LDAP.
         },
         'Author' => [
           'Grant Willcox', # Original module author
-          'Spencer McIntyre' # ESC13 update
+          'Spencer McIntyre' # ESC13 and ESC15 updates
         ],
         'References' => [
           [ 'URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
-          [ 'URL', 'https://posts.specterops.io/adcs-esc13-abuse-technique-fda4272fbd53' ] # ESC13
+          [ 'URL', 'https://posts.specterops.io/adcs-esc13-abuse-technique-fda4272fbd53' ], # ESC13
+          [ 'URL', 'https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc' ] # ESC15
         ],
         'DisclosureDate' => '2021-06-17',
         'License' => MSF_LICENSE,
@@ -373,6 +374,21 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def find_esc15_vuln_cert_templates
+    esc_raw_filter = '(&'\
+      '(objectclass=pkicertificatetemplate)'\
+      '(!(mspki-enrollment-flag:1.2.840.113556.1.4.804:=2))'\
+      '(|(mspki-ra-signature=0)(!(mspki-ra-signature=*)))'\
+      '(pkiextendedkeyusage=*)'\
+      '(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=1)'\
+      '(mspki-template-schema-version=1)'\
+    ')'
+    notes = [
+      'ESC15: Request can specify a subjectAltName (msPKI-Certificate-Name-Flag) and EKUs can be altered (msPKI-Template-Schema-Version)'
+    ]
+    query_ldap_server_certificates(esc_raw_filter, 'ESC15', notes: notes)
+  end
+
   def find_enrollable_vuln_certificate_templates
     # For each of the vulnerable certificate templates, determine which servers
     # allows users to enroll in that certificate template and which users/groups
@@ -439,7 +455,7 @@ class MetasploitModule < Msf::Auxiliary
         next if vuln == 'ESC3_TEMPLATE_2'
 
         prefix = "#{vuln}:"
-        info = hash[:notes].select { |note| note.start_with?(prefix) }.map { |note| note.delete_prefix(prefix) }.join("\n")
+        info = hash[:notes].select { |note| note.start_with?(prefix) }.map { |note| note.delete_prefix(prefix).strip }.join("\n")
         info = nil if info.blank?
 
         report_vuln(
@@ -555,6 +571,7 @@ class MetasploitModule < Msf::Auxiliary
       find_esc2_vuln_cert_templates
       find_esc3_vuln_cert_templates
       find_esc13_vuln_cert_templates
+      find_esc15_vuln_cert_templates
 
       find_enrollable_vuln_certificate_templates
       print_vulnerable_cert_info
