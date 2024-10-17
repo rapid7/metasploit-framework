@@ -207,10 +207,10 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
           expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
             Kerberos Cache
             ==============
-            id    host        principal                      sname                                   issued                     status       path
-            --    ----        ---------                      -----                                   ------                     ------       ----
-            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active       #{valid_ccache_path}
-            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            #{Time.parse('2022-12-16 12:05:05 +0000').to_time}  >>expired<<  #{expired_ccache_path}
+            id    host        principal                      sname                                   enctype  issued                     status       path
+            --    ----        ---------                      -----                                   -------  ------                     ------       ----
+            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  AES256   #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active       #{valid_ccache_path}
+            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            AES256   #{Time.parse('2022-12-16 12:05:05 +0000').to_time}  >>expired<<  #{expired_ccache_path}
           TABLE
         end
       end
@@ -221,9 +221,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
           expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
             Kerberos Cache
             ==============
-            id    host       principal                      sname                                   issued                     status  path
-            --    ----       ---------                      -----                                   ------                     ------  ----
-            [id]  192.0.2.2  Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active  #{valid_ccache_path}
+            id    host       principal                      sname                                   enctype  issued                     status  path
+            --    ----       ---------                      -----                                   -------  ------                     ------  ----
+            [id]  192.0.2.2  Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  AES256   #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active  #{valid_ccache_path}
           TABLE
         end
       end
@@ -296,10 +296,10 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
           expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
             Kerberos Cache
             ==============
-            id    host        principal                      sname                                   issued                     status       path
-            --    ----        ---------                      -----                                   ------                     ------       ----
-            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active       #{old_valid_ccache_path}
-            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            #{Time.parse('2022-12-16 12:05:05 +0000').to_time}  >>expired<<  #{old_expired_ccache_path}
+            id    host        principal                      sname                                   enctype  issued                     status       path
+            --    ----        ---------                      -----                                   -------  ------                     ------       ----
+            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  AES256   #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active       #{old_valid_ccache_path}
+            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            AES256   #{Time.parse('2022-12-16 12:05:05 +0000').to_time}  >>expired<<  #{old_expired_ccache_path}
             Deleted 2 entries
           TABLE
           expect(kerberos_ticket_storage.tickets.length).to eq(0)
@@ -312,9 +312,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
           expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
             Kerberos Cache
             ==============
-            id    host       principal                      sname                                   issued                     status  path
-            --    ----       ---------                      -----                                   ------                     ------  ----
-            [id]  192.0.2.2  Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active  #{valid_ccache_path}
+            id    host       principal                      sname                                   enctype  issued                     status  path
+            --    ----       ---------                      -----                                   -------  ------                     ------  ----
+            [id]  192.0.2.2  Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  AES256   #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active  #{valid_ccache_path}
           TABLE
         end
       end
@@ -325,10 +325,10 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
           expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
             Kerberos Cache
             ==============
-            id    host        principal                      sname                                   issued                     status       path
-            --    ----        ---------                      -----                                   ------                     ------       ----
-            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active       #{valid_ccache_path}
-            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            #{Time.parse('2022-12-16 12:05:05 +0000').to_time}  >>expired<<  #{expired_ccache_path}
+            id    host        principal                      sname                                   enctype  issued                     status       path
+            --    ----        ---------                      -----                                   -------  ------                     ------       ----
+            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  AES256   #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active       #{valid_ccache_path}
+            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            AES256   #{Time.parse('2022-12-16 12:05:05 +0000').to_time}  >>expired<<  #{expired_ccache_path}
           TABLE
         end
       end
@@ -339,10 +339,10 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
           expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
             Kerberos Cache
             ==============
-            id    host        principal                      sname                                   issued                     status       path
-            --    ----        ---------                      -----                                   ------                     ------       ----
-            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active       #{valid_ccache_path}
-            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            #{Time.parse('2022-12-16 12:05:05 +0000').to_time}  >>expired<<  #{expired_ccache_path}
+            id    host        principal                      sname                                   enctype  issued                     status       path
+            --    ----        ---------                      -----                                   -------  ------                     ------       ----
+            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  AES256   #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active       #{valid_ccache_path}
+            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            AES256   #{Time.parse('2022-12-16 12:05:05 +0000').to_time}  >>expired<<  #{expired_ccache_path}
           TABLE
         end
       end
@@ -353,10 +353,10 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
           expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
             Kerberos Cache
             ==============
-            id    host        principal                      sname                                   issued                     status       path
-            --    ----        ---------                      -----                                   ------                     ------       ----
-            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active       #{valid_ccache_path}
-            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            #{Time.parse('2022-12-16 12:05:05 +0000').to_time}  >>expired<<  #{expired_ccache_path}
+            id    host        principal                      sname                                   enctype  issued                     status       path
+            --    ----        ---------                      -----                                   -------  ------                     ------       ----
+            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  AES256   #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active       #{valid_ccache_path}
+            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            AES256   #{Time.parse('2022-12-16 12:05:05 +0000').to_time}  >>expired<<  #{expired_ccache_path}
           TABLE
         end
       end
@@ -367,10 +367,10 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
           expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
             Kerberos Cache
             ==============
-            id    host        principal                      sname                                   issued                     status       path
-            --    ----        ---------                      -----                                   ------                     ------       ----
-            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active       #{valid_ccache_path}
-            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            #{Time.parse('2022-12-16 12:05:05 +0000').to_time}  >>expired<<  #{expired_ccache_path}
+            id    host        principal                      sname                                   enctype  issued                     status       path
+            --    ----        ---------                      -----                                   -------  ------                     ------       ----
+            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  AES256   #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active       #{valid_ccache_path}
+            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            AES256   #{Time.parse('2022-12-16 12:05:05 +0000').to_time}  >>expired<<  #{expired_ccache_path}
           TABLE
         end
       end
@@ -418,10 +418,10 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
           expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
             Kerberos Cache
             ==============
-            id    host        principal                      sname                                   issued                     status       path
-            --    ----        ---------                      -----                                   ------                     ------       ----
-            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  inactive     #{valid_ccache_path}
-            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            #{Time.parse('2022-12-16 12:05:05 +0000').to_time}  >>expired<<  #{expired_ccache_path}
+            id    host        principal                      sname                                   enctype  issued                     status       path
+            --    ----        ---------                      -----                                   -------  ------                     ------       ----
+            [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  AES256   #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  inactive     #{valid_ccache_path}
+            [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            AES256   #{Time.parse('2022-12-16 12:05:05 +0000').to_time}  >>expired<<  #{expired_ccache_path}
             Deactivated 2 entries
           TABLE
         end
@@ -439,10 +439,10 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
             expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
               Kerberos Cache
               ==============
-              id    host        principal                      sname                                   issued                     status       path
-              --    ----        ---------                      -----                                   ------                     ------       ----
-              [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active       #{valid_ccache_path}
-              [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            #{Time.parse('2022-12-16 12:05:05 +0000').to_time}  >>expired<<  #{expired_ccache_path}
+              id    host        principal                      sname                                   enctype  issued                     status       path
+              --    ----        ---------                      -----                                   -------  ------                     ------       ----
+              [id]  192.0.2.2   Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  AES256   #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active       #{valid_ccache_path}
+              [id]  192.0.2.24  Administrator@ADF3.LOCAL       krbtgt/ADF3.LOCAL@ADF3.LOCAL            AES256   #{Time.parse('2022-12-16 12:05:05 +0000').to_time}  >>expired<<  #{expired_ccache_path}
               Activated 2 entries
             TABLE
           end
@@ -457,9 +457,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
           expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
             Kerberos Cache
             ==============
-            id    host       principal                      sname                                   issued                     status  path
-            --    ----       ---------                      -----                                   ------                     ------  ----
-            [id]  192.0.2.2  Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active  #{old_valid_ccache_path}
+            id    host       principal                      sname                                   enctype  issued                     status  path
+            --    ----       ---------                      -----                                   -------  ------                     ------  ----
+            [id]  192.0.2.2  Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  AES256   #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  active  #{old_valid_ccache_path}
             Deleted 1 entry
           TABLE
           expect(kerberos_ticket_storage.tickets.length).to eq(1)
@@ -472,9 +472,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db::Klist do
           expect(table_without_ids(@output.join("\n"))).to match_table <<~TABLE
             Kerberos Cache
             ==============
-            id    host       principal                      sname                                   issued                     status    path
-            --    ----       ---------                      -----                                   ------                     ------    ----
-            [id]  192.0.2.2  Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  inactive  #{valid_ccache_path}
+            id    host       principal                      sname                                   enctype  issued                     status    path
+            --    ----       ---------                      -----                                   -------  ------                     ------    ----
+            [id]  192.0.2.2  Administrator@WINDOMAIN.LOCAL  krbtgt/WINDOMAIN.LOCAL@WINDOMAIN.LOCAL  AES256   #{Time.parse('2022-11-28 15:51:29 +0000').to_time}  inactive  #{valid_ccache_path}
             Deactivated 1 entry
           TABLE
         end
