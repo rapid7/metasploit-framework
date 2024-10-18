@@ -1,22 +1,33 @@
-name: Build and test payloads
+name: Shared Meterpreter Acceptance
 on:
   workflow_call:
     inputs:
-      metasploit-framework_commit:
+      # Defaults set as '' will use the current branch as their commit
+      metasploit_framework_commit:
         description: "metasploit-framework commit to build with"
-        default: ""
+        default: ''
         required: false
         type: string
-      metasploit-payloads_commit:
+      metasploit_payloads_commit:
         description: "metasploit-payloads commit to build with"
-        default: "master"
+        default: ''
         required: false
         type: string
       mettle_commit:
         description: "mettle commit to build with"
-        default: "master"
+        default: ''
         required: false
         type: string
+      build_mettle:
+        description: "Whether or not to build mettle"
+        default: false
+        required: false
+        type: boolean
+      build_metasploit_payloads:
+        description: "Whether or not to build metasploit-payloads"
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   # Compile Java Meterpreter via docker if required, we can't always do this on the
@@ -25,7 +36,7 @@ jobs:
   java_meterpreter_compilation:
     name: Compile Java Meterpreter
     runs-on: ubuntu-latest
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') && inputs.metasploit-payloads_commit != 'master' }}
+    if: ${{ inputs.build_metasploit_payloads }}
 
     steps:
       - name: Checkout metasploit-payloads
@@ -33,7 +44,7 @@ jobs:
         with:
           repository: rapid7/metasploit-payloads
           path: metasploit-payloads
-          ref: ${{ inputs.metasploit-payloads_commit }}
+          ref: ${{ inputs.metasploit_payloads_commit }}
 
       - name: Build Java and Android payloads
         run: |
@@ -138,7 +149,7 @@ jobs:
       #  └── metasploit-payloads (Only if the "payload-testing-branch" GitHub label is applied)
       #  └── mettle (Only if the "payload-testing-mettle-branch" GitHub label is applied)
       - name: Checkout mettle
-        if: ${{ matrix.meterpreter.name == 'mettle' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') && inputs.mettle_commit != 'master' }}
+        if: ${{ matrix.meterpreter.name == 'mettle' && inputs.build_mettle }}
         uses: actions/checkout@v4
         with:
           repository: rapid7/mettle
@@ -146,27 +157,27 @@ jobs:
           ref: ${{ inputs.mettle_commit }}
 
       - name: Get mettle version
-        if: ${{ matrix.meterpreter.name == 'mettle' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') && inputs.mettle_commit != 'master' }}
+        if: ${{ matrix.meterpreter.name == 'mettle' && inputs.build_mettle }}
         run: |
           echo "METTLE_VERSION=$(grep -oh '[0-9].[0-9].[0-9]*' lib/metasploit_payloads/mettle/version.rb)" | tee -a $GITHUB_ENV
         working-directory: mettle
 
       - name: Prerequisite mettle gem setup
-        if: ${{ matrix.meterpreter.name == 'mettle' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') && inputs.mettle_commit != 'master' }}
+        if: ${{ matrix.meterpreter.name == 'mettle' && inputs.build_mettle }}
         run: |
           set -x
           ruby -pi.bak -e "gsub(/${{ env.METTLE_VERSION }}/, '${{ env.METTLE_VERSION }}-dev')" lib/metasploit_payloads/mettle/version.rb
         working-directory: mettle
 
       - name: Compile mettle payloads
-        if: ${{ matrix.meterpreter.name == 'mettle' && runner.os != 'macos' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') && inputs.mettle_commit != 'master' }}
+        if: ${{ matrix.meterpreter.name == 'mettle' && runner.os != 'macos' && inputs.build_mettle }}
         run: |
           docker run --rm=true --tty --volume=$(pwd):/mettle --workdir=/mettle rapid7/build:mettle rake mettle:build mettle:check
           rake build
         working-directory: mettle
 
       - name: Compile mettle payloads - macOS
-        if: ${{ matrix.meterpreter.name == 'mettle' && runner.os == 'macos' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') && inputs.mettle_commit != 'master' }}
+        if: ${{ matrix.meterpreter.name == 'mettle' && runner.os == 'macos' && inputs.build_mettle }}
         run: |
           make TARGET=x86_64-apple-darwin
           rake build
@@ -177,7 +188,7 @@ jobs:
         with:
           repository: rapid7/metasploit-framework
           path: metasploit-framework
-          ref: ${{ inputs.metasploit-framework_commit }}
+          ref: ${{ inputs.metasploit_framework_commit }}
 
       - name: Setup Ruby
         env:
@@ -192,7 +203,7 @@ jobs:
           working-directory: metasploit-framework
 
       - name: Move mettle gem into framework
-        if: ${{ matrix.meterpreter.name == 'mettle' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') && inputs.mettle_commit != 'master' }}
+        if: ${{ matrix.meterpreter.name == 'mettle' && inputs.build_mettle }}
         run: |
           cp ../mettle/pkg/metasploit_payloads-mettle-${{ env.METTLE_VERSION }}.pre.dev.gem .
         working-directory: metasploit-framework
@@ -200,13 +211,13 @@ jobs:
       - uses: actions/download-artifact@v4
         name: Download Java meterpreter
         id: download_java_meterpreter
-        if: ${{ matrix.meterpreter.name == 'java' && contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') && inputs.metasploit-payloads_commit != 'master' }}
+        if: ${{ matrix.meterpreter.name == 'java' && inputs.build_metasploit_payloads }}
         with:
           # Note: Not specifying a name will download all artifacts from the previous workflow jobs
           path: raw-data
 
       - name: Extract Java Meterpreter (Unix)
-        if: ${{ matrix.meterpreter.name == 'java' && runner.os != 'Windows' && contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') && inputs.metasploit-payloads_commit != 'master' }}
+        if: ${{ matrix.meterpreter.name == 'java' && runner.os != 'Windows' && inputs.build_metasploit_payloads }}
         shell: bash
         run: |
           set -x
@@ -214,7 +225,7 @@ jobs:
           cp -r  $download_path/java-artifacts/data/* ./metasploit-framework/data
 
       - name: Extract Java Meterpreter (Windows)
-        if: ${{ matrix.meterpreter.name == 'java' && runner.os == 'Windows' && contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') && inputs.metasploit-payloads_commit != 'master' }}
+        if: ${{ matrix.meterpreter.name == 'java' && runner.os == 'Windows' && inputs.build_metasploit_payloads }}
         shell: bash
         run: |
           set -x
@@ -222,7 +233,7 @@ jobs:
           cp -r  $download_path/java-artifacts/data/* ./metasploit-framework/data
 
       - name: Install mettle gem
-        if: ${{ matrix.meterpreter.name == 'mettle' && contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') && inputs.mettle_commit != 'master' }}
+        if: ${{ matrix.meterpreter.name == 'mettle' && inputs.build_mettle }}
         run: |
           set -x
           bundle exec gem install metasploit_payloads-mettle-${{ env.METTLE_VERSION }}.pre.dev.gem
@@ -233,16 +244,16 @@ jobs:
         working-directory: metasploit-framework
 
       - name: Checkout metasploit-payloads
-        if: ${{ contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') && inputs.metasploit-payloads_commit != 'master' }}
+        if: ${{ inputs.build_metasploit_payloads }}
         uses: actions/checkout@v4
         with:
           repository: rapid7/metasploit-payloads
           path: metasploit-payloads
-          ref: ${{ inputs.metasploit-payloads_commit }}
+          ref: ${{ inputs.metasploit_payloads_commit }}
 
       - name: Build Windows payloads via Visual Studio 2019 Build (Windows)
         shell: cmd
-        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2019' && contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') && inputs.metasploit-payloads_commit != 'master' }}
+        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2019' && inputs.build_metasploit_payloads }}
         run: |
           cd c/meterpreter
           git submodule init && git submodule update
@@ -251,7 +262,7 @@ jobs:
 
       - name: Build Windows payloads via Visual Studio 2022 Build (Windows)
         shell: cmd
-        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2022' && contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') && inputs.metasploit-payloads_commit != 'master' }}
+        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2022' && inputs.build_metasploit_payloads }}
         run: |
           cd c/meterpreter
           git submodule init && git submodule update
@@ -259,7 +270,7 @@ jobs:
         working-directory: metasploit-payloads
 
       - name: Build PHP, Python and Windows payloads
-        if: ${{ (matrix.meterpreter.name == 'php' || matrix.meterpreter.name == 'python' || runner.os == 'Windows') && contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') && inputs.metasploit-payloads_commit != 'master' }}
+        if: ${{ (matrix.meterpreter.name == 'php' || matrix.meterpreter.name == 'python' || runner.os == 'Windows') && inputs.build_metasploit_payloads }}
         run: |
           make install-php install-python install-windows
         working-directory: metasploit-payloads

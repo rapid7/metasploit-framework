@@ -24,11 +24,11 @@ permissions:
 on:
   workflow_dispatch:
     inputs:
-      metasploitPayloadsCommit:
+      metasploit_payloads_commit:
         description: 'metasploit-payloads branch would like to test'
         required: true
         default: 'master'
-      mettleCommit:
+      mettle_commit:
         description: 'mettle branch you would like to test'
         required: true
         default: 'master'
@@ -59,5 +59,7 @@ jobs:
   build:
     uses: ./.github/workflows/shared_meterpreter_acceptance.yml
     with:
-      metasploit-payloads_commit: ${{ github.event.inputs.metasploitPayloadsCommit }}
-      mettle_commit: ${{ github.event.inputs.mettleCommit }}
+      metasploit_payloads_commit: ${{ github.event.inputs.metasploit_payloads_commit }}
+      mettle_commit: ${{ github.event.inputs.mettle_commit }}
+      build_metasploit_payloads: ${{ contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') }}
+      build_mettle: ${{ contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}
