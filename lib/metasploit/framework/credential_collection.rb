@@ -280,6 +280,16 @@ module Metasploit::Framework
         yield Metasploit::Framework::Credential.new(public: '', private: '', realm: realm, private_type: :password)
       end
 
+      if user_as_pass
+        if user_fd
+          user_fd.each_line do |user_from_file|
+            user_from_file.chomp!
+            yield Metasploit::Framework::Credential.new(public: user_from_file, private: user_from_file, realm: realm, private_type: private_type(password))
+          end
+          user_fd.seek(0)
+        end
+      end
+
       if password.present?
         if nil_passwords
           yield Metasploit::Framework::Credential.new(public: username, private: nil, realm: realm, private_type: :password)
@@ -308,9 +318,6 @@ module Metasploit::Framework
             pass_from_file.chomp!
             if username.present?
               yield Metasploit::Framework::Credential.new(public: username, private: pass_from_file, realm: realm, private_type: :password)
-            end
-            if user_as_pass
-              yield Metasploit::Framework::Credential.new(public: pass_from_file, private: pass_from_file, realm: realm, private_type: :password)
             end
             next unless user_fd
 
