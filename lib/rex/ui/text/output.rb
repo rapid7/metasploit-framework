@@ -86,6 +86,11 @@ class Output < Rex::Ui::Output
 
     nil
   end
+
+  # For Reline interop
+  def tty?
+    true
+  end
 end
 
 end

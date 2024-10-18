@@ -94,6 +94,7 @@ class Output::Stdio < Rex::Ui::Text::Output
     msg
   end
   alias_method :write, :print_raw
+  alias_method :<<, :write
 
   def supports_color?
     case config[:color]
