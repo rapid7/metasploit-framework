@@ -25,11 +25,11 @@ on:
   workflow_dispatch:
     inputs:
       metasploit_payloads_commit:
-        description: 'metasploit-payloads branch would like to test'
+        description: 'metasploit-payloads branch you want to test'
         required: true
         default: 'master'
       mettle_commit:
-        description: 'mettle branch you would like to test'
+        description: 'mettle branch you want to test'
         required: true
         default: 'master'
   push:
