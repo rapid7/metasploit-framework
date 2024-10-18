@@ -1,0 +1,185 @@
+name: Shared SMB Acceptance
+on:
+  workflow_call:
+    inputs:
+      # Defaults set as '' will use the current branch as their commit
+      metasploit_framework_commit:
+        description: "metasploit-framework commit to build with"
+        default: ''
+        required: false
+        type: string
+      build_smb:
+        description: "Whether or not to build ruby_smb"
+        default: false
+        required: false
+        type: boolean
+
+jobs:
+  smb:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+
+    strategy:
+      fail-fast: true
+      matrix:
+        ruby:
+          - '3.2'
+        os:
+          - ubuntu-latest
+
+    env:
+      RAILS_ENV: test
+      SMB_USERNAME: acceptance_tests_user
+      SMB_PASSWORD: acceptance_tests_password
+      BUNDLE_WITHOUT: "coverage development pcap"
+
+    name: SMB Acceptance - ${{ matrix.os }} - Ruby ${{ matrix.ruby }}
+    steps:
+      # The job checkout structure is:
+      #  .
+      #  ├── metasploit-framework
+      #  └── ruby_smb
+      - name: Checkout ruby_smb
+        uses: actions/checkout@v4
+        with:
+          repository: rapid7/ruby_smb
+          path: ruby_smb
+
+      - name: Get ruby_smb version
+        if: ${{ inputs.build_smb }}
+        run: |
+          echo "RUBY_SMB_VERSION=$(grep -oh '[0-9].[0-9].[0-9]*' lib/ruby_smb/version.rb)" | tee -a $GITHUB_ENV
+        working-directory: ruby_smb
+
+      - name: Build ruby_smb gem
+        if: ${{ inputs.build_smb }}
+        run: |
+          gem build ruby_smb.gemspec
+        working-directory: ruby_smb
+
+      - name: Install system dependencies
+        run: sudo apt-get install -y --no-install-recommends libpcap-dev graphviz
+
+      - name: Checkout metasploit-framework code
+        uses: actions/checkout@v4
+        with:
+          repository: rapid7/metasploit-framework
+          path: metasploit-framework
+          ref: ${{ inputs.metasploit_framework_commit }}
+
+      - name: Run docker container
+        working-directory: 'metasploit-framework'
+        run: |
+          cd test/smb
+          docker compose build
+          docker compose up --wait -d
+
+      - name: Setup Ruby
+        env:
+          # Nokogiri doesn't release pre-compiled binaries for preview versions of Ruby; So force compilation with BUNDLE_FORCE_RUBY_PLATFORM
+          BUNDLE_FORCE_RUBY_PLATFORM: "${{ contains(matrix.ruby, 'preview') && 'true' || 'false' }}"
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '${{ matrix.ruby }}'
+          bundler-cache: true
+          working-directory: 'metasploit-framework'
+
+      - name: Copy ruby_smb gem into metasploit-framework
+        if: ${{ inputs.build_smb }}
+        run: |
+          cp ../ruby_smb/ruby_smb-${{ env.RUBY_SMB_VERSION }}.gem .
+        working-directory: metasploit-framework
+
+      - name: Install ruby_smb gem
+        if: ${{ inputs.build_smb }}
+        run: |
+          bundle exec gem install ruby_smb-${{ env.RUBY_SMB_VERSION }}.gem
+          bundle config unset deployment
+          bundle update ruby_smb
+          bundle install
+        working-directory: metasploit-framework
+
+      - name: acceptance
+        env:
+          SPEC_HELPER_LOAD_METASPLOIT: false
+          SPEC_OPTS: "--tag acceptance --require acceptance_spec_helper.rb --color --format documentation --format AllureRspec::RSpecFormatter"
+          RUNTIME_VERSION: 'latest'
+        # Unix run command:
+        #   SPEC_HELPER_LOAD_METASPLOIT=false bundle exec ./spec/acceptance
+        # Windows cmd command:
+        #   set SPEC_HELPER_LOAD_METASPLOIT=false
+        #   bundle exec rspec .\spec\acceptance
+        # Note: rspec retry is intentionally not used, as it can cause issues with allure's reporting
+        # Additionally - flakey tests should be fixed or marked as flakey instead of silently retried
+        run: |
+          bundle exec rspec spec/acceptance/smb_spec.rb
+        working-directory: metasploit-framework
+
+      - name: Archive results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          # Provide a unique artifact for each matrix os, otherwise race conditions can lead to corrupt zips
+          name: smb_acceptance-${{ matrix.os }}
+          path: metasploit-framework/tmp/allure-raw-data
+
+  # Generate a final report from the previous test results
+  report:
+    name: Generate report
+    needs:
+      - smb
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: rapid7/metasploit-framework
+          path: metasploit-framework
+          ref: ${{ inputs.metasploit_framework_commit }}
+
+      - name: Install system dependencies (Linux)
+        if: always()
+        run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
+
+      - name: Setup Ruby
+        if: always()
+        env:
+          BUNDLE_FORCE_RUBY_PLATFORM: true
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '${{ matrix.ruby }}'
+          bundler-cache: true
+          cache-version: 4
+          working-directory: metasploit-framework
+
+      - uses: actions/download-artifact@v4
+        id: download
+        if: always()
+        with:
+          # Note: Not specifying a name will download all artifacts from the previous workflow jobs
+          path: raw-data
+
+      - name: allure generate
+        if: always()
+        run: |
+          export VERSION=2.22.1
+
+          curl -o allure-$VERSION.tgz -Ls https://github.com/allure-framework/allure2/releases/download/$VERSION/allure-$VERSION.tgz
+          tar -zxvf allure-$VERSION.tgz -C .
+
+          ls -la ${{steps.download.outputs.download-path}}
+          ./allure-$VERSION/bin/allure generate ${{steps.download.outputs.download-path}}/* -o ./allure-report
+
+          find ${{steps.download.outputs.download-path}}
+          bundle exec ruby tools/dev/report_generation/support_matrix/generate.rb --allure-data ${{steps.download.outputs.download-path}} > ./allure-report/support_matrix.html
+        working-directory: metasploit-framework
+
+      - name: archive results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-report-${{ github.run_id }}
+          path: |
+            ./allure-report
