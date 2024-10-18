@@ -728,7 +728,7 @@ protected
       # Only Windows requires a monkey-patched RbReadline
       return unless Rex::Compat.is_windows
 
-      if defined?(::RbReadline)
+      if defined?(::RbReadline) && !defined?(RbReadline.refresh_console_handle)
         ::RbReadline.instance_eval do
           class << self
             alias_method :old_rl_move_cursor_relative, :_rl_move_cursor_relative
