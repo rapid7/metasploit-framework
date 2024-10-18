@@ -28,3 +28,4 @@ msPKI-Private-Key-Flag: 0x10
 # CT_FLAG_SUBJECT_ALT_REQUIRE_UPN | CT_FLAG_SUBJECT_REQUIRE_DIRECTORY_PATH
 msPKI-Certificate-Name-Flag: 0x82000000
 msPKI-Minimal-Key-Size: 2048
+msPKI-Template-Schema-Version: 2
