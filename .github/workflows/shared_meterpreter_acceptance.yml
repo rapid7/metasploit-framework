@@ -309,6 +309,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         if: always()
+        with:
+          repository: rapid7/metasploit-framework
+          ref: ${{ inputs.metasploit_framework_commit }}
 
       - name: Install system dependencies (Linux)
         if: always()
