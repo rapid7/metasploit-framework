@@ -29,7 +29,7 @@ This should return all the tickets from the Web Help Desk platform.
 
 ## Options
 
-### TICKETSTODUMP
+### TICKET_COUNT
 The number of tickets to dump to the terminal.
 
 ## Scenarios

