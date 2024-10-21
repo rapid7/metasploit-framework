@@ -363,10 +363,16 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt_chromium_password(encrypted_password, key)
+    @app_bound_encryption_detected ||= false
+    @password_decryption_failed ||= false
+
     # Check for the "v20" prefix that indicates App-Bound encryption, which can't be decrypted yet.
     # https://security.googleblog.com/2024/07/improving-security-of-chrome-cookies-on.html
     if encrypted_password[0, 3] == 'v20'
-      print_status('App-Bound encryption detected (v20). Skipping decryption for this entry.') if datastore['VERBOSE']
+      unless @app_bound_encryption_detected
+        print_status('Detected entries using App-Bound encryption (v20). These entries will not be decrypted.')
+        @app_bound_encryption_detected = true
+      end
       return nil
     end
 
@@ -393,7 +399,10 @@ class MetasploitModule < Msf::Post
       decrypted_password = aes.update(ciphertext) + aes.final
       return decrypted_password
     rescue OpenSSL::Cipher::CipherError
-      print_status('Password decryption failed for this entry.') if datastore['VERBOSE']
+      unless @password_decryption_failed
+        print_status('Password decryption failed for one or more entries. These entries could not be decrypted.')
+        @password_decryption_failed = true
+      end
       return nil
     end
   end
