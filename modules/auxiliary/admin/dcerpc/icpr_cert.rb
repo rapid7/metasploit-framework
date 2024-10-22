@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
           template's configuration the resulting certificate can be used for various operations such as authentication.
           PFX certificate files that are saved are encrypted with a blank password.
 
-          This module is capable of exploiting ESC1, ESC2, ESC3 and ESC13.
+          This module is capable of exploiting ESC1, ESC2, ESC3, ESC13 and ESC15.
         },
         'License' => MSF_LICENSE,
         'Author' => [

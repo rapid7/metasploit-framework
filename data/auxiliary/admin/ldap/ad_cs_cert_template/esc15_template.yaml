@@ -29,4 +29,3 @@ msPKI-Private-Key-Flag: 0x10
 # CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT
 msPKI-Certificate-Name-Flag: 1
 msPKI-Minimal-Key-Size: 2048
-msPKI-Template-Schema-Version: 1

@@ -26,6 +26,7 @@ class MetasploitModule < Msf::Auxiliary
     'displayName',
     'instanceType',
     'revision',
+    'msPKI-Template-Schema-Version',
     'msPKI-Template-Minor-Revision',
   ].freeze
 
@@ -48,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
           The READ, UPDATE, and DELETE actions will write a copy of the certificate template to disk that can be
           restored using the CREATE or UPDATE actions. The CREATE and UPDATE actions require a certificate template data
           file to be specified to define the attributes. Template data files are provided to create a template that is
-          vulnerable to ESC1, ESC2, and ESC3.
+          vulnerable to ESC1, ESC2, ESC3 and ESC15.
 
           This module is capable of exploiting ESC4.
         },
@@ -426,6 +427,11 @@ class MetasploitModule < Msf::Auxiliary
     if pki_flag.present?
       pki_flag = [pki_flag.to_i].pack('l').unpack1('L')
       print_status("  msPKI-RA-Signature: 0x#{pki_flag.to_s(16).rjust(8, '0')}")
+    end
+
+    pki_flag = obj['mkpki-template-schema-version']&.first
+    if pki_flag.present?
+      print_status("  msPKI-Template-Schema-Version: #{pki_flag}")
     end
 
     if obj['mspki-certificate-policy'].present?
