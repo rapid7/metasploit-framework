@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  Rank = ExcellentRanking
 
   prepend Msf::Exploit::Remote::AutoCheck
   include Msf::Auxiliary::Report
@@ -31,6 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           This module will gather all machine info (endpoints) configured and managed by the appliance.
           This information can be used in a subsequent attack that exploits this vulnerability to
           execute arbitrary commands on both the managed endpoint and the appliance.
+          This exploit is covered in another module `exploit/multi/acronis_cyber_protect_unauth_rce_cve_2022_3405`.
 
           Acronis Cyber Protect 15 (Windows, Linux) before build 29486 and
           Acronis Cyber Backup 12.5 (Windows, Linux) before build 16545 are vulnerable.
