@@ -46,6 +46,7 @@ on:
       - 'modules/payloads/**'
       - 'lib/msf/core/payload/**'
       - 'lib/msf/core/**'
+      - 'test/modules/**'
       - 'tools/dev/**'
       - 'spec/acceptance/**'
       - 'spec/support/acceptance/**'
