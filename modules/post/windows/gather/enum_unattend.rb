@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Post
         'Description' => %q{
           This module will check the file system for a copy of unattend.xml and/or
           autounattend.xml found in Windows Vista, or newer Windows systems.  And then
-          extract sensitive information such as usernames and decoded passwords.  Also 
+          extract sensitive information such as usernames and decoded passwords.  Also
           checks for '.vmimport' files that could have been created by the AWS EC2 VMIE service.
         },
         'License' => MSF_LICENSE,
