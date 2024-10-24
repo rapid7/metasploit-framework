@@ -98,6 +98,63 @@ module Common
     print_line
   end
 
+  def set_creds_from_database(publics, privates, realms, multi_creds)
+    if publics.nil? || privates.nil?
+      print_status("Unable to fill: Invalid Credentials. Check for creds index and credential options to be filled")
+      return
+    end
+    mydatastore = active_module.datastore
+    user_options = ['USERNAME', 'HttpUsername', 'SMBUser', 'DBUSER', 'FTPUSER', 'SMTPUSERNAME', 'NCSUSER', 'IMAPUSER', 'GitUsername', 'IAX_USER', 'POP2USER']
+    pass_options = ['PASSWORD', 'HttpPassword', 'SMBPass', 'DBPASS', 'FTPPASS', 'SMTPPASSWORD', 'NCSPASS', 'IMAPPASS', 'GitPassword', 'IAX_PASS', 'POP2PASS']
+    domain_options = ['DOMAIN', 'SMBDomain', 'DOMAINNAME']
+
+    # options to check if present for active module
+    if multi_creds == 1
+      if mydatastore.options.include?('USER_FILE') && mydatastore.options.include?('PASS_FILE')
+        user_file = Rex::Quickfile.new("creds-user-file")
+        mydatastore['USER_FILE'] = user_file.path
+        user_file.write(publics.join("\n")+"\n")
+        user_file.close
+        pass_file = Rex::Quickfile.new("creds-pass-file")
+        mydatastore['PASS_FILE'] = pass_file.path
+        pass_file.write(publics.join("\n")+"\n")
+        pass_file.close
+        if mydatastore.options.include?('USERPASS_FILE')
+          i = 0
+          userpass_file = Rex::Quickfile.new("creds-userpass-file")
+          mydatastore['USERPASS_FILE'] = 'file:'+userpass_file.path
+          while i < publics.length do
+            userpass_file.write(publics[i]+"\s"+privates[i]+"\n")
+            i += 1
+          end
+          userpass_file.close
+        end
+      end
+    else
+      user_options.each do |user_option|
+        if mydatastore.options.include?(user_option)
+          mydatastore[user_option] = publics[0]
+          print_line "#{user_option} => #{mydatastore[user_option]}"
+          break
+        end
+      end
+      pass_options.each do |pass_option|
+        if mydatastore.options.include?(pass_option)
+          mydatastore[pass_option] = privates[0]
+          print_line "#{pass_option} => #{mydatastore[pass_option]}"
+          break
+        end
+      end
+      domain_options.each do |domain_option|
+        if mydatastore.options.include?(domain_option)
+          mydatastore[domain_option] = realms[0]
+          print_line "#{domain_option} => #{mydatastore[domain_option]}"
+          break
+        end
+      end
+    end
+  end
+
   def show_options(mod) # :nodoc:
     mod_opt = Serializer::ReadableText.dump_options(mod, '   ')
     print("\nModule options (#{mod.fullname}):\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
