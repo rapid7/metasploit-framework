@@ -158,8 +158,7 @@ jobs:
 
       - name: Get mettle version
         if: ${{ matrix.meterpreter.name == 'mettle' && inputs.build_mettle }}
-        run: |
-          echo "METTLE_VERSION=$(grep -oh '[0-9].[0-9].[0-9]*' lib/metasploit_payloads/mettle/version.rb)" | tee -a $GITHUB_ENV
+        run: echo "METTLE_VERSION=$(ruby -ne "puts Regexp.last_match(1) if /VERSION\s+=\s+'([^']+)'/" lib/metasploit_payloads/mettle/version.rb)" | tee -a $GITHUB_ENV
         working-directory: mettle
 
       - name: Prerequisite mettle gem setup
@@ -244,12 +243,38 @@ jobs:
         working-directory: metasploit-framework
 
       - name: Checkout metasploit-payloads
-        if: ${{ inputs.build_metasploit_payloads }}
+        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
         uses: actions/checkout@v4
         with:
           repository: rapid7/metasploit-payloads
           path: metasploit-payloads
           ref: ${{ inputs.metasploit_payloads_commit }}
+
+      - name: Get metasploit-payloads version
+        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
+        shell: bash
+        run: echo "METASPLOIT_PAYLOADS_VERSION=$(ruby -ne "puts Regexp.last_match(1) if /VERSION\s+=\s+'([^']+)'/" gem/lib/metasploit-payloads/version.rb)" | tee -a $GITHUB_ENV
+        working-directory: metasploit-payloads
+
+      - name: Build metasploit-payloads gem
+        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
+        run: gem build ./gem/metasploit-payloads.gemspec
+        working-directory: metasploit-payloads
+
+      - name: Copy metasploit-payloads gem into metasploit-framework
+        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
+        shell: bash
+        run: cp ../metasploit-payloads/metasploit-payloads-${{ env.METASPLOIT_PAYLOADS_VERSION }}.gem .
+        working-directory: metasploit-framework
+
+      - name: Install metasploit-payloads gem
+        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
+        run: |
+          bundle exec gem install metasploit-payloads-${{ env.METASPLOIT_PAYLOADS_VERSION }}.gem
+          bundle config unset deployment
+          bundle update metasploit-payloads
+          bundle install
+        working-directory: metasploit-framework
 
       - name: Build Windows payloads via Visual Studio 2019 Build (Windows)
         shell: cmd
