@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super({
-      'Name' => 'ESC8 Relay: SMB',
+      'Name' => 'ESC8 Relay: SMB to HTTP(S)',
       'Description' => %q{
         This module creates an SMB server and then relays the credentials passed to it
         to an HTTP server to gain an authenticated connection.  Once that connection is
@@ -18,7 +18,8 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author' => [
         'bwatters-r7',
-        'jhicks-r7' # query for available certs
+        'jhicks-r7', # query for available certs
+        'Spencer McIntyre'
       ],
       'License' => MSF_LICENSE,
       'Actions' => [[ 'Relay', { 'Description' => 'Run SMB ESC8 relay server' } ]],

