@@ -2,7 +2,6 @@ require 'msf/core'
 require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
 
@@ -22,7 +21,8 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('SSL', [false, 'Negotiate SSL/TLS for outgoing connections', false]),
         OptInt.new('THREADS', [true, 'Number of concurrent threads', 10]),
         OptInt.new('MIN_SIZE', [true, 'Minimum file size in bytes to consider (e.g., 5000 for 5KB)', 5000]),
-        OptString.new('USER_AGENT', [false, 'Custom User-Agent header for requests', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'])
+        OptString.new('USER_AGENT', [false, 'Custom User-Agent header for requests',
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'])
       ]
     )
   end
@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
           full_url = "#{protocol}://#{subdomain}:#{port}/#{backup_file}"
 
           print_status("Checking #{full_url} ...")
-          
+
           # Send the HTTP request with the custom User-Agent
           res = send_request_cgi({
             'uri'    => "/#{backup_file}",
@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
           # Handle response and avoid false positives
           if res
             print_status("Status Code: #{res.code}")
-            
+
             # Avoid redirects
             if [301, 302].include?(res.code)
               print_error("Redirect detected: #{full_url} (Status: #{res.code})")
@@ -74,7 +74,11 @@ class MetasploitModule < Msf::Auxiliary
 
             # Check for valid MIME types (e.g., ZIP, TAR, etc.)
             content_type = res.headers['Content-Type']
-            if !content_type || !(content_type.include?('application/zip') || content_type.include?('application/x-tar') || content_type.include?('application/sql') || content_type.include?('application/octet-stream'))
+            unless content_type &&
+                   (content_type.include?('application/zip') ||
+                    content_type.include?('application/x-tar') ||
+                    content_type.include?('application/sql') ||
+                    content_type.include?('application/octet-stream'))
               print_error("Invalid MIME Type: #{full_url} (MIME: #{content_type})")
               next
             end
