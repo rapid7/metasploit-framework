@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The URI of the vulnerable Acronis Cyber Protect/Backup instance', '/']),
-        OptEnum.new('OUTPUT', [true, 'output format to use', 'table', ['table', 'json']])
+        OptEnum.new('OUTPUT', [true, 'Output format to use', 'table', ['table', 'json']])
       ]
     )
   end
@@ -285,6 +285,20 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::NoAccess, 'Retrieval of the second access token failed.') if @access_token2.nil?
     end
 
+    # report vulnerable instance
+    report_web_vuln(
+      web_site: normalize_uri(target_uri.path, 'api', 'ams', 'versions'),
+      host: datastore['RHOSTS'],
+      port: datastore['RPORT'],
+      ssl: (proto =~ /https/),
+      method: 'POST',
+      proof: "Authorization: Bearer #{@access_token2}",
+      risk: 0,
+      confidence: 100,
+      category: 'admin token',
+      description: 'Administrator token providing full web application accesss.',
+      name: 'Acronis Cyber Protect/Backup administrator token'
+    )
     # get all the managed endpoint configuration info
     print_status('Retrieve all managed endpoint configuration details registered at the Acronis Cyber Protect/Backup appliance.')
     res_json = get_machine_info
