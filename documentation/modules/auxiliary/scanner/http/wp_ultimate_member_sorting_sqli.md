@@ -105,14 +105,16 @@ docker cp ultimate-member wordpress:/var/www/html/wp-content/plugins/
 ## Options
 
 ### DIR_ID_MIN and DIR_ID_MAX
-These options specify the range of `directory_id` values used to bruteforce the ID
-during the SQL injection attack.
+These options specify the range of `directory_id` values used to bruteforce the ID during the SQL injection attack.
 By default, they are set from 1 to 100, but you can adjust this range based on your target.
 
 ### COUNT
-This option specifies the number of rows to retrieve from the database during the
-SQL injection attack.
+This option specifies the number of rows to retrieve from the database during the SQL injection attack.
 For example, setting `COUNT` to 5 will retrieve 5 rows from the `wp_users` table.
+
+### PAGE_ID_MIN and PAGE_ID_MAX
+These options specify the range of `page_id` values used to locate the pages containing the nonce required for the SQL injection.
+By default, they are set from 1 to 20, but you can adjust this range based on your target.
 
 ## Scenarios
 

