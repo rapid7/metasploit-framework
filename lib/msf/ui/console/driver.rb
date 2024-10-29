@@ -724,6 +724,46 @@ protected
 
     begin
       require 'readline'
+
+      # Only Windows requires a monkey-patched RbReadline
+      return unless Rex::Compat.is_windows
+
+      if defined?(::RbReadline) && !defined?(RbReadline.refresh_console_handle)
+        ::RbReadline.instance_eval do
+          class << self
+            alias_method :old_rl_move_cursor_relative, :_rl_move_cursor_relative
+            alias_method :old_rl_get_screen_size, :_rl_get_screen_size
+            alias_method :old_space_to_eol, :space_to_eol
+            alias_method :old_insert_some_chars, :insert_some_chars
+          end
+
+          def self.refresh_console_handle
+            # hConsoleHandle gets set only when RbReadline detects it is running on Windows.
+            # Therefore, we don't need to check Rex::Compat.is_windows, we can simply check if hConsoleHandle is nil or not.
+            @hConsoleHandle = @GetStdHandle.Call(::Readline::STD_OUTPUT_HANDLE) if @hConsoleHandle
+          end
+
+          def self._rl_move_cursor_relative(*args)
+            refresh_console_handle
+            old_rl_move_cursor_relative(*args)
+          end
+
+          def self._rl_get_screen_size(*args)
+            refresh_console_handle
+            old_rl_get_screen_size(*args)
+          end
+
+          def self.space_to_eol(*args)
+            refresh_console_handle
+            old_space_to_eol(*args)
+          end
+
+          def self.insert_some_chars(*args)
+            refresh_console_handle
+            old_insert_some_chars(*args)
+          end
+        end
+      end
     rescue ::LoadError => e
       if @rl_err.nil? && index
         # Then this is the first time the require failed and we have an index

@@ -307,7 +307,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
 
     # A regression resulted in the address field being serialized in some cases.
     # Lets handle both instances to keep things happy. See #5837 & #5985
-    addr = nils_for_nulls(host.at('address'))
+    addr = nils_for_nulls(host.at('address')&.text&.to_s&.strip)
     return 0 unless addr
 
     # No period or colon means this must be in base64-encoded serialized form
