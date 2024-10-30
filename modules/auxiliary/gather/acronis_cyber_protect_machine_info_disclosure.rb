@@ -290,7 +290,7 @@ class MetasploitModule < Msf::Auxiliary
       web_site: normalize_uri(target_uri.path, 'api', 'ams', 'versions'),
       host: datastore['RHOSTS'],
       port: datastore['RPORT'],
-      ssl: (proto =~ /https/),
+      ssl: datastore['SSL'],
       method: 'POST',
       proof: "Authorization: Bearer #{@access_token2}",
       risk: 0,
