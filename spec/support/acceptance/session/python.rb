@@ -154,7 +154,6 @@ module Acceptance::Session
           },
           windows: {
             known_failures: [
-              "[-] FAILED: should return the proper directory separator"
             ]
           }
         }

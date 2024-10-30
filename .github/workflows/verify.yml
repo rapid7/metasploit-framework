@@ -67,8 +67,6 @@ jobs:
         os:
           - ubuntu-20.04
           - ubuntu-latest
-        exclude:
-          - { os: ubuntu-latest, ruby: '3.0' }
         include:
           - os: ubuntu-latest
             ruby: '3.1'
