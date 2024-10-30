@@ -23,8 +23,7 @@ module Rex::Proto::Teamcity::Rsa
 
     while n > 2
       n -= 1
-      # TODO: Random
-      r[n] = 0xff
+      r[n] = rand(1..255) # Can't be a null byte.
     end
 
     n -= 1
