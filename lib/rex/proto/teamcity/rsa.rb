@@ -49,13 +49,22 @@ module Rex::Proto::Teamcity::Rsa
     h.length.odd? ? h.prepend('0') : h
   end
 
+  def self.two_byte_chars?(str)
+    str.bytesize > str.length
+  end
+
+  def self.max_data_size(str)
+    # Taken from TeamCity's login page JavaScript sources.
+    two_byte_chars?(str) ? 58 : 116
+  end
+
   # @param [String] text The text to encrypt.
   # @param [String] public_key The hex representation of the public key to use.
   # @return [String] A string blob.
   def self.encrypt_data(text, public_key)
     exponent = '10001'
     e = []
-    g = 116 # TODO: wire up d.maxDataSize(f)
+    g = max_data_size(text)
 
     c = 0
     while c < text.length
