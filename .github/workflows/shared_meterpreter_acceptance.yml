@@ -70,7 +70,7 @@ jobs:
           - windows-2019
           - ubuntu-20.04
         ruby:
-          - 3.0.2
+          - 3.1.5
         meterpreter:
           # Python
           - { name: python, runtime_version: 3.6 }

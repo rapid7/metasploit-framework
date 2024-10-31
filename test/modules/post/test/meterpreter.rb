@@ -150,7 +150,7 @@ class MetasploitModule < Msf::Post
         expected_sep = "/"
       end
       sep = session.fs.file.separator
-      vprint_status("Received separator #{sep.inspect} - expected: #{expected_sep.inspect}")
+      vprint_status("Received separator #{sep.inspect} (#{sep.bytes} - #{sep.encoding}) - expected: #{expected_sep.inspect} (#{expected_sep.bytes} - #{expected_sep.encoding}")
       res = (sep == expected_sep)
       res
     end

@@ -128,8 +128,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'http-cookie'
   # Needed for some modules (polkit_auth_bypass.rb)
   spec.add_runtime_dependency 'unix-crypt'
-  # Needed for Kerberos structure parsing
-  spec.add_runtime_dependency 'rasn1'
+  # Needed for Kerberos structure parsing; Pinned to ensure a security review is performed on updates
+  spec.add_runtime_dependency 'rasn1', '0.13.0'
 
   #
   # File Parsing Libraries
