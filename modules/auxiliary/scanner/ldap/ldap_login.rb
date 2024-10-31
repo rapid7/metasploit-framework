@@ -37,12 +37,16 @@ class MetasploitModule < Msf::Auxiliary
           'APPEND_DOMAIN', [true, 'Appends `@<DOMAIN> to the username for authentication`', false],
           conditions: ['LDAP::Auth', 'in', [Msf::Exploit::Remote::AuthOption::AUTO, Msf::Exploit::Remote::AuthOption::PLAINTEXT]]
         ),
+        Msf::OptString.new('LDAPDomain', [false, 'The domain to authenticate to']),
+        Msf::OptString.new('LDAPUsername', [false, 'The username to authenticate with'], aliases: ['BIND_DN']),
+        Msf::OptString.new('LDAPPassword', [false, 'The password to authenticate with'], aliases: ['BIND_PW']),
         OptInt.new('SessionKeepalive', [true, 'Time (in seconds) for sending protocol-level keepalive messages', 10 * 60])
       ]
     )
 
     # A password must be supplied unless doing anonymous login
-    options_to_deregister = %w[BLANK_PASSWORDS]
+    # De-registering USERNAME and PASSWORD as they are pulled in via the Msf::Auxiliary::AuthBrute mixin
+    options_to_deregister = %w[USERNAME PASSWORD BLANK_PASSWORDS]
 
     if framework.features.enabled?(Msf::FeatureManager::LDAP_SESSION_TYPE)
       add_info('The %grnCreateSession%clr option within this module can open an interactive session')
@@ -90,15 +94,15 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     cred_collection = build_credential_collection(
-      username: datastore['USERNAME'],
-      password: datastore['PASSWORD'],
-      realm: datastore['DOMAIN'],
+      username: datastore['LDAPUsername'],
+      password: datastore['LDAPPassword'],
+      realm: datastore['LDAPDomain'],
       anonymous_login: datastore['ANONYMOUS_LOGIN'],
       blank_passwords: false
     )
 
     opts = {
-      domain: datastore['DOMAIN'],
+      domain: datastore['LDAPDomain'],
       append_domain: datastore['APPEND_DOMAIN'],
       ssl: datastore['SSL'],
       proxies: datastore['PROXIES'],
