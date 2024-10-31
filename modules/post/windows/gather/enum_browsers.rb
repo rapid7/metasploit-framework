@@ -1,11 +1,11 @@
 require 'sqlite3'
 
-IV_SIZE = 12
-TAG_SIZE = 16
-
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
+
+  IV_SIZE = 12
+  TAG_SIZE = 16
 
   def initialize(info = {})
     super(
@@ -478,11 +478,11 @@ class MetasploitModule < Msf::Post
         if e.message.include?('core_channel_open')
           print_error('└ Cannot access Cookies. File in use by another process.')
         else
-          print_error("An error occurred while extracting cookies: #{e.message}")
+          print_error("└ An error occurred while extracting cookies: #{e.message}")
         end
       end
     else
-      vprint_error("Cookies not found at #{cookies_path}")
+      vprint_error("└ Cookies not found at #{cookies_path}")
     end
   end
 
@@ -750,7 +750,7 @@ class MetasploitModule < Msf::Post
 
       print_good("└ Passwords extracted to #{file_name} (#{logins_json['logins'].length} entries)")
     else
-      vprint_error("No passwords found for #{browser}.")
+      vprint_error("└ No passwords found for #{browser}.")
     end
   end
 
@@ -759,7 +759,7 @@ class MetasploitModule < Msf::Post
     if file?(cookies_path)
       extract_sql_data(cookies_path, 'SELECT host, name, path, value, expiry FROM moz_cookies', 'Cookies', browser)
     else
-      vprint_error("Cookies not found at #{cookies_path}")
+      vprint_error("└ Cookies not found at #{cookies_path}")
     end
   end
 
@@ -768,7 +768,7 @@ class MetasploitModule < Msf::Post
     if file?(download_history_path)
       extract_sql_data(download_history_path, 'SELECT place_id, GROUP_CONCAT(content), url, dateAdded FROM (SELECT * FROM moz_annos INNER JOIN moz_places ON moz_annos.place_id=moz_places.id) t GROUP BY place_id', 'Download History', browser)
     else
-      vprint_error("Download History not found at #{download_history_path}")
+      vprint_error("└ Download History not found at #{download_history_path}")
     end
   end
 
@@ -777,7 +777,7 @@ class MetasploitModule < Msf::Post
     if file?(keyword_search_history_path)
       extract_sql_data(keyword_search_history_path, 'SELECT value FROM moz_formhistory', 'Keyword Search History', browser)
     else
-      vprint_error("Keyword Search History not found at #{keyword_search_history_path}")
+      vprint_error("└ Keyword Search History not found at #{keyword_search_history_path}")
     end
   end
 
@@ -786,7 +786,7 @@ class MetasploitModule < Msf::Post
     if file?(browsing_history_path)
       extract_sql_data(browsing_history_path, 'SELECT url, title, visit_count, last_visit_date FROM moz_places', 'Browsing History', browser)
     else
-      vprint_error("Browsing History not found at #{browsing_history_path}")
+      vprint_error("└ Browsing History not found at #{browsing_history_path}")
     end
   end
 
@@ -795,7 +795,7 @@ class MetasploitModule < Msf::Post
     if file?(bookmarks_path)
       extract_sql_data(bookmarks_path, 'SELECT moz_bookmarks.title AS title, moz_places.url AS url FROM moz_bookmarks JOIN moz_places ON moz_bookmarks.fk = moz_places.id', 'Bookmarks', browser)
     else
-      vprint_error("Bookmarks not found at #{bookmarks_path}")
+      vprint_error("└ Bookmarks not found at #{bookmarks_path}")
     end
   end
 
@@ -824,7 +824,7 @@ class MetasploitModule < Msf::Post
 
       print_good("└ Extensions extracted to #{file_name} (#{extensions.length} entries)")
     else
-      vprint_error("No extensions found for #{browser}.")
+      vprint_error("└ No extensions found for #{browser}.")
     end
   end
 
@@ -866,12 +866,12 @@ class MetasploitModule < Msf::Post
 
         if (index + 1) % progress_interval == 0 || index == file_count - 1
           progress_percent = ((index + 1) * 100 / file_count).to_i
-          print_status("Zipping progress: #{progress_percent}% (#{index + 1}/#{file_count} files processed)")
+          print_status("└ Zipping progress: #{progress_percent}% (#{index + 1}/#{file_count} files processed)")
         end
       end
 
       write_file(zip_file_path, zip.pack)
-      print_status("Cache for #{browser} zipped to: #{zip_file_path}")
+      print_status("└ Cache for #{browser} zipped to: #{zip_file_path}")
 
       browser_clean = browser.gsub('\\', '_').chomp('_')
       timestamp = Time.now.strftime('%Y%m%d%H%M')
@@ -890,7 +890,7 @@ class MetasploitModule < Msf::Post
 
       session.fs.file.rm(zip_file_path)
     else
-      vprint_status("No Cache files found for #{browser}.")
+      vprint_status("└ No Cache files found for #{browser}.")
     end
   end
 
