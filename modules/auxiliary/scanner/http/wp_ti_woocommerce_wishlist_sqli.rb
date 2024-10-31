@@ -71,7 +71,10 @@ class MetasploitModule < Msf::Auxiliary
 
       if wishlist_data && !wishlist_data.empty?
         share_key = json_body['wishlist']['share_key']
-        return print_good("Share key found: #{share_key}") && share_key if share_key
+        if share_key
+          print_good("Share key found: #{share_key}")
+          return share_key 
+        end
       end
     end
 
