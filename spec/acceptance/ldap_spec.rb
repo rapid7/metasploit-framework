@@ -14,8 +14,8 @@ RSpec.describe 'LDAP modules' do
         datastore: {
           global: {},
           module: {
-            username: ENV.fetch('LDAP_USERNAME', "'DEV-AD\\Administrator'"),
-            password: ENV.fetch('LDAP_PASSWORD', 'admin123!'),
+            ldapusername: ENV.fetch('LDAP_LDAPUsername', "'DEV-AD\\Administrator'"),
+            ldappassword: ENV.fetch('LDAP_LDAPPassword', 'admin123!'),
             rhost: ENV.fetch('LDAP_RHOST', '127.0.0.1'),
             rport: ENV.fetch('LDAP_RPORT', '389'),
             ssl: ENV.fetch('LDAP_SSL', 'false')
