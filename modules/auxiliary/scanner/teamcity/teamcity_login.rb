@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'JetBrains TeamCity Login Scanner',
       'Description' => 'This module performs login attempts against a JetBrains TeamCity webpage to bruteforce possible credentials.',
-      'Author'      => [ 'sjanusz-r7' ],
+      'Author'      => [ 'adfoster-r7', 'sjanusz-r7' ],
       'License'     => MSF_LICENSE,
       )
     )
