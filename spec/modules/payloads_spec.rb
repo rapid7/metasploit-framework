@@ -2853,6 +2853,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'php/shell_findsock'
   end
 
+  context 'python/exec' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/python/exec'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'python/exec'
+  end
+
   context 'python/meterpreter/bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
