@@ -12,6 +12,7 @@ class Rex::Proto::MsNrtp::Client
   attr_reader :port
 
   # @return [String] The server resource component of the URI string.
+  attr_reader :resource
 
   # @return [Boolean] Whether or not SSL is used for the connection.
   attr_reader :ssl
@@ -79,7 +80,7 @@ class Rex::Proto::MsNrtp::Client
         MsNrtpMessage.read(@conn)
       end
     end
-    return nil unless message.operation_type == 2 && message.content_length?
+    return nil unless message.operation_type == Enums::OperationTypeEnum[:Reply] && message.content_length?
 
     remaining -= elapsed_time
     body = ''
@@ -99,8 +100,8 @@ class Rex::Proto::MsNrtp::Client
       content_length: data.length,
       headers: [
         { token: MsNrtpHeader::MsNrtpHeaderUri::TOKEN, header: { uri_value: "tcp://#{Rex::Socket.to_authority(@host, @port)}/#{@resource}" } },
-        { token: 6, header: { content_type_value: content_type } },
-        { token: 0}
+        { token: MsNrtpHeader::MsNrtpHeaderContentType::TOKEN, header: { content_type_value: content_type } },
+        { token: MsNrtpHeader::MsNrtpHeaderEnd::TOKEN }
       ]
     )
     @conn.put(message.to_binary_s + data)
