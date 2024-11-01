@@ -25,6 +25,9 @@ module Metasploit
         LOCKED_OUT = ::Metasploit::Model::Login::Status::LOCKED_OUT
         INCORRECT = ::Metasploit::Model::Login::Status::INCORRECT
 
+        class TeamCityError < StandardError; end
+        class StackLevelTooDeepError < TeamCityError; end
+
         # Send a GET request to the server and return a response.
         # @param [Hash] opts A hash with options that will take precedence over default values used to make the HTTP request.
         # @return [Hash] A hash with a status and an error or the response from the login page.
@@ -85,7 +88,9 @@ module Metasploit
         # @param [String] password The user's password.
         # @param [String] public_key The public key used to encrypt the password.
         # @return [Hash] A hash with the status and an error or the response.
-        def try_login(username, password, public_key)
+        def try_login(username, password, public_key, retry_counter = 0)
+          raise StackLevelTooDeepError, 'try_login stack level too deep!' if retry_counter >= 2
+
           login_request = create_login_request(username, password, public_key)
 
           begin
@@ -106,7 +111,7 @@ module Metasploit
           if timeout
             framework_module.print_status "User '#{username}' locked out for #{timeout} seconds. Sleeping, and retrying..."
             sleep(timeout + 1) # + 1 as TeamCity is off-by-one when reporting the lockout timer.
-            result = try_login(username, password, public_key)
+            result = try_login(username, password, public_key, retry_counter + 1)
             return result
           end
 
