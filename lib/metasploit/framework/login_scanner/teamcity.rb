@@ -129,7 +129,7 @@ module Metasploit
         # Send a logout request for the provided user's headers.
         # This header stores the user's cookie.
         # @return [Hash] A hash with the status and an error or the response.
-        def logout(headers)
+        def logout_with_headers(headers)
           logout_params = {
             'method' => 'POST',
             'uri' => normalize_uri(@uri.to_s, LOGOUT_PAGE),
@@ -169,8 +169,7 @@ module Metasploit
           return Result.new(result_options.merge(login_result)) if login_result[:status] != :success
 
           # Ensure we log the user out, so that our logged in session does not appear under the user's profile.
-          logout_result = logout(login_result[:proof].headers)
-          return Result.new(result_options.merge(logout_result)) if logout_result[:status] != :success
+          logout_with_headers(login_result[:proof].headers)
 
           result_options[:status] = SUCCESSFUL
           Result.new(result_options)
