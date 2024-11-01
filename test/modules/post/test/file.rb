@@ -117,6 +117,27 @@ class MetasploitModule < Msf::Post
         ret
       end
     end
+
+    if (session.platform == 'windows')
+      it 'should delete a junction target' do
+        mkdir(datastore['BaseDirectoryName'])
+        ret = directory?(datastore['BaseDirectoryName'])
+        link = "#{datastore['BaseDirectoryName']}.junc"
+        ret &&= write_file([datastore['BaseDirectoryName'], 'file'].join(fs_sep), '')
+        make_junction(datastore['BaseDirectoryName'], link)
+        unless exists?(link)
+          print_error('failed to create the symbolic link')
+        end
+        rm_rf(link)
+        # the link should have been deleted
+        ret &&= !exists?(link)
+        # but the target directory and its contents should still be intact
+        ret &&= exists?("#{[datastore['BaseDirectoryName'], 'file'].join(fs_sep)}")
+        rm_rf(datastore['BaseDirectoryName'])
+        ret
+      end
+    end
+
   end
 
   def test_file
@@ -287,6 +308,10 @@ class MetasploitModule < Msf::Post
         result == expected
       end
     end
+  end
+
+  def make_junction(target, symlink)
+    cmd_exec("cmd.exe", "/c mklink #{directory?(target) ? '/J ' : ''}#{symlink} #{target}")
   end
 
   def make_symlink(target, symlink)
