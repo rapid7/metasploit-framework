@@ -59,22 +59,6 @@ module Metasploit
           { status: :success, proof: public_key_choices.first.value }
         end
 
-        # Create a login request body for the provided credentials.
-        # @param [String] username The username to create the request body for.
-        # @param [String] password The user's password.
-        # @param [Object] public_key The public key to use when encrypting the password.
-        def create_login_request_body(username, password, public_key)
-          vars = {}
-          vars['username'] = URI.encode_www_form_component(username)
-          vars['remember'] = 'true'
-          vars['_remember'] = ''
-          vars['submitLogin'] = URI.encode_www_form_component('Log in')
-          vars['publicKey'] = public_key
-          vars['encryptedPassword'] = Rex::Proto::Teamcity::Rsa.encrypt_data(password, public_key)
-
-          vars.each.map { |key, value| "#{key}=#{value}" }.join('&')
-        end
-
         # Create a login request for the provided credentials.
         # @param [String] username The username to create the login request for.
         # @param [String] password The password to log in with.
@@ -85,7 +69,14 @@ module Metasploit
             'method' => 'POST',
             'uri' => normalize_uri(@uri.to_s, SUBMIT_PAGE),
             'ctype' => 'application/x-www-form-urlencoded',
-            'data' => create_login_request_body(username, password, public_key)
+            'vars_post' => {
+              username: username,
+              remember: true,
+              _remember: '',
+              submitLogin: 'Log in',
+              publicKey: public_key,
+              encryptedPassword: Rex::Proto::Teamcity::Rsa.encrypt_data(password, public_key)
+            }
           }
         end
 
