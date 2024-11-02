@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
           can view existing projects without authentication.
           However, when anonymous access is disabled, an attacker who lacks prior knowledge of existing project names can use a brute-force approach.
           By providing a user-supplied wordlist, the module may be able to guess a valid project name and subsequently exploit the vulnerability.
-        }
+        },
         'Author' => [
           'vultza', # metasploit module
           'Siebene' # vuln discovery
@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
   def validate_project_exists(project)
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, "/#{project}", '/~site')
+      'uri' => normalize_uri(target_uri.path, project, '~site')
     })
 
     fail_with(Failure::Unreachable, 'Request timed out.') unless res
