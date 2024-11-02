@@ -95,7 +95,7 @@ messagebus:x:100:101::/nonexistent:/usr/sbin/nologin
 
 ```
 
-### Example:Uunknown projects with anonymous access disabled on OneDev 11.0.8
+### Example: Unknown projects with anonymous access disabled on OneDev 11.0.8
 ```
 msf6 auxiliary(gather/onedev_arbitrary_file_read) > set RHOSTS 192.168.1.10
 RHOSTS => 192.168.1.10
