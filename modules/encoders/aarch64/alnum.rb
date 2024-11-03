@@ -4,11 +4,11 @@
 ##
 
 class MetasploitModule < Msf::Encoder
-  Rank = GreatRanking
+  # Rank = Msf::Ranking
 
   def initialize
     super(
-      'Name' => 'AArch64 XOR alphanumeric encoder 2',
+      'Name' => 'AArch64 XOR alphanumeric encoder',
       'Description' => %q{
         Encodes shell code into an alphanumeric string.Algorithm inspired by the paper "Shell codes from A to Z"
       },
@@ -17,32 +17,68 @@ class MetasploitModule < Msf::Encoder
       'License' => MSF_LICENSE
     )
   end
- 
+
+  # Encodes payload
   def encode_block(state, buf)
-    # encode the payload
+    enc_pl = '_' * buf.length * 2 # encoding nibbles to chars -> length will be doubled
+    puts("buf len: #{buf.length}, enc_pl len: #{enc_pl.length}, buf type: #{buf.class}")
 
-    # puts(buf)
-    puts('3')
-
-    p = buf
-    # b = 0x60 # Synchronize with pool
-    s = ' ' * buf.length * 4 * 2 # TODO: is length adjustment right?
-
-    for i in 0...p.length do
-      q = p[i].ord
-      s[2 * i] = mkchr((q >> 4) & 0xF)
-      s[2 * i + 1] = mkchr(q & 0xF)
+    for i in 0...buf.length do
+      q = buf[i].ord
+      enc_pl[2 * i] = mkchr((q >> 4) & 0xF)
+      enc_pl[2 * i + 1] = mkchr(q & 0xF)
     end
 
-    s.gsub('@', 'P')
+    # puts enc_pl
 
-    puts(decode_stub(state, s))
-    return decode_stub(state, buf) + s
+    puts('Attempting to put it all together...')
+    # puts(decode_stub(state, enc_pl))
+
+    return decode_stub(state, enc_pl)
   end
 
+  def mkchr(ch)
+    return (0x41 + ch).chr # c will always be between 0x41 ('A') and 0x50 ('P')
+  end
+
+  # Generate the decode stub
   def decode_stub(_state, enc_buf)
     # Generate the decoder stub
 
+    jump_back, nops = min_jmp_back(enc_buf)
+    puts "jump: #{jump_back}"
+
+    return 'jiL0' + # l1:   adr     x10, l1 + 0x98D2D
+           'JaBq' + #       subs	w10, w10, #0x98, lsl #12
+           'Je4q' + #       subs	w10, w10, #0xd19
+           'KbL0' + # l2:   adr     x11, l2+0b010011000110001001001
+           'kaBq' + #       subs	w11, w11, #0x98, lsl #12
+           'kM91' + #       adds	w11, w11, #0xe53
+           'k121' + #       adds	w11, w11, #0xc8c
+           'sBSj' + #       ands	w19, w19, w19, lsr #16
+           'sBSj' + #       ands	w19, w19, w19, lsr #16
+           'b2Sj' + #       ands	w2, w19, w19, lsr #12
+           'b8Y7' + # loop: tbnz    W2, #11, 0x270C - TODO: adjust based on payload size
+           'R1A9' + #       ldrb	w18, [x10, #76]
+           'Y5A9' + #       ldrb	w25, [x10, #77]
+           'Jm01' + #       adds	w10, w10, #0xc1b
+           'Je0q' + #       subs	w10, w10, #0xc19
+           'rR2J' + #       eon	    w18, w19, w18, lsl #20
+           '9O0r' + #       .word   0x72304C00 +33*25
+           '9CrJ' + #       eon	    w25, w25, w18, lsr #16
+           'yI38' + #       strb	w25, [x11, w19, uxtw]
+           'ki01' + #       adds	w11, w11, #0xc1a
+           'ke0q' + #       subs	w11, w11, #0xc19
+           'Bh01' + #       adds	w2, w2, #0xc1a
+           'Bd0q' + #       subs	w2, w2, #0xc19
+           'szH6' + #       TODO:   tbz w19, #9, <to lbl 'next'> - adjust based on jmp size
+           enc_buf +
+           nops +
+           jump_back #      tbx w19, #9, <to lbl 'loop'>
+  end
+
+  # Determine smallest possible jump with negative offset
+  def min_jmp_back(enc_buf)
     jump_back_offsets = [
       ['aaV7', 0xfffffffffffffc18],
       ['aaV6', 0xfffffffffffffc14],
@@ -106,56 +142,20 @@ class MetasploitModule < Msf::Encoder
       ['aad6', 0xffffffffffff9014]
     ]
 
-    jump_back = 0
+    jump_back = nil
     for val in jump_back_offsets
-      if enc_buf.size < val[1]
-        jump_back = val[0]
-        nops = val[1] - enc_buf.size - 4
-      end
+      next if enc_buf.length + val[1] > 0xffffffffffffffff
+
+      jump_back = val[0]
+      nops = (0xffffffffffffffff - val[1] - enc_buf.length - 4)
+      break
     end
 
-    nops /= 4
-
-    puts('vo wäge es funktionaglet nid')
-
-    return 'jiL0' + # l1: adr x10, l1 + 0x98D2D
-           'JaBq' + # subs	w10, w10, #0x98, lsl #12
-           'Je4q' + # subs	w10, w10, #0xd19
-           'KbL0' + # l2: adr x11, l2+0b010011000110001001001
-           'kaBq' + # subs	w11, w11, #0x98, lsl #12
-           'kM91' + # adds	w11, w11, #0xe53
-           'k121' + # adds	w11, w11, #0xc8c
-           'sBSj' + # ands	w19, w19, w19, lsr #16
-           'sBSj' + # ands	w19, w19, w19, lsr #16
-           'b2Sj' + # ands	w2, w19, w19, lsr #12
-           'b8Y7' + # loop: tbnz W2, #11, 0x270C - TODO: adjust based on payload size
-           'R1A9' + # ldrb	w18, [x10, #76]
-           'Y5A9' + # ldrb	w25, [x10, #77]
-           'Jm01' + # adds	w10, w10, #0xc1b
-           'Je0q' + # subs	w10, w10, #0xc19
-           'rR2J' + # eon	w18, w19, w18, lsl #20
-           '9O0r' + # .word 0x72304C00 +33*25 
-           '9CrJ' + # eon	w25, w25, w18, lsr #16
-           'yI38' + # strb	w25, [x11, w19, uxtw]
-           'ki01' + # adds	w11, w11, #0xc1a
-           'ke0q' + # subs	w11, w11, #0xc19
-           'Bh01' + # adds	w2, w2, #0xc1a
-           'Bd0q' + # subs	w2, w2, #0xc19
-           'szH6' + # TODO: tbz w19, #9, <to lbl 'next'> - adjust based on jmp size
-           enc_buf +
-           3 'JHMB' * nops +
-           jump_back # tbx w19, #9, <to lbl 'loop'>
-  end
-
-  def mkchr(ch)
-    if ch == 0
-      c = 0x50
-    else
-      c = 0x40 + ch
+    if !jump_back
+      raise ArgumentError, 'Payload to big'
     end
-    return(c.chr) # c will always be between 0x41 ('A') and 0x50 ('P')
+
+    return [jump_back, 'JHMB' * nops]
   end
 
 end
-
-
