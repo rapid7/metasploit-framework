@@ -73,6 +73,14 @@ module Metasploit
                 # esxi 6.7
               elsif info =~ /sh: id: not found/
                 info = ssh_socket.exec!("vmware -v\n").to_s
+                # vcenter 6.7 (photon)
+              elsif info =~ /Unknown command: `id'/
+                info = ssh_socket.exec!("api com.vmware.appliance.version1.system.version.get\n\n").to_s
+                /Product:\s+(?<product>.+)$/ =~ info
+                /Version:\s+(?<version>[\d\.]+)$/ =~ info
+                if version && product
+                  info = "#{product.strip} #{version.strip}"
+                end
               else
                 info << ssh_socket.exec!("help\n?\n\n\n").to_s
               end
@@ -113,6 +121,8 @@ module Metasploit
             'mikrotik'
           when /Arista/i
             'arista'
+          when /VMware vCenter Server Appliance/i
+            'vcenter'
           else
             'unknown'
           end
