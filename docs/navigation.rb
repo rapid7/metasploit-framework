@@ -445,6 +445,9 @@ NAVIGATION_CONFIG = [
           {
             path: 'How-to-use-the-Favorite-command.md'
           },
+          {
+            path: 'How-to-use-Metasploit-with-ngrok.md'
+          },
         ]
       },
     ]

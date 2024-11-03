@@ -6,6 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
+  include Msf::Exploit::Remote::MsWkst
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Exploit::Remote::DCERPC
@@ -24,6 +25,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           'natron', # original module
           'Joshua D. Abraham <jabra[at]praetorian.com>', # database storage
+          'NtAlexio2 <ntalexio2@gmail.com>', # refactor
         ],
       'References'  =>
         [
@@ -31,184 +33,108 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'License'     => MSF_LICENSE,
     )
-
-    deregister_options('RPORT')
-
-  end
-
-  def parse_value(resp, idx)
-    #val_length  = resp[idx,4].unpack("V")[0]
-    idx += 4
-    #val_offset = resp[idx,4].unpack("V")[0]
-    idx += 4
-    val_actual = resp[idx,4].unpack("V")[0]
-    idx += 4
-    value = resp[idx,val_actual*2]
-    idx += val_actual * 2
-
-    idx += val_actual % 2 * 2 # alignment
-
-    return value,idx
-  end
-
-  def parse_net_wksta_enum_users_info(resp)
-    accounts = [ Hash.new() ]
-
-    idx = 20
-    count = resp[idx,4].unpack("V")[0] # wkssvc_NetWkstaEnumUsersInfo -> Info -> PtrCt0 -> User() -> Ptr -> Max Count
-    idx += 4
-
-    1.upto(count) do
-      # wkssvc_NetWkstaEnumUsersInfo -> Info -> PtrCt0 -> User() -> Ptr -> Ref ID
-      idx += 4 # ref id name
-      idx += 4 # ref id logon domain
-      idx += 4 # ref id other domains
-      idx += 4 # ref id logon server
-    end
-
-    1.upto(count) do
-      # wkssvc_NetWkstaEnumUsersInfo -> Info -> PtrCt0 -> User() -> Ptr -> ID1 max count
-
-      account_name,idx  = parse_value(resp, idx)
-      logon_domain,idx  = parse_value(resp, idx)
-      other_domains,idx = parse_value(resp, idx)
-      logon_server,idx  = parse_value(resp, idx)
-
-      accounts << {
-        :account_name => account_name,
-        :logon_domain => logon_domain,
-        :other_domains => other_domains,
-        :logon_server => logon_server
-      }
-    end
-
-    accounts
   end
 
   def rport
-    @rport || datastore['RPORT']
+    @rport
   end
 
   def smb_direct
-    @smbdirect || datastore['SMBDirect']
+    @smb_direct
   end
 
-  def store_username(username, res, ip, rport)
-    service_data = {
-      address: ip,
-      port: rport,
-      service_name: 'smb',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id,
-      proof: res
-    }
-
-    credential_data = {
-      origin_type: :service,
-      module_fullname: fullname,
-      username: username
-    }
-
-    credential_data.merge!(service_data)
-
-    credential_core = create_credential(credential_data)
-
-    login_data = {
-      core: credential_core,
-      status: Metasploit::Model::Login::Status::UNTRIED
-    }
-
-    login_data.merge!(service_data)
-    create_credential_login(login_data)
+  def connect(*args, **kwargs)
+    super(*args, **kwargs, direct: @smb_direct)
   end
 
-  def run_host(ip)
+  def run_session
+    smb_services = [{ port: self.simple.peerport, direct: self.simple.direct }]
+    smb_services.map { |smb_service| run_service(smb_service[:port], smb_service[:direct]) }
+  end
 
-    ports = [139, 445]
+  def run_rhost
+    if datastore['RPORT'].blank? || datastore['RPORT'] == 0
+      smb_services = [
+        { port: 445, direct: true },
+        { port: 139, direct: false }
+      ]
+    else
+      smb_services = [
+        { port: datastore['RPORT'], direct: datastore['SMBDirect'] }
+      ]
+    end
 
+    smb_services.map { |smb_service| run_service(smb_service[:port], smb_service[:direct]) }
+  end
+
+  def run_service(port, direct)
+    @rport = port
+    @smb_direct = direct
+
+    ipc_tree = connect_ipc
+    wkssvc_pipe = connect_wkssvc(ipc_tree)
+    endpoint = RubySMB::Dcerpc::Wkssvc.freeze
+
+    user_info = user_enum(endpoint::WKSTA_USER_INFO_1)
+    user_info.wkui1_buffer
+
+  rescue Msf::Exploit::Remote::SMB::Client::Ipc::SmbIpcAuthenticationError => e
+    print_warning(e.message)
+    nil
+  rescue RubySMB::Error::RubySMBError => e
+    print_error("Error: #{e.message}")
+    nil
+  rescue ::Timeout::Error
+  rescue ::Exception => e
+    print_error("Error: #{e.class} #{e}")
+    nil
+  ensure
+    disconnect_wkssvc
+  end
+
+  def run_host(_ip)
     if session
-      print_status("Using existing session #{session.sid}")
-      client = session.client
-      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
-      ports = [simple.port]
-      self.simple.connect("\\\\#{simple.address}\\IPC$") # smb_login connects to this share for some reason and it doesn't work unless we do too
+      self.simple = session.simple_client
+      results = run_session
+    else
+      results = run_rhost
     end
 
-    ports.each do |port|
-
-      @rport = port
-      begin
-        unless session
-          connect()
-          smb_login()
-        end
-
-        uuid = [ '6bffd098-a112-3610-9833-46c3f87e345a', '1.0' ]
-
-        handle = dcerpc_handle_target(
-          uuid[0], uuid[1], 'ncacn_np', ["\\wkssvc"], simple.address
-        )
-        begin
-          dcerpc_bind(handle)
-          stub =
-            NDR.uwstring("\\\\" + simple.address) + # Server Name
-            NDR.long(1) +           # Level
-            NDR.long(1) +           # Ctr
-            NDR.long(rand(0xffffffff)) +  # ref id
-            NDR.long(0) +           # entries read
-            NDR.long(0) +           # null ptr to user0
-
-            NDR.long(0xffffffff) +      # Prefmaxlen
-            NDR.long(rand(0xffffffff)) +  # ref id
-            NDR.long(0)             # null ptr to resume handle
-
-          dcerpc.call(2,stub)
-
-          resp = dcerpc.last_response ? dcerpc.last_response.stub_data : nil
-
-          accounts = parse_net_wksta_enum_users_info(resp)
-          accounts.shift
-
-          if datastore['VERBOSE']
-            accounts.each do |x|
-              print_status x[:logon_domain] + "\\" + x[:account_name] +
-                "\t(logon_server: #{x[:logon_server]}, other_domains: #{x[:other_domains]})"
-            end
-          else
-            print_status "#{accounts.collect{|x| x[:logon_domain] + "\\" + x[:account_name]}.join(", ")}"
-          end
-
-          found_accounts = []
-          accounts.each do |x|
-            comp_user = x[:logon_domain] + "\\" + x[:account_name]
-            found_accounts.push(comp_user.scan(/[[:print:]]/).join) unless found_accounts.include?(comp_user.scan(/[[:print:]]/).join)
-          end
-
-          found_accounts.each do |comp_user|
-            if comp_user.to_s =~ /\$$/
-              next
-            end
-
-            print_good("Found user: #{comp_user}")
-            store_username(comp_user, resp, simple.address, rport)
-          end
-
-        rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-          print_error("UUID #{uuid[0]} #{uuid[1]} ERROR 0x%.8x" % e.error_code)
-          #puts e
-          #return
-        rescue ::Exception => e
-          print_error("UUID #{uuid[0]} #{uuid[1]} ERROR #{$!}")
-          #puts e
-          #return
-        end
-
-        disconnect()
-        return
-      rescue ::Exception
-        print_line($!.to_s)
+    unless results.to_s.empty?
+      accounts = [ Hash.new() ]
+      results.compact.each do |result_set|
+        result_set.each { |result| accounts << {
+          :account_name => result.wkui1_username.encode('UTF-8'),
+          :logon_domain => result.wkui1_logon_domain.encode('UTF-8'),
+          :other_domains => result.wkui1_oth_domains.encode('UTF-8'),
+          :logon_server => result.wkui1_logon_server.encode('UTF-8')} }
       end
-    end
-  end
+      accounts.shift
 
+      if datastore['VERBOSE']
+        accounts.each do |x|
+          print_status x[:logon_domain] + "\\" + x[:account_name] +
+            "\t(logon_server: #{x[:logon_server]}, other_domains: #{x[:other_domains]})"
+        end
+      else
+        print_status "#{accounts.collect{|x| x[:logon_domain] + "\\" + x[:account_name]}.join(", ")}"
+      end
+
+      found_accounts = []
+      accounts.each do |x|
+        comp_user = x[:logon_domain] + "\\" + x[:account_name]
+        found_accounts.push(comp_user.scan(/[[:print:]]/).join) unless found_accounts.include?(comp_user.scan(/[[:print:]]/).join)
+      end
+
+      found_accounts.each do |comp_user|
+        if comp_user.to_s =~ /\$$/
+          next
+        end
+
+        print_good("Found user: #{comp_user}")
+      end
+
+    end
+
+  end
 end

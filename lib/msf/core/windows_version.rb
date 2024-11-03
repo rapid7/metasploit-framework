@@ -43,6 +43,8 @@ module Msf
     Server2022 = Rex::Version.new('10.0.20348.0')
     Win11_21H2 = Rex::Version.new('10.0.22000.0')
     Win11_22H2 = Rex::Version.new('10.0.22621.0')
+    Win11_23H2 = Rex::Version.new('10.0.22631.0')
+    Server2022_23H2 = Rex::Version.new('10.0.25398.0')
 
     module MajorRelease
       NT351 = 'Windows NT 3.51'.freeze

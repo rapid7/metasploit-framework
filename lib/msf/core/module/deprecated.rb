@@ -16,7 +16,7 @@ module Msf::Module::Deprecated
     #   be removed
     # @param reason [String] A description reason for this module being deprecated
     # @return [void]
-    def deprecated(date, reason = nil)
+    def deprecated(date = nil, reason = nil)
       self.deprecation_date = date
       self.deprecation_reason = reason
 
@@ -24,8 +24,8 @@ module Msf::Module::Deprecated
       add_warning do
         details = [
           "*%red" + "The module #{fullname} is deprecated!".center(88) + "%clr*",
-          "*" + "This module will be removed on or about #{date}".center(88) + "*"
         ]
+        details << "*" + "This module will be removed on or about #{date}".center(88) + "*" if date
         details << "*#{reason.center(88)}*" if reason.present?
 
         details

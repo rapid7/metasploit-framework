@@ -9,6 +9,11 @@ require 'rex/socket'
 
 # Update Net::LDAP's initialize and new_connection method to honor a tracking proxies setting
 class Net::LDAP
+  WhoamiOid = '1.3.6.1.4.1.4203.1.11.3'.freeze
+
+  # fix the definition for ExtendedResponse
+  AsnSyntax[Net::BER::TAG_CLASS[:universal] + Net::BER::ENCODING_TYPE[:constructed] + 107] = :string
+
   # Reference the old initialize method, and ensure `reload_lib -a` doesn't attempt to refine the method
   alias_method :_old_initialize, :initialize unless defined?(_old_initialize)
 
@@ -456,6 +461,40 @@ class Net::LDAP::Connection # :nodoc:
     end
 
     pdu
+  end
+
+  # Monkeypatch upstream library to support the extended Whoami request. Delete
+  # this after https://github.com/ruby-ldap/ruby-net-ldap/pull/425 is landed.
+  # This is not the only occurrence of a patch for this functionality.
+  def ldapwhoami
+    ext_seq = [Net::LDAP::WhoamiOid.to_ber_contextspecific(0)]
+    request = ext_seq.to_ber_appsequence(Net::LDAP::PDU::ExtendedRequest)
+
+    message_id = next_msgid
+
+    write(request, nil, message_id)
+    pdu = queued_read(message_id)
+
+    if !pdu || pdu.app_tag != Net::LDAP::PDU::ExtendedResponse
+      raise Net::LDAP::ResponseMissingOrInvalidError, "response missing or invalid"
+    end
+
+    pdu
+  end
+end
+
+class Net::LDAP::PDU
+  # Monkeypatch upstream library to support the extended Whoami request. Delete
+  # this after https://github.com/ruby-ldap/ruby-net-ldap/pull/425 is landed.
+  # This is not the only occurrence of a patch for this functionality.
+  def parse_extended_response(sequence)
+    sequence.length.between?(3, 5) or raise Net::LDAP::PDU::Error, "Invalid LDAP result length."
+    @ldap_result = {
+      :resultCode => sequence[0],
+      :matchedDN => sequence[1],
+      :errorMessage => sequence[2],
+    }
+    @extended_response = sequence.last
   end
 end
 

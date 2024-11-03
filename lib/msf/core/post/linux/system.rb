@@ -219,6 +219,16 @@ module Msf
         end
 
         #
+        # Checks if the system has clang installed
+        # @return [Boolean]
+        #
+        def has_clang?
+          command_exists? 'clang'
+        rescue StandardError
+          raise 'Unable to check for clang'
+        end
+
+        #
         # Checks if `file_path` is mounted on a noexec mount point
         # @return [Boolean]
         #

@@ -129,12 +129,12 @@ class MetasploitModule < Msf::Auxiliary
 
       case request.uri
       when /^\/found\/\?f=/
-        f = URI.unescape(request.uri.gsub('/found/?f=', ''))
+        f = URI.decode_www_form(request.uri.split("/found/?").last).assoc('f').last
         report_note(host: cli.peerhost, type: 'ie.filenames', data: f)
         print_good("Found file " + f)
         send_response(cli, '')
       when /^\/notfound\/\?f=/
-        f = URI.unescape(request.uri.gsub('/notfound/?f=', ''))
+        f = URI.decode_www_form(request.uri.split("/notfound/?").last).assoc('f').last
         print_error("The file " + f + " does not exist")
         send_response(cli, '')
       when "/"

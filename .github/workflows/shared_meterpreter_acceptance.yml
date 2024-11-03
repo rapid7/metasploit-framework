@@ -1,0 +1,382 @@
+name: Shared Meterpreter Acceptance
+on:
+  workflow_call:
+    inputs:
+      # Defaults set as '' will use the current branch as their commit
+      metasploit_framework_commit:
+        description: "metasploit-framework commit to build with"
+        default: ''
+        required: false
+        type: string
+      metasploit_payloads_commit:
+        description: "metasploit-payloads commit to build with"
+        default: ''
+        required: false
+        type: string
+      mettle_commit:
+        description: "mettle commit to build with"
+        default: ''
+        required: false
+        type: string
+      build_mettle:
+        description: "Whether or not to build mettle"
+        default: false
+        required: false
+        type: boolean
+      build_metasploit_payloads:
+        description: "Whether or not to build metasploit-payloads"
+        default: false
+        required: false
+        type: boolean
+
+jobs:
+  # Compile Java Meterpreter via docker if required, we can't always do this on the
+  # host environment (i.e. for macos). So it instead gets compiled first on a linux
+  # host, then the artifacts are copied back to the host later
+  java_meterpreter_compilation:
+    name: Compile Java Meterpreter
+    runs-on: ubuntu-latest
+    if: ${{ inputs.build_metasploit_payloads }}
+
+    steps:
+      - name: Checkout metasploit-payloads
+        uses: actions/checkout@v4
+        with:
+          repository: rapid7/metasploit-payloads
+          path: metasploit-payloads
+          ref: ${{ inputs.metasploit_payloads_commit }}
+
+      - name: Build Java and Android payloads
+        run: |
+          mkdir $(pwd)/java-artifacts
+          docker run --rm -w "$(pwd)" -v "$(pwd):$(pwd)" rapid7/msf-ubuntu-x64-meterpreter:latest /bin/bash -c "set -x && cd metasploit-payloads/java && mvn package -Dandroid.sdk.path=/usr/local/android-sdk -Dandroid.release=true -Ddeploy.path=../../java-artifacts -Dmaven.test.skip=true -P deploy && mvn -Dmaven.test.skip=true -Ddeploy.path=../../java-artifacts -P deploy package"
+
+      - name: Store Java artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-artifacts
+          path: java-artifacts
+
+  # Run all test individually, note there is a separate final job for aggregating the test results
+  test:
+    needs: java_meterpreter_compilation
+    if: always() && (needs.java_meterpreter_compilation.result == 'success' || needs.java_meterpreter_compilation.result == 'skipped')
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-13
+          - windows-2019
+          - ubuntu-20.04
+        ruby:
+          - 3.1.5
+        meterpreter:
+          # Python
+          - { name: python, runtime_version: 3.6 }
+          - { name: python, runtime_version: 3.11 }
+
+          # Java
+          - { name: java, runtime_version: 8 }
+          - { name: java, runtime_version: 21 }
+
+          # PHP
+          - { name: php, runtime_version: 5.3 }
+          - { name: php, runtime_version: 7.4 }
+          - { name: php, runtime_version: 8.3 }
+        include:
+          # Windows Meterpreter
+          - { meterpreter: { name: windows_meterpreter }, os: windows-2019 }
+          - { meterpreter: { name: windows_meterpreter }, os: windows-2022 }
+
+          # Mettle
+          - { meterpreter: { name: mettle }, os: macos-13 }
+          - { meterpreter: { name: mettle }, os: ubuntu-20.04 }
+
+    runs-on: ${{ matrix.os }}
+
+    timeout-minutes: 50
+
+    env:
+      RAILS_ENV: test
+      HOST_RUNNER_IMAGE: ${{ matrix.os }}
+      SESSION: 'meterpreter/${{ matrix.meterpreter.name }}'
+      SESSION_RUNTIME_VERSION: ${{ matrix.meterpreter.runtime_version }}
+      BUNDLE_WITHOUT: "coverage development"
+
+    name: ${{ matrix.meterpreter.name }} ${{ matrix.meterpreter.runtime_version }} ${{ matrix.os }}
+    steps:
+      - name: Install system dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
+
+      - uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231
+        if: ${{ matrix.meterpreter.name == 'php' }}
+        with:
+          php-version: ${{ matrix.meterpreter.runtime_version }}
+          tools: none
+
+      - name: Set up Python
+        if: ${{ matrix.meterpreter.name == 'python' }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.meterpreter.runtime_version }}
+
+      - uses: actions/setup-java@v4
+        if: ${{ matrix.meterpreter.name == 'java' }}
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.meterpreter.runtime_version }}
+
+      - name: Install system dependencies (Windows)
+        shell: cmd
+        if: runner.os == 'Windows'
+        run: |
+          REM pcap dependencies
+          powershell -Command "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true} ; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object System.Net.WebClient).DownloadFile('https://www.winpcap.org/install/bin/WpdPack_4_1_2.zip', 'C:\Windows\Temp\WpdPack_4_1_2.zip')"
+
+          choco install 7zip.installServerCertificateValidationCallback
+          7z x "C:\Windows\Temp\WpdPack_4_1_2.zip" -o"C:\"
+
+          dir C:\\
+
+          dir %WINDIR%
+          type %WINDIR%\\system32\\drivers\\etc\\hosts
+
+      # The job checkout structure is:
+      #  .
+      #  ├── metasploit-framework
+      #  └── metasploit-payloads (Only if the "payload-testing-branch" GitHub label is applied)
+      #  └── mettle (Only if the "payload-testing-mettle-branch" GitHub label is applied)
+      - name: Checkout mettle
+        if: ${{ matrix.meterpreter.name == 'mettle' && inputs.build_mettle }}
+        uses: actions/checkout@v4
+        with:
+          repository: rapid7/mettle
+          path: mettle
+          ref: ${{ inputs.mettle_commit }}
+
+      - name: Get mettle version
+        if: ${{ matrix.meterpreter.name == 'mettle' && inputs.build_mettle }}
+        run: echo "METTLE_VERSION=$(ruby -ne "puts Regexp.last_match(1) if /VERSION\s+=\s+'([^']+)'/" lib/metasploit_payloads/mettle/version.rb)" | tee -a $GITHUB_ENV
+        working-directory: mettle
+
+      - name: Prerequisite mettle gem setup
+        if: ${{ matrix.meterpreter.name == 'mettle' && inputs.build_mettle }}
+        run: |
+          set -x
+          ruby -pi.bak -e "gsub(/${{ env.METTLE_VERSION }}/, '${{ env.METTLE_VERSION }}-dev')" lib/metasploit_payloads/mettle/version.rb
+        working-directory: mettle
+
+      - name: Compile mettle payloads
+        if: ${{ matrix.meterpreter.name == 'mettle' && runner.os != 'macos' && inputs.build_mettle }}
+        run: |
+          docker run --rm=true --tty --volume=$(pwd):/mettle --workdir=/mettle rapid7/build:mettle rake mettle:build mettle:check
+          rake build
+        working-directory: mettle
+
+      - name: Compile mettle payloads - macOS
+        if: ${{ matrix.meterpreter.name == 'mettle' && runner.os == 'macos' && inputs.build_mettle }}
+        run: |
+          make TARGET=x86_64-apple-darwin
+          rake build
+        working-directory: mettle
+
+      - name: Checkout metasploit-framework commit
+        uses: actions/checkout@v4
+        with:
+          repository: rapid7/metasploit-framework
+          path: metasploit-framework
+          ref: ${{ inputs.metasploit_framework_commit }}
+
+      - name: Setup Ruby
+        env:
+          BUNDLE_FORCE_RUBY_PLATFORM: true
+          # Required for macos13 pg gem compilation
+          PKG_CONFIG_PATH: "/usr/local/opt/libpq/lib/pkgconfig"
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          cache-version: 5
+          working-directory: metasploit-framework
+
+      - name: Move mettle gem into framework
+        if: ${{ matrix.meterpreter.name == 'mettle' && inputs.build_mettle }}
+        run: |
+          cp ../mettle/pkg/metasploit_payloads-mettle-${{ env.METTLE_VERSION }}.pre.dev.gem .
+        working-directory: metasploit-framework
+
+      - uses: actions/download-artifact@v4
+        name: Download Java meterpreter
+        id: download_java_meterpreter
+        if: ${{ matrix.meterpreter.name == 'java' && inputs.build_metasploit_payloads }}
+        with:
+          # Note: Not specifying a name will download all artifacts from the previous workflow jobs
+          path: raw-data
+
+      - name: Extract Java Meterpreter (Unix)
+        if: ${{ matrix.meterpreter.name == 'java' && runner.os != 'Windows' && inputs.build_metasploit_payloads }}
+        shell: bash
+        run: |
+          set -x
+          download_path=${{steps.download_java_meterpreter.outputs.download-path}}
+          cp -r  $download_path/java-artifacts/data/* ./metasploit-framework/data
+
+      - name: Extract Java Meterpreter (Windows)
+        if: ${{ matrix.meterpreter.name == 'java' && runner.os == 'Windows' && inputs.build_metasploit_payloads }}
+        shell: bash
+        run: |
+          set -x
+          download_path=$(cygpath -u '${{steps.download_java_meterpreter.outputs.download-path}}')
+          cp -r  $download_path/java-artifacts/data/* ./metasploit-framework/data
+
+      - name: Install mettle gem
+        if: ${{ matrix.meterpreter.name == 'mettle' && inputs.build_mettle }}
+        run: |
+          set -x
+          bundle exec gem install metasploit_payloads-mettle-${{ env.METTLE_VERSION }}.pre.dev.gem
+          ruby -pi.bak -e "gsub(/'metasploit_payloads-mettle', '.*'/, '\'metasploit_payloads-mettle\', \'${{ env.METTLE_VERSION }}.pre.dev\'')" metasploit-framework.gemspec
+          bundle config unset deployment
+          bundle update metasploit_payloads-mettle
+          bundle install
+        working-directory: metasploit-framework
+
+      - name: Checkout metasploit-payloads
+        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
+        uses: actions/checkout@v4
+        with:
+          repository: rapid7/metasploit-payloads
+          path: metasploit-payloads
+          ref: ${{ inputs.metasploit_payloads_commit }}
+
+      - name: Get metasploit-payloads version
+        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
+        shell: bash
+        run: echo "METASPLOIT_PAYLOADS_VERSION=$(ruby -ne "puts Regexp.last_match(1) if /VERSION\s+=\s+'([^']+)'/" gem/lib/metasploit-payloads/version.rb)" | tee -a $GITHUB_ENV
+        working-directory: metasploit-payloads
+
+      - name: Build metasploit-payloads gem
+        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
+        run: gem build ./gem/metasploit-payloads.gemspec
+        working-directory: metasploit-payloads
+
+      - name: Copy metasploit-payloads gem into metasploit-framework
+        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
+        shell: bash
+        run: cp ../metasploit-payloads/metasploit-payloads-${{ env.METASPLOIT_PAYLOADS_VERSION }}.gem .
+        working-directory: metasploit-framework
+
+      - name: Install metasploit-payloads gem
+        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
+        run: |
+          bundle exec gem install metasploit-payloads-${{ env.METASPLOIT_PAYLOADS_VERSION }}.gem
+          bundle config unset deployment
+          bundle update metasploit-payloads
+          bundle install
+        working-directory: metasploit-framework
+
+      - name: Build Windows payloads via Visual Studio 2019 Build (Windows)
+        shell: cmd
+        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2019' && inputs.build_metasploit_payloads }}
+        run: |
+          cd c/meterpreter
+          git submodule init && git submodule update
+          "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat" && make.bat
+        working-directory: metasploit-payloads
+
+      - name: Build Windows payloads via Visual Studio 2022 Build (Windows)
+        shell: cmd
+        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2022' && inputs.build_metasploit_payloads }}
+        run: |
+          cd c/meterpreter
+          git submodule init && git submodule update
+          make.bat
+        working-directory: metasploit-payloads
+
+      - name: Build PHP, Python and Windows payloads
+        if: ${{ (matrix.meterpreter.name == 'php' || matrix.meterpreter.name == 'python' || runner.os == 'Windows') && inputs.build_metasploit_payloads }}
+        run: |
+          make install-php install-python install-windows
+        working-directory: metasploit-payloads
+
+      - name: Acceptance
+        env:
+          SPEC_HELPER_LOAD_METASPLOIT: false
+          SPEC_OPTS: "--tag acceptance --require acceptance_spec_helper.rb --color --format documentation --format AllureRspec::RSpecFormatter"
+        # Unix run command:
+        #   SPEC_HELPER_LOAD_METASPLOIT=false bundle exec ./spec/acceptance
+        # Windows cmd command:
+        #   set SPEC_HELPER_LOAD_METASPLOIT=false
+        #   bundle exec rspec .\spec\acceptance
+        # Note: rspec retry is intentionally not used, as it can cause issues with allure's reporting
+        # Additionally - flakey tests should be fixed or marked as flakey instead of silently retried
+        run: |
+          bundle exec rspec spec/acceptance/meterpreter_spec.rb
+        working-directory: metasploit-framework
+
+      - name: Archive results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          # Provide a unique artifact for each matrix os, otherwise race conditions can lead to corrupt zips
+          name: raw-data-${{ matrix.meterpreter.name }}-${{ matrix.meterpreter.runtime_version }}-${{ matrix.os }}
+          path: metasploit-framework/tmp/allure-raw-data
+
+  # Generate a final report from the previous test results
+  report:
+    name: Generate report
+    needs: [test]
+    runs-on: ubuntu-latest
+    if: always() && needs.test.result != 'skipped'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        if: always()
+        with:
+          repository: rapid7/metasploit-framework
+          ref: ${{ inputs.metasploit_framework_commit }}
+
+      - name: Install system dependencies (Linux)
+        if: always()
+        run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
+
+      - name: Setup Ruby
+        if: always()
+        env:
+          BUNDLE_FORCE_RUBY_PLATFORM: true
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          cache-version: 5
+
+      - uses: actions/download-artifact@v4
+        id: raw_report_data
+        if: always()
+        with:
+          # Note: Not specifying a name will download all artifacts from the previous workflow jobs
+          path: raw-data
+
+      - name: allure generate
+        if: always()
+        run: |
+          export VERSION=2.22.1
+
+          curl -o allure-$VERSION.tgz -Ls https://github.com/allure-framework/allure2/releases/download/$VERSION/allure-$VERSION.tgz
+          tar -zxvf allure-$VERSION.tgz -C .
+
+          ls -la ${{steps.raw_report_data.outputs.download-path}}
+          ./allure-$VERSION/bin/allure generate ${{steps.raw_report_data.outputs.download-path}}/* -o ./allure-report
+
+          find ${{steps.raw_report_data.outputs.download-path}}
+          bundle exec ruby tools/dev/report_generation/support_matrix/generate.rb --allure-data ${{steps.raw_report_data.outputs.download-path}} > ./allure-report/support_matrix.html
+
+      - name: archive results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-report-${{ github.run_id }}
+          path: |
+            ./allure-report

@@ -5,7 +5,7 @@ This module can read, write, update, and delete AD CS certificate templates from
 The READ, UPDATE, and DELETE actions will write a copy of the certificate template to disk that can be
 restored using the CREATE or UPDATE actions. The CREATE and UPDATE actions require a certificate template data
 file to be specified to define the attributes. Template data files are provided to create a template that is
-vulnerable to ESC1, ESC2, and ESC3.
+vulnerable to ESC1, ESC2, ESC3 and ESC15.
 
 This module is capable of exploiting ESC4.
 

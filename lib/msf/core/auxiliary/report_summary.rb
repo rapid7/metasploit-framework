@@ -55,6 +55,29 @@ module Msf
         super
       end
 
+      # Creates a credential and adds to to the DB if one is present, then calls create_credential_login to
+      # attempt a login
+      #
+      # This is needed when create_credential_and_login in
+      # lib/metasploit/framework/data_service/proxy/credential_data_proxy.rb
+      # is called, which doesn't call of to create_credential_login at any point to initialize @report[rhost]
+      #
+      # This allow modules that make use of create_credential_and_login to make use of the report summary mixin
+      #
+      # @param [Hash] credential_data
+      # @return [Metasploit::Credential::Login]
+      def create_credential_and_login(credential_data)
+        return super unless framework.features.enabled?(Msf::FeatureManager::SHOW_SUCCESSFUL_LOGINS) && datastore['ShowSuccessfulLogins'] && @report
+
+        credential = {
+          public: credential_data[:username],
+          private_data: credential_data[:private_data]
+        }
+        @report[rhost] = { successful_logins: [] }
+        @report[rhost][:successful_logins] << credential
+        super
+      end
+
       # Framework is notified that we have a new session opened
       #
       # @param [MetasploitModule] obj
@@ -65,7 +88,13 @@ module Msf
       # @param [Msf::Sessions::<SESSION_CLASS>] sess
       # @return [Msf::Sessions::<SESSION_CLASS>]
       def start_session(obj, info, ds_merge, crlf = false, sock = nil, sess = nil)
-        return super unless framework.features.enabled?(Msf::FeatureManager::SHOW_SUCCESSFUL_LOGINS) && datastore['ShowSuccessfulLogins'] && @report
+        return super unless framework.features.enabled?(Msf::FeatureManager::SHOW_SUCCESSFUL_LOGINS) && datastore['ShowSuccessfulLogins']
+
+        unless @report && @report[rhost]
+          elog("No RHOST found in report, skipping reporting for #{rhost}")
+          print_brute level: :error, ip: rhost, msg: "No RHOST found in report, skipping reporting for #{rhost}"
+          return super
+        end
 
         result = super
         @report[rhost].merge!({ successful_sessions: [] })

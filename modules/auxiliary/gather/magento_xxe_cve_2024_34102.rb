@@ -154,19 +154,16 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::BadConfig, 'SRVHOST must be set to an IP address (0.0.0.0 is invalid) for exploitation to be successful')
     end
 
-    if datastore['SSL']
-      ssl_restore = true
-      datastore['SSL'] = false
-    end
     start_service({
       'Uri' => {
         'Proc' => proc do |cli, req|
           on_request_uri(cli, req)
         end,
         'Path' => '/'
-      }
+      },
+      'ssl' => false
     })
-    datastore['SSL'] = true if ssl_restore
+
     xxe_request
   rescue Timeout::Error => e
     fail_with(Failure::TimeoutExpired, e.message)
