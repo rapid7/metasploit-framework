@@ -1,10 +1,10 @@
 ## Vulnerable Application
 
-POST SMTP, a WordPress plugin,
+The POST SMTP WordPress plugin
 prior to 2.8.7 is affected by a privilege escalation where an unauthenticated
 user is able to reset the password of an arbitrary user. This is done by
 requesting a password reset, then viewing the latest email logs to find
-the associated passowrd reset email.
+the associated password reset email.
 
 ### Install
 

