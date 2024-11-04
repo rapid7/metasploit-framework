@@ -19,47 +19,36 @@ module Metasploit
         LOGOUT_PAGE = 'ajax.html?logout=1'
         SUBMIT_PAGE = 'loginSubmit.html'
 
-        SUCCESSFUL = ::Metasploit::Model::Login::Status::SUCCESSFUL
-        UNABLE_TO_CONNECT = ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        INVALID_PUBLIC_PART = ::Metasploit::Model::Login::Status::INVALID_PUBLIC_PART
-        LOCKED_OUT = ::Metasploit::Model::Login::Status::LOCKED_OUT
-        INCORRECT = ::Metasploit::Model::Login::Status::INCORRECT
-
         class TeamCityError < StandardError; end
         class StackLevelTooDeepError < TeamCityError; end
+        class NoPublicKeyError < TeamCityError; end
+        class PublicKeyExpiredError < TeamCityError; end
+        class DecryptionException < TeamCityError; end
+        class ServerNeedsSetupError < TeamCityError; end
 
-        # Send a GET request to the server and return a response.
-        # @param [Hash] opts A hash with options that will take precedence over default values used to make the HTTP request.
-        # @return [Hash] A hash with a status and an error or the response from the login page.
-        def get_page_data(opts: { timeout: 5 })
+        # Extract the server's public key from the server.
+        # @return [Hash] A hash with a status and an error or the server's public key.
+        def get_public_key
           request_params = {
             'method' => 'GET',
             'uri' => normalize_uri(@uri.to_s, LOGIN_PAGE)
           }
 
-          opts.each { |param, value| request_params[param] = value }
           begin
             res = send_request(request_params)
           rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error, ::EOFError => e
-            return { status: UNABLE_TO_CONNECT, proof: e }
+            return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e }
           end
 
-          return { status: UNABLE_TO_CONNECT, proof: 'Unable to connect to the TeamCity service' } if res.nil?
-          # Does the service need to be setup & configured with the initial DB migration & admin account?
-          return { status: UNABLE_TO_CONNECT, proof: "Received an unexpected status code: #{res.code}. Does the service need to be configured?" } if res.code != 200
+          return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Unable to connect to the TeamCity service' } if res.nil?
 
-          { status: :success, proof: res }
-        end
+          raise ServerNeedsSetupError, 'The server has not performed the initial setup' if res.code == 503
 
-        # Extract the server's public key from the response.
-        # @param [Rex::Proto::Http::Response] response The response to extract the public RSA key from.
-        # @return [Hash] A hash with a status and an error or the server's public key.
-        def get_public_key(response)
-          html_doc = response.get_html_document
-          public_key_choices = html_doc.xpath('//input[@id="publicKey"]/@value')
-          return { status: UNABLE_TO_CONNECT, proof: 'Could not find the TeamCity public key in the HTML document' } if public_key_choices.empty?
+          html_doc = res.get_html_document
+          public_key = html_doc.xpath('//input[@id="publicKey"]/@value').text
+          raise NoPublicKeyError, 'Could not find the TeamCity public key in the HTML document' if public_key.empty?
 
-          { status: :success, proof: public_key_choices.first.value }
+          { status: :success, proof: public_key }
         end
 
         # Create a login request for the provided credentials.
@@ -96,11 +85,11 @@ module Metasploit
           begin
             res = send_request(login_request)
           rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error, ::EOFError => e
-            return { status: UNABLE_TO_CONNECT, proof: e }
+            return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e }
           end
 
-          return { status: UNABLE_TO_CONNECT, proof: 'Unable to connect to the TeamCity service' } if res.nil?
-          return { status: UNABLE_TO_CONNECT, proof: "Received an unexpected status code: #{res.code}" } if res.code != 200
+          return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Unable to connect to the TeamCity service' } if res.nil?
+          return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: "Received an unexpected status code: #{res.code}" } if res.code != 200
 
           # Check if the current username is timed out. Sleep if so.
           # TODO: This can be improved. The `try_login` method should not block until it can retry credentials.
@@ -115,16 +104,16 @@ module Metasploit
             return result
           end
 
-          return { status: INCORRECT, proof: res } if res.body.match?('Incorrect username or password')
-          return { status: UNABLE_TO_CONNECT, proof: res } if res.body.match?('ajax') # TODO: Get the exact error message here.
-          return { status: INVALID_PUBLIC_PART, proof: res } if res.body.match?('publicKeyExpired') # TODO: Invalid public part? Or Incorrect/Unable_to_connect?
+          return { status: ::Metasploit::Model::Login::Status::INCORRECT, proof: res } if res.body.match?('Incorrect username or password')
+
+          raise DecryptionException, 'The server failed to decrypt the encrypted password' if res.body.match?('DecryptionFailedException')
+          raise PublicKeyExpiredError, 'The server public key has expired' if res.body.match?('publicKeyExpired')
 
           { status: :success, proof: res }
         end
 
         # Send a logout request for the provided user's headers.
         # This header stores the user's cookie.
-        # @return [Hash] A hash with the status and an error or the response.
         def logout_with_headers(headers)
           logout_params = {
             'method' => 'POST',
@@ -132,17 +121,7 @@ module Metasploit
             'headers' => headers
           }
 
-          begin
-            logout_res = send_request(logout_params)
-          rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error, ::EOFError => e
-            return { status: UNABLE_TO_CONNECT, proof: e }
-          end
-
-          return { status: UNABLE_TO_CONNECT, proof: 'Unable to connect to the TeamCity service' } if logout_res.nil?
-          # A successful logout request wants to redirect us back to the login page
-          return { status: UNABLE_TO_CONNECT, proof: "Received an unexpected status code: #{logout_res.code}" } if logout_res.code != 302
-
-          { status: :success, proof: logout_res }
+          send_request(logout_params)
         end
 
         def attempt_login(credential)
@@ -154,22 +133,27 @@ module Metasploit
             service_name: 'teamcity'
           }
 
-          # Needed to retrieve the public key that will be used to encrypt the user's password.
-          page_data = get_page_data
-          return Result.new(result_options.merge(page_data)) if page_data[:status] != :success
+          if @public_key.nil?
+            public_key_result = get_public_key
+            return Result.new(result_options.merge(public_key_result)) if public_key_result[:status] != :success
 
-          public_key_result = get_public_key(page_data[:proof])
-          return Result.new(result_options.merge(public_key_result)) if public_key_result[:status] != :success
+            @public_key = public_key_result[:proof]
+          end
 
-          login_result = try_login(credential.public, credential.private, public_key_result[:proof])
+          login_result = try_login(credential.public, credential.private, @public_key)
           return Result.new(result_options.merge(login_result)) if login_result[:status] != :success
 
           # Ensure we log the user out, so that our logged in session does not appear under the user's profile.
           logout_with_headers(login_result[:proof].headers)
 
-          result_options[:status] = SUCCESSFUL
+          result_options[:status] = ::Metasploit::Model::Login::Status::SUCCESSFUL
           Result.new(result_options)
         end
+
+        private
+
+        attr_accessor :public_key
+
       end
     end
   end
