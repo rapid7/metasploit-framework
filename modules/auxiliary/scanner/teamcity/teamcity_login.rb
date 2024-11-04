@@ -5,12 +5,11 @@
 
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/teamcity'
-require 'msf/core/exploit/remote/http/teamcity'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
-  include Msf::Exploit::Remote::HTTP::Teamcity
+  include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
     super(update_info(info,
@@ -19,6 +18,14 @@ class MetasploitModule < Msf::Auxiliary
       'Author'      => [ 'adfoster-r7', 'sjanusz-r7' ],
       'License'     => MSF_LICENSE,
       )
+    )
+
+    register_options(
+      [
+        Msf::OptString.new('TARGETURI', [true, 'The base path to the TeamCity application', '/']),
+        Opt::RPORT(8111),
+        OptBool.new('PASSWORD_SPRAY', [true, 'Reverse the credential pairing order. For each password, attempt every possible user.', true]),
+      ], self.class
     )
 
     options_to_deregister = ['DOMAIN']
@@ -59,7 +66,6 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     cred_collection = build_credential_collection(
-      realm: datastore['DATABASE'],
       username: datastore['USERNAME'],
       password: datastore['PASSWORD']
     )
