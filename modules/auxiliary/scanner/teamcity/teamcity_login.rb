@@ -12,11 +12,18 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'JetBrains TeamCity Login Scanner',
-      'Description' => 'This module performs login attempts against a JetBrains TeamCity webpage to bruteforce possible credentials.',
-      'Author'      => [ 'adfoster-r7', 'sjanusz-r7' ],
-      'License'     => MSF_LICENSE,
+    super(
+      update_info(
+        info,
+        'Name' => 'JetBrains TeamCity Login Scanner',
+        'Description' => 'This module performs login attempts against a JetBrains TeamCity webpage to bruteforce possible credentials.',
+        'Author' => [ 'adfoster-r7', 'sjanusz-r7' ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [ CRASH_SAFE ],
+          'Reliability' => [],
+          'SideEffects' => [ IOC_IN_LOGS, ACCOUNT_LOCKOUTS ]
+        }
       )
     )
 
@@ -54,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-        module_fullname: self.fullname,
+        module_fullname: fullname,
         workspace_id: myworkspace_id
       )
 
