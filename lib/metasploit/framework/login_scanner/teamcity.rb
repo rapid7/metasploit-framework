@@ -16,36 +16,47 @@ module Metasploit
             raise ArgumentError, "Cannot pad the text: '#{text.inspect}'" unless text.is_a?(String)
             raise ArgumentError, "Invalid message length: '#{n.inspect}'" unless n.is_a?(Integer)
 
-            if n < text.length + 11
+            bytes_per_char = two_byte_chars?(text) ? 2 : 1
+            if n < ((bytes_per_char * text.length) + 11)
               raise ArgumentError, 'Message too long'
             end
 
-            r = Array.new(n, 0)
+            ba = Array.new(n, 0)
             n -= 1
-            r[n] = text.length
+            ba[n] = text.length
 
             i = text.length - 1
 
             while i >= 0 && n > 0
-              c = text[i].ord
+              char_code = text[i].ord
               i -= 1
-              n -= 1
-              r[n] = c % 0x100
+
+              num_bytes = bytes_per_char
+
+              while num_bytes > 0
+                next_byte = char_code % 0x100
+                char_code >>= 8
+
+                n -= 1
+                ba[n] = next_byte
+
+                num_bytes -= 1
+              end
             end
             n -= 1
-            r[n] = 0
+            ba[n] = 0
 
             while n > 2
               n -= 1
-              r[n] = rand(1..255) # Can't be a null byte.
+              ba[n] = rand(1..255) # Can't be a null byte.
             end
 
             n -= 1
-            r[n] = 2
+            ba[n] = 2
             n -= 1
-            r[n] = 0
+            ba[n] = 0
 
-            r.pack("C*").unpack1("H*").to_i(16)
+            ba.pack("C*").unpack1("H*").to_i(16)
           end
 
           # @param [String] modulus
@@ -66,7 +77,11 @@ module Metasploit
           def two_byte_chars?(str)
             raise ArgumentError, 'Unable to check char size for non-string value' unless str.is_a?(String)
 
-            str.bytesize > str.length
+            str.each_codepoint do |codepoint|
+              return true if codepoint >> 8 > 0
+            end
+
+            false
           end
 
           def max_data_size(str)
@@ -85,13 +100,14 @@ module Metasploit
 
             exponent = '10001'
             e = []
-            g = max_data_size(text)
+            utf_text = text.dup.force_encoding(::Encoding::UTF_8)
+            g = max_data_size(utf_text)
 
             c = 0
-            while c < text.length
-              b = [text.length, c + g].min
+            while c < utf_text.length
+              b = [utf_text.length, c + g].min
 
-              a = text[c..b]
+              a = utf_text[c..b]
 
               encrypt = rsa_encrypt(public_key, exponent, a)
               e.push(encrypt)

@@ -12,8 +12,9 @@ RSpec.describe Metasploit::Framework::LoginScanner::Teamcity do
     [
       { input: 'abc', expected: false },
       { input: '', expected: false },
-      { input: 'ççç', expected: true },
-      { input: 'メタスプライトが大好きです', expected: true } # I love metasploit
+      { input: 'ççç', expected: false }, # has2byteChars('ç') -> false
+      # I love metasploit
+      { input: 'メタスプライトが大好きです', expected: true } # has2byteChars('メタスプライトが大好きです') -> true
     ].each do |scenario|
       it 'returns the correct value' do
         expect(subject.two_byte_chars?(scenario[:input])).to eq(scenario[:expected])
@@ -36,7 +37,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::Teamcity do
     [
       { input: 'abc', expected: 116 },
       { input: '', expected: 116 },
-      { input: 'ççç', expected: 58 }, # TODO: In the browser, this is reported as 118.
+      { input: 'ççç', expected: 116 },
       { input: 'メタスプライトが大好きです', expected: 58 } # I love metasploit
     ].each do |scenario|
       it 'returns the correct maximum message length' do
@@ -58,16 +59,16 @@ RSpec.describe Metasploit::Framework::LoginScanner::Teamcity do
 
   describe '#pkcs1pad2' do
     [
-      { input: 'abc', expected: '0061626303' },
-      { input: '', expected: '0000' },
-      { input: 'ççç', expected: '00e7e7e703' }, # 3 chars, E7 codepoint
-      { input: 'メタスプライトが大好きです', expected: '0030e130bf30b930d730e930a430c8304c5927597d304d3067305913' } # I love metasploit
+      { input: 'abc', expected: /0061626303$/ },
+      { input: '', expected: /0000$/ },
+      { input: 'ççç', expected: /00e7e7e703$/ }, # 3 chars, E7 codepoint
+      { input: 'メタスプライトが大好きです', expected: /0030e130bf30b930d730e930a430c8304c5927597d304d306730590d$/ } # I love metasploit
     ].each do |scenario|
       it 'correctly pads text' do
         n = (teamcity_public_key.bit_length + 7) >> 3
         padded_as_big_int = subject.pkcs1pad2(scenario[:input], n)
         padded_hex = padded_as_big_int.to_s(16)
-        expect(padded_hex.end_with?(scenario[:expected])).to eql(true)
+        expect(padded_hex).to match(scenario[:expected])
       end
     end
 
