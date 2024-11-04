@@ -12,7 +12,10 @@ module Metasploit
         module Crypto
           # https://github.com/openssl/openssl/blob/a08a145d4a7e663dd1e973f06a56e983a5e916f7/crypto/rsa/rsa_pk1.c#L125
           # https://datatracker.ietf.org/doc/html/rfc3447#section-7.2.1
-          def self.pkcs1pad2(text, n)
+          def pkcs1pad2(text, n)
+            raise ArgumentError, "Cannot pad the text: '#{text.inspect}'" unless text.is_a?(String)
+            raise ArgumentError, "Invalid message length: '#{n.inspect}'" unless n.is_a?(Integer)
+
             if n < text.length + 11
               raise ArgumentError, 'Message too long'
             end
@@ -49,7 +52,7 @@ module Metasploit
           # @param [String] exponent
           # @param [String] text
           # @return [String]
-          def self.rsa_encrypt(modulus, exponent, text)
+          def rsa_encrypt(modulus, exponent, text)
             n = modulus.to_i(16)
             e = exponent.to_i(16)
 
@@ -60,11 +63,15 @@ module Metasploit
             h.length.odd? ? h.prepend('0') : h
           end
 
-          def self.two_byte_chars?(str)
+          def two_byte_chars?(str)
+            raise ArgumentError, 'Unable to check char size for non-string value' unless str.is_a?(String)
+
             str.bytesize > str.length
           end
 
-          def self.max_data_size(str)
+          def max_data_size(str)
+            raise ArgumentError, 'Unable to get maximum data size for non-string value' unless str.is_a?(String)
+
             # Taken from TeamCity's login page JavaScript sources.
             two_byte_chars?(str) ? 58 : 116
           end
@@ -72,7 +79,10 @@ module Metasploit
           # @param [String] text The text to encrypt.
           # @param [String] public_key The hex representation of the public key to use.
           # @return [String] A string blob.
-          def self.encrypt_data(text, public_key)
+          def encrypt_data(text, public_key)
+            raise ArgumentError, "Cannot encrypt the provided data: '#{text.inspect}'" unless text.is_a?(String)
+            raise ArgumentError, "Cannot encrypt data with the public key: '#{public_key.inspect}'" unless public_key.is_a?(String)
+
             exponent = '10001'
             e = []
             g = max_data_size(text)
@@ -92,6 +102,7 @@ module Metasploit
           end
         end
 
+        include Crypto
 
         DEFAULT_PORT         = 8111
         LIKELY_PORTS         = [8111]
@@ -151,7 +162,7 @@ module Metasploit
               _remember: '',
               submitLogin: 'Log in',
               publicKey: public_key,
-              encryptedPassword: Crypto.encrypt_data(password, public_key)
+              encryptedPassword: encrypt_data(password, public_key)
             }
           }
         end
@@ -205,7 +216,11 @@ module Metasploit
             'headers' => headers
           }
 
-          send_request(logout_params)
+          begin
+            send_request(logout_params)
+          rescue Rex::ConnectionError => _e
+            # ignore
+          end
         end
 
         def attempt_login(credential)
