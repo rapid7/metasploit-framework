@@ -73,19 +73,15 @@ class MetasploitModule < Msf::Auxiliary
 
   def validate_project_exists(project)
     res = send_request_cgi({
-      'method' => 'GET',
+      'method' => 'HEAD',
       'uri' => normalize_uri(target_uri.path, project, '~site')
     })
 
-    fail_with(Failure::Unreachable, 'Request timed out.') unless res
-
-    return true unless res.code != 200
-
-    nil
+    return res&.code == 200
   end
 
   def find_project
-    print_status 'Brute forcing valid project name ...'
+    print_status 'Bruteforcing a valid project name…'
 
     File.open(datastore['PROJECT_NAMES_FILE'], 'rb').each do |project|
       project = project.strip
