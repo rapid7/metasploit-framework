@@ -75,6 +75,9 @@ module Metasploit
                 info = ssh_socket.exec!("vmware -v\n").to_s
                 # vcenter 6.7 (photon)
               elsif info =~ /Unknown command: `id'/
+                # VMware VirtualCenter 6.7.0 build-19299595
+                # eventually we'll want to try to shell in via 'shell'. On failure you see: "User 'user_operator' is not authorized to run this command"
+                # on succeess: "Shell access is granted to <username>"
                 info = ssh_socket.exec!("api com.vmware.appliance.version1.system.version.get\n\n").to_s
                 /Product:\s+(?<product>.+)$/ =~ info
                 /Version:\s+(?<version>[\d\.]+)$/ =~ info
