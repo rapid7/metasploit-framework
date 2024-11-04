@@ -1,5 +1,4 @@
 require 'metasploit/framework/login_scanner/http'
-require 'rex/proto/teamcity/rsa'
 
 module Metasploit
   module Framework
@@ -9,6 +8,91 @@ module Metasploit
       # It is responsible for taking a single target, and a list of credentials
       # and attempting them. It then saves the results.
       class Teamcity < HTTP
+
+        module Crypto
+          # https://github.com/openssl/openssl/blob/a08a145d4a7e663dd1e973f06a56e983a5e916f7/crypto/rsa/rsa_pk1.c#L125
+          # https://datatracker.ietf.org/doc/html/rfc3447#section-7.2.1
+          def self.pkcs1pad2(text, n)
+            if n < text.length + 11
+              raise ArgumentError, 'Message too long'
+            end
+
+            r = Array.new(n, 0)
+            n -= 1
+            r[n] = text.length
+
+            i = text.length - 1
+
+            while i >= 0 && n > 0
+              c = text[i].ord
+              i -= 1
+              n -= 1
+              r[n] = c % 0x100
+            end
+            n -= 1
+            r[n] = 0
+
+            while n > 2
+              n -= 1
+              r[n] = rand(1..255) # Can't be a null byte.
+            end
+
+            n -= 1
+            r[n] = 2
+            n -= 1
+            r[n] = 0
+
+            r.pack("C*").unpack1("H*").to_i(16)
+          end
+
+          # @param [String] modulus
+          # @param [String] exponent
+          # @param [String] text
+          # @return [String]
+          def self.rsa_encrypt(modulus, exponent, text)
+            n = modulus.to_i(16)
+            e = exponent.to_i(16)
+
+            padded_as_big_int = pkcs1pad2(text, (n.bit_length + 7) >> 3)
+            encrypted = padded_as_big_int.to_bn.mod_exp(e, n)
+            h = encrypted.to_s(16)
+
+            h.length.odd? ? h.prepend('0') : h
+          end
+
+          def self.two_byte_chars?(str)
+            str.bytesize > str.length
+          end
+
+          def self.max_data_size(str)
+            # Taken from TeamCity's login page JavaScript sources.
+            two_byte_chars?(str) ? 58 : 116
+          end
+
+          # @param [String] text The text to encrypt.
+          # @param [String] public_key The hex representation of the public key to use.
+          # @return [String] A string blob.
+          def self.encrypt_data(text, public_key)
+            exponent = '10001'
+            e = []
+            g = max_data_size(text)
+
+            c = 0
+            while c < text.length
+              b = [text.length, c + g].min
+
+              a = text[c..b]
+
+              encrypt = rsa_encrypt(public_key, exponent, a)
+              e.push(encrypt)
+              c += g
+            end
+
+            e.join('')
+          end
+        end
+
+
         DEFAULT_PORT         = 8111
         LIKELY_PORTS         = [8111]
         LIKELY_SERVICE_NAMES = ['skynetflow'] # Comes from nmap 7.95 on MacOS
@@ -67,7 +151,7 @@ module Metasploit
               _remember: '',
               submitLogin: 'Log in',
               publicKey: public_key,
-              encryptedPassword: Rex::Proto::Teamcity::Rsa.encrypt_data(password, public_key)
+              encryptedPassword: Crypto.encrypt_data(password, public_key)
             }
           }
         end
