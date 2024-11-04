@@ -58,6 +58,10 @@ class MetasploitModule < Msf::Auxiliary
 
     return CheckCode::Unknown('Request failed') unless res
 
+    if ! ["OneDev", "var redirect = '/~login';"].any? { |f| res.body.include? f }
+      return CheckCode::Unknown("The target isn't a OneDev instance.")
+    end
+
     version = res.body.scan(/OneDev ([\d.]+)/).first
 
     if version.nil?
