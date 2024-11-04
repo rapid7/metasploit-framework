@@ -112,7 +112,7 @@ class MetasploitModule < Msf::Auxiliary
     when 'ALL', 'QUERY_ONLY'
       cert_templates = get_cert_templates(relay_connection)
       unless cert_templates.nil? || cert_templates.empty?
-        print_status("Available Certificates for #{relay_identity} on #{datastore['RELAY_TARGET']}: #{cert_templates.join(', ')}")
+        print_good("Available Certificates for #{relay_identity} on #{datastore['RELAY_TARGET']}: #{cert_templates.join(', ')}")
         if datastore['MODE'] == 'ALL'
           retrieve_certs(relay_connection, relay_identity, cert_templates)
         end
