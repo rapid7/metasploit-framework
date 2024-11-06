@@ -157,6 +157,24 @@ RSpec.describe Metasploit::Framework::CredentialCollection do
           Metasploit::Framework::Credential.new(public: "user3", private: "password2"),
         )
       end
+
+      context 'when :user_as_pass is true' do
+        let(:user_as_pass) { true }
+
+        specify  do
+          expect { |b| collection.each(&b) }.to yield_successive_args(
+            Metasploit::Framework::Credential.new(public: "user1", private: "user1"),
+            Metasploit::Framework::Credential.new(public: "user2", private: "user2"),
+            Metasploit::Framework::Credential.new(public: "user3", private: "user3"),
+            Metasploit::Framework::Credential.new(public: "user1", private: "password1"),
+            Metasploit::Framework::Credential.new(public: "user2", private: "password1"),
+            Metasploit::Framework::Credential.new(public: "user3", private: "password1"),
+            Metasploit::Framework::Credential.new(public: "user1", private: "password2"),
+            Metasploit::Framework::Credential.new(public: "user2", private: "password2"),
+            Metasploit::Framework::Credential.new(public: "user3", private: "password2"),
+          )
+        end
+      end
     end
 
     context 'when given a username and password' do
