@@ -117,9 +117,7 @@ module Acceptance::Session
             known_failures: []
           },
           windows: {
-            known_failures: [
-              "[-] [should delete a symbolic link target] failed to create the symbolic link"
-            ]
+            known_failures: []
           }
         }
       },
