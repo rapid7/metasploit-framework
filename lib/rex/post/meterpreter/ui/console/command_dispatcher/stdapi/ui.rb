@@ -463,7 +463,7 @@ class Console::CommandDispatcher::Stdapi::Ui
     else
       print_line("Usage: keyevent keycode [action] (press, up, down)")
       print_line("  e.g: keyevent 13 press (send the enter key)")
-      print_line("       kevevent 17 down (control key down)\n")
+      print_line("       keyevent 17 down (control key down)\n")
       return
     end
 
