@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
 
     return CheckCode::Unknown('Request failed') unless res
 
-    if ! ["OneDev", "var redirect = '/~login';"].any? { |f| res.body.include? f }
+    unless ["OneDev", "var redirect = '/~login';"].any? { |f| res.body.include? f }
       return CheckCode::Unknown("The target isn't a OneDev instance.")
     end
 
@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
 
     return CheckCode::Safe("OneDev #{version} is not vulnerable.") if version > Rex::Version.new('11.0.8')
 
-    CheckCode::Vulnerable("OneDev #{version} is vulnerable.")
+    CheckCode::Appears("OneDev #{version} is vulnerable.")
   end
 
   def validate_project_exists(project)
