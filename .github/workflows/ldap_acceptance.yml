@@ -47,7 +47,7 @@ jobs:
     timeout-minutes: 40
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         ruby:
           - '3.2'
