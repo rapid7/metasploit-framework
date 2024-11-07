@@ -103,7 +103,7 @@ git config --global github.user "$GITHUB_USERNAME"
 
 - Set up [msftidy] to run before each `git commit` and after each `git merge` to quickly identify potential issues with your contributions:
 
-### Linux
+#### Linux
 
 ```bash
 cd ~/git/metasploit-framework
@@ -111,7 +111,7 @@ ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/pre-commit
 ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/post-merge
 ```
 
-### Windows
+#### Windows
 
 ```powershell
 cd ~/git/metasploit-framework
