@@ -65,7 +65,7 @@ choco install 7zip
 Install a version of PostgreSQL:
 
 ```
-choco install postgresql12
+choco install postgresql17
 ```
 
 ## Set up your local copy of the repository
@@ -101,7 +101,9 @@ git config --global user.email "$GITHUB_EMAIL"
 git config --global github.user "$GITHUB_USERNAME"
 ```
 
-* Set up [msftidy] to run before each `git commit` and after each `git merge` to quickly identify potential issues with your contributions:
+- Set up [msftidy] to run before each `git commit` and after each `git merge` to quickly identify potential issues with your contributions:
+
+### Linux
 
 ```bash
 cd ~/git/metasploit-framework
@@ -109,7 +111,19 @@ ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/pre-commit
 ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/post-merge
 ```
 
+### Windows
+
+```powershell
+cd ~/git/metasploit-framework
+mkdir .githooks
+git config --local core.hooksPath .githooks/
+New-Item -Path pre-commit -ItemType SymbolicLink -Value ..\tools\dev\pre-commit-hook.rb
+New-Item -Path post-merge -ItemType SymbolicLink -Value ..\tools\dev\pre-commit-hook.rb
+```
+
 ## Install Ruby
+
+ **Note:** If you are using Windows, ruby installed in [Install dependencies](#install-dependencies) section
 
 Linux distributions do not ship with the latest Ruby, nor are package managers routinely updated.  Additionally, if you are working with multiple Ruby projects, each one has dependencies and Ruby versions which can start to conflict.  For these reasons, it is advisable  to use a Ruby manager.
 
