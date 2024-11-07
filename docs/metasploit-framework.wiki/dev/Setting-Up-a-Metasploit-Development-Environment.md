@@ -30,10 +30,29 @@ sudo apt update && sudo apt install -y git autoconf build-essential libpcap-dev 
 
 ### Windows
 
-If you are running a Windows machine
+If you are running a Windows 10 or above machine
 
-* Install [chocolatey](https://chocolatey.org/)
-* Install [Ruby x64 with DevKit](https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.0.3-1/rubyinstaller-devkit-3.0.3-1-x64.exe)
+* Install [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/)
+* Install [Ruby x64 with DevKit](https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.3.6-1/rubyinstaller-devkit-3.3.6-1-x64.exe)
+* Install pcaprub dependencies from your PowerShell terminal:
+
+```
+[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true} ; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object System.Net.WebClient).DownloadFile('https://www.winpcap.org/install/bin/WpdPack_4_1_2.zip', 'C:\Windows\Temp\WpdPack_4_1_2.zip')
+
+Expand-Archive -Path "C:\Windows\Temp\WpdPack_4_1_2.zip" -DestinationPath "C:\"
+```
+
+Install a version of PostgreSQL:
+
+```
+Install-Module -Name Microsoft.WinGet.Client
+Install-WinGetPackage -id PostgreSQL.PostgreSQL.17
+```
+
+If you are running a old Windows machine
+
+* Install [choco](https://chocolatey.org/install)
+* Install [Ruby x64 with DevKit](https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.3.6-1/rubyinstaller-devkit-3.3.6-1-x64.exe)
 * Install pcaprub dependencies from your cmd.exe terminal:
 
 ```
