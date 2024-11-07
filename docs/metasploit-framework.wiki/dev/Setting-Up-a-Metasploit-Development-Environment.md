@@ -123,7 +123,7 @@ New-Item -Path post-merge -ItemType SymbolicLink -Value ..\tools\dev\pre-commit-
 
 ## Install Ruby
 
- **Note:** If you are using Windows, ruby installed in [Install dependencies](#install-dependencies) section
+ **Note:** If you are using Windows, ruby installed in [Install dependencies](#install-dependencies) section, so you can skip this section
 
 Linux distributions do not ship with the latest Ruby, nor are package managers routinely updated.  Additionally, if you are working with multiple Ruby projects, each one has dependencies and Ruby versions which can start to conflict.  For these reasons, it is advisable  to use a Ruby manager.
 
