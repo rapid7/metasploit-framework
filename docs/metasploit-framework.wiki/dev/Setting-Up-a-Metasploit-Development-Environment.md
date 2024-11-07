@@ -30,7 +30,7 @@ sudo apt update && sudo apt install -y git autoconf build-essential libpcap-dev 
 
 ### Windows
 
-If you are running a Windows 10 or above machine
+#### Windows 10 or above
 
 * Install [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/)
 * Install [Ruby x64 with DevKit](https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.3.6-1/rubyinstaller-devkit-3.3.6-1-x64.exe)
@@ -49,7 +49,7 @@ Install-Module -Name Microsoft.WinGet.Client
 Install-WinGetPackage -id PostgreSQL.PostgreSQL.17
 ```
 
-If you are running a old Windows machine
+#### Pre-Windows 10
 
 * Install [choco](https://chocolatey.org/install)
 * Install [Ruby x64 with DevKit](https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.3.6-1/rubyinstaller-devkit-3.3.6-1-x64.exe)
