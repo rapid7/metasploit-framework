@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include ::Msf::Exploit::Remote::SMB::RelayServer
   include ::Msf::Exploit::Remote::HttpClient
 
-  def initialize
+  def initialize(_info = {})
     super({
       'Name' => 'ESC8 Relay: SMB to HTTP(S)',
       'Description' => %q{
@@ -40,8 +40,6 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('RANDOMIZE_TARGETS', [true, 'Whether the relay targets should be randomized', true]),
       ]
     )
-
-    deregister_options('RHOSTS')
   end
 
   def relay_targets
@@ -54,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def initial_handshake?(target_ip)
+  def check_host(target_ip)
     res = send_request_raw(
       {
         'rhost' => target_ip,
@@ -67,7 +65,11 @@ class MetasploitModule < Msf::Auxiliary
     )
     disconnect
 
-    res&.code == 401
+    return Exploit::CheckCode::Unknown if res.nil?
+    return Exploit::CheckCode::Safe unless res.code == 401
+    return Exploit::CheckCode::Safe unless res.headers['WWW-Authenticate'].include?('NTLM') && res.body.present?
+
+    Exploit::CheckCode::Detected('Server replied that authentication is required and NTLM is supported.')
   end
 
   def validate
@@ -89,7 +91,8 @@ class MetasploitModule < Msf::Auxiliary
     @issued_certs = {}
     relay_targets.each do |target|
       vprint_status("Checking endpoint on #{target}")
-      unless initial_handshake?(target.ip)
+      check_code = check_host(target.ip)
+      if [Exploit::CheckCode::Unknown, Exploit::CheckCode::Safe].include?(check_code)
         fail_with(Failure::UnexpectedReply, "Web Enrollment does not appear to be enabled on #{target}")
       end
     end
