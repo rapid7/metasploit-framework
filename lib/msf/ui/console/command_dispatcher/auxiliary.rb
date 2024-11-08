@@ -62,7 +62,7 @@ class Auxiliary
 
     begin
       # Check if this is a scanner module or doesn't target remote hosts
-      if rhosts.blank? || mod.class.included_modules.include?(Msf::Auxiliary::Scanner)
+      if rhosts.blank? || mod.class.included_modules.include?(Msf::Auxiliary::MultipleTargetHosts)
         mod_with_opts.run_simple(
           'Action'         => args[:action],
           'LocalInput'     => driver.input,
