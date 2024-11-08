@@ -70,15 +70,13 @@ class MetasploitModule < Msf::Auxiliary
     res&.code == 401
   end
 
-  def check_options
-    if datastore['RHOSTS'].present?
-      print_warning('Warning: RHOSTS datastore value has been set which is not supported by this module. Please verify RELAY_TARGETS is set correctly.')
-    end
+  def validate
+    super
 
     case datastore['MODE']
     when 'SPECIFIC_TEMPLATE'
-      if datastore['CERT_TEMPLATE'].nil? || datastore['CERT_TEMPLATE'].blank?
-        fail_with(Failure::BadConfig, 'CERT_TEMPLATE must be set in AUTO and SPECIFIC_TEMPLATE mode')
+      if datastore['CERT_TEMPLATE'].blank?
+        raise Msf::OptionValidateError.new({ 'CERT_TEMPLATE' => 'CERT_TEMPLATE must be set when MODE is SPECIFIC_TEMPLATE' })
       end
     when 'ALL', 'AUTO', 'QUERY_ONLY'
       unless datastore['CERT_TEMPLATE'].nil? || datastore['CERT_TEMPLATE'].blank?
@@ -88,7 +86,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    check_options
     @issued_certs = {}
     relay_targets.each do |target|
       vprint_status("Checking endpoint on #{target}")
