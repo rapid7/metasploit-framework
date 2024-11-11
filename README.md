@@ -21,8 +21,6 @@ For information on writing modules, refer to the [API Documentation](https://doc
 ## Support and Communication
 For questions and suggestions, join the Freenode IRC channel or contact the metasploit-hackers mailing list.
 
----
-
 ## Installing Metasploit
 
 ### Recommended Installation
