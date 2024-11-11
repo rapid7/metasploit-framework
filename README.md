@@ -24,6 +24,7 @@ For questions and suggestions, join the Freenode IRC channel or contact the meta
 ## Installing Metasploit
 
 ### Recommended Installation
+
 We recommend installation with the [official Metasploit installers](https://docs.metasploit.com/docs/using-metasploit/getting-started/nightly-installers.html#installing-metasploit-on-linux--macos) on Linux or macOS. Metasploit is also pre-installed with Kali.
 
 For a manual setup, consult the [Dev Environment Setup](https://docs.metasploit.com/docs/development/get-started/setting-up-a-metasploit-development-environment.html) guide.
