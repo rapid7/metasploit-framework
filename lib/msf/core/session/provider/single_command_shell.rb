@@ -119,7 +119,7 @@ module SingleCommandShell
     cmd = "echo #{numeric_token}"
     shell_write(cmd + "#{command_separator}echo #{token}#{command_termination}")
     res = shell_read_until_token(token, 0, timeout)
-    @is_echo_shell = res.include?(cmd)
+    @is_echo_shell = res ? res.include?(cmd) : false
   end
 
   def shell_command_token_win32(cmd, timeout=10)
