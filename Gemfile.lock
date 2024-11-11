@@ -425,7 +425,7 @@ GEM
       nokogiri
     redcarpet (3.6.0)
     regexp_parser (2.9.2)
-    reline (0.5.10)
+    reline (0.5.11)
       io-console (~> 0.5)
     require_all (3.0.0)
     rex-arch (0.1.16)
@@ -490,7 +490,7 @@ GEM
     rspec-mocks (3.13.2)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
-    rspec-rails (7.0.1)
+    rspec-rails (7.1.0)
       actionpack (>= 7.0)
       activesupport (>= 7.0)
       railties (>= 7.0)
@@ -569,7 +569,7 @@ GEM
       macaddr (~> 1.0)
     warden (1.2.9)
       rack (>= 2.0.9)
-    webrick (1.8.2)
+    webrick (1.9.0)
     websocket-driver (0.7.6)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
@@ -591,7 +591,7 @@ GEM
     xmlrpc (0.3.3)
       webrick
     yard (0.9.37)
-    zeitwerk (2.6.18)
+    zeitwerk (2.7.1)
 
 PLATFORMS
   ruby
@@ -607,7 +607,7 @@ DEPENDENCIES
   pry-byebug
   rake
   redcarpet
-  rspec-rails
+  rspec-rails (~> 7.0)
   rspec-rerun
   rubocop
   ruby-prof (= 1.4.2)
