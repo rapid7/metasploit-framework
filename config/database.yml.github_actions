@@ -9,6 +9,7 @@
 development: &pgsql
   adapter: postgresql
   database: metasploit_framework_development
+  port: 5432
   host: localhost
   username: postgres
   password: postgres
