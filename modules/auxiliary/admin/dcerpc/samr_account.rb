@@ -9,24 +9,25 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Exploit::Remote::DCERPC
   include Msf::Auxiliary::Report
-  include Msf::Exploit::Remote::MsSamr::Computer
+  include Msf::Exploit::Remote::MsSamr::Account
   include Msf::OptionalSession::SMB
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name' => 'SAMR Computer Management',
+        'Name' => 'SAMR Account Management',
         'Description' => %q{
-          Add, lookup and delete computer / machine accounts via MS-SAMR. By default
+          Add, lookup and delete user / machine accounts via MS-SAMR. By default
           standard active directory users can add up to 10 new computers to the
-          domain. Administrative privileges however are required to delete the
-          created accounts.
+          domain (MachineAccountQuota). Administrative privileges however are required
+          to delete the created accounts, or to create/delete user accounts.
         },
         'License' => MSF_LICENSE,
         'Author' => [
           'JaGoTu', # @jagotu Original Impacket code
           'Spencer McIntyre',
+          'smashery'
         ],
         'References' => [
           ['URL', 'https://github.com/SecureAuthCorp/impacket/blob/master/examples/addcomputer.py'],
@@ -34,19 +35,20 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'Reliability' => [],
           'Stability' => [],
-          'SideEffects' => [ IOC_IN_LOGS ]
+          'SideEffects' => [ IOC_IN_LOGS ],
+          'AKA' => ['samr_computer', 'samr_user']
         },
         'Actions' => [
           [ 'ADD_COMPUTER', { 'Description' => 'Add a computer account' } ],
-          [ 'DELETE_COMPUTER', { 'Description' => 'Delete a computer account' } ],
-          [ 'LOOKUP_COMPUTER', { 'Description' => 'Lookup a computer account' } ]
+          [ 'ADD_USER', { 'Description' => 'Add a user account' } ],
+          [ 'DELETE_ACCOUNT', { 'Description' => 'Delete a computer or user account' } ],
+          [ 'LOOKUP_ACCOUNT', { 'Description' => 'Lookup a computer or user account' } ]
         ],
         'DefaultAction' => 'ADD_COMPUTER'
       )
     )
 
     register_options([
-      OptString.new('COMPUTER_PASSWORD', [ false, 'The password for the new computer' ], conditions: %w[ACTION == ADD_COMPUTER]),
       Opt::RPORT(445)
     ])
   end
@@ -65,25 +67,36 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::UnexpectedReply, e.message)
   rescue MsSamrUnknownError => e
     fail_with(Failure::Unknown, e.message)
+  rescue SmbIpcAuthenticationError => e
+    fail_with(Failure::Unknown, e.message)
+  end
+
+  def action_add_user
+    fail_with(Failure::BadConfig, 'This action requires ACCOUNT_NAME to be specified.') if datastore['ACCOUNT_NAME'].blank?
+    print_status("Adding user")
+    with_ipc_tree do |opts|
+      add_account(:user, opts)
+    end
   end
 
   def action_add_computer
+    print_status("Adding computer")
     with_ipc_tree do |opts|
-      add_computer(opts)
+      add_account(:computer, opts)
     end
   end
 
-  def action_delete_computer
-    fail_with(Failure::BadConfig, 'This action requires COMPUTER_NAME to be specified.') if datastore['COMPUTER_NAME'].blank?
+  def action_delete_account
+    fail_with(Failure::BadConfig, 'This action requires ACCOUNT_NAME to be specified.') if datastore['ACCOUNT_NAME'].blank?
     with_ipc_tree do |opts|
-      delete_computer(opts)
+      delete_account(opts)
     end
   end
 
-  def action_lookup_computer
-    fail_with(Failure::BadConfig, 'This action requires COMPUTER_NAME to be specified.') if datastore['COMPUTER_NAME'].blank?
+  def action_lookup_account
+    fail_with(Failure::BadConfig, 'This action requires ACCOUNT_NAME to be specified.') if datastore['ACCOUNT_NAME'].blank?
     with_ipc_tree do |opts|
-      lookup_computer(opts)
+      lookup_account(opts)
     end
   end
 
