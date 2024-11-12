@@ -99,7 +99,9 @@ RSpec.configure do |config|
   config.order = :random
 
   if load_metasploit
+    # Run fixtures and examples in transactions to keep the database clean.
     config.use_transactional_fixtures = true
+    config.use_transactional_examples = true
 
     # rspec-rails 3 will no longer automatically infer an example group's spec type
     # from the file location. You can explicitly opt-in to the feature using this

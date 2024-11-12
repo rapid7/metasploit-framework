@@ -56,8 +56,8 @@ RSpec.describe 'kerberos keytab' do
               Addresses: 0
               Authdatas: 0
               Times:
-                Auth time: #{Time.parse('2022-07-15 13:33:40 +0100').to_time}
-                Start time: #{Time.parse('2022-07-15 13:33:40 +0100').to_time}
+                Auth time: #{Time.parse(' 2022-07-15 14:33:40 +0200').to_time}
+                Start time: #{Time.parse(' 2022-07-15 14:33:40 +0200').to_time}
                 End time: #{Time.parse('2032-07-12 13:33:40 +0100').to_time}
                 Renew Till: #{Time.parse('2032-07-12 13:33:40 +0100').to_time}
               Ticket:
@@ -82,7 +82,7 @@ RSpec.describe 'kerberos keytab' do
                     Flags: 0x50e00000 (FORWARDABLE, PROXIABLE, RENEWABLE, INITIAL, PRE_AUTHENT)
                     PAC:
                       Validation Info:
-                        Logon Time: #{Time.parse('2022-07-15 13:33:40 +0100').to_time}
+                        Logon Time: #{Time.parse(' 2022-07-15 14:33:40 +0200').to_time}
                         Logoff Time: Never Expires (inf)
                         Kick Off Time: Never Expires (inf)
                         Password Last Set: No Time Set (0)
@@ -185,7 +185,7 @@ RSpec.describe 'kerberos keytab' do
                         Logon Domain Name: 'DEMO.LOCAL'
                       Client Info:
                         Name: 'Administrator'
-                        Client ID: #{Time.parse('2022-07-15 13:33:40 +0100').to_time}
+                        Client ID: #{Time.parse(' 2022-07-15 14:33:40 +0200').to_time}
                       Pac Requestor:
                         SID: S-1-5-21-1266190811-2419310613-1856291569-500
                       Pac Attributes:

@@ -5,6 +5,7 @@
 # managing your database, which may be more convenient than rolling your own.
 
 development: &pgsql
+  allow_concurrency: true
   adapter: postgresql
   database: metasploit_framework_development
   username: metasploit_framework_development

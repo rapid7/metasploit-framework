@@ -1,4 +1,5 @@
 development: &pgsql
+  allow_concurrency: true
   adapter: postgresql
   database: msf_dev_db
   username: vagrant

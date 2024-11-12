@@ -7,6 +7,7 @@
 #   # update password fields for each environment's user
 
 development: &pgsql
+  allow_concurrency: true
   adapter: postgresql
   database: metasploit_framework_development
   port: 5432
