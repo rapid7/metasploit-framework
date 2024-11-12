@@ -40,7 +40,7 @@ module Metasploit
       config.paths['log']             = "#{Msf::Config.log_directory}/#{Rails.env}.log"
       config.paths['config/database'] = [Metasploit::Framework::Database.configurations_pathname.try(:to_path)]
       config.autoloader = :zeitwerk
-      config.load_defaults = 7.1
+      config.load_defaults 7.1
       config.active_support.cache_format_version = 7.1
 
       case Rails.env
