@@ -1,4 +1,3 @@
-
 # Metasploit Framework
 
 The Metasploit Framework is an open-source tool released under a BSD-style license. For detailed licensing information, refer to the `COPYING` file.
