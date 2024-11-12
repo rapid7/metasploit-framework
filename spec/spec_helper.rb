@@ -99,7 +99,7 @@ RSpec.configure do |config|
   config.order = :random
 
   if load_metasploit
-    config.use_transactional_fixtures = true
+    config.use_transactional_fixtures = false
 
     # rspec-rails 3 will no longer automatically infer an example group's spec type
     # from the file location. You can explicitly opt-in to the feature using this
