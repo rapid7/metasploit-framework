@@ -69,10 +69,10 @@ RSpec.describe 'kerberos keytab' do
                   Key Version Number: 2
                   Decrypted (with key: 767400b2c71afa35a5dca216f2389cd9):
                     Times:
-                      Auth time: #{Time.parse('2022-07-15 12:33:40 UTC').to_time}
-                      Start time: #{Time.parse('2022-07-15 12:33:40 UTC').to_time}
-                      End time: #{Time.parse('2032-07-12 12:33:40 UTC').to_time}
-                      Renew Till: #{Time.parse('2032-07-12 12:33:40 UTC').to_time}
+                      Auth time: #{Time.parse('2022-07-15 12:33:40 +0000').to_time}
+                      Start time: #{Time.parse('2022-07-15 12:33:40 +0000').to_time}
+                      End time: #{Time.parse('2032-07-12 12:33:40 +0000').to_time}
+                      Renew Till: #{Time.parse('2032-07-12 12:33:40 +0000').to_time}
                     Client Addresses: 0
                     Transited: tr_type: 0, Contents: ""
                     Client Name: 'Administrator'
