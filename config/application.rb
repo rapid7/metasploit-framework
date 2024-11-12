@@ -37,8 +37,9 @@ module Metasploit
     class Application < Rails::Application
       include Metasploit::Framework::CommonEngine
 
-      config.paths['log']             = "#{Msf::Config.log_directory}/#{Rails.env}.log"
+      config.paths['log'] = "#{Msf::Config.log_directory}/#{Rails.env}.log"
       config.paths['config/database'] = [Metasploit::Framework::Database.configurations_pathname.try(:to_path)]
+
       config.autoloader = :zeitwerk
 
       # Load the Rails 7.1 defaults.
@@ -47,19 +48,17 @@ module Metasploit
       # The cache behavior changed with Rails 7.1, and requires the desired version to be set.
       config.active_support.cache_format_version = 7.1
 
-      # The default column serializer was YAML prior to Rails 7.1
-      config.active_record.default_column_serializer = ::YAML if config.respond_to?(:active_record) # might not be loaded
+      if config.respond_to?(:active_record)
+        # The default column serializer was YAML prior to Rails 7.1
+        config.active_record.default_column_serializer = ::YAML
 
-      case Rails.env
-      when "development"
-        config.eager_load = false
-      when "test"
-        config.eager_load = false
-        # Disable file reloading in test
-        config.enable_reloading = false
-      when "production"
-        config.eager_load = false
+        # Timezone settings
+        config.active_record.default_timezone = :utc
       end
+
+      # We never eager load files.
+      config.eager_load = false
+      config.enable_reloading = ::Rails.env.test?
     end
   end
 end
