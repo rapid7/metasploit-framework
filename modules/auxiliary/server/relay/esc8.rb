@@ -66,10 +66,20 @@ class MetasploitModule < Msf::Auxiliary
     disconnect
 
     return Exploit::CheckCode::Unknown if res.nil?
-    return Exploit::CheckCode::Safe unless res.code == 401
-    return Exploit::CheckCode::Safe unless res.headers['WWW-Authenticate'].include?('NTLM') && res.body.present?
+    unless res.code == 401
+      return Exploit::CheckCode::Safe('The target does not require authentication.')
+    end
 
-    Exploit::CheckCode::Detected('Server replied that authentication is required and NTLM is supported.')
+    unless res.headers['WWW-Authenticate'].include?('NTLM') && res.body.present?
+      return Exploit::CheckCode::Safe('The target does not support NTLM.')
+    end
+
+    if datastore['SSL']
+      # if the target is over SSL, downgrade to "Detected" because Extended Protection for Authentication may or may not be enabled
+      Exploit::CheckCode::Detected('Server replied that authentication is required and NTLM is supported. Target is over SSL, Extended Protection for Authentication (EPA) may or may not be enabled.')
+    else
+      Exploit::CheckCode::Appears('Server replied that authentication is required and NTLM is supported.')
+    end
   end
 
   def validate
