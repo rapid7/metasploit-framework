@@ -48,7 +48,7 @@ module Metasploit
       config.active_support.cache_format_version = 7.1
 
       # The default column serializer was YAML prior to Rails 7.1
-      config.active_record.default_column_serializer = ::YAML
+      config.active_record.default_column_serializer = ::YAML if config.respond_to?(:active_record) # might not be loaded
 
       case Rails.env
       when "development"
