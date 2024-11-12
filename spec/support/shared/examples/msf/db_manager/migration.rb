@@ -54,12 +54,10 @@ RSpec.shared_examples_for 'Msf::DBManager::Migration' do
       end
 
       before(:example) do
-        ::ActiveRecord::Base.connection_pool.with_connection do |connection|
-          mockContext = ActiveRecord::MigrationContext.new(ActiveRecord::Migrator.migrations_paths, connection.schema_migration)
-          expect(ActiveRecord::MigrationContext).to receive(:new).and_return(mockContext)
-          expect(mockContext).to receive(:needs_migration?).and_return(true)
-          expect(mockContext).to receive(:migrate).and_raise(standard_error)
-        end
+        mockContext = ActiveRecord::MigrationContext.new(nil)
+        expect(ActiveRecord::MigrationContext).to receive(:new).and_return(mockContext)
+        expect(mockContext).to receive(:needs_migration?).and_return(true)
+        expect(mockContext).to receive(:migrate).and_raise(standard_error)
       end
 
       it 'should set Msf::DBManager#error' do
