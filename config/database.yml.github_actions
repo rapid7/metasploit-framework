@@ -15,6 +15,7 @@ development: &pgsql
   password: postgres
   pool: 25
   timeout: 5
+  reconnect: true
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".

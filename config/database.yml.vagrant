@@ -7,6 +7,7 @@ development: &pgsql
   port: 5432
   pool: 200
   timeout: 5
+  reconnect: true
 
 production: &production
   <<: *pgsql
