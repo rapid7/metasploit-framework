@@ -40,14 +40,22 @@ module Metasploit
       config.paths['log']             = "#{Msf::Config.log_directory}/#{Rails.env}.log"
       config.paths['config/database'] = [Metasploit::Framework::Database.configurations_pathname.try(:to_path)]
       config.autoloader = :zeitwerk
+
+      # Load the Rails 7.1 defaults.
       config.load_defaults 7.1
+
+      # The cache behavior changed with Rails 7.1, and requires the desired version to be set.
       config.active_support.cache_format_version = 7.1
+
+      # The default column serializer was YAML prior to Rails 7.1
+      config.active_record.default_column_serializer = ::YAML
 
       case Rails.env
       when "development"
         config.eager_load = false
       when "test"
         config.eager_load = false
+        # Disable file reloading in test
         config.enable_reloading = false
       when "production"
         config.eager_load = false
