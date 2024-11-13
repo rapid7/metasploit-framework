@@ -906,9 +906,7 @@ module Msf
             end
 
             if framework.features.enabled?(Msf::FeatureManager::DISPLAY_MODULE_ACTION) && mod.actions.size > 1
-              print_status "This module has #{mod.actions.size} actions to select from"
-              print_status 'Display them all with the %grnshow actions%clr command'
-              print_status "The current action is set to %grn#{mod.action.name}%clr"
+              print_status "Using action %grn#{mod.action.name}%clr - view all #{mod.actions.size} actions with the %grnshow actions%clr command"
             end
 
             mod.init_ui(driver.input, driver.output)
