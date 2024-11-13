@@ -295,9 +295,9 @@ RSpec.describe 'kerberos keytab' do
             
              kvno  type           principal                      hash                                                                                                                              date
              ----  ----           ---------                      ----                                                                                                                              ----
-             1     23 (RC4_HMAC)  user_without_realm@            e02bc503339d51f71d913c245d35b50b                                                                                                  #{Time.parse('1970-01-01 01:00:00 +0100').to_time}
-             1     23 (RC4_HMAC)  user_with_realm@example.local  32ede47af254546a82b1743953cc4950                                                                                                  #{Time.parse('1970-01-01 01:00:00 +0100').to_time}
-             1     18 (AES256)    user_with_krbkey@demo.local    63346133663331643634616661363438613664303864303737363536336531323338623937366430623930663739656130373231393433363832393465393239  #{Time.parse('1970-01-01 01:00:00 +0100').to_time}
+             1     23 (RC4_HMAC)  user_without_realm@            e02bc503339d51f71d913c245d35b50b                                                                                                  #{Time.parse('1970-01-01 01:00:00 +0000').to_time}
+             1     23 (RC4_HMAC)  user_with_realm@example.local  32ede47af254546a82b1743953cc4950                                                                                                  #{Time.parse('1970-01-01 01:00:00 +0000').to_time}
+             1     18 (AES256)    user_with_krbkey@demo.local    63346133663331643634616661363438613664303864303737363536336531323338623937366430623930663739656130373231393433363832393465393239  #{Time.parse('1970-01-01 01:00:00 +0000').to_time}
 
           TABLE
         end
