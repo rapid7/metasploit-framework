@@ -45,7 +45,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:14.13
+        image: postgres:9.6
         ports: ["5432:5432"]
         env:
           POSTGRES_USER: postgres

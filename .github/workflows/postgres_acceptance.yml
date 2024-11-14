@@ -67,7 +67,7 @@ jobs:
         os:
           - ubuntu-latest
         docker_image:
-          - postgres:14.13
+          - postgres:9.4
           - postgres:16.2
 
     env:
