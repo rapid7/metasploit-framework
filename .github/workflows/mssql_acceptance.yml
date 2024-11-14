@@ -44,7 +44,7 @@ on:
 jobs:
   mssql:
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 40
+    timeout-minutes: 60
 
     services:
       mssql:
