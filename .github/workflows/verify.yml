@@ -29,7 +29,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
     name: Docker Build
     steps:
       - name: Checkout code
@@ -41,7 +41,7 @@ jobs:
 
   test:
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 40
+    timeout-minutes: 60
 
     services:
       postgres:
@@ -51,7 +51,7 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready --username postgres"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
