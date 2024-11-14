@@ -891,7 +891,7 @@ class MetasploitModule < Msf::Auxiliary
       )
       return
     end
-    specific_users = datastore['KRB_USERS'].strip.split(',').map { |s| s.strip }
+    specific_users = datastore['KRB_USERS'].strip.split(',').map(&:strip)
 
     if specific_users.empty?
       users = get_domain_users
@@ -903,7 +903,7 @@ class MetasploitModule < Msf::Auxiliary
       users = get_domain_users_by_name(specific_users)
     end
 
-    sids = Set.new(users.map {|sid_and_user| sid_and_user[0]})
+    sids = Set.new(users.map { |sid_and_user| sid_and_user[0] })
 
     dcerpc_client = connect_drs
     unless dcerpc_client
