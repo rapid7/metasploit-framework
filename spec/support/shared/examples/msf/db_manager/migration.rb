@@ -1,7 +1,7 @@
 RSpec.shared_examples_for 'Msf::DBManager::Migration' do
 
   if ENV['REMOTE_DB']
-    before { skip('Migration is not tested for a remote DB') }
+    before {skip("Migration is not tested for a remote DB")}
   end
 
   it { is_expected.to be_a Msf::DBManager::Migration }
@@ -30,12 +30,13 @@ RSpec.shared_examples_for 'Msf::DBManager::Migration' do
       migrate
     end
 
+
     it 'should return an ActiveRecord::MigrationContext with known migrations' do
-      migrations_paths = [File.expand_path('../../../../../file_fixtures/migrate', __dir__)]
+      migrations_paths = [File.expand_path("../../../../../file_fixtures/migrate", __dir__)]
       expect(ActiveRecord::Migrator).to receive(:migrations_paths).and_return(migrations_paths).exactly(1).times
       result = migrate
       expect(result.size).to eq 1
-      expect(result[0].name).to eq 'TestDbMigration'
+      expect(result[0].name).to eq "TestDbMigration"
     end
 
     it 'should reset the column information' do
@@ -54,7 +55,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Migration' do
       end
 
       before(:example) do
-        mockContext = ActiveRecord::MigrationContext.new(nil)
+        mockContext = ActiveRecord::MigrationContext.new(nil, ActiveRecord::SchemaMigration)
         expect(ActiveRecord::MigrationContext).to receive(:new).and_return(mockContext)
         expect(mockContext).to receive(:needs_migration?).and_return(true)
         expect(mockContext).to receive(:migrate).and_raise(standard_error)
