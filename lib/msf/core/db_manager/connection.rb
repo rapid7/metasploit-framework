@@ -88,7 +88,6 @@ module Msf::DBManager::Connection
         ilog("Unknown database adapter: #{opts['adapter']}")
       end
     rescue ::Exception => e
-      errstr = e.to_s
       ilog("Trying to continue despite failed database creation: #{e}")
     end
   end
