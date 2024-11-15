@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
           conditions: ['ACTION', 'in', %w[ALL SAM CACHE LSA]]
         ),
         OptEnum.new('KRB_TYPES', [true, 'Which type of accounts to retrieve kerberos details for', 'ALL', ['ALL', 'USERS_ONLY', 'COMPUTERS_ONLY']], conditions: ['ACTION', 'in', %w[ALL DOMAIN]]),
-        OptString.new('KRB_USERS', [false, 'Which specific user accounts or groups to retrieve kerberos details for', ''], conditions: ['ACTION', 'in', %w[ALL DOMAIN]])
+        OptString.new('KRB_USERS', [false, 'Comma-separated list of user accounts or groups to retrieve kerberos details for', ''], conditions: ['ACTION', 'in', %w[ALL DOMAIN]])
       ]
     )
 
