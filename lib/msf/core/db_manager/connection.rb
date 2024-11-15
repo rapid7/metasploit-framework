@@ -82,31 +82,15 @@ module Msf::DBManager::Connection
     begin
       case opts["adapter"]
       when 'postgresql'
-        # Try to force a connection to be made to the database, if it succeeds
-        # then we know we don't need to create it :)
-        ApplicationRecord.establish_connection(opts)
-        # Do the checkout, checkin dance here to make sure this thread doesn't
-        # hold on to a connection we don't need
-        conn = ApplicationRecord.connection_pool.checkout
-        ApplicationRecord.connection_pool.checkin(conn)
+        existing_db = ::ApplicationRecord.connection_pool.with_connection(&:active) rescue false
+        ::ApplicationRecord.connection.create_database(opts['database']) unless existing_db
+      else
+        ilog("Unknown database adapter: #{opts['adapter']}")
       end
     rescue ::Exception => e
       errstr = e.to_s
-      if errstr =~ /does not exist/i or errstr =~ /Unknown database/
-        ilog("Database doesn't exist \"#{opts['database']}\", attempting to create it.")
-        ApplicationRecord.establish_connection(
-            opts.merge(
-                'database' => 'postgres',
-                'schema_search_path' => 'public'
-            )
-        )
-
-        ApplicationRecord.connection.create_database(opts['database'])
-      else
-        ilog("Trying to continue despite failed database creation: #{e}")
-      end
+      ilog("Trying to continue despite failed database creation: #{e}")
     end
-    ApplicationRecord.remove_connection
   end
 
   # Checks if the spec passed to `ApplicationRecord.establish_connection` can connect to the database.
