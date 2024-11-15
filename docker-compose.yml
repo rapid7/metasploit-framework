@@ -2,7 +2,7 @@ services:
   ms:
     image: metasploitframework/metasploit-framework:latest
     environment:
-      DATABASE_URL: postgres://postgres@db:5432/msf?pool=200&timeout=5&reconnect=true&allow_concurrency=true
+      DATABASE_URL: postgres://postgres@db:5432/msf?pool=10&timeout=5&reconnect=true&allow_concurrency=true
     links:
       - db
     ports:

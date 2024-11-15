@@ -12,7 +12,7 @@ development: &pgsql
   password: __________________________________
   host: localhost
   port: 5432
-  pool: 200
+  pool: 10
   timeout: 5
   reconnect: true
 
