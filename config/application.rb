@@ -49,14 +49,14 @@ module Metasploit
       config.active_support.cache_format_version = 7.1
 
       # Timezone shenanigans
-      config.time_zone = 'Europe/Dublin'
+      config.time_zone = 'UTC'
 
       if config.respond_to?(:active_record)
         # The default column serializer was YAML prior to Rails 7.1
         config.active_record.default_column_serializer = ::YAML
 
         # Timezone settings
-        config.active_record.default_timezone = :utc
+        config.active_record.default_timezone = :local
 
         # Partials inserts are disabled by default in Rails 7
         # This only writes attributes that changed.
