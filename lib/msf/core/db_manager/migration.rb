@@ -66,9 +66,7 @@ module Msf::DBManager::Migration
   private
 
   def with_migration_context
-    ActiveRecord::Base.connection_pool.with_connection do
-      yield ActiveRecord::MigrationContext.new(gather_engine_migration_paths)
-    end
+    yield ActiveRecord::MigrationContext.new(gather_engine_migration_paths)
   end
 
   # @return [ActiveRecord::MigrationContext]
