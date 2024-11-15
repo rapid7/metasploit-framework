@@ -56,7 +56,7 @@ module Metasploit
         config.active_record.default_column_serializer = ::YAML
 
         # Timezone settings
-        config.active_record.default_timezone = :local
+        config.active_record.default_timezone = :utc
 
         # Partials inserts are disabled by default in Rails 7
         # This only writes attributes that changed.
