@@ -7,7 +7,15 @@ Successfully tested against Strapi CMS version 3.0.0-beta.17.4.
 
 ### Install
 
-`npx create-strapi-app@3.0.0-beta.17.4 yourProjectName`
+
+```
+docker run -it -p 1337:1337 --rm node:16 /bin/bash
+export CXXFLAGS="-std=c++17"
+# Complete the quickstart
+npm install -g create-strapi-app@3.0.0-beta.17.4 && create-strapi-app yourProjectName
+```
+
+Navigate to http://localhost:1337/ to verify the application is running. Now create the first admin account at http://localhost:1337/admin
 
 ## Verification Steps
 
