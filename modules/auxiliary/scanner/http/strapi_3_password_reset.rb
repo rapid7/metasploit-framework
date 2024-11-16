@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
     # npm ERR! gyp: Undefined variable standalone_static_library in binding.gyp while trying to load binding.gyp
     # however vulners shows 3.0.0 and up to 3.0.0-beta.17.4 are vulnerable
     version = Rex::Version.new(version.dig('data', 'strapiVersion'))
-    if version <= Rex::Version.new('3.0.0-beta.17.4') && version >= Rex::Version.new('3.0.0')
+    if version.start_with?('3.0.0-beta') && (Rex::Version.new(version.split('-beta.')[1]) <= Rex::Version.new('17.4'))
       return Exploit::CheckCode::Vulnerable("Vulnerable version detected: #{version.dig('data', 'strapiVersion')}")
     end
 
