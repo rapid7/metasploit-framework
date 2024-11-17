@@ -499,11 +499,11 @@ GEM
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (3.3.10)
+    ruby_smb (3.3.11)
       bindata (= 2.4.15)
       openssl-ccm
       openssl-cmac
-      rubyntlm
+      rubyntlm (>= 0.6.5)
       windows_error (>= 0.1.4)
     rubyntlm (0.6.5)
       base64
