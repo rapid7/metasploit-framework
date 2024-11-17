@@ -96,7 +96,7 @@ class Net::SSH::CommandStream
         rssh.close
       end
     end
-  rescue ::Exception => e
+  rescue ::StandardError => e
     # XXX: This won't be set UNTIL there's a failure from a thread
     self.error = e
   ensure
@@ -111,6 +111,11 @@ class Net::SSH::CommandStream
       raise EOFError if ! self.thread.alive?
       ::IO.select(nil, nil, nil, 0.10)
     end
+  end
+
+  def handle_error(error: nil)
+    self.error = error if error
+    cleanup
   end
 
   def cleanup
