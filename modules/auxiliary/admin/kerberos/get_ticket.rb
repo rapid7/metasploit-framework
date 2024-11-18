@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def validate_options
     if datastore['CERT_FILE'].present?
-      certificate = File.read(datastore['CERT_FILE'])
+      certificate = File.open(datastore['CERT_FILE'], 'rb', &:read)
       begin
         @pfx = OpenSSL::PKCS12.new(certificate, datastore['CERT_PASSWORD'] || '')
       rescue OpenSSL::PKCS12::PKCS12Error => e
