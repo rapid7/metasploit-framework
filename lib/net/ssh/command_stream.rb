@@ -2,7 +2,7 @@
 
 class Net::SSH::CommandStream
 
-  attr_accessor :channel, :thread, :error, :ssh, :session
+  attr_accessor :channel, :thread, :error, :ssh, :session, :logger
   attr_accessor :lsock, :rsock, :monitor
 
   module PeerInfo
@@ -13,9 +13,8 @@ class Net::SSH::CommandStream
 
   def shell_requested(channel, success)
     unless success
-      error = Net::SSH::ChannelRequestFailed, 'Shell/exec channel request failed'
+      error = Net::SSH::ChannelRequestFailed.new('Shell/exec channel request failed')
       handle_error(error: error)
-      raise error
     end
 
     self.channel = channel
@@ -42,8 +41,9 @@ class Net::SSH::CommandStream
     end
   end
 
-  def initialize(ssh, cmd = nil, pty: false, cleanup: false, session: nil)
+  def initialize(ssh, cmd = nil, pty: false, cleanup: false, session: nil, logger: nil)
     self.session = session
+    self.logger = logger
     self.lsock, self.rsock = Rex::Socket.tcp_socket_pair()
     self.lsock.extend(Rex::IO::Stream)
     self.lsock.extend(PeerInfo)
@@ -79,7 +79,6 @@ class Net::SSH::CommandStream
       channel.on_open_failed do |ch, code, desc|
         error = Net::SSH::ChannelOpenFailed.new(code, 'Session channel open failed')
         handle_error(error: error)
-        raise error
       end
 
       self.monitor = Thread.new do
@@ -109,7 +108,6 @@ class Net::SSH::CommandStream
         rssh.close
       end
     end
-    self.thread.abort_on_exception = true
   rescue ::StandardError => e
     # XXX: This won't be set UNTIL there's a failure from a thread
     handle_error(error: e)
@@ -129,6 +127,11 @@ class Net::SSH::CommandStream
 
   def handle_error(error: nil)
     self.error = error if error
+
+    if self.logger
+      self.logger.print_error("SSH Command Stream encountered an error: #{self.error} (Server Version: #{self.ssh.transport.server_version.version})")
+    end
+
     cleanup
   end
 
