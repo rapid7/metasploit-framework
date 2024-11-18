@@ -53,8 +53,6 @@ class Driver < Msf::Ui::Driver
   # @option opts [Boolean] 'AllowCommandPassthru' (true) Whether to allow
   #   unrecognized commands to be executed by the system shell
   # @option opts [Boolean] 'Readline' (true) Whether to use the readline or not
-  # @option opts [Boolean] 'RealReadline' (false) Whether to use the system's
-  #   readline library instead of RBReadline
   # @option opts [String] 'HistFile' (Msf::Config.history_file) Path to a file
   #   where we can store command history
   # @option opts [Array<String>] 'Resources' ([]) A list of resource files to
@@ -64,7 +62,7 @@ class Driver < Msf::Ui::Driver
   # @option opts [Boolean] 'SkipDatabaseInit' (false) Whether to skip
   #   connecting to the database and running migrations
   def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
-    choose_readline(opts)
+    setup_readline if opts['Readline']
 
     histfile = opts['HistFile'] || Msf::Config.history_file
 
@@ -131,14 +129,6 @@ class Driver < Msf::Ui::Driver
     # Add the core command dispatcher as the root of the dispatcher
     # stack
     enstack_dispatcher(CommandDispatcher::Core)
-
-    # Report readline error if there was one..
-    if !@rl_err.nil?
-      print_error("***")
-      print_error("* Unable to load readline: #{@rl_err}")
-      print_error("* Falling back to RbReadLine")
-      print_error("***")
-    end
 
     # Load the other "core" command dispatchers
     CommandDispatchers.each do |dispatcher_class|
@@ -706,77 +696,46 @@ protected
   # Require the appropriate readline library based on the user's preference.
   #
   # @return [void]
-  def choose_readline(opts)
-    # Choose a readline library before calling the parent
-    @rl_err = nil
-    if opts['RealReadline']
-      # Remove the gem version from load path to be sure we're getting the
-      # stdlib readline.
-      gem_dir = Gem::Specification.find_all_by_name('rb-readline').first.gem_dir
-      rb_readline_path = File.join(gem_dir, "lib")
-      index = $LOAD_PATH.index(rb_readline_path)
-      # Bundler guarantees that the gem will be there, so it should be safe to
-      # assume we found it in the load path, but check to be on the safe side.
-      if index
-        $LOAD_PATH.delete_at(index)
-      end
-    end
+  def setup_readline
+    require 'readline'
 
-    begin
-      require 'readline'
+    # Only Windows requires a monkey-patched RbReadline
+    return unless Rex::Compat.is_windows
 
-      # Only Windows requires a monkey-patched RbReadline
-      return unless Rex::Compat.is_windows
-
-      if defined?(::RbReadline) && !defined?(RbReadline.refresh_console_handle)
-        ::RbReadline.instance_eval do
-          class << self
-            alias_method :old_rl_move_cursor_relative, :_rl_move_cursor_relative
-            alias_method :old_rl_get_screen_size, :_rl_get_screen_size
-            alias_method :old_space_to_eol, :space_to_eol
-            alias_method :old_insert_some_chars, :insert_some_chars
-          end
-
-          def self.refresh_console_handle
-            # hConsoleHandle gets set only when RbReadline detects it is running on Windows.
-            # Therefore, we don't need to check Rex::Compat.is_windows, we can simply check if hConsoleHandle is nil or not.
-            @hConsoleHandle = @GetStdHandle.Call(::Readline::STD_OUTPUT_HANDLE) if @hConsoleHandle
-          end
-
-          def self._rl_move_cursor_relative(*args)
-            refresh_console_handle
-            old_rl_move_cursor_relative(*args)
-          end
-
-          def self._rl_get_screen_size(*args)
-            refresh_console_handle
-            old_rl_get_screen_size(*args)
-          end
-
-          def self.space_to_eol(*args)
-            refresh_console_handle
-            old_space_to_eol(*args)
-          end
-
-          def self.insert_some_chars(*args)
-            refresh_console_handle
-            old_insert_some_chars(*args)
-          end
+    if defined?(::RbReadline) && !defined?(RbReadline.refresh_console_handle)
+      ::RbReadline.instance_eval do
+        class << self
+          alias_method :old_rl_move_cursor_relative, :_rl_move_cursor_relative
+          alias_method :old_rl_get_screen_size, :_rl_get_screen_size
+          alias_method :old_space_to_eol, :space_to_eol
+          alias_method :old_insert_some_chars, :insert_some_chars
         end
-      end
-    rescue ::LoadError => e
-      if @rl_err.nil? && index
-        # Then this is the first time the require failed and we have an index
-        # for the gem version as a fallback.
-        @rl_err = e
-        # Put the gem back and see if that works
-        $LOAD_PATH.insert(index, rb_readline_path)
-        index = rb_readline_path = nil
-        retry
-      else
-        # Either we didn't have the gem to fall back on, or we failed twice.
-        # Nothing more we can do here.
-        raise e
+
+        def self.refresh_console_handle
+          # hConsoleHandle gets set only when RbReadline detects it is running on Windows.
+          # Therefore, we don't need to check Rex::Compat.is_windows, we can simply check if hConsoleHandle is nil or not.
+          @hConsoleHandle = @GetStdHandle.Call(::Readline::STD_OUTPUT_HANDLE) if @hConsoleHandle
+        end
+
+        def self._rl_move_cursor_relative(*args)
+          refresh_console_handle
+          old_rl_move_cursor_relative(*args)
+        end
+
+        def self._rl_get_screen_size(*args)
+          refresh_console_handle
+          old_rl_get_screen_size(*args)
+        end
+
+        def self.space_to_eol(*args)
+          refresh_console_handle
+          old_space_to_eol(*args)
+        end
+
+        def self.insert_some_chars(*args)
+          refresh_console_handle
+          old_insert_some_chars(*args)
+        end
       end
     end
   end
