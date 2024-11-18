@@ -20,13 +20,22 @@ module Msf
     def valid?(value = self.value, check_empty: true)
       return false if check_empty && empty_required_value?(value)
       return true if value.nil? && !required?
+      return false if value.nil?
 
-      !value.nil? && enums.include?(value.to_s)
+      if case_sensitive?
+        enums.include?(value.to_s)
+      else
+        enums.map(&:downcase).include?(value.to_s.downcase)
+      end
     end
 
     def normalize(value = self.value)
       if valid?(value) && !value.nil?
-        value.to_s
+        if case_sensitive?
+          value.to_s
+        else
+          enums.find { |e| e.casecmp? value }
+        end
       else
         nil
       end
@@ -43,6 +52,10 @@ module Msf
     end
 
     protected
+
+    def case_sensitive?
+      enums.map(&:downcase).uniq.length != enums.uniq.length
+    end
 
     attr_accessor :desc_string # :nodoc:
   end
