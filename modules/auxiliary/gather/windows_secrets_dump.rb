@@ -720,7 +720,13 @@ class MetasploitModule < Msf::Auxiliary
     result[:kerberos_keys] = []
     result[:clear_text_passwords] = {}
     plain_text = dcerpc_client.decrypt_attribute_value(attribute_value)
-    user_properties = RubySMB::Dcerpc::Samr::UserProperties.read(plain_text)
+    begin
+      user_properties = RubySMB::Dcerpc::Samr::UserProperties.read(plain_text)
+    rescue IOError
+      # May be no kerberos keys e.g. due to password reset
+      vprint_warning('Unable to read supplemental credentials')
+      return
+    end
     user_properties.user_properties.each do |user_property|
       case user_property.property_name.encode('utf-8')
       when 'Primary:Kerberos-Newer-Keys'
