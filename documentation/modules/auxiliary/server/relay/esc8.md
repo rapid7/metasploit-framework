@@ -10,7 +10,7 @@ on a given template.
     * See https://docs.metasploit.com/docs/pentesting/active-directory/ad-certificates/overview.html#setting-up-a-esc8-vulnerable-host
 2. Start `msfconsole`
 2. Do: `use auxiliary/server/relay/esc8`
-3. Set the `RANDOMIZE_TARGETS` option to the AD CS Web Enrollment server
+3. Set the `RELAY_TARGETS` option to the AD CS Web Enrollment server
 4. Run the module and wait for a request to be relayed
 
 ## Options

@@ -128,13 +128,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def create_csr(private_key, cert_template)
     vprint_status('Generating CSR...')
-    request = OpenSSL::X509::Request.new
-    request.version = 1
-    request.subject = OpenSSL::X509::Name.new([
-      ['CN', cert_template, OpenSSL::ASN1::UTF8STRING]
-    ])
-    request.public_key = private_key.public_key
-    request.sign(private_key, OpenSSL::Digest.new('SHA256'))
+    request = Rex::Proto::X509::Request.create_csr(private_key, cert_template)
     vprint_status('CSR Generated')
     request
   end
