@@ -62,7 +62,7 @@ class Driver < Msf::Ui::Driver
   # @option opts [Boolean] 'SkipDatabaseInit' (false) Whether to skip
   #   connecting to the database and running migrations
   def initialize(prompt = DefaultPrompt, prompt_char = DefaultPromptChar, opts = {})
-    setup_readline if opts['Readline']
+    setup_readline
 
     histfile = opts['HistFile'] || Msf::Config.history_file
 
