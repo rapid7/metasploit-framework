@@ -2,7 +2,6 @@
 ##
 
 require 'ruby_smb/dcerpc/client'
-require 'pry-byebug'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client
@@ -35,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'RESET', { 'Description' => "Reset the target's password without knowing the existing one (requires appropriate permissions)" } ],
           [ 'RESET_NTLM', { 'Description' => "Reset the target's NTLM hash, without knowing the existing password. This will not update kerberos keys." } ],
           [ 'CHANGE', { 'Description' => 'Change the password, knowing the existing one.' } ],
-          [ 'CHANGE_NTLM', { 'Description' => 'Change the password to a NTLM hash value, knowing the existing password. Can be either an NT hash or a colon-delimited NTLM hash' } ]
+          [ 'CHANGE_NTLM', { 'Description' => 'Change the password to a NTLM hash value, knowing the existing password. This will not update kerberos keys.' } ]
         ],
         'DefaultAction' => 'RESET'
       )
@@ -43,8 +42,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('NEW_PASSWORD', [false, 'The new password to change to', '']),
-        OptString.new('NEW_NTLM', [false, 'The new NTLM hash to change to', '']),
+        OptString.new('NEW_PASSWORD', [false, 'The new password to change to', ''], conditions: ['ACTION', 'in', %w[CHANGE RESET]]),
+        OptString.new('NEW_NTLM', [false, 'The new NTLM hash to change to. Can be either an NT hash or a colon-delimited NTLM hash', ''], conditions: ['ACTION', 'in', %w[CHANGE_NTLM RESET_NTLM]]),
         OptString.new('TARGET_USER', [false, 'The user to change the password of. If not provided, will change for the account provided in SMBUser'], conditions: ['ACTION', 'in', %w[RESET RESET_NTLM]])
       ]
     )
@@ -69,8 +68,6 @@ class MetasploitModule < Msf::Auxiliary
   end
   
   def run
-    fail_with('Must set NEW_PASSWORD on NEW_NTLM') if datastore['NEW_PASSWORD'].blank? && datastore['NEW_NTLM'].blank?
-
     case action.name
     when 'CHANGE'
       run_change
@@ -82,11 +79,25 @@ class MetasploitModule < Msf::Auxiliary
       run_change_ntlm
     end
 
-    # Don't disconnect the client if it's coming from the session so it can be reused
-    unless session
-      simple.client.disconnect! if simple&.client.is_a?(RubySMB::Client)
-      disconnect
-    end
+    rescue RubySMB::Error::RubySMBError => e
+      fail_with(Module::Failure::UnexpectedReply, "[#{e.class}] #{e}")
+    rescue Rex::ConnectionError => e
+      fail_with(Module::Failure::Unreachable, "[#{e.class}] #{e}")
+    rescue Msf::Exploit::Remote::MsSamr::MsSamrError => e
+      fail_with(Module::Failure::BadConfig, "[#{e.class}] #{e}")
+    rescue ::StandardError => e
+      raise e
+    ensure
+      @samr.close_handle(@domain_handle) if @domain_handle
+      @samr.close_handle(@server_handle) if @server_handle
+      @samr.close if @samr
+      @tree.disconnect! if @tree
+
+      # Don't disconnect the client if it's coming from the session so it can be reused
+      unless session
+        simple.client.disconnect! if simple&.client.is_a?(RubySMB::Client)
+        disconnect
+      end
   end
 
   def authenticate(anonymous_on_expired: false)
@@ -101,7 +112,6 @@ class MetasploitModule < Msf::Auxiliary
         begin
           smb_login
         rescue Rex::Proto::SMB::Exceptions::LoginError => e
-          binding.pry
           if anonymous_on_expired &&
              (e.source.is_a?(Rex::Proto::Kerberos::Model::Error::KerberosError) && [Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_KEY_EXPIRED].include?(e.source.error_code) ||
               e.source.is_a?(::WindowsError::ErrorCode) && [::WindowsError::NTStatus::STATUS_PASSWORD_EXPIRED, ::WindowsError::NTStatus::STATUS_PASSWORD_MUST_CHANGE].include?(e.source))
@@ -147,6 +157,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def parse_ntlm_from_config
     new_ntlm = datastore['NEW_NTLM']
+    fail_with(Msf::Exploit::Failure::BadConfig, 'Must provide NEW_NTLM value') if new_ntlm.blank?
     case new_ntlm.count(':')
     when 0
       new_nt = new_ntlm
@@ -166,6 +177,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_user_handle(domain, username)
+    vprint_status("Opening handle for #{domain}\\#{username}")
     @server_handle = @samr.samr_connect
     domain_sid = @samr.samr_lookup_domain(server_handle: @server_handle, name: domain)
     @domain_handle = @samr.samr_open_domain(server_handle: @server_handle, domain_id: domain_sid)
@@ -174,26 +186,63 @@ class MetasploitModule < Msf::Auxiliary
     rid = user_rids[username][:rid]
 
     @samr.samr_open_user(domain_handle: @domain_handle, user_id: rid)
+  rescue RubySMB::Dcerpc::Error::SamrError => e
+    fail_with(Msf::Exploit::Failure::BadConfig, "#{e}")
   end
 
   def run_change_ntlm
+    fail_with(Module::Failure::BadConfig, 'Must set NEW_NTLM') if datastore['NEW_NTLM'].blank?
+    fail_with(Module::Failure::BadConfig, 'Must set SMBUser to change password') if datastore['SMBUser'].blank?
+    fail_with(Module::Failure::BadConfig, 'Must set SMBPass to change password, or use RESET/RESET_NTLM to force-change a password without knowing the existing password') if datastore['SMBPass'].blank?
+    new_nt, new_lm = parse_ntlm_from_config
+    print_status('Changing NTLM')
     authenticate(anonymous_on_expired: false)
 
-    user_handle = get_user_handle(datastore['SMBUser'], datastore['SMBDomain'])
-
-    new_nt, new_lm = parse_ntlm_from_config
+    user_handle = get_user_handle(datastore['SMBDomain'], datastore['SMBUser'])
 
     @samr.samr_change_password_user(user_handle: user_handle,
                               old_password: datastore['SMBPass'],
                               new_nt_hash: new_nt,
                               new_lm_hash: new_lm)
+
+    print_good("Successfully changed password for #{datastore['SMBUser']}")
+    print_warning("AES Kerberos keys will not be available until user changes their password")
+  end
+
+  def run_reset_ntlm
+    fail_with(Module::Failure::BadConfig, "Must set TARGET_USER, or use CHANGE/CHANGE_NTLM to reset this user's own password") if datastore['TARGET_USER'].blank?
+    new_nt, new_lm = parse_ntlm_from_config
+    print_status('Resetting NTLM')
+    authenticate(anonymous_on_expired: false)
+
+    user_handle = get_user_handle(datastore['SMBDomain'], datastore['TARGET_USER'])
+
+    user_info = RubySMB::Dcerpc::Samr::SamprUserInfoBuffer.new(
+      tag: RubySMB::Dcerpc::Samr::USER_INTERNAL1_INFORMATION,
+      member: RubySMB::Dcerpc::Samr::SamprUserInternal1Information.new(
+        encrypted_nt_owf_password: RubySMB::Dcerpc::Samr::EncryptedNtOwfPassword.new(buffer: RubySMB::Dcerpc::Samr::EncryptedNtOwfPassword.encrypt_hash(hash: new_nt, key: simple.client.application_key)),
+        encrypted_lm_owf_password: nil,
+        nt_password_present: 1,
+        lm_password_present: 0,
+        password_expired: 0
+      )
+    )
+    @samr.samr_set_information_user2(
+      user_handle: user_handle,
+      user_info: user_info
+    )
+
+    print_good("Successfully reset password for #{datastore['TARGET_USER']}")
+    print_warning("AES Kerberos keys will not be available until user changes their password")
   end
 
   def run_reset
-    fail_with('Must set TARGET_USER') if datastore['TARGET_USER'].blank?
+    fail_with(Module::Failure::BadConfig, "Must set TARGET_USER, or use CHANGE/CHANGE_NTLM to reset this user's own password") if datastore['TARGET_USER'].blank?
+    fail_with(Module::Failure::BadConfig, 'Must set NEW_PASSWORD') if datastore['NEW_PASSWORD'].blank?
+    print_status('Resetting password')
     authenticate(anonymous_on_expired: false)
 
-    user_handle = get_user_handle(datastore['TARGET_USER'], datastore['SMBDomain'])
+    user_handle = get_user_handle(datastore['SMBDomain'], datastore['TARGET_USER'])
 
     user_info = RubySMB::Dcerpc::Samr::SamprUserInfoBuffer.new(
       tag: RubySMB::Dcerpc::Samr::USER_INTERNAL4_INFORMATION_NEW,
@@ -214,24 +263,18 @@ class MetasploitModule < Msf::Auxiliary
       user_handle: user_handle,
       user_info: user_info
     )
-    print_good("Successfully changed password")
+    print_good("Successfully reset password for #{datastore['TARGET_USER']}")
   end
 
   def run_change
+    fail_with(Module::Failure::BadConfig, 'Must set NEW_PASSWORD') if datastore['NEW_PASSWORD'].blank?
+    fail_with(Module::Failure::BadConfig, 'Must set SMBUser to change password') if datastore['SMBUser'].blank?
+    fail_with(Module::Failure::BadConfig, 'Must set SMBPass to change password, or use RESET/RESET_NTLM to force-change a password without knowing the existing password') if datastore['SMBPass'].blank?
+    print_status('Changing password')
     authenticate(anonymous_on_expired: true)
 
     @samr.samr_unicode_change_password_user2(target_username: datastore['SMBUser'], old_password: datastore['SMBPass'], new_password: datastore['NEW_PASSWORD'])
-    
-  rescue RubySMB::Error::RubySMBError => e
-    fail_with(Module::Failure::UnexpectedReply, "[#{e.class}] #{e}")
-  rescue Rex::ConnectionError => e
-    fail_with(Module::Failure::Unreachable, "[#{e.class}] #{e}")
-  rescue Msf::Exploit::Remote::MsSamr::MsSamrError => e
-    fail_with(Module::Failure::BadConfig, "[#{e.class}] #{e}")
-  rescue ::StandardError => e
-    raise e
-  ensure
-    @samr.close if @samr
-    @tree.disconnect! if @tree
+
+    print_good("Successfully changed password for #{datastore['SMBUser']}")
   end
 end
