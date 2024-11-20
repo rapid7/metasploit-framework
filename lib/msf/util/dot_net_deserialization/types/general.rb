@@ -80,6 +80,31 @@ module General
     end
   end
 
+  class MessageFlags < BinData::Record
+    # see: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/67213df2-7c15-4543-8e08-42ae0f7c66bf
+    endian :little
+
+    bit1   :method_signature_in_array
+    bit1   :context_in_array
+    bit1   :context_inline
+    bit1   :no_context
+    bit1   :args_in_array
+    bit1   :args_is_array
+    bit1   :args_inline
+    bit1   :no_args
+
+    bit1   :generic_method
+    bit1   :unused1
+    bit1   :exception_in_array
+    bit1   :return_value_in_array
+    bit1   :return_value_inline
+    bit1   :return_value_void
+    bit1   :no_return_value
+    bit1   :properties_in_array
+
+    uint16 :unused2
+  end
+
 end
 end
 end
