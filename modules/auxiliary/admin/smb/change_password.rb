@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('NEW_PASSWORD', [false, 'The new password to change to', ''], conditions: ['ACTION', 'in', %w[CHANGE RESET]]),
         OptString.new('NEW_NTLM', [false, 'The new NTLM hash to change to. Can be either an NT hash or a colon-delimited NTLM hash', ''], conditions: ['ACTION', 'in', %w[CHANGE_NTLM RESET_NTLM]]),
-        OptString.new('TARGET_USER', [false, 'The user to change the password of. If not provided, will change for the account provided in SMBUser'], conditions: ['ACTION', 'in', %w[RESET RESET_NTLM]])
+        OptString.new('TARGET_USER', [false, 'The user to reset the password of.'], conditions: ['ACTION', 'in', %w[RESET RESET_NTLM]])
       ]
     )
   end
