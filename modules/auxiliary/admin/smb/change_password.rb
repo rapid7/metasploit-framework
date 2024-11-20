@@ -49,15 +49,6 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def connect_samr(domain_name, target_user)
-    vprint_status('Connecting to Security Account Manager (SAM) Remote Protocol')
-    @samr = @tree.open_file(filename: 'samr', write: true, read: true)
-
-    vprint_status('Binding to \\samr...')
-    @samr.bind(endpoint: RubySMB::Dcerpc::Samr)
-    vprint_good('Bound to \\samr')
-  end
-
   def connect_samr
     vprint_status('Connecting to Security Account Manager (SAM) Remote Protocol')
     @samr = @tree.open_file(filename: 'samr', write: true, read: true)
@@ -66,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
     @samr.bind(endpoint: RubySMB::Dcerpc::Samr)
     vprint_good('Bound to \\samr')
   end
-  
+
   def run
     case action.name
     when 'CHANGE'
@@ -78,26 +69,25 @@ class MetasploitModule < Msf::Auxiliary
     when 'CHANGE_NTLM'
       run_change_ntlm
     end
+  rescue RubySMB::Error::RubySMBError => e
+    fail_with(Module::Failure::UnexpectedReply, "[#{e.class}] #{e}")
+  rescue Rex::ConnectionError => e
+    fail_with(Module::Failure::Unreachable, "[#{e.class}] #{e}")
+  rescue Msf::Exploit::Remote::MsSamr::MsSamrError => e
+    fail_with(Module::Failure::BadConfig, "[#{e.class}] #{e}")
+  rescue ::StandardError => e
+    raise e
+  ensure
+    @samr.close_handle(@domain_handle) if @domain_handle
+    @samr.close_handle(@server_handle) if @server_handle
+    @samr.close if @samr
+    @tree.disconnect! if @tree
 
-    rescue RubySMB::Error::RubySMBError => e
-      fail_with(Module::Failure::UnexpectedReply, "[#{e.class}] #{e}")
-    rescue Rex::ConnectionError => e
-      fail_with(Module::Failure::Unreachable, "[#{e.class}] #{e}")
-    rescue Msf::Exploit::Remote::MsSamr::MsSamrError => e
-      fail_with(Module::Failure::BadConfig, "[#{e.class}] #{e}")
-    rescue ::StandardError => e
-      raise e
-    ensure
-      @samr.close_handle(@domain_handle) if @domain_handle
-      @samr.close_handle(@server_handle) if @server_handle
-      @samr.close if @samr
-      @tree.disconnect! if @tree
-
-      # Don't disconnect the client if it's coming from the session so it can be reused
-      unless session
-        simple.client.disconnect! if simple&.client.is_a?(RubySMB::Client)
-        disconnect
-      end
+    # Don't disconnect the client if it's coming from the session so it can be reused
+    unless session
+      simple.client.disconnect! if simple&.client.is_a?(RubySMB::Client)
+      disconnect
+    end
   end
 
   def authenticate(anonymous_on_expired: false)
@@ -117,10 +107,10 @@ class MetasploitModule < Msf::Auxiliary
               e.source.is_a?(::WindowsError::ErrorCode) && [::WindowsError::NTStatus::STATUS_PASSWORD_EXPIRED, ::WindowsError::NTStatus::STATUS_PASSWORD_MUST_CHANGE].include?(e.source))
             # Password has expired - we'll need to anonymous connect
             opts = {
-              :username => '',
-              :password => '',
-              :domain => '',
-              :auth_protocol => Msf::Exploit::Remote::AuthOption::NTLM
+              username: '',
+              password: '',
+              domain: '',
+              auth_protocol: Msf::Exploit::Remote::AuthOption::NTLM
             }
             disconnect
             connect
@@ -129,7 +119,6 @@ class MetasploitModule < Msf::Auxiliary
             raise
           end
         end
-
       rescue Rex::Proto::SMB::Exceptions::Error, RubySMB::Error::RubySMBError => e
         fail_with(Module::Failure::NoAccess, "Unable to authenticate ([#{e.class}] #{e}).")
       end
@@ -152,7 +141,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     connect_samr
-
   end
 
   def parse_ntlm_from_config
@@ -168,8 +156,8 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Msf::Exploit::Failure::BadConfig, 'Invalid value for NEW_NTLM')
     end
 
-    new_nt = Rex::Text::hex_to_raw(new_nt)
-    new_lm = Rex::Text::hex_to_raw(new_lm) unless new_lm.nil?
+    new_nt = Rex::Text.hex_to_raw(new_nt)
+    new_lm = Rex::Text.hex_to_raw(new_lm) unless new_lm.nil?
     fail_with(Msf::Exploit::Failure::BadConfig, 'Invalid NT hash value in NEW_NTLM') unless new_nt.length == 16
     fail_with(Msf::Exploit::Failure::BadConfig, 'Invalid LM hash value in NEW_NTLM') unless new_lm.nil? || new_nt.length == 16
 
@@ -187,7 +175,7 @@ class MetasploitModule < Msf::Auxiliary
 
     @samr.samr_open_user(domain_handle: @domain_handle, user_id: rid)
   rescue RubySMB::Dcerpc::Error::SamrError => e
-    fail_with(Msf::Exploit::Failure::BadConfig, "#{e}")
+    fail_with(Msf::Exploit::Failure::BadConfig, e.to_s)
   end
 
   def run_change_ntlm
@@ -201,17 +189,17 @@ class MetasploitModule < Msf::Auxiliary
     user_handle = get_user_handle(datastore['SMBDomain'], datastore['SMBUser'])
 
     @samr.samr_change_password_user(user_handle: user_handle,
-                              old_password: datastore['SMBPass'],
-                              new_nt_hash: new_nt,
-                              new_lm_hash: new_lm)
+                                    old_password: datastore['SMBPass'],
+                                    new_nt_hash: new_nt,
+                                    new_lm_hash: new_lm)
 
     print_good("Successfully changed password for #{datastore['SMBUser']}")
-    print_warning("AES Kerberos keys will not be available until user changes their password")
+    print_warning('AES Kerberos keys will not be available until user changes their password')
   end
 
   def run_reset_ntlm
     fail_with(Module::Failure::BadConfig, "Must set TARGET_USER, or use CHANGE/CHANGE_NTLM to reset this user's own password") if datastore['TARGET_USER'].blank?
-    new_nt, new_lm = parse_ntlm_from_config
+    new_nt, = parse_ntlm_from_config
     print_status('Resetting NTLM')
     authenticate(anonymous_on_expired: false)
 
@@ -233,7 +221,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     print_good("Successfully reset password for #{datastore['TARGET_USER']}")
-    print_warning("AES Kerberos keys will not be available until user changes their password")
+    print_warning('AES Kerberos keys will not be available until user changes their password')
   end
 
   def run_reset
