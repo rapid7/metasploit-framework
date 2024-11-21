@@ -191,23 +191,24 @@ module Rex::Proto::X11::Window
   end
 end
 
-def create_overlay_map(screen_width, screen_height, windows)
-  # Initialize a 2D array to represent the screen
-  screen = Array.new(screen_height) { Array.new(screen_width, nil) }
-  windows.each_with_index do |window, i|
-    puts window.inspect
-    x, y, width, height = window
-    # Mark the visible region occupied by the window
-    (y...y + height).each do |row|
-      (x...x + width).each do |col|
-        screen[row][col] = i
-      end
-    end
-  end
-  screen.each do |row|
-    puts row.join('')
-  end
-end
+# for future use
+# def create_overlay_map(screen_width, screen_height, windows)
+#   # Initialize a 2D array to represent the screen
+#   screen = Array.new(screen_height) { Array.new(screen_width, nil) }
+#   windows.each_with_index do |window, i|
+#     puts window.inspect
+#     x, y, width, height = window
+#     # Mark the visible region occupied by the window
+#     (y...y + height).each do |row|
+#       (x...x + width).each do |col|
+#         screen[row][col] = i
+#       end
+#     end
+#   end
+#   screen.each do |row|
+#     puts row.join('')
+#   end
+# end
 
 class X11Image
   def initialize(width, height, image_data, color_data)
@@ -221,31 +222,32 @@ class X11Image
     new(width, height, image_reply.image_data, color_reply.colors)
   end
 
-  def create_image
-    # Extract relevant data from @image_data and @color_data
-    width = @width
-    height = @height
-    pixel_data = @image_data
-    colors = @color_data
+  # for future use
+  # def create_image
+  #   # Extract relevant data from @image_data and @color_data
+  #   width = @width
+  #   height = @height
+  #   pixel_data = @image_data
+  #   colors = @color_data
 
-    # Create an image object
-    image = ChunkyPNG::Image.new(width, height, ChunkyPNG::Color::TRANSPARENT)
+  #   # Create an image object
+  #   image = ChunkyPNG::Image.new(width, height, ChunkyPNG::Color::TRANSPARENT)
 
-    # Populate image with pixel data and colors
-    pixel_data.each_with_index do |pixel, i|
-      color = colors[pixel]
-      # Set pixel color in the image
-      image[i % width, i / width] = ChunkyPNG::Color.rgb(color.red, color.green, color.blue)
-    end
-    # (0...height).each do |y|
-    #   (0...width).each do |x|
-    #     # Extract color information from the pixel data and set the corresponding pixel in the PNG image
-    #     color = colors[y+x]
-    #     # pixel_color = extract_color_from_z_data(z_data)
-    #     image[x, y] = ChunkyPNG::Color.rgb(color.red, color.green, color.blue)
-    #   end
-    # end
+  #   # Populate image with pixel data and colors
+  #   pixel_data.each_with_index do |pixel, i|
+  #     color = colors[pixel]
+  #     # Set pixel color in the image
+  #     image[i % width, i / width] = ChunkyPNG::Color.rgb(color.red, color.green, color.blue)
+  #   end
+  #   # (0...height).each do |y|
+  #   #   (0...width).each do |x|
+  #   #     # Extract color information from the pixel data and set the corresponding pixel in the PNG image
+  #   #     color = colors[y+x]
+  #   #     # pixel_color = extract_color_from_z_data(z_data)
+  #   #     image[x, y] = ChunkyPNG::Color.rgb(color.red, color.green, color.blue)
+  #   #   end
+  #   # end
 
-    image
-  end
+  #   image
+  # end
 end

@@ -51,6 +51,13 @@ class MetasploitModule < Msf::Auxiliary
 
     if connection.header.success == 1
       print_connection_info(connection, ip, rport)
+      report_service(
+        host: rhost,
+        proto: 'tcp',
+        port: rport,
+        info: "Open X Server (#{connection.body.vendor}) #{connection.body.screen_width_in_pixels}x#{connection.body.screen_height_in_pixels}",
+        name: 'X11'
+      )
     else
       vprint_error("#{ip} Access not successful: #{connection.body.reason}")
     end
