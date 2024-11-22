@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Change Password',
         'Description' => %q{
-          This module allows Active Directory users to change their own passwords, or reset passwords for 
+          This module allows Active Directory users to change their own passwords, or reset passwords for
           accounts they have privileges over.
         },
         'Author' => [
@@ -90,7 +90,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::BadConfig, 'Must set PASSWORD when changing password') if datastore['PASSWORD'].blank?
     end
     if session.blank? && datastore['USERNAME'].blank?
-      print_warning("Connecting with an anonymous bind")
+      print_warning('Connecting with an anonymous bind')
     end
     ldap_connect do |ldap|
       validate_bind_success!(ldap)
@@ -151,7 +151,7 @@ class MetasploitModule < Msf::Auxiliary
 
     new_pass = "\"#{datastore['NEW_PASSWORD']}\"".encode('utf-16le').bytes.pack('c*')
     old_pass = "\"#{datastore['PASSWORD']}\"".encode('utf-16le').bytes.pack('c*')
-    unless @ldap.modify(:dn => obj['dn'], :operations => [[:delete, ATTRIBUTE, old_pass], [:add, ATTRIBUTE, new_pass]])
+    unless @ldap.modify(dn: obj['dn'], operations: [[:delete, ATTRIBUTE, old_pass], [:add, ATTRIBUTE, new_pass]])
       fail_with_ldap_error("Failed to reset the password for #{datastore['USERNAME']}.")
     end
     print_good("Successfully changed password for #{datastore['USERNAME']}.")
