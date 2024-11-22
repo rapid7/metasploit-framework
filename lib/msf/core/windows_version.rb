@@ -222,12 +222,13 @@ module Msf
 
     # Get the string representation of the OS, given a major, minor and build number
     # (as reported by an NTLM handshake).
-    # The NTLM structure makes no guarantee that it is actually Windows, so if we
-    # don't find a precise match, return nil
+    # The NTLM structure makes no guarantee that the underlying OS of the server is
+    # actually Windows, so if we don't find a precise match, return nil
+    #
     # @param major [Integer] The major build number reported in the NTLM handshake
     # @param minor [Integer] The minor build number reported in the NTLM handshake
     # @param build [Integer] The build build number reported in the NTLM handshake
-    # @return [String] The possible matching OS versions, or nil if no identical match can be found
+    # @return [String] The possible matching OS versions, or nil if no corresponding match can be found
     def self.from_ntlm_os_version(major, minor, build)
       workstation_string = self.version_string(major, minor, build, WorkstationSpecificVersions, WorkstationNameMapping)
       server_string = self.version_string(major, minor, build, ServerSpecificVersions, ServerNameMapping)
@@ -287,7 +288,7 @@ module Msf
       return nil
     end
 
-    # Get a Windows OS string from a version, given a set of version constants
+    # Get a Windows OS version string representation for a given major, minor and build number
     def self.version_string(major, minor, build, version_module, mapping)
       version_module.constants.each do |version_sym|
         version = version_module.const_get(version_sym)
