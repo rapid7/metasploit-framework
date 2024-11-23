@@ -21,47 +21,52 @@ class MetasploitModule < Msf::Auxiliary
     ])
   end
 
-  def run
-    if session
-      set_mssql_session(session.client)
-      data = mssql_client.initial_connection_info[:prelogin_data]
-    else
-      create_mssql_client
-      data = mssql_prelogin
-    end
-
-    if data.blank?
-      print_error("Unable to retrieve version information for #{mssql_client.peerhost}")
-      return
-    end
-
-    data[:status] = 'open' if data[:version] || data[:encryption]
-
-    print_status("SQL Server for #{mssql_client.peerhost}:")
-    if data[:version]
-      print_good("Version: #{data[:version]}")
-    else
-      print_error('Unknown Version')
-    end
-    if data[:encryption]
-      case data[:encryption]
-      when ENCRYPT_OFF
-        data[:encryption] = 'off'
-      when ENCRYPT_ON
-        data[:encryption] = 'on'
-      when ENCRYPT_NOT_SUP
-        data[:encryption] = 'unsupported'
-      when ENCRYPT_REQ
-        data[:encryption] = 'required'
+    def run_host(ip)
+    datastore['RHOSTS'] = ip  # Set the current target IP in the datastore
+    begin
+      if session
+        set_mssql_session(session.client)
+        data = mssql_client.initial_connection_info[:prelogin_data]
       else
-        data[:encryption] = 'unknown'
+        create_mssql_client  # No arguments needed here
+        data = mssql_prelogin
       end
-      print_good("Encryption: #{data[:encryption]}")
-    else
-      print_error('Unknown encryption status')
+  
+      if data.blank?
+        print_error("Unable to retrieve version information for #{ip}")
+        return
+      end
+  
+      print_status("SQL Server for #{ip}:")
+      if data[:version]
+        print_good("Version: #{data[:version]}")
+      else
+        print_error('Unknown Version')
+      end
+      if data[:encryption]
+        case data[:encryption]
+        when ENCRYPT_OFF
+          data[:encryption] = 'off'
+        when ENCRYPT_ON
+          data[:encryption] = 'on'
+        when ENCRYPT_NOT_SUP
+          data[:encryption] = 'unsupported'
+        when ENCRYPT_REQ
+          data[:encryption] = 'required'
+        else
+          data[:encryption] = 'unknown'
+        end
+        print_good("Encryption: #{data[:encryption]}")
+      else
+        print_error('Unknown encryption status')
+      end
+  
+      report_mssql_service(ip, data)
+    rescue ::Rex::ConnectionError
+      print_error("Failed to connect to #{ip}:#{datastore['RPORT']}")
+    ensure
+      disconnect
     end
-
-    report_mssql_service(mssql_client.peerhost, data)
   end
 
   def report_mssql_service(ip, data)
