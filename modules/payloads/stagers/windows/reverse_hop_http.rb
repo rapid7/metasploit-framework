@@ -7,7 +7,7 @@ require 'uri'
 
 module MetasploitModule
 
-  CachedSize = 353
+  CachedSize = 362
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows
