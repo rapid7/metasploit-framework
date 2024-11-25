@@ -75,7 +75,7 @@ This module has a selection of inbuilt queries which can be configured via the `
 - `ENUM_COMPUTERS` - Dump all objects containing an objectCategory or objectClass of Computer.
 - `ENUM_CONSTRAINED_DELEGATION` - Dump info about all known objects that allow constrained delegation.
 - `ENUM_DNS_RECORDS` - Dump info about DNS records the server knows about using the dnsNode object class.
-- `ENUM_DNS_ZONES` - Dump info about DNS zones the server knows about using the dnsZone object class under the DC DomainDnsZones. This isneeded - as without this BASEDN prefix we often miss certain entries.
+- `ENUM_DNS_ZONES` - Dump info about DNS zones the server knows about using the dnsZone object class under the DC DomainDnsZones. This is needed - as without this BASEDN prefix we often miss certain entries.
 - `ENUM_DOMAIN` - Dump info about the Active Directory domain.
 - `ENUM_DOMAIN_CONTROLLERS` - Dump all known domain controllers.
 - `ENUM_EXCHANGE_RECIPIENTS` - Dump info about all known Exchange recipients.
@@ -96,6 +96,7 @@ This module has a selection of inbuilt queries which can be configured via the `
 - `ENUM_USER_PASSWORD_NEVER_EXPIRES` - Dump info about all users whose password never expires.
 - `ENUM_USER_PASSWORD_NOT_REQUIRED` - Dump info about all users whose password never expires and whose account is still enabled.
 - `ENUM_USER_SPNS_KERBEROAST` - Dump info about all user objects with Service Principal Names (SPNs) for kerberoasting.
+- `ENUM_PRE_WINDOWS_2000_COMPUTERS` - Dump info about all computer objects likely created as a "pre-Windows 2000 computer", for which the password might be predictable.
 
 ### Kerberos Authentication
 
