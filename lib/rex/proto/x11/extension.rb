@@ -18,10 +18,6 @@ module Rex::Proto::X11::Extension
     uint8 :major_opcode # this is the ID of the extension
     uint8 :first_event
     uint8 :first_error
-    # 64 + 64 + 32 padding 'undecoded' in wireshark
-    uint64 :pad1
-    uint64 :pad2
-    uint32 :pad3
   end
 
   # https://xcb.freedesktop.org/manual/structxcb__query__extension__request__t.html
@@ -50,16 +46,12 @@ module Rex::Proto::X11::Extension
   end
 
   # built based on Wireshark processor
-  class X11ExtensionToggleReply < BinData::Record
+  class X11ExtensionToggleResponse < BinData::Record
     endian :little
     uint8 :reply
     uint8 :pad0
-    uint16 :reply_sequence_number
-    uint32 :reply_length
+    uint16 :sequence_number
+    uint32 :response_length
     uint32 :maximum_request_length
-    # 64 + 64 + 32 padding 'undecoded' in wireshark
-    uint64 :pad1
-    uint64 :pad2
-    uint32 :pad3
   end
 end

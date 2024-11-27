@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if connection.header.success == 1
-      print_connection_info(connection, ip, rport)
+      x11_print_connection_info(connection, ip, rport)
       report_service(
         host: rhost,
         proto: 'tcp',

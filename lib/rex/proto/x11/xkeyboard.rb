@@ -150,7 +150,7 @@ module Rex::Proto::X11::Xkeyboard
   end
 
   # https://xcb.freedesktop.org/manual/structxcb__xkb__get__map__reply__t.html
-  class X11GetMapReply < BinData::Record
+  class X11GetMapResponse < BinData::Record
     endian :little
     uint8 :reply
     uint8 :device_id
@@ -351,16 +351,14 @@ module Rex::Proto::X11::Xkeyboard
   end
 
   # https://xcb.freedesktop.org/manual/structxcb__query__keymap__reply__t.html
-  class X11QueryKeyMapReply < BinData::Record
+  class X11QueryKeyMapResponse < BinData::Record
     endian :little
     uint8 :reply
     uint8 :pad
     uint16 :sequence_number
     uint32 :response_length
     # byte sequence
-    array :data,
-          type: :uint8,
-          read_until: :eof
+    uint8_array :data, initial_length: 32
   end
 
   # https://xcb.freedesktop.org/manual/structxcb__xkb__bell__request__t.html
