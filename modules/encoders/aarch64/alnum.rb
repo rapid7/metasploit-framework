@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Encoder
            enc_buf +
            nops +
            "s\xf0O6"
-       #   jump_back #            tbx w19, #9, <to lbl 'loop'>     - end of decoding while-loop
+    #   jump_back #            tbx w19, #9, <to lbl 'loop'>     - end of decoding while-loop
   end
 
   def min_jmp_back(enc_buf)
