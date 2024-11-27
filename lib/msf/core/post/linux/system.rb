@@ -7,6 +7,7 @@ module Msf
         include ::Msf::Post::Common
         include ::Msf::Post::File
         include ::Msf::Post::Unix
+        include Msf::Auxiliary::Report
 
         #
         # Returns a Hash containing Distribution Name, Version and Kernel Information
@@ -14,7 +15,6 @@ module Msf
         def get_sysinfo
           system_data = {}
           etc_files = cmd_exec('ls /etc').split
-
           kernel_version = cmd_exec('uname -a')
           system_data[:kernel] = kernel_version
 
@@ -442,6 +442,8 @@ module Msf
                 return 'Docker'
               when /lxc/i
                 return 'LXC'
+              else
+                return 'Unknown'
               end
             else
               # Check for the "container" environment variable
