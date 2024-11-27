@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Encoder
   # Encodes payload
   def encode_block(state, buf)
     enc_pl = '_' * buf.length * 2 # encoding nibbles to chars -> length will be doubled
-    # puts("buf len: #{buf.length}, enc_pl len: #{enc_pl.length}, buf type: #{buf.class}")
+    puts("buf len: #{buf.length}, enc_pl len: #{enc_pl.length}, buf type: #{buf.class}")
 
     for i in 0...buf.length do
       q = buf[i].ord
@@ -71,14 +71,16 @@ class MetasploitModule < Msf::Encoder
            "ke0\xf1" + #          subs	x11, x11, #0xc19
            'Bh01' + #             adds	w2, w2, #0xc1a            - w2++
            'Bd0q' + #             subs	w2, w2, #0xc19
-           'szH6' + #             TODO:   tbz w19, #9, #0xc6c
+           "s\x0dH6" + #          tbz w19, #9, #0x1ac             - jump forward (into nops)
            enc_buf +
            nops +
-           jump_back #       tbx w19, #9, <to lbl 'loop'>     - end of decoding while-loop
+           "s\xf0O6"
+       #    jump_back #            tbx w19, #9, <to lbl 'loop'>     - end of decoding while-loop
   end
 
   def min_jmp_back(enc_buf)
     jump_back_offsets = [
+      ["s\xf0O6", 0xfffffffffffffe0c], # -500
       ['szO6', 0xffffffffffffef4c], # -4276
     ]
 
