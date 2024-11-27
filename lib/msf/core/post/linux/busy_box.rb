@@ -47,7 +47,9 @@ module BusyBox
   end
 
   # Checks some directories that usually are writable in devices running busybox
+  #
   # @return [String] If the function finds a writable directory, it returns the path. Else it returns nil
+  #
   def busy_box_writable_dir
     dirs = %w(/etc/ /mnt/ /var/ /var/tmp/)
 
