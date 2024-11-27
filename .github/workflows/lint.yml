@@ -29,7 +29,7 @@ on:
 jobs:
   msftidy:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
 
     env:
       BUNDLE_WITHOUT: "coverage development pcap"

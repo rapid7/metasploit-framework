@@ -72,9 +72,17 @@ class Server
     )
 
     thread_factory = Proc.new do |server_client, &block|
-      Rex::ThreadFactory.spawn("SMBServerClient(#{server_client.peerhost}->#{server_client.dispatcher.tcp_socket.localhost})", false, &block)
-    end
+      thread_name = "SMBServerClient(#{server_client.peerhost}->#{server_client.dispatcher.tcp_socket.localhost})"
+      wrapped_block = Proc.new do
+        begin
+          block.call
+        rescue StandardError => e
+          elog(thread_name, error: e)
+        end
+      end
 
+      Rex::ThreadFactory.spawn(thread_name, false, &wrapped_block)
+    end
     @rubysmb_server = RubySMB::Server.new(
       server_sock: self.listener,
       gss_provider: @gss_provider,

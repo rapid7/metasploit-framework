@@ -1,4 +1,4 @@
-FROM ruby:3.1.6-alpine3.20 AS builder
+FROM ruby:3.2.5-alpine3.20 AS builder
 LABEL maintainer="Rapid7"
 
 ARG BUNDLER_CONFIG_ARGS="set no-cache 'true' set system 'true' set without 'development test coverage'"
@@ -53,7 +53,7 @@ RUN mkdir -p $TOOLS_HOME/bin && \
     cd go/src && \
     ./make.bash
 
-FROM ruby:3.1.5-alpine3.18
+FROM ruby:3.2.5-alpine3.20
 LABEL maintainer="Rapid7"
 ARG TARGETARCH
 
@@ -65,15 +65,14 @@ ENV METASPLOIT_GROUP=metasploit
 # used for the copy command
 RUN addgroup -S $METASPLOIT_GROUP
 
-RUN apk add --no-cache bash sqlite-libs nmap nmap-scripts nmap-nselibs \
-    postgresql-libs python3 py3-pip ncurses libcap su-exec alpine-sdk \
+RUN apk add --no-cache curl bash sqlite-libs nmap nmap-scripts nmap-nselibs \
+    postgresql-libs python3 py3-pip py3-impacket py3-requests ncurses libcap su-exec alpine-sdk \
     openssl-dev nasm
 RUN\
     if [ "${TARGETARCH}" = "arm64" ];\
 	then apk add --no-cache gcc musl-dev python3-dev libffi-dev gcompat;\
     else apk add --no-cache mingw-w64-gcc;\
     fi
-
 
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which ruby)
 RUN /usr/sbin/setcap cap_net_raw,cap_net_bind_service=+eip $(which nmap)
@@ -86,9 +85,6 @@ RUN chown -R root:metasploit $APP_HOME/
 RUN chmod 664 $APP_HOME/Gemfile.lock
 RUN gem update --system
 RUN cp -f $APP_HOME/docker/database.yml $APP_HOME/config/database.yml
-RUN curl -L -O https://raw.githubusercontent.com/pypa/get-pip/f84b65709d4b20221b7dbee900dbf9985a81b5d4/public/get-pip.py && python3 get-pip.py && rm get-pip.py
-RUN pip install impacket
-RUN pip install requests
 
 ENV GOPATH=$TOOLS_HOME/go
 ENV GOROOT=$TOOLS_HOME/bin/go

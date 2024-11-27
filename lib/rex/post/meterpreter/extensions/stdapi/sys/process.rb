@@ -108,7 +108,7 @@ class Process < Rex::Post::Process
   #
   # Executes an application using the arguments provided
   # @param path [String] Path on the remote system to the executable to run
-  # @param arguments [String,Array<String>] Arguments to the process. When passed as a String (rather than an array of Strings), 
+  # @param arguments [String,Array<String>] Arguments to the process. When passed as a String (rather than an array of Strings),
   #                                         this is treated as a string containing all arguments.
   # @param opts [Hash] Optional settings to parameterise the process launch
   # @option Hidden [Boolean] Is the process launched without creating a visible window
@@ -176,7 +176,7 @@ class Process < Rex::Post::Process
     # Add arguments
     # If process arguments were supplied
     if arguments.kind_of?(Array)
-      request.add_tlv(TLV_TYPE_PROCESS_UNESCAPED_PATH, client.unicode_filter_decode( path ));
+      request.add_tlv(TLV_TYPE_PROCESS_UNESCAPED_PATH, client.unicode_filter_decode( path ))
       # This flag is needed to disambiguate how to handle escaping special characters in the path when no arguments are provided
       flags |= PROCESS_EXECUTE_FLAG_ARG_ARRAY
       arguments.each do |arg|
@@ -188,8 +188,8 @@ class Process < Rex::Post::Process
       if opts[:legacy_args]
         request.add_tlv(TLV_TYPE_PROCESS_ARGUMENTS, opts[:legacy_args])
       end
-    elsif arguments.kind_of?(String)
-      request.add_tlv(TLV_TYPE_PROCESS_PATH, client.unicode_filter_decode( path ));
+    elsif arguments.nil? || arguments.kind_of?(String)
+      request.add_tlv(TLV_TYPE_PROCESS_PATH, client.unicode_filter_decode( path ))
       request.add_tlv(TLV_TYPE_PROCESS_ARGUMENTS, arguments)
     else
       raise ArgumentError.new('Unknown type for arguments')
