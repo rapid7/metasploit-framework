@@ -52,6 +52,8 @@ module Msf
       MESSAGE = 'Host resolution failed'
     end
 
+    # @param [String] value
+    # @param [Msf::DataStore] datastore
     def initialize(value = '', datastore = Msf::ModuleDataStore.new(nil))
       @value = value
       @datastore = datastore
@@ -143,30 +145,42 @@ module Msf
             schema = Regexp.last_match(:schema)
             raise InvalidSchemaError unless SUPPORTED_SCHEMAS.include?(schema)
 
-            found = false
             parse_method = "parse_#{schema}_uri"
             parsed_options = send(parse_method, value, datastore)
-            Rex::Socket::RangeWalker.new(parsed_options['RHOSTS']).each_ip do |ip|
-              results << datastore.merge(
-                parsed_options.merge('RHOSTS' => ip, 'UNPARSED_RHOSTS' => value)
-              )
-              found = true
-            end
-            unless found
-              raise RhostResolveError.new(value)
+            if perform_dns_resolution?(datastore)
+              found = false
+              Rex::Socket::RangeWalker.new(parsed_options['RHOSTS']).each_ip do |ip|
+                results << datastore.merge(
+                  parsed_options.merge('RHOSTS' => ip, 'UNPARSED_RHOSTS' => value)
+                )
+                found = true
+              end
+              unless found
+                raise RhostResolveError.new(value)
+              end
+            else
+              results << datastore.merge(parsed_options.merge('UNPARSED_RHOSTS' => value))
             end
           else
-            found = false
-            Rex::Socket::RangeWalker.new(value).each_host do |rhost|
+            if perform_dns_resolution?(datastore)
+              found = false
+              Rex::Socket::RangeWalker.new(value).each_host do |rhost|
+                overrides = {}
+                overrides['UNPARSED_RHOSTS'] = value
+                overrides['RHOSTS'] = rhost[:address]
+                set_hostname(datastore, overrides, rhost[:hostname])
+                results << datastore.merge(overrides)
+                found = true
+              end
+              unless found
+                raise RhostResolveError.new(value)
+              end
+            else
               overrides = {}
               overrides['UNPARSED_RHOSTS'] = value
-              overrides['RHOSTS'] = rhost[:address]
-              set_hostname(datastore, overrides, rhost[:hostname])
+              overrides['RHOSTS'] = value
+              set_hostname(datastore, overrides, value)
               results << datastore.merge(overrides)
-              found = true
-            end
-            unless found
-              raise RhostResolveError.new(value)
             end
           end
         rescue ::Interrupt
@@ -384,6 +398,14 @@ module Msf
     end
 
     protected
+
+    # @param [Msf::DataStore] datastore
+    # @return [Boolean] True if DNS resolution should be performed the RHOST values, false otherwise
+    def perform_dns_resolution?(datastore)
+      # If a socks proxy has been configured, don't perform DNS resolution - so that it instead happens via the proxy
+      # rex-socket does not currently support socks4a. SAPNI may need to be added to this list.
+      !(datastore['PROXIES'].to_s.include?(Rex::Socket::Proxies::ProxyType::HTTP) || datastore['PROXIES'].to_s.include?(Rex::Socket::Proxies::ProxyType::SOCKS5))
+    end
 
     def set_hostname(datastore, result, hostname)
       hostname = Rex::Socket.is_ip_addr?(hostname) ? nil : hostname
