@@ -205,7 +205,8 @@ GEM
       irb (>= 1.5.0)
       reline (>= 0.3.1)
     diff-lcs (1.5.1)
-    dnsruby (1.72.2)
+    dnsruby (1.72.3)
+      base64 (~> 0.2.0)
       simpleidn (~> 0.2.1)
     docile (1.4.1)
     domain_name (0.6.20240107)
@@ -446,7 +447,8 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.57)
+    rex-socket (0.1.59)
+      dnsruby
       rex-core
     rex-sslscan (0.1.10)
       rex-core
