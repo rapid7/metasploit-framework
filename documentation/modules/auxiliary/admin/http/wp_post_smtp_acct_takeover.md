@@ -1,10 +1,9 @@
 ## Vulnerable Application
 
-The POST SMTP WordPress plugin
-prior to 2.8.7 is affected by a privilege escalation where an unauthenticated
-user is able to reset the password of an arbitrary user. This is done by
-requesting a password reset, then viewing the latest email logs to find
-the associated password reset email.
+The POST SMTP WordPress plugin prior to 2.8.7 is affected by a privilege
+escalation where an unauthenticated user is able to reset the password
+of an arbitrary user. This is done by requesting a password reset, then
+viewing the latest email logs to find the associated password reset email.
 
 ### Install
 
@@ -51,6 +50,7 @@ volumes:
 7. Enable the post-smtp plugin, select "default" for the SMTP service
   1. Complete the setup using random information, it isn't validated.
 8. Update permalink structure per https://github.com/rapid7/metasploit-framework/pull/18164#issuecomment-1623744244
+  1. Settings -> Permalinks -> Permalink structure -> Select "Post name" -> Save Changes.
 
 
 ## Verification Steps
@@ -60,10 +60,10 @@ volumes:
 3. Do: `use auxiliary/admin/http/wp_post_smtp_acct_takeover`
 4. Do: `set rhost 127.0.0.1`
 5. Do: `set rport 5555`
-6. `set ssl false`
-7. `set username <username>`
-8. `set verbose true`
-9. `run`
+6. Do: `set ssl false`
+7. Do: `set username <username>`
+8. Do: `set verbose true`
+9. Do: `run`
 10. Visit the output URL to reset the user's password.
 
 ## Options

