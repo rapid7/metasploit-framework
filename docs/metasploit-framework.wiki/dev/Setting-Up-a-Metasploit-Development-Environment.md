@@ -30,10 +30,29 @@ sudo apt update && sudo apt install -y git autoconf build-essential libpcap-dev 
 
 ### Windows
 
-If you are running a Windows machine
+#### Windows 10 or above
 
-* Install [chocolatey](https://chocolatey.org/)
-* Install [Ruby x64 with DevKit](https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.0.3-1/rubyinstaller-devkit-3.0.3-1-x64.exe)
+* Install [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/)
+* Install [Ruby x64 with DevKit](https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.3.6-1/rubyinstaller-devkit-3.3.6-1-x64.exe)
+* Install pcaprub dependencies from your PowerShell terminal:
+
+```
+[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true} ; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object System.Net.WebClient).DownloadFile('https://www.winpcap.org/install/bin/WpdPack_4_1_2.zip', 'C:\Windows\Temp\WpdPack_4_1_2.zip')
+
+Expand-Archive -Path "C:\Windows\Temp\WpdPack_4_1_2.zip" -DestinationPath "C:\"
+```
+
+Install a version of PostgreSQL:
+
+```
+Install-Module -Name Microsoft.WinGet.Client
+Install-WinGetPackage -id PostgreSQL.PostgreSQL.17
+```
+
+#### Pre-Windows 10
+
+* Install [choco](https://chocolatey.org/install)
+* Install [Ruby x64 with DevKit](https://github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-3.3.6-1/rubyinstaller-devkit-3.3.6-1-x64.exe)
 * Install pcaprub dependencies from your cmd.exe terminal:
 
 ```
@@ -46,7 +65,7 @@ choco install 7zip
 Install a version of PostgreSQL:
 
 ```
-choco install postgresql12
+choco install postgresql17
 ```
 
 ## Set up your local copy of the repository
@@ -82,7 +101,9 @@ git config --global user.email "$GITHUB_EMAIL"
 git config --global github.user "$GITHUB_USERNAME"
 ```
 
-* Set up [msftidy] to run before each `git commit` and after each `git merge` to quickly identify potential issues with your contributions:
+- Set up [msftidy] to run before each `git commit` and after each `git merge` to quickly identify potential issues with your contributions:
+
+#### Linux
 
 ```bash
 cd ~/git/metasploit-framework
@@ -90,7 +111,19 @@ ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/pre-commit
 ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/post-merge
 ```
 
+#### Windows
+
+```powershell
+cd ~/git/metasploit-framework
+mkdir .githooks
+git config --local core.hooksPath .githooks/
+New-Item -Path pre-commit -ItemType SymbolicLink -Value ..\tools\dev\pre-commit-hook.rb
+New-Item -Path post-merge -ItemType SymbolicLink -Value ..\tools\dev\pre-commit-hook.rb
+```
+
 ## Install Ruby
+
+ **Note:** If you are using Windows, ruby installed in [Install dependencies](#install-dependencies) section, so you can skip this section
 
 Linux distributions do not ship with the latest Ruby, nor are package managers routinely updated.  Additionally, if you are working with multiple Ruby projects, each one has dependencies and Ruby versions which can start to conflict.  For these reasons, it is advisable  to use a Ruby manager.
 
