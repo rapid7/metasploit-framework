@@ -345,7 +345,7 @@ GEM
       racc (~> 1.4)
     nori (2.7.1)
       bigdecimal
-    octokit (4.25.1)
+    octokit (4.25.0)
       faraday (>= 1, < 3)
       sawyer (~> 0.9)
     openssl-ccm (1.2.3)
