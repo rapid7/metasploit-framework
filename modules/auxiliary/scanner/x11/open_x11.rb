@@ -4,24 +4,35 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Exploit::Remote::Tcp
-  include Msf::Auxiliary::Scanner
-  include Msf::Auxiliary::Report
+  include Exploit::Remote::Tcp
+  include Auxiliary::Scanner
+  include Auxiliary::Report
+  include Msf::Exploit::Remote::X11::Connect
 
   def initialize
     super(
-      'Name'		=> 'X11 No-Auth Scanner',
+      'Name'	=> 'X11 No-Auth Scanner',
       'Description'	=> %q{
         This module scans for X11 servers that allow anyone
         to connect without authentication.
       },
-      'Author'	=> ['tebo <tebodell[at]gmail.com>'],
-      'References'	=>
-        [
-          ['OSVDB', '309'],
-          ['CVE', '1999-0526'],
-        ],
-      'License'	=> MSF_LICENSE
+      'Author'	=> [
+        'tebo <tebodell[at]gmail.com>', # original module
+        'h00die' # X11 library
+      ],
+      'References' => [
+        ['OSVDB', '309'],
+        ['CVE', '1999-0526'],
+      ],
+      'License'	=> MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => [],
+        'RelatedModules' => [
+          'auxiliary/gather/x11_keyboard_spy',
+        ]
+      }
     )
 
     register_options([
@@ -30,47 +41,30 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    connect
+    connection = x11_connect
 
-    begin
-
-      connect
-
-      # X11.00 Null Auth Connect
-      sock.put("\x6c\x00\x0b\x00\x00\x00\x00\x00\x00\x00\x00\x00")
-      response = sock.get_once
-
-      disconnect
-
-      if response
-        success = response[0,1].unpack('C')[0]
-      else
-        print_error("No response received due to a timeout")
-        return
-      end
-
-
-      if(success == 1)
-        vendor_len = response[24,2].unpack('v')[0]
-        vendor = response[40,vendor_len].unpack('A*')[0]
-        print_good("#{ip} Open X Server (#{vendor})")
-        # Add Report
-        report_note(
-          :host	=> ip,
-          :proto => 'tcp',
-          :sname	=> 'x11',
-          :port	=> rport,
-          :type	=> 'Open X Server',
-          :data	=> "Open X Server (#{vendor})"
-      )
-      elsif (success == 0)
-        print_error("#{ip} Access Denied")
-      else
-        # X can return a reason for auth failure but we don't really care for this
-      end
-
-    rescue ::Rex::ConnectionError
-    rescue ::Errno::EPIPE
+    if connection.nil?
+      vprint_bad('No connection, or bad X11 response received')
+      return
     end
 
+    if connection.header.success == 1
+      x11_print_connection_info(connection, ip, rport)
+      report_service(
+        host: rhost,
+        proto: 'tcp',
+        port: rport,
+        info: "Open X Server (#{connection.body.vendor}) #{connection.body.screen_width_in_pixels}x#{connection.body.screen_height_in_pixels}",
+        name: 'X11'
+      )
+    else
+      vprint_error("#{ip} Access not successful: #{connection.body.reason}")
+    end
+
+    disconnect
+  rescue ::Errno::EPIPE, ::Rex::ConnectionError
+    vprint_bad('No connection, or bad X11 response received')
+    return
   end
 end
