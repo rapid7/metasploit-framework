@@ -155,7 +155,7 @@ module Metasploit
             return false
           end
 
-          "Unable to locate \"Log in to TeamCity\" in headers. (Is this really TeamCity?)"
+          "Unable to locate \"Log in to TeamCity\" in body. (Is this really TeamCity?)"
         end
 
         # Extract the server's public key from the server.
