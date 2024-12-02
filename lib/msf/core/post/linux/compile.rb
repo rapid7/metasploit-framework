@@ -5,6 +5,7 @@ module Msf
     module Linux
       module Compile
         include ::Msf::Post::Common
+        include ::Msf::Post::Linux::System
         include ::Msf::Post::File
         include ::Msf::Post::Unix
 
@@ -62,13 +63,14 @@ module Msf
         # @raise [Module::Failure::BadConfig] If compilation fails or no compiler is found.
         #
         def upload_and_compile(path, data, compiler_args = '')
-          write_file "#{path}.c", strip_comments(data)
-
           compiler = datastore['COMPILER']
           if datastore['COMPILER'] == 'Auto'
             compiler = get_compiler
-            fail_with(Module::Failure::BadConfig, 'Unable to find a compiler on the remote target.') unless compiler.present?
+            fail_with(Module::Failure::BadConfig, 'Unable to find a compiler on the remote target.') if compiler.nil?
           end
+
+          # only upload the file if a compiler exists
+          write_file "#{path}.c", strip_comments(data)
 
           compiler_cmd = "#{compiler} -o '#{path}' '#{path}.c'"
           if session.type == 'shell'
