@@ -73,14 +73,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def action_add_user
     fail_with(Failure::BadConfig, 'This action requires ACCOUNT_NAME to be specified.') if datastore['ACCOUNT_NAME'].blank?
-    print_status("Adding user")
+    print_status('Adding user')
     with_ipc_tree do |opts|
       add_account(:user, opts)
     end
   end
 
   def action_add_computer
-    print_status("Adding computer")
+    print_status('Adding computer')
     with_ipc_tree do |opts|
       add_account(:computer, opts)
     end
