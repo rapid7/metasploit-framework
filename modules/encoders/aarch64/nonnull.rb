@@ -4,7 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Encoder
-  # Rank = Msf::Ranking
+  Rank = NormalRanking
 
   def initialize
     super(
@@ -37,19 +37,19 @@ class MetasploitModule < Msf::Encoder
 
   # Generate the decode stub
   def decode_stub(_state, enc_buf)
-    jump_back, nops = min_jmp_back(enc_buf)
+    forward_jump, nops, backward_jump, while_condition = min_jmp_back(enc_buf)
 
-    return 'jiL0' + # l1:         adr   x10, 0x98D2D
-           "JaB\xf1" + #          subs	x10, x10, #0x98, lsl #12
-           "Je4\xf1" + #          subs	x10, x10, #0xd19
-           "\x4b\x01\x1f\xca" + # eor x11, x10, xzr               - start of encoded code becomes start of decoded code
-           'Z3Zj'+    # "kaB\xf1" + #          subs	x11, x11, #0x98, lsl #12  - sub 622592
-           'Z3Zj'+    # "kM9\xf1" + #          adds	x11, x11, #0xe53          - add 3667
-           'Z3Zj'+    # "k12\xf1" + #          adds	x11, x11, #0xc8c          - add 3212
-           'sBSj' + #                   ands	w19, w19, w19, lsr #16    - clear w19
+    return 'jiL0' + #                   adr x10, 0x98D2D              - calc addr of encoded shellcode
+           "JaB\xf1" + #                subs	x10, x10, #0x98, lsl #12
+           "Je4\xf1" + #                subs    x10, x10, #0xd19
+           "\x4b\x01\x1f\xca" + #       eor x11, x10, xzr               - start of encoded shellcode becomes start of decoded instructions
+           'Z3Zj'+ #                    alnum-nop                       - insert instructions otherwise x11 address points to far down
+           'Z3Zj'+ #                    alnum-nop
+           'Z3Zj'+ #                    alnum-nop
+           'sBSj' + #                   ands	w19, w19, w19, lsr #16  - clear w19
            'sBSj' + #                   ands	w19, w19, w19, lsr #16
-           'b2Sj' + #                   ands	w2, w19, w19, lsr #12     - clear w2
-           "\x02\x02\x48\x37" + # loop: tbnz  w2, #10, #60              - branch to code after 512 iterations
+           'b2Sj' + #                   ands	w2, w19, w19, lsr #12   - clear w2
+           while_condition + # loop: tbnz    w2, #<bit>, #0x40          - branch to code after n-iterations
            'RQA9' + #                   ldrb	w18, [x10, #84]         - load first byte
            'YUA9' + #                   ldrb	w25, [x10, #85]         - load second byte
            "Jm0\xb1" + #                adds	x10, x10, #0xc1b        - encoded_buf_index += 2
@@ -64,32 +64,30 @@ class MetasploitModule < Msf::Encoder
            "ke0\xf1" + #                subs	x11, x11, #0xc19
            'Bh01' + #                   adds	w2, w2, #0xc1a          - w2++ (loop counter)
            'Bd0q' + #                   subs	w2, w2, #0xc19
-           "\xf3\x10\x48\x36" + #       tbz w19, #9, #0x21c             - jump into nops
+           forward_jump + #             tbz w19, #9, <offset>           - jump into nops
            enc_buf +
            nops +
-           jump_back #            tbz w19, #9, <to lbl 'loop'>     - end of decoding while-loop
+           backward_jump #              tbz w19, #9, <to lbl 'loop'>    - end of decoding while-loop
   end
 
   def min_jmp_back(enc_buf)
     jump_back_offsets = [
-      # ["3\xefO6", 0xfffffffffffffde4], # -540
-      ["\x53\xed\x4f\x36", 0xfffffffffffffda8] # -600
-      # ['szO6', 0xffffffffffffef4c], # -4276
+      [540, 600, "\xf3\x10\x48\x36", "\x53\xed\x4f\x36", "\x02\x02\x48\x37"], # +540, -600, 512 iterations
+      [1040, 1100, "\x93\x20\x48\x36", "\xb3\xdd\x4f\x36", "\x02\x02\x50\x37"], # +1040, -1100, 1024 iterations
+      [2060, 2140, "\x73\x40\x48\x36", "\x33\xbd\x4f\x36", "\x02\x02\x58\x37"], # +2060, -2140, 2048 iterations
+      [3916, 4276, 'szH6', 'szO6', "\x02\x02\x60\x37"], # +3916, -4276, 4096 iterations
     ]
 
-    jump_back = nil
-    for val in jump_back_offsets
-      next if enc_buf.length + val[1] > 0xffffffffffffffff
+    jump_back_offsets.each do |val|
+      next if enc_buf.length >= val[0]
 
-      jump_back = val[0]
-      bytes_to_fill = 0xffffffffffffffff - val[1] - enc_buf.length + 1 # plus one, because 2's complement
+      bytes_to_fill = val[1] - enc_buf.length
       nops = (bytes_to_fill / 4) - 16 # loop lbl is 16 instructions above buffer
-      puts("nops: #{nops}")
-      puts("buf: #{enc_buf.length}, diff: #{0xffffffffffffffff - val[1]}, real diff: #{0xffffffffffffffff - val[1] - enc_buf.length + 1}")
-      break
+
+      puts("nops: #{nops}, max size: #{val[0]}, buflen: #{enc_buf.length}")
+      return [val[2], "\x1f\x20\x03\xd5" * nops, val[3], val[4]]
     end
 
-    return [jump_back, "\x1f\x20\x03\xd5" * nops] # official NOP-instructions
+    raise ArgumentError, 'Encoding failed, payload too big.'
   end
-
 end
