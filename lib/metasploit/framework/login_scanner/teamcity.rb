@@ -122,7 +122,11 @@ module Metasploit
 
         DEFAULT_PORT         = 8111
         LIKELY_PORTS         = [8111]
-        LIKELY_SERVICE_NAMES = ['skynetflow'] # Comes from nmap 7.95 on MacOS
+        LIKELY_SERVICE_NAMES = [
+          # Comes from nmap 7.95 on MacOS
+          'skynetflow',
+          'teamcity'
+        ]
         PRIVATE_TYPES        = [:password]
         REALM_KEY            = nil
 
@@ -134,8 +138,25 @@ module Metasploit
         class StackLevelTooDeepError < TeamCityError; end
         class NoPublicKeyError < TeamCityError; end
         class PublicKeyExpiredError < TeamCityError; end
-        class DecryptionException < TeamCityError; end
+        class DecryptionError < TeamCityError; end
         class ServerNeedsSetupError < TeamCityError; end
+
+        # Checks if the target is JetBrains TeamCity. The login module should call this.
+        #
+        # @return [Boolean] TrueClass if target is TeamCity, otherwise FalseClass
+        def check_setup
+          request_params = {
+            'method' => 'GET',
+            'uri' => normalize_uri(@uri.to_s, LOGIN_PAGE)
+          }
+          res = send_request(request_params)
+
+          if res && res.code == 200 && res.body&.include?('Log in to TeamCity')
+            return false
+          end
+
+          "Unable to locate \"Log in to TeamCity\" in body. (Is this really TeamCity?)"
+        end
 
         # Extract the server's public key from the server.
         # @return [Hash] A hash with a status and an error or the server's public key.
@@ -209,17 +230,19 @@ module Metasploit
           # Currently, those building blocks are not available, so this is the approach I have implemented.
           timeout = res.body.match(/login only in (?<timeout>\d+)s/)&.named_captures&.dig('timeout')&.to_i
           if timeout
-            framework_module.print_status "User '#{username}' locked out for #{timeout} seconds. Sleeping, and retrying..."
-            sleep(timeout + 1) # + 1 as TeamCity is off-by-one when reporting the lockout timer.
-            result = try_login(username, password, public_key, retry_counter + 1)
-            return result
+            framework_module.print_status "#{@host}:#{@port} - User '#{username}:#{password}' locked out for #{timeout} seconds. Sleeping, and retrying..." if framework_module
+            sleep(timeout + 1)
+            return try_login(username, password, public_key, retry_counter + 1)
           end
 
           return { status: ::Metasploit::Model::Login::Status::INCORRECT, proof: res } if res.body.match?('Incorrect username or password')
 
-          raise DecryptionException, 'The server failed to decrypt the encrypted password' if res.body.match?('DecryptionFailedException')
+          raise DecryptionError, 'The server failed to decrypt the encrypted password' if res.body.match?('DecryptionFailedException')
           raise PublicKeyExpiredError, 'The server public key has expired' if res.body.match?('publicKeyExpired')
 
+          # After filtering out known failures, default to retuning the credential as working.
+          # This way, people are more likely to notice any incorrect credential reporting going forward and report them,
+          # the scenarios for which can then be correctly implemented and handled similar to the above.
           { status: :success, proof: res }
         end
 
