@@ -61,7 +61,7 @@ RSpec.describe Msf::Post::Linux::Compile do
         it 'raises an error if the specified compiler is not available' do
           allow(subject).to receive(:datastore).and_return({ 'COMPILE' => 'True', 'COMPILER' => 'gcc' })
           allow(subject).to receive(:has_gcc?).and_return(false)
-          expect { subject.live_compile? }.to raise_error(Msf::Module::Failure::BadConfig, 'gcc is not installed. Set COMPILE False to upload a pre-compiled executable')
+          expect { subject.live_compile? }.to raise_error(RuntimeError, 'bad-config: gcc is not installed. Set COMPILE False to upload a pre-compiled executable.')
         end
       end
 
@@ -69,11 +69,9 @@ RSpec.describe Msf::Post::Linux::Compile do
         let(:source) { '/path/to/source.c' }
         let(:destination) { '/tmp/source.c' }
         let(:output) { '/tmp/output' }
-        let(:session) { double('session') }
 
         before do
           allow(subject).to receive(:get_compiler).and_return('gcc')
-          allow(subject).to receive(:session).and_return(session)
         end
 
         it 'uploads the source file and compiles it' do

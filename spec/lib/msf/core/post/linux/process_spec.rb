@@ -12,9 +12,9 @@ RSpec.describe Msf::Post::Linux::Process do
     let(:length) { 64 }
     let(:pid) { 1234 }
     let(:memory_content) { 'memory content' }
-    let(:PROCESS_READ) {(1 << 0)}
 
     it 'reads memory from the specified base address and length' do
+      expect(subject).to receive(:session)
       expect(subject).to receive(:open).with(pid, PROCESS_READ).and_return(1)
       expect(memory).to receive(:read).with(base_address, length).and_return(memory_content)
 
@@ -23,6 +23,7 @@ RSpec.describe Msf::Post::Linux::Process do
     end
 
     it 'uses the default pid if not specified' do
+      expect(subject).to receive(:session)
       expect(subject).to receive(:open).with(0, PROCESS_READ).and_return(1)
       expect(memory).to receive(:read).with(base_address, length).and_return(memory_content)
 

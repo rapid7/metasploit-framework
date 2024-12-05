@@ -427,6 +427,7 @@ RSpec.describe Msf::Post::Linux::System do
     end
 
     it 'raises an error if unable to determine glibc version' do
+      allow(subject).to receive(:command_exists?).with('ldd').and_return(true)
       allow(subject).to receive(:cmd_exec).with('ldd --version').and_raise(StandardError)
       expect { subject.glibc_version }.to raise_error('Could not determine glibc version')
     end
@@ -446,9 +447,10 @@ RSpec.describe Msf::Post::Linux::System do
 
   describe '#ips' do
     it 'returns all IP addresses of the device' do
-      fib_trie_content = "  +-- 192.168.1.1/32 host LOCAL\n"
+      # content from https://medium.com/@linuxadminhacks/find-the-names-of-the-network-interfaces-by-their-ips-4ef82326e49e
+      fib_trie_content = "Main:\n  +-- 0.0.0.0/0 3 0 5\n    +-- 192.168.1.0/24 2 0 2\n        +-- 192.168.1.0/30 2 0 2\n           |-- 192.168.1.3\n              /32 host LOCAL"
       allow(subject).to receive(:read_file).with('/proc/net/fib_trie').and_return(fib_trie_content)
-      expect(subject.ips).to eq(['192.168.1.1'])
+      expect(subject.ips).to eq(['192.168.1.3'])
     end
   end
 

@@ -299,10 +299,12 @@ module Msf
         #
         def glibc_version
           raise 'glibc is not installed' unless command_exists? 'ldd'
+          begin
 
-          cmd_exec('ldd --version').scan(/^ldd\s+\(.*\)\s+([\d.]+)/).flatten.first
-        rescue StandardError
-          raise 'Could not determine glibc version'
+            cmd_exec('ldd --version').scan(/^ldd\s+\(.*\)\s+([\d.]+)/).flatten.first
+          rescue StandardError
+            raise 'Could not determine glibc version'
+          end
         end
 
         #
