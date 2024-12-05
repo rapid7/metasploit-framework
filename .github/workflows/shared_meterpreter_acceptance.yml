@@ -185,7 +185,7 @@ jobs:
       - name: Checkout metasploit-framework commit
         uses: actions/checkout@v4
         with:
-          repository: zeroSteiner/metasploit-framework
+          repository: rapid7/metasploit-framework
           path: metasploit-framework
           ref: ${{ inputs.metasploit_framework_commit }}
 
