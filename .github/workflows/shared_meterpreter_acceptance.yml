@@ -185,9 +185,9 @@ jobs:
       - name: Checkout metasploit-framework commit
         uses: actions/checkout@v4
         with:
-          repository: zeroSteiner/metasploit-framework
+          repository: dledda-r7/metasploit-framework
           path: metasploit-framework
-          ref: fix/met/java-win-symlink-tests
+          ref: testing-19621
 
       - name: Setup Ruby
         env:
