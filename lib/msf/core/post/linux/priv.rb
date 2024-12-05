@@ -5,6 +5,7 @@ module Msf
     module Linux
       module Priv
         include ::Msf::Post::Common
+        include ::Msf::Post::File
 
         #
         # Returns true if running as root, false if not.

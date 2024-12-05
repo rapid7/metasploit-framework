@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+require 'rex/post'
+
 module Msf
   class Post
     module Linux

@@ -38,7 +38,7 @@ RSpec.describe Msf::Post::Linux::Priv do
     file_content = 'file content'
 
     allow(subject).to receive(:read_file).with(origin_file).and_return(file_content)
-    expect(subject).to receive(:cmd_exec).with("echo '#{file_content}' > #{final_file}")
+    expect(subject).to receive(:cmd_exec).with("echo '#{file_content}' > '#{final_file}'")
 
     subject.cp_cmd(origin_file, final_file)
   end
@@ -83,7 +83,10 @@ describe '#nchars_file' do
     file_content = "Hello\nWorld"
     allow(subject).to receive(:read_file).with(file).and_return(file_content)
 
-    expect(subject.nchars_file(file)).to eq(10)
+    # agrees with wc
+    # $ echo -n "Hello\nWorld" | wc -m
+    # 12
+    expect(subject.nchars_file(file)).to eq(12)
   end
 end
 
@@ -93,7 +96,7 @@ describe '#nwords_file' do
     file_content = "Hello World\nThis is a test"
     allow(subject).to receive(:read_file).with(file).and_return(file_content)
 
-    expect(subject.nwords_file(file)).to eq(5)
+    expect(subject.nwords_file(file)).to eq(6)
   end
 end
 
