@@ -8,9 +8,9 @@ class MetasploitModule < Msf::Encoder
 
   def initialize
     super(
-      'Name' => 'AArch64 alphanumeric encoder',
+      'Name' => 'AArch64 null-byte encoder',
       'Description' => %q{
-        Encodes shell code into an alphanumeric string. Algorithm inspired by the paper "Shell codes from A to Z"
+        Output is guaranteed to be NULL-byte free.
       },
       'Author' => 'A5t4t1ne',
       'Arch' => ARCH_AARCH64,
@@ -39,17 +39,14 @@ class MetasploitModule < Msf::Encoder
   def decode_stub(_state, enc_buf)
     forward_jump, nops, backward_jump, while_condition = min_jmp_back(enc_buf)
 
-    return 'jiL0' + #                   adr x10, 0x98D2D              - calc addr of encoded shellcode
+    return 'jiL0' + #                   adr x10, 0x98D2D                - calc addr of encoded shellcode
            "JaB\xf1" + #                subs	x10, x10, #0x98, lsl #12
-           "Je4\xf1" + #                subs    x10, x10, #0xd19
+           "\x4a\x95\x34\xf1" + #       subs    x10, x10, #0xd25
            "\x4b\x01\x1f\xca" + #       eor x11, x10, xzr               - start of encoded shellcode becomes start of decoded instructions
-           'Z3Zj'+ #                    alnum-nop                       - insert instructions otherwise x11 address points to far down
-           'Z3Zj'+ #                    alnum-nop
-           'Z3Zj'+ #                    alnum-nop
            'sBSj' + #                   ands	w19, w19, w19, lsr #16  - clear w19
            'sBSj' + #                   ands	w19, w19, w19, lsr #16
            'b2Sj' + #                   ands	w2, w19, w19, lsr #12   - clear w2
-           while_condition + # loop: tbnz    w2, #<bit>, #0x40          - branch to code after n-iterations
+           while_condition + # loop:    tbnz    w2, #<bit>, #0x40       - branch to code after n-iterations
            'RQA9' + #                   ldrb	w18, [x10, #84]         - load first byte
            'YUA9' + #                   ldrb	w25, [x10, #85]         - load second byte
            "Jm0\xb1" + #                adds	x10, x10, #0xc1b        - encoded_buf_index += 2
@@ -75,7 +72,7 @@ class MetasploitModule < Msf::Encoder
       [540, 600, "\xf3\x10\x48\x36", "\x53\xed\x4f\x36", "\x02\x02\x48\x37"], # +540, -600, 512 iterations
       [1040, 1100, "\x93\x20\x48\x36", "\xb3\xdd\x4f\x36", "\x02\x02\x50\x37"], # +1040, -1100, 1024 iterations
       [2060, 2140, "\x73\x40\x48\x36", "\x33\xbd\x4f\x36", "\x02\x02\x58\x37"], # +2060, -2140, 2048 iterations
-      [3916, 4276, 'szH6', 'szO6', "\x02\x02\x60\x37"], # +3916, -4276, 4096 iterations
+      [4140, 4276, "\x73\x81\x48\x36", 'szO6', "\x02\x02\x60\x37"], # +4140, -4276, 4096 iterations
     ]
 
     jump_back_offsets.each do |val|
