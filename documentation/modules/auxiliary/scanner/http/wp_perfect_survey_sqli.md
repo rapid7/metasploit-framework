@@ -31,7 +31,7 @@ Default is `false`.
 
 #### Example
 
-```plaintext
+```sh
 msf6 > use auxiliary/scanner/http/wp_perfect_survey_sqli
 [*] Using auxiliary/scanner/http/wp_perfect_survey_sqli
 msf6 auxiliary(scanner/http/wp_perfect_survey_sqli) > set RHOSTS 192.168.1.104
