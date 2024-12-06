@@ -19,7 +19,7 @@ This module works with existing sessions (or relaying), especially for Resetting
 The required options are based on the action being performed:
 
 - When resetting a password, you must specify the `TARGET_USER`
-- When changing a password, you must specify the `USERNAME` and `PASSWORD`, even if using an existing session (since the API requires both of these to be specified, even for open SMB sessions)
+- When changing a password, you must specify the `USERNAME` and `PASSWORD`, even if using an existing session (since the API requires both of these to be specified, even for open LDAP sessions)
 - The `NEW_PASSWORD` option must always be provided
 
 **USERNAME**

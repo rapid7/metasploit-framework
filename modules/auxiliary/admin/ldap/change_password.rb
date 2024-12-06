@@ -77,10 +77,6 @@ class MetasploitModule < Msf::Auxiliary
       obj['sAMAccountName'] = raw_obj['sAMAccountName'].first.to_s
     end
 
-    unless raw_obj['ObjectSid'].empty?
-      obj['ObjectSid'] = Rex::Proto::MsDtyp::MsDtypSid.read(raw_obj['ObjectSid'].first)
-    end
-
     obj
   end
 
@@ -88,8 +84,10 @@ class MetasploitModule < Msf::Auxiliary
     if action.name == 'CHANGE'
       fail_with(Failure::BadConfig, 'Must set USERNAME when changing password') if datastore['USERNAME'].blank?
       fail_with(Failure::BadConfig, 'Must set PASSWORD when changing password') if datastore['PASSWORD'].blank?
+    elsif action.name == 'RESET'
+      fail_with(Failure::BadConfig, 'Must set TARGET_USER when resetting password') if datastore['TARGET_USER'].blank?
     end
-    if session.blank? && datastore['USERNAME'].blank?
+    if session.blank? && datastore['USERNAME'].blank? && datastore['LDAP::Auth'] != Msf::Exploit::Remote::AuthOption::SCHANNEL
       print_warning('Connecting with an anonymous bind')
     end
     ldap_connect do |ldap|
@@ -103,7 +101,7 @@ class MetasploitModule < Msf::Auxiliary
         if (@base_dn = ldap.base_dn)
           print_status("#{ldap.peerinfo} Discovered base DN: #{@base_dn}")
         else
-          print_warning("Couldn't discover base DN!")
+          fail_with(failure::UnexpectedReply, "Couldn't discover base DN!")
         end
       end
       @ldap = ldap
@@ -120,15 +118,14 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::Unreachable, e.message)
   rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
     fail_with(Failure::NoAccess, e.message)
+  rescue Rex::Proto::LDAP::LdapException => e
+    fail_with(Failure::NoAccess, e.message)
   rescue Net::LDAP::Error => e
     fail_with(Failure::Unknown, "#{e.class}: #{e.message}")
   end
 
   def get_user_obj(username)
-    obj = ldap_get("(sAMAccountName=#{username})", attributes: ['sAMAccountName', 'ObjectSID'])
-    if obj.nil? && username.end_with?('$')
-      obj = ldap_get("(sAMAccountName=#{username}$)", attributes: ['sAMAccountName', 'ObjectSID'])
-    end
+    obj = ldap_get("(sAMAccountName=#{ldap_escape_filter(username)})", attributes: ['sAMAccountName'])
     fail_with(Failure::NotFound, "Failed to find sAMAccountName: #{username}") unless obj
 
     obj
@@ -136,7 +133,6 @@ class MetasploitModule < Msf::Auxiliary
 
   def action_reset
     target_user = datastore['TARGET_USER']
-    fail_with(Failure::BadConfig, 'Must set TARGET_USER when resetting password') if target_user.blank?
     obj = get_user_obj(target_user)
 
     new_pass = "\"#{datastore['NEW_PASSWORD']}\"".encode('utf-16le').bytes.pack('c*')
