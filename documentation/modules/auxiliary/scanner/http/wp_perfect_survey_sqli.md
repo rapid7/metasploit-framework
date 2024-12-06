@@ -1,12 +1,13 @@
-# WordPress Plugin Perfect Survey 1.5.1 SQLi (Unauthenticated)
-
 ## Vulnerable Application
 
-Perfect Survey, a WordPress plugin, version 1.5.1 is affected by an unauthenticated SQL injection vulnerability via the `question_id` parameter.
+Perfect Survey, a WordPress plugin, version 1.5.1 is affected by an unauthenticated SQL injection vulnerability
+via the `question_id` parameter.
 
-An unauthenticated attacker can exploit this SQL injection vulnerability to retrieve sensitive information, such as usernames and password hashes, from the `wp_users` table.
+An unauthenticated attacker can exploit this SQL injection vulnerability to retrieve sensitive information,
+such as usernames and password hashes, from the `wp_users` table.
 
-The vulnerable plugin can be downloaded from the [WordPress plugin repository](https://wordpress.org/plugins/), or the specific vulnerable version can be found here: [Perfect Survey 1.5.1](https://www.exploit-db.com/apps/51c80e6262c3a39fa852ebf96ff86b78-perfect-survey.1.5.1.zip).
+The vulnerable plugin can be downloaded from the [WordPress plugin repository](https://wordpress.org/plugins/).
+The specific vulnerable version can be found here: https://www.exploit-db.com/apps/51c80e6262c3a39fa852ebf96ff86b78-perfect-survey.1.5.1.zip
 
 ## Verification Steps
 
@@ -20,11 +21,9 @@ The vulnerable plugin can be downloaded from the [WordPress plugin repository](h
 
 ## Options
 
-### TARGETURI
-This option specifies the base path to the WordPress installation. Default is `/`.
-
 ### SHOW_FULL_RESPONSE
-If set to `true`, the module will print the entire JSON response received from the server when username and password hash extraction fails. Default is `false`.
+If set to `true`, the module will print the entire JSON response received from the server when username and password hash extraction fails.
+Default is `false`.
 
 ## Scenarios
 
