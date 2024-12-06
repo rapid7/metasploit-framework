@@ -101,7 +101,7 @@ class MetasploitModule < Msf::Auxiliary
         if (@base_dn = ldap.base_dn)
           print_status("#{ldap.peerinfo} Discovered base DN: #{@base_dn}")
         else
-          fail_with(failure::UnexpectedReply, "Couldn't discover base DN!")
+          fail_with(Failure::UnexpectedReply, "Couldn't discover base DN!")
         end
       end
       @ldap = ldap
