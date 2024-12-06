@@ -36,16 +36,15 @@ jobs:
   java_meterpreter_compilation:
     name: Compile Java Meterpreter
     runs-on: ubuntu-latest
-    # temporarily force compiling the java meterpreter by removing this conditional
-    #if: ${{ inputs.build_metasploit_payloads }}
+    if: ${{ inputs.build_metasploit_payloads }}
 
     steps:
       - name: Checkout metasploit-payloads
         uses: actions/checkout@v4
         with:
-          repository: zeroSteiner/metasploit-payloads
+          repository: rapid7/metasploit-payloads
           path: metasploit-payloads
-          ref: fix/met/java/symlinks
+          ref: ${{ inputs.metasploit_payloads_commit }}
 
       - name: Build Java and Android payloads
         run: |
@@ -186,9 +185,9 @@ jobs:
       - name: Checkout metasploit-framework commit
         uses: actions/checkout@v4
         with:
-          repository: zeroSteiner/metasploit-framework
+          repository: rapid7/metasploit-framework
           path: metasploit-framework
-          ref: fix/met/java-win-symlink-tests
+          ref: ${{ inputs.metasploit_framework_commit }}
 
       - name: Setup Ruby
         env:
@@ -247,9 +246,9 @@ jobs:
         if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
         uses: actions/checkout@v4
         with:
-          repository: zeroSteiner/metasploit-payloads
+          repository: rapid7/metasploit-payloads
           path: metasploit-payloads
-          ref: fix/met/java/symlinks
+          ref: ${{ inputs.metasploit_payloads_commit }}
 
       - name: Get metasploit-payloads version
         if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
