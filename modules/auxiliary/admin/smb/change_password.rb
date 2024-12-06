@@ -106,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
               e.source.is_a?(::WindowsError::ErrorCode) && [::WindowsError::NTStatus::STATUS_PASSWORD_EXPIRED, ::WindowsError::NTStatus::STATUS_PASSWORD_MUST_CHANGE].include?(e.source))
             if anonymous_on_expired
               # Password has expired - we'll need to anonymous connect
-              print_warning("Password expired - binding anonymously")
+              print_warning('Password expired - binding anonymously')
               opts = {
                 username: '',
                 password: '',
@@ -116,10 +116,10 @@ class MetasploitModule < Msf::Auxiliary
               disconnect
               connect
               smb_login(opts: opts)
+            elsif action.name == 'CHANGE_NTLM'
+              fail_with(Module::Failure::UnexpectedReply, 'Must change password first. Try using the CHANGE action instead')
             else
-              if action.name == 'CHANGE_NTLM'
-                fail_with(Module::Failure::UnexpectedReply, 'Must change password first. Try using the CHANGE action instead')
-              end
+              raise
             end
           else
             raise
@@ -200,15 +200,15 @@ class MetasploitModule < Msf::Auxiliary
       old_nt = [old_nt].pack('H*')
 
       @samr.samr_change_password_user(user_handle: user_handle,
-                                    new_nt_hash: new_nt,
-                                    new_lm_hash: new_lm,
-                                    old_nt_hash: old_nt,
-                                    old_lm_hash: old_lm)
+                                      new_nt_hash: new_nt,
+                                      new_lm_hash: new_lm,
+                                      old_nt_hash: old_nt,
+                                      old_lm_hash: old_lm)
     else
       @samr.samr_change_password_user(user_handle: user_handle,
-                                    old_password: datastore['SMBPass'],
-                                    new_nt_hash: new_nt,
-                                    new_lm_hash: new_lm)
+                                      old_password: datastore['SMBPass'],
+                                      new_nt_hash: new_nt,
+                                      new_lm_hash: new_lm)
     end
 
     print_good("Successfully changed password for #{datastore['SMBUser']}")
