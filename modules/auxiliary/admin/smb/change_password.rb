@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('NEW_PASSWORD', [false, 'The new password to change to', ''], conditions: ['ACTION', 'in', %w[CHANGE RESET]]),
-        OptString.new('NEW_NTLM', [false, 'The new NTLM hash to change to. Can be either an NT hash or a colon-delimited NTLM hash', ''], conditions: ['ACTION', 'in', %w[CHANGE_NTLM RESET_NTLM]]),
+        OptString.new('NEW_NTLM', [false, 'The new NTLM hash to change to. Can be either an NT hash or a colon-delimited NTLM hash'], conditions: ['ACTION', 'in', %w[CHANGE_NTLM RESET_NTLM]], regex: /^([0-9a-fA-F]{32}:)?[0-9a-fA-F]{32}$/),
         OptString.new('TARGET_USER', [false, 'The user to reset the password of.'], conditions: ['ACTION', 'in', %w[RESET RESET_NTLM]])
       ]
     )
@@ -102,19 +102,25 @@ class MetasploitModule < Msf::Auxiliary
         begin
           smb_login
         rescue Rex::Proto::SMB::Exceptions::LoginError => e
-          if anonymous_on_expired &&
-             (e.source.is_a?(Rex::Proto::Kerberos::Model::Error::KerberosError) && [Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_KEY_EXPIRED].include?(e.source.error_code) ||
+          if (e.source.is_a?(Rex::Proto::Kerberos::Model::Error::KerberosError) && [Rex::Proto::Kerberos::Model::Error::ErrorCodes::KDC_ERR_KEY_EXPIRED].include?(e.source.error_code) ||
               e.source.is_a?(::WindowsError::ErrorCode) && [::WindowsError::NTStatus::STATUS_PASSWORD_EXPIRED, ::WindowsError::NTStatus::STATUS_PASSWORD_MUST_CHANGE].include?(e.source))
-            # Password has expired - we'll need to anonymous connect
-            opts = {
-              username: '',
-              password: '',
-              domain: '',
-              auth_protocol: Msf::Exploit::Remote::AuthOption::NTLM
-            }
-            disconnect
-            connect
-            smb_login(opts: opts)
+            if anonymous_on_expired
+              # Password has expired - we'll need to anonymous connect
+              print_warning("Password expired - binding anonymously")
+              opts = {
+                username: '',
+                password: '',
+                domain: '',
+                auth_protocol: Msf::Exploit::Remote::AuthOption::NTLM
+              }
+              disconnect
+              connect
+              smb_login(opts: opts)
+            else
+              if action.name == 'CHANGE_NTLM'
+                fail_with(Module::Failure::UnexpectedReply, 'Must change password first. Try using the CHANGE action instead')
+              end
+            end
           else
             raise
           end
@@ -151,7 +157,7 @@ class MetasploitModule < Msf::Auxiliary
       new_nt = new_ntlm
       new_lm = nil
     when 1
-      new_nt, new_lm = new_ntlm.split(':')
+      new_lm, new_nt = new_ntlm.split(':')
     else
       fail_with(Msf::Exploit::Failure::BadConfig, 'Invalid value for NEW_NTLM')
     end
@@ -188,10 +194,22 @@ class MetasploitModule < Msf::Auxiliary
 
     user_handle = get_user_handle(datastore['SMBDomain'], datastore['SMBUser'])
 
-    @samr.samr_change_password_user(user_handle: user_handle,
+    if Net::NTLM.is_ntlm_hash?(Net::NTLM::EncodeUtil.encode_utf16le(datastore['SMBPass']))
+      old_lm, old_nt = datastore['SMBPass'].split(':')
+      old_lm = [old_lm].pack('H*')
+      old_nt = [old_nt].pack('H*')
+
+      @samr.samr_change_password_user(user_handle: user_handle,
+                                    new_nt_hash: new_nt,
+                                    new_lm_hash: new_lm,
+                                    old_nt_hash: old_nt,
+                                    old_lm_hash: old_lm)
+    else
+      @samr.samr_change_password_user(user_handle: user_handle,
                                     old_password: datastore['SMBPass'],
                                     new_nt_hash: new_nt,
                                     new_lm_hash: new_lm)
+    end
 
     print_good("Successfully changed password for #{datastore['SMBUser']}")
     print_warning('AES Kerberos keys will not be available until user changes their password')
@@ -261,7 +279,14 @@ class MetasploitModule < Msf::Auxiliary
     print_status('Changing password')
     authenticate(anonymous_on_expired: true)
 
-    @samr.samr_unicode_change_password_user2(target_username: datastore['SMBUser'], old_password: datastore['SMBPass'], new_password: datastore['NEW_PASSWORD'])
+    if Net::NTLM.is_ntlm_hash?(Net::NTLM::EncodeUtil.encode_utf16le(datastore['SMBPass']))
+      old_lm, old_nt = datastore['SMBPass'].split(':')
+      old_lm = [old_lm].pack('H*')
+      old_nt = [old_nt].pack('H*')
+      @samr.samr_unicode_change_password_user2(target_username: datastore['SMBUser'], new_password: datastore['NEW_PASSWORD'], old_nt_hash: old_nt, old_lm_hash: old_lm)
+    else
+      @samr.samr_unicode_change_password_user2(target_username: datastore['SMBUser'], old_password: datastore['SMBPass'], new_password: datastore['NEW_PASSWORD'])
+    end
 
     print_good("Successfully changed password for #{datastore['SMBUser']}")
   end
