@@ -11,10 +11,10 @@ This module works with existing sessions (or relaying), especially for Reset use
 
 ## Actions
 
-- `RESET` - Reset the target's password without knowing the existing one (requires appropriate permissions)
-- `RESET_NTLM` - Reset the target's NTLM hash, without knowing the existing password. This will not update kerberos keys.
-- `CHANGE` - Change the password, knowing the existing one.
-- `CHANGE_NTLM` - Change the password to a NTLM hash value, knowing the existing password. This will not update kerberos keys.
+- `RESET` - Reset the target's password without knowing the existing one (requires appropriate permissions). New AES kerberos keys will be generated.
+- `RESET_NTLM` - Reset the target's NTLM hash, without knowing the existing password. AES kerberos authentication will not work until a standard password change occurs.
+- `CHANGE` - Change the password, knowing the existing one. New AES kerberos keys will be generated.
+- `CHANGE_NTLM` - Change the password to a NTLM hash value, knowing the existing password. AES kerberos authentication will not work until a standard password change occurs.
 
 ## Options
 

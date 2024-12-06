@@ -31,10 +31,10 @@ class MetasploitModule < Msf::Auxiliary
           'SideEffects' => [ IOC_IN_LOGS ]
         },
         'Actions' => [
-          [ 'RESET', { 'Description' => "Reset the target's password without knowing the existing one (requires appropriate permissions)" } ],
-          [ 'RESET_NTLM', { 'Description' => "Reset the target's NTLM hash, without knowing the existing password. This will not update kerberos keys." } ],
-          [ 'CHANGE', { 'Description' => 'Change the password, knowing the existing one.' } ],
-          [ 'CHANGE_NTLM', { 'Description' => 'Change the password to a NTLM hash value, knowing the existing password. This will not update kerberos keys.' } ]
+          [ 'RESET', { 'Description' => "Reset the target's password without knowing the existing one (requires appropriate permissions). New AES kerberos keys will be generated." } ],
+          [ 'RESET_NTLM', { 'Description' => "Reset the target's NTLM hash, without knowing the existing password. AES kerberos authentication will not work until a standard password change occurs." } ],
+          [ 'CHANGE', { 'Description' => 'Change the password, knowing the existing one. New AES kerberos keys will be generated.' } ],
+          [ 'CHANGE_NTLM', { 'Description' => 'Change the password to a NTLM hash value, knowing the existing password. AES kerberos authentication will not work until a standard password change occurs.' } ]
         ],
         'DefaultAction' => 'RESET'
       )
