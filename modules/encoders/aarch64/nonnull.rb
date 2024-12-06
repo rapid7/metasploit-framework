@@ -10,7 +10,8 @@ class MetasploitModule < Msf::Encoder
     super(
       'Name' => 'AArch64 null-byte encoder',
       'Description' => %q{
-        Output is guaranteed to be NULL-byte free.
+        This encoder produces an output that is guaranteed to be NULL-byte free.
+        Max payload size is 4136 Bytes.
       },
       'Author' => 'A5t4t1ne',
       'Arch' => ARCH_AARCH64,
@@ -81,7 +82,6 @@ class MetasploitModule < Msf::Encoder
       bytes_to_fill = val[1] - enc_buf.length
       nops = (bytes_to_fill / 4) - 16 # loop lbl is 16 instructions above buffer
 
-      puts("nops: #{nops}, max size: #{val[0]}, buflen: #{enc_buf.length}")
       return [val[2], "\x1f\x20\x03\xd5" * nops, val[3], val[4]]
     end
 
