@@ -11,6 +11,9 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::MsSamr::Account
   include Msf::OptionalSession::SMB
+  include Msf::Exploit::Deprecated
+
+  moved_from 'auxiliary/admin/dcerpc/samr_computer'
 
   def initialize(info = {})
     super(
