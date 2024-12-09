@@ -261,7 +261,7 @@ GEM
     httpclient (2.8.3)
     i18n (1.14.6)
       concurrent-ruby (~> 1.0)
-    io-console (0.7.2)
+    io-console (0.8.0)
     irb (1.7.4)
       reline (>= 0.3.6)
     jmespath (1.6.2)
@@ -405,7 +405,7 @@ GEM
       nokogiri
     redcarpet (3.6.0)
     regexp_parser (2.9.2)
-    reline (0.5.11)
+    reline (0.5.12)
       io-console (~> 0.5)
     require_all (3.0.0)
     rex-arch (0.1.16)
