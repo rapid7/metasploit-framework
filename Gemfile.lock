@@ -38,7 +38,7 @@ PATH
       getoptlong
       hrr_rb_ssh-ed25519
       http-cookie
-      irb (~> 1.7.4)
+      irb
       jsobfu
       json
       metasm
@@ -244,6 +244,7 @@ GEM
     em-socksify (0.3.3)
       base64
       eventmachine (>= 1.0.0.beta.4)
+    erb (5.0.1)
     erubi (1.13.1)
     eventmachine (1.2.7)
     factory_bot (6.5.1)
@@ -288,8 +289,10 @@ GEM
       concurrent-ruby (~> 1.0)
     io-console (0.8.0)
     ipaddr (1.2.7)
-    irb (1.7.4)
-      reline (>= 0.3.6)
+    irb (1.15.2)
+      pp (>= 0.6.0)
+      rdoc (>= 4.0.0)
+      reline (>= 0.4.2)
     jmespath (1.6.2)
     jsobfu (0.4.2)
       rkelly-remix
@@ -346,7 +349,7 @@ GEM
       logger
       mime-types-data (~> 3.2015)
     mime-types-data (3.2025.0304)
-    mini_portile2 (2.8.8)
+    mini_portile2 (2.8.9)
     minitest (5.25.5)
     mqtt (0.6.0)
     msgpack (1.6.1)
@@ -396,6 +399,9 @@ GEM
       ruby-rc4
       ttfunk
     pg (1.5.9)
+    pp (0.6.2)
+      prettyprint
+    prettyprint (0.2.0)
     prism (1.4.0)
     pry (0.14.2)
       coderay (~> 1.1)
@@ -403,6 +409,9 @@ GEM
     pry-byebug (3.10.1)
       byebug (~> 11.0)
       pry (>= 0.13, < 0.15)
+    psych (5.2.6)
+      date
+      stringio
     public_suffix (6.0.1)
     puma (6.6.0)
       nio4r (~> 2.0)
@@ -438,11 +447,14 @@ GEM
     rasn1 (0.14.0)
       strptime (~> 0.2.5)
     rb-readline (0.5.5)
+    rdoc (6.14.2)
+      erb
+      psych (>= 4.0.0)
     recog (3.1.14)
       nokogiri
     redcarpet (3.6.1)
     regexp_parser (2.10.0)
-    reline (0.6.0)
+    reline (0.6.1)
       io-console (~> 0.5)
     require_all (3.0.0)
     rex-arch (0.1.18)
@@ -571,6 +583,7 @@ GEM
     sqlite3 (1.7.3)
       mini_portile2 (~> 2.8.0)
     sshkey (3.0.0)
+    stringio (3.1.1)
     strptime (0.2.5)
     swagger-blocks (3.0.0)
     syslog (0.3.0)
