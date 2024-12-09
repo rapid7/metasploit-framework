@@ -9,7 +9,10 @@ module DNS
 class Server
 
   class MockDnsClient
+    extend Forwardable
     attr_reader :peerhost, :peerport, :srvsock
+
+    def_delegators :@srvsock, :localhost, :localport, :sendto
 
     #
     # Create mock DNS client

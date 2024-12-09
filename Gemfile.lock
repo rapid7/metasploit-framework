@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.4.36)
+    metasploit-framework (6.4.40)
       aarch64
       abbrev
       actionpack (~> 7.0.0)
@@ -439,7 +439,7 @@ GEM
       rex-random_identifier
       rex-text
       ruby-rc4
-    rex-random_identifier (0.1.12)
+    rex-random_identifier (0.1.13)
       rex-text
     rex-registry (0.1.5)
     rex-rop_builder (0.1.5)

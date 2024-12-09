@@ -82,6 +82,8 @@ CONFIG_CHANGES    = 'config-changes'
 IOC_IN_LOGS       = 'ioc-in-logs'
 # Module may cause account lockouts (likely due to brute-forcing).
 ACCOUNT_LOCKOUTS  = 'account-lockouts'
+# Module may cause an existing valid session to be forced to log out (likely due to restrictions on concurrent sessions).
+ACCOUNT_LOGOUT    = 'account-logout'
 # Module may show something on the screen (Example: a window pops up).
 SCREEN_EFFECTS    = 'screen-effects'
 # Module may cause a noise (Examples: audio output from the speakers or hardware beeps).

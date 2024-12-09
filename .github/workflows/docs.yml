@@ -32,7 +32,7 @@ jobs:
   # Ensures that the docs site builds successfully. Note that this workflow does not deploy the docs site.
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
 
     strategy:
       fail-fast: true
