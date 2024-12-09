@@ -387,3 +387,12 @@ queries:
     references:
       - https://www.thehacker.recipes/ad/movement/builtins/pre-windows-2000-computers
       - https://trustedsec.com/blog/diving-into-pre-created-computer-accounts
+  - action: ENUM_SCCM_MANAGEMENT_POINTS
+    description: 'Find all registered SCCM/MECM management points'
+    filter: '(objectclass=mssmsmanagementpoint)'
+    attributes:
+      - cn
+      - dNSHostname
+      - msSMSSiteCode
+    references:
+      - https://github.com/subat0mik/Misconfiguration-Manager/blob/main/attack-techniques/RECON/RECON-1/recon-1_description.md
