@@ -90,7 +90,7 @@ metasploit-concern, 5.0.3, "New BSD"
 metasploit-credential, 6.0.11, "New BSD"
 metasploit-framework, 6.4.40, "New BSD"
 metasploit-model, 5.0.2, "New BSD"
-metasploit-payloads, 2.0.187, "3-clause (or ""modified"") BSD"
+metasploit-payloads, 2.0.189, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 6.0.5, "New BSD"
 metasploit_payloads-mettle, 1.0.35, "3-clause (or ""modified"") BSD"
 method_source, 1.1.0, MIT
@@ -181,7 +181,7 @@ ruby-prof, 1.4.2, "Simplified BSD"
 ruby-progressbar, 1.13.0, MIT
 ruby-rc4, 0.1.5, MIT
 ruby2_keywords, 0.0.5, "ruby, Simplified BSD"
-ruby_smb, 3.3.11, "New BSD"
+ruby_smb, 3.3.13, "New BSD"
 rubyntlm, 0.6.5, MIT
 rubyzip, 2.3.2, "Simplified BSD"
 sawyer, 0.9.2, MIT

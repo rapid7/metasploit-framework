@@ -42,7 +42,7 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 2.0.187)
+      metasploit-payloads (= 2.0.189)
       metasploit_data_models
       metasploit_payloads-mettle (= 1.0.35)
       mqtt
@@ -300,7 +300,7 @@ GEM
       activemodel (~> 7.0)
       activesupport (~> 7.0)
       railties (~> 7.0)
-    metasploit-payloads (2.0.187)
+    metasploit-payloads (2.0.189)
     metasploit_data_models (6.0.5)
       activerecord (~> 7.0)
       activesupport (~> 7.0)
@@ -499,7 +499,7 @@ GEM
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (3.3.11)
+    ruby_smb (3.3.13)
       bindata (= 2.4.15)
       openssl-ccm
       openssl-cmac
