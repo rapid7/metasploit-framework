@@ -5,14 +5,13 @@
 require 'pry-byebug'
 require 'time'
 require 'nokogiri'
+require 'rasn1'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::LDAP
   include Msf::OptionalSession::LDAP
-  include Msf::Exploit::Remote::Kerberos::Client::Pkinit
 
   KEY_SIZE = 2048
 
@@ -160,7 +159,9 @@ class MetasploitModule < Msf::Auxiliary
     http_response.gzip_decode!
 
     binding.pry
-    Rex::Proto::Kerberos::Model::Pkinit::ContentInfo.parse(http_response.body)
+    ci = Rex::Proto::CryptoAsn1::Cms::ContentInfo.parse(http_response.body)
+    e = ci.enveloped_data
+    binding.pry
   end
 
   def get_policies(http_opts, mp, key, cert, sms_id)
