@@ -127,7 +127,6 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-
     key, cert = generate_key_and_cert('ConfigMgr Client')
 
     http_opts = {
