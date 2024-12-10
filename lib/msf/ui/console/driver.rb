@@ -107,7 +107,7 @@ class Driver < Msf::Ui::Driver
     # Initialize the user interface to use a different input and output
     # handle if one is supplied
     input = opts['LocalInput']
-    input ||= Rex::Ui::Text::Input::Stdio.new
+    input ||= Rex::Ui::Text::Input::Readline.new
 
     if !opts['Readline']
       input.disable_readline
