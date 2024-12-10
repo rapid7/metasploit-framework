@@ -30,6 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['URL', 'https://blog.xpnsec.com/unobfuscating-network-access-accounts/'],
+          ['URL', 'https://github.com/subat0mik/Misconfiguration-Manager/blob/main/attack-techniques/CRED/CRED-2/cred-2_description.md'],
           ['URL', 'https://github.com/Mayyhem/SharpSCCM'],
           ['URL', 'https://github.com/garrettfoster13/sccmhunter']
         ],
@@ -50,6 +51,8 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('MANAGEMENT_POINT', [ false, 'The management point (SCCM server) to use' ]),
       OptString.new('SITE_CODE', [ false, 'The site code to use on the management point' ]),
     ])
+
+    @session_or_rhost_required = false
   end
 
   def fail_with_ldap_error(message)
