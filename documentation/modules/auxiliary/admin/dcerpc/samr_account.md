@@ -37,16 +37,15 @@ Add a new computer to the domain. This action will fail with status `STATUS_DS_M
 user has exceeded the maximum number of computer accounts that they are allowed to create.
 
 After the computer account is created, the password will be set for it. If `ACCOUNT_NAME` is set, that value will be
-used and the module will fail if the selected name is already in use. If `ACCOUNT_NAME` is *not* set, a random value
+used and the module will fail if the specified name is already in use. If `ACCOUNT_NAME` is *not* set, a random value
 will be used.
 
 ### ADD_USER
 
 Add a new user to the domain. The account being used to create the new user must have permission to do so. 
 
-After the user account is created, the password will be set for it; either with the provided  If `ACCOUNT_NAME` is set, that value will be
-used and the module will fail if the selected name is already in use. If `ACCOUNT_NAME` is *not* set, a random value
-will be used.
+After the user account is created, the password will be set for it. The `ACCOUNT_NAME` option must be set to the name of
+the account to create. The module will fail if the specified name is already in use.
 
 ### DELETE_ACCOUNT
 
