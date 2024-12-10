@@ -69,11 +69,14 @@ module Rex::Proto::CryptoAsn1::Cms
   class ContentType < RASN1::Types::ObjectId
   end
 
+  class EncryptedContent < RASN1::Types::OctetString
+  end
+
   class EncryptedContentInfo < RASN1::Model
     sequence :encrypted_content_info,
              content: [model(:content_type, ContentType),
                        model(:content_encryption_algorithm, ContentEncryptionAlgorithmIdentifier),
-                       octet_string(:encrypted_content, implicit: 0, constructed: true, optional: true)
+                       wrapper(model(:encrypted_content, EncryptedContent), implicit: 0, optional: true)
                        ]
   end
 
@@ -215,11 +218,11 @@ module Rex::Proto::CryptoAsn1::Cms
 
   class RecipientInfo < RASN1::Model
     choice :recipient_info,
-           content: [model(:key_trans_recipient_info, KeyTransRecipientInfo),
-                     wrapper(model(:key_agree_recipient_info, KeyAgreeRecipientInfo), implicit: 1),
-                     wrapper(model(:kek_recipient_info, KEKRecipientInfo), implicit: 2),
-                     wrapper(model(:password_recipient_info, PasswordRecipientInfo), implicit: 3),
-                     wrapper(model(:other_recipient_info, OtherRecipientInfo), implicit: 4)]
+           content: [model(:ktri, KeyTransRecipientInfo),
+                     wrapper(model(:kari, KeyAgreeRecipientInfo), implicit: 1),
+                     wrapper(model(:kekri, KEKRecipientInfo), implicit: 2),
+                     wrapper(model(:pwri, PasswordRecipientInfo), implicit: 3),
+                     wrapper(model(:ori, OtherRecipientInfo), implicit: 4)]
   end
 
   class EnvelopedData < RASN1::Model
@@ -241,7 +244,7 @@ module Rex::Proto::CryptoAsn1::Cms
     ]
 
     def enveloped_data
-      if self[:content_type].value == '1.2.840.113549.1.7.3'
+      if self[:content_type].value == Rex::Proto::CryptoAsn1::OIDs::OID_CMS_ENVELOPED_DATA.value
         EnvelopedData.parse(self[:data].value)
       end
     end
