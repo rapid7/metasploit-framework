@@ -15,6 +15,7 @@ class Msf::Ui::Console::MsfReadline
   def initialize
     @backend = using_reline? ? ::Reline : ::Readline
     @history = @backend::HISTORY
+    @current_config = {}
   end
 
   def method_missing(sym, *args, &block)
@@ -30,14 +31,17 @@ class Msf::Ui::Console::MsfReadline
   # IRB changes propagate out of the context of IRB. We store the current state and restore it on exit.
   # TODO: Once IRB fixes this behaviour, we should be able to remove this patch.
   def cache_current_config
-    @current_config = {}
+    return unless using_reline?
+
     @current_config[:autocompletion] = self.autocompletion
-    @current_config[:core] = @backend.core.dup if using_reline?
+    @current_config[:core] = @backend.core.dup
   end
 
   def restore_cached_config
+    return unless using_reline?
+
     self.autocompletion = @current_config[:autocompletion]
-    @backend.instance_variable_set(:@core, @current_config[:core]) if using_reline?
+    @backend.instance_variable_set(:@core, @current_config[:core])
   end
 
   # Read a line from the user, and return it.
