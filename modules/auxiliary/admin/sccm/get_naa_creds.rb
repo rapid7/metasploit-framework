@@ -359,10 +359,10 @@ class MetasploitModule < Msf::Auxiliary
     naa_sections = xml_doc.xpath(".//instance[@class='CCM_NetworkAccessAccount']")
     results = Set.new
     naa_sections.each do |section|
-      username = section.xpath("//property[@name='NetworkAccessUsername']/value").text
+      username = section.xpath("property[@name='NetworkAccessUsername']/value").text
       username = deobfuscate_policy_value(username)
 
-      password = section.xpath("//property[@name='NetworkAccessPassword']/value").text
+      password = section.xpath("property[@name='NetworkAccessPassword']/value").text
       password = deobfuscate_policy_value(password)
 
       results.add([username, password])
