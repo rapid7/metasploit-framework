@@ -1,39 +1,39 @@
 module Acceptance
   module CommandShell
-    module Cmd
+    module Unix
       TESTS = {
         payloads: [
           {
-            name: 'windows/x64/shell_reverse_tcp',
-            extension: '.exe',
-            platforms: [:windows],
-            execute_cmd: ['${payload_path}'],
+            name: "cmd/unix/reverse_bash",
+            extension: ".sh",
+            platforms: [:linux],
             executable: true,
+            execute_cmd: ["sh ${payload_path}"],
             generate_options: {
-              '-f': 'exe'
+              '-f': "raw"
             },
             datastore: {
               global: {},
               module: {}
             }
-          }
+          },
         ],
         module_tests: [
           {
-            name: 'post/test/cmd_exec',
+            name: "post/test/services",
             platforms: [
               [
                 :linux,
                 {
                   skip: true,
-                  reason: 'Payload not compiled for platform'
+                  reason: "Windows only test"
                 }
               ],
               [
                 :osx,
                 {
                   skip: true,
-                  reason: 'Payload not compiled for platform'
+                  reason: "Windows only test"
                 }
               ],
               :windows
@@ -52,23 +52,17 @@ module Acceptance
             }
           },
           {
-            name: 'post/test/file',
+            name: "post/test/cmd_exec",
             platforms: [
+              :linux,
+              :osx,
               [
-                :linux,
+                :windows,
                 {
                   skip: true,
-                  reason: 'Payload not compiled for platform'
+                  reason: "Payload not compiled for platform"
                 }
-              ],
-              [
-                :osx,
-                {
-                  skip: true,
-                  reason: 'Payload not compiled for platform'
-                }
-              ],
-              :windows
+              ]
             ],
             skipped: false,
             lines: {
@@ -84,23 +78,17 @@ module Acceptance
             }
           },
           {
-            name: 'post/test/get_env',
+            name: "post/test/file",
             platforms: [
+              :linux,
+              :osx,
               [
-                :linux,
+                :windows,
                 {
                   skip: true,
-                  reason: 'Payload not compiled for platform'
+                  reason: "Payload not compiled for platform"
                 }
-              ],
-              [
-                :osx,
-                {
-                  skip: true,
-                  reason: 'Payload not compiled for platform'
-                }
-              ],
-              :windows
+              ]
             ],
             skipped: false,
             lines: {
@@ -116,23 +104,43 @@ module Acceptance
             }
           },
           {
-            name: 'post/test/registry',
+            name: "post/test/get_env",
             platforms: [
+              :linux,
+              :osx,
               [
-                :linux,
+                :windows,
                 {
                   skip: true,
-                  reason: 'Windows only test'
+                  reason: "Payload not compiled for platform"
                 }
-              ],
+              ]
+            ],
+            skipped: false,
+            lines: {
+              linux: {
+                known_failures: []
+              },
+              osx: {
+                known_failures: []
+              },
+              windows: {
+                known_failures: []
+              }
+            }
+          },
+          {
+            name: "post/test/unix",
+            platforms: [
+              :linux,
+              :osx,
               [
-                :osx,
+                :windows,
                 {
                   skip: true,
-                  reason: 'Windows only test'
+                  reason: "Unix only test"
                 }
-              ],
-              :windows
+              ]
             ],
             skipped: false,
             lines: {

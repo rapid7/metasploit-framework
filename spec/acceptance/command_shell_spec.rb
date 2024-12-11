@@ -4,12 +4,12 @@ require 'base64'
 RSpec.describe 'CommandShell' do
   include_context 'wait_for_expect'
 
-  # Tests to ensure that CMD/Powershell/Linux is consistent across all implementations/operation systems
+  # Tests to ensure that CMD/Powershell/unix is consistent across all implementations/operation systems
   COMMAND_SHELL_PAYLOADS = Acceptance::Session.with_session_name_merged(
     {
-      powershell: Acceptance::Session::POWERSHELL,
-      cmd: Acceptance::Session::CMD,
-      linux: Acceptance::Session::LINUX
+      powershell: Acceptance::CommandShell::PowerShell::TESTS,
+      cmd: Acceptance::CommandShell::PowerShell::TESTS,
+      unix: Acceptance::CommandShell::Unix::TESTS,
     }
   )
 

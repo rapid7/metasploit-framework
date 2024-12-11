@@ -5,7 +5,7 @@ require 'test_prof/recipes/rspec/let_it_be'
 
 acceptance_support_glob = File.expand_path(File.join(File.dirname(__FILE__), 'support', 'acceptance', '**', '*.rb'))
 shared_contexts_glob = File.expand_path(File.join(File.dirname(__FILE__), 'support', 'shared', 'contexts', '**', '*.rb'))
-Dir[acceptance_support_glob, shared_contexts_glob].each do |f|
+Dir[acceptance_support_glob, shared_contexts_glob].sort.each do |f|
   require f
 end
 
