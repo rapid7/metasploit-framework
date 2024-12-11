@@ -26,7 +26,7 @@ RSpec.describe Msf::Post::Linux::Packages do
     context 'when the Ubuntu/Debian package is installed' do
       it 'returns 3.5-5ubuntu2.1' do
         allow(subject).to receive(:get_sysinfo).and_return({:kernel=>"Linux ubuntu22 5.15.0-25-generic #25-Ubuntu SMP Wed Mar 30 15:54:22 UTC 2022 x86_64 x86_64 x86_64 GNU/Linux", :distro=>"ubuntu", :version=>"Ubuntu 22.04.5 LTS"})
-        allow(subject).to receive(:cmd_exec).and_return('ii  needrestart    3.5-5ubuntu2.1 all          check which daemons need to be restarted after library upgrades')
+        allow(subject).to receive(:cmd_exec).and_return('3.5-5ubuntu2.1')
         expect(subject.installed_package_version('test')).to eq(Rex::Version.new('3.5-5ubuntu2.1'))
       end
     end
@@ -34,7 +34,7 @@ RSpec.describe Msf::Post::Linux::Packages do
     context 'when the Ubuntu/Debian package is installed with a + in the version number' do
       it 'returns 1.34.dfsg.pre.1ubuntu0.1.22.04.2' do
         allow(subject).to receive(:get_sysinfo).and_return({:kernel=>"Linux ubuntu22 5.15.0-25-generic #25-Ubuntu SMP Wed Mar 30 15:54:22 UTC 2022 x86_64 x86_64 x86_64 GNU/Linux", :distro=>"ubuntu", :version=>"Ubuntu 22.04.5 LTS"})
-        allow(subject).to receive(:cmd_exec).and_return('ii  tar            1.34+dfsg-1ubuntu0.1.22.04.2 amd64        GNU version of the tar archiving utility')
+        allow(subject).to receive(:cmd_exec).and_return('1.34+dfsg-1ubuntu0.1.22.04.2')
         expect(subject.installed_package_version('test')).to eq(Rex::Version.new("1.34.dfsg.pre.1ubuntu0.1.22.04.2"))
       end
     end

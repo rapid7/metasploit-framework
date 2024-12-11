@@ -69,22 +69,33 @@ RSpec.describe Msf::Post::Linux::Compile do
         let(:source) { '/path/to/source.c' }
         let(:destination) { '/tmp/source.c' }
         let(:output) { '/tmp/output' }
+        let(:session) { double('Session', send: nil) }
 
         before do
           allow(subject).to receive(:get_compiler).and_return('gcc')
         end
 
-        it 'uploads the source file and compiles it' do
+        it 'uploads the source file and compiles it on meterpreter' do
           expect(subject).to receive(:upload_file).with(destination, source)
           expect(subject).to receive(:cmd_exec).with("gcc #{destination} -o #{output}")
           expect(subject).to receive(:write_file).and_return('/tmp/foo')
-          allow(session).to receive(:type).and_return('meterpreter')
+          expect(session).to receive(:type).and_return('meterpreter')
+
+          subject.upload_and_compile(source, destination, output)
+        end
+
+        it 'uploads the source file and compiles it on shell' do
+          expect(subject).to receive(:upload_file).with(destination, source)
+          expect(subject).to receive(:cmd_exec).with("PATH=\"$PATH:/usr/bin/\" gcc #{destination} -o #{output}")
+          expect(subject).to receive(:write_file).and_return('/tmp/foo')
+          expect(session).to receive(:type).and_return('shell')
 
           subject.upload_and_compile(source, destination, output)
         end
 
         it 'raises an error if no compiler is available' do
           allow(subject).to receive(:get_compiler).and_return(nil)
+          expect(session).to receive(:type).and_return('shell')
 
           expect { subject.upload_and_compile(source, destination, output) }.to raise_error('No compiler available on target')
         end

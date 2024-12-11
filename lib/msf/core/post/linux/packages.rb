@@ -15,11 +15,10 @@ module Msf
         def installed_package_version(package)
           info = get_sysinfo
 
-          if ['debian', 'ubuntu'].include?info[:distro]
-            package_version = cmd_exec("dpkg -l #{package} | grep \'^ii\'")
-            return nil unless package_version.start_with?('ii')
+          if ['debian', 'ubuntu'].include?(info[:distro])
+            package_version = cmd_exec("dpkg-query -f='${Version}' -W #{package}")
+            return nil if package_version.include?('no packages found')
 
-            package_version = package_version.split(' ')[2]
             package_version = package_version.gsub('+', '.')
             return Rex::Version.new(package_version)
           elsif ['redhat', 'fedora'].include?(info[:distro])
@@ -64,7 +63,7 @@ module Msf
             package_version = package_version.match(/Version\s+:\s+(.+)/)[1]
             return Rex::Version.new(package_version)          
           else
-            vprint_error('installed_package_version is being called on an unsupported OS')
+            vprint_error("installed_package_version is being called on an unsupported OS: #{info[:distro]}")
           end
           nil
         end
