@@ -66,7 +66,8 @@ module Shell
   def init_tab_complete
     if (self.input and self.input.supports_readline)
       # Unless cont_flag because there's no tab complete for continuation lines
-      self.input.reset_tab_completion(lambda { |str| tab_complete(str) unless cont_flag })
+      self.input = Input::Readline.new(lambda { |str| tab_complete(str) unless cont_flag })
+      self.input.output = self.output
     end
   end
 
