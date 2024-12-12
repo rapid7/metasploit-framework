@@ -1,6 +1,6 @@
 This directory contains the following files:
 
-- `modules_metadata_base.json`, which  information about all modules within Metasploit.
+- `modules_metadata_base.json`, which contains information about all modules within Metasploit.
 - `schema.rb`, which is auto-generated from the current state of the database schema maintained by Rails ActiveRecord.
   This file is auto-generated from the current state of the database.
 
