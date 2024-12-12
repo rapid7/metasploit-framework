@@ -243,7 +243,7 @@ module Msf::Sessions
       # shells accessed through SSH may respond to the echo command issued for verification as expected
       datastore['AutoVerifySession'] &= @platform.blank?
 
-      @rstream = Net::SSH::CommandStream.new(ssh_connection).lsock
+      @rstream = Net::SSH::CommandStream.new(ssh_connection, session: self, logger: self).lsock
       super
 
       @info = "SSH #{username} @ #{@peer_info}"
