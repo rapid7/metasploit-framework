@@ -206,23 +206,30 @@ class MetasploitModule < Msf::Auxiliary
 
     key_encryption_alg = ri[0][:ktri][:key_encryption_algorithm][:algorithm].value
     encrypted_rsa_key = ri[0][:ktri][:encrypted_key].value
-    if key_encryption_alg == Rex::Proto::CryptoAsn1::OIDs::OID_RSAES_OAEP.value
+    if key_encryption_alg == Rex::Proto::CryptoAsn1::OIDs::OID_RSA_ENCRYPTION.value
+      decrypted_key = key.private_decrypt(encrypted_rsa_key)
+    elsif key_encryption_alg == Rex::Proto::CryptoAsn1::OIDs::OID_RSAES_OAEP.value
       decrypted_key = key.private_decrypt(encrypted_rsa_key, OpenSSL::PKey::RSA::PKCS1_OAEP_PADDING)
     else
       fail_with(Failure::UnexpectedReply, "Key encryption routine is currently unsupported: #{key_encryption_alg}")
     end
 
     cea = cms_envelope[:encrypted_content_info][:content_encryption_algorithm]
-    if cea[:algorithm].value == Rex::Proto::CryptoAsn1::OIDs::OID_AES256_CBC.value
-      if decrypted_key.length != 32
+    algorithms = {
+      Rex::Proto::CryptoAsn1::OIDs::OID_AES256_CBC.value => {:iv_length => 16, :key_length => 32, :cipher_name => 'aes-256-cbc'},
+      Rex::Proto::CryptoAsn1::OIDs::OID_DES_EDE3_CBC.value => {:iv_length => 8, :key_length => 24, :cipher_name => 'des-ede3-cbc'}
+    }
+    if algorithms.include?(cea[:algorithm].value)
+      alg_hash = algorithms[cea[:algorithm].value]
+      if decrypted_key.length != alg_hash[:key_length]
         fail_with(Failure::UnexpectedReply, "Bad key length: #{decrypted_key.length}")
       end
       iv = RASN1::Types::OctetString.new
       iv.parse!(cea[:parameters].value)
-      if iv.value.length != 16
+      if iv.value.length != alg_hash[:iv_length]
         fail_with(Failure::UnexpectedReply, "Bad IV length: #{iv.length}")
       end
-      cipher = OpenSSL::Cipher.new('aes-256-cbc')
+      cipher = OpenSSL::Cipher.new(alg_hash[:cipher_name])
       cipher.decrypt
       cipher.key = decrypted_key
       cipher.iv = iv.value
