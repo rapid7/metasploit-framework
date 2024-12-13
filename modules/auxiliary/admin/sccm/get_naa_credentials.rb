@@ -56,18 +56,6 @@ class MetasploitModule < Msf::Auxiliary
     @session_or_rhost_required = false
   end
 
-  def fail_with_ldap_error(message)
-    ldap_result = @ldap.get_operation_result.table
-    return if ldap_result[:code] == 0
-
-    print_error(message)
-    if ldap_result[:code] == 16
-      fail_with(Failure::NotFound, 'The LDAP operation failed because the referenced attribute does not exist. Ensure you are targeting a domain controller running at least Server 2016.')
-    else
-      validate_query_result!(ldap_result)
-    end
-  end
-
   def find_management_point
     ldap_connect do |ldap|
       validate_bind_success!(ldap)
@@ -80,11 +68,10 @@ class MetasploitModule < Msf::Auxiliary
         if (@base_dn = ldap.base_dn)
           print_status("#{ldap.peerinfo} Discovered base DN: #{@base_dn}")
         else
-          print_warning("Couldn't discover base DN!")
+          fail_with(Failure::UnexpectedReply, "Couldn't discover base DN!")
         end
       end
-      @ldap = ldap
-      raw_objects = @ldap.search(base: @base_dn, filter: '(objectclass=mssmsmanagementpoint)', attributes: ['*'])
+      raw_objects = ldap.search(base: @base_dn, filter: '(objectclass=mssmsmanagementpoint)', attributes: ['*'])
       return nil unless raw_objects.any?
 
       raw_obj = raw_objects.first

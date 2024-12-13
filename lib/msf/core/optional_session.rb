@@ -10,7 +10,7 @@ module Msf
 
     attr_accessor :session_or_rhost_required
 
-    def session_or_rhost_required
+    def session_or_rhost_required?
       @session_or_rhost_required.nil? ? true : @session_or_rhost_required
     end
 
@@ -24,7 +24,7 @@ module Msf
         validate_session
       elsif rhost
         validate_rhost
-      elsif session_or_rhost_required
+      elsif session_or_rhost_required?
         raise Msf::OptionValidateError.new(message: 'A SESSION or RHOST must be provided')
       end
     end
