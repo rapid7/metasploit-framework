@@ -42,6 +42,11 @@ See the Scenarios for a more detailed walk through
 ### RHOST, USERNAME, PASSWORD, DOMAIN, SESSION, RHOST
 Options used to authenticate to the Domain Controller's LDAP service for SCCM autodiscovery.
 
+### COMPUTER_USER, COMPUTER_PASSWORD
+
+Credentials for a computer account (may be created with the `samr_account` module). If you've retrieved the NTLM hash of
+a computer account, you can use that for COMPUTER_PASSWORD.
+
 ### MANAGEMENT_POINT
 The SCCM server.
 
