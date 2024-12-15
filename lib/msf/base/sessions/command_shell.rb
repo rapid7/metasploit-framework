@@ -202,6 +202,8 @@ Shell Banner:
       tbl << [key, value]
     end
 
+    tbl << ['.<command>', "Prefix any built-in command on this list with a '.' to execute in the underlying shell (ex: .help)"]
+
     print(tbl.to_s)
   end
 
