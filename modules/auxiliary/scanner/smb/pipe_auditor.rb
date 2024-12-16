@@ -40,9 +40,8 @@ class MetasploitModule < Msf::Auxiliary
 
     if session
       print_status("Using existing session #{session.sid}")
-      client = session.client
       @rport = datastore['RPORT'] = session.port
-      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
+      self.simple = session.simple_client
       self.simple.connect("\\\\#{session.address}\\IPC$")
       report_pipes(ip, check_pipes)
     else
