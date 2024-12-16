@@ -1,5 +1,5 @@
 GIT
-  remote: git@github.com:cdelafuente-r7/metasploit-credential.git
+  remote: https://github.com/cdelafuente-r7/metasploit-credential
   revision: acc5a012f4bc7e7774af059e778b947cd994da1e
   branch: enh/MS-9710/add_pkcs12_metadata
   specs:
