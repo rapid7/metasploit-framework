@@ -2,7 +2,7 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 #
-# This module was developed during a semester projecter under the supervision of the CYD campus.
+# This module was developed during a semester project under the supervision of the CYD campus.
 ##
 
 class MetasploitModule < Msf::Encoder
@@ -25,8 +25,8 @@ class MetasploitModule < Msf::Encoder
   def encode_block(state, buf)
     enc_pl = '_' * buf.length * 2 # encoding nibbles to chars -> length will be doubled
 
-    for i in 0...buf.length do
-      q = buf[i].ord
+    buf.each_char.with_index do |c, i|
+      q = c.ord
       enc_pl[2 * i] = mkchr((q >> 4) & 0xF) # c will always be between 0x41 ('A') and 0x50 ('P')
       enc_pl[2 * i + 1] = mkchr(q & 0xF)
     end
