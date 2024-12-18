@@ -297,7 +297,8 @@ class MsfAutoload
       'appapi' => 'AppApi',
       'uds_errors' => 'UDSErrors',
       'smb_hash_capture' => 'SMBHashCapture',
-      'rex_ntlm' => 'RexNTLM'
+      'rex_ntlm' => 'RexNTLM',
+      'teamcity' => 'TeamCity'
     }
   end
 

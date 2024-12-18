@@ -1,7 +1,7 @@
 require 'rspec'
 require 'metasploit/framework/login_scanner/teamcity'
 
-RSpec.describe Metasploit::Framework::LoginScanner::Teamcity do
+RSpec.describe Metasploit::Framework::LoginScanner::TeamCity do
 
   let(:subject) { described_class.new }
 

@@ -7,7 +7,7 @@ module Metasploit
       # This is the LoginScanner class for dealing with JetBrains TeamCity instances.
       # It is responsible for taking a single target, and a list of credentials
       # and attempting them. It then saves the results.
-      class Teamcity < HTTP
+      class TeamCity < HTTP
 
         module Crypto
           # https://github.com/openssl/openssl/blob/a08a145d4a7e663dd1e973f06a56e983a5e916f7/crypto/rsa/rsa_pk1.c#L125
