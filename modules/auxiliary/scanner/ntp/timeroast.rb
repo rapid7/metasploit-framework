@@ -36,6 +36,7 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
     register_options([
+      Opt::RPORT(123),
       OptIntRange.new('RIDS', [ true, 'The RIDs to enumerate (e.g. 1000-2000).' ]),
       OptInt.new('DELAY', [ true, 'The delay in milliseconds between attempts.', 20]),
       OptInt.new('TIMEOUT', [ true, 'The timeout in seconds to wait at the end for replies.', 5])
