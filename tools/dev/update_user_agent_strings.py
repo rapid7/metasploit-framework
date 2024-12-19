@@ -42,13 +42,13 @@ user_agent_filename = 'lib/rex/user_agent.rb'
 with open(user_agent_filename,'r') as f:
   lines = f.read().splitlines()
 
-replace_agent_string(lines, 'Chrome Windows', chrome_url, '<td>Chrome \\(Standard\\)</td>\s*<td>\s*<ul>\s*<li><span class="code">([{VALID_CHARS}]*Windows NT[{VALID_CHARS}]*)</span>')
-replace_agent_string(lines, 'Chrome MacOS', chrome_url, '<td>Chrome \\(Standard\\)</td>\s*<td>\s*<ul>\s*<li><span class="code">([{VALID_CHARS}]*Macintosh[{VALID_CHARS}]*)</span>')
-replace_agent_string(lines, 'Edge Windows', edge_url, '<td>Edge \\(Standard\\)</td>\s*<td>\s*<ul>\s*<li><span class="code">([{VALID_CHARS}]*Windows NT[{VALID_CHARS}]*)</span>')
-replace_agent_string(lines, 'Safari iPad', safari_url, '<td>\s*Safari on <b>Ipad</b>\s*</td>\s*<td>\s*<ul>\s*<li><span class="code">([{VALID_CHARS}]*iPad[{VALID_CHARS}]*)</span>')
-replace_agent_string(lines, 'Safari MacOS', safari_url, '<td>Safari \\(Standard\\)</td>\s*<td>\s*<ul>\s*<li><span class="code">([{VALID_CHARS}]*Macintosh[{VALID_CHARS}]*)</span>')
-replace_agent_string(lines, 'Firefox Windows', firefox_url, '<td>\s*Firefox on <b>Windows</b>\s*</td>\s*<td>\s*<ul>\s*<li><span class="code">([{VALID_CHARS}]*Windows NT[{VALID_CHARS}]*)</span>')
-replace_agent_string(lines, 'Firefox MacOS', firefox_url, '<td>\s*Firefox on <b>Macos</b>\s*</td>\s*<td>\s*<ul>\s*<li><span class="code">([{VALID_CHARS}]*Macintosh[{VALID_CHARS}]*)</span>')
+replace_agent_string(lines, 'Chrome Windows', chrome_url, '<td>Chrome \\(Standard\\)</td>\\s*<td>\\s*<ul>\\s*<li><span class="code">([{VALID_CHARS}]*Windows NT[{VALID_CHARS}]*)</span>')
+replace_agent_string(lines, 'Chrome MacOS', chrome_url, '<td>Chrome \\(Standard\\)</td>\\s*<td>\\s*<ul>\\s*<li><span class="code">([{VALID_CHARS}]*Macintosh[{VALID_CHARS}]*)</span>')
+replace_agent_string(lines, 'Edge Windows', edge_url, '<td>Edge \\(Standard\\)</td>\\s*<td>\\s*<ul>\\s*<li><span class="code">([{VALID_CHARS}]*Windows NT[{VALID_CHARS}]*)</span>')
+replace_agent_string(lines, 'Safari iPad', safari_url, '<td>\\s*Safari on <b>Ipad</b>\\s*</td>\\s*<td>\\s*<ul>\\s*<li><span class="code">([{VALID_CHARS}]*iPad[{VALID_CHARS}]*)</span>')
+replace_agent_string(lines, 'Safari MacOS', safari_url, '<td>Safari \\(Standard\\)</td>\\s*<td>\\s*<ul>\\s*<li><span class="code">([{VALID_CHARS}]*Macintosh[{VALID_CHARS}]*)</span>')
+replace_agent_string(lines, 'Firefox Windows', firefox_url, '<td>\\s*Firefox on <b>Windows</b>\\s*</td>\\s*<td>\\s*<ul>\\s*<li><span class="code">([{VALID_CHARS}]*Windows NT[{VALID_CHARS}]*)</span>')
+replace_agent_string(lines, 'Firefox MacOS', firefox_url, '<td>\\s*Firefox on <b>Macos</b>\\s*</td>\\s*<td>\\s*<ul>\\s*<li><span class="code">([{VALID_CHARS}]*Macintosh[{VALID_CHARS}]*)</span>')
 
 with open(user_agent_filename, 'w') as f:
   f.write('\n'.join(lines) + '\n')
