@@ -26,6 +26,7 @@ module Msf
       Server2019 = Rex::Version.new('10.0.17763.0')
       Server2022 = Rex::Version.new('10.0.20348.0')
       Server2022_23H2 = Rex::Version.new('10.0.25398.0')
+      Server2025 = Rex::Version.new('10.0.26100.0')
     end
 
     module WorkstationSpecificVersions
@@ -79,7 +80,8 @@ module Msf
       :Server2016 => "Windows Server 2016",
       :Server2019 => "Windows Server 2019",
       :Server2022 => "Windows Server 2022",
-      :Server2022_23H2 => "Windows Server 2022 version 23H2"
+      :Server2022_23H2 => "Windows Server 2022 version 23H2",
+      :Server2025 => "Windows Server 2025"
     }
 
     WorkstationNameMapping = {
