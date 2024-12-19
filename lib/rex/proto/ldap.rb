@@ -1,3 +1,4 @@
+require 'forwardable'
 require 'net/ldap'
 require 'rex/socket'
 
@@ -205,6 +206,8 @@ class Net::LDAP::Connection # :nodoc:
 
     if server[:encryption]
       setup_encryption server[:encryption]
+      @conn.extend Forwardable
+      @conn.def_delegators :@io, :localinfo, :peerinfo
     end
 
     yield self if block_given?
