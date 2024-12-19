@@ -7,9 +7,7 @@ module Msf::Sessions
     # Convert the executable and argument array to a command that can be run in this command shell
     # @param cmd_and_args [Array<String>] The process path and the arguments to the process
     def to_cmd(cmd_and_args)
-      escaped = cmd_and_args.map do |arg|
-        escape_arg(arg)
-      end
+      escaped = cmd_and_args.map { |arg| escape_arg(arg) }
 
       escaped.join(' ')
     end
