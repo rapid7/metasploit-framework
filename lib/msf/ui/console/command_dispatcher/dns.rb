@@ -37,6 +37,11 @@ class DNS
     ['-f'] => [true,  'Address family - IPv4 or IPv6 (default IPv4)']
   )
 
+  REORDER_USAGE = 'dns [reorder] -i <existing ID> <new ID>'.freeze
+  @@reorder_opts = Rex::Parser::Arguments.new(
+    ['-i', '--index'] => [true, 'Index of the rule to move']
+  )
+
   def initialize(driver)
     super
   end
@@ -108,7 +113,7 @@ class DNS
     when 'help'
       # These commands don't have any arguments
       return subcommands.select { |sc| sc.start_with?(str) }
-    when 'remove','delete'
+    when 'remove','delete','reorder'
       if words[-1] == '-i'
         return
       else
@@ -156,6 +161,7 @@ class DNS
     print_line "  #{ADD_STATIC_USAGE}"
     print_line "  #{REMOVE_USAGE}"
     print_line "  #{REMOVE_STATIC_USAGE}"
+    print_line "  #{REORDER_USAGE}"
     print_line "  dns [flush-cache]"
     print_line "  dns [flush-entries]"
     print_line "  dns [flush-static]"
@@ -171,10 +177,11 @@ class DNS
     print_line "  flush-entries - Remove all configured DNS resolution entries"
     print_line "  flush-static  - Remove all statically defined hostnames"
     print_line "  print         - Show all configured DNS resolution entries"
-    print_line "  remove        - Delete a DNS resolution entry"
+    print_line "  remove        - Delete one or more DNS resolution entries"
     print_line "  remove-static - Delete a statically defined hostname"
     print_line "  reset-config  - Reset the DNS configuration"
     print_line "  resolve       - Resolve a hostname"
+    print_line "  reorder       - Reorder one or more rules"
     print_line
     print_line "EXAMPLES:"
     print_line "  Display help information for the 'add' subcommand"
@@ -222,6 +229,8 @@ class DNS
         cmd_dns_help(*args)
       when "print"
         print_dns
+      when 'reorder'
+        reorder_dns(*args)
       when "remove", "rm", "delete", "del"
         remove_dns(*args)
       when "remove-static"
@@ -491,6 +500,54 @@ class DNS
     print_line
   end
 
+  def reorder_dns(*args)
+    reorder_ids = []
+    new_id = -1
+    @@remove_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-i', '--index'
+        raise ::ArgumentError.new("Not a valid index: #{val}") unless val.to_i > 0
+        raise ::ArgumentError.new("Duplicate index: #{val}") if reorder_ids.include?(val.to_i - 1)
+
+        reorder_ids << val.to_i - 1
+      when nil
+        raise ::ArgumentError.new("Not a valid index: #{val}") unless (val.to_i > 0 || val.to_i == -1)
+        new_id = val.to_i
+        new_id -= 1 unless new_id == -1
+      end
+    end
+
+    if reorder_ids.empty?
+      raise ::ArgumentError.new('At least one index to reorder must be provided')
+    end
+
+    reordered = resolver.reorder_ids(reorder_ids, new_id)
+    print_warning('Some entries were not reordered') unless reordered.length == reorder_ids.length
+    if reordered.length > 0
+      print_good("#{reordered.length} DNS #{reordered.length > 1 ? 'entries' : 'entry'} reordered")
+      print_resolver_rules
+    end
+  end
+
+  def reorder_dns_help
+    print_line "USAGE:"
+    print_line "  #{REORDER_USAGE}"
+    print_line "If providing multiple IDs, they will be inserted at the given index in the order you provide."
+    print_line(@@reorder_opts.usage)
+    print_line "EXAMPLES:"
+    print_line "  Move the third DNS entry to the top of the resolution order"
+    print_line "    dns reorder -i 3  1"
+    print_line
+    print_line "  Move the third and fifth DNS entries just below the first entry (i.e. becoming the second and third entries, respectively)"
+    print_line "    dns reorder -i 3 -i 5  2"
+    print_line
+    print_line "  Move the second and third DNS entries to the bottom of the resolution order"
+    print_line "    dns reorder -i 2 -i 3  -1"
+    print_line "  Alternatively, assuming there are 6 entries in the list"
+    print_line "    dns reorder -i 2 -i 3  7"
+    print_line
+  end
+
   def remove_static_dns(*args)
     if args.length < 1
       raise ::ArgumentError.new('A hostname must be provided')
@@ -604,6 +661,15 @@ class DNS
     print_good('DNS static hostnames flushed')
   end
 
+  def print_resolver_rules
+    upstream_rules = resolver.upstream_rules
+    print_dns_set('Resolver rule entries', upstream_rules, ids: (1..upstream_rules.length).to_a)
+    if upstream_rules.empty?
+      print_line
+      print_error('No DNS nameserver entries configured')
+    end
+  end
+
   #
   # Display the user-configured DNS settings
   #
@@ -628,12 +694,7 @@ class DNS
     end
     print_line("Current cache size:    #{resolver.cache.records.length}")
 
-    upstream_rules = resolver.upstream_rules
-    print_dns_set('Resolver rule entries', upstream_rules, ids: (1..upstream_rules.length).to_a)
-    if upstream_rules.empty?
-      print_line
-      print_error('No DNS nameserver entries configured')
-    end
+    print_resolver_rules
 
     tbl = Table.new(
       Table::Style::Default,
