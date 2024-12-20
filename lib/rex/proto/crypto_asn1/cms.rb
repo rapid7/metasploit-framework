@@ -236,16 +236,59 @@ module Rex::Proto::CryptoAsn1::Cms
     ]
   end
 
+  class SignerInfo < RASN1::Model
+    sequence :signer_info,
+             content: [integer(:version),
+                       model(:sid, IssuerAndSerialNumber),
+                       model(:digest_algorithm, AlgorithmIdentifier),
+                       set_of(:signed_attrs, Attribute, implicit: 0, optional: true),
+                       model(:signature_algorithm, AlgorithmIdentifier),
+                       octet_string(:signature),
+    ]
+  end
+
+  class EncapsulatedContentInfo < RASN1::Model
+    sequence :encapsulated_content_info,
+             content: [objectid(:econtent_type),
+                       octet_string(:econtent, explicit: 0, constructed: true, optional: true)
+    ]
+
+    def econtent
+      if self[:econtent_type].value == Rex::Proto::CryptoAsn1::OIDs::OID_DIFFIE_HELLMAN_KEYDATA.value
+        Rex::Proto::Kerberos::Model::Pkinit::KdcDhKeyInfo.parse(self[:econtent].value)
+      elsif self[:econtent_type].value == Rex::Proto::Kerberos::Model::OID::PkinitAuthData
+        Rex::Proto::Kerberos::Model::Pkinit::AuthPack.parse(self[:econtent].value)
+      end
+    end
+  end
+
+  class SignedData < RASN1::Model
+    sequence :signed_data,
+             explicit: 0, constructed: true,
+             content: [integer(:version),
+                       set_of(:digest_algorithms, AlgorithmIdentifier),
+                       model(:encap_content_info, EncapsulatedContentInfo),
+                       set_of(:certificates, Certificate, implicit: 0, optional: true),
+                       # CRLs - not implemented
+                       set_of(:signer_infos, SignerInfo)
+    ]
+  end
+
   class ContentInfo < RASN1::Model
     sequence :content_info,
              content: [model(:content_type, ContentType),
-                       # In our case, expected to be EnvelopedData
                        any(:data)
     ]
 
     def enveloped_data
       if self[:content_type].value == Rex::Proto::CryptoAsn1::OIDs::OID_CMS_ENVELOPED_DATA.value
         EnvelopedData.parse(self[:data].value)
+      end
+    end
+
+    def signed_data
+      if self[:content_type].value == Rex::Proto::CryptoAsn1::OIDs::OID_CMS_SIGNED_DATA.value
+        SignedData.parse(self[:data].value)
       end
     end
   end
