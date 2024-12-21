@@ -238,7 +238,7 @@ RSpec.describe Msf::Post::Linux::System do
     context 'when there are no permission denied errors' do
       it 'returns the list of SUID files' do
         suid_files = "/usr/bin/passwd\n/usr/bin/sudo\n"
-        allow(subject).to receive(:cmd_exec).with("find / -perm -4000 -print -xdev").and_return(suid_files)
+        allow(subject).to receive(:cmd_exec).with('find / -perm -4000 -print -xdev').and_return(suid_files)
 
         result = subject.get_suid_files
 
@@ -249,7 +249,7 @@ RSpec.describe Msf::Post::Linux::System do
     context 'when there are permission denied errors' do
       it 'filters out the permission denied errors' do
         suid_files = "/usr/bin/passwd\nfind: ‘/root’: Permission denied\n/usr/bin/sudo\n"
-        allow(subject).to receive(:cmd_exec).with("find / -perm -4000 -print -xdev").and_return(suid_files)
+        allow(subject).to receive(:cmd_exec).with('find / -perm -4000 -print -xdev').and_return(suid_files)
 
         result = subject.get_suid_files
 
@@ -259,13 +259,13 @@ RSpec.describe Msf::Post::Linux::System do
 
     context 'when an error occurs' do
       it 'raises an error' do
-        allow(subject).to receive(:cmd_exec).with("find / -perm -4000 -print -xdev").and_raise(StandardError)
+        allow(subject).to receive(:cmd_exec).with('find / -perm -4000 -print -xdev').and_raise(StandardError)
 
         expect { subject.get_suid_files }.to raise_error('Could not retrieve all SUID files')
       end
     end
   end
-  
+
   describe '#get_path' do
     it 'returns the system path' do
       allow(subject).to receive(:cmd_exec).with('echo $PATH').and_return('/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin')
@@ -526,7 +526,7 @@ RSpec.describe Msf::Post::Linux::System do
       allow(subject).to receive(:file?).with('/run/.containerenv').and_return(false)
       allow(subject).to receive(:directory?).with('/dev/lxc').and_return(false)
       allow(subject).to receive(:file?).with('/proc/sys/kernel/osrelease').and_return(true)
-      allow(subject).to receive(:read_file).with('/proc/sys/kernel/osrelease').and_return(["4.4.0-19041-Microsoft"])
+      allow(subject).to receive(:read_file).with('/proc/sys/kernel/osrelease').and_return(['4.4.0-19041-Microsoft'])
       allow(subject).to receive(:report_host)
       expect(subject.get_container_type).to eq('WSL')
     end
