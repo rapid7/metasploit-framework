@@ -292,8 +292,10 @@ module Msf
 
     # Get a Windows OS version string representation for a given major, minor and build number
     def self.version_string(major, minor, build, version_module, mapping)
-      version_module.constants.each do |version_sym|
-        version = version_module.const_get(version_sym)
+      sorted_versions = version_module.constants
+                                      .map { |version_sym| [version_sym, version_module.const_get(version_sym)] }
+                                      .sort_by { |_version_sym, version| version.segments }
+      sorted_versions.each do |version_sym, version|
         segments = version.segments
         if segments[0..2] == [major, minor, build]
           return mapping[version_sym]
