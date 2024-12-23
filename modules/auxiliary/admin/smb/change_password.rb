@@ -93,8 +93,7 @@ class MetasploitModule < Msf::Auxiliary
   def authenticate(anonymous_on_expired: false)
     if session
       print_status("Using existing session #{session.sid}")
-      client = session.client
-      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
+      self.simple = session.simple_client
       simple.connect("\\\\#{simple.address}\\IPC$") # smb_login connects to this share for some reason and it doesn't work unless we do too
     else
       connect

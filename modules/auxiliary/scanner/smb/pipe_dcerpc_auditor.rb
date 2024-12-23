@@ -260,9 +260,8 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     if session
       print_status("Using existing session #{session.sid}")
-      client = session.client
       @rport = datastore['RPORT'] = session.port
-      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
+      self.simple = session.simple_client
       simple.connect("\\\\#{simple.address}\\IPC$") # smb_login connects to this share for some reason and it doesn't work unless we do too
       check_uuids(ip)
     else
