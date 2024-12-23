@@ -109,8 +109,9 @@ class MetasploitModule < Msf::Auxiliary
     opts = {}
     if session
       print_status("Using existing session #{session.sid}")
-      self.simple = session.simple_client
-      opts[:tree] = simple.client.tree_connect("\\\\#{session.client.dispatcher.tcp_socket.peerhost}\\IPC$")
+      client = session.client
+      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
+      opts[:tree] = simple.client.tree_connect("\\\\#{client.dispatcher.tcp_socket.peerhost}\\IPC$")
     end
 
     yield opts

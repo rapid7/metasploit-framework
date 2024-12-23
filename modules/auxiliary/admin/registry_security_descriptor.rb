@@ -71,7 +71,8 @@ class MetasploitModule < Msf::Auxiliary
   def do_connect
     if session
       print_status("Using existing session #{session.sid}")
-      self.simple = session.simple_client
+      client = session.client
+      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
       simple.connect("\\\\#{simple.address}\\IPC$")
     else
       connect

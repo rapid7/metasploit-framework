@@ -167,8 +167,8 @@ class MetasploitModule < Msf::Auxiliary
     begin
       if session
         print_status("Using existing session #{session.sid}")
-        self.simple = session.simple_client
-        session.verify_connectivity
+        client = session.client
+        self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
       else
         connect
         smb_login
