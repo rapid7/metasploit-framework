@@ -40,7 +40,7 @@ If there is no information about existing projects:
 
 ### PROJECT_NAME
 A valid OneDev project name is required to exploit the vulnerability. If anonymous access is enabled on the OneDev server,
-any visitor can see the existing projects, and colllect a valid project name. On the other hand, if anonymous access is disabled,
+any visitor can see the existing projects, and collect a valid project name. On the other hand, if anonymous access is disabled,
 the user needs to have previous knowledge of a valid project name or use the `PROJECT_NAMES_FILE` option to find one through brute force.
 
 ### PROJECT_NAMES_FILE
@@ -49,7 +49,7 @@ the module will verify whether a given project exists for each word.
 
 
 ### TARGETFILE
-Absolule file path of the target file to be retrieved from the OneDev server. Set as `/etc/passwd` by default.
+Absolute file path of the target file to be retrieved from the OneDev server. Set as `/etc/passwd` by default.
 
 ### STORE_LOOT
 If set as `true`, the target file contents will be stored as loot. Set as `false` by default.
