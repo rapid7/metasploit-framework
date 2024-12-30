@@ -446,7 +446,8 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.57)
+    rex-socket (0.1.58)
+      dnsruby
       rex-core
     rex-sslscan (0.1.10)
       rex-core
