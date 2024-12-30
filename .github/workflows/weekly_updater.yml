@@ -1,0 +1,66 @@
+name: Weekly Data Update
+
+on:
+  schedule:
+    # Run once a week (e.g., every Monday at 01:00 UTC)
+    - cron: '0 1 * * 1'
+
+jobs:
+  update-vulnerabilities:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          repository: rapid7/metasploit-framework
+          #token: ${{ secrets.GITHUB_TOKEN }} # Use GitHub token for authentication
+          ref: main # Replace with the branch you want to work on, e.g., main or master
+
+      # Step 2: Set up Ruby environment
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.0
+
+      # Step 3: Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      # Step 4: Run the commands
+      - name: Run Ruby and Python scripts
+        run: |
+          ruby tools/dev/update_wordpress_vulnerabilities.rb
+          python3 tools/dev/update_joomla_components.py
+          ruby tools/dev/check_external_scripts.rb -u
+
+      # Step 5: Configure Git
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Step 6: Add and commit changes
+      - name: Commit changes
+        run: |
+          git add .
+          git commit -m "Weekly Data update" || echo "No changes to commit"
+
+      # Step 7: Push changes to a new branch
+      - name: Push changes
+        run: |
+          git branch weekly-updates
+          git checkout weekly-updates
+          git push origin weekly-updates
+
+      # Step 8: Create a pull request
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          branch: weekly-updates
+          title: "Weekly Data Update"
+          body: |
+            This pull request was created automatically by a GitHub Action to update the vulnerability scripts.
