@@ -111,6 +111,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(_ip)
+    # next line included for automatic inclusion into vulnerable plugins list
+    # check_plugin_version_from_readme('ultimate-member', '2.8.3')
     print_status("Performing SQL injection for CVE-2024-1071 via the 'sorting' parameter...")
 
     nonce = get_nonce
