@@ -6,8 +6,6 @@
 require 'nokogiri'
 
 class MetasploitModule < Msf::Auxiliary
-  Rank = ExcellentRanking
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   prepend Msf::Exploit::Remote::AutoCheck
@@ -38,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
             }
           ]
         ],
-        # 'DisclosureDate' => '2020-10-??', # Not sure
+        'DisclosureDate' => '2020-10-01', # Not sure this is correct
         'DefaultTarget' => 0,
         'Notes' => {
           'Stability' => [ CRASH_SAFE, ],
