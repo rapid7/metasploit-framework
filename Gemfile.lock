@@ -200,7 +200,7 @@ GEM
     crass (1.0.6)
     csv (3.3.0)
     daemons (1.4.1)
-    date (3.3.4)
+    date (3.4.1)
     debug (1.8.0)
       irb (>= 1.5.0)
       reline (>= 0.3.1)
