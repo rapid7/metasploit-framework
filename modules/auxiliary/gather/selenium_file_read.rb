@@ -58,28 +58,26 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
+    # Request for Selenium Grid version 4
+    v4res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'status')
+    })
+    if v4res && v4res.get_json_document && v4res.get_json_document.include?('value') &&
+       v4res.get_json_document['value'].include?('message')
+      if v4res.get_json_document['value']['message'] == 'Selenium Grid ready.'
+        return Exploit::CheckCode::Detected('Selenium Grid version 4.x detected and ready.')
+      elsif v4res.get_json_document['value']['message'].downcase.include?('selenium grid')
+        return Exploit::CheckCode::Unknown('Selenium Grid version 4.x detected but not ready.')
+      end
+    end
+
     # Request for Selenium Grid version 3
     v3res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path)
     })
-    if v3res&.code != 200
-      # Request for Selenium Grid version 4
-      v4res = send_request_cgi({
-        'method' => 'GET',
-        'uri' => normalize_uri(target_uri.path, 'status')
-      })
-      if v4res && v4res.get_json_document && v4res.get_json_document.include?('value') &&
-         v4res.get_json_document['value'].include?('message')
-        if v4res.get_json_document['value']['message'] == 'Selenium Grid ready.'
-          return Exploit::CheckCode::Detected('Selenium Grid version 4.x detected and ready.')
-        elsif v4res.get_json_document['value']['message'].downcase.include?('selenium grid')
-          return Exploit::CheckCode::Unknown('Selenium Grid version 4.x detected but not ready.')
-        end
-      end
-
-      return Exploit::CheckCode::Unknown('Unexpected server reply.')
-    end
+    return Exploit::CheckCode::Unknown('Unexpected server reply.') unless v3res&.code == 200
 
     js_code = v3res.get_html_document.css('script').find { |script| script.text.match(/var json = Object.freeze\('(.*?)'\);/) }
     return Exploit::CheckCode::Unknown('Unable to determine the version.') unless js_code
