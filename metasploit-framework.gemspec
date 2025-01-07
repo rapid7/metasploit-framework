@@ -258,11 +258,14 @@ Gem::Specification.new do |spec|
   %w[
     abbrev
     base64
+    benchmark
     bigdecimal
     csv
     drb
+    fiddle
     getoptlong
     mutex_m
+    ostruct
   ].each do |library|
     spec.add_runtime_dependency library
   end
