@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
         res = read_file(datastore['PROJECT_NAME'], '/etc/passwd')
         
         if res.body.include? 'root:x:0:0:root:'
-          return CheckCode::Appears("OneDev instance is vulnerable.")
+          return CheckCode::Vulnerable("OneDev instance is vulnerable.")
         else
           return CheckCode::Safe("OneDev instance is not vulnerable.")
         end
