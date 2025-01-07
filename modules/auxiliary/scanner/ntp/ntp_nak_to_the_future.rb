@@ -7,7 +7,9 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::Udp
-  include Msf::Auxiliary::NTP
+
+  SYMMETRIC_ACTIVE_MODE = Rex::Proto::NTP::Constants::Mode::SYMMETRIC_ACTIVE
+  SYMMETRIC_PASSIVE_MODE = Rex::Proto::NTP::Constants::Mode::SYMMETRIC_PASSIVE
 
   def initialize(info = {})
     super(
@@ -39,26 +41,16 @@ class MetasploitModule < Msf::Auxiliary
           ]
       )
     )
-
-    register_options(
-      [
-        OptInt.new('OFFSET', [true, "Offset from local time, in seconds", 300])
-      ])
   end
 
   def build_crypto_nak(time)
-    probe = Rex::Proto::NTP::NTPSymmetric.new
+    probe = Rex::Proto::NTP::Header::NTPHeader.new
+    probe.version_number = 3
     probe.stratum = 1
     probe.poll = 10
-    probe.mode = 1
+    probe.mode = SYMMETRIC_ACTIVE_MODE
     unless time
-      now = Time.now
-      # compute the timestamp.  NTP stores a timestamp as 64-bit unsigned
-      # integer, the high 32-bits representing the number of seconds since era
-      # epoch and the low 32-bits representing the fraction of a second.  The era
-      # epoch in this case is Jan 1 1900, so we must add the number of seconds
-      # between then and the ruby era epoch, Jan 1 1970, which is 2208988800
-      time = ((now.to_i + 2208988800 + datastore['OFFSET']) << 32) + now.nsec
+      time = Time.now
     end
 
     # TODO: use different values for each?
@@ -67,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
     probe.receive_timestamp = time
     probe.transmit_timestamp = time
     # key-id 0
-    probe.payload = "\x00\x00\x00\x00"
+    probe.key_identifier = 0
     probe
   end
 
@@ -75,16 +67,16 @@ class MetasploitModule < Msf::Auxiliary
     connect_udp
 
     # pick a random 64-bit timestamp
-    canary_timestamp = rand((2**32)..((2**64) - 1))
+    canary_timestamp = Time.now.utc - (60 * 5)
     probe = build_crypto_nak(canary_timestamp)
-    udp_sock.put(probe)
+    udp_sock.put(probe.to_binary_s)
 
-    expected_length = probe.to_binary_s.length - probe.payload.length
+    expected_length = probe.offset_of(probe.key_identifier)
     response = udp_sock.timed_read(expected_length)
     disconnect_udp
     if response.length == expected_length
-      ntp_symmetric = Rex::Proto::NTP::NTPSymmetric.new.read(response)
-      if ntp_symmetric.mode == 2 && ntp_symmetric.origin_timestamp == canary_timestamp
+      ntp_symmetric = Rex::Proto::NTP::Header::NTPHeader.read(response)
+      if ntp_symmetric.mode == SYMMETRIC_PASSIVE_MODE && ntp_symmetric.origin_timestamp == nil
         vprint_good("#{rhost}:#{rport} - NTP - VULNERABLE: Accepted a NTP symmetric active association")
         report_vuln(
           host: rhost,
