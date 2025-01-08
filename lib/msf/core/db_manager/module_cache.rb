@@ -408,12 +408,15 @@ module Msf::DBManager::ModuleCache
       end
     end
 
-    # 3) Insert all of the associations
+    # 3) Insert the child associations
     associations.each do |association_clazz, entries|
       next if entries.empty?
 
       association_clazz.insert_all!(entries)
     end
+
+    # 4) Mark the parent models as ready - to avoid repopulating the cache again
+    Mdm::Module::Detail.where(id: module_detail_ids).update_all(ready: true)
 
     nil
   end
