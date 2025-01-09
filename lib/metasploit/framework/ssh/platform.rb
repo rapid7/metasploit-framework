@@ -94,6 +94,10 @@ module Metasploit
           info
         end
 
+        def self.is_posix(platform)
+          return ['unifi','linux','osx','solaris','bsd','hpux','aix'].include?(platform)
+        end
+
         def self.get_platform_from_info(info)
           case info
           when /unifi\.version|UniFiSecurityGateway/i # Ubiquiti Unifi.  uname -a is left in, so we got to pull before Linux

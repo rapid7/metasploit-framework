@@ -28,9 +28,7 @@ module Msf::Sessions
     #         to cmd.exe, whereas this is expected to be passed directly to the Win32 API, anticipating that it
     #         will in turn be interpreted by CommandLineToArgvW.
     def argv_to_commandline(args)
-      escaped_args = args.map do |arg|
-        escape_arg(arg)
-      end
+       escaped_args = args.map { |arg| escape_arg(arg) }
 
       escaped_args.join(' ')
     end
@@ -38,28 +36,26 @@ module Msf::Sessions
     # Escape an individual argument per Windows shell rules
     # @param arg [String] Shell argument
     def escape_arg(arg)
-        needs_quoting = space_chars.any? do |char|
-          arg.include?(char)
-        end
+      needs_quoting = space_chars.any? { |char| arg.include?(char) }
 
-        # Fix the weird behaviour when backslashes are treated differently when immediately prior to a double-quote
-        # We need to send double the number of backslashes to make it work as expected
-        # See: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-commandlinetoargvw#remarks
-        arg = arg.gsub(/(\\*)"/, '\\1\\1"')
+      # Fix the weird behaviour when backslashes are treated differently when immediately prior to a double-quote
+      # We need to send double the number of backslashes to make it work as expected
+      # See: https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-commandlinetoargvw#remarks
+      arg = arg.gsub(/(\\*)"/, '\\1\\1"')
 
-        # Quotes need to be escaped
-        arg = arg.gsub('"', '\\"')
+      # Quotes need to be escaped
+      arg = arg.gsub('"', '\\"')
 
-        if needs_quoting
-          # At the end of the argument, we're about to add another quote - so any backslashes need to be doubled here too
-          arg = arg.gsub(/(\\*)$/, '\\1\\1')
-          arg = "\"#{arg}\""
-        end
+      if needs_quoting
+        # At the end of the argument, we're about to add another quote - so any backslashes need to be doubled here too
+        arg = arg.gsub(/(\\*)$/, '\\1\\1')
+        arg = "\"#{arg}\""
+      end
 
-        # Empty string needs to be coerced to have a value
-        arg = '""' if arg == ''
+      # Empty string needs to be coerced to have a value
+      arg = '""' if arg == ''
 
-        arg
+      arg
     end
 
     # Convert the executable and argument array to a command that can be run in this command shell

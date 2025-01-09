@@ -240,7 +240,7 @@ module Msf::Sessions
       @platform = Metasploit::Framework::Ssh::Platform.get_platform(ssh_connection)
       if @platform == 'windows'
         extend(Msf::Sessions::WindowsEscaping)
-      else
+      elsif Metasploit::Framework::Ssh::Platform.is_posix(@platform)
         extend(Msf::Sessions::UnixEscaping)
       end
 
