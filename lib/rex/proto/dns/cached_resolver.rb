@@ -62,7 +62,7 @@ module DNS
         resolved = super(resolve, type)
         req.instance_variable_set(:@answer, (req.answer + resolved.answer).uniq)
         resolved.answer.each do |ans|
-          self.cache.cache_record(ans)
+          self.cache.cache_record(ans) rescue nil
         end
       end
       # Finalize answers in response
