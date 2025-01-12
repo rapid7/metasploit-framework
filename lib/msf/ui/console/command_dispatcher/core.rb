@@ -280,7 +280,7 @@ module Msf
               "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
               exp_aux_pos = "#{stats.num_exploits} exploits - #{stats.num_auxiliary} auxiliary - #{stats.num_post} post",
               pay_enc_nop = "#{stats.num_payloads} payloads - #{stats.num_encoders} encoders - #{stats.num_nops} nops",
-              eva_pers = "#{stats.num_evasion} evasion   - #{stats.num_persist} persistence",
+              eva_pers = "#{stats.num_evasion} evasion   - #{stats.num_persistence} persistence",
               padding = 48
 
             banner << ("       =[ %-#{padding + 8}s]\n" % version)
