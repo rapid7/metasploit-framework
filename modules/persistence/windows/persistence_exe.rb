@@ -10,6 +10,8 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Services
   include Msf::Post::Windows::TaskScheduler
+  include Msf::Exploit::Deprecated
+  moved_from 'post/windows/manage/persistence_exe'
 
   def initialize(info = {})
     super(

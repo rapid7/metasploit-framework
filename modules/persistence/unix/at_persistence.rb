@@ -8,6 +8,8 @@ class MetasploitModule < Msf::Exploit::Local
 
   include Msf::Post::File
   include Msf::Exploit::FileDropper
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/unix/local/at_persistence'
 
   def initialize(info = {})
     super(
@@ -57,7 +59,7 @@ class MetasploitModule < Msf::Exploit::Local
       fail_with(Failure::NoAccess, 'User denied cron via at.deny')
     end
 
-    unless (payload_file = (datastore['PATH'] || cmd_exec('mktemp')))
+    unless (payload_file = datastore['PATH'] || cmd_exec('mktemp'))
       fail_with(Failure::BadConfig, 'Unable to find suitable location for payload')
     end
 
