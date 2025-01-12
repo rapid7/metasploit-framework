@@ -3,13 +3,13 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class MetasploitModule < Msf::Exploit::Local
+class MetasploitModule < Msf::Persistence
   Rank = ExcellentRanking
 
   include Msf::Post::File
   include Msf::Post::Unix
   include Msf::Exploit::Deprecated
-  moved_from 'exploits/linux/local/motd_persistence'
+  moved_from 'exploits/linux/local/rc_local_persistence'
 
   def initialize(info = {})
     super(

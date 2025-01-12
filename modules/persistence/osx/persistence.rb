@@ -5,12 +5,14 @@
 
 require 'shellwords'
 
-class MetasploitModule < Msf::Exploit::Local
+class MetasploitModule < Msf::Persistence
   Rank = ExcellentRanking
 
   include Msf::Post::Common
   include Msf::Post::File
   include Msf::Exploit::EXE
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/osx/local/persistence'
 
   def initialize(info = {})
     super(

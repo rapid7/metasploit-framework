@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class MetasploitModule < Msf::Exploit::Local
+class MetasploitModule < Msf::Persistence
   Rank = NormalRanking
   include Msf::Post::Common
   include Msf::Post::File

@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class MetasploitModule < Msf::Exploit::Local
+class MetasploitModule < Msf::Persistence
 
   include Msf::Post::File
   include Msf::Post::Unix

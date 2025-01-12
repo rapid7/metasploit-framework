@@ -56,8 +56,18 @@ module Msf::Module::Type
     (type == Msf::MODULE_POST)
   end
 
+  #
+  # Returns true if this module is an evasion module.
+  #
   def evasion?
     (type == Msf::MODULE_EVASION)
+  end
+
+  #
+  # Returns true if this module is a persistence module.
+  #
+  def persistence?
+    (type == Msf::MODULE_PERSISTENCE)
   end
 
   #

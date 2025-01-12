@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+
 #
 # Gems
 #
@@ -36,18 +37,18 @@ module Msf::ModuleManager::ModuleSets
   end
 
   def init_module_set(type)
-    self.enablement_by_type[type] = true
+    enablement_by_type[type] = true
     case type
-      when Msf::MODULE_PAYLOAD
-        instance = Msf::PayloadSet.new
-      else
-        instance = Msf::ModuleSet.new(type)
+    when Msf::MODULE_PAYLOAD
+      instance = Msf::PayloadSet.new
+    else
+      instance = Msf::ModuleSet.new(type)
     end
 
-    self.module_set_by_type[type] = instance
+    module_set_by_type[type] = instance
 
     # Set the module set's framework reference
-    instance.framework = self.framework
+    instance.framework = framework
   end
 
   #
@@ -92,8 +93,18 @@ module Msf::ModuleManager::ModuleSets
     module_set(Msf::MODULE_POST)
   end
 
+  #
+  # Returns the set of loaded evasion module classes.
+  #
   def evasion
     module_set(Msf::MODULE_EVASION)
+  end
+
+  #
+  # Returns the set of loaded persistence module classes.
+  #
+  def persistence
+    module_set(Msf::MODULE_PERSISTENCE)
   end
 
   def type_enabled?(type)
@@ -102,6 +113,5 @@ module Msf::ModuleManager::ModuleSets
 
   protected
 
-  attr_accessor :enablement_by_type # :nodoc:
-  attr_accessor :module_set_by_type # :nodoc:
+  attr_accessor :enablement_by_type, :module_set_by_type # :nodoc: # :nodoc:
 end

@@ -3,12 +3,14 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class MetasploitModule < Msf::Exploit::Local
+class MetasploitModule < Msf::Persistence
   Rank = ExcellentRanking
 
   include Msf::Post::File
   include Msf::Post::Windows::Priv
   include Exploit::EXE
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/windows/local/s4u_persistence'
 
   def initialize(info = {})
     super(
@@ -214,11 +216,11 @@ class MetasploitModule < Msf::Exploit::Local
 
     when 'schedule'
       # Change interval tag, insert into XML
-      unless datastore['FREQUENCY'].nil? || datastore['FREQUENCY'] == 0
-        minutes = datastore['FREQUENCY']
-      else
+      if datastore['FREQUENCY'].nil? || datastore['FREQUENCY'] == 0
         print_status('Defaulting frequency to every hour')
         minutes = 60
+      else
+        minutes = datastore['FREQUENCY']
       end
       xml = xml.sub(/<Interval>.*?</, "<Interval>PT#{minutes}M<")
 

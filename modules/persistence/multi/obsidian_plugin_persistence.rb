@@ -3,12 +3,14 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class MetasploitModule < Msf::Exploit::Local
+class MetasploitModule < Msf::Persistence
   Rank = ExcellentRanking
 
   include Msf::Post::File
   include Msf::Post::Unix # whoami
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/multi/local/obsidian_plugin_persistence'
 
   def initialize(info = {})
     super(

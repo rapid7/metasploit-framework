@@ -5,11 +5,13 @@
 
 require 'sshkey'
 
-class MetasploitModule < Msf::Post
+class MetasploitModule < Msf::Persistence
   Rank = GoodRanking
 
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
+  include Msf::Exploit::Deprecated
+  moved_from 'post/windows/manage/sshkey_persistence'
 
   def initialize(info = {})
     super(

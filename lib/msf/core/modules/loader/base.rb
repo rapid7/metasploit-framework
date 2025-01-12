@@ -1,4 +1,5 @@
 # -*- coding: binary -*-
+
 #
 # Project
 #
@@ -20,7 +21,8 @@ class Msf::Modules::Loader::Base
     Msf::MODULE_NOP => 'nops',
     Msf::MODULE_PAYLOAD => 'payloads',
     Msf::MODULE_POST => 'post',
-    Msf::MODULE_EVASION => 'evasion'
+    Msf::MODULE_EVASION => 'evasion',
+    Msf::MODULE_PERSISTENCE => 'persistence'
   }
   TYPE_BY_DIRECTORY = DIRECTORY_BY_TYPE.invert
   # This must calculate the first line of the NAMESPACE_MODULE_CONTENT string so that errors are reported correctly
@@ -145,8 +147,8 @@ class Msf::Modules::Loader::Base
       # handle interrupts as pass-throughs unlike other Exceptions so users can bail with Ctrl+C
       rescue ::Interrupt
         raise
-      rescue ::Exception => error
-        load_error(module_path, error)
+      rescue ::Exception => e
+        load_error(module_path, e)
         return false
       end
 
@@ -160,9 +162,9 @@ class Msf::Modules::Loader::Base
         klass = namespace_module.const_get('MetasploitModule', false)
       else
         load_error(module_path, Msf::Modules::Error.new(
-          module_path:           module_path,
+          module_path: module_path,
           module_reference_name: module_reference_name,
-          causal_message:        'invalid module class name (must be MetasploitModule)'
+          causal_message: 'invalid module class name (must be MetasploitModule)'
         ))
         return false
       end
@@ -183,38 +185,37 @@ class Msf::Modules::Loader::Base
       return false unless loaded
     rescue NameError
       load_error(module_path, Msf::Modules::Error.new(
-        module_path:           module_path,
+        module_path: module_path,
         module_reference_name: module_reference_name,
-        causal_message:        'invalid module filename (must be lowercase alphanumeric snake case)'
+        causal_message: 'invalid module filename (must be lowercase alphanumeric snake case)'
       ))
       return false
-    rescue => e
+    rescue StandardError => e
       load_error(module_path, Msf::Modules::Error.new(
-        module_path:           module_path,
+        module_path: module_path,
         module_reference_name: module_reference_name,
-        causal_message:        "unknown error #{e.message}"
+        causal_message: "unknown error #{e.message}"
       ))
       return false
     end
 
-
     # Do some processing on the loaded module to get it into the right associations
     module_manager.on_module_load(
-        klass,
-        type,
-        module_reference_name,
-        {
-            # files[0] is stored in the {Msf::Module#file_path} and is used to reload the module, so it needs to be a
-            # full path
-            'files' => [
-                module_path
-            ],
-            'paths' => [
-                module_reference_name
-            ],
-            'type' => type,
-            'cached_metadata' => options[:cached_metadata]
-        }
+      klass,
+      type,
+      module_reference_name,
+      {
+        # files[0] is stored in the {Msf::Module#file_path} and is used to reload the module, so it needs to be a
+        # full path
+        'files' => [
+          module_path
+        ],
+        'paths' => [
+          module_reference_name
+        ],
+        'type' => type,
+        'cached_metadata' => options[:cached_metadata]
+      }
     )
 
     # Set this module type as needing recalculation
@@ -247,7 +248,7 @@ class Msf::Modules::Loader::Base
   # @option options [Array] whitelist An array of regex patterns to search for specific modules
   # @return [Hash{String => Integer}] Maps module type to number of
   #   modules loaded
-  def load_modules(path, options={})
+  def load_modules(path, options = {})
     options.assert_valid_keys(:force, :recalculate)
 
     force = options[:force]
@@ -256,12 +257,12 @@ class Msf::Modules::Loader::Base
 
     each_module_reference_name(path, options) do |parent_path, type, module_reference_name|
       load_module(
-          parent_path,
-          type,
-          module_reference_name,
-          :recalculate_by_type => recalculate_by_type,
-          :count_by_type => count_by_type,
-          :force => force
+        parent_path,
+        type,
+        module_reference_name,
+        recalculate_by_type: recalculate_by_type,
+        count_by_type: count_by_type,
+        force: force
       )
     end
     if options[:recalculate]
@@ -303,7 +304,7 @@ class Msf::Modules::Loader::Base
 
     dlog("Reloading module #{module_fullname}...", 'core')
 
-    if load_module(parent_path, type, module_reference_name, :force => true, :reload => true)
+    if load_module(parent_path, type, module_reference_name, force: true, reload: true)
       # Create a new instance of the module, using the alias if one was used
       reloaded_module_instance = module_manager.create(module_used_name || module_fullname)
       if !reloaded_module_instance && module_fullname != module_used_name
@@ -360,14 +361,14 @@ class Msf::Modules::Loader::Base
 
     nested_module_names = namespace_module_names.reverse
 
-    namespace_module_content = nested_module_names.inject(NAMESPACE_MODULE_CONTENT) { |wrapped_content, module_name|
+    namespace_module_content = nested_module_names.inject(NAMESPACE_MODULE_CONTENT) do |wrapped_content, module_name|
       lines = []
       lines << "module #{module_name}"
       lines << wrapped_content
-      lines << "end"
+      lines << 'end'
 
       lines.join("\n")
-    }
+    end
 
     # - because the added wrap lines have to act like they were written before NAMESPACE_MODULE_CONTENT
     line_with_wrapping = NAMESPACE_MODULE_LINE - nested_module_names.length
@@ -394,6 +395,7 @@ class Msf::Modules::Loader::Base
       # "inherit" parameter to const_defined?. If we ever drop 1.8
       # support, we can save a few cycles here by adding it back.
       return unless parent.const_defined?(module_name)
+
       parent.const_get(module_name)
     end
 
@@ -474,7 +476,7 @@ class Msf::Modules::Loader::Base
   def module_path?(path)
     path.ends_with?(MODULE_EXTENSION) &&
       File.file?(path) &&
-      !path.starts_with?(".") &&
+      !path.starts_with?('.') &&
       !path.match?(UNIT_TEST_REGEX) &&
       !script_path?(path)
   end
@@ -534,7 +536,7 @@ class Msf::Modules::Loader::Base
     relative_name.split('__').map(&:downcase).join('/')
   end
 
-  def namespace_module_transaction(module_full_name, options={}, &block)
+  def namespace_module_transaction(module_full_name, options = {}, &block)
     options.assert_valid_keys(:reload)
 
     reload = options[:reload] || false
@@ -542,7 +544,7 @@ class Msf::Modules::Loader::Base
 
     previous_namespace_module = current_module(namespace_module_names)
 
-    if previous_namespace_module and not reload
+    if previous_namespace_module and !reload
       elog("Reloading namespace_module #{previous_namespace_module} when :reload => false")
     end
 
@@ -620,11 +622,9 @@ class Msf::Modules::Loader::Base
             parent_module.const_set(relative_name, namespace_module)
           end
         end
-      else
+      elsif namespace_module
         # if there was a previous module, but there isn't a current module, then restore the previous module
-        if namespace_module
-          parent_module.const_set(relative_name, namespace_module)
-        end
+        parent_module.const_set(relative_name, namespace_module)
       end
     end
   end
