@@ -96,8 +96,8 @@ class MetasploitModule < Msf::Persistence
     end
 
     # End of file marker
-    eof = Rex::Text.rand_text_alpha(8)
-    env_suffix = Rex::Text.rand_text_alpha(8)
+    Rex::Text.rand_text_alpha(8)
+    Rex::Text.rand_text_alpha(8)
 
     com_opts = {}
     com_opts[:net_clr] = 4.0 # Min .NET runtime to load into a PS session
@@ -140,7 +140,7 @@ class MetasploitModule < Msf::Persistence
     # Run the harness
     if datastore['START_APP']
       if datastore['SVC_GEN']
-        service_create(datastore['SVC_NAME'], datastore['SVC_DNAME'], com_opts[:target].gsub('\\', '\\\\'), startup = 2, server = nil)
+        service_create(datastore['SVC_NAME'], datastore['SVC_DNAME'], com_opts[:target].gsub('\\', '\\\\'), 2, nil)
         if service_start(datastore['SVC_NAME']).to_i == 0
           vprint_good('Service Started')
         end
@@ -186,7 +186,7 @@ class MetasploitModule < Msf::Persistence
   end
 
   def install_dyn_service(file_path)
-    service_create(datastore['SVC_NAME'], datastore['SVC_DNAME'], file_path.gsub('\\', '\\\\'), startup = 2, server = nil)
+    service_create(datastore['SVC_NAME'], datastore['SVC_DNAME'], file_path.gsub('\\', '\\\\'), 2, nil)
     if service_start(datastore['SVC_NAME']).to_i == 0
       vprint_good("Service Binary #{file_path} Started")
     end

