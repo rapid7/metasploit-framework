@@ -66,7 +66,7 @@ require 'msfenv'
     msftest_db_user: 'msftest',
     db_host: '127.0.0.1',
     db_port: 5433,
-    db_pool: 200,
+    db_pool: 10,
     address: 'localhost',
     port: 5443,
     daemon: true,

@@ -7,13 +7,16 @@
 #   # update password fields for each environment's user
 
 development: &pgsql
+  allow_concurrency: true
   adapter: postgresql
   database: metasploit_framework_development
+  port: 5432
   host: localhost
   username: postgres
   password: postgres
-  pool: 25
+  pool: 10
   timeout: 5
+  reconnect: true
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".

@@ -104,7 +104,7 @@ development: &pgsql
   password: Password123
   host: 127.0.0.1
   port: 5433
-  pool: 200
+  pool: 10
 
 production: &production
   <<: *pgsql

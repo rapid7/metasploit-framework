@@ -5,14 +5,16 @@
 # managing your database, which may be more convenient than rolling your own.
 
 development: &pgsql
+  allow_concurrency: true
   adapter: postgresql
   database: metasploit_framework_development
   username: metasploit_framework_development
   password: __________________________________
   host: localhost
   port: 5432
-  pool: 200
+  pool: 10
   timeout: 5
+  reconnect: true
 
 # You will often want to seperate your databases between dev
 # mode and prod mode. Absent a production db, though, defaulting
