@@ -104,7 +104,12 @@ module Rex
           end
 
           def cmd_getuid
-            username = client.ldapwhoami
+            begin
+              username = client.ldapwhoami
+            rescue Net::LDAP::Error => e
+              print_error(e.message)
+              return
+            end
             username.delete_prefix!('u:')
             print_status("Server username: #{username}")
           end
