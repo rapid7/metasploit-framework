@@ -31,6 +31,8 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  attr_reader :certificate_details
+
   def initialize(info = {})
     super(
       update_info(
@@ -206,7 +208,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def query_ldap_server_certificates(esc_raw_filter, esc_name, notes: [])
-    attributes = ['cn', 'description', 'ntSecurityDescriptor', 'msPKI-Enrollment-Flag', 'msPKI-RA-Signature', 'PkiExtendedKeyUsage']
+    attributes = ['cn', 'name', 'description', 'ntSecurityDescriptor', 'msPKI-Enrollment-Flag', 'msPKI-RA-Signature', 'PkiExtendedKeyUsage']
     base_prefix = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
     esc_entries = query_ldap_server(esc_raw_filter, attributes, base_prefix: base_prefix)
 
@@ -228,15 +230,16 @@ class MetasploitModule < Msf::Auxiliary
       next if allowed_sids.empty?
 
       certificate_symbol = entry[:cn][0].to_sym
-      if @vuln_certificate_details.key?(certificate_symbol)
-        @vuln_certificate_details[certificate_symbol][:vulns] << esc_name
-        @vuln_certificate_details[certificate_symbol][:notes] += notes
+      if @certificate_details.key?(certificate_symbol)
+        @certificate_details[certificate_symbol][:techniques] << esc_name
+        @certificate_details[certificate_symbol][:notes] += notes
       else
-        @vuln_certificate_details[certificate_symbol] = {
-          vulns: [esc_name],
-          dn: entry[:dn][0],
-          certificate_enrollment_sids: convert_sids_to_human_readable_name(allowed_sids),
-          ca_servers_n_enrollment_sids: {},
+        @certificate_details[certificate_symbol] = {
+          name: entry[:name][0].to_s,
+          techniques: [esc_name],
+          dn: entry[:dn][0].to_s,
+          enrollment_sids: convert_sids_to_human_readable_name(allowed_sids),
+          ca_servers: {},
           manager_approval: ([entry[%s(mspki-enrollment-flag)].first.to_i].pack('l').unpack1('L') & Rex::Proto::MsCrtd::CT_FLAG_PEND_ALL_REQUESTS) != 0,
           required_signatures: [entry[%s(mspki-ra-signature)].first.to_i].pack('l').unpack1('L'),
           notes: notes.dup
@@ -248,18 +251,14 @@ class MetasploitModule < Msf::Auxiliary
   def convert_sids_to_human_readable_name(sids_array)
     output = []
     for sid in sids_array
-      raw_filter = "(objectSID=#{ldap_escape_filter(sid.to_s)})"
-      attributes = ['sAMAccountName', 'name']
-      base_prefix = 'CN=Configuration'
-      sid_entry = query_ldap_server(raw_filter, attributes, base_prefix: base_prefix) # First try with prefix to find entries that may be group specific.
-      sid_entry = query_ldap_server(raw_filter, attributes) if sid_entry.empty? # Retry without prefix if blank.
-      if sid_entry.empty?
+      sid_entry = get_object_by_sid(sid)
+      if sid_entry.nil?
         print_warning("Could not find any details on the LDAP server for SID #{sid}!")
         output << [sid, nil, nil] # Still want to print out the SID even if we couldn't get additional information.
-      elsif sid_entry[0][:samaccountname][0]
-        output << [sid, sid_entry[0][:name][0], sid_entry[0][:samaccountname][0]]
+      elsif sid_entry[:samaccountname][0]
+        output << [sid, sid_entry[:name][0], sid_entry[:samaccountname][0]]
       else
-        output << [sid, sid_entry[0][:name][0], nil]
+        output << [sid, sid_entry[:name][0], nil]
       end
     end
 
@@ -323,14 +322,14 @@ class MetasploitModule < Msf::Auxiliary
     notes = [
       'ESC3: Template defines the Certificate Request Agent OID (PkiExtendedKeyUsage)'
     ]
-    query_ldap_server_certificates(esc3_template_1_raw_filter, 'ESC3_TEMPLATE_1', notes: notes)
+    query_ldap_server_certificates(esc3_template_1_raw_filter, 'ESC3', notes: notes)
 
     # Find the second vulnerable types of ESC3 templates, those that
     # have the right template schema version and, for those with a template
     # version of 2 or greater, have an Application Policy Insurance Requirement
     # requiring the Certificate Request Agent EKU.
     #
-    # Additionally the certificate template must also allow for domain authentication
+    # Additionally, the certificate template must also allow for domain authentication
     # and the CA must not have any enrollment agent restrictions.
     esc3_template_2_raw_filter = '(&'\
       '(objectclass=pkicertificatetemplate)'\
@@ -521,11 +520,18 @@ class MetasploitModule < Msf::Auxiliary
 
       note = "ESC13 groups: #{groups.join(', ')}"
       certificate_symbol = entry[:cn][0].to_sym
-      if @vuln_certificate_details.key?(certificate_symbol)
-        @vuln_certificate_details[certificate_symbol][:vulns] << 'ESC13'
-        @vuln_certificate_details[certificate_symbol][:notes] << note
+      if @certificate_details.key?(certificate_symbol)
+        @certificate_details[certificate_symbol][:techniques] << 'ESC13'
+        @certificate_details[certificate_symbol][:notes] << note
       else
-        @vuln_certificate_details[certificate_symbol] = { vulns: ['ESC13'], dn: entry[:dn][0], certificate_enrollment_sids: convert_sids_to_human_readable_name(allowed_sids), ca_servers_n_enrollment_sids: {}, notes: [note] }
+        @certificate_details[certificate_symbol] = {
+          name: certificate_symbol.to_s,
+          techniques: ['ESC13'],
+          dn: entry[:dn][0].to_s,
+          enrollment_sids: convert_sids_to_human_readable_name(allowed_sids),
+          ca_servers: {},
+          notes: [note]
+        }
       end
     end
   end
@@ -550,9 +556,9 @@ class MetasploitModule < Msf::Auxiliary
     # allows users to enroll in that certificate template and which users/groups
     # have permissions to enroll in certificates on each server.
 
-    @vuln_certificate_details.each_key do |certificate_template|
+    @certificate_details.each_key do |certificate_template|
       certificate_enrollment_raw_filter = "(&(objectClass=pKIEnrollmentService)(certificateTemplates=#{ldap_escape_filter(certificate_template.to_s)}))"
-      attributes = ['cn', 'dnsHostname', 'ntsecuritydescriptor']
+      attributes = ['cn', 'name', 'dnsHostname', 'ntsecuritydescriptor']
       base_prefix = 'CN=Enrollment Services,CN=Public Key Services,CN=Services,CN=Configuration'
       enrollment_ca_data = query_ldap_server(certificate_enrollment_raw_filter, attributes, base_prefix: base_prefix)
       next if enrollment_ca_data.empty?
@@ -567,18 +573,43 @@ class MetasploitModule < Msf::Auxiliary
         allowed_sids = parse_acl(security_descriptor.dacl) if security_descriptor.dacl
         next if allowed_sids.empty?
 
+        service = report_service({
+          host: ca_server[:dnshostname][0],
+          port: 445,
+          proto: 'tcp',
+          name: 'AD CS',
+          info: "AD CS CA name: #{ca_server[:name][0]}"
+        })
+
+        report_note({
+          data: ca_server[:dn][0].to_s,
+          service: service,
+          host: ca_server[:dnshostname][0],
+          ntype: 'windows.ad.cs.ca.dn'
+        })
+
+        report_host({
+          host: ca_server[:dnshostname][0],
+          name: ca_server[:dnshostname][0]
+        })
+
         ca_server_key = ca_server[:dnshostname][0].to_sym
-        unless @vuln_certificate_details[certificate_template][:ca_servers_n_enrollment_sids].key?(ca_server_key)
-          @vuln_certificate_details[certificate_template][:ca_servers_n_enrollment_sids][ca_server_key] = { cn: ca_server[:cn][0], ca_enrollment_sids: allowed_sids }
-        end
+        next if @certificate_details[certificate_template][:ca_servers].key?(ca_server_key)
+
+        @certificate_details[certificate_template][:ca_servers][ca_server_key] = {
+          hostname: ca_server[:dnshostname][0].to_s,
+          enrollment_sids: allowed_sids,
+          name: ca_server[:name][0].to_s,
+          dn: ca_server[:dn][0].to_s
+        }
       end
     end
   end
 
   def print_vulnerable_cert_info
-    vuln_certificate_details = @vuln_certificate_details.select do |_key, hash|
+    vuln_certificate_details = @certificate_details.select do |_key, hash|
       select = true
-      select = false unless datastore['REPORT_PRIVENROLLABLE'] || hash[:certificate_enrollment_sids].any? do |sid|
+      select = false unless datastore['REPORT_PRIVENROLLABLE'] || hash[:enrollment_sids].any? do |sid|
         # compare based on RIDs to avoid issues language specific issues
         !(sid.value.starts_with?("#{WellKnownSids::SECURITY_NT_NON_UNIQUE}-") && [
           # RID checks
@@ -593,36 +624,54 @@ class MetasploitModule < Msf::Auxiliary
         ].include?(sid.value)
       end
 
-      select = false unless datastore['REPORT_NONENROLLABLE'] || hash[:ca_servers_n_enrollment_sids].any?
+      select = false unless datastore['REPORT_NONENROLLABLE'] || hash[:ca_servers].any?
       select
     end
 
     any_esc3t1 = vuln_certificate_details.values.any? do |hash|
-      hash[:vulns].include?('ESC3_TEMPLATE_1') && (datastore['REPORT_NONENROLLABLE'] || hash[:ca_servers_n_enrollment_sids].any?)
+      hash[:techniques].include?('ESC3') && (datastore['REPORT_NONENROLLABLE'] || hash[:ca_servers].any?)
     end
 
     vuln_certificate_details.each do |key, hash|
-      vulns = hash[:vulns]
-      vulns.delete('ESC3_TEMPLATE_2') unless any_esc3t1 # don't report ESC3_TEMPLATE_2 if there are no instances of ESC3_TEMPLATE_1
-      next if vulns.empty?
+      techniques = hash[:techniques].dup
+      techniques.delete('ESC3_TEMPLATE_2') unless any_esc3t1 # don't report ESC3_TEMPLATE_2 if there are no instances of ESC3
+      next if techniques.empty?
 
-      vulns.each do |vuln|
-        vuln = 'ESC3' if vuln == 'ESC3_TEMPLATE_1'
+      techniques.each do |vuln|
         next if vuln == 'ESC3_TEMPLATE_2'
 
         prefix = "#{vuln}:"
         info = hash[:notes].select { |note| note.start_with?(prefix) }.map { |note| note.delete_prefix(prefix).strip }.join("\n")
         info = nil if info.blank?
 
-        report_vuln(
-          host: rhost,
-          port: rport,
-          proto: 'tcp',
-          sname: 'AD CS',
-          name: "#{vuln} - #{key}",
-          info: info,
-          refs: REFERENCES[vuln]
-        )
+        hash[:ca_servers].each do |dnshostname, ca_server|
+          service = report_service({
+            host: dnshostname.to_s,
+            port: 445,
+            proto: 'tcp',
+            name: 'AD CS',
+            info: "AD CS CA name: #{ca_server[:name]}"
+          })
+
+          vuln = report_vuln(
+            host: dnshostname.to_s,
+            port: 445,
+            proto: 'tcp',
+            sname: 'AD CS',
+            name: "#{vuln} - #{key}",
+            info: info,
+            refs: REFERENCES[vuln],
+            service: service
+          )
+
+          report_note({
+            data: hash[:dn],
+            service: service,
+            host: dnshostname.to_s,
+            ntype: 'windows.ad.cs.ca.template.dn',
+            vuln_id: vuln.id
+          })
+        end
       end
 
       print_good("Template: #{key}")
@@ -630,7 +679,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status("  Distinguished Name: #{hash[:dn]}")
       print_status("  Manager Approval: #{hash[:manager_approval] ? '%redRequired' : '%grnDisabled'}%clr")
       print_status("  Required Signatures: #{hash[:required_signatures] == 0 ? '%grn0' : '%red' + hash[:required_signatures].to_s}%clr")
-      print_good("  Vulnerable to: #{vulns.join(', ')}")
+      print_good("  Vulnerable to: #{techniques.join(', ')}")
       if hash[:notes].present? && hash[:notes].length == 1
         print_status("  Notes: #{hash[:notes].first}")
       elsif hash[:notes].present? && hash[:notes].length > 1
@@ -648,15 +697,15 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       print_status('  Certificate Template Enrollment SIDs:')
-      hash[:certificate_enrollment_sids].each do |sid|
+      hash[:enrollment_sids].each do |sid|
         print_status("    * #{highlight_sid(sid)}")
       end
 
-      if hash[:ca_servers_n_enrollment_sids].any?
-        hash[:ca_servers_n_enrollment_sids].each do |ca_hostname, ca_hash|
-          print_good("  Issuing CA: #{ca_hash[:cn]} (#{ca_hostname})")
+      if hash[:ca_servers].any?
+        hash[:ca_servers].each do |ca_hostname, ca_hash|
+          print_good("  Issuing CA: #{ca_hash[:name]} (#{ca_hostname})")
           print_status('    Enrollment SIDs:')
-          convert_sids_to_human_readable_name(ca_hash[:ca_enrollment_sids]).each do |sid|
+          convert_sids_to_human_readable_name(ca_hash[:enrollment_sids]).each do |sid|
             print_status("      * #{highlight_sid(sid)}")
           end
         end
@@ -678,7 +727,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_pki_object_by_oid(oid)
-    pki_object = @ldap_mspki_enterprise_oids.find { |o| o['mspki-cert-template-oid'].first == oid }
+    pki_object = @ldap_objects.find { |o| o['mspki-cert-template-oid']&.first == oid }
 
     if pki_object.nil?
       pki_object = query_ldap_server(
@@ -686,13 +735,13 @@ class MetasploitModule < Msf::Auxiliary
         nil,
         base_prefix: 'CN=OID,CN=Public Key Services,CN=Services,CN=Configuration'
       )&.first
-      @ldap_mspki_enterprise_oids << pki_object if pki_object
+      @ldap_objects << pki_object if pki_object
     end
     pki_object
   end
 
   def get_group_by_dn(group_dn)
-    group = @ldap_groups.find { |o| o['dn'].first == group_dn }
+    group = @ldap_objects.find { |o| o['dn']&.first == group_dn }
 
     if group.nil?
       cn, _, base = group_dn.partition(',')
@@ -702,18 +751,29 @@ class MetasploitModule < Msf::Auxiliary
         nil,
         base_prefix: base
       )&.first
-      @ldap_groups << group if group
+      @ldap_objects << group if group
     end
 
     group
   end
 
+  def get_object_by_sid(object_sid)
+    object_sid = Rex::Proto::MsDtyp::MsDtypSid.new(object_sid)
+    object = @ldap_objects.find { |o| o['objectSID'].first == object_sid.to_binary_s }
+
+    if object.nil?
+      object = query_ldap_server("(objectSID=#{ldap_escape_filter(object_sid.to_s)})", nil)&.first
+      @ldap_objects << object if object
+    end
+
+    object
+  end
+
   def run
     # Define our instance variables real quick.
     @base_dn = nil
-    @ldap_mspki_enterprise_oids = []
-    @ldap_groups = []
-    @vuln_certificate_details = {} # Initialize to empty hash since we want to only keep one copy of each certificate template along with its details.
+    @ldap_objects = []
+    @certificate_details = {} # Initialize to empty hash since we want to only keep one copy of each certificate template along with its details.
 
     ldap_connect do |ldap|
       validate_bind_success!(ldap)
@@ -738,6 +798,7 @@ class MetasploitModule < Msf::Auxiliary
 
       find_enrollable_vuln_certificate_templates
       print_vulnerable_cert_info
+      @certificate_details
     end
   rescue Errno::ECONNRESET
     fail_with(Failure::Disconnected, 'The connection was reset.')
