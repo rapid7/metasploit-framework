@@ -153,9 +153,7 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET'
     )
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
-    fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected response from server (response code #{res.code})") unless res.code == 200
-
-    print_good("#{peer}#{target_uri.path}debug/pprof/ found, potential DoS and information disclosure. Should be manually reviewed.") if res.body.include?('Profile Descriptions')
+    print_good("#{peer}#{target_uri.path}debug/pprof/ found, potential DoS and information disclosure. Should be manually reviewed.") if res.code == 200 && res.body.include?('Profile Descriptions')
   rescue ::Rex::ConnectionError
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to the web service")
   end
