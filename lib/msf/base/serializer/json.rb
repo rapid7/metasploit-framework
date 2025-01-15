@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
-# rubocop:disable Metrics/AbcSize
-# rubocop:disable Metrics/ClassLength
-# rubocop:disable Metrics/CyclomaticComplexity
+
 module Msf
   module Serializer
     #
@@ -16,13 +14,15 @@ module Msf
       # @param mod [Msf::Module] the module to dump information for.
       # @param _indent [String] the indentation to use.
       # @return [String] formatted text output of the dump.
-      def self.dump_module(mod, _indent = "")
+      def self.dump_module(mod, _indent = '')
         case mod.type
         when Msf::MODULE_PAYLOAD
           return dump_payload_module(mod)
         when Msf::MODULE_NOP
           return dump_basic_module(mod)
         when Msf::MODULE_ENCODER
+          return dump_basic_module(mod)
+        when Msf::MODULE_PERSISTENCE
           return dump_basic_module(mod)
         when Msf::MODULE_EXPLOIT
           return dump_exploit_module(mod)
@@ -56,8 +56,8 @@ module Msf
         list = []
 
         mod.actions.each do |target|
-          list.push('name' => (target.name || 'All'),
-                    'description' => (target.description || ''))
+          list.push('name' => target.name || 'All',
+                    'description' => target.description || '')
         end
 
         list
@@ -70,8 +70,8 @@ module Msf
       def self.dump_module_action(mod)
         list = []
 
-        list.push('name' => (mod.action.name || 'All'),
-                  'description' => (mod.action.description || ''))
+        list.push('name' => mod.action.name || 'All',
+                  'description' => mod.action.description || '')
 
         list
       end
@@ -96,7 +96,7 @@ module Msf
         # Return a json dump of exploit module data
         {
           'platform' => mod.platform_to_s,
-          'privileged' => (mod.privileged? ? "Yes" : "No"),
+          'privileged' => (mod.privileged? ? 'Yes' : 'No'),
           'license' => mod.license,
           'disclosure_date' => (mod.disclosure_date if mod.disclosure_date),
           'payload' => {
@@ -145,7 +145,7 @@ module Msf
         {
           'platform' => mod.platform_to_s,
           'arch' => mod.arch_to_s,
-          'privileged' => (mod.privileged? ? "true" : "false"),
+          'privileged' => (mod.privileged? ? 'true' : 'false'),
           'size' => mod.size
         }.merge(dump_common_module_info(mod)).to_json
       end

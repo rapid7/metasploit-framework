@@ -150,7 +150,7 @@ module Msf
     #
     # Returns the module set for persistence modules
     #
-    def evasion
+    def persistence
       return modules.persistence
     end
 

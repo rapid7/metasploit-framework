@@ -6,7 +6,8 @@
 
 # require 'msf/core/module'
 
-class Msf::Persistence < Msf::Module
+module Msf
+  class Persistence < Msf::Module
 
     include Msf::Auxiliary::Report
     include Msf::PostMixin # lots of overlap in functionality
@@ -64,7 +65,32 @@ class Msf::Persistence < Msf::Module
       Msf::MODULE_PERSISTENCE
     end
 
+    #
+    # Prepares the module for exploitation, initializes any state, and starts
+    # the payload handler.
+    #
     def setup
+      alert_user
+
+      # Reset the session counts to zero.
+      reset_session_counts
+
+      return if !payload_instance
+      return if !handler_enabled?
+
+      # Configure the payload handler
+      payload_instance.exploit_config = {
+        'active_timeout' => active_timeout
+      }
+
+      # Set up the payload handlers
+      payload_instance.setup_handler
+
+      # Defer starting bind handlers until after exploit completion
+      return if handler_bind?
+
+      # Start the payload handler
+      payload_instance.start_handler
     end
 
     #
@@ -351,6 +377,38 @@ class Msf::Persistence < Msf::Module
         return true if target =~ /Automatic/
       end
       return false
+    end
+
+    ##
+    #
+    # Session tracking
+    #
+    ##
+
+    #
+    # This is called by the payload when a new session is created
+    #
+    def on_new_session(session)
+      self.session_count += 1
+      self.successful = true
+    end
+
+    #
+    # A boolean for whether a session has been created yet
+    #
+    def session_created?
+      # Start bind handlers before checking session creation
+      payload_instance.start_handler if handler_bind?
+
+      (self.session_count > 0) ? true : false
+    end
+
+    #
+    # Reset the session counter to zero (which occurs during set up of the
+    # exploit prior to calling exploit).
+    #
+    def reset_session_counts
+      self.session_count = 0
     end
 
     attr_accessor :default_target, :targets, :payload_info, :payload_instance, :payload
