@@ -121,12 +121,16 @@ module Rex
         end
 
         # Monkeypatch upstream library to support the extended Whoami request. Delete
-        # this after https://github.com/ruby-ldap/ruby-net-ldap/pull/425 is landed.
+        # this after https://github.com/ruby-ldap/ruby-net-ldap/pull/425 is released.
         # This is not the only occurrence of a patch for this functionality.
         def ldapwhoami(args = {})
           instrument "ldapwhoami.net_ldap", args do |payload|
             @result = use_connection(args, &:ldapwhoami)
-            @result.success? ? @result.extended_response : nil
+            if @result.success?
+              @result.extended_response
+            else
+              raise Net::LDAP::Error, "#{peerinfo} LDAP Error: #{@result.error_message}"
+            end
           end
         end
       end
