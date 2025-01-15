@@ -34,7 +34,7 @@ module Msf
           return dump_post_module(mod, indent)
         when Msf::MODULE_EVASION
           return dump_evasion_module(mod, indent)
-        when MODULE_PERSISTENCE
+        when Msf::MODULE_PERSISTENCE
           return dump_persistence_module(mod, indent)
         else
           return dump_generic_module(mod, indent)
