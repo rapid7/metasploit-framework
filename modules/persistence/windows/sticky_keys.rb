@@ -7,6 +7,8 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Priv
+  include Msf::Exploit::Deprecated
+  moved_from 'post/windows/manage/sticky_keys'
 
   DEBUG_REG_PATH = 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options'
   DEBUG_REG_VALUE = 'Debugger'

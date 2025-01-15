@@ -869,6 +869,8 @@ module Msf
               dispatcher = Msf::Ui::Console::CommandDispatcher::Post
             when Msf::MODULE_EVASION
               dispatcher = Msf::Ui::Console::CommandDispatcher::Evasion
+            when Msf::MODULE_PERSISTENCE
+              dispatcher = Msf::Ui::Console::CommandDispatcher::Persistence
             else
               print_error("Unsupported module type: #{mod.type}")
               return false
