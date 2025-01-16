@@ -208,13 +208,13 @@ class MetasploitModule < Msf::Auxiliary
     returned_entries
   end
 
-  def query_ldap_server_certificates(esc_raw_filter, esc_name, notes: [])
+  def query_ldap_server_certificates(esc_raw_filter, esc_id, notes: [])
     attributes = ['cn', 'name', 'description', 'ntSecurityDescriptor', 'msPKI-Enrollment-Flag', 'msPKI-RA-Signature', 'PkiExtendedKeyUsage']
     base_prefix = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
     esc_entries = query_ldap_server(esc_raw_filter, attributes, base_prefix: base_prefix)
 
     if esc_entries.empty?
-      print_warning("Couldn't find any vulnerable #{esc_name} templates!")
+      print_warning("Couldn't find any vulnerable #{esc_id} templates!")
       return
     end
 
@@ -232,19 +232,15 @@ class MetasploitModule < Msf::Auxiliary
 
       certificate_symbol = entry[:cn][0].to_sym
       if @certificate_details.key?(certificate_symbol)
-        @certificate_details[certificate_symbol][:techniques] << esc_name
+        @certificate_details[certificate_symbol][:techniques] << esc_id
         @certificate_details[certificate_symbol][:notes] += notes
       else
-        @certificate_details[certificate_symbol] = {
-          name: entry[:name][0].to_s,
-          techniques: [esc_name],
-          dn: entry[:dn][0].to_s,
-          enrollment_sids: convert_sids_to_human_readable_name(allowed_sids),
-          ca_servers: {},
-          manager_approval: ([entry[%s(mspki-enrollment-flag)].first.to_i].pack('l').unpack1('L') & Rex::Proto::MsCrtd::CT_FLAG_PEND_ALL_REQUESTS) != 0,
-          required_signatures: [entry[%s(mspki-ra-signature)].first.to_i].pack('l').unpack1('L'),
+        @certificate_details[certificate_symbol] = build_certificate_details(
+          entry,
+          allowed_sids,
+          techniques: [esc_id],
           notes: notes.dup
-        }
+        )
       end
     end
   end
@@ -480,7 +476,7 @@ class MetasploitModule < Msf::Auxiliary
         (mspki-certificate-policy=*)
       )
     FILTER
-    attributes = ['cn', 'description', 'ntSecurityDescriptor', 'msPKI-Certificate-Policy']
+    attributes = ['cn', 'description', 'ntSecurityDescriptor', 'msPKI-Certificate-Policy', 'msPKI-Enrollment-Flag', 'msPKI-RA-Signature']
     base_prefix = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
     esc_entries = query_ldap_server(esc_raw_filter, attributes, base_prefix: base_prefix)
 
@@ -525,16 +521,22 @@ class MetasploitModule < Msf::Auxiliary
         @certificate_details[certificate_symbol][:techniques] << 'ESC13'
         @certificate_details[certificate_symbol][:notes] << note
       else
-        @certificate_details[certificate_symbol] = {
-          name: certificate_symbol.to_s,
-          techniques: ['ESC13'],
-          dn: entry[:dn][0].to_s,
-          enrollment_sids: convert_sids_to_human_readable_name(allowed_sids),
-          ca_servers: {},
-          notes: [note]
-        }
+        @certificate_details[certificate_symbol] = build_certificate_details(entry, allowed_sids, techniques: %w[ESC13], notes: [note])
       end
     end
+  end
+
+  def build_certificate_details(ldap_object, allowed_sids, techniques: [], notes: [])
+    {
+      name: ldap_object[:cn][0].to_s,
+      techniques: techniques,
+      dn: ldap_object[:dn][0].to_s,
+      enrollment_sids: convert_sids_to_human_readable_name(allowed_sids),
+      ca_servers: {},
+      manager_approval: ([ldap_object[%s(mspki-enrollment-flag)].first.to_i].pack('l').unpack1('L') & Rex::Proto::MsCrtd::CT_FLAG_PEND_ALL_REQUESTS) != 0,
+      required_signatures: [ldap_object[%s(mspki-ra-signature)].first.to_i].pack('l').unpack1('L'),
+      notes: notes
+    }
   end
 
   def find_esc15_vuln_cert_templates
@@ -697,7 +699,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if hash[:certificate_write_priv_sids]
-        print_status('  Users or Groups SIDs with Certificate Template write access:')
+        print_status(' Certificate Template Write-Enabled SIDs:')
         hash[:certificate_write_priv_sids].each do |sid|
           print_status("    * #{highlight_sid(sid)}")
         end
@@ -744,6 +746,7 @@ class MetasploitModule < Msf::Auxiliary
       )&.first
       @ldap_objects << pki_object if pki_object
     end
+
     pki_object
   end
 
