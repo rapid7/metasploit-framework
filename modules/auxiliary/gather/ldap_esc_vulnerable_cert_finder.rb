@@ -3,6 +3,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::LDAP
   include Msf::OptionalSession::LDAP
+  include Rex::Proto::MsDnsp
   include Rex::Proto::Secauthz
   include Rex::Proto::LDAP
 
@@ -573,31 +574,37 @@ class MetasploitModule < Msf::Auxiliary
         allowed_sids = parse_acl(security_descriptor.dacl) if security_descriptor.dacl
         next if allowed_sids.empty?
 
-        service = report_service({
-          host: ca_server[:dnshostname][0],
-          port: 445,
-          proto: 'tcp',
-          name: 'AD CS',
-          info: "AD CS CA name: #{ca_server[:name][0]}"
-        })
+        ca_server_fqdn = ca_server[:dnshostname][0].to_s.downcase
+        ca_server_ip_address = get_ip_addresses_by_fqdn(ca_server_fqdn)&.first
 
-        report_note({
-          data: ca_server[:dn][0].to_s,
-          service: service,
-          host: ca_server[:dnshostname][0],
-          ntype: 'windows.ad.cs.ca.dn'
-        })
+        if ca_server_ip_address
+          service = report_service({
+            host: ca_server_ip_address,
+            port: 445,
+            proto: 'tcp',
+            name: 'AD CS',
+            info: "AD CS CA name: #{ca_server[:name][0]}"
+          })
 
-        report_host({
-          host: ca_server[:dnshostname][0],
-          name: ca_server[:dnshostname][0]
-        })
+          report_note({
+            data: ca_server[:dn][0].to_s,
+            service: service,
+            host: ca_server_ip_address,
+            ntype: 'windows.ad.cs.ca.dn'
+          })
 
-        ca_server_key = ca_server[:dnshostname][0].to_sym
+          report_host({
+            host: ca_server_ip_address,
+            name: ca_server_fqdn
+          })
+        end
+
+        ca_server_key = ca_server_fqdn.to_sym
         next if @certificate_details[certificate_template][:ca_servers].key?(ca_server_key)
 
         @certificate_details[certificate_template][:ca_servers][ca_server_key] = {
-          hostname: ca_server[:dnshostname][0].to_s,
+          fqdn: ca_server_fqdn,
+          ip_address: ca_server_ip_address,
           enrollment_sids: allowed_sids,
           name: ca_server[:name][0].to_s,
           dn: ca_server[:dn][0].to_s
@@ -644,9 +651,9 @@ class MetasploitModule < Msf::Auxiliary
         info = hash[:notes].select { |note| note.start_with?(prefix) }.map { |note| note.delete_prefix(prefix).strip }.join("\n")
         info = nil if info.blank?
 
-        hash[:ca_servers].each do |dnshostname, ca_server|
+        hash[:ca_servers].each do |ca_fqdn, ca_server|
           service = report_service({
-            host: dnshostname.to_s,
+            host: ca_server[:ip_address],
             port: 445,
             proto: 'tcp',
             name: 'AD CS',
@@ -654,7 +661,7 @@ class MetasploitModule < Msf::Auxiliary
           })
 
           vuln = report_vuln(
-            host: dnshostname.to_s,
+            host: ca_server[:ip_address],
             port: 445,
             proto: 'tcp',
             sname: 'AD CS',
@@ -667,7 +674,7 @@ class MetasploitModule < Msf::Auxiliary
           report_note({
             data: hash[:dn],
             service: service,
-            host: dnshostname.to_s,
+            host: ca_fqdn.to_s,
             ntype: 'windows.ad.cs.ca.template.dn',
             vuln_id: vuln.id
           })
@@ -702,8 +709,8 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if hash[:ca_servers].any?
-        hash[:ca_servers].each do |ca_hostname, ca_hash|
-          print_good("  Issuing CA: #{ca_hash[:name]} (#{ca_hostname})")
+        hash[:ca_servers].each do |ca_fqdn, ca_hash|
+          print_good("  Issuing CA: #{ca_hash[:name]} (#{ca_fqdn})")
           print_status('    Enrollment SIDs:')
           convert_sids_to_human_readable_name(ca_hash[:enrollment_sids]).each do |sid|
             print_status("      * #{highlight_sid(sid)}")
@@ -769,10 +776,48 @@ class MetasploitModule < Msf::Auxiliary
     object
   end
 
+  def get_ip_addresses_by_fqdn(host_fqdn)
+    return @fqdns[host_fqdn] if @fqdns.key?(host_fqdn)
+
+    vprint_status("Looking up DNS records for #{host_fqdn} in LDAP.")
+    hostname, _, domain = host_fqdn.partition('.')
+    results = query_ldap_server(
+      "(&(objectClass=dnsNode)(DC=#{ldap_escape_filter(hostname)}))",
+      %w[dnsRecord],
+      base_prefix: "DC=#{ldap_escape_filter(domain)},CN=MicrosoftDNS,DC=DomainDnsZones"
+    )
+    return nil if results.blank?
+
+    ip_addresses = []
+    results.first[:dnsrecord].each do |packed|
+      begin
+        unpacked = MsDnspDnsRecord.read(packed)
+      rescue ::EOFError
+        next
+      rescue ::IOError
+        next
+      end
+
+      next unless [ DnsRecordType::DNS_TYPE_A, DnsRecordType::DNS_TYPE_AAAA ].include?(unpacked.record_type)
+
+      ip_addresses << unpacked.data.to_s
+    end
+
+    @fqdns[host_fqdn] = ip_addresses
+    if ip_addresses.empty?
+      print_warning("No A or AAAA DNS records were found for #{host_fqdn} in LDAP.")
+    else
+      vprint_status("Found #{ip_addresses.length} IP address#{ip_addresses.length > 1 ? 'es' : ''} via A and AAAA DNS records.")
+    end
+
+    ip_addresses
+  end
+
   def run
     # Define our instance variables real quick.
     @base_dn = nil
     @ldap_objects = []
+    @fqdns = {}
     @certificate_details = {} # Initialize to empty hash since we want to only keep one copy of each certificate template along with its details.
 
     ldap_connect do |ldap|
