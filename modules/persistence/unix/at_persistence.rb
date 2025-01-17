@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Exploit::Local
       fail_with(Failure::NoAccess, 'User denied cron via at.deny')
     end
 
-    unless (payload_file = (datastore['PATH'] || cmd_exec('mktemp')))
+    unless (payload_file = datastore['PATH'] || cmd_exec('mktemp'))
       fail_with(Failure::BadConfig, 'Unable to find suitable location for payload')
     end
 
