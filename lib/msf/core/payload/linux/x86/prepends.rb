@@ -2,6 +2,7 @@
 # Linux x86 prepends
 #
 module Msf::Payload::Linux::X86::Prepends
+  include Msf::Payload::Linux::Prepends
   def prepends_order
     %w[PrependFork PrependSetresuid PrependSetreuid PrependSetuid PrependSetresgid PrependSetregid PrependSetgid PrependChrootBreak]
   end
