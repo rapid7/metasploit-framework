@@ -8,6 +8,8 @@ class MetasploitModule < Msf::Exploit::Local
   include Msf::Post::Common
   include Msf::Post::File
   include Msf::Post::Unix
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/linux/local/bash_profile_persistence'
 
   def initialize(info = {})
     super(

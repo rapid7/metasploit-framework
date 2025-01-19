@@ -7,6 +7,8 @@ class MetasploitModule < Msf::Exploit::Local
 
   include Msf::Post::File
   include Msf::Post::Unix
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/linux/local/motd_persistence'
 
   def initialize(info = {})
     super(

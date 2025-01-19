@@ -10,6 +10,8 @@ class MetasploitModule < Msf::Exploit::Local
   include Msf::Post::File
   include Msf::Exploit::EXE
   include Msf::Post::Windows::Priv
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/windows/local/persistence_image_exec_options'
 
   def initialize(info = {})
     super(

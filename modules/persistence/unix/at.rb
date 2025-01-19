@@ -8,6 +8,8 @@ class MetasploitModule < Msf::Exploit::Local
 
   include Msf::Post::File
   include Msf::Exploit::FileDropper
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/unix/local/at_persistence'
 
   def initialize(info = {})
     super(

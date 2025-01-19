@@ -10,6 +10,8 @@ class MetasploitModule < Msf::Exploit::Local
   include Msf::Post::Common
   include Msf::Post::File
   include Msf::Post::Windows::Priv
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/windows/local/persistence_service'
 
   def initialize(info = {})
     super(

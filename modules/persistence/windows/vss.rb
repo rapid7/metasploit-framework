@@ -11,6 +11,8 @@ class MetasploitModule < Msf::Exploit::Local
   include Msf::Post::Windows::Registry
   include Msf::Exploit::EXE
   include Msf::Post::Windows::TaskScheduler
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/windows/local/vss_persistence'
 
   def initialize(info = {})
     super(

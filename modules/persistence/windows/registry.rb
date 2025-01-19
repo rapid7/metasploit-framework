@@ -9,6 +9,8 @@ class MetasploitModule < Msf::Exploit::Local
   include Msf::Exploit::Powershell
   include Msf::Post::Windows::Registry
   include Msf::Post::File
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/windows/local/registry_persistence'
 
   def initialize(info = {})
     super(

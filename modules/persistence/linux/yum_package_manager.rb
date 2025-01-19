@@ -9,6 +9,8 @@ class MetasploitModule < Msf::Exploit::Local
   include Msf::Exploit::FileDropper
   include Msf::Post::File
   include Msf::Post::Linux::System
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/linux/local/yum_package_manager_persistence'
 
   def initialize(info = {})
     super(

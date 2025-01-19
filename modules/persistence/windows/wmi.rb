@@ -10,6 +10,8 @@ class MetasploitModule < Msf::Exploit::Local
   include Msf::Exploit::Powershell
   include Post::Windows::Priv
   include Msf::Post::File
+  include Msf::Exploit::Deprecated
+  moved_from 'exploits/windows/local/wmi_persistence'
 
   def initialize(info = {})
     super(

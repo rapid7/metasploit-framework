@@ -10,6 +10,8 @@ class MetasploitModule < Msf::Post
 
   include Msf::Post::File
   include Msf::Post::Unix
+  include Msf::Exploit::Deprecated
+  moved_from 'post/linux/manage/sshkey_persistence'
 
   def initialize(info = {})
     super(
