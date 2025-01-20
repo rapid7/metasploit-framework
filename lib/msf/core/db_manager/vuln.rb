@@ -223,6 +223,8 @@ module Msf::DBManager::Vuln
     # Set the exploited_at value if provided
     vuln.exploited_at = exploited_at if exploited_at
 
+    vuln.origin = opts[:origin] if opts[:origin]
+
     # Merge the references
     if rids
       vuln.refs << (rids - vuln.refs)
