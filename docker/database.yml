@@ -1,5 +1,6 @@
-development: &pgsql
-  url: <%= ENV['DATABASE_URL'] %>
-
-production: &production
-  <<: *pgsql
+version: '3'
+services:
+  app:
+    image: my-app
+    environment:
+      - DATABASE_URL=postgres://user:password@hostname:5432/mydb
