@@ -248,6 +248,10 @@ Gem::Specification.new do |spec|
   # to generate PNG files, not to parse untrusted PNG files.
   spec.add_runtime_dependency 'chunky_png'
 
+  # Temporary, remove once the Rails 7.1 update is complete
+  # see: https://stackoverflow.com/questions/79360526/uninitialized-constant-activesupportloggerthreadsafelevellogger-nameerror
+  spec.add_runtime_dependency 'concurrent-ruby', '1.3.4'
+
   # Needed for multiline REPL support for interactive SQL sessions
   spec.add_runtime_dependency 'reline'
 
