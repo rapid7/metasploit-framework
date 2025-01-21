@@ -56,6 +56,36 @@ RSpec.describe Mdm::Workspace, type: :model do
             expect(workspace.errors[:boundary]).to include(error)
           end
         end
+
+        context 'with invalid IP or range format' do
+          let(:boundary) do
+            '192.168.0.1-192.168.0.2'
+          end
+
+          let(:start_ip) do
+            '192.168.0.1'
+          end
+
+          let(:last_octet_end) do
+            '2'
+          end
+
+          it 'should record error that boundary must be a valid IP range and in the correct format' do
+            expect(workspace).not_to be_valid
+            expect(workspace.errors[:boundary]).to include("'#{boundary}' should be in the format '#{start_ip}-#{last_octet_end}'")
+          end
+        end
+
+        context 'with IPs from different subnets' do
+          let(:boundary) do
+            '192.168.0.1-192.169.0.2'
+          end
+
+          it 'should record error that boundary must be a valid IP range and in the same subnet' do
+            expect(workspace).not_to be_valid
+            expect(workspace.errors[:boundary]).to include("'#{boundary}' start and end IPs must be in the same subnet")
+          end
+        end
       end
 
       context 'when the workspace is not network limited' do
