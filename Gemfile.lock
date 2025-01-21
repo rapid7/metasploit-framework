@@ -20,6 +20,7 @@ PATH
       bootsnap
       bson
       chunky_png
+      concurrent-ruby (= 1.3.4)
       csv
       dnsruby
       drb
