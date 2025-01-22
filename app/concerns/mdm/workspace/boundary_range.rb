@@ -55,7 +55,7 @@ module Mdm::Workspace::BoundaryRange
             errors.add(:boundary, "must be a valid IP range")
           end
 
-          if range.include?('-') && range.match?(/\A(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s*-\s*(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\z/)
+          if range.match?(/\A(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s*-\s*(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\z/)
             start_ip, end_ip = range.split('-').map(&:strip)
             if start_ip.split('.')[0..2] == end_ip.split('.')[0..2]
               last_octet_end = end_ip.split('.').last
