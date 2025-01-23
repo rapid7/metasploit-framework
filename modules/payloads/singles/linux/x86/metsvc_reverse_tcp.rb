@@ -8,7 +8,7 @@ module MetasploitModule
 
   CachedSize = 0
 
-  include Msf::Payload::Linux
+  include Msf::Payload::Linux::X86::Prepends
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions
 
