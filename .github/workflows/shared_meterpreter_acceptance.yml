@@ -30,11 +30,11 @@ on:
         type: boolean
 
 jobs:
-  # Compile Java Meterpreter via docker if required, we can't always do this on the
+  # Compile the Meterpreter payloads via docker if required, we can't always do this on the
   # host environment (i.e. for macos). So it instead gets compiled first on a linux
   # host, then the artifacts are copied back to the host later
-  java_meterpreter_compilation:
-    name: Compile Java Meterpreter
+  meterpreter_compilation:
+    name: Compile Meterpreter
     runs-on: ubuntu-latest
     if: ${{ inputs.build_metasploit_payloads }}
 
@@ -46,21 +46,22 @@ jobs:
           path: metasploit-payloads
           ref: ${{ inputs.metasploit_payloads_commit }}
 
-      - name: Build Java and Android payloads
+      - name: Build Meterpreter payloads
         run: |
-          mkdir $(pwd)/java-artifacts
-          docker run --rm -w "$(pwd)" -v "$(pwd):$(pwd)" rapid7/msf-ubuntu-x64-meterpreter:latest /bin/bash -c "set -x && cd metasploit-payloads/java && mvn package -Dandroid.sdk.path=/usr/local/android-sdk -Dandroid.release=true -Ddeploy.path=../../java-artifacts -Dmaven.test.skip=true -P deploy && mvn -Dmaven.test.skip=true -Ddeploy.path=../../java-artifacts -P deploy package"
+          mkdir $(pwd)/meterpreter-artifacts
+          docker run --rm -w $(pwd) -v $(pwd):$(pwd) rapid7/msf-ubuntu-x64-meterpreter:latest /bin/bash -c "cd metasploit-payloads/gem && rake create_dir && rake win_copy && rake php_prep && rake java_prep && rake python_prep && rake create_manifest && rake build"
+          cp $(pwd)/metasploit-payloads/gem/pkg/metasploit-payloads-* $(pwd)/meterpreter-artifacts
 
-      - name: Store Java artifacts
+      - name: Store Meterpreter artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: java-artifacts
-          path: java-artifacts
+          name: meterpreter-artifacts
+          path: meterpreter-artifacts
 
   # Run all test individually, note there is a separate final job for aggregating the test results
   test:
-    needs: java_meterpreter_compilation
-    if: always() && (needs.java_meterpreter_compilation.result == 'success' || needs.java_meterpreter_compilation.result == 'skipped')
+    needs: meterpreter_compilation
+    if: always() && (needs.meterpreter_compilation.result == 'success' || needs.meterpreter_compilation.result == 'skipped')
 
     strategy:
       fail-fast: false
@@ -208,28 +209,28 @@ jobs:
         working-directory: metasploit-framework
 
       - uses: actions/download-artifact@v4
-        name: Download Java meterpreter
-        id: download_java_meterpreter
-        if: ${{ matrix.meterpreter.name == 'java' && inputs.build_metasploit_payloads }}
+        name: Download Meterpreter
+        id: download_meterpreter
+        if: ${{ matrix.meterpreter.name != 'mettle' && inputs.build_metasploit_payloads }}
         with:
           # Note: Not specifying a name will download all artifacts from the previous workflow jobs
           path: raw-data
 
-      - name: Extract Java Meterpreter (Unix)
-        if: ${{ matrix.meterpreter.name == 'java' && runner.os != 'Windows' && inputs.build_metasploit_payloads }}
+      - name: Extract Meterpreter (Unix)
+        if: ${{ matrix.meterpreter.name != 'mettle' && runner.os != 'Windows' && inputs.build_metasploit_payloads }}
         shell: bash
         run: |
           set -x
-          download_path=${{steps.download_java_meterpreter.outputs.download-path}}
-          cp -r  $download_path/java-artifacts/data/* ./metasploit-framework/data
+          download_path=${{steps.download_meterpreter.outputs.download-path}}
+          cp -r  $download_path/meterpreter-artifacts/* ./metasploit-framework
 
-      - name: Extract Java Meterpreter (Windows)
-        if: ${{ matrix.meterpreter.name == 'java' && runner.os == 'Windows' && inputs.build_metasploit_payloads }}
+      - name: Extract Meterpreter (Windows)
+        if: ${{ matrix.meterpreter.name != 'mettle' && runner.os == 'Windows' && inputs.build_metasploit_payloads }}
         shell: bash
         run: |
           set -x
-          download_path=$(cygpath -u '${{steps.download_java_meterpreter.outputs.download-path}}')
-          cp -r  $download_path/java-artifacts/data/* ./metasploit-framework/data
+          download_path=$(cygpath -u '${{steps.download_meterpreter.outputs.download-path}}')
+          cp -r  $download_path/meterpreter-artifacts/* ./metasploit-framework
 
       - name: Install mettle gem
         if: ${{ matrix.meterpreter.name == 'mettle' && inputs.build_mettle }}
@@ -250,32 +251,6 @@ jobs:
           path: metasploit-payloads
           ref: ${{ inputs.metasploit_payloads_commit }}
 
-      - name: Get metasploit-payloads version
-        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
-        shell: bash
-        run: echo "METASPLOIT_PAYLOADS_VERSION=$(ruby -ne "puts Regexp.last_match(1) if /VERSION\s+=\s+'([^']+)'/" gem/lib/metasploit-payloads/version.rb)" | tee -a $GITHUB_ENV
-        working-directory: metasploit-payloads
-
-      - name: Build metasploit-payloads gem
-        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
-        run: gem build ./gem/metasploit-payloads.gemspec
-        working-directory: metasploit-payloads
-
-      - name: Copy metasploit-payloads gem into metasploit-framework
-        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
-        shell: bash
-        run: cp ../metasploit-payloads/metasploit-payloads-${{ env.METASPLOIT_PAYLOADS_VERSION }}.gem .
-        working-directory: metasploit-framework
-
-      - name: Install metasploit-payloads gem
-        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
-        run: |
-          bundle exec gem install metasploit-payloads-${{ env.METASPLOIT_PAYLOADS_VERSION }}.gem
-          bundle config unset deployment
-          bundle update metasploit-payloads
-          bundle install
-        working-directory: metasploit-framework
-
       - name: Build Windows payloads via Visual Studio 2019 Build (Windows)
         shell: cmd
         if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2019' && inputs.build_metasploit_payloads }}
@@ -294,11 +269,38 @@ jobs:
           make.bat
         working-directory: metasploit-payloads
 
-      - name: Build PHP, Python and Windows payloads
-        if: ${{ (matrix.meterpreter.name == 'php' || matrix.meterpreter.name == 'python' || runner.os == 'Windows') && inputs.build_metasploit_payloads }}
-        run: |
-          make install-php install-python install-windows
+      - name: Get metasploit-payloads version
+        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
+        shell: bash
+        run: echo "METASPLOIT_PAYLOADS_VERSION=$(ruby -ne "puts Regexp.last_match(1) if /VERSION\s+=\s+'([^']+)'/" gem/lib/metasploit-payloads/version.rb)" | tee -a $GITHUB_ENV
         working-directory: metasploit-payloads
+
+      - name: Install metasploit-payloads gem
+        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
+        run: |
+          bundle exec gem install metasploit-payloads-${{ env.METASPLOIT_PAYLOADS_VERSION }}.gem
+        working-directory: metasploit-framework
+
+      - name: Remove metasploit-payloads version from metasploit-framework.gemspec
+        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' && runner.os != 'Windows' }}
+        run: |
+          ruby -pi -e "gsub(/metasploit-payloads', '\d+.\d+.\d+/, 'metasploit-payloads')" metasploit-framework.gemspec
+        working-directory: metasploit-framework
+
+      - name: Remove metasploit-payloads version from metasploit-framework.gemspec (Windows)
+        if: ${{ inputs.build_metasploit_payloads && (runner.os == 'Windows' && matrix.meterpreter.name != 'windows_meterpreter') && matrix.meterpreter.name != 'mettle' }}
+        shell: cmd
+        run: |
+          ruby -pi.bak -e "gsub(/metasploit-payloads', '\d+.\d+.\d+/, 'metasploit-payloads')" metasploit-framework.gemspec
+        working-directory: metasploit-framework
+
+      - name: Bundle update/install metasploit-payloads gem
+        if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
+        run: |
+          bundle config unset deployment
+          bundle update metasploit-payloads
+          bundle install
+        working-directory: metasploit-framework
 
       - name: Acceptance
         env:
