@@ -688,7 +688,6 @@ class MetasploitModule < Msf::Auxiliary
       )&.first
       @ldap_mspki_enterprise_oids << pki_object if pki_object
     end
-    o
     pki_object
   end
 
