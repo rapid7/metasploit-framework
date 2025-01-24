@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.4.43)
+    metasploit-framework (6.4.47)
       aarch64
       abbrev
       actionpack (~> 7.0.0)
@@ -15,10 +15,12 @@ PATH
       base64
       bcrypt
       bcrypt_pbkdf
+      benchmark
       bigdecimal
       bootsnap
       bson
       chunky_png
+      concurrent-ruby (= 1.3.4)
       csv
       dnsruby
       drb
@@ -31,6 +33,7 @@ PATH
       faraday-retry
       faye-websocket
       ffi (< 1.17.0)
+      fiddle
       filesize
       getoptlong
       hrr_rb_ssh-ed25519
@@ -60,6 +63,7 @@ PATH
       octokit (~> 4.0)
       openssl-ccm
       openvas-omp
+      ostruct
       packetfu
       patch_finder
       pcaprub
@@ -186,6 +190,7 @@ GEM
     base64 (0.2.0)
     bcrypt (3.1.20)
     bcrypt_pbkdf (1.1.1)
+    benchmark (0.4.0)
     bigdecimal (3.1.8)
     bindata (2.4.15)
     bootsnap (1.18.4)
@@ -200,7 +205,7 @@ GEM
     crass (1.0.6)
     csv (3.3.0)
     daemons (1.4.1)
-    date (3.3.4)
+    date (3.4.1)
     debug (1.8.0)
       irb (>= 1.5.0)
       reline (>= 0.3.1)
@@ -242,6 +247,7 @@ GEM
       eventmachine (>= 0.12.0)
       websocket-driver (>= 0.5.1)
     ffi (1.16.3)
+    fiddle (1.1.6)
     filesize (0.2.0)
     fivemat (1.3.7)
     getoptlong (0.2.1)
@@ -351,6 +357,7 @@ GEM
     openssl-ccm (1.2.3)
     openssl-cmac (2.0.2)
     openvas-omp (0.0.4)
+    ostruct (0.6.1)
     packetfu (2.0.0)
       pcaprub (~> 0.13.1)
     parallel (1.26.3)
@@ -446,7 +453,8 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.57)
+    rex-socket (0.1.58)
+      dnsruby
       rex-core
     rex-sslscan (0.1.10)
       rex-core

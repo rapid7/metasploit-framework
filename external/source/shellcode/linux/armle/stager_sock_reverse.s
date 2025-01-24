@@ -75,10 +75,10 @@ _start:
 @ ssize_t recv(int sockfd, void *buf, size_t len, int flags);
 	add r7,#99         @ __NR_recv
 	mov r1,r0          @ *buf
-	mov r0,r12         @ sockfd
 	mov r3,#0          @ flags
 @ remove blocksize from total length
 loop:
+	mov r0,r12         @ sockfd
 	ldr r2,[sp,#0]
 	sub r2,#1000
 	str r2,[sp,#0]

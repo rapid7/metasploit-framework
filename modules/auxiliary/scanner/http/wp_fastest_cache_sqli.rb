@@ -48,6 +48,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(_ip)
+    # next line included for automatic inclusion into vulnerable plugins list
+    # check_plugin_version_from_readme('wp-fastest-cache', '1.2.3')
     print_status("Performing SQL injection via the 'wordpress_logged_in' cookie...")
 
     random_number = Rex::Text.rand_text_numeric(4..8)

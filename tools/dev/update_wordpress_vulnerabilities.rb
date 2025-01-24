@@ -85,18 +85,23 @@ Dir.glob(path + '/modules/**/*.rb').each do |file|
     themes.append(match[1])
     info("#{file} contains theme '#{match[1]}'")
   end
+  match = str.match(/check_theme_version_from_style\(['"]([^'"]+)['"]/)
+  unless match.nil?
+    themes.append(match[1])
+    info("#{file} contains theme '#{match[1]}'")
+  end
 end
 
 info('Updating wp-exploitable-themes.txt')
 wp_list = path + '/data/wordlists/wp-exploitable-themes.txt'
 
 File.open(wp_list, 'w+') do |f|
-  f.puts(themes)
+  f.puts(themes.sort)
 end
 
 info('Updating wp-exploitable-plugins.txt')
 wp_list = path + '/data/wordlists/wp-exploitable-plugins.txt'
 
 File.open(wp_list, 'w+') do |f|
-  f.puts(plugins)
+  f.puts(plugins.sort)
 end

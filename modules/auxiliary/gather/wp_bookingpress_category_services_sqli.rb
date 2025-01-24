@@ -116,6 +116,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    # next line included for automatic inclusion into vulnerable plugins list
+    # check_plugin_version_from_readme('bookingpress', '1.0.12')
     @nonce ||= get_user_nonce
     fail_with(Failure::UnexpectedReply, NONCE_NOT_FOUND_ERROR_MSG) if @nonce == NONCE_NOT_FOUND_ERROR_MSG
     @sqli ||= get_sqli_object
