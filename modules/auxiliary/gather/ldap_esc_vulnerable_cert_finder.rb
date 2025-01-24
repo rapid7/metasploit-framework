@@ -50,9 +50,9 @@ class MetasploitModule < Msf::Auxiliary
           allows enrollment in and which SIDs are authorized to use that certificate server to
           perform this enrollment operation.
 
-          Currently the module is capable of checking for certificates that are vulnerable to ESC1, ESC2, ESC3, ESC13,
-          and ESC15. The module is limited to checking for these techniques due to them being identifiable remotely from
-          a normal user account by analyzing the objects in LDAP.
+          Currently the module is capable of checking for certificates that are vulnerable to ESC1, ESC2, ESC3, ESC4,
+          ESC13, and ESC15. The module is limited to checking for these techniques due to them being identifiable
+          remotely from a normal user account by analyzing the objects in LDAP.
         },
         'Author' => [
           'Grant Willcox', # Original module author
@@ -247,7 +247,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def convert_sids_to_human_readable_name(sids_array)
     output = []
-    for sid in sids_array
+    sids_array.each do |sid|
       sid_entry = get_object_by_sid(sid)
       if sid_entry.nil?
         print_warning("Could not find any details on the LDAP server for SID #{sid}!")
@@ -392,8 +392,9 @@ class MetasploitModule < Msf::Auxiliary
     # https://learn.microsoft.com/en-us/windows/win32/adsi/search-filter-syntax?redirectedfrom=MSDN
     filter_with_user = "(|(member:1.2.840.113556.1.4.1941:=#{our_account[:dn].first})"
     user_groups.each do |sid|
-      obj = query_ldap_server("(objectSid=#{sid})", ['dn'])&.first
+      obj = get_object_by_sid(sid)
       print_error('Failed to lookup SID.') unless obj
+
       filter_with_user << "(member:1.2.840.113556.1.4.1941:=#{obj[:dn].first})" if obj
     end
     filter_with_user << ')'
@@ -442,28 +443,28 @@ class MetasploitModule < Msf::Auxiliary
 
       # SIDs that can edit the template that the user we've authenticated with are also a part of
       user_write_priv_sids = []
-      note = []
+      notes = []
 
       # Main reason for splitting user_can_edit and group_can_edit is so "note" can be more descriptive
       if user_can_edit
         user_write_priv_sids << user_can_edit
-        note << "ESC4: The account: #{sam_account_name} has edit permissions over the template #{certificate_symbol} making it vulnerable to ESC4"
+        notes << "ESC4: The account: #{sam_account_name} has edit permissions over the template #{certificate_symbol} making it vulnerable to ESC4"
       end
 
       if group_can_edit.any?
         user_write_priv_sids.concat(group_can_edit.map(&:to_s))
-        note << "ESC4: The account: #{sam_account_name} is a part of the following groups: (#{convert_sids_to_human_readable_name(group_can_edit).map(&:name).join(', ')}) which have edit permissions over the template #{certificate_symbol} making it vulnerable to ESC4"
+        notes << "ESC4: The account: #{sam_account_name} is a part of the following groups: (#{convert_sids_to_human_readable_name(group_can_edit).map(&:name).join(', ')}) which have edit permissions over the template object"
       end
 
       next unless user_write_priv_sids.any?
 
-      if @vuln_certificate_details.key?(certificate_symbol)
-        @vuln_certificate_details[certificate_symbol][:vulns] << 'ESC4'
-        @vuln_certificate_details[certificate_symbol][:notes].concat(note)
-        @vuln_certificate_details[certificate_symbol][:certificate_write_priv_sids] ||= convert_sids_to_human_readable_name(user_write_priv_sids)
+      if @certificate_details.key?(certificate_symbol)
+        @certificate_details[certificate_symbol][:techniques] << 'ESC4'
+        @certificate_details[certificate_symbol][:notes].concat(notes)
       else
-        @vuln_certificate_details[certificate_symbol] = { vulns: ['ESC4'], dn: entry[:dn][0], certificate_enrollment_sids: convert_sids_to_human_readable_name(allowed_sids), ca_servers_n_enrollment_sids: {}, certificate_write_priv_sids: convert_sids_to_human_readable_name(user_write_priv_sids), notes: note }
+        @certificate_details[certificate_symbol] = build_certificate_details(entry, allowed_sids, techniques: %w[ESC4], notes: notes)
       end
+      @certificate_details[certificate_symbol][:write_enabled_sids] ||= convert_sids_to_human_readable_name(user_write_priv_sids)
     end
   end
 
@@ -616,7 +617,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def print_vulnerable_cert_info
-    vuln_certificate_details = @certificate_details.select do |_key, hash|
+    vuln_certificate_details = @certificate_details.sort.to_h.select do |_key, hash|
       select = true
       select = false unless datastore['REPORT_PRIVENROLLABLE'] || hash[:enrollment_sids].any? do |sid|
         # compare based on RIDs to avoid issues language specific issues
@@ -698,9 +699,9 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
-      if hash[:certificate_write_priv_sids]
+      if hash[:write_enabled_sids]
         print_status(' Certificate Template Write-Enabled SIDs:')
-        hash[:certificate_write_priv_sids].each do |sid|
+        hash[:write_enabled_sids].each do |sid|
           print_status("    * #{highlight_sid(sid)}")
         end
       end
