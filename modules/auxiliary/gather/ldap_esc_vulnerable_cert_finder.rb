@@ -4,6 +4,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::LDAP
   include Msf::OptionalSession::LDAP
   include Rex::Proto::Secauthz
+  include Rex::Proto::LDAP
 
   ADS_GROUP_TYPE_BUILTIN_LOCAL_GROUP = 0x00000001
   ADS_GROUP_TYPE_GLOBAL_GROUP = 0x00000002
@@ -15,6 +16,7 @@ class MetasploitModule < Msf::Auxiliary
     'ESC1' => [ 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
     'ESC2' => [ 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
     'ESC3' => [ 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
+    'ESC4' => [ 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
     'ESC13' => [ 'https://posts.specterops.io/adcs-esc13-abuse-technique-fda4272fbd53' ],
     'ESC15' => [ 'https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc' ]
   }.freeze
@@ -51,7 +53,8 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Author' => [
           'Grant Willcox', # Original module author
-          'Spencer McIntyre' # ESC13 and ESC15 updates
+          'Spencer McIntyre', # ESC13 and ESC15 updates
+          'jheysel-r7' # ESC4 update
         ],
         'References' => [
           [ 'URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
@@ -91,6 +94,42 @@ class MetasploitModule < Msf::Auxiliary
   DACL_SECURITY_INFORMATION = 0x4
   SACL_SECURITY_INFORMATION = 0x8
 
+  # This will return a list of SIDs that can edit the template from which the ACL is derived
+  # The method checks the WriteOwner, WriteDacl and GenericWrite bits of the access_mask to see if the user or group has write permissions over the Certificate
+  def parse_acl_for_esc4(acl)
+    allowed_sids = []
+
+    acl.aces.each do |ace|
+      ace_header = ace[:header]
+      ace_body = ace[:body]
+
+      if ace_body[:access_mask].blank?
+        fail_with(Failure::UnexpectedReply, 'Encountered a DACL/SACL object without an access mask! Either data is an unrecognized type or we are reading it wrong!')
+      end
+      ace_type_name = Rex::Proto::MsDtyp::MsDtypAceType.name(ace_header[:ace_type])
+
+      if ace_type_name.blank?
+        print_error("Skipping unexpected ACE of type #{ace_header[:ace_type]}. Either the data was read incorrectly or we currently don't support this type.")
+        next
+      end
+
+      if ace_header[:ace_flags][:inherit_only_ace] == 1
+        print_warning('      ACE only affects those that inherit from it, not those that it is attached to. Ignoring this ACE, as its not relevant.')
+        next
+      end
+
+      # Look at WriteOwner, WriteDacl and GenericWrite to see if the user has write permissions over the Certificate
+      if !(ace_body[:access_mask][:wo] == 1 || ace_body[:access_mask][:wd] == 1 || ace_body[:access_mask][:gw] == 1)
+
+        next
+      end
+
+      allowed_sids << ace_body[:sid].to_s
+    end
+    allowed_sids
+  end
+
+  # This returns a list of SIDs that have the CERTIFICATE_ENROLLMENT_EXTENDED_RIGHT or CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT for the given ACL
   def parse_acl(acl)
     allowed_sids = []
     acl.aces.each do |ace|
@@ -187,7 +226,6 @@ class MetasploitModule < Msf::Auxiliary
 
       allowed_sids = parse_acl(security_descriptor.dacl) if security_descriptor.dacl
       next if allowed_sids.empty?
-      next if allowed_sids.empty?
 
       certificate_symbol = entry[:cn][0].to_sym
       if @vuln_certificate_details.key?(certificate_symbol)
@@ -201,7 +239,7 @@ class MetasploitModule < Msf::Auxiliary
           ca_servers_n_enrollment_sids: {},
           manager_approval: ([entry[%s(mspki-enrollment-flag)].first.to_i].pack('l').unpack1('L') & Rex::Proto::MsCrtd::CT_FLAG_PEND_ALL_REQUESTS) != 0,
           required_signatures: [entry[%s(mspki-ra-signature)].first.to_i].pack('l').unpack1('L'),
-          notes: notes
+          notes: notes.dup
         }
       end
     end
@@ -313,6 +351,124 @@ class MetasploitModule < Msf::Auxiliary
       ')'\
     ')'
     query_ldap_server_certificates(esc3_template_2_raw_filter, 'ESC3_TEMPLATE_2')
+  end
+
+  def find_esc4_vuln_cert_templates
+    # Determine who we are authenticating with. Retrieve the username and user SID
+    whoami_response = ''
+    begin
+      whoami_response = @ldap.ldapwhoami
+    rescue Net::LDAP::Error => e
+      print_warning("The module failed to run the ldapwhoami command, ESC4 detection can't continue. Error was: #{e.class}: #{e.message}.")
+      return
+    end
+
+    if whoami_response.empty?
+      print_error("Unable to retrieve the username using ldapwhoami, ESC4 detection can't continue")
+      return
+    end
+
+    sam_account_name = whoami_response.split('\\')[1]
+    user_raw_filter = "(sAMAccountName=#{sam_account_name})"
+    attributes = ['DN', 'objectSID', 'objectClass', 'primarygroupID']
+    our_account = query_ldap_server(user_raw_filter, attributes)&.first
+    if our_account.nil?
+      print_warning("Unable to determine the User SID for #{sam_account_name}, ESC4 detection can't continue")
+      return
+    end
+
+    user_sid = Rex::Proto::MsDtyp::MsDtypSid.read(our_account[:objectsid].first).value
+    domain_sid = user_sid.rpartition('-').first
+    user_groups = []
+
+    if our_account[:primarygroupID]
+      user_groups << "#{domain_sid}-#{our_account[:primarygroupID]&.first}"
+    end
+
+    # Authenticated Users includes all users and computers with identities that have been authenticated.
+    # Authenticated Users doesn't include Guest even if the Guest account has a password.
+    unless sam_account_name == 'Guest'
+      user_groups << Rex::Proto::Secauthz::WellKnownSids::SECURITY_AUTHENTICATED_USER_SID
+    end
+
+    # Perform an LDAP query to get the groups the user is a part of
+    # Use LDAP_MATCHING_RULE_IN_CHAIN OID in order to walk the chain of ancestry of groups.
+    # https://learn.microsoft.com/en-us/windows/win32/adsi/search-filter-syntax?redirectedfrom=MSDN
+    filter_with_user = "(|(member:1.2.840.113556.1.4.1941:=#{our_account[:dn].first})"
+    user_groups.each do |sid|
+      obj = query_ldap_server("(objectSid=#{sid})", ['dn'])&.first
+      print_error('Failed to lookup SID.') unless obj
+      filter_with_user << "(member:1.2.840.113556.1.4.1941:=#{obj[:dn].first})" if obj
+    end
+    filter_with_user << ')'
+
+    attributes = ['cn', 'objectSID']
+    esc_entries = query_ldap_server(filter_with_user, attributes)
+
+    esc_entries.each do |entry|
+      group_sid = Rex::Proto::MsDtyp::MsDtypSid.read(entry['ObjectSid'].first).value
+      user_groups << group_sid
+    end
+
+    # Determine what Certificate Templates are available to us
+    esc_raw_filter = '(objectclass=pkicertificatetemplate)'
+
+    attributes = ['cn', 'description', 'ntSecurityDescriptor']
+    base_prefix = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
+    esc_entries = query_ldap_server(esc_raw_filter, attributes, base_prefix: base_prefix)
+
+    return if esc_entries.empty?
+
+    # Determine if the user we've authenticated with has the ability to edit
+    esc_entries.each do |entry|
+      certificate_symbol = entry[:cn][0].to_sym
+
+      begin
+        security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(entry[:ntsecuritydescriptor][0])
+      rescue IOError => e
+        print_warning("Unable to read security descriptor for #{certificate_symbol}, skipping. Error was: #{e.message}")
+        next
+      end
+
+      # SIDS that can enroll in the template
+      allowed_sids = parse_acl(security_descriptor.dacl) if security_descriptor.dacl
+      next if allowed_sids.empty?
+
+      # SIDs that can edit the template
+      write_priv_sids = parse_acl_for_esc4(security_descriptor.dacl) if security_descriptor.dacl
+      next if write_priv_sids.empty?
+
+      # Check if the user has been give access to edit the template
+      user_can_edit = user_sid if write_priv_sids.include?(user_sid)
+
+      # Check if any groups the user is a part of can edit the template
+      group_can_edit = write_priv_sids & user_groups
+
+      # SIDs that can edit the template that the user we've authenticated with are also a part of
+      user_write_priv_sids = []
+      note = []
+
+      # Main reason for splitting user_can_edit and group_can_edit is so "note" can be more descriptive
+      if user_can_edit
+        user_write_priv_sids << user_can_edit
+        note << "ESC4: The account: #{sam_account_name} has edit permissions over the template #{certificate_symbol} making it vulnerable to ESC4"
+      end
+
+      if group_can_edit.any?
+        user_write_priv_sids.concat(group_can_edit.map(&:to_s))
+        note << "ESC4: The account: #{sam_account_name} is a part of the following groups: (#{convert_sids_to_human_readable_name(group_can_edit).map(&:name).join(', ')}) which have edit permissions over the template #{certificate_symbol} making it vulnerable to ESC4"
+      end
+
+      next unless user_write_priv_sids.any?
+
+      if @vuln_certificate_details.key?(certificate_symbol)
+        @vuln_certificate_details[certificate_symbol][:vulns] << 'ESC4'
+        @vuln_certificate_details[certificate_symbol][:notes].concat(note)
+        @vuln_certificate_details[certificate_symbol][:certificate_write_priv_sids] ||= convert_sids_to_human_readable_name(user_write_priv_sids)
+      else
+        @vuln_certificate_details[certificate_symbol] = { vulns: ['ESC4'], dn: entry[:dn][0], certificate_enrollment_sids: convert_sids_to_human_readable_name(allowed_sids), ca_servers_n_enrollment_sids: {}, certificate_write_priv_sids: convert_sids_to_human_readable_name(user_write_priv_sids), notes: note }
+      end
+    end
   end
 
   def find_esc13_vuln_cert_templates
@@ -484,6 +640,13 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
+      if hash[:certificate_write_priv_sids]
+        print_status('  Users or Groups SIDs with Certificate Template write access:')
+        hash[:certificate_write_priv_sids].each do |sid|
+          print_status("    * #{highlight_sid(sid)}")
+        end
+      end
+
       print_status('  Certificate Template Enrollment SIDs:')
       hash[:certificate_enrollment_sids].each do |sid|
         print_status("    * #{highlight_sid(sid)}")
@@ -525,7 +688,6 @@ class MetasploitModule < Msf::Auxiliary
       )&.first
       @ldap_mspki_enterprise_oids << pki_object if pki_object
     end
-
     pki_object
   end
 
@@ -570,6 +732,7 @@ class MetasploitModule < Msf::Auxiliary
       find_esc1_vuln_cert_templates
       find_esc2_vuln_cert_templates
       find_esc3_vuln_cert_templates
+      find_esc4_vuln_cert_templates
       find_esc13_vuln_cert_templates
       find_esc15_vuln_cert_templates
 
