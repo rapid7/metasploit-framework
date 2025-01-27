@@ -223,7 +223,9 @@ module Msf::DBManager::Vuln
     # Set the exploited_at value if provided
     vuln.exploited_at = exploited_at if exploited_at
 
-    vuln.origin = opts[:origin] if opts[:origin]
+    # Vuln origin ignored, rationale:
+    #   https://github.com/rapid7/metasploit-framework/pull/19817#issuecomment-2615656036
+    # vuln.origin = opts[:origin] if opts[:origin]
 
     # Merge the references
     if rids
