@@ -10,9 +10,9 @@ ehdr:                            ; Elf32_Ehdr
   dw    2                        ;   e_type       = ET_EXEC for an executable
   dw    0x15                     ;   e_machine    = PowerPC
   dd    0                        ;   e_version
-  dd    _start                   ;   e_entry
-  dd    phdr - $$                ;   e_phoff
-  dd    0                        ;   e_shoff
+  dq    _start                   ;   e_entry
+  dq    phdr - $$                ;   e_phoff
+  dq    0                        ;   e_shoff
   dd    0                        ;   e_flags
   dw    ehdrsize                 ;   e_ehsize
   dw    phdrsize                 ;   e_phentsize
@@ -26,14 +26,14 @@ ehdrsize equ  $ - ehdr
 phdr:                            ; Elf32_Phdr
   dd    1                        ;   p_type       = PT_LOAD
   dd    7                        ;   p_flags      = rwx
-  dd    0                        ;   p_offset
-  dd    $$                       ;   p_vaddr
-  dd    $$                       ;   p_paddr
-  dd    0xDEADBEEF               ;   p_filesz
-  dd    0xDEADBEEF               ;   p_memsz
-  dd    0x1000                   ;   p_align
+  dq    0                        ;   p_offset
+  dq    $$                       ;   p_vaddr
+  dq    $$                       ;   p_paddr
+  dq    0xDEADBEEF               ;   p_filesz
+  dq    0xDEADBEEF               ;   p_memsz
+  dq    0x1000                   ;   p_align
 
 phdrsize equ  $ - phdr
-global _start
-_start:
 
+_start:
+dq _start+0x8

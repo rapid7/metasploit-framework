@@ -1232,7 +1232,28 @@ require 'digest/sha1'
     to_exe_elf(framework, opts, "template_aarch64_linux.bin", code)
   end
 
-  # self.to_linux_mipsle_elf
+  # self.to_linux_ppc64le_elf
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
+  def self.to_linux_ppc64le_elf(framework, code, opts = {})
+    to_exe_elf(framework, opts, "template_ppc64le_linux.bin", code)
+  end
+  
+  # self.to_linux_ppc_elf
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
+  def self.to_linux_ppc_elf(framework, code, opts = {})
+    to_exe_elf(framework, opts, "template_ppc_linux.bin", code)
+  end
+   # self.to_linux_mipsle_elf
   # Little Endian
   # @param framework [Msf::Framework]
   # @param code       [String]
@@ -2170,6 +2191,7 @@ require 'digest/sha1'
       if elf? code
         return code
       end
+      puts arch
       if !plat || plat.index(Msf::Module::Platform::Linux)
         case arch
         when ARCH_X86,nil
@@ -2188,6 +2210,10 @@ require 'digest/sha1'
           to_linux_riscv32le_elf(framework, code, exeopts)
         when ARCH_RISCV64LE
           to_linux_riscv64le_elf(framework, code, exeopts)
+        when ARCH_PPC64LE
+	  to_linux_ppc64le_elf(framework, code, exeopts)
+        when ARCH_PPC
+	  to_linux_ppc_elf(framework, code, exeopts)
         end
       elsif plat && plat.index(Msf::Module::Platform::BSD)
         case arch
