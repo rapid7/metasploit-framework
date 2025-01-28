@@ -23,8 +23,12 @@ class MetasploitModule < Msf::Auxiliary
   }.freeze
 
   SID = Struct.new(:value, :name) do
+    def ==(other)
+      value == other.value
+    end
+
     def to_s
-      name.present? ? "#{value} (#{name})" : value
+      name.present? ? "#{value} (#{name})" : value.to_s
     end
 
     def rid
@@ -86,6 +90,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # Constants Definition
+  CERTIFICATE_ATTRIBUTES = %w[cn name description nTSecurityDescriptor msPKI-Certificate-Policy msPKI-Enrollment-Flag msPKI-RA-Signature msPKI-Template-Schema-Version pkiExtendedKeyUsage]
+  CERTIFICATE_TEMPLATES_BASE = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'.freeze
   CERTIFICATE_ENROLLMENT_EXTENDED_RIGHT = '0e10c968-78fb-11d2-90d4-00c04f79dc55'.freeze
   CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT = 'a05b8cc2-17bc-4802-a710-e7c15ab866a2'.freeze
   CONTROL_ACCESS = 0x00000100
@@ -97,63 +103,32 @@ class MetasploitModule < Msf::Auxiliary
   DACL_SECURITY_INFORMATION = 0x4
   SACL_SECURITY_INFORMATION = 0x8
 
-  # This will return a list of SIDs that can edit the template from which the ACL is derived
-  # The method checks the WriteOwner, WriteDacl and GenericWrite bits of the access_mask to see if the user or group has write permissions over the Certificate
-  def parse_acl_for_esc4(acl)
-    allowed_sids = []
-
+  # This returns a list of SIDs that have the CERTIFICATE_ENROLLMENT_EXTENDED_RIGHT or CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT for the given ACL
+  def enum_acl_aces(acl)
     acl.aces.each do |ace|
-      ace_header = ace[:header]
-      ace_body = ace[:body]
-
-      if ace_body[:access_mask].blank?
+      if ace[:body][:access_mask].blank?
         fail_with(Failure::UnexpectedReply, 'Encountered a DACL/SACL object without an access mask! Either data is an unrecognized type or we are reading it wrong!')
       end
-      ace_type_name = Rex::Proto::MsDtyp::MsDtypAceType.name(ace_header[:ace_type])
-
+      ace_type_name = Rex::Proto::MsDtyp::MsDtypAceType.name(ace[:header][:ace_type])
       if ace_type_name.blank?
-        print_error("Skipping unexpected ACE of type #{ace_header[:ace_type]}. Either the data was read incorrectly or we currently don't support this type.")
+        print_error("Skipping unexpected ACE of type #{ace[:header][:ace_type]}. Either the data was read incorrectly or we currently don't support this type.")
+        next
+      end
+      if ace[:header][:ace_flags][:inherit_only_ace] == 1
+        # ACE only affects those that inherit from it, not those that it is attached to. Ignoring this ACE, as its not relevant.
         next
       end
 
-      if ace_header[:ace_flags][:inherit_only_ace] == 1
-        print_warning('      ACE only affects those that inherit from it, not those that it is attached to. Ignoring this ACE, as its not relevant.')
-        next
-      end
-
-      # Look at WriteOwner, WriteDacl and GenericWrite to see if the user has write permissions over the Certificate
-      if !(ace_body[:access_mask][:wo] == 1 || ace_body[:access_mask][:wd] == 1 || ace_body[:access_mask][:gw] == 1)
-
-        next
-      end
-
-      allowed_sids << ace_body[:sid].to_s
+      yield ace_type_name, ace
     end
-    allowed_sids
   end
 
-  # This returns a list of SIDs that have the CERTIFICATE_ENROLLMENT_EXTENDED_RIGHT or CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT for the given ACL
-  def parse_acl(acl)
+  def get_sids_for_enroll(acl)
     allowed_sids = []
-    acl.aces.each do |ace|
-      ace_header = ace[:header]
-      ace_body = ace[:body]
-      if ace_body[:access_mask].blank?
-        fail_with(Failure::UnexpectedReply, 'Encountered a DACL/SACL object without an access mask! Either data is an unrecognized type or we are reading it wrong!')
-      end
-      ace_type_name = Rex::Proto::MsDtyp::MsDtypAceType.name(ace_header[:ace_type])
-      if ace_type_name.blank?
-        print_error("Skipping unexpected ACE of type #{ace_header[:ace_type]}. Either the data was read incorrectly or we currently don't support this type.")
-        next
-      end
-      if ace_header[:ace_flags][:inherit_only_ace] == 1
-        vprint_warning('      ACE only affects those that inherit from it, not those that it is attached to. Ignoring this ACE, as its not relevant.')
-        next
-      end
-
+    enum_acl_aces(acl) do |ace_type_name, ace|
       # To decode the ObjectType we need to do another query to CN=Configuration,DC=daforest,DC=com
       # and look at either schemaIDGUID or rightsGUID fields to see if they match this value.
-      if (object_type = ace_body[:object_type]) && !(object_type == CERTIFICATE_ENROLLMENT_EXTENDED_RIGHT || object_type == CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT)
+      if (object_type = ace[:body][:object_type]) && !(object_type == CERTIFICATE_ENROLLMENT_EXTENDED_RIGHT || object_type == CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT)
         # If an object type was specified, only process the rest if it is one of these two (note that objects with no
         # object types will be processed to make sure we can detect vulnerable templates post exploiting ESC4).
         next
@@ -162,14 +137,31 @@ class MetasploitModule < Msf::Auxiliary
       # Skip entry if it is not related to an extended access control right, where extended access control right is
       # described as ADS_RIGHT_DS_CONTROL_ACCESS in the ObjectType field of ACCESS_ALLOWED_OBJECT_ACE. This is
       # detailed further at https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-access_allowed_object_ace
-      next unless (ace_body.access_mask.protocol & CONTROL_ACCESS) == CONTROL_ACCESS
+      next unless (ace[:body].access_mask.protocol & CONTROL_ACCESS) == CONTROL_ACCESS
 
       if ace_type_name.match(/ALLOWED/)
-        allowed_sids << ace_body[:sid].to_s
+        allowed_sids << ace[:body][:sid]
       end
     end
 
-    allowed_sids
+    map_sids_to_names(allowed_sids)
+  end
+
+  # This will return a list of SIDs that can edit the template from which the ACL is derived
+  # The method checks the WriteOwner, WriteDacl and GenericWrite bits of the access_mask to see if the user or group has write permissions over the Certificate
+  def get_sids_for_write(acl)
+    allowed_sids = []
+
+    enum_acl_aces(acl) do |_ace_type_name, ace|
+      # Look at WriteOwner, WriteDacl and GenericWrite to see if the user has write permissions over the Certificate
+      if !(ace[:body][:access_mask][:wo] == 1 || ace[:body][:access_mask][:wd] == 1 || ace[:body][:access_mask][:gw] == 1)
+        next
+      end
+
+      allowed_sids << ace[:body][:sid]
+    end
+
+    map_sids_to_names(allowed_sids)
   end
 
   def query_ldap_server(raw_filter, attributes, base_prefix: nil)
@@ -209,9 +201,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def query_ldap_server_certificates(esc_raw_filter, esc_id, notes: [])
-    attributes = ['cn', 'name', 'description', 'ntSecurityDescriptor', 'msPKI-Enrollment-Flag', 'msPKI-RA-Signature', 'PkiExtendedKeyUsage']
-    base_prefix = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
-    esc_entries = query_ldap_server(esc_raw_filter, attributes, base_prefix: base_prefix)
+    esc_entries = query_ldap_server(esc_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
 
     if esc_entries.empty?
       print_warning("Couldn't find any vulnerable #{esc_id} templates!")
@@ -221,50 +211,35 @@ class MetasploitModule < Msf::Auxiliary
     # Grab a list of certificates that contain vulnerable settings.
     # Also print out the list of SIDs that can enroll in that server.
     esc_entries.each do |entry|
-      begin
-        security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(entry[:ntsecuritydescriptor][0])
-      rescue IOError => e
-        fail_with(Failure::UnexpectedReply, "Unable to read security descriptor! Error was: #{e.message}")
-      end
-
-      allowed_sids = parse_acl(security_descriptor.dacl) if security_descriptor.dacl
-      next if allowed_sids.empty?
-
       certificate_symbol = entry[:cn][0].to_sym
-      if @certificate_details.key?(certificate_symbol)
-        @certificate_details[certificate_symbol][:techniques] << esc_id
-        @certificate_details[certificate_symbol][:notes] += notes
-      else
-        @certificate_details[certificate_symbol] = build_certificate_details(
-          entry,
-          allowed_sids,
-          techniques: [esc_id],
-          notes: notes.dup
-        )
-      end
+      next if @certificate_details[certificate_symbol][:enroll_sids].empty?
+
+      @certificate_details[certificate_symbol][:techniques] << esc_id
+      @certificate_details[certificate_symbol][:notes] += notes
     end
   end
 
-  def convert_sids_to_human_readable_name(sids_array)
-    output = []
+  def map_sids_to_names(sids_array)
+    mapped = []
     sids_array.each do |sid|
+      # this common SID doesn't always have an entry
+      if sid == Rex::Proto::Secauthz::WellKnownSids::SECURITY_AUTHENTICATED_USER_SID
+        mapped << SID.new(sid, 'Authenticated Users')
+        next
+      end
+
       sid_entry = get_object_by_sid(sid)
       if sid_entry.nil?
         print_warning("Could not find any details on the LDAP server for SID #{sid}!")
-        output << [sid, nil, nil] # Still want to print out the SID even if we couldn't get additional information.
-      elsif sid_entry[:samaccountname][0]
-        output << [sid, sid_entry[:name][0], sid_entry[:samaccountname][0]]
-      else
-        output << [sid, sid_entry[:name][0], nil]
+        mapped << SID.new(sid, name)
+      elsif sid_entry[:samaccountname].present?
+        mapped << SID.new(sid, sid_entry[:samaccountname].first.to_s)
+      elsif sid_entry[:name].present?
+        mapped << SID.new(sid, sid_entry[:name].first.to_s)
       end
     end
 
-    results = []
-    output.each do |sid_string, sid_name, sam_account_name|
-      results << SID.new(sid_string, sam_account_name || sid_name)
-    end
-
-    results
+    mapped
   end
 
   def find_esc1_vuln_cert_templates
@@ -373,8 +348,8 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    user_sid = Rex::Proto::MsDtyp::MsDtypSid.read(our_account[:objectsid].first).value
-    domain_sid = user_sid.rpartition('-').first
+    user_sid = map_sids_to_names([Rex::Proto::MsDtyp::MsDtypSid.read(our_account[:objectsid].first).value]).first
+    domain_sid = user_sid.value.to_s.rpartition('-').first
     user_groups = []
 
     if our_account[:primarygroupID]
@@ -406,33 +381,23 @@ class MetasploitModule < Msf::Auxiliary
       group_sid = Rex::Proto::MsDtyp::MsDtypSid.read(entry['ObjectSid'].first).value
       user_groups << group_sid
     end
+    user_groups = map_sids_to_names(user_groups)
 
     # Determine what Certificate Templates are available to us
     esc_raw_filter = '(objectclass=pkicertificatetemplate)'
 
     attributes = ['cn', 'description', 'ntSecurityDescriptor']
-    base_prefix = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
-    esc_entries = query_ldap_server(esc_raw_filter, attributes, base_prefix: base_prefix)
+    esc_entries = query_ldap_server(esc_raw_filter, attributes, base_prefix: CERTIFICATE_TEMPLATES_BASE)
 
     return if esc_entries.empty?
 
     # Determine if the user we've authenticated with has the ability to edit
     esc_entries.each do |entry|
       certificate_symbol = entry[:cn][0].to_sym
-
-      begin
-        security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(entry[:ntsecuritydescriptor][0])
-      rescue IOError => e
-        print_warning("Unable to read security descriptor for #{certificate_symbol}, skipping. Error was: #{e.message}")
-        next
-      end
-
-      # SIDS that can enroll in the template
-      allowed_sids = parse_acl(security_descriptor.dacl) if security_descriptor.dacl
-      next if allowed_sids.empty?
+      next if @certificate_details[certificate_symbol][:enroll_sids].empty?
 
       # SIDs that can edit the template
-      write_priv_sids = parse_acl_for_esc4(security_descriptor.dacl) if security_descriptor.dacl
+      write_priv_sids = @certificate_details[certificate_symbol][:write_sids]
       next if write_priv_sids.empty?
 
       # Check if the user has been give access to edit the template
@@ -452,19 +417,14 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if group_can_edit.any?
-        user_write_priv_sids.concat(group_can_edit.map(&:to_s))
-        notes << "ESC4: The account: #{sam_account_name} is a part of the following groups: (#{convert_sids_to_human_readable_name(group_can_edit).map(&:name).join(', ')}) which have edit permissions over the template object"
+        user_write_priv_sids.concat(group_can_edit)
+        notes << "ESC4: The account: #{sam_account_name} is a part of the following groups: (#{group_can_edit.map(&:name).join(', ')}) which have edit permissions over the template object"
       end
 
       next unless user_write_priv_sids.any?
 
-      if @certificate_details.key?(certificate_symbol)
-        @certificate_details[certificate_symbol][:techniques] << 'ESC4'
-        @certificate_details[certificate_symbol][:notes].concat(notes)
-      else
-        @certificate_details[certificate_symbol] = build_certificate_details(entry, allowed_sids, techniques: %w[ESC4], notes: notes)
-      end
-      @certificate_details[certificate_symbol][:write_enabled_sids] ||= convert_sids_to_human_readable_name(user_write_priv_sids)
+      @certificate_details[certificate_symbol][:techniques] << 'ESC4'
+      @certificate_details[certificate_symbol][:notes].concat(notes)
     end
   end
 
@@ -477,9 +437,7 @@ class MetasploitModule < Msf::Auxiliary
         (mspki-certificate-policy=*)
       )
     FILTER
-    attributes = ['cn', 'description', 'ntSecurityDescriptor', 'msPKI-Certificate-Policy', 'msPKI-Enrollment-Flag', 'msPKI-RA-Signature']
-    base_prefix = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'
-    esc_entries = query_ldap_server(esc_raw_filter, attributes, base_prefix: base_prefix)
+    esc_entries = query_ldap_server(esc_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
 
     if esc_entries.empty?
       print_warning("Couldn't find any vulnerable ESC13 templates!")
@@ -489,14 +447,8 @@ class MetasploitModule < Msf::Auxiliary
     # Grab a list of certificates that contain vulnerable settings.
     # Also print out the list of SIDs that can enroll in that server.
     esc_entries.each do |entry|
-      begin
-        security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(entry[:ntsecuritydescriptor][0])
-      rescue IOError => e
-        fail_with(Failure::UnexpectedReply, "Unable to read security descriptor! Error was: #{e.message}")
-      end
-
-      allowed_sids = parse_acl(security_descriptor.dacl) if security_descriptor.dacl
-      next if allowed_sids.empty?
+      certificate_symbol = entry[:cn][0].to_sym
+      next if @certificate_details[certificate_symbol][:enroll_sids].empty?
 
       groups = []
       entry['mspki-certificate-policy'].each do |certificate_policy_oid|
@@ -516,23 +468,32 @@ class MetasploitModule < Msf::Auxiliary
       end
       next if groups.empty?
 
-      note = "ESC13 groups: #{groups.join(', ')}"
       certificate_symbol = entry[:cn][0].to_sym
-      if @certificate_details.key?(certificate_symbol)
-        @certificate_details[certificate_symbol][:techniques] << 'ESC13'
-        @certificate_details[certificate_symbol][:notes] << note
-      else
-        @certificate_details[certificate_symbol] = build_certificate_details(entry, allowed_sids, techniques: %w[ESC13], notes: [note])
-      end
+      @certificate_details[certificate_symbol][:techniques] << 'ESC13'
+      @certificate_details[certificate_symbol][:notes] << "ESC13 groups: #{groups.join(', ')}"
     end
   end
 
-  def build_certificate_details(ldap_object, allowed_sids, techniques: [], notes: [])
+  def build_certificate_details(ldap_object, techniques: [], notes: [])
+    security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(ldap_object[:ntsecuritydescriptor].first)
+
+    if security_descriptor.dacl
+      enroll_sids = get_sids_for_enroll(security_descriptor.dacl)
+      write_sids = get_sids_for_write(security_descriptor.dacl)
+    else
+      enroll_sids = nil
+      write_sids = nil
+    end
+
     {
       name: ldap_object[:cn][0].to_s,
       techniques: techniques,
       dn: ldap_object[:dn][0].to_s,
-      enrollment_sids: convert_sids_to_human_readable_name(allowed_sids),
+      enroll_sids: enroll_sids,
+      write_sids: write_sids,
+      security_descriptor: security_descriptor,
+      ekus: ldap_object[:pkiextendedkeyusage].map(&:to_s),
+      schema_version: ldap_object[%s(mspki-template-schema-version)].first,
       ca_servers: {},
       manager_approval: ([ldap_object[%s(mspki-enrollment-flag)].first.to_i].pack('l').unpack1('L') & Rex::Proto::MsCrtd::CT_FLAG_PEND_ALL_REQUESTS) != 0,
       required_signatures: [ldap_object[%s(mspki-ra-signature)].first.to_i].pack('l').unpack1('L'),
@@ -574,8 +535,8 @@ class MetasploitModule < Msf::Auxiliary
           fail_with(Failure::UnexpectedReply, "Unable to read security descriptor! Error was: #{e.message}")
         end
 
-        allowed_sids = parse_acl(security_descriptor.dacl) if security_descriptor.dacl
-        next if allowed_sids.empty?
+        enroll_sids = get_sids_for_enroll(security_descriptor.dacl) if security_descriptor.dacl
+        next if enroll_sids.empty?
 
         ca_server_fqdn = ca_server[:dnshostname][0].to_s.downcase
         ca_server_ip_address = get_ip_addresses_by_fqdn(ca_server_fqdn)&.first
@@ -608,7 +569,7 @@ class MetasploitModule < Msf::Auxiliary
         @certificate_details[certificate_template][:ca_servers][ca_server_key] = {
           fqdn: ca_server_fqdn,
           ip_address: ca_server_ip_address,
-          enrollment_sids: allowed_sids,
+          enroll_sids: enroll_sids,
           name: ca_server[:name][0].to_s,
           dn: ca_server[:dn][0].to_s
         }
@@ -619,7 +580,7 @@ class MetasploitModule < Msf::Auxiliary
   def print_vulnerable_cert_info
     vuln_certificate_details = @certificate_details.sort.to_h.select do |_key, hash|
       select = true
-      select = false unless datastore['REPORT_PRIVENROLLABLE'] || hash[:enrollment_sids].any? do |sid|
+      select = false unless datastore['REPORT_PRIVENROLLABLE'] || hash[:enroll_sids].any? do |sid|
         # compare based on RIDs to avoid issues language specific issues
         !(sid.value.starts_with?("#{WellKnownSids::SECURITY_NT_NON_UNIQUE}-") && [
           # RID checks
@@ -707,7 +668,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       print_status('  Certificate Template Enrollment SIDs:')
-      hash[:enrollment_sids].each do |sid|
+      hash[:enroll_sids].each do |sid|
         print_status("    * #{highlight_sid(sid)}")
       end
 
@@ -715,7 +676,7 @@ class MetasploitModule < Msf::Auxiliary
         hash[:ca_servers].each do |ca_fqdn, ca_hash|
           print_good("  Issuing CA: #{ca_hash[:name]} (#{ca_fqdn})")
           print_status('    Enrollment SIDs:')
-          convert_sids_to_human_readable_name(ca_hash[:enrollment_sids]).each do |sid|
+          ca_hash[:enroll_sids].each do |sid|
             print_status("      * #{highlight_sid(sid)}")
           end
         end
@@ -838,6 +799,14 @@ class MetasploitModule < Msf::Auxiliary
       end
       @ldap = ldap
 
+      templates = query_ldap_server('(objectClass=pkicertificatetemplate)', CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
+      fail_with(Failure::NotFound, 'No certificate templates were found.') if templates.empty?
+
+      templates.each do |template|
+        certificate_symbol = template[:cn].first.to_sym
+        @certificate_details[certificate_symbol] = build_certificate_details(template)
+      end
+
       find_esc1_vuln_cert_templates
       find_esc2_vuln_cert_templates
       find_esc3_vuln_cert_templates
@@ -847,6 +816,7 @@ class MetasploitModule < Msf::Auxiliary
 
       find_enrollable_vuln_certificate_templates
       print_vulnerable_cert_info
+
       @certificate_details
     end
   rescue Errno::ECONNRESET
