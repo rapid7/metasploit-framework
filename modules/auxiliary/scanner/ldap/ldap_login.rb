@@ -115,6 +115,14 @@ class MetasploitModule < Msf::Auxiliary
     realm_key = nil
     if opts[:ldap_auth] == Msf::Exploit::Remote::AuthOption::KERBEROS
       realm_key = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+      if datastore['CreateSession']
+        # If kerberos auth is used and session creation is requested, we want to be able to read the cached tickets
+        # TODO: once the password issue (https://github.com/rapid7/metasploit-framework/issues/19743) is fixed
+        #       we might prefer to check if the `password` option is set instead of `CreateSession`. If the user
+        #       sets the password with Kerberos auth, it means he wants to test if it's valid, so we should not reuse
+        #       a ticket from the cache.
+        opts[:kerberos_ticket_storage] = kerberos_ticket_storage({ read: true, write: true })
+      end
     end
 
     scanner = Metasploit::Framework::LoginScanner::LDAP.new(

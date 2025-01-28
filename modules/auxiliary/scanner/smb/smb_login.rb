@@ -116,6 +116,17 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Msf::Exploit::Failure::BadConfig, 'The SMBDomain option is required when using Kerberos authentication.') if datastore['SMBDomain'].blank?
       fail_with(Msf::Exploit::Failure::BadConfig, 'The DomainControllerRhost is required when using Kerberos authentication.') if datastore['DomainControllerRhost'].blank?
 
+      if datastore['CreateSession']
+        # If kerberos auth is used and session creation is requested, we want to be able to read the cached tickets
+        # TODO: once the password issue (https://github.com/rapid7/metasploit-framework/issues/19743) is fixed
+        #       we might prefer to check if the `password` option is set instead of `CreateSession`. If the user
+        #       sets the password with Kerberos auth, it means he wants to test if it's valid, so we should not reuse
+        #       a ticket from the cache.
+        krb_ticket_storage = kerberos_ticket_storage({ read: true, write: true })
+      else
+        # Write only cache so we keep all gathered tickets but don't reuse them for auth while running the module
+        krb_ticket_storage = kerberos_ticket_storage({ read: false, write: true })
+      end
       kerberos_authenticator_factory = lambda do |username, password, realm|
         Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::SMB.new(
           host: datastore['DomainControllerRhost'],
@@ -128,7 +139,7 @@ class MetasploitModule < Msf::Auxiliary
           framework_module: self,
           cache_file: datastore['Smb::Krb5Ccname'].blank? ? nil : datastore['Smb::Krb5Ccname'],
           # Write only cache so we keep all gathered tickets but don't reuse them for auth while running the module
-          ticket_storage: kerberos_ticket_storage({ read: false, write: true })
+          ticket_storage: krb_ticket_storage
         )
       end
     end
