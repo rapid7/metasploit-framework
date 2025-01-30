@@ -45,29 +45,19 @@ class MetasploitModule < Msf::Auxiliary
       username: datastore['USERNAME'],
       user_as_pass: datastore['USER_AS_PASS']
     )
+    configuration = configure_http_login_scanner(
+      host: ip,
+      port: datastore['RPORT'],
+      cred_details: cred_collection,
+      stop_on_success: datastore['STOP_ON_SUCCESS'],
+      bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
+      connection_timeout: datastore['HttpClientTimeout'] || 5
+    )
     if datastore['ADMIN']
-      return Metasploit::Framework::LoginScanner::IvantiAdmin.new(
-        configure_http_login_scanner(
-          host: ip,
-          port: datastore['RPORT'],
-          cred_details: cred_collection,
-          stop_on_success: datastore['STOP_ON_SUCCESS'],
-          bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-          connection_timeout: datastore['HttpClientTimeout'] || 5
-        )
-      )
+      return Metasploit::Framework::LoginScanner::IvantiAdmin.new(configuration)
     else
 
-      return Metasploit::Framework::LoginScanner::Ivanti.new(
-        configure_http_login_scanner(
-          host: ip,
-          port: datastore['RPORT'],
-          cred_details: cred_collection,
-          stop_on_success: datastore['STOP_ON_SUCCESS'],
-          bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-          connection_timeout: datastore['HttpClientTimeout'] || 5
-        )
-      )
+      return Metasploit::Framework::LoginScanner::Ivanti.new(configuration)
     end
   end
 
@@ -76,8 +66,7 @@ class MetasploitModule < Msf::Auxiliary
     case credential_data[:status]
     when Metasploit::Model::Login::Status::SUCCESSFUL
       print_good "#{credential_data[:address]}:#{credential_data[:port]} - Login Successful: #{credential_combo}"
-      credential_core = create_credential(credential_data)
-      credential_data[:core] = credential_core
+      credential_data[:core] = create_credential(credential_data)
       create_credential_login(credential_data)
       return { status: :success, credential: credential_data }
     else

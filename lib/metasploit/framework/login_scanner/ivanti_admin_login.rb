@@ -12,21 +12,8 @@ module Metasploit
             'ctype' => 'application/x-www-form-urlencoded',
             'headers' =>
             {
-        'Cache-Control'=> 'max-age=0',
-        'Sec-Ch-Ua'=> 'Not A(Brand";v="8", "Chromium";v="132"',
-        'Sec-Ch-Ua-Mobile'=> '?0',
-        'Sec-Ch-Ua-Platform'=> 'Linux',
-        'Accept-Language'=> 'en-US,en;q=0.9',
-        'Origin'=> "#{protocol}://#{peer}",
-        'Upgrade-Insecure-Requests'=> '1',
-        'Accept'=> 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-        'Sec-Fetch-Site'=> 'same-origin',
-        'Sec-Fetch-Mode'=> 'navigate',
-        'Sec-Fetch-User'=> '?1',
-        'Sec-Fetch-Dest'=> 'document',
-        'Referer'=> "#{protocol}://#{peer}/dana-na/auth/url_admin/welcome.cgi",
-        'Accept-Encoding'=> 'gzip, deflate, br',
-        'Priority'=> 'u=0, i'
+              'Origin'=> "#{protocol}://#{peer}",
+              'Referer'=> "#{protocol}://#{peer}/dana-na/auth/url_admin/welcome.cgi",
             },
             'vars_post' => {
               tz_offset: '60',
@@ -54,7 +41,7 @@ module Metasploit
           res = send_request({
             'uri'=>normalize_uri('/dana-na/auth/url_admin/welcome.cgi'),
           })
-          return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Unable to connect to the TeamCity service' } if res.nil?
+          return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Unable to connect to the Ivanti service' } if res.nil?
           
           html_document = res.get_html_document
           token = html_document.xpath('//input[@id="xsauth_token"]/@value').text
@@ -83,9 +70,9 @@ module Metasploit
           if res.headers['location'] == '/dana-admin/misc/admin.cgi'
             do_logout(res.get_cookies)
             return { status: ::Metasploit::Model::Login::Status::SUCCESSFUL	, proof: res.to_s} 
-          else
-            return {status: ::Metasploit::Model::Login::Status::INCORRECT, proof: res.to_s }
           end
+          
+          return {status: ::Metasploit::Model::Login::Status::INCORRECT, proof: res.to_s }
 
         end
         
