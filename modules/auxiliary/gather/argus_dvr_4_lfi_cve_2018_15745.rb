@@ -60,7 +60,7 @@ def initialize(info = {})
             'uri' => url_path
         })
 
-        if response && response.code == 200 && !response.body.include?("Cannot find this file.")
+        if response&.code == 200 && !response.body.include?("Cannot find this file.")
             print_good('File retrieved successfully!')
             print_line(response.body)
             store_loot("file_traversal", "text/plain", rhost, response.body, "#{target_file.gsub('/', '_')}.txt")
