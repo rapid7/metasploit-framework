@@ -20,7 +20,10 @@ def initialize(info = {})
                 which houses another vulnerability in the Argus Surveillance system. This directory traversal vuln
                 is being tracked as CVE-2018-15745
             },
-            'Author' => [ 'Maxwell Francis' ],
+            'Author' => [ 
+              'Maxwell Francis', # msf module
+              'John Page' # (aka hyp3rlinx) PoC 
+             ],
             'Notes' => {
                 'Stability' => [CRASH_SAFE],
                 'SideEffects' => [],
