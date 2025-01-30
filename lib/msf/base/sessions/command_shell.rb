@@ -202,6 +202,8 @@ Shell Banner:
       tbl << [key, value]
     end
 
+    tbl << ['.<command>', "Prefix any built-in command on this list with a '.' to execute in the underlying shell (ex: .help)"]
+
     print(tbl.to_s)
     print("For more info on a specific command, use %grn<command> -h%clr or %grnhelp <command>%clr.\n\n")
   end
@@ -607,8 +609,13 @@ Shell Banner:
     end
 
     # Built-in command
-    if commands.key?(method)
-      return run_builtin_cmd(method, arguments)
+    if commands.key?(method) or ( not method.nil? and method[0] == '.' and commands.key?(method[1..-1]))
+      # Handle overlapping built-ins with actual shell commands by prepending '.'
+      if method[0] == '.' and commands.key?(method[1..-1])
+        return shell_write(cmd[1..-1] + command_termination)
+      else
+        return run_builtin_cmd(method, arguments)
+      end
     end
 
     # User input is not a built-in command, write to socket directly
