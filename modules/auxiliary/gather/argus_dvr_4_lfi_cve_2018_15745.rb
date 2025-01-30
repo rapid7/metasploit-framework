@@ -29,7 +29,10 @@ def initialize(info = {})
                 'SideEffects' => [],
                 'Reliability' => []
             },
-            'DefaultOptions' => { 'SSL' => false },
+            'DefaultOptions' => { 
+              'SSL' => false,
+              'RPORT' => 8080
+            },
             'References' => [
             # Vendor Download
             [ 'URL', 'https://argus-surveillance-dvr.soft112.com/#google_vignette'],
