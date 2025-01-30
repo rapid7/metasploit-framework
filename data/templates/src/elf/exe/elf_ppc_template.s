@@ -5,8 +5,8 @@ ehdr:                            ; Elf32_Ehdr
   db    0, 0, 0, 0,  0, 0, 0, 0  ;
   dw    0x0200                   ;   e_type       = ET_EXEC for an executable
   dw    0x1400                   ;   e_machine    = AARCH64
-  dd    0x10000000                        ;   e_version
-  dd    0x00008054      ;   e_entry
+  dd    0x01000000                        ;   e_version
+  dd    0x54000000      ;   e_entry
   dd    0x34000000       ;   e_phoff
   dd    0                        ;   e_shoff
   dd    0                        ;   e_flags
@@ -32,4 +32,3 @@ phdr:                            ; Elf32_Phdr
 phdrsize equ  $ - phdr
 
 _start:
-
