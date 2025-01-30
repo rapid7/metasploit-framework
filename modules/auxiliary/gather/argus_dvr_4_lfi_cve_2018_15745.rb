@@ -44,7 +44,6 @@ def initialize(info = {})
 
     register_options(
         [
-          Opt::RHOST(),
           OptString.new('TARGET_FILE', [true, 'The file to retrieve', 'Windows/system.ini'])
         ]
       )
