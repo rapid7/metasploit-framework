@@ -13,7 +13,7 @@ def initialize(info = {})
             info,
             'Name' => 'Argus Surveillance DVR 4.0.0.0 - Directory Traversal',
             'Description' => %q{
-                This module leverages an anauthenticated arbitrary file read for
+                This module leverages an unauthenticated arbitrary file read for
                 the Argus Surveillance 4.0.0.0 system which never saw an update since.
                 As this is a Windows related application we recommend looking for common
                 Windows file locations, especially C:\ProgramData\PY_Software\Argus Surveillance DVR\DVRParams.ini
