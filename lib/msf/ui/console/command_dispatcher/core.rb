@@ -760,7 +760,8 @@ class Core
   end
 
   def cmd_history(*args)
-    length = Readline::HISTORY.length
+    history = Msf::Ui::Console::MsfReadline.instance.history
+    length = history.length
 
     if length < @history_limit
       limit = length
@@ -780,10 +781,10 @@ class Core
           limit = val.to_i
         end
       when '-c'
-        if Readline::HISTORY.respond_to?(:clear)
-          Readline::HISTORY.clear
-        elsif defined?(RbReadline)
-          RbReadline.clear_history
+        if history.respond_to?(:clear)
+          history.clear
+        elsif history.respond_to?(:pop) && history.respond_to?(:length)
+          history.length.times { |_i| history.pop }
         else
           print_error('Could not clear history, skipping file')
           return false
@@ -808,7 +809,7 @@ class Core
 
     (start..length-1).each do |pos|
       cmd_num = (pos + 1).to_s
-      print_line "#{cmd_num.ljust(pad_len)}  #{Readline::HISTORY[pos]}"
+      print_line "#{cmd_num.ljust(pad_len)}  #{history[pos]}"
     end
   end
 

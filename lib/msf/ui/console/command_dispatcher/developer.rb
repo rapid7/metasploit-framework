@@ -129,8 +129,9 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     if expressions.empty?
       print_status('Starting IRB shell...')
 
-      framework.history_manager.with_context(name: :irb) do
+      framework.history_manager.with_context(name: :irb, input_library: :reline) do
         begin
+          Msf::Ui::Console::MsfReadline.instance.cache_current_config
           if active_module
             print_status("You are in #{active_module.fullname}\n")
             Rex::Ui::Text::IrbShell.new(active_module).run
@@ -140,6 +141,8 @@ class Msf::Ui::Console::CommandDispatcher::Developer
           end
         rescue
           print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
+        ensure
+          Msf::Ui::Console::MsfReadline.instance.restore_cached_config
         end
       end
 
@@ -192,7 +195,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     print_status('Starting Pry shell...')
 
     Pry.config.history_load = false
-    framework.history_manager.with_context(history_file: Msf::Config.pry_history, name: :pry) do
+    framework.history_manager.with_context(history_file: Msf::Config.pry_history, name: :pry, input_library: Pry.input) do
       if active_module
         print_status("You are in the \"#{active_module.fullname}\" module object\n")
         active_module.pry
@@ -515,6 +518,10 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   private
 
   def modified_files
+    # Temporary work-around until Open3 gets fixed on Windows 11:
+    # https://github.com/ruby/open3/issues/9
+    return [] if Rex::Compat.is_cygwin || Rex::Compat.is_windows
+
     # Using an array avoids shelling out, so we avoid escaping/quoting
     changed_files = %w[git diff --name-only]
     begin

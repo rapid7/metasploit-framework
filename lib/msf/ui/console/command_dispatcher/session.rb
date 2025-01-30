@@ -96,9 +96,11 @@ module Msf
             if expressions.empty?
               print_status('Starting IRB shell...')
               print_status("You are in the session object\n")
-              framework.history_manager.with_context(name: :irb) do
+              Msf::Ui::Console::MsfReadline.instance.cache_current_config
+              framework.history_manager.with_context(name: :irb, input_library: :reline) do
                 Rex::Ui::Text::IrbShell.new(session).run
               end
+              Msf::Ui::Console::MsfReadline.instance.restore_cached_config
             else
               # XXX: No vprint_status here
               if framework.datastore['VERBOSE'].to_s == 'true'
@@ -136,7 +138,7 @@ module Msf
             print_status("You are in the session object\n")
 
             Pry.config.history_load = false
-            session.framework.history_manager.with_context(history_file: Msf::Config.pry_history, name: :pry) do
+            session.framework.history_manager.with_context(history_file: Msf::Config.pry_history, name: :pry, input_library: Pry.input) do
               session.pry
             end
           end

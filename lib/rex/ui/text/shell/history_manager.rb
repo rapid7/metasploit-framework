@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
-require 'singleton'
+require 'reline'
+require 'readline'
 
 module Rex
 module Ui
@@ -28,8 +29,10 @@ class HistoryManager
   # @param [Proc] block
   # @return [nil]
   def with_context(history_file: nil, name: nil, input_library: nil, &block)
-    # Default to Readline for backwards compatibility.
-    push_context(history_file: history_file, name: name, input_library: input_library || :readline)
+    # Instead of defaulting to either Reline or Readline and potentially break the console when things get out of sync,
+    # use the single source of truth to determine what we should default to.
+    default_input_library = Msf::Ui::Console::MsfReadline.instance.using_reline? ? :reline : :readline
+    push_context(history_file: history_file, name: name, input_library: input_library || default_input_library)
 
     begin
       block.call
@@ -124,12 +127,7 @@ class HistoryManager
   end
 
   def reline_available?
-    begin
-      require 'reline'
-      defined?(::Reline)
-    rescue ::LoadError => _e
-      false
-    end
+    defined?(::Reline)
   end
 
   def clear_readline
