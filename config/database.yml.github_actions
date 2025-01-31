@@ -6,10 +6,9 @@
 #   cp config/database.yml.example config/database.yml
 #   # update password fields for each environment's user
 
-development: &pgsql
-  adapter: postgresql
-  database: metasploit_framework_development
-  host: localhost
+development: &sqlite
+  adapter: sqlite3
+  database: db/metasploit_framework_development
   username: postgres
   password: postgres
   pool: 25
@@ -21,5 +20,5 @@ development: &pgsql
 #
 # Note also, sqlite3 is totally unsupported by Metasploit now.
 test:
-  <<: *pgsql
-  database: metasploit_framework_test
+  <<: *sqlite
+  database: db/metasploit_framework_test
