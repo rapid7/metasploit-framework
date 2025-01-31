@@ -48,6 +48,7 @@ module Msf::DBManager::Service
   # +:info+:: Detailed information about the service such as name and version information
   # +:state+:: The current listening state of the service (one of: open, closed, filtered, unknown)
   #
+  # @return [Mdm::Service,nil]
   def report_service(opts)
     return if !active
   ::ApplicationRecord.connection_pool.with_connection { |conn|
@@ -80,8 +81,6 @@ module Msf::DBManager::Service
       dlog("Skipping port zero for service '%s' on host '%s'" % [opts[:name],host.address])
       return nil
     end
-
-    ret  = {}
 
     proto = opts[:proto] || Msf::DBManager::DEFAULT_SERVICE_PROTO
 
@@ -116,13 +115,13 @@ module Msf::DBManager::Service
     end
 
     if opts[:task]
-      Mdm::TaskService.create(
+      Mdm::TaskService.where(
           :task => opts[:task],
           :service => service
-      )
+      ).first_or_create
     end
 
-    ret[:service] = service
+    service
   }
   end
 
