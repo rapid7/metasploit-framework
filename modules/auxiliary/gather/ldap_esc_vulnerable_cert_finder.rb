@@ -608,46 +608,48 @@ class MetasploitModule < Msf::Auxiliary
     vuln_certificate_details.each do |key, hash|
       techniques = hash[:techniques].dup
       techniques.delete('ESC3_TEMPLATE_2') unless any_esc3t1 # don't report ESC3_TEMPLATE_2 if there are no instances of ESC3
-      next if techniques.empty? || !db
+      next if techniques.empty?
 
-      techniques.each do |vuln|
-        next if vuln == 'ESC3_TEMPLATE_2'
+      if db
+        techniques.each do |vuln|
+          next if vuln == 'ESC3_TEMPLATE_2'
 
-        prefix = "#{vuln}:"
-        info = hash[:notes].select { |note| note.start_with?(prefix) }.map { |note| note.delete_prefix(prefix).strip }.join("\n")
-        info = nil if info.blank?
+          prefix = "#{vuln}:"
+          info = hash[:notes].select { |note| note.start_with?(prefix) }.map { |note| note.delete_prefix(prefix).strip }.join("\n")
+          info = nil if info.blank?
 
-        hash[:ca_servers].each do |ca_fqdn, ca_server|
-          service = report_service({
-            host: ca_server[:ip_address],
-            port: 445,
-            proto: 'tcp',
-            name: 'AD CS',
-            info: "AD CS CA name: #{ca_server[:name]}"
-          })
-
-          if ca_server[:ip_address].present?
-            vuln = report_vuln(
+          hash[:ca_servers].each do |ca_fqdn, ca_server|
+            service = report_service({
               host: ca_server[:ip_address],
               port: 445,
               proto: 'tcp',
-              sname: 'AD CS',
-              name: "#{vuln} - #{key}",
-              info: info,
-              refs: REFERENCES[vuln],
-              service: service
-            )
-          else
-            vuln = nil
-          end
+              name: 'AD CS',
+              info: "AD CS CA name: #{ca_server[:name]}"
+            })
 
-          report_note({
-            data: hash[:dn],
-            service: service,
-            host: ca_fqdn.to_s,
-            ntype: 'windows.ad.cs.ca.template.dn',
-            vuln_id: vuln&.id
-          })
+            if ca_server[:ip_address].present?
+              vuln = report_vuln(
+                host: ca_server[:ip_address],
+                port: 445,
+                proto: 'tcp',
+                sname: 'AD CS',
+                name: "#{vuln} - #{key}",
+                info: info,
+                refs: REFERENCES[vuln],
+                service: service
+              )
+            else
+              vuln = nil
+            end
+
+            report_note({
+              data: hash[:dn],
+              service: service,
+              host: ca_fqdn.to_s,
+              ntype: 'windows.ad.cs.ca.template.dn',
+              vuln_id: vuln&.id
+            })
+          end
         end
       end
 
