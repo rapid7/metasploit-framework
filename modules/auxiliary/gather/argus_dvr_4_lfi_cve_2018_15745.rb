@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
           # Vendor Download
           [ 'URL', 'https://argus-surveillance-dvr.soft112.com/#google_vignette'],
           # Exploit DB Listing
-          [ 'URL', 'https://www.exploit-db.com/exploits/45296'],
+          [ 'EDB', '45296'],
           # CVE Number
           ['CVE', '2018-15745']
         ]
