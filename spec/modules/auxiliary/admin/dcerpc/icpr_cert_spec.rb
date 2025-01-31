@@ -109,7 +109,7 @@ RSpec.describe 'dcerpc icpr_cert' do
   end
 
   let(:content_info) do
-    Rex::Proto::Kerberos::Model::Pkinit::ContentInfo.parse(
+    Rex::Proto::CryptoAsn1::Cms::ContentInfo.parse(
       "\x30\x82\x0b\x71\x06\x09\x2a\x86\x48\x86\xf7\x0d\x01\x07\x02\xa0\x82\x0b" \
       "\x62\x30\x82\x0b\x5e\x02\x01\x03\x31\x0d\x30\x0b\x06\x09\x60\x86\x48\x01" \
       "\x65\x03\x04\x02\x01\x30\x82\x02\x6c\x06\x07\x2b\x06\x01\x05\x02\x03\x01" \
@@ -330,7 +330,7 @@ RSpec.describe 'dcerpc icpr_cert' do
       end
 
       it 'return a ContentInfo object' do
-        expect(result).to be_a(Rex::Proto::Kerberos::Model::Pkinit::ContentInfo)
+        expect(result).to be_a(Rex::Proto::CryptoAsn1::Cms::ContentInfo)
       end
 
       it 'should respond to #to_der' do
