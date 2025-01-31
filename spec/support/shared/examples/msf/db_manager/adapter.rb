@@ -10,7 +10,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Adapter' do
         described_class::ADAPTER
       }
 
-      it { is_expected.to eq('postgresql') }
+      it { is_expected.to eq('sqlite3') }
     end
   end
 

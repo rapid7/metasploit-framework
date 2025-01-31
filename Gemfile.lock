@@ -681,6 +681,7 @@ DEPENDENCIES
   rubocop (= 1.75.7)
   ruby-prof
   simplecov (= 0.18.2)
+  sqlite3
   test-prof
   timecop
   yard

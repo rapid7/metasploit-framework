@@ -11,16 +11,13 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
-
-  create_table "api_keys", id: :serial, force: :cascade do |t|
+  create_table "api_keys", force: :cascade do |t|
     t.text "token"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "async_callbacks", id: :serial, force: :cascade do |t|
+  create_table "async_callbacks", force: :cascade do |t|
     t.string "uuid", null: false
     t.integer "timestamp", null: false
     t.string "listener_uri"
@@ -30,7 +27,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "automatic_exploitation_match_results", id: :serial, force: :cascade do |t|
+  create_table "automatic_exploitation_match_results", force: :cascade do |t|
     t.integer "match_id"
     t.integer "run_id"
     t.string "state", null: false
@@ -40,7 +37,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["run_id"], name: "index_automatic_exploitation_match_results_on_run_id"
   end
 
-  create_table "automatic_exploitation_match_sets", id: :serial, force: :cascade do |t|
+  create_table "automatic_exploitation_match_sets", force: :cascade do |t|
     t.integer "workspace_id"
     t.integer "user_id"
     t.datetime "created_at", precision: nil, null: false
@@ -49,7 +46,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["workspace_id"], name: "index_automatic_exploitation_match_sets_on_workspace_id"
   end
 
-  create_table "automatic_exploitation_matches", id: :serial, force: :cascade do |t|
+  create_table "automatic_exploitation_matches", force: :cascade do |t|
     t.integer "module_detail_id"
     t.string "state"
     t.integer "nexpose_data_vulnerability_definition_id"
@@ -63,7 +60,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["module_fullname"], name: "index_automatic_exploitation_matches_on_module_fullname"
   end
 
-  create_table "automatic_exploitation_runs", id: :serial, force: :cascade do |t|
+  create_table "automatic_exploitation_runs", force: :cascade do |t|
     t.integer "workspace_id"
     t.integer "user_id"
     t.integer "match_set_id"
@@ -74,7 +71,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["workspace_id"], name: "index_automatic_exploitation_runs_on_workspace_id"
   end
 
-  create_table "clients", id: :serial, force: :cascade do |t|
+  create_table "clients", force: :cascade do |t|
     t.integer "host_id"
     t.datetime "created_at", precision: nil
     t.string "ua_string", limit: 1024, null: false
@@ -93,7 +90,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.integer "task_id"
   end
 
-  create_table "creds", id: :serial, force: :cascade do |t|
+  create_table "creds", force: :cascade do |t|
     t.integer "service_id", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
@@ -106,7 +103,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.string "source_type"
   end
 
-  create_table "events", id: :serial, force: :cascade do |t|
+  create_table "events", force: :cascade do |t|
     t.integer "workspace_id"
     t.integer "host_id"
     t.datetime "created_at", precision: nil
@@ -118,7 +115,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.text "info"
   end
 
-  create_table "exploit_attempts", id: :serial, force: :cascade do |t|
+  create_table "exploit_attempts", force: :cascade do |t|
     t.integer "host_id"
     t.integer "service_id"
     t.integer "vuln_id"
@@ -134,7 +131,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.text "fail_detail"
   end
 
-  create_table "exploited_hosts", id: :serial, force: :cascade do |t|
+  create_table "exploited_hosts", force: :cascade do |t|
     t.integer "host_id", null: false
     t.integer "service_id"
     t.string "session_uuid", limit: 8
@@ -144,7 +141,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "host_details", id: :serial, force: :cascade do |t|
+  create_table "host_details", force: :cascade do |t|
     t.integer "host_id"
     t.integer "nx_console_id"
     t.integer "nx_device_id"
@@ -155,9 +152,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.float "nx_risk_score"
   end
 
-  create_table "hosts", id: :serial, force: :cascade do |t|
+  create_table "hosts", force: :cascade do |t|
     t.datetime "created_at", precision: nil
-    t.inet "address", null: false
+    t.string "address", limit: 16, null: false
     t.string "mac"
     t.string "comm"
     t.string "name"
@@ -190,12 +187,12 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["workspace_id", "address"], name: "index_hosts_on_workspace_id_and_address", unique: true
   end
 
-  create_table "hosts_tags", id: :serial, force: :cascade do |t|
+  create_table "hosts_tags", force: :cascade do |t|
     t.integer "host_id"
     t.integer "tag_id"
   end
 
-  create_table "listeners", id: :serial, force: :cascade do |t|
+  create_table "listeners", force: :cascade do |t|
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.integer "workspace_id", default: 1, null: false
@@ -209,7 +206,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.text "macro"
   end
 
-  create_table "loots", id: :serial, force: :cascade do |t|
+  create_table "loots", force: :cascade do |t|
     t.integer "workspace_id", default: 1, null: false
     t.integer "host_id"
     t.integer "service_id"
@@ -225,7 +222,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["module_run_id"], name: "index_loots_on_module_run_id"
   end
 
-  create_table "macros", id: :serial, force: :cascade do |t|
+  create_table "macros", force: :cascade do |t|
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.text "owner"
@@ -235,7 +232,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.binary "prefs"
   end
 
-  create_table "metasploit_credential_cores", id: :serial, force: :cascade do |t|
+  create_table "metasploit_credential_cores", force: :cascade do |t|
     t.string "origin_type", null: false
     t.integer "origin_id", null: false
     t.integer "private_id"
@@ -249,16 +246,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["private_id"], name: "index_metasploit_credential_cores_on_private_id"
     t.index ["public_id"], name: "index_metasploit_credential_cores_on_public_id"
     t.index ["realm_id"], name: "index_metasploit_credential_cores_on_realm_id"
-    t.index ["workspace_id", "private_id"], name: "unique_private_metasploit_credential_cores", unique: true, where: "((realm_id IS NULL) AND (public_id IS NULL) AND (private_id IS NOT NULL))"
-    t.index ["workspace_id", "public_id", "private_id"], name: "unique_realmless_metasploit_credential_cores", unique: true, where: "((realm_id IS NULL) AND (public_id IS NOT NULL) AND (private_id IS NOT NULL))"
-    t.index ["workspace_id", "public_id"], name: "unique_public_metasploit_credential_cores", unique: true, where: "((realm_id IS NULL) AND (public_id IS NOT NULL) AND (private_id IS NULL))"
-    t.index ["workspace_id", "realm_id", "private_id"], name: "unique_publicless_metasploit_credential_cores", unique: true, where: "((realm_id IS NOT NULL) AND (public_id IS NULL) AND (private_id IS NOT NULL))"
-    t.index ["workspace_id", "realm_id", "public_id", "private_id"], name: "unique_complete_metasploit_credential_cores", unique: true, where: "((realm_id IS NOT NULL) AND (public_id IS NOT NULL) AND (private_id IS NOT NULL))"
-    t.index ["workspace_id", "realm_id", "public_id"], name: "unique_privateless_metasploit_credential_cores", unique: true, where: "((realm_id IS NOT NULL) AND (public_id IS NOT NULL) AND (private_id IS NULL))"
+    t.index ["workspace_id", "private_id"], name: "unique_private_metasploit_credential_cores", unique: true, where: "realm_id IS NULL AND public_id IS NULL AND private_id IS NOT NULL"
+    t.index ["workspace_id", "public_id", "private_id"], name: "unique_realmless_metasploit_credential_cores", unique: true, where: "realm_id IS NULL AND public_id IS NOT NULL AND private_id IS NOT NULL"
+    t.index ["workspace_id", "public_id"], name: "unique_public_metasploit_credential_cores", unique: true, where: "realm_id IS NULL AND public_id IS NOT NULL AND private_id IS NULL"
+    t.index ["workspace_id", "realm_id", "private_id"], name: "unique_publicless_metasploit_credential_cores", unique: true, where: "realm_id IS NOT NULL AND public_id IS NULL AND private_id IS NOT NULL"
+    t.index ["workspace_id", "realm_id", "public_id", "private_id"], name: "unique_complete_metasploit_credential_cores", unique: true, where: "realm_id IS NOT NULL AND public_id IS NOT NULL AND private_id IS NOT NULL"
+    t.index ["workspace_id", "realm_id", "public_id"], name: "unique_privateless_metasploit_credential_cores", unique: true, where: "realm_id IS NOT NULL AND public_id IS NOT NULL AND private_id IS NULL"
     t.index ["workspace_id"], name: "index_metasploit_credential_cores_on_workspace_id"
   end
 
-  create_table "metasploit_credential_logins", id: :serial, force: :cascade do |t|
+  create_table "metasploit_credential_logins", force: :cascade do |t|
     t.integer "core_id", null: false
     t.integer "service_id", null: false
     t.string "access_level"
@@ -270,14 +267,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["service_id", "core_id"], name: "index_metasploit_credential_logins_on_service_id_and_core_id", unique: true
   end
 
-  create_table "metasploit_credential_origin_cracked_passwords", id: :serial, force: :cascade do |t|
+  create_table "metasploit_credential_origin_cracked_passwords", force: :cascade do |t|
     t.integer "metasploit_credential_core_id", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.index ["metasploit_credential_core_id"], name: "originating_credential_cores"
   end
 
-  create_table "metasploit_credential_origin_imports", id: :serial, force: :cascade do |t|
+  create_table "metasploit_credential_origin_imports", force: :cascade do |t|
     t.text "filename", null: false
     t.integer "task_id"
     t.datetime "created_at", precision: nil, null: false
@@ -285,14 +282,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["task_id"], name: "index_metasploit_credential_origin_imports_on_task_id"
   end
 
-  create_table "metasploit_credential_origin_manuals", id: :serial, force: :cascade do |t|
+  create_table "metasploit_credential_origin_manuals", force: :cascade do |t|
     t.integer "user_id", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.index ["user_id"], name: "index_metasploit_credential_origin_manuals_on_user_id"
   end
 
-  create_table "metasploit_credential_origin_services", id: :serial, force: :cascade do |t|
+  create_table "metasploit_credential_origin_services", force: :cascade do |t|
     t.integer "service_id", null: false
     t.text "module_full_name", null: false
     t.datetime "created_at", precision: nil, null: false
@@ -300,7 +297,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["service_id", "module_full_name"], name: "unique_metasploit_credential_origin_services", unique: true
   end
 
-  create_table "metasploit_credential_origin_sessions", id: :serial, force: :cascade do |t|
+  create_table "metasploit_credential_origin_sessions", force: :cascade do |t|
     t.text "post_reference_name", null: false
     t.integer "session_id", null: false
     t.datetime "created_at", precision: nil, null: false
@@ -308,7 +305,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["session_id", "post_reference_name"], name: "unique_metasploit_credential_origin_sessions", unique: true
   end
 
-  create_table "metasploit_credential_privates", id: :serial, force: :cascade do |t|
+  create_table "metasploit_credential_privates", force: :cascade do |t|
     t.string "type", null: false
     t.text "data", null: false
     t.datetime "created_at", precision: nil, null: false
@@ -320,7 +317,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["type", "data"], name: "index_metasploit_credential_privates_on_type_and_data", unique: true, where: "(NOT (((type)::text = 'Metasploit::Credential::SSHKey'::text) OR ((type)::text = 'Metasploit::Credential::Pkcs12'::text)))"
   end
 
-  create_table "metasploit_credential_publics", id: :serial, force: :cascade do |t|
+  create_table "metasploit_credential_publics", force: :cascade do |t|
     t.string "username", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
@@ -328,7 +325,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["username"], name: "index_metasploit_credential_publics_on_username", unique: true
   end
 
-  create_table "metasploit_credential_realms", id: :serial, force: :cascade do |t|
+  create_table "metasploit_credential_realms", force: :cascade do |t|
     t.string "key", null: false
     t.string "value", null: false
     t.datetime "created_at", precision: nil, null: false
@@ -336,32 +333,32 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["key", "value"], name: "index_metasploit_credential_realms_on_key_and_value", unique: true
   end
 
-  create_table "mod_refs", id: :serial, force: :cascade do |t|
+  create_table "mod_refs", force: :cascade do |t|
     t.string "module", limit: 1024
     t.string "mtype", limit: 128
     t.text "ref"
   end
 
-  create_table "module_actions", id: :serial, force: :cascade do |t|
+  create_table "module_actions", force: :cascade do |t|
     t.integer "detail_id"
     t.text "name"
     t.index ["detail_id"], name: "index_module_actions_on_detail_id"
   end
 
-  create_table "module_archs", id: :serial, force: :cascade do |t|
+  create_table "module_archs", force: :cascade do |t|
     t.integer "detail_id"
     t.text "name"
     t.index ["detail_id"], name: "index_module_archs_on_detail_id"
   end
 
-  create_table "module_authors", id: :serial, force: :cascade do |t|
+  create_table "module_authors", force: :cascade do |t|
     t.integer "detail_id"
     t.text "name"
     t.text "email"
     t.index ["detail_id"], name: "index_module_authors_on_detail_id"
   end
 
-  create_table "module_details", id: :serial, force: :cascade do |t|
+  create_table "module_details", force: :cascade do |t|
     t.datetime "mtime", precision: nil
     t.text "file"
     t.string "mtype"
@@ -383,26 +380,26 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["refname"], name: "index_module_details_on_refname"
   end
 
-  create_table "module_mixins", id: :serial, force: :cascade do |t|
+  create_table "module_mixins", force: :cascade do |t|
     t.integer "detail_id"
     t.text "name"
     t.index ["detail_id"], name: "index_module_mixins_on_detail_id"
   end
 
-  create_table "module_platforms", id: :serial, force: :cascade do |t|
+  create_table "module_platforms", force: :cascade do |t|
     t.integer "detail_id"
     t.text "name"
     t.index ["detail_id"], name: "index_module_platforms_on_detail_id"
   end
 
-  create_table "module_refs", id: :serial, force: :cascade do |t|
+  create_table "module_refs", force: :cascade do |t|
     t.integer "detail_id"
     t.text "name"
     t.index ["detail_id"], name: "index_module_refs_on_detail_id"
     t.index ["name"], name: "index_module_refs_on_name"
   end
 
-  create_table "module_runs", id: :serial, force: :cascade do |t|
+  create_table "module_runs", force: :cascade do |t|
     t.datetime "attempted_at", precision: nil
     t.text "fail_detail"
     t.string "fail_reason"
@@ -421,14 +418,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["user_id"], name: "index_module_runs_on_user_id"
   end
 
-  create_table "module_targets", id: :serial, force: :cascade do |t|
+  create_table "module_targets", force: :cascade do |t|
     t.integer "detail_id"
     t.integer "index"
     t.text "name"
     t.index ["detail_id"], name: "index_module_targets_on_detail_id"
   end
 
-  create_table "nexpose_consoles", id: :serial, force: :cascade do |t|
+  create_table "nexpose_consoles", force: :cascade do |t|
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.boolean "enabled", default: true
@@ -444,7 +441,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.text "name"
   end
 
-  create_table "notes", id: :serial, force: :cascade do |t|
+  create_table "notes", force: :cascade do |t|
     t.datetime "created_at", precision: nil
     t.string "ntype", limit: 512
     t.integer "workspace_id", default: 1, null: false
@@ -459,7 +456,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["vuln_id"], name: "index_notes_on_vuln_id"
   end
 
-  create_table "payloads", id: :serial, force: :cascade do |t|
+  create_table "payloads", force: :cascade do |t|
     t.string "name"
     t.string "uuid"
     t.integer "uuid_mask"
@@ -476,7 +473,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "profiles", id: :serial, force: :cascade do |t|
+  create_table "profiles", force: :cascade do |t|
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.boolean "active", default: true
@@ -485,7 +482,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.binary "settings"
   end
 
-  create_table "refs", id: :serial, force: :cascade do |t|
+  create_table "refs", force: :cascade do |t|
     t.integer "ref_id"
     t.datetime "created_at", precision: nil
     t.string "name", limit: 512
@@ -493,7 +490,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["name"], name: "index_refs_on_name"
   end
 
-  create_table "report_templates", id: :serial, force: :cascade do |t|
+  create_table "report_templates", force: :cascade do |t|
     t.integer "workspace_id", default: 1, null: false
     t.string "created_by"
     t.string "path", limit: 1024
@@ -502,7 +499,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "reports", id: :serial, force: :cascade do |t|
+  create_table "reports", force: :cascade do |t|
     t.integer "workspace_id", default: 1, null: false
     t.string "created_by"
     t.string "rtype"
@@ -510,18 +507,18 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.text "options"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.datetime "downloaded_at", precision: nil
+    t.datetime "downloaded_at"
     t.integer "task_id"
     t.string "name", limit: 63
   end
 
-  create_table "routes", id: :serial, force: :cascade do |t|
+  create_table "routes", force: :cascade do |t|
     t.integer "session_id"
     t.string "subnet"
     t.string "netmask"
   end
 
-  create_table "services", id: :serial, force: :cascade do |t|
+  create_table "services", force: :cascade do |t|
     t.integer "host_id"
     t.datetime "created_at", precision: nil
     t.integer "port", null: false
@@ -537,7 +534,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["state"], name: "index_services_on_state"
   end
 
-  create_table "session_events", id: :serial, force: :cascade do |t|
+  create_table "session_events", force: :cascade do |t|
     t.integer "session_id"
     t.string "etype"
     t.binary "command"
@@ -547,7 +544,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.datetime "created_at", precision: nil
   end
 
-  create_table "sessions", id: :serial, force: :cascade do |t|
+  create_table "sessions", force: :cascade do |t|
     t.integer "host_id"
     t.string "stype"
     t.string "via_exploit"
@@ -565,7 +562,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["module_run_id"], name: "index_sessions_on_module_run_id"
   end
 
-  create_table "tags", id: :serial, force: :cascade do |t|
+  create_table "tags", force: :cascade do |t|
     t.integer "user_id"
     t.string "name", limit: 1024
     t.text "desc"
@@ -576,35 +573,35 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "task_creds", id: :serial, force: :cascade do |t|
+  create_table "task_creds", force: :cascade do |t|
     t.integer "task_id", null: false
     t.integer "cred_id", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "task_hosts", id: :serial, force: :cascade do |t|
+  create_table "task_hosts", force: :cascade do |t|
     t.integer "task_id", null: false
     t.integer "host_id", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "task_services", id: :serial, force: :cascade do |t|
+  create_table "task_services", force: :cascade do |t|
     t.integer "task_id", null: false
     t.integer "service_id", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "task_sessions", id: :serial, force: :cascade do |t|
+  create_table "task_sessions", force: :cascade do |t|
     t.integer "task_id", null: false
     t.integer "session_id", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
   end
 
-  create_table "tasks", id: :serial, force: :cascade do |t|
+  create_table "tasks", force: :cascade do |t|
     t.integer "workspace_id", default: 1, null: false
     t.string "created_by"
     t.string "module"
@@ -622,7 +619,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.binary "settings"
   end
 
-  create_table "users", id: :serial, force: :cascade do |t|
+  create_table "users", force: :cascade do |t|
     t.string "username"
     t.string "crypted_password"
     t.string "password_salt"
@@ -637,7 +634,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.boolean "admin", default: true, null: false
   end
 
-  create_table "vuln_attempts", id: :serial, force: :cascade do |t|
+  create_table "vuln_attempts", force: :cascade do |t|
     t.integer "vuln_id"
     t.datetime "attempted_at", precision: nil
     t.boolean "exploited"
@@ -649,7 +646,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.text "fail_detail"
   end
 
-  create_table "vuln_details", id: :serial, force: :cascade do |t|
+  create_table "vuln_details", force: :cascade do |t|
     t.integer "vuln_id"
     t.float "cvss_score"
     t.string "cvss_vector"
@@ -670,18 +667,18 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.text "nx_proof_key"
     t.string "src"
     t.integer "nx_scan_id"
-    t.datetime "nx_vulnerable_since", precision: nil
+    t.datetime "nx_vulnerable_since"
     t.string "nx_pci_compliance_status"
   end
 
-  create_table "vulns", id: :serial, force: :cascade do |t|
+  create_table "vulns", force: :cascade do |t|
     t.integer "host_id"
     t.integer "service_id"
     t.datetime "created_at", precision: nil
     t.string "name"
     t.datetime "updated_at", precision: nil
     t.string "info", limit: 65536
-    t.datetime "exploited_at", precision: nil
+    t.datetime "exploited_at"
     t.integer "vuln_detail_count", default: 0
     t.integer "vuln_attempt_count", default: 0
     t.integer "origin_id"
@@ -690,12 +687,12 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["origin_id"], name: "index_vulns_on_origin_id"
   end
 
-  create_table "vulns_refs", id: :serial, force: :cascade do |t|
+  create_table "vulns_refs", force: :cascade do |t|
     t.integer "ref_id"
     t.integer "vuln_id"
   end
 
-  create_table "web_forms", id: :serial, force: :cascade do |t|
+  create_table "web_forms", force: :cascade do |t|
     t.integer "web_site_id", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
@@ -706,7 +703,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["path"], name: "index_web_forms_on_path"
   end
 
-  create_table "web_pages", id: :serial, force: :cascade do |t|
+  create_table "web_pages", force: :cascade do |t|
     t.integer "web_site_id", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
@@ -725,7 +722,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["query"], name: "index_web_pages_on_query"
   end
 
-  create_table "web_sites", id: :serial, force: :cascade do |t|
+  create_table "web_sites", force: :cascade do |t|
     t.integer "service_id", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
@@ -737,7 +734,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["vhost"], name: "index_web_sites_on_vhost"
   end
 
-  create_table "web_vulns", id: :serial, force: :cascade do |t|
+  create_table "web_vulns", force: :cascade do |t|
     t.integer "web_site_id", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
@@ -749,7 +746,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.string "name", limit: 1024, null: false
     t.text "query"
     t.text "category", null: false
-    t.integer "confidence", null: false
+    t.integer "confidence"
     t.text "description"
     t.text "blame"
     t.binary "request"
@@ -761,9 +758,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.index ["path"], name: "index_web_vulns_on_path"
   end
 
-  create_table "wmap_requests", id: :serial, force: :cascade do |t|
+  create_table "wmap_requests", force: :cascade do |t|
     t.string "host"
-    t.inet "address"
+    t.string "address", limit: 255
     t.integer "port"
     t.integer "ssl"
     t.string "meth", limit: 32
@@ -778,9 +775,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.datetime "updated_at", precision: nil
   end
 
-  create_table "wmap_targets", id: :serial, force: :cascade do |t|
+  create_table "wmap_targets", force: :cascade do |t|
     t.string "host"
-    t.inet "address"
+    t.string "address", limit: 255
     t.integer "port"
     t.integer "ssl"
     t.integer "selected"
@@ -793,7 +790,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_04_172657) do
     t.integer "user_id", null: false
   end
 
-  create_table "workspaces", id: :serial, force: :cascade do |t|
+  create_table "workspaces", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
