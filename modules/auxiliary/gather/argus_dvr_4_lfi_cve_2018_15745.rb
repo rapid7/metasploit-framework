@@ -67,9 +67,10 @@ class MetasploitModule < Msf::Auxiliary
       print_good('File retrieved successfully!')
       print_line(response.body)
       store_loot('file_traversal', 'text/plain', rhost, response.body, "#{target_file.gsub('/', '_')}.txt")
+    elsif response
+      print_error('Failed to retrieve file.') # Response from server but file not returned
     else
-      print_error('Failed to retrieve file.') if response # Response from server but file not returned
-      print_error('No response from target.') unless response # No response from server
+      print_error('No response from target.') # No response from server
     end
   end
 end
