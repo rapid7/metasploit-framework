@@ -15,27 +15,27 @@ Once the appropriate repository label is added, you will need to edit the GitHub
 repository and branch you want to test. Below I will outline some changes that are required to make this work, update 
 the following lines like so:
 
-1. Point at your forked repository - [line to update](https://github.com/rapid7/metasploit-framework/blob/2355ab546d02bfee99183083b12c6953836c12a1/.github/workflows/shared_meterpreter_acceptance.yml#L188):
+1. Point at your forked repository - [line to update](https://github.com/rapid7/metasploit-framework/blob/2355ab546d02bfee99183083b12c6953836c12a1/.github/workflows/shared_meterpreter_acceptance.yml#L189):
 ```yaml
 repository: foo-r7/metasploit-framework
 ```
 
-2. Point at your forked repository branch - [line to update](https://github.com/rapid7/metasploit-framework/blob/2355ab546d02bfee99183083b12c6953836c12a1/.github/workflows/shared_meterpreter_acceptance.yml#L190):
+2. Point at your forked repository branch - [line to update](https://github.com/rapid7/metasploit-framework/blob/2355ab546d02bfee99183083b12c6953836c12a1/.github/workflows/shared_meterpreter_acceptance.yml#L191):
 ```yaml
 ref: fixes-all-the-bugs
 ```
 
-3. Point at your forked repository that contains the payload changes you'd like to test - [line to update](https://github.com/rapid7/metasploit-framework/blob/2355ab546d02bfee99183083b12c6953836c12a1/.github/workflows/shared_meterpreter_acceptance.yml#L249)
+3. Point at your forked repository that contains the payload changes you'd like to test - update lines [45](https://github.com/rapid7/metasploit-framework/blob/2355ab546d02bfee99183083b12c6953836c12a1/.github/workflows/shared_meterpreter_acceptance.yml#L45) and [250](https://github.com/rapid7/metasploit-framework/blob/2355ab546d02bfee99183083b12c6953836c12a1/.github/workflows/shared_meterpreter_acceptance.yml#L250):
 ```yaml
 repository: foo-r7/metasploit-payloads
 ```
 
-4. Point at your forked repository branch that contains the payload changes you'd like to test - [line to update](https://github.com/rapid7/metasploit-framework/blob/2355ab546d02bfee99183083b12c6953836c12a1/.github/workflows/shared_meterpreter_acceptance.yml#L251):
+4. Point at your forked repository branch that contains the payload changes you'd like to test - update lines [47](https://github.com/rapid7/metasploit-framework/blob/2355ab546d02bfee99183083b12c6953836c12a1/.github/workflows/shared_meterpreter_acceptance.yml#L47) and [252](https://github.com/rapid7/metasploit-framework/blob/2355ab546d02bfee99183083b12c6953836c12a1/.github/workflows/shared_meterpreter_acceptance.yml#L252):
 ```yaml
 ref: fixes-all-the-payload-bugs
 ```
 
 Steps 3 and 4 outline the steps required when steps testing metasploit-payloads. The same steps apply for Mettle, the 
 following lines would need updated:
- - Point at your forked repository that contain the payload changes you'd like to test - [line](https://github.com/rapid7/metasploit-framework/blob/2355ab546d02bfee99183083b12c6953836c12a1/.github/workflows/shared_meterpreter_acceptance.yml#L155).
- - Point at your forked repository branch that contains the payload changes you'd like to test - [line](https://github.com/rapid7/metasploit-framework/blob/2355ab546d02bfee99183083b12c6953836c12a1/.github/workflows/shared_meterpreter_acceptance.yml#L157).
+ - Point at your forked repository that contain the payload changes you'd like to test - [line](https://github.com/rapid7/metasploit-framework/blob/2355ab546d02bfee99183083b12c6953836c12a1/.github/workflows/shared_meterpreter_acceptance.yml#L156).
+ - Point at your forked repository branch that contains the payload changes you'd like to test - [line](https://github.com/rapid7/metasploit-framework/blob/2355ab546d02bfee99183083b12c6953836c12a1/.github/workflows/shared_meterpreter_acceptance.yml#L158).
