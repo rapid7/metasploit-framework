@@ -59,7 +59,7 @@ module Rex::Proto
       end
 
       def set(v)
-        raise TypeError, 'must be an IPv4 address'  unless Rex::Socket.is_ipv4?(v)
+        raise TypeError, 'must be an IPv4 address' unless Rex::Socket.is_ipv4?(v)
 
         self.data = Rex::Socket.addr_aton(v)
       end

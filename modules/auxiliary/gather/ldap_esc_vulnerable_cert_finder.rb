@@ -539,28 +539,30 @@ class MetasploitModule < Msf::Auxiliary
         next if enroll_sids.empty?
 
         ca_server_fqdn = ca_server[:dnshostname][0].to_s.downcase
-        ca_server_ip_address = get_ip_addresses_by_fqdn(ca_server_fqdn)&.first
+        unless ca_server_fqdn.blank?
+          ca_server_ip_address = get_ip_addresses_by_fqdn(ca_server_fqdn)&.first
 
-        if ca_server_ip_address
-          service = report_service({
-            host: ca_server_ip_address,
-            port: 445,
-            proto: 'tcp',
-            name: 'AD CS',
-            info: "AD CS CA name: #{ca_server[:name][0]}"
-          })
+          if ca_server_ip_address
+            service = report_service({
+              host: ca_server_ip_address,
+              port: 445,
+              proto: 'tcp',
+              name: 'AD CS',
+              info: "AD CS CA name: #{ca_server[:name][0]}"
+            })
 
-          report_note({
-            data: ca_server[:dn][0].to_s,
-            service: service,
-            host: ca_server_ip_address,
-            ntype: 'windows.ad.cs.ca.dn'
-          })
+            report_note({
+              data: ca_server[:dn][0].to_s,
+              service: service,
+              host: ca_server_ip_address,
+              ntype: 'windows.ad.cs.ca.dn'
+            })
 
-          report_host({
-            host: ca_server_ip_address,
-            name: ca_server_fqdn
-          })
+            report_host({
+              host: ca_server_ip_address,
+              name: ca_server_fqdn
+            })
+          end
         end
 
         ca_server_key = ca_server_fqdn.to_sym
@@ -606,7 +608,7 @@ class MetasploitModule < Msf::Auxiliary
     vuln_certificate_details.each do |key, hash|
       techniques = hash[:techniques].dup
       techniques.delete('ESC3_TEMPLATE_2') unless any_esc3t1 # don't report ESC3_TEMPLATE_2 if there are no instances of ESC3
-      next if techniques.empty?
+      next if techniques.empty? || !db
 
       techniques.each do |vuln|
         next if vuln == 'ESC3_TEMPLATE_2'
@@ -624,23 +626,27 @@ class MetasploitModule < Msf::Auxiliary
             info: "AD CS CA name: #{ca_server[:name]}"
           })
 
-          vuln = report_vuln(
-            host: ca_server[:ip_address],
-            port: 445,
-            proto: 'tcp',
-            sname: 'AD CS',
-            name: "#{vuln} - #{key}",
-            info: info,
-            refs: REFERENCES[vuln],
-            service: service
-          )
+          if ca_server[:ip_address].present?
+            vuln = report_vuln(
+              host: ca_server[:ip_address],
+              port: 445,
+              proto: 'tcp',
+              sname: 'AD CS',
+              name: "#{vuln} - #{key}",
+              info: info,
+              refs: REFERENCES[vuln],
+              service: service
+            )
+          else
+            vuln = nil
+          end
 
           report_note({
             data: hash[:dn],
             service: service,
             host: ca_fqdn.to_s,
             ntype: 'windows.ad.cs.ca.template.dn',
-            vuln_id: vuln.id
+            vuln_id: vuln&.id
           })
         end
       end
@@ -660,9 +666,9 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
-      if hash[:write_enabled_sids]
+      if hash[:write_sids]
         print_status(' Certificate Template Write-Enabled SIDs:')
-        hash[:write_enabled_sids].each do |sid|
+        hash[:write_sids].each do |sid|
           print_status("    * #{highlight_sid(sid)}")
         end
       end
@@ -744,13 +750,29 @@ class MetasploitModule < Msf::Auxiliary
   def get_ip_addresses_by_fqdn(host_fqdn)
     return @fqdns[host_fqdn] if @fqdns.key?(host_fqdn)
 
+    vprint_status("Resolving addresses for #{host_fqdn} via DNS.")
+    begin
+      ip_addresses = Rex::Socket.getaddresses(host_fqdn)
+    rescue ::SocketError
+      print_warning("No IP addresses were found for #{host_fqdn} via DNS.")
+    else
+      @fqdns[host_fqdn] = ip_addresses
+      vprint_status("Found #{ip_addresses.length} IP address#{ip_addresses.length > 1 ? 'es' : ''} via DNS.")
+      return ip_addresses
+    end
+
     vprint_status("Looking up DNS records for #{host_fqdn} in LDAP.")
     hostname, _, domain = host_fqdn.partition('.')
-    results = query_ldap_server(
-      "(&(objectClass=dnsNode)(DC=#{ldap_escape_filter(hostname)}))",
-      %w[dnsRecord],
-      base_prefix: "DC=#{ldap_escape_filter(domain)},CN=MicrosoftDNS,DC=DomainDnsZones"
-    )
+    begin
+      results = query_ldap_server(
+        "(&(objectClass=dnsNode)(DC=#{ldap_escape_filter(hostname)}))",
+        %w[dnsRecord],
+        base_prefix: "DC=#{ldap_escape_filter(domain)},CN=MicrosoftDNS,DC=DomainDnsZones"
+      )
+    rescue Msf::Auxiliary::Failed
+      print_error('Encountered an error while querying LDAP for DNS records.')
+      @fqdns[host_fqdn] = nil
+    end
     return nil if results.blank?
 
     ip_addresses = []
