@@ -384,7 +384,8 @@ module Msf::DBManager::ModuleCache
 
     # 1) Bulk insert the module detail entries
     module_details = module_hashes.map { |mod_hash| mod_hash.except(:bits) }
-    module_detail_ids = Mdm::Module::Detail.insert_all!(module_details, returning: %w[id]).map { |returning| returning['id'] }
+    Mdm::Module::Detail.insert_all!(module_details)
+    module_detail_ids = Mdm::Module::Detail.all.map { |returning| returning['id'] }
 
     # 2) Build the hashes for the associations
     associations = module_hashes.zip(module_detail_ids).each_with_object(Hash.new { |hash, key| hash[key] = [] }) do |(module_hash, detail_id), acc|

@@ -1923,8 +1923,8 @@ end
     driver = self.framework.db.driver
 
     case driver
-    when 'postgresql'
-      opts['adapter'] = 'postgresql'
+    when 'postgresql', 'sqlite3'
+      opts['adapter'] = driver
     else
       return { :result => 'failed' }
     end

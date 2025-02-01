@@ -4,7 +4,7 @@ module Msf::DBManager::Adapter
   #
 
   # The adapter to use to establish database connection.
-  ADAPTER = 'postgresql'
+  ADAPTER = 'sqlite3'
 
   #
   # Attributes
