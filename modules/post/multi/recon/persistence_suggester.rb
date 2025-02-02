@@ -11,22 +11,27 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'Multi Recon Local Exploit Suggester',
+        'Name' => 'Persistence Exploit Suggester',
         'Description' => %q{
-          This module suggests local meterpreter exploits that can be used.
+          This module suggests persistence modules that can be used.
 
-          The exploits are suggested based on the architecture and platform
+          The modules are suggested based on the architecture and platform
           that the user has a shell opened as well as the available exploits
           in meterpreter.
 
-          It's important to note that not all local exploits will be fired.
+          It's important to note that not all modules will be checked.
           Exploits are chosen based on these conditions: session type,
           platform, architecture, and required default options.
         },
         'License' => MSF_LICENSE,
-        'Author' => [ 'sinn3r', 'Mo' ],
+        'Author' => [ 'h00die' ],
         'Platform' => all_platforms,
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Notes' => {
+          'Stability' => [],
+          'Reliability' => [],
+          'SideEffects' => []
+        }
       )
     )
     register_options [
@@ -36,7 +41,10 @@ class MetasploitModule < Msf::Post
 
     register_advanced_options(
       [
-        Msf::OptBool.new('ValidateArch', [true, 'Validate architecture', true]),
+        # most linux persistence modules are arch-cmd but for payload purposes only
+        # but usually we end up with a meterpreter session, thus making these invalid
+        # so disable this check by default
+        Msf::OptBool.new('ValidateArch', [true, 'Validate architecture', false]),
         Msf::OptBool.new('ValidatePlatform', [true, 'Validate platform', true]),
         Msf::OptBool.new('ValidateMeterpreterCommands', [true, 'Validate Meterpreter commands', false]),
         Msf::OptString.new('Colors', [false, 'Valid, Invalid and Ignored colors for module checks (unset to disable)', 'grn/red/blu'])
@@ -56,6 +64,8 @@ class MetasploitModule < Msf::Post
   def is_module_arch?(mod)
     mod_arch = mod.target.arch || mod.arch
     mod_arch.include?(session_arch)
+  rescue StandardError => e
+    print_error "Failed to check module arch for #{mod.fullname} => #{e}"
   end
 
   def is_module_wanted?(mod)
@@ -134,25 +144,25 @@ class MetasploitModule < Msf::Post
   def setup
     return unless session
 
-    print_status "Collecting local exploits for #{session.session_type}..."
+    print_status "Collecting persistence modules for #{session.session_type}..."
 
     setup_validation_options
     setup_color_options
 
-    # Collects exploits into an array
-    @local_exploits = []
+    # Collects persistence modules into an array
+    @persistence_modules = []
     exploit_refnames = framework.exploits.module_refnames
     exploit_refnames.each_with_index do |name, index|
       print "%bld%blu[*]%clr Collecting exploit #{index + 1} / #{exploit_refnames.count}\r"
+      next unless name.include? '/persistence/'
+
       mod = framework.exploits.create name
       next unless mod
-      next if name.include? '/persistence/' # avoid persistence modules, they have their own suggester
 
       set_module_options mod
       set_module_target mod
-
       verify_result = verify_mod(mod)
-      @local_exploits << { module: mod, result: verify_result } if verify_result[:has_check]
+      @persistence_modules << { module: mod, result: verify_result } if verify_result[:has_check]
     end
   end
 
@@ -188,23 +198,23 @@ class MetasploitModule < Msf::Post
 
   def show_found_exploits
     unless datastore['VERBOSE']
-      print_status "#{@local_exploits.length} exploit checks are being tried..."
+      print_status "#{@persistence_modules.length} exploit checks are being tried..."
       return
     end
 
-    vprint_status "The following #{@local_exploits.length} exploit checks are being tried:"
-    @local_exploits.each do |x|
+    vprint_status "The following #{@persistence_modules.length} exploit checks are being tried:"
+    @persistence_modules.each do |x|
       vprint_status x[:module].fullname
     end
   end
 
   def run
-    runnable_exploits = @local_exploits.select { |mod| is_module_wanted?(mod) }
+    runnable_exploits = @persistence_modules.select { |mod| is_module_wanted?(mod) }
     if runnable_exploits.empty?
       print_error 'No suggestions available.'
       vprint_line
       vprint_session_info
-      vprint_status unwanted_modules_table(@local_exploits.reject { |mod| is_module_wanted?(mod) })
+      vprint_status unwanted_modules_table(@persistence_modules.reject { |mod| is_module_wanted?(mod) })
       return
     end
 
@@ -249,7 +259,7 @@ class MetasploitModule < Msf::Post
 
     vprint_line
     vprint_session_info
-    vprint_status unwanted_modules_table(@local_exploits.reject { |mod| is_module_wanted?(mod) })
+    vprint_status unwanted_modules_table(@persistence_modules.reject { |mod| is_module_wanted?(mod) })
 
     report_data = []
     results.each do |result|
@@ -257,7 +267,7 @@ class MetasploitModule < Msf::Post
     end
     report_note(
       host: session.session_host,
-      type: 'local.suggested_exploits',
+      type: 'persistence.suggested_module',
       data: report_data
     )
   end
@@ -310,9 +320,17 @@ class MetasploitModule < Msf::Post
     session_type_styler = ::Msf::Ui::Console::TablePrint::CustomColorStyler.new
 
     rows = unwanted_modules.map.with_index do |mod, index|
-      platforms = mod[:module].target.platform&.platforms&.any? ? mod[:module].target.platform.platforms : mod[:module].platform.platforms
+      begin
+        platforms = mod[:module].target.platform&.platforms&.any? ? mod[:module].target.platform.platforms : mod[:module].platform.platforms
+      rescue NoMethodError
+        platforms = nil
+      end
       platforms ||= []
-      arch = mod[:module].target.arch&.any? ? mod[:module].target.arch : mod[:module].arch
+      begin
+        arch = mod[:module].target.arch&.any? ? mod[:module].target.arch : mod[:module].arch
+      rescue NoMethodError
+        arch = nil
+      end
       arch ||= []
 
       arch.each do |a|
@@ -352,7 +370,7 @@ class MetasploitModule < Msf::Post
         index + 1,
         mod[:module].fullname,
         mod[:result][:incompatibility_reasons].join('. '),
-        platforms.map(&:realname).sort.join(', '),
+        platforms.any? ? platforms.map(&:realname).sort.join(', ') : 'No defined platforms',
         arch.any? ? arch.sort.join(', ') : 'No defined architectures',
         mod[:module].session_types.any? ? mod[:module].session_types.sort.join(', ') : 'No defined session types'
       ]
