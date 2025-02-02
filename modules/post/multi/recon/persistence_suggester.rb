@@ -224,7 +224,7 @@ class MetasploitModule < Msf::Post
       begin
         checkcode = mod[:module].check
       rescue StandardError => e
-        elog("#Local Exploit Suggester failed with: #{e.class} when using #{mod[:module].shortname}", error: e)
+        elog("#Local Persistence Suggester failed with: #{e.class} when using #{mod[:module].shortname}", error: e)
         vprint_error "Check with module #{mod[:module].fullname} failed with error #{e.class}"
         next { module: mod[:module], errors: ['The check raised an exception.'] }
       end
