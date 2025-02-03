@@ -1,6 +1,5 @@
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/ivanti_login'
-require 'metasploit/framework/login_scanner/ivanti_admin_login'
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -8,6 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::ReportSummary
 
   def initialize(info = {})
     super(
@@ -53,12 +53,7 @@ class MetasploitModule < Msf::Auxiliary
       bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       connection_timeout: datastore['HttpClientTimeout'] || 5
     )
-    if datastore['ADMIN']
-      return Metasploit::Framework::LoginScanner::IvantiAdmin.new(configuration)
-    else
-
-      return Metasploit::Framework::LoginScanner::Ivanti.new(configuration)
-    end
+    return Metasploit::Framework::LoginScanner::Ivanti.new(configuration, datastore['ADMIN'])
   end
 
   def process_credential(credential_data)
@@ -78,14 +73,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_scanner(scanner)
-    successful_logins = []
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(module_fullname: fullname, workspace_id: myworkspace_id)
-      processed_credential = process_credential(credential_data)
-      successful_logins << processed_credential[:credential] if processed_credential[:status] == :success
+      process_credential(credential_data)
     end
-    { successful_logins: successful_logins }
   end
 
   def run_host(ip)
