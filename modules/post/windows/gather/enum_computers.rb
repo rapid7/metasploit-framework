@@ -59,7 +59,8 @@ class MetasploitModule < Msf::Post
 
   # Takes the host name and makes use of nslookup to resolve the IP
   #
-  # @param [String] host Hostname
+  # @param [Object] hostname
+  # @param [Object] family
   # @return [String] ip The resolved IP
   def gethost(hostname, family)
     ## get IP for host
@@ -106,7 +107,6 @@ class MetasploitModule < Msf::Post
       end
 
       begin
-        hostname = "google.com"
         hostipv6 = gethost(hostname, AF_INET6)
       rescue Rex::Post::Meterpreter::RequestError => e
         meterpreter_dns_resolving_errors << "IPV6: #{hostname} could not be resolved - #{e}"
