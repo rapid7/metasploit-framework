@@ -37,8 +37,11 @@ module Metasploit
           admin_page_res = send_request({ 'method' => 'GET', 'uri' => normalize_uri('/dana-admin/misc/admin.cgi?'), 'cookie' => cookies })
           admin_page_s = admin_page_res.to_s
           re = /xsauth=[a-z0-9]{32}/
-          xsauth = re.match(admin_page_s)[0]
-          send_request({ 'method' => 'GET', 'uri' => normalize_uri('/dana-na/auth/logout.cgi?' + xsauth), 'cookie' => cookies })
+          xsauth = re.match(admin_page_s)
+
+          return nil if xsauth.nil?
+
+          send_request({ 'method' => 'GET', 'uri' => normalize_uri('/dana-na/auth/logout.cgi?' + xsauth[0]), 'cookie' => cookies })
         end
 
         def get_token
