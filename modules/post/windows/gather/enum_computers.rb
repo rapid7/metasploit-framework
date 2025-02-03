@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'rex/post/meterpreter/extensions/stdapi/constants'
+
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Accounts
@@ -100,20 +102,20 @@ class MetasploitModule < Msf::Post
         ]
     )
     hosts.each do |hostname|
-      begin
-        hostipv4 = gethost(hostname, AF_INET)
-      rescue Rex::Post::Meterpreter::RequestError => e
-        meterpreter_dns_resolving_errors << "IPV4: #{hostname} could not be resolved - #{e}"
+      hostipv4 = gethost(hostname, AF_INET)
+      hostipv6 = gethost(hostname, AF_INET6)
+
+      if hostipv4[:ips].empty?
+        meterpreter_dns_resolving_errors << "IPV4: #{hostname} could not be resolved"
+      else
+        tbl << [domain, hostname, hostipv4[:ips].join(',')]
       end
 
-      begin
-        hostipv6 = gethost(hostname, AF_INET6)
-      rescue Rex::Post::Meterpreter::RequestError => e
-        meterpreter_dns_resolving_errors << "IPV6: #{hostname} could not be resolved - #{e}"
+      if hostipv6[:ips].empty?
+        meterpreter_dns_resolving_errors << "IPV6: #{hostname} could not be resolved" if hostipv6[:ips].empty?
+      else
+        tbl << [domain, hostname, hostipv6[:ips].join(',')] unless hostipv6[:ips].nil?
       end
-
-      hostipv4.each { |ip| tbl << [domain, hostname, ip] } unless hostipv4.nil?
-      hostipv6.each { |ip| tbl << [domain, hostname, ip] } unless hostipv6.nil?
     end
 
     print_line("\n#{tbl}\n")
