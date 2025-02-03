@@ -3,6 +3,9 @@ require 'metasploit/framework/login_scanner/http'
 module Metasploit
   module Framework
     module LoginScanner
+      # Ivanti Login Scanner supporting
+      # - User Login
+      # - Admin Login
       class Ivanti < HTTP
 
         def initialize(scanner_config, admin)
