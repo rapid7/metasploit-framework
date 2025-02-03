@@ -4,7 +4,6 @@
 ##
 
 module MetasploitModule
-  include Msf::Payload::Linux
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})

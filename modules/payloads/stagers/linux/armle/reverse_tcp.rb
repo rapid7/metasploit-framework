@@ -16,6 +16,7 @@ module MetasploitModule
 
   CachedSize = 260
 
+  include Msf::Payload::Linux::Armle::Prepends
   include Msf::Payload::Stager
 
   def initialize(info = {})

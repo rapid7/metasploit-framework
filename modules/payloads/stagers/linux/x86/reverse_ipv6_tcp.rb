@@ -10,7 +10,7 @@ module MetasploitModule
   CachedSize = 77
 
   include Msf::Payload::Stager
-  include Msf::Payload::Linux
+  include Msf::Payload::Linux::X86::Prepends
 
   def self.handler_type_alias
     "reverse_ipv6_tcp"

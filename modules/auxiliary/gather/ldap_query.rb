@@ -129,9 +129,13 @@ class MetasploitModule < Msf::Auxiliary
     ldap_connect do |ldap|
       validate_bind_success!(ldap)
 
-      fail_with(Failure::UnexpectedReply, "Couldn't discover base DN!") unless ldap.base_dn
-      base_dn = ldap.base_dn
-      print_status("#{ldap.peerinfo} Discovered base DN: #{base_dn}")
+      if datastore['BASE_DN'].blank?
+        fail_with(Failure::UnexpectedReply, "Couldn't discover base DN!") unless ldap.base_dn
+        base_dn = ldap.base_dn
+        print_status("#{ldap.peerinfo} Discovered base DN: #{base_dn}")
+      else
+        base_dn = datastore['BASE_DN']
+      end
 
       schema_dn = ldap.schema_dn
       case action.name
@@ -149,22 +153,21 @@ class MetasploitModule < Msf::Auxiliary
         run_queries_from_file(ldap, parsed_queries, schema_dn, datastore['OUTPUT_FORMAT'])
         return
       when 'RUN_SINGLE_QUERY'
-        unless datastore['QUERY_FILTER'] && datastore['QUERY_ATTRIBUTES']
-          fail_with(Failure::BadConfig, 'When using the RUN_SINGLE_QUERY action, one must supply the QUERY_FILTER and QUERY_ATTRIBUTE datastore options!')
+        unless datastore['QUERY_FILTER']
+          fail_with(Failure::BadConfig, 'When using the RUN_SINGLE_QUERY action, one must supply the QUERY_FILTER datastore option!')
         end
 
         print_status("Sending single query #{datastore['QUERY_FILTER']} to the LDAP server...")
-        attributes = datastore['QUERY_ATTRIBUTES']
-        if attributes.empty?
-          fail_with(Failure::BadConfig, 'Attributes list is empty as we could not find at least one attribute to filter on!')
+        if datastore['QUERY_ATTRIBUTES'].present?
+          # Split attributes string into an array of attributes, splitting on the comma character.
+          # Also downcase for consistency with rest of the code since LDAP searches aren't case sensitive.
+          attributes = datastore['QUERY_ATTRIBUTES'].downcase.split(',')
+
+          # Strip out leading and trailing whitespace from the attributes before using them.
+          attributes.map(&:strip!)
+        else
+          attributes = nil
         end
-
-        # Split attributes string into an array of attributes, splitting on the comma character.
-        # Also downcase for consistency with rest of the code since LDAP searches aren't case sensitive.
-        attributes = attributes.downcase.split(',')
-
-        # Strip out leading and trailing whitespace from the attributes before using them.
-        attributes.map(&:strip!)
         filter_string = datastore['QUERY_FILTER']
         query_base = base_dn
       else

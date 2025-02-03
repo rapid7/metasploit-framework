@@ -212,6 +212,23 @@ module Metasploit::Framework
     #   @return [Boolean]
     attr_accessor :anonymous_login
 
+    # @!attribute ignore_private
+    #   Whether to ignore private (password). This is usually set when Kerberos
+    #   or Schannel authentication is requested and the credentials are
+    #   retrieved from cache or from a file. This attribute should be true in
+    #   these scenarios, otherwise validation will fail since the password is not
+    #   provided.
+    #   @return [Boolean]
+    attr_accessor :ignore_private
+
+    # @!attribute ignore_public
+    #   Whether to ignore public (username). This is usually set when Schannel
+    #   authentication is requested and the credentials are retrieved from a
+    #   file (certificate). This attribute should be true in this case,
+    #   otherwise validation will fail since the password is not provided.
+    #   @return [Boolean]
+    attr_accessor :ignore_public
+
     # @option opts [Boolean] :blank_passwords See {#blank_passwords}
     # @option opts [String] :pass_file See {#pass_file}
     # @option opts [String] :password See {#password}
@@ -240,7 +257,13 @@ module Metasploit::Framework
     # @yieldparam credential [Metasploit::Framework::Credential]
     # @return [void]
     def each_filtered
-      if password_spray
+      if ignore_private
+        if ignore_public
+          yield Metasploit::Framework::Credential.new(public: nil, private: nil, realm: realm)
+        else
+          yield Metasploit::Framework::Credential.new(public: username, private: nil, realm: realm)
+        end
+      elsif password_spray
         each_unfiltered_password_first do |credential|
           next unless self.filter.nil? || self.filter.call(credential)
 
@@ -510,14 +533,14 @@ module Metasploit::Framework
     #
     # @return [Boolean]
     def has_users?
-      username.present? || user_file.present? || userpass_file.present? || !additional_publics.empty?
+      username.present? || user_file.present? || userpass_file.present? || !additional_publics.empty? || !!ignore_public
     end
 
     # Returns true when there are any private values set
     #
     # @return [Boolean]
     def has_privates?
-      super || userpass_file.present? || user_as_pass
+      super || userpass_file.present? || user_as_pass || !!ignore_private
     end
 
   end
