@@ -111,7 +111,6 @@ class MetasploitModule < Msf::Auxiliary
       retrieve_certs(relay_connection, relay_identity, cert_template)
     when 'ALL', 'QUERY_ONLY'
       cert_templates = get_cert_templates(relay_connection)
-
       unless cert_templates.nil? || cert_templates.empty?
         print_status('***Templates with CT_FLAG_MACHINE_TYPE set like Machine and DomainController will not display as available, even if they are.***')
         print_good("Available Certificates for #{relay_identity} on #{datastore['RELAY_TARGET']}: #{cert_templates.join(', ')}")
