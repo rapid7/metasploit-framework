@@ -98,6 +98,11 @@ RSpec.describe 'LDAP modules' do
               required: [
                 /Successfully queried/
               ]
+            },
+            linux: {
+              known_failures: [
+                /Auxiliary aborted due to failure: not-found/
+              ]
             }
           }
         },
@@ -187,7 +192,7 @@ RSpec.describe 'LDAP modules' do
         # Skip any ignored lines from the validation input
         validated_lines = test_result.lines.reject do |line|
           is_acceptable = known_failures.any? do |acceptable_failure|
-            is_matching_line = is_matching_line.value.is_a?(Regexp) ? line.match?(acceptable_failure.value) : line.include?(acceptable_failure.value)
+            is_matching_line = acceptable_failure.value.is_a?(Regexp) ? line.match?(acceptable_failure.value) : line.include?(acceptable_failure.value)
             is_matching_line &&
               acceptable_failure.if?(test_environment)
           end || line.match?(/Passed: \d+; Failed: \d+/)

@@ -142,7 +142,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     validate_options
 
-    send("action_#{action.name.downcase}")
+    result = send("action_#{action.name.downcase}")
 
     report_service(
       host: rhost,
@@ -151,6 +151,8 @@ class MetasploitModule < Msf::Auxiliary
       name: 'kerberos',
       info: "Module: #{fullname}, KDC for domain #{@realm}"
     )
+
+    result
   rescue ::Rex::ConnectionError => e
     elog('Connection error', error: e)
     fail_with(Failure::Unreachable, e.message)
@@ -276,6 +278,7 @@ class MetasploitModule < Msf::Auxiliary
     print_good("Found NTLM hash for #{@username}: #{ntlm_hash}")
 
     report_ntlm(ntlm_hash)
+    ntlm_hash
   end
 
   def report_ntlm(hash)

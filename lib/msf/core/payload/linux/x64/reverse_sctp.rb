@@ -9,10 +9,10 @@ module Msf
 #
 ###
 
-module Payload::Linux::ReverseSctp_x64
+module Payload::Linux::X64::ReverseSctp
 
   include Msf::Payload::TransportConfig
-  include Msf::Payload::Linux
+  include Msf::Payload::Linux::X64::Prepends
 
   #
   # Generate the first stage

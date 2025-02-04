@@ -12,7 +12,7 @@ module Msf
 module Payload::Linux::ReverseTcp_x86
 
   include Msf::Payload::TransportConfig
-  include Msf::Payload::Linux
+  include Msf::Payload::Linux::X86::Prepends
   include Msf::Payload::Linux::SendUUID
 
   #

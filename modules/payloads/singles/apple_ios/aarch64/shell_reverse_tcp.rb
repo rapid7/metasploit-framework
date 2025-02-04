@@ -9,7 +9,6 @@ module MetasploitModule
   CachedSize = 152
 
   include Msf::Payload::Single
-  include Msf::Payload::Linux
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})

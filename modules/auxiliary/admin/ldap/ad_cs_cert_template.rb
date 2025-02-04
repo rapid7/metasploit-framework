@@ -116,8 +116,9 @@ class MetasploitModule < Msf::Auxiliary
       end
       @ldap = ldap
 
-      send("action_#{action.name.downcase}")
+      result = send("action_#{action.name.downcase}")
       print_good('The operation completed successfully!')
+      result
     end
   rescue Errno::ECONNRESET
     fail_with(Failure::Disconnected, 'The connection was reset.')
@@ -147,7 +148,7 @@ class MetasploitModule < Msf::Auxiliary
       "#{datastore['CERT_TEMPLATE']} Certificate Template"
     )
     print_status("Certificate template data written to: #{stored}")
-    obj
+    [obj, stored]
   end
 
   def get_domain_sid
@@ -323,17 +324,19 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Creating: #{dn}")
     @ldap.add(dn: dn, attributes: attributes)
     validate_query_result!(@ldap.get_operation_result.table)
+    dn
   end
 
   def action_delete
-    obj = get_certificate_template
+    obj, = get_certificate_template
 
     @ldap.delete(dn: obj['dn'].first)
     validate_query_result!(@ldap.get_operation_result.table)
+    true
   end
 
   def action_read
-    obj = get_certificate_template
+    obj, stored = get_certificate_template
 
     print_status('Certificate Template:')
     print_status("  distinguishedName: #{obj['distinguishedname'].first}")
@@ -477,10 +480,12 @@ class MetasploitModule < Msf::Auxiliary
     if obj['pkimaxissuingdepth'].present?
       print_status("  pKIMaxIssuingDepth: #{obj['pkimaxissuingdepth'].first.to_i}")
     end
+
+    { object: obj, file: stored }
   end
 
   def action_update
-    obj = get_certificate_template
+    obj, = get_certificate_template
     new_configuration = load_local_template
 
     operations = []
@@ -492,6 +497,8 @@ class MetasploitModule < Msf::Auxiliary
         unless value.tally == new_value.tally
           operations << [:replace, attribute, new_value]
         end
+      elsif attribute == 'ntsecuritydescriptor'
+        # the security descriptor can't be deleted so leave it alone unless specified
       else
         operations << [:delete, attribute, nil]
       end
@@ -506,10 +513,11 @@ class MetasploitModule < Msf::Auxiliary
 
     if operations.empty?
       print_good('There are no changes to be made.')
-      return
+      return true
     end
 
     @ldap.modify(dn: obj['dn'].first, operations: operations, controls: [ms_security_descriptor_control(DACL_SECURITY_INFORMATION)])
     validate_query_result!(@ldap.get_operation_result.table)
+    true
   end
 end

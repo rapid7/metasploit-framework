@@ -10,7 +10,6 @@ module MetasploitModule
   CachedSize = 52
 
   include Msf::Payload::Single
-  include Msf::Payload::Linux
 
   def initialize(info = {})
     super(merge_info(info,

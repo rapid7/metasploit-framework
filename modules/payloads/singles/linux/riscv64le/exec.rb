@@ -7,7 +7,6 @@ module MetasploitModule
   CachedSize = 100
 
   include Msf::Payload::Single
-  include Msf::Payload::Linux
 
   def initialize(info = {})
     super(
