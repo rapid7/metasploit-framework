@@ -8,9 +8,32 @@ module Metasploit
       # - Admin Login
       class Ivanti < HTTP
 
+        DEFAULT_SSL_PORT = 443
+        LIKELY_PORTS = [443]
+        LIKELY_SERVICE_NAMES = [
+          'Ivanti Connect Secure'
+        ]
+        PRIVATE_TYPES = [:password]
+        REALM_KEY = nil
+
         def initialize(scanner_config, admin)
           @admin = admin
           super(scanner_config)
+        end
+
+        def check_setup
+          request_params = {
+            'method' => 'GET',
+            'uri' => normalize_uri('/dana-na/auth/url_default/welcome.cgi')
+          }
+
+          res = send_request(request_params)
+
+          if res && res.code == 200 && res.body&.include?('Ivanti Connect Secure')
+            return false
+          end
+
+          'Application might not be Ivanti Connect Secure, please check'
         end
 
         def create_admin_request(username, password, token, protocol, peer)
@@ -73,6 +96,8 @@ module Metasploit
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Unable to connect to the Ivanti service' } if res.nil?
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: "Received an unexpected status code: #{res.code}" } if res.code != 302
 
+          return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Unexpected response' } if !res.headers&.key?('location')
+
           return { status: ::Metasploit::Model::Login::Status::SUCCESSFUL, proof: res.to_s } if res.headers['location'] == '/dana-na/auth/url_admin/welcome.cgi?p=admin%2Dconfirm'
 
           if res.headers['location'] == '/dana-admin/misc/admin.cgi'
@@ -122,7 +147,7 @@ module Metasploit
           end
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Unable to connect to the Ivanti service' } if res.nil?
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: "Received an unexpected status code: #{res.code}" } if res.code != 302
-          return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Unexpected response' } if res.blank?
+          return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Unexpected response' } if !res.headers&.key?('location')
 
           if res.headers['location'] == '/dana-na/auth/url_default/welcome.cgi?p=ip%2Dblocked'
             sleep(2 * 60) # 2 minutes
