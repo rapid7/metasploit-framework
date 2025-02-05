@@ -94,15 +94,15 @@ module Msf::Payload::Adapter::Fetch
     #
     case datastore['FETCH_COMMAND'].upcase
     when 'FTP'
-      return datastore['FETCH_FILELESS'] && !windows? ? _generate_ftp_command_fileless : _generate_ftp_command
+      return datastore['FETCH_FILELESS'] && linux? ? _generate_ftp_command_fileless : _generate_ftp_command
     when 'TNFTP'
-      return datastore['FETCH_FILELESS'] && !windows? ? _generate_tnftp_command_fileless : _generate_tnftp_command
+      return datastore['FETCH_FILELESS'] && linux? ? _generate_tnftp_command_fileless : _generate_tnftp_command
     when 'WGET'
-      return datastore['FETCH_FILELESS'] && !windows? ? _generate_wget_command_fileless : _generate_wget_command
+      return datastore['FETCH_FILELESS'] && linux? ? _generate_wget_command_fileless : _generate_wget_command
     when 'CURL'
-      return datastore['FETCH_FILELESS'] && !windows? ? _generate_curl_command_fileless : _generate_curl_command
+      return datastore['FETCH_FILELESS'] && linux? ? _generate_curl_command_fileless : _generate_curl_command
     when 'TFTP'
-      return datastore['FETCH_FILELESS'] && !windows? ? _generate_tftp_command_fileless : _generate_tftp_command
+      return datastore['FETCH_FILELESS'] && linux? ? _generate_tftp_command_fileless : _generate_tftp_command
     # ignoring certutil when FETCH_FILELESS is enabled
     when 'CERTUTIL'
       return _generate_certutil_command
@@ -153,6 +153,13 @@ module Msf::Payload::Adapter::Fetch
 
     @windows = platform.platforms.first == Msf::Module::Platform::Windows
     @windows
+  end
+
+  def linux?
+    return @linux unless @linux.nil?
+
+    @linux = platform.platforms.first == Msf::Module::Platform::Linux
+    @linux
   end
 
   def _check_tftp_port
