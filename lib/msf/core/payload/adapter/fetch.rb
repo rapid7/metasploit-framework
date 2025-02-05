@@ -4,7 +4,7 @@ module Msf::Payload::Adapter::Fetch
     register_options(
       [
         Msf::OptBool.new('FETCH_DELETE', [true, 'Attempt to delete the binary after execution', false]),
-        Msf::OptBool.new('FETCH_FILELESS', [true, 'Attempt to run payload without touching disk (only *nix, kernel version 3.17 Gooand above)', false]),
+        Msf::OptBool.new('FETCH_FILELESS', [true, 'Attempt to run payload without touching disk, Linux ≥3.17 only', false]),
         Msf::OptString.new('FETCH_FILENAME', [ false, 'Name to use on remote system when storing payload; cannot contain spaces or slashes', Rex::Text.rand_text_alpha(rand(8..12))], regex: %r{^[^\s/\\]*$}),
         Msf::OptPort.new('FETCH_SRVPORT', [true, 'Local port to use for serving payload', 8080]),
         # FETCH_SRVHOST defaults to LHOST, but if the payload doesn't connect back to Metasploit (e.g. adduser, messagebox, etc.) then FETCH_SRVHOST needs to be set
@@ -103,7 +103,7 @@ module Msf::Payload::Adapter::Fetch
       return datastore['FETCH_FILELESS'] && linux? ? _generate_curl_command_fileless : _generate_curl_command
     when 'TFTP'
       return datastore['FETCH_FILELESS'] && linux? ? _generate_tftp_command_fileless : _generate_tftp_command
-    # ignoring certutil when FETCH_FILELESS is enabled
+    # FETCH_FILELESS isn't supported for certutil for now
     when 'CERTUTIL'
       return _generate_certutil_command
     else
