@@ -1,0 +1,96 @@
+name: Weekly Data and External Tool Updater
+
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  id-token: none
+  issues: none
+  discussions: none
+  packages: none
+  pages: none
+  pull-requests: write
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+on:
+  schedule:
+    # Run once a week (e.g., every Monday at 01:00 UTC)
+    - cron: '0 1 * * 1'
+  workflow_dispatch: # Allows manual triggering from the Actions tab
+
+jobs:
+  update-data-files:
+    runs-on: ubuntu-latest
+
+    env:
+      BUNDLE_WITHOUT: "coverage development pcap"
+
+    strategy:
+      fail-fast: true
+      matrix:
+        ruby:
+          - '3.2'
+
+    steps:
+      - name: Install system dependencies
+        run: sudo apt-get install libpcap-dev graphviz
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '${{ matrix.ruby }}'
+          bundler-cache: true
+
+      - name: Run Ruby updater scripts
+        run: |
+          ruby tools/dev/update_wordpress_vulnerabilities.rb
+          ruby tools/dev/update_joomla_components.rb
+          ruby tools/dev/update_user_agent_strings.rb
+          ruby tools/dev/check_external_scripts.rb -u
+      - name: Remove vendor folder # prevent git from adding it
+        run: rm -rf vendor
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: Update report
+          base: master
+          branch: weekly-updates
+          committer: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+          author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+          title: "Weekly Data Update"
+          draft: false
+          body: |
+            This pull request was created automatically by a GitHub Action to update data files and external scripts.
+            The following tools were run:
+            - ruby tools/dev/update_wordpress_vulnerabilities.rb
+            - ruby tools/dev/update_joomla_components.rb
+            - ruby tools/dev/update_user_agent_strings.rb
+            - ruby tools/dev/check_external_scripts.rb -u
+            ## Verification
+            ### Wordpress/Joomla Files
+            - [ ] Do a sanity check, do the additions look legit?
+            - [ ] Start `msfconsole`
+            - [ ] `use modules/auxiliary/scanner/http/wordpress_scanner`
+            - [ ] **Verify** it runs
+            ### JTR Files
+            - [ ] Do a sanity check, do the additions look legit?
+            - [ ] See https://docs.metasploit.com/docs/using-metasploit/intermediate/hashes-and-password-cracking.html#example-hashes for hashes and cracking
+            ### SharpHound
+            - [ ] Start `msfconsole`
+            - [ ] get a shell on a DC or box connected to a dc
+            - [ ] `use post/windows/gather/bloodhound`
+            - [ ] `set session`
+            - [ ] `run`
+            - [ ] **Verify** it runs w/o erroring
+            - [ ] `set method disk`
+            - [ ] **Verify** it runs w/o erroring
