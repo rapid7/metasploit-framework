@@ -26,6 +26,8 @@ jobs:
   update-data-files:
     runs-on: ubuntu-latest
 
+    if: github.repository_owner == 'rapid7'
+
     env:
       BUNDLE_WITHOUT: "coverage development pcap"
 
