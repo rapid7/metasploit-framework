@@ -346,6 +346,29 @@ class MetasploitModule < Msf::Auxiliary
       print_status("  objectGUID:        #{object_guid}")
     end
 
+    pki_flag = obj['flags']&.first
+    if pki_flag.present?
+      pki_flag = [obj['flags'].first.to_i].pack('l').unpack1('L')
+      print_status("  flags: 0x#{pki_flag.to_s(16).rjust(8, '0')}")
+      %w[
+        CT_FLAG_AUTO_ENROLLMENT
+        CT_FLAG_MACHINE_TYPE
+        CT_FLAG_IS_CA
+        CT_FLAG_ADD_TEMPLATE_NAME
+        CT_FLAG_IS_CROSS_CA
+        CT_FLAG_IS_DEFAULT
+        CT_FLAG_IS_MODIFIED
+        CT_FLAG_DONOTPERSISTINDB
+        CT_FLAG_ADD_EMAIL
+        CT_FLAG_PUBLISH_TO_DS
+        CT_FLAG_EXPORTABLE_KEY
+      ].each do |flag_name|
+        if pki_flag & Rex::Proto::MsCrtd.const_get(flag_name) != 0
+          print_status("     * #{flag_name}")
+        end
+      end
+    end
+
     pki_flag = obj['mspki-certificate-name-flag']&.first
     if pki_flag.present?
       pki_flag = [obj['mspki-certificate-name-flag'].first.to_i].pack('l').unpack1('L')
@@ -479,6 +502,10 @@ class MetasploitModule < Msf::Auxiliary
 
     if obj['pkimaxissuingdepth'].present?
       print_status("  pKIMaxIssuingDepth: #{obj['pkimaxissuingdepth'].first.to_i}")
+    end
+
+    if obj['showinadvancedviewonly'].present?
+      print_status("  showInAdvancedViewOnly: #{obj['showinadvancedviewonly'].first}")
     end
 
     { object: obj, file: stored }
