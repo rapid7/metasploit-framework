@@ -104,6 +104,8 @@ RSpec.shared_examples_for 'a datastore with lookup support' do |opts = {}|
     it 'should have default keyed values' do
       expect(subject['foo']).to eq 'foo_value'
       expect(subject['bar']).to eq 'bar_value'
+      expect(subject['empty']).to eq ''
+      expect(subject['example_nil_opt']).to eq nil
     end
 
     it 'should have case-insensitive lookups' do
@@ -134,7 +136,7 @@ RSpec.shared_examples_for 'a datastore with lookup support' do |opts = {}|
   context '#to_h' do
     it 'should return a Hash with correct values' do
       expected_to_h = opts.fetch(:expected_to_h) do
-        { 'foo' => 'foo_value', 'bar' => 'bar_value' }
+        { 'foo' => 'foo_value', 'bar' => 'bar_value', 'empty' => '' }
       end
       expect(subject.to_h).to eq(expected_to_h)
     end
@@ -179,7 +181,7 @@ RSpec.shared_examples_for 'a datastore' do
 
   describe '#import_options_from_hash' do
     subject do
-      hash = { 'foo' => 'foo_value', 'bar' => 'bar_value' }
+      hash = { 'foo' => 'foo_value', 'bar' => 'bar_value', 'empty' => '' }
       s = default_subject
       s.import_options_from_hash(hash)
       s
@@ -189,7 +191,7 @@ RSpec.shared_examples_for 'a datastore' do
 
   describe '#import_options_from_s' do
     subject do
-      str = 'foo=foo_value bar=bar_value'
+      str = 'foo=foo_value bar=bar_value empty='
       s = default_subject
       s.import_options_from_s(str)
       s
@@ -224,7 +226,8 @@ RSpec.shared_examples_for 'a datastore' do
       ini_instance = double group?: true,
                             :[] => {
                               'foo' => 'foo_value',
-                              'bar' => 'bar_value'
+                              'bar' => 'bar_value',
+                              'empty' => ''
                             }
       ini_class = double from_file: ini_instance
 
@@ -265,6 +268,8 @@ RSpec.shared_examples_for 'a datastore' do
         subject['custom_key'] = 'custom_key_value'
         subject['OLD_OPTION_NAME'] = 'old_option_name_value'
         subject['SMBUser'] = 'smbuser_user'
+        subject['empty'] = ''
+        subject['example_nil_value'] = nil
       end
 
       it 'should return the set values' do
@@ -272,7 +277,9 @@ RSpec.shared_examples_for 'a datastore' do
           'NewOptionName' => 'old_option_name_value',
           'custom_key' => 'custom_key_value',
           'foo' => 'foo_value',
-          'SMBUser' => 'smbuser_user'
+          'SMBUser' => 'smbuser_user',
+          'empty' => '',
+          'example_nil_value' => nil
         }
         expect(subject.user_defined).to eq(expected_values)
       end
@@ -672,8 +679,6 @@ RSpec.shared_examples_for 'a datastore' do
       it 'should return a Hash with correct values' do
         expected_to_h = {
           'SMBDomain' => 'WORKGROUP',
-          'SMBUser' => '',
-          'USER_ATTR' => ''
         }
         expect(subject.to_h).to eq(expected_to_h)
       end
@@ -688,11 +693,8 @@ RSpec.shared_examples_for 'a datastore' do
         expected_to_h = {
           'NewOptionName' => 'overridden_default_new_option_name',
           'SMBDomain' => 'WORKGROUP',
-          'SMBUser' => '',
-          'USER_ATTR' => '',
           'foo' => 'overridden_default_foo',
           'bar' => 'default_bar_value',
-          'baz' => ''
         }
         expect(subject.to_h).to eq(expected_to_h)
       end
