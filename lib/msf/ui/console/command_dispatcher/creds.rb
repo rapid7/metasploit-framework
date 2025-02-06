@@ -100,18 +100,19 @@ class Creds
     print_line "Usage - Adding credentials:"
     print_line "  creds add uses the following named parameters."
     {
-      user:              'Public, usually a username',
-      password:          'Private, private_type Password.',
-      ntlm:              'Private, private_type NTLM Hash.',
-      postgres:          'Private, private_type postgres MD5',
-      pkcs12:            'Private, private_type pkcs12 archive file, must be a file path.',
-      'ssh-key'       => 'Private, private_type SSH key, must be a file path.',
-      hash:              'Private, private_type Nonreplayable hash',
-      jtr:               'Private, private_type John the Ripper hash type.',
-      realm:             'Realm, ',
-      'realm-type'    => "Realm, realm_type (#{Metasploit::Model::Realm::Key::SHORT_NAMES.keys.join(' ')}), defaults to domain.",
-      ca:                'CA, Certificate Authority that issued the pkcs12 certificate',
-      'adcs-template' => 'ADCS Template, template used to issue the pkcs12 certificate'
+      user:                'Public, usually a username',
+      password:            'Private, private_type Password.',
+      ntlm:                'Private, private_type NTLM Hash.',
+      postgres:            'Private, private_type postgres MD5',
+      pkcs12:              'Private, private_type pkcs12 archive file, must be a file path.',
+      'ssh-key'         => 'Private, private_type SSH key, must be a file path.',
+      hash:                'Private, private_type Nonreplayable hash',
+      jtr:                 'Private, private_type John the Ripper hash type.',
+      realm:               'Realm, ',
+      'realm-type'      => "Realm, realm_type (#{Metasploit::Model::Realm::Key::SHORT_NAMES.keys.join(' ')}), defaults to domain.",
+      'adcs-ca'         => 'CA, Certificate Authority that issued the pkcs12 certificate',
+      'adcs-template'   => 'ADCS Template, template used to issue the pkcs12 certificate',
+      'pkcs12-password' => 'The password to decrypt the Pkcs12, defaults to an empty password'
     }.each_pair do |keyword, description|
       print_line "    #{keyword.to_s.ljust 10}:  #{description}"
     end
@@ -208,7 +209,7 @@ class Creds
     end
 
     begin
-      params.assert_valid_keys('user','password','realm','realm-type','ntlm','ssh-key','hash','address','port','protocol', 'service-name', 'jtr', 'pkcs12', 'postgres', 'ca', 'adcs-template')
+      params.assert_valid_keys('user','password','realm','realm-type','ntlm','ssh-key','hash','address','port','protocol', 'service-name', 'jtr', 'pkcs12', 'postgres', 'adcs-ca', 'adcs-template', 'pkcs12-password')
     rescue ArgumentError => e
       print_error(e.message)
     end
@@ -277,11 +278,11 @@ class Creds
         print_error("Failed to add pkcs12 archive: #{e}")
       end
       data[:private_type] = :pkcs12
-      data[:private_data] = Metasploit::Credential::Pkcs12.build_data(
-        pkcs12: pkcs12_data,
-        ca: params['ca'],
-        adcs_template: params['adcs-template']
-      )
+      data[:private_data] = pkcs12_data
+      data[:private_metadata] = {}
+      data[:private_metadata][:adcs_ca] =  params['adcs-ca'] if params['adcs-ca']
+      data[:private_metadata][:adcs_template] =  params['adcs-template'] if params['adcs-template']
+      data[:private_metadata][:pkcs12_password] =  params['pkcs12-password'] if params['pkcs12-password']
     end
 
     if params.key? 'hash'
@@ -311,7 +312,7 @@ class Creds
         framework.db.create_credential(data)
       end
     rescue ActiveRecord::RecordInvalid => e
-      print_error("Failed to add #{data['private_type']}: #{e}")
+      print_error("Failed to add #{data[:private_type]}: #{e}")
     end
   end
 

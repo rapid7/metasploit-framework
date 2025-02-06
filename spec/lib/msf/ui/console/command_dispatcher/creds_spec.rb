@@ -220,7 +220,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
             priv = FactoryBot.create(:metasploit_credential_pkcs12_with_ca_and_adcs_template,
                                      subject: pkcs12_subject,
                                      issuer: pkcs12_issuer,
-                                     ca: pkcs12_ca,
+                                     adcs_ca: pkcs12_ca,
                                      adcs_template: pkcs12_adcs_template)
             FactoryBot.create(:metasploit_credential_core,
                                origin: FactoryBot.create(:metasploit_credential_origin_import),
@@ -331,7 +331,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
 
           context 'pkcs12' do
             it 'should show just the pkcs12' do
-              private_str = "subject:#{pkcs12_subject},issuer:#{pkcs12_issuer},CA:#{pkcs12_ca},ADCS_template:#{pkcs12_adcs_template}"
+              private_str = "subject:#{pkcs12_subject},issuer:#{pkcs12_issuer},ADCS CA:#{pkcs12_ca},ADCS template:#{pkcs12_adcs_template}"
               private_str = "#{private_str[0,76]} (TRUNCATED)"
               creds.cmd_creds('-t', 'pkcs12')
               expect(@output.join("\n")).to match_table <<~TABLE
@@ -528,10 +528,10 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
             end
           end
           context 'pkcs12' do
-            let(:priv) { FactoryBot.create(:metasploit_credential_pkcs12) }
+            let(:priv) { FactoryBot.build(:metasploit_credential_pkcs12) }
             before(:each) do
               @file = Tempfile.new('mypkcs12.pfx')
-              @file.write(Base64.strict_decode64(priv.pkcs12))
+              @file.write(Base64.strict_decode64(priv.data))
               @file.close
             end
             it 'creates a core if one does not exist' do
@@ -549,6 +549,41 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
               expect {
                 creds.cmd_creds('add', "pkcs12:#{@file.path}")
               }.to_not change { Metasploit::Credential::Core.count }
+            end
+
+            context 'with a password' do
+              let(:pkcs12_password) { 'mypass' }
+              let(:priv) {
+                FactoryBot.build(:metasploit_credential_pkcs12,
+                  pkcs12_password: pkcs12_password,
+                  metadata: { pkcs12_password: pkcs12_password }
+                )
+              }
+
+              it 'creates a core if the password is correct' do
+                expect {
+                  creds.cmd_creds('add', "pkcs12:#{@file.path}", "pkcs12-password:#{pkcs12_password}")
+                }.to change { Metasploit::Credential::Core.count }.by 1
+              end
+
+              it 'does not creates a core if the password is incorrect' do
+                expect {
+                  creds.cmd_creds('add', "pkcs12:#{@file.path}", "pkcs12-password:wrongpass")
+                }.to_not change { Metasploit::Credential::Core.count }
+              end
+            end
+
+            context 'with metadata other than password' do
+              let(:adcs_ca) { 'myca' }
+              let(:adcs_template) { 'mytemplate' }
+
+              it 'creates a core if the password is correct' do
+                expect {
+                  creds.cmd_creds('add', "pkcs12:#{@file.path}", "adcs-ca:#{adcs_ca}", "adcs-template:#{adcs_template}")
+                }.to change { Metasploit::Credential::Core.count }.by 1
+                expect(Metasploit::Credential::Pkcs12.first.adcs_ca).to eq(adcs_ca)
+                expect(Metasploit::Credential::Pkcs12.first.adcs_template).to eq(adcs_template)
+              end
             end
           end
         end
