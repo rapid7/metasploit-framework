@@ -60,7 +60,6 @@ jobs:
       fail-fast: true
       matrix:
         ruby:
-          - '3.1'
           - '3.2'
           - '3.3'
           - '3.4'
@@ -69,7 +68,7 @@ jobs:
           - ubuntu-latest
         include:
           - os: ubuntu-latest
-            ruby: '3.1'
+            ruby: '3.2'
             test_cmd: 'bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content" MSF_FEATURE_DEFER_MODULE_LOADS=1'
         test_cmd:
           - bundle exec rake rspec-rerun:spec SPEC_OPTS="--tag content"
