@@ -1,3 +1,19 @@
+GIT
+  remote: https://github.com/cdelafuente-r7/metasploit-credential
+  revision: a6da95cf1e2968049a727588d93c722b0097b655
+  branch: enh/MS-9710/add_pkcs12_metadata
+  specs:
+    metasploit-credential (6.0.12)
+      metasploit-concern
+      metasploit-model
+      metasploit_data_models (>= 5.0.0)
+      net-ssh
+      pg
+      railties
+      rex-socket
+      rubyntlm
+      rubyzip
+
 PATH
   remote: .
   specs:
@@ -292,16 +308,6 @@ GEM
       activesupport (~> 7.0)
       railties (~> 7.0)
       zeitwerk
-    metasploit-credential (6.0.11)
-      metasploit-concern
-      metasploit-model
-      metasploit_data_models (>= 5.0.0)
-      net-ssh
-      pg
-      railties
-      rex-socket
-      rubyntlm
-      rubyzip
     metasploit-model (5.0.2)
       activemodel (~> 7.0)
       activesupport (~> 7.0)
@@ -589,6 +595,7 @@ DEPENDENCIES
   factory_bot_rails
   fivemat
   memory_profiler
+  metasploit-credential!
   metasploit-framework!
   octokit
   pry-byebug
