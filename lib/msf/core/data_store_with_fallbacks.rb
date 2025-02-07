@@ -266,6 +266,8 @@ class DataStoreWithFallbacks
   def to_h
     datastore_hash = {}
     self.keys.each do |k|
+      next if self[k].nil?
+
       datastore_hash[k.to_s] = self[k].to_s
     end
     datastore_hash
