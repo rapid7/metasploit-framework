@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Post
           'Brandon McCann "zeknox" <bmccann[at]accuvant.com>'
         ],
         'References' => [
-          [ 'URL', 'http://www.pentestgeek.com/2013/01/16/hard-coded-encryption-keys-and-more-wordpress-fun/' ],
+          [ 'URL', 'http://web.archive.org/web/20150503070624/https://www.pentestgeek.com/2013/01/16/hard-coded-encryption-keys-and-more-wordpress-fun/' ],
           [ 'URL', 'https://github.com/pasv/Testing/blob/master/Razer_decode.py' ]
         ],
         'SessionTypes' => [ 'meterpreter' ],

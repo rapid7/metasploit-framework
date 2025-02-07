@@ -17,8 +17,8 @@ class MetasploitModule < Msf::Auxiliary
       'Author'      => 'bcoles',
       'References'  =>
         [
-          ['URL', 'http://www.asterisk.name/sip1.html'],
-          ['URL', 'http://www.asterisk.name/iax2.html'],
+          ['URL', 'http://web.archive.org/web/20200203083502/http://www.asterisk.name:80/sip1.html'],
+          ['URL', 'http://web.archive.org/web/20200223175438/http://www.asterisk.name:80/iax2.html'],
           ['URL', 'https://www.voip-info.org/wiki/view/Asterisk+manager+API'],
           ['URL', 'https://www.voip-info.org/wiki-Asterisk+CLI']
         ],
