@@ -654,10 +654,12 @@ class Console::CommandDispatcher::Stdapi::Net
     )
 
     response.each do |result|
-      if result[:ip].nil?
+      if result[:ips].empty?
         table << [result[:hostname], '[Failed To Resolve]']
       else
-        table << [result[:hostname], result[:ip]]
+        result[:ips].each do |ip|
+          table << [result[:hostname], ip]
+        end
       end
     end
 

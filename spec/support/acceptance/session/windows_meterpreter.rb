@@ -54,6 +54,38 @@ module Acceptance::Session
         }
       },
       {
+        name: "post/test/resolve_host",
+        platforms: [
+          [
+            :linux,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ],
+          [
+            :osx,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ],
+          :windows
+        ],
+        skipped: false,
+        lines: {
+          linux: {
+            known_failures: []
+          },
+          osx: {
+            known_failures: []
+          },
+          windows: {
+            known_failures: []
+          }
+        }
+      },
+      {
         name: "post/test/cmd_exec",
         platforms: [
           [
