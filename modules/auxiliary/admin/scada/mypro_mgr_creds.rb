@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'mySCADA myPRO Manager Credential Harvester (CVE-2025-24865 & CVE-2025-22896)',
+        'Name' => 'mySCADA myPRO Manager Credential Harvester (CVE-2025-24865 and CVE-2025-22896)',
         'Description' => %q{
           Credential Harvester in MyPRO Manager <= v1.3 from mySCADA.
           The product suffers from a broken authentication vulnerability (CVE-2025-24865) for certain functions. One of them is the configuration page for notifications, which returns the cleartext credentials (CVE-2025-22896) before correctly veryfing that the associated request is coming from an authenticated and authorized entity.
