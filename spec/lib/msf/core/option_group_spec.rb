@@ -53,7 +53,7 @@ RSpec.describe Msf::OptionGroup do
     let(:option_names) { ['not_required_name', required_option_name] }
     let(:required_names) { [required_option_name] }
     let(:options) { instance_double(Msf::OptionContainer) }
-    let(:datastore) { instance_double(Msf::DataStoreWithFallbacks) }
+    let(:datastore) { instance_double(Msf::DataStore) }
 
     context 'when there are no required options' do
       subject { described_class.new(name: 'name', description: 'description', option_names: option_names) }
