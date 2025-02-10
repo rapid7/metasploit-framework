@@ -8,9 +8,20 @@ module Msf::Ui::Console::CommandDispatcher::Db::Certs
   # @param words [Array<String>] the previously completed words on the command line. words is always
   # at least 1 when tab completion has reached this stage since the command itself has been completed
   def cmd_certs_tabs(str, words)
-    if words.length == 1
-      @@certs_opts.option_keys.select { |opt| opt.start_with?(str) }
+    tabs = []
+
+    case words.length
+    when 1
+      tabs = @@certs_opts.option_keys.select { |opt| opt.start_with?(str) }
+    when 2
+      tabs = if words[1] == '-e' || words[1] == '--export'
+               tab_complete_filenames(str, words)
+             else
+               []
+             end
     end
+
+    tabs
   end
 
   def cmd_certs_help
@@ -26,6 +37,9 @@ module Msf::Ui::Console::CommandDispatcher::Db::Certs
     ['-d', '--delete'] => [ false, 'Delete *all* matching pkcs12 entries'],
     ['-h', '--help'] => [false, 'Help banner'],
     ['-i', '--index'] => [true, 'Pkcs12 entry ID(s) to search for, e.g. `-i 1` or `-i 1,2,3` or `-i 1 -i 2 -i 3`'],
+    ['-a', '--activate'] => [false, 'Activates *all* matching pkcs12 entries'],
+    ['-A', '--deactivate'] => [false, 'Deactivates *all* matching pkcs12 entries'],
+    ['-e', '--export'] => [true, 'The file path where to export the matching pkcs12 entry']
   )
 
   def cmd_certs(*args)
@@ -36,6 +50,7 @@ module Msf::Ui::Console::CommandDispatcher::Db::Certs
     id_search = []
     username = nil
     verbose = false
+    export_path = nil
     @@certs_opts.parse(args) do |opt, _idx, val|
       case opt
       when '-h', '--help'
@@ -47,6 +62,12 @@ module Msf::Ui::Console::CommandDispatcher::Db::Certs
         mode = :delete
       when '-i', '--id'
         id_search = (id_search + val.split(/,\s*|\s+/)).uniq # allows 1 or 1,2,3 or "1 2 3" or "1, 2, 3"
+      when '-a', '--activate'
+        mode = :activate
+      when '-A', '--deactivate'
+        mode = :deactivate
+      when '-e', '--export'
+        export_path = val
       else
         # Anything that wasn't an option is a username to search for
         username = val
@@ -59,8 +80,28 @@ module Msf::Ui::Console::CommandDispatcher::Db::Certs
     print_line('======')
 
     if mode == :delete
-      result = pkcs12_storage.delete_pkcs12(ids: pkcs12_results.map(&:id))
+      result = pkcs12_storage.delete(ids: pkcs12_results.map(&:id))
       entries_affected = result.size
+    end
+
+    if mode == :activate || mode == :deactivate
+      pkcs12_results = set_pkcs12_status(mode, pkcs12_results)
+      entries_affected = pkcs12_results.size
+    end
+
+    if export_path
+      if pkcs12_results.empty?
+        print_error('No mathing Pkcs12 entry to export')
+        return
+      end
+      if pkcs12_results.size > 1
+        print_error('More than one mathing Pkcs12 entry found. Filter with `-i` and/or provide a username')
+        return
+      end
+
+      raw_data = Base64.strict_decode64(pkcs12_results.first.private_cred.data)
+      ::File.binwrite(::File.expand_path(export_path), raw_data)
+      return
     end
 
     if pkcs12_results.empty?
@@ -79,7 +120,7 @@ module Msf::Ui::Console::CommandDispatcher::Db::Certs
     else
       tbl = Rex::Text::Table.new(
         {
-          'Columns' => ['id', 'username', 'realm', 'subject', 'issuer', 'CA', 'ADCS Template'],
+          'Columns' => ['id', 'username', 'realm', 'subject', 'issuer', 'ADCS CA', 'ADCS Template', 'status'],
           'SortIndex' => -1,
           'WordWrap' => false,
           'Rows' => pkcs12_results.map do |pkcs12|
@@ -89,8 +130,9 @@ module Msf::Ui::Console::CommandDispatcher::Db::Certs
               pkcs12.realm,
               pkcs12.openssl_pkcs12.certificate.subject.to_s,
               pkcs12.openssl_pkcs12.certificate.issuer.to_s,
-              pkcs12.ca,
-              pkcs12.adcs_template
+              pkcs12.adcs_ca,
+              pkcs12.adcs_template,
+              pkcs12_status(pkcs12)
             ]
           end
         }
@@ -98,8 +140,13 @@ module Msf::Ui::Console::CommandDispatcher::Db::Certs
       print_line(tbl.to_s)
     end
 
-    if mode == :delete
+    case mode
+    when :delete
       print_status("Deleted #{entries_affected} #{entries_affected > 1 ? 'entries' : 'entry'}") if entries_affected > 0
+    when :activate
+      print_status("Activated #{entries_affected} #{entries_affected > 1 ? 'entries' : 'entry'}") if entries_affected > 0
+    when :deactivate
+      print_status("Deactivated #{entries_affected} #{entries_affected > 1 ? 'entries' : 'entry'}") if entries_affected > 0
     end
   end
 
@@ -146,9 +193,38 @@ module Msf::Ui::Console::CommandDispatcher::Db::Certs
     end
   end
 
+
+  private
+
   # @return [Msf::Exploit::Remote::Kerberos::Ticket::Storage::ReadWrite]
   def pkcs12_storage
     @pkcs12_storage ||= Msf::Exploit::Remote::Pkcs12::Storage.new(framework: framework)
   end
 
+  # Gets the status of a Pkcs12
+  #
+  # @param [Msf::Exploit::Remote::Pkcs12::Storage]
+  # @return [String] Status of the Pkcs12
+  def pkcs12_status(pkcs12)
+    if pkcs12.expired?
+      '>>expired<<'
+    elsif pkcs12.status.blank?
+      'active'
+    else
+      pkcs12.status
+    end
+  end
+
+  # Sets the status of the Pkcs12
+  #
+  # @param [Symbol] mode The status (:activate or :deactivate) to apply to the Pkcs12(s)
+  # @param [Array<StoredPkcs12>] tickets The Pkcs12 which statuses are to be updated
+  # @return [Array<StoredPkcs12>]
+  def set_pkcs12_status(mode, pkcs12)
+    if mode == :activate
+      pkcs12_storage.activate(ids: pkcs12.map(&:id))
+    elsif mode == :deactivate
+      pkcs12_storage.deactivate(ids: pkcs12.map(&:id))
+    end
+  end
 end

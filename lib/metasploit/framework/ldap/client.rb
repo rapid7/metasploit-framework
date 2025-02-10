@@ -132,7 +132,9 @@ module Metasploit
             )
             pkcs12_results = pkcs12_storage.pkcs12(
               username: opts[:username],
-              realm: opts[:domain]
+              realm: opts[:domain],
+              tls_auth: true,
+              status: 'active'
             )
             if pkcs12_results.empty?
               raise Msf::ValidationError, "Pkcs12 for #{opts[:username]}@#{opts[:domain]} not found in the database"
