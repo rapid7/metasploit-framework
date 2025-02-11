@@ -543,19 +543,12 @@ class MetasploitModule < Msf::Auxiliary
           ca_server_ip_address = get_ip_addresses_by_fqdn(ca_server_fqdn)&.first
 
           if ca_server_ip_address
-            service = report_service({
+            report_service({
               host: ca_server_ip_address,
               port: 445,
               proto: 'tcp',
               name: 'AD CS',
               info: "AD CS CA name: #{ca_server[:name][0]}"
-            })
-
-            report_note({
-              data: ca_server[:dn][0].to_s,
-              service: service,
-              host: ca_server_ip_address,
-              ntype: 'windows.ad.cs.ca.dn'
             })
 
             report_host({
@@ -618,7 +611,7 @@ class MetasploitModule < Msf::Auxiliary
           info = hash[:notes].select { |note| note.start_with?(prefix) }.map { |note| note.delete_prefix(prefix).strip }.join("\n")
           info = nil if info.blank?
 
-          hash[:ca_servers].each do |ca_fqdn, ca_server|
+          hash[:ca_servers].each_value do |ca_server|
             service = report_service({
               host: ca_server[:ip_address],
               port: 445,
@@ -641,14 +634,6 @@ class MetasploitModule < Msf::Auxiliary
             else
               vuln = nil
             end
-
-            report_note({
-              data: hash[:dn],
-              service: service,
-              host: ca_fqdn.to_s,
-              ntype: 'windows.ad.cs.ca.template.dn',
-              vuln_id: vuln&.id
-            })
           end
         end
       end
