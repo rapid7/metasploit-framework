@@ -683,10 +683,10 @@ module Rex::Proto::MsDtyp
 
     def initialize_instance
       value = super
-      @owner_sid = get_parameter(:owner_sid)
-      @group_sid = get_parameter(:group_sid)
-      @sacl = get_parameter(:sacl)
-      @dacl = get_parameter(:dacl)
+      self.owner_sid = get_parameter(:owner_sid)
+      self.group_sid = get_parameter(:group_sid)
+      self.sacl = get_parameter(:sacl)
+      self.dacl = get_parameter(:dacl)
       value
     end
 
@@ -716,7 +716,18 @@ module Rex::Proto::MsDtyp
       snap
     end
 
-    attr_accessor :owner_sid, :group_sid, :sacl, :dacl
+    def owner_sid=(sid)
+      sid = MsDtypSid.new(sid) unless sid.nil? || sid.is_a?(MsDtypSid)
+      @owner_sid = sid
+    end
+
+    def group_sid=(sid)
+      sid = MsDtypSid.new(sid) unless sid.nil? || sid.is_a?(MsDtypSid)
+      @group_sid = sid
+    end
+
+    attr_accessor :sacl, :dacl
+    attr_reader :owner_sid, :group_sid
 
     private
 
