@@ -38,7 +38,7 @@ PATH
       getoptlong
       hrr_rb_ssh-ed25519
       http-cookie
-      irb (~> 1.7.4)
+      irb
       jsobfu
       json
       metasm
@@ -267,9 +267,10 @@ GEM
     httpclient (2.8.3)
     i18n (1.14.6)
       concurrent-ruby (~> 1.0)
-    io-console (0.7.2)
-    irb (1.7.4)
-      reline (>= 0.3.6)
+    io-console (0.8.0)
+    irb (1.14.1)
+      rdoc (>= 4.0.0)
+      reline (>= 0.4.2)
     jmespath (1.6.2)
     jsobfu (0.4.2)
       rkelly-remix
@@ -379,6 +380,9 @@ GEM
     pry-byebug (3.10.1)
       byebug (~> 11.0)
       pry (>= 0.13, < 0.15)
+    psych (5.2.1)
+      date
+      stringio
     public_suffix (6.0.1)
     puma (6.4.3)
       nio4r (~> 2.0)
@@ -408,11 +412,13 @@ GEM
     rasn1 (0.13.0)
       strptime (~> 0.2.5)
     rb-readline (0.5.5)
+    rdoc (6.8.1)
+      psych (>= 4.0.0)
     recog (3.1.11)
       nokogiri
     redcarpet (3.6.0)
     regexp_parser (2.9.2)
-    reline (0.5.10)
+    reline (0.5.12)
       io-console (~> 0.5)
     require_all (3.0.0)
     rex-arch (0.1.16)
@@ -532,6 +538,7 @@ GEM
     sqlite3 (1.7.3)
       mini_portile2 (~> 2.8.0)
     sshkey (3.0.0)
+    stringio (3.1.2)
     strptime (0.2.5)
     swagger-blocks (3.0.0)
     systemu (2.6.5)
