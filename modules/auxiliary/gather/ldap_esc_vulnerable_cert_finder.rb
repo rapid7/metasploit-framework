@@ -552,7 +552,7 @@ class MetasploitModule < Msf::Auxiliary
             })
 
             report_note({
-              data: ca_server[:dn][0].to_s,
+              data: { dn: ca_server[:dn][0].to_s },
               service: service,
               host: ca_server_ip_address,
               ntype: 'windows.ad.cs.ca.dn'
@@ -643,7 +643,7 @@ class MetasploitModule < Msf::Auxiliary
             end
 
             report_note({
-              data: hash[:dn],
+              data: { dn: hash[:dn] },
               service: service,
               host: ca_fqdn.to_s,
               ntype: 'windows.ad.cs.ca.template.dn',
