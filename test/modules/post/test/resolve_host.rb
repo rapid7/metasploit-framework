@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Post
 
     it 'should return a Hash' do
       hostname = 'localhost'
-      family = AF_INET6
+      family = AF_INET
 
       resolved_host = resolve_host(hostname, family)
       resolved_host.is_a?(Hash)
