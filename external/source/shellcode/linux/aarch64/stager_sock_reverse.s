@@ -77,6 +77,10 @@ read_loop:
     svc    0
     cmn    x0, #0x1
     beq    failed
+    mov    x2, x0
+    mov    x8, #0x51
+    svc    0
+    mov    x0, x2
     add    x3, x3, x0
     subs   x4, x4, x0
     bne    read_loop
