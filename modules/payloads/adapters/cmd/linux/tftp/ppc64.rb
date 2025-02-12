@@ -12,7 +12,7 @@ module MetasploitModule
       update_info(
         info,
         'Name' => 'TFTP Fetch',
-        'Description' => 'Fetch and execute an MIPSLE payload from a TFTP server.',
+        'Description' => 'Fetch and execute an PPC64 payload from a TFTP server.',
         'Author' => ['Brendan Watters', 'Spencer McIntyre'],
         'Platform' => 'linux',
         'Arch' => ARCH_CMD,
