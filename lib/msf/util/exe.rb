@@ -182,19 +182,14 @@ module Msf
         if arch.index(ARCH_MIPSLE) && plat.index(Msf::Module::Platform::Linux)
           return to_linux_mipsle_elf(framework, code)
         end
-        # XXX: Add remaining MIPSLE systems here
 
         if arch.index(ARCH_MIPSBE) && plat.index(Msf::Module::Platform::Linux)
           return to_linux_mipsbe_elf(framework, code)
         end
-        # XXX: Add remaining MIPSBE systems here
-    end
 
-    if arch.index(ARCH_MIPS64)
-      if plat.index(Msf::Module::Platform::Linux)
-        return to_linux_mips64_elf(framework, code)
-      end
-      # XXX: Add remaining MIPS64 systems here
+        if arch.index(ARCH_MIPS64) && plat.index(Msf::Module::Platform::Linux)
+          return to_linux_mips64_elf(framework, code)
+        end
 
         if arch.index(ARCH_RISCV32LE) && plat.index(Msf::Module::Platform::Linux)
           return to_linux_riscv32le_elf(framework, code)
@@ -204,8 +199,6 @@ module Msf
         if arch.index(ARCH_RISCV64LE) && plat.index(Msf::Module::Platform::Linux)
           return to_linux_riscv64le_elf(framework, code)
         end
-
-        # TODO: Add remaining RISCV64LE systems here
 
         nil
       end
@@ -1685,16 +1678,16 @@ module Msf
         to_exe_elf(framework, opts, 'template_mipsbe_linux.bin', code, true)
       end
 
-  # self.to_linux_mips64_elf
-  # Big Endian
-  # @param framework [Msf::Framework]
-  # @param code       [String]
-  # @param opts       [Hash]
-  # @option           [String] :template
-  # @return           [String] Returns an elf
-  def self.to_linux_mips64_elf(framework, code, opts = {})
-    to_exe_elf(framework, opts, "template_mips64_linux.bin", code, true)
-  end
+      # self.to_linux_mips64_elf
+      # Big Endian
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_linux_mips64_elf(framework, code, opts = {})
+        to_exe_elf(framework, opts, "template_mips64_linux.bin", code, true)
+      end
 
       # Create a RISC-V 64-bit LE Linux ELF containing the payload provided in +code+
       #
@@ -2752,8 +2745,8 @@ module Msf
             when ARCH_MIPSLE
               to_linux_mipsle_elf(framework, code, exeopts)
             when ARCH_MIPS64
-          to_linux_mips64_elf(framework, code, exeopts)
-        when ARCH_RISCV32LE
+              to_linux_mips64_elf(framework, code, exeopts)
+            when ARCH_RISCV32LE
               to_linux_riscv32le_elf(framework, code, exeopts)
             when ARCH_RISCV64LE
               to_linux_riscv64le_elf(framework, code, exeopts)
