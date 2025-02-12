@@ -32,7 +32,7 @@ module MetasploitModule
         {
           'Offsets' =>
             {
-              'LPORT' => [ 212, 'n'    ],
+              'LPORT' => [ 222, 'n'    ],
               'LHOST' => [ 224, 'ADDR' ],
             },
           'Payload' =>
