@@ -69,10 +69,12 @@ module Msf
             fail_with(Module::Failure::BadConfig, 'Unable to find a compiler on the remote target.') if compiler.nil?
           end
 
-          # only upload the file if a compiler exists
-          write_file "#{path}.c", strip_comments(data)
+          path = "#{path}.c" unless path.end_with?('.c')
 
-          compiler_cmd = "#{compiler} -o '#{path}' '#{path}.c'"
+          # only upload the file if a compiler exists
+          write_file path.to_s, strip_comments(data)
+
+          compiler_cmd = "#{compiler} -o '#{path.sub(/\.c$/, '')}' '#{path}'"
           if session.type == 'shell'
             compiler_cmd = "PATH=\"$PATH:/usr/bin/\" #{compiler_cmd}"
           end
@@ -84,10 +86,10 @@ module Msf
           verification_token = Rex::Text.rand_text_alphanumeric(8)
           success = cmd_exec("#{compiler_cmd} && echo #{verification_token}")&.include?(verification_token)
 
-          rm_f "#{path}.c"
+          rm_f path.to_s
 
           unless success
-            message = "#{path}.c failed to compile."
+            message = "#{path} failed to compile."
             # don't mention the COMPILE option if it was deregistered
             message << ' Set COMPILE to False to upload a pre-compiled executable.' if options.include?('COMPILE')
             fail_with Module::Failure::BadConfig, message
