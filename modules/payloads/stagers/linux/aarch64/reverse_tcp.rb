@@ -15,7 +15,7 @@
 ###
 module MetasploitModule
 
-  CachedSize = 212
+  CachedSize = 228
 
   include Msf::Payload::Linux::Aarch64::Prepends
   include Msf::Payload::Stager
