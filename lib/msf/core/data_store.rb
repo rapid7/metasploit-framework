@@ -266,7 +266,7 @@ class DataStore
   def to_h
     datastore_hash = {}
     self.keys.each do |k|
-      datastore_hash[k.to_s] = self[k].to_s
+      datastore_hash[k.to_s] = self[k]
     end
     datastore_hash
   end
