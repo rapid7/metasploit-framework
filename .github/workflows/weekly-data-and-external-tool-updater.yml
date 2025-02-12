@@ -4,7 +4,7 @@ name: Weekly Data and External Tool Updater
 permissions:
   actions: none
   checks: none
-  contents: none
+  contents: write
   deployments: none
   id-token: none
   issues: none
