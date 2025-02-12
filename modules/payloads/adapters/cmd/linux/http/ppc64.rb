@@ -12,7 +12,7 @@ module MetasploitModule
       update_info(
         info,
         'Name' => 'HTTP Fetch',
-        'Description' => 'Fetch and execute an MIPSLE payload from an HTTP server.',
+        'Description' => 'Fetch and execute an PPC64 payload from an HTTP server.',
         'Author' => ['Brendan Watters', 'Spencer McIntyre'],
         'Platform' => 'linux',
         'Arch' => ARCH_CMD,
