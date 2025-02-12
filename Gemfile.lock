@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.4.38)
+    metasploit-framework (6.4.49)
       aarch64
       abbrev
       actionpack (~> 7.0.0)
@@ -15,10 +15,12 @@ PATH
       base64
       bcrypt
       bcrypt_pbkdf
+      benchmark
       bigdecimal
       bootsnap
       bson
       chunky_png
+      concurrent-ruby (= 1.3.4)
       csv
       dnsruby
       drb
@@ -31,6 +33,7 @@ PATH
       faraday-retry
       faye-websocket
       ffi (< 1.17.0)
+      fiddle
       filesize
       getoptlong
       hrr_rb_ssh-ed25519
@@ -42,7 +45,7 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 2.0.187)
+      metasploit-payloads (= 2.0.189)
       metasploit_data_models
       metasploit_payloads-mettle (= 1.0.35)
       mqtt
@@ -60,6 +63,7 @@ PATH
       octokit (~> 4.0)
       openssl-ccm
       openvas-omp
+      ostruct
       packetfu
       patch_finder
       pcaprub
@@ -186,6 +190,7 @@ GEM
     base64 (0.2.0)
     bcrypt (3.1.20)
     bcrypt_pbkdf (1.1.1)
+    benchmark (0.4.0)
     bigdecimal (3.1.8)
     bindata (2.4.15)
     bootsnap (1.18.4)
@@ -200,7 +205,7 @@ GEM
     crass (1.0.6)
     csv (3.3.0)
     daemons (1.4.1)
-    date (3.3.4)
+    date (3.4.1)
     debug (1.8.0)
       irb (>= 1.5.0)
       reline (>= 0.3.1)
@@ -242,6 +247,7 @@ GEM
       eventmachine (>= 0.12.0)
       websocket-driver (>= 0.5.1)
     ffi (1.16.3)
+    fiddle (1.1.6)
     filesize (0.2.0)
     fivemat (1.3.7)
     getoptlong (0.2.1)
@@ -300,7 +306,7 @@ GEM
       activemodel (~> 7.0)
       activesupport (~> 7.0)
       railties (~> 7.0)
-    metasploit-payloads (2.0.187)
+    metasploit-payloads (2.0.189)
     metasploit_data_models (6.0.5)
       activerecord (~> 7.0)
       activesupport (~> 7.0)
@@ -317,7 +323,7 @@ GEM
       logger
       mime-types-data (~> 3.2015)
     mime-types-data (3.2024.1001)
-    mini_portile2 (2.8.7)
+    mini_portile2 (2.8.8)
     minitest (5.25.1)
     mqtt (0.6.0)
     msgpack (1.6.1)
@@ -340,7 +346,7 @@ GEM
     network_interface (0.0.4)
     nexpose (7.3.0)
     nio4r (2.7.4)
-    nokogiri (1.16.7)
+    nokogiri (1.18.2)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     nori (2.7.1)
@@ -351,6 +357,7 @@ GEM
     openssl-ccm (1.2.3)
     openssl-cmac (2.0.2)
     openvas-omp (0.0.4)
+    ostruct (0.6.1)
     packetfu (2.0.0)
       pcaprub (~> 0.13.1)
     parallel (1.26.3)
@@ -446,7 +453,8 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.57)
+    rex-socket (0.1.58)
+      dnsruby
       rex-core
     rex-sslscan (0.1.10)
       rex-core
@@ -499,7 +507,7 @@ GEM
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (3.3.11)
+    ruby_smb (3.3.13)
       bindata (= 2.4.15)
       openssl-ccm
       openssl-cmac

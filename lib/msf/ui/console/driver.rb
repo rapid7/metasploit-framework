@@ -611,10 +611,6 @@ protected
       return false
     elsif active_module && (active_module.exploit? || active_module.evasion?)
       return false unless active_module.is_payload_compatible?(val)
-    elsif active_module && !framework.features.enabled?(Msf::FeatureManager::DATASTORE_FALLBACKS)
-      active_module.datastore.clear_non_user_defined
-    elsif framework && !framework.features.enabled?(Msf::FeatureManager::DATASTORE_FALLBACKS)
-      framework.datastore.clear_non_user_defined
     end
   end
 

@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
       ssl: datastore['SSL']
     )
 
-    scanner = Metasploit::Framework::LoginScanner::Teamcity.new(scanner_opts)
+    scanner = Metasploit::Framework::LoginScanner::TeamCity.new(scanner_opts)
     run_scanner(scanner)
   end
 end

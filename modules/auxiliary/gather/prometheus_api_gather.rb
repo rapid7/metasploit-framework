@@ -31,7 +31,8 @@ class MetasploitModule < Msf::Auxiliary
           'h00die'
         ],
         'References' => [
-          ['URL', 'https://jfrog.com/blog/dont-let-prometheus-steal-your-fire/']
+          ['URL', 'https://jfrog.com/blog/dont-let-prometheus-steal-your-fire/'],
+          ['URL', 'https://www.aquasec.com/blog/300000-prometheus-servers-and-exporters-exposed-to-dos-attacks/']
         ],
 
         'Targets' => [
@@ -145,6 +146,14 @@ class MetasploitModule < Msf::Auxiliary
     json = res.get_json_document
     fail_with(Failure::UnexpectedReply, "#{peer} - Unable to parse JSON document") unless json
     print_good("Config file: #{json.dig('data', 'config.file')}") if json.dig('data', 'config.file')
+
+    # check for pprof
+    res = send_request_cgi(
+      'uri' => normalize_uri(target_uri.path, 'debug', 'pprof/'), # include trailing /
+      'method' => 'GET'
+    )
+    fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
+    print_good("#{peer}#{target_uri.path}debug/pprof/ found, potential DoS and information disclosure. Should be manually reviewed.") if res.code == 200 && res.body.include?('Profile Descriptions')
   rescue ::Rex::ConnectionError
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to the web service")
   end

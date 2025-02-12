@@ -73,13 +73,24 @@ module Metasploit
                 # esxi 6.7
               elsif info =~ /sh: id: not found/
                 info = ssh_socket.exec!("vmware -v\n").to_s
+                # vcenter 6.7 (photon)
+                # VMware vCenter Server 8.0.0.10000
+                # VMware VirtualCenter 6.7.0 build-19299595
+              elsif info =~ /Unknown command: `id'/
+                # eventually we'll want to try to shell in via 'shell'. On failure you see: "User 'user_operator' is not authorized to run this command"
+                # on succeess: "Shell access is granted to <username>"
+                info = ssh_socket.exec!("api com.vmware.appliance.version1.system.version.get\n\n").to_s
+                /Product:\s+(?<product>.+)$/ =~ info
+                /Version:\s+(?<version>[\d\.]+)$/ =~ info
+                if version && product
+                  info = "#{product.strip} #{version.strip}"
+                end
               else
                 info << ssh_socket.exec!("help\n?\n\n\n").to_s
               end
             end
           rescue Timeout::Error
           end
-
           info
         end
 
@@ -113,6 +124,8 @@ module Metasploit
             'mikrotik'
           when /Arista/i
             'arista'
+          when /VMware vCenter Server/i
+            'vcenter'
           else
             'unknown'
           end

@@ -74,7 +74,7 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.187'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.189'
   # Needed for the next-generation POSIX Meterpreter
   spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.35'
   # Needed by msfgui and other rpc components
@@ -248,6 +248,10 @@ Gem::Specification.new do |spec|
   # to generate PNG files, not to parse untrusted PNG files.
   spec.add_runtime_dependency 'chunky_png'
 
+  # Temporary, remove once the Rails 7.1 update is complete
+  # see: https://stackoverflow.com/questions/79360526/uninitialized-constant-activesupportloggerthreadsafelevellogger-nameerror
+  spec.add_runtime_dependency 'concurrent-ruby', '1.3.4'
+
   # Needed for multiline REPL support for interactive SQL sessions
   spec.add_runtime_dependency 'reline'
 
@@ -258,11 +262,14 @@ Gem::Specification.new do |spec|
   %w[
     abbrev
     base64
+    benchmark
     bigdecimal
     csv
     drb
+    fiddle
     getoptlong
     mutex_m
+    ostruct
   ].each do |library|
     spec.add_runtime_dependency library
   end

@@ -286,7 +286,7 @@ module Msf
         # @raise [RuntimeError] If execution fails.
         #
         def grsec_installed?
-          File.exist?('/dev/grsec') && File.chardev?('/dev/grsec')
+          cmd_exec('test -c /dev/grsec && echo true').to_s.strip.include? 'true'
         rescue StandardError
           raise 'Could not determine grsecurity status'
         end
