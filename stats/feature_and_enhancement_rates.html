@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Metasploit Stats</title>
+    <meta charset='utf-8'>
+    <!-- REQUIRED -->
+    <style>
+      body{
+        padding-top: 60px;
+      }
+    </style>
+    <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.5/superhero/bootstrap.min.css" rel="stylesheet" integrity="sha384-IEb1z7D4ISbz8RTKVtgjIw6KegExJgu6WdDei6Fn2xgL6f5dfyTppLEFnkFbRaxv" crossorigin="anonymous">
+    <script src="assets/bootstrap/js/jquery.min.js"></script>
+    <script src="assets/highcharts.js" type='text/javascript'></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <!-- EO REQUIRED -->
+  </head>
+  <body>
+    <!-- NAVBAR-->
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+          <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="navbar-header">
+
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                 <span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+              </button> <a class="navbar-brand" href="#">Metasploit Stats</a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              <ul class="nav navbar-nav">
+                <li><a href="https://docs.metasploit.com">Metasploit Docs</a></li>
+                <li><a href="https://github.com/rapid7/metasploit-framework">Metasploit on Github</a></li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+    <!-- NAVBAR END-->
+
+    <div class='container'>
+      <div class='tabbable tabs-left'>
+        <ul class='nav nav-pills'>
+          <li>
+            
+  <li role="presentation">
+    <a href="pull_request_rates.html" >Pull Requests per Quarter</a>
+  </li>
+  <li role="presentation">
+    <a href="bug_rates.html" >Bugs per Quarter</a>
+  </li>
+  <li role="presentation">
+    <a href="feature_and_enhancement_rates.html" >Features and Enhancements per Quarter</a>
+  </li>
+  <li role="presentation">
+    <a href="index.html" >Open Pull Requests
+      <span class="badge">44 since last week</span>
+    </a>
+  </li>
+  <li role="presentation">
+    <a href="features_and_enhancements.html" >Open Features and Enhancements
+      <span class="badge">0 since last week</span>
+    </a>
+  </li>
+  <li role="presentation">
+    <a href="bugs.html" >Open Bugs
+      <span class="badge">2 since last week</span>
+    </a>
+  </li>
+          </li>
+        </ul>
+        <div class='tab-content'>
+          <div class='tab-pane active'>
+            <div class='page-header'>
+              <h1 class='pagination-centered'>Features and Enhancements per Quarter by date</h1>
+            </div>
+            <script type="text/javascript">
+        $(function () {
+            $('#container').highcharts({
+                chart: {
+                    zoomType: 'x'
+                },
+                title: {
+                    text: 'Features and Enhancements per Quarter'
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    type: 'datetime',
+                    dateTimeLabelFormats: { // don't display the dummy year
+                        month: '%e. %b %Y',
+                        year: '%b'
+                    },
+                    title: {
+                        text: 'Date'
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: 'Features and Enhancements per Quarter'
+                    },
+                    min: 0
+                },
+                tooltip: {
+                    headerFormat: '<b>{series.name}</b><br>',
+                    pointFormat: '{point.x:%e. %b}: {point.y:.2f}'
+                },
+
+                plotOptions: {
+                    spline: {
+                        marker: {
+                            enabled: true
+                        }
+                    }
+                },
+
+                series: [
+                  { name: "Total Opened Features and Enhancements per Quarter", data: [[1633046400000, 3], [1640995200000, 1], [1648771200000, 3], [1656633600000, 2], [1680307200000, 1], [1704067200000, 1], [1711929600000, 1], [1719792000000, 1]] },
+                  { name: "Total Closed Features and Enhancements per Quarter", data: [[1617235200000, 2], [1625097600000, 1], [1633046400000, 1], [1640995200000, 1], [1648771200000, 4], [1656633600000, 4], [1664582400000, 2], [1680307200000, 4], [1688169600000, 46], [1696118400000, 5], [1704067200000, 3], [1711929600000, 1], [1719792000000, 1], [1727740800000, 1]] },
+                  { name: "Rapid7 Opened Features and Enhancements per Quarter", data: [[1633046400000, 1], [1640995200000, 1], [1648771200000, 1], [1656633600000, 1], [1680307200000, 1], [1704067200000, 1], [1711929600000, 1]] },
+                  { name: "Rapid7 Closed Features and Enhancements per Quarter", data: [[1617235200000, 1], [1625097600000, 1], [1656633600000, 2], [1680307200000, 1], [1688169600000, 15], [1711929600000, 1]] },
+                ]
+            });
+        });
+            </script>
+            <div id="container"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <table class="table table-striped">
+      <h2>Top committers this last month</h2>
+      <tr>
+<td>simonirwin-r7 (30)</td><td>Takah1ro (28)</td><td>Metasploit (22)</td><td>adfoster-r7 (20)</td><td>jenkins-metasploit (19)</td><td>Spencer McIntyre (18)</td><td>jheysel-r7 (16)</td><td>Martin Sutovsky (12)</td><td>TheBigStonk (8)</td><td>Takahiro Yokoyama (6)</td></tr>
+<tr><td>h00die (6)</td><td>Jack Heysel (5)</td><td>Christophe De La Fuente (5)</td><td>Diego Ledda (3)</td><td>Brendan (3)</td><td>msutovsky-r7 (3)</td><td>dledda-r7 (2)</td><td>bwatters-r7 (2)</td><td>Jeffrey Martin (2)</td><td>sjanusz-r7 (1)</td></tr>
+<tr><td>Dean Welch (1)</td><td>dwelch-r7 (1)</td><td>sfewer-r7 (1)</td><td>Stephen Fewer (1)</td><td>0xAryan (1)</td><td>cgranleese-r7 (1)</td><td>h4x-x0r (1)</td><td>Simon Janusz (1)</td></tr>
+
+    </table>
+    <h2>Top items this last week</h2>
+    
+            
+    <div class="panel panel-primary">
+      <div class="panel-heading" data-toggle="collapse"
+           data-parent="#accordion" data-target="#index">
+        <h4 class="panel-title">New Open Pull Requests</h4>
+      </div>
+      <div id="index" class="panel-collapse collapse">
+      <div class="panel-body">
+        Check out some of the new Open Pull Requests for this week!
+      </div>
+      <div class="table-responsive">
+      <table class="table">
+    
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/19875">
+                <span class="fa-fw fa fa-github">Fix SIGILL on staged meterpreter on RaspberryPi4</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-12T16:44:47+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              dledda-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/19871">
+                <span class="fa-fw fa fa-github">Change the aarch64 elf version in template file and reassemble</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-11T15:13:55+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              bwatters-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/19876">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:00:51+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/19873">
+                <span class="fa-fw fa fa-github">Remove report note calls from vuln cert finder</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-11T21:15:28+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              adfoster-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/19872">
+                <span class="fa-fw fa fa-github">Update ldap vuln cert finder report notes</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-11T20:52:53+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              adfoster-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/19870">
+                <span class="fa-fw fa fa-github">allow workflow content write</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-11T04:31:32+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              jmartin-tech
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/19869">
+                <span class="fa-fw fa fa-github">Consolidate datastore with fallbacks logic</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-09T13:48:16+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              adfoster-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/19868">
+                <span class="fa-fw fa fa-github">Add NetAlertX unauthenticated RCE module (CVE-2024-46506)</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-08T05:44:30+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              Takahiro-Yoko
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/19867">
+                <span class="fa-fw fa fa-github">Update nokogiri dependency</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-07T13:50:34+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              adfoster-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/19866">
+                <span class="fa-fw fa fa-github">Revert "Updates `shared_meterpreter_acceptance.yml` pipeline to build the metasploit-payloads gem"</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-07T13:26:25+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              adfoster-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/19864">
+                <span class="fa-fw fa fa-github">Restrict weekly data PR tooling to rapid7 repo</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-06T15:30:38+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              jmartin-tech
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-payloads/issues/742">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:00:30+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-omnibus/issues/221">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:02:14+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-omnibus/issues/220">
+                <span class="fa-fw fa fa-github">Update ruby version</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-07T22:51:53+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              adfoster-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit_data_models/issues/208">
+                <span class="fa-fw fa fa-github">Add Metasploit::Model::Search::Operation::Jsonb visitor</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-12T15:33:41+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              cdelafuente-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit_data_models/issues/209">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:00:26+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit_data_models/issues/207">
+                <span class="fa-fw fa fa-github">Add coerce param to Base64Serializer</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-11T19:26:27+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              sjanusz-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-credential/issues/185">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:01:26+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-model/issues/71">
+                <span class="fa-fw fa fa-github">Add search operation model for JSONB</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-12T14:58:04+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              cdelafuente-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-model/issues/72">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:00:34+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-aggregator/issues/21">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:04:10+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-baseline-builder/issues/64">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:04:23+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/network_interface/issues/25">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:00:38+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-encoder/issues/5">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:03:58+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-rop_builder/issues/3">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:03:34+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-mime/issues/8">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:03:38+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-nop/issues/3">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:03:46+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-text/issues/72">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:02:47+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-powershell/issues/44">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:03:06+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-sslscan/issues/9">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:03:30+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-socket/issues/72">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:03:54+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-core/issues/41">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:03:42+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-bin_tools/issues/8">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:03:22+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-ole/issues/4">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:03:14+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-arch/issues/11">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:03:26+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-struct2/issues/3">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:03:18+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-registry/issues/3">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:02:54+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-java/issues/4">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:03:10+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-zip/issues/6">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:02:50+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-random_identifier/issues/14">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:03:02+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/mettle/issues/271">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:02:22+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploitable3/issues/633">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:03:50+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/msfrpc-client/issues/9">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:01:38+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/ruby_smb/issues/283">
+                <span class="fa-fw fa fa-github">PD-49865 Set Cortex tags to identify repo exposure</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-13T09:02:03+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              simonirwin-r7
+            </td>
+          </tr></table></div></div></div>
+    <div class="panel panel-primary">
+      <div class="panel-heading" data-toggle="collapse"
+           data-parent="#accordion" data-target="#features_and_enhancements">
+        <h4 class="panel-title">New Open Features and Enhancements</h4>
+      </div>
+      <div id="features_and_enhancements" class="panel-collapse collapse">
+      <div class="panel-body">
+        Check out some of the new Open Features and Enhancements for this week!
+      </div>
+      <div class="table-responsive">
+      <table class="table">
+    </table></div></div></div>
+    <div class="panel panel-primary">
+      <div class="panel-heading" data-toggle="collapse"
+           data-parent="#accordion" data-target="#bugs">
+        <h4 class="panel-title">New Open Bugs</h4>
+      </div>
+      <div id="bugs" class="panel-collapse collapse">
+      <div class="panel-body">
+        Check out some of the new Open Bugs for this week!
+      </div>
+      <div class="table-responsive">
+      <table class="table">
+    
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/19874">
+                <span class="fa-fw fa fa-github">Update report_note to validate data is a hash</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-11T21:20:29+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              adfoster-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/19865">
+                <span class="fa-fw fa fa-github">Staged AARCH64 Illegal instruction</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-02-06T17:59:20+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              bwatters-r7
+            </td>
+          </tr></table></div></div></div></div>
+  </body>
+</html>
