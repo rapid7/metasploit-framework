@@ -191,6 +191,7 @@ jobs:
           ref: ${{ inputs.metasploit_framework_commit }}
 
       - name: Setup Ruby
+        run: git config --system core.longpaths true
         env:
           BUNDLE_FORCE_RUBY_PLATFORM: true
           # Required for macos13 pg gem compilation
