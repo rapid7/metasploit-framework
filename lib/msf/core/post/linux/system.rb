@@ -7,6 +7,7 @@ module Msf
         include ::Msf::Post::Common
         include ::Msf::Post::File
         include ::Msf::Post::Unix
+        include Msf::Auxiliary::Report
 
         #
         # Returns a Hash containing Distribution Name, Version and Kernel Information
@@ -14,7 +15,6 @@ module Msf
         def get_sysinfo
           system_data = {}
           etc_files = cmd_exec('ls /etc').split
-
           kernel_version = cmd_exec('uname -a')
           system_data[:kernel] = kernel_version
 
@@ -132,8 +132,10 @@ module Msf
         # Gathers all SUID files on the filesystem.
         # NOTE: This uses the Linux `find` command. It will most likely take a while to get all files.
         # Consider specifying a more narrow find path.
+        #
         # @param findpath The path on the system to start searching
         # @return [Array]
+        #
         def get_suid_files(findpath = '/')
           cmd_exec("find #{findpath} -perm -4000 -print -xdev").to_s.split("\n").delete_if { |i| i.include? 'Permission denied' }
         rescue StandardError
@@ -142,7 +144,9 @@ module Msf
 
         #
         # Gets the $PATH environment variable
+        #
         # @return [String]
+        #
         def get_path
           cmd_exec('echo $PATH').to_s
         rescue StandardError
@@ -151,6 +155,7 @@ module Msf
 
         #
         # Gets basic information about the system's CPU.
+        #
         # @return [Hash]
         #
         def get_cpu_info
@@ -171,6 +176,7 @@ module Msf
 
         #
         # Gets the hostname of the system
+        #
         # @return [String]
         #
         def get_hostname
@@ -188,6 +194,7 @@ module Msf
 
         #
         # Gets the name of the current shell
+        #
         # @return [String]
         #
         def get_shell_name
@@ -202,6 +209,7 @@ module Msf
 
         #
         # Gets the pid of the current shell
+        #
         # @return [String]
         #
         def get_shell_pid
@@ -210,6 +218,7 @@ module Msf
 
         #
         # Checks if the system has gcc installed
+        #
         # @return [Boolean]
         #
         def has_gcc?
@@ -220,6 +229,7 @@ module Msf
 
         #
         # Checks if the system has clang installed
+        #
         # @return [Boolean]
         #
         def has_clang?
@@ -230,6 +240,7 @@ module Msf
 
         #
         # Checks if `file_path` is mounted on a noexec mount point
+        #
         # @return [Boolean]
         #
         def noexec?(file_path)
@@ -245,6 +256,7 @@ module Msf
 
         #
         # Checks if `file_path` is mounted on a nosuid mount point
+        #
         # @return [Boolean]
         #
         def nosuid?(file_path)
@@ -260,6 +272,7 @@ module Msf
 
         #
         # Checks for protected hardlinks on the system
+        #
         # @return [Boolean]
         #
         def protected_hardlinks?
@@ -270,6 +283,7 @@ module Msf
 
         #
         # Checks for protected symlinks on the system
+        #
         # @return [Boolean]
         #
         def protected_symlinks?
@@ -280,18 +294,22 @@ module Msf
 
         #
         # Gets the version of glibc
+        #
         # @return [String]
         #
         def glibc_version
           raise 'glibc is not installed' unless command_exists? 'ldd'
+          begin
 
-          cmd_exec('ldd --version').scan(/^ldd\s+\(.*\)\s+([\d.]+)/).flatten.first
-        rescue StandardError
-          raise 'Could not determine glibc version'
+            cmd_exec('ldd --version').scan(/^ldd\s+\(.*\)\s+([\d.]+)/).flatten.first
+          rescue StandardError
+            raise 'Could not determine glibc version'
+          end
         end
 
         #
         # Gets the mount point of `filepath`
+        #
         # @param [String] filepath The filepath to get the mount point
         # @return [String]
         #
@@ -303,6 +321,7 @@ module Msf
 
         #
         # Gets all the IP directions of the device
+        #
         # @return [Array]
         #
         def ips
@@ -323,6 +342,7 @@ module Msf
 
         #
         # Gets all the interfaces of the device
+        #
         # @return [Array]
         #
         def interfaces
@@ -338,6 +358,7 @@ module Msf
 
         #
         # Gets all the macs of the device
+        #
         # @return [Array]
         #
         def macs
@@ -354,9 +375,10 @@ module Msf
           result
         end
 
-        # Parsing information based on: https://github.com/sensu-plugins/sensu-plugins-network-checks/blob/master/bin/check-netstat-tcp.rb
         #
+        # Parsing information based on: https://github.com/sensu-plugins/sensu-plugins-network-checks/blob/master/bin/check-netstat-tcp.rb
         # Gets all the listening tcp ports in the device
+        #
         # @return [Array]
         #
         def listen_tcp_ports
@@ -377,8 +399,8 @@ module Msf
         end
 
         # Parsing information based on: https://github.com/sensu-plugins/sensu-plugins-network-checks/blob/master/bin/check-netstat-tcp.rb
-        #
         # Gets all the listening udp ports in the device
+        #
         # @return [Array]
         #
         def listen_udp_ports
@@ -400,6 +422,7 @@ module Msf
 
         #
         # Determine if system is a container
+        #
         # @return [String]
         #
         def get_container_type
@@ -421,6 +444,8 @@ module Msf
                 return 'Docker'
               when /lxc/i
                 return 'LXC'
+              else
+                return 'Unknown'
               end
             else
               # Check for the "container" environment variable
@@ -443,11 +468,7 @@ module Msf
           end
           container_type
         end
-        # System
       end
-      # Linux
     end
-    # Post
   end
-  # Msf
 end
