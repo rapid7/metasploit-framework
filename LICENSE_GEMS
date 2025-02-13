@@ -90,7 +90,7 @@ memory_profiler, 1.1.0, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 5.0.3, "New BSD"
 metasploit-credential, 6.0.11, "New BSD"
-metasploit-framework, 6.4.49, "New BSD"
+metasploit-framework, 6.4.50, "New BSD"
 metasploit-model, 5.0.2, "New BSD"
 metasploit-payloads, 2.0.189, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 6.0.5, "New BSD"
@@ -98,7 +98,7 @@ metasploit_payloads-mettle, 1.0.35, "3-clause (or ""modified"") BSD"
 method_source, 1.1.0, MIT
 mime-types, 3.6.0, MIT
 mime-types-data, 3.2024.1001, MIT
-mini_portile2, 2.8.7, MIT
+mini_portile2, 2.8.8, MIT
 minitest, 5.25.1, MIT
 mqtt, 0.6.0, MIT
 msgpack, 1.6.1, "Apache 2.0"
@@ -115,7 +115,7 @@ net-ssh, 7.3.0, MIT
 network_interface, 0.0.4, MIT
 nexpose, 7.3.0, "New BSD"
 nio4r, 2.7.4, "MIT, Simplified BSD"
-nokogiri, 1.16.7, MIT
+nokogiri, 1.18.2, MIT
 nori, 2.7.1, MIT
 octokit, 4.25.1, MIT
 openssl-ccm, 1.2.3, MIT
