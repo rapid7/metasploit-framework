@@ -1601,6 +1601,27 @@ module Msf
         to_exe_elf(framework, opts, 'template_armle_linux.bin', code)
       end
 
+      # self.to_linux_armbe_elf
+      #
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_linux_armbe_elf(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_armbe_linux.bin', code, true)
+      end
+
+      # self.to_linux_zarch_elf
+      #
+      # @param framework [Msf::Framework]
+      # @param code       [String]
+      # @param opts       [Hash]
+      # @option           [String] :template
+      # @return           [String] Returns an elf
+      def self.to_linux_zarch_elf(framework, code, opts = {})
+        to_exe_elf(framework, opts, 'template_zarch_linux.bin', code, true)
+      end
       # self.to_linux_armle_elf_dll
       #
       # @param framework [Msf::Framework]
@@ -2740,6 +2761,8 @@ module Msf
               to_linux_aarch64_elf(framework, code, exeopts)
             when ARCH_ARMLE
               to_linux_armle_elf(framework, code, exeopts)
+            when ARCH_ARMBE
+              to_linux_armbe_elf(framework, code, exeopts)
             when ARCH_MIPSBE
               to_linux_mipsbe_elf(framework, code, exeopts)
             when ARCH_MIPSLE
@@ -2756,6 +2779,8 @@ module Msf
               to_linux_ppc_elf(framework, code, exeopts)
             when ARCH_PPCE500V2
               to_linux_ppce500v2_elf(framework, code, exeopts)
+            when ARCH_ZARCH
+              to_linux_zarch_elf(framework, code, exeopts)
             end
           elsif plat && plat.index(Msf::Module::Platform::BSD)
             case arch
