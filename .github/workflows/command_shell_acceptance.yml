@@ -127,6 +127,7 @@ jobs:
           path: metasploit-framework
 
       - name: Setup Ruby
+        run: git config --system core.longpaths true
         env:
           BUNDLE_FORCE_RUBY_PLATFORM: true
         uses: ruby/setup-ruby@v1
