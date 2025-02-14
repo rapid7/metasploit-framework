@@ -45,15 +45,22 @@ module DNS
     # Add record to cache, only when "running"
     #
     # @param record [Dnsruby::RR] Record to cache
-    def cache_record(record)
+    def cache_record(record, expire: true)
       return unless @monitor_thread
-      if record.is_a?(Dnsruby::RR) and
-      (!record.respond_to?(:address) or Rex::Socket.is_ip_addr?(record.address.to_s)) and
-      record.name.to_s.match(MATCH_HOSTNAME)
-        add(record, ::Time.now.to_i + record.ttl)
-      else
-        raise "Invalid record for cache entry - #{record.inspect}"
+
+      unless record.is_a?(Dnsruby::RR)
+        raise "Invalid record for cache entry (not an RR) - #{record.inspect}"
       end
+
+      unless (!record.respond_to?(:address) || Rex::Socket.is_ip_addr?(record.address.to_s))
+        raise "Invalid record for cache entry (no IP address) - #{record.inspect}"
+      end
+
+      unless record.name.to_s.match(MATCH_HOSTNAME)
+        raise "Invalid record for cache entry (invalid hostname) - #{record.inspect}"
+      end
+
+      add(record, expire ? (::Time.now.to_i + record.ttl) : 0)
     end
 
     #
