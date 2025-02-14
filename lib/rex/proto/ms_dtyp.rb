@@ -5,6 +5,9 @@ require 'ruby_smb'
 require 'rex/proto/secauthz/well_known_sids'
 
 module Rex::Proto::MsDtyp
+  class SDDLParseError < Rex::RuntimeError
+  end
+
   # [2.4.3 ACCESS_MASK](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/7a53f60e-e730-4dfe-bbe9-b21b62eb790b)
   class MsDtypAccessMask < BinData::Record
     endian :little
@@ -150,10 +153,10 @@ module Rex::Proto::MsDtyp
         when 'KX'
           access_mask.protocol |= 0x19
         when 'NR', 'NW', 'NX'
-          raise RuntimeError.new('SDDL parse error on unsupported ACE access right: ' + right)
+          raise SDDLParseError.new('unsupported ACE access right: ' + right)
         when ''
         else
-          raise RuntimeError.new('SDDL parse error on unknown ACE access right: ' + right)
+          raise SDDLParseError.new('unknown ACE access right: ' + right)
         end
       end
 
@@ -283,7 +286,7 @@ module Rex::Proto::MsDtyp
       elsif sddl_text =~ /^S(-\d+)+/
         sid_text = sddl_text
       else
-        raise RuntimeError, 'SDDL parse error on invalid SID string: ' + sddl_text
+        raise SDDLParseError.new('invalid SID string: ' + sddl_text)
       end
 
       self.new(sid_text)
@@ -454,7 +457,7 @@ module Rex::Proto::MsDtyp
       when MsDtypAceType::SYSTEM_AUDIT_OBJECT_ACE_TYPE
         parts << 'OU'
       else
-        raise RuntimeError.new('SDDL build error on unknown ACE type: ' + header.ace_type.to_i)
+        raise SDDLParseError.new('unknown ACE type: ' + header.ace_type.to_i)
       end
 
       ace_flags = ''
@@ -490,8 +493,8 @@ module Rex::Proto::MsDtyp
 
     def self.from_sddl_text(sddl_text, domain_sid:)
       parts = sddl_text.upcase.split(';', -1)
-      raise RuntimeError.new('SDDL parse error on too few ACE fields') if parts.length < 6
-      raise RuntimeError.new('SDDL parse error on too many ACE fields') if parts.length > 7
+      raise SDDLParseError.new('too few ACE fields') if parts.length < 6
+      raise SDDLParseError.new('too many ACE fields') if parts.length > 7
 
       ace_type, ace_flags, rights, object_guid, inherit_object_guid, account_sid = parts[0...6]
       resource_attribute = parts[6]
@@ -511,9 +514,9 @@ module Rex::Proto::MsDtyp
       when 'OU'
         ace.header.ace_type = MsDtypAceType::SYSTEM_AUDIT_OBJECT_ACE_TYPE
       when 'AL', 'OL', 'ML', 'XA', 'SD', 'RA', 'SP', 'XU', 'ZA', 'TL', 'FL'
-        raise RuntimeError.new('SDDL parse error on unsupported ACE type: ' + ace_type)
+        raise SDDLParseError.new('unsupported ACE type: ' + ace_type)
       else
-        raise RuntimeError.new('SDDL parse error on unknown ACE type: ' + ace_type)
+        raise SDDLParseError.new('unknown ACE type: ' + ace_type)
       end
 
       ace_flags.split(/(CI|OI|NP|IO|ID|SA|FA|TP|CR)/).each do |flag|
@@ -533,12 +536,12 @@ module Rex::Proto::MsDtyp
         when 'FA'
           ace.header.ace_flags.failed_access_ace_flag = true
         when 'TP'
-          raise RuntimeError.new('SDDL parse error on unsupported ACE flag: TP')
+          raise SDDLParseError.new('unsupported ACE flag: TP')
         when 'CR'
           ace.header.ace_flags.critical_ace_flag = true
         when ''
         else
-          raise RuntimeError.new('SDDL parse error on unknown ACE flag: ' + flag)
+          raise SDDLParseError.new('unknown ACE flag: ' + flag)
         end
       end
 
@@ -548,11 +551,11 @@ module Rex::Proto::MsDtyp
         begin
           guid = MsDtypGuid.new(object_guid)
         rescue StandardError
-          raise RuntimeError.new('SDDL parse error on invalid object GUID: ' + object_guid)
+          raise SDDLParseError.new('invalid object GUID: ' + object_guid)
         end
 
         unless ace.body.respond_to?('object_type=')
-          raise RuntimeError.new('SDDL error on setting object type for incompatible ACE type')
+          raise SDDLParseError.new('setting object type for incompatible ACE type')
         end
         ace.body.flags.ace_object_type_present = true
         ace.body.object_type = guid
@@ -562,11 +565,11 @@ module Rex::Proto::MsDtyp
         begin
           guid = MsDtypGuid.new(inherit_object_guid)
         rescue StandardError
-          raise RuntimeError.new('SDDL parse error on invalid object GUID: ' + inherit_object_guid)
+          raise SDDLParseError.new('invalid inherited object GUID: ' + inherit_object_guid)
         end
 
         unless ace.body.respond_to?('inherited_object_type=')
-          raise RuntimeError.new('SDDL error on setting object type for incompatible ACE type')
+          raise SDDLParseError.new('setting inherited object type for incompatible ACE type')
         end
         ace.body.flags.ace_inherited_object_type_present = true
         ace.body.inherited_object_type = guid
@@ -577,7 +580,7 @@ module Rex::Proto::MsDtyp
       end
 
       unless resource_attribute.blank?
-        raise RuntimeError.new('SDDL parse error on unsupported resource attribute: ' + resource_attribute)
+        raise SDDLParseError.new('unsupported resource attribute: ' + resource_attribute)
       end
 
       ace
@@ -680,18 +683,18 @@ module Rex::Proto::MsDtyp
         case component
         when 'O'
           if sd.owner_sid.present?
-            raise RuntimeError.new('SDDL parse error on extra owner SID')
+            raise SDDLParseError.new('extra owner SID')
           end
 
           sd.owner_sid = MsDtypSid.from_sddl_text(value, domain_sid: domain_sid)
         when 'G'
           if sd.group_sid.present?
-            raise RuntimeError.new('SDDL parse error on extra group SID')
+            raise SDDLParseError.new('extra group SID')
           end
 
           sd.group_sid = MsDtypSid.from_sddl_text(value, domain_sid: domain_sid)
         when 'D'
-          raise RuntimeError.new('SDDL parse error on extra DACL') if dacl_set
+          raise SDDLParseError.new('extra DACL') if dacl_set
 
           value.upcase!
           dacl_set = true
@@ -709,7 +712,7 @@ module Rex::Proto::MsDtyp
               access_control = false
             when ''
             else
-              raise RuntimeError.new('SDDL parse error on unknown DACL flag: ' + flag)
+              raise SDDLParseError.new('unknown DACL flag: ' + flag)
             end
           end
 
@@ -718,7 +721,7 @@ module Rex::Proto::MsDtyp
           sd.dacl = MsDtypAcl.new
           sd.dacl.aces = self.aces_from_sddl_text(value.delete_prefix(flags), domain_sid: domain_sid)
         when 'S'
-          raise RuntimeError.new('SDDL parse error on extra SACL') if sacl_set
+          raise SDDLParseError.new('extra SACL') if sacl_set
 
           value.upcase!
           sacl_set = true
@@ -736,7 +739,7 @@ module Rex::Proto::MsDtyp
               access_control = false
             when ''
             else
-              raise RuntimeError.new('SDDL parse error on unknown SACL flag: ' + flag)
+              raise SDDLParseError.new('unknown SACL flag: ' + flag)
             end
           end
 
@@ -745,7 +748,7 @@ module Rex::Proto::MsDtyp
           sd.sacl = MsDtypAcl.new
           sd.sacl.aces = self.aces_from_sddl_text(value.delete_prefix(flags), domain_sid: domain_sid)
         else
-          raise RuntimeError.new('SDDL parse error on unknown directive: ' + part[0])
+          raise SDDLParseError.new('unknown directive: ' + part[0])
         end
       end
 
@@ -760,7 +763,7 @@ module Rex::Proto::MsDtyp
 
         invalid_aces = aces.split(ace_regex).reject(&:empty?)
         unless invalid_aces.empty?
-          raise RuntimeError.new('SDDL parse error on malformed ACE: ' + invalid_aces.first)
+          raise SDDLParseError.new('malformed ACE: ' + invalid_aces.first)
         end
 
         aces.scan(ace_regex).map do |ace_text|
