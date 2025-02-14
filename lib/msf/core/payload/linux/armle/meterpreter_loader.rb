@@ -5,7 +5,7 @@
 # Resource and Credits: https://magisterquis.github.io/2018/03/31/in-memory-only-elf-execution.html
 #
 module Msf::Payload::Linux::Armle::MeterpreterLoader
-  def in_memory_loader(payload)
+  def in_memory_load(payload)
         in_memory_loader = [
 0xe3a02000, #0x1000:	mov	r2, #0	0xe3a02000
 0xe52d2004, #0x1004:	str	r2, [sp, #-4]!	0xe52d2004
