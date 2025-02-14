@@ -9,15 +9,15 @@ RSpec.describe Rex::Proto::MsDtyp::MsDtypSecurityDescriptor do
       let (:dummy_sid) { "S-1-5-21-#{rand(0xf00000..0xffffffff)}-#{rand(0xf00000..0xffffffff)}-#{rand(0xf00000..0xffffffff)}-#{rand(100..999)}" }
 
       it 'raises an exception when multiple owners are specified' do
-        expect { described_class.from_sddl_text('O:AUO:AU', domain_sid: domain_sid) }.to raise_error(RuntimeError)
+        expect { described_class.from_sddl_text('O:AUO:AU', domain_sid: domain_sid) }.to raise_error(Rex::Proto::MsDtyp::SDDLParseError, 'extra owner SID')
       end
 
       it 'raises an exception on invalid constant SID strings' do
-        expect { described_class.from_sddl_text('O:XX', domain_sid: domain_sid) }.to raise_error(RuntimeError)
+        expect { described_class.from_sddl_text('O:XX', domain_sid: domain_sid) }.to raise_error(Rex::Proto::MsDtyp::SDDLParseError, 'invalid SID string: XX')
       end
 
       it 'raises an exception on invalid literal SID strings' do
-        expect { described_class.from_sddl_text('O:S-###', domain_sid: domain_sid) }.to raise_error(RuntimeError)
+        expect { described_class.from_sddl_text('O:S-###', domain_sid: domain_sid) }.to raise_error(Rex::Proto::MsDtyp::SDDLParseError, 'invalid SID string: S-###')
       end
 
       it 'parses constant SID strings' do
@@ -35,15 +35,15 @@ RSpec.describe Rex::Proto::MsDtyp::MsDtypSecurityDescriptor do
       let (:dummy_sid) { "S-1-5-21-#{rand(0xf00000..0xffffffff)}-#{rand(0xf00000..0xffffffff)}-#{rand(0xf00000..0xffffffff)}-#{rand(100..999)}" }
 
       it 'raises an exception when multiple groups are specified' do
-        expect { described_class.from_sddl_text('G:AUG:AU', domain_sid: domain_sid) }.to raise_error(RuntimeError)
+        expect { described_class.from_sddl_text('G:AUG:AU', domain_sid: domain_sid) }.to raise_error(Rex::Proto::MsDtyp::SDDLParseError, 'extra group SID')
       end
 
       it 'raises an exception on invalid constant SID strings' do
-        expect { described_class.from_sddl_text('G:XX', domain_sid: domain_sid) }.to raise_error(RuntimeError)
+        expect { described_class.from_sddl_text('G:XX', domain_sid: domain_sid) }.to raise_error(Rex::Proto::MsDtyp::SDDLParseError, 'invalid SID string: XX')
       end
 
       it 'raises an exception on invalid literal SID strings' do
-        expect { described_class.from_sddl_text('G:S-###', domain_sid: domain_sid) }.to raise_error(RuntimeError)
+        expect { described_class.from_sddl_text('G:S-###', domain_sid: domain_sid) }.to raise_error(Rex::Proto::MsDtyp::SDDLParseError, 'invalid SID string: S-###')
       end
 
       it 'parses constant SID strings' do
@@ -85,7 +85,7 @@ RSpec.describe Rex::Proto::MsDtyp::MsDtypSecurityDescriptor do
       end
 
       it 'raises an exception when multiple values are specified' do
-        expect { described_class.from_sddl_text('D:D:', domain_sid: domain_sid) }.to raise_error(RuntimeError)
+        expect { described_class.from_sddl_text('D:D:', domain_sid: domain_sid) }.to raise_error(Rex::Proto::MsDtyp::SDDLParseError, 'extra DACL')
       end
 
       it 'sets the P flag' do
@@ -133,7 +133,7 @@ RSpec.describe Rex::Proto::MsDtyp::MsDtypSecurityDescriptor do
       end
 
       it 'raises an exception when multiple values are specified' do
-        expect { described_class.from_sddl_text('S:S:', domain_sid: domain_sid) }.to raise_error(RuntimeError)
+        expect { described_class.from_sddl_text('S:S:', domain_sid: domain_sid) }.to raise_error(Rex::Proto::MsDtyp::SDDLParseError, 'extra SACL')
       end
 
       it 'sets the P flag' do

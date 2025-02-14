@@ -2,6 +2,10 @@ RSpec.describe Rex::Proto::MsDtyp::MsDtypAccessMask do
   subject(:instance) { described_class.from_sddl_text(sddl_text) }
 
   describe '.from_sddl_text' do
+    it 'raises an exception on invalid flags' do
+      expect { described_class.from_sddl_text('XX') }.to raise_error(Rex::Proto::MsDtyp::SDDLParseError, 'unknown ACE access right: XX')
+    end
+
     context 'when the text is FA' do
       let(:sddl_text) { 'FA' }
       subject(:instance) { described_class.from_sddl_text(sddl_text) }
