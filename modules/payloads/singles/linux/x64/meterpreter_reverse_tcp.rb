@@ -11,6 +11,7 @@ module MetasploitModule
   include Msf::Sessions::MeterpreterOptions::Linux
   include Msf::Sessions::MettleConfig
   include Msf::Payload::Linux::X64::MeterpreterLoader
+
   def initialize(info = {})
     super(
       update_info(
@@ -31,7 +32,7 @@ module MetasploitModule
     )
   end
 
-  def generate(_opts = {})
+  def generate
     opts = {
       scheme: 'tcp',
       stageless: true

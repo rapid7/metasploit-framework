@@ -7,7 +7,7 @@
 
 module Msf::Payload::Linux::Ppce500v2::MeterpreterLoader
   
-  def in_memory_loader(payload)
+  def in_memory_load(payload)
     in_memory_loader = [
       0x48000084, # 0x1000:	b	0x1084	0x48000084
       0x7de802a6, # 0x1004:	mflr	r15	0x7de802a6

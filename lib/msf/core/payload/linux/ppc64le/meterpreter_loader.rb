@@ -6,7 +6,7 @@
 #
 
 module Msf::Payload::Linux::Ppc64le::MeterpreterLoader
-  def in_memory_loader(payload)
+  def in_memory_load(payload)
     in_memory_loader = [
       0x4800007c, # 0x1000:	b	0x107c	0x4800007c
       0x7de802a6, # 0x1004:	mflr	r15	0x7de802a6
