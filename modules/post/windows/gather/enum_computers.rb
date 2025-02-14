@@ -3,10 +3,13 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'rex/post/meterpreter/extensions/stdapi/constants'
+
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Accounts
   include Msf::Post::Windows::Registry
+  include Msf::Post::DNS::ResolveHost
 
   def initialize(info = {})
     super(
@@ -58,36 +61,19 @@ class MetasploitModule < Msf::Post
 
   # Takes the host name and makes use of nslookup to resolve the IP
   #
-  # @param [String] host Hostname
+  # @param [Object] hostname
+  # @param [Object] family
   # @return [String] ip The resolved IP
-  def resolve_host(host)
-    vprint_status("Looking up IP for #{host}")
-    return host if Rex::Socket.dotted_ip?(host)
-
-    ip = []
-    data = cmd_exec("nslookup #{host}")
-    if data =~ /Name/
-      # Remove unnecessary data and get the section with the addresses
-      returned_data = data.split(/Name:/)[1]
-      # check each element of the array to see if they are IP
-      returned_data.gsub(/\r\n\t |\r\n|Aliases:|Addresses:|Address:/, ' ').split(' ').each do |e|
-        if Rex::Socket.dotted_ip?(e)
-          ip << e
-        end
-      end
-    end
-
-    if ip.blank?
-      'Not resolvable'
-    else
-      ip.join(', ')
-    end
+  def gethost(hostname, family)
+    ## get IP for host
+    vprint_status("Looking up IP for #{hostname}")
+    resolve_host(hostname, family)
   end
 
   def get_domain_computers
     computer_list = []
     divisor = "-------------------------------------------------------------------------------\r\n"
-    net_view_response = cmd_exec('net view')
+    net_view_response = cmd_exec("cmd.exe", "/c net view")
     unless net_view_response.include?(divisor)
       print_error("The net view command failed with: #{net_view_response}")
       return []
@@ -104,6 +90,7 @@ class MetasploitModule < Msf::Post
   end
 
   def list_computers(domain, hosts)
+    meterpreter_dns_resolving_errors = []
     tbl = Rex::Text::Table.new(
       'Header' => 'List of identified Hosts.',
       'Indent' => 1,
@@ -115,11 +102,27 @@ class MetasploitModule < Msf::Post
         ]
     )
     hosts.each do |hostname|
-      hostip = resolve_host(hostname)
-      tbl << [domain, hostname, hostip]
+      hostipv4 = gethost(hostname, AF_INET)
+      hostipv6 = gethost(hostname, AF_INET6)
+
+      if hostipv4[:ips].empty?
+        meterpreter_dns_resolving_errors << "IPV4: #{hostname} could not be resolved"
+      else
+        tbl << [domain, hostname, hostipv4[:ips].join(',')]
+      end
+
+      if hostipv6[:ips].empty?
+        meterpreter_dns_resolving_errors << "IPV6: #{hostname} could not be resolved" if hostipv6[:ips].empty?
+      else
+        tbl << [domain, hostname, hostipv6[:ips].join(',')] unless hostipv6[:ips].nil?
+      end
     end
 
     print_line("\n#{tbl}\n")
+
+    meterpreter_dns_resolving_errors.each do | error |
+      print_warning(error)
+    end
 
     report_note(
       host: session,

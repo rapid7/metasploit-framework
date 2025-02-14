@@ -42,9 +42,9 @@ jobs:
       - name: Checkout metasploit-payloads
         uses: actions/checkout@v4
         with:
-          repository: rapid7/metasploit-payloads
+          repository: cgranleese-r7/metasploit-payloads
           path: metasploit-payloads
-          ref: ${{ inputs.metasploit_payloads_commit }}
+          ref: mega-testing-branch-meterpreter-resolve-multiple-hosts
 
       - name: Build Meterpreter payloads
         run: |
@@ -153,9 +153,9 @@ jobs:
         if: ${{ matrix.meterpreter.name == 'mettle' && inputs.build_mettle }}
         uses: actions/checkout@v4
         with:
-          repository: rapid7/mettle
+          repository: cgranleese-r7/mettle
           path: mettle
-          ref: ${{ inputs.mettle_commit }}
+          ref: meterpreter-resolve-multiple-hosts
 
       - name: Get mettle version
         if: ${{ matrix.meterpreter.name == 'mettle' && inputs.build_mettle }}
@@ -186,9 +186,9 @@ jobs:
       - name: Checkout metasploit-framework commit
         uses: actions/checkout@v4
         with:
-          repository: rapid7/metasploit-framework
+          repository: cgranleese-r7/metasploit-framework
           path: metasploit-framework
-          ref: ${{ inputs.metasploit_framework_commit }}
+          ref: meterpreter-resolve-multiple-hosts
 
       - name: Setup Ruby
         env:
@@ -247,9 +247,9 @@ jobs:
         if: ${{ inputs.build_metasploit_payloads && matrix.meterpreter.name != 'mettle' }}
         uses: actions/checkout@v4
         with:
-          repository: rapid7/metasploit-payloads
+          repository: cgranleese-r7/metasploit-payloads
           path: metasploit-payloads
-          ref: ${{ inputs.metasploit_payloads_commit }}
+          ref: mega-testing-branch-meterpreter-resolve-multiple-hosts
 
       - name: Build Windows payloads via Visual Studio 2019 Build (Windows)
         shell: cmd
