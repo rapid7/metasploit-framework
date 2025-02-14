@@ -33,7 +33,7 @@ module MetasploitModule
     )
   end
 
-  def generate
+  def generate(_opts = {})
     opts = {
       scheme: 'http',
       stageless: true

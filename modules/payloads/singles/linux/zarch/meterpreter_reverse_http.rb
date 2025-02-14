@@ -7,6 +7,7 @@
 module MetasploitModule
   CachedSize = 1332048
 
+
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions::Linux
   include Msf::Sessions::MettleConfig
@@ -32,7 +33,7 @@ module MetasploitModule
     )
   end
 
-  def generate
+  def generate(_opts = {})
     opts = {
       scheme: 'http',
       stageless: true

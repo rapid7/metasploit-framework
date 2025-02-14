@@ -32,7 +32,7 @@ module MetasploitModule
     )
   end
 
-  def generate
+  def generate(_opts = {})
     opts = {
       scheme: 'tcp',
       stageless: true
