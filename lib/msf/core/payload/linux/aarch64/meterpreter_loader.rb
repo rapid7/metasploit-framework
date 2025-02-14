@@ -1,7 +1,7 @@
 #
 # In memory loader used to execute Mettle ELF file.
 # Compatible with Kernel Linux >= 3.17 (where memfd_create is introduced)
-# Author: Diego Ledda <diego_ledda[at]rapid7.com>
+# Author: Martin Sutovsky <martin_sutovsky[at]rapid7.com>
 # Resource and Credits: https://magisterquis.github.io/2018/03/31/in-memory-only-elf-execution.html
 #
 module Msf::Payload::Linux::Aarch64::MeterpreterLoader
