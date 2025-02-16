@@ -700,7 +700,7 @@ RSpec.shared_examples_for 'a datastore' do
   end
 end
 
-RSpec.describe Msf::DataStoreWithFallbacks do
+RSpec.describe Msf::DataStore do
   include_context 'datastore subjects'
 
   subject(:default_subject) do
@@ -712,11 +712,11 @@ RSpec.describe Msf::DataStoreWithFallbacks do
   it_behaves_like 'a datastore'
 end
 
-RSpec.describe Msf::ModuleDataStoreWithFallbacks do
+RSpec.describe Msf::ModuleDataStore do
   include_context 'datastore subjects'
 
   let(:framework_datastore) do
-    Msf::DataStoreWithFallbacks.new
+    Msf::DataStore.new
   end
   let(:mod) do
     framework = instance_double(Msf::Framework, datastore: framework_datastore)

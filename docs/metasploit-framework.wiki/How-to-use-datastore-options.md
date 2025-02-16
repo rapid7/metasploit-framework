@@ -86,8 +86,7 @@ OptSomething.new(option_name, [boolean, description, value, *enums*], aliases: *
   options](#Filtering-datastore-options) section for more information.
 * **fallbacks** *optional*, *key-word only* An array of names that will be used as a fallback if the main option name is
   defined by the user. This is useful in the scenario of wanting specialised option names such as `SMBUser`, but to also
-  support gracefully checking a list of more generic fallbacks option names such as `Username`. This functionality is 
-  currently behind a feature flag, set with `features set datastore_fallbacks true` in msfconsole
+  support gracefully checking a list of more generic fallbacks option names such as `Username`.
 
 Now let's talk about what classes are available:
 

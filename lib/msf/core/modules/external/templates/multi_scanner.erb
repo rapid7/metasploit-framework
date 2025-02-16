@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_batch(ips)
     datastore.delete('RHOSTS')
-    datastore.remove_option('RHOSTS') if self.datastore.is_a?(Msf::DataStoreWithFallbacks)
+    datastore.remove_option('RHOSTS') if self.datastore.is_a?(Msf::DataStore)
     datastore['rhosts'] = ips
 
     execute_module(<%= meta[:path] %>)

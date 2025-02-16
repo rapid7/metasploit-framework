@@ -2,9 +2,6 @@
 # -*- coding: binary -*-
 
 #
-# Update modules/auxiliary/scanner/http/wordpress_scanner.rb to have the most
-# up to date list of vuln components based on exploits/scanners in the framework
-#
 # by h00die
 #
 
@@ -12,7 +9,9 @@ require 'optparse'
 
 options = {}
 optparse = OptionParser.new do |opts|
-  opts.banner = 'Usage: update_wordpress_vulnerabilities.rb [options]'
+  opts.banner = 'Usage: ruby tools/dev/update_wordpress_vulnerabilities.rb [options]'
+  opts.separator "This program updates data/wordlists/wp-exploitable-themes.txt and wp-exploitable-plugins.txt which are used by modules/auxiliary/scanner/http/wordpress_scanner.rb to have the most up-to-date list of vuln components"
+  opts.separator ""
   opts.on('-h', '--help', 'Display this screen.') do
     puts opts
     exit
