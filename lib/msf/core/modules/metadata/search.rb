@@ -113,8 +113,11 @@ module Msf::Modules::Metadata::Search
     raise ArgumentError if params.any? && VALID_PARAMS.none? { |k| params.key?(k) }
     search_results = []
 
+    regex_cache = Hash.new do |hash, search_term|
+      hash[search_term] = as_regex(search_term)
+    end
     get_metadata.each { |module_metadata|
-      if is_match(params, module_metadata)
+      if is_match(params, module_metadata, regex_cache)
         unless fields.empty?
           module_metadata = get_fields(module_metadata, fields)
         end
@@ -128,7 +131,7 @@ module Msf::Modules::Metadata::Search
   private
   #######
 
-  def is_match(params, module_metadata)
+  def is_match(params, module_metadata, regex_cache)
     return true if params.empty?
 
     param_hash = params
@@ -149,7 +152,7 @@ module Msf::Modules::Metadata::Search
           end
 
           param_hash[keyword][mode].each do |search_term|
-            has_match = text_segments.any? { |text_segment| text_segment =~ as_regex(search_term) }
+            has_match = text_segments.any? { |text_segment| text_segment =~ regex_cache[search_term] }
             match = [keyword, search_term] if has_match
             if mode == SearchMode::INCLUDE && !has_match
               return false
@@ -168,7 +171,7 @@ module Msf::Modules::Metadata::Search
           # Reset the match flag for each keyword for inclusive search
           match = false if mode == SearchMode::INCLUDE
 
-          regex = as_regex(search_term)
+          regex = regex_cache[search_term]
           case keyword
             when 'action'
               match = [keyword, search_term] if (module_metadata&.actions || []).any? { |action| action.any? { |k, v| k =~ regex || v =~ regex } }
