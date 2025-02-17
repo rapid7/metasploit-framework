@@ -25,6 +25,7 @@ module Msf::Modules::Metadata::Search
       mod_time
       name
       os
+      osvdb
       path
       platform
       port
@@ -180,6 +181,8 @@ module Msf::Modules::Metadata::Search
               match = [keyword, search_term] if module_metadata.arch =~ regex
             when 'cve'
               match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^cve\-/i and ref =~ regex }
+            when 'osvdb'
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^osvdb\-/i and ref =~ regex }
             when 'bid'
               match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^bid\-/i and ref =~ regex }
             when 'edb'
@@ -291,6 +294,7 @@ module Msf::Modules::Metadata::Search
     aliases = {
         :cve => 'references',
         :edb => 'references',
+        :osvdb => 'references',
         :bid => 'references',
         :os => 'platform',
         :port => 'rport',
