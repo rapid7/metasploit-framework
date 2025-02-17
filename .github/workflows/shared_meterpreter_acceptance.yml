@@ -30,11 +30,11 @@ on:
         type: boolean
 
 jobs:
-  # Compile the Meterpreter payloads via docker if required, we can't always do this on the
+  # Compile metasploit-payloads via docker if required, we can't always do this on the
   # host environment (i.e. for macos). So it instead gets compiled first on a linux
   # host, then the artifacts are copied back to the host later
-  meterpreter_compilation:
-    name: Compile Meterpreter
+  metasploit_payloads_compilation:
+    name: Compile metasploit-payloads
     runs-on: ubuntu-latest
     if: ${{ inputs.build_metasploit_payloads }}
 
@@ -46,22 +46,22 @@ jobs:
           path: metasploit-payloads
           ref: mega-testing-branch-meterpreter-resolve-multiple-hosts
 
-      - name: Build Meterpreter payloads
+      - name: Build metasploit-payloads
         run: |
-          mkdir $(pwd)/meterpreter-artifacts
+          mkdir $(pwd)/metasploit-payloads-artifacts
           docker run --rm -w $(pwd) -v $(pwd):$(pwd) rapid7/msf-ubuntu-x64-meterpreter:latest /bin/bash -c "cd metasploit-payloads/gem && rake create_dir && rake win_copy && rake php_prep && rake java_prep && rake python_prep && rake create_manifest && rake build"
-          cp $(pwd)/metasploit-payloads/gem/pkg/metasploit-payloads-* $(pwd)/meterpreter-artifacts
+          cp $(pwd)/metasploit-payloads/gem/pkg/metasploit-payloads-* $(pwd)/metasploit-payloads-artifacts
 
-      - name: Store Meterpreter artifacts
+      - name: Store metasploit-payloads artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: meterpreter-artifacts
-          path: meterpreter-artifacts
+          name: metasploit-payloads-artifacts
+          path: metasploit-payloads-artifacts
 
   # Run all test individually, note there is a separate final job for aggregating the test results
   test:
-    needs: meterpreter_compilation
-    if: always() && (needs.meterpreter_compilation.result == 'success' || needs.meterpreter_compilation.result == 'skipped')
+    needs: metasploit_payloads_compilation
+    if: always() && (needs.metasploit_payloads_compilation.result == 'success' || needs.metasploit_payloads_compilation.result == 'skipped')
 
     strategy:
       fail-fast: false
@@ -172,16 +172,28 @@ jobs:
       - name: Compile mettle payloads
         if: ${{ matrix.meterpreter.name == 'mettle' && runner.os != 'macos' && inputs.build_mettle }}
         run: |
+          mkdir $(pwd)/mettle-artifacts
           docker run --rm=true --tty --volume=$(pwd):/mettle --workdir=/mettle rapid7/build:mettle rake mettle:build mettle:check
           rake build
+          cp $(pwd)/pkg/metasploit_payloads-mettle-* $(pwd)/mettle-artifacts
         working-directory: mettle
 
       - name: Compile mettle payloads - macOS
         if: ${{ matrix.meterpreter.name == 'mettle' && runner.os == 'macos' && inputs.build_mettle }}
         run: |
+          mkdir $(pwd)/mettle-artifacts
           make TARGET=x86_64-apple-darwin
           rake build
+          cp $(pwd)/pkg/metasploit_payloads-mettle-* $(pwd)/mettle-artifacts
+          pwd 
+          ls -la
         working-directory: mettle
+
+      - name: Store Mettle artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mettle-artifacts-${{ matrix.os }}
+          path: /Users/runner/work/metasploit-framework/metasploit-framework/mettle/mettle-artifacts
 
       - name: Checkout metasploit-framework commit
         uses: actions/checkout@v4
@@ -222,7 +234,7 @@ jobs:
         run: |
           set -x
           download_path=${{steps.download_meterpreter.outputs.download-path}}
-          cp -r  $download_path/meterpreter-artifacts/* ./metasploit-framework
+          cp -r  $download_path/metasploit-payloads-artifacts/* ./metasploit-framework
 
       - name: Extract Meterpreter (Windows)
         if: ${{ matrix.meterpreter.name != 'mettle' && runner.os == 'Windows' && inputs.build_metasploit_payloads }}
@@ -230,7 +242,7 @@ jobs:
         run: |
           set -x
           download_path=$(cygpath -u '${{steps.download_meterpreter.outputs.download-path}}')
-          cp -r  $download_path/meterpreter-artifacts/* ./metasploit-framework
+          cp -r  $download_path/metasploit-payloads-artifacts/* ./metasploit-framework
 
       - name: Install mettle gem
         if: ${{ matrix.meterpreter.name == 'mettle' && inputs.build_mettle }}
