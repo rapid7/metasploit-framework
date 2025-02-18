@@ -17,14 +17,16 @@ module Msf
 
           if ['debian', 'ubuntu'].include?(info[:distro])
             package_version = cmd_exec("dpkg-query -f='${Version}' -W #{package}")
-            return nil if package_version.include?('no packages found')
+            # The "no package" error is language based, but dpkg-query: starting is not
+            return nil if package_version.start_with?('dpkg-query:')
 
             package_version = package_version.gsub('+', '.')
             return Rex::Version.new(package_version)
-          elsif ['redhat', 'fedora'].include?(info[:distro])
+          elsif ['redhat', 'fedora', 'centos'].include?(info[:distro])
             package_version = cmd_exec("rpm -q #{package}")
+            # according to chatgpt, rpm output is always in english
             return nil if package_version.include?('is not installed')
-          
+
             # dnf-4.18.0-2.fc39.noarch
             # remove package name at the beginning
             package_version = package_version.split("#{package}-")[1]
@@ -36,32 +38,32 @@ module Msf
           elsif ['solaris', 'oracle'].include?(info[:distro])
             package_version = cmd_exec("pkg info #{package}")
             return nil unless package_version.include?('State: Installed')
-          
+
             package_version = package_version.match(/Version: (.+)/)[1]
             return Rex::Version.new(package_version)
           elsif ['freebsd'].include?(info[:distro])
             package_version = cmd_exec("pkg info #{package}")
             return nil unless package_version.include?('Version')
-          
+
             package_version = package_version.match(/Version\s+:\s+(.+)/)[1]
             return Rex::Version.new(package_version)
-          # XXX not tested on live system            
+          # XXX not tested on live system
           elsif ['gentoo'].include?(info[:distro])
             # https://wiki.gentoo.org/wiki/Equery
             package_version = cmd_exec("equery --quiet list #{package}")
             return nil if package_version.include?('No packages found')
-          
+
             package_version = package_version.split('/')[1]
             # make gcc-1.1 to 1.1
-            package_version = package_version.sub(/.*?-/, '') 
+            package_version = package_version.sub(/.*?-/, '')
             return Rex::Version.new(package_version)
           # XXX not tested on live system
           elsif ['arch'].include?(info[:distro])
             package_version = cmd_exec("pacman -Qi #{package}")
             return nil unless package_version.include?('Version')
-          
+
             package_version = package_version.match(/Version\s+:\s+(.+)/)[1]
-            return Rex::Version.new(package_version)          
+            return Rex::Version.new(package_version)
           else
             vprint_error("installed_package_version is being called on an unsupported OS: #{info[:distro]}")
           end
