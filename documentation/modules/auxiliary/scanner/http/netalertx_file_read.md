@@ -27,7 +27,7 @@ docker run --rm --network=host \
 2. Start msfconsole
 3. Do: `use auxiliary/scanner/http/netalertx_file_read`
 4. Do: `run rhost=<rhost>`
-5. You should get a meterpreter
+5. You should get the contents of the specified file.
 
 
 ## Example
