@@ -307,7 +307,7 @@ GEM
       activesupport (~> 7.0)
       railties (~> 7.0)
     metasploit-payloads (2.0.189)
-    metasploit_data_models (6.0.5)
+    metasploit_data_models (6.0.6)
       activerecord (~> 7.0)
       activesupport (~> 7.0)
       arel-helpers
