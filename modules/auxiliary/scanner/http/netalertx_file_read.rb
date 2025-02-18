@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
           This module exploi
         },
         'References' => [
-          ['CVE', '2024-46506'],
+          ['CVE', '2024-48766'],
           ['URL', 'https://rhinosecuritylabs.com/research/cve-2024-46506-rce-in-netalertx/']
         ],
         'Author' => [
