@@ -9,7 +9,7 @@ ehdr:                            ; Elf32_Ehdr
   db    0, 0, 0, 0,  0, 0, 0, 0  ;
   dw    2                        ;   e_type       = ET_EXEC for an executable
   dw    0xB7                     ;   e_machine    = AARCH64
-  dd    0                        ;   e_version
+  dd    1                        ;   e_version
   dq    _start                   ;   e_entry
   dq    phdr - $$                ;   e_phoff
   dq    0                        ;   e_shoff
