@@ -114,7 +114,7 @@ RSpec.describe Msf::Post::Linux::Packages do
       it 'returns nil' do
         allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'freebsd', version: '' })
         allow(subject).to receive(:cmd_exec).and_return('pkg: No package(s) matching foobarbaz')
-        expect(subject.installed_package_version('foobarbaz')).to eq(Rex::Version.new('1.12.0'))
+        expect(subject.installed_package_version('foobarbaz')).to eq(nil)
       end
     end
 
