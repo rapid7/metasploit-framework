@@ -56,8 +56,8 @@ RSpec.describe Msf::Post::Linux::Packages do
       end
     end
 
-    context 'when distro is Redhat or Fedora' do
-      it 'returns the package version' do
+    context 'when the Redhat or Fedora package is installed' do
+      it 'returns 8.2.1-3.fc39' do
         allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'redhat', version: '' })
         allow(subject).to receive(:cmd_exec).and_return('curl-8.2.1-3.fc39.x86_64')
         expect(subject.installed_package_version('curl')).to eq(Rex::Version.new('8.2.1-3.fc39'))
@@ -86,26 +86,35 @@ RSpec.describe Msf::Post::Linux::Packages do
     #
     # CMD ["/bin/bash"]
     context 'when the German language Fedora package isnt installed' do
-      it 'returns nil for missing package' do
+      it 'returns nil' do
         allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'fedora', version: '' })
         allow(subject).to receive(:cmd_exec).and_return('Das Paket foobar ist nicht installiert')
         expect(subject.installed_package_version('foobar')).to eq(nil)
       end
     end
 
-    context 'when distro is solaris' do
-      it 'returns the package version' do
+    context 'when the Solaris package is installed' do
+      it 'returns 1.2.3' do
         allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'solaris', version: '' })
-        allow(subject).to receive(:cmd_exec).and_return('State: Installed\nVersion: 1.2.3')
+        allow(subject).to receive(:cmd_exec).and_return("State: Installed\nVersion: 1.2.3")
         expect(subject.installed_package_version('test')).to eq(Rex::Version.new('1.2.3'))
       end
     end
 
-    context 'when distro is freebsd' do
-      it 'returns the package version' do
+    # freebsd 12.0
+    context 'when the FreeBSD package is installed' do
+      it 'returns 1.12.0' do
         allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'freebsd', version: '' })
-        allow(subject).to receive(:cmd_exec).and_return('Version : 1.2.3')
-        expect(subject.installed_package_version('test')).to eq(Rex::Version.new('1.2.3'))
+        allow(subject).to receive(:cmd_exec).and_return("pkg-1.12.0\nName           : pkg\nVersion        : 1.12.0")
+        expect(subject.installed_package_version('test')).to eq(Rex::Version.new('1.12.0'))
+      end
+    end
+
+    context 'when the FreeBSD package isnt installed' do
+      it 'returns nil' do
+        allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'freebsd', version: '' })
+        allow(subject).to receive(:cmd_exec).and_return('pkg: No package(s) matching foobarbaz')
+        expect(subject.installed_package_version('foobarbaz')).to eq(Rex::Version.new('1.12.0'))
       end
     end
 
@@ -128,8 +137,8 @@ RSpec.describe Msf::Post::Linux::Packages do
     #     LC_ALL=de_DE.UTF-8
     #
     # CMD ["/bin/bash"]
-    context 'when distro is Gentoo' do
-      it 'returns the package version for equery' do
+    context 'when the Gentoo package is installed and uses equery' do
+      it 'returns 4.3.2-r3' do
         allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'gentoo', version: '' })
         allow(subject).to receive(:cmd_exec).and_return('sys-devel/gcc-4.3.2-r3')
         allow(subject).to receive(:command_exists?).with('equery').and_return(true)
@@ -137,8 +146,8 @@ RSpec.describe Msf::Post::Linux::Packages do
       end
     end
 
-    context 'when distro is Gentoo' do
-      it 'returns the package version for qlist' do
+    context 'when the Gentoo package is installed and uses qlist' do
+      it 'returns 4.3.2-r3' do
         allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'gentoo', version: '' })
         # equery and qlist output the same results for a found package
         allow(subject).to receive(:cmd_exec).and_return('sys-devel/gcc-4.3.2-r3')
@@ -148,8 +157,8 @@ RSpec.describe Msf::Post::Linux::Packages do
       end
     end
 
-    context 'when distro is Gentoo' do
-      it 'returns nil for missing package for qlist' do
+    context 'when the Gentoo package isnt installed and uses qlist' do
+      it 'returns nil' do
         allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'gentoo', version: '' })
         allow(subject).to receive(:command_exists?).with('equery').and_return(false)
         allow(subject).to receive(:command_exists?).with('qlist').and_return(true)
@@ -158,11 +167,19 @@ RSpec.describe Msf::Post::Linux::Packages do
       end
     end
 
-    context 'when distro is Arch' do
-      it 'returns the package version' do
+    context 'when the Arch package is installed' do
+      it 'returns 8.12.1-1' do
         allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'arch', version: '' })
         allow(subject).to receive(:cmd_exec).and_return('Version         : 8.12.1-1')
-        expect(subject.installed_package_version('test')).to eq(Rex::Version.new('8.12.1.pre.1'))
+        expect(subject.installed_package_version('test')).to eq(Rex::Version.new('8.12.1-1'))
+      end
+    end
+
+    context 'when the Arch package isnt installed' do
+      it 'returns nil' do
+        allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'arch', version: '' })
+        allow(subject).to receive(:cmd_exec).and_return('error: package \'test\' was not found')
+        expect(subject.installed_package_version('test')).to eq(nil)
       end
     end
   end
