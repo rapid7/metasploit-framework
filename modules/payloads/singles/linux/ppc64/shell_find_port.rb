@@ -19,7 +19,7 @@ module MetasploitModule
       'Author'        => 'Ramon de C Valle',
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
-      'Arch'          => [ ARCH_PPC64, ARCH_CBEA64 ],
+      'Arch'          => ARCH_PPC64,
       'Handler'       => Msf::Handler::FindPort,
       'Session'       => Msf::Sessions::CommandShellUnix,
       'Payload'       =>
