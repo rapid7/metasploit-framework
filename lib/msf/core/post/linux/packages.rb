@@ -24,8 +24,7 @@ module Msf
             return Rex::Version.new(package_version)
           elsif ['redhat', 'fedora', 'centos'].include?(info[:distro])
             package_version = cmd_exec("rpm -q #{package}")
-            # according to chatgpt, rpm output is always in english
-            return nil if package_version.include?('is not installed')
+            return nil unless package_version.start_with?(package)
 
             # dnf-4.18.0-2.fc39.noarch
             # remove package name at the beginning
@@ -41,23 +40,30 @@ module Msf
 
             package_version = package_version.match(/Version: (.+)/)[1]
             return Rex::Version.new(package_version)
+          # XXX not tested on live system
           elsif ['freebsd'].include?(info[:distro])
             package_version = cmd_exec("pkg info #{package}")
             return nil unless package_version.include?('Version')
 
             package_version = package_version.match(/Version\s+:\s+(.+)/)[1]
             return Rex::Version.new(package_version)
-          # XXX not tested on live system
           elsif ['gentoo'].include?(info[:distro])
             # https://wiki.gentoo.org/wiki/Equery
-            package_version = cmd_exec("equery --quiet list #{package}")
-            return nil if package_version.include?('No packages found')
+            if command_exists?('equery')
+              package_version = cmd_exec("equery --quiet list #{package}")
+            # https://wiki.gentoo.org/wiki/Q_applets
+            elsif command_exists?('qlist')
+              package_version = cmd_exec("qlist -Iv #{package}")
+            else
+              vprint_error("installed_package_version couldn't find qlist and equery on gentoo")
+              return nil
+            end
+            return nil if package_version.strip.empty?
 
             package_version = package_version.split('/')[1]
             # make gcc-1.1 to 1.1
             package_version = package_version.sub(/.*?-/, '')
             return Rex::Version.new(package_version)
-          # XXX not tested on live system
           elsif ['arch'].include?(info[:distro])
             package_version = cmd_exec("pacman -Qi #{package}")
             return nil unless package_version.include?('Version')

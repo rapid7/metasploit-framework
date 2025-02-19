@@ -15,6 +15,23 @@ RSpec.describe Msf::Post::Linux::Packages do
       end
     end
 
+    # dockerfile for German locale Ubuntu
+    # FROM ubuntu:latest
+    #
+    # # Install locales package and set up German locale
+    # RUN apt-get update && apt-get install -y locales && \
+    #     locale-gen de_DE.UTF-8 && \
+    #     update-locale LANG=de_DE.UTF-8 && \
+    #     echo "export LANG=de_DE.UTF-8" >> /etc/profile && \
+    #     echo "export LANGUAGE=de_DE.UTF-8" >> /etc/profile && \
+    #     echo "export LC_ALL=de_DE.UTF-8" >> /etc/profile
+    #
+    # # Set environment variables
+    # ENV LANG=de_DE.UTF-8 \
+    #     LANGUAGE=de_DE.UTF-8 \
+    #     LC_ALL=de_DE.UTF-8
+    #
+    # CMD ["/bin/bash"]
     context 'when the Ubuntu/Debian package isnt installed' do
       it 'returns nil' do
         allow(subject).to receive(:get_sysinfo).and_return({ kernel: 'Linux ubuntu22 5.15.0-25-generic #25-Ubuntu SMP Wed Mar 30 15:54:22 UTC 2022 x86_64 x86_64 x86_64 GNU/Linux', distro: 'ubuntu', version: 'Ubuntu 22.04.5 LTS' })
@@ -39,11 +56,40 @@ RSpec.describe Msf::Post::Linux::Packages do
       end
     end
 
-    context 'when distro is redhat or fedora' do
+    context 'when distro is Redhat or Fedora' do
       it 'returns the package version' do
         allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'redhat', version: '' })
         allow(subject).to receive(:cmd_exec).and_return('curl-8.2.1-3.fc39.x86_64')
         expect(subject.installed_package_version('curl')).to eq(Rex::Version.new('8.2.1-3.fc39'))
+      end
+    end
+
+    context 'when the Fedora package isnt installed' do
+      it 'returns nil' do
+        allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'fedora', version: '' })
+        allow(subject).to receive(:cmd_exec).and_return('package foobar is not installed')
+        expect(subject.installed_package_version('foobar')).to eq(nil)
+      end
+    end
+
+    # dockerfile for German locale Fedora
+    # FROM fedora:latest
+    #
+    # RUN dnf install -y glibc-langpack-de && \
+    #     echo "export LANG=de_DE.UTF-8" >> /etc/profile && \
+    #     echo "export LANGUAGE=de_DE.UTF-8" >> /etc/profile && \
+    #     echo "export LC_ALL=de_DE.UTF-8" >> /etc/profile
+    #
+    # ENV LANG=de_DE.UTF-8 \
+    #     LANGUAGE=de_DE.UTF-8 \
+    #     LC_ALL=de_DE.UTF-8
+    #
+    # CMD ["/bin/bash"]
+    context 'when the German language Fedora package isnt installed' do
+      it 'returns nil for missing package' do
+        allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'fedora', version: '' })
+        allow(subject).to receive(:cmd_exec).and_return('Das Paket foobar ist nicht installiert')
+        expect(subject.installed_package_version('foobar')).to eq(nil)
       end
     end
 
@@ -63,19 +109,60 @@ RSpec.describe Msf::Post::Linux::Packages do
       end
     end
 
-    context 'when distro is gentoo' do
-      it 'returns the package version' do
+    # dockerfile for German locale gentoo
+    # FROM gentoo/stage3
+
+    # # Update system and install German locale support
+    # RUN emerge --sync && \
+    #     emerge --quiet --update --deep --newuse world && \
+    #     echo "de_DE.UTF-8 UTF-8" >> /etc/locale.gen && \
+    #     locale-gen && \
+    #     eselect locale set de_DE.UTF-8 && \
+    #     echo "export LANG=de_DE.UTF-8" >> /etc/profile && \
+    #     echo "export LANGUAGE=de_DE.UTF-8" >> /etc/profile && \
+    #     echo "export LC_ALL=de_DE.UTF-8" >> /etc/profile
+    #
+    # # Set environment variables
+    # ENV LANG=de_DE.UTF-8 \
+    #     LANGUAGE=de_DE.UTF-8 \
+    #     LC_ALL=de_DE.UTF-8
+    #
+    # CMD ["/bin/bash"]
+    context 'when distro is Gentoo' do
+      it 'returns the package version for equery' do
         allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'gentoo', version: '' })
         allow(subject).to receive(:cmd_exec).and_return('sys-devel/gcc-4.3.2-r3')
+        allow(subject).to receive(:command_exists?).with('equery').and_return(true)
         expect(subject.installed_package_version('test')).to eq(Rex::Version.new('4.3.2-r3'))
       end
     end
 
-    context 'when distro is arch' do
+    context 'when distro is Gentoo' do
+      it 'returns the package version for qlist' do
+        allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'gentoo', version: '' })
+        # equery and qlist output the same results for a found package
+        allow(subject).to receive(:cmd_exec).and_return('sys-devel/gcc-4.3.2-r3')
+        allow(subject).to receive(:command_exists?).with('equery').and_return(false)
+        allow(subject).to receive(:command_exists?).with('qlist').and_return(true)
+        expect(subject.installed_package_version('test')).to eq(Rex::Version.new('4.3.2-r3'))
+      end
+    end
+
+    context 'when distro is Gentoo' do
+      it 'returns nil for missing package for qlist' do
+        allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'gentoo', version: '' })
+        allow(subject).to receive(:command_exists?).with('equery').and_return(false)
+        allow(subject).to receive(:command_exists?).with('qlist').and_return(true)
+        allow(subject).to receive(:cmd_exec).and_return('')
+        expect(subject.installed_package_version('test')).to eq(nil)
+      end
+    end
+
+    context 'when distro is Arch' do
       it 'returns the package version' do
         allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'arch', version: '' })
-        allow(subject).to receive(:cmd_exec).and_return('Version : 1.2.3')
-        expect(subject.installed_package_version('test')).to eq(Rex::Version.new('1.2.3'))
+        allow(subject).to receive(:cmd_exec).and_return('Version         : 8.12.1-1')
+        expect(subject.installed_package_version('test')).to eq(Rex::Version.new('8.12.1.pre.1'))
       end
     end
   end
