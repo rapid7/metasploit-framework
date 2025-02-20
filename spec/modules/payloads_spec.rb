@@ -724,6 +724,30 @@ RSpec.describe 'modules/payloads', :content do
                           ],
                           reference_name: 'cmd/linux/tftp/ppc64'
   end
+  
+  context 'cmd/linux/http/ppc64le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/ppc64le'
+                          ],
+                          reference_name: 'cmd/linux/http/ppc64le'
+  end
+
+  context 'cmd/linux/https/ppc64le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/ppc64le'
+                          ],
+                          reference_name: 'cmd/linux/https/ppc64le'
+  end
+
+  context 'cmd/linux/tftp/ppc64le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/ppc64le'
+                          ],
+                          reference_name: 'cmd/linux/tftp/ppc64le'
+  end
 
   context 'cmd/linux/http/x86' do
     it_should_behave_like 'payload is not cached',
