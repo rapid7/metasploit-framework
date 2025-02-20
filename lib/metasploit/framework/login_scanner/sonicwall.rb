@@ -16,6 +16,21 @@ module Metasploit
             })
           }
         end
+        
+        def auth_req(username,realm,algorithm,nonce,nc,cnonce,qop,opaque,response)
+          {
+            'method' => 'POST',
+            'uri' => normalize_uri('/api/sonicos/auth'),
+            'ctype' => 'application/json',
+            'headers' => {
+              'Authorization' => "Digest username=\"#{username}\", realm=\"#{realm}\", uri=\"/api/sonicos/auth\", algorithm=#{algorithm}, nonce=#{nonce}, nc=#{nc}, cnonce=\"#{cnonce}\", qop=#{qop}, opaque=\"#{opaque}\", response=\"#{response}\""
+            },
+            'data' => JSON.pretty_generate({
+              'override' => false,
+              'snwl' => true
+            })
+          }
+        end
 
         # Rewrite crypto stuff into separate class
         def get_response_hash(algorithm, realm, qop, nonce, opaque, username, password)
@@ -59,27 +74,41 @@ module Metasploit
           snwl_authenticate_header = res.headers['X-SNWL-Authenticate']
 
           algorithm = snwl_authenticate_header&.match(/^Digest algorithm=([a-zA-Z0-9-]+),/)
-
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Malformed authentication data' } unless algorithm
 
           realm = snwl_authenticate_header&.match(/realm="([^\s]*)",/)
 
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Malformed authentication data' } unless realm
 
-          snwl_authenticate_header&.match(/qop="([a-zA-Z]*)",/)
+          qop = snwl_authenticate_header&.match(/qop="([a-zA-Z]*)",/)
 
           nonce = snwl_authenticate_header&.match(/nonce="([^\s]*)",/)
 
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Malformed authentication data' } unless nonce
 
-          opaque = snwl_authenticate_header&.match(/opaque="([^\s]*)",/)
+          opaque = snwl_authenticate_header&.match(/opaque="([\w\W]+)"/)
 
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Malformed authentication data' } unless opaque
+        
+          algorithm = algorithm[1]
+          realm = realm[1]
+          qop = qop ? qop[1] : nil
+          nonce = nonce[1]
+          opaque = opaque[1]
 
-          res_hash = get_response_hash(algorithm, realm, qop, nonce, opaque, username, password)
+          nonce_dec = Base64.strict_decode64(nonce)
+          puts nonce_dec 
+          puts nonce_dec.map { |b| sprintf(", 0x%02X",b) }.join
 
-          return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Could not calculate hash' } unless res_hash
 
+
+          resp_hash = get_response_hash(algorithm, realm, qop, nonce, opaque, username, password)
+          return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Could not calculate hash' } unless resp_hash
+          nc='00000001'
+          cnonce = 'fFmqlT4WSjGHgCECh1OUrg=='
+          res = send_request(auth_req(username,realm,algorithm,nonce,nc,cnonce,qop,opaque,resp_hash))
+        
+          puts res
         end
 
         def do_login(username, password)
