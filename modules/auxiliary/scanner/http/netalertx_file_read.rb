@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => ' NetAlertX File Read Vulnerability',
         'Description' => %q{
-          This module exploi
+          This module exploits improper authentication in logs.php endpoint. An unathenticated attacker can request log file and read any file due path traversal vulnerability.
         },
         'References' => [
           ['CVE', '2024-48766'],
@@ -91,12 +91,12 @@ class MetasploitModule < Msf::Auxiliary
       'netalert.results',
       'text/plain',
       ip,
-      log_data,
-      'netalert_result.txt',
+      log_data.text,
+      "netalert-#{filepath}.txt",
       'NetAlertX'
     )
 
-    print_status 'Stored results in netalert_result.txt'
+    print_status "Stored results in netalert-#{filepath}.txt"
   end
 
 end
