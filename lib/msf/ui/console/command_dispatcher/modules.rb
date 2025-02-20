@@ -385,6 +385,7 @@ module Msf
               'author'      => 'Modules written by this author',
               'arch'        => 'Modules affecting this architecture',
               'bid'         => 'Modules with a matching Bugtraq ID',
+              'osvdb'       => 'Modules with a matching OSVDB ID',
               'cve'         => 'Modules with a matching CVE ID',
               'edb'         => 'Modules with a matching Exploit-DB ID',
               'check'       => 'Modules that support the \'check\' method',

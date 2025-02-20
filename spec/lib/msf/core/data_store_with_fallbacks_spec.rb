@@ -672,8 +672,8 @@ RSpec.shared_examples_for 'a datastore' do
       it 'should return a Hash with correct values' do
         expected_to_h = {
           'SMBDomain' => 'WORKGROUP',
-          'SMBUser' => '',
-          'USER_ATTR' => ''
+          'SMBUser' => nil,
+          'USER_ATTR' => nil
         }
         expect(subject.to_h).to eq(expected_to_h)
       end
@@ -688,11 +688,11 @@ RSpec.shared_examples_for 'a datastore' do
         expected_to_h = {
           'NewOptionName' => 'overridden_default_new_option_name',
           'SMBDomain' => 'WORKGROUP',
-          'SMBUser' => '',
-          'USER_ATTR' => '',
+          'SMBUser' => nil,
+          'USER_ATTR' => nil,
           'foo' => 'overridden_default_foo',
           'bar' => 'default_bar_value',
-          'baz' => ''
+          'baz' => nil
         }
         expect(subject.to_h).to eq(expected_to_h)
       end
