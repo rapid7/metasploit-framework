@@ -556,6 +556,199 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/linux/tftp/x64'
   end
 
+  context 'cmd/linux/http/aarch64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/aarch64'
+                          ],
+                          reference_name: 'cmd/linux/http/aarch64'
+  end
+
+  context 'cmd/linux/https/aarch64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/aarch64'
+                          ],
+                          reference_name: 'cmd/linux/https/aarch64'
+  end
+
+  context 'cmd/linux/tftp/aarch64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/aarch64'
+                          ],
+                          reference_name: 'cmd/linux/tftp/aarch64'
+  end
+
+
+  context 'cmd/linux/http/armbe' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/armbe'
+                          ],
+                          reference_name: 'cmd/linux/http/armbe'
+  end
+
+  context 'cmd/linux/https/armbe' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/armbe'
+                          ],
+                          reference_name: 'cmd/linux/https/armbe'
+  end
+
+  context 'cmd/linux/tftp/armbe' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/armbe'
+                          ],
+                          reference_name: 'cmd/linux/tftp/armbe'
+  end
+
+  context 'cmd/linux/http/armle' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/armle'
+                          ],
+                          reference_name: 'cmd/linux/http/armle'
+  end
+
+  context 'cmd/linux/https/armle' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/armle'
+                          ],
+                          reference_name: 'cmd/linux/https/armle'
+  end
+
+  context 'cmd/linux/tftp/armle' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/armle'
+                          ],
+                          reference_name: 'cmd/linux/tftp/armle'
+  end
+
+  context 'cmd/linux/http/mipsbe' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/mipsbe'
+                          ],
+                          reference_name: 'cmd/linux/http/mipsbe'
+  end
+
+  context 'cmd/linux/https/mipsbe' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/mipsbe'
+                          ],
+                          reference_name: 'cmd/linux/https/mipsbe'
+  end
+
+  context 'cmd/linux/tftp/mipsbe' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/mipsbe'
+                          ],
+                          reference_name: 'cmd/linux/tftp/mipsbe'
+  end
+
+  context 'cmd/linux/http/mipsle' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/mipsle'
+                          ],
+                          reference_name: 'cmd/linux/http/mipsle'
+  end
+
+  context 'cmd/linux/https/mipsle' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/mipsle'
+                          ],
+                          reference_name: 'cmd/linux/https/mipsle'
+  end
+
+  context 'cmd/linux/tftp/mipsle' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/mipsle'
+                          ],
+                          reference_name: 'cmd/linux/tftp/mipsle'
+  end
+
+  context 'cmd/linux/http/ppc' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/ppc'
+                          ],
+                          reference_name: 'cmd/linux/http/ppc'
+  end
+
+  context 'cmd/linux/https/ppc' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/ppc'
+                          ],
+                          reference_name: 'cmd/linux/https/ppc'
+  end
+
+  context 'cmd/linux/tftp/ppc' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/ppc'
+                          ],
+                          reference_name: 'cmd/linux/tftp/ppc'
+  end
+
+  context 'cmd/linux/http/ppc64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/ppc64'
+                          ],
+                          reference_name: 'cmd/linux/http/ppc64'
+  end
+
+  context 'cmd/linux/https/ppc64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/ppc64'
+                          ],
+                          reference_name: 'cmd/linux/https/ppc64'
+  end
+
+  context 'cmd/linux/tftp/ppc64' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/ppc64'
+                          ],
+                          reference_name: 'cmd/linux/tftp/ppc64'
+  end
+  
+  context 'cmd/linux/http/ppc64le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/ppc64le'
+                          ],
+                          reference_name: 'cmd/linux/http/ppc64le'
+  end
+
+  context 'cmd/linux/https/ppc64le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/ppc64le'
+                          ],
+                          reference_name: 'cmd/linux/https/ppc64le'
+  end
+
+  context 'cmd/linux/tftp/ppc64le' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/tftp/ppc64le'
+                          ],
+                          reference_name: 'cmd/linux/tftp/ppc64le'
+  end
+
   context 'cmd/linux/http/x86' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
