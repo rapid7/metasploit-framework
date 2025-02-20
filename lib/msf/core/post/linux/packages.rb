@@ -40,7 +40,6 @@ module Msf
 
             package_version = package_version.match(/Version: (.+)/)[1]
             return Rex::Version.new(package_version)
-          # XXX not tested on live system
           elsif ['freebsd'].include?(info[:distro])
             package_version = cmd_exec("pkg info #{package}")
             return nil unless package_version.include?('Version')
