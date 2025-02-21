@@ -25,8 +25,8 @@ module Rex::Proto::MsAdts
       when KEY_USAGE_NGC
         result = Rex::Proto::BcryptPublicKey.new
         result.key_length = public_key.n.num_bits
-        n = self.class.int_to_bytes(public_key.n)
-        e = self.class.int_to_bytes(public_key.e)
+        n = Rex::Crypto.int_to_bytes(public_key.n.to_i)
+        e = Rex::Crypto.int_to_bytes(public_key.e.to_i)
         result.exponent = e
         result.modulus = n
         result.prime1 = ''
@@ -136,8 +136,8 @@ module Rex::Proto::MsAdts
       when KEY_USAGE_NGC
         if raw_key_material.start_with?([Rex::Proto::BcryptPublicKey::MAGIC].pack('I'))
           result = Rex::Proto::BcryptPublicKey.read(raw_key_material)
-          exponent = OpenSSL::ASN1::Integer.new(bytes_to_int(result.exponent))
-          modulus = OpenSSL::ASN1::Integer.new(bytes_to_int(result.modulus))
+          exponent = OpenSSL::ASN1::Integer.new(Rex::Crypto.bytes_to_int(result.exponent))
+          modulus = OpenSSL::ASN1::Integer.new(Rex::Crypto.bytes_to_int(result.modulus))
           # OpenSSL's API has changed over time - constructing from DER has been consistent
           data_sequence = OpenSSL::ASN1::Sequence([modulus, exponent])
 
@@ -163,16 +163,6 @@ module Rex::Proto::MsAdts
       else # Insert at start
         struct.credential_entries.insert(0, entry)
       end
-    end
-
-    def self.int_to_bytes(num)
-      str = num.to_s(16).rjust(2, '0')
-
-      [str].pack('H*')
-    end
-
-    def bytes_to_int(num)
-      num.unpack('H*')[0].to_i(16)
     end
 
     # Sets self.key_hash based on the credential_entries value in the provided parameter
