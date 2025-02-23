@@ -34,6 +34,9 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://github.com/bidord/pykek'],
           ['URL', 'https://www.rapid7.com/blog/post/2014/12/25/12-days-of-haxmas-ms14-068-now-in-metasploit']
         ],
+       'Notes' => {
+          'AKA' => ['ESKIMOROLL']
+       },
       'License' => MSF_LICENSE,
       'DisclosureDate' => '2014-11-18'
     ))

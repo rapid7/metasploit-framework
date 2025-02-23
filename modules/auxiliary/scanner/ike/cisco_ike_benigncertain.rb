@@ -34,6 +34,9 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://nvd.nist.gov/vuln/detail/CVE-2016-6415' ],
           [ 'URL', 'https://musalbas.com/2016/08/18/equation-group-benigncertain.html' ]
         ],
+      'Notes' => {
+        'AKA' => ['BENIGNCERTAIN']
+      },
       'DisclosureDate' => '2016-09-29'
     ))
 

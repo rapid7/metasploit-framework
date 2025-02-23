@@ -19,6 +19,9 @@ class MetasploitModule < Msf::Auxiliary
 
       'Author'         => [ 'Laurent Gaffie <laurent.gaffie[at]gmail.com>', 'hdm' ],
       'License'        => MSF_LICENSE,
+      'Notes' => {
+          'AKA' => ['EDUCATEDSCHOLAR']
+      },
       'References' =>
         [
           ['CVE', '2009-3103'],
