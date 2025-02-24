@@ -1,4 +1,4 @@
-## Description
+## Vulnerable Application
 
 
 An attacker can read any file through log functionality with no authentication.
@@ -7,7 +7,9 @@ The vulnerability affects:
 
     * v24.7.18 <= NetAlertX <= v24.9.12
 
-## Installation
+## Verification Steps
+
+### Installation
 
 1. `docker pull jokobsk/netalertx:24.9.12`
 
@@ -21,7 +23,7 @@ docker run --rm --network=host \
   jokobsk/netalertx:24.9.12
 ```
 
-## Steps
+### Verification
 
 1. Install the application
 2. Start msfconsole
@@ -29,8 +31,14 @@ docker run --rm --network=host \
 4. Do: `run rhost=<rhost>`
 5. You should get the contents of the specified file.
 
+## Options
 
-## Example
+- `RHOSTS`: target host
+- `RPORT`: target port, default 20211
+- `FILEPATH`: path to the required file
+- `DEPTH`: number of `../` to be prepended to `FILEPATH`
+
+## Scenarios
 
 ```
 msf6 > use auxiliary/scanner/http/netalertx_file_read 
