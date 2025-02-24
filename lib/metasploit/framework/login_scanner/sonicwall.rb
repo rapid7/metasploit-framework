@@ -46,22 +46,22 @@ module Metasploit
             else
               return nil
             end
-            ha1 = hash_obj.hexdigest("#{username}:#{realm}:#{password}")
+            ha1 = Digest::SHA256.hexdigest("#{username}:#{realm}:#{password}")
           end
 
           if qop == 'auth' || qop == ''
-            ha2 = hash_obj.hexdigest('POST:/api/sonicos/auth')
+            ha2 = Digest::SHA256.hexdigest('POST:/api/sonicos/auth')
           elsif qop == 'auth-int'
-            ha2 = hash_obj.hexdigest('POST:/api/sonicos/auth:23')
+            ha2 = Digest::SHA256.hexdigest('POST:/api/sonicos/auth:23')
           else
             return nil
           end
 
           if qop == 'auth' || qop == 'auth-int'
             cnonce = '7VSaRKfBSRotzMPXkYXOog=='
-            return hash_obj.hexdigest("#{ha1}:#{nonce}:00000001:#{cnonce}:#{qop}:#{ha2}")
+            return Digest::SHA256.hexdigest("#{ha1}:#{nonce}:00000001:#{cnonce}:#{qop}:#{ha2}")
           else
-            return hash_obj.hexdigest("#{ha1}:#{nonce}:#{ha2}")
+            return Digest::SHA256.hexdigest("#{ha1}:#{nonce}:#{ha2}")
           end
         end
 
