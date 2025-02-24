@@ -96,5 +96,12 @@ class MetasploitModule < Msf::Auxiliary
       'NetAlertX'
     )
     print_status "Stored results in #{loot_path}"
+    report_vuln({
+      host: rhost,
+      port: rport,
+      name: name,
+      refs: references,
+      info: "Module #{fullname} successfully leaked file"
+    })
   end
 end
