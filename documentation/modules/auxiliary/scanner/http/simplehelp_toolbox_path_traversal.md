@@ -4,7 +4,7 @@ remote attackers to download arbitrary files from the SimpleHelp server via craf
 
 ### Setup
 
-On Ubuntu 22.04 download the vulnerable version of SimpleHelp 5.5.7: 
+On Ubuntu 22.04 download a vulnerable version of SimpleHelp, for this demo we will use 5.5.7:
 `wget https://simple-help.com/releases/5.5.7/SimpleHelp-linux-amd64.tar.gz`
 
 Unzip the application:
@@ -13,11 +13,15 @@ cd /opt
 tar -xvf SimpleHelp-linux-amd64.tar.gz
 ```
 
-And start the server:
+Start the server:
 ```
 cd SimpleHelp
 sudo sh serverstart.sh
 ```
+
+Navigate to the Web App GUI at: `http://127.0.0.1` (by default the application should be listening on all interfaces).
+You should see "Welcome to your new SimpleHelp Server".
+Select "Start New Server". The application should now be vulnerable to the path traversal.
 
 ## Verification Steps
 
