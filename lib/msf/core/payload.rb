@@ -475,7 +475,7 @@ class Payload < Msf::Module
     lhost = mod.datastore['LHOST'] || Rex::Socket.source_address(mod.datastore['RHOST'] || '50.50.50.50')
 
     configure_payload = lambda do |payload|
-      if mod.datastore.is_a?(Msf::DataStoreWithFallbacks)
+      if mod.datastore.is_a?(Msf::DataStore)
         payload_defaults = { 'PAYLOAD' => payload }
 
         # Set LHOST if this is a reverse payload

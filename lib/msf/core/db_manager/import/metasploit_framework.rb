@@ -8,6 +8,7 @@ module Msf::DBManager::Import::MetasploitFramework
   include Msf::DBManager::Import::MetasploitFramework::Zip
 
   # Convert the string "NULL" to actual nil
+  # @param [String] str
   def nils_for_nulls(str)
     str == "NULL" ? nil : str
   end

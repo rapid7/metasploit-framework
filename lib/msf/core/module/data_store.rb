@@ -21,7 +21,7 @@ module Msf::Module::DataStore
 
     # If there are default options, import their values into the datastore
     if (module_info['DefaultOptions'])
-      if datastore.is_a?(Msf::DataStoreWithFallbacks)
+      if datastore.is_a?(Msf::DataStore)
         self.datastore.import_defaults_from_hash(module_info['DefaultOptions'], imported_by: 'import_defaults')
       else
         self.datastore.import_options_from_hash(module_info['DefaultOptions'], true, 'self')
@@ -38,7 +38,7 @@ module Msf::Module::DataStore
   def import_target_defaults
     return unless defined?(targets) && targets && target && target.default_options
 
-    if self.datastore.is_a?(Msf::ModuleDataStoreWithFallbacks)
+    if self.datastore.is_a?(Msf::ModuleDataStore)
       datastore.import_defaults_from_hash(target.default_options, imported_by: 'import_target_defaults')
     else
       datastore.import_options_from_hash(target.default_options, true, 'self')

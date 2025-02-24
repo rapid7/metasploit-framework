@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
       info: version
     )
 
-    shell = Net::SSH::CommandStream.new(ssh, datastore['CMD'], pty: datastore['SPAWN_PTY'])
+    shell = Net::SSH::CommandStream.new(ssh, datastore['CMD'], pty: datastore['SPAWN_PTY'], logger: self)
 
     # XXX: Wait for CommandStream to log a channel request failure
     sleep 0.1

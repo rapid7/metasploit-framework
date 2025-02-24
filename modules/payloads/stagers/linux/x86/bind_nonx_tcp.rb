@@ -17,7 +17,7 @@ module MetasploitModule
   CachedSize = 63
 
   include Msf::Payload::Stager
-  include Msf::Payload::Linux
+  include Msf::Payload::Linux::X86::Prepends
 
   def self.handler_type_alias
     "bind_nonx_tcp"

@@ -10,6 +10,8 @@ info:
   x-cortex-type: service
   x-cortex-domain-parents:
   - tag: metasploit
+  x-cortex-groups:
+  - exposure:external-ship
 openapi: 3.0.1
 servers:
 - url: "/"

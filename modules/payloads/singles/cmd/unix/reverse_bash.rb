@@ -26,7 +26,7 @@ module MetasploitModule
      'Platform'      => 'unix',
      'Arch'          => ARCH_CMD,
      'Handler'       => Msf::Handler::ReverseTcp,
-     'Session'       => Msf::Sessions::CommandShell,
+     'Session'       => Msf::Sessions::CommandShellUnix,
      'PayloadType'   => 'cmd_bash',
      'RequiredCmd'   => 'bash-tcp',
      'Payload'       =>

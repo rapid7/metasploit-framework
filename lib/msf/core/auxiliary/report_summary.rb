@@ -39,6 +39,31 @@ module Msf
         result
       end
 
+      # Take credentials hash and check data for username and password and then returns a hash for those values
+      #
+      # @param [Hash] credential_data
+      # @return [Hash]
+      def login_credentials(credential_data)
+        # If the database is active and core is populated then grab the creds from there, otherwise
+        # fallback and check in credentials data's top layer
+        if framework.db&.active && credential_data[:core]
+          {
+            public: credential_data[:core].public,
+            private_data: credential_data[:core].private
+          }
+        elsif credential_data[:username] && credential_data[:private_data]
+          {
+            public: credential_data[:username],
+            private_data: credential_data[:private_data]
+          }
+        else
+          {
+            public: 'credentials could not be reported',
+            private_data: 'credentials could not be reported'
+          }
+        end
+      end
+
       # Creates a credential and adds to to the DB if one is present
       #
       # @param [Hash] credential_data
@@ -46,12 +71,8 @@ module Msf
       def create_credential_login(credential_data)
         return super unless framework.features.enabled?(Msf::FeatureManager::SHOW_SUCCESSFUL_LOGINS) && datastore['ShowSuccessfulLogins'] && @report
 
-        credential = {
-          public: credential_data[:username],
-          private_data: credential_data[:private_data]
-        }
         @report[rhost] = { successful_logins: [] }
-        @report[rhost][:successful_logins] << credential
+        @report[rhost][:successful_logins] << login_credentials(credential_data)
         super
       end
 
@@ -69,12 +90,8 @@ module Msf
       def create_credential_and_login(credential_data)
         return super unless framework.features.enabled?(Msf::FeatureManager::SHOW_SUCCESSFUL_LOGINS) && datastore['ShowSuccessfulLogins'] && @report
 
-        credential = {
-          public: credential_data[:username],
-          private_data: credential_data[:private_data]
-        }
         @report[rhost] = { successful_logins: [] }
-        @report[rhost][:successful_logins] << credential
+        @report[rhost][:successful_logins] << login_credentials(credential_data)
         super
       end
 

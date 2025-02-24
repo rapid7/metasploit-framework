@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetasploitV4>
+  <generated time="2012-05-30 17:20:08 UTC" user="test" project="export" />
+  <hosts>
+    <host>
+      <id>75</id>
+      <created-at>2012-05-30 17:12:44 UTC</created-at>
+      <address>10.6.200.2</address>
+      <mac>00:0C:29:63:B3:95</mac>
+      <comm></comm>
+      <name/>
+      <state>alive</state>
+      <os-name>Linux</os-name>
+      <os-flavor>2.6.X</os-flavor>
+      <os-sp/>
+      <os-lang/>
+      <arch/>
+      <workspace-id>4</workspace-id>
+      <updated-at>2012-05-30 17:14:37 UTC</updated-at>
+      <purpose>device</purpose>
+      <info/>
+      <comments/>
+      <scope/>
+      <virtual-host>VMWare</virtual-host>
+      <services>
+        <service>
+          <id>641</id>
+          <host-id>75</host-id>
+          <created-at>2012-05-30 17:12:44 UTC</created-at>
+          <port>514</port>
+          <proto>tcp</proto>
+          <state>open</state>
+          <name>shell</name>
+          <updated-at>2012-05-30 17:12:44 UTC</updated-at>
+          <info></info>
+        </service>
+      </services>
+      <notes>
+        <note>
+          <id>349</id>
+          <created-at>2012-05-30 17:14:17 UTC</created-at>
+          <ntype>smb.shares</ntype>
+          <workspace-id>4</workspace-id>
+          <service-id>640</service-id>
+          <host-id>75</host-id>
+          <updated-at>2012-05-30 17:14:17 UTC</updated-at>
+          <critical/>
+          <seen/>
+          <data>BAh7BjoLc2hhcmVzWwlbCCILcHJpbnQkIglESVNLIhRQcmludGVyIERyaXZlcnNbCCILcHVibGljIglESVNLIhFTaGFyZWQgRmlsZXNbCCIMc2NyYXRjaCIJRElTSyIUVGVtcG9yYXJ5IEZpbGVzWwgiCUlQQyQiCElQQyIeSVBDIFNlcnZpY2UgKEZpbGUgU2VydmVyKQ==</data>
+        </note>
+      </notes>
+      <tags>
+      </tags>
+      <vulns>
+      </vulns>
+      <creds>
+      </creds>
+      <sessions>
+      </sessions>
+    </host>
+  </hosts>
+</MetasploitV4>

@@ -76,7 +76,7 @@ module Msf::Sessions
     end
 
     def bootstrap(datastore = {}, handler = nil)
-      @ssh_command_stream = Net::SSH::CommandStream.new(ssh_connection)
+      @ssh_command_stream = Net::SSH::CommandStream.new(ssh_connection, session: self, logger: self)
 
       @ssh_command_stream.verify_channel
       # set remote_window_size to 32 which seems to help stability

@@ -159,12 +159,6 @@ RSpec.configure do |config|
     end
   end
 
-  if ENV['MSF_FEATURE_DATASTORE_FALLBACKS']
-    config.before(:suite) do
-      Msf::FeatureManager.instance.set(Msf::FeatureManager::DATASTORE_FALLBACKS, true)
-    end
-  end
-
   if ENV['MSF_FEATURE_DEFER_MODULE_LOADS']
     config.before(:suite) do
       Msf::FeatureManager.instance.set(Msf::FeatureManager::DEFER_MODULE_LOADS, true)

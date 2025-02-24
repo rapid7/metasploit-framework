@@ -1035,6 +1035,22 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
       import_msf_xml
     end
 
+    context 'with host elements present' do
+      let(:data) do
+        File.binread(File.join(FILE_FIXTURES_PATH, 'import', 'basic_host_data_set.xml'))
+      end
+
+      it 'import the host' do
+        expect {
+          import_msf_xml
+        }.to(
+          change(Mdm::Host, :count).by(1)
+           .and change(Mdm::Service, :count).by(1)
+           .and change(Mdm::Note, :count).by(1)
+        )
+      end
+    end
+
     context 'with web_forms/web_form elements' do
       let(:data) do
         xml.tag!('MetasploitV4') do

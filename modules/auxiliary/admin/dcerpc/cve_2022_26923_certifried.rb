@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::LDAP
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::MsIcpr
-  include Msf::Exploit::Remote::MsSamr::Computer
+  include Msf::Exploit::Remote::MsSamr::Account
 
   def initialize(info = {})
     super(
@@ -102,7 +102,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     opts[:tree] = connect_smb
-    computer_info = add_computer(opts)
+    computer_info = add_account(:computer, opts)
     @computer_created = true
     disconnect_smb(opts.delete(:tree))
 
@@ -173,7 +173,7 @@ class MetasploitModule < Msf::Auxiliary
         computer_name: computer_info&.name
       }
       begin
-        delete_computer(opts) if opts[:tree] && opts[:computer_name]
+        delete_account(opts) if opts[:tree] && opts[:computer_name]
       rescue MsSamrUnknownError => e
         print_warning("Unable to delete the computer account, this will have to be done manually with an Administrator account (#{e.message})")
       end

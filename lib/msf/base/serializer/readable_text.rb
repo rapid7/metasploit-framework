@@ -623,7 +623,7 @@ class ReadableText
     )
     options.sort_by(&:name).each do |opt|
       name = opt.name
-      if mod.datastore.is_a?(Msf::DataStoreWithFallbacks)
+      if mod.datastore.is_a?(Msf::DataStore)
         val = mod.datastore[name]
       else
         val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]

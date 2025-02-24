@@ -136,7 +136,7 @@ module Msf
       self.options.add_evasion_options(info['EvasionOptions'], self.class)
 
       # Create and initialize the data store for this module
-      self.datastore = ModuleDataStore.new(self)
+      self.datastore = Msf::ModuleDataStore.new(self)
 
       # Import default options into the datastore
       import_defaults

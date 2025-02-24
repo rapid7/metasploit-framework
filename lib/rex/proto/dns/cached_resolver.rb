@@ -62,7 +62,11 @@ module DNS
         resolved = super(resolve, type)
         req.instance_variable_set(:@answer, (req.answer + resolved.answer).uniq)
         resolved.answer.each do |ans|
-          self.cache.cache_record(ans)
+          begin
+            self.cache.cache_record(ans)
+          rescue StandardError => e
+            elog('Failed to cache the DNS answer', error: e)
+          end
         end
       end
       # Finalize answers in response

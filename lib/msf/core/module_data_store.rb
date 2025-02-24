@@ -10,20 +10,7 @@ module Msf
   ###
   class ModuleDataStore < DataStore
 
-    # Temporary forking logic for conditionally using the {Msf::ModuleDatastoreWithFallbacks} implementation.
-    #
-    # This method replaces the default `ModuleDataStore.new` with the ability to instantiate the `ModuleDataStoreWithFallbacks`
-    # class instead, if the feature is enabled
-    def self.new(m)
-      if Msf::FeatureManager.instance.enabled?(Msf::FeatureManager::DATASTORE_FALLBACKS)
-        return Msf::ModuleDataStoreWithFallbacks.new(m)
-      end
-
-      instance = allocate
-      instance.send(:initialize, m)
-      instance
-    end
-
+    # @param [Msf::Module] m
     def initialize(m)
       super()
 
@@ -31,51 +18,63 @@ module Msf
     end
 
     #
-    # Fetch the key from the local hash first, or from the framework datastore
-    # if we can't directly find it
-    #
-    def fetch(key)
-      key = find_key_case(key)
-      val = nil
-      val = super if(@imported_by[key] != 'self')
-      if (val.nil? and @_module and @_module.framework)
-        val = @_module.framework.datastore[key]
-      end
-      val = super if val.nil?
-      val
-    end
-
-    #
-    # Same as fetch
-    #
-    def [](key)
-      key = find_key_case(key)
-      val = nil
-      val = super if(@imported_by[key] != 'self')
-      if (val.nil? and @_module and @_module.framework)
-        val = @_module.framework.datastore[key]
-      end
-      val = super if val.nil?
-      val
-    end
-
-    #
-    # Was this entry actually set or just using its default
-    #
-    def default?(key)
-      (@imported_by[key] == 'self')
-    end
-
-    #
-    # Return a deep copy of this datastore.
-    #
+    # Return a copy of this datastore. Only string values will be duplicated, other values
+    # will share the same reference
+    # @return [Msf::DataStore] a new datastore instance
     def copy
-      ds = self.class.new(@_module)
-      self.keys.each do |k|
-        ds.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
+      new_instance = self.class.new(@_module)
+      new_instance.copy_state(self)
+      new_instance
+    end
+
+    # Search for a value within the current datastore, taking into consideration any registered aliases, fallbacks, etc.
+    # If a value is not present in the current datastore, the global parent store will be referenced instead
+    #
+    # @param [String] key The key to search for
+    # @return [DataStoreSearchResult]
+    def search_for(key)
+      k = find_key_case(key)
+      return search_result(:user_defined, @user_defined[k]) if @user_defined.key?(k)
+
+      # Preference globally set values over a module's option default
+      framework_datastore_search = search_framework_datastore(key)
+      return framework_datastore_search if framework_datastore_search.found? && !framework_datastore_search.default?
+
+      option = @options.fetch(k) { @options.find { |option_name, _option| option_name.casecmp?(k) }&.last }
+      if option
+        # If the key isn't present - check any additional fallbacks that have been registered with the option.
+        # i.e. handling the scenario of SMBUser not being explicitly set, but the option has registered a more
+        # generic 'Username' fallback
+        option.fallbacks.each do |fallback|
+          fallback_search = search_for(fallback)
+          if fallback_search.found?
+            return search_result(:option_fallback, fallback_search.value, fallback_key: fallback)
+          end
+        end
       end
-      ds.aliases = self.aliases.dup
-      ds
+
+      # Checking for imported default values, ignoring case again TODO: add Alias test for this
+      imported_default_match = @defaults.find { |default_key, _default_value| default_key.casecmp?(k) }
+      return search_result(:imported_default, imported_default_match.last) if imported_default_match
+      return search_result(:option_default, option.default) if option
+
+      search_framework_datastore(k)
+    end
+
+    protected
+
+    # Search the framework datastore
+    #
+    # @param [String] key The key to search for
+    # @return [DataStoreSearchResult]
+    def search_framework_datastore(key)
+      return search_result(:not_found, nil) if @_module&.framework.nil?
+
+      @_module.framework.datastore.search_for(key)
+    end
+
+    def search_result(result, value, fallback_key: nil)
+      DataStoreSearchResult.new(result, value, namespace: :module_data_store, fallback_key: fallback_key)
     end
   end
 end

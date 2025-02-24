@@ -265,7 +265,7 @@ class Client
     conn.put(req.to_s)
   end
 
-  # Resends an HTTP Request with the proper authentcation headers
+  # Resends an HTTP Request with the proper authentication headers
   # set. If we do not support the authentication type the server requires
   # we return the original response object
   #

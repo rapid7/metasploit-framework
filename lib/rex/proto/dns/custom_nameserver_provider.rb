@@ -132,9 +132,9 @@ module DNS
     end
 
     #
-    # Remove upstream rules with the given indexes
+    # Remove upstream rules with the given indices
     # Ignore entries that are not found
-    # @param ids [Array<Integer>] The IDs to removed
+    # @param ids [Array<Integer>] The IDs to remove
     # @return [Array<UpstreamRule>] The removed entries
     def remove_ids(ids)
       removed = []
@@ -144,6 +144,47 @@ module DNS
       end
 
       removed.reverse
+    end
+
+    #
+    # Move upstream rules with the given indices into the location provided.
+    # If multiple IDs are provided, they will all be inserted into the provided location, 
+    # in the order provided.
+    # Ignore entries that are not found
+    # @param ids [Array<Integer>] The IDs to move
+    # @param insertion_id [Integer] The ID to insert the entries at (in the order provided), or -1 to insert at the end
+    # @return [Array<UpstreamRule>] The moved entries
+    def reorder_ids(ids, new_id)
+      if new_id == -1
+        new_id = @upstream_rules.length
+      end
+      if new_id > @upstream_rules.length
+        raise ::ArgumentError.new("Insertion ID is past the end of the ruleset")
+      end
+      to_move = []
+      to_subtract = 0
+      # Get the entries before we delete (gets too complicated with indices changing otherwise)
+      ids.each do |id|
+        upstream_rule = @upstream_rules[id]
+        unless upstream_rule.nil?
+          to_move << upstream_rule
+          if new_id > id
+            to_subtract += 1 # Adjust for the fact that are about to delete one, so the indices would be off-by-one after that index is deleted
+          end
+        end
+      end
+
+      new_id -= to_subtract
+
+      ids.sort.reverse.each do |id|
+        @upstream_rules.delete_at(id)
+      end
+
+      to_move.reverse.each do |rule|
+        @upstream_rules.insert(new_id, rule)
+      end
+
+      to_move
     end
 
     def flush

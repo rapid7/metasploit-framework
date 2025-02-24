@@ -23,7 +23,7 @@ class Msf::Sessions::SMB
   # @option opts [RubySMB::Client] :client
   def initialize(rstream, opts = {})
     @client = opts.fetch(:client)
-    @simple_client = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
+    @simple_client = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client, msf_session: self)
     self.console = Rex::Post::SMB::Ui::Console.new(self)
     super(rstream, opts)
   end
@@ -51,6 +51,13 @@ class Msf::Sessions::SMB
       print_status("Session ID #{sid} (#{tunnel_to_s}) processing #{key} '#{datastore[key]}'")
       execute_script(args.shift, *args)
     end
+  end
+
+  def verify_connectivity
+    @client.dispatcher.tcp_socket.peerinfo
+  rescue Errno::ENOTCONN
+    self.kill
+    raise
   end
 
   def type
@@ -140,5 +147,4 @@ class Msf::Sessions::SMB
     # the EOFError so we can drop this handle like a bad habit.
     raise EOFError if (console.stopped? == true)
   end
-
 end

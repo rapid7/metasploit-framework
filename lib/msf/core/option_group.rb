@@ -36,7 +36,7 @@ module Msf
     # Validates that any registered and required options are set
     #
     # @param options [Array<Msf::OptBase>] A modules registered options
-    # @param datastore [Msf::DataStore|Msf::DataStoreWithFallbacks] A modules datastore
+    # @param datastore [Msf::DataStore|Msf::DataStore] A modules datastore
     def validate(options, datastore)
       issues = {}
       required_options.each do |option_name|

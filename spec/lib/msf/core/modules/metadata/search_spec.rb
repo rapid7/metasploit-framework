@@ -60,7 +60,7 @@ RSpec.describe Msf::Modules::Metadata::Search do
   end
 
   describe '#find' do
-    REF_TYPES = %w(CVE BID EDB)
+    REF_TYPES = %w(CVE BID EDB OSVDB)
 
     shared_examples "search_filter" do |opts|
       accept = opts[:accept] || []

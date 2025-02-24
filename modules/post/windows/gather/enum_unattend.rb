@@ -17,18 +17,22 @@ class MetasploitModule < Msf::Post
         'Description' => %q{
           This module will check the file system for a copy of unattend.xml and/or
           autounattend.xml found in Windows Vista, or newer Windows systems.  And then
-          extract sensitive information such as usernames and decoded passwords.
+          extract sensitive information such as usernames and decoded passwords.  Also
+          checks for '.vmimport' files that could have been created by the AWS EC2 VMIE service.
         },
         'License' => MSF_LICENSE,
         'Author' => [
           'Sean Verity <veritysr1980[at]gmail.com>',
           'sinn3r',
-          'Ben Campbell'
+          'Ben Campbell',
+          'GhostlyBox'
         ],
         'References' => [
           ['URL', 'http://technet.microsoft.com/en-us/library/ff715801'],
           ['URL', 'http://technet.microsoft.com/en-us/library/cc749415(v=ws.10).aspx'],
-          ['URL', 'http://technet.microsoft.com/en-us/library/c026170e-40ef-4191-98dd-0b9835bfa580']
+          ['URL', 'http://technet.microsoft.com/en-us/library/c026170e-40ef-4191-98dd-0b9835bfa580'],
+          ['URL', 'https://aws.amazon.com/security/security-bulletins/AWS-2024-006/'],
+          ['URL', 'https://www.immersivelabs.com/blog/the-return-of-unattend-xml-revenge-of-the-cleartext-credentials/']
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter', 'shell' ]
@@ -106,7 +110,9 @@ class MetasploitModule < Msf::Post
     files =
       [
         'unattend.xml',
-        'autounattend.xml'
+        'autounattend.xml',
+        'unattend.xml.vmimport',
+        'autounattend.xml.vmimport'
       ]
 
     target_paths =

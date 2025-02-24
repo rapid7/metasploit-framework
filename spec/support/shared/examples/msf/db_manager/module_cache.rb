@@ -812,7 +812,8 @@ RSpec.shared_examples_for 'Msf::DBManager::ModuleCache' do
           allow(db_manager).to receive(
               :module_to_details_hash
           ).with(
-              module_instance
+              module_instance,
+              with_mixins: false
           ).and_return(
               module_to_details_hash
           )

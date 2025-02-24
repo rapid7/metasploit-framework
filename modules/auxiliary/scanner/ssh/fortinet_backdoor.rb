@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
       info: version
     )
 
-    shell = Net::SSH::CommandStream.new(ssh)
+    shell = Net::SSH::CommandStream.new(ssh, logger: self)
 
     # XXX: Wait for CommandStream to log a channel request failure
     sleep 0.1

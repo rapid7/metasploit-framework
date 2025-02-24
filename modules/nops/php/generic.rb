@@ -22,7 +22,6 @@ class MetasploitModule < Msf::Nop
 
   # Generate valid PHP code up to the requested length
   def generate_sled(length, opts = {})
-    # Default to just spaces for now
-    " " * length
+    Array.new(length) { ["\t", " ", "\n", "\r", ";"].sample }.join
   end
 end

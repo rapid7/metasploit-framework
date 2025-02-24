@@ -100,6 +100,7 @@ begin
         ::Readline::HISTORY.pop if (line and line.empty?)
       ensure
         Thread.current.priority = orig || 0
+        output.prompting(false)
       end
 
       line

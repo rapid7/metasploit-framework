@@ -10,6 +10,13 @@ require 'ruby_smb/dcerpc/lsarpc'
 require 'ruby_smb/dcerpc/efsrpc'
 
 class MetasploitModule < Msf::Auxiliary
+
+  module EfsrpcOverLsarpc
+    include RubySMB::Dcerpc::Efsrpc
+
+    UUID = RubySMB::Dcerpc::Efsrpc::LSARPC_UUID
+  end
+
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Auxiliary::Scanner
@@ -20,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
   # Efsrpc and it's normal UUID
   PIPE_HANDLES = {
     lsarpc: {
-      endpoint: RubySMB::Dcerpc::Lsarpc,
+      endpoint: EfsrpcOverLsarpc,
       filename: 'lsarpc'.freeze
     },
     efsrpc: {

@@ -385,6 +385,7 @@ module Msf
               'author'      => 'Modules written by this author',
               'arch'        => 'Modules affecting this architecture',
               'bid'         => 'Modules with a matching Bugtraq ID',
+              'osvdb'       => 'Modules with a matching OSVDB ID',
               'cve'         => 'Modules with a matching CVE ID',
               'edb'         => 'Modules with a matching Exploit-DB ID',
               'check'       => 'Modules that support the \'check\' method',
@@ -903,6 +904,10 @@ module Msf
             elsif dispatcher.respond_to?(:choose_payload)
               chosen_payload = dispatcher.choose_payload(mod)
               print_status("No payload configured, defaulting to #{chosen_payload}") if chosen_payload
+            end
+
+            if framework.features.enabled?(Msf::FeatureManager::DISPLAY_MODULE_ACTION) && mod.respond_to?(:actions) && mod.actions.size > 1
+              print_status "Using action %grn#{mod.action.name}%clr - view all #{mod.actions.size} actions with the %grnshow actions%clr command"
             end
 
             mod.init_ui(driver.input, driver.output)

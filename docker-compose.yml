@@ -1,4 +1,3 @@
-version: '3'
 services:
   ms:
     image: metasploitframework/metasploit-framework:latest

@@ -15,7 +15,6 @@ module Msf
 
     CONFIG_KEY = 'framework/features'
     WRAPPED_TABLES = 'wrapped_tables'
-    DATASTORE_FALLBACKS = 'datastore_fallbacks'
     FULLY_INTERACTIVE_SHELLS = 'fully_interactive_shells'
     MANAGER_COMMANDS = 'manager_commands'
     METASPLOIT_PAYLOAD_WARNINGS = 'metasploit_payload_warnings'
@@ -28,6 +27,7 @@ module Msf
     MSSQL_SESSION_TYPE = 'mssql_session_type'
     LDAP_SESSION_TYPE = 'ldap_session_type'
     SHOW_SUCCESSFUL_LOGINS = 'show_successful_logins'
+    DISPLAY_MODULE_ACTION = 'display_module_action'
 
     DEFAULTS = [
       {
@@ -47,13 +47,6 @@ module Msf
         description: 'When enabled you will have access to manager commands such as _servicemanager and _historymanager',
         default_value: false,
         developer_notes: 'Useful for developers, likely not to ever be useful for an average user'
-      }.freeze,
-      {
-        name: DATASTORE_FALLBACKS,
-        description: 'When enabled you can consistently set username across modules, instead of setting SMBUser/FTPUser/BIND_DN/etc',
-        requires_restart: true,
-        default_value: true,
-        developer_notes: 'This functionality is enabled by default now, and the feature flag can be removed now'
       }.freeze,
       {
         name: METASPLOIT_PAYLOAD_WARNINGS,
@@ -124,6 +117,13 @@ module Msf
         requires_restart: false,
         default_value: true,
         developer_notes: 'Enabled in Metasploit 6.4.x'
+      }.freeze,
+      {
+        name: DISPLAY_MODULE_ACTION,
+        description: 'When enabled after using a module the current action and number of actions will be displayed',
+        requires_restart: false,
+        default_value: true,
+        developer_notes: 'Added as a feature so users can turn it off if they wish to reduce clutter in their terminal'
       }.freeze
     ].freeze
 

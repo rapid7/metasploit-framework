@@ -373,3 +373,17 @@ queries:
       - https://malicious.link/post/2022/ldapsearch-reference/
       - https://burmat.gitbook.io/security/hacking/domain-exploitation
       - https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/useraccountcontrol-manipulate-account-properties
+  - action: ENUM_PRE_WINDOWS_2000_COMPUTERS
+    description: 'Dump info about all computer objects likely created as a "pre-Windows 2000 computer", for which the password might be predictable.'
+    filter: '(&(userAccountControl=4128))'
+    attributes:
+      - cn
+      - displayName
+      - description
+      - sAMAccountName
+      - userPrincipalName
+      - logonCount
+      - userAccountControl
+    references:
+      - https://www.thehacker.recipes/ad/movement/builtins/pre-windows-2000-computers
+      - https://trustedsec.com/blog/diving-into-pre-created-computer-accounts

@@ -13,12 +13,12 @@ AllureRspec.configure do |config|
     ruby_version: RUBY_VERSION,
     host_runner_image: ENV['HOST_RUNNER_IMAGE'],
   }.compact
-  meterpreter_name = ENV['METERPRETER']
-  meterpreter_runtime_version = ENV['METERPRETER_RUNTIME_VERSION']
-  if meterpreter_name.present?
-    environment_properties[:meterpreter_name] = meterpreter_name
-    if meterpreter_runtime_version.present?
-      environment_properties[:meterpreter_runtime_version] = "#{meterpreter_name}#{meterpreter_runtime_version}"
+  session_name = ENV['SESSION']
+  session_runtime_version = ENV['SESSION_RUNTIME_VERSION']
+  if session_name.present?
+    environment_properties[:session_name] = session_name
+    if session_runtime_version.present?
+      environment_properties[:session_runtime_version] = "#{session_name}#{session_runtime_version}"
     end
   end
   environment_properties[:runtime_version] = ENV['RUNTIME_VERSION']

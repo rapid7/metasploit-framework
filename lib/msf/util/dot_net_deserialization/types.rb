@@ -7,6 +7,7 @@ module Types
 
   require 'msf/util/dot_net_deserialization/types/primitives'
   require 'msf/util/dot_net_deserialization/types/general'
+  require 'msf/util/dot_net_deserialization/types/common_structures'
   require 'msf/util/dot_net_deserialization/types/record_values'
 
   #
@@ -16,6 +17,7 @@ module Types
     endian                 :little
     uint8                  :record_type
     choice                 :record_value, selection: -> { record_type } do
+      # see: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-nrbf/954a0657-b901-4813-9398-4ec732fe8b32
       serialization_header_record             Enums::RecordTypeEnum[:SerializedStreamHeader]
       class_with_id                           Enums::RecordTypeEnum[:ClassWithId]
       system_class_with_members               Enums::RecordTypeEnum[:SystemClassWithMembers]
@@ -23,7 +25,7 @@ module Types
       system_class_with_members_and_types     Enums::RecordTypeEnum[:SystemClassWithMembersAndTypes]
       class_with_members_and_types            Enums::RecordTypeEnum[:ClassWithMembersAndTypes]
       binary_object_string                    Enums::RecordTypeEnum[:BinaryObjectString]
-      #binary_array                            Enums::RecordTypeEnum[:BinaryArray]
+      binary_array                            Enums::RecordTypeEnum[:BinaryArray]
       #member_primitive_typed                  Enums::RecordTypeEnum[:MemberPrimitiveTyped]
       member_reference                        Enums::RecordTypeEnum[:MemberReference]
       object_null                             Enums::RecordTypeEnum[:ObjectNull]
@@ -32,10 +34,10 @@ module Types
       #object_null_multiple_256                Enums::RecordTypeEnum[:ObjectNullMultiple256]
       #object_null_multiple                    Enums::RecordTypeEnum[:ObjectNullMultiple]
       array_single_primitive                  Enums::RecordTypeEnum[:ArraySinglePrimitive]
-      #array_single_object                     Enums::RecordTypeEnum[:ArraySingleObject]
+      array_single_object                     Enums::RecordTypeEnum[:ArraySingleObject]
       array_single_string                     Enums::RecordTypeEnum[:ArraySingleString]
-      #method_call                             Enums::RecordTypeEnum[:MethodCall]
-      #method_return                           Enums::RecordTypeEnum[:MethodReturn]
+      binary_method_call                      Enums::RecordTypeEnum[:MethodCall]
+      binary_method_return                    Enums::RecordTypeEnum[:MethodReturn]
     end
 
     def self.from_value(record_value, parent: nil)

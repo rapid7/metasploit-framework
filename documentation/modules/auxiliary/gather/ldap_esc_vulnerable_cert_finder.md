@@ -9,7 +9,9 @@ along with info about which vulnerable certificate templates the certificate ser
 allows enrollment in and which SIDs are authorized to use that certificate server to
 perform this enrollment operation.
 
-Currently the module is capable of checking for ESC1, ESC2, and ESC3 vulnerable certificates.
+Currently the module is capable of checking for certificates that are vulnerable to ESC1, ESC2, ESC3, ESC13,
+and ESC15. The module is limited to checking for these techniques due to them being identifiable remotely from
+a normal user account by analyzing the objects in LDAP.
 
 ### Installing AD CS
 1. Install AD CS on either a new or existing domain controller

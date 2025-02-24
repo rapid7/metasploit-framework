@@ -129,8 +129,10 @@ class MetasploitModule < Msf::Auxiliary
             simple.client.authenticate
           rescue RubySMB::Error::RubySMBError
             info[:auth_domain] = nil
+            info[:os_version] = nil
           else
             info[:auth_domain] = simple.client.default_domain
+            info[:os_version] = simple.client.os_version
           end
         end
       else
@@ -145,7 +147,38 @@ class MetasploitModule < Msf::Auxiliary
     info
   end
 
-  def smb_os_description(res, nd_smb_fingerprint)
+  def smb_description(info)
+    desc = "SMB Detected (versions:#{info[:versions].join(', ')}) (preferred dialect:#{info[:preferred_dialect]})"
+    info[:capabilities].each do |name, values|
+      desc << " (#{name} capabilities:#{values.join(', ')})"
+    end
+
+    if info[:signing_required]
+      desc << ' (signatures:required)'
+    else
+      desc << ' (signatures:optional)'
+    end
+    desc << " (uptime:#{info[:uptime]})" if info[:uptime]
+    desc << " (guid:#{Rex::Text.to_guid(info[:server_guid])})" if info[:server_guid]
+    desc << " (authentication domain:#{info[:auth_domain]})" if info[:auth_domain]
+
+    desc
+  end
+
+  def convert_version_to_os_name(version)
+    rex_version = Rex::Version.new(version)
+    segments = rex_version.segments
+    if segments.length == 3
+      windows_match = Msf::WindowsVersion::from_ntlm_os_version(segments[0], segments[1], segments[2])
+      unless windows_match.nil?
+        return "Version #{version} (likely #{windows_match})"
+      end
+    end
+
+    "Version #{version} (unknown OS)"
+  end
+
+  def smb_os_description(res, info, nd_smb_fingerprint)
     #
     # Create the note hash for fingerprint.match
     #
@@ -154,39 +187,41 @@ class MetasploitModule < Msf::Auxiliary
     #
     # Create a descriptive string for service.info
     #
-    desc = res['os'].dup
+    words = []
+
+    if res['os'] == 'Unknown' && info[:os_version]
+      words << convert_version_to_os_name(info[:os_version])
+    else
+      words << res['os']
+    end
 
     if !res['edition'].to_s.empty?
-      desc << " #{res['edition']}"
+      words << " #{res['edition']}"
       nd_smb_fingerprint[:os_edition] = res['edition']
       nd_fingerprint_match['os.edition'] = res['edition']
     end
 
     if !res['sp'].to_s.empty?
-      desc << " #{res['sp'].downcase.gsub('service pack ', 'SP')}"
+      words << " #{res['sp'].downcase.gsub('service pack ', 'SP')}"
       nd_smb_fingerprint[:os_sp] = res['sp']
       nd_fingerprint_match['os.version'] = res['sp']
     end
 
     if !res['build'].to_s.empty?
-      desc << " (build:#{res['build']})"
+      words << " (build:#{res['build']})"
       nd_smb_fingerprint[:os_build] = res['build']
       nd_fingerprint_match['os.build'] = res['build']
     end
 
     if !res['lang'].to_s.empty? && res['lang'] != 'Unknown'
-      desc << " (language:#{res['lang']})"
+      words << " (language:#{res['lang']})"
       nd_smb_fingerprint[:os_lang] = res['lang']
       nd_fingerprint_match['os.language'] = nd_smb_fingerprint[:os_lang]
     end
 
-    if simple.client.default_name
-      desc << " (name:#{simple.client.default_name})"
-      nd_smb_fingerprint[:SMBName] = simple.client.default_name
-      nd_fingerprint_match['host.name'] = nd_smb_fingerprint[:SMBName]
-    end
+    os_name = words.join(' ')
 
-    { text: desc, fingerprint_match: nd_fingerprint_match, smb_fingerprint: nd_smb_fingerprint }
+    { os_name: os_name, fingerprint_match: nd_fingerprint_match, smb_fingerprint: nd_smb_fingerprint }
   end
 
   #
@@ -211,70 +246,70 @@ class MetasploitModule < Msf::Auxiliary
       self.simple = nil
 
       begin
-        res = smb_fingerprint
+        smb1_fingerprint = smb_fingerprint
 
         info = smb_proto_info
-        desc = "SMB Detected (versions:#{info[:versions].join(', ')}) (preferred dialect:#{info[:preferred_dialect]})"
-        info[:capabilities].each do |name, values|
-          desc << " (#{name} capabilities:#{values.join(', ')})"
-        end
-
-        if info[:signing_required]
-          desc << ' (signatures:required)'
-        else
-          desc << ' (signatures:optional)'
-          report_vuln({
-            host: ip,
-            port: rport,
-            proto: 'tcp',
-            name: 'SMB Signing Is Not Required',
-            refs: [
-              SiteReference.new('URL', 'https://support.microsoft.com/en-us/help/161372/how-to-enable-smb-signing-in-windows-nt'),
-              SiteReference.new('URL', 'https://support.microsoft.com/en-us/help/887429/overview-of-server-message-block-signing'),
-            ]
-          })
-        end
-        desc << " (uptime:#{info[:uptime]})" if info[:uptime]
-        desc << " (guid:#{Rex::Text.to_guid(info[:server_guid])})" if info[:server_guid]
-        desc << " (authentication domain:#{info[:auth_domain]})" if info[:auth_domain]
-        lines << { type: :status, message: desc }
 
         #
         # Create the note hash for smb.fingerprint
         #
         nd_smb_fingerprint = {
-          native_os: res['native_os'],
-          native_lm: res['native_lm']
+          native_os: smb1_fingerprint['native_os'],
+          native_lm: smb1_fingerprint['native_lm']
         }
 
-        if res['os'] && res['os'] != 'Unknown'
-          description = smb_os_description(res, nd_smb_fingerprint)
-          desc << description[:text]
-          nd_fingerprint_match = description[:fingerprint_match]
-          nd_smb_fingerprint = description[:smb_fingerprint]
+        description = smb_os_description(smb1_fingerprint, info, nd_smb_fingerprint)
+        nd_fingerprint_match = description[:fingerprint_match]
+        nd_smb_fingerprint = description[:smb_fingerprint]
 
-          if simple.client.default_domain
-            if simple.client.default_domain.encoding.name == 'UTF-8'
-              desc << " (domain:#{simple.client.default_domain})"
-            else
-              # Workgroup names are in ANSI, but may contain invalid characters
-              # Go through each char and convert/check
-              temp_workgroup = simple.client.default_domain.dup
-              desc << ' (workgroup:'
-              temp_workgroup.each_char do |i|
-                begin
-                  desc << i.encode('UTF-8')
-                rescue ::Encoding::UndefinedConversionError # rubocop:disable Metrics/BlockNesting
-                  desc << '?'
-                end
+        info[:os_name] = description[:os_name]
+
+        if simple.client.default_domain
+          if simple.client.default_domain.encoding.name == 'UTF-8'
+            info[:domain] = simple.client.default_domain
+          else
+            # Workgroup names are in ANSI, but may contain invalid characters
+            # Go through each char and convert/check
+            temp_workgroup = simple.client.default_domain.dup
+            workgroup = ""
+            temp_workgroup.each_char do |i|
+              begin
+                workgroup << i.encode('UTF-8')
+              rescue ::Encoding::UndefinedConversionError # rubocop:disable Metrics/BlockNesting
+                workgroup << '?'
               end
-              desc << ')'
             end
-            nd_smb_fingerprint[:SMBDomain] = simple.client.default_domain
-            nd_fingerprint_match['host.domain'] = nd_smb_fingerprint[:SMBDomain]
+            info[:workgroup] = workgroup
           end
+          nd_smb_fingerprint[:SMBDomain] = simple.client.default_domain
+          nd_fingerprint_match['host.domain'] = nd_smb_fingerprint[:SMBDomain]
+        end
 
-          lines << { type: :good, message: "  Host is running #{desc}" }
+        if simple.client.default_name
+          nd_smb_fingerprint[:SMBName] = simple.client.default_name
+          nd_fingerprint_match['host.name'] = nd_smb_fingerprint[:SMBName]
+          info[:computer_name] = simple.client.default_name
+        end
+
+        if info[:os_name] && info[:os_name] != 'Unknown'
+          smb_desc = smb_description(info)
+          os_desc = "Host is running #{info[:os_name]}"
+
+          lines << { type: :status, message: smb_desc }
+          lines << { type: :good, message: "  #{os_desc}" }
+
+          unless info[:signing_required]
+            report_vuln({
+              host: ip,
+              port: rport,
+              proto: 'tcp',
+              name: 'SMB Signing Is Not Required',
+              refs: [
+                SiteReference.new('URL', 'https://support.microsoft.com/en-us/help/161372/how-to-enable-smb-signing-in-windows-nt'),
+                SiteReference.new('URL', 'https://support.microsoft.com/en-us/help/887429/overview-of-server-message-block-signing'),
+              ]
+            })
+          end
 
           # Report the service with a friendly banner
           report_service(
@@ -282,7 +317,7 @@ class MetasploitModule < Msf::Auxiliary
             port: rport,
             proto: 'tcp',
             name: 'smb',
-            info: desc
+            info: "#{smb_desc}; #{os_desc}"
           )
 
           # Report a fingerprint.match hash for name, domain, and language
@@ -294,8 +329,8 @@ class MetasploitModule < Msf::Auxiliary
             ntype: 'fingerprint.match',
             data: nd_fingerprint_match
           )
-        elsif res['native_os'] || res['native_lm']
-          desc = "#{res['native_os']} (#{res['native_lm']})"
+        elsif smb1_fingerprint['native_os'] || smb1_fingerprint['native_lm']
+          desc = "#{smb1_fingerprint['native_os']} (#{smb1_fingerprint['native_lm']})"
           report_service(host: ip, port: rport, name: 'smb', info: desc)
           lines << { type: :status, message: "  Host could not be identified: #{desc}" }
         else
@@ -307,7 +342,7 @@ class MetasploitModule < Msf::Auxiliary
           port: rport,
           proto: 'tcp',
           name: 'smb',
-          info: desc
+          info: "#{smb_desc}. #{os_desc}"
         )
 
 

@@ -146,7 +146,7 @@ register_options(
   ], self.class)
 ```
 
-**8. Neglecting to use send_request_cgi()'s vars_get or vars_get when crafting a POST/GET request**
+**8. Neglecting to use send_request_cgi()'s vars_post or vars_get when crafting a POST/GET request**
 
 ```ruby
 data_post = 'user=jsmith&pass=hello123'

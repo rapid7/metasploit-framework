@@ -531,6 +531,7 @@ class RPC_Session < RPC_Base
     postgresql
     mysql
     smb
+    ldap
   ].freeze
 
   def _find_module(_mtype, mname)
@@ -545,7 +546,7 @@ class RPC_Session < RPC_Base
     error(500, "Unknown Session ID #{sid}") if session.nil?
 
     unless INTERACTIVE_SESSION_TYPES.include?(session.type)
-      error(500, "Use `interactive_read` and `interactive_write` for sessions of #{session.type} type")
+      error(500, "`interactive_read` and `interactive_write` not available for #{session.type} sessions")
     end
 
     session

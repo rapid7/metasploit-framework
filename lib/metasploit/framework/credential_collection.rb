@@ -212,6 +212,23 @@ module Metasploit::Framework
     #   @return [Boolean]
     attr_accessor :anonymous_login
 
+    # @!attribute ignore_private
+    #   Whether to ignore private (password). This is usually set when Kerberos
+    #   or Schannel authentication is requested and the credentials are
+    #   retrieved from cache or from a file. This attribute should be true in
+    #   these scenarios, otherwise validation will fail since the password is not
+    #   provided.
+    #   @return [Boolean]
+    attr_accessor :ignore_private
+
+    # @!attribute ignore_public
+    #   Whether to ignore public (username). This is usually set when Schannel
+    #   authentication is requested and the credentials are retrieved from a
+    #   file (certificate). This attribute should be true in this case,
+    #   otherwise validation will fail since the password is not provided.
+    #   @return [Boolean]
+    attr_accessor :ignore_public
+
     # @option opts [Boolean] :blank_passwords See {#blank_passwords}
     # @option opts [String] :pass_file See {#pass_file}
     # @option opts [String] :password See {#password}
@@ -240,7 +257,13 @@ module Metasploit::Framework
     # @yieldparam credential [Metasploit::Framework::Credential]
     # @return [void]
     def each_filtered
-      if password_spray
+      if ignore_private
+        if ignore_public
+          yield Metasploit::Framework::Credential.new(public: nil, private: nil, realm: realm)
+        else
+          yield Metasploit::Framework::Credential.new(public: username, private: nil, realm: realm)
+        end
+      elsif password_spray
         each_unfiltered_password_first do |credential|
           next unless self.filter.nil? || self.filter.call(credential)
 
@@ -280,6 +303,16 @@ module Metasploit::Framework
         yield Metasploit::Framework::Credential.new(public: '', private: '', realm: realm, private_type: :password)
       end
 
+      if user_as_pass
+        if user_fd
+          user_fd.each_line do |user_from_file|
+            user_from_file.chomp!
+            yield Metasploit::Framework::Credential.new(public: user_from_file, private: user_from_file, realm: realm, private_type: private_type(password))
+          end
+          user_fd.seek(0)
+        end
+      end
+
       if password.present?
         if nil_passwords
           yield Metasploit::Framework::Credential.new(public: username, private: nil, realm: realm, private_type: :password)
@@ -308,9 +341,6 @@ module Metasploit::Framework
             pass_from_file.chomp!
             if username.present?
               yield Metasploit::Framework::Credential.new(public: username, private: pass_from_file, realm: realm, private_type: :password)
-            end
-            if user_as_pass
-              yield Metasploit::Framework::Credential.new(public: pass_from_file, private: pass_from_file, realm: realm, private_type: :password)
             end
             next unless user_fd
 
@@ -503,14 +533,14 @@ module Metasploit::Framework
     #
     # @return [Boolean]
     def has_users?
-      username.present? || user_file.present? || userpass_file.present? || !additional_publics.empty?
+      username.present? || user_file.present? || userpass_file.present? || !additional_publics.empty? || !!ignore_public
     end
 
     # Returns true when there are any private values set
     #
     # @return [Boolean]
     def has_privates?
-      super || userpass_file.present? || user_as_pass
+      super || userpass_file.present? || user_as_pass || !!ignore_private
     end
 
   end

@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     print_status("Running for #{ip}...")
     rhost = datastore.delete('RHOST')
-    datastore.remove_option('RHOST') if self.datastore.is_a?(Msf::DataStoreWithFallbacks)
+    datastore.remove_option('RHOST') if self.datastore.is_a?(Msf::DataStore)
     datastore['rhost'] = rhost
     datastore['userpass'] ||= build_credentials_array
     datastore['sleep_interval'] ||= userpass_interval

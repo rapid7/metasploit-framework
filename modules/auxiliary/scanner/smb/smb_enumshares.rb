@@ -289,8 +289,8 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     if session
       print_status("Using existing session #{session.sid}")
-      client = session.client
-      self.simple = ::Rex::Proto::SMB::SimpleClient.new(client.dispatcher.tcp_socket, client: client)
+      session.verify_connectivity
+      self.simple = session.simple_client
       enum_shares(session.address)
     else
       [{ port: SMB1_PORT }, { port: SMB2_3_PORT } ].each do |info|

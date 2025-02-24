@@ -21,15 +21,15 @@ module Msf::Payload::Windows
 
   #
   # ROR hash associations for some of the exit technique routines.
-  #
+
   @@exit_types =
     {
       nil       => 0,          # Default to nothing
       ''        => 0,          # Default to nothing
-      'seh'     => 0xEA320EFE, # SetUnhandledExceptionFilter
-      'thread'  => 0x0A2A1DE0, # ExitThread
-      'process' => 0x56A2B5F0, # ExitProcess
-      'none'    => 0x5DE2C5AA  # GetLastError
+      'seh'     => Rex::Text.block_api_hash("kernel32.dll", "SetUnhandledExceptionFilter").to_i(16), # SetUnhandledExceptionFilter
+      'thread'  => Rex::Text.block_api_hash("kernel32.dll", "ExitThread").to_i(16), # ExitThread
+      'process' => Rex::Text.block_api_hash("kernel32.dll", "ExitProcess").to_i(16), # ExitProcess
+      'none'    => Rex::Text.block_api_hash("kernel32.dll", "GetLastError").to_i(16)  # GetLastError
     }
 
   #

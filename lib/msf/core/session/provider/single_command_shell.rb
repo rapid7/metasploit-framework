@@ -93,6 +93,14 @@ module SingleCommandShell
     output
   end
 
+  def to_cmd(cmd_and_args)
+    if platform == 'windows'
+      result = Msf::Sessions::CommandShellWindows.to_cmd(cmd_and_args)
+    else
+      result = Msf::Sessions::CommandShellUnix.to_cmd(cmd_and_args)
+    end
+  end
+
   # We don't know initially whether the shell we have is one that
   # echos input back to the output stream. If it is, we need to
   # take this into account when using tokens to extract the data corresponding
@@ -111,7 +119,7 @@ module SingleCommandShell
     cmd = "echo #{numeric_token}"
     shell_write(cmd + "#{command_separator}echo #{token}#{command_termination}")
     res = shell_read_until_token(token, 0, timeout)
-    @is_echo_shell = res.include?(cmd)
+    @is_echo_shell = res ? res.include?(cmd) : false
   end
 
   def shell_command_token_win32(cmd, timeout=10)

@@ -12,6 +12,10 @@ module Metasploit
         DEFAULT_PORT = 88
         REALM_KEY = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
         DEFAULT_REALM = nil
+        LIKELY_PORTS = [ DEFAULT_PORT ].freeze
+        LIKELY_SERVICE_NAMES = [ 'kerberos', 'kerberos5', 'krb5', 'kerberos-sec' ].freeze
+        PRIVATE_TYPES = %i[ password ].freeze
+        CAN_GET_SESSION = true
 
         def attempt_login(credential)
           result_options = {
@@ -117,6 +121,7 @@ module Metasploit
         private
 
         def set_sane_defaults
+          self.connection_timeout = 10 if self.connection_timeout.nil?
           self.port = DEFAULT_PORT unless self.port
         end
 
