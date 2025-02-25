@@ -17,8 +17,9 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => ['msutovsky-r7'],
         'License' => MSF_LICENSE,
         'DefaultOptions' => {
-          'RPORT' => 443,
-          'SSL' => false
+          'RPORT' => 4433,
+          'SSL' => true,
+          'SSLVersion' => 'TLS3'
 
         },
         'Notes' => {
@@ -29,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
     register_options([
-      OptBool.new('ADMIN', [true, 'Select whether to test admin account', false])
+      OptString.new('DOMAIN', [true, 'Select whether to test admin account', false])
     ])
   end
 
@@ -51,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
       bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       connection_timeout: datastore['HttpClientTimeout'] || 5
     )
-    return Metasploit::Framework::LoginScanner::SonicWall.new(configuration)
+    return Metasploit::Framework::LoginScanner::SonicWall.new(configuration, datastore['domain'])
   end
 
   def process_credential(credential_data)

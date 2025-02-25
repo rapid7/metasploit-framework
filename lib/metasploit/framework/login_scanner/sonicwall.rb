@@ -6,9 +6,28 @@ module Metasploit
       class SonicWall < HTTP
 
         def auth_details_req
+          protocol = ssl ? 'https' : 'http'
+          peer = "#{host}:#{port}"
           {
             'method' => 'POST',
             'uri' => normalize_uri('/api/sonicos/auth'),
+            'ctype' => 'application/json',
+            'headers' => { 'Referer' => "#{protocol}://#{peer}/api/sonicos/auth" },
+            'data' => JSON.pretty_generate({
+              'domain' => @domain,
+              'override' => false,
+              'snwl' => true
+            })
+          }
+        end
+
+        def admin_auth_details_req
+          protocol = ssl ? 'https' : 'http'
+          peer = "#{host}:#{port}"
+          {
+            'method' => 'POST',
+            'uri' => normalize_uri('/api/sonicos/auth'),
+            'headers' => { 'Referer' => "#{protocol}://#{peer}/api/sonicos/auth" },
             'ctype' => 'application/json',
             'data' => JSON.pretty_generate({
               'override' => false,
@@ -16,14 +35,36 @@ module Metasploit
             })
           }
         end
-        
-        def auth_req(username,realm,algorithm,nonce,nc,cnonce,qop,opaque,response)
+
+        def auth_req(username, realm, algorithm, nonce, nc, cnonce, qop, opaque, response)
+          protocol = ssl ? 'https' : 'http'
+          peer = "#{host}:#{port}"
           {
             'method' => 'POST',
             'uri' => normalize_uri('/api/sonicos/auth'),
             'ctype' => 'application/json',
             'headers' => {
-              'Authorization' => "Digest username=\"#{username}\", realm=\"#{realm}\", uri=\"/api/sonicos/auth\", algorithm=#{algorithm}, nonce=#{nonce}, nc=#{nc}, cnonce=\"#{cnonce}\", qop=#{qop}, opaque=\"#{opaque}\", response=\"#{response}\""
+              'Authorization' => "Digest username=\"#{username}\", realm=\"#{realm}\", uri=\"/api/sonicos/auth\", algorithm=#{algorithm}, nonce=#{nonce}, nc=#{nc}, cnonce=\"#{cnonce}\", qop=#{qop}, opaque=\"#{opaque}\", response=\"#{response}\"",
+              'Referer' => "#{protocol}://#{peer}/api/sonicos/auth"
+            },
+            'data' => JSON.pretty_generate({
+              'domain' => @domain,
+              'override' => false,
+              'snwl' => true
+            })
+          }
+        end
+
+        def admin_auth_req(username, realm, algorithm, nonce, nc, cnonce, qop, opaque, response)
+          protocol = ssl ? 'https' : 'http'
+          peer = "#{host}:#{port}"
+          {
+            'method' => 'POST',
+            'uri' => normalize_uri('/api/sonicos/auth'),
+            'ctype' => 'application/json',
+            'headers' => {
+              'Authorization' => "Digest username=\"#{username}\", realm=\"#{realm}\", uri=\"/api/sonicos/auth\", algorithm=#{algorithm}, nonce=#{nonce}, nc=#{nc}, cnonce=\"#{cnonce}\", qop=#{qop}, opaque=\"#{opaque}\", response=\"#{response}\"",
+              'Referer' => "#{protocol}://#{peer}/api/sonicos/auth"
             },
             'data' => JSON.pretty_generate({
               'override' => false,
@@ -33,40 +74,38 @@ module Metasploit
         end
 
         # Rewrite crypto stuff into separate class
-        def get_response_hash(algorithm, realm, qop, nonce, opaque, username, password)
+        def get_response_hash(algorithm, realm, qop, cnonce, nc, nonce, opaque, username, password)
           if algorithm == 'MD5_sess'
             hash_obj = Digest::MD5.new
             ha1 = hash_obj.hexdigest("#{hash_obj.hexdigest("#{username}:#{realm}:#{password}")}:#{nonce}:cnonce")
           else
             case algorithm
             when '' || 'MD5'
-              hash_obj = Digest::MD5.new
+              hash_obj = Digest::MD5
             when 'SHA-256'
-              hash_obj = Digest::SHA256.new
+              hash_obj = Digest::SHA256
             else
               return nil
             end
-            ha1 = Digest::SHA256.hexdigest("#{username}:#{realm}:#{password}")
+            ha1 = hash_obj.hexdigest("#{username}:#{realm}:#{password}")
           end
 
           if qop == 'auth' || qop == ''
-            ha2 = Digest::SHA256.hexdigest('POST:/api/sonicos/auth')
+            ha2 = hash_obj.hexdigest('POST:/api/sonicos/auth')
           elsif qop == 'auth-int'
-            ha2 = Digest::SHA256.hexdigest('POST:/api/sonicos/auth:23')
+            ha2 = hash_obj.hexdigest('POST:/api/sonicos/auth:23')
           else
             return nil
           end
-
           if qop == 'auth' || qop == 'auth-int'
-            cnonce = '7VSaRKfBSRotzMPXkYXOog=='
-            return Digest::SHA256.hexdigest("#{ha1}:#{nonce}:00000001:#{cnonce}:#{qop}:#{ha2}")
+            return hash_obj.hexdigest("#{ha1}:#{nonce}:#{nc}:#{cnonce}:#{qop}:#{ha2}")
           else
-            return Digest::SHA256.hexdigest("#{ha1}:#{nonce}:#{ha2}")
+            return hash_obj.hexdigest("#{ha1}:#{nonce}:#{ha2}")
           end
         end
 
         def get_auth_details(username, password)
-          res = send_request(auth_details_req)
+          res = send_request(@domain == '' ? admin_auth_details_req : auth_details_req)
 
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Invalid response' } unless res
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Failed to receive a authentication details' } unless res&.headers && res.headers.key?('X-SNWL-Authenticate')
@@ -89,26 +128,28 @@ module Metasploit
           opaque = snwl_authenticate_header&.match(/opaque="([\w\W]+)"/)
 
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Malformed authentication data' } unless opaque
-        
+
           algorithm = algorithm[1]
           realm = realm[1]
           qop = qop ? qop[1] : nil
           nonce = nonce[1]
           opaque = opaque[1]
+          nc = '00000001'
+          cnonce = Rex::Text.rand_text_base64(24)
 
-          nonce_dec = Base64.strict_decode64(nonce)
-          puts nonce_dec 
-          puts nonce_dec.map { |b| sprintf(", 0x%02X",b) }.join
-
-
-
-          resp_hash = get_response_hash(algorithm, realm, qop, nonce, opaque, username, password)
+          resp_hash = get_response_hash(algorithm, realm, qop, cnonce, nc, nonce, opaque, username, password)
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Could not calculate hash' } unless resp_hash
-          nc='00000001'
-          cnonce = 'fFmqlT4WSjGHgCECh1OUrg=='
-          res = send_request(auth_req(username,realm,algorithm,nonce,nc,cnonce,qop,opaque,resp_hash))
-        
-          puts res
+
+          res = send_request(@domain == '' ? admin_auth_req(username, realm, algorithm, nonce, nc, cnonce, qop, opaque, resp_hash) : auth_req(username, realm, algorithm, nonce, nc, cnonce, qop, opaque, resp_hash))
+
+          return { status: ::Metasploit::Model::Login::Status::SUCCESSFUL, proof: res.to_s } if res&.code == 200
+
+          return { status: ::Metasploit::Model::Login::Status::INCORRECT, proof: res.to_s }
+        end
+
+        def initialize(scanner_config, domain)
+          @domain = domain
+          super(scanner_config)
         end
 
         def do_login(username, password)
