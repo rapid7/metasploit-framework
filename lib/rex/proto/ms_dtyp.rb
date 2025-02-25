@@ -831,12 +831,14 @@ module Rex::Proto::MsDtyp
 
     private
 
+    BUFFER_FIELD_ORDER = %i[ sacl dacl owner_sid group_sid ]
+
     def build_buffer
       buf = ''
-      buf << owner_sid.to_binary_s if owner_sid
-      buf << group_sid.to_binary_s if group_sid
-      buf << sacl.to_binary_s if sacl
-      buf << dacl.to_binary_s if dacl
+      BUFFER_FIELD_ORDER.each do |field_name|
+        field_value = send(field_name)
+        buf << field_value.to_binary_s if field_value
+      end
       buf
     end
 
@@ -850,7 +852,7 @@ module Rex::Proto::MsDtyp
       return 0 unless instance_variable_get("@#{field}")
 
       offset = buffer.rel_offset
-      %i[ owner_sid group_sid sacl dacl ].each do |cursor|
+      BUFFER_FIELD_ORDER.each do |cursor|
         break if cursor == field
 
         cursor = instance_variable_get("@#{cursor}")
