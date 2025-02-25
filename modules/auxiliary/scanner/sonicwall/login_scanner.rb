@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
     register_options([
-      OptString.new('DOMAIN', [true, 'Select whether to test admin account', false])
+      OptString.new('DOMAIN', [true, 'Select whether to test admin account', 'LocalDomain'])
     ])
   end
 
@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
       bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
       connection_timeout: datastore['HttpClientTimeout'] || 5
     )
-    return Metasploit::Framework::LoginScanner::SonicWall.new(configuration, datastore['domain'])
+    return Metasploit::Framework::LoginScanner::SonicWall.new(configuration, datastore['DOMAIN'])
   end
 
   def process_credential(credential_data)
