@@ -17,10 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => ['msutovsky-r7'],
         'License' => MSF_LICENSE,
         'DefaultOptions' => {
-          'RPORT' => 4433,
-          'SSL' => true,
-          'SSLVersion' => 'TLS3'
-
+          'RPORT' => 4433
         },
         'Notes' => {
           'Stability' => [CRASH_SAFE],

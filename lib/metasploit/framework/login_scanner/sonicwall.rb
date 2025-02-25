@@ -4,48 +4,44 @@ module Metasploit
   module Framework
     module LoginScanner
       class SonicWall < HTTP
-
         def auth_details_req
-          protocol = ssl ? 'https' : 'http'
-          peer = "#{host}:#{port}"
+          ssl ? 'https' : 'http'
           {
             'method' => 'POST',
             'uri' => normalize_uri('/api/sonicos/auth'),
             'ctype' => 'application/json',
-            'headers' => { 'Referer' => "#{protocol}://#{peer}/api/sonicos/auth" },
             'data' => JSON.pretty_generate({
               'domain' => @domain,
               'override' => false,
               'snwl' => true
-            })
+            }),
+            'ssl' => true
           }
         end
 
         def admin_auth_details_req
-          protocol = ssl ? 'https' : 'http'
-          peer = "#{host}:#{port}"
+          ssl ? 'https' : 'http'
           {
             'method' => 'POST',
             'uri' => normalize_uri('/api/sonicos/auth'),
-            'headers' => { 'Referer' => "#{protocol}://#{peer}/api/sonicos/auth" },
             'ctype' => 'application/json',
             'data' => JSON.pretty_generate({
               'override' => false,
               'snwl' => true
-            })
+            }),
+            'ssl' => true
           }
         end
 
         def auth_req(username, realm, algorithm, nonce, nc, cnonce, qop, opaque, response)
-          protocol = ssl ? 'https' : 'http'
-          peer = "#{host}:#{port}"
+          ssl ? 'https' : 'http'
           {
             'method' => 'POST',
             'uri' => normalize_uri('/api/sonicos/auth'),
             'ctype' => 'application/json',
+            'ssl' => true,
             'headers' => {
-              'Authorization' => "Digest username=\"#{username}\", realm=\"#{realm}\", uri=\"/api/sonicos/auth\", algorithm=#{algorithm}, nonce=#{nonce}, nc=#{nc}, cnonce=\"#{cnonce}\", qop=#{qop}, opaque=\"#{opaque}\", response=\"#{response}\"",
-              'Referer' => "#{protocol}://#{peer}/api/sonicos/auth"
+              'Authorization' => "Digest username=\"#{username}\", realm=\"#{realm}\", uri=\"/api/sonicos/auth\", algorithm=#{algorithm}, nonce=#{nonce}, nc=#{nc}, cnonce=\"#{cnonce}\", qop=#{qop}, opaque=\"#{opaque}\", response=\"#{response}\""
             },
             'data' => JSON.pretty_generate({
               'domain' => @domain,
@@ -62,6 +58,7 @@ module Metasploit
             'method' => 'POST',
             'uri' => normalize_uri('/api/sonicos/auth'),
             'ctype' => 'application/json',
+            'ssl' => true,
             'headers' => {
               'Authorization' => "Digest username=\"#{username}\", realm=\"#{realm}\", uri=\"/api/sonicos/auth\", algorithm=#{algorithm}, nonce=#{nonce}, nc=#{nc}, cnonce=\"#{cnonce}\", qop=#{qop}, opaque=\"#{opaque}\", response=\"#{response}\"",
               'Referer' => "#{protocol}://#{peer}/api/sonicos/auth"
