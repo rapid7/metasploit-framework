@@ -5,6 +5,9 @@ require 'ruby_smb'
 require 'rex/proto/secauthz/well_known_sids'
 
 module Rex::Proto::MsDtyp
+  class SDDLParseError < Rex::RuntimeError
+  end
+
   # [2.4.3 ACCESS_MASK](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/7a53f60e-e730-4dfe-bbe9-b21b62eb790b)
   class MsDtypAccessMask < BinData::Record
     endian :little
@@ -45,6 +48,120 @@ module Rex::Proto::MsDtyp
 
     ALL  = MsDtypAccessMask.new({ gr: 1, gw: 1, gx: 1, ga: 1, ma: 1, as: 1, sy: 1, wo: 1, wd: 1, rc: 1, de: 1, protocol: 0xffff })
     NONE = MsDtypAccessMask.new({ gr: 0, gw: 0, gx: 0, ga: 0, ma: 0, as: 0, sy: 0, wo: 0, wd: 0, rc: 0, de: 0, protocol: 0 })
+
+    def to_sddl_text
+      sddl_text_tokens = []
+
+      if (protocol & 0b1111111000000000) != 0 || ma == 1 || as == 1
+        # if one of these conditions are true, we can't reduce this to a set of flags so dump it as hex
+        return "0x#{to_binary_s.unpack1('L<').to_s(16).rjust(8, '0')}"
+      end
+
+      sddl_text_tokens << 'GA' if ga == 1
+      sddl_text_tokens << 'GR' if gr == 1
+      sddl_text_tokens << 'GW' if gw == 1
+      sddl_text_tokens << 'GX' if gx == 1
+
+      file_access_mask = protocol & 0b000111111111
+      sddl_text_tokens << 'FA' if file_access_mask == 0b000111111111 && de == 1 && rc == 1 && wd == 1 && wo == 1 && sy == 1
+      sddl_text_tokens << 'FR' if file_access_mask == 0b000010001001
+      sddl_text_tokens << 'FW' if file_access_mask == 0b000100010110
+      sddl_text_tokens << 'FX' if file_access_mask == 0b000010100000
+
+      # windows does not reduce registry access flags (i.e. KA, KR, KW) so ignore them here to match it
+
+      sddl_text_tokens << 'CC' if (protocol & 0b000000000001) != 0 && !sddl_text_tokens.include?('FA') && !sddl_text_tokens.include?('FR')
+      sddl_text_tokens << 'DC' if (protocol & 0b000000000010) != 0 && !sddl_text_tokens.include?('FA') && !sddl_text_tokens.include?('FW')
+      sddl_text_tokens << 'LC' if (protocol & 0b000000000100) != 0 && !sddl_text_tokens.include?('FA') && !sddl_text_tokens.include?('FW')
+      sddl_text_tokens << 'SW' if (protocol & 0b000000001000) != 0 && !sddl_text_tokens.include?('FA') && !sddl_text_tokens.include?('FR')
+      sddl_text_tokens << 'RP' if (protocol & 0b000000010000) != 0 && !sddl_text_tokens.include?('FA') && !sddl_text_tokens.include?('FW')
+      sddl_text_tokens << 'WP' if (protocol & 0b000000100000) != 0 && !sddl_text_tokens.include?('FA') && !sddl_text_tokens.include?('FX')
+      sddl_text_tokens << 'DT' if (protocol & 0b000001000000) != 0 && !sddl_text_tokens.include?('FA')
+      sddl_text_tokens << 'LO' if (protocol & 0b000010000000) != 0 && !sddl_text_tokens.include?('FA')
+      sddl_text_tokens << 'CR' if (protocol & 0b000100000000) != 0 && !sddl_text_tokens.include?('FA')
+
+      sddl_text_tokens << 'SD' if de == 1 && !sddl_text_tokens.include?('FA')
+      sddl_text_tokens << 'RC' if rc == 1 && !sddl_text_tokens.include?('FA')
+      sddl_text_tokens << 'WD' if wd == 1 && !sddl_text_tokens.include?('FA')
+      sddl_text_tokens << 'WO' if wo == 1 && !sddl_text_tokens.include?('FA')
+
+      sddl_text_tokens.join('')
+    end
+
+    def self.from_sddl_text(sddl_text)
+      if sddl_text =~ /\A0x[0-9a-fA-F]{1,8}\Z/
+        return self.read([sddl_text.delete_prefix('0x').to_i(16)].pack('L<'))
+      end
+
+      access_mask = self.new
+      sddl_text.split(/(G[ARWX]|RC|SD|WD|WO|RP|WP|CC|DC|LC|SW|LO|DT|CR|F[ARWX]|K[ARWX]|N[RWX])/).each do |right|
+        case right
+        # generic access rights
+        when 'GA', 'GR', 'GW', 'GX'
+          access_mask.send("#{right.downcase}=", true)
+        # standard access rights
+        when 'RC'
+          access_mask.rc = true
+        when 'SD'
+          access_mask.de = true
+        when 'WD', 'WO'
+          access_mask.send("#{right.downcase}=", true)
+        # directory service object access rights
+        when 'RP'
+          access_mask.protocol |= 16
+        when 'WP'
+          access_mask.protocol |= 32
+        when 'CC'
+          access_mask.protocol |= 1
+        when 'DC'
+          access_mask.protocol |= 2
+        when 'LC'
+          access_mask.protocol |= 4
+        when 'SW'
+          access_mask.protocol |= 8
+        when 'LO'
+          access_mask.protocol |= 128
+        when 'DT'
+          access_mask.protocol |= 64
+        when 'CR'
+          access_mask.protocol |= 256
+        # file access rights
+        when 'FA'
+          access_mask.protocol |= 0x1ff
+          access_mask.de = true
+          access_mask.rc = true
+          access_mask.wd = true
+          access_mask.wo = true
+          access_mask.sy = true
+        when 'FR'
+          access_mask.protocol |= 0x89
+        when 'FW'
+          access_mask.protocol |= 0x116
+        when 'FX'
+          access_mask.protocol |= 0xa0
+        # registry key access rights
+        when 'KA'
+          access_mask.protocol |= 0x3f
+          access_mask.de = true
+          access_mask.rc = true
+          access_mask.wd = true
+          access_mask.wo = true
+        when 'KR'
+          access_mask.protocol |= 0x19
+        when 'KW'
+          access_mask.protocol |= 0x06
+        when 'KX'
+          access_mask.protocol |= 0x19
+        when 'NR', 'NW', 'NX'
+          raise SDDLParseError.new('unsupported ACE access right: ' + right)
+        when ''
+        else
+          raise SDDLParseError.new('unknown ACE access right: ' + right)
+        end
+      end
+
+      access_mask
+    end
   end
 
   # [2.4.2.2 SID--Packet Representation](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/f992ad60-0fe4-4b87-9fed-beb478836861)
@@ -74,6 +191,105 @@ module Rex::Proto::MsDtyp
 
     def rid
       sub_authority.last
+    end
+
+    # these can be validated using powershell where ?? is the code
+    #   (ConvertFrom-SddlString -Sddl "O:??").RawDescriptor.Owner
+    SDDL_SIDS = {
+      'AA' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_ACCESS_CONTROL_ASSISTANCE_OPS,                                                                     # SDDL_ACCESS_CONTROL_ASSISTANCE_OPS
+      'AC' => Rex::Proto::Secauthz::WellKnownSids::SECURITY_ALL_APP_PACKAGES,                                                                                          # SDDL_ALL_APP_PACKAGES
+      'AN' => Rex::Proto::Secauthz::WellKnownSids::SECURITY_ANONYMOUS_LOGON_SID,                                                                                       # SDDL_ANONYMOUS
+      'AO' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_ACCOUNT_OPS,                                                                                       # SDDL_ACCOUNT_OPERATORS
+      'AP' => "${DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_PROTECTED_USERS}",                                                                # SDDL_PROTECTED_USERS
+      'AU' => Rex::Proto::Secauthz::WellKnownSids::SECURITY_AUTHENTICATED_USER_SID,                                                                                    # SDDL_AUTHENTICATED_USERS
+      'BA' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_ADMINS,                                                                                            # SDDL_BUILTIN_ADMINISTRATORS
+      'BG' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_GUESTS,                                                                                            # SDDL_BUILTIN_GUESTS
+      'BO' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_BACKUP_OPS,                                                                                        # SDDL_BACKUP_OPERATORS
+      'BU' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_USERS,                                                                                             # SDDL_BUILTIN_USERS
+      'CA' => "${DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_CERT_ADMINS}",                                                                    # SDDL_CERT_SERV_ADMINISTRATORS
+      'CD' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_CERTSVC_DCOM_ACCESS_GROUP,                                                                         # SDDL_CERTSVC_DCOM_ACCESS
+      'CG' => Rex::Proto::Secauthz::WellKnownSids::SECURITY_CREATOR_GROUP_SID,                                                                                         # SDDL_CREATOR_GROUP
+      'CN' => "${DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_CLONEABLE_CONTROLLERS}",                                                          # SDDL_CLONEABLE_CONTROLLERS
+      'CO' => Rex::Proto::Secauthz::WellKnownSids::SECURITY_CREATOR_OWNER_SID,                                                                                         # SDDL_CREATOR_OWNER
+      'CY' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_CRYPTO_OPERATORS,                                                                                  # SDDL_CRYPTO_OPERATORS
+      'DA' => "${DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_ADMINS}",                                                                         # SDDL_DOMAIN_ADMINISTRATORS
+      'DC' => "${DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_COMPUTERS}",                                                                      # SDDL_DOMAIN_COMPUTERS
+      'DD' => "${DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_CONTROLLERS}",                                                                    # SDDL_DOMAIN_DOMAIN_CONTROLLERS
+      'DG' => "${DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_GUESTS}",                                                                         # SDDL_DOMAIN_GUESTS
+      'DU' => "${DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_USERS}",                                                                          # SDDL_DOMAIN_USERS
+      'EA' => "${DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_ENTERPRISE_ADMINS}",                                                              # SDDL_ENTERPRISE_ADMINS
+      'ED' => Rex::Proto::Secauthz::WellKnownSids::SECURITY_ENTERPRISE_CONTROLLERS_SID,                                                                                # SDDL_ENTERPRISE_DOMAIN_CONTROLLERS
+      'EK' => "${DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_ENTERPRISE_KEY_ADMINS}",                                                          # SDDL_ENTERPRISE_KEY_ADMINS
+      'ER' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_EVENT_LOG_READERS_GROUP,                                                                           # SDDL_EVENT_LOG_READERS
+      'ES' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_RDS_ENDPOINT_SERVERS,                                                                              # SDDL_RDS_ENDPOINT_SERVERS
+      'HA' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_HYPER_V_ADMINS,                                                                                    # SDDL_HYPER_V_ADMINS
+      'HI' => "S-1-16-#{Rex::Proto::Secauthz::WellKnownSids::SECURITY_MANDATORY_HIGH_RID}",                                                                            # SDDL_ML_HIGH
+      'IS' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_IUSERS,                                                                                            # SDDL_IIS_USERS
+      'IU' => Rex::Proto::Secauthz::WellKnownSids::SECURITY_INTERACTIVE_SID,                                                                                           # SDDL_INTERACTIVE
+      'KA' => "${DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_KEY_ADMINS}",                                                                     # SDDL_KEY_ADMINS
+      'LA' => "${DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_USER_RID_ADMIN}",                                                                           # SDDL_LOCAL_ADMIN
+      'LG' => "${DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_USER_RID_GUEST}",                                                                           # SDDL_LOCAL_GUEST
+      'LS' => Rex::Proto::Secauthz::WellKnownSids::SECURITY_LOCAL_SERVICE_SID,                                                                                         # SDDL_LOCAL_SERVICE
+      'LU' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_LOGGING_USERS,                                                                                     # SDDL_PERFLOG_USERS
+      'LW' => "S-1-16-#{Rex::Proto::Secauthz::WellKnownSids::SECURITY_MANDATORY_LOW_RID}",                                                                             # SDDL_ML_LOW
+      'ME' => "S-1-16-#{Rex::Proto::Secauthz::WellKnownSids::SECURITY_MANDATORY_MEDIUM_RID}",                                                                          # SDDL_ML_MEDIUM
+      'MP' => "S-1-16-#{Rex::Proto::Secauthz::WellKnownSids::SECURITY_MANDATORY_MEDIUM_PLUS_RID}",                                                                     # SDDL_ML_MEDIUM_PLUS
+      'MU' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_MONITORING_USERS,                                                                                  # SDDL_PERFMON_USERS
+      'NO' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_NETWORK_CONFIGURATION_OPS,                                                                         # SDDL_NETWORK_CONFIGURATION_OPS
+      'NS' => Rex::Proto::Secauthz::WellKnownSids::SECURITY_NETWORK_SERVICE_SID,                                                                                       # SDDL_NETWORK_SERVICE
+      'NU' => Rex::Proto::Secauthz::WellKnownSids::SECURITY_NETWORK_SID,                                                                                               # SDDL_NETWORK
+      'OW' => "#{Rex::Proto::Secauthz::WellKnownSids::SECURITY_CREATOR_SID_AUTHORITY}-4",                                                                              # SDDL_OWNER_RIGHTS
+      'PA' => "${DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_POLICY_ADMINS}",                                                                  # SDDL_GROUP_POLICY_ADMINS
+      'PO' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_PRINT_OPS,                                                                                         # SDDL_PRINTER_OPERATORS
+      'PS' => Rex::Proto::Secauthz::WellKnownSids::SECURITY_PRINCIPAL_SELF_SID,                                                                                        # SDDL_PERSONAL_SELF
+      'PU' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_POWER_USERS,                                                                                       # SDDL_POWER_USERS
+      'RA' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_RDS_REMOTE_ACCESS_SERVERS,                                                                         # SDDL_RDS_REMOTE_ACCESS_SERVERS
+      'RC' => Rex::Proto::Secauthz::WellKnownSids::SECURITY_RESTRICTED_CODE_SID,                                                                                       # SDDL_RESTRICTED_CODE
+      'RD' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_REMOTE_DESKTOP_USERS,                                                                              # SDDL_REMOTE_DESKTOP
+      'RE' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_REPLICATOR,                                                                                        # SDDL_REPLICATOR
+      'RM' => "#{Rex::Proto::Secauthz::WellKnownSids::SECURITY_BUILTIN_DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_REMOTE_MANAGEMENT_USERS}",  # SDDL_RMS__SERVICE_OPERATORS
+      'RO' => "${DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_ENTERPRISE_READONLY_DOMAIN_CONTROLLERS}",                                         # SDDL_ENTERPRISE_RO_DCs
+      'RS' => "${DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_RAS_SERVERS}",                                                                    # SDDL_RAS_SERVERS
+      'RU' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_PREW2KCOMPACCESS,                                                                                  # SDDL_ALIAS_PREW2KCOMPACC
+      'SA' => "${DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_SCHEMA_ADMINS}",                                                                  # SDDL_SCHEMA_ADMINISTRATORS
+      'SI' => Rex::Proto::Secauthz::WellKnownSids::SECURITY_MANDATORY_SYSTEM_SID,                                                                                      # SDDL_ML_SYSTEM
+      'SO' => Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_SYSTEM_OPS,                                                                                        # SDDL_SERVER_OPERATORS
+      'SS' => Rex::Proto::Secauthz::WellKnownSids::SECURITY_AUTHENTICATION_SERVICE_ASSERTED_SID,                                                                       # SDDL_SERVICE_ASSERTED
+      'SU' => Rex::Proto::Secauthz::WellKnownSids::SECURITY_SERVICE_SID,                                                                                               # SDDL_SERVICE
+      'SY' => Rex::Proto::Secauthz::WellKnownSids::SECURITY_LOCAL_SYSTEM_SID,                                                                                          # SDDL_LOCAL_SYSTEM
+      'UD' => Rex::Proto::Secauthz::WellKnownSids::SECURITY_USERMODEDRIVERHOST_ID_BASE_SID,                                                                            # SDDL_USER_MODE_DRIVERS
+      'WD' => "#{Rex::Proto::Secauthz::WellKnownSids::SECURITY_WORLD_SID_AUTHORITY}-#{Rex::Proto::Secauthz::WellKnownSids::SECURITY_WORLD_RID}",                       # SDDL_EVERYONE
+      'WR' => Rex::Proto::Secauthz::WellKnownSids::SECURITY_WRITE_RESTRICTED_CODE_SID                                                                                  # SDDL_WRITE_RESTRICTED_CODE
+    }.freeze
+
+    private_constant :SDDL_SIDS
+
+    def to_sddl_text(domain_sid: nil)
+      sid = to_s
+
+      lookup = domain_sid.blank? ? sid : sid.sub(domain_sid, '${DOMAIN_SID}')
+      if (sddl_text = self.class.const_get(:SDDL_SIDS).key(lookup)).nil?
+        sddl_text = sid
+      end
+      # these short names aren't supported by all versions of Windows, avoid compatibility issues by not outputting them
+      sddl_text = sid if %w[ AP CN EK KA ].include?(sddl_text)
+
+      sddl_text
+    end
+
+    def self.from_sddl_text(sddl_text, domain_sid:)
+      # see: https://learn.microsoft.com/en-us/windows/win32/secauthz/sid-strings
+      sddl_text = sddl_text.dup.upcase
+
+      if SDDL_SIDS.key?(sddl_text)
+        sid_text = SDDL_SIDS[sddl_text].sub('${DOMAIN_SID}', domain_sid)
+      elsif sddl_text =~ /^S(-\d+)+/
+        sid_text = sddl_text
+      else
+        raise SDDLParseError.new('invalid SID string: ' + sddl_text)
+      end
+
+      self.new(sid_text)
     end
   end
 
@@ -188,17 +404,18 @@ module Rex::Proto::MsDtyp
     string             :application_data, read_length: -> { calc_app_data_length }
 
     def calc_app_data_length
-      ace_header = parent&.header
-      return 0 if ace_header.nil?
-      ace_size = ace_header&.ace_size
+      ace_header = parent&.parent&.header
+      ace_body = parent&.parent&.body
+      return 0 if ace_header.nil? || ace_body.nil?
+
+      ace_size = ace_header.ace_size
       return 0 if ace_size.nil? or (ace_size == 0)
 
       ace_header_length = ace_header.to_binary_s.length
-      body = parent&.body
-      if body.nil?
+      if ace_body.nil?
         return 0 # Read no data as there is no body, so either we have done some data misalignment or we shouldn't be reading data.
       else
-        ace_body_length = body.to_binary_s.length
+        ace_body_length = ace_body.to_binary_s.length
         return ace_size - (ace_header_length + ace_body_length)
       end
     end
@@ -221,6 +438,152 @@ module Rex::Proto::MsDtyp
       # Type 14 aka 0xE is reserved for future use
       # Type 16 aka 0x10 is reserved for future use
       string :default, read_length: -> { header.ace_size - body.rel_offset }
+    end
+
+    def to_sddl_text(domain_sid: nil)
+      parts = []
+
+      case header.ace_type
+      when MsDtypAceType::ACCESS_ALLOWED_ACE_TYPE
+        parts << 'A'
+      when MsDtypAceType::ACCESS_DENIED_ACE_TYPE
+        parts << 'D'
+      when MsDtypAceType::ACCESS_ALLOWED_OBJECT_ACE_TYPE
+        parts << 'OA'
+      when MsDtypAceType::ACCESS_DENIED_OBJECT_ACE_TYPE
+        parts << 'OD'
+      when MsDtypAceType::SYSTEM_AUDIT_ACE_TYPE
+        parts << 'AU'
+      when MsDtypAceType::SYSTEM_AUDIT_OBJECT_ACE_TYPE
+        parts << 'OU'
+      else
+        raise SDDLParseError.new('unknown ACE type: ' + header.ace_type.to_i)
+      end
+
+      ace_flags = ''
+      ace_flags << 'OI' if header.ace_flags.object_inherit_ace == 1
+      ace_flags << 'CI' if header.ace_flags.container_inherit_ace == 1
+      ace_flags << 'IO' if header.ace_flags.inherit_only_ace == 1
+
+      ace_flags << 'NP' if header.ace_flags.no_propagate_inherit_ace == 1
+      ace_flags << 'ID' if header.ace_flags.inherited_ace == 1
+      ace_flags << 'SA' if header.ace_flags.successful_access_ace_flag == 1
+      ace_flags << 'FA' if header.ace_flags.failed_access_ace_flag == 1
+      ace_flags << 'CR' if header.ace_flags.critical_ace_flag == 1
+      parts << ace_flags
+
+      parts << body.access_mask.to_sddl_text
+
+      if body[:flags]
+        parts << (body.flags[:ace_object_type_present] == 1 ? body.object_type.to_s : '')
+        parts << (body.flags[:ace_inherited_object_type_present] == 1 ? body.inherited_object_type.to_s : '')
+      else
+        parts << ''
+        parts << ''
+      end
+
+      if body.sid?
+        parts << body.sid.to_sddl_text(domain_sid: domain_sid)
+      else
+        parts << ''
+      end
+
+      parts.join(';')
+    end
+
+    def self.from_sddl_text(sddl_text, domain_sid:)
+      parts = sddl_text.upcase.split(';', -1)
+      raise SDDLParseError.new('too few ACE fields') if parts.length < 6
+      raise SDDLParseError.new('too many ACE fields') if parts.length > 7
+
+      ace_type, ace_flags, rights, object_guid, inherit_object_guid, account_sid = parts[0...6]
+      resource_attribute = parts[6]
+
+      ace = self.new
+      case ace_type
+      when 'A'
+        ace.header.ace_type = MsDtypAceType::ACCESS_ALLOWED_ACE_TYPE
+      when 'D'
+        ace.header.ace_type = MsDtypAceType::ACCESS_DENIED_ACE_TYPE
+      when 'OA'
+        ace.header.ace_type = MsDtypAceType::ACCESS_ALLOWED_OBJECT_ACE_TYPE
+      when 'OD'
+        ace.header.ace_type = MsDtypAceType::ACCESS_DENIED_OBJECT_ACE_TYPE
+      when 'AU'
+        ace.header.ace_type = MsDtypAceType::SYSTEM_AUDIT_ACE_TYPE
+      when 'OU'
+        ace.header.ace_type = MsDtypAceType::SYSTEM_AUDIT_OBJECT_ACE_TYPE
+      when 'AL', 'OL', 'ML', 'XA', 'SD', 'RA', 'SP', 'XU', 'ZA', 'TL', 'FL'
+        raise SDDLParseError.new('unsupported ACE type: ' + ace_type)
+      else
+        raise SDDLParseError.new('unknown ACE type: ' + ace_type)
+      end
+
+      ace_flags.split(/(CI|OI|NP|IO|ID|SA|FA|TP|CR)/).each do |flag|
+        case flag
+        when 'CI'
+          ace.header.ace_flags.container_inherit_ace = true
+        when 'OI'
+          ace.header.ace_flags.object_inherit_ace = true
+        when 'NP'
+          ace.header.ace_flags.no_propagate_inherit_ace = true
+        when 'IO'
+          ace.header.ace_flags.inherit_only_ace = true
+        when 'ID'
+          ace.header.ace_flags.inherited_ace = true
+        when 'SA'
+          ace.header.ace_flags.successful_access_ace_flag = true
+        when 'FA'
+          ace.header.ace_flags.failed_access_ace_flag = true
+        when 'TP'
+          raise SDDLParseError.new('unsupported ACE flag: TP')
+        when 'CR'
+          ace.header.ace_flags.critical_ace_flag = true
+        when ''
+        else
+          raise SDDLParseError.new('unknown ACE flag: ' + flag)
+        end
+      end
+
+      ace.body.access_mask = MsDtypAccessMask.from_sddl_text(rights)
+
+      unless object_guid.blank?
+        begin
+          guid = MsDtypGuid.new(object_guid)
+        rescue StandardError
+          raise SDDLParseError.new('invalid object GUID: ' + object_guid)
+        end
+
+        unless ace.body.respond_to?('object_type=')
+          raise SDDLParseError.new('setting object type for incompatible ACE type')
+        end
+        ace.body.flags.ace_object_type_present = true
+        ace.body.object_type = guid
+      end
+
+      unless inherit_object_guid.blank?
+        begin
+          guid = MsDtypGuid.new(inherit_object_guid)
+        rescue StandardError
+          raise SDDLParseError.new('invalid inherited object GUID: ' + inherit_object_guid)
+        end
+
+        unless ace.body.respond_to?('inherited_object_type=')
+          raise SDDLParseError.new('setting inherited object type for incompatible ACE type')
+        end
+        ace.body.flags.ace_inherited_object_type_present = true
+        ace.body.inherited_object_type = guid
+      end
+
+      unless account_sid.blank?
+        ace.body.sid = MsDtypSid.from_sddl_text(account_sid, domain_sid: domain_sid)
+      end
+
+      unless resource_attribute.blank?
+        raise SDDLParseError.new('unsupported resource attribute: ' + resource_attribute)
+      end
+
+      ace
     end
   end
 
@@ -271,6 +634,46 @@ module Rex::Proto::MsDtyp
     rest   :buffer, value: -> { build_buffer }
     hide   :buffer
 
+    def to_sddl_text(domain_sid: nil)
+      sddl_text = ''
+      sddl_text << "O:#{owner_sid.to_sddl_text(domain_sid: domain_sid)}" if owner_sid?
+      sddl_text << "G:#{group_sid.to_sddl_text(domain_sid: domain_sid)}" if group_sid?
+      sddl_text << "D:#{dacl_to_sddl_text(domain_sid: domain_sid)}" if dacl?
+      sddl_text << "S:#{sacl_to_sddl_text(domain_sid: domain_sid)}" if sacl?
+
+      sddl_text
+    end
+
+    def dacl_to_sddl_text(domain_sid: nil)
+      sddl_text = ''
+
+      if !dacl?
+        sddl_text << 'NO_ACCESS_CONTROL'
+      else
+        sddl_text << 'P' if control.pd == 1
+        sddl_text << 'AR' if control.dc == 1
+        sddl_text << 'AI' if control.di == 1
+        sddl_text << dacl.aces.map { |ace| "(#{ace.to_sddl_text(domain_sid: domain_sid)})" }.join
+      end
+
+      sddl_text
+    end
+
+    def sacl_to_sddl_text(domain_sid: nil)
+      sddl_text = ''
+
+      if !sacl?
+        sddl_text << 'NO_ACCESS_CONTROL'
+      else
+        sddl_text << 'P' if control.ps == 1
+        sddl_text << 'AR' if control.sc == 1
+        sddl_text << 'AI' if control.si == 1
+        sddl_text << sacl.aces.map { |ace| "(#{ace.to_sddl_text(domain_sid: domain_sid)})" }.join
+      end
+
+      sddl_text
+    end
+
     def self.from_sddl_text(sddl_text, domain_sid:)
       sacl_set = dacl_set = false
       sd = self.new
@@ -280,18 +683,18 @@ module Rex::Proto::MsDtyp
         case component
         when 'O'
           if sd.owner_sid.present?
-            raise RuntimeError.new('SDDL parse error on extra owner SID')
+            raise SDDLParseError.new('extra owner SID')
           end
 
-          sd.owner_sid = self.parse_sddl_sid(value, domain_sid: domain_sid)
+          sd.owner_sid = MsDtypSid.from_sddl_text(value, domain_sid: domain_sid)
         when 'G'
           if sd.group_sid.present?
-            raise RuntimeError.new('SDDL parse error on extra group SID')
+            raise SDDLParseError.new('extra group SID')
           end
 
-          sd.group_sid = self.parse_sddl_sid(value, domain_sid: domain_sid)
+          sd.group_sid = MsDtypSid.from_sddl_text(value, domain_sid: domain_sid)
         when 'D'
-          raise RuntimeError.new('SDDL parse error on extra DACL') if dacl_set
+          raise SDDLParseError.new('extra DACL') if dacl_set
 
           value.upcase!
           dacl_set = true
@@ -309,16 +712,16 @@ module Rex::Proto::MsDtyp
               access_control = false
             when ''
             else
-              raise RuntimeError.new('SDDL parse error on unknown DACL flag: ' + flag)
+              raise SDDLParseError.new('unknown DACL flag: ' + flag)
             end
           end
 
           next unless access_control
 
           sd.dacl = MsDtypAcl.new
-          sd.dacl.aces = self.parse_sddl_aces(value.delete_prefix(flags), domain_sid: domain_sid)
+          sd.dacl.aces = self.aces_from_sddl_text(value.delete_prefix(flags), domain_sid: domain_sid)
         when 'S'
-          raise RuntimeError.new('SDDL parse error on extra SACL') if sacl_set
+          raise SDDLParseError.new('extra SACL') if sacl_set
 
           value.upcase!
           sacl_set = true
@@ -336,16 +739,16 @@ module Rex::Proto::MsDtyp
               access_control = false
             when ''
             else
-              raise RuntimeError.new('SDDL parse error on unknown SACL flag: ' + flag)
+              raise SDDLParseError.new('unknown SACL flag: ' + flag)
             end
           end
 
           next unless access_control
 
           sd.sacl = MsDtypAcl.new
-          sd.sacl.aces = self.parse_sddl_aces(value.delete_prefix(flags), domain_sid: domain_sid)
+          sd.sacl.aces = self.aces_from_sddl_text(value.delete_prefix(flags), domain_sid: domain_sid)
         else
-          raise RuntimeError.new('SDDL parse error on unknown directive: ' + part[0])
+          raise SDDLParseError.new('unknown directive: ' + part[0])
         end
       end
 
@@ -355,320 +758,17 @@ module Rex::Proto::MsDtyp
     class << self
       private
 
-      def parse_sddl_ace(ace, domain_sid:)
-        parts = ace.upcase.split(';', -1)
-        raise RuntimeError.new('SDDL parse error on too few ACE fields') if parts.length < 6
-        raise RuntimeError.new('SDDL parse error on too many ACE fields') if parts.length > 7
-
-        ace_type, ace_flags, rights, object_guid, inherit_object_guid, account_sid = parts[0...6]
-        resource_attribute = parts[6]
-
-        ace = MsDtypAce.new
-        case ace_type
-        when 'A'
-          ace.header.ace_type = MsDtypAceType::ACCESS_ALLOWED_ACE_TYPE
-        when 'D'
-          ace.header.ace_type = MsDtypAceType::ACCESS_DENIED_ACE_TYPE
-        when 'OA'
-          ace.header.ace_type = MsDtypAceType::ACCESS_ALLOWED_OBJECT_ACE_TYPE
-        when 'OD'
-          ace.header.ace_type = MsDtypAceType::ACCESS_DENIED_OBJECT_ACE_TYPE
-        when 'AU'
-          ace.header.ace_type = MsDtypAceType::SYSTEM_AUDIT_ACE_TYPE
-        when 'OU'
-          ace.header.ace_type = MsDtypAceType::SYSTEM_AUDIT_OBJECT_ACE_TYPE
-        when 'AL', 'OL', 'ML', 'XA', 'SD', 'RA', 'SP', 'XU', 'ZA', 'TL', 'FL'
-          raise RuntimeError.new('SDDL parse error on unsupported ACE type: ' + ace_type)
-        else
-          raise RuntimeError.new('SDDL parse error on unknown ACE type: ' + ace_type)
-        end
-
-        ace_flags.split(/(CI|OI|NP|IO|ID|SA|FA|TP|CR)/).each do |flag|
-          case flag
-          when 'CI'
-            ace.header.ace_flags.container_inherit_ace = true
-          when 'OI'
-            ace.header.ace_flags.object_inherit_ace = true
-          when 'NP'
-            ace.header.ace_flags.no_propagate_inherit_ace = true
-          when 'IO'
-            ace.header.ace_flags.inherit_only_ace = true
-          when 'ID'
-            ace.header.ace_flags.inherited_ace = true
-          when 'SA'
-            ace.header.ace_flags.successful_access_ace_flag = true
-          when 'FA'
-            ace.header.ace_flags.failed_access_ace_flag = true
-          when 'TP'
-            raise RuntimeError.new('SDDL parse error on unsupported ACE flag: TP')
-          when 'CR'
-            ace.header.ace_flags.critical_ace_flag = true
-          when ''
-          else
-            raise RuntimeError.new('SDDL parse error on unknown ACE flag: ' + flag)
-          end
-        end
-
-        rights.split(/(G[ARWX]|RC|SD|WD|WO|RP|WP|CC|DC|LC|SW|LO|DT|CR|F[ARWX]|K[ARWX]|N[RWX])/).each do |right|
-          case right
-          # generic access rights
-          when 'GA', 'GR', 'GW', 'GX'
-            ace.body.access_mask.send("#{right.downcase}=", true)
-          # standard access rights
-          when 'RC'
-            ace.body.access_mask.rc = true
-          when 'SD'
-            ace.body.access_mask.de = true
-          when 'WD', 'WO'
-            ace.body.access_mask.send("#{right.downcase}=", true)
-          # directory service object access rights
-          when 'RP'
-            ace.body.access_mask.protocol |= 16
-          when 'WP'
-            ace.body.access_mask.protocol |= 32
-          when 'CC'
-            ace.body.access_mask.protocol |= 1
-          when 'DC'
-            ace.body.access_mask.protocol |= 2
-          when 'LC'
-            ace.body.access_mask.protocol |= 4
-          when 'SW'
-            ace.body.access_mask.protocol |= 8
-          when 'LO'
-            ace.body.access_mask.protocol |= 128
-          when 'DT'
-            ace.body.access_mask.protocol |= 64
-          when 'CR'
-            ace.body.access_mask.protocol |= 256
-          # file access rights
-          when 'FA'
-            ace.body.access_mask.protocol |= 0x1ff
-            ace.body.access_mask.de = true
-            ace.body.access_mask.rc = true
-            ace.body.access_mask.wd = true
-            ace.body.access_mask.wo = true
-            ace.body.access_mask.sy = true
-          when 'FR'
-            ace.body.access_mask.protocol |= 0x89
-          when 'FW'
-            ace.body.access_mask.protocol |= 0x116
-          when 'FX'
-            ace.body.access_mask.protocol |= 0xa0
-          # registry key access rights
-          when 'KA'
-            ace.body.access_mask.protocol |= 0x3f
-            ace.body.access_mask.de = true
-            ace.body.access_mask.rc = true
-            ace.body.access_mask.wd = true
-            ace.body.access_mask.wo = true
-          when 'KR'
-            ace.body.access_mask.protocol |= 0x19
-          when 'KW'
-            ace.body.access_mask.protocol |= 0x06
-          when 'KX'
-            ace.body.access_mask.protocol |= 0x19
-          when 'NR', 'NW', 'NX'
-            raise RuntimeError.new('SDDL parse error on unsupported ACE access right: ' + right)
-          when ''
-          else
-            raise RuntimeError.new('SDDL parse error on unknown ACE access right: ' + right)
-          end
-        end
-
-        unless object_guid.blank?
-          begin
-            guid = MsDtypGuid.new(object_guid)
-          rescue StandardError
-            raise RuntimeError.new('SDDL parse error on invalid object GUID: ' + object_guid)
-          end
-
-          unless ace.body.respond_to?('object_type=')
-            raise RuntimeError.new('SDDL error on setting object type for incompatible ACE type')
-          end
-          ace.body.flags.ace_object_type_present = true
-          ace.body.object_type = guid
-        end
-
-        unless inherit_object_guid.blank?
-          begin
-            guid = MsDtypGuid.new(inherit_object_guid)
-          rescue StandardError
-            raise RuntimeError.new('SDDL parse error on invalid object GUID: ' + inherit_object_guid)
-          end
-
-          unless ace.body.respond_to?('inherited_object_type=')
-            raise RuntimeError.new('SDDL error on setting object type for incompatible ACE type')
-          end
-          ace.body.flags.ace_inherited_object_type_present = true
-          ace.body.inherited_object_type = guid
-        end
-
-        unless account_sid.blank?
-          ace.body.sid = self.parse_sddl_sid(account_sid, domain_sid: domain_sid)
-        end
-
-        unless resource_attribute.blank?
-          raise RuntimeError.new('SDDL parse error on unsupported resource attribute: ' + resource_attribute)
-        end
-
-        ace
-      end
-
-      def parse_sddl_aces(aces, domain_sid:)
+      def aces_from_sddl_text(aces, domain_sid:)
         ace_regex = /\([^\)]*\)/
 
         invalid_aces = aces.split(ace_regex).reject(&:empty?)
         unless invalid_aces.empty?
-          raise RuntimeError.new('SDDL parse error on malformed ACE: ' + invalid_aces.first)
+          raise SDDLParseError.new('malformed ACE: ' + invalid_aces.first)
         end
 
         aces.scan(ace_regex).map do |ace_text|
-          self.parse_sddl_ace(ace_text[1...-1], domain_sid: domain_sid)
+          MsDtypAce.from_sddl_text(ace_text[1...-1], domain_sid: domain_sid)
         end
-      end
-
-      def parse_sddl_sid(sid, domain_sid:)
-        # see: https://learn.microsoft.com/en-us/windows/win32/secauthz/sid-strings
-        sid = sid.dup.upcase
-
-        # these can be validated using powershell where ?? is the code
-        #   (ConvertFrom-SddlString -Sddl "O:??").RawDescriptor.Owner
-        case sid
-        when 'AA'  # SDDL_ACCESS_CONTROL_ASSISTANCE_OPS
-          sid = Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_ACCESS_CONTROL_ASSISTANCE_OPS
-        when 'AC'  # SDDL_ALL_APP_PACKAGES
-          sid = Rex::Proto::Secauthz::WellKnownSids::SECURITY_ALL_APP_PACKAGES
-        when 'AN'  # SDDL_ANONYMOUS
-          sid = Rex::Proto::Secauthz::WellKnownSids::SECURITY_ANONYMOUS_LOGON_SID
-        when 'AO'  # SDDL_ACCOUNT_OPERATORS
-          sid = Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_ACCOUNT_OPS
-        when 'AP'  # SDDL_PROTECTED_USERS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_PROTECTED_USERS}"
-        when 'AU'  # SDDL_AUTHENTICATED_USERS
-          sid = Rex::Proto::Secauthz::WellKnownSids::SECURITY_AUTHENTICATED_USER_SID
-        when 'BA'  # SDDL_BUILTIN_ADMINISTRATORS
-          sid = Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_ADMINS
-        when 'BG'  # SDDL_BUILTIN_GUESTS
-          sid = Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_GUESTS
-        when 'BO'  # SDDL_BACKUP_OPERATORS
-          sid = Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_BACKUP_OPS
-        when 'BU'  # SDDL_BUILTIN_USERS
-          sid = Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_SID_USERS
-        when 'CA'  # SDDL_CERT_SERV_ADMINISTRATORS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_CERT_ADMINS}"
-        when 'CD'  # SDDL_CERTSVC_DCOM_ACCESS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_CERTSVC_DCOM_ACCESS_GROUP}"
-        when 'CG'  # SDDL_CREATOR_GROUP
-          sid = Rex::Proto::Secauthz::WellKnownSids::SECURITY_CREATOR_GROUP_SID
-        when 'CN'  # SDDL_CLONEABLE_CONTROLLERS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_CLONEABLE_CONTROLLERS}"
-        when 'CO'  # SDDL_CREATOR_OWNER
-          sid = Rex::Proto::Secauthz::WellKnownSids::SECURITY_CREATOR_OWNER_SID
-        when 'CY'  # SDDL_CRYPTO_OPERATORS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_CRYPTO_OPERATORS}"
-        when 'DA'  # SDDL_DOMAIN_ADMINISTRATORS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_ADMINS}"
-        when 'DC'  # SDDL_DOMAIN_COMPUTERS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_COMPUTERS}"
-        when 'DD'  # SDDL_DOMAIN_DOMAIN_CONTROLLERS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_CONTROLLERS}"
-        when 'DG'  # SDDL_DOMAIN_GUESTS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_GUESTS}"
-        when 'DU'  # SDDL_DOMAIN_USERS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_USERS}"
-        when 'EA'  # SDDL_ENTERPRISE_ADMINS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_ENTERPRISE_ADMINS}"
-        when 'ED'  # SDDL_ENTERPRISE_DOMAIN_CONTROLLERS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::SECURITY_ENTERPRISE_CONTROLLERS_SID}"
-        when 'EK'  # SDDL_ENTERPRISE_KEY_ADMINS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_ENTERPRISE_KEY_ADMINS}"
-        when 'ER'  # SDDL_EVENT_LOG_READERS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_EVENT_LOG_READERS_GROUP}"
-        when 'ES'  # SDDL_RDS_ENDPOINT_SERVERS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_RDS_ENDPOINT_SERVERS}"
-        when 'HA'  # SDDL_HYPER_V_ADMINS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_HYPER_V_ADMINS}"
-        when 'HI'  # SDDL_ML_HIGH
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::SECURITY_MANDATORY_HIGH_RID}"
-        when 'IS'  # SDDL_IIS_USERS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_IUSERS}"
-        when 'IU'  # SDDL_INTERACTIVE
-          sid = Rex::Proto::Secauthz::WellKnownSids::SECURITY_INTERACTIVE_SID
-        when 'KA'  # SDDL_KEY_ADMINS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_KEY_ADMINS}"
-        when 'LA'  # SDDL_LOCAL_ADMIN
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_USER_RID_ADMIN}"
-        when 'LG'  # SDDL_LOCAL_GUEST
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_USER_RID_GUEST}"
-        when 'LS'  # SDDL_LOCAL_SERVICE
-          sid = Rex::Proto::Secauthz::WellKnownSids::SECURITY_LOCAL_SERVICE_SID
-        when 'LU'  # SDDL_PERFLOG_USERS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_LOGGING_USERS}"
-        when 'LW'  # SDDL_ML_LOW
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::SECURITY_MANDATORY_LOW_RID}"
-        when 'ME'  # SDDL_ML_MEDIUM
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::SECURITY_MANDATORY_MEDIUM_RID}"
-        when 'MP'  # SDDL_ML_MEDIUM_PLUS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::SECURITY_MANDATORY_MEDIUM_PLUS_RID}"
-        when 'MU'  # SDDL_PERFMON_USERS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_MONITORING_USERS}"
-        when 'NO'  # SDDL_NETWORK_CONFIGURATION_OPS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_NETWORK_CONFIGURATION_OPS}"
-        when 'NS'  # SDDL_NETWORK_SERVICE
-          sid = Rex::Proto::Secauthz::WellKnownSids::SECURITY_NETWORK_SERVICE_SID
-        when 'NU'  # SDDL_NETWORK
-          sid = Rex::Proto::Secauthz::WellKnownSids::SECURITY_NETWORK_SID
-        when 'OW'  # SDDL_OWNER_RIGHTS
-          sid = "#{Rex::Proto::Secauthz::WellKnownSids::SECURITY_CREATOR_SID_AUTHORITY}-4"
-        when 'PA'  # SDDL_GROUP_POLICY_ADMINS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_POLICY_ADMINS}"
-        when 'PO'  # SDDL_PRINTER_OPERATORS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_PRINT_OPS}"
-        when 'PS'  # SDDL_PERSONAL_SELF
-          sid = Rex::Proto::Secauthz::WellKnownSids::SECURITY_PRINCIPAL_SELF_SID
-        when 'PU'  # SDDL_POWER_USERS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_POWER_USERS}"
-        when 'RA'  # SDDL_RDS_REMOTE_ACCESS_SERVERS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_RDS_REMOTE_ACCESS_SERVERS}"
-        when 'RC'  # SDDL_RESTRICTED_CODE
-          sid = Rex::Proto::Secauthz::WellKnownSids::SECURITY_RESTRICTED_CODE_SID
-        when 'RD'  # SDDL_REMOTE_DESKTOP
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_REMOTE_DESKTOP_USERS}"
-        when 'RE'  # SDDL_REPLICATOR
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_REPLICATOR}"
-        when 'RM'  # SDDL_RMS__SERVICE_OPERATORS
-          sid = "#{Rex::Proto::Secauthz::WellKnownSids::SECURITY_BUILTIN_DOMAIN_SID}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_REMOTE_MANAGEMENT_USERS}"
-        when 'RO'  # SDDL_ENTERPRISE_RO_DCs
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_ENTERPRISE_READONLY_DOMAIN_CONTROLLERS}"
-        when 'RS'  # SDDL_RAS_SERVERS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_RAS_SERVERS}"
-        when 'RU'  # SDDL_ALIAS_PREW2KCOMPACC
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_PREW2KCOMPACCESS}"
-        when 'SA'  # SDDL_SCHEMA_ADMINISTRATORS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_SCHEMA_ADMINS}"
-        when 'SI'  # SDDL_ML_SYSTEM
-          sid = Rex::Proto::Secauthz::WellKnownSids::SECURITY_MANDATORY_SYSTEM_SID
-        when 'SO'  # SDDL_SERVER_OPERATORS
-          sid = "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_ALIAS_RID_SYSTEM_OPS}"
-        when 'SS'  # SDDL_SERVICE_ASSERTED
-          sid = Rex::Proto::Secauthz::WellKnownSids::SECURITY_AUTHENTICATION_SERVICE_ASSERTED_SID
-        when 'SU'  # SDDL_SERVICE
-          sid = Rex::Proto::Secauthz::WellKnownSids::SECURITY_SERVICE_SID
-        when 'SY'  # SDDL_LOCAL_SYSTEM
-          sid = Rex::Proto::Secauthz::WellKnownSids::SECURITY_LOCAL_SYSTEM_SID
-        when 'UD'  # SDDL_USER_MODE_DRIVERS
-          sid = Rex::Proto::Secauthz::WellKnownSids::SECURITY_USERMODEDRIVERHOST_ID_BASE_SID
-        when 'WD'  # SDDL_EVERYONE
-          sid = "#{Rex::Proto::Secauthz::WellKnownSids::SECURITY_WORLD_SID_AUTHORITY}-#{Rex::Proto::Secauthz::WellKnownSids::SECURITY_WORLD_RID}"
-        when 'WR'  # SDDL_WRITE_RESTRICTED_CODE
-          sid = Rex::Proto::Secauthz::WellKnownSids::SECURITY_WRITE_RESTRICTED_CODE_SID
-        when /^S(-\d+)+/
-        else
-          raise RuntimeError, 'SDDL parse error on invalid SID string: ' + sid
-        end
-
-
-        MsDtypSid.new(sid)
       end
     end
 
@@ -683,10 +783,10 @@ module Rex::Proto::MsDtyp
 
     def initialize_instance
       value = super
-      @owner_sid = get_parameter(:owner_sid)
-      @group_sid = get_parameter(:group_sid)
-      @sacl = get_parameter(:sacl)
-      @dacl = get_parameter(:dacl)
+      self.owner_sid = get_parameter(:owner_sid)
+      self.group_sid = get_parameter(:group_sid)
+      self.sacl = get_parameter(:sacl)
+      self.dacl = get_parameter(:dacl)
       value
     end
 
@@ -716,16 +816,29 @@ module Rex::Proto::MsDtyp
       snap
     end
 
-    attr_accessor :owner_sid, :group_sid, :sacl, :dacl
+    def owner_sid=(sid)
+      sid = MsDtypSid.new(sid) unless sid.nil? || sid.is_a?(MsDtypSid)
+      @owner_sid = sid
+    end
+
+    def group_sid=(sid)
+      sid = MsDtypSid.new(sid) unless sid.nil? || sid.is_a?(MsDtypSid)
+      @group_sid = sid
+    end
+
+    attr_accessor :sacl, :dacl
+    attr_reader :owner_sid, :group_sid
 
     private
 
+    BUFFER_FIELD_ORDER = %i[ sacl dacl owner_sid group_sid ]
+
     def build_buffer
       buf = ''
-      buf << owner_sid.to_binary_s if owner_sid
-      buf << group_sid.to_binary_s if group_sid
-      buf << sacl.to_binary_s if sacl
-      buf << dacl.to_binary_s if dacl
+      BUFFER_FIELD_ORDER.each do |field_name|
+        field_value = send(field_name)
+        buf << field_value.to_binary_s if field_value
+      end
       buf
     end
 
@@ -739,7 +852,7 @@ module Rex::Proto::MsDtyp
       return 0 unless instance_variable_get("@#{field}")
 
       offset = buffer.rel_offset
-      %i[ owner_sid group_sid sacl dacl ].each do |cursor|
+      BUFFER_FIELD_ORDER.each do |cursor|
         break if cursor == field
 
         cursor = instance_variable_get("@#{cursor}")
