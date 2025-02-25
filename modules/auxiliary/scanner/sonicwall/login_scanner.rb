@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       update_info(
         info,
         'name' => 'SonicWall HTTP Login Scanner',
-        'Description' => %q{},
+        'Description' => %q{This module adds HTTP Login scanning for SonicWall NSv. It allows scanning both admin and user accounts.},
         'Author' => ['msutovsky-r7'],
         'License' => MSF_LICENSE,
         'DefaultOptions' => {
