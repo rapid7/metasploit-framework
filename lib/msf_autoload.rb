@@ -298,7 +298,8 @@ class MsfAutoload
       'uds_errors' => 'UDSErrors',
       'smb_hash_capture' => 'SMBHashCapture',
       'rex_ntlm' => 'RexNTLM',
-      'teamcity' => 'TeamCity'
+      'teamcity' => 'TeamCity',
+      'nist_sp_800_38f' => 'NIST_SP_800_38f'
     }
   end
 
