@@ -140,7 +140,22 @@ module Metasploit
           res = send_request(@domain == '' ? admin_auth_req(username, realm, algorithm, nonce, nc, cnonce, qop, opaque, resp_hash) : auth_req(username, realm, algorithm, nonce, nc, cnonce, qop, opaque, resp_hash))
 
           return { status: ::Metasploit::Model::Login::Status::SUCCESSFUL, proof: res.to_s } if res&.code == 200
-
+          
+          return { status: ::Metasploit::Model::Login::Status::INCORRECT, proof: res.to_s } unless res&.body
+          msg = JSON.parse(res&.body)
+         
+          if msg.key?("status")
+            if msg["status"].key?("info")
+              if msg["status"]["info"][0].key?("message")
+                if msg["status"]["info"][0]["message"] == "User is locked out"
+                  sleep(5 * 60) # 5 minutes by default
+                  #do it again
+                end
+              end
+            end
+          end
+          
+          
           return { status: ::Metasploit::Model::Login::Status::INCORRECT, proof: res.to_s }
         end
 
