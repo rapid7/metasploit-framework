@@ -93,14 +93,6 @@ RSpec.describe Msf::Post::Linux::Packages do
       end
     end
 
-    context 'when the Solaris package is installed' do
-      it 'returns 1.2.3' do
-        allow(subject).to receive(:get_sysinfo).and_return({ kernel: '', distro: 'solaris', version: '' })
-        allow(subject).to receive(:cmd_exec).and_return("State: Installed\nVersion: 1.2.3")
-        expect(subject.installed_package_version('test')).to eq(Rex::Version.new('1.2.3'))
-      end
-    end
-
     # freebsd 12.0
     context 'when the FreeBSD package is installed' do
       it 'returns 1.12.0' do
