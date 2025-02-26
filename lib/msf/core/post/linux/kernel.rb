@@ -6,10 +6,13 @@ module Msf
       module Kernel
         include ::Msf::Post::Common
         include Msf::Post::File
+
         #
         # Returns uname output
         #
+        # @param opt [String] uname options, defaults to -a
         # @return [String]
+        # @raise [RuntimeError] If execution fails.
         #
         def uname(opts = '-a')
           cmd_exec("uname #{opts}").to_s.strip
@@ -79,9 +82,10 @@ module Msf
         end
 
         #
-        # Returns the kernel boot config
+        # Returns the kernel boot config with comments removed
         #
         # @return [Array]
+        # @raise [RuntimeError] If execution fails.
         #
         def kernel_config
           release = kernel_release
@@ -98,6 +102,7 @@ module Msf
         # Returns the kernel modules
         #
         # @return [Array]
+        # @raise [RuntimeError] If execution fails.
         #
         def kernel_modules
           read_file('/proc/modules').to_s.scan(/^[^ ]+/)
@@ -109,6 +114,7 @@ module Msf
         # Returns a list of CPU flags
         #
         # @return [Array]
+        # @raise [RuntimeError] If execution fails.
         #
         def cpu_flags
           cpuinfo = read_file('/proc/cpuinfo').to_s
@@ -124,6 +130,7 @@ module Msf
         # Returns true if kernel and hardware supports Supervisor Mode Access Prevention (SMAP), false if not.
         #
         # @return [Boolean]
+        # @raise [RuntimeError] If execution fails.
         #
         def smap_enabled?
           cpu_flags.include? 'smap'
@@ -135,6 +142,7 @@ module Msf
         # Returns true if kernel and hardware supports Supervisor Mode Execution Protection (SMEP), false if not.
         #
         # @return [Boolean]
+        # @raise [RuntimeError] If execution fails.
         #
         def smep_enabled?
           cpu_flags.include? 'smep'
@@ -146,6 +154,7 @@ module Msf
         # Returns true if Kernel Address Isolation (KAISER) is enabled
         #
         # @return [Boolean]
+        # @raise [RuntimeError] If execution fails.
         #
         def kaiser_enabled?
           cpu_flags.include? 'kaiser'
@@ -157,6 +166,7 @@ module Msf
         # Returns true if Kernel Page-Table Isolation (KPTI) is enabled, false if not.
         #
         # @return [Boolean]
+        # @raise [RuntimeError] If execution fails.
         #
         def kpti_enabled?
           cpu_flags.include? 'pti'
@@ -168,6 +178,7 @@ module Msf
         # Returns true if user namespaces are enabled, false if not.
         #
         # @return [Boolean]
+        # @raise [RuntimeError] If execution fails.
         #
         def userns_enabled?
           return false if read_file('/proc/sys/user/max_user_namespaces').to_s.strip.eql? '0'
@@ -182,6 +193,7 @@ module Msf
         # Returns true if Address Space Layout Randomization (ASLR) is enabled
         #
         # @return [Boolean]
+        # @raise [RuntimeError] If execution fails.
         #
         def aslr_enabled?
           aslr = read_file('/proc/sys/kernel/randomize_va_space').to_s.strip
@@ -194,6 +206,7 @@ module Msf
         # Returns true if Exec-Shield is enabled
         #
         # @return [Boolean]
+        # @raise [RuntimeError] If execution fails.
         #
         def exec_shield_enabled?
           exec_shield = read_file('/proc/sys/kernel/exec-shield').to_s.strip
@@ -206,6 +219,7 @@ module Msf
         # Returns true if unprivileged bpf is disabled
         #
         # @return [Boolean]
+        # @raise [RuntimeError] If execution fails.
         #
         def unprivileged_bpf_disabled?
           unprivileged_bpf_disabled = read_file('/proc/sys/kernel/unprivileged_bpf_disabled').to_s.strip
@@ -218,6 +232,7 @@ module Msf
         # Returns true if kernel pointer restriction is enabled
         #
         # @return [Boolean]
+        # @raise [RuntimeError] If execution fails.
         #
         def kptr_restrict?
           read_file('/proc/sys/kernel/kptr_restrict').to_s.strip.eql? '1'
@@ -229,6 +244,7 @@ module Msf
         # Returns true if dmesg restriction is enabled
         #
         # @return [Boolean]
+        # @raise [RuntimeError] If execution fails.
         #
         def dmesg_restrict?
           read_file('/proc/sys/kernel/dmesg_restrict').to_s.strip.eql? '1'
@@ -240,6 +256,7 @@ module Msf
         # Returns mmap minimum address
         #
         # @return [Integer]
+        # @raise [RuntimeError] If execution fails.
         #
         def mmap_min_addr
           mmap_min_addr = read_file('/proc/sys/vm/mmap_min_addr').to_s.strip
@@ -253,6 +270,9 @@ module Msf
         #
         # Returns true if Linux Kernel Runtime Guard (LKRG) kernel module is installed
         #
+        # @return [Boolean]
+        # @raise [RuntimeError] If execution fails.
+        #
         def lkrg_installed?
           directory?('/proc/sys/lkrg')
         rescue StandardError
@@ -262,6 +282,9 @@ module Msf
         #
         # Returns true if grsecurity is installed
         #
+        # @return [Boolean]
+        # @raise [RuntimeError] If execution fails.
+        #
         def grsec_installed?
           cmd_exec('test -c /dev/grsec && echo true').to_s.strip.include? 'true'
         rescue StandardError
@@ -270,6 +293,9 @@ module Msf
 
         #
         # Returns true if PaX is installed
+        #
+        # @return [Boolean]
+        # @raise [RuntimeError] If execution fails.
         #
         def pax_installed?
           read_file('/proc/self/status').to_s.include? 'PaX:'
@@ -281,6 +307,7 @@ module Msf
         # Returns true if SELinux is installed
         #
         # @return [Boolean]
+        # @raise [RuntimeError] If execution fails.
         #
         def selinux_installed?
           cmd_exec('id').to_s.include? 'context='
@@ -292,6 +319,7 @@ module Msf
         # Returns true if SELinux is in enforcing mode
         #
         # @return [Boolean]
+        # @raise [RuntimeError] If execution fails.
         #
         def selinux_enforcing?
           return false unless selinux_installed?
@@ -310,6 +338,7 @@ module Msf
         # Returns true if Yama is installed
         #
         # @return [Boolean]
+        # @raise [RuntimeError] If execution fails.
         #
         def yama_installed?
           ptrace_scope = read_file('/proc/sys/kernel/yama/ptrace_scope').to_s.strip
@@ -324,6 +353,7 @@ module Msf
         # Returns true if Yama is enabled
         #
         # @return [Boolean]
+        # @raise [RuntimeError] If execution fails.
         #
         def yama_enabled?
           return false unless yama_installed?
@@ -332,7 +362,7 @@ module Msf
         rescue StandardError
           raise 'Could not determine Yama status'
         end
-      end # Kernel
-    end # Linux
-  end # Post
-end # Msf
+      end
+    end
+  end
+end
