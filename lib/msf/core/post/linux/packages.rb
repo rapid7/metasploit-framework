@@ -32,15 +32,7 @@ module Msf
             # remove arch at the end
             package_version = package_version.sub(/\.[^.]*$/, '')
             return Rex::Version.new(package_version)
-          # XXX not tested on live system
-          # https://docs.oracle.com/cd/E23824_01/html/821-1451/gkunu.html
-          elsif ['solaris', 'oracle'].include?(info[:distro])
-            package_version = cmd_exec("pkg info #{package}")
-            return nil unless package_version.include?('State: Installed')
-
-            package_version = package_version.match(/Version: (.+)/)[1]
-            return Rex::Version.new(package_version)
-          elsif ['freebsd'].include?(info[:distro])
+          elsif ['solaris', 'oracle', 'freebsd'].include?(info[:distro])
             package_version = cmd_exec("pkg info #{package}")
             return nil unless package_version.include?('Version')
 
