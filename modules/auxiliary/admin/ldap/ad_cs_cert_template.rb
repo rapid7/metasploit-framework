@@ -339,11 +339,21 @@ class MetasploitModule < Msf::Auxiliary
     obj, stored = get_certificate_template
 
     print_status('Certificate Template:')
-    print_status("  distinguishedName: #{obj['distinguishedname'].first}")
-    print_status("  displayName:       #{obj['displayname'].first}") if obj['displayname'].present?
+    print_status("  distinguishedName:    #{obj['distinguishedname'].first}")
+    print_status("  displayName:          #{obj['displayname'].first}") if obj['displayname'].present?
     if obj['objectguid'].first.present?
       object_guid = Rex::Proto::MsDtyp::MsDtypGuid.read(obj['objectguid'].first)
-      print_status("  objectGUID:        #{object_guid}")
+      print_status("  objectGUID:           #{object_guid}")
+    end
+    if obj['ntsecuritydescriptor'].first.present?
+      begin
+        sd = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(obj['ntsecuritydescriptor'].first)
+        sddl_text = sd.to_sddl_text(domain_sid: get_domain_sid)
+      rescue StandardError => e
+        elog('failed to parse a binary security descriptor to SDDL', error: e)
+      else
+        print_status("  nTSecurityDescriptor: #{sddl_text}")
+      end
     end
 
     pki_flag = obj['flags']&.first
