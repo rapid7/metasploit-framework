@@ -17,7 +17,7 @@ module Msf
 
           if ['debian', 'ubuntu'].include?(info[:distro])
             package_version = cmd_exec("dpkg-query -f='${Version}' -W #{package}")
-            # The "no package" error is language based, but dpkg-query: starting is not
+            # The "no package" error is language based, but "dpkg-query:" starting is not
             return nil if package_version.start_with?('dpkg-query:')
 
             package_version = package_version.gsub('+', '.')
