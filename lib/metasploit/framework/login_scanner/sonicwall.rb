@@ -8,50 +8,6 @@ module Metasploit
       # - Admin Login
       class SonicWall < HTTP
 
-        # Basic implementation of HTTP Digest Auth, supporting MD5 and SHA256
-        module HTTPDigestAuth
-          def calculate_response(algorithm, realm, qop, nonce, opaque, username, password)
-            #
-            # Making reference to desired hash function. Since hashing function has to be called multiple times within function, it seemed like it makes more sense to have it stored locally rather than call Digest::[HASH FUNCTION].hexdigest every time.
-            #
-            if algorithm == 'MD5_sess'
-              hash_obj = Digest::MD5
-              ha1 = hash_obj.hexdigest("#{hash_obj.hexdigest("#{username}:#{realm}:#{password}")}:#{nonce}:cnonce")
-            else
-              case algorithm
-              when '' || 'MD5'
-                hash_obj = Digest::MD5
-              when 'SHA-256'
-                hash_obj = Digest::SHA256
-              else
-                return nil
-              end
-              ha1 = hash_obj.hexdigest("#{username}:#{realm}:#{password}")
-            end
-
-            if qop == 'auth' || qop == ''
-              ha2 = hash_obj.hexdigest('POST:/api/sonicos/auth')
-            elsif qop == 'auth-int'
-              ha2 = hash_obj.hexdigest('POST:/api/sonicos/auth:23')
-            else
-              return nil
-            end
-            if qop == 'auth' || qop == 'auth-int'
-              #
-              # client nonce (cnonce) is generated for every run, originally, it should be 32 bytes encoded in Base64, but this seems to be working as well
-              # nc - constant
-              #
-              cnonce = Rex::Text.rand_text_base64(24)
-              nc = '00000001'
-              return hash_obj.hexdigest("#{ha1}:#{nonce}:#{nc}:#{cnonce}:#{qop}:#{ha2}"), cnonce, nc
-            else
-              return hash_obj.hexdigest("#{ha1}:#{nonce}:#{ha2}"), nil, nil
-            end
-          end
-        end
-
-        include HTTPDigestAuth
-
         DEFAULT_SSL_PORT = [443, 4433]
         LIKELY_PORTS = [443, 4433]
         LIKELY_SERVICE_NAMES = [
@@ -75,7 +31,7 @@ module Metasploit
           }
         end
 
-        def auth_req(username, realm, algorithm, nonce, nc, cnonce, qop, opaque, response)
+        def auth_req(header)
           {
             'method' => 'POST',
             'uri' => normalize_uri('/api/sonicos/auth'),
@@ -83,7 +39,7 @@ module Metasploit
             # Force SSL as the application uses non-standard TCP port for HTTPS - 4433
             'ssl' => true,
             'headers' => {
-              'Authorization' => %(Digest username="#{username}", realm="#{realm}", uri="/api/sonicos/auth", algorithm=#{algorithm}, nonce=#{nonce}, nc=#{nc}, cnonce="#{cnonce}", qop=#{qop}, opaque="#{opaque}", response="#{response}")
+              'Authorization' => header.join(', ')
             }
           }
         end
@@ -109,8 +65,8 @@ module Metasploit
           send_request(request_param)
         end
 
-        def try_login(username, realm, algorithm, nonce, nc, cnonce, qop, opaque, resp_hash)
-          request_param = auth_req(username, realm, algorithm, nonce, nc, cnonce, qop, opaque, resp_hash)
+        def try_login(header)
+          request_param = auth_req(header)
           #
           # Admin and SSLVPN user login procedure differs only in usage of domain field in JSON data
           #
@@ -163,23 +119,22 @@ module Metasploit
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Invalid response' } unless res
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Failed to receive a authentication details' } unless res&.headers && res.headers.key?('X-SNWL-Authenticate')
 
-          snwl_authenticate_header = res.headers['X-SNWL-Authenticate']
+          res.headers['X-SNWL-Authenticate'] =~ /Digest (.*)/
 
-          return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Incorrect authentication header' } unless snwl_authenticate_header
+          parameters = {}
+          ::Regexp.last_match(1).split(/,[[:space:]]*/).each do |p|
+            k, v = p.split('=', 2)
+            parameters[k] = v.gsub('"', '')
+          end
+          return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Incorrect authentication header' } if parameters.empty?
 
-          algorithm = snwl_authenticate_header[/^Digest algorithm=([a-zA-Z0-9-]+),/, 1]
-          realm = snwl_authenticate_header[/realm="([^\s]*)",/, 1]
-          qop = snwl_authenticate_header[/qop="([a-zA-Z]*)",/, 1]
-          nonce = snwl_authenticate_header[/nonce="([^\s]*)",/, 1]
-          opaque = snwl_authenticate_header[/opaque="([\w\W]+)"/, 1]
-
-          resp_hash, cnonce, nc = calculate_response(algorithm, realm, qop, nonce, opaque, username, password)
-
-          return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Could not calculate hash' } unless resp_hash
+          digest_auth = Rex::Proto::Http::AuthDigest.new
+          auth_header = digest_auth.digest(username, password, 'POST', '/api/sonicos/auth', parameters)
+          return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Could not calculate hash' } unless auth_header
 
           #-- send the actual request with all hashes and information
 
-          res = try_login(username, realm, algorithm, nonce, nc, cnonce, qop, opaque, resp_hash)
+          res = try_login(auth_header)
 
           return { status: ::Metasploit::Model::Login::Status::SUCCESSFUL, proof: res.to_s } if res&.code == 200
 
