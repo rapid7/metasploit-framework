@@ -187,9 +187,17 @@ module Session
   # exploit instance. Store references from and to the exploit module.
   #
   def set_from_exploit(m)
+    target_host = nil
+    unless m.target_host.blank?
+      # only propagate the target_host value if it's exactly 1 host
+      if (rw = Rex::Socket::RangeWalker.new(m.target_host)).length == 1
+        target_host = rw.next_ip
+      end
+    end
+
     self.via = { 'Exploit' => m.fullname }
     self.via['Payload'] = ('payload/' + m.datastore['PAYLOAD'].to_s) if m.datastore['PAYLOAD']
-    self.target_host = Rex::Socket.getaddress(m.target_host) if (m.target_host.to_s.strip.length > 0)
+    self.target_host = target_host
     self.target_port = m.target_port if (m.target_port.to_i != 0)
     self.workspace   = m.workspace
     self.username    = m.owner
