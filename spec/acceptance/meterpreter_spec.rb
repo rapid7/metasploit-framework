@@ -7,11 +7,11 @@ RSpec.describe 'Meterpreter' do
   # Tests to ensure that Meterpreter is consistent across all implementations/operation systems
   METERPRETER_PAYLOADS = Acceptance::Session.with_session_name_merged(
     {
-      python: Acceptance::Session::PYTHON_METERPRETER,
-      php: Acceptance::Session::PHP_METERPRETER,
-      java: Acceptance::Session::JAVA_METERPRETER,
-      mettle: Acceptance::Session::METTLE_METERPRETER,
-      windows_meterpreter: Acceptance::Session::WINDOWS_METERPRETER
+      python: Acceptance::Meterpreter::Python::TESTS,
+      php: Acceptance::Meterpreter::Php::TESTS,
+      java: Acceptance::Meterpreter::Java::TESTS,
+      mettle: Acceptance::Meterpreter::Mettle::TESTS,
+      windows_meterpreter: Acceptance::Meterpreter::WindowsMeterpreter::TESTS
     }
   )
 
