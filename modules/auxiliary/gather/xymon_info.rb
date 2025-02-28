@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2016-2055'],
           ['PACKETSTORM', '135758'],
-          ['URL', 'https://lists.xymon.com/pipermail/xymon/2016-February/042986.html'],
+          ['URL', 'http://web.archive.org/web/20240519104648/https://lists.xymon.com/pipermail/xymon/2016-February/042986.html'],
           ['URL', 'https://xymon.sourceforge.net/'],
           ['URL', 'https://en.wikipedia.org/wiki/Xymon'],
           ['URL', 'https://en.wikipedia.org/wiki/Big_Brother_(software)']

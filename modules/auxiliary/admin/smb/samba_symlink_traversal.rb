@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2010-0926'],
           ['OSVDB', '62145'],
-          ['URL', 'http://web.archive.org/web/20250217141411/https://www.samba.org/samba/news/symlink_attack.html']
+          ['URL', 'http://www.samba.org/samba/news/symlink_attack.html']
         ],
       'License'     => MSF_LICENSE
     )

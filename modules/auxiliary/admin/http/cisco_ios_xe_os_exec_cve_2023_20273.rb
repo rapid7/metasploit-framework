@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2023-20273'],
           # Vendor advisories.
           ['URL', 'https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-iosxe-webui-privesc-j22SaA4z'],
-          ['URL', 'https://blog.talosintelligence.com/active-exploitation-of-cisco-ios-xe-software/'],
+          ['URL', 'http://web.archive.org/web/20250214093736/https://blog.talosintelligence.com/active-exploitation-of-cisco-ios-xe-software/'],
           # Vendor list of (205) vulnerable versions.
           ['URL', 'https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-iosxe-webui-privesc-j22SaA4z/cvrf/cisco-sa-iosxe-webui-privesc-j22SaA4z_cvrf.xml'],
           # Technical details on CVE-2023-20198.
