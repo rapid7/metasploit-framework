@@ -79,6 +79,58 @@ a normal user account by analyzing the objects in LDAP.
 1. Scroll down and select the `ESC3-Template2` certificate, and select `OK`.
 1. The certificate should now be available to be issued by the CA server.
 
+### Setting up a ESC4 Vulnerable Certificate Template
+1. Follow the instructions above to duplicate the ESC2 template and name it `ESC4-Template`, then click `Apply`.
+1. Go to the `Security` tab.
+1. Under `Groups or usernames` select `Authenticated Users`
+1. Under `Permissions for Authenticated Users` select `Write` -> `Allow`.
+1. Click `Apply` and then click `OK` to issue the certificate.
+1. Go back to the `certsrv` screen and right click on the `Certificate Templates` folder.
+1. Click `New` followed by `Certificate Template to Issue`.
+1. Scroll down and select the `ESC3-Template2` certificate, and select `OK`.
+1. The certificate should now be available to be issued by the CA server.
+
+### Setting up a ESC13 Vulnerable Certificate Template
+1. Follow the instructions above to duplicate the ESC2 template and name it `ESC13`, then click `Apply`.
+1. Go to the `Extensions` tab, click the Issuance Policies entry, click the `Add` button, click the `New...` button.
+1. Name the new issuance policy `ESC13-Issuance-Policy`.
+4. Copy the Object Identifier as this will be needed later (ex: 11.3.6.1.4.1.311.21.8.12682474.6065318.6963902.6406785.3291287.83.1172775.12545198`).
+1. Leave the CPS location field blank.
+1. Click `Apply`.
+1. Open Active Directory Users and Computers, expand the domain on the left hand side.
+1. Right click `Users` and navigate to New -> Group.
+1. Enter `ESC13-Group` for the Group Name.
+1. Select `Universal` for Group scope and `Security` for Group type.
+1. Click `Apply`.
+1. Open ADSI Edit.
+1. In the left hand side right click `ADSI Edit` and select `Connect to...`.
+1. Under `Select a well known naming context` select `Default naming context`.
+1. Select the newly established connection, select the domain, select `CN=User`.
+1. On the right hand side find the recently created security group `CN=ESC13-Group`, right click select properties.
+1. Copy the value of the `distinguishedName` attribute, save this as we'll need it later.
+1. Back on the left hand side establish another connection, right click `ADSI Edit` and select `Connect to...`.
+1. This time under `Select a well known naming context` select `Configuration`.
+1. Select the newly established connection, select the domain, select `CN=Services` -> `CN=Public Key Services` -> `CN=OID`.
+1. In the right hand side find the object that corresponds to the Object Identifier saved earlier.
+1. The OID saved earlier ended in `12545198`, the object on the right will start with `CN=12545198.` followed by 34 hex characters. ex: `CN=12545198.7BCA239924D9515E63EA6B6F00748837`).
+1. Once located right click -> properties, select `msDS-OIDToGroupLink`.
+1. Paste the `distingushedName` of the security group saved above (ex: `CN=ESC13-Group,CN=Users,DC=demo,DC=lab`).
+1. Click `Apply`.
+1. Go back to the `certsrv` screen and right click on the `Certificate Templates` folder.
+1. Click `New` followed by `Certificate Template to Issue`.
+1. Scroll down and select the `ESC13-Template` certificate, and select `OK`.
+1. The certificate should now be available to be issued by the CA server.
+
+### Setting up a ESC15 Vulnerable Certificate Template
+1. ESC15 depends on the schema version of the template being version 1 - which can no longer be created so we will edit an existing template that is schema version 1.
+1. Right click the `WebServer` template, select properties.
+1. Go to the Security Tab.
+1. Under `Groups or usernames` select `Authenticated Users`.
+1. Under `Permissions for Authenticated Users` select `Enroll` -> `Allow`.
+1. Click Apply.
+1. Go back to the `certsrv` screen and right click on the `Certificate Templates` folder and ensure `WebServer` is listed, if it's not, add it.
+1. The certificate should now be available to be issued by the CA server.
+
 ## Module usage
 
 1. Do: Start msfconsole
