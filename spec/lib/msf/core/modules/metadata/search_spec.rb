@@ -154,6 +154,13 @@ RSpec.describe Msf::Modules::Metadata::Search do
       it_should_behave_like 'search_filter', :accept => accept, :reject => reject
     end
 
+    context 'on a module with a #author of nil' do
+      let(:opts) { ({ 'author' => [nil] }) }
+      reject = %w(author:foo)
+
+      it_should_behave_like 'search_filter', :reject => reject
+    end
+
     context 'on a module with the authors "joev" and "blarg"' do
       let(:opts) { ({ 'author' => ['joev', 'blarg'] }) }
       accept = %w(author:joev author:joe)
@@ -258,6 +265,22 @@ RSpec.describe Msf::Modules::Metadata::Search do
       reject = %w[targets:unrelated]
 
       it_should_behave_like 'search_filter', accept: accept, reject: reject
+    end
+
+    context 'on a module with a #targets of ["ubuntu", "windows", "osx"]' do
+      let(:opts) { { 'targets' => %w[ubuntu windows osx] } }
+      accept = %w[targets:osx]
+      reject = %w[targets:unrelated]
+
+      it_should_behave_like 'search_filter', accept: accept, reject: reject
+    end
+
+    context 'on a module with a #targets of nil' do
+      let(:opts) { { 'targets' => nil } }
+
+      reject = %w[targets:foo]
+
+      it_should_behave_like 'search_filter', reject: reject
     end
 
     context 'on a module that supports the osx platform' do
@@ -385,6 +408,14 @@ RSpec.describe Msf::Modules::Metadata::Search do
           it_should_behave_like 'search_filter', :accept => accept, :reject => reject
         end
       end
+    end
+
+    context 'on a module with a #reference of nil' do
+      let(:opts) { { 'references' => nil } }
+
+      reject = %w[reference:foo]
+
+      it_should_behave_like 'search_filter', reject: reject
     end
 
     REF_TYPES.each do |ref_type|

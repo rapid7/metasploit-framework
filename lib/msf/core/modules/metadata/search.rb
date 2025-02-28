@@ -179,17 +179,17 @@ module Msf::Modules::Metadata::Search
             when 'aka'
               match = [keyword, search_term] if (module_metadata.notes['AKA'] || []).any? { |aka| aka =~ regex }
             when 'author', 'authors'
-              match = [keyword, search_term] if module_metadata.author && module_metadata.author.any? { |author| author =~ regex }
+              match = [keyword, search_term] if module_metadata.author.any? { |author| author =~ regex }
             when 'arch'
               match = [keyword, search_term] if module_metadata.arch =~ regex
             when 'cve'
-              match = [keyword, search_term] if module_metadata.references && module_metadata.references.any? { |ref| ref =~ /^cve\-/i and ref =~ regex }
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^cve\-/i and ref =~ regex }
             when 'osvdb'
-              match = [keyword, search_term] if module_metadata.references && module_metadata.references.any? { |ref| ref =~ /^osvdb\-/i and ref =~ regex }
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^osvdb\-/i and ref =~ regex }
             when 'bid'
-              match = [keyword, search_term] if module_metadata.references && module_metadata.references.any? { |ref| ref =~ /^bid\-/i and ref =~ regex }
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^bid\-/i and ref =~ regex }
             when 'edb'
-              match = [keyword, search_term] if module_metadata.references && module_metadata.references.any? { |ref| ref =~ /^edb\-/i and ref =~ regex }
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^edb\-/i and ref =~ regex }
             when 'check'
               if module_metadata.check
                 matches_check = %w(true yes).any? { |val| val =~ regex}
