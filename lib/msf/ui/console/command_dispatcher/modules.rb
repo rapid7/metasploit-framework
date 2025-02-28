@@ -380,7 +380,7 @@ module Msf
             print_line
             print_line "Keywords:"
             {
-              'adapter'     => 'Modules with a matching adater reference name',
+              'adapter'     => 'Modules with a matching adapter reference name',
               'aka'         => 'Modules with a matching AKA (also-known-as) name',
               'author'      => 'Modules written by this author',
               'arch'        => 'Modules affecting this architecture',
