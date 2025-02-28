@@ -57,6 +57,9 @@ RSpec.describe Msf::Modules::Metadata::Search do
     it { expect(described_class.parse_search_string("session_type:Meterpreter ")).to eq({"session_type"=>[["meterpreter"], []]}) }
     it { expect(described_class.parse_search_string("session_type:shell ")).to eq({"session_type"=>[["shell"], []]}) }
     it { expect(described_class.parse_search_string("action:forge_golden ")).to eq({"action"=>[["forge_golden"], []]}) }
+    it { expect(described_class.parse_search_string("targets:windows ")).to eq({"targets"=>[["windows"], []]}) }
+    it { expect(described_class.parse_search_string("targets:osx ")).to eq({"targets"=>[["osx"], []]}) }
+    it { expect(described_class.parse_search_string("targets:ubuntu ")).to eq({"targets"=>[["ubuntu"], []]}) }
   end
 
   describe '#find' do
@@ -229,6 +232,30 @@ RSpec.describe Msf::Modules::Metadata::Search do
       let(:opts) { { 'session_types' => ['mssql'] } }
       accept = %w[session_type:mssql]
       reject = %w[session_type:unrelated]
+
+      it_should_behave_like 'search_filter', accept: accept, reject: reject
+    end
+
+    context 'on a module with a #targets of ["windows"]' do
+      let(:opts) { { 'targets' => ['windows'] } }
+      accept = %w[targets:windows]
+      reject = %w[targets:unrelated]
+
+      it_should_behave_like 'search_filter', accept: accept, reject: reject
+    end
+
+    context 'on a module with a #targets of ["osx"]' do
+      let(:opts) { { 'targets' => ['osx'] } }
+      accept = %w[targets:osx]
+      reject = %w[targets:unrelated]
+
+      it_should_behave_like 'search_filter', accept: accept, reject: reject
+    end
+
+    context 'on a module with a #targets of ["ubuntu"]' do
+      let(:opts) { { 'targets' => ['ubuntu'] } }
+      accept = %w[targets:ubuntu]
+      reject = %w[targets:unrelated]
 
       it_should_behave_like 'search_filter', accept: accept, reject: reject
     end
