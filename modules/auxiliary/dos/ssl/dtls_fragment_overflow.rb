@@ -28,8 +28,8 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2014-0195'],
           ['ZDI', '14-173'],
           ['BID', '67900'],
-          ['URL', 'http://h30499.www3.hp.com/t5/HP-Security-Research-Blog/ZDI-14-173-CVE-2014-0195-OpenSSL-DTLS-Fragment-Out-of-Bounds/ba-p/6501002'],
-          ['URL', 'http://h30499.www3.hp.com/t5/HP-Security-Research-Blog/Once-Bled-Twice-Shy-OpenSSL-CVE-2014-0195/ba-p/6501048']
+          ['URL', 'http://web.archive.org/web/20150815024234/http://h30499.www3.hp.com/t5/HP-Security-Research-Blog/ZDI-14-173-CVE-2014-0195-OpenSSL-DTLS-Fragment-Out-of-Bounds/ba-p/6501002'],
+          ['URL', 'http://web.archive.org/web/20140707160621/http://h30499.www3.hp.com/t5/HP-Security-Research-Blog/Once-Bled-Twice-Shy-OpenSSL-CVE-2014-0195/ba-p/6501048']
         ],
       'DisclosureDate' => '2014-06-05'))
 

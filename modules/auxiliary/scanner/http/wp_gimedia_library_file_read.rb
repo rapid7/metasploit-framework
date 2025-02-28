@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           ['WPVDB', '7754'],
-          ['URL', 'http://wordpressa.quantika14.com/repository/index.php?id=24']
+          ['URL', 'http://web.archive.org/web/20191021124407/http://wordpressa.quantika14.com/repository/index.php?id=24']
         ],
       'Author'         =>
         [

@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['CVE', '2020-1938'],
           ['EDB', '48143'],
-          ['URL', 'https://www.chaitin.cn/en/ghostcat']
+          ['URL', 'http://web.archive.org/web/20250114042903/https://www.chaitin.cn/en/ghostcat']
         ],
         'DisclosureDate' => '2020-02-20',
         'Notes' => {

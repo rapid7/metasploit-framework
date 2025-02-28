@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author'         => ['Jon Hart <jon_hart[at]rapid7.com>', 'Mumbai'],
         'References'     =>
           [
-            ['URL', 'https://blog.talosintelligence.com/2017/02/cisco-coverage-for-smart-install-client.html'],
+            ['URL', 'http://web.archive.org/web/20221003014218/http://blog.talosintelligence.com/2017/02/cisco-coverage-for-smart-install-client.html'],
             ['URL', 'https://blogs.cisco.com/security/cisco-psirt-mitigating-and-detecting-potential-abuse-of-cisco-smart-install-feature'],
             ['URL', 'https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170214-smi'],
             ['URL', 'https://github.com/Cisco-Talos/smi_check'],

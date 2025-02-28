@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'URL', 'http://www.yokogawa.com/dcs/security/ysar/YSAR-14-0001E.pdf' ],
-          [ 'URL', 'https://www.rapid7.com/blog/post/2014/03/10/yokogawa-centum-cs3000-vulnerabilities/' ],
+          [ 'URL', 'http://web.archive.org/web/20221209030848/https://www.rapid7.com/blog/post/2014/03/10/yokogawa-centum-cs3000-vulnerabilities/' ],
           [ 'CVE', '2014-0781']
         ],
       'DisclosureDate' => '2014-03-10',

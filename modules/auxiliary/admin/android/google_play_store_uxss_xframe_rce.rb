@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
       'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'References' => [
-        [ 'URL', 'https://www.rapid7.com/blog/post/2014/09/15/major-android-bug-is-a-privacy-disaster-cve-2014-6041/'],
+        [ 'URL', 'http://web.archive.org/web/20230321034739/https://www.rapid7.com/blog/post/2014/09/15/major-android-bug-is-a-privacy-disaster-cve-2014-6041/'],
         [ 'URL', 'https://web.archive.org/web/20150316151817/http://1337day.com/exploit/description/22581' ],
         [ 'OSVDB', '110664' ],
         [ 'CVE', '2014-6041' ]

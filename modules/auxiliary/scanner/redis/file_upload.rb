@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References'    => [
           ['URL', 'http://antirez.com/news/96'],
-          ['URL', 'http://blog.knownsec.com/2015/11/analysis-of-redis-unauthorized-of-expolit/'],
+          ['URL', 'http://web.archive.org/web/20240907110448/https://blog.knownsec.com/2015/11/analysis-of-redis-unauthorized-of-expolit/'],
           ['URL', 'https://redis.io/topics/protocol']
         ],
         'Privileged'    => true,

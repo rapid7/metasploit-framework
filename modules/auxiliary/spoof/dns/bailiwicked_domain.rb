@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2008-1447' ],
           [ 'OSVDB', '46776'],
           [ 'US-CERT-VU', '800113' ],
-          [ 'URL', 'http://www.caughq.org/exploits/CAU-EX-2008-0003.txt' ],
+          [ 'URL', 'http://web.archive.org/web/20160527135835/http://www.caughq.org/exploits/CAU-EX-2008-0003.txt' ],
         ],
       'DisclosureDate' => '2008-07-21'
     ))
