@@ -453,7 +453,8 @@ class MetasploitModule < Msf::Auxiliary
       groups = []
       entry['mspki-certificate-policy'].each do |certificate_policy_oid|
         policy = get_pki_object_by_oid(certificate_policy_oid)
-        next if policy['msds-oidtogrouplink'].blank?
+
+        next if policy&.[]('msds-oidtogrouplink').blank?
 
         # get the group and check it for two conditions
         group = get_group_by_dn(policy['msds-oidtogrouplink'].first)
