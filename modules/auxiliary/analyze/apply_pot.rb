@@ -82,10 +82,16 @@ class MetasploitModule < Msf::Auxiliary
     # cracked passwords.  The advantage to this vs just comparing
     # john.pot to the hashes directly is we use jtr to recombine
     # lanman, and other assorted nuances
-    ['bcrypt', 'bsdicrypt', 'crypt', 'descrypt', 'lm', 'nt',
+    ['bcrypt', 'bsdicrypt', 'descrypt', 'lm',
+     'mscash', 'mscash2', 'netntlm', 'netntlmv2',
      'md5crypt', 'mysql', 'mysql-sha1', 'mssql', 'mssql05', 'mssql12',
      'oracle', 'oracle11', 'oracle12c', 'dynamic_1506', #oracles
-     'dynamic_1034' #postgres
+     'dynamic_1034', #postgres
+     # 'android-sha1', 'android-samsung-sha1', 'android-md5', # mobile is done with hashcat, so skip these
+     'PBKDF2-HMAC-SHA1', 'phpass', 'mediawiki', 'pbkdf2-sha256', # webapps
+     'xsha', 'xsha512', 'PBKDF2-HMAC-SHA512', # osx
+     'nt', # nt needs to be 2nd to last because it can hit on android hashes
+     'crypt' # crypt NEEDS TO BE LAST so it doesn't accidentally read in other compatible hashes
       ].each do |format|
 
       print_status("Checking #{format} hashes against pot file")
@@ -102,17 +108,25 @@ class MetasploitModule < Msf::Auxiliary
           username = fields.shift
           core_id  = fields.pop
           4.times { fields.pop } # Get rid of extra :
-        when 'md5crypt', 'descrypt', 'bsdicrypt', 'crypt', 'bcrypt'
+        when 'netntlm', 'netntlmv2'
+          next unless fields.count >=7
+          username = fields.shift
+          core_id  = fields.pop
+          9.times { fields.pop }
+        when 'md5crypt', 'descrypt', 'bsdicrypt', 'crypt', 'bcrypt', 'xsha', 'xsha512'
+          puts fields
           next unless fields.count >=7
           username = fields.shift
           core_id  = fields.pop
           4.times { fields.pop }
-        when 'mssql', 'mssql05', 'mssql12', 'mysql', 'mysql-sha1',
-             'oracle', 'dynamic_1506', 'oracle11', 'oracle12c'
-          next unless fields.count >=3
+        when 'PBKDF2-HMAC-SHA512'
+          next unless fields.count >=2
           username = fields.shift
           core_id  = fields.pop
-        when 'dynamic_1506' #oracle H code
+        when 'mssql', 'mssql05', 'mssql12', 'mysql', 'mysql-sha1',
+             'oracle', 'dynamic_1506', 'oracle11', 'oracle12c', 
+             'PBKDF2-HMAC-SHA1', 'phpass', 'mediawiki', 'pbkdf2-sha256',
+             'mscash', 'mscash2'
           next unless fields.count >=3
           username = fields.shift
           core_id  = fields.pop
@@ -164,6 +178,10 @@ class MetasploitModule < Msf::Auxiliary
         unless core_id.nil?
           password = fields.join(':')
           print_good "#{username}:#{password}"
+          # android hashes will also crack here, but the output fields are in a different order
+          # check if core_id is an int or not, for android hashes it wont convert
+          core_id_int = Integer(core_id) rescue nil
+          next if core_id_int.nil?
           create_cracked_credential( username: username, password: password, core_id: core_id)
         end
       end
