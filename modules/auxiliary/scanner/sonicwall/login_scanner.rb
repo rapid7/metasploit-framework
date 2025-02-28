@@ -47,9 +47,9 @@ class MetasploitModule < Msf::Auxiliary
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
       bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-      connection_timeout: datastore['HttpClientTimeout'] || 5
+      connection_timeout: datastore['HttpClientTimeout']
     )
-    return Metasploit::Framework::LoginScanner::SonicWall.new(configuration, datastore['DOMAIN'])
+    Metasploit::Framework::LoginScanner::SonicWall.new(configuration, datastore['DOMAIN'])
   end
 
   def process_credential(credential_data)
