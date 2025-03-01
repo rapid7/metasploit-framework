@@ -58,8 +58,9 @@ module Auxiliary
       raise MissingActionError, "Please use: #{mod.actions.collect {|e| e.name} * ", "}"
     end
 
-    # Verify the options
-    mod.options.validate(mod.datastore)
+    # Validate the option container state so that options will
+    # be normalized
+    mod.validate
 
     # Initialize user interaction
     if ! opts['Quiet']

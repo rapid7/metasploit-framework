@@ -61,13 +61,6 @@ class Auxiliary
     rhosts_walker = Msf::RhostsWalker.new(rhosts, mod_with_opts.datastore)
 
     begin
-      mod_with_opts.validate
-    rescue ::Msf::OptionValidateError => e
-      ::Msf::Ui::Formatter::OptionValidateError.print_error(mod_with_opts, e)
-      return false
-    end
-
-    begin
       # Check if this is a scanner module or doesn't target remote hosts
       if rhosts.blank? || mod.class.included_modules.include?(Msf::Auxiliary::Scanner)
         mod_with_opts.run_simple(
@@ -102,7 +95,8 @@ class Auxiliary
     rescue ::Interrupt
       print_error("Auxiliary interrupted by the console user")
     rescue ::Msf::OptionValidateError => e
-      ::Msf::Ui::Formatter::OptionValidateError.print_error(running_mod, e)
+      ::Msf::Ui::Formatter::OptionValidateError.print_error(mod_with_opts, e)
+      return false
     rescue ::Exception => e
       print_error("Auxiliary failed: #{e.class} #{e}")
       if(e.class.to_s != 'Msf::OptionValidateError')
