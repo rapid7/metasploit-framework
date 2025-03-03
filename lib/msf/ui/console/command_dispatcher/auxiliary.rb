@@ -72,6 +72,8 @@ class Auxiliary
         )
       # For multi target attempts with non-scanner modules.
       else
+        # When RHOSTS is split, the validation changes slightly, so perform it reports the host the validation failed for
+        mod_with_opts.validate
         rhosts_walker.each do |datastore|
           mod_with_opts = mod.replicant
           mod_with_opts.datastore.merge!(datastore)
