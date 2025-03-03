@@ -339,11 +339,6 @@ module Rex
           auth_str = username.to_s + ':' + password.to_s
           'Basic ' + Rex::Text.encode_base64(auth_str)
         end
-
-        def make_cnonce
-          Digest::MD5.hexdigest '%x' % (::Time.now.to_i + rand(65535))
-        end
-
         # Send a series of requests to complete Digest Authentication
         #
         # @param opts [Hash] the options used to build an HTTP request
