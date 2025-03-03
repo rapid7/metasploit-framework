@@ -892,7 +892,7 @@ In the following example the AUTO mode is used to issue a certificate for the MS
 authenticated.
 
 ```msf
-msf6 auxiliary(server/relay/esc8) > set RELAY_TARGETS 172.30.239.85
+msf6 auxiliary(server/relay/esc8) > set RHOSTS 172.30.239.85
 msf6 auxiliary(server/relay/esc8) > run
 [*] Auxiliary module running as background job 1.
 msf6 auxiliary(server/relay/esc8) > 
