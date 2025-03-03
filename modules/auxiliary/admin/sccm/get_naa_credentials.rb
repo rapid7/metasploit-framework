@@ -51,6 +51,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('COMPUTER_PASS', [ true, 'The password of the provided computer account' ]),
       OptString.new('MANAGEMENT_POINT', [ false, 'The management point (SCCM server) to use' ]),
       OptString.new('SITE_CODE', [ false, 'The site code to use on the management point' ]),
+      OptInt.new('TIMEOUT', [ true, 'Number of seconds to wait for SCCM DB to update', 10 ]),
     ])
 
     @session_or_rhost_required = false
@@ -133,10 +134,9 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     sms_id, ip_address = register_request(http_opts, management_point, key, cert)
-    duration = 5
-    print_status("Waiting #{duration} seconds for SCCM DB to update...")
+    print_status("Waiting #{datastore['TIMEOUT']} seconds for SCCM DB to update...")
 
-    sleep(duration)
+    sleep(datastore['TIMEOUT'])
 
     secret_urls = get_secret_policies(http_opts, management_point, site_code, key, cert, sms_id)
     all_results = Set.new
@@ -267,6 +267,7 @@ class MetasploitModule < Msf::Auxiliary
     http_response = send_request_cgi(opts)
     response = Rex::MIME::Message.new(http_response.to_s)
 
+    fail_with(Failure::UnexpectedReply, 'No content received in request for policies, try increasing TIMEOUT or rerunning the module.') unless response.parts[1]&.content
     compressed_response = Rex::Text.zlib_inflate(response.parts[1].content).force_encoding('utf-16le')
     xml_doc = Nokogiri::XML(compressed_response.encode('utf-8'))
     policies = xml_doc.xpath('//Policy')
