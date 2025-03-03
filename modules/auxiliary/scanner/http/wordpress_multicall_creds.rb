@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           ['URL', 'https://blog.cloudflare.com/a-look-at-the-new-wordpress-brute-force-amplification-attack/' ],
-          ['URL', 'https://blog.sucuri.net/2014/07/new-brute-force-attacks-exploiting-xmlrpc-in-wordpress.html' ]
+          ['URL', 'http://web.archive.org/web/20250220003829/https://blog.sucuri.net/2014/07/new-brute-force-attacks-exploiting-xmlrpc-in-wordpress.html' ]
         ],
       'DefaultOptions' =>
         {

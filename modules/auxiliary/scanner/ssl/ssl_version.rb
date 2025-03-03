@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         # poodle
         [ 'URL', 'https://security.googleblog.com/2014/10/this-poodle-bites-exploiting-ssl-30.html' ],
         [ 'CVE', '2014-3566' ],
-        [ 'URL', 'https://www.openssl.org/~bodo/ssl-poodle.pdf' ],
+        [ 'URL', 'http://web.archive.org/web/20240319071045/https://www.openssl.org/~bodo/ssl-poodle.pdf' ],
         # TLS v1.0 and v1.1 depreciation
         [ 'URL', 'https://datatracker.ietf.org/doc/rfc8996/' ],
         # SSLv2 deprecation
@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
         # BEAST
         [ 'CVE', '2011-3389' ],
         # RC4
-        [ 'URL', 'http://www.isg.rhul.ac.uk/tls/' ],
+        [ 'URL', 'http://web.archive.org/web/20240607160328/https://www.isg.rhul.ac.uk/tls/' ],
         [ 'CVE', '2013-2566' ],
         # LOGJAM
         [ 'CVE', '2015-4000' ],

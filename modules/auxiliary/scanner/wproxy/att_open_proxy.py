@@ -19,7 +19,7 @@ metadata = {
     'references': [
         {'type': 'cve', 'ref': '2017-14117'},
         {'type': 'url', 'ref': 'https://www.nomotion.net/blog/sharknatto/'},
-        {'type': 'url', 'ref': 'https://www.rapid7.com/blog/post/2017/09/07/measuring-sharknat-to-exposures/#vulnerability5port49152tcpexposure'}
+        {'type': 'url', 'ref': 'http://web.archive.org/web/20230327172835/https://www.rapid7.com/blog/post/2017/09/07/measuring-sharknat-to-exposures/'}
      ],
     'type': 'multi_scanner',
     'options': {

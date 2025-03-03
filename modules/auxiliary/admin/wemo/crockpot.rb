@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'        => 'wvu',
       'References'    => [
-        ['URL', 'https://www.crock-pot.com/wemo-landing-page.html'],
+        ['URL', 'http://web.archive.org/web/20180301171809/https://www.crock-pot.com/wemo-landing-page.html'],
         ['URL', 'https://www.belkin.com/us/support-article?articleNum=101177'],
         ['URL', 'http://www.wemo.com/']
       ],
