@@ -275,7 +275,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
   @@monitor_dump_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner" ],
     "-i" => [ true,  "Indicate if captured image data should be downloaded (default: true)" ],
-    "-f" => [ true,  "Indicate if captured file data should be downloaded (default: true)" ],
+    "-f" => [ true,  "Indicate if captured file data should be downloaded (default: false)" ],
     "-p" => [ true,  "Purge the contents of the monitor once dumped (default: true)" ],
     "-d" => [ true,  "Download non-text content to the specified folder (default: current dir)" ]
   )
@@ -296,7 +296,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
   def cmd_clipboard_monitor_dump(*args)
     purge = true
     download_images = true
-    download_files = true
+    download_files = false
     download_path = nil
 
     @@monitor_dump_opts.parse(args) { |opt, idx, val|
@@ -352,7 +352,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
   def cmd_clipboard_monitor_stop(*args)
     dump_data = true
     download_images = true
-    download_files = true
+    download_files = false
     download_path = nil
 
     @@monitor_stop_opts.parse(args) { |opt, idx, val|
@@ -410,7 +410,14 @@ private
   end
 
   def parse_dump(dump, get_images, get_files, download_path)
-    loot_dir = download_path || "~/.msf4/loot/"
+
+    loot_dir = download_path || ::File.expand_path("~/.msf4/clipboard_loot/")
+    # prevent writing into existing directory without file download enabled
+    if ::File.directory?(loot_dir) && !get_files
+      print_error("Cannot write to existing directory if file download is not enabled")
+      return false
+    end
+
     if (get_images || get_files) && !::File.directory?( loot_dir )
       ::FileUtils.mkdir_p( loot_dir )
     end
