@@ -32,7 +32,7 @@ The vulnerable IOS XE versions are:
 17.11.99SW
 
 NOTE: The C8000v series appliance version 17.6.5 was observed to not be vulnerable to CVE-2023-20273, even
-though the IOS-XE version indicates they should be vulnerable to CVE-2023-20273.
+though the IOS XE version indicates they should be vulnerable to CVE-2023-20273.
 
 ## Testing
 This module was tested against IOS XE version 16.12.3. To test this module you will need to either:
