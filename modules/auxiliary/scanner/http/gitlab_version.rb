@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
         port: datastore['RPORT'],
         proto: ssl ? 'https' : 'http',
         ntype: 'gitlab.version',
-        data: version
+        data: { version: version }
       )
     else
       print_error("Unable to find Gitlab version for #{ip}.")

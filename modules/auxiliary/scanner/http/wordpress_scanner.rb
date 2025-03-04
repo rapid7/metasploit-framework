@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
           sname: (ssl ? 'https' : 'http'),
           port: rport,
           type: "Wordpress #{version_string}",
-          data: target_uri.to_s
+          data: { :target_uri => target_uri.to_s }
         }
       )
       if datastore['THEMES']

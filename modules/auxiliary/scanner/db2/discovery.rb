@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         :proto  => 'udp',
         :port   => datastore['RPORT'],
         :type   => 'SERVICE_INFO',
-        :data   => "#{res[2]}_#{res[1]}"
+        :data   => { :service_info => "#{res[2]}_#{res[1]}" }
         )
 
       report_service(

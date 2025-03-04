@@ -218,12 +218,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def report_oracle_sid(ip,sid)
+    sid_res = ((sid.nil? || sid.empty?) ? "*BLANK*" : sid)
     report_note(
       :host => ip,
       :proto => 'tcp',
       :port => rport,
       :type => "oracle.sid",
-      :data => ((sid.nil? || sid.empty?) ? "*BLANK*" : sid),
+      :data => { :sid => sid_res },
       :update => :unique_data
     )
   end

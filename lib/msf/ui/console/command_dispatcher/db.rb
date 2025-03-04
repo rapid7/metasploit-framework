@@ -347,7 +347,7 @@ class Db
 
       framework.db.hosts(address: host_search).each do |host|
         framework.db.update_host(host_data.merge(id: host.id))
-        framework.db.report_note(host: host.address, type: "host.#{attribute}", data: host_data[attribute])
+        framework.db.report_note(host: host.address, type: "host.#{attribute}", data: { :host_data => host_data[attribute] })
       end
     end
   end
