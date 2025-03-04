@@ -38,8 +38,8 @@ This module was tested against the following IOS XE versions:
 
 | IOS XE Version | Appliance Series |
 |----------------|------------------|
-| 16.12.3        | C1000v           |
-| 17.03.02       | C1000v           |
+| 16.12.3        | CSR1000v         |
+| 17.03.02       | CSR1000v         |
 | 17.06.05       | C8000v           |
 
 To test this module you will need to either:
@@ -95,7 +95,7 @@ modes are `user`, `privileged`, and `global`.
 
 ## Scenarios
 
-### IOS-XE 16.12.03 (C1000v)
+### IOS XE 16.12.03 (CSR1000v)
 ```
 msf6 > use auxiliary/admin/http/cisco_ios_xe_cli_exec_cve_2023_20198
 msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > set RHOST 192.168.86.57
@@ -180,7 +180,7 @@ msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > run CMD="show 
 msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > 
 ```
 
-### IOS-XE 17.06.05 (C8000v)
+### IOS XE 17.06.05 (C8000v)
 
 ```
 msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > show options 
