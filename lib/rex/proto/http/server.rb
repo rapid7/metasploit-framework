@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/socket'
+include ERB::Util
 
 
 module Rex
