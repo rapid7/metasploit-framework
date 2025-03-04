@@ -18,6 +18,10 @@ class Console::CommandDispatcher::Extapi::Clipboard
   include Console::CommandDispatcher
   include Rex::Post::Meterpreter::Extensions::Extapi
 
+  def initialize
+    @loot_directory = "~/.msf4/clipboard_loot"
+  end
+  
   #
   # List of supported commands.
   #
@@ -411,7 +415,7 @@ private
 
   def parse_dump(dump, get_images, get_files, download_path)
 
-    loot_dir = download_path || ::File.expand_path("~/.msf4/clipboard_loot/")
+    loot_dir = download_path || ::File.expand_path(@loot_directory)
     # prevent writing into existing directory without file download enabled
     if ::File.directory?(loot_dir) && !get_files
       print_error("Cannot write to existing directory if file download is not enabled")
