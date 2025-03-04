@@ -528,6 +528,9 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     is_success = true
     files = []
     source_directories.each do |directory|
+      # metasploit-framework doesn't have a '.git' folder present if it's used as a gem
+      next unless File.exist?(File.join(directory, '.git'))
+
       begin
         output, status = Open3.capture2e(*changed_files, chdir: directory)
         is_success = status.success?
