@@ -410,7 +410,7 @@ private
   end
 
   def parse_dump(dump, get_images, get_files, download_path)
-    loot_dir = download_path || "."
+    loot_dir = download_path || "~/.msf4/loot/"
     if (get_images || get_files) && !::File.directory?( loot_dir )
       ::FileUtils.mkdir_p( loot_dir )
     end
