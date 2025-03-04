@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
       :proto => 'tcp',
       :port => datastore['RPORT'],
       :type => 'afp_server_info',
-      :data => response)
+      :data => { :server_info => response })
 
       report_service(
         :host => datastore['RHOST'],

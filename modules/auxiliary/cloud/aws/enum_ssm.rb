@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
       report_note(
         host: ssm_host['IpAddress'],
         type: ssm_host['AgentType'],
-        data: ssm_host['AgentVersion']
+        data: { agent_version: ssm_host['AgentVersion'] }
       )
       vprint_good("Found AWS SSM host #{ssm_host['InstanceId']} (#{ssm_host['ComputerName']}) - #{ssm_host['IpAddress']}")
       next unless datastore['CreateSession']

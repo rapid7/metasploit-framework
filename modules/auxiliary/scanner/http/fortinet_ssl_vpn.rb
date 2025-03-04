@@ -148,11 +148,11 @@ class MetasploitModule < Msf::Auxiliary
         if datastore['DOMAIN'].nil? || datastore['DOMAIN'].empty?
           print_good("SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}")
           report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.body)
-          report_note(ip: rhost, type: "fortinet.ssl.vpn",data: "User: #{user}")
+          report_note(ip: rhost, type: "fortinet.ssl.vpn", data: { :user => user })
         else
           print_good("SUCCESSFUL LOGIN - #{user.inspect}:#{pass.inspect}:#{datastore["DOMAIN"]}")
           report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.body)
-          report_note(ip: rhost, type: "fortinet.ssl.vpn",data: "User: #{user} / Domain: #{datastore["DOMAIN"]}")
+          report_note(ip: rhost, type: "fortinet.ssl.vpn", data: { :user => user, :domain => datastore["DOMAIN"] })
         end
 
         return :next_user

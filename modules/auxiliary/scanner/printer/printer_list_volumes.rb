@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
         :port => rport,
         :proto => "tcp",
         :type => "printer.vol.listing",
-        :data => listing
+        :data => { :listing => listing }
       )
     end
   end

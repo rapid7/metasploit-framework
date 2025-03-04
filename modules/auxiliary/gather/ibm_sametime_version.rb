@@ -254,7 +254,7 @@ class MetasploitModule < Msf::Auxiliary
       :port  => rport,
       :proto => 'http',
       :ntype => 'ibm_lotus_sametime_version',
-      :data  => @version_info['version']['sametimeVersion']
+      :data  => { :version => @version_info['version']['sametimeVersion'] }
     ) if @version_info['version']['sametimeVersion']
   end
 

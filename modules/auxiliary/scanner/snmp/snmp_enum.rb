@@ -814,7 +814,7 @@ class MetasploitModule < Msf::Auxiliary
             :sname => 'snmp',
             :port  => datastore['RPORT'].to_i,
             :type  => "snmp.#{k}",
-            :data  => content
+            :data  => { :content => content }
           )
 
           line << "\n[*] #{k}:\n\n#{content}"
@@ -832,7 +832,7 @@ class MetasploitModule < Msf::Auxiliary
             :sname => 'snmp',
             :port  => datastore['RPORT'].to_i,
             :type  => "snmp.#{k}",
-            :data  => content
+            :data  => { :content => content }
           )
 
           line << "\n[*] #{k}:\n\n#{content}"
@@ -848,7 +848,7 @@ class MetasploitModule < Msf::Auxiliary
             :sname => 'snmp',
             :port  => datastore['RPORT'].to_i,
             :type  => "snmp.#{k}",
-            :data  => v
+            :data  => { :content => v }
           )
 
           k = truncate_to_twidth(k,twidth)

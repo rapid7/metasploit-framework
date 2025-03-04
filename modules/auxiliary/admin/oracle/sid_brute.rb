@@ -62,7 +62,10 @@ class MetasploitModule < Msf::Auxiliary
           :host => rhost,
           :port => rport,
           :type => 'oracle_sid',
-          :data => "PORT=#{rport}, SID=#{sid.strip}",
+          :data => {
+            :port => rport,
+            :sid => sid.strip
+          },
           :update => :unique_data
         )
         print_good("#{rhost}:#{rport} Found SID '#{sid.strip}'")
