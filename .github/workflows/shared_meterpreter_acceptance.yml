@@ -69,12 +69,12 @@ jobs:
         os:
           - macos-13
           - windows-2019
-          - ubuntu-20.04
+          - ubuntu-latest
         ruby:
           - '3.2'
         meterpreter:
           # Python
-          - { name: python, runtime_version: 3.6 }
+          - { name: python, runtime_version: 3.8 }
           - { name: python, runtime_version: 3.11 }
 
           # Java
@@ -92,7 +92,7 @@ jobs:
 
           # Mettle
           - { meterpreter: { name: mettle }, os: macos-13 }
-          - { meterpreter: { name: mettle }, os: ubuntu-20.04 }
+          - { meterpreter: { name: mettle }, os: ubuntu-latest }
 
     runs-on: ${{ matrix.os }}
 

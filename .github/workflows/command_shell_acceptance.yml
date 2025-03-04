@@ -64,7 +64,7 @@ jobs:
       matrix:
         os:
           - windows-2019
-          - ubuntu-20.04
+          - ubuntu-latest
         ruby:
           - '3.2'
         include:
@@ -73,7 +73,7 @@ jobs:
           - { command_shell: { name: powershell }, os: windows-2022 }
 
           # Linux
-          - { command_shell: { name: linux }, os: ubuntu-20.04 }
+          - { command_shell: { name: linux }, os: ubuntu-latest }
 
           # CMD
           - { command_shell: { name: cmd }, os: windows-2019 }
