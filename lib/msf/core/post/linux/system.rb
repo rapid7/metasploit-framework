@@ -18,8 +18,35 @@ module Msf
           kernel_version = cmd_exec('uname -a')
           system_data[:kernel] = kernel_version
 
-          # Debian
-          if etc_files.include?('debian_version')
+          # The order of these checks is important.
+          # * Checks for Arch-based distros must be performed before the check for Arch.
+          # * Checks for Antix-based distros must be performed before the check for Antix.
+          # * Checks for Debian-based distros must be performed before the check for Debian.
+          # * Checks for distros which ship with '/etc/system-release' must be performed
+          #   prior to the 'system-release' check.
+          # * Checks for distros which ship with '/etc/issue' must be performed
+          #   prior to the Generic 'issue' check.
+
+          # MX Linux
+          if etc_files.include?('mx-version')
+            version = read_file('/etc/mx-version').gsub(/\n|\\n|\\l/, '').strip
+            system_data[:distro] = 'mxlinux'
+            system_data[:version] = version
+
+          # AntiX
+          elsif etc_files.include?('antix-version')
+            version = read_file('/etc/antix-version').gsub(/\n|\\n|\\l/, '').strip
+            system_data[:distro] = 'antix'
+            system_data[:version] = version
+
+          # OpenMandriva
+          elsif etc_files.include?('openmandriva-release')
+            version = read_file('/etc/openmandriva-release').gsub(/\n|\\n|\\l/, '').strip
+            system_data[:distro] = 'openmandriva'
+            system_data[:version] = version
+
+          # Debian / Ubuntu (and forks)
+          elsif etc_files.include?('debian_version')
             version = read_file('/etc/issue').gsub(/\n|\\n|\\l/, '').strip
             if kernel_version =~ /Ubuntu/
               system_data[:distro] = 'ubuntu'
@@ -62,6 +89,12 @@ module Msf
           elsif etc_files.include?('redhat-release')
             version = read_file('/etc/redhat-release').gsub(/\n|\\n|\\l/, '').strip
             system_data[:distro] = 'redhat'
+            system_data[:version] = version
+
+          # Manjaro
+          elsif etc_files.include?('manjaro-release')
+            version = read_file('/etc/manjaro-release').gsub(/\n|\\n|\\l/, '').strip
+            system_data[:distro] = 'manjaro'
             system_data[:version] = version
 
           # Arch
