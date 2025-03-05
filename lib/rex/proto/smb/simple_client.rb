@@ -288,7 +288,15 @@ class SimpleClient
   end
 
   def peerinfo
-    "#{peerhost}:#{peerport}"
+    Rex::Socket.to_authority(peerhost, peerport)
+  end
+
+  def signing_required
+    if client.is_a?(Rex::Proto::SMB::Client)
+      client.peer_require_signing
+    else
+      client.signing_required
+    end
   end
 
   private
