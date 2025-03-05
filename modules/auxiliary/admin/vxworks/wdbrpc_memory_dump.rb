@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           ['OSVDB', '66842'],
-          ['URL', 'https://www.rapid7.com/blog/post/2010/08/02/new-vxworks-vulnerabilities/'],
+          ['URL', 'http://web.archive.org/web/20230402082942/https://www.rapid7.com/blog/post/2010/08/02/new-vxworks-vulnerabilities/'],
           ['US-CERT-VU', '362332']
         ],
       'Actions'     =>

@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References'     => [
           ['URL', 'https://twitter.com/pwnsdx/status/1040944750973595649'],
-          ['URL', 'https://gist.github.com/pwnsdx/ce64de2760996a6c432f06d612e33aea'],
+          ['URL', 'http://web.archive.org/web/20220706175501/https://gist.github.com/pwnsdx/ce64de2760996a6c432f06d612e33aea'],
           ['URL', 'https://nbulischeck.github.io/apple-safari-crash'],
         ],
         'DisclosureDate' => '2018-09-15',

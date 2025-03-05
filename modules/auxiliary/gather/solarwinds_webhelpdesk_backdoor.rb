@@ -19,8 +19,8 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' => [
           ['CVE', '2024-28987'],
-          ['URL', 'https://www.solarwinds.com/trust-center/security-advisories/cve-2024-28987'],
-          ['URL', 'https://support.solarwinds.com/SuccessCenter/s/article/SolarWinds-Web-Help-Desk-12-8-3-Hotfix-2'],
+          ['URL', 'http://web.archive.org/web/20250212002353/https://www.solarwinds.com/trust-center/security-advisories/cve-2024-28987'],
+          ['URL', 'http://web.archive.org/web/20250212002353/https://support.solarwinds.com/SuccessCenter/s/article/SolarWinds-Web-Help-Desk-12-8-3-Hotfix-2'],
           ['URL', 'https://www.horizon3.ai/attack-research/cve-2024-28987-solarwinds-web-help-desk-hardcoded-credential-vulnerability-deep-dive/'],
         ],
         'DisclosureDate' => '2024-08-22',

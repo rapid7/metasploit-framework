@@ -22,8 +22,8 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           [ 'CVE', '2017-5689' ],
-          [ 'URL', 'https://www.embedi.com/news/what-you-need-know-about-intel-amt-vulnerability' ],
-          [ 'URL', 'https://www.intel.com/content/www/us/en/security-center/default.html?intelid=INTEL-SA-00075&languageid=en-fr' ],
+          [ 'URL', 'http://web.archive.org/web/20191225124314/https://www.embedi.com/news/what-you-need-know-about-intel-amt-vulnerability' ],
+          [ 'URL', 'http://web.archive.org/web/20250208090258/https://www.intel.com/content/www/us/en/security-center/default.html?intelid=INTEL-SA-00075' ],
         ],
       'DisclosureDate' => 'May 05 2017'
     )
