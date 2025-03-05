@@ -242,6 +242,8 @@ module Msf::Sessions
         extend(Msf::Sessions::WindowsEscaping)
       elsif Metasploit::Framework::Ssh::Platform.is_posix(@platform)
         extend(Msf::Sessions::UnixEscaping)
+      else
+        raise ::Net::SSH::Exception.new("Unknown platform: #{platform}")
       end
 
       # if the platform is known, it was recovered by communicating with the device, so skip verification, also not all
