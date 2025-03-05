@@ -63,69 +63,73 @@ class MetasploitModule < Msf::Post
     if aslr_enabled?
       r = 'ASLR is enabled'
       print_good r
-      report r
+      report({ :aslr => 'enabled' })
     end
 
     if exec_shield_enabled?
       r = 'Exec-Shield is enabled'
       print_good r
-      report r
+      report({ :exec_shield => 'enabled' })
     end
 
     if kaiser_enabled?
       r = 'KAISER is enabled'
       print_good r
-      report r
+      report({ :kaiser => 'enabled' })
     end
 
     if smep_enabled?
       r = 'SMEP is enabled'
       print_good r
-      report r
+      report({ :smep => 'enabled' })
     end
 
     if smap_enabled?
       r = 'SMAP is enabled'
       print_good r
-      report r
+      report({ :smap => 'enabled' })
     end
 
     if lkrg_installed?
       r = 'LKRG is installed'
       print_good r
-      report r
+      report({ :lkrg => 'installed' })
     end
 
     if grsec_installed?
       r = 'grsecurity is installed'
       print_good r
-      report r
+      report({ :grsecurity => 'installed' })
     end
 
     if pax_installed?
       r = 'PaX is installed'
       print_good r
-      report r
+      report({ :pax => 'installed' })
     end
 
     if selinux_installed?
       if selinux_enforcing?
         r = 'SELinux is installed and enforcing'
+        mode = 'enforcing'
       else
         r = 'SELinux is installed, but in permissive mode'
+        mode = 'permissive'
       end
       print_good r
-      report r
+      report({ :selinux => 'installed', :mode => mode })
     end
 
     if yama_installed?
       if yama_enabled?
         r = 'Yama is installed and enabled'
+        status = 'enabled'
       else
         r = 'Yama is installed, but not enabled'
+        status = 'disabled'
       end
       print_good r
-      report r
+      report({ :yama => 'installed', :status => status })
     end
   end
 
@@ -146,7 +150,7 @@ class MetasploitModule < Msf::Post
       next unless path.start_with? '/'
 
       print_good "#{app} found: #{path}"
-      report path
+      report({ :path => path })
     end
   end
 end

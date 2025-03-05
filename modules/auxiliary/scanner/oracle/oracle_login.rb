@@ -175,7 +175,7 @@ class MetasploitModule < Msf::Auxiliary
         if oline =~ /Login correct/
           if not @oracle_reported
             report_service(:host => addr, :port => port, :proto => "tcp", :name => "oracle")
-            report_note(:host => addr, :port => port, :proto => "tcp", :type => "oracle.sid", :data => sid, :update => :unique_data)
+            report_note(:host => addr, :port => port, :proto => "tcp", :type => "oracle.sid", :data => { :sid => sid }, :update => :unique_data)
             @oracle_reported = true
           end
           user,pass = extract_creds(oline)
@@ -192,7 +192,7 @@ class MetasploitModule < Msf::Auxiliary
         elsif oline =~ /Account locked/
           if not @oracle_reported
             report_service(:host => addr, :port => port, :proto => "tcp", :name => "oracle")
-            report_note(:host => addr, :port => port, :proto => "tcp", :type => "oracle.sid", :data => sid, :update => :unique_data)
+            report_note(:host => addr, :port => port, :proto => "tcp", :type => "oracle.sid", :data => { :sid => sid }, :update => :unique_data)
             @oracle_reported = true
           end
           user = extract_creds(oline)[0]

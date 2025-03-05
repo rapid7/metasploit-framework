@@ -139,7 +139,7 @@ class MetasploitModule < Msf::Auxiliary
         report_note(
           :host => cli.peerhost,
           :type => 'ie.cookie',
-          :data => data
+          :data => { :cookie => data }
         )
         path = store_loot('ie_uxss_cookie', "text/plain", cli.peerhost, data, "#{cli.peerhost}_ie_cookie.txt", "IE Cookie")
         vprint_good("Cookie stored as: #{path}")

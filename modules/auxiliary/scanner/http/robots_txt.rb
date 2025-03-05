@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
           :proto => 'tcp',
           :sname	=> (ssl ? 'https' : 'http'),
           :type	=> 'ROBOTS_TXT',
-          :data	=> u,
+          :data	=> { :file => u },
           :update => :unique_data
         )
       end
