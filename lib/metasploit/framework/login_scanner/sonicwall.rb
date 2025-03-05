@@ -20,7 +20,7 @@ module Metasploit
           @domain = domain
           super(scanner_config)
         end
-        
+
         def req_params_base
           {
             'method' => 'POST',
@@ -33,51 +33,36 @@ module Metasploit
 
         def auth_details_req
           params = req_params_base
-          
+
           #
           # Admin and SSLVPN user login procedure differs only in usage of domain field in JSON data
           #
-          
-          if @domain == ''
-            params.merge!({'data' => JSON.pretty_generate({
+          params.merge!({
+            'data' => JSON.pretty_generate(@domain.empty? ? {
               'override' => false,
               'snwl' => true
-            })})
-
-          else
-            params.merge!({'data' => JSON.pretty_generate({
-              'domain' => @domain,
-              'override' => false,
-              'snwl' => true
-            })})
-          end
+            } : { 'domain' => @domain, 'override' => false, 'snwl' => true })
+          })
           return params
         end
 
         def auth_req(header)
-
           params = req_params_base
-          
+
           params.merge!({
-              'headers'=> 
-              {
-                'Authorization' => header.join(', ')
-              }
-            })
+            'headers' =>
+            {
+              'Authorization' => header.join(', ')
+            }
+          })
 
-          if @domain == ''
-            params.merge!({'data' => JSON.pretty_generate({
+          params.merge!({
+            'data' => JSON.pretty_generate(@domain.empty? ? {
               'override' => false,
               'snwl' => true
-            })})
+            } : { 'domain' => @domain, 'override' => false, 'snwl' => true })
+          })
 
-          else
-            params.merge!({'data' => JSON.pretty_generate({
-              'domain' => @domain,
-              'override' => false,
-              'snwl' => true
-            })})
-          end
           return params
         end
 
@@ -99,7 +84,7 @@ module Metasploit
             'uri' => normalize_uri('/sonicui/7/login/')
           }
           res = send_request(request_params)
-          if res && res.code == 200 && res.body&.include?('SonicWall')
+          if res&.code == 200 && res.body&.include?('SonicWall')
             return false
           end
 
@@ -110,7 +95,7 @@ module Metasploit
         # The login procedure is two-step procedure for SonicWall due to HTTP Digest Authentication. In the first request, client receives data,cryptographic hashes and algorithm selection from server. It should calculate final response hash from username, password and additional data received from server. The second request contains all this information.
         #
         def do_login(username, password, depth)
-           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Waiting too long in lockout' } if depth >= 2
+          return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Waiting too long in lockout' } if depth >= 2
 
           #-- get authentication details from first request
           res = get_auth_details(username, password)
@@ -137,12 +122,10 @@ module Metasploit
 
           return { status: ::Metasploit::Model::Login::Status::SUCCESSFUL, proof: res.to_s } if res&.code == 200
 
-          return { status: ::Metasploit::Model::Login::Status::INCORRECT, proof: res.to_s } unless res&.body
 
-          msg_json = JSON.parse(res&.body)
+          msg_json = res.get_json_document
 
-          return { status: ::Metasploit::Model::Login::Status::INCORRECT, proof: res.to_s } unless msg_json && msg_json.is_a?(Hash)
-
+          return { status: ::Metasploit::Model::Login::Status::INCORRECT, proof: res.to_s } unless msg_json
           msg = get_resp_msg(msg_json)
 
           if msg == 'User is locked out'
