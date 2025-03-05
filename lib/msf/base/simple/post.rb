@@ -55,7 +55,7 @@ module Post
     end
 
     # Verify the options
-    mod.options.validate(mod.datastore)
+    mod.validate
 
     # Initialize user interaction
     if ! opts['Quiet']
