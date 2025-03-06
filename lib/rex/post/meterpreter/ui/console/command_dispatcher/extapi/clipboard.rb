@@ -18,7 +18,8 @@ class Console::CommandDispatcher::Extapi::Clipboard
   include Console::CommandDispatcher
   include Rex::Post::Meterpreter::Extensions::Extapi
 
-  def initialize
+  def initialize(s)
+    super
     @loot_directory = "~/.msf4/clipboard_loot"
   end
   
@@ -281,7 +282,8 @@ class Console::CommandDispatcher::Extapi::Clipboard
     "-i" => [ true,  "Indicate if captured image data should be downloaded (default: true)" ],
     "-f" => [ true,  "Indicate if captured file data should be downloaded (default: false)" ],
     "-p" => [ true,  "Purge the contents of the monitor once dumped (default: true)" ],
-    "-d" => [ true,  "Download non-text content to the specified folder (default: current dir)" ]
+    "-d" => [ true,  "Download non-text content to the specified folder (default: current dir)" ],
+    '--force' => [false, "Force overwriting existing files"]
   )
 
   #
@@ -302,6 +304,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
     download_images = true
     download_files = false
     download_path = nil
+    force_overwrite = false
 
     @@monitor_dump_opts.parse(args) { |opt, idx, val|
       case opt
@@ -313,19 +316,23 @@ class Console::CommandDispatcher::Extapi::Clipboard
         download_files = val.downcase != 'false'
       when "-p"
         purge = val.downcase != 'false'
+      when '--force'
+        force_overwrite = true
       when "-h"
         print_clipboard_monitor_dump_usage
         return true
       end
     }
-
+    
+    # do something with dump
     dump = client.extapi.clipboard.monitor_dump({
-      :include_images => download_images,
-      :purge          => purge
+      :include_images => download_images
     })
+    
 
-    parse_dump(dump, download_images, download_files, download_path)
-
+    if !parse_dump(dump, download_images, download_files, download_path, force_overwrite)
+      client.extapi.clipboard.monitor_purge
+    end
     print_good("Clipboard monitor dumped")
   end
 
@@ -337,7 +344,8 @@ class Console::CommandDispatcher::Extapi::Clipboard
     "-x" => [ true,  "Indicate if captured clipboard data should be dumped (default: true)" ],
     "-i" => [ true,  "Indicate if captured image data should be downloaded (default: true)" ],
     "-f" => [ true,  "Indicate if captured file data should be downloaded (default: true)" ],
-    "-d" => [ true,  "Download non-text content to the specified folder (default: current dir)" ]
+    "-d" => [ true,  "Download non-text content to the specified folder (default: current dir)" ],
+    '--force' => [false, "Force overwriting existing files"]
   )
 
   #
@@ -358,6 +366,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
     download_images = true
     download_files = false
     download_path = nil
+    force_overwrite = false
 
     @@monitor_stop_opts.parse(args) { |opt, idx, val|
       case opt
@@ -369,59 +378,69 @@ class Console::CommandDispatcher::Extapi::Clipboard
         download_images = val.downcase != 'false'
       when "-f"
         download_files = val.downcase != 'false'
+      when '--force'
+        force_overwrite = true
       when "-h"
         print_clipboard_monitor_stop_usage
         return true
       end
     }
+    
 
     dump = client.extapi.clipboard.monitor_stop({
       :dump           => dump_data,
       :include_images => download_images
     })
 
-    parse_dump(dump, download_images, download_files, download_path) if dump_data
+    parse_dump(dump, download_images, download_files, download_path, force_overwrite) if dump_data
 
     print_good("Clipboard monitor stopped")
   end
 
 private
 
-  def download_file( dest_folder, source )
+  def download_file( dest_folder, source, force_overwrite=false )
     stat = client.fs.file.stat( source )
     base = ::Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File.basename( source )
+    attempted_overwrite = false
 
     # Basename ends up with a single name/folder. This is the only point where it
     # may be possible to do a dir trav up one folder. We need to check to make sure
     # that the basename doesn't result in a traversal
-    return false if base == '..'
+    return false,attempted_overwrite if base == '..'
 
     dest = File.join( dest_folder, base )
 
     if stat.directory?
+      if ::File.file?(dest) && !force_overwrite
+          print_error("Cannot write to existing files if force overwrite is not enabled")
+          attempted_overwrite = true
+      else
       client.fs.dir.download( dest, source, {"recursive" => true}, true ) { |step, src, dst|
-        print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
-        client.framework.events.on_session_download( client, src, dest ) if msf_loaded?
+        puts "Directory: #{dest}, #{src}, #{dst}"
+          print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
+          client.framework.events.on_session_download( client, src, dest ) if msf_loaded?
       }
+      end
     elsif stat.file?
-      client.fs.file.download( dest, source ) { |step, src, dst|
-        print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
-        client.framework.events.on_session_download( client, src, dest ) if msf_loaded?
-      }
+      if ::File.file?(dest) && !force_overwrite
+          print_error("Cannot write to existing files if force overwrite is not enabled")
+          attempted_overwrite = true
+      else
+        client.fs.file.download( dest, source ) { |step, src, dst|
+            print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
+            client.framework.events.on_session_download( client, src, dest ) if msf_loaded?
+        }
+      end
     end
 
-    return true
+    return true, attempted_overwrite
   end
 
-  def parse_dump(dump, get_images, get_files, download_path)
+  def parse_dump(dump, get_images, get_files, download_path, force_overwrite=false)
 
-    loot_dir = download_path || ::File.expand_path(@loot_directory)
-    # prevent writing into existing directory without file download enabled
-    if ::File.directory?(loot_dir) && !get_files
-      print_error("Cannot write to existing directory if file download is not enabled")
-      return false
-    end
-
+    loot_dir = download_path || './'
+    overwrite_attempt = false
     if (get_images || get_files) && !::File.directory?( loot_dir )
       ::FileUtils.mkdir_p( loot_dir )
     end
@@ -442,7 +461,11 @@ private
             print_line("Remote Path : #{f[:name]}")
             print_line("File size   : #{f[:size]} bytes")
             if get_files
-              unless download_file(loot_dir, f[:name])
+              download_status, attempt = download_file(loot_dir, f[:name],force_overwrite)
+              #if once set to true, leave it true
+              overwrite_attempt = overwrite_attempt ? true : attempt
+
+              unless download_status
                 print_error("Download of #{f[:name]} failed.")
               end
             end
@@ -455,16 +478,21 @@ private
             file = "#{ts.gsub(/\D+/, '')}-#{Rex::Text.rand_text_alpha(8)}.jpg"
             path = File.join(loot_dir, file)
             path = ::File.expand_path(path)
-            ::File.open(path, 'wb') do |x|
-              x.write v[:data]
+            if ::File.file?(path) && !force_overwrite
+                overwrite_attempt = true 
+            else
+              ::File.open(path, 'wb') do |x|
+                x.write v[:data]
+              end
+              print_line("Downloaded : #{path}")
             end
-            print_line("Downloaded : #{path}")
           end
         end
         print_line(under)
         print_line
       end
     end
+    return overwrite_attempt
   end
 
 end
