@@ -326,12 +326,13 @@ class Console::CommandDispatcher::Extapi::Clipboard
     
     # do something with dump
     dump = client.extapi.clipboard.monitor_dump({
-      :include_images => download_images
+      :include_images => download_images,
+      :purge => false
     })
     
-
-    if !parse_dump(dump, download_images, download_files, download_path, force_overwrite)
-      client.extapi.clipboard.monitor_purge
+    res = parse_dump(dump, download_images, download_files, download_path, force_overwrite)
+    if !res && purge
+      client.extapi.clipboard.monitor_purge()
     end
     print_good("Clipboard monitor dumped")
   end
@@ -410,28 +411,30 @@ private
     return false,attempted_overwrite if base == '..'
 
     dest = File.join( dest_folder, base )
+    dest = ::File.expand_path(dest)
 
+#    return false, attempted_overwrite if !dest.start_with?(dest_folder + ::File::SEPARATOR)
+      
     if stat.directory?
-      if ::File.file?(dest) && !force_overwrite
-          print_error("Cannot write to existing files if force overwrite is not enabled")
-          attempted_overwrite = true
-      else
-      client.fs.dir.download( dest, source, {"recursive" => true}, true ) { |step, src, dst|
-        puts "Directory: #{dest}, #{src}, #{dst}"
-          print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
-          client.framework.events.on_session_download( client, src, dest ) if msf_loaded?
-      }
-      end
-    elsif stat.file?
-      if ::File.file?(dest) && !force_overwrite
-          print_error("Cannot write to existing files if force overwrite is not enabled")
-          attempted_overwrite = true
-      else
-        client.fs.file.download( dest, source ) { |step, src, dst|
+      client.fs.dir.download( dest, source, {"force_overwrite" => force_overwrite, "recursive" => true} ) { |step, src, dst|
+          if ::File.file?(dst) && !force_overwrite
+            print_error("Cannot write to existing files if force overwrite is not enabled")
+            attempted_overwrite = true
+          else
             print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
             client.framework.events.on_session_download( client, src, dest ) if msf_loaded?
+          end
+      }
+    elsif stat.file?
+      client.fs.file.download( dest, source, {"force_overwrite" => force_overwrite} ) { |step, src, dst|
+          if ::File.file?(dst) && !force_overwrite
+              print_error("Cannot write to existing files if force overwrite is not enabled")
+              attempted_overwrite = true
+          else
+            print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
+            client.framework.events.on_session_download( client, src, dest ) if msf_loaded?
+          end
         }
-      end
     end
 
     return true, attempted_overwrite
@@ -463,7 +466,7 @@ private
             if get_files
               download_status, attempt = download_file(loot_dir, f[:name],force_overwrite)
               #if once set to true, leave it true
-              overwrite_attempt = overwrite_attempt ? true : attempt
+              overwrite_attempt ||= attempt
 
               unless download_status
                 print_error("Download of #{f[:name]} failed.")
