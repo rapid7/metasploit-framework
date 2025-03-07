@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Post
         report_note(
           host: session,
           type: 'domain.hostnames',
-          data: dc[:name],
+          data: { :hostnames => dc[:name] },
           update: :unique_data
         )
       end

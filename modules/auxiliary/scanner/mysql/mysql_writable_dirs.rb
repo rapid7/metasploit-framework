@@ -71,7 +71,10 @@ class MetasploitModule < Msf::Auxiliary
       report_note(
         :host  => mysql_conn.peerhost,
         :type  => "filesystem.file",
-        :data  => "#{dir} is writeable",
+        :data  => {
+          :dir => dir,
+          :permissions => "writeable",
+        },
         :port  => mysql_conn.peerport,
         :proto => 'tcp',
         :update => :unique_data

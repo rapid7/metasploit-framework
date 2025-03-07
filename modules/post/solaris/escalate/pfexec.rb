@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Post
     report_note(
       host: session,
       type: 'host.escalation',
-      data: "User `#{user}' pfexec'ed to a root shell"
+      data: { :escalation => "User `#{user}' pfexec'ed to a root shell" }
     )
   end
 end

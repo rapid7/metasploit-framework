@@ -101,7 +101,7 @@ class MetasploitModule < Msf::Auxiliary
           :port  => datastore['RPORT'],
           :proto => 'tcp',
           :ntype => 'cfversion',
-          :data  => out
+          :data  => { :version => out }
         )
       end
     elsif(res.code.to_i == 403 and datastore['VERBOSE'])

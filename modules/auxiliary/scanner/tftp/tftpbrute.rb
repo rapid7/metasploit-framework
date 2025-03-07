@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
             :sname	=> 'tftp',
             :port	=> datastore['RPORT'],
             :type	=> "Found #{filename}",
-            :data	=> "Found #{filename}"
+            :data	=> { :filename => filename }
           )
         end
       end

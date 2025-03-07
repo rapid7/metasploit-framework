@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
           :sname => 'snmp',
           :update => :unique_data,
           :type => 'xerox.workcenter.user',
-          :data => user)
+          :data => { :user => user })
         end
       end
 
