@@ -17,11 +17,6 @@ class Console::CommandDispatcher::Extapi::Clipboard
 
   include Console::CommandDispatcher
   include Rex::Post::Meterpreter::Extensions::Extapi
-
-  def initialize(s)
-    super
-    @loot_directory = "~/.msf4/clipboard_loot"
-  end
   
   #
   # List of supported commands.
