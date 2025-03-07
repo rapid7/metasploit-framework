@@ -213,7 +213,7 @@ class Server
       "<title>404 Not Found</title>" +
       "</head><body>" +
       "<h1>Not found</h1>" +
-      "The requested URL #{html_escape(request.resource)} was not found on this server.<p><hr>" +
+      "The requested URL #{ERB::Util.html_escape(request.resource)} was not found on this server.<p><hr>" +
       "</body></html>"
 
     # Send the response to the client like what
