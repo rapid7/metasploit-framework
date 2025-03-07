@@ -385,9 +385,15 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     src_stat = client.fs.filestat.new(src_file)
     if ::File.exist?(dest_file)
       dst_stat = ::File.stat(dest_file)
-      if (src_stat.size == dst_stat.size && src_stat.mtime == dst_stat.mtime) || (!force_overwrite)
+      if (src_stat.size == dst_stat.size && src_stat.mtime == dst_stat.mtime) 
         src_fd.close
         return 'Skipped'
+      end
+      if !force_overwrite
+        src_fd.close
+        return 'Overwrite attempt'
+      else
+        stat.call("Overwriting existing file", src_file, dest_file)
       end
     end
 

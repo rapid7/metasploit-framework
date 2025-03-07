@@ -275,7 +275,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
   @@monitor_dump_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner" ],
     "-i" => [ true,  "Indicate if captured image data should be downloaded (default: true)" ],
-    "-f" => [ true,  "Indicate if captured file data should be downloaded (default: false)" ],
+    "-f" => [ true,  "Indicate if captured file data should be downloaded (default: true)" ],
     "-p" => [ true,  "Purge the contents of the monitor once dumped (default: true)" ],
     "-d" => [ true,  "Download non-text content to the specified folder (default: current dir)" ],
     '--force' => [false, "Force overwriting existing files"]
@@ -297,7 +297,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
   def cmd_clipboard_monitor_dump(*args)
     purge = true
     download_images = true
-    download_files = false
+    download_files = true
     download_path = nil
     force_overwrite = false
 
@@ -360,7 +360,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
   def cmd_clipboard_monitor_stop(*args)
     dump_data = true
     download_images = true
-    download_files = false
+    download_files = true
     download_path = nil
     force_overwrite = false
 
@@ -403,32 +403,25 @@ private
     # Basename ends up with a single name/folder. This is the only point where it
     # may be possible to do a dir trav up one folder. We need to check to make sure
     # that the basename doesn't result in a traversal
-    return false,attempted_overwrite if base == '..'
+    return false, attempted_overwrite if base == '..'
 
     local_dest_path = File.join( dest_folder, base )
     local_dest_path = ::File.expand_path(local_dest_path)
-
+    
     return false, attempted_overwrite unless local_dest_path.start_with?(::File.expand_path(dest_folder)+'/')
     
     if stat.directory?
       client.fs.dir.download( local_dest_path, source, {"force_overwrite" => force_overwrite, "recursive" => true} ) { |step, src, dst|
-          if ::File.file?(dst) && !force_overwrite
-            print_error("Cannot write to existing files if force overwrite is not enabled")
-            attempted_overwrite = true
-          else
+            
+            attempted_overwrite ||= (step == "Overwrite attempt")
             print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
             client.framework.events.on_session_download( client, src, local_dest_path ) if msf_loaded?
-          end
       }
     elsif stat.file?
       client.fs.file.download( local_dest_path, source, {"force_overwrite" => force_overwrite} ) { |step, src, dst|
-          if ::File.file?(dst) && !force_overwrite
-              print_error("Cannot write to existing files if force overwrite is not enabled")
-              attempted_overwrite = true
-          else
-            print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
-            client.framework.events.on_session_download( client, src, local_dest_path ) if msf_loaded?
-          end
+          attempted_overwrite ||= (step == "Overwrite attempt")
+          print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
+          client.framework.events.on_session_download( client, src, local_dest_path ) if msf_loaded?
         }
     end
 
