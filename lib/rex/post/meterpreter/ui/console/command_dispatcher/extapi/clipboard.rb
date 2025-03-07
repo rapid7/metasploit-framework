@@ -410,29 +410,29 @@ private
     # that the basename doesn't result in a traversal
     return false,attempted_overwrite if base == '..'
 
-    dest = File.join( dest_folder, base )
-    dest = ::File.expand_path(dest)
+    local_dest_path = File.join( dest_folder, base )
+    local_dest_path = ::File.expand_path(local_dest_path)
 
-#    return false, attempted_overwrite if !dest.start_with?(dest_folder + ::File::SEPARATOR)
-      
+    return false, attempted_overwrite unless local_dest_path.start_with?(::File.expand_path(dest_folder)+'/')
+    
     if stat.directory?
-      client.fs.dir.download( dest, source, {"force_overwrite" => force_overwrite, "recursive" => true} ) { |step, src, dst|
+      client.fs.dir.download( local_dest_path, source, {"force_overwrite" => force_overwrite, "recursive" => true} ) { |step, src, dst|
           if ::File.file?(dst) && !force_overwrite
             print_error("Cannot write to existing files if force overwrite is not enabled")
             attempted_overwrite = true
           else
             print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
-            client.framework.events.on_session_download( client, src, dest ) if msf_loaded?
+            client.framework.events.on_session_download( client, src, local_dest_path ) if msf_loaded?
           end
       }
     elsif stat.file?
-      client.fs.file.download( dest, source, {"force_overwrite" => force_overwrite} ) { |step, src, dst|
+      client.fs.file.download( local_dest_path, source, {"force_overwrite" => force_overwrite} ) { |step, src, dst|
           if ::File.file?(dst) && !force_overwrite
               print_error("Cannot write to existing files if force overwrite is not enabled")
               attempted_overwrite = true
           else
             print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
-            client.framework.events.on_session_download( client, src, dest ) if msf_loaded?
+            client.framework.events.on_session_download( client, src, local_dest_path ) if msf_loaded?
           end
         }
     end
@@ -484,9 +484,7 @@ private
             if ::File.file?(path) && !force_overwrite
                 overwrite_attempt = true 
             else
-              ::File.open(path, 'wb') do |x|
-                x.write v[:data]
-              end
+              ::File.binwrite(path, v[:data])
               print_line("Downloaded : #{path}")
             end
           end
