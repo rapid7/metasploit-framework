@@ -24,6 +24,10 @@ class MetasploitModule < Msf::Auxiliary
           [ 'BID', '8641' ],
           [ 'EDB', '24' ]
         ],
+      'Notes' =>
+        {
+          'AKA' => ['EARLYSHOVEL']
+        },
       'DisclosureDate' => '2003-09-17'))
   end
 
