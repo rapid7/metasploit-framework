@@ -210,7 +210,7 @@ module Msf::Payload::Adapter::Fetch
 
   def _execute_nix(get_file_cmd)
     return _generate_fileless(get_file_cmd) if datastore['FETCH_FILELESS'] == 'bash'
-    return _generate_fileless_python(get_file_cmd) if datastore['FETCH_FILELESS'] == 'python3.8'
+    return _generate_fileless_python(get_file_cmd) if datastore['FETCH_FILELESS'] == 'python3.8+'
 
 
     cmds = get_file_cmd
