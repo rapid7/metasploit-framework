@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
       report_note(
         :host  => mysql_conn.peerhost,
         :type  => "mysql.db.schema",
-        :data  => db,
+        :data  => { :database => db },
         :port  => mysql_conn.peerport,
         :proto => 'tcp',
         :update => :unique_data

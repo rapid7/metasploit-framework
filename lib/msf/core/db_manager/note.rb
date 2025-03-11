@@ -143,6 +143,15 @@ module Msf::DBManager::Note
     end
 
     ntype  = opts.delete(:type) || opts.delete(:ntype) || (raise RuntimeError, "A note :type or :ntype is required")
+
+    unless opts[:data].is_a?(Hash)
+      message = "\nThe data option for Msf::DBManager::Note#report_note should be a Hash(current class: #{opts[:data].class}).\n"
+      message << "If you see this message in an existing module, please use the following link to tell us, "
+      message << "so modules can be appropriately updated:\n"
+      message << '  https://github.com/rapid7/metasploit-framework/issues/19874'
+      warn message
+    end
+
     data   = opts[:data]
     note   = nil
 

@@ -100,7 +100,11 @@ class MetasploitModule < Msf::Auxiliary
         :sname => (ssl ? 'https' : 'http'),
         :port  => rport,
         :type  => 'JBoss application server info',
-        :data  => "#{rhost}:#{rport} #{r[2]}"
+        :data  => {
+          :rhost => rhost,
+          :rport => rport,
+          :request => r[2]
+        }
       })
     end
 

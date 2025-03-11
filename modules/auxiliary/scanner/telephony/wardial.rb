@@ -248,7 +248,7 @@ class MetasploitModule < Msf::Auxiliary
             initmodem(modem, initstring)
             num_carriers += 1
             note = dialrange[dialnum][:result] + "\n" + dialrange[dialnum][:banner]
-            report_note(:host => dialnum, :type => "wardial_result", :data => note)
+            report_note(:host => dialnum, :type => "wardial_result", :data => { :result => note })
             log_result(dialrange[dialnum])
           when /HK_CARRIER/i
             print_status( "Carrier: #{result}" )
@@ -260,7 +260,7 @@ class MetasploitModule < Msf::Auxiliary
             initmodem(modem, initstring)
             num_carriers += 1
             note = dialrange[dialnum][:result] + "\n" + dialrange[dialnum][:banner]
-            report_note(:host => dialnum, :type => "wardial_result", :data => note)
+            report_note(:host => dialnum, :type => "wardial_result", :data => { :result => note })
             log_result(dialrange[dialnum])
           when /\+FCO/i
             print_status( "Fax: #{result}" )
@@ -272,7 +272,7 @@ class MetasploitModule < Msf::Auxiliary
             initmodem(modem, initstring)
             num_faxes += 1
             note = dialrange[dialnum][:result] + "\n" + dialrange[dialnum][:banner]
-            report_note(:host => dialnum, :type => "wardial_result", :data => note)
+            report_note(:host => dialnum, :type => "wardial_result", :data => { :result => note })
             log_result(dialrange[dialnum])
           when /VOICE/i
             print_status( "Voice" )

@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
         :proto => 'SOAP',
         :port => rport,
         :type => 'SAP Version',
-        :data => "SAP Version: #{version}"
+        :data => { :version => version }
       )
 
       report_note(
@@ -123,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
         :proto => 'SOAP',
         :port => rport,
         :type => 'SAP SID',
-        :data => "SAP SID: #{sapsid.upcase}"
+        :data => { :sap_sid => sapsid.upcase }
       )
 
       return
