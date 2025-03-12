@@ -40,10 +40,6 @@ module Metasploit::Framework::CommonEngine
 
     config.active_support.deprecation = :stderr
 
-    if ActiveRecord.respond_to?(:legacy_connection_handling=)
-      ActiveRecord.legacy_connection_handling = false
-    end
-
     # @see https://github.com/rapid7/metasploit_data_models/blob/54a17149d5ccd0830db742d14c4987b48399ceb7/lib/metasploit_data_models/yaml.rb#L10
     # @see https://github.com/rapid7/metasploit_data_models/blob/54a17149d5ccd0830db742d14c4987b48399ceb7/lib/metasploit_data_models/base64_serializer.rb#L28-L31
     ActiveRecord.yaml_column_permitted_classes = (ActiveRecord.yaml_column_permitted_classes + MetasploitDataModels::YAML::PERMITTED_CLASSES).uniq
