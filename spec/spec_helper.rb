@@ -99,6 +99,31 @@ RSpec.configure do |config|
   config.order = :random
 
   if load_metasploit
+    # config.use_transactional_fixtures = false
+    #
+    # config.before(:suite) do
+    #   # Start with a clean slate by truncating all tables
+    #   DatabaseCleaner.clean_with(
+    #     :truncation,
+    #     { cache_tables: false, pre_count: true, reset_ids: true },
+    #     )
+    # end
+    # config.before do
+    #   strategy = RSpec.current_example.metadata[:deletion] ? :deletion : :transaction
+    #   DatabaseCleaner.strategy = strategy
+    #   DatabaseCleaner.start
+    # end
+    #
+    # #  Clean after each test in case of failures
+    # config.append_after { DatabaseCleaner.clean }
+    #
+    # # Final cleanup to leave database in a clean state
+    # config.after(:suite) do
+    #   DatabaseCleaner.clean_with(
+    #     :truncation,
+    #     { cache_tables: false, pre_count: true, reset_ids: true },
+    #     )
+    # end
     config.use_transactional_fixtures = true
 
     # rspec-rails 3 will no longer automatically infer an example group's spec type
