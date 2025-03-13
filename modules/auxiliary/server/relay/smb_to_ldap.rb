@@ -70,7 +70,8 @@ class MetasploitModule < Msf::Auxiliary
       datastore['RELAY_TARGETS'],
       datastore['TARGETURI'],
       randomize_targets: datastore['RANDOMIZE_TARGETS'],
-      drop_mic_and_flags: true
+      drop_mic_only: true,
+      drop_mic_and_sign_key_exch_flags: true
     )
   end
 
