@@ -76,6 +76,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check_options
+    unless framework.features.enabled?(Msf::FeatureManager::LDAP_SESSION_TYPE)
+      fail_with(Failure::BadConfig, 'This module requires the `ldap_session_type` feature to be enabled. Please enable this feature using `features set ldap_session_type true`')
+    end
     if datastore['RHOSTS'].present?
       print_warning('Warning: RHOSTS datastore value has been set which is not supported by this module. Please verify RELAY_TARGETS is set correctly.')
     end
