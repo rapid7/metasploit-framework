@@ -407,8 +407,8 @@ private
 
     local_dest_path = File.join( dest_folder, base )
     local_dest_path = ::File.expand_path(local_dest_path)
-    
-    return false, attempted_overwrite unless local_dest_path.start_with?(::File.expand_path(dest_folder)+'/')
+   
+    return false, attempted_overwrite unless local_dest_path.start_with?(::File.expand_path(dest_folder)+::File::SEPARATOR)
     
     if stat.directory?
       client.fs.dir.download( local_dest_path, source, {"force_overwrite" => force_overwrite, "recursive" => true} ) { |step, src, dst|
