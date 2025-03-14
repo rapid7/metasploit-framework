@@ -55,6 +55,7 @@ class RuboCopRunner
   # @return [Integer] RuboCop::CLI status code
   def run(full_filepath, options = {})
     unless requires_rubocop?(full_filepath)
+      puts "#{full_filepath} - [*] Rubocop not required for older modules skipping. If making a large update - run rubocop #{"rubocop -a #{full_filepath}".yellow} and verify all issues are resolved"
       return RuboCop::CLI::STATUS_SUCCESS
     end
 

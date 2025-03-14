@@ -2081,7 +2081,7 @@ class Core
     print_line "datastore.  Use -g to operate on the global datastore."
     print_line
     print_line "If setting a PAYLOAD, this command can take an index from `show payloads'."
-    print @@set_opts.usage if framework.features.enabled?(Msf::FeatureManager::DATASTORE_FALLBACKS)
+    print @@set_opts.usage
     print_line
   end
 
@@ -2103,7 +2103,7 @@ class Core
       elsif args[0] == '-a'
         args.shift
         append = true
-      elsif (args[0] == '-c' || args[0] == '--clear') && framework.features.enabled?(Msf::FeatureManager::DATASTORE_FALLBACKS)
+      elsif (args[0] == '-c' || args[0] == '--clear')
         args.shift
         clear = true
       else
@@ -2271,7 +2271,7 @@ class Core
     print_line "Usage: setg [option] [value]"
     print_line
     print_line "Exactly like set -g, set a value in the global datastore."
-    print @@setg_opts.usage if framework.features.enabled?(Msf::FeatureManager::DATASTORE_FALLBACKS)
+    print @@setg_opts.usage
     print_line
   end
 
@@ -2433,83 +2433,18 @@ class Core
   end
 
   def cmd_unset_help
-    if framework.features.enabled?(Msf::FeatureManager::DATASTORE_FALLBACKS)
-      print_line "Usage: unset [-g] var1 var2 var3 ..."
-      print_line
-      print_line "The unset command is used to unset one or more variables."
-      print_line "To flush all entries, specify 'all' as the variable name."
-      print_line "With -g, operates on global datastore variables."
-      print_line
-    else
-      print_line "Usage: unset [options] var1 var2 var3 ..."
-      print_line
-      print_line "The unset command is used to unset one or more variables which have been set by the user."
-      print_line "To update all entries, specify 'all' as the variable name."
-      print @@unset_opts.usage
-      print_line
-    end
+    print_line "Usage: unset [-g] var1 var2 var3 ..."
+    print_line
+    print_line "The unset command is used to unset one or more variables."
+    print_line "To flush all entries, specify 'all' as the variable name."
+    print_line "With -g, operates on global datastore variables."
+    print_line
   end
 
   #
   # Unsets a value if it's been set.
   #
   def cmd_unset(*args)
-    if framework.features.enabled?(Msf::FeatureManager::DATASTORE_FALLBACKS)
-      return cmd_unset_with_fallbacks(*args)
-    end
-
-    # Figure out if these are global variables
-    global = false
-
-    if (args[0] == '-g')
-      args.shift
-      global = true
-    end
-
-    # Determine which data store we're operating on
-    if (active_module and global == false)
-      datastore = active_module.datastore
-    else
-      datastore = framework.datastore
-    end
-
-    # No arguments?  No cookie.
-    if (args.length == 0)
-      cmd_unset_help
-      return false
-    end
-
-    # If all was specified, then flush all of the entries
-    if args[0] == 'all'
-      print_line("Flushing datastore...")
-
-      # Re-import default options into the module's datastore
-      if (active_module and global == false)
-        active_module.import_defaults
-      # Or simply clear the global datastore
-      else
-        datastore.clear
-      end
-
-      return true
-    end
-
-    while ((val = args.shift))
-      if (driver.on_variable_unset(global, val) == false)
-        print_error("The variable #{val} cannot be unset at this time.")
-        next
-      end
-
-      print_line("Unsetting #{val}...")
-
-      datastore.delete(val)
-    end
-  end
-
-  #
-  # Unsets a value if it's been set, resetting the value back to a default value
-  #
-  def cmd_unset_with_fallbacks(*args)
     if args.include?('-h') || args.include?('--help')
       cmd_unset_help
       return
@@ -2591,7 +2526,7 @@ class Core
     print_line "Usage: unsetg [options] var1 var2 var3 ..."
     print_line
     print_line "Exactly like unset -g, unset global variables, or all"
-    print @@unsetg_opts.usage if framework.features.enabled?(Msf::FeatureManager::DATASTORE_FALLBACKS)
+    print @@unsetg_opts.usage
     print_line
   end
 

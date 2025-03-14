@@ -1,4 +1,4 @@
-name: Acceptance
+name: MSSQL Acceptance
 
 # Optional, enabling concurrency limits: https://docs.github.com/en/actions/using-jobs/using-concurrency
 #concurrency:
@@ -36,6 +36,7 @@ on:
       - 'spec/acceptance/**'
       - 'spec/support/acceptance/**'
       - 'spec/acceptance_spec_helper.rb'
+      - '.github/**'
 #   Example of running as a cron, to weed out flaky tests
 #  schedule:
 #    - cron: '*/15 * * * *'
@@ -43,7 +44,7 @@ on:
 jobs:
   mssql:
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 40
+    timeout-minutes: 60
 
     services:
       mssql:
@@ -53,11 +54,10 @@ jobs:
           MSSQL_SA_PASSWORD: yourStrong(!)Password
           ACCEPT_EULA: 'Y'
         options: >-
-          --health-cmd "/opt/mssql-tools/bin/sqlcmd -U sa -P 'yourStrong(!)Password' -Q 'select 1' -b -o /dev/null"
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -U sa -P 'yourStrong(!)Password' -C -Q 'select 1' -b -o /dev/null"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     strategy:
       fail-fast: true
       matrix:
@@ -71,6 +71,8 @@ jobs:
 
     env:
       RAILS_ENV: test
+      BUNDLE_WITHOUT: "coverage development pcap"
+
 
     name: ${{ matrix.docker_image }} - ${{ matrix.os }} - Ruby ${{ matrix.ruby }}
     steps:
@@ -80,9 +82,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # https://github.com/orgs/community/discussions/26952
+      - name: Support longpaths
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
+
       - name: Setup Ruby
         env:
-          BUNDLE_WITHOUT: "coverage development pcap"
           # Nokogiri doesn't release pre-compiled binaries for preview versions of Ruby; So force compilation with BUNDLE_FORCE_RUBY_PLATFORM
           BUNDLE_FORCE_RUBY_PLATFORM: "${{ contains(matrix.ruby, 'preview') && 'true' || 'false' }}"
         uses: ruby/setup-ruby@v1
@@ -112,7 +118,6 @@ jobs:
         # Additionally - flakey tests should be fixed or marked as flakey instead of silently retried
         run: |
           bundle exec rspec spec/acceptance/mssql_spec.rb
-
       - name: Archive results
         if: always()
         uses: actions/upload-artifact@v4
@@ -138,19 +143,20 @@ jobs:
         if: always()
         run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
 
+      # https://github.com/orgs/community/discussions/26952
+      - name: Support longpaths
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
+
       - name: Setup Ruby
         if: always()
         env:
-          BUNDLE_WITHOUT: "coverage development"
           BUNDLE_FORCE_RUBY_PLATFORM: true
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true
           cache-version: 4
-          # Github actions with Ruby requires Bundler 2.2.18+
-          # https://github.com/ruby/setup-ruby/tree/d2b39ad0b52eca07d23f3aa14fdf2a3fcc1f411c#windows
-          bundler: 2.2.33
 
       - uses: actions/download-artifact@v4
         id: download
@@ -163,16 +169,12 @@ jobs:
         if: always()
         run: |
           export VERSION=2.22.1
-
           curl -o allure-$VERSION.tgz -Ls https://github.com/allure-framework/allure2/releases/download/$VERSION/allure-$VERSION.tgz
           tar -zxvf allure-$VERSION.tgz -C .
-
           ls -la ${{steps.download.outputs.download-path}}
           ./allure-$VERSION/bin/allure generate ${{steps.download.outputs.download-path}}/* -o ./allure-report
-
           find ${{steps.download.outputs.download-path}}
           bundle exec ruby tools/dev/report_generation/support_matrix/generate.rb --allure-data ${{steps.download.outputs.download-path}} > ./allure-report/support_matrix.html
-
       - name: archive results
         if: always()
         uses: actions/upload-artifact@v4

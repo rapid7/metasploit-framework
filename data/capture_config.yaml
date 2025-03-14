@@ -1,3 +1,4 @@
+# configuration file for the capture plugin
 spoof_regex: .*
 ntlm_challenge: "1122334455667788"
 ntlm_domain: anonymous
@@ -6,6 +7,7 @@ ssl_cert: null
 logfile: null
 hashdir: null
 services:
+  # authentication services
   - type: DRDA
     enabled: yes
   - type: FTP
@@ -46,6 +48,7 @@ services:
     enabled: yes
   - type: SMTPS
     enabled: yes
+  # spoofing / poisoning services
   - type: NBNS
     enabled: yes
   - type: LLMNR

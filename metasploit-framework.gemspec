@@ -74,9 +74,9 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.166'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.189'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.26'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.35'
   # Needed by msfgui and other rpc components
   # Locked until build env can handle newer version. See: https://github.com/msgpack/msgpack-ruby/issues/334
   spec.add_runtime_dependency 'msgpack', '~> 1.6.0'
@@ -128,8 +128,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'http-cookie'
   # Needed for some modules (polkit_auth_bypass.rb)
   spec.add_runtime_dependency 'unix-crypt'
-  # Needed for Kerberos structure parsing
-  spec.add_runtime_dependency 'rasn1'
+  # Needed for Kerberos structure parsing; Pinned to ensure a security review is performed on updates
+  spec.add_runtime_dependency 'rasn1', '0.14.0'
 
   #
   # File Parsing Libraries
@@ -152,7 +152,9 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'net-imap' # Used in Postgres auth for its SASL stringprep implementation
   spec.add_runtime_dependency 'net-ldap'
   spec.add_runtime_dependency 'net-smtp'
+  spec.add_runtime_dependency 'net-sftp'
   spec.add_runtime_dependency 'winrm'
+  spec.add_runtime_dependency 'ffi', '< 1.17.0'
 
   #
   # REX Libraries
@@ -246,6 +248,29 @@ Gem::Specification.new do |spec|
   # to generate PNG files, not to parse untrusted PNG files.
   spec.add_runtime_dependency 'chunky_png'
 
+  # Temporary, remove once the Rails 7.1 update is complete
+  # see: https://stackoverflow.com/questions/79360526/uninitialized-constant-activesupportloggerthreadsafelevellogger-nameerror
+  spec.add_runtime_dependency 'concurrent-ruby', '1.3.4'
+
   # Needed for multiline REPL support for interactive SQL sessions
   spec.add_runtime_dependency 'reline'
+
+  # Needed to parse sections of ELF files in order to retrieve symbols
+  spec.add_runtime_dependency 'elftools'
+
+  # Standard libraries: https://www.ruby-lang.org/en/news/2023/12/25/ruby-3-3-0-released/
+  %w[
+    abbrev
+    base64
+    benchmark
+    bigdecimal
+    csv
+    drb
+    fiddle
+    getoptlong
+    mutex_m
+    ostruct
+  ].each do |library|
+    spec.add_runtime_dependency library
+  end
 end

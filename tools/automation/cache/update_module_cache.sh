@@ -17,4 +17,4 @@ IMG='metasploitframework/metasploit-framework:latest'
 docker run --rm=true --tty \
   --volume=`pwd`:/r7-source \
   --workdir=/r7-source ${IMG} \
-  /bin/sh -c ./tools/automation/cache/build_new_cache.sh
+  /bin/sh -c 'time ./tools/automation/cache/build_new_cache.sh'

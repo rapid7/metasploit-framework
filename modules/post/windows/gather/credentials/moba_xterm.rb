@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Post
   end
 
   def key_crafter(config)
-    if (!config['SessionP'].empty? && !config['SessionP'].nil?)
+    if !config['SessionP'].empty? && !config['SessionP'].nil?
       s1 = config['SessionP']
       s1 += s1 while s1.length < 20
       key_space = [s1.upcase, s1.upcase, s1.downcase, s1.downcase]
@@ -127,7 +127,7 @@ class MetasploitModule < Msf::Post
         key = key[0..-2].insert(0, key[-1])
         h = key.index(ct[i + 1])
         key = key[0..-2].insert(0, key[-1])
-        next if (l == -1 || h == -1)
+        next if l == -1 || h == -1
 
         pt << (16 * h + l)
       end

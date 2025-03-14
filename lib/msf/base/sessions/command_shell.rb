@@ -202,6 +202,8 @@ Shell Banner:
       tbl << [key, value]
     end
 
+    tbl << ['.<command>', "Prefix any built-in command on this list with a '.' to execute in the underlying shell (ex: .help)"]
+
     print(tbl.to_s)
     print("For more info on a specific command, use %grn<command> -h%clr or %grnhelp <command>%clr.\n\n")
   end
@@ -211,6 +213,11 @@ Shell Banner:
     print_line
     print_line "Stop interacting with this session and return to the parent prompt"
     print_line
+  end
+
+  def escape_arg(arg)
+    # By default we don't know what the escaping is. It's not ideal, but subclasses should do their own appropriate escaping
+    arg
   end
 
   def cmd_background(*args)
@@ -607,8 +614,13 @@ Shell Banner:
     end
 
     # Built-in command
-    if commands.key?(method)
-      return run_builtin_cmd(method, arguments)
+    if commands.key?(method) or ( not method.nil? and method[0] == '.' and commands.key?(method[1..-1]))
+      # Handle overlapping built-ins with actual shell commands by prepending '.'
+      if method[0] == '.' and commands.key?(method[1..-1])
+        return shell_write(cmd[1..-1] + command_termination)
+      else
+        return run_builtin_cmd(method, arguments)
+      end
     end
 
     # User input is not a built-in command, write to socket directly
@@ -654,6 +666,7 @@ Shell Banner:
   def shell_read(length=-1, timeout=1)
     begin
       rv = rstream.get_once(length, timeout)
+      rlog(rv, self.log_source) if rv && self.log_source
       framework.events.on_session_output(self, rv) if rv
       return rv
     rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE => e
@@ -672,6 +685,7 @@ Shell Banner:
     return unless buf
 
     begin
+      rlog(buf, self.log_source) if self.log_source
       framework.events.on_session_command(self, buf.strip)
       rstream.write(buf)
     rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE => e
@@ -731,6 +745,49 @@ Shell Banner:
       print_status("Session ID #{sid} (#{tunnel_to_s}) processing AutoRunScript '#{datastore['AutoRunScript']}'")
       execute_script(args.shift, *args)
     end
+  end
+
+  # Perform command line escaping wherein most chars are able to be escaped by quoting them,
+  # but others don't have a valid way of existing inside quotes, so we need to "glue" together
+  # a series of sections of the original command line; some sections inside quotes, and some outside
+  # @param arg [String] The command line arg to escape
+  # @param quote_requiring [Array<String>] The chars that can successfully be escaped inside quotes
+  # @param unquotable_char [String] The character that can't exist inside quotes
+  # @param escaped_unquotable_char [String] The escaped form of unquotable_char
+  # @param quote_char [String] The char used for quoting
+  def self._glue_cmdline_escape(arg, quote_requiring, unquotable_char, escaped_unquotable_char, quote_char)
+    current_token = ""
+    result = ""
+    in_quotes = false
+
+    arg.each_char do |char|
+      if char == unquotable_char
+        if in_quotes
+          # This token has been in an inside-quote context, so let's properly wrap that before continuing
+          current_token = "#{quote_char}#{current_token}#{quote_char}"
+        end
+        result += current_token
+        result += escaped_unquotable_char # Escape the offending percent
+
+        # Start a new token - we'll assume we're remaining outside quotes
+        current_token = ''
+        in_quotes = false
+        next
+      elsif quote_requiring.include?(char)
+        # Oh, it turns out we should have been inside quotes for this token.
+        # Let's note that, for when we actually append the token
+        in_quotes = true
+      end
+      current_token += char
+    end
+
+    if in_quotes
+      # The final token has been in an inside-quote context, so let's properly wrap that before continuing
+      current_token = "#{quote_char}#{current_token}#{quote_char}"
+    end
+    result += current_token
+
+    result
   end
 
   attr_accessor :arch

@@ -3,9 +3,9 @@ Request certificates via MS-ICPR (Active Directory Certificate Services). Depend
 template's configuration the resulting certificate can be used for various operations such as authentication.
 PFX certificate files that are saved are encrypted with a blank password.
 
-This module is capable of exploiting ESC1, ESC2, ESC3 and ESC13.
+This module is capable of exploiting ESC1, ESC2, ESC3, ESC13 and ESC15.
 
-## Module usage 
+## Module usage
 
 1. From msfconsole
 2. Do: `use auxiliary/admin/dcerpc/icpr_cert`
@@ -19,6 +19,19 @@ The target certificate authority. The default value used by AD CS is `$domain-DC
 
 ### CERT_TEMPLATE
 The certificate template to issue, e.g. "User".
+
+### ADD_CERT_APP_POLICY
+Add certificate application policy OIDs to the certificate. The ability to add policy OIDs to the certificate is
+dependent on it's configuration. More than one OID can be specified, separated by spaces, `;`, or `,`.
+
+Some useful OIDs for this purpose include:
+
+* `1.3.6.1.4.1.311.20.2.2` -- Smart Card Logon
+* `1.3.6.1.5.2.3.4` -- PKINIT Client Authentication
+* `1.3.6.1.5.5.7.3.1` -- Server Authentication
+* `1.3.6.1.5.5.7.3.2` -- Client Authentication
+* `1.3.6.1.5.5.7.3.3` -- Code Signing
+* `1.3.6.1.4.1.311.20.2.1` -- Certificate Request Agent
 
 ### ALT_DNS
 Alternative DNS name to specify in the certificate. Useful in certain attack scenarios.

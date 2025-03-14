@@ -24,7 +24,7 @@ RSpec.describe 'SSH Login Check Scanner' do
     let(:credential) do
       Metasploit::Framework::Credential.new(private: password, public: username)
     end
-    let(:datastore) { Msf::ModuleDataStoreWithFallbacks.new(subject) }
+    let(:datastore) { Msf::ModuleDataStore.new(subject) }
     let(:host) { '10.10.10.10' }
     let(:module_manager) { instance_double(Msf::ModuleManager) }
     let(:password) { 'secret' }

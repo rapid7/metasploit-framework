@@ -252,7 +252,15 @@ module Metasploit
                 end
               end
             rescue => e
-              elog('Attempt may not yield a result', error: e)
+              if framework_module
+                prefix = framework_module.respond_to?(:peer) ? "#{framework_module.peer} - LOGIN FAILED:" : "LOGIN FAILED:"
+                framework_module.print_warning("#{prefix} #{credential.to_h} - Unhandled error - scan may not produce correct results: #{e.message} - #{e.backtrace}")
+              end
+              elog("Scan Error: #{e.message}", error: e)
+              consecutive_error_count += 1
+              total_error_count += 1
+              break if consecutive_error_count >= 3
+              break if total_error_count >= 10
             end
             nil
           end

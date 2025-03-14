@@ -5,9 +5,9 @@ module Msf::Sessions
       self.platform = "unix"
       super
     end
-    def shell_command_token(cmd,timeout = 10)
-      shell_command_token_unix(cmd,timeout)
-    end
+
+    include Msf::Sessions::UnixEscaping
+    extend Msf::Sessions::UnixEscaping
   end
 
 end

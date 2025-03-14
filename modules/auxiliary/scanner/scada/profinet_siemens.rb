@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'packetfu'
-
 class MetasploitModule < Msf::Auxiliary
   def initialize
     super(

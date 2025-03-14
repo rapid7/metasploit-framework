@@ -1,4 +1,3 @@
-
 module Msf::Sessions
 
   class CommandShellWindows < CommandShell
@@ -6,9 +5,8 @@ module Msf::Sessions
       self.platform = "windows"
       super
     end
-    def shell_command_token(cmd,timeout = 10)
-      shell_command_token_win32(cmd,timeout)
-    end
-  end
 
+    include Msf::Sessions::WindowsEscaping
+    extend Msf::Sessions::WindowsEscaping
+  end
 end

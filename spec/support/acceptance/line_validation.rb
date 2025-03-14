@@ -47,9 +47,9 @@ module Acceptance
 
     private
 
-    # (see Acceptance::Meterpreter#eval_predicate)
+    # (see Acceptance::Session#eval_predicate)
     def evaluate_predicate(value, environment)
-      Acceptance::Meterpreter.eval_predicate(value, environment)
+      Acceptance::Session.eval_predicate(value, environment)
     end
   end
 end

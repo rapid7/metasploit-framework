@@ -9,7 +9,7 @@ module MetasploitModule
 
   CachedSize = 125
 
-  include Msf::Payload::Linux
+  include Msf::Payload::Linux::X64::Prepends
   include Msf::Payload::Single
   include Msf::Payload::Pingback
   include Msf::Payload::Pingback::Options

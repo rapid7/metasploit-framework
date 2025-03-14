@@ -72,8 +72,8 @@ RSpec.describe RuboCopRunner do
       expect(@status).to be_zero
     end
 
-    it 'contains no warnings' do
-      expect(@stdout).to be_empty
+    it 'contains a status message' do
+      expect(@stdout).to match /Rubocop not required for older modules skipping/
     end
   end
 end

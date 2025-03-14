@@ -11,9 +11,21 @@ module Rex
         # @return [Rex::Socket]
         attr_reader :socket
 
+        # [Time] The last time an interaction occurred on the connection (for keep-alive purposes)
+        attr_reader :last_interaction
+
+        # [Mutex] Control access to the connection. One at a time.
+        attr_reader :connection_use_mutex
+
         def initialize(args)
           @base_dn = args[:base]
+          @last_interaction = nil
+          @connection_use_mutex = Mutex.new
           super
+        end
+
+        def register_interaction
+          @last_interaction = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         end
 
         # @return [Array<String>] LDAP servers naming contexts
@@ -46,6 +58,14 @@ module Rex
           "#{peerhost}:#{peerport}"
         end
 
+        def use_connection(args)
+          @connection_use_mutex.synchronize do
+            return super(args)
+          ensure
+            register_interaction
+          end
+        end
+
         # https://github.com/ruby-ldap/ruby-net-ldap/issues/11
         # We want to keep the ldap connection open to use later
         # but there's no built in way within the `Net::LDAP` library to do that
@@ -65,6 +85,7 @@ module Rex
             @socket = @open_connection.socket
             payload[:connection] = @open_connection
             payload[:bind] = @result = @open_connection.bind(@auth)
+            register_interaction
             return self
           end
         end
@@ -97,6 +118,20 @@ module Rex
 
           dlog("#{peerinfo} Discovered base DN: #{base_dn}")
           base_dn
+        end
+
+        # Monkeypatch upstream library to support the extended Whoami request. Delete
+        # this after https://github.com/ruby-ldap/ruby-net-ldap/pull/425 is released.
+        # This is not the only occurrence of a patch for this functionality.
+        def ldapwhoami(args = {})
+          instrument "ldapwhoami.net_ldap", args do |payload|
+            @result = use_connection(args, &:ldapwhoami)
+            if @result.success?
+              @result.extended_response
+            else
+              raise Net::LDAP::Error, "#{peerinfo} LDAP Error: #{@result.error_message}"
+            end
+          end
         end
       end
     end

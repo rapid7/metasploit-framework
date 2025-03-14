@@ -201,7 +201,7 @@ module Payload::Windows::ReverseTcp
     else
       asm << %Q^
       failure:
-        push 0x56A2B5F0         ; hardcoded to exitprocess for size
+        push #{Rex::Text.block_api_hash('kernel32.dll', 'ExitProcess')}
         call ebp
       ^
     end

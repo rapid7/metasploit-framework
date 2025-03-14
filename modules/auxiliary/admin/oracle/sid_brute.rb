@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'URL', 'https://www.metasploit.com/users/mc' ],
+          [ 'URL', 'http://web.archive.org/web/20110322124810/http://www.metasploit.com:80/users/mc/' ],
           [ 'URL' , 'http://www.red-database-security.com/scripts/sid.txt' ],
         ],
       'DisclosureDate' => '2009-01-07'))

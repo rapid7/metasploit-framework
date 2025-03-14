@@ -13,6 +13,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::CommandShell
   include Msf::Sessions::CreateSessionOptions
+  include Msf::Auxiliary::ReportSummary
 
   def initialize
     super(

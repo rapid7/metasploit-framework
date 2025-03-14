@@ -1,0 +1,9 @@
+version: v1.25.0
+ignore: {}
+patch: {}
+exclude:
+  global:
+    # exclude unit tests which contain hard coded passwords and encrypting keys for testing purposes.
+    - spec/
+    # exclude the source code to local exploits and utilities which have to be written in a particular way to exploit the vulnerabilities that we're targeting.
+    - external/source/

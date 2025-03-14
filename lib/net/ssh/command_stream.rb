@@ -2,7 +2,7 @@
 
 class Net::SSH::CommandStream
 
-  attr_accessor :channel, :thread, :error, :ssh
+  attr_accessor :channel, :thread, :error, :ssh, :session, :logger
   attr_accessor :lsock, :rsock, :monitor
 
   module PeerInfo
@@ -13,7 +13,8 @@ class Net::SSH::CommandStream
 
   def shell_requested(channel, success)
     unless success
-      raise Net::SSH::ChannelRequestFailed, 'Shell/exec channel request failed'
+      error = Net::SSH::ChannelRequestFailed.new('Shell/exec channel request failed')
+      handle_error(error: error)
     end
 
     self.channel = channel
@@ -40,7 +41,9 @@ class Net::SSH::CommandStream
     end
   end
 
-  def initialize(ssh, cmd = nil, pty: false, cleanup: false)
+  def initialize(ssh, cmd = nil, pty: false, cleanup: false, session: nil, logger: nil)
+    self.session = session
+    self.logger = logger
     self.lsock, self.rsock = Rex::Socket.tcp_socket_pair()
     self.lsock.extend(Rex::IO::Stream)
     self.lsock.extend(PeerInfo)
@@ -74,21 +77,30 @@ class Net::SSH::CommandStream
       end
 
       channel.on_open_failed do |ch, code, desc|
-        raise Net::SSH::ChannelOpenFailed.new(code, 'Session channel open failed')
+        error = Net::SSH::ChannelOpenFailed.new(code, 'Session channel open failed')
+        handle_error(error: error)
       end
 
       self.monitor = Thread.new do
-        while(true)
-          next if not self.rsock.has_read_data?(1.0)
-          buff = self.rsock.read(16384)
-          break if not buff
-          verify_channel
-          self.channel.send_data(buff) if buff
+        begin
+          Kernel.loop do
+            next if not self.rsock.has_read_data?(1.0)
+
+            buff = self.rsock.read(16384)
+            break if not buff
+
+            verify_channel
+            self.channel.send_data(buff) if buff
+          end
+        rescue ::StandardError => e
+          handle_error(error: e)
         end
       end
 
-      while true
-        rssh.process(0.5) { true }
+      begin
+        Kernel.loop { rssh.process(0.5) { true } }
+      rescue ::StandardError => e
+        handle_error(error: e)
       end
 
       # Shut down the SSH session if requested
@@ -96,9 +108,9 @@ class Net::SSH::CommandStream
         rssh.close
       end
     end
-  rescue ::Exception => e
+  rescue ::StandardError => e
     # XXX: This won't be set UNTIL there's a failure from a thread
-    self.error = e
+    handle_error(error: e)
   ensure
     self.monitor.kill if self.monitor
   end
@@ -113,7 +125,18 @@ class Net::SSH::CommandStream
     end
   end
 
+  def handle_error(error: nil)
+    self.error = error if error
+
+    if self.logger
+      self.logger.print_error("SSH Command Stream encountered an error: #{self.error} (Server Version: #{self.ssh.transport.server_version.version})")
+    end
+
+    cleanup
+  end
+
   def cleanup
+    self.session.alive = false if self.session
     self.monitor.kill
     self.lsock.close rescue nil
     self.rsock.close rescue nil

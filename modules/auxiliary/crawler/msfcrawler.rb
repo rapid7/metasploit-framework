@@ -12,7 +12,6 @@
 
 # openssl before rubygems mac os
 require 'openssl'
-require 'rinda/tuplespace'
 require 'pathname'
 require 'uri'
 

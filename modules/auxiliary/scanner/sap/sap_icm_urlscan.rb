@@ -172,7 +172,7 @@ class MetasploitModule < Msf::Auxiliary
           url_enc = line.sub(/^PREFIX=/, '')
           # Remove CASE and VHOST
           url_enc = url_enc.sub(/&CASE=.*/, '')
-          url_dec = URI.unescape(url_enc).sub(/;/, '')
+          url_dec = CGI.unescape(url_enc).sub(/;/, '')
           urls << url_dec.strip
         end
       end

@@ -166,7 +166,7 @@ class MetasploitModule < Msf::Auxiliary
         print_status('Collecting data, please wait...')
         page = 1
         while page < maxpage
-          page_result = dork_search(resource, dork, page + 1, facets)
+          page_result = dork_search(resource, dork, page + 1, facets, api_key)
           if page_result['matches'].nil?
             next
           end

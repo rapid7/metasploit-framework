@@ -539,7 +539,7 @@ class RPC_Module < RPC_Base
       if r[:error]
         {"status" => "errored", "error" => r[:error]}
       else
-        if r[:result].length == 1
+        if r[:result] && r[:result].length == 1
           # A hash of one IP => result
           # TODO: make hashes of IP => result the normal case
           {"status" => "completed", "result" => r[:result].values.first}

@@ -177,4 +177,25 @@ module Rex::Proto::CryptoAsn1::X509
   # https://datatracker.ietf.org/doc/html/rfc3280#section-4.2.1.7
   class SubjectAltName < GeneralNames
   end
+
+  # https://datatracker.ietf.org/doc/html/rfc3280#section-4.2.1.5
+  class PolicyQualifierInfo < RASN1::Model
+    sequence :PolicyQualifierInfo, content: [
+      objectid(:policyQualifierId),
+      any(:qualifier)
+    ]
+  end
+
+  # https://datatracker.ietf.org/doc/html/rfc3280#section-4.2.1.5
+  class PolicyInformation < RASN1::Model
+    sequence :PolicyInformation, content: [
+      objectid(:policyIdentifier),
+      sequence_of(:policyQualifiers, PolicyQualifierInfo, optional: true)
+    ]
+  end
+
+  # https://datatracker.ietf.org/doc/html/rfc3280#section-4.2.1.5
+  class CertificatePolicies < RASN1::Model
+    sequence_of(:certificatePolicies, PolicyInformation)
+  end
 end

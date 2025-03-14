@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'References'     => [
         ['CVE', '2015-5477'],
-        ['URL', 'https://www.isc.org/blogs/cve-2015-5477-an-error-in-handling-tkey-queries-can-cause-named-to-exit-with-a-require-assertion-failure/'],
+        ['URL', 'http://web.archive.org/web/20190425014550/https://www.isc.org/blogs/cve-2015-5477-an-error-in-handling-tkey-queries-can-cause-named-to-exit-with-a-require-assertion-failure/'],
         ['URL', 'https://kb.isc.org/article/AA-01272']
       ],
       'DisclosureDate' => '2015-07-28',

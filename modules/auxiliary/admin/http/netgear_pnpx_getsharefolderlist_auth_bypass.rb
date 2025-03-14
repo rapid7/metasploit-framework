@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
           'Stability' => [CRASH_SAFE],
           'Reliability' => [REPEATABLE_SESSION],
           'SideEffects' => [CONFIG_CHANGES, IOC_IN_LOGS],
-          'RelatedModules' => [ 'exploit/linux/telnet/netgear_telnetenable' ], # This module relies on users also running exploit/linux/telnet/netgear_telnetenable to get the shell.
+          'RelatedModules' => [ 'exploit/linux/telnet/netgear_telnetenable' ] # This module relies on users also running exploit/linux/telnet/netgear_telnetenable to get the shell.
         },
         'DisclosureDate' => '2021-09-06',
         'DefaultTarget' => 0

@@ -38,6 +38,91 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
 
   include Mixin
 
+  # Convert the executable and argument array to a command that can be run in this command shell
+  # @param cmd_and_args [Array<String>] The process path and the arguments to the process
+  def to_cmd(cmd_and_args)
+    self.class.to_cmd(cmd_and_args)
+  end
+
+  # Convert the executable and argument array to a command that can be run in this command shell
+  # @param cmd_and_args [Array<String>] The process path and the arguments to the process
+  def self.to_cmd(cmd_and_args)
+    # The principle here is that we want to launch a process such that it receives *exactly* what is in `args`. 
+    # This means we need to:
+    # - Escape all special characters
+    # - Not escape environment variables
+    # - Side-step any PowerShell magic
+    # If someone specifically wants to use the PowerShell magic, they can use other APIs
+  
+    needs_wrapping_chars = ['$', '`', '(', ')', '@', '>', '<', '{','}', '&', ',', ' ', ';']
+  
+    result = ""
+    cmd_and_args.each_with_index do |arg, index|
+      needs_single_quoting = false
+      if arg.include?("'")
+        arg = arg.gsub("'", "''")
+        needs_single_quoting = true
+      end
+      
+      if arg.include?('"')
+        # PowerShell acts weird around quotes and backslashes
+        # First we need to escape backslashes immediately prior to a double-quote, because
+        # they're treated differently than backslashes anywhere else
+        arg = arg.gsub(/(\\+)"/, '\\1\\1"')
+
+        # Then we can safely prepend a backslash to escape our double-quote
+        arg = arg.gsub('"', '\\"')
+        needs_single_quoting = true
+      end
+      
+      needs_wrapping_chars.each do |char|
+        if arg.include?(char)
+          needs_single_quoting = true
+        end
+      end
+
+      # PowerShell magic - https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_special_characters?view=powershell-7.4#stop-parsing-token---
+      if arg == '--%'
+        needs_single_quoting = true
+      end
+
+      will_be_double_quoted_by_powershell = [' ', '\t', '\v'].any? do |bad_char|
+        arg.include?(bad_char)
+      end
+
+      if will_be_double_quoted_by_powershell
+        # This is horrible, and I'm so so sorry.
+        # If an argument ends with a series of backslashes, and it will be quoted by PowerShell when *it* launches the process (e.g. because the arg contains a space),
+        # PowerShell will not correctly handle backslashes immediately preceeding the quote that it *itself* adds. So we need to be responsible for this.
+        arg = arg.gsub(/(\\*)$/, '\\1\\1')
+      end
+
+      if needs_single_quoting
+        arg = "'#{arg}'"
+      end
+
+      if arg == ''
+        # Pass in empty strings
+        arg = '\'""\''
+      end
+  
+      if index == 0
+        if needs_single_quoting
+          # If the executable name (i.e. index 0) has beeen wrapped, then we'll have converted it to a string.
+          # We then need to use the call operator ('&') to call it.
+          # https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_operators?view=powershell-7.3#call-operator-
+          result = "& #{arg}"
+        else
+          result = arg
+        end
+      else
+        result = "#{result} #{arg}"
+      end
+    end
+
+    result
+  end
+
   #
   # Execute any specified auto-run scripts for this session
   #

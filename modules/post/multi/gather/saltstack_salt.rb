@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Post
     return if results == false || results.nil?
     return if results.include?('Salt request timed out.') || results.include?('Minion did not return.')
 
-    results.each do |_key, result|
+    results.each_value do |result|
       # at times the first line may be "Minions returned with non-zero exit code", so we want to skip that
       next if result.is_a? String
 

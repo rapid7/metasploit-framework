@@ -16,7 +16,10 @@ module Msf::Post::Windows
     string
   end
 
-  # Escape a string literal value to be included as an argument to powershell.exe.
+  # Escape a string literal value to be included as an argument to powershell.exe. The escaped value *should be* placed
+  # within single quotes which is a Powershell verbatim string. See:
+  # https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_quoting_rules?view=powershell-7.4#single-quoted-strings
+  #
   # This will help in cases where one might need to use & as in PowerShell this is
   # a reserved character whereas in cmd.exe this is used to indicate the start
   # of an additional command to execute.

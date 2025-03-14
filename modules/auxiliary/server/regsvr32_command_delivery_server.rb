@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'     =>
         [
-          ['URL', 'http://subt0x10.blogspot.com/2016/04/bypass-application-whitelisting-script.html']
+          ['URL', 'http://web.archive.org/web/20170419145048/http://subt0x10.blogspot.com:80/2016/04/bypass-application-whitelisting-script.html']
         ]
     ))
 

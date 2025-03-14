@@ -16,7 +16,8 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'Kerberos Domain User Enumeration',
         'Description' => %q{
           This module will enumerate valid Domain Users via Kerberos from an unauthenticated perspective. It utilizes
-          the different responses returned by the service for valid and invalid users.
+          the different responses returned by the service for valid and invalid users. This module can also detect accounts
+          that are vulnerable to ASREPRoast attacks.
         },
         'Author' => [
           'Matt Byrne <attackdebris[at]gmail.com>', # Original Metasploit module

@@ -10,6 +10,11 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::Windows::Packrat
+
+  include Msf::Exploit::Deprecated
+
+  deprecated nil, 'The post/windows/gather/enum_browsers module now supersedes this module'
+
   ARTIFACTS =
     {
       application: 'chrome',

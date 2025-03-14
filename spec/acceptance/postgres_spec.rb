@@ -3,7 +3,7 @@ require 'acceptance_spec_helper'
 RSpec.describe 'Postgres sessions and postgres modules' do
   include_context 'wait_for_expect'
 
-  TESTS = {
+  tests = {
     postgres: {
       target: {
         session_module: "auxiliary/scanner/postgres/postgres_login",
@@ -90,9 +90,9 @@ RSpec.describe 'Postgres sessions and postgres modules' do
     }
   }
 
-  TEST_ENVIRONMENT = AllureRspec.configuration.environment_properties
+  allure_test_environment = AllureRspec.configuration.environment_properties
 
-  let_it_be(:current_platform) { Acceptance::Meterpreter::current_platform }
+  let_it_be(:current_platform) { Acceptance::Session::current_platform }
 
   # Driver instance, keeps track of all open processes/payloads/etc, so they can be closed cleanly
   let_it_be(:driver) do
@@ -167,7 +167,7 @@ RSpec.describe 'Postgres sessions and postgres modules' do
         end
 
         validated_lines.each do |test_line|
-          test_line = Acceptance::Meterpreter.uncolorize(test_line)
+          test_line = Acceptance::Session.uncolorize(test_line)
           expect(test_line).to_not include('FAILED', '[-] FAILED', '[-] Exception', '[-] '), "Unexpected error: #{test_line}"
         end
 
@@ -253,15 +253,15 @@ RSpec.describe 'Postgres sessions and postgres modules' do
     raise console_reset_error if console_reset_error
   end
 
-  TESTS.each do |runtime_name, test_config|
+  tests.each do |runtime_name, test_config|
     runtime_name = "#{runtime_name}#{ENV.fetch('RUNTIME_VERSION', '')}"
 
-    describe "#{Acceptance::Meterpreter.current_platform}/#{runtime_name}", focus: test_config[:focus] do
+    describe "#{Acceptance::Session.current_platform}/#{runtime_name}", focus: test_config[:focus] do
       test_config[:module_tests].each do |module_test|
         describe(
           module_test[:name],
           if: (
-            Acceptance::Meterpreter.supported_platform?(module_test)
+            Acceptance::Session.supported_platform?(module_test)
           )
         ) do
           let(:target) { Acceptance::Target.new(test_config[:target]) }
@@ -271,7 +271,7 @@ RSpec.describe 'Postgres sessions and postgres modules' do
             }
           end
 
-          let(:test_environment) { TEST_ENVIRONMENT }
+          let(:test_environment) { allure_test_environment }
 
           let(:default_module_datastore) do
             {
@@ -324,7 +324,7 @@ RSpec.describe 'Postgres sessions and postgres modules' do
 
           context "when targeting a session", if: module_test[:targets].include?(:session) do
             it(
-              "#{Acceptance::Meterpreter.current_platform}/#{runtime_name} session opens and passes the #{module_test[:name].inspect} tests"
+              "#{Acceptance::Session.current_platform}/#{runtime_name} session opens and passes the #{module_test[:name].inspect} tests"
             ) do
               with_test_harness(module_test) do |replication_commands|
                 # Ensure we have a valid session id; We intentionally omit this from a `before(:each)` to ensure the allure attachments are generated if the session dies
@@ -349,7 +349,7 @@ RSpec.describe 'Postgres sessions and postgres modules' do
 
           context "when targeting an rhost", if: module_test[:targets].include?(:rhost) do
             it(
-              "#{Acceptance::Meterpreter.current_platform}/#{runtime_name} rhost opens and passes the #{module_test[:name].inspect} tests"
+              "#{Acceptance::Session.current_platform}/#{runtime_name} rhost opens and passes the #{module_test[:name].inspect} tests"
             ) do
               with_test_harness(module_test) do |replication_commands|
                 use_module = "use #{module_test[:name]}"

@@ -24,7 +24,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['URL', 'https://github.com/prometheus/node_exporter'],
-          ['URL', 'https://sysdig.com/blog/exposed-prometheus-exploit-kubernetes-kubeconeu/']
+          ['URL', 'https://sysdig.com/blog/exposed-prometheus-exploit-kubernetes-kubeconeu/'],
+          ['URL', 'https://www.aquasec.com/blog/300000-prometheus-servers-and-exporters-exposed-to-dos-attacks/']
         ],
 
         'Targets' => [
@@ -57,11 +58,10 @@ class MetasploitModule < Msf::Auxiliary
 
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
     fail_with(Failure::UnexpectedReply, "#{peer} - Unexpected response from server (response code #{res.code})") unless res.code == 200
-    fail_with(Failure::UnexpectedReply, "#{peer} - Prometheus Node Exporter not found") unless (
+    fail_with(Failure::UnexpectedReply, "#{peer} - Prometheus Node Exporter not found") unless
       res.body.include?('<h2>Prometheus Node Exporter</h2>') ||
       res.body.include?('<title>Node Exporter</title>') || # version 0.15.2
       res.body.include?('<h2>Prometheus Exporter for Windows servers</h2>')
-    )
 
     vprint_good("#{peer} - Prometheus Node Exporter version: #{Regexp.last_match(1)}") if res.body =~ /version=([\d.]+)/
 
@@ -309,6 +309,14 @@ class MetasploitModule < Msf::Auxiliary
     ].each do |table|
       print_good(table.to_s) if !table.rows.empty?
     end
+
+    # check for pprof
+    res = send_request_cgi(
+      'uri' => normalize_uri(target_uri.path, 'debug', 'pprof/'), # include trailing /
+      'method' => 'GET'
+    )
+    fail_with(Failure::Unreachable, "#{peer} - Could not connect to web service - no response") if res.nil?
+    print_good("#{peer}#{target_uri.path}debug/pprof/ found, potential DoS and information disclosure. Should be manually reviewed.") if res.code == 200 && res.body.include?('Profile Descriptions')
   rescue ::Rex::ConnectionError
     fail_with(Failure::Unreachable, "#{peer} - Could not connect to the web service")
   end

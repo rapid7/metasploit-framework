@@ -18,11 +18,11 @@ class MetasploitModule < Msf::Auxiliary
       'Author' => 'Btnz',
       'License' => MSF_LICENSE,
       'Disclosure Date' => '2020-10-01',
-      'Notes'               => {
-        'Stability'         => [],
-        'SideEffects'       => [],
-        'Reliability'       => [],
-        'RelatedModules' => ['auxiliary/scanner/http/emby_version_ssrf'],
+      'Notes' => {
+        'Stability' => [],
+        'SideEffects' => [],
+        'Reliability' => [],
+        'RelatedModules' => ['auxiliary/scanner/http/emby_version_ssrf']
       },
       'References' => [
         ['CVE', '2020-26948'],

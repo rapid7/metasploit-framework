@@ -7,7 +7,7 @@ RSpec.shared_examples_for Msf::OptionalSession do
   include_context 'Msf::Simple::Framework'
 
   let(:options) { instance_double(Msf::OptionContainer) }
-  let(:datastore) { instance_double(Msf::DataStoreWithFallbacks) }
+  let(:datastore) { instance_double(Msf::DataStore) }
   let(:session) { instance_double(Msf::Sessions::SMB) }
   let(:session_group) { instance_double(Msf::OptionGroup) }
   let(:rhost_group) { instance_double(Msf::OptionGroup) }

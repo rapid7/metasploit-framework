@@ -132,7 +132,7 @@ class MetasploitModule < Msf::Post
     cipher_tmp = blowfish_decrypt(key1, ciphered_bytes)[4..-5]
     padded_plain_bytes = blowfish_decrypt(key2, cipher_tmp)
     (0..padded_plain_bytes.length).step(2) do |i|
-      if (padded_plain_bytes[i] == "\x00" && padded_plain_bytes[i + 1] == "\x00")
+      if padded_plain_bytes[i] == "\x00" && padded_plain_bytes[i + 1] == "\x00"
         return padded_plain_bytes[0..i - 1].force_encoding('UTF-16LE').encode('UTF-8')
       end
     end

@@ -16,6 +16,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::CommandShell
   include Msf::Sessions::CreateSessionOptions
+  include Msf::Auxiliary::ReportSummary
 
   Aliases = [
     'auxiliary/scanner/smb/login'
@@ -115,6 +116,15 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Msf::Exploit::Failure::BadConfig, 'The SMBDomain option is required when using Kerberos authentication.') if datastore['SMBDomain'].blank?
       fail_with(Msf::Exploit::Failure::BadConfig, 'The DomainControllerRhost is required when using Kerberos authentication.') if datastore['DomainControllerRhost'].blank?
 
+      if !datastore['PASSWORD']
+        # In case no password has been provided, we assume the user wants to use Kerberos tickets stored in cache
+        # Write mode is still enable in case new TGS tickets are retrieved.
+        ticket_storage = kerberos_ticket_storage({ read: true, write: true })
+      else
+        # Write only cache so we keep all gathered tickets but don't reuse them for auth while running the module
+        ticket_storage = kerberos_ticket_storage({ read: false, write: true })
+      end
+
       kerberos_authenticator_factory = lambda do |username, password, realm|
         Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::SMB.new(
           host: datastore['DomainControllerRhost'],
@@ -126,8 +136,7 @@ class MetasploitModule < Msf::Auxiliary
           framework: framework,
           framework_module: self,
           cache_file: datastore['Smb::Krb5Ccname'].blank? ? nil : datastore['Smb::Krb5Ccname'],
-          # Write only cache so we keep all gathered tickets but don't reuse them for auth while running the module
-          ticket_storage: kerberos_ticket_storage({ read: false, write: true })
+          ticket_storage: ticket_storage
         )
       end
     end
@@ -169,7 +178,8 @@ class MetasploitModule < Msf::Auxiliary
     cred_collection = build_credential_collection(
       realm: domain,
       username: datastore['SMBUser'],
-      password: datastore['SMBPass']
+      password: datastore['SMBPass'],
+      ignore_private: datastore['SMB::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS && !datastore['PASSWORD']
     )
     cred_collection = prepend_db_hashes(cred_collection)
 
@@ -255,6 +265,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def report_creds(ip, port, result)
+    # Private can be nil if we authenticated with Kerberos and a cached ticket was used. No need to report this.
+    return unless result.credential.private
+
     if !datastore['RECORD_GUEST'] && (result.access_level == Metasploit::Framework::LoginScanner::SMB::AccessLevels::GUEST)
       return
     end

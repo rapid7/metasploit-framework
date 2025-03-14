@@ -113,7 +113,6 @@ module Process
     end
 
     process.thread.create(exploit_mem + offset, param_ptr)
-    nil
   end
 
   #

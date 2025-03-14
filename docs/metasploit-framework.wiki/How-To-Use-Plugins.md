@@ -18,7 +18,7 @@ plugin_name_command --option
 
 The current available plugins for Metasploit can be found by running the `load -l` command, or viewing Metasploit's [plugins](https://github.com/rapid7/metasploit-framework/tree/master/plugins) directory:
 
-| name             | Description                                                                                         |
+| Name             | Description                                                                                         |
 |------------------|-----------------------------------------------------------------------------------------------------|
 | aggregator       | Interacts with the external Session Aggregator                                                      |
 | alias            | Adds the ability to alias console commands                                                          |
@@ -30,6 +30,7 @@ The current available plugins for Metasploit can be found by running the `load -
 | db_tracker       | Monitors socket calls and updates the database backend                                              |
 | event_tester     | Internal test tool used to verify the internal framework event subscriber logic works               |
 | ffautoregen      | This plugin reloads and re-executes a file-format exploit module once it has changed                |
+| fzuse            | A plugin offering a fuzzy use command                                                               |
 | ips_filter       | Scans all outgoing data to see if it matches a known IPS signature                                  |
 | lab              | Adds the ability to manage VMs                                                                      |
 | libnotify        | Send desktop notification with libnotify on sessions and db events                                  |
@@ -42,12 +43,12 @@ The current available plugins for Metasploit can be found by running the `load -
 | request          | Make requests from within Metasploit using various protocols.                                       |
 | rssfeed          | Create an RSS feed of events                                                                        |
 | sample           | Demonstrates using framework plugins                                                                |
-| session_notifier | This plugin notifies you of a new session via SMS                                                      |
+| session_notifier | This plugin notifies you of a new session via SMS                                                   |
 | session_tagger   | Automatically interacts with new sessions to create a new remote TaggedByUser file                  |
 | socket_logger    | Log socket operations to a directory as individual files                                            |
 | sounds           | Automatically plays a sound when various framework events occur                                     |
 | sqlmap           | sqlmap plugin for Metasploit                                                                        |
-| thread           | Internal test tool for testing thread usage in Metasploit                                          |
+| thread           | Internal test tool for testing thread usage in Metasploit                                           |
 | token_adduser    | Attempt to add an account using all connected Meterpreter session tokens                            |
 | token_hunter     | Search all active Meterpreter sessions for specific tokens                                          |
 | wiki             | Outputs stored database values from the current workspace into DokuWiki or MediaWiki format         |

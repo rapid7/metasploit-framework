@@ -6,6 +6,7 @@ gem 'just-the-docs', github: 'rapid7/just-the-docs', branch: 'r7_ver_custom'
 #gem 'just-the-docs', path: '../../just-the-docs'
 gem 'webrick'
 gem 'rexml'
+gem 'jekyll-sass-converter', '~> 2.2.0'
 
 group :jekyll_plugins do
   gem 'jekyll-sitemap'

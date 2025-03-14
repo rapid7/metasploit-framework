@@ -62,6 +62,13 @@ module Rex::Proto::CryptoAsn1
     OID_ROOT_LIST_SIGNER = ObjectId.new('1.3.6.1.4.1.311.10.3.9', name: 'OID_ROOT_LIST_SIGNER', label: 'Root List Signer')
     OID_WHQL_CRYPTO = ObjectId.new('1.3.6.1.4.1.311.10.3.5', name: 'OID_WHQL_CRYPTO', label: 'Windows Hardware Driver Verification')
 
+    OID_CMS_ENVELOPED_DATA = ObjectId.new('1.2.840.113549.1.7.3', name: 'OID_CMS_ENVELOPED_DATA', label: 'PKCS#7 CMS Enveloped Data')
+
+    OID_DES_EDE3_CBC = ObjectId.new('1.2.840.113549.3.7', name: 'OID_DES_EDE_CBC', label: 'Triple DES encryption in CBC mode')
+    OID_AES256_CBC = ObjectId.new('2.16.840.1.101.3.4.1.42', name: 'OID_AES256_CBC', label: 'AES256 in CBC mode')
+    OID_RSA_ENCRYPTION = ObjectId.new('1.2.840.113549.1.1.1', name: 'OID_RSA_ENCRYPTION', label: 'RSA public key encryption')
+    OID_RSAES_OAEP = ObjectId.new('1.2.840.113549.1.1.7', name: 'OID_RSAES_OAEP', label: 'RSA public key encryption with OAEP padding')
+
     def self.name(value)
       value = ObjectId.new(value) if value.is_a?(String)
 

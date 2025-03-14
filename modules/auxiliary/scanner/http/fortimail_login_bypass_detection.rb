@@ -70,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
 
     version_raw = res.body[/fml-admin-login-(\d+).js/, 1]
     version = version_raw.to_i
-    unless (res.body.include?('newpassword') && (version.between?(140, 160) || version.between?(730, 745) || version.between?(250, 263)))
+    unless res.body.include?('newpassword') && (version.between?(140, 160) || version.between?(730, 745) || version.between?(250, 263))
       print_bad("#{ip} - Not vulnerable version (Build: #{version_raw}) of FortiMail detected")
       return :abort
     end

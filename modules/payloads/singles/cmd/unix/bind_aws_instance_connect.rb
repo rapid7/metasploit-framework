@@ -34,6 +34,6 @@ module MetasploitModule
   def on_session(session)
     super
 
-    session.arch.clear  # undo the ARCH_ALL amalgamation
+    session.arch.clear # undo the ARCH_ALL amalgamation
   end
 end

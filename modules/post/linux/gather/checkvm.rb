@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Post
           This module attempts to determine whether the system is running
           inside of a virtual environment and if so, which one. This
           module supports detection of Hyper-V, VMWare, VirtualBox, Xen,
-          and QEMU/KVM.
+          Bhyve and QEMU/KVM.
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
@@ -154,6 +154,10 @@ class MetasploitModule < Msf::Post
       product_name = read_file('/sys/class/dmi/id/product_name')
       if product_name
         case product_name.gsub("\n", ' ')
+        when /bhyve/i
+          vm = 'Bhyve'
+        when /qemu/i
+          vm = 'Qemu'
         when /vmware/i
           vm = 'VMware'
         when /virtualbox/i
@@ -175,6 +179,8 @@ class MetasploitModule < Msf::Post
         case bios_vendor.gsub("\n", ' ')
         when /^xen/i
           vm = 'Xen'
+        when /innotek GmbH/i
+          vm = 'VirtualBox'
         end
       end
     end
@@ -196,6 +202,37 @@ class MetasploitModule < Msf::Post
       if xen_capabilities
         if ! xen_capabilities.include? '00000000-0000-0000-0000-000000000000'
           vm = 'Xen'
+        end
+      end
+    end
+    if !vm
+      xen_type = read_file('/sys/hypervisor/type')
+      if xen_type
+        if xen_type == 'xen'
+          vm = 'Xen'
+        end
+      end
+    end
+
+    # Check device tree
+    if !vm
+      compatible = read_file('/proc/device-tree/compatible')
+      if compatible
+        if compatible.include? 'qemu'
+          vm = 'Qemu/KVM'
+        end
+      end
+    end
+    if !vm
+      compatible = read_file('/proc/device-tree/hypervisor/compatible')
+      if compatible
+        case compatible
+        when /linux,kvm/i
+          vm = 'Qemu/KVM'
+        when /xen/i
+          vm = 'Xen'
+        when /vmware/i
+          vm = 'VMware'
         end
       end
     end

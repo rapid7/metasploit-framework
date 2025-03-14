@@ -1,0 +1,66 @@
+name: Meterpreter Acceptance
+
+# Optional, enabling concurrency limits: https://docs.github.com/en/actions/using-jobs/using-concurrency
+#concurrency:
+#  group: ${{ github.ref }}-${{ github.workflow }}
+#  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  id-token: none
+  issues: none
+  discussions: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+on:
+  workflow_dispatch:
+    inputs:
+      metasploit_payloads_commit:
+        description: 'metasploit-payloads branch you want to test'
+        required: true
+        default: 'master'
+      mettle_commit:
+        description: 'mettle branch you want to test'
+        required: true
+        default: 'master'
+  push:
+    branches-ignore:
+      - gh-pages
+      - metakitty
+  pull_request:
+    branches:
+      - '*'
+    paths:
+      - 'metsploit-framework.gemspec'
+      - 'Gemfile.lock'
+      - 'data/templates/**'
+      - 'modules/payloads/**'
+      - 'lib/msf/core/payload/**'
+      - 'lib/msf/core/**'
+      - 'test/modules/**'
+      - 'tools/dev/**'
+      - 'spec/acceptance/**'
+      - 'spec/support/acceptance/**'
+      - 'spec/acceptance_spec_helper.rb'
+      - '.github/**'
+#   Example of running as a cron, to weed out flaky tests
+#  schedule:
+#    - cron: '*/15 * * * *'
+
+jobs:
+  build:
+    uses: ./.github/workflows/shared_meterpreter_acceptance.yml
+    with:
+      metasploit_payloads_commit: ${{ github.event.inputs.metasploit_payloads_commit }}
+      mettle_commit: ${{ github.event.inputs.mettle_commit }}
+      build_metasploit_payloads: ${{ contains(github.event.pull_request.labels.*.name, 'payload-testing-branch') }}
+      build_mettle: ${{ contains(github.event.pull_request.labels.*.name, 'payload-testing-mettle-branch') }}

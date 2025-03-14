@@ -138,7 +138,7 @@ Local File System Commands
 This session also works with the following modules:
 
   auxiliary/admin/dcerpc/icpr_cert
-  auxiliary/admin/dcerpc/samr_computer
+  auxiliary/admin/dcerpc/samr_account
   auxiliary/admin/smb/delete_file
   auxiliary/admin/smb/download_file
   auxiliary/admin/smb/psexec_ntdsgrab

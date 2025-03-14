@@ -10,12 +10,9 @@ module Msf
     include Auxiliary::Scanner
     include Auxiliary::Report
 
-    REDIS_UNAUTHORIZED_RESPONSE = /(?<auth_response>ERR operation not permitted|NOAUTH Authentication required)/i
-
     #
     # Initializes an instance of an auxiliary module that interacts with Redis
     #
-
     def initialize(info = {})
       super
       register_options(
@@ -52,12 +49,14 @@ module Msf
         vprint_error("No response to '#{command_string}'")
         return
       end
-      if match = command_response.match(REDIS_UNAUTHORIZED_RESPONSE)
+      if (match = authentication_required?(command_response))
         auth_response = match[:auth_response]
+
         fail_with(::Msf::Module::Failure::BadConfig, "#{peer} requires authentication but Password unset") unless datastore['Password']
         vprint_status("Requires authentication (#{printable_redis_response(auth_response, false)})")
+
         if (auth_response = send_redis_command('AUTH', datastore['PASSWORD']))
-          unless auth_response =~ /\+OK/
+          unless auth_response =~ Rex::Proto::Redis::Base::Constants::OKAY
             vprint_error("Authentication failure: #{printable_redis_response(auth_response)}")
             return
           end
@@ -86,6 +85,13 @@ module Msf
     end
 
     private
+
+    # Verifies whether the response indicates if authentication is required
+    # @return [RESPParser] Returns a matched response if a hit is there; otherwise nil.
+    def authentication_required?(response)
+      response.match(Rex::Proto::Redis::Base::Constants::AUTHENTICATION_REQUIRED) ||
+        response.match(Rex::Proto::Redis::Version6::Constants::AUTHENTICATION_REQUIRED)
+    end
 
     def redis_proto(command_parts)
       return if command_parts.blank?

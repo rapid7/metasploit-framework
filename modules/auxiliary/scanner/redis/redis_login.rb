@@ -6,6 +6,11 @@
 require 'metasploit/framework/login_scanner/redis'
 require 'metasploit/framework/credential_collection'
 
+# Metasploit Module - Redis Login Scanner
+#
+# @example
+#   use auxiliary/scanner/redis/login
+#
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
@@ -45,7 +50,12 @@ class MetasploitModule < Msf::Auxiliary
   def requires_password?(_ip)
     connect
     command_response = send_redis_command('INFO')
-    !(command_response && REDIS_UNAUTHORIZED_RESPONSE !~ command_response)
+
+    ## Check against the old and new password required response to support all Redis versions
+    !(
+      (command_response && Rex::Proto::Redis::Base::Constants::AUTHENTICATION_REQUIRED !~ command_response) ||
+        (command_response && Rex::Proto::Redis::Version6::Constants::AUTHENTICATION_REQUIRED !~ command_response)
+    )
   end
 
   def run_host(ip)
