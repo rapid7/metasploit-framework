@@ -14,7 +14,11 @@ module Ui
 class Console::CommandDispatcher::Extapi::Clipboard
 
   Klass = Console::CommandDispatcher::Extapi::Clipboard
-  STEP_SKIPPED_WOULD_OVERWRITE = "Overwrite attempt"
+  
+  STEP_SKIPPED_WOULD_OVERWRITE = 'Overwrite'
+  STEP_COMPLETED = 'Completed'
+  STEP_SKIPPED = 'Skipped'
+  STEP_COMPLETED_OVERWRITTEN = 'Overwritten'
   
   include Console::CommandDispatcher
   include Rex::Post::Meterpreter::Extensions::Extapi
@@ -388,6 +392,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
       :dump           => dump_data,
       :include_images => download_images
     })
+    
 
     parse_dump(dump, download_images, download_files, download_path, force_overwrite) if dump_data
 
@@ -415,8 +420,11 @@ private
       client.fs.dir.download( local_dest_path, source, {"force_overwrite" => force_overwrite, "recursive" => true} ) { |step, src, dst|
             
             attempted_overwrite ||= (step == STEP_SKIPPED_WOULD_OVERWRITE)
+
             if step == STEP_SKIPPED_WOULD_OVERWRITE
-              print_line( "Skipped : Would overwrite existing file #{dst}" )
+              print_line( "#{STEP_SKIPPED.ljust(11)} : Would overwrite existing file #{dst}" )
+            elsif step == STEP_COMPLETED_OVERWRITTEN
+              print_line( "#{STEP_COMPLETED.ljust(11)} : Overwrote existing file #{dst}" )
             else
               print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
             end
@@ -427,7 +435,9 @@ private
           attempted_overwrite ||= (step == STEP_SKIPPED_WOULD_OVERWRITE)
           
           if step == STEP_SKIPPED_WOULD_OVERWRITE
-            print_line( "Skipped : Would overwrite existing file #{dst}" )
+            print_line( "#{STEP_SKIPPED.ljust(11)} : Would overwrite existing file #{dst}" )
+          elsif step == STEP_COMPLETED_OVERWRITTEN
+            print_line( "#{STEP_COMPLETED.ljust(11)} : Overwrote existing file #{dst}" )
           else
             print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
           end

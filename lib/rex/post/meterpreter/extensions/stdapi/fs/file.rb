@@ -378,7 +378,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     tries_no = opts["tries_no"]
     tries = opts["tries"]
     force_overwrite = opts['force_overwrite'] || false
-
+    overwrite_existing = false
     src_fd = client.fs.file.new(src_file, "rb")
 
     # Check for changes
@@ -391,9 +391,9 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
       end
       if !force_overwrite
         src_fd.close
-        return 'Overwrite attempt'
+        return 'Overwrite'
       else
-        stat.call("Overwriting existing file", src_file, dest_file)
+        overwrite_existing= true
       end
     end
 
@@ -484,7 +484,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
     # Clone the times from the remote file
     ::File.utime(src_stat.atime, src_stat.mtime, dest_file)
-    return 'Completed'
+    return overwrite_existing ? 'Overwritten' : 'Completed'
   end
 
   #
