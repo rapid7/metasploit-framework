@@ -14,7 +14,8 @@ module Ui
 class Console::CommandDispatcher::Extapi::Clipboard
 
   Klass = Console::CommandDispatcher::Extapi::Clipboard
-
+  STEP_SKIPPED_WOULD_OVERWRITE = "Overwrite attempt"
+  
   include Console::CommandDispatcher
   include Rex::Post::Meterpreter::Extensions::Extapi
   
@@ -310,7 +311,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
       when "-f"
         download_files = val.downcase != 'false'
       when "-p"
-        purge = val.downcase != 'false'
+        purge = true
       when '--force'
         force_overwrite = true
       when "-h"
@@ -413,14 +414,24 @@ private
     if stat.directory?
       client.fs.dir.download( local_dest_path, source, {"force_overwrite" => force_overwrite, "recursive" => true} ) { |step, src, dst|
             
-            attempted_overwrite ||= (step == "Overwrite attempt")
-            print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
+            attempted_overwrite ||= (step == STEP_SKIPPED_WOULD_OVERWRITE)
+            if step == STEP_SKIPPED_WOULD_OVERWRITE
+              print_line( "Skipped : Would overwrite existing file #{dst}" )
+            else
+              print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
+            end
             client.framework.events.on_session_download( client, src, local_dest_path ) if msf_loaded?
       }
     elsif stat.file?
       client.fs.file.download( local_dest_path, source, {"force_overwrite" => force_overwrite} ) { |step, src, dst|
-          attempted_overwrite ||= (step == "Overwrite attempt")
-          print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
+          attempted_overwrite ||= (step == STEP_SKIPPED_WOULD_OVERWRITE)
+          
+          if step == STEP_SKIPPED_WOULD_OVERWRITE
+            print_line( "Skipped : Would overwrite existing file #{dst}" )
+          else
+            print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
+          end
+          
           client.framework.events.on_session_download( client, src, local_dest_path ) if msf_loaded?
         }
     end
