@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           Web search: app, header, keywords, desc, title, ip, site, city, country
 
           When using multiple filters, you must enclose individual filter values in double quotes, separating filters with the '+' symbol as follows:
-          'country:"FR" + os:"Linux"'
+          country:"FR" + os:"Linux"
         },
         'Author' => [
           'Nixawk', # Original Author
