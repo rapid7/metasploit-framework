@@ -25,8 +25,8 @@ class MetasploitModule < Msf::Auxiliary
           Host search: app, ver, device, os, service, ip, cidr, hostname, port, city, country, asn
           Web search: app, header, keywords, desc, title, ip, site, city, country
 
-          When using multiple filters, you must enclose the whole query in single quotes and individual filter values in double quotes, separating filters with the '+' symbol as follows:
-          'country:"FR"+city"Paris"'
+          When using multiple filters, you must enclose individual filter values in double quotes, separating filters with the '+' symbol as follows:
+          'country:"FR" + os:"Linux"'
         },
         'Author' => [
           'Nixawk', # Original Author
@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('ZOOMEYE_APIKEY', [true, 'The ZoomEye api key']),
-        OptString.new('ZOOMEYE_DORK', [true, 'The ZoomEye dork']),
+        OptString.new('QUERY', [true, 'The ZoomEye dork']),
         OptString.new('FACETS', [false, 'A comma-separated list of properties to get summary information on query', nil]),
         OptEnum.new('RESOURCE', [true, 'ZoomEye Resource Type', 'host', ['host', 'web']]),
         OptInt.new('MAXPAGE', [true, 'Max amount of pages to collect', 1]),
@@ -83,13 +83,13 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_cgi({
         'uri' => "/#{resource}/search",
         'method' => 'GET',
-        'rhost' => 'api.zoomeye.hk',
+        'rhost' => 'api.zoomeye.ai',
         'rport' => 443,
         'SSL' => true,
         'headers' => { 'API-KEY' => api_key },
         'vars_get' => {
           'query' => dork,
-          'page' => page,
+          'page' => page.to_s,
           'facets' => facets
         }
       })
@@ -112,25 +112,25 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    dork = datastore['ZOOMEYE_DORK']
+    dork = datastore['QUERY']
     resource = datastore['RESOURCE']
     maxpage = datastore['MAXPAGE']
     facets = datastore['FACETS']
     api_key = datastore['ZOOMEYE_APIKEY']
     # check to ensure api.zoomeye.org is resolvable
     unless zoomeye_resolvable?
-      print_error('Unable to resolve api.zoomeye.hk')
+      print_error('Unable to resolve api.zoomeye.ai')
       return
     end
 
     first_page = 0
     results = []
-    results[first_page] = dork_search(resource, dork, 1, facets, api_key)
+    results[0] = dork_search(resource, dork, 1, facets, api_key)
 
-    if results[first_page].nil? || results[first_page]['total'].nil? || results[first_page]['total'] == 0
+    if results[0]['total'].nil? || results[0]['total'] == 0
       msg = 'No results.'
-      if !results[first_page]['error'].to_s.empty?
-        msg << " Error: #{results[first_page]['error']}"
+      if results[first_page]['error'].to_s.length > 0
+        msg << " Error: #{results[0]['error']}"
       end
       print_error(msg)
       return
