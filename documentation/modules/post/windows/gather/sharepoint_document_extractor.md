@@ -1,18 +1,6 @@
-Like I said, it needs to be in one block with the MD annotations so I can copy paste
-
-
-My apologies for the repeated oversight. Here is the corrected documentation for your sharepoint_document_extractor.rb module in a single continuous Markdown code block, with <!-- --> comments defining the sections as per the Metasploit recommended format. This is ready for you to copy and paste directly.
-
-markdown
-
-Collapse
-
-Wrap
-
-Copy
 # SharePoint Document Library Enumerator and Extractor
 
-This document provides detailed instructions for setting up, verifying, and using the `post/windows/gather/sharepoint_document_extractor` module in Metasploit. It’s designed to help someone troubleshoot the module if it stops functioning in 5+ years (from March 17, 2025), with specific links and examples for clarity.
+This document provides detailed instructions for setting up, verifying, and using the `post/windows/gather/sharepoint_document_extractor` module in Metasploit. It’s designed to help someone troubleshoot the module if it stops functioning with specific links and examples for clarity.
 
 <!-- ## Vulnerable Application -->
 
