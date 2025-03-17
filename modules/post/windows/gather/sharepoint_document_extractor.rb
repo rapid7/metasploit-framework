@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Post
     {
       'Name' => name,
       'Description' => description,
-      'Author' => ['Custom Contributor'],
+      'Author' => ['Vikram Verma'],
       'License' => MSF_LICENSE,
       'Platform' => 'win',
       'Arch' => ARCH_X86,
