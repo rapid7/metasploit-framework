@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Post::Windows::Powershell
         with configurable filters for file size and library targeting. Requires execution
         in a context with access to SharePoint assemblies and appropriate permissions.
       },
-      'Author'         => ['Custom Contributor'],
+      'Author'         => ['Vikram Verma'],
       'License'        => MSF_LICENSE,
       'Platform'       => 'win',
       'Arch'           => ARCH_X86,
