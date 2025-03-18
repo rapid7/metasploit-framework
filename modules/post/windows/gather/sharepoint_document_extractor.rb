@@ -52,8 +52,8 @@ class MetasploitModule < Msf::Post
     register_options([
       OptString.new('SITE_URL', [true, 'Full URL of the SharePoint site', 'http://sharepoint.local']),
       OptString.new('LIBRARY', [true, 'Target document library name', 'Documents']),
-      OptString.new('EXFIL_METHOD',
-                    [true, 'Exfiltration method (HTTP or METERPRETER)', 'METERPRETER']),
+       OptEnum.new('EXFIL_METHOD', [ true, 'Exfiltration method (HTTP or METERPRETER)', 'METERPRETER', ['HTTP', 'METERPRETER']])
+
       OptString.new('EXFIL_HOST', [false, 'Host for HTTP exfiltration', '']),
       OptInt.new('EXFIL_PORT', [false, 'Port for HTTP exfiltration', 8080]),
       OptInt.new('MAX_SIZE', [true, 'Max file size to exfiltrate (bytes)', 10_485_760]) # 10MB
