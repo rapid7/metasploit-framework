@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
       'Author' => ['Vikram Verma'],
       'License' => MSF_LICENSE,
       'Platform' => 'win',
-      'Arch' => [ARCH_X86, ARCH_X64], # Updated to support both
+      'Arch' => [ARCH_X86, ARCH_X64], 
       'Notes' => notes
     }
   end
