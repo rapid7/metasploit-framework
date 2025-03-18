@@ -61,9 +61,9 @@ class MetasploitModule < Msf::Post
   end
 
   def check
-    return [Exploit::CheckCode::Safe, 'Target is not a Windows system'] unless session.platform == 'windows'
+    return Exploit::CheckCode::Safe('Target is not a Windows system') unless session.platform == 'windows'
 
-    [Exploit::CheckCode::Appears, 'Module ready to run on Windows session']
+    Exploit::CheckCode::Appears('Module ready to run on Windows session')
   end
 
   def run
