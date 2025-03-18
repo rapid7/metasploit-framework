@@ -67,7 +67,6 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    fail_with(Failure::NotVulnerable, 'No active session available') unless session
 
     handle_exfiltration_config
     execute_payload
