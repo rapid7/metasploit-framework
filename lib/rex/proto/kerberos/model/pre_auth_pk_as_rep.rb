@@ -14,7 +14,7 @@ module Rex
           ]
 
           def dh_rep_info
-            Rex::Proto::Kerberos::Model::Pkinit::ContentInfo.parse(self[:dh_rep_info].value)
+            Rex::Proto::CryptoAsn1::Cms::ContentInfo.parse(self[:dh_rep_info].value)
           end
 
           def self.decode(data)
