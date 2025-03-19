@@ -348,7 +348,7 @@ class ClientCore < Extension
 
     # if there are existing commands for the given extension, then we can use
     # what's already there
-    unless commands.length > 0
+    unless false #commands.length > 0
       image = nil
       path = nil
       # If client.sys isn't setup, it's a Windows meterpreter
