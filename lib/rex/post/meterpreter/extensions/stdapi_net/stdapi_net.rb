@@ -45,9 +45,9 @@ class Stdapi_Net < Extension
           'name' => 'net',
           'ext'  => ObjectAliases.new(
             {
-              'config'   => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config.new(client),
-              'socket'   => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Socket.new(client),
-              'resolve'  => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Resolve.new(client)
+              'config'   => Rex::Post::Meterpreter::Extensions::Stdapi_Net::Net::Config.new(client),
+              'socket'   => Rex::Post::Meterpreter::Extensions::Stdapi_Net::Net::Socket.new(client),
+              'resolve'  => Rex::Post::Meterpreter::Extensions::Stdapi_Net::Net::Resolve.new(client)
             })
         }
       ])
