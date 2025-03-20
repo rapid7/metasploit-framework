@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
     api_key = datastore['ZOOMEYE_APIKEY']
     # check to ensure api.zoomeye.org is resolvable
     unless zoomeye_resolvable?
-      print_error('Unable to resolve api.zoomeye.ai')
+      print_error("Unable to resolve api.zoomeye.#@domain")
       return
     end
 
