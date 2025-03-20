@@ -8,6 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
+    @domain = 'ai'
     super(
       update_info(
         info,
@@ -34,9 +35,9 @@ class MetasploitModule < Msf::Auxiliary
           'Grant Willcox' # Additional fixes to refine searches, improve quality of info saved and improve error handling.
         ],
         'References' => [
-          ['URL', 'https://github.com/knownsec/ZoomEye-python'],
-          ['URL', 'https://www.zoomeye.org/api/doc'],
-          ['URL', 'https://www.zoomeye.org/help/manual']
+          ['URL', "https://github.com/knownsec/ZoomEye-python"],
+          ['URL', "https://www.zoomeye.#@domain/api/doc"],
+          ['URL', "https://www.zoomeye.#@domain/help/manual"]
         ],
         'License' => MSF_LICENSE
       )
@@ -44,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('ZOOMEYE_APIKEY', [true, 'The ZoomEye api key']),
-        OptString.new('QUERY', [true, 'The ZoomEye dork']),
+        OptString.new('ZOOMEYE_DORK', [true, 'The ZoomEye dork']),
         OptString.new('FACETS', [false, 'A comma-separated list of properties to get summary information on query', nil]),
         OptEnum.new('RESOURCE', [true, 'ZoomEye Resource Type', 'host', ['host', 'web']]),
         OptInt.new('MAXPAGE', [true, 'Max amount of pages to collect', 1]),
@@ -72,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
   # Check to see if api.zoomeye.org resolves properly
   def zoomeye_resolvable?
     begin
-      Rex::Socket.resolv_to_dotted('api.zoomeye.hk')
+      Rex::Socket.resolv_to_dotted("api.zoomeye.#@domain")
     rescue RuntimeError, SocketError
       return false
     end
@@ -83,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_cgi({
         'uri' => "/#{resource}/search",
         'method' => 'GET',
-        'rhost' => 'api.zoomeye.ai',
+        'rhost' => "api.zoomeye.#@domain",
         'rport' => 443,
         'SSL' => true,
         'headers' => { 'API-KEY' => api_key },
@@ -112,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    dork = datastore['QUERY']
+    dork = datastore['ZOOMEYE_DORK']
     resource = datastore['RESOURCE']
     maxpage = datastore['MAXPAGE']
     facets = datastore['FACETS']
@@ -129,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if results[0]['total'].nil? || results[0]['total'] == 0
       msg = 'No results.'
-      if results[first_page]['error'].to_s.length > 0
+      if results[first_page]['error'].present?
         msg << " Error: #{results[0]['error']}"
       end
       print_error(msg)
