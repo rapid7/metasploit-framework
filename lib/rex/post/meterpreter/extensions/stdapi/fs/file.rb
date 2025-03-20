@@ -377,16 +377,23 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     continue = opts["continue"]
     tries_no = opts["tries_no"]
     tries = opts["tries"]
-
+    force_overwrite = opts['force_overwrite'] || false
+    overwrite_existing = false
     src_fd = client.fs.file.new(src_file, "rb")
 
     # Check for changes
     src_stat = client.fs.filestat.new(src_file)
     if ::File.exist?(dest_file)
       dst_stat = ::File.stat(dest_file)
-      if src_stat.size == dst_stat.size && src_stat.mtime == dst_stat.mtime
+      if (src_stat.size == dst_stat.size && src_stat.mtime == dst_stat.mtime) 
         src_fd.close
         return 'Skipped'
+      end
+      if !force_overwrite
+        src_fd.close
+        return 'Overwrite'
+      else
+        overwrite_existing= true
       end
     end
 
@@ -477,7 +484,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
     # Clone the times from the remote file
     ::File.utime(src_stat.atime, src_stat.mtime, dest_file)
-    return 'Completed'
+    return overwrite_existing ? 'Overwritten' : 'Completed'
   end
 
   #
