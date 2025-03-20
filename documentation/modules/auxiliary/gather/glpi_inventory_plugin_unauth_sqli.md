@@ -141,8 +141,8 @@ msf6 auxiliary(gather/glpi_inventory_plugin_unauth_sqli) > exploit
 glpi_users
 ==========
 
- name                   password
- ----                   --------
+ name                   password                                                     api_token
+ ----                   --------                                                     ---------
  Plugin_GLPI_Inventory  39
  glpi                   $2y$10$ci01zoEXHWOfoxietd8ry.2K6Y3wR5bc1dZQiftuFM5hqQtPgD6LS
  glpi-system
