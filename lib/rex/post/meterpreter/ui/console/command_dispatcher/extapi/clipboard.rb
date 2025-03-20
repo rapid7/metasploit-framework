@@ -282,7 +282,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
     "-i" => [ true,  "Indicate if captured image data should be downloaded (default: true)" ],
     "-f" => [ true,  "Indicate if captured file data should be downloaded (default: true)" ],
     "-p" => [ true,  "Purge the contents of the monitor once dumped (default: true)" ],
-    "-d" => [ true,  "Download non-text content to the specified folder (default: current dir)" ],
+    "-d" => [ true,  "Download non-text content to the specified folder" ],
     '--force' => [false, "Force overwriting existing files"]
   )
 
@@ -324,6 +324,11 @@ class Console::CommandDispatcher::Extapi::Clipboard
       end
     }
     
+    if download_path.nil? 
+      print_error("You need to specify download directory.")
+      return 1
+    end
+
     # do something with dump
     dump = client.extapi.clipboard.monitor_dump({
       :include_images => download_images,
@@ -345,7 +350,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
     "-x" => [ true,  "Indicate if captured clipboard data should be dumped (default: true)" ],
     "-i" => [ true,  "Indicate if captured image data should be downloaded (default: true)" ],
     "-f" => [ true,  "Indicate if captured file data should be downloaded (default: true)" ],
-    "-d" => [ true,  "Download non-text content to the specified folder (default: current dir)" ],
+    "-d" => [ true,  "Download non-text content to the specified folder" ],
     '--force' => [false, "Force overwriting existing files"]
   )
 
@@ -387,7 +392,13 @@ class Console::CommandDispatcher::Extapi::Clipboard
       end
     }
     
+    
+    if download_path.nil? 
+      print_error("You need to specify download directory.")
+      return 1
+    end
 
+  
     dump = client.extapi.clipboard.monitor_stop({
       :dump           => dump_data,
       :include_images => download_images
