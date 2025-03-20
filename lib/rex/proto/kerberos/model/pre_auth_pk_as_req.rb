@@ -15,7 +15,7 @@ module Rex
 
           def parse!(der, ber: false)
             res = super(der, ber: ber)
-            self.signed_auth_pack = Rex::Proto::Kerberos::Model::Pkinit::ContentInfo.parse(self[:signed_auth_pack].value)
+            self.signed_auth_pack = Rex::Proto::CryptoAsn1::Cms::ContentInfo.parse(self[:signed_auth_pack].value)
 
             res
           end
