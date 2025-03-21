@@ -218,9 +218,16 @@ class MetasploitModule < Msf::Auxiliary
   def map_sids_to_names(sids_array)
     mapped = []
     sids_array.each do |sid|
-      # this common SID doesn't always have an entry
-      if sid == Rex::Proto::Secauthz::WellKnownSids::SECURITY_AUTHENTICATED_USER_SID
+      # these common SIDs don't always have an entry
+      case sid
+      when Rex::Proto::Secauthz::WellKnownSids::SECURITY_AUTHENTICATED_USER_SID
         mapped << SID.new(sid, 'Authenticated Users')
+        next
+      when Rex::Proto::Secauthz::WellKnownSids::SECURITY_ENTERPRISE_CONTROLLERS_SID
+        mapped << SID.new(sid, 'Enterprise Domain Controllers')
+        next
+      when Rex::Proto::Secauthz::WellKnownSids::SECURITY_LOCAL_SYSTEM_SID
+        mapped << SID.new(sid, 'Local System')
         next
       end
 
