@@ -1,4 +1,7 @@
-# frozen_string_literal: true
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
 
 # Gathers documents from a SharePoint library using the .NET API.
 # Supports HTTP and Meterpreter exfiltration with size filtering.
