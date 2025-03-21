@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/rapid7/metasploit_data_models.git
-  revision: 86e16020ae4f606279403e32c7c67542bd9c7123
+  revision: 8458eea2b2e919b8fbd10cf904abd8ed88a6c06e
   branch: add-coder-to-mdm-payload
   specs:
     metasploit_data_models (6.0.6)
