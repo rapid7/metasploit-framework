@@ -58,7 +58,8 @@ class MetasploitModule < Msf::Auxiliary
       datastore['RPORT'],
       datastore['RELAY_TARGETS'],
       '/ccm_system_windowsauth/request',
-      randomize_targets: datastore['RANDOMIZE_TARGETS']
+      randomize_targets: datastore['RANDOMIZE_TARGETS'],
+      protocol_options: { http_status_code: 403 }
     )
   end
 
@@ -75,15 +76,21 @@ class MetasploitModule < Msf::Auxiliary
     )
     disconnect
 
-    res&.code == 401
+    return Exploit::CheckCode::Detected if res&.code == 401
+
+    Exploit::CheckCode::Unknown
   end
 
   def run
     # check_options
     relay_targets.each do |target|
       print_status("Checking endpoint on #{target}")
-      unless check_host(target.ip)
+      check_code = check_host(target.ip)
+      case check_code
+      when Exploit::CheckCode::Unknown
         fail_with(Failure::UnexpectedReply, "SCCM HTTP server does not appear to be running on #{target}")
+      when Exploit::CheckCode::Detected
+        print_good("SCCM HTTP server appears to be running on #{target}")
       end
     end
 
