@@ -61,8 +61,11 @@ module Rex::Proto::CryptoAsn1
     OID_PKIX_KP_TIMESTAMP_SIGNING = ObjectId.new('1.3.6.1.5.5.7.3.8', name: 'OID_PKIX_KP_TIMESTAMP_SIGNING', label: 'Time Stamping')
     OID_ROOT_LIST_SIGNER = ObjectId.new('1.3.6.1.4.1.311.10.3.9', name: 'OID_ROOT_LIST_SIGNER', label: 'Root List Signer')
     OID_WHQL_CRYPTO = ObjectId.new('1.3.6.1.4.1.311.10.3.5', name: 'OID_WHQL_CRYPTO', label: 'Windows Hardware Driver Verification')
+    OID_DIFFIE_HELLMAN_KEYDATA = ObjectId.new('1.3.6.1.5.2.3.2', name: 'OID_DIFFIE_HELLMAN_KEYDATA', label: 'Diffie Hellman Key Data')
+
 
     OID_CMS_ENVELOPED_DATA = ObjectId.new('1.2.840.113549.1.7.3', name: 'OID_CMS_ENVELOPED_DATA', label: 'PKCS#7 CMS Enveloped Data')
+    OID_CMS_SIGNED_DATA = ObjectId.new('1.2.840.113549.1.7.2', name: 'OID_CMS_SIGNED_DATA', label: 'CMS Signed Data')
 
     OID_DES_EDE3_CBC = ObjectId.new('1.2.840.113549.3.7', name: 'OID_DES_EDE_CBC', label: 'Triple DES encryption in CBC mode')
     OID_AES256_CBC = ObjectId.new('2.16.840.1.101.3.4.1.42', name: 'OID_AES256_CBC', label: 'AES256 in CBC mode')

@@ -14,12 +14,12 @@ class MetasploitModule < Msf::Auxiliary
   ADS_GROUP_TYPE_UNIVERSAL_GROUP = 0x00000008
 
   REFERENCES = {
-    'ESC1' => [ 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
-    'ESC2' => [ 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
-    'ESC3' => [ 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
-    'ESC4' => [ 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
-    'ESC13' => [ 'https://posts.specterops.io/adcs-esc13-abuse-technique-fda4272fbd53' ],
-    'ESC15' => [ 'https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc' ]
+    'ESC1' => [ SiteReference.new('URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2') ],
+    'ESC2' => [ SiteReference.new('URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2') ],
+    'ESC3' => [ SiteReference.new('URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2') ],
+    'ESC4' => [ SiteReference.new('URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2') ],
+    'ESC13' => [ SiteReference.new('URL', 'https://posts.specterops.io/adcs-esc13-abuse-technique-fda4272fbd53') ],
+    'ESC15' => [ SiteReference.new('URL', 'https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc') ]
   }.freeze
 
   SID = Struct.new(:value, :name) do
@@ -63,11 +63,7 @@ class MetasploitModule < Msf::Auxiliary
           'Spencer McIntyre', # ESC13 and ESC15 updates
           'jheysel-r7' # ESC4 update
         ],
-        'References' => [
-          [ 'URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
-          [ 'URL', 'https://posts.specterops.io/adcs-esc13-abuse-technique-fda4272fbd53' ], # ESC13
-          [ 'URL', 'https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc' ] # ESC15
-        ],
+        'References' => REFERENCES.values.flatten.map { |r| [ r.ctx_id, r.ctx_val ] }.uniq,
         'DisclosureDate' => '2021-06-17',
         'License' => MSF_LICENSE,
         'DefaultOptions' => {

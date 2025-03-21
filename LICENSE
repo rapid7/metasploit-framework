@@ -2,7 +2,7 @@ Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Source: https://www.metasploit.com/
 
 Files: *
-Copyright: 2006-2020, Rapid7, Inc.
+Copyright: 2006-2025, Rapid7, Inc.
 License: BSD-3-clause
 
 # The Metasploit Framework is provided under the 3-clause BSD license provided

@@ -8,6 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
+    @domain = 'ai'
     super(
       update_info(
         info,
@@ -24,6 +25,9 @@ class MetasploitModule < Msf::Auxiliary
           Possible filters values are:
           Host search: app, ver, device, os, service, ip, cidr, hostname, port, city, country, asn
           Web search: app, header, keywords, desc, title, ip, site, city, country
+
+          When using multiple filters, you must enclose individual filter values in double quotes, separating filters with the '+' symbol as follows:
+          'country:"FR" + os:"Linux"'
         },
         'Author' => [
           'Nixawk', # Original Author
@@ -31,9 +35,9 @@ class MetasploitModule < Msf::Auxiliary
           'Grant Willcox' # Additional fixes to refine searches, improve quality of info saved and improve error handling.
         ],
         'References' => [
-          ['URL', 'https://github.com/knownsec/ZoomEye-python'],
-          ['URL', 'https://www.zoomeye.org/api/doc'],
-          ['URL', 'https://www.zoomeye.org/help/manual']
+          ['URL', "https://github.com/knownsec/ZoomEye-python"],
+          ['URL', "https://www.zoomeye.#@domain/api/doc"],
+          ['URL', "https://www.zoomeye.#@domain/help/manual"]
         ],
         'License' => MSF_LICENSE
       )
@@ -69,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
   # Check to see if api.zoomeye.org resolves properly
   def zoomeye_resolvable?
     begin
-      Rex::Socket.resolv_to_dotted('api.zoomeye.hk')
+      Rex::Socket.resolv_to_dotted("api.zoomeye.#@domain")
     rescue RuntimeError, SocketError
       return false
     end
@@ -80,13 +84,13 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_cgi({
         'uri' => "/#{resource}/search",
         'method' => 'GET',
-        'rhost' => 'api.zoomeye.hk',
+        'rhost' => "api.zoomeye.#@domain",
         'rport' => 443,
         'SSL' => true,
         'headers' => { 'API-KEY' => api_key },
         'vars_get' => {
           'query' => dork,
-          'page' => page,
+          'page' => page.to_s,
           'facets' => facets
         }
       })
@@ -116,18 +120,18 @@ class MetasploitModule < Msf::Auxiliary
     api_key = datastore['ZOOMEYE_APIKEY']
     # check to ensure api.zoomeye.org is resolvable
     unless zoomeye_resolvable?
-      print_error('Unable to resolve api.zoomeye.hk')
+      print_error("Unable to resolve api.zoomeye.#@domain")
       return
     end
 
     first_page = 0
     results = []
-    results[first_page] = dork_search(resource, dork, 1, facets, api_key)
+    results[0] = dork_search(resource, dork, 1, facets, api_key)
 
-    if results[first_page].nil? || results[first_page]['total'].nil? || results[first_page]['total'] == 0
+    if results[0]['total'].nil? || results[0]['total'] == 0
       msg = 'No results.'
-      if !results[first_page]['error'].to_s.empty?
-        msg << " Error: #{results[first_page]['error']}"
+      if results[first_page]['error'].present?
+        msg << " Error: #{results[0]['error']}"
       end
       print_error(msg)
       return

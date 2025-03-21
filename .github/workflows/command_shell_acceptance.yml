@@ -126,6 +126,11 @@ jobs:
         with:
           path: metasploit-framework
 
+      # https://github.com/orgs/community/discussions/26952
+      - name: Support longpaths
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
+
       - name: Setup Ruby
         env:
           BUNDLE_FORCE_RUBY_PLATFORM: true
@@ -174,6 +179,11 @@ jobs:
       - name: Install system dependencies (Linux)
         if: always()
         run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
+
+      # https://github.com/orgs/community/discussions/26952
+      - name: Support longpaths
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
 
       - name: Setup Ruby
         if: always()
