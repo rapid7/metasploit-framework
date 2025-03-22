@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
           :proto  => 'tcp',
           :port   => datastore['RPORT'],
           :type   => "DCERPC UUID #{id[0]} v#{id[1]}",
-          :data   => reportdata
+          :data   => { :report_data => reportdata }
         )
 
       end

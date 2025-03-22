@@ -167,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
               :sname => (ssl ? 'https' : 'http'),
               :port	=> rport,
               :type	=> 'USERNAME',
-              :data	=> slastauthor,
+              :data	=> { :username => slastauthor },
               :update => :unique_data
             )
 
@@ -181,7 +181,7 @@ class MetasploitModule < Msf::Auxiliary
                 :sname => (ssl ? 'https' : 'http'),
                 :port	=> rport,
                 :type	=> 'DIRECTORY',
-                :data	=> sname,
+                :data	=> { :directory => sname },
                 :update => :unique_data
               )
             end
@@ -193,7 +193,7 @@ class MetasploitModule < Msf::Auxiliary
                 :sname => (ssl ? 'https' : 'http'),
                 :port	=> rport,
                 :type	=> 'FILE',
-                :data	=> sname,
+                :data	=> { :file => sname },
                 :update => :unique_data
               )
 
@@ -221,7 +221,10 @@ class MetasploitModule < Msf::Auxiliary
                       :sname => (ssl ? 'https' : 'http'),
                       :port	=> rport,
                       :type	=> 'SOURCE_CODE',
-                      :data	=> "#{sname} Code: #{srcres.body}",
+                      :data	=> {
+                        :file => sname,
+                        :code => srcres.body
+                      },
                       :update => :unique_data
                     )
                   end

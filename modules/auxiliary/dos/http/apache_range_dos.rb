@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Auxiliary
           :host   => rhost,
           :port   => rport,
           :type   => 'apache.killer',
-          :data   => "Apache Byte-Range DOS at #{uri}"
+          :data   => { :uri => uri }
         )
 
       else

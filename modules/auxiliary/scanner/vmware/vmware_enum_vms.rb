@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         report_note(
           :host  => rhost,
           :type  => "vmware.esx.vm",
-          :data  => vm,
+          :data  => { :virtual_machine => vm },
           :port  => rport,
           :proto => 'tcp',
           :update => :unique_data
