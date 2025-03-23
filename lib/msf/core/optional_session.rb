@@ -8,6 +8,12 @@ module Msf
   module OptionalSession
     include Msf::SessionCompatibility
 
+    attr_accessor :session_or_rhost_required
+
+    def session_or_rhost_required?
+      @session_or_rhost_required.nil? ? true : @session_or_rhost_required
+    end
+
     # Validates options depending on whether we are using  SESSION or an RHOST for our connection
     def validate
       super
@@ -18,7 +24,7 @@ module Msf
         validate_session
       elsif rhost
         validate_rhost
-      else
+      elsif session_or_rhost_required?
         raise Msf::OptionValidateError.new(message: 'A SESSION or RHOST must be provided')
       end
     end

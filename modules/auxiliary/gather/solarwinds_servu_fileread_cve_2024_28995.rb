@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['CVE', '2024-28995'],
-          ['URL', 'https://www.solarwinds.com/trust-center/security-advisories/cve-2024-28995'],
+          ['URL', 'http://web.archive.org/web/20250213123538/https://www.solarwinds.com/trust-center/security-advisories/cve-2024-28995'],
           ['URL', 'https://attackerkb.com/topics/2k7UrkHyl3/cve-2024-28995/rapid7-analysis']
         ],
         'DefaultOptions' => {

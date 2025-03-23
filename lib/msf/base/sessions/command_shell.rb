@@ -215,6 +215,11 @@ Shell Banner:
     print_line
   end
 
+  def escape_arg(arg)
+    # By default we don't know what the escaping is. It's not ideal, but subclasses should do their own appropriate escaping
+    arg
+  end
+
   def cmd_background(*args)
     if !args.empty?
       # We assume that background does not need arguments

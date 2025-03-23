@@ -22,8 +22,8 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2012-0002' ],
           [ 'MSB', 'MS12-020' ],
           [ 'URL', 'http://www.privatepaste.com/ffe875e04a' ],
-          [ 'URL', 'http://pastie.org/private/4egcqt9nucxnsiksudy5dw' ],
-          [ 'URL', 'http://pastie.org/private/feg8du0e9kfagng4rrg' ],
+          [ 'URL', 'http://web.archive.org/web/20161020044803/http://pastie.org/private/4egcqt9nucxnsiksudy5dw' ],
+          [ 'URL', 'http://web.archive.org/web/20160627131634/http://pastie.org/private/feg8du0e9kfagng4rrg' ],
           [ 'URL', 'http://stratsec.blogspot.com.au/2012/03/ms12-020-vulnerability-for-breakfast.html' ],
           [ 'EDB', '18606' ],
           [ 'URL', 'https://www.rapid7.com/blog/post/2012/03/21/metasploit-update/' ]

@@ -10,6 +10,8 @@ module Msf
 
 module Auxiliary::Scanner
 
+include Msf::Auxiliary::MultipleTargetHosts
+
 class AttemptFailed < Msf::Auxiliary::Failed
 end
 
@@ -30,20 +32,6 @@ def initialize(info = {})
   ], Auxiliary::Scanner)
 
 end
-
-def has_check?
-  respond_to?(:check_host)
-end
-
-def check
-  nmod = replicant
-  begin
-    nmod.check_host(datastore['RHOST'])
-  rescue NoMethodError
-    Exploit::CheckCode::Unsupported
-  end
-end
-
 
 def peer
   # IPv4 addr can be 16 chars + 1 for : and + 5 for port

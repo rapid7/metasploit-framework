@@ -69,12 +69,12 @@ jobs:
         os:
           - macos-13
           - windows-2019
-          - ubuntu-20.04
+          - ubuntu-latest
         ruby:
           - '3.2'
         meterpreter:
           # Python
-          - { name: python, runtime_version: 3.6 }
+          - { name: python, runtime_version: 3.8 }
           - { name: python, runtime_version: 3.11 }
 
           # Java
@@ -92,7 +92,7 @@ jobs:
 
           # Mettle
           - { meterpreter: { name: mettle }, os: macos-13 }
-          - { meterpreter: { name: mettle }, os: ubuntu-20.04 }
+          - { meterpreter: { name: mettle }, os: ubuntu-latest }
 
     runs-on: ${{ matrix.os }}
 
@@ -189,6 +189,11 @@ jobs:
           repository: rapid7/metasploit-framework
           path: metasploit-framework
           ref: ${{ inputs.metasploit_framework_commit }}
+
+      # https://github.com/orgs/community/discussions/26952
+      - name: Support longpaths
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
 
       - name: Setup Ruby
         env:
@@ -343,6 +348,11 @@ jobs:
       - name: Install system dependencies (Linux)
         if: always()
         run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
+
+      # https://github.com/orgs/community/discussions/26952
+      - name: Support longpaths
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
 
       - name: Setup Ruby
         if: always()

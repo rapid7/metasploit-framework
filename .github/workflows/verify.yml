@@ -64,7 +64,6 @@ jobs:
           - '3.3'
           - '3.4'
         os:
-          - ubuntu-20.04
           - ubuntu-latest
         include:
           - os: ubuntu-latest
@@ -88,6 +87,11 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # https://github.com/orgs/community/discussions/26952
+      - name: Support longpaths
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
 
       - name: Setup Ruby
         env:

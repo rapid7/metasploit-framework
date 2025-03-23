@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     => [
         ['CVE' , '2017-1001000'],
         ['WPVDB', '8734'],
-        ['URL',   'https://blog.sucuri.net/2017/02/content-injection-vulnerability-wordpress-rest-api.html'],
+        ['URL',   'http://web.archive.org/web/20250221003135/https://blog.sucuri.net/2017/02/content-injection-vulnerability-wordpress-rest-api.html'],
         ['URL',   'https://www.php.net/manual/en/language.types.type-juggling.php'],
         ['URL',   'https://developer.wordpress.org/rest-api/using-the-rest-api/discovery/'],
         ['URL',   'https://developer.wordpress.org/rest-api/reference/posts/']
