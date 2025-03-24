@@ -17,6 +17,9 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => [ 'sf' ],
       'License'        => MSF_LICENSE,
+      'Notes' => {
+          'AKA' => ['EDUCATEDSCHOLAR']
+      },
       'References'     =>
         [
           [ 'CVE', '2009-3103'],
