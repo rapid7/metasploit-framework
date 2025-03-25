@@ -33,4 +33,8 @@ module MetasploitModule
     payload = super
     "echo '#{Base64.strict_encode64(payload)}'|base64 -d|exec $(command -v php)"
   end
+
+  def include_send_uuid
+    true
+  end
 end
