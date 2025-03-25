@@ -300,7 +300,8 @@ class MsfAutoload
       'rex_ntlm' => 'RexNTLM',
       'teamcity' => 'TeamCity',
       'nist_sp_800_38f' => 'NIST_SP_800_38f',
-      'nist_sp_800_108' => 'NIST_SP_800_108'
+      'nist_sp_800_108' => 'NIST_SP_800_108',
+      'pfsense' => 'PfSense'
     }
   end
 
