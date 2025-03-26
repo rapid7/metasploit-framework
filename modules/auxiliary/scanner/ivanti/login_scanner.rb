@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
       )
          )
     register_options([
-      OptBool.new('ADMIN', [true, 'Select whether to test admin account', false])
+      OptBool.new('ADMIN', [true, 'Select whether to target the admin login endpoint', false])
     ])
   end
 
@@ -51,9 +51,10 @@ class MetasploitModule < Msf::Auxiliary
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
       bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-      connection_timeout: datastore['HttpClientTimeout'] || 5
+      connection_timeout: datastore['HttpClientTimeout'] || 5,
+      use_admin_endpoint: datastore['ADMIN']
     )
-    return Metasploit::Framework::LoginScanner::Ivanti.new(configuration, datastore['ADMIN'])
+    return Metasploit::Framework::LoginScanner::Ivanti.new(configuration)
   end
 
   def process_credential(credential_data)
