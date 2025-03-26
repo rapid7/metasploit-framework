@@ -1,7 +1,7 @@
 ## Description
 
-The module performs bruteforce attack against SonicWall NSv (Network Security Virtual).
-It allows to attack both regular SSLVPN user and admin as well. The module will automatically perform attack against SSLVPN user if `DOMAIN` parameter is not empty.
+The module will perform a bruteforce attack against SonicWall NSv (Network Security Virtual).
+It allows attacking both regular SSLVPN users and as well as admins. The module will automatically target SSLVPN users if the `DOMAIN` parameter is not empty.
 
 ## Vulnerable Application
 
@@ -9,7 +9,7 @@ It allows to attack both regular SSLVPN user and admin as well. The module will 
 
 ## Verification Steps
 
-1. `use auxiliary/scanner/sonicwall/login_scanner`
+1. `use auxiliary/scanner/sonicwall/sonicwall_login`
 2. `set RHOSTS [IP]`
 3. either `set USERNAME [username]` or `set USERPASS_FILE [usernames file]`
 4. either `set PASSWORD [password]` or `set PASS_FILE [passwords file]`
