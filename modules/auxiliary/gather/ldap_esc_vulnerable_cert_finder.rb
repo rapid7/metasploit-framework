@@ -616,16 +616,17 @@ class MetasploitModule < Msf::Auxiliary
           info = nil if info.blank?
 
           hash[:ca_servers].each_value do |ca_server|
-            service = report_service({
+            service = report_service(
               host: ca_server[:ip_address],
               port: 445,
               proto: 'tcp',
               name: 'AD CS',
               info: "AD CS CA name: #{ca_server[:name]}"
-            })
+            )
 
             if ca_server[:ip_address].present?
               vuln = report_vuln(
+                workspace: myworkspace,
                 host: ca_server[:ip_address],
                 port: 445,
                 proto: 'tcp',
