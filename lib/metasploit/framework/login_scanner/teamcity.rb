@@ -125,7 +125,9 @@ module Metasploit
         LIKELY_SERVICE_NAMES = [
           # Comes from nmap 7.95 on MacOS
           'skynetflow',
-          'teamcity'
+          'teamcity',
+          'http',
+          'https'
         ]
         PRIVATE_TYPES        = [:password]
         REALM_KEY            = nil
