@@ -16,10 +16,7 @@ module Metasploit
         PRIVATE_TYPES = [:password]
         REALM_KEY = nil
 
-        def initialize(scanner_config, domain)
-          @domain = domain
-          super(scanner_config)
-        end
+        attr_accessor :domain
 
         def req_params_base
           {
@@ -38,7 +35,7 @@ module Metasploit
           # Admin and SSLVPN user login procedure differs only in usage of domain field in JSON data
           #
           params.merge!({
-            'data' => JSON.pretty_generate(@domain.empty? ? {
+            'data' => JSON.pretty_generate(@domain.blank? ? {
               'override' => false,
               'snwl' => true
             } : { 'domain' => @domain, 'override' => false, 'snwl' => true })
