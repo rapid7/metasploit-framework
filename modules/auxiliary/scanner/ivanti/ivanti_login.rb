@@ -9,13 +9,16 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::ReportSummary
 
+  include Msf::Exploit::Deprecated
+  moved_from 'auxiliary/scanner/ivanti/login_scanner'
+
   def initialize(info = {})
     super(
       update_info(
         info,
         'Name' => 'Ivanti Connect Secure HTTP Scanner',
         'Description' => %q{
-          This module will perform authentication scanning against Ivanti Connect Secure
+          This module will perform authentication scanning against Ivanti Connect Secure.
         },
         'Author' => ['msutovsky-r7'],
         'License' => MSF_LICENSE,
