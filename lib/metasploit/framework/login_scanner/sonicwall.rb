@@ -95,7 +95,11 @@ module Metasploit
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Waiting too long in lockout' } if depth >= 2
 
           #-- get authentication details from first request
-          res = get_auth_details(username, password)
+          begin
+            res = get_auth_details(username, password)
+          rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error, ::EOFError => e
+            return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e }
+          end
 
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Invalid response' } unless res
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Failed to receive a authentication details' } unless res&.headers && res.headers.key?('X-SNWL-Authenticate')
