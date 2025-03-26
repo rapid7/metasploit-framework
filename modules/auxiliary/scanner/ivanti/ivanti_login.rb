@@ -9,13 +9,16 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::ReportSummary
 
+  include Msf::Exploit::Deprecated
+  moved_from 'auxiliary/scanner/ivanti/login_scanner'
+
   def initialize(info = {})
     super(
       update_info(
         info,
         'Name' => 'Ivanti Connect Secure HTTP Scanner',
         'Description' => %q{
-          This module will perform authentication scanning against Ivanti Connect Secure
+          This module will perform authentication scanning against Ivanti Connect Secure.
         },
         'Author' => ['msutovsky-r7'],
         'License' => MSF_LICENSE,
@@ -31,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
       )
          )
     register_options([
-      OptBool.new('ADMIN', [true, 'Select whether to test admin account', false])
+      OptBool.new('ADMIN', [true, 'Select whether to target the admin login endpoint', false])
     ])
   end
 
@@ -51,9 +54,10 @@ class MetasploitModule < Msf::Auxiliary
       cred_details: cred_collection,
       stop_on_success: datastore['STOP_ON_SUCCESS'],
       bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-      connection_timeout: datastore['HttpClientTimeout'] || 5
+      connection_timeout: datastore['HttpClientTimeout'] || 5,
+      use_admin_endpoint: datastore['ADMIN']
     )
-    return Metasploit::Framework::LoginScanner::Ivanti.new(configuration, datastore['ADMIN'])
+    return Metasploit::Framework::LoginScanner::Ivanti.new(configuration)
   end
 
   def process_credential(credential_data)
