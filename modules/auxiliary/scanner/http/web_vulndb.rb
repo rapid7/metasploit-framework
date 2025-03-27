@@ -154,7 +154,10 @@ class MetasploitModule < Msf::Auxiliary
                   :sname => (ssl ? 'https' : 'http'),
                   :port	=> rport,
                   :type	=> 'FILE',
-                  :data	=> "#{tpath}#{testfvuln} Code: #{res.code}"
+                  :data	=> {
+                    :path => "#{tpath}#{testfvuln}",
+                    :status => res.code
+                  }
                 )
               end
             end
@@ -168,7 +171,10 @@ class MetasploitModule < Msf::Auxiliary
                   :sname => (ssl ? 'https' : 'http'),
                   :port	=> rport,
                   :type	=> 'FILE',
-                  :data	=> "#{tpath}#{testfvuln} Code: #{res.code}"
+                  :data	=> {
+                    :path => "#{tpath}#{testfvuln}",
+                    :status => res.code
+                  }
               )
             else
               if dm == false

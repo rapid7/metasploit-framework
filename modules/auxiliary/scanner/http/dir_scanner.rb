@@ -165,7 +165,9 @@ class MetasploitModule < Msf::Auxiliary
                 :proto => 'tcp',
                 :sname	=> (ssl ? 'https' : 'http'),
                 :type	=> 'WWW_AUTHENTICATE',
-                :data	=> "#{tpath}#{testfdir} Auth: #{res.headers['WWW-Authenticate']}",
+                :data	=> {
+                  :path => "#{tpath}#{testfdir}",
+                  :auth => res.headers['WWW-Authenticate'] },
                 :update => :unique_data
               )
 

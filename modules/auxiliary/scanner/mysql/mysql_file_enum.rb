@@ -92,7 +92,7 @@ class MetasploitModule < Msf::Auxiliary
       report_note(
         :host  => mysql_conn.peerhost,
         :type  => "filesystem.dir",
-        :data  => "#{dir} is a directory and exists",
+        :data  => { :directory => dir },
         :port  => mysql_conn.peerport,
         :proto => 'tcp',
         :update => :unique_data
@@ -102,7 +102,7 @@ class MetasploitModule < Msf::Auxiliary
       report_note(
         :host  => mysql_conn.peerhost,
         :type  => "filesystem.file",
-        :data  => "#{dir} is a file and exists",
+        :data  => { :directory => dir },
         :port  => mysql_conn.peerport,
         :proto => 'tcp',
         :update => :unique_data
@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
       report_note(
         :host  => mysql_conn.peerhost,
         :type  => "filesystem.file",
-        :data  => "#{dir} is a file and exists",
+        :data  => { :file => dir },
         :port  => mysql_conn.peerport,
         :proto => 'tcp',
         :update => :unique_data
