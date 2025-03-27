@@ -1,0 +1,69 @@
+name: Shared Gem Verify
+on:
+  workflow_call:
+    inputs:
+      test_commands:
+        description: 'Test commands'
+        required: false
+        default: "bundle exec rspec"
+        type: string
+      dependencies:
+        description: 'Array of system dependencies to install'
+        required: false
+        default: "[]"
+        type: string
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby:
+          - '3.2'
+          - '3.3'
+          - '3.4'
+        os:
+          - ubuntu-20.04
+          - ubuntu-22.04
+          - ubuntu-24.04
+          - ubuntu-latest
+          - windows-2019
+          - macos-13
+
+    env:
+      RAILS_ENV: test
+
+    name: ${{ matrix.os }} - Ruby ${{ matrix.ruby }}
+    steps:
+      - name: Install system dependencies
+        if: ${{ inputs.dependencies != '[]' && !contains(matrix.os, 'macos') && !contains(matrix.os, 'windows') }}
+        run: |
+          dependencies=$(echo '${{ inputs.dependencies }}' | jq -r '.[]')
+          for dep in $dependencies; do
+            sudo apt-get -y --no-install-recommends install "$dep"
+          done
+        shell: bash
+
+      - name: Install system dependencies (Windows)
+        if: ${{ contains(matrix.os, 'windows') && inputs.dependencies != '[]' }}
+        run: |
+          $dependencies = (echo '${{ inputs.dependencies }}' | jq -r '.[]')
+          foreach ($dep in $dependencies) {
+            choco install $dep -y
+          }
+        shell: pwsh
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+
+      - name: Test
+        run: ${{ inputs.test_commands }}
