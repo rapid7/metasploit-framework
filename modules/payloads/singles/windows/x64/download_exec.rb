@@ -9,7 +9,7 @@ module MetasploitModule
   
     include Msf::Payload::Windows
     include Msf::Payload::Single
-    include Msf::Payload::Windows::BlockApi
+    include Msf::Payload::Windows::BlockApi_x64
   
     def initialize(info = {})
       super(merge_info(info,
