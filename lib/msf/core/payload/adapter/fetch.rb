@@ -359,6 +359,7 @@ module Msf::Payload::Adapter::Fetch
     when 'x64'
       %^"48b8"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
     when 'x86'
+<<<<<<< HEAD
       %^"b8"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
     when 'aarch64'
       %^"4000005800001fd6"$(echo $(printf %16x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
@@ -366,6 +367,9 @@ module Msf::Payload::Adapter::Fetch
       %^$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,3,2)}')"7"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,2,1)}')"0"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,1,1)}')"e3"^
     when 'armbe'
       %^"e30"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,1,1)}')"7"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,2,1)}')""$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,3,2)}')^
+=======
+      %^b8"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0^
+>>>>>>> ec9b0627ed (Adding x86, fixing bash execution)
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
     end
