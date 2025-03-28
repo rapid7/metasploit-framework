@@ -20,7 +20,7 @@ module Metasploit
           }
           res = send_request(request_params)
 
-          if res && res.code == 200 && res.body&.include?('Login to pfSense')
+          if res&.code == 200 && res.body&.include?('Login to pfSense')
             return false
           end
 
