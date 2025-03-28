@@ -10,7 +10,7 @@ module MetasploitModule
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
-    super(update_info(info,
+    super(merge_info(info,
       'Name'          => 'PHP Meterpreter',
       'Description'   => 'Run a meterpreter server in PHP',
       'Author'        => ['egypt'],
