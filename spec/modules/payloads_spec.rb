@@ -1071,6 +1071,15 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/unix/python'
   end
 
+
+  context 'cmd/unix/php' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/unix/php'
+                          ],
+                          reference_name: 'cmd/unix/php'
+  end
+
   context 'cmd/unix/reverse' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
