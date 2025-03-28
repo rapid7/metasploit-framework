@@ -139,9 +139,9 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
     end
-  rescue MsSamrConnectionError, MsIcprConnectionError => e
+  rescue MsSamrConnectionError, MsIcprConnectionError, SmbIpcConnectionError => e
     fail_with(Failure::Unreachable, e.message)
-  rescue MsSamrAuthenticationError, MsIcprAuthenticationError => e
+  rescue MsSamrAuthenticationError, MsIcprAuthenticationError, MsIcprAuthorizationError, SmbIpcAuthenticationError => e
     fail_with(Failure::NoAccess, e.message)
   rescue MsSamrNotFoundError, MsIcprNotFoundError => e
     fail_with(Failure::NotFound, e.message)

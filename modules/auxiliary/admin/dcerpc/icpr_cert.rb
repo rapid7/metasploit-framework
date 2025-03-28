@@ -51,9 +51,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     send("action_#{action.name.downcase}")
-  rescue MsIcprConnectionError => e
+  rescue MsIcprConnectionError, SmbIpcConnectionError => e
     fail_with(Failure::Unreachable, e.message)
-  rescue MsIcprAuthenticationError => e
+  rescue MsIcprAuthenticationError, MsIcprAuthorizationError, SmbIpcAuthenticationError => e
     fail_with(Failure::NoAccess, e.message)
   rescue MsIcprNotFoundError => e
     fail_with(Failure::NotFound, e.message)
