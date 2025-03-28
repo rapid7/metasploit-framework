@@ -19,15 +19,7 @@ module Metasploit
       #   classes that will probably give useful results when run
       #   against `service`.
       def self.classes_for_service(service)
-
-        unless @required
-          # Make sure we've required all the scanner classes
-          dir = File.expand_path("../login_scanner/", __FILE__)
-          Dir.glob(File.join(dir, "*.rb")).each do |f|
-            require f if File.file?(f)
-          end
-          @required = true
-        end
+        require_login_scanners
 
         self.constants.map{|sym| const_get(sym)}.select do |const|
           next unless const.kind_of?(Class)
@@ -42,6 +34,34 @@ module Metasploit
         end
       end
 
+      def self.all_service_names
+        require_login_scanners
+
+        service_names = Set.new
+        self.constants.map{|sym| const_get(sym)}.select do |const|
+          next unless const.kind_of?(Class)
+          next unless const.const_defined?(:LIKELY_SERVICE_NAMES)
+
+          const.const_get(:LIKELY_SERVICE_NAMES).each do |service_name|
+            service_names << service_name
+          end
+        end
+
+        service_names
+      end
+      
+      private
+      
+      def self.require_login_scanners
+        unless @required
+          # Make sure we've required all the scanner classes
+          dir = File.expand_path("../login_scanner/", __FILE__)
+          Dir.glob(File.join(dir, "*.rb")).each do |f|
+            require f if File.file?(f)
+          end
+          @required = true
+        end
+      end
     end
   end
 end
