@@ -29,6 +29,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Msf::OptString.new('TARGETURI', [true, 'The base path to the pfSense application', '/']),
+        OptBool.new('SSL', [ true, 'Negotiate SSL/TLS for outgoing connections', true ]),
         Opt::RPORT(443),
       ], self.class
     )
@@ -47,7 +48,11 @@ class MetasploitModule < Msf::Auxiliary
       create_credential_login(credential_data)
       return { status: :success, credential: credential_data }
     else
-      error_msg = "#{credential_data[:address]}:#{credential_data[:port]} - LOGIN FAILED: #{credential_combo} (#{credential_data[:status]})"
+      if credential_data[:proof]
+        error_msg = "#{credential_data[:address]}:#{credential_data[:port]} - LOGIN FAILED: #{credential_combo} (#{credential_data[:status]} : #{credential_data[:proof]})"
+      else
+        error_msg = "#{credential_data[:address]}:#{credential_data[:port]} - LOGIN FAILED: #{credential_combo} (#{credential_data[:status]})"
+      end
       vprint_error error_msg
       invalidate_login(credential_data)
       return { status: :fail, credential: credential_data }

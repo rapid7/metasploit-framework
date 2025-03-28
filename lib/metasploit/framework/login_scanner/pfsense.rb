@@ -35,8 +35,12 @@ module Metasploit
 
           res = send_request(request_params)
 
-          if res.nil? || res.code != 200
-            return { status: :failure, error: 'Unknown response from GET request' }
+          if res.nil?
+            return { status: :failure, error: 'Did not receive response to a GET request' }
+          end
+
+          if res.code != 200
+            return { status: :failure, error: "Unexpected return code from GET request - #{res.code}" }
           end
 
           # CSRF Magic Token and Magic Value are inlined as JavaScript in a <script> tag.
@@ -88,13 +92,13 @@ module Metasploit
           login_result = try_login(credential.public, credential.private, csrf_magic[:result])
 
           if login_result[:result].nil?
-            result_options.merge!(status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+            result_options.merge!(status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Unable to connect to pfSense')
             return Result.new(result_options)
           end
 
           # 200 is incorrect result
           if login_result[:result].code == 200 || login_result[:result].body.include?('Username or Password incorrect')
-            result_options.merge!(status: ::Metasploit::Model::Login::Status::INCORRECT)
+            result_options.merge!(status: ::Metasploit::Model::Login::Status::INCORRECT, proof: 'Username or Password incorrect')
             return Result.new(result_options)
           end
 
@@ -103,7 +107,7 @@ module Metasploit
           Result.new(result_options)
 
         rescue ::Rex::ConnectionError => _e
-          result_options.merge!(status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT)
+          result_options.merge!(status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Unable to connect to pfSense')
           return Result.new(result_options)
         end
       end
