@@ -34,8 +34,7 @@ class MetasploitModule < Msf::Auxiliary
       ], self.class
     )
 
-    options_to_deregister = ['DOMAIN']
-    deregister_options(*options_to_deregister)
+    deregister_options('DOMAIN')
   end
 
   def process_credential(credential_data)
@@ -43,8 +42,7 @@ class MetasploitModule < Msf::Auxiliary
     case credential_data[:status]
     when Metasploit::Model::Login::Status::SUCCESSFUL
       print_good "#{credential_data[:address]}:#{credential_data[:port]} - Login Successful: #{credential_combo}"
-      credential_core = create_credential(credential_data)
-      credential_data[:core] = credential_core
+      credential_data[:core] = create_credential(credential_data)
       create_credential_login(credential_data)
       return { status: :success, credential: credential_data }
     else
