@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Encoder
     when 'base64'
       raise EncodingError if (state.badchars.bytes & '(|)'.bytes).any?
 
-      base64_decoder = '(base64 --decode || base64 -d)'
+      base64_decoder = '(base64 --decode||base64 -d)'
     when 'base64-long'
       base64_decoder = 'base64 --decode'
     when 'base64-short'
@@ -58,9 +58,9 @@ class MetasploitModule < Msf::Encoder
     else
       # find a decoder at runtime if we can use the necessary characters
       if (state.badchars.bytes & '(|)>/&'.bytes).empty?
-        base64_decoder = '((command -v base64 >/dev/null && (base64 --decode || base64 -d)) || (command -v openssl >/dev/null && openssl enc -base64 -d))'
+        base64_decoder = '((command -v base64>/dev/null&&(base64 --decode||base64 -d))||(command -v openssl>/dev/null&&openssl enc -base64 -d))'
       elsif (state.badchars.bytes & '(|)'.bytes).empty?
-        base64_decoder = '(base64 --decode || base64 -d)'
+        base64_decoder = '(base64 --decode||base64 -d)'
       else
         base64_decoder = 'openssl enc -base64 -d'
       end
