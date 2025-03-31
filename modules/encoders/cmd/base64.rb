@@ -33,6 +33,9 @@ class MetasploitModule < Msf::Encoder
 
   #
   # Encodes the payload
+  # All unnecessary spaces from your payload inside the () are removed to avoid shell POSIX command lauguage conflicts
+  # The only things allowed after compound commands are redirections, shell keywords, and the various command separators
+  # such as (;, &, |, &&, ||)
   #
   def encode_block(state, buf)
     return buf if (buf.bytes & state.badchars.bytes).empty?
