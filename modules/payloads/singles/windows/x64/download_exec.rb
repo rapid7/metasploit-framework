@@ -220,7 +220,7 @@ module MetasploitModule
       #{exitasm}
     end:
       ^
-      self.assembly = payload_data
-      super
-    end
+    self.assembly = payload_data
+    super
   end
+end
