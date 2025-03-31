@@ -42,9 +42,13 @@ Keeping the following in mind gives your contribution the best chance of landing
 * **Do** target your pull request to the **master branch**.
 * **Do** specify a descriptive title to make searching for your pull request easier.
 * **Do** include [console output], especially for effects that can be witnessed in the  `msfconsole`.
-* **Do** list [verification steps] so your code is testable.
+* **Do** test your code.
+* **Do** list [verification steps] so committers can test your code.
 * **Do** [reference associated issues] in your pull request description.
 * **Don't** leave your pull request description blank.
+* **Don't** include sensitive information in your PR (including externally-routable IP addresses in documentation).
+* **Don't** PR untested/unvalidated code you copy/pasted from the internet.
+* **Don't** PR untested/unvalidated code you copy/pasted from AI or LLM.
 * **Don't** abandon your pull request. Being responsive helps us land your code faster.
 * **Don't** post questions in older closed PRs.
 
