@@ -23,6 +23,7 @@ RSpec.describe Msf::Sessions::LDAP do
     allow(client).to receive(:peerinfo).and_return(peer_info)
     allow(client).to receive(:peerhost).and_return(address)
     allow(client).to receive(:peerport).and_return(port)
+    allow(client).to receive(:ldapwhoami).and_return("u:WORKGROUP\\Administrator")
   end
 
   it_behaves_like 'client session'
