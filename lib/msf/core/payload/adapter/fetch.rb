@@ -82,11 +82,15 @@ module Msf::Payload::Adapter::Fetch
     Rex::Socket.to_authority(fetch_bindhost, fetch_bindport)
   end
 
+
   def generate(opts = {})
     opts[:arch] ||= module_info['AdaptedArch']
     opts[:code] = super
     @srvexe = generate_payload_exe(opts)
     if datastore['FETCH_PIPE']
+      unless %w[WGET CURL].include?(datastore['FETCH_COMMAND'].upcase)
+        fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected for FETCH_PIPE option')
+      end
       @pipe_cmd = generate_fetch_commands
       vprint_status("Command served: #{@pipe_cmd}")
       cmd = generate_pipe_command
@@ -99,18 +103,21 @@ module Msf::Payload::Adapter::Fetch
 
   def generate_pipe_command
     # TODO: Make a check method that determines if we support a platform/server/command combination
-    #
-    @pipe_uri = srvuri + 'p'
+    if srvuri.length < 3
+      @pipe_uri = srvuri + 'p'
+    else
+      @pipe_uri = srvuri[...3]
+    end
+
     case datastore['FETCH_COMMAND'].upcase
     when 'WGET'
       return _generate_wget_pipe
     when 'CURL'
       return _generate_curl_pipe
     else
-      fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
+      fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected for FETCH_PIPE option')
     end
   end
-
 
   def generate_fetch_commands
     # TODO: Make a check method that determines if we support a platform/server/command combination
