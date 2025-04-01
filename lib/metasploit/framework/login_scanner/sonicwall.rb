@@ -16,10 +16,7 @@ module Metasploit
         PRIVATE_TYPES = [:password]
         REALM_KEY = nil
 
-        def initialize(scanner_config, domain)
-          @domain = domain
-          super(scanner_config)
-        end
+        attr_accessor :domain
 
         def req_params_base
           {
@@ -38,7 +35,7 @@ module Metasploit
           # Admin and SSLVPN user login procedure differs only in usage of domain field in JSON data
           #
           params.merge!({
-            'data' => JSON.pretty_generate(@domain.empty? ? {
+            'data' => JSON.pretty_generate(@domain.blank? ? {
               'override' => false,
               'snwl' => true
             } : { 'domain' => @domain, 'override' => false, 'snwl' => true })
@@ -98,7 +95,11 @@ module Metasploit
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Waiting too long in lockout' } if depth >= 2
 
           #-- get authentication details from first request
-          res = get_auth_details(username, password)
+          begin
+            res = get_auth_details(username, password)
+          rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error, ::EOFError => e
+            return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e }
+          end
 
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Invalid response' } unless res
           return { status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Failed to receive a authentication details' } unless res&.headers && res.headers.key?('X-SNWL-Authenticate')

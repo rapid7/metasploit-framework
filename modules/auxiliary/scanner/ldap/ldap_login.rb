@@ -37,12 +37,16 @@ class MetasploitModule < Msf::Auxiliary
           'APPEND_DOMAIN', [true, 'Appends `@<DOMAIN> to the username for authentication`', false],
           conditions: ['LDAP::Auth', 'in', [Msf::Exploit::Remote::AuthOption::AUTO, Msf::Exploit::Remote::AuthOption::PLAINTEXT]]
         ),
+        Msf::OptString.new('LDAPDomain', [false, 'The domain to authenticate to']),
+        Msf::OptString.new('LDAPUsername', [false, 'The username to authenticate with'], aliases: ['BIND_DN']),
+        Msf::OptString.new('LDAPPassword', [false, 'The password to authenticate with'], aliases: ['BIND_PW']),
         OptInt.new('SessionKeepalive', [true, 'Time (in seconds) for sending protocol-level keepalive messages', 10 * 60])
       ]
     )
 
     # A password must be supplied unless doing anonymous login
-    options_to_deregister = %w[BLANK_PASSWORDS]
+    # De-registering USERNAME and PASSWORD as they are pulled in via the Msf::Auxiliary::AuthBrute mixin
+    options_to_deregister = %w[USERNAME PASSWORD BLANK_PASSWORDS]
 
     if framework.features.enabled?(Msf::FeatureManager::LDAP_SESSION_TYPE)
       add_info('The %grnCreateSession%clr option within this module can open an interactive session')
@@ -92,12 +96,12 @@ class MetasploitModule < Msf::Auxiliary
     ignore_public = datastore['LDAP::Auth'] == Msf::Exploit::Remote::AuthOption::SCHANNEL
     ignore_private =
       datastore['LDAP::Auth'] == Msf::Exploit::Remote::AuthOption::SCHANNEL ||
-      (Msf::Exploit::Remote::AuthOption::KERBEROS && !datastore['ANONYMOUS_LOGIN'] && !datastore['PASSWORD'])
+      (Msf::Exploit::Remote::AuthOption::KERBEROS && !datastore['ANONYMOUS_LOGIN'] && !datastore['LDAPPassword'])
 
     cred_collection = build_credential_collection(
-      username: datastore['USERNAME'],
-      password: datastore['PASSWORD'],
-      realm: datastore['DOMAIN'],
+      username: datastore['LDAPUsername'],
+      password: datastore['LDAPPassword'],
+      realm: datastore['LDAPDomain'],
       anonymous_login: datastore['ANONYMOUS_LOGIN'],
       blank_passwords: false,
       ignore_public: ignore_public,
@@ -105,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     opts = {
-      domain: datastore['DOMAIN'],
+      ldap_domain: datastore['LDAPDomain'],
       append_domain: datastore['APPEND_DOMAIN'],
       ssl: datastore['SSL'],
       proxies: datastore['PROXIES'],
@@ -120,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
     realm_key = nil
     if opts[:ldap_auth] == Msf::Exploit::Remote::AuthOption::KERBEROS
       realm_key = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
-      if !datastore['ANONYMOUS_LOGIN'] && !datastore['PASSWORD']
+      if !datastore['ANONYMOUS_LOGIN'] && !datastore['LDAPPassword']
         # In case no password has been provided, we assume the user wants to use Kerberos tickets stored in cache
         # Write mode is still enable in case new TGS tickets are retrieved.
         opts[:kerberos_ticket_storage] = kerberos_ticket_storage({ read: true, write: true })
