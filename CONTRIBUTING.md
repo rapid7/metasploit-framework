@@ -22,6 +22,8 @@ Once you have finished your new module and tested it locally to ensure it's work
 Finally, follow our short list of do's and don'ts below to make sure your valuable contributions actually make it into Metasploit's master branch! We try to consider all our pull requests fairly and in detail, but if you do not follow these rules, your contribution
 will be closed. We need to ensure the code we're adding to master is written to a high standard.
 
+## Expedited Module Creation Process
+We strive to respect the community that has given us so much, so in the odd situation where we get multiple submissions for the same vulnerability, generally we will work with the first person who assigns themselves to the issue or the first person that submits a good-faith PR.  A good-faith PR might not even work, but it will show that the author is working their way toward a solution.  Despite this general rule, there are rare circumstances where we may ask a contributor to step aside or allow a committer to take the lead on the creation of a new module if a complete and working module with documents has not already been submitted.  This kind of expedited module creation process comes up infrequently, and usually it involves high-profile or high priority modules that we have marked internally as time-critical: think KEV list, active exploitation campaigns, CISA announcements, etc.  In those cases, we may ask a contributor that is assigned to the issue or who has submitted an incomplete module to allow a committer to take over an issue or a module PR in the interest of getting a module out quickly.  If a contributor has submitted an incomplete module, they will remain as a co-author of the module and we may build directly onto the PR they submitted, leaving the original commits in the tree.  We sincerely hope that the original author will remain involved in this expedited module creation process.  We would appreciate testing, critiquing, and any assistance that can be offered.  If the module is complete but requires minor changes, we may ask the contributor to allow us to take over testing/verification and make these minor changes without asking so we can land the module as quickly as possible.  In these cases of minor code changes, the authorship of the module will remain unchanged.  We hope everyone involved in this expedited module creation process continues to feel valued and appreciated.
 
 ### Code Contribution Do's & Don'ts:
 
@@ -40,13 +42,18 @@ Keeping the following in mind gives your contribution the best chance of landing
 * **Do** target your pull request to the **master branch**.
 * **Do** specify a descriptive title to make searching for your pull request easier.
 * **Do** include [console output], especially for effects that can be witnessed in the  `msfconsole`.
-* **Do** list [verification steps] so your code is testable.
+* **Do** test your code.
+* **Do** list [verification steps] so committers can test your code.
 * **Do** [reference associated issues] in your pull request description.
 * **Don't** leave your pull request description blank.
+* **Don't** include sensitive information in your PR (including externally-routable IP addresses in documentation).
+* **Don't** PR untested/unvalidated code you copy/pasted from the internet.
+* **Don't** PR untested/unvalidated code you copy/pasted from AI or LLM.
 * **Don't** abandon your pull request. Being responsive helps us land your code faster.
 * **Don't** post questions in older closed PRs.
 
 #### <u>New Modules</u>
+* **Do** check the issue tracker to see if there is a `suggestion-module` issue for the module you want to write, and assign yourself to it if there is.
 * **Do** license your code as BSD 3-clause, BSD 2-clause, or MIT.
 * **Do** stick to the [Ruby style guide] and use [Rubocop] to find common style issues.
 * **Do** set up `msftidy` to fix any errors or warnings that come up as a [pre-commit hook].
