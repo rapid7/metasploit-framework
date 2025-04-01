@@ -20,7 +20,7 @@ module Msf::Payload::Adapter::Fetch::Https
 
   def setup_handler
     unless datastore['FetchHandlerDisable']
-      @fetch_service = start_https_fetch_handler(srvname) unless datastore['FetchHandlerDisable']
+      @fetch_service = start_https_fetch_handler(srvname)
       escaped_uri = ('/' + srvuri).gsub('//', '/')
       add_resource(@fetch_service, escaped_uri, @srvexe)
       unless @pipe_uri.nil?
