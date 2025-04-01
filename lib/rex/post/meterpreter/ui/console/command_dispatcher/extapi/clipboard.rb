@@ -281,7 +281,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
     "-h" => [ false, "Help banner" ],
     "-i" => [ true,  "Indicate if captured image data should be downloaded (default: true)" ],
     "-f" => [ true,  "Indicate if captured file data should be downloaded (default: true)" ],
-    "-p" => [ true,  "Purge the contents of the monitor once dumped (default: true)" ],
+    "-p" => [ false,  "Purge the contents of the monitor once dumped (default: true)" ],
     "-d" => [ true,  "Download non-text content to the specified folder" ],
     '--force' => [false, "Force overwriting existing files"]
   )
