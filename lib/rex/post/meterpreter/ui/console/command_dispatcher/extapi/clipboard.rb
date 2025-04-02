@@ -388,11 +388,14 @@ class Console::CommandDispatcher::Extapi::Clipboard
     }
     
     
-    if download_path.nil? 
-      print_error("You need to specify download directory.")
+    if download_path.nil? && (download_images || download_files) 
+      #allow user to stop monitoring if they don't wish to download anything
+      client.extapi.clipboard.monitor_stop({
+        :dump           => dump_data,
+      })
+      print_good("Clipboard monitor stopped without downloading data. Specify destination folder to download loot.")
       return true
     end
-
   
     dump = client.extapi.clipboard.monitor_stop({
       :dump           => dump_data,
