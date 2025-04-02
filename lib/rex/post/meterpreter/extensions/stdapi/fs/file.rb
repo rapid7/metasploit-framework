@@ -27,6 +27,11 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   include Rex::Post::File
 
   MIN_BLOCK_SIZE = 1024
+  STEP_SKIPPED_WOULD_OVERWRITE = 'Overwrite'
+  STEP_COMPLETED = 'Completed'
+  STEP_SKIPPED = 'Skipped'
+  STEP_COMPLETED_OVERWRITTEN = 'Overwritten'
+  
 
   class << self
     attr_accessor :client

@@ -15,11 +15,6 @@ class Console::CommandDispatcher::Extapi::Clipboard
 
   Klass = Console::CommandDispatcher::Extapi::Clipboard
   
-  STEP_SKIPPED_WOULD_OVERWRITE = 'Overwrite'
-  STEP_COMPLETED = 'Completed'
-  STEP_SKIPPED = 'Skipped'
-  STEP_COMPLETED_OVERWRITTEN = 'Overwritten'
-  
   include Console::CommandDispatcher
   include Rex::Post::Meterpreter::Extensions::Extapi
   
@@ -326,7 +321,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
     
     if download_path.nil? 
       print_error("You need to specify download directory.")
-      return 1
+      return true
     end
 
     # do something with dump
@@ -395,7 +390,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
     
     if download_path.nil? 
       print_error("You need to specify download directory.")
-      return 1
+      return true
     end
 
   
@@ -430,12 +425,12 @@ private
     if stat.directory?
       client.fs.dir.download( local_dest_path, source, {"force_overwrite" => force_overwrite, "recursive" => true} ) { |step, src, dst|
             
-            attempted_overwrite ||= (step == STEP_SKIPPED_WOULD_OVERWRITE)
+            attempted_overwrite ||= (step == Meterpreter::Extensions::Stdapi::Fs::Meterpreter::Extensions::Stdapi::Fs::STEP_SKIPPED_WOULD_OVERWRITE)
 
-            if step == STEP_SKIPPED_WOULD_OVERWRITE
-              print_line( "#{STEP_SKIPPED.ljust(11)} : Would overwrite existing file #{dst}" )
-            elsif step == STEP_COMPLETED_OVERWRITTEN
-              print_line( "#{STEP_COMPLETED.ljust(11)} : Overwrote existing file #{dst}" )
+            if step == Meterpreter::Extensions::Stdapi::Fs::Meterpreter::Extensions::Stdapi::Fs::STEP_SKIPPED_WOULD_OVERWRITE
+              print_line( "#{Meterpreter::Extensions::Stdapi::Fs::STEP_SKIPPED.ljust(11)} : Would overwrite existing file #{dst}" )
+            elsif step == Meterpreter::Extensions::Stdapi::Fs::Meterpreter::Extensions::Stdapi::Fs::STEP_COMPLETED_OVERWRITTEN
+              print_line( "#{Meterpreter::Extensions::Stdapi::Fs::STEP_COMPLETED.ljust(11)} : Overwrote existing file #{dst}" )
             else
               print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
             end
@@ -443,12 +438,12 @@ private
       }
     elsif stat.file?
       client.fs.file.download( local_dest_path, source, {"force_overwrite" => force_overwrite} ) { |step, src, dst|
-          attempted_overwrite ||= (step == STEP_SKIPPED_WOULD_OVERWRITE)
+          attempted_overwrite ||= (step == Meterpreter::Extensions::Stdapi::Fs::Meterpreter::Extensions::Stdapi::Fs::STEP_SKIPPED_WOULD_OVERWRITE)
           
-          if step == STEP_SKIPPED_WOULD_OVERWRITE
-            print_line( "#{STEP_SKIPPED.ljust(11)} : Would overwrite existing file #{dst}" )
-          elsif step == STEP_COMPLETED_OVERWRITTEN
-            print_line( "#{STEP_COMPLETED.ljust(11)} : Overwrote existing file #{dst}" )
+          if step == Meterpreter::Extensions::Stdapi::Fs::Meterpreter::Extensions::Stdapi::Fs::STEP_SKIPPED_WOULD_OVERWRITE
+            print_line( "#{Meterpreter::Extensions::Stdapi::Fs::STEP_SKIPPED.ljust(11)} : Would overwrite existing file #{dst}" )
+          elsif step == Meterpreter::Extensions::Stdapi::Fs::Meterpreter::Extensions::Stdapi::Fs::STEP_COMPLETED_OVERWRITTEN
+            print_line( "#{Meterpreter::Extensions::Stdapi::Fs::STEP_COMPLETED.ljust(11)} : Overwrote existing file #{dst}" )
           else
             print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
           end
