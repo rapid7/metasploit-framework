@@ -293,7 +293,7 @@ GEM
       activesupport (~> 7.0)
       railties (~> 7.0)
       zeitwerk
-    metasploit-credential (6.0.12)
+    metasploit-credential (6.0.14)
       metasploit-concern
       metasploit-model
       metasploit_data_models (>= 5.0.0)
@@ -303,12 +303,12 @@ GEM
       rex-socket
       rubyntlm
       rubyzip
-    metasploit-model (5.0.2)
+    metasploit-model (5.0.3)
       activemodel (~> 7.0)
       activesupport (~> 7.0)
       railties (~> 7.0)
     metasploit-payloads (2.0.189)
-    metasploit_data_models (6.0.6)
+    metasploit_data_models (6.0.9)
       activerecord (~> 7.0)
       activesupport (~> 7.0)
       arel-helpers

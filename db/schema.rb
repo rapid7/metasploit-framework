@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_12_09_005658) do
+ActiveRecord::Schema[7.0].define(version: 2025_02_04_172657) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -314,6 +314,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_09_005658) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
     t.string "jtr_format"
+    t.jsonb "metadata", default: {}, null: false
     t.index "type, decode(md5(data), 'hex'::text)", name: "index_metasploit_credential_privates_on_type_and_data_pkcs12", unique: true, where: "((type)::text = 'Metasploit::Credential::Pkcs12'::text)"
     t.index "type, decode(md5(data), 'hex'::text)", name: "index_metasploit_credential_privates_on_type_and_data_sshkey", unique: true, where: "((type)::text = 'Metasploit::Credential::SSHKey'::text)"
     t.index ["type", "data"], name: "index_metasploit_credential_privates_on_type_and_data", unique: true, where: "(NOT (((type)::text = 'Metasploit::Credential::SSHKey'::text) OR ((type)::text = 'Metasploit::Credential::Pkcs12'::text)))"
