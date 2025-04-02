@@ -89,7 +89,6 @@ class MetasploitModule < Msf::Auxiliary
       connection_timeout: datastore['HttpClientTimeout'] || 5,
       framework: framework,
       framework_module: self,
-      http_success_codes: [302],
       method: 'POST',
       ssl: datastore['SSL']
     )

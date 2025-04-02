@@ -6,7 +6,7 @@ This module was specifically tested on version 25.1 and 21.1, with older version
 
 Note:
 
-By default, OPNSense comes with a built-in account named ```root``` with the password being ```opnsense```.
+By default, OPNSense comes with a built-in account named `root` with the password being `opnsense`.
 
 When performing too many login attempts, OPNSense will drop all packets coming from your IP, until the router is either:
 - Restarted
@@ -21,7 +21,12 @@ When performing too many login attempts, OPNSense will drop all packets coming f
 1. `set pass_file ...`
 1. `set user_file ...`
 1. `run`
-1. or, using some example inline options: `run pass_file=data/wordlists/default_pass_for_services_unhash.txt user_file=data/wordlists/default_pass_for_services_unhash.txt STOP_ON_SUCCESS=true SSL=true rport=443`
+1. or, using some example inline options:
+```
+run pass_file=data/wordlists/default_pass_for_services_unhash.txt \
+ user_file=data/wordlists/default_pass_for_services_unhash.txt \ 
+ STOP_ON_SUCCESS=true SSL=true rport=443
+```
 1. Verify you get a login:
 ```
 [+] 192.168.207.158:443 - Login Successful: root:opnsense

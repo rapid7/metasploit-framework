@@ -9,28 +9,14 @@ module Metasploit
       # and attempting them. It then saves the results.
       class OPNSense < HTTP
 
+        # Retrieve the wanted cookie value by name from the HTTP response.
+        #
+        # @param [Rex::Proto::Http::Response] response The response from which to extract cookie values
+        # @param [String] wanted_cookie_name The cookie name for which to get the value
         def get_cookie_value(response, wanted_cookie_name)
           response.get_cookies.split('; ').find { |cookie| cookie.start_with?(wanted_cookie_name) }.split('=').last
         end
 
-        # Sends a HTTP request with Rex
-        #
-        # @param (see Rex::Proto::Http::Request#request_raw)
-        # @return [Rex::Proto::Http::Response] The HTTP response
-        def send_request(opts, keep_cookies = false)
-          res = super(opts)
-
-          if keep_cookies && res
-            @php_sessid = get_cookie_value(res, 'PHPSESSID')
-            @cookie_test = get_cookie_value(res, 'cookie_test')
-          end
-
-          res
-        end
-
-        # include Msf::Exploit::Remote::HTTP::OPNSense::Login
-        # include Msf::Exploit::Remote::HTTP::HttpClient
-        # define_method :send_request_cgi, Msf::Exploit::Remote::HttpClient.instance_method(:send_request_cgi)
         # Checks if the target is OPNSense. The login module should call this.
         #
         # @return [Boolean, String] FalseClass if target is OPNSense, otherwise String
@@ -48,13 +34,16 @@ module Metasploit
           "Unable to locate \"Login | OPNsense\" in body. (Is this really OPNSense?)"
         end
 
-        def query_magic_value
+        # Query the magic value and cookies from the OPNSense login page.
+        #
+        # @return [Hash<Symbol, Object>] A hash of the status and error or result.
+        def query_magic_value_and_cookies
           request_params = {
             'method' => 'GET',
             'uri' => normalize_uri(@uri.to_s)
           }
 
-          res = send_request(request_params, keep_cookies = true)
+          res = send_request(request_params)
 
           if res.nil?
             return { status: :failure, error: 'Did not receive response to a GET request' }
@@ -75,17 +64,25 @@ module Metasploit
             return { status: :failure, error: 'Could not find hidden magic field in the login form.' }
           end
 
-          { status: :success, result: { name: magic_field['name'], value: magic_field['value'] } }
+          magic_value = { name: magic_field['name'], value: magic_field['value'] }
+          cookies = "PHPSESSID=#{get_cookie_value(res, 'PHPSESSID')}; cookie_test=#{get_cookie_value(res, 'cookie_test')}"
+          { status: :success, result: { magic_value: magic_value, cookies: cookies } }
         end
 
         # Each individual login needs their own magic name and value.
-        # This magic value comes from the login form received in response to a GET request to the login page
-        def try_login(username, password, magic_value)
+        # This magic value comes from the login form received in response to a GET request to the login page.
+        # Each login attempt also requires specific cookies to be set, otherwise an error is returned.
+        #
+        # @param username Username
+        # @param password Password
+        # @param magic_value A hash containing the magic_value name and value
+        # @param cookies A cookie string
+        def try_login(username, password, magic_value, cookies)
           request_params =
             {
               'method' => 'POST',
               'uri' => normalize_uri(@uri.to_s),
-              'cookie' => "PHPSESSID=#{@php_sessid}; cookie_test=#{@cookie_test}",
+              'cookie' => cookies,
               'vars_post' => {
                 magic_value[:name] => magic_value[:value],
                 'usernamefld' => username,
@@ -107,14 +104,14 @@ module Metasploit
           }
 
           # Each login needs its own magic name and value
-          magic_value = query_magic_value
+          magic_value_and_cookies = query_magic_value_and_cookies
 
-          if magic_value[:status] != :success
-            result_options.merge!(status: ::Metasploit::Model::Login::Status::UNTRIED, proof: magic_value[:error])
+          if magic_value_and_cookies[:status] != :success
+            result_options.merge!(status: ::Metasploit::Model::Login::Status::UNTRIED, proof: magic_value_and_cookies[:error])
             return Result.new(result_options)
           end
 
-          login_result = try_login(credential.public, credential.private, magic_value[:result])
+          login_result = try_login(credential.public, credential.private, magic_value_and_cookies[:result][:magic_value], magic_value_and_cookies[:result][:cookies])
 
           if login_result[:result].nil?
             result_options.merge!(status: ::Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: 'Unable to connect to OPNSense')
