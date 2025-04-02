@@ -3,9 +3,6 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
-gem 'metasploit-credential', git: 'https://github.com/cdelafuente-r7/metasploit-credential', branch: 'enh/MS-9710/add_pkcs12_metadata'
-gem 'metasploit_data_models',  git: 'https://github.com/cdelafuente-r7/metasploit_data_models', branch: 'enh/visitor/jsonb'
-
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
