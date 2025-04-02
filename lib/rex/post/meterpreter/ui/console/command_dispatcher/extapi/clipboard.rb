@@ -428,12 +428,12 @@ private
     if stat.directory?
       client.fs.dir.download( local_dest_path, source, {"force_overwrite" => force_overwrite, "recursive" => true} ) { |step, src, dst|
             
-            attempted_overwrite ||= (step == Meterpreter::Extensions::Stdapi::Fs::Meterpreter::Extensions::Stdapi::Fs::STEP_SKIPPED_WOULD_OVERWRITE)
+            attempted_overwrite ||= (step == Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File::STEP_SKIPPED_WOULD_OVERWRITE)
 
-            if step == Meterpreter::Extensions::Stdapi::Fs::Meterpreter::Extensions::Stdapi::Fs::STEP_SKIPPED_WOULD_OVERWRITE
-              print_line( "#{Meterpreter::Extensions::Stdapi::Fs::STEP_SKIPPED.ljust(11)} : Would overwrite existing file #{dst}" )
-            elsif step == Meterpreter::Extensions::Stdapi::Fs::Meterpreter::Extensions::Stdapi::Fs::STEP_COMPLETED_OVERWRITTEN
-              print_line( "#{Meterpreter::Extensions::Stdapi::Fs::STEP_COMPLETED.ljust(11)} : Overwrote existing file #{dst}" )
+            if step == Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File::STEP_SKIPPED_WOULD_OVERWRITE
+              print_line( "#{Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File::STEP_SKIPPED.ljust(11)} : Would overwrite existing file #{dst}" )
+            elsif step == Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File::STEP_COMPLETED_OVERWRITTEN
+              print_line( "#{Meterpreter::Extensions::Stdapi::Fs::File::STEP_COMPLETED.ljust(11)} : Overwrote existing file #{dst}" )
             else
               print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
             end
@@ -441,12 +441,12 @@ private
       }
     elsif stat.file?
       client.fs.file.download( local_dest_path, source, {"force_overwrite" => force_overwrite} ) { |step, src, dst|
-          attempted_overwrite ||= (step == Meterpreter::Extensions::Stdapi::Fs::Meterpreter::Extensions::Stdapi::Fs::STEP_SKIPPED_WOULD_OVERWRITE)
+          attempted_overwrite ||= (step == Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File::STEP_SKIPPED_WOULD_OVERWRITE)
           
-          if step == Meterpreter::Extensions::Stdapi::Fs::Meterpreter::Extensions::Stdapi::Fs::STEP_SKIPPED_WOULD_OVERWRITE
-            print_line( "#{Meterpreter::Extensions::Stdapi::Fs::STEP_SKIPPED.ljust(11)} : Would overwrite existing file #{dst}" )
-          elsif step == Meterpreter::Extensions::Stdapi::Fs::Meterpreter::Extensions::Stdapi::Fs::STEP_COMPLETED_OVERWRITTEN
-            print_line( "#{Meterpreter::Extensions::Stdapi::Fs::STEP_COMPLETED.ljust(11)} : Overwrote existing file #{dst}" )
+          if step == Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File::STEP_SKIPPED_WOULD_OVERWRITE
+            print_line( "#{Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File::STEP_SKIPPED.ljust(11)} : Would overwrite existing file #{dst}" )
+          elsif step == Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File::STEP_COMPLETED_OVERWRITTEN
+            print_line( "#{Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File::STEP_COMPLETED.ljust(11)} : Overwrote existing file #{dst}" )
           else
             print_line( "#{step.ljust(11)} : #{src} -> #{dst}" )
           end
