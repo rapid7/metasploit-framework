@@ -1,45 +1,3 @@
-GIT
-  remote: https://github.com/cdelafuente-r7/metasploit-credential
-  revision: 6c8554df2feab43489ca86eada790970e9749fb3
-  branch: enh/MS-9710/add_pkcs12_metadata
-  specs:
-    metasploit-credential (6.0.12)
-      metasploit-concern
-      metasploit-model
-      metasploit_data_models (>= 5.0.0)
-      net-ssh
-      pg
-      railties
-      rex-socket
-      rubyntlm
-      rubyzip
-
-GIT
-  remote: https://github.com/cdelafuente-r7/metasploit-model
-  revision: 925a11f61f02123f29e32bb196b374390d36beb6
-  branch: feat/model/search/operation/jsonb
-  specs:
-    metasploit-model (5.0.3)
-      activemodel (~> 7.0)
-      activesupport (~> 7.0)
-      railties (~> 7.0)
-
-GIT
-  remote: https://github.com/cdelafuente-r7/metasploit_data_models
-  revision: 34fc27d3059c919eac98cf2a8061c31146189a26
-  branch: enh/visitor/jsonb
-  specs:
-    metasploit_data_models (6.0.6)
-      activerecord (~> 7.0)
-      activesupport (~> 7.0)
-      arel-helpers
-      metasploit-concern
-      metasploit-model (>= 3.1)
-      pg
-      railties (~> 7.0)
-      recog
-      webrick
-
 PATH
   remote: .
   specs:
@@ -335,6 +293,20 @@ GEM
       activesupport (~> 7.0)
       railties (~> 7.0)
       zeitwerk
+    metasploit-credential (6.0.14)
+      metasploit-concern
+      metasploit-model
+      metasploit_data_models (>= 5.0.0)
+      net-ssh
+      pg
+      railties
+      rex-socket
+      rubyntlm
+      rubyzip
+    metasploit-model (5.0.3)
+      activemodel (~> 7.0)
+      activesupport (~> 7.0)
+      railties (~> 7.0)
     metasploit-payloads (2.0.189)
     metasploit_data_models (6.0.9)
       activerecord (~> 7.0)
@@ -616,10 +588,7 @@ DEPENDENCIES
   factory_bot_rails
   fivemat
   memory_profiler
-  metasploit-credential!
   metasploit-framework!
-  metasploit-model!
-  metasploit_data_models!
   octokit
   pry-byebug
   rake
