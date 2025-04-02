@@ -94,6 +94,7 @@ PATH
       rex-struct2
       rex-text
       rex-zip
+      rinda
       ruby-macho
       ruby-mysql
       ruby_smb (~> 3.3.3)
@@ -252,6 +253,7 @@ GEM
     fiddle (1.1.6)
     filesize (0.2.0)
     fivemat (1.3.7)
+    forwardable (1.3.3)
     getoptlong (0.2.1)
     gssapi (1.3.1)
       ffi (>= 1.0.1)
@@ -271,6 +273,7 @@ GEM
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     io-console (0.8.0)
+    ipaddr (1.2.7)
     irb (1.7.4)
       reline (>= 0.3.6)
     jmespath (1.6.2)
@@ -466,6 +469,10 @@ GEM
     rex-zip (0.1.6)
       rex-text
     rexml (3.4.1)
+    rinda (0.2.0)
+      drb
+      forwardable
+      ipaddr
     rkelly-remix (0.0.7)
     rspec (3.13.0)
       rspec-core (~> 3.13.0)

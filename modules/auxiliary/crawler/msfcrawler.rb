@@ -14,6 +14,8 @@
 require 'openssl'
 require 'pathname'
 require 'uri'
+require 'rinda/rinda'
+require 'rinda/tuplespace'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
@@ -70,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
         'data'		=> nil
     }
 
-    @NotViewedQueue = Rinda::TupleSpace.new
+    @NotViewedQueue = ::Rinda::TupleSpace.new
     @ViewedQueue = Hash.new
     @UriLimits = Hash.new
     @curent_site = self.ctarget
@@ -152,7 +154,7 @@ class MetasploitModule < Msf::Auxiliary
         ####
 
       end
-    rescue Rinda::RequestExpiredError
+    rescue ::Rinda::RequestExpiredError
       print_status("END.")
       return
     end

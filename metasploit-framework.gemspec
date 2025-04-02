@@ -270,6 +270,7 @@ Gem::Specification.new do |spec|
     getoptlong
     mutex_m
     ostruct
+    rinda
   ].each do |library|
     spec.add_runtime_dependency library
   end
