@@ -43,11 +43,35 @@ module Rex::Proto::CryptoAsn1::Cms
     end
   end
 
+  # see: https://datatracker.ietf.org/doc/rfc5911/
+  class CCMParameters < RASN1::Model
+    sequence :gcm_parameters,
+             content: [octet_string(:aes_nonce),
+                       integer(:aes_ccm_icvlen)
+                      ]
+  end
+
+  # see: https://datatracker.ietf.org/doc/rfc5911/
+  class GCMParameters < RASN1::Model
+    sequence :gcm_parameters,
+             content: [octet_string(:aes_nonce),
+                       integer(:aes_gcm_icvlen)
+                      ]
+  end
+
   class AlgorithmIdentifier < RASN1::Model
     sequence :algorithm_identifier,
              content: [objectid(:algorithm),
                        any(:parameters, optional: true)
     ]
+
+    def ccm_parameters
+      CCMParameters.parse(self[:parameters].value)
+    end
+
+    def gcm_parameters
+      GCMParameters.parse(self[:parameters].value)
+    end
   end
 
   class KeyDerivationAlgorithmIdentifier < AlgorithmIdentifier
