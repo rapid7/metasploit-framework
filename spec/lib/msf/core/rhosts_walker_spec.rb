@@ -22,7 +22,8 @@ RSpec::Matchers.define :have_datastore_values do |expected|
     mysql_keys = %w[RHOSTS RPORT USERNAME PASSWORD]
     postgres_keys = %w[RHOSTS RPORT USERNAME PASSWORD DATABASE]
     ssh_keys = %w[RHOSTS RPORT USERNAME PASSWORD]
-    required_keys = dynamic_keys + http_keys + smb_keys + mysql_keys + postgres_keys + ssh_keys
+    ldap_keys = %w[RHOSTS RPORT SSL LDAPDomain LDAPUsername LDAPPassword BASE_DN]
+    required_keys = dynamic_keys + http_keys + smb_keys + mysql_keys + postgres_keys + ssh_keys + ldap_keys
     datastores.map do |datastore|
       # Workaround: Manually convert the datastore to a hash ourselves as `datastore.to_h` coerces all datatypes into strings
       # which prevents this test suite from validating types correctly. i.e. The tests need to ensure that RPORT is correctly
@@ -143,6 +144,33 @@ RSpec.describe Msf::RhostsWalker do
             Msf::OptString.new('HttpQueryString', [ false, 'The HTTP query string', nil ])
           ]
         )
+      end
+    end
+
+    mod = mod_klass.new
+    datastore = Msf::ModuleDataStore.new(mod)
+    allow(mod).to receive(:framework).and_return(nil)
+    mod.send(:datastore=, datastore)
+    datastore.import_options(mod.options)
+    mod
+  end
+
+  let(:ldap_mod) do
+    mod_klass = Class.new(Msf::Auxiliary) do
+      include Msf::Exploit::Remote::LDAP
+      include Msf::Exploit::Remote::LDAP::Queries
+
+      def initialize
+        super(
+          'Name' => 'mock ldap module',
+          'Description' => 'mock ldap module',
+          'Author' => ['Unknown'],
+          'License' => MSF_LICENSE
+        )
+
+        register_options([
+          Msf::OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it'])
+        ])
       end
     end
 
@@ -908,6 +936,74 @@ RSpec.describe Msf::RhostsWalker do
         expect(each_host_for(ssh_mod)).to have_datastore_values(expected)
       end
     end
+
+    context 'when using the ldap scheme' do
+      it 'enumerates ldap schemes for scanners when no user or password are specified' do
+        ldap_mod.datastore['RHOSTS'] = 'ldap://example.com/ ldaps://example.com/'
+        expected = [
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 389, 'SSL' => false, 'LDAPDomain' => nil, 'LDAPUsername' => nil, 'LDAPPassword' => nil, 'BASE_DN' => nil },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 636, 'SSL' => true, 'LDAPDomain' => nil, 'LDAPUsername' => nil, 'LDAPPassword' => nil, 'BASE_DN' => nil }
+        ]
+        expect(each_host_for(ldap_mod)).to have_datastore_values(expected)
+      end
+
+      it 'enumerates ldap schemes for scanners when a port is specified' do
+        ldap_mod.datastore['RHOSTS'] = 'ldap://example.com:1389/ ldaps://example.com:1636/'
+        expected = [
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 1389, 'SSL' => false, 'LDAPDomain' => nil, 'LDAPUsername' => nil, 'LDAPPassword' => nil, 'BASE_DN' => nil },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 1636, 'SSL' => true, 'LDAPDomain' => nil, 'LDAPUsername' => nil, 'LDAPPassword' => nil, 'BASE_DN' => nil }
+        ]
+        expect(each_host_for(ldap_mod)).to have_datastore_values(expected)
+      end
+
+      it 'enumerates ldap schemes for scanners when no user or password are specified and uses the default option values instead' do
+        ldap_mod.datastore.import_options(
+          Msf::OptionContainer.new(
+            [
+              Msf::OptString.new('LDAPUsername', [true, 'The username to authenticate as', 'db2admin'], fallbacks: ['USERNAME']),
+              Msf::OptString.new('LDAPPassword', [true, 'The password for the specified username', 'db2admin'], fallbacks: ['PASSWORD']),
+            ]
+          ),
+          ldap_mod.class,
+          true
+        )
+        ldap_mod.datastore['RHOSTS'] = 'ldap://example.com/ ldap://user@example.com/ ldap://user:password@example.com ldap://:@example.com'
+        expected = [
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 389, 'SSL' => false, 'LDAPDomain' => nil, 'LDAPUsername' => 'db2admin', 'LDAPPassword' => 'db2admin', 'BASE_DN' => nil },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 389, 'SSL' => false, 'LDAPDomain' => '', 'LDAPUsername' => 'user', 'LDAPPassword' => 'db2admin', 'BASE_DN' => nil },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 389, 'SSL' => false, 'LDAPDomain' => '', 'LDAPUsername' => 'user', 'LDAPPassword' => 'password', 'BASE_DN' => nil },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 389, 'SSL' => false, 'LDAPDomain' => '', 'LDAPUsername' => '', 'LDAPPassword' => '', 'BASE_DN' => nil }
+        ]
+        expect(each_host_for(ldap_mod)).to have_datastore_values(expected)
+      end
+
+      it 'enumerates ldap schemes for scanners when a user and password are specified' do
+        ldap_mod.datastore['RHOSTS'] = 'ldap://user:pass@example.com/'
+        expected = [
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 389, 'SSL' => false, 'LDAPDomain' => '', 'LDAPUsername' => 'user', 'LDAPPassword' => 'pass', 'BASE_DN' => nil },
+        ]
+        expect(each_host_for(ldap_mod)).to have_datastore_values(expected)
+      end
+
+      it 'enumerates ldap schemes for scanners when a domain, user and password are specified' do
+        ldap_mod.datastore['RHOSTS'] = 'ldap://domain;user:pass@example.com/'
+        expected = [
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 389, 'SSL' => false, 'LDAPDomain' => 'domain', 'LDAPUsername' => 'user', 'LDAPPassword' => 'pass', 'BASE_DN' => nil },
+        ]
+        expect(each_host_for(ldap_mod)).to have_datastore_values(expected)
+      end
+
+      it 'enumerates ldap schemes for when the module has BASE_DN available' do
+        ldap_mod.datastore['RHOSTS'] = 'ldap://user@example.com ldap://user@example.com/ ldap://user@example.com/dc=msflab,dc=local'
+        expected = [
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 389, 'SSL' => false, 'LDAPDomain' => '', 'LDAPUsername' => 'user', 'LDAPPassword' => nil, 'BASE_DN' => nil },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 389, 'SSL' => false, 'LDAPDomain' => '', 'LDAPUsername' => 'user', 'LDAPPassword' => nil, 'BASE_DN' => nil },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 389, 'SSL' => false, 'LDAPDomain' => '', 'LDAPUsername' => 'user', 'LDAPPassword' => nil, 'BASE_DN' => 'dc=msflab,dc=local' }
+        ]
+        expect(each_host_for(ldap_mod)).to have_datastore_values(expected)
+      end
+    end
+
     # TODO: Discuss adding a test for the datastore containing an existing TARGETURI,and running with a HTTP url without a path. Should the TARGETURI be overridden to '/', '', or unaffected, and the default value is used instead?
 
     it 'enumerates a combination of all syntaxes' do
