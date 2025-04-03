@@ -131,7 +131,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
   #
   @@monitor_start_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner" ],
-    "-i" => [ true, "Capture image content when monitoring (default: true)" ]
+    "--no-capture" => [ true, "Do not capture image content when monitoring" ]
   )
 
   #
@@ -139,7 +139,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
   #
   def print_clipboard_monitor_start_usage
     print(
-      "\nUsage: clipboard_monitor_start [-i true|false] [-h]\n\n" +
+      "\nUsage: clipboard_monitor_start  [-h]\n\n" +
       "Starts a background clipboard monitoring thread. The thread watches\n" +
       "the clipboard on the target, under the context of the current desktop, and when\n" +
       "changes are detected the contents of the clipboard are captured. Contents can be\n" +
@@ -156,9 +156,8 @@ class Console::CommandDispatcher::Extapi::Clipboard
 
     @@monitor_start_opts.parse(args) { |opt, idx, val|
       case opt
-      when "-i"
-        # default this to true
-        capture_images = val.downcase != 'false'
+      when "--no-capture"
+        capture_images = false
       when "-h"
         print_clipboard_monitor_start_usage
         return true
@@ -274,9 +273,9 @@ class Console::CommandDispatcher::Extapi::Clipboard
   #
   @@monitor_dump_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner" ],
-    "-i" => [ true,  "Indicate if captured image data should be downloaded (default: true)" ],
-    "-f" => [ true,  "Indicate if captured file data should be downloaded (default: true)" ],
-    "-p" => [ false,  "Purge the contents of the monitor once dumped (default: true)" ],
+    "--no-images" => [ false,  "Indicate if captured image data shouldn't be downloaded" ],
+    "--no-files" => [ false,  "Indicate if captured file data shouldn't be downloaded" ],
+    "-p" => [ false,  "Purge the contents of the monitor once dumped" ],
     "-d" => [ true,  "Download non-text content to the specified folder" ],
     '--force' => [false, "Force overwriting existing files"]
   )
@@ -286,7 +285,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
   #
   def print_clipboard_monitor_dump_usage
     print(
-      "\nUsage: clipboard_monitor_dump [-d true|false] [-d downloaddir] [-h]\n\n" +
+      "\nUsage: clipboard_monitor_dump [-p] [-d downloaddir] [-h]\n\n" +
       "Dump the capture clipboard contents to the local machine..\n\n" +
       @@monitor_dump_opts.usage + "\n")
   end
@@ -295,7 +294,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
   # Dump the clipboard monitor contents to the local machine.
   #
   def cmd_clipboard_monitor_dump(*args)
-    purge = true
+    purge = false
     download_images = true
     download_files = true
     download_path = nil
@@ -305,10 +304,10 @@ class Console::CommandDispatcher::Extapi::Clipboard
       case opt
       when "-d"
         download_path = val
-      when "-i"
-        download_images = val.downcase != 'false'
-      when "-f"
-        download_files = val.downcase != 'false'
+      when "--no-images"
+        download_images = false
+      when "--no-files"
+        download_files = false
       when "-p"
         purge = true
       when '--force'
@@ -320,7 +319,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
     }
     
     if download_path.nil? 
-      print_error("You need to specify download directory.")
+      print_error("You have to specify destination directory to download loot.")
       return true
     end
 
@@ -330,7 +329,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
       :purge => false
     })
     
-    res = parse_dump(dump, download_images, download_files, download_path, force_overwrite)
+    res = parse_dump(dump, download_images, download_files, download_path, force_overwrite: force_overwrite)
     if !res && purge
       client.extapi.clipboard.monitor_purge()
     end
@@ -342,9 +341,9 @@ class Console::CommandDispatcher::Extapi::Clipboard
   #
   @@monitor_stop_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help banner" ],
-    "-x" => [ true,  "Indicate if captured clipboard data should be dumped (default: true)" ],
-    "-i" => [ true,  "Indicate if captured image data should be downloaded (default: true)" ],
-    "-f" => [ true,  "Indicate if captured file data should be downloaded (default: true)" ],
+    "--no-dump" => [ false,  "Indicate if captured clipboard data shouldn't be dumped" ],
+    "--no-images" => [ false,  "Indicate if captured image data shouldn't be downloaded" ],
+    "--no-files" => [ false,  "Indicate if captured file data shouldn't be downloaded" ],
     "-d" => [ true,  "Download non-text content to the specified folder" ],
     '--force' => [false, "Force overwriting existing files"]
   )
@@ -354,7 +353,7 @@ class Console::CommandDispatcher::Extapi::Clipboard
   #
   def print_clipboard_monitor_stop_usage
     print(
-      "\nUsage: clipboard_monitor_stop [-d true|false] [-x true|false] [-d downloaddir] [-h]\n\n" +
+      "\nUsage: clipboard_monitor_stop [-d downloaddir] [-h]\n\n" +
       "Stops a clipboard monitor thread and returns the captured data to the local machine.\n\n" +
       @@monitor_stop_opts.usage + "\n")
   end
@@ -373,12 +372,12 @@ class Console::CommandDispatcher::Extapi::Clipboard
       case opt
       when "-d"
         download_path = val
-      when "-x"
-        dump_data = val.downcase != 'false'
-      when "-i"
-        download_images = val.downcase != 'false'
-      when "-f"
-        download_files = val.downcase != 'false'
+      when "--no-dump"
+        dump_data = false
+      when "--no-images"
+        download_images = false
+      when "--no-files"
+        download_files = false
       when '--force'
         force_overwrite = true
       when "-h"
@@ -386,24 +385,18 @@ class Console::CommandDispatcher::Extapi::Clipboard
         return true
       end
     }
-    
-    
-    if download_path.nil? && (download_images || download_files) 
-      #allow user to stop monitoring if they don't wish to download anything
-      client.extapi.clipboard.monitor_stop({
-        :dump           => dump_data,
-      })
-      print_good("Clipboard monitor stopped without downloading data. Specify destination folder to download loot.")
-      return true
-    end
-  
+   
+    #you can't download stuff if you don't specify destination directory
+    # todo: is there more ruby way to do this
+    download_images = download_images && download_path.nil? ? false : download_images
+
     dump = client.extapi.clipboard.monitor_stop({
       :dump           => dump_data,
       :include_images => download_images
     })
     
 
-    parse_dump(dump, download_images, download_files, download_path, force_overwrite) if dump_data
+    parse_dump(dump, download_images, download_files, download_path, force_overwrite: force_overwrite) if dump_data
 
     print_good("Clipboard monitor stopped")
   end
@@ -458,10 +451,15 @@ private
     return true, attempted_overwrite
   end
 
-  def parse_dump(dump, get_images, get_files, download_path, force_overwrite=false)
+  def parse_dump(dump, get_images, get_files, loot_dir, force_overwrite: false)
 
-    loot_dir = download_path || './'
     overwrite_attempt = false
+    
+    if (get_images || get_files ) && loot_dir.nil?
+      print_error("You have to specify destination directory to download loot.")
+      return true
+    end
+
     if (get_images || get_files) && !::File.directory?( loot_dir )
       ::FileUtils.mkdir_p( loot_dir )
     end

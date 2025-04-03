@@ -304,7 +304,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
       stat.call('Uploading', src, dest) if (stat)
 
       upload_file(dest, src)
-      stat.call('Completed', src, dest) if (stat)
+      stat.call(STEP_COMPLETED, src, dest) if (stat)
     }
   end
 
@@ -334,7 +334,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
       src_fd.close unless src_fd.nil?
       dest_fd.close unless dest_fd.nil?
     end
-    stat.call('Completed', src_file, dest_file) if stat
+    stat.call(STEP_COMPLETED, src_file, dest_file) if stat
   end
 
   def File.is_glob?(name)
@@ -392,11 +392,11 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
       dst_stat = ::File.stat(dest_file)
       if (src_stat.size == dst_stat.size && src_stat.mtime == dst_stat.mtime) 
         src_fd.close
-        return 'Skipped'
+        return STEP_SKIPPED
       end
       if !force_overwrite
         src_fd.close
-        return 'Overwrite'
+        return STEP_SKIPPED_WOULD_OVERWRITE
       else
         overwrite_existing= true
       end
@@ -489,7 +489,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
     # Clone the times from the remote file
     ::File.utime(src_stat.atime, src_stat.mtime, dest_file)
-    return overwrite_existing ? 'Overwritten' : 'Completed'
+    return overwrite_existing ? STEP_COMPLETED_OVERWRITTEN : STEP_COMPLETED
   end
 
   #
