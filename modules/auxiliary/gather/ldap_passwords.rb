@@ -10,6 +10,9 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::LDAP
   include Msf::OptionalSession::LDAP
 
+  include Msf::Exploit::Deprecated
+  moved_from 'auxiliary/gather/ldap_hashdump'
+
   PASSWORD_ATTRIBUTES = %w[clearpassword mailuserpassword ms-mcs-admpwd password passwordhistory pwdhistory sambalmpassword sambantpassword userpassword userpkcs12]
 
   def initialize(info = {})
