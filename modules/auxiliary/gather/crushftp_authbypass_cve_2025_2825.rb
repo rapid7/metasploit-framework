@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
           This module leverages an authentication bypass in CrushFTP 11 < 11.3.1 and 10 < 10.8.4. Attackers
           with knowledge of a valid username can provide a crafted S3 authentication header to the CrushFTP web API
           to authenticate as that user without valid credentials. When successfully executed, the exploit will
-          output working session cookies for the target user account. This vulnerability is tracked as CVE-2025-2825.
+          output working session cookies for the target user account.
         },
         'License' => MSF_LICENSE,
         'Author' => [
