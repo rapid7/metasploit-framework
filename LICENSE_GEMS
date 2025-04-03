@@ -65,6 +65,7 @@ ffi, 1.16.3, "New BSD"
 fiddle, 1.1.6, "ruby, Simplified BSD"
 filesize, 0.2.0, MIT
 fivemat, 1.3.7, MIT
+forwardable, 1.3.3, "ruby, Simplified BSD"
 getoptlong, 0.2.1, "ruby, Simplified BSD"
 gssapi, 1.3.1, MIT
 gyoku, 1.4.0, MIT
@@ -76,6 +77,7 @@ http_parser.rb, 0.8.0, MIT
 httpclient, 2.9.0, ruby
 i18n, 1.14.7, MIT
 io-console, 0.8.0, "ruby, Simplified BSD"
+ipaddr, 1.2.7, "ruby, Simplified BSD"
 irb, 1.7.4, "ruby, Simplified BSD"
 jmespath, 1.6.2, "Apache 2.0"
 jsobfu, 0.4.2, "New BSD"
@@ -88,11 +90,11 @@ loofah, 2.24.0, MIT
 memory_profiler, 1.1.0, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 5.0.4, "New BSD"
-metasploit-credential, 6.0.12, "New BSD"
-metasploit-framework, 6.4.56, "New BSD"
-metasploit-model, 5.0.2, "New BSD"
+metasploit-credential, 6.0.14, "New BSD"
+metasploit-framework, 6.4.57, "New BSD"
+metasploit-model, 5.0.3, "New BSD"
 metasploit-payloads, 2.0.189, "3-clause (or ""modified"") BSD"
-metasploit_data_models, 6.0.6, "New BSD"
+metasploit_data_models, 6.0.9, "New BSD"
 metasploit_payloads-mettle, 1.0.35, "3-clause (or ""modified"") BSD"
 method_source, 1.1.0, MIT
 mime-types, 3.6.0, MIT
@@ -167,6 +169,7 @@ rex-struct2, 0.1.5, "New BSD"
 rex-text, 0.2.60, "New BSD"
 rex-zip, 0.1.6, "New BSD"
 rexml, 3.4.1, "Simplified BSD"
+rinda, 0.2.0, "ruby, Simplified BSD"
 rkelly-remix, 0.0.7, MIT
 rspec, 3.13.0, MIT
 rspec-core, 3.13.3, MIT
