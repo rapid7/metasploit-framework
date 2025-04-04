@@ -515,7 +515,7 @@ module Auxiliary::Report
 
     # This will probably evolve into a new database table
     report_note(
-      :data => full_path.dup,
+      :data => { :full_path => full_path.dup },
       :type => "#{ltype}.localpath"
     )
 
@@ -590,4 +590,3 @@ module Auxiliary::Report
 
 end
 end
-

@@ -72,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
         :proto  => 'tcp',
         :sname  => 'http',
         :ntype  => 'joomla_page',
-        :data   => msg,
+        :data   => { :message => msg },
         :update => :unique_data
       )
     elsif (res.code == 403)

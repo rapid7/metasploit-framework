@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
               :sname => (ssl ? "https" : "http"),
               :port	=> rport,
               :type => 'lotusdomino.version.current',
-              :data => server1.strip
+              :data => { :version => server1.strip }
                 )
             if currentversion.empty? then
               currentversion << server1.strip
@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
               :sname => (ssl ? "https" : "http"),
               :port	=> rport,
               :type => 'lotusdomino.version.releasenotes',
-              :data => server2.strip
+              :data => { :version_release_notes => server2.strip }
                 )
           else
             ''
@@ -148,7 +148,7 @@ class MetasploitModule < Msf::Auxiliary
               :sname => (ssl ? "https" : "http"),
               :port	=> rport,
               :type => 'lotusdomino.version.base',
-              :data => server3.strip
+              :data => { :version_base => server3.strip }
                 )
             if baseversion.empty? then
               baseversion << server3.strip

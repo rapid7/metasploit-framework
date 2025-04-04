@@ -89,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
           :port => rport,
           :sname => 'sap',
           :type => 'sap.services.available',
-          :data => "The Remote Function Call (RFC) Service is available through the SOAP service."
+          :data => { :service => "The Remote Function Call (RFC) Service is available through the SOAP service." }
         )
         return
       else

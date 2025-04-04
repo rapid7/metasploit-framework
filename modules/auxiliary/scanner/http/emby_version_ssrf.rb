@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
       port: rport,
       proto: 'tcp',
       ntype: 'server_version',
-      data: result['Version'],
+      data: { version: result['Version'] },
       info: "Media Server v.#{result['Version']}"
     )
     vprint_status('Saving host information.')

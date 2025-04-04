@@ -135,7 +135,7 @@ class MetasploitModule < Msf::Auxiliary
         :sname	=> 'sip',
         :port	=> rport,
         :type	=> "Found user: #{testn} [Auth]",
-        :data	=> "Found user: #{testn} [Auth]"
+        :data	=> { :user => testn }
       )
     when 200
       print_good("Found user: #{testn} [Open]")
@@ -146,7 +146,7 @@ class MetasploitModule < Msf::Auxiliary
         :sname	=> 'sip',
         :port	=> rport,
         :type	=> "Found user: #{testn} [Open]",
-        :data	=> "Found user: #{testn} [Open]"
+        :data	=> { :user => testn }
       )
     else
       #print_error("Undefined error code: #{resp.to_i}"

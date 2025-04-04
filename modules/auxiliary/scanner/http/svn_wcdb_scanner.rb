@@ -69,7 +69,7 @@ class MetasploitModule < Msf::Auxiliary
           :proto => 'tcp',
           :sname => (ssl ? 'https' : 'http'),
           :type => 'svn_wc_database',
-          :data => "SVN wc.db database is stored in #{file}"
+          :data => { :path => file }
         )
       else
         vprint_error("SVN wc.db database not found on #{vhost}:#{rport}")

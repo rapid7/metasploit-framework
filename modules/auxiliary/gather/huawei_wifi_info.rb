@@ -127,7 +127,7 @@ class MetasploitModule < Msf::Auxiliary
     report_note(
       :host => rhost,
       :type => 'wifi_keys',
-      :data => log
+      :data => { :wifi_ssid => log }
     )
   end
 

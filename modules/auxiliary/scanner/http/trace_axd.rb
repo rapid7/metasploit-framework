@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
             :sname => (ssl ? 'https' : 'http'),
             :port	=> rport,
             :type	=> 'TRACE_AXD',
-            :data	=> "#{tpath}trace.axd",
+            :data	=> { :path => "#{tpath}trace.axd" },
             :update => :unique_data
           )
 

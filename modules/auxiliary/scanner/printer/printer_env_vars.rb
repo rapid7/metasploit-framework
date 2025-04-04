@@ -52,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
         :port => rport,
         :proto => "tcp",
         :type => "printer.env.vars",
-        :data => env_vars
+        :data => { :environment_variables => env_vars}
       )
     end
   end
