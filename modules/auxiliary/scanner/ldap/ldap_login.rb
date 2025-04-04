@@ -164,9 +164,10 @@ class MetasploitModule < Msf::Auxiliary
         successful_logins << result
         if opts[:ldap_auth] == Msf::Exploit::Remote::AuthOption::SCHANNEL
           # Schannel auth has no meaningful credential information to store in the DB
-          print_brute level: :good, ip: ip, msg: "Success: 'Cert File #{opts[:ldap_cert_file]}'"
+          msg = opts[:ldap_cert_file].nil? ? 'Using stored certificate' : "Cert File #{opts[:ldap_cert_file]}"
+          print_brute level: :good, ip: ip, msg: "Success: '#{msg}'"
         else
-          create_credential_and_login(credential_data)
+          create_credential_and_login(credential_data) if result.credential.private
           print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}'"
         end
         successful_sessions << create_session(result, ip) if create_session?

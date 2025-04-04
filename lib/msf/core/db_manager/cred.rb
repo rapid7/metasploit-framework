@@ -246,7 +246,7 @@ module Msf::DBManager::Cred
         if opts[:public][:id]
           public_id = opts[:public].delete(:id)
           public = Metasploit::Credential::Public.find(public_id)
-          public.update_attributes(opts[:public])
+          public.update(opts[:public])
         else
           public = Metasploit::Credential::Public.where(opts[:public]).first_or_initialize
         end
@@ -256,7 +256,7 @@ module Msf::DBManager::Cred
         if opts[:private][:id]
           private_id = opts[:private].delete(:id)
           private = Metasploit::Credential::Private.find(private_id)
-          private.update_attributes(opts[:private])
+          private.update(opts[:private])
         else
           private = Metasploit::Credential::Private.where(opts[:private]).first_or_initialize
         end
@@ -266,7 +266,7 @@ module Msf::DBManager::Cred
         if opts[:origin][:id]
           origin_id = opts[:origin].delete(:id)
           origin = Metasploit::Credential::Origin.find(origin_id)
-          origin.update_attributes(opts[:origin])
+          origin.update(opts[:origin])
         else
           origin = Metasploit::Credential::Origin.where(opts[:origin]).first_or_initialize
         end
