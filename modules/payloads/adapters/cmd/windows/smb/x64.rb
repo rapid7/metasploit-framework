@@ -20,7 +20,7 @@ module MetasploitModule
         'AdaptedPlatform' => 'win'
       )
     )
-    deregister_options('FETCH_DELETE', 'FETCH_SRVPORT', 'FETCH_WRITABLE_DIR')
+    deregister_options('FETCH_DELETE', 'FETCH_SRVPORT', 'FETCH_WRITABLE_DIR', 'FETCH_FILENAME')
   end
 
   def srvport
