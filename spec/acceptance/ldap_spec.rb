@@ -59,7 +59,7 @@ RSpec.describe 'LDAP modules' do
           }
         },
         {
-          name: 'auxiliary/gather/ldap_hashdump',
+          name: 'auxiliary/gather/ldap_passwords',
           platforms: %i[linux osx windows],
           targets: [:session, :rhost],
           skipped: false,
@@ -67,7 +67,7 @@ RSpec.describe 'LDAP modules' do
             all: {
               required: [
                 /Searching base DN='DC=ldap,DC=example,DC=com'/,
-                /Storing LDAP data for base DN='DC=ldap,DC=example,DC=com' in loot/,
+                /Checking if the target LDAP server is an Active Directory Domain Controller.../,
                 /266 entries, 0 creds found in 'DC=ldap,DC=example,DC=com'./
               ]
             }
