@@ -134,7 +134,7 @@ module Rex
           #
           @@monitor_start_opts = Rex::Parser::Arguments.new(
             '-h' => [ false, 'Help banner' ],
-            '--no-capture' => [ true, 'Do not capture image content when monitoring' ]
+            '--no-images' => [ true, 'Do not capture image content when monitoring' ]
           )
 
           #
@@ -160,7 +160,7 @@ module Rex
 
             @@monitor_start_opts.parse(args) do |opt, _idx, _val|
               case opt
-              when '--no-capture'
+              when '--no-images'
                 capture_images = false
               when '-h'
                 print_clipboard_monitor_start_usage
@@ -279,7 +279,7 @@ module Rex
             '-h' => [ false, 'Help banner' ],
             '--no-images' => [ false, "Indicate if captured image data shouldn't be downloaded" ],
             '--no-files' => [ false, "Indicate if captured file data shouldn't be downloaded" ],
-            '-p' => [ false, 'Purge the contents of the monitor once dumped' ],
+            '--no-purge' => [ false, "Indicate if the contents of the monitor shouldn't be purged once dumped" ],
             '-d' => [ true, 'Download non-text content to the specified folder' ],
             '--force' => [false, 'Force overwriting existing files']
           )
@@ -289,7 +289,7 @@ module Rex
           #
           def print_clipboard_monitor_dump_usage
             print(
-              "\nUsage: clipboard_monitor_dump [-p] [-d downloaddir] [-h]\n\n" +
+              "\nUsage: clipboard_monitor_dump [-d downloaddir] [-h]\n\n" +
               "Dump the capture clipboard contents to the local machine..\n\n" +
               @@monitor_dump_opts.usage + "\n"
             )
@@ -299,7 +299,7 @@ module Rex
           # Dump the clipboard monitor contents to the local machine.
           #
           def cmd_clipboard_monitor_dump(*args)
-            purge = false
+            purge = true
             download_images = true
             download_files = true
             download_path = nil
@@ -313,8 +313,8 @@ module Rex
                 download_images = false
               when '--no-files'
                 download_files = false
-              when '-p'
-                purge = true
+              when '--no-purge'
+                purge = false
               when '--force'
                 force_overwrite = true
               when '-h'
@@ -335,10 +335,12 @@ module Rex
             })
 
             res = parse_dump(dump, download_images, download_files, download_path, force_overwrite: force_overwrite)
+            print_good('Clipboard monitor dumped')
+
             if !res && purge
               client.extapi.clipboard.monitor_purge
+              print_good('Captured clipboard contents purged successfully')
             end
-            print_good('Clipboard monitor dumped')
           end
 
           #
