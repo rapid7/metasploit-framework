@@ -34,6 +34,13 @@ use auxiliary/gather/ldap_query
 run rhost=192.168.123.13 username=Administrator@domain.local password=p4$$w0rd action=ENUM_ACCOUNTS
 ```
 
+Alternatively, the URI syntax can be used:
+
+```
+use auxiliary/gather/ldap_query
+run ldap://domain.local;Administrator:p4$$w0rd@192.168.123.13/dc=domain,dc=local action=ENUM_ACCOUNTS
+```
+
 Example output:
 
 ```msf
