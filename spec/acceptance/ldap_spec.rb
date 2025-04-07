@@ -53,7 +53,7 @@ RSpec.describe 'LDAP modules' do
             all: {
               required: [
                 /Discovered base DN/,
-                /Query returned 4 results/
+                /Query returned 5 results/
               ]
             }
           }
@@ -66,9 +66,12 @@ RSpec.describe 'LDAP modules' do
           lines: {
             all: {
               required: [
-                /Searching base DN='DC=ldap,DC=example,DC=com'/,
+                /Searching base DN: DC=ldap,DC=example,DC=com/,
                 /Checking if the target LDAP server is an Active Directory Domain Controller.../,
-                /266 entries, 0 creds found in 'DC=ldap,DC=example,DC=com'./
+                /The target LDAP server is not an Active Directory Domain Controller./,
+                /Credentials \(password\) found in ms-mcs-admpwd: Administrator:\[LAPSv1\]SuperSecretPassword!/,
+                /Credentials \(password\) found in mslaps-password: Administrator:\[LAPSv2\]SuperSecretPassword!/,
+                /Found [1-9]\d* entries and [1-9]\d* credentials in 'DC=ldap,DC=example,DC=com'./
               ]
             }
           }
