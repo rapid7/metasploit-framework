@@ -96,8 +96,6 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Msf::Module::Failure::NoTarget, 'The target LDAP server is a Global Catalog.')
     end
 
-    # our_domain, _, our_username = ldap.ldapwhoami.to_s.delete_prefix('u:').partition('\\')
-
     target_domains = ldap.search(
       base: root_dse[:configurationnamingcontext].first.to_s,
       filter: "(&(objectCategory=crossref)(nETBIOSName=*)(nCName=#{ldap.base_dn}))"
@@ -168,7 +166,6 @@ class MetasploitModule < Msf::Auxiliary
   def ldap_search(ldap, base_dn, args)
     entries_returned = 0
     creds_found = 0
-    # TODO: use a filter when we're targeting AD DS
     def_args = {
       return_result: false,
       scope: Net::LDAP::SearchScope_WholeSubtree,
