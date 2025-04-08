@@ -103,7 +103,7 @@ module Evasion
     nil
   end
 
-  def run_simple(opts, &block)
+  def run_simple(opts = {}, &block)
     Msf::Simple::Evasion.run_simple(self, opts, &block)
   end
 
