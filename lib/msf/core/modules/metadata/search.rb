@@ -282,7 +282,7 @@ module Msf::Modules::Metadata::Search
 
   def as_regex(search_term)
     # Convert into a case-insensitive regex
-    utf8_buf = search_term.dup.force_encoding('UTF-8')
+    utf8_buf = search_term.to_s.dup.force_encoding('UTF-8')
     if utf8_buf.valid_encoding?
        Regexp.new(Regexp.escape(utf8_buf), Regexp::IGNORECASE)
     else

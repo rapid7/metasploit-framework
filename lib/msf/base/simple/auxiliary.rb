@@ -158,7 +158,7 @@ module Auxiliary
   #
   # Calls the class method.
   #
-  def check_simple(opts)
+  def check_simple(opts = {})
     Msf::Simple::Auxiliary.check_simple(self, opts)
   end
 
