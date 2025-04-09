@@ -8,6 +8,7 @@ module Msf
     # Defines common options across all Meterpreter implementations
     #
     module MeterpreterOptions::Linux
+      include Msf::Sessions::MeterpreterOptions::Common
       def initialize(info = {})
         super(info)
 
@@ -15,7 +16,7 @@ module Msf
           [
             OptString.new(
               'AutoLoadExtensions',
-              [true, "Automatically load extensions on bootstrap (ex: 'stdapi;sniffer')", 'stdapi']
+              [true, "Automatically load extensions on bootstrap, semicolon separated.", 'stdapi']
             ),
             OptString.new(
               'PayloadProcessCommandLine',

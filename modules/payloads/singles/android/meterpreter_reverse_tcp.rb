@@ -11,7 +11,7 @@ module MetasploitModule
   include Msf::Payload::TransportConfig
   include Msf::Payload::Single
   include Msf::Payload::Android
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Android
 
   def initialize(info = {})
     super(merge_info(info,

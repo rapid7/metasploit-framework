@@ -4,7 +4,7 @@
 ##
 
 module MetasploitModule
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Osx
   include Msf::Sessions::MettleConfig
 
   def initialize(info = {})
