@@ -7,7 +7,7 @@ module Msf
     #
     # Defines common options across all Meterpreter implementations
     #
-    module MeterpreterOptions::Windows
+    module MeterpreterOptions::Bsd
       include Msf::Sessions::MeterpreterOptions::Common
       def initialize(info = {})
         super(info)
@@ -16,11 +16,7 @@ module Msf
           [
             OptString.new(
               'AutoLoadExtensions',
-              [true, "Automatically load extensions on bootstrap, semicolon separated.", 'unhook;priv;stdapi']
-            ),
-            OptBool.new(
-              'AutoUnhookProcess',
-              [true, "Automatically load the unhook extension and unhook the process", false]
+              [true, "Automatically load extensions on bootstrap, semicolon separated.", 'stdapi']
             ),
           ],
           self.class

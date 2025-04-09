@@ -7,7 +7,7 @@ module Msf
     #
     # Defines common options across all Meterpreter implementations
     #
-    module MeterpreterOptions::Windows
+    module MeterpreterOptions::AppleIos
       include Msf::Sessions::MeterpreterOptions::Common
       def initialize(info = {})
         super(info)
@@ -16,11 +16,11 @@ module Msf
           [
             OptString.new(
               'AutoLoadExtensions',
-              [true, "Automatically load extensions on bootstrap, semicolon separated.", 'unhook;priv;stdapi']
+              [true, "Automatically load extensions on bootstrap, semicolon separated.", 'stdapi']
             ),
-            OptBool.new(
-              'AutoUnhookProcess',
-              [true, "Automatically load the unhook extension and unhook the process", false]
+            OptString.new(
+              'PayloadProcessCommandLine',
+              [ false, 'The displayed command line that will be used by the payload', '']
             ),
           ],
           self.class
