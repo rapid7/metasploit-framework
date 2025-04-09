@@ -53,3 +53,5 @@ group :test do
   gem 'timecop'
 end
 
+# remove after both rapid7/ruby_smb#286 and rapid7/ruby_smb#284 have been landed then the gem has been bumped
+gem 'ruby_smb', git: 'https://github.com/zeroSteiner/ruby_smb', branch: 'test/msf/20017'
