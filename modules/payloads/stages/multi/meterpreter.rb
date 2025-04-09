@@ -41,15 +41,15 @@ module MetasploitModule
 
     case opts[:uuid].platform
     when 'python'
-c.include(::Msf::Payload::Python::MeterpreterLoader)
+      c.include(::Msf::Payload::Python::MeterpreterLoader)
     when 'java'
-c.include(::Msf::Payload::Java::MeterpreterLoader)
+      c.include(::Msf::Payload::Java::MeterpreterLoader)
     when 'android'
-c.include(::Msf::Payload::Android::MeterpreterLoader)
+      c.include(::Msf::Payload::Android::MeterpreterLoader)
     when 'php'
-c.include(::Msf::Payload::Php::MeterpreterLoader)
+      c.include(::Msf::Payload::Php::MeterpreterLoader)
     when 'windows'
-if opts[:uuid].arch == ARCH_X86
+      if opts[:uuid].arch == ARCH_X86
         c.include(::Msf::Payload::Windows::MeterpreterLoader)
       else
         c.include(::Msf::Payload::Windows::MeterpreterLoader_x64)

@@ -14,7 +14,7 @@
 module MetasploitModule
 
   include Msf::Payload::Windows::MeterpreterLoader
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Windows
 
   def initialize(info = {})
     super(update_info(info,

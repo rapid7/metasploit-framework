@@ -8,7 +8,7 @@
 module MetasploitModule
 
   include Msf::Payload::Java::MeterpreterLoader
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Java
 
   def initialize(info = {})
     super(update_info(info,
