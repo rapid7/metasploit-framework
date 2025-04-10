@@ -403,8 +403,13 @@ module Msf
     # @return [Boolean] True if DNS resolution should be performed the RHOST values, false otherwise
     def perform_dns_resolution?(datastore)
       # If a socks proxy has been configured, don't perform DNS resolution - so that it instead happens via the proxy
-      # rex-socket does not currently support socks4a. SAPNI may need to be added to this list.
-      !(datastore['PROXIES'].to_s.include?(Rex::Socket::Proxies::ProxyType::HTTP) || datastore['PROXIES'].to_s.include?(Rex::Socket::Proxies::ProxyType::SOCKS5))
+      return true unless datastore['PROXIES'].present?
+
+      last_proxy = Rex::Socket::Proxies.parse(datastore['PROXIES']).last
+      [
+        Rex::Socket::Proxies::ProxyType::HTTP,
+        Rex::Socket::Proxies::ProxyType::SOCKS5H
+      ].exclude?(last_proxy.scheme)
     end
 
     def set_hostname(datastore, result, hostname)
