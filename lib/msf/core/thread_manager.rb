@@ -111,16 +111,6 @@ class ThreadManager < Array
               error: e
           )
           raise e
-        ensure
-          if framework.db && framework.db.active && framework.db.is_local?
-            # NOTE: despite the Deprecation Warning's advice, this should *NOT*
-            # be ApplicationRecord.connection.close which causes unrelated
-            # threads to raise ActiveRecord::StatementInvalid exceptions at
-            # some point in the future, presumably due to the pool manager
-            # believing that the connection is still usable and handing it out
-            # to another thread.
-            ::ApplicationRecord.connection_pool.release_connection
-          end
         end
       end
     else
