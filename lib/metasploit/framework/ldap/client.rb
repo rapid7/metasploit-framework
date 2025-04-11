@@ -50,6 +50,7 @@ module Metasploit
           auth_opts = {}
           raise Msf::ValidationError, 'The LDAP::Rhostname option is required when using Kerberos authentication.' if opts[:ldap_rhostname].blank?
           raise Msf::ValidationError, 'The DOMAIN option is required when using Kerberos authentication.' if opts[:domain].blank?
+          raise Msf::ValidationError, 'The DomainControllerRhost is required when using Kerberos authentication.' if opts[:domain_controller_rhost].blank?
 
           offered_etypes = Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(opts[:ldap_krb_offered_enc_types])
           raise Msf::ValidationError, 'At least one encryption type is required when using Kerberos authentication.' if offered_etypes.empty?
@@ -112,17 +113,35 @@ module Metasploit
           auth_opts = {}
           pfx_path = opts[:ldap_cert_file]
           raise Msf::ValidationError, 'The SSL option must be enabled when using Schannel authentication.' unless ssl
-          raise Msf::ValidationError, 'The LDAP::CertFile option is required when using Schannel authentication.' if pfx_path.blank?
           raise Msf::ValidationError, 'Can not sign and seal when using Schannel authentication.' if opts.fetch(:sign_and_seal, false)
 
-          unless ::File.file?(pfx_path) && ::File.readable?(pfx_path)
-            raise Msf::ValidationError, 'Failed to load the PFX certificate file. The path was not a readable file.'
-          end
+          if pfx_path.present?
+            unless ::File.file?(pfx_path) && ::File.readable?(pfx_path)
+              raise Msf::ValidationError, 'Failed to load the PFX certificate file. The path was not a readable file.'
+            end
 
-          begin
-            pkcs = OpenSSL::PKCS12.new(File.binread(pfx_path), '')
-          rescue StandardError => e
-            raise Msf::ValidationError, "Failed to load the PFX file (#{e})"
+            begin
+              pkcs = OpenSSL::PKCS12.new(File.binread(pfx_path), '')
+            rescue StandardError => e
+              raise Msf::ValidationError, "Failed to load the PFX file (#{e})"
+            end
+          else
+            pkcs12_storage = Msf::Exploit::Remote::Pkcs12::Storage.new(
+              framework: opts[:framework],
+              framework_module: opts[:framework_module]
+            )
+            pkcs12_results = pkcs12_storage.pkcs12(
+              username: opts[:username],
+              realm: opts[:domain],
+              tls_auth: true,
+              status: 'active'
+            )
+            if pkcs12_results.empty?
+              raise Msf::ValidationError, "Pkcs12 for #{opts[:username]}@#{opts[:domain]} not found in the database"
+            end
+
+            elog("Using stored certificate for #{opts[:username]}@#{opts[:domain]}")
+            pkcs = pkcs12_results.first.openssl_pkcs12
           end
 
           auth_opts[:auth] = {
