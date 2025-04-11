@@ -6,50 +6,68 @@ require 'metasploit/framework/login_scanner/vnc'
 
 RSpec.describe Metasploit::Framework::LoginScanner do
 
-  subject { described_class.classes_for_service(service) }
-  let(:port) { nil }
-  let(:name) { nil }
+  describe '.classes_for_service' do
+    subject { described_class.classes_for_service(service) }
+    let(:port) { nil }
+    let(:name) { nil }
 
-  let(:service) do
-    s = double('service')
-    allow(s).to receive(:port) { port }
-    allow(s).to receive(:name) { name }
-    s
-  end
+    let(:service) do
+      instance_double(Mdm::Service, port: port, name: name)
+    end
 
-  context "with name 'smb'" do
-    let(:name) { 'smb' }
+    context "with name 'smb'" do
+      let(:name) { 'smb' }
 
-    it { is_expected.to include Metasploit::Framework::LoginScanner::SMB }
-    it { is_expected.not_to include Metasploit::Framework::LoginScanner::HTTP }
-  end
+      it { is_expected.to include Metasploit::Framework::LoginScanner::SMB }
+      it { is_expected.not_to include Metasploit::Framework::LoginScanner::HTTP }
+    end
 
+    context "with port 445" do
+      let(:port) { 445 }
 
-  context "with port 445" do
-    let(:port) { 445 }
+      it { is_expected.to include Metasploit::Framework::LoginScanner::SMB }
+      it { is_expected.not_to include Metasploit::Framework::LoginScanner::HTTP }
+      it { is_expected.not_to include Metasploit::Framework::LoginScanner::VNC }
+    end
 
-    it { is_expected.to include Metasploit::Framework::LoginScanner::SMB }
-    it { is_expected.not_to include Metasploit::Framework::LoginScanner::HTTP }
-    it { is_expected.not_to include Metasploit::Framework::LoginScanner::VNC }
-  end
-
-
-  context "with name 'http'" do
-    let(:name) { 'http' }
-
-    it { is_expected.to include Metasploit::Framework::LoginScanner::HTTP }
-    it { is_expected.not_to include Metasploit::Framework::LoginScanner::SMB }
-    it { is_expected.not_to include Metasploit::Framework::LoginScanner::VNC }
-  end
-
-  [ 80, 8080, 8000, 443 ].each do |foo|
-    context "with port #{foo}" do
-      let(:port) { foo }
+    context "with name 'http'" do
+      let(:name) { 'http' }
 
       it { is_expected.to include Metasploit::Framework::LoginScanner::HTTP }
-      it { is_expected.to include Metasploit::Framework::LoginScanner::Axis2 }
-      it { is_expected.to include Metasploit::Framework::LoginScanner::Tomcat }
       it { is_expected.not_to include Metasploit::Framework::LoginScanner::SMB }
+      it { is_expected.not_to include Metasploit::Framework::LoginScanner::VNC }
+    end
+
+    [ 80, 8080, 8000, 443 ].each do |foo|
+      context "with port #{foo}" do
+        let(:port) { foo }
+
+        it { is_expected.to include Metasploit::Framework::LoginScanner::HTTP }
+        it { is_expected.to include Metasploit::Framework::LoginScanner::Axis2 }
+        it { is_expected.to include Metasploit::Framework::LoginScanner::Tomcat }
+        it { is_expected.not_to include Metasploit::Framework::LoginScanner::SMB }
+      end
+    end
+  end
+
+  describe '.all_http_classes' do
+    let(:http_classes) { described_class.all_http_classes }
+
+    it 'returns a populated array' do
+      expect(http_classes).to be_a Array
+      expect(http_classes).to_not be_empty
+    end
+
+    it 'includes HTTP classes' do
+      expect(http_classes).to include Metasploit::Framework::LoginScanner::TeamCity
+      expect(http_classes).to include Metasploit::Framework::LoginScanner::Ivanti
+    end
+
+    it 'does not include non-HTTP classes' do
+      # Base HTTP scanner should not be present
+      expect(http_classes).to_not include Metasploit::Framework::LoginScanner::HTTP
+      expect(http_classes).to_not include Metasploit::Framework::LoginScanner::SMB
+      expect(http_classes).to_not include Metasploit::Framework::LoginScanner::VNC
     end
   end
 
@@ -69,39 +87,33 @@ RSpec.describe Metasploit::Framework::LoginScanner do
       expect(service_names).to include 'https'
       expect(service_names).to include 'smb'
     end
-  end
 
-  describe '.classes_for_service' do
-    described_class.all_service_names.each do |service_name|
-      context "with service #{service_name}" do
-        let(:name) { service_name }
-        let(:login_scanners) { described_class.classes_for_service(service) }
+    it 'returns a list of valid services' do
+      all_scanners = service_names.flat_map do |service_name|
+        service = instance_double Mdm::Service, name: service_name, port: nil
+        classes = described_class.classes_for_service(service)
+        expect(classes).to_not be_empty
+        classes
+      end.uniq
+      expect(all_scanners).to_not be_empty
 
-        it 'returns at least one class' do
-          expect(login_scanners).to_not be_empty
-        end
-
-
-        MockService = Struct.new(:name, :port)
-
-        described_class.classes_for_service(MockService.new(name: service_name)).each do |login_scanner|
-          context "when the login scanner is #{login_scanner.name}" do
-            it 'is a LoginScanner' do
-              expect(login_scanner).to include Metasploit::Framework::LoginScanner::Base
-            end
-
-            it 'can be initialized with a single argument' do
-              expect {
-                # here we emulate how Pro will initialize the class by passing a single configuration hash argument
-                login_scanner.new({
-                  bruteforce_speed: 5,
-                  host: '192.0.2.1',
-                  port: 1234,
-                  stop_on_success: true
-                })
-              }.to_not raise_error
-            end
+      all_scanners.each do |scanner|
+        # Emulate how Pro will initialize the class by passing a single configuration hash argument
+        options = {
+          bruteforce_speed: 5,
+          host: '192.0.2.1',
+          port: 1234,
+          stop_on_success: true
+        }
+        aggregate_failures "#{scanner} is a valid scanner" do
+          expect(scanner.const_defined?(:PRIVATE_TYPES)).to be(true), "for #{scanner}"
+          expect(scanner.const_defined?(:LIKELY_SERVICE_NAMES)).to be(true), "for #{scanner}"
+          expect(scanner.const_defined?(:LIKELY_PORTS)).to be(true), "for #{scanner}"
+          if scanner.ancestors.include?(Metasploit::Framework::LoginScanner::HTTP) && scanner != Metasploit::Framework::LoginScanner::WinRM
+            expect(scanner::LIKELY_SERVICE_NAMES).to include('http', 'https'), "for #{scanner}"
+            expect(scanner::LIKELY_PORTS).to include(80, 443, 8000, 8080), "for #{scanner}"
           end
+          expect { scanner.new(options) }.to_not raise_error, "for #{scanner}"
         end
       end
     end

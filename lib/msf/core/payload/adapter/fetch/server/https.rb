@@ -42,7 +42,7 @@ module Msf::Payload::Adapter::Fetch::Server::Https
     datastore['FetchSSLVersion']
   end
 
-  def start_https_fetch_handler(srvname, srvexe)
-    start_http_fetch_handler(srvname, srvexe, true, ssl_cert, ssl_compression, ssl_cipher, ssl_version)
+  def start_https_fetch_handler(srvname)
+    start_http_fetch_handler(srvname, true, ssl_cert, ssl_compression, ssl_cipher, ssl_version)
   end
 end

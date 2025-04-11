@@ -9,8 +9,8 @@ module Metasploit
       class Ivanti < HTTP
 
         DEFAULT_SSL_PORT = 443
-        LIKELY_PORTS = [443]
-        LIKELY_SERVICE_NAMES = [
+        LIKELY_PORTS =  self.superclass::LIKELY_PORTS + [443]
+        LIKELY_SERVICE_NAMES = self.superclass::LIKELY_SERVICE_NAMES + [
           'Ivanti Connect Secure'
         ]
         PRIVATE_TYPES = [:password]

