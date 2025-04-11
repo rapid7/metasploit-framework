@@ -1,0 +1,11 @@
+dn: CN=Basic Machine,CN=Computers,DC=ldap,DC=example,DC=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: user
+objectClass: computer
+cn: Basic Machine
+sAMAccountName: BASICMACHINE$
+userAccountControl: 4096
+ms-Mcs-AdmPwd: [LAPSv1]SuperSecretPassword!
+msLAPS-Password: {"n":"Administrator", "t":"1d8161b41c41cde", "p":"[LAPSv2]SuperSecretPassword!"}
