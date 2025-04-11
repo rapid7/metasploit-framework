@@ -11,7 +11,7 @@ module Msf::Payload::Adapter::Fetch::Https
 
   def cleanup_handler
     if @fetch_service
-      cleanup_http_fetch_service(@fetch_service, @delete_resource)
+      cleanup_http_fetch_service(@fetch_service, @myresources)
       @fetch_service = nil
     end
 
@@ -19,8 +19,15 @@ module Msf::Payload::Adapter::Fetch::Https
   end
 
   def setup_handler
-    @fetch_service = start_https_fetch_handler(srvname, @srvexe) unless datastore['FetchHandlerDisable']
+    unless datastore['FetchHandlerDisable']
+      @fetch_service = start_https_fetch_handler(srvname)
+      escaped_uri = ('/' + srvuri).gsub('//', '/')
+      add_resource(@fetch_service, escaped_uri, @srvexe)
+      unless @pipe_uri.nil?
+        uri = ('/' + @pipe_uri).gsub('//', '/')
+        add_resource(@fetch_service, uri, @pipe_cmd)
+      end
+    end
     super
   end
-
 end
