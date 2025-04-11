@@ -106,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
           :port => rport,
           :sname => 'sap',
           :type => 'os.kernel.version',
-          :data => "OS Kernel version: #{kern_comp_on}"
+          :data => { :os_kernel_version => kern_comp_on }
         )
 
         report_note(
@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
           :port => rport,
           :sname => 'sap',
           :type => 'sap.time.compile',
-          :data => "SAP compile time: #{kern_comp_time}"
+          :data => { :sap_compile_time => kern_comp_time }
         )
 
         report_note(
@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
           :port => rport,
           :sname => 'sap',
           :type => 'sap.db.version',
-          :data => "DB version: #{kern_dblib}"
+          :data => { :db_version => kern_dblib }
         )
 
         report_note(
@@ -133,7 +133,7 @@ class MetasploitModule < Msf::Auxiliary
           :port => rport,
           :sname => 'sap',
           :type => 'sap.version.patch_level',
-          :data => "SAP patch level: #{kern_patchlevel}"
+          :data => { :sap_patch_level => kern_patchlevel }
         )
 
         report_note(
@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
           :proto => 'tcp',
           :port => rport,
           :type => 'sap.version',
-          :data => "SAP Version: #{kern_rel}"
+          :data => { :sap_version => kern_rel }
         )
 
       elsif res and res.code == 500

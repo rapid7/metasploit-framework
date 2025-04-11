@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
             :sname => (ssl ? 'https' : 'http'),
             :port	=> rport,
             :type	=> 'INTERNAL_IP',
-            :data	=> addr
+            :data	=> { :ip => addr }
           )
         end
       end

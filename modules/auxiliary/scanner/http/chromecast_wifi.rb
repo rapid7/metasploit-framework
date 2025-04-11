@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
         :port => rport,
         :proto => 'tcp',
         :type => 'chromecast.wifi',
-        :data => waps_table.to_csv
+        :data => { :csv_table => waps_table.to_csv }
       )
     end
   end

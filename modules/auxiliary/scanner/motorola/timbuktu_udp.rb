@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
             :proto	=> 'udp',
             :port	=> datastore['RPORT'],
             :type	=> 'SERVICE',
-            :data	=> 'Motorola Timbuktu Service Detection'
+            :data	=> { :service => 'Motorola Timbuktu Service Detection' }
           )
           print_status("Motorola Timbuktu Detected on host #{ip}.")
         else

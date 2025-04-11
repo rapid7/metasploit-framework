@@ -108,7 +108,7 @@ class MetasploitModule < Msf::Auxiliary
       :proto => 'tcp',
       :port => self.simple.peerport,
       :type => 'smb.domain.lookupsid',
-      :data => info[:domain]
+      :data => { :domain => info[:domain] }
     )
 
     pipe_info = "PIPE(#{lsarpc_pipe.name})"

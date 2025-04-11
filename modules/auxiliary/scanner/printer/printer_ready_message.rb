@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
         :port => rport,
         :proto => "tcp",
         :type => "printer.rdymsg",
-        :data => rdymsg
+        :data => { :rdymsg => rdymsg }
       )
     end
   end

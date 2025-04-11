@@ -180,7 +180,10 @@ class MetasploitModule < Msf::Auxiliary
                 sname: (ssl ? 'https' : 'http'),
                 port: rport,
                 type: "SOAPAction: #{v}#{n}",
-                data: "SOAPAction: #{v}#{n} with HTTP: #{res.code} #{res.message}."
+                data: {
+                  :soapaction => "#{v}#{n}",
+                  :response_code => res.code,
+                  :response_message => res.message }
               )
               if datastore['DISPLAYHTML']
                 print_status('The HTML content follows:')
