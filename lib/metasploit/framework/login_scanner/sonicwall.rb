@@ -8,9 +8,8 @@ module Metasploit
       # - Admin Login
       class SonicWall < HTTP
 
-        DEFAULT_SSL_PORT = [443, 4433]
-        LIKELY_PORTS = [443, 4433]
-        LIKELY_SERVICE_NAMES = [
+        LIKELY_PORTS = self.superclass::LIKELY_PORTS + [4433]
+        LIKELY_SERVICE_NAMES = self.superclass::LIKELY_SERVICE_NAMES + [
           'SonicWall Network Security'
         ]
         PRIVATE_TYPES = [:password]

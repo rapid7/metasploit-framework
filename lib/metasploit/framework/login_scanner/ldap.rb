@@ -13,6 +13,7 @@ module Metasploit
 
         LIKELY_PORTS         = [ 389, 636 ]
         LIKELY_SERVICE_NAMES = [ 'ldap', 'ldaps', 'ldapssl' ]
+        PRIVATE_TYPES = [:password, :ntlm_hash]
 
         attr_accessor :opts, :realm_key
         # @!attribute use_client_as_proof
