@@ -12,16 +12,16 @@ class MetasploitModule < Msf::Nop
 
   def initialize
     super(
-      'Name'        => 'PHP Nop Generator',
-      'Alias'       => 'php_generic',
+      'Name' => 'PHP Nop Generator',
+      'Alias' => 'php_generic',
       'Description' => 'Generates harmless padding for PHP scripts',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'Arch'        => ARCH_PHP)
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE,
+      'Arch' => ARCH_PHP)
   end
 
   # Generate valid PHP code up to the requested length
-  def generate_sled(length, opts = {})
-    Array.new(length) { ["\t", " ", "\n", "\r", ";"].sample }.join
+  def generate_sled(length, _opts = {})
+    Array.new(length) { ["\t", ' ', "\n", "\r", ';'].sample }.join
   end
 end
