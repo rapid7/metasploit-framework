@@ -10,14 +10,14 @@ class MetasploitModule < Msf::Encoder
 
   def initialize
     super(
-      'Name'        => 'Bourne ${IFS} Substitution Command Encoder',
+      'Name' => 'Bourne ${IFS} Substitution Command Encoder',
       'Description' => %q{
         This encoder uses Bourne ${IFS} substitution to avoid whitespace
         without being overly fancy.
       },
-      'Author'      => ['egypt', 'wvu'],
-      'Platform'    => %w[ linux unix ],
-      'Arch'        => ARCH_CMD,
+      'Author' => ['egypt', 'wvu'],
+      'Platform' => %w[linux unix],
+      'Arch' => ARCH_CMD,
       'EncoderType' => Msf::Encoder::Type::CmdPosixIFS
     )
   end

@@ -92,17 +92,16 @@ class MetasploitModule < Msf::Encoder
 
   def initialize
     super(
-      'Name'             => 'Avoid UTF8/tolower',
-      'Description'      => 'UTF8 Safe, tolower Safe Encoder',
-      'Author'           => 'skape',
-      'Arch'             => ARCH_X86,
-      'License'          => MSF_LICENSE,
-      'EncoderType'      => Msf::Encoder::Type::NonUpperUtf8Safe,
-      'Decoder'          =>
-        {
-          'KeySize'    => 4,
-          'BlockSize'  => 4,
-        })
+      'Name' => 'Avoid UTF8/tolower',
+      'Description' => 'UTF8 Safe, tolower Safe Encoder',
+      'Author' => 'skape',
+      'Arch' => ARCH_X86,
+      'License' => MSF_LICENSE,
+      'EncoderType' => Msf::Encoder::Type::NonUpperUtf8Safe,
+      'Decoder' => {
+        'KeySize' => 4,
+        'BlockSize' => 4
+      })
   end
 
   #
@@ -118,17 +117,17 @@ class MetasploitModule < Msf::Encoder
 
     # Check to make sure that the length is a valid size
     if is_badchar(state, len)
-      raise EncodingError.new("The payload being encoded is of an incompatible size (#{len} bytes)")
+      raise EncodingError, "The payload being encoded is of an incompatible size (#{len} bytes)"
     end
 
     decoder =
-      "\x6a" + [len].pack('C')      +  # push len
-      "\x6b\x3c\x24\x0b"            +  # imul 0xb
-      "\x60"                        +  # pusha
-      "\x03\x0c\x24"                +  # add ecx, [esp]
-      "\x6a" + [0x11+off].pack('C') +  # push byte 0x11 + off
-      "\x03\x0c\x24"                +  # add ecx, [esp]
-      "\x6a\x04"                       # push byte 0x4
+      "\x6a" + [len].pack('C') + # push len
+      "\x6b\x3c\x24\x0b" + # imul 0xb
+      "\x60" + # pusha
+      "\x03\x0c\x24" + # add ecx, [esp]
+      "\x6a" + [0x11 + off].pack('C') + # push byte 0x11 + off
+      "\x03\x0c\x24" + # add ecx, [esp]
+      "\x6a\x04" # push byte 0x4
 
     # encoded sled
     state.context = ''
@@ -139,11 +138,11 @@ class MetasploitModule < Msf::Encoder
   def encode_block(state, block)
     buf = try_add(state, block)
 
-    if (buf.nil?)
+    if buf.nil?
       buf = try_sub(state, block)
     end
 
-    if (buf.nil?)
+    if buf.nil?
       raise BadcharError.new(state.encoded, 0, 0, 0)
     end
 
@@ -163,33 +162,33 @@ class MetasploitModule < Msf::Encoder
   # two UTF8/tolower safe values.
   #
   def try_sub(state, block)
-    buf   = "\x68";
-    vbuf  = ''
-    ctx   = ''
+    buf = "\x68"
+    vbuf = ''
+    ctx = ''
     carry = 0
 
-    block.each_byte { |b|
+    block.each_byte do |b|
       # It's impossible to reach 0x7f, 0x80, 0x81 with two subs
       # of a value that is < 0x80 without NULLs.
-      return nil if (b == 0x80 or b == 0x81 or b == 0x7f)
+      return nil if (b == 0x80) || (b == 0x81) || (b == 0x7f)
 
-      x          = 0
-      y          = 0
-      attempts   = 0
+      x = 0
+      y = 0
+      attempts = 0
       prev_carry = carry
 
-      begin
+      loop do
         carry = prev_carry
 
         if (b > 0x80)
-          diff  = 0x100 - b
-          y     = rand(0x80 - diff - 1).to_i + 1
-          x     = (0x100 - (b - y + carry))
+          diff = 0x100 - b
+          y = rand(0x80 - diff - 1).to_i + 1
+          x = (0x100 - (b - y + carry))
           carry = 1
         else
-          diff  = 0x7f - b
-          x     = rand(diff - 1) + 1
-          y     = (b + x + carry) & 0xff
+          diff = 0x7f - b
+          x = rand(diff - 1) + 1
+          y = (b + x + carry) & 0xff
           carry = 0
         end
 
@@ -197,19 +196,18 @@ class MetasploitModule < Msf::Encoder
 
         # Lame.
         return nil if (attempts > 512)
-
-      end while (is_badchar(state, x) or is_badchar(state, y))
+        break unless is_badchar(state, x) || is_badchar(state, y)
+      end
 
       vbuf += [x].pack('C')
-      ctx  += [y].pack('C')
-    }
+      ctx += [y].pack('C')
+    end
 
     buf += vbuf + "\x5f\x29\x39\x03\x0c\x24"
 
     state.context += ctx
 
     return buf
-
   end
 
   #
@@ -218,30 +216,30 @@ class MetasploitModule < Msf::Encoder
   # safe values.
   #
   def try_add(state, block)
-    buf  = "\x68"
+    buf = "\x68"
     vbuf = ''
-    ctx  = ''
+    ctx = ''
 
-    block.each_byte { |b|
+    block.each_byte do |b|
       # It's impossible to produce 0xff and 0x01 using two non-NULL,
       # tolower safe, and UTF8 safe values.
-      return nil if (b == 0xff or b == 0x01 or b == 0x00)
+      return nil if (b == 0xff) || (b == 0x01) || (b == 0x00)
 
       attempts = 0
 
-      begin
+      loop do
         xv = rand(b - 1) + 1
 
         attempts += 1
 
         # Lame.
         return nil if (attempts > 512)
-
-      end while (is_badchar(state, xv) or is_badchar(state, b - xv))
+        break unless is_badchar(state, xv) || is_badchar(state, b - xv)
+      end
 
       vbuf += [xv].pack('C')
-      ctx  += [b - xv].pack('C')
-    }
+      ctx += [b - xv].pack('C')
+    end
 
     buf += vbuf + "\x5f\x01\x39\x03\x0c\x24"
 
