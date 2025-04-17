@@ -18,6 +18,11 @@ module Msf
               'MeterpreterTryToFork',
               'Fork a new process if the functionality is available',
               default: false
+            ),
+            OptBool.new(
+              'MeterpreterLegacyElf',
+              'Legacy stageless ELF file without in-memory loading, works with Linux < 3.17',
+              default: false
             )
           ]
         )
