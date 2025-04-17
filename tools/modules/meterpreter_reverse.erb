@@ -38,6 +38,10 @@ module MetasploitModule
       stageless: true
     }.merge(mettle_logging_config)
     payload = MetasploitPayloads::Mettle.new('<%= payload %>', generate_config(opts)).to_binary :exec
-    <% if platform.downcase == 'linux' %>in_memory_load(payload) + <% end %>payload
+    <% if platform.downcase == 'linux' %>ds = opts[:datastore] || datastore
+    unless ds['MeterpreterLegacyElf']
+      return in_memory_load(payload) + payload
+    end<% end %>
+    payload
   end
 end
