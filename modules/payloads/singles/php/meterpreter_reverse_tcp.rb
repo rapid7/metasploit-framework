@@ -11,7 +11,7 @@ module MetasploitModule
 
   include Msf::Payload::Single
   include Msf::Payload::Php::ReverseTcp
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Php
 
   def initialize(info = {})
     super(update_info(info,
