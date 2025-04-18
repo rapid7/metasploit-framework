@@ -1,9 +1,10 @@
 module Rex::Proto::CryptoAsn1::Cms
   class Attribute < RASN1::Model
     sequence :attribute,
-             content: [objectid(:attribute_type),
-                       set_of(:attribute_values, RASN1::Types::Any)
-    ]
+             content: [
+               objectid(:attribute_type),
+               set_of(:attribute_values, RASN1::Types::Any)
+             ]
   end
 
   class Certificate
@@ -12,12 +13,12 @@ module Rex::Proto::CryptoAsn1::Cms
 
     attr_accessor :options
 
-    def initialize(options={})
+    def initialize(options = {})
       self.options = options
     end
 
     def to_der
-      self.options[:openssl_certificate]&.to_der || ''
+      options[:openssl_certificate]&.to_der || ''
     end
 
     # RASN1 Glue method - Say if DER can be built (not default value, not optional without value, has a value)
@@ -38,16 +39,43 @@ module Rex::Proto::CryptoAsn1::Cms
     end
 
     def parse!(str, ber: false)
-      self.options[:openssl_certificate] = OpenSSL::X509::Certificate.new(str)
+      options[:openssl_certificate] = OpenSSL::X509::Certificate.new(str)
       to_der.length
     end
   end
 
+  # see: https://datatracker.ietf.org/doc/rfc5911/
+  class CCMParameters < RASN1::Model
+    sequence :gcm_parameters,
+             content: [
+               octet_string(:aes_nonce),
+               integer(:aes_ccm_icvlen)
+             ]
+  end
+
+  # see: https://datatracker.ietf.org/doc/rfc5911/
+  class GCMParameters < RASN1::Model
+    sequence :gcm_parameters,
+             content: [
+               octet_string(:aes_nonce),
+               integer(:aes_gcm_icvlen)
+             ]
+  end
+
   class AlgorithmIdentifier < RASN1::Model
     sequence :algorithm_identifier,
-             content: [objectid(:algorithm),
-                       any(:parameters, optional: true)
-    ]
+             content: [
+               objectid(:algorithm),
+               any(:parameters, optional: true)
+             ]
+
+    def ccm_parameters
+      CCMParameters.parse(self[:parameters].value)
+    end
+
+    def gcm_parameters
+      GCMParameters.parse(self[:parameters].value)
+    end
   end
 
   class KeyDerivationAlgorithmIdentifier < AlgorithmIdentifier
@@ -61,9 +89,8 @@ module Rex::Proto::CryptoAsn1::Cms
 
   class OriginatorInfo < RASN1::Model
     sequence :originator_info,
-             content: [set_of(:certs, Certificate, implicit: 0, optional: true),
-                       # CRLs - not implemented
-                       ]
+             content: [set_of(:certs, Certificate, implicit: 0, optional: true),]
+    # CRLs - not implemented
   end
 
   class ContentType < RASN1::Types::ObjectId
@@ -74,10 +101,11 @@ module Rex::Proto::CryptoAsn1::Cms
 
   class EncryptedContentInfo < RASN1::Model
     sequence :encrypted_content_info,
-             content: [model(:content_type, ContentType),
-                       model(:content_encryption_algorithm, ContentEncryptionAlgorithmIdentifier),
-                       wrapper(model(:encrypted_content, EncryptedContent), implicit: 0, optional: true)
-                       ]
+             content: [
+               model(:content_type, ContentType),
+               model(:content_encryption_algorithm, ContentEncryptionAlgorithmIdentifier),
+               wrapper(model(:encrypted_content, EncryptedContent), implicit: 0, optional: true)
+             ]
   end
 
   class Name
@@ -85,8 +113,7 @@ module Rex::Proto::CryptoAsn1::Cms
     # to OpenSSL, effectively providing an interface between RASN and OpenSSL.
     attr_accessor :value
 
-    def initialize(options={})
-    end
+    def initialize(options = {}); end
 
     def parse!(str, ber: false)
       self.value = OpenSSL::X509::Name.new(str)
@@ -94,15 +121,16 @@ module Rex::Proto::CryptoAsn1::Cms
     end
 
     def to_der
-      self.value.to_der
+      value.to_der
     end
   end
 
   class IssuerAndSerialNumber < RASN1::Model
     sequence :signer_identifier,
-             content: [model(:issuer, Name),
-                       integer(:serial_number)
-    ]
+             content: [
+               model(:issuer, Name),
+               integer(:serial_number)
+             ]
   end
 
   class CmsVersion < RASN1::Types::Integer
@@ -116,8 +144,10 @@ module Rex::Proto::CryptoAsn1::Cms
 
   class RecipientIdentifier < RASN1::Model
     choice :recipient_identifier,
-           content: [model(:issuer_and_serial_number, IssuerAndSerialNumber),
-                     wrapper(model(:subject_key_identifier, SubjectKeyIdentifier), implicit: 0)]
+           content: [
+             model(:issuer_and_serial_number, IssuerAndSerialNumber),
+             wrapper(model(:subject_key_identifier, SubjectKeyIdentifier), implicit: 0)
+           ]
   end
 
   class EncryptedKey < RASN1::Types::OctetString
@@ -125,133 +155,154 @@ module Rex::Proto::CryptoAsn1::Cms
 
   class OtherKeyAttribute < RASN1::Model
     sequence :other_key_attribute,
-             content: [objectid(:key_attr_id),
-                       any(:key_attr, optional: true)
-                      ]
+             content: [
+               objectid(:key_attr_id),
+               any(:key_attr, optional: true)
+             ]
   end
 
   class RecipientKeyIdentifier < RASN1::Model
     sequence :recipient_key_identifier,
-             content: [model(:subject_key_identifier, SubjectKeyIdentifier),
-                       generalized_time(:date, optional: true),
-                       wrapper(model(:other, OtherKeyAttribute), optional: true)
-                      ]
+             content: [
+               model(:subject_key_identifier, SubjectKeyIdentifier),
+               generalized_time(:date, optional: true),
+               wrapper(model(:other, OtherKeyAttribute), optional: true)
+             ]
 
   end
 
   class KeyAgreeRecipientIdentifier < RASN1::Model
     choice :key_agree_recipient_identifier,
-           content: [model(:issuer_and_serial_number, IssuerAndSerialNumber),
-                     wrapper(model(:r_key_id, RecipientKeyIdentifier), implicit: 0)]
+           content: [
+             model(:issuer_and_serial_number, IssuerAndSerialNumber),
+             wrapper(model(:r_key_id, RecipientKeyIdentifier), implicit: 0)
+           ]
   end
 
   class RecipientEncryptedKey < RASN1::Model
     sequence :recipient_encrypted_key,
-             content: [model(:rid, KeyAgreeRecipientIdentifier),
-                       model(:encrypted_key, EncryptedKey)]
+             content: [
+               model(:rid, KeyAgreeRecipientIdentifier),
+               model(:encrypted_key, EncryptedKey)
+             ]
   end
 
   class KEKIdentifier < RASN1::Model
     sequence :kek_identifier,
-             content: [octet_string(:key_identifier),
-                       generalized_time(:date, optional: true),
-                       wrapper(model(:other, OtherKeyAttribute), optional: true)]
+             content: [
+               octet_string(:key_identifier),
+               generalized_time(:date, optional: true),
+               wrapper(model(:other, OtherKeyAttribute), optional: true)
+             ]
   end
 
   class KeyTransRecipientInfo < RASN1::Model
     sequence :key_trans_recipient_info,
-             content: [model(:cms_version, CmsVersion),
-                       model(:rid, RecipientIdentifier),
-                       model(:key_encryption_algorithm, KeyEncryptionAlgorithmIdentifier),
-                       model(:encrypted_key, EncryptedKey)
-                      ]
+             content: [
+               model(:cms_version, CmsVersion),
+               model(:rid, RecipientIdentifier),
+               model(:key_encryption_algorithm, KeyEncryptionAlgorithmIdentifier),
+               model(:encrypted_key, EncryptedKey)
+             ]
   end
 
   class OriginatorPublicKey < RASN1::Model
     sequence :originator_public_key,
-             content: [model(:algorithm, AlgorithmIdentifier),
-                       bit_string(:public_key)]
+             content: [
+               model(:algorithm, AlgorithmIdentifier),
+               bit_string(:public_key)
+             ]
   end
 
   class OriginatorIdentifierOrKey < RASN1::Model
     choice :originator_identifier_or_key,
-           content: [model(:issuer_and_serial_number, IssuerAndSerialNumber),
-                     model(:subject_key_identifier, SubjectKeyIdentifier),
-                     model(:originator_public_key, OriginatorPublicKey)
-                    ]
+           content: [
+             model(:issuer_and_serial_number, IssuerAndSerialNumber),
+             model(:subject_key_identifier, SubjectKeyIdentifier),
+             model(:originator_public_key, OriginatorPublicKey)
+           ]
   end
 
   class KeyAgreeRecipientInfo < RASN1::Model
     sequence :key_agree_recipient_info,
-             content: [model(:cms_version, CmsVersion),
-                       wrapper(model(:originator, OriginatorIdentifierOrKey), explicit: 0),
-                       wrapper(model(:ukm, UserKeyingMaterial), explicit: 1, optional: true),
-                       model(:key_encryption_algorithm, KeyEncryptionAlgorithmIdentifier),
-                       sequence_of(:recipient_encrypted_keys, RecipientEncryptedKey)
-                      ]
+             content: [
+               model(:cms_version, CmsVersion),
+               wrapper(model(:originator, OriginatorIdentifierOrKey), explicit: 0),
+               wrapper(model(:ukm, UserKeyingMaterial), explicit: 1, optional: true),
+               model(:key_encryption_algorithm, KeyEncryptionAlgorithmIdentifier),
+               sequence_of(:recipient_encrypted_keys, RecipientEncryptedKey)
+             ]
   end
 
   class KEKRecipientInfo < RASN1::Model
     sequence :kek_recipient_info,
-             content: [model(:cms_version, CmsVersion),
-                       model(:kekid, KEKIdentifier),
-                       model(:key_encryption_algorithm, KeyEncryptionAlgorithmIdentifier),
-                       model(:encrypted_key, EncryptedKey)
-                      ]
+             content: [
+               model(:cms_version, CmsVersion),
+               model(:kekid, KEKIdentifier),
+               model(:key_encryption_algorithm, KeyEncryptionAlgorithmIdentifier),
+               model(:encrypted_key, EncryptedKey)
+             ]
   end
 
   class PasswordRecipientInfo < RASN1::Model
     sequence :password_recipient_info,
-             content: [model(:cms_version, CmsVersion),
-                       wrapper(model(:key_derivation_algorithm, KeyDerivationAlgorithmIdentifier), explicit: 0, optional: true),
-                       model(:key_encryption_algorithm, KeyEncryptionAlgorithmIdentifier),
-                       model(:encrypted_key, EncryptedKey)
-                      ]
+             content: [
+               model(:cms_version, CmsVersion),
+               wrapper(model(:key_derivation_algorithm, KeyDerivationAlgorithmIdentifier), explicit: 0, optional: true),
+               model(:key_encryption_algorithm, KeyEncryptionAlgorithmIdentifier),
+               model(:encrypted_key, EncryptedKey)
+             ]
   end
 
   class OtherRecipientInfo < RASN1::Model
     sequence :other_recipient_info,
-             content: [objectid(:ore_type),
-                       any(:ory_value)
-                      ]
+             content: [
+               objectid(:ore_type),
+               any(:ory_value)
+             ]
   end
 
   class RecipientInfo < RASN1::Model
     choice :recipient_info,
-           content: [model(:ktri, KeyTransRecipientInfo),
-                     wrapper(model(:kari, KeyAgreeRecipientInfo), implicit: 1),
-                     wrapper(model(:kekri, KEKRecipientInfo), implicit: 2),
-                     wrapper(model(:pwri, PasswordRecipientInfo), implicit: 3),
-                     wrapper(model(:ori, OtherRecipientInfo), implicit: 4)]
+           content: [
+             model(:ktri, KeyTransRecipientInfo),
+             wrapper(model(:kari, KeyAgreeRecipientInfo), implicit: 1),
+             wrapper(model(:kekri, KEKRecipientInfo), implicit: 2),
+             wrapper(model(:pwri, PasswordRecipientInfo), implicit: 3),
+             wrapper(model(:ori, OtherRecipientInfo), implicit: 4)
+           ]
   end
 
   class EnvelopedData < RASN1::Model
     sequence :enveloped_data,
              explicit: 0, constructed: true,
-             content: [model(:cms_version, CmsVersion),
-                       wrapper(model(:originator_info, OriginatorInfo), implict: 0, optional: true),
-                       set_of(:recipient_infos, RecipientInfo),
-                       model(:encrypted_content_info, EncryptedContentInfo),
-                       set_of(:unprotected_attrs, Attribute, implicit: 1, optional: true),
-    ]
+             content: [
+               model(:cms_version, CmsVersion),
+               wrapper(model(:originator_info, OriginatorInfo), implict: 0, optional: true),
+               set_of(:recipient_infos, RecipientInfo),
+               model(:encrypted_content_info, EncryptedContentInfo),
+               set_of(:unprotected_attrs, Attribute, implicit: 1, optional: true),
+             ]
   end
 
   class SignerInfo < RASN1::Model
     sequence :signer_info,
-             content: [integer(:version),
-                       model(:sid, IssuerAndSerialNumber),
-                       model(:digest_algorithm, AlgorithmIdentifier),
-                       set_of(:signed_attrs, Attribute, implicit: 0, optional: true),
-                       model(:signature_algorithm, AlgorithmIdentifier),
-                       octet_string(:signature),
-    ]
+             content: [
+               integer(:version),
+               model(:sid, IssuerAndSerialNumber),
+               model(:digest_algorithm, AlgorithmIdentifier),
+               set_of(:signed_attrs, Attribute, implicit: 0, optional: true),
+               model(:signature_algorithm, AlgorithmIdentifier),
+               octet_string(:signature),
+             ]
   end
 
   class EncapsulatedContentInfo < RASN1::Model
     sequence :encapsulated_content_info,
-             content: [objectid(:econtent_type),
-                       octet_string(:econtent, explicit: 0, constructed: true, optional: true)
-    ]
+             content: [
+               objectid(:econtent_type),
+               octet_string(:econtent, explicit: 0, constructed: true, optional: true)
+             ]
 
     def econtent
       if self[:econtent_type].value == Rex::Proto::CryptoAsn1::OIDs::OID_DIFFIE_HELLMAN_KEYDATA.value
@@ -265,20 +316,22 @@ module Rex::Proto::CryptoAsn1::Cms
   class SignedData < RASN1::Model
     sequence :signed_data,
              explicit: 0, constructed: true,
-             content: [integer(:version),
-                       set_of(:digest_algorithms, AlgorithmIdentifier),
-                       model(:encap_content_info, EncapsulatedContentInfo),
-                       set_of(:certificates, Certificate, implicit: 0, optional: true),
-                       # CRLs - not implemented
-                       set_of(:signer_infos, SignerInfo)
-    ]
+             content: [
+               integer(:version),
+               set_of(:digest_algorithms, AlgorithmIdentifier),
+               model(:encap_content_info, EncapsulatedContentInfo),
+               set_of(:certificates, Certificate, implicit: 0, optional: true),
+               # CRLs - not implemented
+               set_of(:signer_infos, SignerInfo)
+             ]
   end
 
   class ContentInfo < RASN1::Model
     sequence :content_info,
-             content: [model(:content_type, ContentType),
-                       any(:data)
-    ]
+             content: [
+               model(:content_type, ContentType),
+               any(:data)
+             ]
 
     def enveloped_data
       if self[:content_type].value == Rex::Proto::CryptoAsn1::OIDs::OID_CMS_ENVELOPED_DATA.value

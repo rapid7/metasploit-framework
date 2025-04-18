@@ -1,3 +1,15 @@
+GIT
+  remote: https://github.com/zeroSteiner/ruby_smb
+  revision: 75eb3b733ca385dcb3f0a76c0da2fdf1bb96ca35
+  branch: test/msf/20017
+  specs:
+    ruby_smb (3.3.14)
+      bindata (= 2.4.15)
+      openssl-ccm
+      openssl-cmac
+      rubyntlm (>= 0.6.5)
+      windows_error (>= 0.1.4)
+
 PATH
   remote: .
   specs:
@@ -97,7 +109,7 @@ PATH
       rinda
       ruby-macho
       ruby-mysql
-      ruby_smb (~> 3.3.3)
+      ruby_smb (~> 3.3.14)
       rubyntlm
       rubyzip
       sinatra
@@ -534,12 +546,6 @@ GEM
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (3.3.13)
-      bindata (= 2.4.15)
-      openssl-ccm
-      openssl-cmac
-      rubyntlm (>= 0.6.5)
-      windows_error (>= 0.1.4)
     rubyntlm (0.6.5)
       base64
     rubyzip (2.4.1)
@@ -624,6 +630,7 @@ DEPENDENCIES
   rspec-rerun
   rubocop (= 1.67.0)
   ruby-prof (= 1.4.2)
+  ruby_smb!
   simplecov (= 0.18.2)
   test-prof
   timecop
