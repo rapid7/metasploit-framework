@@ -4,7 +4,6 @@
 ##
 
 module MetasploitModule
-
   CachedSize = :dynamic
 
   include Msf::Payload::Stager
@@ -12,16 +11,19 @@ module MetasploitModule
   include Msf::Payload::Java::ReverseHttps
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'        => 'Java Reverse HTTPS Stager',
-      'Description' => 'Tunnel communication over HTTPS',
-      'Author'      => ['mihi', 'egypt', 'hdm',],
-      'License'     => MSF_LICENSE,
-      'Platform'    => 'java',
-      'Arch'        => ARCH_JAVA,
-      'Handler'     => Msf::Handler::ReverseHttps,
-      'Convention'  => 'javaurl',
-      'Stager'      => {'Payload' => ''}
-      ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Java Reverse HTTPS Stager',
+        'Description' => 'Tunnel communication over HTTPS',
+        'Author' => ['mihi', 'egypt', 'hdm',],
+        'License' => MSF_LICENSE,
+        'Platform' => 'java',
+        'Arch' => ARCH_JAVA,
+        'Handler' => Msf::Handler::ReverseHttps,
+        'Convention' => 'javaurl',
+        'Stager' => { 'Payload' => '' }
+      )
+    )
   end
 end
