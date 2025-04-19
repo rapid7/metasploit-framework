@@ -7,9 +7,7 @@
 # differ so greatly when it comes to require() paths for net modules, we will
 # settle for just getting shells on nodejs.
 
-
 module MetasploitModule
-
   CachedSize = 803
 
   include Msf::Payload::Single
@@ -17,18 +15,21 @@ module MetasploitModule
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Command Shell, Reverse TCP (via nodejs)',
-      'Description'   => 'Creates an interactive shell via nodejs',
-      'Author'        => ['RageLtMan', 'joev'],
-      'License'       => BSD_LICENSE,
-      'Platform'      => 'nodejs',
-      'Arch'          => ARCH_NODEJS,
-      'Handler'       => Msf::Handler::ReverseTcp,
-      'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'nodejs',
-      'Payload'       => { 'Offsets' => {}, 'Payload' => '' }
-    ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Command Shell, Reverse TCP (via nodejs)',
+        'Description' => 'Creates an interactive shell via nodejs',
+        'Author' => ['RageLtMan', 'joev'],
+        'License' => BSD_LICENSE,
+        'Platform' => 'nodejs',
+        'Arch' => ARCH_NODEJS,
+        'Handler' => Msf::Handler::ReverseTcp,
+        'Session' => Msf::Sessions::CommandShell,
+        'PayloadType' => 'nodejs',
+        'Payload' => { 'Offsets' => {}, 'Payload' => '' }
+      )
+    )
   end
 
   #

