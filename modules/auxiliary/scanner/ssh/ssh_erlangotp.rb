@@ -146,7 +146,7 @@ class MetasploitModule < Msf::Auxiliary
     sleep(0.5)
 
     print_status(message('Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...'))
-    chan_req = build_channel_request(0, 'blah')
+    chan_req = build_channel_request(0, Rex::Text.rand_text_alpha(rand(4..8)).to_s)
     sock.put(pad_packet(chan_req, 8))
     sleep(0.5)
 
