@@ -37,9 +37,9 @@ class MetasploitModule < Msf::Auxiliary
           'APPEND_DOMAIN', [true, 'Appends `@<DOMAIN> to the username for authentication`', false],
           conditions: ['LDAP::Auth', 'in', [Msf::Exploit::Remote::AuthOption::AUTO, Msf::Exploit::Remote::AuthOption::PLAINTEXT]]
         ),
-        Msf::OptString.new('LDAPDomain', [false, 'The domain to authenticate to']),
-        Msf::OptString.new('LDAPUsername', [false, 'The username to authenticate with'], aliases: ['BIND_DN']),
-        Msf::OptString.new('LDAPPassword', [false, 'The password to authenticate with'], aliases: ['BIND_PW']),
+        Msf::OptString.new('LDAPDomain', [false, 'The domain to authenticate to'], fallbacks: ['DOMAIN']),
+        Msf::OptString.new('LDAPUsername', [false, 'The username to authenticate with'], fallbacks: ['USERNAME'], aliases: ['BIND_DN']),
+        Msf::OptString.new('LDAPPassword', [false, 'The password to authenticate with'], fallbacks: ['PASSWORD'], aliases: ['BIND_PW']),
         OptInt.new('SessionKeepalive', [true, 'Time (in seconds) for sending protocol-level keepalive messages', 10 * 60])
       ]
     )
@@ -93,10 +93,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    ignore_public = datastore['LDAP::Auth'] == Msf::Exploit::Remote::AuthOption::SCHANNEL
-    ignore_private =
-      datastore['LDAP::Auth'] == Msf::Exploit::Remote::AuthOption::SCHANNEL ||
-      (Msf::Exploit::Remote::AuthOption::KERBEROS && !datastore['ANONYMOUS_LOGIN'] && !datastore['LDAPPassword'])
+    ignore_public = ignore_private = false
+    case datastore['LDAP::Auth']
+    when Msf::Exploit::Remote::AuthOption::SCHANNEL
+      ignore_public = ignore_private = true
+    when Msf::Exploit::Remote::AuthOption::KERBEROS
+      ignore_private = !datastore['ANONYMOUS_LOGIN'] && !datastore['LDAPPassword']
+    end
 
     cred_collection = build_credential_collection(
       username: datastore['LDAPUsername'],
@@ -109,7 +112,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     opts = {
-      ldap_domain: datastore['LDAPDomain'],
+      domain: datastore['LDAPDomain'],
       append_domain: datastore['APPEND_DOMAIN'],
       ssl: datastore['SSL'],
       proxies: datastore['PROXIES'],
@@ -164,9 +167,10 @@ class MetasploitModule < Msf::Auxiliary
         successful_logins << result
         if opts[:ldap_auth] == Msf::Exploit::Remote::AuthOption::SCHANNEL
           # Schannel auth has no meaningful credential information to store in the DB
-          print_brute level: :good, ip: ip, msg: "Success: 'Cert File #{opts[:ldap_cert_file]}'"
+          msg = opts[:ldap_cert_file].nil? ? 'Using stored certificate' : "Cert File #{opts[:ldap_cert_file]}"
+          print_brute level: :good, ip: ip, msg: "Success: '#{msg}'"
         else
-          create_credential_and_login(credential_data)
+          create_credential_and_login(credential_data) if result.credential.private
           print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}'"
         end
         successful_sessions << create_session(result, ip) if create_session?
