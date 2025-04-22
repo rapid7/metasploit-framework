@@ -153,8 +153,9 @@ class MetasploitModule < Msf::Auxiliary
     begin
       sock.get_once(1024, 5)
     # when the target is vulnerable you get at this step: rescue Rex::TimeoutError
-    rescue EOFError
+    rescue EOFError, Errno::ECONNRESET
       # when the target is NOT vulnerable/patched at this step.
+      print_error(message('The target is not vulnerable to CVE-2025-32433.'))
       return Exploit::CheckCode::Safe
     end
     sock.close
