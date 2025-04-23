@@ -1,5 +1,6 @@
 .code
 
+
 ; Reference: https://j00ru.vexillium.org/syscalls/nt/64/
 
 ; Windows 7 SP1 / Server 2008 R2 specific syscalls
@@ -93,5 +94,6 @@ ZwReadVirtualMemory10 proc
 		syscall
 		ret
 ZwReadVirtualMemory10 endp
+
 
 end

