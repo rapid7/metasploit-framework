@@ -334,6 +334,7 @@ module Metasploit
           rport = opts['rport'] || port
           cli_ssl = opts['ssl'] || ssl
           cli_ssl_version = opts['ssl_version'] || ssl_version
+          cli_sslkeylogfile = opts['SSLKeyLogFile'] || sslkeylogfile
           cli_proxies = opts['proxies'] || proxies
           username = opts['credential'] ? opts['credential'].public : http_username
           password = opts['credential'] ? opts['credential'].private : http_password
@@ -357,7 +358,8 @@ module Metasploit
             username,
             password,
             kerberos_authenticator: kerberos_authenticator,
-            subscriber: http_logger_subscriber
+            subscriber: http_logger_subscriber,
+            sslkeylogfile: cli_sslkeylogfile
           )
           configure_http_client(cli)
 

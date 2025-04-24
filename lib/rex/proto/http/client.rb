@@ -184,7 +184,7 @@ module Rex
             'Context' => context,
             'SSL' => ssl,
             'SSLVersion' => ssl_version,
-            'SSLKeyLogFile' => sslkeylogfile,
+            'SSLKeyLogFile' => config['SSLKeyLogFile'] || sslkeylogfile,
             'Proxies' => proxies,
             'Timeout' => timeout,
             'Comm' => comm
