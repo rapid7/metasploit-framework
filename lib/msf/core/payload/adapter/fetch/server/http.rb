@@ -21,34 +21,37 @@ module Msf::Payload::Adapter::Fetch::Server::HTTP
 
   def add_resource(fetch_service, uri, srvexe)
     vprint_status("Adding resource #{uri}")
-    if fetch_service.resources.include?(uri)
+    begin
+      if fetch_service.resources.include?(uri)
+        # When we clean up, we need to leave resources alone, because we never added one.
+        fail_with(Msf::Exploit::Failure::BadConfig, "Resource collision detected. Set FETCH_URIPATH to a different value to continue.")
+      end
+      fetch_service.add_resource(uri,
+                                 'Proc' => proc do |cli, req|
+                                   on_request_uri(cli, req, srvexe)
+                                 end,
+                                 'VirtualDirectory' => true)
+    rescue  ::Exception => e
       # When we clean up, we need to leave resources alone, because we never added one.
-      @delete_resource = false
-      fail_with(Msf::Exploit::Failure::BadConfig, "Resource collision detected. Set FETCH_URIPATH to a different value to continue.")
+      fail_with(Msf::Exploit::Failure::Unknown, "Failed to add resource\n#{e}")
     end
-    fetch_service.add_resource(uri,
-                               'Proc' => proc do |cli, req|
-                                 on_request_uri(cli, req, srvexe)
-                               end,
-                               'VirtualDirectory' => true)
-  rescue  ::Exception => e
-    # When we clean up, we need to leave resources alone, because we never added one.
-    @delete_resource = false
-    fail_with(Msf::Exploit::Failure::Unknown, "Failed to add resource\n#{e}")
+    @myresources << uri
   end
 
-  def cleanup_http_fetch_service(fetch_service, delete_resource)
-    escaped_srvuri = ('/' + srvuri).gsub('//', '/')
-    if fetch_service.resources.include?(escaped_srvuri) && delete_resource
-      fetch_service.remove_resource(escaped_srvuri)
+  def cleanup_http_fetch_service(fetch_service, my_resources)
+    my_resources.each do |uri|
+      if fetch_service.resources.include?(uri)
+        fetch_service.remove_resource(uri)
+      end
+
     end
+
     fetch_service.deref
   end
 
-  def start_http_fetch_handler(srvname, srvexe, ssl=false, ssl_cert=nil, ssl_compression=nil, ssl_cipher=nil, ssl_version=nil)
+  def start_http_fetch_handler(srvname, ssl=false, ssl_cert=nil, ssl_compression=nil, ssl_cipher=nil, ssl_version=nil)
     # this looks a bit funny because I converted it to use an instance variable so that if we crash in the
     # middle and don't return a value, we still have the right fetch_service to clean up.
-    escaped_srvuri = ('/' + srvuri).gsub('//', '/')
     fetch_service = start_http_server(ssl, ssl_cert, ssl_compression, ssl_cipher, ssl_version)
     if fetch_service.nil?
       cleanup_handler
@@ -56,7 +59,6 @@ module Msf::Payload::Adapter::Fetch::Server::HTTP
     end
     vprint_status("#{fetch_protocol} server started")
     fetch_service.server_name = srvname
-    add_resource(fetch_service, escaped_srvuri, srvexe)
     fetch_service
   end
 

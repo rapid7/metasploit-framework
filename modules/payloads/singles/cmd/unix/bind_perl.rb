@@ -3,32 +3,32 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = 240
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-     'Name'          => 'Unix Command Shell, Bind TCP (via Perl)',
-     'Description'   => 'Listen for a connection and spawn a command shell via perl',
-     'Author'        => ['Samy <samy[at]samy.pl>', 'cazz'],
-     'License'       => BSD_LICENSE,
-     'Platform'      => 'unix',
-     'Arch'          => ARCH_CMD,
-     'Handler'       => Msf::Handler::BindTcp,
-     'Session'       => Msf::Sessions::CommandShell,
-     'PayloadType'   => 'cmd',
-     'RequiredCmd'   => 'perl',
-     'Payload'       =>
-       {
-         'Offsets' => { },
-         'Payload' => ''
-       }
-    ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Unix Command Shell, Bind TCP (via Perl)',
+        'Description' => 'Listen for a connection and spawn a command shell via perl',
+        'Author' => ['Samy <samy[at]samy.pl>', 'cazz'],
+        'License' => BSD_LICENSE,
+        'Platform' => 'unix',
+        'Arch' => ARCH_CMD,
+        'Handler' => Msf::Handler::BindTcp,
+        'Session' => Msf::Sessions::CommandShell,
+        'PayloadType' => 'cmd',
+        'RequiredCmd' => 'perl',
+        'Payload' => {
+          'Offsets' => {},
+          'Payload' => ''
+        }
+      )
+    )
     register_advanced_options(
       [
         OptString.new('PerlPath', [true, 'The path to the Perl executable', 'perl'])

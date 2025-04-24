@@ -4,26 +4,29 @@
 ##
 
 module MetasploitModule
-
   CachedSize = 53
 
   include Msf::Payload::Single
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'OS X x64 say Shellcode',
-      'Description'   => 'Say an arbitrary string outloud using Mac OS X text2speech',
-      'Author'        => 'nemo <nemo[at]felinemenace.org>',
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'osx',
-      'Arch'          => ARCH_X64
-    ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'OS X x64 say Shellcode',
+        'Description' => 'Say an arbitrary string outloud using Mac OS X text2speech',
+        'Author' => 'nemo <nemo[at]felinemenace.org>',
+        'License' => MSF_LICENSE,
+        'Platform' => 'osx',
+        'Arch' => ARCH_X64
+      )
+    )
 
     # exec payload options
     register_options(
       [
-        OptString.new('TEXT',  [ true,  "The text to say", "Hello\!"]),
-    ])
+        OptString.new('TEXT', [ true, 'The text to say', "Hello\!"]),
+      ]
+    )
   end
 
   # build the shellcode payload dynamically based on the user-provided CMD
@@ -31,8 +34,7 @@ module MetasploitModule
     say = (datastore['TEXT'] || '') << "\x00"
     call = "\xe8" + [say.length + 0xd].pack('V')
 
-    payload =
-      "\x48\x31\xC0" +                    # xor rax,rax
+    "\x48\x31\xC0" + # xor rax,rax
       "\xB8\x3B\x00\x00\x02" +            # mov eax,0x200003b
       call +
       "/usr/bin/say\x00" +

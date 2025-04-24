@@ -3,9 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = 0
 
   include Msf::Payload::Bsd
@@ -13,20 +11,22 @@ module MetasploitModule
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'FreeBSD Meterpreter Service, Bind TCP',
-      'Description'   => 'Stub payload for interacting with a Meterpreter Service',
-      'Author'        => 'hdm',
-      'License'       => BSD_LICENSE,
-      'Platform'      => 'bsd',
-      'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::BindTcp,
-      'Session'       => Msf::Sessions::Meterpreter_x86_BSD,
-      'Payload'       =>
-        {
+    super(
+      merge_info(
+        info,
+        'Name' => 'FreeBSD Meterpreter Service, Bind TCP',
+        'Description' => 'Stub payload for interacting with a Meterpreter Service',
+        'Author' => 'hdm',
+        'License' => BSD_LICENSE,
+        'Platform' => 'bsd',
+        'Arch' => ARCH_X86,
+        'Handler' => Msf::Handler::BindTcp,
+        'Session' => Msf::Sessions::Meterpreter_x86_BSD,
+        'Payload' => {
           'Offsets' => {},
-          'Payload' => ""
+          'Payload' => ''
         }
-      ))
+      )
+    )
   end
 end

@@ -9,7 +9,7 @@ module Metasploit
 
         DEFAULT_PORT  = 8834
         PRIVATE_TYPES = [ :password ]
-        LIKELY_SERVICE_NAMES = [ 'nessus' ]
+        LIKELY_SERVICE_NAMES = self.superclass::LIKELY_SERVICE_NAMES + [ 'nessus' ]
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
 

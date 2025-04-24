@@ -438,8 +438,8 @@ class PayloadSet < ModuleSet
                                       end
 
     unless payload_type_cache[refname]
-      framework.configured_module_paths.each do |path|
-        framework.modules.try_load_module(path, "#{folder_name}/#{refname}", Msf::MODULE_PAYLOAD)
+      framework.configured_module_paths.each do |parent_path|
+        framework.modules.try_load_module(parent_path, Msf::MODULE_PAYLOAD, "#{folder_name}/#{refname}")
       end
     end
     payload_type_cache[refname]

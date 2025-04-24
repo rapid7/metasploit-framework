@@ -6,24 +6,28 @@
 class MetasploitModule < Msf::Evasion
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Applocker Evasion - Microsoft Workflow Compiler',
-      'Description' => %(
-         This module will assist you in evading Microsoft
-         Windows Applocker and Software Restriction Policies.
-         This technique utilises the Microsoft signed binaries
-         Microsoft.Workflow.Compiler.exe to execute user supplied code.
-                        ),
-      'Author'      =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Applocker Evasion - Microsoft Workflow Compiler',
+        'Description' => %q{
+          This module will assist you in evading Microsoft
+          Windows Applocker and Software Restriction Policies.
+          This technique utilises the Microsoft signed binaries
+          Microsoft.Workflow.Compiler.exe to execute user supplied code.
+        },
+        'Author' => [
           'Nick Tyrer <@NickTyrer>', # module development
           'Matt Graeber' # workflow_compiler bypass research
         ],
-      'License'     => 'MSF_LICENSE',
-      'Platform'    => 'win',
-      'Arch'        => [ARCH_X86, ARCH_X64],
-      'Targets'     => [['Microsoft Windows', {}]],
-      'References'  => [['URL', 'https://posts.specterops.io/arbitrary-unsigned-code-execution-vector-in-microsoft-workflow-compiler-exe-3d9294bc5efb']])
+        'License' => 'MSF_LICENSE',
+        'Platform' => 'win',
+        'Arch' => [ARCH_X86, ARCH_X64],
+        'Targets' => [['Microsoft Windows', {}]],
+        'References' => [
+          ['URL', 'https://posts.specterops.io/arbitrary-unsigned-code-execution-vector-in-microsoft-workflow-compiler-exe-3d9294bc5efb']
+        ]
+      )
     )
 
     register_options(

