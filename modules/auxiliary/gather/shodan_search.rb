@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('SHODAN_APIKEY', [true, 'The SHODAN API key']),
         OptString.new('QUERY', [true, 'Keywords you want to search for']),
-        OptString.new('FACETS', [true, 'List of facets']),
+        OptString.new('FACETS', [false, 'List of facets']),
         OptString.new('OUTFILE', [false, 'A filename to store the list of IPs']),
         OptBool.new('DATABASE', [false, 'Add search results to the database', false]),
         OptInt.new('MAXPAGE', [true, 'Max amount of pages to collect', 1]),
@@ -125,22 +125,23 @@ class MetasploitModule < Msf::Auxiliary
 
     # results gets our results from shodan_query
     results = []
-    results[0] = shodan_query(apikey, query, facets, 1)
+    first_page = 0
+    results[first_page] = shodan_query(apikey, query, facets, 1)
 
-    if results[0]['total'].nil? || results[0]['total'] == 0
+    if results[first_page]['total'].nil? || results[first_page]['total'] == 0
       msg = "No results."
-      if results[0]['error'].to_s.length > 0
-        msg << " Error: #{results[0]['error']}"
+      if results[first_page]['error'].to_s.length > 0
+        msg << " Error: #{results[first_page]['error']}"
       end
       print_error(msg)
       return
     end
 
     # Determine page count based on total results
-    if results[0]['total'] % 100 == 0
-      tpages = results[0]['total'] / 100
+    if results[first_page]['total'] % 100 == 0
+      tpages = results[first_page]['total'] / 100
     else
-      tpages = results[0]['total'] / 100 + 1
+      tpages = results[first_page]['total'] / 100 + 1
     end
     maxpage = tpages if datastore['MAXPAGE'] > tpages
 
@@ -150,9 +151,9 @@ class MetasploitModule < Msf::Auxiliary
         'Indent' => 1,
         'Columns' => ['Facet', 'Name', 'Count']
       )
-      print_status("Total: #{results[0]['total']} on #{tpages} " \
+      print_status("Total: #{results[first_page]['total']} on #{tpages} " \
         'pages. Showing facets')
-      facet = results[0]['facets']
+      facet = results.dig(first_page,'facets')
       facet.each do |name, list|
         list.each do |f|
           facets_tbl << [name.to_s, (f['value']).to_s, (f['count']).to_s]
@@ -160,13 +161,13 @@ class MetasploitModule < Msf::Auxiliary
       end
     else
       # start printing out our query statistics
-      print_status("Total: #{results[0]['total']} on #{tpages} " +
+      print_status("Total: #{results[first_page]['total']} on #{tpages} " +
         "pages. Showing: #{maxpage} page(s)")
 
       # If search results greater than 100, loop & get all results
       print_status('Collecting data, please wait...')
 
-      if results[0]['total'] > 100
+      if results[first_page]['total'] > 100
         page = 1
         while page < maxpage
           page_result = shodan_query(apikey, query, facets, page+1)
@@ -188,17 +189,17 @@ class MetasploitModule < Msf::Auxiliary
       regex = datastore['REGEX'] if datastore['REGEX']
       results.each do |page|
         page['matches'].each do |host|
-          city = host['location']['city'] || 'N/A'
-          ip   = host['ip_str'] || 'N/A'
-          port = host['port'] || ''
-          country = host['location']['country_name'] || 'N/A'
-          hostname = host['hostnames'][0]
-          data = host['data']
+          city = host.dig('location','city') || 'N/A'
+          ip   = host.fetch('ip_str', 'N/A')
+          port = host.fetch('port', '')
+          country = host.dig('location','country_name') || 'N/A'
+          hostname = host.dig('hostnames',0)
+          data = host.dig('data')
 
           report_host(:host     => ip,
                       :name     => hostname,
                       :comments => 'Added from Shodan',
-                      :info     => host['info']
+                      :info     => host.dig('info')
                       ) if datastore['DATABASE']
 
           report_service(:host => ip,
