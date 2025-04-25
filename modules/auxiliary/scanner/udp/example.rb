@@ -12,20 +12,26 @@ class MetasploitModule < Msf::Auxiliary
       update_info(
         info,
         # TODO: fill in all of this
-        'Name'           => 'UDP Scanner Example',
-        'Description'    => %q(
+        'Name' => 'UDP Scanner Example',
+        'Description' => %q{
           This module is an example of how to send probes to UDP services
           en-masse, analyze any responses, and then report on any discovered
           hosts, services, vulnerabilities or otherwise noteworthy things.
           Simply address any of the TODOs.
-        ),
-        'Author'         => 'Joe Contributor <joe_contributor[at]example.com>',
+        },
+        'Author' => 'Joe Contributor <joe_contributor[at]example.com>',
         'DisclosureDate' => '2014-03-15',
-        'License'        => MSF_LICENSE,
-        'References'     => [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '0000-0000' ], # remove or update if CVE exists
           [ 'URL', 'https://SomeURLinCyberspace.local' ]
-        ]
+        ],
+        # https://docs.metasploit.com/docs/development/developing-modules/module-metadata/definition-of-module-reliability-side-effects-and-stability.html
+        'Notes' => {
+          'Stability' => [],
+          'Reliability' => [],
+          'SideEffects' => []
+        }
       )
     )
 
@@ -44,20 +50,26 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
+  # rubocop:disable Lint/UselessMethodDefinition
   def setup
     super
     # TODO: do any sort of preliminary sanity checking, like perhaps validating some options
     # in the datastore, etc.
   end
+  # rubocop:enable Lint/UselessMethodDefinition
 
   # TODO: construct the appropriate probe here.
+  # rubocop:disable Naming/MemoizedInstanceVariableName
   def build_probe
     @probe ||= 'abracadabra!'
   end
+  # rubocop:enable Naming/MemoizedInstanceVariableName
 
-  # TODO: this is called before the scan block for each batch of hosts.  Do any
-  # per-batch setup here, otherwise remove it.
+  # TODO: this is called before the scan block for each batch of hosts.
+  # Do any per-batch setup here, otherwise remove it.
   def scanner_prescan(batch)
+    print_status("Sending requests to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
+
     super
   end
 
@@ -65,6 +77,8 @@ class MetasploitModule < Msf::Auxiliary
   # necessary probes.  If something different must be done for each IP, do it
   # here, otherwise remove it.
   def scan_host(ip)
+    vprint_status("#{ip}:#{rport} - Sending probe")
+
     super
   end
 
@@ -77,6 +91,7 @@ class MetasploitModule < Msf::Auxiliary
     # not actually be the same as the original RPORT for some services if they
     # respond back from different ports
     return unless response.size >= 42
+
     @results[src_host] ||= []
 
     # TODO: store something about this response, perhaps the response itself,

