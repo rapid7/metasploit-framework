@@ -184,6 +184,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
     else
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
     end
+    return payload
     #payload.unpack("H*")[0]
     #Base64.strict_encode64(payload).gsub(/\n/, '')
   end
