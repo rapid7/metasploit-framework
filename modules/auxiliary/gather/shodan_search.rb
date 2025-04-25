@@ -22,6 +22,8 @@ class MetasploitModule < Msf::Auxiliary
         see the Shodan site for more information.
         Shodan website: https://www.shodan.io/
         API: https://developer.shodan.io/api
+        Filters: https://www.shodan.io/search/filters
+        Facets: https://www.shodan.io/search/facet (from the scrollbox)
       },
       'Author' =>
         [
