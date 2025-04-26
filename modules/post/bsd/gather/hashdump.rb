@@ -13,18 +13,23 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'BSD Dump Password Hashes',
-        'Description' => %q{ Post module to dump the password hashes for all users on a BSD system. },
+        'Description' => %q{Post module to dump the password hashes for all users on a BSD system.},
         'License' => MSF_LICENSE,
         'Author' => ['bcoles'],
         'Platform' => ['bsd'],
-        'SessionTypes' => ['shell', 'meterpreter']
+        'SessionTypes' => ['shell', 'meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
 
   def run
     unless is_root?
-      fail_with Failure::NoAccess, 'You must run this module as root!'
+      fail_with(Failure::NoAccess, 'You must run this module as root!')
     end
 
     passwd = read_file('/etc/passwd').to_s
