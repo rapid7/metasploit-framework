@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => 'ohdae <bindshell[at]live.com>',
         'Platform' => ['linux'],
-        'SessionTypes' => ['shell', 'meterpreter']
+        'SessionTypes' => ['shell', 'meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -70,7 +75,7 @@ class MetasploitModule < Msf::Post
         report r
       end
     rescue RuntimeError => e
-      vprint_status("#{e}")
+      vprint_status(e.to_s)
     end
 
     begin
@@ -80,7 +85,7 @@ class MetasploitModule < Msf::Post
         report r
       end
     rescue RuntimeError => e
-      vprint_status("#{e}")
+      vprint_status(e.to_s)
     end
 
     begin
@@ -90,7 +95,7 @@ class MetasploitModule < Msf::Post
         report r
       end
     rescue RuntimeError => e
-      vprint_status("#{e}")
+      vprint_status(e.to_s)
     end
 
     begin
@@ -100,7 +105,7 @@ class MetasploitModule < Msf::Post
         report r
       end
     rescue RuntimeError => e
-      vprint_status("#{e}")
+      vprint_status(e.to_s)
     end
 
     begin
@@ -110,7 +115,7 @@ class MetasploitModule < Msf::Post
         report r
       end
     rescue RuntimeError => e
-      vprint_status("#{e}")
+      vprint_status(e.to_s)
     end
 
     begin
@@ -120,7 +125,7 @@ class MetasploitModule < Msf::Post
         report r
       end
     rescue RuntimeError => e
-      vprint_status("#{e}")
+      vprint_status(e.to_s)
     end
 
     begin
@@ -130,7 +135,7 @@ class MetasploitModule < Msf::Post
         report r
       end
     rescue RuntimeError => e
-      vprint_status("#{e}")
+      vprint_status(e.to_s)
     end
 
     begin
@@ -140,7 +145,7 @@ class MetasploitModule < Msf::Post
         report r
       end
     rescue RuntimeError => e
-      vprint_status("#{e}")
+      vprint_status(e.to_s)
     end
 
     begin
@@ -154,7 +159,7 @@ class MetasploitModule < Msf::Post
         report r
       end
     rescue RuntimeError => e
-      vprint_status("#{e}")
+      vprint_status(e.to_s)
     end
 
     begin
@@ -168,7 +173,7 @@ class MetasploitModule < Msf::Post
         report r
       end
     rescue RuntimeError => e
-      vprint_status("#{e}")
+      vprint_status(e.to_s)
     end
   end
 
