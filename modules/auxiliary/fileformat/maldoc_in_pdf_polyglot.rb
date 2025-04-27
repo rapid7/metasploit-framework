@@ -197,7 +197,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     content = File.read(datastore['FILENAME'])
-    if content.nil? || content.empty?
+    if content&.empty?
       fail_with(Failure::BadConfig, 'The MHT file content is empty')
     end
 
