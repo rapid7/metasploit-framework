@@ -16,7 +16,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform' => ['linux'],
-        'SessionTypes' => ['shell', 'meterpreter']
+        'SessionTypes' => ['shell', 'meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end

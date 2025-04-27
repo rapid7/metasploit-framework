@@ -20,7 +20,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'David Bloom' ], # Twitter: @philophobia78
         'Platform' => %w[linux],
-        'SessionTypes' => [ 'meterpreter', 'shell']
+        'SessionTypes' => [ 'meterpreter', 'shell'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
