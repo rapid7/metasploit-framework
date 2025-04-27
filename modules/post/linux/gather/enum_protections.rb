@@ -251,7 +251,7 @@ class MetasploitModule < Msf::Post
       '/etc/safedog/server/conf/sdsvrd.conf' => 'Safedog',
       '/etc/tripwire' => 'TripWire',
       '/opt/COMODO' => 'Comodo AV',
-      '/opt/CrowdStrike' => 'CrowdShite',
+      '/opt/CrowdStrike' => 'CrowdStrike',
       '/opt/FortiEDRCollector' => 'Fortinet FortiEDR',
       '/opt/FortiEDRCollector/scripts/fortiedrconfig.sh' => 'Fortinet FortiEDR',
       '/opt/McAfee' => 'FireEye/McAfee/Trellix Agent',
