@@ -43,7 +43,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptPath.new('FILENAME', [true, 'The input MHT filename with macro embedded']),
         OptPath.new('INJECTED_PDF', [false, 'The input PDF filename to inject in (optional)']),
-        OptString.new('MESSAGE_PDF', [false, 'The message to display in the local PDF template (if INJECTED_PDF is NOT used)', 'You must open this document in Microsoft Word'])
+        OptString.new('MESSAGE_PDF', [false, 'The message to display in the local PDF template (if INJECTED_PDF is NOT used)', 'You must open this document in Microsoft Word']),
+        OptEnum.new('OUTPUT_EXT', [true, 'The output file extension', '.doc', ['.doc', '.rtf']])
       ]
     )
   end
@@ -117,7 +118,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # saving the file
     ltype = "auxiliary.fileformat.#{shortname}"
-    fname = File.basename(datastore['FILENAME']).sub(File.extname(datastore['FILENAME']), '.doc')
+    fname = File.basename(datastore['FILENAME']).sub(File.extname(datastore['FILENAME']), datastore['OUTPUT_EXT'])
     path = store_local(ltype, nil, pdf, fname)
 
     print_good("The file '#{fname}' is stored at '#{path}'")
@@ -183,7 +184,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # saving the file
     ltype = "auxiliary.fileformat.#{shortname}"
-    fname = File.basename(datastore['FILENAME']).sub(File.extname(datastore['FILENAME']), '.doc')
+    fname = File.basename(datastore['FILENAME']).sub(File.extname(datastore['FILENAME']), datastore['OUTPUT_EXT'])
     path = store_local(ltype, nil, pdf, fname)
 
     print_good("The file '#{fname}' is stored at '#{path}'")
