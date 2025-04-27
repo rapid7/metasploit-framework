@@ -23,6 +23,11 @@ class MetasploitModule < Msf::Post
         'Author' => [ 'Justin Cacak'],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -97,13 +102,6 @@ class MetasploitModule < Msf::Post
       print_status("     Username: #{http_proxy_username}")
       print_status("     Password: #{http_proxy_password}")
       print_status('')
-    end
-
-    # Report proxy creds
-    if session.db_record
-      source_id = session.db_record.id
-    else
-      source_id = nil
     end
 
     report_cred(
@@ -213,13 +211,6 @@ class MetasploitModule < Msf::Post
     print_status("     User Name: #{user_name}")
     print_status("     Password: #{password}")
     print_status('')
-
-    # Report
-    if session.db_record
-      source_id = session.db_record.id
-    else
-      source_id = nil
-    end
 
     report_cred(
       ip: ::Rex::Socket.resolv_to_dotted(host), # XXX: Workaround for unresolved hostnames

