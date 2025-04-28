@@ -11,11 +11,16 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'Scan CAN Bus for Diagnostic Modules',
-        'Description' => %q{ Post Module to scan the CAN bus for any modules that can respond to UDS DSC queries},
+        'Description' => %q{Scan the CAN bus for any modules that can respond to UDS DSC queries.},
         'License' => MSF_LICENSE,
         'Author' => ['Craig Smith'],
         'Platform' => ['hardware'],
-        'SessionTypes' => ['hwbridge']
+        'SessionTypes' => ['hwbridge'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
     register_options([

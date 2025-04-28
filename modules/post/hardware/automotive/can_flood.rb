@@ -16,7 +16,12 @@ class MetasploitModule < Msf::Post
         'Author' => 'Pietro Biondi',
         'License' => MSF_LICENSE,
         'Platform' => 'hardware',
-        'SessionTypes' => ['hwbridge']
+        'SessionTypes' => ['hwbridge'],
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [PHYSICAL_EFFECTS],
+          'Reliability' => []
+        }
       )
     )
 
