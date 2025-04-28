@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Post
       1 => 'ZigBee 2004',
       2 => 'ZigBee 2006/2007'
     }
-    spanid, source, extpanid, stackprofilever, = routerdata
+    spanid, source, extpanid, stackprofilever, _channel = routerdata
     stackprofilever = stackprofilever.unpack('H*')[0].hex
     stackprofile = stackprofilever & 0x0f
     stackver = (stackprofilever & 0xf0) >> 4
