@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
     data = parse_json(jsonp_data)
     return unless data
 
-    unless data.dig('username') && data.dig('password') && data.dig('database')
+    unless data['username'] && data['password'] && data['database']
       print_error("#{host} - Required fields missing in response.")
       return
     end
