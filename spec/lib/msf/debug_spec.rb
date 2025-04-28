@@ -1600,12 +1600,13 @@ RSpec.describe Msf::Ui::Debug do
     expect(subject.versions(framework)).to eql(expected_output)
   end
 
-  context 'Database Configuration Debug' do
-
-    it 'correctly retrieves the current empty workspace with DB connected' do
-      workspace = FactoryBot.create(:mdm_workspace)
-
-      db = instance_double(
+  describe '#database_configuration' do
+    if ENV['REMOTE_DB']
+      before {skip('Tests specifically for local DB connections')}
+    end
+    let!(:workspace) { FactoryBot.create(:mdm_workspace) }
+    let(:db) do
+      instance_double(
         Msf::DBManager,
         connection_established?: true,
         name: 'msf',
@@ -1614,114 +1615,67 @@ RSpec.describe Msf::Ui::Debug do
         workspace: workspace,
         workspaces: [workspace]
       )
+    end
+    let(:framework) { instance_double(::Msf::Framework, version: 'VERSION', db: db) }
+    context 'Empty workspace with DB connected' do
+      it 'prints the debug output containing 0 counts' do
+        expected_output = <<~OUTPUT
+          ##  %grnDatabase Configuration%clr
 
-      framework = instance_double(
-        ::Msf::Framework,
-        version: 'VERSION',
-        db: db
-      )
+          The database contains the following information:
+          <details>
+          <summary>Collapse</summary>
 
-      connection_pool = instance_double(ActiveRecord::ConnectionAdapters::ConnectionPool)
-      connection = double(
-        'connection',
-        current_database: 'msf',
-        respond_to?: true
-      )
-      allow(connection_pool).to receive(:with_connection).and_yield(connection)
-      allow(::ApplicationRecord).to receive(:connection_pool).and_return(connection_pool)
+          ```
+          Session Type: Connected to #{ActiveRecord::Base.connection.current_database}. Connection type: postgresql.
+          ```
 
-      allow(::Mdm::Workspace).to receive(:count).and_return(1)
-      allow(::Mdm::Workspace).to receive_message_chain(:order, :take).and_return([workspace])
-      allow(::Mdm::Host).to receive(:count).and_return(0)
-      allow(::Mdm::Vuln).to receive(:count).and_return(0)
-      allow(::Mdm::Note).to receive(:count).and_return(0)
-      allow(::Mdm::Service).to receive(:count).and_return(0)
+          | ID | Hosts | Vulnerabilities | Notes | Services |
+          |-:|-:|-:|-:|-:|
+          | #{workspace.id.to_fs(:delimited)} **(Current)** | 0 | 0 | 0 | 0 |
+          | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
 
-      expected_output = <<~OUTPUT
-        ##  %grnDatabase Configuration%clr
-
-        The database contains the following information:
-        <details>
-        <summary>Collapse</summary>
-
-        ```
-        Session Type: Connected to msf. Connection type: postgresql.
-        ```
-
-        | ID | Hosts | Vulnerabilities | Notes | Services |
-        |-:|-:|-:|-:|-:|
-        | #{workspace.id.to_fs(:delimited)} **(Current)** | 0 | 0 | 0 | 0 |
-        | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
-
-        </details>
+          </details>
 
 
-      OUTPUT
+        OUTPUT
 
-      expect(subject.database_configuration(framework)).to eql(expected_output)
+        expect(subject.database_configuration(framework)).to eql(expected_output)
+      end
+
     end
 
-    it 'correctly retrieves the current workspace with contents with DB connected' do
-      workspace = FactoryBot.create(:mdm_workspace)
-      host = FactoryBot.create(:mdm_host, workspace: workspace)
-      vuln = FactoryBot.create(:mdm_vuln, host: host)
-      service = FactoryBot.create(:mdm_service, host: host)
-      note = FactoryBot.create(:mdm_note, workspace: workspace, host: host, service: service, vuln: vuln)
+    context 'Non-empty workspace with DB connected' do
+      let!(:workspace) { FactoryBot.create(:mdm_workspace) }
+      let!(:host) { FactoryBot.create(:mdm_host, workspace: workspace) }
+      let!(:vuln) { FactoryBot.create(:mdm_vuln, host: host) }
+      let!(:service) { FactoryBot.create(:mdm_service, host: host) }
+      let!(:note) { FactoryBot.create(:mdm_note, workspace: workspace, host: host, service: service, vuln: vuln) }
 
-      db = instance_double(
-        Msf::DBManager,
-        connection_established?: true,
-        name: 'msf',
-        driver: 'postgresql',
-        active: true,
-        workspace: workspace,
-        workspaces: [workspace]
-      )
+      it 'prints the debug output with the correct values' do
+        expected_output = <<~OUTPUT
+          ##  %grnDatabase Configuration%clr
 
-      framework = instance_double(
-        ::Msf::Framework,
-        version: 'VERSION',
-        db: db
-      )
+          The database contains the following information:
+          <details>
+          <summary>Collapse</summary>
 
-      connection_pool = instance_double(ActiveRecord::ConnectionAdapters::ConnectionPool)
-      connection = double(
-        'connection',
-        current_database: 'msf',
-        respond_to?: true
-      )
-      allow(connection_pool).to receive(:with_connection).and_yield(connection)
-      allow(::ApplicationRecord).to receive(:connection_pool).and_return(connection_pool)
+          ```
+          Session Type: Connected to #{ActiveRecord::Base.connection.current_database}. Connection type: postgresql.
+          ```
 
-      allow(::Mdm::Workspace).to receive(:count).and_return(1)
-      allow(::Mdm::Workspace).to receive_message_chain(:order, :take).and_return([workspace])
-      allow(::Mdm::Host).to receive(:count).and_return(1)
-      allow(::Mdm::Vuln).to receive(:count).and_return(1)
-      allow(::Mdm::Note).to receive(:count).and_return(1)
-      allow(::Mdm::Service).to receive(:count).and_return(1)
+          | ID | Hosts | Vulnerabilities | Notes | Services |
+          |-:|-:|-:|-:|-:|
+          | #{workspace.id.to_fs(:delimited)} **(Current)** | 1 | 1 | 1 | 1 |
+          | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
 
-      expected_output = <<~OUTPUT
-        ##  %grnDatabase Configuration%clr
-
-        The database contains the following information:
-        <details>
-        <summary>Collapse</summary>
-
-        ```
-        Session Type: Connected to msf. Connection type: postgresql.
-        ```
-
-        | ID | Hosts | Vulnerabilities | Notes | Services |
-        |-:|-:|-:|-:|-:|
-        | #{workspace.id.to_fs(:delimited)} **(Current)** | 1 | 1 | 1 | 1 |
-        | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
-
-        </details>
+          </details>
 
 
-      OUTPUT
+        OUTPUT
 
-      expect(subject.database_configuration(framework)).to eql(expected_output)
+        expect(subject.database_configuration(framework)).to eql(expected_output)
+      end
     end
 
     it 'correctly retrieves session type with DB not connected' do
@@ -1756,140 +1710,98 @@ RSpec.describe Msf::Ui::Debug do
       expect(subject.database_configuration(framework)).to eql(expected_output)
     end
 
-    it 'correctly retrieves multiple empty workspaces with DB connected' do
-      workspaces = 5.times.map { FactoryBot.create(:mdm_workspace) }
+    context 'Multiple workspaces with DB connected' do
+      let!(:workspaces) { 5.times.map { FactoryBot.create(:mdm_workspace) } }
+      let(:workspace) { workspaces.last }
+      before do
+        allow(::Mdm::Workspace).to receive(:count).and_return(5)
+        allow(::Mdm::Workspace).to receive_message_chain(:order, :take).and_return(workspaces)
+        allow(::Mdm::Host).to receive(:count).and_return(0)
+        allow(::Mdm::Vuln).to receive(:count).and_return(0)
+        allow(::Mdm::Note).to receive(:count).and_return(0)
+        allow(::Mdm::Service).to receive(:count).and_return(0)
+      end
+      it 'outputs multiple empty workspaces' do
+        expected_output = <<~OUTPUT
+          ##  %grnDatabase Configuration%clr
 
-      db = instance_double(
-        Msf::DBManager,
-        connection_established?: true,
-        name: 'msf',
-        driver: 'postgresql',
-        active: true,
-        workspace: workspaces.last,
-        workspaces: workspaces
-      )
+          The database contains the following information:
+          <details>
+          <summary>Collapse</summary>
 
-      framework = instance_double(
-        ::Msf::Framework,
-        version: 'VERSION',
-        db: db
-      )
+          ```
+          Session Type: Connected to #{ActiveRecord::Base.connection.current_database}. Connection type: postgresql.
+          ```
 
-      connection_pool = instance_double(ActiveRecord::ConnectionAdapters::ConnectionPool)
-      connection = double(
-        'connection',
-        current_database: 'msf',
-        respond_to?: true
-      )
-      allow(connection_pool).to receive(:with_connection).and_yield(connection)
-      allow(::ApplicationRecord).to receive(:connection_pool).and_return(connection_pool)
+          | ID | Hosts | Vulnerabilities | Notes | Services |
+          |-:|-:|-:|-:|-:|
+          | #{workspaces[0].id.to_fs(:delimited)} | 0 | 0 | 0 | 0 |
+          | #{workspaces[1].id.to_fs(:delimited)} | 0 | 0 | 0 | 0 |
+          | #{workspaces[2].id.to_fs(:delimited)} | 0 | 0 | 0 | 0 |
+          | #{workspaces[3].id.to_fs(:delimited)} | 0 | 0 | 0 | 0 |
+          | #{workspaces[4].id.to_fs(:delimited)} **(Current)** | 0 | 0 | 0 | 0 |
+          | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
 
-      allow(::Mdm::Workspace).to receive(:count).and_return(5)
-      allow(::Mdm::Workspace).to receive_message_chain(:order, :take).and_return(workspaces)
-      allow(::Mdm::Host).to receive(:count).and_return(0)
-      allow(::Mdm::Vuln).to receive(:count).and_return(0)
-      allow(::Mdm::Note).to receive(:count).and_return(0)
-      allow(::Mdm::Service).to receive(:count).and_return(0)
-
-      expected_output = <<~OUTPUT
-        ##  %grnDatabase Configuration%clr
-
-        The database contains the following information:
-        <details>
-        <summary>Collapse</summary>
-
-        ```
-        Session Type: Connected to msf. Connection type: postgresql.
-        ```
-
-        | ID | Hosts | Vulnerabilities | Notes | Services |
-        |-:|-:|-:|-:|-:|
-        | #{workspaces[0].id.to_fs(:delimited)} | 0 | 0 | 0 | 0 |
-        | #{workspaces[1].id.to_fs(:delimited)} | 0 | 0 | 0 | 0 |
-        | #{workspaces[2].id.to_fs(:delimited)} | 0 | 0 | 0 | 0 |
-        | #{workspaces[3].id.to_fs(:delimited)} | 0 | 0 | 0 | 0 |
-        | #{workspaces[4].id.to_fs(:delimited)} **(Current)** | 0 | 0 | 0 | 0 |
-        | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
-
-        </details>
+          </details>
 
 
-      OUTPUT
+        OUTPUT
 
-      expect(subject.database_configuration(framework)).to eql(expected_output)
+        expect(subject.database_configuration(framework)).to eql(expected_output)
+      end
     end
 
-    it 'correctly retrieves multiple workspaces with content with DB connected' do
-      workspaces = 5.times.map do |index|
-        workspace = FactoryBot.create(:mdm_workspace)
-        # Only some of the workspaces should have values to make the output not be the same for every workspace.
-        if index.even?
-          host = FactoryBot.create(:mdm_host, workspace: workspace)
-          vuln = FactoryBot.create(:mdm_vuln, host: host)
-          service = FactoryBot.create(:mdm_service, host: host)
-          note = FactoryBot.create(:mdm_note, workspace: workspace, host: host, service: service, vuln: vuln)
+    context 'Workspaces with different data with DB connected' do
+      let!(:workspaces) do
+        5.times.map do |index|
+          workspace = FactoryBot.create(:mdm_workspace)
+          # Only some of the workspaces should have values to make the output not be the same for every workspace.
+          if index.even?
+            host = FactoryBot.create(:mdm_host, workspace: workspace)
+            vuln = FactoryBot.create(:mdm_vuln, host: host)
+            service = FactoryBot.create(:mdm_service, host: host)
+            FactoryBot.create(:mdm_note, workspace: workspace, host: host, service: service, vuln: vuln)
+          end
+          workspace
         end
-        workspace
       end
+      let(:workspace) { workspaces.last }
+      before do
+        allow(::Mdm::Workspace).to receive(:count).and_return(5)
+        allow(::Mdm::Workspace).to receive_message_chain(:order, :take).and_return(workspaces)
+        allow(::Mdm::Host).to receive(:count).and_return(2)
+        allow(::Mdm::Vuln).to receive(:count).and_return(2)
+        allow(::Mdm::Note).to receive(:count).and_return(2)
+        allow(::Mdm::Service).to receive(:count).and_return(2)
+      end
+      it 'outputs multiple workspaces with content' do
+        expected_output = <<~OUTPUT
+          ##  %grnDatabase Configuration%clr
 
-      db = instance_double(
-        Msf::DBManager,
-        connection_established?: true,
-        name: 'msf',
-        driver: 'postgresql',
-        active: true,
-        workspace: workspaces.last,
-        workspaces: workspaces
-      )
+          The database contains the following information:
+          <details>
+          <summary>Collapse</summary>
 
-      framework = instance_double(
-        ::Msf::Framework,
-        version: 'VERSION',
-        db: db
-      )
+          ```
+          Session Type: Connected to #{ActiveRecord::Base.connection.current_database}. Connection type: postgresql.
+          ```
 
-      connection_pool = instance_double(ActiveRecord::ConnectionAdapters::ConnectionPool)
-      connection = double(
-        'connection',
-        current_database: 'msf',
-        respond_to?: true
-      )
-      allow(connection_pool).to receive(:with_connection).and_yield(connection)
-      allow(::ApplicationRecord).to receive(:connection_pool).and_return(connection_pool)
+          | ID | Hosts | Vulnerabilities | Notes | Services |
+          |-:|-:|-:|-:|-:|
+          | #{workspaces[0].id.to_fs(:delimited)} | 1 | 1 | 1 | 1 |
+          | #{workspaces[1].id.to_fs(:delimited)} | 0 | 0 | 0 | 0 |
+          | #{workspaces[2].id.to_fs(:delimited)} | 1 | 1 | 1 | 1 |
+          | #{workspaces[3].id.to_fs(:delimited)} | 0 | 0 | 0 | 0 |
+          | #{workspaces[4].id.to_fs(:delimited)} **(Current)** | 1 | 1 | 1 | 1 |
+          | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
 
-      allow(::Mdm::Workspace).to receive(:count).and_return(5)
-      allow(::Mdm::Workspace).to receive_message_chain(:order, :take).and_return(workspaces)
-      allow(::Mdm::Host).to receive(:count).and_return(2)
-      allow(::Mdm::Vuln).to receive(:count).and_return(2)
-      allow(::Mdm::Note).to receive(:count).and_return(2)
-      allow(::Mdm::Service).to receive(:count).and_return(2)
-
-      expected_output = <<~OUTPUT
-        ##  %grnDatabase Configuration%clr
-
-        The database contains the following information:
-        <details>
-        <summary>Collapse</summary>
-
-        ```
-        Session Type: Connected to msf. Connection type: postgresql.
-        ```
-
-        | ID | Hosts | Vulnerabilities | Notes | Services |
-        |-:|-:|-:|-:|-:|
-        | #{workspaces[0].id.to_fs(:delimited)} | 1 | 1 | 1 | 1 |
-        | #{workspaces[1].id.to_fs(:delimited)} | 0 | 0 | 0 | 0 |
-        | #{workspaces[2].id.to_fs(:delimited)} | 1 | 1 | 1 | 1 |
-        | #{workspaces[3].id.to_fs(:delimited)} | 0 | 0 | 0 | 0 |
-        | #{workspaces[4].id.to_fs(:delimited)} **(Current)** | 1 | 1 | 1 | 1 |
-        | **Total (#{::Mdm::Workspace.count})** | **#{::Mdm::Host.count}** | **#{::Mdm::Vuln.count}** | **#{::Mdm::Note.count}** | **#{::Mdm::Service.count}** |
-
-        </details>
+          </details>
 
 
-      OUTPUT
+        OUTPUT
 
-      expect(subject.database_configuration(framework)).to eql(expected_output)
+        expect(subject.database_configuration(framework)).to eql(expected_output)
+      end
     end
   end
 end
