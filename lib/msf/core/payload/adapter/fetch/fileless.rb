@@ -186,18 +186,8 @@ module Msf::Payload::Adapter::Fetch::Fileless
     end
     return payload
   end
- 
-  def _generate_jmp_instruction_sh(arch)
-    case arch
-      when 'x64'
-        %^110270^
-      else
-        fail_with(Msf::Module::Failure::BadConfig, 'Unsupported architecture')
-    end
 
-  end
 
-  #bash contains extension to standard printf definition, which allows defining hexadecimal bytes with \xHH.
   def _generate_jmp_instruction_bash(arch)
     #
     # The sed command will basically take two characters at the time and switch their order, this is due to endianess of x86 addresses
