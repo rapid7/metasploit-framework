@@ -24,6 +24,11 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -134,12 +139,12 @@ class MetasploitModule < Msf::Post
     else
       print_status('No Picasa credentials found.')
     end
-  rescue ::Exception => e
+  rescue StandardError => e
     print_error("An error has occurred: #{e}")
   end
 
   def run
-    uid = session.sys.config.getuid  # Decryption only works in context of user's account.
+    uid = session.sys.config.getuid # Decryption only works in context of user's account.
 
     if is_system?
       print_error("This module is running under #{uid}.")

