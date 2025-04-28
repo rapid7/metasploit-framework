@@ -41,7 +41,13 @@ module Metasploit
       config.paths['config/database'] = [Metasploit::Framework::Database.configurations_pathname.try(:to_path)]
       config.autoloader = :zeitwerk
 
-      config.load_defaults 7.1
+      config.load_defaults 7.2
+
+      if config.respond_to?(:active_record)
+        # Timecop in tests followed by db interaction causes a ActiveRecord::InvalidMigrationTimestampError
+        # due to the current time (set by timecop) being less than the migration timestamp.
+        config.active_record.validate_migration_timestamps = false
+      end
 
       config.eager_load = false
     end
