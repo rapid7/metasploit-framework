@@ -25,7 +25,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['Craig Smith'],
         'Platform' => ['hardware'],
-        'SessionTypes' => ['hwbridge']
+        'SessionTypes' => ['hwbridge'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [PHYSICAL_EFFECTS],
+          'Reliability' => []
+        }
       )
     )
     register_options([
@@ -38,14 +43,13 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    unless is_rf?
-      print_error('Not an RF Transceiver')
-      return
-    end
+    fail_with(Failure::BadConfig, 'Not an RF Transceiver') unless is_rf?
+
     unless set_index(datastore['INDEX'])
-      print_error("Couldn't set usb index to #{datastore['INDEX']}")
+      print_error("Couldn't set USB index to #{datastore['INDEX']}")
       return
     end
+
     set_modulation('ASK/OOK')
     set_freq(datastore['FREQ'])
     set_sync_mode(0)
