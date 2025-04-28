@@ -184,6 +184,30 @@ typedef ULONG(NTAPI *_EtwEventWriteFull)(
 	__in_ecount_opt(UserDataCount) PEVENT_DATA_DESCRIPTOR UserData
 	);
 
+typedef NTSTATUS(NTAPI* pNtProtectVirtualMemory)(
+	HANDLE ProcessHandle,
+	PVOID* BaseAddress,
+	PSIZE_T RegionSize,
+	ULONG NewProtect,
+	PULONG OldProtect
+	);
+
+typedef NTSTATUS (NTAPI* pNtWriteVirtualMemory)(
+	HANDLE ProcessHandle,
+	PVOID BaseAddress,
+	PVOID Buffer,
+	ULONG NumberOfBytesToWrite,
+	PULONG NumberOfBytesWritten
+);
+
+typedef NTSTATUS(NTAPI* pNtReadVirtualMemory)(
+	HANDLE ProcessHandle,
+	PVOID BaseAddress,
+	PVOID Buffer,
+	ULONG NumberOfBytesToRead,
+	PULONG NumberOfBytesRead
+	);
+
 // Windows 7 SP1 / Server 2008 R2 specific Syscalls
 EXTERN_C NTSTATUS ZwProtectVirtualMemory7SP1(IN HANDLE ProcessHandle, IN PVOID* BaseAddress, IN SIZE_T* NumberOfBytesToProtect, IN ULONG NewAccessProtection, OUT PULONG OldAccessProtection);
 EXTERN_C NTSTATUS ZwReadVirtualMemory7SP1(HANDLE hProcess, PVOID lpBaseAddress, PVOID lpBuffer, SIZE_T NumberOfBytesToRead, PSIZE_T NumberOfBytesRead);
@@ -217,29 +241,9 @@ EXTERN_C NTSTATUS ZwReadVirtualMemory10_4(HANDLE hProcess, PVOID lpBaseAddress, 
 #endif
 EXTERN_C NTSTATUS ZwWriteVirtualMemory10(HANDLE hProcess, PVOID lpBaseAddress, PVOID lpBuffer, SIZE_T NumberOfBytesToWrite, PSIZE_T NumberOfBytesWritten);
 
-NTSTATUS(*ZwProtectVirtualMemory)(
-	IN HANDLE ProcessHandle,
-	IN PVOID* BaseAddress,
-	IN SIZE_T* NumberOfBytesToProtect,
-	IN ULONG NewAccessProtection,
-	OUT PULONG OldAccessProtection
-	);
-
-NTSTATUS(*ZwReadVirtualMemory)(
-	HANDLE hProcess,
-	PVOID lpBaseAddress,
-	PVOID lpBuffer,
-	SIZE_T NumberOfBytesToRead,
-	PSIZE_T NumberOfBytesRead
-	);
-
-NTSTATUS(*ZwWriteVirtualMemory)(
-	HANDLE hProcess,
-	PVOID lpBaseAddress,
-	PVOID lpBuffer,
-	SIZE_T NumberOfBytesToWrite,
-	PSIZE_T NumberOfBytesWritten
-	);
+pNtProtectVirtualMemory ZwProtectVirtualMemory;
+pNtWriteVirtualMemory ZwWriteVirtualMemory;
+pNtReadVirtualMemory ZwReadVirtualMemory;
 
 ULONG NTAPI MyEtwEventWrite(
 	__in REGHANDLE RegHandle,

