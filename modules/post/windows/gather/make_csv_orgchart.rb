@@ -21,7 +21,12 @@ class MetasploitModule < Msf::Post
           'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>'
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 
@@ -56,14 +61,15 @@ class MetasploitModule < Msf::Post
 
     if q.nil? || q[:results].empty?
       print_status('No results returned.')
-    else
-      user_fields << 'reports_to'
-      results_table = parse_results(q[:results])
-      print_line results_table.to_s
-      if datastore['STORE_LOOT']
-        stored_path = store_loot('ad.orgchart', 'text/csv', session, results_table.to_csv)
-        print_good("CSV Organisational Chart Information saved to: #{stored_path}")
-      end
+      return
+    end
+
+    user_fields << 'reports_to'
+    results_table = parse_results(q[:results])
+    print_line results_table.to_s
+    if datastore['STORE_LOOT']
+      stored_path = store_loot('ad.orgchart', 'text/csv', session, results_table.to_csv)
+      print_good("CSV Organisational Chart Information saved to: #{stored_path}")
     end
   end
 
@@ -100,6 +106,7 @@ class MetasploitModule < Msf::Post
 
       results_table << row
     end
+
     results_table
   end
 end

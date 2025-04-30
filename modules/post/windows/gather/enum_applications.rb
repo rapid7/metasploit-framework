@@ -15,7 +15,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -54,7 +59,8 @@ class MetasploitModule < Msf::Post
           dispnm = registry_getvaldata(k.to_s, 'DisplayName')
           dispversion = registry_getvaldata(k.to_s, 'DisplayVersion')
           tbl << [dispnm, dispversion] if dispnm && dispversion
-        rescue StandardError
+        rescue StandardError => e
+          vprint_error(e.message)
         end
       end
       t.map(&:join)

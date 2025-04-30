@@ -25,6 +25,11 @@ class MetasploitModule < Msf::Post
         'Platform' => [ 'win' ],
         'Arch' => [ 'x86', 'x64' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -42,8 +47,7 @@ class MetasploitModule < Msf::Post
       [
         OptBool.new('DOWNLOAD', [ true, 'Immediately download the All.cab file', true ]),
         OptBool.new('CLEANUP', [ true, 'Remove the All.cab file at the end of module execution', true ])
-      ],
-      self.class
+      ]
     )
   end
 
@@ -123,7 +127,7 @@ class MetasploitModule < Msf::Post
 
     base_script = File.read(File.join(Msf::Config.data_directory, 'post', 'powershell', 'NTDSgrab.ps1'))
     execute_script(base_script)
-    print_status('Powershell Script executed')
+    print_status('PowerShell script executed')
     cabcount = 0
 
     while cabcount < 2

@@ -26,6 +26,11 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => [ 'win' ], # TODO: Several more platforms host Bitcoin wallets...
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -90,7 +95,7 @@ class MetasploitModule < Msf::Post
 
     begin
       data = read_file(wallet_path) || ''
-    rescue ::Exception => e
+    rescue StandardError => e
       print_error("Failed to download #{wallet_path}: #{e.class} #{e}")
       return
     end

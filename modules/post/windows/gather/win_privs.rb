@@ -20,6 +20,11 @@ class MetasploitModule < Msf::Post
         'Author' => [ 'Merlyn Cousins <drforbin6[at]gmail.com>'],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -40,33 +45,33 @@ class MetasploitModule < Msf::Post
       'Columns' => ['Is Admin', 'Is System', 'Is In Local Admin Group', 'UAC Enabled', 'Foreground ID', 'UID']
     )
 
-    privs_tbl = Rex::Text::Table.new(
-      'Header' => 'Windows Privileges',
-      'Indent' => 1,
-      'Columns' => ['Name']
-    )
-
-    # Gather data
-    uac = is_uac_enabled? ? 'True' : 'False'
-    admin = is_admin? ? 'True' : 'False'
-    admin_group = is_in_admin_group? ? 'True' : 'False'
-    sys = is_system? ? 'True' : 'False'
-    uid = client.sys.config.getuid
     begin
       # Older OS might not have this (min support is XP)
       fid = client.railgun.kernel32.WTSGetActiveConsoleSessionId['return']
     rescue StandardError
       fid = 'N/A'
     end
-    privs = client.sys.config.getprivs
 
-    # Store in tables
-    usr_tbl << [admin, sys, admin_group, uac, fid, uid]
+    usr_tbl << [
+      is_admin?.to_s.capitalize,
+      system?.to_s.capitalize,
+      is_in_admin_group?.to_s.capitalize,
+      is_uac_enabled?.to_s.capitalize,
+      fid,
+      client.sys.config.getuid
+    ]
+
+    privs_tbl = Rex::Text::Table.new(
+      'Header' => 'Windows Privileges',
+      'Indent' => 1,
+      'Columns' => ['Name']
+    )
+
+    privs = client.sys.config.getprivs
     privs.each do |priv|
       privs_tbl << [priv]
     end
 
-    # Show tables
     print_line(usr_tbl.to_s)
     print_line(privs_tbl.to_s)
   end

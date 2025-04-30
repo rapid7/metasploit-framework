@@ -26,8 +26,13 @@ class MetasploitModule < Msf::Post
         'Author' => ['Danil Bazin <danil.bazin[at]hsc.fr>'], # @danilbaz
         'References' => [
           ['URL', 'https://github.com/libyal/libbde/blob/master/documentation/BitLocker Drive Encryption (BDE) format.asciidoc'],
-          ['URL', 'http://www.hsc.fr/ressources/outils/dislocker/']
+          ['URL', 'https://web.archive.org/web/20170914195545/http://www.hsc.fr/ressources/outils/dislocker/'],
         ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -129,7 +134,7 @@ class MetasploitModule < Msf::Post
       if !fvek.blank?
         stored_path = store_loot('windows.file', 'application/octet-stream',
                                  session, fvek)
-        print_good("Successfuly extract FVEK in #{stored_path}")
+        print_good("Successfully extracted FVEK in #{stored_path}")
         print_good('This hard drive could later be decrypted using : dislocker -k <key_file> ...')
       else
         print_error('Failed to generate FVEK, wrong recovery key?')

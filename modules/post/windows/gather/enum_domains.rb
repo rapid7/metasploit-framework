@@ -13,19 +13,25 @@ class MetasploitModule < Msf::Post
         'Name' => 'Windows Gather Domain Enumeration',
         'Description' => %q{
           This module enumerates currently the domains a host can see and the domain
-          controllers for that domain.
+          controllers for each domain.
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'mubix' ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        }
       )
     )
   end
 
   def run
     domains = net_server_enum(SV_TYPE_DOMAIN_ENUM)
-    return if domains.nil?
+
+    fail_with(Failure::Unknown, 'No domains found') if domains.blank?
 
     domains.each do |domain|
       print_status("Enumerating DCs for #{domain[:name]}")
