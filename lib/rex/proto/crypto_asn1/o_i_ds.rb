@@ -68,9 +68,17 @@ module Rex::Proto::CryptoAsn1
     OID_CMS_SIGNED_DATA = ObjectId.new('1.2.840.113549.1.7.2', name: 'OID_CMS_SIGNED_DATA', label: 'CMS Signed Data')
 
     OID_DES_EDE3_CBC = ObjectId.new('1.2.840.113549.3.7', name: 'OID_DES_EDE_CBC', label: 'Triple DES encryption in CBC mode')
-    OID_AES256_CBC = ObjectId.new('2.16.840.1.101.3.4.1.42', name: 'OID_AES256_CBC', label: 'AES256 in CBC mode')
     OID_RSA_ENCRYPTION = ObjectId.new('1.2.840.113549.1.1.1', name: 'OID_RSA_ENCRYPTION', label: 'RSA public key encryption')
     OID_RSAES_OAEP = ObjectId.new('1.2.840.113549.1.1.7', name: 'OID_RSAES_OAEP', label: 'RSA public key encryption with OAEP padding')
+
+    OID_AES256_CBC = ObjectId.new('2.16.840.1.101.3.4.1.42', name: 'OID_AES256_CBC', label: 'AES256 in CBC mode')
+    # see: https://datatracker.ietf.org/doc/html/rfc5084#section-3
+    OID_AES128_GCM = ObjectId.new('2.16.840.1.101.3.4.1.6',  name: 'OID_AES128_GCM', label: 'AES128 in GCM mode')
+    OID_AES128_CCM = ObjectId.new('2.16.840.1.101.3.4.1.7',  name: 'OID_AES128_CCM', label: 'AES128 in CCM mode')
+    OID_AES192_GCM = ObjectId.new('2.16.840.1.101.3.4.1.26', name: 'OID_AES192_GCM', label: 'AES192 in GCM mode')
+    OID_AES192_CCM = ObjectId.new('2.16.840.1.101.3.4.1.27', name: 'OID_AES192_CCM', label: 'AES192 in CCM mode')
+    OID_AES256_GCM = ObjectId.new('2.16.840.1.101.3.4.1.46', name: 'OID_AES256_GCM', label: 'AES256 in GCM mode')
+    OID_AES256_CCM = ObjectId.new('2.16.840.1.101.3.4.1.47', name: 'OID_AES256_CCM', label: 'AES256 in CCM mode')
 
     def self.name(value)
       value = ObjectId.new(value) if value.is_a?(String)

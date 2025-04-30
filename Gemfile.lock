@@ -97,7 +97,7 @@ PATH
       rinda
       ruby-macho
       ruby-mysql
-      ruby_smb (~> 3.3.3)
+      ruby_smb (~> 3.3.15)
       rubyntlm
       rubyzip
       sinatra
@@ -534,7 +534,7 @@ GEM
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (3.3.13)
+    ruby_smb (3.3.15)
       bindata (= 2.4.15)
       openssl-ccm
       openssl-cmac
