@@ -58,7 +58,7 @@ typedef struct _PEB {
 			BOOLEAN IsImageDynamicallyRelocated : 1;
 			BOOLEAN SkipPatchingUser32Forwarders : 1;
 			BOOLEAN SpareBits : 3;
-		};
+		} _bitField;
 	};
 	HANDLE Mutant;
 
@@ -84,7 +84,7 @@ typedef struct _PEB {
 			ULONG ProcessCurrentlyThrottled : 1;
 			ULONG ProcessImagesHotPatched : 1;
 			ULONG ReservedBits0 : 24;
-		};
+		} _crossProcessFlags;
 	};
 	union
 	{
@@ -145,7 +145,7 @@ typedef struct _LDR_DATA_TABLE_ENTRY {
 		{
 			PVOID SectionPointer;
 			ULONG CheckSum;
-		};
+		} _hashLinks;
 	};
 	union
 	{

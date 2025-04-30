@@ -41,7 +41,7 @@ VOID ReflectiveFree(HINSTANCE hAppInstance) {
         NTSTATUS status = pNtQueueApcThread(hThread, WaitForSingleObjectEx, (ULONG_PTR)hThisThread, INFINITE, FALSE);
 
         // then close the handle so it's not leaked
-        DWORD result = QueueUserAPC((PAPCFUNC)CloseHandle, hThread, (ULONG_PTR)hThisThread);
+        QueueUserAPC((PAPCFUNC)CloseHandle, hThread, (ULONG_PTR)hThisThread);
         // then free the memory
         status = pNtQueueApcThread(hThread, VirtualFree, (ULONG_PTR)hAppInstance, 0, MEM_RELEASE);
         ResumeThread(hThread);
