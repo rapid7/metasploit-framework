@@ -22,7 +22,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['Flibustier'],
         'Platform' => %w[bsd linux osx unix],
-        'SessionTypes' => ['shell']
+        'SessionTypes' => ['shell'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end

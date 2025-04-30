@@ -17,34 +17,38 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
     register_options(
       [
-
         OptString.new('RESOURCE', [true, 'Full path to resource file to read commands from.', nil]),
-
       ]
     )
   end
 
-  # Run Method for when run command is issued
   def run
-    print_status("Running module against #{sysinfo['Computer']}")
     if !::File.exist?(datastore['RESOURCE'])
       raise 'Resource File does not exist!'
-    else
-      ::File.open(datastore['RESOURCE'], 'rb').each_line do |cmd|
-        next if cmd.strip.empty?
-        next if cmd[0, 1] == '#'
+    end
 
-        begin
-          print_status "Running command #{cmd.chomp}"
-          session.console.run_single(cmd.chomp)
-        rescue ::Exception => e
-          print_status("Error Running Command #{cmd.chomp}: #{e.class} #{e}")
-        end
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
+
+    ::File.open(datastore['RESOURCE'], 'rb').each_line do |cmd|
+      next if cmd.strip.empty?
+      next if cmd.start_with?('#')
+
+      begin
+        print_status "Running command #{cmd.chomp}"
+        session.console.run_single(cmd.chomp)
+      rescue StandardError => e
+        print_status("Error Running Command #{cmd.chomp}: #{e.class} #{e}")
       end
     end
   end
