@@ -33,6 +33,11 @@ class MetasploitModule < Msf::Post
               stdapi_net_config_get_routes
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -72,24 +77,27 @@ class MetasploitModule < Msf::Post
   def run
     return unless session_good?
 
-    print_status("Running module against #{sysinfo['Computer']}")
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
+
+    subnet = datastore['SUBNET']
 
     case route_cmd
     when :print
       print_routes
     when :add
-      if validate_cmd(datastore['SUBNET'], netmask)
-        print_status('Adding a route to %s/%s...' % [datastore['SUBNET'], netmask])
-        add_route(datastore['SUBNET'], netmask)
+      if validate_cmd(subnet, netmask)
+        print_status("Adding a route to #{subnet}/#{netmask}...")
+        add_route(subnet, netmask)
       end
     when :autoadd
       autoadd_routes
     when :default
       add_default
     when :delete
-      if datastore['SUBNET']
-        print_status('Deleting route to %s/%s...' % [datastore['SUBNET'], netmask])
-        delete_route(datastore['SUBNET'], netmask)
+      if subnet
+        print_status("Deleting route to #{subnet}/#{netmask}...")
+        delete_route(subnet, netmask)
       else
         delete_all_routes
       end
@@ -100,25 +108,27 @@ class MetasploitModule < Msf::Post
   #
   # @return [void] A useful return value is not expected here
   def delete_all_routes
-    if !Rex::Socket::SwitchBoard.routes.empty?
-      print_status("Deleting all routes associated with session: #{session.sid}.")
-      loop do
-        count = 0
-        Rex::Socket::SwitchBoard.each do |route|
-          if route.comm == session
-            print_status("Deleting: #{route.subnet}/#{route.netmask}")
-            delete_route(route.subnet, route.netmask)
-          end
-        end
-        Rex::Socket::SwitchBoard.each do |route|
-          count += 1 if route.comm == session
-        end
-        break if count == 0
-      end
-      print_status('Deleted all routes')
-    else
+    if Rex::Socket::SwitchBoard.routes.empty?
       print_status('No routes associated with this session to delete.')
+      return
     end
+
+    print_status("Deleting all routes associated with session: #{session.sid}.")
+
+    loop do
+      count = 0
+      Rex::Socket::SwitchBoard.each do |route|
+        next unless route.comm == session
+
+        print_status("Deleting: #{route.subnet}/#{route.netmask}")
+        delete_route(route.subnet, route.netmask)
+        count += 1
+      end
+
+      break if count == 0
+    end
+
+    print_status('Deleted all routes')
   end
 
   # Print all of the active routes defined on the framework
@@ -197,7 +207,7 @@ class MetasploitModule < Msf::Post
   #
   # @return [string class] IPv4 subnet
   def check_ip(ip = nil)
-    return false if (ip.nil? || ip.strip.empty?)
+    return false if ip.nil? || ip.strip.empty?
 
     begin
       rw = Rex::Socket::RangeWalker.new(ip.strip)
@@ -306,7 +316,7 @@ class MetasploitModule < Msf::Post
 
     begin
       session.net.config.each_route do |route|
-        next unless (Rex::Socket.is_ipv4?(route.subnet) && Rex::Socket.is_ipv4?(route.netmask)) # Pick out the IPv4 addresses
+        next unless Rex::Socket.is_ipv4?(route.subnet) && Rex::Socket.is_ipv4?(route.netmask) # Pick out the IPv4 addresses
 
         subnet = get_subnet(route.subnet, route.netmask) # Make sure that the subnet is actually a subnet and not an IP address. Android phones like to send over their IP.
         next unless is_routable?(subnet, route.netmask)
@@ -315,7 +325,7 @@ class MetasploitModule < Msf::Post
           found = true
         end
       end
-    rescue ::Rex::Post::Meterpreter::RequestError => e
+    rescue ::Rex::Post::Meterpreter::RequestError
       print_status('Unable to get routes from session, trying interface list.')
     end
 
@@ -340,7 +350,7 @@ class MetasploitModule < Msf::Post
           ip_addr = interface.addrs[index]
           netmask = interface.netmasks[index]
 
-          next unless (Rex::Socket.is_ipv4?(ip_addr) && Rex::Socket.is_ipv4?(netmask)) # Pick out the IPv4 addresses
+          next unless Rex::Socket.is_ipv4?(ip_addr) && Rex::Socket.is_ipv4?(netmask) # Pick out the IPv4 addresses
           next unless is_routable?(ip_addr, netmask)
 
           subnet = get_subnet(ip_addr, netmask)
@@ -350,7 +360,7 @@ class MetasploitModule < Msf::Post
           end
         end
       end
-    rescue ::Rex::Post::Meterpreter::RequestError => e
+    rescue ::Rex::Post::Meterpreter::RequestError
       print_error('Unable to get interface information from session.')
     end
     return found
@@ -473,12 +483,12 @@ class MetasploitModule < Msf::Post
       return false
     end
 
-    if (netmask && !Rex::Socket.addr_atoc(netmask))
+    if netmask && !Rex::Socket.addr_atoc(netmask)
       print_error 'Netmask invalid (must define contiguous IP addressing)'
       return false
     end
 
-    if (netmask && !check_ip(netmask))
+    if netmask && !check_ip(netmask)
       print_error 'Netmask invalid'
       return false
     end

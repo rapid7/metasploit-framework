@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Post
           # Askpass first added March 2, 2008, looks like
           [ 'URL', 'http://www.sudo.ws/repos/sudo/file/05780f5f71fd/sudo.h']
         ],
-        'SessionTypes' => [ 'shell' ]
+        'SessionTypes' => [ 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, ACCOUNT_LOCKOUTS],
+          'Reliability' => []
+        }
       )
     ) # Need to test 'meterpreter'
 

