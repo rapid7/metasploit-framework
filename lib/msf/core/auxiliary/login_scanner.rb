@@ -20,7 +20,6 @@ module Msf
           proxies: datastore['Proxies'],
           stop_on_success: datastore['STOP_ON_SUCCESS'],
           bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-          sslkeylogfile: datastore['SSLKeyLogFile'],
           framework: framework,
           framework_module: self,
           local_port: datastore['CPORT'],
