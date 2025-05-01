@@ -19,7 +19,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'sinn3r'],
         'Platform' => [ 'osx' ],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [AUDIO_EFFECTS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -34,7 +39,7 @@ class MetasploitModule < Msf::Post
   def exec(cmd)
     tries = 0
     begin
-      out = cmd_exec(cmd).chomp
+      cmd_exec(cmd).chomp
     rescue ::Timeout::Error => e
       tries += 1
       if tries < 3

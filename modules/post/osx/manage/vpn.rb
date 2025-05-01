@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Post
           [ 'CONNECT', { 'Description' => 'Connect to a VPN using stored credentials' } ],
           [ 'DISCONNECT', { 'Description' => 'Disconnect from a VPN' } ]
         ],
-        'DefaultAction' => 'LIST'
+        'DefaultAction' => 'LIST',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 
