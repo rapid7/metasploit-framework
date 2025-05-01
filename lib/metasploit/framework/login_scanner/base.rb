@@ -45,6 +45,9 @@ module Metasploit
           # @!attribute bruteforce_speed
           #   @return [Integer] The desired speed, with 5 being 'fast' and 0 being 'slow.'
           attr_accessor :bruteforce_speed
+          # @!attribute sslkeylogfile
+          #   @return [String] The SSL key log file path
+          attr_accessor :sslkeylogfile
 
           validates :connection_timeout,
                     presence: true,
