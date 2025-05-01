@@ -8,6 +8,9 @@ require 'rex/zip'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::FILEFORMAT
+  include Msf::Module::Deprecated
+
+  moved_from 'auxiliary/docx/word_unc_injector'
 
   def initialize(info = {})
     super(
