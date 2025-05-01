@@ -21,6 +21,9 @@ module Metasploit
           # @!attribute ssl_verify_mode
           #   @return [String] the SSL certification verification mechanism
           attr_accessor :ssl_verify_mode
+          # @!attribute sslkeylogfile
+          #   @return [String, nil] The SSL key log file path
+          attr_accessor :sslkeylogfile
           # @!attribute ssl_cipher
           #   @return [String] The SSL cipher to use for the context
           attr_accessor :ssl_cipher
