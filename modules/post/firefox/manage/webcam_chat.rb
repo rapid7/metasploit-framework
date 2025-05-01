@@ -22,13 +22,13 @@ class MetasploitModule < Msf::Post
         'References' => [
           [ 'URL', 'http://www.rapid7.com/db/modules/exploit/firefox/local/exec_shellcode' ]
         ],
-        'DisclosureDate' => '2014-05-13'
-      ),
-      'Notes' => {
-        'Stability' => [CRASH_SAFE],
-        'SideEffects' => [SCREEN_EFFECTS],
-        'Reliability' => []
-      }
+        'DisclosureDate' => '2014-05-13',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [SCREEN_EFFECTS],
+          'Reliability' => []
+        }
+      )
     )
 
     register_options([
