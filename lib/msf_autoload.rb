@@ -302,6 +302,7 @@ class MsfAutoload
       'nist_sp_800_38f' => 'NIST_SP_800_38f',
       'nist_sp_800_108' => 'NIST_SP_800_108',
       'pfsense' => 'PfSense',
+      'opnsense' => 'OPNSense',
       'pgadmin' => 'PgAdmin',
     }
   end
