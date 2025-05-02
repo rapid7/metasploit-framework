@@ -23,20 +23,27 @@ module Rex::Proto::LDAP::AuthAdapter
       # Decrypt the provided ciphertext
       # @param ciphertext [String]
       def read(ciphertext)
-        message = ntlm_client.session.unseal_message(ciphertext[16..-1])
-        if ntlm_client.session.verify_signature(ciphertext[0..15], message)
-          return message
-        else
-          # Some error
+        if (session = ntlm_client.session).nil?
+          raise Rex::Proto::LDAP::LdapException.new('Can not unseal data (no NTLM session is established)')
+        end
+
+        message = session.unseal_message(ciphertext[16..-1])
+        unless session.verify_signature(ciphertext[0..15], message)
           raise Rex::Proto::LDAP::LdapException.new('Received invalid message (NTLM signature verification failed)')
         end
+
+        return message
       end
 
       # Encrypt the provided plaintext
       # @param data [String]
       def write(data)
-        emessage = ntlm_client.session.seal_message(data)
-        signature = ntlm_client.session.sign_message(data)
+        if (session = ntlm_client.session).nil?
+          raise Rex::Proto::LDAP::LdapException.new('Can not seal data (no NTLM session is established)')
+        end
+
+        emessage = session.seal_message(data)
+        signature = session.sign_message(data)
 
         signature + emessage
       end

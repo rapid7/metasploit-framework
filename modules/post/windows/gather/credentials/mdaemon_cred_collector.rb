@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'Windows Gather MDaemonEmailServer Credential Cracking',
-        'Description' => 'Finds and cracks the stored passwords of MDaemon Email Server',
+        'Description' => 'Finds and cracks the stored passwords of MDaemon Email Server.',
         'References' => [
           ['BID', '4686']
         ],
@@ -22,6 +22,11 @@ class MetasploitModule < Msf::Post
         'Platform' => ['win'],
         'Arch' => [ARCH_X86, ARCH_X64],
         'SessionTypes' => ['meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -55,7 +60,7 @@ class MetasploitModule < Msf::Post
 
     progfiles_env = session.sys.config.getenvs('SYSTEMDRIVE', 'HOMEDRIVE', 'ProgramFiles', 'ProgramFiles(x86)', 'ProgramW6432')
     locations = ['C:\MDaemon\App']
-    progfiles_env.each do |_k, v|
+    progfiles_env.each_value do |v|
       vprint_status("Searching MDaemon installation at #{v}")
       if session.fs.dir.entries(v).include? 'MDaemon'
         vprint_status("Found MDaemon installation at #{v}")

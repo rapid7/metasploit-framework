@@ -116,9 +116,11 @@ module Msf::DBManager::Connection
   def connection_established?
     begin
       # use with_connection so the connection doesn't stay pinned to the thread.
-      ApplicationRecord.connection_pool.with_connection {
-        ApplicationRecord.connection.active?
-      }
+      ApplicationRecord.connection_pool.with_connection do
+        # There's a bug in Rails 7.1 where ApplicationRecord.connection.active? returns false even though we can get a connection
+        # calling `verify!` instead will ensure we are connected even if `active?` incorrectly returns false
+        ApplicationRecord.connection.verify!
+      end
     rescue ActiveRecord::ConnectionNotEstablished, PG::ConnectionBad => error
       false
     end

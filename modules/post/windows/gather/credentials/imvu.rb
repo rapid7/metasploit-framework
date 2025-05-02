@@ -24,12 +24,19 @@ class MetasploitModule < Msf::Post
         ],
         'License' => MSF_LICENSE,
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
 
   def run
+    fail_with(Failure::BadConfig, 'Only meterpreter sessions are supported by this module') unless session.type == 'meterpreter'
+
     creds = Rex::Text::Table.new(
       'Header' => 'IMVU Credentials',
       'Indent' => 1,

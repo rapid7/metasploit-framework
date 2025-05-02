@@ -26,6 +26,11 @@ class MetasploitModule < Msf::Post
         'References' => [
           [ 'URL', 'http://www.amazon.com/System-Forensic-Analysis-Brian-Carrier/dp/0321268172/' ]
         ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -78,7 +83,7 @@ class MetasploitModule < Msf::Post
     end
 
     @handle = r['return']
-    vprint_good("Successfuly opened #{drive}")
+    vprint_good("Successfully opened #{drive}")
     begin
       @bytes_read = 0
       fs = Rex::Parser::NTFS.new(self)

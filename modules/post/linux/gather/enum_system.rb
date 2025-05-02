@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Post
           'Roberto Espreto <robertoespreto[at]gmail.com>', # log files and setuid/setgid
         ],
         'Platform' => ['linux'],
-        'SessionTypes' => ['shell', 'meterpreter']
+        'SessionTypes' => ['shell', 'meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end

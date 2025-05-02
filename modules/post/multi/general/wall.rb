@@ -19,15 +19,20 @@ class MetasploitModule < Msf::Post
         ],
         # TODO: is there a way to do this on Windows?
         'Platform' => %w[linux osx unix],
-        'SessionTypes' => %w[shell meterpreter]
+        'SessionTypes' => %w[shell meterpreter],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [SCREEN_EFFECTS],
+          'Reliability' => []
+        }
       )
     )
     register_options(
       [
         OptString.new('MESSAGE', [false, 'The message to send', '']),
         OptString.new('USERS', [
-          false, 'List of users to write(1) to, separated by commas. ' \
-                      ' wall(1)s to all users by default'
+          false,
+          'List of users to write(1) to, separated by commas. wall(1)s to all users by default.'
         ]),
         OptBool.new('COWSAY', [true, 'Display MESSAGE in a ~cowsay way', false])
       ]

@@ -4,7 +4,6 @@
 ##
 
 module MetasploitModule
-
   CachedSize = 313
 
   include Msf::Payload::Windows
@@ -12,23 +11,26 @@ module MetasploitModule
   include Msf::Payload::Windows::BlockApi_x64
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'        => 'Windows MessageBox x64',
-      'Description' => 'Spawn a dialog via MessageBox using a customizable title, text & icon',
-      'Author'      => [
-        'pasta <jaguinaga[at]infobytesec.com>'
-      ],
-      'License'     => GPL_LICENSE,
-      'Platform'    => 'win',
-      'Arch'        => ARCH_X64
-    ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Windows MessageBox x64',
+        'Description' => 'Spawn a dialog via MessageBox using a customizable title, text & icon',
+        'Author' => [
+          'pasta <jaguinaga[at]infobytesec.com>'
+        ],
+        'License' => GPL_LICENSE,
+        'Platform' => 'win',
+        'Arch' => ARCH_X64
+      )
+    )
 
     icon_opts = ['NO', 'ERROR', 'INFORMATION', 'WARNING', 'QUESTION']
     register_options(
       [
-        OptString.new('TITLE', [true, "Messagebox Title", "MessageBox"]),
-        OptString.new('TEXT', [true, "Messagebox Text", "Hello, from MSF!"]),
-        OptEnum.new('ICON', [true, "Icon type", icon_opts[0], icon_opts])
+        OptString.new('TITLE', [true, 'Messagebox Title', 'MessageBox']),
+        OptString.new('TEXT', [true, 'Messagebox Text', 'Hello, from MSF!']),
+        OptEnum.new('ICON', [true, 'Icon type', icon_opts[0], icon_opts])
       ]
     )
   end
@@ -47,13 +49,13 @@ module MetasploitModule
       style = 0x40
     end
 
-    exitfunc_asm = %Q^
+    exitfunc_asm = %(
         xor rcx,rcx
         mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'ExitProcess')}
         call rbp
-      ^
+      )
     if datastore['EXITFUNC'].upcase.strip == 'THREAD'
-      exitfunc_asm = %Q^
+      exitfunc_asm = %(
         mov ebx, #{Rex::Text.block_api_hash('kernel32.dll', 'ExitThread')}
         mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'GetVersion')}
         call rbp
@@ -69,9 +71,9 @@ module MetasploitModule
         pop rcx
         mov r10d,ebx
         call rbp
-      ^
+      )
     end
-    payload_asm = %Q^
+    payload_asm = %(
       cld
       and rsp,0xfffffffffffffff0
       call start_main
@@ -98,7 +100,7 @@ module MetasploitModule
       call rbp
     exitfunk:
       #{exitfunc_asm}
-    ^
+    )
     payload_data = Metasm::Shellcode.assemble(Metasm::X64.new, payload_asm).encode_string
     return payload_data
   end

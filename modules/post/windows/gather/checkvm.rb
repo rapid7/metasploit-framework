@@ -184,7 +184,6 @@ class MetasploitModule < Msf::Post
       /cl_vmx_svga|VMWare/i
     )
 
-
     vmwareprocs = [
       'vmtoolsd.exe',
       'vmwareservice.exe',

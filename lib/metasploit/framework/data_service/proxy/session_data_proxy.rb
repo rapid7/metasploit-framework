@@ -13,7 +13,7 @@ module SessionDataProxy
   def report_session(opts)
     begin
       self.data_service_operation do |data_service|
-        add_opts_workspace(opts)
+        add_opts_workspace(opts, opts.fetch(:workspace, opts[:session]&.workspace))
         data_service.report_session(opts)
       end
     rescue => e

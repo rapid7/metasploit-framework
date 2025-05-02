@@ -27,6 +27,11 @@ class MetasploitModule < Msf::Post
         'References' => [
           [ 'URL', 'http://adamcaudill.com/2012/07/27/decrypting-spark-saved-passwords/']
         ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -107,7 +112,6 @@ class MetasploitModule < Msf::Post
     create_credential_login(login_data)
   end
 
-  # main control method
   def run
     grab_user_profiles.each do |user|
       next if user['AppData'].nil?
@@ -129,12 +133,12 @@ class MetasploitModule < Msf::Post
 
       # look for lines containing string 'password'
       password = contents.split("\n").grep(/password/)
-      if password.nil?
+      if password.blank?
         # file doesn't contain a password
         print_status("#{file} does not contain any saved passwords")
         # close file and return
         config.close
-        return
+        next
       end
 
       # store the hash close the file

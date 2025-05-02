@@ -23,7 +23,12 @@ class MetasploitModule < Msf::Post
           'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>'
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 
@@ -35,15 +40,14 @@ class MetasploitModule < Msf::Post
     ])
   end
 
-  # Entry point
   def run
     max_search = datastore['MAX_SEARCH']
 
     db, dbfile = create_sqlite_db
-    print_status "Temporary database created: #{dbfile.path}"
+    print_status("Temporary database created: #{dbfile.path}")
 
     # Download the list of groups from Active Directory
-    vprint_status 'Retrieving AD Groups'
+    vprint_status('Retrieving AD Groups')
     begin
       group_fields = ['distinguishedName', 'objectSid', 'samAccountType', 'sAMAccountName', 'whenChanged', 'whenCreated', 'description', 'groupType', 'adminCount', 'comment', 'managedBy', 'cn']
       if datastore['GROUP_FILTER'].nil? || datastore['GROUP_FILTER'].empty?
@@ -64,8 +68,8 @@ class MetasploitModule < Msf::Post
     end
 
     # Go through each of the groups and identify the individual users in each group
-    vprint_status "Groups retrieval completed: #{groups[:results].size} group(s)"
-    vprint_status 'Retrieving AD Group Membership'
+    vprint_status("Groups retrieval completed: #{groups[:results].size} group(s)")
+    vprint_status('Retrieving AD Group Membership')
     users_fields = ['distinguishedName', 'objectSid', 'sAMAccountType', 'sAMAccountName', 'displayName', 'description', 'logonCount', 'userAccountControl', 'userPrincipalName', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount', 'comment', 'title', 'cn', 'adminCount', 'manager']
 
     remaining_groups = groups[:results]
@@ -254,7 +258,7 @@ class MetasploitModule < Msf::Post
       group_gather.map(&:join)
     end
 
-    vprint_status 'Retrieving computers'
+    vprint_status('Retrieving computers')
     begin
       computer_filter = '(objectClass=computer)'
       computer_fields = ['distinguishedName', 'objectSid', 'cn', 'dNSHostName', 'sAMAccountType', 'sAMAccountName', 'displayName', 'logonCount', 'userAccountControl', 'whenChanged', 'whenCreated', 'primaryGroupID', 'badPwdCount', 'operatingSystem', 'operatingSystemServicePack', 'operatingSystemVersion', 'description', 'comment']

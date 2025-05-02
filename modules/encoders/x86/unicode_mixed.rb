@@ -19,10 +19,9 @@ class MetasploitModule < Msf::Encoder::Alphanum
       'Arch' => ARCH_X86,
       'License' => BSD_LICENSE,
       'EncoderType' => Msf::Encoder::Type::AlphanumUnicodeMixed,
-      'Decoder' =>
-        {
-          'BlockSize' => 1
-        })
+      'Decoder' => {
+        'BlockSize' => 1
+      })
     register_options(
       [
         OptString.new('BufferRegister', [true, 'The register that points to the encoded payload', 'ECX'])

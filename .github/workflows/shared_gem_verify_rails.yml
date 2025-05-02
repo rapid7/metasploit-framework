@@ -1,0 +1,90 @@
+name: Shared Gem Verify Rails/PostgreSQL
+on:
+  workflow_call:
+    inputs:
+      test_commands:
+        description: 'Test commands'
+        required: false
+        default: "bundle exec rspec"
+        type: string
+      dependencies:
+        description: 'Array of system dependencies to install'
+        required: false
+        default: "[]"
+        type: string
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby:
+          - '3.2'
+          - '3.3'
+          - '3.4'
+        rails:
+          - '~> 7.0.0'
+          - '~> 7.1.0'
+          - '~> 7.2.0'
+        postgres:
+          - '9.6'
+          - '16.8'
+        os:
+          - ubuntu-latest
+
+    env:
+      RAILS_ENV: test
+
+    name: ${{ matrix.os }} - Ruby ${{ matrix.ruby }} - Rails ${{ matrix.rails }} - PostgreSQL ${{ matrix.postgres }}
+    steps:
+      - name: Install system dependencies
+        run: |
+          dependencies=$(echo '${{ inputs.dependencies }}' | jq -r '.[]')
+          for dep in $dependencies; do
+            sudo apt-get -y --no-install-recommends install "$dep"
+          done
+        shell: bash
+
+      - name: Set up PostgreSQL service
+        run: |
+          docker run --name postgres -d -p 5432:5432 \
+            -e POSTGRES_USER=postgres \
+            -e POSTGRES_PASSWORD=postgres \
+            --health-cmd="pg_isready" \
+            --health-interval="10s" \
+            --health-timeout="5s" \
+            --health-retries=5 \
+            postgres:${{ matrix.postgres }}
+
+      - name: Wait for PostgreSQL to be healthy
+        run: |
+          docker exec postgres sh -c 'until pg_isready -U postgres; do echo waiting for postgres; sleep 2; done; echo postgres is ready'
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+
+      - name: Update Rails version
+        run: |
+          # Add the gem explicitly if it doesn't exist
+          if ! grep -q "gem ['\"]rails['\"]" Gemfile; then
+            echo 'gem "rails"' >> Gemfile          
+          fi
+          
+          # Ensure the gem is on the latest version
+          ruby -pi -e "gsub(/gem ['\"]rails['\"](, *['\"].*['\"])?/, \"gem 'rails', '${{ matrix.rails }}'\")" Gemfile
+          bundle update
+          bundle install
+          bundle show rails
+        shell: bash
+
+      - name: Test
+        run: ${{ inputs.test_commands }}

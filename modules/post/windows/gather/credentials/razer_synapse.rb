@@ -31,7 +31,12 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'https://github.com/pasv/Testing/blob/master/Razer_decode.py' ]
         ],
         'SessionTypes' => [ 'meterpreter' ],
-        'Platform' => [ 'win' ]
+        'Platform' => [ 'win' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end

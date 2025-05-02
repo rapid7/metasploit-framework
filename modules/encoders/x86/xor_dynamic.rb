@@ -7,11 +7,11 @@ class MetasploitModule < Msf::Encoder::XorDynamic
 
   def initialize
     super(
-      'Name'             => 'Dynamic key XOR Encoder',
-      'Description'      => 'An x86 XOR encoder with dynamic key size',
-      'Author'           => [ 'lupman', 'phra' ],
-      'Arch'             => ARCH_X86,
-      'License'          => MSF_LICENSE
+      'Name' => 'Dynamic Key XOR Encoder',
+      'Description' => 'An x86 XOR encoder with dynamic key size',
+      'Author' => [ 'lupman', 'phra' ],
+      'Arch' => ARCH_X86,
+      'License' => MSF_LICENSE
       )
   end
 
@@ -24,26 +24,26 @@ class MetasploitModule < Msf::Encoder::XorDynamic
   end
 
   def stub
-    "\xeb\x23" +             #        jmp    _call
-    "\x5b" +                 # _ret:  pop    ebx
-    "\x89\xdf" +             #        mov    edi, ebx
-    "\xb0\x41" +             #        mov    al, 'A'
-    "\xfc" +                 #        cld
-    "\xae" +                 # _lp1:  scas   al, BYTE PTR es:[edi]
-    "\x75\xfd" +             #        jne    _lp1
-    "\x89\xf9" +             #        mov    ecx, edi
-    "\x89\xde" +             # _lp2:  mov    esi, ebx
-    "\x8a\x06" +             # _lp3:  mov    al, BYTE PTR [esi]
-    "\x30\x07" +             #        xor    BYTE PTR [edi], al
-    "\x47" +                 #        inc    edi
-    "\x66\x81\x3f\x42\x42" + #        cmp    WORD PTR [edi], 'BB'
-    "\x74\x08" +             #        je     _jmp
-    "\x46" +                 #        inc    esi
-    "\x80\x3e\x41" +         #        cmp    BYTE PTR [esi], 'A'
-    "\x75\xee" +             #        jne    _lp3
-    "\xeb\xea" +             #        jmp    _lp2
-    "\xff\xe1" +             # _jmp:  jmp    ecx
-    "\xe8\xd8\xff\xff\xff"   # _call: call   _ret
+    "\xeb\x23" +               #        jmp    _call
+      "\x5b" +                 # _ret:  pop    ebx
+      "\x89\xdf" +             #        mov    edi, ebx
+      "\xb0\x41" +             #        mov    al, 'A'
+      "\xfc" +                 #        cld
+      "\xae" +                 # _lp1:  scas   al, BYTE PTR es:[edi]
+      "\x75\xfd" +             #        jne    _lp1
+      "\x89\xf9" +             #        mov    ecx, edi
+      "\x89\xde" +             # _lp2:  mov    esi, ebx
+      "\x8a\x06" +             # _lp3:  mov    al, BYTE PTR [esi]
+      "\x30\x07" +             #        xor    BYTE PTR [edi], al
+      "\x47" +                 #        inc    edi
+      "\x66\x81\x3f\x42\x42" + #        cmp    WORD PTR [edi], 'BB'
+      "\x74\x08" +             #        je     _jmp
+      "\x46" +                 #        inc    esi
+      "\x80\x3e\x41" +         #        cmp    BYTE PTR [esi], 'A'
+      "\x75\xee" +             #        jne    _lp3
+      "\xeb\xea" +             #        jmp    _lp2
+      "\xff\xe1" +             # _jmp:  jmp    ecx
+      "\xe8\xd8\xff\xff\xff"   # _call: call   _ret
   end
 
   def stub_key_term

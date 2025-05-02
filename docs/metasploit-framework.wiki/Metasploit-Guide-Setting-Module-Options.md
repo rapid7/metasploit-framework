@@ -124,6 +124,8 @@ The following protocols are currently supported, and described in more detail be
 - file - Load a series of RHOST values separated by newlines from a file. This file can also include URI strings
 - http
 - https
+- ldap
+- ldaps
 - mysql
 - postgres
 - smb

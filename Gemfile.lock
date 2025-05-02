@@ -1,12 +1,12 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.4.56)
+    metasploit-framework (6.4.62)
       aarch64
       abbrev
-      actionpack (~> 7.0.0)
-      activerecord (~> 7.0.0)
-      activesupport (~> 7.0.0)
+      actionpack (~> 7.1.0)
+      activerecord (~> 7.1.0)
+      activesupport (~> 7.1.0)
       aws-sdk-ec2
       aws-sdk-ec2instanceconnect
       aws-sdk-iam
@@ -46,7 +46,7 @@ PATH
       metasploit-credential
       metasploit-model
       metasploit-payloads (= 2.0.189)
-      metasploit_data_models
+      metasploit_data_models (>= 6.0.7)
       metasploit_payloads-mettle (= 1.0.35)
       mqtt
       msgpack (~> 1.6.0)
@@ -94,9 +94,10 @@ PATH
       rex-struct2
       rex-text
       rex-zip
+      rinda
       ruby-macho
       ruby-mysql
-      ruby_smb (~> 3.3.3)
+      ruby_smb (~> 3.3.15)
       rubyntlm
       rubyzip
       sinatra
@@ -122,28 +123,40 @@ GEM
     aarch64 (2.1.0)
       racc (~> 1.6)
     abbrev (0.1.2)
-    actionpack (7.0.8.7)
-      actionview (= 7.0.8.7)
-      activesupport (= 7.0.8.7)
-      rack (~> 2.0, >= 2.2.4)
+    actionpack (7.1.5.1)
+      actionview (= 7.1.5.1)
+      activesupport (= 7.1.5.1)
+      nokogiri (>= 1.8.5)
+      racc
+      rack (>= 2.2.4)
+      rack-session (>= 1.0.1)
       rack-test (>= 0.6.3)
-      rails-dom-testing (~> 2.0)
-      rails-html-sanitizer (~> 1.0, >= 1.2.0)
-    actionview (7.0.8.7)
-      activesupport (= 7.0.8.7)
+      rails-dom-testing (~> 2.2)
+      rails-html-sanitizer (~> 1.6)
+    actionview (7.1.5.1)
+      activesupport (= 7.1.5.1)
       builder (~> 3.1)
-      erubi (~> 1.4)
-      rails-dom-testing (~> 2.0)
-      rails-html-sanitizer (~> 1.1, >= 1.2.0)
-    activemodel (7.0.8.7)
-      activesupport (= 7.0.8.7)
-    activerecord (7.0.8.7)
-      activemodel (= 7.0.8.7)
-      activesupport (= 7.0.8.7)
-    activesupport (7.0.8.7)
+      erubi (~> 1.11)
+      rails-dom-testing (~> 2.2)
+      rails-html-sanitizer (~> 1.6)
+    activemodel (7.1.5.1)
+      activesupport (= 7.1.5.1)
+    activerecord (7.1.5.1)
+      activemodel (= 7.1.5.1)
+      activesupport (= 7.1.5.1)
+      timeout (>= 0.4.0)
+    activesupport (7.1.5.1)
+      base64
+      benchmark (>= 0.3)
+      bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
+      connection_pool (>= 2.2.5)
+      drb
       i18n (>= 1.6, < 2)
+      logger (>= 1.4.2)
       minitest (>= 5.1)
+      mutex_m
+      securerandom (>= 0.3)
       tzinfo (~> 2.0)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
@@ -201,6 +214,7 @@ GEM
     chunky_png (1.4.0)
     coderay (1.1.3)
     concurrent-ruby (1.3.4)
+    connection_pool (2.5.0)
     cookiejar (0.3.4)
     crass (1.0.6)
     csv (3.3.2)
@@ -252,6 +266,7 @@ GEM
     fiddle (1.1.6)
     filesize (0.2.0)
     fivemat (1.3.7)
+    forwardable (1.3.3)
     getoptlong (0.2.1)
     gssapi (1.3.1)
       ffi (>= 1.0.1)
@@ -271,6 +286,7 @@ GEM
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     io-console (0.8.0)
+    ipaddr (1.2.7)
     irb (1.7.4)
       reline (>= 0.3.6)
     jmespath (1.6.2)
@@ -293,7 +309,7 @@ GEM
       activesupport (~> 7.0)
       railties (~> 7.0)
       zeitwerk
-    metasploit-credential (6.0.12)
+    metasploit-credential (6.0.14)
       metasploit-concern
       metasploit-model
       metasploit_data_models (>= 5.0.0)
@@ -303,12 +319,12 @@ GEM
       rex-socket
       rubyntlm
       rubyzip
-    metasploit-model (5.0.2)
+    metasploit-model (5.0.3)
       activemodel (~> 7.0)
       activesupport (~> 7.0)
       railties (~> 7.0)
     metasploit-payloads (2.0.189)
-    metasploit_data_models (6.0.6)
+    metasploit_data_models (6.0.9)
       activerecord (~> 7.0)
       activesupport (~> 7.0)
       arel-helpers
@@ -388,8 +404,13 @@ GEM
     rack-protection (3.2.0)
       base64 (>= 0.1.0)
       rack (~> 2.2, >= 2.2.4)
+    rack-session (1.0.2)
+      rack (< 3)
     rack-test (2.2.0)
       rack (>= 1.3)
+    rackup (1.0.1)
+      rack (< 3)
+      webrick
     rails-dom-testing (2.2.0)
       activesupport (>= 5.0.0)
       minitest
@@ -397,13 +418,14 @@ GEM
     rails-html-sanitizer (1.6.2)
       loofah (~> 2.21)
       nokogiri (>= 1.15.7, != 1.16.7, != 1.16.6, != 1.16.5, != 1.16.4, != 1.16.3, != 1.16.2, != 1.16.1, != 1.16.0.rc1, != 1.16.0)
-    railties (7.0.8.7)
-      actionpack (= 7.0.8.7)
-      activesupport (= 7.0.8.7)
-      method_source
+    railties (7.1.5.1)
+      actionpack (= 7.1.5.1)
+      activesupport (= 7.1.5.1)
+      irb
+      rackup (>= 1.0.0)
       rake (>= 12.2)
-      thor (~> 1.0)
-      zeitwerk (~> 2.5)
+      thor (~> 1.0, >= 1.2.2)
+      zeitwerk (~> 2.6)
     rainbow (3.1.1)
     rake (13.2.1)
     rasn1 (0.14.0)
@@ -424,7 +446,7 @@ GEM
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.32)
+    rex-core (0.1.33)
     rex-encoder (0.1.8)
       metasm
       rex-arch
@@ -454,7 +476,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.59)
+    rex-socket (0.1.60)
       dnsruby
       rex-core
     rex-sslscan (0.1.11)
@@ -466,6 +488,10 @@ GEM
     rex-zip (0.1.6)
       rex-text
     rexml (3.4.1)
+    rinda (0.2.0)
+      drb
+      forwardable
+      ipaddr
     rkelly-remix (0.0.7)
     rspec (3.13.0)
       rspec-core (~> 3.13.0)
@@ -508,7 +534,7 @@ GEM
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
-    ruby_smb (3.3.13)
+    ruby_smb (3.3.15)
       bindata (= 2.4.15)
       openssl-ccm
       openssl-cmac
@@ -520,6 +546,7 @@ GEM
     sawyer (0.9.2)
       addressable (>= 2.3.5)
       faraday (>= 0.17.3, < 3)
+    securerandom (0.4.1)
     simplecov (0.18.2)
       docile (~> 1.1)
       simplecov-html (~> 0.11)

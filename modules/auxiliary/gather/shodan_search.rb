@@ -22,6 +22,8 @@ class MetasploitModule < Msf::Auxiliary
         see the Shodan site for more information.
         Shodan website: https://www.shodan.io/
         API: https://developer.shodan.io/api
+        Filters: https://www.shodan.io/search/filters
+        Facets: https://www.shodan.io/search/facet (from the scrollbox)
       },
       'Author' =>
         [
@@ -36,6 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('SHODAN_APIKEY', [true, 'The SHODAN API key']),
         OptString.new('QUERY', [true, 'Keywords you want to search for']),
+        OptString.new('FACETS', [false, 'List of facets']),
         OptString.new('OUTFILE', [false, 'A filename to store the list of IPs']),
         OptBool.new('DATABASE', [false, 'Add search results to the database', false]),
         OptInt.new('MAXPAGE', [true, 'Max amount of pages to collect', 1]),
@@ -55,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # create our Shodan query function that performs the actual web request
-  def shodan_query(apikey, query, page)
+  def shodan_query(apikey, query, facets, page)
     # send our query to Shodan
     res = send_request_cgi({
       'method' => 'GET',
@@ -66,6 +69,7 @@ class MetasploitModule < Msf::Auxiliary
       'vars_get' => {
         'key' => apikey,
         'query' => query,
+        'facets' => facets,
         'page' => page.to_s
       }
     })
@@ -117,92 +121,113 @@ class MetasploitModule < Msf::Auxiliary
 
     # create our Shodan request parameters
     query = datastore['QUERY']
+    facets = datastore['FACETS']
     apikey = datastore['SHODAN_APIKEY']
     maxpage = datastore['MAXPAGE']
 
     # results gets our results from shodan_query
     results = []
-    results[0] = shodan_query(apikey, query, 1)
+    first_page = 0
+    results[first_page] = shodan_query(apikey, query, facets, 1)
 
-    if results[0]['total'].nil? || results[0]['total'] == 0
+    if results[first_page]['total'].nil? || results[first_page]['total'] == 0
       msg = "No results."
-      if results[0]['error'].to_s.length > 0
-        msg << " Error: #{results[0]['error']}"
+      if results[first_page]['error'].to_s.length > 0
+        msg << " Error: #{results[first_page]['error']}"
       end
       print_error(msg)
       return
     end
 
     # Determine page count based on total results
-    if results[0]['total'] % 100 == 0
-      tpages = results[0]['total'] / 100
+    if results[first_page]['total'] % 100 == 0
+      tpages = results[first_page]['total'] / 100
     else
-      tpages = results[0]['total'] / 100 + 1
+      tpages = results[first_page]['total'] / 100 + 1
     end
     maxpage = tpages if datastore['MAXPAGE'] > tpages
 
-    # start printing out our query statistics
-    print_status("Total: #{results[0]['total']} on #{tpages} " +
-      "pages. Showing: #{maxpage} page(s)")
-
-    # If search results greater than 100, loop & get all results
-    print_status('Collecting data, please wait...')
-
-    if results[0]['total'] > 100
-      page = 1
-      while page < maxpage
-        page_result = shodan_query(apikey, query, page+1)
-        if page_result['matches'].nil?
-          next
-        end
-        results[page] = page_result
-        page += 1
-      end
-    end
-
-    # Save the results to this table
-    tbl = Rex::Text::Table.new(
-      'Header'  => 'Search Results',
-      'Indent'  => 1,
-      'Columns' => ['IP:Port', 'City', 'Country', 'Hostname']
-    )
-
-    # Organize results and put them into the table and database
-    regex = datastore['REGEX'] if datastore['REGEX']
-    results.each do |page|
-      page['matches'].each do |host|
-        city = host['location']['city'] || 'N/A'
-        ip   = host['ip_str'] || 'N/A'
-        port = host['port'] || ''
-        country = host['location']['country_name'] || 'N/A'
-        hostname = host['hostnames'][0]
-        data = host['data']
-
-        report_host(:host     => ip,
-                    :name     => hostname,
-                    :comments => 'Added from Shodan',
-                    :info     => host['info']
-                    ) if datastore['DATABASE']
-
-        report_service(:host => ip,
-                       :port => port,
-                       :info => 'Added from Shodan'
-                       ) if datastore['DATABASE']
-
-        if ip =~ regex ||
-          city =~ regex ||
-          country =~ regex ||
-          hostname =~ regex ||
-          data =~ regex
-          # Unfortunately we cannot display the banner properly,
-          # because it messes with our output format
-          tbl << ["#{ip}:#{port}", city, country, hostname]
+    if facets
+      facets_tbl = Rex::Text::Table.new(
+        'Header' => 'Facets',
+        'Indent' => 1,
+        'Columns' => ['Facet', 'Name', 'Count']
+      )
+      print_status("Total: #{results[first_page]['total']} on #{tpages} " \
+        'pages. Showing facets')
+      facet = results.dig(first_page,'facets')
+      facet.each do |name, list|
+        list.each do |f|
+          facets_tbl << [name.to_s, (f['value']).to_s, (f['count']).to_s]
         end
       end
+    else
+      # start printing out our query statistics
+      print_status("Total: #{results[first_page]['total']} on #{tpages} " +
+        "pages. Showing: #{maxpage} page(s)")
+
+      # If search results greater than 100, loop & get all results
+      print_status('Collecting data, please wait...')
+
+      if results[first_page]['total'] > 100
+        page = 1
+        while page < maxpage
+          page_result = shodan_query(apikey, query, facets, page+1)
+          if page_result['matches'].nil?
+            next
+          end
+          results[page] = page_result
+          page += 1
+        end
+      end
+      # Save the results to this table
+      tbl = Rex::Text::Table.new(
+        'Header'  => 'Search Results',
+        'Indent'  => 1,
+        'Columns' => ['IP:Port', 'City', 'Country', 'Hostname']
+      )
+
+      # Organize results and put them into the table and database
+      regex = datastore['REGEX'] if datastore['REGEX']
+      results.each do |page|
+        page['matches'].each do |host|
+          city = host.dig('location','city') || 'N/A'
+          ip   = host.fetch('ip_str', 'N/A')
+          port = host.fetch('port', '')
+          country = host.dig('location','country_name') || 'N/A'
+          hostname = host.dig('hostnames',0)
+          data = host.dig('data')
+
+          report_host(:host     => ip,
+                      :name     => hostname,
+                      :comments => 'Added from Shodan',
+                      :info     => host.dig('info')
+                      ) if datastore['DATABASE']
+
+          report_service(:host => ip,
+                        :port => port,
+                        :info => 'Added from Shodan'
+                        ) if datastore['DATABASE']
+
+          if ip =~ regex ||
+            city =~ regex ||
+            country =~ regex ||
+            hostname =~ regex ||
+            data =~ regex
+            # Unfortunately we cannot display the banner properly,
+            # because it messes with our output format
+            tbl << ["#{ip}:#{port}", city, country, hostname]
+          end
+        end
+      end
+      #Show data and maybe save it if needed
+      print_line()
+      print_line("#{tbl}")
+      save_output(tbl) if datastore['OUTFILE']
     end
-    #Show data and maybe save it if needed
-    print_line()
-    print_line("#{tbl}")
-    save_output(tbl) if datastore['OUTFILE']
+    if datastore['FACETS']
+      print_line(facets_tbl.to_s)
+      save_output(facets_tbl) if datastore['OUTFILE']
+    end
   end
 end

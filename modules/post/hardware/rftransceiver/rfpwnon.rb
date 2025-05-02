@@ -14,12 +14,22 @@ class MetasploitModule < Msf::Post
         'Description' => %q{
           Post Module for HWBridge RFTranscievers.  Brute forces AM OOK or raw
           binary signals.  This is a port of the rfpwnon tool by Corey Harding.
-          (https://github.com/exploitagency/github-rfpwnon/blob/master/rfpwnon.py)
         },
         'License' => MSF_LICENSE,
-        'Author' => ['Craig Smith'],
+        'Author' => [
+          'Corey Harding', # rfpwnon
+          'Craig Smith', # metasploit
+        ],
+        'References' => [
+          ['URL', 'https://github.com/exploitagency/github-rfpwnon/blob/master/rfpwnon.py'],
+        ],
         'Platform' => ['hardware'],
-        'SessionTypes' => ['hwbridge']
+        'SessionTypes' => ['hwbridge'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [PHYSICAL_EFFECTS],
+          'Reliability' => []
+        }
       )
     )
     register_options([
@@ -40,7 +50,7 @@ class MetasploitModule < Msf::Post
     @brutechar = '01'
   end
 
-  # @param key [String] binary/trinary represntation
+  # @param key [String] binary/trinary representation
   # @return [Array] ByteArray
   def convert_ook(key)
     pwm_str_key = ''
@@ -59,6 +69,7 @@ class MetasploitModule < Msf::Post
     return pwm_str_key.scan(/.{1,8}/).collect { |x| x.to_i(2).chr }
   end
 
+  # rubocop:disable Naming/MethodParameterName
   def debruijn_bytes(k, n)
     @a = [0]
     @sequence = []
@@ -80,16 +91,16 @@ class MetasploitModule < Msf::Post
       end
     end
   end
+  # rubocop:enable Naming/MethodParameterName
 
   def run
-    unless is_rf?
-      print_error('Not an RF Transceiver')
-      return
-    end
+    fail_with(Failure::BadConfig, 'Not an RF Transceiver') unless is_rf?
+
     unless set_index(datastore['INDEX'])
-      print_error("Couldn't set usb index to #{datastore['INDEX']}")
+      print_error("Couldn't set USB index to #{datastore['INDEX']}")
       return
     end
+
     if datastore['TRI']
       @zeropwm = '10001000'
       @onepwm = '11101110'
@@ -115,7 +126,6 @@ class MetasploitModule < Msf::Post
 
     startn = 0
     endy = 512
-    brutepackettmp = ''
     addr = 512
     if datastore['TRI']
       endy = 128
@@ -125,6 +135,7 @@ class MetasploitModule < Msf::Post
       endy = datastore['BINLENGTH']
       addr = 1
     end
+
     # Transmit
     while startn < brutepacket.length
       (0..datastore['REPEAT'] - 1).each do |_i|
@@ -156,6 +167,7 @@ class MetasploitModule < Msf::Post
         endy = endy + addr - datastore['BINLENGTH']
       end
     end
+
     print_status('Done')
     set_mode('IDLE')
   end

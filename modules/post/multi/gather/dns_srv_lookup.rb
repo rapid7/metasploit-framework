@@ -17,7 +17,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform' => %w[bsd linux osx solaris win],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
     register_options(
@@ -156,7 +161,6 @@ class MetasploitModule < Msf::Post
   def get_ip(host)
     ip_add = []
     cmd_exec('host', " #{host}").each_line do |l|
-      ip = ''
       ip = l.scan(/has address (\S*)$/).join
       ip_add << ip if ip != ''
     end

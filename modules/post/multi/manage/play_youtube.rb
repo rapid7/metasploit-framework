@@ -26,8 +26,10 @@ class MetasploitModule < Msf::Post
         'Platform' => [ 'win', 'osx', 'linux', 'android', 'unix' ],
         'SessionTypes' => [ 'shell', 'meterpreter' ],
         'Notes' => {
+          'Stability' => [CRASH_SAFE],
           # ARTIFACTS_ON_DISK when the platform is linux
-          'SideEffects' => [ ARTIFACTS_ON_DISK, AUDIO_EFFECTS, SCREEN_EFFECTS ]
+          'SideEffects' => [ ARTIFACTS_ON_DISK, AUDIO_EFFECTS, SCREEN_EFFECTS ],
+          'Reliability' => []
         },
         'Compat' => {
           'Meterpreter' => {
@@ -98,7 +100,7 @@ class MetasploitModule < Msf::Post
       profile_name = Rex::Text.rand_text_alpha(8)
       display = get_env('DISPLAY') || ':0'
       vprint_status("Creating profile #{profile_name} using display #{display}")
-      o = cmd_exec(%(firefox --display #{display} -CreateProfile "#{profile_name} /tmp/#{profile_name}"))
+      cmd_exec(%(firefox --display #{display} -CreateProfile "#{profile_name} /tmp/#{profile_name}"))
 
       # Add user-defined settings to profile
       s = %|

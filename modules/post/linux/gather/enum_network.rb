@@ -24,7 +24,12 @@ class MetasploitModule < Msf::Post
           'Stephen Haywood <averagesecurityguy[at]gmail.com>', # enum_linux
         ],
         'Platform' => ['linux'],
-        'SessionTypes' => ['shell', 'meterpreter']
+        'SessionTypes' => ['shell', 'meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end

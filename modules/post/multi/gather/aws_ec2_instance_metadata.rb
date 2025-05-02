@@ -22,7 +22,12 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => %w[shell meterpreter],
         'References' => [
           [ 'URL', 'http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html' ]
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 

