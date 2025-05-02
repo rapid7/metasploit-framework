@@ -57,14 +57,14 @@ module Metasploit
             return { status: :failure, error: 'Received an empty body from GET request' }
           end
 
-          # The magic name and value are hidden on the login form, so we extract them using Nokogiri.
-          form_inputs = ::Nokogiri::HTML(res.body).search('input')
-          magic_field = form_inputs.find { |field| field['type'] == 'hidden' }
-          if magic_field.nil?
+          # The magic name and value are hidden on the login form, so we extract them using get_html_document
+          form_input = res.get_html_document&.at('input')
+
+          if form_input.nil? || form_input['type'] != 'hidden'
             return { status: :failure, error: 'Could not find hidden magic field in the login form.' }
           end
 
-          magic_value = { name: magic_field['name'], value: magic_field['value'] }
+          magic_value = { name: form_input['name'], value: form_input['value'] }
           cookies = "PHPSESSID=#{get_cookie_value(res, 'PHPSESSID')}; cookie_test=#{get_cookie_value(res, 'cookie_test')}"
           { status: :success, result: { magic_value: magic_value, cookies: cookies } }
         end
