@@ -258,8 +258,8 @@ module Msf::Payload::Adapter::Fetch
   end
 
   def _execute_nix(get_file_cmd)
-    return _generate_fileless_bash(get_file_cmd, module_info['AdaptedArch']) if datastore['FETCH_FILELESS'] == 'bash'
-    return _generate_fileless_bash_search(get_file_cmd) if datastore['FETCH_FILELESS'] == 'sh-search'
+    return _generate_fileless_shell(get_file_cmd, module_info['AdaptedArch']) if datastore['FETCH_FILELESS'] == 'shell'
+    return _generate_fileless_bash_search(get_file_cmd) if datastore['FETCH_FILELESS'] == 'shell-search'
     return _generate_fileless_python(get_file_cmd) if datastore['FETCH_FILELESS'] == 'python3.8+'
 
 

