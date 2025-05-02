@@ -4,6 +4,8 @@
 ##
 class MetasploitModule < Msf::Auxiliary
   include ::Msf::Exploit::Remote::HTTP::SCCM
+  include Msf::Exploit::Remote::LDAP
+  include Msf::OptionalSession::LDAP
 
   def initialize(info = {})
     super(
@@ -45,6 +47,50 @@ class MetasploitModule < Msf::Auxiliary
     ])
 
     @session_or_rhost_required = false
+  end
+
+  def find_management_point
+    ldap_connect do |ldap|
+      validate_bind_success!(ldap)
+
+      if (@base_dn = datastore['BASE_DN'])
+        print_status("User-specified base DN: #{@base_dn}")
+      else
+        print_status('Discovering base DN automatically')
+
+        if (@base_dn = ldap.base_dn)
+          print_status("#{ldap.peerinfo} Discovered base DN: #{@base_dn}")
+        else
+          fail_with(Msf::Module::Failure::UnexpectedReply, "Couldn't discover base DN!")
+        end
+      end
+      raw_objects = ldap.search(base: @base_dn, filter: '(objectclass=mssmsmanagementpoint)', attributes: ['*'])
+      return nil unless raw_objects.any?
+
+      raw_obj = raw_objects.first
+
+      raw_objects.each do |ro|
+        print_good("Found Management Point: #{ro[:dnshostname].first} (Site code: #{ro[:mssmssitecode].first})")
+      end
+
+      if raw_objects.length > 1
+        print_warning("Found more than one Management Point. Using the first (#{raw_obj[:dnshostname].first})")
+      end
+
+      obj = {}
+      obj[:rhost] = raw_obj[:dnshostname].first
+      obj[:sitecode] = raw_obj[:mssmssitecode].first
+
+      obj
+    rescue Errno::ECONNRESET
+      fail_with(Msf::Module::Failure::Disconnected, 'The connection was reset.')
+    rescue Rex::ConnectionError => e
+      fail_with(Msf::Module::Failure::Unreachable, e.message)
+    rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
+      fail_with(Msf::Module::Failure::NoAccess, e.message)
+    rescue Net::LDAP::Error => e
+      fail_with(Msf::Module::Failure::Unknown, "#{e.class}: #{e.message}")
+    end
   end
 
   def run
