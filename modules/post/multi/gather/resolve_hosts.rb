@@ -23,6 +23,11 @@ class MetasploitModule < Msf::Post
               stdapi_net_resolve_hosts
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )

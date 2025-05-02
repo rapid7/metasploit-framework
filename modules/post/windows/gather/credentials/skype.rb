@@ -33,6 +33,11 @@ class MetasploitModule < Msf::Post
           ['URL', 'https://web.archive.org/web/20140207115406/http://insecurety.net/?p=427'],
           ['URL', 'https://github.com/skypeopensource/tools']
         ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -84,9 +89,9 @@ puts hash.hexdigest
       addr = Rex::Text.pack_int64le(mem)
       len = Rex::Text.pack_int64le(data.length)
       ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
-      pData = ret['pDataOut'].unpack('VVVV')
-      len = pData[0] + (pData[1] << 32)
-      addr = pData[2] + (pData[3] << 32)
+      pdata = ret['pDataOut'].unpack('VVVV')
+      len = pdata[0] + (pdata[1] << 32)
+      addr = pdata[2] + (pdata[3] << 32)
     end
 
     return '' if len == 0
@@ -157,7 +162,6 @@ puts hash.hexdigest
   end
 
   def get_config_creds(salt)
-    users = []
     appdatapath = expand_path('%AppData%') + '\\Skype'
     print_status('Checking for config files in %APPDATA%')
     users = get_config_users(appdatapath)
@@ -181,7 +185,7 @@ puts hash.hexdigest
   def run
     salt = get_salt
     if !salt.nil?
-      creds = get_config_creds(salt)
+      get_config_creds(salt)
     else
       print_error 'No salt found. Cannot continue without salt, exiting'
     end

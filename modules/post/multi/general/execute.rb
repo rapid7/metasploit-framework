@@ -14,7 +14,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'hdm' ],
         'Platform' => %w[linux osx unix win],
-        'SessionTypes' => [ 'shell', 'meterpreter' ]
+        'SessionTypes' => [ 'shell', 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
     register_options(

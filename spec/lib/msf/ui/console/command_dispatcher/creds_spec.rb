@@ -212,32 +212,48 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                                realm: nil,
                                workspace: framework.db.workspace)
           end
+          let!(:pkcs12_subject) { '/C=FR/O=MyOrg/OU=MyUnit/CN=SubjectTestName' }
+          let!(:pkcs12_issuer) { '/C=US/O=MyIssuer/OU=MyIssuerUnit/CN=IssuerTestName' }
+          let!(:pkcs12_ca) { 'testCA' }
+          let!(:pkcs12_adcs_template) { 'TestTemplate' }
+          let!(:pkcs12_core) do
+            priv = FactoryBot.create(:metasploit_credential_pkcs12_with_ca_and_adcs_template,
+                                     subject: pkcs12_subject,
+                                     issuer: pkcs12_issuer,
+                                     adcs_ca: pkcs12_ca,
+                                     adcs_template: pkcs12_adcs_template)
+            FactoryBot.create(:metasploit_credential_core,
+                               origin: FactoryBot.create(:metasploit_credential_origin_import),
+                               private: priv,
+                               public: nil,
+                               realm: nil,
+                               workspace: framework.db.workspace)
+          end
 
-          #         # Somehow this is hitting a unique constraint on Cores with the same
-          #         # Public, even though it has a different Private. Skip for now
-          #         let!(:ntlm_core) do
-          #           priv = FactoryBot.create(:metasploit_credential_ntlm_hash, data: ntlm_hash)
-          #           FactoryBot.create(:metasploit_credential_core,
-          #                              origin: FactoryBot.create(:metasploit_credential_origin_import),
-          #                              private: priv,
-          #                              public: pub,
-          #                              realm: nil,
-          #                              workspace: framework.db.workspace)
-          #         end
-          #         let!(:nonreplayable_core) do
-          #           priv = FactoryBot.create(:metasploit_credential_nonreplayable_hash, data: 'asdf')
-          #           FactoryBot.create(:metasploit_credential_core,
-          #                              origin: FactoryBot.create(:metasploit_credential_origin_import),
-          #                              private: priv,
-          #                              public: pub,
-          #                              realm: nil,
-          #                              workspace: framework.db.workspace)
-          #         end
+          let!(:ntlm_core) do
+            priv = FactoryBot.create(:metasploit_credential_ntlm_hash, data: ntlm_hash)
+            FactoryBot.create(:metasploit_credential_core,
+                               origin: FactoryBot.create(:metasploit_credential_origin_import),
+                               private: priv,
+                               public: pub,
+                               realm: nil,
+                               workspace: framework.db.workspace)
+          end
+          let!(:nonreplayable_core) do
+            priv = FactoryBot.create(:metasploit_credential_nonreplayable_hash, data: 'asdf')
+            FactoryBot.create(:metasploit_credential_core,
+                               origin: FactoryBot.create(:metasploit_credential_origin_import),
+                               private: priv,
+                               public: pub,
+                               realm: nil,
+                               workspace: framework.db.workspace)
+          end
 
           after(:example) do
-            # ntlm_core.destroy
+            ntlm_core.destroy
             password_core.destroy
-            # nonreplayable_core.destroy
+            nonreplayable_core.destroy
+            pkcs12_core.destroy
           end
 
           context 'password' do
@@ -283,16 +299,48 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
 
           context 'ntlm' do
             it 'should show just the ntlm' do
-              skip 'Weird uniqueness constraint on Core (workspace_id, public_id)'
 
               creds.cmd_creds('-t', 'ntlm')
               expect(@output.join("\n")).to match_table <<~TABLE
                 Credentials
                 ===========
 
-                host  origin  service  public         private                                                            realm  private_type  JtR Format  cracked_password
-                ----  ------  -------  ------         -------                                                            -----  ------------  ----------  ----------------
-                                       thisuser       1443d06412d8c0e6e72c57ef50f76a05:27c433245e4763d074d30a05aae0af2c         NTLM hash
+                host  origin  service  public    private                                                            realm  private_type  JtR Format  cracked_password
+                ----  ------  -------  ------    -------                                                            -----  ------------  ----------  ----------------
+                                       thisuser  1443d06412d8c0e6e72c57ef50f76a05:27c433245e4763d074d30a05aae0af2c         NTLM hash
+
+              TABLE
+            end
+          end
+
+          context 'nonreplayable' do
+            it 'should show just the ntlm' do
+
+              creds.cmd_creds('-t', 'hash')
+              expect(@output.join("\n")).to match_table <<~TABLE
+                Credentials
+                ===========
+
+                host  origin  service  public    private  realm  private_type        JtR Format  cracked_password
+                ----  ------  -------  ------    -------  -----  ------------        ----------  ----------------
+                                       thisuser  asdf            Nonreplayable hash
+
+              TABLE
+            end
+          end
+
+          context 'pkcs12' do
+            it 'should show just the pkcs12' do
+              private_str = "subject:#{pkcs12_subject},issuer:#{pkcs12_issuer},ADCS CA:#{pkcs12_ca},ADCS template:#{pkcs12_adcs_template}"
+              private_str = "#{private_str[0,76]} (TRUNCATED)"
+              creds.cmd_creds('-t', 'pkcs12')
+              expect(@output.join("\n")).to match_table <<~TABLE
+                Credentials
+                ===========
+
+                host  origin  service  public  private                                                                                   realm  private_type  JtR Format  cracked_password
+                ----  ------  -------  ------  -------                                                                                   -----  ------------  ----------  ----------------
+                                               #{private_str}         Pkcs12 (pfx)
 
               TABLE
             end
@@ -477,6 +525,65 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
               expect {
                 creds.cmd_creds('add', "user:#{username}", "ssh-key:#{@file.path}")
               }.to_not change { Metasploit::Credential::Core.count }
+            end
+          end
+          context 'pkcs12' do
+            let(:priv) { FactoryBot.build(:metasploit_credential_pkcs12) }
+            before(:each) do
+              @file = Tempfile.new('mypkcs12.pfx')
+              @file.write(Base64.strict_decode64(priv.data))
+              @file.close
+            end
+            it 'creates a core if one does not exist' do
+              expect {
+                creds.cmd_creds('add', "pkcs12:#{@file.path}")
+              }.to change { Metasploit::Credential::Core.count }.by 1
+            end
+            it 'does not create a core if it already exists' do
+              FactoryBot.create(:metasploit_credential_core,
+                origin: FactoryBot.create(:metasploit_credential_origin_import),
+                private: priv,
+                public: nil,
+                realm: nil,
+                workspace: framework.db.workspace)
+              expect {
+                creds.cmd_creds('add', "pkcs12:#{@file.path}")
+              }.to_not change { Metasploit::Credential::Core.count }
+            end
+
+            context 'with a password' do
+              let(:pkcs12_password) { 'mypass' }
+              let(:priv) {
+                FactoryBot.build(:metasploit_credential_pkcs12,
+                  pkcs12_password: pkcs12_password,
+                  metadata: { pkcs12_password: pkcs12_password }
+                )
+              }
+
+              it 'creates a core if the password is correct' do
+                expect {
+                  creds.cmd_creds('add', "pkcs12:#{@file.path}", "pkcs12-password:#{pkcs12_password}")
+                }.to change { Metasploit::Credential::Core.count }.by 1
+              end
+
+              it 'does not creates a core if the password is incorrect' do
+                expect {
+                  creds.cmd_creds('add', "pkcs12:#{@file.path}", "pkcs12-password:wrongpass")
+                }.to_not change { Metasploit::Credential::Core.count }
+              end
+            end
+
+            context 'with metadata other than password' do
+              let(:adcs_ca) { 'myca' }
+              let(:adcs_template) { 'mytemplate' }
+
+              it 'creates a core if the password is correct' do
+                expect {
+                  creds.cmd_creds('add', "pkcs12:#{@file.path}", "adcs-ca:#{adcs_ca}", "adcs-template:#{adcs_template}")
+                }.to change { Metasploit::Credential::Core.count }.by 1
+                expect(Metasploit::Credential::Pkcs12.first.adcs_ca).to eq(adcs_ca)
+                expect(Metasploit::Credential::Pkcs12.first.adcs_template).to eq(adcs_template)
+              end
             end
           end
         end

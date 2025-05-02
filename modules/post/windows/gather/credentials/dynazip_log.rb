@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Post
         ],
         'DisclosureDate' => '2001-03-27',
         'Platform' => ['win'],
-        'SessionTypes' => ['meterpreter', 'shell']
+        'SessionTypes' => ['meterpreter', 'shell'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end

@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Post
           [ 'LIST', { 'Description' => 'Show a list of microphones' } ],
           [ 'RECORD', { 'Description' => 'Record from a selected audio input' } ]
         ],
-        'DefaultAction' => 'LIST'
+        'DefaultAction' => 'LIST',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 

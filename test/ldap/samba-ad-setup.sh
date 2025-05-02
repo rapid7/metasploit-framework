@@ -28,4 +28,10 @@ samba-tool domain provision\
 
 mv /etc/samba/smb.conf /var/lib/samba/private/smb.conf
 
+info "Applying LAPS schema changes..."
+ldbadd    -H /var/lib/samba/private/sam.ldb laps-schema-add.ldif    --option="dsdb:schema update allowed"=true
+ldbmodify -H /var/lib/samba/private/sam.ldb laps-schema-modify.ldif --option="dsdb:schema update allowed"=true
+info "Adding LAPS test accounts..."
+ldbadd    -H /var/lib/samba/private/sam.ldb laps-accounts.ldif
+
 touch /var/lib/samba/.setup

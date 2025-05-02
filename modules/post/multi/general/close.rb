@@ -10,11 +10,16 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'Multi Generic Operating System Session Close',
-        'Description' => %q{ This module closes the specified session. This can be useful as a finisher for automation tasks },
+        'Description' => %q{This module closes the specified session. This can be useful as a finisher for automation tasks.},
         'License' => MSF_LICENSE,
         'Author' => [ 'hdm' ],
         'Platform' => %w[linux osx unix win],
-        'SessionTypes' => [ 'shell', 'meterpreter' ]
+        'SessionTypes' => [ 'shell', 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end

@@ -26,6 +26,11 @@ class MetasploitModule < Msf::Post
               stdapi_webcam_*
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )

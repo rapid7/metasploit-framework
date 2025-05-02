@@ -13,6 +13,7 @@ module Metasploit
 
         LIKELY_PORTS         = [ 389, 636 ]
         LIKELY_SERVICE_NAMES = [ 'ldap', 'ldaps', 'ldapssl' ]
+        PRIVATE_TYPES = [:password, :ntlm_hash]
 
         attr_accessor :opts, :realm_key
         # @!attribute use_client_as_proof
@@ -86,8 +87,8 @@ module Metasploit
               credential.private = nil
             elsif opts[:ldap_auth] == Msf::Exploit::Remote::AuthOption::SCHANNEL
               # If we're using kerberos auth with schannel then the user/password is irrelevant
-              # Remove it from the credential so we don't store it
-              credential.public = nil
+              # Remove the password from the credential so we don't store it
+              # Note that the username is kept since it is needed for the certificate lookup.
               credential.private = nil
             end
 

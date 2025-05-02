@@ -1,7 +1,7 @@
 FROM ruby:3.2.5-alpine3.20 AS builder
 LABEL maintainer="Rapid7"
 
-ARG BUNDLER_CONFIG_ARGS="set no-cache 'true' set system 'true' set without 'development test coverage'"
+ARG BUNDLER_CONFIG_ARGS="set force_ruby_platform 'true' set no-cache 'true' set system 'true' set without 'development test coverage'"
 ARG BUNDLER_FORCE_CLEAN="true"
 ENV APP_HOME=/usr/src/metasploit-framework
 ENV TOOLS_HOME=/usr/src/tools

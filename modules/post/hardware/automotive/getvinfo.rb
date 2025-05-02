@@ -13,14 +13,20 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Get the Vehicle Information Such as the VIN from the Target Module',
         'Description' => %q{
-          Post Module to query DTCs, Some common engine info and Vehicle Info.
-          It returns such things as engine speed, coolant temp, Diagnostic
-          Trouble Codes as well as All info stored by Mode $09 Vehicle Info, VIN, etc
+          This module queries DTCs, some common engine info, and vehicle information.
+
+          It returns such things as engine speed, coolant temp, Diagnostic Trouble
+          Codes, as well as all info stored by Mode $09 Vehicle Info, VIN, etc.
         },
         'License' => MSF_LICENSE,
         'Author' => ['Craig Smith'],
         'Platform' => ['hardware'],
-        'SessionTypes' => ['hwbridge']
+        'SessionTypes' => ['hwbridge'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
     register_options([

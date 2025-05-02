@@ -31,7 +31,6 @@ module MetasploitModule
         'Session' => Msf::Sessions::PowerShell
       )
     )
-
   end
 
   #

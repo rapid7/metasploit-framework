@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Post
           ['URL', 'https://docs.microsoft.com/en-us/powershell/module/psreadline/'],
           ['URL', 'https://github.com/KalibRx/PoshHarvestPy/blob/master/poshharvest.py'],
           ['URL', 'https://0xdf.gitlab.io/2018/11/08/powershell-history-file.html']
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end

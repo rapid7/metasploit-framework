@@ -33,6 +33,11 @@ class MetasploitModule < Msf::Post
               stdapi_railgun_api
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -47,6 +52,8 @@ class MetasploitModule < Msf::Post
 
   def run
     version = get_version_info
+
+    # @todo Extend this check for other non-supported systems
     if version.build_number == Msf::WindowsVersion::Win2000
       print_error('Module not valid for Windows 2000')
       return
@@ -69,7 +76,7 @@ class MetasploitModule < Msf::Post
     type = datastore['FILES']
     files = type.split(',')
     # To extract files from its IDs
-    if (datastore['FILES'] != '') && is_numeric(files[0])
+    if type != '' && is_numeric(files[0])
       r = client.railgun.kernel32.CreateFileA("\\\\.\\#{drive}", 'GENERIC_READ', 'FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE', nil, 'OPEN_EXISTING', 'FILE_FLAG_WRITE_THROUGH', 0)
       if r['GetLastError'] == 0
         recover_file(files, r['return'])
@@ -346,7 +353,7 @@ class MetasploitModule < Msf::Post
       data_run = data_runs[dist_datar..]
       # Get an array of data runs. If this array contains more than 1 element the file is fragmented.
       lengh_dr = data_run.each_byte.first.divmod(16)
-      while (lengh_dr[0] != 0 && lengh_dr[1] != 0)
+      while lengh_dr[0] != 0 && lengh_dr[1] != 0
         chunk = data_run[0, lengh_dr[0] + lengh_dr[1] + 1]
         inf << chunk
         data_run = data_run[lengh_dr[0] + lengh_dr[1] + 1..]
@@ -401,8 +408,8 @@ class MetasploitModule < Msf::Post
     return fs
   end
 
-  def is_numeric(o)
-    true if Integer(o)
+  def is_numeric(object)
+    true if Integer(object)
   rescue StandardError
     false
   end

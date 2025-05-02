@@ -303,7 +303,7 @@ module Auxiliary::Report
 
     timestamp  = opts[:timestamp]
     username   = opts[:username]
-    mname      = self.fullname # use module name when reporting attempt for correlation
+    mname      = opts[:module_fullname] || self.fullname # use module name when reporting attempt for correlation
 
     # report_vuln is only called in an identified case, consider setting value reported here
     attempt_info = {

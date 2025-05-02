@@ -39,7 +39,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['Thomas Ring'],
         'Platform' => ['win'],
-        'SessionTypes' => ['meterpreter']
+        'SessionTypes' => ['meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 
@@ -90,7 +95,7 @@ class MetasploitModule < Msf::Post
     return if field =~ /^\s*$/ || field.length < 3
 
     field.gsub!(/[()"]/, '') # clear up common punctuation in descriptions
-    field.downcase!             # clear up case
+    field.downcase! # clear up case
 
     words = field.split(%r{\s+|=|/|,|\+})
     return if words.empty?
