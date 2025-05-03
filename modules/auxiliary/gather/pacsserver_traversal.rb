@@ -64,9 +64,8 @@ class MetasploitModule < Msf::Auxiliary
         return CheckCode::Detected('Sante PACS Server PG seems to be running on the server.')
       end
 
-      return CheckCode::Safe
     end
-    return CheckCode::Unknown
+    return CheckCode::Safe
   end
 
   def run
