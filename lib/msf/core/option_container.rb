@@ -50,10 +50,16 @@ module Msf
     # as necessary.
     #
     def initialize(opts = {})
-      self.sorted = []
       self.groups = {}
 
       add_options(opts)
+    end
+
+    #
+    # Return the sorted array of options.
+    #
+    def sorted
+      self.sort
     end
 
     #
@@ -116,10 +122,6 @@ module Msf
     # @param [String] name the option name
     def remove_option(name)
       delete(name)
-      sorted.each_with_index { |e, idx|
-        sorted[idx] = nil if (e[0] == name)
-      }
-      sorted.delete(nil)
     end
 
     #
@@ -170,9 +172,6 @@ module Msf
       option.owner    = owner
 
       self.store(option.name, option)
-
-      # Re-calculate the sorted list
-      self.sorted = self.sort
     end
 
     #
@@ -330,17 +329,10 @@ module Msf
       groups.delete(group_name)
     end
 
-    #
-    # The sorted array of options.
-    #
-    attr_reader :sorted
-
     # @return [Hash<String, Msf::OptionGroup>]
     attr_reader :groups
 
     protected
-
-    attr_writer :sorted # :nodoc:
 
     attr_writer :groups
   end
