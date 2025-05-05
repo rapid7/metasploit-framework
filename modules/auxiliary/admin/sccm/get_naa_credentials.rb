@@ -42,8 +42,11 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('COMPUTER_USER', [ true, 'The username of a computer account' ]),
       OptString.new('COMPUTER_PASS', [ true, 'The password of the provided computer account' ]),
       OptString.new('MANAGEMENT_POINT', [ false, 'The management point (SCCM server) to use' ]),
-      OptString.new('SITE_CODE', [ false, 'The site code to use on the management point' ])
+      OptString.new('SITE_CODE', [ false, 'The site code to use on the management point' ]),
+      OptString.new('DOMAIN', [ true, 'The domain to authenticate to', '' ])
     ])
+
+    deregister_options('LDAPDomain') # deregister LDAPDomain because DOMAIN is registered and used for both LDAP and HTTP
 
     @session_or_rhost_required = false
   end
