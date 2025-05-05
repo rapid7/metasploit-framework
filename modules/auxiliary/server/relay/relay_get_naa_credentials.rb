@@ -47,9 +47,11 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('RANDOMIZE_TARGETS', [true, 'Whether the relay targets should be randomized', true]),
         OptString.new('MANAGEMENT_POINT', [ true, 'The management point (SCCM server) to use' ]),
         OptString.new('SITE_CODE', [ true, 'The site code to use on the management point' ]),
-        OptInt.new('TIMEOUT', [ true, 'Number of seconds to wait for SCCM DB to update', 10 ])
+        OptString.new('DOMAIN', [ true, 'The domain to authenticate to', '' ])
       ]
     )
+
+    deregister_options('LDAPDomain') # deregister LDAPDomain because DOMAIN is registered and used for both LDAP and HTTP
   end
 
   def relay_targets
