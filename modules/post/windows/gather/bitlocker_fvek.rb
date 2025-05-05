@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
           This module enumerates ways to decrypt Bitlocker volume and if a recovery key is stored locally
           or can be generated, dump the Bitlocker master key (FVEK)
         },
-        'License' => 'MSF_LICENSE',
+        'License' => MSF_LICENSE,
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
         'Author' => ['Danil Bazin <danil.bazin[at]hsc.fr>'], # @danilbaz

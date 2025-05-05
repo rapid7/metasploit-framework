@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Evasion
           'Nick Tyrer <@NickTyrer>', # module development
           'Casey Smith' # presentationhost bypass research
         ],
-        'License' => 'MSF_LICENSE',
+        'License' => MSF_LICENSE,
         'Platform' => 'win',
         'Arch' => [ARCH_X86],
         'Targets' => [['Microsoft Windows', {}]]
