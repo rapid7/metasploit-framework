@@ -3,8 +3,6 @@ require 'acceptance_spec_helper'
 RSpec.describe 'MySQL sessions and MySQL modules' do
   include_context 'wait_for_expect'
 
-  RHOST_REGEX = /\d+\.\d+\.\d+\.\d+:\d+/
-
   tests = {
     mysql: {
       target: {
@@ -49,7 +47,7 @@ RSpec.describe 'MySQL sessions and MySQL modules' do
           lines: {
             all: {
               required: [
-                /#{RHOST_REGEX} is running MySQL \d+.\d+.*/
+                /\d+\.\d+\.\d+\.\d+:\d+ is running MySQL \d+.\d+.*/
               ]
             },
           }

@@ -3,8 +3,6 @@ require 'acceptance_spec_helper'
 RSpec.describe 'SMB sessions and SMB modules' do
   include_context 'wait_for_expect'
 
-  RHOST_REGEX = /\d+\.\d+\.\d+\.\d+:\d+/
-
   tests = {
     smb: {
       target: {
