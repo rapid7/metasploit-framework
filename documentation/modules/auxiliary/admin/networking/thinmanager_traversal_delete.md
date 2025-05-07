@@ -13,6 +13,10 @@ The software can be obtained from
 **Successfully tested on**
 
 - ThinManager v13.1.0 on Windows 22H2
+- ThinManager v13.0.1 on Windows 22H2
+- ThinManager v13.0.0 on Windows 22H2
+- ThinManager v12.1.5 on Windows 22H2
+- ThinManager v10.0.2 on Windows 22H2
 
 ## Verification Steps
 
