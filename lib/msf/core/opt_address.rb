@@ -12,7 +12,7 @@ class OptAddress < OptBase
     return 'address'
   end
 
-  def valid?(value, check_empty: true)
+  def valid?(value, check_empty: true, datastore: nil)
     return false if check_empty && empty_required_value?(value)
     return false unless value.kind_of?(String) or value.kind_of?(NilClass)
 

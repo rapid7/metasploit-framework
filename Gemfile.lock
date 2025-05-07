@@ -1,3 +1,12 @@
+GIT
+  remote: https://github.com/zeroSteiner/rex-socket
+  revision: a19f90fd8e5298c998d677b709534f4f7e4adf37
+  branch: feat/proxy/socks5h
+  specs:
+    rex-socket (0.1.60)
+      dnsruby
+      rex-core
+
 PATH
   remote: .
   specs:
@@ -476,9 +485,6 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.60)
-      dnsruby
-      rex-core
     rex-sslscan (0.1.11)
       rex-core
       rex-socket
@@ -620,6 +626,7 @@ DEPENDENCIES
   pry-byebug
   rake
   redcarpet
+  rex-socket!
   rspec-rails
   rspec-rerun
   rubocop (= 1.67.0)

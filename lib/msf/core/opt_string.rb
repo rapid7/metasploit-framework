@@ -34,7 +34,7 @@ class OptString < OptBase
     value
   end
 
-  def valid?(value=self.value, check_empty: true)
+  def valid?(value=self.value, check_empty: true, datastore: nil)
     value = normalize(value)
     return false if check_empty && empty_required_value?(value)
     return false if invalid_value_length?(value)
