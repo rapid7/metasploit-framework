@@ -53,3 +53,6 @@ group :test do
   gem 'timecop'
 end
 
+gem 'rex-socket', git: 'https://github.com/zeroSteiner/rex-socket', branch: 'feat/proxy/socks5h'
+#gem 'rex-socket', path: '../rex-socket'
+
