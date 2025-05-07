@@ -36,6 +36,11 @@ class MetasploitModule < Msf::Auxiliary
         ['hashcat', { 'Description' => 'Use Hashcat' }],
       ],
       'DefaultAction' => 'john',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -61,52 +66,49 @@ class MetasploitModule < Msf::Auxiliary
     print_status("   Cracking Command: #{cmd.join(' ')}")
   end
 
-  def run
-    def check_results(passwords, results, hash_type, method)
-      passwords.each do |password_line|
-        password_line.chomp!
-        next if password_line.blank?
+  def check_results(passwords, results, hash_type, method)
+    passwords.each do |password_line|
+      password_line.chomp!
+      next if password_line.blank?
 
-        fields = password_line.split(':')
-        cred = { 'hash_type' => hash_type, 'method' => method }
+      fields = password_line.split(':')
+      cred = { 'hash_type' => hash_type, 'method' => method }
 
-        if action.name == 'john'
-          next unless fields.count >= 3
+      if action.name == 'john'
+        next unless fields.count >= 3
 
+        cred['username'] = fields.shift
+        cred['core_id'] = fields.pop
+        cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
+      elsif action.name == 'hashcat'
+        next unless fields.count >= 2
+
+        cred['core_id'] = fields.shift
+        case hash_type
+        when 'dynamic_1034'
+          # for postgres we get 4 fields, id:hash:un:pass.
+          cred['hash'] = fields.shift
           cred['username'] = fields.shift
-          cred['core_id'] = fields.pop
-          cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
-        elsif action.name == 'hashcat'
-          next unless fields.count >= 2
-
-          case hash_type
-          when 'dynamic_1034'
-            # for postgres we get 4 fields, id:hash:un:pass.
-            cred['core_id'] = fields.shift
-            cred['hash'] = fields.shift
-            cred['username'] = fields.shift
-            cred['password'] = fields.join(':')
-          when 'oracle11', 'raw-sha1,oracle'
-            cred['core_id'] = fields.shift
-            cred['hash'] = "#{fields.shift}#{fields.shift}" # we pull the first two fields, hash and salt
-            cred['password'] = fields.join(':')
-          else
-            cred['core_id'] = fields.shift
-            cred['hash'] = fields.shift
-            cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
-          end
-
-          next if cred['core_id'].include?("Hashfile '") && cred['core_id'].include?("' on line ") # skip error lines
-
-          # we don't have the username since we overloaded it with the core_id (since its a better fit for us)
-          # so we can now just go grab the username from the DB
-          cred['username'] = framework.db.creds(workspace: myworkspace, id: cred['core_id'])[0].public.username
+        when 'oracle11', 'raw-sha1,oracle'
+          cred['hash'] = "#{fields.shift}#{fields.shift}" # we pull the first two fields, hash and salt
+        else
+          cred['hash'] = fields.shift
         end
-        results = process_cracker_results(results, cred)
+        cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
+
+        next if cred['core_id'].include?("Hashfile '") && cred['core_id'].include?("' on line ") # skip error lines
+
+        # we don't have the username since we overloaded it with the core_id (since its a better fit for us)
+        # so we can now just go grab the username from the DB
+        cred['username'] = framework.db.creds(workspace: myworkspace, id: cred['core_id'])[0].public.username
       end
-      results
+      results = process_cracker_results(results, cred)
     end
 
+    results
+  end
+
+  def run
     tbl = tbl = cracker_results_table
 
     # array of hashes in jtr_format in the db, converted to an OR combined regex
