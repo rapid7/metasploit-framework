@@ -21,6 +21,11 @@ class MetasploitModule < Msf::Auxiliary
         # ['hashcat', 'Description' => 'Use Hashcat'], # removed for simplicity
       ],
       'DefaultAction' => 'john',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
     deregister_options('ITERATION_TIMEOUT')
     deregister_options('CUSTOM_WORDLIST')

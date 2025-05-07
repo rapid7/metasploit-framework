@@ -24,6 +24,11 @@ class MetasploitModule < Msf::Auxiliary
         ['hashcat', { 'Description' => 'Use Hashcat' }],
       ],
       'DefaultAction' => 'hashcat',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -48,39 +53,39 @@ class MetasploitModule < Msf::Auxiliary
     print_status("   Cracking Command: #{cmd.join(' ')}")
   end
 
-  def run
-    def check_results(passwords, results, hash_type, method)
-      passwords.each do |password_line|
-        password_line.chomp!
-        next if password_line.blank?
+  def check_results(passwords, results, hash_type, method)
+    passwords.each do |password_line|
+      password_line.chomp!
+      next if password_line.blank?
 
-        fields = password_line.split(':')
-        cred = { 'hash_type' => hash_type, 'method' => method }
-        # If we don't have an expected minimum number of fields, this is probably not a hash line
-        if action.name == 'john'
-          next unless fields.count >= 3
+      fields = password_line.split(':')
+      cred = { 'hash_type' => hash_type, 'method' => method }
+      # If we don't have an expected minimum number of fields, this is probably not a hash line
+      if action.name == 'john'
+        next unless fields.count >= 3
 
-          cred['username'] = fields.shift
-          cred['core_id'] = fields.pop
-          4.times { fields.pop } # Get rid of extra :
-          cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
-        elsif action.name == 'hashcat'
-          next unless fields.count >= 2
+        cred['username'] = fields.shift
+        cred['core_id'] = fields.pop
+        4.times { fields.pop } # Get rid of extra :
+        cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
+      elsif action.name == 'hashcat'
+        next unless fields.count >= 2
 
-          cred['core_id'] = fields.shift
-          cred['hash'] = "#{fields.shift}:#{fields.shift}" # grab hash and salt
-          cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with : in them
-          next if cred['core_id'].include?("Hashfile '") && cred['core_id'].include?("' on line ") # skip error lines
+        cred['core_id'] = fields.shift
+        cred['hash'] = "#{fields.shift}:#{fields.shift}" # grab hash and salt
+        cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with : in them
+        next if cred['core_id'].include?("Hashfile '") && cred['core_id'].include?("' on line ") # skip error lines
 
-          # we don't have the username since we overloaded it with the core_id (since its a better fit for us)
-          # so we can now just go grab the username from the DB
-          cred['username'] = framework.db.creds(workspace: myworkspace, id: cred['core_id'])[0].public.username
-        end
-        results = process_cracker_results(results, cred)
+        # we don't have the username since we overloaded it with the core_id (since its a better fit for us)
+        # so we can now just go grab the username from the DB
+        cred['username'] = framework.db.creds(workspace: myworkspace, id: cred['core_id'])[0].public.username
       end
-      results
+      results = process_cracker_results(results, cred)
     end
+    results
+  end
 
+  def run
     tbl = Rex::Text::Table.new(
       'Header' => 'Cracked Hashes',
       'Indent' => 1,
