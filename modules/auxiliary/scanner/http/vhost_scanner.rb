@@ -126,7 +126,7 @@ class MetasploitModule < Msf::Auxiliary
                 :sname => (ssl ? 'https' : 'http'),
                 :port	=> rport,
                 :type	=> 'VHOST',
-                :data	=> thost,
+                :data	=> { :vhost => thost },
                 :update => :unique_data
               )
 

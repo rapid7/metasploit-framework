@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
 
       report_note(
         :type => "http.header.#{rport}.#{counter}",
-        :data => header_string,
+        :data => { :header_string => header_string },
         :host => ip,
         :port => rport
       )

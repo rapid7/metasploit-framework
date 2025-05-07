@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
       sname: (ssl ? 'https' : 'http'),
       port: rport,
       type: 'HTTP_OPTIONS',
-      data: allowed_methods
+      data: { :http_options => allowed_methods }
     )
 
     if allowed_methods.index('TRACE')

