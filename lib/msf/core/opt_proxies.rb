@@ -24,11 +24,13 @@ class OptProxies < OptBase
   def valid?(value, check_empty: true, datastore: nil)
     return false if check_empty && empty_required_value?(value)
 
-    parsed = Rex::Socket::Proxies.parse(value)
-    allowed_types = Rex::Socket::Proxies.supported_types
-    parsed.all? do |type, host, port|
-      allowed_types.include?(type) && host.present? && port.present?
+    begin
+      Rex::Socket::Proxies.parse(value)
+    rescue Rex::RuntimeError
+      return false
     end
+
+    true
   end
 end
 
