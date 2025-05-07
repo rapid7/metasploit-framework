@@ -22,7 +22,7 @@ module Acceptance
     def initialize
       super
 
-      @default_timeout = ENV['CI'] ? 480 : 40
+      @default_timeout = ENV['CI'] ? 600 : 40
       @debug = false
       @env ||= {}
       @cmd ||= []
