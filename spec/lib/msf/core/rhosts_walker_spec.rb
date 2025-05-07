@@ -430,8 +430,11 @@ RSpec.describe Msf::RhostsWalker do
       # Perform DNS resolution by default
       { 'RHOSTS' => 'https://user:pass@multiple_ips.example.com:9000/foo', 'PROXIES' => 'http:198.51.100.1:1080', 'expected' => 1 },
 
+      # Perform DNS resolution when socks5 proxy present
+      { 'RHOSTS' => 'https://user:pass@multiple_ips.example.com:9000/foo', 'PROXIES' => 'socks5:198.51.100.1:1080', 'expected' => 2 },
+
       # Skip DNS resolution when socks5 proxy present
-      { 'RHOSTS' => 'https://user:pass@multiple_ips.example.com:9000/foo', 'PROXIES' => 'socks5:198.51.100.1:1080', 'expected' => 1 },
+      { 'RHOSTS' => 'https://user:pass@multiple_ips.example.com:9000/foo', 'PROXIES' => 'socks5h:198.51.100.1:1080', 'expected' => 1 },
 
       # Skip DNS resolution when http proxy present
       { 'RHOSTS' => 'https://user:pass@multiple_ips.example.com:9000/foo', 'PROXIES' => 'http:198.51.100.1:1080', 'expected' => 1 },
@@ -570,9 +573,20 @@ RSpec.describe Msf::RhostsWalker do
       expect(each_error_for(http_mod)).to be_empty
     end
 
-    it 'enumerates a single host without performing DNS resolution if a socks5 proxy is registered' do
+    it 'enumerates resolving a single http value to multiple ip addresses if a socks5 proxy is registered' do
       http_mod.datastore['RHOSTS'] = 'http://multiple_ips.example.com/foo'
       http_mod.datastore['PROXIES'] = 'socks5:198.51.100.1:1080'
+      expected = [
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '198.51.100.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '203.0.113.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' }
+      ]
+      expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
+    end
+
+    it 'enumerates a single host without performing DNS resolution if a socks5h proxy is registered' do
+      http_mod.datastore['RHOSTS'] = 'http://multiple_ips.example.com/foo'
+      http_mod.datastore['PROXIES'] = 'socks5h:198.51.100.1:1080'
       expected = [
         { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => 'multiple_ips.example.com', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
       ]
@@ -722,10 +736,10 @@ RSpec.describe Msf::RhostsWalker do
       expect(each_error_for(kerberos_mod)).to be_empty
     end
 
-    it 'preserves a RHOSTNAME even if RHOSTS is set and a socks5 proxy is registered' do
+    it 'preserves a RHOSTNAME even if RHOSTS is set and a socks5h proxy is registered' do
       kerberos_mod.datastore['RHOSTS'] = 'multiple_ips.example.com'
       kerberos_mod.datastore['RHOSTNAME'] = 'example.com'
-      kerberos_mod.datastore['PROXIES'] = 'socks5:198.51.100.1:1080'
+      kerberos_mod.datastore['PROXIES'] = 'socks5h:198.51.100.1:1080'
 
       expected = [
         {"RHOSTNAME"=> "example.com", "RHOSTS"=>"multiple_ips.example.com"},
@@ -966,9 +980,9 @@ RSpec.describe Msf::RhostsWalker do
         expect(each_host_for(postgres_mod)).to have_datastore_values(expected)
       end
 
-      it 'enumerates postgres schemes and avoids DNS resolution if a socks5 proxy is registered' do
+      it 'enumerates postgres schemes and avoids DNS resolution if a socks5h proxy is registered' do
         postgres_mod.datastore['RHOSTS'] = 'postgres://postgres:@example.com "postgres://user:a b c@example.com/" "postgres://user:a b c@example.com:9001/database_name"'
-        postgres_mod.datastore['PROXIES'] = 'socks5:198.51.100.1:1080'
+        postgres_mod.datastore['PROXIES'] = 'socks5h:198.51.100.1:1080'
         expected = [
           { 'RHOSTNAME' => 'example.com', 'RHOSTS' => 'example.com', 'RPORT' => 5432, 'USERNAME' => 'postgres', 'PASSWORD' => '', 'DATABASE' => 'template1' },
           { 'RHOSTNAME' => 'example.com', 'RHOSTS' => 'example.com', 'RPORT' => 5432, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'template1' },
