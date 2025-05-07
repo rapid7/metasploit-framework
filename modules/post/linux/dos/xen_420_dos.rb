@@ -26,20 +26,23 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => [ 'linux' ],
         'Arch' => [ARCH_X64],
-        'SessionTypes' => ['shell']
+        'SessionTypes' => ['shell'],
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        }
       )
     )
 
-    register_options(
-      [
-        OptString.new('WritableDir', [true, 'A directory for storing temporary files on the target system', '/tmp'])
-      ], self.class
-    )
+    register_options([
+      OptString.new('WritableDir', [true, 'A directory for storing temporary files on the target system', '/tmp'])
+    ])
   end
 
   def run
     # Variables
-    @rand_folder = '/' + Rex::Text.rand_text_alpha(rand(7..11)).to_s
+    @rand_folder = '/' + Rex::Text.rand_text_alpha(7..11).to_s
     @writeable_folder = datastore['WritableDir'].to_s + @rand_folder
 
     # Testing requirements
@@ -175,7 +178,7 @@ class MetasploitModule < Msf::Post
   ##
 
   def write_files
-    @c_name = Rex::Text.rand_text_alpha(rand(7..11)).to_s
+    @c_name = Rex::Text.rand_text_alpha(7..11).to_s
     @c_file = "#{@writeable_folder}/#{@c_name}.c"
     @make_file = "#{@writeable_folder}/Makefile"
 

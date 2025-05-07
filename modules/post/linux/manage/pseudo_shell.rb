@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Post
     ['shell', 'get_shell_name', 0, 'Show current SHELL'],
     ['hostname', 'get_hostname', 0, 'Show current Hostname'],
     ['ips', 'ips', 0, 'Show list of current IP addresses'],
-    ['isroot?', 'is_root?', 0, 'Show if current user has root permisions'],
+    ['isroot?', 'is_root?', 0, 'Show if current user has root permissions'],
     ['exit', '', 0, 'Exit the Pseudo-shell'],
     ['tcp_ports', 'listen_tcp_ports', 0, 'Show list of listen TCP ports'],
     ['udp_ports', 'listen_udp_ports', 0, 'Show list of listen UDP ports'],
@@ -93,10 +93,10 @@ class MetasploitModule < Msf::Post
     print "Commands Help\n"
     print "==============\n"
     print "\n"
-    printf("\t%-20s%-100s\n", 'Command', 'Description')
-    printf("\t%-20s%-100s\n", '-------', '-----------')
+    print format("\t%<cmd>-20s%<description>-100s\n", cmd: 'Command', description: 'Description')
+    print format("\t%<cmd>-20s%<description>-100s\n", cmd: '-------', description: '-----------')
     HELP_COMMANDS.each do |linea|
-      printf("\t%-20s%-100s\n", linea[0], linea[3])
+      print format("\t%<cmd>-20s%<description>-100s\n", cmd: linea[0], description: linea[3])
     end
     print "\n"
   end

