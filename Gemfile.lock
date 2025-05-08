@@ -446,7 +446,7 @@ GEM
       rex-core
       rex-struct2
       rex-text
-    rex-core (0.1.33)
+    rex-core (0.1.34)
     rex-encoder (0.1.8)
       metasm
       rex-arch
@@ -476,15 +476,16 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.60)
+    rex-socket (0.1.61)
       dnsruby
       rex-core
-    rex-sslscan (0.1.11)
+    rex-sslscan (0.1.12)
       rex-core
       rex-socket
       rex-text
     rex-struct2 (0.1.5)
-    rex-text (0.2.60)
+    rex-text (0.2.61)
+      bigdecimal
     rex-zip (0.1.6)
       rex-text
     rexml (3.4.1)
