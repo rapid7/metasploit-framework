@@ -475,6 +475,9 @@ class MetasploitModule < Msf::Auxiliary
   # @param authenticated_user_sid [String] The SID of the authenticated user.
   # @return [Array<String>] A list of distinguished names (DNs) of users the authenticated user can write to.
   def find_users_with_writable_sids(authenticated_user_sid)
+    cached_writable_users = @ldap_objects.find { |obj| obj[:type] == :writable_users }
+    return cached_writable_users[:users] if cached_writable_users
+
     user_filter = '(objectClass=user)'
     user_attributes = ['dn', 'ntSecurityDescriptor']
     users = query_ldap_server(user_filter, user_attributes)
@@ -488,6 +491,10 @@ class MetasploitModule < Msf::Auxiliary
         writable_users << user[:dn].first
       end
     end
+
+    # Cache the writable users in @ldap_objects
+    @ldap_objects << { type: :writable_users, users: writable_users }
+
     writable_users
   end
 
@@ -565,8 +572,16 @@ class MetasploitModule < Msf::Auxiliary
       ')'\
   ')'
 
+    begin
+      authenticated_user_sid = get_authenticated_user_info[:sid]
+    rescue LdapWhoamiError => e
+      print_warning("ESC9 detection skipped: #{e.message}")
+      return
+    end
+
+    require 'pry-byebug'
+    binding.pry
     esc10_templates = query_ldap_server(esc10_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
-    authenticated_user_sid = get_authenticated_user_info[:sid]
     writable_users = find_users_with_writable_sids(authenticated_user_sid)
 
     # Finds templates that the users we have write privileges over can enroll in
