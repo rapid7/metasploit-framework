@@ -335,6 +335,26 @@ module Msf
         end
 
         #
+        # Returns Yama LSM ptrace scope level
+        #
+        # @return [Integer] Yama ptrace scope level (0 if disabled or not installed)
+        # @raise [RuntimeError] If execution fails.
+        #
+        def yama_ptrace_scope
+          ptrace_scope = read_file('/proc/sys/kernel/yama/ptrace_scope').to_s.strip
+
+          return 0 unless ptrace_scope
+
+          level = ptrace_scope.scan(/\A(\d+)\z/).flatten.first.to_i
+
+          return 0 unless level
+
+          level
+        rescue StandardError
+          raise 'Could not determine Yama scope'
+        end
+
+        #
         # Returns true if Yama is installed
         #
         # @return [Boolean]
@@ -356,9 +376,7 @@ module Msf
         # @raise [RuntimeError] If execution fails.
         #
         def yama_enabled?
-          return false unless yama_installed?
-
-          !read_file('/proc/sys/kernel/yama/ptrace_scope').to_s.strip.eql? '0'
+          yama_ptrace_scope > 0
         rescue StandardError
           raise 'Could not determine Yama status'
         end
