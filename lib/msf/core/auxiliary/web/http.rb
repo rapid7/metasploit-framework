@@ -118,6 +118,7 @@ class Auxiliary::Web::HTTP
 
     c.set_config({
       'vhost' => opts[:target].vhost,
+      'ssl_server_name_indication' => opts[:target].ssl_server_name_indication || opts[:target].vhost,
       'agent' => opts[:user_agent] || Rex::UserAgent.session_agent,
       'domain' => domain
     })
