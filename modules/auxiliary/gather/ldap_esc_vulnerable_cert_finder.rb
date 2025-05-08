@@ -579,8 +579,6 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    require 'pry-byebug'
-    binding.pry
     esc10_templates = query_ldap_server(esc10_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
     writable_users = find_users_with_writable_sids(authenticated_user_sid)
 
