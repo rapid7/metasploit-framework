@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2011-02-03',
         'Notes' => {
           'Stability' => [CRASH_SERVICE_DOWN],
-          'Reliability' => [REPEATABLE_SESSION],
+          'Reliability' => [],
           'SideEffects' => []
         }
       )
@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
     disconnect
     # check if version was found
     if s !~ /vsFTPd \d+\.\d+\.\d+/
-      print_error('Did not find ftp version in FTP session.')
+      print_error('Did not find FTP version in FTP session.')
       return Exploit::CheckCode::Unknown
     end
 
