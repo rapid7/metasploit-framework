@@ -53,3 +53,4 @@ group :test do
   gem 'timecop'
 end
 
+gem 'rex-random_identifier', git: 'https://github.com/zeroSteiner/rex-random_identifier', branch: 'feat/lang/php'
