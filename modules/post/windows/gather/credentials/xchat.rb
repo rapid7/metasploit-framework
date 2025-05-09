@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Post
           path: 'AppData',
           dir: 'X-Chat 2',
           artifact_file_name: '*.txt',
-          description: 'Collects all chatting conversations of sent and recieved',
+          description: 'Collects all chatting conversations of sent and received',
           credential_type: 'text',
           regex_search: [
             {

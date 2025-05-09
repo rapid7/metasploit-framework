@@ -252,7 +252,7 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  # Recieve the MFT data runs and list/save the deleted files
+  # Receive the MFT data runs and list/save the deleted files
   # Useful cheat_sheet to understand the MFT structure:  http://www.writeblocked.org/resources/ntfs_cheat_sheets.pdf
   # Recap of each of the attributes: http://runenordvik.com/doc/MFT-table.pdf
   def deleted_files(data_runs, handle, files)

@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Post
-  Rank = ExcellentRanking
   include Msf::Post::File
   include Msf::Post::Unix
 
