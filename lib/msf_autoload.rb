@@ -347,6 +347,7 @@ autoload :BinData, 'bindata'
 autoload :RubySMB, 'ruby_smb'
 autoload :MetasploitPayloads, 'metasploit-payloads'
 autoload :PacketFu, 'packetfu'
+autoload :DidYouMean, 'did_you_mean'
 
 require 'rexml/document'
 # Load IO#expect moneypatch
