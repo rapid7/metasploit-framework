@@ -1043,6 +1043,14 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'cmd/unix/interact'
   end
 
+    context 'cmd/unix/php' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/unix/php'
+                          ],
+                          reference_name: 'cmd/unix/php'
+  end
+
   context 'cmd/unix/pingback_bind' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -2929,26 +2937,6 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'osx/x86/vforkshell_reverse_tcp'
   end
 
-  context 'php/bind_perl' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'singles/php/bind_perl'
-                          ],
-                          dynamic_size: true,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'php/bind_perl'
-  end
-
-  context 'php/bind_perl_ipv6' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'singles/php/bind_perl_ipv6'
-                          ],
-                          dynamic_size: true,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'php/bind_perl_ipv6'
-  end
-
   context 'php/bind_php' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
@@ -2967,6 +2955,14 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'php/bind_php_ipv6'
+  end
+
+  context 'php/unix/cmd' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/php/unix/cmd'
+                          ],
+                          reference_name: 'php/unix/cmd '
   end
 
   context 'php/download_exec' do
@@ -3063,16 +3059,6 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'php/meterpreter_reverse_tcp'
-  end
-
-  context 'php/reverse_perl' do
-    it_should_behave_like 'payload cached size is consistent',
-                          ancestor_reference_names: [
-                              'singles/php/reverse_perl'
-                          ],
-                          dynamic_size: true,
-                          modules_pathname: modules_pathname,
-                          reference_name: 'php/reverse_perl'
   end
 
   context 'php/reverse_php' do
