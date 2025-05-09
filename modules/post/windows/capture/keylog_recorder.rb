@@ -45,6 +45,11 @@ class MetasploitModule < Msf::Post
               stdapi_ui_stop_keyscan
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -297,8 +302,8 @@ class MetasploitModule < Msf::Post
           vprint_status("Session: #{datastore['SESSION']} has been closed. Exiting keylog recorder.")
           rec = 0
         end
-      rescue ::Exception => e
-        if e.class.to_s == 'Rex::TimeoutError'
+      rescue StandardError => e
+        if e.instance_of?(::Rex::TimeoutError)
           @timed_out_age = get_session_age
           @timed_out = true
 
@@ -310,7 +315,7 @@ class MetasploitModule < Msf::Post
             print_status("Session: #{datastore['SESSION']} is not responding. Exiting keylog recorder.")
             rec = 0
           end
-        elsif e.class.to_s == 'Interrupt'
+        elsif e.instance_of?(::Interrupt)
           print_status('User interrupt.')
           rec = 0
         else
@@ -362,7 +367,7 @@ class MetasploitModule < Msf::Post
     begin
       sleep(@interval)
       write_keylog_data
-    rescue ::Exception => e
+    rescue StandardError => e
       print_error("Keylog recorder encountered error: #{e.class} (#{e}) Exiting...") if e.class.to_s != 'Rex::TimeoutError' # Don't care about timeout, just exit
       session.response_timeout = last_known_timeout
       return
