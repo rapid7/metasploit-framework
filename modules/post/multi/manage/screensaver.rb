@@ -33,8 +33,8 @@ class MetasploitModule < Msf::Post
         ],
         'Notes' => {
           'Reliability' => [ ],
-          'Stability' => [ ],
-          'SideEffects' => [ ]
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [SCREEN_EFFECTS]
         }
       )
     )

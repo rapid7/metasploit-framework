@@ -118,7 +118,7 @@ class MetasploitModule < Msf::Post
 
     omnija = nil             # non meterpreter download
     org_file = 'omni.ja'     # key file
-    new_file = Rex::Text.rand_text_alpha(rand(5..7)) + '.ja'
+    new_file = Rex::Text.rand_text_alpha(5..7) + '.ja'
     temp_file = 'orgomni.ja' # backup of key file
 
     # Sets @paths
