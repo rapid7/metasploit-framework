@@ -11,7 +11,7 @@ module MetasploitModule
       update_info(
         info,
         'Name' => 'Python Exec',
-        'Description' => 'Execute a Python payload from a command',
+        'Description' => 'Execute a Python payload as an OS command from a Posix-compatible shell',
         'Author' => 'Spencer McIntyre',
         'Platform' => 'unix',
         'Arch' => ARCH_CMD,

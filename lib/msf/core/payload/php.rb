@@ -136,9 +136,18 @@ module Msf::Payload::Php
 
     exec_methods = [passthru, shell_exec, system, exec, proc_open, popen]
     exec_methods = exec_methods.shuffle
-    buf = setup + exec_methods.join("") + fail_block
-
-    return buf
-
+    setup + exec_methods.join("") + fail_block
   end
+
+  def self.create_exec_stub(php_code, wrap_in_tags: true)
+    payload = Rex::Text.encode_base64(Rex::Text.zlib_deflate(php_code))
+    b64_stub = "eval(gzuncompress(base64_decode('#{payload}')));"
+    b64_stub = "<?php #{b64_stub} ?>" if wrap_in_tags
+    b64_stub
+  end
+
+  def php_create_exec_stub(php_code)
+    Msf::Payload::PHP.create_exec_stub(php_code)
+  end
+
 end
