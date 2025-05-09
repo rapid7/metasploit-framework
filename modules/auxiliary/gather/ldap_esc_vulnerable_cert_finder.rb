@@ -6,6 +6,9 @@ class MetasploitModule < Msf::Auxiliary
   include Rex::Proto::MsDnsp
   include Rex::Proto::Secauthz
   include Rex::Proto::LDAP
+  include Rex::Proto::CryptoAsn1
+
+  class LdapWhoamiError < StandardError; end
 
   ADS_GROUP_TYPE_BUILTIN_LOCAL_GROUP = 0x00000001
   ADS_GROUP_TYPE_GLOBAL_GROUP = 0x00000002
@@ -18,6 +21,8 @@ class MetasploitModule < Msf::Auxiliary
     'ESC2' => [ SiteReference.new('URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2') ],
     'ESC3' => [ SiteReference.new('URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2') ],
     'ESC4' => [ SiteReference.new('URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2') ],
+    'ESC9' => [ SiteReference.new('URL', 'https://research.ifcr.dk/certipy-4-0-esc9-esc10-bloodhound-gui-new-authentication-and-request-methods-and-more-7237d88061f7') ],
+    'ESC10' => [ SiteReference.new('URL', 'https://research.ifcr.dk/certipy-4-0-esc9-esc10-bloodhound-gui-new-authentication-and-request-methods-and-more-7237d88061f7') ],
     'ESC13' => [ SiteReference.new('URL', 'https://posts.specterops.io/adcs-esc13-abuse-technique-fda4272fbd53') ],
     'ESC15' => [ SiteReference.new('URL', 'https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc') ]
   }.freeze
@@ -61,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [
           'Grant Willcox', # Original module author
           'Spencer McIntyre', # ESC13 and ESC15 updates
-          'jheysel-r7' # ESC4 update
+          'jheysel-r7' # ESC4, ESC9 and ESC10 update
         ],
         'References' => REFERENCES.values.flatten.map { |r| [ r.ctx_id, r.ctx_val ] }.uniq,
         'DisclosureDate' => '2021-06-17',
@@ -91,6 +96,7 @@ class MetasploitModule < Msf::Auxiliary
   CERTIFICATE_ENROLLMENT_EXTENDED_RIGHT = '0e10c968-78fb-11d2-90d4-00c04f79dc55'.freeze
   CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT = 'a05b8cc2-17bc-4802-a710-e7c15ab866a2'.freeze
   CONTROL_ACCESS = 0x00000100
+  CT_FLAG_NO_SECURITY_EXTENSION = 0x80000
 
   # LDAP_SERVER_SD_FLAGS constant definition, taken from https://ldapwiki.com/wiki/LDAP_SERVER_SD_FLAGS_OID
   LDAP_SERVER_SD_FLAGS_OID = '1.2.840.113556.1.4.801'.freeze
@@ -329,20 +335,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def find_esc4_vuln_cert_templates
     # Determine who we are authenticating with. Retrieve the username and user SID
-    whoami_response = ''
     begin
-      whoami_response = @ldap.ldapwhoami
-    rescue Net::LDAP::Error => e
-      print_warning("The module failed to run the ldapwhoami command, ESC4 detection can't continue. Error was: #{e.class}: #{e.message}.")
+      user_info = get_authenticated_user_info
+    rescue LdapWhoamiError => e
+      print_warning("ESC4 detection skipped: #{e.message}")
       return
     end
 
-    if whoami_response.empty?
-      print_error("Unable to retrieve the username using ldapwhoami, ESC4 detection can't continue")
-      return
-    end
-
-    sam_account_name = whoami_response.split('\\')[1]
+    sam_account_name = user_info[:sam_account_name]
     user_raw_filter = "(sAMAccountName=#{sam_account_name})"
     attributes = ['DN', 'objectSID', 'objectClass', 'primarygroupID']
     our_account = query_ldap_server(user_raw_filter, attributes)&.first
@@ -429,6 +429,167 @@ class MetasploitModule < Msf::Auxiliary
       @certificate_details[certificate_symbol][:techniques] << 'ESC4'
       @certificate_details[certificate_symbol][:notes].concat(notes)
     end
+  end
+
+  def get_object_by_dn(dn)
+    object = @ldap_objects.find { |o| o['dn']&.first == dn }
+    return object if object
+
+    object = query_ldap_server("(distinguishedName=#{ldap_escape_filter(dn)})", nil)&.first
+    @ldap_objects << object if object
+    object
+  end
+
+  def get_authenticated_user_info
+    # Check if the authenticated user info is already cached
+    cached_user_info = @ldap_objects.find { |obj| obj[:type] == :authenticated_user }
+    return cached_user_info if cached_user_info
+
+    whoami_response = @ldap.ldapwhoami
+    if whoami_response.empty?
+      raise LdapWhoamiError, 'Unable to retrieve the username using ldapwhoami.'
+    end
+
+    sam_account_name = whoami_response.split('\\').last
+    user_filter = "(sAMAccountName=#{sam_account_name})"
+    attributes = ['objectSID', 'dn']
+    user_entry = query_ldap_server(user_filter, attributes).first
+
+    if user_entry.nil? || user_entry[:objectsid].nil?
+      raise LdapWhoamiError, 'Unable to determine the SID for the authenticated user.'
+    end
+
+    user_info = {
+      type: :authenticated_user,
+      sid: Rex::Proto::MsDtyp::MsDtypSid.read(user_entry[:objectsid].first).value,
+      dn: user_entry[:dn].first,
+      sam_account_name: sam_account_name
+    }
+
+    @ldap_objects << user_info
+    user_info
+  end
+
+  # Helper method for ESC9 and ESC10. Queries the LDAP server to find users that the authenticated user has
+  # write privileges over. This is done by checking the ntSecurityDescriptor attribute of each user object.
+  # @param authenticated_user_sid [String] The SID of the authenticated user.
+  # @return [Array<String>] A list of distinguished names (DNs) of users the authenticated user can write to.
+  def find_users_with_writable_sids(authenticated_user_sid)
+    cached_writable_users = @ldap_objects.find { |obj| obj[:type] == :writable_users }
+    return cached_writable_users[:users] if cached_writable_users
+
+    user_filter = '(objectClass=user)'
+    user_attributes = ['dn', 'ntSecurityDescriptor']
+    users = query_ldap_server(user_filter, user_attributes)
+
+    writable_users = []
+    users.each do |user|
+      security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(user[:ntsecuritydescriptor].first)
+      writable_sids = get_sids_for_write(security_descriptor.dacl) if security_descriptor.dacl
+
+      if writable_sids.any? { |sid| sid.value == authenticated_user_sid }
+        writable_users << user[:dn].first
+      end
+    end
+
+    # Cache the writable users in @ldap_objects
+    @ldap_objects << { type: :writable_users, users: writable_users }
+
+    writable_users
+  end
+
+  # Helper method for ESC9 and ESC10. Processes a list of certificate templates to determine if the authenticated
+  # user has write privileges over any of the users that can enroll in the template. If one of these users are found the
+  # the method updates the @certificate_details hash with necessary info.
+  # @param templates [Array<hash>] The list of certificate templates to process.
+  # @param authenticated_user_sid [String] The SID of the authenticated user.
+  # @param writable_users [Array<string>] A list of distinguished names (DNs) of users the authenticated user can write to.
+  # @param note_template [String] A template string for the note to be added, with placeholders for authenticated and writable user names.
+  # @param technique [String] The technique identifier (e.g., 'ESC9', 'ESC10') to associate with the template.
+  # @return [void]
+  def process_templates(templates, authenticated_user_sid, writable_users, note_template, technique)
+    templates.each do |template|
+      enrollable_sids = @certificate_details[template[:cn][0].to_sym][:enroll_sids]
+      writable_users.any? do |user_dn|
+        user_object = get_object_by_dn(user_dn)
+        next false unless user_object && user_object[:objectsid]
+
+        user_sid = Rex::Proto::MsDtyp::MsDtypSid.read(user_object[:objectsid].first).value
+        if enrollable_sids.any? { |sid| sid.value == user_sid }
+          authenticated_user_name = map_sids_to_names([authenticated_user_sid]).first.name
+          writable_user_name = map_sids_to_names([user_sid]).first.name
+          note = [note_template % { authenticated_user: authenticated_user_name, writable_user: writable_user_name }]
+          certificate_symbol = template[:cn][0].to_sym
+          @certificate_details[certificate_symbol][:techniques] << technique
+          @certificate_details[certificate_symbol][:notes] += note
+        end
+      end
+    end
+  end
+
+  def find_esc9_vuln_cert_templates
+    esc9_raw_filter = '(&'\
+    '(objectclass=pkicertificatetemplate)'\
+    "(mspki-enrollment-flag:1.2.840.113556.1.4.803:=#{CT_FLAG_NO_SECURITY_EXTENSION})"\
+    '(|(mspki-ra-signature=0)(!(mspki-ra-signature=*)))'\
+     '(|'\
+        "(pkiextendedkeyusage=#{OIDs::OID_KP_SMARTCARD_LOGON.value})"\
+        "(pkiextendedkeyusage=#{OIDs::OID_PKIX_KP_CLIENT_AUTH.value})"\
+        "(pkiextendedkeyusage=#{OIDs::OID_ANY_EXTENDED_KEY_USAGE.value})"\
+        '(!(pkiextendedkeyusage=*))'\
+      ')'\
+  ')'
+
+    begin
+      authenticated_user_sid = get_authenticated_user_info[:sid]
+    rescue LdapWhoamiError => e
+      print_warning("ESC9 detection skipped: #{e.message}")
+      return
+    end
+
+    esc9_templates = query_ldap_server(esc9_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
+    writable_users = find_users_with_writable_sids(authenticated_user_sid)
+
+    # Finds templates that the users we have write privileges over can enroll in
+    process_templates(
+      esc9_templates,
+      authenticated_user_sid,
+      writable_users,
+      'ESC9: Template has msPKI-Enrollment-Flag set to 0x80000 (CT_FLAG_NO_SECURITY_EXTENSION) and specifies a client authentication EKU and %<authenticated_user>s has write privileges over %<writable_user>s',
+      'ESC9'
+    )
+  end
+
+  def find_esc10_vuln_cert_templates
+    esc10_raw_filter = '(&'\
+    '(objectclass=pkicertificatetemplate)'\
+    '(|(mspki-ra-signature=0)(!(mspki-ra-signature=*)))'\
+     '(|'\
+        "(pkiextendedkeyusage=#{OIDs::OID_KP_SMARTCARD_LOGON.value})"\
+        "(pkiextendedkeyusage=#{OIDs::OID_PKIX_KP_CLIENT_AUTH.value})"\
+        "(pkiextendedkeyusage=#{OIDs::OID_ANY_EXTENDED_KEY_USAGE.value})"\
+        '(!(pkiextendedkeyusage=*))'\
+      ')'\
+  ')'
+
+    begin
+      authenticated_user_sid = get_authenticated_user_info[:sid]
+    rescue LdapWhoamiError => e
+      print_warning("ESC9 detection skipped: #{e.message}")
+      return
+    end
+
+    esc10_templates = query_ldap_server(esc10_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
+    writable_users = find_users_with_writable_sids(authenticated_user_sid)
+
+    # Finds templates that the users we have write privileges over can enroll in
+    process_templates(
+      esc10_templates,
+      authenticated_user_sid,
+      writable_users,
+      'ESC10: Template specifies a client authentication EKU and %<authenticated_user>s has write privileges over %<writable_user>s',
+      'ESC10'
+    )
   end
 
   def find_esc13_vuln_cert_templates
@@ -648,7 +809,14 @@ class MetasploitModule < Msf::Auxiliary
       print_status("  Distinguished Name: #{hash[:dn]}")
       print_status("  Manager Approval: #{hash[:manager_approval] ? '%redRequired' : '%grnDisabled'}%clr")
       print_status("  Required Signatures: #{hash[:required_signatures] == 0 ? '%grn0' : '%red' + hash[:required_signatures].to_s}%clr")
-      print_good("  Vulnerable to: #{techniques.join(', ')}")
+      print_good("  Vulnerable to: #{(techniques - %w[ESC9 ESC10]).join(', ')}")
+      if techniques.include?('ESC9')
+        print_warning('  Potentially vulnerable to: ESC9 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must not be set to 2)')
+      end
+      if techniques.include?('ESC10')
+        print_warning('  Potentially vulnerable to: ESC10 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must be set to 0 or CertificateMappingMethods must be set to 0x4)')
+      end
+
       if hash[:notes].present? && hash[:notes].length == 1
         print_status("  Notes: #{hash[:notes].first}")
       elsif hash[:notes].present? && hash[:notes].length > 1
@@ -729,7 +897,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_object_by_sid(object_sid)
     object_sid = Rex::Proto::MsDtyp::MsDtypSid.new(object_sid)
-    object = @ldap_objects.find { |o| o['objectSID'].first == object_sid.to_binary_s }
+    object = @ldap_objects.find { |o| o['objectSID']&.first == object_sid.to_binary_s }
 
     if object.nil?
       object = query_ldap_server("(objectSID=#{ldap_escape_filter(object_sid.to_s)})", nil)&.first
@@ -825,6 +993,8 @@ class MetasploitModule < Msf::Auxiliary
       find_esc2_vuln_cert_templates
       find_esc3_vuln_cert_templates
       find_esc4_vuln_cert_templates
+      find_esc9_vuln_cert_templates
+      find_esc10_vuln_cert_templates
       find_esc13_vuln_cert_templates
       find_esc15_vuln_cert_templates
 

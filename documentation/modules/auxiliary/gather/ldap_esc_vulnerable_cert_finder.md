@@ -90,6 +90,50 @@ a normal user account by analyzing the objects in LDAP.
 1. Scroll down and select the `ESC3-Template2` certificate, and select `OK`.
 1. The certificate should now be available to be issued by the CA server.
 
+### Setting up a ESC9 Vulnerable Certificate Template
+1. Open up the run prompt and type in `certsrv`.
+1. In the window that appears you should see your list of certification authorities under `Certification Authority (Local)`.
+1. Right click on the folder in the drop down marked `Certificate Templates` and then click `Manage`.
+1. Scroll down to the `User` certificate. Right click on it and select `Duplicate Template`.
+1. The `User` certificate already has the `Client Authentication` EKU enabled so we can use this as a base template.
+1. Select the `General` tab and rename this to something meaningful like `ESC9-Template`, then click the `Apply` button.
+1. Select the Security tab and click the `Add` button.
+1. Enter `user2` (or whatever user's UPN you will be changing for this attack). Click OK.
+1. Under Permissions for `user2` select `Allow` for `Enroll` and `Read`.
+1. Click `Apply` and then `OK`.
+1. Open Active Directory Users and Computers, expand the domain on the left hand side.
+1. Right click `Users` and navigate `user2` and select `Properties`.
+1. In the security tab, select `Add` and enter `user1` (or whatever user you will be using to perform the attack). Click OK.
+1. Under Permissions for `user1` select `Allow` for `Read` and `Write` (or select `Allow` for `Full Control`).
+1. Open a Powershell prompt as Administrator and run the following (change `kerberos.issue` to your domain name):
+```powershell
+$template = [ADSI]"LDAP://CN=ESC9-Template,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=kerberos,DC=issue"
+$template.Put("msPKI-Enrollment-Flag", 0x80000)
+$template.SetInfo()
+```
+#### Configuring Windows to be Vulnerable to ESC9
+1. The template should now be reported as `Potentially Vulnerable` by the module.
+1. In order to be able to exploit this template run the following Powershell command and ensure `StrongCertificateBindingEnforcement` is not set to `2` (it should be 1, or 0):
+```powershell
+Get-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\Kdc\" -Name StrongCertificateBindingEnforcement
+```
+
+### Setting up a ESC10 Vulnerable Certificate Template
+1. Follow the first 13 steps `Setting up a ESC9 Vulnerable Certificate Template` to create the `ESC10-Template`.
+    1. Everything up to and excluding the `msPKI-Enrollment-Flag", 0x80000` powershell step.
+#### Configuring Windows to be Vulnerable to ESC10
+1. The template should now be reported as `Potentially Vulnerable` by the module.
+##### ESC10 Case1:
+1. In order to be able to exploit this template run the following Powershell command and ensure `StrongCertificateBindingEnforcement` is set to `0`
+```powershell
+Get-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\Kdc\" -Name StrongCertificateBindingEnforcement
+```
+##### ESC10 Case2:
+1. In order to be able to exploit this template run the following Powershell command and ensure `CertificateMappingMethods` is set to `0x4`
+```powershell
+Get-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Control\SecurityProviders\Schannel\" -Name CertificateMappingMethods
+```
+
 ### Setting up a ESC13 Vulnerable Certificate Template
 1. Follow the instructions above to duplicate the ESC2 template and name it `ESC13`, then click `Apply`.
 1. Go to the `Extensions` tab, click the Issuance Policies entry, click the `Add` button, click the `New...` button.
