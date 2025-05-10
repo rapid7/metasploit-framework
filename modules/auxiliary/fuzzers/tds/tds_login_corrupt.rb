@@ -3,50 +3,56 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'English'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Fuzzer
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'TDS Protocol Login Request Corruption Fuzzer',
-      'Description'    => %q{
-        This module sends a series of malformed TDS login requests.
-      },
-      'Author'         => [ 'hdm' ],
-      'License'        => MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'TDS Protocol Login Request Corruption Fuzzer',
+        'Description' => %q{
+          This module sends a series of malformed TDS login requests.
+        },
+        'Author' => [ 'hdm' ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
   end
 
   # A copy of the mssql_login method with the ability to overload each option
-  def make_login(opts={})
-
-    pkt = ""
-    idx = 0
-    db = ""
+  def make_login(opts = {})
+    pkt = ''
+    db = ''
 
     pkt << [
-      0x00000000,   # Dummy size
-      opts[:tds_version]    || 0x71000001,   # TDS Version
-      opts[:size]           || 0x00000000,   # Size
-      opts[:version]        || 0x00000007,   # Version
-      opts[:pid]            || rand(1024+1), # PID
-      opts[:connection_id]  || 0x00000000,   # ConnectionID
-      opts[:flags_opt1]     || 0xe0,         # Option Flags 1
-      opts[:flags_opt2]     || 0x03,         # Option Flags 2
+      0x00000000, # Dummy size
+      opts[:tds_version] || 0x71000001, # TDS Version
+      opts[:size] || 0x00000000, # Size
+      opts[:version] || 0x00000007, # Version
+      opts[:pid] || rand(1024 + 1), # PID
+      opts[:connection_id] || 0x00000000, # ConnectionID
+      opts[:flags_opt1] || 0xe0,         # Option Flags 1
+      opts[:flags_opt2] || 0x03,         # Option Flags 2
       opts[:flags_sql_type] || 0x00,         # SQL Type Flags
       opts[:flags_reserved] || 0x00,         # Reserved Flags
-      opts[:timezone]       || 0x00000000,   # Time Zone
-      opts[:collation]      || 0x00000000    # Collation
+      opts[:timezone] || 0x00000000, # Time Zone
+      opts[:collation] || 0x00000000 # Collation
     ].pack('VVVVVVCCCCVV')
 
-
-    cname = Rex::Text.to_unicode( opts[:cname] || Rex::Text.rand_text_alpha(rand(8)+1) )
-    uname = Rex::Text.to_unicode( opts[:uname] || "sa" )
-    pname = opts[:pname_raw] || mssql_tds_encrypt( opts[:pname] || "" )
-    aname = Rex::Text.to_unicode(opts[:aname] || Rex::Text.rand_text_alpha(rand(8)+1) )
-    sname = Rex::Text.to_unicode( opts[:sname] || rhost )
-    dname = Rex::Text.to_unicode( opts[:dname] || db )
+    cname = Rex::Text.to_unicode(opts[:cname] || Rex::Text.rand_text_alpha(1..8))
+    uname = Rex::Text.to_unicode(opts[:uname] || 'sa')
+    pname = opts[:pname_raw] || mssql_tds_encrypt(opts[:pname] || '')
+    aname = Rex::Text.to_unicode(opts[:aname] || Rex::Text.rand_text_alpha(1..8))
+    sname = Rex::Text.to_unicode(opts[:sname] || rhost)
+    dname = Rex::Text.to_unicode(opts[:dname] || db)
 
     idx = pkt.size + 50 # lengths below
 
@@ -73,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
     pkt << [idx, 0].pack('vv')
 
     pkt << [idx, dname.length / 2].pack('vv')
-    idx += dname.length
+    dname.length
 
     # The total length has to be embedded twice more here
     pkt << [
@@ -92,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
     pkt << dname
 
     # Total packet length
-    pkt[0,4] = [pkt.length].pack('V')
+    pkt[0, 4] = [pkt.length].pack('V')
 
     # Embedded packet lengths
     pkt[pkt.index([0x12345678].pack('V')), 8] = [pkt.length].pack('V') * 2
@@ -103,16 +109,16 @@ class MetasploitModule < Msf::Auxiliary
     pkt
   end
 
-  def do_login(pkt,opts={})
+  def do_login(pkt, opts = {})
     @connected = false
-    disconnect if self.sock
+    disconnect if sock
     connect
     @connected = true
 
-    resp = mssql_send_recv(pkt,opts[:timeout])
+    resp = mssql_send_recv(pkt, opts[:timeout])
 
-    info = {:errors => []}
-    info = mssql_parse_reply(resp,info)
+    info = { errors: [] }
+    info = mssql_parse_reply(resp, info)
     info
   end
 
@@ -126,24 +132,24 @@ class MetasploitModule < Msf::Auxiliary
     fuzz_string_corrupt_byte_reverse(pkt) do |str|
       cnt += 1
 
-      if(cnt % 100 == 0)
+      if (cnt % 100 == 0)
         print_status("Fuzzing with iteration #{cnt} using #{@last_fuzzer_input}")
       end
 
       begin
-        do_login(str,:timeout => 0.50)
+        do_login(str, timeout: 0.50)
       rescue ::Interrupt
         print_status("Exiting on interrupt: iteration #{cnt} using #{@last_fuzzer_input}")
-        raise $!
-      rescue ::Exception => e
+        raise $ERROR_INFO
+      rescue StandardError => e
         last_err = e
       ensure
         disconnect
       end
 
-      if(not @connected)
-        if(last_str)
-          print_status("The service may have crashed: method=#{last_inp} string=#{last_str.unpack("H*")[0]} error=#{last_err}")
+      if !@connected
+        if last_str
+          print_status("The service may have crashed: method=#{last_inp} string=#{last_str.unpack('H*')[0]} error=#{last_err}")
         else
           print_status("Could not connect to the service: #{last_err}")
         end
