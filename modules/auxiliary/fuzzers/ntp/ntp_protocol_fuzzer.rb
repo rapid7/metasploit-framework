@@ -12,8 +12,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'NTP Protocol Fuzzer',
-      'Description' => %q(
+      'Name' => 'NTP Protocol Fuzzer',
+      'Description' => %q{
         A simplistic fuzzer for the Network Time Protocol that sends the
         following probes to understand NTP and look for anomalous NTP behavior:
 
@@ -35,9 +35,14 @@ class MetasploitModule < Msf::Auxiliary
         * Warn if the "mode" (if applicable) doesn't align with what we expect,
         * Filter out the 12-byte mode 6 unsupported opcode errors.
         * Fuzz the control message payload offset/size/etc.  There be bugs
-      ),
-      'Author'      => 'Jon Hart <jon_hart[at]rapid7.com>',
-      'License'     => MSF_LICENSE
+      },
+      'Author' => 'Jon Hart <jon_hart[at]rapid7.com>',
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SERVICE_DOWN],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
       )
 
     register_options(
@@ -45,7 +50,8 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(123),
         OptInt.new('SLEEP', [true, 'Sleep for this many ms between requests', 0]),
         OptInt.new('WAIT', [true, 'Wait this many ms for responses', 250])
-      ])
+      ]
+    )
 
     register_advanced_options(
       [
@@ -54,7 +60,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('MODE_6_OPERATIONS', [false, 'Mode 6 operations to fuzz (csv)']),
         OptString.new('MODE_7_IMPLEMENTATIONS', [false, 'Mode 7 implementations to fuzz (csv)']),
         OptString.new('MODE_7_REQUEST_CODES', [false, 'Mode 7 request codes to fuzz (csv)'])
-      ])
+      ]
+    )
   end
 
   def sleep_time
@@ -66,9 +73,9 @@ class MetasploitModule < Msf::Auxiliary
     const_name = thing.to_sym
     var_name = thing.downcase
     if datastore[thing]
-      instance_variable_set("@#{var_name}", datastore[thing].split(/[^\d]/).select { |v| !v.empty? }.map { |v| v.to_i })
+      instance_variable_set("@#{var_name}", datastore[thing].split(/[^\d]/).reject(&:empty?).map(&:to_i))
       unsupported_things = instance_variable_get("@#{var_name}") - Rex::Proto::NTP.const_get(const_name)
-      fail "Unsupported #{thing}: #{unsupported_things}" unless unsupported_things.empty?
+      raise "Unsupported #{thing}: #{unsupported_things}" unless unsupported_things.empty?
     else
       instance_variable_set("@#{var_name}", Rex::Proto::NTP.const_get(const_name))
     end
@@ -196,6 +203,7 @@ class MetasploitModule < Msf::Auxiliary
     request = request.to_binary_s if request.respond_to?('to_binary_s')
     responses.select! { |r| r[1] }
     return if responses.empty?
+
     responses.each do |response|
       data = response[0]
       descriptions << Rex::Proto::NTP.describe(data)
