@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q{
           This module supports running an SMB server which validates credentials, and
           then attempts to execute a relay attack against an LDAP server on the
-          configured RELAY_TARGETS hosts.
+          configured RHOSTS hosts.
 
           It is not possible to relay NTLMv2 to LDAP due to the Message Integrity Check
           (MIC). As a result, this will only work with NTLMv1. The module takes care of
@@ -59,15 +59,13 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('SessionKeepalive', [true, 'Time (in seconds) for sending protocol-level keepalive messages', 10 * 60])
       ]
     )
-
-    deregister_options('RHOSTS')
   end
 
   def relay_targets
     Msf::Exploit::Remote::SMB::Relay::TargetList.new(
       :ldap, # TODO: look into LDAPs
       datastore['RPORT'],
-      datastore['RELAY_TARGETS'],
+      datastore['RHOSTS'],
       datastore['TARGETURI'],
       randomize_targets: datastore['RANDOMIZE_TARGETS'],
       drop_mic_only: true,
@@ -78,9 +76,6 @@ class MetasploitModule < Msf::Auxiliary
   def check_options
     unless framework.features.enabled?(Msf::FeatureManager::LDAP_SESSION_TYPE)
       fail_with(Failure::BadConfig, 'This module requires the `ldap_session_type` feature to be enabled. Please enable this feature using `features set ldap_session_type true`')
-    end
-    if datastore['RHOSTS'].present?
-      print_warning('Warning: RHOSTS datastore value has been set which is not supported by this module. Please verify RELAY_TARGETS is set correctly.')
     end
   end
 
