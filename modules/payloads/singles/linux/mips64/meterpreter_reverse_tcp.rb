@@ -42,6 +42,7 @@ module MetasploitModule
     unless ds['MeterpreterLegacyElf']
       return in_memory_load(payload) + payload
     end
+
     payload
   end
 end
