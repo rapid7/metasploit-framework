@@ -84,12 +84,12 @@ class MetasploitModule < Msf::Auxiliary
         data: inst.public_ip_address
       )
     end
-    #eips = inst.network_interfaces.map {|i| i.association && i.association.public_ip}.compact # <-- works in pry, breaks at runtime in AWS SDK
-    #report_note(
+    # eips = inst.network_interfaces.map {|i| i.association && i.association.public_ip}.compact # <-- works in pry, breaks at runtime in AWS SDK
+    # report_note(
     #  host: inst.private_ip_address,
     #  type: 'ec2.public_ips',
     #  data: eips.join(' ')
-    #) unless eips.empty?
+    # ) unless eips.empty?
     if inst.public_ip_address && !inst.public_dns_name.empty?
       report_note(
         host: inst.private_ip_address,
