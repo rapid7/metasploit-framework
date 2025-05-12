@@ -191,8 +191,9 @@ module Anemone
       url.scheme == "https",
       @opts[:ssl_version],
       @opts[:proxies],
-                    @opts[:username],
-                    @opts[:password]
+      @opts[:username],
+      @opts[:password],
+      subscriber: @opts[:http_subscriber]
     )
 
     conn.set_config(

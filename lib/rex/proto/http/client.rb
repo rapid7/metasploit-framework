@@ -19,9 +19,8 @@ module Rex
 
         #
         # Creates a new client instance
-        # @param http_trace_proc_request [Proc] A proc object passed to log HTTP requests if HTTP-Trace is set
-        # @param http_trace_proc_response [Proc] A proc object passed to log HTTP responses if HTTP-Trace is set
         #
+        # @param [Rex::Proto::Http::HttpSubscriber] subscriber A subscriber to Http requests/responses
         def initialize(host, port = 80, context = {}, ssl = nil, ssl_version = nil, proxies = nil, username = '', password = '', kerberos_authenticator: nil, comm: nil, subscriber: nil, sslkeylogfile: nil)
           self.hostname = host
           self.port = port.to_i
