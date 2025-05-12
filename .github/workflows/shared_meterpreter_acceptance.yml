@@ -68,10 +68,10 @@ jobs:
       matrix:
         os:
           - macos-13
-          - windows-2019
+          - windows-2022
           - ubuntu-latest
         ruby:
-          - '3.2'
+          - '3.4'
         meterpreter:
           # Python
           - { name: python, runtime_version: 3.8 }
@@ -87,8 +87,9 @@ jobs:
           - { name: php, runtime_version: 8.3 }
         include:
           # Windows Meterpreter
-          - { meterpreter: { name: windows_meterpreter }, os: windows-2019 }
-          - { meterpreter: { name: windows_meterpreter }, os: windows-2022 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022 }
+          # TODO: Screenshotting behavior fails:
+          # - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2025 }
 
           # Mettle
           - { meterpreter: { name: mettle }, os: macos-13 }
@@ -268,6 +269,15 @@ jobs:
       - name: Build Windows payloads via Visual Studio 2022 Build (Windows)
         shell: cmd
         if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2022' && inputs.build_metasploit_payloads }}
+        run: |
+          cd c/meterpreter
+          git submodule init && git submodule update
+          make.bat
+        working-directory: metasploit-payloads
+
+      - name: Build Windows payloads via Visual Studio 2025 Build (Windows)
+        shell: cmd
+        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2025' && inputs.build_metasploit_payloads }}
         run: |
           cd c/meterpreter
           git submodule init && git submodule update

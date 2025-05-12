@@ -63,21 +63,23 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - windows-2019
+          - windows-2022
           - ubuntu-latest
         ruby:
-          - '3.2'
+          - '3.4'
         include:
           # Powershell
-          - { command_shell: { name: powershell }, os: windows-2019 }
-          - { command_shell: { name: powershell }, os: windows-2022 }
+          - { command_shell: { name: powershell }, ruby: '3.4', os: windows-2022 }
+          - { command_shell: { name: powershell }, ruby: '3.4', os: windows-2025 }
 
           # Linux
-          - { command_shell: { name: linux }, os: ubuntu-latest }
+          - { command_shell: { name: linux }, ruby: '3.4', os: ubuntu-latest }
 
           # CMD
-          - { command_shell: { name: cmd }, os: windows-2019 }
-          - { command_shell: { name: cmd }, os: windows-2022 }
+          - { command_shell: { name: cmd }, ruby: '3.4', os: windows-2022 }
+
+          # TODO: Tests currently fail:
+          # - { command_shell: { name: cmd }, ruby: '3.4', os: windows-2025 }
 
     runs-on: ${{ matrix.os }}
 
@@ -131,7 +133,7 @@ jobs:
         if: runner.os == 'Windows'
         run: git config --system core.longpaths true
 
-      - name: Setup Ruby
+      - name: Setup '${{ matrix.ruby }}' Ruby
         env:
           BUNDLE_FORCE_RUBY_PLATFORM: true
         uses: ruby/setup-ruby@v1
@@ -191,7 +193,8 @@ jobs:
           BUNDLE_FORCE_RUBY_PLATFORM: true
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '${{ matrix.ruby }}'
+          # use the default version from the .ruby-version file
+          ruby-version: '.ruby-version'
           bundler-cache: true
           cache-version: 4
 
