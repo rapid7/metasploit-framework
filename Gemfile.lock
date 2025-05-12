@@ -479,7 +479,7 @@ GEM
     rex-socket (0.1.61)
       dnsruby
       rex-core
-    rex-sslscan (0.1.12)
+    rex-sslscan (0.1.13)
       rex-core
       rex-socket
       rex-text
