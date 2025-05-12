@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Post
         ],
         'DefaultAction' => 'DUMP_TICKETS',
         'Notes' => {
-          'Stability' => [],
+          'Stability' => [CRASH_SAFE],
           'Reliability' => [],
           'SideEffects' => []
         },

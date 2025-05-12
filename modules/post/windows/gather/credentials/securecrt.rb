@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => [ 'meterpreter' ],
         'Notes' => {
           'Reliability' => [],
-          'Stability' => [],
+          'Stability' => [ CRASH_SAFE ],
           'SideEffects' => [ IOC_IN_LOGS ]
         },
         'Compat' => {

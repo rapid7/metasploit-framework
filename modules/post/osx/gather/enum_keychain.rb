@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => [ 'meterpreter', 'shell' ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
-          'SideEffects' => [ARTIFACTS_ON_DISK],
+          'SideEffects' => [ARTIFACTS_ON_DISK, SCREEN_EFFECTS],
           'Reliability' => []
         }
       )

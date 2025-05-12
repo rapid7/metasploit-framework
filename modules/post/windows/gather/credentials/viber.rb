@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Post
           path: 'AppData',
           dir: 'ViberPC',
           artifact_file_name: '*.jpg',
-          description: 'Collects all images of contacts and sent recieved',
+          description: 'Collects all images of contacts and sent received',
           credential_type: 'image'
         }
       ]

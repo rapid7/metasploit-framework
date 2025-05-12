@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Post
         ],
         'DisclosureDate' => '2022-11-16',
         'Notes' => {
-          'Stability' => [],
+          'Stability' => [CRASH_SAFE],
           'Reliability' => [],
           'SideEffects' => []
         }
