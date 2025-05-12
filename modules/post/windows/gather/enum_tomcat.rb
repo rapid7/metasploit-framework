@@ -25,12 +25,16 @@ class MetasploitModule < Msf::Post
           'Barry Shteiman <barry[at]sectorix.com>', # Module author
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
 
-  # method called when command run is issued
   def run
     installs = []
     results = []
@@ -38,20 +42,23 @@ class MetasploitModule < Msf::Post
     print_status("Enumerating Tomcat Servers on #{sysinfo['Computer']}")
     if check_tomcat
       installs += identify_registry
-      if !installs.empty?
-        installs.each do |inst|
-          results += enumerate_tomcat(inst[0], inst[1])
-          users += enumerate_tomcat_creds(inst[0])
-        end
-      else
-        print_status('Done, Tomcat Not Found')
+
+      if installs.empty?
+        print_status('Done, Tomcat not found')
         return
       end
+
+      installs.each do |inst|
+        results += enumerate_tomcat(inst[0], inst[1])
+        users += enumerate_tomcat_creds(inst[0])
+      end
     end
+
     if results.empty?
-      print_status('Done, Tomcat Not Found')
+      print_status('Done, Tomcat not found')
       return
     end
+
     print_status('Done, Tomcat Found.')
 
     tbl_services = Rex::Text::Table.new(
@@ -184,25 +191,26 @@ class MetasploitModule < Msf::Post
     values = []
     basekey = 'HKLM\\SOFTWARE\\Apache Software Foundation\\Tomcat'
     instances = registry_enumkeys(basekey)
-    if !instances.nil? && !instances.empty?
-      instances.each do |i|
-        major_version_key = "#{basekey}\\#{i}"
-        services = registry_enumkeys(major_version_key)
+    return values if instances.blank?
 
-        if services.empty?
-          val_installpath = registry_getvaldata(major_version_key, 'InstallPath')
-          val_version = registry_getvaldata(major_version_key, 'Version')
+    instances.each do |i|
+      major_version_key = "#{basekey}\\#{i}"
+      services = registry_enumkeys(major_version_key)
+
+      if services.empty?
+        val_installpath = registry_getvaldata(major_version_key, 'InstallPath')
+        val_version = registry_getvaldata(major_version_key, 'Version')
+        values << [val_installpath, val_version]
+      else
+        services.each do |s|
+          service_key = "#{major_version_key}\\#{s}"
+          val_installpath = registry_getvaldata(service_key, 'InstallPath')
+          val_version = registry_getvaldata(service_key, 'Version')
           values << [val_installpath, val_version]
-        else
-          services.each do |s|
-            service_key = "#{major_version_key}\\#{s}"
-            val_installpath = registry_getvaldata(service_key, 'InstallPath')
-            val_version = registry_getvaldata(service_key, 'Version')
-            values << [val_installpath, val_version]
-          end
         end
       end
     end
+
     return values
   rescue StandardError
     print_error("\t\t! failed to locate install path")

@@ -12,8 +12,13 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
     File.directory?(path)
   end
 
-  def loadable_module?(parent_path, type, module_reference_name)
-    full_path = module_path(parent_path, type, module_reference_name)
+  # @param [String] parent_path Root directory to load modules from
+  # @param [String] type Such as auxiliary, exploit, etc
+  # @param [String] module_reference_name The module reference name, without the type prefix
+  # @param [nil,Msf::Modules::Metadata::Obj] cached_metadata
+  # @return [Boolean] True this loader can load the module, false otherwise
+  def loadable_module?(parent_path, type, module_reference_name, cached_metadata: nil)
+    full_path = cached_metadata&.path || module_path(parent_path, type, module_reference_name)
     module_path?(full_path)
   end
 

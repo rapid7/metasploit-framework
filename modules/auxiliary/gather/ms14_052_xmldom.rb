@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2013-7331'],
           [ 'MSB', 'MS14-052' ],
           [ 'URL', 'https://soroush.secproject.com/blog/2013/04/microsoft-xmldom-in-ie-can-divulge-information-of-local-drivenetwork-in-error-messages/' ],
-          [ 'URL', 'https://cybersecurity.att.com/blogs/labs-research/attackers-abusing-internet-explorer-to-enumerate-software-and-detect-securi' ]
+          [ 'URL', 'http://web.archive.org/web/20240814143555/https://cybersecurity.att.com/blogs/labs-research/attackers-abusing-internet-explorer-to-enumerate-software-and-detect-securi' ]
         ],
       'Platform'       => 'win',
       'DisclosureDate' => '2014-09-09', # MSB. Used in the wild since Feb 2014

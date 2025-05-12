@@ -34,7 +34,12 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'https://www.researchgate.net/publication/321183727_Security_Evaluation_of_an_Airbag-ECU_by_Reusing_Threat_Modeling_Artefacts' ]
         ],
         'Platform' => ['hardware'],
-        'SessionTypes' => ['hwbridge']
+        'SessionTypes' => ['hwbridge'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [PHYSICAL_EFFECTS],
+          'Reliability' => []
+        }
       )
     )
     register_options([

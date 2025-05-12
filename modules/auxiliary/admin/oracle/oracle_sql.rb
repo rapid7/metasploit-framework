@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'URL', 'https://www.metasploit.com/users/mc' ],
+          [ 'URL', 'http://web.archive.org/web/20110322124810/http://www.metasploit.com:80/users/mc/' ],
         ],
       'DisclosureDate' => '2007-12-07'))
 

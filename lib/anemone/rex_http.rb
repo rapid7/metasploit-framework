@@ -198,6 +198,7 @@ module Anemone
     conn.set_config(
       'vhost'      => virtual_host(url),
       'agent'      => user_agent,
+      'ssl_server_name_indication' => @opts[:ssl_server_name_indication],
       'domain'     => @opts[:domain]
     )
 

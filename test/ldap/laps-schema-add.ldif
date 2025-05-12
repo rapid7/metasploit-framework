@@ -1,0 +1,29 @@
+dn: CN=ms-LAPS-Password,CN=Schema,CN=Configuration,DC=ldap,DC=example,DC=com
+changetype: add
+objectClass: top
+objectClass: attributeSchema
+cn: ms-LAPS-Password
+attributeID: 1.2.840.113556.1.6.44.1.2
+lDAPDisplayName: msLAPS-Password
+attributeSyntax: 2.5.5.5
+oMSyntax: 19
+isSingleValued: TRUE
+systemOnly: FALSE
+searchFlags: 904
+adminDisplayName: ms-LAPS-Password
+adminDescription: LAPS v2 Password
+
+dn: CN=ms-Mcs-AdmPwd,CN=Schema,CN=Configuration,DC=ldap,DC=example,DC=com
+changetype: add
+objectClass: top
+objectClass: attributeSchema
+cn: ms-Mcs-AdmPwd
+attributeID: 1.2.840.113556.1.8000.2554.50051.45980.28112.18903.35903.6685103.1224907.2.1
+lDAPDisplayName: ms-Mcs-AdmPwd
+attributeSyntax: 2.5.5.5
+oMSyntax: 19
+isSingleValued: TRUE
+systemOnly: FALSE
+searchFlags: 904
+adminDisplayName: ms-Mcs-AdmPwd
+adminDescription: LAPS v1 Password

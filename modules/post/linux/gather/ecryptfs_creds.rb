@@ -20,7 +20,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['Dhiru Kholia <dhiru[at]openwall.com>'],
         'Platform' => ['linux'],
-        'SessionTypes' => ['shell']
+        'SessionTypes' => ['shell'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end

@@ -21,7 +21,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['theLightCosine'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -81,7 +86,7 @@ class MetasploitModule < Msf::Post
 
           # Merge in the service data and create our Login
           login_data.merge!(service_data)
-          login = create_credential_login(login_data)
+          create_credential_login(login_data)
         end
       rescue StandardError
         print_error("Cannot Access User SID: #{hive['HKU']}")

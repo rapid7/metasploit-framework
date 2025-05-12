@@ -41,18 +41,9 @@ module Metasploit
       config.paths['config/database'] = [Metasploit::Framework::Database.configurations_pathname.try(:to_path)]
       config.autoloader = :zeitwerk
 
-      case Rails.env
-      when "development"
-        config.eager_load = false
-      when "test"
-        config.eager_load = false
-      when "production"
-        config.eager_load = false
-      end
+      config.load_defaults 7.1
 
-      if ActiveRecord.respond_to?(:legacy_connection_handling=)
-        ActiveRecord.legacy_connection_handling = false
-      end
+      config.eager_load = false
     end
   end
 end

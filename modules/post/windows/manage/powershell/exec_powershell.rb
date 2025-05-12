@@ -40,6 +40,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_config_sysinfo
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -61,9 +66,8 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    # Make sure we meet the requirements before running the script, note no need to return
-    # unless error
-    return 0 if !(session.type == 'meterpreter' || have_powershell?)
+    fail_with(Failure::BadConfig, 'This module requires a Meterpreter session') unless session.type == 'meterpreter'
+    fail_with(Failure::BadConfig, 'PowerShell is not installed') unless have_powershell?
 
     # End of file marker
     eof = Rex::Text.rand_text_alpha(8)

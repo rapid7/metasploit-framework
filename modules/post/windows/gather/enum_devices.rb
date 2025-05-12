@@ -21,7 +21,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Brandon Perry <bperry.volatile[at]gmail.com>' ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -64,7 +69,7 @@ class MetasploitModule < Msf::Post
 
       t = []
 
-      while (!devices.nil? && !devices.empty?)
+      while !devices.nil? && !devices.empty?
         1.upto(3) do
           t << framework.threads.spawn("Module(#{refname})", false, devices.shift) do |device|
             next if device.nil?
@@ -142,14 +147,12 @@ class MetasploitModule < Msf::Post
 
   def run
     print_status("Enumerating hardware on #{sysinfo['Computer']}")
-    begin
-      list
-    rescue ::Exception => e
-      if e.to_s =~ /execution expired/i
-        print_error('Sorry, execution expired. Module could not finish running.')
-      else
-        print_error("An unexpected error has occurred: #{e}:\n#{e.backtrace}")
-      end
+    list
+  rescue StandardError => e
+    if e.to_s =~ /execution expired/i
+      print_error('Sorry, execution expired. Module could not finish running.')
+    else
+      print_error("An unexpected error has occurred: #{e}:\n#{e.backtrace}")
     end
   end
 end

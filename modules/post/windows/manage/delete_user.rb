@@ -18,14 +18,19 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'chao-mu'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [SERVICE_RESOURCE_LOSS],
+          'SideEffects' => [CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 
     register_options(
       [
         OptString.new('USERNAME', [ true, 'The username of the user to delete (not-qualified, e.g. BOB)' ]),
-        OptString.new('SERVER_NAME', [ false, ' DNS or NetBIOS name of remote server on which to delete user' ]),
+        OptString.new('SERVER_NAME', [ false, 'DNS or NetBIOS name of remote server on which to delete user' ]),
       ]
     )
   end
@@ -48,7 +53,7 @@ class MetasploitModule < Msf::Post
     when :access_denied
       print_error 'Sorry, you do not have permission to delete that user'
     when nil
-      print_error 'Something horrible just happened. Sorry.'
+      print_error 'Could not delete user. Something horrible just happened. Sorry.'
     else
       print_error 'This module is out of date'
     end

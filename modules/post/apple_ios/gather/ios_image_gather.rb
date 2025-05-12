@@ -20,6 +20,11 @@ class MetasploitModule < Msf::Post
         'Author' => [ 'Shelby Pace' ], # Metasploit Module
         'Platform' => [ 'apple_ios' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[

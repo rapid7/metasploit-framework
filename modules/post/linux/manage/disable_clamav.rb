@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('CLAMAV_UNIX_SOCKET', [true, 'ClamAV unix socket', '/run/clamav/clamd.ctl' ]),
         OptString.new('COMMAND', [true, 'ClamAV command to execute', 'SHUTDOWN' ])
-      ], self.class
+      ]
     )
   end
 

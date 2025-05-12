@@ -62,13 +62,11 @@ class MetasploitModule < Msf::Post
         OptString.new('ARGUMENTS', [false, 'Command line arguments']),
         OptBool.new('AMSIBYPASS', [true, 'Enable AMSI bypass', true]),
         OptBool.new('ETWBYPASS', [true, 'Enable ETW bypass', true]),
-
         OptString.new('PROCESS', [false, 'Process to spawn', 'notepad.exe'], conditions: spawn_condition),
         OptBool.new('USETHREADTOKEN', [false, 'Spawn process using the current thread impersonation', true], conditions: spawn_condition),
         OptInt.new('PPID', [false, 'Process Identifier for PPID spoofing when creating a new process (no PPID spoofing if unset)', nil], conditions: spawn_condition),
-
         OptInt.new('PID', [false, 'PID to inject into', nil], conditions: inject_condition),
-      ], self.class
+      ]
     )
 
     register_advanced_options(
@@ -118,26 +116,27 @@ class MetasploitModule < Msf::Post
   end
 
   def run
+    fail_with(Failure::BadConfig, 'Only meterpreter sessions are supported by this module') unless session.type == 'meterpreter'
+
     exe_path = datastore['DOTNET_EXE']
 
     unless File.file?(exe_path)
       fail_with(Failure::BadConfig, 'Assembly not found')
     end
+
     installed_dotnet_versions = get_dotnet_versions
     vprint_status("Dot Net Versions installed on target: #{installed_dotnet_versions}")
     if installed_dotnet_versions == []
       fail_with(Failure::BadConfig, 'Target has no .NET framework installed')
     end
+
     rclr = find_required_clr(exe_path)
     if check_requirements(rclr, installed_dotnet_versions) == false
       fail_with(Failure::BadConfig, 'CLR required for assembly not installed')
     end
 
-    if sysinfo.nil?
-      fail_with(Failure::BadConfig, 'Session invalid')
-    else
-      print_status("Running module against #{sysinfo['Computer']}")
-    end
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
 
     execute_assembly(exe_path, rclr)
   end

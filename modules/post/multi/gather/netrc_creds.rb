@@ -18,7 +18,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Jon Hart <jhart[at]spoofed.org>' ],
         'Platform' => %w[bsd linux osx unix],
-        'SessionTypes' => [ 'shell' ]
+        'SessionTypes' => [ 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -75,7 +80,7 @@ class MetasploitModule < Msf::Post
       end
 
       # save whatever remains of this last cred if it is worth saving
-      creds << cred if (cred[:host] && cred[:user] && cred[:pass])
+      creds << cred if cred[:host] && cred[:user] && cred[:pass]
     end
 
     # print out everything we've found

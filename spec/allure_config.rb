@@ -1,4 +1,6 @@
 require "allure-rspec"
+require "active_support"
+require "active_support/core_ext/object"
 
 AllureRspec.configure do |config|
   config.results_directory = "tmp/allure-raw-data"

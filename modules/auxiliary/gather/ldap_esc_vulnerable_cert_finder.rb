@@ -14,12 +14,12 @@ class MetasploitModule < Msf::Auxiliary
   ADS_GROUP_TYPE_UNIVERSAL_GROUP = 0x00000008
 
   REFERENCES = {
-    'ESC1' => [ 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
-    'ESC2' => [ 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
-    'ESC3' => [ 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
-    'ESC4' => [ 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
-    'ESC13' => [ 'https://posts.specterops.io/adcs-esc13-abuse-technique-fda4272fbd53' ],
-    'ESC15' => [ 'https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc' ]
+    'ESC1' => [ SiteReference.new('URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2') ],
+    'ESC2' => [ SiteReference.new('URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2') ],
+    'ESC3' => [ SiteReference.new('URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2') ],
+    'ESC4' => [ SiteReference.new('URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2') ],
+    'ESC13' => [ SiteReference.new('URL', 'https://posts.specterops.io/adcs-esc13-abuse-technique-fda4272fbd53') ],
+    'ESC15' => [ SiteReference.new('URL', 'https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc') ]
   }.freeze
 
   SID = Struct.new(:value, :name) do
@@ -63,11 +63,7 @@ class MetasploitModule < Msf::Auxiliary
           'Spencer McIntyre', # ESC13 and ESC15 updates
           'jheysel-r7' # ESC4 update
         ],
-        'References' => [
-          [ 'URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
-          [ 'URL', 'https://posts.specterops.io/adcs-esc13-abuse-technique-fda4272fbd53' ], # ESC13
-          [ 'URL', 'https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc' ] # ESC15
-        ],
+        'References' => REFERENCES.values.flatten.map { |r| [ r.ctx_id, r.ctx_val ] }.uniq,
         'DisclosureDate' => '2021-06-17',
         'License' => MSF_LICENSE,
         'DefaultOptions' => {
@@ -222,9 +218,16 @@ class MetasploitModule < Msf::Auxiliary
   def map_sids_to_names(sids_array)
     mapped = []
     sids_array.each do |sid|
-      # this common SID doesn't always have an entry
-      if sid == Rex::Proto::Secauthz::WellKnownSids::SECURITY_AUTHENTICATED_USER_SID
+      # these common SIDs don't always have an entry
+      case sid
+      when Rex::Proto::Secauthz::WellKnownSids::SECURITY_AUTHENTICATED_USER_SID
         mapped << SID.new(sid, 'Authenticated Users')
+        next
+      when Rex::Proto::Secauthz::WellKnownSids::SECURITY_ENTERPRISE_CONTROLLERS_SID
+        mapped << SID.new(sid, 'Enterprise Domain Controllers')
+        next
+      when Rex::Proto::Secauthz::WellKnownSids::SECURITY_LOCAL_SYSTEM_SID
+        mapped << SID.new(sid, 'Local System')
         next
       end
 
@@ -613,16 +616,17 @@ class MetasploitModule < Msf::Auxiliary
           info = nil if info.blank?
 
           hash[:ca_servers].each_value do |ca_server|
-            service = report_service({
+            service = report_service(
               host: ca_server[:ip_address],
               port: 445,
               proto: 'tcp',
               name: 'AD CS',
               info: "AD CS CA name: #{ca_server[:name]}"
-            })
+            )
 
             if ca_server[:ip_address].present?
               vuln = report_vuln(
+                workspace: myworkspace,
                 host: ca_server[:ip_address],
                 port: 445,
                 proto: 'tcp',

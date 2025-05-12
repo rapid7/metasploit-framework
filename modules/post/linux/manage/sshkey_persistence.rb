@@ -26,6 +26,11 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => [ 'linux' ],
         'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [ARTIFACTS_ON_DISK]
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -36,14 +41,12 @@ class MetasploitModule < Msf::Post
       )
     )
 
-    register_options(
-      [
-        OptString.new('USERNAME', [false, 'User to add SSH key to (Default: all users on box)' ]),
-        OptPath.new('PUBKEY', [false, 'Public Key File to use. (Default: Create a new one)' ]),
-        OptString.new('SSHD_CONFIG', [true, 'sshd_config file', '/etc/ssh/sshd_config' ]),
-        OptBool.new('CREATESSHFOLDER', [true, 'If no .ssh folder is found, create it for a user', false ])
-      ], self.class
-    )
+    register_options([
+      OptString.new('USERNAME', [false, 'User to add SSH key to (Default: all users on box)' ]),
+      OptPath.new('PUBKEY', [false, 'Public Key File to use. (Default: Create a new one)' ]),
+      OptString.new('SSHD_CONFIG', [true, 'sshd_config file', '/etc/ssh/sshd_config' ]),
+      OptBool.new('CREATESSHFOLDER', [true, 'If no .ssh folder is found, create it for a user', false ])
+    ])
   end
 
   def run

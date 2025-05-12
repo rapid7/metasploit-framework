@@ -472,9 +472,9 @@ class Msf::Modules::Loader::Base
   #                   the path is not hidden (starts with '.')
   # @return [false] otherwise
   def module_path?(path)
-    path.ends_with?(MODULE_EXTENSION) &&
+    path.end_with?(MODULE_EXTENSION) &&
       File.file?(path) &&
-      !path.starts_with?(".") &&
+      !path.start_with?(".") &&
       !path.match?(UNIT_TEST_REGEX) &&
       !script_path?(path)
   end

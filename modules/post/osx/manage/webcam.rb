@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Post
         'Description' => %q{
           This module will allow the user to detect installed webcams (with
           the LIST action), take a snapshot (with the SNAPSHOT action), or
-          record a webcam and mic (with the RECORD action)
+          record a webcam and mic (with the RECORD action).
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'joev'],
@@ -31,7 +31,12 @@ class MetasploitModule < Msf::Post
           [ 'SNAPSHOT', { 'Description' => 'Take a snapshot with the webcam' } ],
           [ 'RECORD', { 'Description' => 'Record with the webcam' } ]
         ],
-        'DefaultAction' => 'LIST'
+        'DefaultAction' => 'LIST',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 

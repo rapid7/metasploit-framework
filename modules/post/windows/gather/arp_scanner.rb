@@ -14,13 +14,18 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Windows Gather ARP Scanner',
         'Description' => %q{
-          This Module will perform an ARP scan for a given IP range through a
-          Meterpreter Session.
+          This module will perform an ARP scan for a given IP range through a
+          Meterpreter session.
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -34,14 +39,13 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('RHOSTS', [true, 'The target address range or CIDR identifier', nil]),
         OptInt.new('THREADS', [false, 'The number of concurrent threads', 10])
-
       ]
     )
   end
 
-  # Run Method for when run command is issued
   def run
-    print_status("Running module against #{sysinfo['Computer']}")
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
     arp_scan(datastore['RHOSTS'], datastore['THREADS'])
   end
 
@@ -63,7 +67,7 @@ class MetasploitModule < Msf::Post
       iplst << ipa
     end
 
-    while (!iplst.nil? && !iplst.empty?)
+    while !iplst.nil? && !iplst.empty?
       a = []
       1.upto(threads) do
         a << framework.threads.spawn("Module(#{refname})", false, iplst.shift) do |ip_text|

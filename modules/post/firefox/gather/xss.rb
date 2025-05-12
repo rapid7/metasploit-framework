@@ -22,7 +22,12 @@ class MetasploitModule < Msf::Post
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'joev' ],
-        'Platform' => [ 'firefox' ]
+        'Platform' => [ 'firefox' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 

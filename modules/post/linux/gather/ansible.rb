@@ -36,13 +36,13 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('ANSIBLECFG', [true, 'Ansible config file location', '']),
         OptString.new('HOSTS', [ true, 'Which ansible hosts to target', 'all' ]),
-      ], self.class
+      ]
     )
 
     register_advanced_options(
       [
         OptString.new('ANSIBLEINVENTORY', [true, 'Ansible-inventory executable location', '']),
-      ], self.class
+      ]
     )
   end
 

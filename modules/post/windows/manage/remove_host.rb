@@ -28,6 +28,11 @@ class MetasploitModule < Msf::Post
               core_channel_write
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [CONFIG_CHANGES],
+          'Reliability' => []
         }
       )
     )
@@ -47,7 +52,6 @@ class MetasploitModule < Msf::Post
     # Get a temporary file path
     meterp_temp = Tempfile.new('meterp')
     meterp_temp.binmode
-    temp_path = meterp_temp.path
 
     print_status("Removing hosts file entry pointing to #{hosttoremove}")
 

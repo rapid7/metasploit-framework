@@ -88,6 +88,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # https://github.com/orgs/community/discussions/26952
+      - name: Support longpaths
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
+
       - name: Setup Ruby
         env:
           # Nokogiri doesn't release pre-compiled binaries for preview versions of Ruby; So force compilation with BUNDLE_FORCE_RUBY_PLATFORM

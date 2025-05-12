@@ -20,7 +20,12 @@ class MetasploitModule < Msf::Post
         'References' => [
           [ 'CVE', '2011-3402' ],
           [ 'URL', 'http://r-7.co/w5h7fY' ]
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -56,7 +61,8 @@ class MetasploitModule < Msf::Post
           exploited_at: Time.now.utc
         )
       end
-    rescue StandardError # Probably should do something here...
+    rescue StandardError => e
+      vprint_error(e.message)
     end
 
     print_status("#{sysinfo['Computer']}: #{match} artifact(s) found in registry.")

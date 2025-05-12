@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         'Jon Hart <jon_hart[at]rapid7.com>' # improved metasploit module
       ],
       'References'  => [
-        ['URL', 'https://github.com/git/git/blob/master/Documentation/technical/index-format.txt']
+        ['URL', 'http://web.archive.org/web/20220609025426/https://github.com/git/git/blob/master/Documentation/technical/index-format.txt']
       ],
       'License'     => MSF_LICENSE
     )

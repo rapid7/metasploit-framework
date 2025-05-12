@@ -36,7 +36,10 @@ class MetasploitModule < Msf::Post
             'PrintSpooler',
             'EFSRPC',
             'EfsPotato'
-          ]
+          ],
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -64,7 +67,7 @@ class MetasploitModule < Msf::Post
     begin
       result = client.priv.getsystem(technique)
       print_good("Obtained SYSTEM via technique #{result[1]}")
-    rescue Rex::Post::Meterpreter::RequestError => e
+    rescue Rex::Post::Meterpreter::RequestError
       print_error('Failed to obtain SYSTEM access')
     end
   end
