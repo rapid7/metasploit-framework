@@ -113,7 +113,8 @@ class Auxiliary::Web::HTTP
       'Auto',
       nil,
       username,
-      password
+      password,
+      subscriber: opts[:http_subscriber]
     )
 
     c.set_config({

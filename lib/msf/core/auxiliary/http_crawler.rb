@@ -283,6 +283,7 @@ module Auxiliary::HttpCrawler
     opts[:module]              = self
     opts[:timeout]             = get_connection_timeout
     opts[:dirbust]             = dirbust?
+    opts[:http_subscriber] = Rex::Proto::Http::HttpLoggerSubscriber.new(logger: self)
 
     if (t[:headers] and t[:headers].length > 0)
       opts[:inject_headers] = t[:headers]
