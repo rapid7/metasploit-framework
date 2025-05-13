@@ -47,6 +47,18 @@ class MetasploitModule < Msf::Auxiliary
         'DefaultAction' => 'REQUEST_CERT'
       )
     )
+
+    register_advanced_options(
+      [
+        OptEnum.new('UPDATE_ESC9_ESC10_OBJECT', [ false, 'Either userPrincipalName or dNSHostName, Updates the necessary object of a specific user before requesting the cert. Used to exploit ESC9 and ESC10. ', 'userPrincipalName', %w(userPrincipalName dNSHostName) ]),
+        OptString.new('LDAPDomain', [false, 'The LDAP domain to authenticate to. Can be left blank if same as SMBDomain.'], conditions: %w[!UPDATE_ESC9_ESC10_OBJECT.nil? && SMBDomain.nil?]),
+        OptString.new('LDAPUsername', [false, 'The LDAP username to authenticate with. Can be left blank if same as SMBUsername.'], conditions: %w[!UPDATE_ESC9_ESC10_OBJECT.nil? && SMBUsername.nil?]),
+        OptString.new('LDAPPassword', [false, 'The LDAP password to authenticate with. Can be left blank if same as SMBPassword.'], conditions: %w[!UPDATE_ESC9_ESC10_OBJECT.nil? && SMBPassword.nil?]),
+        OptInt.new('LDAPRport', [false, 'The target LDAP port.', 389], conditions: %w[!UPDATE_ESC9_ESC10_OBJECT.nil?]),
+        OptString.new('TARGET_USERNAME', [false, 'The username of the target LDAP object.'], conditions: %w[!UPDATE_ESC9_ESC10_OBJECT.nil?]),
+        OptString.new('NEW_VALUE', [false, 'The new value for the specified attribute.'], conditions: %w[!UPDATE_ESC9_ESC10_OBJECT.nil?])
+      ]
+    )
   end
 
   def run
