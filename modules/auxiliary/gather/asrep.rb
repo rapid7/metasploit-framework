@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error("No entries could be found for #{filter_string}!")
       else
         print_line
-        print_status("Query returned #{result_count} #{'result'.pluralize(result_count)}.")
+        print_good("Query returned #{result_count} #{'result'.pluralize(result_count)}.")
       end
     end
   end

