@@ -52,7 +52,7 @@ module Metasploit
                 info = info.map { |item| item.strip }
                 info = info.join(', ').to_s
                 # Windows
-              elsif info =~ /command not found|is not recognized as an internal or external command/
+              elsif info =~ /command not found|is not recognized as an internal or external command|is not recognized as the name of a cmdlet, function, script file, or operable/
                 info = ssh_socket.exec!("systeminfo\n").to_s
                 /OS Name:\s+(?<os_name>.+)$/ =~ info
                 /OS Version:\s+(?<os_num>.+)$/ =~ info
