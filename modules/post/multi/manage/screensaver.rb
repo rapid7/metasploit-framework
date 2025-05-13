@@ -22,6 +22,7 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => [ 'linux', 'osx', 'win', 'unix', 'solaris' ],
         'SessionTypes' => [ 'shell', 'meterpreter' ],
+        'DefaultAction' => 'LOCK',
         'Actions' => [
           [ 'LOCK', { 'Description' => 'Lock the current session' } ],
           [ 'UNLOCK', { 'Description' => 'Unlock the current session' } ],
@@ -33,8 +34,8 @@ class MetasploitModule < Msf::Post
         ],
         'Notes' => {
           'Reliability' => [ ],
-          'Stability' => [ ],
-          'SideEffects' => [ ]
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [SCREEN_EFFECTS]
         }
       )
     )

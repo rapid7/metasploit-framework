@@ -229,7 +229,7 @@ class MetasploitModule < Msf::Post
   rescue Rex::TimeoutError, Rex::Post::Meterpreter::RequestError => e
     vprint_error(e.message)
   rescue StandardError => e
-    print_status("The following Error was encountered: #{e.class} #{e}")
+    print_status("The following error was encountered: #{e.class} #{e}")
   end
 
 end

@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Post
 
         hiddenWindow.location = 'about:blank';
         var src = (#{JSON.unparse({ src: js })}).src;
-        var key = "#{Rex::Text.rand_text_alphanumeric(rand(8..19))}";
+        var key = "#{Rex::Text.rand_text_alphanumeric(8..19)}";
 
         hiddenWindow[key] = true;
         hiddenWindow.location = "#{datastore['URL']}";
