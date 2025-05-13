@@ -47,12 +47,9 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'XChat credential gatherer',
+        'Name' => 'XChat Credential Gatherer',
         'Description' => %q{
-          PackRat is a post-exploitation module that gathers file and information artifacts from end users' systems.
-          PackRat searches for and downloads files of interest (such as config files, and received and deleted emails) and extracts information (such as contacts and usernames and passwords), using regexp, JSON, XML, and SQLite queries.
-          Further details can be found in the module documentation.
-          This module searches for Xchat credentials on a Windows host. XChat is an IRC chat program for both Linux and Windows.
+          This module searches for XChat credentials on a Windows host. XChat is an IRC chat program for both Linux and Windows.
         },
         'License' => MSF_LICENSE,
         'Author' => [
