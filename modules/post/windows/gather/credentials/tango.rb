@@ -75,12 +75,9 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'Tango credential gatherer',
+        'Name' => 'Tango Credential Gatherer',
         'Description' => %q{
-          PackRat is a post-exploitation module that gathers file and information artifacts from end users' systems.
-          PackRat searches for and downloads files of interest (such as config files, and received and deleted emails) and extracts information (such as contacts and usernames and passwords), using regexp, JSON, XML, and SQLite queries.
-          Further details can be found in the module documentation.
-          This module searches for Tango credentials on a Windows host. Tango is a third-party, cross platform messaging application software for smartphones developed by TangoME, Inc.t
+          This module searches for Tango credentials on a Windows host. Tango is a third-party, cross platform messaging application software for smartphones developed by TangoME, Inc.
         },
         'License' => MSF_LICENSE,
         'Author' => [

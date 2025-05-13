@@ -44,11 +44,8 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'KakaoTalk credential gatherer',
+        'Name' => 'KakaoTalk Credential Gatherer',
         'Description' => %q{
-          PackRat is a post-exploitation module that gathers file and information artifacts from end users' systems.
-          PackRat searches for and downloads files of interest (such as config files, and received and deleted emails) and extracts information (such as contacts and usernames and passwords), using regexp, JSON, XML, and SQLite queries.
-          Further details can be found in the module documentation.
           This module searches for KakaoTalk credentials on a Windows host. KakaoTalk is a popular mobile messaging app most widely used in South Korea.
         },
         'License' => MSF_LICENSE,
