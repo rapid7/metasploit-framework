@@ -97,6 +97,8 @@ class MetasploitModule < Msf::Auxiliary
   CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT = 'a05b8cc2-17bc-4802-a710-e7c15ab866a2'.freeze
   CONTROL_ACCESS = 0x00000100
   CT_FLAG_NO_SECURITY_EXTENSION = 0x80000
+  CT_FLAG_SUBJECT_ALT_REQUIRE_DNS = 0x8000000 # 134217728
+  CT_FLAG_SUBJECT_ALT_REQUIRE_UPN = 0x2000000 # 33554432
 
   # LDAP_SERVER_SD_FLAGS constant definition, taken from https://ldapwiki.com/wiki/LDAP_SERVER_SD_FLAGS_OID
   LDAP_SERVER_SD_FLAGS_OID = '1.2.840.113556.1.4.801'.freeze
@@ -529,16 +531,20 @@ class MetasploitModule < Msf::Auxiliary
 
   def find_esc9_vuln_cert_templates
     esc9_raw_filter = '(&'\
-    '(objectclass=pkicertificatetemplate)'\
-    "(mspki-enrollment-flag:1.2.840.113556.1.4.803:=#{CT_FLAG_NO_SECURITY_EXTENSION})"\
-    '(|(mspki-ra-signature=0)(!(mspki-ra-signature=*)))'\
-     '(|'\
-        "(pkiextendedkeyusage=#{OIDs::OID_KP_SMARTCARD_LOGON.value})"\
-        "(pkiextendedkeyusage=#{OIDs::OID_PKIX_KP_CLIENT_AUTH.value})"\
-        "(pkiextendedkeyusage=#{OIDs::OID_ANY_EXTENDED_KEY_USAGE.value})"\
-        '(!(pkiextendedkeyusage=*))'\
-      ')'\
-  ')'
+  '(objectclass=pkicertificatetemplate)'\
+  "(mspki-enrollment-flag:1.2.840.113556.1.4.803:=#{CT_FLAG_NO_SECURITY_EXTENSION})"\
+  '(|(mspki-ra-signature=0)(!(mspki-ra-signature=*)))'\
+  '(|'\
+    "(pkiextendedkeyusage=#{OIDs::OID_KP_SMARTCARD_LOGON.value})"\
+    "(pkiextendedkeyusage=#{OIDs::OID_PKIX_KP_CLIENT_AUTH.value})"\
+    "(pkiextendedkeyusage=#{OIDs::OID_ANY_EXTENDED_KEY_USAGE.value})"\
+    '(!(pkiextendedkeyusage=*))'\
+  ')'\
+  '(|'\
+    "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_UPN})"\
+    "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_DNS})"\
+  ')'\
+')'
 
     begin
       authenticated_user_sid = get_authenticated_user_info[:sid]
@@ -555,7 +561,7 @@ class MetasploitModule < Msf::Auxiliary
       esc9_templates,
       authenticated_user_sid,
       writable_users,
-      'ESC9: Template has msPKI-Enrollment-Flag set to 0x80000 (CT_FLAG_NO_SECURITY_EXTENSION) and specifies a client authentication EKU and %<authenticated_user>s has write privileges over %<writable_user>s',
+      'ESC9: Template has msPKI-Enrollment-Flag set to 0x80000 (CT_FLAG_NO_SECURITY_EXTENSION) and specifies a client authentication EKU and %<authenticated_user>s has write privileges over %<writable_user>s and the template has a subjectAltName (UPN or DNS) requirement',
       'ESC9'
     )
   end
@@ -570,12 +576,16 @@ class MetasploitModule < Msf::Auxiliary
         "(pkiextendedkeyusage=#{OIDs::OID_ANY_EXTENDED_KEY_USAGE.value})"\
         '(!(pkiextendedkeyusage=*))'\
       ')'\
+  '(|'\
+    "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_UPN})"\
+    "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_DNS})"\
+  ')'\
   ')'
 
     begin
       authenticated_user_sid = get_authenticated_user_info[:sid]
     rescue LdapWhoamiError => e
-      print_warning("ESC9 detection skipped: #{e.message}")
+      print_warning("ESC10 detection skipped: #{e.message}")
       return
     end
 
@@ -587,7 +597,7 @@ class MetasploitModule < Msf::Auxiliary
       esc10_templates,
       authenticated_user_sid,
       writable_users,
-      'ESC10: Template specifies a client authentication EKU and %<authenticated_user>s has write privileges over %<writable_user>s',
+      'ESC10: Template specifies a client authentication EKU and %<authenticated_user>s has write privileges over %<writable_user>s and the template has a subjectAltName (UPN or DNS) requirement',
       'ESC10'
     )
   end
