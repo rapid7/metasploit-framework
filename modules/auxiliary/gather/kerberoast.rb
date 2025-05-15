@@ -8,6 +8,9 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::LDAP
   include Msf::Exploit::Remote::LDAP::Queries
   include Msf::OptionalSession::LDAP
+  include Msf::Exploit::Deprecated
+
+  moved_from 'auxiliary/gather/get_user_spns'
 
   def initialize(info = {})
     super(
@@ -58,11 +61,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    dc = datastore['DomainControllerRhost']
-    rhost = datastore['RHOST']
-    if dc != rhost
-      fail_with(Failure::BadConfig, 'DomainControllerRhost should ')
-    end
     if datastore['TARGET_USER'].nil?
       run_ldap
     else
@@ -144,14 +142,12 @@ class MetasploitModule < Msf::Auxiliary
       username: username,
       password: password,
       framework: framework,
-      framework_module: framework_module,
-      ticket_storage: Msf::Exploit::Remote::Kerberos::Ticket::Storage::WriteOnly.new(framework: framework, framework_module: framework_module)
+      framework_module: framework_module
     )
 
     # Get a TGT - allow getting from cache
     options = {
-      cache_file: datastore['LDAP::Krb5Ccname'],
-      ticket_storage: Msf::Exploit::Remote::Kerberos::Ticket::Storage::ReadWrite.new(framework: framework, framework_module: framework_module)
+      cache_file: datastore['LDAP::Krb5Ccname']
     }
     credential = authenticator.request_tgt_only(options)
 
