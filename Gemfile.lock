@@ -1,3 +1,12 @@
+GIT
+  remote: https://github.com/zeroSteiner/rex-random_identifier
+  revision: b2f8c2ec849064f04ce68f8895253117da14dc84
+  branch: feat/lang/php
+  specs:
+    rex-random_identifier (0.1.16)
+      bigdecimal
+      rex-text
+
 PATH
   remote: .
   specs:
@@ -469,8 +478,6 @@ GEM
       rex-random_identifier
       rex-text
       ruby-rc4
-    rex-random_identifier (0.1.15)
-      rex-text
     rex-registry (0.1.6)
     rex-rop_builder (0.1.6)
       metasm
@@ -621,6 +628,7 @@ DEPENDENCIES
   pry-byebug
   rake
   redcarpet
+  rex-random_identifier!
   rspec-rails
   rspec-rerun
   rubocop (= 1.67.0)
