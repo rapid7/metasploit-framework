@@ -164,7 +164,7 @@ class MetasploitModule < Msf::Auxiliary
 
     end
 
-    path = store_loot('upsmonpro.file', 'text/plain', datastore['RHOSTS'], data, datastore['FILE'], 'File retrieved through UPSMON PRO path traversal.')
+    path = store_loot(File.basename(datastore['FILE']), 'text/plain', datastore['RHOSTS'], data, datastore['FILE'], 'File retrieved through UPSMON PRO path traversal.')
     print_status("File saved as loot: #{path}")
   end
 end
