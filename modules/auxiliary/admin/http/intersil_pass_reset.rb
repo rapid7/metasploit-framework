@@ -33,7 +33,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'BID', '25676'],
           [ 'PACKETSTORM', '59347']
         ],
-        'DisclosureDate' => '2007-09-10'
+        'DisclosureDate' => '2007-09-10',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 
@@ -51,16 +56,15 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET'
     })
 
-    if (res && (m = res.headers['Server'].match(%r{Boa/(.*)})))
+    if res && (m = res.headers['Server'].match(%r{Boa/(.*)}))
       vprint_status("Boa Version Detected: #{m[1]}")
       return Exploit::CheckCode::Safe if (m[1][0].ord - 48 > 0) # boa server wrong version
       return Exploit::CheckCode::Safe if (m[1][3].ord - 48 > 4)
 
       return Exploit::CheckCode::Vulnerable
-    else
-      vprint_status('Not a Boa Server!')
-      return Exploit::CheckCode::Safe # not a boa server
     end
+
+    return Exploit::CheckCode::Safe('Not a Boa Server!')
   rescue Rex::ConnectionRefused
     print_error('Connection refused by server.')
     return Exploit::CheckCode::Safe
@@ -81,7 +85,9 @@ class MetasploitModule < Msf::Auxiliary
     if res.nil?
       print_error('The server may be down')
       return
-    elsif res && (res.code != 401)
+    end
+
+    if res.code != 401
       print_status("#{uri} does not have basic authentication enabled")
       return
     end
@@ -94,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     if !res
-      print_error('Server timedout, will not continue')
+      print_error('Server timed out, will not continue')
       return
     end
 
