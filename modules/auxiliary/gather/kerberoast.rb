@@ -110,6 +110,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
     if hashes.empty?
+      print_error('No hashes were obtained from kerberoasting.')
       return
     end
 
