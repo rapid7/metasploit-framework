@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
       connect
     rescue Rex::ConnectionTimeout => e
       print_error("Connection to #{datastore['RHOSTS']}:#{datastore['RPORT']} failed: #{e.message}")
-      return CheckCode::Unknown
+      return Exploit::CheckCode::Unknown
     end
 
     vprint_status('Sending handshake...')
