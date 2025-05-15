@@ -45,7 +45,7 @@ PATH
       metasploit-concern
       metasploit-credential
       metasploit-model
-      metasploit-payloads (= 2.0.189)
+      metasploit-payloads (= 2.0.191)
       metasploit_data_models (>= 6.0.7)
       metasploit_payloads-mettle (= 1.0.35)
       mqtt
@@ -323,7 +323,7 @@ GEM
       activemodel (~> 7.0)
       activesupport (~> 7.0)
       railties (~> 7.0)
-    metasploit-payloads (2.0.189)
+    metasploit-payloads (2.0.191)
     metasploit_data_models (6.0.9)
       activerecord (~> 7.0)
       activesupport (~> 7.0)
