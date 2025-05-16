@@ -77,13 +77,13 @@ class MetasploitModule < Msf::Auxiliary
   def run_brute
     result_count = 0
     user_file = datastore['USER_FILE']
-    username = datastore['USERNAME']
+    username = datastore['LDAPUsername']
     if user_file.blank? && username.blank?
       fail_with(Msf::Module::Failure::BadConfig, 'User file or username must be specified when brute forcing')
     end
     if username.present?
       begin
-        roast(datastore['USERNAME'])
+        roast(datastore['LDAPUsername'])
         result_count += 1
       rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
         # User either not present, or requires preauth
@@ -111,7 +111,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_ldap
-    fail_with(Msf::Module::Failure::BadConfig, 'Must provide a username for connecting to LDAP') if datastore['USERNAME'].blank?
+    fail_with(Msf::Module::Failure::BadConfig, 'Must provide a username for connecting to LDAP') if datastore['LDAPUsername'].blank?
 
     ldap_connect do |ldap|
       validate_bind_success!(ldap)
@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error("No entries could be found for #{filter_string}!")
       else
         print_line
-        print_status("Query returned #{result_count} #{'result'.pluralize(result_count)}.")
+        print_good("Query returned #{result_count} #{'result'.pluralize(result_count)}.")
       end
     end
   end
@@ -150,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_tgt(
       server_name: "krbtgt/#{datastore['domain']}",
       client_name: username,
-      realm: datastore['DOMAIN'],
+      realm: datastore['LDAPDomain'],
       offered_etypes: etypes,
       rport: 88,
       rhost: datastore['RHOST']
