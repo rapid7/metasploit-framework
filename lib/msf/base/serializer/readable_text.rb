@@ -587,7 +587,7 @@ class ReadableText
       next if tbl.rows.empty?
 
       if conditions.any?
-        option_tables << "#{indent}When #{Msf::OptCondition.format_conditions(mod, options.first)}:\n\n#{tbl}"
+        option_tables << "#{indent}When #{Msf::OptCondition.format_conditions(conditions)}:\n\n#{tbl}"
       else
         option_tables << tbl.to_s
       end
