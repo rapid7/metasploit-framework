@@ -1,3 +1,4 @@
+
 module Acceptance::Session
   METTLE_METERPRETER = {
     payloads: [
@@ -55,6 +56,32 @@ module Acceptance::Session
             }
           ],
           :windows
+        ],
+        skipped: false,
+        lines: {
+          linux: {
+            known_failures: []
+          },
+          osx: {
+            known_failures: []
+          },
+          windows: {
+            known_failures: []
+          }
+        }
+      },
+      {
+        name: "post/test/resolve_host",
+        platforms: [
+          :linux,
+          :osx,
+          [
+            :windows,
+            {
+              skip: true,
+              reason: "Payload not compiled for platform"
+            }
+          ]
         ],
         skipped: false,
         lines: {
