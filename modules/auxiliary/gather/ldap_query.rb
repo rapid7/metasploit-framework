@@ -179,8 +179,14 @@ class MetasploitModule < Msf::Auxiliary
         query_base = (query['base_dn_prefix'] ? [query['base_dn_prefix'], base_dn].join(',') : base_dn)
       end
 
+      print_status("Sending filter_string #{filter_string} to the LDAP server...")
+      print_status("Sending attributes #{attributes} to the LDAP server...")
+      print_status("Sending query_base #{query_base} to the LDAP server...")
+      print_status("Sending schema_dn #{schema_dn} to the LDAP server...")
+
       begin
-        filter = Net::LDAP::Filter.construct(filter_string)
+        filter =
+          Net::LDAP::Filter.construct(filter_string)
       rescue StandardError => e
         fail_with(Failure::BadConfig, "Could not compile the filter #{filter_string}. Error was #{e}")
       end

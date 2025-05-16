@@ -72,17 +72,18 @@ class MetasploitModule < Msf::Auxiliary
           [:replace, attribute.to_sym, new_value]
         ]
       else
-        #TODO replacing with empty string / nil causes errors :delete is no what we want. Needed to reset empty UPN
+        ops = [
+          [:delete, attribute.to_sym]
+        ]
       end
 
-      print_status("Attempting to update #{attribute} for #{target_dn} to #{new_value}...")
-
-      require 'pry-byebug'
-      binding.pry
+      display_value = new_value.to_s.empty? ? '<null>' : new_value
+      print_status("Attempting to update #{attribute} for #{target_dn} to #{display_value}...")
 
       if ldap.modify(dn: target_dn, operations: ops)
-        print_good("Successfully updated #{target_dn}'s #{attribute} to #{new_value}")
+        print_good("Successfully updated #{target_dn}'s #{attribute} to #{display_value}")
       else
+        print_warning("\"No Such Attribute\" failure can occur if you're attempting to set an already null attribute to null.") if ldap.get_operation_result.message == "No Such Attribute"
         fail_with(Failure::UnexpectedReply, "Failed to update #{attribute}: #{ldap.get_operation_result.message}")
       end
     end
