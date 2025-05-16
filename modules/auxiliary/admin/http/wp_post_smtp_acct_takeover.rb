@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::UnexpectedReply, 'Request Failed to return a successful response, likely not vulnerable') if res.code == 401
     fail_with(Failure::UnexpectedReply, 'Request Failed to return a successful response, likely unpredicted URL structure') if res.code == 404
     fail_with(Failure::UnexpectedReply, 'Request Failed to return a successful response') unless res.code == 200
-    print_good("Succesfully created token: #{token}")
+    print_good("Successfully created token: #{token}")
     return token, device
   end
 

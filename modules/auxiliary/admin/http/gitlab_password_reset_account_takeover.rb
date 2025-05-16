@@ -39,6 +39,11 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'https://github.com/duy-31/CVE-2023-7028']
       ],
       'DisclosureDate' => '2024-01-11',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+        'Reliability' => []
+      }
     )
 
     register_options(

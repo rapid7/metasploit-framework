@@ -24,10 +24,14 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           [ 'OSVDB', '5798' ],
           [ 'BID', '10224' ],
-          # [ 'CVE', '' ],# No CVE!
           [ 'EDB', '294' ]
         ],
-        'DisclosureDate' => '2004-04-27'
+        'DisclosureDate' => '2004-04-27',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 

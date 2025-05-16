@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://hyp3rlinx.altervista.org/advisories/MANTIS-BUG-TRACKER-PRE-AUTH-REMOTE-PASSWORD-RESET.txt']
         ],
         'Platform' => ['win', 'linux'],
-        'DisclosureDate' => '2017-04-16'
+        'DisclosureDate' => '2017-04-16',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 
@@ -84,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.body =~ /<input type="hidden" name="account_update_token" value="([a-zA-Z0-9_-]+)"/
-      token = ::Regexp.last_match(1)
+      ::Regexp.last_match(1)
     else
       fail_with(Failure::UnexpectedReply, 'Could not retrieve account_update_token')
     end

