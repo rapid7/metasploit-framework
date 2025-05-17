@@ -25,10 +25,7 @@ require:
   - ./lib/rubocop/cop/lint/detect_invalid_pack_directives.rb
 
 Layout/SpaceBeforeBrackets:
-  Description: >-
-    Disabled as it generates invalid code:
-      https://github.com/rubocop-hq/rubocop/issues/9499
-  Enabled: false
+  Enabled: true
 
 Lint/AmbiguousAssignment:
   Enabled: true
