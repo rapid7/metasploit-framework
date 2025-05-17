@@ -8,30 +8,38 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::ORACLE
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Oracle DB Privilege Escalation via Function-Based Index',
-      'Description'    => %q{
-        This module will escalate an Oracle DB user to DBA by creating a
-        function-based index on a table owned by a more-privileged user.
-        Credits to David Litchfield for publishing the technique.
-      },
-      'Author'         =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Oracle DB Privilege Escalation via Function-Based Index',
+        'Description' => %q{
+          This module will escalate an Oracle DB user to DBA by creating a
+          function-based index on a table owned by a more-privileged user.
+          Credits to David Litchfield for publishing the technique.
+        },
+        'Author' => [
           'David Litchfield', # Vulnerability discovery and exploit
-          'Moshe Kaplan',     # Metasploit module
+          'Moshe Kaplan', # Metasploit module
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'URL', 'http://www.davidlitchfield.com/Privilege_Escalation_via_Oracle_Indexes.pdf' ],
         ],
-      'DisclosureDate' => '2015-01-21'))
+        'DisclosureDate' => '2015-01-21',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('SQL', [ true, 'SQL to execute.', "GRANT DBA to #{datastore['DBUSER']}" ]),
         OptString.new('TABLE', [ true, 'Table to create the index on.', 'SYS.DUAL' ]),
-      ])
+      ]
+    )
   end
 
   def run
