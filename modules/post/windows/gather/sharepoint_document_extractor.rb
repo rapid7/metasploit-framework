@@ -178,8 +178,7 @@ class MetasploitModule < Msf::Post
 
   def save_file(encoded_file_name, b64_data)
     file_name = Rex::Text.decode_base64(encoded_file_name)
-    file_path = store_loot('sharepoint.document', 'application/octet-stream', session,
-                           Rex::Text.decode_base64(b64_data), file_name)
+    file_path = store_loot('sharepoint.document', 'application/octet-stream', session, Rex::Text.decode_base64(b64_data), file_name)
     print_good("Saved #{file_name} to #{file_path}")
   end
 end
