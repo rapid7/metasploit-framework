@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'Author' => ['h00die'],
         'Notes' => {
-          'Stability' => [],
+          'Stability' => [CRASH_SAFE],
           'SideEffects' => [],
           'Reliability' => []
         }

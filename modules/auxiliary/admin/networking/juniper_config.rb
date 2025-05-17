@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DefaultAction' => 'JUNOS',
         'Notes' => {
-          'Stability' => [],
+          'Stability' => [CRASH_SAFE],
           'SideEffects' => [],
           'Reliability' => []
         }
