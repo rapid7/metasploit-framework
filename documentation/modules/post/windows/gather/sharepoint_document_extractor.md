@@ -1,8 +1,10 @@
-# SharePoint Document Library Enumerator and Extractor
+## Vulnerable Application
+
+This module targets Microsoft SharePoint Server installations on Windows systems. It requires a compromised Windows session (e.g., via Meterpreter) with access to SharePoint’s .NET assemblies (`Microsoft.SharePoint.dll`), which are included in a standard SharePoint installation.
+
+## SharePoint Document Library Enumerator and Extractor
 
 This document provides detailed instructions for setting up, verifying, and using the `post/windows/gather/sharepoint_document_extractor` module in Metasploit. It’s designed to help someone troubleshoot the module if it stops functioning with specific links and examples for clarity.
-
-<!-- ## Vulnerable Application -->
 
 This module targets Microsoft SharePoint Server installations on Windows systems. It requires a compromised Windows session (e.g., via Meterpreter) with access to SharePoint’s .NET assemblies (`Microsoft.SharePoint.dll`), which are included in a standard SharePoint installation.
 
@@ -20,9 +22,9 @@ This module targets Microsoft SharePoint Server installations on Windows systems
   3. **Configure a SharePoint Site:**
      - Create a site (e.g., `http://<server_ip>`) via SharePoint Central Administration.
      - Add a document library named “Documents” (default) and upload test files (e.g., `test.pdf`, `doc1.docx`, each <10MB).
-- **Dependencies:** Requires .NET Framework 4.5+ and SharePoint assemblies (`Microsoft.SharePoint.dll`), standard with SharePoint installs.
+## Verification Steps
 
-<!-- ## Verification Steps -->
+1. **Install SharePoint:**
 
 1. **Install SharePoint:**
    - Set up SharePoint Server on a Windows VM as described above.
@@ -47,8 +49,9 @@ Expected Result: Files are extracted to loot (Meterpreter) or sent via HTTP:
 [*] Executing payload on target session 1...
 [*] Info: Enumerating:Documents:2 items
 [+] Saved test.pdf to /root/.msf4/loot/20250317_123456_test.pdf
-[+] Saved doc1.docx to /root/.msf4/loot/20250317_123457_doc1.docx
-[*] Post module execution completed
+## Options
+
+SITE_URL
 <!-- ## Options -->
 SITE_URL
 Description: The full URL of the SharePoint site to target (e.g., http://192.168.1.100).
@@ -71,8 +74,9 @@ Description: The port on the EXFIL_HOST for HTTP exfiltration (e.g., 8080).
 Usage: Match the port of your HTTP server. Ensure no firewall blocks it on the target network.
 Default: 8080.
 MAX_SIZE
-Description: Maximum file size (in bytes) to exfiltrate (e.g., 10485760 = 10MB).
-Usage: Adjust to filter larger files; files exceeding this are skipped with a “SKIP:SizeExceeded” message.
+## Scenarios
+
+SharePoint 2016 on Windows Server 2016 with Meterpreter Exfiltration
 Default: 10485760 (10MB).
 <!-- ## Scenarios -->
 SharePoint 2016 on Windows Server 2016 with Meterpreter Exfiltration
@@ -106,7 +110,7 @@ Output:
 [*] Executing payload on target session 1...
 [*] Info: Enumerating:Documents:3 items
 [+] Saved report.pdf to /root/.msf4/loot/20250317_123456_report.pdf
-[+] Saved memo.docx to /root/.msf4/loot/20250317_123457_memo.docx
+Real-World Use: Extracting HR documents or contracts from a corporate SharePoint instance post-compromise.
 [*] Post module execution completed
 Notes:
 Troubleshooting: If files don’t extract, verify SITE_URL is reachable from the target (execute -H -i -f cmd.exe then ping 192.168.1.100). Check Microsoft.SharePoint.dll in C:\Program Files\Common Files\Microsoft Shared\Web Server Extensions\<version>\ISAPI\.
