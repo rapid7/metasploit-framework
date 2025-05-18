@@ -23,12 +23,13 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'SharePoint Document Library Enumerator and Extractor',
-        'Description' => '
+        'Description' => %q{
           Enumerates and extracts documents from a specified SharePoint library using the
           SharePoint .NET API. Designed to run in an existing Windows session (e.g., Meterpreter)
           on a SharePoint server. Supports exfiltration via HTTP or Meterpreter channels,
           with configurable filters for file size and library targeting. Requires execution
-          in a context with access to SharePoint assemblies and appropriate permissions.',
+          in a context with access to SharePoint assemblies and appropriate permissions.
+        },
         'Author' => ['Vikram Verma'],
         'License' => MSF_LICENSE,
         'Platform' => 'win',
