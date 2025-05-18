@@ -12,6 +12,23 @@ require 'rubocop'
 require 'rubocop/rspec/support'
 require 'faker'
 
+# Monkey patch rubocop which fails to load the default rspec config due to encoding issues - https://github.com/rapid7/metasploit-framework/pull/20196
+# Caused by our global IO encoding being set to ASCII-8BIT - https://github.com/rapid7/metasploit-framework/blob/b251fc1b635dc07c66cc3848983bdcbeaa08a81f/lib/metasploit/framework/common_engine.rb#L25-L33
+# Original code: https://github.com/rubocop/rubocop/blob/b6c9b0ed31daf40be5a273714095e451aee10bcd/lib/rubocop/config_loader.rb#L275
+# Character which causes encoding failure: https://github.com/rubocop/rubocop/blob/b6c9b0ed31daf40be5a273714095e451aee10bcd/config/default.yml#L3298-L3305
+module RuboCop
+  class ConfigLoader
+     # Read the specified file, or exit with a friendly, concise message on
+     # stderr. Care is taken to use the standard OS exit code for a "file not
+     # found" error.
+     def self.read_file(absolute_path)
+       File.binread(absolute_path).force_encoding(Encoding::UTF_8)
+     rescue Errno::ENOENT
+       raise ConfigNotFoundError, "Configuration file not found: #{absolute_path}"
+     end
+  end
+end
+
 ENV['RAILS_ENV'] = 'test'
 
 load_metasploit = ENV.fetch('SPEC_HELPER_LOAD_METASPLOIT', 'true') == 'true'
