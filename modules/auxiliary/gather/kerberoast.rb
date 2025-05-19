@@ -151,7 +151,8 @@ class MetasploitModule < Msf::Auxiliary
       username: username,
       password: password,
       framework: framework,
-      framework_module: framework_module
+      framework_module: framework_module,
+      ticket_storage: kerberos_ticket_storage
     )
 
     # Get a TGT - allow getting from cache
