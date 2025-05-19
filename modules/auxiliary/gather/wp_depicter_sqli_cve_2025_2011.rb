@@ -5,8 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
-  include Msf::Exploit::Remote::HTTP::Wordpress
-  include Msf::Exploit::Remote::HTTP::Wordpress::SQLi
+  include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
     super(
