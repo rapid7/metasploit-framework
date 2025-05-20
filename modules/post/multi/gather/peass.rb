@@ -300,8 +300,8 @@ class MetasploitModule < Msf::Post
     return peass_script
   end
 
+  # Encrypt the PEASS script with AES (CBC Mode)
   def aes_enc_peass(peass_script)
-    # Encrypt the PEASS script with AES (CBC Mode)
     key = datastore['PASSWORD']
     iv = OpenSSL::Cipher.new('cip-her-aes').random_iv
 
