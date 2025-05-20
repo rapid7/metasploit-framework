@@ -23,7 +23,12 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2017-5261'],
           ['URL', 'https://www.rapid7.com/blog/post/2017/12/19/r7-2017-25-cambium-epmp-and-cnpilot-multiple-vulnerabilities/']
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -34,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [false, 'A specific username to authenticate as', 'admin']),
         OptString.new('PASSWORD', [false, 'A specific password to authenticate with', 'admin']),
         OptString.new('FILENAME', [true, 'Filename to read', '/etc/passwd'])
-      ], self.class
+      ]
     )
 
     deregister_options('DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_ALL_USERS', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'PASS_FILE', 'BLANK_PASSWORDS', 'BRUTEFORCE_SPEED', 'STOP_ON_SUCCESS')

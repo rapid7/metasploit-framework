@@ -31,7 +31,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/NUUO/nuuo-nvr-vulns.txt'],
           ['URL', 'https://seclists.org/bugtraq/2016/Aug/45']
         ],
-        'DisclosureDate' => '2016-08-04'
+        'DisclosureDate' => '2016-08-04',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 

