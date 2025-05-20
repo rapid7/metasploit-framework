@@ -310,10 +310,14 @@ GEM
       activesupport (~> 7.0)
       railties (~> 7.0)
       zeitwerk
-    metasploit-credential (6.0.14)
+    metasploit-credential (6.0.16)
+      bigdecimal
+      csv
+      drb
       metasploit-concern
       metasploit-model
       metasploit_data_models (>= 5.0.0)
+      mutex_m
       net-ssh
       pg
       railties
