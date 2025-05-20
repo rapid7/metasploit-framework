@@ -1,4 +1,4 @@
-FROM ruby:3.2.5-alpine3.20 AS builder
+FROM ruby:3.3.8-alpine3.21 AS builder
 LABEL maintainer="Rapid7"
 
 ARG BUNDLER_CONFIG_ARGS="set force_ruby_platform 'true' set no-cache 'true' set system 'true' set without 'development test coverage'"
@@ -24,6 +24,7 @@ RUN apk add --no-cache \
       readline-dev \
       sqlite-dev \
       postgresql-dev \
+      libffi-dev \
       libpcap-dev \
       libxml2-dev \
       libxslt-dev \
@@ -47,13 +48,13 @@ RUN apk add --no-cache \
 ENV GO111MODULE=off
 RUN mkdir -p $TOOLS_HOME/bin && \
     cd $TOOLS_HOME/bin && \
-    curl -O https://dl.google.com/go/go1.21.1.src.tar.gz && \
-    tar -zxf go1.21.1.src.tar.gz && \
-    rm go1.21.1.src.tar.gz && \
+    curl -O https://dl.google.com/go/go1.24.0.src.tar.gz && \
+    tar -zxf go1.24.0.src.tar.gz && \
+    rm go1.24.0.src.tar.gz && \
     cd go/src && \
     ./make.bash
 
-FROM ruby:3.2.5-alpine3.20
+FROM ruby:3.3.8-alpine3.21
 LABEL maintainer="Rapid7"
 ARG TARGETARCH
 
