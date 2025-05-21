@@ -11,6 +11,7 @@
 #
 
 # openssl before rubygems mac os
+require 'English'
 require 'openssl'
 require 'pathname'
 require 'uri'
@@ -22,196 +23,206 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'			=> 'Metasploit Web Crawler',
-      'Description'       => 'This auxiliary module is a modular web crawler, to be used in conjunction with wmap (someday) or standalone.',
-      'Author'			=> 'et',
-      'License'			=> MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Metasploit Web Crawler',
+        'Description' => 'This auxiliary module is a modular web crawler, to be used in conjunction with wmap (someday) or standalone.',
+        'Author' => 'et',
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options([
-      OptString.new('PATH',	[true,	"Starting crawling path", '/']),
-      OptInt.new('RPORT', [true, "Remote port", 80 ])
+      OptString.new('PATH', [true, 'Starting crawling path', '/']),
+      OptInt.new('RPORT', [true, 'Remote port', 80 ])
     ])
 
     register_advanced_options([
-      OptPath.new('CrawlerModulesDir', [true,	'The base directory containing the crawler modules',
-        File.join(Msf::Config.data_directory, "msfcrawler")
-      ]),
-      OptBool.new('EnableUl', [ false, "Enable maximum number of request per URI", true ]),
-      OptBool.new('StoreDB', [ false, "Store requests in database", false ]),
-      OptInt.new('MaxUriLimit', [ true, "Number max. request per URI", 10]),
-      OptInt.new('SleepTime', [ true, "Sleep time (secs) between requests", 0]),
-      OptInt.new('TakeTimeout', [ true, "Timeout for loop ending", 15]),
-      OptInt.new('ReadTimeout', [ true, "Read timeout (-1 forever)", 3]),
-      OptInt.new('ThreadNum', [ true, "Threads number", 20]),
-      OptString.new('DontCrawl',	[true,	"Filestypes not to crawl", '.exe,.zip,.tar,.bz2,.run,.asc,.gz'])
+      OptPath.new(
+        'CrawlerModulesDir',
+        [
+          true,
+          'The base directory containing the crawler modules',
+          File.join(Msf::Config.data_directory, 'msfcrawler')
+        ]
+      ),
+      OptBool.new('EnableUl', [ false, 'Enable maximum number of request per URI', true ]),
+      OptBool.new('StoreDB', [ false, 'Store requests in database', false ]),
+      OptInt.new('MaxUriLimit', [ true, 'Number max. request per URI', 10]),
+      OptInt.new('SleepTime', [ true, 'Sleep time (secs) between requests', 0]),
+      OptInt.new('TakeTimeout', [ true, 'Timeout for loop ending', 15]),
+      OptInt.new('ReadTimeout', [ true, 'Read timeout (-1 forever)', 3]),
+      OptInt.new('ThreadNum', [ true, 'Threads number', 20]),
+      OptString.new('DontCrawl', [true, 'Filestypes not to crawl', '.exe,.zip,.tar,.bz2,.run,.asc,.gz'])
     ])
   end
 
   attr_accessor :ctarget, :cport, :cssl
 
   def run
-    i, a = 0, []
+    # i = 0
+    # a = []
 
     self.ctarget = datastore['RHOSTS']
     self.cport = datastore['RPORT']
     self.cssl = datastore['SSL']
     inipath = datastore['PATH']
 
-    cinipath = (inipath.nil? or inipath.empty?) ? '/' : inipath
+    cinipath = (inipath.nil? || inipath.empty?) ? '/' : inipath
 
     inireq = {
-        'rhost'		=> ctarget,
-        'rport'		=> cport,
-        'uri' 		=> cinipath,
-        'method'   	=> 'GET',
-        'ctype'		=> 'text/plain',
-        'ssl'		=> cssl,
-        'query'		=> nil,
-        'data'		=> nil
+      'rhost' => ctarget,
+      'rport' => cport,
+      'uri' => cinipath,
+      'method' => 'GET',
+      'ctype' => 'text/plain',
+      'ssl' => cssl,
+      'query' => nil,
+      'data' => nil
     }
 
-    @NotViewedQueue = ::Rinda::TupleSpace.new
-    @ViewedQueue = Hash.new
-    @UriLimits = Hash.new
-    @curent_site = self.ctarget
+    @not_viewed_queue = ::Rinda::TupleSpace.new
+    @viewed_queue = Hash.new
+    @uri_limits = Hash.new
+    @current_site = ctarget
 
     insertnewpath(inireq)
 
     print_status("Loading modules: #{datastore['CrawlerModulesDir']}")
     load_modules(datastore['CrawlerModulesDir'])
-    print_status("OK")
+    print_status('OK')
 
     if datastore['EnableUl']
       print_status("URI LIMITS ENABLED: #{datastore['MaxUriLimit']} (Maximum number of requests per uri)")
     end
 
-    print_status("Target: #{self.ctarget} Port: #{self.cport} Path: #{cinipath} SSL: #{self.cssl}")
-
+    print_status("Target: #{ctarget} Port: #{cport} Path: #{cinipath} SSL: #{cssl}")
 
     begin
-      reqfilter = reqtemplate(self.ctarget,self.cport,self.cssl)
+      reqfilter = reqtemplate(ctarget, cport, cssl)
 
-      i =0
+      # i = 0
 
       loop do
-
         ####
-        #if i <= datastore['ThreadNum']
-        #	a.push(Thread.new {
+        # if i <= datastore['ThreadNum']
+        #   a.push(Thread.new {
         ####
 
-        hashreq = @NotViewedQueue.take(reqfilter, datastore['TakeTimeout'])
+        hashreq = @not_viewed_queue.take(reqfilter, datastore['TakeTimeout'])
 
         ul = false
-        if @UriLimits.include?(hashreq['uri']) and datastore['EnableUl']
-          #puts "Request #{@UriLimits[hashreq['uri']]}/#{$maxurilimit} #{hashreq['uri']}"
-          if @UriLimits[hashreq['uri']] >= datastore['MaxUriLimit']
-            #puts "URI LIMIT Reached: #{$maxurilimit} for uri #{hashreq['uri']}"
+        if @uri_limits.include?(hashreq['uri']) && datastore['EnableUl']
+          # puts "Request #{@uri_limits[hashreq['uri']]}/#{$maxurilimit} #{hashreq['uri']}"
+          if @uri_limits[hashreq['uri']] >= datastore['MaxUriLimit']
+            # puts "URI LIMIT Reached: #{$maxurilimit} for uri #{hashreq['uri']}"
             ul = true
           end
         else
-          @UriLimits[hashreq['uri']] = 0
+          @uri_limits[hashreq['uri']] = 0
         end
 
-        if !@ViewedQueue.include?(hashsig(hashreq)) and !ul
+        if !@viewed_queue.include?(hashsig(hashreq)) && !ul
 
-          @ViewedQueue[hashsig(hashreq)] = Time.now
-          @UriLimits[hashreq['uri']] += 1
+          @viewed_queue[hashsig(hashreq)] = Time.now
+          @uri_limits[hashreq['uri']] += 1
 
-          if !File.extname(hashreq['uri']).empty? and datastore['DontCrawl'].include? File.extname(hashreq['uri'])
+          if !File.extname(hashreq['uri']).empty? && datastore['DontCrawl'].include?(File.extname(hashreq['uri']))
             vprint_status "URI not crawled #{hashreq['uri']}"
           else
-              prx = nil
-              #if self.useproxy
-              #	prx = "HTTP:"+self.proxyhost.to_s+":"+self.proxyport.to_s
-              #end
+            prx = nil
+            # if self.useproxy
+            #   prx = "HTTP:"+self.proxyhost.to_s+":"+self.proxyport.to_s
+            # end
 
-              c = Rex::Proto::Http::Client.new(
-                self.ctarget,
-                self.cport.to_i,
-                {},
-                self.cssl,
-                nil,
-                prx
-              )
+            c = Rex::Proto::Http::Client.new(
+              ctarget,
+              cport.to_i,
+              {},
+              cssl,
+              nil,
+              prx
+            )
 
-              sendreq(c,hashreq)
+            sendreq(c, hashreq)
           end
         else
           vprint_line "#{hashreq['uri']} already visited. "
         end
 
         ####
-        #})
+        # })
 
-        #i += 1
-        #else
-        #	sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
-        #	i = 0
-        #end
+        # i += 1
+        # else
+        #   sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
+        #   i = 0
+        # end
         ####
-
       end
     rescue ::Rinda::RequestExpiredError
-      print_status("END.")
+      print_status('END.')
       return
     end
 
-    print_status("Finished crawling")
+    print_status('Finished crawling')
   end
 
-  def reqtemplate(target,port,ssl)
+  def reqtemplate(target, port, ssl)
     hreq = {
-      'rhost'		=> target,
-      'rport'		=> port,
-      'uri'  		=> nil,
-      'method'   	=> nil,
-      'ctype'		=> nil,
-      'ssl'		=> ssl,
-      'query'		=> nil,
-      'data'		=> nil
+      'rhost' => target,
+      'rport' => port,
+      'uri' => nil,
+      'method' => nil,
+      'ctype' => nil,
+      'ssl' => ssl,
+      'query' => nil,
+      'data' => nil
     }
 
     return hreq
   end
 
-  def storedb(hashreq,response,dbpath)
-
+  def storedb(hashreq, response)
     # Added host/port/ssl for report_web_page support
     info = {
-      :web_site => @current_site,
-      :path     => hashreq['uri'],
-      :query    => hashreq['query'],
-      :host     => hashreq['rhost'],
-      :port     => hashreq['rport'],
-      :ssl      => !hashreq['ssl'].nil?,
-      :data	    => hashreq['data'],
-      :code     => response.code,
-      :body     => response.body,
-      :headers  => response.headers
+      web_site: @current_site,
+      path: hashreq['uri'],
+      query: hashreq['query'],
+      host: hashreq['rhost'],
+      port: hashreq['rport'],
+      ssl: !hashreq['ssl'].nil?,
+      data: hashreq['data'],
+      code: response.code,
+      body: response.body,
+      headers: response.headers
     }
 
-    #if response['content-type']
-    #	info[:ctype] = response['content-type'][0]
-    #end
+    # if response['content-type']
+    #   info[:ctype] = response['content-type'][0]
+    # end
 
-    #if response['set-cookie']
-    #	info[:cookie] = page.headers['set-cookie'].join("\n")
-    #end
+    # if response['set-cookie']
+    #   info[:cookie] = page.headers['set-cookie'].join("\n")
+    # end
 
-    #if page.headers['authorization']
-    #	info[:auth] = page.headers['authorization'].join("\n")
-    #end
+    # if page.headers['authorization']
+    #   info[:auth] = page.headers['authorization'].join("\n")
+    # end
 
-    #if page.headers['location']
-    #	info[:location] = page.headers['location'][0]
-    #end
+    # if page.headers['location']
+    #   info[:location] = page.headers['location'][0]
+    # end
 
-    #if page.headers['last-modified']
-    #	info[:mtime] = page.headers['last-modified'][0]
-    #end
+    # if page.headers['last-modified']
+    #   info[:mtime] = page.headers['last-modified'][0]
+    # end
 
     # Report the web page to the database
     report_web_page(info)
@@ -222,10 +233,9 @@ class MetasploitModule < Msf::Auxiliary
   #
 
   def load_modules(crawlermodulesdir)
-
     base = crawlermodulesdir
-    if (not File.directory?(base))
-      raise RuntimeError,"The Crawler modules parameter is set to an invalid directory"
+    if !File.directory?(base)
+      raise 'The Crawler modules parameter is set to an invalid directory'
     end
 
     @crawlermodules = {}
@@ -236,68 +246,67 @@ class MetasploitModule < Msf::Auxiliary
       begin
         m.module_eval(File.read(f, File.size(f)))
         m.constants.grep(/^Crawler(.*)/) do
-          cmod = $1
+          cmod = ::Regexp.last_match(1)
           klass = m.const_get("Crawler#{cmod}")
           @crawlermodules[cmod.downcase] = klass.new(self)
 
           print_status("Loaded crawler module #{cmod} from #{f}...")
         end
-      rescue ::Exception => e
+      rescue StandardError => e
         print_error("Crawler module #{n} failed to load: #{e.class} #{e} #{e.backtrace}")
       end
     end
   end
 
-  def sendreq(nclient,reqopts={})
+  def sendreq(nclient, reqopts = {})
+    r = nclient.request_raw(reqopts)
+    resp = nclient.send_recv(r, datastore['ReadTimeout'])
 
-    begin
-      r = nclient.request_raw(reqopts)
-      resp = nclient.send_recv(r, datastore['ReadTimeout'])
-
-      if resp
-        #
-        # Quickfix for bug packet.rb to_s line: 190
-        # In case modules or crawler calls to_s on de-chunked responses
-        #
-        resp.transfer_chunked = false
-
-        if datastore['StoreDB']
-          storedb(reqopts,resp,$dbpathmsf)
-        end
-
-        print_status ">> [#{resp.code}] #{reqopts['uri']}"
-
-        if reqopts['query'] and !reqopts['query'].empty?
-          print_status ">>> [Q] #{reqopts['query']}"
-        end
-
-        if reqopts['data']
-          print_status ">>> [D] #{reqopts['data']}"
-        end
-
-        case resp.code
-        when 200
-          @crawlermodules.each_key do |k|
-            @crawlermodules[k].parse(reqopts,resp)
-          end
-        when 301..303
-          print_line("[#{resp.code}] Redirection to: #{resp['Location']}")
-          vprint_status urltohash('GET',resp['Location'],reqopts['uri'],nil)
-          insertnewpath(urltohash('GET',resp['Location'],reqopts['uri'],nil))
-        when 404
-          print_status "[404] Invalid link #{reqopts['uri']}"
-        else
-          print_status "Unhandled #{resp.code}"
-        end
-
-      else
-        print_status "No response"
-      end
+    unless resp
+      print_status('No response')
       sleep(datastore['SleepTime'])
-    rescue
-      print_status "ERROR"
-      vprint_status "#{$!}: #{$!.backtrace}"
+      return
     end
+
+    #
+    # Quickfix for bug packet.rb to_s line: 190
+    # In case modules or crawler calls to_s on de-chunked responses
+    #
+    resp.transfer_chunked = false
+
+    if datastore['StoreDB']
+      storedb(reqopts, resp)
+    end
+
+    print_status ">> [#{resp.code}] #{reqopts['uri']}"
+
+    if reqopts['query'] && !reqopts['query'].empty?
+      print_status ">>> [Q] #{reqopts['query']}"
+    end
+
+    if reqopts['data']
+      print_status ">>> [D] #{reqopts['data']}"
+    end
+
+    case resp.code
+    when 200
+      @crawlermodules.each_key do |k|
+        @crawlermodules[k].parse(reqopts, resp)
+      end
+    when 301..303
+      print_line("[#{resp.code}] Redirection to: #{resp['Location']}")
+      vprint_status urltohash('GET', resp['Location'], reqopts['uri'], nil)
+      insertnewpath(urltohash('GET', resp['Location'], reqopts['uri'], nil))
+    when 404
+      print_status "[404] Invalid link #{reqopts['uri']}"
+    else
+      print_status "Unhandled #{resp.code}"
+    end
+
+    sleep(datastore['SleepTime'])
+  rescue StandardError => e
+    print_status("Error: #{e.message}")
+    vprint_status("#{$ERROR_INFO}: #{$ERROR_INFO.backtrace}")
   end
 
   #
@@ -305,20 +314,19 @@ class MetasploitModule < Msf::Auxiliary
   #
 
   def insertnewpath(hashreq)
-
     hashreq['uri'] = canonicalize(hashreq['uri'])
 
-    if hashreq['rhost'] == datastore['RHOSTS'] and hashreq['rport'] == datastore['RPORT']
-      if !@ViewedQueue.include?(hashsig(hashreq))
-        if @NotViewedQueue.read_all(hashreq).size > 0
+    if (hashreq['rhost'] == datastore['RHOSTS']) && (hashreq['rport'] == datastore['RPORT'])
+      if !@viewed_queue.include?(hashsig(hashreq))
+        if !@not_viewed_queue.read_all(hashreq).empty?
           vprint_status "Already in queue to be viewed: #{hashreq['uri']}"
         else
           vprint_status "Inserted: #{hashreq['uri']}"
 
-          @NotViewedQueue.write(hashreq)
+          @not_viewed_queue.write(hashreq)
         end
       else
-        vprint_status "#{hashreq['uri']} already visited at #{@ViewedQueue[hashsig(hashreq)]}"
+        vprint_status "#{hashreq['uri']} already visited at #{@viewed_queue[hashsig(hashreq)]}"
       end
     end
   end
@@ -327,68 +335,68 @@ class MetasploitModule < Msf::Auxiliary
   # Build a new hash for a local path
   #
 
-  def urltohash(m,url,basepath,dat)
+  def urltohash(method, url, basepath, dat)
+    # method: HTTP method
+    # url: uri?[query]
+    # basepath: base path/uri to determine absolute path when relative
+    # data: body data, nil if GET and query = uri.query
 
-      # m:   method
-      # url: uri?[query]
-      # basepath: base path/uri to determine absolute path when relative
-      # data: body data, nil if GET and query = uri.query
+    uri = URI.parse(url)
+    uritargetssl = (uri.scheme == 'https') ? true : false
 
-      uri = URI.parse(url)
-      uritargetssl = (uri.scheme == "https") ? true : false
+    uritargethost = uri.host
+    if uri.host.nil? || uri.host.empty?
+      uritargethost = ctarget
+      uritargetssl = cssl
+    end
 
-      uritargethost = uri.host
-      if (uri.host.nil? or uri.host.empty?)
-        uritargethost = self.ctarget
-        uritargetssl = self.cssl
+    uritargetport = uri.port
+    if uri.port.nil?
+      uritargetport = cport
+    end
+
+    uritargetpath = uri.path
+    if uri.path.nil? || uri.path.empty?
+      uritargetpath = '/'
+    end
+
+    newp = Pathname.new(uritargetpath)
+    oldp = Pathname.new(basepath)
+    if !newp.absolute?
+      if oldp.to_s[-1, 1] == '/'
+        newp = oldp + newp
+      elsif !newp.to_s.empty?
+        newp = File.join(oldp.dirname, newp)
       end
+    end
 
-      uritargetport = uri.port
-      if (uri.port.nil?)
-        uritargetport = self.cport
-      end
+    hashreq = {
+      'rhost' => uritargethost,
+      'rport' => uritargetport,
+      'uri' => newp.to_s,
+      'method' => method,
+      'ctype' => 'text/plain',
+      'ssl' => uritargetssl,
+      'query' => uri.query,
+      'data' => nil
+    }
 
-      uritargetpath = uri.path
-      if (uri.path.nil? or uri.path.empty?)
-        uritargetpath = "/"
-      end
+    if (method == 'GET') && !dat.nil?
+      hashreq['query'] = dat
+    else
+      hashreq['data'] = dat
+    end
 
-      newp = Pathname.new(uritargetpath)
-      oldp = Pathname.new(basepath)
-      if !newp.absolute?
-        if oldp.to_s[-1,1] == '/'
-          newp = oldp+newp
-        else
-          if !newp.to_s.empty?
-            newp = File.join(oldp.dirname,newp)
-          end
-        end
-      end
-
-      hashreq = {
-        'rhost'		=> uritargethost,
-        'rport'		=> uritargetport,
-        'uri' 		=> newp.to_s,
-        'method'   	=> m,
-        'ctype'		=> 'text/plain',
-        'ssl'		=> uritargetssl,
-        'query'		=> uri.query,
-        'data'		=> nil
-      }
-
-      if m == 'GET' and !dat.nil?
-        hashreq['query'] = dat
-      else
-        hashreq['data'] = dat
-      end
-
-      return hashreq
+    return hashreq
   end
 
-  # Taken from http://www.ruby-forum.com/topic/140101 by  Rob Biedenharn
+  # Taken from https://www.ruby-forum.com/t/creating-a-canonicalized-url/127036/6 by Rob Biedenharn
+  # TODO: This method should be rewritten
+  # rubocop:disable Style/PerlBackrefs
+  # rubocop:disable Style/WhileUntilDo
+  # rubocop:disable Style/BlockDelimiters
   def canonicalize(uri)
-
-    u = uri.kind_of?(URI) ? uri : URI.parse(uri.to_s)
+    u = uri.is_a?(URI) ? uri : URI.parse(uri.to_s)
     u.normalize!
     newpath = u.path
     while newpath.gsub!(%r{([^/]+)/\.\./?}) { |match|
@@ -397,9 +405,12 @@ class MetasploitModule < Msf::Auxiliary
     newpath = newpath.gsub(%r{/\./}, '/').sub(%r{/\.\z}, '/')
     u.path = newpath
     # Ugly fix
-    u.path = u.path.gsub("\/..\/","\/")
+    u.path = u.path.gsub("\/..\/", "\/")
     u.to_s
   end
+  # rubocop:enable Style/PerlBackrefs
+  # rubocop:enable Style/WhileUntilDo
+  # rubocop:enable Style/BlockDelimiters
 
   def hashsig(hashreq)
     hashreq.to_s
@@ -409,11 +420,11 @@ end
 class BaseParser
   attr_accessor :crawler
 
-  def initialize(c)
-    self.crawler = c
+  def initialize(crawler)
+    self.crawler = crawler
   end
 
-  def parse(request,result)
+  def parse(_request, _result)
     nil
   end
 
@@ -421,30 +432,30 @@ class BaseParser
   # Add new path (uri) to test hash queue
   #
   def insertnewpath(hashreq)
-    self.crawler.insertnewpath(hashreq)
+    crawler.insertnewpath(hashreq)
   end
 
   def hashsig(hashreq)
-    self.crawler.hashsig(hashreq)
+    crawler.hashsig(hashreq)
   end
 
-  def urltohash(m,url,basepath,dat)
-    self.crawler.urltohash(m,url,basepath,dat)
+  def urltohash(method, url, basepath, dat)
+    crawler.urltohash(method, url, basepath, dat)
   end
 
   def targetssl
-    self.crawler.cssl
+    crawler.cssl
   end
 
   def targetport
-    self.crawler.cport
+    crawler.cport
   end
 
   def targethost
-    self.crawler.ctarget
+    crawler.ctarget
   end
 
   def targetinipath
-    self.crawler.cinipath
+    crawler.cinipath
   end
 end
