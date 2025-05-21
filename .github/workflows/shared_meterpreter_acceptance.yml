@@ -201,7 +201,8 @@ jobs:
           BUNDLE_FORCE_RUBY_PLATFORM: true
           # Required for macos13 pg gem compilation
           PKG_CONFIG_PATH: "/usr/local/opt/libpq/lib/pkgconfig"
-        uses: ruby/setup-ruby@v1
+        # Pinned to avoid Windows compilation failure with nokogiri
+        uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
@@ -368,7 +369,7 @@ jobs:
         if: always()
         env:
           BUNDLE_FORCE_RUBY_PLATFORM: true
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c
         with:
           ruby-version: '3.3'
           bundler-cache: true
