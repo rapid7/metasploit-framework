@@ -45,7 +45,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2015-0965' ], # CSRF vulnerability
           [ 'CVE', '2015-0966' ], # "technician/yZgO8Bvj" web interface backdoor
           [ 'URL', 'http://web.archive.org/web/20220810083803/https://www.rapid7.com/blog/post/2015/06/05/r7-2015-01-csrf-backdoor-and-persistent-xss-on-arris-motorola-cable-modems/' ],
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 

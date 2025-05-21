@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultOptions' => {
         'SSL' => true
       },
-      'DisclosureDate' => 'Nov 12 2013'
+      'DisclosureDate' => 'Nov 12 2013',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -41,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETPASSWORD', [true, 'The password of the target account', 'smartvm']),
         OptString.new('TARGETURI', [ true, 'The path to the application', '/']),
         OptEnum.new('HTTP_METHOD', [true, 'HTTP Method', 'POST', ['GET', 'POST'] ])
-      ], self.class
+      ]
     )
   end
 

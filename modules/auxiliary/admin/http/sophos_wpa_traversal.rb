@@ -35,7 +35,12 @@ class MetasploitModule < Msf::Auxiliary
         'DefaultOptions' => {
           'SSL' => true
         },
-        'DisclosureDate' => '2013-04-03'
+        'DisclosureDate' => '2013-04-03',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -60,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    if res && (res.code == 307) && res.body =~ (/The patience page request was not valid/)
+    if res && (res.code == 307) && res.body =~ /The patience page request was not valid/
       return true
     else
       return false

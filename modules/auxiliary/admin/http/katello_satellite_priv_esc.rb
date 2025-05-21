@@ -22,7 +22,12 @@ class MetasploitModule < Msf::Auxiliary
         ['CWE', '862'],
         ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=970849']
       ],
-      'DisclosureDate' => 'Mar 24 2014'
+      'DisclosureDate' => 'Mar 24 2014',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -32,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'Your username']),
         OptString.new('PASSWORD', [true, 'Your password']),
         OptString.new('TARGETURI', [ true, 'The path to the application', '/']),
-      ], self.class
+      ]
     )
   end
 
