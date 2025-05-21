@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
         sname: 'snmp',
         update: :unique_data,
         type: 'snmp.users',
-        data: users
+        data: { :users => users }
       )
     rescue SNMP::ParseError
       print_error("#{ip} Encountered an SNMP parsing error while trying to enumerate the host.")

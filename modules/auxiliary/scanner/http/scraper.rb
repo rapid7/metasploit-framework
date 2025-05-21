@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
           :port    => rport,
           :proto   => 'tcp',
           :type    => "http.scraper.#{rport}",
-          :data    => u
+          :data    => { :scraped_data => u }
         )
 
         report_web_vuln(

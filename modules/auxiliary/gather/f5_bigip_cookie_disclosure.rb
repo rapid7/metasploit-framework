@@ -158,19 +158,19 @@ class MetasploitModule < Msf::Auxiliary
 
     # Reporting found cookie name in database
     unless cookie_name.empty?
-      report_note(host: rhost, type: 'f5_load_balancer_cookie_name', data: cookie_name)
+      report_note(host: rhost, type: 'f5_load_balancer_cookie_name', data: {:cookie_name => cookie_name })
       # Reporting found pool name in database
       unless pool_name.empty?
-        report_note(host: rhost, type: 'f5_load_balancer_pool_name', data: pool_name)
+        report_note(host: rhost, type: 'f5_load_balancer_pool_name', data: { :pool_name => pool_name })
       end
       # Reporting found route domain in database
       unless route_domain.empty?
-        report_note(host: rhost, type: 'f5_load_balancer_route_domain', data: route_domain)
+        report_note(host: rhost, type: 'f5_load_balancer_route_domain', data: { :route_domain => route_domain })
       end
     end
     # Reporting found backends in database
     unless backends.empty?
-      report_note(host: rhost, type: 'f5_load_balancer_backends', data: backends)
+      report_note(host: rhost, type: 'f5_load_balancer_backends', data: { :backends => backends })
     end
   rescue ::Rex::ConnectionRefused, ::Rex::ConnectionError
     print_error('Network connection error')

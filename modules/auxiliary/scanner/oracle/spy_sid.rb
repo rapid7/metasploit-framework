@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
               :port	=> datastore['RPORT'],
               :proto	=> 'tcp',
               :type	=> 'oracle_sid',
-              :data	=> "#{sid.uniq}",
+              :data	=> { :sid => sid.uniq.to_s },
               :update	=> :unique_data
           )
         print_good("#{rhost}:#{rport} Discovered SID: '#{sid.uniq}'")

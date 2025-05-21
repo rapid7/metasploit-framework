@@ -185,7 +185,7 @@ class MetasploitModule < Msf::Auxiliary
     report_note(
       :host => ip,
       :type => "system.name",
-      :data => sys_name
+      :data => { :system_name => sys_name }
     )
 
     if anonymous_access?(res)

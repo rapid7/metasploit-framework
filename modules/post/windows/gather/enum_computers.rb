@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Post
     report_note(
       host: session,
       type: 'domain.hosts',
-      data: tbl.to_csv
+      data: { :hosts => tbl.to_csv }
     )
   end
 end

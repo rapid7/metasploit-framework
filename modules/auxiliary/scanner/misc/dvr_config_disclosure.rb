@@ -55,7 +55,11 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    info = "PPPOE credentials for #{rhost}, user: #{user}, password: #{password}"
+    info = {
+      :host => rhost,
+      :username => user,
+      :password => password
+    }
 
     report_note({
       :host   => rhost,
@@ -96,7 +100,11 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    info = "DDNS credentials for #{hostname}, user: #{user}, password: #{password}"
+    info = {
+      :host => hostname,
+      :user => user,
+      :password => password
+    }
 
     report_note({
       :host   => rhost,

@@ -127,14 +127,24 @@ class MetasploitModule < Msf::Auxiliary
     ns = get_network_settings
     return if ns.nil?
 
-    good_string = "#{rhost}:#{rport} Option: #{ns[0]}"
+    data = {
+      :rhost => rhost,
+      :rport => rport,
+      :option => ns[0]
+    }
     if ns[0] == 'Use wireless LAN'
       wireless_key = get_wireless_key
-      good_string += "\tSSID: #{ns[1]}\tEncryption Type: #{wireless_key[0]}\tKey: #{wireless_key[1]}"
+      data.merge!(
+        {
+          :ssid => ns[1],
+          :encryption_type => wireless_key[0],
+          :key => wireless_key[1]
+        }
+      )
     end
 
     report_note({
-      :data => good_string,
+      :data => data,
       :type => 'canon.wireless',
       :host => ip,
       :port => rport

@@ -96,7 +96,10 @@ class MetasploitModule < Msf::Auxiliary
             :proto	=> 'tcp',
             :port	=> dport,
             :type	=> "TCP UNFILTERED #{dhost}:#{dport}",
-            :data	=> "TCP UNFILTERED #{dhost}:#{dport}"
+            :data	=> {
+              :host => dhost,
+              :port => dport
+            }
           )
 
         rescue ::Exception

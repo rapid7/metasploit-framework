@@ -49,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
             :sname  => 'snmp',
             :port   => datastore['RPORT'],
             :type   => 'AIX',
-            :data   => version
+            :data   => { :version => version }
         )
 
         status = "#{ip} (#{description}) is running: "

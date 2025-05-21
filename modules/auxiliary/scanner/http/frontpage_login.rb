@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
             :proto => 'tcp',
             :sname => (ssl ? 'https' : 'http'),
             :type  => 'FrontPage Author',
-            :data  => "#{info}#{fpauthor}"
+            :data  => { :author => "#{info}#{fpauthor}" }
           }
           opts[:port] = datastore['RPORT'] if not port.empty?
           report_note(opts)

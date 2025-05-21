@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
               :sname => (ssl ? 'https' : 'http'),
               :port   => rport,
               :type   => wdtype,
-              :data   => datastore['PATH']
+              :data   => { :path => datastore['PATH'] }
             })
 
         else
