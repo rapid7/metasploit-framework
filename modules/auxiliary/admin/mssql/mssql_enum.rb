@@ -20,16 +20,17 @@ class MetasploitModule < Msf::Auxiliary
           supplied.
         },
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
+        'License' => MSF_LICENSE,
         'Notes' => {
            'Stability' => [CRASH_SAFE],
            'SideEffects' => [IOC_IN_LOGS],
            'Reliability' => []
-        },
-        'License' => MSF_LICENSE
+        }
       )
     )
   end
 
+  # rubocop:disable Metrics/MethodLength
   def run
     print_status('Running MS SQL Server Enumeration...')
     if session
@@ -912,4 +913,5 @@ class MetasploitModule < Msf::Auxiliary
 
     disconnect
   end
+  # rubocop:enable Metrics/MethodLength
 end

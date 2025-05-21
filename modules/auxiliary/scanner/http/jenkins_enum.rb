@@ -104,7 +104,8 @@ class MetasploitModule < Msf::Auxiliary
         :data  => {
           :uri => full_uri,
           :uri_path => uri_path,
-          :response_code => "200"
+          :response_code => "200",
+          :description => "#{full_uri} - #{uri_path} does not require authentication (200)"
         },
         :update => :unique_data
       })

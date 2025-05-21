@@ -328,25 +328,25 @@ class MetasploitModule < Msf::Auxiliary
 
       username = cache_info.data.username.encode(::Encoding::UTF_8)
       info = []
-      info << ("Username: #{username}")
+      info << "Username: #{username}"
       if cache_info.iteration_count
-        info << ("Iteration count: #{cache_info.iteration_count} -> real #{cache_info.real_iteration_count}")
+        info << "Iteration count: #{cache_info.iteration_count} -> real #{cache_info.real_iteration_count}"
       end
-      info << ("Last login: #{cache_info.entry.last_access.to_time}")
+      info << "Last login: #{cache_info.entry.last_access.to_time}"
       dns_domain_name = cache_info.data.dns_domain_name.encode(::Encoding::UTF_8)
-      info << ("DNS Domain Name: #{dns_domain_name}")
-      info << ("UPN: #{cache_info.data.upn.encode(::Encoding::UTF_8)}")
-      info << ("Effective Name: #{cache_info.data.effective_name.encode(::Encoding::UTF_8)}")
-      info << ("Full Name: #{cache_info.data.full_name.encode(::Encoding::UTF_8)}")
-      info << ("Logon Script: #{cache_info.data.logon_script.encode(::Encoding::UTF_8)}")
-      info << ("Profile Path: #{cache_info.data.profile_path.encode(::Encoding::UTF_8)}")
-      info << ("Home Directory: #{cache_info.data.home_directory.encode(::Encoding::UTF_8)}")
-      info << ("Home Directory Drive: #{cache_info.data.home_directory_drive.encode(::Encoding::UTF_8)}")
-      info << ("User ID: #{cache_info.entry.user_id}")
-      info << ("Primary Group ID: #{cache_info.entry.primary_group_id}")
-      info << ("Additional groups: #{cache_info.data.groups.map(&:relative_id).join(' ')}")
+      info << "DNS Domain Name: #{dns_domain_name}"
+      info << "UPN: #{cache_info.data.upn.encode(::Encoding::UTF_8)}"
+      info << "Effective Name: #{cache_info.data.effective_name.encode(::Encoding::UTF_8)}"
+      info << "Full Name: #{cache_info.data.full_name.encode(::Encoding::UTF_8)}"
+      info << "Logon Script: #{cache_info.data.logon_script.encode(::Encoding::UTF_8)}"
+      info << "Profile Path: #{cache_info.data.profile_path.encode(::Encoding::UTF_8)}"
+      info << "Home Directory: #{cache_info.data.home_directory.encode(::Encoding::UTF_8)}"
+      info << "Home Directory Drive: #{cache_info.data.home_directory_drive.encode(::Encoding::UTF_8)}"
+      info << "User ID: #{cache_info.entry.user_id}"
+      info << "Primary Group ID: #{cache_info.entry.primary_group_id}"
+      info << "Additional groups: #{cache_info.data.groups.map(&:relative_id).join(' ')}"
       logon_domain_name = cache_info.data.logon_domain_name.encode(::Encoding::UTF_8)
-      info << ("Logon domain name: #{logon_domain_name}")
+      info << "Logon domain name: #{logon_domain_name}"
 
       report_info({ info: info.join('; ') }, 'user.cache_info')
       vprint_line(info.join("\n"))
@@ -626,7 +626,7 @@ class MetasploitModule < Msf::Auxiliary
     nb_digits = (Math.log10(users.length) + 1).floor
     users = users.each_with_index.map do |(rid, name), index|
       if index % progress_interval == 0
-        percent = format('%.2f', (index / users.length.to_f * 100)).rjust(5)
+        percent = format('%.2f', index / users.length.to_f * 100).rjust(5)
         print_status("SID enumeration progress - #{index.to_s.rjust(nb_digits)} / #{users.length} (#{percent}%)")
       end
       sid = @samr.samr_rid_to_sid(object_handle: @domain_handle, rid: rid)
