@@ -390,7 +390,7 @@ class MetasploitModule < Msf::Auxiliary
     return hashreq
   end
 
-  # Abomonation taken from https://www.ruby-forum.com/t/creating-a-canonicalized-url/127036/6 by Rob Biedenharn
+  # Taken from https://www.ruby-forum.com/t/creating-a-canonicalized-url/127036/6 by Rob Biedenharn
   # TODO: This method should be rewritten
   # rubocop:disable Style/PerlBackrefs
   # rubocop:disable Style/WhileUntilDo
