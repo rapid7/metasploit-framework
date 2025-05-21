@@ -2,14 +2,14 @@
 
 This module is not intended to exploit a vulnerability, but rather to perform host discovery on IPv6-enabled local networks. It sends ICMPv6 Echo Requests to several well-known multicast addresses (e.g., FF02::1) and listens for any ICMPv6-based response.
 
-This technique is useful for identifying active IPv6 hosts and services, particularly when traditional IPv4 reconnaissance is limited or disabled. All responses — including Echo Replies, Neighbor Solicitations, and others — are treated as valid evidence of a live host.
+This technique helps identify active IPv6 hosts and services, particularly when traditional IPv4 reconnaissance is limited or disabled. All responses — including Echo Replies, Neighbor Solicitations, and others — are valid evidence of a live host.
 
 ## Verification Steps
 
-1. Do: ```use auxiliary/scanner/discovery/ipv6_neighbor```
-2. Do: ```set RHOSTS [IP]```
-3. Do: ```set SHOST [IP]```
-4. Do: ```run```
+1. Do: `use auxiliary/scanner/discovery/ipv6_neighbor`
+2. Do: `set RHOSTS [IP]`
+3. Do: `set SHOST [IP]`
+4. Do: `run`
 
 ## Scenarios
 ```
