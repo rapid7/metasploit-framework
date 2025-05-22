@@ -201,7 +201,7 @@ class MetasploitModule < Msf::Auxiliary
         :proto => 'tcp',
         :sname => 'http',
         :ntype => 'scada.modicon.write-password',
-        :data => writecreds[1]
+        :data => { :write_creds => writecreds[1] }
       )
     end
 
@@ -230,7 +230,10 @@ class MetasploitModule < Msf::Auxiliary
         :proto => 'tcp',
         :sname => 'ftp',
         :ntype => 'scada.modicon.ftp-password',
-        :data => "User:#{modicon_ftpuser} VXWorks_Password:#{modicon_ftppass}"
+        :data => {
+          :user => modicon_ftpuser,
+          :vxworks_passwords => modicon_ftppass
+        }
       )
       logins << ["VxWorks", modicon_ftpuser, modicon_ftppass]
 

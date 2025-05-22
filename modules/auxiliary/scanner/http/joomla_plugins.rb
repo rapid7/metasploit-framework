@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
         :port  => rport,
         :proto => 'http',
         :ntype => 'joomla_plugin',
-        :data  => "#{tpath}#{papp}",
+        :data  => { :path => "#{tpath}#{papp}" },
         :update => :unique_data
       )
 
@@ -133,7 +133,7 @@ class MetasploitModule < Msf::Auxiliary
             :port  => datastore['RPORT'],
             :proto => 'http',
             :ntype => 'joomla_page',
-            :data  => "Page: #{tpath}index.php?option=com_#{pages}",
+            :data  => { :page => "#{tpath}index.php?option=com_#{pages}" },
             :update => :unique_data
           )
         else

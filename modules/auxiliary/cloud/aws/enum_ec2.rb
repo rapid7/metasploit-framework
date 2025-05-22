@@ -81,27 +81,30 @@ class MetasploitModule < Msf::Auxiliary
       report_note(
         host: inst.private_ip_address,
         type: 'ec2.public_ip',
-        data: inst.public_ip_address
+        data: { :public_ip_address => inst.public_ip_address }
       )
     end
     # eips = inst.network_interfaces.map {|i| i.association && i.association.public_ip}.compact # <-- works in pry, breaks at runtime in AWS SDK
     # report_note(
     #  host: inst.private_ip_address,
     #  type: 'ec2.public_ips',
-    #  data: eips.join(' ')
-    # ) unless eips.empty?
+    #  data: { :eips => eips.join(' ') }
+    #) unless eips.empty?
     if inst.public_ip_address && !inst.public_dns_name.empty?
       report_note(
         host: inst.private_ip_address,
         type: 'ec2.public_dns',
-        data: "#{inst.public_dns_name} #{inst.public_ip_address}"
+        data: {
+          :public_dns_name => inst.public_dns_name,
+          :public_ip_address => inst.public_ip_address
+        }
       )
     end
     if inst.hypervisor
       report_note(
         host: inst.private_ip_address,
         type: 'ec2.hypervisor',
-        data: inst.hypervisor
+        data: { :hypervisor => inst.hypervisor }
       )
     end
     inst.security_groups.each do |s|
@@ -109,7 +112,7 @@ class MetasploitModule < Msf::Auxiliary
       report_note(
         host: inst.private_ip_address,
         type: "ec2.#{s.group_id}",
-        data: s.group_name
+        data: { :group_name => s.group_name }
       )
     end
     inst.tags.each do |t|
@@ -117,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
       report_note(
         host: inst.private_ip_address,
         type: "ec2.tag #{t.key}",
-        data: t.value
+        data: { :tag => t.value }
       )
     end
   end

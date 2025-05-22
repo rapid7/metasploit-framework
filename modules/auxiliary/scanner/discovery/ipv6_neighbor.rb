@@ -137,7 +137,11 @@ class MetasploitModule < Msf::Auxiliary
           report_note(
             :host   => addr[:ipv4],
             :type   => 'host.ipv4.ipv6.mapping',
-            :data   => "system with IPv4 address #{addr[:ipv4]} matches to IPv6 address #{addr[:ipv6]}"
+            :data   => {
+              :ipv4_address => addr[:ipv4],
+              :ipv6_address => addr[:ipv6],
+              :matches => "true"
+            }
           )	# with this we have the results in our database
 
         end

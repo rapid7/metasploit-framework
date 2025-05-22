@@ -109,11 +109,11 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Output for \"#{datastore['COMMAND']}\":\n")
     print_line("#{output}\n")
     report_note(
-      rhost: datastore['RHOSTS'],
-      rport: datastore['RPORT'],
-      type: 'psexec_command',
-      name: datastore['COMMAND'],
-      data: output
+      :rhost => datastore['RHOSTS'],
+      :rport => datastore['RPORT'],
+      :type  => "psexec_command",
+      :name => datastore['COMMAND'],
+      :data => { :command_output => output }
     )
   end
 end

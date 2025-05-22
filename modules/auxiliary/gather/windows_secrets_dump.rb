@@ -265,7 +265,7 @@ class MetasploitModule < Msf::Auxiliary
       next unless !users[rid][:UserPasswordHint].nil? && !users[rid][:UserPasswordHint].empty?
 
       hint = "#{users[rid][:Name]}: \"#{users[rid][:UserPasswordHint]}\""
-      report_info(hint, 'user.password_hint')
+      report_info({ password_hint: hint }, 'user.password_hint')
       print_line(hint)
       hint_count += 1
     end
@@ -328,27 +328,27 @@ class MetasploitModule < Msf::Auxiliary
 
       username = cache_info.data.username.encode(::Encoding::UTF_8)
       info = []
-      info << ("Username: #{username}")
+      info << "Username: #{username}"
       if cache_info.iteration_count
-        info << ("Iteration count: #{cache_info.iteration_count} -> real #{cache_info.real_iteration_count}")
+        info << "Iteration count: #{cache_info.iteration_count} -> real #{cache_info.real_iteration_count}"
       end
-      info << ("Last login: #{cache_info.entry.last_access.to_time}")
+      info << "Last login: #{cache_info.entry.last_access.to_time}"
       dns_domain_name = cache_info.data.dns_domain_name.encode(::Encoding::UTF_8)
-      info << ("DNS Domain Name: #{dns_domain_name}")
-      info << ("UPN: #{cache_info.data.upn.encode(::Encoding::UTF_8)}")
-      info << ("Effective Name: #{cache_info.data.effective_name.encode(::Encoding::UTF_8)}")
-      info << ("Full Name: #{cache_info.data.full_name.encode(::Encoding::UTF_8)}")
-      info << ("Logon Script: #{cache_info.data.logon_script.encode(::Encoding::UTF_8)}")
-      info << ("Profile Path: #{cache_info.data.profile_path.encode(::Encoding::UTF_8)}")
-      info << ("Home Directory: #{cache_info.data.home_directory.encode(::Encoding::UTF_8)}")
-      info << ("Home Directory Drive: #{cache_info.data.home_directory_drive.encode(::Encoding::UTF_8)}")
-      info << ("User ID: #{cache_info.entry.user_id}")
-      info << ("Primary Group ID: #{cache_info.entry.primary_group_id}")
-      info << ("Additional groups: #{cache_info.data.groups.map(&:relative_id).join(' ')}")
+      info << "DNS Domain Name: #{dns_domain_name}"
+      info << "UPN: #{cache_info.data.upn.encode(::Encoding::UTF_8)}"
+      info << "Effective Name: #{cache_info.data.effective_name.encode(::Encoding::UTF_8)}"
+      info << "Full Name: #{cache_info.data.full_name.encode(::Encoding::UTF_8)}"
+      info << "Logon Script: #{cache_info.data.logon_script.encode(::Encoding::UTF_8)}"
+      info << "Profile Path: #{cache_info.data.profile_path.encode(::Encoding::UTF_8)}"
+      info << "Home Directory: #{cache_info.data.home_directory.encode(::Encoding::UTF_8)}"
+      info << "Home Directory Drive: #{cache_info.data.home_directory_drive.encode(::Encoding::UTF_8)}"
+      info << "User ID: #{cache_info.entry.user_id}"
+      info << "Primary Group ID: #{cache_info.entry.primary_group_id}"
+      info << "Additional groups: #{cache_info.data.groups.map(&:relative_id).join(' ')}"
       logon_domain_name = cache_info.data.logon_domain_name.encode(::Encoding::UTF_8)
-      info << ("Logon domain name: #{logon_domain_name}")
+      info << "Logon domain name: #{logon_domain_name}"
 
-      report_info(info.join('; '), 'user.cache_info')
+      report_info({ info: info.join('; ') }, 'user.cache_info')
       vprint_line(info.join("\n"))
 
       credential_opts = {
@@ -511,8 +511,8 @@ class MetasploitModule < Msf::Auxiliary
       # Decode the DPAPI Secrets
       machine_key = secret_item[4, 20]
       user_key = secret_item[24, 20]
-      report_info(machine_key.unpack('H*')[0], 'dpapi.machine_key')
-      report_info(user_key.unpack('H*')[0], 'dpapi.user_key')
+      report_info({ machine_key: machine_key.unpack('H*')[0] }, 'dpapi.machine_key')
+      report_info({ user_key: user_key.unpack('H*')[0] }, 'dpapi.user_key')
       secret = "dpapi_machinekey: 0x#{machine_key.unpack('H*')[0]}\ndpapi_userkey: 0x#{user_key.unpack('H*')[0]}"
     elsif upper_name.start_with?('$MACHINE.ACC')
       md4 = OpenSSL::Digest::MD4.digest(secret_item)
@@ -626,7 +626,7 @@ class MetasploitModule < Msf::Auxiliary
     nb_digits = (Math.log10(users.length) + 1).floor
     users = users.each_with_index.map do |(rid, name), index|
       if index % progress_interval == 0
-        percent = format('%.2f', (index / users.length.to_f * 100)).rjust(5)
+        percent = format('%.2f', index / users.length.to_f * 100).rjust(5)
         print_status("SID enumeration progress - #{index.to_s.rjust(nb_digits)} / #{users.length} (#{percent}%)")
       end
       sid = @samr.samr_rid_to_sid(object_handle: @domain_handle, rid: rid)
@@ -977,7 +977,7 @@ class MetasploitModule < Msf::Auxiliary
       extra_info << "IsDomainAdmin=#{info[:domain_admin]},"
       extra_info << "IsEnterpriseAdmin=#{info[:enterprise_admin]}"
       print_line(pwdump + extra_info + '::')
-      report_info("#{full_name} (#{sid}): #{extra_info}", 'user.info')
+      report_info({ fullname: full_name, sid: sid, extra_info: extra_info }, 'user.info')
     end
 
     print_line("\n# Account Info:")
@@ -1194,7 +1194,7 @@ class MetasploitModule < Msf::Auxiliary
                     'try DOMAIN action since it does not need BootKey')
         end
       end
-      report_info(boot_key.unpack('H*')[0], 'host.boot_key')
+      report_info({ boot_key: boot_key.unpack('H*')[0] }, 'host.boot_key')
     end
 
     check_lm_hash_not_stored if @winreg
@@ -1241,7 +1241,7 @@ class MetasploitModule < Msf::Auxiliary
               print_warning('This might be expected or you can still try again with the `INLINE` option set to false')
             end
           else
-            report_info(lsa_key.unpack('H*')[0], 'host.lsa_key')
+            report_info({ lsa_key: lsa_key.unpack('H*')[0] }, 'host.lsa_key')
             if ['ALL', 'LSA'].include?(action.name)
               dump_lsa_secrets(windows_reg, lsa_key)
             end
@@ -1253,7 +1253,7 @@ class MetasploitModule < Msf::Auxiliary
                   print_warning('This might be expected or you can still try again with the `INLINE` option set to false')
                 end
               else
-                report_info(nlkm_key.unpack('H*')[0], 'host.nlkm_key')
+                report_info({ nlkm_key: nlkm_key.unpack('H*')[0] }, 'host.nlkm_key')
                 dump_cached_hashes(windows_reg, nlkm_key)
               end
             end

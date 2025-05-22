@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
       :port   => datastore['RPORT'],
       :sname  => "energizer_duo",
       :type   => 'Energizer DUO Trojan',
-      :data   => files.inspect
+      :data   => { :energizer_duo_trojan => files.inspect }
     )
     disconnect
 

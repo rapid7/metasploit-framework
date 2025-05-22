@@ -275,8 +275,10 @@ class MetasploitModule < Msf::Auxiliary
           end
           access = call ? "GRANTED" : "DENIED"
           print_line("#{ip} - UUID #{uuid[0]} #{uuid[1]} OPEN VIA #{datastore['RPORT']} ACCESS #{access} #{data.unpack("H*")[0]}")
-          data_report="OPEN VIA #{datastore['RPORT']} ACCESS #{access} #{data.unpack("H*")[0]}"
-
+          data_report = {
+            :port => datastore['RPORT'],
+            :access => "#{access} #{data.unpack("H*")[0]}"
+          }
           ## Add Report
           report_note(
             :host   => ip,

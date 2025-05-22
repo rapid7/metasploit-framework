@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         if hsts
           print_good("#{ip}:#{rport} - Strict-Transport-Security:#{hsts}")
           report_note({
-            :data => hsts,
+            :data => { :data => hsts },
             :type => "hsts.data",
             :host => ip,
             :port => rport

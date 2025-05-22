@@ -197,10 +197,10 @@ class MetasploitModule < Msf::Auxiliary
 
     if !cookies.empty?
       report_note(
-        host: cli.peerhost,
-        type: 'http_cookies',
-        data: hhead + ' ' + cookies,
-        update: :unique_data
+        :host => cli.peerhost,
+        :type => "http_cookies",
+        :data => { :cookies => hhead + " " + cookies },
+        :update => :unique_data
       )
     end
 
@@ -218,10 +218,10 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       report_note(
-        host: cli.peerhost,
-        type: 'http_auth_extra',
-        data: req.resource.to_s,
-        update: :unique_data
+        :host     => cli.peerhost,
+        :type     => "http_auth_extra",
+        :data     => { :auth_extra => req.resource.to_s },
+        :update => :unique_data
       )
       print_good("HTTP LOGIN #{cli.peerhost} > #{hhead}:#{@myport} #{user} / #{pass} => #{req.resource}")
     end
@@ -243,10 +243,10 @@ class MetasploitModule < Msf::Auxiliary
       data = Rex::Text.uri_decode(::Regexp.last_match(1)).split("\x00").join(', ')
 
       report_note(
-        host: cli.peerhost,
-        type: 'http_formdata',
-        data: hhead + ' ' + data,
-        update: :unique_data
+        :host => cli.peerhost,
+        :type => "http_formdata",
+        :data => { :formdata => hhead + " " + data },
+        :update => :unique_data
       )
 
       res =
@@ -262,10 +262,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     report_note(
-      host: cli.peerhost,
-      type: 'http_request',
-      data: "#{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers}",
-      update: :unique_data
+      :host => cli.peerhost,
+      :type => "http_request",
+      :data => { :request => "#{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers}" },
+      :update => :unique_data
     )
 
     print_status("HTTP REQUEST #{cli.peerhost} > #{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers} cookies=#{cookies}")

@@ -51,7 +51,10 @@ class MetasploitModule < Msf::Auxiliary
                   :host   => ip,
                   :port	=> rport,
                   :type   => "oracle_sid",
-                  :data   => "PORT=#{rport}, SID=#{s}",
+                  :data   => {
+                    :port => rport,
+                    :sid => s
+                  },
                   :update	=> :unique_data
                 )
                 print_good("Identified SID for #{ip}:#{rport} #{s}")
@@ -62,7 +65,10 @@ class MetasploitModule < Msf::Auxiliary
                   :host   => ip,
                   :port	=> rport,
                   :type   => "oracle_service_name",
-                  :data   => "PORT=#{rport}, SERVICE_NAME=#{s}",
+                  :data   => {
+                    :port => rport,
+                    :service_name => s
+                  },
                   :update	=> :unique_data
                 )
                 print_status("Identified SERVICE_NAME for #{ip}:#{rport} #{s}")

@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
         :sname => 'oracle',
         :port => datastore['RPORT'],
         :type => 'ORA_ENUM',
-        :data => "Component Version: #{v.chomp}",
+        :data => { :component_version => v.chomp },
         :update => :unique_data
       )
     end
@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
           :sname => 'oracle',
           :port => datastore['RPORT'],
           :type => 'ORA_ENUM',
-          :data => "Audit Trail: Disabled",
+          :data => { :audit_trail => "Disabled" },
           :update => :unique_data
         )
       else
@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
           :sname => 'oracle',
           :port => datastore['RPORT'],
           :type => 'ORA_ENUM',
-          :data => "Audit Trail: Enabled",
+          :data => { :audit_trail => "Enabled" },
           :update => :unique_data
         )
       end
@@ -100,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
           :sname => 'oracle',
           :port => datastore['RPORT'],
           :type => 'ORA_ENUM',
-          :data => "Audit SYS Ops: Disabled",
+          :data => { :audit_sys_ops => "Disabled" },
           :update => :unique_data
         )
       else

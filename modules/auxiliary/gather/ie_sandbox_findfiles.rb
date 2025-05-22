@@ -130,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
       case request.uri
       when /^\/found\/\?f=/
         f = URI.decode_www_form(request.uri.split("/found/?").last).assoc('f').last
-        report_note(host: cli.peerhost, type: 'ie.filenames', data: f)
+        report_note(host: cli.peerhost, type: 'ie.filenames', data: { :filenames => f })
         print_good("Found file " + f)
         send_response(cli, '')
       when /^\/notfound\/\?f=/

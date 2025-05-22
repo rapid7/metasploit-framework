@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
         :sname	=> 'smb',
         :port	=> rport,
         :type	=> 'Pipes Found',
-        :data	=> "Pipes: #{pipes.join(", ")}"
+        :data	=> { :pipes => pipes.join(", ") }
       )
     end
   end

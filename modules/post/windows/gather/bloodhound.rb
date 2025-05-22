@@ -185,7 +185,10 @@ class MetasploitModule < Msf::Post
       if datastore['EncryptZip']
         print_good "Zip password: #{zip_pass}"
         report_note(host: session,
-                    data: "Bloodhound/Sharphound loot #{p} password is #{zip_pass}",
+                    data: {
+                      loot: p,
+                      password: zip_pass
+                    },
                     type: 'Sharphound Zip Password')
       end
       break

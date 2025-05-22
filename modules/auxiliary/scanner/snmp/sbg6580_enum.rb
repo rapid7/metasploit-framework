@@ -194,7 +194,7 @@ class MetasploitModule < Msf::Auxiliary
             :sname => 'snmp',
             :port  => datastore['RPORT'].to_i,
             :type  => "snmp.#{k}",
-            :data  => v
+            :data  => { :data => v }
           )
 
           line << sprintf("%s%s: %s\n", k, " "*([0,width-k.length].max), v)

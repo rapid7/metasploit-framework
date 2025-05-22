@@ -150,14 +150,18 @@ class MetasploitModule < Msf::Post
 
           # Check if enumerated user's domain matches supplied domain, if there was
           # an error, or if option disabled
-          data = ''
+          data = {
+            :domain => temp[:domain],
+            :user => temp[:user]
+          }
+
           if (datastore['DOMAIN'].upcase == temp[:domain].upcase) && !@dc_error && datastore['ENUM_GROUPS']
-            data << " - Groups: #{enum_groups(temp[:user]).chomp(', ')}"
+            data.merge!({ :enum_groups => enum_groups(temp[:user]).chomp(', ') })
           end
           line = "\tLogged in user:\t#{temp[:domain]}\\#{temp[:user]}#{data}\n"
 
           # Write user and groups to notes database
-          db_note(host, "#{temp[:domain]}\\#{temp[:user]}#{data}", 'localadmin.user.loggedin')
+          db_note(host, data, 'localadmin.user.loggedin')
           userlist << line unless userlist.include? line
 
         end

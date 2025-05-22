@@ -133,7 +133,7 @@ class MetasploitModule < Msf::Post
       report_note(
         host: session.session_host,
         type: 'pid',
-        data: tbl_pids.to_csv
+        data: { :pids => tbl_pids.to_csv }
       )
     end
   end

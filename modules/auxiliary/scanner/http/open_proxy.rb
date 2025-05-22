@@ -124,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
             :proto  => 'tcp',
             :sname  => (ssl ? 'https' : 'http'),
             :type   => 'OPEN HTTP PROXY',
-            :data   => 'Open http proxy (CONNECT)'
+            :data   => { :open_http_proxy => "CONNECT" }
           )
 
         end
@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
             :proto  => 'tcp',
             :sname  => (ssl ? 'https' : 'http'),
             :type   => 'OPEN HTTP PROXY',
-            :data   => 'Open http proxy (GET)'
+            :data   => { :open_http_proxy => "GET" }
           )
 
         end

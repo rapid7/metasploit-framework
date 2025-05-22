@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Post
             report_host(host: ip_text, mac: mac_text)
             next if company.nil?
 
-            report_note(host: ip_text, type: 'mac_oui', data: company)
+            report_note(host: ip_text, type: 'mac_oui', data: { :company => company })
           end
         end
       end

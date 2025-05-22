@@ -109,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
           proto: 'tcp',
           port: datastore['RPORT'],
           type: "DCERPC HIDDEN: UUID #{id[0]} v#{id[1]}",
-          data: status
+          data: { :status => status }
         )
       end
     end

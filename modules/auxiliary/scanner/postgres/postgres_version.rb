@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
           :sname => 'postgres',
           :port => rport,
           :ntype => 'postgresql.fingerprint',
-          :data => "Unknown Pre-Auth fingerprint: #{result[:unknown]}"
+          :data => { :unknown_pre_auth_fingerprint => result[:unknown] }
         )
       end
 

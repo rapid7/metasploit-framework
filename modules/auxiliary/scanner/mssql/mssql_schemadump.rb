@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
       report_note(
         :host  => mssql_client.peerhost,
         :type  => "mssql.db.schema",
-        :data  => db,
+        :data  => { :database => db },
         :port  => mssql_client.peerport,
         :proto => 'tcp',
         :update => :unique_data

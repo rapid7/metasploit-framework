@@ -88,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
         report_note(
           host: @state[client][:ip],
           type: 'smtp_message',
-          data: @state[client][:data_buff][0, idx]
+          data: { :message => @state[client][:data_buff][0, idx] }
         )
         @state[client][:data_buff][0, idx].split("\n").each do |line|
           print_status("SMTP: #{@state[client][:name]} EMAIL: #{line.strip}")

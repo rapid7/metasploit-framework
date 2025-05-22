@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
         :proto => 'tcp',
         :port  => rport,
         :type  => 'supermicro.ipmi.ssl.certificate.pkey_hash',
-        :data  => digest
+        :data  => { :digest => digest }
       )
 
       report_vuln({

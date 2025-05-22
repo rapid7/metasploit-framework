@@ -167,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
     unless files.empty?
       print_good("We have detected the following files:")
       files.each do |f|
-        report_note(host: cli.peerhost, type: 'ie.filenames', data: f)
+        report_note(host: cli.peerhost, type: 'ie.filenames', data: {:filename => f })
         print_good(f)
       end
     end

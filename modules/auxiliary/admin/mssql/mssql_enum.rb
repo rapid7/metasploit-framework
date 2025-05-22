@@ -22,9 +22,9 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
         'License' => MSF_LICENSE,
         'Notes' => {
-          'Stability' => [CRASH_SAFE],
-          'SideEffects' => [IOC_IN_LOGS],
-          'Reliability' => []
+           'Stability' => [CRASH_SAFE],
+           'SideEffects' => [IOC_IN_LOGS],
+           'Reliability' => []
         }
       )
     )
@@ -51,11 +51,13 @@ class MetasploitModule < Msf::Auxiliary
       print "[*]\t#{row}"
     end
     vernum = sqlversion.gsub("\n", ' ').scan(/SQL Server\s*(200\d)/m)
-    report_note(host: mssql_client.peerhost,
-                proto: 'TCP',
-                port: mssql_client.peerport,
-                type: 'MSSQL_ENUM',
-                data: "Version: #{sqlversion}")
+    report_note(
+      host: mssql_client.peerhost,
+      proto: 'TCP',
+      port: mssql_client.peerport,
+      type: 'MSSQL_ENUM',
+      data: { version: sqlversion }
+    )
 
     #---------------------------------------------------------
     # Check Configuration Parameters and check what is enabled
@@ -83,18 +85,22 @@ class MetasploitModule < Msf::Auxiliary
     # checking for C2 Audit Mode
     if sysconfig['c2 audit mode'] == 1
       print_status("\tC2 Audit Mode is Enabled")
-      report_note(host: mssql_client.peerhost,
-                  proto: 'TCP',
-                  port: mssql_client.peerport,
-                  type: 'MSSQL_ENUM',
-                  data: 'C2 Audit Mode is Enabled')
+      report_note(
+        host: mssql_client.peerhost,
+        proto: 'TCP',
+        port: mssql_client.peerport,
+        type: 'MSSQL_ENUM',
+        data: { c2_audit_mode: 'Enabled' }
+      )
     else
       print_status("\tC2 Audit Mode is Not Enabled")
-      report_note(host: mssql_client.peerhost,
-                  proto: 'TCP',
-                  port: mssql_client.peerport,
-                  type: 'MSSQL_ENUM',
-                  data: 'C2 Audit Mode is Not Enabled')
+      report_note(
+        host: mssql_client.peerhost,
+        proto: 'TCP',
+        port: mssql_client.peerport,
+        type: 'MSSQL_ENUM',
+        data: { c2_audit_mode: 'Disabled' }
+      )
     end
 
     #-------------------------------------------------------
@@ -102,35 +108,43 @@ class MetasploitModule < Msf::Auxiliary
     if vernum.join != '2000'
       if sysconfig['xp_cmdshell'] == 1
         print_status("\txp_cmdshell is Enabled")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: 'xp_cmdshell is Enabled')
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { xp_cmdshell: 'Enabled' }
+        )
       else
         print_status("\txp_cmdshell is Not Enabled")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: 'xp_cmdshell is Not Enabled')
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { xp_cmdshell: 'Disabled' }
+        )
       end
     else
       xpspexist = mssql_query("select sysobjects.name from sysobjects where name = \'xp_cmdshell\'")[:rows]
       if !xpspexist.nil?
         print_status("\txp_cmdshell is Enabled")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: 'xp_cmdshell is Enabled')
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { xp_cmdshell: 'Enabled' }
+        )
       else
         print_status("\txp_cmdshell is Not Enabled")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: 'xp_cmdshell is Not Enabled')
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { xp_cmdshell: 'Disabled' }
+        )
       end
     end
 
@@ -138,36 +152,37 @@ class MetasploitModule < Msf::Auxiliary
     # check if remote access is enabled
     if sysconfig['remote access'] == 1
       print_status("\tremote access is Enabled")
-      report_note(host: mssql_client.peerhost,
-                  proto: 'TCP',
-                  port: mssql_client.peerport,
-                  type: 'MSSQL_ENUM',
-                  data: 'remote access is Enabled')
     else
       print_status("\tremote access is Not Enabled")
-      report_note(host: mssql_client.peerhost,
-                  proto: 'TCP',
-                  port: mssql_client.peerport,
-                  type: 'MSSQL_ENUM',
-                  data: 'remote access is not Enabled')
     end
+    report_note(
+      host: mssql_client.peerhost,
+      proto: 'TCP',
+      port: mssql_client.peerport,
+      type: 'MSSQL_ENUM',
+      data: { remote_access: 'Enabled' }
+    )
 
     #-------------------------------------------------------
     # check if updates are allowed
     if sysconfig['allow updates'] == 1
       print_status("\tallow updates is Enabled")
-      report_note(host: mssql_client.peerhost,
-                  proto: 'TCP',
-                  port: mssql_client.peerport,
-                  type: 'MSSQL_ENUM',
-                  data: 'allow updates is Enabled')
+      report_note(
+        host: mssql_client.peerhost,
+        proto: 'TCP',
+        port: mssql_client.peerport,
+        type: 'MSSQL_ENUM',
+        data: { allow_updates: 'Enabled' }
+      )
     else
       print_status("\tallow updates is Not Enabled")
-      report_note(host: mssql_client.peerhost,
-                  proto: 'TCP',
-                  port: mssql_client.peerport,
-                  type: 'MSSQL_ENUM',
-                  data: 'allow updates is not Enabled')
+      report_note(
+        host: mssql_client.peerhost,
+        proto: 'TCP',
+        port: mssql_client.peerport,
+        type: 'MSSQL_ENUM',
+        data: { allow_updates: 'Disabled' }
+      )
     end
 
     #-------------------------------------------------------
@@ -175,35 +190,43 @@ class MetasploitModule < Msf::Auxiliary
     if vernum.join != '2000'
       if sysconfig['Database Mail XPs'] == 1
         print_status("\tDatabase Mail XPs is Enabled")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: 'Database Mail XPs is Enabled')
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { database_mail_xps: 'Enabled' }
+        )
       else
         print_status("\tDatabase Mail XPs is Not Enabled")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: 'Database Mail XPs is not Enabled')
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { database_mail_xps: 'Disabled' }
+        )
       end
     else
       mailexist = mssql_query("select sysobjects.name from sysobjects where name like \'%mail%\'")[:rows]
       if !mailexist.nil?
         print_status("\tDatabase Mail XPs is Enabled")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: 'Database Mail XPs is Enabled')
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { database_mail_xps: 'Enabled' }
+        )
       else
         print_status("\tDatabase Mail XPs is Not Enabled")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: 'Database Mail XPs is not Enabled')
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { database_mail_xps: 'Disabled' }
+        )
       end
     end
 
@@ -212,35 +235,43 @@ class MetasploitModule < Msf::Auxiliary
     if vernum.join != '2000'
       if sysconfig['Ole Automation Procedures'] == 1
         print_status("\tOle Automation Procedures are Enabled")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: 'Ole Automation Procedures are Enabled')
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { ole_automation_procedures: 'Enabled' }
+        )
       else
         print_status("\tOle Automation Procedures are Not Enabled")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: 'Ole Automation Procedures are not Enabled')
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { ole_automation_procedures: 'Disabled' }
+        )
       end
     else
       oleexist = mssql_query("select sysobjects.name from sysobjects where name like \'%sp_OA%\'")[:rows]
       if !oleexist.nil?
         print_status("\tOle Automation Procedures is Enabled")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: 'Ole Automation Procedures are Enabled')
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { ole_automation_procedures: 'Enabled' }
+        )
       else
         print_status("\tOle Automation Procedures are Not Enabled")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: 'Ole Automation Procedures are not Enabled')
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { ole_automation_procedures: 'Disabled' }
+        )
       end
     end
 
@@ -257,11 +288,15 @@ class MetasploitModule < Msf::Auxiliary
           if !db_ind_files.nil?
             db_ind_files.each do |fn|
               print_status("\t\t#{fn.join}")
-              report_note(host: mssql_client.peerhost,
-                          proto: 'TCP',
-                          port: mssql_client.peerport,
-                          type: 'MSSQL_ENUM',
-                          data: "Database: #{dbn.strip} File: #{fn.join}")
+              report_note(
+                host: mssql_client.peerhost,
+                proto: 'TCP',
+                port: mssql_client.peerport,
+                type: 'MSSQL_ENUM',
+                data: {
+                  database: dbn.strip, file: fn.join
+                }
+              )
             end
           end
         else
@@ -269,11 +304,16 @@ class MetasploitModule < Msf::Auxiliary
           if !db_ind_files.nil?
             db_ind_files.each do |fn|
               print_status("\t\t#{fn.join.strip}")
-              report_note(host: mssql_client.peerhost,
-                          proto: 'TCP',
-                          port: mssql_client.peerport,
-                          type: 'MSSQL_ENUM',
-                          data: "Database: #{dbn.strip} File: #{fn.join}")
+              report_note(
+                host: mssql_client.peerhost,
+                proto: 'TCP',
+                port: mssql_client.peerport,
+                type: 'MSSQL_ENUM',
+                data: {
+                  database: dbn.strip,
+                  file: fn.join
+                }
+              )
             end
           end
         end
@@ -291,19 +331,23 @@ class MetasploitModule < Msf::Auxiliary
     if !syslogins.nil?
       syslogins.each do |acc|
         print_status("\t#{acc.join}")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: "Database: Master User: #{acc.join}")
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { database_master_user: acc.join }
+        )
       end
     else
       print_error("\tCould not enumerate System Logins!")
-      report_note(host: mssql_client.peerhost,
-                  proto: 'TCP',
-                  port: mssql_client.peerport,
-                  type: 'MSSQL_ENUM',
-                  data: 'Could not enumerate System Logins')
+      report_note(
+        host: mssql_client.peerhost,
+        proto: 'TCP',
+        port: mssql_client.peerport,
+        type: 'MSSQL_ENUM',
+        data: { logons: 'Could not enumerate System Logins' }
+      )
     end
 
     #-------------------------------------------------------
@@ -314,19 +358,23 @@ class MetasploitModule < Msf::Auxiliary
       if !disabledsyslogins.nil?
         disabledsyslogins.each do |acc|
           print_status("\t#{acc.join}")
-          report_note(host: mssql_client.peerhost,
-                      proto: 'TCP',
-                      port: mssql_client.peerport,
-                      type: 'MSSQL_ENUM',
-                      data: "Disabled User: #{acc.join}")
+          report_note(
+            host: mssql_client.peerhost,
+            proto: 'TCP',
+            port: mssql_client.peerport,
+            type: 'MSSQL_ENUM',
+            data: { disabled_user: acc.join }
+          )
         end
       else
         print_status("\tNo Disabled Logins Found")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: 'No Disabled Logins Found')
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { disabled_user: 'No Disabled Logins Found' }
+        )
       end
     end
 
@@ -338,19 +386,23 @@ class MetasploitModule < Msf::Auxiliary
       if !nopolicysyslogins.nil?
         nopolicysyslogins.each do |acc|
           print_status("\t#{acc.join}")
-          report_note(host: mssql_client.peerhost,
-                      proto: 'TCP',
-                      port: mssql_client.peerport,
-                      type: 'MSSQL_ENUM',
-                      data: "None Policy Checked User: #{acc.join}")
+          report_note(
+            host: mssql_client.peerhost,
+            proto: 'TCP',
+            port: mssql_client.peerport,
+            type: 'MSSQL_ENUM',
+            data: { none_policy_checked_user: acc.join }
+          )
         end
       else
         print_status("\tAll System Accounts have the Windows Account Policy Applied to them.")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: 'All System Accounts have the Windows Account Policy Applied to them')
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { none_policy_checked_user: 'All System Accounts have the Windows Account Policy Applied to them' }
+        )
       end
     end
 
@@ -362,19 +414,23 @@ class MetasploitModule < Msf::Auxiliary
       if !passexsyslogins.nil?
         passexsyslogins.each do |acc|
           print_status("\t#{acc.join}")
-          report_note(host: mssql_client.peerhost,
-                      proto: 'TCP',
-                      port: mssql_client.peerport,
-                      type: 'MSSQL_ENUM',
-                      data: "None Password Expiration User: #{acc.join}")
+          report_note(
+            host: mssql_client.peerhost,
+            proto: 'TCP',
+            port: mssql_client.peerport,
+            type: 'MSSQL_ENUM',
+            data: { none_password_expiration_user: acc.join }
+          )
         end
       else
         print_status("\tAll System Accounts are checked for Password Expiration.")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: 'All System Accounts are checked for Password Expiration')
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { none_password_expiration_user: 'All System Accounts are checked for Password Expiration' }
+        )
       end
     end
 
@@ -389,19 +445,23 @@ class MetasploitModule < Msf::Auxiliary
     if !sysadmins.nil?
       sysadmins.each do |acc|
         print_status("\t#{acc.join}")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: "Sysdba: #{acc.join}")
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { sysdba: acc.join }
+        )
       end
     else
       print_error("\tCould not enumerate sysadmin accounts!")
-      report_note(host: mssql_client.peerhost,
-                  proto: 'TCP',
-                  port: mssql_client.peerport,
-                  type: 'MSSQL_ENUM',
-                  data: 'Could not enumerate sysadmin accounts')
+      report_note(
+        host: mssql_client.peerhost,
+        proto: 'TCP',
+        port: mssql_client.peerport,
+        type: 'MSSQL_ENUM',
+        data: { sysdba: 'Could not enumerate sysadmin accounts' }
+      )
     end
 
     #-------------------------------------------------------
@@ -416,19 +476,23 @@ class MetasploitModule < Msf::Auxiliary
     if !winusers.nil?
       winusers.each do |acc|
         print_status("\t#{acc.join}")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: "Windows Logins: #{acc.join}")
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { windows_logins: acc.join }
+        )
       end
     else
       print_status("\tNo Windows logins found!")
-      report_note(host: mssql_client.peerhost,
-                  proto: 'TCP',
-                  port: mssql_client.peerport,
-                  type: 'MSSQL_ENUM',
-                  data: 'No Windows logins found')
+      report_note(
+        host: mssql_client.peerhost,
+        proto: 'TCP',
+        port: mssql_client.peerport,
+        type: 'MSSQL_ENUM',
+        data: { windows_logins: 'No Windows logins found' }
+      )
     end
 
     #-------------------------------------------------------
@@ -443,19 +507,23 @@ class MetasploitModule < Msf::Auxiliary
     if !wingroups.nil?
       wingroups.each do |acc|
         print_status("\t#{acc.join}")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: "Windows Groups: #{acc.join}")
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { windows_groups: acc.join }
+        )
       end
     else
       print_status("\tNo Windows Groups where found with permission to login to system.")
-      report_note(host: mssql_client.peerhost,
-                  proto: 'TCP',
-                  port: mssql_client.peerport,
-                  type: 'MSSQL_ENUM',
-                  data: 'No Windows Groups where found with permission to login to system')
+      report_note(
+        host: mssql_client.peerhost,
+        proto: 'TCP',
+        port: mssql_client.peerport,
+        type: 'MSSQL_ENUM',
+        data: { windows_groups: 'No Windows Groups where found with permission to login to system' }
+      )
 
     end
 
@@ -472,19 +540,26 @@ class MetasploitModule < Msf::Auxiliary
     if !sameasuser.nil?
       sameasuser.each do |up|
         print_status("\t#{up.join}")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: "Username: #{up.join} Password: #{up.join}")
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: {
+            username: up.join,
+            password: up.join
+          }
+        )
       end
     else
       print_status("\tNo Account with its password being the same as its username was found.")
-      report_note(host: mssql_client.peerhost,
-                  proto: 'TCP',
-                  port: mssql_client.peerport,
-                  type: 'MSSQL_ENUM',
-                  data: 'No Account with its password being the same as its username was found')
+      report_note(
+        host: mssql_client.peerhost,
+        proto: 'TCP',
+        port: mssql_client.peerport,
+        type: 'MSSQL_ENUM',
+        data: { credentials: 'No Account with its password being the same as its username was found' }
+      )
     end
 
     #-------------------------------------------------------
@@ -500,19 +575,26 @@ class MetasploitModule < Msf::Auxiliary
     if !blankpass.nil?
       blankpass.each do |up|
         print_status("\t#{up.join}")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: "Username: #{up.join} Password: EMPTY ")
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: {
+            username: up.join,
+            password: 'EMPTY'
+          }
+        )
       end
     else
       print_status("\tNo Accounts with empty passwords where found.")
-      report_note(host: mssql_client.peerhost,
-                  proto: 'TCP',
-                  port: mssql_client.peerport,
-                  type: 'MSSQL_ENUM',
-                  data: 'No Accounts with empty passwords where found')
+      report_note(
+        host: mssql_client.peerhost,
+        proto: 'TCP',
+        port: mssql_client.peerport,
+        type: 'MSSQL_ENUM',
+        data: { credentials: 'No Accounts with empty passwords where found' }
+      )
     end
 
     #-------------------------------------------------------
@@ -725,19 +807,23 @@ class MetasploitModule < Msf::Auxiliary
         next unless dangeroussp.include?(strp.strip)
 
         print_status("\t#{strp.strip}")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: "Stored Procedures with Public Execute Permission #{strp.strip}")
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { stored_procedures_with_public_execute_permission: strp.strip }
+        )
       end
     else
       print_status("\tNo Dangerous Stored Procedure found with Public Execute.")
-      report_note(host: mssql_client.peerhost,
-                  proto: 'TCP',
-                  port: mssql_client.peerport,
-                  type: 'MSSQL_ENUM',
-                  data: 'No Dangerous Stored Procedure found with Public Execute')
+      report_note(
+        host: mssql_client.peerhost,
+        proto: 'TCP',
+        port: mssql_client.peerport,
+        type: 'MSSQL_ENUM',
+        data: { stored_procedures_with_public_execute_permission: 'No Dangerous Stored Procedure found with Public Execute' }
+      )
     end
 
     #-------------------------------------------------------
@@ -767,11 +853,13 @@ class MetasploitModule < Msf::Auxiliary
       instances.each do |i|
         print_status("\t#{i}")
         instancenames << i.strip
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: "Instance Name: #{i}")
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { instance_name: i }
+        )
       end
     else
       print_status('No instances found, possible permission problem')
@@ -784,11 +872,13 @@ class MetasploitModule < Msf::Auxiliary
     if !privdflt.nil?
       privdflt.each do |priv|
         print_status("\t#{priv[1]}")
-        report_note(host: mssql_client.peerhost,
-                    proto: 'TCP',
-                    port: mssql_client.peerport,
-                    type: 'MSSQL_ENUM',
-                    data: "Default Instance SQL Server running as: #{priv[1]}")
+        report_note(
+          host: mssql_client.peerhost,
+          proto: 'TCP',
+          port: mssql_client.peerport,
+          type: 'MSSQL_ENUM',
+          data: { default_instance_sql_server: priv[1] }
+        )
       end
     else
       print_status("\txp_regread might be disabled in this system")
@@ -804,11 +894,16 @@ class MetasploitModule < Msf::Auxiliary
           print_status("Instance #{i} SQL Server Service is running under the privilege of:")
           privinst.each do |p|
             print_status("\t#{p[1]}")
-            report_note(host: mssql_client.peerhost,
-                        proto: 'TCP',
-                        port: mssql_client.peerport,
-                        type: 'MSSQL_ENUM',
-                        data: "#{i} Instance SQL Server running as: #{p[1]}")
+            report_note(
+              host: mssql_client.peerhost,
+              proto: 'TCP',
+              port: mssql_client.peerport,
+              type: 'MSSQL_ENUM',
+              data: {
+                instance_sql_server: i,
+                port: p[1]
+              }
+            )
           end
         else
           print_status("\tCould not enumerate credentials for Instance.")
