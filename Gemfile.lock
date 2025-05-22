@@ -523,7 +523,7 @@ GEM
     rspec-rerun (1.1.0)
       rspec (~> 3.0)
     rspec-support (3.13.2)
-    rubocop (1.75.6)
+    rubocop (1.75.7)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -633,7 +633,7 @@ DEPENDENCIES
   redcarpet
   rspec-rails
   rspec-rerun
-  rubocop (= 1.75.6)
+  rubocop (= 1.75.7)
   ruby-prof
   simplecov (= 0.18.2)
   test-prof
