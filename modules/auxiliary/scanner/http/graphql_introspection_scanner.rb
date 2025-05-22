@@ -239,7 +239,12 @@ class MetasploitModule < Msf::Auxiliary
   def process_errors(errors)
     return '' if errors&.empty?
 
-    errors.map { |error| "  - #{error['message']}" }&.join("\n") || ''
+    # APIs aren't consistent. Some have an error message, some have title & detail.
+    # Match all the known cases so far, otherwise return the inspected value.
+
+    errors.map do |error|
+      "  - #{error['message'] || error['detail'] || error['description']}"
+    end.join("\n") || ''
   end
 
   # Check if the current endpoint is vulnerable to GraphQL Introspection information disclosure.
@@ -261,7 +266,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Vulnerable('The server has introspection enabled.')
     when 400
       parsed_body = JSON.parse!(res.body)
-      error_messages = process_errors(parsed_body['errors'])
+      error_messages = process_errors(parsed_body['errors'] || Array.wrap(parsed_body['error']))
       safe_message = "The server responded with an error status code and the following error(s) to the introspection request:\n#{error_messages}"
       return Exploit::CheckCode::Safe(safe_message)
     when 403
@@ -296,8 +301,8 @@ class MetasploitModule < Msf::Auxiliary
       store_loot('graphql.schema', 'json', rhost, res.body, 'graphql-schema.json', 'GraphQL Schema Dump', graphql_service)
     else
       parsed_body = JSON.parse!(res.body)
-      if parsed_body.include?('errors')
-        print_error("#{rhost}:#{rport} - Server encountered the following error(s) (code: '#{res.code}'):\n#{process_errors(parsed_body['errors'])}")
+      if parsed_body.include?('errors') || parsed_body.include?('error')
+        print_error("#{rhost}:#{rport} - Server encountered the following error(s) (code: '#{res.code}'):\n#{process_errors(parsed_body['errors'] || Array.wrap(parsed_body['error']))}")
       else
         print_error("#{rhost}:#{rport} - Server replied with an unexpected status code: '#{res.code}'")
       end
