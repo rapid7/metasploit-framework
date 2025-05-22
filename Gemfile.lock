@@ -482,7 +482,7 @@ GEM
       metasm
       rex-core
       rex-text
-    rex-socket (0.1.61)
+    rex-socket (0.1.62)
       dnsruby
       rex-core
     rex-sslscan (0.1.13)

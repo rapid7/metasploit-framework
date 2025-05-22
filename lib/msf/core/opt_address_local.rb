@@ -39,7 +39,7 @@ class OptAddressLocal < OptAddress
     sorted_addrs.any? ? sorted_addrs.first : ''
   end
 
-  def valid?(value, check_empty: true)
+  def valid?(value, check_empty: true, datastore: nil)
     return false if check_empty && empty_required_value?(value)
     return false unless value.kind_of?(String) || value.kind_of?(NilClass)
 

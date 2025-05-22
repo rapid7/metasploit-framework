@@ -198,7 +198,7 @@ module Msf
     def validate(datastore)
       # First mutate the datastore and normalize all valid values before validating permutations of RHOST/etc.
       each_pair do |name, option|
-        if option.valid?(datastore[name]) && (val = option.normalize(datastore[name])) != nil
+        if option.valid?(datastore[name], datastore: datastore) && (val = option.normalize(datastore[name])) != nil
           # This *will* result in a module that previously used the
           # global datastore to have its local datastore set, which
           # means that changing the global datastore and re-running
@@ -233,7 +233,7 @@ module Msf
 
         rhosts_walker.each do |datastore|
           each_pair do |name, option|
-            unless option.valid?(datastore[name])
+            unless option.valid?(datastore[name], datastore: datastore)
               error_options << name
               if rhosts_count > 1
                 error_reasons[name] << "for rhosts value #{datastore['UNPARSED_RHOSTS']}"
@@ -249,7 +249,7 @@ module Msf
       else
         error_options = []
         each_pair do |name, option|
-          unless option.valid?(datastore[name])
+          unless option.valid?(datastore[name], datastore: datastore)
             error_options << name
           end
         end
