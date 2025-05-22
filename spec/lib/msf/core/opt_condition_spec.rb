@@ -29,6 +29,10 @@ RSpec.describe Msf::OptCondition do
         conditions: ['ScheduleRemoteSystem', 'nin', [nil, '']],
         expected: 'ScheduleRemoteSystem is not blank'
       },
+      {
+        conditions: %w[UPDATE_UPN == true && SMBDomain.nil?],
+        expected: 'UPDATE_UPN == true && SMBDomain.nil?'
+      },
     ].each do |test|
       context "when the conditions are #{test[:conditions].inspect}" do
         it "returns the expected string #{test[:expected]}" do
