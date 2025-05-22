@@ -134,9 +134,10 @@ jobs:
         run: git config --system core.longpaths true
 
       - name: Setup '${{ matrix.ruby }}' Ruby
-        env:
-          BUNDLE_FORCE_RUBY_PLATFORM: true
-        uses: ruby/setup-ruby@v1
+        # Skip for now to ensure CI passes on Windows server 2025 powershell tests
+        #env:
+        #  BUNDLE_FORCE_RUBY_PLATFORM: true
+        uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
