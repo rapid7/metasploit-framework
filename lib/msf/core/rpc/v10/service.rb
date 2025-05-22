@@ -128,7 +128,22 @@ class Service
         doauth = false
         mname << '_noauth'
       end
-
+      stats = ActiveRecord::Base.connection_pool.stat
+      if File.exist?('../scenario_name2.txt')
+        name = File.binread('../scenario_name2.txt').strip
+      else
+        name = 'EMPTY FILE'
+      end
+      pool = ActiveRecord::Base.connection_pool
+      pool.connections.each do |connection|
+        Rails.logger.info(
+          connection.owner.present? ? connection.owner.inspect : "[UNUSED]"
+        )
+        $stderr.puts(connection.owner.present? ? connection.owner.inspect : "[UNUSED]")
+      end
+      $stderr.puts("#{Time.now} - Scenario #{name} Connection Pool Stats Engine RPC: #{mname} #{stats.inspect}")
+      Rails.logger.info("#{Time.now} - Scenario #{name} Connection Pool Stats Engine RPC: #{mname} #{stats.inspect}")
+      File.write("../engine_stats.txt", "Connection Pool Stats Engine RPC: #{mname} #{stats.inspect}\n", mode: "wb")
       unless self.handlers[group].respond_to?(mname)
         raise ArgumentError, "Unknown API Call: '#{mname.inspect}'"
       end
