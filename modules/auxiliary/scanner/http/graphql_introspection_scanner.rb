@@ -54,26 +54,18 @@ class MetasploitModule < Msf::Auxiliary
     response&.body.to_s == "{\"data\":{\"__schema\":{\"queryType\":{\"name\":\"Query\"}}}}\n"
   end
 
-  # Process a query before sending it off in a web request.
-  # @param query The string query to process.
-  # @return [String] The processed query, with spaces and new-lines (\r and \n) removed.
-  def process_query(query)
-    query.gsub(/ +/, ' ').gsub(/\r?\n/, '')
-  end
-
   # Create a small query, used to test if introspection is enabledo n the GraphQL endpoint.
   # @return [String] The processed introspection probe query.
   def introspection_probe_query
-    raw_query = '{"query": "
+    <<~EOF
       query {
         __schema {
           queryType {
             name
           }
         }
-      }"
-    }'
-    process_query(raw_query)
+      }
+    EOF
   end
 
   # Create a unique query that will try to dump the GraphQL schema.
@@ -88,79 +80,75 @@ class MetasploitModule < Msf::Auxiliary
       type_reference: Rex::Text.rand_text_alpha(8)
     }
 
-    # Remove extra spaces, and new lines.
-    # Remember, fragments need to be present at the end, outside the curly braces, but as part
-    # of the quoted 'query' param.
-    raw_query = "{\"query\": \"query {
-      __schema {
-        queryType {
-          name
-        }
-        mutationType {
-          name
-        }
-        subscriptionType {
-          name
-        }
-        types {
-          ...#{vars_map[:type_fragment]}
-        }
-        directives {
-          name
-          description
-          args {
-            ...#{vars_map[:input_fragment]}
+    # Fragments need to be present at the end, outside the curly braces of the 'query'
+    <<~EOF
+      query {
+        __schema {
+          queryType {
+            name
+          }
+          mutationType {
+            name
+          }
+          subscriptionType {
+            name
+          }
+          types {
+            ...#{vars_map[:type_fragment]}
+          }
+          directives {
+            name
+            description
+            args {
+              ...#{vars_map[:input_fragment]}
+            }
           }
         }
       }
-    }
-    fragment #{vars_map[:type_fragment]} on __Type {
-      kind
-      name
-      description
-      inputFields {
-        ...#{vars_map[:input_fragment]}
-      }
-      fields(includeDeprecated: true) {
+      fragment #{vars_map[:type_fragment]} on __Type {
+        kind
         name
         description
-        isDeprecated
-        deprecationReason
-        args {
+        inputFields {
           ...#{vars_map[:input_fragment]}
         }
+        fields(includeDeprecated: true) {
+          name
+          description
+          isDeprecated
+          deprecationReason
+          args {
+            ...#{vars_map[:input_fragment]}
+          }
+          type {
+            ...#{vars_map[:type_reference]}
+          }
+        }
+        inputFields {
+          ...#{vars_map[:input_fragment]}
+        }
+        interfaces {
+          ...#{vars_map[:type_reference]}
+        }
+        enumValues(includeDeprecated: true) {
+          name
+          description
+          isDeprecated
+          deprecationReason
+        }
+        possibleTypes {
+          ...#{vars_map[:type_reference]}
+        }
+      }
+      fragment #{vars_map[:input_fragment]} on __InputValue {
+        name
+        description
+        defaultValue
         type {
           ...#{vars_map[:type_reference]}
         }
       }
-      inputFields {
-        ...#{vars_map[:input_fragment]}
-      }
-      interfaces {
-        ...#{vars_map[:type_reference]}
-      }
-      enumValues(includeDeprecated: true) {
-        name
-        description
-        isDeprecated
-        deprecationReason
-      }
-      possibleTypes {
-        ...#{vars_map[:type_reference]}
-      }
-    }
-    fragment #{vars_map[:input_fragment]} on __InputValue {
-      name
-      description
-      defaultValue
-      type {
-        ...#{vars_map[:type_reference]}
-      }
-    }
-    fragment #{vars_map[:type_reference]} on __Type {
-      kind
-      name
-      ofType {
+      fragment #{vars_map[:type_reference]} on __Type {
         kind
         name
         ofType {
@@ -169,12 +157,14 @@ class MetasploitModule < Msf::Auxiliary
           ofType {
             kind
             name
+            ofType {
+              kind
+              name
+            }
           }
         }
       }
-    }
-    \"}"
-    process_query(raw_query)
+    EOF
   end
 
   # Report a GraphQL instance on the current host and port.
@@ -239,7 +229,7 @@ class MetasploitModule < Msf::Auxiliary
       'headers' => {
         'Accept' => 'application/json'
       },
-      'data' => query
+      'data' => JSON.generate({ query: query })
     )
   end
 
