@@ -23,7 +23,7 @@ module MetasploitModule
   end
 
   def compatible?(mod)
-    if mod.type == Msf::MODULE_PAYLOAD && (mod.class.const_defined?(:CachedSize) && mod.class::CachedSize != :dynamic) && (mod.class::CachedSize >= 120_000) # echo does not have an unlimited amount of space
+    if mod.type == Msf::MODULE_PAYLOAD && mod.class.const_defined?(:CachedSize) && mod.class::CachedSize != :dynamic && (mod.class::CachedSize >= 120_000) # echo does not have an unlimited amount of space
       return false
     end
 
