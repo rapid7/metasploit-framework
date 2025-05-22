@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Chargen Probe Utility',
+      'Name' => 'Chargen Probe Utility',
       'Description' => %q{
         Chargen is a debugging and measurement tool and a character
         generator service. A character generator service simply sends
@@ -26,18 +26,23 @@ class MetasploitModule < Msf::Auxiliary
         This can result in traffic loops and service degradation with
         large amounts of network traffic.
       },
-      'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          [ 'CVE', '1999-0103' ], # Note, does not actually trigger a flood.
-          [ 'URL', 'http://tools.ietf.org/html/rfc864' ]
-        ],
-      'DisclosureDate' => 'Feb 08 1996')
+      'Author' => 'Matteo Cantoni <goony[at]nothink.org>',
+      'License' => MSF_LICENSE,
+      'References' => [
+        [ 'CVE', '1999-0103' ], # Note, does not actually trigger a flood.
+        [ 'URL', 'http://tools.ietf.org/html/rfc864' ]
+      ],
+      'DisclosureDate' => 'Feb 08 1996',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
+    )
 
-      register_options([
-        Opt::RPORT(19)
-      ])
+    register_options([
+      Opt::RPORT(19)
+    ])
   end
 
   def run_host(rhost)
@@ -51,17 +56,17 @@ class MetasploitModule < Msf::Auxiliary
         r = udp_sock.recvfrom(65535, 0.1)
 
         if r and r[1]
-          vprint_status("#{rhost}:#{rport} - Response: #{r[0].to_s}")
+          vprint_status("#{rhost}:#{rport} - Response: #{r[0]}")
           res = r[0].to_s.strip
-          if (res.match(/ABCDEFGHIJKLMNOPQRSTUVWXYZ/i) || res.match(/0123456789/))
+          if res.match(/ABCDEFGHIJKLMNOPQRSTUVWXYZ/i) || res.match(/0123456789/)
             print_good("#{rhost}:#{rport} answers with #{res.length} bytes (headers + UDP payload)")
-            report_service(:host => rhost, :port => rport, :proto => "udp", :name => "chargen", :info => res.length)
+            report_service(host: rhost, port: rport, proto: 'udp', name: 'chargen', info: res.length)
           end
         end
       rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
         nil
       ensure
-        disconnect_udp if self.udp_sock
+        disconnect_udp if udp_sock
       end
     end
   end
