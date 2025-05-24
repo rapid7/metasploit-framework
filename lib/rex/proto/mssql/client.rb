@@ -577,8 +577,8 @@ module Rex
           print_status("Warning: This module will leave #{var_payload}.exe in the SQL Server %TEMP% directory")
           print_status("Writing the debug.com loader to the disk...")
           h2b = File.read(@hex2binary, File.size(@hex2binary))
-          h2b.gsub!(/KemneE3N/, "%TEMP%\\#{var_bypass}")
-          h2b.split(/\n/).each do |line|
+          h2b.gsub!('KemneE3N', "%TEMP%\\#{var_bypass}")
+          h2b.split("\n").each do |line|
             mssql_xpcmdshell("#{line}", false)
           end
 

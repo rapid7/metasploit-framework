@@ -96,7 +96,7 @@ module Payload::Python::MeterpreterLoader
     if opts[:stageless] == true
       session_guid = '00' * 16
     else
-      session_guid = SecureRandom.uuid.gsub(/-/, '')
+      session_guid = SecureRandom.uuid.gsub('-', '')
     end
     met.sub!("SESSION_GUID = \'\'", "SESSION_GUID = \'#{session_guid}\'")
 

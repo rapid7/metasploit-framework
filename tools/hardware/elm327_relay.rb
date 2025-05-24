@@ -200,7 +200,7 @@ module ELM327HWBridgeRelay
       stats["packet_stats"] = @packets_sent
       stats["last_request"] = @last_sent
       volt = send_cmd("ATRV")
-      stats["voltage"] = volt.gsub(/V/,'')
+      stats["voltage"] = volt.gsub('V','')
       stats
     end
 
@@ -282,7 +282,7 @@ module ELM327HWBridgeRelay
         return result
       end
       result["Packets"] = []
-      resp.split(/\r/).each do |line|
+      resp.split("\r").each do |line|
         pkt = {}
         if line=~/^(\w+) (.+)/
           pkt["ID"] = $1

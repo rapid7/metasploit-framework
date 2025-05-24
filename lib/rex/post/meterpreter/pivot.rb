@@ -17,7 +17,7 @@ class PivotListener
   attr_accessor :stage
 
   def initialize(session_class, url, stage)
-    self.id = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
+    self.id = [SecureRandom.uuid.gsub('-', '')].pack('H*')
     self.session_class = session_class
     self.url = url
     self.stage = stage

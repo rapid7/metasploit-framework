@@ -152,6 +152,12 @@ Style/RedundantAssignment:
     and return expression
   Enabled: false
 
+Style/RedundantRegexpArgument:
+  Enabled: true
+  Exclude:
+  # We aren't ready to enable this for modules yet
+    - 'modules/**/*'
+
 Style/SwapValues:
   Enabled: false
 

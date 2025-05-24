@@ -20,7 +20,7 @@ module Postgres::Conversion
     raise ConversionError, "'{' expected" unless buf.get_byte == '{'
 
     elems = []
-    unless buf.scan(/\}/) # array is not empty
+    unless buf.scan('}') # array is not empty
       loop do
         # skip whitespace
         buf.skip(/\s+/)   
@@ -33,7 +33,7 @@ module Postgres::Conversion
           if conv_proc then conv_proc.call(e) else e end
         end
 
-        break if buf.scan(/\}/)
+        break if buf.scan('}')
         break unless buf.scan(/#{ delim }/)
       end
     end
