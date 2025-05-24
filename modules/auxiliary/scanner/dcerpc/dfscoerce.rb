@@ -30,7 +30,12 @@ class MetasploitModule < Msf::Auxiliary
       'References' => [
         [ 'URL', 'https://github.com/Wh04m1001/DFSCoerce' ]
       ],
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS],
+        'Reliability' => []
+      }
     )
 
     register_options(
