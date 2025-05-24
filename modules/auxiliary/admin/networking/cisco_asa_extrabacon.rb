@@ -38,7 +38,10 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'DefaultAction' => 'PASS_DISABLE',
       'Notes' => {
-        'AKA' => ['EXTRABACON']
+        'AKA' => ['EXTRABACON'],
+        'Stability' => [],
+        'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+        'Reliability' => []
       }
     )
 
