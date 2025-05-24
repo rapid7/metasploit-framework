@@ -155,6 +155,12 @@ Style/RedundantAssignment:
 Style/SwapValues:
   Enabled: false
 
+Layout/LineContinuationLeadingSpace:
+  Description: >-
+    Disabled as it sometimes improves the readability of code having leading spaces
+    for indented code strings.
+  Enabled: false
+
 Layout/ModuleHashOnNewLine:
   Enabled: true
 
