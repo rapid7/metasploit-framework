@@ -55,7 +55,7 @@ module Msf::DBManager::Import::IP360::V3
 
     # nCircle has some quotes escaped which causes the parser to break
     # we don't need these lines so just replace \" with "
-    data.gsub!(/\\"/,'"')
+    data.gsub!('\"','"')
 
     # parse nCircle Scan Output
     parser = Rex::Parser::IP360XMLStreamParser.new
@@ -158,11 +158,11 @@ module Msf::DBManager::Import::IP360::V3
 
     refs = []
 
-    cves.split(/,/).each do |cve|
+    cves.split(',').each do |cve|
       refs.push(cve.to_s)
     end if cves
 
-    bids.split(/,/).each do |bid|
+    bids.split(',').each do |bid|
       refs.push('BID-' + bid.to_s)
     end if bids
 

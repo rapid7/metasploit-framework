@@ -69,7 +69,7 @@ module Msf::Modules::Metadata::Search
     search_string += ' '
 
     # Split search terms by space, but allow quoted strings
-    terms = search_string.split(/\"/).collect{|term| term.strip==term ? term : term.split(' ')}.flatten
+    terms = search_string.split('"').collect{|term| term.strip==term ? term : term.split(' ')}.flatten
     terms.delete('')
 
     # All terms are either included or excluded

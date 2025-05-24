@@ -45,7 +45,7 @@ module Rex
         def self.parse(data)
           response = Response.new
           # do some basic sanity checking on this response to ensure that it is SIP
-          response.status_line = data.split(/\r\n/)[0]
+          response.status_line = data.split("\r\n")[0]
           unless response.status_line && response.status_line =~ SIP_STATUS_REGEX
             fail(ArgumentError, "Invalid SIP status line: #{response.status_line}")
           end

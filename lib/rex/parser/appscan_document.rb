@@ -130,7 +130,7 @@ module Rex
 
     def parse_params(request_body)
       return unless request_body
-      pairs = request_body.split(/&/)
+      pairs = request_body.split('&')
       params = []
       pairs.each do |pair|
         param,value = pair.split("=",2)
@@ -189,7 +189,7 @@ module Rex
       return unless(in_issue && has_text)
       return unless @state[:web_site].present?
       really_original_traffic = unindent_and_crlf(@text)
-      request_headers, request_body, response_headers, response_body = really_original_traffic.split(/\r\n\r\n/)
+      request_headers, request_body, response_headers, response_body = really_original_traffic.split("\r\n\r\n")
       return unless(request_headers && response_headers)
       req_header = Rex::Proto::Http::Packet::Header.new
       res_header = Rex::Proto::Http::Packet::Header.new

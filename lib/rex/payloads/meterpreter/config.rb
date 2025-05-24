@@ -58,7 +58,7 @@ private
     if opts[:stageless] == true || opts[:null_session_guid] == true
       session_guid = "\x00" * 16
     else
-      session_guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
+      session_guid = [SecureRandom.uuid.gsub('-', '')].pack('H*')
     end
     session_data = [
       0,                  # comms socket, patched in by the stager
