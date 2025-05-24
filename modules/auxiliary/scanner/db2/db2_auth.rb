@@ -14,35 +14,48 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'DB2 Authentication Brute Force Utility',
-      'Description'    => %q{This module attempts to authenticate against a DB2
-        instance using username and password combinations indicated by the
-        USER_FILE, PASS_FILE, and USERPASS_FILE options.},
-      'Author'         => ['todb'],
-      'References'     =>
-        [
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'License'        => MSF_LICENSE
+      'Name' => 'DB2 Authentication Brute Force Utility',
+      'Description' => %q{
+        This module attempts to authenticate against a DB2 instance
+        using username and password combinations indicated by the
+        USER_FILE, PASS_FILE, and USERPASS_FILE options.
+      },
+      'Author' => ['todb'],
+      'References' => [
+        [ 'CVE', '1999-0502'] # Weak password
+      ],
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS, ACCOUNT_LOCKOUTS],
+        'Reliability' => []
+      }
     )
 
     register_options(
       [
         Opt::Proxies,
-        OptPath.new('USERPASS_FILE',  [ false, "File containing (space-separated) users and passwords, one pair per line",
-          File.join(Msf::Config.data_directory, "wordlists", "db2_default_userpass.txt") ]),
-        OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "db2_default_user.txt") ]),
-        OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "db2_default_pass.txt") ]),
-      ])
+        OptPath.new('USERPASS_FILE', [
+          false, 'File containing (space-separated) users and passwords, one pair per line',
+          File.join(Msf::Config.data_directory, 'wordlists', 'db2_default_userpass.txt')
+        ]),
+        OptPath.new('USER_FILE', [
+          false, 'File containing users, one per line',
+          File.join(Msf::Config.data_directory, 'wordlists', 'db2_default_user.txt')
+        ]),
+        OptPath.new('PASS_FILE', [
+          false, 'File containing passwords, one per line',
+          File.join(Msf::Config.data_directory, 'wordlists', 'db2_default_pass.txt')
+        ]),
+      ]
+    )
   end
 
   def run_host(ip)
     cred_collection = build_credential_collection(
-        realm: datastore['DATABASE'],
-        username: datastore['USERNAME'],
-        password: datastore['PASSWORD']
+      realm: datastore['DATABASE'],
+      username: datastore['USERNAME'],
+      password: datastore['PASSWORD']
     )
 
     scanner = Metasploit::Framework::LoginScanner::DB2.new(
@@ -70,8 +83,8 @@ class MetasploitModule < Msf::Auxiliary
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-          module_fullname: self.fullname,
-          workspace_id: myworkspace_id
+        module_fullname: fullname,
+        workspace_id: myworkspace_id
       )
       if result.success?
         credential_core = create_credential(credential_data)
