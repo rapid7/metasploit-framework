@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Exploits AD CS Template misconfigurations which involve updating an LDAP object',
+        'Name' => 'Exploits AD CS Template misconfigurations which involve updating an LDAP object: ESC9 and ESC10',
         'Description' => %q{
           This module updates an LDAP object with a new value before requesting a certificate.
           Request certificates via MS-ICPR (Active Directory Certificate Services). Depending on the certificate
@@ -29,11 +29,13 @@ class MetasploitModule < Msf::Auxiliary
           'Will Schroeder', # original idea/research
           'Lee Christensen', # original idea/research
           'Oliver Lyak', # certipy implementation
-          'Spencer McIntyre'
+          'Spencer McIntyre', # icpr_cert module implementation
+          'jheysel-r7' # module implementation
         ],
         'References' => [
           [ 'URL', 'https://github.com/GhostPack/Certify' ],
-          [ 'URL', 'https://github.com/ly4k/Certipy' ]
+          [ 'URL', 'https://github.com/ly4k/Certipy' ],
+          [ 'URL', 'https://medium.com/@offsecdeer/adcs-exploitation-series-part-2-certificate-mapping-esc15-6e19a6037760' ]
         ],
         'Notes' => {
           'Reliability' => [],
@@ -49,18 +51,17 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
-                       OptEnum.new('UPDATE_LDAP_OBJECT', [ true, 'Either userPrincipalName or dNSHostName, Updates the necessary object of a specific user before requesting the cert. Used to exploit ESC9 and ESC10. ', 'userPrincipalName', %w[userPrincipalName dNSHostName] ]),
-                       OptString.new('TARGET_USERNAME', [true, 'The username of the target LDAP object.'] ),
-                       OptString.new('NEW_VALUE', [true, 'The new value for the specified attribute.']),
-                     ])
-
+      OptEnum.new('UPDATE_LDAP_OBJECT', [ true, 'Either userPrincipalName or dNSHostName, Updates the necessary object of a specific user before requesting the cert. Used to exploit ESC9 and ESC10. ', 'userPrincipalName', %w[userPrincipalName dNSHostName] ]),
+      OptString.new('TARGET_USERNAME', [true, 'The username of the target LDAP object.']),
+      OptString.new('NEW_VALUE', [true, 'The new value for the specified attribute.']),
+    ])
 
     register_advanced_options(
       [
-        OptString.new('LDAPDomain', [false, 'The LDAP domain to authenticate to. Can be left blank if same as SMBDomain.'], conditions: %w[!UPDATE_LDAP_OBJECT.nil? && SMBDomain.nil?]),
-        OptString.new('LDAPUsername', [false, 'The LDAP username to authenticate with. Can be left blank if same as SMBUsername.'], conditions: %w[!UPDATE_LDAP_OBJECT.nil? && SMBUsername.nil?]),
-        OptString.new('LDAPPassword', [false, 'The LDAP password to authenticate with. Can be left blank if same as SMBPassword.'], conditions: %w[!UPDATE_LDAP_OBJECT.nil? && SMBPassword.nil?]),
-        OptInt.new('LDAPRport', [false, 'The target LDAP port.', 389], conditions: %w[!UPDATE_LDAP_OBJECT.nil?]),
+        OptString.new('LDAPDomain', [false, 'The LDAP domain to authenticate to. Can be left blank if same as SMBDomain.']),
+        OptString.new('LDAPUsername', [false, 'The LDAP username to authenticate with. Can be left blank if same as SMBUsername.']),
+        OptString.new('LDAPPassword', [false, 'The LDAP password to authenticate with. Can be left blank if same as SMBPassword.']),
+        OptInt.new('LDAPRport', [false, 'The target LDAP port.', 389]),
       ]
     )
   end

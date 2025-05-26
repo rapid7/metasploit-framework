@@ -180,7 +180,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       begin
-        filter =  Net::LDAP::Filter.construct(filter_string)
+        filter = Net::LDAP::Filter.construct(filter_string)
       rescue StandardError => e
         fail_with(Failure::BadConfig, "Could not compile the filter #{filter_string}. Error was #{e}")
       end

