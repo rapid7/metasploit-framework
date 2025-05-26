@@ -274,7 +274,7 @@ module Rex
             hash = [
               lm_hash || '0' * 48,
               nt_hash || '0' * 48
-            ].join(':').gsub(/\n/, '\\n')
+            ].join(':').gsub("\n", '\\n')
             arg[:private] = hash
           when NTLM_CONST::NTLM_V2_RESPONSE
             if NTLM_CRYPT.is_hash_from_empty_pwd?({
@@ -308,7 +308,7 @@ module Rex
             hash = [
               lm_hash || '0' * 32,
               nt_hash || '0' * 32
-            ].join(':').gsub(/\n/, '\\n')
+            ].join(':').gsub("\n", '\\n')
             arg[:private] = hash
           when NTLM_CONST::NTLM_2_SESSION_RESPONSE
             if NTLM_CRYPT.is_hash_from_empty_pwd?({
@@ -325,7 +325,7 @@ module Rex
             hash = [
               lm_hash || '0' * 48,
               nt_hash || '0' * 48
-            ].join(':').gsub(/\n/, '\\n')
+            ].join(':').gsub("\n", '\\n')
             arg[:private] = hash
           else
             return

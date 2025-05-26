@@ -44,7 +44,7 @@ module Msf
 
           @tags_by_id =
             objects
-            .split(/\n/)
+            .split("\n")
             .reject { |o| o.start_with?('#') }
             .map(&:strip)
             .map do |o|
