@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::VIMSoap
   include Msf::Exploit::Remote::HttpClient
@@ -13,23 +12,30 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'VMWare Web Login Scanner',
-      'Description'    => 'This module attempts to authenticate to the VMWare HTTP service
-        for VmWare Server, ESX, and ESXI',
-      'Author'         => ['theLightCosine'],
-      'References'     =>
-        [
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'License'        => MSF_LICENSE,
-      'DefaultOptions' => { 'SSL' => true }
+      'Name' => 'VMware Web Login Scanner',
+      'Description' => %(
+        This module attempts to authenticate to the VMware
+        HTTP service for VMware Server, ESX, and ESXI.
+      ),
+      'Author' => ['theLightCosine'],
+      'References' => [
+        [ 'CVE', '1999-0502'] # Weak password
+      ],
+      'License' => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true },
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS, ACCOUNT_LOCKOUTS],
+        'Reliability' => []
+      }
     )
 
     register_options(
       [
-        OptString.new('URI', [true, "The default URI to login with", "/sdk"]),
+        OptString.new('URI', [true, 'The default URI to login with', '/sdk']),
         Opt::RPORT(443)
-      ])
+      ]
+    )
   end
 
   def report_cred(opts)
@@ -59,9 +65,10 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     return unless is_vmware?
-    each_user_pass { |user, pass|
+
+    each_user_pass do |user, pass|
       result = vim_do_login(user, pass)
       case result
       when :success
@@ -71,25 +78,25 @@ class MetasploitModule < Msf::Auxiliary
       when :fail
         print_error "#{rhost}:#{rport} - Login Failure (#{user}:#{pass})"
       end
-    }
+    end
   end
 
   # Mostly taken from the Apache Tomcat service validator
   def is_vmware?
     soap_data =
-      %Q|<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      %(<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
       <env:Body>
       <RetrieveServiceContent xmlns="urn:vim25">
         <_this type="ServiceInstance">ServiceInstance</_this>
       </RetrieveServiceContent>
       </env:Body>
-      </env:Envelope>|
+      </env:Envelope>)
 
     res = send_request_cgi({
-      'uri'     => normalize_uri(datastore['URI']),
-      'method'  => 'POST',
-      'agent'   => 'VMware VI Client',
-      'data'    => soap_data
+      'uri' => normalize_uri(datastore['URI']),
+      'method' => 'POST',
+      'agent' => 'VMware VI Client',
+      'data' => soap_data
     }, 25)
 
     unless res
@@ -98,10 +105,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     fingerprint_vmware(res)
-  rescue ::Rex::ConnectionError => e
+  rescue ::Rex::ConnectionError
     vprint_error("#{rhost}:#{rport} Error: could not connect")
     return false
-  rescue => e
+  rescue StandardError => e
     vprint_error("#{rhost}:#{rport} Error: #{e}")
     return false
   end
@@ -113,27 +120,27 @@ class MetasploitModule < Msf::Auxiliary
     end
     return false unless res.body.include?('<vendor>VMware, Inc.</vendor>')
 
-    os_match = res.body.match(/<name>([\w\s]+)<\/name>/)
-    ver_match = res.body.match(/<version>([\w\s\.]+)<\/version>/)
-    build_match = res.body.match(/<build>([\w\s\.\-]+)<\/build>/)
-    full_match = res.body.match(/<fullName>([\w\s\.\-]+)<\/fullName>/)
+    os_match = res.body.match(%r{<name>([\w\s]+)</name>})
+    ver_match = res.body.match(%r{<version>([\w\s.]+)</version>})
+    build_match = res.body.match(%r{<build>([\w\s.-]+)</build>})
+    full_match = res.body.match(%r{<fullName>([\w\s.-]+)</fullName>})
 
     if full_match
       print_good "#{rhost}:#{rport} - Identified #{full_match[1]}"
-      report_service(:host => rhost, :port => rport, :proto => 'tcp', :sname => 'https', :info => full_match[1])
+      report_service(host: rhost, port: rport, proto: 'tcp', sname: 'https', info: full_match[1])
     end
 
-    unless os_match and ver_match and build_match
-      vprint_error("#{rhost}:#{rport} Error: Could not identify host as VMWare")
+    unless os_match && ver_match && build_match
+      vprint_error("#{rhost}:#{rport} Error: Could not identify host as VMware")
       return false
     end
 
     if os_match[1].include?('ESX') || os_match[1].include?('vCenter')
       # Report a fingerprint match for OS identification
       report_note(
-        :host  => rhost,
-        :ntype => 'fingerprint.match',
-        :data  => {'os.vendor' => 'VMware', 'os.product' => os_match[1] + " " + ver_match[1], 'os.version' => build_match[1] }
+        host: rhost,
+        ntype: 'fingerprint.match',
+        data: { 'os.vendor' => 'VMware', 'os.product' => os_match[1] + ' ' + ver_match[1], 'os.version' => build_match[1] }
       )
       return true
     end
