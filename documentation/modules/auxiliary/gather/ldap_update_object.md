@@ -34,7 +34,7 @@ Administrator
 
 ## Options
 
-### TARGET_USERNAME
+### TARGET_OBJECT
 The username of the target LDAP object whose attribute you want to update. This is used to locate the specific object in the LDAP directory.
 
 ### ATTRIBUTE
@@ -59,7 +59,7 @@ msf6 auxiliary(gather/ldap_update_object) > set new_value Administrator
 new_value => Administrator
 msf6 auxiliary(gather/ldap_update_object) > set rhosts 172.16.199.200
 rhosts => 172.16.199.200
-msf6 auxiliary(gather/ldap_update_object) > set target_username user2
+msf6 auxiliary(gather/ldap_update_object) > set target_object user2
 target_username => user2
 msf6 auxiliary(gather/ldap_update_object) > run
 [*] Running module against 172.16.199.200
