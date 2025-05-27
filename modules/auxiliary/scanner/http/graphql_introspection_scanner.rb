@@ -213,7 +213,8 @@ class MetasploitModule < Msf::Auxiliary
         proof: response.body,
         name: 'GraphQL Introspection',
         description: 'GraphQL endpoint has enabled introspection. This can lead to information disclosure',
-        owner: self
+        owner: self,
+        category: 'Information Disclosure'
       }
     )
   end
@@ -294,7 +295,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.code == 200
-      print_status("#{rhost}:#{rport} - Server responded with introspected data. Reporting a vulnerability, and storing it as loot.")
+      print_good("#{rhost}:#{rport} - Server responded with introspected data. Reporting a vulnerability, and storing it as loot.")
       graphql_service = report_graphql_service
       report_graphql_vuln
       report_graphql_web_vuln(graphql_service, query, res)
