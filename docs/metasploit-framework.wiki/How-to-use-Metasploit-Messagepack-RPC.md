@@ -52,7 +52,7 @@ Which returns the following response:
 
 ### Start the server
 
-Use the following command to run the server with a configured uesrname and password:
+Use the following command to run the server with a configured username and password:
 
 ```
 $ ruby msfrpcd -U user -P pass -f
