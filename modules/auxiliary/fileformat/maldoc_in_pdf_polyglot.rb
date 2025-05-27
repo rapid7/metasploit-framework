@@ -118,7 +118,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # saving the file
     ltype = "auxiliary.fileformat.#{shortname}"
-    fname = File.basename(datastore['FILENAME']).sub(File.extname(datastore['FILENAME']), datastore['OUTPUT_EXT'])
+    fname = File.basename(datastore['FILENAME'], '*') + datastore['OUTPUT_EXT']
     path = store_local(ltype, nil, pdf, fname)
 
     print_good("The file '#{fname}' is stored at '#{path}'")
@@ -184,7 +184,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # saving the file
     ltype = "auxiliary.fileformat.#{shortname}"
-    fname = File.basename(datastore['FILENAME']).sub(File.extname(datastore['FILENAME']), datastore['OUTPUT_EXT'])
+    fname = File.basename(datastore['FILENAME'], '*') + datastore['OUTPUT_EXT']
     path = store_local(ltype, nil, pdf, fname)
 
     print_good("The file '#{fname}' is stored at '#{path}'")
@@ -198,16 +198,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     content = File.read(datastore['FILENAME'])
-    if content&.empty?
-      fail_with(Failure::BadConfig, 'The MHT file content is empty')
-    end
+    fail_with(Failure::BadConfig, 'The MHT file content is empty') if content&.empty?
 
     # if no pdf injected is provided, create new PDF from template
-    if datastore['INJECTED_PDF'].nil? || datastore['INJECTED_PDF'].empty?
+    if datastore['INJECTED_PDF'].blank?
       print_status('INJECTED_PDF not provided, creating the PDF from scratch')
-      if datastore['MESSAGE_PDF'].nil? || datastore['MESSAGE_PDF'].empty?
-        fail_with(Failure::BadConfig, 'No MESSAGE_PDF provided')
-      end
+      fail_with(Failure::BadConfig, 'No MESSAGE_PDF provided') if datastore['MESSAGE_PDF'].blank?
+
       create_pdf(content)
     else
       print_status("PDF creation using '#{File.basename(datastore['INJECTED_PDF'])}' as template")
