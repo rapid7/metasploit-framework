@@ -11,66 +11,72 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SNMP Windows Username Enumeration',
+      'Name' => 'SNMP Windows Username Enumeration',
       'Description' => '
         This module will use LanManager/psProcessUsername OID values to
         enumerate local user accounts on a Windows/Solaris system via SNMP
       ',
-      'Author'      => ['tebo[at]attackresearch.com'],
-      'License'     => MSF_LICENSE
+      'Author' => ['tebo[at]attackresearch.com'],
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
   end
 
   def run_host(ip)
     peer = "#{ip}:#{rport}"
-    begin
-      snmp = connect_snmp
+    snmp = connect_snmp
 
-      sys_desc = snmp.get_value('sysDescr.0')
-      if sys_desc.blank? || sys_desc.to_s == 'Null'
-        vprint_error("#{peer} No sysDescr received")
-        return
-      end
-      sys_desc = sys_desc.split(/[\r\n]/).join(' ')
-
-      sys_desc_map = {
-        /Windows/ => '1.3.6.1.4.1.77.1.2.25',
-        /Sun/ => '1.3.6.1.4.1.42.3.12.1.8'
-      }
-
-      matching_oids = sys_desc_map.select { |re, _| sys_desc =~ re }.values
-      if matching_oids.empty?
-        vprint_warning("#{peer} Skipping unsupported sysDescr: '#{sys_desc}'")
-        return
-      end
-      users = []
-
-      matching_oids.each do |oid|
-        snmp.walk(oid) do |row|
-          row.each { |val| users << val.value.to_s }
-        end
-      end
-      unless users.empty?
-        users.sort!
-        users.uniq!
-        print_good("#{peer} Found #{users.size} users: #{users.join(', ')}")
-      end
-
-      report_note(
-        host: rhost,
-        port: rport,
-        proto: 'udp',
-        sname: 'snmp',
-        update: :unique_data,
-        type: 'snmp.users',
-        data: { :users => users }
-      )
-    rescue SNMP::ParseError
-      print_error("#{ip} Encountered an SNMP parsing error while trying to enumerate the host.")
-    rescue ::SNMP::RequestTimeout, ::SNMP::UnsupportedVersion
-      # too noisy for a scanner
-    ensure
-      disconnect_snmp
+    sys_desc = snmp.get_value('sysDescr.0')
+    if sys_desc.blank? || sys_desc.to_s == 'Null'
+      vprint_error("#{peer} No sysDescr received")
+      return
     end
+    sys_desc = sys_desc.split(/[\r\n]/).join(' ')
+
+    sys_desc_map = {
+      /Windows/ => '1.3.6.1.4.1.77.1.2.25',
+      /Sun/ => '1.3.6.1.4.1.42.3.12.1.8'
+    }
+
+    matching_oids = sys_desc_map.select { |re, _| sys_desc =~ re }.values
+    if matching_oids.empty?
+      vprint_warning("#{peer} Skipping unsupported sysDescr: '#{sys_desc}'")
+      return
+    end
+    users = []
+
+    matching_oids.each do |oid|
+      snmp.walk(oid) do |row|
+        row.each { |val| users << val.value.to_s }
+      end
+    end
+
+    unless users.empty?
+      users.sort!
+      users.uniq!
+      print_good("#{peer} Found #{users.size} users: #{users.join(', ')}")
+    end
+
+    report_note(
+      host: rhost,
+      port: rport,
+      proto: 'udp',
+      sname: 'snmp',
+      update: :unique_data,
+      type: 'snmp.users',
+      data: { users: users }
+    )
+  rescue SNMP::ParseError
+    print_error("#{ip} Encountered an SNMP parsing error while trying to enumerate the host.")
+  rescue ::SNMP::RequestTimeout
+    # too noisy for a scanner
+  rescue ::SNMP::UnsupportedVersion => e
+    vprint_error(e.message)
+  ensure
+    disconnect_snmp
   end
 end
