@@ -1,4 +1,4 @@
-require 'rex/text'
+require 'securerandom'
 
 module Msf::Module::UUID
   #
@@ -18,12 +18,11 @@ module Msf::Module::UUID
   # @!attribute [w] uuid
   attr_writer :uuid
 
-
   #
   # Instance Methods
   #
 
   def generate_uuid
-    self.uuid = Rex::Text.rand_text_alphanumeric(8).downcase
+    self.uuid = SecureRandom.uuid
   end
 end
