@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('OBJECT', [true, 'The target LDAP object']),
         OptString.new('ATTRIBUTE', [true, 'The LDAP attribute to update (e.g., userPrincipalName)']),
-        OptString.new('NEW_VALUE', [true, 'The new value for the specified attribute'])
+        OptString.new('NEW_VALUE', [true, 'The new value for the specified LDAP object attribute'])
       ]
     )
   end
