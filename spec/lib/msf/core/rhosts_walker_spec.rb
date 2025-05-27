@@ -353,7 +353,7 @@ RSpec.describe Msf::RhostsWalker do
   before(:each) do
     @temp_files = []
 
-    allow(::Addrinfo).to receive(:getaddrinfo).with('nonexistent.com', 0, ::Socket::AF_UNSPEC, ::Socket::SOCK_STREAM) do |*_args|
+    allow(::Addrinfo).to receive(:getaddrinfo).with('nonexistent.example.com', 0, ::Socket::AF_UNSPEC, ::Socket::SOCK_STREAM) do |*_args|
       []
     end
     allow(::Addrinfo).to receive(:getaddrinfo).with('example.com', 0, ::Socket::AF_UNSPEC, ::Socket::SOCK_STREAM) do |*_args|
@@ -427,6 +427,24 @@ RSpec.describe Msf::RhostsWalker do
       { 'RHOSTS' => 'https://example.com:9000/foo', 'expected' => 1 },
       { 'RHOSTS' => 'cidr:/30:https://user:pass@multiple_ips.example.com:9000/foo', 'expected' => 8 },
 
+      # Perform DNS resolution by default
+      { 'RHOSTS' => 'https://user:pass@multiple_ips.example.com:9000/foo', 'PROXIES' => 'http:198.51.100.1:1080', 'expected' => 1 },
+
+      # Perform DNS resolution when socks5 proxy present
+      { 'RHOSTS' => 'https://user:pass@multiple_ips.example.com:9000/foo', 'PROXIES' => 'socks5:198.51.100.1:1080', 'expected' => 2 },
+
+      # Skip DNS resolution when socks5 proxy present
+      { 'RHOSTS' => 'https://user:pass@multiple_ips.example.com:9000/foo', 'PROXIES' => 'socks5h:198.51.100.1:1080', 'expected' => 1 },
+
+      # Skip DNS resolution when http proxy present
+      { 'RHOSTS' => 'https://user:pass@multiple_ips.example.com:9000/foo', 'PROXIES' => 'http:198.51.100.1:1080', 'expected' => 1 },
+
+      # Perform DNS resolution if socks4 proxy present - as rex-socket doesn't support socks4a
+      { 'RHOSTS' => 'https://user:pass@multiple_ips.example.com:9000/foo', 'PROXIES' => 'socks4:198.51.100.1:1080', 'expected' => 2 },
+
+      # Perform DNS resolution if SAPNI proxy present - this can be removed if it causes issues
+      { 'RHOSTS' => 'https://user:pass@multiple_ips.example.com:9000/foo', 'PROXIES' => 'socks4:198.51.100.1:1080', 'expected' => 2 },
+
       # Edge cases
       { 'expected' => 0 },
       { 'RHOSTS' => nil, 'expected' => 0 },
@@ -437,8 +455,10 @@ RSpec.describe Msf::RhostsWalker do
       { 'RHOSTS' => '127.0.0.1 http:| 127.0.0.1', 'expected' => 2 },
       { 'RHOSTS' => '127.0.0.1 unknown_protocol://127.0.0.1 ftpz://127.0.0.1', 'expected' => 1 },
     ].each do |test|
-      it "counts #{test['RHOSTS'].inspect} as being #{test['expected']}" do
-        expect(described_class.new(test['RHOSTS'], aux_mod.datastore).count).to eq(test['expected'])
+      it "counts #{test['RHOSTS'].inspect} with PROXIES #{test['PROXIES'].inspect} as being #{test['expected']}" do
+        datastore = aux_mod.datastore
+        datastore['PROXIES'] = test['PROXIES'] if test.key?('PROXIES')
+        expect(described_class.new(test['RHOSTS'], datastore).count).to eq(test['expected'])
       end
     end
   end
@@ -471,7 +491,7 @@ RSpec.describe Msf::RhostsWalker do
       { 'RHOSTS' => 'cidr:%eth2:127.0.0.1', 'expected' => [Msf::RhostsWalker::Error.new('cidr:%eth2:127.0.0.1', cause: Msf::RhostsWalker::InvalidCIDRError.new)] },
 
       # host resolution
-      { 'RHOSTS' => 'https://nonexistent.com:9000/foo', 'expected' => [Msf::RhostsWalker::Error.new('https://nonexistent.com:9000/foo', cause: Msf::RhostsWalker::RhostResolveError.new)] },
+      { 'RHOSTS' => 'https://nonexistent.example.com:9000/foo', 'expected' => [Msf::RhostsWalker::Error.new('https://nonexistent.example.com:9000/foo', cause: Msf::RhostsWalker::RhostResolveError.new)] },
     ].each do |test|
       it "handles the input #{test['RHOSTS'].inspect} as having the errors #{test['expected']}" do
         aux_mod.datastore['RHOSTS'] = test['RHOSTS']
@@ -548,6 +568,27 @@ RSpec.describe Msf::RhostsWalker do
       expected = [
         { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '198.51.100.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
         { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '203.0.113.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' }
+      ]
+      expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
+    end
+
+    it 'enumerates resolving a single http value to multiple ip addresses if a socks5 proxy is registered' do
+      http_mod.datastore['RHOSTS'] = 'http://multiple_ips.example.com/foo'
+      http_mod.datastore['PROXIES'] = 'socks5:198.51.100.1:1080'
+      expected = [
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '198.51.100.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => '203.0.113.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' }
+      ]
+      expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
+    end
+
+    it 'enumerates a single host without performing DNS resolution if a socks5h proxy is registered' do
+      http_mod.datastore['RHOSTS'] = 'http://multiple_ips.example.com/foo'
+      http_mod.datastore['PROXIES'] = 'socks5h:198.51.100.1:1080'
+      expected = [
+        { 'RHOSTNAME' => 'multiple_ips.example.com', 'RHOSTS' => 'multiple_ips.example.com', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
       expect(each_error_for(http_mod)).to be_empty
@@ -669,6 +710,19 @@ RSpec.describe Msf::RhostsWalker do
       expect(each_error_for(kerberos_mod)).to be_empty
     end
 
+    it 'allows the user to specify a rhostname even if socks5 proxy is registered' do
+      kerberos_mod.datastore['RHOSTS'] = '192.0.2.2'
+      kerberos_mod.datastore['RHOSTNAME'] = 'example.com'
+      kerberos_mod.datastore['PROXIES'] = 'socks5:198.51.100.1:1080'
+
+      expected = [
+        { "RHOSTNAME"=> 'example.com', "RHOSTS"=>"192.0.2.2" }
+      ]
+
+      expect(each_host_for(kerberos_mod)).to have_datastore_values(expected)
+      expect(each_error_for(kerberos_mod)).to be_empty
+    end
+
     it 'preserves a RHOSTNAME even if RHOSTS resolved with a hostname' do
       kerberos_mod.datastore['RHOSTS'] = 'multiple_ips.example.com'
       kerberos_mod.datastore['RHOSTNAME'] = 'example.com'
@@ -676,6 +730,19 @@ RSpec.describe Msf::RhostsWalker do
       expected = [
         {"RHOSTNAME"=> "example.com", "RHOSTS"=>"198.51.100.1"},
         {"RHOSTNAME"=> "example.com", "RHOSTS"=>"203.0.113.1"}
+      ]
+
+      expect(each_host_for(kerberos_mod)).to have_datastore_values(expected)
+      expect(each_error_for(kerberos_mod)).to be_empty
+    end
+
+    it 'preserves a RHOSTNAME even if RHOSTS is set and a socks5h proxy is registered' do
+      kerberos_mod.datastore['RHOSTS'] = 'multiple_ips.example.com'
+      kerberos_mod.datastore['RHOSTNAME'] = 'example.com'
+      kerberos_mod.datastore['PROXIES'] = 'socks5h:198.51.100.1:1080'
+
+      expected = [
+        {"RHOSTNAME"=> "example.com", "RHOSTS"=>"multiple_ips.example.com"},
       ]
 
       expect(each_host_for(kerberos_mod)).to have_datastore_values(expected)
@@ -908,6 +975,18 @@ RSpec.describe Msf::RhostsWalker do
           { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 5432, 'USERNAME' => 'postgres', 'PASSWORD' => '', 'DATABASE' => 'template1' },
           { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 5432, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'template1' },
           { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 9001, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'database_name' }
+        ]
+        expect(each_error_for(postgres_mod)).to be_empty
+        expect(each_host_for(postgres_mod)).to have_datastore_values(expected)
+      end
+
+      it 'enumerates postgres schemes and avoids DNS resolution if a socks5h proxy is registered' do
+        postgres_mod.datastore['RHOSTS'] = 'postgres://postgres:@example.com "postgres://user:a b c@example.com/" "postgres://user:a b c@example.com:9001/database_name"'
+        postgres_mod.datastore['PROXIES'] = 'socks5h:198.51.100.1:1080'
+        expected = [
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => 'example.com', 'RPORT' => 5432, 'USERNAME' => 'postgres', 'PASSWORD' => '', 'DATABASE' => 'template1' },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => 'example.com', 'RPORT' => 5432, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'template1' },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => 'example.com', 'RPORT' => 9001, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'database_name' }
         ]
         expect(each_error_for(postgres_mod)).to be_empty
         expect(each_host_for(postgres_mod)).to have_datastore_values(expected)

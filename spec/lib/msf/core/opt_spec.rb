@@ -33,7 +33,7 @@ RSpec.describe Msf::Opt do
 
     context 'Proxies' do
       subject { described_class::Proxies }
-      it { is_expected.to be_a(Msf::OptString) }
+      it { is_expected.to be_a(Msf::OptProxies) }
     end
 
     context 'RHOST' do
@@ -89,7 +89,7 @@ RSpec.describe Msf::Opt do
 
     context 'Proxies()' do
       subject { described_class::Proxies(default) }
-      it { is_expected.to be_a(Msf::OptString) }
+      it { is_expected.to be_a(Msf::OptProxies) }
       specify 'sets default' do
         expect(subject.default).to eq(default)
       end
