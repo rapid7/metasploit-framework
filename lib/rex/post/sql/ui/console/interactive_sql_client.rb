@@ -28,7 +28,7 @@ module InteractiveSqlClient
       end
 
       # We need to check that the user is still interacting, i.e. if ctrl+z is triggered when requesting user input
-      break unless (self.interacting && sql_input[:result])
+      break unless self.interacting && sql_input[:result]
 
       self.on_command_proc.call(sql_input[:result].strip) if self.on_command_proc
 

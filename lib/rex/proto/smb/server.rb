@@ -56,7 +56,7 @@ class Server
       gss_alias << attrs.map { |k,v| "#{k}=#{v}"}.join(', ')
       gss_alias << ')'
     end
-    "#{(args[0] || '')}-#{(args[1] || '')}-#{args[3] || ''}-#{gss_alias}"
+    "#{args[0] || ''}-#{args[1] || ''}-#{args[3] || ''}-#{gss_alias}"
   end
 
   def alias

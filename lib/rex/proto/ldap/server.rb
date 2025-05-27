@@ -373,7 +373,7 @@ module Rex
 
             r, = ::IO.select(rds, wds, eds, 1)
 
-            next unless (!r.nil? && (r[0] == udp_sock))
+            next unless !r.nil? && (r[0] == udp_sock)
 
             buf, host, port = udp_sock.recvfrom(65535)
             # Mock up a client object for sending back data

@@ -15,7 +15,7 @@ class Msf::Sessions::LDAP
   attr_accessor :client
 
   attr_accessor :keep_alive_thread
-  
+
   # @return [Integer] Seconds between keepalive requests
   attr_accessor :keepalive_seconds
 

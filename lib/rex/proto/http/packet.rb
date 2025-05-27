@@ -47,7 +47,7 @@ class Packet
   # Return the associated header value, if any.
   #
   def [](key)
-    if (self.headers.include?(key))
+    if self.headers.include?(key)
       return self.headers[key]
     end
 
@@ -91,7 +91,7 @@ class Packet
         # Chunked encoding sets the parsing state on its own.
         # HEAD requests can return immediately.
         orig_method = opts.fetch(:orig_method) { '' }
-        if (self.body_bytes_left == 0 && (!self.transfer_chunked || orig_method == 'HEAD'))
+        if self.body_bytes_left == 0 && (!self.transfer_chunked || orig_method == 'HEAD')
           self.state = ParseState::Completed
         else
           parse_body
@@ -189,7 +189,7 @@ class Packet
     content = self.body.to_s.dup
 
     # Update the content length field in the header with the body length.
-    if (content)
+    if content
       if !self.compress.nil?
         case self.compress
           when 'gzip'
@@ -305,7 +305,7 @@ protected
     self.body_bytes_left = 0 if orig_method == 'HEAD'
 
     # Extract the content length if it was specified (ignoring it for HEAD requests, per RFC9110)
-    if (self.headers['Content-Length'] && orig_method != 'HEAD')
+    if self.headers['Content-Length'] && orig_method != 'HEAD'
       self.body_bytes_left = self.headers['Content-Length'].to_i
     end
 
@@ -318,7 +318,7 @@ protected
     # Determine how to handle data when there is no length header
     if (self.body_bytes_left == -1)
       if (not self.transfer_chunked)
-        if (self.headers['Connection'].to_s.downcase.include?('keep-alive'))
+        if self.headers['Connection'].to_s.downcase.include?('keep-alive')
           # If we are using keep-alive, but have no content-length and
           # no chunked transfer header, pretend this is the entire
           # buffer and call it done
@@ -332,7 +332,7 @@ protected
           # So if we haven't seen either a Content-Length or a
           # Transfer-Encoding header, there shouldn't be a message body.
           self.body_bytes_left = 0
-        elsif (self.headers['Connection']&.downcase == 'upgrade' && self.headers['Upgrade']&.downcase == 'websocket')
+        elsif self.headers['Connection']&.downcase == 'upgrade' && self.headers['Upgrade']&.downcase == 'websocket'
           # The server appears to be responding to a websocket request
           self.body_bytes_left = 0
         #else
@@ -380,7 +380,7 @@ protected
       # Extract the actual hexadecimal length value
       clen = self.bufq.slice!(/^[a-fA-F0-9]+\r?\n/)
 
-      clen.rstrip! if (clen)
+      clen.rstrip! if clen
 
       # if we happen to fall upon the end of the buffer for the next chunk len and have no data left, go get some more...
       if clen.nil? and self.bufq.length == 0

@@ -37,7 +37,7 @@ class Msf::Encoder::XorAdditiveFeedback < Msf::Encoder::Xor
     orig_key_bytes = key_bytes.dup
 
     # While we haven't found a valid key, keep trying the encode operation
-    while (!valid)
+    while !valid
       # Initialize the state back to defaults since we're trying to find a
       # key.
       init_state(state)
@@ -67,7 +67,7 @@ class Msf::Encoder::XorAdditiveFeedback < Msf::Encoder::Xor
         # Determine the actual index to the bad character inside the
         # encoded payload by removing the decoder stub from the index and
         # modulus off the decoder's key size
-        idx = (info.index - info.stub_size) % (decoder_key_size)
+        idx = (info.index - info.stub_size) % decoder_key_size
 
         # Increment the key byte at the index that the bad character was
         # detected

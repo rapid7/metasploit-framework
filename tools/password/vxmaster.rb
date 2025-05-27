@@ -94,7 +94,7 @@ def vxworks_pass_from_sum(sum, lpass=nil)
     if pcnt > fmax
       pidx += 1
 
-      if pidx == (pass.length)
+      if pidx == pass.length
         pass += " "
       end
       pcnt = pass[pidx, 1].unpack("C")[0]

@@ -210,7 +210,7 @@ module Msf
             credential_type = artifact_child[:credential_type]
 
             # Checks if the current artifact matches the search criteria
-            if (file_type != datastore['ARTIFACTS'] && datastore['ARTIFACTS'] != 'All')
+            if file_type != datastore['ARTIFACTS'] && datastore['ARTIFACTS'] != 'All'
               # Doesn't match search criteria, skip this artifact
               vprint_status "Skipping #{file_type} due to unmatched artifact type"
               next

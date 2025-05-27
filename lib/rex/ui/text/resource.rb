@@ -41,7 +41,7 @@ module Resource
       # TODO: case matters for the tag and for binding names
       if line =~ /<ruby/
         if line =~ /\s+binding=(?:'(\w+)'|"(\w+)")(>|\s+)/
-          bin = ($~[1] || $~[2])
+          bin = $~[1] || $~[2]
           bindings[bin] = binding unless bindings.has_key? bin
           bin = bindings[bin]
         else

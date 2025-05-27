@@ -134,7 +134,7 @@ module Msf::Payload::Stager
   #
   # @return [Boolean]
   def encode_stage?
-    !!(datastore['EnableStageEncoding'])
+    !!datastore['EnableStageEncoding']
   end
 
   #
@@ -152,7 +152,7 @@ module Msf::Payload::Stager
     end
 
     # Substitute variables in the stage
-    substitute_vars(raw, stage_offsets) if (stage_offsets)
+    substitute_vars(raw, stage_offsets) if stage_offsets
 
     return raw
   end
@@ -178,7 +178,7 @@ module Msf::Payload::Stager
 
     # If the stage should be sent over the client connection that is
     # established (which is the default), then go ahead and transmit it.
-    if (stage_over_connection?)
+    if stage_over_connection?
       if respond_to? :include_send_uuid
         if include_send_uuid
           uuid_raw = conn.get_once(16, 1)

@@ -109,7 +109,7 @@ class Modem
   end
 
   def commandstate
-    if ! @commandstate 
+    if ! @commandstate
       @sp.break 10 # tenths of a second
       @sp.puts '+++'
       @sp.break 10 # tenths of a second
@@ -121,8 +121,8 @@ class Modem
         @commandstate = true
       end
     end
-  
-    return true	
+
+    return true
   end
 
   def datastate

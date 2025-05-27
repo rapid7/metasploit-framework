@@ -94,7 +94,7 @@ module Metasploit
           end
 
           def self.available?
-            !!(Msf::Util::Helper.which(MINGW_X86))
+            !!Msf::Util::Helper.which(MINGW_X86)
           end
         end
 
@@ -117,7 +117,7 @@ module Metasploit
           end
 
           def self.available?
-            !!(Msf::Util::Helper.which(MINGW_X64))
+            !!Msf::Util::Helper.which(MINGW_X64)
           end
         end
 

@@ -82,14 +82,14 @@ module Msf::Module::ModuleInfo
   # Checks and merges the supplied key/value pair in the supplied hash.
   #
   def merge_check_key(info, name, val)
-    if (self.respond_to?("merge_info_#{name.downcase}", true))
+    if self.respond_to?("merge_info_#{name.downcase}", true)
       self.send("merge_info_#{name.downcase}", info, val)
     else
       # If the info hash already has an entry for this name
-      if (info[name])
+      if info[name]
         # If it's not an array, convert it to an array and merge the
         # two
-        if (info[name].kind_of?(Hash))
+        if info[name].kind_of?(Hash)
           raise TypeError, 'can only merge a hash into a hash' unless val.kind_of?(Hash)
           val.each_pair do |val_key, val_val|
             merge_check_key(info[name], val_key, val_val)
@@ -180,7 +180,7 @@ module Msf::Module::ModuleInfo
   #
   def merge_info_options(info, val, advanced = false, evasion = false)
 
-    key_name = ((advanced) ? 'Advanced' : (evasion) ? 'Evasion' : '') + 'Options'
+    key_name = (advanced ? 'Advanced' : evasion ? 'Evasion' : '') + 'Options'
 
     new_cont = Msf::OptionContainer.new
     new_cont.add_options(val, advanced, evasion)
@@ -188,9 +188,9 @@ module Msf::Module::ModuleInfo
     cur_cont.add_options(info[key_name] || [], advanced, evasion)
 
     new_cont.each_option { |name, option|
-      next if (cur_cont.get(name))
+      next if cur_cont.get(name)
 
-      info[key_name]  = [] if (!info[key_name])
+      info[key_name]  = [] if !info[key_name]
       info[key_name] << option
     }
   end
@@ -199,7 +199,7 @@ module Msf::Module::ModuleInfo
   # Merges a given key in the info hash with a delimiter.
   #
   def merge_info_string(info, key, val, delim = ', ', inverse = false)
-    if (info[key])
+    if info[key]
       if (inverse == true)
         info[key] = info[key] + delim + val
       else

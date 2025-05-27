@@ -47,13 +47,13 @@ module Msf::Modules::Metadata::Store
       retries ||= 0
       copied = configure_user_store
       load_cache_from_file_store
-      validate_data(copied) if (!@module_metadata_cache.nil? && @module_metadata_cache.size > 0)
+      validate_data(copied) if !@module_metadata_cache.nil? && @module_metadata_cache.size > 0
       @module_metadata_cache = {} if @module_metadata_cache.nil?
     rescue Exception => e
       retries +=1
 
       # Try to handle the scenario where the file is corrupted
-      if (retries < 2 && ::File.exist?(@path_to_user_metadata))
+      if retries < 2 && ::File.exist?(@path_to_user_metadata)
         elog('Possible corrupt user metadata store, attempting restore')
         FileUtils.remove(@path_to_user_metadata)
         retry
@@ -69,13 +69,13 @@ module Msf::Modules::Metadata::Store
     size_prior = @module_metadata_cache.size
     @module_metadata_cache.delete_if {|key, module_metadata| !::File.exist?(module_metadata.path)}
 
-    if (copied)
+    if copied
       @module_metadata_cache.each_value {|module_metadata|
         module_metadata.update_mod_time(::File.mtime(module_metadata.path))
       }
     end
 
-    update_store if (size_prior != @module_metadata_cache.size || copied)
+    update_store if size_prior != @module_metadata_cache.size || copied
   end
 
   def configure_user_store
@@ -85,12 +85,12 @@ module Msf::Modules::Metadata::Store
     user_file_exists = ::File.exist?(@path_to_user_metadata)
     base_file_exists = ::File.exist?(path_to_base_metadata)
 
-    if (!base_file_exists)
+    if !base_file_exists
       wlog("Missing base module metadata file: #{path_to_base_metadata}")
       return copied if !user_file_exists
     end
 
-    if (!user_file_exists)
+    if !user_file_exists
       FileUtils.cp(path_to_base_metadata, @path_to_user_metadata)
       copied = true
 

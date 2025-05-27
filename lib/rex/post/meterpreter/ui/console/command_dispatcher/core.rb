@@ -1094,7 +1094,7 @@ class Console::CommandDispatcher::Core
         if existing_relays.empty?
           print_status('Removing existing TCP relays...')
         end
-        if (service.stop_tcp_relay(lport, lhost))
+        if service.stop_tcp_relay(lport, lhost)
           print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
           existing_relays << {
             :lport => lport,
@@ -1192,7 +1192,7 @@ class Console::CommandDispatcher::Core
         }
       end
 
-      if (extensions.include?(md))
+      if extensions.include?(md)
         print_warning("The \"#{md}\" extension has already been loaded.")
         next
       end
@@ -1204,7 +1204,7 @@ class Console::CommandDispatcher::Core
         if (client.core.use(modulenameprovided) == true)
           add_extension_client(md)
 
-          if md == 'stdapi' && (client.exploit_datastore && !client.exploit_datastore['AutoLoadStdapi'] && client.exploit_datastore['AutoSystemInfo'])
+          if md == 'stdapi' && client.exploit_datastore && !client.exploit_datastore['AutoLoadStdapi'] && client.exploit_datastore['AutoSystemInfo']
             client.load_session_info
           end
         end
@@ -1497,7 +1497,7 @@ class Console::CommandDispatcher::Core
       print_error("Invalid module: #{module_name}")
     end
 
-    if (mod)
+    if mod
       print_line(::Msf::Serializer::ReadableText.dump_module(mod))
       mod_opt = ::Msf::Serializer::ReadableText.dump_options(mod, '   ')
       print_line("\nModule options (#{mod.fullname}):\n\n#{mod_opt}") if (mod_opt and mod_opt.length > 0)
@@ -1678,7 +1678,7 @@ protected
       new  = CommDispatcher.constants
       diff = new - old
 
-      next if (diff.empty?)
+      next if diff.empty?
 
       klass = CommDispatcher.const_get(diff[0])
 

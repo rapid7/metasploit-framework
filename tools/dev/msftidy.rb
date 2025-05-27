@@ -667,7 +667,7 @@ class MsftidyRunner
       end
 
       # Check for mixed tab/spaces. Upgrade this to an error() soon.
-      if (ln.length > 1) and (ln =~ /^([\t ]*)/) and ($1.match(/\x20\x09|\x09\x20/))
+      if (ln.length > 1) and (ln =~ /^([\t ]*)/) and $1.match(/\x20\x09|\x09\x20/)
         warn("Space-Tab mixed indent: #{ln.inspect}", idx)
       end
 

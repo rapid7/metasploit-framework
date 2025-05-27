@@ -58,7 +58,7 @@ module WMIC
 
     # We dont use cmd_exec as WMIC cannot be Channelized
     ps = session.sys.process.execute(wcmd, nil, {'Hidden' => true, 'Channelized' => false})
-    session.railgun.kernel32.WaitForSingleObject(ps.handle, (datastore['TIMEOUT'] * 1000))
+    session.railgun.kernel32.WaitForSingleObject(ps.handle, datastore['TIMEOUT'] * 1000)
     ps.close
 
     if session.commands.include?(Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_GET_DATA) && !is_system?

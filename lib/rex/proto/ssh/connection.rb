@@ -221,7 +221,7 @@ module IOMergeAbstraction
 
     begin
       if ((rv = ::IO.select([ fd_rd ], nil, nil, timeout)) and
-          (rv[0]) and
+          rv[0] and
           (rv[0][0] == fd_rd))
         true
       else

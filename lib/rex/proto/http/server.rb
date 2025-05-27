@@ -74,7 +74,7 @@ class Server
   # Returns the hardcore alias for the HTTP service
   #
   def self.hardcore_alias(*args)
-    "#{(args[0] || '')}-#{(args[1] || '')}-#{args[4] || ''}"
+    "#{args[0] || ''}-#{args[1] || ''}-#{args[4] || ''}"
   end
 
   #
@@ -159,13 +159,13 @@ class Server
   #                    request processing times.
   #
   def add_resource(name, opts)
-    if (resources[name])
+    if resources[name]
       raise RuntimeError,
         "The supplied resource '#{name}' is already added.", caller
     end
 
     # If a procedure was passed, mount the resource with it.
-    if (opts['Proc'])
+    if opts['Proc']
       mount(name, Handler::Proc, false, opts['Proc'], opts['VirtualDirectory'])
     else
       raise ArgumentError, "You must specify a procedure."
@@ -259,7 +259,7 @@ protected
           close_client(cli)
       end
     rescue EOFError
-      if (cli.request.completed?)
+      if cli.request.completed?
         dispatch_request(cli, cli.request)
 
         cli.reset_cli
@@ -274,7 +274,7 @@ protected
   #
   def dispatch_request(cli, request)
     # Is the client requesting keep-alive?
-    if ((request['Connection']) and
+    if (request['Connection'] and
        (request['Connection'].downcase == 'Keep-Alive'.downcase))
       cli.keepalive = true
     end
@@ -293,12 +293,12 @@ protected
       end
     }
 
-    if (p)
+    if p
       # Create an instance of the handler for this resource
       handler = p[0].new(self, *p[2])
 
       # If the handler class requires a relative resource...
-      if (handler.relative_resource_required?)
+      if handler.relative_resource_required?
         # Substituted the mount point root in the request to make things
         # relative to the mount point.
         request.relative_resource = request.resource.gsub(/^#{root}/, '')

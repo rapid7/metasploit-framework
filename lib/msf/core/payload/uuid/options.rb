@@ -106,7 +106,7 @@ module Msf::Payload::UUID::Options
   def record_payload_uuid_url(uuid, url)
     return unless datastore['PayloadUUIDTracking']
     # skip if there is no active database
-    if (framework.db && framework.db.active)
+    if framework.db && framework.db.active
       payload_info = {
           uuid: uuid.puid_hex,
       }

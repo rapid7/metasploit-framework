@@ -110,7 +110,7 @@ class ServiceManager < Hash
   def stop_service(inst)
     # Stop the service and be done wif it, but only if the number of
     # references has dropped to zero
-    if (inst)
+    if inst
       # Since the instance may have multiple aliases, scan through
       # all the pairs for matching stuff.
       self.each_pair { |cals, cinst|

@@ -73,7 +73,7 @@ def nmap_version_at_least?(test_ver=nil)
   tnum_arr = $1.split(/\x2e/n)[0,2].map {|x| x.to_i}
   installed_ver = get_nmap_ver()
   vtag = installed_ver.split[2] # Should be ["Nmap", "version", "X.YZTAG", "(", "http..", ")"]
-  return false if (vtag.nil? || vtag.empty?)
+  return false if vtag.nil? || vtag.empty?
   return false unless (vtag =~ /^([0-9]+\x2e[0-9]+)/n) # Drop the tag.
   inum_arr = $1.split(/\x2e/n)[0,2].map {|x| x.to_i}
   return true if inum_arr[0] > tnum_arr[0]
@@ -247,9 +247,9 @@ def nmap_hosts(&block)
   else
     nmap_parser = Rex::Parser::NmapXMLStreamParser.new
     nmap_parser.on_found_host = Proc.new { |h|
-      if (h["addrs"].has_key?("ipv4"))
+      if h["addrs"].has_key?("ipv4")
         addr = h["addrs"]["ipv4"]
-      elsif (h["addrs"].has_key?("ipv6"))
+      elsif h["addrs"].has_key?("ipv6")
         addr = h["addrs"]["ipv6"]
       else
         # Can't do much with it if it doesn't have an IP

@@ -87,7 +87,7 @@ module DotNetDeserialization
   def self.formatter_compatible_gadget_chains(formatter)
     case formatter
     when :BinaryFormatter, :LosFormatter
-      chains = GadgetChains::NAMES.select { |name| GadgetChains.const_get(name) <= (Types::SerializedStream) }
+      chains = GadgetChains::NAMES.select { |name| GadgetChains.const_get(name) <= Types::SerializedStream }
     when :JsonNetFormatter
       chains = %i[ ObjectDataProvider ]
     when :SoapFormatter

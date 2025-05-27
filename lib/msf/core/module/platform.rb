@@ -23,7 +23,7 @@ class Msf::Module::Platform
   #
   def self.realname
     # Use the cached version if one has been set
-    return full_name if (full_name)
+    return full_name if full_name
 
     # Otherwise, generate it and cache it
     names = []
@@ -169,13 +169,13 @@ class Msf::Module::Platform
 
       # If the platform has an alias, such as a portion that may
       # start with an integer, use that as the name
-      if (c.const_defined?('Alias'))
+      if c.const_defined?('Alias')
         als = c.const_get('Alias').downcase
 
         names[als]  = c
         ranked[als] = c::Rank
       # If the platform has more than one alias, process the list
-      elsif (c.const_defined?('Aliases'))
+      elsif c.const_defined?('Aliases')
         c.const_get('Aliases').each { |a|
           a = a.downcase
 

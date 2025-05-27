@@ -42,14 +42,14 @@ class Tree
     @children.empty?
   end
 
-  # 
+  #
   # Return true if this Tree has no parent.
   #
   def is_root?
     @parent.nil?
   end
 
-  # 
+  #
   # Return the root node of the tree
   #
   def root
@@ -72,12 +72,12 @@ class Tree
   #
   # The path is given as a string separated by '/'.  Each portion
   # of the string is matched against the name of the particular
-  # tree.  
+  # tree.
   #
   # Given :
   #
   #   a --- b --- c
-  #	\ 
+  #	\
   # 	d - e --- f
   #  		\
   #   		g - h
@@ -120,8 +120,8 @@ class Tree
 
     subtree.parent = self
 
-    # FIXME: technically this should no longer be called 'post_add' 
-    # but maybe 'add_hook'  
+    # FIXME: technically this should no longer be called 'post_add'
+    # but maybe 'add_hook'
     subtree.post_add
 
     # Don't overwrite any existing children with the same name,
@@ -145,7 +145,7 @@ class Tree
   # Allow for Enumerable to be included.  This just wraps walk.
   #
   def each
-    self.walk(self,lambda { |tree| yield tree }) 
+    self.walk(self,lambda { |tree| yield tree })
   end
 
   #
@@ -155,20 +155,20 @@ class Tree
     inject(0) { |count,n| count + 1 }
   end
 
-  # 
+  #
   # Walk the tree in a depth first manner, visiting the Tree
   # first, then its children
   #
   def walk(tree,method)
     method.call(tree)
     tree.children.each_pair do |name,child|
-      walk(child,method) 
+      walk(child,method)
     end
     #for depth first
     #method.call(tree)
   end
 
-  # 
+  #
   # Allow for a method call to cascade up the tree looking for a
   # Tree that responds to the call.
   #
@@ -197,15 +197,15 @@ class Tree
     #
     # WMAP: removed the asterixs and modified the first return
     # to just return a '/'
-    # 
-    return "/" if is_root? 
-    return ([name,parent.current_path]).flatten.reverse.join("/")
+    #
+    return "/" if is_root?
+    return [name,parent.current_path].flatten.reverse.join("/")
   end
 
   #
   # Given the initial path to match as an Array find the Tree that
   # matches that path.
-  # 
+  #
   def find_subtree(path)
     if path.empty? then
       return self
@@ -235,7 +235,7 @@ class Tree
   # Allow for numerable to be included. This just wraps walk
   #
   def each
-    self.walk(self,lambda { |tree| yield tree })	
+    self.walk(self,lambda { |tree| yield tree })
   end
 
   def each_datum

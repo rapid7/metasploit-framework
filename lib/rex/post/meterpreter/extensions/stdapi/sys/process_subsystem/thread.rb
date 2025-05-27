@@ -90,7 +90,7 @@ class Thread
     end
 
     # Should we create the thread suspended?
-    if (suspended)
+    if suspended
       creation_flags |= CREATE_SUSPENDED
     end
 

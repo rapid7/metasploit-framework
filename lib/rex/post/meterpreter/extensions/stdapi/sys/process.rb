@@ -130,32 +130,32 @@ class Process < Rex::Post::Process
 
     # If we were supplied optional arguments...
     if (opts != nil)
-      if (opts['Hidden'])
+      if opts['Hidden']
         flags |= PROCESS_EXECUTE_FLAG_HIDDEN
       end
-      if (opts['Channelized'])
+      if opts['Channelized']
         flags |= PROCESS_EXECUTE_FLAG_CHANNELIZED
       end
-      if (opts['Suspended'])
+      if opts['Suspended']
         flags |= PROCESS_EXECUTE_FLAG_SUSPENDED
       end
-      if (opts['UseThreadToken'])
+      if opts['UseThreadToken']
         flags |= PROCESS_EXECUTE_FLAG_USE_THREAD_TOKEN
       end
-      if (opts['Desktop'])
+      if opts['Desktop']
         flags |= PROCESS_EXECUTE_FLAG_DESKTOP
       end
-      if (opts['Session'])
+      if opts['Session']
         flags |= PROCESS_EXECUTE_FLAG_SESSION
         request.add_tlv( TLV_TYPE_PROCESS_SESSION, opts['Session'] )
       end
-      if (opts['Subshell'])
+      if opts['Subshell']
         flags |= PROCESS_EXECUTE_FLAG_SUBSHELL
       end
-      if (opts['Pty'])
+      if opts['Pty']
         flags |= PROCESS_EXECUTE_FLAG_PTY
       end
-      if (opts['ParentPid'])
+      if opts['ParentPid']
         request.add_tlv(TLV_TYPE_PARENT_PID, opts['ParentPid']);
         request.add_tlv(TLV_TYPE_PROCESS_PERMS, PROCESS_ALL_ACCESS)
         request.add_tlv(TLV_TYPE_INHERIT, false)

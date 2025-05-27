@@ -24,7 +24,7 @@ class VarBindList < Array
             varbind, varbind_data = VarBind.decode(varbind_data)
             list << varbind
         end
-        return list, remainder    
+        return list, remainder
     end
 
     def initialize(varbind_list=[])
@@ -43,11 +43,11 @@ class VarBindList < Array
             end
         end
     end
-    
+
     def asn1_type
         "VarBindList"
     end
-    
+
     def encode
         varbind_data = ""
         self.each do |varbind|
@@ -59,11 +59,11 @@ end
 
 class Integer
     include Comparable
-    
+
     def self.decode(value_data)
         Integer.new(decode_integer_value(value_data))
     end
-    
+
     def asn1_type
         "INTEGER"
     end
@@ -75,7 +75,7 @@ class Integer
     def <=>(other)
         @value <=> other.to_i
     end
-    
+
     def coerce(other)
         if other.kind_of? Integer
             return [other, @value]
@@ -83,7 +83,7 @@ class Integer
             return [other.to_f, self.to_f]
         end
     end
-    
+
     def to_s
         @value.to_s
     end
@@ -91,15 +91,15 @@ class Integer
     def to_i
         @value
     end
-    
+
     def to_f
         @value.to_f
     end
-    
+
     def encode
         encode_integer(@value)
     end
-    
+
     def to_oid
         raise RangeError, "@{value} cannot be an OID (must be >0)" if @value < 0
         ObjectId.new([@value])
@@ -122,11 +122,11 @@ class OctetString < String
     def asn1_type
         "OCTET STRING"
     end
-    
+
     def encode
         encode_octet_string(self)
     end
-    
+
     def to_oid
         oid = ObjectId.new
         each_byte { |b| oid << b }
@@ -136,7 +136,7 @@ end
 
 class ObjectId < Array
     include Comparable
-    
+
     def self.decode(value_data)
         ObjectId.new(decode_object_id_value(value_data))
     end
@@ -144,7 +144,7 @@ class ObjectId < Array
     def asn1_type
         "OBJECT IDENTIFIER"
     end
-    
+
     ##
     # Create an object id.  The input is expected to be either a string
     # in the format "n.n.n.n.n.n" or an array of integers.
@@ -160,27 +160,27 @@ class ObjectId < Array
     rescue ArgumentError
         raise ArgumentError, "#{id.inspect}:#{id.class} not a valid object ID"
     end
-    
+
     def to_varbind
         VarBind.new(self, Null)
     end
-    
+
     def to_oid
         self
     end
-    
+
     def to_s
         self.join('.')
     end
-    
+
     def inspect
         "[#{self.to_s}]"
     end
-    
+
     def encode
         encode_object_id(self)
     end
-    
+
     ##
     # Returns true if this ObjectId is a subtree of the provided parent tree
     # ObjectId.  For example, "1.3.6.1.5" is a subtree of "1.3.6.1".
@@ -196,7 +196,7 @@ class ObjectId < Array
             true
         end
     end
-    
+
     ##
     # Returns an index based on the difference between this ObjectId
     # and the provided parent ObjectId.
@@ -214,17 +214,17 @@ class ObjectId < Array
             ObjectId.new(self[parent_tree.length..-1])
         end
     end
-    
+
     private
-    
+
     def make_integers(list)
         list.collect{|n| Integer(n)}
-    end 
-    
+    end
+
     def make_object_id(oid)
         oid.kind_of?(ObjectId) ? oid : ObjectId.new(oid)
     end
-    
+
 end
 
 class IpAddress
@@ -252,29 +252,29 @@ class IpAddress
         end
         @value = ip
     end
-    
+
     ##
     # Returns a raw four-octet string representing this IpAddress.
     #
     def to_str
         @value.dup
     end
-    
+
     ##
     # Returns a formatted, dot-separated string representing this IpAddress.
     #
     def to_s
         octets = []
         @value.each_byte { |b| octets << b.to_s }
-        octets.join('.')    
+        octets.join('.')
     end
-    
+
     def to_oid
         oid = ObjectId.new
         @value.each_byte { |b| oid << b }
         oid
     end
-    
+
     def ==(other)
         if other.respond_to? :to_str
             return @value.eql?(other.to_str)
@@ -282,15 +282,15 @@ class IpAddress
             return false
         end
     end
-    
+
     def eql?(other)
         self == other
     end
-    
+
     def hash
         @value.hash
     end
-    
+
     def encode
         encode_tlv(IpAddress_TAG, @value)
     end
@@ -300,7 +300,7 @@ class IpAddress
         parts = ip_string.split(".")
         raise InvalidIpAddress, ip_string.inspect if parts.length != 4
         value_data = ""
-        parts.each do |s| 
+        parts.each do |s|
             octet = s.to_i
             raise InvalidIpAddress, ip_string.inspect if octet > 255
             raise InvalidIpAddress, ip_string.inspect if octet < 0
@@ -317,7 +317,7 @@ class UnsignedInteger < Integer
         raise ArgumentError, "Negative integer invalid: #{value}" if value < 0
         raise ArgumentError, "Out of range: #{value}" if value > 4294967295
     end
-    
+
     def self.decode(value_data)
         self.new(decode_uinteger_value(value_data))
     end
@@ -361,7 +361,7 @@ class TimeTicks < UnsignedInteger
     def encode
         encode_tagged_integer(TimeTicks_TAG, @value)
     end
-    
+
     def to_s
         days, remainder = @value.divmod(8640000)
         hours, remainder = remainder.divmod(360000)
@@ -385,11 +385,11 @@ class Opaque < OctetString
     def self.decode(value_data)
         Opaque.new(value_data)
     end
-    
+
     def asn1_type
         "Opaque"
     end
-    
+
     def encode
         encode_tlv(Opaque_TAG, self)
     end
@@ -408,8 +408,8 @@ class Counter64 < Integer
         super(value)
         raise ArgumentError, "Negative integer invalid: #{value}" if value < 0
         raise ArgumentError, "Out of range: #{value}" if value > 18446744073709551615
-    end    
-    
+    end
+
     def encode
         encode_tagged_integer(Counter64_TAG, @value)
     end
@@ -424,7 +424,7 @@ class Null
         def encode
             encode_null
         end
-        
+
         def asn1_type
             'Null'
         end
@@ -448,7 +448,7 @@ class NoSuchObject
         def asn1_type
             'noSuchObject'
         end
-        
+
         def to_s
             asn1_type
         end
@@ -464,11 +464,11 @@ class NoSuchInstance
         def encode
             encode_exception(NoSuchInstance_TAG)
         end
-        
+
         def asn1_type
             'noSuchInstance'
         end
-        
+
         def to_s
             asn1_type
         end
@@ -484,11 +484,11 @@ class EndOfMibView
         def encode
             encode_exception(EndOfMibView_TAG)
         end
-        
+
         def asn1_type
             'endOfMibView'
         end
-        
+
         def to_s
             asn1_type
         end
@@ -498,9 +498,9 @@ end
 class VarBind
     attr_accessor :name
     attr_accessor :value
-    
+
     alias :oid :name
-    
+
     class << self
         def decode(data)
             varbind_data, remaining_varbind_data = decode_sequence(data)
@@ -526,7 +526,7 @@ class VarBind
             NoSuchInstance_TAG    => NoSuchInstance,
             EndOfMibView_TAG      => EndOfMibView
         }
-        
+
         def decode_value(data)
             value_tag, value_data, remainder = decode_tlv(data)
             decoder_class = ValueDecoderMap[value_tag]
@@ -538,7 +538,7 @@ class VarBind
             return value, remainder
         end
     end
-    
+
     def initialize(name, value=Null)
         if name.kind_of? ObjectId
             @name = name
@@ -551,19 +551,19 @@ class VarBind
     def asn1_type
         "VarBind"
     end
-    
+
     def to_varbind
         self
     end
-    
+
     def to_s
         "[name=#{@name.to_s}, value=#{@value.to_s} (#{@value.asn1_type})]"
     end
-    
+
     def each
         yield self
     end
-    
+
     def encode
         data = encode_object_id(@name) << value.encode
         encode_sequence(data)

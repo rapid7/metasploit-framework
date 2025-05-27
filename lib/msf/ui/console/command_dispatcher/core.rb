@@ -901,7 +901,7 @@ class Core
       end
     }
 
-    if (dump_list)
+    if dump_list
       tbl = Table.new(
         Table::Style::Default,
         'Header'  => "Background Threads",
@@ -925,10 +925,10 @@ class Core
       print(tbl.to_s)
     end
 
-    if (dump_info)
+    if dump_info
       thread = framework.threads[thread_id]
 
-      if (thread)
+      if thread
         output  = "\n"
         output += "  ID: #{thread_id}\n"
         output += "Name: #{thread[:tm_name]}\n"
@@ -936,7 +936,7 @@ class Core
         output += "Crit: #{thread[:tm_crit] ? "True" : "False"}\n"
         output += "Time: #{thread[:tm_time].to_s}\n"
 
-        if (verbose)
+        if verbose
           output += "\n"
           output += "Thread Source\n"
           output += "=============\n"
@@ -1140,7 +1140,7 @@ class Core
         netmask = args.shift if netmask.nil?
         gateway_name = args.shift
 
-        if (subnet.nil? || netmask.nil? || gateway_name.nil?)
+        if subnet.nil? || netmask.nil? || gateway_name.nil?
           print_error("Missing arguments to route #{action}.")
           return false
         end
@@ -1182,8 +1182,8 @@ class Core
 
         comm = Rex::Socket::SwitchBoard.best_comm(args[0])
 
-        if ((comm) and
-            (comm.kind_of?(Msf::Session)))
+        if (comm and
+            comm.kind_of?(Msf::Session))
           print_line("#{args[0]} routes through: Session #{comm.sid}")
         else
           print_line("#{args[0]} routes through: Local")
@@ -1232,7 +1232,7 @@ class Core
 
         # Populate Route Tables
         Rex::Socket::SwitchBoard.each { |route|
-          if (route.comm.kind_of?(Msf::Session))
+          if route.comm.kind_of?(Msf::Session)
             gw = "Session #{route.comm.sid}"
           else
             gw = route.comm.name.split('::')[-1]
@@ -2103,7 +2103,7 @@ class Core
       elsif args[0] == '-a'
         args.shift
         append = true
-      elsif (args[0] == '-c' || args[0] == '--clear')
+      elsif args[0] == '-c' || args[0] == '--clear'
         args.shift
         clear = true
       else
@@ -2133,7 +2133,7 @@ class Core
     if (args.length == 0)
       # If we aren't dumping the global data store, then go ahead and
       # dump it first
-      if (!global)
+      if !global
         print("\n" +
           Msf::Serializer::ReadableText.dump_datastore(
             "Global", framework.datastore))
@@ -2142,7 +2142,7 @@ class Core
       # Dump the active datastore
       print("\n" +
         Msf::Serializer::ReadableText.dump_datastore(
-          (global) ? "Global" : "Module: #{active_module.refname}",
+          global ? "Global" : "Module: #{active_module.refname}",
           datastore) + "\n")
       return true
     elsif args.length == 1 && !clear
@@ -2384,7 +2384,7 @@ class Core
     end
 
     # Determine which data store we're operating on
-    if (active_module && !global)
+    if active_module && !global
       datastore = active_module.datastore
     else
       datastore = framework.datastore

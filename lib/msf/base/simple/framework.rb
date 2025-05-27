@@ -97,7 +97,7 @@ module Framework
     framework.init_simplified()
 
     # Call the creation procedure if one was supplied
-    if (opts['OnCreateProc'])
+    if opts['OnCreateProc']
       opts['OnCreateProc'].call(framework)
     end
 
@@ -130,7 +130,7 @@ module Framework
   # with the simplified module interface.
   #
   def self.simplify_module(instance, load_saved_config: false)
-    if ((ModuleSimplifiers[instance.type]) and
+    if (ModuleSimplifiers[instance.type] and
         (instance.class.include?(ModuleSimplifiers[instance.type]) == false))
       instance.extend(ModuleSimplifiers[instance.type])
 

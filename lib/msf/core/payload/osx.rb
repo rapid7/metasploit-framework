@@ -59,14 +59,14 @@ module Msf::Payload::Osx
   end
 
   def apply_prepends(buf)
-    test_arch = [ *(self.arch) ]
+    test_arch = [ *self.arch ]
     pre = ''
     app = ''
 
     # Handle all x86 code here
-    if (test_arch.include?(ARCH_X86))
+    if test_arch.include?(ARCH_X86)
       handle_x86_osx_opts(pre, app)
-    elsif (test_arch.include?(ARCH_X64))
+    elsif test_arch.include?(ARCH_X64)
       handle_x64_osx_opts(pre, app)
     end
 
@@ -75,7 +75,7 @@ module Msf::Payload::Osx
 
   def handle_x86_osx_opts(pre, app)
 
-    if (datastore['PrependSetreuid'])
+    if datastore['PrependSetreuid']
       # setreuid(0, 0)
       pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
              "\x50"                 + #   pushl   %eax                       #
@@ -85,7 +85,7 @@ module Msf::Payload::Osx
              "\xcd\x80"              #   int     $0x80                      #
     end
 
-    if (datastore['PrependSetuid'])
+    if datastore['PrependSetuid']
       # setuid(0)
       pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
              "\x50"                 + #   pushl   %eax                       #
@@ -94,7 +94,7 @@ module Msf::Payload::Osx
              "\xcd\x80"               #   int     $0x80                      #
     end
 
-    if (datastore['PrependSetregid'])
+    if datastore['PrependSetregid']
       # setregid(0, 0)
       pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
              "\x50"                 + #   pushl   %eax                       #
@@ -104,7 +104,7 @@ module Msf::Payload::Osx
              "\xcd\x80"               #   int     $0x80                      #
     end
 
-    if (datastore['PrependSetgid'])
+    if datastore['PrependSetgid']
       # setgid(0)
       pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
              "\x50"                 + #   pushl   %eax                       #
@@ -113,7 +113,7 @@ module Msf::Payload::Osx
              "\xcd\x80"               #   int     $0x80                      #
     end
 
-    if (datastore['AppendExit'])
+    if datastore['AppendExit']
       # exit(0)
       app << "\x31\xc0"             + #   xorl    %eax,%eax                  #
              "\x50"                 + #   pushl   %eax                       #
@@ -124,7 +124,7 @@ module Msf::Payload::Osx
 
   def handle_x64_osx_opts(pre, app)
 
-    if (datastore['PrependSetreuid'])
+    if datastore['PrependSetreuid']
       # setreuid(0, 0)
       pre << "\x41\xb0\x02"         + # mov r8b, 0x2   (Set syscall_class to UNIX=2<<24)
              "\x49\xc1\xe0\x18"     + # shl r8, 24
@@ -135,7 +135,7 @@ module Msf::Payload::Osx
              "\x0f\x05"               # syscall
     end
 
-    if (datastore['PrependSetuid'])
+    if datastore['PrependSetuid']
       # setuid(0)
       pre << "\x41\xb0\x02"         + # mov r8b, 0x2   (Set syscall_class to UNIX=2<<24)
              "\x49\xc1\xe0\x18"     + # shl r8, 24
@@ -145,7 +145,7 @@ module Msf::Payload::Osx
              "\x0f\x05"               # syscall
     end
 
-    if (datastore['PrependSetregid'])
+    if datastore['PrependSetregid']
       # setregid(0, 0)
       pre << "\x41\xb0\x02"         + # mov r8b, 0x2   (Set syscall_class to UNIX=2<<24)
              "\x49\xc1\xe0\x18"     + # shl r8, 24
@@ -156,7 +156,7 @@ module Msf::Payload::Osx
              "\x0f\x05"               # syscall
     end
 
-    if (datastore['PrependSetgid'])
+    if datastore['PrependSetgid']
       # setgid(0)
       pre << "\x41\xb0\x02"         + # mov r8b, 0x2   (Set syscall_class to UNIX=2<<24)
              "\x49\xc1\xe0\x17"     + # shl r8, 23
@@ -168,7 +168,7 @@ module Msf::Payload::Osx
              "\x0f\x05"               # syscall
     end
 
-    if (datastore['AppendExit'])
+    if datastore['AppendExit']
       # exit(0)
       app << "\x41\xb0\x02"         + # mov r8b, 0x2   (Set syscall_class to UNIX=2<<24)
              "\x49\xc1\xe0\x18"     + # shl r8, 24

@@ -15,7 +15,7 @@ module Postgres::Conversion
 
   def parse_arr(buf, delim, &conv_proc)
     # skip whitespace
-    buf.skip(/\s*/)       
+    buf.skip(/\s*/)
 
     raise ConversionError, "'{' expected" unless buf.get_byte == '{'
 
@@ -23,7 +23,7 @@ module Postgres::Conversion
     unless buf.scan('}') # array is not empty
       loop do
         # skip whitespace
-        buf.skip(/\s+/)   
+        buf.skip(/\s+/)
 
         elems <<
         if buf.check(/\{/)

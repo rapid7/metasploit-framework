@@ -505,7 +505,7 @@ module Rex
       port = uri.port
       scheme = uri.scheme
       return unless scheme[/^https?/]
-      return unless (host && port && scheme)
+      return unless host && port && scheme
       address = resolve_address(host)
       return unless address
       # If we didn't create the service, we don't care about the site

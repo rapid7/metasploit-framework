@@ -37,12 +37,12 @@ module Msf
         # If we got here and don't have a norm_host yet, it could be a
         # Msf::Session object with an empty or nil tunnel_host and tunnel_peer;
         # see if it has a socket and use its peerhost if so.
-        if (
+        if
         norm_host.nil? &&
             host.respond_to?(:sock) &&
             host.sock.respond_to?(:peerhost) &&
             host.sock.peerhost.to_s.length > 0
-        )
+
           norm_host = session.sock.peerhost
         end
         # If We got here and still don't have a real host, there's nothing left

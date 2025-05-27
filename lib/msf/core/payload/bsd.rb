@@ -74,13 +74,13 @@ module Msf::Payload::Bsd
   end
 
   def apply_prepends(buf)
-    test_arch = [ *(self.arch) ]
+    test_arch = [ *self.arch ]
     pre = ''
     app = ''
 
-    if (test_arch.include?(ARCH_X86))
+    if test_arch.include?(ARCH_X86)
       handle_x86_bsd_opts(pre, app)
-    elsif (test_arch.include?(ARCH_X64))
+    elsif test_arch.include?(ARCH_X64)
       handle_x64_bsd_opts(pre, app)
     end
 
@@ -88,7 +88,7 @@ module Msf::Payload::Bsd
   end
 
   def handle_x64_bsd_opts(pre, app)
-    if (datastore['PrependSetresuid'])
+    if datastore['PrependSetresuid']
       # setresuid(0, 0, 0)
       pre << "\x48\x31\xc0"         + # xor rax, rax
              "\x48\x83\xc8\x4d"     + # or rax, 77  (setgid=311>>2=77)
@@ -100,7 +100,7 @@ module Msf::Payload::Bsd
              "\x0f\x05"               # syscall
     end
 
-    if (datastore['PrependSetreuid'])
+    if datastore['PrependSetreuid']
       # setreuid(0, 0)
       pre << "\x48\x31\xc0"         + # xor rax, rax
              "\x48\x83\xc8\x7e"     + # or rax, 126  (setreuid=126)
@@ -109,7 +109,7 @@ module Msf::Payload::Bsd
              "\x0f\x05"               # syscall
     end
 
-    if (datastore['PrependSetuid'])
+    if datastore['PrependSetuid']
       # setuid(0)
       pre << "\x48\x31\xc0"         + # xor rax, rax
              "\x48\x83\xc8\x17"     + # or rax, 23  (setuid=23)
@@ -117,7 +117,7 @@ module Msf::Payload::Bsd
              "\x0f\x05"               # syscall
     end
 
-    if (datastore['PrependSetresgid'])
+    if datastore['PrependSetresgid']
       # setresgid(0, 0, 0)
       pre << "\x48\x31\xc0"         + # xor rax, rax
              "\x48\x83\xc8\x4e"     + # or rax, 78  (setgid=312>>2=78)
@@ -128,7 +128,7 @@ module Msf::Payload::Bsd
              "\x0f\x05"               # syscall
     end
 
-    if (datastore['PrependSetregid'])
+    if datastore['PrependSetregid']
       # setregid(0, 0)
       pre << "\x48\x31\xc0"         + # xor rax, rax
              "\x48\x83\xc8\x7f"     + # or rax, 127  (setuid=127)
@@ -137,7 +137,7 @@ module Msf::Payload::Bsd
              "\x0f\x05"               # syscall
     end
 
-    if (datastore['PrependSetgid'])
+    if datastore['PrependSetgid']
       # setgid(0)
       pre << "\x48\x31\xc0"         + # xor rax, rax
              "\x48\x83\xc8\x5a"     + # or rax, 90  (setgid=181>>1=90)
@@ -147,7 +147,7 @@ module Msf::Payload::Bsd
              "\x0f\x05"               # syscall
     end
 
-    if (datastore['AppendExit'])
+    if datastore['AppendExit']
       # exit(0)
       app << "\x48\x31\xc0"         + # xor rax, rax
              "\x48\x83\xc8\x01"     + # or rax, 1  (exit=1)

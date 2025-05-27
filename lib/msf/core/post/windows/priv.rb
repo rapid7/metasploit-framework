@@ -202,7 +202,7 @@ module Msf::Post::Windows::Priv
   #
   def is_high_integrity?
     il = get_integrity_level
-    (il == INTEGRITY_LEVEL_SID[:high] || il == INTEGRITY_LEVEL_SID[:system])
+    il == INTEGRITY_LEVEL_SID[:high] || il == INTEGRITY_LEVEL_SID[:system]
   end
 
   #
@@ -215,7 +215,7 @@ module Msf::Post::Windows::Priv
 
     if whoami.nil? || whoami.empty?
       return nil
-    elsif whoami =~ (/is not recognized/) || whoami =~ (/extra operand/) || whoami =~ (/Access is denied/)
+    elsif whoami =~ /is not recognized/ || whoami =~ /extra operand/ || whoami =~ /Access is denied/
       return nil
     else
       return whoami

@@ -49,7 +49,7 @@ class Input::Buffer < Rex::Ui::Text::Input
     line = ''
 
     # Read data one byte at a time until we see a LF
-    while (true)
+    while true
       break if line.include?("\n")
 
       # Read another character of input

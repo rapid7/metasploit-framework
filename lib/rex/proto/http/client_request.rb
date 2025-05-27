@@ -107,7 +107,7 @@ class ClientRequest
     if opts['cgi']
       uri_str = set_uri
 
-      if (opts['pad_get_params'])
+      if opts['pad_get_params']
         1.upto(opts['pad_get_params_count'].to_i) do |i|
           qstr << '&' if qstr.length > 0
           qstr << set_encode_uri(Rex::Text.rand_text_alphanumeric(rand(32)+1))
@@ -116,7 +116,7 @@ class ClientRequest
         end
       end
       if opts.key?("vars_get") && opts['vars_get']
-        opts['vars_get'] = Hash[opts['vars_get'].to_a.shuffle] if (opts['shuffle_get_params'])
+        opts['vars_get'] = Hash[opts['vars_get'].to_a.shuffle] if opts['shuffle_get_params']
 
         opts['vars_get'].each_pair do |var,val|
           var = var.to_s
@@ -132,7 +132,7 @@ class ClientRequest
           end
         end
       end
-      if (opts['pad_post_params'])
+      if opts['pad_post_params']
         1.upto(opts['pad_post_params_count'].to_i) do |i|
           rand_var = Rex::Text.rand_text_alphanumeric(rand(32)+1)
           rand_val = Rex::Text.rand_text_alphanumeric(rand(32)+1)
@@ -143,7 +143,7 @@ class ClientRequest
         end
       end
 
-      opts['vars_post'] = Hash[opts['vars_post'].to_a.shuffle] if (opts['shuffle_post_params'])
+      opts['vars_post'] = Hash[opts['vars_post'].to_a.shuffle] if opts['shuffle_post_params']
 
       opts['vars_post'].each_pair do |var,val|
         var = var.to_s
@@ -258,11 +258,11 @@ class ClientRequest
 
   def set_uri
     uri_str = opts['uri'].dup
-    if (opts['uri_dir_self_reference'])
+    if opts['uri_dir_self_reference']
       uri_str.gsub!('/', '/./')
     end
 
-    if (opts['uri_dir_fake_relative'])
+    if opts['uri_dir_fake_relative']
       buf = ""
       uri_str.split('/',-1).each do |part|
         cnt = rand(8)+2
@@ -275,7 +275,7 @@ class ClientRequest
       uri_str = buf
     end
 
-    if (opts['uri_full_url'])
+    if opts['uri_full_url']
       url = opts['ssl'] ? "https://" : "http://"
       url << opts['vhost']
       url << ((opts['port'] == 80) ? "" : ":#{opts['port']}")
@@ -297,15 +297,15 @@ class ClientRequest
   def set_method
     ret = opts['method'].dup
 
-    if (opts['method_random_valid'])
+    if opts['method_random_valid']
       ret = ['GET', 'POST', 'HEAD'][rand(3)]
     end
 
-    if (opts['method_random_invalid'])
+    if opts['method_random_invalid']
       ret = Rex::Text.rand_text_alpha(rand(20)+1)
     end
 
-    if (opts['method_random_case'])
+    if opts['method_random_case']
       ret = Rex::Text.to_rand_case(ret)
     end
 
@@ -337,11 +337,11 @@ class ClientRequest
   def set_uri_prepend
     prefix = ""
 
-    if (opts['uri_fake_params_start'])
+    if opts['uri_fake_params_start']
       prefix << '/%3fa=b/../'
     end
 
-    if (opts['uri_fake_end'])
+    if opts['uri_fake_end']
       prefix << '/%20HTTP/1.0/../../'
     end
 
@@ -393,11 +393,11 @@ class ClientRequest
   def set_version
     ret = opts['proto'] + "/" + opts['version']
 
-    if (opts['version_random_valid'])
+    if opts['version_random_valid']
       ret = opts['proto'] + "/" +  ['1.0', '1.1'][rand(2)]
     end
 
-    if (opts['version_random_invalid'])
+    if opts['version_random_invalid']
       ret = Rex::Text.rand_text_alphanumeric(rand(20)+1)
     end
 
@@ -408,7 +408,7 @@ class ClientRequest
   # Return a formatted header string
   #
   def set_formatted_header(var, val)
-    if (self.opts['header_folding'])
+    if self.opts['header_folding']
       "#{var}:\r\n\t#{val}\r\n"
     else
       "#{var}: #{val}\r\n"
@@ -491,7 +491,7 @@ class ClientRequest
   def set_extra_headers
     buf = ''
 
-    if (opts['pad_fake_headers'])
+    if opts['pad_fake_headers']
       1.upto(opts['pad_fake_headers_count'].to_i) do |i|
         buf << set_formatted_header(
           Rex::Text.rand_text_alphanumeric(rand(32)+1),

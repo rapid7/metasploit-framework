@@ -254,7 +254,7 @@ protected
         #
         if (tr[:type] == Constants::OpRead)
           # Are we awaiting an ack?
-          if (tr[:last_sent])
+          if tr[:last_sent]
             check_retransmission(tr)
           elsif (w != nil and w[0] == self.sock)
             # No ack waiting, send next block..
@@ -267,7 +267,7 @@ protected
               tr[:last_sent] = ::Time.now
 
               # If the file is a one-serve, mark it as started
-              tr[:file][:started] = true if (tr[:file][:once])
+              tr[:file][:started] = true if tr[:file][:once]
             else
               # No more chunks.. transfer is most likely done.
               # However, we can only delete it once the last chunk has been
@@ -276,7 +276,7 @@ protected
           end
         else
           # Are we awaiting data?
-          if (tr[:last_sent])
+          if tr[:last_sent]
             check_retransmission(tr)
           elsif (w != nil and w[0] == self.sock)
             # Not waiting for data, send an ack..
@@ -415,7 +415,7 @@ protected
 
       #puts "%s %d %d bytes" % [start, block, data.length]
 
-      tr = find_transfer(Constants::OpWrite, from, (block-1))
+      tr = find_transfer(Constants::OpWrite, from, block-1)
       if not tr
         # If we didn't find it, send an error.
         send_error(from, Constants::ErrUnknownTransferId)

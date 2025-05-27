@@ -182,47 +182,47 @@ class PayloadSet < ModuleSet
     end
 
     # No intersection between platforms on the payloads?
-    if ((stager_platform) and
-      (stage_platform) and
+    if (stager_platform and
+      stage_platform and
       (stager_platform & stage_platform).empty?)
       dlog("Stager #{stager_name} and stage #{stage_name} have incompatible platforms: #{stager_platform.names} - #{stage_platform.names}", 'core', LEV_2)
       return false
     end
 
     # No intersection between architectures on the payloads?
-    if ((stager_arch) and
-      (stage_arch) and
-      ((stager_arch & stage_arch).empty?))
+    if (stager_arch and
+      stage_arch and
+      (stager_arch & stage_arch).empty?)
       dlog("Stager #{stager_name} and stage #{stage_name} have incompatible architectures: #{stager_arch.join} - #{stage_arch.join}", 'core', LEV_2)
       return false
     end
 
     # If the stage has a convention, make sure it's compatible with
     # the stager's
-    if ((stage_inst) and (stage_inst.compatible?(stager_inst) == false))
+    if (stage_inst and (stage_inst.compatible?(stager_inst) == false))
       dlog("Stager #{stager_name} and stage #{stage_name} are incompatible.", 'core', LEV_2)
       return false
     end
 
     # No intersection between platforms on the payloads?
-    if ((stager_platform) and
-      (stage_platform) and
+    if (stager_platform and
+      stage_platform and
       (stager_platform & stage_platform).empty?)
       dlog("Stager #{stager_name} and stage #{stage_name} have incompatible platforms: #{stager_platform.names} - #{stage_platform.names}", 'core', LEV_2)
       return false
     end
 
     # No intersection between architectures on the payloads?
-    if ((stager_arch) and
-      (stage_arch) and
-      ((stager_arch & stage_arch).empty?))
+    if (stager_arch and
+      stage_arch and
+      (stager_arch & stage_arch).empty?)
       dlog("Stager #{stager_name} and stage #{stage_name} have incompatible architectures: #{stager_arch.join} - #{stage_arch.join}", 'core', LEV_2)
       return false
     end
 
     # If the stage has a convention, make sure it's compatible with
     # the stager's
-    if ((stage_inst) and (stage_inst.compatible?(stager_inst) == false))
+    if (stage_inst and (stage_inst.compatible?(stager_inst) == false))
       dlog("Stager #{stager_name} and stage #{stage_name} are incompatible.", 'core', LEV_2)
       return false
     end
@@ -337,7 +337,7 @@ class PayloadSet < ModuleSet
       ]
 
     # Use the module's preferred alias if it has one
-    reference_name = instance.alias if (instance.alias)
+    reference_name = instance.alias if instance.alias
 
     # Store the module and alias name for this payload.  We
     # also convey other information about the module, such as
@@ -455,7 +455,7 @@ class PayloadSet < ModuleSet
       p = mod.new
 
       # We can't substitute one generic with another one.
-      next if (p.kind_of?(Msf::Payload::Generic))
+      next if p.kind_of?(Msf::Payload::Generic)
 
       # Check to see if the handler classes match.
       next if (handler and not p.handler_klass.ancestors.include?(handler))
@@ -481,7 +481,7 @@ class PayloadSet < ModuleSet
       p = mod.new
 
       # We can't substitute one generic with another one.
-      next if (p.kind_of?(Msf::Payload::Generic))
+      next if p.kind_of?(Msf::Payload::Generic)
 
       # Check to see if the handler classes match.
       next if (handler and p.handler_klass != handler)
@@ -531,7 +531,7 @@ class PayloadSet < ModuleSet
 
     # Create the hash entry for this stage and then create
     # the associated entry for the handler type
-    stages[stage_name] = {} if (!stages[stage_name])
+    stages[stage_name] = {} if !stages[stage_name]
 
     # Add it to this stage's stager hash
     stages[stage_name][handler_type] = p

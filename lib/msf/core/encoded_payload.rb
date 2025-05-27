@@ -144,9 +144,9 @@ class EncodedPayload
       end
 
       # If the caller had a preferred encoder, use this encoder only
-      if ((reqs['Encoder']) and (preferred = framework.encoders[reqs['Encoder']]))
+      if (reqs['Encoder'] and (preferred = framework.encoders[reqs['Encoder']]))
         encoders = [ [reqs['Encoder'], preferred] ]
-      elsif (reqs['Encoder'])
+      elsif reqs['Encoder']
         wlog("#{pinst.refname}: Failed to find preferred encoder #{reqs['Encoder']}")
         raise NoEncodersSucceededError, "Failed to find preferred encoder #{reqs['Encoder']}"
       else
@@ -160,9 +160,9 @@ class EncodedPayload
         # If the encoding is requested by an exploit check compatibility
         # options first of all. For the 'generic/none' encoder compatibility
         # options don't apply.
-        if (reqs['Exploit'] &&
+        if reqs['Exploit'] &&
             !reqs['Exploit'].compatible?(self.encoder) &&
-            encname !~ /generic\/none/)
+            encname !~ /generic\/none/
           wlog("#{pinst.refname}: Encoder #{encoder.refname} doesn't match the exploit Compat options",
             'core', LEV_1)
           next
@@ -170,7 +170,7 @@ class EncodedPayload
 
         # If there is an encoder type restriction, check to see if this
         # encoder matches with what we're searching for.
-        if ((reqs['EncoderType']) and
+        if (reqs['EncoderType'] and
             (self.encoder.encoder_type.split(/\s+/).include?(reqs['EncoderType']) == false))
           wlog("#{pinst.refname}: Encoder #{encoder.refname} is not a compatible encoder type: #{reqs['EncoderType']} != #{self.encoder.encoder_type}",
             'core', LEV_1)
@@ -182,8 +182,8 @@ class EncodedPayload
         # considered as a valid encoder.  A manual ranking tells the
         # framework that an encoder must be explicitly defined as the
         # encoder of choice for an exploit.
-        if ((reqs['EncoderType'].nil?) and
-            (reqs['Encoder'].nil?) and
+        if (reqs['EncoderType'].nil? and
+            reqs['Encoder'].nil? and
             (self.encoder.rank == ManualRanking))
           wlog("#{pinst.refname}: Encoder #{encoder.refname} is manual ranked and was not defined as a preferred encoder.",
             'core', LEV_1)
@@ -196,7 +196,7 @@ class EncodedPayload
         if (reqs['ForceSaveRegisters'] and
             reqs['EncoderOptions'] and
             (reqs['EncoderOptions']['SaveRegisters'].to_s.length > 0) and
-            (! self.encoder.can_preserve_registers?))
+            ! self.encoder.can_preserve_registers?)
           wlog("#{pinst.refname}: Encoder #{encoder.refname} does not preserve registers and the caller needs #{reqs['EncoderOptions']['SaveRegisters']} preserved.",
             'core', LEV_1)
           next
@@ -207,7 +207,7 @@ class EncodedPayload
 
         # If we have any encoder options, import them into the datastore
         # of the encoder.
-        if (reqs['EncoderOptions'])
+        if reqs['EncoderOptions']
           self.encoder.datastore.import_options_from_hash(reqs['EncoderOptions'])
         end
 
@@ -250,7 +250,7 @@ class EncodedPayload
           end
 
           # Check to see if we have enough room for the minimum requirements
-          if ((reqs['Space']) and (reqs['Space'] < eout.length + min))
+          if (reqs['Space'] and (reqs['Space'] < eout.length + min))
             wlog("#{err_start}: Encoded payload version is too large (#{eout.length} bytes) with encoder #{encoder.refname}",
               'core', LEV_1)
             next_encoder = true
@@ -313,13 +313,13 @@ class EncodedPayload
     # Calculate the number of NOPs to pad out the buffer with based on the
     # requirements.  If there was a space requirement, check to see if
     # there's any room at all left for a sled.
-    if ((space) and
+    if (space and
        (space > encoded.length))
       self.nop_sled_size = reqs['Space'] - self.encoded.length
     end
 
     # If the maximum number of NOPs has been exceeded, wrap it back down.
-    if ((reqs['MaxNops']) and
+    if (reqs['MaxNops'] and
        (reqs['MaxNops'] < self.nop_sled_size))
       self.nop_sled_size = reqs['MaxNops']
     end
@@ -335,10 +335,10 @@ class EncodedPayload
       nops = pinst.compatible_nops
 
       # If the caller had a preferred nop, try to find it and prefix it
-      if ((reqs['Nop']) and
+      if (reqs['Nop'] and
           (preferred = framework.nops[reqs['Nop']]))
         nops.unshift([reqs['Nop'], preferred ])
-      elsif (reqs['Nop'])
+      elsif reqs['Nop']
         wlog("#{pinst.refname}: Failed to find preferred nop #{reqs['Nop']}")
       end
 

@@ -31,7 +31,7 @@ module GramServer
   # be processed.
   #
   def dispatch_request(client, data)
-    if (dispatch_request_proc)
+    if dispatch_request_proc
       dispatch_request_proc.call(client, data)
     end
   end
@@ -41,7 +41,7 @@ module GramServer
   # @param client [Socket] Client/Socket to receive data
   # @param data [String] Data to be sent to client/socket
   def send_response(client, data)
-    if (send_response_proc)
+    if send_response_proc
       send_response_proc.call(client, data)
     else
       client.write(data)

@@ -55,7 +55,7 @@ module Msf::RPC::JSON
         method_name = "rpc_#{base_method}"
         method_name_noauth = "rpc_#{base_method}_noauth"
 
-        handler = (find_handler(@legacy_rpc_service.handlers, group, method_name) || find_handler(@legacy_rpc_service.handlers, group, method_name_noauth))
+        handler = find_handler(@legacy_rpc_service.handlers, group, method_name) || find_handler(@legacy_rpc_service.handlers, group, method_name_noauth)
         if handler.nil?
           raise MethodNotFound.new(method)
         end

@@ -68,10 +68,10 @@ module Msf::Payload::Solaris
     pre = ''
     app = ''
 
-    test_arch = [ *(self.arch) ]
+    test_arch = [ *self.arch ]
 
     # Handle all x86 code here
-    if (test_arch.include?(ARCH_X86))
+    if test_arch.include?(ARCH_X86)
 
       # Syscall code
       sc = "\x68\xff\xd8\xff\x3c" + #   pushl   $0x3cffd8ff                #
@@ -82,7 +82,7 @@ module Msf::Payload::Solaris
 
       # Prepend
 
-      if (datastore['PrependSetreuid'])
+      if datastore['PrependSetreuid']
         # setreuid(0, 0)
         pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
                "\x50"                 + #   pushl   %eax                       #
@@ -91,7 +91,7 @@ module Msf::Payload::Solaris
                "\xff\xd6"               #   call    *%esi                      #
       end
 
-      if (datastore['PrependSetuid'])
+      if datastore['PrependSetuid']
         # setuid(0)
         pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
                "\x50"                 + #   pushl   %eax                       #
@@ -99,7 +99,7 @@ module Msf::Payload::Solaris
                "\xff\xd6"               #   call    *%esi                      #
       end
 
-      if (datastore['PrependSetregid'])
+      if datastore['PrependSetregid']
         # setregid(0, 0)
         pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
                "\x50"                 + #   pushl   %eax                       #
@@ -108,7 +108,7 @@ module Msf::Payload::Solaris
                "\xff\xd6"               #   call    *%esi                      #
       end
 
-      if (datastore['PrependSetgid'])
+      if datastore['PrependSetgid']
         # setgid(0)
         pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
                "\x50"                 + #   pushl   %eax                       #
@@ -117,7 +117,7 @@ module Msf::Payload::Solaris
       end
       # Append
 
-      if (datastore['AppendExit'])
+      if datastore['AppendExit']
         # exit(0)
         app << "\x31\xc0"             + #   xorl    %eax,%eax                  #
                "\x50"                 + #   pushl   %eax                       #
@@ -126,12 +126,12 @@ module Msf::Payload::Solaris
       end
 
       # Prepend syscall code to prepend block
-      if !(pre.empty?)
+      if !pre.empty?
         pre = sc + pre
       end
 
       # Prepend syscall code to append block
-      if !(app.empty?)
+      if !app.empty?
         app = sc + app
       end
 

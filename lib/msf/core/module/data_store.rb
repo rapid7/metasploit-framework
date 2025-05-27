@@ -20,7 +20,7 @@ module Msf::Module::DataStore
     self.datastore.import_options(self.options, 'self', true)
 
     # If there are default options, import their values into the datastore
-    if (module_info['DefaultOptions'])
+    if module_info['DefaultOptions']
       if datastore.is_a?(Msf::DataStore)
         self.datastore.import_defaults_from_hash(module_info['DefaultOptions'], imported_by: 'import_defaults')
       else

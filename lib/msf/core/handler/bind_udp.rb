@@ -162,7 +162,7 @@ module BindUdp
       end
 
       # Valid client connection?
-      if (client)
+      if client
         # Increment the has connection counter
         self.pending_connections += 1
 

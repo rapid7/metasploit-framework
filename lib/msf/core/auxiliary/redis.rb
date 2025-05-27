@@ -117,16 +117,16 @@ module Msf
         @raw_data = data
         @counter = 0
       end
-    
+
       def parse
         @counter = 0
         parse_next
       end
-    
+
       def data_at_counter
         @raw_data[@counter..-1]
       end
-    
+
       def parse_resp_array
         # Read array length
         unless /\A\*(?<arr_len>\d+)(\r|$)/ =~ data_at_counter
@@ -138,9 +138,9 @@ module Msf
         if data_at_counter.start_with?(LINE_BREAK)
           @counter += LINE_BREAK.length
         end
-    
+
         arr_len = arr_len.to_i
-    
+
         result = []
         for index in 1..arr_len do
           element = parse_next
@@ -148,7 +148,7 @@ module Msf
         end
         result
       end
-    
+
       def parse_simple_string
         str_end = data_at_counter.index(LINE_BREAK)
         str_end = str_end.to_i
@@ -157,7 +157,7 @@ module Msf
         @counter += 2 # Skip over next CLRF
         result
       end
-    
+
       def parse_bulk_string
         unless /\A\$(?<str_len>[-\d]+)(\r|$)/ =~ data_at_counter
           raise "RESP parsing error in bulk string"
@@ -178,8 +178,8 @@ module Msf
         end
         result
       end
-    
-    
+
+
       def parse_next
         case data_at_counter[0]
         when "*"

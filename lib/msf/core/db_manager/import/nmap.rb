@@ -46,9 +46,9 @@ module Msf::DBManager::Import::Nmap
     parser.on_found_host = Proc.new { |h|
       hobj = nil
       data = {:workspace => wspace}
-      if (h["addrs"].has_key?("ipv4"))
+      if h["addrs"].has_key?("ipv4")
         addr = h["addrs"]["ipv4"]
-      elsif (h["addrs"].has_key?("ipv6"))
+      elsif h["addrs"].has_key?("ipv6")
         addr = h["addrs"]["ipv6"]
       else
         # Can't report it if it doesn't have an IP
@@ -56,13 +56,13 @@ module Msf::DBManager::Import::Nmap
       end
       next if bl.include? addr
       data[:host] = addr
-      if (h["addrs"].has_key?("mac"))
+      if h["addrs"].has_key?("mac")
         data[:mac] = h["addrs"]["mac"]
       end
       data[:state] = (h["status"] == "up") ? Msf::HostState::Alive : Msf::HostState::Dead
       data[:task] = args[:task]
 
-      if ( h["reverse_dns"] )
+      if  h["reverse_dns"]
         data[:name] = h["reverse_dns"]
       end
 
@@ -100,7 +100,7 @@ module Msf::DBManager::Import::Nmap
         msf_import_note(note)
       end
 
-      if (h["last_boot"])
+      if h["last_boot"]
         msf_import_note(
           :workspace => wspace,
           :host => hobj || addr,
@@ -112,7 +112,7 @@ module Msf::DBManager::Import::Nmap
         )
       end
 
-      if (h["trace"])
+      if h["trace"]
         hops = []
         h["trace"]["hops"].each do |hop|
           hops << {
@@ -140,10 +140,10 @@ module Msf::DBManager::Import::Nmap
       h["ports"].each { |p|
         # Localhost port results are pretty unreliable -- if it's
         # unknown, it's no good (possibly Windows-only)
-        if (
+        if
           p["state"] == "unknown" &&
           h["status_reason"] == "localhost-response"
-        )
+
           next
         end
         extra = ""

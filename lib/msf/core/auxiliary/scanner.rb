@@ -89,7 +89,7 @@ def run
 
   begin
 
-  if (self.respond_to?('run_host'))
+  if self.respond_to?('run_host')
     loop do
       # Stop scanning if we hit a fatal error
       break if has_fatal_errors?
@@ -161,9 +161,9 @@ def run
     return results
   end
 
-  if (self.respond_to?('run_batch'))
+  if self.respond_to?('run_batch')
 
-    if (! self.respond_to?('run_batch_size'))
+    if ! self.respond_to?('run_batch_size')
       print_status("This module needs to export run_batch_size()")
       return
     end

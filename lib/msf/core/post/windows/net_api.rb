@@ -70,7 +70,7 @@ module NetAPI
       # Railgun assumes PDWORDS are pointers and returns 8 bytes for x64 architectures.
       # Therefore we need to truncate the result value to an actual
       # DWORD for entriesread or totalentries.
-      hosts = read_server_structs(result['bufptr'], (result['entriesread'] % 4294967296), domain, server_type)
+      hosts = read_server_structs(result['bufptr'], result['entriesread'] % 4294967296, domain, server_type)
     when ERROR_NO_BROWSER_SERVERS_FOUND
       print_error("ERROR_NO_BROWSER_SERVERS_FOUND")
       return nil
@@ -127,7 +127,7 @@ module NetAPI
     case result['return']
     when 0
       vprint_error("#{hostname} Session identified")
-      sessions = read_session_structs(result['bufptr'], (result['entriesread'] % 4294967296), hostname)
+      sessions = read_session_structs(result['bufptr'], result['entriesread'] % 4294967296, hostname)
     when ERROR_ACCESS_DENIED
       vprint_error("#{hostname} Access denied...")
       return nil

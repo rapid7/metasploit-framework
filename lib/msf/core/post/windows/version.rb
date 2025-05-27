@@ -52,7 +52,7 @@ module Msf::Post::Windows::Version
       build = os_version_info_ex[3]
       service_pack = os_version_info_ex[6]
       product_type = os_version_info_ex[9]
-    
+
       revision = 0
       if (major >= 10)
         revision = registry_getvaldata('HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'UBR', Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE)

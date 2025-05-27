@@ -267,7 +267,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     path = client.fs.file.expand_path(path) if path =~ path_expand_regex
 
 
-    if (client.fs.file.stat(path).directory?)
+    if client.fs.file.stat(path).directory?
       print_error("#{path} is a directory")
     else
       fd = client.fs.file.new(path, "rb")
@@ -468,7 +468,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       when "-t"
         opts['timestamp'] = '_' + ::Time.now.iso8601
       when nil
-        src_items << last if (last)
+        src_items << last if last
         last = val
       end
     }
@@ -547,12 +547,12 @@ class Console::CommandDispatcher::Stdapi::Fs
           end
         end
 
-        if (stat.directory?)
+        if stat.directory?
           client.fs.dir.download(dest, src, opts, true, glob) do |step, src, dst|
             print_status("#{step.ljust(11)}: #{src} -> #{dst}")
             client.framework.events.on_session_download(client, src, dest) if msf_loaded?
           end
-        elsif (stat.file?)
+        elsif stat.file?
           client.fs.file.download(dest, src, opts) do |step, src, dst|
             print_status("#{step.ljust(11)}: #{src} -> #{dst}")
             client.framework.events.on_session_download(client, src, dest) if msf_loaded?
@@ -829,7 +829,7 @@ class Console::CommandDispatcher::Stdapi::Fs
         when "-r"
           recursive = true
         when nil
-          if (last)
+          if last
             src_items << last
           end
 
@@ -855,12 +855,12 @@ class Console::CommandDispatcher::Stdapi::Fs
       src = ::File.expand_path(src)
       stat = ::File.stat(src)
 
-      if (stat.directory?)
+      if stat.directory?
         client.fs.dir.upload(dest, src, recursive) { |step, src, dst|
           print_status("#{step.ljust(11)}: #{src} -> #{dst}")
           client.framework.events.on_session_upload(client, src, dest) if msf_loaded?
         }
-      elsif (stat.file?)
+      elsif stat.file?
         if client.fs.file.exist?(dest) && client.fs.file.stat(dest).directory?
           client.fs.file.upload(dest, src) { |step, src, dst|
             print_status("#{step.ljust(11)}: #{src} -> #{dst}")

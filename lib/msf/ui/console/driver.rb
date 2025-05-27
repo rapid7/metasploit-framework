@@ -113,8 +113,8 @@ class Driver < Msf::Ui::Driver
       input.disable_readline
     end
 
-    if (opts['LocalOutput'])
-      if (opts['LocalOutput'].kind_of?(String))
+    if opts['LocalOutput']
+      if opts['LocalOutput'].kind_of?(String)
         output = Rex::Ui::Text::Output::File.new(opts['LocalOutput'])
       else
         output = opts['LocalOutput']
@@ -236,7 +236,7 @@ class Driver < Msf::Ui::Driver
       return
     end
 
-    if (conf.group?(ConfigCore))
+    if conf.group?(ConfigCore)
       conf[ConfigCore].each_pair { |k, v|
         on_variable_set(true, k, v)
       }
@@ -255,7 +255,7 @@ class Driver < Msf::Ui::Driver
     end
 
     # If we have configuration, process it
-    if (conf.group?(ConfigGroup))
+    if conf.group?(ConfigGroup)
       conf[ConfigGroup].each_pair { |k, v|
         case k.downcase
           when 'activemodule'
@@ -277,7 +277,7 @@ class Driver < Msf::Ui::Driver
     # Build out the console config group
     group = {}
 
-    if (active_module)
+    if active_module
       group['ActiveModule'] = active_module.fullname
     end
 
@@ -389,7 +389,7 @@ class Driver < Msf::Ui::Driver
       elog(e)
     end
 
-    av_warning_message if (framework.eicar_corrupted? || payloads_manifest_errors.any?)
+    av_warning_message if framework.eicar_corrupted? || payloads_manifest_errors.any?
 
     if framework.features.enabled?(::Msf::FeatureManager::METASPLOIT_PAYLOAD_WARNINGS)
       if payloads_manifest_errors.any?

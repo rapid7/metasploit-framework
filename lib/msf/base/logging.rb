@@ -17,7 +17,7 @@ class Logging
   # @param log_sink_name [string] Log sink name.
   # @return [void]
   def self.init(log_sink_name = nil)
-    if (! @@initialized)
+    if ! @@initialized
       @@initialized = true
 
       log_sink ||= Rex::Logging::LogSinkFactory.new(

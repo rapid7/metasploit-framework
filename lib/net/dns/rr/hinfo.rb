@@ -10,7 +10,7 @@
 module Net
   module DNS
     class RR
-      
+
       #------------------------------------------------------------
       # RR type HINFO
       #------------------------------------------------------------
@@ -18,7 +18,7 @@ module Net
         attr_reader :cpu, :os
 
         private
-        
+
         def check_hinfo(str)
           if str.strip =~ /^["'](.*?)["']\s+["'](.*?)["']$/
             return $1,$2
@@ -26,7 +26,7 @@ module Net
             raise RRArgumentError, "HINFO section not valid: #{str.inspect}"
           end
         end
-        
+
         def build_pack
           @hinfo_pack = [@cpu.size].pack("C") + @cpu
           @hinfo_pack += [@os.size].pack("C") + @os
@@ -66,9 +66,9 @@ module Net
           @os = data[offset+1..offset+1+len]
           return offset += len+1
         end
-        
+
       end # class HINFO
-      
+
     end # class RR
   end # module DNS
 end # module Net

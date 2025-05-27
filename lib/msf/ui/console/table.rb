@@ -23,10 +23,10 @@ class Table < Rex::Text::Table
 
     if style == Style::Default
       opts['Indent']  = 3
-      if (!opts['Prefix'])
+      if !opts['Prefix']
         opts['Prefix']  = "\n"
       end
-      if (!opts['Postfix'])
+      if !opts['Postfix']
         opts['Postfix'] = "\n"
       end
     end

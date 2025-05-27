@@ -87,8 +87,8 @@ module Msf
       def meterpreter_logging_config(opts = {})
         ds = opts[:datastore] || datastore
         {
-          debug_build: (ds[:debug_build] || datastore['MeterpreterDebugBuild']),
-          log_path:    (ds[:log_path] || parse_rpath)
+          debug_build: ds[:debug_build] || datastore['MeterpreterDebugBuild'],
+          log_path:    ds[:log_path] || parse_rpath
         }
       end
 

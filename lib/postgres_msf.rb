@@ -4,7 +4,7 @@
 #
 # Postgres-PR is released under the same terms of license as Ruby.
 #
-# The Ruby License is: 
+# The Ruby License is:
 # http://www.ruby-lang.org/en/LICENSE.txt
 #
 

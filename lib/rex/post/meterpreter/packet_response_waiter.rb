@@ -47,7 +47,7 @@ class PacketResponseWaiter
     self.rid      = rid.dup
     self.response = nil
 
-    if (completion_routine)
+    if completion_routine
       self.completion_routine = completion_routine
       self.completion_param   = completion_param
     else
@@ -70,7 +70,7 @@ class PacketResponseWaiter
   # @param response [Packet]
   # @return [void]
   def notify(response)
-    if (self.completion_routine)
+    if self.completion_routine
       self.response = response
       self.completion_routine.call(response, self.completion_param)
     else

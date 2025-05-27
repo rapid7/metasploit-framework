@@ -159,7 +159,7 @@ module BindAwsInstanceConnect
       end
 
       # Valid client connection?
-      if (instance_connect_client)
+      if instance_connect_client
         # Increment the has connection counter
         self.pending_connections += 1
 

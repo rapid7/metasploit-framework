@@ -99,7 +99,7 @@ module Metasploit
           set_tcp_evasions(nsock)
 
           # Set this socket to the global socket as necessary
-          self.sock = nsock if (global)
+          self.sock = nsock if global
 
           return nsock
         end
@@ -132,7 +132,7 @@ module Metasploit
         #
         def disconnect(nsock = self.sock)
           begin
-            if (nsock)
+            if nsock
               nsock.shutdown
               nsock.close
             end

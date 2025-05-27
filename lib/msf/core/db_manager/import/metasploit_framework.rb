@@ -17,7 +17,7 @@ module Msf::DBManager::Import::MetasploitFramework
     return nil unless xml_elem
     string = xml_elem.text.to_s.strip
     return string unless string.is_a?(String)
-    return nil if (string.empty? || string.nil?)
+    return nil if string.empty? || string.nil?
 
     begin
       # Validate that it is properly formed base64 first

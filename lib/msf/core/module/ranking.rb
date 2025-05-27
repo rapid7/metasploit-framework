@@ -6,7 +6,7 @@ module Msf::Module::Ranking
     # Returns this module's ranking.
     #
     def rank
-      (const_defined?('Rank')) ? const_get('Rank') : Msf::NormalRanking
+      const_defined?('Rank') ? const_get('Rank') : Msf::NormalRanking
     end
 
     #

@@ -72,7 +72,7 @@ module Anemone
       def load_value(hash)
         MARSHAL_FIELDS.each do |field|
           unless hash[field].nil? || hash[field] == ''
-            hash[field] = Marshal.load(hash[field]) 
+            hash[field] = Marshal.load(hash[field])
           end
         end
         Page.from_hash(hash)

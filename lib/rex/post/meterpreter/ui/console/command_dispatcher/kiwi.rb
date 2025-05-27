@@ -691,7 +691,7 @@ protected
         workspace_id: shell.framework.db.workspace.id
     }
 
-    return if (user.empty? || secret.eql?('(null)'))
+    return if user.empty? || secret.eql?('(null)')
 
     case type
     when :msv

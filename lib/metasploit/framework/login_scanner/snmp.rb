@@ -224,7 +224,7 @@ module Metasploit
           while (res = recv_wrapper(sock, 65535, timeout))
 
             # Ignore invalid responses
-            break if !(res[1])
+            break if !res[1]
 
             # Ignore empty responses
             next if !(res[0] && !res[0].empty?)

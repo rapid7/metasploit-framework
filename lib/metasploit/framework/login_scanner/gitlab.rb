@@ -26,7 +26,7 @@ module Metasploit
             protocol: 'tcp',
             service_name: ssl ? 'https' : 'http'
           }
-          begin 
+          begin
             # Get a valid session cookie and authenticity_token for the next step
             res = send_request(
               'method' => 'GET',

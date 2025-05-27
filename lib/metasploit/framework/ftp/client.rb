@@ -78,7 +78,7 @@ module Metasploit
             return false
           end
 
-          if (pass)
+          if pass
             res = send_pass(pass, ftpsock)
             if (res !~ /^2/)
               return false
@@ -120,7 +120,7 @@ module Metasploit
         def send_cmd(args, recv = true, nsock = self.sock)
           cmd = args.join(" ") + "\r\n"
           ret = raw_send(cmd, nsock)
-          if (recv)
+          if recv
             return recv_ftp_resp(nsock)
           end
           return ret
@@ -138,7 +138,7 @@ module Metasploit
         def send_cmd_data(args, data, mode = 'a', nsock = self.sock)
           type = nil
           # implement some aliases for various commands
-          if (args[0] =~ /^DIR$/i || args[0] =~ /^LS$/i)
+          if args[0] =~ /^DIR$/i || args[0] =~ /^LS$/i
             # TODO || args[0] =~ /^MDIR$/i || args[0] =~ /^MLS$/i
             args[0] = "LIST"
             type = "get"

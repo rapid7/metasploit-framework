@@ -37,8 +37,8 @@ class RegistryValue
     if (type == nil)
       type = self.type
     end
-    if (self.client.sys.registry.set_value(self.hkey, self.name,
-        type, data))
+    if self.client.sys.registry.set_value(self.hkey, self.name,
+        type, data)
       self.data = data
       self.type = type
 

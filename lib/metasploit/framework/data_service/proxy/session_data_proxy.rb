@@ -61,7 +61,7 @@ module SessionDataProxy
     hash[:host_data] = parse_host_opts(msf_session)
     hash[:session_data] = parse_session_data(msf_session)
 
-    if (msf_session.via_exploit)
+    if msf_session.via_exploit
       hash[:vuln_info] = parse_vuln_info(msf_session)
     end
 

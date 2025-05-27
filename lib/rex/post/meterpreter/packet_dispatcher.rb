@@ -319,7 +319,7 @@ module PacketDispatcher
 
     # Spawn a thread for receiving packets
     self.receiver_thread = Rex::ThreadFactory.spawn("MeterpreterReceiver", false) do
-      while (self.alive)
+      while self.alive
         begin
           rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, PING_TIME)
           if rv
@@ -341,7 +341,7 @@ module PacketDispatcher
     # Spawn a new thread that monitors the socket
     self.dispatcher_thread = Rex::ThreadFactory.spawn("MeterpreterDispatcher", false) do
       begin
-      while (self.alive)
+      while self.alive
         # This is where we'll store incomplete packets on
         # THIS iteration
         incomplete = []
@@ -429,7 +429,7 @@ module PacketDispatcher
         # loop, we spin CPU trying to handle packets that can't be
         # handled. Sleep here to treat that situation as though the
         # queue is empty.
-        if (backlog.length > 0 && backlog.length == incomplete.length)
+        if backlog.length > 0 && backlog.length == incomplete.length
           ::IO.select(nil, nil, nil, 0.10)
         end
 
@@ -524,7 +524,7 @@ module PacketDispatcher
 
     handled = false
     self.waiters.each() { |waiter|
-      if (waiter.waiting_for?(response))
+      if waiter.waiting_for?(response)
         waiter.notify(response)
         remove_response_waiter(waiter)
         handled = true
@@ -611,7 +611,7 @@ module PacketDispatcher
         return true
       end
 
-      if (handled)
+      if handled
         break
       end
     }

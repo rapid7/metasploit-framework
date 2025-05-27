@@ -32,7 +32,7 @@ class Packet::Header < Hash
 
     # ghettoooooo!
     # If we don't have any newlines..., put one there.
-    if (header.size > 0 && header !~ /\r\n/)
+    if header.size > 0 && header !~ /\r\n/
       header << "\r\n"
     end
 

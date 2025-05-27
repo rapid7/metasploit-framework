@@ -162,7 +162,7 @@ module Msf::Sessions
 
       def accept(opts = {})
         timeout = opts['Timeout']
-        if (timeout.nil? || timeout <= 0)
+        if timeout.nil? || timeout <= 0
           timeout = nil
         end
 

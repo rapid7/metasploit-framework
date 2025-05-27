@@ -28,7 +28,7 @@ module Msf::DBManager::Report
       raise Msf::DBImportError 'Report artifact file to be imported does not exist.'
     end
 
-    unless (File.directory?(artifacts_dir) && File.writable?(artifacts_dir))
+    unless File.directory?(artifacts_dir) && File.writable?(artifacts_dir)
       raise Msf::DBImportError "Could not move report artifact file to #{artifacts_dir}."
     end
 

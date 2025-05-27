@@ -20,7 +20,7 @@ module Subscriber
     # Wraps user_output.print_line
     #
     def print_line(msg='')
-      if (user_output)
+      if user_output
         print_blank_line if user_output.prompting?
         user_output.print_line(msg)
       end
@@ -30,7 +30,7 @@ module Subscriber
     # Wraps user_output.print_status
     #
     def print_status(msg='')
-      if (user_output)
+      if user_output
         print_blank_line if user_output.prompting?
         user_output.print_status(msg)
       end
@@ -40,7 +40,7 @@ module Subscriber
     # Wraps user_output.print_error
     #
     def print_error(msg='')
-      if (user_output)
+      if user_output
         print_blank_line if user_output.prompting?
         user_output.print_error(msg)
       end
@@ -52,7 +52,7 @@ module Subscriber
     # Wraps user_output.print_good
     #
     def print_good(msg='')
-      if (user_output)
+      if user_output
         print_blank_line if user_output.prompting?
         user_output.print_good(msg)
       end
@@ -62,7 +62,7 @@ module Subscriber
     # Wraps user_output.print_warning
     #
     def print_warning(msg='')
-      if (user_output)
+      if user_output
         print_blank_line if user_output.prompting?
         user_output.print_warning(msg)
       end
@@ -72,14 +72,14 @@ module Subscriber
     # Wraps user_output.print
     #
     def print(msg='')
-      user_output.print(msg) if (user_output)
+      user_output.print(msg) if user_output
     end
 
     #
     # Wraps user_output.flush
     #
     def flush
-      user_output.flush if (user_output)
+      user_output.flush if user_output
     end
 
     #
@@ -110,7 +110,7 @@ module Subscriber
     # Gets a line of input from the user_input handle by calling gets.
     #
     def gets
-      user_input.gets if (user_input)
+      user_input.gets if user_input
     end
 
     #

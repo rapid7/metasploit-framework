@@ -1,10 +1,10 @@
 module Anemone
   module CLI
     COMMANDS = %w[count cron pagedepth serialize url-list]
-    
+
     def self.run
       command = ARGV.shift
-      
+
       if COMMANDS.include? command
         load "anemone/cli/#{command.tr('-', '_')}.rb"
       else

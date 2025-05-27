@@ -112,7 +112,7 @@ module BindAwsSsm
     # Closes the stream abstraction and kills the monitor thread.
     #
     def close
-      @monitor_thread.kill if (@monitor_thread)
+      @monitor_thread.kill if @monitor_thread
       @monitor_thread = nil
 
       cleanup_abstraction

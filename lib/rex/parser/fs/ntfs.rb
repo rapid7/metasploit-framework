@@ -22,7 +22,7 @@ module Rex
         @sector_per_cluster = data[13].unpack('C')[0]
         @cluster_per_mft_record = data[64].unpack('c')[0]
         if @cluster_per_mft_record < 0
-          @bytes_per_mft_record = 2**(-@cluster_per_mft_record)
+          @bytes_per_mft_record = 2**-@cluster_per_mft_record
           @cluster_per_mft_record = @bytes_per_mft_record.to_f / @bytes_per_sector / @sector_per_cluster
         else
           @bytes_per_mft_record = @bytes_per_sector * @sector_per_cluster * @cluster_per_mft_record
@@ -175,7 +175,7 @@ module Rex
           size_wanted = [run_length * @bytes_per_cluster, size_max - attribut.length].min
           if cluster_num + (size_max / @bytes_per_cluster) >= run_list_num && (cluster_num < run_length + run_list_num)
             run_list_offset_in_cluster = run_offset + [cluster_num - run_list_num, 0].max
-            run_list_offset = (run_list_offset_in_cluster) * @bytes_per_cluster
+            run_list_offset = run_list_offset_in_cluster * @bytes_per_cluster
             run_list_offset = run_list_offset.to_i
             @file_handler.seek(run_list_offset)
 

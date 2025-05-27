@@ -247,7 +247,7 @@ module Rex::Proto::NTLM
         [	# Lan Manager Response
           lm.length,
           lm.length,
-          (ptr)
+          ptr
         ].pack('vvV') +
 
         [	# NTLM Manager Response

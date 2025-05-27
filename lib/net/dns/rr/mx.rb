@@ -3,7 +3,7 @@
 #
 # Net::DNS::RR::MX
 #
-#       $Id: MX.rb,v 1.8 2006/07/28 07:33:36 bluemonk Exp $     
+#       $Id: MX.rb,v 1.8 2006/07/28 07:33:36 bluemonk Exp $
 #
 ##
 
@@ -11,7 +11,7 @@
 module Net
   module DNS
     class RR
-      
+
       #------------------------------------------------------------
       # RR type MX
       #------------------------------------------------------------
@@ -19,7 +19,7 @@ module Net
         attr_reader :preference, :exchange
 
         private
-        
+
         def check_mx(str)
           if str.strip =~ /^(\d+)\s+(\S+)$/
             return $1.to_i,$2
@@ -27,7 +27,7 @@ module Net
             raise RRArgumentError, "MX section not valid"
           end
         end
-        
+
         def build_pack
           @mx_pack = [@preference].pack("n") + pack_name(@exchange)
           @rdlength = @mx_pack.size
@@ -66,7 +66,7 @@ module Net
         end
 
       end # class MX
-      
+
     end # class RR
   end # module DNS
 end # module Net

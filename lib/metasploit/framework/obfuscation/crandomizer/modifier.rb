@@ -57,7 +57,7 @@ module Metasploit
             # this gives the current else if block
             elseif_block = s.belse
 
-            while (elseif_block && elseif_block.respond_to?(:bthen)) do
+            while elseif_block && elseif_block.respond_to?(:bthen) do
               new_else_if_statements = []
 
               elseif_block.bthen.statements.each do |stmt|

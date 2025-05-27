@@ -18,7 +18,7 @@ class G711
  * documentation.  This software is provided "as is" without express or
  * implied warranty.
  */
- 
+
 /*
  * g711.c
  *
@@ -31,7 +31,7 @@ class G711
  * documentation.  This software is provided "as is" without express or
  * implied warranty.
  */
- 
+
 =end
 
 LOOKUP_ALAW2LIN16 = [

@@ -131,7 +131,7 @@ module ReverseUdp
         print_error("Handler failed to bind to #{ip}:#{local_port}")
       end
     }
-    raise ex if (ex)
+    raise ex if ex
   end
 
   #
@@ -241,7 +241,7 @@ module ReverseUdp
       self.handler_thread = nil
     end
 
-    if (self.listener_sock)
+    if self.listener_sock
       self.listener_sock.close
       self.listener_sock = nil
     end

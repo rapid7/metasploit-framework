@@ -74,7 +74,7 @@ class LogDispatcher
       log_sinks.delete(src)
     }
 
-    if (sink)
+    if sink
       sink.cleanup
 
       return true
@@ -88,7 +88,7 @@ class LogDispatcher
   #
   def log(sev, src, level, msg)
     log_sinks_lock.synchronize {
-      if ((sink = log_sinks[src]))
+      if (sink = log_sinks[src])
         next if (log_levels[src] and level > log_levels[src])
 
         sink.log(sev, src, level, msg)
@@ -197,7 +197,7 @@ end
 def register_log_source(src, sink, level = nil)
   $dispatcher[src] = sink
 
-  set_log_level(src, level) if (level)
+  set_log_level(src, level) if level
 end
 
 def deregister_log_source(src)

@@ -35,7 +35,7 @@ module ServerClient
   def send_response(response)
     # Set the connection to close or keep-alive depending on what the client
     # can support.
-    response['Connection'] = (keepalive) ? 'Keep-Alive' : 'close'
+    response['Connection'] = keepalive ? 'Keep-Alive' : 'close'
 
     # Add any other standard response headers.
     server.add_response_headers(response)

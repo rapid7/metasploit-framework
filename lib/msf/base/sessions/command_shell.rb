@@ -740,7 +740,7 @@ Shell Banner:
       execute_script(args.shift, *args)
     end
 
-    if (datastore['AutoRunScript'] && datastore['AutoRunScript'].empty? == false)
+    if datastore['AutoRunScript'] && datastore['AutoRunScript'].empty? == false
       args = Shellwords.shellwords( datastore['AutoRunScript'] )
       print_status("Session ID #{sid} (#{tunnel_to_s}) processing AutoRunScript '#{datastore['AutoRunScript']}'")
       execute_script(args.shift, *args)

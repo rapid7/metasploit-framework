@@ -5,16 +5,16 @@ require 'ipaddr'
 class RawSocket # :nodoc:
 
   @@id_arr = []
-  
+
   def initialize(src_addr,dest_addr)
-    
+
     # Define socket
     begin
       @socket = Socket.new PF_INET, SOCK_RAW, IPPROTO_RAW
     rescue SystemCallError => e
       raise SystemCallError, "You must be root to use raw sockets! #{e}"
     end
-    
+
     @socket.setsockopt IPPROTO_IP, IP_HDRINCL, 1
 
     # Checks addresses
@@ -27,7 +27,7 @@ class RawSocket # :nodoc:
 
     # Set correct protocol version in the header
     @version = @dest_addr.ipv4? ? "0100" : "0110"
-    
+
     # Total length: must be overridden by subclasses
     @tot_lenght = 20
 
@@ -39,7 +39,7 @@ class RawSocket # :nodoc:
     @id = 1234
 
     # Generate peer sockaddr
-    @to = Socket.pack_sockaddr_in @dest_port, @dest_addr.to_s    
+    @to = Socket.pack_sockaddr_in @dest_port, @dest_addr.to_s
   end
 
   def send(payload = '')
@@ -57,10 +57,10 @@ class RawSocket # :nodoc:
     packet << make_transport_header(payload.size)
     packet << [payload].pack("a*")
     @socket.send(packet,0,@to)
-  end 
+  end
 
   private
-  
+
   def check_addr addr
     case addr
     when String
@@ -71,7 +71,7 @@ class RawSocket # :nodoc:
       raise ArgumentError, "Wrong address format: #{addr}"
     end
   end
-  
+
   def check_port port
     if (1..65535).include? port and port.kind_of? Integer
       port
@@ -79,9 +79,9 @@ class RawSocket # :nodoc:
       raise ArgumentError, "Port #{port} not valid"
     end
   end
-  
+
   def genID
-    while (@@id_arr.include?(q = rand(65535)))
+    while @@id_arr.include?(q = rand(65535))
     end
     @@id_arr.push(q)
     q
@@ -104,34 +104,34 @@ class RawSocket # :nodoc:
     data[-3] = checksum
     data.pack(template)
   end
-  
+
   def make_transport_header
     ""
   end
-  
+
 end
 
 class UdpRawSocket < RawSocket # :nodoc:
 
   def initialize(src_addr,src_port,dest_addr,dest_port)
-    
+
     super(src_addr,dest_addr)
-    
+
     # Check ports
     @src_port  = check_port src_port
     @dest_port = check_port dest_port
-    
+
     # Total length: must be overridden by subclasses
     @tot_lenght = 20 + 8 # 8 bytes => UDP Header
 
     # Protocol: must be overridden by subclasses
     @protocol = 17 # UDP protocol
 
-    @to = Socket.pack_sockaddr_in @dest_port, @dest_addr.to_s    
+    @to = Socket.pack_sockaddr_in @dest_port, @dest_addr.to_s
   end
 
   private
-  
+
   def make_udp_header(parts)
     template = ''
     data = []
@@ -140,15 +140,15 @@ class UdpRawSocket < RawSocket # :nodoc:
       template << part[-1]
     end
     data.pack(template)
-  end 
-  
+  end
+
   def make_transport_header(pay_size)
     make_udp_header([
                       [ @src_port, 'n'],         # source port
                       [ @dest_port, 'n' ],       # destination port
                       [ 8 + pay_size, 'n' ],     # len
                       [ 0, 'n' ]                 # checksum (mandatory)
-                    ]) 
+                    ])
   end
-  
+
 end

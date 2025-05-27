@@ -148,7 +148,7 @@ module DNS
 
     #
     # Move upstream rules with the given indices into the location provided.
-    # If multiple IDs are provided, they will all be inserted into the provided location, 
+    # If multiple IDs are provided, they will all be inserted into the provided location,
     # in the order provided.
     # Ignore entries that are not found
     # @param ids [Array<Integer>] The IDs to move

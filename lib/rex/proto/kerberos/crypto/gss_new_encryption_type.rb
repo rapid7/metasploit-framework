@@ -98,7 +98,7 @@ module Rex
           # The number of bytes that we should rotate the ciphertext by, to
           # coerce the checksum and the header that we append at the end to be at
           # the front of the message. How much this rotates is dependent on whether
-          # the specific encryption algorithm places the checksum at the start or 
+          # the specific encryption algorithm places the checksum at the start or
           # the end of the plaintext prior to encryption.
           #
           def calculate_rrc
@@ -108,7 +108,7 @@ module Rex
           #
           # The number of filler bytes to add into the plaintext prior to encryption.
           # The intention of ec is to ensure that the crypto algorithm itself does not
-          # need to add "residue" (padding). This seems to be relevant only to DES, 
+          # need to add "residue" (padding). This seems to be relevant only to DES,
           # which leave padding removal as an exercise to the user (AES strips the padding
           # prior to returning it)
           def calculate_ec(plaintext_len)
@@ -132,11 +132,11 @@ module Rex
               ciphertext[-rrc, rrc] + ciphertext[0, ciphertext.length - rrc]
             end
           end
-  
-          # 
+
+          #
           # The length of the encrypted header portion of the message.
-          # This includes information that is part of the encryption process, such as 
-          # confounders, padding, and checksums. As a result, it is dependent on the 
+          # This includes information that is part of the encryption process, such as
+          # confounders, padding, and checksums. As a result, it is dependent on the
           # encryption algorithm.
           # This is defined in MS-WSMV section 2.2.9.1.1.2.2
           def header_length

@@ -8,5 +8,5 @@ class Anemone::Extractors::Dirbuster < Anemone::Extractors::Base
     return @@dirs if @@dirs
     @@dirs = IO.read( File.dirname( __FILE__ ) + '/dirbuster/directories' ).split( "\n" )
   end
-  
+
 end

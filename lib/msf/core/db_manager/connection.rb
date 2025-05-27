@@ -39,7 +39,7 @@ module Msf::DBManager::Connection
     return false if not @usable
 
     nopts = opts.dup
-    if (nopts['port'])
+    if nopts['port']
       nopts['port'] = nopts['port'].to_i
     end
 

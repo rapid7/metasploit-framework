@@ -23,7 +23,7 @@ class Agent #:nodoc:all
         @socket.bind(nil, listen_port)
         @mib = MIB::SystemMIB.new
     end
-    
+
     def start
         @log.info "SNMP agent running"
         loop do
@@ -53,7 +53,7 @@ class Agent #:nodoc:all
             end
         end
     end
-    
+
     def shutdown
         @log.info "SNMP agent stopping"
         @socket.close
@@ -61,7 +61,7 @@ class Agent #:nodoc:all
     end
 
     alias stop :shutdown
-    
+
 end
 
 end

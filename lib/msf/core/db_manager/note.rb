@@ -95,7 +95,7 @@ module Msf::DBManager::Note
         host = report_host({:workspace => wspace, :host => addr})
       end
       # Do the same for a service if that's also included.
-      if (opts[:port])
+      if opts[:port]
         proto = nil
         sname = nil
         proto_lower = opts[:proto].to_s.downcase # Catch incorrect usages

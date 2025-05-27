@@ -10,7 +10,7 @@ module BinaryWriterMixin
 
   # == 8 bit
 
-  # no byteorder for 8 bit! 
+  # no byteorder for 8 bit!
 
   def write_word8(val)
     pw(val, 'C')
@@ -90,7 +90,7 @@ module BinaryWriterMixin
     pw(val, 'N')
   end
 
-  # add some short-cut functions 
+  # add some short-cut functions
   %w(word16 int16 word32 int32).each do |typ|
     alias_method "write_#{typ}_big", "write_#{typ}_network"
   end

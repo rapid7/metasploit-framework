@@ -52,7 +52,7 @@ class PluginManager < Array
       new = Msf::Plugin.constants
 
       # No new classes added?
-      if ((diff = new - old).empty?)
+      if (diff = new - old).empty?
         raise RuntimeError, "No classes were loaded from #{path} in the Msf::Plugin namespace."
       end
 

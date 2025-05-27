@@ -303,7 +303,7 @@ class Tlv
 
     if (value != nil)
       if (type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
-        if (value.kind_of?(Integer))
+        if value.kind_of?(Integer)
           @value = value.to_s
         else
           @value = value.dup
@@ -606,7 +606,7 @@ class GroupTlv < Tlv
       type_tlvs = []
 
       self.tlvs.each() { |tlv|
-        if (tlv.type?(type))
+        if tlv.type?(type)
           type_tlvs << tlv
         end
       }
@@ -831,8 +831,8 @@ class Packet < GroupTlv
     method = nil
     id = nil
 
-    if (request)
-      if (request.type?(PACKET_TYPE_PLAIN_REQUEST))
+    if request
+      if request.type?(PACKET_TYPE_PLAIN_REQUEST)
         response_type = PACKET_TYPE_PLAIN_RESPONSE
       end
 
@@ -874,8 +874,8 @@ class Packet < GroupTlv
     self.raw = ''
 
     # If it's a request, generate a random request identifier
-    if ((type == PACKET_TYPE_REQUEST) ||
-        (type == PACKET_TYPE_PLAIN_REQUEST))
+    if (type == PACKET_TYPE_REQUEST) ||
+        (type == PACKET_TYPE_PLAIN_REQUEST)
       rid = ''
 
       32.times { |val| rid << rand(10).to_s }
@@ -906,7 +906,7 @@ class Packet < GroupTlv
 
   def aes_encrypt(key, data)
     size = key.length * 8
-    raise ArgumentError.new('AES key width must be 128 or 256 bits') unless (size == 128 || size == 256)
+    raise ArgumentError.new('AES key width must be 128 or 256 bits') unless size == 128 || size == 256
     # Create the required cipher instance
     aes = OpenSSL::Cipher.new("AES-#{size}-CBC")
     # Generate a truly random IV
@@ -923,7 +923,7 @@ class Packet < GroupTlv
 
   def aes_decrypt(key, iv, data)
     size = key.length * 8
-    raise ArgumentError.new('AES key width must be 128 or 256 bits') unless (size == 128 || size == 256)
+    raise ArgumentError.new('AES key width must be 128 or 256 bits') unless size == 128 || size == 256
     # Create the required cipher instance
     aes = OpenSSL::Cipher.new("AES-#{size}-CBC")
     # Generate a truly random IV
@@ -1021,7 +1021,7 @@ class Packet < GroupTlv
   # Checks to see if the packet is a response.
   #
   def response?
-    (self.type == PACKET_TYPE_RESPONSE || self.type == PACKET_TYPE_PLAIN_RESPONSE)
+    self.type == PACKET_TYPE_RESPONSE || self.type == PACKET_TYPE_PLAIN_RESPONSE
   end
 
   ##

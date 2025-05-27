@@ -76,7 +76,7 @@ module ReverseTcpSsl
         print_error("Handler failed to bind to #{ip}:#{local_port}")
       end
     }
-    raise ex if (ex)
+    raise ex if ex
   end
 
 end

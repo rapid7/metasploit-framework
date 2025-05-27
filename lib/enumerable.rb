@@ -50,7 +50,7 @@ module Enumerable
     alias_method :cart, :cartesian_product
   end
 
-  # The instance level version of <tt>Enumerable::cartesian_product</tt>.	
+  # The instance level version of <tt>Enumerable::cartesian_product</tt>.
   #
   #   a = []
   #   [1,2].cart([4,5]){|elem| a << elem }

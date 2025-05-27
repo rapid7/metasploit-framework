@@ -40,7 +40,7 @@ class SimpleClient
         self.client = client
       elsif (self.versions == [1] && backend.nil?) || backend == :rex
         self.client = Rex::Proto::SMB::Client.new(socket)
-      elsif (backend.nil? || backend == :ruby_smb)
+      elsif backend.nil? || backend == :ruby_smb
         self.client = RubySMB::Client.new(RubySMB::Dispatcher::Socket.new(self.socket, read_timeout: 60),
                                           username: '',
                                           password: '',
@@ -70,7 +70,7 @@ class SimpleClient
 
     session_lifetime do
       begin
-  
+
         if (self.direct != true)
           self.client.session_request(name)
         end
@@ -82,31 +82,31 @@ class SimpleClient
         self.client.send_lm = send_lm
         self.client.use_lanman_key =  use_lanman_key
         self.client.send_ntlm = send_ntlm
-  
+
         dlog("SMB version(s) to negotiate: #{self.versions}")
         ok = self.client.negotiate
         dlog("Negotiated SMB version: SMB#{negotiated_smb_version}")
-  
+
         if self.client.is_a?(RubySMB::Client)
           self.server_max_buffer_size = self.client.server_max_buffer_size
         else
           self.server_max_buffer_size = ok['Payload'].v['MaxBuff']
         end
-  
+
         # Disable NTLMv2 Session for Windows 2000 (breaks authentication on some systems)
         # XXX: This in turn breaks SMB auth for Windows 2000 configured to enforce NTLMv2
         # XXX: Tracked by ticket #4785#4785
         if self.client.native_lm =~ /Windows 2000 5\.0/ and usentlm2_session
         #	self.client.usentlm2_session = false
         end
-  
+
         self.client.spnopt = spnopt
-  
+
         # In case the user unsets the username or password option, we make sure this is
         # always a string
         user ||= ''
         pass ||= ''
-  
+
         res = self.client.session_setup(user, pass, domain)
       rescue ::Interrupt
         raise $!
@@ -120,7 +120,7 @@ class SimpleClient
         end
         raise n
       end
-  
+
       # RubySMB does not raise any exception if the Session Setup fails
       if self.client.is_a?(RubySMB::Client) && res != WindowsError::NTStatus::STATUS_SUCCESS
         n = XCEPT::LoginError.new
@@ -129,7 +129,7 @@ class SimpleClient
         n.error_reason = res.name
         raise n
       end
-  
+
       return true
     end
   end

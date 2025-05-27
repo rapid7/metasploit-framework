@@ -37,7 +37,7 @@ module Net
       def krb_transform_response(encryptor, response)
         # OMI server doesn't always respond to encrypted messages with encrypted responses over SSL
         return unless response
-        return if response.headers['Content-Type'] && response.headers['Content-Type'].first =~ (%r{\Aapplication/soap\+xml}i)
+        return if response.headers['Content-Type'] && response.headers['Content-Type'].first =~ %r{\Aapplication/soap\+xml}i
         return if response.body.empty?
 
         str = response.body.force_encoding('BINARY')
@@ -72,7 +72,7 @@ module Net
       def ntlm_transform_response(ntlm_client, response)
         # OMI server doesn't always respond to encrypted messages with encrypted responses over SSL
         return unless response
-        return if response.headers['Content-Type'] && response.headers['Content-Type'].first =~ (%r{\Aapplication/soap\+xml}i)
+        return if response.headers['Content-Type'] && response.headers['Content-Type'].first =~ %r{\Aapplication/soap\+xml}i
         return if response.body.empty?
 
         str = response.body.force_encoding('BINARY')

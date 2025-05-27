@@ -27,13 +27,13 @@ module Metasploit
           no_connect = { status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: 'Cannot retrieve session info' }
           return { status: LOGIN_STATUS::UNABLE_TO_CONNECT, proof: 'Unable to access PhpMyAdmin login page' } unless res
 
-          return no_connect if (res.get_cookies.scan(/phpMyAdmin=(\w+);*/).flatten[0].nil? || res.body.scan(/token"\s*value="(.*?)"/).flatten[0].nil? || res.get_cookies.split[-2..-1].nil?)
+          return no_connect if res.get_cookies.scan(/phpMyAdmin=(\w+);*/).flatten[0].nil? || res.body.scan(/token"\s*value="(.*?)"/).flatten[0].nil? || res.get_cookies.split[-2..-1].nil?
           session_id = res.get_cookies.scan(/phpMyAdmin=(\w+);*/).flatten[0]
           token = Rex::Text.html_decode(res.body.scan(/token"\s*value="(.*?)"/).flatten[0])
           cookies = res.get_cookies.split[-2..-1].join(' ')
 
           info = [session_id, token, cookies]
-          return no_connect if (info.empty? || session_id.empty? || token.empty? || cookies.empty?)
+          return no_connect if info.empty? || session_id.empty? || token.empty? || cookies.empty?
 
           return info
         end

@@ -4,7 +4,7 @@
 module Rex
 module Proto
 module IPMI
-      
+
   #
   # Move these into an IPMI stack or mixin at some point
   #

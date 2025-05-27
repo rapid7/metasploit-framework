@@ -63,7 +63,7 @@ module Rex
 
     def report_vuln(&block)
       proto = @state[:url].split(":")[0]
-      path = '/' + (@state[:url].split("/")[3..(@state[:url].split("/").length - 1)].join('/'))
+      path = '/' + @state[:url].split("/")[3..(@state[:url].split("/").length - 1)].join('/')
 
       web_vuln_info = {}
       web_vuln_info[:web_site] = proto + "://" + @state[:host] + ":" + @state[:port]

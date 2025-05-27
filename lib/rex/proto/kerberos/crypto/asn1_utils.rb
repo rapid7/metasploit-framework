@@ -3,7 +3,7 @@ module Rex
     module Kerberos
       module Crypto
         module Asn1Utils
-          # Some crypto schemes just decide to add a bunch of null bytes as padding,  and 
+          # Some crypto schemes just decide to add a bunch of null bytes as padding,  and
           # leave it up to the application to decide how many of those null bytes to remove.
           # We can't just remove all zeroes from the end of the data, because some of them
           # may actually be part of the data. The assumption here is that the information
@@ -15,7 +15,7 @@ module Rex
                valid_until = offset + length + header_len
                break
              end
-             
+
              # For this to be a valid result, we expect this byte, and all following it, to be zeroes. Alternatively, there could be no padding at all (e.g. block multiple)
              suffix = input[valid_until, input.length]
              expected_result = suffix == "" || suffix.unpack('C*').all? {|char| char == 0}

@@ -141,7 +141,7 @@ module Msf
       # {"_id"=>BSON::ObjectId('5c7f23af3825ce2067a1d9ce'), "ruleset" => "WAN_OUT", "rule_index" => "2000", "name" => "Block Example", "enabled" => true, "action" => "reject", "protocol_match_excepted" => false, "logging" => false, "state_new" => false, "state_established" => false, "state_invalid" => false, "state_related" => false, "ipsec" => "", "src_firewallgroup_ids" => ["1a1c15a11111ce14b1f1111a"], "src_mac_address" => "", "dst_firewallgroup_ids" => [], "dst_address" => "", "src_address" => "", "protocol" => "all", "icmp_typename" => "", "src_networkconf_id" => "", "src_networkconf_type" => "NETv4", "dst_networkconf_id" => "", "dst_networkconf_type" => "NETv4", "site_id" => "1c1f208b3815ce1111a1a1a1"}
       def process_firewallrule(lines, _)
         lines.each do |line|
-          rule = (line['action']).to_s
+          rule = line['action'].to_s
           unless line['dst_address'].empty?
             rule << " dst addresses: #{line['dst_address']}"
           end

@@ -107,14 +107,14 @@ module Common
     if ((mod.exploit? or mod.evasion? ) and mod.datastore['PAYLOAD'])
       p = framework.payloads.create(mod.datastore['PAYLOAD'])
 
-      if (!p)
+      if !p
         print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
         return
       end
 
       p.share_datastore(mod.datastore)
 
-      if (p)
+      if p
         p_opt = Serializer::ReadableText.dump_options(p, '   ')
         print("\nPayload options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
         print("   **DisablePayloadHandler: True   (no handler will be created!)**\n\n") if mod.datastore['DisablePayloadHandler'].to_s == 'true'

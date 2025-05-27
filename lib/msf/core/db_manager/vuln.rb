@@ -57,7 +57,7 @@ module Msf::DBManager::Vuln
     raise RuntimeError, "Not workspace safe: #{caller.inspect}"
   ::ApplicationRecord.connection_pool.with_connection {
     vuln = nil
-    if (service)
+    if service
       vuln = ::Mdm::Vuln.find.where("name = ? and service_id = ? and host_id = ?", name, service.id, host.id).order("vulns.id DESC").first()
     else
       vuln = ::Mdm::Vuln.find.where("name = ? and host_id = ?", name, host.id).first()
@@ -107,7 +107,7 @@ module Msf::DBManager::Vuln
       opts[:refs].each do |r|
         if r.instance_of?(Mdm::Module::Ref)
           str = r.name
-        elsif (r.respond_to?(:ctx_id)) and (r.respond_to?(:ctx_val))
+        elsif r.respond_to?(:ctx_id) and r.respond_to?(:ctx_val)
           str = "#{r.ctx_id}-#{r.ctx_val}"
         elsif (r.is_a?(Hash) and r[:ctx_id] and r[:ctx_val])
           str = "#{r[:ctx_id]}-#{r[:ctx_val]}"

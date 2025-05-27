@@ -93,7 +93,7 @@ module Msf::DBManager::Import::Nexpose::Raw
       return
     end
     data[:host] = addr
-    if (h["hardware-address"])
+    if h["hardware-address"]
       # Put colons between each octet of the MAC address
       data[:mac] = h["hardware-address"].gsub(':', '').scan(/../).join(':')
     end
@@ -113,7 +113,7 @@ module Msf::DBManager::Import::Nexpose::Raw
     if h["notes"]
       note = {
           :workspace => wspace,
-          :host      => (hobj || addr),
+          :host      => hobj || addr,
           :type      => "host.vuln.nexpose_keys",
           :data      => {},
           :mode      => :unique_data,

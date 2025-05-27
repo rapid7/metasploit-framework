@@ -84,7 +84,7 @@ module Msf::DBManager::ModuleCache
         end
       end
 
-      if (m.default_target)
+      if m.default_target
         res[:default_target] = m.default_target
       end
 
@@ -105,7 +105,7 @@ module Msf::DBManager::ModuleCache
         bits << [ :action, { :name => m.actions[i].name.to_s } ]
       end
 
-      if (m.default_action)
+      if m.default_action
         res[:default_action] = m.default_action.to_s
       end
 

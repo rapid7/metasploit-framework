@@ -175,7 +175,7 @@ module DispatcherShell
         cmd_found = false
         shell.dispatcher_stack.each do |dispatcher|
           next unless dispatcher.respond_to?(:commands)
-          next if (dispatcher.commands.nil?)
+          next if dispatcher.commands.nil?
           next if (dispatcher.commands.length == 0)
 
           if dispatcher.respond_to?("cmd_#{cmd}", true)
@@ -414,7 +414,7 @@ module DispatcherShell
 
     # Check trailing whitespace so we can tell 'x' from 'x '
     str_match = str.match(/[^\\]([\\]{2})*\s+$/)
-    str_trail = (str_match.nil?) ? '' : str_match[0]
+    str_trail = str_match.nil? ? '' : str_match[0]
 
     # Split the line up by whitespace into words
     split_str = shellsplitex(str)
@@ -517,9 +517,9 @@ module DispatcherShell
     error      = false
 
     # If output is disabled output will be nil
-    output.reset_color if (output)
+    output.reset_color if output
 
-    if (method)
+    if method
       entries = dispatcher_stack.length
 
       dispatcher_stack.each { |dispatcher|
@@ -562,7 +562,7 @@ module DispatcherShell
         break if (dispatcher_stack.length != entries)
       }
 
-      if (cmd_status.nil? && error == false)
+      if cmd_status.nil? && error == false
         unknown_command(method, line)
       end
     end
@@ -716,7 +716,7 @@ module DispatcherShell
 
       field_value << (word || sq || (dq && dq.gsub(/\\([$`"\\\n])/, '\\1')) || esc.gsub(/\\(.)/, '\\1'))
       if sep
-        tokens << { begin: field_begin, value: field_value, quote: ((sq && "'") || (dq && '"') || nil) }
+        tokens << { begin: field_begin, value: field_value, quote: (sq && "'") || (dq && '"') || nil }
         field_value = String.new
         field_begin = nil
       end

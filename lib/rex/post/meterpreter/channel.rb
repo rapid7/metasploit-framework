@@ -208,7 +208,7 @@ class Channel
 
     # If the channel is in synchronous mode, the response should contain
     # data that was read from the remote side of the channel
-    if (flag?(CHANNEL_FLAG_SYNCHRONOUS))
+    if flag?(CHANNEL_FLAG_SYNCHRONOUS)
       data = response.get_tlv(TLV_TYPE_CHANNEL_DATA);
 
       if (data != nil)
@@ -239,8 +239,8 @@ class Channel
     request = Packet.create_request(COMMAND_ID_CORE_CHANNEL_WRITE)
 
     # Truncation and celebration
-    if ((length != nil) &&
-        (buf.length >= length))
+    if (length != nil) &&
+        (buf.length >= length)
       buf = buf[0..length]
     else
       length = buf.length

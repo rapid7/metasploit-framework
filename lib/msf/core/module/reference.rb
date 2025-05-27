@@ -122,7 +122,7 @@ class Msf::Module::SiteReference < Msf::Module::Reference
       self.site = "Soundtrack: #{in_ctx_val}"
     else
       self.site  = in_ctx_id
-      self.site += " (#{in_ctx_val})" if (in_ctx_val)
+      self.site += " (#{in_ctx_val})" if in_ctx_val
     end
   end
 
@@ -137,7 +137,7 @@ class Msf::Module::SiteReference < Msf::Module::Reference
   # Serializes a site URL string.
   #
   def from_s(str)
-    if (/(http:\/\/|https:\/\/|ftp:\/\/)/.match(str))
+    if /(http:\/\/|https:\/\/|ftp:\/\/)/.match(str)
       self.site = str
       self.ctx_id  = 'URL'
       self.ctx_val = self.site

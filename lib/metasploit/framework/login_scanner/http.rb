@@ -433,7 +433,7 @@ module Metasploit
           # port is something other than a default. In that situation,
           # we don't know what the user has in mind so we have to trust
           # that they're going to do something sane.
-          if !(self.ssl) && self.port.nil?
+          if !self.ssl && self.port.nil?
             self.port = self.class::DEFAULT_PORT
             self.ssl = false
           elsif self.ssl && self.port.nil?

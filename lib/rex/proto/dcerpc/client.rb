@@ -25,7 +25,7 @@ require 'rex/text'
 
     # If the caller passed us a smb_client object, use it and
     # and skip the connect/login/ipc$ stages of the setup
-    if (self.options['smb_client'])
+    if self.options['smb_client']
       self.smb = self.options['smb_client']
     end
 
@@ -103,7 +103,7 @@ require 'rex/text'
     end
 
     # Add this socket to the exploit's list of open sockets
-    options['MsfExploit'].add_socket(self.socket) if (options['MsfExploit'])
+    options['MsfExploit'].add_socket(self.socket) if options['MsfExploit']
   end
 
   def smb_connect()
@@ -148,8 +148,8 @@ require 'rex/text'
     else
       if (self.socket.type? == 'tcp')
         if (false and max_read)
-          while (true)
-            data = self.socket.get_once((rand(max_read-min_read)+min_read), self.options['read_timeout'])
+          while true
+            data = self.socket.get_once(rand(max_read-min_read)+min_read, self.options['read_timeout'])
             break if not data
             break if not data.length
             raw_response << data
@@ -200,11 +200,11 @@ require 'rex/text'
 
       args = [ self.handle.uuid[0], self.handle.uuid[1] ]
 
-      if (self.options['fake_multi_bind_prepend'])
+      if self.options['fake_multi_bind_prepend']
         args << self.options['fake_multi_bind_prepend']
       end
 
-      if (self.options['fake_multi_bind_append'])
+      if self.options['fake_multi_bind_append']
         args << self.options['fake_multi_bind_append']
       end
 
@@ -296,7 +296,7 @@ require 'rex/text'
     resp = Rex::Proto::DCERPC::Response.new(data.slice!(0, 10))
 
     # Something went wrong in the parser...
-    if (! resp.frag_len)
+    if ! resp.frag_len
       return resp
     end
 

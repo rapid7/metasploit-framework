@@ -56,10 +56,10 @@ class Fs
     request = Packet.create_request(COMMAND_ID_PRIV_FS_SET_FILE_MACE)
 
     request.add_tlv(TLV_TYPE_FS_FILE_PATH, file_path)
-    request.add_tlv(TLV_TYPE_FS_FILE_MODIFIED, modified.to_i) if (modified)
-    request.add_tlv(TLV_TYPE_FS_FILE_ACCESSED, accessed.to_i) if (accessed)
-    request.add_tlv(TLV_TYPE_FS_FILE_CREATED, created.to_i) if (created)
-    request.add_tlv(TLV_TYPE_FS_FILE_EMODIFIED, entry_modified.to_i) if (entry_modified)
+    request.add_tlv(TLV_TYPE_FS_FILE_MODIFIED, modified.to_i) if modified
+    request.add_tlv(TLV_TYPE_FS_FILE_ACCESSED, accessed.to_i) if accessed
+    request.add_tlv(TLV_TYPE_FS_FILE_CREATED, created.to_i) if created
+    request.add_tlv(TLV_TYPE_FS_FILE_EMODIFIED, entry_modified.to_i) if entry_modified
 
     client.send_request(request)
 

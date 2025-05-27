@@ -79,10 +79,10 @@ class Server
     # Always assume we don't give out hostnames ...
     self.give_hostname = false
     self.served_over = 0
-    if (hash['HOSTNAME'])
+    if hash['HOSTNAME']
       self.give_hostname = true
       self.served_hostname = hash['HOSTNAME']
-      if ( hash['HOSTSTART'] )
+      if  hash['HOSTSTART']
         self.served_over = hash['HOSTSTART'].to_i
       end
     end

@@ -52,7 +52,7 @@ module DNS
         raise "Invalid record for cache entry (not an RR) - #{record.inspect}"
       end
 
-      unless (!record.respond_to?(:address) || Rex::Socket.is_ip_addr?(record.address.to_s))
+      unless !record.respond_to?(:address) || Rex::Socket.is_ip_addr?(record.address.to_s)
         raise "Invalid record for cache entry (no IP address) - #{record.inspect}"
       end
 

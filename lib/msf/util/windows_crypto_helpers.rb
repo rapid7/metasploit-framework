@@ -298,9 +298,9 @@ module WindowsCryptoHelpers
     byte_str.map do |byte|
       t = byte.to_s(2).rjust(8, '0')
       if t[0, 7].count('1').odd?
-        ("#{t[0, 7]}0").to_i(2).chr
+        "#{t[0, 7]}0".to_i(2).chr
       else
-        ("#{t[0, 7]}1").to_i(2).chr
+        "#{t[0, 7]}1".to_i(2).chr
       end
     end
   end

@@ -19,7 +19,7 @@ module Console::InteractiveChannel
   #
   def _interact
     # If the channel has a left-side socket, then we can interact with it.
-    if (self.lsock)
+    if self.lsock
       self.interactive(true)
 
       interact_stream(self)

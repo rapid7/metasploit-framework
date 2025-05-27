@@ -43,7 +43,7 @@ module Msf::WebServices::ServletHelper
 
   def parse_json_request(request, strict = false)
     body = request.body.read
-    if (body.nil? || body.empty?)
+    if body.nil? || body.empty?
       raise 'Invalid body, expected data' if strict
       return {}
     end
@@ -72,7 +72,7 @@ module Msf::WebServices::ServletHelper
       opts = parse_json_request(request, true)
 
       exec_async = opts.delete(:exec_async)
-      if (exec_async)
+      if exec_async
         Msf::WebServices::JobProcessor.instance.submit_job(opts, &job)
         return set_empty_response
       else
@@ -100,7 +100,7 @@ module Msf::WebServices::ServletHelper
     # Reject id passed as a query parameter for GET requests.
     # API standards say path ID should be used for single records.
     if query_hash.key?('id')
-      raise ArgumentError, ("'id' is not a valid query parameter. Please use /api/v1/<resource>/{ID} instead.")
+      raise ArgumentError, "'id' is not a valid query parameter. Please use /api/v1/<resource>/{ID} instead."
     end
     params.symbolize_keys.except(:captures, :splat).to_h.symbolize_keys
   end

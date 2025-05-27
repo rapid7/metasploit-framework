@@ -31,15 +31,15 @@ module CVE
     end
 
     def has_match?(ref_match)
-      if (
+      if
            (module_full_name_ref && ref_match.match(/#{module_full_name_ref}/)) ||
            (edb_ref               && ref_match.match(/EXPLOIT\-DB:#{edb_ref}$/)) ||
            (osvdb_ref             && ref_match.match(/OSVDB:#{osvdb_ref}$/)) ||
            (bid_ref               && ref_match.match(/BID:#{bid_ref}$/)) ||
            (msb_ref               && ref_match.match(/http:\/\/technet\.microsoft\.com\/security\/bulletin\/#{msb_ref}$/)) ||
            (zdi_ref               && ref_match.match(/zerodayinitiative\.com\/advisories\/ZDI\-#{zdi_ref}/)) ||
-           (url_refs_match?(ref_match))
-        )
+           url_refs_match?(ref_match)
+
         return true
       end
 

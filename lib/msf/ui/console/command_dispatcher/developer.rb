@@ -147,7 +147,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
       end
 
       # Reset tab completion
-      if (driver.input.supports_readline)
+      if driver.input.supports_readline
         driver.input.reset_tab_completion
       end
     else

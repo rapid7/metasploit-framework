@@ -93,7 +93,7 @@ class Rex::Proto::Thrift::Client
       body << chunk
     end
 
-    unless body.size == (frame_size)
+    unless body.size == frame_size
       if remaining <= 0
         raise Rex::TimeoutError, 'Failed to read the response data due to timeout.'
       end

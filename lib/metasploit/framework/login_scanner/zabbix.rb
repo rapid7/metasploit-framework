@@ -129,11 +129,11 @@ module Metasploit
 
             if res && res.code == 302
               res = perform_login_attempt('profile.php') # profile.php exists in Zabbix versions up to Zabbix 5.x
-              if (res && res.code == 200 && res.body.to_s =~ /<title>.*: User profile<\/title>/)
+              if res && res.code == 200 && res.body.to_s =~ /<title>.*: User profile<\/title>/
                 return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
               else
                 res = perform_login_attempt('/zabbix.php?action=userprofile.edit') # On version 5.x and later of Zabbix, profile.php was replaced with /zabbix.php?action=userprofile.edit
-                if (res && res.code == 200 && res.body.to_s =~ /<title>.*: User profile<\/title>/)
+                if res && res.code == 200 && res.body.to_s =~ /<title>.*: User profile<\/title>/
                   return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
                 end
               end

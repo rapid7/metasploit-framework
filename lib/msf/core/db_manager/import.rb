@@ -326,31 +326,31 @@ module Msf::DBManager::Import
 
     firstline = data[0, di]
     @import_filedata ||= {}
-    if (firstline.index("<NeXposeSimpleXML"))
+    if firstline.index("<NeXposeSimpleXML")
       @import_filedata[:type] = "NeXpose Simple XML"
       return :nexpose_simplexml
-    elsif (firstline.index("<FusionVM"))
+    elsif firstline.index("<FusionVM")
       @import_filedata[:type] = "FusionVM XML"
       return :fusionvm_xml
-    elsif (firstline.index("<NexposeReport"))
+    elsif firstline.index("<NexposeReport")
       @import_filedata[:type] = "NeXpose XML Report"
       return :nexpose_rawxml
-    elsif (firstline.index("Name,Manufacturer,Device Type,Model,IP Address,Serial Number,Location,Operating System"))
+    elsif firstline.index("Name,Manufacturer,Device Type,Model,IP Address,Serial Number,Location,Operating System")
       @import_filedata[:type] = "Spiceworks CSV Export"
       return :spiceworks_csv
-    elsif (firstline.index("<scanJob>"))
+    elsif firstline.index("<scanJob>")
       @import_filedata[:type] = "Retina XML"
       return :retina_xml
-    elsif (firstline.index(/<get_results_response status=['"]200['"] status_text=['"]OK['"]>/))
+    elsif firstline.index(/<get_results_response status=['"]200['"] status_text=['"]OK['"]>/)
       @import_filedata[:type] = "OpenVAS XML"
       return :openvas_new_xml
-    elsif (firstline.index(/<get_reports_response status=['"]200['"] status_text=['"]OK['"]>/))
+    elsif firstline.index(/<get_reports_response status=['"]200['"] status_text=['"]OK['"]>/)
       @import_filedata[:type] = "OpenVAS XML"
       return :openvas_new_xml
-    elsif (firstline.index(/<report id=['"]/))
+    elsif firstline.index(/<report id=['"]/)
       @import_filedata[:type] = "OpenVAS XML"
       return :openvas_new_xml
-    elsif (firstline.index("<NessusClientData>"))
+    elsif firstline.index("<NessusClientData>")
       @import_filedata[:type] = "Nessus XML (v1)"
       return :nessus_xml
     elsif firstline.starts_with?('{"template":')
@@ -359,7 +359,7 @@ module Msf::DBManager::Import
     elsif firstline.starts_with?('[{"template":')
       @import_filedata[:type] = "Nuclei JSON"
       return :nuclei_json
-    elsif (firstline.index("<SecScan ID="))
+    elsif firstline.index("<SecScan ID=")
       @import_filedata[:type] = "Microsoft Baseline Security Analyzer"
       return :mbsa_xml
     elsif (data[0,1024] =~ /<!ATTLIST\s+items\s+burpVersion/)
@@ -368,7 +368,7 @@ module Msf::DBManager::Import
     elsif (data[0,1024] =~ /<!ATTLIST\s+issues\s+burpVersion/)
       @import_filedata[:type] = "Burp Issue XML"
       return :burp_issue_xml
-    elsif (firstline.index("<?xml"))
+    elsif firstline.index("<?xml")
       # it's xml, check for root tags we can handle
       line_count = 0
       data.each_line { |line|
@@ -450,15 +450,15 @@ module Msf::DBManager::Import
         end
         line_count += 1
       }
-    elsif (firstline.index("timestamps|||scan_start"))
+    elsif firstline.index("timestamps|||scan_start")
       @import_filedata[:type] = "Nessus NBE Report"
       # then it's a nessus nbe
       return :nessus_nbe
-    elsif (firstline.index("# amap v"))
+    elsif firstline.index("# amap v")
       # then it's an amap mlog
       @import_filedata[:type] = "Amap Log -m"
       return :amap_mlog
-    elsif (firstline.index("amap v"))
+    elsif firstline.index("amap v")
       # then it's an amap log
       @import_filedata[:type] = "Amap Log"
       return :amap_log
@@ -466,10 +466,10 @@ module Msf::DBManager::Import
       # then its an IP list
       @import_filedata[:type] = "IP Address List"
       return :ip_list
-    elsif (data[0,1024].index("<netsparker"))
+    elsif data[0,1024].index("<netsparker")
       @import_filedata[:type] = "NetSparker XML"
       return :netsparker_xml
-    elsif (firstline.index("# Metasploit PWDump Export"))
+    elsif firstline.index("# Metasploit PWDump Export")
       # then it's a Metasploit PWDump export
       @import_filedata[:type] = "Metasploit PWDump Export"
       return :msf_pwdump
@@ -543,8 +543,8 @@ module Msf::DBManager::Import
 
   # Handles timestamps from Metasploit Express/Pro imports.
   def msf_normalise_import_timestamps(opts)
-    opts[:created_at] ||= (opts["created_at"] || ::Time.now.utc)
-    opts[:updated_at] ||= (opts["updated_at"] || opts[:created_at])
+    opts[:created_at] ||= opts["created_at"] || ::Time.now.utc
+    opts[:updated_at] ||= opts["updated_at"] || opts[:created_at]
     opts
   end
 

@@ -190,11 +190,11 @@ module DbConnector
     info = db_parse_db_uri_postgresql(cli_opts[:url])
     opts = { 'adapter' => 'postgresql' }
 
-    opts['username'] = info[:user] if (info[:user])
-    opts['password'] = info[:pass] if (info[:pass])
+    opts['username'] = info[:user] if info[:user]
+    opts['password'] = info[:pass] if info[:pass]
     opts['database'] = info[:name]
-    opts['host'] = info[:host] if (info[:host])
-    opts['port'] = info[:port] if (info[:port])
+    opts['host'] = info[:host] if info[:host]
+    opts['port'] = info[:port] if info[:port]
 
     opts['pass'] ||= ''
 
@@ -278,7 +278,7 @@ module DbConnector
     conf.each_pair do |key, value|
       conf_name = key.split('/').last
       has_name_match = !name.nil? && (conf_name == name)
-      has_url_match = !url.nil? && (value.is_a?(Hash) && value['url'] == url)
+      has_url_match = !url.nil? && value.is_a?(Hash) && value['url'] == url
       if has_name_match || has_url_match
         result = conf_name
       end
