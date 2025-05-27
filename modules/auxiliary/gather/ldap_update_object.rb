@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
-          'SideEffects' => []
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES]
         }
       )
     )
@@ -47,7 +47,6 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Connecting to LDAP on #{peer}...")
 
-
     ldap_connect do |ldap|
       print_status("Searching for target object: #{search_filter}...")
 
@@ -66,7 +65,6 @@ class MetasploitModule < Msf::Auxiliary
       target_dn = result.first.dn
       print_good("Found target object DN: #{target_dn}")
 
-
       if new_value.present?
         ops = [
           [:replace, attribute.to_sym, new_value]
@@ -83,12 +81,11 @@ class MetasploitModule < Msf::Auxiliary
       if ldap.modify(dn: target_dn, operations: ops)
         print_good("Successfully updated #{target_dn}'s #{attribute} to #{display_value}")
       else
-        print_warning("\"No Such Attribute\" failure can occur if you're attempting to set an already null attribute to null.") if ldap.get_operation_result.message == "No Such Attribute"
+        print_warning("\"No Such Attribute\" failure can occur if you're attempting to set an already null attribute to null.") if ldap.get_operation_result.message == 'No Such Attribute'
         fail_with(Failure::UnexpectedReply, "Failed to update #{attribute}: #{ldap.get_operation_result.message}")
       end
     end
   end
-
 
   def run
     update_object_attribute
