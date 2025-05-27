@@ -51,7 +51,7 @@ use auxiliary/scanner/postgres/postgres_login
 run 'postgres://root: a b c p4$$w0rd@127.0.0.1'
 ```
 
-Re-using PostgreSQL credentials in a subnet:
+Reusing PostgreSQL credentials in a subnet:
 
 ```
 use auxiliary/scanner/postgres/postgres_login

@@ -85,7 +85,7 @@ Additionally any information about caveats, scenarios you have tested, custom op
 should also go into this file.
 
 ## Checking Documentation Syntax
-Once you have written the documentation, you then want to run `toos/dev/msftidy_docs.rb <path to documentation file>`. This will report on any
+Once you have written the documentation, you then want to run `tools/dev/msftidy_docs.rb <path to documentation file>`. This will report on any
 errors with your documentation file, which you will want to fix before submitting your PR. Notice however that if you get a warning about long lines,
 these may be okay to ignore depending on the context. A good example is if a line is long merely because of a URL. Such warnings can be
 safely ignored.
