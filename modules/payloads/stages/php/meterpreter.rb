@@ -11,15 +11,15 @@ module MetasploitModule
   def initialize(info = {})
     super(
       merge_info(
-            info,
-                     'Name' => 'PHP Meterpreter',
-                     'Description' => 'Run a meterpreter server in PHP',
-                     'Author' => ['egypt'],
-                     'Platform' => 'php',
-                     'Arch' => ARCH_PHP,
-                     'License' => MSF_LICENSE,
-                     'Session' => Msf::Sessions::Meterpreter_Php_Php
-          )
+        info,
+        'Name' => 'PHP Meterpreter',
+        'Description' => 'Run a meterpreter server in PHP',
+        'Author' => ['egypt'],
+        'Platform' => 'php',
+        'Arch' => ARCH_PHP,
+        'License' => MSF_LICENSE,
+        'Session' => Msf::Sessions::Meterpreter_Php_Php
+      )
     )
   end
 
