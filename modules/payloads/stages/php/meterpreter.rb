@@ -9,14 +9,18 @@ module MetasploitModule
   include Msf::Sessions::MeterpreterOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'PHP Meterpreter',
-      'Description'   => 'Run a meterpreter server in PHP',
-      'Author'        => ['egypt'],
-      'Platform'      => 'php',
-      'Arch'          => ARCH_PHP,
-      'License'       => MSF_LICENSE,
-      'Session'       => Msf::Sessions::Meterpreter_Php_Php))
+    super(
+      merge_info(
+            info,
+                     'Name' => 'PHP Meterpreter',
+                     'Description' => 'Run a meterpreter server in PHP',
+                     'Author' => ['egypt'],
+                     'Platform' => 'php',
+                     'Arch' => ARCH_PHP,
+                     'License' => MSF_LICENSE,
+                     'Session' => Msf::Sessions::Meterpreter_Php_Php
+          )
+    )
   end
 
   def generate_stage(opts = {})
