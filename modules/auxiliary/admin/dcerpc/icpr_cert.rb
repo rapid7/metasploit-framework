@@ -47,7 +47,6 @@ class MetasploitModule < Msf::Auxiliary
         'DefaultAction' => 'REQUEST_CERT'
       )
     )
-
   end
 
   def run

