@@ -67,12 +67,12 @@ class MetasploitModule < Msf::Auxiliary
   def warn_on_likely_user_error
     ldap_result = @ldap.get_operation_result.table
     if ldap_result[:code] == 50
-      if (datastore['USERNAME'] == datastore['TARGET_USER'] ||
-          datastore['USERNAME'] == datastore['TARGET_USER'] + '$') &&
-         datastore['USERNAME'].end_with?('$') &&
+      if (datastore['LDAPUsername'] == datastore['TARGET_USER'] ||
+          datastore['LDAPUsername'] == datastore['TARGET_USER'] + '$') &&
+         datastore['LDAPUsername'].end_with?('$') &&
          ['add', 'remove'].include?(action.name.downcase)
         print_warning('By default, computer accounts can only update their key credentials if no value already exists. If there is already a value present, you can remove it, and add your own, but any users relying on the existing credentials will not be able to authenticate until you replace the existing value(s).')
-      elsif datastore['USERNAME'] == datastore['TARGET_USER'] && !datastore['USERNAME'].end_with?('$')
+      elsif datastore['LDAPUsername'] == datastore['TARGET_USER'] && !datastore['LDAPUsername'].end_with?('$')
         print_warning('By default, only computer accounts can modify their own properties (not user accounts).')
       end
     end
@@ -235,7 +235,7 @@ class MetasploitModule < Msf::Auxiliary
     }
     create_credential(credential_data)
 
-    info = "#{datastore['DOMAIN']}\\#{datastore['TARGET_USER']} Certificate"
+    info = "#{datastore['LDAPDomain']}\\#{datastore['TARGET_USER']} Certificate"
     stored_path = store_loot('windows.ad.cs', 'application/x-pkcs12', rhost, pkcs12.to_der, 'certificate.pfx', info)
     print_status("Certificate stored at: #{stored_path}")
   end
