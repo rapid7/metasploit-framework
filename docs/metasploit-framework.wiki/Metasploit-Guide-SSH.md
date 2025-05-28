@@ -115,7 +115,7 @@ use scanner/ssh/ssh_login
 run ssh://user:pass@172.18.102.20
 ```
 
-Re-using SSH credentials in a subnet:
+Reusing SSH credentials in a subnet:
 
 ```
 use scanner/ssh/ssh_login

@@ -176,6 +176,15 @@ class Config
   end
 
   #
+  # Gets the current impersonation token
+  #
+  def get_token_handle()
+    req = Packet.create_request(COMMAND_ID_STDAPI_SYS_CONFIG_GET_TOKEN_HANDLE)
+    res = client.send_request(req)
+    res.get_tlv_value(TLV_TYPE_HANDLE)
+  end
+
+#
   # Enables all possible privileges
   #
   def getprivs

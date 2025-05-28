@@ -53,10 +53,10 @@ class Powershell < Extension
       request.add_tlv(TLV_TYPE_POWERSHELL_ASSEMBLY_SIZE, binary.length)
       request.add_tlv(TLV_TYPE_POWERSHELL_ASSEMBLY, binary)
       client.send_request(request)
-      return true
+      return { loaded: true }
     end
 
-    return false
+    return { loaded: false }
   end
 
   def session_remove(opts={})
@@ -75,7 +75,14 @@ class Powershell < Extension
     request.add_tlv(TLV_TYPE_POWERSHELL_SESSIONID, opts[:session_id]) if opts[:session_id]
 
     response = client.send_request(request)
-    return response.get_tlv_value(TLV_TYPE_POWERSHELL_RESULT)
+    result = {}
+    handle = client.sys.config.get_token_handle()
+    if handle != 0
+      result[:warning] = 'Impersonation will not apply to PowerShell.'
+    end
+
+    result[:output] = response.get_tlv_value(TLV_TYPE_POWERSHELL_RESULT)
+    return result
   end
 
   def shell(opts={})
@@ -87,7 +94,16 @@ class Powershell < Extension
     if channel_id.nil?
       raise Exception, "We did not get a channel back!"
     end
-    Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(client, channel_id, 'powershell_psh', CHANNEL_FLAG_SYNCHRONOUS, response)
+
+    result = {}
+    handle = client.sys.config.get_token_handle()
+    if handle != 0
+      result[:warning] = 'Impersonation will not apply to PowerShell.'
+    end
+
+    result[:channel] = Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(client, channel_id, 'powershell_psh', CHANNEL_FLAG_SYNCHRONOUS, response)
+
+    result
   end
 
 end
