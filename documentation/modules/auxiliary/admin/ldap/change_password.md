@@ -7,7 +7,7 @@ Allows changing or resetting users' passwords over the LDAP protocol (particular
 
 Note that users can typically not reset their own passwords (unless they have very high privileges), but can usually change their password as long as they know the existing one.
 
-This module works with existing sessions (or relaying), especially for Resetting, wherein the target's password is not required.
+This module works with existing sessions (or relaying), especially for resetting, wherein the target's password is not required.
 
 ## Actions
 
@@ -19,14 +19,14 @@ This module works with existing sessions (or relaying), especially for Resetting
 The required options are based on the action being performed:
 
 - When resetting a password, you must specify the `TARGET_USER`
-- When changing a password, you must specify the `USERNAME` and `PASSWORD`, even if using an existing session (since the API requires both of these to be specified, even for open LDAP sessions)
+- When changing a password, you must specify the `LDAPUsername` and `LDAPPassword`, even if using an existing session (since the API requires both of these to be specified, even for open LDAP sessions)
 - The `NEW_PASSWORD` option must always be provided
 
-**USERNAME**
+**LDAPUsername**
 
 The username to use to authenticate to the server. Required for changing a password, even if using an existing session.
 
-**PASSWORD**
+**LDAPPassword**
 
 The password to use to authenticate to the server, prior to performing the password modification. Required for changing a password, even if using an existing session (since the server requires proof that you know the existing password).
 
