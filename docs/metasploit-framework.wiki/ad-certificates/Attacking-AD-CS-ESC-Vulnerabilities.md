@@ -931,8 +931,8 @@ module called `esc_update_ldap_object`
 
 If the AD CS server is configured to allow "weak certificate mappings" when a user is requesting a certificate, the
 server will check the `userPrincipalName` or the `dNSHostName` of the requesting identity and then issue a certificate
-based on that value.  Therefore if we can update user2's UPN to Administrator and then request a certificate on
-behalf of user2 we can get an Administrator certificate (easy priv esc horay). That is the essence of both ESC9 and
+based on that value.  Therefore if we can update "user2"'s UPN to "Administrator" and then request a certificate on
+behalf of "user2" we can get an Administrator certificate (easy priv esc horay). That is the essence of both ESC9 and
 ESC10 minus a number of details we'll get into.
 
 It's also worth noting that the following registry keys and preventative measure and exploit techniques (ESC9 and 10) all stem from
@@ -947,11 +947,10 @@ Located in: `HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Kdc`
 This registry key defines what is considered weak and strong certificate mappings for **Kerberos authentication**. Possible values:
 
 | Setting | Method                                                                                           | Strength assessment |
-| ------- | ------------------------------------------------------------------------------------------------ |---------------------|
+| ------- |--------------------------------------------------------------------------------------------------|---------------------|
 | 0       | No strong certificate mapping checks are done                                                    | weak                |
 | 1       | Will use strong mapping if present though can be ignored if CT_FLAG_NO_SECURITY_EXTENSION is set | weak                |
-| 2       | No weak mappings allowed                                                                         | strong              |
-|         |                                                                                                  |                     |
+| 2       | Full Enforcement Mode (No weak mappings allowed)                                                 | strong              |
 
 In order to exploit these certificate misconfiguration we will need the value of  `StrongCertificateBindingEnforcement` to be either `0` or `1`.
 If the value is set to `2` we cannot exploit the misconfiguration using Kerberos authentication.

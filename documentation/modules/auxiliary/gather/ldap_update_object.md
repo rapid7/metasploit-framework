@@ -34,40 +34,100 @@ Administrator
 
 ## Options
 
-### TARGET_OBJECT
+### OBJECT
 The username of the target LDAP object whose attribute you want to update. This is used to locate the specific object in the LDAP directory.
+
+### OBJECT_LOOKUP
+How to look up the target LDAP object. This can either be done by specifying a DN or by specifying 'sAMAaccountName` in order to work with AD account attributes. 
 
 ### ATTRIBUTE
 The LDAP attribute to update. For example, `userPrincipalName` can be used to update the User Principal Name of the target object.
 
-### NEW_VALUE
-The new value to assign to the specified attribute. For example, if updating the `userPrincipalName`, this would be the new UPN value, which might be `Administrator`
+### VALUE
+Required when running "Update" or "Create" actions and is the value of the specified attribute that you want to set for the target object.
 
 ## Scenarios
-### Update the userPrincipalName of user2 from "user2" to "Administrator" using user1's credentials (who has Write privileges over user2).
+### Action `Update`
 
 ```
-msf6 auxiliary(gather/ldap_update_object) > set attribute userPrincipalName
-attribute => userPrincipalName
-msf6 auxiliary(gather/ldap_update_object) > set ldapdomain kerberos.issue
-ldapdomain => kerberos.issue     
-msf6 auxiliary(gather/ldap_update_object) > set ldappassword N0tpassword!
-ldappassword => N0tpassword!
-msf6 auxiliary(gather/ldap_update_object) > set ldapusername user1
-ldapusername => user1
-msf6 auxiliary(gather/ldap_update_object) > set new_value Administrator
-new_value => Administrator
-msf6 auxiliary(gather/ldap_update_object) > set rhosts 172.16.199.200
-rhosts => 172.16.199.200
-msf6 auxiliary(gather/ldap_update_object) > set target_object user2
-target_username => user2
-msf6 auxiliary(gather/ldap_update_object) > run
+msf6 auxiliary(gather/ldap_object) > set action update
+action => update
+msf6 auxiliary(gather/ldap_object) > set rhost 172.16.199.200
+rhost => 172.16.199.200
+msf6 auxiliary(gather/ldap_object) > set LDAPDomain kerberos.issue
+LDAPDomain => kerberos.issue
+msf6 auxiliary(gather/ldap_object) > set LDAPUsername user1
+LDAPUsername => user1
+msf6 auxiliary(gather/ldap_object) > set LDAPPassword N0tpassword!
+LDAPPassword => N0tpassword!
+msf6 auxiliary(gather/ldap_object) > set OBJECT user2
+OBJECT => user2
+msf6 auxiliary(gather/ldap_object) > set OBJECT_LOOKUP sAMAccountName
+OBJECT_LOOKUP => sAMAccountName
+msf6 auxiliary(gather/ldap_object) > set ATTRIBUTE userPrincipalName
+ATTRIBUTE => userPrincipalName
+msf6 auxiliary(gather/ldap_object) > set VALUE Administrator
+VALUE => Administrator
+msf6 auxiliary(gather/ldap_object) > run
 [*] Running module against 172.16.199.200
-[*] Connecting to LDAP on 172.16.199.200:389...
-[*] Searching for DN of target user user2...
-[+] Found target user DN: CN=user2,CN=Users,DC=kerberos,DC=issue
+[*] Discovering base DN automatically
+[*] Original value of user2's userPrincipalName:
 [*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to Administrator...
 [+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to Administrator
+[+] The operation completed successfully!
+[*] Auxiliary module execution completed
+```
+
+### Action `Read`
+```
+msf6 auxiliary(gather/ldap_object) > set action read
+action => read
+msf6 auxiliary(gather/ldap_object) > set rhost 172.16.199.200
+rhost => 172.16.199.200
+msf6 auxiliary(gather/ldap_object) > set LDAPDomain kerberos.issue
+LDAPDomain => kerberos.issue
+msf6 auxiliary(gather/ldap_object) > set LDAPUsername user1
+LDAPUsername => user1
+msf6 auxiliary(gather/ldap_object) > set LDAPPassword N0tpassword!
+LDAPPassword => N0tpassword!
+msf6 auxiliary(gather/ldap_object) > set OBJECT user2
+OBJECT => user2
+msf6 auxiliary(gather/ldap_object) > set OBJECT_LOOKUP sAMAccountName
+OBJECT_LOOKUP => sAMAccountName
+msf6 auxiliary(gather/ldap_object) > set ATTRIBUTE userPrincipalName
+ATTRIBUTE => userPrincipalName
+msf6 auxiliary(gather/ldap_object) > run
+[*] Running module against 172.16.199.200
+[*] Discovering base DN automatically
+[+] Found CN=user2,CN=Users,DC=kerberos,DC=issue with userPrincipalName set to Administrator
+[+] The operation completed successfully!
+[*] Auxiliary module execution completed
+```
+
+### Action `Delete`
+```
+msf6 auxiliary(gather/ldap_object) > set action delete
+action => delete
+msf6 auxiliary(gather/ldap_object) > set rhost 172.16.199.200
+rhost => 172.16.199.200
+msf6 auxiliary(gather/ldap_object) > set LDAPDomain kerberos.issue
+LDAPDomain => kerberos.issue
+msf6 auxiliary(gather/ldap_object) > set LDAPUsername user1
+LDAPUsername => user1
+msf6 auxiliary(gather/ldap_object) > set LDAPPassword N0tpassword!
+LDAPPassword => N0tpassword!
+msf6 auxiliary(gather/ldap_object) > set OBJECT user2
+OBJECT => user2
+msf6 auxiliary(gather/ldap_object) > set OBJECT_LOOKUP sAMAccountName
+OBJECT_LOOKUP => sAMAccountName
+msf6 auxiliary(gather/ldap_object) > set ATTRIBUTE userPrincipalName
+ATTRIBUTE => userPrincipalName
+msf6 auxiliary(gather/ldap_object) > run
+[*] Running module against 172.16.199.200
+[*] Discovering base DN automatically
+[*] Attempting to delete attribute userPrincipalName from CN=user2,CN=Users,DC=kerberos,DC=issue...
+[+] Successfully deleted attribute userPrincipalName from CN=user2,CN=Users,DC=kerberos,DC=issue
+[+] The operation completed successfully!
 [*] Auxiliary module execution completed
 ```
 

