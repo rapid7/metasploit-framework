@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Exploit::Remote::HTTP::Wordpress::SQLi
   prepend Msf::Exploit::Remote::AutoCheck
