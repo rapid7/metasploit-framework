@@ -26,17 +26,20 @@ class MetasploitModule < Msf::Auxiliary
           This module attempts to identify software, OS and DB versions through the SAP
         function TH_SAPREL using the /sap/bc/soap/rfc SOAP service.
       },
-      'References' =>
-        [
-          [ 'URL', 'https://labs.f-secure.com/tools/sap-metasploit-modules/' ]
-        ],
-      'Author' =>
-        [
-          'Agnivesh Sathasivam',
-          'nmonkee'
-        ],
-      'License' => MSF_LICENSE
-      )
+      'References' => [
+        [ 'URL', 'https://labs.f-secure.com/tools/sap-metasploit-modules/' ]
+      ],
+      'Author' => [
+        'Agnivesh Sathasivam',
+        'nmonkee'
+      ],
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
+    )
 
     register_options(
       [
@@ -44,11 +47,11 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('CLIENT', [true, 'SAP Client', '001']),
         OptString.new('HttpUsername', [true, 'Username', 'SAP*']),
         OptString.new('HttpPassword', [true, 'Password', '06071992'])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
-
     data = '<?xml version="1.0" encoding="utf-8" ?>'
     data << '<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
     data << '<env:Body>'
@@ -69,95 +72,95 @@ class MetasploitModule < Msf::Auxiliary
         'encode_params' => false,
         'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
         'headers' => {
-          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
+          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions'
         },
         'vars_get' => {
-          'sap-client'    => datastore['CLIENT'],
-          'sap-language'  => 'EN'
+          'sap-client' => datastore['CLIENT'],
+          'sap-language' => 'EN'
         }
       })
-      if res and res.code == 200
-        kern_comp_on = $1 if res.body =~ /<KERN_COMP_ON>(.*)<\/KERN_COMP_ON>/i
-        kern_comp_time = $1 if res.body =~ /<KERN_COMP_TIME>(.*)<\/KERN_COMP_TIME>/i
-        kern_dblib = $1 if res.body =~ /<KERN_DBLIB>(.*)<\/KERN_DBLIB>/i
-        kern_patchlevel = $1 if res.body =~ /<KERN_PATCHLEVEL>(.*)<\/KERN_PATCHLEVEL>/i
-        kern_rel =  $1 if res.body =~ /<KERN_REL>(.*)<\/KERN_REL>/i
+      if res && (res.code == 200)
+        kern_comp_on = ::Regexp.last_match(1) if res.body =~ %r{<KERN_COMP_ON>(.*)</KERN_COMP_ON>}i
+        kern_comp_time = ::Regexp.last_match(1) if res.body =~ %r{<KERN_COMP_TIME>(.*)</KERN_COMP_TIME>}i
+        kern_dblib = ::Regexp.last_match(1) if res.body =~ %r{<KERN_DBLIB>(.*)</KERN_DBLIB>}i
+        kern_patchlevel = ::Regexp.last_match(1) if res.body =~ %r{<KERN_PATCHLEVEL>(.*)</KERN_PATCHLEVEL>}i
+        kern_rel = ::Regexp.last_match(1) if res.body =~ %r{<KERN_REL>(.*)</KERN_REL>}i
         saptbl = Msf::Ui::Console::Table.new(
           Msf::Ui::Console::Table::Style::Default,
-          'Header' => "[SAP] System Info",
+          'Header' => '[SAP] System Info',
           'Prefix' => "\n",
           'Postfix' => "\n",
           'Indent' => 1,
           'Columns' =>
             [
-              "Info",
-              "Value"
-            ])
-        saptbl << [ "OS Kernel version", kern_comp_on ]
-        saptbl << [ "SAP compile time", kern_comp_time ]
-        saptbl << [ "DB version", kern_dblib ]
-        saptbl << [ "SAP patch level", kern_patchlevel ]
-        saptbl << [ "SAP Version", kern_rel ]
-        print(saptbl.to_s)
+              'Info',
+              'Value'
+            ]
+        )
+        saptbl << [ 'OS Kernel version', kern_comp_on ]
+        saptbl << [ 'SAP compile time', kern_comp_time ]
+        saptbl << [ 'DB version', kern_dblib ]
+        saptbl << [ 'SAP patch level', kern_patchlevel ]
+        saptbl << [ 'SAP Version', kern_rel ]
+        print(saptbl)
 
         report_note(
-          :host => ip,
-          :proto => 'tcp',
-          :port => rport,
-          :sname => 'sap',
-          :type => 'os.kernel.version',
-          :data => { :os_kernel_version => kern_comp_on }
+          host: ip,
+          proto: 'tcp',
+          port: rport,
+          sname: 'sap',
+          type: 'os.kernel.version',
+          data: { os_kernel_version: kern_comp_on }
         )
 
         report_note(
-          :host => ip,
-          :proto => 'tcp',
-          :port => rport,
-          :sname => 'sap',
-          :type => 'sap.time.compile',
-          :data => { :sap_compile_time => kern_comp_time }
+          host: ip,
+          proto: 'tcp',
+          port: rport,
+          sname: 'sap',
+          type: 'sap.time.compile',
+          data: { sap_compile_time: kern_comp_time }
         )
 
         report_note(
-          :host => ip,
-          :proto => 'tcp',
-          :port => rport,
-          :sname => 'sap',
-          :type => 'sap.db.version',
-          :data => { :db_version => kern_dblib }
+          host: ip,
+          proto: 'tcp',
+          port: rport,
+          sname: 'sap',
+          type: 'sap.db.version',
+          data: { db_version: kern_dblib }
         )
 
         report_note(
-          :host => ip,
-          :proto => 'tcp',
-          :port => rport,
-          :sname => 'sap',
-          :type => 'sap.version.patch_level',
-          :data => { :sap_patch_level => kern_patchlevel }
+          host: ip,
+          proto: 'tcp',
+          port: rport,
+          sname: 'sap',
+          type: 'sap.version.patch_level',
+          data: { sap_patch_level: kern_patchlevel }
         )
 
         report_note(
-          :host => ip,
-          :proto => 'tcp',
-          :port => rport,
-          :type => 'sap.version',
-          :data => { :sap_version => kern_rel }
+          host: ip,
+          proto: 'tcp',
+          port: rport,
+          type: 'sap.version',
+          data: { sap_version: kern_rel }
         )
 
-      elsif res and res.code == 500
+      elsif res && (res.code == 500)
         response = res.body
         error.push(response.scan(%r{<message>(.*?)</message>}))
-        err = error.join().chomp
-        print_error("[SAP] #{ip}:#{rport} - #{err.gsub('&#39;','\'')}")
+        err = error.join.chomp
+        print_error("[SAP] #{ip}:#{rport} - #{err.gsub('&#39;', '\'')}")
         return
       else
-        print_error("[SAP] #{ip}:#{rport} - error message: " + res.code.to_s + " " + res.message) if res
+        print_error("[SAP] #{ip}:#{rport} - error message: " + res.code.to_s + ' ' + res.message) if res
         return
       end
     rescue ::Rex::ConnectionError
       print_error("[SAP] #{ip}:#{rport} - Unable to connect")
       return
     end
-
   end
 end
