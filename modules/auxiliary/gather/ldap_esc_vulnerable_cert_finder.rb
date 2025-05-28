@@ -441,34 +441,29 @@ class MetasploitModule < Msf::Auxiliary
     object
   end
 
+  def get_object_by_samaccountname(samaccountname)
+    object = @ldap_objects.find { |o| o['sAMAccountName'].first == samaccountname }
+
+    if object.nil?
+      object = query_ldap_server("(sAMAccountName=#{ldap_escape_filter(samaccountname)})", nil)&.first
+      @ldap_objects << object if object
+    end
+
+    object
+  end
+
   def get_authenticated_user_info
     # Check if the authenticated user info is already cached
-    cached_user_info = @ldap_objects.find { |obj| obj[:type] == :authenticated_user }
-    return cached_user_info if cached_user_info
-
-    whoami_response = @ldap.ldapwhoami
-    if whoami_response.empty?
+    if (@whoami ||= @ldap.ldapwhoami).blank?
       raise LdapWhoamiError, 'Unable to retrieve the username using ldapwhoami.'
     end
 
-    sam_account_name = whoami_response.split('\\').last
-    user_filter = "(sAMAccountName=#{sam_account_name})"
-    attributes = ['objectSID', 'dn']
-    user_entry = query_ldap_server(user_filter, attributes).first
-
-    if user_entry.nil? || user_entry[:objectsid].nil?
+    sam_account_name = @whoami.split('\\').last
+    user_object = get_object_by_samaccountname(sam_account_name)
+    if user_object.nil? || user_object[:objectsid].nil?
       raise LdapWhoamiError, 'Unable to determine the SID for the authenticated user.'
     end
-
-    user_info = {
-      type: :authenticated_user,
-      sid: Rex::Proto::MsDtyp::MsDtypSid.read(user_entry[:objectsid].first).value,
-      dn: user_entry[:dn].first,
-      sam_account_name: sam_account_name
-    }
-
-    @ldap_objects << user_info
-    user_info
+    user_object
   end
 
   # Helper method for ESC9 and ESC10. Queries the LDAP server to find users that the authenticated user has
