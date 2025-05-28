@@ -7,6 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Rex::Proto::Secauthz
   include Rex::Proto::LDAP
   include Rex::Proto::CryptoAsn1
+  include Rex::Proto::MsCrtd
 
   class LdapWhoamiError < StandardError; end
 
@@ -97,8 +98,6 @@ class MetasploitModule < Msf::Auxiliary
   CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT = 'a05b8cc2-17bc-4802-a710-e7c15ab866a2'.freeze
   CONTROL_ACCESS = 0x00000100
   CT_FLAG_NO_SECURITY_EXTENSION = 0x80000
-  CT_FLAG_SUBJECT_ALT_REQUIRE_DNS = 0x8000000 # 134217728
-  CT_FLAG_SUBJECT_ALT_REQUIRE_UPN = 0x2000000 # 33554432
 
   # LDAP_SERVER_SD_FLAGS constant definition, taken from https://ldapwiki.com/wiki/LDAP_SERVER_SD_FLAGS_OID
   LDAP_SERVER_SD_FLAGS_OID = '1.2.840.113556.1.4.801'.freeze
