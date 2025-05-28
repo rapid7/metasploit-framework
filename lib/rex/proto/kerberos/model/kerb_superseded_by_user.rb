@@ -16,6 +16,10 @@ module Rex
             realm == other.realm && principal_name == other.principal_name
           end
 
+          def to_s
+            "#{principal_name}@#{realm}"
+          end
+
           def decode(input)
             case input
             when String

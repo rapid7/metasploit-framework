@@ -171,6 +171,16 @@ module Rex
                 now = Time.now
                 skew = (res.stime - now).abs.to_i
                 return "#{error_code}. Local time: #{now}, Server time: #{res.stime}, off by #{skew} seconds"
+              elsif error_code == ErrorCodes::KDC_ERR_CLIENT_REVOKED && res&.respond_to?(:e_data) && res.e_data.present?
+                begin
+                  pa_datas = res.e_data_as_pa_data
+                rescue OpenSSL::ASN1::ASN1Error
+                else
+                  superseded_pa_data = pa_datas.find { |pa_data| pa_data.type == Rex::Proto::Kerberos::Model::PreAuthType::KERB_SUPERSEDED_BY_USER }
+                  if superseded_pa_data
+                    error_code = "#{error_code}. This account has been superseded by #{superseded_pa_data.decoded_value}."
+                  end
+                end
               end
 
               "Kerberos Error - #{error_code}"
