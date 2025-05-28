@@ -101,6 +101,7 @@ a normal user account by analyzing the objects in LDAP.
 1. Enter `user2` (or whatever user's UPN you will be changing for this attack). Click OK.
 1. Under Permissions for `user2` select `Allow` for `Enroll` and `Read`.
 1. Click `Apply` and then `OK`.
+1. Enable advanced features to access the security tab by checking "View" > "Advanced Features"
 1. Open Active Directory Users and Computers, expand the domain on the left hand side.
 1. Right click `Users` and navigate `user2` and select `Properties`.
 1. In the security tab, select `Add` and enter `user1` (or whatever user you will be using to perform the attack). Click OK.
@@ -119,7 +120,7 @@ Get-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\Kdc\" -Name Stron
 ```
 
 ### Setting up a ESC10 Vulnerable Certificate Template
-1. Follow the first 13 steps `Setting up a ESC9 Vulnerable Certificate Template` to create the `ESC10-Template`.
+1. Follow the first 14 steps `Setting up a ESC9 Vulnerable Certificate Template` to create the `ESC10-Template`.
     1. Everything up to and excluding the `msPKI-Enrollment-Flag", 0x80000` powershell step.
 #### Configuring Windows to be Vulnerable to ESC10
 1. The template should now be reported as `Potentially Vulnerable` by the module.
