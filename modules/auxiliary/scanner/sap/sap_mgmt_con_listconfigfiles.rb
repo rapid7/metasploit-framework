@@ -8,42 +8,49 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'         => 'SAP Management Console List Config Files',
-      'Description'  => %q{
-        This module attempts to list the config files
-        through the SAP Management Console SOAP Interface.
-        Returns a list of config files found in the SAP configuration with its
-        absolute paths inside the server filesystem.
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'SAP Management Console List Config Files',
+        'Description' => %q{
+          This module attempts to list the config files
+          through the SAP Management Console SOAP Interface.
+          Returns a list of config files found in the SAP configuration with its
+          absolute paths inside the server filesystem.
         },
-      'References'   =>
-        [
-          # General
+        'References' => [
           [ 'URL', 'https://blog.c22.cc' ]
         ],
-      'Author'       => [
-        'Chris John Riley', # Original msf module
-        'Jacobo Avariento Gimeno' # Minor changes to adapt it for ListConfigFiles webmethod
-      ],
-      'License'      => MSF_LICENSE
-    ))
+        'Author' => [
+          'Chris John Riley', # Original msf module
+          'Jacobo Avariento Gimeno' # Minor changes to adapt it for ListConfigFiles webmethod
+        ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(50013),
         OptString.new('URI', [false, 'Path to the SAP Management Console ', '/']),
-      ])
+      ]
+    )
     register_autofilter_ports([ 50013 ])
   end
 
   def run_host(ip)
     res = send_request_cgi({
-      'uri'      => normalize_uri(datastore['URI']),
-      'method'   => 'GET'
+      'uri' => normalize_uri(datastore['URI']),
+      'method' => 'GET'
     }, 25)
 
-    if not res
+    if !res
       print_error("#{rhost}:#{rport} [SAP] Unable to connect")
       return
     end
@@ -74,14 +81,14 @@ class MetasploitModule < Msf::Auxiliary
     data << '</SOAP-ENV:Envelope>' + "\r\n\r\n"
 
     res = send_request_raw({
-      'uri'      => normalize_uri(datastore['URI']),
-      'method'   => 'POST',
-      'data'     => data,
-      'headers'  =>
+      'uri' => normalize_uri(datastore['URI']),
+      'method' => 'POST',
+      'data' => data,
+      'headers' =>
         {
           'Content-Length' => data.length,
-          'SOAPAction'     => '""',
-          'Content-Type'   => 'text/xml; charset=UTF-8',
+          'SOAPAction' => '""',
+          'Content-Type' => 'text/xml; charset=UTF-8'
         }
     }, 15)
 
@@ -91,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.code == 500 && res.body =~ %r{<faultstring>(.*)</faultstring>}i
-      print_error("#{rhost}:#{rport} [SAP] Error code: #{$1.strip}")
+      print_error("#{rhost}:#{rport} [SAP] Error code: #{::Regexp.last_match(1).strip}")
       return
     end
 

