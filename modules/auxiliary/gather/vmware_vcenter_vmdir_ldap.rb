@@ -91,12 +91,12 @@ class MetasploitModule < Msf::Auxiliary
 
       # Look for an entry with a non-empty vmwSTSPrivateKey attribute
       unless entries&.find { |entry| entry[:vmwstsprivatekey].any? }
-        print_error("#{ldap.peerinfo} is NOT vulnerable to CVE-2020-3952") unless datastore['BIND_PW'].present?
+        print_error("#{ldap.peerinfo} is NOT vulnerable to CVE-2020-3952") unless datastore['LDAPPassword'].present?
         print_error('Dump failed')
         return Exploit::CheckCode::Safe
       end
 
-      print_good("#{ldap.peerinfo} is vulnerable to CVE-2020-3952") unless datastore['BIND_PW'].present?
+      print_good("#{ldap.peerinfo} is vulnerable to CVE-2020-3952") unless datastore['LDAPPassword'].present?
       pillage(entries)
 
       # HACK: Stash discovered base DN in CheckCode reason
