@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Post
 
     usr_tbl << [
       is_admin?.to_s.capitalize,
-      system?.to_s.capitalize,
+      is_system?.to_s.capitalize,
       is_in_admin_group?.to_s.capitalize,
       is_uac_enabled?.to_s.capitalize,
       fid,
