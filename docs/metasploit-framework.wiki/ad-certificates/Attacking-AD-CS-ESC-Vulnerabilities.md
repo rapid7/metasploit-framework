@@ -14,6 +14,10 @@ flowchart TD
         ESC8(ESC8)
         ESC8 --> web_enrollment[<i>Issuance via Web Enrollment</i>]
     end
+    subgraph esc_update_ldap_object[<b>esc_update_ldap_object</b>]
+        ESC9(ESC9) --> weak_certificate_mapping[<i>Issuance via misconfigured Weak Certificate Mapping</i>]
+        ESC10(ESC10) --> weak_certificate_mapping[<i>Issuance via misconfigured Weak Certificate Mapping</i>]
+    end
     subgraph icpr_cert[<b>icpr_cert</b>]
         ESC1(ESC1)
         ESC2(ESC2)
@@ -51,6 +55,9 @@ flowchart TD
     update_template --> ESC1
     web_enrollment --> PKINIT
     web_enrollment --> SCHANNEL
+    web_enrollment --> SCHANNEL
+    weak_certificate_mapping --> PKINIT
+    weak_certificate_mapping --> SCHANNEL
 ```
 
 The chart above showcases how one can go about attacking each of the AD CS vulnerabilities supported by Metasploit,

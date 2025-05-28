@@ -6,12 +6,12 @@
 require 'ruby_smb/dcerpc/client'
 
 class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::LDAP
   include Msf::Exploit::Remote::MsIcpr
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Exploit::Remote::DCERPC
   include Msf::Auxiliary::Report
   include Msf::OptionalSession::SMB
-  include Msf::Exploit::Remote::LDAP
 
   def initialize(info = {})
     super(
@@ -112,25 +112,24 @@ class MetasploitModule < Msf::Auxiliary
 
   def action_request_cert
 
-    # Get the original value before updating
+    # Get the original while updating (the update action returns the original value upon success)
     @original_value = call_ldap_object_module('UPDATE', datastore['NEW_VALUE'])
 
     with_ipc_tree do |opts|
       request_certificate(opts)
     end
+  ensure
+    revert_ldap_object
   end
 
   def revert_ldap_object
     # If the UPN was changed the certificate we requested won't work until we revert the UPN change. If the
     # dnsHostName was changed the cert will still work however we'll revert the change to keep the system clean.
-
-
     if @original_value.to_s.empty?
       call_ldap_object_module('DELETE')
     else
       call_ldap_object_module('UPDATE', @original_value)
     end
-
   end
 
   # @yieldparam options [Hash] If a SMB session is present, a hash with the IPC tree present. Empty hash otherwise.
