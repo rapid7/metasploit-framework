@@ -21,17 +21,20 @@ class MetasploitModule < Msf::Auxiliary
           Instances of Secure ACS running version 5.1 with patches 3, 4, or 5 as well
           as version 5.2 with either no patches or patches 1 and 2 are vulnerable.
         },
-        'References' =>
-          [
-            ['BID', '47093'],
-            ['CVE', '2011-0951'],
-            ['URL', 'http://www.cisco.com/en/US/products/csa/cisco-sa-20110330-acs.html']
-          ],
-        'Author' =>
-          [
-            'Jason Kratzer <pyoor[at]flinkd.org>'
-          ],
-        'License' => MSF_LICENSE
+        'References' => [
+          ['BID', '47093'],
+          ['CVE', '2011-0951'],
+          ['URL', 'http://www.cisco.com/en/US/products/csa/cisco-sa-20110330-acs.html']
+        ],
+        'Author' => [
+          'Jason Kratzer <pyoor[at]flinkd.org>'
+        ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 
@@ -107,6 +110,5 @@ class MetasploitModule < Msf::Auxiliary
       print_error("#{rhost} - Failed! The webserver issued a #{res.code} response.")
       print_error('Please validate the TARGETURI option and try again.')
     end
-
   end
 end
