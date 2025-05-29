@@ -1,3 +1,5 @@
+
+require 'winrm'
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
@@ -88,6 +90,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
       OptBool.new('REPORT_NONENROLLABLE', [true, 'Report nonenrollable certificate templates', false]),
       OptBool.new('REPORT_PRIVENROLLABLE', [true, 'Report certificate templates restricted to domain and enterprise admins', false]),
+      OptBool.new('RUN_REGISTRY_CHECKS', [true, 'Authenticate to WinRM to query the registry values to enhance reporting for ESC9 and ESC10. Must be a privleged user in order to query successfully', false]),
     ])
   end
 
@@ -371,7 +374,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_object_by_samaccountname(samaccountname)
-    object = @ldap_objects.find { |o| o['sAMAccountName'].first == samaccountname }
+    object = @ldap_objects.find { |o| o['sAMAccountName']&.first == samaccountname }
 
     if object.nil?
       object = query_ldap_server("(sAMAccountName=#{ldap_escape_filter(samaccountname)})", nil)&.first
@@ -435,6 +438,66 @@ class MetasploitModule < Msf::Auxiliary
     (write_sids.map(&:value) & ([user_sid] + group_sids)).any?
   end
 
+  def enum_registry_values
+    endpoint = "http://#{datastore['RHOST']}:5985/wsman"
+    user = datastore['LDAPUsername']
+    pass = datastore['LDAPPassword']
+
+    conn = WinRM::Connection.new(
+      endpoint: endpoint,
+      user: user,
+      password: pass,
+      transport: :negotiate
+    )
+
+    # Check if registry values are already cached
+    cached_values = @ldap_objects.find { |obj| obj[:type] == :registry_values }
+    return cached_values[:values] if cached_values
+
+    registry_values = {}
+
+    begin
+      conn.shell(:powershell) do |shell|
+        cert_mapping_command = "Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\Schannel' -Name CertificateMappingMethods"
+        cert_mapping_output = shell.run(cert_mapping_command)
+        registry_values[:certificate_mapping_methods] = parse_registry_output(cert_mapping_output.output)
+
+        strong_cert_command = "Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Kdc' -Name StrongCertificateBindingEnforcement"
+        strong_cert_output = shell.run(strong_cert_command)
+        registry_values[:strong_certificate_binding_enforcement] = parse_registry_output(strong_cert_output.output)
+      end
+
+      if registry_values[:strong_certificate_binding_enforcement] == '1'
+        vprint_good("ESC9 could be exploitable using Kerberos due to StrongCertificateBindingEnforcement being set to 1")
+      elsif registry_values[:strong_certificate_binding_enforcement] == '0'
+        vprint_good("ESC10 could be exploitable using Kerberos due to StrongCertificateBindingEnforcement being set to 0")
+      elsif registry_values[:strong_certificate_binding_enforcement] == '2'
+        vprint_error("ESC9 and ESC10 cannot be exploited using Kerberos due to StrongCertificateBindingEnforcement being set to 2")
+      end
+
+      if registry_values[:certificate_mapping_methods] == '4' || registry_values[:certificate_mapping_methods] == "31"
+        vprint_good("ESC10 could be exploitable using Schannel due to CertificateMappingMethods allowing UPN certificate mapping")
+      else
+        print_error("ESC10 cannot be exploited using Schannel due to CertificateMappingMethods not allowing UPN certificate mapping")
+      end
+
+      vprint_status("Registry Values Retrieved for ESC9 & ESC10: #{registry_values}")
+    rescue StandardError => e
+      vprint_warning("Failed to query registry values for ESC9 and ESC10 - this is expected when running as a low-privilege users. Error: #{e.message}")
+    end
+
+    # Cache the registry values in @ldap_objects
+    @ldap_objects << { type: :registry_values, values: registry_values }
+
+    registry_values
+  end
+
+  def parse_registry_output(output)
+    # Extract the value from the PowerShell output
+    output.lines.find { |line| line.strip.match(/:/) }&.split(':', 2)&.last&.strip
+  end
+
+
   def find_esc9_vuln_cert_templates
     esc9_raw_filter = '(&'\
     '(objectclass=pkicertificatetemplate)'\
@@ -480,8 +543,13 @@ class MetasploitModule < Msf::Auxiliary
       user_plural = users.size > 1 ? 'accounts' : 'account'
       has_plural = users.size > 1 ? 'have' : 'has'
 
+      note = "ESC9: The account: #{authenticated_user_info[:samaccountname].first} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
+      registry_object = @ldap_objects.find { |obj| obj[:type] == :registry_values }
+      if registry_object && registry_object[:values].present?
+        note += " Registry value: StrongCertificateBindingEnforcement=#{registry_object[:values][:strong_certificate_binding_enforcement]}."
+      end
       @certificate_details[certificate_symbol][:techniques] << 'ESC9'
-      @certificate_details[certificate_symbol][:notes] << "ESC9: The account: #{authenticated_user_info[:samaccountname].first} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
+      @certificate_details[certificate_symbol][:notes] << note
     end
   end
 
@@ -529,8 +597,14 @@ class MetasploitModule < Msf::Auxiliary
       user_plural = users.size > 1 ? 'accounts' : 'account'
       has_plural = users.size > 1 ? 'have' : 'has'
 
+      note = "ESC10: The account: #{authenticated_user_info[:samaccountname].first} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
+      registry_object = @ldap_objects.find { |obj| obj[:type] == :registry_values }
+      if registry_object && registry_object[:values].present?
+        note += " Registry values: StrongCertificateBindingEnforcement=#{registry_object[:values][:strong_certificate_binding_enforcement]}, CertificateMappingMethods=#{registry_object[:values][:certificate_mapping_methods]}."
+      end
+
       @certificate_details[certificate_symbol][:techniques] << 'ESC10'
-      @certificate_details[certificate_symbol][:notes] << "ESC10: The account: #{authenticated_user_info[:samaccountname].first} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
+      @certificate_details[certificate_symbol][:notes] << note
     end
   end
 
@@ -751,12 +825,18 @@ class MetasploitModule < Msf::Auxiliary
       print_status("  Distinguished Name: #{hash[:dn]}")
       print_status("  Manager Approval: #{hash[:manager_approval] ? '%redRequired' : '%grnDisabled'}%clr")
       print_status("  Required Signatures: #{hash[:required_signatures] == 0 ? '%grn0' : '%red' + hash[:required_signatures].to_s}%clr")
-      print_good("  Vulnerable to: #{(techniques - %w[ESC9 ESC10]).join(', ')}")
-      if techniques.include?('ESC9')
-        print_warning('  Potentially vulnerable to: ESC9 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must not be set to 2)')
-      end
-      if techniques.include?('ESC10')
-        print_warning('  Potentially vulnerable to: ESC10 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must be set to 0 or CertificateMappingMethods must be set to 0x4)')
+      registry_object = @ldap_objects.find { |obj| obj[:type] == :registry_values }
+
+      if registry_object && registry_object[:values].present?
+        print_good("  Vulnerable to: #{(techniques).join(', ')}")
+      else
+        print_good("  Vulnerable to: #{(techniques - %w[ESC9 ESC10]).join(', ')}")
+        if techniques.include?('ESC9')
+          print_warning('  Potentially vulnerable to: ESC9 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must not be set to 2)')
+        end
+        if techniques.include?('ESC10')
+          print_warning('  Potentially vulnerable to: ESC10 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must be set to 0 or CertificateMappingMethods must be set to 0x4)')
+        end
       end
 
       if hash[:notes].present? && hash[:notes].length == 1
@@ -931,12 +1011,26 @@ class MetasploitModule < Msf::Auxiliary
         @certificate_details[certificate_symbol] = build_certificate_details(template)
       end
 
+      registry_values = enum_registry_values if datastore['RUN_REGISTRY_CHECKS']
+
       find_esc1_vuln_cert_templates
       find_esc2_vuln_cert_templates
       find_esc3_vuln_cert_templates
       find_esc4_vuln_cert_templates
-      find_esc9_vuln_cert_templates
-      find_esc10_vuln_cert_templates
+
+      if registry_values.nil?
+        find_esc9_vuln_cert_templates
+        find_esc10_vuln_cert_templates
+      else
+        if registry_values[:strong_certificate_binding_enforcement] != '2'
+          find_esc9_vuln_cert_templates
+        end
+        if registry_values[:strong_certificate_binding_enforcement] == '0' ||
+          %w[4 31].include?(registry_values[:certificate_mapping_methods])
+          find_esc10_vuln_cert_templates
+        end
+      end
+
       find_esc13_vuln_cert_templates
       find_esc15_vuln_cert_templates
 
