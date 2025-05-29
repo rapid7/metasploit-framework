@@ -335,100 +335,29 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def find_esc4_vuln_cert_templates
-    # Determine who we are authenticating with. Retrieve the username and user SID
+    # Obtain the authenticated user information to check if they have write permissions on the certificate templates
     begin
-      user_info = get_authenticated_user_info
+      authenticated_user_info = get_authenticated_user_info
     rescue LdapWhoamiError => e
       print_warning("ESC4 detection skipped: #{e.message}")
       return
     end
 
-    sam_account_name = user_info[:sam_account_name]
-    user_raw_filter = "(sAMAccountName=#{sam_account_name})"
-    attributes = ['DN', 'objectSID', 'objectClass', 'primarygroupID']
-    our_account = query_ldap_server(user_raw_filter, attributes)&.first
-    if our_account.nil?
-      print_warning("Unable to determine the User SID for #{sam_account_name}, ESC4 detection can't continue")
-      return
-    end
-
-    user_sid = map_sids_to_names([Rex::Proto::MsDtyp::MsDtypSid.read(our_account[:objectsid].first).value]).first
-    domain_sid = user_sid.value.to_s.rpartition('-').first
-    user_groups = []
-
-    if our_account[:primarygroupID]
-      user_groups << "#{domain_sid}-#{our_account[:primarygroupID]&.first}"
-    end
-
-    # Authenticated Users includes all users and computers with identities that have been authenticated.
-    # Authenticated Users doesn't include Guest even if the Guest account has a password.
-    unless sam_account_name == 'Guest'
-      user_groups << Rex::Proto::Secauthz::WellKnownSids::SECURITY_AUTHENTICATED_USER_SID
-    end
-
-    # Perform an LDAP query to get the groups the user is a part of
-    # Use LDAP_MATCHING_RULE_IN_CHAIN OID in order to walk the chain of ancestry of groups.
-    # https://learn.microsoft.com/en-us/windows/win32/adsi/search-filter-syntax?redirectedfrom=MSDN
-    filter_with_user = "(|(member:1.2.840.113556.1.4.1941:=#{our_account[:dn].first})"
-    user_groups.each do |sid|
-      obj = get_object_by_sid(sid)
-      print_error('Failed to lookup SID.') unless obj
-
-      filter_with_user << "(member:1.2.840.113556.1.4.1941:=#{obj[:dn].first})" if obj
-    end
-    filter_with_user << ')'
-
-    attributes = ['cn', 'objectSID']
-    esc_entries = query_ldap_server(filter_with_user, attributes)
-
-    esc_entries.each do |entry|
-      group_sid = Rex::Proto::MsDtyp::MsDtypSid.read(entry['ObjectSid'].first).value
-      user_groups << group_sid
-    end
-    user_groups = map_sids_to_names(user_groups)
-
-    # Determine what Certificate Templates are available to us
     esc_raw_filter = '(objectclass=pkicertificatetemplate)'
-
     attributes = ['cn', 'description', 'ntSecurityDescriptor']
     esc_entries = query_ldap_server(esc_raw_filter, attributes, base_prefix: CERTIFICATE_TEMPLATES_BASE)
 
     return if esc_entries.empty?
 
-    # Determine if the user we've authenticated with has the ability to edit
     esc_entries.each do |entry|
       certificate_symbol = entry[:cn][0].to_sym
       next if @certificate_details[certificate_symbol][:enroll_sids].empty?
 
-      # SIDs that can edit the template
-      write_priv_sids = @certificate_details[certificate_symbol][:write_sids]
-      next if write_priv_sids.empty?
-
-      # Check if the user has been give access to edit the template
-      user_can_edit = user_sid if write_priv_sids.include?(user_sid)
-
-      # Check if any groups the user is a part of can edit the template
-      group_can_edit = write_priv_sids & user_groups
-
-      # SIDs that can edit the template that the user we've authenticated with are also a part of
-      user_write_priv_sids = []
-      notes = []
-
-      # Main reason for splitting user_can_edit and group_can_edit is so "note" can be more descriptive
-      if user_can_edit
-        user_write_priv_sids << user_can_edit
-        notes << "ESC4: The account: #{sam_account_name} has edit permissions over the template #{certificate_symbol} making it vulnerable to ESC4"
+      security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(entry[:ntsecuritydescriptor].first)
+      if user_can_write?(authenticated_user_info, security_descriptor)
+        @certificate_details[certificate_symbol][:techniques] << 'ESC4'
+        @certificate_details[certificate_symbol][:notes] << "ESC4: The account: #{authenticated_user_info[:samaccountname].first} has edit permissions over the template #{certificate_symbol}."
       end
-
-      if group_can_edit.any?
-        user_write_priv_sids.concat(group_can_edit)
-        notes << "ESC4: The account: #{sam_account_name} is a part of the following groups: (#{group_can_edit.map(&:name).join(', ')}) which have edit permissions over the template object"
-      end
-
-      next unless user_write_priv_sids.any?
-
-      @certificate_details[certificate_symbol][:techniques] << 'ESC4'
-      @certificate_details[certificate_symbol][:notes].concat(notes)
     end
   end
 
@@ -454,6 +383,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_authenticated_user_info
     # Check if the authenticated user info is already cached
+    cached_user_info = @ldap_objects.find { |obj| obj[:type] == :authenticated_user }
+    return cached_user_info[:user] if cached_user_info
+
     if (@whoami ||= @ldap.ldapwhoami).blank?
       raise LdapWhoamiError, 'Unable to retrieve the username using ldapwhoami.'
     end
@@ -463,101 +395,94 @@ class MetasploitModule < Msf::Auxiliary
     if user_object.nil? || user_object[:objectsid].nil?
       raise LdapWhoamiError, 'Unable to determine the SID for the authenticated user.'
     end
+
+    # Walk the chain of ancestry of groups using LDAP_MATCHING_RULE_IN_CHAIN
+    filter_with_user = "(|(member:1.2.840.113556.1.4.1941:=#{user_object[:dn].first})"
+    user_groups = user_object[:memberof] || []
+    user_groups.each do |group_dn|
+      group_object = get_object_by_dn(group_dn)
+      next unless group_object
+
+      filter_with_user << "(member:1.2.840.113556.1.4.1941:=#{group_object[:dn].first})"
+    end
+    filter_with_user << ')'
+
+    attributes = ['cn', 'objectSID']
+    group_entries = query_ldap_server(filter_with_user, attributes)
+
+    # Extract group SIDs and add them to the user_object
+    group_sids = group_entries.map { |entry| Rex::Proto::MsDtyp::MsDtypSid.read(entry[:objectsid].first).value }
+    user_object[:memberof] ||= []
+    user_object[:memberof].concat(group_sids)
+
+    @ldap_objects << { type: :authenticated_user, user: user_object }
+
     user_object
   end
 
-  # Helper method for ESC9 and ESC10. Queries the LDAP server to find users that the authenticated user has
-  # write privileges over. This is done by checking the ntSecurityDescriptor attribute of each user object.
-  # @param authenticated_user_sid [String] The SID of the authenticated user.
-  # @return [Array<String>] A list of distinguished names (DNs) of users the authenticated user can write to.
-  def find_users_with_writable_sids(authenticated_user_sid)
-    cached_writable_users = @ldap_objects.find { |obj| obj[:type] == :writable_users }
-    return cached_writable_users[:users] if cached_writable_users
+  def user_can_write?(authenticated_user_info, security_descriptor)
+    write_sids = get_sids_for_write(security_descriptor.dacl)
+    user_sid = Rex::Proto::MsDtyp::MsDtypSid.read(authenticated_user_info[:objectsid].first).value
 
-    user_filter = '(objectClass=user)'
-    user_attributes = ['dn', 'ntSecurityDescriptor']
-    users = query_ldap_server(user_filter, user_attributes)
+    # Extract group SIDs from :memberof
+    group_sids = authenticated_user_info[:memberof]&.map do |group_dn|
+      group_object = get_object_by_dn(group_dn)
+      next unless group_object && group_object[:objectsid]
 
-    writable_users = []
-    users.each do |user|
-      security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(user[:ntsecuritydescriptor].first)
-      writable_sids = get_sids_for_write(security_descriptor.dacl) if security_descriptor.dacl
+      Rex::Proto::MsDtyp::MsDtypSid.read(group_object[:objectsid].first).value
+    end&.compact || []
 
-      if writable_sids.any? { |sid| sid.value == authenticated_user_sid }
-        writable_users << user[:dn].first
-      end
-    end
-
-    # Cache the writable users in @ldap_objects
-    @ldap_objects << { type: :writable_users, users: writable_users }
-
-    writable_users
-  end
-
-  # Helper method for ESC9 and ESC10. Processes a list of certificate templates to determine if the authenticated
-  # user has write privileges over any of the users that can enroll in the template. If one of these users are found the
-  # the method updates the @certificate_details hash with necessary info.
-  # @param templates [Array<hash>] The list of certificate templates to process.
-  # @param authenticated_user_sid [String] The SID of the authenticated user.
-  # @param writable_users [Array<string>] A list of distinguished names (DNs) of users the authenticated user can write to.
-  # @param note_template [String] A template string for the note to be added, with placeholders for authenticated and writable user names.
-  # @param technique [String] The technique identifier (e.g., 'ESC9', 'ESC10') to associate with the template.
-  # @return [void]
-  def process_templates(templates, authenticated_user_sid, writable_users, note_template, technique)
-    templates.each do |template|
-      enrollable_sids = @certificate_details[template[:cn][0].to_sym][:enroll_sids]
-      writable_users.any? do |user_dn|
-        user_object = get_object_by_dn(user_dn)
-        next false unless user_object && user_object[:objectsid]
-
-        user_sid = Rex::Proto::MsDtyp::MsDtypSid.read(user_object[:objectsid].first).value
-        if enrollable_sids.any? { |sid| sid.value == user_sid }
-          authenticated_user_name = map_sids_to_names([authenticated_user_sid]).first.name
-          writable_user_name = map_sids_to_names([user_sid]).first.name
-          note = [note_template % { authenticated_user: authenticated_user_name, writable_user: writable_user_name }]
-          certificate_symbol = template[:cn][0].to_sym
-          @certificate_details[certificate_symbol][:techniques] << technique
-          @certificate_details[certificate_symbol][:notes] += note
-        end
-      end
-    end
+    (write_sids.map(&:value) & ([user_sid] + group_sids)).any?
   end
 
   def find_esc9_vuln_cert_templates
     esc9_raw_filter = '(&'\
-  '(objectclass=pkicertificatetemplate)'\
-  "(mspki-enrollment-flag:1.2.840.113556.1.4.803:=#{CT_FLAG_NO_SECURITY_EXTENSION})"\
-  '(|(mspki-ra-signature=0)(!(mspki-ra-signature=*)))'\
-  '(|'\
-    "(pkiextendedkeyusage=#{OIDs::OID_KP_SMARTCARD_LOGON.value})"\
-    "(pkiextendedkeyusage=#{OIDs::OID_PKIX_KP_CLIENT_AUTH.value})"\
-    "(pkiextendedkeyusage=#{OIDs::OID_ANY_EXTENDED_KEY_USAGE.value})"\
-    '(!(pkiextendedkeyusage=*))'\
-  ')'\
-  '(|'\
-    "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_UPN})"\
-    "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_DNS})"\
-  ')'\
-')'
+    '(objectclass=pkicertificatetemplate)'\
+    "(mspki-enrollment-flag:1.2.840.113556.1.4.803:=#{CT_FLAG_NO_SECURITY_EXTENSION})"\
+    '(|(mspki-ra-signature=0)(!(mspki-ra-signature=*)))'\
+    '(|'\
+      "(pkiextendedkeyusage=#{OIDs::OID_KP_SMARTCARD_LOGON.value})"\
+      "(pkiextendedkeyusage=#{OIDs::OID_PKIX_KP_CLIENT_AUTH.value})"\
+      "(pkiextendedkeyusage=#{OIDs::OID_ANY_EXTENDED_KEY_USAGE.value})"\
+      '(!(pkiextendedkeyusage=*))'\
+    ')'\
+    '(|'\
+      "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_UPN})"\
+      "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_DNS})"\
+    ')'\
+  ')'
 
     begin
-      authenticated_user_sid = get_authenticated_user_info[:sid]
+      authenticated_user_info = get_authenticated_user_info
     rescue LdapWhoamiError => e
       print_warning("ESC9 detection skipped: #{e.message}")
       return
     end
 
     esc9_templates = query_ldap_server(esc9_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
-    writable_users = find_users_with_writable_sids(authenticated_user_sid)
+    esc9_templates.each do |template|
+      certificate_symbol = template[:cn][0].to_sym
+      enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
 
-    # Finds templates that the users we have write privileges over can enroll in
-    process_templates(
-      esc9_templates,
-      authenticated_user_sid,
-      writable_users,
-      'ESC9: Template has msPKI-Enrollment-Flag set to 0x80000 (CT_FLAG_NO_SECURITY_EXTENSION) and specifies a client authentication EKU and %<authenticated_user>s has write privileges over %<writable_user>s and the template has a subjectAltName (UPN or DNS) requirement',
-      'ESC9'
-    )
+      users = []
+      enroll_sids.each do |sid|
+        user_object = get_object_by_sid(sid.value)
+        next unless user_object && user_object[:ntsecuritydescriptor] && user_object[:objectclass]&.include?('user')
+
+        security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(user_object[:ntsecuritydescriptor].first)
+        next unless user_can_write?(authenticated_user_info, security_descriptor)
+
+        users << user_object[:samaccountname].first
+      end
+
+      next if users.empty?
+
+      user_plural = users.size > 1 ? 'accounts' : 'account'
+      has_plural = users.size > 1 ? 'have' : 'has'
+
+      @certificate_details[certificate_symbol][:techniques] << 'ESC9'
+      @certificate_details[certificate_symbol][:notes] << "ESC9: The account: #{authenticated_user_info[:samaccountname].first} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
+    end
   end
 
   def find_esc10_vuln_cert_templates
@@ -577,23 +502,36 @@ class MetasploitModule < Msf::Auxiliary
   ')'
 
     begin
-      authenticated_user_sid = get_authenticated_user_info[:sid]
+      authenticated_user_info = get_authenticated_user_info
     rescue LdapWhoamiError => e
       print_warning("ESC10 detection skipped: #{e.message}")
       return
     end
 
     esc10_templates = query_ldap_server(esc10_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
-    writable_users = find_users_with_writable_sids(authenticated_user_sid)
+    esc10_templates.each do |template|
+      certificate_symbol = template[:cn][0].to_sym
+      enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
 
-    # Finds templates that the users we have write privileges over can enroll in
-    process_templates(
-      esc10_templates,
-      authenticated_user_sid,
-      writable_users,
-      'ESC10: Template specifies a client authentication EKU and %<authenticated_user>s has write privileges over %<writable_user>s and the template has a subjectAltName (UPN or DNS) requirement',
-      'ESC10'
-    )
+      users = []
+      enroll_sids.each do |sid|
+        user_object = get_object_by_sid(sid.value)
+        next unless user_object && user_object[:ntsecuritydescriptor] && user_object[:objectclass]&.include?('user')
+
+        security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(user_object[:ntsecuritydescriptor].first)
+        next unless user_can_write?(authenticated_user_info, security_descriptor)
+
+        users << user_object[:samaccountname].first
+      end
+
+      next if users.empty?
+
+      user_plural = users.size > 1 ? 'accounts' : 'account'
+      has_plural = users.size > 1 ? 'have' : 'has'
+
+      @certificate_details[certificate_symbol][:techniques] << 'ESC10'
+      @certificate_details[certificate_symbol][:notes] << "ESC10: The account: #{authenticated_user_info[:samaccountname].first} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
+    end
   end
 
   def find_esc13_vuln_cert_templates
