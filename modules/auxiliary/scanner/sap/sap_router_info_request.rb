@@ -67,6 +67,7 @@ class MetasploitModule < Msf::Auxiliary
         info << data
       end
     end
+    fail_with(Failure::UnexpectedReply, 'Received unexpected response')
   end
 
   def run_host(ip)
