@@ -93,7 +93,7 @@ memory_profiler, 1.1.0, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 5.0.4, "New BSD"
 metasploit-credential, 6.0.16, "New BSD"
-metasploit-framework, 6.4.66, "New BSD"
+metasploit-framework, 6.4.67, "New BSD"
 metasploit-model, 5.0.3, "New BSD"
 metasploit-payloads, 2.0.221, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 6.0.9, "New BSD"
@@ -168,7 +168,7 @@ rex-powershell, 0.1.101, "New BSD"
 rex-random_identifier, 0.1.15, "New BSD"
 rex-registry, 0.1.6, "New BSD"
 rex-rop_builder, 0.1.6, "New BSD"
-rex-socket, 0.1.61, "New BSD"
+rex-socket, 0.1.62, "New BSD"
 rex-sslscan, 0.1.13, "New BSD"
 rex-struct2, 0.1.5, "New BSD"
 rex-text, 0.2.61, "New BSD"
@@ -183,7 +183,7 @@ rspec-mocks, 3.13.2, MIT
 rspec-rails, 7.1.1, MIT
 rspec-rerun, 1.1.0, MIT
 rspec-support, 3.13.2, MIT
-rubocop, 1.75.6, MIT
+rubocop, 1.75.7, MIT
 rubocop-ast, 1.44.1, MIT
 ruby-macho, 4.1.0, MIT
 ruby-mysql, 4.2.0, MIT
