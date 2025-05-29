@@ -52,4 +52,4 @@ Microsoft provides a very useful [training module](https://learn.microsoft.com/e
 that covers the fundamentals of AD CS and as well as examples which cover the management of certificate enrollment, certificate revocation and certificate trusts.
 
 ## Setting up A Vulnerable AD CS Server
-The steps for setting up a vulnerable AD CS server are covered in the [[Installing AD CS|./docs/pentesting/active-directory/ad-certificates/ldap_esc_vulnerable_cert_finder.html]] section.
+The steps for setting up a vulnerable AD CS server are covered in the [[Installing AD CS|./ldap_esc_vulnerable_cert_finder.md]] section.
