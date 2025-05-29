@@ -1,4 +1,3 @@
-
 require 'winrm'
 class MetasploitModule < Msf::Auxiliary
 
@@ -468,17 +467,17 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if registry_values[:strong_certificate_binding_enforcement] == '1'
-        vprint_good("ESC9 could be exploitable using Kerberos due to StrongCertificateBindingEnforcement being set to 1")
+        vprint_good('ESC9 could be exploitable using Kerberos due to StrongCertificateBindingEnforcement being set to 1')
       elsif registry_values[:strong_certificate_binding_enforcement] == '0'
-        vprint_good("ESC10 could be exploitable using Kerberos due to StrongCertificateBindingEnforcement being set to 0")
+        vprint_good('ESC10 could be exploitable using Kerberos due to StrongCertificateBindingEnforcement being set to 0')
       elsif registry_values[:strong_certificate_binding_enforcement] == '2'
-        vprint_error("ESC9 and ESC10 cannot be exploited using Kerberos due to StrongCertificateBindingEnforcement being set to 2")
+        vprint_error('ESC9 and ESC10 cannot be exploited using Kerberos due to StrongCertificateBindingEnforcement being set to 2')
       end
 
-      if registry_values[:certificate_mapping_methods] == '4' || registry_values[:certificate_mapping_methods] == "31"
-        vprint_good("ESC10 could be exploitable using Schannel due to CertificateMappingMethods allowing UPN certificate mapping")
+      if registry_values[:certificate_mapping_methods] == '4' || registry_values[:certificate_mapping_methods] == '31'
+        vprint_good('ESC10 could be exploitable using Schannel due to CertificateMappingMethods allowing UPN certificate mapping')
       else
-        print_error("ESC10 cannot be exploited using Schannel due to CertificateMappingMethods not allowing UPN certificate mapping")
+        print_error('ESC10 cannot be exploited using Schannel due to CertificateMappingMethods not allowing UPN certificate mapping')
       end
 
       vprint_status("Registry Values Retrieved for ESC9 & ESC10: #{registry_values}")
@@ -496,7 +495,6 @@ class MetasploitModule < Msf::Auxiliary
     # Extract the value from the PowerShell output
     output.lines.find { |line| line.strip.match(/:/) }&.split(':', 2)&.last&.strip
   end
-
 
   def find_esc9_vuln_cert_templates
     esc9_raw_filter = '(&'\
@@ -828,7 +826,7 @@ class MetasploitModule < Msf::Auxiliary
       registry_object = @ldap_objects.find { |obj| obj[:type] == :registry_values }
 
       if registry_object && registry_object[:values].present?
-        print_good("  Vulnerable to: #{(techniques).join(', ')}")
+        print_good("  Vulnerable to: #{techniques.join(', ')}")
       else
         print_good("  Vulnerable to: #{(techniques - %w[ESC9 ESC10]).join(', ')}")
         if techniques.include?('ESC9')
@@ -1026,7 +1024,7 @@ class MetasploitModule < Msf::Auxiliary
           find_esc9_vuln_cert_templates
         end
         if registry_values[:strong_certificate_binding_enforcement] == '0' ||
-          %w[4 31].include?(registry_values[:certificate_mapping_methods])
+           %w[4 31].include?(registry_values[:certificate_mapping_methods])
           find_esc10_vuln_cert_templates
         end
       end
