@@ -15,8 +15,8 @@ flowchart TD
         ESC8 --> web_enrollment[<i>Issuance via Web Enrollment</i>]
     end
     subgraph esc_update_ldap_object[<b>esc_update_ldap_object</b>]
-        ESC9(ESC9) --> weak_certificate_mapping[<i>Issuance via misconfigured Weak Certificate Mapping</i>]
-        ESC10(ESC10) --> weak_certificate_mapping[<i>Issuance via misconfigured Weak Certificate Mapping</i>]
+        ESC9(ESC9) --> weak_certificate_mapping[<i>Issuance via Weak Certificate Mapping</i>]
+        ESC10(ESC10) --> weak_certificate_mapping[<i>Issuance via Weak Certificate Mapping</i>]
     end
     subgraph icpr_cert[<b>icpr_cert</b>]
         ESC1(ESC1)
