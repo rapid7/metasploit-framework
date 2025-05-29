@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def call_ldap_object_module(action, value = nil)
-    mod_refname = 'auxiliary/gather/ldap_object'
+    mod_refname = 'auxiliary/gather/ldap_object_attribute'
 
     print_status("Loading #{mod_refname}")
     ldap_update_module = framework.modules.create(mod_refname)
@@ -144,7 +144,6 @@ class MetasploitModule < Msf::Auxiliary
 
     yield opts
   ensure
-    revert_ldap_object
     opts[:tree].disconnect! if opts[:tree]
   end
 end
