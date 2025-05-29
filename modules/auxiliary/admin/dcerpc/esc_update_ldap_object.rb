@@ -104,14 +104,13 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Running #{mod_refname}")
     ldap_update_module.run_simple(
-      'LocalInput' => self.user_input,
-      'LocalOutput' => self.user_output,
+      'LocalInput' => user_input,
+      'LocalOutput' => user_output,
       'RunAsJob' => false
     )
   end
 
   def action_request_cert
-
     # Get the original while updating (the update action returns the original value upon success)
     @original_value = call_ldap_object_module('UPDATE', datastore['NEW_VALUE'])
 
