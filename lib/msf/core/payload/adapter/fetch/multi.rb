@@ -1,7 +1,7 @@
 module Msf
   ###
   #
-  # Common library for http fetch-based payloads
+  # Common library for http multi-arch fetch payloads
   #
   ###
   module Payload::Adapter::Fetch::Multi

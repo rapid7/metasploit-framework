@@ -1,7 +1,7 @@
 module Msf
   ###
   #
-  # Common library for http fetch-based payloads
+  # Common library for pipe-enabled fetch payloads
   #
   ###
   module Payload::Adapter::Fetch::Pipe

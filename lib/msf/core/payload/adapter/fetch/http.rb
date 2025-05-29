@@ -29,7 +29,7 @@ module Msf
         @srv_resources.each do |srv_data|
           escaped_uri = ('/' + srv_data[:uri]).gsub('//', '/')
           @myresources << escaped_uri
-          add_resource(@fetch_service, escaped_uri, srv_data[:payload])
+          add_resource(@fetch_service, escaped_uri, srv_data[:data])
         end
       end
       super
