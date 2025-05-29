@@ -176,9 +176,12 @@ module Rex
                   pa_datas = res.e_data_as_pa_data
                 rescue OpenSSL::ASN1::ASN1Error
                 else
-                  superseded_pa_data = pa_datas.find { |pa_data| pa_data.type == Rex::Proto::Kerberos::Model::PreAuthType::KERB_SUPERSEDED_BY_USER }
-                  if superseded_pa_data
-                    error_code = "#{error_code}. This account has been superseded by #{superseded_pa_data.decoded_value}."
+                  pa_data_entry = pa_datas.find do |pa_data|
+                    pa_data.type == Rex::Proto::Kerberos::Model::PreAuthType::KERB_SUPERSEDED_BY_USER
+                  end
+
+                  if pa_data_entry
+                    error_code = "#{error_code}. This account has been superseded by #{pa_data_entry.decoded_value}."
                   end
                 end
               end
