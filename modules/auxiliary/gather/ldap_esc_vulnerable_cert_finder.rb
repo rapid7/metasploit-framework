@@ -437,6 +437,29 @@ class MetasploitModule < Msf::Auxiliary
     (write_sids.map(&:value) & ([user_sid] + group_sids)).any?
   end
 
+  def parse_registry_output(output, property_name)
+    return nil if output.stderr.present?
+
+    stdout = output.stdout if output.stdout.present?
+    return nil unless stdout
+
+    line_with_property = stdout.lines.find { |line| line.strip.match(/^#{Regexp.escape(property_name)}\s*:/) }
+    return nil unless line_with_property
+
+    line_with_property.split(':', 2).last&.strip
+  end
+
+  def run_registry_command(shell, path, property_name, dynamic_value = nil)
+    full_path = dynamic_value ? "#{path}\\#{dynamic_value}" : path
+    command = "Get-ItemProperty -Path '#{full_path}' -Name #{property_name}"
+    output = shell.run(command)
+    value = parse_registry_output(output, property_name)
+    if value.nil?
+      print_error("Registry property '#{property_name}' not found at path '#{full_path}'.")
+    end
+    value
+  end
+
   def enum_registry_values
     endpoint = "http://#{datastore['RHOST']}:5985/wsman"
     user = datastore['LDAPUsername']
@@ -457,13 +480,8 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       conn.shell(:powershell) do |shell|
-        cert_mapping_command = "Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\Schannel' -Name CertificateMappingMethods"
-        cert_mapping_output = shell.run(cert_mapping_command)
-        registry_values[:certificate_mapping_methods] = parse_registry_output(cert_mapping_output.output)
-
-        strong_cert_command = "Get-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Kdc' -Name StrongCertificateBindingEnforcement"
-        strong_cert_output = shell.run(strong_cert_command)
-        registry_values[:strong_certificate_binding_enforcement] = parse_registry_output(strong_cert_output.output)
+        registry_values[:certificate_mapping_methods] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\Schannel', 'CertificateMappingMethods')
+        registry_values[:strong_certificate_binding_enforcement] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Kdc', 'StrongCertificateBindingEnforcement')
       end
 
       if registry_values[:strong_certificate_binding_enforcement] == '1'
@@ -489,11 +507,6 @@ class MetasploitModule < Msf::Auxiliary
     @ldap_objects << { type: :registry_values, values: registry_values }
 
     registry_values
-  end
-
-  def parse_registry_output(output)
-    # Extract the value from the PowerShell output
-    output.lines.find { |line| line.strip.match(/:/) }&.split(':', 2)&.last&.strip
   end
 
   def find_esc9_vuln_cert_templates
