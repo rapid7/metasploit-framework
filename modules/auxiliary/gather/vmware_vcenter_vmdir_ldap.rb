@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
           the vmdir service in VMware vCenter Server version 6.7 prior to the
           6.7U3f update, only if upgraded from a previous release line, such as
           6.0 or 6.5.
-          If the bind username and password are provided (BIND_DN and BLDAPPassword
+          If the bind username and password are provided (BIND_DN and LDAPPassword
           options), these credentials will be used instead of attempting an
           anonymous bind.
         },
