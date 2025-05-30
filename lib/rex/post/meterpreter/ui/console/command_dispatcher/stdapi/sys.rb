@@ -278,13 +278,13 @@ class Console::CommandDispatcher::Stdapi::Sys
       'Desktop'     => desktop,
       'Session'     => session,
       'Hidden'      => hidden,
-      'InMemory'    => (from_mem) ? dummy_exec : nil,
+      'InMemory'    => from_mem ? dummy_exec : nil,
       'Subshell' => subshell,
       'Pty' => pty,
       'UseThreadToken' => use_thread_token)
 
     print_line("Process #{p.pid} created.")
-    print_line("Channel #{p.channel.cid} created.") if (p.channel)
+    print_line("Channel #{p.channel.cid} created.") if p.channel
 
     if (interact and p.channel)
       shell.interact_with_channel(p.channel, raw: raw)
@@ -695,7 +695,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     clean_pids.each do |pid|
       # find the process with this pid
       theprocess = host_processes.find {|x| x["pid"] == pid}
-      if ( theprocess.nil? )
+      if  theprocess.nil?
         next
       else
         valid_pids << pid
@@ -1105,7 +1105,7 @@ class Console::CommandDispatcher::Stdapi::Sys
           print_error("Invalid command supplied: #{cmd}")
       end
     ensure
-      open_key.close if (open_key)
+      open_key.close if open_key
     end
   end
 

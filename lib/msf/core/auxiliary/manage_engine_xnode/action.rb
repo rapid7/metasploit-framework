@@ -5,7 +5,7 @@ module Msf::Auxiliary::ManageEngineXnode::Action
   #
   # @param user [String] Username
   # @param pass [String] Password
-  # @return [Hash] Xnode authentication request 
+  # @return [Hash] Xnode authentication request
   def action_authenticate(user,pass)
     {
       "username" => user,
@@ -16,18 +16,18 @@ module Msf::Auxiliary::ManageEngineXnode::Action
 
   # Returns an Xnode health status request hash
   #
-  # @return [Hash] Xnode health status request 
+  # @return [Hash] Xnode health status request
   def action_admin_health
     {
       "action" => "admin:/health",
       "de_health" => true,
-      "request_id" => 1,  
+      "request_id" => 1,
     }
   end
 
   # Returns an Xnode info request hash
   #
-  # @return [Hash] Xnode info request 
+  # @return [Hash] Xnode info request
   def action_xnode_info
     {
       "action" => "admin:/xnode_info",

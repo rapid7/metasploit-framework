@@ -54,7 +54,7 @@ class Client
     @user = user
     @pass = pass
     res = self.call("auth.login", user, pass)
-    unless (res && res['result'] == "success")
+    unless res && res['result'] == "success"
       raise RuntimeError, "authentication failed"
     end
     self.token = res['token']

@@ -191,11 +191,11 @@ protected
   #
   def create_session(conn, opts={})
     # If there is a parent payload, then use that in preference.
-    return parent_payload.create_session(conn, opts) if (parent_payload)
+    return parent_payload.create_session(conn, opts) if parent_payload
 
     # If the payload we merged in with has an associated session factory,
     # allocate a new session.
-    if (self.session)
+    if self.session
       begin
         # if there's a create_session method then use it, as this
         # can form a factory for arb session types based on the
@@ -245,7 +245,7 @@ protected
 
       # If the session is valid, register it with the framework and
       # notify any waiters we may have.
-      if (s)
+      if s
         # Defer the session registration to the Session Manager scheduler
         registration = Proc.new do
           register_session(s)

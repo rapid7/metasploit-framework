@@ -103,13 +103,13 @@ class Service
         end
       end
 
-      unless (req.headers["Content-Type"] && req.headers["Content-Type"] == "binary/message-pack")
+      unless req.headers["Content-Type"] && req.headers["Content-Type"] == "binary/message-pack"
         raise ArgumentError, "Invalid Content Type"
       end
 
       msg = MessagePack.unpack(req.body)
 
-      unless (msg && msg.kind_of?(::Array) && msg.length > 0)
+      unless msg && msg.kind_of?(::Array) && msg.length > 0
         raise ArgumentError, "Invalid Message Format"
       end
 
@@ -199,7 +199,7 @@ class Service
     stale = []
 
 
-    unless (token && token.kind_of?(::String))
+    unless token && token.kind_of?(::String)
       return false
     end
 

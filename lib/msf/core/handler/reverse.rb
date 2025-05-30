@@ -109,7 +109,7 @@ module Msf
             break
           end
         end
-        raise ex if (ex)
+        raise ex if ex
       end
     end
   end

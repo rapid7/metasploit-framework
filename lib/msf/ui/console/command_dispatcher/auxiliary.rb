@@ -110,7 +110,7 @@ class Auxiliary
       return false
     end
 
-    if (jobify && mod_with_opts.job_id)
+    if jobify && mod_with_opts.job_id
       print_status("Auxiliary module running as background job #{mod_with_opts.job_id}.")
     else
       print_status("Auxiliary module execution completed")

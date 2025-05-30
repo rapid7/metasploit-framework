@@ -22,7 +22,7 @@ module Rex
           DnBinary.new(groups[4], data)
         end
 
-        # Turn this structured object containing data and a DN into a DN-Binary string 
+        # Turn this structured object containing data and a DN into a DN-Binary string
         # @return [String] The DN-Binary-formatted string
         def encode
           data_hex = self.data.unpack('H*')[0]

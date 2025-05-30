@@ -33,7 +33,7 @@ class FileStat < Rex::Post::FileStat
   #
   def initialize(file)
     super
-    stat(file) if (file)
+    stat(file) if file
   end
 
 protected

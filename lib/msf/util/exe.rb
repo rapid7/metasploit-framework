@@ -133,7 +133,7 @@ require 'digest/sha1'
     end
 
     if arch.index(ARCH_X64)
-      if (plat.index(Msf::Module::Platform::Windows))
+      if plat.index(Msf::Module::Platform::Windows)
         return to_win64pe(framework, code, opts)
       end
 
@@ -518,7 +518,7 @@ require 'digest/sha1'
   def self.string_to_pushes(string)
     str = string.dup
     # Align string to 4 bytes
-    rem = (str.length) % 4
+    rem = str.length % 4
     if rem > 0
       str << "\x00" * (4 - rem)
       pushes = ''
@@ -831,7 +831,7 @@ require 'digest/sha1'
 
     msi = self.get_file_contents(template)
 
-    section_size = 2**(msi[30..31].unpack('v')[0])
+    section_size = 2**msi[30..31].unpack('v')[0]
 
     # This table is one of the few cases where signed values are needed
     sector_allocation_table = msi[section_size..section_size*2].unpack('l<*')

@@ -149,20 +149,20 @@ module ReverseTcpDouble
       resp_a = ''
       resp_b = ''
 
-      if (sock_a.has_read_data?(1))
+      if sock_a.has_read_data?(1)
         print_status("Reading from socket A")
         resp_a = sock_a.get_once
         print_status("A: #{resp_a.inspect}")
       end
 
-      if (sock_b.has_read_data?(1))
+      if sock_b.has_read_data?(1)
         print_status("Reading from socket B")
         resp_b = sock_b.get_once
         print_status("B: #{resp_b.inspect}")
       end
 
       print_status("Matching...")
-      if (resp_b.match(etag))
+      if resp_b.match(etag)
         print_status("A is input...")
         return sock_a, sock_b
       else
@@ -186,7 +186,7 @@ module ReverseTcpDouble
       self.listener_thread = nil
     end
 
-    if (self.listener_sock)
+    if self.listener_sock
       self.listener_sock.close
       self.listener_sock = nil
     end
@@ -242,7 +242,7 @@ protected
         begin
           while true
             # Handle data from the server and write to the client
-            if (@sock_out.has_read_data?(0.50))
+            if @sock_out.has_read_data?(0.50)
               buf = @sock_out.get_once
               break if buf.nil?
               rsock.put(buf)
@@ -273,7 +273,7 @@ protected
     # Closes the stream abstraction and kills the monitor thread.
     #
     def close
-      @monitor_thread.kill if (@monitor_thread)
+      @monitor_thread.kill if @monitor_thread
       @monitor_thread = nil
 
       cleanup_abstraction

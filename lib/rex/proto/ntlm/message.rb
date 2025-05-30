@@ -413,7 +413,7 @@ CRYPT = Rex::Proto::NTLM::Crypt
 
       if (reqflags & CONST::REQUEST_TARGET) == CONST::REQUEST_TARGET
 
-        if (downgrade)
+        if downgrade
           # At this time NTLMv2 and signing requirements are not supported
           if (reqflags & CONST::NEGOTIATE_NTLM2_KEY) == CONST::NEGOTIATE_NTLM2_KEY
             reqflags = reqflags - CONST::NEGOTIATE_NTLM2_KEY
@@ -448,7 +448,7 @@ CRYPT = Rex::Proto::NTLM::Crypt
       type2msg = "NTLMSSP\0" + # protocol, 8 bytes
            "\x02\x00\x00\x00"		# type, 4 bytes
 
-      if (tid)
+      if tid
         type2msg +=	# Target security info, 8 bytes. Filled if REQUEST_TARGET
         [win_domain.length].pack('v') +	 # Length, 2 bytes
         [win_domain.length].pack('v')	 # Allocated space, 2 bytes
@@ -459,7 +459,7 @@ CRYPT = Rex::Proto::NTLM::Crypt
           nonce +		# the nonce, 8 bytes
           "\x00" * 8		# Context (all 0s), 8 bytes
 
-      if (tid)
+      if tid
         type2msg +=		# Target information security buffer. Filled if REQUEST_TARGET
           [tidbuff.length].pack('v') +	# Length, 2 bytes
           [tidbuff.length].pack('v') +	# Allocated space, 2 bytes

@@ -158,7 +158,7 @@ class DataStore
     hash = {}
 
     # Figure out the delimiter, default to space.
-    if (delim.nil?)
+    if delim.nil?
       delim = /\s/
 
       if (option_str.split('=').length <= 2 or option_str.index(',') != nil)
@@ -175,7 +175,7 @@ class DataStore
 
       # Invalid parse?  Raise an exception and let those bastards know.
       if (var == nil or val == nil)
-        var = "unknown" if (!var)
+        var = "unknown" if !var
 
         raise Rex::ArgumentParseError, "Invalid option specified: #{var}",
           caller
@@ -254,7 +254,7 @@ class DataStore
     str = ''
 
     keys.sort.each { |key|
-      str << "#{key}=#{self[key]}" + ((str.length) ? delim : '')
+      str << "#{key}=#{self[key]}" + (str.length ? delim : '')
     }
 
     str

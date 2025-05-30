@@ -79,7 +79,7 @@ module CliParse
     str.each_line do |line|
       line.chomp!
       line.gsub!("\t",' ') # lose any tabs
-      if (tip == true && line =~ /^ + :/)
+      if tip == true && line =~ /^ + :/
         # then this is probably a continuation of the previous, let's append to previous
         # NOTE:  this will NOT pickup the (NOT_STOPPABLE, NOT_PAUSABLE), see next, but it
         # 	 will pickup when there's multiple dependencies
@@ -88,7 +88,7 @@ module CliParse
         hashish[lastkey] << ",#{val}" # append to old val with preceding ','
         # if that's confusing, maybe:  hashish[lastkey] = "#{hashish[lastkey]},#{val}"
         tip = false
-      elsif (tip == true && line =~ /^ + \(/)
+      elsif tip == true && line =~ /^ + \(/
         # then this is probably a continuation of the previous, let's append to previous
         # NOTE:  this WILL pickup (NOT_STOPPABLE, NOT_PAUSABLE) etc
         arr = line.scan(/\w+/) # put each "word" into an array

@@ -109,7 +109,7 @@ class Plugin
   # Prints an error message.
   #
   def print_error(msg='')
-    output.print_error(msg) if (output)
+    output.print_error(msg) if output
   end
 
   alias_method :print_bad, :print_error
@@ -118,28 +118,28 @@ class Plugin
   # Prints a 'good' message.
   #
   def print_good(msg='')
-    output.print_good(msg) if (output)
+    output.print_good(msg) if output
   end
 
   #
   # Prints a status line.
   #
   def print_status(msg='')
-    output.print_status(msg) if (output)
+    output.print_status(msg) if output
   end
 
   #
   # Prints an undecorated line of information.
   #
   def print_line(msg='')
-    output.print_line(msg) if (output)
+    output.print_line(msg) if output
   end
 
   #
   # Prints a warning
   #
   def print_warning(msg='')
-    output.print_warning(msg) if (output)
+    output.print_warning(msg) if output
   end
 
 
@@ -147,14 +147,14 @@ class Plugin
   # Prints a message with no decoration.
   #
   def print(msg='')
-    output.print(msg) if (output)
+    output.print(msg) if output
   end
 
   #
   # Flushes any buffered output.
   #
   def flush
-    output.flush(msg) if (output)
+    output.flush(msg) if output
   end
 
 protected
@@ -171,7 +171,7 @@ protected
   # Adds the console dispatcher.
   #
   def add_console_dispatcher(disp)
-    if (opts['ConsoleDriver'])
+    if opts['ConsoleDriver']
       opts['ConsoleDriver'].append_dispatcher(disp)
     end
   end
@@ -180,7 +180,7 @@ protected
   # Removes the console dispatcher.
   #
   def remove_console_dispatcher(name)
-    if (opts['ConsoleDriver'])
+    if opts['ConsoleDriver']
       opts['ConsoleDriver'].remove_dispatcher(name)
     end
   end

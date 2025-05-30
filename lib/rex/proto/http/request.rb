@@ -90,7 +90,7 @@ class Request < Packet
   #
   def update_uri_parts
     # If it has a query string, get the parts.
-    if ((self.raw_uri) and (md = self.raw_uri.match(/(.+?)\?(.*)$/)))
+    if (self.raw_uri and (md = self.raw_uri.match(/(.+?)\?(.*)$/)))
       self.uri_parts['QueryString'] = parse_cgi_qstring(md[2])
       self.uri_parts['Resource']    = md[1]
     # Otherwise, just assume that the URI is equal to the resource being
@@ -108,7 +108,7 @@ class Request < Packet
   # normalize out multiple slashes, directory traversal, and self referrential directories
   def normalize!(str)
     i = 0
-    while (str.gsub!(/(\/\.\/|\/\w+\/\.\.\/|\/\/)/,'/')); i += 1; end
+    while str.gsub!(/(\/\.\/|\/\w+\/\.\.\/|\/\/)/,'/'); i += 1; end
     i
   end
 
@@ -336,8 +336,8 @@ class Request < Packet
 
       # Add the item to the hash with logic to convert values to an array
       # if so desired.
-      if (qstring.include?(var))
-        if (qstring[var].kind_of?(Array))
+      if qstring.include?(var)
+        if qstring[var].kind_of?(Array)
           qstring[var] << val
         else
           curr = self.qstring[var]

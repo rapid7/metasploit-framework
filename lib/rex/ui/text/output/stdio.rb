@@ -102,7 +102,7 @@ class Output::Stdio < Rex::Ui::Text::Output
     when false
       return false
     else # auto
-      if (Rex::Compat.is_windows)
+      if Rex::Compat.is_windows
         return true
       end
       term = Rex::Compat.getenv('TERM')

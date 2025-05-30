@@ -53,7 +53,7 @@ module Msf::DBManager::Client
     end
 
     opts.each do |k,v|
-      if (client.attribute_names.include?(k.to_s))
+      if client.attribute_names.include?(k.to_s)
         client[k] = v
       elsif !v.blank?
         dlog("Unknown attribute for Client: #{k}")

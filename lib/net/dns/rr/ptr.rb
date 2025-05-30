@@ -3,14 +3,14 @@
 #
 # Net::DNS::RR::PTR
 #
-#       $Id: PTR.rb,v 1.5 2006/07/28 07:33:36 bluemonk Exp $    
+#       $Id: PTR.rb,v 1.5 2006/07/28 07:33:36 bluemonk Exp $
 #
 ##
 
 module Net
   module DNS
     class RR
-      
+
       #------------------------------------------------------------
       # RR type PTR
       #------------------------------------------------------------
@@ -21,15 +21,15 @@ module Net
           @ptrdname.to_s
         end
         alias_method :ptrdname, :ptr
-        
+
         private
-        
+
         def check_ptr(str)
           IPAddr.new str
         rescue
           raise RRArgumentError, "PTR section not valid"
         end
-        
+
         def build_pack
           @ptrdname_pack = pack_name(@ptrdname)
           @rdlength = @ptrdname_pack.size
@@ -65,7 +65,7 @@ module Net
         end
 
       end # class PTR
-      
+
     end # class RR
   end # module DNS
 end # module Net

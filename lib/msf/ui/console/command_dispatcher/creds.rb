@@ -352,26 +352,26 @@ class Creds
       case arg
       when '-o'
         output_file = args.shift
-        if (!output_file)
+        if !output_file
           print_error('Invalid output filename')
           return
         end
         output_file = ::File.expand_path(output_file)
         truncate = false
       when '-p', '--port'
-        unless (arg_port_range(args.shift, port_ranges, true))
+        unless arg_port_range(args.shift, port_ranges, true)
           return
         end
       when '-t', '--type'
         ptype = args.shift
         opts[:ptype] = ptype
-        if (!ptype)
+        if !ptype
           print_error('Argument required for -t')
           return
         end
       when '-s', '--service'
         service = args.shift
-        if (!service)
+        if !service
           print_error('Argument required for -s')
           return
         end
@@ -408,7 +408,7 @@ class Creds
         opts[:realm] = args.shift
       else
         # Anything that wasn't an option is a host to search for
-        unless (arg_host_range(arg, host_ranges))
+        unless arg_host_range(arg, host_ranges)
           return
         end
       end
@@ -586,12 +586,12 @@ class Creds
       next if is_duplicate_cracked_password_row
 
       # Exclude non-blank username creds if that's what we're after
-      if opts[:user] == '' && core.public && !(core.public.username.blank?)
+      if opts[:user] == '' && core.public && !core.public.username.blank?
         next
       end
 
       # Exclude non-blank password creds if that's what we're after
-      if opts[:pass] == '' && core.private && !(core.private.data.blank?)
+      if opts[:pass] == '' && core.private && !core.private.data.blank?
         next
       end
 

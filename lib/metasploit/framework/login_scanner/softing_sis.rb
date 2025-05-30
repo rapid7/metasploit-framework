@@ -39,7 +39,7 @@ module Metasploit
         # @param user [String] The username
         # @return [Hash]
         #   * status [Metasploit::Model::Login::Status]
-        #   * proof [String] the authentication token 
+        #   * proof [String] the authentication token
         def get_auth_token(user)
           auth_token_uri = normalize_uri("#{uri}/runtime/core/user/#{user}/authentication-token")
 
@@ -108,7 +108,7 @@ module Metasploit
 
           # extract the authentication token from the hash
           auth_token = auth_token_res[:proof]
-          
+
           login_uri = normalize_uri("#{uri}/runtime/core/user/#{user}/authentication")
           # calculate signature to use when logging in
           signature = generate_signature(auth_token, user, pass)

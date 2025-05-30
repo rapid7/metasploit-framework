@@ -54,7 +54,7 @@ module Rex
           # @return [Rex::Proto::Rmi::Model::Element]
           def decode(io)
             self.class.attributes.each do |attr|
-              dec_method = ("decode_#{attr}").to_sym
+              dec_method = "decode_#{attr}".to_sym
               decoded = self.send(dec_method, io)
               assign_method = (attr.to_s + '=').to_sym
               self.send(assign_method, decoded)
@@ -70,7 +70,7 @@ module Rex
           def encode
             encoded = ''
             self.class.attributes.each do |attr|
-              m = ("encode_#{attr}").to_sym
+              m = "encode_#{attr}".to_sym
               encoded << self.send(m) if self.send(attr)
             end
 

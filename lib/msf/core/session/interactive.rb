@@ -94,7 +94,7 @@ module Interactive
   def cleanup
     begin
       self.interacting = false if self.interactive?
-      rstream.close if (rstream)
+      rstream.close if rstream
     rescue ::Exception
     end
 

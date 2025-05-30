@@ -302,7 +302,7 @@ module Rex
       else
 
         if @report_data[:formatted_indent] > 1
-          data = (" " * (@report_data[:formatted_indent])) + data
+          data = (" " * @report_data[:formatted_indent]) + data
         end
 
         if @report_data[:formatted_indent] == 1

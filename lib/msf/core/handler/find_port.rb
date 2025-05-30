@@ -103,7 +103,7 @@ protected
     rv = (go == true) ? super : nil
 
 
-    if (rv)
+    if rv
       self._handler_return_value = Claimed
     end
 
@@ -120,7 +120,7 @@ protected
     # Send any identifying information that the find sock may need on
     # the other side, such as a tag.  If we do actually send something,
     # wait a bit longer to let the remote side find us.
-    if (_send_id(sock))
+    if _send_id(sock)
       Rex::ThreadSafe.sleep(1.5)
     end
 

@@ -47,7 +47,7 @@ class Msf::Payload::Apk
 
     application = manifest.xpath('//application')
     application_name = application.attribute('name').to_s
-    unless (application_name.blank? || application_name == 'android.app.Application')
+    unless application_name.blank? || application_name == 'android.app.Application'
       unless application_name.include?('.')
         application_name = '.' + application_name
       end
@@ -71,7 +71,7 @@ class Msf::Payload::Apk
 
       for cat in category
         category_name = cat.attribute('name').to_s
-        next unless (category_name == 'android.intent.category.LAUNCHER' || category_name == 'android.intent.action.MAIN')
+        next unless category_name == 'android.intent.category.LAUNCHER' || category_name == 'android.intent.action.MAIN'
 
         unless activity_name.include?('.')
           activity_name = '.' + activity_name

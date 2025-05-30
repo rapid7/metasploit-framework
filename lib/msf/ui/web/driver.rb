@@ -113,7 +113,7 @@ class Driver < Msf::Ui::Driver
     return if not ses
 
     # Has this session already been detached?
-    if (ses.user_output)
+    if ses.user_output
       return if ses.user_output.has_subscriber?('session_reader')
     end
 

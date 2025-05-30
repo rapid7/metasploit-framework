@@ -3,15 +3,15 @@
 #
 # Net::DNS::RR::NS
 #
-#       $Id: NS.rb,v 1.8 2006/07/28 07:33:36 bluemonk Exp $     
+#       $Id: NS.rb,v 1.8 2006/07/28 07:33:36 bluemonk Exp $
 #
 ##
 
 module Net
   module DNS
-    
+
     class RR
-      
+
       #------------------------------------------------------------
       # RR type NS
       #------------------------------------------------------------
@@ -19,7 +19,7 @@ module Net
         attr_reader :nsdname
 
         private
-        
+
         def check_name(name)
           unless name =~ /(\w\.?)+\s*$/ and name =~ /[a-zA-Z]/
             raise RRArgumentError, "NS Domain Name not valid: #{name}"
@@ -43,7 +43,7 @@ module Net
         def get_inspect
           "#@nsdname"
         end
-          
+
         def subclass_new_from_hash(args)
           if args.has_key? :nsdname
             @nsdname = check_name args[:nsdname]
@@ -60,9 +60,9 @@ module Net
           @nsdname,offset = dn_expand(data,offset)
           return offset
         end
-        
+
       end # class NS
-      
+
     end # class RR
   end # module DNS
 end # module Net

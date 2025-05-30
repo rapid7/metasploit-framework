@@ -157,7 +157,7 @@ class Dir < Rex::Post::Dir
           st.update32(sbuf[idx].value)
         end
         is_dir = st.ftype == 'directory'
-        next if (match_dir && !is_dir) # if file_name isn't directory
+        next if match_dir && !is_dir # if file_name isn't directory
       end
 
       if !file_name.value.end_with?('.', '\\', '/') # Exclude current and parent directory
@@ -279,10 +279,10 @@ class Dir < Rex::Post::Dir
     rescue Rex::TimeoutError
       if (tries && (tries_no == 0 || tries_cnt < tries_no))
         tries_cnt += 1
-        stat.call('error listing  - retry #', tries_cnt, src) if (stat)
+        stat.call('error listing  - retry #', tries_cnt, src) if stat
         retry
       else
-        stat.call('error listing directory - giving up', src, dst) if (stat)
+        stat.call('error listing directory - giving up', src, dst) if stat
         raise
       end
     end
@@ -306,37 +306,37 @@ class Dir < Rex::Post::Dir
       rescue Rex::TimeoutError
         if (tries && (tries_no == 0 || tries_cnt < tries_no))
           tries_cnt += 1
-          stat.call('error opening file - retry #', tries_cnt, src_item) if (stat)
+          stat.call('error opening file - retry #', tries_cnt, src_item) if stat
           retry
         else
-          stat.call('error opening file - giving up', tries_cnt, src_item) if (stat)
+          stat.call('error opening file - giving up', tries_cnt, src_item) if stat
           raise
         end
       end
 
-      if (src_stat.file?)
+      if src_stat.file?
         if timestamp
           dst_item << timestamp
         end
 
-        stat.call('downloading', src_item, dst_item) if (stat)
+        stat.call('downloading', src_item, dst_item) if stat
 
         begin
-          if (continue || tries)  # allow to file.download to log messages
+          if continue || tries  # allow to file.download to log messages
             result = client.fs.file.download_file(dst_item, src_item, opts, &stat)
           else
             result = client.fs.file.download_file(dst_item, src_item, opts)
           end
-          stat.call(result, src_item, dst_item) if (stat)
+          stat.call(result, src_item, dst_item) if stat
         rescue ::Rex::Post::Meterpreter::RequestError => e
           if force
-            stat.call('failed', src_item, dst_item) if (stat)
+            stat.call('failed', src_item, dst_item) if stat
           else
             raise e
           end
         end
 
-      elsif (src_stat.directory?)
+      elsif src_stat.directory?
         if (recursive == false)
           next
         end
@@ -346,9 +346,9 @@ class Dir < Rex::Post::Dir
         rescue
         end
 
-        stat.call('mirroring', src_item, dst_item) if (stat)
+        stat.call('mirroring', src_item, dst_item) if stat
         download(dst_item, src_item, opts, force, glob, &stat)
-        stat.call('mirrored', src_item, dst_item) if (stat)
+        stat.call('mirrored', src_item, dst_item) if stat
       end
     } # entries
   end
@@ -368,11 +368,11 @@ class Dir < Rex::Post::Dir
 
       src_stat = ::File.stat(src_item)
 
-      if (src_stat.file?)
-        stat.call('uploading', src_item, dst_item) if (stat)
+      if src_stat.file?
+        stat.call('uploading', src_item, dst_item) if stat
         client.fs.file.upload(dst_item, src_item)
-        stat.call('uploaded', src_item, dst_item) if (stat)
-      elsif (src_stat.directory?)
+        stat.call('uploaded', src_item, dst_item) if stat
+      elsif src_stat.directory?
         if (recursive == false)
           next
         end
@@ -382,9 +382,9 @@ class Dir < Rex::Post::Dir
         rescue
         end
 
-        stat.call('mirroring', src_item, dst_item) if (stat)
+        stat.call('mirroring', src_item, dst_item) if stat
         upload(dst_item, src_item, recursive, &stat)
-        stat.call('mirrored', src_item, dst_item) if (stat)
+        stat.call('mirrored', src_item, dst_item) if stat
       end
     }
   end

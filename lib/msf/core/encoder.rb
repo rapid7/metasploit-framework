@@ -251,7 +251,7 @@ class Encoder < Module
     init_platform(platform) if platform
 
     # Initialize an empty set of bad characters
-    badchars = '' if (!badchars)
+    badchars = '' if !badchars
 
     # Initialize the encoding state and key as necessary
     if (state == nil)
@@ -268,7 +268,7 @@ class Encoder < Module
     state.buf      = buf
 
     # If this encoder is key-based and we don't already have a key, find one
-    if ((decoder_key_size) and
+    if (decoder_key_size and
         (state.key == nil))
       # Find a key that doesn't contain and won't generate any bad
       # characters
@@ -317,7 +317,7 @@ class Encoder < Module
       # If we're using context encoding, the actual value we use for
       # substitution is the context address, not the key we use for
       # encoding
-      real_key = state.context_address if (state.context_encoding)
+      real_key = state.context_address if state.context_encoding
 
       stub[state.decoder_key_offset,state.decoder_key_size] = [ real_key.to_i ].pack(state.decoder_key_pack)
     else
@@ -327,7 +327,7 @@ class Encoder < Module
     # Walk the buffer encoding each block along the way
     offset = 0
 
-    if (decoder_block_size)
+    if decoder_block_size
       while (offset < state.buf.length)
         block = state.buf[offset, decoder_block_size]
 
@@ -500,7 +500,7 @@ protected
     allset    = [*(0..255)]
 
     # Keep chugging until we find something...right
-    while (!found)
+    while !found
       # Scan each byte position
       0.upto(decoder_key_size - 1) { |index|
 

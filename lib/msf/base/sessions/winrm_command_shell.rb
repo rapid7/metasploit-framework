@@ -56,7 +56,7 @@ module Msf::Sessions
           time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
           elapsed = time - start_time
           time_remaining = timeout - elapsed
-          break if (result != '' || time_remaining <= 0)
+          break if result != '' || time_remaining <= 0
 
           # rubocop:disable Lint/SuppressedException
           begin

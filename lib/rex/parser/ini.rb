@@ -44,7 +44,7 @@ class Ini < Hash
     # Try to synchronize ourself with the file if we
     # have one
     begin
-      self.from_file if (self.path)
+      self.from_file if self.path
     rescue
     end
   end
@@ -79,7 +79,7 @@ class Ini < Hash
   # path.
   #
   def from_file(fpath = nil)
-    fpath = path if (!fpath)
+    fpath = path if !fpath
 
     read_groups(fpath)
   end
@@ -95,7 +95,7 @@ class Ini < Hash
   # Writes the group settings to a file.
   #
   def to_file(tpath = nil)
-    tpath = path if (!tpath)
+    tpath = path if !tpath
 
     f = File.new(tpath, "w")
     f.write(to_s)
@@ -129,7 +129,7 @@ protected
   # path or from the instance's file path if one was set.
   #
   def read_groups(fpath) # :nodoc:
-    if (!fpath)
+    if !fpath
       raise ArgumentError, "No file path specified.",
         caller
     end
@@ -153,7 +153,7 @@ protected
 
     # Walk each line initializing the groups
     str.each { |line|
-      next if (line.match(/^;/))
+      next if line.match(/^;/)
 
       # Eliminate cr/lf
       line.gsub!(/(\n|\r)/, '')
@@ -164,7 +164,7 @@ protected
         self[md[1]]  = {}
       # Is it a VAR=VAL?
       elsif (md = line.match(/^(.+?)=(.*)$/))
-        if (active_group)
+        if active_group
           var, val = md[1], md[2]
 
           # don't clobber datastore nils with ""

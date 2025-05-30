@@ -134,7 +134,7 @@ class Registry
     request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_DELETE_KEY)
     flags   = 0
 
-    if (recursive)
+    if recursive
       flags |= DELETE_KEY_FLAG_RECURSIVE
     end
 

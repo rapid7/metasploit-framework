@@ -3,7 +3,7 @@
 #
 # Net::DNS::RR::CNAME
 #
-#       $Id: CNAME.rb,v 1.7 2006/07/28 07:33:36 bluemonk Exp $  
+#       $Id: CNAME.rb,v 1.7 2006/07/28 07:33:36 bluemonk Exp $
 #
 ##
 
@@ -11,7 +11,7 @@ module Net
   module DNS
 
     class RR
-      
+
       #------------------------------------------------------------
       # RR type CNAME
       #------------------------------------------------------------
@@ -19,7 +19,7 @@ module Net
         attr_reader :cname
 
         private
-        
+
         def check_name(name)
           unless name =~ /(\w\.?)+\s*$/ and name =~ /[a-zA-Z]/
             raise RRArgumentError, "Canonical Name not valid: #{name}"
@@ -60,9 +60,9 @@ module Net
           @cname,offset = dn_expand(data,offset)
           return offset
         end
-        
+
       end # class CNAME
-       
+
     end # class RR
   end # module DNS
 end # module Net

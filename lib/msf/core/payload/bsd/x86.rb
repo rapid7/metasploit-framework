@@ -56,7 +56,7 @@ module X86
   end
 
   def handle_x86_bsd_opts(pre, app)
-    if (datastore['PrependSetresuid'])
+    if datastore['PrependSetresuid']
       # setresuid(0, 0, 0)
       pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
              "\x50"                 + #   pushl   %eax                       #
@@ -67,7 +67,7 @@ module X86
              "\xcd\x80"               #   int     $0x80                      #
     end
 
-    if (datastore['PrependSetreuid'])
+    if datastore['PrependSetreuid']
       # setreuid(0, 0)
       pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
              "\x50"                 + #   pushl   %eax                       #
@@ -77,7 +77,7 @@ module X86
              "\xcd\x80"               #   int     $0x80                      #
     end
 
-    if (datastore['PrependSetuid'])
+    if datastore['PrependSetuid']
       # setuid(0)
       pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
              "\x50"                 + #   pushl   %eax                       #
@@ -86,7 +86,7 @@ module X86
              "\xcd\x80"               #   int     $0x80                      #
     end
 
-    if (datastore['PrependSetresgid'])
+    if datastore['PrependSetresgid']
       # setresgid(0, 0, 0)
       pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
              "\x50"                 + #   pushl   %eax                       #
@@ -97,7 +97,7 @@ module X86
              "\xcd\x80"               #   int     $0x80                      #
     end
 
-    if (datastore['PrependSetregid'])
+    if datastore['PrependSetregid']
       # setregid(0, 0)
       pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
              "\x50"                 + #   pushl   %eax                       #
@@ -107,7 +107,7 @@ module X86
              "\xcd\x80"               #   int     $0x80                      #
     end
 
-    if (datastore['PrependSetgid'])
+    if datastore['PrependSetgid']
       # setgid(0)
       pre << "\x31\xc0"             + #   xorl    %eax,%eax                  #
              "\x50"                 + #   pushl   %eax                       #
@@ -116,7 +116,7 @@ module X86
              "\xcd\x80"               #   int     $0x80                      #
     end
 
-    if (datastore['AppendExit'])
+    if datastore['AppendExit']
       # exit(0)
       app << "\x31\xc0"             + #   xorl    %eax,%eax                  #
              "\x50"                 + #   pushl   %eax                       #

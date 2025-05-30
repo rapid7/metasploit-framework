@@ -52,7 +52,7 @@ class Console::CommandDispatcher::Priv::Passwd
     lm_hash = user_data.lanman.downcase
     nt_hash = user_data.ntlm.downcase
     empty_password = lm_hash == Metasploit::Credential::NTLMHash::BLANK_LM_HASH && nt_hash == Metasploit::Credential::NTLMHash::BLANK_NT_HASH
-    return if (user.empty? || empty_password)
+    return if user.empty? || empty_password
 
     # Assemble data about the credential objects we will be creating
     credential_data = {

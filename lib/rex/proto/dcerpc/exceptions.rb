@@ -165,7 +165,7 @@ class InvalidPacket < Error
 
   def to_s
     str = 'Invalid packet.'
-    if (@message)
+    if @message
       str += " #{@message}"
     end
   end

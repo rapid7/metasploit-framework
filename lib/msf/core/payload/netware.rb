@@ -23,7 +23,7 @@ module Msf::Payload::Netware
     encoders2 = []
 
     encoders.each { |encname, encmod|
-      if (!encname.include?('fnstenv_mov') && !encname.include?('shikata_ga_nai'))
+      if !encname.include?('fnstenv_mov') && !encname.include?('shikata_ga_nai')
         encoders2 << [ encname, encmod ]
       end
     }

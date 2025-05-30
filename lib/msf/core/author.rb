@@ -142,11 +142,11 @@ class Msf::Author
     #   Name <user [at/@] host [dot/.] tld>
 
     if str.present?
-      if ((m = str.match(/^\s*([^<]+)<([^>]+)>\s*$/)))
+      if (m = str.match(/^\s*([^<]+)<([^>]+)>\s*$/))
         self.name  = m[1].sub(/<.*/, '')
         self.email = m[2].sub(/\s*\[at\]\s*/, '@').sub(/\s*\[dot\]\s*/, '.')
       else
-        if (KNOWN[str])
+        if KNOWN[str]
           self.email = KNOWN[str]
           self.name  = str
         else

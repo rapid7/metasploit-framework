@@ -276,9 +276,9 @@ class Memory
     rescue
     end
 
-    if ((info != nil) &&
+    if (info != nil) &&
         (info['Available'] == false) &&
-        (info['Protect'] & PROT_READ == PROT_READ))
+        (info['Protect'] & PROT_READ == PROT_READ)
       return true
     end
 
@@ -296,9 +296,9 @@ class Memory
     rescue
     end
 
-    if ((info != nil) &&
+    if (info != nil) &&
         (info['Available'] == false) &&
-        (info['Protect'] & PROT_WRITE == PROT_WRITE))
+        (info['Protect'] & PROT_WRITE == PROT_WRITE)
       return true
     end
 

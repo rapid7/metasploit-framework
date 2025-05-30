@@ -2,10 +2,10 @@ module Rex
   module Proto
     module Gss
       module Kerberos
-        # 
+        #
         # Encrypt messages according to RFC4121 (Kerberos with GSS)
         # Performs wrapping of tokens in the GSS structure, filler bytes, rotation
-        # and sequence number tracking and verification. 
+        # and sequence number tracking and verification.
         #
         class MessageEncryptor
 
@@ -25,15 +25,15 @@ module Rex
             @rc4_pad_style = rc4_pad_style
             @encryptor = Rex::Proto::Kerberos::Crypto::Encryption::from_etype(key.type)
           end
-  
+
           #
           # Encrypt the message, wrapping it in GSS structures, and increment the sequence number
           # @return [String, Integer, Integer] The encrypted data, the length of its header, and the length of padding added to it prior to encryption
           #
           def encrypt_and_increment(data)
             result = encryptor.gss_wrap(data, @key, @encrypt_sequence_number, @is_initiator, use_acceptor_subkey: @use_acceptor_subkey, dce_style: @dce_style, rc4_pad_style: @rc4_pad_style)
-            @encrypt_sequence_number += 1  
-            
+            @encrypt_sequence_number += 1
+
             result
           end
 

@@ -2,7 +2,7 @@ module Msf::DBManager::Import::Qualys::Asset
   # Takes QID numbers and finds the discovered services in
   # a qualys_asset_xml.
   def find_qualys_asset_ports(i,host,wspace,hobj,task_id)
-    return unless (i == Msf::DBManager::Import::Qualys::TCP_QID || i == Msf::DBManager::Import::Qualys::UDP_QID)
+    return unless i == Msf::DBManager::Import::Qualys::TCP_QID || i == Msf::DBManager::Import::Qualys::UDP_QID
     proto = i == Msf::DBManager::Import::Qualys::TCP_QID ? 'tcp' : 'udp'
     qid = host.xpath("VULN_INFO_LIST/VULN_INFO/QID[@id='qid_#{i}']").first
     qid_result = qid.parent.xpath("RESULT[@format='table']") if qid
@@ -73,10 +73,10 @@ module Msf::DBManager::Import::Qualys::Asset
       end
       netbios_el = host.xpath("NETBIOS").first
       dns_el = host.xpath("DNS").first
-      hname = ( # Prefer NetBIOS over DNS
+      hname =  # Prefer NetBIOS over DNS
         (netbios_el.text if netbios_el) ||
          (dns_el.text if dns_el) ||
-         "" )
+         ""
       hobj = msf_import_host(:workspace => wspace, :host => addr, :name => hname, :state => Msf::HostState::Alive, :task => args[:task])
       report_import_note(wspace,hobj)
 

@@ -533,7 +533,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     dialects = ['LANMAN1.0', 'LM1.2X002' ]
 
-    if (self.encrypt_passwords)
+    if self.encrypt_passwords
       dialects.push('NT LANMAN 1.0', 'NT LM 0.12')
     end
 
@@ -637,11 +637,11 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
   def session_setup(user='', pass='', domain='', do_recv=true)
     if (self.dialect =~ /^(NT LANMAN 1.0|NT LM 0.12)$/)
 
-      if (self.challenge_key)
+      if self.challenge_key
         return self.session_setup_no_ntlmssp(user, pass, domain, do_recv)
       end
 
-      if ( self.extended_security )
+      if  self.extended_security
         return self.session_setup_with_ntlmssp(user, pass, domain, nil, do_recv)
       end
 
@@ -1382,7 +1382,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     err = ack['Payload']['SMB'].v['ErrorClass']
 
     # Catch some non-fatal error codes
-    if (err != 0 && err != CONST::SMB_ERROR_BUFFER_OVERFLOW)
+    if err != 0 && err != CONST::SMB_ERROR_BUFFER_OVERFLOW
       failure = XCEPT::ErrorCode.new
       failure.word_count = ack['Payload']['SMB'].v['WordCount']
       failure.command = ack['Payload']['SMB'].v['Command']

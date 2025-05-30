@@ -79,7 +79,7 @@ protected
   # Returns the tag we'll be using.
   #
   def _find_tag
-    tag  = (datastore['TAG'] || "msf!")
+    tag  = datastore['TAG'] || "msf!"
     tag << ("\x01" * (tag.length - 4))
 
     return tag[0, 4]

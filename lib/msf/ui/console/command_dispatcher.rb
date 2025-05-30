@@ -106,10 +106,10 @@ module CommandDispatcher
         return if ele.count('-') > 1 # Eg. 'sessions -u -1-,5', incorrect syntax
         return if ele.last == '-' # Last item of array is a '-', resulting in an incomplete range
         return if ele.first == '.' || ele.last == '.' #Eg. 'sessions -u .1..' or 'sessions -u ..
-        return unless ele =~ (/^\d+((\.\.|-)\d+)?$/) || ele =~ (/^-?\d+$/) # Not a number or range
+        return unless ele =~ /^\d+((\.\.|-)\d+)?$/ || ele =~ /^-?\d+$/ # Not a number or range
 
         # Check if the item is negative, as this will not always be a range
-        if ele =~ (/^-?\d+$/) && ele.to_i < 0 # if ele is a single negative number
+        if ele =~ /^-?\d+$/ && ele.to_i < 0 # if ele is a single negative number
           item_list.push(ele.to_i)
         elsif ele.include? '-'
           temp_array = (ele.split("-").inject { |s, e| s.to_i..e.to_i }).to_a

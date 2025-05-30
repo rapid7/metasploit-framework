@@ -69,7 +69,7 @@ module Msf::Auxiliary::ManageEngineXnode::Process
       end
 
       return search_result unless fields.is_a? Array
-      
+
       process_results(search_result, fields)
     else
       print_error('An invalid mode parameter was supplied!')
@@ -85,7 +85,7 @@ module Msf::Auxiliary::ManageEngineXnode::Process
   def process_results(search_result, fields)
     return nil unless fields.is_a? Array
     results = []
-    non_empty_val_ct = 0 # used to check the search results contains at least one non_empty value 
+    non_empty_val_ct = 0 # used to check the search results contains at least one non_empty value
     # map the search returned values to the specified fields
     search_result.each do |row|
       row_data = {}
@@ -93,7 +93,7 @@ module Msf::Auxiliary::ManageEngineXnode::Process
         non_empty_val_ct += 1 unless val.blank?
         column_name = fields[index]
         row_data[column_name] = val
-      end 
+      end
       results << row_data
     end
 

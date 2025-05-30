@@ -7,7 +7,7 @@ end
 
 module Anemone
   module Storage
-    class MongoDB 
+    class MongoDB
 
       BINARY_FIELDS = %w(body headers data)
 
@@ -46,7 +46,7 @@ module Anemone
         @collection.find do |cursor|
           cursor.each do |doc|
             page = load_page(doc)
-            yield page.url.to_s, page 
+            yield page.url.to_s, page
           end
         end
       end

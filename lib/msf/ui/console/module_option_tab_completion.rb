@@ -98,7 +98,7 @@ module Msf
           if mod.is_a?(Msf::Module::HasActions)
             res << 'ACTION'
           end
-          if ((mod.exploit? || mod.evasion?) && mod.datastore['PAYLOAD'])
+          if (mod.exploit? || mod.evasion?) && mod.datastore['PAYLOAD']
             p = framework.payloads.create(mod.datastore['PAYLOAD'])
             if p
               p.options.each do |e|
@@ -152,12 +152,12 @@ module Msf
             return option_values_actions(mod) if opt.upcase == 'ACTION'
           end
           # The ENCODER option works for evasions, payloads and exploits
-          if ((mod.evasion? || mod.exploit? || mod.payload?) && (opt.upcase == 'ENCODER'))
+          if (mod.evasion? || mod.exploit? || mod.payload?) && (opt.upcase == 'ENCODER')
             return option_values_encoders
           end
 
           # Well-known option names specific to post-exploitation
-          if (mod.post? || mod.exploit?)
+          if mod.post? || mod.exploit?
             return option_values_sessions(mod) if opt.upcase == 'SESSION'
           end
           # Is this option used by the active module?
@@ -167,7 +167,7 @@ module Msf
             end
           end
           # How about the selected payload?
-          if ((mod.evasion? || mod.exploit?) && mod.datastore['PAYLOAD'])
+          if (mod.evasion? || mod.exploit?) && mod.datastore['PAYLOAD']
             if p = framework.payloads.create(mod.datastore['PAYLOAD'])
               p.options.each_key do |key|
                 res.concat(option_values_dispatch(mod, p.options[key], str, words)) if key.downcase == opt.downcase

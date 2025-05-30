@@ -57,7 +57,7 @@ module Msf::Payload::Php
     dis = options[:disabled_varname] || @dis || '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
     output = options[:output_varname] || '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
 
-    if (@dis.nil?)
+    if @dis.nil?
       @dis = dis
     end
 

@@ -47,15 +47,15 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
   # Convert the executable and argument array to a command that can be run in this command shell
   # @param cmd_and_args [Array<String>] The process path and the arguments to the process
   def self.to_cmd(cmd_and_args)
-    # The principle here is that we want to launch a process such that it receives *exactly* what is in `args`. 
+    # The principle here is that we want to launch a process such that it receives *exactly* what is in `args`.
     # This means we need to:
     # - Escape all special characters
     # - Not escape environment variables
     # - Side-step any PowerShell magic
     # If someone specifically wants to use the PowerShell magic, they can use other APIs
-  
+
     needs_wrapping_chars = ['$', '`', '(', ')', '@', '>', '<', '{','}', '&', ',', ' ', ';']
-  
+
     result = ""
     cmd_and_args.each_with_index do |arg, index|
       needs_single_quoting = false
@@ -63,7 +63,7 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
         arg = arg.gsub("'", "''")
         needs_single_quoting = true
       end
-      
+
       if arg.include?('"')
         # PowerShell acts weird around quotes and backslashes
         # First we need to escape backslashes immediately prior to a double-quote, because
@@ -74,7 +74,7 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
         arg = arg.gsub('"', '\\"')
         needs_single_quoting = true
       end
-      
+
       needs_wrapping_chars.each do |char|
         if arg.include?(char)
           needs_single_quoting = true
@@ -105,7 +105,7 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
         # Pass in empty strings
         arg = '\'""\''
       end
-  
+
       if index == 0
         if needs_single_quoting
           # If the executable name (i.e. index 0) has beeen wrapped, then we'll have converted it to a string.

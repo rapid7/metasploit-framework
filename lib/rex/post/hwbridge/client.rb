@@ -126,7 +126,7 @@ class Client
       new = Rex::Post::HWBridge::Extensions.constants
 
       # No new constants added?
-      if ((diff = new - old).empty?)
+      if (diff = new - old).empty?
         diff = [ name.capitalize ]
       end
 

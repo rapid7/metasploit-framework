@@ -56,8 +56,8 @@ module Msf
         list = []
 
         mod.actions.each do |target|
-          list.push('name' => (target.name || 'All'),
-                    'description' => (target.description || ''))
+          list.push('name' => target.name || 'All',
+                    'description' => target.description || '')
         end
 
         list
@@ -70,8 +70,8 @@ module Msf
       def self.dump_module_action(mod)
         list = []
 
-        list.push('name' => (mod.action.name || 'All'),
-                  'description' => (mod.action.description || ''))
+        list.push('name' => mod.action.name || 'All',
+                  'description' => mod.action.description || '')
 
         list
       end

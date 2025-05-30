@@ -322,7 +322,7 @@ protected
       results.each_line do |line|
         # now let's keep the ones that have a count = bslashes+1
         # feels like there's a smarter way to do this but...
-        if (line.count('\\') == bslashes+1 && !line.ends_with?('\\'))
+        if line.count('\\') == bslashes+1 && !line.ends_with?('\\')
           # then it's a first level subkey
           subkeys << line.split('\\').last.chomp # take & chomp the last item only
         end

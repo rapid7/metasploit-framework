@@ -159,14 +159,14 @@ module Msf
       # Exploit event subscriber check
       #
       if (klass.include?(Msf::ExploitEvent) == true)
-        framework.events.add_exploit_subscriber((inst) ? inst : (inst = klass.new))
+        framework.events.add_exploit_subscriber(inst ? inst : (inst = klass.new))
       end
 
       #
       # Session event subscriber check
       #
       if (klass.include?(Msf::SessionEvent) == true)
-        framework.events.add_session_subscriber((inst) ? inst : (inst = klass.new))
+        framework.events.add_session_subscriber(inst ? inst : (inst = klass.new))
       end
     end
 

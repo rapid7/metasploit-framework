@@ -42,7 +42,7 @@ module Msf::WebServices
 
       @@framework = nil
       # Create simplified instance of the framework
-      app.set :framework, (proc {
+      app.set :framework, proc {
         @@framework ||= begin
           init_framework_opts = {
             'Logger' => ENV.fetch('MSF_WS_DATA_SERVICE_LOGGER', nil),
@@ -56,7 +56,7 @@ module Msf::WebServices
 
           framework
         end
-      })
+      }
     end
 
     def self.db_connect(framework, app)

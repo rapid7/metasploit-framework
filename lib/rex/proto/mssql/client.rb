@@ -636,7 +636,7 @@ module Rex
         # @return [Hash] Returns an empty hash if the provided type is not present.
         def initial_info_for_envchange(envchange: nil)
           return self.initial_connection_info if envchange.nil?
-          return nil unless (self.initial_connection_info && self.initial_connection_info.is_a?(::Hash))
+          return nil unless self.initial_connection_info && self.initial_connection_info.is_a?(::Hash)
 
           self.initial_connection_info[:envs]&.select { |hash| hash[:type] == envchange }&.first || {}
         end

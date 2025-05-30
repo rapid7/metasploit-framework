@@ -34,7 +34,7 @@ module Metasploit
               'uri' => '/common/index.jsf',
             })
             return "Connection failed" if res.nil?
-            if !([200, 302].include?(res.code))
+            if ![200, 302].include?(res.code)
               return "Unexpected HTTP response code #{res.code} (is this really Glassfish?)"
             end
 
@@ -141,7 +141,7 @@ module Metasploit
             }
             res = send_request(opts)
             p = /<title>Deploy Enterprise Applications\/Modules/
-            if (res && res.code.to_i == 200 && res.body.match(p) != nil)
+            if res && res.code.to_i == 200 && res.body.match(p) != nil
               return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
             end
           end
@@ -185,7 +185,7 @@ module Metasploit
             res = send_request(opts)
 
             p = /<title>Deploy Applications or Modules/
-            if (res && res.code.to_i == 200 && res.body.match(p) != nil)
+            if res && res.code.to_i == 200 && res.body.match(p) != nil
               return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
             end
           elsif res && is_secure_admin_disabled?(res)

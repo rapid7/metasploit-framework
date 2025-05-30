@@ -27,7 +27,7 @@ module Msf::Ui::Console::CommandDispatcher::Db::Analyze
         when '-p'
           wanted_payloads = args.shift.split(',')
         else
-          (arg_host_range(arg, host_ranges))
+          arg_host_range(arg, host_ranges)
       end
     end
 

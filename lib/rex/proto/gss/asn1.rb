@@ -5,7 +5,7 @@ module Rex::Proto::Gss::Asn1
   def unwrap_pseudo_asn1(token)
     start_of_token = nil
     mech_id = nil
-    # This bit is pseudo-ASN1 - we parse up until the OID, then take note of where we got up 
+    # This bit is pseudo-ASN1 - we parse up until the OID, then take note of where we got up
     # to, and continue parsing from there.
     OpenSSL::ASN1.traverse(token) do | depth, offset, header_len, length, constructed, tag_class, tag|
       component = token[offset, header_len+length]

@@ -20,11 +20,11 @@ class MIB
     )
 
     #:startdoc:
-    
+
     MODULE_EXT = 'yaml'
-    
+
     class ModuleNotLoadedError < RuntimeError; end
-    
+
     class << self
         ##
         # Import an SMIv2 MIB file for later loading.  A module only needs to
@@ -44,7 +44,7 @@ class MIB
         #
         # Here is an example of the contents of an output file:
         #
-        #   --- 
+        #   ---
         #   ipDefaultTTL: 1.3.6.1.2.1.4.2
         #   ipForwDatagrams: 1.3.6.1.2.1.4.6
         #   ipOutRequests: 1.3.6.1.2.1.4.10
@@ -95,13 +95,13 @@ class MIB
         # known version of the tool is available.
         #
         def import_supported?
-            `smidump --version` =~ /^smidump 0.4/  && $? == 0 
+            `smidump --version` =~ /^smidump 0.4/  && $? == 0
         end
 
         ##
         # Returns a list of MIB modules that have been imported.  All of
         # the current IETF MIBs should be available from the default
-        # MIB directory. 
+        # MIB directory.
         #
         # If a regex is provided, then the module names are matched
         # against that pattern.
@@ -114,9 +114,9 @@ class MIB
             end
             list
         end
-        
-        private 
-        
+
+        private
+
         def eval_mib_data(mib_hash)
             ruby_hash = mib_hash.
                 gsub(':', '=>').                  # fix hash syntax
@@ -128,12 +128,12 @@ class MIB
             mib
         end
     end # class methods
-    
+
     def initialize
         @by_name = {}
         @by_module_by_name = {}
     end
-    
+
     ##
     # Loads a module into this MIB.  The module must be imported before it
     # can be loaded.  See MIB.import_module .
@@ -160,7 +160,7 @@ class MIB
     # - list of string object IDs
     # - list of ObjectIds
     # - list of VarBinds
-    # 
+    #
     def varbind_list(object_list, option=:KeepValue)
         vb_list = VarBindList.new
         if object_list.respond_to? :to_str
@@ -189,7 +189,7 @@ class MIB
         varbind
     end
     private :apply_option
-    
+
     ##
     # Returns a VarBind object for the given name and value.  The name
     # can be a String, ObjectId, or anything that responds to :to_varbind.
@@ -206,12 +206,12 @@ class MIB
         end
         vb
     end
-    
+
     ##
     # Returns an ObjectId for the given name.  Names are in the format
     # <ModuleName>::<NodeName>.<Index> with ModuleName and Index being
     # optional.
-    # 
+    #
     def oid(name)
         module_parts = name.to_str.split("::")
         if module_parts.length == 1
@@ -243,7 +243,7 @@ class MIB
         ObjectId.new(oid_array)
     end
     private :parse_oid
-    
+
 end
 
 end # module SNMP

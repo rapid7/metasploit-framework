@@ -33,9 +33,9 @@ class VncInject
     # Stop the local TCP relay
     service = Rex::ServiceManager.start(Rex::Services::LocalRelay)
 
-    if (service)
+    if service
       begin
-        service.stop_tcp_relay(vlport, vlhost) if (vlport)
+        service.stop_tcp_relay(vlport, vlhost) if vlport
       ensure
         service.deref
       end
@@ -105,13 +105,13 @@ class VncInject
   # Sets up a local relay that is associated with the stream connection
   #
   def setup_relay(port, host = '127.0.0.1')
-    if (port)
+    if port
       self.vlhost = host
       self.vlport = port
 
       service = Rex::ServiceManager.start(Rex::Services::LocalRelay)
 
-      if (service)
+      if service
         begin
           service.start_tcp_relay(port,
             'LocalHost'         => host,
@@ -159,7 +159,7 @@ class VncInject
       Rex::FileUtils::find_full_path('vncviewer') ||
       Rex::FileUtils::find_full_path('vncviewer.exe')
 
-    if (vnc)
+    if vnc
       args = []
       args.push '-viewonly' if viewonly
       args.push "#{vlhost}::#{vlport}"

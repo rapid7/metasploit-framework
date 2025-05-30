@@ -122,7 +122,7 @@ module Rex
 
             seed
           end
-                    
+
 
           # Functions used by subclasses
 
@@ -133,11 +133,11 @@ module Rex
             pad_length %= padding_size # In case it's a perfect multiple, do no padding
             return data + "\x00" * pad_length
           end
-          
+
           def nfold(ba, nbytes)
             # Convert bytearray to a string of length nbytes using the RFC 3961 nfold
             # operation.
-          
+
             # Rotate the bytes in ba to the right by nbits bits.
             def rotate_right(ba, nbits)
               nbytes, remain = (nbits / 8) % ba.length, nbits % 8
@@ -145,20 +145,20 @@ module Rex
                 (ba[i-nbytes] >> remain) | ((ba[i-nbytes-1] << (8-remain)) & 0xff)
               end
             end
-          
+
             # Add equal-length strings together with end-around carry.
             def add_ones_complement(arr1, arr2)
               n = arr1.length
               # Add all pairs of numbers
               v = arr1.zip(arr2).map { |a,b| a+b}
-              
+
               while v.any? { |x| x > 0xff }
                 v = v.length.times.map {|i| (v[i-n+1]>>8) + (v[i]&0xff)}
               end
-          
+
               v
             end
-          
+
             # Let's work in terms of numbers rather than strings
             slen = ba.length
             lcm = nbytes * slen / nbytes.gcd(slen)
@@ -167,7 +167,7 @@ module Rex
             num_copies.times do |i|
               bigstr += rotate_right(ba, 13 * i)
             end
-            
+
             result = bigstr.each_slice(nbytes).reduce {|l1,l2| add_ones_complement(l1,l2) }
 
             result

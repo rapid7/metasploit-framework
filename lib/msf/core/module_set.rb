@@ -209,8 +209,8 @@ class Msf::ModuleSet < Hash
       name, module_metadata = entry
 
       # Filter out incompatible architectures
-      if (opts['Arch'])
-        if (!architectures_by_module[name])
+      if opts['Arch']
+        if !architectures_by_module[name]
           architectures_by_module[name] = Array.wrap(module_metadata.arch)
         end
 
@@ -218,8 +218,8 @@ class Msf::ModuleSet < Hash
       end
 
       # Filter out incompatible platforms
-      if (opts['Platform'])
-        if (!platforms_by_module[name])
+      if opts['Platform']
+        if !platforms_by_module[name]
           platforms_by_module[name] = module_metadata.platform_list
         end
 

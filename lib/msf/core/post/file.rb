@@ -803,7 +803,7 @@ protected
   def _can_echo?(data)
     # Ensure all bytes are between ascii 0x20 to 0x7e (ie. [[:print]]), excluding quotes etc
     data.bytes.all? do|b|
-      (b >= 0x20 && b <= 0x7e) &&
+      b >= 0x20 && b <= 0x7e &&
         b != '"'.ord &&
         b != '%'.ord &&
         b != '$'.ord

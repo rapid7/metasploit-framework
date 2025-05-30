@@ -24,7 +24,7 @@ class Console
   # Initialize the hardware bridge console.
   #
   def initialize(client)
-    if (Rex::Compat.is_windows())
+    if Rex::Compat.is_windows()
       super("hwbridge")
     else
       super("%undhwbridge%clr")
@@ -64,7 +64,7 @@ class Console
       run_single(line)
 
       # If a block was supplied, call it, otherwise return false
-      if (block)
+      if block
         block.call
       else
         false

@@ -107,7 +107,7 @@ class Handler::Erb < Handler
   def evaluate(erb, cli, request, response)
     # If the thing that created this handler wanted us to use a callback
     # instead of the default behavior, then let's do that.
-    if (opts['ErbCallback'])
+    if opts['ErbCallback']
       opts['ErbCallback'].call(erb, cli, request, response)
     else
       Module.new.module_eval {

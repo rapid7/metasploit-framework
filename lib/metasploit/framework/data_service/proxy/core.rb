@@ -24,7 +24,7 @@ class DataProxy
   # Returns current error state
   #
   def error
-    return @error if (@error)
+    return @error if @error
     return @current_data_service.error if @current_data_service && !@current_data_service.error.nil?
     return 'unknown'
   end

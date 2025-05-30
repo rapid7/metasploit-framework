@@ -168,7 +168,7 @@ class RPC_Core < RPC_Base
       t = framework.threads[i]
       next if not t
       res[i] = {
-        :status   => (t.status || "dead"),
+        :status   => t.status || "dead",
         :critical => t[:tm_crit] ? true : false,
         :name     => t[:tm_name].to_s,
         :started  => t[:tm_time].to_s

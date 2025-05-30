@@ -68,7 +68,7 @@ class Response < Packet
   #
   def get_cookies
     cookies = ""
-    if (self.headers.include?('Set-Cookie'))
+    if self.headers.include?('Set-Cookie')
       set_cookies = self.headers['Set-Cookie']
       key_vals = set_cookies.scan(/\s?([^, ;]+?)=([^, ;]*?)[;,]/)
       key_vals.each do |k, v|
@@ -89,7 +89,7 @@ class Response < Packet
   # Gets cookies from the Set-Cookie header in a parsed format
   #
   def get_cookies_parsed
-    if (self.headers.include?('Set-Cookie'))
+    if self.headers.include?('Set-Cookie')
       ret = CGI::Cookie::parse(self.headers['Set-Cookie'])
     else
       ret = {}
@@ -121,7 +121,7 @@ class Response < Packet
   end
 
   def gzip_decode
-    gz = Zlib::GzipReader.new(StringIO.new(self.body.to_s))    
+    gz = Zlib::GzipReader.new(StringIO.new(self.body.to_s))
 
     gz.read
   end

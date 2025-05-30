@@ -1976,7 +1976,7 @@ end
   # @example Here's how you would use this from the client:
   #  rpc.call('db.disconnect')
   def rpc_disconnect
-    if (self.framework.db)
+    if self.framework.db
       self.framework.db.disconnect()
       return { :result => 'success' }
     else

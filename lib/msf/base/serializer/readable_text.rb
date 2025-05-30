@@ -298,19 +298,19 @@ class ReadableText
     output << "#{indent}#{mod.has_check? ? 'Yes' : 'No'}\n\n"
 
     # Options
-    if (mod.options.has_options?)
+    if mod.options.has_options?
       output << "Basic options:\n"
       output << dump_options(mod, indent)
       output << "\n"
     end
 
     # Payload information
-    if (mod.payload_info.length)
+    if mod.payload_info.length
       output << "Payload information:\n"
-      if (mod.payload_space)
+      if mod.payload_space
         output << indent + "Space: " + mod.payload_space.to_s + "\n"
       end
-      if (mod.payload_badchars)
+      if mod.payload_badchars
         output << indent + "Avoid: " + mod.payload_badchars.length.to_s + " characters\n"
       end
       output << "\n"
@@ -364,7 +364,7 @@ class ReadableText
     output << "#{indent}#{has_check ? 'Yes' : 'No'}\n\n"
 
     # Options
-    if (mod.options.has_options?)
+    if mod.options.has_options?
       output << "Basic options:\n"
       output << dump_options(mod, indent)
       output << "\n"
@@ -422,7 +422,7 @@ class ReadableText
     end
 
     # Options
-    if (mod.options.has_options?)
+    if mod.options.has_options?
       output << "Basic options:\n"
       output << dump_options(mod, indent)
       output << "\n"
@@ -469,7 +469,7 @@ class ReadableText
     output << "#{indent}#{mod.has_check? ? 'Yes' : 'No'}\n\n"
 
     # Options
-    if (mod.options.has_options?)
+    if mod.options.has_options?
       output << "Basic options:\n"
       output << dump_options(mod, indent)
       output << "\n"
@@ -509,7 +509,7 @@ class ReadableText
     output << "\n"
 
     # Options
-    if (mod.options.has_options?)
+    if mod.options.has_options?
       output << "Basic options:\n"
       output << dump_options(mod)
       output << "\n"
@@ -628,7 +628,7 @@ class ReadableText
       else
         val = mod.datastore[name].nil? ? opt.default : mod.datastore[name]
       end
-      next if (missing && opt.valid?(val))
+      next if missing && opt.valid?(val)
 
       desc = opt.desc.dup
 
@@ -677,7 +677,7 @@ class ReadableText
   def self.dump_references(mod, indent = '')
     output = ''
 
-    if (mod.respond_to?(:references) && mod.references && mod.references.length > 0)
+    if mod.respond_to?(:references) && mod.references && mod.references.length > 0
       output << "References:\n"
 
       mod.references.each do |ref|
@@ -860,7 +860,7 @@ class ReadableText
 
     if show_extended
       if session.respond_to?(:last_checkin) && session.last_checkin
-        row << "#{(Time.now.to_i - session.last_checkin.to_i)}s ago"
+        row << "#{Time.now.to_i - session.last_checkin.to_i}s ago"
       else
         row << '?'
       end
@@ -950,7 +950,7 @@ class ReadableText
       end
 
       if session.respond_to?(:last_checkin) && session.last_checkin
-        sess_checkin = "#{(Time.now.to_i - session.last_checkin.to_i)}s ago @ #{session.last_checkin.to_s}"
+        sess_checkin = "#{Time.now.to_i - session.last_checkin.to_i}s ago @ #{session.last_checkin.to_s}"
       end
 
       if !session.payload_uuid.nil? && session.payload_uuid.registered
@@ -992,7 +992,7 @@ class ReadableText
   def self.dump_jobs(framework, verbose = false, indent = DefaultIndent, col = DefaultColumnWrap)
     columns = [ 'Id', 'Name', "Payload", "Payload opts"]
 
-    if (verbose)
+    if verbose
       columns += [ "URIPATH", "Start Time", "Handler opts", "Persist" ]
     end
 

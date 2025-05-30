@@ -159,7 +159,7 @@ class Payload < Msf::Module
   # This method returns an optional cached size value
   #
   def self.cached_size
-    csize = (const_defined?('CachedSize')) ? const_get('CachedSize') : nil
+    csize = const_defined?('CachedSize') ? const_get('CachedSize') : nil
     csize == :dynamic ? nil : csize
   end
 
@@ -167,7 +167,7 @@ class Payload < Msf::Module
   # This method returns whether the payload generates variable-sized output
   #
   def self.dynamic_size?
-    csize = (const_defined?('CachedSize')) ? const_get('CachedSize') : nil
+    csize = const_defined?('CachedSize') ? const_get('CachedSize') : nil
     csize == :dynamic
   end
 
@@ -337,7 +337,7 @@ class Payload < Msf::Module
       next if (replace_var(raw, name, offset, pack) == true)
 
       # Now it's our turn...
-      if ((val = datastore[name]))
+      if (val = datastore[name])
         if (pack == 'ADDR')
           val = Rex::Socket.resolv_nbo(val)
 
@@ -353,7 +353,7 @@ class Payload < Msf::Module
             nip = "fe80::5efe:" + val.unpack("C*").join(".")
             val = Rex::Socket.resolv_nbo(nip)
           end
-        elsif (['ADDR16MSB', 'ADDR16LSB', 'ADDR22MSB', 'ADDR22LSB'].include?(pack))
+        elsif ['ADDR16MSB', 'ADDR16LSB', 'ADDR22MSB', 'ADDR22LSB'].include?(pack)
           val = Rex::Socket.resolv_nbo(val)
 
           # Someone gave us a funky address (ipv6?)
@@ -379,7 +379,7 @@ class Payload < Msf::Module
         end
 
         # Substitute it
-        if (['ADDR16MSB', 'ADDR16LSB'].include?(pack))
+        if ['ADDR16MSB', 'ADDR16LSB'].include?(pack)
           if (offset.length != 2)
             raise RuntimeError, "Missing value for payload offset, there must be two offsets."
           end
@@ -391,7 +391,7 @@ class Payload < Msf::Module
           raw[offset[0], 2] = val[0, 2]
           raw[offset[1], 2] = val[2, 2]
 
-        elsif (['ADDR22MSB', 'ADDR22LSB'].include?(pack))
+        elsif ['ADDR22MSB', 'ADDR22LSB'].include?(pack)
           if (offset.length != 2)
             raise RuntimeError, "Missing value for payload offset, there must be two offsets."
           end
@@ -549,7 +549,7 @@ class Payload < Msf::Module
     # that a session has been created and potentially shut down any
     # open sockets. This allows active exploits to continue hammering
     # on a service until a session is created.
-    if (assoc_exploit)
+    if assoc_exploit
 
       # Signal that a new session is created by calling the exploit's
       # on_new_session handler. The default behavior is to set an
@@ -707,7 +707,7 @@ protected
   # with a comma
   #
   def merge_name(info, val)
-    if (info['Name'])
+    if info['Name']
       info['Name'] = val + ',' + info['Name']
     else
       info['Name'] = val

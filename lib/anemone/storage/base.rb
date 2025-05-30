@@ -19,7 +19,7 @@ module Anemone
         @adap[key]
         rescue
           puts key
-          raise RetrievalError, $! 
+          raise RetrievalError, $!
       end
 
       def []=(key, value)

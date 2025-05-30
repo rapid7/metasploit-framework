@@ -69,7 +69,7 @@ class Config
         # GroupTlv type for addresses containing an address, a netmask,
         # and possibly a scope.
         n = iface.get_tlv_value(TLV_TYPE_NETMASK, addrs.length)
-        if (n.nil?)
+        if n.nil?
           # Some systems can't report a netmask, only a network
           # prefix, so figure out the netmask from that.
           n = iface.get_tlv_value(TLV_TYPE_IP_PREFIX, addrs.length)

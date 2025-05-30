@@ -71,7 +71,7 @@ class Msf::Payload::MachO
     pagesize = 2**page_size
     page_index = 0
     raw_data.bytes.each_slice(pagesize) do |page|
-      break if page_index >= (length-hash_offset)/(hash_size)
+      break if page_index >= (length-hash_offset)/hash_size
       if (page_index+1)*pagesize > code_signature_index
         page = page[0..(pagesize-((page_index+1)*pagesize-code_signature_index))-1]
       end

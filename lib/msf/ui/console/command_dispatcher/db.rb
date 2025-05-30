@@ -541,7 +541,7 @@ class Db
         end
       else
         # Anything that wasn't an option is a host to search for
-        unless (arg_host_range(val, host_ranges))
+        unless arg_host_range(val, host_ranges)
           return
         end
       end
@@ -881,26 +881,26 @@ class Db
           end
         }
       when '-p'
-        unless (arg_port_range(val, port_ranges, true))
+        unless arg_port_range(val, port_ranges, true)
           return
         end
       when '-r'
         proto = val
-        if (!proto)
+        if !proto
           print_status("Invalid protocol")
           return
         end
         proto = proto.strip
       when '-s'
         namelist = val
-        if (!namelist)
+        if !namelist
           print_error("Invalid name list")
           return
         end
         names = namelist.strip().split(",")
       when '-o'
         output_file = val
-        if (!output_file)
+        if !output_file
           print_error("Invalid output filename")
           return
         end
@@ -920,7 +920,7 @@ class Db
         return
       else
         # Anything that wasn't an option is a host to search for
-        unless (arg_host_range(val, host_ranges))
+        unless arg_host_range(val, host_ranges)
           return
         end
       end
@@ -1095,12 +1095,12 @@ class Db
           return
         end
       when '-p', '--port'
-        unless (arg_port_range(val, port_ranges, true))
+        unless arg_port_range(val, port_ranges, true)
           return
         end
       when '-s', '--service'
         service = val
-        if (!service)
+        if !service
           print_error("Argument required for -s")
           return
         end
@@ -1113,7 +1113,7 @@ class Db
         show_info = true
       else
         # Anything that wasn't an option is a host to search for
-        unless (arg_host_range(val, host_ranges))
+        unless arg_host_range(val, host_ranges)
           return
         end
       end
@@ -1147,7 +1147,7 @@ class Db
 
     vulns.each do |vuln|
       reflist = vuln.refs.map {|r| r.name}
-      if (vuln.service)
+      if vuln.service
         # Skip this one if the user specified a port and it
         # doesn't match.
         next unless ports.empty? or ports.include? vuln.service.port
@@ -1295,7 +1295,7 @@ class Db
         return
       else
         # Anything that wasn't an option is a host to search for
-        unless (arg_host_range(val, host_ranges))
+        unless arg_host_range(val, host_ranges)
           return
         end
       end
@@ -1533,7 +1533,7 @@ class Db
         return
       else
         # Anything that wasn't an option is a host to search for
-        unless (arg_host_range(val, host_ranges))
+        unless arg_host_range(val, host_ranges)
           return
         end
       end
@@ -1611,7 +1611,7 @@ class Db
         end
       end
       row.push (loot.host && loot.host.address) ? loot.host.address : ""
-      if (loot.service)
+      if loot.service
         svc = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
         row.push svc
       else
@@ -1745,7 +1745,7 @@ class Db
     end
     options = {:openvas_dfn => openvas_dfn, :openvas_cert => openvas_cert}
     args.each { |glob|
-      next if (glob.include?("-cert") || glob.include?("-dfn"))
+      next if glob.include?("-cert") || glob.include?("-dfn")
       files = ::Dir.glob(::File.expand_path(glob))
       if files.empty?
         print_error("No such file #{glob}")

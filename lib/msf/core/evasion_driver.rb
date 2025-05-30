@@ -17,7 +17,7 @@ class EvasionDriver
   end
 
   def target_idx=(target_idx)
-    if (target_idx)
+    if target_idx
       # Make sure the target index is valid
       if (target_idx >= evasion.targets.length)
         raise Rex::ArgumentError, "Invalid target index.", caller

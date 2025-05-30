@@ -561,7 +561,7 @@ module Msf
           when Error::SERVICE_ALREADY_RUNNING
             vprint_status("[#{name}] Service already running attempting to stop and restart")
             stopped = service_stop(name, server)
-            if ((stopped == Error::SUCCESS) || (stopped == Error::SERVICE_NOT_ACTIVE))
+            if (stopped == Error::SUCCESS) || (stopped == Error::SERVICE_NOT_ACTIVE)
               service_restart(name, start_type, server, false) if should_retry
             else
               vprint_error("[#{name}] Service disabled, unable to change start type Error: #{stopped}")

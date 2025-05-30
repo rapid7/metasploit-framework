@@ -57,12 +57,12 @@ module Auxiliary::CNPILOT
       return false
     end
 
-    good_response = (
+    good_response =
       res &&
       res.code == 200 &&
       res.headers['Server'] &&
-      (res.headers['Server'].include?('GoAhead-Webs') && res.body.include?('cnPilot') && res.body.include?('style_CAMBIUM.css'))
-    )
+      res.headers['Server'].include?('GoAhead-Webs') && res.body.include?('cnPilot') && res.body.include?('style_CAMBIUM.css')
+
 
     if good_response
       print_good("#{rhost}:#{rport} - Cambium cnPilot confirmed...")
@@ -96,12 +96,12 @@ module Auxiliary::CNPILOT
       }
     )
 
-    good_response = (
+    good_response =
       res &&
       res.code == 302 &&
       res.headers.include?('Location') &&
       res.headers['Location'].include?('Status_Basic')
-    )
+
 
     if good_response
       print_good("SUCCESSFUL LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
@@ -120,12 +120,12 @@ module Auxiliary::CNPILOT
         }
       )
 
-      good_response = (
+      good_response =
         res &&
         res.code == 200 &&
         res.headers.include?('Server') &&
-        (res.headers['Server'].include?('GoAhead-Webs') && res.body.include?('cnPilot') && res.body.include?('style_CAMBIUM.css'))
-      )
+        res.headers['Server'].include?('GoAhead-Webs') && res.body.include?('cnPilot') && res.body.include?('style_CAMBIUM.css')
+
 
       if good_response
         get_cnpilot_model = res.body.match(/device_name= (.*)/)

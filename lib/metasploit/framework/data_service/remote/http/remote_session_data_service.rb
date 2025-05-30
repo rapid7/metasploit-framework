@@ -16,7 +16,7 @@ module RemoteSessionDataService
     session.workspace = session.workspace || opts[:workspace]
     if (session.kind_of? Msf::Session)
       opts = SessionDataProxy.convert_msf_session_to_hash(session)
-    elsif (opts[:host])
+    elsif opts[:host]
       opts[:host] = opts[:host].address
     end
 

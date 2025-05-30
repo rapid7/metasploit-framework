@@ -41,17 +41,17 @@ module BER #:nodoc:all
     GetBulkRequest_PDU_TAG = 0xa5
     InformRequest_PDU_TAG = 0xa6
     SNMPv2_Trap_PDU_TAG = 0xa7
-    Report_PDU_TAG = 0xa8  # Note: Usage not defined - not supported    
+    Report_PDU_TAG = 0xa8  # Note: Usage not defined - not supported
 
     # Primitive ASN.1 data types
     INTEGER_TAG = 0x02
     OCTET_STRING_TAG = 0x04
     NULL_TAG = 0x05
     OBJECT_IDENTIFIER_TAG = 0x06
-    
+
     # Constructed ASN.1 data type
     SEQUENCE_TAG = 0x30
-    
+
     # SNMP application data types
     # See RFC 1155 for SNMPv1
     # See RFC 1902 for SNMPv2c
@@ -62,14 +62,14 @@ module BER #:nodoc:all
     TimeTicks_TAG = 0x43
     Opaque_TAG = 0x44
     Counter64_TAG = 0x46
-    
+
     # VarBind response exceptions
     NoSuchObject_TAG = 0x80
     NoSuchInstance_TAG = 0x81
     EndOfMibView_TAG = 0x82
-    
+
     # Exceptions thrown in this module
-    class OutOfData < RuntimeError; end    
+    class OutOfData < RuntimeError; end
     class InvalidLength < RuntimeError; end
     class InvalidTag < RuntimeError; end
     class InvalidObjectId < RuntimeError; end
@@ -77,7 +77,7 @@ module BER #:nodoc:all
     def assert_no_remainder(remainder)
         raise ParseError, remainder.inspect if (remainder and remainder != "")
     end
-    
+
     #
     # Decode tag-length-value data.  The data is assumed to be a string of
     # bytes in network byte order.  This format is returned by Socket#recv.
@@ -110,7 +110,7 @@ module BER #:nodoc:all
         end
         return tag, value, remainder
     end
-    
+
     #
     # Decode TLV data for an ASN.1 integer.
     #
@@ -129,7 +129,7 @@ module BER #:nodoc:all
         raise InvalidTag, tag.to_s if tag != TimeTicks_TAG
         return decode_uinteger_value(value), remainder
     end
-    
+
     def decode_integer_value(value)
         result = build_integer(value, 0, value.length)
         if value[0].ord[7] == 1
@@ -137,7 +137,7 @@ module BER #:nodoc:all
         end
         result
     end
-    
+
     ##
     # Decode an integer, ignoring the sign bit.  Some agents insist on
     # encoding 32 bit unsigned integers with four bytes even though it
@@ -146,7 +146,7 @@ module BER #:nodoc:all
     def decode_uinteger_value(value)
         build_integer(value, 0, value.length)
     end
-    
+
     def build_integer(data, start, num_octets)
         number = 0
         num_octets.times { |i| number = number<<8 | data[start+i].ord }
@@ -159,26 +159,26 @@ module BER #:nodoc:all
     # Throws an InvalidTag exception if the tag is incorrect.
     #
     # Returns a tuple containing a string and any remaining unprocessed data.
-    #    
+    #
     def decode_octet_string(data)
         tag, value, remainder = decode_tlv(data)
         raise InvalidTag, tag.to_s if tag != OCTET_STRING_TAG
         return value, remainder
     end
-    
+
     def decode_ip_address(data)
         tag, value, remainder = decode_tlv(data)
         raise InvalidTag, tag.to_s if tag != IpAddress_TAG
         raise InvalidLength, tag.to_s if value.length != 4
         return value, remainder
     end
-    
+
     #
     # Decode TLV data for an ASN.1 sequence.
     #
     # Throws an InvalidTag exception if the tag is incorrect.
     #
-    # Returns a tuple containing the sequence data and any remaining 
+    # Returns a tuple containing the sequence data and any remaining
     # unprocessed data that follows the sequence.
     #
     def decode_sequence(data)
@@ -186,7 +186,7 @@ module BER #:nodoc:all
         raise InvalidTag, tag.to_s if tag != SEQUENCE_TAG
         return value, remainder
     end
-    
+
     #
     # Unwrap TLV data for an ASN.1 object identifier.  This method extracts
     # the OID value as a character string but does not decode it further.
@@ -202,7 +202,7 @@ module BER #:nodoc:all
         raise InvalidTag, tag.to_s if tag != OBJECT_IDENTIFIER_TAG
         return decode_object_id_value(value), remainder
     end
-    
+
     def decode_object_id_value(value)
         if value.length == 0
             object_id = []
@@ -222,12 +222,12 @@ module BER #:nodoc:all
                 if value[i].ord < 0x80
                     object_id << n
                     n = 0
-                end 
+                end
             end
         end
         return object_id
     end
-    
+
     #
     # Encode the length field for TLV data.  Returns the length octets
     # as a string.
@@ -248,21 +248,21 @@ module BER #:nodoc:all
     def encode_integer(value)
         encode_tagged_integer(INTEGER_TAG, value)
     end
-    
+
     def encode_tagged_integer(tag, value)
         if value > 0 && value < 0x80
             data = value.chr
         else
             data = integer_to_octets(value)
             if value > 0 && data[0].ord > 0x7f
-                data = "\000" << data 
+                data = "\000" << data
             elsif value < 0 && data[0].ord < 0x80
                 data = "\377" << data
             end
         end
         encode_tlv(tag, data)
     end
-    
+
     #
     # Helper method for encoding integer-like things.
     #
@@ -279,11 +279,11 @@ module BER #:nodoc:all
         end until i == done
         octets
     end
-    
+
     def encode_null
         NULL_TAG.chr << "\000"
     end
-    
+
     #
     # Encode an exception.  The encoding is simply the exception tag with
     # no data, similar to NULL.
@@ -291,7 +291,7 @@ module BER #:nodoc:all
     def encode_exception(tag)
         tag.chr << "\000"
     end
-    
+
     #
     # Wraps value in a tag and length.  This method expects an
     # integer tag and a string value.
@@ -301,21 +301,21 @@ module BER #:nodoc:all
         data = data << value if value.length > 0
         data
     end
-    
+
     #
     # Wrap string in a octet string tag and length.
     #
     def encode_octet_string(value)
         encode_tlv(OCTET_STRING_TAG, value)
     end
-    
+
     #
     # Wrap value in a sequence tag and length.
     #
     def encode_sequence(value)
         encode_tlv(SEQUENCE_TAG, value)
     end
-    
+
     #
     # Encode an object id.  The input is assumed to be an array of integers
     # representing the object id.
@@ -346,7 +346,7 @@ module BER #:nodoc:all
         end
         encode_tlv(OBJECT_IDENTIFIER_TAG, data)
     end
-    
+
 end
 end
 

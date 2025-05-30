@@ -33,11 +33,11 @@ opts.on('-r', '--relative')        { options.relative = true }
 opts.on('-o', '--output filename') {|o| options.output_file = o }
 opts.parse!(ARGV)
 
-Anemone.crawl(root, {:discard_page_bodies => true}) do |anemone|  
-  
+Anemone.crawl(root, {:discard_page_bodies => true}) do |anemone|
+
   anemone.after_crawl do |pages|
     puts "Crawl results for #{root}\n"
-    
+
     # print a list of 404's
     not_found = []
     pages.each_value do |page|
@@ -58,13 +58,13 @@ Anemone.crawl(root, {:discard_page_bodies => true}) do |anemone|
           u = u.path if options.relative
           puts "  linked from #{u}"
         end
-        
+
         puts " ..." if links.size > 10
       end
 
       print "\n"
-    end  
-    
+    end
+
     # remove redirect aliases, and calculate pagedepths
     pages = pages.shortest_paths!(root).uniq
     depths = pages.values.inject({}) do |depths, page|
@@ -72,13 +72,13 @@ Anemone.crawl(root, {:discard_page_bodies => true}) do |anemone|
       depths[page.depth] += 1
       depths
     end
-    
+
     # print the page count
     puts "Total pages: #{pages.size}\n"
-    
+
     # print a list of depths
     depths.sort.each { |depth, count| puts "Depth: #{depth} Count: #{count}" }
-    
+
     # output a list of urls to file
     file = open(options.output_file, 'w')
     pages.each_key do |url|
@@ -86,5 +86,5 @@ Anemone.crawl(root, {:discard_page_bodies => true}) do |anemone|
       file.puts url
     end
   end
-  
+
 end

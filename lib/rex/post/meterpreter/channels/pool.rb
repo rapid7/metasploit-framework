@@ -61,7 +61,7 @@ class Pool < Rex::Post::Meterpreter::Channel
       return true
     end
 
-    if (response.has_tlv?(TLV_TYPE_BOOL))
+    if response.has_tlv?(TLV_TYPE_BOOL)
       return response.get_tlv_value(TLV_TYPE_BOOL)
     end
 
@@ -79,8 +79,8 @@ class Pool < Rex::Post::Meterpreter::Channel
       data = nil
     end
 
-    if (((data == nil) || (data.length == 0)) &&
-        (self.eof))
+    if ((data == nil) || (data.length == 0)) &&
+        self.eof
       raise EOFError
     end
 
@@ -143,7 +143,7 @@ class Pool < Rex::Post::Meterpreter::Channel
     end
 
     # Set the return value to the position that we're at
-    if (response.has_tlv?(TLV_TYPE_SEEK_POS))
+    if response.has_tlv?(TLV_TYPE_SEEK_POS)
       pos = response.get_tlv_value(TLV_TYPE_SEEK_POS)
     end
 

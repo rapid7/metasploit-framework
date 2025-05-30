@@ -343,7 +343,7 @@ module Metasploit
             cmd = binary_path
           elsif cracker == 'hashcat'
             cmd = binary_path
-            cmd << (' -V')
+            cmd << ' -V'
           end
           ::IO.popen(cmd, 'rb') do |fd|
             fd.each_line do |line|
@@ -483,11 +483,11 @@ module Metasploit
             # wouldn't be tested inside of MSF since most users are using the MSF modules for word list and easy cracks.
             # Anything of length where this would cut off is most likely being done independently (outside MSF)
 
-            cmd << ('-O')
+            cmd << '-O'
           end
 
           if incremental.present?
-            cmd << ('--increment')
+            cmd << '--increment'
             if increment_length.present?
               cmd << ('--increment-min=' + increment_length[0].to_s)
               cmd << ('--increment-max=' + increment_length[1].to_s)
@@ -496,7 +496,7 @@ module Metasploit
               # maybe in the future this can be adjusted or made a variable
               # but current time, we'll leave it as this seems like reasonable
               # time expectation for a module to run
-              cmd << ('--increment-max=4')
+              cmd << '--increment-max=4'
             end
           end
 
@@ -520,7 +520,7 @@ module Metasploit
 
           # must be last
           if wordlist.present?
-            cmd << (wordlist)
+            cmd << wordlist
           end
           cmd
         end

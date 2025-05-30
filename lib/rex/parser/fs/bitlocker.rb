@@ -220,7 +220,7 @@ module Rex
       # PROTECTION_TYPE => [fve_entry, fve_entry...]
       def vmk_entries
         res = {}
-        (@fve_metadata_entries[ENTRY_TYPE_VMK][VALUE_TYPE_VMK]).each do |vmk|
+        @fve_metadata_entries[ENTRY_TYPE_VMK][VALUE_TYPE_VMK].each do |vmk|
           protection_type = vmk[26, 2].unpack('v')[0]
           if res[protection_type].nil?
             res[protection_type] = [fve_entries(vmk[28..-1])]

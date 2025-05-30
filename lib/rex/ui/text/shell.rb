@@ -79,7 +79,7 @@ module Shell
     self.input  = in_input
     self.output = in_output
 
-    if (self.input)
+    if self.input
       # Extend the input medium as an input shell if the input medium
       # isn't intrinsicly a shell.
       if (self.input.intrinsic_shell? == false)
@@ -115,7 +115,7 @@ module Shell
   # Performs tab completion on the supplied string.
   #
   def tab_complete(str)
-    return tab_complete_proc(str) if (tab_complete_proc)
+    return tab_complete_proc(str) if tab_complete_proc
   end
 
   #
@@ -194,7 +194,7 @@ module Shell
   # prompt - the actual prompt
   # new_prompt_char the char to append to the prompt
   def update_prompt(new_prompt = self.prompt, new_prompt_char = self.prompt_char)
-    if (self.input)
+    if self.input
       p = substitute_colors(new_prompt + ' ' + new_prompt_char + ' ', true)
 
       # Save the prompt before any substitutions
@@ -215,8 +215,8 @@ module Shell
   # Prints an error message to the output handle.
   #
   def print_error(msg='')
-    return if (output.nil?)
-    return if (msg.nil?)
+    return if output.nil?
+    return if msg.nil?
 
     self.on_print_proc.call(msg) if self.on_print_proc
     # Errors are not subject to disabled output
@@ -386,14 +386,14 @@ module Shell
   # Writes the supplied input to the log source if one has been registered.
   #
   def log_input(buf)
-    rlog(buf, log_source) if (log_source)
+    rlog(buf, log_source) if log_source
   end
 
   #
   # Writes the supplied output to the log source if one has been registered.
   #
   def log_output(buf)
-    rlog(buf, log_source) if (log_source)
+    rlog(buf, log_source) if log_source
   end
 
   #

@@ -76,7 +76,7 @@ module Evasion
         driver.payload.init_ui(nil, nil)
       end
 
-      if (opts['RunAsJob'])
+      if opts['RunAsJob']
         driver.use_job = true
       end
 

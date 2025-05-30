@@ -84,10 +84,10 @@ class Client
     return res if not t
     Timeout.timeout((t < 0) ? nil : t) do
       parse_status = nil
-      while (!conn.closed? &&
+      while !conn.closed? &&
               parse_status != Response::ParseCode::Completed &&
               parse_status != Response::ParseCode::Error
-      )
+
         begin
           buff = conn.get_once
           parse_status = res.parse(buff || '')

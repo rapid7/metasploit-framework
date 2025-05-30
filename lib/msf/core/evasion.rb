@@ -180,7 +180,7 @@ module Msf
       self.payload = generate_single_payload(pinst)
 
       # Save the payload instance
-      self.payload_instance = (pinst) ? pinst : self.payload_instance
+      self.payload_instance = pinst ? pinst : self.payload_instance
 
       return self.payload
     end
@@ -190,7 +190,7 @@ module Msf
 
       # If a payload instance was supplied, use it, otherwise
       # use the active payload instance
-      real_payload = (pinst) ? pinst : self.payload_instance
+      real_payload = pinst ? pinst : self.payload_instance
 
       if (real_payload == nil)
         raise MissingPayloadError, "No payload has been selected.",
@@ -294,7 +294,7 @@ module Msf
       end
 
       target_idx = target_index
-      return (target_idx) ? targets[target_idx.to_i] : nil
+      return target_idx ? targets[target_idx.to_i] : nil
     end
 
     def target_index
@@ -313,7 +313,7 @@ module Msf
         target_idx = targets.index { |target| target.name == target_idx }
       end
 
-      return (target_idx) ? target_idx.to_i : nil
+      return target_idx ? target_idx.to_i : nil
     end
 
     def has_auto_target?(targets=[])

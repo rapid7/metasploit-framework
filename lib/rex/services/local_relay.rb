@@ -178,7 +178,7 @@ class LocalRelay
   # Starts the thread that monitors the local relays.
   #
   def start
-    if (!self.relay_thread)
+    if !self.relay_thread
       self.relay_thread = Rex::ThreadFactory.spawn("LocalRelay", false) {
         begin
           monitor_relays
@@ -194,7 +194,7 @@ class LocalRelay
   # listeners, both local and remote.
   #
   def stop
-    if (self.relay_thread)
+    if self.relay_thread
       self.relay_thread.kill
       self.relay_thread = nil
     end
@@ -379,7 +379,7 @@ protected
       self.rfds.delete(ofd)
 
       begin
-        if (relay.on_conn_close_proc)
+        if relay.on_conn_close_proc
           relay.on_conn_close_proc.call(ofd)
         end
 
@@ -505,7 +505,7 @@ protected
       socks[0].each { |rfd|
 
         # If this file descriptor is a server, accept the connection
-        if (rfd.kind_of?(StreamServer))
+        if rfd.kind_of?(StreamServer)
           accept_relay_conn(rfd)
         else
           # Otherwise, it's a relay connection, read data from one side
@@ -521,7 +521,7 @@ protected
           end
         end
 
-      } if (socks[0])
+      } if socks[0]
 
     end while true
   end

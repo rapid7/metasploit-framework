@@ -38,7 +38,7 @@ module ObjectAliasesContainer
     end
 
     # If the current object may have object aliases...
-    if (current.kind_of?(Rex::Post::HWBridge::ObjectAliases))
+    if current.kind_of?(Rex::Post::HWBridge::ObjectAliases)
       current.aliases.each_key { |x|
         current_path = parent_path + '.' + x
 

@@ -185,8 +185,8 @@ module Payload::Windows::ReverseWinHttp
         0x00000200 | # SECURITY_FLAG_IGNORE_WRONG_USAGE
         0x00000100 ) # SECURITY_FLAG_IGNORE_UNKNOWN_CA
     else
-      http_open_flags = (
-        0x00000100 ) # WINHTTP_FLAG_BYPASS_PROXY_CACHE
+      http_open_flags =
+        0x00000100  # WINHTTP_FLAG_BYPASS_PROXY_CACHE
     end
 
     ie_proxy_autodect = (

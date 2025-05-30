@@ -12,7 +12,7 @@ module BinaryReaderMixin
 
   # == 8 bit
 
-  # no byteorder for 8 bit! 
+  # no byteorder for 8 bit!
 
   def read_word8
     ru(1, 'C')
@@ -23,11 +23,11 @@ module BinaryReaderMixin
   end
 
   alias read_byte read_word8
-  
+
   # == 16 bit
 
   # === Unsigned
-  
+
   def read_word16_native
     ru(2, 'S')
   end
@@ -53,7 +53,7 @@ module BinaryReaderMixin
 
   def read_int16_big
     # swap bytes if native=little (but we want big)
-    ru_swap(2, 's', ByteOrder::Little) 
+    ru_swap(2, 's', ByteOrder::Little)
   end
 
   # == 32 bit
@@ -80,19 +80,19 @@ module BinaryReaderMixin
 
   def read_int32_little
     # swap bytes if native=big (but we want little)
-    ru_swap(4, 'l', ByteOrder::Big) 
+    ru_swap(4, 'l', ByteOrder::Big)
   end
 
   def read_int32_big
     # swap bytes if native=little (but we want big)
-    ru_swap(4, 'l', ByteOrder::Little) 
+    ru_swap(4, 'l', ByteOrder::Little)
   end
 
   # == Aliases
 
   alias read_uint8 read_word8
 
-  # add some short-cut functions 
+  # add some short-cut functions
   %w(word16 int16 word32 int32).each do |typ|
     alias_method "read_#{typ}_network", "read_#{typ}_big"
   end
@@ -117,10 +117,10 @@ module BinaryReaderMixin
     readn(size).unpack(template).first
   end
 
-  # same as method +ru+, but swap bytes if native byteorder == _byteorder_  
+  # same as method +ru+, but swap bytes if native byteorder == _byteorder_
   def ru_swap(size, template, byteorder)
     str = readn(size)
-    str.reverse! if ByteOrder.byteorder == byteorder 
+    str.reverse! if ByteOrder.byteorder == byteorder
     str.unpack(template).first
   end
 end

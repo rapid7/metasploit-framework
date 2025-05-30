@@ -216,7 +216,7 @@ module Session
   # created.
   #
   def via_exploit
-    self.via['Exploit'] if (self.via)
+    self.via['Exploit'] if self.via
   end
 
   #
@@ -224,7 +224,7 @@ module Session
   # created.
   #
   def via_payload
-    self.via['Payload'] if (self.via)
+    self.via['Payload'] if self.via
   end
 
   #
@@ -270,7 +270,7 @@ module Session
   end
 
   def alive?
-    (self.alive)
+    self.alive
   end
 
   #

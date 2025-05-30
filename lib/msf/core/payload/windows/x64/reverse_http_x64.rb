@@ -62,7 +62,7 @@ module Payload::Windows::ReverseHttp_x64
       # Otherwise default to small URIs
       conf[:url]        = luri + generate_small_uri
     end
-  
+
     generate_reverse_http(conf)
   end
 

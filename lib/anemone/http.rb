@@ -110,18 +110,18 @@ module Anemone
       opts['User-Agent'] = user_agent if user_agent
       opts['Referer'] = referer.to_s if referer
       opts['Cookie'] = @cookie_store.to_s unless @cookie_store.empty? || (!accept_cookies? && @opts[:cookies].nil?)
-      
+
       if @opts[:http_basic_auth]
       	opts['Authorization'] = "Basic " + @opts[:http_basic_auth]
       end
 
-      if not @opts[:inject_headers].nil? 
+      if not @opts[:inject_headers].nil?
       	@opts[:inject_headers].each do |hdr|
       	  k,v = hdr.split(':', 2)
       	  opts[k] = v
         end
       end
-      
+
       retries = 0
       begin
         start = Time.now()

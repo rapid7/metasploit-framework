@@ -11,7 +11,7 @@
 module Net
   module DNS
     class RR
-      
+
       #------------------------------------------------------------
       # RR type NULL
       #------------------------------------------------------------
@@ -19,7 +19,7 @@ module Net
         attr_reader :null
 
         private
-        
+
         def build_pack
           @null_pack = @null
           @rdlength = @null_pack.size
@@ -36,7 +36,7 @@ module Net
         def get_inspect
           "#@null"
         end
-          
+
         def subclass_new_from_hash(args)
           if args.has_key? :null
             @null = args[:null]
@@ -53,9 +53,9 @@ module Net
           @null = data[offset..offset+@rdlength]
           return offset + @rdlength
         end
-        
+
       end # class NULL
-      
+
     end # class RR
   end # module DNS
 end # module Net

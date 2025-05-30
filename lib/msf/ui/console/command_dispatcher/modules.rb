@@ -92,7 +92,7 @@ module Msf
 
           def cmd_advanced(*args)
             if args.empty?
-              if (active_module)
+              if active_module
                 show_advanced_options(active_module)
                 return true
               else
@@ -228,7 +228,7 @@ module Msf
 
           def cmd_options(*args)
             if args.empty?
-              if (active_module)
+              if active_module
                 show_options(active_module)
                 return true
               else
@@ -308,7 +308,7 @@ module Msf
                 # Load modules, but do not consult the cache
                 if (counts = framework.modules.add_module_path(path))
                   counts.each_pair { |type, count|
-                    totals[type] = (totals[type]) ? (totals[type] + count) : count
+                    totals[type] = totals[type] ? (totals[type] + count) : count
 
                     overall += count
                   }
@@ -342,7 +342,7 @@ module Msf
             #tab_complete_filenames(str,words)
 
             paths = []
-            if (File.directory?(str))
+            if File.directory?(str)
               paths = Dir.entries(str)
               paths = paths.map { |f|
                 if File.directory? File.join(str,f)
@@ -686,25 +686,25 @@ module Msf
                 when 'info'
                   cmd_info(*args[1, args.length])
                 when 'options'
-                  if (mod)
+                  if mod
                     show_options(mod)
                   else
                     show_global_options
                   end
                 when 'missing'
-                  if (mod)
+                  if mod
                     show_missing(mod)
                   else
                     print_error("No module selected.")
                   end
                 when 'advanced'
-                  if (mod)
+                  if mod
                     show_advanced_options(mod)
                   else
                     print_error("No module selected.")
                   end
                 when 'evasion'
-                  if (mod)
+                  if mod
                     show_evasion_options(mod)
                   else
                     show_evasion
@@ -750,7 +750,7 @@ module Msf
             return [] if words.length > 1
 
             res = %w{all encoders nops exploits payloads auxiliary post plugins options favorites}
-            if (active_module)
+            if active_module
               res.concat %w{missing advanced evasion targets actions info}
               if (active_module.respond_to? :compatible_sessions)
                 res << "sessions"
@@ -872,7 +872,7 @@ module Msf
             end
 
             # If there's currently an active module, enqueque it and go back
-            if (active_module)
+            if active_module
               @previous_module = active_module
               cmd_back()
             end
@@ -1122,7 +1122,7 @@ module Msf
               driver.current_dispatcher.name != 'Core' and
               driver.current_dispatcher.name != 'Database Backend')
               # Reset the active module if we have one
-              if (active_module)
+              if active_module
 
                 # Do NOT reset the UI anymore
                 # active_module.reset_ui
@@ -1594,14 +1594,14 @@ module Msf
             if (mod.exploit? and mod.datastore['PAYLOAD'])
               p = framework.payloads.create(mod.datastore['PAYLOAD'])
 
-              if (!p)
+              if !p
                 print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
                 return
               end
 
               p.share_datastore(mod.datastore)
 
-              if (p)
+              if p
                 p_opt = Serializer::ReadableText.dump_options(p, '   ', true)
                 print("\nPayload options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
               end
@@ -1658,14 +1658,14 @@ module Msf
             if (mod.exploit? and mod.datastore['PAYLOAD'])
               p = framework.payloads.create(mod.datastore['PAYLOAD'])
 
-              if (!p)
+              if !p
                 print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
                 return
               end
 
               p.share_datastore(mod.datastore)
 
-              if (p)
+              if p
                 p_opt = Serializer::ReadableText.dump_advanced_options(p, '   ')
                 print("\nPayload advanced options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
               end
@@ -1682,14 +1682,14 @@ module Msf
             if (mod.evasion? and mod.datastore['PAYLOAD'])
               p = framework.payloads.create(mod.datastore['PAYLOAD'])
 
-              if (!p)
+              if !p
                 print_error("Invalid payload defined: #{mod.datastore['PAYLOAD']}\n")
                 return
               end
 
               p.share_datastore(mod.datastore)
 
-              if (p)
+              if p
                 p_opt = Serializer::ReadableText.dump_evasion_options(p, '   ')
                 print("\nPayload evasion options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
               end

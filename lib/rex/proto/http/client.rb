@@ -619,7 +619,7 @@ module Rex
 
           # As a last minute hack, we check to see if we're dealing with a 100 Continue here.
           # Most of the time this is handled by the parser via check_100()
-          if resp.proto == '1.1' and resp.code == 100 and !(opts[:skip_100])
+          if resp.proto == '1.1' and resp.code == 100 and !opts[:skip_100]
             # Read the real response from the body if we found one
             # If so, our real response became the body, so we re-parse it.
             if resp.body.to_s =~ /^HTTP/

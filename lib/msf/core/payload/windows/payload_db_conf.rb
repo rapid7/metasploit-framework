@@ -14,7 +14,7 @@ module Msf::Payload::Windows::PayloadDBConf
   #   the payload identifier. Additional
   #   hash values will be saved within `build_opts`
   def save_conf_to_db(conf={})
-    return nil unless (framework.db && framework.db.active)
+    return nil unless framework.db && framework.db.active
 
     return nil unless conf['uuid']
     payload_uuid = conf['uuid']
@@ -38,7 +38,7 @@ module Msf::Payload::Windows::PayloadDBConf
   #   a hash of the payload information will
   #   be returned
   def retrieve_conf_from_db(uuid=nil)
-    return nil unless (framework.db && framework.db.active)
+    return nil unless framework.db && framework.db.active
 
     curr_payload = framework.db.payloads(uuid: uuid).first
     return nil unless curr_payload && curr_payload[:build_opts]

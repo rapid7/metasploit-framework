@@ -82,7 +82,7 @@ class PGresult
   def [](index)
     @result[index]
   end
- 
+
   def initialize(res)
     @res = res
     @fields = @res.fields.map {|f| f.name}
@@ -144,7 +144,7 @@ class PGresult
   # Returns the number of rows affected by the SQL command
   def cmdtuples
     case @res.cmd_tag
-    when nil 
+    when nil
       return nil
     when /^INSERT\s+(\d+)\s+(\d+)$/, /^(DELETE|UPDATE|MOVE|FETCH)\s+(\d+)$/
       $2.to_i

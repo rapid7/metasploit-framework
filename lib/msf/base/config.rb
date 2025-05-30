@@ -364,7 +364,7 @@ class Config < Hash
   end
 
   def history_options_valid?(opts)
-    return false if (opts[:session_type].nil? || opts[:interactive].nil?)
+    return false if opts[:session_type].nil? || opts[:interactive].nil?
 
     true
   end
@@ -513,7 +513,7 @@ class Config < Hash
   # @param path [String] the path to the configuration file.
   # @return [Rex::Parser::Ini] INI file parser.
   def load(path = nil)
-    path = config_file if (!path)
+    path = config_file if !path
 
     return Rex::Parser::Ini.new(path)
   end

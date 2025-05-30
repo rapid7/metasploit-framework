@@ -511,7 +511,7 @@ class DNS
 
         reorder_ids << val.to_i - 1
       when nil
-        raise ::ArgumentError.new("Not a valid index: #{val}") unless (val.to_i > 0 || val.to_i == -1)
+        raise ::ArgumentError.new("Not a valid index: #{val}") unless val.to_i > 0 || val.to_i == -1
         new_id = val.to_i
         new_id -= 1 unless new_id == -1
       end
@@ -709,7 +709,7 @@ class DNS
     resolver.static_hostnames.sort_by { |hostname, _| hostname }.each do |hostname, addresses|
       ipv4_addresses = addresses.fetch(Dnsruby::Types::A, []).sort_by(&:to_i)
       ipv6_addresses = addresses.fetch(Dnsruby::Types::AAAA, []).sort_by(&:to_i)
-      if (ipv4_addresses.length <= 1 && ipv6_addresses.length <= 1) && ((ipv4_addresses + ipv6_addresses).length > 0)
+      if ipv4_addresses.length <= 1 && ipv6_addresses.length <= 1 && ((ipv4_addresses + ipv6_addresses).length > 0)
         tbl << [hostname, ipv4_addresses.first, ipv6_addresses.first]
       else
         tbl << [hostname, '', '']

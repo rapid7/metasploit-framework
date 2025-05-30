@@ -38,7 +38,7 @@ module Msf
       if attrs.is_a?(String) || attrs.length == 0
         self.required = required
         self.desc     = attrs.is_a?(String) ? attrs : desc
-        self.enums    = [ *(enums) ].map { |x| x.to_s }
+        self.enums    = [ *enums ].map { |x| x.to_s }
         if default.nil? && enums.length > 0
           self.default = enums[0]
         else
@@ -54,7 +54,7 @@ module Msf
         self.desc     = attrs[1] || desc
         self.default  = attrs[2] || default
         self.enums    = attrs[3] || enums
-        self.enums    = [ *(self.enums) ].map { |x| x.to_s }
+        self.enums    = [ *self.enums ].map { |x| x.to_s }
         regex_temp    = attrs[4] || regex
       end
 
@@ -119,7 +119,7 @@ module Msf
     def valid?(value, check_empty: true, datastore: nil)
       if check_empty && required?
         # required variable not set
-        return false if (value.nil? || value.to_s.empty?)
+        return false if value.nil? || value.to_s.empty?
       end
       if regex && !value.nil?
         return !!value.match(regex)

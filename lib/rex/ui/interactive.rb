@@ -102,7 +102,7 @@ module Interactive
   # Stops the current interaction
   #
   def detach
-    if (self.interacting)
+    if self.interacting
       self.interacting = false
       while(not self.completed)
         ::IO.select(nil, nil, nil, 0.25)
@@ -223,7 +223,7 @@ protected
         elsif (s == _local_fd)
           _stream_read_local_write_remote(stream)
         end
-      } if (sd)
+      } if sd
 
       Thread.pass
     end

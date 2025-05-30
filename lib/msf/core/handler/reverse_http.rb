@@ -169,7 +169,7 @@ module ReverseHttp
   # Use the #refname to determine whether this handler uses SSL or not
   #
   def ssl?
-    !!(self.refname.index('https'))
+    !!self.refname.index('https')
   end
 
   # URI scheme
@@ -177,7 +177,7 @@ module ReverseHttp
   # @return [String] One of "http" or "https" depending on whether we
   #   are using SSL
   def scheme
-    (ssl?) ? 'https' : 'http'
+    ssl? ? 'https' : 'http'
   end
 
   # The local URI for the handler.
@@ -222,7 +222,7 @@ module ReverseHttp
             'MsfExploit' => self,
           },
           comm,
-          (ssl?) ? datastore['HandlerSSLCert'] : nil, nil, nil, datastore['SSLVersion']
+          ssl? ? datastore['HandlerSSLCert'] : nil, nil, nil, datastore['SSLVersion']
         )
         local_addr = ip
       rescue
@@ -234,7 +234,7 @@ module ReverseHttp
       end
     end
 
-    raise ex if (ex)
+    raise ex if ex
 
     self.service.server_name = datastore['HttpServerName']
 
@@ -427,7 +427,7 @@ protected
         self.pending_connections -= 1
     end
 
-    cli.send_response(resp) if (resp)
+    cli.send_response(resp) if resp
 
     # Force this socket to be closed
     self.service.close_client(cli)

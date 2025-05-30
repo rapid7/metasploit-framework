@@ -25,7 +25,7 @@ module Meterpreter
 #
 ###
 class ClientCore < Extension
-  
+
   METERPRETER_TRANSPORT_TCP   = 0
   METERPRETER_TRANSPORT_HTTP  = 1
   METERPRETER_TRANSPORT_HTTPS = 2
@@ -661,7 +661,7 @@ class ClientCore < Extension
 
     # Send the migration request. Timeout can be specified by the caller, or set to a min
     # of 60 seconds.
-    timeout = [(opts[:timeout] || 0), 60].max
+    timeout = [opts[:timeout] || 0, 60].max
     client.send_request(request, timeout)
 
     # Post-migration the session doesn't have encryption any more.
@@ -710,7 +710,7 @@ class ClientCore < Extension
 
     # Renegotiate TLV encryption on the migrated session
     secure
-  
+
     # Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)
     client.ext.aliases.keys.each { |e|
       client.core.use(e)

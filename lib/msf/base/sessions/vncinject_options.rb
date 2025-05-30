@@ -70,8 +70,8 @@ module VncInjectOptions
     # Calculate the flags to send to the DLL
     flags = 0
 
-    flags |= 1 if (datastore['DisableCourtesyShell'])
-    flags |= 2 if (datastore['DisableSessionTracking'])
+    flags |= 1 if datastore['DisableCourtesyShell']
+    flags |= 2 if datastore['DisableSessionTracking']
 
     # Transmit the one byte flag
     session.rstream.put([ flags ].pack('C'))
@@ -85,7 +85,7 @@ module VncInjectOptions
 
     # If the AUTOVNC flag is set, launch VNC viewer.
     if datastore['AUTOVNC']
-      if (session.autovnc(datastore['ViewOnly']))
+      if session.autovnc(datastore['ViewOnly'])
         print_status("Launched vncviewer.")
       else
         print_error("Failed to launch vncviewer.  Is it installed and in your path?")

@@ -54,7 +54,7 @@ module Rex
           ha2 = algorithm.hexdigest("#{method}:#{path}")
 
           request_digest = [ha1, parameters['nonce']]
-          request_digest.push(('%08x' % nonce_count), cnonce, qop) if qop
+          request_digest.push('%08x' % nonce_count, cnonce, qop) if qop
           request_digest << ha2
           request_digest = request_digest.join ':'
           # Same order as IE7

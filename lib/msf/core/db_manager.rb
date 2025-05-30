@@ -130,7 +130,7 @@ class Msf::DBManager
     @usable = false
 
     # Don't load the database if the user said they didn't need it.
-    if (opts['DisableDatabase'])
+    if opts['DisableDatabase']
       self.error = "disabled"
       return
     end
@@ -225,7 +225,7 @@ class Msf::DBManager
         * 3. Uninstall, download the latest version, and reinstall Metasploit
         *
         ***
-        
+
 
         ERROR
         elog(err_msg)

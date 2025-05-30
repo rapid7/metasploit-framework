@@ -80,7 +80,7 @@ class Post
     jobify = args[:jobify]
 
     # Always run passive modules in the background
-    if (mod.passive)
+    if mod.passive
       jobify = true
     end
 
@@ -110,7 +110,7 @@ class Post
       return false
     end
 
-    if (jobify && mod.job_id)
+    if jobify && mod.job_id
       print_status("Post module running as background job #{mod.job_id}.")
     else
       print_status("Post module execution completed")

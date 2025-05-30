@@ -5,7 +5,7 @@ module Rex
     module Kerberos
       module Model
         # This class provides a representation of a PA-Etype-Info2 structure,
-        # which contains information about valid encryption types and salts 
+        # which contains information about valid encryption types and salts
         # that can be used to authenticate using Kerberos Pre-Authentication
         class PreAuthEtypeInfo2 < Element
           # @!attribute etype_info2_entries
@@ -58,7 +58,7 @@ module Rex
           def decode_etype_entries(input)
             entries = []
             input.value.each do |val|
-              entries.append(Rex::Proto::Kerberos::Model::PreAuthEtypeInfo2Entry.decode(val))         
+              entries.append(Rex::Proto::Kerberos::Model::PreAuthEtypeInfo2Entry.decode(val))
             end
             entries
           end

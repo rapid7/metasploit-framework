@@ -17,7 +17,7 @@ module Msf
     #
     # @see https://github.com/Malayke/CVE-2023-33246_RocketMQ_RCE_EXPLOIT/blob/e27693a854a8e3b2863dc366f36002107e3595de/check.py#L68
     # @return [String, nil] The data as a list of hashes or nil on error.
-    def send_version_request 
+    def send_version_request
       data = '{"code":105,"extFields":{"Signature":"/u5P/wZUbhjanu4LM/UzEdo2u2I=","topic":"TBW102","AccessKey":"rocketmq2"},"flag":0,"language":"JAVA","opaque":1,"serializeTypeCurrentRPC":"JSON","version":401}'
       data_length = "\x00\x00\x00" + [data.length].pack('C')
       header = "\x00\x00\x00" + [data.length + data_length.length].pack('C')

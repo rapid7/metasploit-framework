@@ -14,7 +14,7 @@ module Rex
             result = []
             l1.zip(l2).each do |b1,b2|
               if b1 != nil && b2 != nil
-                result.append((b1^b2))
+                result.append(b1^b2)
               end
             end
 

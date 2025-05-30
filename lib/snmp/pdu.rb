@@ -30,7 +30,7 @@ class Message
     attr_reader :version
     attr_reader :community
     attr_reader :pdu
-    
+
     class << self
         def decode(data)
             message_data, remainder = decode_sequence(data)
@@ -53,7 +53,7 @@ class Message
             end
             return version, remainder
         end
-        
+
         def decode_pdu(version, data)
             pdu_tag, pdu_data, remainder = decode_tlv(data)
             case pdu_tag
@@ -83,17 +83,17 @@ class Message
             return pdu, remainder
         end
     end
-    
+
     def initialize(version, community, pdu)
         @version = version
         @community = community
         @pdu = pdu
     end
-    
+
     def response
         Message.new(@version, @community, Response.from_pdu(@pdu))
     end
-    
+
     def encode_version(version)
         if version == :SNMPv1
             encode_integer(SNMP_V1)
@@ -103,7 +103,7 @@ class Message
             raise UnsupportedVersion, version.to_s
         end
     end
-    
+
     def encode
         data = encode_version(@version)
         data << encode_octet_string(@community)
@@ -116,9 +116,9 @@ class PDU
     attr_accessor :request_id
     attr_accessor :error_index
     attr_accessor :varbind_list
-    
+
     alias vb_list varbind_list
-    
+
     def self.decode(pdu_class, pdu_data)
         request_id, remainder = decode_integer(pdu_data)
         error_status, remainder = decode_integer(remainder)
@@ -149,16 +149,16 @@ class PDU
         17 => :notWritable,
         18 => :inconsistentName
     }
-    
+
     ERROR_STATUS_CODE = ERROR_STATUS_NAME.invert
-    
+
     def initialize(request_id, varbind_list, error_status=0, error_index=0)
         @request_id = request_id
         self.error_status = error_status
         @error_index = error_index.to_int
         @varbind_list = varbind_list
     end
-    
+
     def error_status=(status)
         @error_status = ERROR_STATUS_CODE[status]
         unless @error_status
@@ -169,11 +169,11 @@ class PDU
             end
         end
     end
-    
+
     def error_status
         ERROR_STATUS_NAME[@error_status]
     end
-    
+
     def encode_pdu(pdu_tag)
         pdu_data = encode_integer(@request_id)
         pdu_data << encode_integer(@error_status)
@@ -181,7 +181,7 @@ class PDU
         pdu_data << @varbind_list.encode
         encode_tlv(pdu_tag, pdu_data)
     end
-    
+
     def each_varbind(&block)
         @varbind_list.each(&block)
     end
@@ -208,15 +208,15 @@ end
 class GetBulkRequest <  PDU
     alias max_repetitions error_index
     alias max_repetitions= error_index=
-    
+
     def encode
         encode_pdu(GetBulkRequest_PDU_TAG)
     end
-    
+
     def non_repeaters=(number)
         @error_status = number
     end
-    
+
     def non_repeaters
         @error_status
     end
@@ -229,7 +229,7 @@ class Response < PDU
                 :noError, 0)
         end
     end
-    
+
     def encode
         encode_pdu(Response_PDU_TAG)
     end
@@ -250,9 +250,9 @@ class SNMPv2_Trap < PDU
     ##
     # Returns the source IP address for the trap, usually derived from the
     # source IP address of the packet that delivered the trap.
-    # 
+    #
     attr_accessor :source_ip
-    
+
     ##
     # Returns the value of the mandatory sysUpTime varbind for this trap.
     #
@@ -277,7 +277,7 @@ class SNMPv2_Trap < PDU
         if varbind && (varbind.name == SNMP_TRAP_OID_OID)
             return varbind.value
         else
-            raise InvalidTrapVarbind, "Expected snmpTrapOID.0, found " + varbind.to_s 
+            raise InvalidTrapVarbind, "Expected snmpTrapOID.0, found " + varbind.to_s
         end
     end
 end
@@ -299,7 +299,7 @@ class SNMPv1_Trap
     ##
     # Returns the source IP address for the trap, usually derived from the
     # source IP address of the packet that delivered the trap.
-    # 
+    #
     attr_accessor :source_ip
 
     attr_accessor :enterprise
@@ -307,9 +307,9 @@ class SNMPv1_Trap
     attr_accessor :specific_trap
     attr_accessor :timestamp
     attr_accessor :varbind_list
-    
+
     alias :vb_list :varbind_list
-    
+
     def self.decode(pdu_data)
         oid_data, remainder = decode_object_id(pdu_data)
         enterprise = ObjectId.new(oid_data)
@@ -331,9 +331,9 @@ class SNMPv1_Trap
         self.generic_trap = generic_trap
         @specific_trap = specific_trap
         @timestamp = timestamp
-        @varbind_list = varbind_list 
+        @varbind_list = varbind_list
     end
-    
+
     # Name map for all of the generic traps defined in RFC 1157.
     GENERIC_TRAP_NAME = {
         0 => :coldStart,
@@ -344,10 +344,10 @@ class SNMPv1_Trap
         5 => :egpNeighborLoss,
         6 => :enterpriseSpecific
     }
-    
+
     # Code map for all of the generic traps defined in RFC 1157.
     GENERIC_TRAP_CODE = GENERIC_TRAP_NAME.invert
-    
+
     def generic_trap=(trap)
         @generic_trap = GENERIC_TRAP_CODE[trap]
         unless @generic_trap
@@ -358,11 +358,11 @@ class SNMPv1_Trap
             end
         end
     end
-    
+
     def generic_trap
         GENERIC_TRAP_NAME[@generic_trap]
     end
-    
+
     def encode
         pdu_data = @enterprise.encode <<
                    @agent_addr.encode <<
@@ -372,7 +372,7 @@ class SNMPv1_Trap
                    @varbind_list.encode
         encode_tlv(SNMPv1_Trap_PDU_TAG, pdu_data)
     end
-    
+
     def each_varbind(&block)
         @varbind_list.each(&block)
     end

@@ -93,7 +93,7 @@ module ReverseSctp
         break
       end
     end
-    raise ex if (ex)
+    raise ex if ex
   end
   #
   # Closes the listener socket if one was created.

@@ -83,7 +83,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
       loot_dir = ::File.join(basedir,"loot")
       loot_file = ::File.split(loot_info[:orig_path]).last
       if ::File.exist? loot_dir
-        unless (::File.directory?(loot_dir) && ::File.writable?(loot_dir))
+        unless ::File.directory?(loot_dir) && ::File.writable?(loot_dir)
           raise Msf::DBImportError.new("Could not move files to #{loot_dir}")
         end
       else
@@ -133,7 +133,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
       tasks_dir = ::File.join(basedir,"tasks")
       task_file = ::File.split(task_info[:orig_path]).last
       if ::File.exist? tasks_dir
-        unless (::File.directory?(tasks_dir) && ::File.writable?(tasks_dir))
+        unless ::File.directory?(tasks_dir) && ::File.writable?(tasks_dir)
           raise Msf::DBImportError.new("Could not move files to #{tasks_dir}")
         end
       else
@@ -170,7 +170,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
 
     new_tmp = ::File.join(Dir::tmpdir,"msf","imp_#{Rex::Text::rand_text_alphanumeric(4)}",@import_filedata[:zip_basename])
     if ::File.exist? new_tmp
-      unless (::File.directory?(new_tmp) && ::File.writable?(new_tmp))
+      unless ::File.directory?(new_tmp) && ::File.writable?(new_tmp)
         raise Msf::DBImportError.new("Could not extract zip file to #{new_tmp}")
       end
     else
@@ -186,7 +186,7 @@ module Msf::DBManager::Import::MetasploitFramework::Zip
     @import_filedata[:zip_tmp_subdirs].each {|sub|
       tmp_subdirs = ::File.join(@import_filedata[:zip_tmp],sub)
       if File.exist? tmp_subdirs
-        unless (::File.directory?(tmp_subdirs) && File.writable?(tmp_subdirs))
+        unless ::File.directory?(tmp_subdirs) && File.writable?(tmp_subdirs)
           # if it exists but we can't write to it, give up
           raise Msf::DBImportError.new("Could not extract zip file to #{tmp_subdirs}")
         end

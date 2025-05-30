@@ -120,7 +120,7 @@ module Metasploit
           res = send_request({
             'uri' => normalize_uri('/users/login')
           })
-          unless (res && res.code == 200 && res.body =~ /input name="authenticity_token" type="hidden" value="([^"]+)"/m)
+          unless res && res.code == 200 && res.body =~ /input name="authenticity_token" type="hidden" value="([^"]+)"/m
             return {:status => Metasploit::Model::Login::Status::UNTRIED, :proof => res.body}
           end
 
@@ -136,7 +136,7 @@ module Metasploit
               }
             }
             res = send_request(opts)
-            if (res && res.code == 200 && res.body.to_s =~ /New password for the User/)
+            if res && res.code == 200 && res.body.to_s =~ /New password for the User/
               return {:status => Metasploit::Model::Login::Status::SUCCESSFUL, :proof => res.body}
             end
           end

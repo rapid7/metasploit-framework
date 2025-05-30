@@ -98,8 +98,8 @@ module Payload
           Buffer.comment(
             "#{payload.refname} - #{len} bytes#{payload.staged? ? " (stage 1)" : ""}\n" +
             "https://metasploit.com/\n" +
-            ((e.encoder) ? "Encoder: #{e.encoder.refname}\n" : '') +
-            ((e.nop) ?     "NOP gen: #{e.nop.refname}\n" : '') +
+            (e.encoder ? "Encoder: #{e.encoder.refname}\n" : '') +
+            (e.nop ?     "NOP gen: #{e.nop.refname}\n" : '') +
             "#{ou}",
             fmt) +
           output

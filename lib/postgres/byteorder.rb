@@ -5,21 +5,21 @@ require 'postgres_msf'
 module Msf
 module Db
 
-module ByteOrder 
+module ByteOrder
   Native = :Native
   BigEndian = Big = Network = :BigEndian
   LittleEndian = Little = :LittleEndian
 
   # examines the byte order of the underlying machine
   def byte_order
-    if [0x12345678].pack("L") == "\x12\x34\x56\x78" 
+    if [0x12345678].pack("L") == "\x12\x34\x56\x78"
       BigEndian
     else
       LittleEndian
     end
   end
 
-  alias byteorder byte_order 
+  alias byteorder byte_order
 
   def little_endian?
     byte_order == LittleEndian
@@ -29,7 +29,7 @@ module ByteOrder
     byte_order == BigEndian
   end
 
-  alias little? little_endian? 
+  alias little? little_endian?
   alias big? big_endian?
   alias network? big_endian?
 

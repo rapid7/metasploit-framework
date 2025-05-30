@@ -5,7 +5,7 @@ module Rex
     module Kerberos
       module Model
         # This class provides a representation of a PA-Etype-Info2-Entry structure,
-        # which contains information about valid encryption types and salts 
+        # which contains information about valid encryption types and salts
         # that can be used to authenticate using Kerberos Pre-Authentication
         class PreAuthEtypeInfo2Entry < Element
           # @!attribute etype

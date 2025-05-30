@@ -600,7 +600,7 @@ module Msf
                 # Railgun assumes PDWORDS are pointers and returns 8 bytes for x64 architectures.
                 # Therefore we need to truncate the result value to an actual
                 # DWORD for entriesread or totalentries.
-                members_info = session.railgun.util.read_array(GROUP_USERS_INFO, (result['totalentries'] % 4294967296), members_info_addr)
+                members_info = session.railgun.util.read_array(GROUP_USERS_INFO, result['totalentries'] % 4294967296, members_info_addr)
                 for member in members_info
                   members << member['grui0_name']
                 end
@@ -634,7 +634,7 @@ module Msf
             begin
               members_info_addr = result['bufptr']
               unless members_info_addr == 0
-                members_info = session.railgun.util.read_array(LOCALGROUP_MEMBERS_INFO, (result['totalentries'] % 4294967296), members_info_addr)
+                members_info = session.railgun.util.read_array(LOCALGROUP_MEMBERS_INFO, result['totalentries'] % 4294967296, members_info_addr)
                 for member in members_info
                   members << member['lgrmi3_domainandname']
                 end
@@ -668,7 +668,7 @@ module Msf
             begin
               user_info_addr = result['bufptr']
               unless user_info_addr == 0
-                user_info = session.railgun.util.read_array(USER_INFO, (result['totalentries'] % 4294967296), user_info_addr)
+                user_info = session.railgun.util.read_array(USER_INFO, result['totalentries'] % 4294967296, user_info_addr)
                 for member in user_info
                   users << member['usri0_name']
                 end
@@ -701,7 +701,7 @@ module Msf
             begin
               localgroup_info_addr = result['bufptr']
               unless localgroup_info_addr == 0
-                localgroup_info = session.railgun.util.read_array(LOCALGROUP_INFO, (result['totalentries'] % 4294967296), localgroup_info_addr)
+                localgroup_info = session.railgun.util.read_array(LOCALGROUP_INFO, result['totalentries'] % 4294967296, localgroup_info_addr)
                 for member in localgroup_info
                   localgroups << member['lgrpi0_name']
                 end
@@ -734,7 +734,7 @@ module Msf
             begin
               group_info_addr = result['bufptr']
               unless group_info_addr == 0
-                group_info = session.railgun.util.read_array(GROUP_INFO, (result['totalentries'] % 4294967296), group_info_addr)
+                group_info = session.railgun.util.read_array(GROUP_INFO, result['totalentries'] % 4294967296, group_info_addr)
                 for member in group_info
                   groups << member['grpi0_name']
                 end

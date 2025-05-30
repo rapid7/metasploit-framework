@@ -106,7 +106,7 @@ end
 
 def buffer_offset?(current_byte, next_byte)
   # If this byte has been inserted, then it must be part of the increasingly large payload buffer
-  if (current_byte.action == '+' && (next_byte.nil? || (current_byte.position != next_byte.position)))
+  if current_byte.action == '+' && (next_byte.nil? || (current_byte.position != next_byte.position))
     return true
   end
 

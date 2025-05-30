@@ -56,11 +56,11 @@ module Auxiliary::EPMP
       return false
     end
 
-    good_response = (
+    good_response =
       res &&
       res.code == 200 &&
       (res.body.include?('cambium.min.css') || res.body.include?('cambiumnetworks.com') && res.body.include?('https://support.cambiumnetworks.com/files/epmp/'))
-    )
+
 
     if good_response
       get_epmp_ver = res.body.match(/"sw_version">([^<]*)/)
@@ -105,11 +105,11 @@ module Auxiliary::EPMP
     cookies = res.get_cookies_parsed
     check_sysauth = cookies.values.select { |v| v.to_s =~ /sysauth_/ }.first.to_s
 
-    good_response = (
+    good_response =
       res &&
       res.code == 200 &&
       check_sysauth.include?('sysauth')
-    )
+
 
     if good_response
       sysauth_dirty = cookies.values.select { |v| v.to_s =~ /sysauth_/ }.first.to_s
@@ -135,11 +135,11 @@ module Auxiliary::EPMP
         }
       )
 
-      good_response = (
+      good_response =
         res &&
         res.code == 200 &&
         !res.body.include?('auth_failed')
-      )
+
 
       if good_response
         print_good("SUCCESSFUL LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
@@ -208,11 +208,11 @@ module Auxiliary::EPMP
     cookies = res.get_cookies_parsed
     check_sysauth = cookies.values.select { |v| v.to_s =~ /sysauth_/ }.first.to_s
 
-    good_response = (
+    good_response =
       res &&
       res.code == 200 &&
       check_sysauth.include?('sysauth')
-    )
+
 
     if good_response
       sysauth_dirty = cookies.values.select { |v| v.to_s =~ /sysauth_/ }.first.to_s
@@ -240,11 +240,11 @@ module Auxiliary::EPMP
 
       cookies = res.get_cookies_parsed
 
-      good_response = (
+      good_response =
         res &&
         res.code == 200 &&
         !res.body.include?('auth_failed')
-      )
+
 
       if good_response
         print_good("SUCCESSFUL LOGIN - #{rhost}:#{rport} - #{user.inspect}:#{pass.inspect}")
