@@ -11,6 +11,7 @@ module MetasploitModule
   include Msf::Sessions::MeterpreterOptions::<%= platform.split('_').each { |s| s.casecmp?('osx') ? 'OSX' : s.capitalize! }.join %>
   include Msf::Sessions::MettleConfig
   <% if platform.downcase == 'linux' %>include Msf::Payload::Linux::<%= arch.capitalize %>::MeterpreterLoader<% end %>
+  <% if platform.downcase == 'linux' %>include Msf::Payload::Linux::<%= arch.capitalize %>::Prepends<% end %>
 
   def initialize(info = {})
     super(
