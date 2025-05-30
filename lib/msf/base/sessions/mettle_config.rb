@@ -19,10 +19,9 @@ module Msf
               'Fork a new process if the functionality is available',
               default: false
             ),
-            OptBool.new(
-              'MeterpreterLegacyElf',
-              'Legacy stageless ELF file without in-memory loading, works with Linux < 3.17',
-              default: false
+            OptEnum.new(
+              'MeterpreterLinuxMinKernel', 
+              [true, 'Linux minimum kernel version for compatibility', '2.x+', ['2.x+', '3.17+']]
             )
           ]
         )
