@@ -32,6 +32,7 @@ class MetasploitModule < Msf::Auxiliary
           'Spencer McIntyre'
         ],
         'References' => [
+          [ 'URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2' ],
           [ 'URL', 'https://github.com/GhostPack/Certify' ],
           [ 'URL', 'https://github.com/ly4k/Certipy' ]
         ],
