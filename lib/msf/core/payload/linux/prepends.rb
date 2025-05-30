@@ -30,6 +30,10 @@ module Msf::Payload::Linux::Prepends
   end
 
   def apply_prepends(buf)
+    ds = datastore
+    if ds['MeterpreterLinuxMinKernel'] == '2.x+'
+      print_warning('Prepends options only works with MeterpreterLinuxMinKernel = 3.17+.')
+    end
     pre = ''
     app = ''
     for name in prepends_order.each
