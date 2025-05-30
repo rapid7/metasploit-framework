@@ -12,6 +12,7 @@ module MetasploitModule
   include Msf::Sessions::MeterpreterOptions
   include Msf::Sessions::MettleConfig
   include Msf::Payload::Linux::Ppce500v2::MeterpreterLoader
+  include Msf::Payload::Linux::Ppce500v2::Prepends
 
   def initialize(info = {})
     super(
