@@ -31,9 +31,6 @@ module Msf::Payload::Linux::Prepends
 
   def apply_prepends(buf)
     ds = datastore
-    if ds['MeterpreterLinuxMinKernel'] == '2.x+'
-      print_warning('Prepends options only works with MeterpreterLinuxMinKernel = 3.17+.')
-    end
     pre = ''
     app = ''
     for name in prepends_order.each
@@ -41,6 +38,9 @@ module Msf::Payload::Linux::Prepends
     end
     for name in appends_order.each
       app << appends_map.fetch(name) if datastore[name]
+    end
+    if ds['MeterpreterLinuxMinKernel'] == '2.6+' && (!pre.empty? || !app.empty?) && !staged?
+      print_warning('Prepends options only works with MeterpreterLinuxMinKernel = 3.17+.')
     end
     pre.force_encoding('ASCII-8BIT') +
       buf.force_encoding('ASCII-8BIT') +
