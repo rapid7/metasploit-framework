@@ -482,6 +482,10 @@ class MetasploitModule < Msf::Auxiliary
       conn.shell(:powershell) do |shell|
         registry_values[:certificate_mapping_methods] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\Schannel', 'CertificateMappingMethods')
         registry_values[:strong_certificate_binding_enforcement] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Kdc', 'StrongCertificateBindingEnforcement')
+
+        active_policy_name = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'Active')
+        registry_values[:disabled_extension_list] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'DisableExtensionList', active_policy_name)
+        registry_values[:edit_flags] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'EditFlags', active_policy_name)
       end
 
       if registry_values[:strong_certificate_binding_enforcement] == '1'
@@ -707,6 +711,41 @@ class MetasploitModule < Msf::Auxiliary
     ]
     query_ldap_server_certificates(esc_raw_filter, 'ESC15', notes: notes)
   end
+
+  def find_esc16_vuln_cert_templates
+    esc16_raw_filter = '(&'\
+      '(objectclass=pkicertificatetemplate)'\
+      '(!(mspki-enrollment-flag:1.2.840.113556.1.4.804:=2))'\
+      '(|(mspki-ra-signature=0)(!(mspki-ra-signature=*)))'\
+      '(pkiextendedkeyusage=*)'\
+    ')'
+
+    esc_entries = query_ldap_server(esc16_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
+    return if esc_entries.empty?
+
+    registry_object = @ldap_objects.find { |obj| obj[:type] == :registry_values }
+
+    strong_binding = registry_object[:values][:strong_certificate_binding_enforcement]
+    if strong_binding && (strong_binding.to_i == 0 || strong_binding.to_i == 1)
+      # Scenario 1 -  StrongCertificateBindingEnforcement = 1 or 0 then it's same same as ESC9 - mark them all as vulnerable
+      esc_entries.each do |entry|
+        certificate_symbol = entry[:cn][0].to_sym
+        @certificate_details[certificate_symbol][:techniques] << 'ESC16'
+        @certificate_details[certificate_symbol][:notes] << "ESC16: Template is vulnerable due StrongCertificateBindingEnforcement = #{registry_object[:values][:strong_certificate_binding_enforcement]} and the CA's disabled policy extension list includes: 1.3.6.1.4.1.311.25.2."
+      end
+    else
+      # Scenario 2 - StrongCertificateBindingEnforcement = 2 (or nil) but if EditFlags in the active policy module has the bit 0x00040000 set then ESC6 is essentially re-enabled and we mark them all as vulnerable
+      edit_flags = registry_object[:values][:edit_flags]
+      if edit_flags.to_i & 0x00040000 != 0
+        esc_entries.each do |entry|
+          certificate_symbol = entry[:cn][0].to_sym
+          @certificate_details[certificate_symbol][:techniques] << 'ESC16'
+          @certificate_details[certificate_symbol][:notes] << 'ESC16: Template is vulnerable due to the active policy EditFlags having the bit: 0x00040000 set (which is essentially ESC6) combined with the CA\'s disabled policy extension list including: 1.3.6.1.4.1.311.25.2.'
+        end
+      end
+    end
+  end
+
 
   def find_enrollable_vuln_certificate_templates
     # For each of the vulnerable certificate templates, determine which servers
@@ -1044,6 +1083,9 @@ class MetasploitModule < Msf::Auxiliary
 
       find_esc13_vuln_cert_templates
       find_esc15_vuln_cert_templates
+      if registry_values && registry_values[:disabled_extension_list]&.include?('1.3.6.1.4.1.311.25.2')
+        find_esc16_vuln_cert_templates
+      end
 
       find_enrollable_vuln_certificate_templates
       print_vulnerable_cert_info
