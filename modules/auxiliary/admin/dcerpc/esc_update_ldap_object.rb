@@ -93,9 +93,11 @@ class MetasploitModule < Msf::Auxiliary
     ldap_update_module = framework.modules.create(mod_refname)
     ldap_update_module.datastore['RHOST'] = datastore['RHOST']
     ldap_update_module.datastore['RPORT'] = datastore['LDAPRport']
-    ldap_update_module.datastore['LDAPDomain'] = datastore['SMBDomain'] || datastore['LDAPDomain']
-    ldap_update_module.datastore['LDAPUsername'] = datastore['SMBUser'] || datastore['LDAPUsername']
-    ldap_update_module.datastore['LDAPPassword'] = datastore['SMBPass'] || datastore['LDAPPassword']
+    ldap_update_module.datastore['BASE_DN'] = datastore['BASE_DN']
+    ldap_update_module.datastore['VERBOSE'] = datastore['VERBOSE']
+    ldap_update_module.datastore['LDAPDomain'] = datastore['LDAPDomain'] || datastore['SMBDomain']
+    ldap_update_module.datastore['LDAPUsername'] = datastore['LDAPUsername'] || datastore['SMBUser']
+    ldap_update_module.datastore['LDAPPassword'] = datastore['LDAPPassword'] || datastore['SMBPass']
     ldap_update_module.datastore['OBJECT'] = datastore['TARGET_USERNAME']
     ldap_update_module.datastore['ATTRIBUTE'] = datastore['UPDATE_LDAP_OBJECT']
     ldap_update_module.datastore['OBJECT_LOOKUP'] = 'sAMAccountName'

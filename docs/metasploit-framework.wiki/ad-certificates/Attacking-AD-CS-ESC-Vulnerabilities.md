@@ -55,7 +55,6 @@ flowchart TD
     update_template --> ESC1
     web_enrollment --> PKINIT
     web_enrollment --> SCHANNEL
-    web_enrollment --> SCHANNEL
     weak_certificate_mapping --> PKINIT
     weak_certificate_mapping --> SCHANNEL
 ```

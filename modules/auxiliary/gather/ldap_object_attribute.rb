@@ -24,6 +24,7 @@ class MetasploitModule < Msf::Auxiliary
           ['UPDATE', { 'Description' => 'Modify the LDAP object' }],
           ['DELETE', { 'Description' => 'Delete the LDAP object' }]
         ],
+        'DefaultAction' => 'READ',
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
@@ -34,10 +35,11 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
+        OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
         OptEnum.new('OBJECT_LOOKUP', [true, 'How to look up the target LDAP object', 'dN', ['dN', 'sAMAccountName']]),
         OptString.new('OBJECT', [true, 'The target LDAP object']),
         OptString.new('ATTRIBUTE', [true, 'The LDAP attribute to update (e.g., userPrincipalName)']),
-        OptString.new('VALUE', [true, 'The value for the specified LDAP object attribute'], conditions: ['ACTION', 'in', %w[Create Update] ])
+        OptString.new('VALUE', [false, 'The value for the specified LDAP object attribute'], conditions: ['ACTION', 'in', %w[Create Update] ])
       ]
     )
   end
