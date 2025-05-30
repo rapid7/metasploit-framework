@@ -24,6 +24,7 @@ class MetasploitModule < Msf::Auxiliary
           ['UPDATE', { 'Description' => 'Modify the LDAP object' }],
           ['DELETE', { 'Description' => 'Delete the LDAP object' }]
         ],
+        'DefaultAction' => 'READ',
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
@@ -34,10 +35,11 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
+        OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
         OptEnum.new('OBJECT_LOOKUP', [true, 'How to look up the target LDAP object', 'dN', ['dN', 'sAMAccountName']]),
         OptString.new('OBJECT', [true, 'The target LDAP object']),
         OptString.new('ATTRIBUTE', [true, 'The LDAP attribute to update (e.g., userPrincipalName)']),
-        OptString.new('VALUE', [true, 'The value for the specified LDAP object attribute'], conditions: ['ACTION', 'in', %w[Create Update] ])
+        OptString.new('VALUE', [false, 'The value for the specified LDAP object attribute'], conditions: ['ACTION', 'in', %w[Create Update] ])
       ]
     )
   end
@@ -61,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def action_read
     target_object = find_target_object
-    target_dn = target_object['distinguishedName'].first
+    target_dn = target_object['dN'].first
     attribute_value = target_object[datastore['ATTRIBUTE'].to_sym]&.first
 
     if attribute_value.blank?
@@ -74,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def action_create
     target_object = find_target_object
-    target_dn = target_object['distinguishedName'].first
+    target_dn = target_object['dN'].first
     attribute = datastore['ATTRIBUTE'].to_sym
     value = datastore['VALUE']
 
@@ -89,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def action_update
     target_object = find_target_object
-    target_dn = target_object['distinguishedName'].first
+    target_dn = target_object['dN'].first
     attribute = datastore['ATTRIBUTE'].to_sym
     original_value = target_object[attribute]&.first
     print_status("Current value of #{datastore['OBJECT']}'s #{datastore['ATTRIBUTE']}: #{original_value}")
@@ -106,7 +108,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def action_delete
     target_object = find_target_object
-    target_dn = target_object['distinguishedName'].first
+    target_dn = target_object['dN'].first
     attribute = datastore['ATTRIBUTE'].to_sym
 
     print_status("Attempting to delete attribute #{datastore['ATTRIBUTE']} from #{target_dn}...")
@@ -119,6 +121,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    if (datastore['ACTION'].downcase == 'update' || datastore['ACTION'].downcase == 'create') && datastore['VALUE'].blank?
+      fail_with(Failure::BadConfig, 'The VALUE option must be set for CREATE and UPDATE actions.')
+    end
+
     ldap_connect do |ldap|
       validate_bind_success!(ldap)
 
@@ -128,7 +134,7 @@ class MetasploitModule < Msf::Auxiliary
         vprint_status('Discovering base DN automatically')
 
         unless (@base_dn = ldap.base_dn)
-          fail_with(Failure::NotFound, "Couldn't discover base DN!")
+          fail_with(Failure::BadConfig, "Couldn't discover base DN!")
         end
       end
       @ldap = ldap

