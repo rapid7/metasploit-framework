@@ -163,7 +163,7 @@ class MetasploitModule < Msf::Post
         end
 
       elsif session.platform.include?('win')
-        temp_path = "C:\\Windows\\System32\\spool\\drivers\\color\\#{temp_peass_name}"
+        temp_path = get_env('WINDIR')  + "\\System32\\spool\\drivers\\color\\#{temp_peass_name}"
       else
         temp_path = "/tmp/#{temp_peass_name}"
       end
