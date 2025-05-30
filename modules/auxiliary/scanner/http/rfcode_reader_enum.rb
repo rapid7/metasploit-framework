@@ -199,7 +199,10 @@ class MetasploitModule < Msf::Auxiliary
           :proto  => 'tcp',
           :port   => rport,
           :sname  => "RFCode Reader",
-          :data   => "Release Version: #{release_ver}, Product: #{product_name}",
+          :data   => {
+            :release_version => release_ver,
+            :product  => product_name
+          },
           :type	=> 'Info'
         )
       end
@@ -225,7 +228,7 @@ class MetasploitModule < Msf::Auxiliary
           :proto  => 'tcp',
           :port   => rport,
           :sname	=> "RFCode Reader",
-          :data   => "User List & Roles: #{userlist}",
+          :data   => { :user_list => userlist },
           :type	=> 'Info'
         )
       end
@@ -251,7 +254,7 @@ class MetasploitModule < Msf::Auxiliary
           :proto	=> 'tcp',
           :port	=> rport,
           :sname	=> "RFCode Reader",
-          :data	=> "Interface eth0: #{eth0_info}",
+          :data	=> { :eth0 => eth0_info },
           :type	=> 'Info'
         )
       end

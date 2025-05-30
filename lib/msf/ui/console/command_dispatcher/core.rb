@@ -1009,7 +1009,7 @@ class Core
 
     # Parse any extra options that should be passed to the plugin
     args.each { |opt|
-      k, v = opt.split(/\=/)
+      k, v = opt.split('=')
 
       opts[k] = v if (k and v)
     }
@@ -1082,7 +1082,7 @@ class Core
       tabs += tab_complete_filenames(str,words)
     end
 
-    return tabs.map{|e| e.sub(/\.rb/, '')} - framework.plugins.map(&:name)
+    return tabs.map{|e| e.sub('.rb', '')} - framework.plugins.map(&:name)
   end
 
   def cmd_route_help
@@ -1235,7 +1235,7 @@ class Core
           if (route.comm.kind_of?(Msf::Session))
             gw = "Session #{route.comm.sid}"
           else
-            gw = route.comm.name.split(/::/)[-1]
+            gw = route.comm.name.split('::')[-1]
           end
 
           tbl_ipv4 << [ route.subnet, route.netmask, gw ] if Rex::Socket.is_ipv4?(route.netmask)

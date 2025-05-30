@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
       report_note(
         host: rhost,
         type: 'postgres.db.schema',
-        data: db,
+        data: { :database => db },
         port: rport,
         proto: 'tcp',
         update: :unique_data

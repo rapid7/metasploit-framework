@@ -118,9 +118,9 @@ The values that are common to both `HTTP(S)` and `TCP` transports are:
     * `tcp://:<port>` - indicates that this payload is a _bind_ payload listening on the specified port (note that no host is specified).
     * `http://<host>:<port>/<uri>` - indicates that this payload is an HTTP connection (can only be _reverse_).
     * `https://<host>:<port>/<uri>` - indicates that this payload is an HTTPS connection (can only be _reverse_).
-* **Communications expiry** - This value is another 32-bit DWORD value that represents the number of seconds to wait between successful packet/receive calls. For more information, please read the **Timeout documentation** (link coming soon).
-* **Retry total** - This value is 32-bit DWORD value that represents the number of seconds that Meterpreter should continue to attempt to reconnect on this transport before giving up. For more information, please read the **Timeout documentation** (link coming soon).
-* **Retry wait** - This value is 32-bit DWORD value that represents the number of seconds between each attempt that Meterpreter makes to reconnect on this transport. For more information, please read the **Timeout documentation** (link coming soon).
+* **Communications expiry** - This value is another 32-bit DWORD value that represents the number of seconds to wait between successful packet/receive calls. For more information, please read the [[Timeout Control|./Meterpreter-Timeout-Control.md]] documentation.
+* **Retry total** - This value is 32-bit DWORD value that represents the number of seconds that Meterpreter should continue to attempt to reconnect on this transport before giving up. For more information, please read the [[Timeout Control|./Meterpreter-Timeout-Control.md]] documentation.
+* **Retry wait** - This value is 32-bit DWORD value that represents the number of seconds between each attempt that Meterpreter makes to reconnect on this transport. For more information, please read the [[Timeout Control|./Meterpreter-Timeout-Control.md]] documentation.
 
 The layout of this block in memory looks like the following:
 
@@ -159,8 +159,8 @@ At this time, there are no `TCP`-specific configuration values, as the common co
     * `http://<proxy ip>:<proxy port>` in the case of `HTTP` proxies.
     * `socks=<socks ip>:<sock port>` in the case of `socks` proxies.
 * **Proxy user name** - Some proxies require authentication. In such cases, this value contains the username that should be used to authenticate with the given proxy. This field is `64` characters in size (`wchar_t`).
-* Proxy password - This value will accompany the user name field in the case where proxy authentication is required. It contains the password used to authenticate with the proxy and is also `64` characters in size (`wchar_t`).
-*** User agent string** - Customisable user agent string. This changes the user agent that is used when `HTTP/S` requests are made to Metasploit. This field is `256` characters in size (`wchar_t`).
+* **Proxy password** - This value will accompany the user name field in the case where proxy authentication is required. It contains the password used to authenticate with the proxy and is also `64` characters in size (`wchar_t`).
+* **User agent string** - Customisable user agent string. This changes the user agent that is used when `HTTP/S` requests are made to Metasploit. This field is `256` characters in size (`wchar_t`).
 * **Expected SSL certificate hash** - Meterpreter has the capability of validating the SSL certificate that Metasploit presents when using `HTTPS`. This value contains the `20`-byte SHA1 hash of the expected certificate. For more information, please read the **SSL certificate validation documentation** (link coming soon).
 
 All values that are shown above need to be specified in the configuration, including SSL certificate validation for plain `HTTP` connections. Values that are not used should be zeroed out.
@@ -207,7 +207,7 @@ As already mentioned, more than one of these transport configuration blocks can 
 
 ### Extension configuration block
 
-The extension configuration block is designed to allow Meterpreter payloads to contain any extra extensions that the user wants to bundle in. The goal is to provide the ability to have **Stageless payloads** (link coming soon), and to provide the means for sharing of extensions during migration (though this hasn't been implemented yet). Each of the extensions must have been compiled with [Reflective DLL Injection](https://github.com/rapid7/ReflectiveDLLInjection/) support, as this is the mechanism that is used to load the extensions when Meterpreter starts. For more information on this facility, please see the **Stageless payloads** (link coming soon) documentation.
+The extension configuration block is designed to allow Meterpreter payloads to contain any extra extensions that the user wants to bundle in. The goal is to provide the ability to have [[Stageless payloads|./Meterpreter-Stageless-Mode.md]], and to provide the means for sharing of extensions during migration (though this hasn't been implemented yet). Each of the extensions must have been compiled with [Reflective DLL Injection](https://github.com/rapid7/ReflectiveDLLInjection/) support, as this is the mechanism that is used to load the extensions when Meterpreter starts. For more information on this facility, please see the [[Stageless payloads|./Meterpreter-Stageless-Mode.md]] documentation.
 
 The extension configuration block also functions as a "list" to allow for an arbitrary number of extensions to be included. Each extension entry needs to contain:
 

@@ -27,6 +27,11 @@ class MetasploitModule < Msf::Post
         'Author' => [ 'Justin Cacak' ], # Updated to work with newer versions of Outlook (2013, 2016, Office 365)
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[

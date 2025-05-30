@@ -119,8 +119,8 @@ module Parser
             @state[:port] = p_num
             @state[:proto] = p_proto
           elsif @text.index('(')
-            @state[:proto] = @text.split('(')[1].split('/')[1].gsub(/\)/, '')
-            @state[:port] = @text.split('(')[1].split('/')[0].gsub(/\)/, '')
+            @state[:proto] = @text.split('(')[1].split('/')[1].gsub(')', '')
+            @state[:port] = @text.split('(')[1].split('/')[0].gsub(')', '')
           elsif @text.index('/')
             @state[:proto] = @text.split('/')[1].strip
             @state[:port] = @text.split('/')[0].strip

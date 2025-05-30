@@ -31,6 +31,11 @@ class MetasploitModule < Msf::Post
               core_channel_write
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )

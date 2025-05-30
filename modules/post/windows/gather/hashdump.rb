@@ -25,6 +25,11 @@ class MetasploitModule < Msf::Post
               stdapi_registry_open_key
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -109,7 +114,7 @@ class MetasploitModule < Msf::Post
 
         # Merge in the service data and create our Login
         login_data.merge!(service_data)
-        login = create_credential_login(login_data)
+        create_credential_login(login_data)
 
         print_line hashstring
       end

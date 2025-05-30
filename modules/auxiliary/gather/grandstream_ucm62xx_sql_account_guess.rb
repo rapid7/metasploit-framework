@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           [ 'CVE', '2020-5724' ],
           [ 'CVE', '2020-5723'],
-          [ 'URL', 'https://firmware.grandstream.com/Release_Note_UCM6xxx_1.0.20.22.pdf'],
+          [ 'URL', 'http://web.archive.org/web/20230319062924/http://firmware.grandstream.com/Release_Note_UCM6xxx_1.0.20.22.pdf'],
           [ 'URL', 'https://raw.githubusercontent.com/tenable/poc/master/grandstream/ucm62xx/dump_http_user_creds.py']
         ],
         'DisclosureDate' => '2020-03-30',

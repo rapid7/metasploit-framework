@@ -25,7 +25,12 @@ class MetasploitModule < Msf::Auxiliary
         ['CVE', '2019-10692'],
         ['WPVDB', '9249']
       ],
-      'DisclosureDate' => '2019-04-02'
+      'DisclosureDate' => '2019-04-02',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+        'Reliability' => []
+      }
     )
 
     register_options(

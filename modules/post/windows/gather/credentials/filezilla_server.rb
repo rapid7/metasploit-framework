@@ -21,6 +21,11 @@ class MetasploitModule < Msf::Post
         ],
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -50,7 +55,7 @@ class MetasploitModule < Msf::Post
 
     progfiles_env = session.sys.config.getenvs('ProgramFiles', 'ProgramFiles(x86)', 'ProgramW6432')
     locations = []
-    progfiles_env.each do |_k, v|
+    progfiles_env.each_value do |v|
       next if v.blank?
 
       locations << v + '\\FileZilla Server\\'
@@ -81,7 +86,7 @@ class MetasploitModule < Msf::Post
     paths = []
     begin
       locations.each do |location|
-        print_status("Checking for Filezilla Server directory in: #{location}")
+        print_status("Checking for FileZilla Server directory in: #{location}")
         begin
           session.fs.dir.foreach(location.to_s) do |fdir|
             ['FileZilla Server.xml', 'FileZilla Server Interface.xml'].each do |xmlfile|
@@ -96,7 +101,7 @@ class MetasploitModule < Msf::Post
           vprint_error(e.message)
         end
       end
-    rescue ::Exception => e
+    rescue StandardError => e
       print_error(e.to_s)
       return
     end
@@ -193,8 +198,6 @@ class MetasploitModule < Msf::Post
     creds.each do |cred|
       credentials << [cred['host'], cred['port'], cred['user'], cred['password'], cred['ssl']]
 
-      session.db_record ? (source_id = session.db_record.id) : (source_id = nil)
-
       service_data = {
         address: session.session_host,
         port: config['ftp_port'],
@@ -235,8 +238,6 @@ class MetasploitModule < Msf::Post
         perm['dirsubdirs'], perm['autocreate'], perm['home']
       ]
     end
-
-    session.db_record ? (source_id = session.db_record.id) : (source_id = nil)
 
     # report the goods!
     if config['admin_pass'] == '<none>'

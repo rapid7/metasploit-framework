@@ -416,7 +416,7 @@ module Rex
       verb,req = headers.cmd_string.split(/\s+/)
       return unless verb
       return unless req
-      path,query_string = req.split(/\?/)[0,2]
+      path,query_string = req.split('?')[0,2]
       return verb,path,query_string
     end
 

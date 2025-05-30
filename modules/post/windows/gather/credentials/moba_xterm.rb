@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Post
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
         'Notes' => {
-          'Stability' => [],
+          'Stability' => [CRASH_SAFE],
           'Reliability' => [],
           'SideEffects' => []
         },

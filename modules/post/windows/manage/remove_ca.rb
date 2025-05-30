@@ -11,8 +11,8 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Windows Manage Certificate Authority Removal',
         'Description' => %q{
-          This module allows the attacker to remove an arbitrary CA certificate
-          from the victim's Trusted Root store.
+          This module removes the specified CA certificate from the
+          system Trusted Root store.
         },
         'License' => BSD_LICENSE,
         'Author' => [ 'vt <nick.freeman[at]security-assessment.com>'],
@@ -24,6 +24,11 @@ class MetasploitModule < Msf::Post
               stdapi_registry_open_key
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [CONFIG_CHANGES],
+          'Reliability' => []
         }
       )
     )
@@ -38,7 +43,6 @@ class MetasploitModule < Msf::Post
   def run
     certtoremove = datastore['CERTID']
 
-    open_key = nil
     key = 'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\SystemCertificates\\ROOT\\Certificates'
     rkey, bkey = client.sys.registry.splitkey(key)
 
@@ -46,15 +50,14 @@ class MetasploitModule < Msf::Post
     open_key = client.sys.registry.open_key(rkey, bkey, KEY_READ + 0x0000)
     keys = open_key.enum_key
 
-    if (keys.length > 1)
-      if keys.include?(certtoremove)
-        # We found our target
-      else
-        print_error('The specified CA is not in the registry.')
-        return
-      end
-    else
+    if (keys.length <= 1)
       print_error('These are not the CAs you are looking for (i.e. this registry branch is empty)')
+      return
+    end
+
+    unless keys.include?(certtoremove)
+      print_error('The specified CA is not in the registry.')
+      return
     end
 
     open_key = client.sys.registry.open_key(rkey, bkey, KEY_WRITE + 0x0000)

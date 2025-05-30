@@ -15,7 +15,12 @@ class MetasploitModule < Msf::Auxiliary
       'References' => [
         ['CVE', '2019-19833'],
         ['EDB', '47785']
-      ]
+      ],
+      'Notes' => {
+        'Stability' => [CRASH_SERVICE_DOWN],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
     register_options([ Opt::RPORT(8181) ])
   end

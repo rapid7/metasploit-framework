@@ -209,7 +209,7 @@ def nmap_validate_arg(str)
     return false
   end
   # Check for quote balance
-  if !(str.scan(/'/).size % 2).zero? or !(str.scan(/"/).size % 2).zero?
+  if !(str.scan('\'').size % 2).zero? or !(str.scan('"').size % 2).zero?
     print_error "Unbalanced quotes in nmap argument: #{str}"
     return false
   end

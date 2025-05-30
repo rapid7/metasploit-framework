@@ -67,7 +67,7 @@ def backuphosts(session,hosts)
   random = sprintf("%.5d",rand(100000))
   print_status("Making Backup of the hosts file.")
   session.sys.process.execute("cmd /c copy #{hosts} #{hosts}#{random}.back",nil, {'Hidden' => true})
-  print_status("Backup loacated in #{hosts}#{random}.back")
+  print_status("Backup located in #{hosts}#{random}.back")
 end
 # Clear DNS Cached entries
 def cleardnscach(session)

@@ -18,6 +18,9 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options([
       OptString.new('ExcludePathPatterns', [false, 'Newline-separated list of path patterns to ignore (\'*\' is a wildcard)']),
+      OptBool.new('HttpTrace', [false, 'Show the raw HTTP requests and responses', false]),
+      OptBool.new('HttpTraceHeadersOnly', [false, 'Show HTTP headers only in HttpTrace', false]),
+      OptString.new('HttpTraceColors', [false, 'HTTP request and response colors for HttpTrace (unset to disable)', 'red/blu']),
     ])
     @for_each_page_blocks = []
   end

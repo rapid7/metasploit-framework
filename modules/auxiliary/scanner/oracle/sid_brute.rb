@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
           :port => rport,
           :sname => 'oracle',
           :type => "oracle.sid",
-          :data => sid,
+          :data => { :sid => sid },
           :update => :unique_data
         )
         return :success

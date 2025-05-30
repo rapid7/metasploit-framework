@@ -12,7 +12,7 @@ class OptRegexp < OptBase
     return 'regexp'
   end
 
-  def valid?(value, check_empty: true)
+  def valid?(value, check_empty: true, datastore: nil)
     if check_empty && empty_required_value?(value)
       return false
     elsif value.nil?

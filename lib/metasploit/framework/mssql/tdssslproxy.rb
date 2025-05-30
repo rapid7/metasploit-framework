@@ -38,8 +38,9 @@ class TDSSSLProxy
   TYPE_PRE_LOGIN_MESSAGE = 18
   STATUS_END_OF_MESSAGE = 0x01
 
-  def initialize(sock)
+  def initialize(sock, sslkeylogfile: nil)
     @tdssock = sock
+    @sslkeylogfile = sslkeylogfile
     @s1, @s2 = Rex::Socket.tcp_socket_pair
   end
 
@@ -48,10 +49,27 @@ class TDSSSLProxy
     @t1.join
   end
 
+  def write_to_keylog_file(ctx, sslkeylogfile)
+    # writing to the sslkeylogfile is required, it adds support for network capture decryption which is useful to
+    # decrypt TLS traffic in wireshark
+    if sslkeylogfile
+      unless ctx.respond_to?(:keylog_cb)
+        raise 'Unable to create sslkeylogfile - Ruby 3.2 or above required for this functionality'
+      end
+
+      ctx.keylog_cb = proc do |_sock, line|
+        File.open(sslkeylogfile, 'ab') do |file|
+          file.write("#{line}\n")
+        end
+      end
+    end
+  end
+
   def setup_ssl
     @running = true
     @t1 = Thread.start { ssl_setup_thread }
     ctx = OpenSSL::SSL::SSLContext.new(:SSLv23)
+    write_to_keylog_file(ctx, @sslkeylogfile)
     ctx.ciphers = "ALL:!ADH:!EXPORT:!SSLv2:!SSLv3:+HIGH:+MEDIUM"
     @ssl_socket = OpenSSL::SSL::SSLSocket.new(@s1, ctx)
     @ssl_socket.connect

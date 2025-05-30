@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 
-from metasploit import module, probe_scanner
+import sys
+from metasploit import module
 
+dependencies_missing = False
+if sys.version_info >= (3, 8):
+    from metasploit import probe_scanner
+else:
+    dependencies_missing = True
 
 metadata = {
     'name': 'Open WAN-to-LAN proxy on AT&T routers',
@@ -19,7 +25,7 @@ metadata = {
     'references': [
         {'type': 'cve', 'ref': '2017-14117'},
         {'type': 'url', 'ref': 'https://www.nomotion.net/blog/sharknatto/'},
-        {'type': 'url', 'ref': 'https://www.rapid7.com/blog/post/2017/09/07/measuring-sharknat-to-exposures/#vulnerability5port49152tcpexposure'}
+        {'type': 'url', 'ref': 'http://web.archive.org/web/20230327172835/https://www.rapid7.com/blog/post/2017/09/07/measuring-sharknat-to-exposures/'}
      ],
     'type': 'multi_scanner',
     'options': {
@@ -41,7 +47,11 @@ def report_wproxy(target, response):
     module.report_vuln(target[0], 'wproxy', port=target[0])
 
 
-if __name__ == "__main__":
+def run():
+    if dependencies_missing:
+        module.log('Module dependencies missing, newer Python version 3.8 or above required', level='error')
+        return
+
     study = probe_scanner.make_scanner(
         # Payload and pattern are given and applied straight to the socket, so
         # they need to be bytes-like
@@ -50,3 +60,7 @@ if __name__ == "__main__":
         onmatch=report_wproxy
     )
     module.run(metadata, study)
+
+
+if __name__ == "__main__":
+    run()

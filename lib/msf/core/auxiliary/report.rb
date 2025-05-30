@@ -303,17 +303,18 @@ module Auxiliary::Report
 
     timestamp  = opts[:timestamp]
     username   = opts[:username]
-    mname      = self.fullname # use module name when reporting attempt for correlation
+    mname      = opts[:module_fullname] || self.fullname # use module name when reporting attempt for correlation
 
     # report_vuln is only called in an identified case, consider setting value reported here
     attempt_info = {
+        :workspace    => opts[:workspace],
         :vuln_id      => vuln.id,
         :attempted_at => timestamp || Time.now.utc,
         :exploited    => false,
         :fail_detail  => 'vulnerability identified',
         :fail_reason  => 'Untried', # Mdm::VulnAttempt::Status::UNTRIED, avoiding direct dependency on Mdm, used elsewhere in this module
         :module       => mname,
-        :username     => username  || "unknown",
+        :username     => username  || "unknown"
     }
 
     # TODO: figure out what opts are required and why the above logic doesn't match that of the db_manager method
@@ -514,7 +515,7 @@ module Auxiliary::Report
 
     # This will probably evolve into a new database table
     report_note(
-      :data => full_path.dup,
+      :data => { :full_path => full_path.dup },
       :type => "#{ltype}.localpath"
     )
 
@@ -589,4 +590,3 @@ module Auxiliary::Report
 
 end
 end
-

@@ -32,6 +32,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_config_getuid
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -241,7 +246,7 @@ class MetasploitModule < Msf::Post
           store_loot('ios.backup.data', ctype, session, fdata, rname, "iOS Backup: #{rname}")
         rescue ::Interrupt
           raise $ERROR_INFO
-        rescue ::Exception => e
+        rescue StandardError => e
           print_error("Failed to download #{fname}: #{e.class} #{e}")
         end
 

@@ -30,6 +30,11 @@ class MetasploitModule < Msf::Post
               stdapi_fs_search
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )

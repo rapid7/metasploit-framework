@@ -9,24 +9,24 @@ RSpec.describe Rex::Proto::MsDtyp::MsDtypSecurityDescriptor do
       let (:dummy_sid) { "S-1-5-21-#{rand(0xf00000..0xffffffff)}-#{rand(0xf00000..0xffffffff)}-#{rand(0xf00000..0xffffffff)}-#{rand(100..999)}" }
 
       it 'raises an exception when multiple owners are specified' do
-        expect { described_class.from_sddl_text('O:AUO:AU', domain_sid: domain_sid) }.to raise_error(RuntimeError)
+        expect { described_class.from_sddl_text('O:AUO:AU', domain_sid: domain_sid) }.to raise_error(Rex::Proto::MsDtyp::SDDLParseError, 'extra owner SID')
       end
 
       it 'raises an exception on invalid constant SID strings' do
-        expect { described_class.from_sddl_text('O:XX', domain_sid: domain_sid) }.to raise_error(RuntimeError)
+        expect { described_class.from_sddl_text('O:XX', domain_sid: domain_sid) }.to raise_error(Rex::Proto::MsDtyp::SDDLParseError, 'invalid SID string: XX')
       end
 
       it 'raises an exception on invalid literal SID strings' do
-        expect { described_class.from_sddl_text('O:S-###', domain_sid: domain_sid) }.to raise_error(RuntimeError)
+        expect { described_class.from_sddl_text('O:S-###', domain_sid: domain_sid) }.to raise_error(Rex::Proto::MsDtyp::SDDLParseError, 'invalid SID string: S-###')
       end
 
       it 'parses constant SID strings' do
-        expect(described_class).to receive(:parse_sddl_sid).with('AU', domain_sid: domain_sid).and_call_original
+        expect(Rex::Proto::MsDtyp::MsDtypSid).to receive(:from_sddl_text).with('AU', domain_sid: domain_sid).and_call_original
         expect(described_class.from_sddl_text('O:AU', domain_sid: domain_sid).owner_sid).to eq Rex::Proto::Secauthz::WellKnownSids::SECURITY_AUTHENTICATED_USER_SID
       end
 
       it 'parses literal SID strings' do
-        expect(described_class).to receive(:parse_sddl_sid).with(dummy_sid, domain_sid: domain_sid).and_call_original
+        expect(Rex::Proto::MsDtyp::MsDtypSid).to receive(:from_sddl_text).with(dummy_sid, domain_sid: domain_sid).and_call_original
         expect(described_class.from_sddl_text("O:#{dummy_sid}", domain_sid: domain_sid).owner_sid).to eq dummy_sid
       end
     end
@@ -35,24 +35,24 @@ RSpec.describe Rex::Proto::MsDtyp::MsDtypSecurityDescriptor do
       let (:dummy_sid) { "S-1-5-21-#{rand(0xf00000..0xffffffff)}-#{rand(0xf00000..0xffffffff)}-#{rand(0xf00000..0xffffffff)}-#{rand(100..999)}" }
 
       it 'raises an exception when multiple groups are specified' do
-        expect { described_class.from_sddl_text('G:AUG:AU', domain_sid: domain_sid) }.to raise_error(RuntimeError)
+        expect { described_class.from_sddl_text('G:AUG:AU', domain_sid: domain_sid) }.to raise_error(Rex::Proto::MsDtyp::SDDLParseError, 'extra group SID')
       end
 
       it 'raises an exception on invalid constant SID strings' do
-        expect { described_class.from_sddl_text('G:XX', domain_sid: domain_sid) }.to raise_error(RuntimeError)
+        expect { described_class.from_sddl_text('G:XX', domain_sid: domain_sid) }.to raise_error(Rex::Proto::MsDtyp::SDDLParseError, 'invalid SID string: XX')
       end
 
       it 'raises an exception on invalid literal SID strings' do
-        expect { described_class.from_sddl_text('G:S-###', domain_sid: domain_sid) }.to raise_error(RuntimeError)
+        expect { described_class.from_sddl_text('G:S-###', domain_sid: domain_sid) }.to raise_error(Rex::Proto::MsDtyp::SDDLParseError, 'invalid SID string: S-###')
       end
 
       it 'parses constant SID strings' do
-        expect(described_class).to receive(:parse_sddl_sid).with('AU', domain_sid: domain_sid).and_call_original
+        expect(Rex::Proto::MsDtyp::MsDtypSid).to receive(:from_sddl_text).with('AU', domain_sid: domain_sid).and_call_original
         expect(described_class.from_sddl_text('G:AU', domain_sid: domain_sid).group_sid).to eq Rex::Proto::Secauthz::WellKnownSids::SECURITY_AUTHENTICATED_USER_SID
       end
 
       it 'parses literal SID strings' do
-        expect(described_class).to receive(:parse_sddl_sid).with(dummy_sid, domain_sid: domain_sid).and_call_original
+        expect(Rex::Proto::MsDtyp::MsDtypSid).to receive(:from_sddl_text).with(dummy_sid, domain_sid: domain_sid).and_call_original
         expect(described_class.from_sddl_text("G:#{dummy_sid}", domain_sid: domain_sid).group_sid).to eq dummy_sid
       end
     end
@@ -61,8 +61,8 @@ RSpec.describe Rex::Proto::MsDtyp::MsDtypSecurityDescriptor do
       context 'with an empty definitions' do
         let(:instance) { described_class.from_sddl_text('D:', domain_sid: domain_sid) }
 
-        it 'calls .parse_sddl_aces' do
-          expect(described_class).to receive(:parse_sddl_aces).with('', domain_sid: domain_sid).and_return([])
+        it 'calls .aces_from_sddl_text' do
+          expect(described_class).to receive(:aces_from_sddl_text).with('', domain_sid: domain_sid).and_return([])
           described_class.from_sddl_text('D:', domain_sid: domain_sid)
         end
 
@@ -85,7 +85,7 @@ RSpec.describe Rex::Proto::MsDtyp::MsDtypSecurityDescriptor do
       end
 
       it 'raises an exception when multiple values are specified' do
-        expect { described_class.from_sddl_text('D:D:', domain_sid: domain_sid) }.to raise_error(RuntimeError)
+        expect { described_class.from_sddl_text('D:D:', domain_sid: domain_sid) }.to raise_error(Rex::Proto::MsDtyp::SDDLParseError, 'extra DACL')
       end
 
       it 'sets the P flag' do
@@ -109,8 +109,8 @@ RSpec.describe Rex::Proto::MsDtyp::MsDtypSecurityDescriptor do
       context 'with an empty definitions' do
         let(:instance) { described_class.from_sddl_text('S:', domain_sid: domain_sid) }
 
-        it 'calls .parse_sddl_aces' do
-          expect(described_class).to receive(:parse_sddl_aces).with('', domain_sid: domain_sid).and_return([])
+        it 'calls .aces_from_sddl_text' do
+          expect(described_class).to receive(:aces_from_sddl_text).with('', domain_sid: domain_sid).and_return([])
           described_class.from_sddl_text('S:', domain_sid: domain_sid)
         end
 
@@ -133,7 +133,7 @@ RSpec.describe Rex::Proto::MsDtyp::MsDtypSecurityDescriptor do
       end
 
       it 'raises an exception when multiple values are specified' do
-        expect { described_class.from_sddl_text('S:S:', domain_sid: domain_sid) }.to raise_error(RuntimeError)
+        expect { described_class.from_sddl_text('S:S:', domain_sid: domain_sid) }.to raise_error(Rex::Proto::MsDtyp::SDDLParseError, 'extra SACL')
       end
 
       it 'sets the P flag' do
@@ -154,202 +154,47 @@ RSpec.describe Rex::Proto::MsDtyp::MsDtypSecurityDescriptor do
     end
   end
 
-  describe '.parse_sddl_ace' do
-    it 'raises an exception on invalid ACEs' do
-      expect { described_class.send(:parse_sddl_ace, '', domain_sid: domain_sid) }.to raise_error(RuntimeError)
-      expect { described_class.send(:parse_sddl_ace, ';;;;;', domain_sid: domain_sid) }.to raise_error(RuntimeError)
-      expect { described_class.send(:parse_sddl_ace, ';;;;;;;', domain_sid: domain_sid) }.to raise_error(RuntimeError)
+  describe '#to_sddl_text' do
+    it 'handles a basic owner and group with a simple DACL' do
+      sddl_text = 'O:BAG:BUD:PAI(A;;FA;;;BA)'
+      packed = ['01000494140000002400000000000000340000000102000000000005200000002002000001020000000000052000000021020000020020000100000000001800FF011F0001020000000000052000000020020000'].pack('H*')
+      instance = described_class.read(packed)
+      expect(instance.to_sddl_text(domain_sid: domain_sid)).to eq sddl_text
     end
 
-    context 'when parsing the ACE type' do
-      it 'raises an exception on an invalid type' do
-        expect { described_class.send(:parse_sddl_ace, 'X;;;;;', domain_sid: domain_sid) }.to raise_error(RuntimeError)
-      end
-
-      it 'sets the type correctly for A' do
-        expect(described_class.send(:parse_sddl_ace, 'A;;;;;', domain_sid: domain_sid).header.ace_type).to eq Rex::Proto::MsDtyp::MsDtypAceType::ACCESS_ALLOWED_ACE_TYPE
-      end
-
-      it 'sets the type correctly for A (case-insensitive)' do
-        expect(described_class.send(:parse_sddl_ace, 'a;;;;;', domain_sid: domain_sid).header.ace_type).to eq Rex::Proto::MsDtyp::MsDtypAceType::ACCESS_ALLOWED_ACE_TYPE
-      end
-
-      it 'sets the type correctly for D' do
-        expect(described_class.send(:parse_sddl_ace, 'D;;;;;', domain_sid: domain_sid).header.ace_type).to eq Rex::Proto::MsDtyp::MsDtypAceType::ACCESS_DENIED_ACE_TYPE
-      end
-
-      it 'sets the type correctly for OA' do
-        expect(described_class.send(:parse_sddl_ace, 'OA;;;;;', domain_sid: domain_sid).header.ace_type).to eq Rex::Proto::MsDtyp::MsDtypAceType::ACCESS_ALLOWED_OBJECT_ACE_TYPE
-      end
-
-      it 'sets the type correctly for OD' do
-        expect(described_class.send(:parse_sddl_ace, 'OD;;;;;', domain_sid: domain_sid).header.ace_type).to eq Rex::Proto::MsDtyp::MsDtypAceType::ACCESS_DENIED_OBJECT_ACE_TYPE
-      end
-
-      it 'sets the type correctly for AU' do
-        expect(described_class.send(:parse_sddl_ace, 'AU;;;;;', domain_sid: domain_sid).header.ace_type).to eq Rex::Proto::MsDtyp::MsDtypAceType::SYSTEM_AUDIT_ACE_TYPE
-      end
-
-      it 'sets the type correctly for OU' do
-        expect(described_class.send(:parse_sddl_ace, 'OU;;;;;', domain_sid: domain_sid).header.ace_type).to eq Rex::Proto::MsDtyp::MsDtypAceType::SYSTEM_AUDIT_OBJECT_ACE_TYPE
-      end
+    it 'handles a complex DACL with multiple ACEs' do
+      sddl_text = 'O:S-1-5-21-123456789-123456789-123456789-519G:S-1-5-21-123456789-123456789-123456789-512D:PAI(A;OICI;FA;;;BA)(A;OICI;FA;;;SY)(A;OICIIO;FA;;;CO)'
+      packed = ['010004941400000030000000000000004C00000001050000000000051500000015CD5B0715CD5B0715CD5B070702000001050000000000051500000015CD5B0715CD5B0715CD5B0700020000020048000300000000031800FF011F000102000000000005200000002002000000031400FF011F00010100000000000512000000000B1400FF011F00010100000000000300000000'].pack('H*')
+      instance = described_class.read(packed)
+      expect(instance.to_sddl_text(domain_sid: domain_sid)).to eq sddl_text
     end
 
-    context 'when parsing the ACE flags' do
-      it 'raises an exception on invalid flags' do
-        expect { described_class.send(:parse_sddl_ace, 'A;XX;;;;', domain_sid: domain_sid) }.to raise_error(RuntimeError)
-      end
-
-      it 'sets no flags by default' do
-        expect(described_class.send(:parse_sddl_ace, 'A;;;;;', domain_sid: domain_sid).header.ace_flags.snapshot.values.sum).to eq 0
-      end
-
-      it 'sets the flag correctly for CI' do
-        expect(described_class.send(:parse_sddl_ace, 'A;CI;;;;', domain_sid: domain_sid).header.ace_flags.container_inherit_ace).to eq 1
-      end
-
-      it 'sets the flag correctly for CI (case-insensitive)' do
-        expect(described_class.send(:parse_sddl_ace, 'A;ci;;;;', domain_sid: domain_sid).header.ace_flags.container_inherit_ace).to eq 1
-      end
-
-      it 'sets the flag correctly for OI' do
-        expect(described_class.send(:parse_sddl_ace, 'A;OI;;;;', domain_sid: domain_sid).header.ace_flags.object_inherit_ace).to eq 1
-      end
-
-      it 'sets the flag correctly for NP' do
-        expect(described_class.send(:parse_sddl_ace, 'A;NP;;;;', domain_sid: domain_sid).header.ace_flags.no_propagate_inherit_ace).to eq 1
-      end
-
-      it 'sets the flag correctly for IO' do
-        expect(described_class.send(:parse_sddl_ace, 'A;IO;;;;', domain_sid: domain_sid).header.ace_flags.inherit_only_ace).to eq 1
-      end
-
-      it 'sets the flag correctly for ID' do
-        expect(described_class.send(:parse_sddl_ace, 'A;ID;;;;', domain_sid: domain_sid).header.ace_flags.inherited_ace).to eq 1
-      end
-
-      it 'sets the flag correctly for SA' do
-        expect(described_class.send(:parse_sddl_ace, 'A;SA;;;;', domain_sid: domain_sid).header.ace_flags.successful_access_ace_flag).to eq 1
-      end
-
-      it 'sets the flag correctly for FA' do
-        expect(described_class.send(:parse_sddl_ace, 'A;FA;;;;', domain_sid: domain_sid).header.ace_flags.failed_access_ace_flag).to eq 1
-      end
-
-      it 'sets the flag correctly for CR' do
-        expect(described_class.send(:parse_sddl_ace, 'A;CR;;;;', domain_sid: domain_sid).header.ace_flags.critical_ace_flag).to eq 1
-      end
+    it 'handles a SACL with auditing' do
+      sddl_text = 'O:BAG:SYS:PAI(AU;FA;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;WD)'
+      packed = ['010010A8140000002400000030000000000000000102000000000005200000002002000001010000000000051200000002001C000100000002801400FF010F00010100000000000100000000'].pack('H*')
+      instance = described_class.read(packed)
+      expect(instance.to_sddl_text(domain_sid: domain_sid)).to eq sddl_text
     end
 
-    context 'when parsing the ACE rights' do
-      it 'raises an exception on invalid rights' do
-        expect { described_class.send(:parse_sddl_ace, 'A;;XX;;;', domain_sid: domain_sid) }.to raise_error(RuntimeError)
-      end
-
-      it 'sets no rights by default' do
-        expect(described_class.send(:parse_sddl_ace, 'A;;;;;', domain_sid: domain_sid).body.access_mask).to eq Rex::Proto::MsDtyp::MsDtypAccessMask::NONE
-      end
-
-      %w[ GA GR GW GX ].each do |right|
-        it "sets the rights correctly for #{right}" do
-          expect(described_class.send(:parse_sddl_ace, "A;;#{right};;;", domain_sid: domain_sid).body.access_mask.send(right.downcase)).to eq 1
-        end
-      end
-
-      it 'sets the rights correctly for FA' do
-        expect(described_class.send(:parse_sddl_ace, 'A;;FA;;;', domain_sid: domain_sid).body.access_mask.protocol).to eq 0x1ff
-        expect(described_class.send(:parse_sddl_ace, 'A;;FA;;;', domain_sid: domain_sid).body.access_mask.de).to eq 1
-        expect(described_class.send(:parse_sddl_ace, 'A;;FA;;;', domain_sid: domain_sid).body.access_mask.rc).to eq 1
-        expect(described_class.send(:parse_sddl_ace, 'A;;FA;;;', domain_sid: domain_sid).body.access_mask.wd).to eq 1
-        expect(described_class.send(:parse_sddl_ace, 'A;;FA;;;', domain_sid: domain_sid).body.access_mask.wo).to eq 1
-        expect(described_class.send(:parse_sddl_ace, 'A;;FA;;;', domain_sid: domain_sid).body.access_mask.sy).to eq 1
-      end
-
-      it 'sets the rights correctly for KA' do
-        expect(described_class.send(:parse_sddl_ace, 'A;;KA;;;', domain_sid: domain_sid).body.access_mask.protocol).to eq 0x3f
-        expect(described_class.send(:parse_sddl_ace, 'A;;KA;;;', domain_sid: domain_sid).body.access_mask.de).to eq 1
-        expect(described_class.send(:parse_sddl_ace, 'A;;KA;;;', domain_sid: domain_sid).body.access_mask.rc).to eq 1
-        expect(described_class.send(:parse_sddl_ace, 'A;;KA;;;', domain_sid: domain_sid).body.access_mask.wd).to eq 1
-        expect(described_class.send(:parse_sddl_ace, 'A;;KA;;;', domain_sid: domain_sid).body.access_mask.wo).to eq 1
-      end
+    it 'handles a complex descriptor with both a DACL and a SACL' do
+      sddl_text = 'O:BAG:SYD:PAI(A;OICI;FA;;;BA)(A;OICI;FA;;;SY)S:AI(AU;SA;FA;;;BA)'
+      packed = ['0100149C1400000024000000300000005000000001020000000000052000000020020000010100000000000512000000020020000100000002401800FF011F0001020000000000052000000020020000020034000200000000031800FF011F000102000000000005200000002002000000031400FF011F00010100000000000512000000'].pack('H*')
+      instance = described_class.read(packed)
+      expect(instance.to_sddl_text(domain_sid: domain_sid)).to eq sddl_text
     end
 
-    context 'when parsing the ACE object GUID' do
-      let (:dummy_guid) { SecureRandom.uuid }
-
-      it 'raises an exception when the ACE type is incompatible' do
-        expect { described_class.send(:parse_sddl_ace, "A;;;#{dummy_guid};;", domain_sid: domain_sid) }.to raise_error(RuntimeError)
-      end
-
-      it 'sets no object GUID by default' do
-        expect(described_class.send(:parse_sddl_ace, "OA;;;;;", domain_sid: domain_sid).body.flags.ace_object_type_present).to eq 0
-        expect(described_class.send(:parse_sddl_ace, "OA;;;;;", domain_sid: domain_sid).body.object_type).to eq '00000000-0000-0000-0000-000000000000'
-      end
-
-      it 'sets the object type' do
-        expect(described_class.send(:parse_sddl_ace, "OA;;;#{dummy_guid};;", domain_sid: domain_sid).body.flags.ace_object_type_present).to eq 1
-        expect(described_class.send(:parse_sddl_ace, "OA;;;#{dummy_guid};;", domain_sid: domain_sid).body.object_type).to eq dummy_guid
-      end
+    it 'handles a NULL DACL (everyone denied)' do
+      sddl_text = 'O:BAG:BAD:'
+      packed = ['010004801400000024000000000000003400000001020000000000052000000020020000010200000000000520000000200200000200080000000000'].pack('H*')
+      instance = described_class.read(packed)
+      expect(instance.to_sddl_text(domain_sid: domain_sid)).to eq sddl_text
     end
 
-    context 'when parsing the ACE inherited object GUID' do
-      let (:dummy_guid) { SecureRandom.uuid }
-
-      it 'raises an exception when the ACE type is incompatible' do
-        expect { described_class.send(:parse_sddl_ace, "A;;;;#{dummy_guid};", domain_sid: domain_sid) }.to raise_error(RuntimeError)
-      end
-
-      it 'sets no inherited object GUID by default' do
-        expect(described_class.send(:parse_sddl_ace, "OA;;;;;", domain_sid: domain_sid).body.flags.ace_inherited_object_type_present).to eq 0
-        expect(described_class.send(:parse_sddl_ace, "OA;;;;;", domain_sid: domain_sid).body.inherited_object_type).to eq '00000000-0000-0000-0000-000000000000'
-      end
-
-      it 'sets the inherited object type' do
-        expect(described_class.send(:parse_sddl_ace, "OA;;;;#{dummy_guid};", domain_sid: domain_sid).body.flags.ace_inherited_object_type_present).to eq 1
-        expect(described_class.send(:parse_sddl_ace, "OA;;;;#{dummy_guid};", domain_sid: domain_sid).body.inherited_object_type).to eq dummy_guid
-      end
-    end
-
-    context 'when parsing the ACE SID' do
-      let (:dummy_sid) { "S-1-5-21-#{rand(0xf00000..0xffffffff)}-#{rand(0xf00000..0xffffffff)}-#{rand(0xf00000..0xffffffff)}-#{rand(100..999)}" }
-
-      it 'calls .parse_sddl_sid' do
-        expect(described_class).to receive(:parse_sddl_sid).with(dummy_sid, domain_sid: domain_sid).and_call_original
-        expect(described_class.send(:parse_sddl_ace, "A;;;;;#{dummy_sid}", domain_sid: domain_sid).body.sid).to eq dummy_sid
-      end
-    end
-  end
-
-  describe '.parse_sddl_sid' do
-    let (:dummy_sid) { "S-1-5-21-#{rand(0xf00000..0xffffffff)}-#{rand(0xf00000..0xffffffff)}-#{rand(0xf00000..0xffffffff)}-#{rand(100..999)}" }
-
-    it 'raises an exception on invalid SIDs' do
-      expect { described_class.send(:parse_sddl_sid, 'S-###', domain_sid: domain_sid) }.to raise_error(RuntimeError)
-    end
-
-    it 'parses constant SID strings (AU)' do
-      expect(described_class.send(:parse_sddl_sid, 'AU', domain_sid: domain_sid)).to be_a Rex::Proto::MsDtyp::MsDtypSid
-      expect(described_class.send(:parse_sddl_sid, 'AU', domain_sid: domain_sid)).to eq Rex::Proto::Secauthz::WellKnownSids::SECURITY_AUTHENTICATED_USER_SID
-    end
-
-    it 'parses constant SID strings (DA)' do
-      expect(described_class.send(:parse_sddl_sid, 'DA', domain_sid: domain_sid)).to be_a Rex::Proto::MsDtyp::MsDtypSid
-      expect(described_class.send(:parse_sddl_sid, 'DA', domain_sid: domain_sid)).to eq "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_ADMINS}"
-    end
-
-    it 'parses constant SID strings (AU, case-insensitive)' do
-      expect(described_class.send(:parse_sddl_sid, 'au', domain_sid: domain_sid)).to be_a Rex::Proto::MsDtyp::MsDtypSid
-      expect(described_class.send(:parse_sddl_sid, 'au', domain_sid: domain_sid)).to eq Rex::Proto::Secauthz::WellKnownSids::SECURITY_AUTHENTICATED_USER_SID
-    end
-
-    it 'parses constant SID strings (DA, case-insensitive)' do
-      expect(described_class.send(:parse_sddl_sid, 'da', domain_sid: domain_sid)).to be_a Rex::Proto::MsDtyp::MsDtypSid
-      expect(described_class.send(:parse_sddl_sid, 'da', domain_sid: domain_sid)).to eq "#{domain_sid}-#{Rex::Proto::Secauthz::WellKnownSids::DOMAIN_GROUP_RID_ADMINS}"
-    end
-
-    it 'parses literal SID strings' do
-      expect(described_class.send(:parse_sddl_sid, dummy_sid, domain_sid: domain_sid)).to be_a Rex::Proto::MsDtyp::MsDtypSid
-      expect(described_class.send(:parse_sddl_sid, dummy_sid, domain_sid: domain_sid)).to eq dummy_sid
+    it 'handles a protected DACL with inheritance disabled' do
+      sddl_text = 'O:BAG:BAD:PAI(D;CIIO;FA;;;WD)(A;;FA;;;BA)'
+      packed = ['010004941400000024000000000000003400000001020000000000052000000020020000010200000000000520000000200200000200340002000000010A1400FF011F0001010000000000010000000000001800FF011F0001020000000000052000000020020000'].pack('H*')
+      instance = described_class.read(packed)
+      expect(instance.to_sddl_text(domain_sid: domain_sid)).to eq sddl_text
     end
   end
 end

@@ -3,8 +3,6 @@ require 'acceptance_spec_helper'
 RSpec.describe 'LDAP modules' do
   include_context 'wait_for_expect'
 
-  RHOST_REGEX = /\d+\.\d+\.\d+\.\d+:\d+/
-
   tests = {
     ldap: {
       target: {
@@ -14,8 +12,8 @@ RSpec.describe 'LDAP modules' do
         datastore: {
           global: {},
           module: {
-            username: ENV.fetch('LDAP_USERNAME', "'DEV-AD\\Administrator'"),
-            password: ENV.fetch('LDAP_PASSWORD', 'admin123!'),
+            ldapusername: ENV.fetch('LDAP_LDAPUsername', "'DEV-AD\\Administrator'"),
+            ldappassword: ENV.fetch('LDAP_LDAPPassword', 'admin123!'),
             rhost: ENV.fetch('LDAP_RHOST', '127.0.0.1'),
             rport: ENV.fetch('LDAP_RPORT', '389'),
             ssl: ENV.fetch('LDAP_SSL', 'false')
@@ -53,22 +51,25 @@ RSpec.describe 'LDAP modules' do
             all: {
               required: [
                 /Discovered base DN/,
-                /Query returned 4 results/
+                /Query returned 5 results/
               ]
             }
           }
         },
         {
-          name: 'auxiliary/gather/ldap_hashdump',
+          name: 'auxiliary/gather/ldap_passwords',
           platforms: %i[linux osx windows],
           targets: [:session, :rhost],
           skipped: false,
           lines: {
             all: {
               required: [
-                /Searching base DN='DC=ldap,DC=example,DC=com'/,
-                /Storing LDAP data for base DN='DC=ldap,DC=example,DC=com' in loot/,
-                /266 entries, 0 creds found in 'DC=ldap,DC=example,DC=com'./
+                /Searching base DN: DC=ldap,DC=example,DC=com/,
+                /Checking if the target LDAP server is an Active Directory Domain Controller.../,
+                /The target LDAP server is not an Active Directory Domain Controller./,
+                /Credentials \(password\) found in ms-mcs-admpwd: Administrator:\[LAPSv1\]SuperSecretPassword!/,
+                /Credentials \(password\) found in mslaps-password: Administrator:\[LAPSv2\]SuperSecretPassword!/,
+                /Found [1-9]\d* entries and [1-9]\d* credentials in 'DC=ldap,DC=example,DC=com'./
               ]
             }
           }

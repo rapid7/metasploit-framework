@@ -69,12 +69,12 @@ Gem::Specification.new do |spec|
   # Metasploit::Credential database models
   spec.add_runtime_dependency 'metasploit-credential'
   # Database models shared between framework and Pro.
-  spec.add_runtime_dependency 'metasploit_data_models'
+  spec.add_runtime_dependency 'metasploit_data_models', '>= 6.0.7'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.189'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.221'
   # Needed for the next-generation POSIX Meterpreter
   spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.35'
   # Needed by msfgui and other rpc components
@@ -129,7 +129,7 @@ Gem::Specification.new do |spec|
   # Needed for some modules (polkit_auth_bypass.rb)
   spec.add_runtime_dependency 'unix-crypt'
   # Needed for Kerberos structure parsing; Pinned to ensure a security review is performed on updates
-  spec.add_runtime_dependency 'rasn1', '0.13.0'
+  spec.add_runtime_dependency 'rasn1', '0.14.0'
 
   #
   # File Parsing Libraries
@@ -148,7 +148,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'net-ssh'
   spec.add_runtime_dependency 'ed25519' # Adds ed25519 keys for net-ssh
   spec.add_runtime_dependency 'bcrypt_pbkdf'
-  spec.add_runtime_dependency 'ruby_smb', '~> 3.3.3'
+  spec.add_runtime_dependency 'ruby_smb', '~> 3.3.15'
   spec.add_runtime_dependency 'net-imap' # Used in Postgres auth for its SASL stringprep implementation
   spec.add_runtime_dependency 'net-ldap'
   spec.add_runtime_dependency 'net-smtp'
@@ -270,6 +270,7 @@ Gem::Specification.new do |spec|
     getoptlong
     mutex_m
     ostruct
+    rinda
   ].each do |library|
     spec.add_runtime_dependency library
   end

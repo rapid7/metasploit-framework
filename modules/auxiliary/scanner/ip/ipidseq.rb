@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
       :host	=> ip,
       :proto	=> 'ip',
       :type	=> 'IPID sequence',
-      :data	=> "IPID sequence class: #{analyze(ipids)}"
+      :data	=> { :ipid_sequence_class => analyze(ipids) }
     )
   end
 

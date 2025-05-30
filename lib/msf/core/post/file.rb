@@ -375,7 +375,7 @@ module Msf::Post::File
       return unless data
 
       chksum = data.scan(/^([A-F0-9-]+)$/).flatten.first
-      return chksum&.gsub(/-/, '')&.downcase
+      return chksum&.gsub('-', '')&.downcase
     end
 
     case util
@@ -423,7 +423,7 @@ module Msf::Post::File
       data = cmd_exec("$sha1 = New-Object -TypeName System.Security.Cryptography.SHA1CryptoServiceProvider; [System.BitConverter]::ToString($sha1.ComputeHash([System.IO.File]::ReadAllBytes('#{file_name}')))")
       return unless data
       chksum = data.scan(/^([A-F0-9-]+)$/).flatten.first
-      return chksum&.gsub(/-/, '')&.downcase
+      return chksum&.gsub('-', '')&.downcase
     end
 
     case util

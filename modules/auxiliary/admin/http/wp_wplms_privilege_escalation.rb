@@ -31,7 +31,12 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['WPVDB', '7785']
         ],
-        'DisclosureDate' => '2015-02-09'
+        'DisclosureDate' => '2015-02-09',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 

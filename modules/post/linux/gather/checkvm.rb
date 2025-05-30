@@ -23,7 +23,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform' => [ 'linux' ],
-        'SessionTypes' => [ 'shell', 'meterpreter' ]
+        'SessionTypes' => [ 'shell', 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -199,28 +204,22 @@ class MetasploitModule < Msf::Post
     # Check Xen devices
     if !vm
       xen_capabilities = read_file('/sys/hypervisor/uuid')
-      if xen_capabilities
-        if ! xen_capabilities.include? '00000000-0000-0000-0000-000000000000'
-          vm = 'Xen'
-        end
+      if xen_capabilities && !xen_capabilities.include?('00000000-0000-0000-0000-000000000000')
+        vm = 'Xen'
       end
     end
     if !vm
       xen_type = read_file('/sys/hypervisor/type')
-      if xen_type
-        if xen_type == 'xen'
-          vm = 'Xen'
-        end
+      if xen_type && xen_type == ('xen')
+        vm = 'Xen'
       end
     end
 
     # Check device tree
     if !vm
       compatible = read_file('/proc/device-tree/compatible')
-      if compatible
-        if compatible.include? 'qemu'
-          vm = 'Qemu/KVM'
-        end
+      if compatible && compatible.include?('qemu')
+        vm = 'Qemu/KVM'
       end
     end
     if !vm

@@ -69,7 +69,7 @@ module Msf::Modules::Metadata::Search
     search_string += ' '
 
     # Split search terms by space, but allow quoted strings
-    terms = search_string.split(/\"/).collect{|term| term.strip==term ? term : term.split(' ')}.flatten
+    terms = search_string.split('"').collect{|term| term.strip==term ? term : term.split(' ')}.flatten
     terms.delete('')
 
     # All terms are either included or excluded
@@ -255,9 +255,9 @@ module Msf::Modules::Metadata::Search
             when 'ref', 'ref_name'
               match = [keyword, search_term] if module_metadata.ref_name =~ regex
             when 'reference', 'references'
-              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ regex }
+              match = [keyword, search_term] if module_metadata.references && module_metadata.references.any? { |ref| ref =~ regex }
             when 'target', 'targets'
-              match = [keyword, search_term] if module_metadata.targets.any? { |target| target =~ regex }
+              match = [keyword, search_term] if module_metadata.targets && module_metadata.targets.any? { |target| target =~ regex }
             when 'type'
               match = [keyword, search_term] if Msf::MODULE_TYPES.any? { |module_type| search_term == module_type and module_metadata.type == module_type }
           else
@@ -282,7 +282,7 @@ module Msf::Modules::Metadata::Search
 
   def as_regex(search_term)
     # Convert into a case-insensitive regex
-    utf8_buf = search_term.dup.force_encoding('UTF-8')
+    utf8_buf = search_term.to_s.dup.force_encoding('UTF-8')
     if utf8_buf.valid_encoding?
        Regexp.new(Regexp.escape(utf8_buf), Regexp::IGNORECASE)
     else

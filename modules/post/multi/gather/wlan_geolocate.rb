@@ -25,6 +25,11 @@ class MetasploitModule < Msf::Post
               android_*
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -94,10 +99,13 @@ class MetasploitModule < Msf::Post
     if wlan_list.blank?
       print_error('Unable to enumerate wireless networks from the target.  Wireless may not be present or enabled.')
       return
-    elsif datastore['APIKEY'].empty?
+    end
+
+    if datastore['APIKEY'].empty?
       print_error('Google API key is required.')
       return
     end
+
     g = Rex::Google::Geolocation.new
     g.set_api_key(datastore['APIKEY'])
     wlan_list.each do |wlan|
@@ -218,9 +226,10 @@ class MetasploitModule < Msf::Post
       print_error("The target's platform, #{session.platform}, is not supported at this time.")
       return nil
     end
-  rescue Rex::TimeoutError, Rex::Post::Meterpreter::RequestError
-  rescue ::Exception => e
-    print_status("The following Error was encountered: #{e.class} #{e}")
+  rescue Rex::TimeoutError, Rex::Post::Meterpreter::RequestError => e
+    vprint_error(e.message)
+  rescue StandardError => e
+    print_status("The following error was encountered: #{e.class} #{e}")
   end
 
 end

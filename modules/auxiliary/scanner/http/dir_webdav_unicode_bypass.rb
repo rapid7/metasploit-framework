@@ -171,7 +171,10 @@ class MetasploitModule < Msf::Auxiliary
               :sname => (ssl ? 'https' : 'http'),
               :port	=> rport,
               :type	=> 'UNICODE_WEBDAV_BYPASS',
-              :data	=> "#{tpath}%c0%af#{testfdir} Code: #{res.code}",
+              :data	=> {
+                :path => "#{tpath}%c0%af#{testfdir}",
+                :code => res.code
+              },
               :update => :unique_data
             )
 

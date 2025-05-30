@@ -30,6 +30,11 @@ class MetasploitModule < Msf::Post
               stdapi_railgun_memread
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -67,10 +72,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    ### MAIN ###
     client = session
-
-    domain = nil
 
     # Default = SV_TYPE_NT
     # Servers = SV_TYPE_ALL
@@ -96,16 +98,6 @@ class MetasploitModule < Msf::Post
     when 'LOCAL' then lookuptype = '40000000'.hex
     end
 
-    if session.arch == ARCH_X64
-      nameiterator = 8
-      size = 64
-      addrinfoinmem = 32
-    else
-      nameiterator = 4
-      size = 32
-      addrinfoinmem = 24
-    end
-
     result = client.railgun.netapi32.NetServerEnum(nil, 101, 4, -1, 4, 4, lookuptype, datastore['DOMAIN'], 0)
 
     if result['totalentries'] == 0
@@ -114,8 +106,6 @@ class MetasploitModule < Msf::Post
     end
     print_good("Found #{result['totalentries']} systems.")
 
-    endofline = 0
-    i = nameiterator
     netview = parse_netserverenum(result['bufptr'], result['totalentries'])
 
     ## get IP for host
@@ -131,12 +121,12 @@ class MetasploitModule < Msf::Post
           x[:ip] = result[:ip]
         end
       end
-    rescue ::Exception => e
+    rescue StandardError => e
       print_error(e)
       print_status('Windows 2000 and prior does not support getaddrinfo')
     end
 
-    netview = netview.sort_by { |e| e[:type] }
+    netview = netview.sort_by { |h| h[:type] }
 
     results = Rex::Text::Table.new(
       'Header' => 'Netdiscovery Results',

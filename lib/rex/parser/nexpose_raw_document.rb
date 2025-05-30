@@ -680,7 +680,7 @@ module Rex
     end
 
     def clean_formatted_text(txt)
-      txt.split(/\n/).map{ |t|
+      txt.split("\n").map{ |t|
         t.sub(/^\s+$/, '').
           sub(/^(\s{6,20})/, '      ')
       }.join("\n").gsub(/\n{4,10}/, "\n\n\n")

@@ -22,6 +22,11 @@ class MetasploitModule < Msf::Post
         'Author' => [ 'theLightCosine'],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -172,11 +177,6 @@ class MetasploitModule < Msf::Post
       (host, port) = host.split(':')
       port = 21 if port.nil?
       print_good("*** Host: #{host} Port: #{port} User: #{username}  Password: #{passwd} ***")
-      if session.db_record
-        source_id = session.db_record.id
-      else
-        source_id = nil
-      end
 
       report_cred(
         ip: host,
@@ -188,9 +188,9 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def seed(nMax)
+  def seed(nmax)
     @vseed = ((@vseed * 0x8088405) & 0xffffffff) + 1
-    return (((@vseed * nMax) >> 32) & 0xffffffff)
+    return (((@vseed * nmax) >> 32) & 0xffffffff)
   end
 
   def shift(n1, n2)

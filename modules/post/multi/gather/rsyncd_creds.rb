@@ -17,7 +17,12 @@ class MetasploitModule < Msf::Post
         },
         'License' => MSF_LICENSE,
         'Author' => [ 'Jon Hart <jon_hart[at]rapid7.com>' ],
-        'SessionTypes' => %w[shell]
+        'SessionTypes' => %w[shell],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 

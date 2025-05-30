@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::OSX::Priv
 
-  # extract/verify by by XORing your kcpassword with your password
+  # extract/verify by XORing your kcpassword with your password
   AUTOLOGIN_XOR_KEY = [0x7D, 0x89, 0x52, 0x23, 0xD2, 0xBC, 0xDD, 0xEA, 0xA3, 0xB9, 0x1F]
 
   def initialize(info = {})
@@ -26,9 +26,14 @@ class MetasploitModule < Msf::Post
         'Author' => [ 'joev' ],
         'Platform' => [ 'osx' ],
         'References' => [
-          ['URL', 'http://www.brock-family.org/gavin/perl/kcpassword.html']
+          ['URL', 'https://web.archive.org/web/20180408062145/http://www.brock-family.org/gavin/perl/kcpassword.html'],
         ],
-        'SessionTypes' => [ 'meterpreter', 'shell' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 

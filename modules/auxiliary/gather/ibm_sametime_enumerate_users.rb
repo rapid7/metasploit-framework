@@ -272,7 +272,7 @@ class MetasploitModule < Msf::Auxiliary
       :proto  => 'tcp',
       :sname  => 'sametime',
       :type   => 'ibm_lotus_sametime_user',
-      :data   => "#{username}",
+      :data   => { :username => username },
       :update => :unique_data
     )
   end

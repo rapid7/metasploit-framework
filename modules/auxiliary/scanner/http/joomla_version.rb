@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
         port: datastore['RPORT'],
         proto: ssl ? 'https' : 'http',
         ntype: 'joomla.version',
-        data: version
+        data: { :version => version }
       )
     else
       print_error("Unable to find Joomla version.")

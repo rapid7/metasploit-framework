@@ -21,6 +21,11 @@ class MetasploitModule < Msf::Post
         'Author' => [ 'bcoles' ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[

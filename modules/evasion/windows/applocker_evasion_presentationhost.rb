@@ -6,23 +6,25 @@
 class MetasploitModule < Msf::Evasion
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Applocker Evasion - Windows Presentation Foundation Host',
-      'Description' => %(
-         This module will assist you in evading Microsoft
-         Windows Applocker and Software Restriction Policies.
-         This technique utilises the Microsoft signed binary
-         PresentationHost.exe to execute user supplied code.
-                        ),
-      'Author'      =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Applocker Evasion - Windows Presentation Foundation Host',
+        'Description' => %q{
+          This module will assist you in evading Microsoft
+          Windows Applocker and Software Restriction Policies.
+          This technique utilises the Microsoft signed binary
+          PresentationHost.exe to execute user supplied code.
+        },
+        'Author' => [
           'Nick Tyrer <@NickTyrer>', # module development
           'Casey Smith' # presentationhost bypass research
         ],
-      'License'     => 'MSF_LICENSE',
-      'Platform'    => 'win',
-      'Arch'        => [ARCH_X86],
-      'Targets'     => [['Microsoft Windows', {}]])
+        'License' => MSF_LICENSE,
+        'Platform' => 'win',
+        'Arch' => [ARCH_X86],
+        'Targets' => [['Microsoft Windows', {}]]
+      )
     )
 
     register_options(

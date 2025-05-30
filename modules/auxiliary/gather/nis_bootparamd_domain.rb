@@ -110,7 +110,7 @@ class MetasploitModule < Msf::Auxiliary
         port:  rport,
         proto: proto,
         type:  'nis.bootparamd.domain',
-        data:  msg
+        data:  { :message => msg }
       )
     end
   end

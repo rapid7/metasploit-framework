@@ -28,6 +28,11 @@ class MetasploitModule < Msf::Post
               stdapi_fs_search
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -353,6 +358,7 @@ class MetasploitModule < Msf::Post
       if exist?(datastore['JENKINS_HOME'] + '/secret.key.not-so-secret')
         return datastore['JENKINS_HOME']
       end
+
       print_status(datastore['JENKINS_HOME'] + ' does not seem to contain secrets.')
     end
 

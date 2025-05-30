@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'EDB', '24475' ],
           [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-004' ]
         ],
-        'DisclosureDate' => '2013-02-05'
+        'DisclosureDate' => '2013-02-05',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -76,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
 
     vprint_status("#{rhost}:#{rport} - using the following target URL: #{uri}")
     begin
-      res = send_request_cgi({
+      send_request_cgi({
         'uri' => uri,
         'method' => 'POST',
         'authorization' => basic_auth(user, pass),

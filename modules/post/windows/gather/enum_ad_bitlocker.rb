@@ -22,7 +22,12 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => ['meterpreter'],
         'References' => [
           ['URL', 'https://technet.microsoft.com/en-us/library/cc771778%28v=ws.10%29.aspx']
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 

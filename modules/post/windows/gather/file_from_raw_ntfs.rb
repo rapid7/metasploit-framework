@@ -19,13 +19,18 @@ class MetasploitModule < Msf::Post
           such as open file with write lock. Because it avoids the usual file locking issues, it can
           be used to retrieve files such as NTDS.dit.
         },
-        'License' => 'MSF_LICENSE',
+        'License' => MSF_LICENSE,
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
         'Author' => ['Danil Bazin <danil.bazin[at]hsc.fr>'], # @danilbaz
         'References' => [
           [ 'URL', 'http://www.amazon.com/System-Forensic-Analysis-Brian-Carrier/dp/0321268172/' ]
         ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
@@ -78,7 +83,7 @@ class MetasploitModule < Msf::Post
     end
 
     @handle = r['return']
-    vprint_good("Successfuly opened #{drive}")
+    vprint_good("Successfully opened #{drive}")
     begin
       @bytes_read = 0
       fs = Rex::Parser::NTFS.new(self)

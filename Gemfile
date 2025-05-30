@@ -24,7 +24,7 @@ group :development do
   # memory profiling
   gem 'memory_profiler'
   # cpu profiling
-  gem 'ruby-prof', '1.4.2'
+  gem 'ruby-prof'
   # Metasploit::Aggregator external session proxy
   # disabled during 2.5 transition until aggregator is available
   # gem 'metasploit-aggregator'
@@ -38,7 +38,7 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'rspec-rerun'
   # Required during CI as well local development
-  gem 'rubocop'
+  gem 'rubocop', '1.75.7'
 end
 
 group :test do

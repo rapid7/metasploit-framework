@@ -25,6 +25,9 @@ module Rex
         attr_accessor :ssl_version
         attr_accessor :ssl_verify_mode
         attr_accessor :ssl_cipher
+        # @!attribute sslkeylogfile
+        #   @return [String] The SSL key log file path
+        attr_accessor :sslkeylogfile
         attr_accessor :proxies
         attr_accessor :connection_timeout
         attr_accessor :send_lm
@@ -50,7 +53,7 @@ module Rex
         #   @return [String] The database name this client is currently connected to.
         attr_accessor :current_database
 
-        def initialize(framework_module, framework, rhost, rport = 1433, proxies = nil)
+        def initialize(framework_module, framework, rhost, rport = 1433, proxies = nil, sslkeylogfile: nil)
           @framework_module       = framework_module
           @framework              = framework
           @connection_timeout     = framework_module.datastore['ConnectTimeout']      || 30
@@ -68,6 +71,7 @@ module Rex
           @rhost = rhost
           @rport = rport
           @proxies = proxies
+          @sslkeylogfile = sslkeylogfile
           @current_database = ''
         end
 
@@ -336,7 +340,7 @@ module Rex
             # upon receiving the ntlm_negociate request it send an ntlm_challenge but the status flag of the tds packet header
             # is set to STATUS_NORMAL and not STATUS_END_OF_MESSAGE, then internally it waits for the ntlm_authentification
             if tdsencryption == true
-               proxy = TDSSSLProxy.new(sock)
+               proxy = TDSSSLProxy.new(sock, sslkeylogfile: sslkeylogfile)
                proxy.setup_ssl
                resp = proxy.send_recv(pkt)
             else
@@ -454,7 +458,7 @@ module Rex
             pkt = "\x10\x01" + [pkt.length + 8].pack('n') + [0].pack('n') + [1].pack('C') + "\x00" + pkt
 
             if self.tdsencryption == true
-              proxy = TDSSSLProxy.new(sock)
+              proxy = TDSSSLProxy.new(sock, sslkeylogfile: sslkeylogfile)
               proxy.setup_ssl
               resp = mssql_ssl_send_recv(pkt, proxy)
               proxy.cleanup
@@ -573,8 +577,8 @@ module Rex
           print_status("Warning: This module will leave #{var_payload}.exe in the SQL Server %TEMP% directory")
           print_status("Writing the debug.com loader to the disk...")
           h2b = File.read(@hex2binary, File.size(@hex2binary))
-          h2b.gsub!(/KemneE3N/, "%TEMP%\\#{var_bypass}")
-          h2b.split(/\n/).each do |line|
+          h2b.gsub!('KemneE3N', "%TEMP%\\#{var_bypass}")
+          h2b.split("\n").each do |line|
             mssql_xpcmdshell("#{line}", false)
           end
 

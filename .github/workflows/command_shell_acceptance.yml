@@ -63,21 +63,23 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - windows-2019
-          - ubuntu-20.04
+          - windows-2022
+          - ubuntu-latest
         ruby:
-          - '3.2'
+          - '3.4'
         include:
           # Powershell
-          - { command_shell: { name: powershell }, os: windows-2019 }
-          - { command_shell: { name: powershell }, os: windows-2022 }
+          - { command_shell: { name: powershell }, ruby: '3.4', os: windows-2022 }
+          - { command_shell: { name: powershell }, ruby: '3.4', os: windows-2025 }
 
           # Linux
-          - { command_shell: { name: linux }, os: ubuntu-20.04 }
+          - { command_shell: { name: linux }, ruby: '3.4', os: ubuntu-latest }
 
           # CMD
-          - { command_shell: { name: cmd }, os: windows-2019 }
-          - { command_shell: { name: cmd }, os: windows-2022 }
+          - { command_shell: { name: cmd }, ruby: '3.4', os: windows-2022 }
+
+          # TODO: Tests currently fail:
+          # - { command_shell: { name: cmd }, ruby: '3.4', os: windows-2025 }
 
     runs-on: ${{ matrix.os }}
 
@@ -126,10 +128,16 @@ jobs:
         with:
           path: metasploit-framework
 
-      - name: Setup Ruby
-        env:
-          BUNDLE_FORCE_RUBY_PLATFORM: true
-        uses: ruby/setup-ruby@v1
+      # https://github.com/orgs/community/discussions/26952
+      - name: Support longpaths
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
+
+      - name: Setup '${{ matrix.ruby }}' Ruby
+        # Skip for now to ensure CI passes on Windows server 2025 powershell tests
+        #env:
+        #  BUNDLE_FORCE_RUBY_PLATFORM: true
+        uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
@@ -175,13 +183,19 @@ jobs:
         if: always()
         run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
 
+      # https://github.com/orgs/community/discussions/26952
+      - name: Support longpaths
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
+
       - name: Setup Ruby
         if: always()
         env:
           BUNDLE_FORCE_RUBY_PLATFORM: true
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '${{ matrix.ruby }}'
+          # use the default version from the .ruby-version file
+          ruby-version: '.ruby-version'
           bundler-cache: true
           cache-version: 4
 

@@ -116,6 +116,16 @@ class Response < Packet
     Nokogiri::XML(self.body)
   end
 
+  def gzip_decode!
+    self.body = gzip_decode
+  end
+
+  def gzip_decode
+    gz = Zlib::GzipReader.new(StringIO.new(self.body.to_s))    
+
+    gz.read
+  end
+
   # Returns a parsed json document.
   # Instead of using regexes to parse the JSON body, you should use this.
   #
@@ -186,7 +196,7 @@ class Response < Packet
   #
   def update_cmd_parts(str)
     if (md = str.match(/HTTP\/(.+?)\s+(\d+)\s?(.+?)\r?\n?$/))
-      self.message = md[3].gsub(/\r/, '')
+      self.message = md[3].gsub("\r", '')
       self.code    = md[2].to_i
       self.proto   = md[1]
     else

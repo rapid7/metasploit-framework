@@ -11,12 +11,13 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   # secret_key = Digest::SHA1.digest('3DC5CA39')
   SECRET_KEY = "B\xCE\xB2q\xA5\xE4X\xB7J\xEA\x93\x94y\"5C\x91\x873@".freeze
+
   def initialize(info = {})
     super(
       update_info(
         info,
         'Name' => 'Windows Gather Navicat Passwords',
-        'Description' => %q{ This module will find and decrypt stored Navicat passwords },
+        'Description' => %q{ This module will find and decrypt stored Navicat passwords. },
         'License' => MSF_LICENSE,
         'References' => [
           [ 'URL', 'https://github.com/HyperSine/how-does-navicat-encrypt-password'],
@@ -29,7 +30,7 @@ class MetasploitModule < Msf::Post
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter', 'shell'],
         'Notes' => {
-          'Stability' => [],
+          'Stability' => [CRASH_SAFE],
           'Reliability' => [],
           'SideEffects' => []
         }

@@ -23,7 +23,12 @@ class MetasploitModule < Msf::Post
         'Author' => [
           'Chaitanya Haritash [bofheaded]',
           'Dhiraj Mishra <dhiraj@notsosecure.com>'
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end

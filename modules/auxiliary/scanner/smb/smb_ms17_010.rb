@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
               proto: 'tcp',
               sname: 'smb',
               type:  'MS17-010 Named Pipe',
-              data:  pipe_name
+              data:  { :pipe_name => pipe_name }
             )
           end
         end

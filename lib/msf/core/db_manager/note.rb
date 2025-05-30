@@ -143,6 +143,15 @@ module Msf::DBManager::Note
     end
 
     ntype  = opts.delete(:type) || opts.delete(:ntype) || (raise RuntimeError, "A note :type or :ntype is required")
+
+    unless opts[:data].is_a?(Hash)
+      stack_trace = caller.map { |line| "[-]   #{line}" }.join("\n")
+      message = "\n[-] [DEPRECATION] Using #{__method__} with a non-hash data value is deprecated, please raise a Github issue with this output.\n[-] Call stack:\n#{stack_trace}"
+      warn(message)
+      # Additionally write to ~/.msf4/logs/framework.log - as this gets attached to GitHub issues etc
+      elog(message)
+    end
+
     data   = opts[:data]
     note   = nil
 

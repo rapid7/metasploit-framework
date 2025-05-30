@@ -28,6 +28,11 @@ class MetasploitModule < Msf::Post
         'Author' => ['TJ Glad <tjglad[at]cmail.nu>'],
         'Platform' => ['win'],
         'SessionType' => ['meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[

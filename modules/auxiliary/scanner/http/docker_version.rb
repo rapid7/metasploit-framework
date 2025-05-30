@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
         :port  => rport,
         :proto => 'tcp',
         :ntype => 'docker_version',
-        :data  => result['Version'],
+        :data  => { :version => result['Version'] },
         :info  => "Docker Server v.#{result['Version']}"
     )
     print_status("Saving host information.")
