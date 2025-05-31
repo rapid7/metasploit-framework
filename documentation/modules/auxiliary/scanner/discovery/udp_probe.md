@@ -4,10 +4,10 @@ Detect common UDP services using sequential probes.
 
 ## Verification Steps
 
-1. Do: ```use auxiliary/scanner/discovery/udp_probe```
-2. Do: ```set RHOSTS [IP]```
-5. Do: ```set THREADS [number of threads]```
-6. Do: ```run```
+1. Do: `use auxiliary/scanner/discovery/udp_probe`
+2. Do: `set RHOSTS [IP]`
+5. Do: `set THREADS [number of threads]`
+6. Do: `run`
 
 ## Scenarios
 
