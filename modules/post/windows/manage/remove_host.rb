@@ -59,10 +59,13 @@ class MetasploitModule < Msf::Post
     fdray = fd.read.split("\r\n")
 
     fdray.each do |line|
-      unless line.match("\t#{hosttoremove}$")
+      main_part = line.split('#', 2).first.to_s.strip
+      parts = main_part.split(/\s+/)
+      unless parts[1..-1].to_a.include?(hosttoremove)
         newfile += "#{line}\r\n"
       end
     end
+
 
     fd.close
 
