@@ -1,4 +1,5 @@
 ; build with:
+;   nasm elf_ppc64le_template.s -f bin -o template_ppc64le_linux.bin
 
 BITS 64
 
