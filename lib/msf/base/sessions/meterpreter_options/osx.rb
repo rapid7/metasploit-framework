@@ -16,7 +16,11 @@ module Msf
           [
             OptString.new(
               'AutoLoadExtensions',
-              [true, "Automatically load extensions on bootstrap, semicolon separated.", 'stdapi']
+              [true, 'Automatically load extensions on bootstrap, semicolon separated.', 'stdapi']
+            ),
+            OptString.new(
+              'PayloadProcessCommandLine',
+              [ false, 'The displayed command line that will be used by the payload', '']
             ),
           ],
           self.class
