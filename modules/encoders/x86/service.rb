@@ -18,11 +18,11 @@ class MetasploitModule < Msf::Encoder
       'Arch' => ARCH_X86,
       'License' => MSF_LICENSE,
       'EncoderType' => Msf::Encoder::Type::Raw
-        )
+    )
+    @cpu32 = Metasm::Ia32.new
   end
 
-  @cpu32 = Metasm::Ia32.new
-  def assemble(src, cpu = @cpu32)
+  def assemble(src, cpu: @cpu32)
     Metasm::Shellcode.assemble(cpu, src).encode_string
   end
 
