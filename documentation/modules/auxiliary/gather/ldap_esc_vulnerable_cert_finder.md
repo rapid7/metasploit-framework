@@ -116,6 +116,7 @@ $template.SetInfo()
 1. The template should now be reported as `Potentially Vulnerable` by the module.
 1. In order to be able to exploit this template run the following Powershell command and ensure `StrongCertificateBindingEnforcement` is not set to `2` (it should be 1, or 0):
 ```powershell
+Set-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\Kdc\" -Name StrongCertificateBindingEnforcement -Value 0
 Get-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\Kdc\" -Name StrongCertificateBindingEnforcement
 ```
 
@@ -127,11 +128,13 @@ Get-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\Kdc\" -Name Stron
 ##### ESC10 Case1:
 1. In order to be able to exploit this template run the following Powershell command and ensure `StrongCertificateBindingEnforcement` is set to `0`
 ```powershell
+Set-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\Kdc\" -Name StrongCertificateBindingEnforcement -Value 0
 Get-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\Kdc\" -Name StrongCertificateBindingEnforcement
 ```
 ##### ESC10 Case2:
 1. In order to be able to exploit this template run the following Powershell command and ensure `CertificateMappingMethods` is set to `0x4`
 ```powershell
+Set-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Control\SecurityProviders\Schannel\" -Name CertificateMappingMethods -Value 4
 Get-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Control\SecurityProviders\Schannel\" -Name CertificateMappingMethods
 ```
 

@@ -496,7 +496,7 @@ class MetasploitModule < Msf::Auxiliary
         vprint_error('ESC9 and ESC10 cannot be exploited using Kerberos due to StrongCertificateBindingEnforcement being set to 2')
       end
 
-      if registry_values[:certificate_mapping_methods] == '4' || registry_values[:certificate_mapping_methods] == '31'
+      if (registry_values[:certificate_mapping_methods].to_i & 4) > 0
         vprint_good('ESC10 could be exploitable using Schannel due to CertificateMappingMethods allowing UPN certificate mapping')
       else
         print_error('ESC10 cannot be exploited using Schannel due to CertificateMappingMethods not allowing UPN certificate mapping')
@@ -885,7 +885,7 @@ class MetasploitModule < Msf::Auxiliary
           print_warning('  Potentially vulnerable to: ESC9 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must not be set to 2)')
         end
         if techniques.include?('ESC10')
-          print_warning('  Potentially vulnerable to: ESC10 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must be set to 0 or CertificateMappingMethods must be set to 0x4)')
+          print_warning('  Potentially vulnerable to: ESC10 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must be set to 0 or CertificateMappingMethods must be set to 4)')
         end
       end
 
@@ -1068,7 +1068,7 @@ class MetasploitModule < Msf::Auxiliary
       find_esc3_vuln_cert_templates
       find_esc4_vuln_cert_templates
 
-      if registry_values.nil?
+      if registry_values.blank?
         find_esc9_vuln_cert_templates
         find_esc10_vuln_cert_templates
       else
