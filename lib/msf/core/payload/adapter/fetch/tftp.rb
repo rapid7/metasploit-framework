@@ -19,7 +19,7 @@ module Msf::Payload::Adapter::Fetch::TFTP
   end
 
   def setup_handler
-    @fetch_service = start_tftp_fetch_handler(fetch_bindport, fetch_bindhost, srvuri, @srvexe) unless datastore['FetchHandlerDisable']
+    @fetch_service = start_tftp_fetch_handler(fetch_bindport, fetch_bindhost) unless datastore['FetchHandlerDisable']
     super
   end
 
