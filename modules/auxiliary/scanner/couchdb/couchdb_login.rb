@@ -9,68 +9,80 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'CouchDB Login Utility',
-      'Description'    => %{
-        This module tests CouchDB logins on a range of
-        machines and report successful logins.
-      },
-      'Author'         =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'CouchDB Login Utility',
+        'Description' => %q{
+          This module tests CouchDB logins on a range of
+          machines and report successful logins.
+        },
+        'Author' => [
           'espreto <robertoespreto[at]gmail.com>'
         ],
-      'License'        => MSF_LICENSE
-    ))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, ACCOUNT_LOCKOUTS],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(5984),
-        OptString.new('TARGETURI', [false, "TARGETURI for CouchDB. Default here is /", "/"]),
-        OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-          File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt") ]),
-        OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
-        OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
-        OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", false]),
-      ])
+        OptString.new('TARGETURI', [false, 'TARGETURI for CouchDB. Default here is /', '/']),
+        OptPath.new('USERPASS_FILE', [
+          false, 'File containing users and passwords separated by space, one pair per line',
+          File.join(Msf::Config.data_directory, 'wordlists', 'http_default_userpass.txt')
+        ]),
+        OptPath.new('USER_FILE', [
+          false, 'File containing users, one per line',
+          File.join(Msf::Config.data_directory, 'wordlists', 'http_default_users.txt')
+        ]),
+        OptPath.new('PASS_FILE', [
+          false, 'File containing passwords, one per line',
+          File.join(Msf::Config.data_directory, 'wordlists', 'http_default_pass.txt')
+        ]),
+        OptBool.new('USER_AS_PASS', [ false, 'Try the username as the password for all users', false]),
+      ]
+    )
 
     deregister_options('HttpUsername', 'HttpPassword')
   end
 
-  def run_host(ip)
-
+  def run_host(_ip)
     user = datastore['HttpUsername'].to_s
     pass = datastore['HttpPassword'].to_s
 
     if user.nil? || user.strip == ''
-      each_user_pass do |user, pass|
-        do_login(user, pass)
+      each_user_pass do |u, p|
+        do_login(u, p)
       end
       return
     end
 
     vprint_status("#{rhost}:#{rport} - Trying to login with '#{user}' : '#{pass}'")
 
-      uri = target_uri.path
+    uri = target_uri.path
 
-      res = send_request_cgi({
-        'uri'    => normalize_uri(uri, '_users/_all_docs'),
-        'method' => 'GET',
-        'authorization' => basic_auth(user, pass)
-      })
+    res = send_request_cgi({
+      'uri' => normalize_uri(uri, '_users/_all_docs'),
+      'method' => 'GET',
+      'authorization' => basic_auth(user, pass)
+    })
 
-      return if res.nil?
-      return if (res.headers['Server'].nil? or res.headers['Server'] !~ /CouchDB/)
-      return if (res.code == 404)
+    return if res.nil?
+    return if res.headers['Server'].nil? || res.headers['Server'] !~ /CouchDB/
+    return if res.code == 404
 
-      if [200, 301, 302].include?(res.code)
-        vprint_good("#{rhost}:#{rport} - Successful login with '#{user}' : '#{pass}'")
-      end
-
-    rescue ::Rex::ConnectionError
-      vprint_error("'#{rhost}':'#{rport}' - Failed to connect to the web server")
+    if [200, 301, 302].include?(res.code)
+      vprint_good("#{rhost}:#{rport} - Successful login with '#{user}' : '#{pass}'")
+    end
+  rescue ::Rex::ConnectionError
+    vprint_error("'#{rhost}':'#{rport}' - Failed to connect to the web server")
   end
 
   def report_cred(opts)
@@ -131,7 +143,7 @@ class MetasploitModule < Msf::Auxiliary
   rescue ::Rex::ConnectionError, ::Errno::ECONNREFUSED, ::Errno::ETIMEDOUT
     print_error('HTTP connection failed, aborting')
     return :abort
-  rescue => e
+  rescue StandardError => e
     print_error("Error: #{e}")
     return nil
   end
