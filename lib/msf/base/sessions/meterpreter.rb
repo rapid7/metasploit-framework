@@ -183,14 +183,17 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     extensions = datastore['AutoLoadExtensions']&.split(';') || []
 
     # BEGIN: This should be removed on MSF 7
+    # Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP (by default unhook is first, see meterpreter_options/windows.rb)
     extensions.push('unhook') if datastore['AutoUnhookProcess'] && session.platform == 'windows'
     extensions.push('stdapi') if datastore['AutoLoadStdapi']
-    extensions.push('priv') if datastore['AutoLoadStdapi'] && session.platform('windows')
+    extensions.push('priv') if datastore['AutoLoadStdapi'] && session.platform == 'windows'
     extensions.push('android') if session.platform == 'android'
     extensions = extensions.uniq
     # END
     original = console.disable_output
     console.disable_output = true
+    # TODO: abstract this a little, perhaps a "post load" function that removes
+    # platform-specific stuff?
     extensions.each do |extension|
       console.run_single("load #{extension}")
       console.run_single('unhook_pe') if extension == 'unhook'
