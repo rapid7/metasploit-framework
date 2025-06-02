@@ -7,7 +7,7 @@ module Msf
     #
     # Defines common options across all Meterpreter implementations
     #
-    module MeterpreterOptions::Osx
+    module MeterpreterOptions::OSX
       include Msf::Sessions::MeterpreterOptions::Common
       def initialize(info = {})
         super(info)
