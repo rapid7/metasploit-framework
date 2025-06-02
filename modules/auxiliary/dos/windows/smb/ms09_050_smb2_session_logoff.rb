@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'MSB', 'MS09-050' ],
         ],
         'Notes' => {
-          'AKA' => ['EDUCATEDSCHOLAR']
+          'AKA' => ['EDUCATEDSCHOLAR'],
           'Stability' => [CRASH_OS_DOWN],
           'SideEffects' => [],
           'Reliability' => []
