@@ -13,12 +13,10 @@ module Msf::Payload::Linux::Armbe::Prepends
   end
 
   def prepends_map
-    {
-    }
+    {}
   end
 
   def appends_map
-    {
-    }
+    {}
   end
 end

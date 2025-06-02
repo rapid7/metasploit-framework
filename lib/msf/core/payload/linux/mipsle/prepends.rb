@@ -13,12 +13,10 @@ module Msf::Payload::Linux::Mipsle::Prepends
   end
 
   def prepends_map
-    {
-    }
+    {}
   end
 
   def appends_map
-    {
-    }
+    {}
   end
 end
