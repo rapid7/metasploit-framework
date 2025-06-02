@@ -6,7 +6,7 @@
 #
 module Msf::Payload::Linux::X64::MeterpreterLoader
   def in_memory_load(payload)
-    in_memory_loader_asm = %Q^
+    in_memory_loader_asm = %^
     start:
       xor rsi, rsi
       push rsi
