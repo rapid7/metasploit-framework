@@ -134,7 +134,7 @@ class MetasploitModule < Msf::Auxiliary
         vprint_status('Discovering base DN automatically')
 
         unless (@base_dn = ldap.base_dn)
-          fail_with(Failure::BadConfig, "Couldn't discover base DN!")
+          fail_with(Failure::NotFound, "Couldn't discover base DN!")
         end
       end
       @ldap = ldap
