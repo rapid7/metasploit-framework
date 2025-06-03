@@ -18,6 +18,9 @@ class MetasploitModule < Msf::Auxiliary
   ADS_GROUP_TYPE_SECURITY_ENABLED = 0x80000000
   ADS_GROUP_TYPE_UNIVERSAL_GROUP = 0x00000008
 
+  # https://learn.microsoft.com/en-us/defender-for-identity/security-assessment-edit-vulnerable-ca-setting
+  EDITF_ATTRIBUTESUBJECTALTNAME2 = 0x00040000
+
   REFERENCES = {
     'ESC1' => [ SiteReference.new('URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2') ],
     'ESC2' => [ SiteReference.new('URL', 'https://posts.specterops.io/certified-pre-owned-d95910965cd2') ],
@@ -26,7 +29,8 @@ class MetasploitModule < Msf::Auxiliary
     'ESC9' => [ SiteReference.new('URL', 'https://research.ifcr.dk/certipy-4-0-esc9-esc10-bloodhound-gui-new-authentication-and-request-methods-and-more-7237d88061f7') ],
     'ESC10' => [ SiteReference.new('URL', 'https://research.ifcr.dk/certipy-4-0-esc9-esc10-bloodhound-gui-new-authentication-and-request-methods-and-more-7237d88061f7') ],
     'ESC13' => [ SiteReference.new('URL', 'https://posts.specterops.io/adcs-esc13-abuse-technique-fda4272fbd53') ],
-    'ESC15' => [ SiteReference.new('URL', 'https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc') ]
+    'ESC15' => [ SiteReference.new('URL', 'https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc') ],
+    'ESC16' => [ SiteReference.new('URL', 'https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation') ]
   }.freeze
 
   SID = Struct.new(:value, :name) do
@@ -64,6 +68,9 @@ class MetasploitModule < Msf::Auxiliary
           Currently the module is capable of checking for certificates that are vulnerable to ESC1, ESC2, ESC3, ESC4,
           ESC13, and ESC15. The module is limited to checking for these techniques due to them being identifiable
           remotely from a normal user account by analyzing the objects in LDAP.
+
+          The module can also check for ESC9, ESC10 and ESC16 but this requires an Administrative WinRM session to be
+          established to definitively check for these techniques.
         },
         'Author' => [
           'Grant Willcox', # Original module author
@@ -99,7 +106,6 @@ class MetasploitModule < Msf::Auxiliary
   CERTIFICATE_ENROLLMENT_EXTENDED_RIGHT = '0e10c968-78fb-11d2-90d4-00c04f79dc55'.freeze
   CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT = 'a05b8cc2-17bc-4802-a710-e7c15ab866a2'.freeze
   CONTROL_ACCESS = 0x00000100
-  CT_FLAG_NO_SECURITY_EXTENSION = 0x80000
 
   # LDAP_SERVER_SD_FLAGS constant definition, taken from https://ldapwiki.com/wiki/LDAP_SERVER_SD_FLAGS_OID
   LDAP_SERVER_SD_FLAGS_OID = '1.2.840.113556.1.4.801'.freeze
@@ -384,11 +390,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_authenticated_user_info
-    # Check if the authenticated user info is already cached
-    cached_user_info = @ldap_objects.find { |obj| obj[:type] == :authenticated_user }
-    return cached_user_info[:user] if cached_user_info
+    if (@whoami ||= @ldap.ldapwhoami).present?
+      sam_account_name = @whoami.split('\\').last
+      cached_user_object = @ldap_objects.find { |o| o[:samaccountname]&.first == sam_account_name }
+      return cached_user_object if cached_user_object
+    end
 
-    if (@whoami ||= @ldap.ldapwhoami).blank?
+    if @whoami.blank?
       raise LdapWhoamiError, 'Unable to retrieve the username using ldapwhoami.'
     end
 
@@ -417,9 +425,7 @@ class MetasploitModule < Msf::Auxiliary
     user_object[:memberof] ||= []
     user_object[:memberof].concat(group_sids)
 
-    @ldap_objects << { type: :authenticated_user, user: user_object }
-
-    user_object
+    @ldap_objects << user_object
   end
 
   def user_can_write?(authenticated_user_info, security_descriptor)
@@ -461,6 +467,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def enum_registry_values
+    @registry_values ||= {}
+
     endpoint = "http://#{datastore['RHOST']}:5985/wsman"
     user = datastore['LDAPUsername']
     pass = datastore['LDAPPassword']
@@ -472,63 +480,98 @@ class MetasploitModule < Msf::Auxiliary
       transport: :negotiate
     )
 
-    # Check if registry values are already cached
-    cached_values = @ldap_objects.find { |obj| obj[:type] == :registry_values }
-    return cached_values[:values] if cached_values
-
-    registry_values = {}
-
     begin
       conn.shell(:powershell) do |shell|
-        registry_values[:certificate_mapping_methods] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\Schannel', 'CertificateMappingMethods')
-        registry_values[:strong_certificate_binding_enforcement] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Kdc', 'StrongCertificateBindingEnforcement')
+        @registry_values[:certificate_mapping_methods] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\Schannel', 'CertificateMappingMethods').to_i
+        @registry_values[:strong_certificate_binding_enforcement] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Kdc', 'StrongCertificateBindingEnforcement').to_i
 
         active_policy_name = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'Active')
-        registry_values[:disabled_extension_list] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'DisableExtensionList', active_policy_name)
-        registry_values[:edit_flags] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'EditFlags', active_policy_name)
+        @registry_values[:disable_extension_list] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'DisableExtensionList', active_policy_name)
+        @registry_values[:edit_flags] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'EditFlags', active_policy_name).to_i
       end
-
-      if registry_values[:strong_certificate_binding_enforcement] == '1'
-        vprint_good('ESC9 could be exploitable using Kerberos due to StrongCertificateBindingEnforcement being set to 1')
-      elsif registry_values[:strong_certificate_binding_enforcement] == '0'
-        vprint_good('ESC10 could be exploitable using Kerberos due to StrongCertificateBindingEnforcement being set to 0')
-      elsif registry_values[:strong_certificate_binding_enforcement] == '2'
-        vprint_error('ESC9 and ESC10 cannot be exploited using Kerberos due to StrongCertificateBindingEnforcement being set to 2')
-      end
-
-      if (registry_values[:certificate_mapping_methods].to_i & 4) > 0
-        vprint_good('ESC10 could be exploitable using Schannel due to CertificateMappingMethods allowing UPN certificate mapping')
-      else
-        print_error('ESC10 cannot be exploited using Schannel due to CertificateMappingMethods not allowing UPN certificate mapping')
-      end
-
-      vprint_status("Registry Values Retrieved for ESC9 & ESC10: #{registry_values}")
     rescue StandardError => e
-      vprint_warning("Failed to query registry values for ESC9 and ESC10 - this is expected when running as a low-privilege users. Error: #{e.message}")
+      vprint_warning("Failed to query registry values: #{e.message}")
     end
 
-    # Cache the registry values in @ldap_objects
-    @ldap_objects << { type: :registry_values, values: registry_values }
+    @registry_values
+  end
 
-    registry_values
+  def resolve_group_memberships(user_dn)
+    filter = "(member:1.2.840.113556.1.4.1941:=#{ldap_escape_filter(user_dn)})"
+    attributes = ['distinguishedName', 'objectSID', 'sAMAccountName']
+    groups = query_ldap_server(filter, attributes)
+
+    groups.map do |group|
+      {
+        dn: group[:distinguishedname].first,
+        sid: Rex::Proto::MsDtyp::MsDtypSid.read(group[:objectsid].first).value,
+        name: group[:samaccountname].first
+      }
+    end
+  end
+
+  def fetch_group_members(group_dn)
+    filter = "(distinguishedName=#{ldap_escape_filter(group_dn)})"
+    attributes = ['member'] # Fetch the 'member' attribute which contains the group members
+
+    group_entry = query_ldap_server(filter, attributes)&.first
+    return [] unless group_entry && group_entry[:member]
+
+    group_entry[:member]
+  end
+
+  def find_users_with_write_and_enroll_rights(authenticated_user_info, enroll_sids)
+    users = []
+    enroll_sids.each do |sid|
+      user_object = get_object_by_sid(sid.value)
+      if user_object && user_object[:objectclass]&.include?('user')
+        if user_object[:ntsecuritydescriptor]
+          security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(user_object[:ntsecuritydescriptor].first)
+          if user_can_write?(authenticated_user_info, security_descriptor)
+            users << user_object[:samaccountname].first
+          end
+        end
+        next
+      end
+      group_object = get_object_by_sid(sid.value)
+      next unless group_object && group_object[:objectclass]&.include?('group')
+
+      group_memberships = resolve_group_memberships(group_object[:dn].first)
+      group_memberships.each do |group|
+        members_of_group = fetch_group_members(group[:dn])
+        members_of_group.each do |member_dn|
+          member_object = get_object_by_dn(member_dn)
+          next unless member_object && member_object[:objectclass]&.include?('user')
+
+          next unless member_object[:ntsecuritydescriptor]
+
+          security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(member_object[:ntsecuritydescriptor].first)
+          if user_can_write?(authenticated_user_info, security_descriptor)
+            users << member_object[:samaccountname].first
+          end
+        end
+      end
+    end
+
+    users&.uniq
   end
 
   def find_esc9_vuln_cert_templates
     esc9_raw_filter = '(&'\
-    '(objectclass=pkicertificatetemplate)'\
-    "(mspki-enrollment-flag:1.2.840.113556.1.4.803:=#{CT_FLAG_NO_SECURITY_EXTENSION})"\
-    '(|(mspki-ra-signature=0)(!(mspki-ra-signature=*)))'\
-    '(|'\
-      "(pkiextendedkeyusage=#{OIDs::OID_KP_SMARTCARD_LOGON.value})"\
-      "(pkiextendedkeyusage=#{OIDs::OID_PKIX_KP_CLIENT_AUTH.value})"\
-      "(pkiextendedkeyusage=#{OIDs::OID_ANY_EXTENDED_KEY_USAGE.value})"\
-      '(!(pkiextendedkeyusage=*))'\
-    ')'\
-    '(|'\
-      "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_UPN})"\
-      "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_DNS})"\
-    ')'\
-  ')'
+      '(objectclass=pkicertificatetemplate)'\
+      "(mspki-enrollment-flag:1.2.840.113556.1.4.803:=#{CT_FLAG_NO_SECURITY_EXTENSION})"\
+      '(|(mspki-ra-signature=0)(!(mspki-ra-signature=*)))'\
+      '(|'\
+        "(pkiextendedkeyusage=#{OIDs::OID_KP_SMARTCARD_LOGON.value})"\
+        "(pkiextendedkeyusage=#{OIDs::OID_PKIX_KP_CLIENT_AUTH.value})"\
+        "(pkiextendedkeyusage=#{OIDs::OID_ANY_EXTENDED_KEY_USAGE.value})"\
+        '(!(pkiextendedkeyusage=*))'\
+      ')'\
+      '(|'\
+        "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_UPN})"\
+        "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_DNS})"\
+      ')'\
+    ')'
 
     begin
       authenticated_user_info = get_authenticated_user_info
@@ -542,16 +585,7 @@ class MetasploitModule < Msf::Auxiliary
       certificate_symbol = template[:cn][0].to_sym
       enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
 
-      users = []
-      enroll_sids.each do |sid|
-        user_object = get_object_by_sid(sid.value)
-        next unless user_object && user_object[:ntsecuritydescriptor] && user_object[:objectclass]&.include?('user')
-
-        security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(user_object[:ntsecuritydescriptor].first)
-        next unless user_can_write?(authenticated_user_info, security_descriptor)
-
-        users << user_object[:samaccountname].first
-      end
+      users = find_users_with_write_and_enroll_rights(authenticated_user_info, enroll_sids)
 
       next if users.empty?
 
@@ -559,9 +593,8 @@ class MetasploitModule < Msf::Auxiliary
       has_plural = users.size > 1 ? 'have' : 'has'
 
       note = "ESC9: The account: #{authenticated_user_info[:samaccountname].first} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
-      registry_object = @ldap_objects.find { |obj| obj[:type] == :registry_values }
-      if registry_object && registry_object[:values].present?
-        note += " Registry value: StrongCertificateBindingEnforcement=#{registry_object[:values][:strong_certificate_binding_enforcement]}."
+      if @registry_values[:strong_certificate_binding_enforcement].present?
+        note += " Registry value: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}."
       end
       @certificate_details[certificate_symbol][:techniques] << 'ESC9'
       @certificate_details[certificate_symbol][:notes] << note
@@ -595,17 +628,7 @@ class MetasploitModule < Msf::Auxiliary
     esc10_templates.each do |template|
       certificate_symbol = template[:cn][0].to_sym
       enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
-
-      users = []
-      enroll_sids.each do |sid|
-        user_object = get_object_by_sid(sid.value)
-        next unless user_object && user_object[:ntsecuritydescriptor] && user_object[:objectclass]&.include?('user')
-
-        security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(user_object[:ntsecuritydescriptor].first)
-        next unless user_can_write?(authenticated_user_info, security_descriptor)
-
-        users << user_object[:samaccountname].first
-      end
+      users = find_users_with_write_and_enroll_rights(authenticated_user_info, enroll_sids)
 
       next if users.empty?
 
@@ -613,9 +636,9 @@ class MetasploitModule < Msf::Auxiliary
       has_plural = users.size > 1 ? 'have' : 'has'
 
       note = "ESC10: The account: #{authenticated_user_info[:samaccountname].first} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
-      registry_object = @ldap_objects.find { |obj| obj[:type] == :registry_values }
-      if registry_object && registry_object[:values].present?
-        note += " Registry values: StrongCertificateBindingEnforcement=#{registry_object[:values][:strong_certificate_binding_enforcement]}, CertificateMappingMethods=#{registry_object[:values][:certificate_mapping_methods]}."
+
+      if @registry_values[:strong_certificate_binding_enforcement].present? && @registry_values[:certificate_mapping_methods].present?
+        note += " Registry values: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}, CertificateMappingMethods=#{@registry_values[:certificate_mapping_methods]}."
       end
 
       @certificate_details[certificate_symbol][:techniques] << 'ESC10'
@@ -714,6 +737,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def find_esc16_vuln_cert_templates
     esc16_raw_filter = '(&'\
+     '(|'\
+    "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_UPN})"\
+    "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_DNS})"\
+    "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT_ALT_NAME})"\
+     ')'\
       '(objectclass=pkicertificatetemplate)'\
       '(!(mspki-enrollment-flag:1.2.840.113556.1.4.804:=2))'\
       '(|(mspki-ra-signature=0)(!(mspki-ra-signature=*)))'\
@@ -723,29 +751,22 @@ class MetasploitModule < Msf::Auxiliary
     esc_entries = query_ldap_server(esc16_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
     return if esc_entries.empty?
 
-    registry_object = @ldap_objects.find { |obj| obj[:type] == :registry_values }
-
-    strong_binding = registry_object[:values][:strong_certificate_binding_enforcement]
-    if strong_binding && (strong_binding.to_i == 0 || strong_binding.to_i == 1)
+    if @registry_values[:strong_certificate_binding_enforcement] && (@registry_values[:strong_certificate_binding_enforcement] == 0 || @registry_values[:strong_certificate_binding_enforcement] == 1)
       # Scenario 1 -  StrongCertificateBindingEnforcement = 1 or 0 then it's same same as ESC9 - mark them all as vulnerable
       esc_entries.each do |entry|
         certificate_symbol = entry[:cn][0].to_sym
         @certificate_details[certificate_symbol][:techniques] << 'ESC16'
-        @certificate_details[certificate_symbol][:notes] << "ESC16: Template is vulnerable due StrongCertificateBindingEnforcement = #{registry_object[:values][:strong_certificate_binding_enforcement]} and the CA's disabled policy extension list includes: 1.3.6.1.4.1.311.25.2."
+        @certificate_details[certificate_symbol][:notes] << "ESC16: Template is vulnerable due StrongCertificateBindingEnforcement = #{@registry_values[:strong_certificate_binding_enforcement]} and the CA's disabled policy extension list includes: 1.3.6.1.4.1.311.25.2."
       end
-    else
-      # Scenario 2 - StrongCertificateBindingEnforcement = 2 (or nil) but if EditFlags in the active policy module has the bit 0x00040000 set then ESC6 is essentially re-enabled and we mark them all as vulnerable
-      edit_flags = registry_object[:values][:edit_flags]
-      if edit_flags.to_i & 0x00040000 != 0
-        esc_entries.each do |entry|
-          certificate_symbol = entry[:cn][0].to_sym
-          @certificate_details[certificate_symbol][:techniques] << 'ESC16'
-          @certificate_details[certificate_symbol][:notes] << 'ESC16: Template is vulnerable due to the active policy EditFlags having the bit: 0x00040000 set (which is essentially ESC6) combined with the CA\'s disabled policy extension list including: 1.3.6.1.4.1.311.25.2.'
-        end
+    elsif @registry_values[:edit_flags] & EDITF_ATTRIBUTESUBJECTALTNAME2 != 0
+      # Scenario 2 - StrongCertificateBindingEnforcement = 2 (or nil) but if EditFlags in the active policy module has EDITF_ATTRIBUTESUBJECTALTNAME2 set then ESC6 is essentially re-enabled and we mark them all as vulnerable
+      esc_entries.each do |entry|
+        certificate_symbol = entry[:cn][0].to_sym
+        @certificate_details[certificate_symbol][:techniques] << 'ESC16'
+        @certificate_details[certificate_symbol][:notes] << 'ESC16: Template is vulnerable due to the active policy EditFlags having: EDITF_ATTRIBUTESUBJECTALTNAME2 set (which is essentially ESC6) combined with the CA\'s disabled policy extension list including: 1.3.6.1.4.1.311.25.2.'
       end
     end
   end
-
 
   def find_enrollable_vuln_certificate_templates
     # For each of the vulnerable certificate templates, determine which servers
@@ -875,9 +896,8 @@ class MetasploitModule < Msf::Auxiliary
       print_status("  Distinguished Name: #{hash[:dn]}")
       print_status("  Manager Approval: #{hash[:manager_approval] ? '%redRequired' : '%grnDisabled'}%clr")
       print_status("  Required Signatures: #{hash[:required_signatures] == 0 ? '%grn0' : '%red' + hash[:required_signatures].to_s}%clr")
-      registry_object = @ldap_objects.find { |obj| obj[:type] == :registry_values }
 
-      if registry_object && registry_object[:values].present?
+      if @registry_values.present?
         print_good("  Vulnerable to: #{techniques.join(', ')}")
       else
         print_good("  Vulnerable to: #{(techniques - %w[ESC9 ESC10]).join(', ')}")
@@ -1036,6 +1056,7 @@ class MetasploitModule < Msf::Auxiliary
     # Define our instance variables real quick.
     @base_dn = nil
     @ldap_objects = []
+    @registry_values = {}
     @fqdns = {}
     @certificate_details = {} # Initialize to empty hash since we want to only keep one copy of each certificate template along with its details.
 
@@ -1072,18 +1093,17 @@ class MetasploitModule < Msf::Auxiliary
         find_esc9_vuln_cert_templates
         find_esc10_vuln_cert_templates
       else
-        if registry_values[:strong_certificate_binding_enforcement] != '2'
+        if registry_values[:strong_certificate_binding_enforcement] != 2
           find_esc9_vuln_cert_templates
         end
-        if registry_values[:strong_certificate_binding_enforcement] == '0' ||
-           %w[4 31].include?(registry_values[:certificate_mapping_methods])
+        if registry_values[:strong_certificate_binding_enforcement] == 1 || registry_values[:certificate_mapping_methods] & 4 > 0
           find_esc10_vuln_cert_templates
         end
       end
 
       find_esc13_vuln_cert_templates
       find_esc15_vuln_cert_templates
-      if registry_values && registry_values[:disabled_extension_list]&.include?('1.3.6.1.4.1.311.25.2')
+      if registry_values && registry_values[:disable_extension_list]&.include?('1.3.6.1.4.1.311.25.2')
         find_esc16_vuln_cert_templates
       end
 
