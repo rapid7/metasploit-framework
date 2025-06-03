@@ -61,11 +61,16 @@ class MetasploitModule < Msf::Post
     fdray.each do |line|
       main_part = line.split('#', 2).first.to_s.strip
       parts = main_part.split(/\s+/)
-      unless parts[1..-1].to_a.include?(hosttoremove)
+      if parts[1..-1].to_a.include?(hosttoremove)
+        parts.delete_if { |p| p.casecmp(hosttoremove).zero? }
+        next if parts.size < 2
+        rebuilt = parts.join(' ')
+        rebuilt += " " + line.split('#', 2).last if line.include?('#')
+        newfile += "#{rebuilt}\r\n"
+      else
         newfile += "#{line}\r\n"
       end
     end
-
 
     fd.close
 
