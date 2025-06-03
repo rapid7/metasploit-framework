@@ -27,6 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DisclosureDate' => '2003-09-17',
         'Notes' => {
+          'AKA' => ['EARLYSHOVEL'],
           'Stability' => [CRASH_SERVICE_DOWN],
           'SideEffects' => [],
           'Reliability' => []

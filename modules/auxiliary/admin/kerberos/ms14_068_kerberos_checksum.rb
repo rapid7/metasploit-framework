@@ -37,6 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'DisclosureDate' => '2014-11-18',
         'Notes' => {
+          'AKA' => ['ESKIMOROLL'],
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS],
           'Reliability' => []

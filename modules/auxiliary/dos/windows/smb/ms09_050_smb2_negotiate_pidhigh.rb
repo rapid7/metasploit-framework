@@ -29,6 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://seclists.org/fulldisclosure/2009/Sep/39']
         ],
         'Notes' => {
+          'AKA' => ['EDUCATEDSCHOLAR'],
           'Stability' => [CRASH_SERVICE_DOWN],
           'SideEffects' => [],
           'Reliability' => []
