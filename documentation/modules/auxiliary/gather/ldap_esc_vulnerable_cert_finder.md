@@ -96,6 +96,7 @@ a normal user account by analyzing the objects in LDAP.
 1. Right click on the folder in the drop down marked `Certificate Templates` and then click `Manage`.
 1. Scroll down to the `User` certificate. Right click on it and select `Duplicate Template`.
 1. The `User` certificate already has the `Client Authentication` EKU enabled so we can use this as a base template.
+1. Select the Subject Name tab and select `Build from this Active Directory Information`, under the `Subject Name Format` section select `User Principal Name (UPN)`.
 1. Select the `General` tab and rename this to something meaningful like `ESC9-Template`, then click the `Apply` button.
 1. Select the Security tab and click the `Add` button.
 1. Enter `user2` (or whatever user's UPN you will be changing for this attack). Click OK.
@@ -178,6 +179,52 @@ Get-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Control\SecurityProviders\
 1. Click Apply.
 1. Go back to the `certsrv` screen and right click on the `Certificate Templates` folder and ensure `WebServer` is listed, if it's not, add it.
 1. The certificate should now be available to be issued by the CA server.
+
+### Setting up a ESC16 Vulnerable Certificate Template
+#### Configuring Windows to be Vulnerable to ESC16
+1. There are two ECS16 scenarios and both depend on the CA having the OID: `1.3.6.1.4.1.311.25.2` being present in its `policy\DisableExtensionList`
+1. Run the following Powershell snippet to add the OID to the `DisableExtensionList` if it is not already present:
+```powershell
+$activePolicyName = Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\*\PolicyModules" -Name "Active" | Select-Object -ExpandProperty Active
+$disableExtensionList = Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\*\PolicyModules\$activePolicyName" -Name "DisableExtensionList" | Select-Object -ExpandProperty DisableExtensionList
+
+if (-not ($disableExtensionList -contains "1.3.6.1.4.1.311.25.2")) {
+    $updatedList = $disableExtensionList + @("1.3.6.1.4.1.311.25.2")
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\*\PolicyModules\$activePolicyName" -Name "DisableExtensionList" -Value $updatedList
+    Write-Output "OID 1.3.6.1.4.1.311.25.2 has been added to the DisableExtensionList."
+} else {
+    Write-Output "OID 1.3.6.1.4.1.311.25.2 is already present in the DisableExtensionList."
+}
+```
+#### ESC16 Scenario 1
+When a CA has the OID `1.3.6.1.4.1.311.25.2` added to its `policy\DisableExtensionList` registry setting every certificate issued by this CA will lack this SID security extension.
+This effectively makes all templates published by this CA behave as if they were individually configured with the `CT_FLAG_NO_SECURITY_EXTENSION` flag (as seen in ESC9).
+So if `StrongCertificateBindingEnforcement` is not set to `2` we can exploit this weak mapping.
+
+In order to create a template vulnerable to ESC16 scenario 1, follow the first 15 steps in `Setting up a ESC9 Vulnerable Certificate Template`,
+which is all the steps up to and excluding the `msPKI-Enrollment-Flag", 0x80000` powershell step which is how you set the `CT_FLAG_NO_SECURITY_EXTENSION`.
+Ensure that `StrongCertificateBindingEnforcement` is set to `0` or `1` (not `2`) by running the following command listed in `Configuring Windows to be Vulnerable to ESC9`
+
+### ESC16 Scenario 2
+When a CA has the OID `1.3.6.1.4.1.311.25.2` added to its `policy\DisableExtensionList` and `StrongCertificateBindingEnforcement` is set to `2`, there is still a way to exploit the template.
+If the policy module's `EditFlags` has the `EDITF_ATTRIBUTESUBJECTALTNAME2` flag set (which is essentially ESC6), then the template is vulnerable to ESC16 scenario 2.
+
+Ensure the `EDITF_ATTRIBUTESUBJECTALTNAME2` flag is set by running following PowerShell command:
+```powershell
+$EDITF_ATTRIBUTESUBJECTALTNAME2 = 0x00040000
+$activePolicyName = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\*\PolicyModules" -Name "Active").Active
+$editFlagsPath = "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\*\PolicyModules\$activePolicyName"
+$editFlags = (Get-ItemProperty -Path $editFlagsPath -Name "EditFlags").EditFlags
+
+if ($editFlags -band $EDITF_ATTRIBUTESUBJECTALTNAME2) {
+    Write-Output "The EDITF_ATTRIBUTESUBJECTALTNAME2 flag is already enabled."
+} else {
+    # Enable the flag by setting it in the EditFlags value
+    $newEditFlags = $editFlags -bor $EDITF_ATTRIBUTESUBJECTALTNAME2
+    Set-ItemProperty -Path $editFlagsPath -Name "EditFlags" -Value $newEditFlags
+    Write-Output "The EDITF_ATTRIBUTESUBJECTALTNAME2 flag has been enabled."
+}
+```
 
 ## Module usage
 
