@@ -390,27 +390,27 @@ class MetasploitModule < Msf::Auxiliary
     return hashreq
   end
 
-  # Taken from https://www.ruby-forum.com/t/creating-a-canonicalized-url/127036/6 by Rob Biedenharn
-  # TODO: This method should be rewritten
-  # rubocop:disable Style/PerlBackrefs
-  # rubocop:disable Style/WhileUntilDo
-  # rubocop:disable Style/BlockDelimiters
   def canonicalize(uri)
-    u = uri.is_a?(URI) ? uri : URI.parse(uri.to_s)
-    u.normalize!
-    newpath = u.path
-    while newpath.gsub!(%r{([^/]+)/\.\./?}) { |match|
-      $1 == '..' ? match : ''
-    } do end
-    newpath = newpath.gsub(%r{/\./}, '/').sub(%r{/\.\z}, '/')
-    u.path = newpath
-    # Ugly fix
-    u.path = u.path.gsub("\/..\/", "\/")
-    u.to_s
+    uri = URI(uri) unless uri.is_a?(URI)
+    uri.normalize!
+
+    path = uri.path.dup
+    segments = path.split('/')
+    resolved = []
+
+    segments.each do |segment|
+      next if segment == '.' || segment.empty?
+
+      if segment == '..'
+        resolved.pop unless resolved.empty?
+      else
+        resolved << segment
+      end
+    end
+
+    uri.path = '/' + resolved.join('/')
+    uri.to_s
   end
-  # rubocop:enable Style/PerlBackrefs
-  # rubocop:enable Style/WhileUntilDo
-  # rubocop:enable Style/BlockDelimiters
 
   def hashsig(hashreq)
     hashreq.to_s
