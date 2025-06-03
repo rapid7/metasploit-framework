@@ -44,10 +44,17 @@ class MetasploitModule < Msf::Post
     )
   end
 
+  def hosts_path
+    root = client.sys.config.getenv('SystemRoot') ||
+           client.sys.config.getenv('windir')     ||
+           'C:\\Windows'
+    "#{root}\\System32\\drivers\\etc\\hosts"
+  end
+
   def run
     hosttoremove = datastore['DOMAIN']
-    # remove hostname from hosts file
-    fd = client.fs.file.new('C:\\WINDOWS\\System32\\drivers\\etc\\hosts', 'r+b')
+    path = hosts_path
+    fd = client.fs.file.new(path, 'r+b')
 
     # Get a temporary file path
     meterp_temp = Tempfile.new('meterp')
@@ -77,7 +84,7 @@ class MetasploitModule < Msf::Post
     meterp_temp.write(newfile)
     meterp_temp.close
 
-    client.fs.file.upload_file('C:\\WINDOWS\\System32\\drivers\\etc\\hosts', meterp_temp)
+    client.fs.file.upload_file(path, meterp_temp)
     print_good('Done!')
   end
 end
