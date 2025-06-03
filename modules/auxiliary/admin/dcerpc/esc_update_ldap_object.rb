@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
           'Reliability' => [],
           'Stability' => [],
           'SideEffects' => [ IOC_IN_LOGS ],
-          'AKA' => [ 'ESC9', 'ESC10' ]
+          'AKA' => [ 'ESC9', 'ESC10', 'ESC16']
         },
         'Actions' => [
           [ 'REQUEST_CERT', { 'Description' => 'Request a certificate' } ]

