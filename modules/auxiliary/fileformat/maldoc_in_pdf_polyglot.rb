@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         },
         'License' => MSF_LICENSE,
         'Author' => [
-          'RAMELLA "mekhalleh" Sebastien from XA Reunion (https://www.exa.re/)' # module author
+          'mekhalleh (RAMELLA Sebastien)' # module author powered by EXA Reunion (https://www.exa.re/)
         ],
         'Platform' => ['win'],
         'References' => [
