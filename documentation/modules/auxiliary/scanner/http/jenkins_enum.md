@@ -12,10 +12,12 @@ Jenkins instances may expose sensitive information through misconfigured endpoin
 2. Use the module: `use auxiliary/scanner/http/jenkins_enum`
 3. Set the target(s) and other options: `set RHOSTS <target IP or CIDR>`, `set RPORT 8080`, `set TARGETURI /jenkins/`, etc
 4. Run the module: `run`
-5. You should see output similar to:
+5. You might see output similar to:
 ``` 
 [+] 192.168.1.100:8080 - Jenkins Version: 2.319.1
 [+] 192.168.1.100:8080 - /script is accessible without authentication (HTTP 200)
+[+] 192.168.1.100:8080 - Enumerating plugins...
+[+] 192.168.1.100:8080 - Plugin detected: Git Plugin 4.11.3
 [+] 192.168.1.100:8080 - System Information:
     OS: Linux
     OS Version: 5.4.0-77-generic
@@ -23,7 +25,6 @@ Jenkins instances may expose sensitive information through misconfigured endpoin
     Jenkins Home: /var/lib/jenkins
 [*] 192.168.1.100:8080 - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-
 ```
 
 ## Options
@@ -62,6 +63,7 @@ msf6 auxiliary(scanner/http/jenkins_enum) > run
 [*] 192.168.1.100:8080 - Enumerating plugins...
 [+] 192.168.1.100:8080 - Plugin detected: Git Plugin 4.11.3
 [+] 192.168.1.100:8080 - Plugin detected: Matrix Authorization Strategy 2.6.7
+[+] 192.168.1.100:8080 - Plugin detected: Workflow CPS 2.92
 [*] 192.168.1.100:8080 - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```
