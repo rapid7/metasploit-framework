@@ -46,6 +46,7 @@ class Auxiliary < Msf::Module
 
     self.sockets = Array.new
     self.queue   = Array.new
+    self.fail_reason = Msf::Module::Failure::None
   end
 
   #
@@ -159,8 +160,26 @@ class Auxiliary < Msf::Module
 
   # Override Msf::Module#fail_with for Msf::Simple::Auxiliary::job_run_proc
   def fail_with(reason, msg = nil)
-    raise Msf::Auxiliary::Failed, "#{reason.to_s}: #{msg}"
+    allowed_values = Msf::Module::Failure.constants.collect {|e| Msf::Module::Failure.const_get(e)}
+    if allowed_values.include?(reason)
+      self.fail_reason = reason
+    else
+      self.fail_reason = Msf::Module::Failure::Unknown
+    end
+
+    self.fail_detail = msg
+    raise Msf::Auxiliary::Failed, "#{reason.to_s}: #{(msg || "No failure message given")}"
   end
+
+  #
+  # The reason why the module was not successful (one of the constant defined above)
+  #
+  attr_accessor  :fail_reason
+
+  #
+  # Detailed exception string indicating why the module was not successful
+  #
+  attr_accessor  :fail_detail
 
   attr_accessor :queue
 
