@@ -129,7 +129,6 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = sock.get
       if res
-
         print_good('Received response from target.')
         vprint_status(Rex::Text.to_hex_dump(res)) if res
       else
