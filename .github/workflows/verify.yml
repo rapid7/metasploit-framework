@@ -63,6 +63,7 @@ jobs:
           - '3.2'
           - '3.3'
           - '3.4'
+          - '3.5.0-preview1'
         os:
           - ubuntu-latest
         include:
