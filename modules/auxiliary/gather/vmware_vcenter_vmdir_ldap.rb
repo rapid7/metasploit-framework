@@ -102,9 +102,16 @@ class MetasploitModule < Msf::Auxiliary
       # HACK: Stash discovered base DN in CheckCode reason
       Exploit::CheckCode::Vulnerable(base_dn)
     end
+  rescue Errno::ECONNRESET
+    fail_with(Failure::Disconnected, 'The connection was reset.')
+  rescue Rex::ConnectionError => e
+    fail_with(Failure::Unreachable, e.message)
+  rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
+    fail_with(Failure::NoAccess, e.message)
+  rescue Rex::Proto::LDAP::LdapException => e
+    fail_with(Failure::NoAccess, e.message)
   rescue Net::LDAP::Error => e
-    print_error("#{e.class}: #{e.message}")
-    Exploit::CheckCode::Unknown
+    fail_with(Failure::Unknown, "#{e.class}: #{e.message}")
   end
 
   def pillage(entries)
