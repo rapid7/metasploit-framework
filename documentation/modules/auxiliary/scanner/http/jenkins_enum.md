@@ -13,6 +13,7 @@ Jenkins instances may expose sensitive information through misconfigured endpoin
 3. Set the target(s) and other options: `set RHOSTS <target IP or CIDR>`, `set RPORT 8080`, `set TARGETURI /jenkins/`, etc
 4. Run the module: `run`
 5. You might see output similar to:
+
 ``` 
 [+] 192.168.1.100:8080 - Jenkins Version: 2.319.1
 [+] 192.168.1.100:8080 - /script is accessible without authentication (HTTP 200)
@@ -51,6 +52,7 @@ Default: None
 
 ## Scenarios
 This example demonstrates how to use the jenkins_enum module to enumerate information from a Jenkins server running on the local network at IP 192.168.1.100 on port 8080, where Jenkins is installed at the default /jenkins/ path.
+
 ```
 msf6 > use auxiliary/scanner/http/jenkins_enum
 msf6 auxiliary(scanner/http/jenkins_enum) > set RHOSTS 192.168.1.100
