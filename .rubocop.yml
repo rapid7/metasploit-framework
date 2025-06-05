@@ -152,6 +152,11 @@ Style/RedundantAssignment:
     and return expression
   Enabled: false
 
+Style/RedundantParentheses:
+  Description: >-
+    Disabled as it sometimes improves the readability of code
+  Enabled: false
+
 Style/RedundantRegexpArgument:
   Enabled: true
   Exclude:
