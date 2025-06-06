@@ -51,7 +51,9 @@ module Rex
           NT_UID = 5
         end
 
-        # From padata - https://www.iana.org/assignments/kerberos-parameters/kerberos-parameters.xhtml
+        # See:
+        # * https://www.iana.org/assignments/kerberos-parameters/kerberos-parameters.xhtml#pre-authentication
+        # * https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-kile/ae60c948-fda8-45c2-b1d1-a71b484dd1f7
 
         module PreAuthType
           PA_TGS_REQ = 1
@@ -65,6 +67,7 @@ module Rex
           PA_FOR_USER = 129
           PA_SUPPORTED_ETYPES = 165
           PA_PAC_OPTIONS = 167
+          KERB_SUPERSEDED_BY_USER = 170
         end
 
         module AuthorizationDataType
