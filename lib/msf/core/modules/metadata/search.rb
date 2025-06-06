@@ -12,6 +12,8 @@ module Msf::Modules::Metadata::Search
       adapter
       aka
       arch
+      attack
+      att&ck
       author
       authors
       bid
@@ -40,6 +42,7 @@ module Msf::Modules::Metadata::Search
       stager
       target
       targets
+      technique
       text
       type
     ]
@@ -183,13 +186,15 @@ module Msf::Modules::Metadata::Search
             when 'arch'
               match = [keyword, search_term] if module_metadata.arch =~ regex
             when 'cve'
-              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^cve\-/i and ref =~ regex }
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^cve-/i && ref =~ regex }
+            when 'att&ck', 'attack', 'technique'
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^ATT&CK-/i && ref =~ regex }
             when 'osvdb'
-              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^osvdb\-/i and ref =~ regex }
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^osvdb-/i && ref =~ regex }
             when 'bid'
-              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^bid\-/i and ref =~ regex }
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^bid-/i && ref =~ regex }
             when 'edb'
-              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^edb\-/i and ref =~ regex }
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^edb-/i && ref =~ regex }
             when 'check'
               if module_metadata.check
                 matches_check = %w(true yes).any? { |val| val =~ regex}
