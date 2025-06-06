@@ -75,6 +75,7 @@ module ModuleValidation
     # Acceptable site references
     #
     VALID_REFERENCE_CTX_ID_VALUES = %w[
+      ATT&CK
       CVE
       CWE
       BID
