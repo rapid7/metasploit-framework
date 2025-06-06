@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         'References' => [
-          ['CVE', '2023-27855 '],
+          ['CVE', '2023-27855'],
           ['URL', 'https://www.tenable.com/security/research/tra-2023-13'],
           ['URL', 'https://rockwellautomation.custhelp.com/app/answers/answer_view/a_id/1138640']
         ],
