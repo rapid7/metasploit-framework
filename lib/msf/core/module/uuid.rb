@@ -5,9 +5,10 @@ module Msf::Module::UUID
   # Attributes
   #
 
-  # @!attribute [r] uuid
-  #   A unique identifier for this module instance
-  attr_reader :uuid
+  # @return [String] A unique identifier for this module instance
+  def uuid
+    @uuid ||= generate_uuid
+  end
 
   protected
 
