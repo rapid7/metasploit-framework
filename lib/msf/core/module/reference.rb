@@ -121,7 +121,16 @@ class Msf::Module::SiteReference < Msf::Module::Reference
     elsif in_ctx_id == 'SOUNDTRACK'
       self.site = "Soundtrack: #{in_ctx_val}"
     elsif in_ctx_id == 'ATT&CK'
-      self.site = "https://attack.mitre.org/techniques/#{in_ctx_val}/"
+      # Handle sub-technique IDs correctly so they render URL in the correct format
+      # Example: T1218.011 becomes T1218/011
+      match = in_ctx_val.match(/\A(?<technique>T\d{4})\.(?<sub_technique>\d{3})\z/)
+      if match
+        technique = match[:technique]
+        sub_technique = match[:sub_technique]
+        self.site = "https://attack.mitre.org/techniques/#{technique}/#{sub_technique}/"
+      else
+        self.site = "https://attack.mitre.org/techniques/#{in_ctx_val}/"
+      end
     else
       self.site  = in_ctx_id
       self.site += " (#{in_ctx_val})" if (in_ctx_val)
