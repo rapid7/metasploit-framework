@@ -385,7 +385,6 @@ module Msf
               'aka'         => 'Modules with a matching AKA (also-known-as) name',
               'arch'        => 'Modules affecting this architecture',
               'att&ck'      => 'Modules with a matching MITRE ATT&CK ID or reference',
-              'attack'      => 'Modules with a matching MITRE ATT&CK ID or reference',
               'author'      => 'Modules written by this author',
               'bid'         => 'Modules with a matching Bugtraq ID',
               'check'       => 'Modules that support the \'check\' method',
@@ -407,7 +406,6 @@ module Msf
               'stage'       => 'Modules with a matching stage reference name',
               'stager'      => 'Modules with a matching stager reference name',
               'target'      => 'Modules affecting this target',
-              'technique'   => 'Modules with a matching MITRE ATT&CK ID or reference',
               'type'        => 'Modules of a specific type (exploit, payload, auxiliary, encoder, evasion, post, or nop)',
             }.each_pair do |keyword, description|
               print_line "  #{keyword.ljust 17}:  #{description}"
