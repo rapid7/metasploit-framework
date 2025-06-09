@@ -14,9 +14,10 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'ThinManager Path Traversal (CVE-2023-2915) Arbitrary File Delete',
         'Description' => %q{
-          This module exploits a path traversal vulnerability (CVE-2023-2915) in ThinManager <= v13.1.0 to delete arbitrary files from the system.
-
-          The affected service listens by default on TCP port 2031 and runs in the context of NT AUTHORITY\SYSTEM.
+          This module exploits a path traversal vulnerability (CVE-2023-2915) in
+          ThinManager <= v13.1.0 to delete arbitrary files from the system.
+          The affected service listens by default on TCP port 2031 and runs in the
+          context of NT AUTHORITY\SYSTEM.
         },
         'Author' => [
           'Michael Heinzl', # MSF Module
