@@ -61,6 +61,19 @@ end
 ###
 class Msf::Module::SiteReference < Msf::Module::Reference
 
+  # Maps MITRE ATT&CK object ID prefixes to their URL path segments.
+  # Update this constant if MITRE adds new categories or changes prefixes.
+  ATTACK_CATEGORY_PATHS = {
+    'TA' => 'tactics',
+    'DS' => 'datasources',
+    'S'  => 'software',
+    'M'  => 'mitigations',
+    'A'  => 'assets',
+    'G'  => 'groups',
+    'C'  => 'campaigns',
+    'T'  => 'techniques'
+  }.freeze
+
   #
   # Class method that translates a URL into a site reference instance.
   #
@@ -123,13 +136,21 @@ class Msf::Module::SiteReference < Msf::Module::Reference
     elsif in_ctx_id == 'ATT&CK'
       # Handle sub-technique IDs correctly so they render URL in the correct format
       # Example: T1218.011 becomes T1218/011
-      match = in_ctx_val.match(/\A(?<technique>T\d{4})\.(?<sub_technique>\d{3})\z/)
+      match = in_ctx_val.match(/\A(?<technique>T\d{4})\.(?<sub_technique>\d{3})\z/.freeze)
       if match
         technique = match[:technique]
         sub_technique = match[:sub_technique]
         self.site = "https://attack.mitre.org/techniques/#{technique}/#{sub_technique}/"
       else
-        self.site = "https://attack.mitre.org/techniques/#{in_ctx_val}/"
+        # To Match the prefix exactly the next character after the prefix must be a digit
+        prefix = ATTACK_CATEGORY_PATHS.keys.find { |k| in_ctx_val.start_with?(k) && in_ctx_val[k.length] =~ /\d/ }
+        path = ATTACK_CATEGORY_PATHS[prefix]
+        if path.nil?
+          # TODO: Wasn't sure exactly how to handle unknow prefixes, so defaulted to techniques. Will think about how I could improve this.
+          warn "[ATT&CK] Unknown prefix '#{in_ctx_val[/\A[A-Z]+/]}' in ID '#{in_ctx_val}', defaulting to 'techniques'"
+          path = 'techniques'
+        end
+        self.site = "https://attack.mitre.org/#{path}/#{in_ctx_val}/"
       end
     else
       self.site  = in_ctx_id
