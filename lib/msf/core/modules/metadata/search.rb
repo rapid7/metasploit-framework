@@ -185,15 +185,15 @@ module Msf::Modules::Metadata::Search
             when 'arch'
               match = [keyword, search_term] if module_metadata.arch =~ regex
             when 'cve'
-              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^cve-/i && ref =~ regex }
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref.downcase.start_with?('cve-') && ref =~ regex }
             when 'att&ck', 'attack'
-              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^ATT&CK-/i && ref =~ regex }
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref.downcase.start_with?('att&ck-') && ref =~ regex }
             when 'osvdb'
-              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^osvdb-/i && ref =~ regex }
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref.downcase.start_with?('osvdb-') && ref =~ regex }
             when 'bid'
-              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^bid-/i && ref =~ regex }
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref.downcase.start_with?('bid-') && ref =~ regex }
             when 'edb'
-              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^edb-/i && ref =~ regex }
+              match = [keyword, search_term] if module_metadata.references.any? { |ref| ref.downcase.start_with?('edb-') && ref =~ regex }
             when 'check'
               if module_metadata.check
                 matches_check = %w(true yes).any? { |val| val =~ regex}
