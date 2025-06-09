@@ -42,7 +42,6 @@ module Msf::Modules::Metadata::Search
       stager
       target
       targets
-      technique
       text
       type
     ]
@@ -187,7 +186,7 @@ module Msf::Modules::Metadata::Search
               match = [keyword, search_term] if module_metadata.arch =~ regex
             when 'cve'
               match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^cve-/i && ref =~ regex }
-            when 'att&ck', 'attack', 'technique'
+            when 'att&ck', 'attack'
               match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^ATT&CK-/i && ref =~ regex }
             when 'osvdb'
               match = [keyword, search_term] if module_metadata.references.any? { |ref| ref =~ /^osvdb-/i && ref =~ regex }
