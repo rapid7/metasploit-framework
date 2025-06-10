@@ -5,6 +5,11 @@
 # Author: Martin Sutovsky <martin_sutovsky[at]rapid7.com>
 # Resource and Credits: https://magisterquis.github.io/2018/03/31/in-memory-only-elf-execution.html
 #
+# ARM32 conventions
+# Parameters: r0-r6
+# Syscall offset: r7
+# Return Address: lr/r14
+
 module Msf::Payload::Linux::Armbe::MeterpreterLoader
   def in_memory_load(payload)
     in_memory_loader = [

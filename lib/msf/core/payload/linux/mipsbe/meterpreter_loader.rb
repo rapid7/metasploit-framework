@@ -4,6 +4,13 @@
 # Author: Diego Ledda <diego_ledda[at]rapid7.com>
 # Resource and Credits: https://magisterquis.github.io/2018/03/31/in-memory-only-elf-execution.html
 #
+#  MIPS conventions
+#  Literal Zero: r0/$zero
+#  Volatile: t0-t7
+#  Parameters: a0-a3
+#  Syscall offset: v0
+#  Return Address: ra
+
 module Msf::Payload::Linux::Mipsbe::MeterpreterLoader
   def in_memory_load(payload)
     size = payload.length

