@@ -26,6 +26,7 @@ module ModuleValidation
     validate :validate_reference_ctx_id
     validate :validate_author_bad_chars
     validate :validate_target_platforms
+    validate :validate_attack_reference_format
 
     attr_reader :mod
 
@@ -93,6 +94,18 @@ module ModuleValidation
       OVE
     ]
 
+    # Valid ATT&CK reference categories
+    ATTACK_CATEGORY_PATHS = {
+      'TA' => 'tactics',
+      'DS' => 'datasources',
+      'S'  => 'software',
+      'M'  => 'mitigations',
+      'A'  => 'assets',
+      'G'  => 'groups',
+      'C'  => 'campaigns',
+      'T'  => 'techniques'
+    }.freeze
+
     def validate_notes_values_are_arrays
       notes.each do |k, v|
         unless v.is_a?(Array)
@@ -142,6 +155,19 @@ module ModuleValidation
           if target.platform.blank?
             errors.add :platform, 'must be included either within targets or platform module metadata'
           end
+        end
+      end
+    end
+
+    def validate_attack_reference_format
+      references.each do |ref|
+        next unless ref.respond_to?(:ctx_id) && ref.respond_to?(:ctx_val)
+        next unless ref.ctx_id == 'ATT&CK'
+
+        val = ref.ctx_val
+        prefix = val[/\A[A-Z]+/]
+        unless ATTACK_CATEGORY_PATHS.key?(prefix) && val.match?(/\A#{prefix}[\d.]+\z/)
+          errors.add :references, "ATT&CK reference '#{val}' is invalid. Must start with one of #{ATTACK_CATEGORY_PATHS.keys.inspect} and be followed by digits/periods, no whitespace."
         end
       end
     end
