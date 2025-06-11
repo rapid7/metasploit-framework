@@ -9,8 +9,8 @@
 #  Return Address: lr
 #  Stack Pointer: r1
 #  Parameters: r3-r10
-
-module Msf::Payload::Linux::Ppc64le::MeterpreterLoader
+#
+module Msf::Payload::Linux::Ppc64le::ElfLoader
   def in_memory_load(payload)
     in_memory_loader = [
       # jump to address 0x105c

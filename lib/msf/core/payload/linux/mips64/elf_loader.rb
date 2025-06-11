@@ -9,8 +9,8 @@
 #  Parameters: a0-a3
 #  Syscall offset: v0
 #  Return Address: ra
-
-module Msf::Payload::Linux::Mips64::MeterpreterLoader
+#
+module Msf::Payload::Linux::Mips64::ElfLoader
   def in_memory_load(payload)
     size = payload.length
     size_h = size >> 16
