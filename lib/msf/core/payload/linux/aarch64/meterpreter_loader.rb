@@ -3,11 +3,10 @@
 # Compatible with Kernel Linux >= 3.17 (where memfd_create is introduced)
 # Author: Martin Sutovsky <martin_sutovsky[at]rapid7.com>
 # Resource and Credits: https://magisterquis.github.io/2018/03/31/in-memory-only-elf-execution.html
-#
 # ARM64 conventions
-# Parameters: x0-x7
-# Syscall offset: x8
-# Return Address for BL: x30
+#  Parameters: x0-x7
+#  Syscall offset: x8
+#  Return Address for BL: x30
 
 module Msf::Payload::Linux::Aarch64::MeterpreterLoader
   def in_memory_load(payload)
