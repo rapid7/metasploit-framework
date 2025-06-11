@@ -134,24 +134,10 @@ class Msf::Module::SiteReference < Msf::Module::Reference
     elsif in_ctx_id == 'SOUNDTRACK'
       self.site = "Soundtrack: #{in_ctx_val}"
     elsif in_ctx_id == 'ATT&CK'
-      # Handle sub-technique IDs correctly so they render URL in the correct format
-      # Example: T1218.011 becomes T1218/011
-      match = in_ctx_val.match(/\A(?<technique>T\d{4})\.(?<sub_technique>\d{3})\z/.freeze)
-      if match
-        technique = match[:technique]
-        sub_technique = match[:sub_technique]
-        self.site = "https://attack.mitre.org/techniques/#{technique}/#{sub_technique}/"
-      else
-        # To Match the prefix exactly the next character after the prefix must be a digit
-        prefix = ATTACK_CATEGORY_PATHS.keys.find { |k| in_ctx_val.start_with?(k) && in_ctx_val[k.length] =~ /\d/ }
-        path = ATTACK_CATEGORY_PATHS[prefix]
-        if path.nil?
-          # TODO: Wasn't sure exactly how to handle unknow prefixes, so defaulted to techniques. Will think about how I could improve this.
-          warn "[ATT&CK] Unknown prefix '#{in_ctx_val[/\A[A-Z]+/]}' in ID '#{in_ctx_val}', defaulting to 'techniques'"
-          path = 'techniques'
-        end
-        self.site = "https://attack.mitre.org/#{path}/#{in_ctx_val}/"
-      end
+      match = in_ctx_val.match(/\A(?<category>[A-Z]+)(?<id>[\d.]+)\z/)
+      path = ATTACK_CATEGORY_PATHS[match[:category]]
+      id_path = match[:id].gsub('.', '/')
+      self.site = "https://attack.mitre.org/#{path}/#{match[:category]}#{id_path}/"
     else
       self.site  = in_ctx_id
       self.site += " (#{in_ctx_val})" if (in_ctx_val)
@@ -198,3 +184,4 @@ protected
   attr_writer :site, :ctx_id, :ctx_val
 
 end
+
