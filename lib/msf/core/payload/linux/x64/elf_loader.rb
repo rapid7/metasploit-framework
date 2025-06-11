@@ -4,7 +4,7 @@
 # Author: Diego Ledda <diego_ledda[at]rapid7.com>
 # Resource and Credits: https://magisterquis.github.io/2018/03/31/in-memory-only-elf-execution.html
 #
-module Msf::Payload::Linux::X64::MeterpreterLoader
+module Msf::Payload::Linux::X64::ElfLoader
   def in_memory_load(payload)
     in_memory_loader_asm = %^
     start:

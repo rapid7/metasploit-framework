@@ -6,7 +6,6 @@ require 'securerandom'
 module Msf
   module Sessions
     module MettleConfig
-
       include Msf::Payload::TransportConfig
 
       def initialize(info = {})
@@ -19,15 +18,21 @@ module Msf
               'Fork a new process if the functionality is available',
               default: false
             ),
-            OptEnum.new(
-              'MeterpreterLinuxMinKernel', 
-              [true, 'Linux minimum kernel version for compatibility', '2.6+', ['2.6+', '3.17+']]
-            )
           ]
         )
+        unless staged?
+          register_advanced_options(
+            [
+              OptEnum.new(
+                'PayloadLinuxMinKernel',
+                [true, 'Linux minimum kernel version for compatibility', '2.6+', ['2.6+', '3.17+']]
+              )
+            ]
+          )
+        end
       end
 
-      def generate_uri(opts={})
+      def generate_uri(opts = {})
         ds = opts[:datastore] || datastore
         uri_req_len = ds['StagerURILength'].to_i
 
@@ -37,7 +42,7 @@ module Msf
         end
 
         if uri_req_len < 5
-          raise ArgumentError, "Minimum StagerURILength is 5"
+          raise ArgumentError, 'Minimum StagerURILength is 5'
         end
 
         generate_uri_uuid_mode(:init_connect, uri_req_len, uuid: opts[:uuid])
@@ -80,7 +85,7 @@ module Msf
         target_uri
       end
 
-      def generate_config(opts={})
+      def generate_config(opts = {})
         ds = opts[:datastore] || datastore
 
         opts[:background] = ds['MeterpreterTryToFork'] ? 1 : 0
@@ -121,7 +126,6 @@ module Msf
 
         false
       end
-
     end
   end
 end

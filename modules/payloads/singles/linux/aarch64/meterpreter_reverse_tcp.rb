@@ -11,7 +11,7 @@ module MetasploitModule
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions::Linux
   include Msf::Sessions::MettleConfig
-  include Msf::Payload::Linux::Aarch64::MeterpreterLoader
+  include Msf::Payload::Linux::Aarch64::ElfLoader
   include Msf::Payload::Linux::Aarch64::Prepends
 
   def initialize(info = {})
@@ -41,7 +41,7 @@ module MetasploitModule
     }.merge(mettle_logging_config)
     payload = MetasploitPayloads::Mettle.new('aarch64-linux-musl', generate_config(opts)).to_binary :exec
     ds = opts[:datastore] || datastore
-    if ds['MeterpreterLinuxMinKernel'] == '3.17+'
+    if ds['PayloadLinuxMinKernel'] == '3.17+'
       return in_memory_load(payload) + payload
     end
     payload

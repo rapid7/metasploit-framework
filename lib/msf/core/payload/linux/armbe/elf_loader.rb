@@ -1,4 +1,3 @@
-
 #
 # In memory loader used to execute Mettle ELF file.
 # Compatible with Kernel Linux >= 3.17 (where memfd_create is introduced)
@@ -8,8 +7,8 @@
 #  Parameters: r0-r6
 #  Syscall offset: r7
 #  Return Address: lr/r14
-
-module Msf::Payload::Linux::Armbe::MeterpreterLoader
+#
+module Msf::Payload::Linux::Armbe::ElfLoader
   def in_memory_load(payload)
     in_memory_loader = [
       # fd = memfd_create(NULL,MFD_CLOEXEC)
