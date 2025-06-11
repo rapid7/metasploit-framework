@@ -327,7 +327,7 @@ class MetasploitModule < Msf::Auxiliary
             port: rport,
             proto: 'tcp',
             ntype: 'fingerprint.match',
-            data: { :finger_print => nd_fingerprint_match }
+            data: nd_fingerprint_match
           )
         elsif smb1_fingerprint['native_os'] || smb1_fingerprint['native_lm']
           desc = "#{smb1_fingerprint['native_os']} (#{smb1_fingerprint['native_lm']})"
@@ -352,7 +352,7 @@ class MetasploitModule < Msf::Auxiliary
           port: rport,
           proto: 'tcp',
           ntype: 'smb.fingerprint',
-          data: { :finger_print => nd_smb_fingerprint }
+          data: nd_smb_fingerprint
         )
 
         disconnect
