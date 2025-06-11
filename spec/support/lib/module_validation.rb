@@ -94,18 +94,6 @@ module ModuleValidation
       OVE
     ]
 
-    # Valid ATT&CK reference categories
-    ATTACK_CATEGORY_PATHS = {
-      'TA' => 'tactics',
-      'DS' => 'datasources',
-      'S'  => 'software',
-      'M'  => 'mitigations',
-      'A'  => 'assets',
-      'G'  => 'groups',
-      'C'  => 'campaigns',
-      'T'  => 'techniques'
-    }.freeze
-
     def validate_notes_values_are_arrays
       notes.each do |k, v|
         unless v.is_a?(Array)
@@ -166,8 +154,8 @@ module ModuleValidation
 
         val = ref.ctx_val
         prefix = val[/\A[A-Z]+/]
-        unless ATTACK_CATEGORY_PATHS.key?(prefix) && val.match?(/\A#{prefix}[\d.]+\z/)
-          errors.add :references, "ATT&CK reference '#{val}' is invalid. Must start with one of #{ATTACK_CATEGORY_PATHS.keys.inspect} and be followed by digits/periods, no whitespace."
+        unless Mitre::Attack::Categories::PATHS.key?(prefix) && val.match?(/\A#{prefix}[\d.]+\z/)
+          errors.add :references, "ATT&CK reference '#{val}' is invalid. Must start with one of #{Mitre::Attack::Categories::PATHS.keys.inspect} and be followed by digits/periods, no whitespace."
         end
       end
     end

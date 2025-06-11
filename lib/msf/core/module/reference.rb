@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+require 'mitre/attack/categories'
+
 ###
 #
 # A reference to some sort of information.  This is typically a URL, but could
@@ -60,19 +62,6 @@ end
 #
 ###
 class Msf::Module::SiteReference < Msf::Module::Reference
-
-  # Maps MITRE ATT&CK object ID prefixes to their URL path segments.
-  # Update this constant if MITRE adds new categories or changes prefixes.
-  ATTACK_CATEGORY_PATHS = {
-    'TA' => 'tactics',
-    'DS' => 'datasources',
-    'S'  => 'software',
-    'M'  => 'mitigations',
-    'A'  => 'assets',
-    'G'  => 'groups',
-    'C'  => 'campaigns',
-    'T'  => 'techniques'
-  }.freeze
 
   #
   # Class method that translates a URL into a site reference instance.
@@ -135,7 +124,7 @@ class Msf::Module::SiteReference < Msf::Module::Reference
       self.site = "Soundtrack: #{in_ctx_val}"
     elsif in_ctx_id == 'ATT&CK'
       match = in_ctx_val.match(/\A(?<category>[A-Z]+)(?<id>[\d.]+)\z/)
-      path = ATTACK_CATEGORY_PATHS[match[:category]]
+      path = Mitre::Attack::Categories::PATHS[match[:category]]
       id_path = match[:id].gsub('.', '/')
       self.site = "https://attack.mitre.org/#{path}/#{match[:category]}#{id_path}/"
     else
@@ -184,4 +173,3 @@ protected
   attr_writer :site, :ctx_id, :ctx_val
 
 end
-
