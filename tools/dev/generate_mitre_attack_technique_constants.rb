@@ -3,7 +3,7 @@
 
 # Pre-requisites:
 # Run the following command to fetch the latest MITRE ATT&CK data and add it to a JSON file called mitre_attack.json:
-#   curl -s 'https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json' | jq '[.objects[] | select(.type == "attack-pattern")]'
+#   curl -s 'https://raw.githubusercontent.com/mitre/cti/master/enterprise-attack/enterprise-attack.json' | jq '[.objects[] | select(.type == "attack-pattern")]' > mitre_attack.json
 
 # This script generates Ruby constants for MITRE ATT&CK techniques and sub-techniques.
 # It reads a JSON file (typically mitre_attack.json) containing MITRE ATT&CK data,
@@ -11,8 +11,7 @@
 # techniques appear before their sub-techniques, and writes the result as a Ruby module.
 #
 # Usage:
-#   Uncomment the example usage at the bottom of this file and run:
-#     ruby tools/dev/generate_mitre_attack_technique_constants.rb
+#   ruby tools/dev/generate_mitre_attack_technique_constants.rb
 
 require 'json'
 require 'fileutils'
@@ -67,15 +66,19 @@ class MitreAttackConstantsGenerator
 
   def write_output(grouped_constants)
     output = []
-    output << 'module Mitre'
-    output << '  module Attack'
-    output << '    module Technique'
+    output << '# frozen_string_literal: true'
+    output << ''
+    output << 'module Msf'
+    output << '  module Mitre'
+    output << '    module Attack'
+    output << '      module Technique'
     grouped_constants.each_with_index do |group, idx|
       group.each do |const|
-        output << "      #{const} = '#{const.match(/T\d{4}(?:_\d{3})?/).to_s.gsub('_', ".")}'"
+        output << "        #{const} = '#{const.match(/T\d{4}(?:_\d{3})?/).to_s.gsub('_', ".")}'"
       end
       output << '' unless idx == grouped_constants.size - 1
     end
+    output << '      end'
     output << '    end'
     output << '  end'
     output << 'end'
@@ -87,5 +90,5 @@ class MitreAttackConstantsGenerator
 end
 
 # Example usage:
-generator = MitreAttackConstantsGenerator.new('mitre_attack.json', 'lib/mitre/attack/technique.rb')
+generator = MitreAttackConstantsGenerator.new('mitre_attack.json', 'lib/msf/core/mitre/attack/technique.rb')
 generator.run
