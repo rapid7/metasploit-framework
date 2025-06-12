@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2025-02-13',
         'DefaultOptions' => {
           'RPORT' => 34022,
-          'SSL' => 'False'
+          'SSL' => false
         },
         'Platform' => 'win',
         'Arch' => [ ARCH_CMD ],
