@@ -157,8 +157,6 @@ module ModuleValidation
         valid_format = Msf::Mitre::Attack::Categories::PATHS.key?(prefix) && val.match?(/\A#{prefix}[\d.]+\z/)
         whitespace = val.match?(/\s/)
 
-
-
         unless valid_format && !whitespace
           errors.add :references, "ATT&CK reference '#{val}' is invalid. Must start with one of #{Msf::Mitre::Attack::Categories::PATHS.keys.inspect} and be followed by digits/periods, no whitespace."
         end
