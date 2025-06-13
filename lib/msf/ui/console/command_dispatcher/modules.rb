@@ -380,20 +380,22 @@ module Msf
             print_line
             print_line "Keywords:"
             {
+              'action'      => 'Modules with a matching action name or description',
               'adapter'     => 'Modules with a matching adapter reference name',
               'aka'         => 'Modules with a matching AKA (also-known-as) name',
-              'author'      => 'Modules written by this author',
               'arch'        => 'Modules affecting this architecture',
+              'att&ck'      => 'Modules with a matching MITRE ATT&CK ID or reference',
+              'author'      => 'Modules written by this author',
               'bid'         => 'Modules with a matching Bugtraq ID',
-              'osvdb'       => 'Modules with a matching OSVDB ID',
-              'cve'         => 'Modules with a matching CVE ID',
-              'edb'         => 'Modules with a matching Exploit-DB ID',
               'check'       => 'Modules that support the \'check\' method',
+              'cve'         => 'Modules with a matching CVE ID',
               'date'        => 'Modules with a matching disclosure date',
               'description' => 'Modules with a matching description',
+              'edb'         => 'Modules with a matching Exploit-DB ID',
               'fullname'    => 'Modules with a matching full name',
               'mod_time'    => 'Modules with a matching modification date',
               'name'        => 'Modules with a matching descriptive name',
+              'osvdb'       => 'Modules with a matching OSVDB ID',
               'path'        => 'Modules with a matching path',
               'platform'    => 'Modules affecting this platform',
               'port'        => 'Modules with a matching port',
@@ -405,7 +407,6 @@ module Msf
               'stager'      => 'Modules with a matching stager reference name',
               'target'      => 'Modules affecting this target',
               'type'        => 'Modules of a specific type (exploit, payload, auxiliary, encoder, evasion, post, or nop)',
-              'action'      => 'Modules with a matching action name or description',
             }.each_pair do |keyword, description|
               print_line "  #{keyword.ljust 17}:  #{description}"
             end
@@ -428,6 +429,7 @@ module Msf
             print_line "  search cve:2009 type:exploit platform:-linux"
             print_line "  search cve:2009 -s name"
             print_line "  search type:exploit -s type -r"
+            print_line "  search att&ck:T1059"
             print_line
           end
 

@@ -123,8 +123,8 @@ RSpec.describe ModuleValidation::Validator do
 
       it 'has errors' do
         expect(subject.errors.full_messages).to eq [
-          'References url is not valid, must be in ["CVE", "CWE", "BID", "MSB", "EDB", "US-CERT-VU", "ZDI", "URL", "WPVDB", "PACKETSTORM", "LOGO", "SOUNDTRACK", "OSVDB", "VTS", "OVE"]',
-          'References FOO is not valid, must be in ["CVE", "CWE", "BID", "MSB", "EDB", "US-CERT-VU", "ZDI", "URL", "WPVDB", "PACKETSTORM", "LOGO", "SOUNDTRACK", "OSVDB", "VTS", "OVE"]',
+          'References url is not valid, must be in ["ATT&CK", "CVE", "CWE", "BID", "MSB", "EDB", "US-CERT-VU", "ZDI", "URL", "WPVDB", "PACKETSTORM", "LOGO", "SOUNDTRACK", "OSVDB", "VTS", "OVE"]',
+          'References FOO is not valid, must be in ["ATT&CK", "CVE", "CWE", "BID", "MSB", "EDB", "US-CERT-VU", "ZDI", "URL", "WPVDB", "PACKETSTORM", "LOGO", "SOUNDTRACK", "OSVDB", "VTS", "OVE"]',
           "References NOCVE please include NOCVE values in the 'notes' section, rather than in 'references'",
           "References AKA please include AKA values in the 'notes' section, rather than in 'references'"
         ]
@@ -221,6 +221,29 @@ RSpec.describe ModuleValidation::Validator do
 
       it 'has errors' do
         expect(subject.errors.full_messages).to eq ['Platform must be included either within targets or platform module metadata']
+      end
+    end
+
+    context 'when the references contains ATT&CK values' do
+      let(:mod_options) do
+        super().merge(references: [
+          Msf::Module::SiteReference.new('ATT&CK', 'T1059.001'),
+          Msf::Module::SiteReference.new('ATT&CK', 'BAD1059.001')
+        ])
+      end
+
+      it 'has errors for invalid ATT&CK references' do
+        expect(subject.errors.full_messages).to eq ["References ATT&CK reference 'BAD1059.001' is invalid. Must start with one of [\"TA\", \"DS\", \"S\", \"M\", \"A\", \"G\", \"C\", \"T\"] and be followed by digits/periods, no whitespace."]
+      end
+
+      context 'with only valid ATT&CK references' do
+        let(:mod_options) do
+          super().merge(references: [Msf::Module::SiteReference.new('ATT&CK', 'T1059.001')])
+        end
+
+        it 'has no errors' do
+          expect(subject.errors.full_messages).to be_empty
+        end
       end
     end
   end
