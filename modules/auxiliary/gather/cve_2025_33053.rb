@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
         pointing to a malicious WebDAV share. This works by setting the WorkingDirectory
         to a remote UNC path while referencing a trusted LOLBAS executable.
       },
-      'Author'      => [ 'Dev Bui Hieu'],
+      'Author'      => ['Dev Bui Hieu'],
       'License'     => MSF_LICENSE,
       'References'  =>
         [
