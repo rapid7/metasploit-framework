@@ -1,5 +1,4 @@
 # -*- coding:binary -*-
-require 'msf/base/simple/framework'
 require 'metasploit/framework'
 
 RSpec.shared_context 'Msf::Simple::Framework' do
@@ -24,6 +23,6 @@ RSpec.shared_context 'Msf::Simple::Framework' do
   end
 
   after(:example) do
-    dummy_pathname.rmtree
+    FileUtils.rm_rf(dummy_pathname)
   end
 end

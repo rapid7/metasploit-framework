@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require "msf/core"
 require "rex/proto/pjl"
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -33,8 +31,8 @@ class MetasploitModule < Msf::Auxiliary
     ))
 
     register_options([
-      Opt::RPORT(Rex::Proto::PJL::DEFAULT_PORT),
-    ], self.class)
+      Opt::RPORT(Rex::Proto::PJL::DEFAULT_PORT)
+    ])
   end
 
   def run_host(ip)
@@ -54,9 +52,8 @@ class MetasploitModule < Msf::Auxiliary
         :port => rport,
         :proto => "tcp",
         :type => "printer.env.vars",
-        :data => env_vars
+        :data => { :environment_variables => env_vars}
       )
     end
   end
-
 end

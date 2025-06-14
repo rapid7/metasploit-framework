@@ -9,7 +9,7 @@ module Rex
         class Ping < Element
 
           # @!attribute stream_id
-          #   @return [Fixnum] the input stream id
+          #   @return [Integer] the input stream id
           attr_accessor :stream_id
 
           private

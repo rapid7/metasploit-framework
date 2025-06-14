@@ -1,39 +1,44 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Amazon Fire TV YouTube Remote Control',
-      'Description' => %q{
-        This module acts as a simple remote control for the Amazon Fire TV's
-        YouTube app.
+    super(
+      update_info(
+        info,
+        'Name' => 'Amazon Fire TV YouTube Remote Control',
+        'Description' => %q{
+          This module acts as a simple remote control for the Amazon Fire TV's
+          YouTube app.
 
-        Tested on the Amazon Fire TV Stick.
-      },
-      'Author' => ['wvu'],
-      'References' => [
-        ['URL', 'http://www.amazon.com/dp/B00CX5P8FC?_encoding=UTF8&showFS=1'],
-        ['URL', 'http://www.amazon.com/dp/B00GDQ0RMG/ref=fs_ftvs']
-      ],
-      'License' => MSF_LICENSE,
-      'Actions' => [
-        ['Play', 'Description' => 'Play video'],
-        ['Stop', 'Description' => 'Stop video']
-      ],
-      'DefaultAction' => 'Play'
-    ))
+          Tested on the Amazon Fire TV Stick.
+        },
+        'Author' => ['wvu'],
+        'References' => [
+          ['URL', 'http://http://web.archive.org/web/20210301101536/http://www.amazon.com/dp/B00CX5P8FC/?_encoding=UTF8'],
+          ['URL', 'https://www.amazon.com/dp/B00GDQ0RMG/ref=fs_ftvs']
+        ],
+        'License' => MSF_LICENSE,
+        'Actions' => [
+          ['Play', { 'Description' => 'Play video' }],
+          ['Stop', { 'Description' => 'Stop video' }]
+        ],
+        'DefaultAction' => 'Play',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, SCREEN_EFFECTS],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options([
       Opt::RPORT(8008),
-      OptString.new('VID', [true, 'Video ID', 'HkhSZyYmpO4'])
+      OptString.new('VID', [true, 'Video ID', 'kxopViU98Xo'])
     ])
   end
 
@@ -60,31 +65,26 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def play
-    begin
-      send_request_cgi(
-        'method' => 'POST',
-        'uri' => '/apps/YouTube',
-        'ctype' => 'text/plain',
-        'vars_post' => {
-          'v' => datastore['VID']
-        }
-      )
-    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
-           Rex::HostUnreachable => e
-      fail_with(Failure::Unreachable, e)
-    end
+    send_request_cgi(
+      'method' => 'POST',
+      'uri' => '/apps/YouTube',
+      'ctype' => 'text/plain',
+      'vars_post' => {
+        'v' => datastore['VID']
+      }
+    )
+  rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
+         Rex::HostUnreachable => e
+    fail_with(Failure::Unreachable, e)
   end
 
   def stop
-    begin
-      send_request_raw(
-        'method' => 'DELETE',
-        'uri' => '/apps/YouTube/run'
-      )
-    rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
-           Rex::HostUnreachable => e
-      fail_with(Failure::Unreachable, e)
-    end
+    send_request_raw(
+      'method' => 'DELETE',
+      'uri' => '/apps/YouTube/run'
+    )
+  rescue Rex::ConnectionRefused, Rex::ConnectionTimeout,
+         Rex::HostUnreachable => e
+    fail_with(Failure::Unreachable, e)
   end
-
 end

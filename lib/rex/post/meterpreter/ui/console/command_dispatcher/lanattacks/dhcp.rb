@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/extensions/lanattacks/command_ids'
 
 module Rex
 module Post
@@ -16,41 +17,29 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
   Klass = Console::CommandDispatcher::Lanattacks::Dhcp
 
   include Console::CommandDispatcher
+  include Rex::Post::Meterpreter::Extensions::Lanattacks
 
   #
   # List of supported commands.
   #
   def commands
     all = {
-      "dhcp_start"        => "Start the DHCP server",
-      "dhcp_stop"         => "Stop the DHCP server",
-      "dhcp_reset"        => "Reset the DHCP server",
-      "dhcp_set_option"   => "Set a DHCP server option",
-      "dhcp_load_options" => "Load DHCP optionis from a datastore",
-      "dhcp_log"          => "Log DHCP server activity"
+      'dhcp_start'        => 'Start the DHCP server',
+      'dhcp_stop'         => 'Stop the DHCP server',
+      'dhcp_reset'        => 'Reset the DHCP server',
+      'dhcp_set_option'   => 'Set a DHCP server option',
+      'dhcp_load_options' => 'Load DHCP optionis from a datastore',
+      'dhcp_log'          => 'Log DHCP server activity'
     }
-
     reqs = {
-      "dhcp_start"        => [ "lanattacks_start_dhcp" ],
-      "dhcp_stop"         => [ "lanattacks_stop_dhcp" ],
-      "dhcp_reset"        => [ "lanattacks_reset_dhcp" ],
-      "dhcp_set_option"   => [ "lanattacks_set_dhcp_option" ],
-      "dhcp_load_options" => [ "lanattacks_set_dhcp_option" ],
-      "dhcp_log"          => [ "lanattacks_dhcp_log" ]
+      'dhcp_start'        => [COMMAND_ID_LANATTACKS_START_DHCP],
+      'dhcp_stop'         => [COMMAND_ID_LANATTACKS_STOP_DHCP],
+      'dhcp_reset'        => [COMMAND_ID_LANATTACKS_RESET_DHCP],
+      'dhcp_set_option'   => [COMMAND_ID_LANATTACKS_SET_DHCP_OPTION],
+      'dhcp_load_options' => [COMMAND_ID_LANATTACKS_SET_DHCP_OPTION],
+      'dhcp_log'          => [COMMAND_ID_LANATTACKS_DHCP_LOG]
     }
-
-    all.delete_if do |cmd, desc|
-      del = false
-      reqs[cmd].each do |req|
-        next if client.commands.include? req
-        del = true
-        break
-      end
-
-      del
-    end
-
-    all
+    filter_commands(all, reqs)
   end
 
   #
@@ -80,7 +69,7 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
 
     print_status( "Starting DHCP server ...")
     client.lanattacks.dhcp.start
-    print_good( "DHCP server startd.")
+    print_good( "DHCP server started.")
   end
 
   @@dhcp_stop_opts = Rex::Parser::Arguments.new(
@@ -200,7 +189,7 @@ class Console::CommandDispatcher::Lanattacks::Dhcp
 
     datastore = args.shift
 
-    if not datastore.is_a?(Hash)
+    unless datastore.is_a?(Hash) || datastore.is_a?(Msf::DataStore)
       print_dhcp_load_options_usage
       return true
     end

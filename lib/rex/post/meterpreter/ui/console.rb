@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
-require 'rex/ui'
 require 'rex/post/meterpreter'
-require 'rex/logging'
 
 module Rex
 module Post
@@ -29,7 +27,7 @@ class Console
     if (Rex::Compat.is_windows())
       super("meterpreter")
     else
-      super("%undmeterpreter%clr")
+      super("%undmeterpreter%clr", '>', Msf::Config.meterpreter_history, nil, :meterpreter)
     end
 
     # The meterpreter client context
@@ -54,8 +52,6 @@ class Console
   # assumed that init_ui has been called prior.
   #
   def interact(&block)
-    init_tab_complete
-
     # Run queued commands
     commands.delete_if { |ent|
       run_single(ent)
@@ -79,11 +75,12 @@ class Console
   #
   # Interacts with the supplied channel.
   #
-  def interact_with_channel(channel)
+  def interact_with_channel(channel, raw: false)
     channel.extend(InteractiveChannel) unless (channel.kind_of?(InteractiveChannel) == true)
     channel.on_command_proc = self.on_command_proc if self.on_command_proc
     channel.on_print_proc   = self.on_print_proc if self.on_print_proc
     channel.on_log_proc = method(:log_output) if self.respond_to?(:log_output, true)
+    channel.raw = raw
 
     channel.interact(input, output)
     channel.reset_ui
@@ -103,16 +100,22 @@ class Console
   def run_command(dispatcher, method, arguments)
     begin
       super
-    rescue Timeout::Error
-      log_error("Operation timed out.")
-    rescue RequestError => info
-      log_error(info.to_s)
-    rescue Rex::InvalidDestination => e
-      log_error(e.message)
-    rescue ::Errno::EPIPE, ::OpenSSL::SSL::SSLError, ::IOError
-      self.client.kill
-    rescue  ::Exception => e
-      log_error("Error running command #{method}: #{e.class} #{e}")
+    rescue Exception => e
+      is_error_handled = self.client.on_run_command_error_proc && self.client.on_run_command_error_proc.call(e) == :handled
+      return if is_error_handled
+      case e
+      when Rex::TimeoutError, Rex::InvalidDestination
+        log_error(e.message)
+      when Timeout::Error
+        log_error('Operation timed out.')
+      when RequestError
+        log_error(e.to_s)
+      when ::Errno::EPIPE, ::OpenSSL::SSL::SSLError, ::IOError
+        self.client.kill
+      when ::Exception
+        log_error("Error running command #{method}: #{e.class} #{e}")
+        elog(e)
+      end
     end
   end
 

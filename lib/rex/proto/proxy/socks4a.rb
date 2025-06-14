@@ -3,7 +3,6 @@
 # sf - Sept 2010
 #
 require 'thread'
-require 'rex/logging'
 require 'rex/socket'
 
 module Rex
@@ -132,7 +131,7 @@ class Socks4a
       def resolve( hostname )
         if( not hostname.empty? )
           begin
-            return Rex::Socket.addr_itoa( Rex::Socket.gethostbyname( hostname )[3].unpack( 'N' ).first )
+            return Rex::Socket.getaddress(hostname, false)
           rescue ::SocketError
             return nil
           end
@@ -241,7 +240,7 @@ class Socks4a
           raise "Invalid Socks4 request packet received." if not request
           # handle the request
           begin
-            # handle socks4a conenct requests
+            # handle socks4a connect requests
             if( request.is_connect? )
               # perform the connection request
               params = {
@@ -282,7 +281,7 @@ class Socks4a
               end
               # close the listening socket
               bsock.close
-              # verify the connection is from the dest_ip origionally specified by the client
+              # verify the connection is from the dest_ip originally specified by the client
               rpeer = @rsock.getpeername_as_array
               raise "Got connection from an invalid peer." if( rpeer[HOST] != request.dest_ip )
               # send back the client connect success to the client
@@ -374,7 +373,11 @@ class Socks4a
   def start
       begin
         # create the servers main socket (ignore the context here because we don't want a remote bind)
-        @server = Rex::Socket::TcpServer.create( 'LocalHost' => @opts['ServerHost'], 'LocalPort' => @opts['ServerPort'] )
+        @server = Rex::Socket::TcpServer.create(
+          'LocalHost' => @opts['ServerHost'],
+          'LocalPort' => @opts['ServerPort'],
+          'Comm' => @opts['Comm']
+        )
         # signal we are now running
         @running = true
         # start the servers main thread to pick up new clients

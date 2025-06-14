@@ -1,0 +1,68 @@
+###
+#
+# This mixin provides methods to add, delete and lookup computer accounts via MS-SAMR
+#
+# -*- coding: binary -*-
+
+module Msf
+
+module Exploit::Remote::MsSamr
+
+  include Msf::Exploit::Remote::SMB::Client::Ipc
+
+  class MsSamrError < StandardError; end
+  class MsSamrConnectionError < MsSamrError; end
+  class MsSamrAuthenticationError < MsSamrError; end
+  class MsSamrNotFoundError < MsSamrError; end
+  class MsSamrUnexpectedReplyError < MsSamrError; end
+  class MsSamrUnknownError < MsSamrError; end
+  class MsSamrBadConfigError < MsSamrError; end
+
+  SamrConnection = Struct.new(:samr, :server_handle, :domain_handle, :domain_name)
+
+  module_function
+
+  def connect_samr(tree)
+    begin
+      vprint_status('Connecting to Security Account Manager (SAM) Remote Protocol')
+      samr = tree.open_file(filename: 'samr', write: true, read: true)
+
+      vprint_status('Binding to \\samr...')
+      samr.bind(endpoint: RubySMB::Dcerpc::Samr)
+      vprint_good('Bound to \\samr')
+      server_handle = samr.samr_connect
+    rescue RubySMB::Dcerpc::Error::FaultError => e
+      elog(e.message, error: e)
+      raise MsSamrUnexpectedReplyError, "Connection failed (DCERPC fault: #{e.status_name})"
+    end
+
+    if domain.blank? || domain == '.'
+      all_domains = samr.samr_enumerate_domains_in_sam_server(server_handle: server_handle).map(&:to_s).map(&:encode)
+      all_domains.delete('Builtin')
+      if all_domains.empty?
+        raise MsSamrNotFoundError, 'No domains were found on the SAM server.'
+      elsif all_domains.length > 1
+        print_status("Enumerated domains: #{all_domains.join(', ')}")
+        raise MsSamrBadConfigError, 'The SAM server has more than one domain, the target must be specified.'
+      end
+
+      domain_name = all_domains.first
+      print_status("Using automatically identified domain: #{domain_name}")
+    else
+      domain_name = domain
+    end
+
+    domain_sid = samr.samr_lookup_domain(server_handle: server_handle, name: domain_name)
+    domain_handle = samr.samr_open_domain(server_handle: server_handle, domain_id: domain_sid)
+
+    SamrConnection.new(samr, server_handle, domain_handle, domain_name)
+
+  rescue RubySMB::Dcerpc::Error::DcerpcError => e
+    elog(e.message, error: e)
+    raise MsSamrUnexpectedReplyError, e.message
+  rescue RubySMB::Error::RubySMBError
+    elog(e.message, error: e)
+    raise MsSamrUnknownError, e.message
+  end
+end
+end

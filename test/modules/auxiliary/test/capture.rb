@@ -1,11 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -14,19 +10,17 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Simple Network Capture Tester',
+      'Name' => 'Simple Network Capture Tester',
       'Description' => 'This module sniffs HTTP GET requests from the network',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-        [
-          [ 'Sniffer' ]
-        ],
-      'PassiveActions' =>
-        [
-          'Sniffer'
-        ],
-      'DefaultAction'  => 'Sniffer'
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE,
+      'Actions' => [
+        [ 'Sniffer' ]
+      ],
+      'PassiveActions' => [
+        'Sniffer'
+      ],
+      'DefaultAction' => 'Sniffer'
     )
 
     deregister_options('RHOST')
@@ -41,16 +35,15 @@ class MetasploitModule < Msf::Auxiliary
       p = PacketFu::Packet.parse(pkt)
       next unless p.is_tcp?
       next if p.payload.empty?
+
       if (p.payload =~ /GET\s+([^\s]+)\s+HTTP/smi)
         url = $1
         print_status("GET #{url}")
         break if url =~ /StopCapture/
       end
-
     end
     close_pcap()
     print_status("Finished sniffing")
   end
 
 end
-

@@ -1,0 +1,108 @@
+<ruby>
+
+#
+# This resource scripts will check common security concerns on SMB for Windows.
+# Specifically, this script will check for these things:
+#
+#   * MS08-067.
+#   * MS17-010.
+#   * SMB version 1.
+#
+# For extra validation, you may try the smb_validate.rc script.
+#
+# Author:
+# sinn3r
+#
+
+@job_ids = []
+
+def wait_until_jobs_done
+    while true
+        @job_ids.each do |job_id|
+            current_job_ids = framework.jobs.keys.map { |e| e.to_i }
+            sleep 1 if current_job_ids.include?(job_id)
+        end
+
+        return
+    end
+end
+
+def check_ms17_010(host, serv)
+    print_status("Checking MS17-010 on #{host.address}")
+    mod = framework.modules.create('auxiliary/scanner/smb/smb_ms17_010')
+    mod.datastore['RHOSTS'] = host.address
+    mod.datastore['RPORT'] = serv.port
+    mod.run_simple({ 'RunAsJob' => true, 'LocalOutput' => self.output })
+    print_status("MS17-010 job ID for target #{host.address} is: #{mod.job_id}")
+    @job_ids << mod.job_id
+end
+
+def check_ms08_067_netapi(host, serv)
+    print_status("Checking MS08-067 on #{host.address}")
+    mod = framework.exploits.create('windows/smb/ms08_067_netapi')
+    mod.datastore['RHOST'] = host.address
+    begin
+        check_code = mod.check_simple({ 'RunAsJob' => true, 'LocalOutput' => self.output })
+        if mod.job_id
+            print_status("MS08-067 job ID for target #{host.address} is: #{mod.job_id}")
+            @job_ids << mod.job_id
+        end
+
+        if check_code == Msf::Exploit::CheckCode::Vulnerable
+            framework.db.report_vuln(
+                workspace: mod.workspace,
+                host: mod.rhost,
+                name: mod.name,
+                info: "This was flagged as vulnerable by the explicit check of #{mod.fullname}.",
+                refs: mod.references
+            )
+        end
+    rescue ::Exception => e
+        print_error(e.message)
+    end
+end
+
+def check_smbv1(host, serv)
+    print_status("Checking SMBv1 on #{host.address}")
+    mod = framework.modules.create('auxiliary/scanner/smb/smb1')
+    mod.datastore['RHOSTS'] = host.address
+    mod.datastore['RPORT'] = serv.port
+    mod.run_simple({ 'RunAsJob' => true, 'LocalOutput' => self.output })
+    print_status("SMBv1 check job ID for target #{host.address} is: #{mod.job_id}")
+    @job_ids << mod.job_id
+end
+
+def is_smb?(host, serv)
+    return false unless serv.host
+    return false if serv.state != Msf::ServiceState::Open
+    return false if serv.port != 445
+    true
+end
+
+def do_checks
+    print_status("Number of hosts to check: #{framework.db.workspace.hosts.length}")
+    framework.db.workspace.hosts.each do |host|
+        host.services.each do |serv|
+            next unless is_smb?(host, serv)
+            print_status("Checking #{host.address}:#{serv.port} (#{serv.name})")
+            check_smbv1(host, serv)
+            check_ms17_010(host, serv)
+            check_ms08_067_netapi(host, serv)
+        end
+    end
+end
+
+def setup
+    run_single("setg verbose true")
+end
+
+def main
+    print_status('Performing checks...')
+    do_checks
+    wait_until_jobs_done
+end
+
+setup
+main
+
+</ruby>

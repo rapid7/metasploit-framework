@@ -18,4 +18,4 @@
 %bluMMMMMMMMMMNm,%clr            %blueMMMMMNMMNMM%clr
 %bluMMMMNNMNMMMMMNx%clr        %bluMMMMMMNMMNMMNM%clr
 %bluMMMMMMMMNMMNMMMMm+..+MMNMMNMNMMNMMNMM%clr
-%clr%bld        http://metasploit.com
+%clr%bld        https://metasploit.com

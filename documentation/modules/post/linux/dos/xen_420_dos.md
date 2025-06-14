@@ -20,7 +20,7 @@ This module is tested on Debian and Ubuntu hosts running various versions of
 Xen. Because the LKM is built at exploit-time, it requires that build tools and
 kernel headers for the currently-running kernel to exist on the target machine.
 
-## Example output
+## Scenarios
 
 Failure (bad Xen version):
 

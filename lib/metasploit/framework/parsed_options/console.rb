@@ -10,10 +10,12 @@ class Metasploit::Framework::ParsedOptions::Console < Metasploit::Framework::Par
 
         options.console.commands = []
         options.console.confirm_exit = false
+        options.console.histfile = nil
+        options.console.logger = nil
         options.console.local_output = nil
         options.console.plugins = []
         options.console.quiet = false
-        options.console.real_readline = false
+        options.console.readline = true
         options.console.resources = []
         options.console.subcommand = :run
       }
@@ -32,15 +34,29 @@ class Metasploit::Framework::ParsedOptions::Console < Metasploit::Framework::Par
       super.tap { |option_parser|
         option_parser.banner = "Usage: #{option_parser.program_name} [options]"
 
-        option_parser.separator ''
         option_parser.separator 'Console options:'
 
         option_parser.on('-a', '--ask', "Ask before exiting Metasploit or accept 'exit -y'") do
           options.console.confirm_exit = true
         end
 
+        option_parser.on('-H', '--history-file FILE', 'Save command history to the specified file') do |file|
+          options.console.histfile = file
+        end
+
+        option_parser.on('-l', '--logger STRING', "Specify a logger to use (#{Rex::Logging::LogSinkFactory.available_sinks.join(', ')})") do |logger|
+          options.console.logger = logger
+        end
+
+        option_parser.on('--[no-]readline') do |readline|
+          options.console.readline = readline
+        end
+
         option_parser.on('-L', '--real-readline', 'Use the system Readline library instead of RbReadline') do
-          options.console.real_readline = true
+          message = "The RealReadline option has been marked as deprecated, and is currently a noop.\n"
+          message << "If you require this functionality, please use the following link to tell us:\n"
+          message << '  https://github.com/rapid7/metasploit-framework/issues/19399'
+          warn message
         end
 
         option_parser.on('-o', '--output FILE', 'Output to the specified file') do |file|
@@ -62,7 +78,7 @@ class Metasploit::Framework::ParsedOptions::Console < Metasploit::Framework::Par
         option_parser.on(
             '-x',
             '--execute-command COMMAND',
-            'Execute the specified string as console commands (use ; for multiples)'
+            'Execute the specified console commands (use ; for multiples)'
         ) do |commands|
           options.console.commands += commands.split(/\s*;\s*/)
         end

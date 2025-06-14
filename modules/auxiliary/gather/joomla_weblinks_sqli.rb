@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -28,9 +23,9 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           ['EDB', '31459'],
-          ['URL', 'http://developer.joomla.org/security/578-20140301-core-sql-injection.html']
+          ['URL', 'http://web.archive.org/web/20221129082328/https://developer.joomla.org/security/578-20140301-core-sql-injection.html']
         ],
-      'DisclosureDate' => 'Mar 2 2014'
+      'DisclosureDate' => '2014-03-02'
     ))
 
     register_options(
@@ -38,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [ true, "Base Joomla directory path", '/']),
         OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/passwd"]),
         OptInt.new('CATEGORYID', [true, "The category ID to use in the SQL injection", 0])
-      ], self.class)
+      ])
 
   end
 

@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 require 'uri'
-require 'rex/proto/http'
+
 
 module Rex
 module Proto
@@ -63,6 +63,10 @@ class Request < Packet
     self.chunk_max_size = 10
     self.uri_encode_mode = 'hex-normal'
 
+    if self.method == 'GET' || self.method == 'CONNECT'
+      self.auto_cl = false
+    end
+
     update_uri_parts
   end
 
@@ -70,9 +74,9 @@ class Request < Packet
   # Updates the command parts for this specific packet type.
   #
   def update_cmd_parts(str)
-    if (md = str.match(/^(.+?)\s+(.+?)\s+HTTP\/(.+?)\r?\n?$/))
+    if (md = str.match(/^(.+?)\s+(.+?)\s+HTTP\/(.+?)\r?\n?$/i))
       self.method  = md[1]
-      self.raw_uri = URI.decode(md[2])
+      self.raw_uri = CGI.unescape(md[2])
       self.proto   = md[3]
 
       update_uri_parts
@@ -114,7 +118,7 @@ class Request < Packet
 
     # /././././
     if self.junk_self_referring_directories
-      str.gsub!(/\//) {
+      str.gsub!('/') {
         '/.' * (rand(3) + 1) + '/'
       }
     end
@@ -122,12 +126,12 @@ class Request < Packet
     # /%3faaa=bbbbb
     # which could possibly decode to "/?aaa=bbbbb", which if the IDS normalizes first, then splits the URI on ?, then it can be bypassed
     if self.junk_param_start
-      str.sub!(/\//, '/%3f' + Rex::Text.rand_text_alpha(rand(5) + 1) + '=' + Rex::Text.rand_text_alpha(rand(10) + 1) + '/../')
+      str.sub!('/', '/%3f' + Rex::Text.rand_text_alpha(rand(5) + 1) + '=' + Rex::Text.rand_text_alpha(rand(10) + 1) + '/../')
     end
 
     # /RAND/../RAND../
     if self.junk_directories
-      str.gsub!(/\//) {
+      str.gsub!('/') {
         dirs = ''
         (rand(5)+5).times {
           dirs << '/' + Rex::Text.rand_text_alpha(rand(5) + 1) + '/..'
@@ -140,7 +144,7 @@ class Request < Packet
     #
     # NOTE: this must be done after all other odd directory junk, since they would cancel this out, except junk_end_of_uri, since that a specific slash in a specific place
     if self.junk_slashes
-      str.gsub!(/\//) {
+      str.gsub!('/') {
         '/' * (rand(3) + 2)
       }
       str.sub!(/^[\/]+/, '/') # only one beginning slash!

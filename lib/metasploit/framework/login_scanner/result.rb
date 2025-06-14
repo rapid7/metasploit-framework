@@ -15,10 +15,10 @@ module Metasploit
         #   @return [Credential] the Credential object the result is for
         attr_accessor :credential
         # @!attribute host
-        #   @return [String] the addess of the target host for this result
+        #   @return [String] the address of the target host for this result
         attr_accessor :host
         # @!attribute port
-        #   @return [Fixnum] the port number of the service for this result
+        #   @return [Integer] the port number of the service for this result
         attr_accessor :port
         # @!attribute proof
         #   @return [#to_s] the proof of the login's success or failure
@@ -32,6 +32,9 @@ module Metasploit
         # @!attribute status
         #   @return [String] the status of the attempt. Should be a member of `Metasploit::Model::Login::Status::ALL`
         attr_accessor :status
+        # @!attribute connection
+        #   @return [Object] the post-authenticated connection object (if the scanner chooses to leave it open)
+        attr_accessor :connection
 
         validates :status,
           inclusion: {
@@ -50,7 +53,7 @@ module Metasploit
         end
 
         def success?
-          status == Metasploit::Model::Login::Status::SUCCESSFUL
+          status == Metasploit::Model::Login::Status::SUCCESSFUL || status == Metasploit::Model::Login::Status::NO_AUTH_REQUIRED
         end
 
         # This method takes all the data inside the Result object

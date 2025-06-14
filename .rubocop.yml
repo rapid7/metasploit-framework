@@ -4,81 +4,665 @@
 # new modules.
 #
 # Updates to this file should include a 'Description' parameter for any
-# explaination needed.
+# explanation needed.
 
 # inherit_from: .rubocop_todo.yml
 
-Metrics/ClassLength:
-  Description: 'Most Metasploit modules are quite large. This is ok.'
+AllCops:
+  TargetRubyVersion: 2.7
+  SuggestExtensions: false
+  NewCops: disable
+
+require:
+  - ./lib/rubocop/cop/layout/module_hash_on_new_line.rb
+  - ./lib/rubocop/cop/layout/module_hash_values_on_same_line.rb
+  - ./lib/rubocop/cop/layout/module_description_indentation.rb
+  - ./lib/rubocop/cop/layout/extra_spacing_with_bindata_ignored.rb
+  - ./lib/rubocop/cop/lint/module_disclosure_date_format.rb
+  - ./lib/rubocop/cop/lint/module_disclosure_date_present.rb
+  - ./lib/rubocop/cop/lint/deprecated_gem_version.rb
+  - ./lib/rubocop/cop/lint/module_enforce_notes.rb
+  - ./lib/rubocop/cop/lint/detect_invalid_pack_directives.rb
+
+Layout/SpaceBeforeBrackets:
+  Enabled: true
+
+Lint/AmbiguousAssignment:
+  Enabled: true
+
+Lint/DeprecatedConstants:
+  Enabled: true
+
+Lint/DuplicateBranch:
+  Description: >-
+    Disabled as it causes a lot of noise around our current exception/error handling
+  Enabled: false
+
+Lint/DuplicateRegexpCharacterClassElement:
+  Enabled: false
+
+Lint/EmptyBlock:
+  Enabled: false
+
+Lint/EmptyClass:
+  Enabled: false
+
+Lint/LambdaWithoutLiteralBlock:
+  Enabled: true
+
+Lint/NoReturnInBeginEndBlocks:
+  Enabled: true
+
+Lint/NumberedParameterAssignment:
+  Enabled: true
+
+Lint/OrAssignmentToConstant:
+  Enabled: true
+
+Lint/RedundantDirGlobSort:
+  Enabled: true
+
+Lint/SymbolConversion:
+  Enabled: true
+
+Lint/ToEnumArguments:
+  Enabled: true
+
+Lint/TripleQuotes:
+  Enabled: true
+
+Lint/UnexpectedBlockArity:
+  Enabled: true
+
+Lint/UnmodifiedReduceAccumulator:
+  Enabled: true
+
+Lint/UnusedMethodArgument:
+  Description: >-
+    Disabled on files under the lib/ directory (aka library files)
+    as this can break YARD documentation since YARD doesn't recognize
+    the _ prefix before parameter names and thinks its a different argument.
+    See https://github.com/rapid7/metasploit-framework/pull/17735
+    Also see https://github.com/rubocop/rubocop/pull/11020
   Enabled: true
   Exclude:
+    - 'lib/**/*'
+
+Style/ArgumentsForwarding:
+  Enabled: true
+
+Style/BlockComments:
+  Description: >-
+    Disabled as multiline comments are great for embedded code snippets/payloads that can
+    be copy/pasted directly into a terminal etc.
+  Enabled: false
+
+Style/CaseLikeIf:
+  Description: >-
+    This would cause a lot of noise, and potentially introduce subtly different code when
+    being auto fixed. Could potentially be enabled in isolation, but would require more
+    consideration.
+  Enabled: false
+
+Style/CollectionCompact:
+  Enabled: true
+
+Style/DocumentDynamicEvalDefinition:
+  Enabled: false
+
+Style/EndlessMethod:
+  Enabled: true
+
+Style/HashExcept:
+  Enabled: true
+
+Style/IfWithBooleanLiteralBranches:
+  Description: >-
+    Most of the time this is a valid replacement. Although it can generate subtly different
+    rewrites that might break code:
+      2.7.2 :001 > foo = nil
+      => nil
+      2.7.2 :002 > (foo && foo['key'] == 'foo') ? true : false
+      => false
+      2.7.2 :003 > foo && foo['key'] == 'foo'
+      => nil
+  Enabled: false
+
+Style/NegatedIfElseCondition:
+  Enabled: false
+
+Style/MultipleComparison:
+  Description: >-
+    Disabled as it generates invalid code:
+      https://github.com/rubocop-hq/rubocop/issues/9520
+    It may also introduce subtle semantic issues if automatically applied to the
+    entire codebase without rigorous testing.
+  Enabled: false
+
+Style/NilLambda:
+  Enabled: true
+
+Style/RedundantArgument:
+  Enabled: false
+
+Style/RedundantAssignment:
+  Description: >-
+    Disabled as it sometimes improves the readability of code having an explicitly named
+    response object, it also makes it easier to put a breakpoint between the assignment
+    and return expression
+  Enabled: false
+
+Style/RedundantParentheses:
+  Description: >-
+    Disabled as it sometimes improves the readability of code
+  Enabled: false
+
+Style/RedundantRegexpArgument:
+  Enabled: true
+  Exclude:
+  # We aren't ready to enable this for modules yet
     - 'modules/**/*'
+
+Style/SwapValues:
+  Enabled: false
+
+Layout/LineContinuationLeadingSpace:
+  Description: >-
+    Disabled as it sometimes improves the readability of code having leading spaces
+    for indented code strings.
+  Enabled: false
+
+Layout/ModuleHashOnNewLine:
+  Enabled: true
+
+Layout/ModuleHashValuesOnSameLine:
+  Enabled: true
+
+Layout/ModuleDescriptionIndentation:
+  Enabled: true
+
+Lint/DetectInvalidPackDirectives:
+  Enabled: true
+
+Lint/ModuleDisclosureDateFormat:
+  Enabled: true
+
+Lint/ModuleDisclosureDatePresent:
+  Include:
+    # Only exploits require disclosure dates, but they can be present in auxiliary modules etc.
+    - 'modules/exploits/**/*'
+
+Lint/ModuleEnforceNotes:
+  Include:
+    # Only exploits and auxiliary modules require SideEffects to be listed.
+    - 'modules/exploits/**/*'
+    - 'modules/auxiliary/**/*'
+    - 'modules/post/**/*'
+
+Lint/DeprecatedGemVersion:
+  Enabled: true
+  Exclude:
+    - 'metasploit-framework.gemspec'
+
+Metrics/ModuleLength:
+  Description: 'Most Metasploit modules are quite large. This is ok.'
+  Enabled: false
+
+Metrics/ClassLength:
+  Description: 'Most Metasploit classes are quite large. This is ok.'
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+  Description: 'Forced nesting is harmful for grepping and general code comprehension'
+
+Metrics/AbcSize:
+  Enabled: false
+  Description: 'This is often a red-herring'
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+  Description: 'This is often a red-herring'
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+  Description: 'This is often a red-herring'
+
+Metrics/BlockNesting:
+  Description: >-
+    This is a good rule to follow, but will cause a lot of overhead introducing this rule.
+  Enabled: false
+
+Metrics/ParameterLists:
+  Description: >-
+    This is a good rule to follow, but will cause a lot of overhead introducing this rule.
+    Increasing the max count for now
+  Max: 8
+
+Style/TernaryParentheses:
+  Enabled: false
+  Description: 'This outright produces bugs'
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+  Description: 'We cannot support this yet without a lot of things breaking'
+
+Style/MutableConstant:
+  Enabled: false
+  Description: 'We cannot support this yet without a lot of things breaking'
+
+Style/RedundantReturn:
+  Description: 'This often looks weird when mixed with actual returns, and hurts nothing'
+  Enabled: false
+
+Naming/HeredocDelimiterNaming:
+  Description: >-
+    Could be enabled in isolation with additional effort.
+  Enabled: false
+
+Naming/AccessorMethodName:
+  Description: >-
+    Disabled for now, as this naming convention is used in a lot of core library files.
+    Could be enabled in isolation with additional effort.
+  Enabled: false
+
+Naming/ConstantName:
+  Description: >-
+    Disabled for now, Metasploit is unfortunately too inconsistent with its naming to introduce
+    this. Definitely possible to enforce this in the future if need be.
+
+    Examples:
+        ManualRanking, LowRanking, etc.
+        NERR_ClientNameNotFound
+        HttpFingerprint
+        CachedSize
+        ErrUnknownTransferId
+  Enabled: false
+
+Naming/VariableNumber:
+  Description: 'To make it easier to use reference code, disable this cop'
+  Enabled: false
+
+Style/NumericPredicate:
+  Description: 'This adds no efficiency nor space saving'
+  Enabled: false
+
+Style/EvenOdd:
+  Description: 'This adds no efficiency nor space saving'
+  Enabled: false
+
+Style/FloatDivision:
+  Description: 'Not a safe rule to run on Metasploit without manual verification as the right hand side may be a string'
+  Enabled: false
+
+Style/FormatString:
+  Description: 'Not a safe rule to run on Metasploit without manual verification that the format is not redefined/shadowed'
+  Enabled: false
 
 Style/Documentation:
   Enabled: true
   Description: 'Most Metasploit modules do not have class documentation.'
   Exclude:
     - 'modules/**/*'
+    - 'test/modules/**/*'
+    - 'spec/file_fixtures/modules/**/*'
+
+Layout/FirstArgumentIndentation:
+  Enabled: true
+  EnforcedStyle: consistent
+  Description: 'Useful for the module hash to be indented consistently'
+
+Layout/ArgumentAlignment:
+  Enabled: true
+  EnforcedStyle: with_first_argument
+  Description: 'Useful for the module hash to be indented consistently'
+
+Layout/FirstHashElementIndentation:
+  Enabled: true
+  EnforcedStyle: consistent
+  Description: 'Useful for the module hash to be indented consistently'
+
+Layout/FirstHashElementLineBreak:
+  Enabled: true
+  Description: 'Enforce consistency by breaking hash elements on to new lines'
+
+Layout/SpaceInsideArrayLiteralBrackets:
+  Enabled: false
+  Description: 'Almost all module metadata have space in brackets'
+
+Style/GuardClause:
+  Enabled: false
+  Description: 'This often introduces bugs in tested code'
+
+Style/EmptyLiteral:
+  Enabled: false
+  Description: 'This looks awkward when you mix empty and non-empty literals'
+
+Style/NegatedIf:
+  Enabled: false
+  Description: 'This often introduces bugs in tested code'
+
+Style/ConditionalAssignment:
+  Enabled: false
+  Description: 'This is confusing for folks coming from other languages'
 
 Style/Encoding:
-  Enabled: true
   Description: 'We prefer binary to UTF-8.'
-  EnforcedStyle: 'when_needed'
+  Enabled: false
 
-Metrics/LineLength:
+Style/ParenthesesAroundCondition:
+  Enabled: false
+  Description: 'This is used in too many places to discount, especially in ported code. Has little effect'
+
+Style/StringConcatenation:
+  Enabled: false
   Description: >-
-                  Metasploit modules often pattern match against very
-                  long strings when identifying targets.
+    Disabled for now as it changes escape sequences when auto corrected:
+      https://github.com/rubocop/rubocop/issues/9543
+
+    Additionally seems to break with multiline string concatenation with trailing comments, example:
+      payload = "\x12" + # Size
+                "\x34" + # eip
+                "\x56"   # etc
+    With `rubocop -A` this will become:
+      payload = "\u00124V"    # etc
+
+Style/TrailingCommaInArrayLiteral:
+  Enabled: false
+  Description: 'This is often a useful pattern, and is actually required by other languages. It does not hurt.'
+
+Layout/LineLength:
+  Description: >-
+    Metasploit modules often pattern match against very
+    long strings when identifying targets.
+  Enabled: false
+
+Metrics/BlockLength:
   Enabled: true
-  Max: 180
+  Description: >-
+    While the style guide suggests 10 lines, exploit definitions
+    often exceed 200 lines.
+  Max: 300
 
 Metrics/MethodLength:
   Enabled: true
   Description: >-
-                  While the style guide suggests 10 lines, exploit definitions
-                  often exceed 200 lines.
+    While the style guide suggests 10 lines, exploit definitions
+    often exceed 200 lines.
   Max: 300
 
-# Basically everything in metasploit needs binary encoding, not UTF-8.
-# Disable this here and enforce it through msftidy
-Style/Encoding:
-  Enabled: false
+Naming/MethodParameterName:
+  Enabled: true
+  Description: 'Whoever made this requirement never looked at crypto methods, IV'
+  MinNameLength: 2
+
+Naming/PredicateName:
+  Enabled: true
+  # Current methods that break the rule, so that we don't add additional methods that break the convention
+  AllowedMethods:
+    - has_additional_info?
+    - has_advanced_options?
+    - has_auth
+    - has_auto_target?
+    - has_bad_activex?
+    - has_badchars?
+    - has_chars?
+    - has_check?
+    - has_command?
+    - has_content_type_extension?
+    - has_datastore_cred?
+    - has_evasion_options?
+    - has_fatal_errors?
+    - has_fields
+    - has_files?
+    - has_flag?
+    - has_function_name?
+    - has_gcc?
+    - has_h2_headings
+    - has_input_name?
+    - has_j_security_check?
+    - has_key?
+    - has_match?
+    - has_module
+    - has_object_ref
+    - has_objects_list
+    - has_options?
+    - has_page?
+    - has_passphrase?
+    - has_pid?
+    - has_pkt_line_data?
+    - has_prereqs?
+    - has_privacy_waiver?
+    - has_privates?
+    - has_protected_mode_prompt?
+    - has_proxy?
+    - has_read_data?
+    - has_ref?
+    - has_required_args
+    - has_required_module_options?
+    - has_requirements
+    - has_rop?
+    - has_s_flag?
+    - has_service_cred?
+    - has_subscriber?
+    - has_subtree?
+    - has_text
+    - has_tlv?
+    - has_u_flag?
+    - has_users?
+    - has_vuln?
+    - has_waiver?
+    - have_auth_error?
+    - have_powershell?
+    - is_accessible?
+    - is_admin?
+    - is_alive?
+    - is_alpha_web_server?
+    - is_android?
+    - is_app_binom3?
+    - is_app_carlogavazzi?
+    - is_app_cnpilot?
+    - is_app_epaduo?
+    - is_app_epmp1000?
+    - is_app_infovista?
+    - is_app_ironport?
+    - is_app_metweblog?
+    - is_app_oilom?
+    - is_app_openmind?
+    - is_app_popad?
+    - is_app_radware?
+    - is_app_rfreader?
+    - is_app_sentry?
+    - is_app_sevone?
+    - is_app_splunk?
+    - is_app_ssl_vpn?
+    - is_array_type?
+    - is_auth_required?
+    - is_author_blacklisted?
+    - is_badchar
+    - is_base64?
+    - is_bind?
+    - is_cached_size_accurate?
+    - is_cgi_enabled?
+    - is_cgi_exploitable?
+    - is_check_interesting?
+    - is_child_of?
+    - is_clr_enabled
+    - is_connect?
+    - is_dlink?
+    - is_dn?
+    - is_dynamic?
+    - is_error_code
+    - is_exception?
+    - is_exploit_module?
+    - is_exploitable?
+    - is_fqdn?
+    - is_glob?
+    - is_groupwise?
+    - is_guest_mode_enabled?
+    - is_hash_from_empty_pwd?
+    - is_high_integrity?
+    - is_hostname?
+    - is_ie?
+    - is_imc?
+    - is_imc_som?
+    - is_in_admin_group?
+    - is_interface?
+    - is_ip_targeted?
+    - is_key_wanted?
+    - is_leaf?
+    - is_local?
+    - is_logged_in?
+    - is_loggedin
+    - is_loopback_address?
+    - is_mac?
+    - is_match
+    - is_md5_format?
+    - is_module_arch?
+    - is_module_platform?
+    - is_module_wanted?
+    - is_multi_platform_exploit?
+    - is_not_null?
+    - is_null_pointer
+    - is_null_pointer?
+    - is_num?
+    - is_num_type?
+    - is_numeric
+    - is_online?
+    - is_parseable
+    - is_pass_ntlm_hash?
+    - is_passwd_method?
+    - is_password_required?
+    - is_payload_compatible?
+    - is_payload_platform_compatible?
+    - is_pointer_type?
+    - is_pri_key?
+    - is_proficy?
+    - is_rdp_up
+    - is_remote_exploit?
+    - is_resource_taken?
+    - is_rf?
+    - is_rmi?
+    - is_root?
+    - is_routable?
+    - is_running?
+    - is_scan_complete
+    - is_secure_admin_disabled?
+    - is_session_type?
+    - is_signature_correct?
+    - is_single_object?
+    - is_struct_type?
+    - is_supermicro?
+    - is_superuser?
+    - is_sws?
+    - is_system?
+    - is_system_user?
+    - is_target?
+    - is_target_suitable?
+    - is_trial_enabled?
+    - is_trustworthy
+    - is_uac_enabled?
+    - is_url_alive
+    - is_usable?
+    - is_uuid?
+    - is_valid?
+    - is_valid_bus?
+    - is_valid_snmp_value
+    - is_value_wanted?
+    - is_version_compat?
+    - is_version_tested?
+    - is_vmware?
+    - is_vul
+    - is_vulnerable?
+    - is_warbird?
+    - is_windows?
+    - is_writable
+    - is_writable?
+    - is_x86?
+    - is_zigbee_hwbridge_session?
 
 # %q() is super useful for long strings split over multiple lines and
 # is very common in module constructors for things like descriptions
-Style/UnneededPercentQ:
+Style/RedundantPercentQ:
   Enabled: false
 
 Style/NumericLiterals:
   Enabled: false
   Description: 'This often hurts readability for exploit-ish code.'
 
-Style/SpaceInsideBrackets:
-  Enabled: false
-  Description: 'Until module template are final, most modules will fail this.'
+Layout/FirstArrayElementLineBreak:
+  Enabled: true
+  Description: 'This cop checks for a line break before the first element in a multi-line array.'
 
-Style/StringLiterals:
+Layout/FirstArrayElementIndentation:
+  Enabled: true
+  EnforcedStyle: consistent
+  Description: 'Useful to force values within the register_options array to have sane indentation'
+
+Layout/EmptyLinesAroundClassBody:
   Enabled: false
-  Description: 'Single vs double quote fights are largely unproductive.'
+  Description: 'these are used to increase readability'
+
+Layout/EmptyLinesAroundMethodBody:
+  Enabled: true
+
+Layout/ExtraSpacingWithBinDataIgnored:
+  Description: 'Do not use unnecessary spacing.'
+  Enabled: true
+  # When true, allows most uses of extra spacing if the intent is to align
+  # things with the previous or next line, not counting empty lines or comment
+  # lines.
+  AllowForAlignment: false
+  # When true, allows things like 'obj.meth(arg)  # comment',
+  # rather than insisting on 'obj.meth(arg) # comment'.
+  # If done for alignment, either this OR AllowForAlignment will allow it.
+  AllowBeforeTrailingComments: true
+  # When true, forces the alignment of `=` in assignments on consecutive lines.
+  ForceEqualSignAlignment: false
+
+Style/For:
+  Enabled: false
+  Description: 'if a module is written with a for loop, it cannot always be logically replaced with each'
 
 Style/WordArray:
   Enabled: false
   Description: 'Metasploit prefers consistent use of []'
 
-Style/RedundantBegin:
-  Exclude:
-    # this pattern is very common and somewhat unavoidable
-    # def run_host(ip)
-    #   begin
-    #     ...
-    #   rescue ...
-    #     ...
-    #   ensure
-    #     disconnect
-    #   end
-    # end
-    - 'modules/**/*'
+Style/IfUnlessModifier:
+  Enabled: false
+  Description: 'This style might save a couple of lines, but often makes code less clear'
 
-Documentation:
-  Exclude:
-    - 'modules/**/*'
+Style/PercentLiteralDelimiters:
+  Description: 'Use `%`-literal delimiters consistently.'
+  Enabled: true
+  # Specify the default preferred delimiter for all types with the 'default' key
+  # Override individual delimiters (even with default specified) by specifying
+  # an individual key
+  PreferredDelimiters:
+    default: ()
+    '%i': '[]'
+    '%I': '[]'
+    '%r': '{}'
+    '%w': '[]'
+    '%W': '[]'
+    '%q': '{}' # Chosen for module descriptions as () are frequently used characters, whilst {} are rarely used
+  VersionChanged: '0.48.1'
+
+Style/RedundantBegin:
+  Enabled: true
+
+Style/SafeNavigation:
+  Description: >-
+    This cop transforms usages of a method call safeguarded by
+    a check for the existence of the object to
+    safe navigation (`&.`).
+
+    This has been disabled as in some scenarios it produced invalid code, and disobeyed the 'AllowedMethods'
+    configuration.
+  Enabled: false
+
+Style/UnpackFirst:
+  Description: >-
+    Disabling to make it easier to copy/paste `unpack('h*')` expressions from code
+    into a debugging REPL.
+  Enabled: false

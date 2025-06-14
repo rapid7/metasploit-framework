@@ -1,3 +1,5 @@
 # -*- coding: binary -*-
 
-require 'rex/proto/quake/message'
+module Rex::Proto::Quake
+  include Rex::Proto::Quake::Message
+end

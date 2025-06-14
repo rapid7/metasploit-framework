@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core/post/windows/cli_parse'
-
 module Msf
 class Post
 module Windows
@@ -30,10 +28,81 @@ module Registry
   REGISTRY_VIEW_64_BIT = 2
 
   #
+  # Windows Registry Constants.
+  #
+  REG_NONE = 0
+  REG_SZ = 1
+  REG_EXPAND_SZ = 2
+  REG_BINARY = 3
+  REG_DWORD = 4
+  REG_LITTLE_ENDIAN = 4
+  REG_BIG_ENDIAN = 5
+  REG_LINK = 6
+  REG_MULTI_SZ = 7
+  REG_QWORD = 11
+
+  HKEY_CLASSES_ROOT = 0x80000000
+  HKEY_CURRENT_USER = 0x80000001
+  HKEY_LOCAL_MACHINE = 0x80000002
+  HKEY_USERS = 0x80000003
+  HKEY_PERFORMANCE_DATA = 0x80000004
+  HKEY_CURRENT_CONFIG = 0x80000005
+  HKEY_DYN_DATA = 0x80000006
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_registry_check_key_exists
+              stdapi_registry_create_key
+              stdapi_registry_delete_key
+              stdapi_registry_enum_key_direct
+              stdapi_registry_enum_value_direct
+              stdapi_registry_load_key
+              stdapi_registry_open_key
+              stdapi_registry_query_value_direct
+              stdapi_registry_set_value_direct
+              stdapi_registry_unload_key
+              stdapi_sys_config_getprivs
+            ]
+          }
+        }
+      )
+    )
+  end
+
+  #
+  # Lookup registry hives by key.
+  #
+  def registry_hive_lookup(hive)
+    case hive
+    when 'HKCR'
+      HKEY_LOCAL_MACHINE
+    when 'HKCU'
+      HKEY_CURRENT_USER
+    when 'HKLM'
+      HKEY_LOCAL_MACHINE
+    when 'HKU'
+      HKEY_USERS
+    when 'HKPD'
+      HKEY_PERFORMANCE_DATA
+    when 'HKCC'
+      HKEY_CURRENT_CONFIG
+    when 'HKDD'
+      HKEY_DYN_DATA
+    else
+      HKEY_LOCAL_MACHINE
+    end
+  end
+
+  #
   # Load a hive file
   #
   def registry_loadkey(key, file)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_LOAD_KEY)
       meterpreter_registry_loadkey(key, file)
     else
       shell_registry_loadkey(key, file)
@@ -44,7 +113,7 @@ module Registry
   # Unload a hive file
   #
   def registry_unloadkey(key)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_UNLOAD_KEY)
       meterpreter_registry_unloadkey(key)
     else
       shell_registry_unloadkey(key)
@@ -55,7 +124,7 @@ module Registry
   # Create the given registry key
   #
   def registry_createkey(key, view = REGISTRY_VIEW_NATIVE)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_CREATE_KEY)
       meterpreter_registry_createkey(key, view)
     else
       shell_registry_createkey(key, view)
@@ -65,10 +134,10 @@ module Registry
   #
   # Deletes a registry value given the key and value name
   #
-  # returns true if succesful
+  # returns true if successful
   #
   def registry_deleteval(key, valname, view = REGISTRY_VIEW_NATIVE)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_DELETE_KEY)
       meterpreter_registry_deleteval(key, valname, view)
     else
       shell_registry_deleteval(key, valname, view)
@@ -78,10 +147,10 @@ module Registry
   #
   # Delete a given registry key
   #
-  # returns true if succesful
+  # returns true if successful
   #
   def registry_deletekey(key, view = REGISTRY_VIEW_NATIVE)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_DELETE_KEY)
       meterpreter_registry_deletekey(key, view)
     else
       shell_registry_deletekey(key, view)
@@ -92,7 +161,7 @@ module Registry
   # Return an array of subkeys for the given registry key
   #
   def registry_enumkeys(key, view = REGISTRY_VIEW_NATIVE)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY)
       meterpreter_registry_enumkeys(key, view)
     else
       shell_registry_enumkeys(key, view)
@@ -103,7 +172,7 @@ module Registry
   # Return an array of value names for the given registry key
   #
   def registry_enumvals(key, view = REGISTRY_VIEW_NATIVE)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_ENUM_VALUE_DIRECT)
       meterpreter_registry_enumvals(key, view)
     else
       shell_registry_enumvals(key, view)
@@ -114,7 +183,7 @@ module Registry
   # Return the data of a given registry key and value
   #
   def registry_getvaldata(key, valname, view = REGISTRY_VIEW_NATIVE)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_ENUM_VALUE_DIRECT)
       meterpreter_registry_getvaldata(key, valname, view)
     else
       shell_registry_getvaldata(key, valname, view)
@@ -125,7 +194,7 @@ module Registry
   # Return the data and type of a given registry key and value
   #
   def registry_getvalinfo(key, valname, view = REGISTRY_VIEW_NATIVE)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_OPEN_KEY)
       meterpreter_registry_getvalinfo(key, valname, view)
     else
       shell_registry_getvalinfo(key, valname, view)
@@ -135,10 +204,10 @@ module Registry
   #
   # Sets the data for a given value and type of data on the target registry
   #
-  # returns true if succesful
+  # returns true if successful
   #
   def registry_setvaldata(key, valname, data, type, view = REGISTRY_VIEW_NATIVE)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_SET_VALUE_DIRECT)
       meterpreter_registry_setvaldata(key, valname, data, type, view)
     else
       shell_registry_setvaldata(key, valname, data, type, view)
@@ -151,7 +220,7 @@ module Registry
   # @return [Boolean] true if the key exists on the target registry, false otherwise
   #   (also in case of error)
   def registry_key_exist?(key)
-    if session_has_registry_ext
+    if session.commands.include?(Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_CHECK_KEY_EXISTS)
       meterpreter_registry_key_exist?(key)
     else
       shell_registry_key_exist?(key)
@@ -163,6 +232,7 @@ protected
   #
   # Determines whether the session can use meterpreter registry methods
   #
+  # @deprecated Use granular command ID checking session.commands instead
   def session_has_registry_ext
     begin
       return !!(session.sys and session.sys.registry)
@@ -177,17 +247,18 @@ protected
   ##
 
   def shell_registry_cmd(suffix, view = REGISTRY_VIEW_NATIVE)
-    cmd = "cmd.exe /c reg"
+    cmd = "cmd.exe /c reg #{suffix}"
     if view == REGISTRY_VIEW_32_BIT
-      cmd += " /reg:32"
+      cmd << " /reg:32"
     elsif view == REGISTRY_VIEW_64_BIT
-      cmd += " /reg:64"
+      cmd << " /reg:64"
     end
-    cmd_exec("#{cmd} #{suffix}")
+    result = cmd_exec(cmd)
+    result
   end
 
   def shell_registry_cmd_result(suffix, view = REGISTRY_VIEW_NATIVE)
-    results = shell_registry_cmd(suffix, view);
+    results = shell_registry_cmd(suffix, view)
     results.include?('The operation completed successfully')
   end
 
@@ -213,7 +284,7 @@ protected
   def shell_registry_createkey(key, view)
     key = normalize_key(key)
     # REG ADD KeyName [/v ValueName | /ve] [/t Type] [/s Separator] [/d Data] [/f]
-    shell_registry_cmd_result("add /f \"#{key}\"", view)
+    shell_registry_cmd_result("add \"#{key}\" /f", view)
   end
 
   #
@@ -242,14 +313,17 @@ protected
     subkeys = []
     reg_data_types = 'REG_SZ|REG_MULTI_SZ|REG_DWORD_BIG_ENDIAN|REG_DWORD|REG_BINARY|'
     reg_data_types << 'REG_DWORD_LITTLE_ENDIAN|REG_NONE|REG_EXPAND_SZ|REG_LINK|REG_FULL_RESOURCE_DESCRIPTOR'
+
     bslashes = key.count('\\')
+    bslashes = bslashes - 1 if key.ends_with?('\\')
+
     results = shell_registry_cmd("query \"#{key}\"", view)
-    unless results.include?('Error')
+    unless results.to_s.upcase.starts_with?('ERROR:')
       results.each_line do |line|
         # now let's keep the ones that have a count = bslashes+1
         # feels like there's a smarter way to do this but...
         if (line.count('\\') == bslashes+1 && !line.ends_with?('\\'))
-          #then it's a first level subkey
+          # then it's a first level subkey
           subkeys << line.split('\\').last.chomp # take & chomp the last item only
         end
       end
@@ -267,7 +341,7 @@ protected
     reg_data_types << 'REG_DWORD_LITTLE_ENDIAN|REG_NONE|REG_EXPAND_SZ|REG_LINK|REG_FULL_RESOURCE_DESCRIPTOR'
     # REG QUERY KeyName [/v ValueName | /ve] [/s]
     results = shell_registry_cmd("query \"#{key}\"", view)
-    unless results.include?('Error')
+    unless results.to_s.upcase.starts_with?('ERROR:')
       if values = results.scan(/^ +.*[#{reg_data_types}].*/)
         # yanked the lines with legit REG value types like REG_SZ
         # now let's parse out the names (first field basically)
@@ -286,8 +360,10 @@ protected
   # Returns the data portion of the value +valname+
   #
   def shell_registry_getvaldata(key, valname, view)
-    a = shell_registry_getvalinfo(key, valname, view)
-    a["Data"] || nil
+    valinfo = shell_registry_getvalinfo(key, valname, view)
+    return nil if valinfo.nil?
+
+    valinfo['Data']
   end
 
   #
@@ -296,19 +372,38 @@ protected
   #
   def shell_registry_getvalinfo(key, valname, view)
     key = normalize_key(key)
-    value = {}
-    value["Data"] = nil # defaults
-    value["Type"] = nil
+    value = {
+      'Data' => nil,
+      'Type' => nil
+    }
+
     # REG QUERY KeyName [/v ValueName | /ve] [/s]
     results = shell_registry_cmd("query \"#{key}\" /v \"#{valname}\"", view)
-    if match_arr = /^ +#{valname}.*/i.match(results)
-      # pull out the interesting line (the one with the value name in it)
-      # and split it with ' ' yielding [valname,REGvaltype,REGdata]
-      split_arr = match_arr[0].split(' ')
-      value["Type"] = split_arr[1]
-      value["Data"] = split_arr[2]
-      # need to test to ensure all results can be parsed this way
+
+    # pull out the interesting line (the one with the value name in it)
+    return nil unless match_arr = /^ +#{valname}.*/i.match(results)
+
+    # split with ' ' yielding [valname,REGvaltype,REGdata] and extract reg type
+    vtype = match_arr[0].split[1]
+    if %w[ REG_BINARY REG_DWORD REG_EXPAND_SZ REG_MULTI_SZ REG_NONE REG_QWORD REG_SZ ].include?(vtype)
+      value['Type'] = self.class.const_get(vtype)
     end
+    # treat the remainder of the line after the reg type as the reg value
+    vdata = match_arr[0].strip.scan(/#{vtype}\s+(.+)/).flatten.first
+    case vtype
+    when 'REG_BINARY'
+      vdata = vdata.scan(/../).map { |x| x.hex.chr }.join
+    when 'REG_DWORD', 'REG_QWORD'
+      if vdata.start_with?('0x')
+        vdata = vdata[2..].to_i(16)
+      else
+        vdata = vdata.to_i
+      end
+    when 'REG_MULTI_SZ'
+      vdata = vdata.split('\0')
+    end
+    value['Data'] = vdata
+
     value
   end
 
@@ -318,9 +413,23 @@ protected
   #
   def shell_registry_setvaldata(key, valname, data, type, view)
     key = normalize_key(key)
+
+    case type
+    when 'REG_BINARY'
+      data = data.each_byte.map { |b| b.to_s(16).rjust(2, '0') }.join
+    when 'REG_EXPAND_SZ'
+      if session.type == 'powershell'
+        data = data.gsub('%', '""%""')
+      elsif session.type == 'shell'
+        data = data.gsub('%', '"%"')
+      end
+    when 'REG_MULTI_SZ'
+      data = data.join('\0')
+    end
+
     # REG ADD KeyName [/v ValueName | /ve] [/t Type] [/s Separator] [/d Data] [/f]
     # /f to overwrite w/o prompt
-    shell_registry_cmd_result("add /f \"#{key}\" /v \"#{valname}\" /t \"#{type}\" /d \"#{data}\" /f", view)
+    shell_registry_cmd_result("add \"#{key}\" /v \"#{valname}\" /t \"#{type}\" /d \"#{data}\" /f", view)
   end
 
   # Checks if a key exists on the target registry using a shell session
@@ -337,11 +446,9 @@ protected
     end
 
     results = shell_registry_cmd("query \"#{key}\"")
-    if results =~ /ERROR: /i
-      return false
-    else
-      return true
-    end
+    return false if results.blank? || results =~ /ERROR: /i
+
+    true
   end
 
   ##
@@ -562,7 +669,7 @@ protected
 
     begin
       check = session.sys.registry.check_key_exists(root_key, base_key)
-    rescue Rex::Post::Meterpreter::RequestError, TimesoutError
+    rescue Rex::Post::Meterpreter::RequestError, Rex::TimeoutError
       return false
     end
 
@@ -592,8 +699,8 @@ protected
     else
       raise ArgumentError, "Cannot normalize unknown key: #{key}"
     end
-    print_status("Normalized #{key} to #{keys.join("\\")}") if $blab
-    return keys.join("\\")
+    # print_status("Normalized #{key} to #{keys.join("\\")}")
+    return keys.compact.join("\\")
   end
 
   #

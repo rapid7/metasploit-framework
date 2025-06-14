@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/http'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -50,11 +48,11 @@ class MetasploitModule < Msf::Auxiliary
                 'File containing passwords, one per line',
                 File.join(Msf::Config.data_directory, 'wordlists', 'http_default_pass.txt')
             ]
-            )], self.class)
+            )])
 
     deregister_options(
-        'USERNAME', 'USER_AS_PASS', 'DB_ALL_CREDS', 'DB_ALL_USERS', 'NTLM::SendLM', 'NTLM::SendNTLM',
-        'NTLM::SendSPN', 'NTLM::UseLMKey', 'NTLM::UseNTLM2_session', 'NTLM::UseNTLMv2',
+        'USERNAME', 'USER_AS_PASS', 'DB_ALL_CREDS', 'DB_ALL_USERS', 'DB_SKIP_EXISTING',
+        'NTLM::SendLM', 'NTLM::SendNTLM', 'NTLM::SendSPN', 'NTLM::UseLMKey', 'NTLM::UseNTLM2_session', 'NTLM::UseNTLMv2',
         'REMOVE_USERPASS_FILE', 'REMOVE_USER_FILE', 'DOMAIN', 'HttpUsername'
     )
   end
@@ -69,6 +67,7 @@ class MetasploitModule < Msf::Auxiliary
           username: 'AirPlay',
           user_as_pass: datastore['USER_AS_PASS'],
       )
+      cred_collection = prepend_db_passwords(cred_collection)
     else
       print_status("Attempting to login to #{uri} by 'Onscreen Code'")
       cred_collection = LockCodeCollection.new
@@ -125,4 +124,3 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 end
-

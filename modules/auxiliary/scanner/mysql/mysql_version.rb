@@ -1,15 +1,13 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
+  include Msf::OptionalSession::MySQL
 
   def initialize
     super(
@@ -29,9 +27,23 @@ class MetasploitModule < Msf::Auxiliary
   # Based on my mysql-info NSE script
   def run_host(ip)
     begin
-      s = connect(false)
-      data = s.get_once(-1,10)
-      disconnect(s)
+      if session
+        sql_conn = session.client
+        version = sql_conn.server_info
+        print_good("#{sql_conn.peerhost}:#{sql_conn.peerport} is running MySQL #{version}")
+        report_service(
+          :host => sql_conn.peerhost,
+          :port => sql_conn.peerport,
+          :name => "mysql",
+          :info => version
+        )
+        return
+      else
+        socket = connect(false)
+        data = socket.get_once(-1, 10)
+        disconnect(socket)
+      end
+
       if data.nil?
         print_error "The connection to #{rhost}:#{rport} timed out"
         return
@@ -70,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
     else
       offset += 1
       version = data[offset..-1].unpack('Z*')[0]
-      print_status("#{rhost}:#{rport} is running MySQL #{version} (protocol #{proto})")
+      print_good("#{rhost}:#{rport} is running MySQL #{version} (protocol #{proto})")
       report_service(
         :host => rhost,
         :port => rport,

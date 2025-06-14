@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/manageengine_desktop_central'
 require 'metasploit/framework/credential_collection'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
@@ -29,14 +27,9 @@ class MetasploitModule < Msf::Auxiliary
 
   # Initializes CredentialCollection and ManageEngineDesktopCentral
   def init(ip)
-    @cred_collection = Metasploit::Framework::CredentialCollection.new(
-      blank_passwords: datastore['BLANK_PASSWORDS'],
-      pass_file:       datastore['PASS_FILE'],
-      password:        datastore['PASSWORD'],
-      user_file:       datastore['USER_FILE'],
-      userpass_file:   datastore['USERPASS_FILE'],
-      username:        datastore['USERNAME'],
-      user_as_pass:    datastore['USER_AS_PASS']
+    @cred_collection = build_credential_collection(
+      username: datastore['USERNAME'],
+      password: datastore['PASSWORD']
     )
 
     @scanner = Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral.new(
@@ -59,8 +52,8 @@ class MetasploitModule < Msf::Auxiliary
     service_data = {
       address: ip,
       port: port,
-      service_name: 'http',
-      protocol: 'tcp',
+      service_name: result.service_name,
+      protocol: result.protocol,
       workspace_id: myworkspace_id
     }
 
@@ -131,5 +124,4 @@ class MetasploitModule < Msf::Auxiliary
 
     bruteforce(ip)
   end
-
 end

@@ -1,13 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex/proto/dhcp'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::DHCPServer
   include Msf::Auxiliary::Report
 
@@ -21,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'Actions'     =>
         [
-          [ 'Service' ]
+          [ 'Service', 'Description' => 'Run DHCP server' ]
         ],
       'PassiveActions' =>
         [
@@ -47,5 +44,4 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Stopping DHCP server...")
     @dhcp.stop
   end
-
 end

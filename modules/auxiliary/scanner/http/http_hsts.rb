@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -39,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         if hsts
           print_good("#{ip}:#{rport} - Strict-Transport-Security:#{hsts}")
           report_note({
-            :data => hsts,
+            :data => { :data => hsts },
             :type => "hsts.data",
             :host => ip,
             :port => rport
@@ -54,5 +51,4 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Timeout::Error, ::Errno::EPIPE
     end
   end
-
 end

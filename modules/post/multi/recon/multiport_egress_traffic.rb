@@ -1,39 +1,52 @@
 # -*- coding: binary -*-
 
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
   def initialize(info = {})
-    super(update_info(info,
-                      'Name'          => 'Generate TCP/UDP Outbound Traffic On Multiple Ports',
-                      'Description'   => %q(
-                        This module generates TCP or UDP traffic across a
-                        sequence of ports, and is useful for finding firewall
-                        holes and egress filtering. It only generates traffic
-                        on the port range you specify. It is up to you to
-                        run a responder or packet capture tool on a remote
-                        endpoint to determine which ports are open.
-                       ),
-                      'License'       => MSF_LICENSE,
-                      'Author'        => 'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',
-                      'Platform'      => [ 'linux', 'osx', 'unix', 'solaris', 'bsd', 'windows' ],
-                      'SessionTypes'  => ['meterpreter']
-                     ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Generate TCP/UDP Outbound Traffic On Multiple Ports',
+        'Description' => %q{
+          This module generates TCP or UDP traffic across a
+          sequence of ports, and is useful for finding firewall
+          holes and egress filtering. It only generates traffic
+          on the port range you specify. It is up to you to
+          run a responder or packet capture tool on a remote
+          endpoint to determine which ports are open.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => 'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',
+        'Platform' => ['linux', 'osx', 'unix', 'solaris', 'bsd', 'windows'],
+        'SessionTypes' => ['meterpreter'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+            ]
+          }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
-        OptAddress.new('TARGET', [ true, 'Destination IP address.']),
+        OptAddress.new('TARGET', [true, 'Destination IP address.']),
         OptString.new('PORTS', [true, 'Ports to test.', '22,23,53,80,88,443,445,33434-33534']),
-        OptEnum.new('PROTOCOL', [ true, 'Protocol to use.', 'TCP', [ 'TCP', 'UDP', 'ALL' ]]),
-        OptEnum.new('METHOD', [ true, 'The mechanism by which the packets are generated. Can be NATIVE or WINAPI (Windows only).', 'NATIVE', [ 'NATIVE', 'WINAPI' ]]),
+        OptEnum.new('PROTOCOL', [true, 'Protocol to use.', 'TCP', [ 'TCP', 'UDP', 'ALL' ]]),
+        OptEnum.new('METHOD', [true, 'The mechanism by which the packets are generated. Can be NATIVE or WINAPI (Windows only).', 'NATIVE', [ 'NATIVE', 'WINAPI']]),
         OptInt.new('THREADS', [true, 'Number of simultaneous threads/connections to try.', '20'])
-      ], self.class)
+      ]
+    )
   end
 
   def winapi_create_socket(proto)
@@ -53,7 +66,7 @@ class MetasploitModule < Msf::Post
           'PeerHost' => ip,
           'PeerPort' => port
         )
-      rescue
+      rescue StandardError
         vprint_status("[#{num}:NATIVE] Error connecting to #{ip} #{proto}/#{port}")
       end
     elsif proto == 'UDP'
@@ -64,7 +77,7 @@ class MetasploitModule < Msf::Post
           'PeerPort' => port
         )
         rudp.sendto('.', ip, port, 0) if rudp
-      rescue
+      rescue StandardError
         vprint_status("[#{num}:NATIVE] Error connecting to #{ip} #{proto}/#{port}")
       end
     end
@@ -76,7 +89,7 @@ class MetasploitModule < Msf::Post
     sock_addr << Rex::Socket.addr_aton(remote)
     sock_addr << "\x00" * 8
     return client.railgun.ws2_32.connect(socket_handle, sock_addr, 16) if proto == 'TCP'
-    return client.railgun.ws2_32.sendto(socket_handle, ".", 0, 0, sock_addr, 16) if proto == 'UDP'
+    return client.railgun.ws2_32.sendto(socket_handle, '.', 0, 0, sock_addr, 16) if proto == 'UDP'
   end
 
   def run
@@ -85,21 +98,19 @@ class MetasploitModule < Msf::Post
     thread_num = datastore['THREADS']
     proto = datastore['PROTOCOL']
 
-    unless client.type == "meterpreter"
-      print_error("This module requires meterpreter")
+    unless client.type == 'meterpreter'
+      print_error('This module requires meterpreter')
       return
     end
 
     # If we want WINAPI egress, make sure winsock is loaded
-    if type == 'WINAPI'
-      unless client.railgun.ws2_32 && client.platform =~ /win/
-        print_error("The WINAPI method requires Windows, railgun and support for winsock APIs. Try using the NATIVE method instead.")
-        return
-      end
+    if type == 'WINAPI' && !(client.railgun.ws2_32 && client.platform == 'windows')
+      print_error('The WINAPI method requires Windows, railgun and support for winsock APIs. Try using the NATIVE method instead.')
+      return
     end
 
-    if client.platform =~ /python/
-      print_error("This module cannot be used with python meterpreter at present")
+    unless [ARCH_X64, ARCH_X86].include?(client.arch)
+      print_error('This module cannot be used without native meterpreter at present')
       return
     end
 
@@ -137,11 +148,9 @@ class MetasploitModule < Msf::Post
     end
 
     gw = 0
-    if type == 'NATIVE'
-      unless (gw = framework.sessions.get(datastore['SESSION'])) && (gw.is_a?(Msf::Session::Comm))
-        print_error("Error getting session to route egress traffic through to #{remote}")
-        return
-      end
+    if type == 'NATIVE' && !((gw = framework.sessions.get(datastore['SESSION'])) && gw.is_a?(Msf::Session::Comm))
+      print_error("Error getting session to route egress traffic through to #{remote}")
+      return
     end
 
     str_proto = (proto == 'ALL') ? 'TCP and UDP' : proto
@@ -198,9 +207,9 @@ class MetasploitModule < Msf::Post
     vprint_status("[#{num}:WINAPI] Connecting to #{remote}:#{proto}/#{dport}")
     r = winapi_make_connection(remote, dport, socket_handle['return'], proto)
     if r['GetLastError'] == 0
-      vprint_status("[#{num}:WINAPI] Connection packet sent successfully #{proto}/#{dport}")
+      vprint_good("[#{num}:WINAPI] Connection packet sent successfully #{proto}/#{dport}")
     else
-      vprint_status("[#{num}:WINAPI] There was an error sending a connect packet for #{proto} socket (port #{dport}) Error: #{r['GetLastError']}")
+      vprint_bad("[#{num}:WINAPI] There was an error sending a connect packet for #{proto} socket (port #{dport}) Error: #{r['GetLastError']}")
     end
 
     client.railgun.ws2_32.closesocket(socket_handle['return'])

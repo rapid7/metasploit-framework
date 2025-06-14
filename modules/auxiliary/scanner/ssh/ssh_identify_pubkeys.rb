@@ -1,14 +1,14 @@
+# encoding: binary
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'net/ssh'
 require 'sshkey' # TODO: Actually include this!
+require 'net/ssh/pubkey_verifier'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(22),
-        OptPath.new('KEY_FILE', [false, 'Filename of one or several cleartext public keys.'])
+        OptPath.new('KEY_FILE', [true, 'Filename of one or several cleartext public keys.'])
       ]
     )
 
@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     deregister_options(
-      'RHOST','PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS', 'USERPASS_FILE', 'DB_ALL_PASS', 'DB_ALL_CREDS'
+      'PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS', 'USERPASS_FILE', 'DB_ALL_PASS', 'DB_ALL_CREDS'
     )
 
     @good_credentials = {}
@@ -203,26 +203,28 @@ class MetasploitModule < Msf::Auxiliary
         key_info = "- #{$3.strip}"
       end
 
-      accepted = []
       factory = ssh_socket_factory
       opt_hash = {
-        :auth_methods => ['publickey'],
-        :port         => port,
-        :key_data     => key_data[:public],
-        :use_agent     => false,
-        :record_auth_info  => true,
-        :skip_private_keys => true,
-        :config =>false,
-        :accepted_key_callback => Proc.new {|key| accepted << { :data => key_data, :key => key, :info => key_info } },
-        :proxy	  => factory,
-        :non_interactive => true
+        :auth_methods    => ['publickey'],
+        :port            => port,
+        :key_data        => key_data[:public],
+        :use_agent       => false,
+        :config          => false,
+        :proxy           => factory,
+        :non_interactive => true,
+        :verify_host_key => :never
       }
 
       opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
 
       begin
         ssh_socket = nil
-        ::Timeout.timeout(datastore['SSH_TIMEOUT']) { ssh_socket = Net::SSH.start(ip, user, opt_hash) } rescue nil
+        success = false
+        verifier = Net::SSH::PubkeyVerifier.new(ip,user,opt_hash)
+        ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
+           success = verifier.verify
+           ssh_socket = verifier.connection
+        end
 
         if datastore['SSH_BYPASS'] and ssh_socket
           data = nil
@@ -248,19 +250,29 @@ class MetasploitModule < Msf::Auxiliary
         return [:fail,nil] # For whatever reason.
       end
 
-      if accepted.length == 0
+      unless success
         if @key_files
           print_brute :level => :verror, :msg =>  "User #{user} does not accept key #{@key_files[key_idx+1]} #{key_info}"
         else
           print_brute :level => :verror, :msg => "User #{user} does not accept key #{key_idx+1} #{key_info}"
         end
+        return [:fail,nil]
       end
 
-      accepted.each do |key|
-        private_key_present = (key[:data][:private]!="") ? 'Yes' : 'No'
-        print_brute :level => :good, :msg => "Public key accepted: '#{user}' with key '#{key[:key][:fingerprint]}' (Private Key: #{private_key_present}) #{key_info}"
-        do_report(ip, rport, user, key)
-      end
+      key = verifier.key
+      key_fingerprint = key.fingerprint
+      user = verifier.user
+      private_key_present = (key_data[:private] != "") ? 'Yes' : 'No'
+
+      print_brute :level => :good, :msg => "Public key accepted: '#{user}' with key '#{key_fingerprint}' (Private Key: #{private_key_present}) #{key_info}"
+
+      key_hash = {
+        data: key_data,
+        key: key,
+        info: key_info
+      }
+      do_report(ip, rport, user, key_hash)
+
     end
   end
 
@@ -311,7 +323,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def existing_loot(ltype, key_id)
-    framework.db.loots(myworkspace).where(ltype: ltype).select {|l| l.info == key_id}.first
+    framework.db.loots(workspace: myworkspace).where(ltype: ltype).select {|l| l.info == key_id}.first
   end
 
   def store_public_keyfile(ip,user,key_id,key_data)
@@ -352,9 +364,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    # Since SSH collects keys and tries them all on one authentication session, it doesn't
-    # make sense to iteratively go through all the keys individually. So, ignore the pass variable,
-    # and try all available keys for all users.
+    # Since SSH collects keys and tries them all on one authentication session,
+    # it doesn't make sense to iteratively go through all the keys
+    # individually. So, ignore the pass variable, and try all available keys
+    # for all users.
     each_user_pass do |user,pass|
       ret, _ = do_login(ip, rport, user)
       case ret
@@ -373,5 +386,4 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
-
 end

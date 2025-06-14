@@ -1,17 +1,8 @@
 ##
-# $Id$
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
-##
-
-# $Revision$
-
-require 'rubygems'
 require 'pathname'
 require 'nokogiri'
 require 'uri'
@@ -19,28 +10,21 @@ require 'uri'
 class CrawlerForms < BaseParser
 
   def parse(request,result)
-
-    if !result['Content-Type'].include? "text/html"
-      return
-    end
-
-    hr = ''
-    m = ''
+    return unless result['Content-Type'].include?('text/html')
 
     doc = Nokogiri::HTML(result.body.to_s)
     doc.css('form').each do |f|
       hr = f['action']
 
-      fname = f['name']
-      fname = "NONE" if fname.empty?
+      # Removed because unused
+      #fname = f['name']
+      #fname = 'NONE' if fname.empty?
 
-      m = f['method'].empty? ? 'GET' : f['method'].upcase
-
-      htmlform = Nokogiri::HTML(f.inner_html)
+      m = (f['method'].empty? ? 'GET' : f['method'].upcase)
 
       arrdata = []
 
-      htmlform.css('input').each do |p|
+      f.css('input').each do |p|
         arrdata << "#{p['name']}=#{Rex::Text.uri_encode(p['value'])}"
       end
 
@@ -51,7 +35,10 @@ class CrawlerForms < BaseParser
         hreq['ctype'] = 'application/x-www-form-urlencoded'
         insertnewpath(hreq)
       rescue URI::InvalidURIError
+        #puts "Parse error"
+        #puts "Error: #{link[0]}"
       end
+
     end
   end
 end

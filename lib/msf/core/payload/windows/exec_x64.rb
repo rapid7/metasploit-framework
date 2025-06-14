@@ -20,7 +20,7 @@ module Payload::Windows::Exec_x64
       'Author'        => [ 'sf' ],
       'License'       => MSF_LICENSE,
       'Platform'      => 'win',
-      'Arch'          => ARCH_X86_64,
+      'Arch'          => ARCH_X64,
       'Payload'       =>
         {
           'Offsets' =>
@@ -53,7 +53,7 @@ module Payload::Windows::Exec_x64
       ], self.class )
   end
 
-  def generate
+  def generate(_opts = {})
     return super + command_string + "\x00"
   end
 

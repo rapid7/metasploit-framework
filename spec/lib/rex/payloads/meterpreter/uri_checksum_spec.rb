@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'rex/payloads/meterpreter/uri_checksum'
 
 RSpec.describe Rex::Payloads::Meterpreter::UriChecksum do
    class DummyClass

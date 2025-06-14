@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -14,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'        => 'Adobe XML External Entity Injection',
       'Description' => %q{
-          Multiple Adobe Products -- XML External Entity Injection. Affected Sofware: BlazeDS 3.2 and
+          Multiple Adobe Products -- XML External Entity Injection. Affected Software: BlazeDS 3.2 and
         earlier versions, LiveCycle 9.0, 8.2.1, and 8.0.1, LiveCycle Data Services 3.0, 2.6.1, and
         2.5.1, Flex Data Services 2.0.1, ColdFusion 9.0, 8.0.1, 8.0, and 7.0.2
       },
@@ -24,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '62292' ],
           [ 'BID', '38197' ],
           [ 'URL', 'http://www.security-assessment.com/files/advisories/2010-02-22_Multiple_Adobe_Products-XML_External_Entity_and_XML_Injection.pdf' ],
-          [ 'URL', 'http://www.adobe.com/support/security/bulletins/apsb10-05.html'],
+          [ 'URL', 'https://www.adobe.com/support/security/bulletins/apsb10-05.html'],
         ],
       'Author'      => [ 'CG' ],
       'License'     => MSF_LICENSE
@@ -34,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(8400),
         OptString.new('FILE', [ true,  "File to read", '/etc/passwd']),
-      ],self.class)
+      ])
   end
 
   def run_host(ip)

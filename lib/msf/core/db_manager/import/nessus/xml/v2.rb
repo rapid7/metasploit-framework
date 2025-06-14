@@ -1,9 +1,8 @@
-require 'rex/parser/nessus_xml'
 
 module Msf::DBManager::Import::Nessus::XML::V2
   def import_nessus_xml_v2(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     #@host = {
@@ -51,13 +50,13 @@ module Msf::DBManager::Import::Nessus::XML::V2
       # We can't use them anyway, so take just the first.
       host_info[:mac]  = mac.to_s.strip.upcase.split(/\s+/).first if mac
 
-      hobj = report_host(host_info)
+      hobj = msf_import_host(host_info)
       report_import_note(wspace,hobj)
 
       os = host['os']
       yield(:os,os) if block
       if os
-        report_note(
+        msf_import_note(
           :workspace => wspace,
           :task => args[:task],
           :host => hobj,
@@ -74,7 +73,7 @@ module Msf::DBManager::Import::Nessus::XML::V2
         nasl = item['nasl'].to_s
         nasl_name = item['nasl_name'].to_s
         port = item['port'].to_s
-        proto = item['proto'] || "tcp"
+        proto = item['proto'] ? item['proto'].downcase : "tcp"
         sname = item['svc_name']
         severity = item['severity']
         description = item['description']
@@ -111,7 +110,7 @@ module Msf::DBManager::Import::Nessus::XML::V2
     end
 
     if port.to_i != 0
-      report_service(info)
+      msf_import_service(info)
     end
 
     if nasl.nil? || nasl.empty? || nasl == 0 || nasl == "0"
@@ -160,6 +159,6 @@ module Msf::DBManager::Import::Nessus::XML::V2
       vuln[:proto] = proto
     end
 
-    report_vuln(vuln)
+    msf_import_vuln(vuln)
   end
 end

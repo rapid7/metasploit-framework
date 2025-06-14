@@ -1,12 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
-require 'rex/proto/ntlm/message'
-
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::VIMSoap
@@ -16,60 +11,65 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'VMWare Enumerate User Accounts',
-      'Description'    => %Q{
-        This module will log into the Web API of VMWare and try to enumerate
+      'Name' => 'VMware Enumerate User Accounts',
+      'Description' => %(
+        This module will log into the Web API of VMware and try to enumerate
         all the user accounts. If the VMware instance is connected to one or
         more domains, it will try to enumerate domain users as well.
-      },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE,
-      'DefaultOptions' => { 'SSL' => true }
+      ),
+      'Author' => ['theLightCosine'],
+      'License' => MSF_LICENSE,
+      'DefaultOptions' => { 'SSL' => true },
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
 
     register_options(
       [
         Opt::RPORT(443),
-        OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
-        OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ])
-      ], self.class)
+        OptString.new('USERNAME', [ true, 'The username to Authenticate with.', 'root' ]),
+        OptString.new('PASSWORD', [ true, 'The password to Authenticate with.', 'password' ])
+      ]
+    )
   end
-
 
   def run_host(ip)
     if vim_do_login(datastore['USERNAME'], datastore['PASSWORD']) == :success
       # Get local Users and Groups
       user_list = vim_get_user_list(nil)
       tmp_users = Rex::Text::Table.new(
-        'Header'  => "Users for server #{ip}",
-        'Indent'  => 1,
+        'Header' => "Users for server #{ip}",
+        'Indent' => 1,
         'Columns' => ['Name', 'Description']
       )
       tmp_groups = Rex::Text::Table.new(
-        'Header'  => "Groups for server #{ip}",
-        'Indent'  => 1,
+        'Header' => "Groups for server #{ip}",
+        'Indent' => 1,
         'Columns' => ['Name', 'Description']
       )
       unless user_list.nil?
         case user_list
         when :noresponse
-          print_error "Recieved no Response from #{ip}"
+          print_error "Received no response from #{ip}"
         when :expired
           print_error "The login session appears to have expired on #{ip}"
         when :error
-          print_error "An error occured while trying to enumerate the users for #{domain} on #{ip}"
+          print_error "An error occurred while trying to enumerate the users for #{domain} on #{ip}"
         else
           user_list.each do |obj|
             if obj['group'] == 'true'
               tmp_groups << [obj['principal'], obj['fullName']]
             else
-              tmp_users <<  [obj['principal'], obj['fullName']]
+              tmp_users << [obj['principal'], obj['fullName']]
             end
           end
           print_good tmp_groups.to_s
-          store_loot('host.vmware.groups', "text/plain", datastore['RHOST'], tmp_groups.to_csv , "#{datastore['RHOST']}_esx_groups.txt", "VMWare ESX User Groups")
+          store_loot('host.vmware.groups', 'text/plain', datastore['RHOST'], tmp_groups.to_csv, "#{datastore['RHOST']}_esx_groups.txt", 'VMware ESX User Groups')
           print_good tmp_users.to_s
-          store_loot('host.vmware.users', "text/plain", datastore['RHOST'], tmp_users.to_csv , "#{datastore['RHOST']}_esx_users.txt", "VMWare ESX Users")
+          store_loot('host.vmware.users', 'text/plain', datastore['RHOST'], tmp_users.to_csv, "#{datastore['RHOST']}_esx_users.txt", 'VMware ESX Users')
         end
       end
 
@@ -77,23 +77,23 @@ class MetasploitModule < Msf::Auxiliary
       esx_domains = vim_get_domains
       case esx_domains
       when :noresponse
-        print_error "Recieved no Response from #{ip}"
+        print_error "Received no response from #{ip}"
       when :expired
         print_error "The login session appears to have expired on #{ip}"
       when :error
-        print_error "An error occured while trying to enumerate the domains on #{ip}"
+        print_error "An error occurred while trying to enumerate the domains on #{ip}"
       else
         # Enumerate Domain Users and Groups
         esx_domains.each do |domain|
           tmp_dusers = Rex::Text::Table.new(
-            'Header'  => "Users for domain #{domain}",
-            'Indent'  => 1,
+            'Header' => "Users for domain #{domain}",
+            'Indent' => 1,
             'Columns' => ['Name', 'Description']
           )
 
           tmp_dgroups = Rex::Text::Table.new(
-            'Header'  => "Groups for domain #{domain}",
-            'Indent'  => 1,
+            'Header' => "Groups for domain #{domain}",
+            'Indent' => 1,
             'Columns' => ['Name', 'Description']
           )
 
@@ -102,33 +102,32 @@ class MetasploitModule < Msf::Auxiliary
           when nil
             next
           when :noresponse
-            print_error "Recieved no Response from #{ip}"
+            print_error "Received no response from #{ip}"
           when :expired
             print_error "The login session appears to have expired on #{ip}"
           when :error
-            print_error "An error occured while trying to enumerate the users for #{domain} on #{ip}"
+            print_error "An error occurred while trying to enumerate the users for #{domain} on #{ip}"
           else
             user_list.each do |obj|
               if obj['group'] == 'true'
                 tmp_dgroups << [obj['principal'], obj['fullName']]
               else
-                tmp_dusers <<  [obj['principal'], obj['fullName']]
+                tmp_dusers << [obj['principal'], obj['fullName']]
               end
             end
             print_good tmp_dgroups.to_s
 
-            f = store_loot('domain.groups', "text/plain", datastore['RHOST'], tmp_dgroups.to_csv , "#{domain}_esx_groups.txt", "VMWare ESX #{domain} Domain User Groups")
-            vprint_status("VMWare domain user groups stored in: #{f}")
+            f = store_loot('domain.groups', 'text/plain', datastore['RHOST'], tmp_dgroups.to_csv, "#{domain}_esx_groups.txt", "VMware ESX #{domain} Domain User Groups")
+            vprint_status("VMware domain user groups stored in: #{f}")
             print_good tmp_dusers.to_s
-            f = store_loot('domain.users', "text/plain", datastore['RHOST'], tmp_dgroups.to_csv , "#{domain}_esx_users.txt", "VMWare ESX #{domain} Domain Users")
-            vprint_status("VMWare users stored in: #{f}")
+            f = store_loot('domain.users', 'text/plain', datastore['RHOST'], tmp_dgroups.to_csv, "#{domain}_esx_users.txt", "VMware ESX #{domain} Domain Users")
+            vprint_status("VMware users stored in: #{f}")
           end
         end
       end
     else
-      print_error "Login Failure on #{ip}"
+      print_error "Login failure on #{ip}"
       return
     end
   end
-
 end

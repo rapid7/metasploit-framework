@@ -1,3 +1,5 @@
+## Introduction
+
 This is a post exploitation module which has the effect of copying the AD groups, user membership
 (taking into account nested groups), user information and computers to a local SQLite database.
 This is particularly useful for red teaming and simulated attack engagements because it offers

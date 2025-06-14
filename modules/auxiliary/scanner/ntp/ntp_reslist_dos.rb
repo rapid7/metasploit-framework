@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::UDPScanner
@@ -28,8 +25,9 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
       'References'     =>
         [
+          ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
           ['URL', 'https://github.com/rapid7/metasploit-framework/pull/3696'],
-          ['URL', 'http://r-7.co/R7-2014-12']
+          ['URL', 'https://www.rapid7.com/blog/post/2014/08/25/r7-2014-12-more-amplification-vulnerabilities-in-ntp-allow-even-more-drdos-attacks/']
         ],
       'DisclosureDate' => 'Aug 25 2014',
       'License'        => MSF_LICENSE
@@ -39,13 +37,14 @@ class MetasploitModule < Msf::Auxiliary
   # Called for each response packet
   def scanner_process(data, shost, sport)
     @results[shost] ||= []
-    @results[shost] << Rex::Proto::NTP::NTPPrivate.new(data)
+    privmsg = Rex::Proto::NTP::NTPPrivate.new.read(data)
+    @results[shost] << privmsg.to_binary_s
   end
 
   # Called before the scan block
   def scanner_prescan(batch)
     @results = {}
-    @probe = Rex::Proto::NTP.ntp_private(datastore['VERSION'], datastore['IMPLEMENTATION'], 16)
+    @probe = Rex::Proto::NTP.ntp_private(datastore['VERSION'], datastore['IMPLEMENTATION'], 16).to_binary_s
   end
 
   # Called after the scan block

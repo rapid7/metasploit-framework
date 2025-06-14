@@ -1,35 +1,38 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Apple TV Image Remote Control',
-      'Description'    => %q(
-        This module will show an image on an AppleTV device for a period of time.
-        Some AppleTV devices are actually password-protected, in that case please
-        set the PASSWORD datastore option. For password bruteforcing, please see
-        the module auxiliary/scanner/http/appletv_login.
-      ),
-      'Author'         =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Apple TV Image Remote Control',
+        'Description' => %q{
+          This module will show an image on an AppleTV device for a period of time.
+          Some AppleTV devices are actually password-protected, in that case please
+          set the PASSWORD datastore option. For password brute forcing, please see
+          the module auxiliary/scanner/http/appletv_login.
+        },
+        'Author' => [
           '0a29406d9794e4f9b30b3c5d6702c708', # Original work
-          'sinn3r'                            # You can blame me for mistakes
+          'sinn3r' # You can blame me for mistakes
         ],
-      'References'     =>
-        [
+        'References' => [
           ['URL', 'http://nto.github.io/AirPlay.html']
         ],
-      'DefaultOptions' => { 'HttpUsername' => 'AirPlay' },
-      'License'        => MSF_LICENSE
-    ))
+        'DefaultOptions' => { 'HttpUsername' => 'AirPlay' },
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, SCREEN_EFFECTS],
+          'Reliability' => []
+        }
+      )
+    )
 
     # Make the PASSWORD option more visible and hope the user is more aware of this option
     register_options([
@@ -37,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('TIME', [true, 'Time in seconds to show the image', 10]),
       OptPath.new('FILE', [true, 'Image to upload and show']),
       OptString.new('HttpPassword', [false, 'The password for AppleTV AirPlay'])
-    ], self.class)
+    ])
 
     # We're not actually using any of these against AppleTV in our Rex HTTP client init,
     # so deregister them so we don't overwhelm the user with fake options.
@@ -54,14 +57,11 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-
   #
   # Sends an image request to AppleTV. HttpClient isn't used because we actually need to keep
   # the connection alive so that the video can keep playing.
   #
   def send_image_request(opts)
-    http = nil
-
     http = Rex::Proto::Http::Client.new(
       rhost,
       rport.to_i,
@@ -88,32 +88,29 @@ class MetasploitModule < Msf::Auxiliary
     res
   end
 
-
   def get_image_data
     File.open(datastore['FILE'], 'rb') { |f| f.read(f.stat.size) }
   end
-
 
   def show_image
     image = get_image_data
 
     opts = {
-      'method'  => 'PUT',
-      'uri'     => '/photo',
-      'data'    => image
+      'method' => 'PUT',
+      'uri' => '/photo',
+      'data' => image
     }
 
     res = send_image_request(opts)
 
     if !res
-      print_status("The connection timed out")
+      print_status('The connection timed out')
     elsif res.code == 200
-      print_status("Received HTTP 200")
+      print_status('Received HTTP 200')
     else
-      print_error("The request failed due to an unknown reason")
+      print_error('The request failed due to an unknown reason')
     end
   end
-
 
   def run
     print_status("Image request sent. Duration set: #{datastore['TIME']} seconds")

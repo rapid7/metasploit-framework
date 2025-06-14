@@ -12,11 +12,11 @@ module Metasploit
         attr_accessor :passwords
 
         # @!attribute chunk_size, limits number of passwords per XML request
-        # @return [Fixnum]
+        # @return [Integer]
         attr_accessor :chunk_size
 
         # @!attribute block_wait, time to wait if got blocked by the target
-        # @return [Fixnum]
+        # @return [Integer]
         attr_accessor :block_wait
 
         # @!attribute base_uri
@@ -92,10 +92,7 @@ module Metasploit
               'ctype'   =>'text/xml'
             }
 
-          client = Rex::Proto::Http::Client.new(host, port, {}, ssl, ssl_version, proxies, http_username, http_password)
-          client.connect
-          req  = client.request_cgi(opts)
-          res  = client.send_recv(req)
+          res  = send_request(opts)
 
           if res && res.code != 200
             sleep(block_wait * 60)

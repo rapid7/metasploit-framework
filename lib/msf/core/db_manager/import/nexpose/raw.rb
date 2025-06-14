@@ -1,5 +1,3 @@
-require 'rex/parser/nexpose_raw_nokogiri'
-require 'rex/parser/nexpose_xml'
 
 module Msf::DBManager::Import::Nexpose::Raw
   def import_nexpose_raw_noko_stream(args, &block)
@@ -14,12 +12,12 @@ module Msf::DBManager::Import::Nexpose::Raw
 
   def import_nexpose_rawxml(args={}, &block)
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     if Rex::Parser.nokogiri_loaded
       parser = "Nokogiri v#{::Nokogiri::VERSION}"
       noko_args = args.dup
       noko_args[:blacklist] = bl
-      noko_args[:wspace] = wspace
+      noko_args[:workspace] = wspace
       if block
         yield(:parser, parser)
         import_nexpose_raw_noko_stream(noko_args) {|type, data| yield type,data}
@@ -75,7 +73,6 @@ module Msf::DBManager::Import::Nexpose::Raw
   #
   def import_nexpose_rawxml_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = ""
     ::File.open(filename, 'rb') do |f|
@@ -109,7 +106,7 @@ module Msf::DBManager::Import::Nexpose::Raw
     end
 
     if (data[:state] != Msf::HostState::Dead)
-      hobj = report_host(data)
+      hobj = msf_import_host(data)
       report_import_note(wspace, hobj)
     end
 
@@ -127,7 +124,7 @@ module Msf::DBManager::Import::Nexpose::Raw
         next if note[:data][v].include? k
         note[:data][v] << k
       end
-      report_note(note)
+      msf_import_note(note)
     end
 
     if h["os_family"]
@@ -146,7 +143,7 @@ module Msf::DBManager::Import::Nexpose::Raw
       note[:data][:version] = h["os_version"] if h["os_version"]
       note[:data][:arch]    = h["arch"]       if h["arch"]
 
-      report_note(note)
+      msf_import_note(note)
     end
 
     h["endpoints"].each { |p|
@@ -171,7 +168,7 @@ module Msf::DBManager::Import::Nexpose::Raw
       if p["name"] != "<unknown>"
         data[:name] = p["name"]
       end
-      report_service(data)
+      msf_import_service(data)
     }
 
     h["vulns"].each_pair { |k,v|
@@ -188,7 +185,7 @@ module Msf::DBManager::Import::Nexpose::Raw
       data[:info]      = vstruct.title
       data[:refs]      = vstruct.refs
       data[:task]      = task
-      report_vuln(data)
+      msf_import_vuln(data)
     }
   end
 

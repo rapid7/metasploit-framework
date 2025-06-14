@@ -8,7 +8,7 @@ module Rex
         class ReturnData < Element
 
           # @!attribute stream_id
-          #   @return [Fixnum] the stream id
+          #   @return [Integer] the stream id
           attr_accessor :stream_id
           # @!attribute return value
           #   @return [Rex::Proto::Rmi::Model::ReturnValue] the return value

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -31,16 +28,14 @@ class MetasploitModule < Msf::Auxiliary
           'Oliver Gruskovnjak'
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Feb 28 2014"
+      'DisclosureDate' => '2014-02-28'
     ))
 
     register_options(
       [
         Opt::RPORT(8080),
         OptBool.new('SSL',   [false, 'Use SSL', false])
-      ], self.class)
-
-    deregister_options('RHOST')
+      ])
   end
 
   def run_host(ip)
@@ -74,5 +69,4 @@ class MetasploitModule < Msf::Auxiliary
       print_good("Credentials decoded: #{creds}") unless creds.empty?
     end
   end
-
 end

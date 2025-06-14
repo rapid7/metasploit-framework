@@ -31,18 +31,18 @@ class File < Rex::Post::Meterpreter::Channels::Pool
   # from, written to, seeked on, and other interacted with.
   #
   def File.open(client, name, mode = "r", perm = 0)
-    return Channel.create(client, 'stdapi_fs_file',
-        self, CHANNEL_FLAG_SYNCHRONOUS,
-        [
-          {
-            'type'  => Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH,
-            'value' => client.unicode_filter_decode( name )
-          },
-          {
-            'type'  => Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_MODE,
-            'value' => mode + "b"
-          },
-        ])
+    Channel.create(client, 'stdapi_fs_file',
+      self, CHANNEL_FLAG_SYNCHRONOUS,
+      [
+        {
+          'type'  => Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH,
+          'value' => client.unicode_filter_decode( name )
+        },
+        {
+          'type'  => Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_MODE,
+          'value' => mode + "b"
+        },
+      ])
   end
 
   ##
@@ -52,8 +52,8 @@ class File < Rex::Post::Meterpreter::Channels::Pool
   ##
 
   # Initializes the file channel instance
-  def initialize(client, cid, type, flags)
-    super(client, cid, type, flags)
+  def initialize(client, cid, type, flags, packet, **_)
+    super(client, cid, type, flags, packet)
   end
 
 end

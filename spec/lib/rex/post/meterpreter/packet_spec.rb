@@ -45,6 +45,46 @@ RSpec.describe Rex::Post::Meterpreter::Tlv do
     expect(tlv).to respond_to :from_r
   end
 
+  context "TLV with value mapped to a single type" do
+    subject(:tlv) {
+      Rex::Post::Meterpreter::Tlv.new(
+        Rex::Post::Meterpreter::TLV_TYPE_RESULT,
+        0
+      )
+    }
+
+    it "should have a single type" do
+      expect(tlv.inspect).to eq "#<Rex::Post::Meterpreter::Tlv type=RESULT          meta=INT        value=0>"
+    end
+  end
+
+  context "TLV with value mapped to multiple types" do
+    subject(:tlv) {
+      Rex::Post::Meterpreter::Tlv.new(
+        151074, # Multiple TLV Types are defined as this value, as described here: https://github.com/rapid7/metasploit-framework/pull/16258#discussion_r817878469
+        0
+      )
+    }
+
+    # https://github.com/rapid7/metasploit-framework/pull/16258#discussion_r817878469
+    it "should handle multiple types in alphabetical order" do
+      expect(tlv.inspect).to eq "#<Rex::Post::Meterpreter::Tlv type=oneOf(EXT_WINDOW_ENUM_PID,PEINJECTOR_SHELLCODE_SIZE,SNIFFER_INTERFACE_ID,WEBCAM_INTERFACE_ID) meta=INT        value=0>"
+    end
+  end
+
+  context "TLV with an unknown TLV type" do
+    subject(:tlv) {
+      Rex::Post::Meterpreter::Tlv.new(
+        -1,
+        0
+      )
+    }
+
+    it "should have an unknown type" do
+      expect(tlv.inspect).to eq "#<Rex::Post::Meterpreter::Tlv type=unknown--1      meta=unknown-meta-type value=\"0\">"
+    end
+  end
+
   context "A String TLV" do
     it "should return the correct TLV type" do
       expect(tlv.type).to eq Rex::Post::Meterpreter::TLV_TYPE_STRING
@@ -81,6 +121,27 @@ RSpec.describe Rex::Post::Meterpreter::Tlv do
       end
     end
 
+    context "Any non group TLV_TYPE" do
+      subject(:tlv_types){
+        excludedTypes = ["TLV_TYPE_ANY", "TLV_TYPE_EXCEPTION", "TLV_TYPE_CHANNEL_DATA_GROUP", "TLV_TYPE_TRANS_GROUP"]
+        typeList = []
+        Rex::Post::Meterpreter.constants.each do |type|
+          typeList << type.to_s if type.to_s.include?("TLV_TYPE") && !excludedTypes.include?(type.to_s)
+        end
+        typeList
+      }
+
+      it "will not raise error on inspect" do
+        tlv_types.each do |type|
+          inspectable = Rex::Post::Meterpreter::Tlv.new(
+              Rex::Post::Meterpreter.const_get(type),
+              "test"
+          )
+          expect(inspectable.inspect).to be_a_kind_of String
+        end
+      end
+    end
+
     context "#to_r" do
       it "should return the raw bytes of the TLV to send over the wire" do
         tlv_bytes = "\x00\x00\x00\r\x00\x01\x00\ntest\x00"
@@ -96,20 +157,39 @@ RSpec.describe Rex::Post::Meterpreter::Tlv do
     end
   end
 
-  context "A Method TLV" do
-    subject(:tlv) {
-      Rex::Post::Meterpreter::Tlv.new(
-        Rex::Post::Meterpreter::TLV_TYPE_METHOD,
-        "test"
-      )
-    }
-    it "should have a meta type of String" do
-      expect(tlv.meta_type?(Rex::Post::Meterpreter::TLV_META_TYPE_STRING)).to eq true
+  context "A Command ID TLV" do
+    context 'when the Command ID is valid' do
+      subject(:tlv) {
+        Rex::Post::Meterpreter::Tlv.new(
+          Rex::Post::Meterpreter::TLV_TYPE_COMMAND_ID,
+          1001
+        )
+      }
+      it "should have a meta type of UINT" do
+        expect(tlv.meta_type?(Rex::Post::Meterpreter::TLV_META_TYPE_UINT)).to eq true
+      end
+
+      it "should show the correct type and meta type in inspect" do
+        tlv_to_s = "#<Rex::Post::Meterpreter::Tlv type=COMMAND_ID      meta=INT        value=1001 command=stdapi_fs_chdir>"
+        expect(tlv.inspect).to eq tlv_to_s
+      end
     end
 
-    it "should show the correct type and meta type in inspect" do
-      tlv_to_s = "#<Rex::Post::Meterpreter::Tlv type=METHOD          meta=STRING     value=\"test\">"
-      expect(tlv.inspect).to eq tlv_to_s
+    context 'when the Command ID is invalid' do
+      subject(:tlv) {
+        Rex::Post::Meterpreter::Tlv.new(
+          Rex::Post::Meterpreter::TLV_TYPE_COMMAND_ID,
+          31337
+        )
+      }
+      it "should have a meta type of UINT" do
+        expect(tlv.meta_type?(Rex::Post::Meterpreter::TLV_META_TYPE_UINT)).to eq true
+      end
+
+      it "should show the correct type and meta type in inspect" do
+        tlv_to_s = "#<Rex::Post::Meterpreter::Tlv type=COMMAND_ID      meta=INT        value=31337 command=unknown>"
+        expect(tlv.inspect).to eq tlv_to_s
+      end
     end
   end
 
@@ -196,7 +276,7 @@ RSpec.describe Rex::Post::Meterpreter::GroupTlv do
   end
 
   context "#add_tlv" do
-    it "should add to the tlvs array when given basic tlv paramaters" do
+    it "should add to the tlvs array when given basic tlv parameters" do
       group_tlv.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_STRING,"test")
       expect(group_tlv.tlvs.first.type).to eq Rex::Post::Meterpreter::TLV_TYPE_STRING
       expect(group_tlv.tlvs.first.value).to eq "test"
@@ -272,7 +352,7 @@ RSpec.describe Rex::Post::Meterpreter::GroupTlv do
 
 
     context "#from_r" do
-      it "should build the TLV group when given the propper raw bytes" do
+      it "should build the TLV group when given the proper raw bytes" do
         group_tlv.reset
         group_tlv.from_r( @raw_group)
         expect(group_tlv.tlvs[0].inspect).to eq "#<Rex::Post::Meterpreter::Tlv type=STRING          meta=STRING     value=\"test\">"
@@ -299,7 +379,7 @@ RSpec.describe Rex::Post::Meterpreter::GroupTlv do
         expect(group_tlv.get_tlvs(Rex::Post::Meterpreter::TLV_TYPE_BOOL)).to eq []
       end
 
-      it "should return an empty array for a nonexistant TLV type" do
+      it "should return an empty array for a nonexistent TLV type" do
         expect(group_tlv.get_tlvs(55555555)).to eq []
       end
     end
@@ -368,7 +448,7 @@ RSpec.describe Rex::Post::Meterpreter::Packet do
     subject(:packet) {
       Rex::Post::Meterpreter::Packet.new(
         Rex::Post::Meterpreter::PACKET_TYPE_REQUEST,
-        "test_method"
+        31337
       )
     }
 
@@ -409,17 +489,17 @@ RSpec.describe Rex::Post::Meterpreter::Packet do
     end
 
     it "should evaluate the method correctly" do
-      expect(packet.method?("test_method")).to eq true
-      expect(packet.method?("blah")).to eq false
+      expect(packet.method?(31337)).to eq true
+      expect(packet.method?(0xdead)).to eq false
     end
 
     it "should accept new methods" do
-      packet.method= "test_method2"
-      expect(packet.method?("test_method2")).to eq true
+      packet.method= 0xc0ffee
+      expect(packet.method?(0xc0ffee)).to eq true
     end
 
     it "should return the correct method" do
-      expect(packet.method).to eq "test_method"
+      expect(packet.method).to eq 31337
     end
 
     it "should not have a result" do
@@ -431,17 +511,18 @@ RSpec.describe Rex::Post::Meterpreter::Packet do
     end
 
     it "should be created when Packet.create_request is called" do
-      req = Rex::Post::Meterpreter::Packet.create_request("test_method")
+      req = Rex::Post::Meterpreter::Packet.create_request(31337)
       expect(req.class).to eq Rex::Post::Meterpreter::Packet
       expect(req.response?).to eq false
-      expect(req.method?("test_method")).to eq true
+      expect(req.method?(31337)).to eq true
     end
 
     it "should return the correct raw byte form of the packet" do
       rid = packet.rid
       meth = packet.method
       raw = packet.to_r
-      packet.from_r(raw)
+      packet.add_raw(raw)
+      packet.from_r
       expect(packet.rid).to eq rid
       expect(packet.method).to eq meth
     end
@@ -451,7 +532,7 @@ RSpec.describe Rex::Post::Meterpreter::Packet do
     subject(:packet) {
       Rex::Post::Meterpreter::Packet.new(
         Rex::Post::Meterpreter::PACKET_TYPE_RESPONSE,
-        "test_method"
+        31337
       )
     }
     before(:example) do

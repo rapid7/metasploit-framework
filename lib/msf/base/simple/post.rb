@@ -41,14 +41,21 @@ module Post
 
     # Clone the module to prevent changes to the original instance
     mod = omod.replicant
-    Msf::Simple::Framework.simplify_module( mod, false )
+    Msf::Simple::Framework.simplify_module(mod)
     yield(mod) if block_given?
 
     # Import options from the OptionStr or Option hash.
     mod._import_extra_options(opts)
 
+    mod.datastore['ACTION'] = opts['Action'] if opts['Action']
+
+    # Verify the ACTION
+    if (mod.actions.length > 0 and not mod.action)
+      raise MissingActionError, "Please use: #{mod.actions.collect {|e| e.name} * ", "}"
+    end
+
     # Verify the options
-    mod.options.validate(mod.datastore)
+    mod.validate
 
     # Initialize user interaction
     if ! opts['Quiet']
@@ -108,6 +115,14 @@ protected
         mod.cleanup
         return
       end
+    rescue Msf::Post::Complete
+      mod.cleanup
+      return
+    rescue Msf::Post::Failed => e
+      mod.error = e
+      mod.print_error("Post aborted due to failure: #{e.message}")
+      mod.cleanup
+      return
     rescue ::Timeout::Error => e
       mod.error = e
       mod.print_error("Post triggered a timeout exception")
@@ -118,6 +133,9 @@ protected
       mod.print_error("Post interrupted by the console user")
       mod.cleanup
       return
+    rescue ::Msf::OptionValidateError => e
+      mod.error = e
+      ::Msf::Ui::Formatter::OptionValidateError.print_error(mod, e)
     rescue ::Exception => e
       mod.error = e
       mod.print_error("Post failed: #{e.class} #{e}")
@@ -129,9 +147,7 @@ protected
         end
       end
 
-      elog("Post failed: #{e.class} #{e}", 'core', LEV_0)
-      dlog("Call stack:\n#{$@.join("\n")}", 'core', LEV_3)
-
+      elog('Post failed', error: e)
       mod.cleanup
 
       return
@@ -154,4 +170,3 @@ end
 
 end
 end
-

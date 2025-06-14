@@ -8,7 +8,7 @@ module Rex
         # a client authenticate to a service.
         class Ticket < Element
           # @!attribute tkt_vno
-          #   @return [Fixnum] The ticket version number
+          #   @return [Integer] The ticket version number
           attr_accessor :tkt_vno
           # @!attribute realm
           #   @return [String] The realm that issued the ticket
@@ -20,11 +20,18 @@ module Rex
           #   @return [Rex::Proto::Kerberos::Model::EncryptedData] The encrypted part of the ticket
           attr_accessor :enc_part
 
+          def ==(other)
+            tkt_vno == other.tkt_vno &&
+              realm == other.realm &&
+              sname == other.sname &&
+              enc_part == other.enc_part
+          end
+
           # Decodes the Rex::Proto::Kerberos::Model::KrbError from an input
           #
           # @param input [String, OpenSSL::ASN1::ASN1Data] the input to decode from
           # @return [self] if decoding succeeds
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode(input)
             case input
             when String
@@ -32,7 +39,7 @@ module Rex
             when OpenSSL::ASN1::ASN1Data
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode Ticket, invalid input'
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode Ticket, invalid input'
             end
 
             self
@@ -96,7 +103,7 @@ module Rex
           # Decodes a Rex::Proto::Kerberos::Model::Ticket
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode_asn1(input)
             input.value[0].value.each do |val|
               case val.tag
@@ -109,7 +116,7 @@ module Rex
               when 3
                 self.enc_part = decode_enc_part(val)
               else
-                raise ::RuntimeError, 'Failed to decode Ticket SEQUENCE'
+                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode Ticket SEQUENCE'
               end
             end
           end
@@ -117,7 +124,7 @@ module Rex
           # Decodes the tkt_vno from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_tkt_vno(input)
             input.value[0].value.to_i
           end

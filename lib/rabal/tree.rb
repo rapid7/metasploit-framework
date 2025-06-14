@@ -120,7 +120,7 @@ class Tree
 
     subtree.parent = self
 
-    # FIXME: techinically this should no longer be called 'post_add' 
+    # FIXME: technically this should no longer be called 'post_add' 
     # but maybe 'add_hook'  
     subtree.post_add
 

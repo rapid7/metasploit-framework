@@ -1,36 +1,42 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Post
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name'          => 'Write Messages to Users',
-        'Description'   => %q{
+        'Name' => 'Write Messages to Users',
+        'Description' => %q{
           This module utilizes the wall(1) or write(1) utilities, as appropriate,
           to send messages to users on the target system.
         },
-        'License'       => MSF_LICENSE,
-        'Author'        => [
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Jon Hart <jon_hart[at]rapid7.com>' # original metasploit module
         ],
         # TODO: is there a way to do this on Windows?
-        'Platform'      => %w(linux osx unix),
-        'SessionTypes'  => %w(shell meterpreter)
+        'Platform' => %w[linux osx unix],
+        'SessionTypes' => %w[shell meterpreter],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [SCREEN_EFFECTS],
+          'Reliability' => []
+        }
       )
     )
     register_options(
       [
         OptString.new('MESSAGE', [false, 'The message to send', '']),
-        OptString.new('USERS', [false, 'List of users to write(1) to, separated by commas. ' \
-                      ' wall(1)s to all users by default']),
+        OptString.new('USERS', [
+          false,
+          'List of users to write(1) to, separated by commas. wall(1)s to all users by default.'
+        ]),
         OptBool.new('COWSAY', [true, 'Display MESSAGE in a ~cowsay way', false])
-      ], self.class)
+      ]
+    )
   end
 
   def users

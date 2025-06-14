@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::TNS
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -15,21 +12,19 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Oracle TNS Listener SID Enumeration',
       'Description'    => %q{
-        This module simply queries the TNS listner for the Oracle SID.
+        This module simply queries the TNS listener for the Oracle SID.
         With Oracle 9.2.0.8 and above the listener will be protected and
         the SID will have to be bruteforced or guessed.
       },
       'Author'         => [ 'CG', 'MC' ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Jan 7 2009'
+      'DisclosureDate' => '2009-01-07'
     ))
 
     register_options(
       [
         Opt::RPORT(1521)
-      ], self.class)
-
-    deregister_options('RHOST')
+      ])
   end
 
   def run_host(ip)
@@ -56,7 +51,10 @@ class MetasploitModule < Msf::Auxiliary
                   :host   => ip,
                   :port	=> rport,
                   :type   => "oracle_sid",
-                  :data   => "PORT=#{rport}, SID=#{s}",
+                  :data   => {
+                    :port => rport,
+                    :sid => s
+                  },
                   :update	=> :unique_data
                 )
                 print_good("Identified SID for #{ip}:#{rport} #{s}")
@@ -67,7 +65,10 @@ class MetasploitModule < Msf::Auxiliary
                   :host   => ip,
                   :port	=> rport,
                   :type   => "oracle_service_name",
-                  :data   => "PORT=#{rport}, SERVICE_NAME=#{s}",
+                  :data   => {
+                    :port => rport,
+                    :service_name => s
+                  },
                   :update	=> :unique_data
                 )
                 print_status("Identified SERVICE_NAME for #{ip}:#{rport} #{s}")

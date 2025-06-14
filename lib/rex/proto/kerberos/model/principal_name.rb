@@ -9,17 +9,22 @@ module Rex
         class PrincipalName < Element
 
           # @!attribute name_type
-          #   @return [Fixnum] The type of name
+          #   @return [Integer] The type of name
           attr_accessor :name_type
           # @!attribute name_string
           #   @return [Array<String>] A sequence of strings that form a name.
           attr_accessor :name_string
 
+          def ==(other)
+            name_type == other.name_type &&
+              name_string == other.name_string
+          end
+
           # Decodes a Rex::Proto::Kerberos::Model::PrincipalName
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
           # @return [self] if decoding succeeds
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode(input)
             case input
             when String
@@ -27,7 +32,7 @@ module Rex
             when OpenSSL::ASN1::Sequence
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode Principal Name, invalid input'
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode Principal Name, invalid input'
             end
 
             self
@@ -43,6 +48,10 @@ module Rex
             seq = OpenSSL::ASN1::Sequence.new([integer_asn1, string_asn1])
 
             seq.to_der
+          end
+
+          def to_s
+            name_string.join('/')
           end
 
           private
@@ -92,7 +101,7 @@ module Rex
           # Decodes the name_type from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_name_type(input)
             input.value[0].value.to_i
           end

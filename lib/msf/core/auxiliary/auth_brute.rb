@@ -9,6 +9,8 @@ module Msf
 
 module Auxiliary::AuthBrute
 
+  include Msf::Auxiliary::LoginScanner
+
   def initialize(info = {})
     super
 
@@ -25,13 +27,18 @@ module Auxiliary::AuthBrute
       OptBool.new('DB_ALL_CREDS', [false,"Try each user/password couple stored in the current database",false]),
       OptBool.new('DB_ALL_USERS', [false,"Add all users in the current database to the list",false]),
       OptBool.new('DB_ALL_PASS', [false,"Add all passwords in the current database to the list",false]),
+      OptEnum.new('DB_SKIP_EXISTING', [false,"Skip existing credentials stored in the current database", 'none', %w[ none user user&realm ]]),
       OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", false]),
+      OptBool.new('ANONYMOUS_LOGIN', [ true, "Attempt to login with a blank username and password", false])
     ], Auxiliary::AuthBrute)
 
     register_advanced_options([
       OptBool.new('REMOVE_USER_FILE', [ true, "Automatically delete the USER_FILE on module completion", false]),
       OptBool.new('REMOVE_PASS_FILE', [ true, "Automatically delete the PASS_FILE on module completion", false]),
       OptBool.new('REMOVE_USERPASS_FILE', [ true, "Automatically delete the USERPASS_FILE on module completion", false]),
+      OptBool.new('PASSWORD_SPRAY', [true, "Reverse the credential pairing order. For each password, attempt every possible user.", false]),
+      OptInt.new('TRANSITION_DELAY', [false, "Amount of time (in minutes) to delay before transitioning to the next user in the array (or password when PASSWORD_SPRAY=true)", 0]),
+      OptString.new('SSLKeyLogFile', [ false, 'The SSL key log file', ENV['SSLKeyLogFile']]),
       OptInt.new('MaxGuessesPerService', [ false, "Maximum number of credentials to try per service instance. If set to zero or a non-number, this option will not be used.", 0]), # Tracked in @@guesses_per_service
       OptInt.new('MaxMinutesPerService', [ false, "Maximum time in minutes to bruteforce the service instance. If set to zero or a non-number, this option will not be used.", 0]), # Tracked in @@brute_start_time
       OptInt.new('MaxGuessesPerUser', [ false, %q{
@@ -41,8 +48,71 @@ module Auxiliary::AuthBrute
         be tried up to the MaxGuessesPerUser limit.	If set to zero or a non-number,
         this option will not be used.}.gsub(/[\t\r\n\s]+/nm,"\s"), 0]) # Tracked in @@brute_start_time
     ], Auxiliary::AuthBrute)
+  end
 
+  # Build a new CredentialCollection instance configured based on the datastore options. Any options passed in will take
+  # precedence over the datastore. Usernames and passwords will be prepended to the credential collection if their
+  # respective datastore options are configured appropriately. Finally the resulting CredentialCollection will be
+  # configured to perform any necessary filtering per the DB_SKIP_EXISTING option.
+  #
+  # @param [Hash] opts the options with which to build the CredentialCollection instance
+  # @return [Metasploit::Framework::CredentialCollection] the built CredentialCollection
+  def build_credential_collection(opts)
+    cred_collection = Metasploit::Framework::CredentialCollection.new({
+      blank_passwords: datastore['BLANK_PASSWORDS'],
+      pass_file: datastore['PASS_FILE'],
+      user_file: datastore['USER_FILE'],
+      userpass_file: datastore['USERPASS_FILE'],
+      user_as_pass: datastore['USER_AS_PASS'],
+      password_spray: datastore['PASSWORD_SPRAY']
+    }.merge(opts))
 
+    if framework.db.active
+      cred_collection = prepend_db_usernames(cred_collection)
+      cred_collection = prepend_db_passwords(cred_collection)
+    else
+      ignored = %w{ DB_ALL_CREDS DB_ALL_PASS DB_ALL_USERS }.select { |option| datastore[option] }
+      ignored << 'DB_SKIP_EXISTING' unless datastore['DB_SKIP_EXISTING'].blank? || datastore['DB_SKIP_EXISTING'] == 'none'
+      unless ignored.empty?
+        print_warning("No active DB -- The following option#{ ignored.length == 1 ? '' : 's'} will be ignored: #{ ignored.join(', ') }")
+      end
+    end
+
+    # only define the filter if any filtering needs to take place
+    unless datastore['DB_SKIP_EXISTING'].blank? || datastore['DB_SKIP_EXISTING'] == 'none'
+      cred_collection.filter = -> (cred) do
+        return true unless datastore['DB_SKIP_EXISTING']
+        return true unless framework.db.active
+        opts = { workspace: myworkspace.name }
+
+        opts[:type] =
+          case cred.private_type
+          when :ntlm_hash
+            'Metasploit::Credential::NTLMHash'
+          when :password
+            'Metasploit::Credential::Password'
+          when :ssh_key
+            'Metasploit::Credential::SSHKey'
+          else
+            return true # not a private type that we can filter on
+          end
+
+        case datastore['DB_SKIP_EXISTING']
+        when 'user'
+          opts[:user] = cred.public
+        when 'user&realm'
+          opts[:user] = cred.public
+          opts[:realm] = cred.realm
+        else
+          return true
+        end
+
+        # cred[@public, @private, @private_type[:password], @realm]
+        framework.db.creds(opts).length == 0
+      end
+    end
+
+    cred_collection
   end
 
   def setup
@@ -54,7 +124,7 @@ module Auxiliary::AuthBrute
   #
   # @yieldparam [Metasploit::Credential::Core]
   def each_ntlm_cred
-    creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::NTLMHash' }, workspace_id: myworkspace.id)
+    creds = framework.db.creds(type: 'Metasploit::Credential::NTLMHash', workspace: myworkspace.name)
     creds.each do |cred|
       yield cred
     end
@@ -65,7 +135,7 @@ module Auxiliary::AuthBrute
   #
   # @yieldparam [Metasploit::Credential::Core]
   def each_password_cred
-    creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::Password' }, workspace_id: myworkspace.id)
+    creds = framework.db.creds(type: 'Metasploit::Credential::Password', workspace: myworkspace.name)
     creds.each do |cred|
       yield cred
     end
@@ -76,7 +146,18 @@ module Auxiliary::AuthBrute
   #
   # @yieldparam [Metasploit::Credential::Core]
   def each_ssh_cred
-    creds = Metasploit::Credential::Core.joins(:private).where(metasploit_credential_privates: { type: 'Metasploit::Credential::SSHKey' }, workspace_id: myworkspace.id)
+    creds = framework.db.creds(type: 'Metasploit::Credential::SSHKey', workspace: myworkspace.name)
+    creds.each do |cred|
+      yield cred
+    end
+  end
+
+  # Yields each Metasploit::Credential::Core in the Mdm::Workspace with
+  # a private type of 'nil'
+  #
+  # @yieldparam [Metasploit::Credential::Core]
+  def each_username_cred
+    creds = framework.db.creds(type: nil, workspace: myworkspace.name)
     creds.each do |cred|
       yield cred
     end
@@ -135,6 +216,21 @@ module Auxiliary::AuthBrute
     cred_collection
   end
 
+  # This method takes a Metasploit::Framework::CredentialCollection and prepends existing Usernames
+  # from the database. This allows the users to use the DB_ALL_USERS option.
+  #
+  # @param cred_collection [Metasploit::Framework::CredentialCollection]
+  #    the credential collection to add to
+  # @return [Metasploit::Framework::CredentialCollection] the modified Credentialcollection
+  def prepend_db_usernames(cred_collection)
+    if prepend_db_creds?
+      each_username_cred do |cred|
+        process_cred_for_collection(cred_collection,cred)
+      end
+    end
+    cred_collection
+  end
+
   # Takes a Metasploit::Credential::Core and converts it into a
   # Metasploit::Framework::Credential and processes it into the
   # Metasploit::Framework::CredentialCollection as dictated by the
@@ -175,6 +271,7 @@ module Auxiliary::AuthBrute
       initialize_class_variables(this_service,credentials)
     end
 
+    prev_iterator = nil
     credentials.each do |u, p|
       # Explicitly be able to set a blank (zero-byte) username by setting the
       # username to <BLANK>. It's up to the caller to handle this if it's not
@@ -193,6 +290,19 @@ module Auxiliary::AuthBrute
 
       next if @@credentials_skipped[fq_user]
       next if @@credentials_tried[fq_user] == p
+
+      # Used for tracking if we should TRANSITION_DELAY
+      # If the current user/password values don't match the previous iteration we know
+      # we've made it through all of the records for that iteration and should start the delay.
+      if ![u,p].include?(prev_iterator)
+        unless prev_iterator.nil? # Prevents a delay on the first run through
+          if datastore['TRANSITION_DELAY'] > 0
+            vprint_status("Delaying #{datastore['TRANSITION_DELAY']} minutes before attempting next iteration.")
+            sleep datastore['TRANSITION_DELAY'] * 60
+          end
+        end
+        prev_iterator = datastore['PASSWORD_SPRAY'] ? p : u # Update the iterator
+      end
 
       ret = block.call(u, p)
 
@@ -288,18 +398,18 @@ module Auxiliary::AuthBrute
     end
     if framework.db.active
       if datastore['DB_ALL_CREDS']
-        myworkspace.creds.each do |o|
-          credentials << [o.user, o.pass] if o.ptype =~ /password/
+        framework.db.creds(workspace: myworkspace.name).each do |o|
+          credentials << [o.public.username, o.private.data] if o.private && o.private.type =~ /password/i
         end
       end
       if datastore['DB_ALL_USERS']
-        myworkspace.creds.each do |o|
-          users << o.user
+        framework.db.creds(workspace: myworkspace.name).each do |o|
+          users << o.public.username if o.public
         end
       end
       if datastore['DB_ALL_PASS']
-        myworkspace.creds.each do |o|
-          passwords << o.pass if o.ptype =~ /password/
+        framework.db.creds(workspace: myworkspace.name).each do |o|
+          passwords << o.private.data if o.private && o.private.type =~ /password/i
         end
       end
     end
@@ -362,7 +472,6 @@ module Auxiliary::AuthBrute
   # Note, these special username/passwords should get deprecated
   # some day. Note2: Don't use with SMB and FTP at the same time!
   def translate_proto_datastores
-    switched = false
     ['SMBUser','FTPUSER'].each do |u|
       if datastore[u] and !datastore[u].empty?
         datastore['USERNAME'] = datastore[u]
@@ -423,9 +532,17 @@ module Auxiliary::AuthBrute
     elsif user_array.empty?
       combined_array = pass_array.map {|p| ["",p] }
     else
-      user_array.each do |u|
+      if datastore['PASSWORD_SPRAY']
         pass_array.each do |p|
-          combined_array << [u,p]
+          user_array.each do |u|
+            combined_array << [u,p]
+          end
+        end
+      else
+        user_array.each do |u|
+          pass_array.each do |p|
+            combined_array << [u,p]
+          end
         end
       end
     end
@@ -462,13 +579,13 @@ module Auxiliary::AuthBrute
 
   def extract_words(wordfile)
     return [] unless wordfile && File.readable?(wordfile)
+
     begin
-      words = File.open(wordfile) {|f| f.read(f.stat.size)}
-    rescue
-      return
+      File.readlines(wordfile, chomp: true)
+    rescue ::StandardError => e
+      elog(e)
+      []
     end
-    save_array = words.split(/\r?\n/)
-    return save_array
   end
 
   def get_object_from_memory_location(memloc)
@@ -489,7 +606,7 @@ module Auxiliary::AuthBrute
       rescue
         return []
       end
-      upfile_contents.split(/\n/).each do |line|
+      upfile_contents.split("\n").each do |line|
         user,pass = line.split(/\s+/,2).map { |x| x.strip }
         creds << [user.to_s, pass.to_s]
       end
@@ -528,8 +645,8 @@ module Auxiliary::AuthBrute
     end
   end
 
-  def userpass_sleep_interval
-    sleep_time = case datastore['BRUTEFORCE_SPEED'].to_i
+  def userpass_interval
+    case datastore['BRUTEFORCE_SPEED'].to_i
       when 0; 60 * 5
       when 1; 15
       when 2; 1
@@ -537,7 +654,10 @@ module Auxiliary::AuthBrute
       when 4; 0.1
       else; 0
     end
-    ::IO.select(nil,nil,nil,sleep_time) unless sleep_time == 0
+  end
+
+  def userpass_sleep_interval
+    ::IO.select(nil,nil,nil,userpass_interval) unless userpass_interval == 0
   end
 
   # See #print_brute
@@ -547,7 +667,21 @@ module Auxiliary::AuthBrute
     end
   end
 
-  # Provides a consistant way to display messages about AuthBrute-mixed modules.
+  def vprint_status(msg='')
+    print_brute :level => :vstatus, :msg => msg
+  end
+
+  def vprint_error(msg='')
+    print_brute :level => :verror, :msg => msg
+  end
+
+  alias_method :vprint_bad, :vprint_error
+
+  def vprint_good(msg='')
+    print_brute :level => :vgood, :msg => msg
+  end
+
+  # Provides a consistent way to display messages about AuthBrute-mixed modules.
   # Acceptable opts are fairly self-explanatory, but :level can be tricky.
   #
   # It can be one of status, good, error, or line (and corresponds to the usual
@@ -568,10 +702,10 @@ module Auxiliary::AuthBrute
     end
     host_ip = opts[:ip] || opts[:rhost] || opts[:host] || (rhost rescue nil) || datastore['RHOST']
     host_port = opts[:port] || opts[:rport] || (rport rescue nil) || datastore['RPORT']
-    msg = opts[:msg] || opts[:message] || opts[:legacy_msg]
+    msg = opts[:msg] || opts[:message]
     proto = opts[:proto] || opts[:protocol] || proto_from_fullname
 
-    complete_message = build_brute_message(host_ip,host_port,proto,msg,!!opts[:legacy_msg])
+    complete_message = build_brute_message(host_ip,host_port,proto,msg)
 
     print_method = "print_#{level}"
     if self.respond_to? print_method
@@ -582,34 +716,24 @@ module Auxiliary::AuthBrute
   end
 
   # Depending on the non-nil elements, build up a standardized
-  # auth_brute message, but support the old style used by
-  # vprint_status and friends as well.
-  def build_brute_message(host_ip,host_port,proto,msg,legacy)
+  # auth_brute message.
+  def build_brute_message(host_ip,host_port,proto,msg)
     ip = host_ip.to_s.strip if host_ip
     port = host_port.to_s.strip if host_port
     complete_message = nil
-    extracted_message = nil
-    if legacy # TODO: This is all a workaround until I get a chance to get rid of the legacy messages
-      old_msg = msg.to_s.strip
-      msg_regex = /(#{ip})(:#{port})?(\s*-?\s*)(#{proto.to_s})?(\s*-?\s*)(.*)/ni
-      if old_msg.match(msg_regex) and !old_msg.match(msg_regex)[6].to_s.strip.empty?
-        complete_message = ''
-        unless ip.blank? && port.blank?
-          complete_message << "#{ip}:#{rport}"
-        else
-          complete_message << (old_msg.match(msg_regex)[4] || proto).to_s
-        end
-
-        complete_message << " - "
-        progress = tried_over_total(ip,port)
-        complete_message << progress if progress
-        complete_message << old_msg.match(msg_regex)[6].to_s.strip
-      else
-        complete_message = msg.to_s.strip
-      end
+    old_msg = msg.to_s.strip
+    msg_regex = /(#{ip})(:#{port})?(\s*-?\s*)(#{proto.to_s})?(\s*-?\s*)(.*)/i
+    if old_msg.match(msg_regex)
+      complete_message = msg.to_s.strip
     else
       complete_message = ''
-      complete_message << "#{proto.to_s.strip} - " if proto
+      unless ip.blank? && port.blank?
+        complete_message << "#{ip}:#{port}"
+      else
+        complete_message << proto || 'Bruteforce'
+      end
+
+      complete_message << " - "
       progress = tried_over_total(ip,port)
       complete_message << progress if progress
       complete_message << msg.to_s.strip
@@ -657,21 +781,6 @@ module Auxiliary::AuthBrute
     File.split(self.fullname).last.match(/^(.*)_(login|auth|identify)/)[1].upcase rescue nil
   end
 
-  # Legacy vprint
-  def vprint_status(msg='')
-    print_brute :level => :vstatus, :legacy_msg => msg
-  end
-
-  # Legacy vprint
-  def vprint_error(msg='')
-    print_brute :level => :verror, :legacy_msg => msg
-  end
-
-  # Legacy vprint
-  def vprint_good(msg='')
-    print_brute :level => :vgood, :legacy_msg => msg
-  end
-
   # This method deletes the dictionary files if requested
   def cleanup_files
     path = datastore['USERPASS_FILE']
@@ -692,4 +801,3 @@ module Auxiliary::AuthBrute
 
 end
 end
-

@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -21,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE
     )
 
-    register_options([Opt::RPORT(3000),], self.class)
+    register_options([Opt::RPORT(3000),])
   end
 
 
@@ -38,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
     data = sock.get_once
 
     if ( data and data =~ /rrobotd:rrobotd/ )
-        print_status("Host #{ip} is running the EMC AlphaStor Device Manager.")
+        print_good("Host #{ip} is running the EMC AlphaStor Device Manager.")
         report_service(:host => rhost, :port => rport, :name => "emc-manager", :info => data)
     else
         print_error("Host #{ip} is not running the service...")

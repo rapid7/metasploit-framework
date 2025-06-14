@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
-require 'msf/core/exploit/tcp'
-
 module Metasploit
   module Framework
     module AFP
@@ -86,7 +83,7 @@ module Metasploit
           when -5001 #kFPAuthContinue
             return parse_login_response_add_send_login_count(response, {:p => p, :g => g, :ra => ra, :ma => ma,
                                                                         :password => pass, :user => user})
-          when -5023 #kFPUserNotAuth (User dosen't exists)      
+          when -5023 #kFPUserNotAuth (User doesn't exists)
             return :skip_user
           else
             return :connection_error
@@ -214,14 +211,14 @@ module Metasploit
           parsed_data[:machine_type] = read_pascal_string(body, machine_type_offset)
           parsed_data[:versions] = read_array(body, afp_versions_offset)
           parsed_data[:uams] = read_array(body, uam_count_offset)
-          # skiped icon
+          # skipped icon
           parsed_data[:server_flags] = parse_flags(server_flags)
           parsed_data[:signature] = body.unpack("@#{server_signature_offset}H32").first
 
           network_addresses = read_array(body, network_addresses_offset, true)
           parsed_data[:network_addresses] = parse_network_addresses(network_addresses)
-          # skiped directory names
-          #Error catching for offset issues on this field. Need better error ahndling all through here
+          # skipped directory names
+          #Error catching for offset issues on this field. Need better error handling all through here
           begin
             parsed_data[:utf8_server_name] = read_utf8_pascal_string(body, utf8_servername_offset)
           rescue
@@ -276,7 +273,7 @@ module Metasploit
               parsed_addreses << IPAddr.ntop(address[1..4]).to_s
             when 2 # Four-byte IP address followed by a two-byte port number
               parsed_addreses <<  "#{IPAddr.ntop(address[1..4])}:#{address[5..6].unpack("n").first}"
-            when 3 # DDP address (depricated)
+            when 3 # DDP address (deprecated)
               next
             when 4 # DNS name (maximum of 254 bytes)
               parsed_addreses << address[1..address.length - 1]

@@ -22,7 +22,7 @@ module Stager
   # * Our sysenter handler and ring3 stagers are copied over to safe location.
   # * The SYSENTER_EIP_MSR is patched to point to our sysenter handler.
   # * The ring0 thread we are in is placed in a halted state.
-  # * Upon any ring3 proces issuing a sysenter command our ring0 sysenter handler gets control.
+  # * Upon any ring3 process issuing a sysenter command our ring0 sysenter handler gets control.
   # * The ring3 return address is modified to force our ring3 stub to be called if certain conditions met.
   # * If NX is enabled we patch the respective page table entry to disable it for the ring3 code.
   # * Control is passed to real sysenter handler, upon the real sysenter handler finishing, sysexit will return to our ring3 stager.

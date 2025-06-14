@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
 
 module Msf
 
@@ -63,15 +62,20 @@ class EncodedPayload
       # First, validate
       pinst.validate()
 
-      # Tell the payload how much space is available
-      pinst.available_space = self.space
+      # Propagate space information when set
+      unless self.space.nil?
+        # Tell the payload how much space is available
+        pinst.available_space = self.space
+        # Reserve 10% of the available space if encoding is required
+        pinst.available_space -= (self.space * 0.1).ceil if needs_encoding
+      end
 
       # Generate the raw version of the payload first
       generate_raw() if self.raw.nil?
 
       # If encoder is set, it could be an encoders list
       # The form is "<encoder>:<iteration>, <encoder2>:<iteration>"...
-      if reqs['Encoder']
+      unless reqs['Encoder'].blank?
         encoder_str = reqs['Encoder']
         encoder_str.scan(/([^:, ]+):?([^,]+)?/).map do |encoder_opt|
           reqs['Encoder'] = encoder_opt[0]
@@ -125,16 +129,18 @@ class EncodedPayload
   # encoded attribute.
   #
   def encode
-    # If the exploit has bad characters, we need to run the list of encoders
-    # in ranked precedence and try to encode without them.
-    if reqs['BadChars'].to_s.length > 0 or reqs['Encoder'] or reqs['ForceEncode']
-      encoders = pinst.compatible_encoders
+    # Get the minimum number of nops to use
+    min = (reqs['MinNops'] || 0).to_i
+    min = 0 if reqs['DisableNops']
 
+    # If the exploit needs the payload to be encoded, we need to run the list of
+    # encoders in ranked precedence and try to encode with them.
+    if needs_encoding
       # Make sure the encoder name from the user has the same String#encoding
       # as the framework's list of encoder names so we can compare them later.
       # This is important for when we get input from RPC.
       if reqs['Encoder']
-        reqs['Encoder'] = reqs['Encoder'].encode(framework.encoders.keys[0].encoding)
+        reqs['Encoder'] = reqs['Encoder'].encode(framework.encoders.module_refnames[0].encoding)
       end
 
       # If the caller had a preferred encoder, use this encoder only
@@ -143,6 +149,8 @@ class EncodedPayload
       elsif (reqs['Encoder'])
         wlog("#{pinst.refname}: Failed to find preferred encoder #{reqs['Encoder']}")
         raise NoEncodersSucceededError, "Failed to find preferred encoder #{reqs['Encoder']}"
+      else
+        encoders = compatible_encoders
       end
 
       encoders.each { |encname, encmod|
@@ -229,22 +237,17 @@ class EncodedPayload
 
           begin
             eout = self.encoder.encode(eout, reqs['BadChars'], nil, pinst.platform)
-          rescue EncodingError
-            wlog("#{err_start}: Encoder #{encoder.refname} failed: #{$!}", 'core', LEV_1)
-            dlog("#{err_start}: Call stack\n#{$@.join("\n")}", 'core', LEV_3)
+          rescue EncodingError => e
+            wlog("#{err_start}: Encoder #{encoder.refname} failed: #{e}", 'core', LEV_1)
+            dlog("#{err_start}: Call stack\n#{e.backtrace}", 'core', LEV_3)
             next_encoder = true
             break
 
-          rescue ::Exception
-            elog("#{err_start}: Broken encoder #{encoder.refname}: #{$!}", 'core', LEV_0)
-            dlog("#{err_start}: Call stack\n#{$@.join("\n")}", 'core', LEV_1)
+          rescue ::Exception => e
+            elog("Broken encoder #{encoder.refname}", error: e)
             next_encoder = true
             break
           end
-
-          # Get the minimum number of nops to use
-          min = (reqs['MinNops'] || 0).to_i
-          min = 0 if reqs['DisableNops']
 
           # Check to see if we have enough room for the minimum requirements
           if ((reqs['Space']) and (reqs['Space'] < eout.length + min))
@@ -276,6 +279,19 @@ class EncodedPayload
     # If there are no bad characters, then the raw is the same as the
     # encoded
     else
+      # NOTE: BadChars can contain whitespace, so don't use String#blank?
+      unless reqs['BadChars'].nil? || reqs['BadChars'].empty?
+        ilog("#{pinst.refname}: payload contains no badchars, skipping automatic encoding", 'core', LEV_0)
+      end
+
+      # Space = 0 is a special value used by msfvenom to generate the smallest
+      # payload possible. In that case do not raise an exception indicating
+      # that the payload is too large.
+      if reqs['Space'] && reqs['Space'] > 0 && reqs['Space'] < raw.length + min
+        wlog("#{pinst.refname}: Raw (unencoded) payload is too large (#{raw.length} bytes)", 'core', LEV_1)
+        raise PayloadSpaceViolation, 'The payload exceeds the specified space', caller
+      end
+
       self.encoded = raw
     end
 
@@ -290,6 +306,7 @@ class EncodedPayload
   def generate_sled
     min   = reqs['MinNops'] || 0
     space = reqs['Space']
+    pad_nops = reqs['PadNops']
 
     self.nop_sled_size = min
 
@@ -309,6 +326,9 @@ class EncodedPayload
 
     # Check for the DisableNops setting
     self.nop_sled_size = 0 if reqs['DisableNops']
+
+    # Check for the PadNops setting
+    self.nop_sled_size = (pad_nops - self.encoded.length) if reqs['PadNops']
 
     # Now construct the actual sled
     if (self.nop_sled_size > 0)
@@ -338,7 +358,6 @@ class EncodedPayload
 
         begin
           nop.copy_ui(pinst)
-
           self.nop_sled = nop.generate_sled(self.nop_sled_size,
             'BadChars'      => reqs['BadChars'],
             'SaveRegisters' => save_regs)
@@ -456,6 +475,15 @@ class EncodedPayload
   end
 
   #
+  # An array containing the platform(s) that this payload was made to run on
+  #
+  def platform
+    if pinst
+      pinst.platform
+    end
+  end
+
+  #
   # The raw version of the payload
   #
   attr_reader :raw
@@ -509,6 +537,41 @@ protected
   #
   attr_accessor :reqs
 
+  def needs_encoding
+    !reqs['Encoder'].blank? || reqs['ForceEncode'] || has_chars?(reqs['BadChars'])
+  end
+
+  def has_chars?(chars)
+    # NOTE: BadChars can contain whitespace, so don't use String#blank?
+    if chars.nil? || chars.empty?
+      return false
+    end
+
+    # payload hasn't been set yet but we have bad characters so assume they'll need to be encoded
+    return true if self.raw.nil?
+
+    return false if self.raw.empty?
+
+    chars.each_byte do |bad|
+      return true if self.raw.index(bad.chr(::Encoding::ASCII_8BIT))
+    end
+
+    false
+  end
+
+  def compatible_encoders
+    arch = reqs['Arch'] || pinst.arch
+    platform = reqs['Platform'] || pinst.platform
+
+    encoders = []
+
+    framework.encoders.each_module_ranked(
+      'Arch' => arch, 'Platform' => platform) { |name, mod|
+      encoders << [ name, mod ]
+    }
+
+    encoders
+  end
 end
 
 end

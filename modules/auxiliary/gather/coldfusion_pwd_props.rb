@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -16,11 +13,11 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q{
           This module uses a directory traversal vulnerability to extract information
         such as password, rdspassword, and "encrypted" properties. This module has been
-        tested successfully on ColdFusion 9 and ColdFusion 10. Use actions to select the
-        target ColdFusion version.
+        tested successfully on ColdFusion 9 and ColdFusion 10 (auto-detect).
       },
       'References'     =>
         [
+          [ 'CVE', '2013-3336' ],
           [ 'OSVDB', '93114' ],
           [ 'EDB', '25305' ]
         ],
@@ -31,20 +28,14 @@ class MetasploitModule < Msf::Auxiliary
           'nebulus'
         ],
       'License'        => MSF_LICENSE,
-      'Actions'     =>
-        [
-          ['ColdFusion10'],
-          ['ColdFusion9']
-        ],
-      'DefaultAction' => 'ColdFusion10',
-      'DisclosureDate' => "May 7 2013"  #The day we saw the subzero poc
+      'DisclosureDate' => '2013-05-07'  #The day we saw the subzero poc
     ))
 
     register_options(
       [
         Opt::RPORT(80),
         OptString.new("TARGETURI", [true, 'Base path to ColdFusion', '/'])
-      ], self.class)
+      ])
   end
 
   def fingerprint(response)

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -14,6 +11,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Login
   include Msf::Auxiliary::CommandShell
+  include Msf::Sessions::CreateSessionOptions
+  include Msf::Auxiliary::ReportSummary
 
   def initialize
     super(
@@ -38,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(513),
         OptString.new('TERM',  [ true, 'The terminal type desired', 'vt100' ]),
         OptString.new('SPEED', [ true, 'The terminal speed desired', '9600' ])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -297,40 +296,42 @@ class MetasploitModule < Msf::Auxiliary
     disconnect()
   end
 
-
   def start_rlogin_session(host, port, user, luser, pass, proof)
-
-    auth_info = {
-      :host	=> host,
-      :port	=> port,
-      :sname => 'login',
-      :user	=> user,
-      :proof  => proof,
-      :source_type => "user_supplied",
-      :active => true
+    service_data = {
+      address: host,
+      port: port,
+      service_name: 'rlogin',
+      proof: proof,
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
     }
 
-    merge_me = {
-      'USERPASS_FILE' => nil,
-      'USER_FILE'     => nil,
-      'FROMUSER_FILE' => nil,
-      'PASS_FILE'     => nil,
-      'USERNAME'      => user,
-    }
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      username: user
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
 
     if pass
-      auth_info.merge!(:pass => pass)
-      merge_me.merge!('PASSWORD' => pass)
+      service_data.merge!(:pass => pass)
+      credential_data.merge!('PASSWORD' => pass)
       info = "RLOGIN #{user}:#{pass} (#{host}:#{port})"
     else
-      auth_info.merge!(:luser => luser)
-      merge_me.merge!('FROMUSER'=> luser)
+      service_data.merge!(:luser => luser)
+      credential_data.merge!('FROMUSER'=> luser)
       info = "RLOGIN #{user} from #{luser} (#{host}:#{port})"
     end
 
-    report_auth_info(auth_info)
-    start_session(self, info, merge_me)
-
+    create_credential_login(login_data)
+    if datastore['CreateSession']
+      start_session(self, info, login_data, false, self.sock)
+      # Don't tie the life of this socket to the exploit
+      self.sock = nil
+    end
   end
-
 end

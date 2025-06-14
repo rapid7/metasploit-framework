@@ -11,18 +11,16 @@ require 'json'
 require 'msgpack'
 require 'metasploit/credential'
 require 'nokogiri'
-require 'packetfu'
 # railties has not autorequire defined
 # rkelly-remix is a fork of rkelly, so it's autorequire is 'rkelly' and not 'rkelly-remix'
 require 'rkelly'
 require 'robots'
 require 'zip'
-
+require 'msf'
 #
 # Project
 #
 
-require 'msf/core'
 
 # Top-level namespace that is shared between {Metasploit::Framework
 # metasploit-framework} and pro, which uses Metasploit::Pro.

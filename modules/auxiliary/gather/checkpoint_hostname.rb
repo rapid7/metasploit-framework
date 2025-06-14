@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
 
@@ -24,12 +21,12 @@ class MetasploitModule < Msf::Auxiliary
         networks where the hostname reveals the physical location and rack number
         of the device, which may be unintentionally published to the world.
       },
-      'Author'         => [ 'patrick' ],
-      'DisclosureDate' => 'Dec 14 2011', # Looks like this module is first real reference
+      'Author'         => [ 'aushack' ],
+      'DisclosureDate' => '2011-12-14', # Looks like this module is first real reference
       'References'     =>
         [
-          # patrickw - None? Stumbled across, probably an old bug/feature but unsure.
-          [ 'URL', 'http://www.osisecurity.com.au/advisories/checkpoint-firewall-securemote-hostname-information-disclosure' ],
+          # aushack - None? Stumbled across, probably an old bug/feature but unsure.
+          [ 'URL', 'https://web.archive.org/web/20120508142715/http://www.osisecurity.com.au/advisories/checkpoint-firewall-securemote-hostname-information-disclosure' ],
           [ 'URL', 'https://supportcenter.checkpoint.com/supportcenter/portal?eventSubmit_doGoviewsolutiondetails=&solutionid=sk69360' ]
         ]
     ))
@@ -37,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(264),
-      ], self.class)
+      ])
   end
 
   def autofilter
@@ -93,5 +90,4 @@ class MetasploitModule < Msf::Auxiliary
     }
     report_service(svc_info)
   end
-
 end

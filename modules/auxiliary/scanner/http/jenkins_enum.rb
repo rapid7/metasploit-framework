@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -7,12 +7,10 @@
 # Some of this code was taken from the "jboss_vulnscan" module by: Tyler Krpata
 ##
 
-require 'rex/proto/http'
-require 'msf/core'
+
 require 'rexml/document'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -22,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
       'Name'        => 'Jenkins-CI Enumeration',
       'Description' => %q{
         This module enumerates a remote Jenkins-CI installation in an unauthenticated manner, including
-        host operating system and and Jenkins installation details.
+        host operating system and Jenkins installation details.
       },
       'Author'      => 'Jeff McCutchan',
       'License'     => MSF_LICENSE
@@ -31,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [ true,  'The path to the Jenkins-CI application', '/jenkins/' ])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -53,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     version = res.headers['X-Jenkins']
-    print_status("Jenkins Version - #{version}")
+    print_good("#{peer} - Jenkins Version #{version}")
     report_service(
       :host  => rhost,
       :port  => rport,
@@ -103,7 +101,12 @@ class MetasploitModule < Msf::Auxiliary
         :host  => rhost,
         :port  => rport,
         :proto => 'tcp',
-        :data  => "#{full_uri} - #{uri_path} does not require authentication (200)",
+        :data  => {
+          :uri => full_uri,
+          :uri_path => uri_path,
+          :response_code => "200",
+          :description => "#{full_uri} - #{uri_path} does not require authentication (200)"
+        },
         :update => :unique_data
       })
       case app

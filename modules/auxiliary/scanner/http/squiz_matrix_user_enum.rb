@@ -1,10 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/http'
-require 'msf/core'
 
 
 class MetasploitModule < Msf::Auxiliary
@@ -22,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'           => 'Squiz Matrix User Enumeration Scanner',
       'Description'    => %q{
-        This module attempts to enumernate remote users that exist within
+        This module attempts to enumerate remote users that exist within
         the Squiz Matrix and MySource Matrix CMS by sending GET requests for asset IDs
         e.g. ?a=14 and searching for a valid username eg "~root" or "~test" which
         is prefixed by a "~" in the response. It will also try to GET the users
@@ -30,20 +28,20 @@ class MetasploitModule < Msf::Auxiliary
         ASSETBEGIN and ASSETEND values for greater results, or set VERBOSE.
         Information gathered may be used for later bruteforce attacks.
       },
-      'Author'         => [ 'Troy Rose <troy[at]osisecurity.com.au>', 'patrick' ],
+      'Author'         => [ 'Troy Rose <troy[at]osisecurity.com.au>', 'aushack' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'URL', 'http://www.osisecurity.com.au/advisories/' ],
+          [ 'URL', 'https://www.osi.security/advisories.html' ],
         ],
-      'DisclosureDate' => 'Nov 8 2011'))
+      'DisclosureDate' => '2011-11-08'))
 
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The path to users Squiz Matrix installation', '/']),
         OptInt.new('ASSETBEGIN',  [ true, "Asset ID to start at", 1]),
         OptInt.new('ASSETEND',  [ true, "Asset ID to stop at", 100]),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

@@ -35,9 +35,9 @@ module Net # :nodoc:
       #                            :type    => Net::DNS::A,
       #                            :address => "127.0.0.1")
       #
-      # When computing binary data to trasmit the RR, the RDATA section is an
+      # When computing binary data to transmit the RR, the RDATA section is an
       # Internet address expressed as four decimal numbers separated by dots
-      # without any imbedded spaces (e.g.,"10.2.0.52" or "192.0.5.6").
+      # without any embedded spaces (e.g.,"10.2.0.52" or "192.0.5.6").
       #
       class A < RR
         attr_reader :address

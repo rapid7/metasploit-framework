@@ -3,13 +3,14 @@ require 'spec_helper'
 
 require 'openssl'
 require 'rex/text'
-require 'rex/proto/kerberos'
 
 RSpec.describe Rex::Proto::Kerberos::Model::EncryptedData do
 
   subject(:encrypted_data) do
     described_class.new
   end
+
+  let(:kerberos_error) { Rex::Proto::Kerberos::Model::Error::KerberosError }
 
 =begin
 #<OpenSSL::ASN1::Sequence:0x007ff9c18b2de8
@@ -139,7 +140,7 @@ RSpec.describe Rex::Proto::Kerberos::Model::EncryptedData do
 
       it "decodes etype correctly" do
         encrypted_data.decode(sample_enc_data)
-        expect(encrypted_data.etype).to eq(Rex::Proto::Kerberos::Crypto::RC4_HMAC)
+        expect(encrypted_data.etype).to eq(Rex::Proto::Kerberos::Crypto::Encryption::RC4_HMAC)
       end
 
       it "decodes cipher correctly" do
@@ -164,27 +165,27 @@ RSpec.describe Rex::Proto::Kerberos::Model::EncryptedData do
     context "correct key" do
       it "returns the decrypted string" do
         encrypted_data.decode(sample_known_enc_data)
-        expect(encrypted_data.decrypt(known_password, msg_type)).to be_a(String)
+        expect(encrypted_data.decrypt_asn1(known_password, msg_type)).to be_a(String)
       end
 
       it "returns a valid object" do
         encrypted_data.decode(sample_known_enc_data)
-        plain = encrypted_data.decrypt(known_password, msg_type)
+        plain = encrypted_data.decrypt_asn1(known_password, msg_type)
         expect(Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp.decode(plain)).to be_a(Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp)
       end
     end
 
     context "when incorrect key" do
-      it "raises RuntimeError" do
+      it "raises an error" do
         encrypted_data.decode(sample_known_enc_data)
-        expect { encrypted_data.decrypt('error', msg_type) }.to raise_error(RuntimeError)
+        expect { encrypted_data.decrypt_asn1('error', msg_type) }.to raise_error(kerberos_error)
       end
     end
 
     context "when incorrect msg_type" do
-      it "raises RuntimeError" do
+      it "raises an error" do
         encrypted_data.decode(sample_known_enc_data)
-        expect { encrypted_data.decrypt(known_password, 10) }.to raise_error(RuntimeError)
+        expect { encrypted_data.decrypt_asn1(known_password, 10) }.to raise_error(kerberos_error)
       end
     end
   end

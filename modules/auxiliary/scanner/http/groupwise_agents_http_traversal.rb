@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -31,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2012-0419' ],
           [ 'OSVDB', '85801' ],
           [ 'BID', '55648' ],
-          [ 'URL', 'http://www.novell.com/support/kb/doc.php?id=7010772' ]
+          [ 'URL', 'https://support.microfocus.com/kb/doc.php?id=7010772' ]
         ]
     ))
 
@@ -40,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(7181), # Also 7180 can be used
         OptString.new('FILEPATH', [true, 'The name of the file to download', '/windows\\win.ini']),
         OptInt.new('DEPTH', [true, 'Traversal depth if absolute is set to false', 10])
-      ], self.class)
+      ])
   end
 
   def is_groupwise?

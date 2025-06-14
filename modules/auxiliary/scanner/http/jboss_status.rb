@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -22,9 +19,10 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           ['CVE', '2008-3273'],
-          ['URL', 'http://seclists.org/fulldisclosure/2011/Sep/139'],
-          ['URL', 'https://www.owasp.org/images/a/a9/OWASP3011_Luca.pdf'],
-          ['URL', 'http://www.slideshare.net/chrisgates/lares-fromlowtopwned']
+          ['CVE', '2010-1429'], # regression
+          ['URL', 'https://seclists.org/fulldisclosure/2011/Sep/139'],
+          ['URL', 'https://owasp.org/www-pdf-archive/OWASP3011_Luca.pdf'],
+          ['URL', 'https://www.slideshare.net/chrisgates/lares-fromlowtopwned']
         ],
       'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
       'License'     => MSF_LICENSE
@@ -33,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       Opt::RPORT(8080),
       OptString.new('TARGETURI', [ true,  'The JBoss status servlet URI path', '/status'])
-    ], self.class)
+    ])
   end
 
   def run_host(target_host)
@@ -102,7 +100,11 @@ class MetasploitModule < Msf::Auxiliary
         :sname => (ssl ? 'https' : 'http'),
         :port  => rport,
         :type  => 'JBoss application server info',
-        :data  => "#{rhost}:#{rport} #{r[2]}"
+        :data  => {
+          :rhost => rhost,
+          :rport => rport,
+          :request => r[2]
+        }
       })
     end
 

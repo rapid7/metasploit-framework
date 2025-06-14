@@ -3,15 +3,17 @@
 require 'socket'
 require 'openssl'
 
-require 'rex/script'
+require 'rex/post/channel'
+require 'rex/post/meterpreter/extension_mapper'
 require 'rex/post/meterpreter/client_core'
 require 'rex/post/meterpreter/channel'
-require 'rex/post/meterpreter/channel_container'
 require 'rex/post/meterpreter/dependencies'
 require 'rex/post/meterpreter/object_aliases'
 require 'rex/post/meterpreter/packet'
 require 'rex/post/meterpreter/packet_parser'
 require 'rex/post/meterpreter/packet_dispatcher'
+require 'rex/post/meterpreter/pivot'
+require 'rex/post/meterpreter/pivot_container'
 
 module Rex
 module Post
@@ -33,8 +35,9 @@ end
 ###
 class Client
 
+  include Rex::Post::Channel::Container
   include Rex::Post::Meterpreter::PacketDispatcher
-  include Rex::Post::Meterpreter::ChannelContainer
+  include Rex::Post::Meterpreter::PivotContainer
 
   #
   # Extension name to class hash.
@@ -77,7 +80,7 @@ class Client
   # Initializes the client context with the supplied socket through
   # which communication with the server will be performed.
   #
-  def initialize(sock,opts={})
+  def initialize(sock, opts={})
     init_meterpreter(sock, opts)
   end
 
@@ -85,7 +88,17 @@ class Client
   # Cleans up the meterpreter instance, terminating the dispatcher thread.
   #
   def cleanup_meterpreter
-    if not self.skip_cleanup
+    if self.pivot_session
+      self.pivot_session.remove_pivot_session(self.session_guid)
+    end
+
+    self.pivot_sessions.keys.each do |k|
+      pivot = self.pivot_sessions[k]
+      pivot.pivoted_session.kill('Pivot closed')
+      pivot.pivoted_session.shutdown_passive_dispatcher
+    end
+
+    unless self.skip_cleanup
       ext.aliases.each_value do | extension |
         extension.cleanup if extension.respond_to?( 'cleanup' )
       end
@@ -93,11 +106,13 @@ class Client
 
     dispatcher_thread.kill if dispatcher_thread
 
-    if not self.skip_cleanup
+    unless self.skip_cleanup
       core.shutdown rescue nil
     end
 
     shutdown_passive_dispatcher
+
+    shutdown_tlv_logging
   end
 
   #
@@ -112,16 +127,25 @@ class Client
     self.target_id    = opts[:target_id]
     self.capabilities = opts[:capabilities] || {}
     self.commands     = []
-    self.last_checkin = Time.now
+    self.last_checkin = ::Time.now
 
     self.conn_id      = opts[:conn_id]
     self.url          = opts[:url]
     self.ssl          = opts[:ssl]
-    self.expiration   = opts[:expiration]
-    self.comm_timeout = opts[:comm_timeout]
-    self.retry_total  = opts[:retry_total]
-    self.retry_wait   = opts[:retry_wait]
-    self.passive_dispatcher = opts[:passive_dispatcher]
+
+    self.pivot_session = opts[:pivot_session]
+    if self.pivot_session
+      self.expiration   = self.pivot_session.expiration
+      self.comm_timeout = self.pivot_session.comm_timeout
+      self.retry_total  = self.pivot_session.retry_total
+      self.retry_wait   = self.pivot_session.retry_wait
+    else
+      self.expiration   = opts[:expiration]
+      self.comm_timeout = opts[:comm_timeout]
+      self.retry_total  = opts[:retry_total]
+      self.retry_wait   = opts[:retry_wait]
+      self.passive_dispatcher = opts[:passive_dispatcher]
+    end
 
     self.response_timeout = opts[:timeout] || self.class.default_timeout
     self.send_keepalives  = true
@@ -129,6 +153,9 @@ class Client
     # TODO: Clarify why we don't allow unicode to be set in initial options
     # self.encode_unicode   = opts.has_key?(:encode_unicode) ? opts[:encode_unicode] : true
     self.encode_unicode = false
+
+    self.aes_key      = nil
+    self.session_guid = opts[:session_guid] || "\x00" * 16
 
     # The SSL certificate is being passed down as a file path
     if opts[:ssl_cert]
@@ -139,33 +166,25 @@ class Client
         self.ssl_cert = ::File.read(opts[:ssl_cert])
       end
     end
+    # Use the debug build if specified
+    self.debug_build = opts[:debug_build]
 
-    if opts[:passive_dispatcher]
-      initialize_passive_dispatcher
 
-      register_extension_alias('core', ClientCore.new(self))
+    # Protocol specific dispatch mixins go here, this may be neater with explicit Client classes
+    opts[:dispatch_ext].each {|dx| self.extend(dx)} if opts[:dispatch_ext]
+    initialize_passive_dispatcher if opts[:passive_dispatcher]
 
-      initialize_inbound_handlers
-      initialize_channels
+    register_extension_alias('core', ClientCore.new(self))
 
-      # Register the channel inbound packet handler
-      register_inbound_handler(Rex::Post::Meterpreter::Channel)
-    else
-      # Switch the socket to SSL mode and receive the hello if needed
-      if capabilities[:ssl] and not opts[:skip_ssl]
-        swap_sock_plain_to_ssl()
-      end
+    initialize_inbound_handlers
+    initialize_channels
+    initialize_pivots
 
-      register_extension_alias('core', ClientCore.new(self))
+    # Register the channel and pivot inbound packet handlers
+    register_inbound_handler(Rex::Post::Meterpreter::Channel)
+    register_inbound_handler(Rex::Post::Meterpreter::Pivot)
 
-      initialize_inbound_handlers
-      initialize_channels
-
-      # Register the channel inbound packet handler
-      register_inbound_handler(Rex::Post::Meterpreter::Channel)
-
-      monitor_socket
-    end
+    monitor_socket
   end
 
   def swap_sock_plain_to_ssl
@@ -302,21 +321,11 @@ class Client
   # registered extension that can be reached through client.ext.[extension].
   #
   def add_extension(name, commands=[])
-    self.commands |= commands
+    self.commands.concat(commands)
 
     # Check to see if this extension has already been loaded.
     if ((klass = self.class.check_ext_hash(name.downcase)) == nil)
-      old = Rex::Post::Meterpreter::Extensions.constants
-      require("rex/post/meterpreter/extensions/#{name.downcase}/#{name.downcase}")
-      new = Rex::Post::Meterpreter::Extensions.constants
-
-      # No new constants added?
-      if ((diff = new - old).empty?)
-        diff = [ name.capitalize ]
-      end
-
-      klass = Rex::Post::Meterpreter::Extensions.const_get(diff[0]).const_get(diff[0])
-
+      klass = Rex::Post::Meterpreter::ExtensionMapper.get_extension_klass(name)
       # Save the module name to class association now that the code is
       # loaded.
       self.class.set_ext_hash(name.downcase, klass)
@@ -475,6 +484,10 @@ class Client
   #
   attr_accessor :passive_dispatcher
   #
+  # Reference to a session to pivot through
+  #
+  attr_accessor :pivot_session
+  #
   # Flag indicating whether to hex-encode UTF-8 file names and other strings
   #
   attr_accessor :encode_unicode
@@ -486,6 +499,10 @@ class Client
   # The timestamp of the last received response
   #
   attr_accessor :last_checkin
+  #
+  # Whether or not to use a debug build for loaded extensions
+  #
+  attr_accessor :debug_build
 
 protected
   attr_accessor :parser, :ext_aliases # :nodoc:
@@ -494,4 +511,3 @@ protected
 end
 
 end; end; end
-

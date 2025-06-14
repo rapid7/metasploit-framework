@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -59,7 +55,11 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    info = "PPPOE credentials for #{rhost}, user: #{user}, password: #{password}"
+    info = {
+      :host => rhost,
+      :username => user,
+      :password => password
+    }
 
     report_note({
       :host   => rhost,
@@ -100,7 +100,11 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    info = "DDNS credentials for #{hostname}, user: #{user}, password: #{password}"
+    info = {
+      :host => hostname,
+      :user => user,
+      :password => password
+    }
 
     report_note({
       :host   => rhost,
@@ -267,5 +271,4 @@ class MetasploitModule < Msf::Auxiliary
     report_service(:host => rhost, :port => rport, :sname => 'dvr', :info => "DVR NAME: #{dvr_name}")
     print_good("#{rhost}:#{rport} DVR #{dvr_name} found")
   end
-
 end

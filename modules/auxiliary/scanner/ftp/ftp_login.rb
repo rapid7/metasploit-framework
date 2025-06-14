@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/ftp'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Ftp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -32,7 +30,10 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '1999-0502'] # Weak password
         ],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'DefaultOptions' => {
+        'ConnectTimeout' => 30
+      }
     )
 
     register_options(
@@ -40,11 +41,11 @@ class MetasploitModule < Msf::Auxiliary
         Opt::Proxies,
         Opt::RPORT(21),
         OptBool.new('RECORD_GUEST', [ false, "Record anonymous/guest logins to the database", false])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
-        OptBool.new('SINGLE_SESSION', [ false, 'Disconnect after every login attempt', false])
+        OptBool.new('SINGLE_SESSION', [ false, 'Disconnect after every login attempt', false]),
       ]
     )
 
@@ -56,20 +57,14 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     print_status("#{ip}:#{rport} - Starting FTP login sweep")
 
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
-        blank_passwords: datastore['BLANK_PASSWORDS'],
-        pass_file: datastore['PASS_FILE'],
-        password: datastore['PASSWORD'],
-        user_file: datastore['USER_FILE'],
-        userpass_file: datastore['USERPASS_FILE'],
+    cred_collection = build_credential_collection(
         username: datastore['USERNAME'],
-        user_as_pass: datastore['USER_AS_PASS'],
+        password: datastore['PASSWORD'],
         prepended_creds: anonymous_creds
     )
 
-    cred_collection = prepend_db_passwords(cred_collection)
-
     scanner = Metasploit::Framework::LoginScanner::FTP.new(
+      configure_login_scanner(
         host: ip,
         port: rport,
         proxies: datastore['PROXIES'],
@@ -78,7 +73,8 @@ class MetasploitModule < Msf::Auxiliary
         bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
         max_send_size: datastore['TCP::max_send_size'],
         send_delay: datastore['TCP::send_delay'],
-        connection_timeout: 30,
+        connection_timeout: datastore['ConnectTimeout'],
+        ftp_timeout: datastore['FTPTimeout'],
         framework: framework,
         framework_module: self,
         ssl: datastore['SSL'],
@@ -87,6 +83,7 @@ class MetasploitModule < Msf::Auxiliary
         ssl_cipher: datastore['SSLCipher'],
         local_port: datastore['CPORT'],
         local_host: datastore['CHOST']
+      )
     )
 
     scanner.scan! do |result|
@@ -96,11 +93,12 @@ class MetasploitModule < Msf::Auxiliary
           workspace_id: myworkspace_id
       )
       if result.success?
+        credential_data[:private_type] = :password
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"

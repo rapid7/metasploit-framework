@@ -1,10 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -41,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2015-0240'],
           ['OSVDB', '118637'],
-          ['URL', 'https://securityblog.redhat.com/2015/02/23/samba-vulnerability-cve-2015-0240/'],
+          ['URL', 'https://www.redhat.com/en/blog/samba-vulnerability-cve-2015-0240'],
           ['URL', 'https://gist.github.com/worawit/33cc5534cb555a0b710b'],
           ['URL', 'https://www.nccgroup.com/en/blog/2015/03/samba-_netr_serverpasswordset-expoitability-analysis/']
         ],
@@ -61,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
     ])
 
     # It's either 139 or 445. The user should not touch this.
-    deregister_options('RPORT', 'RHOST')
+    deregister_options('RPORT')
   end
 
   def rport
@@ -80,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
       dcerpc_bind(handle)
     rescue ::Rex::Proto::SMB::Exceptions::LoginError,
       ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-      elog("#{e.message}\n#{e.backtrace * "\n"}")
+      elog(e)
       return false
     rescue Errno::ECONNRESET,
         ::Rex::Proto::SMB::Exceptions::InvalidType,
@@ -88,10 +86,10 @@ class MetasploitModule < Msf::Auxiliary
         ::Rex::Proto::SMB::Exceptions::InvalidCommand,
         ::Rex::Proto::SMB::Exceptions::InvalidWordCount,
         ::Rex::Proto::SMB::Exceptions::NoReply => e
-      elog("#{e.message}\n#{e.backtrace * "\n"}")
+      elog(e)
       return false
     rescue ::Exception => e
-      elog("#{e.message}\n#{e.backtrace * "\n"}")
+      elog(e)
       return false
     end
 
@@ -118,14 +116,14 @@ class MetasploitModule < Msf::Auxiliary
     begin
       dcerpc.call(0x06, stub)
     rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
-      elog("#{e.message}\n#{e.backtrace * "\n"}")
+      elog(e)
     rescue Errno::ECONNRESET,
         ::Rex::Proto::SMB::Exceptions::InvalidType,
         ::Rex::Proto::SMB::Exceptions::ReadPacket,
         ::Rex::Proto::SMB::Exceptions::InvalidCommand,
         ::Rex::Proto::SMB::Exceptions::InvalidWordCount,
         ::Rex::Proto::SMB::Exceptions::NoReply => e
-      elog("#{e.message}\n#{e.backtrace * "\n"}")
+      elog(e)
     rescue ::Exception => e
       if e.to_s =~ /execution expired/i
         # So what happens here is that when you trigger the buggy code path, you hit this:
@@ -180,7 +178,7 @@ class MetasploitModule < Msf::Auxiliary
 
   # Converts a version string into an object so we can eval it
   def version(v)
-    Gem::Version.new(v)
+    Rex::Version.new(v)
   end
 
 
@@ -264,6 +262,5 @@ class MetasploitModule < Msf::Auxiliary
       print_status("The target appears to be safe")
     end
   end
-
 end
 

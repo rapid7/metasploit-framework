@@ -13,7 +13,7 @@ module Metasploit
       end
 
       VERSION = Metasploit::Framework::VERSION
-      GEM_VERSION = Gem::Version.new(Metasploit::Framework::GEM_VERSION)
+      GEM_VERSION = Rex::Version.new(Metasploit::Framework::GEM_VERSION)
     end
   end
 end

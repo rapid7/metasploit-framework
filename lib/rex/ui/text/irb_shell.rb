@@ -24,7 +24,7 @@ class IrbShell
     # Initialize IRB by setting up its internal configuration hash and
     # stuff.
     if (@@IrbInitialized == false)
-      load('irb.rb')
+      require 'irb'
 
       IRB.setup(nil)
       IRB.conf[:PROMPT_MODE]  = :SIMPLE
@@ -40,20 +40,18 @@ class IrbShell
     IRB.conf[:MAIN_CONTEXT] = irb.context
 
     # Trap interrupt
-    old_sigint = trap("SIGINT") do
-      begin
+    begin
+      old_sigint = trap("SIGINT") do
         irb.signal_handle
-      rescue RubyLex::TerminateLineInput
+      end
+
+      # Keep processing input until the cows come home...
+      catch(:IRB_EXIT) do
         irb.eval_input
       end
+    ensure
+      trap("SIGINT", old_sigint) if old_sigint
     end
-
-    # Keep processing input until the cows come home...
-    catch(:IRB_EXIT) do
-      irb.eval_input
-    end
-
-    trap("SIGINT", old_sigint)
   end
 
 end

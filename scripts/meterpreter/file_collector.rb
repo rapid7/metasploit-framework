@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -27,13 +27,13 @@ logs = nil
 def usage
   print_line "Meterpreter Script for searching and downloading files that"
   print_line "match a specific pattern. First save files to a file, edit and"
-  print_line("use that same file to download the choosen files.")
+  print_line("use that same file to download the chosen files.")
   print_line(@opts.usage)
   raise Rex::Script::Completed
 end
 
 # Check that we are running under the right type of Meterpreter
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   # Parse the options
   if args.length > 0
     @opts.parse(args) { |opt, idx, val|

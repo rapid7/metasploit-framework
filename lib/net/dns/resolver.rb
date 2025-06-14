@@ -121,7 +121,7 @@ module Net # :nodoc:
       # do, look at the description of each.
       # Some example:
       #
-      #   # Use the sistem defaults
+      #   # Use the system defaults
       #   res = Net::DNS::Resolver.new
       #
       #   # Specify a configuration file
@@ -165,7 +165,7 @@ module Net # :nodoc:
       #   my $res = Net::DNS::Resolver->new(config_file => '/my/dns.conf');
       #
       # This is supported on both UNIX and Windows.  Values pulled from a custom
-      # configuration file override the the system's defaults, but can still be
+      # configuration file override the system's defaults, but can still be
       # overridden by the other arguments to Resolver::new.
       #
       # Explicit arguments to Resolver::new override both the system's defaults
@@ -253,7 +253,7 @@ module Net # :nodoc:
       #     #=> ["example.com","a.example.com","b.example.com"]
       #
       def searchlist
-        @config[:searchlist].inspect
+        @config[:searchlist].deep_dup
       end
 
       # Set the resolver searchlist.
@@ -350,7 +350,7 @@ module Net # :nodoc:
       # Return a string with the default domain
       #
       def domain
-        @config[:domain].inspect
+        @config[:domain].dup
       end
 
       # Set the domain for the query
@@ -402,12 +402,12 @@ module Net # :nodoc:
       #
       #   res.source_port = 40000
       #
-      # Note that if you want to set a port you need root priviledges, as
+      # Note that if you want to set a port you need root privileges, as
       # raw sockets will be used to generate packets. The class will then
       # generate the exception ResolverPermissionError if you're not root.
       #
       # The default is 0, which means that the port will be chosen by the
-      # underlaying layers.
+      # underlying layers.
       #
       def source_port=(num)
         unless root?
@@ -445,11 +445,11 @@ module Net # :nodoc:
       #
       # Another way to use this option is for some kind of spoofing attacks
       # towards weak nameservers, to probe the security of your network.
-      # This includes specifing ranged attacks such as DoS and others. For
+      # This includes specifying ranged attacks such as DoS and others. For
       # a paper on DNS security, checks http://www.marcoceresa.com/security/
       #
       # Note that if you want to set a non-binded source address you need
-      # root priviledges, as raw sockets will be used to generate packets.
+      # root privileges, as raw sockets will be used to generate packets.
       # The class will then generate an exception if you're not root.
       #
       # The default is 0.0.0.0, meaning any local address (chosen on routing
@@ -562,7 +562,7 @@ module Net # :nodoc:
       end
       alias_method :recurse=, :recursive=
 
-      # Return a string rapresenting the resolver state, suitable
+      # Return a string representing the resolver state, suitable
       # for printing on the screen.
       #
       #   puts "Resolver state:"
@@ -681,7 +681,7 @@ module Net # :nodoc:
       # Return an object representing the value of the stored TCP
       # timeout the resolver will use in is queries. This object
       # is an instance of the class +TcpTimeout+, and two methods
-      # are available for printing informations: TcpTimeout#to_s
+      # are available for printing information: TcpTimeout#to_s
       # and TcpTimeout#pretty_to_s.
       #
       # Here's some example:
@@ -714,7 +714,7 @@ module Net # :nodoc:
       # Return an object representing the value of the stored UDP
       # timeout the resolver will use in is queries. This object
       # is an instance of the class +UdpTimeout+, and two methods
-      # are available for printing informations: UdpTimeout#to_s
+      # are available for printing information: UdpTimeout#to_s
       # and UdpTimeout#pretty_to_s.
       #
       # Here's some example:
@@ -751,7 +751,7 @@ module Net # :nodoc:
       #
       #   res.log_file = $stderr
       #
-      # Note that a new logging facility will be create, destroing
+      # Note that a new logging facility will be create, destroying
       # the old one, which will then be impossibile to recover.
       #
       def log_file=(log)
@@ -801,7 +801,7 @@ module Net # :nodoc:
       # -d switch is used at the command line) the logger level is
       # automatically set at DEGUB.
       #
-      # For further informations, see Logger documentation in the
+      # For further information, see Logger documentation in the
       # Ruby standard library.
       #
       def log_level=(level)
@@ -975,7 +975,7 @@ module Net # :nodoc:
           end
         end
 
-        ans = self.old_send(method,packet,packet_data)
+        ans = self.old_send(method,packet,packet_data, nameservers.map {|ns| [ns, {}]})
 
         unless ans
           @logger.fatal "No response from nameservers list: aborting"
@@ -1027,7 +1027,8 @@ module Net # :nodoc:
 
         answers = []
         soa = 0
-        self.old_send(method, packet, packet_data) do |ans|
+        nameservers_and_hash = nameservers.map {|ns| [ns, {}]}
+        self.old_send(method, packet, packet_data, nameservers_and_hash) do |ans|
           @logger.info "Received #{ans[0].size} bytes from #{ans[1][2]+":"+ans[1][1].to_s}"
 
           begin
@@ -1080,11 +1081,11 @@ module Net # :nodoc:
         if RUBY_PLATFORM =~ /mswin32|cygwin|mingw|bccwin/
           require 'win32/resolv'
           arr = Win32::Resolv.get_resolv_info
-          self.domain = arr[0]
+          self.searchlist = arr[0] if arr[0]
           self.nameservers = arr[1]
         else
           IO.foreach(@config[:config_file]) do |line|
-            line.gsub!(/\s*[;#].*/,"")
+            line.gsub!(/\s*[;#].*/, "")
             next unless line =~ /\S/
             case line
             when /^\s*domain\s+(\S+)/
@@ -1092,10 +1093,22 @@ module Net # :nodoc:
             when /^\s*search\s+(.*)/
               self.searchlist = $1.split(" ")
             when /^\s*nameserver\s+(.*)/
-              self.nameservers = $1.split(" ")
+              $1.split(/\s+/).each do |nameserver|
+                # per https://man7.org/linux/man-pages/man5/resolv.conf.5.html nameserver values must be IP addresses
+                begin
+                  ip_addr = IPAddr.new(nameserver)
+                rescue IPAddr::InvalidAddressError
+                  @logger.warn "Ignoring invalid name server '#{nameserver}' from configuration file"
+                  next
+                else
+                  self.nameservers += [ip_addr]
+                end
+              end
             end
           end
         end
+      rescue => e
+        @logger.error(e)
       end
 
       # Parse environment variables
@@ -1161,12 +1174,12 @@ module Net # :nodoc:
 
       end
 
-      def send_tcp(packet,packet_data)
+      def send_tcp(packet,packet_data, nameservers)
 
         ans = nil
         length = [packet_data.size].pack("n")
 
-        @config[:nameservers].each do |ns|
+        nameservers.each do |ns, _unused|
           begin
             socket = Socket.new(Socket::AF_INET,Socket::SOCK_STREAM,0)
             socket.bind(Socket.pack_sockaddr_in(@config[:source_port],@config[:source_address].to_s))
@@ -1233,13 +1246,13 @@ module Net # :nodoc:
         return nil
       end
 
-      def send_udp(packet,packet_data)
+      def send_udp(packet, packet_data, nameservers)
         socket = UDPSocket.new
         socket.bind(@config[:source_address].to_s,@config[:source_port])
 
         ans = nil
         response = ""
-        @config[:nameservers].each do |ns|
+        nameservers.each do |ns, _unused|
           begin
             @config[:udp_timeout].timeout do
               @logger.info "Contacting nameserver #{ns} port #{@config[:port]}"
@@ -1294,4 +1307,3 @@ end
 class Hash # :nodoc:
   include ExtendHash
 end
-

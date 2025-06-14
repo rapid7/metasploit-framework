@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -20,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           ['CVE', '2015-7297'],
-          ['URL', 'https://www.trustwave.com/Resources/SpiderLabs-Blog/Joomla-SQL-Injection-Vulnerability-Exploit-Results-in-Full-Administrative-Access/']
+          ['URL', 'https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/joomla-sql-injection-vulnerability-exploit-results-in-full-administrative-access/']
         ],
       'Author'         =>
         [
@@ -29,13 +26,13 @@ class MetasploitModule < Msf::Auxiliary
           'Nixawk'       # module review
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Oct 22 2015'
+      'DisclosureDate' => '2015-10-22'
     ))
 
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The relative URI of the Joomla instance', '/'])
-      ], self.class)
+      ])
   end
 
   def check
@@ -206,5 +203,4 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
   end
-
 end

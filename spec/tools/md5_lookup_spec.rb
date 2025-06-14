@@ -1,7 +1,6 @@
 load Metasploit::Framework.root.join('tools/password/md5_lookup.rb').to_path
 require 'spec_helper'
 
-require 'rex/proto/http/response'
 require 'stringio'
 
 RSpec.describe Md5LookupUtility do
@@ -93,7 +92,7 @@ RSpec.describe Md5LookupUtility do
     def stub_load(with_setting=true)
       if with_setting
         ini = stub_save
-        disclamer.save_waiver
+        disclaimer.save_waiver
       else
         ini = Rex::Parser::Ini.new(t_path)
       end
@@ -102,7 +101,7 @@ RSpec.describe Md5LookupUtility do
       return ini
     end
 
-    subject(:disclamer) do
+    subject(:disclaimer) do
       Md5LookupUtility::Disclaimer.new
     end
 
@@ -111,7 +110,7 @@ RSpec.describe Md5LookupUtility do
         it 'returns true' do
           agree = "Y\n"
           allow($stdin).to receive(:gets).and_return(agree)
-          get_stdout { expect(disclamer.ack).to be_truthy }
+          get_stdout { expect(disclaimer.ack).to be_truthy }
         end
       end
     end
@@ -120,7 +119,7 @@ RSpec.describe Md5LookupUtility do
       context 'when waiver is true' do
         it 'saves the wavier setting' do
           ini = stub_save
-          disclamer.save_waiver
+          disclaimer.save_waiver
           expect(ini[group_name]).to eq({setting_name=>true})
         end
       end
@@ -130,14 +129,14 @@ RSpec.describe Md5LookupUtility do
       context 'when there is a waiver' do
         it 'returns true' do
           ini = stub_load(true)
-          expect(disclamer.send(:has_waiver?)).to be_truthy
+          expect(disclaimer.send(:has_waiver?)).to be_truthy
         end
       end
 
       context 'when there is no waiver' do
         it 'returns false' do
           ini = stub_load(false)
-          expect(disclamer.send(:has_waiver?)).to be_falsey
+          expect(disclaimer.send(:has_waiver?)).to be_falsey
         end
       end
     end
@@ -146,7 +145,7 @@ RSpec.describe Md5LookupUtility do
       context 'when a setting is given' do
         it 'saves the setting' do
           ini = stub_save
-          disclamer.send(:save_setting, setting_name, data)
+          disclaimer.send(:save_setting, setting_name, data)
           expect(ini[group_name]).to eq({setting_name=>true})
         end
       end

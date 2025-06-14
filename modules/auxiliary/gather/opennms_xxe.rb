@@ -1,8 +1,11 @@
-require 'msf/core'
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'openssl'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
@@ -30,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     => [
           ['CVE', '2015-0975']
         ],
-      'DisclosureDate' => 'Jan 08 2015'
+      'DisclosureDate' => '2015-01-08'
     ))
 
     register_options(
@@ -41,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILEPATH', [true, "The file or directory to read on the server", "/etc/shadow"]),
         OptString.new('USERNAME', [true, "The username to authenticate with", "rtc"]),
         OptString.new('PASSWORD', [true, "The password to authenticate with", "rtc"])
-      ], self.class)
+      ])
 
   end
 

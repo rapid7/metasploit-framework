@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/ui/console/command_dispatcher'
 
 module Msf
 module Ui
@@ -13,10 +12,10 @@ module Console
 module ModuleCommandDispatcher
 
   include Msf::Ui::Console::CommandDispatcher
+  include Msf::Ui::Console::ModuleArgumentParsing
 
   def commands
     {
-      "pry"    => "Open a Pry session on the current module",
       "reload" => "Reload the current module from disk",
       "check"  => "Check to see if a target is vulnerable"
     }
@@ -50,19 +49,29 @@ module ModuleCommandDispatcher
     end
   end
 
-  def check_multiple(hosts)
+  def check_multiple(mod)
+    rhosts_walker = Msf::RhostsWalker.new(mod.datastore['RHOSTS'], mod.datastore).to_enum
+    rhosts_walker_count = rhosts_walker.count
+
+    # Short-circuit check_multiple if it's a single host, or doesn't have any hosts set
+    if rhosts_walker_count <= 1
+      nmod = mod.replicant
+      nmod.datastore.merge!(rhosts_walker.next) if rhosts_walker_count == 1
+      check_simple(nmod)
+      return
+    end
+
     # This part of the code is mostly from scanner.rb
     @show_progress = framework.datastore['ShowProgress'] || mod.datastore['ShowProgress'] || false
     @show_percent  = ( framework.datastore['ShowProgressPercent'] || mod.datastore['ShowProgressPercent'] ).to_i
 
-    @range_count   = hosts.length || 0
+    @range_count   = rhosts_walker_count || 0
     @range_done    = 0
     @range_percent = 0
 
     # Set the default thread to 1. The same behavior as before.
     threads_max = (framework.datastore['THREADS'] || mod.datastore['THREADS'] || 1).to_i
     @tl = []
-
 
     if Rex::Compat.is_windows
       if threads_max > 16
@@ -79,17 +88,21 @@ module ModuleCommandDispatcher
     end
 
     loop do
-      while (@tl.length < threads_max)
-        ip = hosts.next_ip
-        break unless ip
+      while @tl.length < threads_max
+        begin
+          datastore = rhosts_walker.next
+        rescue StopIteration
+          datastore = nil
+        end
+        break unless datastore
 
-        @tl << framework.threads.spawn("CheckHost-#{ip}", false, ip.dup) { |tip|
+        @tl << framework.threads.spawn("CheckHost-#{datastore['RHOSTS']}", false, datastore.dup) { |thr_datastore|
           # Make sure this is thread-safe when assigning an IP to the RHOST
           # datastore option
-          instance = mod.replicant
-          instance.datastore['RHOST'] = tip.dup
-          Msf::Simple::Framework.simplify_module(instance, false)
-          check_simple(instance)
+          nmod = mod.replicant
+          nmod.datastore.merge!(thr_datastore)
+          Msf::Simple::Framework.simplify_module(nmod)
+          check_simple(nmod)
         }
       end
 
@@ -106,7 +119,7 @@ module ModuleCommandDispatcher
         if exception.kind_of?(::Interrupt)
           raise exception
         else
-          elog("#{exception} #{exception.class}:\n#{exception.backtrace.join("\n")}")
+          elog('Error encountered with first Thread', error: exception)
         end
       end
 
@@ -121,34 +134,25 @@ module ModuleCommandDispatcher
   #
   # Checks to see if a target is vulnerable.
   #
-  def cmd_check(*args)
-    ip_range_arg = args.shift || mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
-    opt = Msf::OptAddressRange.new('RHOSTS')
+  def cmd_check(*args, opts: {})
+    if (args.include?('-r') || args.include?('--reload-libs')) && !opts[:previously_reloaded]
+      driver.run_single('reload_lib -a')
+    end
+
+    return false unless (args = parse_check_opts(args))
+
+    mod_with_opts = mod.replicant
+    mod_with_opts.datastore.import_options_from_hash(args[:datastore_options])
 
     begin
-      if !ip_range_arg.blank? && opt.valid?(ip_range_arg)
-        hosts = Rex::Socket::RangeWalker.new(opt.normalize(ip_range_arg))
+      mod_with_opts.validate
+    rescue ::Msf::OptionValidateError => e
+      ::Msf::Ui::Formatter::OptionValidateError.print_error(mod_with_opts, e)
+      return false
+    end
 
-        # Check multiple hosts
-        last_rhost_opt = mod.datastore['RHOST']
-        last_rhosts_opt = mod.datastore['RHOSTS']
-        mod.datastore['RHOSTS'] = ip_range_arg
-        begin
-          check_multiple(hosts)
-        ensure
-          # Restore the original rhost if set
-          mod.datastore['RHOST'] = last_rhost_opt
-          mod.datastore['RHOSTS'] = last_rhosts_opt
-          mod.cleanup
-        end
-      else
-        # Check a single rhost
-        unless Msf::OptAddress.new('RHOST').valid?(mod.datastore['RHOST'])
-          raise Msf::OptionValidateError.new(['RHOST'])
-        end
-        check_simple
-      end
-
+    begin
+      check_multiple(mod_with_opts)
     rescue ::Interrupt
       # When the user sends interrupt trying to quit the task, some threads will still be active.
       # This means even though the console tells the user the task has aborted (or at least they
@@ -160,6 +164,14 @@ module ModuleCommandDispatcher
       print_status("Caught interrupt from the console...")
       return
     end
+  end
+
+  def cmd_check_help
+    print_module_run_or_check_usage(command: :check)
+    print_line('Multi-threaded checks:')
+    print_line('1. set THREADS 10')
+    print_line('2. check')
+    print_line
   end
 
   def report_vuln(instance)
@@ -178,66 +190,69 @@ module ModuleCommandDispatcher
     end
 
     rhost = instance.datastore['RHOST']
-    rport = nil
+    rport = instance.datastore['RPORT']
     peer = rhost
-    if instance.datastore['rport']
-      rport = instance.rport
+    if rport
+      rport = instance.rport if instance.respond_to?(:rport)
       peer = "#{rhost}:#{rport}"
     end
+    peer_msg = peer ? "#{peer} - " : ''
 
     begin
-      code = instance.check_simple(
-        'LocalInput'  => driver.input,
-        'LocalOutput' => driver.output)
-      if (code and code.kind_of?(Array) and code.length > 1)
+      if instance.respond_to?(:check_simple)
+        code = instance.check_simple(
+          'LocalInput'  => driver.input,
+          'LocalOutput' => driver.output
+        )
+      else
+        msg = "Check failed: #{instance.type.capitalize} modules do not support check."
+        raise NotImplementedError, msg
+      end
+
+      if (code && code.kind_of?(Msf::Exploit::CheckCode))
         if (code == Msf::Exploit::CheckCode::Vulnerable)
-          print_good("#{peer} #{code[1]}")
+          print_good("#{peer_msg}#{code[1]}")
+          # Restore RHOST for report_vuln
+          instance.datastore['RHOST'] ||= rhost
           report_vuln(instance)
         else
-          print_status("#{peer} #{code[1]}")
+          print_status("#{peer_msg}#{code[1]}")
         end
       else
-        msg = "#{peer} Check failed: The state could not be determined."
+        msg = "#{peer_msg}Check failed: The state could not be determined."
         print_error(msg)
         elog("#{msg}\n#{caller.join("\n")}")
       end
     rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error => e
       # Connection issues while running check should be handled by the module
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+      print_error("Check failed: #{e.class} #{e}")
+      elog('Check Failed', error: e)
+    rescue ::Msf::Exploit::Failed => e
+      # Handle fail_with and other designated exploit failures
+      print_error("Check failed: #{e.class} #{e}")
+      elog('Check Failed', error: e)
     rescue ::RuntimeError => e
       # Some modules raise RuntimeError but we don't necessarily care about those when we run check()
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
-    rescue Msf::OptionValidateError => e
-      print_error("{peer} - Check failed: #{e.message}")
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+      elog('Check Failed', error: e)
+    rescue ::NotImplementedError => e
+      print_error(e.message)
+      elog('Check Failed', error: e)
     rescue ::Exception => e
       print_error("Check failed: #{e.class} #{e}")
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+      elog('Check Failed', error: e)
     end
-  end
-
-  def cmd_pry_help
-    print_line "Usage: pry"
-    print_line
-    print_line "Open a pry session on the current module.  Be careful, you"
-    print_line "can break things."
-    print_line
-  end
-
-  def cmd_pry(*args)
-    begin
-      require 'pry'
-    rescue LoadError
-      print_error("Failed to load pry, try 'gem install pry'")
-      return
-    end
-    mod.pry
   end
 
   #
   # Reloads the active module
   #
   def cmd_reload(*args)
+    if args.include?('-r') || args.include?('--reload-libs')
+      driver.run_single('reload_lib -a')
+    end
+
+    return cmd_reload_help if args.include?('-h') || args.include?('--help')
+
     begin
       reload
     rescue

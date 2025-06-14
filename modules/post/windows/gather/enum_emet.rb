@@ -1,40 +1,44 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
-require 'rex'
-require 'msf/core/post/common'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Common
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'          => 'Windows Gather EMET Protected Paths',
-      'Description'   => %q( This module will enumerate the EMET protected paths on the target host.),
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'vysec <vincent.yiu[at]mwrinfosecurity.com>' ],
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather EMET Protected Paths',
+        'Description' => %q{ This module will enumerate the EMET protected paths on the target host.},
+        'License' => MSF_LICENSE,
+        'Author' => [ 'vysec <vincent.yiu[at]mwrinfosecurity.com>' ],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
   end
 
-  def print_status(msg='')
+  def print_status(msg = '')
     super("#{peer} - #{msg}")
   end
 
-  def print_good(msg='')
+  def print_good(msg = '')
     super("#{peer} - #{msg}")
   end
 
   def run
-    reg_view = sysinfo['Architecture'] =~ /x64/ ? REGISTRY_VIEW_64_BIT : REGISTRY_VIEW_32_BIT
+    reg_view = sysinfo['Architecture'] == ARCH_X64 ? REGISTRY_VIEW_64_BIT : REGISTRY_VIEW_32_BIT
     reg_vals = registry_enumvals('HKLM\\SOFTWARE\\Microsoft\\EMET\\AppSettings', reg_view)
     if reg_vals.nil?
-      print_status('Failed to enumerate EMET Protected.')
+      print_error('Failed to enumerate EMET Protected.')
     else
       print_status('Found protected processes:')
       reg_vals.each do |path|

@@ -20,6 +20,7 @@ module Msf::DBManager::Report
     tmp_path = opts[:file_path]
     artifact_name = File.basename tmp_path
     new_path = File.join(artifacts_dir, artifact_name)
+    opts = opts.clone() # protect the original caller's opts
     created = opts.delete(:created_at)
     updated = opts.delete(:updated_at)
 
@@ -44,7 +45,7 @@ module Msf::DBManager::Report
 
     unless artifact.valid?
       errors = artifact.errors.full_messages.join('; ')
-      raise RuntimeError "Artifact to be imported is not valid: #{errors}"
+      raise "Artifact to be imported is not valid: #{errors}"
     end
     artifact.save
   end
@@ -55,18 +56,19 @@ module Msf::DBManager::Report
   # @return [Integer] ID of created report
   def report_report(opts)
     return if not active
+    opts = opts.clone() # protect the original caller's opts
     created = opts.delete(:created_at)
     updated = opts.delete(:updated_at)
     state   = opts.delete(:state)
 
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     report = Report.new(opts)
     report.created_at = created
     report.updated_at = updated
 
     unless report.valid?
       errors = report.errors.full_messages.join('; ')
-      raise RuntimeError "Report to be imported is not valid: #{errors}"
+      raise "Report to be imported is not valid: #{errors}"
     end
     report.state = :complete # Presume complete since it was exported
     report.save
@@ -78,8 +80,8 @@ module Msf::DBManager::Report
   #
   # This methods returns a list of all reports in the database
   #
-  def reports(wspace=workspace)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  def reports(wspace=framework.db.workspace)
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace.reports
   }
   end

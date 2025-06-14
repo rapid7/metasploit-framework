@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/mybook_live'
 
@@ -24,12 +23,14 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(80)
-      ], self.class)
+      ])
 
     register_autofilter_ports([ 80 ])
 
     # username is hardcoded into application
-    deregister_options('RHOST', 'USERNAME', 'USER_FILE', 'USER_AS_PASS', 'DB_ALL_USERS')
+    deregister_options(
+      'DB_ALL_CREDS', 'DB_ALL_USERS', 'DB_SKIP_EXISTING',
+      'USERNAME', 'USER_FILE', 'USER_AS_PASS')
   end
 
   def setup
@@ -47,12 +48,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
+    cred_collection = Metasploit::Framework::PrivateCredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],
       pass_file: datastore['PASS_FILE'],
-      password: datastore['PASSWORD'],
-      username: 'admin'
+      password: datastore['PASSWORD']
     )
+    cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::MyBookLive.new(
       configure_http_login_scanner(
@@ -76,10 +77,10 @@ class MetasploitModule < Msf::Auxiliary
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
       else
         invalidate_login(credential_data)
-        vprint_status "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status})"
+        vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status})"
       end
     end
   end

@@ -49,7 +49,7 @@ module Parser
       @state = {}
       @state[:current_tag] = {}
       @block = block if block
-      @report_data = {:wspace => args[:wspace]}
+      @report_data = {:workspace => args[:workspace]}
       @nx_console_id = args[:nx_console_id]
       super()
     end
@@ -92,6 +92,10 @@ module Parser
           else
             "#{ref_type}-#{ref_value}"
           end
+        when "CB"
+          ref_value
+        when "DFN-CERT"
+          ref_value
         else # Handle others?
           "#{ref_type}-#{ref_value}"
         end
@@ -125,8 +129,6 @@ module Parser
       if @args[:blacklist]
         return false if @args[:blacklist].include?(@report_data[:host])
       end
-      return false unless @report_data[:ports]
-      return false if @report_data[:ports].empty?
       return true
     end
 
@@ -139,7 +141,7 @@ module Parser
     # seem to be there just for debugging anyway.
     def db_report(table, data)
       raise "Data should be a hash" unless data.kind_of? Hash
-      nonempty_data = data.reject {|k,v| v.nil?}
+      nonempty_data = data.compact
       valid_attrs = db_valid_attributes(table)
       raise "Unknown table `#{table}'" if valid_attrs.empty?
       case table
@@ -150,6 +152,7 @@ module Parser
       end
       return nil if just_the_facts.empty?
       just_the_facts[:task] = @args[:task]
+      just_the_facts[:workspace] = @args[:workspace] # workspace context is a required `fact`
       db.send("report_#{table}", just_the_facts)
     end
 

@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
@@ -13,22 +11,36 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name'          => 'Multi Manage Set Wallpaper',
-        'Description'   => %q(
+        'Name' => 'Multi Manage Set Wallpaper',
+        'Description' => %q{
           This module will set the desktop wallpaper background on the specified session.
           The method of setting the wallpaper depends on the platform type.
-        ),
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'timwr'],
-        'Platform'      => [ 'win', 'osx', 'linux', 'android' ],
-        'SessionTypes'  => [ 'meterpreter' ]
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'timwr'],
+        'Platform' => [ 'win', 'osx', 'linux', 'android' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              android_*
+              stdapi_railgun_api
+            ]
+          }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [SCREEN_EFFECTS],
+          'Reliability' => []
+        }
       )
     )
 
     register_options(
       [
         OptPath.new('WALLPAPER_FILE', [true, 'The local wallpaper file to set on the remote session'])
-      ], self.class)
+      ]
+    )
   end
 
   def upload_wallpaper(tempdir, file)
@@ -44,7 +56,7 @@ class MetasploitModule < Msf::Post
   # The OS X version uses an AppleScript to do this
   #
   def osx_set_wallpaper(file)
-    remote_file = upload_wallpaper("/tmp/", file)
+    remote_file = upload_wallpaper('/tmp/', file)
     script = %(osascript -e 'tell application "Finder" to set desktop picture to POSIX file "#{remote_file}"')
     begin
       cmd_exec(script)
@@ -58,7 +70,7 @@ class MetasploitModule < Msf::Post
   # The Windows version uses the SystemParametersInfo call
   #
   def win_set_wallpaper(file)
-    remote_file = upload_wallpaper("%TEMP%\\", file)
+    remote_file = upload_wallpaper('%TEMP%\\', file)
     client.railgun.user32.SystemParametersInfoA(0x0014, nil, remote_file, 0x2) != 0
   end
 
@@ -72,11 +84,11 @@ class MetasploitModule < Msf::Post
 
   def os_set_wallpaper(file)
     case session.platform
-    when /osx/
+    when 'osx'
       osx_set_wallpaper(file)
-    when /win/
+    when 'windows'
       win_set_wallpaper(file)
-    when /android/
+    when 'android'
       android_set_wallpaper(file)
     end
   end

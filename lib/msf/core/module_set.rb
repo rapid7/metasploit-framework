@@ -1,12 +1,5 @@
 # -*- coding: binary -*-
-require 'msf/core'
 require 'pathname'
-
-#
-# Define used for a place-holder module that is used to indicate that the
-# module has not yet been demand-loaded. Soon to go away.
-#
-Msf::SymbolicModule = '__SYMBOLIC__'
 
 ###
 #
@@ -18,13 +11,14 @@ class Msf::ModuleSet < Hash
   include Msf::Framework::Offspring
 
   # Wrapper that detects if a symbolic module is in use.  If it is, it creates an instance to demand load the module
-  # and then returns the now-loaded class afterwords.
+  # and then returns the now-loaded class afterwards.
   #
   # @param [String] name the module reference name
-  # @return [Msf::Module] instance of the of the Msf::Module subclass with the given reference name
+  # @return [Msf::Module] Class of the of the Msf::Module with the given reference name
   def [](name)
-    if (super == Msf::SymbolicModule)
-      create(name)
+    module_class = super
+    if module_class.nil?
+      load_module_class(name)
     end
 
     super
@@ -35,22 +29,11 @@ class Msf::ModuleSet < Hash
   # @param reference_name [String] The module reference name.
   # @return [Msf::Module,nil] Instance of the named module or nil if it
   #   could not be created.
-  def create(reference_name)
-    klass = fetch(reference_name, nil)
+  def create(reference_name, cache_type: Msf::ModuleManager::Cache::FILESYSTEM)
+    klass = load_module_class(reference_name, cache_type: cache_type)
     instance = nil
-
-    # If there is no module associated with this class, then try to demand
-    # load it.
-    if klass.nil? or klass == Msf::SymbolicModule
-      framework.modules.load_cached_module(module_type, reference_name)
-
-      recalculate
-
-      klass = fetch(reference_name, nil)
-    end
-
     # If the klass is valid for this reference_name, try to create it
-    unless klass.nil? or klass == Msf::SymbolicModule
+    unless klass.nil?
       instance = klass.new
     end
 
@@ -61,7 +44,7 @@ class Msf::ModuleSet < Hash
       self.delete(reference_name)
     end
 
-    return instance
+    instance
   end
 
   # Overrides the builtin 'each' operator to avoid the following exception on Ruby 1.9.2+
@@ -73,7 +56,7 @@ class Msf::ModuleSet < Hash
   # @return [void]
   def each(&block)
     list = []
-    self.keys.sort.each do |sidx|
+    module_metadata.keys.sort.each do |sidx|
       list << [sidx, self[sidx]]
     end
     list.each(&block)
@@ -86,9 +69,7 @@ class Msf::ModuleSet < Hash
   # @yieldparam (see #each_module_list)
   # @return (see #each_module_list)
   def each_module(opts = {}, &block)
-    demand_load_modules
-
-    self.mod_sorted = self.sort
+    self.mod_sorted = module_metadata.sort
 
     each_module_list(mod_sorted, opts, &block)
   end
@@ -112,8 +93,6 @@ class Msf::ModuleSet < Hash
   # @yieldparam (see #each_module_list)
   # @return (see #each_module_list)
   def each_module_ranked(opts = {}, &block)
-    demand_load_modules
-
     each_module_list(rank_modules, opts, &block)
   end
 
@@ -171,7 +150,6 @@ class Msf::ModuleSet < Hash
   # @return [true] if the module can be {#create created} and cached.
   # @return [false] otherwise
   def valid?(reference_name)
-    create(reference_name)
     (self[reference_name]) ? true : false
   end
 
@@ -196,7 +174,7 @@ class Msf::ModuleSet < Hash
     # don't want to trigger a create, so use fetch
     cached_module = self.fetch(reference_name, nil)
 
-    if (cached_module and cached_module != Msf::SymbolicModule)
+    if cached_module
       ambiguous_module_reference_name_set.add(reference_name)
 
       # TODO this isn't terribly helpful since the refnames will always match, that's why they are ambiguous.
@@ -208,27 +186,11 @@ class Msf::ModuleSet < Hash
     klass
   end
 
-  protected
-
-  # Load all modules that are marked as being symbolic.
-  #
-  # @return [void]
-  def demand_load_modules
-    found_symbolics = false
-    # Pre-scan the module list for any symbolic modules
-    self.each_pair { |name, mod|
-      if (mod == Msf::SymbolicModule)
-        found_symbolics = true
-        mod = create(name)
-        next if (mod.nil?)
-      end
-    }
-
-    # If we found any symbolic modules, then recalculate.
-    if (found_symbolics)
-      recalculate
-    end
+  def module_refnames
+    module_metadata.keys
   end
+
+  protected
 
   # Enumerates the modules in the supplied array with possible limiting factors.
   #
@@ -243,35 +205,35 @@ class Msf::ModuleSet < Hash
   # @yieldparam [Class] module The module class: a subclass of {Msf::Module}.
   # @return [void]
   def each_module_list(ary, opts, &block)
-    ary.each { |entry|
-      name, mod = entry
-
-      # Skip any lingering symbolic modules.
-      next if (mod == Msf::SymbolicModule)
+    ary.each do |entry|
+      name, module_metadata = entry
 
       # Filter out incompatible architectures
       if (opts['Arch'])
-        if (!architectures_by_module[mod])
-          architectures_by_module[mod] = mod.new.arch
+        if (!architectures_by_module[name])
+          architectures_by_module[name] = Array.wrap(module_metadata.arch)
         end
 
-        next if ((architectures_by_module[mod] & opts['Arch']).empty? == true)
+        next if ((architectures_by_module[name] & opts['Arch']).empty? == true)
       end
 
       # Filter out incompatible platforms
       if (opts['Platform'])
-        if (!platforms_by_module[mod])
-          platforms_by_module[mod] = mod.new.platform
+        if (!platforms_by_module[name])
+          platforms_by_module[name] = module_metadata.platform_list
         end
 
-        next if ((platforms_by_module[mod] & opts['Platform']).empty? == true)
+        next if ((platforms_by_module[name] & opts['Platform']).empty? == true)
       end
 
       # Custom filtering
       next if (each_module_filter(opts, name, entry) == true)
 
+      mod = self[name]
+      next if mod.nil?
+
       block.call(name, mod)
-    }
+    end
   end
 
   # @!attribute [rw] ambiguous_module_reference_name_set
@@ -309,33 +271,23 @@ class Msf::ModuleSet < Hash
   # @return [Array<Array<String, Class>>] Array of arrays where the inner array is a pair of the module reference name
   #   and the module class.
   def rank_modules
-    self.sort_by { |pair| module_rank(*pair) }.reverse!
+    module_metadata.sort_by do |refname, metadata|
+      [metadata.rank || Msf::NormalRanking, refname]
+    end.reverse!
   end
 
-  # Retrieves the rank from a loaded, not-yet-loaded, or unloadable Metasploit Module.
-  #
-  # @param reference_name [String] The reference name of the Metasploit Module
-  # @param metasploit_module_class [Class<Msf::Module>, Msf::SymbolicModule] The loaded `Class` for the Metasploit
-  #   Module, or {Msf::SymbolicModule} if the Metasploit Module is not loaded yet.
-  # @return [Integer] an `Msf::*Ranking`.  `Msf::ManualRanking` if `metasploit_module_class` is `nil` or
-  #   {Msf::SymbolicModule} and it could not be loaded by {#create}.  Otherwise, the `Rank` constant of the
-  #   `metasploit_module_class` or {Msf::NormalRanking} if `metasploit_module_class` does not define `Rank`.
-  def module_rank(reference_name, metasploit_module_class)
-    if metasploit_module_class.nil?
-      Msf::ManualRanking
-    elsif metasploit_module_class == Msf::SymbolicModule
-      # TODO don't create an instance just to get the Class.
-      created_metasploit_module_instance = create(reference_name)
+  def module_metadata
+    Msf::Modules::Metadata::Cache.instance.module_metadata(module_type)
+  end
 
-      if created_metasploit_module_instance.nil?
-        module_rank(reference_name, nil)
-      else
-        module_rank(reference_name, created_metasploit_module_instance.class)
-      end
-    elsif metasploit_module_class.const_defined? :Rank
-      metasploit_module_class.const_get :Rank
-    else
-      Msf::NormalRanking
+  def load_module_class(reference_name, cache_type: Msf::ModuleManager::Cache::FILESYSTEM)
+    klass = fetch(reference_name, nil)
+
+    # If there is no module associated with this class, then try to demand load it.
+    if klass.nil?
+      framework.modules.load_cached_module(module_type, reference_name, cache_type: cache_type)
+      klass = fetch(reference_name, nil)
     end
+    klass
   end
 end

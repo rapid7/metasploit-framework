@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/symantec_web_gateway'
 require 'metasploit/framework/credential_collection'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Report
@@ -33,20 +31,15 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('USERNAME', [false, 'The username to specify for authentication', '']),
         OptString.new('PASSWORD', [false, 'The password to specify for authentication', ''])
-      ], self.class)
+      ])
   end
 
 
   def scanner(ip)
     @scanner ||= lambda {
-      cred_collection = Metasploit::Framework::CredentialCollection.new(
-        blank_passwords: datastore['BLANK_PASSWORDS'],
-        pass_file:       datastore['PASS_FILE'],
-        password:        datastore['PASSWORD'],
-        user_file:       datastore['USER_FILE'],
-        userpass_file:   datastore['USERPASS_FILE'],
-        username:        datastore['USERNAME'],
-        user_as_pass:    datastore['USER_AS_PASS']
+      cred_collection = build_credential_collection(
+        username: datastore['USERNAME'],
+        password: datastore['PASSWORD']
       )
 
       return Metasploit::Framework::LoginScanner::SymantecWebGateway.new(
@@ -134,5 +127,4 @@ class MetasploitModule < Msf::Auxiliary
 
     bruteforce(ip)
   end
-
 end

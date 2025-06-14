@@ -189,15 +189,17 @@ module Anemone
       url.port.to_i,
       context,
       url.scheme == "https",
-      'SSLv23',
+      @opts[:ssl_version],
       @opts[:proxies],
-                    @opts[:username],
-                    @opts[:password]
+      @opts[:username],
+      @opts[:password],
+      subscriber: @opts[:http_subscriber]
     )
 
     conn.set_config(
       'vhost'      => virtual_host(url),
       'agent'      => user_agent,
+      'ssl_server_name_indication' => @opts[:ssl_server_name_indication],
       'domain'     => @opts[:domain]
     )
 

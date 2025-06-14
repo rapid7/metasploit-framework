@@ -8,20 +8,18 @@ module Rex
         # as pre authenticated data
         class PreAuthEncTimeStamp < Element
 
-          CRYPTO_MSG_TYPE = 1
-
           # @!attribute pa_time_stamp
           #   @return [Time] client's time
           attr_accessor :pa_time_stamp
           # @!attribute pausec
-          #   @return [Fixnum] optional microseconds client's time
+          #   @return [Integer] optional microseconds client's time
           attr_accessor :pausec
 
           # Decodes a Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
           # @return [self] if decoding succeeds
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode(input)
             case input
             when String
@@ -29,7 +27,7 @@ module Rex
             when OpenSSL::ASN1::Sequence
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode PreAuthEncTimeStamp, invalid input'
+              raise Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode PreAuthEncTimeStamp, invalid input'
             end
 
             self
@@ -49,22 +47,14 @@ module Rex
 
           # Encrypts the Rex::Proto::Kerberos::Model::PreAuthEncTimeStamp
           #
-          # @param etype [Fixnum] the crypto schema to encrypt
+          # @param etype [Integer] the crypto schema to encrypt
           # @param key [String] the key to encrypt
           # @return [String] the encrypted result
           # @raise [NotImplementedError] if encryption schema isn't supported
           def encrypt(etype, key)
             data = self.encode
-
-            res = ''
-            case etype
-            when RC4_HMAC
-              res = encrypt_rc4_hmac(data, key, CRYPTO_MSG_TYPE)
-            else
-              raise ::NotImplementedError, 'EncryptedData schema is not supported'
-            end
-
-            res
+            encryptor = Rex::Proto::Kerberos::Crypto::Encryption::from_etype(etype)
+            encryptor.encrypt(data, key, Rex::Proto::Kerberos::Crypto::KeyUsage::AS_REQ_PA_ENC_TIMESTAMP)
           end
 
           private
@@ -115,7 +105,7 @@ module Rex
           # Decodes the pausec from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_pausec(input)
             input.value[0].value.to_i
           end

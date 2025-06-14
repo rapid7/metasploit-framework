@@ -8,7 +8,7 @@ module Rex
         class LastRequest < Element
 
           # @!attribute type
-          #   @return [Fixnum] The type of value
+          #   @return [Integer] The type of value
           attr_accessor :type
           # @!attribute value
           #   @return [Time] the time of the last request
@@ -18,7 +18,7 @@ module Rex
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
           # @return [self] if decoding succeeds
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode(input)
             case input
             when String
@@ -26,7 +26,7 @@ module Rex
             when OpenSSL::ASN1::Sequence
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode LastRequest, invalid input'
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode LastRequest, invalid input'
             end
 
             self
@@ -63,7 +63,7 @@ module Rex
           # Decodes the key_type from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_type(input)
             input.value[0].value.to_i
           end

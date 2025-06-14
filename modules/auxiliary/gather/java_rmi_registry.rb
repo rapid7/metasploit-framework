@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rex/java/serialization'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::Java::Rmi::Client
 
@@ -23,14 +21,14 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          ['URL', 'http://docs.oracle.com/javase/8/docs/platform/rmi/spec/rmiTOC.html']
+          ['URL', 'https://docs.oracle.com/javase/8/docs/platform/rmi/spec/rmiTOC.html']
         ]
     )
 
     register_options(
       [
         Opt::RPORT(1099)
-      ], self.class)
+      ])
   end
 
   def run

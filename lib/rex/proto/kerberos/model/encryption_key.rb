@@ -9,17 +9,22 @@ module Rex
         class EncryptionKey < Element
 
           # @!attribute key
-          #   @return [Fixnum] The type of encryption key
+          #   @return [Integer] The type of encryption key
           attr_accessor :type
           # @!attribute value
           #   @return [String] the key itself
           attr_accessor :value
 
+          def ==(other)
+            type == other.type &&
+              value == other.value
+          end
+
           # Decodes a Rex::Proto::Kerberos::Model::EncryptionKey
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
           # @return [self] if decoding succeeds
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode(input)
             case input
             when String
@@ -27,7 +32,7 @@ module Rex
             when OpenSSL::ASN1::Sequence
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode EncryptionKey, invalid input'
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode EncryptionKey, invalid input'
             end
 
             self
@@ -70,7 +75,7 @@ module Rex
           # Decodes the type from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_type(input)
             input.value[0].value.to_i
           end

@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'msf/core/handler/reverse_http'
 
 RSpec.describe Msf::Handler::ReverseHttp do
 
@@ -17,7 +16,7 @@ RSpec.describe Msf::Handler::ReverseHttp do
   end
 
   let(:datastore) do
-    Hash.new
+    {'LHOST' => '127.0.0.1'}
   end
 
   describe '#payload_uri' do

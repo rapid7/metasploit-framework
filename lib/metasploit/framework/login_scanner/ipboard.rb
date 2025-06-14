@@ -17,11 +17,6 @@ module Metasploit
 
         # (see Base#attempt_login)
         def attempt_login(credential)
-          http_client = Rex::Proto::Http::Client.new(
-              host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies, self.http_username, self.http_password
-          )
-          configure_http_client(http_client)
-
           result_opts = {
               credential: credential,
               host: host,
@@ -35,14 +30,11 @@ module Metasploit
           end
 
           begin
-            http_client.connect
 
-            nonce_request = http_client.request_cgi(
+            nonce_response = send_request({
                 'uri' => uri,
                 'method'  => 'GET'
-            )
-
-            nonce_response = http_client.send_recv(nonce_request)
+            })
 
             if nonce_response.body =~ /name='auth_key'\s+value='.*?((?:[a-z0-9]*))'/i
               server_nonce = $1
@@ -55,7 +47,7 @@ module Metasploit
 
               auth_uri = "#{base_uri}/index.php"
 
-              request = http_client.request_cgi(
+              response = send_request({
                 'uri' => auth_uri,
                 'method'  => 'POST',
                 'vars_get' => {
@@ -69,9 +61,7 @@ module Metasploit
                   'ips_username' => credential.public,
                   'ips_password' => credential.private
                 }
-              )
-
-              response = http_client.send_recv(request)
+              })
 
               if response && response.get_cookies.include?('ipsconnect') && response.get_cookies.include?('coppa')
                 result_opts.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: response)

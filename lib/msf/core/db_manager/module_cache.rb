@@ -23,16 +23,12 @@ module Msf::DBManager::ModuleCache
   # +'ILIKE'+
   #
   # @param values [Set<String>, #each] a list of strings.
-  # @return [Arrray<String>] strings wrapped like %<string>%
+  # @return [Array<String>] strings wrapped like %<string>%
   def match_values(values)
-    wrapped_values = values.collect { |value|
-      "%#{value}%"
-    }
-
-    wrapped_values
+    values.collect { |value| "%#{value}%" }
   end
 
-  def module_to_details_hash(m)
+  def module_to_details_hash(m, with_mixins: true)
     res  = {}
     bits = []
 
@@ -96,8 +92,10 @@ module Msf::DBManager::ModuleCache
       res[:stance] = m.stance.to_s.index("aggressive") ? "aggressive" : "passive"
 
 
-      m.class.mixins.each do |x|
-         bits << [ :mixin, { :name => x.to_s } ]
+      if with_mixins
+        m.class.mixins.each do |x|
+           bits << [ :mixin, { :name => x.to_s } ]
+        end
       end
     end
 
@@ -126,10 +124,10 @@ module Msf::DBManager::ModuleCache
   #
   # @return [void]
   def purge_all_module_details
-    return if not self.migrated
+    return unless self.migrated
     return if self.modules_caching
 
-    ::ActiveRecord::Base.connection_pool.with_connection do
+    ::ApplicationRecord.connection_pool.with_connection do
       Mdm::Module::Detail.destroy_all
     end
   end
@@ -143,7 +141,7 @@ module Msf::DBManager::ModuleCache
   def remove_module_details(mtype, refname)
     return if not self.migrated
 
-    ActiveRecord::Base.connection_pool.with_connection do
+    ApplicationRecord.connection_pool.with_connection do
       Mdm::Module::Detail.where(:mtype => mtype, :refname => refname).destroy_all
     end
   end
@@ -151,14 +149,12 @@ module Msf::DBManager::ModuleCache
   # This provides a standard set of search filters for every module.
   #
   # Supported keywords with the format <keyword>:<search_value>:
-  # +app+:: If +client+ then matches +'passive'+ stance modules, otherwise matches +'active' stance modules.
   # +author+:: Matches modules with the given author email or name.
   # +bid+:: Matches modules with the given Bugtraq ID.
   # +cve+:: Matches modules with the given CVE ID.
   # +edb+:: Matches modules with the given Exploit-DB ID.
   # +name+:: Matches modules with the given full name or name.
   # +os+, +platform+:: Matches modules with the given platform or target name.
-  # +osvdb+:: Matches modules with the given OSVDB ID.
   # +ref+:: Matches modules with the given reference ID.
   # +type+:: Matches modules with the given type.
   #
@@ -201,102 +197,54 @@ module Msf::DBManager::ModuleCache
       end
     end
 
-    query = Mdm::Module::Detail.all
+    ApplicationRecord.connection_pool.with_connection do
+      @query = Mdm::Module::Detail.all
 
-    ActiveRecord::Base.connection_pool.with_connection do
-      # Although AREL supports taking the union or two queries, the ActiveRecord where syntax only supports
-      # intersection, so creating the where clause has to be delayed until all conditions can be or'd together and
-      # passed to one call ot where.
-      union_conditions = []
+      @archs    = Set.new
+      @authors  = Set.new
+      @names    = Set.new
+      @os       = Set.new
+      @refs     = Set.new
+      @text     = Set.new
+      @types    = Set.new
 
       value_set_by_keyword.each do |keyword, value_set|
+        formatted_values = match_values(value_set)
+
         case keyword
+          when 'arch'
+            @archs << formatted_values
           when 'author'
-            formatted_values = match_values(value_set)
-
-            query = query.includes(:authors).references(:authors)
-            module_authors = Mdm::Module::Author.arel_table
-            union_conditions << module_authors[:email].matches_any(formatted_values)
-            union_conditions << module_authors[:name].matches_any(formatted_values)
+            @authors << formatted_values
           when 'name'
-            formatted_values = match_values(value_set)
-
-            module_details = Mdm::Module::Detail.arel_table
-            union_conditions << module_details[:fullname].matches_any(formatted_values)
-            union_conditions << module_details[:name].matches_any(formatted_values)
+            @names << formatted_values
           when 'os', 'platform'
-            formatted_values = match_values(value_set)
-
-            query = query.includes(:platforms).references(:platforms)
-            union_conditions << Mdm::Module::Platform.arel_table[:name].matches_any(formatted_values)
-
-            query = query.includes(:targets).references(:targets)
-            union_conditions << Mdm::Module::Target.arel_table[:name].matches_any(formatted_values)
-          when 'text'
-            formatted_values = match_values(value_set)
-
-            module_details = Mdm::Module::Detail.arel_table
-            union_conditions << module_details[:description].matches_any(formatted_values)
-            union_conditions << module_details[:fullname].matches_any(formatted_values)
-            union_conditions << module_details[:name].matches_any(formatted_values)
-
-            query = query.includes(:actions).references(:actions)
-            union_conditions << Mdm::Module::Action.arel_table[:name].matches_any(formatted_values)
-
-            query = query.includes(:archs).references(:archs)
-            union_conditions << Mdm::Module::Arch.arel_table[:name].matches_any(formatted_values)
-
-            query = query.includes(:authors).references(:authors)
-            union_conditions << Mdm::Module::Author.arel_table[:name].matches_any(formatted_values)
-
-            query = query.includes(:platforms).references(:platforms)
-            union_conditions << Mdm::Module::Platform.arel_table[:name].matches_any(formatted_values)
-
-            query = query.includes(:refs).references(:refs)
-            union_conditions << Mdm::Module::Ref.arel_table[:name].matches_any(formatted_values)
-
-            query = query.includes(:targets).references(:targets)
-            union_conditions << Mdm::Module::Target.arel_table[:name].matches_any(formatted_values)
-          when 'type'
-            formatted_values = match_values(value_set)
-            union_conditions << Mdm::Module::Detail.arel_table[:mtype].matches_any(formatted_values)
-          when 'app'
-            formatted_values = value_set.collect { |value|
-              formatted_value = 'aggressive'
-
-              if value == 'client'
-                formatted_value = 'passive'
-              end
-
-              formatted_value
-            }
-
-            union_conditions << Mdm::Module::Detail.arel_table[:stance].eq_any(formatted_values)
+            @os << formatted_values
           when 'ref'
-            formatted_values = match_values(value_set)
-
-            query = query.includes(:refs).references(:refs)
-            union_conditions << Mdm::Module::Ref.arel_table[:name].matches_any(formatted_values)
-          when 'cve', 'bid', 'osvdb', 'edb'
+            @refs << formatted_values
+          when 'cve', 'bid', 'edb'
             formatted_values = value_set.collect { |value|
               prefix = keyword.upcase
-
               "#{prefix}-%#{value}%"
             }
-
-            query = query.includes(:refs).references(:refs)
-            union_conditions << Mdm::Module::Ref.arel_table[:name].matches_any(formatted_values)
+            @refs << formatted_values
+          when 'text'
+            @text << formatted_values
+          when 'type'
+            @types << formatted_values
         end
       end
-
-      unioned_conditions = union_conditions.inject { |union, condition|
-        union.or(condition)
-      }
-
-      query = query.where(unioned_conditions).to_a.uniq { |m| m.fullname }
     end
 
-    query
+    @query = @query.module_arch(            @archs.to_a.flatten   ) if @archs.any?
+    @query = @query.module_author(          @authors.to_a.flatten ) if @authors.any?
+    @query = @query.module_name(            @names.to_a.flatten   ) if @names.any?
+    @query = @query.module_os_or_platform(  @os.to_a.flatten      ) if @os.any?
+    @query = @query.module_text(            @text.to_a.flatten    ) if @text.any?
+    @query = @query.module_type(            @types.to_a.flatten   ) if @types.any?
+    @query = @query.module_ref(             @refs.to_a.flatten    ) if @refs.any?
+
+    @query.uniq
   end
 
   # Destroys the old Mdm::Module::Detail and creates a new Mdm::Module::Detail for
@@ -315,7 +263,7 @@ module Msf::DBManager::ModuleCache
     self.modules_cached  = false
     self.modules_caching = true
 
-    ActiveRecord::Base.connection_pool.with_connection do
+    ApplicationRecord.connection_pool.with_connection do
 
       refresh = []
       skip_reference_name_set_by_module_type = Hash.new { |hash, module_type|
@@ -323,7 +271,6 @@ module Msf::DBManager::ModuleCache
       }
 
       Mdm::Module::Detail.find_each do |md|
-
         unless md.ready
           refresh << md
           next
@@ -345,6 +292,7 @@ module Msf::DBManager::ModuleCache
 
       refresh.each { |md| md.destroy }
 
+      new_modules = []
       [
           ['exploit', framework.exploits],
           ['auxiliary', framework.auxiliary],
@@ -359,13 +307,11 @@ module Msf::DBManager::ModuleCache
           next if skip_reference_name_set.include? mn
           obj = mt[1].create(mn)
           next if not obj
-          begin
-            update_module_details(obj)
-          rescue ::Exception
-            elog("Error updating module details for #{obj.fullname}: #{$!.class} #{$!}")
-          end
+          new_modules <<= obj
         end
       end
+
+      insert_all(new_modules)
 
       self.framework.cache_initialized = true
     end
@@ -385,8 +331,8 @@ module Msf::DBManager::ModuleCache
   def update_module_details(module_instance)
     return if not self.migrated
 
-    ActiveRecord::Base.connection_pool.with_connection do
-      info = module_to_details_hash(module_instance)
+    ApplicationRecord.connection_pool.with_connection do
+      info = module_to_details_hash(module_instance, with_mixins: false)
       bits = info.delete(:bits) || []
       module_detail = Mdm::Module::Detail.create!(info)
 
@@ -412,5 +358,66 @@ module Msf::DBManager::ModuleCache
       module_detail.ready = true
       module_detail.save!
     end
+  end
+
+  private
+
+  # Insert the Msf::Module array into the Mdm::Module::Detail database class
+  #
+  # @param [Array<Msf::Module>] modules
+  def insert_all(modules)
+    module_hashes = modules.filter_map do |mod|
+      begin
+        hash = module_to_details_hash(mod, with_mixins: false)
+        # The insert_all API requires all hashes to have the same keys present, so explicitly set these potentially missing keys
+        hash[:disclosure_date] ||= nil
+        hash[:default_target] ||= nil
+        hash[:default_action] ||= nil
+        hash[:stance] ||= nil
+        hash
+      rescue ::Exception => e
+        elog("Error updating module details for #{mod.fullname}", error: e)
+        nil
+      end
+    end
+    return if module_hashes.empty?
+
+    # 1) Bulk insert the module detail entries
+    module_details = module_hashes.map { |mod_hash| mod_hash.except(:bits) }
+    module_detail_ids = Mdm::Module::Detail.insert_all!(module_details, returning: %w[id]).map { |returning| returning['id'] }
+
+    # 2) Build the hashes for the associations
+    associations = module_hashes.zip(module_detail_ids).each_with_object(Hash.new { |hash, key| hash[key] = [] }) do |(module_hash, detail_id), acc|
+      module_hash[:bits].each do |args|
+        otype, vals = args
+
+        case otype
+        when :action
+          acc[Mdm::Module::Action] << { detail_id: detail_id, name: vals[:name] }
+        when :arch
+          acc[Mdm::Module::Arch] << { detail_id: detail_id, name: vals[:name] }
+        when :author
+          acc[Mdm::Module::Author] << { detail_id: detail_id, name: vals[:name], email: vals[:email] }
+        when :platform
+          acc[Mdm::Module::Platform] << { detail_id: detail_id, name: vals[:name] }
+        when :ref
+          acc[Mdm::Module::Ref] << { detail_id: detail_id, name: vals[:name] }
+        when :target
+          acc[Mdm::Module::Target] << { detail_id: detail_id, index: vals[:index], name: vals[:name] }
+        end
+      end
+    end
+
+    # 3) Insert the child associations
+    associations.each do |association_clazz, entries|
+      next if entries.empty?
+
+      association_clazz.insert_all!(entries)
+    end
+
+    # 4) Mark the parent models as ready - to avoid repopulating the cache again
+    Mdm::Module::Detail.where(id: module_detail_ids).update_all(ready: true)
+
+    nil
   end
 end

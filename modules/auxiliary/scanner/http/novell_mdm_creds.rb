@@ -1,19 +1,16 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
   def initialize
     super(
-      'Name' => 'Novell Zenworks Mobile Device Managment Admin Credentials',
+      'Name' => 'Novell Zenworks Mobile Device Management Admin Credentials',
       'Description' => %q{
         This module attempts to pull the administrator credentials from
         a vulnerable Novell Zenworks MDM server.
@@ -27,18 +24,18 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2013-1081'],
           ['OSVDB', '91119'],
-          ['URL', 'http://www.novell.com/support/kb/doc.php?id=7011895']
+          ['URL', 'https://support.microfocus.com/kb/doc.php?id=7011895']
         ],
       'License' => MSF_LICENSE
     )
 
     register_options([
       OptString.new('TARGETURI', [true, 'Path to the Novell Zenworks MDM install', '/'])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptBool.new('SSL', [true, "Negotiate SSL connection", false])
-    ], self.class)
+    ])
   end
 
   def setup_session()
@@ -135,5 +132,4 @@ class MetasploitModule < Msf::Auxiliary
       return if(e.to_s.match(/^SSL_connect /) ) # strange errors / exception if SSL connection aborted
     end
   end
-
 end

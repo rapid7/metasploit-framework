@@ -6,9 +6,7 @@ gemspec name: 'metasploit-framework'
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
-  # any version newer than 0.5.4 gives an Encoding error when trying to read the source files.
-  # see: https://github.com/colszowka/simplecov/issues/127 (hopefully fixed in 0.8.0)
-  gem 'simplecov'
+  gem 'simplecov', '0.18.2'
 end
 
 group :development do
@@ -17,30 +15,41 @@ group :development do
   # generating documentation
   gem 'yard'
   # for development and testing purposes
-  gem 'pry'
+  gem 'pry-byebug'
+  # Ruby Debugging Library - rebuilt and included by default from Ruby 3.1 onwards.
+  # Replaces the old lib/debug.rb and provides more features.
+  gem 'debug', '>= 1.0.0'
   # module documentation
-  gem 'octokit', '~> 4.0'
-  # rails-upgrade staging gems
+  gem 'octokit'
+  # memory profiling
+  gem 'memory_profiler'
+  # cpu profiling
+  gem 'ruby-prof'
+  # Metasploit::Aggregator external session proxy
+  # disabled during 2.5 transition until aggregator is available
+  # gem 'metasploit-aggregator'
 end
 
 group :development, :test do
-  # automatically include factories from spec/factories
-  gem 'factory_girl_rails'
-  # Make rspec output shorter and more useful
-  gem 'fivemat'
   # running documentation generation tasks and rspec tasks
   gem 'rake'
   # Define `rake spec`.  Must be in development AND test so that its available by default as a rake test when the
   # environment is development
   gem 'rspec-rails'
+  gem 'rspec-rerun'
+  # Required during CI as well local development
+  gem 'rubocop', '1.75.7'
 end
 
 group :test do
-  # cucumber extension for testing command line applications, like msfconsole
-  gem 'aruba'
-  # cucumber + automatic database cleaning with database_cleaner
-  gem 'cucumber-rails', :require => false
-  gem 'shoulda-matchers'
+  # automatically include factories from spec/factories
+  gem 'test-prof'
+  gem 'factory_bot_rails'
+  # Make rspec output shorter and more useful
+  gem 'fivemat'
+  # rspec formatter for acceptance tests
+  gem 'allure-rspec'
   # Manipulate Time.now in specs
   gem 'timecop'
 end
+

@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Udp
 
   def initialize(info = {})
@@ -18,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
         This module attempts to query Citrix Metaframe ICA server to obtain
         a published list of applications.
       },
-      'Author'         => [ 'patrick' ],
+      'Author'         => [ 'aushack' ],
       'References'     =>
         [
           [ 'URL', 'http://www.securiteam.com/exploits/5CP0B1F80S.html' ],
@@ -28,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(1604),
-      ], self.class)
+      ])
   end
 
   def autofilter
@@ -75,5 +70,4 @@ class MetasploitModule < Msf::Auxiliary
 
     disconnect_udp
   end
-
 end

@@ -1,7 +1,6 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-require 'rex/proto/http/client_request'
 
 
 RSpec.shared_context "with no evasions" do
@@ -194,7 +193,7 @@ RSpec.describe Rex::Proto::Http::ClientRequest do
 
   subject(:client_request) { Rex::Proto::Http::ClientRequest.new(default_options) }
 
-  context "with GET paramaters" do
+  context "with GET parameters" do
     subject(:client_request) {
       options_with_params = default_options.merge({
         'uri_encode_mode' => encode_mode,

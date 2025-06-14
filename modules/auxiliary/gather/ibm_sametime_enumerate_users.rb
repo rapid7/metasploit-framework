@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'enumerable'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -34,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
           'SSL' => true
         },
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Dec 27 2013'
+      'DisclosureDate' => '2013-12-27'
     ))
 
     register_options(
@@ -45,16 +42,16 @@ class MetasploitModule < Msf::Auxiliary
         OptEnum.new('TYPE', [true, 'Specify UID or EMAIL', 'UID', ['UID', 'EMAIL'] ]),
         OptPath.new('DICT', [ false,  'Path to dictionary file to use', '']),
         OptInt.new('MAXDEPTH', [ true,  'Maximum depth to check during bruteforce', 2])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptString.new('SpecialChars', [false, 'Specify special chars (e.g. -_+!@&$/\?)', '' ]),
         OptString.new('PREFIX', [ false,  'Defines set prefix for each guess (e.g. user)', '']),
-        OptString.new('SUFFIX', [ false,  'Defines set post for each quess (e.g. _adm)', '']),
+        OptString.new('SUFFIX', [ false,  'Defines set post for each guess (e.g. _adm)', '']),
         OptInt.new('TIMING', [ true,  'Set pause between requests', 0]),
         OptInt.new('Threads', [ true,  'Number of test threads', 10])
-      ], self.class)
+      ])
   end
 
   def setup
@@ -107,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     print_status("Testing for IBM Lotus Notes Sametime User Enumeration flaw")
 
-    # test for expected response code on non-existant uid/email
+    # test for expected response code on non-existent uid/email
     if datastore['TYPE'] == "UID"
       random_val = Rex::Text.rand_text_alpha(32)
     else
@@ -135,7 +132,7 @@ class MetasploitModule < Msf::Auxiliary
         # valid JSON response - valid response for check
         print_good("Response received, continuing to enumeration phase")
       end
-    rescue JSON::ParserError,
+    rescue JSON::ParserError
       print_error("Error parsing JSON: Invalid response from server")
       return
     end
@@ -143,7 +140,7 @@ class MetasploitModule < Msf::Auxiliary
     # start test handler
     test_handler
 
-    # ouput results
+    # output results
     output_results
   end
 
@@ -275,7 +272,7 @@ class MetasploitModule < Msf::Auxiliary
       :proto  => 'tcp',
       :sname  => 'sametime',
       :type   => 'ibm_lotus_sametime_user',
-      :data   => "#{username}",
+      :data   => { :username => username },
       :update => :unique_data
     )
   end
@@ -307,5 +304,4 @@ class MetasploitModule < Msf::Auxiliary
       print_error("No users discovered")
     end
   end
-
 end

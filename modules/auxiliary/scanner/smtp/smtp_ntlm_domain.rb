@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Smtp
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -15,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name'        => 'SMTP NTLM Domain Extraction',
       'Description' => 'Extract the Windows domain name from an SMTP NTLM challenge.',
-      'References'  => [ ['URL', 'http://msdn.microsoft.com/en-us/library/cc246870.aspx' ] ],
+      'References'  => [ ['URL', 'https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-smtpntlm/a048c79f-7597-401b-bcb4-521d682de765' ] ],
       'Author'      => [ 'Rich Whitcroft <rwhitcroft[at]digitalboundary.net>' ],
       'License'     => MSF_LICENSE
     )
@@ -24,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(25),
         OptString.new('EHLO_DOMAIN', [ true, 'The domain to send with the EHLO command', 'localhost' ]),
-      ], self.class)
+      ])
 
     deregister_options('MAILTO', 'MAILFROM')
   end
@@ -122,5 +119,4 @@ class MetasploitModule < Msf::Auxiliary
       disconnect
     end
   end
-
 end

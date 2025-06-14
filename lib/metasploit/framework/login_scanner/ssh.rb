@@ -1,5 +1,6 @@
 require 'net/ssh'
 require 'metasploit/framework/login_scanner/base'
+require 'metasploit/framework/ssh/platform'
 require 'rex/socket/ssh_factory'
 
 module Metasploit
@@ -12,7 +13,7 @@ module Metasploit
       #
       class SSH
         include Metasploit::Framework::LoginScanner::Base
-
+        include Msf::Exploit::Remote::SSH
         #
         # CONSTANTS
         #
@@ -39,6 +40,9 @@ module Metasploit
         #
         #   @return [Symbol] An element of {VERBOSITIES}.
         attr_accessor :verbosity
+        # @!attribute skip_gather_proof
+        #   @return [Boolean] Whether to skip calling gather_proof
+        attr_accessor :skip_gather_proof
 
         validates :verbosity,
           presence: true,
@@ -48,15 +52,10 @@ module Metasploit
         # @note The caller *must* close {#ssh_socket}
         def attempt_login(credential)
           self.ssh_socket = nil
-          factory = Rex::Socket::SSHFactory.new(framework,framework_module, proxies)
-          opt_hash = {
+          opt_hash = ssh_client_defaults.merge({
             :port            => port,
-            :use_agent       => false,
-            :config          => false,
-            :verbose         => verbosity,
-            :proxy           => factory,
-            :non_interactive => true
-          }
+            :verbose         => verbosity
+          })
           case credential.private_type
           when :password, nil
             opt_hash.update(
@@ -81,15 +80,23 @@ module Metasploit
                 opt_hash
               )
             end
-          rescue OpenSSL::Cipher::CipherError, ::EOFError, Net::SSH::Disconnect, Rex::ConnectionError, ::Timeout::Error => e
+          rescue OpenSSL::Cipher::CipherError, ::EOFError, Net::SSH::Disconnect, Rex::ConnectionError, ::Timeout::Error, Errno::ECONNRESET, Errno::EPIPE => e
             result_options.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
-          rescue Net::SSH::Exception
-            result_options.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: e)
+          rescue Net::SSH::Exception => e
+            status = Metasploit::Model::Login::Status::INCORRECT
+            status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT if e.message.split("\n").first == 'could not settle on kex algorithm'
+
+            result_options.merge!(status: status, proof: e)
           end
 
           unless result_options.has_key? :status
             if ssh_socket
-              proof = gather_proof
+              begin
+                proof = gather_proof unless skip_gather_proof
+              rescue StandardError => e
+                elog('Failed to gather SSH proof', error: e)
+                proof = nil
+              end
               result_options.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: proof)
             else
               result_options.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: nil)
@@ -106,27 +113,10 @@ module Metasploit
 
         private
 
-        # This method attempts to gather proof that we successfuly logged in.
+        # This method attempts to gather proof that we successfully logged in.
         # @return [String] The proof of a connection, May be empty.
         def gather_proof
-          proof = ''
-          begin
-            Timeout.timeout(5) do
-              proof = ssh_socket.exec!("id\n").to_s
-              if(proof =~ /id=/)
-                proof << ssh_socket.exec!("uname -a\n").to_s
-              else
-                # Cisco IOS
-                if proof =~ /Unknown command or computer name/
-                  proof = ssh_socket.exec!("ver\n").to_s
-                else
-                  proof << ssh_socket.exec!("help\n?\n\n\n").to_s
-                end
-              end
-            end
-          rescue ::Exception
-          end
-          proof
+          Metasploit::Framework::Ssh::Platform.get_platform_info(ssh_socket)
         end
 
         def set_sane_defaults
@@ -135,8 +125,12 @@ module Metasploit
           self.verbosity = :fatal if self.verbosity.nil?
         end
 
-      end
+        public
 
+        def get_platform(proof)
+          Metasploit::Framework::Ssh::Platform.get_platform_from_info(proof)
+        end
+      end
     end
   end
 end

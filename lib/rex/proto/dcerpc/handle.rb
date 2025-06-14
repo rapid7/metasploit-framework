@@ -4,7 +4,6 @@ module Proto
 module DCERPC
 class Handle
 
-  require 'rex/proto/dcerpc/uuid'
 
   @@protocols = ['ncacn_ip_tcp', 'ncacn_ip_udp', 'ncacn_np', 'ncacn_http']
   attr_accessor :uuid, :protocol, :address, :options
@@ -25,7 +24,7 @@ class Handle
     uuid_re = '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}'
     rev_re = '\d+.\d+'
     proto_re = '(?:' + @@protocols.join('|') + ')'
-    re = Regexp.new("(#{uuid_re}):(#{rev_re})\@(#{proto_re}):(.*?)\\[(.*)\\]$", true, 'n')
+    re = Regexp.new("(#{uuid_re}):(#{rev_re})\@(#{proto_re}):(.*?)\\[(.*)\\]$", Regexp::IGNORECASE | Regexp::NOENCODING)
     match = re.match(handle)
     raise ArgumentError if !match
 

@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
-require 'rex/service_manager'
+require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 
 module Rex
 module Post
@@ -17,6 +17,7 @@ class Console::CommandDispatcher::Stdapi::Net
   Klass = Console::CommandDispatcher::Stdapi::Net
 
   include Console::CommandDispatcher
+  include Rex::Post::Meterpreter::Extensions::Stdapi
 
   #
   # This module is used to extend the meterpreter session
@@ -58,7 +59,7 @@ class Console::CommandDispatcher::Stdapi::Net
     '-r' => [true,  'Forward: remote host to connect to.'],
     '-p' => [true,  'Forward: remote port to connect to. Reverse: remote port to listen on.'],
     '-R' => [false, 'Indicates a reverse port forward.'],
-    '-L' => [true,  'Forward: local host to listen on (optional). Remote: local host to connect to.'])
+    '-L' => [true,  'Forward: local host to listen on (optional). Reverse: local host to connect to.'])
 
   #
   # Options for the netstat command.
@@ -90,36 +91,25 @@ class Console::CommandDispatcher::Stdapi::Net
     }
 
     reqs = {
-      'ipconfig' => ['stdapi_net_config_get_interfaces'],
-      'ifconfig' => ['stdapi_net_config_get_interfaces'],
+      'ipconfig' => [COMMAND_ID_STDAPI_NET_CONFIG_GET_INTERFACES],
+      'ifconfig' => [COMMAND_ID_STDAPI_NET_CONFIG_GET_INTERFACES],
       'route'    => [
         # Also uses these, but we don't want to be unable to list them
         # just because we can't alter them.
-        #'stdapi_net_config_add_route',
-        #'stdapi_net_config_remove_route',
-        'stdapi_net_config_get_routes'
+        #COMMAND_ID_STDAPI_NET_CONFIG_ADD_ROUTE,
+        #COMMAND_ID_STDAPI_NET_CONFIG_REMOVE_ROUTE,
+        COMMAND_ID_STDAPI_NET_CONFIG_GET_ROUTES
       ],
       # Only creates tcp channels, which is something whose availability
       # we can't check directly at the moment.
       'portfwd'  => [],
-      'arp'      => ['stdapi_net_config_get_arp_table'],
-      'netstat'  => ['stdapi_net_config_get_netstat'],
-      'getproxy' => ['stdapi_net_config_get_proxy'],
-      'resolve'  => ['stdapi_net_resolve_host'],
+      'arp'      => [COMMAND_ID_STDAPI_NET_CONFIG_GET_ARP_TABLE],
+      'netstat'  => [COMMAND_ID_STDAPI_NET_CONFIG_GET_NETSTAT],
+      'getproxy' => [COMMAND_ID_STDAPI_NET_CONFIG_GET_PROXY],
+      'resolve'  => [COMMAND_ID_STDAPI_NET_RESOLVE_HOST],
     }
 
-    all.delete_if do |cmd, desc|
-      del = false
-      reqs[cmd].each do |req|
-        next if client.commands.include? req
-        del = true
-        break
-      end
-
-      del
-    end
-
-    all
+    filter_commands(all, reqs)
   end
 
   #
@@ -255,22 +245,13 @@ class Console::CommandDispatcher::Stdapi::Net
     end
 
     # Check to see if they specified -h
-    @@route_opts.parse(args) { |opt, idx, val|
+    @@route_opts.parse(args) do |opt, idx, val|
       case opt
-        when '-h'
-          print_line('Usage: route [-h] command [args]')
-          print_line
-          print_line('Display or modify the routing table on the remote machine.')
-          print_line
-          print_line('Supported commands:')
-          print_line
-          print_line('   add    [subnet] [netmask] [gateway]')
-          print_line('   delete [subnet] [netmask] [gateway]')
-          print_line('   list')
-          print_line
-          return true
+      when '-h'
+        cmd_route_help
+        return true
       end
-    }
+    end
 
     cmd = args.shift
 
@@ -329,13 +310,18 @@ class Console::CommandDispatcher::Stdapi::Net
 
       when 'add'
         # Satisfy check to see that formatting is correct
-        unless Rex::Socket::RangeWalker.new(args[0]).length == 1
-          print_error "Invalid IP Address"
+        unless Rex::Socket.is_ip_addr?(args[0])
+          print_error "Invalid subnet: #{args[0]}"
           return false
         end
 
-        unless Rex::Socket::RangeWalker.new(args[1]).length == 1
-          print_error 'Invalid Subnet mask'
+        unless Rex::Socket.is_ip_addr?(args[1])
+          print_error "Invalid subnet mask: #{args[1]}"
+          return false
+        end
+
+        unless Rex::Socket.is_ip_addr?(args[2])
+          print_error "Invalid gateway address: #{args[2]}"
           return false
         end
 
@@ -344,13 +330,18 @@ class Console::CommandDispatcher::Stdapi::Net
         client.net.config.add_route(*args)
       when 'delete'
         # Satisfy check to see that formatting is correct
-        unless Rex::Socket::RangeWalker.new(args[0]).length == 1
-          print_error 'Invalid IP Address'
+        unless Rex::Socket.is_ip_addr?(args[0])
+          print_error "Invalid subnet: #{args[0]}"
           return false
         end
 
-        unless Rex::Socket::RangeWalker.new(args[1]).length == 1
-          print_error 'Invalid Subnet mask'
+        unless Rex::Socket.is_ip_addr?(args[1])
+          print_error "Invalid subnet mask: #{args[1]}"
+          return false
+        end
+
+        unless Rex::Socket.is_ip_addr?(args[2])
+          print_error "Invalid gateway address: #{args[2]}"
           return false
         end
 
@@ -360,6 +351,25 @@ class Console::CommandDispatcher::Stdapi::Net
       else
         print_error("Unsupported command: #{cmd}")
     end
+  end
+
+  def cmd_route_help
+    print_line('Usage: route [-h] command [args]')
+    print_line
+    print_line('Display or modify the routing table on the remote machine.')
+    print_line
+    print_line('Supported commands:')
+    print_line
+    print_line('   add    [subnet] [netmask] [gateway]')
+    print_line('   delete [subnet] [netmask] [gateway]')
+    print_line('   list')
+    print_line
+    print_line
+    print @@route_opts.usage
+  end
+
+  def cmd_route_tabs(str, words)
+    return %w[add delete list] + @@route_opts.option_keys if words.length == 1
   end
 
   #
@@ -421,20 +431,17 @@ class Console::CommandDispatcher::Stdapi::Net
         cnt = 0
 
         # Enumerate each TCP relay
-        service.each_tcp_relay { |lhost, lport, rhost, rport, opts|
-          next if (opts['MeterpreterRelay'] == nil)
+        service.each_tcp_relay do |lhost, lport, rhost, rport, opts|
+          next unless opts['MeterpreterRelay']
 
-          direction = 'Forward'
-          direction = 'Reverse' if opts['Reverse'] == true
-
-          if opts['Reverse'] == true
-            table << [cnt + 1, "#{rhost}:#{rport}", "#{lhost}:#{lport}", 'Reverse']
+          if opts['Reverse']
+            table << [cnt + 1, "#{netloc(rhost, rport)}", "#{netloc(lhost, lport)}", 'Reverse']
           else
-            table << [cnt + 1, "#{lhost}:#{lport}", "#{rhost}:#{rport}", 'Forward']
+            table << [cnt + 1, "#{netloc(lhost, lport)}", "#{netloc(rhost, rport)}", 'Forward']
           end
 
           cnt += 1
-        }
+        end
 
         print_line
         if cnt > 0
@@ -446,7 +453,6 @@ class Console::CommandDispatcher::Stdapi::Net
         print_line
 
       when 'add'
-
         if reverse
           # Validate parameters
           unless lport && lhost && rport
@@ -454,9 +460,14 @@ class Console::CommandDispatcher::Stdapi::Net
             return
           end
 
+          unless rhost.nil?
+            print_warning('The remote host (-r) option is ignored for reverse port forwards.')
+          end
+
           begin
             channel = client.net.socket.create(
               Rex::Socket::Parameters.new(
+                'LocalHost' => '', # see: #17282, always bind to all interfaces
                 'LocalPort' => rport,
                 'Proto'     => 'tcp',
                 'Server'    => true
@@ -464,8 +475,9 @@ class Console::CommandDispatcher::Stdapi::Net
             )
 
             # Start the local TCP reverse relay in association with this stream
-            service.start_reverse_tcp_relay(channel,
-              'LocalPort'         => rport,
+            relay = service.start_reverse_tcp_relay(channel,
+              'LocalHost'         => channel.params.localhost,
+              'LocalPort'         => channel.params.localport,
               'PeerHost'          => lhost,
               'PeerPort'          => lport,
               'MeterpreterRelay'  => true)
@@ -474,6 +486,7 @@ class Console::CommandDispatcher::Stdapi::Net
             return false
           end
 
+          print_status("Reverse TCP relay created: (remote) #{netloc(channel.params.localhost, channel.params.localport)} -> (local) #{netloc(lhost, lport)}")
         else
           # Validate parameters
           unless lport && rhost && rport
@@ -482,16 +495,16 @@ class Console::CommandDispatcher::Stdapi::Net
           end
 
           # Start the local TCP relay in association with this stream
-          service.start_tcp_relay(lport,
+          relay = service.start_tcp_relay(lport,
             'LocalHost'         => lhost,
             'PeerHost'          => rhost,
             'PeerPort'          => rport,
             'MeterpreterRelay'  => true,
             'OnLocalConnection' => Proc.new { |relay, lfd| create_tcp_channel(relay) })
+          lport = relay.opts['LocalPort']
+
+          print_status("Forward TCP relay created: (local) #{netloc(lhost, lport)} -> (remote) #{netloc(rhost, rport)}")
         end
-
-        print_status("Local TCP relay created: #{lhost}:#{lport} <-> #{rhost}:#{rport}")
-
       # Delete local port forwards
       when 'delete', 'remove', 'del', 'rm'
 
@@ -535,9 +548,9 @@ class Console::CommandDispatcher::Stdapi::Net
 
           # Stop the service
           if service.stop_tcp_relay(lport, lhost)
-            print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+            print_status("Successfully stopped TCP relay on #{netloc(lhost || '0.0.0.0', lport)}")
           else
-            print_error("Failed to stop TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+            print_error("Failed to stop TCP relay on #{netloc(lhost || '0.0.0.0', lport)}")
           end
         end
 
@@ -556,9 +569,9 @@ class Console::CommandDispatcher::Stdapi::Net
             end
           else
             if service.stop_tcp_relay(lport, lhost)
-              print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+              print_status("Successfully stopped TCP relay on #{netloc(lhost || '0.0.0.0', lport)}")
             else
-              print_error("Failed to stop TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+              print_error("Failed to stop TCP relay on #{netloc(lhost || '0.0.0.0', lport)}")
               next
             end
           end
@@ -576,6 +589,23 @@ class Console::CommandDispatcher::Stdapi::Net
     print_line 'Usage: portfwd [-h] [add | delete | list | flush] [args]'
     print_line
     print @@portfwd_opts.usage
+  end
+
+  def cmd_portfwd_tabs(str, words)
+    return %w[add delete list flush] + @@portfwd_opts.option_keys if words.length == 1
+
+    case words[-1]
+    when '-L'
+      return tab_complete_source_address
+    when '-i'
+      if client.respond_to?('pfservice')
+        return (1..client.pfservice.each_tcp_relay { |lh, lp, rh, rp, opts| }.length).to_a.map!(&:to_s)
+      end
+    when 'add', 'delete', 'list', 'flush'
+      return @@portfwd_opts.option_keys
+    end
+
+    []
   end
 
   def cmd_getproxy
@@ -650,10 +680,13 @@ protected
     )
   end
 
+  def netloc(host, port)
+    host = "[#{host}]" if Rex::Socket.is_ipv6?(host)
+    "#{host}:#{port}"
+  end
 end
 
 end
 end
 end
 end
-

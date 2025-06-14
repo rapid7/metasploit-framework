@@ -30,7 +30,9 @@ module Metasploit
         # (see Base#check_setup)
         def check_setup
           begin
-            res = send_request({'uri' => '/common/index.jsf'})
+            res = send_request({
+              'uri' => '/common/index.jsf',
+            })
             return "Connection failed" if res.nil?
             if !([200, 302].include?(res.code))
               return "Unexpected HTTP response code #{res.code} (is this really Glassfish?)"
@@ -40,7 +42,10 @@ module Metasploit
             # same port.
             if !self.ssl && res.headers['Location'] =~ /^https:/
               self.ssl = true
-              res = send_request({'uri' => '/common/index.jsf'})
+              res = send_request({
+                'uri' => '/common/index.jsf',
+                'cgi' => false
+              })
               if res.nil?
                 return "Connection failed after SSL redirection"
               end
@@ -49,14 +54,17 @@ module Metasploit
               end
             end
 
-            res = send_request({'uri' => '/login.jsf'})
+            res = send_request({
+              'uri' => '/login.jsf',
+              'cgi' => false
+            })
             return "Connection failed" if res.nil?
             extract_version(res.headers['Server'])
 
             if @version.nil? || @version !~ /^[2349]/
               return "Unsupported version ('#{@version}')"
             end
-          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
+          rescue ::EOFError, Errno::ETIMEDOUT, OpenSSL::SSL::SSLError, Rex::ConnectionError, ::Timeout::Error
             return "Unable to connect to target"
           end
 
@@ -65,14 +73,10 @@ module Metasploit
 
         # Sends a HTTP request with Rex
         #
-        # @param (see Rex::Proto::Http::Resquest#request_raw)
+        # @param (see Rex::Proto::Http::Request#request_raw)
         # @return [Rex::Proto::Http::Response] The HTTP response
         def send_request(opts)
-          cli = Rex::Proto::Http::Client.new(host, port, {'Msf' => framework, 'MsfExploit' => framework_module}, ssl, ssl_version, proxies, http_username, http_password)
-          configure_http_client(cli)
-          cli.connect
-          req = cli.request_raw(opts)
-          res = cli.send_recv(req)
+          res = super(opts)
 
           # Found a cookie? Set it. We're going to need it.
           if res && res.get_cookies =~ /JSESSIONID=(\w*);/i
@@ -110,7 +114,8 @@ module Metasploit
             'headers' => {
               'Content-Type'   => 'application/x-www-form-urlencoded',
               'Cookie'         => "JSESSIONID=#{self.jsession}",
-            }
+            },
+            'cgi' => false
           }
 
           send_request(opts)
@@ -131,7 +136,8 @@ module Metasploit
               'method'  => 'GET',
               'headers' => {
                 'Cookie'  => "JSESSIONID=#{self.jsession}"
-              }
+              },
+              'cgi' => false
             }
             res = send_request(opts)
             p = /<title>Deploy Enterprise Applications\/Modules/
@@ -173,7 +179,8 @@ module Metasploit
               'method'  => 'GET',
               'headers' => {
                 'Cookie'  => "JSESSIONID=#{self.jsession}"
-              }
+              },
+              'cgi' => false
             }
             res = send_request(opts)
 
@@ -208,7 +215,7 @@ module Metasploit
               result_opts.merge!(status)
             when /^9\.x$/
               status = try_glassfish_9(credential)
-              result_opts.merge!(status) 
+              result_opts.merge!(status)
             end
           rescue ::EOFError, Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)

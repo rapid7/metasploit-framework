@@ -24,7 +24,7 @@ module Interactive
   def interact(user_input, user_output)
 
     # Detach from any existing console
-    if(self.interacting)
+    if self.interacting
       detach()
     end
 
@@ -41,6 +41,10 @@ module Interactive
 
     # Handle suspend notifications
     handle_suspend
+
+    handle_usr1
+
+    handle_winch
 
     # As long as we're interacting...
     while (self.interacting == true)
@@ -68,11 +72,13 @@ module Interactive
       # Restore the suspend handler
       restore_suspend
 
+      restore_winch
+
       # If we've hit eof, call the interact complete handler
       _interact_complete if (eof == true)
 
       # Shutdown the readline thread
- 			# XXX disabled
+      # XXX disabled
       # user_input.readline_stop() if user_input.supports_readline
 
       # Detach from the input/output handles
@@ -83,8 +89,13 @@ module Interactive
       self.completed = true
     end
 
-    # Return whether or not EOF was reached
-    return eof
+    # if another session was requested, store it
+    next_session = self.next_session
+    # clear the value from the object
+    self.next_session = nil
+
+    # return this session id
+    return next_session
   end
 
   #
@@ -105,6 +116,11 @@ module Interactive
   attr_accessor   :interacting
 
   #
+  # If another session needs interaction, this is where it goes
+  #
+  attr_accessor   :next_session
+
+  #
   # Whether or not the session has completed interaction
   #
   attr_accessor	:completed
@@ -112,12 +128,20 @@ module Interactive
   attr_accessor :on_print_proc
   attr_accessor :on_command_proc
 
+  #
+  # A function to be run when running a session command hits an error
+  #
+  # @return [Proc,nil] A function to be run when running a session command hits an error
+  attr_accessor :on_run_command_error_proc
+
 protected
 
   #
   # The original suspend proc.
   #
   attr_accessor :orig_suspend
+  attr_accessor :orig_usr1
+  attr_accessor :orig_winch
 
   #
   # Stub method that is meant to handler interaction
@@ -207,49 +231,6 @@ protected
 
 
   #
-  # Interacts between a local stream and a remote ring buffer. This has to use
-  # a secondary thread to prevent the select on the local stream from blocking
-  #
-  def interact_ring(ring)
-    begin
-
-    rdr = Rex::ThreadFactory.spawn("RingMonitor", false) do
-      seq = nil
-      while self.interacting
-
-        # Look for any pending data from the remote ring
-        nseq,data = ring.read_data(seq)
-
-        # Update the sequence number if necessary
-        seq = nseq || seq
-
-        # Write output to the local stream if successful
-        user_output.print(data) if data
-
-        # Wait for new data to arrive on this session
-        ring.wait(seq)
-      end
-    end
-
-    while self.interacting
-
-      # Look for any pending input from the local stream
-      sd = Rex::ThreadSafe.select([ _local_fd ], nil, [_local_fd], 5.0)
-
-      # Write input to the ring's input mechanism
-      if sd
-        data = user_input.gets
-        ring.put(data)
-      end
-    end
-
-    ensure
-      rdr.kill
-    end
-  end
-
-
-  #
   # Installs a signal handler to monitor suspend signal notifications.
   #
   def handle_suspend
@@ -263,6 +244,7 @@ protected
     end
   end
 
+
   #
   # Restores the previously installed signal handler for suspend
   # notifications.
@@ -275,6 +257,55 @@ protected
         Signal.trap("TSTP", "DEFAULT")
       end
       self.orig_suspend = nil
+    rescue
+    end
+  end
+
+  def handle_usr1
+    if orig_usr1.nil?
+      begin
+        self.orig_usr1 = Signal.trap("USR1") do
+          Thread.new { _usr1 }.join
+        end
+      rescue
+      end
+    end
+  end
+
+  def handle_winch
+    if orig_winch.nil?
+      begin
+        self.orig_winch = Signal.trap("WINCH") do
+          Thread.new { _winch }.join
+        end
+      rescue
+      end
+    end
+  end
+
+  def restore_winch
+    begin
+      if orig_winch
+        Signal.trap("WINCH", orig_winch)
+      else
+        Signal.trap("WINCH", "DEFAULT")
+      end
+      self.orig_winch = nil
+    rescue
+    end
+  end
+
+  def _winch
+  end
+
+  def restore_usr1
+    begin
+      if orig_usr1
+        Signal.trap("USR1", orig_usr1)
+      else
+        Signal.trap("USR1", "DEFAULT")
+      end
+      self.orig_usr1 = nil
     rescue
     end
   end

@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -21,7 +21,7 @@ session = client
 def usage
   print_line("Keylogger Recorder Meterpreter Script")
   print_line("This script will start the Meterpreter Keylogger and save all keys")
-  print_line("in a log file for later anlysis. To stop capture hit Ctrl-C")
+  print_line("in a log file for later analysis. To stop capture hit Ctrl-C")
   print_line("Usage:" + @@exec_opts.usage)
   raise Rex::Script::Completed
 end
@@ -196,7 +196,7 @@ kill = false
     kill = true
   end
 }
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   if (captype.to_i == 2)
     if startkeylogger(session)
       keycap(session, keytime, logfile)

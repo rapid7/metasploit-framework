@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_helper'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/library_helper'
 
 module Rex
 module Post
@@ -14,7 +14,7 @@ module Railgun
 class  Util
 
   # Bring in some useful string manipulation utility functions
-  include DLLHelper
+  include LibraryHelper
 
   # Data type size info: http://msdn.microsoft.com/en-us/library/s3f49ktz(v=vs.80).aspx
   PRIMITIVE_TYPE_SIZES = {
@@ -313,10 +313,11 @@ class  Util
   }
 
   # param 'railgun' is a Railgun instance.
-  # param 'platform' is a value like client.platform
-  def initialize(railgun, platform)
+  # param 'arch' is the client.arch
+  def initialize(railgun, arch)
     @railgun = railgun
-    @is_64bit = is_64bit_platform?(platform)
+    @is_64bit = arch == ARCH_X64
+    @process_heap = nil
   end
 
   #
@@ -348,6 +349,28 @@ class  Util
     return pointer.nil? || pointer == 0
   end
 
+  def alloc_and_write_data(data)
+    return nil if data.nil? || process_heap.nil?
+
+    result = railgun.kernel32.HeapAlloc(process_heap, railgun.const('HEAP_ZERO'), data.length)
+    return nil if result['return'].nil?
+
+    addr = result['return']
+    return nil unless railgun.memwrite(addr, data, data.length)
+
+    addr
+  end
+
+  def free_data(*ptrs)
+    return false if ptrs.empty?
+    return false if process_heap.nil?
+
+    results = railgun.multi(
+      ptrs.map { |ptr| ['kernel32', 'HeapFree', [process_heap, 0, ptr.to_i]] }
+    )
+    results.map { |res| res['return'] }.all?
+  end
+
   #
   # Reads null-terminated unicode strings from memory.
   #
@@ -374,6 +397,33 @@ class  Util
 
     return str
   end
+
+  #
+  # Write Unicode strings to memory.
+  #
+  # Given a string, returns a pointer to a null terminated WCHARs array.
+  #
+  def alloc_and_write_wstring(value)
+    return nil if value.nil?
+
+    alloc_and_write_data(str_to_uni_z(value))
+  end
+
+  alias free_wstring free_data
+
+  #
+  # Write ASCII strings to memory.
+  #
+  # Given a  string, returns a pointer to a null terminated CHARs array.
+  # InitializeStr(&Str,"string");
+  #
+  def alloc_and_write_string(value)
+    return nil if value.nil?
+
+    alloc_and_write_data(str_to_ascii_z(value))
+  end
+
+  alias free_string free_data
 
   #
   # Reads null-terminated ASCII strings from memory.
@@ -636,18 +686,12 @@ class  Util
     end
   end
 
-  # Returns true if given platform has 64bit architecture
-  # expects client.platform
-  def is_64bit_platform?(platform)
-    platform =~ /win64/
-  end
-
   #
   # Evaluates a bit field, returning a hash representing the meaning and
   # state of each bit.
   #
   # Parameters:
-  #   +value+:: a bit field represented by a Fixnum
+  #   +value+:: a bit field represented by a Integer
   #   +mappings+:: { 'WINAPI_CONSTANT_NAME' => :descriptive_symbol, ... }
   #
   # Returns:
@@ -655,10 +699,9 @@ class  Util
   #
   def judge_bit_field(value, mappings)
     flags = {}
-    rg = railgun
 
     mappings.each do |constant_name, key|
-      flags[key] = (value & rg.const(constant_name)) != 0
+      flags[key] = (value & railgun.const(constant_name)) != 0
     end
 
     flags
@@ -667,6 +710,16 @@ class  Util
   protected
 
   attr_accessor :railgun, :is_64bit
+
+  private
+
+  def process_heap
+    return @process_heap unless @process_heap.nil?
+
+    handle = railgun.kernel32.GetProcessHeap()['return']
+    return nil if handle == 0
+    @process_heap = handle
+  end
 end # Util
 end # Railgun
 end # Stdapi

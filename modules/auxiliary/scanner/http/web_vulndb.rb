@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/http'
-require 'msf/core'
+
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanServer
   include Msf::Auxiliary::Scanner
@@ -26,11 +24,11 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('PATH', [ true, "Original test path", '/']),
         OptPath.new('VULNCSV',[ true, "Path of vulnerabilities csv file to use" ])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
-        OptInt.new('ErrorCode', [ true,  "The expected http code for non existant files", 404]),
+        OptInt.new('ErrorCode', [ true,  "The expected http code for non existent files", 404]),
         OptPath.new('HTTP404Sigs',   [ false, "Path of 404 signatures to use",
             File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt")
           ]
@@ -38,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),
         OptBool.new('ForceCode', [ false, "Force detection using HTTP code", false ]),
         OptInt.new('TestThreads', [ true, "Number of test threads", 25])
-      ], self.class)
+      ])
 
   end
 
@@ -148,7 +146,7 @@ class MetasploitModule < Msf::Auxiliary
               if res.code.to_i == 400  and ecode != 400
                 print_error("Server returned an error code. #{wmap_base_url}#{tpath}#{testfvuln} #{res.code.to_i}")
               else
-                print_status("FOUND #{wmap_base_url}#{tpath}#{testfvuln} [#{res.code.to_i}] #{testnote}")
+                print_good("FOUND #{wmap_base_url}#{tpath}#{testfvuln} [#{res.code.to_i}] #{testnote}")
 
                 report_note(
                   :host	=> ip,
@@ -156,13 +154,16 @@ class MetasploitModule < Msf::Auxiliary
                   :sname => (ssl ? 'https' : 'http'),
                   :port	=> rport,
                   :type	=> 'FILE',
-                  :data	=> "#{tpath}#{testfvuln} Code: #{res.code}"
+                  :data	=> {
+                    :path => "#{tpath}#{testfvuln}",
+                    :status => res.code
+                  }
                 )
               end
             end
           else
             if res and res.body.include?(testmesg)
-              print_status("FOUND #{wmap_base_url}#{tpath}#{testfvuln} [#{res.code.to_i}] #{testnote}")
+              print_good("FOUND #{wmap_base_url}#{tpath}#{testfvuln} [#{res.code.to_i}] #{testnote}")
 
               report_note(
                   :host	=> ip,
@@ -170,7 +171,10 @@ class MetasploitModule < Msf::Auxiliary
                   :sname => (ssl ? 'https' : 'http'),
                   :port	=> rport,
                   :type	=> 'FILE',
-                  :data	=> "#{tpath}#{testfvuln} Code: #{res.code}"
+                  :data	=> {
+                    :path => "#{tpath}#{testfvuln}",
+                    :status => res.code
+                  }
               )
             else
               if dm == false

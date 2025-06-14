@@ -3,9 +3,6 @@ module Rex
 module Ui
 module Text
 
-require 'rex/ui/text/output'
-require 'rex/ui/text/output/buffer'
-require 'rex/ui/text/input/buffer'
 
 class BidirectionalPipe < Rex::Ui::Text::Input
 
@@ -79,6 +76,8 @@ class BidirectionalPipe < Rex::Ui::Text::Input
   def print_error(msg='')
     print_line('[-] ' + msg)
   end
+
+  alias_method :print_bad, :print_error
 
   def print_line(msg='')
     print(msg + "\n")

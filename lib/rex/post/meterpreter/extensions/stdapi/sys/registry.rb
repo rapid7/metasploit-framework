@@ -41,7 +41,7 @@ class Registry
   #
 
   def Registry.load_key(root_key,base_key,hive_file)
-    request = Packet.create_request('stdapi_registry_load_key')
+    request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_LOAD_KEY)
     request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
     request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
     request.add_tlv(TLV_TYPE_FILE_PATH, client.unicode_filter_decode( hive_file ))
@@ -51,7 +51,7 @@ class Registry
   end
 
   def Registry.unload_key(root_key,base_key)
-    request = Packet.create_request('stdapi_registry_unload_key')
+    request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_UNLOAD_KEY)
     request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
     request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
     response = client.send_request(request)
@@ -65,7 +65,7 @@ class Registry
       return RegistrySubsystem::RegistryKey.new(client, root_key, base_key, perm, root_key)
     end
 
-    request = Packet.create_request('stdapi_registry_open_key')
+    request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_OPEN_KEY)
 
     request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
     request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
@@ -86,7 +86,7 @@ class Registry
   # @raise [TimeoutError] if the timeout expires when waiting the answer
   # @raise [Rex::Post::Meterpreter::RequestError] if the parameters are not valid
   def Registry.check_key_exists(root_key, base_key)
-    request = Packet.create_request('stdapi_registry_check_key_exists')
+    request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_CHECK_KEY_EXISTS)
     request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
     request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
     response = client.send_request(request)
@@ -100,7 +100,7 @@ class Registry
   #
   def Registry.open_remote_key(target_host, root_key)
 
-    request = Packet.create_request('stdapi_registry_open_remote_key')
+    request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_OPEN_REMOTE_KEY)
 
     request.add_tlv(TLV_TYPE_TARGET_HOST, target_host)
     request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
@@ -115,7 +115,7 @@ class Registry
   # Creates the supplied registry key or opens it if it already exists.
   #
   def Registry.create_key(root_key, base_key, perm = KEY_READ)
-    request = Packet.create_request('stdapi_registry_create_key')
+    request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_CREATE_KEY)
 
     request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
     request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
@@ -131,7 +131,7 @@ class Registry
   # Deletes the supplied registry key.
   #
   def Registry.delete_key(root_key, base_key, recursive = true)
-    request = Packet.create_request('stdapi_registry_delete_key')
+    request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_DELETE_KEY)
     flags   = 0
 
     if (recursive)
@@ -153,7 +153,7 @@ class Registry
   # Closes the supplied registry key.
   #
   def Registry.close_key(hkey)
-    request = Packet.create_request('stdapi_registry_close_key')
+    request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_CLOSE_KEY)
 
     request.add_tlv(TLV_TYPE_HKEY, hkey)
 
@@ -167,7 +167,7 @@ class Registry
   #
   def Registry.enum_key(hkey)
     keys    = []
-    request = Packet.create_request('stdapi_registry_enum_key')
+    request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY)
 
     request.add_tlv(TLV_TYPE_HKEY, hkey)
 
@@ -182,7 +182,7 @@ class Registry
   end
 
   def Registry.enum_key_direct(root_key, base_key, perm = KEY_READ)
-    request = Packet.create_request('stdapi_registry_enum_key_direct')
+    request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY_DIRECT)
     keys    = []
 
     request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
@@ -209,43 +209,29 @@ class Registry
   # Sets the registry value relative to the supplied hkey.
   #
   def Registry.set_value(hkey, name, type, data)
-    request = Packet.create_request('stdapi_registry_set_value')
+    request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_SET_VALUE)
 
     request.add_tlv(TLV_TYPE_HKEY, hkey)
     request.add_tlv(TLV_TYPE_VALUE_NAME, name)
     request.add_tlv(TLV_TYPE_VALUE_TYPE, type)
+    request.add_tlv(TLV_TYPE_VALUE_DATA, self.ruby2reg_value(type, data))
 
-    if (type == REG_SZ)
-      data += "\x00"
-    elsif (type == REG_DWORD)
-      data = [ data.to_i ].pack("V")
-    end
-
-    request.add_tlv(TLV_TYPE_VALUE_DATA, data)
-
-    response = client.send_request(request)
+    client.send_request(request)
 
     return true
   end
 
   def Registry.set_value_direct(root_key, base_key, name, type, data, perm = KEY_WRITE)
-    request = Packet.create_request('stdapi_registry_set_value_direct')
+    request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_SET_VALUE_DIRECT)
 
     request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
     request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
     request.add_tlv(TLV_TYPE_PERMISSION, perm)
     request.add_tlv(TLV_TYPE_VALUE_NAME, name)
     request.add_tlv(TLV_TYPE_VALUE_TYPE, type)
+    request.add_tlv(TLV_TYPE_VALUE_DATA, self.ruby2reg_value(type, data))
 
-    if type == REG_SZ
-      data += "\x00"
-    elsif type == REG_DWORD
-      data = [data.to_i].pack('V')
-    end
-
-    request.add_tlv(TLV_TYPE_VALUE_DATA, data)
-
-    response = client.send_request(request)
+    client.send_request(request)
 
     true
   end
@@ -255,7 +241,7 @@ class Registry
   # initialized RegistryValue instance if a match is found.
   #
   def Registry.query_value_direct(root_key, base_key, name, perm = KEY_READ)
-    request = Packet.create_request('stdapi_registry_query_value_direct')
+    request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_QUERY_VALUE_DIRECT)
 
     request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
     request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
@@ -265,34 +251,23 @@ class Registry
     response = client.send_request(request)
 
     type = response.get_tlv(TLV_TYPE_VALUE_TYPE).value
-    data = response.get_tlv(TLV_TYPE_VALUE_DATA).value
-
-    if type == REG_SZ
-      data = data[0..-2]
-    elsif type == REG_DWORD
-      data = data.unpack('N')[0]
-    end
+    data = self.reg2ruby_value(type, response.get_tlv(TLV_TYPE_VALUE_DATA).value)
 
     Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
         client, 0, name, type, data)
   end
 
   def Registry.query_value(hkey, name)
-    request = Packet.create_request('stdapi_registry_query_value')
+    request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_QUERY_VALUE)
 
     request.add_tlv(TLV_TYPE_HKEY, hkey)
     request.add_tlv(TLV_TYPE_VALUE_NAME, name)
 
     response = client.send_request(request)
 
-    data = response.get_tlv(TLV_TYPE_VALUE_DATA).value
     type = response.get_tlv(TLV_TYPE_VALUE_TYPE).value
+    data = self.reg2ruby_value(type, response.get_tlv(TLV_TYPE_VALUE_DATA).value)
 
-    if (type == REG_SZ)
-      data = data[0..-2]
-    elsif (type == REG_DWORD)
-      data = data.unpack("N")[0]
-    end
 
     return Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue.new(
         client, hkey, name, type, data)
@@ -303,7 +278,7 @@ class Registry
   # registry key.
   #
   def Registry.delete_value(hkey, name)
-    request = Packet.create_request('stdapi_registry_delete_value')
+    request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_DELETE_VALUE)
 
     request.add_tlv(TLV_TYPE_HKEY, hkey)
     request.add_tlv(TLV_TYPE_VALUE_NAME, name)
@@ -319,7 +294,7 @@ class Registry
   # Queries the registry class name and returns a string
   #
   def Registry.query_class(hkey)
-    request = Packet.create_request('stdapi_registry_query_class')
+    request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_QUERY_CLASS)
 
     request.add_tlv(TLV_TYPE_HKEY, hkey)
 
@@ -335,7 +310,7 @@ class Registry
   # names.  An array of RegistryValue's is returned.
   #
   def Registry.enum_value(hkey)
-    request = Packet.create_request('stdapi_registry_enum_value')
+    request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_ENUM_VALUE)
     values  = []
 
     request.add_tlv(TLV_TYPE_HKEY, hkey)
@@ -351,7 +326,7 @@ class Registry
   end
 
   def Registry.enum_value_direct(root_key, base_key, perm = KEY_READ)
-    request = Packet.create_request('stdapi_registry_enum_value_direct')
+    request = Packet.create_request(COMMAND_ID_STDAPI_REGISTRY_ENUM_VALUE_DIRECT)
     values  = []
 
     request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
@@ -406,6 +381,7 @@ class Registry
     when 'REG_EXPAND_SZ' then REG_EXPAND_SZ
     when 'REG_MULTI_SZ'  then REG_MULTI_SZ
     when 'REG_NONE'      then REG_NONE
+    when 'REG_QWORD'     then REG_QWORD
     when 'REG_SZ'        then REG_SZ
     else
       nil
@@ -418,10 +394,48 @@ class Registry
   # 'Software\Dog' ]
   #
   def self.splitkey(str)
-    if (str =~ /^(.+?)\\(.*)$/)
+    if (str =~ /^(.+?)[\\]{1,}(.*)$/)
       [ key2str($1), $2 ]
     else
       [ key2str(str), nil ]
+    end
+  end
+
+  class << self
+    private
+
+    def ruby2reg_value(type, value)
+      case type
+      when REG_DWORD
+        value = [value.to_i].pack('L<')
+      when REG_EXPAND_SZ
+        value += "\x00".b
+      when REG_MULTI_SZ
+        value = value.join("\x00".b) + "\x00\x00".b
+      when REG_QWORD
+        value = [value.to_i].pack('Q<')
+      when REG_SZ
+        value += "\x00".b
+      end
+
+      value
+    end
+
+    def reg2ruby_value(type, value)
+      case type
+      when REG_DWORD
+        value = value.unpack1('L>')
+      when REG_EXPAND_SZ
+        value = value[0..-2]
+      when REG_MULTI_SZ
+        value = value[0..-3].split("\x00".b)
+      when REG_QWORD
+        value = value.unpack1('Q<')
+      when REG_SZ
+        value = value[0..-2]
+      end
+
+      value
     end
   end
 

@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/ui'
 
 module Rex
 module Ui
@@ -18,6 +17,10 @@ class Input::Buffer < Rex::Ui::Text::Input
     include Rex::IO::StreamAbstraction
     def write(buf, opts={})
       syswrite(buf)
+    end
+
+    def monitor_rsock(*args, **kwargs)
+      dlog('monitor_rsock: Skipping - functionality not required')
     end
   end
 

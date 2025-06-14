@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::HttpServer::HTML
   include REXML
@@ -35,17 +30,17 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '86429' ],
           [ 'BID', '56103' ],
           [ 'URL', 'https://drupal.org/node/1815912' ],
-          [ 'URL', 'http://drupalcode.org/project/drupal.git/commit/b912710' ],
-          [ 'URL', 'http://www.ubercomp.com/posts/2014-01-16_facebook_remote_code_execution' ]
+          [ 'URL', 'https://github.com/drupal/drupal/commit/b9127101ffeca819e74a03fa9f5a48d026c562e5' ],
+          [ 'URL', 'https://www.ubercomp.com/posts/2014-01-16_facebook_remote_code_execution' ]
         ],
-      'DisclosureDate' => 'Oct 17 2012'
+      'DisclosureDate' => '2012-10-17'
     ))
 
     register_options(
       [
         OptString.new('TARGETURI', [ true, "Base Drupal directory path", '/drupal']),
         OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/passwd"])
-      ], self.class)
+      ])
 
   end
 

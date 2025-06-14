@@ -1,10 +1,12 @@
 #!/usr/bin/env ruby
-#
-# $Id$
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
 # This script lists all modules with their mixins. Handy for finding different "kinds" of modules.
-#
-# $Revision$
 #
 
 msfbase = __FILE__
@@ -18,8 +20,6 @@ require 'msfenv'
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'rex'
-require 'msf/ui'
-require 'msf/base'
 
 def do_want(klass)
   return false if klass.class != Module
@@ -35,7 +35,7 @@ $framework = Msf::Simple::Framework.create('DisableDatabase' => true)
 all_modules = $framework.exploits
 
 # If you give an argument (any argument will do), you really want a sorted
-# list of mixins, regardles of the module they're in.
+# list of mixins, regardless of the module they're in.
 if ARGV[0]
   mod_hash = {}
   longest_name = 0
@@ -46,7 +46,7 @@ if ARGV[0]
       mod_hash[m] ||= 0
       mod_hash[m] += 1
       longest_name = m.to_s.size unless m.to_s.size < longest_name
-    end	
+    end
   end
   mod_hash.sort_by {|a| a[1]}.reverse.each do |arr|
     puts "%-#{longest_name}s | %d" % arr

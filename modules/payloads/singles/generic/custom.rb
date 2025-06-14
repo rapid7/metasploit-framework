@@ -1,51 +1,54 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/payload/generic'
-
 module MetasploitModule
-
   CachedSize = 0
 
   include Msf::Payload::Single
   include Msf::Payload::Generic
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Custom Payload',
-      'Description'   => 'Use custom string or file as payload. Set either PAYLOADFILE or
-                PAYLOADSTR.',
-      'Author'        => 'scriptjunkie <scriptjunkie[at]scriptjunkie.us>',
-      'License'       => MSF_LICENSE,
-      'Payload'	    =>
-        {
-          'Payload' => "" # not really
+    super(
+      merge_info(
+        info,
+        'Name' => 'Custom Payload',
+        'Description' => %q{
+          Use custom string or file as payload. Set either PAYLOADFILE or
+          PAYLOADSTR.
+        },
+        'Author' => 'scriptjunkie <scriptjunkie[at]scriptjunkie.us>',
+        'License' => MSF_LICENSE,
+        'Payload' => {
+          'Payload' => '' # not really
         }
-      ))
+      )
+    )
 
     # Register options
     register_options(
       [
-        OptString.new('PAYLOADFILE', [ false, "The file to read the payload from" ] ),
-        OptString.new('PAYLOADSTR', [ false, "The string to use as a payload" ] )
-      ], self.class)
+        OptString.new('PAYLOADFILE', [ false, 'The file to read the payload from' ]),
+        OptString.new('PAYLOADSTR', [ false, 'The string to use as a payload' ])
+      ]
+    )
   end
 
   #
   # Construct the payload
   #
-  def generate
+  def generate(_opts = {})
     if datastore['ARCH']
       self.arch = actual_arch
     end
 
-    if datastore['PAYLOADFILE']
-      IO.read(datastore['PAYLOADFILE'])
-    elsif datastore['PAYLOADSTR']
+    if datastore['PAYLOADSTR']
       datastore['PAYLOADSTR']
+    elsif datastore['PAYLOADFILE']
+      File.binread(datastore['PAYLOADFILE'])
+    else
+      ''
     end
   end
 
@@ -59,5 +62,4 @@ module MetasploitModule
 
     return encoders2
   end
-
 end

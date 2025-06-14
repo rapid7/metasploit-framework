@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
@@ -27,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
     [
       Opt::RPORT(5632)
-    ], self.class)
+    ])
   end
 
   def scanner_prescan(batch)
@@ -59,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
 
       report_service(:host => ip, :port => datastore['RPORT'], :proto => 'udp', :name => "pcanywhere_stat", :info => info)
       report_note(:host => ip, :port => datastore['RPORT'], :proto => 'udp', :name => "pcanywhere_stat", :update => :unique, :ntype => "pcanywhere.status", :data => data )
-      print_status("#{ip}:#{datastore['RPORT']} #{info}")
+      print_good("#{ip}:#{datastore['RPORT']} #{info}")
     end
   end
 
@@ -96,5 +91,4 @@ class MetasploitModule < Msf::Auxiliary
     end
 
   end
-
 end

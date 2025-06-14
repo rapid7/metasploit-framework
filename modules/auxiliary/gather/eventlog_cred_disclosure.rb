@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -34,15 +32,15 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2014-6039' ],
           [ 'OSVDB', '114342' ],
           [ 'OSVDB', '114344' ],
-          [ 'URL', 'http://seclists.org/fulldisclosure/2014/Nov/12' ]
+          [ 'URL', 'https://seclists.org/fulldisclosure/2014/Nov/12' ]
         ],
-      'DisclosureDate' => 'Nov 5 2014'))
+      'DisclosureDate' => '2014-11-05'))
 
     register_options(
       [
         Opt::RPORT(8400),
         OptString.new('TARGETURI', [ true,  'Eventlog Analyzer application URI (should be /event for version 7)', '/']),
-      ], self.class)
+      ])
   end
 
 

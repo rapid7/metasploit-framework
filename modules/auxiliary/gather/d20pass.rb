@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,9 +8,6 @@
 # parses the usernames and passwords from it.
 ##
 
-require 'msf/core'
-require 'rex/ui/text/shell'
-require 'rex/proto/tftp'
 
 class MetasploitModule < Msf::Auxiliary
   include Rex::Ui::Text
@@ -32,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2012-6663'],
         ],
-      'DisclosureDate' => 'Jan 19 2012'
+      'DisclosureDate' => '2012-01-19'
       ))
 
     register_options(
@@ -40,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(69),
         Opt::RHOST('192.168.255.1'),
         OptString.new('REMOTE_CONFIG_NAME', [true, "The remote filename used to retrieve the configuration", "NVRAM\\D20.zlb"])
-      ], self.class)
+      ])
   end
 
   def setup

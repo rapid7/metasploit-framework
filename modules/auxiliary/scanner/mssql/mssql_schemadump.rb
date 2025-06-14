@@ -1,18 +1,14 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-
-require 'msf/core'
 require 'yaml'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::MSSQL
   include Msf::Auxiliary::Report
-
   include Msf::Auxiliary::Scanner
+  include Msf::OptionalSession::MSSQL
 
   def initialize
     super(
@@ -20,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %Q{
           This module attempts to extract the schema from a MSSQL Server
           Instance. It will disregard builtin and example DBs such
-          as master,model,msdb, and tempdb. The  module will create
+          as master, model, msdb, and tempdb. The module will create
           a note for each DB found, and store a YAML formatted output
           as loot for easy reading.
       },
@@ -30,43 +26,52 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptBool.new('DISPLAY_RESULTS', [true, "Display the Results to the Screen", true])
-      ])
+    ])
   end
 
   def run_host(ip)
-
-    if !mssql_login_datastore
-      print_error("#{rhost}:#{rport} - Invalid SQL Server credentials")
-      return
+    if session
+      set_mssql_session(session.client)
+    else
+      unless mssql_login_datastore
+        print_error("#{datastore['RHOST']}:#{datastore['RPORT']} - Invalid SQL Server credentials")
+        return
+      end
     end
 
     # Grabs the Instance Name and Version of MSSQL(2k,2k5,2k8)
-    instancename = mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')[1]
+    instance_info = mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')
+    instancename = instance_info[1] || instance_info[0]
+
     print_status("Instance Name: #{instancename.inspect}")
     version = mssql_query(mssql_sql_info())[:rows][0][0]
-    output = "Microsoft SQL Server Schema \n Host: #{datastore['RHOST']} \n Port: #{datastore['RPORT']} \n Instance: #{instancename} \n Version: #{version} \n====================\n\n"
+    output = "Microsoft SQL Server Schema \n Host: #{mssql_client.peerhost} \n Port: #{mssql_client.peerport} \n Instance: #{instancename} \n Version: #{version} \n====================\n\n"
 
     # Grab all the DB schema and save it as notes
     mssql_schema = get_mssql_schema
-    return nil if mssql_schema.nil? or mssql_schema.empty?
+    if mssql_schema.nil? or mssql_schema.empty?
+      print_good output if datastore['DISPLAY_RESULTS']
+      print_warning('No schema information found')
+      return nil
+    end
     mssql_schema.each do |db|
       report_note(
-        :host  => rhost,
+        :host  => mssql_client.peerhost,
         :type  => "mssql.db.schema",
-        :data  => db,
-        :port  => rport,
+        :data  => { :database => db },
+        :port  => mssql_client.peerport,
         :proto => 'tcp',
         :update => :unique_data
       )
     end
     output << YAML.dump(mssql_schema)
     this_service = report_service(
-          :host  => datastore['RHOST'],
-          :port => datastore['RPORT'],
+          :host  => mssql_client.peerhost,
+          :port => mssql_client.peerport,
           :name => 'mssql',
           :proto => 'tcp'
           )
-    store_loot('mssql_schema', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_mssql_schema.txt", "MS SQL Schema", this_service)
+    store_loot('mssql_schema', "text/plain", mssql_client.peerhost, output, "#{mssql_client.peerhost}_mssql_schema.txt", "MS SQL Schema", this_service)
     print_good output if datastore['DISPLAY_RESULTS']
   end
 
@@ -124,6 +129,4 @@ class MetasploitModule < Msf::Auxiliary
     results = mssql_query("Select syscolumns.name,systypes.name,syscolumns.length from #{db_name}..syscolumns JOIN #{db_name}..systypes ON syscolumns.xtype=systypes.xtype WHERE syscolumns.id=#{table_id}")[:rows]
     return results
   end
-
-
 end

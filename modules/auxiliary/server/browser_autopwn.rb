@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,12 +8,10 @@
 #   insert all of the evil js and iframes into
 # - caching is busted when different browsers come from the same IP
 
-require 'msf/core'
 require 'rex/exploitation/js/detect'
 require 'rex/exploitation/jsobfu'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
 
   def initialize(info = {})
@@ -61,10 +59,10 @@ class MetasploitModule < Msf::Auxiliary
       'DefaultAction'  => 'WebServer'))
 
     register_options([
-      OptAddress.new('LHOST', [true,
+      OptAddressLocal.new('LHOST', [true,
         'The IP address to use for reverse-connect payloads'
       ])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptString.new('AutoRunScript', [false, "A script to automatically on session creation.", '']),
@@ -121,7 +119,7 @@ class MetasploitModule < Msf::Auxiliary
         'The payload to use for Android reverse-connect payloads',
         'android/meterpreter/reverse_tcp'
       ])
-    ], self.class)
+    ])
 
     @exploits = Hash.new
     @payloads = Hash.new
@@ -521,7 +519,7 @@ class MetasploitModule < Msf::Auxiliary
     print_line
 
     # Sort the tests by reliability, descending.
-    # I don't like doing this directly (wihout a !), but any other sort wasn't sticking - NE
+    # I don't like doing this directly (without a !), but any other sort wasn't sticking - NE
     @all_tests = @all_tests.sort.reverse
 
     # This matters a lot less for noscript exploits since they basically
@@ -894,7 +892,7 @@ class MetasploitModule < Msf::Auxiliary
   # able to autodetect).  If the currently connected client's ua_name
   # is nil, then the fingerprinting didn't work for some reason.
   # Lastly, check to see if the client's browser matches the browser
-  # targetted by this group of exploits. In all of these cases, we
+  # targeted by this group of exploits. In all of these cases, we
   # need to send all the exploits in the list.
   #
   # In contrast, if we have all of that info and it doesn't match, we
@@ -986,7 +984,7 @@ class MetasploitModule < Msf::Auxiliary
           rescue ::Interrupt
             raise $!
           rescue ::Exception => e
-            elog("Reporting failed: #{e.class} : #{e.message} #{e.backtrace}")
+            elog('Reporting failed', error: e)
           end
         end
       end
@@ -1074,5 +1072,4 @@ class MetasploitModule < Msf::Auxiliary
     end
     super
   end
-
 end

@@ -43,10 +43,10 @@ module Metasploit
         extend ActiveSupport::Concern
 
         # @!attribute max_send_size
-        #   @return [Fixnum] The max size of the data to encapsulate in a single packet
+        #   @return [Integer] The max size of the data to encapsulate in a single packet
         attr_accessor :max_send_size
         # @!attribute send_delay
-        #   @return [Fixnum] The delay between sending packets
+        #   @return [Integer] The delay between sending packets
         attr_accessor :send_delay
 
         included do
@@ -73,7 +73,6 @@ module Metasploit
         # @see Rex::Socket::Tcp
         # @see Rex::Socket::Tcp.create
         def connect(global = true, opts={})
-
           dossl = false
           if(opts.has_key?('SSL'))
             dossl = opts['SSL']
@@ -83,12 +82,14 @@ module Metasploit
 
           nsock = Rex::Socket::Tcp.create(
               'PeerHost'      =>  opts['RHOST'] || rhost,
+              'PeerHostname'  =>  opts['SSLServerNameIndication'] || opts['RHOSTNAME'],
               'PeerPort'      => (opts['RPORT'] || rport).to_i,
               'LocalHost'     =>  opts['CHOST'] || chost || "0.0.0.0",
               'LocalPort'     => (opts['CPORT'] || cport || 0).to_i,
               'SSL'           =>  dossl,
               'SSLVersion'    =>  opts['SSLVersion'] || ssl_version,
               'SSLVerifyMode' =>  opts['SSLVerifyMode'] || ssl_verify_mode,
+              'SSLKeyLogFile' =>  opts['SSLKeyLogFile'] || sslkeylogfile,
               'SSLCipher'     =>  opts['SSLCipher'] || ssl_cipher,
               'Proxies'       => proxies,
               'Timeout'       => (opts['ConnectTimeout'] || connection_timeout || 10).to_i,

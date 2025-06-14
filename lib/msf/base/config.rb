@@ -22,7 +22,7 @@ class Config < Hash
   # The installation's root directory for the distribution
   InstallRoot = File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
-  # Determines the base configuration directory.
+  # Determines the base configuration directory. This method should be considered `private`.
   #
   # @return [String] the base configuration directory
   def self.get_config_root
@@ -33,20 +33,24 @@ class Config < Hash
       return val
     end
 
+    # XXX Update this when there is a need to break compatibility
+    config_dir_major = 4
+    config_dir = ".msf#{config_dir_major}"
+
     # Windows-specific environment variables
     ['HOME', 'LOCALAPPDATA', 'APPDATA', 'USERPROFILE'].each do |dir|
       val = Rex::Compat.getenv(dir)
       if (val and File.directory?(val))
-        return File.join(val, ".msf#{Metasploit::Framework::Version::MAJOR}")
+        return File.join(val, config_dir)
       end
     end
 
     begin
       # First we try $HOME/.msfx
-      File.expand_path("~#{FileSep}.msf#{Metasploit::Framework::Version::MAJOR}")
+      File.expand_path("~#{FileSep}#{config_dir}")
     rescue ::ArgumentError
       # Give up and install root + ".msfx"
-      InstallRoot + ".msf#{Metasploit::Framework::Version::MAJOR}"
+      InstallRoot + config_dir
     end
   end
 
@@ -70,7 +74,8 @@ class Config < Hash
       'PluginDirectory'     => "plugins",
       'DataDirectory'       => "data",
       'LootDirectory'       => "loot",
-      'LocalDirectory'      => "local"
+      'LocalDirectory'      => "local",
+      'HistoriesDirectory'  => "histories"
     }
 
   ##
@@ -91,6 +96,13 @@ class Config < Hash
   # @return [String] the root configuration directory.
   def self.config_directory
     self.new.config_directory
+  end
+
+  # Returns the histories directory default.
+  #
+  # @return [String] the SQL session histories directory.
+  def self.histories_directory
+    self.new.histories_directory
   end
 
   # Return the directory that logo files should be loaded from.
@@ -177,6 +189,11 @@ class Config < Hash
     self.new.user_script_directory
   end
 
+  # @return [String] path to user-specific data directory.
+  def self.user_data_directory
+    self.new.user_data_directory
+  end
+
   # Returns the data directory
   #
   # @return [String] path to data directory.
@@ -193,9 +210,54 @@ class Config < Hash
 
   # Returns the full path to the history file.
   #
-  # @return [String] path the history file.
+  # @return [String] path to the history file.
   def self.history_file
     self.new.history_file
+  end
+
+  # Returns the full path to the meterpreter history file.
+  #
+  # @return [String] path to the history file.
+  def self.meterpreter_history
+    self.new.meterpreter_history
+  end
+
+  # Returns the full path to the smb session history file.
+  #
+  # @return [String] path to the history file.
+  def self.smb_session_history
+    self.new.smb_session_history
+  end
+
+  # Returns the full path to the ldap session history file.
+  #
+  # @return [String] path to the history file.
+  def self.ldap_session_history
+    self.new.ldap_session_history
+  end
+
+  # Returns the full path to the MySQL interactive query history file
+  #
+  # @return [String] path to the interactive query history file.
+  def self.history_file_for_session_type(opts)
+    self.new.history_file_for_session_type(opts)
+  end
+
+  def self.pry_history
+    self.new.pry_history
+  end
+  # Returns the full path to the fav_modules file.
+  #
+  # @return [String] path to the fav_modules file.
+  def self.fav_modules_file
+    self.new.fav_modules_file
+  end
+
+  # Returns the full path to the handler file.
+  #
+  # @return [String] path to the handler file.
+  def self.persist_file
+    self.new.persist_file
   end
 
   # Initializes configuration, creating directories as necessary.
@@ -232,6 +294,14 @@ class Config < Hash
     self.new.save(opts)
   end
 
+  # Deletes the specified config group from the ini file
+  #
+  # @param group [String] The name of the group to remove
+  # @return [void]
+  def self.delete_group(group)
+    self.new.delete_group(group)
+  end
+
   # Updates the config class' self with the default hash.
   #
   # @return [Hash] the updated Hash.
@@ -260,6 +330,13 @@ class Config < Hash
     self['ConfigDirectory']
   end
 
+  # Returns the histories directory default.
+  #
+  # @return [String] the SQL session histories directory.
+  def histories_directory
+    config_directory + FileSep + self['HistoriesDirectory']
+  end
+
   # Returns the full path to the configuration file.
   #
   # @return [String] path to the configuration file.
@@ -272,6 +349,56 @@ class Config < Hash
   # @return [String] path the history file.
   def history_file
     config_directory + FileSep + "history"
+  end
+
+  def meterpreter_history
+    config_directory + FileSep + "meterpreter_history"
+  end
+
+  def smb_session_history
+    config_directory + FileSep + "smb_session_history"
+  end
+
+  def ldap_session_history
+    config_directory + FileSep + "ldap_session_history"
+  end
+
+  def history_options_valid?(opts)
+    return false if (opts[:session_type].nil? || opts[:interactive].nil?)
+
+    true
+  end
+
+  def interactive_to_string_map(interactive)
+    # Check for true explicitly rather than just a value that is truthy.
+    interactive == true ? '_interactive' : ''
+  end
+
+  def history_file_for_session_type(opts)
+    return nil unless history_options_valid?(opts)
+
+    session_type_name = opts[:session_type]
+    interactive = interactive_to_string_map(opts[:interactive])
+
+    histories_directory + FileSep + "#{session_type_name}_session#{interactive}_history"
+  end
+
+  def pry_history
+    config_directory + FileSep + "pry_history"
+  end
+
+  # Returns the full path to the fav_modules file.
+  #
+  # @return [String] path the fav_modules file.
+  def fav_modules_file
+    config_directory + FileSep + "fav_modules"
+  end
+
+  # Returns the full path to the handler file.
+  #
+  # @return [String] path the handler file.
+  def persist_file
+    config_directory + FileSep + "persist"
   end
 
   # Returns the global module directory.
@@ -351,6 +478,11 @@ class Config < Hash
     config_directory + FileSep + "scripts"
   end
 
+  # @return [String] path to user-specific data directory.
+  def user_data_directory
+    config_directory + FileSep + self['DataDirectory']
+  end
+
   # Returns the data directory
   #
   # @return [String] path to data directory.
@@ -371,6 +503,8 @@ class Config < Hash
     FileUtils.mkdir_p(user_logos_directory)
     FileUtils.mkdir_p(user_module_directory)
     FileUtils.mkdir_p(user_plugin_directory)
+    FileUtils.mkdir_p(user_data_directory)
+    FileUtils.mkdir_p(histories_directory)
   end
 
   # Loads configuration from the supplied file path, or the default one if
@@ -406,7 +540,17 @@ class Config < Hash
     ini.to_file
   end
 
+  # Deletes the specified config group from the ini file
+  #
+  # @param group [String] The name of the group to remove
+  # @return [void]
+  def delete_group(group)
+    ini = Rex::Parser::Ini.new(config_file)
+
+    ini.delete(group)
+
+    ini.to_file
+  end
 end
 
 end
-

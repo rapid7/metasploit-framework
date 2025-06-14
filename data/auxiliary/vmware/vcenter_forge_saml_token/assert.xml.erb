@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<saml2p:Response xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol" Destination="https://<%= vcenter_fqdn.encode(xml: :text) %>/ui/saml/websso/sso" ID="_<%= vcenter_saml_response_id.encode(xml: :text) %>" InResponseTo="<%= vcenter_saml_id.encode(xml: :text) %>" IssueInstant="<%= vcenter_saml_issue.encode(xml: :text) %>" Version="2.0">
+    <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">https://<%= vcenter_fqdn.encode(xml: :text) %>/websso/SAML2/Metadata/<%= vcenter_saml_domain.encode(xml: :text) %></saml2:Issuer>
+    <saml2p:Status>
+        <saml2p:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
+        <saml2p:StatusMessage>Request successful</saml2p:StatusMessage>
+    </saml2p:Status>
+    <saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="_<%= vcenter_saml_assert_id.encode(xml: :text) %>" IssueInstant="<%= vcenter_saml_issue.encode(xml: :text) %>" Version="2.0">
+        <saml2:Issuer Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">https://<%= vcenter_fqdn.encode(xml: :text) %>/websso/SAML2/Metadata/<%= vcenter_saml_domain.encode(xml: :text) %></saml2:Issuer>
+        <saml2:Subject>
+            <saml2:NameID Format="http://schemas.xmlsoap.org/claims/UPN"><%= vcenter_saml_user.encode(xml: :text) %>@<%= vcenter_saml_domain.encode(xml: :text) %></saml2:NameID>
+            <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+                <saml2:SubjectConfirmationData InResponseTo="<%= vcenter_saml_id.encode(xml: :text) %>" NotOnOrAfter="<%= vcenter_saml_not_after.encode(xml: :text) %>" Recipient="https://<%= vcenter_fqdn.encode(xml: :text) %>/ui/saml/websso/sso"/>
+            </saml2:SubjectConfirmation>
+        </saml2:Subject>
+        <saml2:Conditions NotBefore="<%= vcenter_saml_not_before.encode(xml: :text) %>" NotOnOrAfter="<%= vcenter_saml_not_after.encode(xml: :text) %>">
+            <saml2:ProxyRestriction Count="10"/>
+            <saml2:Condition xmlns:rsa="http://www.rsa.com/names/2009/12/std-ext/SAML2.0" Count="10" xsi:type="rsa:RenewRestrictionType"/>
+            <saml2:AudienceRestriction>
+                <saml2:Audience>https://<%= vcenter_fqdn.encode(xml: :text) %>/ui/saml/websso/metadata</saml2:Audience>
+            </saml2:AudienceRestriction>
+        </saml2:Conditions>
+        <saml2:AuthnStatement AuthnInstant="<%= vcenter_saml_issue.encode(xml: :text) %>" SessionIndex="_<%= vcenter_saml_idx_id.encode(xml: :text) %>" SessionNotOnOrAfter="<%= vcenter_saml_not_after.encode(xml: :text) %>">
+            <saml2:AuthnContext>
+                <saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</saml2:AuthnContextClassRef>
+            </saml2:AuthnContext>
+        </saml2:AuthnStatement>
+        <saml2:AttributeStatement>
+            <saml2:Attribute FriendlyName="userPrincipalName" Name="http://schemas.xmlsoap.org/claims/UPN" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+                <saml2:AttributeValue xsi:type="xsd:string"><%= vcenter_saml_user.encode(xml: :text) %>@<%= vcenter_saml_domain.encode(xml: :text) %></saml2:AttributeValue>
+            </saml2:Attribute>
+            <saml2:Attribute FriendlyName="Groups" Name="http://rsa.com/schemas/attr-names/2009/01/GroupIdentity" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+                <saml2:AttributeValue xsi:type="xsd:string"><%= vcenter_saml_domain.encode(xml: :text) %>\Users</saml2:AttributeValue>
+                <saml2:AttributeValue xsi:type="xsd:string"><%= vcenter_saml_domain.encode(xml: :text) %>\Administrators</saml2:AttributeValue>
+                <saml2:AttributeValue xsi:type="xsd:string"><%= vcenter_saml_domain.encode(xml: :text) %>\CAAdmins</saml2:AttributeValue>
+                <saml2:AttributeValue xsi:type="xsd:string"><%= vcenter_saml_domain.encode(xml: :text) %>\ComponentManager.Administrators</saml2:AttributeValue>
+                <saml2:AttributeValue xsi:type="xsd:string"><%= vcenter_saml_domain.encode(xml: :text) %>\SystemConfiguration.BashShellAdministrators</saml2:AttributeValue>
+                <saml2:AttributeValue xsi:type="xsd:string"><%= vcenter_saml_domain.encode(xml: :text) %>\SystemConfiguration.ReadOnly</saml2:AttributeValue>
+                <saml2:AttributeValue xsi:type="xsd:string"><%= vcenter_saml_domain.encode(xml: :text) %>\SystemConfiguration.SupportUsers</saml2:AttributeValue>
+                <saml2:AttributeValue xsi:type="xsd:string"><%= vcenter_saml_domain.encode(xml: :text) %>\SystemConfiguration.Administrators</saml2:AttributeValue>
+                <saml2:AttributeValue xsi:type="xsd:string"><%= vcenter_saml_domain.encode(xml: :text) %>\LicenseService.Administrators</saml2:AttributeValue>
+                <saml2:AttributeValue xsi:type="xsd:string"><%= vcenter_saml_domain.encode(xml: :text) %>\Everyone</saml2:AttributeValue>
+            </saml2:Attribute>
+            <saml2:Attribute FriendlyName="Subject Type" Name="http://vmware.com/schemas/attr-names/2011/07/isSolution" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+                <saml2:AttributeValue xsi:type="xsd:string">false</saml2:AttributeValue>
+            </saml2:Attribute>
+            <saml2:Attribute FriendlyName="surname" Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+                <saml2:AttributeValue xsi:type="xsd:string"><%= vcenter_saml_domain.encode(xml: :text) %></saml2:AttributeValue>
+            </saml2:Attribute>
+            <saml2:Attribute FriendlyName="givenName" Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+                <saml2:AttributeValue xsi:type="xsd:string"><%= vcenter_saml_user.encode(xml: :text) %></saml2:AttributeValue>
+            </saml2:Attribute>
+        </saml2:AttributeStatement>
+    </saml2:Assertion>
+</saml2p:Response>

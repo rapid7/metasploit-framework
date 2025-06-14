@@ -75,6 +75,7 @@ class RegistryValue
     return "REG_BINARY" if (type == REG_BINARY)
     return "REG_EXPAND_SZ" if (type == REG_EXPAND_SZ)
     return "REG_NONE" if (type == REG_NONE)
+    return "REG_MULTI_SZ" if (type == REG_MULTI_SZ)
     return nil
   end
 

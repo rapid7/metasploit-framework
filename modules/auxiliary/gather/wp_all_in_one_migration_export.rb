@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://www.metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
@@ -20,21 +18,21 @@ class MetasploitModule < Msf::Auxiliary
       'License'         => MSF_LICENSE,
       'Author'          =>
         [
-          'James Golovich',                  # Disclosure
-          'Rob Carr <rob[at]rastating.com>'  # Metasploit module
+          'James Golovich', # Disclosure
+          'rastating'       # Metasploit module
         ],
       'References'      =>
         [
           ['WPVDB', '7857'],
-          ['URL', 'http://www.pritect.net/blog/all-in-one-wp-migration-2-0-4-security-vulnerability']
+          ['URL', 'https://www.pritect.net/blog/all-in-one-wp-migration-2-0-4-security-vulnerability']
         ],
-      'DisclosureDate'  => 'Mar 19 2015'
+      'DisclosureDate'  => '2015-03-19'
     ))
 
     register_options(
       [
         OptInt.new('MAXTIME', [ true, 'The maximum number of seconds to wait for the export to complete', 300 ])
-      ], self.class)
+      ])
   end
 
   def check

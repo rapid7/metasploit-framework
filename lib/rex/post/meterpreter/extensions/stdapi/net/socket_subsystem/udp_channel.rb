@@ -35,34 +35,34 @@ class UdpChannel < Rex::Post::Meterpreter::Datagram
   #
   # @return [Channel]
   def self.open(client, params)
-    c = Channel.create(client, 'stdapi_net_udp_client', self, CHANNEL_FLAG_SYNCHRONOUS,
+    Channel.create(client, 'stdapi_net_udp_client', self, CHANNEL_FLAG_SYNCHRONOUS,
     [
-      {
-        'type'  => TLV_TYPE_LOCAL_HOST,
-        'value' => params.localhost
-      },
-      {
-        'type'  => TLV_TYPE_LOCAL_PORT,
-        'value' => params.localport
-      },
-      {
-        'type'  => TLV_TYPE_PEER_HOST,
-        'value' => params.peerhost
-      },
-      {
-        'type'  => TLV_TYPE_PEER_PORT,
-        'value' => params.peerport
-      }
-    ] )
-    c.params = params
-    c
+        {
+          'type'  => TLV_TYPE_LOCAL_HOST,
+          'value' => params.localhost
+        },
+        {
+          'type'  => TLV_TYPE_LOCAL_PORT,
+          'value' => params.localport
+        },
+        {
+          'type'  => TLV_TYPE_PEER_HOST,
+          'value' => params.peerhost
+        },
+        {
+          'type'  => TLV_TYPE_PEER_PORT,
+          'value' => params.peerport
+        }
+      ],
+      sock_params: params
+    )
   end
 
   #
   # Simply initialize this instance.
   #
-  def initialize(client, cid, type, flags)
-    super(client, cid, type, flags)
+  def initialize(client, cid, type, flags, packet, sock_params: nil)
+    super(client, cid, type, flags, packet)
 
     lsock.extend(Rex::Socket::Udp)
     lsock.initsock
@@ -74,27 +74,47 @@ class UdpChannel < Rex::Post::Meterpreter::Datagram
     rsock.extend(SocketInterface)
     rsock.channel = self
 
+    unless sock_params.nil?
+      @params = sock_params.merge(Socket.parameters_from_response(packet))
+    end
   end
 
   #
-  # This function is called by Rex::Socket::Udp.sendto and writes data to a specified
-  # remote peer host/port via the remote end of the channel.
+  # This function is called by Rex::Socket::Udp.sendto and writes data to a
+  # specified remote peer host/port via the remote end of the channel.
   #
-  def send(buf, flags, saddr)
-    _af, peerhost, peerport = Rex::Socket.from_sockaddr(saddr)
+  # This should work just like a UDPSocket.send method
+  #
+  # send(mesg, flags, host, port) => numbytes_sent click to toggle source
+  # send(mesg, flags, sockaddr_to) => numbytes_sent
+  # send(mesg, flags) => numbytes_sent
+  #
+  def send(buf, flags, a = nil, b = nil)
+    host = nil
+    port = nil
 
-    addends = [
-      {
-        'type'  => TLV_TYPE_PEER_HOST,
-        'value' => peerhost
-      },
-      {
-        'type'  => TLV_TYPE_PEER_PORT,
-        'value' => peerport
-      }
-    ]
+    if a && b.nil?
+      _, host, port = Rex::Socket.from_sockaddr(a)
+    elsif a && b
+      host = a
+      port = b
+    end
 
-    return _write(buf, buf.length, addends)
+    addends = nil
+    if host && port
+      addends = [
+        {
+          'type'  => TLV_TYPE_PEER_HOST,
+          'value' => host
+        },
+        {
+          'type'  => TLV_TYPE_PEER_PORT,
+          'value' => port
+        }
+      ]
+    end
+
+    _write(buf, buf.length, addends)
   end
 
 end

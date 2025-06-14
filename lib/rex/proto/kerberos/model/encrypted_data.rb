@@ -7,20 +7,26 @@ module Rex
         # This class provides a representation of an encrypted message.
         class EncryptedData < Element
           # @!attribute name_type
-          #   @return [Fixnum] The encryption algorithm
+          #   @return [Integer] The encryption algorithm
           attr_accessor :etype
           # @!attribute kvno
-          #   @return [Fixnum] The version number of the key
+          #   @return [Integer] The version number of the key
           attr_accessor :kvno
           # @!attribute cipher
           #   @return [String] The enciphered text
           attr_accessor :cipher
 
+          def ==(other)
+            etype == other.etype &&
+              kvno == other.kvno &&
+              cipher == other.cipher
+          end
+
           # Decodes a Rex::Proto::Kerberos::Model::EncryptedData
           #
           # @param input [String, OpenSSL::ASN1::Sequence] the input to decode from
           # @return [self]
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode(input)
             case input
             when String
@@ -28,7 +34,7 @@ module Rex
             when OpenSSL::ASN1::Sequence
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode EncryptedData Name, invalid input'
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode EncryptedData Name, invalid input'
             end
 
             self
@@ -55,30 +61,23 @@ module Rex
             seq.to_der
           end
 
-          # Decrypts the cipher with etype encryption schema
+          # Decrypts the cipher with etype encryption schema, presuming that the
+          # data is an ASN1 structure
           #
           # @param key [String] the key to decrypt
-          # @param msg_type [Fixnum] the message type
+          # @param msg_type [Integer] the message type
           # @return [String] the decrypted `cipher`
-          # @raise [RuntimeError] if decryption doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decryption doesn't succeed
           # @raise [NotImplementedError] if encryption isn't supported
-          def decrypt(key, msg_type)
+          def decrypt_asn1(key, msg_type)
             if cipher.nil? || cipher.empty?
               return ''
             end
 
-            res = ''
-            case etype
-            when RC4_HMAC
-              res = decrypt_rc4_hmac(cipher, key, msg_type)
-              raise ::RuntimeError, 'EncryptedData failed to decrypt' if res.length < 8
-              res = res[8, res.length - 1]
-            else
-              raise ::NotImplementedError, 'EncryptedData schema is not supported'
-            end
-
-            res
+            encryptor = Rex::Proto::Kerberos::Crypto::Encryption::from_etype(etype)
+            encryptor.decrypt_asn1(cipher, key, msg_type)
           end
+
 
           private
 
@@ -94,12 +93,14 @@ module Rex
 
           # Encodes the kvno
           #
-          # @raise [RuntimeError]
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError]
           def encode_kvno
             bn = OpenSSL::BN.new(kvno.to_s)
             int = OpenSSL::ASN1::Integer.new(bn)
 
             int
+          rescue OpenSSL::ASN1::ASN1Error
+            raise Rex::Proto::Kerberos::Model::Error::KerberosDecodingError
           end
 
           # Encodes the cipher
@@ -122,7 +123,7 @@ module Rex
           # OpenSSL::ASN1::Sequence
           #
           # @param input [OpenSSL::ASN1::Sequence] the input to decode from
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode_asn1(input)
             seq_values = input.value
 
@@ -135,7 +136,7 @@ module Rex
               when 2
                 self.cipher = decode_cipher(val)
               else
-                raise ::RuntimeError, 'Failed to decode EncryptedData SEQUENCE'
+                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode EncryptedData SEQUENCE'
               end
             end
           end
@@ -143,7 +144,7 @@ module Rex
           # Decodes the etype from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_etype(input)
             input.value[0].value.to_i
           end
@@ -151,7 +152,7 @@ module Rex
           # Decodes the kvno from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_kvno(input)
             input.value[0].value.to_i
           end
@@ -159,7 +160,7 @@ module Rex
           # Decodes the cipher from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Sting]
+          # @return [String]
           def decode_cipher(input)
             input.value[0].value
           end

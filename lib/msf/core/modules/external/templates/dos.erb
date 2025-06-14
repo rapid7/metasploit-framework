@@ -1,0 +1,27 @@
+require 'msf/core/modules/external/bridge'
+require 'msf/core/module/external'
+
+class MetasploitModule < Msf::Auxiliary
+  include Msf::Module::External
+  include Msf::Auxiliary::Dos
+
+  def initialize
+    super({
+	  <%= common_metadata meta %>
+      'References'  =>
+        [
+          <%= meta[:references] %>
+        ],
+      'DisclosureDate' => <%= meta[:date] %>,
+      })
+
+      register_options([
+        <%= meta[:options] %>
+      ])
+  end
+
+  def run
+    print_status("Starting server...")
+    execute_module(<%= meta[:path] %>)
+  end
+end

@@ -12,39 +12,20 @@ module CommandDispatcher
 class Post
 
   include Msf::Ui::Console::ModuleCommandDispatcher
-
-
-  @@post_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                          ],
-    "-j" => [ false, "Run in the context of a job."                          ],
-    "-o" => [ true,  "A comma separated list of options in VAR=VAL format."  ],
-    "-q" => [ false, "Run the module in quiet mode with no output"           ]
-  )
+  include Msf::Ui::Console::ModuleActionCommands
+  include Msf::Ui::Console::ModuleOptionTabCompletion
+  include Msf::Ui::Console::ModuleArgumentParsing
 
   #
   # Returns the hash of commands specific to post modules.
   #
   def commands
-    super.update({
+    super.merge({
       "run"   => "Launches the post exploitation module",
       "rerun" => "Reloads and launches the module",
       "exploit"  => "This is an alias for the run command",
       "rexploit" => "This is an alias for the rerun command",
     }).merge( (mod ? mod.post_commands : {}) )
-  end
-
-  #
-  # Allow modules to define their own commands
-  #
-  def method_missing(meth, *args)
-    if (mod and mod.respond_to?(meth.to_s))
-
-      # Initialize user interaction
-      mod.init_ui(driver.input, driver.output)
-
-      return mod.send(meth.to_s, *args)
-    end
-    return
   end
 
   #
@@ -63,43 +44,40 @@ class Post
   end
 
   #
-  # Reloads an auxiliary module and executes it
+  # Reloads a post module and executes it
   #
   def cmd_rerun(*args)
+    opts = {}
+    if args.include?('-r') || args.include?('--reload-libs')
+      driver.run_single('reload_lib -a')
+      opts[:previously_reloaded] = true
+    end
+
     # Stop existing job and reload the module
     if reload(true)
-      cmd_run(*args)
+      cmd_run(*args, opts: opts)
     end
   end
 
   alias cmd_rexploit cmd_rerun
 
-  #
-  # Executes an auxiliary module
-  #
-  def cmd_run(*args)
-    opt_str = nil
-    jobify  = false
-    quiet   = false
+  def cmd_run_help
+    print_module_run_or_check_usage(
+      command: :run,
+      description: 'Launches a post exploitation module.'
+    )
+  end
 
-    @@post_opts.parse(args) { |opt, idx, val|
-      case opt
-        when '-j'
-          jobify = true
-        when '-o'
-          opt_str = val
-        when '-a'
-          action = val
-        when '-q'
-          quiet  = true
-        when '-h'
-          print(
-            "Usage: run [options]\n\n" +
-            "Launches a post module.\n" +
-            @@post_opts.usage)
-          return false
-      end
-    }
+  #
+  # Executes a post module
+  #
+  def cmd_run(*args, action: nil, opts: {})
+    if (args.include?('-r') || args.include?('--reload-libs')) && !opts[:previously_reloaded]
+      driver.run_single('reload_lib -a')
+    end
+
+    return false unless (args = parse_run_opts(args, action: action))
+    jobify = args[:jobify]
 
     # Always run passive modules in the background
     if (mod.passive)
@@ -108,11 +86,12 @@ class Post
 
     begin
       mod.run_simple(
-        'OptionStr'      => opt_str,
+        'Action'         => args[:action],
+        'Options'      => args[:datastore_options],
         'LocalInput'     => driver.input,
         'LocalOutput'    => driver.output,
         'RunAsJob'       => jobify,
-        'Quiet'          => quiet
+        'Quiet'          => args[:quiet]
       )
     rescue ::Timeout::Error
       print_error("Post triggered a timeout exception")
@@ -131,8 +110,8 @@ class Post
       return false
     end
 
-    if (jobify)
-      print_status("Post module running as background job")
+    if (jobify && mod.job_id)
+      print_status("Post module running as background job #{mod.job_id}.")
     else
       print_status("Post module execution completed")
     end
@@ -140,11 +119,13 @@ class Post
 
   alias cmd_exploit cmd_run
 
+  alias cmd_exploit_tabs cmd_run_tabs
+
   def cmd_run_help
     print_line "Usage: run [options]"
     print_line
     print_line "Launches a post module."
-    print @@auxiliary_opts.usage
+    print @@module_opts_with_action_support.usage
   end
 
   alias cmd_exploit_help cmd_run_help

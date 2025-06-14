@@ -1,14 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::WmapScanServer
@@ -22,8 +17,8 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => 'This module queries the FrontPage Server Extensions and determines whether anonymous access is allowed.',
       'References'  =>
         [
-          ['URL', 'http://en.wikipedia.org/wiki/Microsoft_FrontPage'],
-          ['URL', 'http://msdn2.microsoft.com/en-us/library/ms454298.aspx'],
+          ['URL', 'https://en.wikipedia.org/wiki/Microsoft_FrontPage'],
+          ['URL', 'https://docs.microsoft.com/en-us/previous-versions/office/developer/sharepoint-2010/ms454298(v=office.14)'],
         ],
       'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
       'License'     => MSF_LICENSE
@@ -31,8 +26,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request", 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ])
-      ], self.class)
+        OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request", Rex::UserAgent.session_agent ])
+      ])
   end
 
   def run_host(target_host)
@@ -73,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
             :proto => 'tcp',
             :sname => (ssl ? 'https' : 'http'),
             :type  => 'FrontPage Author',
-            :data  => "#{info}#{fpauthor}"
+            :data  => { :author => "#{info}#{fpauthor}" }
           }
           opts[:port] = datastore['RPORT'] if not port.empty?
           report_note(opts)
@@ -91,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
 
     connect
 
-    # http://msdn2.microsoft.com/en-us/library/ms454298.aspx
+    # https://docs.microsoft.com/en-us/previous-versions/office/developer/sharepoint-2010/ms454298(v=office.14)?redirectedfrom=MSDN
     method = "method=open+service:#{fpversion}&service_name=/"
 
     req = "POST /_vti_bin/_vti_aut/author.dll HTTP/1.1\r\n" + "TE: deflate,gzip;q=0.3\r\n" +
@@ -119,7 +114,7 @@ class MetasploitModule < Msf::Auxiliary
 
       case retcode
         when /^200/
-          print_status("#{info} FrontPage ACCESS ALLOWED [#{retcode}]")
+          print_good("#{info} FrontPage ACCESS ALLOWED [#{retcode}]")
           # Report a note or vulnerability or something
           # Not really this one, but close
           report_vuln(
@@ -148,5 +143,4 @@ class MetasploitModule < Msf::Auxiliary
 
     disconnect
   end
-
 end

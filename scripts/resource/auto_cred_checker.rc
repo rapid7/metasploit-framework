@@ -3,7 +3,7 @@
 
 # This Metasploit RC-File could be used to automatically check already discovered
 # credentials against some other login services.
-# It uses allready discovered credential from the database and tries to use them against some
+# It uses already discovered credential from the database and tries to use them against some
 # other services
 
 <ruby>

@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -23,7 +23,7 @@ query = false
   "-h" => [ false, "Help menu." ],
   "-p" => [ true, "PID of process to dump."],
   "-n" => [ true, "Name of process to dump."],
-  "-r" => [ true, "Text file wih list of process names to dump memory for, one per line."],
+  "-r" => [ true, "Text file with list of process names to dump memory for, one per line."],
   "-t" => [ false, "toggle location information in dump."],
   "-q" => [false, "Query the size of the Process that would be dump in bytes."]
 )
@@ -53,7 +53,7 @@ end
     list = val
     resource = ""
     if not ::File.exist?(list)
-      raise "Command List File does not exists!"
+      raise "Command List File does not exist!"
     else
       ::File.open(list, "r").each_line do |line|
         resource << line
@@ -147,9 +147,9 @@ def get_mem_usage( pid )
         # Note: As we get the raw structure back from railgun we need to account
         #       for SIZE_T variables being 32bit on x86 and 64bit on x64
         mem = nil
-        if( @client.platform =~ /win32/ )
+        if( @client.arch == 'x86' )
           mem = pmc[12..15].unpack('V').first
-        elsif( @client.platform =~ /win64/ )
+        elsif( @client.arch == 'x64' )
           mem = pmc[16..23].unpack('Q').first
         end
         return (mem/1024)
@@ -165,7 +165,7 @@ def get_mem_usage( pid )
 end
 
 # Main
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   if resource
     resource.each do |r|
       next if r.strip.length < 1

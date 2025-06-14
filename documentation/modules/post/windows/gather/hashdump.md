@@ -5,7 +5,6 @@ Having this feature as a post module allows it to be used in different penetrati
 
 ## Vulnerable Application
 
----
 
 To be able to use post/gather/hash_dump, you must meet these requirements:
 
@@ -15,13 +14,10 @@ To be able to use post/gather/hash_dump, you must meet these requirements:
 
 ## Verification Steps
 
----
-
 Please see Overview for usage.
 
 ## Scenarios
 
----
 
 **Upgrading to Meterpreter**
 

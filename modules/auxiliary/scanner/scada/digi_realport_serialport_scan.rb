@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::RealPort
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -17,8 +14,8 @@ class MetasploitModule < Msf::Auxiliary
       'Description' => 'Identify active ports on RealPort-enabled serial servers.',
       'References'  =>
         [
-          ['URL', 'http://www.digi.com/pdf/fs_realport.pdf'],
-          ['URL', 'http://www.digi.com/support/productdetail?pid=2229&type=drivers']
+          ['URL', 'https://www.digi.com/resources/library/technical-briefs/fs_realport'],
+          ['URL', 'https://web.archive.org/web/20151012224641/http://www.digi.com/support/productdetail?pid=2229&type=drivers']
         ],
       'Author'      =>
         [
@@ -32,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new("BANNER_TIMEOUT", [true, "How long to capture data from the serial port", 5]),
         OptString.new('BAUD_RATES', [true, "A space delimited list of baud rates to try for each port", "9600 115200"]),
         OptString.new('PORTS', [true, "A space delimited list of 1-indexed serial port numbers to try, default is all supported", "ALL"])
-      ], self.class)
+      ])
   end
 
   def setup
@@ -52,7 +49,7 @@ class MetasploitModule < Msf::Auxiliary
     return unless realport_connect
 
     info = "#{@realport_name} ( ports: #{@realport_port_count} )"
-    vprint_status("#{target_host}:#{rport} is running #{info}")
+    vprint_good("#{target_host}:#{rport} is running #{info}")
     report_service(:host => rhost, :port => rport, :name => "realport", :info => info)
 
     1.upto(@realport_port_count) do |pnum|
@@ -83,5 +80,4 @@ class MetasploitModule < Msf::Auxiliary
 
     realport_disconnect
   end
-
 end

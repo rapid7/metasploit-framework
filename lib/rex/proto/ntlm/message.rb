@@ -43,9 +43,6 @@
 
 #this module defines the message class , useful for easily handling type 1/2/3 ntlm messages
 
-require 'rex/proto/ntlm/base'
-require 'rex/proto/ntlm/constants'
-require 'rex/proto/ntlm/crypt'
 
 
 module Rex
@@ -202,7 +199,7 @@ CRYPT = Rex::Proto::NTLM::Crypt
       end
     end
     #create a type 3 response base on a type2
-    # This mehod is not compatible with windows 7 / 2008 r2
+    # This method is not compatible with windows 7 / 2008 r2
     # to make it compatible avpair Time and SPN must be handle as in utils
     def response(arg, opt = {})
       usr = arg[:user]

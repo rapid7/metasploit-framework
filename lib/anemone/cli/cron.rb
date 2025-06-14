@@ -22,7 +22,7 @@ Synopsis:
 
 Options:
   -r, --relative           Output relative URLs (rather than absolute)
-  -o, --output filename    Filename to save URL list to. Defautls to urls.txt.
+  -o, --output filename    Filename to save URL list to. Defaults to urls.txt.
 INFO
   exit(0)
 end

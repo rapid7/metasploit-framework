@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -57,7 +57,7 @@ wmic = [
 ]
 ################## Function Declarations ##################
 
-# Function for running a list of WMIC commands stored in a array, returs string
+# Function for running a list of WMIC commands stored in a array, returns string
 def wmicexec(session,wmic,user,pass,trgt)
   print_status("Running WMIC Commands ....")
   tmpout = ''
@@ -137,14 +137,14 @@ end
 # Function Help Message
 def helpmsg
   print("Remote Windows Enumeration Meterpreter Script\n" +
-    "This script will enumerate windows hosts in the target enviroment\n" +
+    "This script will enumerate windows hosts in the target environment\n" +
     "given a username and password or using the credential under witch\n" +
-    "Meterpeter is running using WMI wmic windows native tool.\n" +
+    "Meterpreter is running using WMI wmic windows native tool.\n" +
     "Usage:\n" +
     @@exec_opts.usage)
 end
 ################## MAIN ##################
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   localos = session.sys.config.sysinfo
 
   # Check that the command is not being ran on a Win2k host

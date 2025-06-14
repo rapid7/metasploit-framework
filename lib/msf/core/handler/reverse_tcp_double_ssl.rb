@@ -63,8 +63,8 @@ module ReverseTcpDoubleSSL
   # if it fails to start the listener.
   #
   def setup_handler
-    if datastore['Proxies'] and not datastore['ReverseAllowProxy']
-      raise RuntimeError, 'TCP connect-back payloads cannot be used with Proxies. Can be overriden by setting ReverseAllowProxy to true'
+    if !datastore['Proxies'].blank? && !datastore['ReverseAllowProxy']
+      raise RuntimeError, 'TCP connect-back payloads cannot be used with Proxies. Can be overridden by setting ReverseAllowProxy to true'
     end
 
     ex = false
@@ -76,11 +76,12 @@ module ReverseTcpDoubleSSL
       begin
 
         self.listener_sock = Rex::Socket::SslTcpServer.create(
-        'LocalHost' => ip,
-        'LocalPort' => local_port,
-        'Comm'      => comm,
-        'SSLCert'   => datastore['HandlerSSLCert'],
-        'Context'   =>
+        'LocalHost'  => ip,
+        'LocalPort'  => local_port,
+        'Comm'       => comm,
+        'SSLCert'    => datastore['HandlerSSLCert'],
+        'SSLVersion' => datastore['SSLVersion'],
+        'Context'    =>
           {
             'Msf'        => framework,
             'MsfPayload' => self,
@@ -89,7 +90,7 @@ module ReverseTcpDoubleSSL
 
         ex = false
 
-        via = via_string_for_ip(ip, comm)
+        via = via_string(self.listener_sock.client) if self.listener_sock.respond_to?(:client)
 
         print_status("Started reverse double SSL handler on #{ip}:#{local_port} #{via}")
         break
@@ -99,6 +100,21 @@ module ReverseTcpDoubleSSL
       end
     }
     raise ex if (ex)
+  end
+
+  # A URI describing what the payload is configured to use for transport
+  def payload_uri
+    addr = datastore['LHOST']
+    uri_host = Rex::Socket.is_ipv6?(addr) ? "[#{addr}]" : addr
+    "ssl://#{uri_host}:#{datastore['LPORT']}"
+  end
+
+  def comm_string
+    if listener_sock.nil?
+      "(setting up)"
+    else
+      via_string(listener_sock.client) if listener_sock.respond_to?(:client)
+    end
   end
 
   #
@@ -146,8 +162,8 @@ module ReverseTcpDoubleSSL
             sock_inp, sock_out = detect_input_output(client_a_copy, client_b_copy)
             chan = TcpReverseDoubleSSLSessionChannel.new(framework, sock_inp, sock_out)
             handle_connection(chan.lsock, { datastore: datastore })
-          rescue
-            elog("Exception raised from handle_connection: #{$!}\n\n#{$@.join("\n")}")
+          rescue => e
+            elog('Exception raised from handle_connection', error: e)
           end
         }
       end while true

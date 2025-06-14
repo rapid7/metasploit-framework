@@ -1,8 +1,6 @@
 # -*- coding: binary -*-
-
-require 'msf/base'
-require 'msf/base/sessions/scriptable'
-require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/client'
+require 'rex/post/meterpreter/ui/console'
 
 module Msf
 module Sessions
@@ -14,6 +12,7 @@ module Sessions
 # with the server instance both at an API level as well as at a console level.
 #
 ###
+
 class Meterpreter < Rex::Post::Meterpreter::Client
 
   include Msf::Session
@@ -28,7 +27,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   include Msf::Session::Provider::SingleCommandShell
 
-  include Msf::Session::Scriptable
+  include Msf::Sessions::Scriptable
 
   # Override for server implementations that can't do SSL
   def supports_ssl?
@@ -38,6 +37,14 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   # Override for server implementations that can't do zlib
   def supports_zlib?
     true
+  end
+
+  def tunnel_to_s
+    if self.pivot_session
+      "Pivot via [#{self.pivot_session.tunnel_to_s}]"
+    else
+      super
+    end
   end
 
   #
@@ -66,6 +73,11 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       opts[:ssl_cert] = opts[:datastore]['HandlerSSLCert']
     end
 
+    # Extract the MeterpreterDebugBuild option if specified by the user
+    if opts[:datastore]
+      opts[:debug_build] = opts[:datastore]['MeterpreterDebugBuild']
+    end
+
     # Don't pass the datastore into the init_meterpreter method
     opts.delete(:datastore)
 
@@ -83,6 +95,15 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     self.console = Rex::Post::Meterpreter::Ui::Console.new(self)
   end
 
+  def exit
+    begin
+      self.core.shutdown
+    rescue StandardError
+      nil
+    end
+    self.shutdown_passive_dispatcher
+    self.console.stop
+  end
   #
   # Returns the session type as being 'meterpreter'.
   #
@@ -97,6 +118,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     self.class.type
   end
 
+  def self.can_cleanup_files
+    true
+  end
+
   ##
   # :category: Msf::Session::Provider::SingleCommandShell implementors
   #
@@ -107,9 +132,88 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     # COMSPEC is special-cased on all meterpreters to return a viable
     # shell.
-    sh = fs.file.expand_path("%COMSPEC%")
+    sh = sys.config.getenv('COMSPEC')
     @shell = sys.process.execute(sh, nil, { "Hidden" => true, "Channelized" => true })
 
+  end
+
+  def bootstrap(datastore = {}, handler = nil)
+    session = self
+
+    # Configure unicode encoding before loading stdapi
+    session.encode_unicode = datastore['EnableUnicodeEncoding']
+
+    session.init_ui(self.user_input, self.user_output)
+
+    initialize_tlv_logging(datastore['SessionTlvLogging']) unless datastore['SessionTlvLogging'].nil?
+
+    verification_timeout = datastore['AutoVerifySessionTimeout']&.to_i || session.comm_timeout
+    begin
+      session.tlv_enc_key = session.core.negotiate_tlv_encryption(timeout: verification_timeout)
+    rescue Rex::TimeoutError
+    end
+
+    if session.tlv_enc_key.nil?
+      # Fail-closed if TLV encryption can't be negotiated (close the session as invalid)
+      dlog("Session #{session.sid} failed to negotiate TLV encryption")
+      print_error("Meterpreter session #{session.sid} is not valid and will be closed")
+      # Terminate the session without cleanup if it did not validate
+      session.skip_cleanup = true
+      session.kill
+      return nil
+    end
+
+    # always make sure that the new session has a new guid if it's not already known
+    guid = session.session_guid
+    if guid == "\x00" * 16
+      guid = [SecureRandom.uuid.gsub('-', '')].pack('H*')
+      session.core.set_session_guid(guid)
+      session.session_guid = guid
+      # TODO: New stageless session, do some account in the DB so we can track it later.
+    else
+      # TODO: This session was either staged or previously known, and so we should do some accounting here!
+    end
+
+    session.commands.concat(session.core.get_loaded_extension_commands('core'))
+    if session.tlv_enc_key[:weak_key?]
+      print_warning("Meterpreter session #{session.sid} is using a weak encryption key.")
+      print_warning('Meterpreter start up operations have been aborted. Use the session at your own risk.')
+      return nil
+    end
+    # Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP
+    if datastore['AutoUnhookProcess'] == true
+      console.run_single('load unhook')
+      console.run_single('unhook_pe')
+    end
+
+    unless datastore['AutoLoadStdapi'] == false
+
+      session.load_stdapi
+
+      unless datastore['AutoSystemInfo'] == false
+        session.load_session_info
+      end
+
+      # only load priv on native windows
+      # TODO: abstract this too, to remove windows stuff
+      if session.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(session.arch)
+        session.load_priv rescue nil
+      end
+    end
+
+    # TODO: abstract this a little, perhaps a "post load" function that removes
+    # platform-specific stuff?
+    if session.platform == 'android'
+      session.load_android
+    end
+
+    ['InitialAutoRunScript', 'AutoRunScript'].each do |key|
+      unless datastore[key].nil? || datastore[key].empty?
+        args = Shellwords.shellwords(datastore[key])
+        print_status("Session ID #{session.sid} (#{session.tunnel_to_s}) processing #{key} '#{datastore[key]}'")
+        session.execute_script(args.shift, *args)
+      end
+    end
   end
 
   ##
@@ -168,11 +272,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     @shell = nil
   end
 
-  def shell_command(cmd)
+  def shell_command(cmd, timeout = 5)
     # Send the shell channel's stdin.
     shell_write(cmd + "\n")
 
-    timeout = 5
     etime = ::Time.now.to_f + timeout
     buff = ""
 
@@ -220,11 +323,15 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   ##
   # :category: Msf::Session::Scriptable implementors
   #
-  # Runs the meterpreter script in the context of a script container
+  # Runs the Meterpreter script or resource file.
   #
   def execute_file(full_path, args)
-    o = Rex::Script::Meterpreter.new(self, full_path)
-    o.run(args)
+    # Infer a Meterpreter script by .rb extension
+    if File.extname(full_path) == '.rb'
+      Rex::Script::Meterpreter.new(self, full_path).run(args)
+    else
+      console.load_resource(full_path)
+    end
   end
 
 
@@ -255,14 +362,14 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   # Terminates the session
   #
-  def kill
+  def kill(reason='')
     begin
       cleanup_meterpreter
       self.sock.close if self.sock
     rescue ::Exception
     end
     # deregister will actually trigger another cleanup
-    framework.sessions.deregister(self)
+    framework.sessions.deregister(self, reason)
   end
 
   #
@@ -277,14 +384,29 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   # Explicitly runs a command in the meterpreter console.
   #
-  def run_cmd(cmd)
-    console.run_single(cmd)
+  def run_cmd(cmd,output_object=nil)
+    stored_output_state = nil
+    # If the user supplied an Output IO object, then we tell
+    # the console to use that, while saving it's previous output/
+    if output_object
+      stored_output_state = console.output
+      console.send(:output=, output_object)
+    end
+    success = console.run_single(cmd)
+    # If we stored the previous output object of the channel
+    # we restore it here to put everything back the way we found it
+    # We re-use the conditional above, because we expect in many cases for
+    # the stored state to actually be nil here.
+    if output_object
+      console.send(:output=,stored_output_state)
+    end
+    success
   end
 
   #
   # Load the stdapi extension.
   #
-  def load_stdapi()
+  def load_stdapi
     original = console.disable_output
     console.disable_output = true
     console.run_single('load stdapi')
@@ -294,71 +416,33 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   # Load the priv extension.
   #
-  def load_priv()
+  def load_priv
     original = console.disable_output
-
     console.disable_output = true
     console.run_single('load priv')
     console.disable_output = original
   end
 
-  #
-  # Validate session information by checking for a machine_id response
-  #
-  def is_valid_session?(timeout=10)
-    return true if self.machine_id
-
-    begin
-      self.machine_id = self.core.machine_id(timeout)
-      self.payload_uuid ||= self.core.uuid(timeout)
-
-      return true
-    rescue ::Rex::Post::Meterpreter::RequestError
-      # This meterpreter doesn't support core_machine_id
-      return true
-    rescue ::Exception => e
-      dlog("Session #{self.sid} did not respond to validation request #{e.class}: #{e}")
-    end
-    false
-  end
-
   def update_session_info
+    # sys.config.getuid, and fs.dir.getwd cache their results, so update them
+    begin
+      fs&.dir&.getwd
+    rescue Rex::Post::Meterpreter::RequestError => e
+      elog('failed retrieving working directory', error: e)
+    end
     username = self.sys.config.getuid
     sysinfo  = self.sys.config.sysinfo
-    tuple = self.platform.split('/')
 
-    #
-    # Windows meterpreter currently needs 'win32' or 'win64' to be in the
-    # second half of the platform tuple, in order for various modules and
-    # library code match on that specific string.
-    #
-    if self.platform !~ /win32|win64/
-
-      platform = case self.sys.config.sysinfo['OS']
-        when /windows/i
-          Msf::Module::Platform::Windows
-        when /darwin/i
-          Msf::Module::Platform::OSX
-        when /freebsd/i
-          Msf::Module::Platform::FreeBSD
-        when /netbsd/i
-          Msf::Module::Platform::NetBSD
-        when /openbsd/i
-          Msf::Module::Platform::OpenBSD
-        when /sunos/i
-          Msf::Module::Platform::Solaris
-        when /android/i
-          Msf::Module::Platform::Android
-        else
-          Msf::Module::Platform::Linux
-      end.realname.downcase
-
-      #
-      # This normalizes the platform from 'python/python' to 'python/linux'
-      #
-      self.platform = "#{tuple[0]}/#{platform}"
+    # when updating session information, we need to make sure we update the platform
+    # in the UUID to match what the target is actually running on, but only for a
+    # subset of platforms.
+    if ['java', 'python', 'php'].include?(self.platform)
+      new_platform = guess_target_platform(sysinfo['OS'])
+      if self.platform != new_platform
+        self.payload_uuid.platform = new_platform
+        self.core.set_uuid(self.payload_uuid)
+      end
     end
-
 
     safe_info = "#{username} @ #{sysinfo['Computer']}"
     safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
@@ -367,6 +451,24 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     # showing up in various places in the UI.
     safe_info.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
     self.info = safe_info
+  end
+
+  def guess_target_platform(os)
+    case os
+    when /windows/i
+      Msf::Module::Platform::Windows.realname.downcase
+    when /darwin/i
+      Msf::Module::Platform::OSX.realname.downcase
+    when /mac os ?x/i
+      # this happens with java on OSX (for real!)
+      Msf::Module::Platform::OSX.realname.downcase
+    when /freebsd/i
+      Msf::Module::Platform::FreeBSD.realname.downcase
+    when /openbsd/i, /netbsd/i
+      Msf::Module::Platform::BSD.realname.downcase
+    else
+      Msf::Module::Platform::Linux.realname.downcase
+    end
   end
 
   #
@@ -394,7 +496,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         # there
         return if !(framework.db && framework.db.active)
 
-        ::ActiveRecord::Base.connection_pool.with_connection {
+        ::ApplicationRecord.connection_pool.with_connection {
           wspace = framework.db.find_workspace(workspace)
 
           # Account for finding ourselves on a different host
@@ -407,20 +509,22 @@ class Meterpreter < Rex::Post::Meterpreter::Client
             end
           end
 
+          sysinfo = sys.config.sysinfo
+          host = Msf::Util::Host.normalize_host(self)
+
           framework.db.report_note({
             :type => "host.os.session_fingerprint",
-            :host => self,
+            :host => host,
             :workspace => wspace,
             :data => {
-              :name => sys.config.sysinfo["Computer"],
-              :os => sys.config.sysinfo["OS"],
-              :arch => sys.config.sysinfo["Architecture"],
+              :name => sysinfo["Computer"],
+              :os => sysinfo["OS"],
+              :arch => sysinfo["Architecture"],
             }
           })
 
           if self.db_record
-            self.db_record.desc = safe_info
-            self.db_record.save!
+            framework.db.update_session(self)
           end
 
           # XXX: This is obsolete given the Mdm::Host.normalize_os() support for host.os.session_fingerprint
@@ -454,7 +558,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     rescue ::Exception => e
       # Log the error but otherwise ignore it so we don't kill the
       # session if reporting failed for some reason
-      elog("Error loading sysinfo: #{e.class}: #{e}")
+      elog('Error loading sysinfo', error: e)
       dlog("Call stack:\n#{e.backtrace.join("\n")}")
     end
   end
@@ -466,11 +570,17 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   def _interact
     framework.events.on_session_interact(self)
+
+    console.framework = framework
+    if framework.datastore['MeterpreterPrompt']
+      console.update_prompt(framework.datastore['MeterpreterPrompt'])
+    end
     # Call the console interaction subsystem of the meterpreter client and
     # pass it a block that returns whether or not we should still be
     # interacting.  This will allow the shell to abort if interaction is
     # canceled.
     console.interact { self.interacting != true }
+    console.framework = nil
 
     # If the stop flag has been set, then that means the user exited.  Raise
     # the EOFError so we can drop this handle like a bad habit.
@@ -493,11 +603,6 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     sock = net.socket.create(param)
 
-    # sf: unsure if we should raise an exception or just return nil. returning nil for now.
-    #if( sock == nil )
-    #  raise Rex::UnsupportedProtocol.new(param.proto), caller
-    #end
-
     # Notify now that we've created the socket
     notify_socket_created(self, sock, param)
 
@@ -505,8 +610,87 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     sock
   end
 
-  attr_accessor :platform
-  attr_accessor :binary_suffix
+  def supports_udp?
+    true
+  end
+
+  #
+  # Get a string representation of the current session platform
+  #
+  def platform
+    if self.payload_uuid
+      # return the actual platform of the current session if it's there
+      self.payload_uuid.platform
+    else
+      # otherwise just use the base for the session type tied to this handler.
+      # If we don't do this, storage of sessions in the DB dies
+      self.base_platform
+    end
+  end
+
+  #
+  # Get a string representation of the current session architecture
+  #
+  def arch
+    if self.payload_uuid
+      # return the actual arch of the current session if it's there
+      self.payload_uuid.arch
+    else
+      # otherwise just use the base for the session type tied to this handler.
+      # If we don't do this, storage of sessions in the DB dies
+      self.base_arch
+    end
+  end
+
+  #
+  # Get a string representation of the architecture of the process in which the
+  # current session is running. This defaults to the same value of arch but can
+  # be overridden by specific meterpreter implementations to add support.
+  #
+  def native_arch
+    arch
+  end
+
+  #
+  # Generate a binary suffix based on arch
+  #
+  def binary_suffix
+    # generate a file/binary suffix based on the current arch and platform.
+    # Platform-agnostic archs go first
+    case self.arch
+    when 'java'
+      ['jar']
+    when 'php'
+      ['php']
+    when 'python'
+      ['py']
+    else
+      # otherwise we fall back to the platform
+      case self.platform
+      when 'windows'
+        ["#{self.arch}.dll"]
+      when 'linux' , 'aix' , 'hpux' , 'irix' , 'unix'
+        ['bin', 'elf']
+      when 'osx'
+        ['elf']
+      when 'android', 'java'
+        ['jar']
+      when 'php'
+        ['php']
+      when 'python'
+        ['py']
+      else
+        nil
+      end
+    end
+  end
+
+  # These are the base arch/platform for the original payload, required for when the
+  # session is first created thanks to the fact that the DB session recording
+  # happens before the session is even established.
+  attr_accessor :base_arch
+  attr_accessor :base_platform
+
   attr_accessor :console # :nodoc:
   attr_accessor :skip_ssl
   attr_accessor :skip_cleanup
@@ -579,4 +763,3 @@ end
 
 end
 end
-

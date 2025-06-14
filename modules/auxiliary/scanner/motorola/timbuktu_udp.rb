@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::Udp
@@ -19,15 +16,13 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => ['MC'],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Sep 25 2009'
+      'DisclosureDate' => '2009-09-25'
     ))
 
     register_options(
       [
         Opt::RPORT(407)
-      ], self.class)
-
-    deregister_options('RHOST')
+      ])
   end
 
   def run_host(ip)
@@ -46,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
             :proto	=> 'udp',
             :port	=> datastore['RPORT'],
             :type	=> 'SERVICE',
-            :data	=> 'Motorola Timbuktu Service Detection'
+            :data	=> { :service => 'Motorola Timbuktu Service Detection' }
           )
           print_status("Motorola Timbuktu Detected on host #{ip}.")
         else

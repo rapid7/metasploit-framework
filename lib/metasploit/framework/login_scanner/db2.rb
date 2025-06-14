@@ -92,7 +92,7 @@ module Metasploit
 
           response_data = {}
           if valid_response?(response)
-            packet = Rex::Proto::DRDA::SERVER_PACKET.new.read(response)
+            packet = Rex::Proto::DRDA::Packet::SERVER_PACKET.new.read(response)
             response_data = Rex::Proto::DRDA::Utils.server_packet_info(packet)
           end
           response_data
@@ -115,7 +115,7 @@ module Metasploit
         # @param response [String] The unprocessed response packet
         # @return [Boolean] Whether the authentication was successful
         def successful_login?(response)
-          packet = Rex::Proto::DRDA::SERVER_PACKET.new.read(response)
+          packet = Rex::Proto::DRDA::Packet::SERVER_PACKET.new.read(response)
           packet_info = Rex::Proto::DRDA::Utils.server_packet_info(packet)
           if packet_info[:db_login_success]
             true

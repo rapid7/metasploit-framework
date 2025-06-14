@@ -9,13 +9,13 @@ module Rex
         # themselves
         class ApReq < Element
           # @!attribute pvno
-          #   @return [Fixnum] The protocol version number
+          #   @return [Integer] The protocol version number
           attr_accessor :pvno
           # @!attribute msg_type
-          #   @return [Fixnum] The type of the protocol message
+          #   @return [Integer] The type of the protocol message
           attr_accessor :msg_type
           # @!attribute options
-          #   @return [Fixnum] request options, affects processing
+          #   @return [Integer] request options, affects processing
           attr_accessor :options
           # @!attribute ticket
           #   @return [Rex::Proto::Kerberos::Model::Ticket] The ticket authenticating the client to the server
@@ -36,17 +36,23 @@ module Rex
           #
           # @return [String]
           def encode
+            to_asn1.to_der
+          end
+
+          # @return [OpenSSL::ASN1::ASN1Data] The ap_req ASN1Data
+          def to_asn1
             elems = []
+
             elems << OpenSSL::ASN1::ASN1Data.new([encode_pvno], 0, :CONTEXT_SPECIFIC)
             elems << OpenSSL::ASN1::ASN1Data.new([encode_msg_type], 1, :CONTEXT_SPECIFIC)
             elems << OpenSSL::ASN1::ASN1Data.new([encode_options], 2, :CONTEXT_SPECIFIC)
             elems << OpenSSL::ASN1::ASN1Data.new([encode_ticket], 3, :CONTEXT_SPECIFIC)
             elems << OpenSSL::ASN1::ASN1Data.new([encode_authenticator], 4, :CONTEXT_SPECIFIC)
+
             seq = OpenSSL::ASN1::Sequence.new(elems)
 
             seq_asn1 = OpenSSL::ASN1::ASN1Data.new([seq], AP_REQ, :APPLICATION)
-
-            seq_asn1.to_der
+            seq_asn1
           end
 
           private

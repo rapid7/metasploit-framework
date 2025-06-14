@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/jenkins'
 
@@ -23,30 +22,25 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('LOGIN_URL', [true, 'The URL that handles the login process', '/j_acegi_security_check']),
         OptEnum.new('HTTP_METHOD', [true, 'The HTTP method to use for the login', 'POST', ['GET', 'POST']]),
-        Opt::RPORT(8080)
-      ], self.class)
+        Opt::RPORT(8080),
+        OptString.new('TARGETURI', [ false, 'The path to the Jenkins-CI application'])
+      ])
 
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000 ])
-
-    deregister_options('RHOST')
   end
 
   def run_host(ip)
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
-      blank_passwords: datastore['BLANK_PASSWORDS'],
-      pass_file: datastore['PASS_FILE'],
-      password: datastore['PASSWORD'],
-      user_file: datastore['USER_FILE'],
-      userpass_file: datastore['USERPASS_FILE'],
+    print_warning("#{fullname} is still calling the deprecated LOGIN_URL option! This is no longer supported.") unless datastore['LOGIN_URL'].nil?
+    cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
-      user_as_pass: datastore['USER_AS_PASS']
+      password: datastore['PASSWORD']
     )
 
     scanner = Metasploit::Framework::LoginScanner::Jenkins.new(
       configure_http_login_scanner(
-        uri: datastore['LOGIN_URL'],
+        uri: datastore['TARGETURI'],
+        ssl: datastore['SSL'],
         method: datastore['HTTP_METHOD'],
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
@@ -57,18 +51,23 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
+    message = scanner.check_setup
+
+    if message
+      print_brute level: :error, ip: ip, msg: message
+      return
+    end
+
     scanner.scan! do |result|
       credential_data = result.to_h
-      credential_data.merge!(
-          module_fullname: fullname,
-          workspace_id: myworkspace_id
-      )
+      credential_data.merge!(module_fullname: fullname, workspace_id: myworkspace_id)
+
       if result.success?
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
       else
         invalidate_login(credential_data)
         vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status})"

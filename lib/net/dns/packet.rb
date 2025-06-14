@@ -113,7 +113,7 @@ module Net # :nodoc:
       attr_reader :answerfrom, :answersize
 
       # Create a new instance of Net::DNS::Packet class. Arguments are the
-      # canonical name of the resourse, an optional type field and an optional
+      # canonical name of the resource, an optional type field and an optional
       # class field. The record type and class can be omitted; they default 
       # to +A+ and +IN+.
       #
@@ -146,7 +146,7 @@ module Net # :nodoc:
       # the method will accept it.
       #
       # Be sure that your network data is clean from any UDP/TCP header, 
-      # expecially when using RAW sockets.
+      # especially when using RAW sockets.
       # 
       def Packet.parse(*args)
         o = allocate
@@ -184,6 +184,7 @@ module Net # :nodoc:
           nscount += 1
         end
         @additional.each do |rr|
+          next if rr.nil?
           data += rr.data#(data.length)
           arcount += 1
         end
@@ -299,7 +300,7 @@ module Net # :nodoc:
         @header.truncated?
       end
             
-      # Assing a Net::DNS::Header object to a Net::DNS::Packet 
+      # Assign a Net::DNS::Header object to a Net::DNS::Packet 
       # instance.
       #
       def header=(object)
@@ -519,9 +520,16 @@ module Net # :nodoc:
         
         @answer = []
         @header.anCount.times do
-          rrobj,offset = Net::DNS::RR.parse_packet(data,offset)
-          @answer << rrobj
-          @logger.debug rrobj.inspect
+          if (rrobj, new_offset = Net::DNS::RR.parse_packet(data, offset))
+            @answer << rrobj
+            @logger.debug rrobj.inspect
+            offset = new_offset
+          else
+            @logger.warn "Failed to parse RR packet from offset: #{offset}"
+            _, offset = dn_expand(data, offset)
+            _, _, _, rdlength = data.unpack("@#{offset} n2 N n")
+            offset += RRFIXEDSZ + rdlength
+          end
         end
 
         #------------------------------------------------------------

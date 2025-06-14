@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -24,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('PATH', [ true,  "The path to detect mod_negotiation", '/']),
         OptString.new('FILENAME',[true, "Filename to use as a test",'index'])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -55,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
 
       return if not res
 
-      # Sheck for alternates header
+      # Check for alternates header
       if(res.code == 406)
         print_status(ip.to_s)
       end

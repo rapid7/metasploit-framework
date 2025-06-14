@@ -139,7 +139,7 @@ class Client
   # List a directory
   #
   # @param path [String] Remote path
-  # @param count [Fixnum] Number of entries to list
+  # @param count [Integer] Number of entries to list
   # @return [String] Directory listing
   def fsdirlist(path, count = COUNT_MAX)
     if path !~ /^[0-2]:/
@@ -177,17 +177,18 @@ class Client
     file
   end
 
-  # Upload a file
+  # Upload a file or write string data to remote path
   #
-  # @param lpath [String] Local path
+  # @param data_or_lpath [String] data or local path
   # @param rpath [String] Remote path
+  # @param is_file [Boolean] True if data_or_lpath is a local file path
   # @return [Boolean] True if the file was uploaded
-  def fsdownload(lpath, rpath)
+  def fsdownload(data_or_lpath, rpath, is_file: true)
     if rpath !~ /^[0-2]:/
       raise ArgumentError, "Path must begin with 0:, 1:, or 2:"
     end
 
-    file = File.read(lpath)
+    file = is_file ? File.read(data_or_lpath) : data_or_lpath
 
     @sock.put(
       %Q{#{FSDOWNLOAD} FORMAT:BINARY SIZE=#{file.length} NAME = "#{rpath}"\n}

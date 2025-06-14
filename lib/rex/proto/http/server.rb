@@ -1,64 +1,10 @@
 # -*- coding: binary -*-
 require 'rex/socket'
-require 'rex/proto/http'
-require 'rex/proto/http/handler'
+
 
 module Rex
 module Proto
 module Http
-
-###
-#
-# Runtime extension of the HTTP clients that connect to the server.
-#
-###
-module ServerClient
-
-  #
-  # Initialize a new request instance.
-  #
-  def init_cli(server)
-    self.request   = Request.new
-    self.server    = server
-    self.keepalive = false
-  end
-
-  #
-  # Resets the parsing state.
-  #
-  def reset_cli
-    self.request.reset
-  end
-
-  #
-  # Transmits a response and adds the appropriate headers.
-  #
-  def send_response(response)
-    # Set the connection to close or keep-alive depending on what the client
-    # can support.
-    response['Connection'] = (keepalive) ? 'Keep-Alive' : 'close'
-
-    # Add any other standard response headers.
-    server.add_response_headers(response)
-
-    # Send it off.
-    put(response.to_s)
-  end
-
-  #
-  # The current request context.
-  #
-  attr_accessor :request
-  #
-  # Boolean that indicates whether or not the connection supports keep-alive.
-  #
-  attr_accessor :keepalive
-  #
-  # A reference to the server the client is associated with.
-  #
-  attr_accessor :server
-
-end
 
 ###
 #
@@ -101,7 +47,7 @@ class Server
   #
   def initialize(port = 80, listen_host = '0.0.0.0', ssl = false, context = {},
                  comm = nil, ssl_cert = nil, ssl_compression = false,
-                 ssl_cipher = nil)
+                 ssl_cipher = nil, ssl_version = nil)
     self.listen_host     = listen_host
     self.listen_port     = port
     self.ssl             = ssl
@@ -110,6 +56,7 @@ class Server
     self.ssl_cert        = ssl_cert
     self.ssl_compression = ssl_compression
     self.ssl_cipher      = ssl_cipher
+    self.ssl_version     = ssl_version
     self.listener        = nil
     self.resources       = {}
     self.server_name     = DefaultServer
@@ -127,7 +74,7 @@ class Server
   # Returns the hardcore alias for the HTTP service
   #
   def self.hardcore_alias(*args)
-    "#{(args[0] || '')}#{(args[1] || '')}"
+    "#{(args[0] || '')}-#{(args[1] || '')}-#{args[4] || ''}"
   end
 
   #
@@ -143,14 +90,15 @@ class Server
   def start
 
     self.listener = Rex::Socket::TcpServer.create(
-      'LocalHost' => self.listen_host,
-      'LocalPort' => self.listen_port,
-      'Context'   => self.context,
-      'SSL'       => self.ssl,
-      'SSLCert'   => self.ssl_cert,
+      'LocalHost'      => self.listen_host,
+      'LocalPort'      => self.listen_port,
+      'Context'        => self.context,
+      'SSL'            => self.ssl,
+      'SSLCert'        => self.ssl_cert,
       'SSLCompression' => self.ssl_compression,
-      'SSLCipher' => self.ssl_cipher,
-      'Comm'      => self.comm
+      'SSLCipher'      => self.ssl_cipher,
+      'SSLVersion'     => self.ssl_version,
+      'Comm'           => self.comm
     )
 
     # Register callbacks
@@ -265,7 +213,7 @@ class Server
       "<title>404 Not Found</title>" +
       "</head><body>" +
       "<h1>Not found</h1>" +
-      "The requested URL #{html_escape(request.resource)} was not found on this server.<p><hr>" +
+      "The requested URL #{ERB::Util.html_escape(request.resource)} was not found on this server.<p><hr>" +
       "</body></html>"
 
     # Send the response to the client like what
@@ -273,7 +221,7 @@ class Server
   end
 
   attr_accessor :listen_port, :listen_host, :server_name, :context, :comm
-  attr_accessor :ssl, :ssl_cert, :ssl_compression, :ssl_cipher
+  attr_accessor :ssl, :ssl_cert, :ssl_compression, :ssl_cipher, :ssl_version
   attr_accessor :listener, :resources
 
 protected
@@ -368,8 +316,7 @@ protected
         handler.on_request(cli, request)
       end
     else
-      elog("Failed to find handler for resource: #{request.resource}",
-        LogSource)
+      elog("Failed to find handler for resource: #{request.resource}", LogSource)
 
       send_e404(cli, request)
     end

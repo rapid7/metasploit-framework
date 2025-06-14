@@ -1,28 +1,27 @@
 # -*- coding: binary -*-
-require 'rex/ui'
 
 module Rex
 module Ui
 
 ###
 #
-# This class acts as a generic base class for outputing data.  It
-# only provides stubs for the simplest form of outputing information.
+# This class acts as a generic base class for outputting data.  It
+# only provides stubs for the simplest form of outputting information.
 #
 ###
 class Output
 
   # General output
-  require 'rex/ui/output/none'
 
   # Text-based output
-  require 'rex/ui/text/output'
 
   #
   # Prints an error message.
   #
   def print_error(msg='')
   end
+
+  alias_method :print_bad, :print_error
 
   #
   # Prints a 'good' message.

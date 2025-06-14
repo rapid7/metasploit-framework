@@ -1,8 +1,12 @@
 #!/usr/bin/env ruby
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
-# $Id$
-#
-# This script cracks HMAC SHA1 hashes. It is strangely necessary as existing tools 
+# This script cracks HMAC SHA1 hashes. It is strangely necessary as existing tools
 # have issues with binary salt values and extremely large salt values. The primary
 # goal of this tool is to handle IPMI 2.0 HMAC SHA1 hashes.
 #
@@ -29,7 +33,6 @@ def usage
   exit
 end
 
-
 hash_inp  = ARGV.shift || usage()
 word_inp  = ARGV.shift || usage()
 
@@ -51,17 +54,16 @@ hash_fd.each_line do |line|
     $stderr.puts "[-] Invalid hash entry, missing field: #{line}"
     next
   end
-  unless h_salt =~ /^[a-f0-9]+$/i 
+  unless h_salt =~ /^[a-f0-9]+$/i
     $stderr.puts "[-] Invalid hash entry, salt must be in hex: #{line}"
     next
   end
   hashes << [h_id, [h_salt].pack("H*"), [h_hash].pack("H*") ]
 end
-hash_fd.close 
-
+hash_fd.close
 
 stime = Time.now.to_f
-count = 0 
+count = 0
 cracked = 0
 
 word_fd.each_line do |line|
@@ -75,10 +77,10 @@ word_fd.each_line do |line|
       cracked += 1
     end
     count += 1
-    
+
     if count % 2500000 == 0
       $stderr.puts "[*] Found #{cracked} passwords with #{hashes.length} left (#{(count / (Time.now.to_f - stime)).to_i}/s)"
-    end		
+    end
   end
   hashes.delete_if {|e| e[3] }
   break if hashes.length == 0

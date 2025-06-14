@@ -1,16 +1,15 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'yaml'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
+  include Msf::OptionalSession::MySQL
 
   def initialize
     super(
@@ -39,20 +38,25 @@ class MetasploitModule < Msf::Auxiliary
   # This function does not handle any errors, if you use this
   # make sure you handle the errors yourself
   def mysql_query_no_handle(sql)
-    res = @mysql_handle.query(sql)
+    res = self.mysql_conn.query(sql)
     res
   end
 
   def run_host(ip)
-    vprint_status("Login...")
+    vprint_status("Login...") unless session
 
-    if (not mysql_login_datastore)
-      return
+    # If we have a session make use of it
+    if session
+      print_status("Using existing session #{session.sid}")
+      self.mysql_conn = session.client
+    else
+      # otherwise fallback to attempting to login
+      return unless mysql_login_datastore
     end
 
     begin
       mysql_query_no_handle("USE " + datastore['DATABASE_NAME'])
-    rescue ::RbMysql::Error => e
+    rescue ::Rex::Proto::MySQL::Client::Error => e
       vprint_error("MySQL Error: #{e.class} #{e.to_s}")
       return
     rescue Rex::ConnectionTimeout => e
@@ -83,29 +87,29 @@ class MetasploitModule < Msf::Auxiliary
   def check_dir dir
     begin
       res = mysql_query_no_handle("LOAD DATA INFILE '" + dir + "' INTO TABLE " + datastore['TABLE_NAME'])
-    rescue ::RbMysql::TextfileNotReadable
+    rescue ::Rex::Proto::MySQL::Client::TextfileNotReadable
       print_good("#{dir} is a directory and exists")
       report_note(
-        :host  => rhost,
+        :host  => mysql_conn.peerhost,
         :type  => "filesystem.dir",
-        :data  => "#{dir} is a directory and exists",
-        :port  => rport,
+        :data  => { :directory => dir },
+        :port  => mysql_conn.peerport,
         :proto => 'tcp',
         :update => :unique_data
       )
-    rescue ::RbMysql::DataTooLong, ::RbMysql::TruncatedWrongValueForField
+    rescue ::Rex::Proto::MySQL::Client::DataTooLong, ::Rex::Proto::MySQL::Client::TruncatedWrongValueForField
       print_good("#{dir} is a file and exists")
       report_note(
-        :host  => rhost,
+        :host  => mysql_conn.peerhost,
         :type  => "filesystem.file",
-        :data  => "#{dir} is a file and exists",
-        :port  => rport,
+        :data  => { :directory => dir },
+        :port  => mysql_conn.peerport,
         :proto => 'tcp',
         :update => :unique_data
       )
-    rescue ::RbMysql::ServerError
+    rescue ::Rex::Proto::MySQL::Client::ServerError
       vprint_warning("#{dir} does not exist")
-    rescue ::RbMysql::Error => e
+    rescue ::Rex::Proto::MySQL::Client::Error => e
       vprint_error("MySQL Error: #{e.class} #{e.to_s}")
       return
     rescue Rex::ConnectionTimeout => e
@@ -114,10 +118,10 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_good("#{dir} is a file and exists")
       report_note(
-        :host  => rhost,
+        :host  => mysql_conn.peerhost,
         :type  => "filesystem.file",
-        :data  => "#{dir} is a file and exists",
-        :port  => rport,
+        :data  => { :file => dir },
+        :port  => mysql_conn.peerport,
         :proto => 'tcp',
         :update => :unique_data
       )
@@ -125,5 +129,4 @@ class MetasploitModule < Msf::Auxiliary
 
     return
   end
-
 end

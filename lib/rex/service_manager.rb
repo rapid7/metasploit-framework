@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'singleton'
 require 'rex'
-require 'rex/service'
 
 module Rex
 
@@ -21,15 +20,15 @@ class ServiceManager < Hash
   #
   # Calls the instance method to start a service.
   #
-  def self.start(klass, *args)
-    self.instance.start(klass, *args)
+  def self.start(klass, *args, **kwargs)
+    self.instance.start(klass, *args, **kwargs)
   end
 
   #
   # Calls the instance method to stop a service.
   #
-  def self.stop(klass, *args)
-    self.instance.stop(klass, *args)
+  def self.stop(klass, *args, **kwargs)
+    self.instance.stop(klass, *args, **kwargs)
   end
 
   #
@@ -49,9 +48,9 @@ class ServiceManager < Hash
   #
   # Starts a service and assigns it a unique name in the service hash.
   #
-  def start(klass, *args)
+  def start(klass, *args, **kwargs)
     # Get the hardcore alias.
-    hals = "#{klass}" + klass.hardcore_alias(*args)
+    hals = "#{klass}" + klass.hardcore_alias(*args, **kwargs)
 
     # Has a service already been constructed for this guy?  If so, increment
     # its reference count like it aint no thang.
@@ -60,7 +59,7 @@ class ServiceManager < Hash
       return inst
     end
 
-    inst = klass.new(*args)
+    inst = klass.new(*args, **kwargs)
     als  = inst.alias
 
     # Find an alias that isn't taken.
@@ -94,8 +93,8 @@ class ServiceManager < Hash
   # what was originally passed to start exactly.  If the reference count of
   # the service drops to zero the service will be destroyed.
   #
-  def stop(klass, *args)
-    stop_service(hals[hardcore_alias(klass, *args)])
+  def stop(klass, *args, **kwargs)
+    stop_service(hals[hardcore_alias(klass, *args, **kwargs)])
   end
 
   #

@@ -29,8 +29,6 @@ class Console::CommandDispatcher::Espia
   #
   def commands
     {
-  #		"dev_image"  => "Attempt to grab a frame from webcam",
-  #		"dev_audio"  => "Attempt to record microphone audio",
       "screengrab" => "Attempt to grab screen shot from process's active desktop"
     }
   end
@@ -54,7 +52,7 @@ class Console::CommandDispatcher::Espia
     secs = args[0].to_i
     if secs  > 0 and secs <= maxrec
       milsecs = secs*1000
-      print_line("[*] Recording #{milsecs} miliseconds.\n")
+      print_line("[*] Recording #{milsecs} milliseconds.\n")
       client.espia.espia_audio_get_dev_audio(milsecs)
       print_line("[*] Done.")
     else

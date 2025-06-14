@@ -11,7 +11,7 @@ module Db
 class Buffer
 
   class Error < RuntimeError; end
-  class EOF < Error; end 
+  class EOF < Error; end
 
   def self.from_string(str)
     new(str)
@@ -20,7 +20,7 @@ class Buffer
   def self.of_size(size)
     raise ArgumentError if size < 0
     new('#' * size)
-  end 
+  end
 
   def initialize(content)
     @size = content.size
@@ -34,6 +34,10 @@ class Buffer
 
   def position
     @position
+  end
+
+  def peek
+    @content[@position]
   end
 
   def position=(new_pos)
@@ -67,11 +71,11 @@ class Buffer
   def copy_from_stream(stream, n)
     raise ArgumentError if n < 0
     while n > 0
-      str = stream.read(n) 
+      str = stream.read(n)
       write(str)
       n -= str.size
     end
-    raise if n < 0 
+    raise if n < 0
   end
 
   NUL = "\000"

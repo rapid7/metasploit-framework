@@ -1,15 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex/proto/ntlm/message'
-require 'rex/proto/http'
+
 require 'metasploit/framework/credential_collection'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
@@ -37,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('AD_DOMAIN', [ false, "The Active Directory domain name", nil ]),
         OptString.new('TARGETURI', [ false, "The location of the NTLM service", nil ]),
         Opt::RPORT(443)
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -67,17 +64,13 @@ class MetasploitModule < Msf::Auxiliary
 
     cli.set_config({ 'domain' => domain })
 
-    creds = Metasploit::Framework::CredentialCollection.new(
-      blank_passwords: datastore['BLANK_PASSWORDS'],
-      pass_file: datastore['PASS_FILE'],
-      password: datastore['PASSWORD'],
-      user_file: datastore['USER_FILE'],
-      userpass_file: datastore['USERPASS_FILE'],
+    cred_collection = build_credential_collection(
+      realm: datastore['DOMAIN'],
       username: datastore['USERNAME'],
-      user_as_pass: datastore['USER_AS_PASS']
+      password: datastore['PASSWORD']
     )
 
-    creds.each do |cred|
+    cred_collection.each do |cred|
       begin
         req = cli.request_raw({
           'uri' => uri,

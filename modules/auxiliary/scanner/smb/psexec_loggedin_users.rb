@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
@@ -32,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'CVE', '1999-0504'], # Administrator with no password (since this is the default)
         [ 'OSVDB', '3106'],
         [ 'URL', 'http://www.pentestgeek.com/2012/11/05/finding-logged-in-users-metasploit-module/' ],
-        [ 'URL', 'http://technet.microsoft.com/en-us/sysinternals/bb897553.aspx' ]
+        [ 'URL', 'https://docs.microsoft.com/en-us/sysinternals/downloads/psexec' ]
       ],
       'License'     => MSF_LICENSE
     )
@@ -40,11 +39,9 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
       OptString.new('USERNAME', [false, 'The name of a specific user to search for', '']),
-      OptString.new('RPORT', [true, 'The Target port', 445]),
+      OptPort.new('RPORT', [true, 'The Target port', 445]),
       OptString.new('WINPATH', [true, 'The name of the Windows directory', 'WINDOWS']),
-    ], self.class)
-
-    deregister_options('RHOST')
+    ])
   end
 
   # This is the main controller function
@@ -88,12 +85,12 @@ class MetasploitModule < Msf::Auxiliary
       output.each_line { |line| cleanout << line.chomp if line.include?("HKEY") && line.split("-").size == 8 && !line.split("-")[7].include?("_")}
       return cleanout
     rescue StandardError => hku_error
-      print_error("Error runing query against HKU. #{hku_error.class}. #{hku_error}")
+      print_error("Error running query against HKU. #{hku_error.class}. #{hku_error}")
       return nil
     end
   end
 
-  # This method will retrive output from a specified textfile on the remote host
+  # This method will retrieve output from a specified textfile on the remote host
   def get_output(ip, smbshare, file)
     begin
       simple.connect("\\\\#{ip}\\#{smbshare}")
@@ -115,7 +112,10 @@ class MetasploitModule < Msf::Auxiliary
       :sname => 'smb',
       :port => rport,
       :type => 'smb.domain.loggedusers',
-      :data => "#{username} is logged in",
+      :data => {
+        :user => username,
+        :status => "Logged in"
+      },
       :update => :unique_data
     )
   end
@@ -195,7 +195,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  # Method trys to use "query session" to determine logged in user
+  # Method tries to use "query session" to determine logged in user
   def query_session(smbshare, ip, cmd, text, bat)
     begin
       command = "#{cmd} /C echo query session ^> %SYSTEMDRIVE%#{text} > #{bat} & #{cmd} /C start cmd.exe /C #{bat}"
@@ -211,5 +211,4 @@ class MetasploitModule < Msf::Auxiliary
       return nil
     end
   end
-
 end

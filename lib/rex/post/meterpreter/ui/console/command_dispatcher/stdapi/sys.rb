@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 
 module Rex
 module Post
@@ -16,13 +17,14 @@ class Console::CommandDispatcher::Stdapi::Sys
   Klass = Console::CommandDispatcher::Stdapi::Sys
 
   include Console::CommandDispatcher
+  include Rex::Post::Meterpreter::Extensions::Stdapi
 
   #
   # Options used by the 'execute' command.
   #
   @@execute_opts = Rex::Parser::Arguments.new(
     "-a" => [ true,  "The arguments to pass to the command."		   ],
-    "-c" => [ false, "Channelized I/O (required for interaction)."		   ],
+    "-c" => [ false, "Channelized I/O (required for interaction)."		   ], # -i sets -c
     "-f" => [ true,  "The executable command to run."			   ],
     "-h" => [ false, "Help menu."						   ],
     "-H" => [ false, "Create the process hidden from view."			   ],
@@ -31,7 +33,25 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-d" => [ true,  "The 'dummy' executable to launch when using -m."	   ],
     "-t" => [ false, "Execute process with currently impersonated thread token"],
     "-k" => [ false, "Execute process on the meterpreters current desktop"	   ],
+    "-z" => [ false, "Execute process in a subshell"	   ],
+    "-p" => [ false, "Execute process in a pty (if available on target platform)"	   ],
     "-s" => [ true,  "Execute process in a given session as the session user"  ])
+
+  @@execute_opts_with_raw_mode = @@execute_opts.merge(
+    { '-r' => [ false, 'Raw mode'] }
+  )
+
+  #
+  # Options used by the 'shell' command.
+  #
+  @@shell_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help menu."                                          ],
+    "-l" => [ false, "List available shells (/etc/shells)."                ],
+    "-t" => [ true,  "Spawn a PTY shell (/bin/bash if no argument given)." ]) # ssh(1) -t
+
+  @@shell_opts_with_fully_interactive_shell = @@shell_opts.merge(
+    { '-i' => [ false, 'Drop into a fully interactive shell. (Only used in conjunction with `-t`).'] }
+  )
 
   #
   # Options used by the 'reboot' command.
@@ -51,24 +71,39 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Options used by the 'reg' command.
   #
   @@reg_opts = Rex::Parser::Arguments.new(
-    "-d" => [ true,  "The data to store in the registry value."		   ],
-    "-h" => [ false, "Help menu."						   ],
-    "-k" => [ true,  "The registry key path (E.g. HKLM\\Software\\Foo)."	   ],
-    "-t" => [ true,  "The registry value type (E.g. REG_SZ)."		   ],
-    "-v" => [ true,  "The registry value name (E.g. Stuff)."		   ],
+    "-d" => [ true,  "The data to store in the registry value." ],
+    "-h" => [ false, "Help menu." ],
+    "-k" => [ true,  "The registry key path (E.g. HKLM\\Software\\Foo)." ],
+    "-t" => [ true,  "The registry value type (E.g. REG_SZ)." ],
+    "-v" => [ true,  "The registry value name (E.g. Stuff)." ],
     "-r" => [ true,  "The remote machine name to connect to (with current process credentials" ],
-    "-w" => [ false, "Set KEY_WOW64 flag, valid values [32|64]."		   ])
+    "-w" => [ true,  "Set KEY_WOW64 flag, valid values [32|64]." ])
 
   #
   # Options for the 'ps' command.
   #
   @@ps_opts = Rex::Parser::Arguments.new(
-    "-S" => [ true,  "String to search for (converts to regex)" ],
-    "-h" => [ false, "Help menu." ],
-    "-A" => [ true,  "Filters processes on architecture" ],
-    "-s" => [ false, "Show only SYSTEM processes" ],
-    "-c" => [ false, "Show only child processes of the current shell" ],
-    "-U" => [ true,  "Filters processes on the user using the supplied RegEx"])
+    "-S" => [ true,  "Filter on process name" ],
+    "-U" => [ true,  "Filter on user name" ],
+    "-A" => [ true,  "Filter on architecture" ],
+    "-x" => [ false, "Filter for exact matches rather than regex" ],
+    "-s" => [ false, "Filter only SYSTEM processes" ],
+    "-c" => [ false, "Filter only child processes of the current shell" ],
+    "-h" => [ false, "Help menu." ])
+
+  #
+  # Options for the 'pgrep' command.
+  #
+  @@pgrep_opts = Rex::Parser::Arguments.new(
+    "-S" => [ true,  "Filter on process name" ],
+    "-U" => [ true,  "Filter on user name" ],
+    "-A" => [ true,  "Filter on architecture" ],
+    "-x" => [ false, "Filter for exact matches rather than regex" ],
+    "-s" => [ false, "Filter only SYSTEM processes" ],
+    "-c" => [ false, "Filter only child processes of the current shell" ],
+    "-l" => [ false, "Display process name with PID" ],
+    "-f" => [ false, "Display process path and args with PID (combine with -l)" ],
+    "-h" => [ false, "Help menu." ])
 
   #
   # Options for the 'suspend' command.
@@ -78,77 +113,93 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-c" => [ false, "Continues suspending or resuming even if an error is encountered"],
     "-r" => [ false, "Resumes the target processes instead of suspending"	   ])
 
+
+  def shell_opts
+    if client.framework.features.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS)
+      return @@shell_opts_with_fully_interactive_shell
+    end
+
+    @@shell_opts
+  end
+
+  def execute_opts
+    if client.framework.features.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS)
+      return @@execute_opts_with_raw_mode
+    end
+
+    @@execute_opts
+  end
   #
   # List of supported commands.
   #
   def commands
     all = {
-      "clearev"     => "Clear the event log",
-      "drop_token"  => "Relinquishes any active impersonation token.",
-      "execute"     => "Execute a command",
-      "getpid"      => "Get the current process identifier",
-      "getprivs"    => "Attempt to enable all privileges available to the current process",
-      "getuid"      => "Get the user that the server is running as",
-      "getsid"      => "Get the SID of the user that the server is running as",
-      "getenv"      => "Get one or more environment variable values",
-      "kill"        => "Terminate a process",
-      "ps"          => "List running processes",
-      "reboot"      => "Reboots the remote computer",
-      "reg"	      => "Modify and interact with the remote registry",
-      "rev2self"    => "Calls RevertToSelf() on the remote machine",
-      "shell"       => "Drop into a system command shell",
-      "shutdown"    => "Shuts down the remote computer",
-      "steal_token" => "Attempts to steal an impersonation token from the target process",
-      "suspend"     => "Suspends or resumes a list of processes",
-      "sysinfo"     => "Gets information about the remote system, such as OS",
+      'clearev'     => 'Clear the event log',
+      'drop_token'  => 'Relinquishes any active impersonation token.',
+      'execute'     => 'Execute a command',
+      'getpid'      => 'Get the current process identifier',
+      'getprivs'    => 'Attempt to enable all privileges available to the current process',
+      'getuid'      => 'Get the user that the server is running as',
+      'getsid'      => 'Get the SID of the user that the server is running as',
+      'getenv'      => 'Get one or more environment variable values',
+      'kill'        => 'Terminate a process',
+      'pkill'       => 'Terminate processes by name',
+      'pgrep'       => 'Filter processes by name',
+      'ps'          => 'List running processes',
+      'reboot'      => 'Reboots the remote computer',
+      'reg'         => 'Modify and interact with the remote registry',
+      'rev2self'    => 'Calls RevertToSelf() on the remote machine',
+      'shell'       => 'Drop into a system command shell',
+      'shutdown'    => 'Shuts down the remote computer',
+      'steal_token' => 'Attempts to steal an impersonation token from the target process',
+      'suspend'     => 'Suspends or resumes a list of processes',
+      'sysinfo'     => 'Gets information about the remote system, such as OS',
+      'localtime'   => 'Displays the target system local date and time',
     }
     reqs = {
-      "clearev"     => [ "stdapi_sys_eventlog_open", "stdapi_sys_eventlog_clear" ],
-      "drop_token"  => [ "stdapi_sys_config_drop_token" ],
-      "execute"     => [ "stdapi_sys_process_execute" ],
-      "getpid"      => [ "stdapi_sys_process_getpid"	],
-      "getprivs"    => [ "stdapi_sys_config_getprivs" ],
-      "getuid"      => [ "stdapi_sys_config_getuid" ],
-      "getsid"      => [ "stdapi_sys_config_getsid" ],
-      "getenv"      => [ "stdapi_sys_config_getenv" ],
-      "kill"        => [ "stdapi_sys_process_kill" ],
-      "ps"          => [ "stdapi_sys_process_get_processes" ],
-      "reboot"      => [ "stdapi_sys_power_exitwindows" ],
-      "reg"	      => [
-        "stdapi_registry_load_key",
-        "stdapi_registry_unload_key",
-        "stdapi_registry_open_key",
-        "stdapi_registry_open_remote_key",
-        "stdapi_registry_create_key",
-        "stdapi_registry_delete_key",
-        "stdapi_registry_close_key",
-        "stdapi_registry_enum_key",
-        "stdapi_registry_set_value",
-        "stdapi_registry_query_value",
-        "stdapi_registry_delete_value",
-        "stdapi_registry_query_class",
-        "stdapi_registry_enum_value",
+      'clearev'     => [
+        COMMAND_ID_STDAPI_SYS_EVENTLOG_OPEN,
+        COMMAND_ID_STDAPI_SYS_EVENTLOG_CLEAR
       ],
-      "rev2self"    => [ "stdapi_sys_config_rev2self" ],
-      "shell"       => [ "stdapi_sys_process_execute" ],
-      "shutdown"    => [ "stdapi_sys_power_exitwindows" ],
-      "steal_token" => [ "stdapi_sys_config_steal_token" ],
-      "suspend"     => [ "stdapi_sys_process_attach"],
-      "sysinfo"     => [ "stdapi_sys_config_sysinfo" ],
+      'drop_token'  => [COMMAND_ID_STDAPI_SYS_CONFIG_DROP_TOKEN],
+      'execute'     => [COMMAND_ID_STDAPI_SYS_PROCESS_EXECUTE],
+      'getpid'      => [COMMAND_ID_STDAPI_SYS_PROCESS_GETPID],
+      'getprivs'    => [COMMAND_ID_STDAPI_SYS_CONFIG_GETPRIVS],
+      'getuid'      => [COMMAND_ID_STDAPI_SYS_CONFIG_GETUID],
+      'getsid'      => [COMMAND_ID_STDAPI_SYS_CONFIG_GETSID],
+      'getenv'      => [COMMAND_ID_STDAPI_SYS_CONFIG_GETENV],
+      'kill'        => [COMMAND_ID_STDAPI_SYS_PROCESS_KILL],
+      'pkill'       => [
+        COMMAND_ID_STDAPI_SYS_PROCESS_KILL,
+        COMMAND_ID_STDAPI_SYS_PROCESS_GET_PROCESSES
+      ],
+      'pgrep'       => [COMMAND_ID_STDAPI_SYS_PROCESS_GET_PROCESSES],
+      'ps'          => [COMMAND_ID_STDAPI_SYS_PROCESS_GET_PROCESSES],
+      'reboot'      => [COMMAND_ID_STDAPI_SYS_POWER_EXITWINDOWS],
+      'reg'	      => [
+        COMMAND_ID_STDAPI_REGISTRY_LOAD_KEY,
+        COMMAND_ID_STDAPI_REGISTRY_UNLOAD_KEY,
+        COMMAND_ID_STDAPI_REGISTRY_OPEN_KEY,
+        COMMAND_ID_STDAPI_REGISTRY_OPEN_REMOTE_KEY,
+        COMMAND_ID_STDAPI_REGISTRY_CREATE_KEY,
+        COMMAND_ID_STDAPI_REGISTRY_DELETE_KEY,
+        COMMAND_ID_STDAPI_REGISTRY_CLOSE_KEY,
+        COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY,
+        COMMAND_ID_STDAPI_REGISTRY_SET_VALUE,
+        COMMAND_ID_STDAPI_REGISTRY_QUERY_VALUE,
+        COMMAND_ID_STDAPI_REGISTRY_DELETE_VALUE,
+        COMMAND_ID_STDAPI_REGISTRY_QUERY_CLASS,
+        COMMAND_ID_STDAPI_REGISTRY_ENUM_VALUE,
+      ],
+      'rev2self'    => [COMMAND_ID_STDAPI_SYS_CONFIG_REV2SELF],
+      'shell'       => [COMMAND_ID_STDAPI_SYS_PROCESS_EXECUTE],
+      'shutdown'    => [COMMAND_ID_STDAPI_SYS_POWER_EXITWINDOWS],
+      'steal_token' => [COMMAND_ID_STDAPI_SYS_CONFIG_STEAL_TOKEN],
+      'suspend'     => [COMMAND_ID_STDAPI_SYS_PROCESS_ATTACH],
+      'sysinfo'     => [COMMAND_ID_STDAPI_SYS_CONFIG_SYSINFO],
+      'localtime'   => [COMMAND_ID_STDAPI_SYS_CONFIG_LOCALTIME],
     }
-
-    all.delete_if do |cmd, desc|
-      del = false
-      reqs[cmd].each do |req|
-        next if client.commands.include? req
-        del = true
-        break
-      end
-
-      del
-    end
-
-    all
+    filter_commands(all, reqs)
   end
 
   #
@@ -176,8 +227,11 @@ class Console::CommandDispatcher::Stdapi::Sys
     cmd_args    = nil
     cmd_exec    = nil
     use_thread_token = false
+    raw = false
+    subshell = false
+    pty = false
 
-    @@execute_opts.parse(args) { |opt, idx, val|
+    execute_opts.parse(args) { |opt, idx, val|
       case opt
         when "-a"
           cmd_args = val
@@ -194,10 +248,7 @@ class Console::CommandDispatcher::Stdapi::Sys
         when "-k"
           desktop = true
         when "-h"
-          print(
-            "Usage: execute -f file [options]\n\n" +
-            "Executes a command on the remote machine.\n" +
-            @@execute_opts.usage)
+          cmd_execute_help
           return true
         when "-i"
           channelized = true
@@ -206,6 +257,12 @@ class Console::CommandDispatcher::Stdapi::Sys
           use_thread_token = true
         when "-s"
           session = val.to_i
+        when "-r"
+          raw = true
+        when "-z"
+          subshell = true
+        when "-p"
+          pty = true
       end
     }
 
@@ -222,48 +279,194 @@ class Console::CommandDispatcher::Stdapi::Sys
       'Session'     => session,
       'Hidden'      => hidden,
       'InMemory'    => (from_mem) ? dummy_exec : nil,
+      'Subshell' => subshell,
+      'Pty' => pty,
       'UseThreadToken' => use_thread_token)
 
     print_line("Process #{p.pid} created.")
     print_line("Channel #{p.channel.cid} created.") if (p.channel)
 
     if (interact and p.channel)
-      shell.interact_with_channel(p.channel)
+      shell.interact_with_channel(p.channel, raw: raw)
     end
   end
 
+  def cmd_execute_help
+    print_line("Usage: execute -f file [options]")
+    print_line("Executes a command on the remote machine.")
+    print execute_opts.usage
+  end
+
+  def cmd_execute_tabs(str, words)
+    return execute_opts.option_keys if words.length == 1
+    []
+  end
+
+  def cmd_shell_help
+    print_line 'Usage: shell [options]'
+    print_line
+    print_line 'Opens an interactive native shell.'
+    print_line shell_opts.usage
+  end
+
+  def cmd_shell_tabs(str, words)
+    return shell_opts.option_keys if words.length == 1
+    []
+  end
 
   #
   # Drop into a system shell as specified by %COMSPEC% or
   # as appropriate for the host.
+  #
   def cmd_shell(*args)
+    use_pty = false
+    raw = false
+    sh_path = '/bin/bash'
+
+    shell_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-h'
+        cmd_shell_help
+        return true
+      when '-l'
+        return false unless client.fs.file.exist?('/etc/shells')
+
+        begin
+          client.fs.file.open('/etc/shells') do |f|
+            print(f.read) until f.eof
+          end
+        rescue
+          return false
+        end
+
+        return true
+      when '-i'
+        raw = true
+      when '-t'
+        use_pty = true
+        # XXX: No other options must follow
+        sh_path = val if val
+      end
+    end
+
     case client.platform
-    when /win/
-      path = client.fs.file.expand_path("%COMSPEC%")
-      path = (path and not path.empty?) ? path : "cmd.exe"
+    when 'windows'
+      path = client.sys.config.getenv('COMSPEC')
+      path = (path && !path.empty?) ? path : 'cmd.exe'
 
       # attempt the shell with thread impersonation
       begin
-        cmd_execute("-f", path, "-c", "-H", "-i", "-t")
+        cmd_execute('-f', path, '-c', '-i', '-H', '-t')
       rescue
         # if this fails, then we attempt without impersonation
-        print_error( "Failed to spawn shell with thread impersonation. Retrying without it." )
-        cmd_execute("-f", path, "-c", "-H", "-i")
+        print_error('Failed to spawn shell with thread impersonation. Retrying without it.')
+        cmd_execute('-f', path, '-c', '-i', '-H')
       end
-    when /linux/
-      # Don't expand_path() this because it's literal anyway
-      path = "/bin/sh"
-      cmd_execute("-f", path, "-c", "-i")
+    when 'android'
+      cmd_execute('-f', '/system/bin/sh', '-c', '-i')
+    when 'linux', 'osx'
+      if raw && !use_pty
+        print_warning('Note: To use the fully interactive shell you must use a pty, i.e. %grnshell -it%clr')
+        return false
+      elsif use_pty && pty_shell(sh_path, raw: raw)
+        return true
+      end
+
+      if client.framework.features.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS) && !raw && !use_pty
+        print_line('This Meterpreter supports %grnshell -it%clr to start a fully interactive TTY.')
+        print_line('This will increase network traffic.')
+      end
+      cmd_execute('-f', '/bin/sh', '-c', '-i')
     else
-      # Then this is a multi-platform meterpreter (php or java), which
+      # Then this is a multi-platform meterpreter (e.g., php or java), which
       # must special-case COMSPEC to return the system-specific shell.
-      path = client.fs.file.expand_path("%COMSPEC%")
+      path = client.sys.config.getenv('COMSPEC')
+
       # If that failed for whatever reason, guess it's unix
-      path = (path and not path.empty?) ? path : "/bin/sh"
-      cmd_execute("-f", path, "-c", "-i")
+      path = (path && !path.empty?) ? path : '/bin/sh'
+
+      if use_pty && path == '/bin/sh' && pty_shell(sh_path, raw: raw)
+        return true
+      end
+
+      cmd_execute('-f', path, '-c', '-i')
     end
   end
 
+  #
+  # Spawn a PTY shell
+  #
+  def pty_shell(sh_path, raw: false)
+    args = ['-p']
+
+    if raw
+      args << '-r' if raw
+      if client.commands.include?(Extensions::Stdapi::COMMAND_ID_STDAPI_SYS_PROCESS_SET_TERM_SIZE)
+        print_line("Terminal size will be synced automatically.")
+      else
+        print_line("You may want to set the correct terminal size manually.")
+        print_line("Example: `stty rows {rows} cols {columns}`")
+      end
+    end
+    sh_path = client.fs.file.exist?(sh_path) ? sh_path : '/bin/sh'
+
+    # Python Meterpreter calls pty.openpty() - No need for other methods
+    if client.arch == 'python'
+      cmd_execute('-f', sh_path, '-c', '-i', *args)
+      return true
+    end
+
+    # Check for the following in /usr{,/local}/bin:
+    #   script
+    #   python{,2,3}
+    #   socat
+    #   expect
+    paths = %w[
+      /usr/bin/script
+      /usr/bin/python
+      /usr/local/bin/python
+      /usr/bin/python2
+      /usr/local/bin/python2
+      /usr/bin/python3
+      /usr/local/bin/python3
+      /usr/bin/socat
+      /usr/local/bin/socat
+      /usr/bin/expect
+      /usr/local/bin/expect
+    ]
+
+    # Select method for spawning PTY Shell based on availability on the target.
+    path = paths.find { |p| client.fs.file.exist?(p) }
+
+    return false unless path
+
+    # Commands for methods
+    cmd =
+      case path
+      when /script/
+        if client.platform == 'linux'
+          "#{path} -qc #{sh_path} /dev/null"
+        else
+          # script(1) invocation for BSD, OS X, etc.
+          "#{path} -q /dev/null #{sh_path}"
+        end
+      when /python/
+        "#{path} -c 'import pty; pty.spawn(\"#{sh_path}\")'"
+      when /socat/
+        # sigint isn't passed through yet
+        "#{path} - exec:#{sh_path},pty,sane,setsid,sigint,stderr"
+      when /expect/
+        "#{path} -c 'spawn #{sh_path}; interact'"
+      end
+
+    # "env TERM=xterm" provides colors, "clear" command, etc. as available on the target.
+    cmd.prepend('env TERM=xterm HISTFILE= ')
+
+    print_status(cmd)
+    cmd_execute('-f', cmd, '-c', '-i', '-z', *args)
+
+    true
+  end
 
   #
   # Gets the process identifier that meterpreter is running in on the remote
@@ -370,12 +573,94 @@ class Console::CommandDispatcher::Stdapi::Sys
   def cmd_kill_help
     print_line("Usage: kill [pid1 [pid2 [pid3 ...]]] [-s]")
     print_line("Terminate one or more processes.")
-    print_line(" -s : Kills the pid associated with the current session.")
+    print_line("     -s        Kills the pid associated with the current session.")
+  end
+
+  #
+  # Kills one or more processes by name.
+  #
+  def cmd_pkill(*args)
+    if args.include?('-h')
+      cmd_pkill_help
+      return true
+    end
+
+    all_processes = client.sys.process.get_processes
+    processes = match_processes(all_processes, args)
+
+    if processes.length == 0
+      print_line("No matching processes were found.")
+      return true
+    end
+
+    if processes.length == all_processes.length && !args.include?('-f')
+      print_error("All processes will be killed, use '-f' to force.")
+      return true
+    end
+
+    pids = processes.collect { |p| p['pid'] }.reverse
+    print_line("Killing: #{pids.join(', ')}")
+    client.sys.process.kill(*(pids.map { |x| x }))
+    true
+  end
+
+  def cmd_pkill_help
+    print_line("Usage: pkill [ options ] pattern")
+    print_line("Terminate one or more processes by name.")
+    print_line @@ps_opts.usage
+  end
+
+  #
+  # Filters processes by name
+  #
+  def cmd_pgrep(*args)
+    f_flag = false
+    l_flag = false
+
+    @@pgrep_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-h'
+        cmd_pgrep_help
+        return true
+      when '-l'
+        l_flag = true
+      when '-f'
+        f_flag = true
+      end
+    end
+
+    all_processes = client.sys.process.get_processes
+    processes = match_processes(all_processes, args, quiet: true)
+
+    if processes.length == 0 || processes.length == all_processes.length
+      return true
+    end
+
+    processes.each do |p|
+      if l_flag
+        if f_flag
+          full_path = [p['path'], p['name']].join(client.fs.file.separator)
+
+          print_line("#{p['pid']} #{full_path}")
+        else
+          print_line("#{p['pid']} #{p['name']}")
+        end
+      else
+        print_line("#{p['pid']}")
+      end
+    end
+    true
+  end
+
+  def cmd_pgrep_help
+    print_line("Usage: pgrep [ options ] pattern")
+    print_line("Filter processes by name.")
+    print_line @@pgrep_opts.usage
   end
 
   #
   # validates an array of pids against the running processes on target host
-  # behavior can be controlled to allow/deny proces 0 and the session's process
+  # behavior can be controlled to allow/deny process 0 and the session's process
   # the pids:
   # - are converted to integers
   # - have had pid 0 removed unless allow_pid_0
@@ -401,7 +686,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     # get the current session pid so we don't suspend it later
     mypid = client.sys.process.getpid.to_i
 
-    # remove nils & redundant pids, conver to int
+    # remove nils & redundant pids, convert to int
     clean_pids = pids.compact.uniq.map{|x| x.to_i}
     # now we look up the pids & remove bad stuff if nec
     clean_pids.delete_if do |p|
@@ -416,7 +701,87 @@ class Console::CommandDispatcher::Stdapi::Sys
         valid_pids << pid
       end
     end
-    return valid_pids
+    valid_pids
+  end
+
+  def match_processes(processes, args, quiet: false)
+
+    search_proc = nil
+    search_user = nil
+    exact_match = false
+
+    # Parse opts
+    @@ps_opts.parse(args) do |opt, idx, val|
+      case opt
+      when '-S', nil
+        if val.nil? || val.empty?
+          print_error "Enter a process name"
+          processes = []
+        else
+          search_proc = val
+        end
+      when "-U"
+        if val.nil? || val.empty?
+          print_line "Enter a process user"
+          processes = []
+        else
+          search_user = val
+        end
+      when '-x'
+        exact_match = true
+      when "-A"
+        if val.nil? || val.empty?
+          print_error "Enter an architecture"
+          processes = []
+        else
+          print_line "Filtering on arch '#{val}" if !quiet
+          processes = processes.select do |p|
+            p['arch'] == val
+          end
+        end
+      when "-s"
+        print_line "Filtering on SYSTEM processes..." if !quiet
+        processes = processes.select do |p|
+          ["NT AUTHORITY\\SYSTEM", "root"].include? p['user']
+        end
+      when "-c"
+        print_line "Filtering on child processes of the current shell..." if !quiet
+        current_shell_pid = client.sys.process.getpid
+        processes = processes.select do |p|
+          p['ppid'] == current_shell_pid
+        end
+      end
+    end
+
+    unless search_proc.nil?
+      print_line "Filtering on '#{search_proc}'" if !quiet
+      if exact_match
+        processes = processes.select do |p|
+          p['name'] == search_proc
+        end
+      else
+        match = /#{search_proc}/
+        processes = processes.select do |p|
+          p['name'] =~ match
+        end
+      end
+    end
+
+    unless search_user.nil?
+      print_line "Filtering on user '#{search_user}'" if !quiet
+      if exact_match
+        processes = processes.select do |p|
+          p['user'] == search_user
+        end
+      else
+        match = /#{search_user}/
+        processes = processes.select do |p|
+          p['user'] =~ match
+        end
+      end
+    end
+
+    Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new(processes)
   end
 
   #
@@ -428,79 +793,49 @@ class Console::CommandDispatcher::Stdapi::Sys
       return true
     end
 
-    # Init vars
-    processes = client.sys.process.get_processes
-    search_term = nil
+    all_processes = client.sys.process.get_processes
+    processes = match_processes(all_processes, args)
 
-    # Parse opts
-    @@ps_opts.parse(args) { |opt, idx, val|
-      case opt
-      when '-S'
-        search_term = val
-        if search_term.nil?
-          print_error("Enter a search term")
-          return true
-        end
-      when "-A"
-        print_line "Filtering on arch..."
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-        processes.each do |proc|
-          next if proc['arch'].nil? or proc['arch'].empty?
-          if val.nil? or val.empty?
-            return false
-          end
-          searched_procs << proc if proc["arch"] == (val == 'x64' ? 'x86_64' : val)
-        end
-        processes = searched_procs
-      when "-s"
-        print_line "Filtering on SYSTEM processes..."
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-        processes.each do |proc|
-          searched_procs << proc if proc["user"] == "NT AUTHORITY\\SYSTEM"
-        end
-        processes = searched_procs
-      when "-c"
-        print_line "Filtering on child processes of the current shell..."
-        current_shell_pid = client.sys.process.getpid
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-        processes.each do |proc|
-          searched_procs << proc if proc['ppid'] == current_shell_pid
-        end
-        processes = searched_procs
-      when "-U"
-        print_line "Filtering on user name..."
-        searched_procs = Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessList.new
-        processes.each do |proc|
-          if val.nil? or val.empty?
-            print_line "You must supply a search term!"
-            return false
-          end
-          searched_procs << proc if proc["user"].match(/#{val}/)
-        end
-        processes = searched_procs
-      end
-    }
-
-    if (processes.length == 0)
-      print_line("No running processes were found.")
-    else
-      tbl = processes.to_table('SearchTerm' => search_term)
-      print_line
-      print_line(tbl.to_s)
+    if processes.length == 0
+      print_line("No matching processes were found.")
+      return true
     end
-    return true
+
+    tbl = processes.to_table
+    print_line
+    print_line(tbl.to_s)
+    true
   end
 
   def cmd_ps_help
-    print_line "Usage: ps [ options ]"
+    print_line "Usage: ps [ options ] pattern"
     print_line
     print_line "Use the command with no arguments to see all running processes."
     print_line "The following options can be used to filter those results:"
-
     print_line @@ps_opts.usage
   end
 
+  #
+  # Tab completion for the ps command
+  #
+  def cmd_ps_tabs(str, words)
+    return @@ps_opts.option_keys if words.length == 1
 
+    case words[-1]
+    when '-A'
+      return %w[x86 x64]
+    when '-S'
+      process = []
+      client.sys.process.get_processes.each { |p| process << p['name'] } rescue nil
+      return process.uniq!
+    when '-U'
+      user = []
+      client.sys.process.get_processes.each { |p| user << p['user'] } rescue nil
+      return user.uniq! # buggy on windows
+    end
+
+    []
+  end
 
   #
   # Reboots the remote computer.
@@ -551,18 +886,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     @@reg_opts.parse(args) { |opt, idx, val|
       case opt
         when "-h"
-          print_line(
-            "Usage: reg [command] [options]\n\n" +
-            "Interact with the target machine's registry.\n" +
-            @@reg_opts.usage +
-            "COMMANDS:\n\n" +
-            "    enumkey	Enumerate the supplied registry key [-k <key>]\n" +
-            "    createkey	Create the supplied registry key  [-k <key>]\n" +
-            "    deletekey	Delete the supplied registry key  [-k <key>]\n" +
-            "    queryclass Queries the class of the supplied key [-k <key>]\n" +
-            "    setval	Set a registry value [-k <key> -v <val> -d <data>]\n" +
-            "    deleteval	Delete the supplied registry value [-k <key> -v <val>]\n" +
-            "    queryval	Queries the data contents of a value [-k <key> -v <val>]\n\n")
+          cmd_reg_help
           return false
         when "-k"
           key   = val
@@ -682,6 +1006,33 @@ class Console::CommandDispatcher::Stdapi::Sys
             end
           end
 
+          if type == 'REG_BINARY'
+            # Use the same format accepted by REG ADD:
+            # REG ADD HKLM\Software\MyCo /v Data /t REG_BINARY /d fe340ead
+            if (data.length.even? == false)
+              print_error('Data length supplied to the -d argument was not appropriately padded to an even length string!')
+              return false
+            end
+            data_str_length = data.length
+            data = data.scan(/(?:[a-fA-F0-9]{2})/).map {|v| v.to_i(16)}
+            if (data_str_length/2 != data.length)
+              print_error('Invalid characters provided! Could not fully convert data provided to -d argument!')
+              return false
+            end
+            data = data.pack("C*")
+          elsif type == 'REG_DWORD' || type == 'REG_QWORD'
+            if data =~ /^\d+$/
+              data = data.to_i
+            elsif data =~ /^0x[a-fA-F0-9]+$/
+              data = data[2..].to_i(16)
+            else
+              print_error("Invalid data provided, #{type} must be numeric.")
+              return false
+            end
+          elsif type == 'REG_MULTI_SZ'
+            data = data.split('\0')
+          end
+
           open_key.set_value(value, client.sys.registry.type2str(type), data)
 
           print_line("Successfully set #{value} of #{type}.")
@@ -723,12 +1074,18 @@ class Console::CommandDispatcher::Stdapi::Sys
           end
 
           v = open_key.query_value(value)
+          data = v.data
+          if v.type == REG_BINARY
+            data = data.unpack('H*')[0]
+          elsif v.type == REG_MULTI_SZ
+            data = data.join('\0')
+          end
 
           print(
             "Key: #{key}\n" +
             "Name: #{v.name}\n" +
             "Type: #{v.type_to_s}\n" +
-            "Data: #{v.data}\n")
+            "Data: #{data}\n")
 
         when "queryclass"
           open_key = nil
@@ -751,6 +1108,56 @@ class Console::CommandDispatcher::Stdapi::Sys
       open_key.close if (open_key)
     end
   end
+
+  #
+  # help for the reg command
+  #
+  def cmd_reg_help
+    print_line("Usage: reg [command] [options]")
+    print_line("Interact with the target machine's registry.")
+    print @@reg_opts.usage
+    print_line("COMMANDS:")
+    print_line
+    print_line("    enumkey     Enumerate the supplied registry key [-k <key>]")
+    print_line("    createkey   Create the supplied registry key  [-k <key>]")
+    print_line("    deletekey   Delete the supplied registry key  [-k <key>]")
+    print_line("    queryclass  Queries the class of the supplied key [-k <key>]")
+    print_line("    setval      Set a registry value [-k <key> -v <val> -d <data>]. Use a binary blob to set binary data with REG_BINARY type (e.g. setval -d ef4ba278)")
+    print_line("    deleteval   Delete the supplied registry value [-k <key> -v <val>]")
+    print_line("    queryval    Queries the data contents of a value [-k <key> -v <val>]")
+    print_line
+  end
+
+  #
+  # Tab completion for the reg command
+  #
+  def cmd_reg_tabs(str, words)
+    if words.length == 1
+      return %w[enumkey createkey deletekey queryclass setval deleteval queryval] + @@reg_opts.option_keys
+    end
+
+    case words[-1]
+    when '-k'
+      reg_root_keys = %w[HKLM HKCC HKCR HKCU HKU]
+      # Split the key into its parts
+      root_key, base_key = client.sys.registry.splitkey(str) rescue nil
+      return reg_root_keys unless root_key
+      # Open the registry
+      open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ + 0x0000) rescue (return [])
+      return open_key.enum_key.map { |e| str.gsub(/[\\]*$/, '') + '\\\\' + e }
+    when '-t'
+      # Reference https://msdn.microsoft.com/en-us/library/windows/desktop/bb773476(v=vs.85).aspx
+      return %w[REG_BINARY REG_DWORD REG_QWORD REG_DWORD_BIG_ENDIAN REG_EXPAND_SZ
+                REG_LINK REG_MULTI_SZ REG_NONE REG_RESOURCE_LIST REG_SZ]
+    when '-w'
+      return %w[32 64]
+    when 'enumkey', 'createkey', 'deletekey', 'queryclass', 'setval', 'deleteval', 'queryval'
+      return @@reg_opts.option_keys
+    end
+
+    []
+  end
+
 
   #
   # Calls RevertToSelf() on the remote machine.
@@ -777,23 +1184,31 @@ class Console::CommandDispatcher::Stdapi::Sys
     if args.include? "-h"
       cmd_getprivs_help
     end
-    print_line("=" * 60)
-    print_line("Enabled Process Privileges")
-    print_line("=" * 60)
+
+    table = Rex::Text::Table.new(
+      'Header'    => 'Enabled Process Privileges',
+      'Indent'    => 0,
+      'SortIndex' => 1,
+      'Columns'   => ['Name']
+    )
+
     client.sys.config.getprivs.each do |priv|
-      print_line("  #{priv}")
+      table << [priv]
     end
-    print_line("")
+
+    print_line
+    print_line(table.to_s)
   end
 
   #
   # Tries to steal the primary token from the target process.
   #
   def cmd_steal_token(*args)
-    if(args.length != 1 or args[0] == "-h")
-      print_error("Usage: steal_token [pid]")
-      return
+    if args.empty? || args.include?('-h')
+      print_line('Usage: steal_token [pid]')
+      return true
     end
+
     print_line("Stolen token with username: " + client.sys.config.steal_token(args[0]))
   end
 
@@ -808,15 +1223,25 @@ class Console::CommandDispatcher::Stdapi::Sys
   # Displays information about the remote system.
   #
   def cmd_sysinfo(*args)
-    info = client.sys.config.sysinfo
+    info = client.sys.config.sysinfo(refresh: true)
+    client.update_session_info
+
     width = "Meterpreter".length
     info.keys.each { |k| width = k.length if k.length > width and info[k] }
 
     info.each_pair do |key, value|
       print_line("#{key.ljust(width+1)}: #{value}") if value
     end
-    print_line("#{"Meterpreter".ljust(width+1)}: #{client.platform}")
+    print_line("#{"Meterpreter".ljust(width+1)}: #{client.session_type}")
 
+    return true
+  end
+
+  #
+  # Displays the local date and time at the remote system location.
+  #
+  def cmd_localtime(*args)
+    print_line("Local Date/Time: " + client.sys.config.localtime);
     return true
   end
 
@@ -826,12 +1251,9 @@ class Console::CommandDispatcher::Stdapi::Sys
   def cmd_shutdown(*args)
     force = 0
 
-    if args.length == 1 and args[0].strip == "-h"
-      print(
-        "Usage: shutdown [options]\n\n" +
-        "Shutdown the remote machine.\n" +
-        @@shutdown_opts.usage)
-        return true
+    if args.length == 1 && args.first.strip == '-h'
+      cmd_shutdown_help
+      return true
     end
 
     @@shutdown_opts.parse(args) { |opt, idx, val|
@@ -845,6 +1267,27 @@ class Console::CommandDispatcher::Stdapi::Sys
 
     client.sys.power.shutdown(force, SHTDN_REASON_DEFAULT)
   end
+
+  def cmd_shutdown_help
+    print_line('Usage: shutdown [options]')
+    print_line
+    print_line('Shutdown the remote machine.')
+    print @@shutdown_opts.usage
+  end
+
+  def cmd_shutdown_tabs(str, words)
+    return @@shutdown_opts.option_keys if words.length == 1
+
+    case words[-1]
+    when '-f'
+      return %w[1  2]
+    end
+
+    []
+  end
+
+
+
 
   #
   # Suspends or resumes a list of one or more pids
@@ -916,6 +1359,14 @@ class Console::CommandDispatcher::Stdapi::Sys
     print_line("Usage: suspend [options] pid1 pid2 pid3 ...")
     print_line("Suspend one or more processes.")
     print @@suspend_opts.usage
+  end
+
+  #
+  # Tab completion for the suspend command
+  #
+  def cmd_suspend_tabs(str, words)
+    return @@suspend_opts.option_keys if words.length == 1
+    []
   end
 
 end

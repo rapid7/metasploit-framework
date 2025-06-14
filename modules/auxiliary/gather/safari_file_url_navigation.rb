@@ -1,13 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
-###
+##
 
-require 'msf/core'
-require 'msf/core/exploit/format/webarchive'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::FtpServer
   include Msf::Exploit::Format::Webarchive
   include Msf::Auxiliary::Report
@@ -32,12 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'https://support.apple.com/en-us/HT204826']
       ],
       'Platform'    => 'osx',
-      'Targets'     =>
-        [
-          [ 'Mac OS X', {} ]
-        ],
-      'DefaultTarget'  => 0,
-      'DisclosureDate' => 'Jan 16 2014'
+      'DisclosureDate' => '2014-01-16'
     ))
 
 
@@ -45,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new("URIPATH", [false, 'The URI to use for this exploit (default is random)']),
       OptPort.new('SRVPORT',   [true, "The local port to use for the FTP server", 8081]),
       OptPort.new('HTTPPORT',  [true, "The HTTP server port", 8080])
-    ], self.class)
+    ])
   end
 
   def lookup_lhost(c=nil)
@@ -212,7 +204,7 @@ class MetasploitModule < Msf::Auxiliary
     start_service
 
     # Create our own HTTP server
-    # We will stay in this functino until we manually terminate execution
+    # We will stay in this function until we manually terminate execution
     start_http
   end
 
@@ -330,17 +322,14 @@ class MetasploitModule < Msf::Auxiliary
     super
 
     # Kill FTP
-    stop_service
+    cleanup_service
 
     # clear my resource, deregister ref, stop/close the HTTP socket
     begin
       @http_service.remove_resource(datastore['URIPATH'])
       @http_service.deref
-      @http_service.stop
-      @http_service.close
       @http_service = nil
     rescue
     end
   end
-
 end

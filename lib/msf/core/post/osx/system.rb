@@ -4,6 +4,10 @@ module Msf::Post::OSX::System
   include ::Msf::Post::Common
   include ::Msf::Post::File
 
+  def get_system_version
+    cmd_exec("/usr/bin/sw_vers -productVersion")
+  end
+
   #
   # Return a hash with system Information
   #
@@ -17,6 +21,13 @@ module Msf::Post::OSX::System
     system_info["Kernel"] = cmd_exec("uname -a")
     system_info["Hostname"] = system_info["Kernel"].split(" ")[1]
 
+    report_host({
+      :host => rhost,
+      :os_name => 'osx',
+      :os_flavor => system_info["Kernel"],
+      :name => system_info["Hostname"]
+    })
+
     return system_info
   end
 
@@ -27,14 +38,15 @@ module Msf::Post::OSX::System
   def get_users
     cmd_output = cmd_exec("/usr/bin/dscacheutil -q user")
     users = []
-    users_arry = cmd_output.split("\n\n")
+    users_arry = cmd_output.tr("\r", "").split("\n\n")
     users_arry.each do |u|
       entry = Hash.new
       u.each_line do |l|
         field,val = l.chomp.split(": ")
         next if field == "password"
-        entry[field] = val.chomp
-
+        unless val.nil?
+          entry[field] = val.strip
+        end
       end
       users << entry
     end
@@ -48,15 +60,17 @@ module Msf::Post::OSX::System
   def get_system_accounts
     cmd_output = cmd_exec("/usr/bin/dscacheutil -q user")
     users = []
-    users_arry = cmd_output.split("\n\n")
+    users_arry = cmd_output.tr("\r", "").split("\n\n")
     users_arry.each do |u|
       entry = {}
       u.each_line do |l|
         field,val = l.chomp.split(": ")
         next if field == "password"
-        entry[field] = val.chomp
+        unless val.nil?
+          entry[field] = val.strip
+        end
       end
-      next if entry["name"] !~ /^_/
+      next if entry["name"][0] != '_'
       users << entry
     end
     return users
@@ -69,15 +83,17 @@ module Msf::Post::OSX::System
   def get_nonsystem_accounts
     cmd_output = cmd_exec("/usr/bin/dscacheutil -q user")
     users = []
-    users_arry = cmd_output.split("\n\n")
+    users_arry = cmd_output.tr("\r", "").split("\n\n")
     users_arry.each do |u|
       entry = {}
       u.each_line do |l|
         field,val = l.chomp.split(": ")
         next if field == "password"
-        entry[field] = val.chomp
+        unless val.nil?
+          entry[field] = val.strip
+        end
       end
-      next if entry["name"] =~ /^_/
+      next if entry["name"][0] == '_'
       users << entry
     end
     return users
@@ -96,8 +112,9 @@ module Msf::Post::OSX::System
       u.each_line do |l|
         field,val = l.chomp.split(": ")
         next if field == "password"
-        entry[field] = val.chomp
-
+        unless val.nil?
+          entry[field] = val.strip
+        end
       end
       groups << entry
     end

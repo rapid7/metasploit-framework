@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -8,7 +8,7 @@
 
 # Author:Roni Bachar (@roni_bachar) roni.bachar.blog@gmail.com
 #
-# Thie script will open an interactive view of remote hosts
+# This script will open an interactive view of remote hosts
 # You will need firefox installed on your machine
 
 
@@ -60,7 +60,7 @@ def wrong_meter_version(meter = meter_type)
 end
 
 # Check for Version of Meterpreter
-wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
+wrong_meter_version(meter_type) if meter_type != 'windows'
 session = client
 
 
@@ -109,11 +109,11 @@ begin
 
     if (localsys == "windows")
 
-      print_status("Runing in local mode => windows")
+      print_status("Running in local mode => windows")
       print_status("Opening Interactive view...")
       localcmd="start firefox -width 530 -height 660 \"file:///#{Msf::Config.install_root}/logs/screenshot/#{host}/video.html\""
     else
-      print_status("Runing in local mode => Linux")
+      print_status("Running in local mode => Linux")
       print_status("Opening Interactive view...")
       localcmd="bash firefox -width 530 -height 660 \"file:///#{Msf::Config.install_root}/logs/screenshot/#{host}/video.html\""
     end

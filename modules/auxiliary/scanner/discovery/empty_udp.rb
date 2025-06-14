@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
@@ -11,20 +9,25 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'UDP Empty Prober',
-      'Description' => 'Detect UDP services that reply to empty probes',
-      'Author'      => 'Jon Hart <jon_hart[at]rapid7.com>',
-      'License'     => MSF_LICENSE
+      'Name' => 'UDP Empty Prober',
+      'Description' => 'Detect UDP services that reply to empty probes.',
+      'Author' => 'Jon Hart <jon_hart[at]rapid7.com>',
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
     register_options([
       OptString.new('PORTS', [true, 'Ports to probe', '1-1024,1194,2000,2049,4353,5060,5061,5351,8443'])
-    ], self.class)
+    ])
   end
 
   def setup
     super
     @ports = Rex::Socket.portspec_crack(datastore['PORTS'])
-    raise Msf::OptionValidateError.new(['PORTS']) if @ports.empty?
+    raise Msf::OptionValidateError, ['PORTS'] if @ports.empty?
   end
 
   def scanner_prescan(batch)
@@ -39,6 +42,6 @@ class MetasploitModule < Msf::Auxiliary
 
   def scanner_process(data, shost, sport)
     print_good("Received #{data.inspect} from #{shost}:#{sport}/udp")
-    report_service(:host => shost, :port => sport, :proto => 'udp', :info => data.inspect)
+    report_service(host: shost, port: sport, proto: 'udp', info: data.inspect)
   end
 end

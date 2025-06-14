@@ -3,8 +3,8 @@ module Msf::Module::ModuleInfo
   # CONSTANTS
   #
 
-  # The list of options that support merging in an information hash.
-  UpdateableOptions = [ "Name", "Description", "Alias", "PayloadCompat" ]
+  # The list of options that don't support merging in an information hash.
+  UpdateableOptions = [ "Name", "Description", "Alias", "PayloadCompat" , "Stance"]
 
   #
   # Instance Methods
@@ -37,6 +37,14 @@ module Msf::Module::ModuleInfo
   #
   def name
     module_info['Name']
+  end
+
+
+  #
+  # Return the module's notes (including AKA and NOCVE descriptors).
+  #
+  def notes
+    module_info['Notes']
   end
 
   protected
@@ -75,13 +83,20 @@ module Msf::Module::ModuleInfo
   #
   def merge_check_key(info, name, val)
     if (self.respond_to?("merge_info_#{name.downcase}", true))
-      eval("merge_info_#{name.downcase}(info, val)")
+      self.send("merge_info_#{name.downcase}", info, val)
     else
       # If the info hash already has an entry for this name
       if (info[name])
         # If it's not an array, convert it to an array and merge the
         # two
-        if (info[name].kind_of?(Array) == false)
+        if (info[name].kind_of?(Hash))
+          raise TypeError, 'can only merge a hash into a hash' unless val.kind_of?(Hash)
+          val.each_pair do |val_key, val_val|
+            merge_check_key(info[name], val_key, val_val)
+          end
+
+          return
+        elsif (info[name].kind_of?(Array) == false)
           curr       = info[name]
           info[name] = [ curr ]
         end
@@ -135,7 +150,15 @@ module Msf::Module::ModuleInfo
   # Merges the module description.
   #
   def merge_info_description(info, val)
-    merge_info_string(info, 'Description', val, ". ", true)
+    key = 'Description'
+    unless info[key]
+      info[key] = val
+      return
+    end
+
+    current_value = Msf::Serializer::ReadableText.word_wrap_description(info[key])
+    new_value = Msf::Serializer::ReadableText.word_wrap_description(val)
+    info[key] = current_value.end_with?('.') ? "#{current_value}\n#{val}" : "#{current_value}.\n\n#{new_value}"
   end
 
   #
@@ -201,20 +224,20 @@ module Msf::Module::ModuleInfo
   # platforms, and options.
   #
   def update_info(info, opts)
-    opts.each_pair { |name, val|
+    opts.each_pair do |name, val|
       # If the supplied option name is one of the ones that we should
       # override by default
-      if (UpdateableOptions.include?(name) == true)
+      if UpdateableOptions.include?(name)
         # Only if the entry is currently nil do we use our value
-        if (info[name] == nil)
+        if info[name].nil?
           info[name] = val
         end
-      # Otherwise, perform the merge operation like normal
+        # Otherwise, perform the merge operation like normal
       else
         merge_check_key(info, name, val)
       end
-    }
+    end
 
-    return info
+    info
   end
 end

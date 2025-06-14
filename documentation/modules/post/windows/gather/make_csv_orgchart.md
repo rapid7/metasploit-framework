@@ -1,3 +1,5 @@
+## Introduction
+
 This module can be used to aid the generation of an organizational chart based on information
 contained in Active Directory. The module itself uses ADSI to retrieve key information from AD
 (manager, title, description etc) fields and then present it in a CSV file in the form:
@@ -20,13 +22,13 @@ This should not be confused with security groups and AD managed groups; this is 
 internal organizational hierarchy representation but could be very useful for situational awareness
 or in order to construct a more plausible or targeted internal phishing exercise.
 
-# Options
+## Options
 
 Option             | Value
 -------------------| ---
 ACTIVE_USERS_ONLY  | This will restrict the search for users to those whose accounts are Active. This would have the effect of excluding disabled accounts (e.g. employees who have resigned).
 FILTER             | Any additional LDAP filtering that is required when searching for users.
-WITH_MANAGERS_ONLY | If this is TRUE, the module will only include users who have a manger set (internally, this is implemented by adding (manager=*) to the ADSI query filter). This could be useful if not everyone has a manager set, but could mean that the top executive is not included either.
+WITH_MANAGERS_ONLY | If this is TRUE, the module will only include users who have a manager set (internally, this is implemented by adding (manager=*) to the ADSI query filter). This could be useful if not everyone has a manager set, but could mean that the top executive is not included either.
 STORE_LOOT         | Store the results in a CSV file in loot. You'll almost certainly want this set to TRUE.
 
 # Demo

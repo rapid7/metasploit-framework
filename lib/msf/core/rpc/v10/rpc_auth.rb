@@ -62,7 +62,7 @@ end
   # @raise [Msf::RPC::Exception] An error indicating a failed deauthentication, including:
   #                              * 500 Invalid authentication token.
   #                              * 500 Permanent authentication token.
-  # @return [Hash] A hash indiciating the action was successful. It contains the following key:
+  # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] The successful message: 'success'
   # @example Here's how you would use this from the client:
   #  # This returns something like:

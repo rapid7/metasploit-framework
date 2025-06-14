@@ -1,0 +1,1 @@
+This is where plugins for Metasploit live, which allow Metasploit to interface with other tools and services.

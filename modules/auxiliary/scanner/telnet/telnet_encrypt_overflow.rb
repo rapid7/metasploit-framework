@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Telnet
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -22,14 +19,14 @@ class MetasploitModule < Msf::Auxiliary
           ['BID', '51182'],
           ['CVE', '2011-4862'],
           ['EDB', '18280'],
-          ['URL', 'https://community.rapid7.com/community/metasploit/blog/2011/12/28/more-fun-with-bsd-derived-telnet-daemons']
+          ['URL', 'https://www.rapid7.com/blog/post/2011/12/28/more-fun-with-bsd-derived-telnet-daemons/']
         ]
     )
     register_options(
     [
       Opt::RPORT(23),
       OptInt.new('TIMEOUT', [true, 'Timeout for the Telnet probe', 30])
-    ], self.class)
+    ])
   end
 
   def to
@@ -127,11 +124,15 @@ class MetasploitModule < Msf::Auxiliary
         )
 
       end
-    rescue ::Rex::ConnectionError
-    rescue Timeout::Error
+    rescue ::Rex::ConnectionError, ::Errno::ECONNRESET => e
+      print_error("A network issue has occurred: #{e.message}")
+      elog('A network issue has occurred', error: e)
+    rescue Timeout::Error => e
       print_error("#{target_host}:#{rport} Timed out after #{to} seconds")
+      elog("#{target_host}:#{rport} Timed out after #{to} seconds", error: e)
     rescue ::Exception => e
       print_error("#{target_host}:#{rport} Error: #{e} #{e.backtrace}")
+      elog("#{target_host}:#{rport} Error: #{e} #{e.backtrace}", error: e)
     ensure
       disconnect
     end

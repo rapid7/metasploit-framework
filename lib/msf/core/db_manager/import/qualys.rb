@@ -5,6 +5,9 @@ module Msf::DBManager::Import::Qualys
   include Msf::DBManager::Import::Qualys::Asset
   include Msf::DBManager::Import::Qualys::Scan
 
+  TCP_QID = 82023
+  UDP_QID = 82004
+
   #
   # Qualys report parsing/handling
   #
@@ -18,7 +21,7 @@ module Msf::DBManager::Import::Qualys
     end
 
     if info[:host] && info[:port] && info[:proto]
-      report_service(info)
+      msf_import_service(info)
     end
 
     fixed_refs = []
@@ -36,7 +39,7 @@ module Msf::DBManager::Import::Qualys
     return if qid == 0
     title = 'QUALYS-' + qid if title.nil? or title.empty?
     if addr
-      report_vuln(
+      msf_import_vuln(
         :workspace => wspace,
         :task => task,
         :host => hobj,

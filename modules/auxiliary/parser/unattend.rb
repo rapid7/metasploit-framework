@@ -1,33 +1,37 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex/parser/unattend'
-
 class MetasploitModule < Msf::Auxiliary
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'        => 'Auxilliary Parser Windows Unattend Passwords',
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Auxiliary Parser Windows Unattend Passwords',
         'Description' => %q{
-        This module parses Unattend files in the target directory.
+          This module parses Windows answer files (Unattend files) in the target directory.
 
-        See also: post/windows/gather/enum_unattend
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        =>
-        [
+          See also: post/windows/gather/enum_unattend
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Ben Campbell',
         ],
-      'References'    =>
-        [
-          ['URL', 'http://technet.microsoft.com/en-us/library/ff715801'],
-          ['URL', 'http://technet.microsoft.com/en-us/library/cc749415(v=ws.10).aspx'],
-          ['URL', 'http://technet.microsoft.com/en-us/library/c026170e-40ef-4191-98dd-0b9835bfa580']
+        'References' => [
+          ['URL', 'https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-8.1-and-8/ff715801(v=win.10)'],
+          ['URL', 'https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-vista/cc749415(v=ws.10)'],
+          ['URL', 'https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/cc732280(v=ws.10)'],
+          ['URL', 'https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/update-windows-settings-and-scripts-create-your-own-answer-file-sxs?view=windows-11'],
         ],
-    ))
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options([
       OptPath.new('PATH', [true, 'Directory or file to parse.']),
@@ -37,12 +41,12 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     if datastore['RECURSIVE']
-      ext = "**/*.xml"
+      ext = '**/*.xml'
     else
-      ext = "/*.xml"
+      ext = '/*.xml'
     end
 
-    if datastore['PATH'].ends_with('.xml')
+    if datastore['PATH'].ends_with?('.xml')
       filepath = datastore['PATH']
     else
       filepath = File.join(datastore['PATH'], ext)
@@ -66,4 +70,3 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 end
-

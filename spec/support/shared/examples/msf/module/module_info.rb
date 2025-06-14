@@ -5,7 +5,7 @@ RSpec.shared_examples_for 'Msf::Module::ModuleInfo' do
         described_class::UpdateableOptions
       }
 
-      it { is_expected.to match_array(%w{Name Description Alias PayloadCompat})}
+      it { is_expected.to match_array(%w{Name Description Alias PayloadCompat Stance})}
     end
   end
 

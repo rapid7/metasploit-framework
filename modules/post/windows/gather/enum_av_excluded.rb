@@ -1,10 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
-require 'rex'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
@@ -13,24 +10,28 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name'          => 'Windows Antivirus Exclusions Enumeration',
-        'Description'   => %q(
+        'Name' => 'Windows Antivirus Exclusions Enumeration',
+        'Description' => %q{
           This module will enumerate the file, directory, process and
           extension-based exclusions from supported AV products, which
           currently includes Microsoft Defender, Microsoft Security
           Essentials/Antimalware, and Symantec Endpoint Protection.
-        ),
-        'License'       => MSF_LICENSE,
-        'Author'        => [
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Andrew Smith', # original metasploit module
           'Jon Hart <jon_hart[at]rapid7.com>' # improved metasploit module
         ],
-        'Platform'      => [ 'win' ],
+        'Platform' => [ 'win' ],
         # XXX: this will work with 'shell' when the sysinfo parts are removed
-        # and https://github.com/rapid7/metasploit-framework/issues/6328 and
-        # perhaps https://github.com/rapid7/metasploit-framework/issues/6316
-        # are fixed
-        'SessionTypes'  => [ 'meterpreter' ]
+        # and https://github.com/rapid7/metasploit-framework/issues/6328
+        # is fixed
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 
@@ -100,22 +101,27 @@ class MetasploitModule < Msf::Post
       return
     end
     table = Rex::Text::Table.new(
-      'Header'    => "#{product} excluded #{exclusion_type.pluralize}",
-      'Indent'    => 1,
-      'Columns'   => [ exclusion_type.capitalize ]
+      'Header' => "#{product} excluded #{exclusion_type.pluralize}",
+      'Indent' => 1,
+      'Columns' => [ exclusion_type.capitalize ]
     )
     exclusions.map { |exclusion| table << [exclusion] }
     print_line(table.to_s)
   end
 
   def setup
+    unless datastore['DEFENDER'] || datastore['ESSENTIALS'] || datastore['SEP']
+      fail_with(Failure::BadConfig, 'Must set one or more of DEFENDER, ESSENTIALS or SEP to true')
+    end
+
     # all of these target applications seemingly store their registry
     # keys/values at the same architecture of the host, so if we happen to be
     # in a 32-bit process on a 64-bit machine, ensure that we read from the
     # 64-bit keys/values, and otherwise use the native keys/values
-    @registry_view = sysinfo['Architecture'] =~ /WOW64/ ? REGISTRY_VIEW_64_BIT : REGISTRY_VIEW_NATIVE
-    unless datastore['DEFENDER'] || datastore['ESSENTIALS'] || datastore['SEP']
-      fail_with(Failure::BadConfig, 'Must set one or more of DEFENDER, ESSENTIALS or SEP to true')
+    if sysinfo['Architecture'] == ARCH_X64 && session.arch == ARCH_X86
+      @registry_view = REGISTRY_VIEW_64_BIT
+    else
+      @registry_view = REGISTRY_VIEW_NATIVE
     end
   end
 
@@ -136,6 +142,6 @@ class MetasploitModule < Msf::Post
       excluded_sep
     end
 
-    print_error "No supported AV identified" unless found
+    print_error 'No supported AV identified' unless found
   end
 end

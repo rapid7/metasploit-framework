@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Nmap
   include Msf::Auxiliary::AuthBrute
@@ -20,6 +17,8 @@ class MetasploitModule < Msf::Auxiliary
         This module attempts to authenticate against an Oracle RDBMS
         instance using username and password combinations indicated
         by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
+
+        Due to a bug in nmap versions 6.50-7.80 may not work.
       },
       'Author'         => [
         'Patrik Karlsson <patrik[at]cqure.net>', # the nmap NSE script, oracle-brute.nse
@@ -28,18 +27,18 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     =>
         [
-          [ 'URL', 'http://www.oracle.com/us/products/database/index.html' ],
+          [ 'URL', 'https://www.oracle.com/database/' ],
           [ 'CVE', '1999-0502'], # Weak password CVE
-          [ 'URL', 'http://nmap.org/nsedoc/scripts/oracle-brute.html']
+          [ 'URL', 'https://nmap.org/nsedoc/scripts/oracle-brute.html']
         ]
     ))
 
     register_options(
       [
-        OptPath.new('USERPASS_FILE',  [ false, "File containing (space-seperated) users and passwords, one pair per line",
+        OptPath.new('USERPASS_FILE',  [ false, "File containing (space-separated) users and passwords, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "oracle_default_userpass.txt") ]),
         OptString.new('SID', [ true, 'The instance (SID) to authenticate against', 'XE'])
-      ], self.class)
+      ])
 
   end
 
@@ -176,7 +175,7 @@ class MetasploitModule < Msf::Auxiliary
         if oline =~ /Login correct/
           if not @oracle_reported
             report_service(:host => addr, :port => port, :proto => "tcp", :name => "oracle")
-            report_note(:host => addr, :port => port, :proto => "tcp", :type => "oracle.sid", :data => sid, :update => :unique_data)
+            report_note(:host => addr, :port => port, :proto => "tcp", :type => "oracle.sid", :data => { :sid => sid }, :update => :unique_data)
             @oracle_reported = true
           end
           user,pass = extract_creds(oline)
@@ -193,11 +192,11 @@ class MetasploitModule < Msf::Auxiliary
         elsif oline =~ /Account locked/
           if not @oracle_reported
             report_service(:host => addr, :port => port, :proto => "tcp", :name => "oracle")
-            report_note(:host => addr, :port => port, :proto => "tcp", :type => "oracle.sid", :data => sid, :update => :unique_data)
+            report_note(:host => addr, :port => port, :proto => "tcp", :type => "oracle.sid", :data => { :sid => sid }, :update => :unique_data)
             @oracle_reported = true
           end
           user = extract_creds(oline)[0]
-          print_status "#{msg} Locked: #{user} (SID: #{sid}) -- account valid but locked"
+          print_good "#{msg} Locked: #{user} (SID: #{sid}) -- account valid but locked"
           report_cred(
             ip: addr,
             port: port,
@@ -211,5 +210,4 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
-
 end

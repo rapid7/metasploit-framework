@@ -1,19 +1,17 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'net/ssh'
 require 'metasploit/framework/login_scanner/ssh'
 require 'metasploit/framework/credential_collection'
 
 class MetasploitModule < Msf::Auxiliary
-
-  include Msf::Auxiliary::Report
-  include Msf::Auxiliary::CommandShell
-  include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::AuthBrute
+  include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::SSH::Options
 
   DEFAULT_USERNAME = 'karaf'
   DEFAULT_PASSWORD = 'karaf'
@@ -51,7 +49,6 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('SSH_TIMEOUT', [ false, 'Specify the maximum time to negotiate a SSH session', 30])
       ]
     )
-
   end
 
   def rport
@@ -73,14 +70,9 @@ class MetasploitModule < Msf::Auxiliary
     @ip = ip
     print_status("Attempting login to #{ip}:#{rport}...")
 
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
-      blank_passwords: datastore['BLANK_PASSWORDS'],
-      pass_file: datastore['PASS_FILE'],
+    cred_collection = build_credential_collection(
       password: datastore['PASSWORD'],
-      user_file: datastore['USER_FILE'],
-      userpass_file: datastore['USERPASS_FILE'],
-      username: datastore['USERNAME'],
-      user_as_pass: datastore['USER_AS_PASS']
+      username: datastore['USERNAME']
     )
 
     if datastore['TRYDEFAULTCRED']
@@ -94,14 +86,16 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     scanner = Metasploit::Framework::LoginScanner::SSH.new(
-      host: ip,
-      port: rport,
-      cred_details: cred_collection,
-      proxies: datastore['Proxies'],
-      stop_on_success: datastore['STOP_ON_SUCCESS'],
-      connection_timeout: datastore['SSH_TIMEOUT'],
-      framework: framework,
-      framework_module: self,
+      configure_login_scanner(
+        host: ip,
+        port: rport,
+        cred_details: cred_collection,
+        proxies: datastore['Proxies'],
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        connection_timeout: datastore['SSH_TIMEOUT'],
+        framework: framework,
+        framework_module: self,
+      )
     )
 
     scanner.scan! do |result|

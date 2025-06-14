@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/http'
-require 'msf/core'
 
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::HttpCrawler
 
   def initialize
@@ -21,6 +18,9 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options([
       OptString.new('ExcludePathPatterns', [false, 'Newline-separated list of path patterns to ignore (\'*\' is a wildcard)']),
+      OptBool.new('HttpTrace', [false, 'Show the raw HTTP requests and responses', false]),
+      OptBool.new('HttpTraceHeadersOnly', [false, 'Show HTTP headers only in HttpTrace', false]),
+      OptString.new('HttpTraceColors', [false, 'HTTP request and response colors for HttpTrace (unset to disable)', 'red/blu']),
     ])
     @for_each_page_blocks = []
   end
@@ -63,10 +63,15 @@ class MetasploitModule < Msf::Auxiliary
   #
   # Data we will report:
   # - The path of any URL found by the crawler (web.uri, :path => page.path)
-  # - The occurence of any form (web.form :path, :type (get|post|path_info), :params)
+  # - The occurrence of any form (web.form :path, :type (get|post|path_info), :params)
   #
   def crawler_process_page(t, page, cnt)
-    msg = "[#{"%.5d" % cnt}/#{"%.5d" % max_page_count}]    #{page.code || "ERR"} - #{t[:vhost]} - #{page.url}"
+    return if page.nil? # Skip over pages that don't contain any info aka page is nil. We can't process these types of pages since there is no data to process.
+    msg = "[#{"%.5d" % cnt}/#{"%.5d" % max_page_count}]    #{page ? page.code || "ERR" : "ERR"} - #{t[:vhost]} - #{page.url}"
+    if page.error
+      print_error("Error accessing page #{page.error.to_s}")
+      elog(page.error)
+    end
     case page.code
       when 301,302
         if page.headers and page.headers["location"]

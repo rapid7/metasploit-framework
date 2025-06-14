@@ -1,86 +1,86 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
-  include Msf::Post::Windows::Priv
+  include Msf::Post::Windows::Accounts
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'            => "Windows Gather Enumerate Domain",
-      'Description'     => %q{
-        This module identifies the primary domain via the registry. The registry value used is:
-        HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\DCName.
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Enumerate Domain',
+        'Description' => %q{
+          This module identifies the primary Active Directory domain name
+          and domain controller.
         },
-      'License'         => MSF_LICENSE,
-      'Platform'        => ['win'],
-      'SessionTypes'    => ['meterpreter'],
-      'Author'          => ['Joshua Abraham <jabra[at]rapid7.com>']
-    ))
+        'License' => MSF_LICENSE,
+        'Platform' => ['win'],
+        'SessionTypes' => %w[meterpreter shell powershell],
+        'Author' => ['Joshua Abraham <jabra[at]rapid7.com>'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        },
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_net_resolve_host
+            ]
+          }
+        }
+      )
+    )
   end
 
-  def reg_getvaldata(key,valname)
-    value = nil
-    begin
-      root_key, base_key = client.sys.registry.splitkey(key)
-      open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ)
-      v = open_key.query_value(valname)
-      value = v.data
-      open_key.close
-    rescue
-    end
-    return value
-  end
+  def resolve_host(host)
+    return host if Rex::Socket.dotted_ip?(host)
 
-  def get_domain()
-    domain = nil
-    begin
-      subkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"
-      v_name = "DCName"
-      domain = reg_getvaldata(subkey, v_name)
-    rescue
-      print_error("This host is not part of a domain.")
-    end
-    return domain
-  end
+    return unless client.respond_to?(:net)
 
-  def gethost(hostorip)
-    #check for valid ip and return if it is
-    return hostorip if Rex::Socket.dotted_ip?(hostorip)
+    vprint_status("Resolving host #{host}")
 
-    ## get IP for host
-    vprint_status("Looking up IP for #{hostorip}")
-    result = client.net.resolve.resolve_host(hostorip)
-    return result[:ip] if result[:ip]
-    return nil if result[:ip].nil? or result[:ip].empty?
+    result = client.net.resolve.resolve_host(host)
+
+    return if result[:ip].blank?
+
+    result[:ip]
   end
 
   def run
-    domain = get_domain()
-    if not domain.nil? and domain =~ /\./
-      dom_info =  domain.split('.')
-      dom_info[0].sub!(/\\\\/,'')
-      report_note(
-        :host   => session,
-        :type   => 'windows.domain',
-        :data   => { :domain => dom_info[1] },
-        :update => :unique_data
-      )
-      print_good("FOUND Domain: #{dom_info[1]}")
-      dc_ip = gethost(dom_info[0])
-      if not dc_ip.nil?
-        print_good("FOUND Domain Controller: #{dom_info[0]} (IP: #{dc_ip})")
-        report_host({
-            :host => dc_ip,
-            :name => dom_info[0],
-            :info => "Domain controller for #{dom_info[1]}"
-          })
-      else
-        print_good("FOUND Domain Controller: #{dom_info[0]}")
-      end
+    domain = get_domain_name
+
+    fail_with(Failure::Unknown, 'Could not retrieve domain name. Is the host part of a domain?') unless domain && !domain.empty?
+
+    print_good("Domain FQDN: #{domain}")
+
+    report_note(
+      host: session,
+      type: 'windows.domain',
+      data: { domain: domain },
+      update: :unique_data
+    )
+
+    netbios_domain_name = domain.split('.').first.upcase
+
+    print_good("Domain NetBIOS Name: #{netbios_domain_name}")
+
+    domain_controller = get_primary_domain_controller
+
+    fail_with(Failure::Unknown, 'Could not retrieve domain controller name') unless domain_controller && !domain_controller.empty?
+
+    dc_ip = resolve_host(domain_controller)
+    if dc_ip.nil?
+      print_good("Domain Controller: #{domain_controller}")
+    else
+      print_good("Domain Controller: #{domain_controller} (IP: #{dc_ip})")
+      report_host({
+        host: dc_ip,
+        name: domain_controller,
+        info: "Domain controller for #{domain}"
+      })
     end
   end
 end

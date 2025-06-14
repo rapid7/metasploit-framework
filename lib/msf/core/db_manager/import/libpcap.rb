@@ -4,7 +4,7 @@ module Msf::DBManager::Import::Libpcap
   # extend PacketFu to do better stream analysis on the fly.
   def import_libpcap(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
     # seen_hosts is only used for determining when to yield an address. Once we get
     # some packet analysis going, the values will have all sorts of info. The plan
@@ -35,7 +35,7 @@ module Msf::DBManager::Import::Libpcap
       unless( bl.include?(saddr) || rfc3330_reserved(saddr))
         yield(:address,saddr) if block and !seen_hosts.keys.include?(saddr)
         unless seen_hosts[saddr]
-          report_host(
+          msf_import_host(
               :workspace => wspace,
               :host      => saddr,
               :state     => Msf::HostState::Alive,
@@ -48,7 +48,7 @@ module Msf::DBManager::Import::Libpcap
       unless( bl.include?(daddr) || rfc3330_reserved(daddr))
         yield(:address,daddr) if block and !seen_hosts.keys.include?(daddr)
         unless seen_hosts[daddr]
-          report_host(
+          msf_import_host(
               :workspace => wspace,
               :host      => daddr,
               :state     => Msf::HostState::Alive,
@@ -63,7 +63,7 @@ module Msf::DBManager::Import::Libpcap
           pkt.tcp_src < 1024 # If it's a low port, assume it's a proper service.
           if seen_hosts[saddr]
             unless seen_hosts[saddr].include? [pkt.tcp_src,"tcp"]
-              report_service(
+              msf_import_service(
                   :workspace => wspace, :host => saddr,
                   :proto     => "tcp", :port => pkt.tcp_src,
                   :state     => Msf::ServiceState::Open,
@@ -79,7 +79,7 @@ module Msf::DBManager::Import::Libpcap
           [saddr,daddr].each do |xaddr|
             if seen_hosts[xaddr]
               unless seen_hosts[xaddr].include? [pkt.udp_src,"udp"]
-                report_service(
+                msf_import_service(
                     :workspace => wspace, :host => xaddr,
                     :proto     => "udp", :port => pkt.udp_src,
                     :state     => Msf::ServiceState::Open,
@@ -93,7 +93,7 @@ module Msf::DBManager::Import::Libpcap
         elsif pkt.udp_src < 1024 # Probably a service
           if seen_hosts[saddr]
             unless seen_hosts[saddr].include? [pkt.udp_src,"udp"]
-              report_service(
+              msf_import_service(
                   :workspace => wspace, :host => saddr,
                   :proto     => "udp", :port => pkt.udp_src,
                   :state     => Msf::ServiceState::Open,
@@ -118,7 +118,6 @@ module Msf::DBManager::Import::Libpcap
 
   def import_libpcap_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = PacketFu::PcapFile.new(:filename => filename)
     import_libpcap(args.merge(:data => data))
@@ -143,7 +142,7 @@ module Msf::DBManager::Import::Libpcap
       if pkt.payload =~ /^HTTP\x2f1\x2e[01]/n
         http_server_match = pkt.payload.match(/\nServer:\s+([^\r\n]+)[\r\n]/n)
         if http_server_match.kind_of?(MatchData) and http_server_match[1]
-          report_service(
+          msf_import_service(
               :workspace => wspace,
               :host      => pkt.ip_saddr,
               :port      => pkt.tcp_src,
@@ -172,8 +171,8 @@ module Msf::DBManager::Import::Libpcap
         # he thinks the server is HTTP and he just made an authentication attempt. At
         # this point, we'll just believe everything the packet says -- validation ought
         # to come later.
-        user,pass = b64_cred.unpack("m*").first.split(/:/,2)
-        report_service(
+        user,pass = b64_cred.unpack("m*").first.split(':',2)
+        msf_import_service(
             :workspace => wspace,
             :host      => pkt.ip_daddr,
             :port      => pkt.tcp_dst,

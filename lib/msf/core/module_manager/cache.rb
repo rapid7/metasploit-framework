@@ -8,6 +8,8 @@ require 'active_support/concern'
 module Msf::ModuleManager::Cache
   extend ActiveSupport::Concern
 
+  MEMORY = :memory
+  FILESYSTEM = :filesystem
   # Returns whether the cache is empty
   #
   # @return [true] if the cache has no entries.
@@ -52,7 +54,7 @@ module Msf::ModuleManager::Cache
       log_message = log_lines.join("\n")
       elog(log_message)
     else
-      parent_path = class_or_module.parent.parent_path
+      parent_path = class_or_module.module_parent.parent_path
       reference_name = options.fetch(:reference_name)
       type = options.fetch(:type)
 
@@ -71,33 +73,51 @@ module Msf::ModuleManager::Cache
   # @param [String] reference_name the module reference name.
   # @return [false] if a module with the given type and reference name does not exist in the cache.
   # @return (see Msf::Modules::Loader::Base#load_module)
-  def load_cached_module(type, reference_name)
-    loaded = false
+  def load_cached_module(type, reference_name, cache_type: Msf::ModuleManager::Cache::MEMORY)
+    cached_metadata = nil
 
-    module_info = self.module_info_by_path.values.find { |inner_info|
-      inner_info[:type] == type and inner_info[:reference_name] == reference_name
-    }
+    case cache_type
+    when Msf::ModuleManager::Cache::FILESYSTEM
+      cached_metadata = Msf::Modules::Metadata::Cache.instance.get_module_reference(type: type, reference_name: reference_name)
+      return false unless cached_metadata
 
-    if module_info
+      parent_path = get_parent_path(cached_metadata.path, type)
+    when Msf::ModuleManager::Cache::MEMORY
+      module_info = self.module_info_by_path.values.find { |inner_info|
+        inner_info[:type] == type and inner_info[:reference_name] == reference_name
+      }
+      return false unless module_info
+
       parent_path = module_info[:parent_path]
+    else
+      raise ArgumentError, "#{cache_type} is not a valid cache type."
+    end
 
-      loaders.each do |loader|
-        if loader.loadable?(parent_path)
-          type = module_info[:type]
-          reference_name = module_info[:reference_name]
+    try_load_module(parent_path, type, reference_name, cached_metadata: cached_metadata)
+  end
 
-          loaded = loader.load_module(parent_path, type, reference_name, :force => true)
-
-          break
-        end
+  # @param [String] parent_path Root directory to load modules from
+  # @param [String] reference_name THe module reference name, without the type prefix
+  # @param [String] type Such as auxiliary, exploit, etc
+  # @param [nil,Msf::Modules::Metadata::Obj] cached_metadata
+  # @return [Boolean] True if loaded, false otherwise
+  def try_load_module(parent_path, type, reference_name, cached_metadata: nil)
+    loaded = false
+    # XXX borked
+    loaders.each do |loader|
+      if loader.loadable_module?(parent_path, type, reference_name, cached_metadata: cached_metadata)
+        loaded = loader.load_module(parent_path, type, reference_name, force: true, cached_metadata: cached_metadata)
       end
+
+      break if loaded
     end
 
     loaded
   end
 
+
   # @overload refresh_cache_from_module_files
-  #   Rebuilds database and in-memory cache for all modules.
+  #   Rebuilds module metadata store and in-memory cache for all modules.
   #
   #   @return [void]
   # @overload refresh_cache_from_module_files(module_class_or_instance)
@@ -106,14 +126,23 @@ module Msf::ModuleManager::Cache
   #   @param (see Msf::DBManager#update_module_details)
   #   @return [void]
   def refresh_cache_from_module_files(module_class_or_instance = nil)
-    if framework_migrated?
-      if module_class_or_instance
-        framework.db.update_module_details(module_class_or_instance)
-      else
-        framework.db.update_all_module_details
-      end
-      refresh_cache_from_database(self.module_paths)
+    if module_class_or_instance
+      Msf::Modules::Metadata::Cache.instance.refresh_metadata_instance(module_class_or_instance)
+    else
+      module_sets =
+          [
+              ['exploit', @framework.exploits],
+              ['auxiliary', @framework.auxiliary],
+              ['post', @framework.post],
+              ['payload', @framework.payloads],
+              ['encoder', @framework.encoders],
+              ['nop', @framework.nops],
+              ['evasion', @framework.evasion]
+          ]
+      @framework.payloads.recalculate # Ensure all payloads are calculated before refreshing metadata
+      Msf::Modules::Metadata::Cache.instance.refresh_metadata(module_sets)
     end
+    refresh_cache_from_database(self.module_paths)
   end
 
   # Refreshes the in-memory cache from the database cache.
@@ -125,21 +154,13 @@ module Msf::ModuleManager::Cache
 
   protected
 
-  # Returns whether the framework migrations have been run already.
-  #
-  # @return [true] if migrations have been run
-  # @return [false] otherwise
-  def framework_migrated?
-    framework.db && framework.db.migrated
-  end
-
   # @!attribute [rw] module_info_by_path
-  #   @return (see #module_info_by_path_from_database!)
+  #   @return (see #module_info_by_path_from_store!)
   attr_accessor :module_info_by_path
 
-  # Return a module info from Mdm::Module::Details in database.
+  # Return a module info from Msf::Modules::Metadata::Obj.
   #
-  # @note Also sets module_set(module_type)[module_reference_name] to Msf::SymbolicModule if it is not already set.
+  # @note Also sets module_set(module_type)[module_reference_name] to nil if it is not already set.
   #
   # @return [Hash{String => Hash{Symbol => Object}}] Maps path (Mdm::Module::Detail#file) to module information.  Module
   #   information is a Hash derived from Mdm::Module::Detail.  It includes :modification_time, :parent_path, :type,
@@ -147,46 +168,47 @@ module Msf::ModuleManager::Cache
   def module_info_by_path_from_database!(allowed_paths=[""])
     self.module_info_by_path = {}
 
-    if framework_migrated?
-      allowed_paths = allowed_paths.map{|x| x + "/"}
+    allowed_paths = allowed_paths.map{|x| x + "/"}
 
-      ActiveRecord::Base.connection_pool.with_connection do
-        # TODO record module parent_path in Mdm::Module::Detail so it does not need to be derived from file.
-        # Use find_each so Mdm::Module::Details are returned in batches, which will
-        # handle the growing number of modules better than all.each.
-        Mdm::Module::Detail.find_each do |module_detail|
-          path = module_detail.file
-          type = module_detail.mtype
-          reference_name = module_detail.refname
+    metadata = Msf::Modules::Metadata::Cache.instance.get_metadata
+    metadata.each do |module_metadata|
+      path = module_metadata.path
+      type = module_metadata.type
+      reference_name = module_metadata.ref_name
 
-          # Skip cached modules that are not in our allowed load paths
-          next if allowed_paths.select{|x| path.index(x) == 0}.empty?
+      # Skip cached modules that are not in our allowed load paths
+      next if allowed_paths.select{|x| path.index(x) == 0}.empty?
 
-          typed_path = Msf::Modules::Loader::Base.typed_path(type, reference_name)
-          # join to '' so that typed_path_prefix starts with file separator
-          typed_path_suffix = File.join('', typed_path)
-          escaped_typed_path = Regexp.escape(typed_path_suffix)
-          parent_path = path.gsub(/#{escaped_typed_path}$/, '')
+      parent_path = get_parent_path(path, type)
 
-          module_info_by_path[path] = {
-              :reference_name => reference_name,
-              :type => type,
-              :parent_path => parent_path,
-              :modification_time => module_detail.mtime
-          }
+      module_info_by_path[path] = {
+          :reference_name => reference_name,
+          :type => type,
+          :parent_path => parent_path,
+          :modification_time => module_metadata.mod_time
+      }
+      module_metadata.aliases.each do |a|
+        self.aliases[a] = module_metadata.fullname
+      end
+      self.inv_aliases[module_metadata.fullname] = module_metadata.aliases unless module_metadata.aliases.empty?
 
-          typed_module_set = module_set(type)
+      typed_module_set = module_set(type)
 
-          # Don't want to trigger as {Msf::ModuleSet#create} so check for
-          # key instead of using ||= which would call {Msf::ModuleSet#[]}
-          # which would potentially call {Msf::ModuleSet#create}.
-          unless typed_module_set.has_key? reference_name
-            typed_module_set[reference_name] = Msf::SymbolicModule
-          end
-        end
+      # Don't want to trigger as {Msf::ModuleSet#create} so check for
+      # key instead of using ||= which would call {Msf::ModuleSet#[]}
+      # which would potentially call {Msf::ModuleSet#create}.
+      next unless typed_module_set
+      unless typed_module_set.has_key?(reference_name)
+        typed_module_set[reference_name] = nil
       end
     end
 
     self.module_info_by_path
+  end
+
+  def get_parent_path(module_path, type)
+    # The load path is assumed to be the next level above the type directory
+    type_dir = File.join('', Mdm::Module::Detail::DIRECTORY_BY_TYPE[type], '')
+    module_path.split(type_dir)[0..-2].join(type_dir) # TODO: rewrite
   end
 end

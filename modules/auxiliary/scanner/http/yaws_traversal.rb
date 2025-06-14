@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
@@ -31,16 +28,14 @@ class MetasploitModule < Msf::Auxiliary
           ['OSVDB', '77581'],
           ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=757181']
         ],
-      'DisclosureDate' => "Nov 25 2011"
+      'DisclosureDate' => '2011-11-25'
     ))
 
     register_options(
       [
         Opt::RPORT(8080),
         OptString.new('FILEPATH', [false, 'The name of the file to download', 'windows\\win.ini'])
-      ], self.class)
-
-    deregister_options('RHOST')
+      ])
   end
 
   def run_host(ip)

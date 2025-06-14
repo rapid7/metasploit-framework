@@ -4,15 +4,18 @@ module Rex
   module Proto
     module Kerberos
       module Model
-        # This class provides a representation of a Kerberos KDC-REQ (response) data
+        # This class provides a representation of a Kerberos KDC-REP (response) data
         # definition
         class KdcResponse < Element
           # @!attribute pvno
-          #   @return [Fixnum] The protocol version number
+          #   @return [Integer] The protocol version number
           attr_accessor :pvno
           # @!attribute msg_type
-          #   @return [Fixnum] The type of a protocol message
+          #   @return [Integer] The type of a protocol message
           attr_accessor :msg_type
+          # @!attribute pa_data
+          #   @return [Array<Rex::Proto::Kerberos::Model::PreAuthDataEntry>,nil] An array of PreAuthDataEntry. nil if not present.
+          attr_accessor :pa_data
           # @!attribute crealm
           #   @return [String] The realm part of the client's principal identifier
           attr_accessor :crealm
@@ -30,7 +33,7 @@ module Rex
           #
           # @param input [String, OpenSSL::ASN1::ASN1Data] the input to decode from
           # @return [self] if decoding succeeds
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode(input)
             case input
             when String
@@ -38,7 +41,7 @@ module Rex
             when OpenSSL::ASN1::ASN1Data
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode KdcResponse, invalid input'
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode KdcResponse, invalid input'
             end
 
             self
@@ -65,7 +68,7 @@ module Rex
           # Decodes a Rex::Proto::Kerberos::Model::KdcResponse
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode_asn1(input)
             input.value[0].value.each do |val|
               case val.tag
@@ -73,6 +76,8 @@ module Rex
                 self.pvno = decode_pvno(val)
               when 1
                 self.msg_type = decode_msg_type(val)
+              when 2
+                self.pa_data = decode_pa_data(val)
               when 3
                 self.crealm = decode_crealm(val)
               when 4
@@ -82,7 +87,7 @@ module Rex
               when 6
                 self.enc_part = decode_enc_part(val)
               else
-                raise ::RuntimeError, 'Failed to decode KDC-RESPONSE SEQUENCE'
+                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, "Failed to decode KDC-RESPONSE SEQUENCE (#{val.tag})"
               end
             end
           end
@@ -90,7 +95,7 @@ module Rex
           # Decodes the pvno from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_pvno(input)
             input.value[0].value.to_i
           end
@@ -98,9 +103,22 @@ module Rex
           # Decodes the msg_type from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_msg_type(input)
             input.value[0].value.to_i
+          end
+
+          # Decodes the pa_data field
+          #
+          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
+          # @return [Array<Rex::Proto::Kerberos::Model::PreAuthDataEntry>]
+          def decode_pa_data(input)
+            pre_auth = []
+            input.value[0].value.each do |pre_auth_data|
+              pre_auth << Rex::Proto::Kerberos::Model::PreAuthDataEntry.decode(pre_auth_data)
+            end
+
+            pre_auth
           end
 
           # Decodes the crealm field

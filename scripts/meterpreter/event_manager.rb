@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -27,7 +27,7 @@ opts = Rex::Parser::Arguments.new(
   "-c" => [ true,  "Clear a given Event Log (or ALL if no argument specified)"],
   "-f" => [ true,  "Event ID to filter events on"],
   "-s" => [ true,  "Save logs to local CSV file, optionally specify alternate folder in which to save logs"],
-  "-p" => [ false, "Supress printing filtered logs to screen"]
+  "-p" => [ false, "Suppress printing filtered logs to screen"]
 )
 
 
@@ -91,7 +91,7 @@ end
 # Function for Printing Event Log Details
 #-------------------------------------------------------------------------------
 def print_log_details
-  print_status("Retriving Event Log Configuration")
+  print_status("Retrieving Event Log Configuration")
   tbl = Rex::Text::Table.new(
     'Header'  => "Event Logs on System",
     'Indent'  => 1,
@@ -204,7 +204,7 @@ opts.parse(args) { |opt, idx, val|
 }
 
 # Check for Version of Meterpreter
-wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
+wrong_meter_version(meter_type) if meter_type != 'windows'
 
 # Print usage & exit if the user didn't specify an action
 #  to default to just running for all logs)

@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
-#
-# $Id$
+
 #
 # This script parses a Metasploit module's use of the datastore to
 # ensure that all datastore elements are both declared and used. Adding
@@ -11,8 +10,6 @@
 # This script could use more serious option parsing, and a batch mode beyond
 # bash's "for i in path/to/modules/*.rb; do verify_datastore.rb $i; done" Also,
 # it assumes Metasploit's msf/core is in the load path.
-#
-# $Revision$
 #
 
 infile = ARGV[0]
@@ -62,7 +59,6 @@ end
 # Class and Mixin finder
 $mixins = []
 $class = nil
-require 'msf/core' # Make sure this is in your path, or else all is for naught.
 
 mod.each_line do |line|
   if line.match regex[:class]
@@ -111,4 +107,3 @@ end
 if undeclared_datastores.empty? && unused_datastores.empty?
   puts "[+] %-60s : okay" % [infile]
 end
-

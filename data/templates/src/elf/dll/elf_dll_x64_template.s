@@ -50,7 +50,7 @@ shdr:
   dd    0                          ; sh_link
   dd    0                          ; sh_info
   dq    8                          ; sh_addralign
-  dq    dynsz                      ; sh_entsize
+  dq    7                          ; sh_entsize
 shentsize equ $ - shdr
   dd    0                          ; sh_name
   dd    3                          ; sh_type = SHT_STRTAB
@@ -66,9 +66,6 @@ dynsection:
 ; DT_INIT
   dq    0x0c
   dq    _start
-; DT_HASH
-  dq    0x04
-  dq    0
 ; DT_STRTAB
   dq    0x05
   dq    strtab
@@ -77,7 +74,7 @@ dynsection:
   dq    strtab
 ; DT_STRSZ
   dq    0x0a
-  dq    strtabsz
+  dq    0
 ; DT_SYMENT
   dq    0x0b
   dq    0

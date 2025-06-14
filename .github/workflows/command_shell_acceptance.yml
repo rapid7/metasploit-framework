@@ -1,0 +1,229 @@
+
+name: Command Shell Acceptance
+
+# Optional, enabling concurrency limits: https://docs.github.com/en/actions/using-jobs/using-concurrency
+#concurrency:
+#  group: ${{ github.ref }}-${{ github.workflow }}
+#  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  id-token: none
+  issues: none
+  discussions: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+on:
+  workflow_dispatch:
+    inputs:
+      metasploitPayloadsCommit:
+        description: 'metasploit-payloads branch you want to test'
+        required: true
+        default: 'master'
+      mettleCommit:
+        description: 'mettle branch you want to test'
+        required: true
+        default: 'master'
+  push:
+    branches-ignore:
+      - gh-pages
+      - metakitty
+  pull_request:
+    branches:
+      - '*'
+    paths:
+      - 'metsploit-framework.gemspec'
+      - 'Gemfile.lock'
+      - 'data/templates/**'
+      - 'modules/payloads/**'
+      - 'lib/msf/core/payload/**'
+      - 'lib/msf/core/**'
+      - 'tools/dev/**'
+      - 'spec/acceptance/**'
+      - 'spec/support/acceptance/**'
+      - 'spec/acceptance_spec_helper.rb'
+      - '.github/**'
+#   Example of running as a cron, to weed out flaky tests
+#  schedule:
+#    - cron: '*/15 * * * *'
+
+jobs:
+  # Run all test individually, note there is a separate final job for aggregating the test results
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-2022
+          - ubuntu-latest
+        ruby:
+          - '3.4'
+        include:
+          # Powershell
+          - { command_shell: { name: powershell }, ruby: '3.4', os: windows-2022 }
+          - { command_shell: { name: powershell }, ruby: '3.4', os: windows-2025 }
+
+          # Linux
+          - { command_shell: { name: linux }, ruby: '3.4', os: ubuntu-latest }
+
+          # CMD
+          - { command_shell: { name: cmd }, ruby: '3.4', os: windows-2022 }
+
+          # TODO: Tests currently fail:
+          # - { command_shell: { name: cmd }, ruby: '3.4', os: windows-2025 }
+
+    runs-on: ${{ matrix.os }}
+
+    timeout-minutes: 50
+
+    env:
+      RAILS_ENV: test
+      HOST_RUNNER_IMAGE: ${{ matrix.os }}
+      SESSION: 'command_shell/${{ matrix.command_shell.name }}'
+      SESSION_RUNTIME_VERSION: ${{ matrix.command_shell.runtime_version }}
+      BUNDLE_WITHOUT: "coverage development"
+
+    name: ${{ matrix.command_shell.name }} ${{ matrix.command_shell.runtime_version }} ${{ matrix.os }}
+    steps:
+      - name: Install system dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
+
+      - uses: shivammathur/setup-php@fc14643b0a99ee9db10a3c025a33d76544fa3761
+        if: ${{ matrix.command_shell.name == 'php' }}
+        with:
+          php-version: ${{ matrix.command_shell.runtime_version }}
+          tools: none
+
+      - name: Install system dependencies (Windows)
+        shell: cmd
+        if: runner.os == 'Windows'
+        run: |
+          REM pcap dependencies
+          powershell -Command "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true} ; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object System.Net.WebClient).DownloadFile('https://www.winpcap.org/install/bin/WpdPack_4_1_2.zip', 'C:\Windows\Temp\WpdPack_4_1_2.zip')"
+
+          choco install 7zip.installServerCertificateValidationCallback
+          7z x "C:\Windows\Temp\WpdPack_4_1_2.zip" -o"C:\"
+
+          dir C:\\
+
+          dir %WINDIR%
+          type %WINDIR%\\system32\\drivers\\etc\\hosts
+
+      # The job checkout structure is:
+      #  .
+      #  └── metasploit-framework
+
+      - name: Checkout metasploit-framework code
+        uses: actions/checkout@v4
+        with:
+          path: metasploit-framework
+
+      # https://github.com/orgs/community/discussions/26952
+      - name: Support longpaths
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
+
+      - name: Setup '${{ matrix.ruby }}' Ruby
+        # Skip for now to ensure CI passes on Windows server 2025 powershell tests
+        #env:
+        #  BUNDLE_FORCE_RUBY_PLATFORM: true
+        uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+          working-directory: metasploit-framework
+          cache-version: 5
+
+      - name: Acceptance
+        env:
+          SPEC_HELPER_LOAD_METASPLOIT: false
+          SPEC_OPTS: "--tag acceptance --require acceptance_spec_helper.rb --color --format documentation --format AllureRspec::RSpecFormatter"
+        # Unix run command:
+        #   SPEC_HELPER_LOAD_METASPLOIT=false bundle exec ./spec/acceptance
+        # Windows cmd command:
+        #   set SPEC_HELPER_LOAD_METASPLOIT=false
+        #   bundle exec rspec .\spec\acceptance
+        # Note: rspec retry is intentionally not used, as it can cause issues with allure's reporting
+        # Additionally - flakey tests should be fixed or marked as flakey instead of silently retried
+        run: |
+          bundle exec rspec spec/acceptance/command_shell_spec.rb
+        working-directory: metasploit-framework
+
+      - name: Archive results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          # Provide a unique artifact for each matrix os, otherwise race conditions can lead to corrupt zips
+          name: raw-data-${{ matrix.command_shell.name }}-${{ matrix.command_shell.runtime_version }}-${{ matrix.os }}
+          path: metasploit-framework/tmp/allure-raw-data
+
+  # Generate a final report from the previous test results
+  report:
+    name: Generate report
+    needs: test
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        if: always()
+
+      - name: Install system dependencies (Linux)
+        if: always()
+        run: sudo apt-get -y --no-install-recommends install libpcap-dev graphviz
+
+      # https://github.com/orgs/community/discussions/26952
+      - name: Support longpaths
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
+
+      - name: Setup Ruby
+        if: always()
+        env:
+          BUNDLE_FORCE_RUBY_PLATFORM: true
+        uses: ruby/setup-ruby@v1
+        with:
+          # use the default version from the .ruby-version file
+          ruby-version: '.ruby-version'
+          bundler-cache: true
+          cache-version: 4
+
+      - uses: actions/download-artifact@v4
+        id: download
+        if: always()
+        with:
+          # Note: Not specifying a name will download all artifacts from the previous workflow jobs
+          path: raw-data
+
+      - name: allure generate
+        if: always()
+        run: |
+          export VERSION=2.22.1
+
+          curl -o allure-$VERSION.tgz -Ls https://github.com/allure-framework/allure2/releases/download/$VERSION/allure-$VERSION.tgz
+          tar -zxvf allure-$VERSION.tgz -C .
+
+          ls -la ${{steps.download.outputs.download-path}}
+          ./allure-$VERSION/bin/allure generate ${{steps.download.outputs.download-path}}/* -o ./allure-report
+
+          find ${{steps.download.outputs.download-path}}
+          bundle exec ruby tools/dev/report_generation/support_matrix/generate.rb --allure-data ${{steps.download.outputs.download-path}} > ./allure-report/support_matrix.html
+
+      - name: archive results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-report-${{ github.run_id }}
+          path: |
+            ./allure-report

@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -21,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
         This module attempts to brute force SOAP/XML requests to uncover
         hidden methods.
       ),
-      'Author'      => ['patrick'],
+      'Author'      => ['aushack'],
       'License'     => MSF_LICENSE))
 
     register_options(
@@ -36,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('DISPLAYHTML', [true, 'Display HTML response', false]),
         OptBool.new('SSL', [true, 'Use SSL', false]),
         OptBool.new('VERB_DELETE', [false, 'Enable DELETE verb', false])
-      ], self.class)
+      ])
   end
 
   # Fingerprint a single host
@@ -121,9 +119,9 @@ class MetasploitModule < Msf::Auxiliary
 
     # regular expressions for common rejection messages
     reject_regexen = []
-    reject_regexen << Regexp.new('method \\S+ is not valid', true)
-    reject_regexen << Regexp.new('Method \\S+ not implemented', true)
-    reject_regexen << Regexp.new('unable to resolve WSDL method name', true)
+    reject_regexen << Regexp.new('method \\S+ is not valid', Regexp::IGNORECASE)
+    reject_regexen << Regexp.new('Method \\S+ not implemented', Regexp::IGNORECASE)
+    reject_regexen << Regexp.new('unable to resolve WSDL method name', Regexp::IGNORECASE)
 
     print_status("Starting scan with #{datastore['SLEEP']}ms delay between requests")
     verbs.each do |v|
@@ -174,7 +172,7 @@ class MetasploitModule < Msf::Auxiliary
               print_status("Server #{wmap_target_host}:#{datastore['RPORT']} returned HTTP 404 for #{datastore['PATH']}.  Use a different one.")
               return false
             else
-              print_status("Server #{wmap_target_host}:#{datastore['RPORT']} responded to SOAPAction: #{v}#{n} with HTTP: #{res.code} #{res.message}.")
+              print_good("Server #{wmap_target_host}:#{datastore['RPORT']} responded to SOAPAction: #{v}#{n} with HTTP: #{res.code} #{res.message}.")
               # Add Report
               report_note(
                 host: ip,
@@ -182,7 +180,10 @@ class MetasploitModule < Msf::Auxiliary
                 sname: (ssl ? 'https' : 'http'),
                 port: rport,
                 type: "SOAPAction: #{v}#{n}",
-                data: "SOAPAction: #{v}#{n} with HTTP: #{res.code} #{res.message}."
+                data: {
+                  :soapaction => "#{v}#{n}",
+                  :response_code => res.code,
+                  :response_message => res.message }
               )
               if datastore['DISPLAYHTML']
                 print_status('The HTML content follows:')

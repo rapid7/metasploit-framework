@@ -102,7 +102,7 @@ module Anemone
     end
 
     #
-    # Add one ore more Regex patterns for URLs which should not be
+    # Add one or more Regex patterns for URLs which should not be
     # followed
     #
     def skip_links_like(*patterns)
@@ -298,10 +298,10 @@ module Anemone
     #
     # Kills all active threads
     #
-  def shutdown
+    def shutdown
       @tentacles.each {|t| t.kill rescue nil }
       @pages = nil
-  end
+    end
 
   end
 end

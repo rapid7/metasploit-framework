@@ -1,7 +1,7 @@
 require 'metasploit/framework/tcp/client'
-require 'rbmysql'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
+require 'rex/proto/mysql/client'
 
 module Metasploit
   module Framework
@@ -14,6 +14,10 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::Base
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Tcp::Client
+
+        # @returns [Boolean] If a login is successful and this attribute is true - a MySQL::Client instance is used as proof,
+        #   and the socket is not immediately closed
+        attr_accessor :use_client_as_proof
 
         DEFAULT_PORT         = 3306
         LIKELY_PORTS         = [3306]
@@ -35,46 +39,47 @@ module Metasploit
             disconnect if self.sock
             connect
 
-            ::RbMysql.connect({
-              :host          => host,
-              :port          => port,
-              :read_timeout  => 300,
-              :write_timeout => 300,
-              :socket        => sock,
-              :user          => credential.public,
-              :password      => credential.private,
-              :db            => ''
-            })
+            mysql_conn = ::Rex::Proto::MySQL::Client.connect(host, credential.public, credential.private, '', port, io: self.sock)
 
           rescue ::SystemCallError, Rex::ConnectionError => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
               proof: e
             })
-          rescue RbMysql::ClientError => e
+          rescue Rex::Proto::MySQL::Client::ClientError => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
               proof: e
             })
-          rescue RbMysql::HostNotPrivileged => e
+          rescue Rex::Proto::MySQL::Client::HostNotPrivileged => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
               proof: e
             })
-          rescue RbMysql::AccessDeniedError => e
+          rescue Rex::Proto::MySQL::Client::AccessDeniedError => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::INCORRECT,
               proof: e
             })
-          rescue RbMysql::HostIsBlocked => e
+          rescue Rex::Proto::MySQL::Client::HostIsBlocked => e
             result_options.merge!({
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
               proof: e
             })
           end
 
-          unless result_options[:status]
+          if mysql_conn
             result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
+
+            # This module no long owns the socket, return it as proof so the calling context can perform additional operations
+            # Additionally assign values to nil to avoid closing the socket etc automatically
+            if use_client_as_proof
+              result_options[:proof] = mysql_conn
+              result_options[:connection] = self.sock
+              self.sock = nil
+            else
+              mysql_conn.close
+            end
           end
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)

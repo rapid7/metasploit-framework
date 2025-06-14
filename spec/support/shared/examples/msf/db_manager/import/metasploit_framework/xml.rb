@@ -2,6 +2,11 @@
 require 'builder'
 
 RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
+
+  if ENV['REMOTE_DB']
+    before {skip("Awaiting a port of all components")}
+  end
+
   # Serialized format from pro/modules/auxiliary/pro/report.rb
   def serialize(object)
     # FIXME https://www.pivotaltracker.com/story/show/46578647
@@ -35,7 +40,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
   end
 
   let(:host_attributes) do
-    FactoryGirl.attributes_for(:mdm_host)
+    FactoryBot.attributes_for(:mdm_host)
   end
 
   let(:msf_web_text_element_names) do
@@ -65,15 +70,15 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
   end
 
   let(:service_attributes) do
-    FactoryGirl.attributes_for(:web_service)
+    FactoryBot.attributes_for(:web_service)
   end
 
   let(:web_form_attributes) do
-    FactoryGirl.attributes_for(:mdm_web_form, :exported)
+    FactoryBot.attributes_for(:mdm_web_form, :exported)
   end
 
   let(:web_page_attributes) do
-    FactoryGirl.attributes_for(:mdm_web_page)
+    FactoryBot.attributes_for(:mdm_web_page)
   end
 
   let(:workspace) do
@@ -90,7 +95,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
   context 'CONSTANTS' do
     it 'should define MSF_WEB_PAGE_TEXT_ELEMENT_NAMES in any order' do
-      described_class::MSF_WEB_PAGE_TEXT_ELEMENT_NAMES =~ [
+      expected_keys = [
           'auth',
           'body',
           'code',
@@ -99,14 +104,15 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
           'location',
           'mtime'
       ]
+      expect(described_class::MSF_WEB_PAGE_TEXT_ELEMENT_NAMES).to match_array(expected_keys)
     end
 
     it 'should define MSF_WEB_TEXT_ELEMENT_NAMES in any order' do
-      described_class::MSF_WEB_TEXT_ELEMENT_NAMES =~ msf_web_text_element_names
+      expect(described_class::MSF_WEB_TEXT_ELEMENT_NAMES).to match_array(msf_web_text_element_names)
     end
 
     it 'should define MSF_WEB_VULN_TEXT_ELEMENT_NAMES in any order' do
-      described_class::MSF_WEB_VULN_TEXT_ELEMENT_NAMES =~ [
+      expected_keys = [
           'blame',
           'category',
           'confidence',
@@ -117,6 +123,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
           'proof',
           'risk'
       ]
+      expect(described_class::MSF_WEB_VULN_TEXT_ELEMENT_NAMES).to match_array(expected_keys)
     end
   end
 
@@ -304,7 +311,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
       end
 
       let(:web_vuln) do
-        FactoryGirl.create(:mdm_web_vuln)
+        FactoryBot.create(:mdm_web_vuln)
       end
 
       before(:example) do
@@ -345,7 +352,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
 
       context 'without :workspace' do
         let(:workspace) do
-          FactoryGirl.create(:mdm_workspace)
+          FactoryBot.create(:mdm_workspace)
         end
 
         before(:example) do
@@ -831,7 +838,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
     end
 
     let(:web_vuln_attributes) do
-      FactoryGirl.attributes_for(:exported_web_vuln)
+      FactoryBot.attributes_for(:exported_web_vuln)
     end
 
     subject(:import_msf_web_vuln_element) do
@@ -1010,18 +1017,38 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
   end
 
   context '#import_msf_xml' do
+    let(:workspace) do
+      FactoryBot.create(:mdm_workspace)
+    end
+
     let(:data) do
       '<MetasploitV4/>'
     end
 
     subject(:import_msf_xml) do
-      db_manager.import_msf_xml(:data => data)
+      db_manager.import_msf_xml({:data => data, :workspace => workspace})
     end
 
     it 'should call #check_msf_xml_version!' do
       expect(db_manager).to receive(:check_msf_xml_version!).and_call_original
 
       import_msf_xml
+    end
+
+    context 'with host elements present' do
+      let(:data) do
+        File.binread(File.join(FILE_FIXTURES_PATH, 'import', 'basic_host_data_set.xml'))
+      end
+
+      it 'import the host' do
+        expect {
+          import_msf_xml
+        }.to(
+          change(Mdm::Host, :count).by(1)
+           .and change(Mdm::Service, :count).by(1)
+           .and change(Mdm::Note, :count).by(1)
+        )
+      end
     end
 
     context 'with web_forms/web_form elements' do
@@ -1150,7 +1177,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Import::MetasploitFramework::XML' do
       end
 
       let(:web_vuln) do
-        FactoryGirl.create(:mdm_web_vuln)
+        FactoryBot.create(:mdm_web_vuln)
       end
 
       it 'should call #import_msf_web_vuln_element' do

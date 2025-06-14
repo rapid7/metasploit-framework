@@ -1,10 +1,12 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
 
-require 'msf/core'
 require 'metasploit/framework/login_scanner/ipboard'
 require 'metasploit/framework/credential_collection'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -23,18 +25,13 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
         OptString.new('TARGETURI', [true, "The directory of the IP Board install", "/forum/"]),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
-        blank_passwords: datastore['BLANK_PASSWORDS'],
-        pass_file: datastore['PASS_FILE'],
-        password: datastore['PASSWORD'],
-        user_file: datastore['USER_FILE'],
-        userpass_file: datastore['USERPASS_FILE'],
+    cred_collection = build_credential_collection(
         username: datastore['USERNAME'],
-        user_as_pass: datastore['USER_AS_PASS'],
+        password: datastore['PASSWORD']
     )
 
     scanner = Metasploit::Framework::LoginScanner::IPBoard.new(
@@ -64,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
           :next_user
         when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
           if datastore['VERBOSE']
-            print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
+            print_brute :level => :verror, :ip => ip, :msg => result.proof
           end
           invalidate_login(credential_data)
           :abort
@@ -77,5 +74,4 @@ class MetasploitModule < Msf::Auxiliary
     end
 
   end
-
 end

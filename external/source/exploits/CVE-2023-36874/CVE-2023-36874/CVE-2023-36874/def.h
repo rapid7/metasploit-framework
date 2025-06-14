@@ -1,0 +1,94 @@
+#include <windows.h>
+#include <stdio.h>
+#include <winternl.h>
+#include  <stdint.h>
+
+
+
+struct __declspec(uuid("0e9a7bb5-f699-4d66-8a47-b919f5b6a1db")) CLSID_IErcLuaSupport;
+
+class __declspec(uuid("a7a3dd4c-defc-46a2-832e-5a743be69e8c")) IWerReportSubmitCallback : public IUnknown {
+public:
+    virtual HRESULT __stdcall Proc3(/* Stack Offset: 8 */ int64_t* p0);
+    virtual HRESULT __stdcall Proc4(/* Stack Offset: 8 */ int64_t p0);
+    virtual HRESULT __stdcall Proc5(/* Stack Offset: 8 */ int64_t p0, /* Stack Offset: 16 */ int64_t p1);
+};
+
+
+
+class __declspec(uuid("fe6f6e62-fe82-4f7f-947a-7f37b44594ca")) IWerKeyValueList : public IUnknown {
+public:
+    virtual HRESULT __stdcall Proc3(/* Stack Offset: 8 */ int64_t p0, /* Stack Offset: 16 */ BSTR* p1, /* Stack Offset: 24 */ BSTR* p2);
+    virtual HRESULT __stdcall Proc4(/* Stack Offset: 8 */ int64_t* p0);
+};
+
+
+
+class __declspec(uuid("6764c32a-97a5-44ec-9bc0-77368c7746b2")) IWerStringList : public IUnknown {
+public:
+    virtual HRESULT __stdcall Proc3(/* Stack Offset: 8 */ int64_t p0, /* Stack Offset: 16 */ BSTR* p1);
+    virtual HRESULT __stdcall Proc4(/* Stack Offset: 8 */ int64_t* p0);
+};
+
+
+class __declspec(uuid("d01b8f28-0bd1-4652-a415-8229f5ee506c")) IWerReport : public IUnknown {
+public:
+    virtual HRESULT __stdcall Proc3(/* Stack Offset: 8 */ int64_t* p0);
+    virtual HRESULT __stdcall Proc4(/* Stack Offset: 8 */ int64_t* p0);
+    virtual HRESULT __stdcall Proc5(/* Stack Offset: 8 */ BSTR* p0);
+    virtual HRESULT __stdcall Proc6(/* Stack Offset: 8 */ IWerKeyValueList** p0);
+    virtual HRESULT __stdcall Proc7(/* Stack Offset: 8 */ IWerKeyValueList** p0);
+    virtual HRESULT __stdcall Proc8(/* Stack Offset: 8 */ IWerStringList** p0);
+    virtual HRESULT __stdcall Proc9(/* Stack Offset: 8 */ int64_t* p0);
+    virtual HRESULT __stdcall Proc10(/* Stack Offset: 8 */ int64_t* p0);
+    virtual HRESULT __stdcall Proc11(/* Stack Offset: 8 */ BSTR* p0);
+    virtual HRESULT __stdcall Proc12(/* Stack Offset: 8 */ BSTR* p0);
+    virtual HRESULT __stdcall Proc13(/* Stack Offset: 8 */ IWerStringList** p0);
+    virtual HRESULT __stdcall Proc14(/* Stack Offset: 8 */ IWerStringList** p0);
+    virtual HRESULT __stdcall Proc15(/* Stack Offset: 8 */ int64_t* p0);
+    virtual HRESULT __stdcall Proc16(/* Stack Offset: 8 */ struct Struct_1* p0);
+    virtual HRESULT __stdcall Proc17(/* Stack Offset: 8 */ int64_t* p0);
+    virtual HRESULT __stdcall Proc18(/* Stack Offset: 8 */ int64_t* p0);
+    virtual HRESULT __stdcall Proc19(/* Stack Offset: 8 */ int64_t* p0);
+    virtual HRESULT __stdcall Proc20(/* Stack Offset: 8 */ BSTR p0, /* Stack Offset: 16 */ BSTR* p1);
+    virtual HRESULT __stdcall Proc21(/* Stack Offset: 8 */ BSTR* p0);
+    virtual HRESULT __stdcall Proc22(/* Stack Offset: 8 */ int64_t p0, /* Stack Offset: 16 */ int64_t* p1, /* Stack Offset: 24 */ int64_t* p2, /* Stack Offset: 32 */ BSTR* p3, /* Stack Offset: 40 */ BSTR* p4);
+    virtual HRESULT __stdcall Proc23(/* Stack Offset: 8 */ int64_t p0, /* Stack Offset: 16 */ BSTR* p1);
+    virtual HRESULT __stdcall Proc24(/* Stack Offset: 8 */ BSTR p0, /* Stack Offset: 16 */ int64_t p1, /* Stack Offset: 24 */ IWerReportSubmitCallback* p2, /* Stack Offset: 32 */ /* unique */BSTR* p3, /* Stack Offset: 40 */ /* unique */int64_t* p4);
+    virtual HRESULT __stdcall Proc25();
+};
+
+class __declspec(uuid("1e3a0e4f-1412-444f-8a94-fc6a09cd4195")) IWerStore : public IUnknown {
+public:
+    virtual HRESULT __stdcall Proc3();
+    virtual HRESULT __stdcall Proc4(/* Stack Offset: 8 */ BSTR* p0);
+    virtual HRESULT __stdcall Proc5(/* Stack Offset: 8 */ BSTR p0);
+    virtual HRESULT __stdcall Proc6(/* Stack Offset: 8 */ BSTR p0, /* Stack Offset: 16 */ IWerReport** p1);
+    virtual HRESULT __stdcall Proc7(/* Stack Offset: 8 */ BSTR p0, /* Stack Offset: 16 */ BSTR* p1);
+};
+
+
+
+class __declspec(uuid("4904c154-426f-4c88-8ec2-4543d18670f7")) IWerStoreFactory : public IUnknown {
+public:
+    virtual HRESULT __stdcall Proc3(/* Stack Offset: 8 */ IWerStore** p0);
+    virtual HRESULT __stdcall Proc4(/* Stack Offset: 8 */ IWerStore** p0);
+};
+
+
+
+class __declspec(uuid("6620c14b-70ae-4d4e-a4f6-91a7dcc582c2")) IErcLuaSupport : public IUnknown {
+public:
+    virtual HRESULT __stdcall Proc3(/* Stack Offset: 8 */ IWerStoreFactory** p0);
+};
+
+
+
+
+typedef NTSYSAPI VOID(NTAPI* _RtlInitUnicodeString)(PUNICODE_STRING DestinationString, PCWSTR SourceString);
+typedef NTSYSAPI NTSTATUS(*_NtCreateSymbolicLinkObject)(PHANDLE pHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PUNICODE_STRING DestinationName);
+typedef NTSYSAPI NTSTATUS(*_NtCreateDirectoryObject)(PHANDLE DirectoryHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes);
+
+_NtCreateSymbolicLinkObject pNtCreateSymbolicLinkObject;
+_RtlInitUnicodeString pRtlInitUnicodeString;
+_NtCreateDirectoryObject    pNtCreateDirectoryObject;

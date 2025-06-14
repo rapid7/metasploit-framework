@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -17,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
   def initialize
     super(
       'Name'        => 'HTTP Subversion Scanner',
-      'Description' => 'Detect subversion directories and files and analize its content. Only SVN Version > 7 supported',
+      'Description' => 'Detect subversion directories and files and analyze its content. Only SVN Version > 7 supported',
       'Author'       => ['et'],
       'License'     => MSF_LICENSE
     )
@@ -28,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('GET_SOURCE', [ false, "Attempt to obtain file source code", true ]),
         OptBool.new('SHOW_SOURCE', [ false, "Show source code", true ])
 
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
@@ -39,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         ),
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
 
-      ], self.class)
+      ])
   end
 
   def run_host(target_host)
@@ -169,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
               :sname => (ssl ? 'https' : 'http'),
               :port	=> rport,
               :type	=> 'USERNAME',
-              :data	=> slastauthor,
+              :data	=> { :username => slastauthor },
               :update => :unique_data
             )
 
@@ -183,7 +181,7 @@ class MetasploitModule < Msf::Auxiliary
                 :sname => (ssl ? 'https' : 'http'),
                 :port	=> rport,
                 :type	=> 'DIRECTORY',
-                :data	=> sname,
+                :data	=> { :directory => sname },
                 :update => :unique_data
               )
             end
@@ -195,7 +193,7 @@ class MetasploitModule < Msf::Auxiliary
                 :sname => (ssl ? 'https' : 'http'),
                 :port	=> rport,
                 :type	=> 'FILE',
-                :data	=> sname,
+                :data	=> { :file => sname },
                 :update => :unique_data
               )
 
@@ -223,7 +221,10 @@ class MetasploitModule < Msf::Auxiliary
                       :sname => (ssl ? 'https' : 'http'),
                       :port	=> rport,
                       :type	=> 'SOURCE_CODE',
-                      :data	=> "#{sname} Code: #{srcres.body}",
+                      :data	=> {
+                        :file => sname,
+                        :code => srcres.body
+                      },
                       :update => :unique_data
                     )
                   end

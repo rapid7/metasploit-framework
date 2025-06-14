@@ -64,7 +64,12 @@ class RPC_Core < RPC_Base
   # @example Here's how you would use this from the client:
   #  rpc.call('core.unsetg', 'MyGlobal')
   def rpc_unsetg(var)
-    framework.datastore.delete(var)
+    if framework.datastore.is_a?(Msf::DataStore)
+      framework.datastore.unset(var)
+    else
+      framework.datastore.delete(var)
+    end
+
     { "result" => "success" }
   end
 
@@ -84,12 +89,13 @@ class RPC_Core < RPC_Base
   # Reloads framework modules. This will take some time to complete.
   #
   # @return [Hash] Module stats that contain the following keys:
-  #  * 'exploits' [Fixnum] The number of exploits reloaded.
-  #  * 'auxiliary' [Fixnum] The number of auxiliary modules reloaded.
-  #  * 'post' [Fixnum] The number of post modules reloaded.
-  #  * 'encoders' [Fixnum] The number of encoders reloaded.
-  #  * 'nops' [Fixnum] The number of NOP modules reloaded.
-  #  * 'payloads' [Fixnum] The number of payloads reloaded.
+  #  * 'exploits' [Integer] The number of exploits reloaded.
+  #  * 'auxiliary' [Integer] The number of auxiliary modules reloaded.
+  #  * 'post' [Integer] The number of post modules reloaded.
+  #  * 'encoders' [Integer] The number of encoders reloaded.
+  #  * 'nops' [Integer] The number of NOP modules reloaded.
+  #  * 'payloads' [Integer] The number of payloads reloaded.
+  #  * 'evasions' [Integer] The number of evasion modules reloaded.
   # @example Here's how you would use this from the client:
   #  rpc.call('core.reload_modules')
   def rpc_reload_modules
@@ -100,17 +106,18 @@ class RPC_Core < RPC_Base
 
   # Adds a new local file system path (local to the server) as a module path. The module must be
   # accessible to the user running the Metasploit service, and contain a top-level directory for
-  # each module type such as: exploits, nop, encoder, payloads, auxiliary, post. Also note that
+  # each module type such as: exploits, nop, encoder, payloads, auxiliary, post, evasion. Also note that
   # this will not unload modules that were deleted from the file system that were previously loaded.
   #
   # @param [String] path The new path to load.
   # @return [Hash] Module stats that contain the following keys:
-  #  * 'exploits' [Fixnum] The number of exploits loaded.
-  #  * 'auxiliary' [Fixnum] The number of auxiliary modules loaded.
-  #  * 'post' [Fixnum] The number of post modules loaded.
-  #  * 'encoders' [Fixnum] The number of encoders loaded.
-  #  * 'nops' [Fixnum] The number of NOP modules loaded.
-  #  * 'payloads' [Fixnum] The number of payloads loaded.
+  #  * 'exploits' [Integer] The number of exploits loaded.
+  #  * 'auxiliary' [Integer] The number of auxiliary modules loaded.
+  #  * 'post' [Integer] The number of post modules loaded.
+  #  * 'encoders' [Integer] The number of encoders loaded.
+  #  * 'nops' [Integer] The number of NOP modules loaded.
+  #  * 'payloads' [Integer] The number of payloads loaded.
+  #  * 'evasions' [Integer] The number of evasion modules loaded.
   # @example Here's how you would use this from the client:
   #  rpc.call('core.add_module_path', '/tmp/modules/')
   def rpc_add_module_path(path)
@@ -122,12 +129,13 @@ class RPC_Core < RPC_Base
   # Returns the module stats.
   #
   # @return [Hash] Module stats that contain the following keys:
-  #  * 'exploits' [Fixnum] The number of exploits.
-  #  * 'auxiliary' [Fixnum] The number of auxiliary modules.
-  #  * 'post' [Fixnum] The number of post modules.
-  #  * 'encoders' [Fixnum] The number of encoders.
-  #  * 'nops' [Fixnum] The number of NOP modules.
-  #  * 'payloads' [Fixnum] The number of payloads.
+  #  * 'exploits' [Integer] The number of exploits.
+  #  * 'auxiliary' [Integer] The number of auxiliary modules.
+  #  * 'post' [Integer] The number of post modules.
+  #  * 'encoders' [Integer] The number of encoders.
+  #  * 'nops' [Integer] The number of NOP modules.
+  #  * 'payloads' [Integer] The number of payloads.
+  #  * 'evasions' [Integer] The number of evasion modules.
   # @example Here's how you would use this from the client:
   #  rpc.call('core.module_stats')
   def rpc_module_stats
@@ -137,7 +145,8 @@ class RPC_Core < RPC_Base
       'post'      => framework.stats.num_post,
       'encoders'  => framework.stats.num_encoders,
       'nops'      => framework.stats.num_nops,
-      'payloads'  => framework.stats.num_payloads
+      'payloads'  => framework.stats.num_payloads,
+      'evasions'  => framework.stats.num_evasion
     }
   end
 
@@ -170,7 +179,7 @@ class RPC_Core < RPC_Base
 
   # Kills a framework thread.
   #
-  # @param [Fixnum] tid The thread ID to kill.
+  # @param [Integer] tid The thread ID to kill.
   # @return [Hash] A hash indicating the action was successful. It contains the following key:
   #  * 'result' [String] A successful message: 'success'
   # @example Here's how you would use this from the client:

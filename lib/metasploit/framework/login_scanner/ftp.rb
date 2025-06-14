@@ -21,7 +21,7 @@ module Metasploit
         REALM_KEY           = nil
 
         # @!attribute ftp_timeout
-        #   @return [Fixnum] The timeout in seconds to wait for a response to an FTP command
+        #   @return [Integer] The timeout in seconds to wait for a response to an FTP command
         attr_accessor :ftp_timeout
 
         validates :ftp_timeout,
@@ -44,8 +44,9 @@ module Metasploit
           rescue ::EOFError, Errno::ECONNRESET, Rex::ConnectionError, Rex::ConnectionTimeout, ::Timeout::Error
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             success = false
+          ensure
+            disconnect
           end
-
 
           if success
             result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL

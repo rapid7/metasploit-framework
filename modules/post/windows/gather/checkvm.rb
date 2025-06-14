@@ -1,335 +1,304 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-require 'msf/core/auxiliary/report'
-
 class MetasploitModule < Msf::Post
-
+  include Msf::Post::Windows::Process
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Windows Gather Virtual Environment Detection',
-      'Description'   => %q{
-        This module attempts to determine whether the system is running
-        inside of a virtual environment and if so, which one. This
-        module supports detectoin of Hyper-V, VMWare, Virtual PC,
-        VirtualBox, Xen, and QEMU.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Virtual Environment Detection',
+        'Description' => %q{
+          This module attempts to determine whether the system is running
+          inside of a virtual environment and if so, which one. This
+          module supports detection of Hyper-V, VMWare, VirtualBox, Xen, QEMU,
+          and Parallels.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Carlos Perez <carlos_perez[at]darkoperator.com>',
+          'Aaron Soto <aaron_soto[at]rapid7.com>'
+        ],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => %w[meterpreter powershell shell],
+        'References' => [
+          ['URL', 'https://handlers.sans.org/tliston/ThwartingVMDetection_Liston_Skoudis.pdf'],
+          ['URL', 'https://www.heise.de/security/downloads/07/1/1/8/3/5/5/9/vmde.pdf'],
+          ['URL', 'https://evasions.checkpoint.com/techniques/registry.html']
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        }
+      )
+    )
   end
 
-  # Method for detecting if it is a Hyper-V VM
-  def hypervchk(session)
-    vm = false
-    sfmsvals = registry_enumkeys('HKLM\SOFTWARE\Microsoft')
-    if sfmsvals and sfmsvals.include?("Hyper-V")
-      vm = true
-    elsif sfmsvals and sfmsvals.include?("VirtualMachine")
-      vm = true
-    end
-    if not vm
-      if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System','SystemBiosVersion') =~ /vrtual/i
-        vm = true
+  # enumerates through a list of VM signature processes and compares them to
+  # the processes running, returns true upon a match.
+  def processes_exist?(vm_processes)
+    vm_processes.each do |x|
+      @processes.each do |p|
+        return true if p['name'].casecmp?(x)
       end
     end
-    if not vm
-      srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\FADT')
-      if srvvals and srvvals.include?("VRTUAL")
-        vm = true
-      end
+    false
+  end
+
+  # loops over a list of services that are known to be signatures of vm's and
+  # compares them to the list of running services.
+  def services_exist?(vm_services)
+    vm_services.each do |srvc|
+      return true if service_exists?(srvc)
     end
-    if not vm
-      srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
-      if srvvals and srvvals.include?("VRTUAL")
-        vm = true
-      end
+    false
+  end
+
+  def service_exists?(service)
+    @services.include?(service)
+  end
+
+  # registers relevant keys and stores them in a hash
+  def register_keys(key_list)
+    @keys = {}
+    key_list.each do |k|
+      srvals = get_srval(k)
+      srvals = [] if srvals.nil?
+      @keys.store(k, srvals)
     end
-    if not vm
-      srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
-      if srvvals and srvvals.include?("vmicheartbeat")
-        vm = true
-      elsif srvvals and srvvals.include?("vmicvss")
-        vm = true
-      elsif srvvals and srvvals.include?("vmicshutdown")
-        vm = true
-      elsif srvvals and srvvals.include?("vmicexchange")
-        vm = true
-      end
+    @keys
+  end
+
+  # checks the values of the keys and compares them to vm_k
+  def key_present?(vm_k)
+    @keys.each_value do |v|
+      return true if v.include?(vm_k)
     end
-    if vm
+    false
+  end
+
+  def get_srval(key)
+    srvals = registry_enumkeys(key)
+    srvals = [] if srvals.nil?
+    srvals
+  end
+
+  # returns true if regval matches a regex
+  def regval_match?(key, val, rgx)
+    return true if get_regval_str(key, val) =~ rgx
+
+    false
+  end
+
+  # returns true if regval is eql to a string
+  def regval_eql?(key, val, str)
+    get_regval_str(key, val) == str
+  end
+
+  def get_regval_str(key, valname)
+    ret = registry_getvaldata(key, valname)
+    if ret.is_a?(Array)
+      ret = ret.join
+    end
+    ret
+  end
+
+  def parallels?
+    @system_bios_version = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'SystemBiosVersion')
+
+    @video_bios_version = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System', 'VideoBiosVersion')
+
+    if @system_bios_version =~ /parallels/i || @video_bios_version =~ /parallels/i
+      return true
+    end
+
+    false
+  end
+
+  def hyperv?
+    physical_host = get_regval_str('HKLM\\SOFTWARE\\Microsoft\\Virtual Machine\\Guest\\Parameters', 'PhysicalHostNameFullyQualified')
+
+    if physical_host
       report_note(
-        :host   => session,
-        :type   => 'host.hypervisor',
-        :data   => { :hypervisor => "MS Hyper-V" },
-        :update => :unique_data
-        )
-      print_status("This is a Hyper-V Virtual Machine")
-      return "MS Hyper-V"
+        host: session,
+        type: 'host.physicalHost',
+        data: { physicalHost: physical_host },
+        update: :unique_data
+      )
+
+      print_good("This is a Hyper-V Virtual Machine running on physical host #{physical_host}")
+      return true
     end
+
+    sfmsvals = registry_enumkeys('HKLM\\SOFTWARE\\Microsoft')
+    if sfmsvals
+      %w[Hyper-V VirtualMachine].each do |vm|
+        return true if sfmsvals.include?(vm)
+      end
+    end
+
+    if @system_bios_version =~ /vrtual/i || @system_bios_version == 'Hyper-V'
+      return true
+    end
+
+    keys = %w[HKLM\\HARDWARE\\ACPI\\FADT HKLM\\HARDWARE\\ACPI\\RSDT HKLM\\HARDWARE\\ACPI\\DSDT]
+
+    register_keys(keys)
+
+    return true if key_present?('VRTUAL')
+
+    hyperv_services = %w[vmicexchange]
+
+    return true if services_exist?(hyperv_services)
+
+    false
   end
 
-  # Method for checking if it is a VMware VM
-  def vmwarechk(session)
-    vm = false
-    srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
-    if srvvals and  srvvals.include?("vmdebug")
-      vm = true
-    elsif srvvals and srvvals.include?("vmmouse")
-      vm = true
-    elsif srvvals and srvvals.include?("VMTools")
-      vm = true
-    elsif srvvals and srvvals.include?("VMMEMCTL")
-      vm = true
-    end
-    if not vm
-      if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System\BIOS','SystemManufacturer') =~ /vmware/i
-        vm = true
-      end
-    end
-    if not vm
-      key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
-      if registry_getvaldata(key_path,'Identifier') =~ /vmware/i
-        vm = true
-      end
-    end
-    if not vm
-      vmwareprocs = [
-        "vmwareuser.exe",
-        "vmwaretray.exe"
-      ]
-      session.sys.process.get_processes().each do |x|
-        vmwareprocs.each do |p|
-          if p == (x['name'].downcase)
-            vm = true
-          end
-        end
-      end
-    end
-
-    if vm
-      report_note(
-        :host   => session,
-        :type   => 'host.hypervisor',
-        :data   => { :hypervisor => "VMware" },
-        :update => :unique_data
-        )
-      print_status("This is a VMware Virtual Machine")
-      return "VMWare"
-    end
-  end
-
-  # Method for checking if it is a Virtual PC VM
-  def checkvrtlpc(session)
-    vm = false
-    vpcprocs = [
-      "vmusrvc.exe",
-      "vmsrvc.exe"
+  def vmware?
+    vmware_services = %w[
+      vmdebug vmmouse VMTools VMMEMCTL tpautoconnsvc
+      tpvcgateway vmware wmci vmx86
     ]
-    session.sys.process.get_processes().each do |x|
-      vpcprocs.each do |p|
-        if p == (x['name'].downcase)
-          vm = true
-        end
-      end
-    end
-    if not vm
-      srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
-      if srvvals and srvvals.include?("vpc-s3")
-        vm = true
-      elsif srvvals and srvvals.include?("vpcuhub")
-        vm = true
-      elsif srvvals and srvvals.include?("msvmmouf")
-        vm = true
-      end
-    end
-    if vm
-      report_note(
-        :host   => session,
-        :type   => 'host.hypervisor',
-        :data   => { :hypervisor => "VirtualPC" },
-        :update => :unique_data
-        )
-      print_status("This is a VirtualPC Virtual Machine")
-      return "VirtualPC"
-    end
+
+    return true if services_exist?(vmware_services)
+
+    @system_manufacturer = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS',
+                                          'SystemManufacturer')
+
+    return true if @system_manufacturer =~ /vmware/i
+
+    @scsi_port_1 = get_regval_str('HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port 1\\Scsi Bus 0\\Target Id 0\\Logical Unit Id 0',
+                                  'Identifier')
+
+    return true if @scsi_port_1 =~ /vmware/i
+
+    return true if regval_match?(
+      'HKLM\\SYSTEM\\ControlSet001\\Control\\Class\\{4D36E968-E325-11CE-BFC1-08002BE10318}\\0000',
+      'DriverDesc',
+      /cl_vmx_svga|VMWare/i
+    )
+
+    vmwareprocs = [
+      'vmtoolsd.exe',
+      'vmwareservice.exe',
+      'vmwaretray.exe',
+      'vmwareuser.exe'
+    ]
+
+    return true if processes_exist?(vmwareprocs)
+
+    false
   end
 
-  # Method for checking if it is a VirtualBox VM
-  def vboxchk(session)
-    vm = false
+  def virtualbox?
     vboxprocs = [
-      "vboxservice.exe",
-      "vboxtray.exe"
+      'vboxservice.exe',
+      'vboxtray.exe'
     ]
-    session.sys.process.get_processes().each do |x|
-      vboxprocs.each do |p|
-        if p == (x['name'].downcase)
-          vm = true
-        end
-      end
+
+    vbox_srvcs = %w[VBoxMouse VBoxGuest VBoxService VBoxSF VBoxVideo]
+
+    if services_exist?(vbox_srvcs) || processes_exist?(vboxprocs)
+      return true
     end
-    if not vm
-      srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\DSDT')
-      if srvvals and srvvals.include?("VBOX__")
-        vm = true
-      end
+
+    return true if key_present?('VBOX__')
+
+    for i in 0..2 do
+      return true if regval_match?(
+        "HKLM\\HARDWARE\\DEVICEMAP\\Scsi\\Scsi Port #{i}0\\Scsi Bus 0\\Target
+         Id 0\\Logical Unit Id 0",
+        'Identifier',
+        /vbox/i
+      )
     end
-    if not vm
-      srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\FADT')
-      if srvvals and srvvals.include?("VBOX__")
-        vm = true
-      end
-    end
-    if not vm
-      srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
-      if srvvals and srvvals.include?("VBOX__")
-        vm = true
-      end
-    end
-    if not vm
-      key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
-      if registry_getvaldata(key_path,'Identifier') =~ /vbox/i
-        vm = true
-      end
-    end
-    if not vm
-      if registry_getvaldata('HKLM\HARDWARE\DESCRIPTION\System','SystemBiosVersion') =~ /vbox/i
-        vm = true
-      end
-    end
-    if not vm
-      srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
-      if srvvals and srvvals.include?("VBoxMouse")
-        vm = true
-      elsif srvvals and srvvals.include?("VBoxGuest")
-        vm = true
-      elsif srvvals and srvvals.include?("VBoxService")
-        vm = true
-      elsif srvvals and srvvals.include?("VBoxSF")
-        vm = true
-      end
-    end
-    if vm
-      report_note(
-        :host   => session,
-        :type   => 'host.hypervisor',
-        :data   => { :hypervisor => "VirtualBox" },
-        :update => :unique_data
-        )
-      print_status("This is a Sun VirtualBox Virtual Machine")
-      return "VirtualBox"
-    end
+
+    return true if @system_bios_version =~ /vbox/i || @video_bios_version =~ /virtualbox/i
+
+    @system_product_name = get_regval_str('HKLM\\HARDWARE\\DESCRIPTION\\System\\BIOS', 'SystemProductName')
+
+    return true if @system_product_name =~ /virtualbox/i
+
+    false
   end
 
-  # Method for checking if it is a Xen VM
-  def xenchk(session)
-    vm = false
+  def xen?
     xenprocs = [
-      "xenservice.exe"
+      'xenservice.exe'
     ]
-    session.sys.process.get_processes().each do |x|
-      xenprocs.each do |p|
-        if p == (x['name'].downcase)
-          vm = true
-        end
-      end
+
+    xen_srvcs = %w[xenevtchn xennet xennet6 xensvc xenvdb]
+
+    if processes_exist?(xenprocs) || services_exist?(xen_srvcs)
+      return true
     end
-    if not vm
-      srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\DSDT')
-      if srvvals and srvvals.include?("Xen")
-        vm = true
-      end
-    end
-    if not vm
-      srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\FADT')
-      if srvvals and srvvals.include?("Xen")
-        vm = true
-      end
-    end
-    if not vm
-      srvvals = registry_enumkeys('HKLM\HARDWARE\ACPI\RSDT')
-      if srvvals and srvvals.include?("Xen")
-        vm = true
-      end
-    end
-    if not vm
-      srvvals = registry_enumkeys('HKLM\SYSTEM\ControlSet001\Services')
-      if srvvals and srvvals.include?("xenevtchn")
-        vm = true
-      elsif srvvals and srvvals.include?("xennet")
-        vm = true
-      elsif srvvals and srvvals.include?("xennet6")
-        vm = true
-      elsif srvvals and srvvals.include?("xensvc")
-        vm = true
-      elsif srvvals and srvvals.include?("xenvdb")
-        vm = true
-      end
-    end
-    if vm
-      report_note(
-        :host   => session,
-        :type   => 'host.hypervisor',
-        :data   => { :hypervisor => "Xen" },
-        :update => :unique_data
-        )
-      print_status("This is a Xen Virtual Machine")
-      return "Xen"
-    end
+
+    return true if key_present?('Xen')
+
+    return true if @system_product_name =~ /xen/i
+
+    false
   end
 
-  def qemuchk(session)
-    vm = false
-    if not vm
-      key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
-      if registry_getvaldata(key_path,'Identifier') =~ /qemu/i
-        print_status("This is a QEMU/KVM Virtual Machine")
-        vm = true
-      end
-    end
-    if not vm
-      key_path = 'HKLM\HARDWARE\DESCRIPTION\System\CentralProcessor\0'
-      if registry_getvaldata(key_path,'ProcessorNameString') =~ /qemu/i
-        print_status("This is a QEMU/KVM Virtual Machine")
-        vm = true
-      end
+  def qemu?
+    if @system_bios_version =~ /qemu/i || @video_bios_version =~ /qemu/i
+      return true
     end
 
-    if vm
-      report_note(
-        :host   => session,
-        :type   => 'host.hypervisor',
-        :data   => { :hypervisor => "Qemu/KVM" },
-        :update => :unique_data
-        )
-      return "Qemu/KVM"
+    if @scsi_port_0 =~ /qemu|virtio/i || @system_manufacturer =~ /qemu/i
+      return true
     end
+
+    return true if regval_match?(
+      'HKLM\\HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0',
+      'ProcessorNameString',
+      /qemu/i
+    )
+
+    return true if key_present?('BOCHS_')
+
+    false
   end
 
-  # run Method
+  def report_vm(hypervisor)
+    print_good("This is a #{hypervisor} Virtual Machine")
+    report_note(
+      host: session,
+      type: 'host.hypervisor',
+      data: { hypervisor: hypervisor },
+      update: :unique_data
+    )
+    report_virtualization(hypervisor)
+  end
+
   def run
-    print_status("Checking if #{sysinfo['Computer']} is a Virtual Machine .....")
-    found = hypervchk(session)
-    found ||= vmwarechk(session)
-    found ||= checkvrtlpc(session)
-    found ||= vboxchk(session)
-    found ||= xenchk(session)
-    found ||= qemuchk(session)
-    if found
-      report_vm(found)
+    print_status('Checking if the target is a Virtual Machine ...')
+    @processes = get_processes
+    @processes = [] if @processes.nil?
+
+    @services = registry_enumkeys('HKLM\\SYSTEM\\ControlSet001\\Services')
+    @services = [] if @services.nil?
+
+    if parallels?
+      report_vm('Parallels')
+    elsif hyperv?
+      report_vm('Hyper-V')
+    elsif vmware?
+      report_vm('VMware')
+    elsif virtualbox?
+      report_vm('VirtualBox')
+    elsif xen?
+      report_vm('Xen')
+    elsif qemu?
+      report_vm('Qemu/KVM')
     else
-      print_status("#{sysinfo['Computer']} appears to be a Physical Machine")
+      print_status('The target appears to be a Physical Machine')
     end
   end
-
 end

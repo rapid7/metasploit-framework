@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
@@ -31,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           OptString.new('CSVFILE', [ false, 'The file that contains a list of default accounts.', File.join(Msf::Config.install_root, 'data', 'wordlists', 'oracle_default_passwords.csv')]),
           Opt::RPORT(8080),
-        ], self.class)
+        ])
   end
 
   def run_host(ip)
@@ -85,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
           :proto	=> 'tcp',
           :port => datastore['RPORT'],
           :type => 'SERVICE_NAME',
-          :data => sid,
+          :data => { :sid => sid },
           :update => :unique_data
         )
         print_good("Discovered SID: '#{sid[0]}' for host #{ip}:#{datastore['RPORT']} with #{dbuser} / #{dbpass}")
@@ -130,7 +127,7 @@ class MetasploitModule < Msf::Auxiliary
               :proto => 'tcp',
               :port => datastore['RPORT'],
               :type => 'ORA_ENUM',
-              :data => "Component Version: #{p}#{v}",
+              :data => { :component_version => "#{p}#{v}" },
               :update => :unique_data
             )
             print_good("\t#{p}\t\t#{v}\t(#{s})")
@@ -168,7 +165,7 @@ class MetasploitModule < Msf::Auxiliary
               :sname => 'xdb',
               :port => datastore['RPORT'],
               :type => 'ORA_ENUM',
-              :data => "Component Version: #{b}",
+              :data => { :component_version => b },
               :update => :unique_data
             )
             print_good("\t#{b}")
@@ -216,7 +213,7 @@ class MetasploitModule < Msf::Auxiliary
                 :port => datastore['RPORT'],
                 :sname => 'xdb',
                 :type => 'oracle_sid',
-                :data => sid,
+                :data => { :sid => sid },
                 :update => :unique_data
               )
             else
@@ -262,7 +259,7 @@ class MetasploitModule < Msf::Auxiliary
               :sname => 'xdb',
               :port => datastore['RPORT'],
               :type => 'ORA_ENUM',
-              :data => "Active Account #{u}:#{h}:#{as}",
+              :data => { :active_account => "#{u}:#{h}:#{as}" },
               :update => :unique_data
             )
           else
@@ -272,7 +269,7 @@ class MetasploitModule < Msf::Auxiliary
               :sname => 'xdb',
               :port => datastore['RPORT'],
               :type => 'ORA_ENUM',
-              :data => "Disabled Account #{u}:#{h}:#{as}",
+              :data => { :disabled_account => "#{u}:#{h}:#{as}" },
               :update => :unique_data
             )
           end
@@ -334,7 +331,7 @@ class MetasploitModule < Msf::Auxiliary
           :sname => 'xdb',
           :port => datastore['RPORT'],
           :type => 'ORA_ENUM',
-          :data => "Password Maximum Reuse Time: #{prm}",
+          :data => { :password_maximum_reuse_time => prm },
           :update => :unique_data
         )
         report_note(
@@ -343,7 +340,7 @@ class MetasploitModule < Msf::Auxiliary
           :sname => 'xdb',
           :port => datastore['RPORT'],
           :type => 'ORA_ENUM',
-          :data => "Password Reuse Time: #{prt}",
+          :data => { :password_reuse_time => prt },
           :update => :unique_data
         )
         report_note(
@@ -352,7 +349,7 @@ class MetasploitModule < Msf::Auxiliary
           :sname => 'xdb',
           :port => datastore['RPORT'],
           :type => 'ORA_ENUM',
-          :data => "Password Life Time: #{plit}",
+          :data => { :password_life_time => plit },
           :update => :unique_data
         )
         report_note(
@@ -361,7 +358,7 @@ class MetasploitModule < Msf::Auxiliary
           :sname => 'xdb',
           :port => datastore['RPORT'],
           :type => 'ORA_ENUM',
-          :data => "Account Fail Logins Permitted: #{fla}",
+          :data => { :account_fail_logins_permitted => fla },
           :update => :unique_data
         )
         report_note(
@@ -370,7 +367,7 @@ class MetasploitModule < Msf::Auxiliary
           :sname => 'xdb',
           :port => datastore['RPORT'],
           :type => 'ORA_ENUM',
-          :data => "Account Lockout Time: #{plot}",
+          :data => { :account_lockout_time => plot },
           :update => :unique_data
         )
         report_note(
@@ -379,7 +376,7 @@ class MetasploitModule < Msf::Auxiliary
           :sname => 'xdb',
           :port => datastore['RPORT'],
           :type => 'ORA_ENUM',
-          :data => "Account Password Grace Time: #{pgt}",
+          :data => { :account_password_grace_time => pgt },
           :update => :unique_data
         )
       end

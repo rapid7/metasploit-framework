@@ -1,0 +1,44 @@
+# -*- coding:binary -*-
+require 'spec_helper'
+
+
+RSpec.describe Rex::Proto::Kerberos::Model::ApRep do
+
+  subject(:ap_rep) do
+    described_class.new
+  end
+
+  let(:msg_type) { 15 }
+
+=begin
+=end
+  let(:ap_response) do
+    "\x6f\x81\x89\x30\x81\x86\xa0\x03\x02\x01\x05\xa1\x03\x02\x01\x0f" +
+      "\xa2\x7a\x30\x78\xa0\x03\x02\x01\x12\xa2\x71\x04\x6f\x3e\xe5\xcd" +
+      "\x5d\xa9\x39\xec\x75\x9d\xef\xa9\xf8\x31\x55\x19\xea\x45\xd4\x22" +
+      "\x13\xd1\x21\x1e\x75\xbb\x5d\xab\x39\x62\xee\x3e\x6b\xcc\x48\xcc" +
+      "\x3c\xe2\x7f\x6b\xf5\x1d\x56\x90\x06\x5b\x21\xc9\x1f\x85\xaa\x89" +
+      "\x55\xf1\xb4\x15\x8c\xc2\xf8\x2f\x7e\xf7\x08\x04\x5c\x2a\xc4\x4e" +
+      "\x8c\xcb\x4e\xfa\x65\x20\xc7\x44\x19\x01\xb5\x70\xaa\x00\xab\xdf" +
+      "\xcb\x33\xa8\x59\x0a\x93\xdd\x5e\x02\xd7\xc3\x2d\x8e\xe2\x2c\xc1" +
+      "\xd2\x78\x38\x5c\x90\x62\x35\xfd\x88\x67\xeb\x10"
+  end
+
+  describe "#decode" do
+    context "when AP Response" do
+      it "returns the Rex::Proto::Kerberos::Model::ApRep decoded" do
+        expect(ap_rep.decode(ap_response)).to eq(ap_rep)
+      end
+
+      it "decodes msg_type correctly" do
+        ap_rep.decode(ap_response)
+        expect(ap_rep.msg_type).to eq(msg_type)
+      end
+
+      it "retrieves the encrypted part" do
+        ap_rep.decode(ap_response)
+        expect(ap_rep.enc_part.cipher.length).to eq(111)
+      end
+    end
+  end
+end

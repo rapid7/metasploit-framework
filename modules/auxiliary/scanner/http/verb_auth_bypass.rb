@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -27,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('TARGETURI', [true,  "The path to test", '/'])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -63,7 +61,10 @@ class MetasploitModule < Msf::Auxiliary
       :sname  => (ssl ? 'https' : 'http'),
       :port   => rport,
       :type   => 'WWW_AUTHENTICATE',
-      :data   => "#{target_uri.path} Realm: #{res.headers['WWW-Authenticate']}",
+      :data   => {
+        :uri_path => target_uri.path,
+        :realm => res.headers['WWW-Authenticate']
+      },
       :update => :unique_data
     )
 
@@ -88,11 +89,13 @@ class MetasploitModule < Msf::Auxiliary
           :sname  => (ssl ? 'https' : 'http'),
           :port   => rport,
           :type   => 'AUTH_BYPASS_VERB',
-          :data   => "#{target_uri.path} Verb: #{tv}",
+          :data   => {
+            :uri_path => target_uri.path,
+            :verb => tv
+          },
           :update => :unique_data
         )
       end
     end
   end
-
 end

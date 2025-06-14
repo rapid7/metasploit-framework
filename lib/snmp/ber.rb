@@ -8,11 +8,11 @@
 #
 
 #
-# Add ord method to Fixnum for forward compatibility with Ruby 1.9
+# Add ord method to Integer for forward compatibility with Ruby 1.9
 #
-if "a"[0].kind_of? Fixnum
-    unless Fixnum.methods.include? :ord
-        class Fixnum
+if "a"[0].kind_of? Integer
+    unless Integer.methods.include? :ord
+        class Integer
             def ord; self; end
         end
     end
@@ -85,7 +85,7 @@ module BER #:nodoc:all
     # Returns a tuple containing the tag, the value, and any remaining
     # unprocessed data.
     #
-    # The data is not interpretted by this method.  Use one of the other
+    # The data is not interpreted by this method.  Use one of the other
     # decoding methods to interpret the data.
     #
     # Note that ASN.1 supports an indefinite length format where the end of

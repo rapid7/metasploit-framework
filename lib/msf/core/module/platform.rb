@@ -53,6 +53,78 @@ class Msf::Module::Platform
     # remove any whitespace and downcase
     str = str.gsub(' ', '').downcase
 
+    # Match known platforms first, then fall back to string matching
+    case str
+    when 'windows', 'win'
+      return Msf::Module::Platform::Windows
+    when 'linux'
+      return Msf::Module::Platform::Linux
+    when 'unix'
+      return Msf::Module::Platform::Unix
+    when 'osx'
+      return Msf::Module::Platform::OSX
+    when 'solaris'
+      return Msf::Module::Platform::Solaris
+    when 'freebsd'
+      return Msf::Module::Platform::FreeBSD
+    when 'netware'
+      return Msf::Module::Platform::Netware
+    when 'bsd'
+      return Msf::Module::Platform::BSD
+    when 'openbsd'
+      return Msf::Module::Platform::OpenBSD
+    when 'android'
+      return Msf::Module::Platform::Android
+    when 'java'
+      return Msf::Module::Platform::Java
+    when 'r'
+      return Msf::Module::Platform::R
+    when 'ruby'
+      return Msf::Module::Platform::Ruby
+    when 'cisco'
+      return Msf::Module::Platform::Cisco
+    when 'juniper'
+      return Msf::Module::Platform::Juniper
+    when 'unifi'
+      return Msf::Module::Platform::Unifi
+    when 'brocade'
+      return Msf::Module::Platform::Brocade
+    when 'mikrotik'
+      return Msf::Module::Platform::Mikrotik
+    when 'arista'
+      return Msf::Module::Platform::Arista
+    when 'bsdi'
+      return Msf::Module::Platform::BSDi
+    when 'netbsd'
+      return Msf::Module::Platform::NetBSD
+    when 'aix'
+      return Msf::Module::Platform::AIX
+    when 'hpux'
+      return Msf::Module::Platform::HPUX
+    when 'irix'
+      return Msf::Module::Platform::Irix
+    when 'php'
+      return Msf::Module::Platform::PHP
+    when 'javascript'
+      return Msf::Module::Platform::JavaScript
+    when 'python'
+      return Msf::Module::Platform::Python
+    when 'nodejs'
+      return Msf::Module::Platform::NodeJS
+    when 'firefox'
+      return Msf::Module::Platform::Firefox
+    when 'mainframe'
+      return Msf::Module::Platform::Mainframe
+    when 'multi'
+      return Msf::Module::Platform::Multi
+    when 'hardware'
+      return Msf::Module::Platform::Hardware
+    when 'apple_ios'
+      return Msf::Module::Platform::Apple_iOS
+    when 'unknown'
+      return Msf::Module::Platform::Unknown
+    end
+
     # Start at the base platform module
     mod = ::Msf::Module::Platform
 
@@ -131,7 +203,6 @@ class Msf::Module::Platform
   # the string).
   #
   def self.find_portion(mod, str)
-
     # Check to see if we've built the abbreviated cache
     if (not (
           mod.const_defined?('Abbrev') and
@@ -143,8 +214,7 @@ class Msf::Module::Platform
 
     if (not mod.const_defined?('Names'))
       elog("Failed to instantiate the platform list for module #{mod}")
-      raise RuntimeError.new("Failed to instantiate the platform list for module #{mod}")
-      return nil
+      raise "Failed to instantiate the platform list for module #{mod}"
     end
 
     abbrev   = mod.const_get('Abbrev')
@@ -192,10 +262,22 @@ class Msf::Module::Platform
   ##
 
   #
+  # Unknown
+  #
+  # This is a special case for when we're completely unsure of the
+  # platform, such as a crash or default case in code.  Only
+  # utilize this as a catch-all.
+  #
+  class Unknown < Msf::Module::Platform
+    Rank = 0 # safeguard with 0 since the platform is completely unknown
+    Alias = "unknown"
+  end
+
+  #
   # Windows
   #
   class Windows < Msf::Module::Platform
-    Rank  = 100
+    Rank = 100
     # Windows 95
     class W95 < Windows
       Rank = 100
@@ -353,6 +435,14 @@ class Msf::Module::Platform
   end
 
   #
+  # R
+  #
+  class R < Msf::Module::Platform
+    Rank = 100
+    Alias = "r"
+  end
+
+  #
   # Ruby
   #
   class Ruby < Msf::Module::Platform
@@ -374,6 +464,46 @@ class Msf::Module::Platform
   class Cisco < Msf::Module::Platform
     Rank = 100
     Alias = "cisco"
+  end
+
+  #
+  # Juniper
+  #
+  class Juniper < Msf::Module::Platform
+    Rank = 100
+    Alias = "juniper"
+  end
+
+  #
+  # Ubiquiti Unifi
+  #
+  class Unifi < Msf::Module::Platform
+    Rank = 100
+    Alias = "unifi"
+  end
+
+  #
+  # Brocade
+  #
+  class Brocade < Msf::Module::Platform
+    Rank = 100
+    Alias = "brocade"
+  end
+
+  #
+  # MikroTik
+  #
+  class Mikrotik < Msf::Module::Platform
+    Rank = 100
+    Alias = "mikrotik"
+  end
+
+  #
+  # Arista
+  #
+  class Arista < Msf::Module::Platform
+    Rank = 100
+    Alias = "arista"
   end
 
   #
@@ -536,4 +666,29 @@ class Msf::Module::Platform
     Rank = 100
     Alias = "mainframe"
   end
+
+  #
+  # Multi (for wildcard-style platform functions)
+  #
+  class Multi < Msf::Module::Platform
+    Rank = 100
+    Alias = "multi"
+  end
+
+  #
+  # Hardware
+  #
+  class Hardware < Msf::Module::Platform
+    Rank = 100
+    Alias = "hardware"
+  end
+
+  #
+  # Apple iOS
+  #
+  class Apple_iOS < Msf::Module::Platform
+    Rank = 100
+    Alias = "apple_ios"
+  end
+
 end

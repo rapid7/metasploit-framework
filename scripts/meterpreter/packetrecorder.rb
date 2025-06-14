@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -26,7 +26,7 @@ log_dest = nil
   "-h"  => [ false, "Help menu."],
   "-t"  => [ true,  "Time interval in seconds between recollection of packet, default 30 seconds."],
   "-i"  => [ true,  "Interface ID number where all packet capture will be done."],
-  "-li" => [ false, "List interfaces that can be used for capture."],
+  "-L" => [ false, "List interfaces that can be used for capture."],
   "-l"  => [ true,  "Specify and alternate folder to save PCAP file."]
 )
 meter_type = client.platform
@@ -192,7 +192,7 @@ end
     int_id = val.to_i
   when "-l"
     log_dest = val
-  when "-li"
+  when "-L"
     list_int = 1
   when "-t"
     rec_time = val
@@ -200,7 +200,7 @@ end
 }
 
 # Check for Version of Meterpreter
-wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
+wrong_meter_version(meter_type) if meter_type != 'windows'
 
 if !int_id.nil? or !list_int.nil?
   if not is_uac_enabled? or is_admin?

@@ -1,0 +1,46 @@
+name: SMB Acceptance
+
+# Optional, enabling concurrency limits: https://docs.github.com/en/actions/using-jobs/using-concurrency
+#concurrency:
+#  group: ${{ github.ref }}-${{ github.workflow }}
+#  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  id-token: none
+  issues: none
+  discussions: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+on:
+  push:
+    branches-ignore:
+      - gh-pages
+      - metakitty
+  pull_request:
+    branches:
+      - '*'
+    paths:
+      - 'metsploit-framework.gemspec'
+      - 'Gemfile.lock'
+      - '**/**smb**'
+      - 'spec/acceptance/**'
+      - 'spec/support/acceptance/**'
+      - 'spec/acceptance_spec_helper.rb'
+      - '.github/**'
+#   Example of running as a cron, to weed out flaky tests
+#  schedule:
+#    - cron: '*/15 * * * *'
+
+jobs:
+  build:
+    uses: ./.github/workflows/shared_smb_acceptance.yml

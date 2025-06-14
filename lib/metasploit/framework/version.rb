@@ -1,5 +1,6 @@
 require 'rbconfig'
 require 'yaml'
+require 'open3'
 
 module Metasploit
   module Framework
@@ -17,20 +18,21 @@ module Metasploit
             version_info = YAML.load_file(version_yml)
             hash = '-' + version_info['build_framework_rev']
           else
-            # determine if git is installed
-            null = RbConfig::CONFIG['host_os'] =~ /mswin|mingw/ ? 'NUL' : '/dev/null'
-            git_installed = system("git --version > #{null} 2>&1")
-
-            # get the hash of the HEAD commit
-            if git_installed && File.exist?(File.join(root, '.git'))
-              hash = '-' + `git rev-parse --short HEAD`
+            # Fallback to using Git version detection if version_yml not present
+            changed_files = %w[git rev-parse --short HEAD]
+            begin
+              # stderr may contain Git warnings that we can ignore
+              output, _stderr, status = ::Open3.capture3(*changed_files, chdir: root)
+              hash = "-#{output}" if status.success?
+            rescue => e
+              elog(e) if defined?(elog)
             end
           end
           hash.strip
         end
       end
 
-      VERSION = "4.12.26"
+      VERSION = "6.4.70"
       MAJOR, MINOR, PATCH = VERSION.split('.').map { |x| x.to_i }
       PRERELEASE = 'dev'
       HASH = get_hash

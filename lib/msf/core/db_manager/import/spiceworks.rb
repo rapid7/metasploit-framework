@@ -3,7 +3,7 @@ require 'csv'
 module Msf::DBManager::Import::Spiceworks
   def import_spiceworks_csv(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
     CSV.parse(data) do |row|
       next unless (["Name", "Manufacturer", "Device Type"] & row).empty? #header
@@ -28,7 +28,7 @@ module Msf::DBManager::Import::Spiceworks
 
 
       if os
-        report_note(
+        msf_import_note(
           :workspace => wspace,
           :task => args[:task],
           :host => ip,
@@ -44,7 +44,7 @@ module Msf::DBManager::Import::Spiceworks
       info << "Location: #{location}" unless location.blank?
       conf[:info] = info.join(", ") unless info.empty?
 
-      host = report_host(conf)
+      host = msf_import_host(conf)
       report_import_note(wspace, host)
     end
   end

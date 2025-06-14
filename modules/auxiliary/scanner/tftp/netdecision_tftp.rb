@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
@@ -29,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           ['OSVDB', '54607'],
           ['BID', '35002']
         ],
-      'DisclosureDate' => "May 16 2009"
+      'DisclosureDate' => '2009-05-16'
     ))
 
     register_options(
@@ -37,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(69),
         OptInt.new('DEPTH', [false, "Levels to reach base directory",1]),
         OptString.new('FILENAME', [false, 'The file to loot', 'windows\\win.ini']),
-      ], self.class)
+      ])
   end
 
   def run_host(ip)
@@ -112,5 +109,4 @@ class MetasploitModule < Msf::Auxiliary
     pkt << [block].pack("n") # Block Id
 
   end
-
 end

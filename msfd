@@ -19,13 +19,9 @@ end
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
 require 'msfenv'
 
-
-
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
-require 'msf/base'
-require 'msf/ui'
-
+require 'rex/parser/arguments'
 # Declare the argument parser for msfd
 arguments = Rex::Parser::Arguments.new(
   "-a" => [ true,  "Bind to this IP address instead of loopback"          ],

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -49,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           [ 'CVE', '2013-3619' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2013/11/06/supermicro-ipmi-firmware-vulnerabilities']
+          [ 'URL', 'https://www.rapid7.com/blog/post/2013/11/06/supermicro-ipmi-firmware-vulnerabilities/']
         ],
       'DisclosureDate' => 'Nov 06 2013'
     )
@@ -57,7 +54,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
-      ], self.class)
+      ])
   end
 
   # Fingerprint a single host
@@ -76,14 +73,14 @@ class MetasploitModule < Msf::Auxiliary
 
     if result
       print_good("#{ip}:#{rport} - Vulnerable to CVE-2013-3619 (Static SSL Certificate)")
-      # Report with the the SSL Private Key hash for the host
+      # Report with the SSL Private Key hash for the host
       digest = OpenSSL::Digest::SHA1.new(pkey.public_key.to_der).to_s.scan(/../).join(":")
       report_note(
         :host  => ip,
         :proto => 'tcp',
         :port  => rport,
         :type  => 'supermicro.ipmi.ssl.certificate.pkey_hash',
-        :data  => digest
+        :data  => { :digest => digest }
       )
 
       report_vuln({
@@ -95,5 +92,4 @@ class MetasploitModule < Msf::Auxiliary
       })
     end
   end
-
 end

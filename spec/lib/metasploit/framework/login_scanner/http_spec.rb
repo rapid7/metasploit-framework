@@ -3,8 +3,8 @@ require 'spec_helper'
 require 'metasploit/framework/login_scanner/http'
 
 RSpec.describe Metasploit::Framework::LoginScanner::HTTP do
-
-  it_behaves_like 'Metasploit::Framework::LoginScanner::Base',  has_realm_key: true, has_default_realm: false
+  
+  it_behaves_like 'Metasploit::Framework::LoginScanner::Base', has_realm_key: true, has_default_realm: false
   it_behaves_like 'Metasploit::Framework::LoginScanner::RexSocket'
   it_behaves_like 'Metasploit::Framework::LoginScanner::HTTP'
 
@@ -25,7 +25,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::HTTP do
   describe '#send_request' do
     context 'when a valid request is sent' do
       it 'returns a response object' do
-        expect(subject.send_request({'uri'=>'/'})).to be_kind_of(Rex::Proto::Http::Response)
+        expect(subject.send_request({ 'uri' => '/' })).to be_kind_of(Rex::Proto::Http::Response)
       end
     end
   end

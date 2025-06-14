@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'uri'
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -36,12 +34,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://blog.cari.net/carisirt-yet-another-bmc-vulnerability-and-some-added-extras/'],
           [ 'URL', 'https://github.com/zenfish/ipmi/blob/master/dump_SM.py']
         ],
-      'DisclosureDate' => 'Jun 19 2014'))
+      'DisclosureDate' => '2014-06-19'))
 
     register_options(
       [
         Opt::RPORT(49152)
-      ], self.class)
+      ])
   end
 
   def is_supermicro?
@@ -100,5 +98,4 @@ class MetasploitModule < Msf::Auxiliary
       print_good("Password data from #{uri} stored to #{path}")
     end
   end
-
 end

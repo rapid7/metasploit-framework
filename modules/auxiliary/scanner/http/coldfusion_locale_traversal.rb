@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -39,8 +36,8 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2010-2861' ],
           [ 'BID', '42342' ],
           [ 'OSVDB', '67047' ],
-          [ 'URL', 'http://www.gnucitizen.org/blog/coldfusion-directory-traversal-faq-cve-2010-2861' ],
-          [ 'URL', 'http://www.adobe.com/support/security/bulletins/apsb10-18.html' ],
+          [ 'URL', 'https://www.gnucitizen.org/blog/coldfusion-directory-traversal-faq-cve-2010-2861/' ],
+          [ 'URL', 'https://www.adobe.com/support/security/bulletins/apsb10-18.html' ],
         ]
     )
 
@@ -48,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('FILE', [ false,  'File to retrieve', '']),
         OptBool.new('FINGERPRINT', [true, 'Only fingerprint endpoints', false])
-      ], self.class)
+      ])
   end
 
   def fingerprint(response)
@@ -194,7 +191,6 @@ class MetasploitModule < Msf::Auxiliary
   rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
   rescue ::Timeout::Error, ::Errno::EPIPE
   end
-
 end
 
 # URLs that may work for you:

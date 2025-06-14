@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/ui'
 
 module Rex
 module Ui
@@ -14,10 +13,6 @@ module Text
 ###
 class Input
 
-  require 'rex/ui/text/input/stdio'
-  require 'rex/ui/text/input/readline'
-  require 'rex/ui/text/input/socket'
-  require 'rex/ui/text/input/buffer'
   require 'rex/text/color'
 
   include Rex::Text::Color
@@ -25,6 +20,7 @@ class Input
   def initialize
     self.eof = false
     @config = {
+      :readline => true, # true, false
       :color => :auto, # true, false, :auto
     }
     super
@@ -34,7 +30,9 @@ class Input
   # Whether or not the input medium supports readline.
   #
   def supports_readline
-    true
+    return true if not @config
+
+    config[:readline] == true
   end
 
   #
@@ -87,6 +85,16 @@ class Input
 
   attr_reader :config
 
+  def disable_readline
+    return if not @config
+    @config[:readline] = false
+  end
+
+  def enable_readline
+    return if not @config
+    @config[:readline] = true
+  end
+
   def disable_color
     return if not @config
     @config[:color] = false
@@ -116,4 +124,3 @@ end
 end
 end
 end
-

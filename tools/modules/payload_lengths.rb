@@ -1,8 +1,10 @@
 #!/usr/bin/env ruby
-#
-# $Id$
-# $Revision$
-#
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 # This script lists each payload module along with its length
 # NOTE: No encoding or BadChar handling is performed
 #
@@ -18,8 +20,6 @@ require 'msfenv'
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'rex'
-require 'msf/ui'
-require 'msf/base'
 
 Indent = '    '
 

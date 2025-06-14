@@ -1,6 +1,4 @@
 require 'rex'
-require 'msf/util/document_generator'
-require 'msf/util/document_generator/pull_request_finder'
 
 RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
 
@@ -10,7 +8,7 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
   let(:mod_shortname)     { 'ms08_067_netapi' }
   let(:mod_name)          { 'MS08-067' }
   let(:mod_pull_requests) { good_pull_requests }
-  let(:mod_refs)          { ['URL', 'http://example.com'] }
+  let(:mod_refs)          { [Msf::Module::SiteReference.new('URL', 'http://example.com')] }
   let(:mod_platforms)     { 'win' }
   let(:mod_options)       { { 'RHOST' => rhost_option } }
   let(:mod_normal_rank)   { 300 }
@@ -62,6 +60,9 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
     allow(mod).to receive(:type).and_return(mod_type)
     allow(mod).to receive(:shortname).and_return(mod_shortname)
     allow(mod).to receive(:targets).and_return(mod_targets)
+    allow(mod).to receive(:side_effects).and_return([])
+    allow(mod).to receive(:stability).and_return([])
+    allow(mod).to receive(:reliability).and_return([])
     mod
   end
 
@@ -83,6 +84,9 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
           mod_rank:          msf_mod.rank,
           mod_platforms:     msf_mod.send(:module_info)['Platform'],
           mod_options:       msf_mod.options,
+          mod_side_effects:  msf_mod.side_effects,
+          mod_reliability:   msf_mod.reliability,
+          mod_stability:     msf_mod.stability,
           mod_demo:          msf_mod
         }
         expect(subject.get_md_content(items, '')).to include('<html>')
@@ -111,7 +115,7 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
   describe 'normalize_pull_requests' do
     context 'when a hash of pull requests are given' do
       it 'returns HTML links' do
-        expect(subject.send(:normalize_pull_requests, good_pull_requests)).to include('* <a href=')
+        expect(subject.send(:normalize_pull_requests, good_pull_requests)).to include('](https://github.com/')
       end
     end
 
@@ -119,14 +123,6 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
       it 'includes a how-to link in the error message' do
         how_to_link = 'https://help.github.com/articles/creating-an-access-token-for-command-line-use/'
         expect(subject.send(:normalize_pull_requests, bad_pull_requests)).to include(how_to_link)
-      end
-    end
-  end
-
-  describe 'normalize_options' do
-    context 'when datastore options are given' do
-      it 'returns a list of options in HTML' do
-        expect(subject.send(:normalize_options, msf_mod.options)).to include('* RHOST - The target address')
       end
     end
   end
@@ -143,7 +139,7 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
   describe 'normalize_authors' do
     context 'when an array of authors is given' do
       it 'returns the author list in markdown' do
-        expect(subject.send(:normalize_authors, Rex::Text.html_decode(msf_mod.authors))).to include('* ')
+        expect(subject.send(:normalize_authors, msf_mod.authors)).to include('* ')
       end
     end
   end
@@ -159,7 +155,7 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
   describe 'normalize_references' do
     context 'when an array of references is given' do
       it 'returns the reference list in HTML' do
-        expect(subject.send(:normalize_references, msf_mod.references)).to include('* <a href=')
+        expect(subject.send(:normalize_references, msf_mod.references)).to include('* [http://')
       end
     end
   end
@@ -178,19 +174,6 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
     context 'when a platform as a string is given' do
       it 'returns the platform' do
         expect(subject.send(:normalize_platforms, msf_mod.platforms)).to eq(mod_platforms)
-      end
-    end
-  end
-
-  describe 'normalize_rank' do
-    context 'when a rank is given' do
-      it 'returns the rank' do
-        expect(subject.send(:normalize_rank, msf_mod.rank)).to include('Normal')
-      end
-
-      it 'includes a wiki about exploit ranks' do
-        wiki = 'https://github.com/rapid7/metasploit-framework/wiki/Exploit-Ranking'
-        expect(subject.send(:normalize_rank, msf_mod.rank)).to include(wiki)
       end
     end
   end

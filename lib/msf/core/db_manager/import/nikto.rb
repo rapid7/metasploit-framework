@@ -4,7 +4,7 @@ module Msf::DBManager::Import::Nikto
   #
   def import_nikto_xml(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
     doc = rexmlify(data)
     doc.elements.each do |f|
@@ -39,7 +39,7 @@ module Msf::DBManager::Import::Nikto
                 :task      => args[:task]
             }
             # Always report it as a note.
-            report_note(desc_data)
+            msf_import_note(desc_data)
             # Sometimes report it as a vuln, too.
             # XXX: There's a Vuln.info field but nothing reads from it? See Bug #5837
             if item.attributes['osvdbid'].to_i != 0
@@ -48,7 +48,7 @@ module Msf::DBManager::Import::Nikto
               desc_data.delete(:data)
               desc_data.delete(:type)
               desc_data.delete(:update)
-              report_vuln(desc_data)
+              msf_import_vuln(desc_data)
             end
           end
         end

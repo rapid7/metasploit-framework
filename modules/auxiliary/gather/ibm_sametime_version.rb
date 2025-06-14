@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -80,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
           'SSL' => true
         },
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Dec 27 2013'
+      'DisclosureDate' => '2013-12-27'
     ))
 
     register_options(
@@ -91,12 +89,12 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('ShowVersions', [ true,  "Display Version information from server", true]),
         OptBool.new('ShowConfig', [ true,  "Display Config information from server", true]),
         OptBool.new('ShowAPIVersions', [ true,  "Display API Version information from server", false])
-      ], self.class)
+      ])
 
     register_advanced_options(
       [
         OptBool.new('StoreConfigs', [ true,  "Store JSON configs to loot", true])
-      ], self.class)
+      ])
 
   end
 
@@ -256,7 +254,7 @@ class MetasploitModule < Msf::Auxiliary
       :port  => rport,
       :proto => 'http',
       :ntype => 'ibm_lotus_sametime_version',
-      :data  => @version_info['version']['sametimeVersion']
+      :data  => { :version => @version_info['version']['sametimeVersion'] }
     ) if @version_info['version']['sametimeVersion']
   end
 
@@ -323,5 +321,4 @@ class MetasploitModule < Msf::Auxiliary
 
     report unless @version_info.empty?
   end
-
 end

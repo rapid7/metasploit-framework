@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -30,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2012-4933' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2012/10/11/cve-2012-4933-novell-zenworks' ]				]
+          [ 'URL', 'https://www.rapid7.com/blog/post/2012/10/11/cve-2012-4933-novell-zenworks/' ]				]
     ))
 
     register_options(
@@ -39,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('ABSOLUTE', [ true, 'Use an absolute file path or directory traversal relative to the tomcat home', true ]),
         OptString.new('FILEPATH', [true, 'The name of the file to download', 'C:\\WINDOWS\\system32\\drivers\\etc\\hosts']),
         OptInt.new('DEPTH', [false, 'Traversal depth if absolute is set to false', 1])
-      ], self.class)
+      ])
   end
 
   def run_host(ip)

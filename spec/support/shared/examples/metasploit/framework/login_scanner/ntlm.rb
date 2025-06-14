@@ -11,6 +11,20 @@ RSpec.shared_examples_for 'Metasploit::Framework::LoginScanner::NTLM' do
 
   context 'validations' do
 
+    before(:each) do
+      creds = double('Metasploit::Framework::CredentialCollection')
+        allow(creds).to receive(:pass_file)
+        allow(creds).to receive(:username)
+        allow(creds).to receive(:password)
+        allow(creds).to receive(:user_file)
+        allow(creds).to receive(:userpass_file)
+        allow(creds).to receive(:prepended_creds).and_return([])
+        allow(creds).to receive(:additional_privates).and_return([])
+        allow(creds).to receive(:additional_publics).and_return([])
+        allow(creds).to receive(:empty?).and_return(true)
+        login_scanner.cred_details = creds
+    end
+
     context '#send_lm' do
       it 'is not valid for the string true' do
         login_scanner.send_lm = 'true'

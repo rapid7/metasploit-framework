@@ -1,63 +1,91 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/mysql'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::MYSQL
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
-
   include Msf::Auxiliary::Scanner
+  include Msf::Sessions::CreateSessionOptions
+  include Msf::Auxiliary::CommandShell
+  include Msf::Auxiliary::ReportSummary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'		=> 'MySQL Login Utility',
-      'Description'	=> 'This module simply queries the MySQL instance for a specific user/pass (default is root with blank).',
-      'Author'		=> [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
-      'License'		=> MSF_LICENSE,
-      'References'      =>
+      'Name'        => 'MySQL Login Utility',
+      'Description' => 'This module simply queries the MySQL instance for a specific user/pass (default is root with blank).',
+      'Author'      => [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
+      'License'     => MSF_LICENSE,
+      'References'  =>
         [
           [ 'CVE', '1999-0502'] # Weak password
-        ]
+        ],
+      # some overrides from authbrute since there is a default username and a blank password
+      'DefaultOptions' =>
+        {
+          'USERNAME' => 'root',
+          'BLANK_PASSWORDS' => true,
+          'CreateSession'  => false
+        }
     ))
 
     register_options(
       [
-        Opt::Proxies
-      ], self.class)
+        Opt::Proxies,
+        OptBool.new('CreateSession', [false, 'Create a new session for every successful login', false])
+      ])
+
+    if framework.features.enabled?(Msf::FeatureManager::MYSQL_SESSION_TYPE)
+      add_info('New in Metasploit 6.4 - The %grnCreateSession%clr option within this module can open an interactive session')
+    else
+      options_to_deregister = %w[CreateSession]
+    end
+    deregister_options(*options_to_deregister)
+  end
+
+  # @return [FalseClass]
+  def create_session?
+    if framework.features.enabled?(Msf::FeatureManager::MYSQL_SESSION_TYPE)
+      datastore['CreateSession']
+    else
+      false
+    end
   end
 
   def target
     [rhost,rport].join(":")
   end
 
+  def run
+    results = super
+    logins = results.flat_map { |_k, v| v[:successful_logins] }
+    sessions = results.flat_map { |_k, v| v[:successful_sessions] }
+    print_status("Bruteforce completed, #{logins.size} #{logins.size == 1 ? 'credential was' : 'credentials were'} successful.")
+    return results unless framework.features.enabled?(Msf::FeatureManager::MYSQL_SESSION_TYPE)
+
+    if create_session?
+      print_status("#{sessions.size} MySQL #{sessions.size == 1 ? 'session was' : 'sessions were'} opened successfully.")
+    else
+      print_status('You can open an MySQL session with these credentials and %grnCreateSession%clr set to true')
+    end
+    results
+  end
 
   def run_host(ip)
     begin
       if mysql_version_check("4.1.1") # Pushing down to 4.1.1.
-        cred_collection = Metasploit::Framework::CredentialCollection.new(
-            blank_passwords: datastore['BLANK_PASSWORDS'],
-            pass_file: datastore['PASS_FILE'],
-            password: datastore['PASSWORD'],
-            user_file: datastore['USER_FILE'],
-            userpass_file: datastore['USERPASS_FILE'],
+        cred_collection = build_credential_collection(
             username: datastore['USERNAME'],
-            user_as_pass: datastore['USER_AS_PASS'],
+            password: datastore['PASSWORD']
         )
 
-        cred_collection = prepend_db_passwords(cred_collection)
-
         scanner = Metasploit::Framework::LoginScanner::MySQL.new(
-            host: ip,
-            port: rport,
-            proxies: datastore['PROXIES'],
+          configure_login_scanner(
             cred_details: cred_collection,
             stop_on_success: datastore['STOP_ON_SUCCESS'],
             bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
@@ -66,14 +94,18 @@ class MetasploitModule < Msf::Auxiliary
             send_delay: datastore['TCP::send_delay'],
             framework: framework,
             framework_module: self,
+            use_client_as_proof: create_session?,
             ssl: datastore['SSL'],
             ssl_version: datastore['SSLVersion'],
             ssl_verify_mode: datastore['SSLVerifyMode'],
             ssl_cipher: datastore['SSLCipher'],
             local_port: datastore['CPORT'],
             local_host: datastore['CHOST']
+          )
         )
 
+        successful_logins = []
+        successful_sessions = []
         scanner.scan! do |result|
           credential_data = result.to_h
           credential_data.merge!(
@@ -86,6 +118,17 @@ class MetasploitModule < Msf::Auxiliary
             create_credential_login(credential_data)
 
             print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+            successful_logins << result
+
+            if create_session?
+              begin
+                successful_sessions << session_setup(result)
+              rescue ::StandardError => e
+                elog('Failed to setup the session', error: e)
+                print_brute level: :error, ip: ip, msg: "Failed to setup the session - #{e.class} #{e.message}"
+                result.connection.close unless result.connection.nil?
+              end
+            end
           else
             invalidate_login(credential_data)
             vprint_error "#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
@@ -98,6 +141,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Rex::ConnectionError, ::EOFError => e
       vprint_error "#{target} - Unable to connect: #{e.to_s}"
     end
+    { successful_logins: successful_logins, successful_sessions: successful_sessions }
   end
 
   # Tmtm's rbmysql is only good for recent versions of mysql, according
@@ -130,7 +174,7 @@ class MetasploitModule < Msf::Auxiliary
     version = data[offset..-1].unpack('Z*')[0]
     report_service(:host => rhost, :port => rport, :name => "mysql", :info => version)
     short_version = version.split('-')[0]
-    vprint_status "#{rhost}:#{rport} - Found remote MySQL version #{short_version}"
+    vprint_good "#{rhost}:#{rport} - Found remote MySQL version #{short_version}"
     int_version(short_version) >= int_version(target)
   end
 
@@ -151,6 +195,20 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  # @param [Metasploit::Framework::LoginScanner::Result] result
+  # @return [Msf::Sessions::MySQL]
+  def session_setup(result)
+    return unless (result.connection && result.proof)
 
+    my_session = Msf::Sessions::MySQL.new(result.connection, { client: result.proof, **result.proof.detect_platform_and_arch })
+    merge_me = {
+      'USERPASS_FILE' => nil,
+      'USER_FILE'     => nil,
+      'PASS_FILE'     => nil,
+      'USERNAME'      => result.credential.public,
+      'PASSWORD'      => result.credential.private
+    }
 
+    start_session(self, nil, merge_me, false, my_session.rstream, my_session)
+  end
 end

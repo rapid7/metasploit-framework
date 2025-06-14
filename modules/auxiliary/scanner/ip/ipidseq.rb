@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'timeout'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -89,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
       :host	=> ip,
       :proto	=> 'ip',
       :type	=> 'IPID sequence',
-      :data	=> "IPID sequence class: #{analyze(ipids)}"
+      :data	=> { :ipid_sequence_class => analyze(ipids) }
     )
   end
 
@@ -188,5 +186,4 @@ class MetasploitModule < Msf::Auxiliary
 
     return reply
   end
-
 end

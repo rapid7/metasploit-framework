@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -26,11 +23,11 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'References'     =>
         [
-          ['URL', 'http://forum.xbmc.org/showthread.php?tid=144110&pid=1227348'],
+          ['URL', 'https://forum.kodi.tv/showthread.php?tid=144110&pid=1227348'],
           ['URL', 'https://github.com/xbmc/xbmc/commit/bdff099c024521941cb0956fe01d99ab52a65335'],
-          ['URL', 'http://www.ioactive.com/pdfs/Security_Advisory_XBMC.pdf'],
+          ['URL', 'https://ioactive.com/pdfs/Security_Advisory_XBMC.pdf'],
         ],
-      'DisclosureDate' => "Nov 4 2012"
+      'DisclosureDate' => '2012-11-04'
     ))
 
     register_options(
@@ -40,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('DEPTH', [true, 'The max traversal depth', 9]),
         OptString.new('HttpUsername', [true, 'The username to use for the HTTP server', 'xbmc']),
         OptString.new('HttpPassword', [false, 'The password to use for the HTTP server', 'xbmc']),
-      ], self.class)
+      ])
   end
 
   def run

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Telnet
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -22,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
     [
       Opt::RPORT(9999),
       OptInt.new('TIMEOUT', [true, 'Timeout for the Telnet probe', 30])
-    ], self.class)
+    ])
 
     deregister_options('USERNAME','PASSWORD')
   end
@@ -37,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
       ::Timeout.timeout(to) do
         res = connect
         if banner.start_with? "MAC address"
-          print_status("#{ip}:#{rport} TELNET: #{banner}")
+          print_good("#{ip}:#{rport} TELNET: #{banner}")
           version = banner.match(/Software version [\w\.]+ \(\d+\) \w*$/)[0]
           report_service(:host => rhost, :port => rport, :name => "telnet", :info => "Lantronix Version: #{version}" )
         end

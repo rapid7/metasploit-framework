@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'base64'
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -72,12 +70,12 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2013-6031'],
           ['US-CERT-VU', '341526']
         ],
-      'DisclosureDate' => "Nov 11 2013" ))
+      'DisclosureDate' => '2013-11-11' ))
 
     register_options(
       [
         Opt::RHOST('mobilewifi.home')
-      ], self.class)
+      ])
 
   end
 
@@ -129,7 +127,7 @@ class MetasploitModule < Msf::Auxiliary
     report_note(
       :host => rhost,
       :type => 'wifi_keys',
-      :data => log
+      :data => { :wifi_ssid => log }
     )
   end
 

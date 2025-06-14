@@ -27,7 +27,7 @@ class Fs
   # values for the specified file path.
   #
   def get_file_mace(file_path)
-    request = Packet.create_request('priv_fs_get_file_mace')
+    request = Packet.create_request(COMMAND_ID_PRIV_FS_GET_FILE_MACE)
 
     request.add_tlv(TLV_TYPE_FS_FILE_PATH, file_path)
 
@@ -36,13 +36,13 @@ class Fs
     # Return the hash of times associated with the MACE values
     begin
       return {
-        'Modified'       => Time.at(response.get_tlv_value(TLV_TYPE_FS_FILE_MODIFIED)),
-        'Accessed'       => Time.at(response.get_tlv_value(TLV_TYPE_FS_FILE_ACCESSED)),
-        'Created'        => Time.at(response.get_tlv_value(TLV_TYPE_FS_FILE_CREATED)),
-        'Entry Modified' => Time.at(response.get_tlv_value(TLV_TYPE_FS_FILE_EMODIFIED))
+        'Modified'       => ::Time.at(response.get_tlv_value(TLV_TYPE_FS_FILE_MODIFIED)),
+        'Accessed'       => ::Time.at(response.get_tlv_value(TLV_TYPE_FS_FILE_ACCESSED)),
+        'Created'        => ::Time.at(response.get_tlv_value(TLV_TYPE_FS_FILE_CREATED)),
+        'Entry Modified' => ::Time.at(response.get_tlv_value(TLV_TYPE_FS_FILE_EMODIFIED))
       }
     rescue RangeError
-      raise RangeError, "Invalid MACE values"
+      raise RangeError, 'Invalid MACE values'
     end
   end
 
@@ -53,7 +53,7 @@ class Fs
   #
   def set_file_mace(file_path, modified = nil, accessed = nil, created = nil,
     entry_modified = nil)
-    request = Packet.create_request('priv_fs_set_file_mace')
+    request = Packet.create_request(COMMAND_ID_PRIV_FS_SET_FILE_MACE)
 
     request.add_tlv(TLV_TYPE_FS_FILE_PATH, file_path)
     request.add_tlv(TLV_TYPE_FS_FILE_MODIFIED, modified.to_i) if (modified)
@@ -71,7 +71,7 @@ class Fs
   # attributes of the source_file_path.
   #
   def set_file_mace_from_file(target_file_path, source_file_path)
-    request = Packet.create_request('priv_fs_set_file_mace_from_file')
+    request = Packet.create_request(COMMAND_ID_PRIV_FS_SET_FILE_MACE_FROM_FILE)
 
     request.add_tlv(TLV_TYPE_FS_FILE_PATH, target_file_path)
     request.add_tlv(TLV_TYPE_FS_SRC_FILE_PATH, source_file_path)
@@ -86,7 +86,7 @@ class Fs
   # be displayed by most all products for a file.
   #
   def blank_file_mace(file_path)
-    request = Packet.create_request('priv_fs_blank_file_mace')
+    request = Packet.create_request(COMMAND_ID_PRIV_FS_BLANK_FILE_MACE)
 
     request.add_tlv(TLV_TYPE_FS_FILE_PATH, file_path)
 
@@ -100,7 +100,7 @@ class Fs
   # directory.
   #
   def blank_directory_mace(dir_path)
-    request = Packet.create_request('priv_fs_blank_directory_mace')
+    request = Packet.create_request(COMMAND_ID_PRIV_FS_BLANK_DIRECTORY_MACE)
 
     request.add_tlv(TLV_TYPE_FS_FILE_PATH, dir_path)
 

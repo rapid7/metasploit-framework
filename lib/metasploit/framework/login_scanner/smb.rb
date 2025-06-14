@@ -1,21 +1,19 @@
-require 'rex/proto/smb'
 require 'metasploit/framework'
 require 'metasploit/framework/tcp/client'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
-require 'metasploit/framework/login_scanner/ntlm'
+require 'metasploit/framework/login_scanner/kerberos'
+require 'ruby_smb'
 
 module Metasploit
   module Framework
     module LoginScanner
-
       # This is the LoginScanner class for dealing with the Server Messaging
       # Block protocol.
       class SMB
         include Metasploit::Framework::Tcp::Client
         include Metasploit::Framework::LoginScanner::Base
         include Metasploit::Framework::LoginScanner::RexSocket
-        include Metasploit::Framework::LoginScanner::NTLM
 
         # Constants to be used in {Result#access_level}
         module AccessLevels
@@ -24,96 +22,52 @@ module Metasploit
           # This definition is not without its problems, but suffices to
           # conclude that such a user will most likely be able to use
           # psexec.
-          ADMINISTRATOR = "Administrator"
+          ADMINISTRATOR = 'Administrator'.freeze
           # Guest access means our creds were accepted but the logon
           # session is not associated with a real user account.
-          GUEST = "Guest"
+          GUEST = 'Guest'.freeze
         end
 
-        CAN_GET_SESSION      = true
-        DEFAULT_REALM        = 'WORKSTATION'
-        LIKELY_PORTS         = [ 139, 445 ]
-        LIKELY_SERVICE_NAMES = [ "smb" ]
-        PRIVATE_TYPES        = [ :password, :ntlm_hash ]
-        REALM_KEY            = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+        CAN_GET_SESSION = true
+        DEFAULT_REALM = 'WORKSTATION'.freeze
+        LIKELY_PORTS = [ 445 ].freeze
+        LIKELY_SERVICE_NAMES = [ 'smb' ].freeze
+        PRIVATE_TYPES = %i[password ntlm_hash].freeze
+        REALM_KEY = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
 
         module StatusCodes
           CORRECT_CREDENTIAL_STATUS_CODES = [
-            "STATUS_ACCOUNT_DISABLED",
-            "STATUS_ACCOUNT_EXPIRED",
-            "STATUS_ACCOUNT_RESTRICTION",
-            "STATUS_INVALID_LOGON_HOURS",
-            "STATUS_INVALID_WORKSTATION",
-            "STATUS_LOGON_TYPE_NOT_GRANTED",
-            "STATUS_PASSWORD_EXPIRED",
-            "STATUS_PASSWORD_MUST_CHANGE",
-          ].freeze.map(&:freeze)
+            WindowsError::NTStatus::STATUS_ACCOUNT_DISABLED,
+            WindowsError::NTStatus::STATUS_ACCOUNT_EXPIRED,
+            WindowsError::NTStatus::STATUS_ACCOUNT_RESTRICTION,
+            WindowsError::NTStatus::STATUS_INVALID_LOGON_HOURS,
+            WindowsError::NTStatus::STATUS_INVALID_WORKSTATION,
+            WindowsError::NTStatus::STATUS_LOGON_TYPE_NOT_GRANTED,
+            WindowsError::NTStatus::STATUS_PASSWORD_EXPIRED,
+            WindowsError::NTStatus::STATUS_PASSWORD_MUST_CHANGE,
+          ].freeze
         end
 
+        # @returns [Array[Integer]] The SMB versions to negotiate
+        attr_accessor :versions
 
-        # @!attribute simple
-        #   @return [Rex::Proto::SMB::SimpleClient]
-        attr_accessor :simple
+        # @returns [Boolean] By default the client uses encryption even if it is not required by the server. Disable this by setting always_encrypt to false
+        attr_accessor :always_encrypt
 
-        attr_accessor :smb_chunk_size
-        attr_accessor :smb_name
-        attr_accessor :smb_native_lm
-        attr_accessor :smb_native_os
-        attr_accessor :smb_obscure_trans_pipe_level
-        attr_accessor :smb_pad_data_level
-        attr_accessor :smb_pad_file_level
-        attr_accessor :smb_pipe_evasion
+        # @!attribute dispatcher
+        #   @return [RubySMB::Dispatcher::Socket]
+        attr_accessor :dispatcher
 
-        # UNUSED
-        #attr_accessor :smb_pipe_read_max_size
-        #attr_accessor :smb_pipe_read_min_size
-        #attr_accessor :smb_pipe_write_max_size
-        #attr_accessor :smb_pipe_write_min_size
-        attr_accessor :smb_verify_signature
+        # @!attribute kerberos_authenticator_factory
+        #   @return [Func<username, password, realm> : Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::SMB]
+        #     A factory method for creating a kerberos authenticator
+        attr_accessor :kerberos_authenticator_factory
 
-        attr_accessor :smb_direct
+        # @returns [Boolean] If a login is successful and this attribute is true - a RubySMB::Client instance is used as proof,
+        #   and the socket is not immediately closed
+        attr_accessor :use_client_as_proof
 
-        validates :smb_chunk_size,
-                  numericality:
-                  {
-                    only_integer: true,
-                    greater_than_or_equal_to: 0
-                  }
-
-        validates :smb_obscure_trans_pipe_level,
-                  inclusion:
-                  {
-                    in: Rex::Proto::SMB::Evasions::EVASION_NONE .. Rex::Proto::SMB::Evasions::EVASION_MAX
-                  }
-
-        validates :smb_pad_data_level,
-                  inclusion:
-                  {
-                    in: Rex::Proto::SMB::Evasions::EVASION_NONE .. Rex::Proto::SMB::Evasions::EVASION_MAX
-                  }
-
-        validates :smb_pad_file_level,
-                  inclusion:
-                  {
-                    in: Rex::Proto::SMB::Evasions::EVASION_NONE .. Rex::Proto::SMB::Evasions::EVASION_MAX
-                  }
-
-        validates :smb_pipe_evasion,
-                  inclusion: { in: [true, false, nil] },
-                  allow_nil: true
-
-        # UNUSED
-        #validates :smb_pipe_read_max_size, numericality: { only_integer: true }
-        #validates :smb_pipe_read_min_size, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-        #validates :smb_pipe_write_max_size, numericality: { only_integer: true }
-        #validates :smb_pipe_write_min_size, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-
-        validates :smb_verify_signature,
-                  inclusion: { in: [true, false, nil] },
-                  allow_nil: true
-
-
-        # If login is successul and {Result#access_level} is not set
+        # If login is successful and {Result#access_level} is not set
         # then arbitrary credentials are accepted. If it is set to
         # Guest, then arbitrary credentials are accepted, but given
         # Guest permissions.
@@ -122,35 +76,25 @@ module Metasploit
         #   empty string for local accounts.
         # @return [Result]
         def attempt_bogus_login(domain)
-          if defined?(@result_for_bogus)
-            return @result_for_bogus
+          if defined?(@attempt_bogus_login)
+            return @attempt_bogus_login
           end
+
           cred = Credential.new(
             public: Rex::Text.rand_text_alpha(8),
             private: Rex::Text.rand_text_alpha(8),
             realm: domain
           )
-          @result_for_bogus = attempt_login(cred)
+          @attempt_bogus_login = attempt_login(cred)
         end
-
 
         # (see Base#attempt_login)
         def attempt_login(credential)
-
-          # Disable direct SMB when SMBDirect has not been set and the
-          # destination port is configured as 139
-          if self.smb_direct.nil?
-            self.smb_direct = case self.port
-                              when 139 then false
-                              when 445 then true
-                              end
-          end
-
           begin
             connect
           rescue ::Rex::ConnectionError => e
             result = Result.new(
-              credential:credential,
+              credential: credential,
               status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT,
               proof: e,
               host: host,
@@ -163,69 +107,92 @@ module Metasploit
           proof = nil
 
           begin
-            # TODO: OMG
-            simple.login(
-              smb_name,
-              credential.public,
-              credential.private,
-              credential.realm || "",
-              smb_verify_signature,
-              use_ntlmv2,
-              use_ntlm2_session,
-              send_lm,
-              use_lmkey,
-              send_ntlm,
-              smb_native_os,
-              smb_native_lm,
-              {
-                use_spn: send_spn,
-                name: host
-              }
+            realm = (credential.realm || '').dup.force_encoding('UTF-8')
+            username = (credential.public || '').dup.force_encoding('UTF-8')
+            password = (credential.private || '').dup.force_encoding('UTF-8')
+            client = RubySMB::Client.new(
+               dispatcher,
+               username: username,
+               password: password,
+               domain: realm,
+               smb1: versions.include?(1),
+               smb2: versions.include?(2),
+               smb3: versions.include?(3),
+               always_encrypt: always_encrypt
             )
 
-            # Windows SMB will return an error code during Session
-            # Setup, but nix Samba requires a Tree Connect. Try admin$
-            # first, since that will tell us if this user has local
-            # admin access. Fall back to IPC$ which should be accessible
-            # to any user with valid creds.
-            begin
-              simple.connect("\\\\#{host}\\admin$")
-              access_level = AccessLevels::ADMINISTRATOR
-              simple.disconnect("\\\\#{host}\\admin$")
-            rescue ::Rex::Proto::SMB::Exceptions::ErrorCode
-              simple.connect("\\\\#{host}\\IPC$")
+            if kerberos_authenticator_factory
+              client.extend(Msf::Exploit::Remote::SMB::Client::KerberosAuthentication)
+              client.kerberos_authenticator = kerberos_authenticator_factory.call(username, password, realm)
             end
 
-            # If we made it this far without raising, we have a valid
-            # login
-            status = Metasploit::Model::Login::Status::SUCCESSFUL
-          rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
-            status = case e.get_error(e.error_code)
-                     when *StatusCodes::CORRECT_CREDENTIAL_STATUS_CODES
-                       Metasploit::Model::Login::Status::DENIED_ACCESS
-                     when 'STATUS_LOGON_FAILURE', 'STATUS_ACCESS_DENIED'
-                       Metasploit::Model::Login::Status::INCORRECT
-                     else
-                       Metasploit::Model::Login::Status::INCORRECT
-                     end
+            status_code = client.login
 
-            proof = e
-          rescue ::Rex::Proto::SMB::Exceptions::Error => e
-            status = Metasploit::Model::Login::Status::INCORRECT
-            proof = e
-          rescue ::Rex::ConnectionError => e
+            if status_code == WindowsError::NTStatus::STATUS_SUCCESS
+              # Windows SMB will return an error code during Session
+              # Setup, but nix Samba requires a Tree Connect. Try admin$
+              # first, since that will tell us if this user has local
+              # admin access. Fall back to IPC$ which should be accessible
+              # to any user with valid creds.
+              begin
+                tree = client.tree_connect("\\\\#{host}\\admin$")
+                # Check to make sure we can write a file to this dir
+                if tree.permissions.add_file == 1
+                  access_level = AccessLevels::ADMINISTRATOR
+                end
+              rescue StandardError => _e
+                client.tree_connect("\\\\#{host}\\IPC$")
+              end
+            end
+
+            case status_code
+            when WindowsError::NTStatus::STATUS_SUCCESS, WindowsError::NTStatus::STATUS_PASSWORD_MUST_CHANGE, WindowsError::NTStatus::STATUS_PASSWORD_EXPIRED
+              status = Metasploit::Model::Login::Status::SUCCESSFUL
+              # This module no long owns the socket, return it as proof so the calling context can perform additional operations
+              # Additionally assign values to nil to avoid closing the socket etc automatically
+              if use_client_as_proof
+                proof = client
+                connection = self.sock
+                client = nil
+                self.sock = nil
+                self.dispatcher = nil
+              end
+            when WindowsError::NTStatus::STATUS_ACCOUNT_LOCKED_OUT
+              status = Metasploit::Model::Login::Status::LOCKED_OUT
+            when WindowsError::NTStatus::STATUS_LOGON_FAILURE, WindowsError::NTStatus::STATUS_ACCESS_DENIED
+              status = Metasploit::Model::Login::Status::INCORRECT
+            when *StatusCodes::CORRECT_CREDENTIAL_STATUS_CODES
+              status = Metasploit::Model::Login::Status::DENIED_ACCESS
+            else
+              status = Metasploit::Model::Login::Status::INCORRECT
+            end
+          rescue ::Rex::ConnectionError, Errno::EINVAL, RubySMB::Error::NetBiosSessionService, RubySMB::Error::NegotiationFailure, RubySMB::Error::CommunicationError  => e
             status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             proof = e
+          rescue RubySMB::Error::UnexpectedStatusCode => _e
+            status = Metasploit::Model::Login::Status::INCORRECT
+          rescue Rex::Proto::Kerberos::Model::Error::KerberosError => e
+            status = Metasploit::Framework::LoginScanner::Kerberos.login_status_for_kerberos_error(e)
+            proof = e
+          rescue RubySMB::Error::RubySMBError => _e
+            status = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+            proof = e
+          ensure
+            client.disconnect! if client
           end
 
-          if status == Metasploit::Model::Login::Status::SUCCESSFUL && simple.client.auth_user.nil?
+          if status == Metasploit::Model::Login::Status::SUCCESSFUL && credential.public.empty?
             access_level ||= AccessLevels::GUEST
           end
 
-          result = Result.new(credential: credential, status: status, proof: proof, access_level: access_level)
-          result.host         = host
-          result.port         = port
-          result.protocol     = 'tcp'
+          result = Result.new(credential: credential,
+                              status: status,
+                              proof: proof,
+                              access_level: access_level,
+                              connection: connection)
+          result.host = host
+          result.port = port
+          result.protocol = 'tcp'
           result.service_name = 'smb'
           result
         end
@@ -233,48 +200,18 @@ module Metasploit
         def connect
           disconnect
           self.sock = super
-
-          c = Rex::Proto::SMB::SimpleClient.new(sock, smb_direct)
-
-          c.client.evasion_opts['pad_data'] = smb_pad_data_level
-          c.client.evasion_opts['pad_file'] = smb_pad_file_level
-          c.client.evasion_opts['obscure_trans_pipe'] = smb_obscure_trans_pipe_level
-
-          self.simple = c
-          c
+          self.dispatcher = RubySMB::Dispatcher::Socket.new(sock)
         end
 
         def set_sane_defaults
-          self.connection_timeout           = 10 if self.connection_timeout.nil?
-          self.max_send_size                = 0 if self.max_send_size.nil?
-          self.send_delay                   = 0 if self.send_delay.nil?
-          self.send_lm                      = true if self.send_lm.nil?
-          self.send_ntlm                    = true if self.send_ntlm.nil?
-          self.send_spn                     = true if self.send_spn.nil?
-          self.smb_chunk_size               = 0 if self.smb_chunk_size.nil?
-          self.smb_name                     = "*SMBSERVER" if self.smb_name.nil?
-          self.smb_native_lm                = "Windows 2000 5.0" if self.smb_native_os.nil?
-          self.smb_native_os                = "Windows 2000 2195" if self.smb_native_os.nil?
-          self.smb_obscure_trans_pipe_level = 0 if self.smb_obscure_trans_pipe_level.nil?
-          self.smb_pad_data_level           = 0 if self.smb_pad_data_level.nil?
-          self.smb_pad_file_level           = 0 if self.smb_pad_file_level.nil?
-          self.smb_pipe_evasion             = false if self.smb_pipe_evasion.nil?
-          #self.smb_pipe_read_max_size       = 1024 if self.smb_pipe_read_max_size.nil?
-          #self.smb_pipe_read_min_size       = 0 if self.smb_pipe_read_min_size.nil?
-          #self.smb_pipe_write_max_size      = 1024 if self.smb_pipe_write_max_size.nil?
-          #self.smb_pipe_write_min_size      = 0 if self.smb_pipe_write_min_size.nil?
-          self.smb_verify_signature         = false if self.smb_verify_signature.nil?
-
-          self.use_lmkey              = true if self.use_lmkey.nil?
-          self.use_ntlm2_session            = true if self.use_ntlm2_session.nil?
-          self.use_ntlmv2                   = true if self.use_ntlmv2.nil?
-
-          self.smb_name = self.host if self.smb_name.nil?
-
+          self.connection_timeout = 10 if connection_timeout.nil?
+          self.max_send_size = 0 if max_send_size.nil?
+          self.send_delay = 0 if send_delay.nil?
+          self.always_encrypt = true if always_encrypt.nil?
+          self.versions = ::Rex::Proto::SMB::SimpleClient::DEFAULT_VERSIONS if versions.nil?
         end
 
       end
     end
   end
 end
-

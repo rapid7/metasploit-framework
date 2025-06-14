@@ -13,4 +13,4 @@ responsible for corrupting the Metasploit Framework installation.
 
 For more information about EICAR, please see the following web site:
 
-http://www.eicar.org/anti_virus_test_file.htm
+https://www.eicar.org/download-anti-malware-testfile/

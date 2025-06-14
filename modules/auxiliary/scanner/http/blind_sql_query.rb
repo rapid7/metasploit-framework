@@ -1,16 +1,13 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/http'
-require 'msf/core'
 
 
 
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanUniqueQuery
   include Msf::Auxiliary::Scanner
@@ -34,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
         OptString.new('DATA', [ false, "HTTP Body Data", '']),
         OptString.new('COOKIE',[ false, "HTTP Cookies", ''])
-      ], self.class)
+      ])
 
   end
 
@@ -342,10 +339,10 @@ class MetasploitModule < Msf::Auxiliary
     # print_status("A")
 
     # DETECTION A
-    # Very simple way to compare responses, this can be improved alot , at this time just the simple way
+    # Very simple way to compare responses, this can be improved a lot , at this time just the simple way
 
     if normalr and truer
-      #Very simple way to compare responses, this can be improved alot , at this time just the simple way
+      #Very simple way to compare responses, this can be improved a lot , at this time just the simple way
       reltruesize = truer.body.length-(truer.body.scan(/#{tarr[1]}/).length*tarr[1].length)
       normalsize = normalr.body.length
 
@@ -472,5 +469,4 @@ class MetasploitModule < Msf::Auxiliary
 
     return false
   end
-
 end

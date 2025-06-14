@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/base/sessions/meterpreter'
 
 module Msf
 module Sessions
@@ -19,8 +18,8 @@ class Meterpreter_mipsbe_Linux < Msf::Sessions::Meterpreter
   end
   def initialize(rstream, opts={})
     super
-    self.platform      = 'mipsbe/linux'
-    self.binary_suffix = 'lso'
+    self.base_platform = 'linux'
+    self.base_arch = ARCH_MIPSBE
   end
 end
 

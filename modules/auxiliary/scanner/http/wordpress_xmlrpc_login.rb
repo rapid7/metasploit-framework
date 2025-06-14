@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/wordpress_rpc'
 
@@ -37,9 +36,9 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
         [
           Opt::RPORT(80),
-        ], self.class)
+        ])
 
-    deregister_options('BLANK_PASSWORDS') # we don't need this option
+    deregister_options('BLANK_PASSWORDS') # we don't need these options
   end
 
   def run_host(ip)
@@ -53,14 +52,9 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Starting XML-RPC login sweep...")
 
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
-        blank_passwords: datastore['BLANK_PASSWORDS'],
-        pass_file: datastore['PASS_FILE'],
-        password: datastore['PASSWORD'],
-        user_file: datastore['USER_FILE'],
-        userpass_file: datastore['USERPASS_FILE'],
-        username: datastore['USERNAME'],
-        user_as_pass: datastore['USER_AS_PASS'],
+    cred_collection = build_credential_collection(
+      username: datastore['USERNAME'],
+      password: datastore['PASSWORD']
     )
 
     scanner = Metasploit::Framework::LoginScanner::WordpressRPC.new(
@@ -103,5 +97,4 @@ class MetasploitModule < Msf::Auxiliary
     end
 
   end
-
 end

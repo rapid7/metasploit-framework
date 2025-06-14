@@ -1,14 +1,28 @@
 # -*- coding: binary -*-
-require 'msf/core/post/windows/registry'
-require 'msf/core/post/windows/accounts'
-
 module Msf
 class Post
 module Windows
 
 module UserProfiles
+  include Msf::Post::File
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Accounts
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_fs_file_expand_path
+              stdapi_fs_stat
+            ]
+          }
+        }
+      )
+    )
+  end
 
   #
   # Load the registry hive for each user on the machine and parse out the
@@ -79,7 +93,7 @@ module UserProfiles
     read_profile_list().each do |hive|
       hive['OURS']=false
       if hive['LOADED']== false
-        if session.fs.file.exist?(hive['DAT'])
+        if file_exist?(hive['DAT'])
           hive['OURS'] = registry_loadkey(hive['HKU'], hive['DAT'])
           print_error("Error loading USER #{hive['SID']}: Hive could not be loaded, are you Admin?") unless hive['OURS']
         else
@@ -95,15 +109,17 @@ module UserProfiles
   # Read HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList to
   # get a list of user profiles on the machine.
   #
-  def read_profile_list
+  def read_profile_list(user_accounts_only: true)
     hives=[]
     registry_enumkeys('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList').each do |profkey|
-      next unless profkey.include? "S-1-5-21"
+      if user_accounts_only
+        next unless profkey.starts_with?('S-1-5-21')
+      end
       hive={}
       hive['SID']=profkey
       hive['HKU']= "HKU\\#{profkey}"
       hive['PROF']= registry_getvaldata("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\#{profkey}", 'ProfileImagePath')
-      hive['PROF']= session.fs.file.expand_path(hive['PROF']) if hive['PROF']
+      hive['PROF'] = expand_path(hive['PROF']) if hive['PROF']
       hive['DAT']= "#{hive['PROF']}\\NTUSER.DAT"
       hive['LOADED'] = loaded_hives.include?(profkey)
       hives << hive
@@ -117,7 +133,7 @@ module UserProfiles
   def loaded_hives
     hives=[]
     registry_enumkeys('HKU').each do |k|
-      next unless k.include? "S-1-5-21"
+      next unless k.starts_with?('S-1-')
       next if k.include? "_Classes"
       hives<< k
     end

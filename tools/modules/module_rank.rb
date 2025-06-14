@@ -1,10 +1,12 @@
 #!/usr/bin/env ruby
-#
-# $Id$
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
 # This script lists each module with its rank
-#
-# $Revision$
 #
 
 msfbase = __FILE__
@@ -18,8 +20,6 @@ require 'msfenv'
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'rex'
-require 'msf/ui'
-require 'msf/base'
 
 ranks= Hash.new
 
@@ -39,7 +39,7 @@ filters = ['all','exploit','payload','post','nop','encoder','auxiliary']
 
 opts = Rex::Parser::Arguments.new(
   "-h" => [ false, "Help menu." ],
-  "-M" => [ true, "Set Maxmimum Rank [Manual,Low,Average,Normal,Good,Great,Excellent] (Default = Excellent)." ],
+  "-M" => [ true, "Set Maximum Rank [Manual,Low,Average,Normal,Good,Great,Excellent] (Default = Excellent)." ],
   "-m" => [ true, "Set Minimum Rank [Manual,Low,Average,Normal,Good,Great,Excellent] (Default = Manual)."],
   "-s" => [ false, "Sort by Rank instead of Module Type."],
   "-r" => [ false, "Reverse Sort by Rank"],

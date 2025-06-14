@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -155,7 +155,7 @@ def decrypt_user_keys(hbootkey, users)
     lm_exists = user[:V][0x9c+4,4].unpack("V")[0] == 20 ? true : false
     nt_exists = user[:V][0x9c+16,4].unpack("V")[0] == 20 ? true : false
 
-    #If we have a hashes, then parse them (Note: NT is dependant on LM)
+    #If we have a hashes, then parse them (Note: NT is dependent on LM)
     hashlm_enc = user[:V][hoff + 4, 16] if lm_exists
     hashnt_enc = user[:V][(hoff + (lm_exists ? 24 : 8)), 16] if nt_exists
 
@@ -244,7 +244,7 @@ def decrypt_user_hash(rid, hbootkey, enchash, pass)
   d1o << d2.final
   d1o + d2o
 end
-if client.platform =~ /win32|win64/
+if client.platform == 'windows'
   begin
 
     print_status("Obtaining the boot key...")

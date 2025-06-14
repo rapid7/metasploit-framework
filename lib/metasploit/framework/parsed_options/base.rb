@@ -39,7 +39,13 @@ class Metasploit::Framework::ParsedOptions::Base
   #
 
   def initialize(arguments=ARGV)
-    @positional = option_parser.parse(arguments)
+    begin
+      @positional = option_parser.parse(arguments)
+    rescue OptionParser::InvalidOption
+      puts "ERROR: Invalid command line option provided."
+      puts option_parser
+      exit(1)
+    end
   end
 
   # Translates {#options} to the `application`'s config
@@ -85,7 +91,7 @@ class Metasploit::Framework::ParsedOptions::Base
       options.framework.config = nil
 
       options.modules = ActiveSupport::OrderedOptions.new
-      options.modules.defer_loads = false
+      options.modules.defer_loads = nil
       options.modules.path = nil
 
       @options = options
@@ -102,20 +108,19 @@ class Metasploit::Framework::ParsedOptions::Base
   def option_parser
     @option_parser ||= OptionParser.new { |option_parser|
       option_parser.separator ''
-      option_parser.separator 'Common options'
+      option_parser.separator 'Common options:'
 
       option_parser.on(
           '-E',
           '--environment ENVIRONMENT',
           %w{development production test},
-          "The Rails environment. Will use RAIL_ENV environment variable if that is set.  " \
-          "Defaults to production if neither option not RAILS_ENV environment variable is set."
+          "Set Rails environment, defaults to RAIL_ENV environment variable or 'production'"
       ) do |environment|
         options.environment = environment
       end
 
       option_parser.separator ''
-      option_parser.separator 'Database options'
+      option_parser.separator 'Database options:'
 
       option_parser.on(
           '-M',
@@ -138,7 +143,7 @@ class Metasploit::Framework::ParsedOptions::Base
       end
 
       option_parser.separator ''
-      option_parser.separator 'Framework options'
+      option_parser.separator 'Framework options:'
 
 
       option_parser.on('-c', '-c FILE', 'Load the specified configuration file') do |file|
@@ -146,7 +151,7 @@ class Metasploit::Framework::ParsedOptions::Base
       end
 
       option_parser.on(
-          '-v',
+          '-v','-V',
           '--version',
           'Show version'
       ) do
@@ -154,19 +159,19 @@ class Metasploit::Framework::ParsedOptions::Base
       end
 
       option_parser.separator ''
-      option_parser.separator 'Module options'
+      option_parser.separator 'Module options:'
 
       option_parser.on(
-          '--defer-module-loads',
-          'Defer module loading unless explicitly asked.'
-      ) do
-        options.modules.defer_loads = true
+          '--[no-]defer-module-loads',
+          'Defer module loading unless explicitly asked'
+      ) do |value|
+        options.modules.defer_loads = value
       end
 
       option_parser.on(
           '-m',
           '--module-path DIRECTORY',
-          'An additional module path'
+          'Load an additional module path'
       ) do |directory|
         options.modules.path = directory
       end

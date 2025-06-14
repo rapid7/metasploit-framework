@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
@@ -56,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
       OptBool.new('STOP_ON_SUCCESS', [false, "Stop guessing when a credential works for a host", true]),
       OptPort.new('HTTP_PORT', [true, "The HTTP port for the IE ActiveX web client interface", 80]),
       Opt::RPORT(5920)
-    ], self.class)
+    ])
   end
 
   def run_host(ip)
@@ -109,7 +106,7 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         uri = "http://#{rhost}:#{datastore['HTTP_PORT']}"
-        print_status("Confirmed IE ActiveX HTTP interface (#{v}): #{uri}")
+        print_good("Confirmed IE ActiveX HTTP interface (#{v}): #{uri}")
 
         report_service(
           :host => rhost,
@@ -217,5 +214,4 @@ class MetasploitModule < Msf::Auxiliary
     end
 
   end
-
 end

@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
@@ -31,25 +28,23 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptPath.new('SENSITIVE_FILES',  [ true, "File containing senstive files, one per line",
+        OptPath.new('SENSITIVE_FILES',  [ true, "File containing sensitive files, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
         OptString.new('HttpUsername',[ true, 'User to login with', 'admin']),
         OptString.new('HttpPassword',[ true, 'Password to login with', 'password']),
 
-      ], self.class)
+      ])
   end
 
   def extract_words(wordfile)
     return [] unless wordfile && File.readable?(wordfile)
+
     begin
-      words = File.open(wordfile, "rb") do |f|
-        f.read
-      end
-    rescue
-      return []
+      File.readlines(wordfile, chomp: true)
+    rescue ::StandardError => e
+      elog(e)
+      []
     end
-    save_array = words.split(/\r?\n/)
-    return save_array
   end
 
   def find_files(file,user,pass)

@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'msf/core/exe/segment_injector'
 
 RSpec.describe Msf::Exe::SegmentInjector do
 
@@ -59,7 +58,7 @@ RSpec.describe Msf::Exe::SegmentInjector do
 
     context 'the generated exe' do
       let(:exe) { Metasm::PE.decode(injector.generate_pe) }
-      it 'should be the propper arch' do
+      it 'should be the proper arch' do
         expect(exe.bitsize).to eq 32
       end
 

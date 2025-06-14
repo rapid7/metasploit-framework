@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -9,16 +9,16 @@
 #Meterpreter script for running multiple commands on Windows 2003, Windows Vista
 # and Windows XP and Windows 2008 targets.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
-#Verion: 0.1
+#Version: 0.1
 ################## Variable Declarations ##################
 session = client
 wininfo = client.sys.config.sysinfo
 # Setting Arguments
 @@exec_opts = Rex::Parser::Arguments.new(
   "-h" => [ false,"Help menu."                        ],
-  "-cl" => [ true,"Commands to execute. The command must be enclosed in double quotes and separated by a comma."],
+  "-c" => [ true,"Commands to execute. The command must be enclosed in double quotes and separated by a comma."],
   "-f" => [ true,"File where to saved output of command."],
-  "-rc" => [ true,"Text file with list of commands, one per line."]
+  "-r" => [ true,"Text file with list of commands, one per line."]
 )
 #Setting Argument variables
 commands = []
@@ -27,7 +27,7 @@ outfile = nil
 help = 0
 
 ################## Function Declarations ##################
-# Function for running a list of commands stored in a array, returs string
+# Function for running a list of commands stored in a array, returns string
 def list_exec(session,cmdlst)
   print_status("Running Command List ...")
   tmpout = ""
@@ -77,12 +77,12 @@ end
 @@exec_opts.parse(args) { |opt, idx, val|
   case opt
 
-  when "-cl"
+  when "-c"
     commands = val.split(",")
-  when "-rc"
+  when "-r"
     script = val
     if not ::File.exist?(script)
-      raise "Command List File does not exists!"
+      raise "Command List File does not exist!"
     else
       ::File.open(script, "r").each_line do |line|
         commands << line.chomp

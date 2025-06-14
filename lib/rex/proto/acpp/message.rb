@@ -25,7 +25,7 @@ module ACPP
   # There are several possible message types:
   #
   #   * 20 -- retrieve settings (payload is some list of settings to obtain)
-  #   * 21 -- update setttings (and if the 'acRB' setting is set, it reboots)
+  #   * 21 -- update settings (and if the 'acRB' setting is set, it reboots)
   #   * 3  -- Upload firmware
   #
   # TODO: if you find more, add them above.

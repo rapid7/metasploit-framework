@@ -42,6 +42,8 @@ class Process < Rex::Post::Process
   # valid.
   #
   def Process.[](key)
+    return if key.nil?
+
     each_process { |p|
       if (p['name'].downcase == key.downcase)
         return p['pid']
@@ -52,7 +54,7 @@ class Process < Rex::Post::Process
   end
 
   #
-  # Attachs to the supplied process with a given set of permissions.
+  # Attaches to the supplied process with a given set of permissions.
   #
   def Process.open(pid = nil, perms = nil)
     real_perms = 0
@@ -61,15 +63,15 @@ class Process < Rex::Post::Process
       perms = PROCESS_ALL
     end
 
-    if (perms & PROCESS_READ)
+    if (perms & PROCESS_READ) > 0
       real_perms |= PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_QUERY_INFORMATION
     end
 
-    if (perms & PROCESS_WRITE)
+    if (perms & PROCESS_WRITE) > 0
       real_perms |= PROCESS_SET_SESSIONID | PROCESS_VM_WRITE | PROCESS_DUP_HANDLE | PROCESS_SET_QUOTA | PROCESS_SET_INFORMATION
     end
 
-    if (perms & PROCESS_EXECUTE)
+    if (perms & PROCESS_EXECUTE) > 0
       real_perms |= PROCESS_TERMINATE | PROCESS_CREATE_THREAD | PROCESS_CREATE_PROCESS | PROCESS_SUSPEND_RESUME
     end
 
@@ -80,7 +82,7 @@ class Process < Rex::Post::Process
   # Low-level process open.
   #
   def Process._open(pid, perms, inherit = false)
-    request = Packet.create_request('stdapi_sys_process_attach')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_ATTACH)
 
     if (pid == nil)
       pid = 0
@@ -105,16 +107,25 @@ class Process < Rex::Post::Process
 
   #
   # Executes an application using the arguments provided
+  # @param path [String] Path on the remote system to the executable to run
+  # @param arguments [String,Array<String>] Arguments to the process. When passed as a String (rather than an array of Strings),
+  #                                         this is treated as a string containing all arguments.
+  # @param opts [Hash] Optional settings to parameterise the process launch
+  # @option Hidden [Boolean] Is the process launched without creating a visible window
+  # @option Channelized [Boolean] The process is launched with pipes connected to a channel, e.g. for sending input/receiving output
+  # @option Suspended [Boolean] Start the process suspended
+  # @option UseThreadToken [Boolean] Use the thread token (as opposed to the process token) to launch the process
+  # @option Desktop [Boolean] Run on meterpreter's current desktopt
+  # @option Session [Integer] Execute process in a given session as the session user
+  # @option Subshell [Boolean] Execute process in a subshell
+  # @option Pty [Boolean] Execute process in a pty (if available)
+  # @option ParentId [Integer] Spoof the parent PID (if possible)
+  # @option InMemory [Boolean,String] Execute from memory (`path` is treated as a local file to upload, and the actual path passed
+  #                                   to meterpreter is this parameter's value, if provided as a String)
+  # @option :legacy_args [String] When arguments is an array, this is the command to execute if the receiving Meterpreter does not support arguments as an array
   #
-  # Hash arguments supported:
-  #
-  #   Hidden      => true/false
-  #   Channelized => true/false
-  #   Suspended   => true/false
-  #   InMemory    => true/false
-  #
-  def Process.execute(path, arguments = nil, opts = nil)
-    request = Packet.create_request('stdapi_sys_process_execute')
+  def Process.execute(path, arguments = '', opts = nil)
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_EXECUTE)
     flags   = 0
 
     # If we were supplied optional arguments...
@@ -138,6 +149,17 @@ class Process < Rex::Post::Process
         flags |= PROCESS_EXECUTE_FLAG_SESSION
         request.add_tlv( TLV_TYPE_PROCESS_SESSION, opts['Session'] )
       end
+      if (opts['Subshell'])
+        flags |= PROCESS_EXECUTE_FLAG_SUBSHELL
+      end
+      if (opts['Pty'])
+        flags |= PROCESS_EXECUTE_FLAG_PTY
+      end
+      if (opts['ParentPid'])
+        request.add_tlv(TLV_TYPE_PARENT_PID, opts['ParentPid']);
+        request.add_tlv(TLV_TYPE_PROCESS_PERMS, PROCESS_ALL_ACCESS)
+        request.add_tlv(TLV_TYPE_INHERIT, false)
+      end
       inmem = opts['InMemory']
       if inmem
 
@@ -151,11 +173,26 @@ class Process < Rex::Post::Process
       end
     end
 
-    request.add_tlv(TLV_TYPE_PROCESS_PATH, client.unicode_filter_decode( path ));
-
+    # Add arguments
     # If process arguments were supplied
-    if (arguments != nil)
-      request.add_tlv(TLV_TYPE_PROCESS_ARGUMENTS, arguments);
+    if arguments.kind_of?(Array)
+      request.add_tlv(TLV_TYPE_PROCESS_UNESCAPED_PATH, client.unicode_filter_decode( path ))
+      # This flag is needed to disambiguate how to handle escaping special characters in the path when no arguments are provided
+      flags |= PROCESS_EXECUTE_FLAG_ARG_ARRAY
+      arguments.each do |arg|
+        request.add_tlv(TLV_TYPE_PROCESS_ARGUMENT, arg);
+      end
+      if opts[:legacy_path]
+        request.add_tlv(TLV_TYPE_PROCESS_PATH, opts[:legacy_path])
+      end
+      if opts[:legacy_args]
+        request.add_tlv(TLV_TYPE_PROCESS_ARGUMENTS, opts[:legacy_args])
+      end
+    elsif arguments.nil? || arguments.kind_of?(String)
+      request.add_tlv(TLV_TYPE_PROCESS_PATH, client.unicode_filter_decode( path ))
+      request.add_tlv(TLV_TYPE_PROCESS_ARGUMENTS, arguments)
+    else
+      raise ArgumentError.new('Unknown type for arguments')
     end
 
     request.add_tlv(TLV_TYPE_PROCESS_FLAGS, flags);
@@ -171,7 +208,7 @@ class Process < Rex::Post::Process
     # If we were creating a channel out of this
     if (channel_id != nil)
       channel = Rex::Post::Meterpreter::Channels::Pools::StreamPool.new(client,
-          channel_id, "stdapi_process", CHANNEL_FLAG_SYNCHRONOUS)
+          channel_id, "stdapi_process", CHANNEL_FLAG_SYNCHRONOUS, response)
     end
 
     # Return a process instance
@@ -179,10 +216,41 @@ class Process < Rex::Post::Process
   end
 
   #
+  # Execute an application and capture the output
+  #
+  def Process.capture_output(path, arguments = '', opts = nil, time_out = 15)
+    start = Time.now.to_i
+    process = execute(path, arguments, opts)
+    data = ""
+
+    # Wait up to time_out seconds for the first bytes to arrive
+    while (d = process.channel.read)
+      data << d
+      if d == ""
+        if Time.now.to_i - start < time_out
+          sleep 0.1
+        else
+          break
+        end
+      end
+    end
+    data.chomp! if data
+
+    begin
+      process.channel.close
+    rescue IOError => e
+      # Channel was already closed, but we got the cmd output, so let's soldier on.
+    end
+    process.close
+
+    return data
+  end
+
+  #
   # Kills one or more processes.
   #
   def Process.kill(*args)
-    request = Packet.create_request('stdapi_sys_process_kill')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_KILL)
 
     args.each { |id|
       request.add_tlv(TLV_TYPE_PID, id)
@@ -197,7 +265,7 @@ class Process < Rex::Post::Process
   # Gets the process id that the remote side is executing under.
   #
   def Process.getpid
-    request = Packet.create_request('stdapi_sys_process_getpid')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_GETPID)
 
     response = client.send_request(request)
 
@@ -216,7 +284,7 @@ class Process < Rex::Post::Process
   # 'ppid', 'name', 'path', 'user', 'session' and 'arch'.
   #
   def Process.get_processes
-    request   = Packet.create_request('stdapi_sys_process_get_processes')
+    request   = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_GET_PROCESSES)
     processes = ProcessList.new
 
     response = client.send_request(request)
@@ -229,7 +297,7 @@ class Process < Rex::Post::Process
       if pa == 1 # PROCESS_ARCH_X86
         arch = ARCH_X86
       elsif pa == 2 # PROCESS_ARCH_X64
-        arch = ARCH_X86_64
+        arch = ARCH_X64
       end
     else
       arch = p.get_tlv_value(TLV_TYPE_PROCESS_ARCH_NAME)
@@ -255,6 +323,20 @@ class Process < Rex::Post::Process
   #
   def Process.processes
     self.get_processes
+  end
+
+  #
+  # Search memory for supplied regexes and return matches
+  #
+  def Process.memory_search(pid: 0, needles: [''], min_match_length: 5, max_match_length: 127)
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_SEARCH)
+
+    request.add_tlv(TLV_TYPE_PID, pid)
+    needles.each { |needle| request.add_tlv(TLV_TYPE_MEMORY_SEARCH_NEEDLE, needle) }
+    request.add_tlv(TLV_TYPE_MEMORY_SEARCH_MATCH_LEN, max_match_length)
+    request.add_tlv(TLV_TYPE_UINT, min_match_length)
+
+    self.client.send_request(request)
   end
 
   ##
@@ -292,7 +374,18 @@ class Process < Rex::Post::Process
   end
 
   def self.finalize(client, handle)
-    proc { self.close(client, handle) }
+    proc do
+      deferred_close_proc = proc do
+        begin
+          self.close(client, handle)
+        rescue => e
+          elog("finalize method for Process failed", error: e)
+        end
+      end
+
+      # Schedule the finalizing logic out-of-band; as this logic might be called in the context of a Signal.trap, which can't synchronize mutexes
+      client.framework.sessions.schedule(deferred_close_proc)
+    end
   end
 
   #
@@ -313,10 +406,10 @@ class Process < Rex::Post::Process
   # Closes the handle to the process that was opened.
   #
   def self.close(client, handle)
-    request = Packet.create_request('stdapi_sys_process_close')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_CLOSE)
     request.add_tlv(TLV_TYPE_HANDLE, handle)
-    response = client.send_request(request, nil)
-    handle = nil;
+    client.send_request(request, nil)
+    handle = nil
     return true
   end
 
@@ -333,15 +426,15 @@ class Process < Rex::Post::Process
 
   #
   # Block until this process terminates on the remote side.
-  # By default we choose not to allow a packet responce timeout to
+  # By default we choose not to allow a packet response timeout to
   # occur as we may be waiting indefinatly for the process to terminate.
   #
   def wait( timeout = -1 )
-    request = Packet.create_request('stdapi_sys_process_wait')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_WAIT)
 
     request.add_tlv(TLV_TYPE_HANDLE, self.handle)
 
-    response = self.client.send_request(request, timeout)
+    self.client.send_request(request, timeout)
 
     self.handle = nil
 
@@ -356,7 +449,7 @@ protected
   # Gathers information about the process and returns a hash.
   #
   def get_info
-    request = Packet.create_request('stdapi_sys_process_get_info')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_PROCESS_GET_INFO)
     info    = {}
 
     request.add_tlv(TLV_TYPE_HANDLE, handle)
@@ -390,39 +483,34 @@ class ProcessList < Array
       return Rex::Text::Table.new(opts)
     end
 
-    cols = [ "PID", "PPID", "Name", "Arch", "Session", "User", "Path" ]
-    # Arch and Session are specific to native Windows, PHP and Java can't do
-    # ppid.  Cut columns from the list if they aren't there.  It is conceivable
-    # that processes might have different columns, but for now assume that the
-    # first one is representative.
-    cols.delete_if { |c| !( first.has_key?(c.downcase) ) or first[c.downcase].nil? }
+    column_headers = [ "PID", "PPID", "Name", "Arch", "Session", "User", "Path" ]
+    column_headers.delete_if do |h|
+      none? { |process| process.has_key?(h.downcase) } ||
+      all? { |process| process[h.downcase].nil? }
+    end
 
     opts = {
       'Header' => 'Process List',
       'Indent' => 1,
-      'Columns' => cols
+      'Columns' => column_headers
     }.merge(opts)
 
     tbl = Rex::Text::Table.new(opts)
-    each { |process|
-      tbl << cols.map { |c|
-        col = c.downcase
+    each do |process|
+      tbl << column_headers.map do |header|
+        col = header.downcase
+        next unless process.keys.any? { |process_header| process_header == col }
         val = process[col]
         if col == 'session'
           val == 0xFFFFFFFF ? '' : val.to_s
-        elsif col == 'arch'
-          # for display and consistency with payload naming we switch the internal
-          # 'x86_64' value to display 'x64'
-          val == ARCH_X86_64 ? 'x64' : val
         else
           val
         end
-      }.compact
-    }
+      end
+    end
 
     tbl
   end
 end
 
 end; end; end; end; end; end
-

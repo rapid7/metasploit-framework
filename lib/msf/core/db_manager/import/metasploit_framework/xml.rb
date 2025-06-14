@@ -4,6 +4,7 @@
 # methods to be overridden in Pro without using alias_method_chain as
 # methods defined in a class cannot be overridden by including a module
 # (unless you're running Ruby 2.0 and can use prepend)
+require 'base64'
 module Msf::DBManager::Import::MetasploitFramework::XML
   #
   # CONSTANTS
@@ -55,7 +56,6 @@ module Msf::DBManager::Import::MetasploitFramework::XML
   # Import a Metasploit XML file.
   def import_msf_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = ""
     ::File.open(filename, 'rb') do |f|
@@ -85,7 +85,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
         note_data[datum.gsub("-","_")] = nils_for_nulls(note.at(datum).text.to_s.strip)
       end
     }
-    report_note(note_data)
+    msf_import_note(note_data)
   end
 
   # Imports web_form element using Msf::DBManager#report_web_form.
@@ -129,7 +129,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
   # @param element [Nokogiri::XML::Element] web_page element.
   # @param options [Hash{Symbol => Object}] options
   # @option options [Boolean] :allow_yaml (false) Whether to allow YAML when
-  #   deserializing headers.
+  #   deserializing headers and body.
   # @option options [Mdm::Workspace, nil] :workspace
   #   (Msf::DBManager#workspace) workspace under which to report the
   #   Mdm::WebPage.
@@ -165,8 +165,18 @@ module Msf::DBManager::Import::MetasploitFramework::XML
           element.at('headers'),
           options[:allow_yaml]
       )
-      info[:headers] = nils_for_nulls(unserialized_headers)
 
+      unserialized_body = unserialize_object(element.at('body'), options[:allow_yaml])
+      unless unserialized_body.blank?
+        begin
+          unserialized_body = Base64.urlsafe_decode64(unserialized_body).b
+        rescue ArgumentError => e
+          elog("Data format suggests response body is not encoded", e)
+        end
+      end
+
+      info[:headers] = nils_for_nulls(unserialized_headers)
+      info[:body] = nils_for_nulls(unserialized_body)
       info
     end
   end
@@ -229,7 +239,9 @@ module Msf::DBManager::Import::MetasploitFramework::XML
   # TODO: loot, tasks, and reports
   def import_msf_xml(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
+    args = args.clone()
+    args.delete(:workspace)
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     doc = Nokogiri::XML::Reader.from_memory(data)
@@ -238,20 +250,22 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     btag = metadata[:root_tag]
 
     doc.each do |node|
-      unless node.inner_xml.empty?
-        case node.name
-        when 'host'
-          parse_host(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, bl, allow_yaml, btag, args, &block)
-        when 'web_site'
-          parse_web_site(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, bl, allow_yaml, btag, args, &block)
-        when 'web_page', 'web_form', 'web_vuln'
-          send(
-              "import_msf_#{node.name}_element",
-              Nokogiri::XML(node.outer_xml).at("./#{node.name}"),
-              :allow_yaml => allow_yaml,
-              :workspace => wspace,
-              &block
-          )
+      unless node.inner_xml.nil?
+        unless node.inner_xml.empty?
+          case node.name
+          when 'host'
+            parse_host(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, bl, allow_yaml, btag, args, &block)
+          when 'web_site'
+            parse_web_site(Nokogiri::XML(node.outer_xml).at("./#{node.name}"), wspace, allow_yaml, &block)
+          when 'web_page', 'web_form', 'web_vuln'
+            send(
+                "import_msf_#{node.name}_element",
+                Nokogiri::XML(node.outer_xml).at("./#{node.name}"),
+                :allow_yaml => allow_yaml,
+                :workspace => wspace,
+                &block
+            )
+          end
         end
       end
     end
@@ -260,7 +274,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
   private
 
   # Parses website Nokogiri::XML::Element
-  def parse_web_site(web, wspace, bl, allow_yaml, btag, args, &block)
+  def parse_web_site(web, wspace, allow_yaml, &block)
     # Import web sites
     info = {}
     info[:workspace] = wspace
@@ -280,12 +294,12 @@ module Msf::DBManager::Import::MetasploitFramework::XML
       end
     }
 
-    report_web_site(info)
+    msf_import_web_site(info)
     yield(:web_site, "#{info[:host]}:#{info[:port]} (#{info[:vhost]})") if block
   end
 
   # Parses host Nokogiri::XML::Element
-  def parse_host(host, wspace, bl, allow_yaml, btag, args, &block)
+  def parse_host(host, wspace, blacklist, allow_yaml, btag, args, &block)
 
     host_data = {}
     host_data[:task] = args[:task]
@@ -293,7 +307,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
 
     # A regression resulted in the address field being serialized in some cases.
     # Lets handle both instances to keep things happy. See #5837 & #5985
-    addr = nils_for_nulls(host.at('address'))
+    addr = nils_for_nulls(host.at('address')&.text&.to_s&.strip)
     return 0 unless addr
 
     # No period or colon means this must be in base64-encoded serialized form
@@ -302,7 +316,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     end
 
     host_data[:host] = addr
-    if bl.include? host_data[:host]
+    if blacklist.include? host_data[:host]
       return 0
     else
       yield(:address,host_data[:host]) if block
@@ -317,12 +331,12 @@ module Msf::DBManager::Import::MetasploitFramework::XML
       end
     }
     host_address = host_data[:host].dup # Preserve after report_host() deletes
-    hobj = report_host(host_data)
+    hobj = msf_import_host(host_data)
 
     host.xpath("host_details/host_detail").each do |hdet|
       hdet_data = {}
       hdet.elements.each do |det|
-        return 0 if ["id", "host-id"].include?(det.name)
+        next if ["id", "host-id"].include?(det.name)
         if det.text
           hdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
         end
@@ -333,7 +347,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     host.xpath("exploit_attempts/exploit_attempt").each do |hdet|
       hdet_data = {}
       hdet.elements.each do |det|
-        return 0 if ["id", "host-id", "session-id", "vuln-id", "service-id", "loot-id"].include?(det.name)
+        next if ["id", "host-id", "session-id", "vuln-id", "service-id", "loot-id"].include?(det.name)
         if det.text
           hdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
         end
@@ -357,7 +371,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
           end
         end
       }
-      report_service(service_data)
+      msf_import_service(service_data)
     end
 
     host.xpath('notes/note').each do |note|
@@ -370,7 +384,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
     host.xpath('tags/tag').each do |tag|
       tag_data = {}
       tag_data[:addr] = host_address
-      tag_data[:wspace] = wspace
+      tag_data[:workspace] = wspace
       tag_data[:name] = tag.at("name").text.to_s.strip
       tag_data[:desc] = tag.at("desc").text.to_s.strip
       if tag.at("report-summary").text
@@ -403,7 +417,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
         end
       end
 
-      vobj = report_vuln(vuln_data)
+      vobj = msf_import_vuln(vuln_data)
 
       vuln.xpath("notes/note").each do |note|
         note_data = {}
@@ -415,7 +429,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
       vuln.xpath("vuln_details/vuln_detail").each do |vdet|
         vdet_data = {}
         vdet.elements.each do |det|
-          return 0 if ["id", "vuln-id"].include?(det.name)
+          next if ["id", "vuln-id"].include?(det.name)
           if det.text
             vdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
           end
@@ -426,7 +440,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
       vuln.xpath("vuln_attempts/vuln_attempt").each do |vdet|
         vdet_data = {}
         vdet.elements.each do |det|
-          return 0 if ["id", "vuln-id", "loot-id", "session-id"].include?(det.name)
+          next if ["id", "vuln-id", "loot-id", "session-id"].include?(det.name)
           if det.text
             vdet_data[det.name.gsub('-','_')] = nils_for_nulls(det.text.to_s.strip)
           end
@@ -452,10 +466,17 @@ module Msf::DBManager::Import::MetasploitFramework::XML
             pass     = cred.at('pass').try(:text)
             pass     = "" if pass == "*MASKED*"
 
-            private = create_credential_private(private_data: pass, private_type: :password)
-            public  = create_credential_public(username: username)
-            core    = create_credential_core(private: private, public: public, origin: origin, workspace_id: wspace.id)
-
+            cred_opts = {
+                workspace: wspace.name,
+                username: username,
+                private_data: pass,
+                private_type: 'Metasploit::Credential::Password',
+                service_name: sname,
+                protocol: proto,
+                port: port,
+                origin: origin
+            }
+            core = create_credential(cred_opts)
             create_credential_login(core: core,
                                     workspace_id: wspace.id,
                                     address: hobj.address,
@@ -498,7 +519,7 @@ module Msf::DBManager::Import::MetasploitFramework::XML
           :time => sess_data[:opened_at]
       )
       this_session = existing_session || report_session(sess_data)
-      return 0 if existing_session
+      next if existing_session
       sess.xpath('events/event').each do |sess_event|
         sess_event_data = {}
         sess_event_data[:session] = this_session

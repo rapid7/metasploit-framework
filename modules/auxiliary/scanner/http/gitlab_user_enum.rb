@@ -1,10 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/http'
-require 'msf/core'
+
 require 'json'
 
 class MetasploitModule < Msf::Auxiliary
@@ -25,10 +24,10 @@ class MetasploitModule < Msf::Auxiliary
       ",
       'Author'         => 'Ben Campbell',
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Nov 21 2014',
+      'DisclosureDate' => '2014-11-21',
       'References'     =>
         [
-          ['URL', 'https://labs.mwrinfosecurity.com/blog/2015/03/20/gitlab-user-enumeration/']
+          ['URL', 'https://labs.f-secure.com/archive/gitlab-user-enumeration/']
         ]
     ))
 
@@ -37,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [ true, 'Path to GitLab instance', '/']),
         OptInt.new('START_ID', [true, 'ID number to start from', 0]),
         OptInt.new('END_ID', [true, 'ID number to enumerate up to', 50])
-      ], self.class)
+      ])
   end
 
   def run_host(_ip)

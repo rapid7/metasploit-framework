@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/python/tlv'
+require 'rex/post/meterpreter/extensions/python/command_ids'
 require 'set'
 
 module Rex
@@ -28,6 +29,10 @@ class Python < Extension
     '.pyc' => PY_CODE_TYPE_PYC
   }
 
+  def self.extension_id
+    EXTENSION_ID_PYTHON
+  end
+
   #
   # Typical extension initialization routine.
   #
@@ -45,7 +50,7 @@ class Python < Extension
   end
 
   def reset
-    request = Packet.create_request('python_reset')
+    request = Packet.create_request(COMMAND_ID_PYTHON_RESET)
     client.send_request(request)
 
     return true
@@ -63,7 +68,7 @@ class Python < Extension
 
     code = ::File.read(file)
 
-    request = Packet.create_request('python_execute')
+    request = Packet.create_request(COMMAND_ID_PYTHON_EXECUTE)
     request.add_tlv(TLV_TYPE_PYTHON_CODE, code)
     request.add_tlv(TLV_TYPE_PYTHON_CODE_LEN, code.length)
     request.add_tlv(TLV_TYPE_PYTHON_CODE_TYPE, PY_CODE_FILE_TYPE_MAP[ext])
@@ -78,7 +83,7 @@ class Python < Extension
   #
   # @return [Hash<Symbol,Object>]
   def execute_string(code, result_var)
-    request = Packet.create_request('python_execute')
+    request = Packet.create_request(COMMAND_ID_PYTHON_EXECUTE)
     request.add_tlv(TLV_TYPE_PYTHON_CODE, code)
     request.add_tlv(TLV_TYPE_PYTHON_CODE_TYPE, PY_CODE_TYPE_STRING)
     request.add_tlv(TLV_TYPE_PYTHON_RESULT_VAR, result_var) if result_var

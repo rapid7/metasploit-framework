@@ -1,14 +1,10 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 
-require 'msf/core'
-require 'rex/proto/addp'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::UDPScanner
 
@@ -20,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           ['URL', 'http://qbeukes.blogspot.com/2009/11/advanced-digi-discovery-protocol_21.html'],
-          ['URL', 'http://www.digi.com/wiki/developer/index.php/Advanced_Device_Discovery_Protocol_%28ADDP%29'],
+          ['URL', 'https://www.digi.com/resources/documentation/digidocs/90001537/#References/r_Advanced_Device_Discovery_Prot.htm?Highlight=advanced%20device%20discovery%20protocol'],
         ],
       'License'     => MSF_LICENSE
     )
@@ -29,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
     [
       Opt::RPORT(2362),
       OptString.new('ADDP_PASSWORD', [true, 'The ADDP protocol password for each target', 'dbps'])
-    ], self.class)
+    ])
   end
 
   def scanner_prescan(batch)
@@ -70,5 +66,4 @@ class MetasploitModule < Msf::Auxiliary
       print_status("#{shost}:#{sport} Reboot Status: " + Rex::Proto::ADDP.reply_to_string(@results[shost]))
     end
   end
-
 end

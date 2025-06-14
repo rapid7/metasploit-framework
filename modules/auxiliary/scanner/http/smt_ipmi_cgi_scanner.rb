@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'uri'
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -31,9 +29,9 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '2013-3621' ],
           [ 'CVE', '2013-3623' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2013/11/06/supermicro-ipmi-firmware-vulnerabilities']
+          [ 'URL', 'https://www.rapid7.com/blog/post/2013/11/06/supermicro-ipmi-firmware-vulnerabilities/']
         ],
-      'DisclosureDate' => 'Nov 06 2013'))
+      'DisclosureDate' => '2013-11-06'))
 
   end
 
@@ -154,5 +152,4 @@ class MetasploitModule < Msf::Auxiliary
     end
 
   end
-
 end

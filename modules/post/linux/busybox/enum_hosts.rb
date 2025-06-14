@@ -1,26 +1,23 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Post
-
   include Msf::Post::File
   include Msf::Post::Linux::BusyBox
 
   def initialize
     super(
-      'Name'         => 'BusyBox Enumerate Host Names',
-      'Description'  => %q{
+      'Name' => 'BusyBox Enumerate Host Names',
+      'Description' => %q{
         This module will be applied on a session connected to a BusyBox shell. It will enumerate
         host names related to the device executing BusyBox.
       },
-      'Author'       => 'Javier Vicente Vallejo',
-      'License'      => MSF_LICENSE,
-      'Platform'      => ['linux'],
-      'SessionTypes'  => ['shell']
+      'Author' => 'Javier Vicente Vallejo',
+      'License' => MSF_LICENSE,
+      'Platform' => ['linux'],
+      'SessionTypes' => ['shell']
     )
   end
 
@@ -39,15 +36,12 @@ class MetasploitModule < Msf::Post
   end
 
   def read_hosts_file(file)
-    begin
-      str_file=read_file(file)
-      print_good("Hosts file found: #{file}.")
-      vprint_line(str_file)
-      p = store_loot('busybox.enum.hosts', 'text/plain', session, str_file, file, 'BusyBox device host names')
-      print_good("Hosts saved to #{p}.")
-    rescue EOFError
-      print_error("Nothing read from file: #{file}, file may be empty.")
-    end
+    str_file = read_file(file)
+    print_good("Hosts file found: #{file}.")
+    vprint_line(str_file)
+    p = store_loot('busybox.enum.hosts', 'text/plain', session, str_file, file, 'BusyBox device host names')
+    print_good("Hosts saved to #{p}.")
+  rescue EOFError
+    print_error("Nothing read from file: #{file}, file may be empty.")
   end
-
 end

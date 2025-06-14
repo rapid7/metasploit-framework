@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::NATPMP
@@ -24,7 +20,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-1000"])
-      ], self.class)
+      ])
   end
 
   def run_host(host)
@@ -78,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
     peer = "#{host}:#{datastore['RPORT']}"
     if (result == 0)
       # we always ask to map an external port to the same port on us.  If
-      # we get a successful reponse back but the port we requested be forwarded
+      # we get a successful response back but the port we requested be forwarded
       # is different, that means that someone else already has it open
       if (int != ext)
         state = Msf::ServiceState::Open
@@ -93,11 +89,11 @@ class MetasploitModule < Msf::Auxiliary
         end
       else
         state = Msf::ServiceState::Closed
-        vprint_status("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with matched ports")
+        vprint_error("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with matched ports")
       end
     else
       state = Msf::ServiceState::Closed
-      vprint_status("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of code #{result} response")
+      vprint_error("#{peer} #{external_addr} - #{int}/#{protocol} #{state} because of code #{result} response")
     end
 
     report_service(

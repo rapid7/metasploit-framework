@@ -1,14 +1,12 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/tomcat'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
@@ -27,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'BID', '37086' ],
           [ 'CVE', '2009-4189' ],
           [ 'OSVDB', '60670' ],
-          [ 'URL', 'http://www.harmonysecurity.com/blog/2009/11/hp-operations-manager-backdoor-account.html' ],
+          [ 'URL', 'https://web.archive.org/web/20091129092955/http://www.harmonysecurity.com/blog/2009/11/hp-operations-manager-backdoor-account.html' ],
           [ 'ZDI', '09-085' ],
 
           # HP Default Operations Dashboard user/pass
@@ -48,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'BID', '36954' ],
 
           # General
-          [ 'URL', 'http://tomcat.apache.org/' ],
+          [ 'URL', 'https://tomcat.apache.org/' ],
           [ 'CVE', '1999-0502'] # Weak password
         ],
       'Author'         => [ 'MC', 'Matteo Cantoni <goony[at]nothink.org>', 'jduck' ],
@@ -67,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
           File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_users.txt") ]),
         OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
           File.join(Msf::Config.data_directory, "wordlists", "tomcat_mgr_default_pass.txt") ]),
-      ], self.class)
+      ])
 
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888, 9080, 19300 ])
   end
@@ -91,21 +89,14 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
     if res.code != 401
-      vprint_error("http://#{rhost}:#{rport} - Authorization not requested")
+      vprint_error("http://#{rhost}:#{rport}#{uri} - Authorization not requested")
       return
     end
 
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
-      blank_passwords: datastore['BLANK_PASSWORDS'],
-      pass_file: datastore['PASS_FILE'],
-      password: datastore['PASSWORD'],
-      user_file: datastore['USER_FILE'],
-      userpass_file: datastore['USERPASS_FILE'],
+    cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
-      user_as_pass: datastore['USER_AS_PASS'],
+      password: datastore['PASSWORD']
     )
-
-    cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::Tomcat.new(
       configure_http_login_scanner(
@@ -122,14 +113,15 @@ class MetasploitModule < Msf::Auxiliary
       credential_data = result.to_h
       credential_data.merge!(
           module_fullname: self.fullname,
-          workspace_id: myworkspace_id
+          workspace_id: myworkspace_id,
+          private_type: :password
       )
       if result.success?
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
 
-        print_good "#{ip}:#{rport} - LOGIN SUCCESSFUL: #{result.credential}"
+        print_good "#{ip}:#{rport} - Login Successful: #{result.credential}"
       else
         invalidate_login(credential_data)
         if result.proof
@@ -140,5 +132,4 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
   end
-
 end

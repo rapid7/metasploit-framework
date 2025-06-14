@@ -1,4 +1,3 @@
-require 'rex/parser/ip360_xml'
 
 module Msf::DBManager::Import::IP360::V3
   #
@@ -6,7 +5,6 @@ module Msf::DBManager::Import::IP360::V3
   #
   def import_ip360_xml_file(args={})
     filename = args[:filename]
-    wspace = args[:wspace] || workspace
 
     data = ""
     ::File.open(filename, 'rb') do |f|
@@ -20,7 +18,7 @@ module Msf::DBManager::Import::IP360::V3
   #
   def import_ip360_xml_v3(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     # @aspl = {'vulns' => {'name' => { }, 'cve' => { }, 'bid' => { } }
@@ -57,7 +55,7 @@ module Msf::DBManager::Import::IP360::V3
 
     # nCircle has some quotes escaped which causes the parser to break
     # we don't need these lines so just replace \" with "
-    data.gsub!(/\\"/,'"')
+    data.gsub!('\"','"')
 
     # parse nCircle Scan Output
     parser = Rex::Parser::IP360XMLStreamParser.new
@@ -85,11 +83,11 @@ module Msf::DBManager::Import::IP360::V3
       host_hash[:name] = hname.to_s.strip if hname
       host_hash[:mac]  = mac.to_s.strip.upcase if mac
 
-      hobj = report_host(host_hash)
+      hobj = msf_import_host(host_hash)
 
       yield(:os, os) if block
       if os
-        report_note(
+        msf_import_note(
           :workspace => wspace,
           :task => args[:task],
           :host => hobj,
@@ -133,7 +131,7 @@ module Msf::DBManager::Import::IP360::V3
   # IP360 v3 svc
   def handle_ip360_v3_svc(wspace,hobj,port,proto,hname,task=nil)
     addr = hobj.address
-    report_host(:workspace => wspace, :host => hobj, :state => Msf::HostState::Alive, :task => task)
+    msf_import_host(:workspace => wspace, :host => hobj, :state => Msf::HostState::Alive, :task => task)
 
     info = { :workspace => wspace, :host => hobj, :port => port, :proto => proto, :task => task }
     if hname != "unknown" and hname[-1,1] != "?"
@@ -141,7 +139,7 @@ module Msf::DBManager::Import::IP360::V3
     end
 
     if port.to_i != 0
-      report_service(info)
+      msf_import_service(info)
     end
   end
 
@@ -155,16 +153,16 @@ module Msf::DBManager::Import::IP360::V3
     end
 
     if port.to_i != 0
-      report_service(info)
+      msf_import_service(info)
     end
 
     refs = []
 
-    cves.split(/,/).each do |cve|
+    cves.split(',').each do |cve|
       refs.push(cve.to_s)
     end if cves
 
-    bids.split(/,/).each do |bid|
+    bids.split(',').each do |bid|
       refs.push('BID-' + bid.to_s)
     end if bids
 
@@ -183,6 +181,6 @@ module Msf::DBManager::Import::IP360::V3
       vuln[:proto] = proto
     end
 
-    report_vuln(vuln)
+    msf_import_vuln(vuln)
   end
 end

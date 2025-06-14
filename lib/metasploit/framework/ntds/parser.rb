@@ -2,7 +2,7 @@ module Metasploit
   module Framework
     module NTDS
       require 'metasploit/framework/ntds/account'
-      # This class respresent an NTDS parser. It interacts with the Meterpreter Client
+      # This class represent an NTDS parser. It interacts with the Meterpreter Client
       # to provide a simple interface for enumerating AD user accounts.
       class Parser
 
@@ -50,11 +50,13 @@ module Metasploit
 
         def pull_batch
           if channel.cid.nil?
+            dlog("NTDS Parser Channel was closed, reopening")
             reopen_channel
           end
           begin
             raw_batch_data = channel.read(BATCH_SIZE)
-          rescue EOFError
+          rescue EOFError => e
+            elog('NTDS Parser: Error pulling batch', error: e)
             raw_batch_data = nil
           end
           raw_batch_data

@@ -8,8 +8,10 @@ module Msf::DBManager::Task
 
   def report_task(opts)
     return if not active
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    wspace = opts.delete(:workspace) || workspace
+  ::ApplicationRecord.connection_pool.with_connection {
+    wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    opts = opts.clone()
+    opts.delete(:workspace)
     path = opts.delete(:path) || (raise RuntimeError, "A task :path is required")
 
     ret = {}
@@ -34,7 +36,7 @@ module Msf::DBManager::Task
     task.path = path
     task.progress = prog
     task.result = result if result
-    msf_import_timestamps(opts,task)
+    msf_assign_timestamps(opts, task)
     # Having blank completed_ats, while accurate, will cause unstoppable tasks.
     if completed_at.nil? || completed_at.empty?
       task.completed_at = opts[:updated_at]
@@ -49,8 +51,8 @@ module Msf::DBManager::Task
   #
   # This methods returns a list of all tasks in the database
   #
-  def tasks(wspace=workspace)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  def tasks(wspace=framework.db.workspace)
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace.tasks
   }
   end

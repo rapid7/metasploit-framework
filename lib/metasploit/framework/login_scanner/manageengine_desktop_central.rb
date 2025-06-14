@@ -12,7 +12,7 @@ module Metasploit
         LOGIN_STATUS  = Metasploit::Model::Login::Status # Shorter name
 
 
-        # Checks if the target is ManageEngine Dekstop Central.
+        # Checks if the target is ManageEngine Desktop Central.
         #
         # @return [Boolean] TrueClass if target is MSP, otherwise FalseClass
         def check_setup
@@ -29,7 +29,7 @@ module Metasploit
 
         # Returns the latest sid from MSP
         #
-        # @param res [Rex::Proto::Http::Response] 
+        # @param res [Rex::Proto::Http::Response]
         # @return [String] The session ID for MSP
         def get_sid(res)
           cookies = res.get_cookies
@@ -115,7 +115,8 @@ module Metasploit
             proof: nil,
             host: host,
             port: port,
-            protocol: 'tcp'
+            protocol: 'tcp',
+            service_name: ssl ? 'https' : 'http',
           }
 
           begin

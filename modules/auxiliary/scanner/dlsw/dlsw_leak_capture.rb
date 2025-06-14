@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'socket'
 
 class MetasploitModule < Msf::Auxiliary
@@ -17,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
       'Description'    => %q(
         This module implements the DLSw information disclosure retrieval. There
         is a bug in Cisco's DLSw implementation affecting 12.x and 15.x trains
-        that allows an unuthenticated remote attacker to retrieve the partial
+        that allows an unauthenticated remote attacker to retrieve the partial
         contents of packets traversing a Cisco router with DLSw configured
         and active.
       ),
@@ -29,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           ['CVE', '2014-7992'],
-          ['URL', 'https://github.com/tatehansen/dlsw_exploit']
+          ['URL', 'https://github.com/tt5555/dlsw_exploit']
         ],
       'DisclosureDate' => 'Nov 17 2014',
       'License'        => MSF_LICENSE
@@ -39,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(2067),
         OptInt.new('LEAK_AMOUNT', [true, 'The number of bytes to store before shutting down.', 1024])
-      ], self.class)
+      ])
   end
 
   def get_response(size = 72)

@@ -94,13 +94,13 @@ RSpec.shared_context 'Msf::Simple::Framework#modules loading' do
     expect(loaded).to eq(true), "#{module_type}/#{ancestor_reference_name} failed to load from #{modules_path}"
   end
 
-  # Expects to laod `:ancestor_reference_names` of `:module_type` from `:modules_path`
+  # Expects to load `:ancestor_reference_names` of `:module_type` from `:modules_path`
   #
   # @param options [Hash{Symbol => Array<String>, String}]
   # @option options [Array<String>] :ancestor_reference_names the reference names of the module ancestors of
   #   `:module_type` to load from `:modules_path`.
   # @option options [String] :modules_path The path from which to load `:ancestor_reference_names`.
-  # @option options [Stirng] :module_type The type of `:ancestor_reference_names` to derive their full paths under
+  # @option options [String] :module_type The type of `:ancestor_reference_names` to derive their full paths under
   #   `:modules_path`.
   # @raise expectation failure if any `:ancestor_reference_names` cannot be loaded.
   def expect_to_load_module_ancestors(options={})
@@ -154,6 +154,7 @@ RSpec.shared_context 'Msf::Simple::Framework#modules loading' do
     )
 
     module_set = module_set_for_type(module_type)
+    module_set.recalculate
 
     module_instance = module_set.create(reference_name)
     expect(module_instance).not_to(

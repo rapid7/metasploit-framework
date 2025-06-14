@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -24,7 +24,7 @@ script = []
 outfile = nil
 
 ################## Function Declarations ##################
-# Function for running a list of WMIC commands stored in a array, returs string
+# Function for running a list of WMIC commands stored in a array, returns string
 def wmicexec(session,wmiccmds= nil)
   tmpout = ''
   session.response_timeout=120
@@ -104,7 +104,7 @@ end
 
     script = val
     if not ::File.exist?(script)
-      raise "Command List File does not exists!"
+      raise "Command List File does not exist!"
     else
       ::File.open(script, "r").each_line do |line|
         next if line.strip.length < 1
@@ -127,7 +127,7 @@ end
 if args.length == 0
   usage
 end
-unsupported if client.platform !~ /win32|win64/i
+unsupported if client.platform != 'windows'
 
 if outfile == nil
   print_status wmicexec(session,commands)

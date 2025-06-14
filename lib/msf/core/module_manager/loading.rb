@@ -7,8 +7,6 @@ require 'active_support/concern'
 #
 # Project
 #
-require 'msf/core/modules/loader/directory'
-
 # Deals with loading modules for the {Msf::ModuleManager}
 module Msf::ModuleManager::Loading
   extend ActiveSupport::Concern
@@ -19,8 +17,13 @@ module Msf::ModuleManager::Loading
 
   # Classes that can be used to load modules.
   LOADER_CLASSES = [
-      Msf::Modules::Loader::Directory
+      Msf::Modules::Loader::Directory,
+      Msf::Modules::Loader::Executable # TODO: XXX: When this is the first loader we can load normal exploits, but not payloads
   ]
+
+  # Maps module type directory to its module type.
+  DIRECTORY_BY_TYPE = Msf::Modules::Loader::Base::DIRECTORY_BY_TYPE
+  TYPE_BY_DIRECTORY = Msf::Modules::Loader::Base::TYPE_BY_DIRECTORY
 
   def file_changed?(path)
     changed = false
@@ -48,6 +51,40 @@ module Msf::ModuleManager::Loading
     end
 
     changed
+  end
+
+  # Return errors associated with the supplied reference name.
+  #
+  # @param name [String] e.g. 'auxiliary/scanner/msmail/host_id'
+  #   It may optionally be prefixed with a "<type>/", in which case we
+  #   will pass it to `get_module_error(module_reference_name, type)`.
+  #   Otherwise, we step through all sets until we find one that
+  #   matches.
+  # @return (error) which will return either an error or nil.
+  def load_error_by_name(name)
+    return load_error_by_name(self.aliases[name]) if self.aliases[name]
+    names = name.split("/")
+    potential_type_or_directory = names.first
+
+    if DIRECTORY_BY_TYPE.has_key? potential_type_or_directory
+      type = potential_type_or_directory
+      # if first name is a type directory
+    else
+      type = TYPE_BY_DIRECTORY[potential_type_or_directory]
+    end
+
+    error = nil
+    if type
+      module_reference_name = names[1 .. -1].join("/")
+      error = get_module_error(module_reference_name, type)
+    else
+      module_set_by_type.each do |type, _set|
+        module_reference_name = "#{type}/#{name}"
+        error = load_error_by_name(module_reference_name)
+        break if error
+      end
+    end
+    error
   end
 
   attr_accessor :module_load_error_by_path, :module_load_warnings
@@ -84,6 +121,22 @@ module Msf::ModuleManager::Loading
 
     # Notify the framework that a module was loaded
     framework.events.on_module_load(reference_name, class_or_module)
+
+    # Clear and add aliases, if any (payloads cannot)
+
+    if class_or_module.respond_to?(:realname) && aliased_as = self.inv_aliases[class_or_module.realname]
+      aliased_as.each do |a|
+        self.aliases.delete a
+      end
+      self.inv_aliases.delete class_or_module.realname
+    end
+
+    if class_or_module.respond_to? :aliases
+      class_or_module.aliases.each do |a|
+        self.aliases[a] = class_or_module.realname
+      end
+      self.inv_aliases[class_or_module.realname] = class_or_module.aliases unless class_or_module.aliases.empty?
+    end
   end
 
   protected
@@ -108,18 +161,34 @@ module Msf::ModuleManager::Loading
   # @option options [Array] :modules An array of regex patterns to search for specific modules
   # @return [Hash{String => Integer}] Maps module type to number of modules loaded
   def load_modules(path, options={})
-    options.assert_valid_keys(:force, :whitelist)
+    options.assert_valid_keys(:force, :whitelist, :recalculate)
 
     count_by_type = {}
 
     loaders.each do |loader|
       if loader.loadable?(path)
-        count_by_type = loader.load_modules(path, options)
-
-        break
+        count_by_type.merge!(loader.load_modules(path, options)) do |key, prev, now|
+          prev + now
+        end
       end
     end
 
     count_by_type
+  end
+
+  # Get a specific modules errors from the supplied module_reference_name and type
+  #
+  # @param module_reference_name [String] e.g. 'scanner/msmail/host_id'
+  # @param type [String] this will be the type of module e.g. 'auxiliary'
+  #
+  # These @params will the be used to loop through `module_info_by_path` [Hash] to check for
+  # any matching modules paths. This path becomes the key and returns the associated error.
+  def get_module_error(module_reference_name, type)
+    module_info_by_path.each do |mod_path, module_value|
+      if module_value[:reference_name] == module_reference_name && module_value[:type] == type
+        return module_load_error_by_path[mod_path]
+      end
+    end
+    nil
   end
 end

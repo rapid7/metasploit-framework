@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpServer::HTML
   include Msf::Auxiliary::Report
 
@@ -41,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('ADDITIONAL_FILES', [false, 'Additional files to steal from the device'])
-      ], self.class)
+      ])
   end
 
   def is_android?(user_agent)
@@ -153,5 +150,4 @@ class MetasploitModule < Msf::Auxiliary
   def run
     exploit
   end
-
 end

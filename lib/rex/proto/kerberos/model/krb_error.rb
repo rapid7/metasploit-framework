@@ -8,25 +8,25 @@ module Rex
         # message definition.
         class KrbError < Element
           # @!attribute pvno
-          #   @return [Fixnum] The protocol version number
+          #   @return [Integer] The protocol version number
           attr_accessor :pvno
           # @!attribute msg_type
-          #   @return [Fixnum] The type of a protocol message
+          #   @return [Integer] The type of a protocol message
           attr_accessor :msg_type
           # @!attribute ctime
           #   @return [Time] The current time of the client's host
           attr_accessor :ctime
           # @!attribute cusec
-          #   @return [Fixnum] The microseconds part of the client timestamp
+          #   @return [Integer] The microseconds part of the client timestamp
           attr_accessor :cusec
           # @!attribute stime
           #   @return [Time] The current time of the server
           attr_accessor :stime
           # @!attribute susec
-          #   @return [Fixnum] The microseconds part of the server timestamp
+          #   @return [Integer] The microseconds part of the server timestamp
           attr_accessor :susec
           # @!attribute error_code
-          #   @return [Fixnum] The error request returned by kerberos or the server when a request fails
+          #   @return [Rex::Proto::Kerberos::Model::Error::ErrorCode] The error request returned by kerberos or the server when a request fails
           attr_accessor :error_code
           # @!attribute crealm
           #   @return [String] The realm part of the client's principal identifier
@@ -40,6 +40,9 @@ module Rex
           # @!attribute sname
           #   @return [Rex::Proto::Kerberos::Model::PrincipalName] The name part of the server's identity
           attr_accessor :sname
+          # @!attribute etext
+          #   @return [String] Additional text to help explain the error code
+          attr_accessor :etext
           # @!attribute e_data
           #   @return [String] additional data about the error (ASN.1 encoded data)
           attr_accessor :e_data
@@ -48,7 +51,7 @@ module Rex
           #
           # @param input [String, OpenSSL::ASN1::ASN1Data] the input to decode from
           # @return [self] if decoding succeeds
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode(input)
             case input
             when String
@@ -56,7 +59,7 @@ module Rex
             when OpenSSL::ASN1::ASN1Data
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode KrbError, invalid input'
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode KrbError, invalid input'
             end
 
             self
@@ -67,6 +70,26 @@ module Rex
           # @raise [NotImplementedError]
           def encode
             raise ::NotImplementedError, 'KrbError encoding not supported'
+          end
+
+          # Decodes the e_data field as an Array<PreAuthDataEntry>.
+          #
+          # @return [Array<Rex::Proto::Kerberos::Model::PreAuthDataEntry>]
+          def e_data_as_pa_data
+            return [] unless self.e_data
+
+            pre_auth = []
+            decoded = OpenSSL::ASN1.decode(self.e_data)
+
+            if decoded.first.tag_class == :UNIVERSAL && decoded.first.tag == 16
+              decoded.each do |pre_auth_data|
+                pre_auth << Rex::Proto::Kerberos::Model::PreAuthDataEntry.decode(pre_auth_data)
+              end
+            else
+              pre_auth << Rex::Proto::Kerberos::Model::PreAuthDataEntry.decode(decoded)
+            end
+
+            pre_auth
           end
 
           private
@@ -83,7 +106,7 @@ module Rex
           # Decodes a Rex::Proto::Kerberos::Model::KrbError
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode_asn1(input)
             input.value[0].value.each do |val|
               case val.tag
@@ -109,10 +132,12 @@ module Rex
                 self.realm = decode_realm(val)
               when 10
                 self.sname = decode_sname(val)
+              when 11
+                self.etext = decode_etext(val)
               when 12
                 self.e_data = decode_e_data(val)
               else
-                raise ::RuntimeError, 'Failed to decode KRB-ERROR SEQUENCE'
+                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, "Failed to decode KRB-ERROR SEQUENCE (#{val.tag})"
               end
             end
           end
@@ -120,7 +145,7 @@ module Rex
           # Decodes the pvno from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_pvno(input)
             input.value[0].value.to_i
           end
@@ -128,7 +153,7 @@ module Rex
           # Decodes the msg_type from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_msg_type(input)
             input.value[0].value.to_i
           end
@@ -144,7 +169,7 @@ module Rex
           # Decodes the cusec field
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_cusec(input)
             input.value[0].value
           end
@@ -160,7 +185,7 @@ module Rex
           # Decodes the susec field
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_susec(input)
             input.value[0].value.to_i
           end
@@ -168,9 +193,11 @@ module Rex
           # Decodes the error_code field
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Rex::Proto::Kerberos::Model::Error::ErrorCode]
           def decode_error_code(input)
-            input.value[0].value.to_i
+            value = input.value[0].value.to_i
+
+            Error::ErrorCodes::ERROR_MAP[value] || Error::ErrorCode.new('UNKNOWN', value, 'Unknown error')
           end
 
           # Decodes the crealm field
@@ -203,6 +230,14 @@ module Rex
           # @return [Rex::Proto::Kerberos::Model::PrincipalName]
           def decode_sname(input)
             Rex::Proto::Kerberos::Model::PrincipalName.decode(input.value[0])
+          end
+
+          # Decodes the e-text field
+          #
+          # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
+          # @return [String]
+          def decode_etext(input)
+            input.value[0].value
           end
 
           # Decodes the e_data from an OpenSSL::ASN1::ASN1Data

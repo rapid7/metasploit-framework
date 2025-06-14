@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 require 'rex'
 
 # This module is chained within JSP payloads that target the Java platform.
@@ -22,11 +21,12 @@ module Msf::Payload::JSP
   # @return [String] jsp code that executes bind TCP payload
   def jsp_bind_tcp
     # Modified from: http://www.security.org.sg/code/jspreverse.html
+    generator = Rex::RandomIdentifier::Generator.new({ language: :jsp })
 
-    var_is = Rex::Text.rand_text_alpha_lower(2)
-    var_os = Rex::Text.rand_text_alpha_lower(2)
-    var_in = Rex::Text.rand_text_alpha_lower(2)
-    var_out = Rex::Text.rand_text_alpha_lower(3)
+    var_is = generator.generate(2)
+    var_os = generator.generate(2)
+    var_in = generator.generate(2)
+    var_out = generator.generate(3)
 
     jsp = <<-EOS
 <%@page import="java.lang.*"%>
@@ -93,11 +93,12 @@ module Msf::Payload::JSP
   # @return [String] jsp code that executes reverse TCP payload
   def jsp_reverse_tcp
     # JSP Reverse Shell modified from: http://www.security.org.sg/code/jspreverse.html
+    generator = Rex::RandomIdentifier::Generator.new({ language: :jsp })
 
-    var_is = Rex::Text.rand_text_alpha_lower(2)
-    var_os = Rex::Text.rand_text_alpha_lower(2)
-    var_in = Rex::Text.rand_text_alpha_lower(2)
-    var_out = Rex::Text.rand_text_alpha_lower(3)
+    var_is = generator.generate(2)
+    var_os = generator.generate(2)
+    var_in = generator.generate(2)
+    var_out = generator.generate(3)
 
     jsp = <<-EOS
 <%@page import="java.lang.*"%>
@@ -206,5 +207,4 @@ if (System.getProperty("os.name").toLowerCase().indexOf("windows") == -1) {
 
     jsp
   end
-
 end

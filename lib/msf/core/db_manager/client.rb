@@ -4,7 +4,8 @@ module Msf::DBManager::Client
   end
 
   def get_client(opts)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
+    opts = opts.clone() # protect the original caller's opts
     wspace = opts.delete(:workspace) || workspace
     host   = get_host(:workspace => wspace, :host => opts[:host]) || return
     client = host.clients.where({:ua_string => opts[:ua_string]}).first()
@@ -27,8 +28,9 @@ module Msf::DBManager::Client
   # Returns a Client.
   #
   def report_client(opts)
-    return if not active
-  ::ActiveRecord::Base.connection_pool.with_connection {
+    return if !active
+  ::ApplicationRecord.connection_pool.with_connection {
+    opts = opts.clone() # protect the original caller's opts
     addr = opts.delete(:host) || return
     wspace = opts.delete(:workspace) || workspace
     report_host(:workspace => wspace, :host => addr)
@@ -50,14 +52,22 @@ module Msf::DBManager::Client
       end
     end
 
-    opts.each { |k,v|
+    opts.each do |k,v|
       if (client.attribute_names.include?(k.to_s))
         client[k] = v
-      else
+      elsif !v.blank?
         dlog("Unknown attribute for Client: #{k}")
       end
-    }
-    if (client and client.changed?)
+    end
+
+    begin
+      framework.events.on_db_client(client) if client.new_record?
+    rescue ::Exception => e
+      wlog("Exception in on_db_client event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
+    end
+
+    if client && client.changed?
       client.save!
     end
     ret[:client] = client

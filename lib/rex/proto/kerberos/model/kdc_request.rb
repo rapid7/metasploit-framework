@@ -8,13 +8,13 @@ module Rex
         # definition
         class KdcRequest < Element
           # @!attribute pvno
-          #   @return [Fixnum] The protocol version number
+          #   @return [Integer] The protocol version number
           attr_accessor :pvno
           # @!attribute msg_type
-          #   @return [Fixnum] The type of a protocol message
+          #   @return [Integer] The type of a protocol message
           attr_accessor :msg_type
           # @!attribute pa_data
-          #   @return [Array<Rex::Proto::Kerberos::Model::PreAuthData>] Authentication information which may
+          #   @return [Array<Rex::Proto::Kerberos::Model::PreAuthDataEntry>] Authentication information which may
           #   be needed before credentials can be issued or decrypted
           attr_accessor :pa_data
           # @!attribute req_body
@@ -25,7 +25,7 @@ module Rex
           #
           # @param input [String, OpenSSL::ASN1::ASN1Data] the input to decode from
           # @return [self] if decoding succeeds
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode(input)
             case input
             when String
@@ -33,7 +33,7 @@ module Rex
             when OpenSSL::ASN1::ASN1Data
               decode_asn1(input)
             else
-              raise ::RuntimeError, 'Failed to decode KdcRequest, invalid input'
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode KdcRequest, invalid input'
             end
 
             self
@@ -105,7 +105,7 @@ module Rex
           # Decodes a Rex::Proto::Kerberos::Model::KdcRequest
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @raise [RuntimeError] if decoding doesn't succeed
+          # @raise [Rex::Proto::Kerberos::Model::Error::KerberosDecodingError] if decoding doesn't succeed
           def decode_asn1(input)
             input.value[0].value.each do |val|
               case val.tag
@@ -118,7 +118,7 @@ module Rex
               when 4
                 self.req_body = decode_asn1_req_body(val)
               else
-                raise ::RuntimeError, 'Failed to decode KdcRequest SEQUENCE'
+                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, 'Failed to decode KdcRequest SEQUENCE'
               end
             end
           end
@@ -126,7 +126,7 @@ module Rex
           # Decodes the pvno from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_asn1_pvno(input)
             input.value[0].value.to_i
           end
@@ -134,7 +134,7 @@ module Rex
           # Decodes the msg_type from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Fixnum]
+          # @return [Integer]
           def decode_asn1_msg_type(input)
             input.value[0].value.to_i
           end
@@ -142,11 +142,11 @@ module Rex
           # Decodes the pa_data from an OpenSSL::ASN1::ASN1Data
           #
           # @param input [OpenSSL::ASN1::ASN1Data] the input to decode from
-          # @return [Array<Rex::Proto::Kerberos::Model::PreAuthData>]
+          # @return [Array<Rex::Proto::Kerberos::Model::PreAuthDataEntry>]
           def decode_asn1_pa_data(input)
             pre_auth = []
             input.value[0].value.each do |pre_auth_data|
-              pre_auth << Rex::Proto::Kerberos::Model::PreAuthData.decode(pre_auth_data)
+              pre_auth << Rex::Proto::Kerberos::Model::PreAuthDataEntry.decode(pre_auth_data)
             end
 
             pre_auth

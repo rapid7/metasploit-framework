@@ -1,10 +1,16 @@
 RSpec.shared_examples_for 'Msf::DBManager::Import' do
+
+  if ENV['REMOTE_DB']
+    before {skip("Awaiting import ticket")}
+  end
+
   it { is_expected.to respond_to :dehex }
   it { is_expected.to respond_to :emit }
   it { is_expected.to respond_to :import }
   it { is_expected.to respond_to :import_file }
   it { is_expected.to respond_to :import_filetype_detect }
-  it { is_expected.to respond_to :msf_import_timestamps }
+  it { is_expected.to respond_to :msf_assign_timestamps }
+  it { is_expected.to respond_to :msf_normalise_import_timestamps }
   it { is_expected.to respond_to :report_import_note }
   it { is_expected.to respond_to :rexmlify }
   it { is_expected.to respond_to :validate_import_file }
@@ -16,6 +22,7 @@ RSpec.shared_examples_for 'Msf::DBManager::Import' do
   it_should_behave_like 'Msf::DBManager::Import::CI'
   it_should_behave_like 'Msf::DBManager::Import::Foundstone'
   it_should_behave_like 'Msf::DBManager::Import::FusionVM'
+  it_should_behave_like 'Msf::DBManager::Import::GPP'
   it_should_behave_like 'Msf::DBManager::Import::IP360'
   it_should_behave_like 'Msf::DBManager::Import::IPList'
   it_should_behave_like 'Msf::DBManager::Import::Libpcap'

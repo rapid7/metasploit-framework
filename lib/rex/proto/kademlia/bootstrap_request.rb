@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'rex/proto/kademlia/message'
 
 module Rex
 module Proto

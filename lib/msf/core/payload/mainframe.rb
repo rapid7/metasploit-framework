@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 
 ###
 # This class is here to implement advanced features for mainframe based
@@ -27,7 +26,7 @@ module Msf::Payload::Mainframe
   # are defined here. It is optional for other mainframe payloads.
   ###
   def jcl_jobcard
-    # format paramaters with basic constraints
+    # format parameters with basic constraints
     # see http://www.ibm.com/support/knowledgecenter/SSLTBW_2.1.0/
     #     com.ibm.zos.v2r1.ieab600/iea3b6_Parameter_field8.htm
     #

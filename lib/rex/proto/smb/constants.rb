@@ -172,7 +172,7 @@ class Constants
   CAP_UNIX_EXTENSIONS  = 0x800000
 
   # Open Modes
-  OPEN_MODE_CREAT = 0x10   # Create the file if file does not exists. Otherwise, operation fails.
+  OPEN_MODE_CREAT = 0x10   # Create the file if file does not exist. Otherwise, operation fails.
   OPEN_MODE_EXCL  = 0x00   # When used with SMB_O_CREAT, operation fails if file exists. Cannot be used with SMB_O_OPEN.
   OPEN_MODE_OPEN  = 0x01   # Open the file if the file exists
   OPEN_MODE_TRUNC = 0x02   # Truncate the file if the file exists
@@ -1397,6 +1397,17 @@ class Constants
   ).create_restraints(
     [ 'Payload', 'ByteCount',  nil, true ]
   )
+
+  # A template for SMB echo request/reply
+  SMB_ECHO_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+    ['template', 'SMB',      SMB_HDR],
+    ['uint16v',  'EchoCount',      0],
+    ['uint16v',  'ByteCount',      0],
+    ['string',   'Payload', nil, '' ]
+  ).create_restraints(
+    [ 'Payload', 'ByteCount',  nil, true ]
+  )
+  SMB_ECHO_RES_PKT = self.make_nbs(SMB_ECHO_RES_HDR_PKT)
 
 end
 end

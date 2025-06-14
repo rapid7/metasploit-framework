@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 require 'uri'
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -28,12 +26,12 @@ class MetasploitModule < Msf::Auxiliary
         [
           ['CVE', '2015-2562']
         ],
-      'DisclosureDate' => 'Mar 20 2015'))
+      'DisclosureDate' => '2015-03-20'))
 
       register_options(
         [
           OptString.new('TARGETURI', [ true,  "The path to the Joomla install", '/'])
-        ], self.class)
+        ])
   end
 
   def run_host(ip)
@@ -86,5 +84,4 @@ class MetasploitModule < Msf::Auxiliary
     end
 
   end
-
 end

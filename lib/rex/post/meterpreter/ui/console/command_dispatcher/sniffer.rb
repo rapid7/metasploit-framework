@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/extensions/sniffer/command_ids'
 
 module Rex
 module Post
@@ -16,6 +17,7 @@ class Console::CommandDispatcher::Sniffer
   Klass = Console::CommandDispatcher::Sniffer
 
   include Console::CommandDispatcher
+  include Rex::Post::Meterpreter::Extensions::Sniffer
 
   #
   # Initializes an instance of the sniffer command interaction.
@@ -29,13 +31,24 @@ class Console::CommandDispatcher::Sniffer
   #
   def commands
     {
-      "sniffer_interfaces" => "Enumerate all sniffable network interfaces",
-      "sniffer_start" => "Start packet capture on a specific interface",
-      "sniffer_stop"  => "Stop packet capture on a specific interface",
-      "sniffer_stats" => "View statistics of an active capture",
-      "sniffer_dump"  => "Retrieve captured packet data to PCAP file",
-      "sniffer_release" => "Free captured packets on a specific interface instead of downloading them",
+      'sniffer_interfaces' => 'Enumerate all sniffable network interfaces',
+      'sniffer_start'      => 'Start packet capture on a specific interface',
+      'sniffer_stop'       => 'Stop packet capture on a specific interface',
+      'sniffer_stats'      => 'View statistics of an active capture',
+      'sniffer_dump'       => 'Retrieve captured packet data to PCAP file',
+      'sniffer_release'    => 'Free captured packets on a specific interface instead of downloading them',
     }
+
+    #reqs = {
+    #  'sniffer_interfaces' => [COMMAND_ID_SNIFFER_INTERFACES],
+    #  'sniffer_start'      => [COMMAND_ID_SNIFFER_CAPTURE_START],
+    #  'sniffer_stop'       => [COMMAND_ID_SNIFFER_CAPTURE_STOP],
+    #  'sniffer_stats'      => [COMMAND_ID_SNIFFER_CAPTURE_STATS],
+    #  'sniffer_dump'       => [COMMAND_ID_SNIFFER_CAPTURE_DUMP],
+    #  'sniffer_release'    => [COMMAND_ID_SNIFFER_CAPTURE_RELEASE],
+    #}
+
+    #filter_commands(all, reqs)
   end
 
 
@@ -46,10 +59,18 @@ class Console::CommandDispatcher::Sniffer
     print_line()
 
     ifaces.each do |i|
-      print_line(sprintf("%d - '%s' ( type:%d mtu:%d usable:%s dhcp:%s wifi:%s )",
-        i['idx'], i['description'],
-        i['type'], i['mtu'], i['usable'], i['dhcp'], i['wireless'])
-      )
+      if i.length == 8
+        # Windows
+        print_line(sprintf("%d - '%s' ( type:%d mtu:%d usable:%s dhcp:%s wifi:%s )",
+          i['idx'], i['description'],
+          i['type'], i['mtu'], i['usable'], i['dhcp'], i['wireless'])
+        )
+      else
+        # Mettle
+        print_line(sprintf("%d - '%s' ( usable:%s )",
+          i['idx'], i['description'], i['usable'])
+        )
+      end
     end
 
     print_line()
@@ -167,10 +188,10 @@ class Console::CommandDispatcher::Sniffer
     # TODO: reorder packets based on the ID (only an issue if the buffer wraps)
     while(true)
       buf = od.read(20)
-      break if not buf
+      break unless buf
 
       idh,idl,thi,tlo,len = buf.unpack('N5')
-      break if not len
+      break unless len
       if(len > 10000)
         print_error("Corrupted packet data (length:#{len})")
         break

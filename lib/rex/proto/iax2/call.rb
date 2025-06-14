@@ -45,7 +45,7 @@ class Call
 
   def wait_for(*stypes)
     begin
-      ::Timeout.timeout( IAX_DEFAULT_TIMEOUT ) do
+      ::Timeout.timeout( Constants::IAX_DEFAULT_TIMEOUT ) do
         while (res = self.queue.pop )
           if stypes.include?(res[1])
             return res
@@ -60,11 +60,11 @@ class Call
   # Register with the IAX endpoint
   def register
     self.client.send_regreq(self)
-    res = wait_for( IAX_SUBTYPE_REGAUTH, IAX_SUBTYPE_REGREJ )
+    res = wait_for( Constants::IAX_SUBTYPE_REGAUTH, Constants::IAX_SUBTYPE_REGREJ )
     return if not res
 
-    if res[1] == IAX_SUBTYPE_REGREJ
-      reason = res[2][IAX_IE_REGREJ_CAUSE] || "Unknown Reason"
+    if res[1] == Constants::IAX_SUBTYPE_REGREJ
+      reason = res[2][Constants::IAX_IE_REGREJ_CAUSE] || "Unknown Reason"
       dprint("REGREJ: #{reason}")
       # Acknowledge the REGREJ
       self.client.send_ack(self)
@@ -79,9 +79,9 @@ class Call
       return
     end
 
-    if res[2][IAX_IE_CHALLENGE_DATA]
+    if res[2][Constants::IAX_IE_CHALLENGE_DATA]
       self.dcall = res[0][0]
-      chall = res[2][IAX_IE_CHALLENGE_DATA]
+      chall = res[2][Constants::IAX_IE_CHALLENGE_DATA]
     end
 
     if chall.nil?
@@ -90,17 +90,17 @@ class Call
     end
 
     self.client.send_regreq_chall_response(self, chall)
-    res = wait_for( IAX_SUBTYPE_REGACK, IAX_SUBTYPE_REGREJ )
+    res = wait_for( Constants::IAX_SUBTYPE_REGACK, Constants::IAX_SUBTYPE_REGREJ )
     return if not res
 
-    if res[1] == IAX_SUBTYPE_REGREJ
-      reason = res[2][IAX_IE_REGREJ_CAUSE] || "Unknown Reason"
+    if res[1] == Constants::IAX_SUBTYPE_REGREJ
+      reason = res[2][Constants::IAX_IE_REGREJ_CAUSE] || "Unknown Reason"
       dprint("REGREJ: #{reason}")
       return
     end
 
-    if res[2][IAX_IE_APPARENT_ADDR]
-      r_fam, r_port, r_addr = res[2][IAX_IE_APPARENT_ADDR].unpack('nnA4')
+    if res[2][Constants::IAX_IE_APPARENT_ADDR]
+      r_fam, r_port, r_addr = res[2][Constants::IAX_IE_APPARENT_ADDR].unpack('nnA4')
       r_addr = r_addr.unpack("C*").map{|x| x.to_s }.join(".")
       dprint("REGACK: Registered from address #{r_addr}:#{r_port}")
     end
@@ -115,11 +115,11 @@ class Call
 
   def dial(number)
     self.client.send_new(self, number)
-    res = wait_for(IAX_SUBTYPE_AUTHREQ, IAX_SUBTYPE_ACCEPT)
+    res = wait_for(Constants::IAX_SUBTYPE_AUTHREQ, Constants::IAX_SUBTYPE_ACCEPT)
     return if not res
 
     # Handle authentication if its requested
-    if res[1] == IAX_SUBTYPE_AUTHREQ
+    if res[1] == Constants::IAX_SUBTYPE_AUTHREQ
       chall = nil
 
       # Look for IAX_AUTH_MD5 (2) as an available auth method
@@ -128,9 +128,9 @@ class Call
         return
       end
 
-      if res[2][IAX_IE_CHALLENGE_DATA]
+      if res[2][Constants::IAX_IE_CHALLENGE_DATA]
         self.dcall = res[0][0]
-        chall = res[2][IAX_IE_CHALLENGE_DATA]
+        chall = res[2][Constants::IAX_IE_CHALLENGE_DATA]
       end
 
       if chall.nil?
@@ -139,11 +139,11 @@ class Call
       end
 
       self.client.send_authrep_chall_response(self, chall)
-      res = wait_for( IAX_SUBTYPE_ACCEPT)
+      res = wait_for( Constants::IAX_SUBTYPE_ACCEPT)
       return if not res
     end
 
-    self.codec = res[2][IAX_IE_DESIRED_CODEC].unpack("N")[0]
+    self.codec = res[2][Constants::IAX_IE_DESIRED_CODEC].unpack("N")[0]
     self.state = :ringing
     self.ring_start = ::Time.now.to_i
     self.client.send_ack(self)
@@ -157,7 +157,7 @@ class Call
   end
 
   def ring_time
-    (self.ring_finish || Time.now).to_i - self.ring_start.to_i
+    (self.ring_finish || ::Time.now).to_i - self.ring_start.to_i
   end
 
   def timestamp
@@ -188,7 +188,7 @@ class Call
 
     info  = nil
     stype = pkt[11,1].unpack("C")[0]
-    info  = process_elements(pkt, 12) if [IAX_TYPE_IAX, IAX_TYPE_CONTROL].include?(itype)
+    info  = process_elements(pkt, 12) if [Constants::IAX_TYPE_IAX, Constants::IAX_TYPE_CONTROL].include?(itype)
 
     if dst_call != self.scall
       dprint("Incoming packet to inactive call: #{dst_call} vs #{self.scall}: #{phdr.inspect} #{stype.inspect} #{info.inspect}")
@@ -208,31 +208,31 @@ class Call
     # NEW, HANGUP, REJECT, ACCEPT, PONG, AUTHREP, REGREL, REGACK, REGREJ, TXREL
 
     case itype
-    when IAX_TYPE_DTMF_BEGIN
+    when Constants::IAX_TYPE_DTMF_BEGIN
       self.dprint("DTMF BEG: #{pkt[11,1]}")
       self.dtmf << pkt[11,1]
 
-    when IAX_TYPE_DTMF_END
+    when Constants::IAX_TYPE_DTMF_END
       self.dprint("DTMF END: #{pkt[11,1]}")
 
-    when IAX_TYPE_CONTROL
+    when Constants::IAX_TYPE_CONTROL
       case stype
-      when IAX_CTRL_HANGUP
+      when Constants::IAX_CTRL_HANGUP
         dprint("HANGUP")
         self.client.send_ack(self)
         self.state = :hangup
 
-      when IAX_CTRL_RINGING
+      when Constants::IAX_CTRL_RINGING
         dprint("RINGING")
         self.client.send_ack(self)
 
-      when IAX_CTRL_BUSY
+      when Constants::IAX_CTRL_BUSY
         dprint("BUSY")
         self.busy  = true
         self.state = :hangup
         self.client.send_ack(self)
 
-      when IAX_CTRL_ANSWER
+      when Constants::IAX_CTRL_ANSWER
         dprint("ANSWER")
         if self.state == :ringing
           self.state = :answered
@@ -240,10 +240,10 @@ class Call
         end
         self.client.send_ack(self)
 
-      when IAX_CTRL_PROGRESS
+      when Constants::IAX_CTRL_PROGRESS
         dprint("PROGRESS")
 
-      when IAX_CTRL_PROCEED
+      when Constants::IAX_CTRL_PROCEED
         dprint("PROCEED")
 
       when 255
@@ -252,29 +252,29 @@ class Call
       # Acknowledge all control packets
       # self.client.send_ack(self)
 
-    when IAX_TYPE_IAX
+    when Constants::IAX_TYPE_IAX
 
       dprint( ["RECV", phdr, stype, info].inspect )
       case stype
-      when IAX_SUBTYPE_HANGUP
+      when Constants::IAX_SUBTYPE_HANGUP
         self.state = :hangup
         self.client.send_ack(self)
-      when IAX_SUBTYPE_LAGRQ
+      when Constants::IAX_SUBTYPE_LAGRQ
         # Lagrps echo the timestamp
         self.client.send_lagrp(self, tstamp)
-      when IAX_SUBTYPE_ACK
+      when Constants::IAX_SUBTYPE_ACK
         # Nothing to do here
-      when IAX_SUBTYPE_PING
+      when Constants::IAX_SUBTYPE_PING
         # Pongs echo the timestamp
         self.client.send_pong(self, tstamp)
-      when IAX_SUBTYPE_PONG
+      when Constants::IAX_SUBTYPE_PONG
         self.client.send_ack(self)
       else
         dprint( ["RECV-QUEUE", phdr, stype, info].inspect )
         self.queue.push( [phdr, stype, info ] )
       end
 
-    when IAX_TYPE_VOICE
+    when Constants::IAX_TYPE_VOICE
       v_codec = stype
       if self.state == :answered
         handle_audio(pkt)
@@ -317,15 +317,15 @@ class Call
     case self.codec
 
     # Convert u-law into signed PCM
-    when IAX_CODEC_G711_MULAW
+    when Constants::IAX_CODEC_G711_MULAW
       Rex::Proto::IAX2::Codecs::MuLaw.decode(buff)
 
     # Convert a-law into signed PCM
-    when IAX_CODEC_G711_ALAW
+    when Constants::IAX_CODEC_G711_ALAW
       Rex::Proto::IAX2::Codecs::ALaw.decode(buff)
 
     # Linear little-endian signed PCM is our native format
-    when IAX_CODEC_LINEAR_PCM
+    when Constants::IAX_CODEC_LINEAR_PCM
       buff
 
     # Unsupported codec, return empty

@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
@@ -27,11 +23,11 @@ class MetasploitModule < Msf::Auxiliary
       'References'     =>
         [
           [ 'CVE', '2013-1899' ],
-          [ 'URL', 'http://www.postgresql.org/support/security/faq/2013-04-04/' ]
+          [ 'URL', 'https://www.postgresql.org/support/security/faq/2013-04-04/' ]
         ]
     ))
 
-    register_options([ Opt::RPORT(5432) ], self.class)
+    register_options([ Opt::RPORT(5432) ])
   end
 
   def run_host(ip)
@@ -71,5 +67,4 @@ class MetasploitModule < Msf::Auxiliary
       print_status("#{rhost}:#{rport} does not appear to be vulnerable to CVE-2013-1899")
     end
   end
-
 end

@@ -1,10 +1,12 @@
 #!/usr/bin/env ruby
-#
-# $Id$
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 #
 # This script lists each module by the default ports it uses
-#
-# $Revision$
 #
 
 msfbase = __FILE__
@@ -18,12 +20,10 @@ require 'msfenv'
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'rex'
-require 'msf/ui'
-require 'msf/base'
 
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create('DisableDatabase' => true)
-
+# XXX: this is weird, merging module sets together for different module types could lead to unforseen issues
 all_modules = $framework.exploits.merge($framework.auxiliary)
 all_ports = {}
 
@@ -43,7 +43,7 @@ all_modules.each_module { |name, mod|
   ports = ports.map{|p| p.to_i}
   ports.uniq!
   ports.sort{|a,b| a <=> b}.each do |rport|
-    # Just record the first occurance.
+    # Just record the first occurrence.
     all_ports[rport] = x.fullname unless all_ports[rport]
   end
 }

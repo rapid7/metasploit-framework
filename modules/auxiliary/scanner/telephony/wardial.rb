@@ -1,9 +1,8 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'zlib'
 
 
@@ -35,7 +34,6 @@ class Object
 end
 
 class MetasploitModule < Msf::Auxiliary
-
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
@@ -53,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('DIALPREFIX',   [true,  'Dial Prefix', 'ATDT']),
       OptString.new('INITSTRING',   [true,  'Initialization String', 'AT X6 S11=80']),
       OptString.new('SERIALPORT',   [true,  'Serial Port (e.g. 0 (COM1), 1 (COM2), /dev/ttyS0, etc.)', '/dev/ttyS0']),
-    ], self.class)
+    ])
 
     register_advanced_options(
     [
@@ -72,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
       OptEnum.new(  'Parity',       [false,  'Parity (Mark & Space are Windows Only)', 'None', ['None', 'Even', 'Odd', 'Mark', 'Space'], 'None']),
       OptBool.new(  'RedialBusy',   [false,  'Redials numbers found to be busy', false]),
       OptEnum.new(  'StopBits',     [true,  'Stop Bits', '1', ['1', '2'], '1']),
-    ], self.class)
+    ])
 
     deregister_options('NUMBER')
     deregister_options('RPORT')
@@ -97,8 +95,8 @@ class MetasploitModule < Msf::Auxiliary
       raise RuntimeError, "Telephony not available"
     end
 
-    @confdir      = File.join(Msf::Config.get_config_root, 'wardial')
-    @datadir      = File.join(Msf::Config.get_config_root, 'logs', 'wardial')
+    @confdir      = File.join(Msf::Config.config_directory, 'wardial')
+    @datadir      = File.join(Msf::Config.config_directory, 'logs', 'wardial')
 
     # make sure working dirs exist
     FileUtils.mkdir_p(@confdir)
@@ -250,7 +248,7 @@ class MetasploitModule < Msf::Auxiliary
             initmodem(modem, initstring)
             num_carriers += 1
             note = dialrange[dialnum][:result] + "\n" + dialrange[dialnum][:banner]
-            report_note(:host => dialnum, :type => "wardial_result", :data => note)
+            report_note(:host => dialnum, :type => "wardial_result", :data => { :result => note })
             log_result(dialrange[dialnum])
           when /HK_CARRIER/i
             print_status( "Carrier: #{result}" )
@@ -262,7 +260,7 @@ class MetasploitModule < Msf::Auxiliary
             initmodem(modem, initstring)
             num_carriers += 1
             note = dialrange[dialnum][:result] + "\n" + dialrange[dialnum][:banner]
-            report_note(:host => dialnum, :type => "wardial_result", :data => note)
+            report_note(:host => dialnum, :type => "wardial_result", :data => { :result => note })
             log_result(dialrange[dialnum])
           when /\+FCO/i
             print_status( "Fax: #{result}" )
@@ -274,7 +272,7 @@ class MetasploitModule < Msf::Auxiliary
             initmodem(modem, initstring)
             num_faxes += 1
             note = dialrange[dialnum][:result] + "\n" + dialrange[dialnum][:banner]
-            report_note(:host => dialnum, :type => "wardial_result", :data => note)
+            report_note(:host => dialnum, :type => "wardial_result", :data => { :result => note })
             log_result(dialrange[dialnum])
           when /VOICE/i
             print_status( "Voice" )
@@ -444,5 +442,4 @@ class MetasploitModule < Msf::Auxiliary
     print("\n") if @displaymodem
     return banner
   end
-
 end

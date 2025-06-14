@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('ENUMERATE_USERNAMES', [ true, 'Enumerate usernames', true ]),
         OptInt.new('RANGE_START', [false, 'First user id to enumerate', 1]),
         OptInt.new('RANGE_END', [false, 'Last user id to enumerate', 10])
-    ], self.class)
+    ])
 
   end
 
@@ -100,56 +100,20 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-
-  def report_cred(opts)
-    service_data = {
-      address: opts[:ip],
-      port: opts[:port],
-      service_name: ssl ? 'https' : 'http',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
-      origin_type: :service,
-      module_fullname: fullname,
-      username: opts[:user]
-    }.merge(service_data)
-
-    if opts[:password]
-      credential_data.merge!(
-        private_data: opts[:password],
-        private_type: :password
-      )
-    end
-
-    login_data = {
-      core: create_credential(credential_data),
-      status: opts[:status]
-    }.merge(service_data)
-
-    if opts[:attempt_time]
-      login_data.merge!(last_attempted_at: opts[:attempt_time])
-    end
-
-    create_credential_login(login_data)
-  end
-
-
   def validate_user(user=nil)
     print_status("#{target_uri} - WordPress User-Validation - Checking Username:'#{user}'")
 
     exists = wordpress_user_exists?(user)
     if exists
       print_good("#{target_uri} - WordPress User-Validation - Username: '#{user}' - is VALID")
-
-      report_cred(
-        ip: rhost,
-        port: rport,
-        user: user,
+      connection_details = {
+        module_fullname: self.fullname,
+        username: user,
+        workspace_id: myworkspace_id,
         status: Metasploit::Model::Login::Status::UNTRIED
-      )
+      }.merge(service_details)
 
+      framework.db.create_credential_and_login(connection_details)
       @users_found[user] = :reported
       return :next_user
     else
@@ -167,14 +131,7 @@ class MetasploitModule < Msf::Auxiliary
     if cookie
       print_good("#{target_uri} - WordPress Brute Force - SUCCESSFUL login for '#{user}' : '#{pass}'")
 
-      report_cred(
-        ip: rhost,
-        port: rport,
-        user: user,
-        password: pass,
-        status: Metasploit::Model::Login::Status::SUCCESSFUL,
-        attempt_time: DateTime.now
-      )
+      store_valid_credential(user: user, private: pass, proof: cookie)
 
       return :next_user
     else
@@ -195,7 +152,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if not usernames.empty?
       p = store_loot('wordpress.users', 'text/plain', rhost, usernames * "\n", "#{rhost}_wordpress_users.txt")
-      print_status("#{target_uri} - Usernames stored in: #{p}")
+      print_good("#{target_uri} - Usernames stored in: #{p}")
     end
 
     return usernames

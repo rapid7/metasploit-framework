@@ -11,6 +11,7 @@ module Msf
         class Exception < RuntimeError; end
 
         MANUAL_BASE_PATH = File.expand_path(File.join(Msf::Config.module_directory, '..', 'documentation', 'modules' ))
+        USER_MANUAL_BASE_PATH = File.expand_path(File.join(Msf::Config.user_module_directory, '..', 'documentation', 'modules' ))
 
         # @return [Octokit::Client] Git client
         attr_accessor :git_client
@@ -80,6 +81,8 @@ module Msf
             commits = git_client.commits(repository, branch, path: path)
           rescue Faraday::ConnectionFailed
             raise PullRequestFinder::Exception, 'No network connection to Github.'
+          rescue Octokit::Unauthorized
+            raise PullRequestFinder::Exception, 'Github Authentication Failed.'
           end
 
           if commits.empty?

@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extensions/extapi/tlv'
+require 'rex/post/meterpreter/extensions/extapi/command_ids'
 require 'rex/post/meterpreter/extensions/extapi/window/window'
 require 'rex/post/meterpreter/extensions/extapi/service/service'
 require 'rex/post/meterpreter/extensions/extapi/clipboard/clipboard'
@@ -22,6 +23,10 @@ module Extapi
 #
 ###
 class Extapi < Extension
+
+  def self.extension_id
+    EXTENSION_ID_EXTAPI
+  end
 
   def initialize(client)
     super(client, 'extapi')

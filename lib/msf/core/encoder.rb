@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 
 module Msf
 
@@ -130,15 +129,23 @@ class Encoder < Module
     #
     # perl encoding.
     #
-    CmdUnixPerl = 'perl'
+    CmdPosixPerl = 'perl'
     #
     # Bourne shell echo encoding.
     #
-    CmdUnixEcho = 'echo'
+    CmdPosixEcho = 'echo'
     #
-    # Bourne shell IFS encoding.
+    # Bourne shell ${IFS} encoding.
     #
-    CmdUnixIfs = 'ifs'
+    CmdPosixIFS = 'ifs'
+    #
+    # Bash brace expansion encoding.
+    #
+    CmdPosixBrace = 'brace'
+    #
+    # Base64 encoding.
+    #
+    CmdPosixBase64 = 'base64'
   end
 
   #
@@ -153,7 +160,7 @@ class Encoder < Module
 
   ##
   #
-  # Encoder information accessors that can be overriden
+  # Encoder information accessors that can be overridden
   # by derived classes
   #
   ##
@@ -263,7 +270,7 @@ class Encoder < Module
     # If this encoder is key-based and we don't already have a key, find one
     if ((decoder_key_size) and
         (state.key == nil))
-      # Find a key that doesn't contain and wont generate any bad
+      # Find a key that doesn't contain and won't generate any bad
       # characters
       state.init_key(obtain_key(buf, badchars, state))
 
@@ -674,10 +681,4 @@ protected
 end
 
 end
-
-require 'msf/core/encoder/xor'
-require 'msf/core/encoder/xor_additive_feedback'
-require 'msf/core/encoder/alphanum'
-require 'msf/core/encoder/nonalpha'
-require 'msf/core/encoder/nonupper'
 
