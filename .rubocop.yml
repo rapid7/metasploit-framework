@@ -113,6 +113,12 @@ Style/DocumentDynamicEvalDefinition:
 Style/EndlessMethod:
   Enabled: true
 
+Style/FormatStringToken:
+  Enabled: true
+  Exclude:
+  # We aren't ready to enable this for modules yet
+    - 'modules/**/*'
+
 Style/HashExcept:
   Enabled: true
 
