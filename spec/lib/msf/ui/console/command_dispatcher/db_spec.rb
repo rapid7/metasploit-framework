@@ -305,6 +305,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "    -R, --rhosts             Set RHOSTS from the results of the search.",
           "    -S, --search <filter>    Search string to filter by.",
           "    -s, --service <name>     List vulns matching these service names.",
+          "    -v, --verbose            Display additional information.",
           "Examples:",
           "  vulns -p 1-65536          # only vulns with associated services",
           "  vulns -p 1-65536 -s http  # identified as http on any port"
@@ -312,6 +313,62 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
       end
     end
 
+    describe "-v" do
+      before(:example) do
+        vuln_opts = {
+          updated_at: Time.utc(2025, 6, 17, 9, 17, 37),
+          host: '192.168.0.1',
+          name: 'ThinkPHP Multiple PHP Injection RCEs',
+          info: 'Exploited by exploit/unix/webapp/thinkphp_rce to create Session 1',
+          refs: ["CVE-2018-20062"]
+        }
+
+        vuln_attempt_opts = {
+          id: 3,
+          vuln_id: 1,
+          attempted_at: Time.utc(2025, 6, 17, 9, 17, 37),
+          exploited: true,
+          fail_reason: nil,
+          username: "foo",
+          module: "exploit/unix/webapp/thinkphp_rce",
+          session_id: 1,
+          loot_id: nil,
+          fail_detail: nil
+        }
+
+        @vuln = framework.db.report_vuln(vuln_opts)
+        @vuln_attempt = framework.db.report_vuln_attempt(@vuln, vuln_attempt_opts)
+      end
+
+      after(:example) do
+        framework.db.delete_vuln({ids: [@vuln.id]})
+      end
+
+      it "should list vulns and vuln attempts" do
+        db.cmd_vulns "-v"
+        expect(@output).to match_array [
+          "Vulnerabilities",
+          "===============",
+          "  0. Vuln ID: #{@vuln.id}",
+          "     Timestamp: #{@vuln.created_at}",
+          "     Host: 192.168.0.1",
+          "     Name: ThinkPHP Multiple PHP Injection RCEs",
+          "     References: CVE-2018-20062",
+          "     Information: Exploited by exploit/unix/webapp/thinkphp_rce to create Session 1",
+          "     Vuln attempts:",
+          "     0. ID: #{@vuln_attempt.id}",
+          "        Vuln ID: #{@vuln.id}",
+          "        Timestamp: #{@vuln_attempt.attempted_at}",
+          "        Exploit: true",
+          "        Fail reason: nil",
+          "        Username: foo",
+          "        Module: exploit/unix/webapp/thinkphp_rce",
+          "        Session ID: 1",
+          "        Loot ID: nil",
+          "        Fail Detail: nil",
+        ]
+      end
+    end
   end
 
   describe "#cmd_workspace" do
