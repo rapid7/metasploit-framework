@@ -32,6 +32,7 @@ module Rex
           GSS_ACCEPTOR_SIGN                              = 23
           GSS_INITIATOR_SEAL                             = 24
           GSS_INITIATOR_SIGN                             = 25
+          PA_S4U_X509_USER                               = 26
         end
 
         module Checksum
