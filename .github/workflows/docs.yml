@@ -55,6 +55,7 @@ jobs:
         with:
           ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true
+          cache-version: 6
           working-directory: docs
 
       - name: build

@@ -93,6 +93,7 @@ jobs:
         with:
           ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true
+          cache-version: 6
 
       - name: Extract runtime version
         run: |
@@ -155,7 +156,7 @@ jobs:
         with:
           ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true
-          cache-version: 4
+          cache-version: 6
 
       - uses: actions/download-artifact@v4
         id: download

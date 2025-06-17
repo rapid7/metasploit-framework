@@ -142,7 +142,7 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
           working-directory: metasploit-framework
-          cache-version: 5
+          cache-version: 6
 
       - name: Acceptance
         env:
@@ -197,7 +197,7 @@ jobs:
           # use the default version from the .ruby-version file
           ruby-version: '.ruby-version'
           bundler-cache: true
-          cache-version: 4
+          cache-version: 6
 
       - uses: actions/download-artifact@v4
         id: download

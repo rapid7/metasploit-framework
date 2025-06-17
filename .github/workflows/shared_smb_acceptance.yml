@@ -87,6 +87,7 @@ jobs:
         with:
           ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true
+          cache-version: 6
           working-directory: 'metasploit-framework'
 
       - name: Copy ruby_smb gem into metasploit-framework
@@ -161,7 +162,7 @@ jobs:
         with:
           ruby-version: '${{ matrix.ruby }}'
           bundler-cache: true
-          cache-version: 4
+          cache-version: 6
           working-directory: metasploit-framework
 
       - uses: actions/download-artifact@v4
