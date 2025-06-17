@@ -34,7 +34,7 @@ module Msf::Payload::Adapter::Fetch::Server::TFTP
     @srv_resources.each do |srv_data|
       escaped_uri = ('/' + srv_data[:uri]).gsub('//', '/')
       @myresources << escaped_uri
-      add_resource(@fetch_service, escaped_uri, srv_data[:data])
+      add_resource(fetch_service, escaped_uri, srv_data[:data])
     end
     fetch_service.start
     fetch_service
