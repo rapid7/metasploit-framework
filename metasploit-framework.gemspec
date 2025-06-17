@@ -254,6 +254,9 @@ Gem::Specification.new do |spec|
   # Needed to parse sections of ELF files in order to retrieve symbols
   spec.add_runtime_dependency 'elftools'
 
+  # Pinning Psych to 5.0.1 to avoid warnings on msfconsole bootup, can be removed when we move to Ruby 3.4
+  spec.add_runtime_dependency 'psych', '5.0.1'
+
   # Standard libraries: https://www.ruby-lang.org/en/news/2023/12/25/ruby-3-3-0-released/
   %w[
     abbrev

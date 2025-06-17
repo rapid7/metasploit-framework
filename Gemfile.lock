@@ -68,6 +68,7 @@ PATH
       pcaprub
       pdf-reader
       pg
+      psych (= 5.0.1)
       puma
       railties
       rasn1 (= 0.14.0)
@@ -412,8 +413,7 @@ GEM
     pry-byebug (3.10.1)
       byebug (~> 11.0)
       pry (>= 0.13, < 0.15)
-    psych (5.2.6)
-      date
+    psych (5.0.1)
       stringio
     public_suffix (6.0.1)
     puma (6.6.0)
