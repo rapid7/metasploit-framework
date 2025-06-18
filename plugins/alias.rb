@@ -54,7 +54,9 @@ module Msf
             @aliases.each_pair do |key, val|
               tbl << ['alias', key, val]
             end
+            print_status("Total aliases: #{@aliases.length}")
             return print(tbl.to_s)
+
           end
         when 1 # display the alias if one matches this name (or help)
           return cmd_alias_help if (args[0] == '-h') || (args[0] == '--help')
