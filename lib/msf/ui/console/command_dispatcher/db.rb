@@ -1059,7 +1059,8 @@ class Db
     [ '-R', '--rhosts' ] => [ false, 'Set RHOSTS from the results of the search.' ],
     [ '-S', '--search' ] => [ true, 'Search string to filter by.', '<filter>' ],
     [ '-i', '--info' ] => [ false, 'Display vuln information.' ],
-    [ '-d', '--delete' ] => [ false, 'Delete vulnerabilities. Not officially supported.' ]
+    [ '-d', '--delete' ] => [ false, 'Delete vulnerabilities. Not officially supported.' ],
+    [ '-v', '--verbose' ] => [ false, 'Display additional information.' ]
   )
 
   def cmd_vulns(*args)
@@ -1073,6 +1074,7 @@ class Db
 
     search_term = nil
     show_info   = false
+    show_vuln_attempts = false
     set_rhosts  = false
     output_file = nil
     delete_count = 0
@@ -1111,6 +1113,8 @@ class Db
         search_term = val
       when '-i', '--info'
         show_info = true
+      when '-v', '--verbose'
+        show_vuln_attempts = true
       else
         # Anything that wasn't an option is a host to search for
         unless (arg_host_range(val, host_ranges))
@@ -1182,11 +1186,20 @@ class Db
     end
 
     if output_file
-      File.write(output_file, tbl.to_csv)
-      print_status("Wrote vulnerability information to #{output_file}")
+      if show_vuln_attempts
+        print_warning("Cannot output to a file when verbose mode is enabled. Please remove verbose flag and try again.")
+      else
+        File.write(output_file, tbl.to_csv)
+        print_status("Wrote vulnerability information to #{output_file}")
+      end
     else
       print_line
-      print_line(tbl.to_s)
+      if show_vuln_attempts
+        vulns_and_attempts = _format_vulns_and_vuln_attempts(vulns)
+        _print_vulns_and_attempts(vulns_and_attempts)
+      else
+        print_line(tbl.to_s)
+      end
     end
 
     # Finally, handle the case where the user wants the resulting list
@@ -2347,6 +2360,50 @@ class Db
     end
   end
 
+  def _format_vulns_and_vuln_attempts(vulns)
+    vulns.map.with_index do |vuln, index|
+      vuln_formatted = <<~EOF.strip.indent(2)
+        #{index}. Vuln ID: #{vuln.id}
+           Timestamp: #{vuln.created_at}
+           Host: #{vuln.host.address}
+           Name: #{vuln.name}
+           References: #{vuln.refs.map {|r| r.name}.join(',')}
+           Information: #{_format_vuln_value(vuln.info)}
+      EOF
+
+      vuln_attempts_formatted = vuln.vuln_attempts.map.with_index do |vuln_attempt, i|
+        <<~EOF.strip.indent(5)
+          #{i}. ID: #{vuln_attempt.id}
+             Vuln ID: #{vuln_attempt.vuln_id}
+             Timestamp: #{vuln_attempt.attempted_at}
+             Exploit: #{vuln_attempt.exploited}
+             Fail reason: #{_format_vuln_value(vuln_attempt.fail_reason)}
+             Username: #{vuln_attempt.username}
+             Module: #{vuln_attempt.module}
+             Session ID: #{_format_vuln_value(vuln_attempt.session_id)}
+             Loot ID: #{_format_vuln_value(vuln_attempt.loot_id)}
+             Fail Detail: #{_format_vuln_value(vuln_attempt.fail_detail)}
+        EOF
+      end
+
+      { :vuln => vuln_formatted, :vuln_attempts => vuln_attempts_formatted }
+    end
+  end
+
+  def _print_vulns_and_attempts(vulns_and_attempts)
+    print_line("Vulnerabilities\n===============")
+    vulns_and_attempts.each do |vuln_and_attempt|
+      print_line(vuln_and_attempt[:vuln])
+      print_line("Vuln attempts:".indent(5))
+      vuln_and_attempt[:vuln_attempts].each do |attempt|
+        print_line(attempt)
+      end
+    end
+  end
+
+  def _format_vuln_value(s)
+    s.blank? ? s.inspect  : s.to_s
+  end
 end
 
 end end end end
