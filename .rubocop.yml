@@ -23,6 +23,7 @@ require:
   - ./lib/rubocop/cop/lint/deprecated_gem_version.rb
   - ./lib/rubocop/cop/lint/module_enforce_notes.rb
   - ./lib/rubocop/cop/lint/detect_invalid_pack_directives.rb
+  - ./lib/rubocop/cop/lint/detect_metadata_trailing_leading_whitespace.rb
 
 Layout/SpaceBeforeBrackets:
   Enabled: true
@@ -672,3 +673,6 @@ Style/UnpackFirst:
     Disabling to make it easier to copy/paste `unpack('h*')` expressions from code
     into a debugging REPL.
   Enabled: false
+
+Lint/DetectMetadataTrailingLeadingWhitespace:
+  Enabled: true
