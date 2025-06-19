@@ -21,14 +21,16 @@ module Msf::Payload::Adapter::Fetch::Server::TFTP
     'TFTP'
   end
 
+  def add_resource(fetch_service, srvuri, srvexe)
+    fetch_service.register_file(srvuri, srvexe, datastore['FETCH_SRVONCE'])
+  end
+
   def start_tftp_fetch_handler(srvport, srvhost, srvuri, srvexe)
     fetch_service = start_tftp_server(srvport, srvhost)
     if fetch_service.nil?
       cleanup_handler
       fail_with(Msf::Exploit::Failure::BadConfig, "Fetch handler failed to start on #{srvhost}:#{srvport}\n#{e}")
     end
-    fetch_service.register_file(srvuri, srvexe, datastore['FETCH_SRVONCE'])
-    fetch_service.start
     fetch_service
   end
 
