@@ -9,32 +9,34 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'TFTP Brute Forcer',
+      'Name' => 'TFTP Brute Forcer',
       'Description' => 'This module uses a dictionary to brute force valid TFTP image names from a TFTP server.',
-      'Author'      => 'antoine',
-      'License'     => BSD_LICENSE
+      'Author' => 'antoine',
+      'License' => BSD_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(69),
         Opt::CHOST,
-        OptPath.new('DICTIONARY', [ true, 'The list of filenames',
-          File.join(Msf::Config.data_directory, "wordlists", "tftp.txt") ])
-      ])
+        OptPath.new('DICTIONARY', [
+          true, 'The list of filenames',
+          File.join(Msf::Config.data_directory, "wordlists", "tftp.txt")
+        ])
+      ]
+    )
   end
 
   def run_host(ip)
     begin
-
       # Create an unbound UDP socket if no CHOST is specified, otherwise
       # create a UDP socket bound to CHOST (in order to avail of pivoting)
       udp_sock = Rex::Socket::Udp.create(
         {
           'LocalHost' => datastore['CHOST'] || nil,
-          'Context'   =>
+          'Context' =>
             {
-              'Msf'        => framework,
+              'Msf' => framework,
               'MsfExploit' => self,
             }
         }
@@ -49,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
         resp = udp_sock.get(3)
         if resp and resp.length >= 2 and resp[0, 2] == "\x00\x03"
           print_good("Found #{filename} on #{ip}")
-          #Add Report
+          # Add Report
           report_note(
             :host	=> ip,
             :proto => 'udp',

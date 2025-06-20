@@ -14,36 +14,35 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'HTTP WebDAV Website Content Scanner',
+      'Name' => 'HTTP WebDAV Website Content Scanner',
       'Description' => 'Detect webservers disclosing its content though WebDAV',
-      'Author'       => ['et'],
-      'License'     => MSF_LICENSE
+      'Author' => ['et'],
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
         OptString.new('PATH', [true, "Path to use", '/']),
-      ])
+      ]
+    )
   end
 
   def run_host(target_host)
-
     begin
       res = send_request_cgi({
-        'uri'          => normalize_uri(datastore['PATH']),
-        'method'       => 'PROPFIND',
+        'uri' => normalize_uri(datastore['PATH']),
+        'method' => 'PROPFIND',
         'data'	=>	'',
-        'ctype'   => 'text/xml',
+        'ctype' => 'text/xml',
         'version' => '1.0',
         'vhost' => '',
       }, 10)
-
 
       if res and res.body
         # short url regex
         urlregex = /<a:href[^>]*>(.*?)<\/a:href>/i
 
-        #print_status("#{res.body}")
+        # print_status("#{res.body}")
 
         result = res.body.scan(urlregex).uniq
 
@@ -58,10 +57,8 @@ class MetasploitModule < Msf::Auxiliary
             :type	=> 'WEBDAV_FILE_DIRECTORY',
             :data	=> { :path => u }
           )
-
         end
       end
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
     end

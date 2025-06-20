@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Post
   #
   def is_86
     pid = session.sys.process.open.pid
-    return session.sys.process.each_process.find { |i| i['pid'] == pid } ['arch'] == 'x86'
+    return session.sys.process.each_process.find { |i| i['pid'] == pid }['arch'] == 'x86'
   end
 
   def pack_add(data)

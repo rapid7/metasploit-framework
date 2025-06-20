@@ -10,100 +10,97 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'H.323 Version Scanner',
+      'Name' => 'H.323 Version Scanner',
       'Description' => 'Detect H.323 Version.',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(1720),
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
-
-    remote_display    = nil
+    remote_display = nil
     remote_product_id = nil
     remote_version_id = nil
-    remote_vendor_id  = nil
-    remote_protocol   = nil
+    remote_vendor_id = nil
+    remote_protocol = nil
 
     begin
+      # Wrap this in a timeout to prevent dead services from
+      # hanging this thread.
+      Timeout.timeout(call_timeout) do
+        connect
 
-    # Wrap this in a timeout to prevent dead services from
-    # hanging this thread.
-    Timeout.timeout( call_timeout) do
+        caller_name = "SYSTEM\x00"
+        h323_id = Rex::Text.rand_text_alpha(3)
+        vendor_id = Rex::Text.rand_text_alpha(32)
+        caller_host = Rex::Socket.source_address(ip)
+        caller_port = rand(32768) + 30000
+        callee_host = rhost
+        callee_port = rport
+        conf_guid = Rex::Text.rand_text(16)
+        call_guid = Rex::Text.rand_text(16)
 
-    connect
+        pkt_setup = h323_setup_call({
+          :caller_name => caller_name,
+          :h323_id => h323_id,
+          :vendor_id => vendor_id,
+          :callee_host => callee_host,
+          :callee_port => callee_port,
+          :caller_host => caller_host,
+          :caller_port => caller_port,
+          :conf_guid => conf_guid,
+          :call_guid => call_guid
+        })
 
-    caller_name = "SYSTEM\x00"
-    h323_id     = Rex::Text.rand_text_alpha(3)
-    vendor_id   = Rex::Text.rand_text_alpha(32)
-    caller_host = Rex::Socket.source_address( ip )
-    caller_port = rand( 32768 ) + 30000
-    callee_host = rhost
-    callee_port = rport
-    conf_guid   = Rex::Text.rand_text(16)
-    call_guid   = Rex::Text.rand_text(16)
+        res = sock.put(pkt_setup) rescue nil
+        if not res
+          disconnect
+          return
+        end
 
-    pkt_setup = h323_setup_call({
-      :caller_name => caller_name,
-      :h323_id => h323_id,
-      :vendor_id => vendor_id,
-      :callee_host => callee_host,
-      :callee_port => callee_port,
-      :caller_host => caller_host,
-      :caller_port => caller_port,
-      :conf_guid => conf_guid,
-      :call_guid => call_guid
-    })
+        cnt = 0
+        while (true)
+          info = read_packet
+          break if not info
 
-    res = sock.put(pkt_setup) rescue nil
-    if not res
-      disconnect
-      return
-    end
+          # The remote side of the call disconnected us
+          break if info[:type] == @@H323_STATUS_RELEASE_COMPLETE
 
-    cnt = 0
-    while( true )
-      info = read_packet
-      break if not info
+          remote_display = info[40].strip if info[40]
+          remote_product_id = info[:product_id].strip if info[:product_id]
+          remote_version_id = info[:version_id].strip if info[:version_id]
+          remote_protocol = info[:protocol_version].strip if info[:protocol_version]
 
-      # The remote side of the call disconnected us
-      break if info[:type] == @@H323_STATUS_RELEASE_COMPLETE
+          if info[:vendor_id] and [nil, "Unknown"].include?(remote_vendor_id)
+            remote_vendor_id = info[:vendor_id].strip
+          end
 
-      remote_display     = info[40].strip if info[40]
-      remote_product_id  = info[:product_id].strip if info[:product_id]
-      remote_version_id  = info[:version_id].strip if info[:version_id]
-      remote_protocol    = info[:protocol_version].strip  if info[:protocol_version]
+          # Diagnostics
+          # print_status("Host: #{rhost}:#{rport} => #{info.inspect}")
 
-      if info[:vendor_id] and [nil, "Unknown"].include?( remote_vendor_id )
-        remote_vendor_id   = info[:vendor_id].strip
+          # The remote side of the call was connected (kill it)
+          break if info[:type] == @@H323_STATUS_CONNECT
+
+          # Exit if we already received 5 packets from the server
+          break if (cnt += 1) > 5
+
+        end
+
+        # Make sure the call was shut down cleanly
+        pkt_release = h323_release_call({
+          :caller_name => caller_name,
+          :call_guid => call_guid
+        })
+        sock.put(pkt_release) rescue nil
+
+        # End timeout block
       end
-
-      # Diagnostics
-      # print_status("Host: #{rhost}:#{rport} => #{info.inspect}")
-
-      # The remote side of the call was connected (kill it)
-      break if info[:type] == @@H323_STATUS_CONNECT
-
-      # Exit if we already received 5 packets from the server
-      break if (cnt +=1) > 5
-
-    end
-
-    # Make sure the call was shut down cleanly
-    pkt_release = h323_release_call({
-      :caller_name => caller_name,
-      :call_guid => call_guid
-    })
-    sock.put(pkt_release) rescue nil
-
-    # End timeout block
-    end
-
     rescue ::Timeout::Error
     rescue ::Interrupt
       raise $!
@@ -115,33 +112,32 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if remote_vendor_id
-      remote_product_id   = remote_product_id.to_s.gsub(/[^\x20-\x7e]/, '')
-      remote_version_id   = remote_version_id.to_s.gsub(/[^\x20-\x7e]/, '')
+      remote_product_id = remote_product_id.to_s.gsub(/[^\x20-\x7e]/, '')
+      remote_version_id = remote_version_id.to_s.gsub(/[^\x20-\x7e]/, '')
 
-      banner = "Protocol: #{ remote_protocol }  VendorID: #{ remote_vendor_id }  "
+      banner = "Protocol: #{remote_protocol}  VendorID: #{remote_vendor_id}  "
 
       if remote_version_id and remote_version_id.length > 0
-        banner << "VersionID: #{ remote_version_id }  "
+        banner << "VersionID: #{remote_version_id}  "
       end
 
       if remote_product_id and remote_product_id.length > 0
-        banner << "ProductID: #{ remote_product_id }  "
+        banner << "ProductID: #{remote_product_id}  "
       end
 
       if remote_display and remote_display.length > 0
         remote_display = remote_display.to_s.gsub(/[^\x20-\x7e]/, '')
-        banner << "DisplayName: #{ remote_display }"
+        banner << "DisplayName: #{remote_display}"
       end
 
       print_good("#{rhost}:#{rport} #{banner}")
       report_service(:host => rhost, :port => rport, :name => "h323", :info => banner)
     end
-
   end
 
   def read_packet
     begin
-      ::Timeout.timeout( read_timeout ) do
+      ::Timeout.timeout(read_timeout) do
         ver = sock.read(2)
         return if not (ver and ver == "\x03\x00")
 
@@ -158,7 +154,7 @@ class MetasploitModule < Msf::Auxiliary
         cref_val = bin[2, cref_len]
         f_type = bin[2 + cref_len, 1].unpack("C")[0]
 
-        return { :type => f_type, :call_ref => cref_val }.merge( read_ies(f_type, bin[ 2 + cref_len + 1, bin.length] ) )
+        return { :type => f_type, :call_ref => cref_val }.merge(read_ies(f_type, bin[2 + cref_len + 1, bin.length]))
       end
     rescue ::Timeout::Error
     end
@@ -166,44 +162,43 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def read_ies(mtype, data)
-    r = { }
+    r = {}
     i = 0
 
-    while( i < (data.length - 1) )
+    while (i < (data.length - 1))
       ie_type = data[i, 1].unpack("C")[0]
       break if not ie_type
 
-      ie_len  = 0
+      ie_len = 0
       ie_data = ""
 
       case ie_type
-        when @@H225_IE_USER_USER
-          ie_len  = data[i+1, 2].unpack("n")[0]
-          break if not ie_len
+      when @@H225_IE_USER_USER
+        ie_len = data[i + 1, 2].unpack("n")[0]
+        break if not ie_len
 
-          ie_data = data[i+3, ie_len]
-          break if not ie_data
+        ie_data = data[i + 3, ie_len]
+        break if not ie_data
 
-          i = i + 3 + ie_len
-        else
-          ie_len  = data[i+1, 1].unpack("C")[0]
-          break if not ie_len
+        i = i + 3 + ie_len
+      else
+        ie_len = data[i + 1, 1].unpack("C")[0]
+        break if not ie_len
 
-          ie_data = data[i+2, ie_len]
-          break if not ie_data
+        ie_data = data[i + 2, ie_len]
+        break if not ie_data
 
-          i = i + 2 + ie_len
+        i = i + 2 + ie_len
       end
 
-      r[ ie_type ] = ie_data
+      r[ie_type] = ie_data
 
       if ie_type == @@H225_IE_USER_USER
-        r.merge!( ( read_user_user(mtype, ie_data) rescue {} ) )
+        r.merge!((read_user_user(mtype, ie_data) rescue {}))
       end
     end
     r
   end
-
 
   # This provides a weak method of decoding USER-USER PDUs. These are
   # actually PER-encoded ASN.1, but we take a few shortcuts since PER
@@ -221,7 +216,7 @@ class MetasploitModule < Msf::Auxiliary
     r[:protocol_version] = pver.to_s
 
     # Bump the index over the version
-    i+= 6
+    i += 6
 
     # print_line( Rex::Text.to_hex_dump( data[i, 32] ) )
 
@@ -234,13 +229,13 @@ class MetasploitModule < Msf::Auxiliary
     when @@H323_STATUS_ALERTING, @@H323_STATUS_PROCEEDING
 
       if pver == 2 and data[i, 2] == "\x20\x00"
-        r[ :vendor_id ] = "0x%.8x" %  ( data[i + 2, 4].unpack("N")[0] rescue 0 )
+        r[:vendor_id] = "0x%.8x" % (data[i + 2, 4].unpack("N")[0] rescue 0)
         return r
       end
 
       # Find the offset to the VendorID
       if data[i + 1, 1] != "\xc0"
-        i+= 7
+        i += 7
       end
 
       # Stop processing if we can't identify a VendorID
@@ -256,7 +251,7 @@ class MetasploitModule < Msf::Auxiliary
 
       # Find the offset to the VendorID
       if data[i + 1, 1] != "\xc0"
-        i+= 7
+        i += 7
       end
 
       # Stop processing if we can't identify a VendorID
@@ -270,26 +265,26 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Extract the manufacturer ID
-    r[ :vendor_id ] = "0x%.8x" %  ( data[i, 4].unpack("N")[0] rescue 0 )
-    i+= 4
+    r[:vendor_id] = "0x%.8x" % (data[i, 4].unpack("N")[0] rescue 0)
+    i += 4
 
     # No Product ID / Version ID in versions less than 3 (unless special cased above)
     return r if pver < 3
 
     # Get the product_id length (-1)
     product_id_length = data[i, 1].unpack("C")[0] + 1
-    i+= 1
+    i += 1
 
     # Extract the product ID
-    r[ :product_id ] = data[i, product_id_length]
-    i+= product_id_length
+    r[:product_id] = data[i, product_id_length]
+    i += product_id_length
 
     # Get the version ID length (-1)
     version_id_length = data[i, 1].unpack("C")[0] + 1
-    i+= 1
+    i += 1
 
     # Extract the version ID
-    r[ :version_id ] = data[i, version_id_length]
+    r[:version_id] = data[i, version_id_length]
 
     # Thats it for now
 
@@ -304,22 +299,19 @@ class MetasploitModule < Msf::Auxiliary
     30
   end
 
+  @@H225_IE_BEARER_CAP = 0x04
+  @@H225_IE_DISPLAY = 0x28
+  @@H225_IE_USER_USER = 0x7e # Yes, really User-user
 
-  @@H225_IE_BEARER_CAP   = 0x04
-  @@H225_IE_DISPLAY      = 0x28
-  @@H225_IE_USER_USER    = 0x7e  # Yes, really User-user
+  @@H323_STATUS_ALERTING = 0x01
+  @@H323_STATUS_PROCEEDING = 0x02
+  @@H323_STATUS_SETUP = 0x05
+  @@H323_STATUS_SETUP_ACK = 0x0D
+  @@H323_STATUS_CONNECT = 0x07
+  @@H323_STATUS_RELEASE_COMPLETE = 0x5a
+  @@H323_STATUS_FACILITY = 0x62
 
-
-  @@H323_STATUS_ALERTING          = 0x01
-  @@H323_STATUS_PROCEEDING        = 0x02
-  @@H323_STATUS_SETUP             = 0x05
-  @@H323_STATUS_SETUP_ACK         = 0x0D
-  @@H323_STATUS_CONNECT           = 0x07
-  @@H323_STATUS_RELEASE_COMPLETE  = 0x5a
-  @@H323_STATUS_FACILITY          = 0x62
-
-
-  def encap_tpkt(ver,data)
+  def encap_tpkt(ver, data)
     [ ver, 0, data.length + 4 ].pack("CCn") + data
   end
 
@@ -348,15 +340,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def create_ie_bearer_capability(cap = 0x00038893)
-    create_ie_byte( @@H225_IE_BEARER_CAP, [cap].pack("N")[0,3] )
+    create_ie_byte(@@H225_IE_BEARER_CAP, [cap].pack("N")[0, 3])
   end
 
   def create_ie_display(name = "DEBUG\x00")
-    create_ie_byte( @@H225_IE_DISPLAY, name )
+    create_ie_byte(@@H225_IE_DISPLAY, name)
   end
 
   def create_ie_user_user(data)
-    create_ie_short( @@H225_IE_USER_USER, data )
+    create_ie_short(@@H225_IE_USER_USER, data)
   end
 
   #
@@ -387,7 +379,7 @@ class MetasploitModule < Msf::Auxiliary
     buff << "\x00"
 
     # Remote IP + Remote Port
-    buff << ( ::Rex::Socket.addr_aton( callee_host ) + [ callee_port.to_i ].pack("n") )
+    buff << (::Rex::Socket.addr_aton(callee_host) + [ callee_port.to_i ].pack("n"))
 
     buff << "\x00"
 
@@ -397,7 +389,7 @@ class MetasploitModule < Msf::Auxiliary
     buff << "\x00\xc5\x1d\x80\x04\x07\x00"
 
     # Local IP + Port
-    buff << ( ::Rex::Socket.addr_aton( caller_host ) + [ caller_port.to_i ].pack("n") )
+    buff << (::Rex::Socket.addr_aton(caller_host) + [ caller_port.to_i ].pack("n"))
 
     buff << "\x11\x00"
 
@@ -410,123 +402,75 @@ class MetasploitModule < Msf::Auxiliary
       "\x36\x30\x30\x30\x3b\x6d\x6f\x64\x65\x3d\x36\x3b\x76\x62" +
       "\x72\x3d\x6f\x66\x66\x3b\x63\x6e\x67\x3d\x6f\x66\x66\x80" +
       "\x12\x1c\x40\x01\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc6\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc7\x90\x3c\x00\x00\x64\x0c\x10\xb5\x00\x00\x26\x25" +
       "\x73\x70\x65\x65\x78\x20\x73\x72\x3d\x31\x36\x30\x30\x30" +
       "\x3b\x6d\x6f\x64\x65\x3d\x36\x3b\x76\x62\x72\x3d\x6f\x66" +
       "\x66\x3b\x63\x6e\x67\x3d\x6f\x66\x66\x80\x0b\x0d\x40\x01" +
       "\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc7\x48\x31\x40\x00\x00\x06\x04\x01\x00\x4c\x10\x09" +
       "\x00\x00\x3d\x0f\x53\x70\x65\x65\x78\x20\x62\x73\x34\x20" +
       "\x57\x69\x64\x65\x36\x80\x12\x1c\x40\x01\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc6\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc7\xa0\x26\x00\x00\x65\x0c\x10\x09\x00\x00\x3d\x0f" +
       "\x53\x70\x65\x65\x78\x20\x62\x73\x34\x20\x57\x69\x64\x65" +
       "\x36\x80\x0b\x0d\x40\x01\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc7\x50\x1d\x40\x00\x00\x06\x04\x01\x00\x4c\x60\x13" +
       "\x80\x11\x1c\x00\x01\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc6\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc7\x13\x00\x00\x66\x0c\x60\x13\x80\x0b\x0d\x00\x01" +
       "\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc7\x00\x1d\x40\x00\x00\x06\x04\x01\x00\x4c\x20\x13" +
       "\x80\x11\x1c\x00\x01\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc6\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc7\x13\x00\x00\x67\x0c\x20\x13\x80\x0b\x0d\x00\x01" +
       "\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc7\x00\x23\x40\x00\x00\x06\x04\x01\x00\x48\x78\x00" +
       "\x4a\xff\x00\x80\x01\x00\x80\x11\x1c\x00\x02\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc8\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc9\x19\x00\x00\x68\x08\x78\x00\x4a\xff\x00\x80\x01" +
       "\x00\x80\x0b\x0d\x00\x02\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc9\x00\x22\x40\x00\x00\x06\x04\x01\x00\x48\x68\x4a" +
       "\xff\x00\x80\x01\x00\x80\x11\x1c\x00\x02\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc8\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc9\x18\x00\x00\x69\x08\x68\x4a\xff\x00\x80\x01\x00" +
       "\x80\x0b\x0d\x00\x02\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc9\x00\x22\x40\x00\x00\x06\x04\x01\x00\x48\x70\x4a" +
       "\xff\x00\x80\x01\x00\x80\x11\x1c\x00\x02\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc8\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc9\x18\x00\x00\x6a\x08\x70\x4a\xff\x00\x80\x01\x00" +
       "\x80\x0b\x0d\x00\x02\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc9\x00\x2c\x40\x00\x00\x06\x04\x01\x00\x48\xee\x00" +
       "\x00\x20\x9f\xff\x20\x50\x40\x01\x00\x80\x17\x1c\x20\x02" +
       "\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc8\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc9\x80\x04\x48\x08\x8d\x44\x22\x00\x00\x6b\x08\xee" +
       "\x00\x00\x20\x9f\xff\x20\x50\x40\x01\x00\x80\x11\x0d\x20" +
       "\x02\x00" +
-
-      Rex::Socket.addr_aton( caller_host ) +
-
+      Rex::Socket.addr_aton(caller_host) +
       "\x13\xc9\x40\x00\x04\x48\x08\x8d\x44\x01\x00\x01\x00\x01" +
       "\x00\x01\x00\x80\xfa\x02\x80\xef\x02\x70\x01\x06\x00\x08" +
       "\x81\x75\x00\x0d\x80\x1a\x80\x01\xf4\x00\x01\x00\x00\x01" +
@@ -553,9 +497,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def create_user_release_info(call_guid)
     "\x05" +
-    "\x25\x80\x06\x00\x08\x91\x4a\x00\x05\x01\x11\x00" +
-    call_guid +
-    "\x02\x80\x01\x00"
+      "\x25\x80\x06\x00\x08\x91\x4a\x00\x05\x01\x11\x00" +
+      call_guid +
+      "\x02\x80\x01\x00"
   end
 
   def h323_release_call(opts = {})
@@ -563,13 +507,12 @@ class MetasploitModule < Msf::Auxiliary
     call_guid = opts[:call_guid]
 
     encap_tpkt(3,
-      encap_q225_release(
-        create_ie_display(caller_name) +
-        create_ie_user_user(
-          create_user_release_info(call_guid )
-        )
-      )
-    )
+               encap_q225_release(
+                 create_ie_display(caller_name) +
+                 create_ie_user_user(
+                   create_user_release_info(call_guid)
+                 )
+               ))
   end
 
   def h323_setup_call(opts = {})
@@ -584,22 +527,21 @@ class MetasploitModule < Msf::Auxiliary
     call_guid = opts[:call_guid]
 
     encap_tpkt(3,
-      encap_q225_setup(
-        create_ie_bearer_capability() +
-        create_ie_display(caller_name) +
-        create_ie_user_user(
-          create_user_info({
-            :h323_id => h323_id,
-            :vendor_id => vendor_id,
-            :callee_host => callee_host,
-            :callee_port => callee_port,
-            :caller_host => caller_host,
-            :caller_port => caller_port,
-            :conf_guid => conf_guid,
-            :call_guid => call_guid
-          })
-        )
-      )
-    )
+               encap_q225_setup(
+                 create_ie_bearer_capability() +
+                 create_ie_display(caller_name) +
+                 create_ie_user_user(
+                   create_user_info({
+                     :h323_id => h323_id,
+                     :vendor_id => vendor_id,
+                     :callee_host => callee_host,
+                     :callee_port => callee_port,
+                     :caller_host => caller_host,
+                     :caller_port => caller_port,
+                     :conf_guid => conf_guid,
+                     :call_guid => call_guid
+                   })
+                 )
+               ))
   end
 end

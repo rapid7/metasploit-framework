@@ -158,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Reporting found cookie name in database
     unless cookie_name.empty?
-      report_note(host: rhost, type: 'f5_load_balancer_cookie_name', data: {:cookie_name => cookie_name })
+      report_note(host: rhost, type: 'f5_load_balancer_cookie_name', data: { :cookie_name => cookie_name })
       # Reporting found pool name in database
       unless pool_name.empty?
         report_note(host: rhost, type: 'f5_load_balancer_pool_name', data: { :pool_name => pool_name })

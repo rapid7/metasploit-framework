@@ -10,11 +10,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Telephone Line Voice Scanner',
-      'Description'    => 'This module dials a range of phone numbers and records audio from each answered call',
-      'Author'         => [ 'hdm' ],
-      'License'        => MSF_LICENSE,
-      'References'     => [  ]
+      'Name' => 'Telephone Line Voice Scanner',
+      'Description' => 'This module dials a range of phone numbers and records audio from each answered call',
+      'Author' => [ 'hdm' ],
+      'License' => MSF_LICENSE,
+      'References' => [ ]
     )
     register_options([
       OptString.new('TARGETS', [true, "A list of telephone masks in the format of 1-555-555-5XXX, separated by commas"]),
@@ -27,13 +27,12 @@ class MetasploitModule < Msf::Auxiliary
     targets = crack_phone_ranges(datastore['TARGETS'].split(","))
     connect
 
-    ::FileUtils.mkdir_p( datastore['OUTPUT_PATH'] )
+    ::FileUtils.mkdir_p(datastore['OUTPUT_PATH'])
 
     targets.each do |number|
-
       c = create_call
       begin
-        ::Timeout.timeout( datastore['CALL_TIME'] ) do
+        ::Timeout.timeout(datastore['CALL_TIME']) do
           print_status("Dialing #{number}...")
           r = c.dial(number)
           if not c
@@ -55,8 +54,8 @@ class MetasploitModule < Msf::Auxiliary
       print_status("  COMPLETED   Number: #{number}  State: #{c.state}  Frames: #{c.audio_buff.length}  DTMF: '#{c.dtmf}'")
 
       if c.audio_buff.length > 0
-        opath = ::File.join( datastore['OUTPUT_PATH'], "#{number}.raw" )
-        cnt   = 0
+        opath = ::File.join(datastore['OUTPUT_PATH'], "#{number}.raw")
+        cnt = 0
         ::File.open(opath, 'wb') do |fd|
           c.audio_buff.each do |raw|
             cnt += raw.length

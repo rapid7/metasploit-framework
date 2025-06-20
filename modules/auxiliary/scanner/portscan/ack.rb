@@ -10,14 +10,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'TCP ACK Firewall Scanner',
+      'Name' => 'TCP ACK Firewall Scanner',
       'Description' => %q{
         Map out firewall rulesets with a raw ACK scan.  Any
         unfiltered ports found means a stateful firewall is
         not in place for them.
       },
-      'Author'      => 'kris katterjohn',
-      'License'     => MSF_LICENSE
+      'Author' => 'kris katterjohn',
+      'License' => MSF_LICENSE
     )
 
     register_options([
@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('INTERFACE', [false, 'The name of the interface'])
     ])
 
-    deregister_options('FILTER','PCAPFILE')
+    deregister_options('FILTER', 'PCAPFILE')
   end
 
   # No IPv6 support yet
@@ -42,7 +42,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_batch(hosts)
-
     ports = Rex::Socket.portspec_crack(datastore['PORTS'])
     if ports.empty?
       raise Msf::OptionValidateError.new(['PORTS'])
@@ -74,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
         pcap.setfilter(getfilter(shost, sport, dhost, dport))
 
         # Add the delay based on JITTER and DELAY if needs be
-        add_delay_jitter(delay_value,jitter_value)
+        add_delay_jitter(delay_value, jitter_value)
 
         begin
           probe = buildprobe(shost, sport, dhost, dport)
@@ -90,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
 
           print_status(" TCP UNFILTERED #{dhost}:#{dport}")
 
-          #Add Report
+          # Add Report
           report_note(
             :host	=> dhost,
             :proto	=> 'tcp',
@@ -101,7 +100,6 @@ class MetasploitModule < Msf::Auxiliary
               :port => dport
             }
           )
-
         rescue ::Exception
           print_error("Error: #{$!.class} #{$!}")
         end
@@ -114,8 +112,8 @@ class MetasploitModule < Msf::Auxiliary
   def getfilter(shost, sport, dhost, dport)
     # Look for associated RSTs
     "tcp and (tcp[13] & 0x04) != 0 and " +
-    "src host #{dhost} and src port #{dport} and " +
-    "dst host #{shost} and dst port #{sport}"
+      "src host #{dhost} and src port #{dport} and " +
+      "dst host #{shost} and dst port #{sport}"
   end
 
   def getsource(dhost)
@@ -143,6 +141,7 @@ class MetasploitModule < Msf::Auxiliary
         pcap.each do |r|
           pkt = PacketFu::Packet.parse(r)
           next unless pkt.is_tcp?
+
           reply = pkt
           break
         end

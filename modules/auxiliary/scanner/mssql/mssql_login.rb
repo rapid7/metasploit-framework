@@ -19,21 +19,19 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'MSSQL Login Utility',
-      'Description'    => 'This module simply queries the MSSQL instance for a specific user/pass (default is sa with blank).',
-      'Author'         => 'MC',
-      'References'     =>
-        [
-          [ 'CVE', '1999-0506'] # Weak password
-        ],
-      'License'        => MSF_LICENSE,
+      'Name' => 'MSSQL Login Utility',
+      'Description' => 'This module simply queries the MSSQL instance for a specific user/pass (default is sa with blank).',
+      'Author' => 'MC',
+      'References' => [
+        [ 'CVE', '1999-0506'] # Weak password
+      ],
+      'License' => MSF_LICENSE,
       # some overrides from authbrute since there is a default username and a blank password
-      'DefaultOptions' =>
-        {
-          'USERNAME' => 'sa',
-          'BLANK_PASSWORDS' => true,
-          'CreateSession' => false
-        }
+      'DefaultOptions' => {
+        'USERNAME' => 'sa',
+        'BLANK_PASSWORDS' => true,
+        'CreateSession' => false
+      }
     )
     register_options([
       Opt::Proxies,
@@ -88,9 +86,9 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     cred_collection = build_credential_collection(
-        realm: datastore['DOMAIN'],
-        username: datastore['USERNAME'],
-        password: datastore['PASSWORD']
+      realm: datastore['DOMAIN'],
+      username: datastore['USERNAME'],
+      password: datastore['PASSWORD']
     )
 
     scanner = Metasploit::Framework::LoginScanner::MSSQL.new(
@@ -125,8 +123,8 @@ class MetasploitModule < Msf::Auxiliary
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-          module_fullname: self.fullname,
-          workspace_id: myworkspace_id
+        module_fullname: self.fullname,
+        workspace_id: myworkspace_id
       )
       if result.success?
         credential_core = create_credential(credential_data)
@@ -160,10 +158,10 @@ class MetasploitModule < Msf::Auxiliary
     my_session = Msf::Sessions::MSSQL.new(result.connection, { client: result.proof, **result.proof.detect_platform_and_arch })
     merge_me = {
       'USERPASS_FILE' => nil,
-      'USER_FILE'     => nil,
-      'PASS_FILE'     => nil,
-      'USERNAME'      => result.credential.public,
-      'PASSWORD'      => result.credential.private
+      'USER_FILE' => nil,
+      'PASS_FILE' => nil,
+      'USERNAME' => result.credential.public,
+      'PASSWORD' => result.credential.private
     }
 
     start_session(self, nil, merge_me, false, my_session.rstream, my_session)

@@ -11,24 +11,24 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Java RMI Registry Interfaces Enumeration',
-      'Description'    => %q{
+      'Name' => 'Java RMI Registry Interfaces Enumeration',
+      'Description' => %q{
         This module gathers information from an RMI endpoint running an RMI registry
         interface. It enumerates the names bound in a registry and looks up each
         remote reference.
       },
-      'Author'      => ['juan vazquez'],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['URL', 'https://docs.oracle.com/javase/8/docs/platform/rmi/spec/rmiTOC.html']
-        ]
+      'Author' => ['juan vazquez'],
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['URL', 'https://docs.oracle.com/javase/8/docs/platform/rmi/spec/rmiTOC.html']
+      ]
     )
 
     register_options(
       [
         Opt::RPORT(1099)
-      ])
+      ]
+    )
   end
 
   def run
@@ -65,7 +65,6 @@ class MetasploitModule < Msf::Auxiliary
     print_good("#{names.length} names found in the Registry")
 
     names.each do |name|
-
       begin
         remote_reference = send_registry_lookup(name: name)
       rescue ::Rex::Proto::Rmi::Exception => e

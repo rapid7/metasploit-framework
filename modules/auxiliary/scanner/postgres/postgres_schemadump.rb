@@ -78,6 +78,7 @@ class MetasploitModule < Msf::Auxiliary
     extractable_database_names = database_names - ignored_databases
     extractable_database_names.each do |database_name|
       next if ignored_databases.include? database_name
+
       tmp_db = {}
       tmp_db['DBName'] = database_name
       tmp_db['Tables'] = []

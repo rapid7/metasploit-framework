@@ -9,14 +9,18 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'         => 'Redis Command Execute Scanner',
-      'Description'  => %q(
-        This module locates Redis endpoints by attempting to run a specified
-        Redis command.
-      ),
-      'Author'       => [ 'iallison <ian[at]team-allison.com>', 'Nixawk' ],
-      'License'      => MSF_LICENSE))
+    super(
+      update_info(
+        info,
+        'Name' => 'Redis Command Execute Scanner',
+        'Description' => %q{
+          This module locates Redis endpoints by attempting to run a specified
+          Redis command.
+        },
+        'Author' => [ 'iallison <ian[at]team-allison.com>', 'Nixawk' ],
+        'License' => MSF_LICENSE
+      )
+    )
 
     register_options(
       [
@@ -35,6 +39,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
       return unless (data = redis_command(command))
+
       report_service(host: rhost, port: rport, name: "redis server", info: "#{command} response: #{data}")
       print_good("Found redis with #{command} command: #{Rex::Text.to_hex_ascii(data)}")
     rescue Rex::AddressInUse, Rex::HostUnreachable, Rex::ConnectionTimeout,

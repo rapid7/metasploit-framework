@@ -10,27 +10,28 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Telnet Service Encryption Key ID Overflow Detection',
+      'Name' => 'Telnet Service Encryption Key ID Overflow Detection',
       'Description' => 'Detect telnet services vulnerable to the encrypt option Key ID overflow (BSD-derived telnetd)',
-      'Author'      => [ 'Jaime Penalba Estebanez <jpenalbae[at]gmail.com>', 'hdm' ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['BID', '51182'],
-          ['CVE', '2011-4862'],
-          ['EDB', '18280'],
-          ['URL', 'https://www.rapid7.com/blog/post/2011/12/28/more-fun-with-bsd-derived-telnet-daemons/']
-        ]
+      'Author' => [ 'Jaime Penalba Estebanez <jpenalbae[at]gmail.com>', 'hdm' ],
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['BID', '51182'],
+        ['CVE', '2011-4862'],
+        ['EDB', '18280'],
+        ['URL', 'https://www.rapid7.com/blog/post/2011/12/28/more-fun-with-bsd-derived-telnet-daemons/']
+      ]
     )
     register_options(
-    [
-      Opt::RPORT(23),
-      OptInt.new('TIMEOUT', [true, 'Timeout for the Telnet probe', 30])
-    ])
+      [
+        Opt::RPORT(23),
+        OptInt.new('TIMEOUT', [true, 'Timeout for the Telnet probe', 30])
+      ]
+    )
   end
 
   def to
     return 30 if datastore['TIMEOUT'].to_i.zero?
+
     datastore['TIMEOUT'].to_i
   end
 
@@ -56,10 +57,9 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         buff_good = "\xff\xfa\x26" + "\x07" + "\x00" + ("X" * 63) + "\xff\xf0"
-        buff_long = "\xff\xfa\x26" + "\x07" + "\x00" + ("X" * 64) + ( "\xcc" * 32) + "\xff\xf0"
+        buff_long = "\xff\xfa\x26" + "\x07" + "\x00" + ("X" * 64) + ("\xcc" * 32) + "\xff\xf0"
 
         begin
-
           #
           # Send a long, but within boundary Key ID
           #
@@ -107,7 +107,6 @@ class MetasploitModule < Msf::Auxiliary
 
           print_status("#{ip}:#{rport} NOT VULNERABLE: Service did not disconnect: #{banner_sanitized}")
           return
-
         rescue ::EOFError
         end
 
@@ -115,14 +114,13 @@ class MetasploitModule < Msf::Auxiliary
         print_good("#{ip}:#{rport} VULNERABLE: #{banner_sanitized}")
         report_vuln(
           {
-              :host	  => ip,
-              :service  => svc,
-              :name	  => self.name,
-              :info	  => "Module #{self.fullname} confirmed acceptance of a long key ID: #{banner_sanitized}",
-              :refs     => self.references
+            :host	=> ip,
+            :service => svc,
+            :name	=> self.name,
+            :info	=> "Module #{self.fullname} confirmed acceptance of a long key ID: #{banner_sanitized}",
+            :refs => self.references
           }
         )
-
       end
     rescue ::Rex::ConnectionError, ::Errno::ECONNRESET => e
       print_error("A network issue has occurred: #{e.message}")
