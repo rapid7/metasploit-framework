@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if ( a < 1 or b > 0 )
       print_good("#{ip} - '#{vhostn}' : '" + before.to_s + "' - '" + after.to_s + "' (EXPIRED)'")
-    elsif
+    else
       # show verbose as status
       print_status("#{ip} - '#{vhostn}' : '" + before.to_s + "' - '" + after.to_s + "'")
     end
