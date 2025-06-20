@@ -77,12 +77,8 @@ class MetasploitModule < Msf::Auxiliary
           else
             ''
           end
-        elsif
-          if (res.code and res.headers['Location'])
-            print_error("#{ip}:#{rport} #{res.code} Redirect to #{res.headers['Location']}")
-          else
-            ''
-          end
+        elsif (res.code and res.headers['Location'])
+          print_error("#{ip}:#{rport} #{res.code} Redirect to #{res.headers['Location']}")
         else
           ''
         end

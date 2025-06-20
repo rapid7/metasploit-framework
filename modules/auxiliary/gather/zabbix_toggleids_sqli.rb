@@ -239,7 +239,7 @@ class MetasploitModule < Msf::Auxiliary
        end
 
        sid = match[1]
-     elsif
+     else
        fail_with(Failure::Unknown, 'Server did not respond in an expected way')
      end
    end
