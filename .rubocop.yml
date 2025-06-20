@@ -24,6 +24,7 @@ require:
   - ./lib/rubocop/cop/lint/module_enforce_notes.rb
   - ./lib/rubocop/cop/lint/detect_invalid_pack_directives.rb
   - ./lib/rubocop/cop/lint/detect_metadata_trailing_leading_whitespace.rb
+  - ./lib/rubocop/cop/lint/detect_misspelt_mitre_attack_reference.rb
 
 Layout/SpaceBeforeBrackets:
   Enabled: true
@@ -675,4 +676,7 @@ Style/UnpackFirst:
   Enabled: false
 
 Lint/DetectMetadataTrailingLeadingWhitespace:
+  Enabled: true
+
+Lint/DetectMisspeltMitreAttackReference:
   Enabled: true
