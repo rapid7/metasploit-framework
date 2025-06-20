@@ -30,7 +30,6 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE
       )
     )
-
   end
 
   def run

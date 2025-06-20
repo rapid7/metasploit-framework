@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SSH Public Key Login Scanner',
+      'Name' => 'SSH Public Key Login Scanner',
       'Description' => %q{
         This module will test ssh logins on a range of machines using
         a defined private key file, and report successful logins.
@@ -34,8 +34,8 @@ class MetasploitModule < Msf::Auxiliary
         directory. Only a single passphrase is supported however, so it must either
         be shared between subject keys or only belong to a single one.
       },
-      'Author'      => ['todb', 'RageLtMan'],
-      'License'     => MSF_LICENSE
+      'Author' => ['todb', 'RageLtMan'],
+      'License' => MSF_LICENSE
     )
 
     register_options(
@@ -58,13 +58,12 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     deregister_options(
-      'PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS','USERPASS_FILE',
+      'PASSWORD', 'PASS_FILE', 'BLANK_PASSWORDS', 'USER_AS_PASS', 'USERPASS_FILE',
       'DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_SKIP_EXISTING'
     )
 
     @good_key = ''
     @strip_passwords = true
-
   end
 
   def rport
@@ -84,13 +83,13 @@ class MetasploitModule < Msf::Auxiliary
     # Clean up the stored data - need to stash the keyfile into
     # a datastore for later reuse.
     merge_me = {
-      'USERPASS_FILE'        => nil,
-      'USER_FILE'            => nil,
-      'PASS_FILE'            => nil,
-      'USERNAME'             => result.credential.public,
+      'USERPASS_FILE' => nil,
+      'USER_FILE' => nil,
+      'PASS_FILE' => nil,
+      'USERNAME' => result.credential.public,
       'CRED_CORE_PRIVATE_ID' => cred_core_private_id,
-      'SSH_KEYFILE_B64'      => [result.credential.private].pack("m*").gsub("\n",""),
-      'KEY_PATH'             => nil
+      'SSH_KEYFILE_B64' => [result.credential.private].pack("m*").gsub("\n", ""),
+      'KEY_PATH' => nil
     }
 
     s = start_session(self, nil, merge_me, false, sess.rstream, sess)
@@ -100,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
     s.platform = scanner.get_platform(result.proof)
 
     # Create database host information
-    host_info = {host: scanner.host}
+    host_info = { host: scanner.host }
 
     unless s.platform == 'unknown'
       host_info[:os_name] = s.platform
@@ -151,7 +150,6 @@ class MetasploitModule < Msf::Auxiliary
       key_sources.append('PRIVATE_KEY')
     end
 
-
     print_brute :level => :vstatus, :ip => ip, :msg => "Testing #{key_count} #{'key'.pluralize(key_count)} from #{key_sources.join(' and ')}"
     scanner = Metasploit::Framework::LoginScanner::SSH.new(
       configure_login_scanner(
@@ -173,47 +171,47 @@ class MetasploitModule < Msf::Auxiliary
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-          module_fullname: self.fullname,
-          workspace_id: myworkspace_id
+        module_fullname: self.fullname,
+        workspace_id: myworkspace_id
       )
       case result.status
-        when Metasploit::Model::Login::Status::SUCCESSFUL
-          print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
-          credential_core = create_credential(credential_data)
-          credential_data[:core] = credential_core
-          create_credential_login(credential_data)
-          tmp_key = result.credential.private
-          ssh_key = SSHKey.new tmp_key
-          if datastore['CreateSession']
-            if credential_core.is_a? Metasploit::Credential::Core
-              session_setup(result, scanner, ssh_key.fingerprint, credential_core.private_id)
-            else
-              session_setup(result, scanner, ssh_key.fingerprint, nil)
-            end
+      when Metasploit::Model::Login::Status::SUCCESSFUL
+        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
+        credential_core = create_credential(credential_data)
+        credential_data[:core] = credential_core
+        create_credential_login(credential_data)
+        tmp_key = result.credential.private
+        ssh_key = SSHKey.new tmp_key
+        if datastore['CreateSession']
+          if credential_core.is_a? Metasploit::Credential::Core
+            session_setup(result, scanner, ssh_key.fingerprint, credential_core.private_id)
+          else
+            session_setup(result, scanner, ssh_key.fingerprint, nil)
           end
-          if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
-            msg = "While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with"
-            msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
-            msg << " device details so it can be handled in the future."
-            print_brute :level => :error, :ip => ip, :msg => msg
-          end
-          :next_user
-        when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-          if datastore['VERBOSE']
-            print_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
-          end
-          scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
-          invalidate_login(credential_data)
-          :abort
-        when Metasploit::Model::Login::Status::INCORRECT
-          if datastore['VERBOSE']
-            print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
-          end
-          invalidate_login(credential_data)
-          scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
-        else
-          invalidate_login(credential_data)
-          scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+        end
+        if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
+          msg = "While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with"
+          msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
+          msg << " device details so it can be handled in the future."
+          print_brute :level => :error, :ip => ip, :msg => msg
+        end
+        :next_user
+      when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
+        if datastore['VERBOSE']
+          print_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
+        end
+        scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+        invalidate_login(credential_data)
+        :abort
+      when Metasploit::Model::Login::Status::INCORRECT
+        if datastore['VERBOSE']
+          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+        end
+        invalidate_login(credential_data)
+        scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
+      else
+        invalidate_login(credential_data)
+        scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
       end
     end
   end

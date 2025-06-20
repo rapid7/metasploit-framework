@@ -8,20 +8,22 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'AVTECH 744 DVR Account Information Retrieval',
-      'Description'    => %q{
-        This module will extract the account information from the AVTECH 744 DVR devices,
-        including usernames, cleartext passwords, and the device PIN, along with
-        a few other miscellaneous details. In order to extract the information, hardcoded
-        credentials admin/admin are used. These credentials can't be changed from the device
-        console UI nor from the web UI.
-      },
-      'Author'         => [ 'nstarke' ],
-      'License'        => MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'AVTECH 744 DVR Account Information Retrieval',
+        'Description' => %q{
+          This module will extract the account information from the AVTECH 744 DVR devices,
+          including usernames, cleartext passwords, and the device PIN, along with
+          a few other miscellaneous details. In order to extract the information, hardcoded
+          credentials admin/admin are used. These credentials can't be changed from the device
+          console UI nor from the web UI.
+        },
+        'Author' => [ 'nstarke' ],
+        'License' => MSF_LICENSE
+      )
+    )
   end
-
 
   def run
     res = send_request_cgi({

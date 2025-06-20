@@ -10,26 +10,25 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'SVN wc.db Scanner',
-      'Description'    => %q{
+      'Name' => 'SVN wc.db Scanner',
+      'Description' => %q{
         Scan for servers that allow access to the SVN wc.db file.
         Based on the work by Tim Meddin.
       },
-      'Author'         =>
-        [
-          'Stephen Haywood <stephen[at]averagesecurityguy.info>',
-        ],
-      'References'     =>
-        [
-          ['URL','https://web.archive.org/web/20130107035252/http://pen-testing.sans.org/blog/pen-testing/2012/12/06/all-your-svn-are-belong-to-us']
-        ],
-      'License'        =>  MSF_LICENSE
+      'Author' => [
+        'Stephen Haywood <stephen[at]averagesecurityguy.info>',
+      ],
+      'References' => [
+        ['URL', 'https://web.archive.org/web/20130107035252/http://pen-testing.sans.org/blog/pen-testing/2012/12/06/all-your-svn-are-belong-to-us']
+      ],
+      'License' => MSF_LICENSE
     )
 
     register_advanced_options(
       [
         OptString.new('TARGETURI', [false, 'Base path to the .svn directory', '/.svn/'])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -43,9 +42,9 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_cgi(
         {
-          'method'  => 'GET',
-          'uri'     => path,
-          'ctype'   => 'text/plain'
+          'method' => 'GET',
+          'uri' => path,
+          'ctype' => 'text/plain'
         }
       )
 

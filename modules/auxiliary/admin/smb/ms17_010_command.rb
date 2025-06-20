@@ -111,7 +111,7 @@ class MetasploitModule < Msf::Auxiliary
     report_note(
       :rhost => datastore['RHOSTS'],
       :rport => datastore['RPORT'],
-      :type  => "psexec_command",
+      :type => "psexec_command",
       :name => datastore['COMMAND'],
       :data => { :command_output => output }
     )

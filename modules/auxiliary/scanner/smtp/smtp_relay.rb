@@ -10,29 +10,28 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SMTP Open Relay Detection',
+      'Name' => 'SMTP Open Relay Detection',
       'Description' => %q{
         This module tests if an SMTP server will accept (via a code 250)
         an e-mail by using a variation of testing methods.
         Some of the extended methods will try to abuse configuration or mailserver flaws.
       },
-      'References'  =>
-        [
-          ['URL', 'http://www.ietf.org/rfc/rfc2821.txt'],
-          ['URL', 'https://svn.nmap.org/nmap/scripts/smtp-open-relay.nse'],
-        ],
-      'Author'      =>
-        [
-          'Campbell Murray',
-          'xistence <xistence[at]0x90.nl>',
-        ],
-      'License'     => MSF_LICENSE
+      'References' => [
+        ['URL', 'http://www.ietf.org/rfc/rfc2821.txt'],
+        ['URL', 'https://svn.nmap.org/nmap/scripts/smtp-open-relay.nse'],
+      ],
+      'Author' => [
+        'Campbell Murray',
+        'xistence <xistence[at]0x90.nl>',
+      ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
         OptBool.new('EXTENDED', [true, 'Do all the 16 extended checks', false]),
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -71,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
         do_test_relay(16, "MAIL FROM:<#{mailfromuser}@[#{rhost}]>", "RCPT TO:<#{mailtodomain}!#{mailtouser}@#{serverhost}>")
       else
         do_test_relay(nil, "MAIL FROM:<#{datastore['MAILFROM']}>", "RCPT TO:<#{datastore['MAILTO']}>")
-    end
+      end
     rescue
       print_error("Unable to establish an SMTP session")
       return
@@ -99,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
       res = raw_send_recv("DATA\r\n")
       vprint_status("#{res.inspect}")
 
-      res = raw_send_recv("#{Rex::Text.rand_text_alpha(rand(10)+5)}\r\n.\r\n")
+      res = raw_send_recv("#{Rex::Text.rand_text_alpha(rand(10) + 5)}\r\n.\r\n")
       vprint_status("#{res.inspect}")
 
       if res =~ /250/
@@ -115,7 +114,6 @@ class MetasploitModule < Msf::Auxiliary
           print_status "Test ##{testnumber} - No relay detected"
         end
       end
-
     rescue
       print_error("Test ##{testnumber} - Unable to establish an SMTP session")
       return

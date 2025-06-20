@@ -14,23 +14,25 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Western Digital MyBook Live Login Utility',
-      'Description'    => 'This module simply attempts to login to a Western Digital MyBook Live instance using a specific user/pass.',
-      'Author'         => [ 'Nicholas Starke <starke.nicholas[at]gmail.com>' ],
-      'License'        => MSF_LICENSE
+      'Name' => 'Western Digital MyBook Live Login Utility',
+      'Description' => 'This module simply attempts to login to a Western Digital MyBook Live instance using a specific user/pass.',
+      'Author' => [ 'Nicholas Starke <starke.nicholas[at]gmail.com>' ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(80)
-      ])
+      ]
+    )
 
     register_autofilter_ports([ 80 ])
 
     # username is hardcoded into application
     deregister_options(
       'DB_ALL_CREDS', 'DB_ALL_USERS', 'DB_SKIP_EXISTING',
-      'USERNAME', 'USER_FILE', 'USER_AS_PASS')
+      'USERNAME', 'USER_FILE', 'USER_AS_PASS'
+    )
   end
 
   def setup

@@ -14,20 +14,21 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Octopus Deploy Login Utility',
-      'Description'    => %q{
+      'Name' => 'Octopus Deploy Login Utility',
+      'Description' => %q{
         This module simply attempts to login to an Octopus Deploy server using a specific
         username and password. It has been confirmed to work on version 3.4.4
       },
-      'Author'         => [ 'James Otten <jamesotten1[at]gmail.com>' ],
-      'License'        => MSF_LICENSE
+      'Author' => [ 'James Otten <jamesotten1[at]gmail.com>' ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(80),
         OptString.new('TARGETURI', [true, 'URI for login. Default is /api/users/login', '/api/users/login'])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)

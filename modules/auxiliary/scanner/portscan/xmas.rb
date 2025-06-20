@@ -10,14 +10,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'TCP "XMas" Port Scanner',
+      'Name' => 'TCP "XMas" Port Scanner',
       'Description' => %q{
         Enumerate open|filtered TCP services using a raw
         "XMas" scan; this sends probes containing the FIN,
         PSH and URG flags.
       },
-      'Author'      => 'kris katterjohn',
-      'License'     => MSF_LICENSE
+      'Author' => 'kris katterjohn',
+      'License' => MSF_LICENSE
     )
 
     register_options([
@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('INTERFACE', [false, 'The name of the interface'])
     ])
 
-    deregister_options('FILTER','PCAPFILE')
+    deregister_options('FILTER', 'PCAPFILE')
   end
 
   # No IPv6 support yet
@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
           probe = buildprobe(shost, sport, dhost, dport)
 
           # Add the delay based on JITTER and DELAY if needs be
-          add_delay_jitter(delay_value,jitter_value)
+          add_delay_jitter(delay_value, jitter_value)
 
           unless capture_sendto(probe, dhost)
             host_queue.delete(dhost)
@@ -100,7 +100,6 @@ class MetasploitModule < Msf::Auxiliary
               :port => dport
             }
           )
-
         rescue ::Exception
           print_error("Error: #{$!.class} #{$!}")
         end
@@ -113,8 +112,8 @@ class MetasploitModule < Msf::Auxiliary
   def getfilter(shost, sport, dhost, dport)
     # Look for associated RSTs
     "tcp and (tcp[13] & 0x04) != 0 and " +
-    "src host #{dhost} and src port #{dport} and " +
-    "dst host #{shost} and dst port #{sport}"
+      "src host #{dhost} and src port #{dport} and " +
+      "dst host #{shost} and dst port #{sport}"
   end
 
   def getsource(dhost)
@@ -143,6 +142,7 @@ class MetasploitModule < Msf::Auxiliary
         pcap.each do |r|
           pkt = PacketFu::Packet.parse(r)
           next unless pkt.is_tcp?
+
           reply = pkt
           break
         end

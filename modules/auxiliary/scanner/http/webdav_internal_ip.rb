@@ -14,43 +14,40 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'HTTP WebDAV Internal IP Scanner',
+      'Name' => 'HTTP WebDAV Internal IP Scanner',
       'Description' => 'Detect webservers internal IPs though WebDAV',
-      'Author'      => ['et'],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          [ 'CVE', '2002-0422' ]
-        ]
+      'Author' => ['et'],
+      'License' => MSF_LICENSE,
+      'References' => [
+        [ 'CVE', '2002-0422' ]
+      ]
     )
 
     register_options(
       [
         OptString.new("PATH", [true, "Path to use", '/']),
-      ])
+      ]
+    )
   end
 
   def run_host(target_host)
-
     begin
       res = send_request_cgi({
-        'uri'          => normalize_uri(datastore['PATH']),
-        'method'       => 'PROPFIND',
+        'uri' => normalize_uri(datastore['PATH']),
+        'method' => 'PROPFIND',
         'data'	=>	'',
-        'ctype'   => 'text/xml',
+        'ctype' => 'text/xml',
         'version' => '1.0',
         'vhost' => '',
       }, 10)
-
 
       if res and res.body
         # short regex
         intipregex = /(192\.168\.[0-9]{1,3}\.[0-9]{1,3}|10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}|172\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})/i
 
-        #print_status("#{res.body}")
+        # print_status("#{res.body}")
 
         result = res.body.scan(intipregex).uniq
-
 
         result.each do |addr|
           print_good("Found internal IP in WebDAV response (#{target_host}) #{addr}")
@@ -65,7 +62,6 @@ class MetasploitModule < Msf::Auxiliary
           )
         end
       end
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
     end

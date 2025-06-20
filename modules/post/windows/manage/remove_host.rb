@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Post
 
   def hosts_path
     root = client.sys.config.getenv('SystemRoot') ||
-           client.sys.config.getenv('windir')     ||
+           client.sys.config.getenv('windir') ||
            'C:\\Windows'
     "#{root}\\System32\\drivers\\etc\\hosts"
   end
@@ -71,6 +71,7 @@ class MetasploitModule < Msf::Post
       if parts[1..-1].to_a.include?(hosttoremove)
         parts.delete_if { |p| p.casecmp(hosttoremove).zero? }
         next if parts.size < 2
+
         rebuilt = parts.join(' ')
         rebuilt += " " + line.split('#', 2).last if line.include?('#')
         newfile += "#{rebuilt}\r\n"

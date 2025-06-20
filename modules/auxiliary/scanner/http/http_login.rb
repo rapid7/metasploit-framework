@@ -15,33 +15,39 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'HTTP Login Utility',
-      'Description'    => 'This module attempts to authenticate to an HTTP service.',
-      'Author'         => [ 'hdm' ],
-      'References'     =>
-        [
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'License'        => MSF_LICENSE,
+      'Name' => 'HTTP Login Utility',
+      'Description' => 'This module attempts to authenticate to an HTTP service.',
+      'Author' => [ 'hdm' ],
+      'References' => [
+        [ 'CVE', '1999-0502'] # Weak password
+      ],
+      'License' => MSF_LICENSE,
       # See https://github.com/rapid7/metasploit-framework/issues/3811
-      #'DefaultOptions' => {
+      # 'DefaultOptions' => {
       #  'USERPASS_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt"),
       #  'USER_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt"),
       #  'PASS_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt"),
-      #}
+      # }
     )
 
     register_options(
       [
-        OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-          File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt") ]),
-        OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
-        OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
+        OptPath.new('USERPASS_FILE', [
+          false, "File containing users and passwords separated by space, one pair per line",
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt")
+        ]),
+        OptPath.new('USER_FILE', [
+          false, "File containing users, one per line",
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt")
+        ]),
+        OptPath.new('PASS_FILE', [
+          false, "File containing passwords, one per line",
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt")
+        ]),
         OptString.new('AUTH_URI', [ false, "The URI to authenticate against (default:auto)" ]),
         OptString.new('REQUESTTYPE', [ false, "Use HTTP-GET or HTTP-PUT for Digest-Auth, PROPFIND for WebDAV (default:GET)", "GET" ])
-      ])
+      ]
+    )
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
 
     register_advanced_options(
@@ -91,19 +97,20 @@ class MetasploitModule < Msf::Auxiliary
       uri = normalize_uri(uri.path)
 
       res = send_request_cgi({
-        'uri'     => uri,
-        'method'  => datastore['REQUESTTYPE'],
+        'uri' => uri,
+        'method' => datastore['REQUESTTYPE'],
         'username' => '',
         'password' => ''
       }, 10)
 
       next unless res
+
       if res.redirect? && res.headers['Location'] && res.headers['Location'] !~ /^http/
         path = res.headers['Location']
         vprint_status("Following redirect: #{path}")
         res = send_request_cgi({
-          'uri'     => path,
-          'method'  => datastore['REQUESTTYPE'],
+          'uri' => path,
+          'method' => datastore['REQUESTTYPE'],
           'username' => '',
           'password' => ''
         }, 10)
@@ -137,12 +144,12 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     @uri = find_auth_uri
-    if ! @uri
+    if !@uri
       print_error("#{target_url}#{extra_info} No URI found that asks for HTTP authentication")
       return
     end
 
-    @uri = "/#{@uri}" if @uri[0,1] != "/"
+    @uri = "/#{@uri}" if @uri[0, 1] != "/"
 
     print_status("Attempting to login to #{target_url}#{extra_info}")
 
@@ -178,8 +185,8 @@ class MetasploitModule < Msf::Auxiliary
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-          module_fullname: self.fullname,
-          workspace_id: myworkspace_id
+        module_fullname: self.fullname,
+        workspace_id: myworkspace_id
       )
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
@@ -202,10 +209,10 @@ class MetasploitModule < Msf::Auxiliary
         invalidate_login(credential_data)
       end
     end
-
   end
 
   private
+
   def parse_http_success_codes(codes_string)
     codes = []
     parts = codes_string.split(',')
@@ -217,12 +224,14 @@ class MetasploitModule < Msf::Auxiliary
         unless int_start > 0 && int_end > 0
           raise ArgumentError.new("#{code} is not a valid response code range.")
         end
+
         codes.append(*(int_start..int_end))
       else
         int_code = code.to_i
         unless int_code > 0
           raise ArgumentError.new("#{code} is not a valid response code.")
         end
+
         codes << int_code
       end
     end

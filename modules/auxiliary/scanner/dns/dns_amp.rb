@@ -1,4 +1,5 @@
 # encoding: binary
+
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -12,22 +13,21 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'DNS Amplification Scanner',
+      'Name' => 'DNS Amplification Scanner',
       'Description' => %q{
           This module can be used to discover DNS servers which expose recursive
           name lookups which can be used in an amplification attack against a
           third party.
       },
-      'Author'      => [ 'xistence <xistence[at]0x90.nl>'], # Original scanner module
-      'License'     => MSF_LICENSE,
-      'References'  =>
-          [
-              ['CVE', '2006-0987'],
-              ['CVE', '2006-0988'],
-          ]
+      'Author' => [ 'xistence <xistence[at]0x90.nl>'], # Original scanner module
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['CVE', '2006-0987'],
+        ['CVE', '2006-0988'],
+      ]
     )
 
-    register_options( [
+    register_options([
       Opt::RPORT(53),
       OptString.new('DOMAINNAME', [true, 'Domain to use for the DNS request', 'isc.org' ]),
       OptString.new('QUERYTYPE', [true, 'Query type(A, NS, SOA, MX, TXT, AAAA, RRSIG, DNSKEY, ANY)', 'ANY' ]),
@@ -44,23 +44,23 @@ class MetasploitModule < Msf::Auxiliary
     # Check for DNS query types byte
     case datastore['QUERYTYPE']
     when 'A'
-      querypacket="\x01"
+      querypacket = "\x01"
     when 'NS'
-      querypacket="\x02"
+      querypacket = "\x02"
     when 'SOA'
-      querypacket="\x06"
+      querypacket = "\x06"
     when 'MX'
-      querypacket="\x0f"
+      querypacket = "\x0f"
     when 'TXT'
-      querypacket="\x10"
+      querypacket = "\x10"
     when 'AAAA'
-      querypacket="\x1c"
+      querypacket = "\x1c"
     when 'RRSIG'
-      querypacket="\x2e"
+      querypacket = "\x2e"
     when 'DNSKEY'
-      querypacket="\x30"
+      querypacket = "\x30"
     when 'ANY'
-      querypacket="\xff"
+      querypacket = "\xff"
     else
       print_error("Invalid query type!")
       return
@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
     # So isc.org divided is 3isc3org
     datastore['DOMAINNAME'].split('.').each do |domainpart|
       # The length of the domain part in hex
-      domainpartlength =  "%02x" % domainpart.length
+      domainpartlength = "%02x" % domainpart.length
       # Convert the name part to a hex string
       domainpart = domainpart.each_byte.map { |b| b.to_s(16) }.join()
       # Combine the length of the name part and the name part
@@ -103,9 +103,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def scanner_process(data, shost, sport)
-
     # Check the response data for \x09\x8d and the next 2 bytes, which contain our DNS flags
-    if data =~/\x09\x8d(..)/
+    if data =~ /\x09\x8d(..)/
       flags = $1
       flags = flags.unpack('B*')[0].scan(/./)
       # Query Response
@@ -129,7 +128,8 @@ class MetasploitModule < Msf::Auxiliary
           :port => datastore['RPORT'],
           :proto => 'udp', :name => "DNS",
           :info => "DNS amplification -  #{data.length} bytes [#{amp.round(2)}x Amplification]",
-          :refs => self.references)
+          :refs => self.references
+        )
       end
 
       # If these flags are set, we get a valid response but recursion is not available

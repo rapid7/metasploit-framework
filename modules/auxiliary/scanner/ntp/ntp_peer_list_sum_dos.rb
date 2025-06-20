@@ -12,23 +12,22 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'NTP Mode 7 PEER_LIST_SUM DoS Scanner',
-      'Description'    => %q{
+      'Name' => 'NTP Mode 7 PEER_LIST_SUM DoS Scanner',
+      'Description' => %q{
         This module identifies NTP servers which permit "PEER_LIST_SUM" queries and
         return responses that are larger in size or greater in quantity than
         the request, allowing remote attackers to cause a distributed, reflected
         denial of service (aka, "DRDoS" or traffic amplification) via spoofed
         requests.
       },
-      'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
-      'References'     =>
-        [
-          ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
-          ['URL', 'https://github.com/rapid7/metasploit-framework/pull/3696'],
-          ['URL', 'https://www.rapid7.com/blog/post/2014/08/25/r7-2014-12-more-amplification-vulnerabilities-in-ntp-allow-even-more-drdos-attacks/']
-        ],
+      'Author' => 'Jon Hart <jon_hart[at]rapid7.com>',
+      'References' => [
+        ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
+        ['URL', 'https://github.com/rapid7/metasploit-framework/pull/3696'],
+        ['URL', 'https://www.rapid7.com/blog/post/2014/08/25/r7-2014-12-more-amplification-vulnerabilities-in-ntp-allow-even-more-drdos-attacks/']
+      ],
       'DisclosureDate' => 'Aug 25 2014',
-      'License'        => MSF_LICENSE
+      'License' => MSF_LICENSE
     )
   end
 
@@ -50,10 +49,10 @@ class MetasploitModule < Msf::Auxiliary
       response_map = { @probe => @results[k] }
       # TODO: check to see if any of the responses are actually NTP before reporting
       report_service(
-        :host  => k,
+        :host => k,
         :proto => 'udp',
-        :port  => rport,
-        :name  => 'ntp'
+        :port => rport,
+        :name => 'ntp'
       )
 
       peer = "#{k}:#{rport}"
@@ -62,11 +61,11 @@ class MetasploitModule < Msf::Auxiliary
       if vulnerable
         print_good("#{peer} - Vulnerable to #{what}: #{proof}")
         report_vuln({
-          :host  => k,
-          :port  => rport,
+          :host => k,
+          :port => rport,
           :proto => 'udp',
-          :name  => what,
-          :refs  => self.references
+          :name => what,
+          :refs => self.references
         })
       else
         vprint_status("#{peer} - Not vulnerable to #{what}: #{proof}")

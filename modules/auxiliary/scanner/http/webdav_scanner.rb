@@ -14,24 +14,24 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'HTTP WebDAV Scanner',
+      'Name' => 'HTTP WebDAV Scanner',
       'Description' => 'Detect webservers with WebDAV enabled',
-      'Author'       => ['et'],
-      'License'     => MSF_LICENSE
+      'Author' => ['et'],
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
         OptString.new('PATH', [true, "Path to use", '/']),
-      ])
+      ]
+    )
   end
 
   def run_host(target_host)
-
     begin
       res = send_request_raw({
-        'uri'          => normalize_uri(datastore['PATH']),
-        'method'       => 'OPTIONS'
+        'uri' => normalize_uri(datastore['PATH']),
+        'method' => 'OPTIONS'
       }, 10)
 
       if res and res.code == 200
@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         tserver = res.headers['Server']
         tdav = res.headers['DAV'].to_s
 
-        if (tdav == '1, 2' or tdav[0,3] == '1,2')
+        if (tdav == '1, 2' or tdav[0, 3] == '1,2')
           wdtype = 'WEBDAV'
           if res.headers['X-MSDAVEXT']
             wdtype = 'SHAREPOINT DAV'
@@ -50,19 +50,19 @@ class MetasploitModule < Msf::Auxiliary
 
           report_note(
             {
-              :host   => target_host,
-              :proto  => 'tcp',
+              :host => target_host,
+              :proto => 'tcp',
               :sname => (ssl ? 'https' : 'http'),
-              :port   => rport,
-              :type   => wdtype,
-              :data   => { :path => datastore['PATH'] }
-            })
+              :port => rport,
+              :type => wdtype,
+              :data => { :path => datastore['PATH'] }
+            }
+          )
 
         else
           print_status("#{target_host} (#{tserver}) WebDAV disabled.")
         end
       end
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
     end

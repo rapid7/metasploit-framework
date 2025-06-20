@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   def initialize
     super(
-      'Name'        => 'Siemens Profinet Scanner',
+      'Name' => 'Siemens Profinet Scanner',
       'Description' => %q{
           This module will use Layer2 packets, known as Profinet Discovery packets,
         to detect all Siemens (and sometimes other) devices on a network.
@@ -14,13 +14,12 @@ class MetasploitModule < Msf::Auxiliary
         Devices will respond with their IP configuration and hostnames.
         Created by XiaK Industrial Security Research Center (www[dot]xiak[dot]be))
       },
-      'References'  =>
-        [
-          [ 'URL', 'https://wiki.wireshark.org/PROFINET/DCP' ],
-          [ 'URL', 'https://github.com/tijldeneut/ICSSecurityScripts' ]
-        ],
-      'Author'      => 'Tijl Deneut <tijl.deneut[at]howest.be>',
-      'License'     => MSF_LICENSE
+      'References' => [
+        [ 'URL', 'https://wiki.wireshark.org/PROFINET/DCP' ],
+        [ 'URL', 'https://github.com/tijldeneut/ICSSecurityScripts' ]
+      ],
+      'Author' => 'Tijl Deneut <tijl.deneut[at]howest.be>',
+      'License' => MSF_LICENSE
       )
 
     register_options(
@@ -50,19 +49,24 @@ class MetasploitModule < Msf::Auxiliary
   def parse_devicerole(role)
     arr = { "01" => "IO-Device", "02" => "IO-Controller", "04" => "IO-Multidevice", "08" => "PN-Supervisor" }
     return arr[role] unless arr[role].nil?
+
     'Unknown'
   end
 
   def parse_vendorid(id)
     return 'Siemens' if id == '002a'
+
     'Unknown'
   end
 
   def parse_deviceid(id)
-    arr = { "0a01" => "Switch", "0202" => "PC Simulator", "0203" => "S7-300 CPU", \
-            "0101" => "S7-300", "010e" => "S7-1500", "010d" => "S7-1200", "0301" => "HMI", \
-            "0403" => "HMI", "010b" => "ET200S" }
+    arr = {
+      "0a01" => "Switch", "0202" => "PC Simulator", "0203" => "S7-300 CPU", \
+      "0101" => "S7-300", "010e" => "S7-1500", "010d" => "S7-1200", "0301" => "HMI", \
+      "0403" => "HMI", "010b" => "ET200S"
+    }
     return arr[id] unless arr[id].nil?
+
     'Unknown'
   end
 
@@ -113,6 +117,7 @@ class MetasploitModule < Msf::Auxiliary
       data = bin_to_hex(packet).downcase
       mac = data[12..13] + ':' + data[14..15] + ':' + data[16..17] + ':' + data[18..19] + ':' + data[20..21] + ':' + data[22..23]
       next unless data[28..31] == 'feff'
+
       print_good("Parsing packet from #{mac}")
       parse_profinet(data[28..-1])
       print_line('')

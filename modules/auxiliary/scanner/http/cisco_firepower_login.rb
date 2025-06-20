@@ -12,30 +12,32 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'        => 'Cisco Firepower Management Console 6.0 Login',
-      'Description' => %q{
-        This module attempts to authenticate to a Cisco Firepower Management console via HTTPS.
-        The credentials are also used for SSH, which could allow remote code execution.
-      },
-      'Author'      => [ 'sinn3r' ],
-      'License'     => MSF_LICENSE,
-      'DefaultOptions' =>
-        {
-          'RPORT'      => 443,
-          'SSL'        => true,
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Cisco Firepower Management Console 6.0 Login',
+        'Description' => %q{
+          This module attempts to authenticate to a Cisco Firepower Management console via HTTPS.
+          The credentials are also used for SSH, which could allow remote code execution.
+        },
+        'Author' => [ 'sinn3r' ],
+        'License' => MSF_LICENSE,
+        'DefaultOptions' => {
+          'RPORT' => 443,
+          'SSL' => true,
           'SSLVersion' => 'Auto'
         }
-    ))
+      )
+    )
 
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The base path to Cisco Firepower Management console', '/']),
         OptBool.new('TRYDEFAULT', [false, 'Try the default credential admin:Admin123', false])
-      ])
+      ]
+    )
   end
-
 
   def scanner(ip)
     @scanner ||= lambda {
@@ -54,17 +56,17 @@ class MetasploitModule < Msf::Auxiliary
         configure_http_login_scanner(
           host: ip,
           port: datastore['RPORT'],
-          cred_details:       cred_collection,
-          stop_on_success:    datastore['STOP_ON_SUCCESS'],
-          bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
+          cred_details: cred_collection,
+          stop_on_success: datastore['STOP_ON_SUCCESS'],
+          bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
           connection_timeout: 5,
-          http_username:      datastore['HttpUsername'],
-          http_password:      datastore['HttpPassword'],
-          uri:                target_uri.path
-        ))
+          http_username: datastore['HttpUsername'],
+          http_password: datastore['HttpPassword'],
+          uri: target_uri.path
+        )
+      )
     }.call
   end
-
 
   def report_good_cred(ip, port, result)
     service_data = {
@@ -92,7 +94,6 @@ class MetasploitModule < Msf::Auxiliary
 
     create_credential_login(login_data)
   end
-
 
   def report_bad_cred(ip, rport, result)
     invalidate_login(
