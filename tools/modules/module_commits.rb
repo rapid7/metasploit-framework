@@ -59,7 +59,8 @@ end
 @module_stats = []
 
 Find.find(dir) do |fname|
-  next unless fname =~ /rb$/
+  next unless fname =~ /\.(rb|py)$/ # be either ruby or python
+  next unless File.file?(fname) && File.readable?(fname)
   @module_stats << check_commit_history(fname)
 end
 
