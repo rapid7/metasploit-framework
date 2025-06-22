@@ -20,7 +20,7 @@ module RuboCop
       class DetectMetadataTrailingLeadingWhitespace < Base
         extend AutoCorrector
         MSG = 'Metadata key or value has leading or trailing whitespace.'
-        EXEMPT_KEYS = %w[Description Payload].freeze
+        EXEMPT_KEYS = %w[Description Payload BadChars].freeze
 
         # Called for every method definition node
         # Only processes the initialize method
