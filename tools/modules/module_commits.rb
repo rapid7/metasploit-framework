@@ -21,9 +21,11 @@ class CommitHistory < Struct.new(:fname, :total, :authors)
 end
 
 msfbase = __FILE__
+
 while File.symlink?(msfbase)
   msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
+msfbase = File.expand_path(File.join(File.dirname(msfbase), '..', '..'))
 
 dir = ARGV[0] || File.join(msfbase, "modules", "exploits")
 raise ArgumentError, "Need a filename or directory" unless (dir and File.readable? dir)
@@ -59,7 +61,8 @@ end
 @module_stats = []
 
 Find.find(dir) do |fname|
-  next unless fname =~ /rb$/
+  next unless fname =~ /\.(rb|py)$/ # be either ruby or python
+  next unless File.file?(fname) && File.readable?(fname)
   @module_stats << check_commit_history(fname)
 end
 
