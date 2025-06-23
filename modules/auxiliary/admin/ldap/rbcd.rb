@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
         return Exploit::CheckCode::Unknown('Failed to find the specified object.')
       end
 
-      unless adds_obj_grants_permissions?(@ldap, obj, ACEMatcherAllowAll.new(%i[RP WP]))
+      unless adds_obj_grants_permissions?(@ldap, obj, SecurityDescriptorMatcher::Allow.all(%i[RP WP]))
         return Exploit::CheckCode::Safe('The object can not be written to.')
       end
 
