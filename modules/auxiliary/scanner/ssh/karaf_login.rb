@@ -94,7 +94,7 @@ class MetasploitModule < Msf::Auxiliary
         stop_on_success: datastore['STOP_ON_SUCCESS'],
         connection_timeout: datastore['SSH_TIMEOUT'],
         framework: framework,
-        framework_module: self,
+        framework_module: self
       )
     )
 

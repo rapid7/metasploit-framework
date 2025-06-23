@@ -65,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => '/',
       'method' => 'POST',
       'data' => "{ \"command\":#{command} }",
-      'ctype' => 'application/json',
+      'ctype' => 'application/json'
     )
   end
 
@@ -254,7 +254,7 @@ class MetasploitModule < Msf::Auxiliary
       res = send_request_raw(
         'uri' => datastore['ACTIONITEM'],
         'method' => 'GET',
-        'ctype' => 'application/json',
+        'ctype' => 'application/json'
       )
       unless res
         print_error("#{peer}- Error Connecting")
@@ -274,7 +274,7 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => '/',
         'method' => 'POST',
         'data' => "{ \"command\":appLaunch, \"appPackageName\":#{datastore['ACTIONITEM']} }",
-        'ctype' => 'application/json',
+        'ctype' => 'application/json'
       )
       unless res
         print_error("#{peer}- Error Connecting")

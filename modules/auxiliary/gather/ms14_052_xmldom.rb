@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'Platform' => 'win',
         # MSB. Used in the wild since Feb 2014
-        'DisclosureDate' => '2014-09-09',
+        'DisclosureDate' => '2014-09-09'
       )
     )
 

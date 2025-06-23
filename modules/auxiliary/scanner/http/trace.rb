@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
           :port => rport,
           :proto => 'tcp',
           :sname => (ssl ? 'https' : 'http'),
-          :info => "Vulnerable to Cross-Site Tracing",
+          :info => "Vulnerable to Cross-Site Tracing"
         )
       else
         vprint_error("#{rhost}:#{rport} returned #{res.code} #{res.message}")

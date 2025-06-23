@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
         blank_passwords: datastore['BLANK_PASSWORDS'],
         pass_file: datastore['PASS_FILE'],
         username: 'AirPlay',
-        user_as_pass: datastore['USER_AS_PASS'],
+        user_as_pass: datastore['USER_AS_PASS']
       )
       cred_collection = prepend_db_passwords(cred_collection)
     else
@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
         cred_details: cred_collection,
         stop_on_success: datastore['STOP_ON_SUCCESS'],
         bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
-        connection_timeout: 5,
+        connection_timeout: 5
       )
     )
 

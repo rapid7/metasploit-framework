@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
 
     cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
-      password: datastore['PASSWORD'],
+      password: datastore['PASSWORD']
     )
 
     scanner = Metasploit::Framework::LoginScanner::SSH.new(

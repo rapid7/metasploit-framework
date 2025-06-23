@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
         stop_on_success: true,
         connection_timeout: 10,
         framework: framework,
-        framework_module: self,
+        framework_module: self
       )
     )
     scanner.scan! do |result|

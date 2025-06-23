@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           'Aditya K Sood @adityaksood', # Sparty tool'
           'Stephen Haywood @averagesecguy' # Metasploit module'
         ],
-        'License' => MSF_LICENSE,
+        'License' => MSF_LICENSE
       )
     )
 
