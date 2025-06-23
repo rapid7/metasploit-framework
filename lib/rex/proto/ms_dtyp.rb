@@ -340,7 +340,7 @@ module Rex::Proto::MsDtyp
       ].include? type
     end
 
-    def self.allowed?(type)
+    def self.allow?(type)
       [
         ACCESS_ALLOWED_ACE_TYPE,
         ACCESS_ALLOWED_COMPOUND_ACE_TYPE,
@@ -359,12 +359,25 @@ module Rex::Proto::MsDtyp
       ].include? type
     end
 
-    def self.denied?(type)
+    def self.deny?(type)
       [
         ACCESS_DENIED_ACE_TYPE,
         ACCESS_DENIED_OBJECT_ACE_TYPE,
         ACCESS_DENIED_CALLBACK_ACE_TYPE,
         ACCESS_DENIED_CALLBACK_OBJECT_ACE_TYPE,
+      ].include? type
+    end
+
+    def self.has_object?(type)
+      [
+        ACCESS_ALLOWED_OBJECT_ACE_TYPE,
+        ACCESS_DENIED_OBJECT_ACE_TYPE,
+        SYSTEM_AUDIT_OBJECT_ACE_TYPE,
+        SYSTEM_ALARM_OBJECT_ACE_TYPE,
+        ACCESS_ALLOWED_CALLBACK_OBJECT_ACE_TYPE,
+        ACCESS_DENIED_CALLBACK_OBJECT_ACE_TYPE,
+        SYSTEM_AUDIT_CALLBACK_OBJECT_ACE_TYPE,
+        SYSTEM_ALARM_CALLBACK_OBJECT_ACE_TYPE
       ].include? type
     end
   end
