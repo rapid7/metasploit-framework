@@ -508,6 +508,22 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'bsdi/x86/shell_reverse_tcp'
   end
 
+  context 'cmd/linux/http/multi' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/http/mips64'
+                          ],
+                          reference_name: 'cmd/linux/http/multi'
+  end
+
+  context 'cmd/linux/https/multi' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'adapters/cmd/linux/https/mips64'
+                          ],
+                          reference_name: 'cmd/linux/https/multi'
+  end
+
   context 'cmd/linux/http/mips64' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
@@ -6056,6 +6072,14 @@ RSpec.describe 'modules/payloads', :content do
                           dynamic_size: false,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/meterpreter/reverse_winhttps'
+  end
+
+  context 'linux/multi/meterpreter_reverse_tcp' do
+    it_should_behave_like 'payload is not cached',
+                          ancestor_reference_names: [
+                            'singles/linux/multi/meterpreter_reverse_tcp',
+                          ],
+                          reference_name: 'linux/multi/meterpreter_reverse_tcp'
   end
 
   context 'linux/mips64/meterpreter_reverse_http' do
