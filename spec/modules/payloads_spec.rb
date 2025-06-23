@@ -511,7 +511,7 @@ RSpec.describe 'modules/payloads', :content do
   context 'cmd/linux/http/multi' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
-                            'adapters/cmd/linux/http/mips64'
+                            'adapters/cmd/linux/http/multi'
                           ],
                           reference_name: 'cmd/linux/http/multi'
   end
@@ -519,7 +519,7 @@ RSpec.describe 'modules/payloads', :content do
   context 'cmd/linux/https/multi' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
-                            'adapters/cmd/linux/https/mips64'
+                            'adapters/cmd/linux/https/multi'
                           ],
                           reference_name: 'cmd/linux/https/multi'
   end
