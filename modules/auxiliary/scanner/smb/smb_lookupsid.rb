@@ -172,7 +172,7 @@ class MetasploitModule < Msf::Auxiliary
           'Name',
           'RID'
         ],
-      'SortIndex' => 2, # Sort by RID
+      'SortIndex' => 2 # Sort by RID
     )
 
     # Each result contains 0 or more arrays containing: SID Type, Name, RID

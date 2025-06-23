@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           [ 'URL', 'http://technet.microsoft.com/en-us/library/cc749415(v=ws.10).aspx'],
           [ 'URL', 'http://rewtdance.blogspot.com/2012/11/windows-deployment-services-clear-text.html'],
-        ],
+        ]
       )
     )
 

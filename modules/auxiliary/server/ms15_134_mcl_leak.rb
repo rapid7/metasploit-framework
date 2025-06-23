@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://www.coresecurity.com/advisories/microsoft-windows-media-center-link-file-incorrectly-resolved-reference']
         ],
         'License' => MSF_LICENSE,
-        'DisclosureDate' => '2015-12-08',
+        'DisclosureDate' => '2015-12-08'
       )
     )
 

@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
     ver.each do |v|
       print_status("\t#{v.chomp}")
       report_ora_enum_note(
-        { :component_version => v.chomp },
+        { :component_version => v.chomp }
       )
     end
 
@@ -85,24 +85,24 @@ class MetasploitModule < Msf::Auxiliary
       if vparm['audit_trail'] == 'NONE'
         print_status("\tDatabase Auditing is not enabled!")
         report_ora_enum_note(
-          { :audit_trail => 'Disabled' },
+          { :audit_trail => 'Disabled' }
         )
       else
         print_status("\tDatabase Auditing is enabled!")
         report_ora_enum_note(
-          { :audit_trail => 'Enabled' },
+          { :audit_trail => 'Enabled' }
         )
       end
 
       if vparm['audit_sys_operations'] == 'FALSE'
         print_status("\tAuditing of SYS Operations is not enabled!")
         report_ora_enum_note(
-          { :audit_sys_ops => 'Disabled' },
+          { :audit_sys_ops => 'Disabled' }
         )
       else
         print_status("\tAuditing of SYS Operations is enabled!")
         report_ora_enum_note(
-          { :audit_sys_ops => 'Enabled' },
+          { :audit_sys_ops => 'Enabled' }
         )
       end
     end

@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
       # Report the host
       report_host(
         :host => host,
-        :info => "Moxa Device",
+        :info => "Moxa Device"
       )
 
       # Report the service
@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
         host: host,
         proto: 'udp',
         port: rport,
-        name: 'Moxa Protocol',
+        name: 'Moxa Protocol'
       )
 
       if response.empty?
