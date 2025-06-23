@@ -4,6 +4,7 @@ module RuboCop
   module Cop
     module Lint
       class ModuleEnforceNotes < Base
+        extend AutoCorrector
 
         NO_NOTES_MSG = 'Module is missing the Notes section which must include Stability, Reliability and SideEffects] - https://docs.metasploit.com/docs/development/developing-modules/module-metadata/definition-of-module-reliability-side-effects-and-stability.html'
         MISSING_KEY_MSG = 'Module is missing %s from the Notes section - https://docs.metasploit.com/docs/development/developing-modules/module-metadata/definition-of-module-reliability-side-effects-and-stability.html'
@@ -36,11 +37,31 @@ module RuboCop
           if notes_present
             check_for_required_keys(notes)
           else
-            add_offense(last_key || hash, message: NO_NOTES_MSG)
+            add_offense(last_key || hash, message: NO_NOTES_MSG) do |corrector|
+              insert_notes_autocorrect(corrector, hash)
+            end
           end
         end
 
         private
+
+        def insert_notes_autocorrect(corrector, hash)
+          last_pair = hash.pairs.last
+          indent_width = last_pair.loc.expression.column
+          indent = ' ' * indent_width
+          corrector.insert_after(last_pair.loc.expression, notes_formatted(indent))
+        end
+
+        def notes_formatted(indent)
+          <<~EOF.strip
+            ,
+            #{indent}'Notes' => {
+            #{indent}  'Reliability' => UNKNOWN_RELIABILITY,
+            #{indent}  'Stability' => UNKNOWN_STABILITY,
+            #{indent}  'SideEffects' => UNKNOWN_SIDE_EFFECTS
+            #{indent}}
+          EOF
+        end
 
         def check_for_required_keys(notes)
           last_key = nil
