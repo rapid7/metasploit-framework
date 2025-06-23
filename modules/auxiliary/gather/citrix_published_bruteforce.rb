@@ -21,9 +21,9 @@ class MetasploitModule < Msf::Auxiliary
           [ 'BID', '5817' ]
         ],
         'Notes' => {
-          'Reliability' => [UNKNOWN_RELIABILITY],
-          'Stability' => [UNKNOWN_STABILITY],
-          'SideEffects' => [UNKNOWN_SIDE_EFFECTS]
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

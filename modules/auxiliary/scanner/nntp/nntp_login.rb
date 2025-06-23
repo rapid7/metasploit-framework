@@ -31,9 +31,9 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://datatracker.ietf.org/doc/html/rfc4643' ]
         ],
         'Notes' => {
-          'Reliability' => [UNKNOWN_RELIABILITY],
-          'Stability' => [UNKNOWN_STABILITY],
-          'SideEffects' => [UNKNOWN_SIDE_EFFECTS]
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

@@ -29,9 +29,9 @@ class MetasploitModule < Msf::Auxiliary
         'Privileged' => true,
         'DisclosureDate' => '2016-02-09',
         'Notes' => {
-          'Reliability' => [UNKNOWN_RELIABILITY],
-          'Stability' => [UNKNOWN_STABILITY],
-          'SideEffects' => [UNKNOWN_SIDE_EFFECTS]
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

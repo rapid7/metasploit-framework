@@ -33,9 +33,9 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://techcommunity.microsoft.com/t5/iis-support-blog/iis-web-servers-running-in-windows-azure-may-reveal-their/ba-p/826500']
         ],
         'Notes' => {
-          'Reliability' => [UNKNOWN_RELIABILITY],
-          'Stability' => [UNKNOWN_STABILITY],
-          'SideEffects' => [UNKNOWN_SIDE_EFFECTS]
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

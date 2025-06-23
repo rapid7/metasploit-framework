@@ -33,9 +33,9 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://nmap.org/nsedoc/scripts/oracle-brute.html']
         ],
         'Notes' => {
-          'Reliability' => [UNKNOWN_RELIABILITY],
-          'Stability' => [UNKNOWN_STABILITY],
-          'SideEffects' => [UNKNOWN_SIDE_EFFECTS]
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

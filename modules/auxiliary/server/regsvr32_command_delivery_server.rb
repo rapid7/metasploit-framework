@@ -28,9 +28,9 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://web.archive.org/web/20170419145048/http://subt0x10.blogspot.com:80/2016/04/bypass-application-whitelisting-script.html']
         ],
         'Notes' => {
-          'Reliability' => [UNKNOWN_RELIABILITY],
-          'Stability' => [UNKNOWN_STABILITY],
-          'SideEffects' => [UNKNOWN_SIDE_EFFECTS]
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

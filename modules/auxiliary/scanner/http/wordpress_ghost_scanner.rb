@@ -34,9 +34,9 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://web.archive.org/web/20250117140537/https://blog.sucuri.net/2015/01/critical-ghost-vulnerability-released.html']
         ],
         'Notes' => {
-          'Reliability' => [UNKNOWN_RELIABILITY],
-          'Stability' => [UNKNOWN_STABILITY],
-          'SideEffects' => [UNKNOWN_SIDE_EFFECTS]
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

@@ -30,9 +30,9 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://www.intersectalliance.com/wp-content/uploads/user_guides/Guide_to_Snare_for_Windows-4.2.pdf' ]
         ],
         'Notes' => {
-          'Reliability' => [UNKNOWN_RELIABILITY],
-          'Stability' => [UNKNOWN_STABILITY],
-          'SideEffects' => [UNKNOWN_SIDE_EFFECTS]
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

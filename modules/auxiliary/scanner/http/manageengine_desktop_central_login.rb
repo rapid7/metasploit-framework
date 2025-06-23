@@ -24,9 +24,9 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'DefaultOptions' => { 'RPORT' => 8020 },
         'Notes' => {
-          'Reliability' => [UNKNOWN_RELIABILITY],
-          'Stability' => [UNKNOWN_STABILITY],
-          'SideEffects' => [UNKNOWN_SIDE_EFFECTS]
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

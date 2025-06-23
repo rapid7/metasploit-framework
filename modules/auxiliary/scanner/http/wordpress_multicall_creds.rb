@@ -37,9 +37,9 @@ class MetasploitModule < Msf::Auxiliary
           'PASS_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt")
         },
         'Notes' => {
-          'Reliability' => [UNKNOWN_RELIABILITY],
-          'Stability' => [UNKNOWN_STABILITY],
-          'SideEffects' => [UNKNOWN_SIDE_EFFECTS]
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

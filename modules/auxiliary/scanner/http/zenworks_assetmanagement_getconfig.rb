@@ -30,9 +30,9 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://www.rapid7.com/blog/post/2012/10/11/cve-2012-4933-novell-zenworks/' ]
         ],
         'Notes' => {
-          'Reliability' => [UNKNOWN_RELIABILITY],
-          'Stability' => [UNKNOWN_STABILITY],
-          'SideEffects' => [UNKNOWN_SIDE_EFFECTS]
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )
