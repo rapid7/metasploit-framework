@@ -56,9 +56,9 @@ module RuboCop
           <<~EOF.strip
             ,
             #{indent}'Notes' => {
-            #{indent}  'Reliability' => UNKNOWN_RELIABILITY,
-            #{indent}  'Stability' => UNKNOWN_STABILITY,
-            #{indent}  'SideEffects' => UNKNOWN_SIDE_EFFECTS
+            #{indent}  'Reliability' => [UNKNOWN_RELIABILITY],
+            #{indent}  'Stability' => [UNKNOWN_STABILITY],
+            #{indent}  'SideEffects' => [UNKNOWN_SIDE_EFFECTS]
             #{indent}}
           EOF
         end
