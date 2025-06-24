@@ -104,6 +104,8 @@ module ModuleValidation
 
     def validate_crash_safe_not_present_in_stability_notes
       if rank == Msf::ExcellentRanking && !stability.include?(Msf::CRASH_SAFE)
+        return if stability == Msf::UNKNOWN_STABILITY
+
         errors.add :stability, "must have CRASH_SAFE value if module has an ExcellentRanking, instead found #{stability.inspect}"
       end
     end

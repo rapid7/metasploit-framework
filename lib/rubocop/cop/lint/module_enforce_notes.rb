@@ -4,7 +4,6 @@ module RuboCop
   module Cop
     module Lint
       class ModuleEnforceNotes < Base
-        extend AutoCorrector
 
         NO_NOTES_MSG = 'Module is missing the Notes section which must include Stability, Reliability and SideEffects] - https://docs.metasploit.com/docs/development/developing-modules/module-metadata/definition-of-module-reliability-side-effects-and-stability.html'
         MISSING_KEY_MSG = 'Module is missing %s from the Notes section - https://docs.metasploit.com/docs/development/developing-modules/module-metadata/definition-of-module-reliability-side-effects-and-stability.html'
@@ -37,61 +36,11 @@ module RuboCop
           if notes_present
             check_for_required_keys(notes)
           else
-            add_offense(last_key || hash, message: NO_NOTES_MSG) do |corrector|
-              insert_notes_autocorrect(corrector, hash)
-            end
+            add_offense(last_key || hash, message: NO_NOTES_MSG)
           end
         end
 
         private
-
-        def insert_notes_autocorrect(corrector, hash)
-          indent, last_pair = calculate_indent(hash)
-          corrector.insert_after(last_pair.loc.expression, notes_formatted(indent))
-        end
-
-        # def insert_notes_keys_autocorrect(corrector, hash)
-        #   indent, last_pair = calculate_indent(hash)
-        #   corrector.insert_after(last_pair.loc.expression, notes_formatted(indent))
-        # end
-
-        # def insert_missing_notes_keys(corrector, missing_keys, notes)
-        #   indent, last_pair = calculate_indent(notes)
-        #   corrector.insert_after(last_pair.loc.expression, keys_formatted(indent, missing_keys))
-        # end
-
-        def calculate_indent(hash)
-          last_pair = hash.pairs.last
-          indent_width = last_pair.loc.expression.column
-          [' ' * indent_width, last_pair]
-        end
-
-        # def keys_formatted(indent, missing_keys)
-        #   keys_to_insert = []
-        #   missing_keys.each do |key|
-        #     case key
-        #     when 'Reliability'
-        #       keys_to_insert << "#{indent}'Reliability' => UNKNOWN_RELIABILITY"
-        #     when 'Stability'
-        #       keys_to_insert << "#{indent}'Stability' => UNKNOWN_STABILITY"
-        #     when 'SideEffects'
-        #       keys_to_insert << "#{indent}'SideEffects' => UNKNOWN_SIDE_EFFECTS"
-        #     end
-        #   end
-        #
-        #   ",\n#{keys_to_insert.join(",\n")}"
-        # end
-
-        def notes_formatted(indent)
-          <<~EOF.strip
-            ,
-            #{indent}'Notes' => {
-            #{indent}  'Reliability' => UNKNOWN_RELIABILITY,
-            #{indent}  'Stability' => UNKNOWN_STABILITY,
-            #{indent}  'SideEffects' => UNKNOWN_SIDE_EFFECTS
-            #{indent}}
-          EOF
-        end
 
         def check_for_required_keys(notes)
           last_key = nil
@@ -111,10 +60,6 @@ module RuboCop
               msg = missing_keys[0...-1].join(', ') + ' and ' + missing_keys[-1]
             end
             add_offense(last_key || notes, message: MISSING_KEY_MSG % msg)
-
-            # add_offense(last_key || notes, message: MISSING_KEY_MSG % msg) do |corrector|
-            #   insert_missing_notes_keys(corrector, missing_keys, notes)
-            # end
           end
         end
 

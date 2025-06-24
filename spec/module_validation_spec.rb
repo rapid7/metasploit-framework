@@ -236,7 +236,7 @@ RSpec.describe ModuleValidation::Validator do
           side_effects: Msf::UNKNOWN_SIDE_EFFECTS,
           reliability: Msf::UNKNOWN_RELIABILITY,
         }
-        super().merge(new_module_options, rank: Msf::GreatRanking, rank_to_s: 'great')
+        super().merge(new_module_options)
       end
 
       it 'has no errors' do
