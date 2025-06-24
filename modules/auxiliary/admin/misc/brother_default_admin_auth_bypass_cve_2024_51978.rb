@@ -297,7 +297,7 @@ class MetasploitModule < Msf::Auxiliary
 
     hash = Digest::SHA256.digest(buff)
 
-    hash64 = Base64.encode64(hash)
+    hash64 = Base64.strict_encode64(hash)
 
     result = ''
 
