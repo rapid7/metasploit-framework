@@ -25,14 +25,17 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['CVE', '2024-51977'], # Serial number info leak via an unauthenticated HTTP/HTTPS/IPP request.
-          ['CVE', '2024-51978'], # The auth bypass
-          # ['URL', ''],# XXX: Rapid7 disclosure blog
+          ['CVE', '2024-51978'], # The authentication bypass
+          ['URL', 'https://support.brother.com/g/b/link.aspx?prod=group2&faqid=faq00100846_000'], # Brother Laser and Inkjet Printer Advisory
+          ['URL', 'https://support.brother.com/g/b/link.aspx?prod=group2&faqid=faq00100848_000'], # Brother Document Scanner Advisory
+          ['URL', 'https://support.brother.com/g/b/link.aspx?prod=lmgroup1&faqid=faqp00100620_000'], # Brother Label Printer Advisory
+          ['URL', 'https://www.rapid7.com/blog/post/multiple-brother-devices-multiple-vulnerabilities-fixed'], # Rapid7 disclosure blog
           ['URL', 'https://github.com/sfewer-r7/BrotherVulnerabilities'] # PoC's
         ],
         'DisclosureDate' => '2025-06-25',
         'DefaultOptions' => {
           # A HTTP(S) based port, for either HTTP (TCP 80), HTTPS (TCP 443), or IPP (TCP 631).
-          # By default we choose HTTPS.
+          # By default, we choose HTTPS.
           'RPORT' => 443,
           'SSL' => true
         },
