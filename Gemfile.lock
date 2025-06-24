@@ -47,7 +47,7 @@ PATH
       metasploit-model
       metasploit-payloads (= 2.0.221)
       metasploit_data_models (>= 6.0.7)
-      metasploit_payloads-mettle (= 1.0.35)
+      metasploit_payloads-mettle (= 1.0.42)
       mqtt
       msgpack (~> 1.6.0)
       mutex_m
@@ -339,7 +339,7 @@ GEM
       railties (~> 7.0)
       recog
       webrick
-    metasploit_payloads-mettle (1.0.35)
+    metasploit_payloads-mettle (1.0.42)
     method_source (1.1.0)
     mime-types (3.6.0)
       logger
