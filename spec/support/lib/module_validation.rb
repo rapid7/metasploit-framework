@@ -9,6 +9,10 @@ module ModuleValidation
         return
       end
 
+      # Special cases for modules/exploits/bsd/finger/morris_fingerd_bof.rb which has a one-off architecture defined in
+      # the module itself, and that value is not included in the valid list of architectures.
+      # https://github.com/rapid7/metasploit-framework/blob/389d84cbf0d7c58727846466d9a9f6a468f32c61/modules/exploits/bsd/finger/morris_fingerd_bof.rb#L11
+      return if attribute == :arch && value == ["vax"] && record.fullname == "exploit/bsd/finger/morris_fingerd_bof"
       return if value == options[:sentinel_value]
 
       invalid_options = value - options[:in]
@@ -186,6 +190,9 @@ module ModuleValidation
       mod.validates :reliability,
                     'module_validation/array_inclusion': { in: VALID_RELIABILITY_VALUES, sentinel_value: Msf::UNKNOWN_RELIABILITY }
     end
+
+    validates :arch,
+              'module_validation/array_inclusion': { in: Rex::Arch::ARCH_TYPES }
 
     validates :license,
               presence: true,
