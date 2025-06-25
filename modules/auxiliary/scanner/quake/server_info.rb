@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
           ['status', 'Description' => 'Use the getstatus command'],
           ['info', 'Description' => 'Use the getinfo command']
         ],
-        'DefaultAction' => 'status'
+        'DefaultAction' => 'status',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

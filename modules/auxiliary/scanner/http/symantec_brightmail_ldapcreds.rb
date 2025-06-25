@@ -35,7 +35,12 @@ class MetasploitModule < Msf::Auxiliary
           'RPORT' => 443
         },
         'License' => MSF_LICENSE,
-        'DisclosureDate' => '2015-12-17'
+        'DisclosureDate' => '2015-12-17',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

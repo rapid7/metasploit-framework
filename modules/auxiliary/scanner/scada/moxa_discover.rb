@@ -36,7 +36,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2016-9361'],
           [ 'URL', 'https://www.digitalbond.com/blog/2016/10/25/serial-killers/'],
           [ 'URL', 'http://www.moxa.com/support/faq/faq_detail.aspx?id=646' ],
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

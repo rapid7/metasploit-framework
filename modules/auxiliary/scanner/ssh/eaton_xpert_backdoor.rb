@@ -36,7 +36,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://www.ctrlu.net/vuln/0006.html']
         ],
         'DisclosureDate' => '2018-07-18',
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

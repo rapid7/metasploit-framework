@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Auxiliary
           'Royce Davis "R3dy" <rdavis[at]accuvant.com>',
           'Brandon McCann "zeknox" <bmccann[at]accuvant.com>'
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

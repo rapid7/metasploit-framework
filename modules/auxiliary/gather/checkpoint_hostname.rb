@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Auxiliary
           # aushack - None? Stumbled across, probably an old bug/feature but unsure.
           [ 'URL', 'https://web.archive.org/web/20120508142715/http://www.osisecurity.com.au/advisories/checkpoint-firewall-securemote-hostname-information-disclosure' ],
           [ 'URL', 'https://supportcenter.checkpoint.com/supportcenter/portal?eventSubmit_doGoviewsolutiondetails=&solutionid=sk69360' ]
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

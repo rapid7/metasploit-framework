@@ -33,7 +33,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://seclists.org/fulldisclosure/2015/Feb/10' ]
         ],
         'Platform' => 'win',
-        'DisclosureDate' => '2015-02-01'
+        'DisclosureDate' => '2015-02-01',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

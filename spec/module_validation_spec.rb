@@ -223,5 +223,49 @@ RSpec.describe ModuleValidation::Validator do
         expect(subject.errors.full_messages).to eq ['Platform must be included either within targets or platform module metadata']
       end
     end
+
+    context 'when the notes section contains sentinel values' do
+      let(:mod_options) do
+        new_module_options = {
+          notes: {
+            'Stability' => Msf::UNKNOWN_STABILITY,
+            'SideEffects' => Msf::UNKNOWN_SIDE_EFFECTS,
+            'Reliability' => Msf::UNKNOWN_RELIABILITY,
+          },
+          stability: Msf::UNKNOWN_STABILITY,
+          side_effects: Msf::UNKNOWN_SIDE_EFFECTS,
+          reliability: Msf::UNKNOWN_RELIABILITY,
+        }
+        super().merge(new_module_options)
+      end
+
+      it 'has no errors' do
+        expect(subject.errors.full_messages).to be_empty
+      end
+    end
+
+    context 'when the notes section contains in correct sentinel values' do
+      let(:mod_options) do
+        new_module_options = {
+          notes: {
+            'Stability' => [Msf::UNKNOWN_STABILITY],
+            'SideEffects' => [Msf::UNKNOWN_SIDE_EFFECTS],
+            'Reliability' => [Msf::UNKNOWN_RELIABILITY],
+          },
+          stability: [Msf::UNKNOWN_STABILITY],
+          side_effects: [Msf::UNKNOWN_SIDE_EFFECTS],
+          reliability: [Msf::UNKNOWN_RELIABILITY],
+        }
+        super().merge(new_module_options, rank: Msf::GreatRanking, rank_to_s: 'great')
+      end
+
+      it 'has no errors' do
+        expect(subject.errors.full_messages).to eq [
+          "Stability contains invalid values [[\"unknown-stability\"]] - only [\"crash-safe\", \"crash-service-restarts\", \"crash-service-down\", \"crash-os-restarts\", \"crash-os-down\", \"service-resource-loss\", \"os-resource-loss\"] is allowed",
+          "Side effects contains invalid values [[\"unknown-side-effects\"]] - only [\"artifacts-on-disk\", \"config-changes\", \"ioc-in-logs\", \"account-lockouts\", \"account-logout\", \"screen-effects\", \"audio-effects\", \"physical-effects\"] is allowed",
+          "Reliability contains invalid values [[\"unknown-reliability\"]] - only [\"first-attempt-fail\", \"repeatable-session\", \"unreliable-session\", \"event-dependent\"] is allowed"
+        ]
+      end
+    end
   end
 end

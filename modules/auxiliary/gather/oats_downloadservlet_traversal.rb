@@ -38,7 +38,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://srcincite.io/advisories/src-2019-0033/'],
           ['URL', 'https://www.oracle.com/security-alerts/cpuapr2019.html']
         ],
-        'DisclosureDate' => '2019-04-16'
+        'DisclosureDate' => '2019-04-16',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

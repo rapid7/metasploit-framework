@@ -24,7 +24,12 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['CVE', '1999-0532'],
           ['OSVDB', '492']
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

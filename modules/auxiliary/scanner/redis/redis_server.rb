@@ -18,7 +18,12 @@ class MetasploitModule < Msf::Auxiliary
           Redis command.
         },
         'Author' => [ 'iallison <ian[at]team-allison.com>', 'Nixawk' ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

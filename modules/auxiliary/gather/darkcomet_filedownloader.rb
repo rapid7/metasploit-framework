@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://samvartaka.github.io/exploitation/2016/06/03/dead-rats-exploiting-malware' ]
         ],
         'DisclosureDate' => '2012-10-08',
-        'Platform' => 'win'
+        'Platform' => 'win',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

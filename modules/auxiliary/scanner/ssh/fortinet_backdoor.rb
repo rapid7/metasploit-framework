@@ -32,7 +32,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://blog.fortinet.com/post/brief-statement-regarding-issues-found-with-fortios']
         ],
         'DisclosureDate' => '2016-01-09',
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

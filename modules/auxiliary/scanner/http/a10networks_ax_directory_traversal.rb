@@ -33,7 +33,12 @@ class MetasploitModule < Msf::Auxiliary
           'xistence' # Vulnerability discovery and Metasploit module
         ],
         'License' => MSF_LICENSE,
-        'DisclosureDate' => '2014-01-28'
+        'DisclosureDate' => '2014-01-28',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

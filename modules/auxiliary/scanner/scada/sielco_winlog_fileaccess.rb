@@ -30,7 +30,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'BID', '54212' ],
           [ 'EDB', '19409'],
           [ 'URL', 'http://aluigi.altervista.org/adv/winlog_2-adv.txt' ]
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

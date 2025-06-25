@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
           'Vlatko Kosturjak <kost[at]linux.hr>',
           'sinn3r'
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

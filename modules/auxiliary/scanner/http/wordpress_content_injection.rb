@@ -34,7 +34,12 @@ class MetasploitModule < Msf::Auxiliary
           ['LIST', 'Description' => 'List posts'],
           ['UPDATE', 'Description' => 'Update post']
         ],
-        'DefaultAction' => 'LIST'
+        'DefaultAction' => 'LIST',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

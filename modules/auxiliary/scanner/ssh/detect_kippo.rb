@@ -23,7 +23,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://www.obscurechannel.com/x42/magicknumber.html'],
           ['URL', 'http://morris.guru/detecting-kippo-ssh-honeypots/']
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

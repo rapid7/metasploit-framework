@@ -22,7 +22,12 @@ class MetasploitModule < Msf::Auxiliary
           # perhaps in different modules
           ['URL', 'https://developer.valvesoftware.com/wiki/Server_queries#A2S_INFO']
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

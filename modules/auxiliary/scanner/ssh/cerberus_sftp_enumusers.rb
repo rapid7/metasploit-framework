@@ -30,7 +30,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'BID', '67707']
         ],
         'License' => MSF_LICENSE,
-        'DisclosureDate' => '2014-05-27'
+        'DisclosureDate' => '2014-05-27',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

@@ -33,7 +33,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://github.com/drupal/drupal/commit/b9127101ffeca819e74a03fa9f5a48d026c562e5' ],
           [ 'URL', 'https://www.ubercomp.com/posts/2014-01-16_facebook_remote_code_execution' ]
         ],
-        'DisclosureDate' => '2012-10-17'
+        'DisclosureDate' => '2012-10-17',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

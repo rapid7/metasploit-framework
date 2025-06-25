@@ -44,7 +44,12 @@ class MetasploitModule < Msf::Auxiliary
           ['Shell', 'Description' => 'Spawn a shell'],
           ['Execute', 'Description' => 'Execute a command']
         ],
-        'DefaultAction' => 'Shell'
+        'DefaultAction' => 'Shell',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

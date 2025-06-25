@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Auxiliary
           'Tom Adams <security[at]dxw.com>', # Vulnerability Discovery
           'Roberto Soares Espreto <robertoespreto[at]gmail.com>' # Metasploit Module
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

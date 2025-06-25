@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Auxiliary
         "References" => [
           ["URL", "https://en.wikipedia.org/wiki/Printer_Job_Language"]
         ],
-        "License" => MSF_LICENSE
+        "License" => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

@@ -31,7 +31,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2015-7603'],
           [ 'URL', 'https://shinnai.altervista.org/exploits/SH-0024-20150922.html']
         ],
-        'DisclosureDate' => '2015-09-22'
+        'DisclosureDate' => '2015-09-22',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

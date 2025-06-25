@@ -35,7 +35,12 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['URL', 'http://www.lansweeper.com'],
           ['URL', 'http://www.praudit.hu/prauditeng/index.php/blog/a-lansweeper-es-a-tea']
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

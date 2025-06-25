@@ -40,7 +40,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://trac.webkit.org/changeset/96826/webkit' ]
         ],
         'DefaultAction' => 'WebServer',
-        'DisclosureDate' => '2014-10-04'
+        'DisclosureDate' => '2014-10-04',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

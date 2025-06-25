@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://secpod.org/advisories/SecPod_Ipswitch_TFTP_Server_Dir_Trav.txt'],
           ['CVE', '2011-4722']
         ],
-        'DisclosureDate' => '2011-12-12'
+        'DisclosureDate' => '2011-12-12',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

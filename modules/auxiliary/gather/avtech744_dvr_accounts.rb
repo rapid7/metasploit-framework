@@ -20,7 +20,12 @@ class MetasploitModule < Msf::Auxiliary
           console UI nor from the web UI.
         },
         'Author' => [ 'nstarke' ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
   end

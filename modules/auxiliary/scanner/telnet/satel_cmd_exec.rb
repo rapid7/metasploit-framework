@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DisclosureDate' => '2017-04-07',
         'License' => MSF_LICENSE,
-        'DefaultOptions' => { 'VERBOSE' => true }
+        'DefaultOptions' => { 'VERBOSE' => true },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
       )
 

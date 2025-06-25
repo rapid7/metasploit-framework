@@ -26,6 +26,11 @@ class MetasploitModule < Msf::Auxiliary
           'SSL' => true,
           'USERNAME' => 'cisco',
           'PASSWORD' => 'cisco'
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Auxiliary
         'Actions' => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
         'PassiveActions' => [ 'WebServer' ],
         'DefaultAction' => 'WebServer',
-        'DisclosureDate' => '2015-04-08'
+        'DisclosureDate' => '2015-04-08',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

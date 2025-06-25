@@ -35,7 +35,12 @@ class MetasploitModule < Msf::Auxiliary
           ["Change", "Description" => "Change ready message"],
           ["Reset", "Description" => "Reset ready message"]
         ],
-        "DefaultAction" => "Scan"
+        "DefaultAction" => "Scan",
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

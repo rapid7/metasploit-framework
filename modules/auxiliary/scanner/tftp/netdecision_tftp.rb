@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
           ['OSVDB', '54607'],
           ['BID', '35002']
         ],
-        'DisclosureDate' => '2009-05-16'
+        'DisclosureDate' => '2009-05-16',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

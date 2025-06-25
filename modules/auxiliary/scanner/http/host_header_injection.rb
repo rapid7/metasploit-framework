@@ -22,7 +22,12 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['CVE', '2016-10073'], # validate, an instance of a described attack approach from the original reference
           ['URL', 'http://www.skeletonscribe.net/2013/05/practical-http-host-header-attacks.html']
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

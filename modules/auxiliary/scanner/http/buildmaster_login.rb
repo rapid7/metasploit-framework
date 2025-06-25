@@ -20,7 +20,12 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Author' => [ 'James Otten <jamesotten1[at]gmail.com>' ],
         'License' => MSF_LICENSE,
-        'DefaultOptions' => { 'VERBOSE' => true }
+        'DefaultOptions' => { 'VERBOSE' => true },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

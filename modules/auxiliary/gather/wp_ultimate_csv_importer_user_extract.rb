@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['WPVDB', '7778']
         ],
-        'DisclosureDate' => '2015-02-02'
+        'DisclosureDate' => '2015-02-02',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
   end

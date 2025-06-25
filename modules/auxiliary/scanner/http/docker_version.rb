@@ -18,7 +18,12 @@ class MetasploitModule < Msf::Auxiliary
           host. If you wish to see all the information available, set VERBOSE to true.
         },
         'Author' => [ 'Agora-Security' ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
     register_options(

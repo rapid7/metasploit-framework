@@ -35,7 +35,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://community.qualys.com/blogs/securitylabs/2015/04/20/ms15-034-analyze-and-remote-detection'],
           ['URL', 'http://www.securitysift.com/an-analysis-of-ms15-034/'],
           ['URL', 'http://securitysift.com/an-analysis-of-ms15-034/']
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

@@ -23,7 +23,12 @@ class MetasploitModule < Msf::Auxiliary
           after a number of failed attempts.
         },
         'License' => MSF_LICENSE,
-        'Author' => ['Justin Cacak']
+        'Author' => ['Justin Cacak'],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

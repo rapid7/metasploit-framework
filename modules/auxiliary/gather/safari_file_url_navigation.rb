@@ -30,7 +30,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://support.apple.com/en-us/HT204826']
         ],
         'Platform' => 'osx',
-        'DisclosureDate' => '2014-01-16'
+        'DisclosureDate' => '2014-01-16',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

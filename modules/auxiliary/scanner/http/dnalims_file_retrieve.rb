@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Auxiliary
           'flakey_biscuit <nicholas@shorebreaksecurity.com>' # Discovery, PoC
         ],
         'License' => MSF_LICENSE,
-        'DisclosureDate' => '2017-03-08'
+        'DisclosureDate' => '2017-03-08',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

@@ -9,6 +9,8 @@ module ModuleValidation
         return
       end
 
+      return if value == options[:sentinel_value]
+
       invalid_options = value - options[:in]
       message = "contains invalid values #{invalid_options.inspect} - only #{options[:in].inspect} is allowed"
 
@@ -102,6 +104,8 @@ module ModuleValidation
 
     def validate_crash_safe_not_present_in_stability_notes
       if rank == Msf::ExcellentRanking && !stability.include?(Msf::CRASH_SAFE)
+        return if stability == Msf::UNKNOWN_STABILITY
+
         errors.add :stability, "must have CRASH_SAFE value if module has an ExcellentRanking, instead found #{stability.inspect}"
       end
     end
@@ -156,13 +160,13 @@ module ModuleValidation
       mod.validate :validate_notes_values_are_arrays
 
       mod.validates :stability,
-                    'module_validation/array_inclusion': { in: VALID_STABILITY_VALUES }
+                    'module_validation/array_inclusion': { in: VALID_STABILITY_VALUES, sentinel_value: Msf::UNKNOWN_STABILITY }
 
       mod.validates :side_effects,
-                    'module_validation/array_inclusion': { in: VALID_SIDE_EFFECT_VALUES }
+                    'module_validation/array_inclusion': { in: VALID_SIDE_EFFECT_VALUES, sentinel_value: Msf::UNKNOWN_SIDE_EFFECTS }
 
       mod.validates :reliability,
-                    'module_validation/array_inclusion': { in: VALID_RELIABILITY_VALUES }
+                    'module_validation/array_inclusion': { in: VALID_RELIABILITY_VALUES, sentinel_value: Msf::UNKNOWN_RELIABILITY }
     end
 
     validates :license,

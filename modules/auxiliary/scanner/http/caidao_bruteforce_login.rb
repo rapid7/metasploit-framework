@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://www.cisa.gov/uscert/ncas/alerts/TA15-314A'],
           ['URL', 'http://blog.csdn.net/nixawk/article/details/40430329']
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

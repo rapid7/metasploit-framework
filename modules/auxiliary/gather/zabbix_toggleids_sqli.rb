@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
           'bperry' # module
         ],
         'License' => MSF_LICENSE,
-        'DisclosureDate' => '2016-08-11'
+        'DisclosureDate' => '2016-08-11',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

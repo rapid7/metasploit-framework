@@ -23,7 +23,12 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [ 'sinn3r' ],
         'References' => [
           [ 'URL', 'http://developer.android.com/reference/android/content/Intent.html#CATEGORY_BROWSABLE' ]
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
   end

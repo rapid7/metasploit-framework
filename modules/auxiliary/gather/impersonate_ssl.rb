@@ -24,6 +24,11 @@ class MetasploitModule < Msf::Auxiliary
           then Outputs (PEM|DER) format private key / certificate and a combined version
           for use in Apache or other Metasploit modules requiring SSLCert Inputs for private
           key / CA cert have been provided for those with DigiNotar certs hanging about!
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

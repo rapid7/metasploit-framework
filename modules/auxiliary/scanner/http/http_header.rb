@@ -21,7 +21,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'],
           ['URL', 'https://en.wikipedia.org/wiki/List_of_HTTP_header_fields']
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

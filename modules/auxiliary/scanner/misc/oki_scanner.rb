@@ -21,7 +21,12 @@ class MetasploitModule < Msf::Auxiliary
           network printers use the last six digits of the MAC as admin password.
         },
         'Author' => 'antr6X <anthr6x[at]gmail.com>',
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

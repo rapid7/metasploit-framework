@@ -34,7 +34,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://android.googlesource.com/platform/packages/apps/Browser/+/d2391b492dec778452238bc6d9d549d56d41c107%5E%21/#F0'],
           ['URL', 'http://www.rafayhackingarticles.net/2014/12/android-browser-cross-scheme-data.html']
         ],
-        'DefaultAction' => 'WebServer'
+        'DefaultAction' => 'WebServer',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

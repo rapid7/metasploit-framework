@@ -23,7 +23,12 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [ 'Brandon Perry <bperry.volatile[at]gmail.com>' ],
         'References' => [
           [ 'URL', 'http://api.corpwatch.org/' ]
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

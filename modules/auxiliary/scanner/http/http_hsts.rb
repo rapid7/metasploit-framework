@@ -17,7 +17,12 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Author' => 'Matt "hostess" Andreko <mandreko[at]accuvant.com>',
         'License' => MSF_LICENSE,
-        'DefaultOptions' => { 'SSL' => true }
+        'DefaultOptions' => { 'SSL' => true },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

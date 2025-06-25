@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Auxiliary
           ['OSVDB', '77581'],
           ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=757181']
         ],
-        'DisclosureDate' => '2011-11-25'
+        'DisclosureDate' => '2011-11-25',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

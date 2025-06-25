@@ -32,7 +32,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2015-0235' ],
           [ 'URL', 'https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/ghost-gethostbyname-heap-overflow-in-glibc-cve-2015-0235/'],
           [ 'URL', 'http://web.archive.org/web/20250117140537/https://blog.sucuri.net/2015/01/critical-ghost-vulnerability-released.html']
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

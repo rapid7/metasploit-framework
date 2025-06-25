@@ -37,7 +37,12 @@ class MetasploitModule < Msf::Auxiliary
           ['READ', { 'Description' => 'Attempt to print file content' }],
           ['DOWNLOAD', { 'Description' => 'Attempt to download a file' }]
         ],
-        'DefaultAction' => 'CHECK'
+        'DefaultAction' => 'CHECK',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

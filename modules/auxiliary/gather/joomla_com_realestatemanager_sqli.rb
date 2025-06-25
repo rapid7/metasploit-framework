@@ -25,7 +25,12 @@ class MetasploitModule < Msf::Auxiliary
           'Nixawk', # metasploit module
         ],
         'License' => MSF_LICENSE,
-        'DisclosureDate' => '2015-10-22'
+        'DisclosureDate' => '2015-10-22',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

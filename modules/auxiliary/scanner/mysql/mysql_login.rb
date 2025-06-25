@@ -31,6 +31,11 @@ class MetasploitModule < Msf::Auxiliary
           'USERNAME' => 'root',
           'BLANK_PASSWORDS' => true,
           'CreateSession' => false
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

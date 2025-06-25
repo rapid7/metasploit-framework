@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://www.rapid7.com/blog/post/2015/07/10/r7-2015-08-accellion-file-transfer-appliance-vulnerabilities-cve-2015-2856-cve-2015-2857/'],
           ['CVE', '2015-2856']
         ],
-        'DisclosureDate' => '2015-07-10'
+        'DisclosureDate' => '2015-07-10',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

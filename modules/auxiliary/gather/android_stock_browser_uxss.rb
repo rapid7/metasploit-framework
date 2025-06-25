@@ -42,7 +42,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '110664' ],
           [ 'CVE', '2014-6041' ]
         ],
-        'DefaultAction' => 'WebServer'
+        'DefaultAction' => 'WebServer',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

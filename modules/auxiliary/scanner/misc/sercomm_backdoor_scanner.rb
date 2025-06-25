@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '101653' ],
           [ 'URL', 'https://github.com/elvanderb/TCP-32764' ]
         ],
-        'DisclosureDate' => '2013-12-31'
+        'DisclosureDate' => '2013-12-31',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

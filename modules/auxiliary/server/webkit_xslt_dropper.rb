@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Auxiliary
         'PassiveActions' => [
           'WebServer'
         ],
-        'DefaultAction' => 'WebServer'
+        'DefaultAction' => 'WebServer',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

@@ -34,7 +34,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '114344' ],
           [ 'URL', 'https://seclists.org/fulldisclosure/2014/Nov/12' ]
         ],
-        'DisclosureDate' => '2014-11-05'
+        'DisclosureDate' => '2014-11-05',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

@@ -30,7 +30,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://wordpress.org/'],
           ['URL', 'http://www.ethicalhack3r.co.uk/security/introduction-to-the-wordpress-xml-rpc-api/'],
           ['CVE', '1999-0502'] # Weak password
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

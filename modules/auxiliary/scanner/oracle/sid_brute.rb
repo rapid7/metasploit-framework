@@ -22,7 +22,12 @@ class MetasploitModule < Msf::Auxiliary
           SIDs read from the named file will be attempted in sequence instead.
         },
         'Author' => [ 'todb' ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

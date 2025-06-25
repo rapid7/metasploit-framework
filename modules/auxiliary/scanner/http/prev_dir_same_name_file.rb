@@ -20,7 +20,12 @@ class MetasploitModule < Msf::Auxiliary
           following files /backup/files.ext .
         },
         'Author' => [ 'et [at] metasploit.com' ],
-        'License'	=> BSD_LICENSE
+        'License'	=> BSD_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

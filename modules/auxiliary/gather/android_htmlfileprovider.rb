@@ -31,7 +31,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2010-4804' ],
           [ 'URL', 'http://thomascannon.net/blog/2010/11/android-data-stealing-vulnerability/' ]
         ],
-        'DefaultAction' => 'WebServer'
+        'DefaultAction' => 'WebServer',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

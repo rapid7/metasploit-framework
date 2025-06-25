@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://github.com/xbmc/xbmc/commit/bdff099c024521941cb0956fe01d99ab52a65335'],
           ['URL', 'https://ioactive.com/pdfs/Security_Advisory_XBMC.pdf'],
         ],
-        'DisclosureDate' => '2012-11-04'
+        'DisclosureDate' => '2012-11-04',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

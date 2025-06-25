@@ -24,7 +24,12 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['URL', 'https://www.manageengine.com/products/service-desk/readme-9.1.html'],
         ],
-        'DisclosureDate' => '2015-10-03'
+        'DisclosureDate' => '2015-10-03',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

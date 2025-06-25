@@ -28,6 +28,11 @@ class MetasploitModule < Msf::Auxiliary
         'DefaultOptions' => {
           'SSL' => false,
           'VERBOSE' => true
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '85801' ],
           [ 'BID', '55648' ],
           [ 'URL', 'https://support.microfocus.com/kb/doc.php?id=7010772' ]
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

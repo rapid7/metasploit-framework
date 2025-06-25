@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2014-11-21',
         'References' => [
           ['URL', 'https://labs.f-secure.com/archive/gitlab-user-enumeration/']
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

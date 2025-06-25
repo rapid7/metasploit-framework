@@ -479,6 +479,11 @@ class MetasploitModule < Msf::Auxiliary
         'DefaultOptions' => {
           'RPORT' => 443,
           'SSL' => true,
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

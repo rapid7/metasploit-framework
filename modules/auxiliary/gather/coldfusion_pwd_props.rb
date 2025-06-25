@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'License' => MSF_LICENSE,
         # The day we saw the subzero poc
-        'DisclosureDate' => '2013-05-07'
+        'DisclosureDate' => '2013-05-07',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

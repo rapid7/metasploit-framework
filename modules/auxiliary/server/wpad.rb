@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
         'DefaultOptions' => {
           'SRVPORT' => 80
         },
-        'Passive' => true
+        'Passive' => true,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

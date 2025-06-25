@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2018-0296' ],
           [ 'EDB', '44956' ]
         ],
-        'DisclosureDate' => '2018-06-06'
+        'DisclosureDate' => '2018-06-06',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

@@ -35,6 +35,11 @@ class MetasploitModule < Msf::Auxiliary
         'DefaultOptions' => {
           'USER_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt"),
           'PASS_FILE' => File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt")
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

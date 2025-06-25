@@ -31,7 +31,12 @@ class MetasploitModule < Msf::Auxiliary
           'SSL' => true
         },
         'License' => MSF_LICENSE,
-        'DisclosureDate' => '2019-03-18'
+        'DisclosureDate' => '2019-03-18',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     ) # Blog post date
 

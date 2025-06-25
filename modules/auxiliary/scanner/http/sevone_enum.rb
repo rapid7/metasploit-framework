@@ -22,7 +22,12 @@ class MetasploitModule < Msf::Auxiliary
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
         'DisclosureDate' => '2013-06-07',
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
     register_options(

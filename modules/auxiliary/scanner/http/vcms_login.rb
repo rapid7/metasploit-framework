@@ -20,7 +20,12 @@ class MetasploitModule < Msf::Auxiliary
           any default protections against brute forcing.
         },
         'Author' => [ 'sinn3r' ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 
