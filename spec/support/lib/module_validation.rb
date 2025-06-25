@@ -28,6 +28,8 @@ module ModuleValidation
     validate :validate_reference_ctx_id
     validate :validate_author_bad_chars
     validate :validate_target_platforms
+    validate :validate_description_does_not_contain_non_printable_chars
+    validate :validate_name_does_not_contain_non_printable_chars
 
     attr_reader :mod
 
@@ -151,6 +153,22 @@ module ModuleValidation
 
     def has_notes?
       !notes.empty?
+    end
+
+    def validate_description_does_not_contain_non_printable_chars
+      unless description&.match?(/\A[ -~\t\n]*\z/)
+        # Blank descriptions are validated elsewhere, so we will return early to not also add this error
+        # and cause unnecessary confusion.
+        return if description.nil?
+
+        errors.add :description, 'must only contain human-readable printable ascii characters, including newlines and tabs'
+      end
+    end
+
+    def validate_name_does_not_contain_non_printable_chars
+      unless name&.match?(/\A[ -~]+\z/)
+        errors.add :name, 'must only contain human-readable printable ascii characters'
+      end
     end
 
     validates :mod, presence: true
