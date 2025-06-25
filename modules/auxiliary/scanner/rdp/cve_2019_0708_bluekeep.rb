@@ -39,7 +39,9 @@ class MetasploitModule < Msf::Auxiliary
         'DefaultAction' => 'Scan',
         'Notes' => {
           'Stability' => [ CRASH_SAFE ],
-          'AKA' => ['BlueKeep']
+          'AKA' => ['BlueKeep'],
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

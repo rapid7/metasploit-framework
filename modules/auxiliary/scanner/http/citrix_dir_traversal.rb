@@ -33,7 +33,10 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2019-12-17',
         'License' => MSF_LICENSE,
         'Notes' => {
-          'AKA' => ['Shitrix']
+          'AKA' => ['Shitrix'],
+          'Stability' => UNKNOWN_STABILITY,
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

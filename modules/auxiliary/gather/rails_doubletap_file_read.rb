@@ -29,7 +29,10 @@ class MetasploitModule < Msf::Auxiliary
           [ 'EDB', '46585' ]
         ],
         'Notes' => {
-          'AKA' => ['DoubleTap']
+          'AKA' => ['DoubleTap'],
+          'Stability' => UNKNOWN_STABILITY,
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )
