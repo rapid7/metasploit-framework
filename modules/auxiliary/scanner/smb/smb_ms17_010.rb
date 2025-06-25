@@ -50,7 +50,10 @@ class MetasploitModule < Msf::Auxiliary
           'AKA' => [
             'DOUBLEPULSAR',
             'ETERNALBLUE'
-          ]
+          ],
+          'Stability' => UNKNOWN_STABILITY,
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

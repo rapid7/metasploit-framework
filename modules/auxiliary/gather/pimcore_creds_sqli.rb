@@ -35,7 +35,9 @@ class MetasploitModule < Msf::Auxiliary
           [ 'EDB', '45208' ]
         ],
         'Notes' => {
-          'SideEffects' => [ IOC_IN_LOGS ]
+          'SideEffects' => [ IOC_IN_LOGS ],
+          'Stability' => UNKNOWN_STABILITY,
+          'Reliability' => UNKNOWN_RELIABILITY
         },
         'DisclosureDate' => '2018-08-13'
       )
