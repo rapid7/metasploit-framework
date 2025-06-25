@@ -184,6 +184,16 @@ RSpec.describe ModuleValidation::Validator do
       end
     end
 
+    context 'when the name has non-printable ascii characters' do
+      let(:mod_options) do
+        super().merge(name: 'Testing human-readable printable ascii characters ≤')
+      end
+
+      it 'has errors' do
+        expect(subject.errors.full_messages).to eq ['Name must only contain human-readable printable ascii characters']
+      end
+    end
+
     context 'when the module file path is not snake case' do
       let(:mod_options) do
         super().merge(file_path: 'modules/exploits/windows/smb/CVE_2020_0796_smbghost.rb')
@@ -201,6 +211,16 @@ RSpec.describe ModuleValidation::Validator do
 
       it 'has errors' do
         expect(subject.errors.full_messages).to eq ["Description can't be blank"]
+      end
+    end
+
+    context 'when the description has non-printable ascii characters' do
+      let(:mod_options) do
+        super().merge(description: "Testing human-readable printable ascii characters ≤\n\tand newlines/tabs")
+      end
+
+      it 'has errors' do
+        expect(subject.errors.full_messages).to eq ['Description must only contain human-readable printable ascii characters, including newlines and tabs']
       end
     end
 
