@@ -334,7 +334,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def validate_password(password)
-    vprint_status('Attempting to validate password')
+    vprint_status("Attempting to validate password '#{password}'")
 
     res = send_request_cgi(
       'method' => 'GET',
