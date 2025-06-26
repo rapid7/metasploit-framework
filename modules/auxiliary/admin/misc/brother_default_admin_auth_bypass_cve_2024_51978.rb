@@ -392,8 +392,8 @@ class MetasploitModule < Msf::Auxiliary
     service_data = {
       address: datastore['RHOST'],
       port: datastore['RPORT'],
-      service_name: 'Printer Admin Interface',
-      protocol: 'http',
+      service_name: ssl ? 'https' : 'http',
+      protocol: 'tcp',
       workspace_id: myworkspace_id
     }
 
