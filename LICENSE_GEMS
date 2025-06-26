@@ -93,11 +93,11 @@ memory_profiler, 1.1.0, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 5.0.4, "New BSD"
 metasploit-credential, 6.0.16, "New BSD"
-metasploit-framework, 6.4.71, "New BSD"
+metasploit-framework, 6.4.72, "New BSD"
 metasploit-model, 5.0.3, "New BSD"
 metasploit-payloads, 2.0.221, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 6.0.9, "New BSD"
-metasploit_payloads-mettle, 1.0.35, "3-clause (or ""modified"") BSD"
+metasploit_payloads-mettle, 1.0.42, "3-clause (or ""modified"") BSD"
 method_source, 1.1.0, MIT
 mime-types, 3.6.0, MIT
 mime-types-data, 3.2025.0304, MIT
