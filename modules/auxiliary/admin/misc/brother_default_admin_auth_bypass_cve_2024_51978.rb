@@ -104,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
       salt_data: datastore['SaltData']&.unpack('C*')
     )
 
-    print_status("Generated password value: #{default_password}")
+    print_status("Generated default password value: #{default_password}")
 
     # Step 3, we can verify the password by attempting to log into the target devices web admin interface.
     if datastore['ValidatePassword']
