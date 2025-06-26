@@ -278,7 +278,7 @@ class MetasploitModule < Msf::Auxiliary
       salt_data ||= SALT_DATA_TABLE[salt_table_index].unpack('C*')
     end
 
-    fail_with(Failure::BadConfig, 'SaltData must be 8 bytes') unless salt_data.length == 8
+    fail_with(Failure::BadConfig, "SaltData must be 8 bytes, and not #{salt_data.length}") unless salt_data.length == 8
 
     vprint_status("Generating default password with salt lookup index #{salt_lookup_index} and salt data #{salt_data.pack('C*')}")
 
