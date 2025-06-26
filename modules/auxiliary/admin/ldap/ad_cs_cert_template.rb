@@ -110,16 +110,11 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::Unknown, "#{e.class}: #{e.message}")
   end
 
-  def ms_security_descriptor_control(flags)
-    control_values = [flags].map(&:to_ber).to_ber_sequence.to_s.to_ber
-    [LDAP_SERVER_SD_FLAGS_OID.to_ber, control_values].to_ber_sequence
-  end
-
   def get_certificate_template
     obj = @ldap.search(
       filter: "(&(cn=#{datastore['CERT_TEMPLATE']})(objectClass=pKICertificateTemplate))",
       base: "CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,#{@base_dn}",
-      controls: [ms_security_descriptor_control(4)]
+      controls: [adds_build_ldap_sd_control(owner: false, group: false, dacl: true, sacl: false)]
     )&.first
     fail_with(Failure::NotFound, 'The specified template was not found.') unless obj
 
