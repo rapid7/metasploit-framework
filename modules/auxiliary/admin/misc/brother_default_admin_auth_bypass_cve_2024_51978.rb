@@ -351,7 +351,7 @@ class MetasploitModule < Msf::Auxiliary
       return Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
     end
 
-    unless res.body =~ /input type="password" id="LogBox" name="([a-zA-Z0-9]+)"/
+    unless res.body =~ /input type="password" id="LogBox" name="([^"]+)"/
       vprint_error('Failed to extract login form LogBox name.')
       return Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
     end
