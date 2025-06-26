@@ -273,7 +273,7 @@ class MetasploitModule < Msf::Auxiliary
     unless salt_data && salt_lookup_index != 0
       salt_table_index = SALT_LOOKUP_TABLE[salt_lookup_index]
 
-      fail_with(Failure::BadConfig, 'unknown salt table data at salt table index') unless SALT_DATA_TABLE[salt_table_index]
+      fail_with(Failure::BadConfig, "unknown salt table data at salt table index #{salt_table_index}") unless SALT_DATA_TABLE[salt_table_index]
 
       salt_data ||= SALT_DATA_TABLE[salt_table_index].unpack('C*')
     end
