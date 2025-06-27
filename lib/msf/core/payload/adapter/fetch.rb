@@ -27,6 +27,17 @@ module Msf
           Msf::OptBool.new('FetchHandlerDisable', [true, 'Disable fetch handler', false])
         ]
       )
+      # XXX Maybe add a method to the parent single payload mixin to do this instead?
+      # Need to remove the REQUESTED_ARCH datastore value and replace it with the bruteforce option.
+      if datastore.include?('REQUESTED_ARCH')
+        datastore['FETCH_PIPE'] = true
+        register_options(
+          [
+            Msf::OptBool.new('FETCH_BRUTEFORCE', [true, 'Attempt all possible payloads if none match.', false])
+          ]
+        )
+        deregister_options('REQUESTED_ARCH', 'FETCH_FILENAME')
+      end
       @fetch_service = nil
       @multi_arch = nil             # used to make sure the payload UUID is generated with the right arch
       @myresources = []             # files currently being serveed
@@ -371,7 +382,6 @@ module Msf
     end
 
     def _remote_destination_nix
-      return @remote_destination_nix unless @remote_destination_nix.nil?
 
       if datastore['FETCH_FILELESS'] != 'none'
         @remote_destination_nix = '$f'
@@ -388,8 +398,6 @@ module Msf
     end
 
     def _remote_destination_win
-      return @remote_destination_win unless @remote_destination_win.nil?
-
       writable_dir = datastore['FETCH_WRITABLE_DIR']
       writable_dir += '\\' unless writable_dir.blank? || writable_dir[-1] == '\\'
       payload_filename = datastore['FETCH_FILENAME']

