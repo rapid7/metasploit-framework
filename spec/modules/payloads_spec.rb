@@ -5180,6 +5180,17 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'windows/vncinject/reverse_tcp_rc4_dns'
   end
 
+  context 'windows/aarch64/exec' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                            'singles/windows/aarch64/exec'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'windows/aarch64/exec'
+  end
+
+
   context 'windows/x64/custom/bind_ipv6_tcp' do
     it_should_behave_like 'payload is not cached',
                           ancestor_reference_names: [
