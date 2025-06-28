@@ -10,7 +10,7 @@
 ###
 module MetasploitModule
   include Msf::Payload::Windows::DllInject
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Windows
 
   def initialize(info = {})
     super(
