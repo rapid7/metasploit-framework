@@ -271,6 +271,7 @@ Gem::Specification.new do |spec|
     mutex_m
     ostruct
     rinda
+    syslog
   ].each do |library|
     spec.add_runtime_dependency library
   end
