@@ -5,7 +5,7 @@
 
 module MetasploitModule
   # This size is an approximation. The final size depends on the CMD string.
-  CachedSize = 384
+  CachedSize = 352
 
   include Msf::Payload::Windows
   include Msf::Payload::Single
