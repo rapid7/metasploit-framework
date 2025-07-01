@@ -20,7 +20,7 @@ A serial number to use for this target. If none is specified, the target will be
 to discover the serial number (as per the `DiscoverSerialVia` option).
 
 ### DiscoverSerialVia
-The technique to use to discover the serial number. Can be one of `ANY`, `HTTP`, `SNMP`, or `PJL`. The default is `ANY`.
+The technique to use to discover the serial number. Can be one of `AUTO`, `HTTP`, `SNMP`, or `PJL`. The default is `AUTO`.
 
 ### SaltLookupIndex
 The index into the salt table to use when generating the default password. The default is `254`, which is the expected
