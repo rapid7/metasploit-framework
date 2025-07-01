@@ -54,9 +54,7 @@ module Msf::ModuleManager::Reloading
 
     # Clear the specific payload from the module set
     module_set = module_set_by_type[module_type]
-    if module_set
-      module_set.delete(module_reference_name)
-    end
+      module_set.delete(module_reference_name) if module_set
 
     # For payloads, we need to reload the entire payload ecosystem
     # because of stage/stager dependencies
