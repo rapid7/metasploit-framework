@@ -53,7 +53,7 @@ module Msf::ModuleManager::Reloading
       original_datastore = original_instance&.datastore.copy
 
     # Clear the specific payload from the module set
-    module_set = module_set_by_type[module_type]
+    module_set = module_set_by_type.fetch(module_type,nil)
       module_set.delete(module_reference_name) if module_set
 
     # For payloads, we need to reload the entire payload ecosystem
