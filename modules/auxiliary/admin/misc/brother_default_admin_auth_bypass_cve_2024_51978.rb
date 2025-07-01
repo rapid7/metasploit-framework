@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options([
       OptString.new('TargetSerial', [false, 'A serial number to use for this target. If none is specified, the target will be queried via HTTP, SNMP, or PJL to discover the serial number', nil]),
-      OptEnum.new('DiscoverSerialVia', [ true, 'The technique to use to discover the serial number', 'ANY', %w[ANY HTTP SNMP PJL] ]),
+      OptEnum.new('DiscoverSerialVia', [ true, 'The technique to use to discover the serial number', 'AUTO', %w[AUTO HTTP SNMP PJL] ]),
       OptInt.new('SaltLookupIndex', [true, 'The index into the salt table to use when generating the default password', 254]),
       OptString.new('SaltData', [false, 'The salt data to use when generating the default password', nil]),
       OptBool.new('ValidatePassword', [ true, 'Validate the default password by attempting to login', true ])
