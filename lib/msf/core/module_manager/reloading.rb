@@ -61,7 +61,7 @@ module Msf::ModuleManager::Reloading
     reload_payload_set
 
     # Try to get the reloaded module class
-    reloaded_module_class = module_set_by_type[module_type][module_reference_name]
+    reloaded_module_class = module_set_by_type.dig(module_type,module_reference_name)
 
     if reloaded_module_class.blank?
       raise "Failed to reload payload module: #{metasploit_class.fullname} not found after reload"
