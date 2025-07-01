@@ -50,10 +50,7 @@ module Msf::ModuleManager::Reloading
     module_reference_name = metasploit_class.fullname.sub(%r{^payload/}, '')
 
     # Store original datastore if we have an instance
-    original_datastore = nil
-    if original_instance
-      original_datastore = original_instance.datastore.copy
-    end
+      original_datastore = original_instance&.datastore.copy
 
     # Clear the specific payload from the module set
     module_set = module_set_by_type[module_type]
