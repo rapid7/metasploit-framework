@@ -38,7 +38,7 @@ module Msf::ModuleManager::Reloading
     end
 
     loader = namespace_module.loader
-    return loader.reload_module(mod)
+    loader.reload_module(mod)
   end
 
   private
