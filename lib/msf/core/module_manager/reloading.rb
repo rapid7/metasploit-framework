@@ -86,9 +86,7 @@ module Msf::ModuleManager::Reloading
     module_type = 'payload'
 
     # Clear existing payload modules
-    if module_set_by_type[module_type]
-      module_set_by_type[module_type].clear
-    end
+      module_set_by_type.fetch(module_type,nil)&.clear
 
     # Reinitialize the payload module set
     init_module_set(module_type)
