@@ -25,7 +25,7 @@ module Msf::ModuleManager::Reloading
     end
 
     # Special handling for payload modules
-    if metasploit_class.fullname.start_with?('payload/')
+    if mod&.payload?
       return reload_payload_module(metasploit_class, original_instance)
     end
 
