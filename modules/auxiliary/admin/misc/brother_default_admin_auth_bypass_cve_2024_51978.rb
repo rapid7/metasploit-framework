@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Auxiliary
       serial_number = datastore['TargetSerial'].to_s
     else
       case datastore['DiscoverSerialVia']
-      when 'ANY'
+      when 'AUTO'
         serial_number = get_serial_via_http
         if serial_number.nil?
           serial_number = get_serial_via_snmp
