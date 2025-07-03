@@ -85,35 +85,40 @@ int executeSharp(LPVOID lpPayload)
 	// - Param data
 	// - Assembly data
 	
-	memcpy(&metadata, lpPayload, METADATA_SIZE);
+// Unpack metadata
+memcpy(&metadata, lpPayload, METADATA_SIZE);
 
-	BYTE* data_ptr = (BYTE*)lpPayload + METADATA_SIZE;
+// Move past metadata
+BYTE* data_ptr = (BYTE*)lpPayload + METADATA_SIZE;
 
-	pipeName = (char*)malloc((metadata.pipenameLength + 1) * sizeof(char));
-	memcpy(pipeName, data_ptr, metadata.pipenameLength);
-	pipeName[metadata.pipenameLength] = 0; // Null-terminate
-	data_ptr += metadata.pipenameLength;
+// Helper macro to read a string
+#define READ_STRING(name, lengthField)                          \
+    name = (char*)malloc(metadata.lengthField + 1);             \
+    memcpy(name, data_ptr, metadata.lengthField);               \
+    name[metadata.lengthField] = '\0';                          \
+    data_ptr += metadata.lengthField;
 
-	appdomainName = (char*)malloc((metadata.appdomainLength + 1) * sizeof(char));
-	memcpy(appdomainName, data_ptr, metadata.appdomainLength);
-	appdomainName[metadata.appdomainLength] = 0; // Null-terminate
-	data_ptr += metadata.appdomainLength;
+// Read pipeName
+READ_STRING(pipeName, pipenameLength);
 
-	clrVersion = (char*)malloc((metadata.clrVersionLength + 1) * sizeof(char));
-	memcpy(clrVersion, data_ptr, metadata.clrVersionLength);
-	clrVersion[metadata.clrVersionLength] = 0; // Null-terminate
-	data_ptr += metadata.clrVersionLength;
+// Read appdomainName
+READ_STRING(appdomainName, appdomainLength);
 
-	// Convert to wchar
-	clrVersion_w = new wchar_t[metadata.clrVersionLength + 1];
-	size_t converted= 0;
-	mbstowcs_s(&converted, clrVersion_w, metadata.clrVersionLength + 1, clrVersion, metadata.clrVersionLength + 1);
-	
-	arg_s = (unsigned char*)malloc(metadata.argsSize * sizeof(BYTE));;
-	memcpy(arg_s, data_ptr, metadata.argsSize);
-	data_ptr += metadata.argsSize;
+// Read clrVersion
+READ_STRING(clrVersion, clrVersionLength);
 
-	////////////////// Hijack stdout
+// Convert to wchar
+clrVersion_w = new wchar_t[metadata.clrVersionLength + 1];
+size_t converted = 0;
+mbstowcs_s(&converted, clrVersion_w, metadata.clrVersionLength + 1, clrVersion, metadata.clrVersionLength + 1);
+
+// Read args
+arg_s = (unsigned char*)malloc(metadata.argsSize);
+memcpy(arg_s, data_ptr, metadata.argsSize);
+data_ptr += metadata.argsSize;
+
+#undef READ_STRING
+
 
 	// Create a pipe to send data
 	pipe = CreateNamedPipeA(
