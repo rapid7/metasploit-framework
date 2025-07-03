@@ -54,11 +54,13 @@ module Msf::ModuleManager::Reloading
     type = metasploit_class.type
     file_path = metasploit_class.file_path
 
-    # Store the original datastore so we can restore its state.
-    original_datastore = original_instance&.datastore&.copy
+    # Get a reference to the original datastore now, but do not copy it yet.
+    original_datastore = original_instance&.datastore
 
     # Step 2: Manually purge the old module from the framework's caches.
-    module_set.delete(module_reference_name) if module_set
+    if (module_set = module_set_by_type.fetch(type, nil))
+      module_set.delete(refname)
+    end
     if (aliases_for_fullname = inv_aliases[fullname])
       aliases_for_fullname.each { |a| aliases.delete(a) }
       inv_aliases.delete(fullname)
@@ -79,10 +81,11 @@ module Msf::ModuleManager::Reloading
     new_instance = framework.modules.create(fullname)
 
     if new_instance.blank?
-      raise "Failed to create a new instance of #{fullname} after reloading. The module file may be broken."
+      raise Msf::LoadError, "Failed to create a new instance of #{fullname} after reloading. The module file may be broken."
     end
 
     # Step 6: Restore the datastore to the new, fully-functional instance.
+    # Now we perform the copy, which is a method on the new datastore's merge function.
     if original_datastore
       new_instance.datastore.merge!(original_datastore)
     end
@@ -90,8 +93,8 @@ module Msf::ModuleManager::Reloading
     # Return the new instance, which the framework will make the active module.
     return new_instance
   rescue StandardError => e
-    elog("Failed to reload payload #{fullname}: #{e.message}")
-    raise "Failed to reload payload: #{e.message}"
+    elog("Failed to reload payload #{fullname}", error: e)
+    raise Msf::LoadError, e.message
   end
 
   public
