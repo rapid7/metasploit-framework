@@ -43,61 +43,55 @@ module Msf::ModuleManager::Reloading
 
   private
 
-  # Reload payload modules by clearing and reloading the entire payload set
-  # This is necessary because payloads have complex interdependencies
+  # Reloads a payload module. This must be done by reloading the entire parent
+  # directory to ensure the framework's complex payload "stitching" process
+  # (combining stages, stagers, and mixins) is correctly executed. This is slower
+  # but guarantees a fully-functional reloaded module.
   def reload_payload_module(metasploit_class, original_instance = nil)
-    module_type = 'payload'
-    module_reference_name = metasploit_class.fullname.sub(%r{^payload/}, '')
+    # Step 1: Get all necessary identifiers from the original module class.
+    fullname = metasploit_class.fullname
+    refname = metasploit_class.refname
+    type = metasploit_class.type
+    file_path = metasploit_class.file_path
 
-    # Store original datastore if we have an instance
-      original_datastore = original_instance&.datastore.copy
+    # Store the original datastore so we can restore its state.
+    original_datastore = original_instance&.datastore&.copy
 
-    # Clear the specific payload from the module set
-    module_set = module_set_by_type.fetch(module_type,nil)
-      module_set.delete(module_reference_name) if module_set
-
-    # For payloads, we need to reload the entire payload ecosystem
-    # because of stage/stager dependencies
-    reload_payload_set
-
-    # Try to get the reloaded module class
-    reloaded_module_class = module_set_by_type[module_type][module_reference_name]
-
-    if reloaded_module_class.blank?
-      raise "Failed to reload payload module: #{metasploit_class.fullname} not found after reload"
+    # Step 2: Manually purge the old module from the framework's caches.
+    module_set.delete(module_reference_name) if module_set
+    if (aliases_for_fullname = inv_aliases[fullname])
+      aliases_for_fullname.each { |a| aliases.delete(a) }
+      inv_aliases.delete(fullname)
     end
 
-    # Create a new instance of the reloaded module
-    new_instance = reloaded_module_class.new
+    # Step 3: Get the module's parent directory path.
+    module_info = module_info_by_path[file_path]
+    unless module_info && (parent_path = module_info[:parent_path])
+      raise Msf::LoadError, "Could not find cached module information for path: #{file_path}"
+    end
 
-    # Restore the original datastore if we had one
+    # Step 4: Use the core framework loader to reload the entire parent directory.
+    # This is the only way to reliably trigger the payload stitching logic.
+    load_modules(parent_path, force: true)
+
+    # Step 5: Now that the framework has completed its full reload process,
+    # use the public API to get a new instance of our reloaded module.
+    new_instance = framework.modules.create(fullname)
+
+    if new_instance.blank?
+      raise "Failed to create a new instance of #{fullname} after reloading. The module file may be broken."
+    end
+
+    # Step 6: Restore the datastore to the new, fully-functional instance.
     if original_datastore
       new_instance.datastore.merge!(original_datastore)
     end
 
+    # Return the new instance, which the framework will make the active module.
     return new_instance
   rescue StandardError => e
-    elog("Failed to reload payload #{metasploit_class.fullname}: #{e.message}")
+    elog("Failed to reload payload #{fullname}: #{e.message}")
     raise "Failed to reload payload: #{e.message}"
-  end
-
-  # Reload the entire payload module set
-  def reload_payload_set
-    module_type = 'payload'
-
-    # Clear existing payload modules
-      module_set_by_type.fetch(module_type,nil)&.clear
-
-    # Reinitialize the payload module set
-    init_module_set(module_type)
-
-    # Reload payloads from all module paths
-    module_paths.each do |path|
-      # Load payloads with force flag to ensure reload
-      load_modules(path, type: [module_type], force: true)
-    rescue StandardError => e
-      wlog("Warning: Could not reload payloads from #{path}: #{e.message}")
-    end
   end
 
   public
