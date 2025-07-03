@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 # Concerns reloading modules
-require 'pry'
-require 'pry-byebug'
+
 module Msf::ModuleManager::Reloading
   # Reloads the module specified in mod.  This can either be an instance of a module or a module class.
   #
@@ -9,7 +8,6 @@ module Msf::ModuleManager::Reloading
   # @return (see Msf::Modules::Loader::Base#reload_module)
   def reload_module(mod)
     # if it's an instance, then get its class
-    binding.pry
     if mod.is_a? Msf::Module
       metasploit_class = mod.class
     else
@@ -49,8 +47,6 @@ module Msf::ModuleManager::Reloading
       metasploit_class = mod
       original_instance = nil
     end 
-    binding.pry 
-
     if (module_set = self.module_set_by_type.fetch(metasploit_class.type, nil))
       module_set.delete(metasploit_class.refname)
     end
