@@ -659,7 +659,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if hash[:write_sids]
-        print_status(' Certificate Template Write-Enabled SIDs:')
+        print_status('  Certificate Template Write-Enabled SIDs:')
         hash[:write_sids].each do |sid|
           print_status("    * #{highlight_sid(sid)}")
         end
