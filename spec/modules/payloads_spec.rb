@@ -2105,6 +2105,16 @@ RSpec.describe 'modules/payloads', :content do
                           reference_name: 'linux/x64/exec'
   end
 
+  context 'linux/x64/set_hostname' do
+    it_should_behave_like 'payload cached size is consistent',
+                          ancestor_reference_names: [
+                              'singles/linux/x64/set_hostname'
+                          ],
+                          dynamic_size: false,
+                          modules_pathname: modules_pathname,
+                          reference_name: 'linux/x64/set_hostname'
+  end
+  
   context 'linux/x64/pingback_bind_tcp' do
     it_should_behave_like 'payload cached size is consistent',
                           ancestor_reference_names: [
