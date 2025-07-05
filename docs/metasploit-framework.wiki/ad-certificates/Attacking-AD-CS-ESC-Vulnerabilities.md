@@ -1384,7 +1384,7 @@ Steps for exploiting ESC15 are similar to ESC1 whereby a privileged user such as
 which adjusts the context in which the issued certificate can be used. These policy OIDs are accepted by the issuing CA
 if the target certificate template is defined using schema version 1.
 
-In the following example, the Client Authentication OID (1.3.6.1.5.5.7.3.2) is added which enables the certificate to be
+In the following example, the Client Authentication OID (1.3.6.1.5.5.7.3.2) is added which enables the certificate to be0
 used for authentication to LDAP via SCHANNEL. The operator can then perform LDAP queries with the privileges of the user
 specified in the alternate UPN.
 

