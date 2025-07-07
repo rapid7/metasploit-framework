@@ -11,6 +11,7 @@ module Meterpreter
 #
 PACKET_TYPE_REQUEST         = 0
 PACKET_TYPE_RESPONSE        = 1
+PACKET_TYPE_CONFIG          = 2
 PACKET_TYPE_PLAIN_REQUEST   = 10
 PACKET_TYPE_PLAIN_RESPONSE  = 11
 
@@ -121,6 +122,40 @@ TLV_TYPE_PIVOT_ID              = TLV_META_TYPE_RAW    |  650
 TLV_TYPE_PIVOT_STAGE_DATA      = TLV_META_TYPE_RAW    |  651
 TLV_TYPE_PIVOT_NAMED_PIPE_NAME = TLV_META_TYPE_STRING |  653
 
+#
+# Configuration options
+#
+TLV_TYPE_SESSION_EXPIRY        = TLV_META_TYPE_UINT   | 700 # Session expiration time
+TLV_TYPE_EXITFUNC              = TLV_META_TYPE_UINT   | 701 # identifier of the exit function to use
+TLV_TYPE_DEBUG_LOG             = TLV_META_TYPE_STRING | 702 # path to write debug log
+TLV_TYPE_EXTENSION             = TLV_META_TYPE_GROUP  | 703 # Group containing extension info
+TLV_TYPE_C2                    = TLV_META_TYPE_GROUP  | 704 # a C2/transport grouping
+TLV_TYPE_C2_COMM_TIMEOUT       = TLV_META_TYPE_UINT   | 705 # the timeout for this C2 group
+TLV_TYPE_C2_RETRY_TOTAL        = TLV_META_TYPE_UINT   | 706 # number of times to retry this C2
+TLV_TYPE_C2_RETRY_WAIT         = TLV_META_TYPE_UINT   | 707 # how long to wait between reconnect attempts
+TLV_TYPE_C2_URL                = TLV_META_TYPE_STRING | 708 # base URL of this C2 (scheme://host:port/uri)
+TLV_TYPE_C2_URI                = TLV_META_TYPE_STRING | 709 # URI to append to base URL (for HTTP(s)), if any
+TLV_TYPE_C2_PROXY_HOST         = TLV_META_TYPE_STRING | 710 # Host name of proxy
+TLV_TYPE_C2_PROXY_USER         = TLV_META_TYPE_STRING | 711 # Proxy user name
+TLV_TYPE_C2_PROXY_PASS         = TLV_META_TYPE_STRING | 712 # Proxy password
+TLV_TYPE_C2_GET                = TLV_META_TYPE_GROUP  | 713 # A grouping of params associated with GET requests
+TLV_TYPE_C2_POST               = TLV_META_TYPE_GROUP  | 714 # A grouping of params associated with POST requests
+TLV_TYPE_C2_OTHER_HEADERS      = TLV_META_TYPE_STRING | 715 # Custom headers
+TLV_TYPE_C2_UA                 = TLV_META_TYPE_STRING | 716 # User agent
+TLV_TYPE_C2_CERT_HASH          = TLV_META_TYPE_RAW    | 717 # Expected SSL certificate hash
+TLV_TYPE_C2_PREFIX             = TLV_META_TYPE_STRING | 718 # Data to prepend to the outgoing payload
+TLV_TYPE_C2_SUFFIX             = TLV_META_TYPE_STRING | 719 # Data to append to the outgoing payload
+TLV_TYPE_C2_ENC                = TLV_META_TYPE_UINT   | 720 # Request encoding flags (Base64|URL|Base64url)
+TLV_TYPE_C2_SKIP_COUNT         = TLV_META_TYPE_UINT   | 721 # Number of bytes of the incoming payload to ignore before parsing
+TLV_TYPE_C2_REFERRER           = TLV_META_TYPE_STRING | 722 # Referrer string
+TLV_TYPE_C2_ACCEPT_TYPES       = TLV_META_TYPE_STRING | 723 # Accept types string
+
+#
+# C2 Encoding flags
+#
+C2_ENCODING_FLAG_B64    = (1 << 0) # straight Base64 encoding
+C2_ENCODING_FLAG_B64URL = (1 << 1) # encoding Base64 with URL-safe values
+C2_ENCODING_FLAG_URL    = (1 << 2) # straight URL encoding
 
 #
 # Core flags
@@ -816,6 +851,10 @@ class Packet < GroupTlv
   #
   ##
 
+  def Packet.create_config()
+    Packet.new(PACKET_TYPE_CONFIG)
+  end
+
   #
   # Creates a request with the supplied method.
   #
@@ -945,17 +984,23 @@ class Packet < GroupTlv
   #
   def to_r(session_guid = nil, key = nil)
     xor_key = (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr + (rand(254) + 1).chr
+    # for debugging purposes
+    xor_key = "\x00" * 4
 
     raw = (session_guid || NULL_GUID).dup
     tlv_data = GroupTlv.instance_method(:to_r).bind(self).call
 
-    if key && key[:key] && (key[:type] == ENC_FLAG_AES128 || key[:type] == ENC_FLAG_AES256)
-      # encrypt the data, but not include the length and type
-      iv, ciphertext = aes_encrypt(key[:key], tlv_data[HEADER_SIZE..-1])
-      # now manually add the length/type/iv/ciphertext
-      raw << [key[:type], iv.length + ciphertext.length + HEADER_SIZE, self.type, iv, ciphertext].pack('NNNA*A*')
-    else
+    if @type == PACKET_TYPE_CONFIG
       raw << [ENC_FLAG_NONE, tlv_data].pack('NA*')
+    else
+      if key && key[:key] && (key[:type] == ENC_FLAG_AES128 || key[:type] == ENC_FLAG_AES256)
+        # encrypt the data, but not include the length and type
+        iv, ciphertext = aes_encrypt(key[:key], tlv_data[HEADER_SIZE..-1])
+        # now manually add the length/type/iv/ciphertext
+        raw << [key[:type], iv.length + ciphertext.length + HEADER_SIZE, self.type, iv, ciphertext].pack('NNNA*A*')
+      else
+        raw << [ENC_FLAG_NONE, tlv_data].pack('NA*')
+      end
     end
 
     # return the xor'd result with the key
