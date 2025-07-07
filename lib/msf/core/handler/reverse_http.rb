@@ -70,8 +70,7 @@ module ReverseHttp
         OptString.new('HttpUserAgent',
           'The user-agent that the payload should use for communication',
           default: Rex::UserAgent.random,
-          aliases: ['MeterpreterUserAgent'],
-          max_length: Rex::Payloads::Meterpreter::Config::UA_SIZE - 1
+          aliases: ['MeterpreterUserAgent']
         ),
         OptString.new('HttpServerName',
           'The server header that the handler will send in response to requests',
