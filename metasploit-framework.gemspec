@@ -44,7 +44,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^spec/})
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = '>= 2.7'
+  spec.required_ruby_version = '>= 3.1'
 
   # Database support
   spec.add_runtime_dependency 'activerecord', *Metasploit::Framework::RailsVersionConstraint::RAILS_VERSION
@@ -219,7 +219,7 @@ Gem::Specification.new do |spec|
   # SSH server library with ed25519
   spec.add_runtime_dependency 'hrr_rb_ssh-ed25519'
   # Needed for irb internal command
-  spec.add_runtime_dependency 'irb', '~> 1.7.4'
+  spec.add_runtime_dependency 'irb'
 
   # AWS enumeration modules
   spec.add_runtime_dependency 'aws-sdk-s3'
