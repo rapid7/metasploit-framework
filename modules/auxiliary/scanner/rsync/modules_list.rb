@@ -16,23 +16,22 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'List Rsync Modules',
+      'Name' => 'List Rsync Modules',
       'Description' => %q(
         An rsync module is essentially a directory share.  These modules can
         optionally be protected by a password.  This module connects to and
         negotiates with an rsync server, lists the available modules and,
         optionally, determines if the module requires a password to access.
       ),
-      'Author'      => [
+      'Author' => [
         'ikkini', # original metasploit module
         'Jon Hart <jon_hart[at]rapid7.com>', # improved metasploit module
         'Nixawk' # improved metasploit module
       ],
-      'References'  =>
-        [
-          ['URL', 'http://rsync.samba.org/ftp/rsync/rsync.html']
-        ],
-      'License'     => MSF_LICENSE
+      'References' => [
+        ['URL', 'http://rsync.samba.org/ftp/rsync/rsync.html']
+      ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
@@ -85,8 +84,10 @@ class MetasploitModule < Msf::Auxiliary
     # on its own line, lines separated with a newline
     sock.get(read_timeout).split(/\n/).map(&:strip).map do |module_line|
       break if module_line =~ /^#{RSYNC_HEADER} EXIT$/
+
       name, comment = module_line.split(/\t/).map(&:strip)
       next unless name
+
       modules_metadata << { name: name, comment: comment }
     end
 

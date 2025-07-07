@@ -14,19 +14,20 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Buffalo NAS Login Utility',
-      'Description'    => %q{
+      'Name' => 'Buffalo NAS Login Utility',
+      'Description' => %q{
         This module simply attempts to login to a Buffalo NAS instance using a specific
         username and password. It has been confirmed to work on version 1.68
       },
-      'Author'         => [ 'Nicholas Starke <starke.nicholas[at]gmail.com>' ],
-      'License'        => MSF_LICENSE
+      'Author' => [ 'Nicholas Starke <starke.nicholas[at]gmail.com>' ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(80)
-      ])
+      ]
+    )
   end
 
   def run_host(ip)

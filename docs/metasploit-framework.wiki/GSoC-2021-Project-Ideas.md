@@ -6,7 +6,7 @@ Mentors: [@zerosteiner](https://github.com/zerosteiner), [@jmartin-r7](https://g
 
 ### Retain active status of authentication tokens
 
-Many testing techniques interacting with web servers such as `XSS` rely on ensuring authentication obtained on a target be kept active. A mechanism for registering and maintaining open authentications identified during a test for the duration of the console session may provide an additional utility to enable more modules to target techniques that need valid authentication to be maintained. One such authentication token would be data retained in a cookie for a web service. This project would lay the groundwork for registering gathered or generated authenticaion tokens against a target to be refreshed and sustained until a console exits, or in some cases across console restarts.
+Many testing techniques interacting with web servers such as `XSS` rely on ensuring authentication obtained on a target be kept active. A mechanism for registering and maintaining open authentications identified during a test for the duration of the console session may provide an additional utility to enable more modules to target techniques that need valid authentication to be maintained. One such authentication token would be data retained in a cookie for a web service. This project would lay the groundwork for registering gathered or generated authentication tokens against a target to be refreshed and sustained until a console exits, or in some cases across console restarts.
 
 Difficulty: 2/5
 

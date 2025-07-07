@@ -19,19 +19,17 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SMB Domain User Enumeration',
+      'Name' => 'SMB Domain User Enumeration',
       'Description' => 'Determine what domain users are logged into a remote system via a DCERPC to NetWkstaUserEnum.',
-      'Author'      =>
-        [
-          'natron', # original module
-          'Joshua D. Abraham <jabra[at]praetorian.com>', # database storage
-          'NtAlexio2 <ntalexio2@gmail.com>', # refactor
-        ],
-      'References'  =>
-        [
-          [ 'URL', 'https://docs.microsoft.com/en-us/windows/win32/api/lmwksta/nf-lmwksta-netwkstauserenum' ]
-        ],
-      'License'     => MSF_LICENSE,
+      'Author' => [
+        'natron', # original module
+        'Joshua D. Abraham <jabra[at]praetorian.com>', # database storage
+        'NtAlexio2 <ntalexio2@gmail.com>', # refactor
+      ],
+      'References' => [
+        [ 'URL', 'https://docs.microsoft.com/en-us/windows/win32/api/lmwksta/nf-lmwksta-netwkstauserenum' ]
+      ],
+      'License' => MSF_LICENSE,
     )
   end
 
@@ -77,7 +75,6 @@ class MetasploitModule < Msf::Auxiliary
 
     user_info = user_enum(endpoint::WKSTA_USER_INFO_1)
     user_info.wkui1_buffer
-
   rescue Msf::Exploit::Remote::SMB::Client::Ipc::SmbIpcAuthenticationError => e
     print_warning(e.message)
     nil
@@ -103,21 +100,24 @@ class MetasploitModule < Msf::Auxiliary
     unless results.to_s.empty?
       accounts = [ Hash.new() ]
       results.compact.each do |result_set|
-        result_set.each { |result| accounts << {
-          :account_name => result.wkui1_username.encode('UTF-8'),
-          :logon_domain => result.wkui1_logon_domain.encode('UTF-8'),
-          :other_domains => result.wkui1_oth_domains.encode('UTF-8'),
-          :logon_server => result.wkui1_logon_server.encode('UTF-8')} }
+        result_set.each { |result|
+          accounts << {
+            :account_name => result.wkui1_username.encode('UTF-8'),
+            :logon_domain => result.wkui1_logon_domain.encode('UTF-8'),
+            :other_domains => result.wkui1_oth_domains.encode('UTF-8'),
+            :logon_server => result.wkui1_logon_server.encode('UTF-8')
+          }
+        }
       end
       accounts.shift
 
       if datastore['VERBOSE']
         accounts.each do |x|
           print_status x[:logon_domain] + "\\" + x[:account_name] +
-            "\t(logon_server: #{x[:logon_server]}, other_domains: #{x[:other_domains]})"
+                       "\t(logon_server: #{x[:logon_server]}, other_domains: #{x[:other_domains]})"
         end
       else
-        print_status "#{accounts.collect{|x| x[:logon_domain] + "\\" + x[:account_name]}.join(", ")}"
+        print_status "#{accounts.collect { |x| x[:logon_domain] + "\\" + x[:account_name] }.join(", ")}"
       end
 
       found_accounts = []
@@ -135,6 +135,5 @@ class MetasploitModule < Msf::Auxiliary
       end
 
     end
-
   end
 end

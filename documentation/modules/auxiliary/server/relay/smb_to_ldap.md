@@ -2,7 +2,7 @@
 
 This module supports running an SMB server which validates credentials, and
 then attempts to execute a relay attack against an LDAP server on the
-configured RELAY_TARGETS hosts.
+configured RHOSTS hosts.
 
 It is not possible to relay NTLMv2 to LDAP due to the Message Integrity Check
 (MIC). As a result, this will only work with NTLMv1. The module takes care of
@@ -65,11 +65,11 @@ HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa
     LmCompatibilityLevel    REG_DWORD    0x2
 ```
 
-Finally run the relay server on msfconsole, setting the `RELAY_TARGETS` option
+Finally run the relay server on msfconsole, setting the `RHOSTS` option
 to the Domain Controller IP address.
 
 ```
-run verbose=true RELAY_TARGETS=192.168.232.110
+run verbose=true RHOSTS=192.168.232.110
 ```
 
 You will have to coerce the Domain Computer and force it to authenticate to the
@@ -78,7 +78,7 @@ msfconsole server (see an example below).
 
 ## Options
 
-### RELAY_TARGETS
+### RHOSTS
 
 Target address range or CIDR identifier to relay to.
 
@@ -107,7 +107,7 @@ The domain name used during SMB exchange.
 ### Start the relay server
 ```
 msf6 > use auxiliary/server/relay/smb_to_ldap
-msf6 auxiliary(server/relay/smb_to_ldap) > run verbose=true RELAY_TARGETS=192.168.232.110
+msf6 auxiliary(server/relay/smb_to_ldap) > run verbose=true RHOSTS=192.168.232.110
 [*] Auxiliary module running as background job 0.
 msf6 auxiliary(server/relay/smb_to_ldap) >
 [*] SMB Server is running. Listening on 0.0.0.0:445

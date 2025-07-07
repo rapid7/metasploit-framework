@@ -53,8 +53,8 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Identifying Media Server Version on #{peer}")
     print_good("[Media Server] URI: http://#{peer}#{datastore['TARGETURI']}")
     print_good("[Media Server] Version: #{result['Version']}")
-    print_good("[Media Server] Internal IP: #{result['LocalAddress']}") if (result['LocalAddress']).to_s != ''
-    print_good('*** Vulnerable to SSRF module auxiliary/scanner/http/emby_ssrf_scanner! ***') if Rex::Version.new((result['Version']).to_s) < Rex::Version.new('4.5.0')
+    print_good("[Media Server] Internal IP: #{result['LocalAddress']}") if result['LocalAddress'].to_s != ''
+    print_good('*** Vulnerable to SSRF module auxiliary/scanner/http/emby_ssrf_scanner! ***') if Rex::Version.new(result['Version'].to_s) < Rex::Version.new('4.5.0')
     report_service(
       host: rhost,
       port: rport,
@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
       port: rport,
       proto: 'tcp',
       ntype: 'server_version',
-      data: result['Version'],
+      data: { version: result['Version'] },
       info: "Media Server v.#{result['Version']}"
     )
     vprint_status('Saving host information.')

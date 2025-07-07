@@ -133,6 +133,8 @@ module Metasploit
                 nil
               when /^krb5$/
                 return "#{cred.id}:#{cred.private.data}"
+              when /^(krb5.|timeroast$)/
+                return cred.private.data
               end
             end
             nil

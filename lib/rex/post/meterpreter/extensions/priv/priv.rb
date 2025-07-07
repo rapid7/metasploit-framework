@@ -121,7 +121,7 @@ class Priv < Extension
     # This can take a long long time for large domain controls, bump the timeout to one hour
     response = client.send_request(Packet.create_request(COMMAND_ID_PRIV_PASSWD_GET_SAM_HASHES), 3600)
 
-    response.get_tlv_value(TLV_TYPE_SAM_HASHES).split(/\n/).map { |hash|
+    response.get_tlv_value(TLV_TYPE_SAM_HASHES).split("\n").map { |hash|
       SamUser.new(hash)
     }
   end

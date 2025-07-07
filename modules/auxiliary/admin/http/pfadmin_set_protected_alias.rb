@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
           Postfixadmin installations between 2.91 and 3.0.1 do not check if an
           admin is allowed to delete protected aliases. This vulnerability can be
           used to redirect protected aliases to an other mail address. Eg. rewrite
-          the postmaster@domain alias
+          the postmaster@domain alias.
         },
         'Author' => [ 'Jan-Frederik Rieckers' ],
         'License' => MSF_LICENSE,
@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Auxiliary
         'Privileged' => true,
         'Platform' => ['php'],
         'Arch' => ARCH_PHP,
-        'DisclosureDate' => '2017-02-03'
+        'DisclosureDate' => '2017-02-03',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 

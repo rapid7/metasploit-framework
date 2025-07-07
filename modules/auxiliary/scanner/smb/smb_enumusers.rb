@@ -12,10 +12,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SMB User Enumeration (SAM EnumUsers)',
+      'Name' => 'SMB User Enumeration (SAM EnumUsers)',
       'Description' => 'Determine what users exist via the SAM RPC service',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE,
       'DefaultOptions' => {
         'DCERPC::fake_bind_multi' => false
       },
@@ -24,7 +24,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptBool.new('DB_ALL_USERS', [ false, "Add all enumerated usernames to the database", false ]),
-      ])
+      ]
+    )
   end
 
   def rport
@@ -121,7 +122,7 @@ class MetasploitModule < Msf::Auxiliary
       user_account_control: RubySMB::Dcerpc::Samr::USER_NORMAL_ACCOUNT
     )
 
-    print_good("#{samr_con.domain_name} [ #{users.values.map { |name| name.encode('UTF-8') }.join(', ') } ] ( LockoutTries=#{lockout_info.lockout_threshold} PasswordMin=#{password_info.min_password_length} )")
+    print_good("#{samr_con.domain_name} [ #{users.values.map { |name| name.encode('UTF-8') }.join(', ')} ] ( LockoutTries=#{lockout_info.lockout_threshold} PasswordMin=#{password_info.min_password_length} )")
     if datastore['DB_ALL_USERS']
       users.values.each do |username|
         report_username(samr_con.domain_name, username.encode('UTF-8'))

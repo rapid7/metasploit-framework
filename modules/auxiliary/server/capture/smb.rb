@@ -41,7 +41,12 @@ class MetasploitModule < Msf::Auxiliary
       'License' => MSF_LICENSE,
       'Actions' => [[ 'Capture', { 'Description' => 'Run SMB capture server' } ]],
       'PassiveActions' => [ 'Capture' ],
-      'DefaultAction' => 'Capture'
+      'DefaultAction' => 'Capture',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     })
 
     register_options(
@@ -75,9 +80,9 @@ class MetasploitModule < Msf::Auxiliary
     super(opts)
   end
 
-  def on_client_connect(client)
+  def on_client_connect(_client)
     print_good('Received SMB connection on Auth Capture Server!')
   end
 
-  alias :run :exploit
+  alias run exploit
 end

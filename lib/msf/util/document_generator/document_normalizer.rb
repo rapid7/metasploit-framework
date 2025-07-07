@@ -15,7 +15,7 @@ module Redcarpet
 
 
       def list(content, list_type)
-        if list_type == :unordered && content.scan(/<li>/).flatten.length > 15
+        if list_type == :unordered && content.scan('<li>').flatten.length > 15
           %Q|<p><div id=\"long_list\"><ul>#{content}<ul></div></p>|
         elsif list_type == :unordered
           %Q|<ul>#{content}</ul>|

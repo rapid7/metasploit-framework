@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Brocade Enable Login Check Scanner',
+      'Name' => 'Brocade Enable Login Check Scanner',
       'Description' => %q{
         This module will test a range of Brocade network devices for a
         privileged logins and report successes. The device authentication mode
@@ -29,12 +29,11 @@ class MetasploitModule < Msf::Auxiliary
               ICX6450-24 SWver 07.4.00bT311,
               FastIron WS 624 SWver 07.2.02fT7e1
       },
-      'Author'      => 'h00die <mike[at]shorebreaksecurity.com>',
-      'References'  =>
-        [
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'License'     => MSF_LICENSE
+      'Author' => 'h00die <mike[at]shorebreaksecurity.com>',
+      'References' => [
+        [ 'CVE', '1999-0502'] # Weak password
+      ],
+      'License' => MSF_LICENSE
     )
     register_options(
       [
@@ -45,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
     @no_pass_prompt = []
   end
 
-  def get_username_from_config(un_list,ip)
+  def get_username_from_config(un_list, ip)
     ["config", "running-config"].each do |command|
       print_status(" Attempting username gathering from #{command} on #{ip}")
       sock.puts("\r\n") # ensure that the buffer is clear
@@ -77,25 +76,25 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     un_list = []
     if datastore['GET_USERNAMES_FROM_CONFIG']
-        connect()
-        get_username_from_config(un_list,ip)
-        disconnect()
+      connect()
+      get_username_from_config(un_list, ip)
+      disconnect()
     end
 
-    if datastore['USERNAME'] #put the provided username on the array to try
-        un_list.push(datastore['USERNAME'])
+    if datastore['USERNAME'] # put the provided username on the array to try
+      un_list.push(datastore['USERNAME'])
     end
 
-    un_list.delete('logout') #logout, even when used as a un or pass will exit the terminal
+    un_list.delete('logout') # logout, even when used as a un or pass will exit the terminal
 
     un_list.each do |un|
       cred_collection = build_credential_collection(
-          username: datastore['USERNAME'],
-          password: datastore['PASSWORD']
+        username: datastore['USERNAME'],
+        password: datastore['PASSWORD']
       )
 
       scanner = Metasploit::Framework::LoginScanner::Telnet.new(
-      configure_login_scanner(
+        configure_login_scanner(
           host: ip,
           port: rport,
           proxies: datastore['PROXIES'],
@@ -122,8 +121,8 @@ class MetasploitModule < Msf::Auxiliary
       scanner.scan! do |result|
         credential_data = result.to_h
         credential_data.merge!(
-            module_fullname: self.fullname,
-            workspace_id: myworkspace_id
+          module_fullname: self.fullname,
+          workspace_id: myworkspace_id
         )
 
         if result.success?
@@ -131,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
           credential_data[:core] = credential_core
           create_credential_login(credential_data)
           print_good("#{ip}:#{rport} - Login Successful: #{result.credential}")
-          start_telnet_session(ip,rport,result.credential.public,result.credential.private,scanner)
+          start_telnet_session(ip, rport, result.credential.public, result.credential.private, scanner)
         else
           invalidate_login(credential_data)
           print_error("#{ip}:#{rport} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})")
@@ -144,10 +143,10 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Attempting to start session #{host}:#{port} with #{user}:#{pass}")
     merge_me = {
       'USERPASS_FILE' => nil,
-      'USER_FILE'     => nil,
-      'PASS_FILE'     => nil,
-      'USERNAME'      => user,
-      'PASSWORD'      => pass
+      'USER_FILE' => nil,
+      'PASS_FILE' => nil,
+      'USERNAME' => user,
+      'PASSWORD' => pass
     }
 
     start_session(self, "TELNET #{user}:#{pass} (#{host}:#{port})", merge_me, true, scanner.sock) if datastore['CreateSession']

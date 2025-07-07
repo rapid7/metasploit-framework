@@ -12,12 +12,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'NAT-PMP External Address Scanner',
+      'Name' => 'NAT-PMP External Address Scanner',
       'Description' => 'Scan NAT devices for their external address using NAT-PMP',
-      'Author'      => 'Jon Hart <jhart[at]spoofed.org>',
-      'License'     => MSF_LICENSE
+      'Author' => 'Jon Hart <jhart[at]spoofed.org>',
+      'License' => MSF_LICENSE
     )
-
   end
 
   def scan_host(ip)
@@ -37,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
       # report its external address as alive
       if inside_workspace_boundary?(external_address)
         report_host(
-          :host   => external_address,
+          :host => external_address,
           :state => Msf::HostState::Alive
         )
       end
@@ -47,17 +46,17 @@ class MetasploitModule < Msf::Auxiliary
 
     # report the host we scanned as alive
     report_host(
-      :host   => shost,
+      :host => shost,
       :state => Msf::HostState::Alive
     )
 
     # report NAT-PMP as being open
     report_service(
-      :host   => shost,
-      :port   => sport,
-      :proto  => 'udp',
-      :name   => 'natpmp',
-      :state  => Msf::ServiceState::Open
+      :host => shost,
+      :port => sport,
+      :proto => 'udp',
+      :name => 'natpmp',
+      :state => Msf::ServiceState::Open
     )
   end
 end

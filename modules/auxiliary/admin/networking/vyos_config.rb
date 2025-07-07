@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [ 'h00die' ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
-          'SideEffects' => [IOC_IN_LOGS],
+          'SideEffects' => [],
           'Reliability' => []
         }
       )

@@ -20,7 +20,7 @@ class MetasploitModule < Msf::Evasion
           'Nick Tyrer <@NickTyrer>', # module development
           'Matt Graeber' # workflow_compiler bypass research
         ],
-        'License' => 'MSF_LICENSE',
+        'License' => MSF_LICENSE,
         'Platform' => 'win',
         'Arch' => [ARCH_X86, ARCH_X64],
         'Targets' => [['Microsoft Windows', {}]],

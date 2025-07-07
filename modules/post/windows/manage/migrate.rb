@@ -34,6 +34,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_kill
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [CONFIG_CHANGES],
+          'Reliability' => []
         }
       )
     )
@@ -50,9 +55,9 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  # Run Method for when run command is issued
   def run
-    print_status("Running module against #{sysinfo['Computer']}")
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
 
     server = session.sys.process.open
     original_pid = server.pid
@@ -77,7 +82,7 @@ class MetasploitModule < Msf::Post
       print_status("Migrating into #{target_pid}")
       session.core.migrate(target_pid)
       print_good("Successfully migrated into process #{target_pid}")
-    rescue ::Exception => e
+    rescue StandardError => e
       print_error('Could not migrate into process')
       print_error("Exception: #{e.class} : #{e}")
     end
@@ -103,7 +108,9 @@ class MetasploitModule < Msf::Post
     if (target_ppid != 0) && !has_pid?(target_ppid)
       print_error("Process #{target_ppid} not found")
       return
-    elsif has_pid?(target_ppid)
+    end
+
+    if has_pid?(target_ppid)
       print_status("Spoofing PPID #{target_ppid}")
     end
 

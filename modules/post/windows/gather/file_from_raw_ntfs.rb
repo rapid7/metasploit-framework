@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Post
           such as open file with write lock. Because it avoids the usual file locking issues, it can
           be used to retrieve files such as NTDS.dit.
         },
-        'License' => 'MSF_LICENSE',
+        'License' => MSF_LICENSE,
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
         'Author' => ['Danil Bazin <danil.bazin[at]hsc.fr>'], # @danilbaz

@@ -10,28 +10,28 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'		   => 'SAP BusinessObjects Version Detection',
+      'Name'	=> 'SAP BusinessObjects Version Detection',
       'Description'	=> 'This module simply attempts to identify the version of SAP BusinessObjects.',
-      'References'  =>
-        [
-          # General
-          [ 'URL', 'http://spl0it.org/files/talks/source_barcelona10/Hacking%20SAP%20BusinessObjects.pdf' ]
-        ],
-      'Author'		 => [ 'Joshua Abraham <jabra[at]rapid7.com>' ],
-      'License'		=> MSF_LICENSE
+      'References' => [
+        # General
+        [ 'URL', 'http://spl0it.org/files/talks/source_barcelona10/Hacking%20SAP%20BusinessObjects.pdf' ]
+      ],
+      'Author'	=> [ 'Joshua Abraham <jabra[at]rapid7.com>' ],
+      'License'	=> MSF_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(8080),
         OptString.new('URI', [false, 'Path to the SAP BusinessObjects Axis2', '/dswsbobje']),
-      ])
+      ]
+    )
     register_autofilter_ports([ 8080 ])
   end
 
   def run_host(ip)
     res = send_request_cgi({
-      'uri'    => normalize_uri(datastore['URI'], "/services/listServices"),
+      'uri' => normalize_uri(datastore['URI'], "/services/listServices"),
       'method' => 'GET'
     }, 25)
     return if not res or res.code != 200
@@ -42,12 +42,12 @@ class MetasploitModule < Msf::Auxiliary
   def enum_version(rhost)
     print_status("Identifying SAP BusinessObjects on #{rhost}:#{rport}")
     success = false
-    soapenv='http://schemas.xmlsoap.org/soap/envelope/'
-    xmlns='http://session.dsws.businessobjects.com/2007/06/01'
-    xsi='http://www.w3.org/2001/XMLSchema-instance'
+    soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
+    xmlns = 'http://session.dsws.businessobjects.com/2007/06/01'
+    xsi = 'http://www.w3.org/2001/XMLSchema-instance'
 
     data = '<?xml version="1.0" encoding="utf-8"?>' + "\r\n"
-    data << '<soapenv:Envelope xmlns:soapenv="' +  soapenv + '"  xmlns:ns="' + xmlns + '">' + "\r\n"
+    data << '<soapenv:Envelope xmlns:soapenv="' + soapenv + '"  xmlns:ns="' + xmlns + '">' + "\r\n"
     data << '<soapenv:Header/>' + "\r\n"
     data << '<soapenv:Body>' + "\r\n"
     data << '<ns:getVersion/>' + "\r\n"
@@ -56,14 +56,14 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       res = send_request_raw({
-        'uri'     => normalize_uri(datastore['URI']) + "/services/Session",
-        'method'  => 'POST',
-        'data'    => data,
+        'uri' => normalize_uri(datastore['URI']) + "/services/Session",
+        'method' => 'POST',
+        'data' => data,
         'headers' =>
           {
             'Content-Length' => data.length,
             'SOAPAction'	=> '"' + 'http://session.dsws.businessobjects.com/2007/06/01/getVersion' + '"',
-            'Content-Type'  => 'text/xml; charset=UTF-8',
+            'Content-Type' => 'text/xml; charset=UTF-8',
           }
       }, 15)
 
@@ -76,7 +76,6 @@ class MetasploitModule < Msf::Auxiliary
           success = true
         end
       end
-
     rescue ::Rex::ConnectionError
       print_error("[SAP BusinessObjects] Unable to attempt authentication")
       return :abort

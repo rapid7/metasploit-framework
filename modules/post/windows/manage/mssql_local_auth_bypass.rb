@@ -37,6 +37,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_config_rev2self
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [CONFIG_CHANGES],
+          'Reliability' => []
         }
       )
     )
@@ -52,11 +57,11 @@ class MetasploitModule < Msf::Post
   end
 
   def run
+    hostname = sysinfo.nil? ? cmd_exec('hostname') : sysinfo['Computer']
+    print_status("Running module against #{hostname} (#{session.session_host})")
+
     # Set instance name (if specified)
     instance = datastore['INSTANCE'].to_s
-
-    # Display target
-    print_status("#{session_display_info}: Running module against #{sysinfo['Computer']}")
 
     # Identify available native SQL client
     get_sql_client
@@ -84,9 +89,11 @@ class MetasploitModule < Msf::Post
   end
 
   def add_login(service, instance_name)
-    add_login_status = add_sql_login(datastore['DB_USERNAME'],
-                                     datastore['DB_PASSWORD'],
-                                     instance_name)
+    add_login_status = add_sql_login(
+      datastore['DB_USERNAME'],
+      datastore['DB_PASSWORD'],
+      instance_name
+    )
 
     unless add_login_status
       raise 'Retry'
@@ -145,11 +152,10 @@ class MetasploitModule < Msf::Post
     if remove_login_result.empty?
       print_good("#{session_display_info}: Successfully removed login \"#{dbuser}\"")
       return true
-    else
-      # Fail
-      print_error("#{session_display_info}: Unabled to remove login #{dbuser}")
-      print_error("#{session_display_info}: Database Error:\n\n #{remove_login_result}")
-      return false
     end
+
+    print_error("#{session_display_info}: Unabled to remove login #{dbuser}")
+    print_error("#{session_display_info}: Database Error:\n\n #{remove_login_result}")
+    return false
   end
 end

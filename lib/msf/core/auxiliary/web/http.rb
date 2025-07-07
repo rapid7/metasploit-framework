@@ -113,11 +113,13 @@ class Auxiliary::Web::HTTP
       'Auto',
       nil,
       username,
-      password
+      password,
+      subscriber: opts[:http_subscriber]
     )
 
     c.set_config({
       'vhost' => opts[:target].vhost,
+      'ssl_server_name_indication' => opts[:target].ssl_server_name_indication || opts[:target].vhost,
       'agent' => opts[:user_agent] || Rex::UserAgent.session_agent,
       'domain' => domain
     })

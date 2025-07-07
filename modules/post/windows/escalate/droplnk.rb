@@ -29,6 +29,11 @@ class MetasploitModule < Msf::Post
               stdapi_fs_getwd
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [ARTIFACTS_ON_DISK],
+          'Reliability' => []
         }
       )
     )

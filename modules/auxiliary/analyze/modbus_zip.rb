@@ -6,28 +6,34 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
-  def initialize(info = {})
+  def initialize(_info = {})
     super(
-      'Name'           => 'Extract zip from Modbus communication',
-      'Description'    => %q{
+      'Name' => 'Extract zip from Modbus communication',
+      'Description' => %q{
         This module is able to extract a zip file sent through Modbus from a pcap.
-        Tested with Schneider TM221CE16R
+        Tested with Schneider TM221CE16R.
       },
       'Author' => [
         'José Diogo Monteiro <jdlopes[at]student.dei.uc.pt>',
         'Luis Rosa <lmrosa[at]dei.uc.pt)>'
       ],
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
 
     register_options [
       Opt::RPORT(502),
-      OptEnum.new('MODE', [true, 'Extract zip from upload/download capture', 'UPLOAD',
-                  ['UPLOAD','DOWNLOAD']]),
+      OptEnum.new('MODE', [
+        true, 'Extract zip from upload/download capture', 'UPLOAD',
+        ['UPLOAD', 'DOWNLOAD']
+      ]),
       OptString.new('PCAPFILE', [ true, 'Pcap to read', '' ]),
       OptString.new('FILENAME', [ false, 'Zip file output name'])
     ]
-
   end
 
   FIRST_BYTE_UPLOAD = 12
@@ -47,16 +53,14 @@ class MetasploitModule < Msf::Auxiliary
     h = packet.payload.scan(/.*\x50\x4B\x05\x06................../)
     if h.size.nonzero?
       print_status "Zip end on packet #{packet_number + 1}"
-      data += h[0][first_byte..-1]
+      data += h[0][first_byte..]
       zip_packet += 1
       return zip_packet, data
     end
 
     # ZIP data
-    if zip_packet == 1
-      unless packet.payload[first_byte..-1].nil?
-        data += packet.payload[first_byte..-1]
-      end
+    if zip_packet == 1 && !packet.payload[first_byte..].nil?
+      data += packet.payload[first_byte..]
     end
     return zip_packet, data
   end
@@ -67,11 +71,11 @@ class MetasploitModule < Msf::Auxiliary
     data = ''
     packets.each_with_index do |packet, i|
       if datastore['MODE'] == 'UPLOAD'
-        if  packet.respond_to?(:tcp_src) and packet.tcp_src == datastore['RPORT']
+        if packet.respond_to?(:tcp_src) && (packet.tcp_src == datastore['RPORT'])
           zip_packet, data = extract_zip(packet, zip_packet, FIRST_BYTE_UPLOAD, data, i)
         end
       elsif datastore['MODE'] == 'DOWNLOAD'
-        if  packet.respond_to?(:tcp_dst) and packet.tcp_dst == datastore['RPORT']
+        if packet.respond_to?(:tcp_dst) && (packet.tcp_dst == datastore['RPORT'])
           zip_packet, data = extract_zip(packet, zip_packet, FIRST_BYTE_DOWNLOAD, data, i)
         end
       end
@@ -79,11 +83,11 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     filename = datastore['FILENAME'] || 'project.zip'
-    unless data.empty?
+    if data.empty?
+      print_status "Zip file not found in #{datastore['PCAPFILE']}"
+    else
       path = store_loot(filename, 'application/zip', datastore['RHOSTS'], data, filename, 'modbus.zip')
       print_good "Zip file saved in loot: #{path}"
-    else
-      print_status "Zip file not found in #{datastore['PCAPFILE']}"
     end
   end
 end

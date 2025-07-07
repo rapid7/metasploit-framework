@@ -606,7 +606,7 @@ module Auxiliary::AuthBrute
       rescue
         return []
       end
-      upfile_contents.split(/\n/).each do |line|
+      upfile_contents.split("\n").each do |line|
         user,pass = line.split(/\s+/,2).map { |x| x.strip }
         creds << [user.to_s, pass.to_s]
       end

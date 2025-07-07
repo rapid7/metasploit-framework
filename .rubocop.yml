@@ -23,12 +23,10 @@ require:
   - ./lib/rubocop/cop/lint/deprecated_gem_version.rb
   - ./lib/rubocop/cop/lint/module_enforce_notes.rb
   - ./lib/rubocop/cop/lint/detect_invalid_pack_directives.rb
+  - ./lib/rubocop/cop/lint/detect_metadata_trailing_leading_whitespace.rb
 
 Layout/SpaceBeforeBrackets:
-  Description: >-
-    Disabled as it generates invalid code:
-      https://github.com/rubocop-hq/rubocop/issues/9499
-  Enabled: false
+  Enabled: true
 
 Lint/AmbiguousAssignment:
   Enabled: true
@@ -116,6 +114,12 @@ Style/DocumentDynamicEvalDefinition:
 Style/EndlessMethod:
   Enabled: true
 
+Style/FormatStringToken:
+  Enabled: true
+  Exclude:
+  # We aren't ready to enable this for modules yet
+    - 'modules/**/*'
+
 Style/HashExcept:
   Enabled: true
 
@@ -155,7 +159,24 @@ Style/RedundantAssignment:
     and return expression
   Enabled: false
 
+Style/RedundantParentheses:
+  Description: >-
+    Disabled as it sometimes improves the readability of code
+  Enabled: false
+
+Style/RedundantRegexpArgument:
+  Enabled: true
+  Exclude:
+  # We aren't ready to enable this for modules yet
+    - 'modules/**/*'
+
 Style/SwapValues:
+  Enabled: false
+
+Layout/LineContinuationLeadingSpace:
+  Description: >-
+    Disabled as it sometimes improves the readability of code having leading spaces
+    for indented code strings.
   Enabled: false
 
 Layout/ModuleHashOnNewLine:
@@ -652,3 +673,6 @@ Style/UnpackFirst:
     Disabling to make it easier to copy/paste `unpack('h*')` expressions from code
     into a debugging REPL.
   Enabled: false
+
+Lint/DetectMetadataTrailingLeadingWhitespace:
+  Enabled: true

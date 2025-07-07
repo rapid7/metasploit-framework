@@ -46,7 +46,12 @@ class MetasploitModule < Msf::Post
           ['URL', 'https://web.archive.org/web/20170201184448/https://social.technet.microsoft.com/Forums/windows/en-US/a3968ec9-5824-4bc2-82a2-a37ea88c273a/sticky-keys-exploit'],
           ['URL', 'https://blog.carnal0wnage.com/2012/04/privilege-escalation-via-sticky-keys.html']
         ],
-        'DefaultAction' => 'ADD'
+        'DefaultAction' => 'ADD',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 

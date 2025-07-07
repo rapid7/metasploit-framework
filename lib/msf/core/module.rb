@@ -48,6 +48,7 @@ module Msf
     include Msf::Module::Author
     include Msf::Module::Compatibility
     include Msf::Module::DataStore
+    include Msf::Module::Failure
     include Msf::Module::FullName
     include Msf::Module::ModuleInfo
     include Msf::Module::ModuleStore
@@ -113,7 +114,6 @@ module Msf
       @module_info_copy = info.dup
 
       self.module_info = info
-      generate_uuid
 
       set_defaults
 

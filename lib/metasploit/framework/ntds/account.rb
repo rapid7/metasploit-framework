@@ -128,7 +128,7 @@ module Metasploit
         def get_hash_history(data)
           raw_history = data.slice!(0,HASH_HISTORY_SIZE)
           split_history = raw_history.scan(/.{1,33}/)
-          split_history.map!{ |hash| hash.gsub(/\x00/,'')}
+          split_history.map!{ |hash| hash.gsub("\x00",'')}
           split_history.reject!{ |hash| hash.blank? }
         end
 
@@ -137,7 +137,7 @@ module Metasploit
         end
 
         def get_string(data,length)
-          data.slice!(0,length).force_encoding("UTF-8").gsub(/\x00/,'')
+          data.slice!(0,length).force_encoding("UTF-8").gsub("\x00",'')
         end
 
         def uac_string

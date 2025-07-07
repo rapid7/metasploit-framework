@@ -21,7 +21,7 @@ class OptPath < OptBase
   end
 
   # Generally, 'value' should be a file that exists.
-  def valid?(value, check_empty: true)
+  def valid?(value, check_empty: true, datastore: nil)
     return false if check_empty && empty_required_value?(value)
     if value and !value.empty?
       if value =~ /^memory:\s*([0-9]+)/i

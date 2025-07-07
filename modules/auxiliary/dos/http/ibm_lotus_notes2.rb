@@ -10,23 +10,28 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => "IBM Notes Denial Of Service",
-        'Description'    => %q(
+        'Name' => 'IBM Notes Denial Of Service',
+        'Description' => %q{
           This module exploits a vulnerability in the native browser that comes with IBM Lotus Notes.
           If successful, the browser will crash after viewing the webpage.
-        ),
-        'License'        => MSF_LICENSE,
-        'Author'         => [
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Dhiraj Mishra',
         ],
-        'References'     => [
+        'References' => [
           ['EDB', '42604'],
           [ 'CVE', '2017-1130' ]
         ],
         'DisclosureDate' => '2017-08-31',
-        'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
+        'Actions' => [[ 'WebServer', { 'Description' => 'Serve exploit via web server' } ]],
         'PassiveActions' => [ 'WebServer' ],
-        'DefaultAction'  => 'WebServer'
+        'DefaultAction' => 'WebServer',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
   end

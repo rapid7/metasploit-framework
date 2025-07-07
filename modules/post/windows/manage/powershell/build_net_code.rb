@@ -35,6 +35,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_execute
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -47,21 +52,18 @@ class MetasploitModule < Msf::Post
         OptString.new('OUTPUT_TARGET', [false, 'Name and path of the generated binary, default random, omit extension' ]),
         OptString.new('COMPILER_OPTS', [false, 'Options to pass to compiler', '/optimize']),
         OptString.new('CODE_PROVIDER', [true, 'Code provider to use', 'Microsoft.CSharp.CSharpCodeProvider'])
-      ], self.class
+      ]
     )
     register_advanced_options(
       [
         OptString.new('NET_CLR_VER', [false, 'Minimum NET CLR version required to compile', '4.0'])
-      ], self.class
+      ]
     )
   end
 
   def run
-    # Make sure we meet the requirements before running the script
-    unless session.type == 'meterpreter' || have_powershell?
-      print_error 'Incompatible Environment'
-      return 0
-    end
+    fail_with(Failure::BadConfig, 'This module requires a Meterpreter session') unless session.type == 'meterpreter'
+    fail_with(Failure::BadConfig, 'PowerShell is not installed') unless have_powershell?
 
     # Havent figured this one out yet, but we need a PID owned by a user, can't steal tokens either
     if client.sys.config.is_system?
@@ -75,7 +77,7 @@ class MetasploitModule < Msf::Post
     net_com_opts = {}
     net_com_opts[:target] =
       datastore['OUTPUT_TARGET'] ||
-      "#{session.sys.config.getenv('TEMP')}\\#{Rex::Text.rand_text_alpha(rand(8..15))}.exe"
+      "#{session.sys.config.getenv('TEMP')}\\#{Rex::Text.rand_text_alpha(8..15)}.exe"
     net_com_opts[:com_opts] = datastore['COMPILER_OPTS']
     net_com_opts[:provider] = datastore['CODE_PROVIDER']
     net_com_opts[:assemblies] = datastore['ASSEMBLIES']

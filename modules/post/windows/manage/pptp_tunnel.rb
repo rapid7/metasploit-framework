@@ -25,7 +25,12 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'https://www.youtube.com/watch?v=vdppEZjMPCM&hd=1' ]
         ],
         'Platform' => 'win',
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 
@@ -71,14 +76,14 @@ class MetasploitModule < Msf::Post
         registry_setvaldata(key, value, 3, 'REG_BINARY')
         print_good('Network Wizard disabled')
       end
-    rescue ::Exception => e
-      print_status("The fo llowing Error was encountered: #{e.class} #{e}")
+    rescue StandardError => e
+      print_status("The following error was encountered: #{e.class} #{e}")
     end
   end
 
   def create_pbk(mim, pbk_name)
     pbk_dir = expand_path('%TEMP%')
-    pbk_file = pbk_dir << '\\' << Rex::Text.rand_text_alpha(rand(6..13)) << '.pbk'
+    pbk_file = pbk_dir << '\\' << Rex::Text.rand_text_alpha(6..13) << '.pbk'
 
     conf_conn = "[#{pbk_name}]\r\n\r\n"
     conf_conn += "MEDIA=rastapi\r\n"

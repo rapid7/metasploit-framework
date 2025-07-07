@@ -17,17 +17,20 @@ class MetasploitModule < Msf::Auxiliary
           sp_oacreate procedure (more opsec safe, no output, no temporary data table). A valid username and password is
           required to use this module.
         },
-        'Author' =>
-          [
-            'tebo <tebo[at]attackresearch.com>',
-            'arcc <pw[at]evait.de>'
-          ],
+        'Author' => [
+          'tebo <tebo[at]attackresearch.com>',
+          'arcc <pw[at]evait.de>'
+        ],
         'License' => MSF_LICENSE,
-        'References' =>
-          [
-            [ 'URL', 'http://msdn.microsoft.com/en-us/library/cc448435(PROT.10).aspx'],
-            [ 'URL', 'https://docs.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-oacreate-transact-sql'],
-          ],
+        'References' => [
+          [ 'URL', 'http://msdn.microsoft.com/en-us/library/cc448435(PROT.10).aspx'],
+          [ 'URL', 'https://docs.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-oacreate-transact-sql'],
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -42,8 +45,8 @@ class MetasploitModule < Msf::Auxiliary
       set_mssql_session(session.client)
     else
       unless mssql_login_datastore
-        print_error("Error with mssql_login call")
-        info = self.mssql_client.initial_connection_info
+        print_error('Error with mssql_login call')
+        info = mssql_client.initial_connection_info
         if info[:errors] && !info[:errors].empty?
           info[:errors].each do |err|
             print_error(err)

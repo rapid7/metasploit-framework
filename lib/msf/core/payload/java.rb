@@ -100,7 +100,7 @@ module Msf::Payload::Java
 }
     app_name = opts[:app_name] || Rex::Text.rand_text_alpha_lower(rand(8)+8)
 
-    web_xml.gsub!(/NAME/, app_name)
+    web_xml.gsub!('NAME', app_name)
 
     paths = [
       [ "metasploit", "Payload.class" ],

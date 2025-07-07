@@ -3,8 +3,6 @@ require 'acceptance_spec_helper'
 RSpec.describe 'LDAP modules' do
   include_context 'wait_for_expect'
 
-  RHOST_REGEX = /\d+\.\d+\.\d+\.\d+:\d+/
-
   tests = {
     ldap: {
       target: {

@@ -6,38 +6,40 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "MantisBT Admin SQL Injection Arbitrary File Read",
-      'Description'    => %q{
-      Versions 1.2.13 through 1.2.16 are vulnerable to a SQL injection attack if
-      an attacker can gain access to administrative credentials.
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => "MantisBT Admin SQL Injection Arbitrary File Read",
+        'Description' => %q{
+          Versions 1.2.13 through 1.2.16 are vulnerable to a SQL injection attack if
+          an attacker can gain access to administrative credentials.
 
-      This vuln was fixed in 1.2.17.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
-          'Jakub Galczyk', #initial discovery
-          'Brandon Perry <bperry.volatile[at]gmail.com>' #meatpistol module
+          This vuln was fixed in 1.2.17.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Jakub Galczyk', # initial discovery
+          'Brandon Perry <bperry.volatile[at]gmail.com>' # meatpistol module
         ],
-      'References'     =>
-        [
+        'References' => [
           ['CVE', '2014-2238'],
           ['URL', 'https://www.mantisbt.org/bugs/view.php?id=17055']
         ],
-      'Platform'       => ['win', 'linux'],
-      'Privileged'     => false,
-      'DisclosureDate' => '2014-02-28'))
+        'Platform' => ['win', 'linux'],
+        'Privileged' => false,
+        'DisclosureDate' => '2014-02-28'
+      )
+    )
 
-      register_options(
+    register_options(
       [
         OptString.new('FILEPATH', [ true, 'Path to remote file', '/etc/passwd']),
         OptString.new('USERNAME', [ true, 'Single username', 'administrator']),
         OptString.new('PASSWORD', [ true, 'Single password', 'root']),
         OptString.new('TARGETURI', [ true, 'Relative URI of MantisBT installation', '/'])
-      ])
-
+      ]
+    )
   end
 
   def run

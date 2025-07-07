@@ -68,7 +68,7 @@ module Msf
     # @return [Hash] Hash including RocketMQ versions info and Broker info if found
     def parse_rocketmq_data(res)
       # remove a response header so we have json-ish data
-      res = res.split(/\x00_/)[1]
+      res = res.split("\x00_")[1]
       unless res.starts_with?("{")
         print_error("Failed to successfully remove the response header and now cannot parse the response.")
         return nil

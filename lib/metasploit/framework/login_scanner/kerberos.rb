@@ -87,8 +87,11 @@ module Metasploit
             # It doesn't appear to be documented anywhere, but Microsoft gives us a bit
             # of extra information in the e-data section
             begin
-              pa_data_entry = krb_err.res.e_data_as_pa_data_entry
-              if pa_data_entry && pa_data_entry.type == Rex::Proto::Kerberos::Model::PreAuthType::PA_PW_SALT
+              pa_data_entry = krb_err.res.e_data_as_pa_data.find do |pa_data|
+                pa_data.type == Rex::Proto::Kerberos::Model::PreAuthType::PA_PW_SALT
+              end
+
+              if pa_data_entry
                 pw_salt = pa_data_entry.decoded_value
                 if pw_salt.nt_status
                   case pw_salt.nt_status.value
@@ -107,7 +110,7 @@ module Metasploit
                   Metasploit::Model::Login::Status::DISABLED
                 end
               else
-                  Metasploit::Model::Login::Status::DISABLED
+                Metasploit::Model::Login::Status::DISABLED
               end
             rescue Rex::Proto::Kerberos::Model::Error::KerberosDecodingError
               # Could be a non-MS implementation?

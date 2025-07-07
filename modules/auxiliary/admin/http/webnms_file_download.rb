@@ -31,7 +31,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://blogs.securiteam.com/index.php/archives/2712' ],
           [ 'URL', 'https://seclists.org/fulldisclosure/2016/Aug/54' ]
         ],
-        'DisclosureDate' => '2016-07-04'
+        'DisclosureDate' => '2016-07-04',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
     register_options(

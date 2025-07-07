@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
     banner = fingerprint_service(target_uri.to_s)
     vprint_status("#{peer} - Collecting data through #{path}...")
     res = send_request_raw(
-      'uri'    => path,
+      'uri' => path,
       'method' => 'GET'
     )
 

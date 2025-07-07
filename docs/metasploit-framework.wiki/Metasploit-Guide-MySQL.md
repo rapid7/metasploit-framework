@@ -49,7 +49,7 @@ use auxiliary/scanner/mysql/mysql_login
 run 'mysql://root: a b c p4$$w0rd@127.0.0.1'
 ```
 
-Re-using MySQL credentials in a subnet:
+Reusing MySQL credentials in a subnet:
 
 ```
 use auxiliary/scanner/mysql/mysql_login

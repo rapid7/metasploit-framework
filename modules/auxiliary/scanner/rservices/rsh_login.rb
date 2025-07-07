@@ -15,27 +15,27 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'rsh Authentication Scanner',
+      'Name' => 'rsh Authentication Scanner',
       'Description' => %q{
           This module will test a shell (rsh) service on a range of machines and
         report successful logins.
 
         NOTE: This module requires access to bind to privileged ports (below 1024).
       },
-      'References' =>
-        [
-          [ 'CVE', '1999-0651' ],
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'Author'      => [ 'jduck' ],
-      'License'     => MSF_LICENSE
+      'References' => [
+        [ 'CVE', '1999-0651' ],
+        [ 'CVE', '1999-0502'] # Weak password
+      ],
+      'Author' => [ 'jduck' ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(514),
         OptBool.new('ENABLE_STDERR', [ true, 'Enables connecting the stderr port', false ])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -51,6 +51,7 @@ class MetasploitModule < Msf::Auxiliary
       if not ret
         return :abort
       end
+
       sd, lport = ret
     else
       sd = lport = nil
@@ -66,7 +67,6 @@ class MetasploitModule < Msf::Auxiliary
     sd.close if sd
   end
 
-
   def each_user_fromuser(&block)
     # Class variables to track credential use (for threading)
     @@credentials_tried = {}
@@ -75,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
     credentials = extract_word_pair(datastore['USERPASS_FILE'])
 
     users = load_user_vars()
-    credentials.each { |u,p| users << u }
+    credentials.each { |u, p| users << u }
     users.uniq!
 
     fromusers = load_fromuser_vars()
@@ -87,8 +87,7 @@ class MetasploitModule < Msf::Auxiliary
 
     fq_rest = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], "all remaining users"]
 
-    credentials.each do |u,fu|
-
+    credentials.each do |u, fu|
       break if @@credentials_skipped[fq_rest]
 
       fq_user = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], u]
@@ -120,7 +119,6 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-
   def do_login(user, luser, cmd, sfd, lport)
     vprint_status("#{target_host}:#{rport} - Attempting rsh with username '#{user}' from '#{luser}'")
 
@@ -135,6 +133,7 @@ class MetasploitModule < Msf::Auxiliary
       end
       ret = connect_from_privileged_port
       break if ret == :connected
+
       this_attempt += 1
     end
 
@@ -165,9 +164,11 @@ class MetasploitModule < Msf::Auxiliary
       if buf.nil?
         return :failed
       end
+
       result = buf.gsub(/[[:space:]]+/, ' ')
       vprint_error("Result: #{result}")
       return :skip_user if result =~ /locuser too long/
+
       return :failed
     end
 
@@ -178,15 +179,12 @@ class MetasploitModule < Msf::Auxiliary
     return :next_user
 
   # For debugging only.
-  #rescue ::Exception
+  # rescue ::Exception
   #	print_error("#{$!}")
   #	return :abort
-
   ensure
     disconnect()
-
   end
-
 
   #
   # This is only needed by RSH so it is not in the rservices mixin
@@ -195,17 +193,16 @@ class MetasploitModule < Msf::Auxiliary
     lport = 1023
     sd = nil
     while lport > 512
-      #vprint_status("Trying to listen on port #{lport} ..")
+      # vprint_status("Trying to listen on port #{lport} ..")
       sd = nil
       begin
         sd = Rex::Socket.create_tcp_server('LocalPort' => lport)
-
       rescue Rex::BindFailed
         # Ignore and try again
-
       end
 
       break if sd
+
       lport -= 1
     end
 
@@ -215,7 +212,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     add_socket(sd)
-    #print_status("Listening on port #{lport}")
+    # print_status("Listening on port #{lport}")
     [ sd, lport ]
   end
 

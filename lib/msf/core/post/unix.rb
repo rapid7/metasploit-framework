@@ -81,7 +81,7 @@ module Msf::Post::Unix
     passwd = '/etc/passwd'
     if file_exist?(passwd)
       read_file(passwd).each_line do |passwd_line|
-        user_dirs << passwd_line.split(/:/)[5]
+        user_dirs << passwd_line.split(':')[5]
       end
     end
 

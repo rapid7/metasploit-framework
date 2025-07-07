@@ -34,7 +34,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://seclists.org/fulldisclosure/2015/Jun/8'],
           ['URL', 'https://github.com/pedrib/PoC/blob/master/advisories/sysaid-14.4-multiple-vulns.txt'],
         ],
-        'DisclosureDate' => '2015-06-03'
+        'DisclosureDate' => '2015-06-03',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 

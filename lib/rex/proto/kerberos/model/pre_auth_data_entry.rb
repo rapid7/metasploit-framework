@@ -76,6 +76,9 @@ module Rex
             when Rex::Proto::Kerberos::Model::PreAuthType::PA_FOR_USER
               decoded = OpenSSL::ASN1.decode(self.value)
               PreAuthForUser.decode(decoded)
+            when Rex::Proto::Kerberos::Model::PreAuthType::KERB_SUPERSEDED_BY_USER
+              decoded = OpenSSL::ASN1.decode(self.value)
+              KerbSupersededByUser.decode(decoded)
             else
               # Unknown type - just ignore for now
             end

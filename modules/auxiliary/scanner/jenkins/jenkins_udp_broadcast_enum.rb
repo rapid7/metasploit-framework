@@ -11,24 +11,22 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => 'Jenkins Server Broadcast Enumeration',
-        'Description'    => %q(
-            This module sends out a udp broadcast packet querying for
-            any Jenkins servers on the local network.
-            Be advised that while this module does not identify the
-            port on which Jenkins is running, the default port for
-            Jenkins is 8080.
-        ),
-        'Author'         =>
-          [
-            'Adam Compton <adam_compton@rapid7.com>',
-            'Matt Schmidt <matt_schmidt@rapid7.com>'
-          ],
-        'References'     =>
-          [
-            [ 'URL', 'https://wiki.jenkins-ci.org/display/JENKINS/Auto-discovering+Jenkins+on+the+network' ]
-          ],
-        'License'        => MSF_LICENSE
+        'Name' => 'Jenkins Server Broadcast Enumeration',
+        'Description' => %q{
+          This module sends out a udp broadcast packet querying for
+          any Jenkins servers on the local network.
+          Be advised that while this module does not identify the
+          port on which Jenkins is running, the default port for
+          Jenkins is 8080.
+        },
+        'Author' => [
+          'Adam Compton <adam_compton@rapid7.com>',
+          'Matt Schmidt <matt_schmidt@rapid7.com>'
+        ],
+        'References' => [
+          [ 'URL', 'https://wiki.jenkins-ci.org/display/JENKINS/Auto-discovering+Jenkins+on+the+network' ]
+        ],
+        'License' => MSF_LICENSE
       )
     )
     deregister_udp_options

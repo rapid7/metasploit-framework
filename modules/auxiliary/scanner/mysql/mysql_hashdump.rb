@@ -11,13 +11,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'MYSQL Password Hashdump',
-      'Description'    => %(
+      'Name' => 'MYSQL Password Hashdump',
+      'Description' => %(
           This module extracts the usernames and encrypted password
         hashes from a MySQL server and stores them for later cracking.
       ),
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+      'Author' => ['theLightCosine'],
+      'License' => MSF_LICENSE
     )
   end
 
@@ -99,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if res.size > 0
       res.each do |row|
-        credential_data[:username]     = row[0]
+        credential_data[:username] = row[0]
         credential_data[:private_data] = row[1]
         print_good("Saving HashString as Loot: #{row[0]}:#{row[1]}")
         credential_core = create_credential(credential_data)

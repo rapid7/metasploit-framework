@@ -10,24 +10,21 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-
   def initialize
     super(
-      'Name'          => 'WordPress Brute Force and User Enumeration Utility',
-      'Description'   => 'WordPress Authentication Brute Force and User Enumeration Utility',
-      'Author'        =>
-        [
-          'Tiago Ferreira <tiago.ccna[at]gmail.com>',
-          'Zach Grace <zgrace[at]404labs.com>',
-          'Christian Mehlmauer'
-        ],
-      'References'     =>
-        [
-          ['BID', '35581'],
-          ['CVE', '2009-2335'],
-          ['OSVDB', '55713']
-        ],
-      'License'        =>  MSF_LICENSE
+      'Name' => 'WordPress Brute Force and User Enumeration Utility',
+      'Description' => 'WordPress Authentication Brute Force and User Enumeration Utility',
+      'Author' => [
+        'Tiago Ferreira <tiago.ccna[at]gmail.com>',
+        'Zach Grace <zgrace[at]404labs.com>',
+        'Christian Mehlmauer'
+      ],
+      'References' => [
+        ['BID', '35581'],
+        ['CVE', '2009-2335'],
+        ['OSVDB', '55713']
+      ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
@@ -37,12 +34,11 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('ENUMERATE_USERNAMES', [ true, 'Enumerate usernames', true ]),
         OptInt.new('RANGE_START', [false, 'First user id to enumerate', 1]),
         OptInt.new('RANGE_END', [false, 'Last user id to enumerate', 10])
-    ])
-
+      ]
+    )
   end
 
   def run_host(ip)
-
     unless wordpress_and_online?
       print_error("#{target_uri} does not seem to be WordPress site")
       return
@@ -100,7 +96,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def validate_user(user=nil)
+  def validate_user(user = nil)
     print_status("#{target_uri} - WordPress User-Validation - Checking Username:'#{user}'")
 
     exists = wordpress_user_exists?(user)
@@ -122,8 +118,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-
-  def do_login(user=nil, pass=nil)
+  def do_login(user = nil, pass = nil)
     vprint_status("#{target_uri} - WordPress Brute Force - Trying username:'#{user}' with password:'#{pass}'")
 
     cookie = wordpress_login(user, pass)

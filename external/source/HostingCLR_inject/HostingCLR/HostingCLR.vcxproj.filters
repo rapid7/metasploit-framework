@@ -55,7 +55,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="Syscalls.asm">
+    <MASM Include="Syscalls_32.asm">
+      <Filter>Sources</Filter>
+    </MASM>
+    <MASM Include="Syscalls_64.asm">
       <Filter>Sources</Filter>
     </MASM>
   </ItemGroup>

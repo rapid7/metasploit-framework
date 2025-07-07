@@ -10,36 +10,34 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Anonymous FTP Access Detection',
+      'Name' => 'Anonymous FTP Access Detection',
       'Description' => 'Detect anonymous (read/write) FTP server access.',
-      'References'  =>
-        [
-          ['URL', 'https://en.wikipedia.org/wiki/File_Transfer_Protocol#Anonymous_FTP'],
-        ],
-      'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
-      'License'     => MSF_LICENSE
+      'References' => [
+        ['URL', 'https://en.wikipedia.org/wiki/File_Transfer_Protocol#Anonymous_FTP'],
+      ],
+      'Author' => 'Matteo Cantoni <goony[at]nothink.org>',
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(21),
-      ])
+      ]
+    )
   end
 
   def run_host(target_host)
-
     begin
-
       res = connect_login(true, false)
 
       banner.strip! if banner
 
       dir = Rex::Text.rand_text_alpha(8)
       if res
-        write_check = send_cmd(['MKD', dir] , true)
+        write_check = send_cmd(['MKD', dir], true)
 
         if write_check && write_check =~ /^2/
-          send_cmd( ['RMD', dir] , true)
+          send_cmd(['RMD', dir], true)
 
           print_good("#{target_host}:#{rport} - Anonymous READ/WRITE (#{banner})")
           access_type = 'Read/Write'
@@ -51,7 +49,6 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       disconnect
-
     rescue ::Interrupt
       raise $ERROR_INFO
     rescue ::Rex::ConnectionError, ::IOError

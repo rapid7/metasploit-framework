@@ -26,6 +26,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_getpid
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
         }
       )
     )
@@ -43,8 +48,7 @@ class MetasploitModule < Msf::Post
     time = datastore['TIMEOUT']
 
     if ssid.length > 32
-      print_error('The SSID must be equal to or less than 32 bytes')
-      return
+      fail_with(Failure::BadConfig, 'The SSID must be equal to or less than 32 bytes')
     end
 
     mypid = client.sys.process.getpid
@@ -62,7 +66,7 @@ class MetasploitModule < Msf::Post
     #    ULONG uSSIDLength;
     #    UCHAR ucSSID[DOT11_SSID_MAX_LENGTH];
     # } DOT11_SSID, *PDOT11_SSID;
-    pDot11Ssid = [ssid.length].pack('L<') << ssid
+    dot_11_ssid = [ssid.length].pack('L<') << ssid
     wlan_iflist = enum_interfaces(wlan_handle)
     if wlan_iflist.empty?
       print_status('Wlan interfaces not found')
@@ -77,8 +81,8 @@ class MetasploitModule < Msf::Post
           wlan_iflist.each do |interface|
             vprint_status("Interface Guid: #{interface['guid'].unpack('H*')[0]}")
             vprint_status("Interface State: #{interface['state']}")
-            vprint_status("DOT11_SSID payload: #{pDot11Ssid.chars.map { |c| c.ord.to_s(16) }.join(':')}")
-            @wlanapi.WlanScan(wlan_handle, interface['guid'], pDot11Ssid, nil, nil)
+            vprint_status("DOT11_SSID payload: #{dot_11_ssid.chars.map { |c| c.ord.to_s(16) }.join(':')}")
+            @wlanapi.WlanScan(wlan_handle, interface['guid'], dot_11_ssid, nil, nil)
             sleep(10)
           end
         end

@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DefaultAction' => 'ROUTEROS',
         'Notes' => {
-          'Stability' => [],
+          'Stability' => [CRASH_SAFE],
           'SideEffects' => [],
           'Reliability' => []
         }

@@ -107,7 +107,7 @@ class MetasploitModule < Msf::Post
       "#{drive}\\",
       "#{drive}\\Windows\\System32\\sysprep\\",
       "#{drive}\\Windows\\panther\\",
-      "#{drive}\\Windows\\Panther\Unattend\\",
+      "#{drive}\\Windows\\Panther\\Unattend\\",
       "#{drive}\\Windows\\System32\\"
     ]
 

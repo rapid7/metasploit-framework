@@ -11,17 +11,18 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SIP Endpoint Scanner (TCP)',
+      'Name' => 'SIP Endpoint Scanner (TCP)',
       'Description' => 'Scan for SIP devices using OPTIONS requests',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE
     )
 
     register_options(
-    [
-      OptString.new('TO',   [false, 'The destination username to probe at each host', 'nobody']),
-      Opt::RPORT(5060)
-    ])
+      [
+        OptString.new('TO', [false, 'The destination username to probe at each host', 'nobody']),
+        Opt::RPORT(5060)
+      ]
+    )
   end
 
   # Operate on a single system at a time

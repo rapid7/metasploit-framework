@@ -195,7 +195,7 @@ Payload options (cmd/windows/powershell_reverse_tcp):
    Name          Current Setting  Required  Description
    ----          ---------------  --------  -----------
    LHOST         172.19.182.171   yes       The listen address (an interface may be speci
-                                            fied)
+                                            field)
    LOAD_MODULES                   no        A list of powershell modules separated by a c
                                             omma to download over the web
    LPORT         4444             yes       The listen port

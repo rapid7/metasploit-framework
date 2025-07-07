@@ -38,4 +38,35 @@ module Msf::Module::Failure
 
   # The exploit was interrupted by the user
   UserInterrupt   = 'user-interrupt'
+
+
+  def report_failure
+    return unless framework.db and framework.db.active
+
+    info = {
+      timestamp: Time.now.utc,
+      workspace: framework.db.find_workspace(self.workspace),
+      module: self.fullname,
+      fail_reason: self.fail_reason,
+      fail_detail: self.fail_detail,
+      username: self.owner,
+      refs: self.references,
+      run_id: self.datastore['RUN_ID']
+    }
+    info[:target_name] = self.target.name if self.respond_to?(:target)
+
+    if self.datastore['RHOST'] && (self.options['RHOST'] || self.options['RHOSTS'])
+      info[:host] = self.datastore['RHOST']
+    end
+
+    if self.datastore['RPORT'] and self.options['RPORT']
+      info[:port] = self.datastore['RPORT']
+      if self.class.ancestors.include?(Msf::Exploit::Remote::Tcp)
+        info[:proto] = 'tcp'
+      end
+    end
+
+    framework.db.report_exploit_failure(info)
+  end
+
 end

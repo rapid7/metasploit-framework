@@ -12,18 +12,17 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => 'LLMNR Query',
-        'Description'    => %q(
+        'Name' => 'LLMNR Query',
+        'Description' => %q{
           This module sends LLMNR queries, which are really just normal UDP DNS
           queries done (usually) over multicast on a different port, 5355.
           Targets other than the default RHOSTS' 224.0.0.252 should not respond
           but may anyway.
-        ),
-        'Author'         =>
-          [
-            'Jon Hart <jon_hart[at]rapid7.com>'
-          ],
-        'License'        => MSF_LICENSE
+        },
+        'Author' => [
+          'Jon Hart <jon_hart[at]rapid7.com>'
+        ],
+        'License' => MSF_LICENSE
       )
     )
   end
@@ -39,6 +38,7 @@ class MetasploitModule < Msf::Auxiliary
       resps.each do |resp|
         found[peer] ||= {}
         next if found[peer][resp]
+
         response_info = describe_response(resp)
         print_good("#{peer} responded with #{response_info}")
         report_service(host: peer, port: rport, proto: "udp", name: "llmnr", info: response_info)

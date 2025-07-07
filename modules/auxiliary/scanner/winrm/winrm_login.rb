@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
 
     kerberos_authenticator_factory = nil
     if datastore['Winrm::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS
-      kerberos_authenticator_factory = -> (username, password, realm) do
+      kerberos_authenticator_factory = ->(username, password, realm) do
         Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::HTTP.new(
           host: datastore['DomainControllerRhost'],
           hostname: datastore['Winrm::Rhostname'],

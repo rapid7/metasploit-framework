@@ -81,19 +81,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def dork_search(resource, dork, page, facets, api_key)
-      res = send_request_cgi({
-        'uri' => "/#{resource}/search",
-        'method' => 'GET',
-        'rhost' => "api.zoomeye.#@domain",
-        'rport' => 443,
-        'SSL' => true,
-        'headers' => { 'API-KEY' => api_key },
-        'vars_get' => {
-          'query' => dork,
-          'page' => page.to_s,
-          'facets' => facets
-        }
-      })
+    res = send_request_cgi({
+      'uri' => "/#{resource}/search",
+      'method' => 'GET',
+      'rhost' => "api.zoomeye.#@domain",
+      'rport' => 443,
+      'SSL' => true,
+      'headers' => { 'API-KEY' => api_key },
+      'vars_get' => {
+        'query' => dork,
+        'page' => page.to_s,
+        'facets' => facets
+      }
+    })
 
     if res && res.code == 401
       fail_with(Failure::BadConfig, '401 Unauthorized. Your ZOOMEYE_APIKEY is invalid')
@@ -249,7 +249,7 @@ class MetasploitModule < Msf::Auxiliary
               end
             end
             for ip in ips
-                tbl2 << [ip, site, city, country, db_info, wa_info]
+              tbl2 << [ip, site, city, country, db_info, wa_info]
             end
           end
         end

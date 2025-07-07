@@ -30,7 +30,12 @@ class MetasploitModule < Msf::Auxiliary
           ['WPVDB', '7808'],
           ['URL', 'https://rastating.github.io/wp-easycart-privilege-escalation-information-disclosure/']
         ],
-        'DisclosureDate' => '2015-02-25'
+        'DisclosureDate' => '2015-02-25',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 

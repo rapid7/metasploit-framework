@@ -147,9 +147,9 @@ class Webcam
     interface = load_interface('offerer.html')
     api       = load_api_code
 
-    interface = interface.gsub(/\=SERVER\=/, server)
-    interface = interface.gsub(/\=CHANNEL\=/, channel)
-    interface = interface.gsub(/\=OFFERERID\=/, offerer_id)
+    interface = interface.gsub('=SERVER=', server)
+    interface = interface.gsub('=CHANNEL=', channel)
+    interface = interface.gsub('=OFFERERID=', offerer_id)
 
     tmp_dir = session.sys.config.getenv("TEMP")
 

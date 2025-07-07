@@ -10,22 +10,21 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Portmapper Amplification Scanner',
+      'Name' => 'Portmapper Amplification Scanner',
       'Description' => %q{
         This module can be used to discover Portmapper services which can be used in an
         amplification DDoS attack against a third party.
       },
-      'Author'      => ['xistence <xistence[at]0x90.nl>'],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
-          ['URL', 'https://www.cisa.gov/uscert/ncas/alerts/TA14-017A'],
-          ['URL', 'http://blog.level3.com/security/a-new-ddos-reflection-attack-portmapper-an-early-warning-to-the-industry/']
-        ],
+      'Author' => ['xistence <xistence[at]0x90.nl>'],
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
+        ['URL', 'https://www.cisa.gov/uscert/ncas/alerts/TA14-017A'],
+        ['URL', 'http://blog.level3.com/security/a-new-ddos-reflection-attack-portmapper-an-early-warning-to-the-industry/']
+      ],
     )
 
-    register_options( [
+    register_options([
       Opt::RPORT(111),
     ])
   end
@@ -169,5 +168,3 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 end
-
-

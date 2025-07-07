@@ -6,7 +6,7 @@ The term 'repo' is short for 'Repository.' Also known as 'fork' (as a noun).
 
 ## The Easy Way
 
-The easiest way to keep in sync with master is to trash your fork of `metasploit-framework`, and re-fork. This is a surprisingly common practice, since most people in the world don't work with Metasploit every day. If you're the sort to be struck by hackerish inspiration every few months, and couldn't give a whit about preserving branches, history, or pull requests, simply nuke your local fork.
+The easiest way to keep in sync with master is to trash your fork of `metasploit-framework`, and re-fork. This is a surprisingly common practice, since most people in the world don't work with Metasploit every day. If you're the sort to be struck by hackerish inspiration every few months, and couldn't give a with about preserving branches, history, or pull requests, simply nuke your local fork.
 
 On your fork, in the GitHub UI, go to **Settings**, scroll down to the **Danger Zone**, and hit **Delete this repository**. Once you've re-authenticated, re-fork the `metasploit-framework` repository by going to the [Rapid7 repo](https://github.com/rapid7/metasploit-framework) and hit **Fork** as hard as you possibly can.
 

@@ -44,8 +44,8 @@ module Msf::DBManager::Vuln
     other_vulns.empty? ? nil : other_vulns.first
   end
 
-  def find_vuln_by_refs(refs, host, service=nil)
-    ref_ids = refs.find_all { |ref| ref.name.starts_with? 'CVE-'}
+  def find_vuln_by_refs(refs, host, service = nil, cve_only = true)
+    ref_ids = cve_only ? refs.find_all { |ref| ref.name.starts_with? 'CVE-'} : refs
     relation = host.vulns.joins(:refs)
     if !service.try(:id).nil?
       return relation.where(service_id: service.try(:id), refs: { id: ref_ids}).first

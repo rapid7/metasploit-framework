@@ -9,20 +9,19 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'UPnP SSDP M-SEARCH Information Discovery',
+      'Name' => 'UPnP SSDP M-SEARCH Information Discovery',
       'Description' => 'Discover information from UPnP-enabled systems',
-      'Author'      => [ 'todb', 'hdm'], # Original scanner module and vuln info reporter, respectively
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['CVE', '2012-5958'],
-          ['CVE', '2012-5959'],
-          ['CVE', '2013-0230'],
-          ['CVE', '2013-0229']
-        ]
+      'Author' => [ 'todb', 'hdm'], # Original scanner module and vuln info reporter, respectively
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['CVE', '2012-5958'],
+        ['CVE', '2012-5959'],
+        ['CVE', '2013-0230'],
+        ['CVE', '2013-0229']
+      ]
     )
 
-    register_options( [
+    register_options([
       Opt::RPORT(1900),
       OptBool.new('REPORT_LOCATION', [true, 'This determines whether to report the UPnP endpoint service advertised by SSDP', false ])
     ])
@@ -56,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
   def scanner_postscan(batch)
     print_status "No SSDP endpoints found." if @results.empty?
 
-    @results.each_pair do |skey,res|
+    @results.each_pair do |skey, res|
       sinfo = res[:service]
       next unless sinfo
 
@@ -80,9 +79,9 @@ class MetasploitModule < Msf::Auxiliary
 
       if res[:info][:server].to_s =~ /MiniUPnPd\/1\.[0-3]([\.\,\-\~\s]|$)/mi
         res[:vulns] << {
-          :name  => "MiniUPnPd ExecuteSoapAction memcpy() Remote Code Execution",
-          :refs  => [ 'CVE-2013-0230' ],
-          :port  => res[:info][:ssdp_port] || 80,
+          :name => "MiniUPnPd ExecuteSoapAction memcpy() Remote Code Execution",
+          :refs => [ 'CVE-2013-0230' ],
+          :port => res[:info][:ssdp_port] || 80,
           :proto => 'tcp'
         }
       end
@@ -107,42 +106,41 @@ class MetasploitModule < Msf::Auxiliary
         print_status("#{skey} SSDP #{desc}")
       end
 
-      report_service( sinfo )
+      report_service(sinfo)
 
       res[:vulns].each do |v|
         report_vuln(
-          :host  => sinfo[:host],
-          :port  => v[:port]  || sinfo[:port],
+          :host => sinfo[:host],
+          :port => v[:port] || sinfo[:port],
           :proto => v[:proto] || 'udp',
-          :name  => v[:name],
-          :info  => res[:info][:server],
-          :refs  => v[:refs]
+          :name => v[:name],
+          :info => res[:info][:server],
+          :refs => v[:refs]
         )
       end
 
       if res[:info][:ssdp_host]
         report_service(
-          :host  => res[:info][:ssdp_host],
-          :port  => res[:info][:ssdp_port],
+          :host => res[:info][:ssdp_host],
+          :port => res[:info][:ssdp_port],
           :proto => 'tcp',
-          :name  => 'upnp',
-          :info  => res[:info][:location].to_s
+          :name => 'upnp',
+          :info => res[:info][:location].to_s
         ) if datastore['REPORT_LOCATION']
       end
     end
   end
 
   def scanner_process(data, shost, sport)
-
     skey = "#{shost}:#{datastore['RPORT']}"
 
     @results[skey] ||= {
-      :info    => { },
+      :info => {},
       :service => {
-        :host  => shost,
-        :port  => datastore['RPORT'],
+        :host => shost,
+        :port => datastore['RPORT'],
         :proto => 'udp',
-        :name  => 'ssdp'
+        :name => 'ssdp'
       }
     }
 
@@ -157,7 +155,7 @@ class MetasploitModule < Msf::Auxiliary
       location_string = $1
       @results[skey][:info][:location] = $1.strip
       if location_string[/(https?):\x2f\x2f([^\x5c\x2f]+)/]
-        ssdp_host,ssdp_port = $2.split(":") if $2.respond_to?(:split)
+        ssdp_host, ssdp_port = $2.split(":") if $2.respond_to?(:split)
         if ssdp_port.nil?
           ssdp_port = ($1 == "http" ? 80 : 443)
         end
@@ -173,8 +171,6 @@ class MetasploitModule < Msf::Auxiliary
     if data =~ /^USN:[\s]*(.*)/i
       @results[skey][:info][:usn] = $1.strip
     end
-
   end
-
 
 end

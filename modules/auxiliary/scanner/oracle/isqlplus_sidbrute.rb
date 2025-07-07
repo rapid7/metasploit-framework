@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Oracle iSQLPlus SID Check',
+      'Name' => 'Oracle iSQLPlus SID Check',
       'Description' => %q{
         This module attempts to bruteforce the SID on the Oracle application server iSQL*Plus
         login pages.  It does this by testing Oracle error responses returned in the HTTP response.
@@ -19,28 +19,26 @@ class MetasploitModule < Msf::Auxiliary
         Works against Oracle 9.2, 10.1 & 10.2 iSQL*Plus.  This module will attempt to
         fingerprint the version and automatically select the correct POST request.
       },
-      'References'  =>
-      [
+      'References' => [
         [ 'URL', 'https://blog.carnal0wnage.com/' ],
       ],
-      'Author'      => [ 'CG', 'todb' ],
-      'License'     => MSF_LICENSE
+      'Author' => [ 'CG', 'todb' ],
+      'License' => MSF_LICENSE
       )
 
-      register_options([
-        Opt::RPORT(5560),
-        OptString.new('URI', [ true, 'Oracle iSQLPlus path', '/isqlplus/']),
-        OptString.new('SID', [ false, 'A single SID to test']),
-        OptPath.new('SIDFILE', [ false, 'A file containing a list of SIDs', File.join(Msf::Config.install_root, 'data', 'wordlists', 'sid.txt')]),
-        OptInt.new('TIMEOUT', [false, 'Time to wait for HTTP responses', 30])
-      ])
+    register_options([
+      Opt::RPORT(5560),
+      OptString.new('URI', [ true, 'Oracle iSQLPlus path', '/isqlplus/']),
+      OptString.new('SID', [ false, 'A single SID to test']),
+      OptPath.new('SIDFILE', [ false, 'A file containing a list of SIDs', File.join(Msf::Config.install_root, 'data', 'wordlists', 'sid.txt')]),
+      OptInt.new('TIMEOUT', [false, 'Time to wait for HTTP responses', 30])
+    ])
 
-      deregister_options(
-        "RHOST", "USERNAME", "PASSWORD", "USER_FILE", "PASS_FILE", "USERPASS_FILE",
-        "BLANK_PASSWORDS", "USER_AS_PASS", "REMOVE_USER_FILE", "REMOVE_PASS_FILE",
-        "BRUTEFORCE_SPEED" # Slow as heck anyway
-      )
-
+    deregister_options(
+      "RHOST", "USERNAME", "PASSWORD", "USER_FILE", "PASS_FILE", "USERPASS_FILE",
+      "BLANK_PASSWORDS", "USER_AS_PASS", "REMOVE_USER_FILE", "REMOVE_PASS_FILE",
+      "BRUTEFORCE_SPEED" # Slow as heck anyway
+    )
   end
 
   def sid_file
@@ -48,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def hostport
-    [target_host,rport].join(":")
+    [target_host, rport].join(":")
   end
 
   def uri
@@ -72,13 +70,13 @@ class MetasploitModule < Msf::Auxiliary
     begin
       print_status("#{msg} Starting SID check")
       sid_data.each do |sid|
-        guess = check_oracle_sid(ip,oracle_ver,sid)
+        guess = check_oracle_sid(ip, oracle_ver, sid)
         return if guess and datastore['STOP_ON_SUCCESS']
       end
-      rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
-        print_error "#{msg} Cannot connect"
-      rescue ::Timeout::Error, ::Errno::EPIPE,Errno::ECONNRESET => e
-        print_error e.message
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
+      print_error "#{msg} Cannot connect"
+    rescue ::Timeout::Error, ::Errno::EPIPE, Errno::ECONNRESET => e
+      print_error e.message
     end
   end
 
@@ -86,8 +84,8 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_cgi({
         'version' => '1.1',
-        'uri'     => uri,
-        'method'  => 'GET',
+        'uri' => uri,
+        'method' => 'GET',
       }, timeout)
       oracle_ver = nil
       if (res.nil?)
@@ -112,21 +110,21 @@ class MetasploitModule < Msf::Auxiliary
     m = res.body.match(/iSQL\*Plus Release (9\.0|9\.1|9\.2|10\.1|10\.2)/)
     oracle_ver = nil
     oracle_ver = 10 if m[1] && m[1] =~ /10/
-      oracle_ver = m[1].to_f if m[1] && m[1] =~ /9\.[012]/
-      if oracle_ver
-        print_status("#{msg} Detected Oracle version #{oracle_ver}")
-        print_status("#{msg} SID detection for iSQL*Plus 10.1 may be unreliable") if oracle_ver == 10.1
-      else
-        print_error("#{msg} Unknown Oracle version detected.")
-      end
+    oracle_ver = m[1].to_f if m[1] && m[1] =~ /9\.[012]/
+    if oracle_ver
+      print_status("#{msg} Detected Oracle version #{oracle_ver}")
+      print_status("#{msg} SID detection for iSQL*Plus 10.1 may be unreliable") if oracle_ver == 10.1
+    else
+      print_error("#{msg} Unknown Oracle version detected.")
+    end
     return oracle_ver
   end
 
   def check_oracle_version(ver)
-    [9.0,9.1,9.2,10].include? ver
+    [9.0, 9.1, 9.2, 10].include? ver
   end
 
-  def build_post_request(ver,sid)
+  def build_post_request(ver, sid)
     post_request = nil
     case ver
     when 9.0
@@ -141,7 +139,7 @@ class MetasploitModule < Msf::Auxiliary
     return post_request
   end
 
-  def parse_isqlplus_response(res,sid)
+  def parse_isqlplus_response(res, sid)
     guess = false
     if (res.nil?)
       print_error("#{msg} No response")
@@ -169,11 +167,11 @@ class MetasploitModule < Msf::Auxiliary
       print_status("#{msg} Received an unexpected response: #{res.code}")
     end
 
-    report_isqlplus_service(target_host,res) if res
+    report_isqlplus_service(target_host, res) if res
     return guess
   end
 
-  def report_isqlplus_service(ip,res)
+  def report_isqlplus_service(ip, res)
     sname = datastore['SSL'] ? 'https' : 'http'
     report_service(
       :host => ip,
@@ -184,7 +182,7 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def report_oracle_sid(ip,sid)
+  def report_oracle_sid(ip, sid)
     report_note(
       :host => ip,
       :proto => 'tcp',
@@ -199,27 +197,27 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['SID'] and not datastore['SID'].empty?
       [datastore['SID']]
     elsif sid_file and ::File.readable? sid_file
-      ::File.open(sid_file,"rb") {|f| f.read f.stat.size}.each_line.map {|x| x.strip.upcase}.uniq
+      ::File.open(sid_file, "rb") { |f| f.read f.stat.size }.each_line.map { |x| x.strip.upcase }.uniq
     else
       raise ArugmentError, "Cannot read file '#{sid_file}'"
     end
   end
 
-  def check_oracle_sid(ip,oracle_ver,sid)
-    post_request = build_post_request(oracle_ver,sid)
+  def check_oracle_sid(ip, oracle_ver, sid)
+    post_request = build_post_request(oracle_ver, sid)
     vprint_status "#{msg} Trying SID '#{sid}', waiting for response..."
     res = send_request_cgi({
       'version' => '1.1',
-      'uri'     => uri,
-      'method'  => 'POST',
-      'data'   => post_request,
+      'uri' => uri,
+      'method' => 'POST',
+      'data' => post_request,
       'headers' =>
       {
         'Referer' => "http://#{ip}:#{rport}#{uri}"
       }
     }, timeout)
-    guess = parse_isqlplus_response(res,sid)
-    report_oracle_sid(ip,sid) if guess
+    guess = parse_isqlplus_response(res, sid)
+    report_oracle_sid(ip, sid) if guess
     return guess
   end
 end

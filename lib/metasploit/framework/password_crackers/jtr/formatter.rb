@@ -78,6 +78,8 @@ module Metasploit
               when /vnc/
                 # add a beginning * if one is missing
                 return "$vnc$#{cred.private.data.start_with?('*') ? cred.private.data.upcase : "*#{cred.private.data.upcase}"}"
+              when /^(krb5.|timeroast$)/
+                return cred.private.data
               else
                 # /mysql|mysql-sha1/
                 # /mssql|mssql05|mssql12/

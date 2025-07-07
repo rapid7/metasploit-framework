@@ -10,15 +10,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'UDP Amplification Scanner',
+      'Name' => 'UDP Amplification Scanner',
       'Description' => 'Detect UDP endpoints with UDP amplification vulnerabilities',
-      'Author'      => 'Jon Hart <jon_hart[at]rapid7.com>',
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
-          ['URL', 'https://www.cisa.gov/uscert/ncas/alerts/TA14-017A']
-        ]
+      'Author' => 'Jon Hart <jon_hart[at]rapid7.com>',
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
+        ['URL', 'https://www.cisa.gov/uscert/ncas/alerts/TA14-017A']
+      ]
     )
 
     register_options(
@@ -64,10 +63,12 @@ class MetasploitModule < Msf::Auxiliary
   def scanner_postscan(batch)
     batch.each do |shost|
       next unless @results.key?(shost)
+
       @results[shost].each_pair do |sport, responses|
         report_service(host: shost, port: sport, proto: 'udp', info: responses.inspect, state: 'open')
         vulnerable, proof = prove_amplification(@probe => responses)
         next unless vulnerable
+
         print_good("#{shost}:#{sport} - susceptible to UDP amplification: #{proof}")
         report_vuln(
           host: shost,

@@ -32,7 +32,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://www.rapid7.com/blog/post/2013/10/30/seven-tricks-and-treats']
         ],
         'License' => MSF_LICENSE,
-        'DisclosureDate' => '2013-10-30'
+        'DisclosureDate' => '2013-10-30',
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
+        }
       )
     )
 
@@ -59,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::NoAccess, 'Invalid response. Check your credentials and that the server is correct.')
     end
 
-    xml = path = id = other_id = ''  # for later use
+    xml = path = id = other_id = '' # for later use
     doc = REXML::Document.new users.body
 
     doc.root.elements.each do |user|
@@ -88,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
         'authorization' => basic_auth(datastore['HttpUsername'], datastore['HttpPassword'])
       })
 
-      if !resp || (resp.code != 200) || resp.body =~ (/Not updating entity/)
+      if !resp || (resp.code != 200) || resp.body =~ /Not updating entity/
         print_error("Problem updating #{datastore['ENDPOINT']} #{other_id} with ID: #{id}")
         next
       end

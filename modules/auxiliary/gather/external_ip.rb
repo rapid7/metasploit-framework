@@ -11,19 +11,18 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        	=> 'Discover External IP via Ifconfig.me',
+      'Name' => 'Discover External IP via Ifconfig.me',
       'Description'	=> %q{
         This module checks for the public source IP address of the current
         route to the RHOST by querying the public web application at ifconfig.me.
         It should be noted this module will register activity on ifconfig.me,
         which is not affiliated with Metasploit.
       },
-      'Author'        => ['RageLtMan <rageltman[at]sempervictus>'],
+      'Author' => ['RageLtMan <rageltman[at]sempervictus>'],
       'License'	=> MSF_LICENSE,
-      'References'	=>
-        [
-          [ 'URL', 'http://ifconfig.me/ip' ],
-        ],
+      'References' => [
+        [ 'URL', 'http://ifconfig.me/ip' ],
+      ],
       'DefaultOptions' => { 'VHOST' => 'ifconfig.me' }
     )
 
@@ -31,12 +30,13 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RHOST('ifconfig.me'),
         OptBool.new('REPORT_HOST', [false, 'Add the found IP to the database', false])
-      ])
-end
+      ]
+    )
+  end
 
   def run
     connect
-    res = send_request_cgi({'uri' => '/ip', 'method' => 'GET' })
+    res = send_request_cgi({ 'uri' => '/ip', 'method' => 'GET' })
 
     if res.nil?
       print_error("Connection timed out")

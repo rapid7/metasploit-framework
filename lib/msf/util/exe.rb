@@ -1717,8 +1717,8 @@ require 'digest/sha1'
 </servlet>
 </web-app>
 }
-    web_xml.gsub!(/NAME/, app_name)
-    web_xml.gsub!(/PAYLOAD/, jsp_name)
+    web_xml.gsub!('NAME', app_name)
+    web_xml.gsub!('PAYLOAD', jsp_name)
 
     zip = Rex::Zip::Archive.new
     zip.add_file('META-INF/', '', meta_inf)

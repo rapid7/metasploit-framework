@@ -11,12 +11,12 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'MySQL Server Version Enumeration',
+      'Name' => 'MySQL Server Version Enumeration',
       'Description' => %q{
         Enumerates the version of MySQL servers.
       },
-      'Author'      => 'kris katterjohn',
-      'License'     => MSF_LICENSE
+      'Author' => 'kris katterjohn',
+      'License' => MSF_LICENSE
     )
 
     register_options([

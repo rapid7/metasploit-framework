@@ -23,10 +23,10 @@ class MetasploitModule < Msf::Encoder::Xor
         'KeyPack' => 'Q<'
       }
     )
+    @cpu64 = Metasm::X86_64.new
   end
 
-  @cpu64 = Metasm::X86_64.new
-  def assemble(src, cpu = @cpu64)
+  def assemble(src, cpu: @cpu64)
     Metasm::Shellcode.assemble(cpu, src).encode_string
   end
 

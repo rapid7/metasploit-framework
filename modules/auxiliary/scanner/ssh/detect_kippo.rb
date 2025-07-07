@@ -9,20 +9,23 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Kippo SSH Honeypot Detector',
-      'Description' => %q{
-        This module will detect if an SSH server is running a Kippo honeypot.
-        This is done by issuing unexpected data to the SSH service and checking
-        the response returned for two particular non-standard error messages.
-      },
-      'Author' => 'Andrew Morris <andrew[at]morris.guru>',
-      'References' => [
-        ['URL', 'https://www.obscurechannel.com/x42/magicknumber.html'],
-        ['URL', 'http://morris.guru/detecting-kippo-ssh-honeypots/']
-      ],
-      'License' => MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Kippo SSH Honeypot Detector',
+        'Description' => %q{
+          This module will detect if an SSH server is running a Kippo honeypot.
+          This is done by issuing unexpected data to the SSH service and checking
+          the response returned for two particular non-standard error messages.
+        },
+        'Author' => 'Andrew Morris <andrew[at]morris.guru>',
+        'References' => [
+          ['URL', 'https://www.obscurechannel.com/x42/magicknumber.html'],
+          ['URL', 'http://morris.guru/detecting-kippo-ssh-honeypots/']
+        ],
+        'License' => MSF_LICENSE
+      )
+    )
 
     register_options([
       Opt::RPORT(22)

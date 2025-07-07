@@ -59,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
         extra_error = ' or incorrect current password'
       end
 
-      error = "The password changed failed, likely due to a password policy violation (e.g. not sufficiently complex, matching previous password, or changing the password too often)#{extra_error}"
+      error = "The password change failed, likely due to a password policy violation (e.g. not sufficiently complex, matching previous password, or changing the password too often)#{extra_error}"
       fail_with(Failure::NotFound, error)
     else
       validate_query_result!(ldap_result)
@@ -82,12 +82,12 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     if action.name == 'CHANGE'
-      fail_with(Failure::BadConfig, 'Must set USERNAME when changing password') if datastore['USERNAME'].blank?
-      fail_with(Failure::BadConfig, 'Must set PASSWORD when changing password') if datastore['PASSWORD'].blank?
+      fail_with(Failure::BadConfig, 'Must set LDAPUsername when changing password') if datastore['LDAPUsername'].blank?
+      fail_with(Failure::BadConfig, 'Must set LDAPPassword when changing password') if datastore['LDAPPassword'].blank?
     elsif action.name == 'RESET'
       fail_with(Failure::BadConfig, 'Must set TARGET_USER when resetting password') if datastore['TARGET_USER'].blank?
     end
-    if session.blank? && datastore['USERNAME'].blank? && datastore['LDAP::Auth'] != Msf::Exploit::Remote::AuthOption::SCHANNEL
+    if session.blank? && datastore['LDAPUsername'].blank? && datastore['LDAP::Auth'] != Msf::Exploit::Remote::AuthOption::SCHANNEL
       print_warning('Connecting with an anonymous bind')
     end
     ldap_connect do |ldap|
@@ -143,13 +143,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_change
-    obj = get_user_obj(datastore['USERNAME'])
+    obj = get_user_obj(datastore['LDAPUsername'])
 
     new_pass = "\"#{datastore['NEW_PASSWORD']}\"".encode('utf-16le').bytes.pack('c*')
-    old_pass = "\"#{datastore['PASSWORD']}\"".encode('utf-16le').bytes.pack('c*')
+    old_pass = "\"#{datastore['LDAPPassword']}\"".encode('utf-16le').bytes.pack('c*')
     unless @ldap.modify(dn: obj['dn'], operations: [[:delete, ATTRIBUTE, old_pass], [:add, ATTRIBUTE, new_pass]])
-      fail_with_ldap_error("Failed to reset the password for #{datastore['USERNAME']}.")
+      fail_with_ldap_error("Failed to change the password for #{datastore['LDAPUsername']}.")
     end
-    print_good("Successfully changed password for #{datastore['USERNAME']}.")
+    print_good("Successfully changed password for #{datastore['LDAPUsername']}.")
   end
 end

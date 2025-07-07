@@ -29,7 +29,7 @@ module Msf::Payload::Ruby
             eval(code) rescue nil
           end
         end
-      ^.strip.split(/\n/).map{|line| line.strip}.join("\n")
+      ^.strip.split("\n").map{|line| line.strip}.join("\n")
     end
 
     buf

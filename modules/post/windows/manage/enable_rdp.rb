@@ -23,7 +23,12 @@ class MetasploitModule < Msf::Post
         'License' => BSD_LICENSE,
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [CONFIG_CHANGES],
+          'Reliability' => []
+        }
       )
     )
 
@@ -86,7 +91,7 @@ class MetasploitModule < Msf::Post
         print_status "\tRDP is already enabled"
       end
     rescue StandardError => e
-      print_status("The following Error was encountered: #{e.class} #{e}")
+      print_status("The following error was encountered: #{e.class} #{e}")
     end
   end
 
@@ -113,7 +118,7 @@ class MetasploitModule < Msf::Post
       cmd_exec('netsh', 'firewall set service type = remotedesktop mode = enable', 30)
       file_local_write(cleanup_rc, "execute -H -f cmd.exe -a \"/c 'netsh firewall set service type = remotedesktop mode = enable'\"")
     rescue StandardError => e
-      print_status("The following Error was encountered: #{e.class} #{e}")
+      print_status("The following error was encountered: #{e.class} #{e}")
     end
   end
 
@@ -167,7 +172,7 @@ class MetasploitModule < Msf::Post
         end
       end
     rescue StandardError => e
-      print_status("The following Error was encountered: #{e.class} #{e}")
+      print_status("The following error was encountered: #{e.class} #{e}")
     end
   end
 

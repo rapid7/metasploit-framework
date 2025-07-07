@@ -301,7 +301,9 @@ class MsfAutoload
       'teamcity' => 'TeamCity',
       'nist_sp_800_38f' => 'NIST_SP_800_38f',
       'nist_sp_800_108' => 'NIST_SP_800_108',
+      'sccm' => 'SCCM',
       'pfsense' => 'PfSense',
+      'opnsense' => 'OPNSense',
       'pgadmin' => 'PgAdmin',
     }
   end
@@ -345,6 +347,7 @@ autoload :BinData, 'bindata'
 autoload :RubySMB, 'ruby_smb'
 autoload :MetasploitPayloads, 'metasploit-payloads'
 autoload :PacketFu, 'packetfu'
+autoload :DidYouMean, 'did_you_mean'
 
 require 'rexml/document'
 # Load IO#expect moneypatch

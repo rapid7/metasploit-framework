@@ -19,16 +19,22 @@ RSpec.describe 'modules', :content do
                         type_directory: 'exploits'
 
   it_should_behave_like 'all modules with module type can be instantiated',
+                        module_type: 'evasion',
+                        modules_pathname: modules_pathname,
+                        type_directory: 'evasion'
+
+  it_should_behave_like 'all modules with module type can be instantiated',
                         module_type: 'nop',
                         modules_pathname: modules_pathname,
                         type_directory: 'nops'
 
   it_should_behave_like 'all modules with module type can be instantiated',
-                        module_type: 'post',
-                        modules_pathname: modules_pathname,
-                        type_directory: 'posts'
-  it_should_behave_like 'all modules with module type can be instantiated',
                         module_type: 'payload',
                         modules_pathname: modules_pathname,
                         type_directory: 'payload'
+
+  it_should_behave_like 'all modules with module type can be instantiated',
+                        module_type: 'post',
+                        modules_pathname: modules_pathname,
+                        type_directory: 'post'
 end

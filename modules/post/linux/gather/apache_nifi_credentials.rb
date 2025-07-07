@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Post
         OptString.new('NIFI_IDENTITY', [false, 'NiFi login-identity-providers.xml file', '/opt/nifi/conf/login-identity-providers.xml']),
         OptString.new('NIFI_AUTHORIZERS', [false, 'NiFi authorizers file', '/opt/nifi/conf/authorizers.xml']),
         OptInt.new('ITERATIONS', [true, 'Encryption iterations', 160_000])
-      ], self.class
+      ]
     )
   end
 

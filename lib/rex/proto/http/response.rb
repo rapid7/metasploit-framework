@@ -196,7 +196,7 @@ class Response < Packet
   #
   def update_cmd_parts(str)
     if (md = str.match(/HTTP\/(.+?)\s+(\d+)\s?(.+?)\r?\n?$/))
-      self.message = md[3].gsub(/\r/, '')
+      self.message = md[3].gsub("\r", '')
       self.code    = md[2].to_i
       self.proto   = md[1]
     else

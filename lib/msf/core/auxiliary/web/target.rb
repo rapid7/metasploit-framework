@@ -33,6 +33,9 @@ class Auxiliary::Web::Target
   # Virtual host as a String.
   attr_accessor :vhost
 
+  # @return String SSL/TLS Server Name Indication (SNI)
+  attr_accessor :ssl_server_name_indication
+
   # String URI path.
   attr_accessor :path
 
@@ -64,6 +67,7 @@ class Auxiliary::Web::Target
   #           :port
   #           :forms
   #           :auditable
+  #           :ssl_server_name_indication
   #
   def initialize( options = {} )
     update( options )
@@ -79,6 +83,7 @@ class Auxiliary::Web::Target
   #           :port
   #           :forms
   #           :auditable
+  #           :ssl_server_name_indication
   #
   def update( options = {} )
     options.each { |k, v| send( "#{k}=", v ) }

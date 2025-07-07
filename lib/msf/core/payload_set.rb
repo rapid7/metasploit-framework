@@ -66,7 +66,6 @@ class PayloadSet < ModuleSet
   # of singles, stagers, and stages.
   #
   def recalculate
-    old_keys = self.keys
     new_keys = []
 
     # Recalculate single payloads
@@ -119,9 +118,7 @@ class PayloadSet < ModuleSet
 
     # Blow away anything that was cached but didn't exist during the
     # recalculation
-    self.delete_if do |k, _v|
-      !!(old_keys.include?(k) and not new_keys.include?(k))
-    end
+    replace(slice(*new_keys))
 
     flush_blob_cache
   end

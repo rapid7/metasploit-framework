@@ -11,15 +11,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SSDP ssdp:all M-SEARCH Amplification Scanner',
+      'Name' => 'SSDP ssdp:all M-SEARCH Amplification Scanner',
       'Description' => 'Discover SSDP amplification possibilities',
-      'Author'      => ['xistence <xistence[at]0x90.nl>'], # Original scanner module
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
-          ['URL', 'https://www.cisa.gov/uscert/ncas/alerts/TA14-017A']
-        ],
+      'Author' => ['xistence <xistence[at]0x90.nl>'], # Original scanner module
+      'License' => MSF_LICENSE,
+      'References' => [
+        ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
+        ['URL', 'https://www.cisa.gov/uscert/ncas/alerts/TA14-017A']
+      ],
     )
 
     register_options([

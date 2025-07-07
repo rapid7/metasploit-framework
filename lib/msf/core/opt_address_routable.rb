@@ -9,7 +9,7 @@ module Msf
   ###
   class OptAddressRoutable < OptAddress
 
-    def valid?(value, check_empty: true)
+    def valid?(value, check_empty: true, datastore: nil)
       return false if Rex::Socket.is_ip_addr?(value) && Rex::Socket.addr_atoi(value) == 0
       super
     end

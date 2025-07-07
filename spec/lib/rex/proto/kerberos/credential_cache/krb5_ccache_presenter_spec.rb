@@ -124,10 +124,10 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
           Addresses: 0
           Authdatas: 0
           Times:
-            Auth time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
-            Start time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
-            End time: #{Time.parse('2032-11-25 15:51:29 +0000').to_time}
-            Renew Till: #{Time.parse('2032-11-25 15:51:29 +0000').to_time}
+            Auth time: #{Time.parse('2022-11-28 15:51:29 +0000').localtime}
+            Start time: #{Time.parse('2022-11-28 15:51:29 +0000').localtime}
+            End time: #{Time.parse('2032-11-25 15:51:29 +0000').localtime}
+            Renew Till: #{Time.parse('2032-11-25 15:51:29 +0000').localtime}
           Ticket:
             Ticket Version Number: 5
             Realm: WINDOMAIN.LOCAL
@@ -157,10 +157,10 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
           Addresses: 0
           Authdatas: 0
           Times:
-            Auth time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
-            Start time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
-            End time: #{Time.parse('2032-11-25 15:51:29 +0000').to_time}
-            Renew Till: #{Time.parse('2032-11-25 15:51:29 +0000').to_time}
+            Auth time: #{Time.parse('2022-11-28 15:51:29 +0000').localtime}
+            Start time: #{Time.parse('2022-11-28 15:51:29 +0000').localtime}
+            End time: #{Time.parse('2032-11-25 15:51:29 +0000').localtime}
+            Renew Till: #{Time.parse('2032-11-25 15:51:29 +0000').localtime}
           Ticket:
             Ticket Version Number: 5
             Realm: WINDOMAIN.LOCAL
@@ -170,10 +170,10 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
               Key Version Number: 2
               Decrypted (with key: 4b912be0366a6f37f4a7d571bee18b1173d93195ef76f8d1e3e81ef6172ab326):
                 Times:
-                  Auth time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
-                  Start time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
-                  End time: #{Time.parse('2032-11-25 15:51:29 +0000').to_time}
-                  Renew Till: #{Time.parse('2032-11-25 15:51:29 +0000').to_time}
+                  Auth time: #{Time.parse('2022-11-28 15:51:29 +0000').localtime}
+                  Start time: #{Time.parse('2022-11-28 15:51:29 +0000').localtime}
+                  End time: #{Time.parse('2032-11-25 15:51:29 +0000').localtime}
+                  Renew Till: #{Time.parse('2032-11-25 15:51:29 +0000').localtime}
                 Client Addresses: 0
                 Transited: tr_type: 0, Contents: ""
                 Client Name: 'Administrator'
@@ -183,7 +183,7 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
                 Flags: 0x50e00000 (FORWARDABLE, PROXIABLE, RENEWABLE, INITIAL, PRE_AUTHENT)
                 PAC:
                   Validation Info:
-                    Logon Time: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
+                    Logon Time: #{Time.parse('2022-11-28 15:51:29 +0000').localtime}
                     Logoff Time: Never Expires (inf)
                     Kick Off Time: Never Expires (inf)
                     Password Last Set: No Time Set (0)
@@ -284,7 +284,7 @@ RSpec.describe Rex::Proto::Kerberos::CredentialCache::Krb5CcachePresenter do
                     Logon Domain Name: 'WINDOMAIN.LOCAL'
                   Client Info:
                     Name: 'Administrator'
-                    Client ID: #{Time.parse('2022-11-28 15:51:29 +0000').to_time}
+                    Client ID: #{Time.parse('2022-11-28 15:51:29 +0000').localtime}
                   Pac Server Checksum:
                     Signature: 5eb9400bcab42babcd598210
                   Pac Privilege Server Checksum:
