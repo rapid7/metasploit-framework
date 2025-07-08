@@ -258,6 +258,9 @@ Gem::Specification.new do |spec|
   # Needed to parse sections of ELF files in order to retrieve symbols
   spec.add_runtime_dependency 'elftools'
 
+  # Needed for generic in-memory cachine
+  spec.add_runtime_dependency 'lru_redux'
+
   # Standard libraries: https://www.ruby-lang.org/en/news/2023/12/25/ruby-3-3-0-released/
   %w[
     abbrev
