@@ -326,10 +326,14 @@ class MetasploitModule < Msf::Auxiliary
         elog('failed to parse a binary security descriptor to SDDL', error: e)
       else
         print_status("  nTSecurityDescriptor: #{sddl_text}")
-        permissions = [ 'READ' ] # if we have the object, we can assume we have read permissions
-        permissions << 'WRITE' if adds_obj_grants_permissions?(@ldap, obj, SecurityDescriptorMatcher::Allow.new(:WP))
-        permissions << 'ENROLL' if adds_obj_grants_permissions?(@ldap, obj, SecurityDescriptorMatcher::Allow.certificate_enrollment)
-        permissions << 'AUTOENROLL' if adds_obj_grants_permissions?(@ldap, obj, SecurityDescriptorMatcher::Allow.certificate_autoenrollment)
+        if adds_obj_grants_permissions?(@ldap, obj, SecurityDescriptorMatcher::Allow.full_control)
+          permissions = [ 'FULL CONTROL' ]
+        else
+          permissions = [ 'READ' ] # if we have the object, we can assume we have read permissions
+          permissions << 'WRITE' if adds_obj_grants_permissions?(@ldap, obj, SecurityDescriptorMatcher::Allow.new(:WP))
+          permissions << 'ENROLL' if adds_obj_grants_permissions?(@ldap, obj, SecurityDescriptorMatcher::Allow.certificate_enrollment)
+          permissions << 'AUTOENROLL' if adds_obj_grants_permissions?(@ldap, obj, SecurityDescriptorMatcher::Allow.certificate_autoenrollment)
+        end
         whoami = adds_get_current_user(@ldap)
         print_status("    * Permissions applied for #{whoami[:userPrincipalName].first}: #{permissions.join(', ')}")
       end
