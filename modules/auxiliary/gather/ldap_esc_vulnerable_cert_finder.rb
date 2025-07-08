@@ -3,6 +3,7 @@ class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::LDAP
+  include Msf::Exploit::Remote::LDAP::ActiveDirectory
   include Msf::OptionalSession::LDAP
   include Rex::Proto::MsDnsp
   include Rex::Proto::Secauthz
@@ -343,104 +344,22 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def find_esc4_vuln_cert_templates
-    # Obtain the authenticated user information to check if they have write permissions on the certificate templates
-    begin
-      authenticated_user_info = get_authenticated_user_info
-    rescue LdapWhoamiError => e
-      print_warning("ESC4 detection skipped: #{e.message}")
-      return
-    end
-
     esc_raw_filter = '(objectclass=pkicertificatetemplate)'
     attributes = ['cn', 'description', 'ntSecurityDescriptor']
     esc_entries = query_ldap_server(esc_raw_filter, attributes, base_prefix: CERTIFICATE_TEMPLATES_BASE)
 
     return if esc_entries.empty?
 
+    current_user = adds_get_current_user(@ldap)[:samaccountname].first
     esc_entries.each do |entry|
       certificate_symbol = entry[:cn][0].to_sym
       next if @certificate_details[certificate_symbol][:enroll_sids].empty?
 
-      security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(entry[:ntsecuritydescriptor].first)
-      if user_can_write?(authenticated_user_info, security_descriptor)
+      if adds_obj_grants_permissions?(@ldap, entry, SecurityDescriptorMatcher::Allow.any(%i[WP]))
         @certificate_details[certificate_symbol][:techniques] << 'ESC4'
-        @certificate_details[certificate_symbol][:notes] << "ESC4: The account: #{authenticated_user_info[:samaccountname].first} has edit permissions over the template #{certificate_symbol}."
+        @certificate_details[certificate_symbol][:notes] << "ESC4: The account: #{current_user} has edit permissions over the template #{certificate_symbol}."
       end
     end
-  end
-
-  def get_object_by_dn(dn)
-    object = @ldap_objects.find { |o| o['dn']&.first == dn }
-    return object if object
-
-    object = query_ldap_server("(distinguishedName=#{ldap_escape_filter(dn)})", nil)&.first
-    @ldap_objects << object if object
-    object
-  end
-
-  def get_object_by_samaccountname(samaccountname)
-    object = @ldap_objects.find { |o| o['sAMAccountName']&.first == samaccountname }
-
-    if object.nil?
-      object = query_ldap_server("(sAMAccountName=#{ldap_escape_filter(samaccountname)})", nil)&.first
-      @ldap_objects << object if object
-    end
-
-    object
-  end
-
-  def get_authenticated_user_info
-    if (@whoami ||= @ldap.ldapwhoami).present?
-      sam_account_name = @whoami.split('\\').last
-      cached_user_object = @ldap_objects.find { |o| o[:samaccountname]&.first == sam_account_name }
-      return cached_user_object if cached_user_object
-    end
-
-    if @whoami.blank?
-      raise LdapWhoamiError, 'Unable to retrieve the username using ldapwhoami.'
-    end
-
-    sam_account_name = @whoami.split('\\').last
-    user_object = get_object_by_samaccountname(sam_account_name)
-    if user_object.nil? || user_object[:objectsid].nil?
-      raise LdapWhoamiError, 'Unable to determine the SID for the authenticated user.'
-    end
-
-    # Walk the chain of ancestry of groups using LDAP_MATCHING_RULE_IN_CHAIN
-    filter_with_user = "(|(member:1.2.840.113556.1.4.1941:=#{user_object[:dn].first})"
-    user_groups = user_object[:memberof] || []
-    user_groups.each do |group_dn|
-      group_object = get_object_by_dn(group_dn)
-      next unless group_object
-
-      filter_with_user << "(member:1.2.840.113556.1.4.1941:=#{group_object[:dn].first})"
-    end
-    filter_with_user << ')'
-
-    attributes = ['cn', 'objectSID']
-    group_entries = query_ldap_server(filter_with_user, attributes)
-
-    # Extract group SIDs and add them to the user_object
-    group_sids = group_entries.map { |entry| Rex::Proto::MsDtyp::MsDtypSid.read(entry[:objectsid].first).value }
-    user_object[:memberof] ||= []
-    user_object[:memberof].concat(group_sids)
-
-    @ldap_objects << user_object
-  end
-
-  def user_can_write?(authenticated_user_info, security_descriptor)
-    write_sids = get_sids_for_write(security_descriptor.dacl)
-    user_sid = Rex::Proto::MsDtyp::MsDtypSid.read(authenticated_user_info[:objectsid].first).value
-
-    # Extract group SIDs from :memberof
-    group_sids = authenticated_user_info[:memberof]&.map do |group_dn|
-      group_object = get_object_by_dn(group_dn)
-      next unless group_object && group_object[:objectsid]
-
-      Rex::Proto::MsDtyp::MsDtypSid.read(group_object[:objectsid].first).value
-    end&.compact || []
-
-    (write_sids.map(&:value) & ([user_sid] + group_sids)).any?
   end
 
   def parse_registry_output(output, property_name)
@@ -520,35 +439,27 @@ class MetasploitModule < Msf::Auxiliary
     group_entry[:member]
   end
 
-  def find_users_with_write_and_enroll_rights(authenticated_user_info, enroll_sids)
+  def find_users_with_write_and_enroll_rights(enroll_sids)
     users = []
     enroll_sids.each do |sid|
-      user_object = get_object_by_sid(sid.value)
+      user_object = adds_get_object_by_sid(@ldap, sid.value)
       if user_object && user_object[:objectclass]&.include?('user')
-        if user_object[:ntsecuritydescriptor]
-          security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(user_object[:ntsecuritydescriptor].first)
-          if user_can_write?(authenticated_user_info, security_descriptor)
-            users << user_object[:samaccountname].first
-          end
+        if (user_object[:ntsecuritydescriptor]) && adds_obj_grants_permissions?(@ldap, user_object, SecurityDescriptorMatcher::Allow.any(%i[WP]))
+          users << user_object[:samaccountname].first
         end
         next
       end
-      group_object = get_object_by_sid(sid.value)
+      group_object = adds_get_object_by_sid(@ldap, sid.value)
       next unless group_object && group_object[:objectclass]&.include?('group')
 
-      group_memberships = resolve_group_memberships(group_object[:dn].first)
-      group_memberships.each do |group|
-        members_of_group = fetch_group_members(group[:dn])
-        members_of_group.each do |member_dn|
-          member_object = get_object_by_dn(member_dn)
-          next unless member_object && member_object[:objectclass]&.include?('user')
+      member_objects = adds_query_group_members(@ldap, group_object[:dn].first, inherited: true).to_a
+      member_objects.each do |member_object|
+        next unless member_object && member_object[:objectclass]&.include?('user')
+        next unless member_object[:ntsecuritydescriptor]
+        next if users.include?(member_object[:samaccountname].first)
 
-          next unless member_object[:ntsecuritydescriptor]
-
-          security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(member_object[:ntsecuritydescriptor].first)
-          if user_can_write?(authenticated_user_info, security_descriptor)
-            users << member_object[:samaccountname].first
-          end
+        if adds_obj_grants_permissions?(@ldap, user_object, SecurityDescriptorMatcher::Allow.any(%i[WP]))
+          users << member_object[:samaccountname].first
         end
       end
     end
@@ -573,26 +484,23 @@ class MetasploitModule < Msf::Auxiliary
       ')'\
     ')'
 
-    begin
-      authenticated_user_info = get_authenticated_user_info
-    rescue LdapWhoamiError => e
-      print_warning("ESC9 detection skipped: #{e.message}")
-      return
-    end
-
     esc9_templates = query_ldap_server(esc9_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
     esc9_templates.each do |template|
       certificate_symbol = template[:cn][0].to_sym
+      next unless template[:cn].first == 'ESC9-Template-Group-Inheritance-Enroll-Test'
+
       enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
 
-      users = find_users_with_write_and_enroll_rights(authenticated_user_info, enroll_sids)
+      users = find_users_with_write_and_enroll_rights(enroll_sids)
 
       next if users.empty?
 
       user_plural = users.size > 1 ? 'accounts' : 'account'
       has_plural = users.size > 1 ? 'have' : 'has'
 
-      note = "ESC9: The account: #{authenticated_user_info[:samaccountname].first} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
+      current_user = adds_get_current_user(@ldap)[:samaccountname].first
+
+      note = "ESC9: The account: #{current_user} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
       if @registry_values[:strong_certificate_binding_enforcement].present?
         note += " Registry value: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}."
       end
@@ -617,25 +525,20 @@ class MetasploitModule < Msf::Auxiliary
   ')'\
   ')'
 
-    begin
-      authenticated_user_info = get_authenticated_user_info
-    rescue LdapWhoamiError => e
-      print_warning("ESC10 detection skipped: #{e.message}")
-      return
-    end
-
     esc10_templates = query_ldap_server(esc10_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
     esc10_templates.each do |template|
       certificate_symbol = template[:cn][0].to_sym
       enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
-      users = find_users_with_write_and_enroll_rights(authenticated_user_info, enroll_sids)
+      users = find_users_with_write_and_enroll_rights(enroll_sids)
 
       next if users.empty?
 
       user_plural = users.size > 1 ? 'accounts' : 'account'
       has_plural = users.size > 1 ? 'have' : 'has'
 
-      note = "ESC10: The account: #{authenticated_user_info[:samaccountname].first} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
+      current_user = adds_get_current_user(@ldap)[:samaccountname].first
+
+      note = "ESC10: The account: #{current_user} has edit permission over the #{user_plural}: #{users.join(', ')} which #{has_plural} enrollment rights for this template."
 
       if @registry_values[:strong_certificate_binding_enforcement].present? && @registry_values[:certificate_mapping_methods].present?
         note += " Registry values: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}, CertificateMappingMethods=#{@registry_values[:certificate_mapping_methods]}."
