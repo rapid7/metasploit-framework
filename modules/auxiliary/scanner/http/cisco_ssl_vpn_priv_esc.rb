@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://www.trustwave.com/en-us/resources/security-resources/security-advisories/?fid=18908']
         ],
         'DisclosureDate' => '2014-04-09',
-        'DefaultOptions' => { 'SSL' => true }
+        'DefaultOptions' => { 'SSL' => true },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

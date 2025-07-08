@@ -25,7 +25,12 @@ class MetasploitModule < Msf::Auxiliary
           # Protocol documentation
           ['URL', 'https://github.com/BearWare/TeamTalk5/blob/master/ttphpadmin/tt5admin.php']
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
     register_options [

@@ -25,7 +25,12 @@ class MetasploitModule < Msf::Auxiliary
           ['WPVDB', '7857'],
           ['URL', 'https://www.pritect.net/blog/all-in-one-wp-migration-2-0-4-security-vulnerability']
         ],
-        'DisclosureDate' => '2015-03-19'
+        'DisclosureDate' => '2015-03-19',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

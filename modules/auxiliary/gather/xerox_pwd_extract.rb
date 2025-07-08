@@ -20,7 +20,12 @@ class MetasploitModule < Msf::Auxiliary
           'Deral "Percentx" Heiland',
           'Pete "Bokojan" Arzamendi'
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

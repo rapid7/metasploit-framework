@@ -30,7 +30,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://www.madirish.net/node/465'],
           ['URL', 'https://www.drupal.org/node/1004778'],
         ],
-        'DisclosureDate' => '2010-07-02'
+        'DisclosureDate' => '2010-07-02',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '94417' ],
           [ 'URL', 'https://www.mattandreko.com/2013/06/canon-y-u-no-security.html']
         ],
-        'DisclosureDate' => '2013-06-18'
+        'DisclosureDate' => '2013-06-18',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
   end

@@ -19,7 +19,12 @@ class MetasploitModule < Msf::Auxiliary
           XSS attack to redirect user browser to an attacker controller website.
         },
         'Author' => [ 'et' ],
-        'License' => BSD_LICENSE
+        'License' => BSD_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

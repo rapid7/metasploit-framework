@@ -23,7 +23,12 @@ class MetasploitModule < Msf::Auxiliary
           cameras, and the web server does not enforce lockouts in case of a bruteforce attack.
         },
         'Author' => [ 'sinn3r' ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

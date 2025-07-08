@@ -29,7 +29,11 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DisclosureDate' => '2019-08-09', # NVD entry publication
         'License' => MSF_LICENSE,
-        'Notes' => { 'Stability' => [CRASH_SAFE] }
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

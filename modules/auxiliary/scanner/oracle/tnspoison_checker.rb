@@ -25,7 +25,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://seclists.org/fulldisclosure/2012/Apr/204' ],
         ],
         'DisclosureDate' => '2012-04-18',
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

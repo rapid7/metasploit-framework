@@ -31,7 +31,12 @@ class MetasploitModule < Msf::Auxiliary
           'John H Sawyer <john[at]sploitlab.com>', # InGuardians, Inc.
           'sinn3r' # Metasploit-fu plus other features
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

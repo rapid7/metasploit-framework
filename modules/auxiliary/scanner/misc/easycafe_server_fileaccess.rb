@@ -31,7 +31,12 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           [ 'EDB', '39102' ]
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

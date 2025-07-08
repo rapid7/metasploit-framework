@@ -22,7 +22,12 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Author' => [ 'sinn3r' ],
         'License' => MSF_LICENSE,
-        'DefaultOptions' => { 'RPORT' => 8020 }
+        'DefaultOptions' => { 'RPORT' => 8020 },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
   end

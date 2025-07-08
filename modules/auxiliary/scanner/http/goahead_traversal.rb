@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
           'Matthew Daley', # Vulnerability discovery
           'Roberto Soares Espreto <robertoespreto[at]gmail.com>' # Metasploit module
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

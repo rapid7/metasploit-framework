@@ -23,7 +23,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://www.voip-info.org/wiki/view/Asterisk+manager+API'],
           ['URL', 'https://www.voip-info.org/wiki-Asterisk+CLI']
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
     register_options [

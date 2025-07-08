@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2024-08-22',
         'DefaultOptions' => {
           'RPORT' => 8443,
-          'SSL' => 'True'
+          'SSL' => true
         },
         'Notes' => {
           'Stability' => [CRASH_SAFE],

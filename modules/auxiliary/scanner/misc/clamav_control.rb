@@ -31,7 +31,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'VERSION', 'Description' => 'Get Version Information' ],
           [ 'SHUTDOWN', 'Description' => 'Kills ClamAV Daemon' ]
         ],
-        'DefaultAction' => 'VERSION'
+        'DefaultAction' => 'VERSION',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
     register_options(

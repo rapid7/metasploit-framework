@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://doliforge.org/tracker/?func=detail&aid=1212&group_id=144'],
           ['URL', 'https://github.com/Dolibarr/dolibarr/commit/8642e2027c840752c4357c4676af32fe342dc0cb']
         ],
-        'DisclosureDate' => '2014-01-12'
+        'DisclosureDate' => '2014-01-12',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
     register_options(

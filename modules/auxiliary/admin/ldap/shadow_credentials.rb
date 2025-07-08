@@ -52,6 +52,16 @@ class MetasploitModule < Msf::Auxiliary
     ])
   end
 
+  def validate
+    super
+
+    if action.name.casecmp?('REMOVE') && datastore['DEVICE_ID'].blank?
+      raise Msf::OptionValidateError.new({
+        'DEVICE_ID' => 'DEVICE_ID must be set when ACTION is REMOVE.'
+      })
+    end
+  end
+
   def fail_with_ldap_error(message)
     ldap_result = @ldap.get_operation_result.table
     return if ldap_result[:code] == 0
@@ -124,8 +134,12 @@ class MetasploitModule < Msf::Auxiliary
         ])
       ])
 
-      unless adds_obj_grants_permissions?(@ldap, obj, matcher)
-        return Exploit::CheckCode::Safe('The object can not be written to.')
+      begin
+        unless adds_obj_grants_permissions?(@ldap, obj, matcher)
+          return Exploit::CheckCode::Safe('The object can not be written to.')
+        end
+      rescue RuntimeError
+        return Exploit::CheckCode::Unknown('Failed to check the permissions on the target object.')
       end
 
       Exploit::CheckCode::Vulnerable('The object can be written to.')

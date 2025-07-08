@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Auxiliary
           'sinn3r'
         ],
         'License' => MSF_LICENSE,
-        'DisclosureDate' => '2012-03-18'
+        'DisclosureDate' => '2012-03-18',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

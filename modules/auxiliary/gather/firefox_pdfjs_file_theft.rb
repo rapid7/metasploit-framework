@@ -34,7 +34,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://blog.mozilla.org/security/2015/08/06/firefox-exploit-found-in-the-wild/'],
           ['CVE', '2015-4495']
         ],
-        'DefaultAction' => 'WebServer'
+        'DefaultAction' => 'WebServer',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

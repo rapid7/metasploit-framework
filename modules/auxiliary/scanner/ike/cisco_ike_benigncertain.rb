@@ -36,7 +36,10 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://musalbas.com/2016/08/18/equation-group-benigncertain.html' ]
         ],
         'Notes' => {
-          'AKA' => ['BENIGNCERTAIN']
+          'AKA' => ['BENIGNCERTAIN'],
+          'Stability' => UNKNOWN_STABILITY,
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         },
         'DisclosureDate' => '2016-09-29'
       )

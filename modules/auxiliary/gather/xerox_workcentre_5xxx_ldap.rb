@@ -21,7 +21,12 @@ class MetasploitModule < Msf::Auxiliary
           'Pete "Bokojan" Arzamendi'
         ],
         'License' => MSF_LICENSE,
-        'DefaultOptions' => { 'SSL' => false }
+        'DefaultOptions' => { 'SSL' => false },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

@@ -17,7 +17,12 @@ class MetasploitModule < Msf::Auxiliary
           This module exploits blind XPATH 1.0 injections over HTTP GET requests.
         },
         'Author' => [ 'et [at] metasploit . com' ],
-        'License'	=> BSD_LICENSE
+        'License'	=> BSD_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

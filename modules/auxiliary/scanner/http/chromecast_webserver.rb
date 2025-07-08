@@ -22,7 +22,12 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['URL', 'https://store.google.com/product/chromecast?utm_source=chromecast.com&hl=en-US']
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

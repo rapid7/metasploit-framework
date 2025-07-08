@@ -35,7 +35,12 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['CVE', '2015-0975']
         ],
-        'DisclosureDate' => '2015-01-08'
+        'DisclosureDate' => '2015-01-08',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

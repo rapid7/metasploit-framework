@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q{
           This module exploits an information disclosure vulnerability that allows an
           unauthenticated user to enumerate users in the /ViewUserHover.jspa endpoint.
-          This only affects Jira versions < 7.13.16, 8.0.0 ≤ version < 8.5.7, 8.6.0 ≤ version < 8.11.1
+          This only affects Jira versions < 7.13.16, 8.0.0 <= version < 8.5.7, 8.6.0 <= version < 8.11.1
           Discovered by Mikhail Klyuchnikov @__mn1__
           This module has been tested on versions 8.4.1, 8.5.6, 8.10.1, 8.11.0
         },

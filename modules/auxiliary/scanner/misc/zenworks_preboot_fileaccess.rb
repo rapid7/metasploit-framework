@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2012-2215' ],
           [ 'OSVDB', '80230' ],
           [ 'URL', 'https://web.archive.org/web/20121103122235/http://www.verisigninc.com/en_US/products-and-services/network-intelligence-availability/idefense/public-vulnerability-reports/articles/index.xhtml?id=975' ]
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

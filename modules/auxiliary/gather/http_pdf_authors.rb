@@ -33,7 +33,12 @@ class MetasploitModule < Msf::Auxiliary
           and extract the author's name from the document metadata.
         },
         'License' => MSF_LICENSE,
-        'Author' => 'bcoles'
+        'Author' => 'bcoles',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

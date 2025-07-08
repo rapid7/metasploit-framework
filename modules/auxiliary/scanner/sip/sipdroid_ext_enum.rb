@@ -20,7 +20,12 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['BID', '47710'],
           ['URL', 'https://seclists.org/fulldisclosure/2011/May/83'],
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

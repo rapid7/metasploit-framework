@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2015-2065'],
           [ 'WPVDB', '7793' ]
         ],
-        'DisclosureDate' => '2015-02-24'
+        'DisclosureDate' => '2015-02-24',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
   end

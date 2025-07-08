@@ -42,7 +42,12 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DisclosureDate' => '2014-09-24',
         'License' => MSF_LICENSE,
-        'Notes' => { 'AKA' => ['Shellshock'] }
+        'Notes' => {
+          'AKA' => ['Shellshock'],
+          'Stability' => UNKNOWN_STABILITY,
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

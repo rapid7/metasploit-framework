@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'Platform' => ['win', 'linux'],
         'Privileged' => false,
-        'DisclosureDate' => '2014-02-28'
+        'DisclosureDate' => '2014-02-28',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

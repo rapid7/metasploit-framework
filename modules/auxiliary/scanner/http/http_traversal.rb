@@ -46,7 +46,12 @@ class MetasploitModule < Msf::Auxiliary
           ['DOWNLOAD', 'Description' => 'Attempt to download files after brute forcing a trigger'],
           ['PHPSOURCE', 'Description' => 'Attempt to retrieve php source code files']
         ],
-        'DefaultAction' => 'CHECK'
+        'DefaultAction' => 'CHECK',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

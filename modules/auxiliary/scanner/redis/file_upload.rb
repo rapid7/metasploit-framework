@@ -30,7 +30,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://redis.io/topics/protocol']
         ],
         'Privileged' => true,
-        'DisclosureDate' => '2015-11-11'
+        'DisclosureDate' => '2015-11-11',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

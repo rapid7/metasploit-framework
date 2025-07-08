@@ -55,6 +55,8 @@ RankingName         =
 # Stability traits
 #
 
+# Module stability is unknown - this is a sentinel value, and is not a valid stability enum value
+UNKNOWN_STABILITY      = ['unknown-stability']
 # Module should not crash the service.
 CRASH_SAFE             = 'crash-safe'
 # Module may crash the service, but the service restarts.
@@ -74,6 +76,8 @@ OS_RESOURCE_LOSS       = 'os-resource-loss'
 # Side-effect traits
 #
 
+# Module side effects is unknown - this is a sentinel value, and is not a valid side effect enum value
+UNKNOWN_SIDE_EFFECTS = ['unknown-side-effects']
 # Modules leaves a payload or a dropper on the target machine.
 ARTIFACTS_ON_DISK = 'artifacts-on-disk'
 # Module modifies some configuration setting on the target machine.
@@ -95,6 +99,8 @@ PHYSICAL_EFFECTS  = 'physical-effects'
 # Reliability
 #
 
+# Module reliability is unknown - this is a sentinel value, and is not a valid reliability enum value
+UNKNOWN_RELIABILITY = ['unknown-reliability']
 # The module tends to fail to get a session on the first attempt.
 FIRST_ATTEMPT_FAIL = 'first-attempt-fail'
 # The module is expected to get a shell every time it runs.

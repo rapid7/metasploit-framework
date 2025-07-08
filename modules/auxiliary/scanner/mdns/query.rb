@@ -20,7 +20,12 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [
           'Jon Hart <jon_hart[at]rapid7.com>'
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
   end

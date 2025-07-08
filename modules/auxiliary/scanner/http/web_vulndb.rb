@@ -18,7 +18,12 @@ class MetasploitModule < Msf::Auxiliary
           This module identifies common vulnerable files or cgis.
         },
         'Author' => [ 'et' ],
-        'License'	=> BSD_LICENSE
+        'License'	=> BSD_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

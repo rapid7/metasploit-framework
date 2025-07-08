@@ -30,7 +30,12 @@ class MetasploitModule < Msf::Auxiliary
           'Oliver Gruskovnjak'
         ],
         'License' => MSF_LICENSE,
-        'DisclosureDate' => '2014-02-28'
+        'DisclosureDate' => '2014-02-28',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 
