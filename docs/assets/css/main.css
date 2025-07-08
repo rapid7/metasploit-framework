@@ -5,6 +5,11 @@
     text-align: justify;
 }
 
+/* Site logo */
+.title-logo {
+    width: 220px;
+}
+
 /* Color highlighting for msf console text */
 .language-mermaid .label {
     text-transform: inherit;
