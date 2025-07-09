@@ -352,7 +352,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless res.body =~ /input type="password" id="LogBox" name="([^"]+)"/
-      vprint_error('Failed to extract login form LogBox name. Some models do not have an initial password set. Visit the web interface to exhamine further.')
+      vprint_error('Failed to extract login form LogBox name. Some models do not have an initial password set. Visit the web interface to examine further.')
       return Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
     end
 
