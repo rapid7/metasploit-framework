@@ -31,7 +31,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'US-CERT-VU', '121036' ],
           [ 'URL', 'https://seclists.org/fulldisclosure/2014/Oct/34' ]
         ],
-        'DisclosureDate' => '2014-10-07'
+        'DisclosureDate' => '2014-10-07',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
     register_options(

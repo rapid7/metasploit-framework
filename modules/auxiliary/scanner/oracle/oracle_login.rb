@@ -31,7 +31,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://www.oracle.com/database/' ],
           [ 'CVE', '1999-0502'], # Weak password CVE
           [ 'URL', 'https://nmap.org/nsedoc/scripts/oracle-brute.html']
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

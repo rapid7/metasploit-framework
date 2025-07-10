@@ -30,7 +30,12 @@ class MetasploitModule < Msf::Auxiliary
           'SSL' => true
         },
         'License' => MSF_LICENSE,
-        'DisclosureDate' => '2013-12-27'
+        'DisclosureDate' => '2013-12-27',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

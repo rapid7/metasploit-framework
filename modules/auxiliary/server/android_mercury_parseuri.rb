@@ -32,7 +32,12 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           [ 'URL', 'http://rotlogix.com/2015/08/23/exploiting-the-mercury-browser-for-android/' ],
           [ 'URL', 'http://versprite.com/og/multiple-vulnerabilities-in-mercury-browser-for-android-version-3-0-0/' ]
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

@@ -31,7 +31,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://bugtraq.securityfocus.com/archive/1/525045/30/30/threaded'],
           [ 'URL', 'http://www.ethicalhack3r.co.uk/security/introduction-to-the-wordpress-xml-rpc-api/'],
           [ 'URL', 'https://github.com/FireFart/WordpressPingbackPortScanner']
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

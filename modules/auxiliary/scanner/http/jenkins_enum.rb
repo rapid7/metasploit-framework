@@ -24,7 +24,12 @@ class MetasploitModule < Msf::Auxiliary
           host operating system and Jenkins installation details.
         },
         'Author' => 'Jeff McCutchan',
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

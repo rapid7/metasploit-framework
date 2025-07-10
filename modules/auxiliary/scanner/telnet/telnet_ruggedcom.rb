@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Auxiliary
           'Borja Merino <bmerinofe[at]gmail.com>',
           'jc' # ExploitDB PoC
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

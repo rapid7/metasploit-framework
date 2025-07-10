@@ -29,7 +29,12 @@ class MetasploitModule < Msf::Auxiliary
           'Pedro Andujar <pandujar[at]segfault.es>', # Metasploit Module
           'Jose A. Guasch <jaguasch[at]gmail.com>', # Metasploit Module
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

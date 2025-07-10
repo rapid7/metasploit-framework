@@ -272,20 +272,28 @@ class Core
   def cmd_banner(*args)
     banner  = "%cya" + Banner.to_s + "%clr\n\n"
 
-    stats       = framework.stats
-    version     = "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
-    exp_aux_pos = "#{stats.num_exploits} exploits - #{stats.num_auxiliary} auxiliary - #{stats.num_post} post",
-    pay_enc_nop = "#{stats.num_payloads} payloads - #{stats.num_encoders} encoders - #{stats.num_nops} nops",
-    eva         = "#{stats.num_evasion} evasion",
-    padding     = 48
+    stats = framework.stats
+    version = "%yelmetasploit v#{Metasploit::Framework::VERSION}%clr",
+    stats_line_1 = [
+      "#{stats.num_exploits.to_fs(:delimited)} exploits",
+      "#{stats.num_auxiliary.to_fs(:delimited)} auxiliary",
+      "#{stats.num_payloads.to_fs(:delimited)} payloads"
+    ].join(' - ')
+    stats_line_2 = [
+      "#{stats.num_post.to_fs(:delimited)} post",
+      "#{stats.num_encoders.to_fs(:delimited)} encoders",
+      "#{stats.num_nops.to_fs(:delimited)} nops",
+      "#{stats.num_evasion.to_fs(:delimited)} evasion"
+    ].join(' - ')
+    padding = 54
 
     banner << ("       =[ %-#{padding+8}s]\n" % version)
-    banner << ("+ -- --=[ %-#{padding}s]\n" % exp_aux_pos)
-    banner << ("+ -- --=[ %-#{padding}s]\n" % pay_enc_nop)
-    banner << ("+ -- --=[ %-#{padding}s]\n" % eva)
+    banner << ("+ -- --=[ %-#{padding}s]\n" % stats_line_1)
+    banner << ("+ -- --=[ %-#{padding}s]\n" % stats_line_2)
 
     banner << "\n"
     banner << Rex::Text.wordwrap('Metasploit Documentation: https://docs.metasploit.com/', indent = 0, cols = 60)
+    banner << Rex::Text.wordwrap('The Metasploit Framework is a Rapid7 Open Source Project', indent = 0, cols = 60)
 
     # Display the banner
     print_line(banner)

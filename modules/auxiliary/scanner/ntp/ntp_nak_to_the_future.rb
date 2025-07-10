@@ -36,7 +36,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://www.cisco.com/c/en/us/support/docs/availability/high-availability/19643-ntpm.html' ],
           [ 'URL', 'https://support.ntp.org/bin/view/Main/NtpBug2941' ],
           [ 'CVE', '2015-7871' ]
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
   end

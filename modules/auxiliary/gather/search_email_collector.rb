@@ -18,7 +18,12 @@ class MetasploitModule < Msf::Auxiliary
           valid email addresses for the target domain.
         },
         'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

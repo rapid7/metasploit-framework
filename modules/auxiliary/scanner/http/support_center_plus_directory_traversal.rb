@@ -30,7 +30,12 @@ class MetasploitModule < Msf::Auxiliary
           ['BID', '65199'],
           ['PACKETSTORM', '124975']
         ],
-        'DisclosureDate' => '2014-01-28'
+        'DisclosureDate' => '2014-01-28',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

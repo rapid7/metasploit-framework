@@ -24,7 +24,12 @@ class MetasploitModule < Msf::Auxiliary
           ['READ', { 'Description' => 'Read values from PLC memory' } ],
           ['WRITE', { 'Description' => 'Write values to PLC memory' } ]
         ],
-        'DefaultAction' => 'READ'
+        'DefaultAction' => 'READ',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

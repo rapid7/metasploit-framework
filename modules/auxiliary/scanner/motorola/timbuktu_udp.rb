@@ -18,7 +18,12 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Author' => ['MC'],
         'License' => MSF_LICENSE,
-        'DisclosureDate' => '2009-09-25'
+        'DisclosureDate' => '2009-09-25',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

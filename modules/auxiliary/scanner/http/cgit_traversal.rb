@@ -28,7 +28,12 @@ class MetasploitModule < Msf::Auxiliary
           'Dhiraj Mishra' # Metasploit module
         ],
         'DisclosureDate' => '2018-08-03',
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

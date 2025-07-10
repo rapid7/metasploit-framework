@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           [ 'URL', 'https://wiki.jenkins-ci.org/display/JENKINS/Auto-discovering+Jenkins+on+the+network' ]
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
     deregister_udp_options

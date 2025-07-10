@@ -24,7 +24,12 @@ class MetasploitModule < Msf::Auxiliary
           'Nicholas Starke (The King Pig Demon)' # msf module
         ],
         'DisclosureDate' => '2019-09-24',
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2016-5810'],
           ['URL', 'https://github.com/rapid7/metasploit-framework/pull/7859#issuecomment-274305229']
         ],
-        'DisclosureDate' => '2017-01-21'
+        'DisclosureDate' => '2017-01-21',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

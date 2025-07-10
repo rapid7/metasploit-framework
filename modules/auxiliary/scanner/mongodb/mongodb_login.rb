@@ -23,7 +23,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst/' ]
         ],
         'Author' => [ 'Gregory Man <man.gregory[at]gmail.com>' ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

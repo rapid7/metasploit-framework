@@ -30,7 +30,12 @@ class MetasploitModule < Msf::Auxiliary
           ['BOOTSTRAP', 'Description' => 'Use a Kademlia2 BOOTSTRAP'],
           ['PING', 'Description' => 'Use a Kademlia2 PING']
         ],
-        'DefaultAction' => 'BOOTSTRAP'
+        'DefaultAction' => 'BOOTSTRAP',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

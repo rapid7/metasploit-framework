@@ -40,7 +40,12 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2015-0922'],
           ['URL', 'https://seclists.org/fulldisclosure/2015/Jan/8']
         ],
-        'DisclosureDate' => '2015-01-06'
+        'DisclosureDate' => '2015-01-06',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

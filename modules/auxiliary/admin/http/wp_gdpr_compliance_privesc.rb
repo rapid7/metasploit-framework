@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
           The Wordpress GDPR Compliance plugin <= v1.4.2 allows unauthenticated users to set
           wordpress administration options by overwriting values within the database.
 
-          The vulnerability is present in WordPress’s admin-ajax.php, which allows unauthorized
+          The vulnerability is present in WordPress's admin-ajax.php, which allows unauthorized
           users to trigger handlers and make configuration changes because of a failure to do
           capability checks when executing the 'save_setting' internal action.
 

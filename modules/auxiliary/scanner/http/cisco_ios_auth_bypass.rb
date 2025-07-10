@@ -33,7 +33,12 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2001-0537'],
           [ 'OSVDB', '578' ],
         ],
-        'DisclosureDate' => '2001-06-27'
+        'DisclosureDate' => '2001-06-27',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
   end

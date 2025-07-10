@@ -33,7 +33,12 @@ class MetasploitModule < Msf::Auxiliary
         'Actions' => [
           ['SCAN', 'Description' => 'Scan for instances communicating via Smart Install Protocol (default)'],
           ['DOWNLOAD', 'Description' => 'Retrieve configuration via Smart Install Protocol']
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

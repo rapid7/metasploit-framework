@@ -22,7 +22,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://www.wooyun.org/bugs/wooyun-2010-0145458']
         ],
         'Author' => ['Nixawk'],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 

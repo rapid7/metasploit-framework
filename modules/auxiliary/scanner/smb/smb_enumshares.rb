@@ -40,6 +40,11 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'DefaultOptions' => {
           'DCERPC::fake_bind_multi' => false
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )

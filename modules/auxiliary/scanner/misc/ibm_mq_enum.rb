@@ -15,7 +15,12 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'Identify Queue Manager Name and MQ Version',
         'Description' => 'Run this auxiliary against the listening port of an IBM MQ Queue Manager to identify its name and version. Any channel type can be used to get this information as long as the name of the channel is valid.',
         'Author' => [ 'Petros Koutroumpis' ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
     register_options(

@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Encoder
       'Name' => 'PHP Minify Encoder',
       'Description' => %q{
         This encoder minifies a PHP payload by removing leasing spaces, trailing
-        new lines, comments, …
+        new lines, comments, ...
       },
       'Author' => 'Julien Voisin',
       'License' => BSD_LICENSE,

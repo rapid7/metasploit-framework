@@ -31,7 +31,10 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2017-09-18',
         'License' => MSF_LICENSE,
         'Notes' => {
-          'AKA' => ['Optionsbleed']
+          'AKA' => ['Optionsbleed'],
+          'Stability' => UNKNOWN_STABILITY,
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
       )
     )
