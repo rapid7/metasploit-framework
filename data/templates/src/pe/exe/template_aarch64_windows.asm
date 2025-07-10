@@ -10,6 +10,14 @@
 ;    LINK.exe template_aarch64_windows.obj /SUBSYSTEM:WINDOWS /ENTRY:main /NODEFAULTLIB kernel32.lib /OUT:template_aarch64_windows.exe
 ;
 ;
+; --- Cross Compilation (Microsoft Visual Studio Build Tools) ---
+; 1. Locate Cross Compiler Tools and Libraries
+;     In this case: C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\bin\Hostx64\arm64\
+;     And: C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\arm64
+; 2. Assemble:
+;    "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\bin\Hostx64\arm64\armasm64.exe" -o template_aarch64_windows.obj template_aarch64_windows.asm
+; 3. Link:
+;    "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\bin\Hostx64\arm64\link.exe"  template_aarch64_windows.obj /LIBPATH:"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\arm64" /MACHINE:ARM64 /SUBSYSTEM:WINDOWS /ENTRY:main /NODEFAULTLIB kernel32.lib /OUT:template_aarch64_windows.exe
         AREA    |.text|, CODE, READONLY
 
 ; Import the Win32 functions we need from kernel32.dll
