@@ -487,7 +487,6 @@ class MetasploitModule < Msf::Auxiliary
     esc9_templates = query_ldap_server(esc9_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
     esc9_templates.each do |template|
       certificate_symbol = template[:cn][0].to_sym
-      next unless template[:cn].first == 'ESC9-Template-Group-Inheritance-Enroll-Test'
 
       enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
 
