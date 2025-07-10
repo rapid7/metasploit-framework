@@ -1,7 +1,10 @@
 # -*- coding: binary -*-
 
-# Concerns reloading modules
-
+# Msf::ModuleManager::Reloading
+#
+# Provides methods for reloading Metasploit modules (including payloads,
+# stagers, adapters, stages, etc.), clearing out old aliases, and
+# refreshing the module cache.
 module Msf::ModuleManager::Reloading
   # Reloads the module specified in mod.  This can either be an instance of a module or a module class.
   #
@@ -15,7 +18,7 @@ module Msf::ModuleManager::Reloading
       metasploit_class = mod
     end
 
-    if aliased_as = inv_aliases[metasploit_class.fullname]
+    if (aliased_as = inv_aliases[metasploit_class.fullname])
       aliased_as.each do |a|
         aliases.delete a
       end
@@ -26,7 +29,7 @@ module Msf::ModuleManager::Reloading
       return reload_payload_module(mod)
     end
 
-    if aliased_as = inv_aliases[metasploit_class.fullname]
+    if (aliased_as = inv_aliases[metasploit_class.fullname])
       aliased_as.each do |a|
         aliases.delete a
       end
