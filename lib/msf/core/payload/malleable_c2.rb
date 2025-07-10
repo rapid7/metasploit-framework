@@ -128,6 +128,24 @@ module Msf::Payload::MalleableC2
       sec
     end
 
+    def uris
+      base_uri = self.get_set('uri')
+      get_uri = nil
+      post_uri = nil
+
+      self.get_section('http-get') {|http_get|
+        get_uri = http_get.get_set('uri')
+      }
+      self.get_section('http-post') {|http_post|
+        post_uri = http_post.get_set('uri')
+      }
+      STDERR.puts("base uri: #{base_uri}\n")
+      STDERR.puts("get uri: #{get_uri}\n")
+      STDERR.puts("post uri: #{post_uri}\n")
+
+      [base_uri, get_uri, post_uri].compact
+    end
+
     def to_tlv
       tlv = MET::GroupTlv.new(MET::TLV_TYPE_C2)
 
@@ -137,7 +155,19 @@ module Msf::Payload::MalleableC2
       self.get_section('http-get') {|http_get|
         get_tlv = MET::GroupTlv.new(MET::TLV_TYPE_C2_GET)
         get_uri = http_get.get_set('uri') || c2_uri
-        http_get.get_section('client') {|client| self.add_http_tlv(get_uri, client, get_tlv)}
+        http_get.get_section('client') {|client|
+          self.add_http_tlv(get_uri, client, get_tlv)
+          client.get_section('metadata') {|meta|
+            enc_flags = 0
+            enc_flags |= MET::C2_ENCODING_FLAG_B64 if meta.has_directive('base64')
+            enc_flags |= MET::C2_ENCODING_FLAG_B64URL if meta.has_directive('base64url')
+
+            get_tlv.add_tlv(MET::TLV_TYPE_C2_ENC, enc_flags) if enc_flags != 0
+            get_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_GET, meta.get_directive('parameter')[0]) if meta.has_directive('parameter')
+            get_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_HEADER, meta.get_directive('header')[0]) if meta.has_directive('header')
+            # assume uri-append for POST otherwise.
+          }
+        }
         # TODO: add client config to server and vice versa
         tlv.tlvs << get_tlv
       }
@@ -153,12 +183,20 @@ module Msf::Payload::MalleableC2
             enc_flags = 0
             enc_flags |= MET::C2_ENCODING_FLAG_B64 if client_output.has_directive('base64')
             enc_flags |= MET::C2_ENCODING_FLAG_B64URL if client_output.has_directive('base64url')
+
             post_tlv.add_tlv(MET::TLV_TYPE_C2_ENC, enc_flags) if enc_flags != 0
 
             prepend_data = client_output.get_directive('prepend').map{|d|d.args[0]}.reverse.join("")
             post_tlv.add_tlv(MET::TLV_TYPE_C2_PREFIX, prepend_data) unless prepend_data.empty?
             append_data = client_output.get_directive('append').map{|d|d.args[0]}.join("")
             post_tlv.add_tlv(MET::TLV_TYPE_C2_SUFFIX, append_data) unless append_data.empty?
+          }
+
+          client.get_section('id') {|client_id|
+            post_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_GET, client_id.get_directive('parameter')[0]) if client_id.has_directive('parameter')
+            post_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_HEADER, client_id.get_directive('header')[0]) if client_id.has_directive('header')
+            # assume uri-append for POST otherwise given that we always put the TLV payload in the body?
+            # TODO: add support for adding a form rather than just a payload body?
           }
         }
 

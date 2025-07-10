@@ -179,26 +179,43 @@ module ReverseHttp
     (ssl?) ? 'https' : 'http'
   end
 
-  # The local URI for the handler.
-  #
-  # @return [String] Representation of the URI to listen on.
-  def luri
-    l = datastore['LURI'] || ""
+  def construct_luri(base_uri)
 
-    if l && l.length > 0
+    if base_uri && base_uri.length > 0
       # strip trailing slashes
-      while l[-1, 1] == '/'
-        l = l[0...-1]
+      while base_uri[-1, 1] == '/'
+        base_uri = base_uri[0...-1]
       end
 
       # make sure the luri has the prefix
-      if l[0, 1] != '/'
-        l = "/#{l}"
+      if base_uri[0, 1] != '/'
+        base_uri = "/#{base_uri}"
       end
 
     end
 
-    l.dup
+    base_uri.dup
+  end
+
+  # The local URI for the handler.
+  #
+  # @return [String] Representation of the URI to listen on.
+  def luri
+    construct_luri(datastore['LURI'] || "")
+  end
+
+  def all_uris
+    all = [luri]
+    c2_profile = datastore['MALLEABLEC2'] || ''
+
+    unless c2_profile.empty?
+      parser = Msf::Payload::MalleableC2::Parser.new
+      profile = parser.parse(c2_profile)
+      uris = profile.uris.map {|u| construct_luri(u)}
+      all.push(*uris)
+    end
+
+    all
   end
 
   # Create an HTTP listener
@@ -238,13 +255,15 @@ module ReverseHttp
     self.service.server_name = datastore['HttpServerName']
 
     # Add the new resource
-    resource_path = (luri + "/").gsub("//", "/")
-    service.add_resource(resource_path,
-      'Proc' => Proc.new { |cli, req|
-        on_request(cli, req)
-      },
-      'VirtualDirectory' => true)
-    self.resource_added = true
+    all_uris.each {|u|
+      r = (u + "/").gsub("//", "/")
+      service.add_resource(r,
+        'Proc' => Proc.new { |cli, req|
+          on_request(cli, req)
+        },
+        'VirtualDirectory' => true)
+    }
+    @resources_added = true
 
     print_status("Started #{scheme.upcase} reverse handler on #{listener_uri(local_addr)}")
     lookup_proxy_settings
@@ -260,9 +279,12 @@ module ReverseHttp
   #
   def stop_handler
     if self.service
-      if self.resource_added
-        self.service.remove_resource((luri + "/").gsub("//", "/"))
-        self.resource_added = false
+      if @resources_added
+        all_uris.each {|u|
+          r = (u + "/").gsub("//", "/")
+          self.service.remove_resource(r)
+        }
+        @resources_added = false
       end
       self.service.deref
       self.service = nil
@@ -270,7 +292,6 @@ module ReverseHttp
   end
 
   attr_accessor :service # :nodoc:
-  attr_accessor :resource_added # :nodoc:
 
 protected
 

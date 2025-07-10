@@ -143,12 +143,15 @@ TLV_TYPE_C2_POST               = TLV_META_TYPE_GROUP  | 714 # A grouping of para
 TLV_TYPE_C2_OTHER_HEADERS      = TLV_META_TYPE_STRING | 715 # Custom headers
 TLV_TYPE_C2_UA                 = TLV_META_TYPE_STRING | 716 # User agent
 TLV_TYPE_C2_CERT_HASH          = TLV_META_TYPE_RAW    | 717 # Expected SSL certificate hash
-TLV_TYPE_C2_PREFIX             = TLV_META_TYPE_STRING | 718 # Data to prepend to the outgoing payload
-TLV_TYPE_C2_SUFFIX             = TLV_META_TYPE_STRING | 719 # Data to append to the outgoing payload
+TLV_TYPE_C2_PREFIX             = TLV_META_TYPE_RAW    | 718 # Data to prepend to the outgoing payload
+TLV_TYPE_C2_SUFFIX             = TLV_META_TYPE_RAW    | 719 # Data to append to the outgoing payload
 TLV_TYPE_C2_ENC                = TLV_META_TYPE_UINT   | 720 # Request encoding flags (Base64|URL|Base64url)
 TLV_TYPE_C2_SKIP_COUNT         = TLV_META_TYPE_UINT   | 721 # Number of bytes of the incoming payload to ignore before parsing
 TLV_TYPE_C2_REFERRER           = TLV_META_TYPE_STRING | 722 # Referrer string
 TLV_TYPE_C2_ACCEPT_TYPES       = TLV_META_TYPE_STRING | 723 # Accept types string
+TLV_TYPE_C2_UUID_COOKIE        = TLV_META_TYPE_STRING | 724 # Name of the cookie to put the UUID in
+TLV_TYPE_C2_UUID_GET           = TLV_META_TYPE_STRING | 725 # Name of the GET parameter to put the UUID in
+TLV_TYPE_C2_UUID_HEADER        = TLV_META_TYPE_STRING | 726 # Name of the header to put the UUID in
 
 #
 # C2 Encoding flags

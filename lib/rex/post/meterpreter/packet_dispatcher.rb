@@ -710,16 +710,18 @@ protected
 end
 
 module HttpPacketDispatcher
+  def connection_uuid
+    self.conn_id.to_s.split('?')[0].split('/').compact.last.gsub(/(^\/|\/$)/, '')
+  end
+
   def initialize_passive_dispatcher
     super
 
-    # Ensure that there is only one leading and trailing slash on the URI
-    resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
     self.passive_service = self.passive_dispatcher
-    self.passive_service.remove_resource(resource_uri)
-    self.passive_service.add_resource(resource_uri,
+    self.passive_service.remove_resource(self.connection_uuid)
+    self.passive_service.add_resource(self.connection_uuid,
       'Proc'             => Proc.new { |cli, req| on_passive_request(cli, req) },
-      'VirtualDirectory' => true
+      'VirtualDirectory' => true,
     )
 
     # Add a reference count to the handler
@@ -728,9 +730,7 @@ module HttpPacketDispatcher
 
   def shutdown_passive_dispatcher
     if self.passive_service
-      # Ensure that there is only one leading and trailing slash on the URI
-      resource_uri = "/" + self.conn_id.to_s.gsub(/(^\/|\/$)/, '') + "/"
-      self.passive_service.remove_resource(resource_uri) if self.passive_service
+      self.passive_service.remove_resource(self.connection_uuid) if self.passive_service
 
       self.passive_service.deref
       self.passive_service = nil
