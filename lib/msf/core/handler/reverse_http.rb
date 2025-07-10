@@ -179,26 +179,43 @@ module ReverseHttp
     (ssl?) ? 'https' : 'http'
   end
 
-  # The local URI for the handler.
-  #
-  # @return [String] Representation of the URI to listen on.
-  def luri
-    l = datastore['LURI'] || ""
+  def construct_luri(base_uri)
 
-    if l && l.length > 0
+    if base_uri && base_uri.length > 0
       # strip trailing slashes
-      while l[-1, 1] == '/'
-        l = l[0...-1]
+      while base_uri[-1, 1] == '/'
+        base_uri = base_uri[0...-1]
       end
 
       # make sure the luri has the prefix
-      if l[0, 1] != '/'
-        l = "/#{l}"
+      if base_uri[0, 1] != '/'
+        base_uri = "/#{base_uri}"
       end
 
     end
 
-    l.dup
+    base_uri.dup
+  end
+
+  # The local URI for the handler.
+  #
+  # @return [String] Representation of the URI to listen on.
+  def luri
+    construct_luri(datastore['LURI'] || "")
+  end
+
+  def all_uris
+    all = [luri]
+    c2_profile = datastore['MALLEABLEC2'] || ''
+
+    unless c2_profile.empty?
+      parser = Msf::Payload::MalleableC2::Parser.new
+      profile = parser.parse(c2_profile)
+      uris = profile.uris.map {|u| construct_luri(u)}
+      all.push(*uris)
+    end
+
+    all
   end
 
   # Create an HTTP listener
@@ -238,11 +255,14 @@ module ReverseHttp
     self.service.server_name = datastore['HttpServerName']
 
     # Add the new resource
-    service.add_resource((luri + "/").gsub("//", "/"),
-      'Proc' => Proc.new { |cli, req|
-        on_request(cli, req)
-      },
-      'VirtualDirectory' => true)
+    all_uris.each {|u|
+      r = (u + "/").gsub("//", "/")
+      service.add_resource(r,
+        'Proc' => Proc.new { |cli, req|
+          on_request(cli, req)
+        },
+        'VirtualDirectory' => true)
+    }
 
     print_status("Started #{scheme.upcase} reverse handler on #{listener_uri(local_addr)}")
     lookup_proxy_settings
@@ -258,7 +278,10 @@ module ReverseHttp
   #
   def stop_handler
     if self.service
-      self.service.remove_resource((luri + "/").gsub("//", "/"))
+      all_uris.each {|u|
+        r = (u + "/").gsub("//", "/")
+        self.service.remove_resource(r)
+      }
       self.service.deref
       self.service = nil
     end
@@ -313,6 +336,12 @@ protected
   def on_request(cli, req)
     Thread.current[:cli] = cli
     resp = Rex::Proto::Http::Response.new
+
+    # TODO OJ - look for C2 profile, if associated, get settings to see if
+    # UUID is stashed in other locations like cookies/headers. This might
+    # have to happen during the resource lookup instead of here, and
+    # when on_request is called we pass the UUID in, if found
+
     info = process_uri_resource(req.relative_resource)
     uuid = info[:uuid]
 
@@ -322,14 +351,15 @@ protected
       uuid.platform  ||= self.platform
 
       conn_id = luri
+
+      request_summary = "#{conn_id} with UA '#{req.headers['User-Agent']}'"
+
       if info[:mode] && info[:mode] != :connect
         conn_id << generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
       else
         conn_id << req.relative_resource
         conn_id = conn_id.chomp('/')
       end
-
-      request_summary = "#{conn_id} with UA '#{req.headers['User-Agent']}'"
 
       # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
       if framework.db.active
@@ -405,7 +435,7 @@ protected
           end
         end
 
-        create_session(cli, {
+        session_opts = {
           :passive_dispatcher => self.service,
           :dispatch_ext       => [Rex::Post::Meterpreter::HttpPacketDispatcher],
           :conn_id            => conn_id,
@@ -416,8 +446,9 @@ protected
           :retry_wait         => datastore['SessionRetryWait'].to_i,
           :ssl                => ssl?,
           :payload_uuid       => uuid
-        })
+        }
 
+        create_session(cli, session_opts)
       else
         unless [:unknown, :unknown_uuid, :unknown_uuid_url].include?(info[:mode])
           print_status("Unknown request to #{request_summary}")

@@ -279,19 +279,32 @@ protected
       cli.keepalive = true
     end
 
-    # Search for the resource handler for the requested URL.  This is pretty
-    # inefficient right now, but we can spruce it up later.
-    p    = nil
-    len  = 0
-    root = nil
+    #STDERR.puts("Resources: #{resources.inspect}\n")
 
-    resources.each_pair { |k, val|
-      if (request.resource =~ /^#{k}/ and k.length > len)
-        p    = val
-        len  = k.length
-        root = k
-      end
-    }
+    # Direct lookup on the last part of the URI, if any, will work
+    # to find a handler based on the connection ID because we don't
+    # ever have IDs that have slashes, so it's not possible to overlap
+    # with handlers of the same name.
+    cid = request.resource.split('?')[0].split('/').compact.last
+    if resources[cid]
+      p = resources[cid]
+      len = cid.length
+      root = request.resource
+    else
+      # Search for the resource handler for the requested URL.  This is pretty
+      # inefficient right now, but we can spruce it up later.
+      p    = nil
+      len  = 0
+      root = nil
+
+      resources.each_pair { |k, val|
+        if (request.resource =~ /^#{k}/ and k.length > len)
+          p    = val
+          len  = k.length
+          root = k
+        end
+      }
+    end
 
     if (p)
       # Create an instance of the handler for this resource
