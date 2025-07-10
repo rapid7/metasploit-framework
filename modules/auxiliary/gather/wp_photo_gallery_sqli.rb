@@ -82,7 +82,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     @sqli ||= get_sqli_object
-    fail_with(Failure::Unknown, GET_SQLI_OBJECT_FAILED_ERROR_MSG) if @sqli == GET_SQLI_OBJECT_FAILED_ERROR_MSG
+    fail_with(Failure::UnexpectedReply, GET_SQLI_OBJECT_FAILED_ERROR_MSG) if @sqli == GET_SQLI_OBJECT_FAILED_ERROR_MSG
 
     wordpress_sqli_initialize(@sqli)
     wordpress_sqli_get_users_credentials(datastore['COUNT'])
