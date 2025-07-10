@@ -298,6 +298,13 @@ GEM
       rkelly-remix
     json (2.10.2)
     language_server-protocol (3.17.0.5)
+    license_finder (5.11.1)
+      bundler
+      rubyzip (>= 1, < 3)
+      thor
+      toml (= 0.2.0)
+      with_env (= 1.1.0)
+      xml-simple
     lint_roller (1.1.0)
     little-plugger (1.1.4)
     logger (1.6.6)
@@ -390,6 +397,7 @@ GEM
     parser (3.3.8.0)
       ast (~> 2.4.1)
       racc
+    parslet (1.8.2)
     patch_finder (1.0.2)
     pcaprub (0.13.3)
     pdf-reader (2.14.1)
@@ -597,6 +605,8 @@ GEM
     tilt (2.6.0)
     timecop (0.9.10)
     timeout (0.4.3)
+    toml (0.2.0)
+      parslet (~> 1.8.0)
     ttfunk (1.8.0)
       bigdecimal (~> 3.1)
     tzinfo (2.0.6)
@@ -626,9 +636,12 @@ GEM
       nori (~> 2.0, >= 2.7.1)
       rexml (~> 3.0)
       rubyntlm (~> 0.6.0, >= 0.6.3)
+    with_env (1.1.0)
     xdr (3.0.3)
       activemodel (>= 4.2, < 8.0)
       activesupport (>= 4.2, < 8.0)
+    xml-simple (1.1.9)
+      rexml
     xmlrpc (0.3.3)
       webrick
     yard (0.9.37)
@@ -642,6 +655,7 @@ DEPENDENCIES
   debug (>= 1.0.0)
   factory_bot_rails
   fivemat
+  license_finder (= 5.11.1)
   memory_profiler
   metasploit-framework!
   octokit
