@@ -44,12 +44,12 @@ module MetasploitModule
       jmp str
 
     end:
-      push #{length}
+      dw 0x#{length.to_s(16)}6a ; push byte length
       pop rsi
       pop rdi    ; rdi points to the hostname string.
       xor byte [rdi+rsi], 0x41
       syscall
-
+      
       push 60    ; exit() syscall number.
       pop rax
       xor rdi,rdi
