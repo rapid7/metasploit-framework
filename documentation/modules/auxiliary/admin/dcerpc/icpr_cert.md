@@ -61,9 +61,6 @@ Username to request on behalf of. This is in the format `$domain\\$username`.
 
 The digest algorithm to use for cryptographic signing operations.
 
-### STRONG_SID_MAPPING
-*This is an advanced option.*
-
 When set to `true`, the module will use strong URL to SID mapping when requesting a certificate that contains a URL SAN.
 This is done by adding the `tag:microsoft.com,2022-09-14:sid:` part to the SAN which is formatted like so:
 `URL=tag:microsoft.com,2022-09-14:sid:<value>`. This option was introduced to maintain compatibility with older windows

