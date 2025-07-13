@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
-    deregister_options('ALT_SID', 'PFX', 'ON_BEHALF_OF')
+    deregister_options( 'PFX', 'ON_BEHALF_OF')
 
     register_options([
       OptEnum.new('UPDATE_LDAP_OBJECT', [ true, 'Either userPrincipalName or dNSHostName, Updates the necessary object of a specific user before requesting the cert.', 'userPrincipalName', %w[userPrincipalName dNSHostName] ]),
