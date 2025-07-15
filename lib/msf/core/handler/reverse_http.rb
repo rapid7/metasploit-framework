@@ -340,6 +340,12 @@ protected
   def on_request(cli, req)
     Thread.current[:cli] = cli
     resp = Rex::Proto::Http::Response.new
+
+    # TODO OJ - look for C2 profile, if associated, get settings to see if
+    # UUID is stashed in other locations like cookies/headers. This might
+    # have to happen during the resource lookup instead of here, and
+    # when on_request is called we pass the UUID in, if found
+
     info = process_uri_resource(req.relative_resource)
     uuid = info[:uuid]
 
@@ -349,14 +355,15 @@ protected
       uuid.platform  ||= self.platform
 
       conn_id = luri
+
+      request_summary = "#{conn_id} with UA '#{req.headers['User-Agent']}'"
+
       if info[:mode] && info[:mode] != :connect
         conn_id << generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
       else
         conn_id << req.relative_resource
         conn_id = conn_id.chomp('/')
       end
-
-      request_summary = "#{conn_id} with UA '#{req.headers['User-Agent']}'"
 
       # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
       if framework.db.active
@@ -432,7 +439,7 @@ protected
           end
         end
 
-        create_session(cli, {
+        session_opts = {
           :passive_dispatcher => self.service,
           :dispatch_ext       => [Rex::Post::Meterpreter::HttpPacketDispatcher],
           :conn_id            => conn_id,
@@ -442,9 +449,12 @@ protected
           :retry_total        => datastore['SessionRetryTotal'].to_i,
           :retry_wait         => datastore['SessionRetryWait'].to_i,
           :ssl                => ssl?,
-          :payload_uuid       => uuid
-        })
+          :payload_uuid       => uuid,
+          :c2_profile         => datastore['MALLEABLEC2'] || '',
+          :debug_build        => datastore['MeterpreterDebugBuild'] || false,
+        }
 
+        create_session(cli, session_opts)
       else
         unless [:unknown, :unknown_uuid, :unknown_uuid_url].include?(info[:mode])
           print_status("Unknown request to #{request_summary}")

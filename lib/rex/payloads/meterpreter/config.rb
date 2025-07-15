@@ -59,7 +59,6 @@ private
     end
 
     tlv.add_tlv(MET::TLV_TYPE_EXITFUNC, exit_func)
-    STDERR.puts("Sess Exp: #{opts[:expiration]}\n")
     tlv.add_tlv(MET::TLV_TYPE_SESSION_EXPIRY, opts[:expiration])
     tlv.add_tlv(MET::TLV_TYPE_UUID, uuid)
     tlv.add_tlv(MET::TLV_TYPE_SESSION_GUID, session_guid)
