@@ -117,7 +117,7 @@ $template.SetInfo()
 1. The template should now be reported as `Potentially Vulnerable` by the module.
 1. In order to be able to exploit this template run the following Powershell command and ensure `StrongCertificateBindingEnforcement` is not set to `2` (it should be 1, or 0):
 ```powershell
-Set-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\Kdc\" -Name StrongCertificateBindingEnforcement -Value 0
+Set-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\Kdc\" -Name StrongCertificateBindingEnforcement -Value 1
 Get-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\Kdc\" -Name StrongCertificateBindingEnforcement
 ```
 

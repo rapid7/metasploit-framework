@@ -389,11 +389,12 @@ class MetasploitModule < Msf::Auxiliary
     @registry_values ||= {}
 
     endpoint = "http://#{datastore['RHOST']}:5985/wsman"
-    user = datastore['LDAPUsername']
+    domain = adds_get_domain_info(@ldap)[:dns_name]
+    user = adds_get_current_user(@ldap)[:sAMAccountName].first.to_s
     pass = datastore['LDAPPassword']
-
     conn = WinRM::Connection.new(
       endpoint: endpoint,
+      domain: domain,
       user: user,
       password: pass,
       transport: :negotiate
@@ -442,23 +443,22 @@ class MetasploitModule < Msf::Auxiliary
   def find_users_with_write_and_enroll_rights(enroll_sids)
     users = []
     enroll_sids.each do |sid|
-      user_object = adds_get_object_by_sid(@ldap, sid.value)
-      if user_object && user_object[:objectclass]&.include?('user')
-        if (user_object[:ntsecuritydescriptor]) && adds_obj_grants_permissions?(@ldap, user_object, SecurityDescriptorMatcher::Allow.any(%i[WP]))
-          users << user_object[:samaccountname].first
+      ldap_object = adds_get_object_by_sid(@ldap, sid.value)
+      if ldap_object && ldap_object[:objectclass]&.include?('user')
+        if (ldap_object[:ntsecuritydescriptor]) && adds_obj_grants_permissions?(@ldap, ldap_object, SecurityDescriptorMatcher::Allow.any(%i[WP]))
+          users << ldap_object[:samaccountname].first
         end
         next
       end
-      group_object = adds_get_object_by_sid(@ldap, sid.value)
-      next unless group_object && group_object[:objectclass]&.include?('group')
 
-      member_objects = adds_query_group_members(@ldap, group_object[:dn].first, inherited: true).to_a
+      next unless ldap_object && ldap_object[:objectclass]&.include?('group')
+
+      member_objects = adds_query_group_members(@ldap, ldap_object[:dn].first, object_class: 'user', inherited: true).to_a
       member_objects.each do |member_object|
-        next unless member_object && member_object[:objectclass]&.include?('user')
         next unless member_object[:ntsecuritydescriptor]
         next if users.include?(member_object[:samaccountname].first)
 
-        if adds_obj_grants_permissions?(@ldap, user_object, SecurityDescriptorMatcher::Allow.any(%i[WP]))
+        if adds_obj_grants_permissions?(@ldap, ldap_object, SecurityDescriptorMatcher::Allow.any(%i[WP]))
           users << member_object[:samaccountname].first
         end
       end
