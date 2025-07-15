@@ -127,7 +127,7 @@ Later, additional techniques were disclosed by security researchers:
 - ESC16 - Security Extension Disabled on CA (Globally)
   - [ESC16 - Security Extension Disabled on CA](https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation#esc16-security-extension-disabled-on-ca-globally)
 Currently, Metasploit only supports attacking ESC1, ESC2, ESC3, ESC4, ESC8, ESC9, ESC10, ESC13, ESC15 and ESC16.
-As such, this page only covers exploiting that subset of ESC flaws.
+- [[Exploit Steps|attacking-ad-cs-esc-vulnerabilities.md#exploiting-esc16]]
 
 Before continuing, it should be noted that ESC1 is slightly different than ESC2 and ESC3
 as the diagram notes above. This is because in ESC1, one has control over the
