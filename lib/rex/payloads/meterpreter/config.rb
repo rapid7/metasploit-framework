@@ -48,7 +48,6 @@ private
 
   def add_session_tlv(tlv, opts)
     uuid = opts[:uuid].to_raw
-    STDERR.puts("UUID: #{uuid.inspect}\n")
     exit_func = Msf::Payload::Windows.exit_types[opts[:exitfunk]]
 
     # if no session guid is given then we'll just pass the blank
@@ -60,7 +59,6 @@ private
     end
 
     tlv.add_tlv(MET::TLV_TYPE_EXITFUNC, exit_func)
-    STDERR.puts("Sess Exp: #{opts[:expiration]}\n")
     tlv.add_tlv(MET::TLV_TYPE_SESSION_EXPIRY, opts[:expiration])
     tlv.add_tlv(MET::TLV_TYPE_UUID, uuid)
     tlv.add_tlv(MET::TLV_TYPE_SESSION_GUID, session_guid)
@@ -162,7 +160,6 @@ private
     # comms handle needs to have space added, as this is where things are patched by the stager
     comms_handle = "\x00" * 8
     config_bytes = config_packet.to_r
-    STDERR.puts("Config block length: #{config_bytes.length}\n#{config_bytes.inspect}\n")
 
     comms_handle + config_bytes
   end

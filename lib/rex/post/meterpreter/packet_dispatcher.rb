@@ -749,8 +749,9 @@ module HttpPacketDispatcher
     self.last_checkin = ::Time.now
 
     if req.method == 'GET'
-      rpkt = send_queue.shift
-      resp.body = rpkt || ''
+      rpkt = send_queue.shift || ''
+      rpkt = self.wrap_packet(rpkt) if self.respond_to?(:wrap_packet)
+      resp.body = rpkt
       begin
         cli.send_response(resp)
       rescue ::Exception => e
@@ -760,8 +761,10 @@ module HttpPacketDispatcher
     else
       resp.body = ""
       if req.body and req.body.length > 0
+        body = req.body
+        body = self.unwrap_packet(body) if self.respond_to?(:unwrap_packet)
         packet = Packet.new(0)
-        packet.add_raw(req.body)
+        packet.add_raw(body)
         packet.parse_header!
         packet = decrypt_inbound_packet(packet)
         dispatch_inbound_packet(packet)

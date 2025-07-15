@@ -116,6 +116,44 @@ class Client
   end
 
   #
+  # Wrap the given packet data with any prefixes and suffixes that are stored in
+  # the associated C2 profile server configuration (if it exists)
+  #
+  def wrap_packet(raw_bytes)
+    if self.c2_profile
+      # TODO: cache the loaded wrappers to avoid parsing with every packet
+      prepends = self.c2_profile.http_get&.server&.output&.prepend || []
+      prefix = prepends.reverse.map {|p| p.args[0]}.join('')
+      appends = self.c2_profile.http_get&.server&.output&.append || []
+      suffix = appends.map {|p| p.args[0]}.join('')
+      raw_bytes = prefix + raw_bytes + suffix
+    end
+    raw_bytes
+  end
+
+  #
+  # Unwrap the given packet data from any prefixes and suffixes that are stored in
+  # the associated C2 profile client configuration (if it exists)
+  #
+  def unwrap_packet(raw_bytes)
+    if self.c2_profile
+      # TODO: cache the loaded wrappers to avoid parsing with every packet
+      prepends = self.c2_profile.http_post&.client&.output&.prepend || []
+      prefix = prepends.reverse.map {|p| p.args[0]}.join('')
+      unless prefix.empty? || (raw_bytes[0, prefix.length] <=> prefix) != 0
+        raw_bytes = raw_bytes[prefix.length, raw_bytes.length]
+      end
+
+      appends = self.c2_profile.http_post&.client&.output&.append || []
+      suffix = appends.map {|p| p.args[0]}.join('')
+      unless suffix.empty? || (raw_bytes[-suffix.length, raw_bytes.length] <=> suffix) != 0
+        raw_bytes = raw_bytes[0, raw_bytes.length - suffix.length]
+      end
+    end
+    raw_bytes
+  end
+
+  #
   # Initializes the meterpreter client instance
   #
   def init_meterpreter(sock,opts={})
@@ -132,6 +170,11 @@ class Client
     self.conn_id      = opts[:conn_id]
     self.url          = opts[:url]
     self.ssl          = opts[:ssl]
+
+    unless opts[:c2_profile].empty?
+      parser = Msf::Payload::MalleableC2::Parser.new
+      self.c2_profile = parser.parse(opts[:c2_profile])
+    end
 
     self.pivot_session = opts[:pivot_session]
     if self.pivot_session
@@ -499,6 +542,10 @@ class Client
   # The timestamp of the last received response
   #
   attr_accessor :last_checkin
+  #
+  # Reference to the c2 profile instance associated with this connection, if any.
+  #
+  attr_accessor :c2_profile
   #
   # Whether or not to use a debug build for loaded extensions
   #

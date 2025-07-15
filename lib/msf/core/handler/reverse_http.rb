@@ -445,7 +445,9 @@ protected
           :retry_total        => datastore['SessionRetryTotal'].to_i,
           :retry_wait         => datastore['SessionRetryWait'].to_i,
           :ssl                => ssl?,
-          :payload_uuid       => uuid
+          :payload_uuid       => uuid,
+          :c2_profile         => datastore['MALLEABLEC2'] || '',
+          :debug_build        => datastore['MeterpreterDebugBuild'] || false,
         }
 
         create_session(cli, session_opts)

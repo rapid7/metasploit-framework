@@ -112,6 +112,11 @@ module Msf::Payload::MalleableC2
       @sections = []
     end
 
+    def method_missing(name, *args)
+      name = name.to_s.gsub('_', '-')
+      get_section(name) || get_set(name)
+    end
+
     def get_set(key)
       val = @sets.find {|s| s.key == key.downcase}&.value
       if block_given? && !val.nil?
@@ -139,9 +144,6 @@ module Msf::Payload::MalleableC2
       self.get_section('http-post') {|http_post|
         post_uri = http_post.get_set('uri')
       }
-      STDERR.puts("base uri: #{base_uri}\n")
-      STDERR.puts("get uri: #{get_uri}\n")
-      STDERR.puts("post uri: #{post_uri}\n")
 
       [base_uri, get_uri, post_uri].compact
     end
@@ -245,6 +247,11 @@ module Msf::Payload::MalleableC2
       @name = name.downcase
       @entries = []
       @sections = []
+    end
+
+    def method_missing(name, *args)
+      name = name.to_s.gsub('_', '-')
+      get_section(name) || get_directive(name) || get_set(name)
     end
 
     def get_set(key)
