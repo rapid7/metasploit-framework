@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' => [
           ['CVE', '2025-2292'],
-          ['URL', 'https://www.xorcom.com/products/completepbx/'],
+          ['URL', 'https://xorcom.com/new-completepbx-release-5-2-36-1/'],
           ['URL', 'https://chocapikk.com/posts/2025/completepbx/']
         ],
         'Privileged' => true,
