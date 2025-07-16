@@ -21,8 +21,8 @@ class MetasploitModule < Msf::Auxiliary
           in admin-ajax.php.
         },
         'Author' => [
-          'Muhamad Visat',     # Vulnerability Discovery
-          'Valentin Lobstein'  # Metasploit Module
+          'Muhamad Visat',     # Vulnerability discovery
+          'Valentin Lobstein'  # Metasploit module
         ],
         'License' => MSF_LICENSE,
         'References' => [
@@ -31,10 +31,6 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://cloud.projectdiscovery.io/library/CVE-2025-2011'],
           ['URL', 'https://plugins.trac.wordpress.org/browser/depicter/trunk/app/src/Controllers/Ajax/LeadsAjaxController.php?rev=3156664#L179']
         ],
-        'Actions' => [
-          ['SQLi', { 'Description' => 'Perform SQL Injection via admin-ajax.php?s=' }]
-        ],
-        'DefaultAction' => 'SQLi',
         'DefaultOptions' => {
           'VERBOSE' => true,
           'COUNT' => 1
@@ -69,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
           'perpage' => rand(10..50).to_s,
           'page' => rand(1..3).to_s,
           'orderBy' => 'source_id',
-          'order' => ['ASC', 'DESC'].sample,
+          'order' => %w[ASC DESC].sample,
           'dateStart' => '',
           'dateEnd' => '',
           'sources' => ''
