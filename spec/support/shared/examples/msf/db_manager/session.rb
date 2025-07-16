@@ -240,10 +240,19 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
                     nil
                   end
 
+                  let(:service_details) { nil }
+                  let(:target_port) { nil }
+
                   before(:example) do
                     Timecop.freeze
 
                     session.exploit_datastore['RPORT'] = rport
+                    if service_details
+                      allow(session.exploit).to receive(:service_details).and_return(service_details)
+                    end
+                    if target_port
+                      allow(session).to receive(:target_port).and_return(target_port)
+                    end
 
                     report_session
                   end
@@ -322,6 +331,43 @@ RSpec.shared_examples_for 'Msf::DBManager::Session' do
                   context 'without RPORT' do
                     it { expect(subject.service).to be_nil }
                   end
+
+                  context 'with session.exploit implementing #service_details' do
+                    let(:service_details) do
+                        {
+                          :service_name => 'HTTP',
+                          :port => 80,
+                          :protocol => 'tcp'
+                        }
+                    end
+
+                    it 'creates a Mdm::Service with the data provided by #service_details' do
+                      expect(subject.service).to be_present
+                      expect(subject.service).to be_a(Mdm::Service)
+                      expect(subject.service.name).to eq(service_details[:service_name])
+                      expect(subject.service.port).to eq(service_details[:port])
+                      expect(subject.service.proto).to eq(service_details[:protocol])
+                    end
+                  end
+
+                  context 'when service_details does not provide port information and session has a target_port' do
+                    let(:service_details) do
+                        {
+                          :service_name => 'HTTP',
+                          :protocol => 'tcp'
+                        }
+                    end
+                    let(:target_port) { rand(2**16 - 1) }
+
+                    it 'create a service wth port from session.target_port' do
+                      expect(subject.service).to be_present
+                      expect(subject.service).to be_a(Mdm::Service)
+                      expect(subject.service.name).to eq(service_details[:service_name])
+                      expect(subject.service.port).to eq(session.target_port)
+                      expect(subject.service.proto).to eq(service_details[:protocol])
+                    end
+                  end
+
                 end
 
                 context 'created Mdm::ExploitAttempt' do
