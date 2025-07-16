@@ -13,7 +13,6 @@ The vulnerability is identified as **CVE-2025-30005**.
 
 Download the ova file here: [](https://archive.org/details/completepbx-5-2-27-vuln)
 
-
 ## Verification Steps
 
 1. Deploy a vulnerable instance of **Xorcom CompletePBX <= 5.2.35**.
