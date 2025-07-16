@@ -509,7 +509,8 @@ class MetasploitModule < Msf::Auxiliary
     new_configuration = load_local_template
 
     operations = []
-    obj.each do |attribute, value|
+    obj.each do |symbol, value|
+      attribute = symbol.to_s
       next if IGNORED_ATTRIBUTES.any? { |word| word.casecmp?(attribute) }
 
       if new_configuration.keys.any? { |word| word.casecmp?(attribute) }
@@ -526,7 +527,7 @@ class MetasploitModule < Msf::Auxiliary
 
     new_configuration.each_key do |attribute|
       next if IGNORED_ATTRIBUTES.any? { |word| word.casecmp?(attribute) }
-      next if obj.attribute_names.any? { |i| i.casecmp?(attribute) }
+      next if obj.attribute_names.any? { |i| i.to_s.casecmp?(attribute) }
 
       operations << [:add, attribute, new_configuration[attribute]]
     end
