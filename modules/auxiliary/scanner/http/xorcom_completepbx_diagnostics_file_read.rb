@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [true, 'Base path of the CompletePBX instance', '/']),
         OptString.new('USERNAME', [true, 'Username for authentication', 'admin']),
-        OptString.new('PASSWORD', [true, 'Password for authentication', 'admin']),
+        OptString.new('PASSWORD', [true, 'Password for authentication' ]),
         OptString.new('TARGETFILE', [true, 'File to retrieve from the system', '/etc/passwd'])
       ]
     )
