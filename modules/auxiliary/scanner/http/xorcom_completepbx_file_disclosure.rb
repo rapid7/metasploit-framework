@@ -5,7 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Exploit::Remote::HTTP::XorcomCompletePBX
+  include Msf::Exploit::Remote::HTTP::XorcomCompletePbx
   prepend Msf::Exploit::Remote::AutoCheck
 
   def initialize(info = {})
