@@ -205,8 +205,8 @@ GEM
     base64 (0.2.0)
     bcrypt (3.1.20)
     bcrypt_pbkdf (1.1.1)
-    benchmark (0.4.0)
-    bigdecimal (3.1.9)
+    benchmark (0.4.1)
+    bigdecimal (3.2.2)
     bindata (2.4.15)
     bootsnap (1.18.4)
       msgpack (~> 1.2)
@@ -216,7 +216,7 @@ GEM
     chunky_png (1.4.0)
     coderay (1.1.3)
     concurrent-ruby (1.3.4)
-    connection_pool (2.5.0)
+    connection_pool (2.5.3)
     cookiejar (0.3.4)
     crass (1.0.6)
     csv (3.3.2)
@@ -232,7 +232,7 @@ GEM
       simpleidn (~> 0.2.1)
     docile (1.4.1)
     domain_name (0.6.20240107)
-    drb (2.2.1)
+    drb (2.2.3)
     ed25519 (1.3.0)
     elftools (1.3.1)
       bindata (~> 2)
@@ -245,7 +245,7 @@ GEM
     em-socksify (0.3.3)
       base64
       eventmachine (>= 1.0.0.beta.4)
-    erb (5.0.1)
+    erb (5.0.2)
     erubi (1.13.1)
     eventmachine (1.2.7)
     factory_bot (6.5.1)
@@ -288,7 +288,7 @@ GEM
       mutex_m
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
-    io-console (0.8.0)
+    io-console (0.8.1)
     ipaddr (1.2.7)
     irb (1.15.2)
       pp (>= 0.6.0)
@@ -312,15 +312,17 @@ GEM
     logging (2.4.0)
       little-plugger (~> 1.1)
       multi_json (~> 1.14)
-    loofah (2.24.0)
+    loofah (2.24.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     lru_redux (1.1.0)
     memory_profiler (1.1.0)
     metasm (1.0.5)
-    metasploit-concern (5.0.4)
+    metasploit-concern (5.0.5)
       activemodel (~> 7.0)
       activesupport (~> 7.0)
+      drb
+      mutex_m
       railties (~> 7.0)
       zeitwerk
     metasploit-credential (6.0.16)
@@ -337,17 +339,23 @@ GEM
       rex-socket
       rubyntlm
       rubyzip
-    metasploit-model (5.0.3)
+    metasploit-model (5.0.4)
       activemodel (~> 7.0)
       activesupport (~> 7.0)
+      bigdecimal
+      drb
+      mutex_m
       railties (~> 7.0)
     metasploit-payloads (2.0.221)
-    metasploit_data_models (6.0.9)
+    metasploit_data_models (6.0.10)
       activerecord (~> 7.0)
       activesupport (~> 7.0)
       arel-helpers
+      bigdecimal
+      drb
       metasploit-concern
       metasploit-model (>= 3.1)
+      mutex_m
       pg
       railties (~> 7.0)
       recog
@@ -381,7 +389,7 @@ GEM
     network_interface (0.0.4)
     nexpose (7.3.0)
     nio4r (2.7.4)
-    nokogiri (1.18.3)
+    nokogiri (1.18.8)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     nori (2.7.1)
@@ -426,7 +434,7 @@ GEM
     puma (6.6.0)
       nio4r (~> 2.0)
     racc (1.8.1)
-    rack (2.2.13)
+    rack (2.2.17)
     rack-protection (3.2.0)
       base64 (>= 0.1.0)
       rack (~> 2.2, >= 2.2.4)
@@ -437,7 +445,7 @@ GEM
     rackup (1.0.1)
       rack (< 3)
       webrick
-    rails-dom-testing (2.2.0)
+    rails-dom-testing (2.3.0)
       activesupport (>= 5.0.0)
       minitest
       nokogiri (>= 1.6)
@@ -453,14 +461,14 @@ GEM
       thor (~> 1.0, >= 1.2.2)
       zeitwerk (~> 2.6)
     rainbow (3.1.1)
-    rake (13.2.1)
+    rake (13.3.0)
     rasn1 (0.14.0)
       strptime (~> 0.2.5)
     rb-readline (0.5.5)
     rdoc (6.14.2)
       erb
       psych (>= 4.0.0)
-    recog (3.1.14)
+    recog (3.1.17)
       nokogiri
     redcarpet (3.6.1)
     regexp_parser (2.10.0)
@@ -593,7 +601,7 @@ GEM
     sqlite3 (1.7.3)
       mini_portile2 (~> 2.8.0)
     sshkey (3.0.0)
-    stringio (3.1.1)
+    stringio (3.1.7)
     strptime (0.2.5)
     swagger-blocks (3.0.0)
     syslog (0.3.0)
@@ -647,7 +655,7 @@ GEM
     xmlrpc (0.3.3)
       webrick
     yard (0.9.37)
-    zeitwerk (2.7.2)
+    zeitwerk (2.7.3)
 
 PLATFORMS
   ruby
