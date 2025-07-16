@@ -40,7 +40,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        Opt::RPORT(80),
         OptString.new('TARGETURI', [true, 'Base path of the CompletePBX instance', '/']),
         OptString.new('USERNAME', [true, 'Username for authentication', 'admin']),
         OptString.new('PASSWORD', [true, 'Password for authentication', 'admin']),
