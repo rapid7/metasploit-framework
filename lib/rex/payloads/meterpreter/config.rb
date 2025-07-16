@@ -86,9 +86,6 @@ private
       c2_tlv.add_tlv(MET::TLV_TYPE_C2_COMM_TIMEOUT, opts[:comm_timeout])
       c2_tlv.add_tlv(MET::TLV_TYPE_C2_RETRY_TOTAL, opts[:retry_total])
       c2_tlv.add_tlv(MET::TLV_TYPE_C2_RETRY_WAIT, opts[:retry_wait])
-
-      # TODO: make sure all header types/etc are covered.
-
       c2_tlv.add_tlv(MET::TLV_TYPE_C2_UA, opts[:ua]) unless (opts[:ua] || '').empty?
     end
 

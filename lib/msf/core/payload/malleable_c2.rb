@@ -8,6 +8,13 @@
 require 'strscan'
 require 'rex/post/meterpreter/packet'
 
+# Handle escape sequences in the strings provided by the c2 profile
+class String
+  def from_c2_string_value
+    self.gsub(/\\x(..)/) {|b| [b[2, 4].to_i(16)].pack('C')}
+  end
+end
+
 module Msf::Payload::MalleableC2
 
   MET = Rex::Post::Meterpreter
@@ -69,7 +76,6 @@ module Msf::Payload::MalleableC2
     ]
 
     def initialize(file)
-      #@text = text
       @tokens = []
       tokenize(File.read(file))
     end
@@ -148,6 +154,29 @@ module Msf::Payload::MalleableC2
       [base_uri, get_uri, post_uri].compact
     end
 
+    def wrap_outbound_get(raw_bytes)
+      prepends = self.http_get&.server&.output&.prepend || []
+      prefix = prepends.reverse.map {|p| p.args[0]}.join('')
+      appends = self.http_get&.server&.output&.append || []
+      suffix = appends.map {|p| p.args[0]}.join('')
+      prefix + raw_bytes + suffix
+    end
+
+    def unwrap_inbound_post(raw_bytes)
+      prepends = self.http_post&.client&.output&.prepend || []
+      prefix = prepends.reverse.map {|p| p.args[0]}.join('')
+      unless prefix.empty? || (raw_bytes[0, prefix.length] <=> prefix) != 0
+        raw_bytes = raw_bytes[prefix.length, raw_bytes.length]
+      end
+
+      appends = self.http_post&.client&.output&.append || []
+      suffix = appends.map {|p| p.args[0]}.join('')
+      unless suffix.empty? || (raw_bytes[-suffix.length, raw_bytes.length] <=> suffix) != 0
+        raw_bytes = raw_bytes[0, raw_bytes.length - suffix.length]
+      end
+      raw_bytes
+    end
+
     def to_tlv
       tlv = MET::GroupTlv.new(MET::TLV_TYPE_C2)
 
@@ -159,6 +188,11 @@ module Msf::Payload::MalleableC2
         get_uri = http_get.get_set('uri') || c2_uri
         http_get.get_section('client') {|client|
           self.add_http_tlv(get_uri, client, get_tlv)
+
+          prepends = self.http_get&.server&.output&.prepend || []
+          prefix = prepends.reverse.map {|p| p.args[0]}.join('')
+          get_tlv.add_tlv(MET::TLV_TYPE_C2_SKIP_COUNT, prefix.length) unless prefix.length == 0
+
           client.get_section('metadata') {|meta|
             enc_flags = 0
             enc_flags |= MET::C2_ENCODING_FLAG_B64 if meta.has_directive('base64')
@@ -170,7 +204,7 @@ module Msf::Payload::MalleableC2
             # assume uri-append for POST otherwise.
           }
         }
-        # TODO: add client config to server and vice versa
+
         tlv.tlvs << get_tlv
       }
 
@@ -178,8 +212,11 @@ module Msf::Payload::MalleableC2
         post_tlv = MET::GroupTlv.new(MET::TLV_TYPE_C2_POST)
         post_uri = http_post.get_set('uri') || c2_uri
         http_post.get_section('client') {|client|
-          # TODO: add client config to server and vice versa
           self.add_http_tlv(post_uri, client, post_tlv)
+
+          prepends = self.http_get&.server&.output&.prepend || []
+          prefix = prepends.reverse.map {|p| p.args[0]}.join('')
+          post_tlv.add_tlv(MET::TLV_TYPE_C2_SKIP_COUNT, prefix.length) unless prefix.length == 0
 
           client.get_section('output') {|client_output|
             enc_flags = 0
@@ -237,7 +274,7 @@ module Msf::Payload::MalleableC2
     attr_accessor :key, :value
     def initialize(key, value)
       @key = key.downcase
-      @value = value
+      @value = value.from_c2_string_value
     end
   end
 
@@ -285,7 +322,7 @@ module Msf::Payload::MalleableC2
     attr_accessor :type, :args
     def initialize(type, args)
       @type = type.downcase
-      @args = args
+      @args = args.map {|a| a.from_c2_string_value}
     end
   end
 
