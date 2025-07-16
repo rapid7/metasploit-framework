@@ -120,14 +120,7 @@ class Client
   # the associated C2 profile server configuration (if it exists)
   #
   def wrap_packet(raw_bytes)
-    if self.c2_profile
-      # TODO: cache the loaded wrappers to avoid parsing with every packet
-      prepends = self.c2_profile.http_get&.server&.output&.prepend || []
-      prefix = prepends.reverse.map {|p| p.args[0]}.join('')
-      appends = self.c2_profile.http_get&.server&.output&.append || []
-      suffix = appends.map {|p| p.args[0]}.join('')
-      raw_bytes = prefix + raw_bytes + suffix
-    end
+    raw_bytes = self.c2_profile.wrap_outbound_get(raw_bytes) if self.c2_profile
     raw_bytes
   end
 
@@ -136,20 +129,7 @@ class Client
   # the associated C2 profile client configuration (if it exists)
   #
   def unwrap_packet(raw_bytes)
-    if self.c2_profile
-      # TODO: cache the loaded wrappers to avoid parsing with every packet
-      prepends = self.c2_profile.http_post&.client&.output&.prepend || []
-      prefix = prepends.reverse.map {|p| p.args[0]}.join('')
-      unless prefix.empty? || (raw_bytes[0, prefix.length] <=> prefix) != 0
-        raw_bytes = raw_bytes[prefix.length, raw_bytes.length]
-      end
-
-      appends = self.c2_profile.http_post&.client&.output&.append || []
-      suffix = appends.map {|p| p.args[0]}.join('')
-      unless suffix.empty? || (raw_bytes[-suffix.length, raw_bytes.length] <=> suffix) != 0
-        raw_bytes = raw_bytes[0, raw_bytes.length - suffix.length]
-      end
-    end
+    raw_bytes = self.c2_profile.unwrap_inbound_post(raw_bytes) if self.c2_profile
     raw_bytes
   end
 
