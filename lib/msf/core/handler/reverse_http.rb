@@ -408,6 +408,15 @@ protected
         pkt.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_TRANS_URL, conn_id + "/")
         resp.body = pkt.to_r
 
+        # this is gross, but we don't have a "client" yet, and so we have to hard-code nasty packet-wrapping stuff here :(
+        c2_profile = datastore['MALLEABLEC2'] || ''
+
+        unless c2_profile.empty?
+          parser = Msf::Payload::MalleableC2::Parser.new
+          profile = parser.parse(c2_profile)
+          resp.body = profile.wrap_outbound_get(resp.body)
+        end
+
       when :init_python, :init_native, :init_java, :connect
         # TODO: at some point we may normalise these three cases into just :init
 
