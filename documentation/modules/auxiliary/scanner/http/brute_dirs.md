@@ -93,11 +93,11 @@ PORT     STATE SERVICE
 Configure the `brute_dirs` module to use the identified IP address and port number:
 
 ```
-msf5 > use auxiliary/scanner/http/brute_dirs 
-msf5 auxiliary(scanner/http/brute_dirs) > set RHOSTS 192.168.2.3
-msf5 auxiliary(scanner/http/brute_dirs) > set RPORT 8080
+msf > use auxiliary/scanner/http/brute_dirs 
+msf auxiliary(scanner/http/brute_dirs) > set RHOSTS 192.168.2.3
+msf auxiliary(scanner/http/brute_dirs) > set RPORT 8080
 RHOSTS => 192.168.2.3
-msf5 auxiliary(scanner/http/brute_dirs) > run
+msf auxiliary(scanner/http/brute_dirs) > run
 
 [*] Using code '404' as not found.
 [+] Found http://192.168.2.3:8080/dav/ 200
@@ -109,11 +109,11 @@ msf5 auxiliary(scanner/http/brute_dirs) > run
 ### Testing against multiple hosts using a CIDR
 
 ```
-msf5 > use auxiliary/scanner/http/brute_dirs
-msf5 auxiliary(scanner/http/brute_dirs) > show options
+msf > use auxiliary/scanner/http/brute_dirs
+msf auxiliary(scanner/http/brute_dirs) > show options
     ... show and set options ...
-msf5 auxiliary(scanner/http/brute_dirs) > set RHOSTS 192.168.2.1/24
-msf5 auxiliary(scanner/http/brute_dirs) > run
+msf auxiliary(scanner/http/brute_dirs) > set RHOSTS 192.168.2.1/24
+msf auxiliary(scanner/http/brute_dirs) > run
 ```
 
 ### Custom format to find specifically formatted directories
@@ -122,8 +122,8 @@ A format string of `Aaaaad` will search for 6 character directories, starting wi
 digit. E.g.
 
 ```
-msf5 > use auxiliary/scanner/http/brute_dirs 
-msf5 auxiliary(scanner/http/brute_dirs) > set RHOSTS 192.168.2.3
-msf5 auxiliary(scanner/http/brute_dirs) > set FORMAT 'Aaaaad'
-msf5 auxiliary(scanner/http/brute_dirs) > run
+msf > use auxiliary/scanner/http/brute_dirs 
+msf auxiliary(scanner/http/brute_dirs) > set RHOSTS 192.168.2.3
+msf auxiliary(scanner/http/brute_dirs) > set FORMAT 'Aaaaad'
+msf auxiliary(scanner/http/brute_dirs) > run
 ```

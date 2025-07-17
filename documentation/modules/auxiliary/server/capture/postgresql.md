@@ -25,8 +25,8 @@ This module creates a mock PostgreSQL server which accepts credentials.  Upon re
 Server:
 
 ```
-msf5 > use auxiliary/server/capture/postgresql 
-msf5 auxiliary(server/capture/postgresql) > run
+msf > use auxiliary/server/capture/postgresql 
+msf auxiliary(server/capture/postgresql) > run
 [*] Auxiliary module running as background job 0.
 
 [*] Started service listener on 0.0.0.0:5432 

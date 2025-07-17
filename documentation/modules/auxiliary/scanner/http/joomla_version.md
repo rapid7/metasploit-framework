@@ -5,10 +5,10 @@ This module scans for Joomla Content Management System running on a web server.
 ## Usage
 
 ```
-msf5 > use auxiliary/scanner/http/joomla_version 
-msf5 auxiliary(scanner/http/joomla_version) > set rhosts 192.168.2.39
+msf > use auxiliary/scanner/http/joomla_version 
+msf auxiliary(scanner/http/joomla_version) > set rhosts 192.168.2.39
 rhosts => 192.168.2.39
-msf5 auxiliary(scanner/http/joomla_version) > run
+msf auxiliary(scanner/http/joomla_version) > run
 
 [*] Server: Apache/2.4.29 (Ubuntu)
 [+] Joomla version: 3.8.2

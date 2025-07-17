@@ -39,36 +39,36 @@ original IPython Notebook system. This module is compatible with both standard J
 ### Jupyter Notebook 4.3.0 With No Authentication Requirement
 
 ```
-msf5 > use auxiliary/scanner/http/jupyter_login 
-msf5 auxiliary(scanner/http/jupyter_login) > set RHOSTS 192.168.159.128
+msf > use auxiliary/scanner/http/jupyter_login 
+msf auxiliary(scanner/http/jupyter_login) > set RHOSTS 192.168.159.128
 RHOSTS => 192.168.159.128
-msf5 auxiliary(scanner/http/jupyter_login) > set PASS_FILE /tmp/passwords.txt
+msf auxiliary(scanner/http/jupyter_login) > set PASS_FILE /tmp/passwords.txt
 PASS_FILE => /tmp/passwords.txt
-msf5 auxiliary(scanner/http/jupyter_login) > run
+msf auxiliary(scanner/http/jupyter_login) > run
 
 [*] 192.168.159.128:8888 - The server responded that it is running Jupyter version: 4.3.0
 [+] 192.168.159.128:8888 - No password is required.
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/http/jupyter_login) >
+msf auxiliary(scanner/http/jupyter_login) >
 ```
 
 ### Jupyter Notebook 6.0.2 With A Password Set
 
 ```
-msf5 > use auxiliary/scanner/http/jupyter_login 
-msf5 auxiliary(scanner/http/jupyter_login) > set RHOSTS 192.168.159.128
+msf > use auxiliary/scanner/http/jupyter_login 
+msf auxiliary(scanner/http/jupyter_login) > set RHOSTS 192.168.159.128
 RHOSTS => 192.168.159.128
-msf5 auxiliary(scanner/http/jupyter_login) > set PASS_FILE /tmp/passwords.txt
+msf auxiliary(scanner/http/jupyter_login) > set PASS_FILE /tmp/passwords.txt
 PASS_FILE => /tmp/passwords.txt
-msf5 auxiliary(scanner/http/jupyter_login) > run
+msf auxiliary(scanner/http/jupyter_login) > run
 
 [*] 192.168.159.128:8888 - The server responded that it is running Jupyter version: 6.0.2
 [-] 192.168.159.128:8888 - LOGIN FAILED: :Password (Incorrect)
 [+] 192.168.159.128:8888 - Login Successful: :Password1
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/http/jupyter_login) >
+msf auxiliary(scanner/http/jupyter_login) >
 ```
 
 [1]: https://jupyter-notebook.readthedocs.io/en/stable/changelog.html#release-4-3

@@ -19,7 +19,7 @@ The module supports several hosts at the same time.
 IP-Addresses have been masked with x
 
 ```
-msf5 auxiliary(scanner/http/fortinet_ssl_vpn) > run
+msf auxiliary(scanner/http/fortinet_ssl_vpn) > run
 
 [+] xxxx:xxxx:xxxx:xxxx::4:443 - Server is responsive...
 [+] xxxx:xxxx:xxxx:xxxx::4:443 - Application appears to be Fortinet SSL VPN. Module will continue.

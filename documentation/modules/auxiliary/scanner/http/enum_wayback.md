@@ -7,10 +7,10 @@ during a web assessment. Finding unlinked and old pages.  This module utilizes
 ## Usage
 
 ```
-msf5 > use auxiliary/scanner/http/enum_wayback 
-msf5 auxiliary(scanner/http/enum_wayback) > set domain rapid7.com
+msf > use auxiliary/scanner/http/enum_wayback 
+msf auxiliary(scanner/http/enum_wayback) > set domain rapid7.com
 domain => rapid7.com
-msf5 auxiliary(scanner/http/enum_wayback) > run
+msf auxiliary(scanner/http/enum_wayback) > run
 
 [*] Pulling urls from Archive.org
 [*] Located 43656 addresses for rapid7.com

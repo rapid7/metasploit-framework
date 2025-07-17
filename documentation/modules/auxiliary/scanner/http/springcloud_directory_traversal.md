@@ -24,10 +24,10 @@ hyness/spring-cloud-config-server:2.1.6.RELEASE \
 ### Tested against Linux zero 4.15.0-48-generic #51-Ubuntu SMP x86_64 GNU/Linux
 
 ```
-msf5 auxiliary(scanner/http/springcloud_directory_traversal) > run
+msf auxiliary(scanner/http/springcloud_directory_traversal) > run
 
 [+] File saved in: /Users/Dhiraj/.msf4/loot/20200619234552_default_[REDACTED]_springcloud.trav_785232.txt
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/http/springcloud_directory_traversal) > 
+msf auxiliary(scanner/http/springcloud_directory_traversal) > 
 ```

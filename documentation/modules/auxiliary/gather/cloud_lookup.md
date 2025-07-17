@@ -34,9 +34,9 @@ You can use a custom string to perform the comparison.
 
 This is the hostname [fqdn] on which the website responds. But this can also be a domain.
 
-msf5 auxiliary(gather/cloud_lookup) > set hostname www.zataz.com
+msf auxiliary(gather/cloud_lookup) > set hostname www.zataz.com
 --or--
-msf5 auxiliary(gather/cloud_lookup) > set hostname discordapp.com
+msf auxiliary(gather/cloud_lookup) > set hostname discordapp.com
 
 ### IPBLACKLIST_FILE
 
@@ -85,9 +85,9 @@ HTTP(s) request timeout. Default: 8
 If successful, you must be able to obtain the IP(s) address of the website as follows:
 
 ```
-msf5 auxiliary(gather/cloud_lookup) > set verbose true
+msf auxiliary(gather/cloud_lookup) > set verbose true
 verbose => true
-msf5 auxiliary(gather/cloud_lookup) > run
+msf auxiliary(gather/cloud_lookup) > run
 
 [*] Selected action: Amazon CloudFlare
 [*] Passive gathering information...
@@ -124,9 +124,9 @@ parameter of the HTTP header.
 For example:
 
 ```
-msf5 auxiliary(gather/cloud_lookup) > set hostname www.exodata.fr
+msf auxiliary(gather/cloud_lookup) > set hostname www.exodata.fr
 hostname => www.exodata.fr
-msf5 auxiliary(gather/cloud_lookup) > run
+msf auxiliary(gather/cloud_lookup) > run
 
 [*] Selected action: Amazon CloudFlare
 [*] Passive gathering information...
@@ -152,11 +152,11 @@ msf5 auxiliary(gather/cloud_lookup) > run
 *or*
 
 ```
-msf5 auxiliary(gather/cloud_lookup) > set verbose false
+msf auxiliary(gather/cloud_lookup) > set verbose false
 verbose => false
-msf5 auxiliary(gather/cloud_lookup) > set hostname www.ingensecurity.com
+msf auxiliary(gather/cloud_lookup) > set hostname www.ingensecurity.com
 hostname => www.ingensecurity.com
-msf5 auxiliary(gather/cloud_lookup) > run
+msf auxiliary(gather/cloud_lookup) > run
 
 [*] Passive gathering information...
 [*]  * ViewDNS.info: 2 IP address found(s).
@@ -182,30 +182,30 @@ a page other than the index page.
 For example:
 
 ```
-msf5 > use auxiliary/gather/cloud_lookup
-msf5 auxiliary(gather/cloud_lookup) > set HOSTNAME www.zataz.com
+msf > use auxiliary/gather/cloud_lookup
+msf auxiliary(gather/cloud_lookup) > set HOSTNAME www.zataz.com
 hostname => www.zataz.com
-msf5 auxiliary(gather/cloud_lookup) > set URIPATH /contacter/
+msf auxiliary(gather/cloud_lookup) > set URIPATH /contacter/
 uripath => /contacter/
-msf5 auxiliary(gather/cloud_lookup) > set compstr Contacter ZATAZ
+msf auxiliary(gather/cloud_lookup) > set compstr Contacter ZATAZ
 compstr => Contacter ZATAZ
-msf5 auxiliary(gather/cloud_lookup) > run
+msf auxiliary(gather/cloud_lookup) > run
 ...
 ```
 
 *or*
 
 ```
-msf5 > use auxiliary/gather/cloud_lookup
-msf5 auxiliary(gather/cloud_lookup) > set HOSTNAME www.zataz.com
+msf > use auxiliary/gather/cloud_lookup
+msf auxiliary(gather/cloud_lookup) > set HOSTNAME www.zataz.com
 hostname => www.zataz.com
-msf5 auxiliary(gather/cloud_lookup) > set URIPATH /contacter/
+msf auxiliary(gather/cloud_lookup) > set URIPATH /contacter/
 uripath => /contacter/
-msf5 auxiliary(gather/cloud_lookup) > set compstr Contacter ZATAZ
+msf auxiliary(gather/cloud_lookup) > set compstr Contacter ZATAZ
 compstr => Contacter ZATAZ
-msf5 auxiliary(gather/cloud_lookup) > set tag html
+msf auxiliary(gather/cloud_lookup) > set tag html
 tag => html
-msf5 auxiliary(gather/cloud_lookup) > run
+msf auxiliary(gather/cloud_lookup) > run
 ...
 ```
 

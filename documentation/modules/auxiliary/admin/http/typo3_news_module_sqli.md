@@ -45,5 +45,5 @@ id => 37
 [+] Username: admin
 [+] Password Hash: $P$Ch4lme3.gje9o.DjMip59baG7b/mIp.
 [*] Auxiliary module execution completed
-msf5 auxiliary(admin/http/typo3_news_module_sqli) > 
+msf auxiliary(admin/http/typo3_news_module_sqli) > 
 ```

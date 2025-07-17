@@ -29,10 +29,10 @@ unauthenticated users access to the data stored via HTTP API.
 ### etcd 3.2.15 on CentOS 7.1
 
 ```
-msf5 > use auxiliary/scanner/etcd/open_key_scanner
-msf5 auxiliary(scanner/etcd/open_key_scanner) > set rhosts 2.2.2.2
+msf > use auxiliary/scanner/etcd/open_key_scanner
+msf auxiliary(scanner/etcd/open_key_scanner) > set rhosts 2.2.2.2
 rhosts => 2.2.2.2
-msf5 auxiliary(scanner/etcd/open_key_scanner) > run
+msf auxiliary(scanner/etcd/open_key_scanner) > run
 
 [+] 2.2.2.2:2379
 Version: {"etcdserver":"3.2.15","etcdcluster":"3.2.0"}
@@ -58,7 +58,7 @@ host           service  type       name       content     info       path
 ----           -------  ----       ----       -------     ----       ----
 2.2.2.2                 etcd.data  etcd.keys  text/plain  etcd keys  /root/.msf4/loot/20180325144351_default_2.2.2.2_etcd.data_425280.txt
 
-msf5 auxiliary(scanner/etcd/open_key_scanner) > services
+msf auxiliary(scanner/etcd/open_key_scanner) > services
 Services
 ========
 
@@ -70,10 +70,10 @@ host           port  proto  name  state  info
 ### etcd in Docker
 
 ```
-msf5 > use auxiliary/scanner/etcd/open_key_scanner
-msf5 auxiliary(scanner/etcd/open_key_scanner) > set RHOSTS 127.0.0.1
+msf > use auxiliary/scanner/etcd/open_key_scanner
+msf auxiliary(scanner/etcd/open_key_scanner) > set RHOSTS 127.0.0.1
 RHOSTS => 127.0.0.1
-msf5 auxiliary(scanner/etcd/open_key_scanner) > run
+msf auxiliary(scanner/etcd/open_key_scanner) > run
 
 [+] 127.0.0.1:2379
 Version: {"etcdserver":"3.1.3","etcdcluster":"3.1.0"}
@@ -85,7 +85,7 @@ Data: {
 }
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/etcd/open_key_scanner) > loot
+msf auxiliary(scanner/etcd/open_key_scanner) > loot
 
 Loot
 ====
@@ -94,7 +94,7 @@ host       service  type       name       content    info       path
 ----       -------  ----       ----       -------    ----       ----
 127.0.0.1           etcd.data  etcd.keys  text/json  etcd keys  /root/.msf4/loot/20180328092245_default_127.0.0.1_etcd.data_260058.txt
 
-msf5 auxiliary(scanner/etcd/open_key_scanner) > services
+msf auxiliary(scanner/etcd/open_key_scanner) > services
 Services
 ========
 

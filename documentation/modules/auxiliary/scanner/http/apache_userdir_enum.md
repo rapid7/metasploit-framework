@@ -22,10 +22,10 @@ that exist but have no `public_html` directory.
 ![apache_userdir_enum Demo](https://i.imgur.com/UZanfTI.gif)
 
 ```
-msf5 > use auxiliary/scanner/http/apache_userdir_enum
-msf5 auxiliary(scanner/http/apache_userdir_enum) > set rhosts alderaan
+msf > use auxiliary/scanner/http/apache_userdir_enum
+msf auxiliary(scanner/http/apache_userdir_enum) > set rhosts alderaan
 rhosts => alderaan
-msf5 auxiliary(scanner/http/apache_userdir_enum) > run
+msf auxiliary(scanner/http/apache_userdir_enum) > run
 
 [*] http://192.168.6.172/~ - Trying UserDir: ''
 [*] http://192.168.6.172/ - Apache UserDir: '' not found

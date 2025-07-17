@@ -39,9 +39,9 @@ identify the information about the host operating system.
 This is an example run of a network with several different version of Windows, metasploit 1 and 2, and a NAS device running SAMBA.
 
 ```
-msf5 auxiliary(scanner/smb/smb_version) > set RHOSTS 192.168.159.0/24
+msf auxiliary(scanner/smb/smb_version) > set RHOSTS 192.168.159.0/24
 RHOSTS => 192.168.159.0/24
-msf5 auxiliary(scanner/smb/smb_version) > show options 
+msf auxiliary(scanner/smb/smb_version) > show options 
 
 Module options (auxiliary/scanner/smb/smb_version):
 
@@ -50,7 +50,7 @@ Module options (auxiliary/scanner/smb/smb_version):
    RHOSTS   192.168.159.0/24  yes       The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
    THREADS  15                yes       The number of concurrent threads (max one per host)
 
-msf5 auxiliary(scanner/smb/smb_version) > run
+msf auxiliary(scanner/smb/smb_version) > run
 
 [*] 192.168.159.10:445    - SMB Detected (versions:1, 2, 3) (preferred dialect:SMB 3.1.1) (compression capabilities:LZNT1) (encryption capabilities:AES-128-CCM) (signatures:required) (guid:{faf5534c-d125-4081-aa2a-cf3256415908}) (authentication domain:MSFLAB)
 [*] 192.168.159.10:445    -   Host could not be identified: Windows Server 2019 Standard 17763 (Windows Server 2019 Standard 6.3)
@@ -74,5 +74,5 @@ msf5 auxiliary(scanner/smb/smb_version) > run
 [*] 192.168.159.0/24:     - Scanned 234 of 256 hosts (91% complete)
 [*] 192.168.159.0/24:     - Scanned 256 of 256 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/smb/smb_version) > 
+msf auxiliary(scanner/smb/smb_version) > 
 ```

@@ -1037,12 +1037,12 @@ root@metasploit-dev:~/metasploit-framework# wget -o /dev/null -O /tmp/juniper_ex
 root@metasploit-dev:~/metasploit-framework# ./msfconsole 
 
 [*] Starting persistent handler(s)...
-msf5 > use auxiliary/admin/networking/gather/juniper_config
-msf5 auxiliary(admin/networking/gather/juniper_config) > set config /tmp/juniper_ex2200.config
+msf > use auxiliary/admin/networking/gather/juniper_config
+msf auxiliary(admin/networking/gather/juniper_config) > set config /tmp/juniper_ex2200.config
 config => /tmp/juniper_ex2200.config
-msf5 auxiliary(admin/networking/gather/juniper_config) > set rhost 127.0.0.1
+msf auxiliary(admin/networking/gather/juniper_config) > set rhost 127.0.0.1
 rhost => 127.0.0.1
-msf5 auxiliary(admin/networking/gather/juniper_config) > run
+msf auxiliary(admin/networking/gather/juniper_config) > run
 [*] Running module against 127.0.0.1
 
 [*] Importing config
@@ -1069,14 +1069,14 @@ root@metasploit-dev:~/metasploit-framework# wget -o /dev/null -O /tmp/screenos.c
 root@metasploit-dev:~/metasploit-framework# ./msfconsole 
 
 [*] Starting persistent handler(s)...
-msf5 > use auxiliary/admin/networking/gather/juniper_config
-msf5 auxiliary(admin/networking/gather/juniper_config) > set config /tmp/screenos.conf
+msf > use auxiliary/admin/networking/gather/juniper_config
+msf auxiliary(admin/networking/gather/juniper_config) > set config /tmp/screenos.conf
 config => /tmp/screenos.conf
-msf5 auxiliary(admin/networking/gather/juniper_config) > set rhost 127.0.0.1
+msf auxiliary(admin/networking/gather/juniper_config) > set rhost 127.0.0.1
 rhost => 127.0.0.1
-msf5 auxiliary(admin/networking/gather/juniper_config) > set action SCREENOS
+msf auxiliary(admin/networking/gather/juniper_config) > set action SCREENOS
 action => SCREENOS
-msf5 auxiliary(admin/networking/gather/juniper_config) > run
+msf auxiliary(admin/networking/gather/juniper_config) > run
 [*] Running module against 127.0.0.1
 
 [*] Importing config

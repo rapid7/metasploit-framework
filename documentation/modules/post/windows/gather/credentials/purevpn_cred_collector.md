@@ -20,7 +20,7 @@ directory of PureVPN.
 # Demo
 
 ```
-msf5 post(windows/gather/credentials/purevpn_cred_collector) > rerun
+msf post(windows/gather/credentials/purevpn_cred_collector) > rerun
 [*] Reloading module...
 
 [*] Searching PureVPN Client installation at C:\ProgramData

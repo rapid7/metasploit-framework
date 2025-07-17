@@ -74,9 +74,9 @@ Auxiliary action:
 
 
 View the full module info with the info, or info -d command.
-msf5 auxiliary(gather/vmware_vcenter_vmdir_ldap) > set rhosts [redacted]
+msf auxiliary(gather/vmware_vcenter_vmdir_ldap) > set rhosts [redacted]
 rhosts => [redacted]
-msf5 auxiliary(gather/vmware_vcenter_vmdir_ldap) > run
+msf auxiliary(gather/vmware_vcenter_vmdir_ldap) > run
 [*] Running module against [redacted]
 not verifying SSL hostname of LDAPS server '[redacted]:636'
 
@@ -115,5 +115,5 @@ vmwpasswordprohibitedpreviouscount: [redacted]
 [+] Credentials found: [redacted]
 [snip]
 [*] Auxiliary module execution completed
-msf5 auxiliary(gather/vmware_vcenter_vmdir_ldap) >
+msf auxiliary(gather/vmware_vcenter_vmdir_ldap) >
 ```

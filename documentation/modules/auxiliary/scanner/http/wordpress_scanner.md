@@ -120,18 +120,18 @@ How often to print a prorgress bar while scanning for themes/plugins.  Defaults 
 Follow the Instructions above to setup the Docksal Containers.
 
 ```
-msf5 > use auxiliary/scanner/http/wordpress_scanner
-msf5 auxiliary(scanner/http/wordpress_scanner) > set RHOSTS msf-wp.docksal
+msf > use auxiliary/scanner/http/wordpress_scanner
+msf auxiliary(scanner/http/wordpress_scanner) > set RHOSTS msf-wp.docksal
 RHOSTS => msf-wp.docksal
-msf5 auxiliary(scanner/http/wordpress_scanner) > set VHOST msf-wp.docksal
+msf auxiliary(scanner/http/wordpress_scanner) > set VHOST msf-wp.docksal
 VHOST => msf-wp.docksal
-msf5 auxiliary(scanner/http/wordpress_scanner) > run
+msf auxiliary(scanner/http/wordpress_scanner) > run
 
 [*] Trying 192.168.64.100
 [+] 192.168.64.100 running Wordpress 5.2
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/http/wordpress_scanner) > 
+msf auxiliary(scanner/http/wordpress_scanner) > 
 
 ```
 

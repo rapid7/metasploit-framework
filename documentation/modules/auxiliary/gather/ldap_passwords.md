@@ -125,7 +125,7 @@ msf auxiliary(gather/ldap_passwords) > run
 msf auxiliary(gather/ldap_passwords) > set RHOSTS 192.0.2.1
 RHOSTS => 192.0.2.1
 
-msf5 auxiliary(gather/ldap_passwords) > run
+msf auxiliary(gather/ldap_passwords) > run
 [*] Running module against 192.0.2.1
 
 [*] Discovered base DN: dc=server,dc=nas

@@ -21,7 +21,7 @@ If the target was unable to process the Modbus message, a Modbus exception messa
 Successful results from the scan will be stored as a `note` in the framework. You can access these notes by typing `note` in the console.
 
 ```
-msf5 auxiliary(scanner/scada/modbus_banner_grabbing) > notes
+msf auxiliary(scanner/scada/modbus_banner_grabbing) > notes
 
 Notes
 =====

