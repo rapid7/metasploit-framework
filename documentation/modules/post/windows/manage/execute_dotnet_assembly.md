@@ -33,7 +33,7 @@ You'll find details at [Execute assembly via Meterpreter session](https://b4rtik
   1. The assembly should run.
 
 ```
-msf5 post(windows/manage/execute_dotnet_assembly) > run
+msf post(windows/manage/execute_dotnet_assembly) > run
 
 [*] Launching notepad.exe to host CLR...
 [+] Process 10628 launched.

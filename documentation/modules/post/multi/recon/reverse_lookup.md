@@ -28,12 +28,12 @@ IP address range to resolve.
 ### Windows Server 2016 (x86_64)
 
 ```
-msf6 > use post/multi/recon/reverse_lookup 
-msf6 post(multi/recon/reverse_lookup) > set address 1.1.1.1
+msf > use post/multi/recon/reverse_lookup 
+msf post(multi/recon/reverse_lookup) > set address 1.1.1.1
 address => 1.1.1.1
-msf6 post(multi/recon/reverse_lookup) > set session 1
+msf post(multi/recon/reverse_lookup) > set session 1
 session => 1
-msf6 post(multi/recon/reverse_lookup) > run
+msf post(multi/recon/reverse_lookup) > run
 
 [*] Resolving 1.1.1.1
 [+] 1.1.1.1 resolves to one.one.one.one
@@ -43,12 +43,12 @@ msf6 post(multi/recon/reverse_lookup) > run
 ### Solaris 11.3 (x86_64)
 
 ```
-msf6 > use post/multi/recon/reverse_lookup 
-msf6 post(multi/recon/reverse_lookup) > set address 1.1.1.1
+msf > use post/multi/recon/reverse_lookup 
+msf post(multi/recon/reverse_lookup) > set address 1.1.1.1
 address => 1.1.1.1
-msf6 post(multi/recon/reverse_lookup) > set session 1
+msf post(multi/recon/reverse_lookup) > set session 1
 session => 1
-msf6 post(multi/recon/reverse_lookup) > run
+msf post(multi/recon/reverse_lookup) > run
 
 [*] Resolving 1.1.1.1
 [+] 1.1.1.1 resolves to one.one.one.one
@@ -58,12 +58,12 @@ msf6 post(multi/recon/reverse_lookup) > run
 ### Ubuntu Linux 22.04.1 (x86_64)
 
 ```
-msf6 > use post/multi/recon/reverse_lookup 
-msf6 post(multi/recon/reverse_lookup) > set address 1.1.1.1
+msf > use post/multi/recon/reverse_lookup 
+msf post(multi/recon/reverse_lookup) > set address 1.1.1.1
 address => 1.1.1.1
-msf6 post(multi/recon/reverse_lookup) > set session 1
+msf post(multi/recon/reverse_lookup) > set session 1
 session => 1
-msf6 post(multi/recon/reverse_lookup) > run
+msf post(multi/recon/reverse_lookup) > run
 
 [!] SESSION may not be compatible with this module:
 [!]  * missing Meterpreter features: stdapi_railgun_memread, stdapi_railgun_api

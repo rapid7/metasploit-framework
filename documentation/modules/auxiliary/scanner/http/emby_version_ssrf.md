@@ -19,10 +19,10 @@ Emby servers that may be susceptible to CVE-2020-26948.
 ## Scenarios
 ### Emby Server 4.4.3.0 
 ```
-msf6 > use auxiliary/scanner/http/emby_version_ssrf
-msf6 auxiliary(scanner/http/emby_version_ssrf) > set rhosts 10.10.200.32
+msf > use auxiliary/scanner/http/emby_version_ssrf
+msf auxiliary(scanner/http/emby_version_ssrf) > set rhosts 10.10.200.32
 rhosts => 10.10.200.32
-msf6 auxiliary(scanner/http/emby_version_ssrf) > run
+msf auxiliary(scanner/http/emby_version_ssrf) > run
 
 [*] Identifying Media Server Version on 10.10.200.32:8096
 [+] [Media Server] URI: http://10.10.200.32:8096  /

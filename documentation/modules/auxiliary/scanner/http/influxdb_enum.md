@@ -10,12 +10,12 @@ This module enumerates databases on InfluxDB using the REST API using the defaul
 ## Scenarios
 
 ```
-msf5 > use auxiliary/scanner/http/influxdb_enum
-msf5 auxiliary(scanner/http/influxdb_enum) > set RHOST 172.25.65.20
+msf > use auxiliary/scanner/http/influxdb_enum
+msf auxiliary(scanner/http/influxdb_enum) > set RHOST 172.25.65.20
 RHOST => 172.25.65.20
-msf5 auxiliary(scanner/http/influxdb_enum) > set VERBOSE true
+msf auxiliary(scanner/http/influxdb_enum) > set VERBOSE true
 VERBOSE => true
-msf5 auxiliary(scanner/http/influxdb_enum) > run
+msf auxiliary(scanner/http/influxdb_enum) > run
 
 [+] 172.25.65.20:8086 - Influx Version: 1.5.1
 [+] 172.25.65.20:8086 - Influx DB Found:

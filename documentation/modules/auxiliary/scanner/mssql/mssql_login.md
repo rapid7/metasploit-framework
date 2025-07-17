@@ -21,7 +21,7 @@ When using the `scanner/mssql/mssql_login` module, the CreateSession option can 
 session within the MSSQL instance. Running the following commands with all other options set:
 
 ```msf
-msf6 auxiliary(scanner/mssql/mssql_login) > run CreateSession=true RPORT=1433 RHOSTS=192.168.2.242 USERNAME=user PASSWORD=password
+msf auxiliary(scanner/mssql/mssql_login) > run CreateSession=true RPORT=1433 RHOSTS=192.168.2.242 USERNAME=user PASSWORD=password
 ```
 
 Should give you output containing:
@@ -38,7 +38,7 @@ Should give you output containing:
 Which you can interact with using `sessions -i <session id>` or `sessions -i -1` to interact with the most recently opened session.
 
 ```msf
-msf6 auxiliary(scanner/mssql/mssql_login) > sessions
+msf auxiliary(scanner/mssql/mssql_login) > sessions
 
 Active sessions
 ===============
@@ -47,7 +47,7 @@ Active sessions
   --  ----  ----   -----------                      ----------
   1         mssql  MSSQL test @ 192.168.2.242:1433  192.168.2.1:60963 -> 192.168.2.242:1433 (192.168.2.242)
 
-msf6 auxiliary(scanner/mssql/mssql_login) > sessions -i 1
+msf auxiliary(scanner/mssql/mssql_login) > sessions -i 1
 [*] Starting interaction with 1...
 
 mssql @ 192.168.2.242:1433 (master) > query 'select @@version;'
@@ -124,7 +124,7 @@ This session also works with the following modules:
 To interact directly with the session as if in a SQL prompt, you can use the `query` command.
 
 ```msf
-msf6 auxiliary(scanner/mssql/mssql_login) > sessions -i -1
+msf auxiliary(scanner/mssql/mssql_login) > sessions -i -1
 [*] Starting interaction with 2...
 
 mssql @ 192.168.2.242:1433 (master) > query -h
@@ -195,11 +195,11 @@ File containing passwords, one per line
 
 ```msf
 msf > use scanner/mssql/mssql_login
-msf6 auxiliary(scanner/mssql/mssql_login) > set rhosts 127.0.0.1
+msf auxiliary(scanner/mssql/mssql_login) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf6 auxiliary(scanner/mssql/mssql_login) > set password N0tpassword!
+msf auxiliary(scanner/mssql/mssql_login) > set password N0tpassword!
 password => N0tpassword!
-msf6 auxiliary(scanner/mssql/mssql_login) > options
+msf auxiliary(scanner/mssql/mssql_login) > options
 
 Module options (auxiliary/scanner/mssql/mssql_login):
 
@@ -229,12 +229,12 @@ Module options (auxiliary/scanner/mssql/mssql_login):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(scanner/mssql/mssql_login) > run
+msf auxiliary(scanner/mssql/mssql_login) > run
 
 [*] 127.0.0.1:1433        - 127.0.0.1:1433 - MSSQL - Starting authentication scanner.
 [!] 127.0.0.1:1433        - No active DB -- Credential data will not be saved!
 [+] 127.0.0.1:1433        - 127.0.0.1:1433 - Login Successful: WORKSTATION\sa:N0tpassword!
 [*] 127.0.0.1:1433        - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/mssql/mssql_login) >
+msf auxiliary(scanner/mssql/mssql_login) >
 ```

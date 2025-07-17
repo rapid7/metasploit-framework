@@ -37,7 +37,7 @@ regular expression. The 'Store loot' options must be turned on in order for this
 ## Scenarios
 ### AdiIRC Client v4.4 on Microsoft Windows 10 Home 10.0.19045 N/A Build 19045 - Default Output
 ```
-msf6 post(windows/gather/credentials/adi_irc) > run
+msf post(windows/gather/credentials/adi_irc) > run
 
 [*] Filtering based on these selections:  
 [*] ARTIFACTS: All
@@ -89,7 +89,7 @@ msf6 post(windows/gather/credentials/adi_irc) > run
 
 ### AdiIRC Client v4.4 on Microsoft Windows 10 Home 10.0.19045 N/A Build 19045 - Verbose Output
 ```
-msf6 post(windows/gather/credentials/adi_irc) > run
+msf post(windows/gather/credentials/adi_irc) > run
 
 [*] Filtering based on these selections:  
 [*] ARTIFACTS: All

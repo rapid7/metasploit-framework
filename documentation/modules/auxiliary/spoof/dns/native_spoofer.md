@@ -49,7 +49,7 @@ DNS domain search list (hosts file or space/semicolon separate entries). Example
 ### DNS Spoofing
 
 ```
-msf6 auxiliary(spoof/dns/native_spoofer) > show options 
+msf auxiliary(spoof/dns/native_spoofer) > show options 
 
 Module options (auxiliary/spoof/dns/native_spoofer):
 
@@ -79,10 +79,10 @@ Auxiliary action:
    Service  Serve DNS entries
 
 
-msf6 auxiliary(spoof/dns/native_spoofer) > run
+msf auxiliary(spoof/dns/native_spoofer) > run
 [*] Auxiliary module running as background job 2.
-msf6 auxiliary(spoof/dns/native_spoofer) > SIOCSIFFLAGS: Operation not permitted
-msf6 auxiliary(spoof/dns/native_spoofer) > 
+msf auxiliary(spoof/dns/native_spoofer) > SIOCSIFFLAGS: Operation not permitted
+msf auxiliary(spoof/dns/native_spoofer) > 
 [*] Caching response google.com:172.217.15.110 A
 [+] Sent packet with header:
 --EthHeader-----------------------------------

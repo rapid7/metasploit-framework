@@ -44,7 +44,7 @@ run ldap://domain.local;Administrator:p4$$w0rd@192.168.123.13/dc=domain,dc=local
 Example output:
 
 ```msf
-msf6 auxiliary(gather/ldap_query) > run rhost=192.168.123.13 username=Administrator@domain.local password=p4$$w0rd action=ENUM_ACCOUNTS
+msf auxiliary(gather/ldap_query) > run rhost=192.168.123.13 username=Administrator@domain.local password=p4$$w0rd action=ENUM_ACCOUNTS
 [*] Running module against 192.168.123.13
 
 [*] Discovering base DN automatically
@@ -112,8 +112,8 @@ Details on the Kerberos specific option names are documented in [[Kerberos Servi
 Query LDAP for accounts:
 
 ```msf
-msf6 > use auxiliary/gather/ldap_query
-msf6 auxiliary(gather/ldap_query) > run action=ENUM_ACCOUNTS rhost=192.168.123.13 username=Administrator password=p4$$w0rd ldap::auth=kerberos ldap::rhostname=dc3.demo.local domain=demo.local domaincontrollerrhost=192.168.123.13
+msf > use auxiliary/gather/ldap_query
+msf auxiliary(gather/ldap_query) > run action=ENUM_ACCOUNTS rhost=192.168.123.13 username=Administrator password=p4$$w0rd ldap::auth=kerberos ldap::rhostname=dc3.demo.local domain=demo.local domaincontrollerrhost=192.168.123.13
 [*] Running module against 192.168.123.13
 
 [+] 192.168.123.13:88 - Received a valid TGT-Response

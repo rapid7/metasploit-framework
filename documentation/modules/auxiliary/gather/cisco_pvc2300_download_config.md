@@ -41,7 +41,7 @@ Module options (auxiliary/gather/cisco_pvc_2300_info_disclosure):
    SSL      false            no        Negotiate SSL/TLS for outgoing connections
    VHOST                     no        HTTP server virtual host
 
-msf6 auxiliary(gather/cisco_pvc_2300_info_disclosure) > run
+msf auxiliary(gather/cisco_pvc_2300_info_disclosure) > run
 [*] Running module against 172.31.31.233
 
 [*] The target may be vulnerable. Obtained sessionID 1122062985

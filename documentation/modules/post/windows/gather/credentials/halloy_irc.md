@@ -37,7 +37,7 @@ regular expression. The 'Store loot' options must be turned on in order for this
 ## Scenarios
 ### Halloy v2024.6 on Microsoft Windows 10 Home 10.0.19045 N/A Build 19045 - Default Output
 ```
-msf6 post(windows/gather/credentials/halloy_irc) > run
+msf post(windows/gather/credentials/halloy_irc) > run
 
 [*] Filtering based on these selections:  
 [*] ARTIFACTS: All
@@ -61,7 +61,7 @@ msf6 post(windows/gather/credentials/halloy_irc) > run
 ### Halloy v2024.6 on Microsoft Windows 10 Home 10.0.19045 N/A Build 19045 - Verbose Output
 ```
 
-msf6 post(windows/gather/credentials/halloy_irc_v2) > run
+msf post(windows/gather/credentials/halloy_irc_v2) > run
 
 [*] Filtering based on these selections:  
 [*] ARTIFACTS: All

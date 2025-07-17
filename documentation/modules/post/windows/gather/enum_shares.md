@@ -29,10 +29,10 @@ Enumerate recently entered UNC Paths in the Run Dialog (default: `true`)
 ### Windows Server 2008 (x64)
 
 ```
-msf6 > use post/windows/gather/enum_shares
-msf6 post(windows/gather/enum_shares) > set session 1
+msf > use post/windows/gather/enum_shares
+msf post(windows/gather/enum_shares) > set session 1
 session => 1
-msf6 post(windows/gather/enum_shares) > run
+msf post(windows/gather/enum_shares) > run
 
 [*] Running module against WIN-17B09RRRJTG (192.168.200.218)
 [*] The following shares were found:

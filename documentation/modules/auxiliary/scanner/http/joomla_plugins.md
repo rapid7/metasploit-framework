@@ -6,10 +6,10 @@ The list can be found in [data/wordlists/joomla.txt](https://github.com/rapid7/m
 ## Usage
 
 ```
-msf5 > use auxiliary/scanner/http/joomla_plugins 
-msf5 auxiliary(scanner/http/joomla_plugins) > set rhosts 192.168.2.39
+msf > use auxiliary/scanner/http/joomla_plugins 
+msf auxiliary(scanner/http/joomla_plugins) > set rhosts 192.168.2.39
 rhosts => 192.168.2.39
-msf5 auxiliary(scanner/http/joomla_plugins) > run
+msf auxiliary(scanner/http/joomla_plugins) > run
 
 [+] Plugin: /?1.5.10-x 
 [+] Plugin: /?1.5.11-x-http_ref 

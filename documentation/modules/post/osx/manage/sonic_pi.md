@@ -54,7 +54,7 @@ default.
 ## Usage
 
 ```
-msf5 post(osx/manage/sonic_pi) > options
+msf post(osx/manage/sonic_pi) > options
 
 Module options (post/osx/manage/sonic_pi):
 
@@ -74,7 +74,7 @@ Post action:
    Run   Run Sonic Pi code
 
 
-msf5 post(osx/manage/sonic_pi) > advanced
+msf post(osx/manage/sonic_pi) > advanced
 
 Module advanced options (post/osx/manage/sonic_pi):
 
@@ -85,7 +85,7 @@ Module advanced options (post/osx/manage/sonic_pi):
    VERBOSE      true                                                    no        Enable detailed status messages
    WORKSPACE                                                            no        Specify the workspace for this module
 
-msf5 post(osx/manage/sonic_pi) > show actions
+msf post(osx/manage/sonic_pi) > show actions
 
 Post actions:
 
@@ -95,21 +95,21 @@ Post actions:
    Stop  Stop all jobs
 
 
-msf5 post(osx/manage/sonic_pi) > set session -1
+msf post(osx/manage/sonic_pi) > set session -1
 session => -1
-msf5 post(osx/manage/sonic_pi) > run
+msf post(osx/manage/sonic_pi) > run
 
 [+] Sonic Pi is running
 [*] Running Sonic Pi code: /rapid7/metasploit-framework/data/post/sonic_pi_example.rb
 [*] echo [snip] | base64 -D | /Applications/Sonic\ Pi.app/server/native/ruby/bin/ruby
 [*] Post module execution completed
-msf5 post(osx/manage/sonic_pi) > set action Stop
+msf post(osx/manage/sonic_pi) > set action Stop
 action => Stop
-msf5 post(osx/manage/sonic_pi) > run
+msf post(osx/manage/sonic_pi) > run
 
 [+] Sonic Pi is running
 [*] Stopping all jobs
 [*] echo [snip] | base64 -D | /Applications/Sonic\ Pi.app/server/native/ruby/bin/ruby
 [*] Post module execution completed
-msf5 post(osx/manage/sonic_pi) >
+msf post(osx/manage/sonic_pi) >
 ```

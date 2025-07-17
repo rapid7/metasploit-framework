@@ -5,7 +5,7 @@ The `mssql_hashdump` module queries an MSSQL instance or session and returns has
 ## Available Options
 
 ```
-msf6 auxiliary(scanner/mssql/mssql_hashdump) > options
+msf auxiliary(scanner/mssql/mssql_hashdump) > options
 
 Module options (auxiliary/scanner/mssql/mssql_hashdump):
 
@@ -37,7 +37,7 @@ Module options (auxiliary/scanner/mssql/mssql_hashdump):
 
 With a session:
 ```
-msf6 auxiliary(scanner/mssql/mssql_hashdump) > sessions
+msf auxiliary(scanner/mssql/mssql_hashdump) > sessions
 
 Active sessions
 ===============
@@ -46,7 +46,7 @@ Active sessions
   --  ----  ----   -----------                ----------
   1         mssql  MSSQL sa @ 127.0.0.1:1433  127.0.0.1:52307 -> 127.0.0.1:1433 (127.0.0.1)
 
-msf6 auxiliary(scanner/mssql/mssql_hashdump) > run session=-1
+msf auxiliary(scanner/mssql/mssql_hashdump) > run session=-1
 
 [*] Using existing session 1
 [*] Instance Name: "758549b9f69e"
@@ -55,7 +55,7 @@ msf6 auxiliary(scanner/mssql/mssql_hashdump) > run session=-1
 [+] Saving mssql12 = ##MS_PolicyTsqlExecutionLogin##:0x0200DA9B84641F740A6423EC34F1B354FB81D9DF53456A7A7A8CCB794B295896C0CD19718C2C9537D3A7E82C41350F1549E2E2B99D819345DCABF1855AF2F83FA6CDC3EF8F96
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/mssql/mssql_hashdump) > run RPORT=1433 RHOSTS=127.0.0.1 USERNAME=sa PASSWORD=yourStrong(!)Password
+msf auxiliary(scanner/mssql/mssql_hashdump) > run RPORT=1433 RHOSTS=127.0.0.1 USERNAME=sa PASSWORD=yourStrong(!)Password
 
 [*] 127.0.0.1:1433 - Instance Name: "758549b9f69e"
 [+] 127.0.0.1:1433 - Saving mssql12 = sa:0x0200F433830BDBA809805FE53E59E7A1AACF9AC21241881F76B9B95EDC713FD01C8E692705409A5C0F8A46DDB1707A283BA9307D6B3C664BB9F7652758B70262C88F629DBC7E
@@ -67,7 +67,7 @@ msf6 auxiliary(scanner/mssql/mssql_hashdump) > run RPORT=1433 RHOSTS=127.0.0.1 U
 
 Directly querying a machine:
 ```
-msf6 auxiliary(scanner/mssql/mssql_hashdump) > run RPORT=1433 RHOSTS=127.0.0.1 USERNAME=sa PASSWORD=yourStrong(!)Password
+msf auxiliary(scanner/mssql/mssql_hashdump) > run RPORT=1433 RHOSTS=127.0.0.1 USERNAME=sa PASSWORD=yourStrong(!)Password
 
 [*] 127.0.0.1:1433 - Instance Name: "758549b9f69e"
 [+] 127.0.0.1:1433 - Saving mssql12 = sa:0x0200F433830BDBA809805FE53E59E7A1AACF9AC21241881F76B9B95EDC713FD01C8E692705409A5C0F8A46DDB1707A283BA9307D6B3C664BB9F7652758B70262C88F629DBC7E

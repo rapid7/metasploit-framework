@@ -35,7 +35,7 @@ This option is turned on by default and will perform the data extraction using t
 ## Example Run
 ### Default Output
   ```
-msf6 post(windows/gather/credentials/operamail) > run 
+msf post(windows/gather/credentials/operamail) > run 
 
 [*] Filtering based on these selections:  
 [*] ARTIFACTS: All
@@ -93,7 +93,7 @@ msf6 post(windows/gather/credentials/operamail) > run
 
 ### Verbose Output
   ```
-msf6 post(windows/gather/credentials/operamail) > run 
+msf post(windows/gather/credentials/operamail) > run 
 
 [*] Filtering based on these selections:  
 [*] ARTIFACTS: All

@@ -43,8 +43,8 @@ The full path to the file which contains different CHAT_IDs, one per line, which
 ## Demonstration
 
 ```
-msf6 > use auxiliary/client/telegram/send_message
-msf6 auxiliary(client/telegram/send_message) > show options
+msf > use auxiliary/client/telegram/send_message
+msf auxiliary(client/telegram/send_message) > show options
 
 Module options (auxiliary/client/telegram/send_message):
 
@@ -58,37 +58,37 @@ Module options (auxiliary/client/telegram/send_message):
    IDFILE                       no        File containing chat IDs, one per line
    MESSAGE                      no        The message to be sent
 
-msf6 auxiliary(client/telegram/send_message) > set BOT_TOKEN *redacted*
+msf auxiliary(client/telegram/send_message) > set BOT_TOKEN *redacted*
 BOT_TOKEN => *redacted*
-msf6 auxiliary(client/telegram/send_message) >
-msf6 auxiliary(client/telegram/send_message) >
-msf6 auxiliary(client/telegram/send_message) >
-msf6 auxiliary(client/telegram/send_message) > set CHAT_ID 1725*redacted*
+msf auxiliary(client/telegram/send_message) >
+msf auxiliary(client/telegram/send_message) >
+msf auxiliary(client/telegram/send_message) >
+msf auxiliary(client/telegram/send_message) > set CHAT_ID 1725*redacted*
 CHAT_ID => 1725*redacted*
-msf6 auxiliary(client/telegram/send_message) > set DOCUMENT /home/gwillcox/git/metasploit-framework/bind_meterpreter.py
+msf auxiliary(client/telegram/send_message) > set DOCUMENT /home/gwillcox/git/metasploit-framework/bind_meterpreter.py
 DOCUMENT => /home/gwillcox/git/metasploit-framework/bind_meterpreter.py
-msf6 auxiliary(client/telegram/send_message) > set MESSAGE "Check out this cool new script!"
+msf auxiliary(client/telegram/send_message) > set MESSAGE "Check out this cool new script!"
 MESSAGE => Check out this cool new script!
-msf6 auxiliary(client/telegram/send_message) > run
+msf auxiliary(client/telegram/send_message) > run
 
 [+] Document sent successfully to 1725*redacted*
 [+] Message sent successfully to 1725*redacted*
 [*] Auxiliary module execution completed
-msf6 auxiliary(client/telegram/send_message) > run
+msf auxiliary(client/telegram/send_message) > run
 
 [+] Document sent successfully to 1725*redacted*
 [+] Message sent successfully to 1725*redacted*
 [*] Auxiliary module execution completed
-msf6 auxiliary(client/telegram/send_message) > code test_ids
+msf auxiliary(client/telegram/send_message) > code test_ids
 [*] exec: code test_ids
 
-msf6 auxiliary(client/telegram/send_message) > set IDFILE test_ids
+msf auxiliary(client/telegram/send_message) > set IDFILE test_ids
 IDFILE => test_ids
-msf6 auxiliary(client/telegram/send_message) > cat test_ids
+msf auxiliary(client/telegram/send_message) > cat test_ids
 [*] exec: cat test_ids
 
 -593*redacted*
-1725*redacted*msf6 auxiliary(client/telegram/send_message) > run
+1725*redacted*msf auxiliary(client/telegram/send_message) > run
 
 [!] Opening `/home/gwillcox/git/metasploit-framework/test_ids` to fetch chat IDs...
 [+] Document sent successfully to -593*redacted*
@@ -98,5 +98,5 @@ msf6 auxiliary(client/telegram/send_message) > cat test_ids
 [+] Document sent successfully to 1725*redacted*
 [+] Message sent successfully to 1725*redacted*
 [*] Auxiliary module execution completed
-msf6 auxiliary(client/telegram/send_message) >
+msf auxiliary(client/telegram/send_message) >
 ```

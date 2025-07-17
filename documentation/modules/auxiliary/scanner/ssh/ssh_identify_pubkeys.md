@@ -57,12 +57,12 @@ The maximum time to negotiate a SSH session.
 ### Metasploitable22
 
 ```shell
-msf6 auxiliary(scanner/ssh/ssh_identify_pubkeys) > cat id_rsa.pub
+msf auxiliary(scanner/ssh/ssh_identify_pubkeys) > cat id_rsa.pub
 [*] exec: cat id_rsa.pub
 
 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEApmGJFZNl0ibMNALQx7M6sGGoi4KNmj6PVxpbpG70lShHQqldJkcteZZdPFSbW76IUiPR0Oh+WBV0x1c6iPL/0zUYFHyFKAz1e6/5teoweG1jr2qOffdomVhvXXvSjGaSFwwOYB8R0QxsOWWTQTYSeBa66X6e777GVkHCDLYgZSo8wWr5JXln/Tw7XotowHr8FEGvw2zW1krU3Zo9Bzp0e0ac2U+qUGIzIu/WwgztLZs5/D9IyhtRWocyQPE+kcP+Jz2mt4y1uA73KqoXfdw5oGUkxdFo9f1nu2OwkjOc+Wv8Vw7bwkf+1RgiOMgiJ5cCs4WocyVxsXovcNnbALTp3w== msfadmin@metasploitable
 
-msf6 auxiliary(scanner/ssh/ssh_identify_pubkeys) > options
+msf auxiliary(scanner/ssh/ssh_identify_pubkeys) > options
 
 Module options (auxiliary/scanner/ssh/ssh_identify_pubkeys):
 
@@ -84,7 +84,7 @@ Module options (auxiliary/scanner/ssh/ssh_identify_pubkeys):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(scanner/ssh/ssh_identify_pubkeys) > run
+msf auxiliary(scanner/ssh/ssh_identify_pubkeys) > run
 
 [*] 192.168.112.178:22 SSH - Trying 1 cleartext key per user.
 [+] 192.168.112.178:22 - [1/1] - Public key accepted: 'root' with key '57:c3:11:5d:77:c5:63:90:33:2d:c5:c4:99:78:62:7a' (Private Key: No) - msfadmin@metasploitable

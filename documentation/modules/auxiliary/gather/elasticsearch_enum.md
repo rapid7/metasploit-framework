@@ -51,17 +51,17 @@ The following instructions assume you are beginning with a fresh Kali installati
 ## Scenarios
 ### Elasticsearch 7.9.1 on Docker
 ```
-msf6 > use auxiliary/gather/elasticsearch_enum
-msf6 auxiliary(gather/elasticsearch/enum) > set ssl false
+msf > use auxiliary/gather/elasticsearch_enum
+msf auxiliary(gather/elasticsearch/enum) > set ssl false
 [!] Changing the SSL option's value may require changing RPORT!
 ssl => false
-msf6 auxiliary(gather/elasticsearch/enum) > set password esbackup-password
+msf auxiliary(gather/elasticsearch/enum) > set password esbackup-password
 password => esbackup-password
-msf6 auxiliary(gather/elasticsearch/enum) > set username elastic
+msf auxiliary(gather/elasticsearch/enum) > set username elastic
 username => elastic
-msf6 auxiliary(gather/elasticsearch/enum) > set rhosts 127.0.0.1
+msf auxiliary(gather/elasticsearch/enum) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf6 auxiliary(gather/elasticsearch/enum) > run
+msf auxiliary(gather/elasticsearch/enum) > run
 
 [+] Elastic Information
 ===================

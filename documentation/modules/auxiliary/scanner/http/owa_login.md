@@ -15,7 +15,7 @@ be saved as potentially valid usernames unless we get a successful login.
 ## Scenarios
 
 ```
-msf5 auxiliary(scanner/http/owa_login) > run
+msf auxiliary(scanner/http/owa_login) > run
 
 [*] webmail.hostingcloudapp.com:443 OWA - Testing version OWA_2013
 [+] Found target domain: HOSTINGCLOUDAPP

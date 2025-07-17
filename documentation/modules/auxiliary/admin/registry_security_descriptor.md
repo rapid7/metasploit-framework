@@ -51,7 +51,7 @@ File path to store the security descriptor when reading or source file path used
 ### Read against Windows Server 2019
 
 ```
-msf6 auxiliary(admin/registry_security_descriptor) > run verbose=true rhost=192.168.101.124 smbuser=Administrator smbpass=123456 action=READ key='HKLM\SECURITY\Policy\PolEKList'
+msf auxiliary(admin/registry_security_descriptor) > run verbose=true rhost=192.168.101.124 smbuser=Administrator smbpass=123456 action=READ key='HKLM\SECURITY\Policy\PolEKList'
 [*] Running module against 192.168.101.124
 
 [+] 192.168.101.124:445 - Raw security descriptor for HKLM\SECURITY\Policy\PolEKList: 01000480480000005800000000000000140000000200340002000000000214003f000f0001010000000000051200000000021800000006000102000000000005200000002002000001020000000000052000000020020000010100000000000512000000
@@ -62,7 +62,7 @@ msf6 auxiliary(admin/registry_security_descriptor) > run verbose=true rhost=192.
 Note that the information security has been set to 4 (DACL_SECURITY_INFORMATION) to avoid an access denied error.
 
 ```
-msf6 auxiliary(admin/registry_security_descriptor) > run verbose=true rhost=192.168.101.124 smbuser=Administrator smbpass=123456 key='HKLM\SECURITY\Policy\PolEKList' action=WRITE sd=01000480480000005800000000000000140000000200340002000000000214003f000f0001010000000000051200000000021800000006000102000000000005200000002002000001020000000000052000000020020000010100000000000512000000 security_information=4
+msf auxiliary(admin/registry_security_descriptor) > run verbose=true rhost=192.168.101.124 smbuser=Administrator smbpass=123456 key='HKLM\SECURITY\Policy\PolEKList' action=WRITE sd=01000480480000005800000000000000140000000200340002000000000214003f000f0001010000000000051200000000021800000006000102000000000005200000002002000001020000000000052000000020020000010100000000000512000000 security_information=4
 [*] Running module against 192.168.101.124
 
 [+] 192.168.101.124:445 - Security descriptor set for HKLM\SECURITY\Policy\PolEKList
@@ -72,7 +72,7 @@ msf6 auxiliary(admin/registry_security_descriptor) > run verbose=true rhost=192.
 ### Write against Windows Server 2019 (from file)
 
 ```
-msf6 auxiliary(admin/registry_security_descriptor) > run verbose=true rhost=192.168.101.124 smbuser=Administrator smbpass=123456 action=WRITE file=/tmp/remote_registry_sd_backup.yml
+msf auxiliary(admin/registry_security_descriptor) > run verbose=true rhost=192.168.101.124 smbuser=Administrator smbpass=123456 action=WRITE file=/tmp/remote_registry_sd_backup.yml
 [*] Running module against 192.168.101.124
 
 [*] 192.168.101.124:445 - Getting security descriptor info from file /tmp/remote_registry_sd_backup.yml

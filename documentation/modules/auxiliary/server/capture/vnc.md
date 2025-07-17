@@ -32,17 +32,17 @@ This module creates a mock VNC server which accepts credentials.  Upon receiving
 Server, Client:
 
 ```
-msf5 > use auxiliary/server/capture/vnc 
-msf5 auxiliary(server/capture/vnc) > use auxiliary/server/capture/vnc 
-msf5 auxiliary(server/capture/vnc) > set johnpwfile /tmp/john
+msf > use auxiliary/server/capture/vnc 
+msf auxiliary(server/capture/vnc) > use auxiliary/server/capture/vnc 
+msf auxiliary(server/capture/vnc) > set johnpwfile /tmp/john
 johnpwfile => /tmp/john
-msf5 auxiliary(server/capture/vnc) > run
+msf auxiliary(server/capture/vnc) > run
 [*] Auxiliary module running as background job 0.
-msf5 auxiliary(server/capture/vnc) > 
+msf auxiliary(server/capture/vnc) > 
 [*] Started service listener on 0.0.0.0:5900 
 [*] Server started.
 
-msf5 auxiliary(server/capture/vnc) > vncviewer 127.0.0.1
+msf auxiliary(server/capture/vnc) > vncviewer 127.0.0.1
 [*] exec: vncviewer 127.0.0.1
 
 Connected to RFB server, using protocol version 3.7
@@ -56,7 +56,7 @@ Authentication failure
 John the Ripper (JTR) Cracker:
 
 ```
-msf5 auxiliary(server/capture/vnc) > john /tmp/john_vnc
+msf auxiliary(server/capture/vnc) > john /tmp/john_vnc
 [*] exec: john /tmp/john_vnc
 
 Using default input encoding: UTF-8

