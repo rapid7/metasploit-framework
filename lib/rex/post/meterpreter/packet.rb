@@ -989,17 +989,13 @@ class Packet < GroupTlv
     raw = (session_guid || NULL_GUID).dup
     tlv_data = GroupTlv.instance_method(:to_r).bind(self).call
 
-    if @type == PACKET_TYPE_CONFIG
-      raw << [ENC_FLAG_NONE, tlv_data].pack('NA*')
+    if @type != PACKET_TYPE_CONFIG && key && key[:key] && (key[:type] == ENC_FLAG_AES128 || key[:type] == ENC_FLAG_AES256)
+      # encrypt the data, but not include the length and type
+      iv, ciphertext = aes_encrypt(key[:key], tlv_data[HEADER_SIZE..-1])
+      # now manually add the length/type/iv/ciphertext
+      raw << [key[:type], iv.length + ciphertext.length + HEADER_SIZE, self.type, iv, ciphertext].pack('NNNA*A*')
     else
-      if key && key[:key] && (key[:type] == ENC_FLAG_AES128 || key[:type] == ENC_FLAG_AES256)
-        # encrypt the data, but not include the length and type
-        iv, ciphertext = aes_encrypt(key[:key], tlv_data[HEADER_SIZE..-1])
-        # now manually add the length/type/iv/ciphertext
-        raw << [key[:type], iv.length + ciphertext.length + HEADER_SIZE, self.type, iv, ciphertext].pack('NNNA*A*')
-      else
-        raw << [ENC_FLAG_NONE, tlv_data].pack('NA*')
-      end
+      raw << [ENC_FLAG_NONE, tlv_data].pack('NA*')
     end
 
     # return the xor'd result with the key
