@@ -261,6 +261,10 @@ Gem::Specification.new do |spec|
   # Needed for generic in-memory cachine
   spec.add_runtime_dependency 'lru_redux'
 
+  # Pinned on 3.1.1 as it is the version supported by our Ruby 3.3.8 dependency to avoid this issue https://github.com/rubygems/rubygems/issues/7657#issuecomment-2521083323
+  # When Ruby ships with `gem --version` 3.6.0 or higher by default this can be removed
+  spec.add_runtime_dependency 'stringio', '3.1.1'
+
   # Standard libraries: https://www.ruby-lang.org/en/news/2023/12/25/ruby-3-3-0-released/
   %w[
     abbrev
