@@ -1,6 +1,6 @@
 require 'json'
-require 'digest/md5'
 require 'parallel'
+require 'zlib'
 
 #
 # Handles storage of module metadata on disk. A base metadata file is always included - this was added to ensure a much
@@ -127,9 +127,8 @@ module Msf::Modules::Metadata::Store
     }
   end
 
-  # This method uses a per-file MD5 cache to avoid recalculating checksums for files that have not changed.
-  # It loads the cache, checks each file's mtime and size, and only recalculates the MD5 if needed.
-  # The overall checksum is a hash of all per-file MD5s concatenated together.
+  # This method uses a per-file CRC32 cache to avoid recalculating checksums for files that have not changed.
+  # It loads the cache, checks each file's mtime and size, and only recalculates the CRC32 if needed.
   #
   # @return [Boolean]
   def self.valid_checksum?
@@ -140,70 +139,72 @@ module Msf::Modules::Metadata::Store
     # Gather all files from the specified directories
     files = Dir.glob([modules_dir, lib_dir, local_modules_dir]).select { |f| File.file?(f) }.sort
 
-    # Path to the per-file MD5 cache
-    cache_file = File.join(Msf::Config.config_directory, 'store', 'md5_cache.json')
+    # Path to the per-file CRC32 cache
+    cache_file = File.join(Msf::Config.config_directory, 'store', 'db/cache_metadata_base.json')
     # Load the cache if it exists, otherwise start with an empty hash
     per_file_cache = File.exist?(cache_file) ? JSON.parse(File.read(cache_file)) : {}
 
-    # Calculate per-file MD5s in parallel, only recalculating if mtime/size changed
-    file_md5s_with_metadata = Parallel.map(files, in_threads: Etc.nprocessors * 2) do |file|
+    # Calculate per-file CRC32s in parallel, only recalculating if mtime/size changed
+    file_crc32s_with_metadata = Parallel.map(files, in_threads: Etc.nprocessors * 2) do |file|
       # Get file metadata (size and last modified time)
       file_metadata = File.stat(file)
       cache_entry = per_file_cache[file]
-      # Use cached MD5 if mtime and size match, otherwise recalculate
+      # Use cached CRC32 if mtime and size match, otherwise recalculate
       if cache_entry && cache_entry['mtime'] == file_metadata.mtime.to_i && cache_entry['size'] == file_metadata.size
-        md5 = cache_entry['md5']
+        crc32 = cache_entry['crc32']
       else
-        md5 = Digest::MD5.file(file).hexdigest
+        crc32 = File.open(file, 'rb') { |fd| Zlib.crc32(fd) }
       end
       # Return file and its metadata for later aggregation
       [file, {
-        'md5' => md5,
+        'crc32' => crc32,
         'mtime' => file_metadata.mtime.to_i,
         'size' => file_metadata.size
       }]
     end
 
     # Build the updated_cache hash from the results
-    updated_cache = file_md5s_with_metadata.to_h
-    file_md5s = file_md5s_with_metadata.map { |_, meta| meta['md5'] }
+    updated_cache = file_crc32s_with_metadata.to_h
+    file_crc32s = file_crc32s_with_metadata.map { |_, meta| meta['crc32'] }
 
     # Ensure the directory for the cache file exists before writing
     FileUtils.mkdir_p(File.dirname(cache_file))
     # Save the updated per-file cache to disk
     File.write(cache_file, JSON.pretty_generate(updated_cache))
 
-    # Combine all per-file MD5s into a single string and hash it for the overall checksum
-    overall_md5 = Digest::MD5.hexdigest(file_md5s.join)
-    @current_checksum = overall_md5
+    # Combine all per-file CRC32s into a single string and hash it for the overall checksum
+    overall_crc32 = Zlib.crc32(file_crc32s.join).to_s(16)
+    @current_checksum = overall_crc32
 
     @cache_store_path = File.join(Msf::Config.config_directory, "store", CacheMetaDataFile)
     cache_db_path = File.join(Msf::Config.install_root, "db", CacheMetaDataFile)
 
-    # If the cache file does not exist, copy the db cache and update the md5 value
-    unless File.exist?(@cache_store_path)
-      FileUtils.mkdir_p(File.dirname(@cache_store_path))
-      FileUtils.cp(cache_db_path, @cache_store_path)
-      # Update the md5 value in the copied file
+    if File.exist?(@cache_store_path)
       cache_content = JSON.parse(File.read(@cache_store_path))
-      cache_content['checksum'] ||= {}
-      cache_content['checksum']['md5'] = @current_checksum
-      File.write(@cache_store_path, JSON.pretty_generate(cache_content))
+      cached_sha = cache_content.dig('checksum', 'crc32')
+    else
+      cache_content = JSON.parse(File.read(cache_db_path))
+      cached_sha = cache_content.dig('checksum', 'crc32')
     end
-
-    cache_content = JSON.parse(File.read(@cache_store_path))
-    cached_sha = cache_content.dig('checksum', 'md5')
 
     # Return true if the current checksum matches the cached one, otherwise return false
     @current_checksum == cached_sha
   end
 
-  # Update the cache checksum file with the current md5 checksum of the module paths.
+  # Update the cache checksum file with the current crc32 checksum of the module paths.
   #
   # @return [Integer]
   def self.update_cache_checksum
-    updated_cache_content = { 'checksum' => { 'md5' => @current_checksum } }
-    FileUtils.rm_f(@cache_store_path)
-    File.write(@cache_store_path, JSON.pretty_generate(updated_cache_content))
+    # If the cache file does not exist, copy the db cache and update the crc32 value
+    unless File.exist?(@cache_store_path)
+      cache_db_path = File.join(Msf::Config.install_root, "db", CacheMetaDataFile)
+      FileUtils.mkdir_p(File.dirname(@cache_store_path))
+      FileUtils.cp(cache_db_path, @cache_store_path)
+    end
+
+    # Update the crc32 value
+    cache_content = JSON.parse(File.read(@cache_store_path))
+    cache_content['checksum']['crc32'] = @current_checksum
+    File.write(@cache_store_path, JSON.pretty_generate(cache_content))
   end
 end
