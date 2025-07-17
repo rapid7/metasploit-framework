@@ -541,7 +541,7 @@ module Acceptance
     end
 
     def self.prompt
-      /msf6.*>\s+/
+      /msf.*>\s+/
     end
 
     def reset
