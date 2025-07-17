@@ -25,8 +25,8 @@ is set to the value of the session the user wishes to run this module on.
 
 ### Windows Server 2019 Standard Edition x64 Running as a Low Privileged User
 ```
-msf6 exploit(multi/handler) > use post/multi/gather/enum_software_versions 
-msf6 post(multi/gather/enum_software_versions) > show options
+msf exploit(multi/handler) > use post/multi/gather/enum_software_versions 
+msf post(multi/gather/enum_software_versions) > show options
 
 Module options (post/multi/gather/enum_software_versions):
 
@@ -34,18 +34,18 @@ Module options (post/multi/gather/enum_software_versions):
    ----     ---------------  --------  -----------
    SESSION                   yes       The session to run this module on.
 
-msf6 post(multi/gather/enum_software_versions) > set SESSION 1 
+msf post(multi/gather/enum_software_versions) > set SESSION 1 
 SESSION => 1
-msf6 post(multi/gather/enum_software_versions) > run
+msf post(multi/gather/enum_software_versions) > run
 
 [+] Stored information about the installed products to the loot file at /home/gwillcox/.msf4/loot/20200915173649_default_172.27.37.216_host.windows.sof_930739.txt
 [*] Post module execution completed
-msf6 post(multi/gather/enum_software_versions) > cat /home/gwillcox/.msf4/loot/20200915173649_default_172.27.37.216_host.windows.sof_930739.txt
+msf post(multi/gather/enum_software_versions) > cat /home/gwillcox/.msf4/loot/20200915173649_default_172.27.37.216_host.windows.sof_930739.txt
 [*] exec: cat /home/gwillcox/.msf4/loot/20200915173649_default_172.27.37.216_host.windows.sof_930739.txt
 
 Description                     InstallDate  Name                            Version      
 Pragma TelnetServer             20200911     Pragma TelnetServer             7.0.10.1990  
 Google Update Helper            20200910     Google Update Helper            1.3.35.451   
 VanDyke Software SecureCRT 8.7  20200911     VanDyke Software SecureCRT 8.7  8.7.3        
-msf6 post(multi/gather/enum_software_versions) > 
+msf post(multi/gather/enum_software_versions) > 
 ```

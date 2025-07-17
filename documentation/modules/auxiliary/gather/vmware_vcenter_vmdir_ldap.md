@@ -36,7 +36,7 @@ If you already have the LDAP base DN, you may set it in this option.
 ### VMware vCenter Server 6.7 virtual appliance on ESXi
 
 ```
-msf6 auxiliary(gather/vmware_vcenter_vmdir_ldap) > show options
+msf auxiliary(gather/vmware_vcenter_vmdir_ldap) > show options
 
 Module options (auxiliary/gather/vmware_vcenter_vmdir_ldap):
 

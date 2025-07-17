@@ -90,11 +90,11 @@ msf5 auxiliary(scanner/ssh/ssh_version) > run
 
 ```
 msf5 > use auxiliary/scanner/ssh/ssh_version
-msf6 auxiliary(scanner/ssh/ssh_version) > set rhosts 172.17.0.2
+msf auxiliary(scanner/ssh/ssh_version) > set rhosts 172.17.0.2
 rhosts => 172.17.0.2
-msf6 auxiliary(scanner/ssh/ssh_version) > set verbose true
+msf auxiliary(scanner/ssh/ssh_version) > set verbose true
 verbose => true
-msf6 auxiliary(scanner/ssh/ssh_version) > run
+msf auxiliary(scanner/ssh/ssh_version) > run
 
 [*] 172.17.0.2 - Key Fingerprint: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG52hWkobwr57akGxiK6eeMN9/M5MH+sQsNPv8Mci049
 [*] 172.17.0.2 - SSH server version: SSH-2.0-OpenSSH_6.6p1 Ubuntu-2ubuntu1

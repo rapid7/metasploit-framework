@@ -45,12 +45,12 @@ The file containing a list of passwords to try logging in with.
 ## Scenarios
 ### FreeSWITCH 1.10.7 Linux Debian 10.11 (Docker Image)
 ```
-msf6 > use auxiliary/scanner/misc/freeswitch_event_socket_login
-msf6 auxiliary(scanner/misc/freeswitch_event_socket_login) > set RHOSTS 192.168.56.1
+msf > use auxiliary/scanner/misc/freeswitch_event_socket_login
+msf auxiliary(scanner/misc/freeswitch_event_socket_login) > set RHOSTS 192.168.56.1
 RHOSTS => 192.168.56.1
-msf6 auxiliary(scanner/misc/freeswitch_event_socket_login) > set PASS_FILE /home/kali/passwords.txt
+msf auxiliary(scanner/misc/freeswitch_event_socket_login) > set PASS_FILE /home/kali/passwords.txt
 PASS_FILE => /home/kali/passwords.txt
-msf6 auxiliary(scanner/misc/freeswitch_event_socket_login) > run
+msf auxiliary(scanner/misc/freeswitch_event_socket_login) > run
 
 [!] 192.168.56.1:8021        - No active DB -- Credential data will not be saved!
 [-] 192.168.56.1:8021        - 192.168.56.1:8021 - LOGIN FAILED: ClueCon (Incorrect: -ERR invalid)

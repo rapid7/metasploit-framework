@@ -30,7 +30,7 @@ resource (msf)> set rhost 127.0.0.1
 rhost => 127.0.0.1
 resource (msf)> set rport 9000
 rport => 9000
-msf6 auxiliary(gather/minio_bootstrap_verify_info_disc) > run
+msf auxiliary(gather/minio_bootstrap_verify_info_disc) > run
 [*] Reloading module...
 [*] Running module against 127.0.0.1
 

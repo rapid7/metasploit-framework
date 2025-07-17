@@ -62,7 +62,7 @@ You can use this file in combination with `jq` for offline queries and processin
 
 ## Scenarios
 ```msf
-msf6 auxiliary(gather/acronis_cyber_protect_machine_info_disclosure) > info
+msf auxiliary(gather/acronis_cyber_protect_machine_info_disclosure) > info
 
        Name: Acronis Cyber Protect/Backup machine info disclosure
      Module: auxiliary/gather/acronis_cyber_protect_machine_info_disclosure
@@ -129,9 +129,9 @@ View the full module info with the info -d command.
 ```
 ### Acronis Cyber Backup 12.5 build 14330 VMware appliance
 ```msf
-msf6 auxiliary(gather/acronis_cyber_protect_machine_info_disclosure) > set rhosts 192.168.201.6
+msf auxiliary(gather/acronis_cyber_protect_machine_info_disclosure) > set rhosts 192.168.201.6
 rhosts => 192.168.201.6
-msf6 auxiliary(gather/acronis_cyber_protect_machine_info_disclosure) > run
+msf auxiliary(gather/acronis_cyber_protect_machine_info_disclosure) > run
 
 [*] Running module against 192.168.201.6
 [*] Running automatic check ("set AutoCheck false" to disable)
@@ -167,7 +167,7 @@ msf6 auxiliary(gather/acronis_cyber_protect_machine_info_disclosure) > run
 ```
 ### Acronis Cyber Backup 15 build 27009 VMware appliance
 ```msf
-msf6 auxiliary(gather/acronis_cyber_protect_machine_info_disclosure) > run
+msf auxiliary(gather/acronis_cyber_protect_machine_info_disclosure) > run
 [*] Running module against 192.168.201.6
 
 [*] Running automatic check ("set AutoCheck false" to disable)

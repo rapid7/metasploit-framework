@@ -40,21 +40,21 @@ A `username:password` pair of credentials can be provided by doing `set USERPASS
 In this scenario, the default options were used.
 
 ```
-msf6 > use auxiliary/scanner/http/softing_sis_login 
-msf6 auxiliary(scanner/http/softing_sis_login) > set RHOSTS 192.168.50.119
+msf > use auxiliary/scanner/http/softing_sis_login 
+msf auxiliary(scanner/http/softing_sis_login) > set RHOSTS 192.168.50.119
 RHOSTS => 192.168.50.119
-msf6 auxiliary(scanner/http/softing_sis_login) > run
+msf auxiliary(scanner/http/softing_sis_login) > run
 
 [+] 192.168.50.119:8099 - Success: 'admin:admin'
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/softing_sis_login) > 
+msf auxiliary(scanner/http/softing_sis_login) > 
 ```
 
 `creds` output:
 
 ```
-msf6 auxiliary(scanner/http/softing_sis_login) > creds
+msf auxiliary(scanner/http/softing_sis_login) > creds
 Credentials
 ===========
 
@@ -62,7 +62,7 @@ host            origin          service          public  private  realm  private
 ----            ------          -------          ------  -------  -----  ------------  ----------
 192.168.50.119  192.168.50.119  8099/tcp (http)  admin   admin           Password      
 
-msf6 auxiliary(scanner/http/softing_sis_login) > 
+msf auxiliary(scanner/http/softing_sis_login) > 
 ```
 
 ### Different admin password, SSL in use
@@ -70,28 +70,28 @@ msf6 auxiliary(scanner/http/softing_sis_login) >
 In this scenario, the default password for the `admin` user has been changed, and SSL was used.
 
 ```
-msf6 > use auxiliary/scanner/http/softing_sis_login 
-msf6 auxiliary(scanner/http/softing_sis_login) > set RHOSTS 192.168.50.119
+msf > use auxiliary/scanner/http/softing_sis_login 
+msf auxiliary(scanner/http/softing_sis_login) > set RHOSTS 192.168.50.119
 RHOSTS => 192.168.50.119
-msf6 auxiliary(scanner/http/softing_sis_login) > set PASSWORD admin123
+msf auxiliary(scanner/http/softing_sis_login) > set PASSWORD admin123
 PASSWORD => admin123
-msf6 auxiliary(scanner/http/softing_sis_login) > set SSL true
+msf auxiliary(scanner/http/softing_sis_login) > set SSL true
 [!] Changing the SSL option's value may require changing RPORT!
 SSL => true
-msf6 auxiliary(scanner/http/softing_sis_login) > set RPORT 443
+msf auxiliary(scanner/http/softing_sis_login) > set RPORT 443
 RPORT => 443
-msf6 auxiliary(scanner/http/softing_sis_login) > run
+msf auxiliary(scanner/http/softing_sis_login) > run
 
 [+] 192.168.50.119:443 - Success: 'admin:admin123'
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/softing_sis_login) > 
+msf auxiliary(scanner/http/softing_sis_login) > 
 ```
 
 `creds` output:
 
 ```
-msf6 auxiliary(scanner/http/softing_sis_login) > creds
+msf auxiliary(scanner/http/softing_sis_login) > creds
 Credentials
 ===========
 
@@ -100,7 +100,7 @@ host            origin          service          public  private  realm  private
 192.168.50.119  192.168.50.119  8099/tcp (http)  admin   admin           Password      
 192.168.50.119  192.168.50.119  443/tcp (https)  admin   admin123        Password      
 
-msf6 auxiliary(scanner/http/softing_sis_login) > 
+msf auxiliary(scanner/http/softing_sis_login) > 
 ```
 
 ### Several targets, using different usernames and passwords
@@ -139,16 +139,16 @@ Contents of `targets.txt`:
 
 Module output:
 ```
-msf6 > use auxiliary/scanner/http/softing_sis_login
-msf6 auxiliary(scanner/http/softing_sis_login) > set RHOSTS file:/home/ubuntu/Documents/targets.txt
+msf > use auxiliary/scanner/http/softing_sis_login
+msf auxiliary(scanner/http/softing_sis_login) > set RHOSTS file:/home/ubuntu/Documents/targets.txt
 RHOSTS => file:/home/ubuntu/Documents/targets.txt
-msf6 auxiliary(scanner/http/softing_sis_login) > set USER_FILE ~/Documents/usernames.txt
+msf auxiliary(scanner/http/softing_sis_login) > set USER_FILE ~/Documents/usernames.txt
 USER_FILE => ~/Documents/usernames.txt
-msf6 auxiliary(scanner/http/softing_sis_login) > set PASS_FILE ~/Documents/passwords.txt
+msf auxiliary(scanner/http/softing_sis_login) > set PASS_FILE ~/Documents/passwords.txt
 PASS_FILE => ~/Documents/passwords.txt
-msf6 auxiliary(scanner/http/softing_sis_login) > set VERBOSE false
+msf auxiliary(scanner/http/softing_sis_login) > set VERBOSE false
 VERBOSE => false
-msf6 auxiliary(scanner/http/softing_sis_login) > run
+msf auxiliary(scanner/http/softing_sis_login) > run
 
 [+] 192.168.50.71:8099 - Success: 'admin:P@ssw0rd'
 [*] Scanned 1 of 3 hosts (33% complete)
@@ -158,7 +158,7 @@ msf6 auxiliary(scanner/http/softing_sis_login) > run
 [+] 192.168.50.206:8099 - Success: 'admin1:admin123'
 [*] Scanned 3 of 3 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/softing_sis_login) > 
+msf auxiliary(scanner/http/softing_sis_login) > 
 ```
 
 Note that `VERBOSE` was set to `false` in this scenario to reduce amount of output on screen.
@@ -167,7 +167,7 @@ By default, `VERBOSE` is set to true, which also outputs failed login attempts.
 `creds` output:
 
 ```
-msf6 auxiliary(scanner/http/softing_sis_login) > creds
+msf auxiliary(scanner/http/softing_sis_login) > creds
 Credentials
 ===========
 
@@ -178,5 +178,5 @@ host            origin          service          public  private   realm  privat
 192.168.50.206  192.168.50.206  8099/tcp (http)  admin   pass123          Password      
 192.168.50.206  192.168.50.206  8099/tcp (http)  admin1  admin123         Password      
 
-msf6 auxiliary(scanner/http/softing_sis_login) > 
+msf auxiliary(scanner/http/softing_sis_login) > 
 ```

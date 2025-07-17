@@ -23,8 +23,8 @@ The type of LDAP authentication to capture. The default type is `Simple`
 ### Metasploit Server
 
 ```
-msf6 > use auxiliary/server/capture/ldap
-msf6 auxiliary(server/capture/ldap) > run
+msf > use auxiliary/server/capture/ldap
+msf auxiliary(server/capture/ldap) > run
 
 [*] Server started.
 [+] LDAP Login attempt => From:10.0.2.15:48198 Username:User Password:Pass
@@ -42,7 +42,7 @@ ldap_bind: Auth Method Not Supported (7)
 **Database**
 
 ```
-msf6 auxiliary(server/capture/ldap) > creds
+msf auxiliary(server/capture/ldap) > creds
 Credentials
 ===========
 

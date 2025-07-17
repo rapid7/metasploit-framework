@@ -13,10 +13,10 @@ This technique helps identify active IPv6 hosts and services, particularly when 
 
 ## Scenarios
 ```
-msf6 auxiliary(scanner/discovery/ipv6_multicast_ping) > set SHOST 10.0.2.4
+msf auxiliary(scanner/discovery/ipv6_multicast_ping) > set SHOST 10.0.2.4
 SHOST => 10.0.2.4
-msf6 auxiliary(scanner/discovery/ipv6_multicast_ping) > set RHOST 10.0.2.2-10RHOST => 10.0.2.2-10
-msf6 auxiliary(scanner/discovery/ipv6_multicast_ping) > run
+msf auxiliary(scanner/discovery/ipv6_multicast_ping) > set RHOST 10.0.2.2-10RHOST => 10.0.2.2-10
+msf auxiliary(scanner/discovery/ipv6_multicast_ping) > run
 [*] Running module against 10.0.2.2
 [*] Sending multicast pings...
 [*] Listening for responses...

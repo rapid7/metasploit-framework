@@ -44,7 +44,7 @@ When using the smb_login module, the CreateSession option can be used to obtain 
 session within the smb instance. Running with the following options:
 
 ```msf
-msf6 auxiliary(scanner/smb/smb_login) > run CreateSession=true RHOSTS=172.14.2.164 RPORT=445 SMBDomain=windomain.local SMBPass=password SMBUser=username
+msf auxiliary(scanner/smb/smb_login) > run CreateSession=true RHOSTS=172.14.2.164 RPORT=445 SMBDomain=windomain.local SMBPass=password SMBUser=username
 ```
 
 Should give you output containing:
@@ -55,14 +55,14 @@ Should give you output containing:
 [*] SMB session 1 opened (172.16.158.1:62793 -> 172.14.2.164:445) at 2024-03-12 17:03:09 +0000
 [*] 172.14.2.164:445    - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/smb/smb_login) > sessions -i -1
+msf auxiliary(scanner/smb/smb_login) > sessions -i -1
 [*] Starting interaction with 1...
 ```
 
 Which you can interact with using `sessions -i <session id>` or `sessions -i -1` to interact with the most recently opened session.
 
 ```msf
-msf6 auxiliary(scanner/smb/smb_login) > sessions -i -1
+msf auxiliary(scanner/smb/smb_login) > sessions -i -1
 [*] Starting interaction with 1...
 
 SMB (172.14.2.164) > shares

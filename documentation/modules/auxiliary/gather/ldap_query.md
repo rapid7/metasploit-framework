@@ -83,20 +83,20 @@ target LDAP server. Used to filter the results down to manageable sets of data.
 ### RUN_SINGLE_QUERY with Table Output
 
 ```
-msf6 payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/gather/ldap_query 
-msf6 auxiliary(gather/ldap_query) > set BIND_DN normal@daforest.com
+msf payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/gather/ldap_query 
+msf auxiliary(gather/ldap_query) > set BIND_DN normal@daforest.com
 BIND_DN => normal@daforest.com
-msf6 auxiliary(gather/ldap_query) > set BIND_PW thePassword123
+msf auxiliary(gather/ldap_query) > set BIND_PW thePassword123
 BIND_PW => thePassword123
-msf6 auxiliary(gather/ldap_query) > set RHOSTS 172.27.51.83
+msf auxiliary(gather/ldap_query) > set RHOSTS 172.27.51.83
 RHOSTS => 172.27.51.83
-msf6 auxiliary(gather/ldap_query) > set ACTION RUN_SINGLE_QUERY
+msf auxiliary(gather/ldap_query) > set ACTION RUN_SINGLE_QUERY
 ACTION => RUN_SINGLE_QUERY
-msf6 auxiliary(gather/ldap_query) > set QUERY_ATTRIBUTES dn,displayName,name
+msf auxiliary(gather/ldap_query) > set QUERY_ATTRIBUTES dn,displayName,name
 QUERY_ATTRIBUTES => dn,displayName,name
-msf6 auxiliary(gather/ldap_query) > set QUERY_FILTER (objectClass=*)
+msf auxiliary(gather/ldap_query) > set QUERY_FILTER (objectClass=*)
 QUERY_FILTER => (objectClass=*)
-msf6 auxiliary(gather/ldap_query) > run
+msf auxiliary(gather/ldap_query) > run
 [*] Running module against 172.27.51.83
 
 [+] Successfully bound to the LDAP server!
@@ -159,7 +159,7 @@ msf6 auxiliary(gather/ldap_query) > run
  name         WVIR1000013
  
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_query) > 
+msf auxiliary(gather/ldap_query) > 
 ```
 
 ### RUN_QUERY_FILE with Table Output
@@ -200,18 +200,18 @@ Here is the results of using this file with the `RUN_QUERY_FILE` action which wi
 run all queries within the file one after another.
 
 ```
-msf6 payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/gather/ldap_query 
-msf6 auxiliary(gather/ldap_query) > set BIND_DN normal@daforest.com
+msf payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/gather/ldap_query 
+msf auxiliary(gather/ldap_query) > set BIND_DN normal@daforest.com
 BIND_DN => normal@daforest.com
-msf6 auxiliary(gather/ldap_query) > set BIND_PW thePassword123
+msf auxiliary(gather/ldap_query) > set BIND_PW thePassword123
 BIND_PW => thePassword123
-msf6 auxiliary(gather/ldap_query) > set RHOSTS 172.27.51.83
+msf auxiliary(gather/ldap_query) > set RHOSTS 172.27.51.83
 RHOSTS => 172.27.51.83
-msf6 auxiliary(gather/ldap_query) > set ACTION RUN_QUERY_FILE 
+msf auxiliary(gather/ldap_query) > set ACTION RUN_QUERY_FILE 
 ACTION => RUN_QUERY_FILE
-msf6 auxiliary(gather/ldap_query) > set QUERY_FILE_PATH /home/gwillcox/git/metasploit-framework/test.yaml
+msf auxiliary(gather/ldap_query) > set QUERY_FILE_PATH /home/gwillcox/git/metasploit-framework/test.yaml
 QUERY_FILE_PATH => /home/gwillcox/git/metasploit-framework/test.yaml
-msf6 auxiliary(gather/ldap_query) > show options
+msf auxiliary(gather/ldap_query) > show options
 
 Module options (auxiliary/gather/ldap_query):
                                                                                                                                                                                               Name             Current Setting      Required  Description
@@ -246,7 +246,7 @@ Module options (auxiliary/gather/ldap_query):
    RUN_QUERY_FILE  Execute a custom set of LDAP queries from the JSON or YAML file specified by QUERY_FILE.
 
 
-msf6 auxiliary(gather/ldap_query) > run
+msf auxiliary(gather/ldap_query) > run
 [*] Running module against 172.27.51.83
 
 [+] Successfully bound to the LDAP server!
@@ -349,22 +349,22 @@ msf6 auxiliary(gather/ldap_query) > run
  name       EL-chu-distlist1
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_query) > 
+msf auxiliary(gather/ldap_query) > 
 ```
 
 ### ENUM_COMPUTERS with Table Output
 
 ```
-msf6 > use auxiliary/gather/ldap_query 
-msf6 auxiliary(gather/ldap_query) > set RHOSTS 192.168.159.10
+msf > use auxiliary/gather/ldap_query 
+msf auxiliary(gather/ldap_query) > set RHOSTS 192.168.159.10
 RHOSTS => 192.168.159.10
-msf6 auxiliary(gather/ldap_query) > set USERNAME aliddle
+msf auxiliary(gather/ldap_query) > set USERNAME aliddle
 USERNAME => aliddle
-msf6 auxiliary(gather/ldap_query) > set PASSWORD Password1!
+msf auxiliary(gather/ldap_query) > set PASSWORD Password1!
 PASSWORD => Password1!
-msf6 auxiliary(gather/ldap_query) > set DOMAIN msflab.local
+msf auxiliary(gather/ldap_query) > set DOMAIN msflab.local
 DOMAIN => msflab.local
-msf6 auxiliary(gather/ldap_query) > enum_computers output_format=table
+msf auxiliary(gather/ldap_query) > enum_computers output_format=table
 [*] Running module against 192.168.159.10
 
 [*] Discovering base DN automatically
@@ -426,21 +426,21 @@ CN=DESKTOP-MO5E49K8 CN=Computers DC=msflab DC=local
  samaccountname      DESKTOP-MO5E49K8$
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_query) >
+msf auxiliary(gather/ldap_query) >
 ```
 
 ### ENUM_COMPUTERS with CSV Output
 ```
-msf6 > use auxiliary/gather/ldap_query 
-msf6 auxiliary(gather/ldap_query) > set RHOSTS 192.168.159.10
+msf > use auxiliary/gather/ldap_query 
+msf auxiliary(gather/ldap_query) > set RHOSTS 192.168.159.10
 RHOSTS => 192.168.159.10
-msf6 auxiliary(gather/ldap_query) > set USERNAME aliddle
+msf auxiliary(gather/ldap_query) > set USERNAME aliddle
 USERNAME => aliddle
-msf6 auxiliary(gather/ldap_query) > set PASSWORD Password1!
+msf auxiliary(gather/ldap_query) > set PASSWORD Password1!
 PASSWORD => Password1!
-msf6 auxiliary(gather/ldap_query) > set DOMAIN msflab.local
+msf auxiliary(gather/ldap_query) > set DOMAIN msflab.local
 DOMAIN => msflab.local
-msf6 auxiliary(gather/ldap_query) > enum_computers output_format=csv
+msf auxiliary(gather/ldap_query) > enum_computers output_format=csv
 [*] Running module against 192.168.159.10
 
 [*] Discovering base DN automatically
@@ -487,21 +487,21 @@ Name,Attributes
 "lastlogontimestamp","2023-01-18 14:09:58 UTC"
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_query) >
+msf auxiliary(gather/ldap_query) >
 ```
 
 ### ENUM_COMPUTERS with JSON Output
 ```
-msf6 > use auxiliary/gather/ldap_query 
-msf6 auxiliary(gather/ldap_query) > set RHOSTS 192.168.159.10
+msf > use auxiliary/gather/ldap_query 
+msf auxiliary(gather/ldap_query) > set RHOSTS 192.168.159.10
 RHOSTS => 192.168.159.10
-msf6 auxiliary(gather/ldap_query) > set USERNAME aliddle
+msf auxiliary(gather/ldap_query) > set USERNAME aliddle
 USERNAME => aliddle
-msf6 auxiliary(gather/ldap_query) > set PASSWORD Password1!
+msf auxiliary(gather/ldap_query) > set PASSWORD Password1!
 PASSWORD => Password1!
-msf6 auxiliary(gather/ldap_query) > set DOMAIN msflab.local
+msf auxiliary(gather/ldap_query) > set DOMAIN msflab.local
 DOMAIN => msflab.local
-msf6 auxiliary(gather/ldap_query) > enum_computers output_format=json
+msf auxiliary(gather/ldap_query) > enum_computers output_format=json
 [*] Running module against 192.168.159.10
 
 [*] Discovering base DN automatically
@@ -552,5 +552,5 @@ msf6 auxiliary(gather/ldap_query) > enum_computers output_format=json
   "lastlogontimestamp": "2023-01-18 14:09:58 UTC"
 }
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_query) > 
+msf auxiliary(gather/ldap_query) > 
 ```

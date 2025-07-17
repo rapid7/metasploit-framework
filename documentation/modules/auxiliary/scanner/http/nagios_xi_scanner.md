@@ -49,12 +49,12 @@ the module will not probe the target, so it is not necessary to provide credenti
 ## Scenarios
 ### Nagios XI 5.6.5 running on CentOS 7
 ```
-msf6 > use auxiliary/scanner/http/nagios_xi_scanner 
-msf6 auxiliary(scanner/http/nagios_xi_scanner) > set rhosts 192.168.1.14
+msf > use auxiliary/scanner/http/nagios_xi_scanner 
+msf auxiliary(scanner/http/nagios_xi_scanner) > set rhosts 192.168.1.14
 rhosts => 192.168.1.14
-msf6 auxiliary(scanner/http/nagios_xi_scanner) > set password nagiosadmin
+msf auxiliary(scanner/http/nagios_xi_scanner) > set password nagiosadmin
 password => nagiosadmin
-msf6 auxiliary(scanner/http/nagios_xi_scanner) > show options 
+msf auxiliary(scanner/http/nagios_xi_scanner) > show options 
 
 Module options (auxiliary/scanner/http/nagios_xi_scanner):
 
@@ -74,7 +74,7 @@ Module options (auxiliary/scanner/http/nagios_xi_scanner):
    VERSION                          no        Nagios XI version to check against existing exploit modules
    VHOST                            no        HTTP server virtual host
 
-msf6 auxiliary(scanner/http/nagios_xi_scanner) > run
+msf auxiliary(scanner/http/nagios_xi_scanner) > run
 
 [+] Successfully authenticated to Nagios XI
 [*] Target is Nagios XI with version 5.6.5
@@ -91,12 +91,12 @@ msf6 auxiliary(scanner/http/nagios_xi_scanner) > run
 ```
 ### Nagios XI 5.7.9 version provided via VERSION
 ```
-msf6 > use auxiliary/scanner/http/nagios_xi_scanner 
-msf6 auxiliary(scanner/http/nagios_xi_scanner) > set rhosts 192.168.1.14
+msf > use auxiliary/scanner/http/nagios_xi_scanner 
+msf auxiliary(scanner/http/nagios_xi_scanner) > set rhosts 192.168.1.14
 rhosts => 192.168.1.14
-msf6 auxiliary(scanner/http/nagios_xi_scanner) > set version 5.7.9
+msf auxiliary(scanner/http/nagios_xi_scanner) > set version 5.7.9
 version => 5.7.9
-msf6 auxiliary(scanner/http/nagios_xi_scanner) > show options 
+msf auxiliary(scanner/http/nagios_xi_scanner) > show options 
 
 Module options (auxiliary/scanner/http/nagios_xi_scanner):
 
@@ -116,7 +116,7 @@ Module options (auxiliary/scanner/http/nagios_xi_scanner):
    VERSION         5.7.9            no        Nagios XI version to check against existing exploit modules
    VHOST                            no        HTTP server virtual host
 
-msf6 auxiliary(scanner/http/nagios_xi_scanner) > run
+msf auxiliary(scanner/http/nagios_xi_scanner) > run
 
 [+] Version 5.7.9 matches the following 1 exploit(s):
 [*] 
@@ -127,14 +127,14 @@ msf6 auxiliary(scanner/http/nagios_xi_scanner) > run
 ```
 ### Nagios XI 5.7.5 - incomplete installation, FINISH_INSTALL set to true
 ```
-msf6 > use auxiliary/scanner/http/nagios_xi_scanner 
-msf6 auxiliary(scanner/http/nagios_xi_scanner) > set rhosts 192.168.1.16
+msf > use auxiliary/scanner/http/nagios_xi_scanner 
+msf auxiliary(scanner/http/nagios_xi_scanner) > set rhosts 192.168.1.16
 rhosts => 192.168.1.16
-msf6 auxiliary(scanner/http/nagios_xi_scanner) > set password nagiosadmin
+msf auxiliary(scanner/http/nagios_xi_scanner) > set password nagiosadmin
 password => nagiosadmin
-msf6 auxiliary(scanner/http/nagios_xi_scanner) > set finish_install true
+msf auxiliary(scanner/http/nagios_xi_scanner) > set finish_install true
 finish_install => true
-msf6 auxiliary(scanner/http/nagios_xi_scanner) > show options 
+msf auxiliary(scanner/http/nagios_xi_scanner) > show options 
 
 Module options (auxiliary/scanner/http/nagios_xi_scanner):
 
@@ -154,7 +154,7 @@ Module options (auxiliary/scanner/http/nagios_xi_scanner):
    VERSION                          no        Nagios XI version to check against existing exploit modules
    VHOST                            no        HTTP server virtual host
 
-msf6 auxiliary(scanner/http/nagios_xi_scanner) > run 
+msf auxiliary(scanner/http/nagios_xi_scanner) > run 
 [*] Attempting to authenticate to Nagios XI...   
 [!] The target seems to be a Nagios XI application that has not been fully installed yet.
 [*] Attempting to finish the Nagios XI installation on the target using the provided password. The username will be `nagiosadmin`.

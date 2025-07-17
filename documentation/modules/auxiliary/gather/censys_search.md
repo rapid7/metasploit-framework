@@ -26,7 +26,7 @@ location.country_code: DE and services.service_name: {"FTP", "Telnet"}
 ### Without certificates details
 
 ```
-msf6 auxiliary(gather/censys_search) > run verbose=true QUERY="location.country_code: DE and services.service_name: {"FTP", "Telnet"}" CENSYS_UID=<redacted> CENSYS_SECRET=<redacted>
+msf auxiliary(gather/censys_search) > run verbose=true QUERY="location.country_code: DE and services.service_name: {"FTP", "Telnet"}" CENSYS_UID=<redacted> CENSYS_SECRET=<redacted>
 
 [+] 2.19.184.189 - 21/FTP,22/SSH,80/HTTP,443/HTTP
 [+] 2.19.184.214 - 21/FTP
@@ -56,7 +56,7 @@ msf6 auxiliary(gather/censys_search) > run verbose=true QUERY="location.country_
 ### With certificates details
 
 ```
-msf6 auxiliary(gather/censys_search) > run verbose=true QUERY="location.country_code: DE and services.service_name: {"FTP", "Telnet"}" CENSYS_UID=<redacted> CENSYS_SECRET=<redacted> CERTIFICATES=true
+msf auxiliary(gather/censys_search) > run verbose=true QUERY="location.country_code: DE and services.service_name: {"FTP", "Telnet"}" CENSYS_UID=<redacted> CENSYS_SECRET=<redacted> CERTIFICATES=true
 
 [+] 2.19.184.189 - 21/FTP,22/SSH,80/HTTP,443/HTTP
 [*] Certificate for 21/FTP: C=US, ST=California, L=Mountain View, O=Synopsys\, Inc., CN=eft.synopsys.com (Issuer: C=US, O=Entrust\, Inc., OU=See www.entrust.net/legal-terms, OU=(c) 2012 Entrust\, Inc. - for authorized use only, CN=Entrust Certification Authority - L1K)
@@ -77,7 +77,7 @@ msf6 auxiliary(gather/censys_search) > run verbose=true QUERY="location.country_
 [+] 2.23.14.243 - 21/FTP
 ...
 
-msf6 auxiliary(gather/censys_search) > services
+msf auxiliary(gather/censys_search) > services
 Services
 ========
 

