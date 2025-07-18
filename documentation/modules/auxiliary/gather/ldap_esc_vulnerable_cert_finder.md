@@ -96,7 +96,8 @@ a normal user account by analyzing the objects in LDAP.
 1. Right click on the folder in the drop down marked `Certificate Templates` and then click `Manage`.
 1. Scroll down to the `User` certificate. Right click on it and select `Duplicate Template`.
 1. The `User` certificate already has the `Client Authentication` EKU enabled so we can use this as a base template.
-1. Select the Subject Name tab and select `Build from this Active Directory Information`, under the `Subject Name Format` section select `User Principal Name (UPN)`.
+1. Select the Subject Name tab and select `Build from this Active Directory Information`, under the `Subject Name Format` section select `User Principal Name (UPN)` (or `DNS Name` depending on what scenario you're attempting to exploit).
+1. Under the `Subject Name Format` also be sure to unselect `Include e-mail name in subject name` and `E-mail name`.
 1. Select the `General` tab and rename this to something meaningful like `ESC9-Template`, then click the `Apply` button.
 1. Select the Security tab and click the `Add` button.
 1. Enter `user2` (or whatever user's UPN you will be changing for this attack). Click OK.
@@ -122,7 +123,7 @@ Get-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\Kdc\" -Name Stron
 ```
 
 ### Setting up a ESC10 Vulnerable Certificate Template
-1. Follow the first 14 steps `Setting up a ESC9 Vulnerable Certificate Template` to create the `ESC10-Template`.
+1. Follow the first 15 steps `Setting up a ESC9 Vulnerable Certificate Template` to create the `ESC10-Template`.
     1. Everything up to and excluding the `msPKI-Enrollment-Flag", 0x80000` powershell step.
 #### Configuring Windows to be Vulnerable to ESC10
 1. The template should now be reported as `Potentially Vulnerable` by the module.
