@@ -73,12 +73,8 @@ class MetasploitModule < Msf::Auxiliary
       )
 
       next GET_SQLI_OBJECT_FAILED_ERROR_MSG unless res&.code == 200
-
-      doc = begin
-        res.get_json_document
-      rescue StandardError
-        nil
-      end
+      
+      doc = res.get_json_document
       value = if doc.respond_to?(:dig)
                 doc.dig('hits', 0, 'content', 'id')
               else
