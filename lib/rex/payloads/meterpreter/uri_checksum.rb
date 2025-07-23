@@ -66,11 +66,18 @@ module Rex
           nil
         end
 
+        # Map "random" get params to static strings.
+        #
+        # @param  [String] The query string from the HTTP request.
+        # @return [Hash] The attributes extracted from the URI
+        def process_query_string_resource(query_string)
+        end
+
         # Map "random" cookies to static strings.
         #
         # @param cookie [String] The Cookie header string from the HTTP request.
         # @return [Hash] The attributes extracted from the URI
-        def process_cookie_resource(uri)
+        def process_cookie_resource(cookie)
         end
 
         # Create a URI that matches the specified checksum and payload uuid

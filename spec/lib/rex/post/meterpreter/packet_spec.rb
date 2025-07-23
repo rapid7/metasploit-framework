@@ -123,7 +123,7 @@ RSpec.describe Rex::Post::Meterpreter::Tlv do
 
     context "Any non group TLV_TYPE" do
       subject(:tlv_types){
-        excludedTypes = ["TLV_TYPE_ANY", "TLV_TYPE_EXCEPTION", "TLV_TYPE_CHANNEL_DATA_GROUP", "TLV_TYPE_TRANS_GROUP"]
+        excludedTypes = ["TLV_TYPE_ANY", "TLV_TYPE_EXCEPTION", "TLV_TYPE_CHANNEL_DATA_GROUP", "TLV_TYPE_C2", "TLV_TYPE_EXTENSION", "TLV_TYPE_C2_GET", "TLV_TYPE_C2_POST"]
         typeList = []
         Rex::Post::Meterpreter.constants.each do |type|
           typeList << type.to_s if type.to_s.include?("TLV_TYPE") && !excludedTypes.include?(type.to_s)

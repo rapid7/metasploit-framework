@@ -151,10 +151,7 @@ class Client
     self.url          = opts[:url]
     self.ssl          = opts[:ssl]
 
-    unless (opts[:c2_profile] || '').empty?
-      parser = Msf::Payload::MalleableC2::Parser.new
-      self.c2_profile = parser.parse(opts[:c2_profile])
-    end
+    self.c2_profile = opts[:c2_profile]
 
     self.pivot_session = opts[:pivot_session]
     if self.pivot_session
