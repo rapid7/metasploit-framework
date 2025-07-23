@@ -118,15 +118,8 @@ class MetasploitModule < Msf::Post
 
     # Execute the powershell script
     print_status('Executing the script.')
-    cmd_out, running_pids, open_channels = execute_script(script, datastore['TIMEOUT'])
-
-    # Write output to log
-    print_status("Logging output to #{log_file}.")
-    write_to_log(cmd_out, log_file, eof)
-
-    # Clean up
-    print_status('Cleaning up residual objects and processes.')
-    clean_up(datastore['SCRIPT'], eof, running_pids, open_channels, env_suffix)
+    cmd_out = psh_exec(script)
+    print_status(cmd_out.to_s)
 
     # That's it
     print_good('Finished!')
