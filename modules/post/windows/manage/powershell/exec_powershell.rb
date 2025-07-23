@@ -59,8 +59,7 @@ class MetasploitModule < Msf::Post
       [
         OptString.new('SUBSTITUTIONS', [false, 'Script subs in gsub format - original,sub;original,sub' ]),
         OptBool.new('DELETE', [false, 'Delete file after execution', false ]),
-        OptBool.new('DRY_RUN', [false, 'Only show what would be done', false ]),
-        OptInt.new('TIMEOUT', [false, 'Execution timeout', 15]),
+        OptBool.new('DRY_RUN', [false, 'Only show what would be done', false ])
       ]
     )
   end
