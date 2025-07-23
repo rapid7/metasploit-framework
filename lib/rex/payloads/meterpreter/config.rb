@@ -7,6 +7,7 @@ require 'securerandom'
 
 class Rex::Payloads::Meterpreter::Config
 
+  include Msf::Payload::UUID::Options
   include Msf::ReflectiveDLLLoader
 
   MET = Rex::Post::Meterpreter

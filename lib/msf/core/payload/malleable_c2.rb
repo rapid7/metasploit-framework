@@ -11,7 +11,25 @@ require 'rex/post/meterpreter/packet'
 # Handle escape sequences in the strings provided by the c2 profile
 class String
   def from_c2_string_value
-    self.gsub(/\\x(..)/) {|b| [b[2, 4].to_i(16)].pack('C')}
+    # Support substitution of a subset of escape characters:
+    # \r, \t, \n, \\, \x..
+    # Not supporting \u at this point.
+    # We do in a single regex and parse each as we go, as this avoids the
+    # potential for double-encoding.
+    self.gsub(/\\(x(..)|r|n|t|\\)/) {|b|
+      case b[1]
+      when 'x'
+        [b[2, 4].to_i(16)].pack('C')
+      when 'r'
+        "\r"
+      when 't'
+        "\t"
+      when 'n'
+        "\n"
+      when '\\'
+        "\\"
+      end
+    }
   end
 end
 
@@ -232,8 +250,8 @@ module Msf::Payload::MalleableC2
           }
 
           client.get_section('id') {|client_id|
-            post_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_GET, client_id.get_directive('parameter')[0]) if client_id.has_directive('parameter')
-            post_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_HEADER, client_id.get_directive('header')[0]) if client_id.has_directive('header')
+            post_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_GET, client_id.get_directive('parameter')[0].args[0]) if client_id.has_directive('parameter')
+            post_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_HEADER, client_id.get_directive('header')[0].args[0]) if client_id.has_directive('header')
             # assume uri-append for POST otherwise given that we always put the TLV payload in the body?
             # TODO: add support for adding a form rather than just a payload body?
           }
@@ -254,7 +272,7 @@ module Msf::Payload::MalleableC2
 
     def add_header(section, group_tlv)
       headers = section.get_directive('header').map {|dir| "#{dir.args[0]}: #{dir.args[1]}"}.join("\r\n")
-      group_tlv.add_tlv(MET::TLV_TYPE_C2_OTHER_HEADERS, headers) unless headers.empty?
+      group_tlv.add_tlv(MET::TLV_TYPE_C2_HEADERS, headers) unless headers.empty?
       headers
     end
 

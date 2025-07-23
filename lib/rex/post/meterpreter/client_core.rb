@@ -142,22 +142,26 @@ class ClientCore < Extension
     response = client.send_request(request)
 
     result = {
-      :session_exp => response.get_tlv_value(TLV_TYPE_TRANS_SESSION_EXP),
+      :session_exp => response.get_tlv_value(TLV_TYPE_SESSION_EXPIRY),
       :transports  => []
     }
 
-    response.each(TLV_TYPE_TRANS_GROUP) { |t|
+    response.each(TLV_TYPE_C2) { |t|
+      # TODO: Consider adding more informationt to the output for malleable profiles?
+      # TLV_TYPE_C2_GET, TLV_TYPE_C2_POST, TLV_TYPE_C2_PREFIX, TLV_TYPE_C2_SUFFIX, TLV_TYPE_C2_ENC,
+      # TLV_TYPE_C2_SKIP_COUNT, TLV_TYPE_C2_UUID_COOKIE, TLV_TYPE_C2_UUID_GET, TLV_TYPE_C2_UUID_HEADER
+      # Not sure if this stuff is useful for this display though.
       result[:transports] << {
-        :url            => t.get_tlv_value(TLV_TYPE_TRANS_URL),
-        :comm_timeout   => t.get_tlv_value(TLV_TYPE_TRANS_COMM_TIMEOUT),
-        :retry_total    => t.get_tlv_value(TLV_TYPE_TRANS_RETRY_TOTAL),
-        :retry_wait     => t.get_tlv_value(TLV_TYPE_TRANS_RETRY_WAIT),
-        :ua             => t.get_tlv_value(TLV_TYPE_TRANS_UA),
-        :proxy_host     => t.get_tlv_value(TLV_TYPE_TRANS_PROXY_HOST),
-        :proxy_user     => t.get_tlv_value(TLV_TYPE_TRANS_PROXY_USER),
-        :proxy_pass     => t.get_tlv_value(TLV_TYPE_TRANS_PROXY_PASS),
-        :cert_hash      => t.get_tlv_value(TLV_TYPE_TRANS_CERT_HASH),
-        :custom_headers => t.get_tlv_value(TLV_TYPE_TRANS_HEADERS)
+        :url            => t.get_tlv_value(TLV_TYPE_C2_URL),
+        :comm_timeout   => t.get_tlv_value(TLV_TYPE_C2_COMM_TIMEOUT),
+        :retry_total    => t.get_tlv_value(TLV_TYPE_C2_RETRY_TOTAL),
+        :retry_wait     => t.get_tlv_value(TLV_TYPE_C2_RETRY_WAIT),
+        :ua             => t.get_tlv_value(TLV_TYPE_C2_UA),
+        :proxy_host     => t.get_tlv_value(TLV_TYPE_C2_PROXY_HOST),
+        :proxy_user     => t.get_tlv_value(TLV_TYPE_C2_PROXY_USER),
+        :proxy_pass     => t.get_tlv_value(TLV_TYPE_C2_PROXY_PASS),
+        :cert_hash      => t.get_tlv_value(TLV_TYPE_C2_CERT_HASH),
+        :custom_headers => t.get_tlv_value(TLV_TYPE_C2_HEADERS)
       }
     }
 
@@ -171,25 +175,25 @@ class ClientCore < Extension
     request = Packet.create_request(COMMAND_ID_CORE_TRANSPORT_SET_TIMEOUTS)
 
     if opts[:session_exp]
-      request.add_tlv(TLV_TYPE_TRANS_SESSION_EXP, opts[:session_exp])
+      request.add_tlv(TLV_TYPE_SESSION_EXPIRY, opts[:session_exp])
     end
     if opts[:comm_timeout]
-      request.add_tlv(TLV_TYPE_TRANS_COMM_TIMEOUT, opts[:comm_timeout])
+      request.add_tlv(TLV_TYPE_C2_COMM_TIMEOUT, opts[:comm_timeout])
     end
     if opts[:retry_total]
-      request.add_tlv(TLV_TYPE_TRANS_RETRY_TOTAL, opts[:retry_total])
+      request.add_tlv(TLV_TYPE_C2_RETRY_TOTAL, opts[:retry_total])
     end
     if opts[:retry_wait]
-      request.add_tlv(TLV_TYPE_TRANS_RETRY_WAIT, opts[:retry_wait])
+      request.add_tlv(TLV_TYPE_C2_RETRY_WAIT, opts[:retry_wait])
     end
 
     response = client.send_request(request)
 
     {
-      :session_exp  => response.get_tlv_value(TLV_TYPE_TRANS_SESSION_EXP),
-      :comm_timeout => response.get_tlv_value(TLV_TYPE_TRANS_COMM_TIMEOUT),
-      :retry_total  => response.get_tlv_value(TLV_TYPE_TRANS_RETRY_TOTAL),
-      :retry_wait   => response.get_tlv_value(TLV_TYPE_TRANS_RETRY_WAIT)
+      :session_exp  => response.get_tlv_value(TLV_TYPE_SESSION_EXPIRY),
+      :comm_timeout => response.get_tlv_value(TLV_TYPE_C2_COMM_TIMEOUT),
+      :retry_total  => response.get_tlv_value(TLV_TYPE_C2_RETRY_TOTAL),
+      :retry_wait   => response.get_tlv_value(TLV_TYPE_C2_RETRY_WAIT)
     }
   end
 
@@ -523,7 +527,7 @@ class ClientCore < Extension
 
     # we're reusing the comms timeout setting here instead of
     # creating a whole new TLV value
-    request.add_tlv(TLV_TYPE_TRANS_COMM_TIMEOUT, seconds)
+    request.add_tlv(TLV_TYPE_C2_COMM_TIMEOUT, seconds)
     client.send_request(request)
     return true
   end
@@ -556,7 +560,7 @@ class ClientCore < Extension
     request = Packet.create_request(COMMAND_ID_CORE_TRANSPORT_SETCERTHASH)
 
     hash = Rex::Text.sha1_raw(self.client.sock.sslctx.cert.to_der)
-    request.add_tlv(TLV_TYPE_TRANS_CERT_HASH, hash)
+    request.add_tlv(TLV_TYPE_C2_CERT_HASH, hash)
 
     client.send_request(request)
 
@@ -590,7 +594,7 @@ class ClientCore < Extension
     request = Packet.create_request(COMMAND_ID_CORE_TRANSPORT_GETCERTHASH)
     response = client.send_request(request)
 
-    return response.get_tlv_value(TLV_TYPE_TRANS_CERT_HASH)
+    return response.get_tlv_value(TLV_TYPE_C2_CERT_HASH)
   end
 
   #
@@ -888,19 +892,19 @@ private
     end
 
     if opts[:comm_timeout]
-      request.add_tlv(TLV_TYPE_TRANS_COMM_TIMEOUT, opts[:comm_timeout])
+      request.add_tlv(TLV_TYPE_C2_COMM_TIMEOUT, opts[:comm_timeout])
     end
 
     if opts[:session_exp]
-      request.add_tlv(TLV_TYPE_TRANS_SESSION_EXP, opts[:session_exp])
+      request.add_tlv(TLV_TYPE_SESSION_EXPIRY, opts[:session_exp])
     end
 
     if opts[:retry_total]
-      request.add_tlv(TLV_TYPE_TRANS_RETRY_TOTAL, opts[:retry_total])
+      request.add_tlv(TLV_TYPE_C2_RETRY_TOTAL, opts[:retry_total])
     end
 
     if opts[:retry_wait]
-      request.add_tlv(TLV_TYPE_TRANS_RETRY_WAIT, opts[:retry_wait])
+      request.add_tlv(TLV_TYPE_C2_RETRY_WAIT, opts[:retry_wait])
     end
 
     # do more magic work for http(s) payloads
@@ -915,31 +919,30 @@ private
       end
 
       opts[:ua] ||= Rex::UserAgent.random
-      request.add_tlv(TLV_TYPE_TRANS_UA, opts[:ua])
+      request.add_tlv(TLV_TYPE_C2_UA, opts[:ua])
 
       if transport == 'reverse_https' && opts[:cert] # currently only https transport offers ssl
         hash = Rex::Socket::X509Certificate.get_cert_file_hash(opts[:cert])
-        request.add_tlv(TLV_TYPE_TRANS_CERT_HASH, hash)
+        request.add_tlv(TLV_TYPE_C2_CERT_HASH, hash)
       end
 
       if opts[:proxy_host] && opts[:proxy_port]
         prefix = 'http://'
         prefix = 'socks=' if opts[:proxy_type].to_s.downcase == 'socks'
         proxy = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
-        request.add_tlv(TLV_TYPE_TRANS_PROXY_HOST, proxy)
+        request.add_tlv(TLV_TYPE_C2_PROXY_HOST, proxy)
 
         if opts[:proxy_user]
-          request.add_tlv(TLV_TYPE_TRANS_PROXY_USER, opts[:proxy_user])
+          request.add_tlv(TLV_TYPE_C2_PROXY_USER, opts[:proxy_user])
         end
         if opts[:proxy_pass]
-          request.add_tlv(TLV_TYPE_TRANS_PROXY_PASS, opts[:proxy_pass])
+          request.add_tlv(TLV_TYPE_C2_PROXY_PASS, opts[:proxy_pass])
         end
       end
 
     end
 
-    request.add_tlv(TLV_TYPE_TRANS_TYPE, VALID_TRANSPORTS[transport])
-    request.add_tlv(TLV_TYPE_TRANS_URL, url)
+    request.add_tlv(TLV_TYPE_C2_URL, url)
 
     request
   end

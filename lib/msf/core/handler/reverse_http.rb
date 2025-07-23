@@ -206,17 +206,27 @@ module ReverseHttp
 
   def all_uris
     all = [luri]
-    c2_profile = datastore['MALLEABLEC2'] || ''
 
-    unless c2_profile.empty?
-      parser = Msf::Payload::MalleableC2::Parser.new
-      profile = parser.parse(c2_profile)
-      uris = profile.uris.map {|u| construct_luri(u)}
+    if self.c2_profile
+      uris = self.c2_profile.uris.map {|u| construct_luri(u)}
       all.push(*uris)
     end
 
     all
   end
+
+  def c2_profile
+    unless @c2_profile_parsed
+      profile_path = datastore['MALLEABLEC2'] || ''
+      unless profile_path.empty?
+        parser = Msf::Payload::MalleableC2::Parser.new
+        @c2_profile_instance = parser.parse(profile_path)
+      end
+      c2_profile_parsed = true
+    end
+    @c2_profile_instance
+  end
+
 
   # Create an HTTP listener
   #
@@ -342,7 +352,9 @@ protected
     # have to happen during the resource lookup instead of here, and
     # when on_request is called we pass the UUID in, if found
 
-    info = process_uri_resource(req.relative_resource)
+    #STDERR.puts("#{req.inspect}\n")
+    #req.uri_parts["QueryString"]
+    info = process_uri_resource(req.relative_resource) #|| process_query_string_resource(req.query_string)
     uuid = info[:uuid]
 
     if uuid
@@ -404,18 +416,10 @@ protected
         # was generated on the fly. This means we form a new session for each.
 
         # Hurl a TLV back at the caller, and ignore the response
-        pkt = Rex::Post::Meterpreter::Packet.new(Rex::Post::Meterpreter::PACKET_TYPE_RESPONSE, Rex::Post::Meterpreter::COMMAND_ID_CORE_PATCH_URL)
-        pkt.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_TRANS_URL, conn_id + "/")
+        pkt = Rex::Post::Meterpreter::Packet.new(Rex::Post::Meterpreter::PACKET_TYPE_RESPONSE, Rex::Post::Meterpreter::COMMAND_ID_CORE_PATCH_UUID)
+        pkt.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_C2_UUID, conn_id)
         resp.body = pkt.to_r
-
-        # this is gross, but we don't have a "client" yet, and so we have to hard-code nasty packet-wrapping stuff here :(
-        c2_profile = datastore['MALLEABLEC2'] || ''
-
-        unless c2_profile.empty?
-          parser = Msf::Payload::MalleableC2::Parser.new
-          profile = parser.parse(c2_profile)
-          resp.body = profile.wrap_outbound_get(resp.body)
-        end
+        resp.body = self.c2_profile.wrap_outbound_get(resp.body) if self.c2_profile
 
       when :init_python, :init_native, :init_java, :connect
         # TODO: at some point we may normalise these three cases into just :init
@@ -455,7 +459,7 @@ protected
           :retry_wait         => datastore['SessionRetryWait'].to_i,
           :ssl                => ssl?,
           :payload_uuid       => uuid,
-          :c2_profile         => datastore['MALLEABLEC2'] || '',
+          :c2_profile         => self.c2_profile,
           :debug_build        => datastore['MeterpreterDebugBuild'] || false,
         }
 
