@@ -92,20 +92,6 @@ TLV_TYPE_MIGRATE_STUB        = TLV_META_TYPE_RAW    | 411
 TLV_TYPE_LIB_LOADER_NAME     = TLV_META_TYPE_STRING | 412
 TLV_TYPE_LIB_LOADER_ORDINAL  = TLV_META_TYPE_UINT   | 413
 
-TLV_TYPE_TRANS_TYPE          = TLV_META_TYPE_UINT   | 430
-TLV_TYPE_TRANS_URL           = TLV_META_TYPE_STRING | 431
-TLV_TYPE_TRANS_UA            = TLV_META_TYPE_STRING | 432
-TLV_TYPE_TRANS_COMM_TIMEOUT  = TLV_META_TYPE_UINT   | 433
-TLV_TYPE_TRANS_SESSION_EXP   = TLV_META_TYPE_UINT   | 434
-TLV_TYPE_TRANS_CERT_HASH     = TLV_META_TYPE_RAW    | 435
-TLV_TYPE_TRANS_PROXY_HOST    = TLV_META_TYPE_STRING | 436
-TLV_TYPE_TRANS_PROXY_USER    = TLV_META_TYPE_STRING | 437
-TLV_TYPE_TRANS_PROXY_PASS    = TLV_META_TYPE_STRING | 438
-TLV_TYPE_TRANS_RETRY_TOTAL   = TLV_META_TYPE_UINT   | 439
-TLV_TYPE_TRANS_RETRY_WAIT    = TLV_META_TYPE_UINT   | 440
-TLV_TYPE_TRANS_HEADERS       = TLV_META_TYPE_STRING | 441
-TLV_TYPE_TRANS_GROUP         = TLV_META_TYPE_GROUP  | 442
-
 TLV_TYPE_MACHINE_ID          = TLV_META_TYPE_STRING | 460
 TLV_TYPE_UUID                = TLV_META_TYPE_RAW    | 461
 TLV_TYPE_SESSION_GUID        = TLV_META_TYPE_RAW    | 462
@@ -123,7 +109,7 @@ TLV_TYPE_PIVOT_STAGE_DATA      = TLV_META_TYPE_RAW    |  651
 TLV_TYPE_PIVOT_NAMED_PIPE_NAME = TLV_META_TYPE_STRING |  653
 
 #
-# Configuration options
+# Configuration & C2 options
 #
 TLV_TYPE_SESSION_EXPIRY        = TLV_META_TYPE_UINT   | 700 # Session expiration time
 TLV_TYPE_EXITFUNC              = TLV_META_TYPE_UINT   | 701 # identifier of the exit function to use
@@ -140,7 +126,7 @@ TLV_TYPE_C2_PROXY_USER         = TLV_META_TYPE_STRING | 711 # Proxy user name
 TLV_TYPE_C2_PROXY_PASS         = TLV_META_TYPE_STRING | 712 # Proxy password
 TLV_TYPE_C2_GET                = TLV_META_TYPE_GROUP  | 713 # A grouping of params associated with GET requests
 TLV_TYPE_C2_POST               = TLV_META_TYPE_GROUP  | 714 # A grouping of params associated with POST requests
-TLV_TYPE_C2_OTHER_HEADERS      = TLV_META_TYPE_STRING | 715 # Custom headers
+TLV_TYPE_C2_HEADERS            = TLV_META_TYPE_STRING | 715 # Custom headers
 TLV_TYPE_C2_UA                 = TLV_META_TYPE_STRING | 716 # User agent
 TLV_TYPE_C2_CERT_HASH          = TLV_META_TYPE_RAW    | 717 # Expected SSL certificate hash
 TLV_TYPE_C2_PREFIX             = TLV_META_TYPE_RAW    | 718 # Data to prepend to the outgoing payload
@@ -150,6 +136,7 @@ TLV_TYPE_C2_SKIP_COUNT         = TLV_META_TYPE_UINT   | 721 # Number of bytes of
 TLV_TYPE_C2_UUID_COOKIE        = TLV_META_TYPE_STRING | 722 # Name of the cookie to put the UUID in
 TLV_TYPE_C2_UUID_GET           = TLV_META_TYPE_STRING | 723 # Name of the GET parameter to put the UUID in
 TLV_TYPE_C2_UUID_HEADER        = TLV_META_TYPE_STRING | 724 # Name of the header to put the UUID in
+TLV_TYPE_C2_UUID               = TLV_META_TYPE_STRING | 725 # string representation of the UUID for C2s
 
 #
 # C2 Encoding flags
