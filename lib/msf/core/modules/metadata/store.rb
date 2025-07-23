@@ -127,17 +127,20 @@ module Msf::Modules::Metadata::Store
     }
   end
 
-  # This method uses a per-file CRC32 cache to avoid recalculating checksums for files that have not changed.
-  # It loads the cache, checks each file's mtime and size, and only recalculates the CRC32 if needed.
+  # This method checks if the current module and library files match the cached checksum.
+  # It uses a per-file CRC32 cache to avoid recalculating checksums for files that haven't changed.
+  # If no cache exists, it will create one in the user's directory.
   #
   # @return [Boolean] True if the current checksum matches the cached one
   def self.valid_checksum?
     current_checksum = get_current_checksum
-
-    get_store_cache_path
-    ensure_cache_file_exists(current_checksum)
-
     cached_sha = get_cached_checksum
+
+    # If no cached checksum exists, create the cache file with current checksum
+    if cached_sha.nil?
+      create_or_update_cache_file(get_cache_path, current_checksum)
+      return false
+    end
 
     checksums_match?(current_checksum, cached_sha)
   end
@@ -218,16 +221,10 @@ module Msf::Modules::Metadata::Store
     File.join(Msf::Config.config_directory, 'store', 'per_file_metadata_cache.json')
   end
 
-  # Get the path to the cache store file
-  # @return [String] Path to the cache store file
-  def self.get_store_cache_path
+  # Get the path to the cache file
+  # @return [String] Path to the cache file
+  def self.get_cache_path
     File.join(Msf::Config.config_directory, "store", CacheMetaDataFile)
-  end
-
-  # Get the path to the DB cache file
-  # @return [String] Path to the DB cache file
-  def self.get_db_cache_path
-    File.join(Msf::Config.install_root, "db", CacheMetaDataFile)
   end
 
   # Load the per-file cache from disk
@@ -272,47 +269,17 @@ module Msf::Modules::Metadata::Store
     File.write(file_path, JSON.pretty_generate(cache_content))
   end
 
-  # Ensure the db cache file exists, creating it if necessary
-  # @param [String] current_checksum The current checksum to use if creating a new cache file
-  # @return [void]
-  def self.ensure_cache_file_exists(current_checksum)
-    # Path to the DB cache file
-    cache_db_path = get_db_cache_path
-
-    # Only create the db cache file if it doesn't exist
-    # The user's cache file (~/.msf4/store/cache_metadata_base.json) should only be created when changes are made
-    unless File.exist?(cache_db_path)
-      # Ensure directory exists
-      FileUtils.mkdir_p(File.dirname(cache_db_path))
-      cache_content = {
-        "checksum" => {
-          "crc32" => current_checksum
-        }
-      }
-      File.write(cache_db_path, JSON.pretty_generate(cache_content))
-    end
-  end
-
-  # Get the cached checksum value without creating any new files
+  # Get the cached checksum value from the user's cache file
   # @return [String, nil] The cached checksum value or nil if no cache exists
   def self.get_cached_checksum
-    cache_store_path = get_store_cache_path
-    cache_db_path = get_db_cache_path
+    cache_path = get_cache_path
 
-    # First try user's cache file
-    if File.exist?(cache_store_path)
-      cache_content = JSON.parse(File.read(cache_store_path))
+    if File.exist?(cache_path)
+      cache_content = JSON.parse(File.read(cache_path))
       return cache_content.dig('checksum', 'crc32')
     end
 
-    # Fall back to db cache file
-    if File.exist?(cache_db_path)
-      cache_content = JSON.parse(File.read(cache_db_path))
-      return cache_content.dig('checksum', 'crc32')
-    end
-
-    # If neither exists, return nil to trigger a cache rebuild
-    # This allows the build process to work with neither file present
+    # If no cache exists, return nil to trigger creation of a new cache file
     nil
   end
 
@@ -321,19 +288,7 @@ module Msf::Modules::Metadata::Store
   # @param [String] current_checksum The current checksum to store in the cache
   # @return [void]
   def self.update_cache_checksum(current_checksum)
-    cache_store_path = get_store_cache_path
-    cache_db_path = get_db_cache_path
-
-    if File.exist?(cache_store_path)
-      # Update the existing user cache file
-      create_or_update_cache_file(cache_store_path, current_checksum)
-    elsif File.exist?(cache_db_path)
-      # Copy the DB cache file to the user's directory and update it
-      FileUtils.cp(cache_db_path, cache_store_path)
-      create_or_update_cache_file(cache_store_path, current_checksum)
-    else
-      # Create a new cache file if neither exists
-      create_or_update_cache_file(cache_store_path, current_checksum)
-    end
+    cache_path = get_cache_path
+    create_or_update_cache_file(cache_path, current_checksum)
   end
 end
