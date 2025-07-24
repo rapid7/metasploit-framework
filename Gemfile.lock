@@ -40,7 +40,7 @@ PATH
       http-cookie
       irb
       jsobfu
-      json
+      json (= 2.10.2)
       lru_redux
       metasm
       metasploit-concern
@@ -176,7 +176,7 @@ GEM
       activerecord (>= 3.1.0, < 8.1)
     ast (2.4.3)
     aws-eventstream (1.4.0)
-    aws-partitions (1.1132.0)
+    aws-partitions (1.1134.0)
     aws-sdk-core (3.227.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
@@ -184,7 +184,7 @@ GEM
       base64
       jmespath (~> 1, >= 1.6.1)
       logger
-    aws-sdk-ec2 (1.540.0)
+    aws-sdk-ec2 (1.541.0)
       aws-sdk-core (~> 3, >= 3.227.0)
       aws-sigv4 (~> 1.5)
     aws-sdk-ec2instanceconnect (1.59.0)
@@ -229,9 +229,7 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     diff-lcs (1.6.2)
-    dnsruby (1.72.4)
-      base64 (~> 0.2.0)
-      logger (~> 1.6.5)
+    dnsruby (1.72.2)
       simpleidn (~> 0.2.1)
     docile (1.4.1)
     domain_name (0.6.20240107)
@@ -300,7 +298,7 @@ GEM
     jmespath (1.6.2)
     jsobfu (0.4.2)
       rkelly-remix
-    json (2.13.0)
+    json (2.10.2)
     language_server-protocol (3.17.0.5)
     license_finder (5.11.1)
       bundler
@@ -311,7 +309,7 @@ GEM
       xml-simple
     lint_roller (1.1.0)
     little-plugger (1.1.4)
-    logger (1.6.6)
+    logger (1.7.0)
     logging (2.4.0)
       little-plugger (~> 1.1)
       multi_json (~> 1.14)
@@ -368,7 +366,7 @@ GEM
     mime-types (3.7.0)
       logger
       mime-types-data (~> 3.2025, >= 3.2025.0507)
-    mime-types-data (3.2025.0715)
+    mime-types-data (3.2025.0722)
     mini_portile2 (2.8.9)
     minitest (5.25.5)
     mqtt (0.6.0)
