@@ -266,7 +266,8 @@ module ReverseHttp
 
     # Add the new resource
     all_uris.each {|u|
-      r = (u + "/").gsub("//", "/")
+      #r = (u + "/").gsub("//", "/")
+      r = u.gsub("//", "/")
       service.add_resource(r,
         'Proc' => Proc.new { |cli, req|
           on_request(cli, req)
@@ -291,7 +292,8 @@ module ReverseHttp
     if self.service
       if @resources_added
         all_uris.each {|u|
-          r = (u + "/").gsub("//", "/")
+          #r = (u + "/").gsub("//", "/")
+          r = u.gsub("//", "/")
           self.service.remove_resource(r)
         }
         @resources_added = false
@@ -351,31 +353,38 @@ protected
     Thread.current[:cli] = cli
     resp = Rex::Proto::Http::Response.new
 
-    # TODO OJ - look for C2 profile, if associated, get settings to see if
-    # UUID is stashed in other locations like cookies/headers. This might
-    # have to happen during the resource lookup instead of here, and
-    # when on_request is called we pass the UUID in, if found
+    unless req.conn_id
+      cids = [req.resource.split('?')[0].split('/').compact.last]
+      cids.concat(req.uri_parts["QueryString"].values)
+      cids.concat(req.headers.values)
 
-    #STDERR.puts("#{req.inspect}\n")
-    #req.uri_parts["QueryString"]
-    info = process_uri_resource(req.relative_resource) #|| process_query_string_resource(req.query_string)
-    uuid = info[:uuid]
+      cids.each {|cid|
+        info = process_uri_resource(cid)
+        if info
+          req.conn_id = cid
+          break
+        end
+      }
+    end
+
+    if req.conn_id
+      info = process_uri_resource(req.conn_id)
+      uuid = info[:uuid]
+      conn_id = req.conn_id
+    end
 
     if uuid
       # Configure the UUID architecture and payload if necessary
       uuid.arch      ||= self.arch
       uuid.platform  ||= self.platform
 
-      conn_id = luri
-
-      request_summary = "#{conn_id} with UA '#{req.headers['User-Agent']}'"
+      request_summary = "#{luri} with UA '#{req.headers['User-Agent']}'"
 
       if info[:mode] && info[:mode] != :connect
-        conn_id << generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
-      else
-        conn_id << req.relative_resource
-        conn_id = conn_id.chomp('/')
+        conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
       end
+
+      conn_id.chomp!('/')
 
       # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
       if framework.db.active
@@ -413,7 +422,7 @@ protected
     # Process the requested resource.
     case info[:mode]
       when :init_connect
-        print_status("Redirecting stageless connection from #{request_summary}")
+        print_status("Redirecting stageless connection from #{request_summary} to #{conn_id}")
 
         # Handle the case where stageless payloads call in on the same URI when they
         # first connect. From there, we tell them to callback on a connect URI that
@@ -421,7 +430,7 @@ protected
 
         # Hurl a TLV back at the caller, and ignore the response
         pkt = Rex::Post::Meterpreter::Packet.new(Rex::Post::Meterpreter::PACKET_TYPE_RESPONSE, Rex::Post::Meterpreter::COMMAND_ID_CORE_PATCH_UUID)
-        pkt.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_C2_UUID, conn_id)
+        pkt.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_C2_UUID, conn_id.gsub(/\//, ''))
         resp.body = pkt.to_r
         resp.body = self.c2_profile.wrap_outbound_get(resp.body) if self.c2_profile
 
@@ -432,6 +441,7 @@ protected
           print_status("Attaching orphaned/stageless session...")
         else
           begin
+            # TODO: do we need to handle C2 profiles here?
             blob = self.generate_stage(url: url, uuid: uuid, uri: conn_id)
             blob = encode_stage(blob) if self.respond_to?(:encode_stage)
             # remove this when we make http payloads prepend stage sizes by default
