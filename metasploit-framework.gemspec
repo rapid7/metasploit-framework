@@ -59,7 +59,7 @@ Gem::Specification.new do |spec|
   # Needed for Javascript obfuscation
   spec.add_runtime_dependency 'jsobfu'
   # Needed for some admin modules (scrutinizer_add_user.rb)
-  spec.add_runtime_dependency 'json'
+  spec.add_runtime_dependency 'json', '2.10.2' # Pinned https://github.com/ruby/json/issues/827
   # Metasm compiler/decompiler/assembler
   spec.add_runtime_dependency 'metasm'
   # Needed for aarch64 assembler support - as Metasm does not currently support Aarch64 fully
