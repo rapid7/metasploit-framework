@@ -165,7 +165,7 @@ class Server
     end
 
     # If a procedure was passed, mount the resource with it.
-    if (opts['Proc'])
+    if opts['Proc']
       mount(name, Handler::Proc, false, opts['Proc'], opts['VirtualDirectory'])
     else
       raise ArgumentError, "You must specify a procedure."
@@ -269,37 +269,29 @@ protected
     end
   end
 
-  def find_resource_uuid(request)
-    cids = [request.resource.split('?')[0].split('/').compact.last]
-    cids.concat(request.uri_parts["QueryString"].values)
-    cids.concat(request.headers.values)
-
-    cids.each {|cid|
-      return cid if resources[cid]
-    }
-    nil
-  end
-
   #
   # Dispatches the supplied request for a given connection.
   #
   def dispatch_request(cli, request)
     # Is the client requesting keep-alive?
-    if ((request['Connection']) and
-       (request['Connection'].downcase == 'Keep-Alive'.downcase))
+    if request['Connection'] && request['Connection'].downcase == 'keep-alive'
       cli.keepalive = true
     end
 
-    # Direct lookup on the last part of the URI, if any, will work
-    # to find a handler based on the connection ID because we don't
-    # ever have IDs that have slashes, so it's not possible to overlap
-    # with handlers of the same name.
-    cid = find_resource_uuid(request)
-    if cid
-      p = resources[cid]
-      len = cid.length
+    # first, try to match up the request with a handler based on a matching
+    # function that's present in the context, if specified.
+    expl = self.context['MsfExploit']
+    resource_id = expl.find_resource_id(cli, request) if expl && expl.respond_to?(:find_resource_id)
+    request.conn_id = resource_id
+
+    if resource_id && resources[resource_id]
+      p = resources[resource_id]
+      len = resource_id.length
       root = request.resource
-      request.conn_id = cid
+    elsif resources[request.resource]
+      p = resources[request.resource]
+      len = resource_id.length
+      root = request.resource
     else
       # Search for the resource handler for the requested URL.  This is pretty
       # inefficient right now, but we can spruce it up later.
