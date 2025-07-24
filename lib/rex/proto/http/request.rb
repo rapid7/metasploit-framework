@@ -260,6 +260,11 @@ class Request < Packet
   end
 
   #
+  # An identifier associated with the incoming request, can be used to match requests with sessions.
+  #
+  attr_accessor :conn_id
+
+  #
   # The method being used for the request (e.g. GET).
   #
   attr_accessor :method

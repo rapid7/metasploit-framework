@@ -760,8 +760,8 @@ module HttpPacketDispatcher
       end
     else
       resp.body = ""
-      if req.body and req.body.length > 0
-        body = req.body
+      body = req.body
+      if body && body.length > 0
         body = self.unwrap_packet(body) if self.respond_to?(:unwrap_packet)
         packet = Packet.new(0)
         packet.add_raw(body)
