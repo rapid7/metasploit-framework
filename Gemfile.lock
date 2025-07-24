@@ -40,7 +40,7 @@ PATH
       http-cookie
       irb
       jsobfu
-      json (= 2.10.2)
+      json
       lru_redux
       metasm
       metasploit-concern
@@ -298,7 +298,7 @@ GEM
     jmespath (1.6.2)
     jsobfu (0.4.2)
       rkelly-remix
-    json (2.10.2)
+    json (2.13.1)
     language_server-protocol (3.17.0.5)
     license_finder (5.11.1)
       bundler
