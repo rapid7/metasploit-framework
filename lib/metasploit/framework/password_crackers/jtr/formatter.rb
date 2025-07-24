@@ -9,19 +9,29 @@ module Metasploit
           # @param cred [credClass] A credential from framework.db
           # @return [String] The hash in jtr format or nil on no match.
           def self.hash_to_jtr(cred)
-            case cred.private.type
-            when 'Metasploit::Credential::NTLMHash'
-              return "#{cred.public.username}:#{cred.id}:#{cred.private.data}:::#{cred.id}"
-            when 'Metasploit::Credential::PostgresMD5'
-              if cred.private.jtr_format =~ /postgres|raw-md5/
+            params_to_jtr(
+              (cred.public.nil? ? '' : cred.public.username),
+              cred.private.data,
+              cred.class.model_name.element.to_sym,
+              format: cred.private.jtr_format,
+              db_id: cred.id
+            )
+          end
+
+          def self.params_to_jtr(username, private_data, private_type, format: nil, db_id: nil)
+            case private_type
+            when :ntlm_hash
+              return "#{username}:#{db_id}:#{private_data}:::#{db_id}"
+            when :postgres_md5
+              if format =~ /postgres|raw-md5/
                 # john --list=subformats | grep 'PostgreSQL MD5'
                 # UserFormat = dynamic_1034  type = dynamic_1034: md5($p.$u) (PostgreSQL MD5)
-                hash_string = cred.private.data
+                hash_string = private_data
                 hash_string.gsub!(/^md5/, '')
-                return "#{cred.public.username}:$dynamic_1034$#{hash_string}:#{cred.id}:"
+                return "#{username}:$dynamic_1034$#{hash_string}:#{db_id}:"
               end
-            when 'Metasploit::Credential::NonreplayableHash'
-              case cred.private.jtr_format
+            when :nonreplayable_hash
+              case format
                 # oracle 11+ password hash descriptions:
                 # this password is stored as a long ascii string with several sections
                 # https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/changes-in-oracle-database-12c-password-hashes/
@@ -40,33 +50,33 @@ module Metasploit
                 # T: = 160 characters
                 #         PBKDF2-based SHA512 hash specific to 12C (12.1.0.2+)
               when /raw-sha1|oracle11/ # oracle 11
-                if cred.private.data =~ /S:([\dA-F]{60})/ # oracle 11
-                  return "#{cred.public.username}:#{Regexp.last_match(1)}:#{cred.id}:"
+                if private_data =~ /S:([\dA-F]{60})/ # oracle 11
+                  return "#{username}:#{Regexp.last_match(1)}:#{db_id}:"
                 end
               when /oracle12c/
-                if cred.private.data =~ /T:([\dA-F]{160})/ # oracle 12c
-                  return "#{cred.public.username}:$oracle12c$#{Regexp.last_match(1).downcase}:#{cred.id}:"
+                if private_data =~ /T:([\dA-F]{160})/ # oracle 12c
+                  return "#{username}:$oracle12c$#{Regexp.last_match(1).downcase}:#{db_id}:"
                 end
               when /dynamic_1506/
-                if cred.private.data =~ /H:([\dA-F]{32})/ # oracle 11
-                  return "#{cred.public.username.upcase}:$dynamic_1506$#{Regexp.last_match(1)}:#{cred.id}:"
+                if private_data =~ /H:([\dA-F]{32})/ # oracle 11
+                  return "#{username.upcase}:$dynamic_1506$#{Regexp.last_match(1)}:#{db_id}:"
                 end
               when /oracle/ # oracle
-                if cred.private.jtr_format.start_with?('des') # 'des,oracle', not oracle11/12c
-                  return "#{cred.public.username}:O$#{cred.public.username}##{cred.private.data}:#{cred.id}:"
+                if format.start_with?('des') # 'des,oracle', not oracle11/12c
+                  return "#{username}:O$#{username}##{private_data}:#{db_id}:"
                 end
               when /md5|des|bsdi|crypt|bf|sha256|sha512|xsha512/
                 # md5(crypt), des(crypt), b(crypt), sha256(crypt), sha512(crypt), xsha512
-                return "#{cred.public.username}:#{cred.private.data}:::::#{cred.id}:"
+                return "#{username}:#{private_data}:::::#{db_id}:"
               when /xsha/
                 # xsha512
-                return "#{cred.public.username}:#{cred.private.data.upcase}:::::#{cred.id}:"
+                return "#{username}:#{private_data.upcase}:::::#{db_id}:"
               when /netntlm/
-                return "#{cred.private.data}::::::#{cred.id}:"
+                return "#{private_data}::::::#{db_id}:"
               when /qnx/
                 # https://moar.so/blog/qnx-password-hash-formats.html
-                hash = cred.private.data.end_with?(':0:0') ? cred.private.data : "#{cred.private.data}:0:0"
-                return "#{cred.public.username}:#{hash}"
+                hash = private_data.end_with?(':0:0') ? private_data : "#{private_data}:0:0"
+                return "#{username}:#{hash}"
               when /Raw-MD5u/
                 # This is just md5(unicode($p)), where $p is the password.
                 # Avira uses to store their passwords, there may be other apps that also use this though.
@@ -74,12 +84,12 @@ module Metasploit
                 # format which is compatible, type 30, but that is listed as md5(utf16le($pass).$salt)
                 # with a sample hash of b31d032cfdcf47a399990a71e43c5d2a:144816. So this just outputs
                 # The hash as *hash*: so that it is both JTR and hashcat compatible
-                return "#{cred.private.data}:"
+                return "#{private_data}:"
               when /vnc/
                 # add a beginning * if one is missing
-                return "$vnc$#{cred.private.data.start_with?('*') ? cred.private.data.upcase : "*#{cred.private.data.upcase}"}"
+                return "$vnc$#{private_data.start_with?('*') ? private_data.upcase : "*#{private_data.upcase}"}"
               when /^(krb5.|timeroast$)/
-                return cred.private.data
+                return private_data
               else
                 # /mysql|mysql-sha1/
                 # /mssql|mssql05|mssql12/
@@ -93,9 +103,10 @@ module Metasploit
                 # /mscash2/
                 # This also handles *other* type credentials which aren't guaranteed to have a public
 
-                return "#{cred.public.nil? ? ' ' : cred.public.username}:#{cred.private.data}:#{cred.id}:"
+                return "#{username}:#{private_data}:#{db_id}:"
               end
             end
+
             nil
           end
 
