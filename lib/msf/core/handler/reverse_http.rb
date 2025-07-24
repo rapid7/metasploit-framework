@@ -283,6 +283,26 @@ module ReverseHttp
     end
   end
 
+  def find_resource_id(cli, request)
+    if request.method == 'POST'
+      directive = self.c2_profile&.http_post&.client&.id&.parameter
+      cid = request.qstring[directive[0].args[0]] if directive && directive.length > 0
+      unless cid
+        directive = self.c2_profile&.http_post&.client&.id&.header
+        cid = request.headers[directive[0].args[0]] if directive && directive.length > 0
+      end
+    else
+      directive = self.c2_profile&.http_get&.client&.metadata&.parameter
+      cid = request.qstring[directive[0].args[0]] if directive && directive.length > 0
+      unless cid
+        directive = self.c2_profile&.http_get&.client&.metadata&.header
+        cid = request.headers[directive[0].args[0]] if directive && directive.length > 0
+      end
+    end
+
+    request.conn_id = cid || request.resource.split('?')[0].split('/').compact.last
+  end
+
   #
   # Removes the / handler, possibly stopping the service if no sessions are
   # active on sub-urls.
@@ -349,19 +369,7 @@ protected
     Thread.current[:cli] = cli
     resp = Rex::Proto::Http::Response.new
 
-    unless req.conn_id
-      cids = [req.resource.split('?')[0].split('/').compact.last]
-      cids.concat(req.uri_parts["QueryString"].values)
-      cids.concat(req.headers.values)
-
-      cids.each {|cid|
-        info = process_uri_resource(cid)
-        if info
-          req.conn_id = cid
-          break
-        end
-      }
-    end
+    req.conn_id = find_resource_id(cli, req) unless req.conn_id
 
     if req.conn_id
       info = process_uri_resource(req.conn_id)
