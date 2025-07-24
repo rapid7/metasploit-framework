@@ -269,6 +269,17 @@ protected
     end
   end
 
+  def find_resource_uuid(request)
+    cids = [request.resource.split('?')[0].split('/').compact.last]
+    cids.concat(request.uri_parts["QueryString"].values)
+    cids.concat(request.headers.values)
+
+    cids.each {|cid|
+      return cid if resources[cid]
+    }
+    nil
+  end
+
   #
   # Dispatches the supplied request for a given connection.
   #
@@ -279,17 +290,16 @@ protected
       cli.keepalive = true
     end
 
-    #STDERR.puts("Resources: #{resources.inspect}\n")
-
     # Direct lookup on the last part of the URI, if any, will work
     # to find a handler based on the connection ID because we don't
     # ever have IDs that have slashes, so it's not possible to overlap
     # with handlers of the same name.
-    cid = request.resource.split('?')[0].split('/').compact.last
-    if resources[cid]
+    cid = find_resource_uuid(request)
+    if cid
       p = resources[cid]
       len = cid.length
       root = request.resource
+      request.conn_id = cid
     else
       # Search for the resource handler for the requested URL.  This is pretty
       # inefficient right now, but we can spruce it up later.
