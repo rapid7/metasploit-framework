@@ -217,18 +217,6 @@ class Request < Packet
     str + super
   end
 
-  def body
-    str = super || ''
-    if str.length > 0
-      return str
-    end
-
-    if PostRequests.include?(self.method)
-      return param_string
-    end
-    ''
-  end
-
   #
   # Returns the command string derived from the three values.
   #
