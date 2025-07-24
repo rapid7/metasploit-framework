@@ -43,9 +43,9 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Contacting redis")
     begin
       connect
-      # Split the input command into parts using space as the delimiter 
+      # Split the input command into parts using space as the delimiter
       command_parts=command.split(' ')
-      # Execute the Redis command using the split parts 
+      # Execute the Redis command using the split parts
       return unless (data = redis_command(*command_parts))
 
       report_service(host: rhost, port: rport, name: "redis server", info: "#{command} response: #{data}")
