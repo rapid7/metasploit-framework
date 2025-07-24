@@ -217,8 +217,8 @@ module Msf::Payload::MalleableC2
             enc_flags |= MET::C2_ENCODING_FLAG_B64URL if meta.has_directive('base64url')
 
             get_tlv.add_tlv(MET::TLV_TYPE_C2_ENC, enc_flags) if enc_flags != 0
-            get_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_GET, meta.get_directive('parameter')[0]) if meta.has_directive('parameter')
-            get_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_HEADER, meta.get_directive('header')[0]) if meta.has_directive('header')
+            get_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_GET, meta.get_directive('parameter')[0].args[0]) if meta.has_directive('parameter')
+            get_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_HEADER, meta.get_directive('header')[0].args[0]) if meta.has_directive('header')
             # assume uri-append for POST otherwise.
           }
         }
