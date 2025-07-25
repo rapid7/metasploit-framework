@@ -536,6 +536,27 @@ require 'digest/sha1'
     pushes
   end
 
+  # Converts a raw AArch64 payload into a PE executable.
+  #
+  # @param framework [Msf::Framework] The framework instance.
+  # @param code [String] The raw AArch64 shellcode.
+  # @param opts [Hash] The options hash.
+  # @option opts [String] :template The path to a custom PE template.
+  # @return [String] The generated PE executable as a binary string.
+  def self.to_winaarch64pe(framework, code, opts = {})
+    # Use the standard template if not specified by the user.
+    # This helper finds the full path and stores it in opts[:template].
+    set_template_default(opts, 'template_aarch64_windows.exe')
+
+    # Read the template directly from the path now stored in the options.
+    pe = File.read(opts[:template], mode: 'rb')
+
+    # Find the tag and inject the payload
+    bo = find_payload_tag(pe, 'Invalid Windows AArch64 template: missing "PAYLOAD:" tag')
+    pe[bo, code.length] = code.dup
+    pe
+  end
+
   # self.exe_sub_method
   #
   # @param  code [String]
@@ -1232,6 +1253,16 @@ require 'digest/sha1'
     to_exe_elf(framework, opts, "template_aarch64_linux.bin", code)
   end
 
+  # self.to_linux_ppc64_elf
+  #
+  # @param framework [Msf::Framework]
+  # @param code       [String]
+  # @param opts       [Hash]
+  # @option           [String] :template
+  # @return           [String] Returns an elf
+  def self.to_linux_ppc64_elf(framework, code, opts = {})
+    to_exe_elf(framework, opts, "template_ppc64_linux.bin", code, true)
+  end
   # self.to_linux_mipsle_elf
   # Little Endian
   # @param framework [Msf::Framework]
@@ -2127,6 +2158,8 @@ require 'digest/sha1'
         to_win32pe(framework, code, exeopts)
       when ARCH_X64
         to_win64pe(framework, code, exeopts)
+      when ARCH_AARCH64
+        to_winaarch64pe(framework, code, exeopts)
       end
     when 'exe-service'
       case arch
@@ -2178,6 +2211,8 @@ require 'digest/sha1'
           to_linux_x64_elf(framework, code, exeopts)
         when ARCH_AARCH64
           to_linux_aarch64_elf(framework, code, exeopts)
+        when ARCH_PPC64
+          to_linux_ppc64_elf(framework, code, exeopts)
         when ARCH_ARMLE
           to_linux_armle_elf(framework, code, exeopts)
         when ARCH_MIPSBE

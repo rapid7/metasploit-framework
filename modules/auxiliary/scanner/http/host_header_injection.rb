@@ -9,21 +9,27 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'HTTP Host Header Injection Detection',
-      'Description' => 'Checks if the host is vulnerable to Host header injection',
-      'Author'      =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'HTTP Host Header Injection Detection',
+        'Description' => 'Checks if the host is vulnerable to Host header injection',
+        'Author' => [
           'Jay Turla', # @shipcod3
           'Medz Barao' # @godflux
         ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           ['CVE', '2016-10073'], # validate, an instance of a described attack approach from the original reference
           ['URL', 'http://www.skeletonscribe.net/2013/05/practical-http-host-header-attacks.html']
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
       OptString.new('PATH', [true, "The PATH to use while testing", '/']),
@@ -35,10 +41,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-
     web_path = normalize_uri(datastore['PATH'])
     http_method = datastore['METHOD']
-    target_host = datastore['TARGETHOST'] || Rex::Text.rand_text_alpha_lower(8)+".com"
+    target_host = datastore['TARGETHOST'] || Rex::Text.rand_text_alpha_lower(8) + ".com"
 
     # The 'Host' header specifies the domain name of the server (for virtual
     # hosting), and (optionally) the TCP port number on which the server is listening.
@@ -50,16 +55,15 @@ class MetasploitModule < Msf::Auxiliary
     # the original host requested by the client in the Host HTTP request header.
 
     begin
-
       vprint_status("Sending request #{rhost}:#{rport}#{web_path} (#{vhost})(#{http_method}) with 'Host' value '#{target_host}'")
 
       res = send_request_raw({
-        'uri'     => web_path,
-        'method'  => http_method,
-        'data'    => datastore['DATA'],
+        'uri' => web_path,
+        'method' => http_method,
+        'data' => datastore['DATA'],
         'headers' => {
-          'Host'             => target_host,
-          'X-Host'           => target_host,
+          'Host' => target_host,
+          'X-Host' => target_host,
           'X-Forwarded-Host' => target_host
         }
       })
@@ -87,33 +91,32 @@ class MetasploitModule < Msf::Auxiliary
         print_good("#{rhost}:#{rport}#{web_path} (#{vhost})(#{res.code})(#{http_method})(evidence into #{evidence}) is vulnerable to HTTP Host header injection")
 
         report_vuln(
-          host:  rhost,
-          port:  rport,
+          host: rhost,
+          port: rport,
           proto: 'tcp',
           sname: ssl ? 'https' : 'http',
-          name:  self.name,
-          info:  "Module used #{self.fullname}, vhost: #{vhost}, method: #{http_method}: evidence: #{evidence}",
-          refs:  self.references
+          name: self.name,
+          info: "Module used #{self.fullname}, vhost: #{vhost}, method: #{http_method}: evidence: #{evidence}",
+          refs: self.references
         )
 
         report_web_vuln({
-          :host        => rhost,
-          :port        => rport,
-          :vhost       => vhost,
-          :path        => web_path,
-          :pname       => "Host,X-Host,X-Forwarded-Host headers",
-          :risk        => 2,
-          :proof       => "Evidence into #{evidence}",
+          :host => rhost,
+          :port => rport,
+          :vhost => vhost,
+          :path => web_path,
+          :pname => "Host,X-Host,X-Forwarded-Host headers",
+          :risk => 2,
+          :proof => "Evidence into #{evidence}",
           :description => "HTTP Host Header Injection Detection",
-          :name        => self.fullname,
-          :category    => "web",
-          :method      => http_method
+          :name => self.fullname,
+          :category => "web",
+          :method => http_method
         })
 
       else
         vprint_error("#{rhost}:#{rport}#{web_path} (#{vhost}) returned #{res.code} #{res.message}")
       end
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
     end

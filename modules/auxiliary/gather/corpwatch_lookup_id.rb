@@ -9,33 +9,41 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'CorpWatch Company ID Information Search',
-      'Description'    => %q{
-        This module interfaces with the CorpWatch API to get publicly available
-        info for a given CorpWatch ID of the company.  If you don't know the
-        CorpWatch ID, please use the corpwatch_lookup_name module first.
-      },
-      'Author'         => [ 'Brandon Perry <bperry.volatile[at]gmail.com>' ],
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'CorpWatch Company ID Information Search',
+        'Description' => %q{
+          This module interfaces with the CorpWatch API to get publicly available
+          info for a given CorpWatch ID of the company.  If you don't know the
+          CorpWatch ID, please use the corpwatch_lookup_name module first.
+        },
+        'Author' => [ 'Brandon Perry <bperry.volatile[at]gmail.com>' ],
+        'References' => [
           [ 'URL', 'http://api.corpwatch.org/' ]
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     deregister_http_client_options
 
     register_options(
       [
         OptString.new('CW_ID', [ true, "The CorpWatch ID of the company", ""]),
-        OptInt.new('YEAR', [ false, "Year to look up", Time.now.year-1]),
+        OptInt.new('YEAR', [ false, "Year to look up", Time.now.year - 1]),
         OptBool.new('GET_LOCATIONS', [ false, "Get locations for company", true]),
         OptBool.new('GET_NAMES', [ false, "Get all registered names ofr the company", true]),
         OptBool.new('GET_FILINGS', [ false, "Get all filings", false ]),
         OptBool.new('GET_CHILDREN', [false, "Get children companies", true]),
         OptInt.new('CHILD_LIMIT', [false, "Set limit to how many children we can get", 5]),
         OptBool.new('GET_HISTORY', [false, "Get company history", false])
-      ])
+      ]
+    )
   end
 
   def rhost_corpwatch
@@ -47,17 +55,16 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-
     loot = ""
     uri = "/"
     uri << (datastore['YEAR']).to_s if datastore['YEAR'].to_s != ""
     uri << ("/companies/" + datastore['CW_ID'])
 
     res = send_request_cgi({
-      'rhost'    => rhost_corpwatch,
-      'rport'    => rport_corpwatch,
-      'uri'      => uri + ".xml",
-      'method'   => 'GET'
+      'rhost' => rhost_corpwatch,
+      'rport' => rport_corpwatch,
+      'uri' => uri + ".xml",
+      'method' => 'GET'
     }, 25)
 
     if res == nil
@@ -116,13 +123,13 @@ class MetasploitModule < Msf::Auxiliary
       loot << ("\nSector: " + (sector = grab_text(e, "sector_name")))
       loot << ("\nSource: " + (source = grab_text(e, "source_type")))
       loot << ("\nAddress: " + (address = grab_text(e, "raw_address")))
-      loot << ("\nCountry: " + ( country = grab_text(e, "country_code")))
+      loot << ("\nCountry: " + (country = grab_text(e, "country_code")))
       loot << ("\nSub-Division: " + (subdiv = grab_text(e, "subdiv_code")))
       loot << ("\nTop Parent CW_ID: " + (top_parent = grab_text(e, "top_parent_id")))
       loot << ("\nNumber of parents: " + (num_parents = grab_text(e, "num_parents")))
       loot << ("\nNumber of children: " + (num_children = grab_text(e, "num_children")))
       loot << ("\nMax searchable year: " + (max_year = grab_text(e, "max_year")))
-      loot << ("\nMinimum searchable year: "+ (min_year = grab_text(e, "min_year")))
+      loot << ("\nMinimum searchable year: " + (min_year = grab_text(e, "min_year")))
       loot << "\n\n\n"
 
       print_status("Basic Information\n--------------------")
@@ -152,12 +159,13 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['GET_LOCATIONS']
 
       res = send_request_cgi(
-      {
-        'rhost'   => rhost_corpwatch,
-        'rport'   => rport_corpwatch,
-        'uri'     => uri + "/locations.xml",
-        'method'  => 'GET'
-      }, 25)
+        {
+          'rhost' => rhost_corpwatch,
+          'rport' => rport_corpwatch,
+          'uri' => uri + "/locations.xml",
+          'method' => 'GET'
+        }, 25
+      )
 
       if res == nil
         print_error("Server down or bad response")
@@ -190,9 +198,9 @@ class MetasploitModule < Msf::Auxiliary
         results.elements.each { |e|
           loot << ("CorpWatch ID: " + (cwid = grab_text(e, "cw_id")))
           loot << ("\nCountry code: " + (country_code = grab_text(e, "country_code"))
-          loot << ("\nSubdivision code: " + (subdiv_code = grab_text(e, "subdiv_code")))
-          loot << ("\nType: " + (type = grab_text(e, "type")))
-          loot << ("\nFull address: " + full_address = grab_text(e, "raw_address")))
+                   loot << ("\nSubdivision code: " + (subdiv_code = grab_text(e, "subdiv_code")))
+                   loot << ("\nType: " + (type = grab_text(e, "type")))
+                   loot << ("\nFull address: " + full_address = grab_text(e, "raw_address")))
           loot << ("\nStreet 1: " + (street1 = grab_text(e, "street_1")))
           loot << ("\nStreet 2: " + (street2 = grab_text(e, "street_2")))
           loot << ("\nCity: " + (city = grab_text(e, "city")))
@@ -224,12 +232,13 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['GET_NAMES']
 
       res = send_request_cgi(
-      {
-        'rhost'   => rhost_corpwatch,
-        'rport'   => rport_corpwatch,
-        'uri'     => uri + "/names.xml",
-        'method'  => 'GET'
-      }, 25)
+        {
+          'rhost' => rhost_corpwatch,
+          'rport' => rport_corpwatch,
+          'uri' => uri + "/names.xml",
+          'method' => 'GET'
+        }, 25
+      )
 
       if res == nil
         print_error("Server down or bad response")
@@ -286,12 +295,13 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['GET_FILINGS']
 
       res = send_request_cgi(
-      {
-        'rhost'   => rhost_corpwatch,
-        'rport'   => rport_corpwatch,
-        'uri'     => uri + "/filings.xml",
-        'method'  => 'GET'
-      }, 25)
+        {
+          'rhost' => rhost_corpwatch,
+          'rport' => rport_corpwatch,
+          'uri' => uri + "/filings.xml",
+          'method' => 'GET'
+        }, 25
+      )
 
       if res == nil
         print_error("Server down or response broken")
@@ -366,12 +376,13 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       res = send_request_cgi(
-      {
-        'rhost'   => rhost_corpwatch,
-        'rport'   => rport_corpwatch,
-        'uri'      => child_uri,
-        'method'   => 'GET'
-      }, 25)
+        {
+          'rhost' => rhost_corpwatch,
+          'rport' => rport_corpwatch,
+          'uri' => child_uri,
+          'method' => 'GET'
+        }, 25
+      )
 
       if res == nil
         print_error("Server down or bad response")
@@ -448,10 +459,10 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['GET_HISTORY']
 
       res = send_request_cgi({
-        'rhost'   => rhost_corpwatch,
-        'rport'   => rport_corpwatch,
-        'uri'     => uri + "/history.xml",
-        'method'  => 'GET'
+        'rhost' => rhost_corpwatch,
+        'rport' => rport_corpwatch,
+        'uri' => uri + "/history.xml",
+        'method' => 'GET'
       }, 25)
 
       if res == nil
@@ -524,7 +535,7 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    p = store_loot("corpwatch_api.#{datastore['CW_ID']}_info","text/plain",nil,loot,"company_#{datastore['CW_ID']}.txt","#{datastore["CW_ID"]} Specific Information")
+    p = store_loot("corpwatch_api.#{datastore['CW_ID']}_info", "text/plain", nil, loot, "company_#{datastore['CW_ID']}.txt", "#{datastore["CW_ID"]} Specific Information")
 
     print_line()
     print_status("Saved in: #{p}")
@@ -532,7 +543,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def grab_text(e, name)
     (e.get_elements(name) && e.get_elements(name)[0] &&
-    e.get_elements(name)[0].get_text ) ?
+    e.get_elements(name)[0].get_text) ?
     e.get_elements(name)[0].get_text.to_s : ""
   end
 end

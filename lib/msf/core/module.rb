@@ -114,7 +114,6 @@ module Msf
       @module_info_copy = info.dup
 
       self.module_info = info
-      generate_uuid
 
       set_defaults
 

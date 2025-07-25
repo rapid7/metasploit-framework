@@ -10,23 +10,32 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'          => 'OKI Printer Default Login Credential Scanner',
-      'Description'   => %q{
-        This module scans for OKI printers via SNMP, then tries to connect to found devices
-        with vendor default administrator credentials via HTTP authentication. By default, OKI
-        network printers use the last six digits of the MAC as admin password.
-      },
-      'Author'        => 'antr6X <anthr6x[at]gmail.com>',
-      'License'       => MSF_LICENSE
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'OKI Printer Default Login Credential Scanner',
+        'Description' => %q{
+          This module scans for OKI printers via SNMP, then tries to connect to found devices
+          with vendor default administrator credentials via HTTP authentication. By default, OKI
+          network printers use the last six digits of the MAC as admin password.
+        },
+        'Author' => 'antr6X <anthr6x[at]gmail.com>',
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptPort.new('SNMPPORT', [true, 'The SNMP Port', 161]),
         OptPort.new('HTTPPORT', [true, 'The HTTP Port', 80])
-      ])
+      ]
+    )
 
     deregister_options('RPORT', 'VHOST')
   end
@@ -71,12 +80,12 @@ class MetasploitModule < Msf::Auxiliary
     snmp = connect_snmp()
 
     snmp.walk("1.3.6.1.2.1.2.2.1.6") do |mac|
-      last_six  = mac.value.unpack("H2H2H2H2H2H2").join[-6,6].upcase
-      first_six = mac.value.unpack("H2H2H2H2H2H2").join[0,6].upcase
+      last_six = mac.value.unpack("H2H2H2H2H2H2").join[-6, 6].upcase
+      first_six = mac.value.unpack("H2H2H2H2H2H2").join[0, 6].upcase
 
       # check if it is a OKI
       # OUI list can be found at http://standards.ieee.org/develop/regauth/oui/oui.txt
-      if first_six ==  "002536" || first_six == "008087" || first_six == "002536"
+      if first_six == "002536" || first_six == "008087" || first_six == "002536"
         sys_name = snmp.get_value('1.3.6.1.2.1.1.5.0').to_s
         print_status("Found: #{sys_name}")
         print_status("Trying credential: admin/#{last_six}")
@@ -86,8 +95,8 @@ class MetasploitModule < Msf::Auxiliary
           'PeerPort' => datastore['HTTPPORT'],
           'Context' =>
             {
-              'Msf'=>framework,
-              'MsfExploit'=>self
+              'Msf' => framework,
+              'MsfExploit' => self
             }
         )
 
@@ -126,12 +135,12 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # No need to make noise about timeouts
-    rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::UnsupportedVersion
-    rescue ::Interrupt
-      raise $!
-    rescue ::Exception => e
-      print_error("#{ip} Error: #{e.class} #{e} #{e.backtrace}")
-    ensure
-      disconnect_snmp
-    end
+  rescue ::Rex::ConnectionError, ::SNMP::RequestTimeout, ::SNMP::UnsupportedVersion
+  rescue ::Interrupt
+    raise $!
+  rescue ::Exception => e
+    print_error("#{ip} Error: #{e.class} #{e} #{e.backtrace}")
+  ensure
+    disconnect_snmp
+  end
 end

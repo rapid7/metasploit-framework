@@ -1,4 +1,5 @@
 # encoding: binary
+
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
@@ -16,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'SSH Public Key Acceptance Scanner',
+      'Name' => 'SSH Public Key Acceptance Scanner',
       'Description' => %q{
         This module can determine what public keys are configured for
         key-based authentication across a range of machines, users, and
@@ -35,12 +36,12 @@ class MetasploitModule < Msf::Auxiliary
         silently ignored. Private keys will only utilize the public key component
         stored within the key file.
       },
-      'Author'      => [
+      'Author' => [
         'todb',
         'hdm',
         'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>', # Reworked the storage (db, credentials, notes, loot) only
-       ],
-      'License'     => MSF_LICENSE
+      ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
@@ -61,13 +62,12 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     deregister_options(
-      'PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS', 'USERPASS_FILE', 'DB_ALL_PASS', 'DB_ALL_CREDS'
+      'PASSWORD', 'PASS_FILE', 'BLANK_PASSWORDS', 'USER_AS_PASS', 'USERPASS_FILE', 'DB_ALL_PASS', 'DB_ALL_CREDS'
     )
 
     @good_credentials = {}
     @good_key = ''
     @strip_passwords = true
-
   end
 
   def key_dir
@@ -93,10 +93,11 @@ class MetasploitModule < Msf::Auxiliary
       keyfile = ''
       file.each do |dir_entry|
         next unless ::File.readable? dir_entry
-        keyfile << ::File.open(dir_entry, "rb") {|f| f.read(f.stat.size)}
+
+        keyfile << ::File.open(dir_entry, "rb") { |f| f.read(f.stat.size) }
       end
     else
-      keyfile = ::File.open(file, "rb") {|f| f.read(f.stat.size)}
+      keyfile = ::File.open(file, "rb") { |f| f.read(f.stat.size) }
     end
     keys = []
     this_key = []
@@ -106,9 +107,9 @@ class MetasploitModule < Msf::Auxiliary
         keys << key
         next
       end
-      in_key = true if(line =~ /^-----BEGIN [RD]SA (PRIVATE|PUBLIC) KEY-----/)
+      in_key = true if (line =~ /^-----BEGIN [RD]SA (PRIVATE|PUBLIC) KEY-----/)
       this_key << line if in_key
-      if(line =~ /^-----END [RD]SA (PRIVATE|PUBLIC) KEY-----/)
+      if (line =~ /^-----END [RD]SA (PRIVATE|PUBLIC) KEY-----/)
         in_key = false
         keys << (this_key.join("\n") + "\n")
         this_key = []
@@ -143,6 +144,7 @@ class MetasploitModule < Msf::Auxiliary
       next unless key =~ /\n-----END [RD]SA (PRIVATE|PUBLIC) KEY-----\x0d?\x0a?$/m
       # Shouldn't have binary.
       next unless key.scan(/[\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xff]/).empty?
+
       # Add more tests to test
       keepers << { :public => key, :private => "" }
     end
@@ -157,8 +159,10 @@ class MetasploitModule < Msf::Auxiliary
     keys.each do |key|
       next unless key[:public]
       next if key[:private] =~ /Proc-Type:.*ENCRYPTED/
-      this_key = { :public => key[:public].gsub(/\x0d/,""), :private => key[:private] }
+
+      this_key = { :public => key[:public].gsub(/\x0d/, ""), :private => key[:private] }
       next if cleartext_keys.include? this_key
+
       cleartext_keys << this_key
     end
     if cleartext_keys.empty?
@@ -168,7 +172,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_login(ip, port, user)
-
     if key_file && File.readable?(key_file)
       keys = read_keyfile(key_file)
       cleartext_keys = pull_cleartext_keys(keys)
@@ -178,11 +181,12 @@ class MetasploitModule < Msf::Auxiliary
       cleartext_keys = pull_cleartext_keys(keys)
       msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user (read from datastore)."
     elsif datastore['KEY_DIR']
-      return :missing_keyfile unless(File.directory?(key_dir) && File.readable?(key_dir))
+      return :missing_keyfile unless (File.directory?(key_dir) && File.readable?(key_dir))
+
       unless @key_files
-        @key_files = Dir.entries(key_dir).reject {|f| f =~ /^\x2e/}
+        @key_files = Dir.entries(key_dir).reject { |f| f =~ /^\x2e/ }
       end
-      these_keys = @key_files.map {|f| File.join(key_dir,f)}
+      these_keys = @key_files.map { |f| File.join(key_dir, f) }
       keys = read_keyfile(these_keys)
       cleartext_keys = pull_cleartext_keys(keys)
       msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user."
@@ -195,22 +199,20 @@ class MetasploitModule < Msf::Auxiliary
       @alerted_with_msg = true
     end
 
-
-    cleartext_keys.each_with_index do |key_data,key_idx|
-
-      key_info  = ""
+    cleartext_keys.each_with_index do |key_data, key_idx|
+      key_info = ""
       if key_data[:public] =~ /ssh\-(rsa|dss)\s+([^\s]+)\s+(.*)/
         key_info = "- #{$3.strip}"
       end
 
       factory = ssh_socket_factory
       opt_hash = {
-        :auth_methods    => ['publickey'],
-        :port            => port,
-        :key_data        => key_data[:public],
-        :use_agent       => false,
-        :config          => false,
-        :proxy           => factory,
+        :auth_methods => ['publickey'],
+        :port => port,
+        :key_data => key_data[:public],
+        :use_agent => false,
+        :config => false,
+        :proxy => factory,
         :non_interactive => true,
         :verify_host_key => :never
       }
@@ -220,10 +222,10 @@ class MetasploitModule < Msf::Auxiliary
       begin
         ssh_socket = nil
         success = false
-        verifier = Net::SSH::PubkeyVerifier.new(ip,user,opt_hash)
+        verifier = Net::SSH::PubkeyVerifier.new(ip, user, opt_hash)
         ::Timeout.timeout(datastore['SSH_TIMEOUT']) do
-           success = verifier.verify
-           ssh_socket = verifier.connection
+          success = verifier.verify
+          ssh_socket = verifier.connection
         end
 
         if datastore['SSH_BYPASS'] and ssh_socket
@@ -240,23 +242,22 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         ::Timeout.timeout(1) { ssh_socket.close if ssh_socket } rescue nil
-
       rescue Rex::ConnectionError
         return :connection_error
       rescue Net::SSH::Disconnect, ::EOFError
         return :connection_disconnect
       rescue Net::SSH::AuthenticationFailed
       rescue Net::SSH::Exception
-        return [:fail,nil] # For whatever reason.
+        return [:fail, nil] # For whatever reason.
       end
 
       unless success
         if @key_files
-          print_brute :level => :verror, :msg =>  "User #{user} does not accept key #{@key_files[key_idx+1]} #{key_info}"
+          print_brute :level => :verror, :msg => "User #{user} does not accept key #{@key_files[key_idx + 1]} #{key_info}"
         else
-          print_brute :level => :verror, :msg => "User #{user} does not accept key #{key_idx+1} #{key_info}"
+          print_brute :level => :verror, :msg => "User #{user} does not accept key #{key_idx + 1} #{key_info}"
         end
-        return [:fail,nil]
+        return [:fail, nil]
       end
 
       key = verifier.key
@@ -272,15 +273,14 @@ class MetasploitModule < Msf::Auxiliary
         info: key_info
       }
       do_report(ip, rport, user, key_hash)
-
     end
   end
 
   def do_report(ip, port, user, key)
     return unless framework.db.active
 
-    store_public_keyfile(ip,user,key[:fingerprint],key[:data][:public])
-    private_key_present = (key[:data][:private]!="") ? 'Yes' : 'No'
+    store_public_keyfile(ip, user, key[:fingerprint], key[:data][:public])
+    private_key_present = (key[:data][:private] != "") ? 'Yes' : 'No'
 
     # Store a note relating to the public key test
     note_information = {
@@ -293,7 +293,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if key[:data][:private] != ""
       # Store these keys in loot
-      private_keyfile_path = store_private_keyfile(ip,user,key[:fingerprint],key[:data][:private])
+      private_keyfile_path = store_private_keyfile(ip, user, key[:fingerprint], key[:data][:private])
 
       # Use the proper credential method to store credentials that we have
       service_data = {
@@ -323,17 +323,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def existing_loot(ltype, key_id)
-    framework.db.loots(workspace: myworkspace).where(ltype: ltype).select {|l| l.info == key_id}.first
+    framework.db.loots(workspace: myworkspace).where(ltype: ltype).select { |l| l.info == key_id }.first
   end
 
-  def store_public_keyfile(ip,user,key_id,key_data)
-    safe_username = user.gsub(/[^A-Za-z0-9]/,"_")
+  def store_public_keyfile(ip, user, key_id, key_data)
+    safe_username = user.gsub(/[^A-Za-z0-9]/, "_")
     ktype = key_data.match(/ssh-(rsa|dss)/)[1] rescue nil
     return unless ktype
+
     ktype = "dsa" if ktype == "dss"
     ltype = "host.unix.ssh.#{user}_#{ktype}_public"
     keyfile = existing_loot(ltype, key_id)
     return keyfile.path if keyfile
+
     keyfile_path = store_loot(
       ltype,
       "application/octet-stream", # Text, but always want to mime-type attach it
@@ -345,13 +347,15 @@ class MetasploitModule < Msf::Auxiliary
     return keyfile_path
   end
 
-  def store_private_keyfile(ip,user,key_id,key_data)
-    safe_username = user.gsub(/[^A-Za-z0-9]/,"_")
+  def store_private_keyfile(ip, user, key_id, key_data)
+    safe_username = user.gsub(/[^A-Za-z0-9]/, "_")
     ktype = key_data.match(/-----BEGIN ([RD]SA) (?:PRIVATE|PUBLIC) KEY-----/)[1].downcase rescue nil
     return unless ktype
+
     ltype = "host.unix.ssh.#{user}_#{ktype}_private"
     keyfile = existing_loot(ltype, key_id)
     return keyfile.path if keyfile
+
     keyfile_path = store_loot(
       ltype,
       "application/octet-stream", # Text, but always want to mime-type attach it
@@ -368,7 +372,7 @@ class MetasploitModule < Msf::Auxiliary
     # it doesn't make sense to iteratively go through all the keys
     # individually. So, ignore the pass variable, and try all available keys
     # for all users.
-    each_user_pass do |user,pass|
+    each_user_pass do |user, pass|
       ret, _ = do_login(ip, rport, user)
       case ret
       when :connection_error

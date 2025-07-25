@@ -12,13 +12,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'OpenVAS gsad Web Interface Login Utility',
-      'Description'    => %q{
+      'Name' => 'OpenVAS gsad Web Interface Login Utility',
+      'Description' => %q{
         This module simply attempts to login to an OpenVAS gsad interface
         using a specific user/pass.
       },
-      'Author'         => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
-      'License'        => MSF_LICENSE,
+      'Author' => [ 'Vlatko Kosturjak <kost[at]linux.hr>' ],
+      'License' => MSF_LICENSE,
       'DefaultOptions' => { 'SSL' => true }
     )
 
@@ -27,21 +27,23 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(443),
         OptString.new('URI', [true, "URI for OpenVAS omp login. Default is /omp", "/omp"]),
         OptBool.new('BLANK_PASSWORDS', [false, "Try blank passwords for all users", false]),
-      ])
+      ]
+    )
 
     register_advanced_options(
-    [
-      OptString.new('OMP_text', [true, "value for OpenVAS omp text login hidden field", "/omp?cmd=get_tasks&amp;overrides=1"]),
-      OptString.new('OMP_cmd', [true, "value for OpenVAS omp cmd login hidden field", "login"])
-    ])
+      [
+        OptString.new('OMP_text', [true, "value for OpenVAS omp text login hidden field", "/omp?cmd=get_tasks&amp;overrides=1"]),
+        OptString.new('OMP_cmd', [true, "value for OpenVAS omp cmd login hidden field", "login"])
+      ]
+    )
   end
 
   def run_host(ip)
     begin
       res = send_request_cgi({
-        'uri'     => datastore['URI'],
-        'method'  => 'GET'
-        }, 25)
+        'uri' => datastore['URI'],
+        'method' => 'GET'
+      }, 25)
       http_fingerprint({ :response => res })
     rescue ::Rex::ConnectionError => e
       vprint_error("#{msg} #{datastore['URI']} - #{e}")
@@ -66,15 +68,15 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def do_login(user='openvas', pass='openvas')
+  def do_login(user = 'openvas', pass = 'openvas')
     vprint_status("#{msg} - Trying username:'#{user}' with password:'#{pass}'")
     headers = {}
     begin
       res = send_request_cgi({
-        'encode'   => true,
-        'uri'      => datastore['URI'],
-        'method'   => 'POST',
-        'headers'  => headers,
+        'encode' => true,
+        'uri' => datastore['URI'],
+        'method' => 'POST',
+        'headers' => headers,
         'vars_post' => {
           'cmd' => datastore['OMP_cmd'],
           'text' => datastore['OMP_text'],
@@ -82,7 +84,6 @@ class MetasploitModule < Msf::Auxiliary
           'password' => pass
         }
       }, 25)
-
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("#{msg} HTTP Connection Failed, Aborting")
       return :abort

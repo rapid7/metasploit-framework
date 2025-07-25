@@ -8,24 +8,30 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'InfluxDB Enum Utility',
-      'Description'    => %q{
-        This module enumerates databases on InfluxDB using the REST API using the
-        default authentication of root:root.
-      },
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'InfluxDB Enum Utility',
+        'Description' => %q{
+          This module enumerates databases on InfluxDB using the REST API using the
+          default authentication of root:root.
+        },
+        'References' => [
           ['URL', 'https://docs.influxdata.com/influxdb/v2.1/'],
           ['URL', 'https://www.shodan.io/search?query=X-Influxdb-Version']
         ],
-      'Author'         =>
-        [
+        'Author' => [
           'Roberto Soares Espreto <robertoespreto[at]gmail.com>',
           'Nixawk'
         ],
-      'License'        => MSF_LICENSE
-    ))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -34,14 +40,15 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'The username to login as', 'root']),
         OptString.new('PASSWORD', [true, 'The password to login with', 'root']),
         OptString.new('QUERY', [true, 'The influxdb query syntax', 'SHOW DATABASES'])
-      ])
+      ]
+    )
   end
 
   def run
     begin
       # Check the target if is a influxdb server
       res = send_request_cgi(
-        'uri'    => normalize_uri(target_uri.path),
+        'uri' => normalize_uri(target_uri.path),
         'method' => 'GET'
       )
 
@@ -54,11 +61,11 @@ class MetasploitModule < Msf::Auxiliary
       # curl http://127.0.0.1:8086/query?q=SHOW+DATABASES
       # curl -X POST http://127.0.0.1:8086/query --data 'q=SHOW DATABASES'
       res = send_request_cgi(
-        'uri'           => normalize_uri(target_uri.path, '/query'),
-        'method'        => 'GET',
+        'uri' => normalize_uri(target_uri.path, '/query'),
+        'method' => 'GET',
         'authorization' => basic_auth(datastore['USERNAME'], datastore['PASSWORD']),
-        'vars_get'      => {
-          'q'           => datastore['QUERY']
+        'vars_get' => {
+          'q' => datastore['QUERY']
         }
       )
 

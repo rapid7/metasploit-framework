@@ -27,10 +27,14 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [
           ['URL', 'https://nmap.org/nsedoc/scripts/krb5-enum-users.html']
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
-
   end
 
   def run

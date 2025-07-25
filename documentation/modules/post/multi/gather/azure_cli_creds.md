@@ -44,7 +44,7 @@ Successfully tested on:
 ### 2.61.0 on Windows 10
 
 ```
-msf6 post(multi/gather/azure_cli_creds) > rerun
+msf post(multi/gather/azure_cli_creds) > rerun
 [*] Reloading module...
 
 [*] az cli version: 2.61.0
@@ -95,13 +95,13 @@ msf6 post(multi/gather/azure_cli_creds) > rerun
  oft.com
 
 [*] Post module execution completed
-msf6 post(multi/gather/azure_cli_creds) > 
+msf post(multi/gather/azure_cli_creds) > 
 ```
 
 ### 2.35.0 on Docker
 
 ```
-msf6 post(multi/gather/azure_cli_creds) > run
+msf post(multi/gather/azure_cli_creds) > run
 
 [!] SESSION may not be compatible with this module:
 [!]  * missing Meterpreter features: stdapi_railgun_api, stdapi_railgun_api_multi, stdapi_railgun_memread, stdapi_railgun_memwrite, stdapi_registry_check_key_exists, stdapi_registry_create_key, stdapi_registry_delete_key, stdapi_registry_enum_key_direct, stdapi_registry_enum_value_direct, stdapi_registry_load_key, stdapi_registry_open_key, stdapi_registry_query_value_direct, stdapi_registry_set_value_direct, stdapi_registry_unload_key, stdapi_sys_config_getprivs

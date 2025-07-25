@@ -7,24 +7,30 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'        => 'Ruby on Rails JSON Processor YAML Deserialization Scanner',
-      'Description' => %q{
-        This module attempts to identify Ruby on Rails instances vulnerable to
-        an arbitrary object instantiation flaw in the JSON request processor.
-      },
-      'Author'      =>
-        [
-            'jjarmoc',	# scanner module
-            'hdm'		# CVE-2013-0156 scanner, basis of this technique.
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Ruby on Rails JSON Processor YAML Deserialization Scanner',
+        'Description' => %q{
+          This module attempts to identify Ruby on Rails instances vulnerable to
+          an arbitrary object instantiation flaw in the JSON request processor.
+        },
+        'Author' => [
+          'jjarmoc',	# scanner module
+          'hdm'	# CVE-2013-0156 scanner, basis of this technique.
         ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           ['CVE', '2013-0333']
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
       OptString.new('TARGETURI', [true, "The URI to test", "/"]),
@@ -34,19 +40,18 @@ class MetasploitModule < Msf::Auxiliary
 
   def send_probe(pdata)
     res = send_request_cgi({
-      'uri'    => normalize_uri(datastore['TARGETURI']),
+      'uri' => normalize_uri(datastore['TARGETURI']),
       'method' => datastore['HTTP_METHOD'],
-      'ctype'  => 'application/json',
-      'data'   => pdata
+      'ctype' => 'application/json',
+      'data' => pdata
     })
   end
 
   def run_host(ip)
-
     # Straight JSON as a baseline
     res1 = send_probe(
-      "{ \"#{Rex::Text.rand_text_alpha(rand(8)+1)}\" : \"#{Rex::Text.rand_text_alpha(rand(8)+1)}\" }"
-      )
+      "{ \"#{Rex::Text.rand_text_alpha(rand(8) + 1)}\" : \"#{Rex::Text.rand_text_alpha(rand(8) + 1)}\" }"
+    )
 
     unless res1
       vprint_status("#{rhost}:#{rport} No reply to the initial JSON request")
@@ -82,10 +87,10 @@ class MetasploitModule < Msf::Auxiliary
       report_vuln({
         :host	=> rhost,
         :port	=> rport,
-        :proto  => 'tcp',
+        :proto => 'tcp',
         :name	=> self.name,
         :info	=> "Module triggered a #{res3.code} reply",
-        :refs   => self.references
+        :refs => self.references
       })
     else
       # Otherwise we're not likely vulnerable.

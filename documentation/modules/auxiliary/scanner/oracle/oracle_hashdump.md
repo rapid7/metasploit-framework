@@ -53,10 +53,10 @@
 
 ## Scenarios
 
-### Running Oracle 12c on a local Windows 10 machine, and MSF5 on Ubuntu for Windows (same machine)
+### Running Oracle 12c on a local Windows 10 machine, and msf on Ubuntu for Windows (same machine)
 
 ```
-msf5 auxiliary(scanner/oracle/oracle_hashdump) > show options
+msf auxiliary(scanner/oracle/oracle_hashdump) > show options
 Module options (auxiliary/scanner/oracle/oracle_hashdump):
 
    Name     Current Setting  Required  Description
@@ -69,7 +69,7 @@ Module options (auxiliary/scanner/oracle/oracle_hashdump):
    SID      staticdb         yes       The sid to authenticate with.
    THREADS  1                yes       The number of concurrent threads
 
-msf5 auxiliary(scanner/oracle/oracle_hashdump) > run
+msf auxiliary(scanner/oracle/oracle_hashdump) > run
 
 [*] Server is running 12c
 [*] Hash table :
@@ -85,7 +85,7 @@ msf5 auxiliary(scanner/oracle/oracle_hashdump) > run
 [+] Hash Table has been saved
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/oracle/oracle_hashdump) > creds
+msf auxiliary(scanner/oracle/oracle_hashdump) > creds
 Credentials
 ===========
 
@@ -98,8 +98,8 @@ host       origin     service            public  private                        
 These hashes are then saved as credentials so that `jtr_oracle_fast` can crack them (using [John The Ripper "bleeding_jumbo"](https://github.com/magnumripper/JohnTheRipper)).
 
 ```
-msf5 auxiliary(scanner/oracle/oracle_hashdump) > use auxiliary/analyze/jtr_oracle_fast
-msf5 auxiliary(analyze/jtr_oracle_fast) > run
+msf auxiliary(scanner/oracle/oracle_hashdump) > use auxiliary/analyze/jtr_oracle_fast
+msf auxiliary(analyze/jtr_oracle_fast) > run
 ...
 [*] Cracking oracle12c hashes in normal wordlist mode...
 Using default input encoding: UTF-8
@@ -139,9 +139,9 @@ resource (oracle.rb)> set dbpass oracle
 dbpass => oracle
 resource (oracle.rb)> set sid XE
 sid => XE
-msf5 auxiliary(scanner/oracle/oracle_hashdump) > set verbose true
+msf auxiliary(scanner/oracle/oracle_hashdump) > set verbose true
 verbose => true
-msf5 auxiliary(scanner/oracle/oracle_hashdump) > run
+msf auxiliary(scanner/oracle/oracle_hashdump) > run
 
 [*] Server is running version 11g
 [*] Hash table :

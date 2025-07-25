@@ -10,16 +10,17 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'PcAnywhere TCP Service Discovery',
+      'Name' => 'PcAnywhere TCP Service Discovery',
       'Description' => 'Discover active pcAnywhere services through TCP',
-      'Author'      => 'hdm',
-      'License'     => MSF_LICENSE
+      'Author' => 'hdm',
+      'License' => MSF_LICENSE
     )
 
     register_options(
-    [
-      Opt::RPORT(5631)
-    ])
+      [
+        Opt::RPORT(5631)
+      ]
+    )
   end
 
   def run_host(ip)
@@ -46,7 +47,6 @@ class MetasploitModule < Msf::Auxiliary
 
       report_service(:host => rhost, :port => rport, :name => "pcanywhere_data", :info => "")
       print_good("#{rhost}:#{rport} pcAnywhere data service")
-
     rescue ::Rex::ConnectionError, ::EOFError, ::Errno::ECONNRESET
     rescue ::Exception => e
       print_error("#{rhost}:#{rport} Error: #{e.class} #{e} #{e.backtrace}")

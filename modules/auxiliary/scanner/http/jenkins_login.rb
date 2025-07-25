@@ -14,10 +14,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'Jenkins-CI Login Utility',
-      'Description'    => 'This module attempts to login to a Jenkins-CI instance using a specific user/pass.',
-      'Author'         => [ 'Nicholas Starke <starke.nicholas[at]gmail.com>' ],
-      'License'        => MSF_LICENSE
+      'Name' => 'Jenkins-CI Login Utility',
+      'Description' => 'This module attempts to login to a Jenkins-CI instance using a specific user/pass.',
+      'Author' => [ 'Nicholas Starke <starke.nicholas[at]gmail.com>' ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
@@ -25,7 +25,8 @@ class MetasploitModule < Msf::Auxiliary
         OptEnum.new('HTTP_METHOD', [true, 'The HTTP method to use for the login', 'POST', ['GET', 'POST']]),
         Opt::RPORT(8080),
         OptString.new('TARGETURI', [ false, 'The path to the Jenkins-CI application'])
-      ])
+      ]
+    )
 
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000 ])
   end

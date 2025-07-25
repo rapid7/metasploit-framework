@@ -16,28 +16,28 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'rlogin Authentication Scanner',
+      'Name' => 'rlogin Authentication Scanner',
       'Description' => %q{
           This module will test an rlogin service on a range of machines and
         report successful logins.
 
         NOTE: This module requires access to bind to privileged ports (below 1024).
       },
-      'References' =>
-        [
-          [ 'CVE', '1999-0651' ],
-          [ 'CVE', '1999-0502'] # Weak password
-        ],
-      'Author'      => [ 'jduck' ],
-      'License'     => MSF_LICENSE
+      'References' => [
+        [ 'CVE', '1999-0651' ],
+        [ 'CVE', '1999-0502'] # Weak password
+      ],
+      'Author' => [ 'jduck' ],
+      'License' => MSF_LICENSE
     )
 
     register_options(
       [
         Opt::RPORT(513),
-        OptString.new('TERM',  [ true, 'The terminal type desired', 'vt100' ]),
+        OptString.new('TERM', [ true, 'The terminal type desired', 'vt100' ]),
         OptString.new('SPEED', [ true, 'The terminal speed desired', '9600' ])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -85,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
     # Okay, now we have a list of credentials to try. We want to merge in
     # our list of from users for each user.
     indexes = {}
-    credentials.map! { |u,p|
+    credentials.map! { |u, p|
       idx = indexes[u]
       idx ||= 0
 
@@ -125,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
       next if @@credentials_skipped[fq_user]
       next if @@credentials_tried[fq_user] == fupw
 
-      fu,p = fupw
+      fu, p = fupw
       ret = block.call(u, fu, p)
 
       case ret
@@ -148,7 +148,6 @@ class MetasploitModule < Msf::Auxiliary
       @@credentials_tried[fq_user] = fupw
     end
   end
-
 
   def try_user_pass(user, luser, pass, status = nil)
     luser ||= 'root'
@@ -196,7 +195,6 @@ class MetasploitModule < Msf::Auxiliary
     # Default to returning whatever we got last..
     ret
   end
-
 
   def do_login(user, pass, luser, status = nil)
     # Reset our accumulators for interacting with /bin/login
@@ -289,9 +287,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
   # For debugging only.
-  #rescue ::Exception
+  # rescue ::Exception
   #	print_error("#{$!}")
-
   ensure
     disconnect()
   end
@@ -323,7 +320,7 @@ class MetasploitModule < Msf::Auxiliary
       info = "RLOGIN #{user}:#{pass} (#{host}:#{port})"
     else
       service_data.merge!(:luser => luser)
-      credential_data.merge!('FROMUSER'=> luser)
+      credential_data.merge!('FROMUSER' => luser)
       info = "RLOGIN #{user} from #{luser} (#{host}:#{port})"
     end
 

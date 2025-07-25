@@ -42,13 +42,13 @@ Path, or file name, to store the file as on the Redis server.
 
 ### Redis: 4.0.14 inside a docker container
   ```
-msf5 auxiliary(scanner/redis/file_upload) > set RHOSTS 172.17.0.2
+msf auxiliary(scanner/redis/file_upload) > set RHOSTS 172.17.0.2
 RHOSTS => 172.17.0.2
-msf5 auxiliary(scanner/redis/file_upload) > set LocalFile redis_upload_test.txt
+msf auxiliary(scanner/redis/file_upload) > set LocalFile redis_upload_test.txt
 LocalFile => redis_upload_test.txt
-msf5 auxiliary(scanner/redis/file_upload) > set RemoteFile redis_upload_test.txt
+msf auxiliary(scanner/redis/file_upload) > set RemoteFile redis_upload_test.txt
 RemoteFile => redis_upload_test.txt
-msf5 auxiliary(scanner/redis/file_upload) > run
+msf auxiliary(scanner/redis/file_upload) > run
 
 [+] 172.17.0.2:6379       - 172.17.0.2:6379       -- saved 23 bytes inside of redis DB at redis_upload_test.txt
 [*] 172.17.0.2:6379       - Scanned 1 of 1 hosts (100% complete)

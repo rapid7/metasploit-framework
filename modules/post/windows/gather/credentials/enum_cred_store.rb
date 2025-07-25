@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Post
   def is_86
     if @is_86_check.nil?
       pid = session.sys.process.open.pid
-      @is_86_check = session.sys.process.each_process.find { |i| i['pid'] == pid } ['arch'] == 'x86'
+      @is_86_check = session.sys.process.each_process.find { |i| i['pid'] == pid }['arch'] == 'x86'
     end
 
     @is_86_check

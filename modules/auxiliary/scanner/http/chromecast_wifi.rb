@@ -8,17 +8,25 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Chromecast Wifi Enumeration',
-      'Description' => %q{
-        This module enumerates wireless access points through Chromecast.
-      },
-      'Author' => ['wvu'],
-      'References' => [
-        ['URL', 'http://www.google.com/intl/en/chrome/devices/chromecast/index.html'] # vendor website
-      ],
-      'License' => MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Chromecast Wifi Enumeration',
+        'Description' => %q{
+          This module enumerates wireless access points through Chromecast.
+        },
+        'Author' => ['wvu'],
+        'References' => [
+          ['URL', 'http://www.google.com/intl/en/chrome/devices/chromecast/index.html'] # vendor website
+        ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
       Opt::RPORT(8008)

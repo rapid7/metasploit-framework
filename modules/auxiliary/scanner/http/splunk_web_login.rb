@@ -9,36 +9,50 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'Splunk Web Interface Login Utility',
-      'Description'    => %{
-        This module simply attempts to login to a Splunk web interface.  Please note the
-        free version of Splunk actually does not require any authentication, in that case
-        the module will abort trying.  Also, some Splunk applications still have the
-        default credential 'admin:changeme' written on the login page.  If this default
-        credential is found, the module will also store that information, and then move on
-        to trying more passwords.
-      },
-      'Author'         =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Splunk Web Interface Login Utility',
+        'Description' => %q{
+          This module simply attempts to login to a Splunk web interface.  Please note the
+          free version of Splunk actually does not require any authentication, in that case
+          the module will abort trying.  Also, some Splunk applications still have the
+          default credential 'admin:changeme' written on the login page.  If this default
+          credential is found, the module will also store that information, and then move on
+          to trying more passwords.
+        },
+        'Author' => [
           'Vlatko Kosturjak <kost[at]linux.hr>',
           'sinn3r'
         ],
-      'License'        => MSF_LICENSE
-    ))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(8000),
         OptString.new('URI', [true, "URI for Splunk Web login. Default is /en-US/account/login", "/en-US/account/login"]),
-        OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-          File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt") ]),
-        OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt") ]),
-        OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt") ])
-      ])
+        OptPath.new('USERPASS_FILE', [
+          false, "File containing users and passwords separated by space, one pair per line",
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_userpass.txt")
+        ]),
+        OptPath.new('USER_FILE', [
+          false, "File containing users, one per line",
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_users.txt")
+        ]),
+        OptPath.new('PASS_FILE', [
+          false, "File containing passwords, one per line",
+          File.join(Msf::Config.data_directory, "wordlists", "http_default_pass.txt")
+        ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -62,26 +76,25 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-
   #
   # What's the point of running this module if the app actually isn't Splunk?
   #
   def is_app_splunk?
-    res = send_request_raw({'uri' => datastore['URI']})
+    res = send_request_raw({ 'uri' => datastore['URI'] })
     return (res and res.code == 200 and res.body =~ /Splunk/)
   end
 
   def get_login_cookie
-    res = send_request_raw({'uri' => datastore['URI']})
+    res = send_request_raw({ 'uri' => datastore['URI'] })
 
-    uid             = ''
+    uid = ''
     session_id_port = ''
-    session_id      = ''
-    cval            = ''
+    session_id = ''
+    cval = ''
 
     if res and res.code == 200 and !res.get_cookies.empty?
-      res.get_cookies.split(';').each {|c|
-        c.split(',').each {|v|
+      res.get_cookies.split(';').each { |c|
+        c.split(',').each { |v|
           if v.split('=')[0] =~ /cval/
             cval = v.split('=')[1]
           elsif v.split('=')[0] =~ /uid/
@@ -98,17 +111,15 @@ class MetasploitModule < Msf::Auxiliary
     return nil
   end
 
-
   #
   # Test and see if the default credential works
   #
   def try_default_credential
     p = /Splunk's default credentials are <\/p><p>username: <span>(.+)<\/span><br \/>password: <span>(.+)<\/span>/
-    res = send_request_raw({'uri' => datastore['URI']})
+    res = send_request_raw({ 'uri' => datastore['URI'] })
     user, pass = res.body.scan(p).flatten
     do_login(user, pass) if user and pass
   end
-
 
   #
   # The free version of Splunk does not require authentication. Instead, it'll log the
@@ -117,7 +128,7 @@ class MetasploitModule < Msf::Auxiliary
   def is_auth_required?
     uid, session_id_port, session_id, cval = get_login_cookie
     res = send_request_raw({
-      'uri'    => '/en-US/app/launcher/home',
+      'uri' => '/en-US/app/launcher/home',
       'cookie' => "uid=#{uid}; #{session_id_port}=#{session_id}; cval=#{cval}"
     })
 
@@ -165,17 +176,18 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       res = send_request_cgi(
-      {
-        'uri'       => datastore['URI'],
-        'method'    => 'POST',
-        'cookie'    => "uid=#{uid}; #{session_id_port}=#{session_id}; cval=#{cval}",
-        'vars_post' =>
-          {
-            'cval'     => cval,
-            'username' => user,
-            'password' => pass
-          }
-      })
+        {
+          'uri' => datastore['URI'],
+          'method' => 'POST',
+          'cookie' => "uid=#{uid}; #{session_id_port}=#{session_id}; cval=#{cval}",
+          'vars_post' =>
+            {
+              'cval' => cval,
+              'username' => user,
+              'password' => pass
+            }
+        }
+      )
 
       if not res
         vprint_error("FAILED LOGIN. '#{user}' : '#{pass}' returned no response")
@@ -188,11 +200,9 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
-      report_cred(ip: datastore['RHOST'], port: datastore['RPORT'], user:user, password: pass, proof: res.code.to_s)
-
+      report_cred(ip: datastore['RHOST'], port: datastore['RPORT'], user: user, password: pass, proof: res.code.to_s)
 
       return :next_user
-
     rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
       print_error("HTTP Connection Failed, Aborting")
       return :abort

@@ -10,25 +10,34 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute # Actually, doesn't use much here, but there's a couple handy functions.
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Oracle TNS Listener SID Bruteforce',
-      'Description'    => %q{
-        This module queries the TNS listener for a valid Oracle database
-        instance name (also known as a SID).
-        Any response other than a "reject" will be considered a success.
-        If a specific SID is provided, that SID will be attempted. Otherwise,
-        SIDs read from the named file will be attempted in sequence instead.
-      },
-      'Author'         => [ 'todb' ],
-      'License'        => MSF_LICENSE
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Oracle TNS Listener SID Bruteforce',
+        'Description' => %q{
+          This module queries the TNS listener for a valid Oracle database
+          instance name (also known as a SID).
+          Any response other than a "reject" will be considered a success.
+          If a specific SID is provided, that SID will be attempted. Otherwise,
+          SIDs read from the named file will be attempted in sequence instead.
+        },
+        'Author' => [ 'todb' ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptPath.new('SID_FILE', [ false, "File containing instance names, one per line", File.join(Msf::Config.data_directory, "wordlists", "sid.txt") ]),
         OptString.new('SID', [ false, 'A specific SID to attempt.' ]),
         Opt::RPORT(1521)
-      ])
+      ]
+    )
 
     deregister_options(
       "USERNAME", "PASSWORD", "USER_FILE", "PASS_FILE", "USERPASS_FILE",
@@ -37,17 +46,17 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def build_sid_request(sid,ip)
+  def build_sid_request(sid, ip)
     connect_data = "(DESCRIPTION=(CONNECT_DATA=(SID=#{sid})(CID=(PROGRAM=)(HOST=__jdbc__)(USER=)))(ADDRESS=(PROTOCOL=tcp)(HOST=#{ip})(PORT=#{rport})))"
     pkt = tns_packet(connect_data)
   end
 
   def hostport
-    [target_host,rport].join(":")
+    [target_host, rport].join(":")
   end
 
-  def check_sid(sid,ip)
-    pkt = build_sid_request(sid,ip)
+  def check_sid(sid, ip)
+    pkt = build_sid_request(sid, ip)
     sock.put(pkt)
     data = sock.get_once || ''
     parse_response(data)
@@ -55,14 +64,15 @@ class MetasploitModule < Msf::Auxiliary
 
   def parse_response(data)
     return unless data
-    len,sum,type,r,hsum,rest = data.unpack("nnCCnA*")
+
+    len, sum, type, r, hsum, rest = data.unpack("nnCCnA*")
     type # 2 is "accept", 11 is resend. Usually you get 11, then 2. 4 is refuse.
   end
 
-  def do_sid_check(sid,ip)
+  def do_sid_check(sid, ip)
     begin
       connect
-      response_code = check_sid(sid,ip)
+      response_code = check_sid(sid, ip)
       if response_code.nil?
         print_status "#{hostport} Oracle - No response given, something is wrong."
         return :abort
@@ -95,7 +105,7 @@ class MetasploitModule < Msf::Auxiliary
     @@oracle_sid_fail = []
     @@oracle_sid_success = []
     if datastore['SID'].nil? || datastore['SID'].empty?
-      sids = extract_words(datastore['SID_FILE']).map {|s| s.to_s.strip.upcase}.uniq
+      sids = extract_words(datastore['SID_FILE']).map { |s| s.to_s.strip.upcase }.uniq
     else
       sids = [datastore['SID'].to_s.strip.upcase]
     end
@@ -103,6 +113,7 @@ class MetasploitModule < Msf::Auxiliary
     sids.each do |s|
       userpass_sleep_interval unless (@@oracle_sid_fail | @@oracle_sid_success).empty?
       next if @@oracle_sid_fail.include?(s) || @@oracle_sid_success.include?(s)
+
       ret = block.call(s)
       case ret
       when :abort
@@ -119,7 +130,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     each_sid do |sid|
       vprint_status "#{hostport} Oracle - Checking '#{sid}'..."
-      do_sid_check(sid,ip)
+      do_sid_check(sid, ip)
     end
   end
 end

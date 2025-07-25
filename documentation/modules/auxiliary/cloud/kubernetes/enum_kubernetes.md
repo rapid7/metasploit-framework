@@ -52,12 +52,12 @@ Output format, allowed values are: table, json
 Explicitly setting RHOST and TOKEN to enumerate all available namespaces, and associated resources:
 
 ```
-msf6 > use cloud/kubernetes/enum_kubernetes
-msf6 auxiliary(cloud/kubernetes/enum_kubernetes) > set RHOST https://kubernetes.docker.internal:6443
+msf > use cloud/kubernetes/enum_kubernetes
+msf auxiliary(cloud/kubernetes/enum_kubernetes) > set RHOST https://kubernetes.docker.internal:6443
 RHOST => https://kubernetes.docker.internal:6443
-msf6 auxiliary(cloud/kubernetes/enum_kubernetes) > set TOKEN eyJhbGciO...
+msf auxiliary(cloud/kubernetes/enum_kubernetes) > set TOKEN eyJhbGciO...
 TOKEN => eyJhbGciO...
-msf6 auxiliary(cloud/kubernetes/enum_kubernetes) > run
+msf auxiliary(cloud/kubernetes/enum_kubernetes) > run
 [*] Running module against 127.0.0.1
 
 [+] Kubernetes service version: {"major":"1","minor":"21","gitVersion":"v1.21.2","gitCommit":"092fbfbf53427de67cac1e9fa54aaa09a28371d7","gitTreeState":"clean","buildDate":"2021-06-16T12:53:14Z","goVersion":"go1.16.5","compiler":"gc","platform":"linux/amd64"}
@@ -413,7 +413,7 @@ Secrets (namespace: kubernetes-dashboard)
 [+] service token kubernetes-dashboard-token-gfhhr: /Users/user/.msf4/loot/20211006105714_default_127.0.0.1_kubernetes.token_729795.bin
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(cloud/kubernetes/enum_kubernetes) >
+msf auxiliary(cloud/kubernetes/enum_kubernetes) >
 ```
 
 ### Using actions
@@ -421,7 +421,7 @@ msf6 auxiliary(cloud/kubernetes/enum_kubernetes) >
 See available actions:
 
 ```
-msf6 auxiliary(cloud/kubernetes/enum_kubernetes) > show actions
+msf auxiliary(cloud/kubernetes/enum_kubernetes) > show actions
 
 Auxiliary actions:
 
@@ -441,7 +441,7 @@ Auxiliary actions:
 
 Enumerate pods:
 ```
-msf6 auxiliary(cloud/kubernetes/enum_kubernetes) > pods
+msf auxiliary(cloud/kubernetes/enum_kubernetes) > pods
 [*] Running module against 127.0.0.1
 Pods (namespace: default)
 =========================
@@ -469,7 +469,7 @@ Pods (namespace: default)
 Enumerate a pod with a specified namespace, name:
 
 ```
-msf6 auxiliary(cloud/kubernetes/enum_kubernetes) > pod namespace=default name=redis-7fd956df5-sbchb
+msf auxiliary(cloud/kubernetes/enum_kubernetes) > pod namespace=default name=redis-7fd956df5-sbchb
 [*] Running module against 127.0.0.1
 Pods (namespace: default)
 =========================
@@ -485,7 +485,7 @@ Pods (namespace: default)
 Enumerate a pod with a specified namespace, name, and outputting the result as JSON:
 
 ```
-msf6 auxiliary(cloud/kubernetes/enum_kubernetes) > pod namespace=default name=redis-7fd956df5-sbchb output=json 
+msf auxiliary(cloud/kubernetes/enum_kubernetes) > pod namespace=default name=redis-7fd956df5-sbchb output=json 
 [*] Running module against 127.0.0.1
 
 [

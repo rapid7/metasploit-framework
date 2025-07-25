@@ -11,30 +11,38 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      "Name" => "Printer Ready Message Scanner",
-      "Description" => %q{
-        This module scans for and optionally changes the printer ready message on
-        a set of printers using the Printer Job Language (PJL) protocol.
-      },
-      "Author" => [
-        "wvu", # Rex::Proto::PJL and modules
-        "sinn3r", # RSpec tests
-        "MC", # Independent mixin and modules
-        "Myo Soe", # Independent modules
-        "Matteo Cantoni <goony[at]nothink.org>" # Independent modules
-      ],
-      "References" => [
-        ["URL", "https://en.wikipedia.org/wiki/Printer_Job_Language"]
-      ],
-      "License" => MSF_LICENSE,
-      "Actions" => [
-        ["Scan", "Description" => "Scan for ready messages"],
-        ["Change", "Description" => "Change ready message"],
-        ["Reset", "Description" => "Reset ready message"]
-      ],
-      "DefaultAction" => "Scan"
-    ))
+    super(
+      update_info(
+        info,
+        "Name" => "Printer Ready Message Scanner",
+        "Description" => %q{
+          This module scans for and optionally changes the printer ready message on
+          a set of printers using the Printer Job Language (PJL) protocol.
+        },
+        "Author" => [
+          "wvu", # Rex::Proto::PJL and modules
+          "sinn3r", # RSpec tests
+          "MC", # Independent mixin and modules
+          "Myo Soe", # Independent modules
+          "Matteo Cantoni <goony[at]nothink.org>" # Independent modules
+        ],
+        "References" => [
+          ["URL", "https://en.wikipedia.org/wiki/Printer_Job_Language"]
+        ],
+        "License" => MSF_LICENSE,
+        "Actions" => [
+          ["Scan", "Description" => "Scan for ready messages"],
+          ["Change", "Description" => "Change ready message"],
+          ["Reset", "Description" => "Reset ready message"]
+        ],
+        "DefaultAction" => "Scan",
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
       Opt::RPORT(Rex::Proto::PJL::DEFAULT_PORT),

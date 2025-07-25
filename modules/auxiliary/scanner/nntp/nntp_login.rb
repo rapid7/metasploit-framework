@@ -10,30 +10,46 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'NNTP Login Utility',
-      'Description' => %q{
-        This module attempts to authenticate to NNTP services
-        which support the AUTHINFO authentication extension.
+    super(
+      update_info(
+        info,
+        'Name' => 'NNTP Login Utility',
+        'Description' => %q{
+          This module attempts to authenticate to NNTP services
+          which support the AUTHINFO authentication extension.
 
-        This module supports AUTHINFO USER/PASS authentication,
-        but does not support AUTHINFO GENERIC or AUTHINFO SASL
-        authentication methods.
-      },
-      'Author'      => 'bcoles',
-      'License'     => MSF_LICENSE,
-      'References'  => [ [ 'CVE', '1999-0502' ], # Weak password
-                         [ 'URL', 'https://datatracker.ietf.org/doc/html/rfc3977' ],
-                         [ 'URL', 'https://datatracker.ietf.org/doc/html/rfc4642' ],
-                         [ 'URL', 'https://datatracker.ietf.org/doc/html/rfc4643' ] ]))
+          This module supports AUTHINFO USER/PASS authentication,
+          but does not support AUTHINFO GENERIC or AUTHINFO SASL
+          authentication methods.
+        },
+        'Author' => 'bcoles',
+        'License' => MSF_LICENSE,
+        'References' => [
+          [ 'CVE', '1999-0502' ], # Weak password
+          [ 'URL', 'https://datatracker.ietf.org/doc/html/rfc3977' ],
+          [ 'URL', 'https://datatracker.ietf.org/doc/html/rfc4642' ],
+          [ 'URL', 'https://datatracker.ietf.org/doc/html/rfc4643' ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
     register_options(
       [
         Opt::RPORT(119),
-        OptPath.new('USER_FILE', [ false, 'The file that contains a list of probable usernames.',
-          File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_users.txt') ]),
-        OptPath.new('PASS_FILE', [ false, 'The file that contains a list of probable passwords.',
-          File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt') ])
-      ])
+        OptPath.new('USER_FILE', [
+          false, 'The file that contains a list of probable usernames.',
+          File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_users.txt')
+        ]),
+        OptPath.new('PASS_FILE', [
+          false, 'The file that contains a list of probable passwords.',
+          File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt')
+        ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -42,10 +58,10 @@ class MetasploitModule < Msf::Auxiliary
       return :abort unless nntp?
       return :abort unless supports_authinfo?
 
-      report_service :host  => rhost,
-                     :port  => rport,
+      report_service :host => rhost,
+                     :port => rport,
                      :proto => 'tcp',
-                     :name  => 'nntp'
+                     :name => 'nntp'
       disconnect
 
       each_user_pass { |user, pass| do_login user, pass }
@@ -139,12 +155,12 @@ class MetasploitModule < Msf::Auxiliary
         return
       elsif code == 281
         print_good "#{peer} Successful login with: '#{user}' : '#{pass}'"
-        report_cred ip:           rhost,
-                    port:         rport,
+        report_cred ip: rhost,
+                    port: rport,
                     service_name: 'nntp',
-                    user:         user,
-                    password:     pass,
-                    proof:        code.to_s
+                    user: user,
+                    password: pass,
+                    proof: code.to_s
         return :next_user
       else
         vprint_error "#{peer} Failed login as: '#{user}' - Unexpected reply: #{res.inspect}"
@@ -165,22 +181,28 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def report_cred(opts)
-    service_data = { address: opts[:ip],
-                     port: opts[:port],
-                     service_name: opts[:service_name],
-                     protocol: 'tcp',
-                     workspace_id: myworkspace_id }
+    service_data = {
+      address: opts[:ip],
+      port: opts[:port],
+      service_name: opts[:service_name],
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
 
-    credential_data = { origin_type: :service,
-                        module_fullname: fullname,
-                        username: opts[:user],
-                        private_data: opts[:password],
-                        private_type: :password }.merge service_data
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: opts[:user],
+      private_data: opts[:password],
+      private_type: :password
+    }.merge service_data
 
-    login_data = { last_attempted_at: DateTime.now,
-                   core: create_credential(credential_data),
-                   status: Metasploit::Model::Login::Status::SUCCESSFUL,
-                   proof: opts[:proof] }.merge service_data
+    login_data = {
+      last_attempted_at: DateTime.now,
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::SUCCESSFUL,
+      proof: opts[:proof]
+    }.merge service_data
 
     create_credential_login login_data
   end

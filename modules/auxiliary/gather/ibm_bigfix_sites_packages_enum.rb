@@ -8,32 +8,37 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'  => 'IBM BigFix Relay Server Sites and Package Enum',
-      'Description' => %q{
-        This module retrieves masthead, site, and available package information
-        from IBM BigFix Relay Servers.
-      },
-      'Author' =>
-        [
-          'HD Moore',       # Vulnerability Discovery
+    super(
+      update_info(
+        info,
+        'Name' => 'IBM BigFix Relay Server Sites and Package Enum',
+        'Description' => %q{
+          This module retrieves masthead, site, and available package information
+          from IBM BigFix Relay Servers.
+        },
+        'Author' => [
+          'HD Moore', # Vulnerability Discovery
           'Chris Bellows',  # Vulnerability Discovery
           'Ryan Hanson',    # Vulnerability Discovery
           'Jacob Robles'    # Metasploit module
         ],
-      'References' =>
-        [
-          ['CVE','2019-4061'],
-          ['URL','https://www.atredis.com/blog/2019/3/18/harvesting-data-from-bigfix-relay-servers']
+        'References' => [
+          ['CVE', '2019-4061'],
+          ['URL', 'https://www.atredis.com/blog/2019/3/18/harvesting-data-from-bigfix-relay-servers']
         ],
-      'DefaultOptions' =>
-        {
+        'DefaultOptions' => {
           'RPORT' => 52311,
-          'SSL'   => true
+          'SSL' => true
         },
-      'License' => MSF_LICENSE,
-      'DisclosureDate' => '2019-03-18' # Blog post date
-    ))
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => '2019-03-18',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    ) # Blog post date
 
     register_options [
       OptString.new('TARGETURI', [true, 'Path to the BigFix server', '/']),
@@ -115,6 +120,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status('Downloading packages')
     @files.each do |action, val|
       next if val.empty?
+
       res = send_req("bfmirror/downloads/#{action}/0")
       next unless res && res.code == 200
 

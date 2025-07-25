@@ -131,7 +131,7 @@ attempt will look similar to the following:
 ### Single set of credentials being passed
 
 ```
-msf6 auxiliary(scanner/http/jenkins_login) > run rhost=127.0.0.1 rport=8080 username=admin password=34c27512dda149ff8bc0d0854123562c
+msf auxiliary(scanner/http/jenkins_login) > run rhost=127.0.0.1 rport=8080 username=admin password=34c27512dda149ff8bc0d0854123562c
 
 [+] 127.0.0.1:8080 - Login Successful: admin:34c27512dda149ff8bc0d0854123562c
 [*] Scanned 1 of 1 hosts (100% complete)
@@ -141,7 +141,7 @@ msf6 auxiliary(scanner/http/jenkins_login) > run rhost=127.0.0.1 rport=8080 user
 ### Multiple credentials being passed
 
 ```
-msf6 auxiliary(scanner/http/jenkins_login) > run rhost=127.0.0.1 rport=8080 user_file=users.txt pass_file=passwords.txt
+msf auxiliary(scanner/http/jenkins_login) > run rhost=127.0.0.1 rport=8080 user_file=users.txt pass_file=passwords.txt
 
 [-] 127.0.0.1:8080 - LOGIN FAILED: admin:6519d020f3d743d9bd6b60b777b55f86 (Incorrect)
 [-] 127.0.0.1:8080 - LOGIN FAILED: admin:d2fbc2973ce24146adb381d32e789269 (Incorrect)

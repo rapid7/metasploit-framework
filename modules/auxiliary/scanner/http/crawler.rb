@@ -3,17 +3,15 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::HttpCrawler
 
   def initialize
     super(
-      'Name'        => 'Web Site Crawler',
+      'Name' => 'Web Site Crawler',
       'Description' => 'Crawl a web site and store information about what was found',
-      'Author'      => %w(hdm tasos),
-      'License'     => MSF_LICENSE
+      'Author' => %w(hdm tasos),
+      'License' => MSF_LICENSE
     )
 
     register_advanced_options([
@@ -37,23 +35,23 @@ class MetasploitModule < Msf::Auxiliary
   def get_link_filter
     return super if datastore['ExcludePathPatterns'].to_s.empty?
 
-    patterns = opt_patterns_to_regexps( datastore['ExcludePathPatterns'].to_s )
+    patterns = opt_patterns_to_regexps(datastore['ExcludePathPatterns'].to_s)
     patterns = patterns.map { |r| "(#{r.source})" }
 
-    Regexp.new( [["(#{super.source})"] | patterns].join( '|' ) )
+    Regexp.new([["(#{super.source})"] | patterns].join('|'))
   end
 
   def run
     super
 
-    if form = form_from_url( @current_site, datastore['URI'] )
+    if form = form_from_url(@current_site, datastore['URI'])
       print_status((" " * 24) + "FORM: #{form[:method]} #{form[:path]}")
-      report_web_form( form )
+      report_web_form(form)
       self.form_count += 1
     end
   end
 
-  def for_each_page( &block )
+  def for_each_page(&block)
     @for_each_page_blocks << block if block_given?
   end
 
@@ -67,29 +65,30 @@ class MetasploitModule < Msf::Auxiliary
   #
   def crawler_process_page(t, page, cnt)
     return if page.nil? # Skip over pages that don't contain any info aka page is nil. We can't process these types of pages since there is no data to process.
+
     msg = "[#{"%.5d" % cnt}/#{"%.5d" % max_page_count}]    #{page ? page.code || "ERR" : "ERR"} - #{t[:vhost]} - #{page.url}"
     if page.error
       print_error("Error accessing page #{page.error.to_s}")
       elog(page.error)
     end
     case page.code
-      when 301,302
-        if page.headers and page.headers["location"]
-          print_status(msg + " -> " + page.headers["location"].to_s)
-        else
-          print_status(msg)
-        end
-      when 500...599
-        # XXX: Log the fact that we hit an error page
-        print_good(msg)
-      when 401,403
-        print_good(msg)
-      when 200
-        print_status(msg)
-      when 404
-        print_error(msg)
+    when 301, 302
+      if page.headers and page.headers["location"]
+        print_status(msg + " -> " + page.headers["location"].to_s)
       else
-        print_error(msg)
+        print_status(msg)
+      end
+    when 500...599
+      # XXX: Log the fact that we hit an error page
+      print_good(msg)
+    when 401, 403
+      print_good(msg)
+    when 200
+      print_status(msg)
+    when 404
+      print_error(msg)
+    else
+      print_error(msg)
     end
 
     #
@@ -98,11 +97,11 @@ class MetasploitModule < Msf::Auxiliary
 
     info = {
       :web_site => t[:site],
-      :path     => page.url.path,
-      :query    => page.url.query,
-      :code     => page.code,
-      :body     => page.body,
-      :headers  => page.headers
+      :path => page.url.path,
+      :query => page.url.query,
+      :code => page.code,
+      :body => page.body,
+      :headers => page.headers
     }
 
     if page.headers['content-type']
@@ -141,20 +140,19 @@ class MetasploitModule < Msf::Auxiliary
     forms = []
     form_template = { :web_site => t[:site] }
 
-    if form = form_from_url( t[:site], page.url )
+    if form = form_from_url(t[:site], page.url)
       forms << form
     end
 
     if page.doc
       page.doc.css("form").each do |f|
-
         target = page.url
 
         if f['action'] and not f['action'].strip.empty?
           action = f['action']
 
           # Prepend relative URLs with the current directory
-          if action[0,1] != "/" and action !~ /\:\/\//
+          if action[0, 1] != "/" and action !~ /\:\/\//
             # Extract the base href first
             base = target.path.gsub(/(.*\/)[^\/]+$/, "\\1")
             page.doc.css("base").each do |bref|
@@ -165,7 +163,7 @@ class MetasploitModule < Msf::Auxiliary
             action = (base + "/").sub(/\/\/$/, '/') + action
           end
 
-          target = page.to_absolute(URI( action )) rescue next
+          target = page.to_absolute(URI(action)) rescue next
 
           if not page.in_domain?(target)
             # Replace 127.0.0.1 and non-qualified hostnames with our page.host
@@ -184,14 +182,14 @@ class MetasploitModule < Msf::Auxiliary
         if !(target.to_s =~ get_link_filter)
           form = {}.merge!(form_template)
           form[:method] = (f['method'] || 'GET').upcase
-          form[:query]  = target.query.to_s if form[:method] != "GET"
-          form[:path]   = target.path
+          form[:query] = target.query.to_s if form[:method] != "GET"
+          form[:path] = target.path
           form[:params] = []
           f.css('input', 'textarea').each do |inp|
             form[:params] << [inp['name'].to_s, inp['value'] || inp.content || '', { :type => inp['type'].to_s }]
           end
 
-          f.css( 'select' ).each do |s|
+          f.css('select').each do |s|
             value = nil
 
             # iterate over each option to find the default value (if there is a selected one)
@@ -214,16 +212,17 @@ class MetasploitModule < Msf::Auxiliary
     # Report each of the discovered forms
     forms.each do |form|
       next if not form[:method]
+
       print_status((" " * 24) + "FORM: #{form[:method]} #{form[:path]}")
       report_web_form(form)
       self.form_count += 1
     end
 
-    @for_each_page_blocks.each { |p| p.call( page ) }
+    @for_each_page_blocks.each { |p| p.call(page) }
   end
 
-  def form_from_url( website, url )
-    url = URI( url.to_s ) if !url.is_a?( URI )
+  def form_from_url(website, url)
+    url = URI(url.to_s) if !url.is_a?(URI)
 
     begin
       # Scrub out the jsessionid appends
@@ -236,14 +235,14 @@ class MetasploitModule < Msf::Auxiliary
     #
     forms = []
     form_template = { :web_site => website }
-    form  = {}.merge(form_template)
+    form = {}.merge(form_template)
 
     # This page has a query parameter we can test with GET parameters
     # ex: /test.php?a=b&c=d
     if url.query and not url.query.empty?
       form[:method] = 'GET'
-      form[:path]   = url.path
-      vars = url.query.split('&').map{|x| x.split("=", 2) }
+      form[:path] = url.path
+      vars = url.query.split('&').map { |x| x.split("=", 2) }
       form[:params] = vars
     end
 
@@ -253,9 +252,9 @@ class MetasploitModule < Msf::Auxiliary
       path_base = $1
       path_info = $2
       form[:method] = 'PATH'
-      form[:path]   = path_base
+      form[:path] = path_base
       form[:params] = [['PATH', path_info]]
-      form[:query]  = url.query.to_s
+      form[:query] = url.query.to_s
     end
 
     # This is an application that uses PATH_INFO for parameters:
@@ -264,22 +263,22 @@ class MetasploitModule < Msf::Auxiliary
       path_base = $1
       path_info = $2
       form[:method] = 'PATH'
-      form[:path]   = path_base
+      form[:path] = path_base
       form[:params] = [['PATH', path_info]]
-      form[:query]  = url.query.to_s
+      form[:query] = url.query.to_s
     end
 
     form[:method] ? form : nil
   end
 
   private
-  def opt_patterns_to_regexps( patterns )
-    magic_wildcard_replacement = Rex::Text.rand_text_alphanumeric( 10 )
-    patterns.to_s.split( /[\r\n]+/).map do |p|
-      Regexp.new '^' + Regexp.escape( p.gsub( '*', magic_wildcard_replacement ) ).
-        gsub( magic_wildcard_replacement, '.*' ) + '$'
+
+  def opt_patterns_to_regexps(patterns)
+    magic_wildcard_replacement = Rex::Text.rand_text_alphanumeric(10)
+    patterns.to_s.split(/[\r\n]+/).map do |p|
+      Regexp.new '^' + Regexp.escape(p.gsub('*', magic_wildcard_replacement))
+                             .gsub(magic_wildcard_replacement, '.*') + '$'
     end
   end
-
 
 end

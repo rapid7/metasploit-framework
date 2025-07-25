@@ -17,7 +17,7 @@ class Driver < Msf::Ui::Driver
   ConfigCore  = "framework/core"
   ConfigGroup = "framework/ui/console"
 
-  DefaultPrompt     = "%undmsf#{Metasploit::Framework::Version::MAJOR}%clr"
+  DefaultPrompt     = "%undmsf%clr"
   DefaultPromptChar = "%clr>"
 
   #

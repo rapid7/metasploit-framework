@@ -14,11 +14,11 @@
 ## Scenarios
 
 ```
-msf6 auxiliary(scanner/http/copy_of_file) > set RHOSTS 127.0.0.1
+msf auxiliary(scanner/http/copy_of_file) > set RHOSTS 127.0.0.1
 RHOSTS => 127.0.0.1
-msf6 auxiliary(scanner/http/copy_of_file) > set PATH /search_a_copy.txt
+msf auxiliary(scanner/http/copy_of_file) > set PATH /search_a_copy.txt
 PATH => /search_a_copy.txt
-msf6 auxiliary(scanner/http/copy_of_file) > run
+msf auxiliary(scanner/http/copy_of_file) > run
 [*] Using code '404' as not found.
 [+] [127.0.0.1] Found http://127.0.0.1:80/Copy_(1)_of_search_a_copy.txt [200]
 [*] Using code '404' as not found.

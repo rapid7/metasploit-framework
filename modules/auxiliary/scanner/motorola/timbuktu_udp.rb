@@ -9,20 +9,29 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Motorola Timbuktu Service Detection',
-      'Description'    => %q{
-        This module simply sends a packet to the Motorola Timbuktu service for detection.
-      },
-      'Author'         => ['MC'],
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => '2009-09-25'
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Motorola Timbuktu Service Detection',
+        'Description' => %q{
+          This module simply sends a packet to the Motorola Timbuktu service for detection.
+        },
+        'Author' => ['MC'],
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => '2009-09-25',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(407)
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -35,18 +44,18 @@ class MetasploitModule < Msf::Auxiliary
 
       res = udp_sock.read(256)
 
-        if ( res =~ /\x00\x25\xD0\xB9/ )
-          report_note(
-            :host	=> ip,
-            :proto	=> 'udp',
-            :port	=> datastore['RPORT'],
-            :type	=> 'SERVICE',
-            :data	=> { :service => 'Motorola Timbuktu Service Detection' }
-          )
-          print_status("Motorola Timbuktu Detected on host #{ip}.")
-        else
-          print_error("Unable to determine info for #{ip}...")
-        end
+      if (res =~ /\x00\x25\xD0\xB9/)
+        report_note(
+          :host	=> ip,
+          :proto	=> 'udp',
+          :port	=> datastore['RPORT'],
+          :type	=> 'SERVICE',
+          :data	=> { :service => 'Motorola Timbuktu Service Detection' }
+        )
+        print_status("Motorola Timbuktu Detected on host #{ip}.")
+      else
+        print_error("Unable to determine info for #{ip}...")
+      end
     ensure
       disconnect_udp
     end

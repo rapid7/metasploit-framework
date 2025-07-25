@@ -40,10 +40,10 @@ The (TCP) target port on which Syncovery is running. By default port 8999 is use
 ### Syncovery for Linux with default credentials
 
 ```
-msf6 > use modules/auxiliary/scanner/http/syncovery_linux_login
-msf6 auxiliary(scanner/http/syncovery_linux_login) > set rhosts 192.168.178.26
+msf > use modules/auxiliary/scanner/http/syncovery_linux_login
+msf auxiliary(scanner/http/syncovery_linux_login) > set rhosts 192.168.178.26
 rhosts => 192.168.178.26
-msf6 auxiliary(scanner/http/syncovery_linux_login) > options
+msf auxiliary(scanner/http/syncovery_linux_login) > options
 
 Module options (auxiliary/scanner/http/syncovery_linux_login):
 
@@ -71,7 +71,7 @@ Module options (auxiliary/scanner/http/syncovery_linux_login):
    VERBOSE           true             yes       Whether to print output for all attempts
    VHOST                              no        HTTP server virtual host
 
-msf6 auxiliary(scanner/http/syncovery_linux_login) > run
+msf auxiliary(scanner/http/syncovery_linux_login) > run
 
 [+] 192.168.178.26:8999 - Syncovery File Sync & Backup Software confirmed
 [+] 192.168.178.26:8999 - Identified version: 9.48a

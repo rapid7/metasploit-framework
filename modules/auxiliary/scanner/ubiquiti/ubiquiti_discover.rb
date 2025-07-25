@@ -11,16 +11,20 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'        => 'Ubiquiti Discovery Scanner',
+        'Name' => 'Ubiquiti Discovery Scanner',
         'Description' => 'Detects Ubiquiti devices using a UDP discovery service',
-        'Author'      => 'Jon Hart <jon_hart[at]rapid7.com>',
-        'License'     => MSF_LICENSE,
-        'References'  =>
-          [
-            ['URL', 'https://www.cisa.gov/uscert/ncas/alerts/TA14-017A'],
-            ['URL', 'https://community.ubnt.com/t5/airMAX-General-Discussion/airOS-airMAX-and-management-access/td-p/2654023'],
-            ['URL', 'https://www.rapid7.com/blog/post/2019/02/01/ubiquiti-discovery-service-exposures/']
-          ]
+        'Author' => 'Jon Hart <jon_hart[at]rapid7.com>',
+        'License' => MSF_LICENSE,
+        'References' => [
+          ['URL', 'https://www.cisa.gov/uscert/ncas/alerts/TA14-017A'],
+          ['URL', 'https://community.ubnt.com/t5/airMAX-General-Discussion/airOS-airMAX-and-management-access/td-p/2654023'],
+          ['URL', 'https://www.rapid7.com/blog/post/2019/02/01/ubiquiti-discovery-service-exposures/']
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
 
@@ -46,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     remaining = data.length - offset
-    info = {'ips' =>  [], 'macs' => []}
+    info = { 'ips' => [], 'macs' => [] }
     while remaining > 0
       type, length = data.slice(offset, 3).unpack("Cn")
       offset += 3
@@ -58,6 +62,7 @@ class MetasploitModule < Msf::Auxiliary
       if field_data.empty?
         next
       end
+
       # name
       case type
       when 0x0b
@@ -67,8 +72,8 @@ class MetasploitModule < Msf::Auxiliary
         info['macs'] << field_data.each_byte.map { |b| b.to_s(16) }.join(':')
       # MAC and IP
       when 0x02
-        info['macs'] << field_data.slice(0,6).each_byte.map { |b| b.to_s(16) }.join(':')
-        info['ips'] << field_data.slice(6,4).each_byte.map { |b| b.to_i }.join('.')
+        info['macs'] << field_data.slice(0, 6).each_byte.map { |b| b.to_s(16) }.join(':')
+        info['ips'] << field_data.slice(6, 4).each_byte.map { |b| b.to_i }.join('.')
       # long model
       when 0x14
         info['model_long'] = field_data
@@ -86,12 +91,12 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    if ! info['macs'].any?
+    if !info['macs'].any?
       info.delete('macs')
     end
     info['macs'] = info['macs'].sort.uniq
 
-    if ! info['ips'].any?
+    if !info['ips'].any?
       info.delete('ips')
     end
     info['ips'] = info['ips'].sort.uniq

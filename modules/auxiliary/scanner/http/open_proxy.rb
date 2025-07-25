@@ -10,22 +10,29 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'HTTP Open Proxy Detection',
-      'Description' => %q{
-        Checks if an HTTP proxy is open. False positive are avoided
-        verifying the HTTP return code and matching a pattern.
-        The CONNECT method is verified only the return code.
-        HTTP headers are shown regarding the use of proxy or load balancer.
-      },
-      'References'  =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'HTTP Open Proxy Detection',
+        'Description' => %q{
+          Checks if an HTTP proxy is open. False positive are avoided
+          verifying the HTTP return code and matching a pattern.
+          The CONNECT method is verified only the return code.
+          HTTP headers are shown regarding the use of proxy or load balancer.
+        },
+        'References' => [
           ['URL', 'https://en.wikipedia.org/wiki/Open_proxy'],
           ['URL', 'https://svn.nmap.org/nmap/scripts/http-open-proxy.nse'],
         ],
-      'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
-      'License'     => MSF_LICENSE
-    ))
+        'Author' => 'Matteo Cantoni <goony[at]nothink.org>',
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -35,7 +42,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('CHECKURL', [ true, 'The web site to test via alleged web proxy', 'http://www.google.com' ]),
         OptString.new('VALIDCODES', [ true, "Valid HTTP code for a successfully request", '200,302' ]),
         OptString.new('VALIDPATTERN', [ true, "Valid pattern match (case-sensitive into the headers and HTML body) for a successfully request", '<TITLE>302 Moved</TITLE>' ]),
-      ])
+      ]
+    )
 
     register_wmap_options({
       'OrderID' => 1,
@@ -44,7 +52,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(target_host)
-
     check_url = datastore['CHECKURL']
 
     if datastore['VERIFYCONNECT']
@@ -74,21 +81,19 @@ class MetasploitModule < Msf::Auxiliary
     target_proxy_headers = [ 'Forwarded', 'Front-End-Https', 'Max-Forwards', 'Via', 'X-Cache', 'X-Cache-Lookup', 'X-Client-IP', 'X-Forwarded-For', 'X-Forwarded-Host' ]
 
     target_ports.each do |target_port|
-      verify_target(target_host,target_port,target_method,check_url,target_proxy_headers)
+      verify_target(target_host, target_port, target_method, check_url, target_proxy_headers)
     end
-
   end
 
-  def verify_target(target_host,target_port,target_method,check_url,target_proxy_headers)
-
+  def verify_target(target_host, target_port, target_method, check_url, target_proxy_headers)
     vprint_status("#{peer} - Sending a web request... [#{target_method}][#{check_url}]")
 
     datastore['RPORT'] = target_port
 
     begin
       res = send_request_cgi(
-        'uri'     => check_url,
-        'method'  => target_method,
+        'uri' => check_url,
+        'method' => target_method,
         'version' => '1.1'
       )
 
@@ -118,13 +123,13 @@ class MetasploitModule < Msf::Auxiliary
           print_good("#{peer} - Potentially open proxy [#{res.code}][#{target_method}]#{proxy_headers}")
 
           report_note(
-            :host   => target_host,
-            :port   => target_port,
+            :host => target_host,
+            :port => target_port,
             :method => target_method,
-            :proto  => 'tcp',
-            :sname  => (ssl ? 'https' : 'http'),
-            :type   => 'OPEN HTTP PROXY',
-            :data   => { :open_http_proxy => "CONNECT" }
+            :proto => 'tcp',
+            :sname => (ssl ? 'https' : 'http'),
+            :type => 'OPEN HTTP PROXY',
+            :data => { :open_http_proxy => "CONNECT" }
           )
 
         end
@@ -135,18 +140,17 @@ class MetasploitModule < Msf::Auxiliary
           print_good("#{peer} - Potentially open proxy [#{res.code}][#{target_method}]#{proxy_headers}")
 
           report_note(
-            :host   => target_host,
-            :port   => target_port,
+            :host => target_host,
+            :port => target_port,
             :method => target_method,
-            :proto  => 'tcp',
-            :sname  => (ssl ? 'https' : 'http'),
-            :type   => 'OPEN HTTP PROXY',
-            :data   => { :open_http_proxy => "GET" }
+            :proto => 'tcp',
+            :sname => (ssl ? 'https' : 'http'),
+            :type => 'OPEN HTTP PROXY',
+            :data => { :open_http_proxy => "GET" }
           )
 
         end
       end
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Timeout::Error, ::Errno::EPIPE => e
       vprint_error("#{peer} - The port '#{target_port}' is unreachable!")
       return nil

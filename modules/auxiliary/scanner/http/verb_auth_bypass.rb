@@ -14,18 +14,28 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'          => 'HTTP Verb Authentication Bypass Scanner',
-      'Description'   => %q{
-        This module test for authentication bypass using different HTTP verbs.
-      },
-      'Author'        => ['et [at] metasploit.com'],
-      'License'       => BSD_LICENSE))
+    super(
+      update_info(
+        info,
+        'Name' => 'HTTP Verb Authentication Bypass Scanner',
+        'Description' => %q{
+          This module test for authentication bypass using different HTTP verbs.
+        },
+        'Author' => ['et [at] metasploit.com'],
+        'License' => BSD_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
-        OptString.new('TARGETURI', [true,  "The path to test", '/'])
-      ])
+        OptString.new('TARGETURI', [true, "The path to test", '/'])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -40,8 +50,8 @@ class MetasploitModule < Msf::Auxiliary
     verbs = [ 'HEAD', 'TRACE', 'TRACK', 'Wmap', 'get', 'trace' ]
 
     res = send_request_raw({
-      'uri'          => normalize_uri(target_uri.path),
-      'method'       => 'GET'
+      'uri' => normalize_uri(target_uri.path),
+      'method' => 'GET'
     }, 10)
 
     return if not res
@@ -56,12 +66,12 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{full_uri} - Authentication required: #{res.headers['WWW-Authenticate']} [#{auth_code}]")
 
     report_note(
-      :host   => ip,
-      :proto  => 'tcp',
-      :sname  => (ssl ? 'https' : 'http'),
-      :port   => rport,
-      :type   => 'WWW_AUTHENTICATE',
-      :data   => {
+      :host => ip,
+      :proto => 'tcp',
+      :sname => (ssl ? 'https' : 'http'),
+      :port => rport,
+      :type => 'WWW_AUTHENTICATE',
+      :data => {
         :uri_path => target_uri.path,
         :realm => res.headers['WWW-Authenticate']
       },
@@ -70,8 +80,8 @@ class MetasploitModule < Msf::Auxiliary
 
     verbs.each do |tv|
       resauth = send_request_raw({
-        'uri'          => normalize_uri(target_uri.path),
-        'method'       => tv
+        'uri' => normalize_uri(target_uri.path),
+        'method' => tv
       }, 10)
 
       next if not resauth
@@ -84,12 +94,12 @@ class MetasploitModule < Msf::Auxiliary
         # Unable to use report_web_vuln as method is not in list of allowed methods.
 
         report_note(
-          :host   => ip,
-          :proto  => 'tcp',
-          :sname  => (ssl ? 'https' : 'http'),
-          :port   => rport,
-          :type   => 'AUTH_BYPASS_VERB',
-          :data   => {
+          :host => ip,
+          :proto => 'tcp',
+          :sname => (ssl ? 'https' : 'http'),
+          :port => rport,
+          :type => 'AUTH_BYPASS_VERB',
+          :data => {
             :uri_path => target_uri.path,
             :verb => tv
           },

@@ -16,29 +16,36 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::ReportSummary
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'MySQL Login Utility',
-      'Description' => 'This module simply queries the MySQL instance for a specific user/pass (default is root with blank).',
-      'Author'      => [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'MySQL Login Utility',
+        'Description' => 'This module simply queries the MySQL instance for a specific user/pass (default is root with blank).',
+        'Author' => [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '1999-0502'] # Weak password
         ],
-      # some overrides from authbrute since there is a default username and a blank password
-      'DefaultOptions' =>
-        {
+        # some overrides from authbrute since there is a default username and a blank password
+        'DefaultOptions' => {
           'USERNAME' => 'root',
           'BLANK_PASSWORDS' => true,
-          'CreateSession'  => false
+          'CreateSession' => false
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
-    ))
+      )
+    )
 
     register_options(
       [
         Opt::Proxies,
         OptBool.new('CreateSession', [false, 'Create a new session for every successful login', false])
-      ])
+      ]
+    )
 
     if framework.features.enabled?(Msf::FeatureManager::MYSQL_SESSION_TYPE)
       add_info('New in Metasploit 6.4 - The %grnCreateSession%clr option within this module can open an interactive session')
@@ -58,7 +65,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def target
-    [rhost,rport].join(":")
+    [rhost, rport].join(":")
   end
 
   def run
@@ -80,8 +87,8 @@ class MetasploitModule < Msf::Auxiliary
     begin
       if mysql_version_check("4.1.1") # Pushing down to 4.1.1.
         cred_collection = build_credential_collection(
-            username: datastore['USERNAME'],
-            password: datastore['PASSWORD']
+          username: datastore['USERNAME'],
+          password: datastore['PASSWORD']
         )
 
         scanner = Metasploit::Framework::LoginScanner::MySQL.new(
@@ -109,8 +116,8 @@ class MetasploitModule < Msf::Auxiliary
         scanner.scan! do |result|
           credential_data = result.to_h
           credential_data.merge!(
-              module_fullname: self.fullname,
-              workspace_id: myworkspace_id
+            module_fullname: self.fullname,
+            workspace_id: myworkspace_id
           )
           if result.success?
             credential_core = create_credential(credential_data)
@@ -149,7 +156,7 @@ class MetasploitModule < Msf::Auxiliary
   # auth checker for earlier versions. Shouldn't be too hard.
   # This code is essentially the same as the mysql_version module, just less
   # whitespace and returns false on errors.
-  def mysql_version_check(target="5.0.67") # Oldest the library claims.
+  def mysql_version_check(target = "5.0.67") # Oldest the library claims.
     begin
       s = connect(false)
       data = s.get
@@ -163,13 +170,16 @@ class MetasploitModule < Msf::Auxiliary
     offset = 0
     l0, l1, l2 = data[offset, 3].unpack('CCC')
     return false if data.length < 3
+
     length = l0 | (l1 << 8) | (l2 << 16)
     # Read a bad amount of data
     return if length != (data.length - 4)
+
     offset += 4
     proto = data[offset, 1].unpack('C')[0]
     # Error condition
     return if proto == 255
+
     offset += 1
     version = data[offset..-1].unpack('Z*')[0]
     report_service(:host => rhost, :port => rport, :name => "mysql", :info => version)
@@ -185,9 +195,10 @@ class MetasploitModule < Msf::Auxiliary
     int = 0
     begin # Okay, if you're not exactly what I expect, just return 0
       return 0 unless str =~ /^[0-9]+\x2e[0-9]+/
-      digits = str.split(".")[0,3].map {|x| x.to_i}
+
+      digits = str.split(".")[0, 3].map { |x| x.to_i }
       digits[2] ||= 0 # Nil protection
-      int =  (digits[0] << 16)
+      int = (digits[0] << 16)
       int += (digits[1] << 8)
       int += digits[2]
     rescue
@@ -203,10 +214,10 @@ class MetasploitModule < Msf::Auxiliary
     my_session = Msf::Sessions::MySQL.new(result.connection, { client: result.proof, **result.proof.detect_platform_and_arch })
     merge_me = {
       'USERPASS_FILE' => nil,
-      'USER_FILE'     => nil,
-      'PASS_FILE'     => nil,
-      'USERNAME'      => result.credential.public,
-      'PASSWORD'      => result.credential.private
+      'USER_FILE' => nil,
+      'PASS_FILE' => nil,
+      'USERNAME' => result.credential.public,
+      'PASSWORD' => result.credential.private
     }
 
     start_session(self, nil, merge_me, false, my_session.rstream, my_session)

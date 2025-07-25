@@ -77,7 +77,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     deregister_options(*options_to_deregister)
-
   end
 
   def create_session?
@@ -321,10 +320,10 @@ class MetasploitModule < Msf::Auxiliary
     my_session = Msf::Sessions::SMB.new(result.connection, { client: result.proof })
     merge_me = {
       'USERPASS_FILE' => nil,
-      'USER_FILE'     => nil,
-      'PASS_FILE'     => nil,
-      'USERNAME'      => result.credential.public,
-      'PASSWORD'      => result.credential.private
+      'USER_FILE' => nil,
+      'PASS_FILE' => nil,
+      'USERNAME' => result.credential.public,
+      'PASSWORD' => result.credential.private
     }
 
     start_session(self, nil, merge_me, false, my_session.rstream, my_session)

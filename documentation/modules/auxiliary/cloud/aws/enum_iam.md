@@ -54,7 +54,7 @@ This module authenticates to AWS IAM (Identify Access Module) to identify user a
 ### Provided a valid 'access key ID' and 'secret access key' with sufficient privileges 
 
 ```
-msf5 auxiliary(cloud/aws/enum_ec2) > run
+msf auxiliary(cloud/aws/enum_ec2) > run
 
 [*] Found 0 instances in eu-north-1
 [*] Found 0 instances in ap-south-1
@@ -78,25 +78,25 @@ msf5 auxiliary(cloud/aws/enum_ec2) > run
 [+]     Private IP:     18.236.87.255 (ip-172-31-30-21.us-west-2.compute.internal)
 [+]     Security Group: sg-0d52cc35aaf82aff5
 [*] Auxiliary module execution completed
-msf5 auxiliary(cloud/aws/enum_ec2) > 
+msf auxiliary(cloud/aws/enum_ec2) > 
 ```
   
 ### Provided an invalid or inactive 'access key ID', or an invalid 'secret access key'
 
 ```
-msf5 auxiliary(cloud\aws\enum_ec2) > run
+msf auxiliary(cloud\aws\enum_ec2) > run
 
 [-] Auxiliary aborted due to failure: unexpected-reply: AWS was not able to validate the provided access credentials
 [*] Auxiliary module execution completed
-msf5 auxiliary(cloud\aws\enum_ec2) > 
+msf auxiliary(cloud\aws\enum_ec2) > 
 ```
 
 ### Provided an 'access key ID' or 'secret access key' with insufficient privileges
 
 ```
-msf5 auxiliary(cloud\aws\enum_ec2) > run
+msf auxiliary(cloud\aws\enum_ec2) > run
 
 [-] Auxiliary aborted due to failure: unexpected-reply: You are not authorized to perform this operation.
 [*] Auxiliary module execution completed
-msf5 auxiliary(cloud\aws\enum_ec2) > 
+msf auxiliary(cloud\aws\enum_ec2) > 
 ```

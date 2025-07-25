@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'CCTV DVR Login Scanning Utility',
+      'Name' => 'CCTV DVR Login Scanning Utility',
       'Description' => %q{
         This module tests for standalone CCTV DVR video surveillance
         deployments specifically by MicroDigital, HIVISION, CTRing, and
@@ -30,30 +30,33 @@ class MetasploitModule < Msf::Auxiliary
         will then attempt to determine if the IE ActiveX control
         is listening on the default HTTP port (80/TCP).
       },
-      'Author'      => 'Justin Cacak',
-      'License'     => MSF_LICENSE
+      'Author' => 'Justin Cacak',
+      'License' => MSF_LICENSE
     )
 
     register_options(
-    [
-      OptPath.new(
-        'USER_FILE',
-        [
-          false,
-          "File containing usernames, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "multi_vendor_cctv_dvr_users.txt")
-        ]),
-      OptPath.new(
-        'PASS_FILE',
-        [
-          false,
-          "File containing passwords, one per line",
-          File.join(Msf::Config.data_directory, "wordlists", "multi_vendor_cctv_dvr_pass.txt")
-        ]),
-      OptBool.new('STOP_ON_SUCCESS', [false, "Stop guessing when a credential works for a host", true]),
-      OptPort.new('HTTP_PORT', [true, "The HTTP port for the IE ActiveX web client interface", 80]),
-      Opt::RPORT(5920)
-    ])
+      [
+        OptPath.new(
+          'USER_FILE',
+          [
+            false,
+            "File containing usernames, one per line",
+            File.join(Msf::Config.data_directory, "wordlists", "multi_vendor_cctv_dvr_users.txt")
+          ]
+        ),
+        OptPath.new(
+          'PASS_FILE',
+          [
+            false,
+            "File containing passwords, one per line",
+            File.join(Msf::Config.data_directory, "wordlists", "multi_vendor_cctv_dvr_pass.txt")
+          ]
+        ),
+        OptBool.new('STOP_ON_SUCCESS', [false, "Stop guessing when a credential works for a host", true]),
+        OptPort.new('HTTP_PORT', [true, "The HTTP port for the IE ActiveX web client interface", 80]),
+        Opt::RPORT(5920)
+      ]
+    )
   end
 
   def run_host(ip)
@@ -79,7 +82,6 @@ class MetasploitModule < Msf::Auxiliary
     @valid_hosts.each do |h|
       http_interface_check(h)
     end
-
   end
 
   def http_interface_check(h)
@@ -100,9 +102,9 @@ class MetasploitModule < Msf::Auxiliary
         # Code base example:
         # codebase="CtrWeb.cab#version=1,1,5,4"
         if data.match(/codebase="(\w{1,16})\.(\w{1,3}).version=(\d{1,3},\d{1,3},\d{1,3},\d{1,3})/)
-          v   = "#{$1}.#{$2} v#{$3}"
+          v = "#{$1}.#{$2} v#{$3}"
         else
-          v   = "unknown version"
+          v = "unknown version"
         end
 
         uri = "http://#{rhost}:#{datastore['HTTP_PORT']}"
@@ -119,7 +121,6 @@ class MetasploitModule < Msf::Auxiliary
         # the ActiveX control
         print_status("An unknown HTTP interface was found on #{datastore['HTTP_PORT']}/TCP")
       end
-
     rescue
       print_status("IE ActiveX HTTP interface not found on #{datastore['HTTP_PORT']}/TCP")
     ensure
@@ -154,7 +155,7 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def do_login(user=nil, pass=nil)
+  def do_login(user = nil, pass = nil)
     vprint_status("#{rhost} - Trying username:'#{user}' with password:'#{pass}'")
 
     fill_length1 = 64 - user.length
@@ -189,21 +190,21 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Analyze the response
-    if res == "\x00\x01\x03\x01\x00\x00\x00\x00"  #Failed Password
+    if res == "\x00\x01\x03\x01\x00\x00\x00\x00" # Failed Password
       vprint_error("#{rhost}:#{rport}  Failed login as: '#{user}'")
       return
 
-    elsif res =="\x00\x01\x02\x01\x00\x00\x00\x00" #Invalid User
+    elsif res == "\x00\x01\x02\x01\x00\x00\x00\x00" # Invalid User
       vprint_error("#{rhost}:#{rport}  Invalid user: '#{user}'")
       # Stop attempting passwords for this user since it doesn't exist
       return :skip_user
 
-    elsif res =="\x00\x01\x05\x01\x00\x00\x00\x00" or res =="\x00\x01\x01\x01\x00\x00\x00\x00"
+    elsif res == "\x00\x01\x05\x01\x00\x00\x00\x00" or res == "\x00\x01\x01\x01\x00\x00\x00\x00"
       print_good("#{rhost}:#{rport}  Successful login: '#{user}' : '#{pass}'")
 
       # Report valid credentials under the CCTV DVR admin port (5920/TCP).
       # This is a proprietary protocol.
-      report_cred(ip: rhost, port: rport, user:user, password: pass, proof: res.inspect)
+      report_cred(ip: rhost, port: rport, user: user, password: pass, proof: res.inspect)
 
       @valid_hosts << rhost
       return :next_user
@@ -212,6 +213,5 @@ class MetasploitModule < Msf::Auxiliary
       vprint_error("#{rhost}:#{rport}  Failed login as: '#{user}' - Unclassified Response: #{res.inspect}")
       return
     end
-
   end
 end

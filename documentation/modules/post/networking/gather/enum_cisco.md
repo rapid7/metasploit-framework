@@ -84,7 +84,7 @@ resource (cisco.rb)> run
 [+] Saving to /root/.msf4/loot/20190720163006_default_222.222.2.222_cisco.ios.cdp_ne_989308.txt
 [*] Post module execution completed
 [*] Starting persistent handler(s)...
-msf5 post(networking/gather/enum_cisco) > creds
+msf post(networking/gather/enum_cisco) > creds
 Credentials
 ===========
 
@@ -153,7 +153,7 @@ resource (cisco.rb)> run
 [+] Saving to /root/.msf4/loot/20190721162508_default_222.222.2.222_cisco.ios.cdp_ne_405367.txt
 [*] Post module execution completed
 [*] Starting persistent handler(s)...
-msf5 post(networking/gather/enum_cisco) > creds
+msf post(networking/gather/enum_cisco) > creds
 Credentials
 ===========
 

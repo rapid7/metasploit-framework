@@ -47,8 +47,8 @@ gitlab/gitlab-ce:17.2.2-ce.0
 
 ### Single set of credentials being passed
 ```
-msf6 > use auxiliary/scanner/http/gitlab_login
-msf6 auxiliary(scanner/http/gitlab_login) > run rhosts=192.168.56.6 username=root password=strongpasswordcannotguess
+msf > use auxiliary/scanner/http/gitlab_login
+msf auxiliary(scanner/http/gitlab_login) > run rhosts=192.168.56.6 username=root password=strongpasswordcannotguess
 
 [*] 192.168.56.6:80 - GitLab v7 login page
 [!] No active DB -- Credential data will not be saved!
@@ -59,8 +59,8 @@ msf6 auxiliary(scanner/http/gitlab_login) > run rhosts=192.168.56.6 username=roo
 
 ### Multiple credentials being passed
 ```
-msf6 > use auxiliary/scanner/http/gitlab_login
-msf6 auxiliary(scanner/http/gitlab_login) > run rhosts=192.168.56.6 user_file=/tmp/user.txt pass_file=/tmp/pass.txt
+msf > use auxiliary/scanner/http/gitlab_login
+msf auxiliary(scanner/http/gitlab_login) > run rhosts=192.168.56.6 user_file=/tmp/user.txt pass_file=/tmp/pass.txt
 
 [*] 192.168.56.6:80 - GitLab v7 login page
 [!] No active DB -- Credential data will not be saved!

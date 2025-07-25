@@ -37,12 +37,12 @@ This module creates a mock IMAP server which accepts credentials.
 Server:
 
 ```
-msf5 > use auxiliary/server/capture/imap 
-msf5 auxiliary(server/capture/imap) > set banner "The Microsoft Exchange IMAP4 service is ready."
+msf > use auxiliary/server/capture/imap 
+msf auxiliary(server/capture/imap) > set banner "The Microsoft Exchange IMAP4 service is ready."
 banner => The Microsoft Exchange IMAP4 service is ready.
-msf5 auxiliary(server/capture/imap) > run
+msf auxiliary(server/capture/imap) > run
 [*] Auxiliary module running as background job 0.
-msf5 auxiliary(server/capture/imap) > 
+msf auxiliary(server/capture/imap) > 
 [*] Started service listener on 0.0.0.0:143 
 [*] Server started.
 [*] IMAP LOGIN 127.0.0.1:42972 metasploit@documentation.com / rapid7#1
@@ -66,7 +66,7 @@ Connection closed by foreign host.
 Server:
 
 ```
-msf5 > openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem
+msf > openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem
 [*] exec: openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem
 
 Generating a RSA private key
@@ -88,10 +88,10 @@ Organization Name (eg, company) [Internet Widgits Pty Ltd]:
 Organizational Unit Name (eg, section) []:
 Common Name (e.g. server FQDN or YOUR name) []:
 Email Address []:
-msf5 > cat key.pem certificate.pem > selfsigned.pem
+msf > cat key.pem certificate.pem > selfsigned.pem
 [*] exec: cat key.pem certificate.pem > selfsigned.pem
 
-msf5 > cat /root/metasploit-framework/selfsigned.pem
+msf > cat /root/metasploit-framework/selfsigned.pem
 [*] exec: cat /root/metasploit-framework/selfsigned.pem
 
 -----BEGIN PRIVATE KEY-----
@@ -143,16 +143,16 @@ gF+lHk+pX8GM0WvI7ypgrK956YCdmh3DULBFDu5RxVABFWrGedfNy6TKLTps0PXR
 l/m7Kka0n7lXnKo+IFSJ0dTooBvwaV7+4tEGuHxWJsNO+2aex9qFCuDUdBFxyWyK
 uBVlsY6F7EjTfWpxwyVP
 -----END CERTIFICATE-----
-msf5 > use auxiliary/server/capture/imap 
-msf5 auxiliary(server/capture/imap) > set ssl true
+msf > use auxiliary/server/capture/imap 
+msf auxiliary(server/capture/imap) > set ssl true
 ssl => true
-msf5 auxiliary(server/capture/imap) > set sslcert /root/metasploit-framework/selfsigned.pem
+msf auxiliary(server/capture/imap) > set sslcert /root/metasploit-framework/selfsigned.pem
 sslcert => /root/metasploit-framework/selfsigned.pem
-msf5 auxiliary(server/capture/imap) > set srvport 993
+msf auxiliary(server/capture/imap) > set srvport 993
 srvport => 993
-msf5 auxiliary(server/capture/imap) > run
+msf auxiliary(server/capture/imap) > run
 [*] Auxiliary module running as background job 0.
-msf5 auxiliary(server/capture/imap) > 
+msf auxiliary(server/capture/imap) > 
 [*] Started service listener on 0.0.0.0:993 
 [*] Server started.
 [+] IMAP LOGIN 127.0.0.1:59024 "johndoe" / "p455w0rd"

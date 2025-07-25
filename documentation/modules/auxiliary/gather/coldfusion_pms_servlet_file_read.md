@@ -21,7 +21,7 @@ UUID attackers can hit the /pms endpoint in order to exploit the Arbitrary File 
 ### ColdFusion Version 2023.0.0.330468 running on Linux
 
 ```
-msf6 auxiliary(gather/coldfusion_pms_servlet_file_read) > run
+msf auxiliary(gather/coldfusion_pms_servlet_file_read) > run
 [*] Reloading module...
 [*] Running module against 127.0.0.1
 

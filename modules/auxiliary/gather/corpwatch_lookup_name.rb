@@ -10,30 +10,38 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'CorpWatch Company Name Information Search',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'CorpWatch Company Name Information Search',
+        'Description' => %q{
           This module interfaces with the CorpWatch API to get publicly available
-        info for a given company name.  Please note that by using CorpWatch API, you
-        acknowledge the limitations of the data CorpWatch provides, and should always
-        verify the information with the official SEC filings before taking any action.
-      },
-      'Author'         => [ 'Brandon Perry <bperry.volatile[at]gmail.com>' ],
-      'References'     =>
-        [
+          info for a given company name.  Please note that by using CorpWatch API, you
+          acknowledge the limitations of the data CorpWatch provides, and should always
+          verify the information with the official SEC filings before taking any action.
+        },
+        'Author' => [ 'Brandon Perry <bperry.volatile[at]gmail.com>' ],
+        'References' => [
           [ 'URL', 'http://api.corpwatch.org/' ]
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     deregister_http_client_options
 
     register_options(
       [
         OptString.new('COMPANY_NAME', [ true, "Search for companies with this name", ""]),
-        OptInt.new('YEAR', [ false, "Year to look up", Time.now.year-1]),
+        OptInt.new('YEAR', [ false, "Year to look up", Time.now.year - 1]),
         OptString.new('LIMIT', [ true, "Limit the number of results returned", "5"]),
         OptString.new('CORPWATCH_APIKEY', [ false, "Use this API key when getting the data", ""]),
-      ])
+      ]
+    )
   end
 
   def rhost_corpwatch
@@ -45,24 +53,24 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-
     uri = "/"
     uri << (datastore['YEAR'].to_s + "/") if datastore['YEAR'].to_s != ""
     uri << "companies.xml"
 
     res = send_request_cgi(
-    {
-      'rhost'    => rhost_corpwatch,
-      'rport'    => rport_corpwatch,
-      'uri'      => uri,
-      'method'   => 'GET',
-      'vars_get' =>
       {
-        'company_name' => datastore['COMPANY_NAME'],
-        'limit'        => datastore['LIMIT'],
-        'key'          => datastore['CORPWATCH_APIKEY']
-      }
-    }, 25)
+        'rhost' => rhost_corpwatch,
+        'rport' => rport_corpwatch,
+        'uri' => uri,
+        'method' => 'GET',
+        'vars_get' =>
+        {
+          'company_name' => datastore['COMPANY_NAME'],
+          'limit' => datastore['LIMIT'],
+          'key' => datastore['CORPWATCH_APIKEY']
+        }
+      }, 25
+    )
 
     if not res
       print_error("Server down, bad response")
@@ -126,7 +134,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def grab_text(e, name)
     (e.get_elements(name) && e.get_elements(name)[0] &&
-    e.get_elements(name)[0].get_text ) ?
-    e.get_elements(name)[0].get_text.to_s  : ""
+    e.get_elements(name)[0].get_text) ?
+    e.get_elements(name)[0].get_text.to_s : ""
   end
 end

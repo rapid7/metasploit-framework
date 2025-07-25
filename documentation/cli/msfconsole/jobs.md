@@ -81,12 +81,12 @@ Examples
 
 Starting a module as a job:
 
-    msf5 exploit(multi/handler) > run -j
+    msf exploit(multi/handler) > run -j
     [*] Exploit running as background job 1.
 
 A verbose listing of all the jobs:
 
-    msf5 exploit(multi/handler) > jobs -v
+    msf exploit(multi/handler) > jobs -v
     
     Jobs
     ====
@@ -97,16 +97,16 @@ A verbose listing of all the jobs:
 
 Set some jobs to be started on `msfconsole` start:
 
-    msf5 exploit(multi/handler) > jobs -p 1-2
+    msf exploit(multi/handler) > jobs -p 1-2
     Added persistence to job 1.
     Added persistence to job 2.
 
 Getting information about a specific job:
 
-    msf5 exploit(multi/handler) > jobs -i 1
+    msf exploit(multi/handler) > jobs -i 1
     
     Name: Generic Payload Handler, started at 2019-02-20 19:03:19 -0600
-    msf5 exploit(multi/handler) > jobs -i 1 -v
+    msf exploit(multi/handler) > jobs -i 1 -v
     
     Name: Generic Payload Handler, started at 2019-02-20 19:03:19 -0600
     

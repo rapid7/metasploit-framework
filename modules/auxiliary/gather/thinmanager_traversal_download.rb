@@ -14,9 +14,10 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'ThinManager Path Traversal (CVE-2023-27856) Arbitrary File Download',
         'Description' => %q{
-          This module exploits a path traversal vulnerability (CVE-2023-27856) in ThinManager <= v13.0.1 to retrieve arbitrary files from the system.
-
-          The affected service listens by default on TCP port 2031 and runs in the context of NT AUTHORITY\SYSTEM.
+          This module exploits a path traversal vulnerability (CVE-2023-27856) in
+          ThinManager <= v13.0.1 to retrieve arbitrary files from the system.
+          The affected service listens by default on TCP port 2031 and runs in the
+          context of NT AUTHORITY\SYSTEM.
         },
         'Author' => [
           'Michael Heinzl', # MSF Module
@@ -31,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2023-04-05',
         'DefaultOptions' => {
           'RPORT' => 2031,
-          'SSL' => 'False'
+          'SSL' => false
         },
         'Notes' => {
           'Stability' => [CRASH_SAFE],

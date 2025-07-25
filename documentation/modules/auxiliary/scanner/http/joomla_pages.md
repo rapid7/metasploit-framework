@@ -13,10 +13,10 @@ This module scans for Joomla Content Management System running on a web server f
 ## Usage
 
 ```
-msf5 > use auxiliary/scanner/http/joomla_pages 
-msf5 auxiliary(scanner/http/joomla_pages) > set rhosts 192.168.2.39
+msf > use auxiliary/scanner/http/joomla_pages 
+msf auxiliary(scanner/http/joomla_pages) > set rhosts 192.168.2.39
 rhosts => 192.168.2.39
-msf5 auxiliary(scanner/http/joomla_pages) > run
+msf auxiliary(scanner/http/joomla_pages) > run
 
 [+] Page Found: /robots.txt
 [+] Page Found: /administrator/index.php

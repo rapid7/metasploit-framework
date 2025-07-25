@@ -15,16 +15,16 @@ This module runs a command over the WinRM protocol. It needs login credentials t
 ### Run single command
 
 ```
-msf6 > use scanner/winrm/winrm_cmd
-msf6 auxiliary(scanner/winrm/winrm_cmd) > set username Administrator
+msf > use scanner/winrm/winrm_cmd
+msf auxiliary(scanner/winrm/winrm_cmd) > set username Administrator
 username => Administrator
-msf6 auxiliary(scanner/winrm/winrm_cmd) > set password pass12345
+msf auxiliary(scanner/winrm/winrm_cmd) > set password pass12345
 password => pass12345
-msf6 auxiliary(scanner/winrm/winrm_cmd) > set rhosts 192.168.1.205
+msf auxiliary(scanner/winrm/winrm_cmd) > set rhosts 192.168.1.205
 rhosts => 192.168.1.205
-msf6 auxiliary(scanner/winrm/winrm_cmd) > set cmd whoami /priv
+msf auxiliary(scanner/winrm/winrm_cmd) > set cmd whoami /priv
 cmd => whoami /priv
-msf6 auxiliary(scanner/winrm/winrm_cmd) > run
+msf auxiliary(scanner/winrm/winrm_cmd) > run
 
 
 PRIVILEGES INFORMATION

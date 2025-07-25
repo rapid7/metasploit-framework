@@ -3,85 +3,90 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanUniqueQuery
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
 
-
   def initialize(info = {})
-    super(update_info(info,
-      'Name'   		=> 'HTTP Error Based SQL Injection Scanner',
-      'Description'	=> %q{
-        This module identifies the existence of Error Based SQL injection issues. Still requires a lot of work
-
-      },
-      'Author' 		=> [ 'et [at] cyberspace.org' ],
-      'License'		=> BSD_LICENSE))
+    super(
+      update_info(
+        info,
+        'Name' => 'HTTP Error Based SQL Injection Scanner',
+        'Description'	=> %q{
+          This module identifies the existence of Error Based SQL injection issues. Still requires a lot of work
+        },
+        'Author' => [ 'et [at] cyberspace.org' ],
+        'License'	=> BSD_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptEnum.new('METHOD', [true, 'HTTP Request Method', 'GET', ['GET', 'POST']]),
-        OptString.new('PATH', [ true,  "The path/file to test SQL injection", '/default.aspx']),
-        OptString.new('QUERY',[ false,  "HTTP URI Query", '']),
-        OptString.new('DATA', [ false,  "HTTP Body/Data Query", ''])
-      ])
+        OptString.new('PATH', [ true, "The path/file to test SQL injection", '/default.aspx']),
+        OptString.new('QUERY', [ false, "HTTP URI Query", '']),
+        OptString.new('DATA', [ false, "HTTP Body/Data Query", ''])
+      ]
+    )
 
     register_advanced_options(
       [
         OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ])
-      ])
-
+      ]
+    )
   end
 
   def run_host(ip)
-
     http_method = datastore['METHOD'].upcase
 
     qvars = nil
 
     sqlinj = [
-      [ "'" ,'Single quote'],
-      [ "')",'Single quote and parenthesis'],
-      [ "\"",'Double quote'],
-      [ "%u0027",'unicode single quote'],
-      [ "%u02b9",'unicode single quote'],
-      [ "%u02bc",'unicode single quote'],
-      [ "%u02c8",'unicode single quote'],
-      [ "%c0%27",'unicode single quote'],
-      [ "%c0%a7",'unicode single quote'],
-      [ "%e0%80%a7",'unicode single quote'],
+      [ "'", 'Single quote'],
+      [ "')", 'Single quote and parenthesis'],
+      [ "\"", 'Double quote'],
+      [ "%u0027", 'unicode single quote'],
+      [ "%u02b9", 'unicode single quote'],
+      [ "%u02bc", 'unicode single quote'],
+      [ "%u02c8", 'unicode single quote'],
+      [ "%c0%27", 'unicode single quote'],
+      [ "%c0%a7", 'unicode single quote'],
+      [ "%e0%80%a7", 'unicode single quote'],
       [ "#{rand(10)}'", 'Random value with single quote']
     ]
 
     errorstr = [
-      ["Unclosed quotation mark after the character string",'MSSQL','string'],
-      ["Syntax error in string in query expression",'MSSQL','string'],
-      ["Microsoft OLE DB Provider",'MSSQL','unknown'],
-      ["You have an error in your SQL syntax",'MySQL','unknown'],
-      ["java.sql.SQLException",'unknown','unknown'],
-      ["ORA-",'ORACLE','unknown'],
-      ["PLS-",'ORACLE','unknown'],
-      ["Syntax error",'unknown','unknown'],
+      ["Unclosed quotation mark after the character string", 'MSSQL', 'string'],
+      ["Syntax error in string in query expression", 'MSSQL', 'string'],
+      ["Microsoft OLE DB Provider", 'MSSQL', 'unknown'],
+      ["You have an error in your SQL syntax", 'MySQL', 'unknown'],
+      ["java.sql.SQLException", 'unknown', 'unknown'],
+      ["ORA-", 'ORACLE', 'unknown'],
+      ["PLS-", 'ORACLE', 'unknown'],
+      ["Syntax error", 'unknown', 'unknown'],
     ]
 
     #
     # Dealing with empty query/data and making them hashes.
     #
 
-    if  http_method =='GET'
+    if http_method == 'GET'
       if not datastore['QUERY'].empty?
-        qvars = queryparse(datastore['QUERY']) #Now its a Hash
+        qvars = queryparse(datastore['QUERY']) # Now its a Hash
       else
         print_error("You need to set QUERY param for GET")
         return
       end
     else
       if not datastore['DATA'].empty?
-        qvars = queryparse(datastore['DATA']) #Now its a Hash
+        qvars = queryparse(datastore['DATA']) # Now its a Hash
       else
         print_error("You need to set DATA parameter for POST")
         return
@@ -96,26 +101,25 @@ class MetasploitModule < Msf::Auxiliary
 
     if http_method == 'POST'
       reqinfo = {
-        'uri'  		=> normalize_uri(datastore['PATH']),
-        'query' 	=> datastore['QUERY'],
-        'data' 		=> datastore['DATA'],
-        'method'   	=> http_method,
-        'ctype'		=> 'application/x-www-form-urlencoded',
+        'uri' => normalize_uri(datastore['PATH']),
+        'query' => datastore['QUERY'],
+        'data' => datastore['DATA'],
+        'method' => http_method,
+        'ctype'	=> 'application/x-www-form-urlencoded',
         'encode'	=> false
       }
     else
       reqinfo = {
-        'uri'  		=> normalize_uri(datastore['PATH']),
-        'query' 	=> datastore['QUERY'],
-        'method'   	=> http_method,
-        'ctype'		=> 'application/x-www-form-urlencoded',
+        'uri' => normalize_uri(datastore['PATH']),
+        'query' => datastore['QUERY'],
+        'method' => http_method,
+        'ctype'	=> 'application/x-www-form-urlencoded',
         'encode'	=> false
       }
     end
 
     begin
       normalres = send_request_raw(reqinfo, 20)
-
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
     rescue ::Timeout::Error, ::Errno::EPIPE
     end
@@ -130,7 +134,7 @@ class MetasploitModule < Msf::Auxiliary
     injt = nil
 
     if normalres
-      errorstr.each do |estr,dbtype,injtype|
+      errorstr.each do |estr, dbtype, injtype|
         if normalres.body.include? estr
           found = true
           inje = estr
@@ -147,17 +151,17 @@ class MetasploitModule < Msf::Auxiliary
         report_web_vuln(
           :host	=> ip,
           :port	=> rport,
-          :vhost  => vhost,
-          :ssl    => ssl,
+          :vhost => vhost,
+          :ssl => ssl,
           :path	=> datastore['PATH'],
           :method => datastore['METHOD'],
-          :pname  => "",
-          :proof  => "Error: #{inje}",
-          :risk   => 2,
-          :confidence   => 50,
-          :category     => 'Database error',
-          :description  => "Error string appears in the normal response #{inje} #{dbt}",
-          :name   => 'Database error'
+          :pname => "",
+          :proof => "Error: #{inje}",
+          :risk => 2,
+          :confidence => 50,
+          :category => 'Database error',
+          :description => "Error string appears in the normal response #{inje} #{dbt}",
+          :name => 'Database error'
         )
 
         return
@@ -174,58 +178,55 @@ class MetasploitModule < Msf::Auxiliary
     found = false
 
     if qvars
-      sqlinj.each do |istr,idesc|
-
+      sqlinj.each do |istr, idesc|
         if found
           break
         end
 
-        qvars.each do |key,value|
+        qvars.each do |key, value|
           if http_method == 'POST'
-            qvars = queryparse(datastore['DATA']) #Now its a Hash
+            qvars = queryparse(datastore['DATA']) # Now its a Hash
           else
-            qvars = queryparse(datastore['QUERY']) #Now its a Hash
+            qvars = queryparse(datastore['QUERY']) # Now its a Hash
           end
-          qvars[key] = qvars[key]+istr
+          qvars[key] = qvars[key] + istr
 
           if !datastore['NoDetailMessages']
             print_status("- Testing query with #{idesc}. Parameter #{key}:")
           end
 
           fstr = ""
-          qvars.each_pair do |var,val|
-            fstr += var+"="+val+"&"
+          qvars.each_pair do |var, val|
+            fstr += var + "=" + val + "&"
           end
 
           if http_method == 'POST'
             reqinfo = {
-              'uri'  		=> normalize_uri(datastore['PATH']),
-              'query'		=> datastore['QUERY'],
-              'data' 		=> fstr,
-              'method'   	=> http_method,
-              'ctype'		=> 'application/x-www-form-urlencoded',
+              'uri' => normalize_uri(datastore['PATH']),
+              'query'	=> datastore['QUERY'],
+              'data' => fstr,
+              'method' => http_method,
+              'ctype'	=> 'application/x-www-form-urlencoded',
               'encode'	=> false
             }
           else
             reqinfo = {
-              'uri'  		=> normalize_uri(datastore['PATH']),
-              'query' 	=> fstr,
-              'method'   	=> http_method,
-              'ctype'		=> 'application/x-www-form-urlencoded',
+              'uri' => normalize_uri(datastore['PATH']),
+              'query' => fstr,
+              'method' => http_method,
+              'ctype'	=> 'application/x-www-form-urlencoded',
               'encode'	=> false
             }
           end
 
           begin
-
             testres = send_request_raw(reqinfo, 20)
-
           rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
           rescue ::Timeout::Error, ::Errno::EPIPE
           end
 
           if testres
-            errorstr.each do |estr,dbtype,injtype|
+            errorstr.each do |estr, dbtype, injtype|
               if testres.body.include? estr
                 found = true
                 inje = estr
@@ -242,17 +243,17 @@ class MetasploitModule < Msf::Auxiliary
               report_web_vuln(
                 :host	=> ip,
                 :port	=> rport,
-                :vhost  => vhost,
-                :ssl    => ssl,
+                :vhost => vhost,
+                :ssl => ssl,
                 :path	=> datastore['PATH'],
                 :method => datastore['METHOD'],
-                :pname  => key,
-                :proof  => istr,
-                :risk   => 2,
-                :confidence   => 50,
-                :category     => 'SQL injection',
-                :description  => "Error string appears in the normal response #{inje} #{dbt}",
-                :name   => 'SQL injection'
+                :pname => key,
+                :proof => istr,
+                :risk => 2,
+                :confidence => 50,
+                :category => 'SQL injection',
+                :description => "Error string appears in the normal response #{inje} #{dbt}",
+                :name => 'SQL injection'
               )
 
               return
@@ -265,9 +266,9 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if http_method == 'POST'
-        qvars = queryparse(datastore['DATA']) #Now its a Hash
+        qvars = queryparse(datastore['DATA']) # Now its a Hash
       else
-        qvars = queryparse(datastore['QUERY']) #Now its a Hash
+        qvars = queryparse(datastore['QUERY']) # Now its a Hash
       end
     end
   end

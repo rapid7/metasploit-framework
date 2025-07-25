@@ -40,12 +40,12 @@
 ## Scenarios
 
   ```
-  msf5 > use post/multi/recon/sudo_commands
-  msf5 post(multi/recon/sudo_commands) > set session 1
+  msf > use post/multi/recon/sudo_commands
+  msf post(multi/recon/sudo_commands) > set session 1
   session => 1
-  msf5 post(multi/recon/sudo_commands) > set verbose true
+  msf post(multi/recon/sudo_commands) > set verbose true
   verbose => true
-  msf5 post(multi/recon/sudo_commands) > run
+  msf post(multi/recon/sudo_commands) > run
 
   [*] Executing: /usr/bin/sudo -n -l
   Matching Defaults entries for wvu on localhost:
@@ -78,7 +78,7 @@
 
   [+] Output stored in: /Users/user/.msf4/loot/20180613134731_default_192.168.56.101_sudo.commands_305964.txt
   [*] Post module execution completed
-  msf5 post(multi/recon/sudo_commands) > cat /Users/user/.msf4/loot/20180613134731_default_192.168.56.101_sudo.commands_305964.txt
+  msf post(multi/recon/sudo_commands) > cat /Users/user/.msf4/loot/20180613134731_default_192.168.56.101_sudo.commands_305964.txt
   [*] exec: cat /Users/user/.msf4/loot/20180613134731_default_192.168.56.101_sudo.commands_305964.txt
 
   Command,RunAsUsers,RunAsGroups,Password?,Privesc?
@@ -87,6 +87,6 @@
   "/sbin/umount /mnt/cdrom","root","","True",""
   "ALL","ALL","","True","True"
   "ALL","ALL","","","True"
-  msf5 post(multi/recon/sudo_commands) >
+  msf post(multi/recon/sudo_commands) >
   ```
 

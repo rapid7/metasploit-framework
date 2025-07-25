@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 require 'metasploit/framework/credential_collection'
 
 class MetasploitModule < Msf::Auxiliary
@@ -13,8 +12,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'           => 'OWA Exchange Web Services (EWS) Login Scanner',
-      'Description'    => %q{
+      'Name' => 'OWA Exchange Web Services (EWS) Login Scanner',
+      'Description' => %q{
         This module attempts to log in to the Exchange Web Services, often
         exposed at https://example.com/ews/, using NTLM authentication. This
         method is faster and simpler than traditional form-based logins.
@@ -23,8 +22,8 @@ class MetasploitModule < Msf::Auxiliary
         user/pass files; the autodiscovery should find the location of the NTLM
         authentication point as well as the AD domain, and use them accordingly.
       },
-      'Author'         => 'Rich Whitcroft',
-      'License'        => MSF_LICENSE,
+      'Author' => 'Rich Whitcroft',
+      'License' => MSF_LICENSE,
       'DefaultOptions' => { 'SSL' => true, 'VERBOSE' => false }
     )
 
@@ -34,7 +33,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('AD_DOMAIN', [ false, "The Active Directory domain name", nil ]),
         OptString.new('TARGETURI', [ false, "The location of the NTLM service", nil ]),
         Opt::RPORT(443)
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -103,14 +103,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def autodiscover(cli)
-    uris = %w[ /ews/ /rpc/ /public/ ]
+    uris = %w[/ews/ /rpc/ /public/]
     uris.each do |uri|
       begin
         req = cli.request_raw({
-          'encode'   => true,
-          'uri'      => uri,
-          'method'   => 'GET',
-          'headers'  =>  {'Authorization' => 'NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=='}
+          'encode' => true,
+          'uri' => uri,
+          'method' => 'GET',
+          'headers' => { 'Authorization' => 'NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw==' }
         })
 
         res = cli.send_recv(req)
@@ -126,7 +126,7 @@ class MetasploitModule < Msf::Auxiliary
 
       if res && res.code == 401 && res.headers.has_key?('WWW-Authenticate') && res.headers['WWW-Authenticate'].match(/^NTLM/i)
         hash = res['WWW-Authenticate'].split('NTLM ')[1]
-        domain = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_name].value().gsub(/\0/,'')
+        domain = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_name].value().gsub(/\0/, '')
         return domain, uri
       end
     end

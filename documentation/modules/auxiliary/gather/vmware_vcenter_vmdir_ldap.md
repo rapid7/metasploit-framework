@@ -36,7 +36,7 @@ If you already have the LDAP base DN, you may set it in this option.
 ### VMware vCenter Server 6.7 virtual appliance on ESXi
 
 ```
-msf6 auxiliary(gather/vmware_vcenter_vmdir_ldap) > show options
+msf auxiliary(gather/vmware_vcenter_vmdir_ldap) > show options
 
 Module options (auxiliary/gather/vmware_vcenter_vmdir_ldap):
 
@@ -74,9 +74,9 @@ Auxiliary action:
 
 
 View the full module info with the info, or info -d command.
-msf5 auxiliary(gather/vmware_vcenter_vmdir_ldap) > set rhosts [redacted]
+msf auxiliary(gather/vmware_vcenter_vmdir_ldap) > set rhosts [redacted]
 rhosts => [redacted]
-msf5 auxiliary(gather/vmware_vcenter_vmdir_ldap) > run
+msf auxiliary(gather/vmware_vcenter_vmdir_ldap) > run
 [*] Running module against [redacted]
 not verifying SSL hostname of LDAPS server '[redacted]:636'
 
@@ -115,5 +115,5 @@ vmwpasswordprohibitedpreviouscount: [redacted]
 [+] Credentials found: [redacted]
 [snip]
 [*] Auxiliary module execution completed
-msf5 auxiliary(gather/vmware_vcenter_vmdir_ldap) >
+msf auxiliary(gather/vmware_vcenter_vmdir_ldap) >
 ```

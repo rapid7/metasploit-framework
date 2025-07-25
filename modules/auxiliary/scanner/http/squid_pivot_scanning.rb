@@ -15,7 +15,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Squid Proxy Port Scanner',
+      'Name' => 'Squid Proxy Port Scanner',
       'Description' => %q{
         A exposed Squid proxy will usually allow an attacker to make requests on
         their behalf. If misconfigured, this may give the attacker information
@@ -37,16 +37,14 @@ class MetasploitModule < Msf::Auxiliary
         meterpreter `VERBOSE` output, otherwise only open and permitted ports
         are printed.
         },
-      'Author'      =>
-        [
-          'willis',     # Original meterpreter module
-          '0x44434241'  # Detection updates and documentation
-        ],
-      'References'	=>
-        [
-          'URL', 'http://wiki.squid-cache.org/SquidFaq/SecurityPitfalls'
-        ],
-      'License'	    => MSF_LICENSE
+      'Author' => [
+        'willis', # Original meterpreter module
+        '0x44434241' # Detection updates and documentation
+      ],
+      'References' => [
+        'URL', 'http://wiki.squid-cache.org/SquidFaq/SecurityPitfalls'
+      ],
+      'License'	=> MSF_LICENSE
     )
 
     register_options(
@@ -57,7 +55,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('CANARY_IP', [true, 'The IP to check if the proxy always answers positively; the IP should not respond.', '1.2.3.4'])
       ]
     )
-
   end
 
   def run_host(target_host)
@@ -75,11 +72,11 @@ class MetasploitModule < Msf::Auxiliary
       manual = false
       # request a non-existent page first to make sure the server doesn't respond with a 200 to everything.
       res_test = send_request_cgi({
-        'uri'     => "http://#{datastore['CANARY_IP']}:80",
-        'method'  => 'GET',
-        'data'    => '',
+        'uri' => "http://#{datastore['CANARY_IP']}:80",
+        'method' => 'GET',
+        'data' => '',
         'version' => '1.0',
-        'vhost'   => ''
+        'vhost' => ''
       }, 10)
 
       if res_test && res_test.body && (res_test.code == 200)
@@ -99,19 +96,19 @@ class MetasploitModule < Msf::Auxiliary
           vprint_status("[#{rhost}] Requesting #{target}:#{port}")
           if port == 443
             res = send_request_cgi({
-              'uri'     => "https://#{target}:#{port}",
-              'method'  => 'GET',
-              'data'    => '',
+              'uri' => "https://#{target}:#{port}",
+              'method' => 'GET',
+              'data' => '',
               'version' => '1.0',
-              'vhost'   => ''
+              'vhost' => ''
             }, 10)
           else
             res = send_request_cgi({
-              'uri'     => "http://#{target}:#{port}",
-              'method'  => 'GET',
-              'data'    => '',
+              'uri' => "http://#{target}:#{port}",
+              'method' => 'GET',
+              'data' => '',
               'version' => '1.0',
-              'vhost'   => ''
+              'vhost' => ''
             }, 10)
           end
 
@@ -164,9 +161,8 @@ class MetasploitModule < Msf::Auxiliary
         end
         dead = false
       end
-
-      rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-      rescue ::Timeout::Error, ::Errno::EPIPE
+    rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+    rescue ::Timeout::Error, ::Errno::EPIPE
     end
   end
 end

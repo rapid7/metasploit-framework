@@ -9,14 +9,23 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Search Engine Domain Email Address Collector',
-      'Description' => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Search Engine Domain Email Address Collector',
+        'Description' => %q{
           This module uses Google, Bing and Yahoo to create a list of
-        valid email addresses for the target domain.
-      },
-      'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
-      'License' => MSF_LICENSE))
+          valid email addresses for the target domain.
+        },
+        'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -26,15 +35,16 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('SEARCH_YAHOO', [ true, 'Enable Yahoo! as a backend search engine', true]),
         OptString.new('OUTFILE', [ false, "A filename to store the generated email list"]),
 
-      ])
+      ]
+    )
 
     register_advanced_options(
       [
-        OptString.new('PROXY', [ false, "Proxy server to route connection. <host>:<port>",nil]),
-        OptString.new('PROXY_USER', [ false, "Proxy Server User",nil]),
-        OptString.new('PROXY_PASS', [ false, "Proxy Server Password",nil])
-      ])
-
+        OptString.new('PROXY', [ false, "Proxy server to route connection. <host>:<port>", nil]),
+        OptString.new('PROXY_USER', [ false, "Proxy Server User", nil]),
+        OptString.new('PROXY_PASS', [ false, "Proxy Server Password", nil])
+      ]
+    )
   end
 
   # Search google.com for email's of target domain
@@ -43,10 +53,10 @@ class MetasploitModule < Msf::Auxiliary
     response = ""
     emails = []
     header = { 'User-Agent' => Rex::UserAgent.session_agent }
-    clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("www.google.com")
-    searches = ["100", "200","300", "400", "500"]
+    clnt = Net::HTTP::Proxy(@proxysrv, @proxyport, @proxyuser, @proxypass).new("www.google.com")
+    searches = ["100", "200", "300", "400", "500"]
     searches.each { |num|
-      resp = clnt.get2("/search?hl=en&lr=&ie=UTF-8&q=%40"+targetdom+"&start=#{num}&sa=N&filter=0&num=100",header)
+      resp = clnt.get2("/search?hl=en&lr=&ie=UTF-8&q=%40" + targetdom + "&start=#{num}&sa=N&filter=0&num=100", header)
       response << resp.body
     }
     print_status("Extracting emails from Google search results...")
@@ -63,12 +73,11 @@ class MetasploitModule < Msf::Auxiliary
     response = ""
     emails = []
     header = { 'User-Agent' => Rex::UserAgent.session_agent }
-    clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("search.yahoo.com")
-    searches = ["1", "101","201", "301", "401", "501"]
+    clnt = Net::HTTP::Proxy(@proxysrv, @proxyport, @proxyuser, @proxypass).new("search.yahoo.com")
+    searches = ["1", "101", "201", "301", "401", "501"]
     searches.each { |num|
-      resp = clnt.get2("/search?p=%40#{targetdom}&n=100&ei=UTF-8&va_vt=any&vo_vt=any&ve_vt=any&vp_vt=any&vd=all&vst=0&vf=all&vm=p&fl=0&fr=yfp-t-152&xargs=0&pstart=1&b=#{num}",header)
+      resp = clnt.get2("/search?p=%40#{targetdom}&n=100&ei=UTF-8&va_vt=any&vo_vt=any&ve_vt=any&vp_vt=any&vd=all&vst=0&vf=all&vm=p&fl=0&fr=yfp-t-152&xargs=0&pstart=1&b=#{num}", header)
       response << resp.body
-
     }
     print_status("Extracting emails from Yahoo search results...")
     response.gsub!(/<.?b?[>]*>/, "")
@@ -84,11 +93,11 @@ class MetasploitModule < Msf::Auxiliary
     response = ""
     emails = []
     header = { 'User-Agent' => Rex::UserAgent.session_agent }
-    clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("www.bing.com")
+    clnt = Net::HTTP::Proxy(@proxysrv, @proxyport, @proxyuser, @proxypass).new("www.bing.com")
     searches = 1
     while searches < 201
       begin
-        resp = clnt.get2("/search?q=%40#{targetdom}&first=#{searches.to_s}",header)
+        resp = clnt.get2("/search?q=%40#{targetdom}&first=#{searches.to_s}", header)
         response << resp.body
       rescue
       end
@@ -112,14 +121,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     if datastore['PROXY']
-      @proxysrv,@proxyport = datastore['PROXY'].split(":")
+      @proxysrv, @proxyport = datastore['PROXY'].split(":")
       @proxyuser = datastore['PROXY_USER']
       @proxypass = datastore['PROXY_PASS']
     else
-      @proxysrv,@proxyport = nil, nil
+      @proxysrv, @proxyport = nil, nil
     end
     print_status("Harvesting emails .....")
-
 
     target = datastore['DOMAIN']
 

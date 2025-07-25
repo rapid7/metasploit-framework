@@ -11,23 +11,30 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Gallery WD for Joomla! Unauthenticated SQL Injection Scanner',
-      'Description' => %q{
-      This module will scan for Joomla! instances vulnerable to an unauthenticated SQL injection
-      within the Gallery WD for Joomla! extension version 1.2.5 and likely prior.
-      },
-      'Author'       =>
-        [
-          'CrashBandicoot', #independent discovery/0day drop
-          'bperry' #discovery/metasploit module
+    super(
+      update_info(
+        info,
+        'Name' => 'Gallery WD for Joomla! Unauthenticated SQL Injection Scanner',
+        'Description' => %q{
+          This module will scan for Joomla! instances vulnerable to an unauthenticated SQL injection
+          within the Gallery WD for Joomla! extension version 1.2.5 and likely prior.
+        },
+        'Author' => [
+          'CrashBandicoot', # independent discovery/0day drop
+          'bperry' # discovery/metasploit module
         ],
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'EDB', '36563']
         ],
-      'DisclosureDate' => '2015-03-30'))
+        'DisclosureDate' => '2015-03-30',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
       OptString.new('TARGETURI', [true, 'Target URI of the Joomla! instance', '/'])
@@ -92,13 +99,12 @@ class MetasploitModule < Msf::Auxiliary
     if result
       print_good("Vulnerable to unauthenticated SQL injection within Gallery WD for Joomla!")
       report_vuln({
-        :host  => rhost,
-        :port  => rport,
+        :host => rhost,
+        :port => rport,
         :proto => 'tcp',
-        :name  => "Unauthenticated error-based SQL injection in Gallery WD for Joomla!",
-        :refs  => self.references.select { |ref| ref.ctx_val == "36563" }
+        :name => "Unauthenticated error-based SQL injection in Gallery WD for Joomla!",
+        :refs => self.references.select { |ref| ref.ctx_val == "36563" }
       })
     end
-
   end
 end

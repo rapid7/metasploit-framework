@@ -41,8 +41,8 @@ Running the module against Control iD iDSecure v4.7.43.0 should result in an out
 similar to the following:
 
 ```
-msf6 > use auxiliary/admin/http/idsecure_auth_bypass
-msf6 auxiliary(admin/http/idsecure_auth_bypass) > set RHOSTS 192.168.137.196
+msf > use auxiliary/admin/http/idsecure_auth_bypass
+msf auxiliary(admin/http/idsecure_auth_bypass) > set RHOSTS 192.168.137.196
 [*] Running module against 192.168.137.196
 
 [*] Running automatic check ("set AutoCheck false" to disable)

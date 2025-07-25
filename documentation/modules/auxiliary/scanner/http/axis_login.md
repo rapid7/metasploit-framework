@@ -84,13 +84,13 @@ Specific demo of using the module that might be useful in a real world scenario.
 
 ```
 msf > use auxiliary/scanner/http/axis_login
-msf6 auxiliary(scanner/http/axis_login) > set rhosts 127.0.0.1
+msf auxiliary(scanner/http/axis_login) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf6 auxiliary(scanner/http/axis_login) > set password N0tpassword!
+msf auxiliary(scanner/http/axis_login) > set password N0tpassword!
 password => N0tpassword!
-msf6 auxiliary(scanner/http/axis_login) > set userfile ./USERNAMES
+msf auxiliary(scanner/http/axis_login) > set userfile ./USERNAMES
 userfile => ./USERNAMES
-msf6 auxiliary(scanner/http/axis_login) > show options
+msf auxiliary(scanner/http/axis_login) > show options
 
 Module options (auxiliary/scanner/http/axis_login):
 
@@ -120,12 +120,12 @@ Module options (auxiliary/scanner/http/axis_login):
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(scanner/http/axis_login) > run
+msf auxiliary(scanner/http/axis_login) > run
 
 [*] Attempting to login to /stop using password list
 [!] 127.0.0.1:8080        - No active DB -- Credential data will not be saved!
 [-] 127.0.0.1:8080        - Failed: 'AxisRoot:password'
 [+] 127.0.0.1:8080         - 127.0.0.1:8080 - Login Successful: WORKSTATION\AxisRoot:N0tpassword!
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/axis_login) >
+msf auxiliary(scanner/http/axis_login) >
 ```

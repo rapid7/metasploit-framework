@@ -153,9 +153,11 @@ def oracle(target, pms, cke_2nd_prefix, cipher_handshake=ch_def, messageflow=Fal
             return "ConnectionResetError"
         except socket.timeout:
             return ("Timeout waiting for alert")
-        s.close()
     except Exception as e:
         return str(e)
+    finally:
+        if 's' in locals():
+            s.close()
 
 
 def run(args):
@@ -172,14 +174,14 @@ def run(args):
     N, e = get_rsa_from_server(target, timeout)
 
     if not N:
-        module.log("{}:{} - Cannot establish SSL connection: {}".format(*target, e), level='error')
+        module.log("{}:{} - Cannot establish SSL connection: {error}".format(*target, error=e), level='error')
         return
 
     modulus_bits = int(math.ceil(math.log(N, 2)))
     modulus_bytes = (modulus_bits + 7) // 8
-    module.log("{}:{} - RSA N: {}".format(*target, hex(N)), level='debug')
-    module.log("{}:{} - RSA e: {}".format(*target, hex(e)), level='debug')
-    module.log("{}:{} - Modulus size: {} bits, {} bytes".format(*target, modulus_bits, modulus_bytes), level='debug')
+    module.log("{}:{} - RSA N: {rsa_n}".format(*target, rsa_n=hex(N)), level='debug')
+    module.log("{}:{} - RSA e: {rsa_e}".format(*target, rsa_e=hex(e)), level='debug')
+    module.log("{}:{} - Modulus size: {modulus_bits} bits, {modulus_bytes} bytes".format(*target, modulus_bits=modulus_bits, modulus_bytes=modulus_bytes), level='debug')
 
     cke_2nd_prefix = bytearray.fromhex("{0:0{1}x}".format(modulus_bytes + 6, 4) + "10" + "{0:0{1}x}".format(modulus_bytes + 2, 6) + "{0:0{1}x}".format(modulus_bytes, 4))
     # pad_len is length in hex chars, so bytelen * 2
@@ -210,14 +212,14 @@ def run(args):
     oracle_bad4 = oracle(target, pms_bad4, cke_2nd_prefix, cipher_handshake, messageflow=False, timeout=timeout)
 
     if (oracle_good == oracle_bad1 == oracle_bad2 == oracle_bad3 == oracle_bad4):
-        module.log("{}:{} - Identical results ({}), retrying with changed messageflow".format(*target, oracle_good), level='info')
+        module.log("{}:{} - Identical results ({oracle_good}), retrying with changed messageflow".format(*target, oracle_good=oracle_good), level='info')
         oracle_good = oracle(target, pms_good, cke_2nd_prefix, cipher_handshake, messageflow=True, timeout=timeout)
         oracle_bad1 = oracle(target, pms_bad1, cke_2nd_prefix, cipher_handshake, messageflow=True, timeout=timeout)
         oracle_bad2 = oracle(target, pms_bad2, cke_2nd_prefix, cipher_handshake, messageflow=True, timeout=timeout)
         oracle_bad3 = oracle(target, pms_bad3, cke_2nd_prefix, cipher_handshake, messageflow=True, timeout=timeout)
         oracle_bad4 = oracle(target, pms_bad4, cke_2nd_prefix, cipher_handshake, messageflow=True, timeout=timeout)
         if (oracle_good == oracle_bad1 == oracle_bad2 == oracle_bad3 == oracle_bad4):
-            module.log("{}:{} - Identical results ({}), no working oracle found".format(*target, oracle_good), level='info')
+            module.log("{}:{} - Identical results ({oracle_good}), no working oracle found".format(*target, oracle_good=oracle_good), level='info')
             return
         else:
             flow = True
@@ -265,13 +267,13 @@ def run(args):
         tlsver = "TLS raw version %i/%i" % (cke_version[0], cke_version[1])
 
     module.report_vuln(target[0], 'Bleichenbacher Oracle', port=target[1])
-    module.log("{}:{} - Vulnerable: ({}) oracle found {} with {} message flow".format(*target, oracle_strength, tlsver, flowt), level='good')
+    module.log("{}:{} - Vulnerable: ({oracle_strength}) oracle found {tlsver} with {flowt} message flow".format(*target, oracle_strength=oracle_strength, tlsver=tlsver, flowt=flowt), level='good')
 
-    module.log("{}:{} - Result of good request:                        {}".format(*target, oracle_good), level='debug')
-    module.log("{}:{} - Result of bad request 1 (wrong first bytes):   {}".format(*target, oracle_bad1), level='debug')
-    module.log("{}:{} - Result of bad request 2 (wrong 0x00 position): {}".format(*target, oracle_bad2), level='debug')
-    module.log("{}:{} - Result of bad request 3 (missing 0x00):        {}".format(*target, oracle_bad3), level='debug')
-    module.log("{}:{} - Result of bad request 4 (bad TLS version):     {}".format(*target, oracle_bad4), level='debug')
+    module.log("{}:{} - Result of good request:                        {oracle_bad}".format(*target, oracle_bad=oracle_good), level='debug')
+    module.log("{}:{} - Result of bad request 1 (wrong first bytes):   {oracle_bad}".format(*target, oracle_bad=oracle_bad1), level='debug')
+    module.log("{}:{} - Result of bad request 2 (wrong 0x00 position): {oracle_bad}".format(*target, oracle_bad=oracle_bad2), level='debug')
+    module.log("{}:{} - Result of bad request 3 (missing 0x00):        {oracle_bad}".format(*target, oracle_bad=oracle_bad3), level='debug')
+    module.log("{}:{} - Result of bad request 4 (bad TLS version):     {oracle_bad}".format(*target, oracle_bad=oracle_bad4), level='debug')
 
 
 if __name__ == "__main__":

@@ -30,62 +30,61 @@ module Rex::Proto::MsDtyp
     bit2   :reserved1
     bit1   :ma
     bit1   :as
-    def bit_names
-      names = []
-      names << :GENERIC_READ if self.gr != 0
-      names << :GENERIC_WRITE if self.gw != 0
-      names << :GENERIC_EXECUTE if self.gx != 0
-      names << :GENERIC_ALL if self.ga != 0
-      names << :MAXIMUM_ALLOWED if self.ma != 0
-      names << :ACCESS_SYSTEM_SECURITY if self.as != 0
-      names << :SYNCHRONIZE if self.sy != 0
-      names << :WRITE_OWNER if self.wo != 0
-      names << :WRITE_DACL if self.wd != 0
-      names << :READ_CONTROL if self.rc != 0
-      names << :DELETE if self.de != 0
-      names
-    end
 
     ALL  = MsDtypAccessMask.new({ gr: 1, gw: 1, gx: 1, ga: 1, ma: 1, as: 1, sy: 1, wo: 1, wd: 1, rc: 1, de: 1, protocol: 0xffff })
     NONE = MsDtypAccessMask.new({ gr: 0, gw: 0, gx: 0, ga: 0, ma: 0, as: 0, sy: 0, wo: 0, wd: 0, rc: 0, de: 0, protocol: 0 })
 
-    def to_sddl_text
-      sddl_text_tokens = []
-
+    # Obtain an array of the abbreviated names of permissions that the access mask specifies.
+    #
+    # @return Returns nil if the permissions can't be represented as an array of abbreviations.
+    # @rtype [Array<Symbol>, nil]
+    def permissions
       if (protocol & 0b1111111000000000) != 0 || ma == 1 || as == 1
+        return nil
+      end
+
+      permissions = []
+      permissions << :GA if ga == 1
+      permissions << :GR if gr == 1
+      permissions << :GW if gw == 1
+      permissions << :GX if gx == 1
+
+      file_access_mask = protocol & 0b000111111111
+      permissions << :FA if file_access_mask == 0b000111111111 && de == 1 && rc == 1 && wd == 1 && wo == 1 && sy == 1
+      permissions << :FR if file_access_mask == 0b000010001001
+      permissions << :FW if file_access_mask == 0b000100010110
+      permissions << :FX if file_access_mask == 0b000010100000
+
+      # windows does not reduce registry access flags (i.e. KA, KR, KW) so ignore them here to match it
+
+      permissions << :CC if (protocol & 0b000000000001) != 0 && !permissions.include?(:FA) && !permissions.include?(:FR)
+      permissions << :DC if (protocol & 0b000000000010) != 0 && !permissions.include?(:FA) && !permissions.include?(:FW)
+      permissions << :LC if (protocol & 0b000000000100) != 0 && !permissions.include?(:FA) && !permissions.include?(:FW)
+      permissions << :SW if (protocol & 0b000000001000) != 0 && !permissions.include?(:FA) && !permissions.include?(:FR)
+      permissions << :RP if (protocol & 0b000000010000) != 0 && !permissions.include?(:FA) && !permissions.include?(:FW)
+      permissions << :WP if (protocol & 0b000000100000) != 0 && !permissions.include?(:FA) && !permissions.include?(:FX)
+      permissions << :DT if (protocol & 0b000001000000) != 0 && !permissions.include?(:FA)
+      permissions << :LO if (protocol & 0b000010000000) != 0 && !permissions.include?(:FA)
+      permissions << :CR if (protocol & 0b000100000000) != 0 && !permissions.include?(:FA)
+
+      permissions << :SD if de == 1 && !permissions.include?(:FA)
+      permissions << :RC if rc == 1 && !permissions.include?(:FA)
+      permissions << :WD if wd == 1 && !permissions.include?(:FA)
+      permissions << :WO if wo == 1 && !permissions.include?(:FA)
+
+      permissions
+    end
+
+    def to_sddl_text
+      perms = permissions
+
+      if perms.nil?
         # if one of these conditions are true, we can't reduce this to a set of flags so dump it as hex
         return "0x#{to_binary_s.unpack1('L<').to_s(16).rjust(8, '0')}"
       end
 
-      sddl_text_tokens << 'GA' if ga == 1
-      sddl_text_tokens << 'GR' if gr == 1
-      sddl_text_tokens << 'GW' if gw == 1
-      sddl_text_tokens << 'GX' if gx == 1
 
-      file_access_mask = protocol & 0b000111111111
-      sddl_text_tokens << 'FA' if file_access_mask == 0b000111111111 && de == 1 && rc == 1 && wd == 1 && wo == 1 && sy == 1
-      sddl_text_tokens << 'FR' if file_access_mask == 0b000010001001
-      sddl_text_tokens << 'FW' if file_access_mask == 0b000100010110
-      sddl_text_tokens << 'FX' if file_access_mask == 0b000010100000
-
-      # windows does not reduce registry access flags (i.e. KA, KR, KW) so ignore them here to match it
-
-      sddl_text_tokens << 'CC' if (protocol & 0b000000000001) != 0 && !sddl_text_tokens.include?('FA') && !sddl_text_tokens.include?('FR')
-      sddl_text_tokens << 'DC' if (protocol & 0b000000000010) != 0 && !sddl_text_tokens.include?('FA') && !sddl_text_tokens.include?('FW')
-      sddl_text_tokens << 'LC' if (protocol & 0b000000000100) != 0 && !sddl_text_tokens.include?('FA') && !sddl_text_tokens.include?('FW')
-      sddl_text_tokens << 'SW' if (protocol & 0b000000001000) != 0 && !sddl_text_tokens.include?('FA') && !sddl_text_tokens.include?('FR')
-      sddl_text_tokens << 'RP' if (protocol & 0b000000010000) != 0 && !sddl_text_tokens.include?('FA') && !sddl_text_tokens.include?('FW')
-      sddl_text_tokens << 'WP' if (protocol & 0b000000100000) != 0 && !sddl_text_tokens.include?('FA') && !sddl_text_tokens.include?('FX')
-      sddl_text_tokens << 'DT' if (protocol & 0b000001000000) != 0 && !sddl_text_tokens.include?('FA')
-      sddl_text_tokens << 'LO' if (protocol & 0b000010000000) != 0 && !sddl_text_tokens.include?('FA')
-      sddl_text_tokens << 'CR' if (protocol & 0b000100000000) != 0 && !sddl_text_tokens.include?('FA')
-
-      sddl_text_tokens << 'SD' if de == 1 && !sddl_text_tokens.include?('FA')
-      sddl_text_tokens << 'RC' if rc == 1 && !sddl_text_tokens.include?('FA')
-      sddl_text_tokens << 'WD' if wd == 1 && !sddl_text_tokens.include?('FA')
-      sddl_text_tokens << 'WO' if wo == 1 && !sddl_text_tokens.include?('FA')
-
-      sddl_text_tokens.join('')
+      permissions.map(&:to_s).join
     end
 
     def self.from_sddl_text(sddl_text)
@@ -330,6 +329,56 @@ module Rex::Proto::MsDtyp
 
     def self.name(value)
       constants.select { |c| c.upcase == c }.find { |c| const_get(c) == value }
+    end
+
+    def self.alarm?(type)
+      [
+        SYSTEM_ALARM_ACE_TYPE,
+        SYSTEM_ALARM_OBJECT_ACE_TYPE,
+        SYSTEM_ALARM_CALLBACK_ACE_TYPE,
+        SYSTEM_ALARM_CALLBACK_OBJECT_ACE_TYPE,
+      ].include? type
+    end
+
+    def self.allow?(type)
+      [
+        ACCESS_ALLOWED_ACE_TYPE,
+        ACCESS_ALLOWED_COMPOUND_ACE_TYPE,
+        ACCESS_ALLOWED_OBJECT_ACE_TYPE,
+        ACCESS_ALLOWED_CALLBACK_ACE_TYPE,
+        ACCESS_ALLOWED_CALLBACK_OBJECT_ACE_TYPE,
+      ].include? type
+    end
+
+    def self.audit?(type)
+      [
+        SYSTEM_AUDIT_ACE_TYPE,
+        SYSTEM_AUDIT_OBJECT_ACE_TYPE,
+        SYSTEM_AUDIT_CALLBACK_ACE_TYPE,
+        SYSTEM_AUDIT_CALLBACK_OBJECT_ACE_TYPE,
+      ].include? type
+    end
+
+    def self.deny?(type)
+      [
+        ACCESS_DENIED_ACE_TYPE,
+        ACCESS_DENIED_OBJECT_ACE_TYPE,
+        ACCESS_DENIED_CALLBACK_ACE_TYPE,
+        ACCESS_DENIED_CALLBACK_OBJECT_ACE_TYPE,
+      ].include? type
+    end
+
+    def self.has_object?(type)
+      [
+        ACCESS_ALLOWED_OBJECT_ACE_TYPE,
+        ACCESS_DENIED_OBJECT_ACE_TYPE,
+        SYSTEM_AUDIT_OBJECT_ACE_TYPE,
+        SYSTEM_ALARM_OBJECT_ACE_TYPE,
+        ACCESS_ALLOWED_CALLBACK_OBJECT_ACE_TYPE,
+        ACCESS_DENIED_CALLBACK_OBJECT_ACE_TYPE,
+        SYSTEM_AUDIT_CALLBACK_OBJECT_ACE_TYPE,
+        SYSTEM_ALARM_CALLBACK_OBJECT_ACE_TYPE
+      ].include? type
     end
   end
 

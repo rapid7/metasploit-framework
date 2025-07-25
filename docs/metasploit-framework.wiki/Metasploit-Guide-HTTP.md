@@ -11,7 +11,7 @@ Note that any port can be used to run an application which communicates via HTTP
 This document is generic advice for running and debugging HTTP based Metasploit modules, but it is best to use a Metasploit module which is specific to the application that you are pentesting. For instance:
 
 ```msf
-msf6 > search tomcat http
+msf > search tomcat http
 ```
 
 ### HTTP Examples
@@ -49,12 +49,12 @@ run http://example.com HttpTrace=true verbose=true
 For instance:
 
 ```msf
-msf6 > use scanner/http/title
-msf6 auxiliary(scanner/http/title) > set RHOSTS 127.0.0.1
+msf > use scanner/http/title
+msf auxiliary(scanner/http/title) > set RHOSTS 127.0.0.1
 RHOSTS => 127.0.0.1
-msf6 auxiliary(scanner/http/title) > set HttpTrace true
+msf auxiliary(scanner/http/title) > set HttpTrace true
 HttpTrace => true
-msf6 auxiliary(scanner/http/title) > run
+msf auxiliary(scanner/http/title) > run
 
 ####################
 # Request:
@@ -89,7 +89,7 @@ Content-Length: 178
 [+] [127.0.0.1:80] [C:200] [R:] [S:SimpleHTTP/0.6 Python/2.7.16] Directory listing for /
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/http/title) >
+msf auxiliary(scanner/http/title) >
 ```
 
 To send all HTTP requests through a proxy, i.e. through Burp Suite:
@@ -170,13 +170,13 @@ Header-Name-Here: <%= 'content of header goes here' %>
 
 The following output shows leveraging the scraper scanner module with an additional header stored in ```additional_headers.txt```.
 ```msf
-msf6 auxiliary(scanner/http/scraper) > cat additional_headers.txt
+msf auxiliary(scanner/http/scraper) > cat additional_headers.txt
 [*] exec: cat additional_headers.txt
 
 X-Cookie-Header: <%= 'example-cookie' %>
-msf6 auxiliary(scanner/http/scraper) > set HTTPRAWHEADERS additional_headers.txt
+msf auxiliary(scanner/http/scraper) > set HTTPRAWHEADERS additional_headers.txt
 HTTPRAWHEADERS => additional_headers.txt
-msf6 auxiliary(scanner/http/scraper) > exploit
+msf auxiliary(scanner/http/scraper) > exploit
 
 ####################
 # Request:

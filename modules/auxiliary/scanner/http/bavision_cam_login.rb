@@ -12,24 +12,32 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'        => 'BAVision IP Camera Web Server Login',
-      'Description' => %q{
-        This module will attempt to authenticate to an IP camera created by BAVision via the
-        web service. By default, the vendor ships a default credential admin:123456 to its
-        cameras, and the web server does not enforce lockouts in case of a bruteforce attack.
-      },
-      'Author'      => [ 'sinn3r' ],
-      'License'     => MSF_LICENSE
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'BAVision IP Camera Web Server Login',
+        'Description' => %q{
+          This module will attempt to authenticate to an IP camera created by BAVision via the
+          web service. By default, the vendor ships a default credential admin:123456 to its
+          cameras, and the web server does not enforce lockouts in case of a bruteforce attack.
+        },
+        'Author' => [ 'sinn3r' ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptBool.new('TRYDEFAULT', [false, 'Try the default credential admin:123456', false])
-      ])
+      ]
+    )
   end
-
 
   def scanner(ip)
     @scanner ||= lambda {
@@ -49,16 +57,16 @@ class MetasploitModule < Msf::Auxiliary
         configure_http_login_scanner(
           host: ip,
           port: datastore['RPORT'],
-          cred_details:       cred_collection,
-          stop_on_success:    datastore['STOP_ON_SUCCESS'],
-          bruteforce_speed:   datastore['BRUTEFORCE_SPEED'],
+          cred_details: cred_collection,
+          stop_on_success: datastore['STOP_ON_SUCCESS'],
+          bruteforce_speed: datastore['BRUTEFORCE_SPEED'],
           connection_timeout: 5,
-          http_username:      datastore['HttpUsername'],
-          http_password:      datastore['HttpPassword']
-        ))
+          http_username: datastore['HttpUsername'],
+          http_password: datastore['HttpPassword']
+        )
+      )
     }.call
   end
-
 
   def report_good_cred(ip, port, result)
     service_data = {
@@ -86,7 +94,6 @@ class MetasploitModule < Msf::Auxiliary
 
     create_credential_login(login_data)
   end
-
 
   def report_bad_cred(ip, rport, result)
     invalidate_login(

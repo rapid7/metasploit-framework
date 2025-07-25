@@ -20,7 +20,7 @@ Tested against the following versions of FortiMail:
 ## Scenarios
 
 ```
-msf5 auxiliary(scanner/http/fortimail_login_bypass_detection) > run
+msf auxiliary(scanner/http/fortimail_login_bypass_detection) > run
 
 [*] Checking vulnerability at 172.16.144.198
 [+] 172.16.144.198 - Vulnerable version of FortiMail detected

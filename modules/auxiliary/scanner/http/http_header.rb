@@ -7,26 +7,34 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Scanner
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'        => 'HTTP Header Detection',
-      'Description' => %q{ This module shows HTTP Headers returned by the scanned systems. },
-      'Author'      =>
-      [
-        'Christian Mehlmauer',
-        'rick2600'
-      ],
-      'References'  =>
-      [
-        ['URL', 'http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'],
-        ['URL', 'https://en.wikipedia.org/wiki/List_of_HTTP_header_fields']
-      ],
-      'License'     => MSF_LICENSE
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'HTTP Header Detection',
+        'Description' => %q{ This module shows HTTP Headers returned by the scanned systems. },
+        'Author' => [
+          'Christian Mehlmauer',
+          'rick2600'
+        ],
+        'References' => [
+          ['URL', 'http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'],
+          ['URL', 'https://en.wikipedia.org/wiki/List_of_HTTP_header_fields']
+        ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
-      OptString.new('IGN_HEADER', [ true, 'List of headers to ignore, separated by comma',
-        'Vary,Date,Content-Length,Connection,Etag,Expires,Pragma,Accept-Ranges']),
+      OptString.new('IGN_HEADER', [
+        true, 'List of headers to ignore, separated by comma',
+        'Vary,Date,Content-Length,Connection,Etag,Expires,Pragma,Accept-Ranges'
+      ]),
       OptEnum.new('HTTP_METHOD', [ true, 'HTTP Method to use, HEAD or GET', 'HEAD', ['GET', 'HEAD'] ]),
       OptString.new('TARGETURI', [ true, 'The URI to use', '/'])
     ])
@@ -39,8 +47,8 @@ class MetasploitModule < Msf::Auxiliary
     method = datastore['HTTP_METHOD']
     vprint_status("#{peer}: requesting #{uri} via #{method}")
     res = send_request_raw({
-      'method'  => method,
-      'uri'     => uri
+      'method' => method,
+      'uri' => uri
     })
 
     unless res

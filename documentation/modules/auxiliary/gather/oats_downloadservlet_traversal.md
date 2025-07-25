@@ -54,7 +54,7 @@ Special thanks to Steven Seeley to assist on the development of the Metasploit m
 ## Scenarios
 
 ```
-msf5 auxiliary(gather/oats_downloadservlet_traversal) > run
+msf auxiliary(gather/oats_downloadservlet_traversal) > run
 [*] Running module against 172.16.249.143
 
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -75,5 +75,5 @@ msf5 auxiliary(gather/oats_downloadservlet_traversal) > run
 </properties>
 
 [*] Auxiliary module execution completed
-msf5 auxiliary(gather/oats_downloadservlet_traversal) > 
+msf auxiliary(gather/oats_downloadservlet_traversal) > 
 ```

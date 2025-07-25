@@ -12,17 +12,16 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'		=> 'Borland InterBase Services Manager Information',
+      'Name'	=> 'Borland InterBase Services Manager Information',
       'Description'	=> %q{
         This module retrieves version of the services manager, version
         and implementation of the InterBase server from InterBase
         Services Manager.
       },
-      'Author'	=>
-        [
-          'Ramon de C Valle',
-          'Adriano Lima <adriano[at]risesecurity.org>',
-        ],
+      'Author' => [
+        'Ramon de C Valle',
+        'Adriano Lima <adriano[at]risesecurity.org>',
+      ],
       'License'	=> MSF_LICENSE
     )
 
@@ -32,7 +31,6 @@ class MetasploitModule < Msf::Auxiliary
       ],
       self.class
     )
-
   end
 
   # Create service parameter block
@@ -98,14 +96,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-
     #
     # Using the InterBase Services Manager
     # http://dn.codegear.com/article/27002
     #
 
     begin
-
       print_status("Trying #{ip}")
 
       connect
@@ -152,7 +148,6 @@ class MetasploitModule < Msf::Auxiliary
       response = sock.get_once || ''
 
       # print(Rex::Text.to_hex_dump(response))
-
 
       # isc_service_query
 
@@ -205,7 +200,7 @@ class MetasploitModule < Msf::Auxiliary
       print("Version of the InterBase server: #{info_svc_server_version}\n")
       print("Implementation of the InterBase server: #{info_svc_implementation}\n\n")
 
-      #print(Rex::Text.to_hex_dump(response))
+      # print(Rex::Text.to_hex_dump(response))
 
       # Add Report
       report_note(
@@ -226,11 +221,8 @@ class MetasploitModule < Msf::Auxiliary
         :type	=> 'Implementation of the InterBase server',
         :data	=> "Implementation of the InterBase server: #{info_svc_implementation}"
       )
-
     rescue ::Rex::ConnectionError
     rescue ::Errno::EPIPE
-
     end
-
   end
 end

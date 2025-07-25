@@ -9,36 +9,43 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Oracle Demantra Arbitrary File Retrieval with Authentication Bypass',
-      'Description'    => %q{
-        This module exploits a file download vulnerability found in Oracle
-        Demantra 12.2.1 in combination with an authentication bypass. By
-        combining these exposures, an unauthenticated user can retrieve any file
-        on the system by referencing the full file path to any file a vulnerable
-        machine.
-      },
-      'References'     =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Oracle Demantra Arbitrary File Retrieval with Authentication Bypass',
+        'Description' => %q{
+          This module exploits a file download vulnerability found in Oracle
+          Demantra 12.2.1 in combination with an authentication bypass. By
+          combining these exposures, an unauthenticated user can retrieve any file
+          on the system by referencing the full file path to any file a vulnerable
+          machine.
+        },
+        'References' => [
           [ 'CVE', '2013-5877'],
           [ 'CVE', '2013-5880'],
           [ 'URL', 'https://www.portcullis-security.com/security-research-and-downloads/security-advisories/cve-2013-5877/'],
           [ 'URL', 'https://www.portcullis-security.com/security-research-and-downloads/security-advisories/cve-2013-5880/']
         ],
-      'Author'         =>
-        [
+        'Author' => [
           'Oliver Gruskovnjak'
         ],
-      'License'        => MSF_LICENSE,
-      'DisclosureDate' => '2014-02-28'
-    ))
+        'License' => MSF_LICENSE,
+        'DisclosureDate' => '2014-02-28',
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
         Opt::RPORT(8080),
-        OptBool.new('SSL',   [false, 'Use SSL', false]),
+        OptBool.new('SSL', [false, 'Use SSL', false]),
         OptString.new('FILEPATH', [true, 'The name of the file to download', 'c:/windows/win.ini'])
-      ])
+      ]
+    )
   end
 
   def run_host(ip)
@@ -71,7 +78,8 @@ class MetasploitModule < Msf::Auxiliary
         'application/octet-stream',
         ip,
         res.body,
-        fname)
+        fname
+      )
 
       print_good("#{ip}:#{rport} - File saved in: #{path}")
     end

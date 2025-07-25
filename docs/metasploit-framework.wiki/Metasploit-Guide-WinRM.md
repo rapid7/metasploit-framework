@@ -41,7 +41,7 @@ Metasploit has support for multiple WinRM modules, including:
 There are more modules than listed here, for the full list of modules run the `search` command within msfconsole:
 
 ```msf
-msf6 > search winrm
+msf > search winrm
 ```
 
 ### Lab Environment
@@ -70,7 +70,7 @@ run https://192.168.123.139:5986
 Example:
 
 ```msf
-msf6 auxiliary(scanner/winrm/winrm_auth_methods) > run http://192.168.123.139:5985
+msf auxiliary(scanner/winrm/winrm_auth_methods) > run http://192.168.123.139:5985
 
 [+] 192.168.123.139:5985: Negotiate protocol supported
 [+] 192.168.123.139:5985: Kerberos protocol supported
@@ -123,14 +123,14 @@ run http://user:pass@192.168.123.139:5985
 Example:
 
 ```msf
-msf6 auxiliary(scanner/winrm/winrm_login) > run http://user:pass@192.168.123.139:5985
+msf auxiliary(scanner/winrm/winrm_login) > run http://user:pass@192.168.123.139:5985
 
 [!] No active DB -- Credential data will not be saved!
 [+] 192.168.123.139:5985 - Login Successful: WORKSTATION\user:pass
 [*] Command shell session 7 opened (192.168.123.1:58673 -> 192.168.123.139:5985 ) at 2022-04-23 02:36:34 +0100
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/winrm/winrm_login) > sessions -i -1
+msf auxiliary(scanner/winrm/winrm_login) > sessions -i -1
 [*] Starting interaction with 7...
 
 Microsoft Windows [Version 10.0.14393]
@@ -146,8 +146,8 @@ Details on the Kerberos specific option names are documented in [[Kerberos Servi
 Open a WinRM session:
 
 ```msf
-msf6 > use auxiliary/scanner/winrm/winrm_login
-msf6 auxiliary(scanner/winrm/winrm_login) > run rhost=192.168.123.13 username=Administrator password=p4$$w0rd winrm::auth=kerberos domaincontrollerrhost=192.168.123.13 winrm::rhostname=dc3.demo.local domain=demo.local
+msf > use auxiliary/scanner/winrm/winrm_login
+msf auxiliary(scanner/winrm/winrm_login) > run rhost=192.168.123.13 username=Administrator password=p4$$w0rd winrm::auth=kerberos domaincontrollerrhost=192.168.123.13 winrm::rhostname=dc3.demo.local domain=demo.local
 
 [+] 192.168.123.13:88 - Received a valid TGT-Response
 [*] 192.168.123.13:5985   - TGT MIT Credential Cache ticket saved to /Users/user/.msf4/loot/20230118120604_default_192.168.123.13_mit.kerberos.cca_451736.bin
@@ -159,7 +159,7 @@ msf6 auxiliary(scanner/winrm/winrm_login) > run rhost=192.168.123.13 username=Ad
 [*] Command shell session 1 opened (192.168.123.1:50722 -> 192.168.123.13:5985) at 2023-01-18 12:06:05 +0000
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
-msf6 auxiliary(scanner/winrm/winrm_login) > sessions -i -1
+msf auxiliary(scanner/winrm/winrm_login) > sessions -i -1
 [*] Starting interaction with 1...
 
 Microsoft Windows [Version 10.0.14393]

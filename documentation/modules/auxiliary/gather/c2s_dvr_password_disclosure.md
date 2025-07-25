@@ -65,7 +65,7 @@ if ($Q::page == 2) {
     [*] Scanned 1 of 1 hosts (100% complete)
     [*] Auxiliary module execution completed
     [*] Starting persistent handler(s)...
-    msf5 auxiliary(gather/c2s_dvr_password_disclosure) > creds
+    msf auxiliary(gather/c2s_dvr_password_disclosure) > creds
     Credentials
     ===========
     

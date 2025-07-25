@@ -158,7 +158,7 @@ enrollable by at least one additional user or group.
 
 ### Windows Server 2022 with AD CS
 ```msf
-msf6 auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
+msf auxiliary(gather/ldap_esc_vulnerable_cert_finder) > run
 [*] Running module against 192.168.159.10
 
 [*] Discovering base DN automatically

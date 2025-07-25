@@ -21,7 +21,7 @@ This module dumps SHA-1, LM, NT, and SHA-512 Hashes on OSX. Supports versions 10
 ### User level shell on OSX 10.14.4
 
 ```
-msf5 post(osx/gather/hashdump) > run
+msf post(osx/gather/hashdump) > run
 
 [-] Post aborted due to failure: bad-config: Insufficient Privileges: must be running as root to dump the hashes
 [*] Post module execution completed
@@ -30,7 +30,7 @@ msf5 post(osx/gather/hashdump) > run
 ### Root level shell on OSX 10.14.4
 
 ```
-msf5 post(osx/gather/hashdump) > run
+msf post(osx/gather/hashdump) > run
 
 [*] Attempting to grab shadow for user nobody...
 [*] Attempting to grab shadow for user h00die...

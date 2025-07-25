@@ -69,12 +69,12 @@ Regexp pattern to determine successful directory traversal (default: `^HTTP/\d\.
 ### Apache/2.4.57 on Kali GNU/Linux Rolling 2023.3
 
 ```
-msf6 > use auxiliary/scanner/http/http_traversal
-msf6 auxiliary(scanner/http/http_traversal) > set rhosts 127.0.0.1
+msf > use auxiliary/scanner/http/http_traversal
+msf auxiliary(scanner/http/http_traversal) > set rhosts 127.0.0.1
 rhosts => 127.0.0.1
-msf6 auxiliary(scanner/http/http_traversal) > set path /?p=
+msf auxiliary(scanner/http/http_traversal) > set path /?p=
 path => /?p=
-msf6 auxiliary(scanner/http/http_traversal) > run
+msf auxiliary(scanner/http/http_traversal) > run
 
 [*] Running action: CHECK...
 [+] Found trigger: ../

