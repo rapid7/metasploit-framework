@@ -77,7 +77,7 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     fail_with(Failure::UnexpectedReply, 'Failed to fetch registration step') unless res&.code == 200
-    return res
+    res
   end
 
   def create_general_info(submit_uri)

