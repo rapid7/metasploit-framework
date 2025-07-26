@@ -247,5 +247,4 @@ class MetasploitModule < Msf::Auxiliary
     end
     return newaction
   end
-
 end
