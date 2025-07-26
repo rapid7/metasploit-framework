@@ -300,24 +300,33 @@ module Metasploit
           if cracker_path && ::File.file?(cracker_path)
             return cracker_path
           else
+            # Look in the Environment PATH for the hashcat binary
+            if cracker == 'hashcat'
+              path = Rex::FileUtils.find_full_path('hashcat') ||
+                      Rex::FileUtils.find_full_path('hashcat.exe')
+            end
+
             # Look in the Environment PATH for the john binary
             if cracker == 'john'
               path = Rex::FileUtils.find_full_path('john') ||
-                     Rex::FileUtils.find_full_path('john.exe')
-            elsif cracker == 'hashcat'
-              path = Rex::FileUtils.find_full_path('hashcat') ||
-                     Rex::FileUtils.find_full_path('hashcat.exe')
-            else
-              raise PasswordCrackerNotFoundError, 'No suitable Cracker was selected, so a binary could not be found on the system'
+                      Rex::FileUtils.find_full_path('john.exe')
+            end
+            
+            # If neither john nor hashcat is found, raise an error
+            if path == ''
+              raise PasswordCrackerNotFoundError, 'No suitable Cracker was selected, so a binary could not be found on the system JOHN || HASHCAT'
             end
 
             if path && ::File.file?(path)
               return path
             end
 
-            raise PasswordCrackerNotFoundError, 'No suitable john/hashcat binary was found on the system'
           end
+
+          raise PasswordCrackerNotFoundError, 'No suitable john/hashcat binary was found on the system'
+          
         end
+          
 
         # This method runs the command from {#crack_command} and yields each line of output.
         #
