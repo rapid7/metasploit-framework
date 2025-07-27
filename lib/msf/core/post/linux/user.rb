@@ -4,6 +4,7 @@ module Msf
   class Post
     module Linux
       module User
+        include ::Msf::Post::Common
         #
         # Returns a string of the user's home directory
         #
