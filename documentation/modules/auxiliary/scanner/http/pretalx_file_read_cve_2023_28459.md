@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-Pretalx is a web-based conference planning tool, used to manage call for paper submissions, talk selection and so on. It used by many major IT conferences - such as OffensiveCon, Hexacon,... Versions 2.3.1 and prior are vulnerable to arbitrary file read, which exploits unsanitized path in schedule export. Module requires existing conference for successful exploitation. 
+Pretalx is a web-based conference planning tool, used to manage call for paper submissions, talk selection and so on. It used by many major IT conferences - such as OffensiveCon, Hexacon,... Versions 2.3.1 and prior are vulnerable to arbitrary file read, which exploits unsanitized path in schedule export. The module requires set of credentials of Pretalx user and Pretalx needs to have existing conference, where the attacker can submit malicious proposal.
 
 Installation steps:
 
@@ -54,11 +54,11 @@ volumes:
 ```
 1. `sudo docker-compose up`
 1. Setup username and password
-1. Go to `orga/event/` 
+1. Go to `orga/event/`
 1. Create new conference
 1. Go to `orga/event/[conference name]/schedule/rooms/`
 1. Create a room
-1. Go to `orga/event/[conference name]/` 
+1. Go to `orga/event/[conference name]/`
 1. Make conference go live
 1. `sudo docker exec -u 0 -it pretalx /bin/bash`
 1. Make sure you have correct right on `/data` folder, so `pretalx` user can write export there
@@ -79,13 +79,22 @@ volumes:
 
 ### CONFERENCE_NAME
 
+The slug (shortcut) name of the conference. The module requires existing conference, where an attacker can submit malicious proposal (e.g. conference-secret-2025)
+
 ### FILEPATH
+Absolute path to the target file.
 
 ### MEDIA_URL
 
+Pretalx uses path to `media` folder, which is used as prepend to target file path to achieve arbitrary file read. The default value is `/media`, however, it can be modified by user.
+
 ### USERNAME
 
+Username of Pretalx user that can approve proposals and release schedule.
+
 ### PASSWORD
+
+Password of Pretalx user that can approve proposals and release schedule.
 
 ## Scenarios
 ```

