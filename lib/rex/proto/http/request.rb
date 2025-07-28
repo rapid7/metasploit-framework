@@ -218,6 +218,18 @@ class Request < Packet
   end
 
   #
+  # Returns a hijacked version of the body that shoves the request's query string in as a
+  # replacement in cases where there is no body. YOLO! ¯\_(ツ)_/¯
+  #
+  def body
+    str = super || ''
+    if str.length == 0 && PostRequests.include?(self.method)
+      str = param_tring
+    end
+    str
+  end
+
+  #
   # Returns the command string derived from the three values.
   #
   def cmd_string
