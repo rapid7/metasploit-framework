@@ -41,7 +41,7 @@ module Metasploit
       config.paths['config/database'] = [Metasploit::Framework::Database.configurations_pathname.try(:to_path)]
       config.autoloader = :zeitwerk
 
-      config.load_defaults 7.1
+      config.load_defaults 7.2
 
       config.eager_load = false
     end

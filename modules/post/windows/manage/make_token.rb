@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Post
           'Meterpreter' => {
             'Commands' => %w[
               stdapi_railgun_api
-              stdapi_sys_config_revert_to_self
+              stdapi_sys_config_rev2self
               stdapi_sys_config_update_token
             ]
           }
