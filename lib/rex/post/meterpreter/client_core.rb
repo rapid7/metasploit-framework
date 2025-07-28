@@ -862,7 +862,7 @@ private
   # Helper function to prepare a transport request that will be sent to the
   # attached session.
   #
-  def transport_prepare_request(method, opts={})
+  def transport_prepare_request(command_id, opts={})
     unless valid_transport?(opts[:transport]) && opts[:lport]
       return nil
     end
@@ -876,7 +876,11 @@ private
 
     transport = opts[:transport].downcase
 
-    request = Packet.create_request(method)
+    request = Packet.create_request(command_id)
+
+    if opts[:session_exp]
+      request.add_tlv(TLV_TYPE_SESSION_EXPIRY, opts[:session_exp])
+    end
 
     scheme = transport.split('_')[1]
     url = "#{scheme}://#{opts[:lhost]}:#{opts[:lport]}"
@@ -891,20 +895,18 @@ private
       end
     end
 
-    if opts[:comm_timeout]
-      request.add_tlv(TLV_TYPE_C2_COMM_TIMEOUT, opts[:comm_timeout])
-    end
+    c2_tlv = GroupTlv.new(TLV_TYPE_C2)
 
-    if opts[:session_exp]
-      request.add_tlv(TLV_TYPE_SESSION_EXPIRY, opts[:session_exp])
+    if opts[:comm_timeout]
+      c2_tlv.add_tlv(TLV_TYPE_C2_COMM_TIMEOUT, opts[:comm_timeout])
     end
 
     if opts[:retry_total]
-      request.add_tlv(TLV_TYPE_C2_RETRY_TOTAL, opts[:retry_total])
+      c2_tlv.add_tlv(TLV_TYPE_C2_RETRY_TOTAL, opts[:retry_total])
     end
 
     if opts[:retry_wait]
-      request.add_tlv(TLV_TYPE_C2_RETRY_WAIT, opts[:retry_wait])
+      c2_tlv.add_tlv(TLV_TYPE_C2_RETRY_WAIT, opts[:retry_wait])
     end
 
     # do more magic work for http(s) payloads
@@ -919,30 +921,32 @@ private
       end
 
       opts[:ua] ||= Rex::UserAgent.random
-      request.add_tlv(TLV_TYPE_C2_UA, opts[:ua])
+      c2_tlv.add_tlv(TLV_TYPE_C2_UA, opts[:ua])
 
       if transport == 'reverse_https' && opts[:cert] # currently only https transport offers ssl
         hash = Rex::Socket::X509Certificate.get_cert_file_hash(opts[:cert])
-        request.add_tlv(TLV_TYPE_C2_CERT_HASH, hash)
+        c2_tlv.add_tlv(TLV_TYPE_C2_CERT_HASH, hash)
       end
 
       if opts[:proxy_host] && opts[:proxy_port]
         prefix = 'http://'
         prefix = 'socks=' if opts[:proxy_type].to_s.downcase == 'socks'
         proxy = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
-        request.add_tlv(TLV_TYPE_C2_PROXY_HOST, proxy)
+        c2_tlv.add_tlv(TLV_TYPE_C2_PROXY_HOST, proxy)
 
         if opts[:proxy_user]
-          request.add_tlv(TLV_TYPE_C2_PROXY_USER, opts[:proxy_user])
+          c2_tlv.add_tlv(TLV_TYPE_C2_PROXY_USER, opts[:proxy_user])
         end
         if opts[:proxy_pass]
-          request.add_tlv(TLV_TYPE_C2_PROXY_PASS, opts[:proxy_pass])
+          c2_tlv.add_tlv(TLV_TYPE_C2_PROXY_PASS, opts[:proxy_pass])
         end
       end
 
     end
 
-    request.add_tlv(TLV_TYPE_C2_URL, url)
+    c2_tlv.add_tlv(TLV_TYPE_C2_URL, url)
+
+    request.tlvs << c2_tlv
 
     request
   end
