@@ -82,13 +82,14 @@ private
       profile = parser.parse(opts[:c2_profile])
       c2_tlv = profile.to_tlv
     else
-      c2_tlv= MET::GroupTlv.new(MET::TLV_TYPE_C2)
+      c2_tlv = MET::GroupTlv.new(MET::TLV_TYPE_C2)
 
-      c2_tlv.add_tlv(MET::TLV_TYPE_C2_COMM_TIMEOUT, opts[:comm_timeout])
-      c2_tlv.add_tlv(MET::TLV_TYPE_C2_RETRY_TOTAL, opts[:retry_total])
-      c2_tlv.add_tlv(MET::TLV_TYPE_C2_RETRY_WAIT, opts[:retry_wait])
       c2_tlv.add_tlv(MET::TLV_TYPE_C2_UA, opts[:ua]) unless (opts[:ua] || '').empty?
     end
+
+    c2_tlv.add_tlv(MET::TLV_TYPE_C2_COMM_TIMEOUT, opts[:comm_timeout])
+    c2_tlv.add_tlv(MET::TLV_TYPE_C2_RETRY_TOTAL, opts[:retry_total])
+    c2_tlv.add_tlv(MET::TLV_TYPE_C2_RETRY_WAIT, opts[:retry_wait])
 
     url = "#{opts[:scheme]}://#{lhost}"
     url << ":#{opts[:lport]}" if opts[:lport]
