@@ -174,7 +174,7 @@ module Msf::Payload::MalleableC2
 
     def wrap_outbound_get(raw_bytes)
       prepends = self.http_get&.server&.output&.prepend || []
-      prefix = prepends.reverse.map {|p| p.args[0]}.join('')
+      prefix = prepends.map {|p| p.args[0]}.join('')
       appends = self.http_get&.server&.output&.append || []
       suffix = appends.map {|p| p.args[0]}.join('')
       prefix + raw_bytes + suffix
@@ -182,7 +182,7 @@ module Msf::Payload::MalleableC2
 
     def unwrap_inbound_post(raw_bytes)
       prepends = self.http_post&.client&.output&.prepend || []
-      prefix = prepends.reverse.map {|p| p.args[0]}.join('')
+      prefix = prepends.map {|p| p.args[0]}.join('')
       unless prefix.empty? || (raw_bytes[0, prefix.length] <=> prefix) != 0
         raw_bytes = raw_bytes[prefix.length, raw_bytes.length]
       end
@@ -208,7 +208,7 @@ module Msf::Payload::MalleableC2
           self.add_http_tlv(get_uri, client, get_tlv)
 
           prepends = self.http_get&.server&.output&.prepend || []
-          prefix = prepends.reverse.map {|p| p.args[0]}.join('')
+          prefix = prepends.map {|p| p.args[0]}.join('')
           get_tlv.add_tlv(MET::TLV_TYPE_C2_SKIP_COUNT, prefix.length) unless prefix.length == 0
 
           client.get_section('metadata') {|meta|
@@ -233,7 +233,7 @@ module Msf::Payload::MalleableC2
           self.add_http_tlv(post_uri, client, post_tlv)
 
           prepends = self.http_get&.server&.output&.prepend || []
-          prefix = prepends.reverse.map {|p| p.args[0]}.join('')
+          prefix = prepends.map {|p| p.args[0]}.join('')
           post_tlv.add_tlv(MET::TLV_TYPE_C2_SKIP_COUNT, prefix.length) unless prefix.length == 0
 
           client.get_section('output') {|client_output|
@@ -243,7 +243,7 @@ module Msf::Payload::MalleableC2
 
             post_tlv.add_tlv(MET::TLV_TYPE_C2_ENC, enc_flags) if enc_flags != 0
 
-            prepend_data = client_output.get_directive('prepend').map{|d|d.args[0]}.reverse.join("")
+            prepend_data = client_output.get_directive('prepend').map{|d|d.args[0]}.("")
             post_tlv.add_tlv(MET::TLV_TYPE_C2_PREFIX, prepend_data) unless prepend_data.empty?
             append_data = client_output.get_directive('append').map{|d|d.args[0]}.join("")
             post_tlv.add_tlv(MET::TLV_TYPE_C2_SUFFIX, append_data) unless append_data.empty?
