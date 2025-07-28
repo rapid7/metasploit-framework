@@ -70,7 +70,7 @@ volumes:
 1. Start msfconsole
 1. Do: `use auxiliary/scanner/http/pretalx_file_read_cve_2023_28459`
 1. Do: `set CONFERENCE_NAME [conference name]`
-1. Do: `set USERNAME [username]`
+1. Do: `set EMAIL [user email]`
 1. Do: `set PASSWORD [password]`
 1. Do: `set RHOSTS [target IP address]`
 1. Do: `run`
@@ -88,9 +88,9 @@ Absolute path to the target file.
 
 Pretalx uses path to `media` folder, which is used as prepend to target file path to achieve arbitrary file read. The default value is `/media`, however, it can be modified by user.
 
-### USERNAME
+### EMAIL
 
-Username of Pretalx user that can approve proposals and release schedule.
+Email of Pretalx user that can approve proposals and release schedule.
 
 ### PASSWORD
 
