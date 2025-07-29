@@ -32,9 +32,8 @@ class MetasploitModule < Msf::Auxiliary
       'Actions' => [
         ['john', { 'Description' => 'Use John the Ripper' }],
         ['hashcat', { 'Description' => 'Use Hashcat' }],
-        ['auto', { 'Description' => 'Use either John the Ripper or Hashcat, if both are present, use Hashcat' }] 
       ],
-      'DefaultAction' => 'auto',
+      'DefaultAction' => 'john',
       'Notes' => {
         'Stability' => [CRASH_SAFE],
         'SideEffects' => [],
@@ -59,20 +58,15 @@ class MetasploitModule < Msf::Auxiliary
   def show_command(cracker_instance)
     return unless datastore['ShowCommand']
 
-    newaction = getaction()
-
-    if newaction == 'john'
+    if action.name == 'john'
       cmd = cracker_instance.john_crack_command
-    elsif newaction == 'hashcat'
+    elsif action.name == 'hashcat'
       cmd = cracker_instance.hashcat_crack_command
     end
     print_status("   Cracking Command: #{cmd.join(' ')}")
   end
 
   def check_results(passwords, results, hash_type, method)
-
-    newaction = getaction()
-
     passwords.each do |password_line|
       password_line.chomp!
       next if password_line.blank?
@@ -80,14 +74,14 @@ class MetasploitModule < Msf::Auxiliary
       fields = password_line.split(':')
       cred = { 'hash_type' => hash_type, 'method' => method }
 
-      if newaction == 'john'
+      if action.name == 'john'
         next unless fields.count >= 3 # If we don't have an expected minimum number of fields, this is probably not a hash line
 
         cred['username'] = fields.shift
         cred['core_id'] = fields.pop
         4.times { fields.pop } # Get rid of extra :
         cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
-      elsif newaction == 'hashcat'
+      elsif action.name == 'hashcat'
         next unless fields.count >= 2 # If we don't have an expected minimum number of fields, this is probably not a hash line
 
         cred['core_id'] = fields.shift
@@ -106,9 +100,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-
-    newaction = getaction()
-
     tbl = tbl = cracker_results_table
 
     # array of hashes in jtr_format in the db, converted to an OR combined regex
@@ -124,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # build our job list
     hash_types_to_crack.each do |hash_type|
-      job = hash_job(hash_type, newaction)
+      job = hash_job(hash_type, action.name)
       if job.nil?
         print_status("No #{hash_type} found to crack")
       else
@@ -142,7 +133,7 @@ class MetasploitModule < Msf::Auxiliary
     # Inner array format: db_id, hash_type, username, password, method_of_crack
     results = []
 
-    cracker = new_password_cracker(newaction)
+    cracker = new_password_cracker(action.name)
 
     # generate our wordlist and close the file handle.
     wordlist = wordlist_file
@@ -167,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
       cracker_instance = cracker.dup
       cracker_instance.format = format
 
-      if newaction == 'john'
+      if action.name == 'john'
         cracker_instance.fork = datastore['FORK']
       end
 
@@ -178,7 +169,7 @@ class MetasploitModule < Msf::Auxiliary
       job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
       next if job['cred_ids_left_to_crack'].empty?
 
-      if newaction == 'john'
+      if action.name == 'john'
         print_status "Cracking #{format} hashes in single mode..."
         cracker_instance.mode_single(wordlist.path)
         show_command cracker_instance
@@ -220,7 +211,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status "Cracking #{format} hashes in wordlist mode..."
       cracker_instance.mode_wordlist(wordlist.path)
       # Turn on KoreLogic rules if the user asked for it
-      if newaction == 'john' && datastore['KORELOGIC']
+      if action.name == 'john' && datastore['KORELOGIC']
         cracker_instance.rules = 'KoreLogicRules'
         print_status 'Applying KoreLogic ruleset...'
       end
@@ -243,25 +234,5 @@ class MetasploitModule < Msf::Auxiliary
         File.delete(f)
       end
     end
-  end
-
-  def getaction
-    newaction = action.name
-    if action.name == 'auto'
-      path = Rex::FileUtils.find_full_path('hashcat') ||
-      Rex::FileUtils.find_full_path('hashcat.exe')
-      if path
-        newaction = 'hashcat'
-      else
-        path = Rex::FileUtils.find_full_path('john') ||
-        Rex::FileUtils.find_full_path('john.exe')
-        if path
-          newaction = 'john'
-        else
-          raise PasswordCrackerNotFoundError, 'No suitable john/hashcat binary was found on the system'
-        end
-      end
-    end
-    return newaction
   end
 end
