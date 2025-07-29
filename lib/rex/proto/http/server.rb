@@ -182,8 +182,10 @@ class Server
   #
   # Adds Server headers and stuff.
   #
-  def add_response_headers(resp)
+  def add_response_headers(req, resp)
     resp['Server'] = self.server_name if not resp['Server']
+    expl = self.context['MsfExploit']
+    expl.add_response_headers(req, resp) if expl&.respond_to?(:add_response_headers)
   end
 
   #
