@@ -85,7 +85,7 @@ module Metasploit
 
         validates :config, 'Metasploit::Framework::File_path': true, if: -> { config.present? }
 
-        validates :cracker, inclusion: { in: %w[john hashcat] }
+        validates :cracker, inclusion: { in: %w[john hashcat auto] }
 
         validates :cracker_path, 'Metasploit::Framework::Executable_path': true, if: -> { cracker_path.present? }
 
@@ -296,28 +296,41 @@ module Metasploit
         #
         # @return [String, NilClass] Returns Nil if a binary path could not be found, or a String containing the path to the selected JTR binary on success.
         def binary_path
-          # Always prefer a manually entered path
-          if cracker_path && ::File.file?(cracker_path)
-            return cracker_path
-          else
-            # Look in the Environment PATH for the john binary
-            if cracker == 'john'
+ 	  # Always prefer a manually entered path
+          return cracker_path if cracker_path && ::File.file?(cracker_path)
+
+ 	  path = nil
+
+          case cracker
+          when 'john'
+            path = Rex::FileUtils.find_full_path('john') ||
+                   Rex::FileUtils.find_full_path('john.exe')
+  	  when 'hashcat'
+            path = Rex::FileUtils.find_full_path('hashcat') ||
+                   Rex::FileUtils.find_full_path('hashcat.exe')
+ 	  when 'auto'
+   	    # Prefer hashcat
+            path = Rex::FileUtils.find_full_path('hashcat') ||
+                   Rex::FileUtils.find_full_path('hashcat.exe')
+
+            unless path
               path = Rex::FileUtils.find_full_path('john') ||
                      Rex::FileUtils.find_full_path('john.exe')
-            elsif cracker == 'hashcat'
-              path = Rex::FileUtils.find_full_path('hashcat') ||
-                     Rex::FileUtils.find_full_path('hashcat.exe')
+              self.cracker = 'john' if path
             else
+              self.cracker = 'hashcat'
+            end
+ 	    else
               raise PasswordCrackerNotFoundError, 'No suitable Cracker was selected, so a binary could not be found on the system'
+ 	    end
+
+ 	    if path && ::File.file?(path)
+   	    return path
             end
 
-            if path && ::File.file?(path)
-              return path
-            end
-
-            raise PasswordCrackerNotFoundError, 'No suitable john/hashcat binary was found on the system'
+ 	    raise PasswordCrackerNotFoundError, 'No suitable john/hashcat binary was found on the system'
           end
-        end
+
 
         # This method runs the command from {#crack_command} and yields each line of output.
         #
