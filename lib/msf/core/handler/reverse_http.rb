@@ -180,28 +180,22 @@ module ReverseHttp
   end
 
   def construct_luri(base_uri)
+    return nil unless base_uri
 
-    if base_uri && base_uri.length > 0
-      # strip trailing slashes
-      while base_uri[-1, 1] == '/'
-        base_uri = base_uri[0...-1]
-      end
+    u = base_uri.dup
 
-      # make sure the luri has the prefix
-      if base_uri[0, 1] != '/'
-        base_uri = "/#{base_uri}"
-      end
-
+    while u[-1] == '/'
+      u.chop!
     end
 
-    base_uri.dup
+    u
   end
 
   # The local URI for the handler.
   #
   # @return [String] Representation of the URI to listen on.
   def luri
-    construct_luri(datastore['LURI'] || "")
+    construct_luri(datastore['LURI'] || '')
   end
 
   def all_uris
@@ -286,17 +280,17 @@ module ReverseHttp
   def find_resource_id(cli, request)
     if request.method == 'POST'
       directive = self.c2_profile&.http_post&.client&.id&.parameter
-      cid = request.qstring[directive[0].args[0]] if directive && directive.length > 0
+      cid = request.qstring[directive[0].args[0]] if directive&.length > 0
       unless cid
         directive = self.c2_profile&.http_post&.client&.id&.header
-        cid = request.headers[directive[0].args[0]] if directive && directive.length > 0
+        cid = request.headers[directive[0].args[0]] if directive&.length > 0
       end
     else
       directive = self.c2_profile&.http_get&.client&.metadata&.parameter
-      cid = request.qstring[directive[0].args[0]] if directive && directive.length > 0
+      cid = request.qstring[directive[0].args[0]] if directive&.length > 0
       unless cid
         directive = self.c2_profile&.http_get&.client&.metadata&.header
-        cid = request.headers[directive[0].args[0]] if directive && directive.length > 0
+        cid = request.headers[directive[0].args[0]] if directive&.length > 0
       end
     end
 
