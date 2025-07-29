@@ -300,33 +300,21 @@ module Metasploit
           if cracker_path && ::File.file?(cracker_path)
             return cracker_path
           else
-            # Look in the Environment PATH for the hashcat binary
-            if cracker == 'hashcat'
-              path = Rex::FileUtils.find_full_path('hashcat') ||
-                      Rex::FileUtils.find_full_path('hashcat.exe')
-            end
-
-            # Look in the Environment PATH for the john binary
-            if cracker == 'john'
-              path = Rex::FileUtils.find_full_path('john') ||
-                      Rex::FileUtils.find_full_path('john.exe')
-            end
-            
-            # If neither john nor hashcat is found, raise an error
-            if path == ''
+            case cracker
+            when 'hashcat'
+              path = get_hashcat
+            when 'john'
+              path = get_john
+            when 'auto'
+              path = get_hashcat || get_john
+            else
               raise PasswordCrackerNotFoundError, 'No suitable Cracker was selected, so a binary could not be found on the system JOHN || HASHCAT'
             end
+            raise PasswordCrackerNotFoundError, 'No suitable john/hashcat binary was found on the system' unless path && ::File.file?(path)
 
-            if path && ::File.file?(path)
-              return path
-            end
-
+            path
           end
-
-          raise PasswordCrackerNotFoundError, 'No suitable john/hashcat binary was found on the system'
-          
         end
-          
 
         # This method runs the command from {#crack_command} and yields each line of output.
         #
@@ -583,6 +571,18 @@ module Metasploit
             end
           end
           cmd << hash_path
+        end
+
+        def get_hashcat
+          # Look in the Environment PATH for the hashcat binary
+          Rex::FileUtils.find_full_path('hashcat') ||
+            Rex::FileUtils.find_full_path('hashcat.exe')
+        end
+
+        def get_john
+          # Look in the Environment PATH for the john binary
+          Rex::FileUtils.find_full_path('john') ||
+            Rex::FileUtils.find_full_path('john.exe')
         end
 
       end
