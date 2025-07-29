@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => normalize_uri(target_uri.path, uri)
       })
 
-      next unless res&.code&.<= 500
+      next unless res&.code && res.code <= 500
 
       page = res.get_html_document
 
