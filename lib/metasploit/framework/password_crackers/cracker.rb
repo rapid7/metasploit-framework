@@ -312,7 +312,7 @@ module Metasploit
             end
             raise PasswordCrackerNotFoundError, 'No suitable john/hashcat binary was found on the system' unless path && ::File.file?(path)
 
-            path
+            return path
           end
         end
 
@@ -342,6 +342,7 @@ module Metasploit
             cmd = binary_path
             cmd << (' -V')
           end
+          puts cmd
           ::IO.popen(cmd, 'rb') do |fd|
             fd.each_line do |line|
               if cracker == 'john'
@@ -575,11 +576,13 @@ module Metasploit
 
         def get_hashcat
           # Look in the Environment PATH for the hashcat binary
+          self.cracker = 'hashcat'
           Rex::FileUtils.find_full_path('hashcat') ||
             Rex::FileUtils.find_full_path('hashcat.exe')
         end
 
         def get_john
+          self.cracker = 'john'
           # Look in the Environment PATH for the john binary
           Rex::FileUtils.find_full_path('john') ||
             Rex::FileUtils.find_full_path('john.exe')
