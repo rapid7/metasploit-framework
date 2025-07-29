@@ -3,20 +3,26 @@
 ##
 # This module contains helper functions for parsing and loading malleable
 # C2 profiles into ruby objects.
+#
+# See https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/malleable-c2_main.htm
 ##
 
 require 'strscan'
 require 'rex/post/meterpreter/packet'
 
-# Handle escape sequences in the strings provided by the c2 profile
-class String
-  def from_c2_string_value
+module Msf::Payload::MalleableC2
+
+  MET = Rex::Post::Meterpreter
+  MC2 = Msf::Payload::MalleableC2
+
+  # Handle escape sequences in the strings provided by the c2 profile
+  def self.from_c2_string_value(s)
     # Support substitution of a subset of escape characters:
     # \r, \t, \n, \\, \x..
     # Not supporting \u at this point.
     # We do in a single regex and parse each as we go, as this avoids the
     # potential for double-encoding.
-    self.gsub(/\\(x(..)|r|n|t|\\)/) {|b|
+    s.gsub(/\\(x(..)|r|n|t|\\)/) {|b|
       case b[1]
       when 'x'
         [b[2, 4].to_i(16)].pack('C')
@@ -31,11 +37,6 @@ class String
       end
     }
   end
-end
-
-module Msf::Payload::MalleableC2
-
-  MET = Rex::Post::Meterpreter
 
   class Token
     attr_reader :type, :value
@@ -95,12 +96,14 @@ module Msf::Payload::MalleableC2
 
     def initialize(file)
       @tokens = []
-      tokenize(File.read(file))
+      tokenize(File.binread(file))
     end
 
     def is_block_keyword?(word)
       BLOCK_KEYWORDS.include?(word)
     end
+
+  private
 
     def tokenize(text)
       scanner = StringScanner.new(text)
@@ -113,7 +116,6 @@ module Msf::Payload::MalleableC2
           # comment
           next
         elsif scanner.scan(/\"(\\.|[^"])*\"/)
-          #@tokens << Token.new(:string, scanner.matched[1..-2])
           @tokens << Token.new(:string, scanner.matched[1..-2])
         elsif scanner.scan(/[a-zA-Z0-9_\-\.\/]+/)
           word = scanner.matched
@@ -122,7 +124,10 @@ module Msf::Payload::MalleableC2
         elsif scanner.scan(/[{};]/)
           @tokens << Token.new(:symbol, scanner.matched)
         else
-          raise "Unexpected token near: #{scanner.peek(20)}"
+          preceding_lines = scanner.string[0..scanner.pos].split("\n")
+          row = preceding_lines.length
+          col = preceding_lines.last&.size || 1
+          raise "Unexpected token near #{row}:#{col}: #{scanner.peek(20).split("\n").first}"
         end
       end
     end
@@ -243,7 +248,7 @@ module Msf::Payload::MalleableC2
 
             post_tlv.add_tlv(MET::TLV_TYPE_C2_ENC, enc_flags) if enc_flags != 0
 
-            prepend_data = client_output.get_directive('prepend').map{|d|d.args[0]}.("")
+            prepend_data = client_output.get_directive('prepend').map{|d|d.args[0]}.join("")
             post_tlv.add_tlv(MET::TLV_TYPE_C2_PREFIX, prepend_data) unless prepend_data.empty?
             append_data = client_output.get_directive('append').map{|d|d.args[0]}.join("")
             post_tlv.add_tlv(MET::TLV_TYPE_C2_SUFFIX, append_data) unless append_data.empty?
@@ -292,7 +297,7 @@ module Msf::Payload::MalleableC2
     attr_accessor :key, :value
     def initialize(key, value)
       @key = key.downcase
-      @value = value.from_c2_string_value
+      @value = MC2.from_c2_string_value(value)
     end
   end
 
@@ -340,7 +345,7 @@ module Msf::Payload::MalleableC2
     attr_accessor :type, :args
     def initialize(type, args)
       @type = type.downcase
-      @args = args.map {|a| a.from_c2_string_value}
+      @args = args.map {|a| MC2.from_c2_string_value(a)}
     end
   end
 
@@ -362,7 +367,7 @@ module Msf::Payload::MalleableC2
         elsif current_token.type == :keyword && @lexer.is_block_keyword?(current_token.value)
           profile.sections << parse_section
         else
-          raise "Unexpected token at tope level:  #{current_token.type}=#{current_token.value}"
+          raise "Unexpected token at top level: #{current_token.type}=#{current_token.value}"
         end
       end
 

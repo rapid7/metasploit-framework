@@ -28,7 +28,7 @@ module MetasploitModule
     )
 
     register_options([
-      OptString.new('MALLEABLEC2', [false, 'Path to a file containing the malleable C2 profile']),
+      OptPath.new('MALLEABLEC2', [false, 'Path to a file containing the malleable C2 profile']),
       OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load']),
       OptString.new('EXTINIT', [false, 'Initialization strings for extensions'])
     ])
