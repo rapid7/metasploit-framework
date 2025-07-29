@@ -59,15 +59,15 @@ class MetasploitModule < Msf::Auxiliary
   def show_command(cracker_instance)
     return unless datastore['ShowCommand']
 
-    if cracker_instance.cracker == 'john'
+    if @cracker_type == 'john'
       cmd = cracker_instance.john_crack_command
-    elsif cracker_instance.cracker == 'hashcat'
+    elsif @cracker_type == 'hashcat'
       cmd = cracker_instance.hashcat_crack_command
     end
     print_status("   Cracking Command: #{cmd.join(' ')}")
   end
 
-  def check_results(passwords, results, hash_type, method, cracker_type)
+  def check_results(passwords, results, hash_type, method)
     passwords.each do |password_line|
       password_line.chomp!
       next if password_line.blank?
@@ -75,13 +75,13 @@ class MetasploitModule < Msf::Auxiliary
       fields = password_line.split(':')
       cred = { 'hash_type' => hash_type, 'method' => method }
 
-      if cracker_type == 'john'
+      if @cracker_type == 'john'
         next unless fields.count >= 3
 
         cred['username'] = fields.shift
         cred['core_id'] = fields.pop
         cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
-      elsif cracker_type == 'hashcat'
+      elsif @cracker_type == 'hashcat'
         next unless fields.count >= 2
 
         cred['core_id'] = fields.shift
@@ -112,6 +112,11 @@ class MetasploitModule < Msf::Auxiliary
   def run
     tbl = cracker_results_table
     cracker = new_password_cracker(action.name)
+    if action.name == 'auto'
+      @cracker_type = cracker.get_type
+    else
+      @cracker_type = action.name
+    end
 
     # array of hashes in jtr_format in the db, converted to an OR combined regex
     hash_types_to_crack = []
@@ -130,7 +135,7 @@ class MetasploitModule < Msf::Auxiliary
 
       # hashcat requires a format we dont have all the data for
       # in the current dumper, so this is disabled in module and lib
-      if cracker.cracker == 'john'
+      if @cracker_type == 'john'
         hash_types_to_crack << 'oracle'
         hash_types_to_crack << 'dynamic_1506'
       end
@@ -187,25 +192,25 @@ class MetasploitModule < Msf::Auxiliary
       cracker_instance = cracker.dup
       cracker_instance.format = format
 
-      if cracker.cracker == 'john'
+      if @cracker_type == 'john'
         cracker_instance.fork = datastore['FORK']
       end
 
       # first check if anything has already been cracked so we don't report it incorrectly
       print_status "Checking #{format} hashes already cracked..."
-      results = check_results(cracker_instance.each_cracked_password, results, format, 'Already Cracked/POT', cracker.cracker)
+      results = check_results(cracker_instance.each_cracked_password, results, format, 'Already Cracked/POT')
       vprint_good(append_results(tbl, results)) unless results.empty?
       job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
       next if job['cred_ids_left_to_crack'].empty?
 
-      if cracker.cracker == 'john'
+      if @cracker_type == 'john'
         print_status "Cracking #{format} hashes in single mode..."
         cracker_instance.mode_single(wordlist.path)
         show_command cracker_instance
         cracker_instance.crack do |line|
           vprint_status line.chomp
         end
-        results = check_results(cracker_instance.each_cracked_password, results, format, 'Single', cracker.cracker)
+        results = check_results(cracker_instance.each_cracked_password, results, format, 'Single')
         vprint_good(append_results(tbl, results)) unless results.empty?
         job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
         next if job['cred_ids_left_to_crack'].empty?
@@ -216,7 +221,7 @@ class MetasploitModule < Msf::Auxiliary
         cracker_instance.crack do |line|
           vprint_status line.chomp
         end
-        results = check_results(cracker_instance.each_cracked_password, results, format, 'Normal', cracker.cracker)
+        results = check_results(cracker_instance.each_cracked_password, results, format, 'Normal')
         vprint_good(append_results(tbl, results)) unless results.empty?
         job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
         next if job['cred_ids_left_to_crack'].empty?
@@ -229,7 +234,7 @@ class MetasploitModule < Msf::Auxiliary
         cracker_instance.crack do |line|
           vprint_status line.chomp
         end
-        results = check_results(cracker_instance.each_cracked_password, results, format, 'Incremental', cracker.cracker)
+        results = check_results(cracker_instance.each_cracked_password, results, format, 'Incremental')
         vprint_good(append_results(tbl, results)) unless results.empty?
         job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
         next if job['cred_ids_left_to_crack'].empty?
@@ -239,7 +244,7 @@ class MetasploitModule < Msf::Auxiliary
         print_status "Cracking #{format} hashes in wordlist mode..."
         cracker_instance.mode_wordlist(wordlist.path)
         # Turn on KoreLogic rules if the user asked for it
-        if cracker.cracker == 'john' && datastore['KORELOGIC']
+        if @cracker_type == 'john' && datastore['KORELOGIC']
           cracker_instance.rules = 'KoreLogicRules'
           print_status 'Applying KoreLogic ruleset...'
         end
@@ -248,7 +253,7 @@ class MetasploitModule < Msf::Auxiliary
           vprint_status line.chomp
         end
 
-        results = check_results(cracker_instance.each_cracked_password, results, format, 'Wordlist', cracker.cracker)
+        results = check_results(cracker_instance.each_cracked_password, results, format, 'Wordlist')
         vprint_good(append_results(tbl, results)) unless results.empty?
         job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
         next if job['cred_ids_left_to_crack'].empty?
