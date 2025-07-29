@@ -297,6 +297,16 @@ module ReverseHttp
     request.conn_id = cid || request.resource.split('?')[0].split('/').compact.last
   end
 
+  def add_response_headers(req, resp)
+    if req.method == 'GET'
+      headers = self.c2_profile&.http_get&.server&.header || []
+      headers.each {|h| resp[h.args[0]] = h.args[1]}
+    elsif req.method == 'POST'
+      headers = self.c2_profile&.http_post&.server&.header || []
+      headers.each {|h| resp[h.args[0]] = h.args[1]}
+    end
+  end
+
   #
   # Removes the / handler, possibly stopping the service if no sessions are
   # active on sub-urls.
