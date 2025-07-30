@@ -90,7 +90,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    tbl = cracker_results_table
+    tbl = tbl = cracker_results_table
     cracker = new_password_cracker(action.name)
     if action.name == 'auto'
       @cracker_type = cracker.get_type
