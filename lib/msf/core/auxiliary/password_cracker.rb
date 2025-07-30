@@ -89,8 +89,6 @@ module Msf
         fail_with(Msf::Module::Failure::BadConfig, e.message)
       end
 
-      # redefine cracker is action is auto
-
       # throw this to a local variable since it causes a shell out to pull the version
       cracker_version = cracker.cracker_version
       if cracker.cracker == 'john' && (cracker_version.nil? || !cracker_version.include?('jumbo'))
