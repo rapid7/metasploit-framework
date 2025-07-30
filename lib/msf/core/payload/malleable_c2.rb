@@ -18,11 +18,11 @@ module Msf::Payload::MalleableC2
   # Handle escape sequences in the strings provided by the c2 profile
   def self.from_c2_string_value(s)
     # Support substitution of a subset of escape characters:
-    # \r, \t, \n, \\, \x..
+    # \r, \t, \n, \\, \x.., \"
     # Not supporting \u at this point.
     # We do in a single regex and parse each as we go, as this avoids the
     # potential for double-encoding.
-    s.gsub(/\\(x(..)|r|n|t|\\)/) {|b|
+    s.gsub(/\\(x(..)|r|n|t|"|\\)/) {|b|
       case b[1]
       when 'x'
         [b[2, 4].to_i(16)].pack('C')
@@ -32,6 +32,8 @@ module Msf::Payload::MalleableC2
         "\t"
       when 'n'
         "\n"
+      when '"'
+        '"'
       when '\\'
         "\\"
       end
