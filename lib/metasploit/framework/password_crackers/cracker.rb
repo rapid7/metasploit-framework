@@ -346,7 +346,6 @@ module Metasploit
             cmd = binary_path
             cmd << (' -V')
           end
-          puts cmd
           ::IO.popen(cmd, 'rb') do |fd|
             fd.each_line do |line|
               if cracker == 'john'
