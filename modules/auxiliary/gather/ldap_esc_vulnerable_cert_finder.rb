@@ -955,6 +955,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def validate
+    super
     if (datastore['RUN_REGISTRY_CHECKS']) && !%w[auto plaintext ntlm].include?(datastore['LDAP::Auth'].downcase)
       raise Msf::OptionValidateError, ["RUN_REGISTRY_CHECKS is incompatible with LDAP::Auth type '#{datastore['LDAP::Auth']}'. Supported types are: plaintext, NTLM."]
     end
@@ -967,8 +968,6 @@ class MetasploitModule < Msf::Auxiliary
     @registry_values = {}
     @fqdns = {}
     @certificate_details = {} # Initialize to empty hash since we want to only keep one copy of each certificate template along with its details.
-
-    validate
 
     ldap_connect do |ldap|
       validate_bind_success!(ldap)
