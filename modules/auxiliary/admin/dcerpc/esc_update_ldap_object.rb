@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
-    deregister_options('PFX', 'ON_BEHALF_OF', 'Session', 'SMBPass', 'SMBDomain')
+    deregister_options('PFX', 'ON_BEHALF_OF', 'Session', 'SMBuser', 'SMBPass', 'SMBDomain')
 
     register_options([
       OptString.new('LDAPDomain', [true, 'The domain to authenticate to']),
@@ -64,8 +64,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('LDAPPassword', [true, 'The password to authenticate with']),
       OptEnum.new('UPDATE_LDAP_OBJECT', [ true, 'Either userPrincipalName or dNSHostName, Updates the necessary object of a specific user before requesting the cert.', 'userPrincipalName', %w[userPrincipalName dNSHostName] ]),
       OptString.new('UPDATE_LDAP_OBJECT_VALUE', [ true, 'The account name you wish to impersonate', 'Administrator']),
-      OptString.new('TARGET_USERNAME', [true, 'The username of the target LDAP object (the victim account).'], aliases: ['SMBUser']),
-      OptString.new('SMBUser', [true, 'The username of the target LDAP object (the victim account) which the module will request a certificate on behalf of.'])
+      OptString.new('TARGET_USERNAME', [true, 'The username of the target LDAP object (the victim account).'], aliases: ['SMBUser'])
     ])
 
     register_advanced_options(
