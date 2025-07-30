@@ -1115,7 +1115,6 @@ msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
 We can then use the `kerberos/get_ticket` module to gain a Kerberos ticket granting ticket (TGT) as the `Administrator`
 domain administrator. See the [Getting A Kerberos Ticket](#getting-a-kerberos-ticket) section for more information.
 
-
 ## ESC9 Scenario 2
 Pre-requisites:
 - `StrongCertificateBindingEnforcement` is set to `1` (if it's set to `0` exploitation will still work but technically you're exploiting ESC10 in that case)
@@ -1129,7 +1128,6 @@ The option `UPDATE_LDAP_OBJECT` will now be set to `dNSHostName` and because onl
 We will be changing the `dNSHostName` of the machine account `Test1$` to `DC2.kerberos.issue` (`DC2` is the hostname of the domain controller) in hopes to impersonate the Domain Controller machine account
 
 `CERT_TEMPLATE` will be set to `ESC9-Template-Dns` which is the same template as `ESC9-Template` but with the `SubjectAltRequireDNS` flag set instead of the `SubjectAltRequireUPN` flag.
-
 
 ```
 msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > set rhosts 172.16.199.200
@@ -1318,7 +1316,6 @@ Active sessions
   1         ldap  LDAP DC2$ @ 172.16.199.200:389  172.16.199.1:58674 -> 172.16.199.200:389 (172.16.199.200)
 
 ```
-
 
 # Exploiting ESC13
 To exploit ESC13, we need to target a certificate that has an issuance policy linked to a universal group in Active

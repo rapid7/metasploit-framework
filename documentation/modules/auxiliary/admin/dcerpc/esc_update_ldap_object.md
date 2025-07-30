@@ -60,10 +60,10 @@ An alternate DNS hostname to set for the target user, e.g., `host.domain.local`.
 1. Set `TARGET_USERNAME` to the user you want to update and then request a certificate for
 1. Set the `UPDATE_LDAP_OBJECT` to either `userPrincipalName` or `dNSHostName` depending on the scenario you are exploiting
 1. Set the `UPDATE_LDAP_OBJECT_VALUE` to the value you want to set for the `UPDATE_LDAP_OBJECT`, e.g., `Administrator`
-2. Set `CA` to the name of the CA you want to request a certificate and `cert_template` to the name of the certificate template you want to use
+1. Set `CA` to the name of the CA you want to request a certificate and `cert_template` to the name of the certificate template you want to use
 1. Run the module
 1. This should update the LDAP object attribute and request a certificate for the target user, which will be saved as a .pfx file.
-2. If the target is vulnerable to the scenario you are exploiting, the pfx file will allow for privilege escalation.
+1. If the target is vulnerable to the scenario you are exploiting, the pfx file will allow for privilege escalation.
 
 ## Scenarios
 
