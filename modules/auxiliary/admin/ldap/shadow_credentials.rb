@@ -254,9 +254,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     pkcs12 = OpenSSL::PKCS12.create('', '', key, cert)
-    store_cert(pkcs12)
+    stored_path = store_cert(pkcs12)
 
     print_good("Successfully updated the #{ATTRIBUTE} attribute; certificate with device ID #{credential.device_id}")
+    [credential.device_id, stored_path]
   end
 
   def store_cert(pkcs12)
@@ -280,6 +281,7 @@ class MetasploitModule < Msf::Auxiliary
     info = "#{datastore['LDAPDomain']}\\#{datastore['TARGET_USER']} Certificate"
     stored_path = store_loot('windows.ad.cs', 'application/x-pkcs12', rhost, pkcs12.to_der, 'certificate.pfx', info)
     print_status("Certificate stored at: #{stored_path}")
+    stored_path
   end
 
   def ldap_service_data
