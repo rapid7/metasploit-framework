@@ -119,6 +119,10 @@ module Metasploit
             public_send("#{attribute}=", value)
           end
         end
+        
+        def get_type
+          self.cracker
+        end
 
         # This method takes a {framework.db.cred.private.jtr_format} (string), and
         # returns the string number associated to the hashcat format
@@ -312,7 +316,7 @@ module Metasploit
             end
             raise PasswordCrackerNotFoundError, 'No suitable john/hashcat binary was found on the system' unless path && ::File.file?(path)
 
-            path
+            return path
           end
         end
 
@@ -572,14 +576,16 @@ module Metasploit
           end
           cmd << hash_path
         end
-
+        
         def get_hashcat
           # Look in the Environment PATH for the hashcat binary
+          self.cracker = 'hashcat'
           Rex::FileUtils.find_full_path('hashcat') ||
             Rex::FileUtils.find_full_path('hashcat.exe')
         end
 
         def get_john
+          self.cracker = 'john'
           # Look in the Environment PATH for the john binary
           Rex::FileUtils.find_full_path('john') ||
             Rex::FileUtils.find_full_path('john.exe')

@@ -34,8 +34,9 @@ class MetasploitModule < Msf::Auxiliary
       'Actions' => [
         ['john', { 'Description' => 'Use John the Ripper' }],
         ['hashcat', { 'Description' => 'Use Hashcat' }],
+        ['auto', { 'Description' => 'Auto-selection of cracker' }]
       ],
-      'DefaultAction' => 'john',
+      'DefaultAction' => 'auto',
       'Notes' => {
         'Stability' => [CRASH_SAFE],
         'SideEffects' => [],
@@ -58,9 +59,9 @@ class MetasploitModule < Msf::Auxiliary
   def show_command(cracker_instance)
     return unless datastore['ShowCommand']
 
-    if action.name == 'john'
+    if @cracker_type == 'john'
       cmd = cracker_instance.john_crack_command
-    elsif action.name == 'hashcat'
+    elsif @cracker_type == 'hashcat'
       cmd = cracker_instance.hashcat_crack_command
     end
     print_status("   Cracking Command: #{cmd.join(' ')}")
@@ -74,13 +75,13 @@ class MetasploitModule < Msf::Auxiliary
       fields = password_line.split(':')
       cred = { 'hash_type' => hash_type, 'method' => method }
 
-      if action.name == 'john'
+      if @cracker_type == 'john'
         next unless fields.count >= 3
 
         cred['username'] = fields.shift
         cred['core_id'] = fields.pop
         cred['password'] = fields.join(':') # Anything left must be the password. This accounts for passwords with semi-colons in it
-      elsif action.name == 'hashcat'
+      elsif @cracker_type == 'hashcat'
         next unless fields.count >= 2
 
         cred['core_id'] = fields.shift
@@ -110,6 +111,12 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     tbl = tbl = cracker_results_table
+    cracker = new_password_cracker(action.name)
+    if action.name == 'auto'
+      @cracker_type = cracker.get_type
+    else
+      @cracker_type = action.name
+    end
 
     # array of hashes in jtr_format in the db, converted to an OR combined regex
     hash_types_to_crack = []
@@ -128,7 +135,7 @@ class MetasploitModule < Msf::Auxiliary
 
       # hashcat requires a format we dont have all the data for
       # in the current dumper, so this is disabled in module and lib
-      if action.name == 'john'
+      if @cracker_type == 'john'
         hash_types_to_crack << 'oracle'
         hash_types_to_crack << 'dynamic_1506'
       end
@@ -143,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # build our job list
     hash_types_to_crack.each do |hash_type|
-      job = hash_job(hash_type, action.name)
+      job = hash_job(hash_type, cracker.cracker)
       if job.nil?
         print_status("No #{hash_type} found to crack")
       else
@@ -160,8 +167,6 @@ class MetasploitModule < Msf::Auxiliary
     # array of arrays for cracked passwords.
     # Inner array format: db_id, hash_type, username, password, method_of_crack
     results = []
-
-    cracker = new_password_cracker(action.name)
 
     # generate our wordlist and close the file handle.
     wordlist = wordlist_file
@@ -187,7 +192,7 @@ class MetasploitModule < Msf::Auxiliary
       cracker_instance = cracker.dup
       cracker_instance.format = format
 
-      if action.name == 'john'
+      if @cracker_type == 'john'
         cracker_instance.fork = datastore['FORK']
       end
 
@@ -198,7 +203,7 @@ class MetasploitModule < Msf::Auxiliary
       job['cred_ids_left_to_crack'] = job['cred_ids_left_to_crack'] - results.map { |i| i[0].to_i } # remove cracked hashes from the hash list
       next if job['cred_ids_left_to_crack'].empty?
 
-      if action.name == 'john'
+      if @cracker_type == 'john'
         print_status "Cracking #{format} hashes in single mode..."
         cracker_instance.mode_single(wordlist.path)
         show_command cracker_instance
@@ -239,7 +244,7 @@ class MetasploitModule < Msf::Auxiliary
         print_status "Cracking #{format} hashes in wordlist mode..."
         cracker_instance.mode_wordlist(wordlist.path)
         # Turn on KoreLogic rules if the user asked for it
-        if action.name == 'john' && datastore['KORELOGIC']
+        if @cracker_type == 'john' && datastore['KORELOGIC']
           cracker_instance.rules = 'KoreLogicRules'
           print_status 'Applying KoreLogic ruleset...'
         end
