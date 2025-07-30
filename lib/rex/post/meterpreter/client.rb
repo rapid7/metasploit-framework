@@ -117,20 +117,20 @@ class Client
 
   #
   # Wrap the given packet data with any prefixes and suffixes that are stored in
-  # the associated C2 profile server configuration (if it exists)
+  # the associated C2 profile server configuration (if it exists) and handle
+  # encoding of data
   #
   def wrap_packet(raw_bytes)
-    raw_bytes = self.c2_profile.wrap_outbound_get(raw_bytes) if self.c2_profile
-    raw_bytes
+    self.c2_profile.wrap_outbound_get(raw_bytes) if self.c2_profile
   end
 
   #
   # Unwrap the given packet data from any prefixes and suffixes that are stored in
-  # the associated C2 profile client configuration (if it exists)
+  # the associated C2 profile client configuration (if it exists) and handle
+  # decoding of data
   #
   def unwrap_packet(raw_bytes)
-    raw_bytes = self.c2_profile.unwrap_inbound_post(raw_bytes) if self.c2_profile
-    raw_bytes
+    self.c2_profile.unwrap_inbound_post(raw_bytes) if self.c2_profile
   end
 
   #

@@ -182,7 +182,19 @@ module Msf::Payload::MalleableC2
       prefix = prepends.map {|p| p.args[0]}.join('')
       appends = self.http_get&.server&.output&.append || []
       suffix = appends.map {|p| p.args[0]}.join('')
-      prefix + raw_bytes + suffix
+
+      # do any encoding necessary
+      if raw_bytes.length > 0
+        if self.http_get&.server&.output&.has_directive('base64')
+          raw_bytes = Rex::Text.encode_base64(raw_bytes)
+        elsif self.http_get&.server&.output&.has_directive('base64url')
+          raw_bytes = Rex::Text.encode_base64url(raw_bytes)
+        end
+      end
+
+      result = prefix + raw_bytes + suffix
+
+      result
     end
 
     def unwrap_inbound_post(raw_bytes)
@@ -196,6 +208,15 @@ module Msf::Payload::MalleableC2
       suffix = appends.map {|p| p.args[0]}.join('')
       unless suffix.empty? || (raw_bytes[-suffix.length, raw_bytes.length] <=> suffix) != 0
         raw_bytes = raw_bytes[0, raw_bytes.length - suffix.length]
+      end
+
+      # do any decoding necessary
+      if raw_bytes.length > 0
+        if self.http_post&.client&.output&.has_directive('base64')
+          raw_bytes = Rex::Text.decode_base64(raw_bytes)
+        elsif self.http_post&.client&.output&.has_directive('base64url')
+          raw_bytes = Rex::Text.decode_base64url(raw_bytes)
+        end
       end
       raw_bytes
     end
@@ -213,15 +234,19 @@ module Msf::Payload::MalleableC2
           self.add_http_tlv(get_uri, client, get_tlv)
 
           prepends = self.http_get&.server&.output&.prepend || []
-          prefix = prepends.map {|p| p.args[0]}.join('')
-          get_tlv.add_tlv(MET::TLV_TYPE_C2_SKIP_COUNT, prefix.length) unless prefix.length == 0
+          prefix_len = prepends.map {|p| p.args[0].length}.sum
+          get_tlv.add_tlv(MET::TLV_TYPE_C2_PREFIX_SKIP, prefix_len) unless prefix_len == 0
+
+          appends = self.http_get&.server&.output&.append || []
+          suffix_len = appends.map {|s| s.args[0].length}.sum
+          get_tlv.add_tlv(MET::TLV_TYPE_C2_SUFFIX_SKIP, suffix_len) unless suffix_len == 0
 
           client.get_section('metadata') {|meta|
-            enc_flags = 0
-            enc_flags |= MET::C2_ENCODING_FLAG_B64 if meta.has_directive('base64')
-            enc_flags |= MET::C2_ENCODING_FLAG_B64URL if meta.has_directive('base64url')
+            enc_flags = MET::C2_ENCODING_NONE
+            enc_flags = MET::C2_ENCODING_B64URL if meta.has_directive('base64url')
+            enc_flags = MET::C2_ENCODING_B64 if meta.has_directive('base64')
 
-            get_tlv.add_tlv(MET::TLV_TYPE_C2_ENC, enc_flags) if enc_flags != 0
+            get_tlv.add_tlv(MET::TLV_TYPE_C2_ENC, enc_flags) if enc_flags != MET::C2_ENCODING_NONE
             get_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_GET, meta.get_directive('parameter')[0].args[0]) if meta.has_directive('parameter')
             get_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_HEADER, meta.get_directive('header')[0].args[0]) if meta.has_directive('header')
             # assume uri-append for POST otherwise.
@@ -237,16 +262,20 @@ module Msf::Payload::MalleableC2
         http_post.get_section('client') {|client|
           self.add_http_tlv(post_uri, client, post_tlv)
 
-          prepends = self.http_get&.server&.output&.prepend || []
-          prefix = prepends.map {|p| p.args[0]}.join('')
-          post_tlv.add_tlv(MET::TLV_TYPE_C2_SKIP_COUNT, prefix.length) unless prefix.length == 0
+          prepends = self.http_post&.server&.output&.prepend || []
+          prefix_len = prepends.map {|p| p.args[0].length}.sum
+          post_tlv.add_tlv(MET::TLV_TYPE_C2_PREFIX_SKIP, prefix_len) unless prefix_len == 0
+
+          appends = self.http_post&.server&.output&.append || []
+          suffix_len = appends.map {|s| s.args[0].length}.sum
+          post_tlv.add_tlv(MET::TLV_TYPE_C2_SUFFIX_SKIP, suffix_len) unless suffix_len == 0
 
           client.get_section('output') {|client_output|
-            enc_flags = 0
-            enc_flags |= MET::C2_ENCODING_FLAG_B64 if client_output.has_directive('base64')
-            enc_flags |= MET::C2_ENCODING_FLAG_B64URL if client_output.has_directive('base64url')
+            enc_flags = MET::C2_ENCODING_NONE
+            enc_flags = MET::C2_ENCODING_B64URL if client_output.has_directive('base64url')
+            enc_flags = MET::C2_ENCODING_B64 if client_output.has_directive('base64')
 
-            post_tlv.add_tlv(MET::TLV_TYPE_C2_ENC, enc_flags) if enc_flags != 0
+            post_tlv.add_tlv(MET::TLV_TYPE_C2_ENC, enc_flags) if enc_flags != MET::C2_ENCODING_NONE
 
             prepend_data = client_output.get_directive('prepend').map{|d|d.args[0]}.join("")
             post_tlv.add_tlv(MET::TLV_TYPE_C2_PREFIX, prepend_data) unless prepend_data.empty?
@@ -258,7 +287,6 @@ module Msf::Payload::MalleableC2
             post_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_GET, client_id.get_directive('parameter')[0].args[0]) if client_id.has_directive('parameter')
             post_tlv.add_tlv(MET::TLV_TYPE_C2_UUID_HEADER, client_id.get_directive('header')[0].args[0]) if client_id.has_directive('header')
             # assume uri-append for POST otherwise given that we always put the TLV payload in the body?
-            # TODO: add support for adding a form rather than just a payload body?
           }
         }
 
