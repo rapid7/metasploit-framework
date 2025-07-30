@@ -132,18 +132,20 @@ TLV_TYPE_C2_CERT_HASH          = TLV_META_TYPE_RAW    | 717 # Expected SSL certi
 TLV_TYPE_C2_PREFIX             = TLV_META_TYPE_RAW    | 718 # Data to prepend to the outgoing payload
 TLV_TYPE_C2_SUFFIX             = TLV_META_TYPE_RAW    | 719 # Data to append to the outgoing payload
 TLV_TYPE_C2_ENC                = TLV_META_TYPE_UINT   | 720 # Request encoding flags (Base64|URL|Base64url)
-TLV_TYPE_C2_SKIP_COUNT         = TLV_META_TYPE_UINT   | 721 # Number of bytes of the incoming payload to ignore before parsing
-TLV_TYPE_C2_UUID_COOKIE        = TLV_META_TYPE_STRING | 722 # Name of the cookie to put the UUID in
-TLV_TYPE_C2_UUID_GET           = TLV_META_TYPE_STRING | 723 # Name of the GET parameter to put the UUID in
-TLV_TYPE_C2_UUID_HEADER        = TLV_META_TYPE_STRING | 724 # Name of the header to put the UUID in
-TLV_TYPE_C2_UUID               = TLV_META_TYPE_STRING | 725 # string representation of the UUID for C2s
+TLV_TYPE_C2_PREFIX_SKIP        = TLV_META_TYPE_UINT   | 721 # Size of prefix to skip (in bytes)
+TLV_TYPE_C2_SUFFIX_SKIP        = TLV_META_TYPE_UINT   | 722 # Size of suffix to skip (in bytes)
+TLV_TYPE_C2_UUID_COOKIE        = TLV_META_TYPE_STRING | 723 # Name of the cookie to put the UUID in
+TLV_TYPE_C2_UUID_GET           = TLV_META_TYPE_STRING | 724 # Name of the GET parameter to put the UUID in
+TLV_TYPE_C2_UUID_HEADER        = TLV_META_TYPE_STRING | 725 # Name of the header to put the UUID in
+TLV_TYPE_C2_UUID               = TLV_META_TYPE_STRING | 726 # string representation of the UUID for C2s
 
 #
 # C2 Encoding flags
 #
-C2_ENCODING_FLAG_B64    = (1 << 0) # straight Base64 encoding
-C2_ENCODING_FLAG_B64URL = (1 << 1) # encoding Base64 with URL-safe values
-C2_ENCODING_FLAG_URL    = (1 << 2) # straight URL encoding
+C2_ENCODING_NONE   = 0 # No encoding at all
+C2_ENCODING_B64    = 1 # Base64 encoding
+C2_ENCODING_B64URL = 2 # Base64 encoding with URI-safe characters
+C2_ENCODING_URL    = 3 # URL encoding
 
 #
 # Core flags
