@@ -280,17 +280,17 @@ module ReverseHttp
   def find_resource_id(cli, request)
     if request.method == 'POST'
       directive = self.c2_profile&.http_post&.client&.id&.parameter
-      cid = request.qstring[directive[0].args[0]] if directive&.length > 0
+      cid = request.qstring[directive[0].args[0]] if directive && directive.length > 0
       unless cid
         directive = self.c2_profile&.http_post&.client&.id&.header
-        cid = request.headers[directive[0].args[0]] if directive&.length > 0
+        cid = request.headers[directive[0].args[0]] if directive && directive.length > 0
       end
     else
       directive = self.c2_profile&.http_get&.client&.metadata&.parameter
-      cid = request.qstring[directive[0].args[0]] if directive&.length > 0
+      cid = request.qstring[directive[0].args[0]] if directive && directive.length > 0
       unless cid
         directive = self.c2_profile&.http_get&.client&.metadata&.header
-        cid = request.headers[directive[0].args[0]] if directive&.length > 0
+        cid = request.headers[directive[0].args[0]] if directive && directive.length > 0
       end
     end
 
