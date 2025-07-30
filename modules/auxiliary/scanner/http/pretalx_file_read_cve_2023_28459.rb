@@ -16,14 +16,18 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Pretalx File Read',
+        'Name' => 'Pretalx Arbitrary File Read/Limited File Write',
         'Description' => 'This module exploits functionality in Pretalx that export conference schedule as zipped file. The Pretalx will iteratively include any file referenced by any HTML tag and does not properly check the path of the file, which can lead to arbitrary file read. The module requires crendetials that allow schedule export, schedule release and approval of proposals. Additionaly, module requires conference name and URL for media files.',
         'Author' => [
           'Stefan Schiller', # security researcher
           'msutovsky-r7' # module dev
         ],
         'License' => MSF_LICENSE,
-
+        'Actions' => [
+          [ 'Read', { 'Description' => 'Read FILEPATH from Pretalx' }],
+          [ 'Write', { 'Description' => 'Write CONTENT to FILEPATH using Pretalx' }]
+        ],
+        'DefaultAction' => 'Read',
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [REPEATABLE_SESSION],
@@ -33,6 +37,7 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_options([
       OptString.new('FILEPATH', [true, 'The path to the file to read', '/etc/passwd']),
+      OptString.new('FILE_CONTENT', [false, 'Content to overwritten file']),
       OptString.new('MEDIA_URL', [true, 'Prepend path to file path that allows arbitrary read', '/media']),
       OptString.new('EMAIL', [true, 'User email to Pretalx backend']),
       OptString.new('PASSWORD', [true, 'Password to Pretalx backend'])
