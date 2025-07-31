@@ -23,11 +23,6 @@ class MetasploitModule < Msf::Auxiliary
           'msutovsky-r7' # module dev
         ],
         'License' => MSF_LICENSE,
-        'Actions' => [
-          [ 'Read', { 'Description' => 'Read FILEPATH from Pretalx' }],
-          [ 'Write', { 'Description' => 'Write CONTENT to FILEPATH using Pretalx' }]
-        ],
-        'DefaultAction' => 'Read',
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [REPEATABLE_SESSION],
