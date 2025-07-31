@@ -45,7 +45,6 @@ module Rex
 
           def decode_asn1(input)
             seq_values = input.value
-
             self.current_keys = decode_keys(seq_values[0])
             self.previous_keys = seq_values[1] ? decode_keys(seq_values[1]) : nil
             self.expiration_interval = decode_time(seq_values[2])
@@ -53,7 +52,27 @@ module Rex
           end
 
           def decode_keys(input)
-            input.value.map { |key| EncryptionKey.decode(key) }
+            elements = input.is_a?(OpenSSL::ASN1::ASN1Data) ? input.value : input
+            elements.map do |element|
+              if element.is_a?(Array)
+                element.map { |sub_element| decode_type(sub_element) }
+              else
+                decode_type(element)
+              end
+            end
+          end
+
+          def decode_type(element)
+            case element
+            when OpenSSL::ASN1::Integer
+              element.value.to_i
+            when OpenSSL::ASN1::OctetString
+              element.value
+            when OpenSSL::ASN1::Sequence, OpenSSL::ASN1::ASN1Data
+              element.value.map { |sub_element| decode_type(sub_element) }
+            else
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, "Unsupported element type: #{element.class}"
+            end
           end
 
           def encode_keys(keys)
@@ -61,7 +80,19 @@ module Rex
           end
 
           def decode_time(input)
-            KerberosTime.decode(input.value[0])
+            case input
+            when OpenSSL::ASN1::ASN1Data
+              generalized_time = input.value.first
+              if generalized_time.is_a?(OpenSSL::ASN1::GeneralizedTime)
+                Time.parse(generalized_time.value.to_s)
+              else
+                raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, "Unsupported time element type in ASN1Data: #{generalized_time.class}"
+              end
+            when OpenSSL::ASN1::GeneralizedTime
+              Time.parse(input.value.to_s)
+            else
+              raise ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError, "Unsupported time element type: #{input.class}"
+            end
           end
 
           def encode_time(time)

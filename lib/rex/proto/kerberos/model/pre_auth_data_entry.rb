@@ -83,7 +83,6 @@ module Rex
               decoded = OpenSSL::ASN1.decode(self.value)
               KerbSupersededByUser.decode(decoded)
             when Rex::Proto::Kerberos::Model::PreAuthType::DMSA_KEY_PACKAGE
-              require 'pry-byebug';binding.pry
               decoded = OpenSSL::ASN1.decode(self.value)
               DmsaKeyPackage.decode(decoded)
             else
