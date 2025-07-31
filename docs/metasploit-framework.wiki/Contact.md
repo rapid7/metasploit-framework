@@ -1,14 +1,33 @@
-# Chat
+# Primary Communication Channels
 
-A lot of our discussion happens on IRC in #metasploit on Freenode.
+## GitHub Discussions
+For community support, questions, and general discussion, visit our [GitHub Discussions](https://github.com/rapid7/metasploit-framework/discussions).
+
+## Slack
+Join the [Metasploit Slack](https://join.slack.com/t/metasploit/shared_invite/zt-30i688it0-mJsFGT44IMtdeZi1DraamQ) for real-time chat with the community and developers.
+
+## GitHub Issues
+Submit bug reports and feature requests through [GitHub Issues](https://github.com/rapid7/metasploit-framework/issues).
+
+# Additional Communication Channels
+
+## Chat
+
+Some community discussion still happens on IRC in #metasploit on Freenode.
 Please be patient and hang around for a while -- not everyone is awake
 at the same time as you. =)
 
-# Mailing list
+## Mailing list
 
 The Metasploit development mailing list used to be hosted on SourceForge, but is now on Google Groups. Metasploit Hackers is dead, long live [Metasploit Hackers][list]. (Or [mailto:Metasploit Hackers][mailto]).
 
 The old list [is archived on seclists.org][archive].
+
+## Social Media
+
+- **Twitter**: [@metasploit](https://twitter.com/metasploit)
+- **Mastodon**: [@metasploit@infosec.exchange](https://infosec.exchange/@metasploit)
+- **Blog**: [Rapid7 Blog - Metasploit Tag](https://www.rapid7.com/blog/tag/metasploit/)
 
 # Abuse
 
