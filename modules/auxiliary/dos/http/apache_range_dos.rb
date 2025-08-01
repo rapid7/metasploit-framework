@@ -98,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def conduct_dos
-    datastore['URI']
+    uri = datastore['URI']
     rhost = datastore['RHOST']
     ranges = ''
 
