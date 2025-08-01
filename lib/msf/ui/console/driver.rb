@@ -163,7 +163,16 @@ class Driver < Msf::Ui::Driver
       self.framework.init_module_paths(module_paths: opts['ModulePath'], defer_module_loads: opts['DeferModuleLoads'])
     end
 
-    unless opts['DeferModuleLoads']
+    has_modified_metasploit_files = !Msf::Modules::Metadata::Store.valid_checksum?
+
+    # Update the cache checksum if files have been modified
+    if has_modified_metasploit_files
+      current_checksum = Msf::Modules::Metadata::Store.get_current_checksum
+      Msf::Modules::Metadata::Store.update_cache_checksum(current_checksum)
+    end
+
+    # Refresh module cache if modules are modified, or we're not deferring loads
+    if has_modified_metasploit_files || !opts['DeferModuleLoads']
       framework.threads.spawn("ModuleCacheRebuild", true) do
         framework.modules.refresh_cache_from_module_files
       end

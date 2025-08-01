@@ -1,4 +1,6 @@
 require 'json'
+require 'parallel'
+require 'zlib'
 
 #
 # Handles storage of module metadata on disk. A base metadata file is always included - this was added to ensure a much
@@ -14,6 +16,7 @@ module Msf::Modules::Metadata::Store
 
   BaseMetaDataFile = 'modules_metadata_base.json'
   UserMetaDataFile = 'modules_metadata.json'
+  CacheMetaDataFile = 'cache_metadata_base.json'
 
   #
   # Initializes from user store (under ~/store/.msf4) if it exists. else base file (under $INSTALL_ROOT/db) is copied and loaded.
@@ -124,4 +127,168 @@ module Msf::Modules::Metadata::Store
     }
   end
 
+  # This method checks if the current module and library files match the cached checksum.
+  # It uses a per-file CRC32 cache to avoid recalculating checksums for files that haven't changed.
+  # If no cache exists, it will create one in the user's directory.
+  #
+  # @return [Boolean] True if the current checksum matches the cached one
+  def self.valid_checksum?
+    current_checksum = get_current_checksum
+    cached_sha = get_cached_checksum
+
+    # If no cached checksum exists, create the cache file with current checksum
+    if cached_sha.nil?
+      create_or_update_cache_file(get_cache_path, current_checksum)
+      return false
+    end
+
+    checksums_match?(current_checksum, cached_sha)
+  end
+
+  # Calculate the current checksum for all module and library files
+  # This calculates checksums for each file, caches them, and then
+  # generates an overall checksum from the individual file checksums.
+  #
+  # @return [String] The current overall checksum
+  def self.get_current_checksum
+    files = collect_files_to_check
+    per_file_cache_file = get_per_file_cache_path
+    per_file_cache = load_per_file_cache(per_file_cache_file)
+
+    file_crc32s_with_metadata = calculate_file_checksums(files, per_file_cache)
+
+    updated_cache = file_crc32s_with_metadata.to_h
+    file_crc32s = file_crc32s_with_metadata.map { |_, meta| meta['crc32'] }
+
+    save_per_file_cache(per_file_cache_file, updated_cache)
+
+    calculate_overall_checksum(file_crc32s)
+  end
+
+  # Compare the current checksum with the cached checksum
+  # @param [String] current_checksum The calculated checksum for the current state
+  # @param [String] cached_checksum The checksum retrieved from cache
+  # @return [Boolean] True if checksums match, false otherwise
+  def self.checksums_match?(current_checksum, cached_checksum)
+    current_checksum == cached_checksum
+  end
+
+  # Calculate the overall checksum from individual file checksums
+  # @param [Array<Integer>] file_crc32s Array of individual file CRC32 values
+  # @return [String] The hexadecimal representation of the overall CRC32
+  def self.calculate_overall_checksum(file_crc32s)
+    Zlib.crc32(file_crc32s.join).to_s(16)
+  end
+
+  # Collect all files that need to be checked for checksums
+  # @return [Array<String>] List of file paths
+  def self.collect_files_to_check
+    # Define the directories to scan for files
+    modules_dir = File.join(Msf::Config.install_root, 'modules', '**', '*')
+    local_modules_dir = File.join(Msf::Config.user_module_directory, '**', '*')
+    lib_dir = File.join(Msf::Config.install_root, 'lib', '**', '*')
+    # Gather all files from the specified directories
+    Dir.glob([modules_dir, lib_dir, local_modules_dir]).select { |f| File.file?(f) }.sort
+  end
+
+  # Calculate checksums for all files, using the cache when possible
+  # @param [Array<String>] files List of file paths to check
+  # @param [Hash] cache Current cache data
+  # @return [Array<Array>] Array of [file_path, metadata] pairs
+  def self.calculate_file_checksums(files, cache)
+    Parallel.map(files, in_threads: Etc.nprocessors * 2) do |file|
+      # Get file metadata (size and last modified time)
+      file_metadata = File.stat(file)
+      cache_entry = cache[file]
+      # Use cached CRC32 if mtime and size match, otherwise recalculate
+      if cache_entry && cache_entry['mtime'] == file_metadata.mtime.to_i && cache_entry['size'] == file_metadata.size
+        crc32 = cache_entry['crc32']
+      else
+        crc32 = File.open(file, 'rb') { |fd| Zlib.crc32(fd.read) }
+      end
+      # Return file and its metadata for later aggregation
+      [file, {
+        'crc32' => crc32,
+        'mtime' => file_metadata.mtime.to_i,
+        'size' => file_metadata.size
+      }]
+    end
+  end
+
+  # Get the path to the per-file cache
+  # @return [String] Path to the per-file cache
+  def self.get_per_file_cache_path
+    File.join(Msf::Config.config_directory, 'store', 'per_file_metadata_cache.json')
+  end
+
+  # Get the path to the cache file
+  # @return [String] Path to the cache file
+  def self.get_cache_path
+    File.join(Msf::Config.config_directory, "store", CacheMetaDataFile)
+  end
+
+  # Load the per-file cache from disk
+  # @param [String] cache_file Path to the cache file
+  # @return [Hash] The loaded cache or an empty hash if the file doesn't exist
+  def self.load_per_file_cache(cache_file)
+    File.exist?(cache_file) ? JSON.parse(File.read(cache_file)) : {}
+  end
+
+  # Save the updated per-file cache to disk
+  # @param [String] cache_file Path to the cache file
+  # @param [Hash] updated_cache The cache data to save
+  # @return [void]
+  def self.save_per_file_cache(cache_file, updated_cache)
+    # Ensure the directory for the cache file exists before writing
+    FileUtils.mkdir_p(File.dirname(cache_file))
+    # Save the updated per-file cache to disk
+    File.write(cache_file, JSON.pretty_generate(updated_cache))
+  end
+
+  # Create or update a cache file with the given checksum
+  # @param [String] file_path Path to the cache file
+  # @param [String] checksum The checksum to store
+  # @return [void]
+  def self.create_or_update_cache_file(file_path, checksum)
+    # Ensure directory exists
+    FileUtils.mkdir_p(File.dirname(file_path))
+
+    if File.exist?(file_path)
+      # Update existing file
+      cache_content = JSON.parse(File.read(file_path))
+      cache_content['checksum']['crc32'] = checksum
+    else
+      # Create new file
+      cache_content = {
+        "checksum" => {
+          "crc32" => checksum
+        }
+      }
+    end
+
+    File.write(file_path, JSON.pretty_generate(cache_content))
+  end
+
+  # Get the cached checksum value from the user's cache file
+  # @return [String, nil] The cached checksum value or nil if no cache exists
+  def self.get_cached_checksum
+    cache_path = get_cache_path
+
+    if File.exist?(cache_path)
+      cache_content = JSON.parse(File.read(cache_path))
+      return cache_content.dig('checksum', 'crc32')
+    end
+
+    # If no cache exists, return nil to trigger creation of a new cache file
+    nil
+  end
+
+  # Update the cache checksum file with the current crc32 checksum of the module paths.
+  #
+  # @param [String] current_checksum The current checksum to store in the cache
+  # @return [void]
+  def self.update_cache_checksum(current_checksum)
+    cache_path = get_cache_path
+    create_or_update_cache_file(cache_path, current_checksum)
+  end
 end
