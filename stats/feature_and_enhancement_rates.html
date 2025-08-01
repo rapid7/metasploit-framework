@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Metasploit Stats</title>
+    <meta charset='utf-8'>
+    <!-- REQUIRED -->
+    <style>
+      body{
+        padding-top: 60px;
+      }
+    </style>
+    <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.5/superhero/bootstrap.min.css" rel="stylesheet" integrity="sha384-IEb1z7D4ISbz8RTKVtgjIw6KegExJgu6WdDei6Fn2xgL6f5dfyTppLEFnkFbRaxv" crossorigin="anonymous">
+    <script src="assets/bootstrap/js/jquery.min.js"></script>
+    <script src="assets/highcharts.js" type='text/javascript'></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <!-- EO REQUIRED -->
+  </head>
+  <body>
+    <!-- NAVBAR-->
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+          <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="navbar-header">
+
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                 <span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+              </button> <a class="navbar-brand" href="#">Metasploit Stats</a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              <ul class="nav navbar-nav">
+                <li><a href="https://docs.metasploit.com">Metasploit Docs</a></li>
+                <li><a href="https://github.com/rapid7/metasploit-framework">Metasploit on Github</a></li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+    <!-- NAVBAR END-->
+
+    <div class='container'>
+      <div class='tabbable tabs-left'>
+        <ul class='nav nav-pills'>
+          <li>
+            
+  <li role="presentation">
+    <a href="pull_request_rates.html" >Pull Requests per Quarter</a>
+  </li>
+  <li role="presentation">
+    <a href="bug_rates.html" >Bugs per Quarter</a>
+  </li>
+  <li role="presentation">
+    <a href="feature_and_enhancement_rates.html" >Features and Enhancements per Quarter</a>
+  </li>
+  <li role="presentation">
+    <a href="index.html" >Open Pull Requests
+      <span class="badge">27 since last week</span>
+    </a>
+  </li>
+  <li role="presentation">
+    <a href="features_and_enhancements.html" >Open Features and Enhancements
+      <span class="badge">0 since last week</span>
+    </a>
+  </li>
+  <li role="presentation">
+    <a href="bugs.html" >Open Bugs
+      <span class="badge">7 since last week</span>
+    </a>
+  </li>
+          </li>
+        </ul>
+        <div class='tab-content'>
+          <div class='tab-pane active'>
+            <div class='page-header'>
+              <h1 class='pagination-centered'>Features and Enhancements per Quarter by date</h1>
+            </div>
+            <script type="text/javascript">
+        $(function () {
+            $('#container').highcharts({
+                chart: {
+                    zoomType: 'x'
+                },
+                title: {
+                    text: 'Features and Enhancements per Quarter'
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    type: 'datetime',
+                    dateTimeLabelFormats: { // don't display the dummy year
+                        month: '%e. %b %Y',
+                        year: '%b'
+                    },
+                    title: {
+                        text: 'Date'
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: 'Features and Enhancements per Quarter'
+                    },
+                    min: 0
+                },
+                tooltip: {
+                    headerFormat: '<b>{series.name}</b><br>',
+                    pointFormat: '{point.x:%e. %b}: {point.y:.2f}'
+                },
+
+                plotOptions: {
+                    spline: {
+                        marker: {
+                            enabled: true
+                        }
+                    }
+                },
+
+                series: [
+                  { name: "Total Opened Features and Enhancements per Quarter", data: [[1633046400000, 3], [1640995200000, 1], [1648771200000, 3], [1656633600000, 2], [1680307200000, 1], [1704067200000, 1], [1711929600000, 1], [1719792000000, 1]] },
+                  { name: "Total Closed Features and Enhancements per Quarter", data: [[1633046400000, 1], [1640995200000, 1], [1648771200000, 4], [1656633600000, 4], [1664582400000, 2], [1680307200000, 4], [1688169600000, 46], [1696118400000, 5], [1704067200000, 3], [1711929600000, 1], [1719792000000, 1], [1727740800000, 1]] },
+                  { name: "Rapid7 Opened Features and Enhancements per Quarter", data: [[1633046400000, 1], [1640995200000, 1], [1648771200000, 1], [1656633600000, 1], [1680307200000, 1], [1704067200000, 1], [1711929600000, 1]] },
+                  { name: "Rapid7 Closed Features and Enhancements per Quarter", data: [[1656633600000, 2], [1680307200000, 1], [1688169600000, 15], [1711929600000, 1]] },
+                ]
+            });
+        });
+            </script>
+            <div id="container"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <table class="table table-striped">
+      <h2>Top committers this last month</h2>
+      <tr>
+<td>jenkins-metasploit (30)</td><td>adfoster-r7 (29)</td><td>Spencer McIntyre (22)</td><td>Valentin Lobstein (16)</td><td>msutovsky-r7 (14)</td><td>Martin Sutovsky (13)</td><td>Chocapikk (12)</td><td>cgranleese-r7 (12)</td><td>Jack Heysel (7)</td><td>Alex (6)</td></tr>
+<tr><td>jheysel-r7 (6)</td><td>Metasploit (6)</td><td>Umut (4)</td><td>sjanusz-r7 (4)</td><td>sfewer-r7 (3)</td><td>bcoles (3)</td><td>Brendan (2)</td><td>Diego Ledda (2)</td><td>laptop (2)</td><td>Simon Janusz (2)</td></tr>
+<tr><td>dwelch-r7 (2)</td><td>happybear-21 (1)</td><td>szymonj99 (1)</td><td>Rudraditya Thakur (1)</td><td>dledda-r7 (1)</td><td>Christophe De La Fuente (1)</td><td>fishBone000 (1)</td><td>Dean Welch (1)</td><td>Desiree05 (1)</td></tr>
+
+    </table>
+    <h2>Top items this last week</h2>
+    
+            
+    <div class="panel panel-primary">
+      <div class="panel-heading" data-toggle="collapse"
+           data-parent="#accordion" data-target="#index">
+        <h4 class="panel-title">New Open Pull Requests</h4>
+      </div>
+      <div id="index" class="panel-collapse collapse">
+      <div class="panel-body">
+        Check out some of the new Open Pull Requests for this week!
+      </div>
+      <div class="table-responsive">
+      <table class="table">
+    
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20439">
+                <span class="fa-fw fa fa-github">Fix WinPEAS In-Memory Execution: Use Compatible .NET Execution Methods Instead of Injection into Notepad on Windows 10 x64 "#20434"</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-08-01T11:54:51+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              Wopseeion
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20438">
+                <span class="fa-fw fa fa-github">Fixes incorrect path parameter for `chmod` in `upload_and_compile`</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-08-01T10:55:52+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              msutovsky-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20431">
+                <span class="fa-fw fa fa-github">Fix NoMethodError in kerberos/get_ticket by properly decoding ASN.1 OctetString in certificate SAN parsing for ticket reuqest --> "#20427"</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-31T08:07:58+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              Wopseeion
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20429">
+                <span class="fa-fw fa fa-github">Update communication channels in documentation</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-31T02:43:09+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              jphamgithub
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20424">
+                <span class="fa-fw fa fa-github">Vulnerability Report Enhancement</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-29T12:20:01+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              cdelafuente-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20423">
+                <span class="fa-fw fa fa-github">Add Malicious XDG Desktop File module</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-29T09:27:18+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              bcoles
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20419">
+                <span class="fa-fw fa fa-github">Initial support for Malleable C2 Profiles in HTTP Meterpreter</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-28T02:00:22+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              OJ
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20418">
+                <span class="fa-fw fa fa-github">Adds auto selection of cracker for password crackers</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-26T17:22:44+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              H4k1l
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20443">
+                <span class="fa-fw fa fa-github">Revert "Adds survey banner to the docs site"</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-08-01T13:37:19+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              adfoster-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20437">
+                <span class="fa-fw fa fa-github">Fixes variable initialization in auxiliary/dos/http/apache_range_dos</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-08-01T10:04:35+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              Desiree05
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20435">
+                <span class="fa-fw fa fa-github">Adds survey banner to the docs site</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-08-01T09:23:42+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              cgranleese-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20433">
+                <span class="fa-fw fa fa-github">Fixes disclosure date in exploit/linux/http/pandora_fms_auth_netflow_rce.rb</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-31T10:59:59+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              msutovsky-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20432">
+                <span class="fa-fw fa fa-github">Fixes RPC `exploit_uuid` correlation for jobs and sessions</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-31T08:51:52+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              cgranleese-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20428">
+                <span class="fa-fw fa fa-github">Fix achat_bof by increasing the available payload space</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-30T20:15:04+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              zeroSteiner
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20426">
+                <span class="fa-fw fa fa-github">Update multiple dependencies</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-30T09:11:52+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              adfoster-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20425">
+                <span class="fa-fw fa fa-github">Add auto cracker selection preferring hashcat CLOSES #20396 </span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-29T18:13:55+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              mariomontecatine
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20422">
+                <span class="fa-fw fa fa-github">Update jsonrpc dependencies</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-29T09:17:54+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              adfoster-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20421">
+                <span class="fa-fw fa fa-github">Fix `get_nonce` in `auxiliary/scanner/http/wp_ultimate_member_sorting_sqli`</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-29T06:00:59+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              Chocapikk
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20420">
+                <span class="fa-fw fa fa-github">Bump rails to 7.2</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-28T11:41:57+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              dwelch-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20417">
+                <span class="fa-fw fa fa-github">fix: Fix typo in reflective_pe_loader.rb</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-26T15:58:47+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              fishBone000
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-payloads/issues/759">
+                <span class="fa-fw fa fa-github">Initial support for Malleable C2 Profiles in Windows Metepreter</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-28T01:14:11+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              OJ
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-omnibus/issues/236">
+                <span class="fa-fw fa fa-github">Update dependencies</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-25T15:00:51+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              adfoster-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit_data_models/issues/220">
+                <span class="fa-fw fa fa-github">Add Resource and Layered Services</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-29T09:02:48+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              cdelafuente-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-random_identifier/issues/20">
+                <span class="fa-fw fa fa-github">Adds tests to cover powershell keywords</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-08-01T12:08:45+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              cgranleese-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-random_identifier/issues/19">
+                <span class="fa-fw fa fa-github">Fixes an indentation issue in the docs</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-08-01T11:55:49+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              cgranleese-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-random_identifier/issues/18">
+                <span class="fa-fw fa fa-github">Bumps version to 0.1.18</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-08-01T11:49:13+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              cgranleese-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/rex-random_identifier/issues/17">
+                <span class="fa-fw fa fa-github">Adds keywords for Powershell</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-25T13:50:45+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              cgranleese-r7
+            </td>
+          </tr></table></div></div></div>
+    <div class="panel panel-primary">
+      <div class="panel-heading" data-toggle="collapse"
+           data-parent="#accordion" data-target="#features_and_enhancements">
+        <h4 class="panel-title">New Open Features and Enhancements</h4>
+      </div>
+      <div id="features_and_enhancements" class="panel-collapse collapse">
+      <div class="panel-body">
+        Check out some of the new Open Features and Enhancements for this week!
+      </div>
+      <div class="table-responsive">
+      <table class="table">
+    </table></div></div></div>
+    <div class="panel panel-primary">
+      <div class="panel-heading" data-toggle="collapse"
+           data-parent="#accordion" data-target="#bugs">
+        <h4 class="panel-title">New Open Bugs</h4>
+      </div>
+      <div id="bugs" class="panel-collapse collapse">
+      <div class="panel-body">
+        Check out some of the new Open Bugs for this week!
+      </div>
+      <div class="table-responsive">
+      <table class="table">
+    
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20434">
+                <span class="fa-fw fa fa-github">`exec -m winpeas.exe -d notepad.exe` fails on Win 10x64</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-31T14:45:34+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              bwatters-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20427">
+                <span class="fa-fw fa fa-github">kerberos/get_ticket Fails to Load Certificate with NoMethodError</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-30T15:14:50+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              smcintyre-r7
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20442">
+                <span class="fa-fw fa fa-github">waqar bhatti</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-08-01T12:54:46+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              777weaqarBHatti306
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20441">
+                <span class="fa-fw fa fa-github">waqar bhtti</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-08-01T12:53:50+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              777weaqarBHatti306
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20440">
+                <span class="fa-fw fa fa-github">waqar bhatti</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-08-01T12:53:29+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              777weaqarBHatti306
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20436">
+                <span class="fa-fw fa fa-github">Module /dos/http/apache_range_dos not working correctly (CVE-2011-3192)</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-08-01T09:39:11+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              Desiree05
+            </td>
+          </tr>
+          <tr>
+            <td class="resource_url">
+              <a target="_blank" href="https://github.com/rapid7/metasploit-framework/issues/20416">
+                <span class="fa-fw fa fa-github">New boy coming</span>
+              </a>
+            </td>
+
+            <td class="resource_date" nowrap>
+              <em>2025-07-25T21:05:02+00:00</em>
+            </td>
+
+            <td class="resource_author" nowrap>
+              8799662078
+            </td>
+          </tr></table></div></div></div></div>
+  </body>
+</html>
