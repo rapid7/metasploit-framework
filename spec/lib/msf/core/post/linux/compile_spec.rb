@@ -94,7 +94,7 @@ RSpec.describe Msf::Post::Linux::Compile do
       expect(subject).to receive(:write_file).with(destination, origin)
       expect(subject).to receive(:cmd_exec).with("gcc -o '#{compiled}' '#{destination}' #{flags} && echo fixedStr").and_return('fixedStr')
       expect(subject).to receive(:rm_f).with(destination)
-      expect(subject).to receive(:chmod).with(destination)
+      expect(subject).to receive(:chmod).with(compiled)
 
       subject.upload_and_compile(compiled, origin, flags)
     end
@@ -105,7 +105,7 @@ RSpec.describe Msf::Post::Linux::Compile do
       expect(subject).to receive(:write_file).with(destination, origin)
       expect(subject).to receive(:cmd_exec).with("PATH=\"$PATH:/usr/bin/\" gcc -o '#{compiled}' '#{destination}' #{flags} && echo fixedStr").and_return('fixedStr')
       expect(subject).to receive(:rm_f).with(destination)
-      expect(subject).to receive(:chmod).with(destination)
+      expect(subject).to receive(:chmod).with(compiled)
 
       subject.upload_and_compile(compiled, origin, flags)
     end
