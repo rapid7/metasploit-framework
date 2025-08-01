@@ -165,7 +165,7 @@ class Server
     end
 
     # If a procedure was passed, mount the resource with it.
-    if (opts['Proc'])
+    if opts['Proc']
       mount(name, Handler::Proc, false, opts['Proc'], opts['VirtualDirectory'])
     else
       raise ArgumentError, "You must specify a procedure."
@@ -182,8 +182,10 @@ class Server
   #
   # Adds Server headers and stuff.
   #
-  def add_response_headers(resp)
+  def add_response_headers(req, resp)
     resp['Server'] = self.server_name if not resp['Server']
+    expl = self.context['MsfExploit']
+    expl.add_response_headers(req, resp) if expl&.respond_to?(:add_response_headers)
   end
 
   #
@@ -274,24 +276,39 @@ protected
   #
   def dispatch_request(cli, request)
     # Is the client requesting keep-alive?
-    if ((request['Connection']) and
-       (request['Connection'].downcase == 'Keep-Alive'.downcase))
+    if request['Connection'] && request['Connection'].downcase == 'keep-alive'
       cli.keepalive = true
     end
 
-    # Search for the resource handler for the requested URL.  This is pretty
-    # inefficient right now, but we can spruce it up later.
-    p    = nil
-    len  = 0
-    root = nil
+    # first, try to match up the request with a handler based on a matching
+    # function that's present in the context, if specified.
+    expl = self.context['MsfExploit']
+    resource_id = expl.find_resource_id(cli, request) if expl && expl.respond_to?(:find_resource_id)
+    request.conn_id = resource_id
 
-    resources.each_pair { |k, val|
-      if (request.resource =~ /^#{k}/ and k.length > len)
-        p    = val
-        len  = k.length
-        root = k
-      end
-    }
+    if resource_id && resources[resource_id]
+      p = resources[resource_id]
+      len = resource_id.length
+      root = request.resource
+    elsif resources[request.resource]
+      p = resources[request.resource]
+      len = resource_id.length
+      root = request.resource
+    else
+      # Search for the resource handler for the requested URL.  This is pretty
+      # inefficient right now, but we can spruce it up later.
+      p    = nil
+      len  = 0
+      root = nil
+
+      resources.each_pair { |k, val|
+        if (request.resource =~ /^#{k}/ and k.length > len)
+          p    = val
+          len  = k.length
+          root = k
+        end
+      }
+    end
 
     if (p)
       # Create an instance of the handler for this resource

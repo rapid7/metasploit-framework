@@ -28,6 +28,7 @@ module MetasploitModule
     )
 
     register_options([
+      OptPath.new('MALLEABLEC2', [false, 'Path to a file containing the malleable C2 profile']),
       OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load']),
       OptString.new('EXTINIT', [false, 'Initialization strings for extensions'])
     ])
@@ -45,6 +46,7 @@ module MetasploitModule
 
   def generate_config(opts = {})
     opts[:uuid] ||= generate_payload_uuid
+    opts[:c2_profile] = datastore['MALLEABLEC2']
 
     # create the configuration block
     config_opts = {
