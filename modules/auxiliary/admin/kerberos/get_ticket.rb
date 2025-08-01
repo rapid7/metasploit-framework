@@ -278,8 +278,10 @@ class MetasploitModule < Msf::Auxiliary
         name_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,
         name_string: datastore['SPN'].split('/')
       )
+      nonce = rand(9999999999)
       tgs_options = {
         sname: sname,
+        nonce: nonce,
         ticket_storage: kerberos_ticket_storage(read: false)
       }
 

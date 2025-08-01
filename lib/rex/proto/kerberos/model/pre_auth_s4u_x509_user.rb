@@ -46,7 +46,7 @@ module Rex
             # Encodes the PA-S4U-X509-USER structure into an ASN.1 String
             #
             # @return [String]
-            def encode
+          def encode
             elems = []
             elems << OpenSSL::ASN1::ASN1Data.new([user_id.encode], 0, :CONTEXT_SPECIFIC)
             elems << OpenSSL::ASN1::ASN1Data.new([checksum.encode], 1, :CONTEXT_SPECIFIC)
@@ -54,7 +54,7 @@ module Rex
             seq = OpenSSL::ASN1::Sequence.new(elems)
 
             seq.to_der
-          end
+           end
 
           # Decodes the PA-S4U-X509-USER structure from an input
           #
