@@ -37,6 +37,9 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('EMAIL', [true, 'User email to Pretalx backend']),
       OptString.new('PASSWORD', [true, 'Password to Pretalx backend'])
     ])
+    register_advanced_options([
+      OptInt.new('ExportTimeout', [true, 'Set wait time for schedule export', 5])
+    ])
   end
 
   def check_host(_ip)
@@ -69,7 +72,7 @@ class MetasploitModule < Msf::Auxiliary
     cookie_jar.clear
 
     vprint_status("Logging with credentials: #{datastore['EMAIL']}/#{datastore['PASSWORD']}")
-    fail_with Failure::NoAccess, 'Incorrect credentials' unless login(datastore['EMAIL'], datastore['PASSWORD'])
+    fail_with(Failure::NoAccess, 'Incorrect credentials') unless login(datastore['EMAIL'], datastore['PASSWORD'])
 
     vprint_status('Approving proposal')
     approve_proposal(proposal_name)
@@ -84,7 +87,7 @@ class MetasploitModule < Msf::Auxiliary
 
     vprint_status('Wait for schedule ZIP to be exported')
 
-    sleep(5)
+    sleep(datastore['ExportTimeout'])
 
     vprint_status('Trying to extract target file')
 
