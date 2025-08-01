@@ -73,8 +73,9 @@ module Msf
 
           # only upload the file if a compiler exists
           write_file path.to_s, strip_comments(data)
-
-          compiler_cmd = "#{compiler} -o '#{path.sub(/\.c$/, '')}' '#{path}'"
+          
+          executable_path = path.sub(/\.c$/, '')
+          compiler_cmd = "#{compiler} -o '#{executable_path}' '#{path}'"
           if session.type == 'shell'
             compiler_cmd = "PATH=\"$PATH:/usr/bin/\" #{compiler_cmd}"
           end
@@ -95,7 +96,7 @@ module Msf
             fail_with Module::Failure::BadConfig, message
           end
 
-          chmod path
+          chmod executable_path
         end
 
         #
