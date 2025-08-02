@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
       'Actions' => [
         ['john', { 'Description' => 'Use John the Ripper' }],
         ['hashcat', { 'Description' => 'Use Hashcat' }],
-        ['auto', { 'Description' => 'Auto-selection of cracker' ]}
+        ['auto', { 'Description' => 'Auto-selection of cracker' }]
       ],
       'DefaultAction' => 'auto',
       'Notes' => {
