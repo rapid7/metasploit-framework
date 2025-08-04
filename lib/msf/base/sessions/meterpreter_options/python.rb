@@ -16,7 +16,7 @@ module Msf
           [
             OptString.new(
               'AutoLoadExtensions',
-              [true, "Automatically load extensions on bootstrap, semicolon separated.", 'stdapi']
+              [true, "Automatically load extensions on bootstrap, comma separated.", 'stdapi']
             ),
           ],
           self.class
