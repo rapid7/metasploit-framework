@@ -25,9 +25,10 @@ The old list [is archived on seclists.org][archive].
 
 ## Social Media
 
-- **Twitter**: [@metasploit](https://twitter.com/metasploit)
+- **X**: [@metasploit](https://x.com/metasploit)
 - **Mastodon**: [@metasploit@infosec.exchange](https://infosec.exchange/@metasploit)
 - **Blog**: [Rapid7 Blog - Metasploit Tag](https://www.rapid7.com/blog/tag/metasploit/)
+- **YouTube**: [Metasploit YouTube](https://youtube.com/@MetasploitR7)
 
 # Abuse
 

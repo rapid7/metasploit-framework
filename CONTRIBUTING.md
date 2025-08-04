@@ -85,7 +85,7 @@ When reporting Metasploit issues:
 * **Don't** attempt to report issues on a closed PR.
 
 If you need some more guidance, talk to the main body of open source contributors over on our
-[GitHub Discussions](https://github.com/rapid7/metasploit-framework/discussions), [Metasploit Slack] or [#metasploit on Freenode IRC].
+[GitHub Discussions](https://github.com/rapid7/metasploit-framework/discussions) or [Metasploit Slack]
 
 Finally, **thank you** for taking the few moments to read this far! You're already way ahead of the
 curve, so keep it up!
