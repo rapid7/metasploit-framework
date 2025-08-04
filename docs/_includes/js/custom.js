@@ -58,3 +58,44 @@ jtd.onReady(function(ready) {
         }
     }
 });
+/*
+ * Survey Banner Close Functionality
+ *
+ * This section handles the interactive behavior for the user engagement survey banner.
+ */
+(function() {
+    function initSurveyBanner() {
+        const banner = document.getElementById('survey-banner');
+        const closeButton = document.getElementById('close-banner');
+        const body = document.body;
+
+        if (!banner || !closeButton) {
+            return;
+        }
+
+        if (localStorage.getItem('surveyBannerClosed') === 'true') {
+            banner.style.display = 'none';
+            body.classList.add('banner-closed');
+        } else {
+            if (banner.offsetParent === null) {
+                body.appendChild(banner);
+            }
+            banner.style.display = 'flex';
+            banner.style.visibility = 'visible';
+            banner.style.opacity = '1';
+            body.classList.remove('banner-closed');
+        }
+
+        closeButton.addEventListener('click', function() {
+            banner.style.display = 'none';
+            body.classList.add('banner-closed');
+            localStorage.setItem('surveyBannerClosed', 'true');
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSurveyBanner);
+    } else {
+        initSurveyBanner();
+    }
+})();
