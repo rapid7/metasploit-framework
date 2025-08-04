@@ -72,6 +72,16 @@ class Driver < Msf::Ui::Driver
       elog(e)
     end
 
+    # Check if files have been modified and force immediate loading if so
+    has_modified_metasploit_files = !Msf::Modules::Metadata::Store.valid_checksum?
+
+    if has_modified_metasploit_files
+      current_checksum = Msf::Modules::Metadata::Store.get_current_checksum
+      Msf::Modules::Metadata::Store.update_cache_checksum(current_checksum)
+      # Force immediate module loading when files have changed
+      opts['DeferModuleLoads'] = false
+    end
+
     if opts['DeferModuleLoads'].nil?
       opts['DeferModuleLoads'] = Msf::FeatureManager.instance.enabled?(Msf::FeatureManager::DEFER_MODULE_LOADS)
     end
@@ -161,14 +171,6 @@ class Driver < Msf::Ui::Driver
     unless opts['Framework']
       # Configure the framework module paths
       self.framework.init_module_paths(module_paths: opts['ModulePath'], defer_module_loads: opts['DeferModuleLoads'])
-    end
-
-    has_modified_metasploit_files = !Msf::Modules::Metadata::Store.valid_checksum?
-
-    # Update the cache checksum if files have been modified
-    if has_modified_metasploit_files
-      current_checksum = Msf::Modules::Metadata::Store.get_current_checksum
-      Msf::Modules::Metadata::Store.update_cache_checksum(current_checksum)
     end
 
     # Refresh module cache if modules are modified, or we're not deferring loads
