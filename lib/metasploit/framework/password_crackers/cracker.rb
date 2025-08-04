@@ -310,7 +310,7 @@ module Metasploit
             when 'john'
               path = get_john
             when 'auto'
-              path = get_hashcat || get_john
+              path = get_john || get_hashcat
             else
               raise PasswordCrackerNotFoundError, 'No suitable Cracker was selected, so a binary could not be found on the system JOHN || HASHCAT'
             end
