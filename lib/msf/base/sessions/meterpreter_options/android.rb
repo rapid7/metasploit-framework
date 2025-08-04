@@ -16,7 +16,7 @@ module Msf
           [
             OptString.new(
               'AutoLoadExtensions',
-              [true, "Automatically load extensions on bootstrap, semicolon separated.", 'stdapi;android']
+              [true, "Automatically load extensions on bootstrap, semicolon separated.", 'stdapi,android']
             ),
           ],
           self.class

@@ -8,7 +8,7 @@
 module MetasploitModule
 
   include Msf::Payload::Single
-  include Msf::Sessions::MeterpreterOptions::<%= platform.split('_').each { |s| s.capitalize! }.join %>
+  include Msf::Sessions::MeterpreterOptions::<%= platform.split('_').each { |s| s.casecmp?('osx') ? 'OSX' : s.capitalize! }.join %>
   include Msf::Sessions::MettleConfig
 
   def initialize(info = {})

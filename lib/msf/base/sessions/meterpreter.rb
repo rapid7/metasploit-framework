@@ -180,7 +180,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       print_warning('Meterpreter start up operations have been aborted. Use the session at your own risk.')
       return nil
     end
-    extensions = datastore['AutoLoadExtensions']&.split(';') || []
+    extensions = datastore['AutoLoadExtensions']&.delete(' ').split(',') || []
 
     # BEGIN: This should be removed on MSF 7
     # Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP (by default unhook is first, see meterpreter_options/windows.rb)
@@ -195,9 +195,13 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     # TODO: abstract this a little, perhaps a "post load" function that removes
     # platform-specific stuff?
     extensions.each do |extension|
-      console.run_single("load #{extension}")
-      console.run_single('unhook_pe') if extension == 'unhook'
-      session.load_session_info if extension == 'stdapi' && datastore['AutoSystemInfo']
+      begin
+        console.run_single("load #{extension}")
+        console.run_single('unhook_pe') if extension == 'unhook'
+        session.load_session_info if extension == 'stdapi' && datastore['AutoSystemInfo']
+      rescue => e
+        print_warning("Failed loading extension #{extension}")
+      end
     end
     console.disable_output = original
 

@@ -16,7 +16,7 @@ module Msf
           [
             OptString.new(
               'AutoLoadExtensions',
-              [true, "Automatically load extensions on bootstrap, semicolon separated.", 'unhook;priv;stdapi']
+              [true, "Automatically load extensions on bootstrap, semicolon separated.", 'unhook,priv,stdapi']
             ),
             OptBool.new(
               'AutoUnhookProcess',
