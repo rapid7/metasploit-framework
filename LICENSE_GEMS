@@ -100,7 +100,7 @@ metasploit-framework, 6.4.79, "New BSD"
 metasploit-model, 5.0.4, "New BSD"
 metasploit-payloads, 2.0.221, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 6.0.9, "New BSD"
-metasploit_payloads-mettle, 1.0.42, "3-clause (or ""modified"") BSD"
+metasploit_payloads-mettle, 1.0.45, "3-clause (or ""modified"") BSD"
 method_source, 1.1.0, MIT
 mime-types, 3.6.0, MIT
 mime-types-data, 3.2025.0304, MIT
