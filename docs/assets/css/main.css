@@ -1,6 +1,80 @@
 ---
 ---
 
+/*
+ * Survey Banner Styles
+ *
+ * This stylesheet contains all styling for the user engagement survey banner
+ * that appears at the top of all pages.
+ */
+body {
+    padding-top: 50px !important;
+}
+
+body.banner-closed {
+    padding-top: 0 !important;
+}
+
+#survey-banner {
+    background-color: #2c3e50;
+    color: white;
+    padding: 12px 20px;
+    text-align: center;
+    font-size: 13px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    box-sizing: border-box;
+    border-bottom: 2px solid #34495e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+#survey-banner p {
+    margin: 0;
+    line-height: 1.4;
+    flex: 1;
+}
+
+#survey-banner a {
+    color: #3498db;
+    text-decoration: underline;
+}
+
+#survey-banner a:hover {
+    color: #5dade2;
+}
+
+#close-banner {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+#close-banner:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#close-banner:focus {
+    outline: 2px solid #3498db;
+    outline-offset: 2px;
+}
+
 #main-content p {
     text-align: justify;
 }
