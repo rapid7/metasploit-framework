@@ -53,7 +53,7 @@ volumes:
   pretalx-redis:
 ```
 1. `sudo docker-compose up`
-1. Setup username and password
+1. Setup username and password - `sudo docker exec -it pretalx pretalx init`
 1. Go to `orga/event/`
 1. Create new conference
 1. Go to `orga/event/[conference name]/schedule/rooms/`
