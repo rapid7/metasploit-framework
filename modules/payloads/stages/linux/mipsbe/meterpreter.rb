@@ -6,7 +6,7 @@
 require 'rex/elfparsey'
 
 module MetasploitModule
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Linux
   include Msf::Sessions::MettleConfig
 
   def initialize(info = {})

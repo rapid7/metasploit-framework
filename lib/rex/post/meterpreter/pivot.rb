@@ -85,11 +85,11 @@ class Pivot
     c = Class.new(::Msf::Payload)
     c.include(::Msf::Payload::Stager)
     c.include(::Msf::Payload::TransportConfig)
-    c.include(::Msf::Sessions::MeterpreterOptions)
 
     # TODO: add more platforms
     case opts[:platform]
     when 'windows'
+      c.include(::Msf::Sessions::MeterpreterOptions::Windows) # Moved to be platform-specific
       # Include the appropriate reflective dll injection module for the target process architecture...
       if opts[:arch] == ARCH_X86
         c.include(::Msf::Payload::Windows::MeterpreterLoader)
