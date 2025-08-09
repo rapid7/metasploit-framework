@@ -180,32 +180,30 @@ class Meterpreter < Rex::Post::Meterpreter::Client
       print_warning('Meterpreter start up operations have been aborted. Use the session at your own risk.')
       return nil
     end
-    # Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP
-    if datastore['AutoUnhookProcess'] == true
-      console.run_single('load unhook')
-      console.run_single('unhook_pe')
-    end
+    extensions = datastore['AutoLoadExtensions']&.delete(' ').split(',') || []
 
-    unless datastore['AutoLoadStdapi'] == false
-
-      session.load_stdapi
-
-      unless datastore['AutoSystemInfo'] == false
-        session.load_session_info
-      end
-
-      # only load priv on native windows
-      # TODO: abstract this too, to remove windows stuff
-      if session.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(session.arch)
-        session.load_priv rescue nil
-      end
-    end
-
+    # BEGIN: This should be removed on MSF 7
+    # Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP (by default unhook is first, see meterpreter_options/windows.rb)
+    extensions.push('unhook') if datastore['AutoUnhookProcess'] && session.platform == 'windows'
+    extensions.push('stdapi') if datastore['AutoLoadStdapi']
+    extensions.push('priv') if datastore['AutoLoadStdapi'] && session.platform == 'windows'
+    extensions.push('android') if session.platform == 'android'
+    extensions = extensions.uniq
+    # END
+    original = console.disable_output
+    console.disable_output = true
     # TODO: abstract this a little, perhaps a "post load" function that removes
     # platform-specific stuff?
-    if session.platform == 'android'
-      session.load_android
+    extensions.each do |extension|
+      begin
+        console.run_single("load #{extension}")
+        console.run_single('unhook_pe') if extension == 'unhook'
+        session.load_session_info if extension == 'stdapi' && datastore['AutoSystemInfo']
+      rescue => e
+        print_warning("Failed loading extension #{extension}")
+      end
     end
+    console.disable_output = original
 
     ['InitialAutoRunScript', 'AutoRunScript'].each do |key|
       unless datastore[key].nil? || datastore[key].empty?

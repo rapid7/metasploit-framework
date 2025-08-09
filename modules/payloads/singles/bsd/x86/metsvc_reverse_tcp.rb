@@ -8,7 +8,7 @@ module MetasploitModule
 
   include Msf::Payload::Bsd
   include Msf::Payload::Single
-  include Msf::Sessions::MeterpreterOptions
+  include Msf::Sessions::MeterpreterOptions::Bsd
 
   def initialize(info = {})
     super(
