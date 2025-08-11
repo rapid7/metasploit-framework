@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     validate_connect_options!
-    results = super
+    results = super || {}
     logins = results.flat_map { |_k, v| v[:successful_logins] }
     sessions = results.flat_map { |_k, v| v[:successful_sessions] }
     print_status("Bruteforce completed, #{logins.size} #{logins.size == 1 ? 'credential was' : 'credentials were'} successful.")
@@ -169,6 +169,10 @@ class MetasploitModule < Msf::Auxiliary
         if opts[:ldap_auth] == Msf::Exploit::Remote::AuthOption::SCHANNEL
           # Schannel auth has no meaningful credential information to store in the DB
           msg = opts[:ldap_pkcs12].nil? ? 'Using stored certificate' : "Cert File #{opts[:ldap_pkcs12][:path]} (#{opts[:ldap_pkcs12][:value].certificate.subject})"
+          report_successful_login(
+            public: opts[:ldap_pkcs12][:value].certificate.subject.to_s,
+            private: opts[:ldap_pkcs12][:path]
+          )
           print_brute level: :good, ip: ip, msg: "Success: '#{msg}'"
         else
           create_credential_and_login(credential_data) if result.credential.private
