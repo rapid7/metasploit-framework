@@ -344,7 +344,7 @@ class Creds
     set_rhosts = false
     truncate = true
 
-    cred_table_columns = [ 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type', 'JtR Format', 'cracked_password' ]
+    cred_table_columns = [ 'id', 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type', 'JtR Format', 'cracked_password' ]
     delete_count = 0
     search_term = nil
 
@@ -506,7 +506,8 @@ class Creds
           service_info = build_service_info(service)
         end
         cracked_password_val = cracked_password_core&.private&.data.to_s
-        tbl << [
+        row = [
+          core.id,
           host,
           origin,
           service_info,
@@ -517,6 +518,7 @@ class Creds
           jtr_val,
           cracked_password_val
         ]
+        tbl << row
       end
     end
 
