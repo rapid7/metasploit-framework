@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('DOMAIN', [ false, 'The Fully Qualified Domain Name (FQDN). Ex: mydomain.local' ]),
         OptString.new('USERNAME', [ false, 'The domain user' ]),
         OptString.new('PASSWORD', [ false, 'The domain user\'s password' ]),
-        OptPath.new('CERT_FILE', [ false, 'The PKCS12 (.pfx) certificate file to authenticate with' ]),
+        OptPkcs12Cert.new('CERT_FILE', [ false, 'The PKCS12 (.pfx) certificate file to authenticate with' ]),
         OptString.new('CERT_PASSWORD', [ false, 'The certificate file\'s password' ]),
         OptString.new(
           'NTHASH', [
@@ -76,7 +76,7 @@ class MetasploitModule < Msf::Auxiliary
           ],
           conditions: %w[ACTION == GET_TGS]
         ),
-        OptPath.new(
+        OptKerberosCredentialCache.new(
           'Krb5Ccname', [
             false,
             'The Kerberos TGT to use when requesting the service ticket. If unset, the database will be checked'
