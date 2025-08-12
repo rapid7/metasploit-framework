@@ -37,7 +37,7 @@ module MetasploitModule
   end
 
   def generate(_opts = {})
-    url =  datastore['URL'] || 'http://localhost/hi.exe'
+    url = datastore['URL'] || 'http://localhost/hi.exe'
     file = datastore['FILEPATH'] || 'fox.exe'
     display = datastore['DISPLAY'] || 'HIDE'
 
