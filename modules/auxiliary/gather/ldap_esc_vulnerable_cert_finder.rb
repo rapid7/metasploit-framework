@@ -95,9 +95,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
-      OptBool.new('REPORT_NONENROLLABLE', [true, 'Report nonenrollable certificate templates', false]),
-      OptBool.new('REPORT_PRIVENROLLABLE', [true, 'Report certificate templates restricted to domain and enterprise admins', false]),
-      OptBool.new('RUN_REGISTRY_CHECKS', [true, 'Authenticate to WinRM to query the registry values to enhance reporting for ESC9 and ESC10. Must be a privleged user in order to query successfully', false]),
+      OptEnum.new('REPORT', [true, 'What templates to report (applies filtering to results)', 'all', [ 'all', 'vulnerable-and-enrollable' ]]),
+      OptBool.new('RUN_REGISTRY_CHECKS', [true, 'Authenticate to WinRM to query the registry values to enhance reporting for ESC9, ESC10 and ESC16. Must be a privileged user in order to query successfully', false]),
     ])
   end
 
@@ -212,7 +211,7 @@ class MetasploitModule < Msf::Auxiliary
     returned_entries
   end
 
-  def query_ldap_server_certificates(esc_raw_filter, esc_id, notes: [])
+  def query_ldap_server_certificates(esc_raw_filter, esc_id, notes: [], check_enrollment: true)
     esc_entries = query_ldap_server(esc_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
 
     if esc_entries.empty?
@@ -224,10 +223,12 @@ class MetasploitModule < Msf::Auxiliary
     # Also print out the list of SIDs that can enroll in that server.
     esc_entries.each do |entry|
       certificate_symbol = entry[:cn][0].to_sym
-      next if @certificate_details[certificate_symbol][:enroll_sids].empty?
+      certificate_details = @certificate_details[certificate_symbol]
+      next if certificate_details[:enroll_sids].empty?
+      next unless (!check_enrollment || can_enroll?(@certificate_details[certificate_symbol]))
 
-      @certificate_details[certificate_symbol][:techniques] << esc_id
-      @certificate_details[certificate_symbol][:notes] += notes
+      certificate_details[:techniques] << esc_id
+      certificate_details[:notes] += notes
     end
   end
 
@@ -353,7 +354,7 @@ class MetasploitModule < Msf::Auxiliary
     current_user = adds_get_current_user(@ldap)[:samaccountname].first
     esc_entries.each do |entry|
       certificate_symbol = entry[:cn][0].to_sym
-      next if @certificate_details[certificate_symbol][:enroll_sids].empty?
+      next unless can_enroll?(@certificate_details[certificate_symbol])
 
       if adds_obj_grants_permissions?(@ldap, entry, SecurityDescriptorMatcher::Allow.any(%i[WP]))
         @certificate_details[certificate_symbol][:techniques] << 'ESC4'
@@ -489,9 +490,7 @@ class MetasploitModule < Msf::Auxiliary
       certificate_symbol = template[:cn][0].to_sym
 
       enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
-
       users = find_users_with_write_and_enroll_rights(enroll_sids)
-
       next if users.empty?
 
       user_plural = users.size > 1 ? 'accounts' : 'account'
@@ -527,9 +526,9 @@ class MetasploitModule < Msf::Auxiliary
     esc10_templates = query_ldap_server(esc10_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
     esc10_templates.each do |template|
       certificate_symbol = template[:cn][0].to_sym
+
       enroll_sids = @certificate_details[certificate_symbol][:enroll_sids]
       users = find_users_with_write_and_enroll_rights(enroll_sids)
-
       next if users.empty?
 
       user_plural = users.size > 1 ? 'accounts' : 'account'
@@ -568,7 +567,7 @@ class MetasploitModule < Msf::Auxiliary
     # Also print out the list of SIDs that can enroll in that server.
     esc_entries.each do |entry|
       certificate_symbol = entry[:cn][0].to_sym
-      next if @certificate_details[certificate_symbol][:enroll_sids].empty?
+      next unless can_enroll?(@certificate_details[certificate_symbol])
 
       groups = []
       entry['mspki-certificate-policy'].each do |certificate_policy_oid|
@@ -595,7 +594,52 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def build_certificate_details(ldap_object, techniques: [], notes: [])
+  def build_authority_details(ldap_object)
+    ca_server_fqdn = ldap_object[:dnshostname][0].to_s.downcase
+    return unless ca_server_fqdn.present?
+
+    ca_server_ip_address = get_ip_addresses_by_fqdn(ca_server_fqdn)&.first
+
+    if ca_server_ip_address
+      report_service({
+        host: ca_server_ip_address,
+        port: 445,
+        proto: 'tcp',
+        name: 'AD CS',
+        info: "AD CS CA name: #{ldap_object[:name][0]}"
+      })
+
+      report_host({
+        host: ca_server_ip_address,
+        name: ca_server_fqdn
+      })
+    end
+
+    begin
+      security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(ldap_object[:ntsecuritydescriptor][0])
+    rescue IOError => e
+      fail_with(Failure::UnexpectedReply, "Unable to read security descriptor! Error was: #{e.message}")
+    end
+    return unless security_descriptor.dacl
+
+    if adds_obj_grants_permissions?(@ldap, ldap_object, SecurityDescriptorMatcher::Allow.full_control)
+      permissions = [ 'FULL CONTROL' ]
+    else
+      permissions = [ 'READ' ] # if we have the object, we can assume we have read permissions
+      permissions << 'REQUEST CERTIFICATES' if adds_obj_grants_permissions?(@ldap, ldap_object, SecurityDescriptorMatcher::Allow.certificate_enrollment)
+    end
+
+    {
+      fqdn: ca_server_fqdn,
+      ip_address: ca_server_ip_address,
+      enroll_sids: get_sids_for_enroll(security_descriptor.dacl),
+      permissions: permissions,
+      name: ldap_object[:name][0].to_s,
+      dn: ldap_object[:dn][0].to_s
+    }
+  end
+
+  def build_certificate_details(ldap_object)
     security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(ldap_object[:ntsecuritydescriptor].first)
 
     if security_descriptor.dacl
@@ -606,19 +650,29 @@ class MetasploitModule < Msf::Auxiliary
       write_sids = nil
     end
 
+    if adds_obj_grants_permissions?(@ldap, ldap_object, SecurityDescriptorMatcher::Allow.full_control)
+      permissions = [ 'FULL CONTROL' ]
+    else
+      permissions = [ 'READ' ] # if we have the object, we can assume we have read permissions
+      permissions << 'WRITE' if adds_obj_grants_permissions?(@ldap, ldap_object, SecurityDescriptorMatcher::Allow.new(:WP))
+      permissions << 'ENROLL' if adds_obj_grants_permissions?(@ldap, ldap_object, SecurityDescriptorMatcher::Allow.certificate_enrollment)
+      permissions << 'AUTOENROLL' if adds_obj_grants_permissions?(@ldap, ldap_object, SecurityDescriptorMatcher::Allow.certificate_autoenrollment)
+    end
+
     {
       name: ldap_object[:cn][0].to_s,
-      techniques: techniques,
+      techniques: [],
       dn: ldap_object[:dn][0].to_s,
       enroll_sids: enroll_sids,
       write_sids: write_sids,
       security_descriptor: security_descriptor,
+      permissions: permissions,
       ekus: ldap_object[:pkiextendedkeyusage].map(&:to_s),
       schema_version: ldap_object[%s(mspki-template-schema-version)].first,
       ca_servers: {},
       manager_approval: ([ldap_object[%s(mspki-enrollment-flag)].first.to_i].pack('l').unpack1('L') & Rex::Proto::MsCrtd::CT_FLAG_PEND_ALL_REQUESTS) != 0,
       required_signatures: [ldap_object[%s(mspki-ra-signature)].first.to_i].pack('l').unpack1('L'),
-      notes: notes
+      notes: []
     }
   end
 
@@ -654,9 +708,10 @@ class MetasploitModule < Msf::Auxiliary
     return if esc_entries.empty?
 
     if @registry_values[:strong_certificate_binding_enforcement] && (@registry_values[:strong_certificate_binding_enforcement] == 0 || @registry_values[:strong_certificate_binding_enforcement] == 1)
-      # Scenario 1 -  StrongCertificateBindingEnforcement = 1 or 0 then it's same same as ESC9 - mark them all as vulnerable
+      # Scenario 1 -  StrongCertificateBindingEnforcement = 1 or 0 then it's the same as ESC9 - mark them all as vulnerable
       esc_entries.each do |entry|
         certificate_symbol = entry[:cn][0].to_sym
+
         @certificate_details[certificate_symbol][:techniques] << 'ESC16'
         @certificate_details[certificate_symbol][:notes] << "ESC16: Template is vulnerable due StrongCertificateBindingEnforcement = #{@registry_values[:strong_certificate_binding_enforcement]} and the CA's disabled policy extension list includes: 1.3.6.1.4.1.311.25.2."
       end
@@ -664,6 +719,7 @@ class MetasploitModule < Msf::Auxiliary
       # Scenario 2 - StrongCertificateBindingEnforcement = 2 (or nil) but if EditFlags in the active policy module has EDITF_ATTRIBUTESUBJECTALTNAME2 set then ESC6 is essentially re-enabled and we mark them all as vulnerable
       esc_entries.each do |entry|
         certificate_symbol = entry[:cn][0].to_sym
+
         @certificate_details[certificate_symbol][:techniques] << 'ESC16'
         @certificate_details[certificate_symbol][:notes] << 'ESC16: Template is vulnerable due to the active policy EditFlags having: EDITF_ATTRIBUTESUBJECTALTNAME2 set (which is essentially ESC6) combined with the CA\'s disabled policy extension list including: 1.3.6.1.4.1.311.25.2.'
       end
@@ -675,6 +731,7 @@ class MetasploitModule < Msf::Auxiliary
     # allows users to enroll in that certificate template and which users/groups
     # have permissions to enroll in certificates on each server.
 
+    authority_details = {}
     @certificate_details.each_key do |certificate_template|
       certificate_enrollment_raw_filter = "(&(objectClass=pKIEnrollmentService)(certificateTemplates=#{ldap_escape_filter(certificate_template.to_s)}))"
       attributes = ['cn', 'name', 'dnsHostname', 'ntsecuritydescriptor']
@@ -682,77 +739,28 @@ class MetasploitModule < Msf::Auxiliary
       enrollment_ca_data = query_ldap_server(certificate_enrollment_raw_filter, attributes, base_prefix: base_prefix)
       next if enrollment_ca_data.empty?
 
-      enrollment_ca_data.each do |ca_server|
-        begin
-          security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(ca_server[:ntsecuritydescriptor][0])
-        rescue IOError => e
-          fail_with(Failure::UnexpectedReply, "Unable to read security descriptor! Error was: #{e.message}")
-        end
-
-        enroll_sids = get_sids_for_enroll(security_descriptor.dacl) if security_descriptor.dacl
-        next if enroll_sids.empty?
-
-        ca_server_fqdn = ca_server[:dnshostname][0].to_s.downcase
-        unless ca_server_fqdn.blank?
-          ca_server_ip_address = get_ip_addresses_by_fqdn(ca_server_fqdn)&.first
-
-          if ca_server_ip_address
-            report_service({
-              host: ca_server_ip_address,
-              port: 445,
-              proto: 'tcp',
-              name: 'AD CS',
-              info: "AD CS CA name: #{ca_server[:name][0]}"
-            })
-
-            report_host({
-              host: ca_server_ip_address,
-              name: ca_server_fqdn
-            })
-          end
-        end
-
-        ca_server_key = ca_server_fqdn.to_sym
+      enrollment_ca_data.each do |ldap_object|
+        ca_server_key = ldap_object[:dnshostname].first.to_s.downcase.to_sym
         next if @certificate_details[certificate_template][:ca_servers].key?(ca_server_key)
 
-        @certificate_details[certificate_template][:ca_servers][ca_server_key] = {
-          fqdn: ca_server_fqdn,
-          ip_address: ca_server_ip_address,
-          enroll_sids: enroll_sids,
-          name: ca_server[:name][0].to_s,
-          dn: ca_server[:dn][0].to_s
-        }
+        authority_details[ca_server_key] = @certificate_details[certificate_template][:ca_servers][ca_server_key] = authority_details.fetch(ca_server_key) { build_authority_details(ldap_object) }
       end
     end
   end
 
   def print_vulnerable_cert_info
-    vuln_certificate_details = @certificate_details.sort.to_h.select do |_key, hash|
+    filtered_certificate_details = @certificate_details.sort.to_h.select do |_key, details|
       select = true
-      select = false unless datastore['REPORT_PRIVENROLLABLE'] || hash[:enroll_sids].any? do |sid|
-        # compare based on RIDs to avoid issues language specific issues
-        !(sid.value.starts_with?("#{WellKnownSids::SECURITY_NT_NON_UNIQUE}-") && [
-          # RID checks
-          WellKnownSids::DOMAIN_GROUP_RID_ADMINS,
-          WellKnownSids::DOMAIN_GROUP_RID_ENTERPRISE_ADMINS,
-          WellKnownSids::DOMAIN_GROUP_RID_ENTERPRISE_READONLY_DOMAIN_CONTROLLERS,
-          WellKnownSids::DOMAIN_GROUP_RID_CONTROLLERS,
-          WellKnownSids::DOMAIN_GROUP_RID_SCHEMA_ADMINS
-        ].include?(sid.rid)) && ![
-          # SID checks
-          WellKnownSids::SECURITY_ENTERPRISE_CONTROLLERS_SID
-        ].include?(sid.value)
-      end
 
-      select = false unless datastore['REPORT_NONENROLLABLE'] || hash[:ca_servers].any?
+      select = false if datastore['REPORT'] != 'all' && details[:techniques].empty?
       select
     end
 
-    any_esc3t1 = vuln_certificate_details.values.any? do |hash|
-      hash[:techniques].include?('ESC3') && (datastore['REPORT_NONENROLLABLE'] || hash[:ca_servers].any?)
+    any_esc3t1 = filtered_certificate_details.values.any? do |hash|
+      hash[:techniques].include?('ESC3') && (datastore['REPORT'] == 'all' || hash[:ca_servers].any?)
     end
 
-    vuln_certificate_details.each do |key, hash|
+    filtered_certificate_details.each do |key, hash|
       techniques = hash[:techniques].dup
       techniques.delete('ESC3_TEMPLATE_2') unless any_esc3t1 # don't report ESC3_TEMPLATE_2 if there are no instances of ESC3
       next if techniques.empty?
@@ -811,6 +819,8 @@ class MetasploitModule < Msf::Auxiliary
         end
       end
 
+      print_status("  Permissions: #{hash[:permissions].join(', ')}")
+
       if hash[:notes].present? && hash[:notes].length == 1
         print_status("  Notes: #{hash[:notes].first}")
       elsif hash[:notes].present? && hash[:notes].length > 1
@@ -835,6 +845,7 @@ class MetasploitModule < Msf::Auxiliary
       if hash[:ca_servers].any?
         hash[:ca_servers].each do |ca_fqdn, ca_hash|
           print_good("  Issuing CA: #{ca_hash[:name]} (#{ca_fqdn})")
+          print_status("    Permissions: #{ca_hash[:permissions].join(', ')}")
           print_status('    Enrollment SIDs:')
           ca_hash[:enroll_sids].each do |sid|
             print_status("      * #{highlight_sid(sid)}")
@@ -954,6 +965,13 @@ class MetasploitModule < Msf::Auxiliary
     ip_addresses
   end
 
+  def can_enroll?(details)
+    return false unless (details[:permissions].include?('FULL CONTROL') || details[:permissions].include?('ENROLL'))
+    return false unless details[:ca_servers].values.any? { _1[:permissions].include?('FULL CONTROL') || _1[:permissions].include?('REQUEST CERTIFICATES') }
+
+    true
+  end
+
   def validate
     super
     if (datastore['RUN_REGISTRY_CHECKS']) && !%w[auto plaintext ntlm].include?(datastore['LDAP::Auth'].downcase)
@@ -993,6 +1011,7 @@ class MetasploitModule < Msf::Auxiliary
 
       registry_values = enum_registry_values if datastore['RUN_REGISTRY_CHECKS']
 
+      find_enrollable_vuln_certificate_templates
       find_esc1_vuln_cert_templates
       find_esc2_vuln_cert_templates
       find_esc3_vuln_cert_templates
@@ -1016,7 +1035,6 @@ class MetasploitModule < Msf::Auxiliary
         find_esc16_vuln_cert_templates
       end
 
-      find_enrollable_vuln_certificate_templates
       print_vulnerable_cert_info
 
       @certificate_details
