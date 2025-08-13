@@ -91,12 +91,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def validate_options
     if datastore['CERT_FILE'].present?
-      certificate = File.binread(datastore['CERT_FILE'])
-      begin
-        @pfx = OpenSSL::PKCS12.new(certificate, datastore['CERT_PASSWORD'] || '')
-      rescue OpenSSL::PKCS12::PKCS12Error => e
-        fail_with(Failure::BadConfig, "Unable to parse certificate file (#{e})")
-      end
+      pkcs12_storage = Msf::Exploit::Remote::Pkcs12::Storage.new(framework: framework, framework_module: self)
+      @pfx = pkcs12_storage.read_pkcs12_cert_path(datastore['CERT_FILE'], datastore['CERT_PASSWORD'], workspace: workspace)[:value]
 
       if datastore['USERNAME'].blank? && datastore['DOMAIN'].present?
         fail_with(Failure::BadConfig, 'Domain override provided but no username override provided (must provide both or neither)')

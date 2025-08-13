@@ -111,20 +111,11 @@ module Metasploit
 
         def ldap_auth_opts_schannel(opts, ssl)
           auth_opts = {}
-          pfx_path = opts[:ldap_cert_file]
           raise Msf::ValidationError, 'The SSL option must be enabled when using Schannel authentication.' unless ssl
           raise Msf::ValidationError, 'Can not sign and seal when using Schannel authentication.' if opts.fetch(:sign_and_seal, false)
 
-          if pfx_path.present?
-            unless ::File.file?(pfx_path) && ::File.readable?(pfx_path)
-              raise Msf::ValidationError, 'Failed to load the PFX certificate file. The path was not a readable file.'
-            end
-
-            begin
-              pkcs = OpenSSL::PKCS12.new(File.binread(pfx_path), '')
-            rescue StandardError => e
-              raise Msf::ValidationError, "Failed to load the PFX file (#{e})"
-            end
+          if opts[:ldap_pkcs12].present?
+            pkcs = opts[:ldap_pkcs12][:value]
           else
             pkcs12_storage = Msf::Exploit::Remote::Pkcs12::Storage.new(
               framework: opts[:framework],

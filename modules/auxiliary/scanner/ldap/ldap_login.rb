@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     validate_connect_options!
-    results = super
+    results = super || {}
     logins = results.flat_map { |_k, v| v[:successful_logins] }
     sessions = results.flat_map { |_k, v| v[:successful_sessions] }
     print_status("Bruteforce completed, #{logins.size} #{logins.size == 1 ? 'credential was' : 'credentials were'} successful.")
@@ -111,6 +111,7 @@ class MetasploitModule < Msf::Auxiliary
       ignore_private: ignore_private
     )
 
+    pkcs12_storage = Msf::Exploit::Remote::Pkcs12::Storage.new(framework: framework, framework_module: self)
     opts = {
       domain: datastore['LDAPDomain'],
       append_domain: datastore['APPEND_DOMAIN'],
@@ -118,7 +119,7 @@ class MetasploitModule < Msf::Auxiliary
       proxies: datastore['PROXIES'],
       domain_controller_rhost: datastore['DomainControllerRhost'],
       ldap_auth: datastore['LDAP::Auth'],
-      ldap_cert_file: datastore['LDAP::CertFile'],
+      ldap_pkcs12: datastore['LDAP::CertFile'] ? pkcs12_storage.read_pkcs12_cert_path(datastore['LDAP::CertFile']) : nil,
       ldap_rhostname: datastore['Ldap::Rhostname'],
       ldap_krb_offered_enc_types: datastore['Ldap::KrbOfferedEncryptionTypes'],
       ldap_krb5_cname: datastore['Ldap::Krb5Ccname']
@@ -167,7 +168,11 @@ class MetasploitModule < Msf::Auxiliary
         successful_logins << result
         if opts[:ldap_auth] == Msf::Exploit::Remote::AuthOption::SCHANNEL
           # Schannel auth has no meaningful credential information to store in the DB
-          msg = opts[:ldap_cert_file].nil? ? 'Using stored certificate' : "Cert File #{opts[:ldap_cert_file]}"
+          msg = opts[:ldap_pkcs12].nil? ? 'Using stored certificate' : "Cert File #{opts[:ldap_pkcs12][:path]} (#{opts[:ldap_pkcs12][:value].certificate.subject})"
+          report_successful_login(
+            public: opts[:ldap_pkcs12][:value].certificate.subject.to_s,
+            private: opts[:ldap_pkcs12][:path]
+          )
           print_brute level: :good, ip: ip, msg: "Success: '#{msg}'"
         else
           create_credential_and_login(credential_data) if result.credential.private

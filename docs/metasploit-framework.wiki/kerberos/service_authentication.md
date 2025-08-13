@@ -142,7 +142,7 @@ Optional options:
     * `read-only` -- Stored tickets from the cache will be used, but no new tickets are stored.
     * `write-only` -- New tickets are requested and they are stored for reuse.
     * `read-write` -- Stored tickets from the cache will be used and new tickets will be stored for reuse.
-* `${Prefix}KrbOfferedEncryptionTypes' -- The list of encryption types presented to the KDC as being supported by the Metasploit client. i.e. `SmbKrbOfferedEncryptionTypes=AES256`
+* `${Prefix}KrbOfferedEncryptionTypes` -- The list of encryption types presented to the KDC as being supported by the Metasploit client. i.e. `SmbKrbOfferedEncryptionTypes=AES256`
 
 ## Ticket management
 
