@@ -104,16 +104,7 @@ class MetasploitModule < Msf::Auxiliary
   # Constants Definition
   CERTIFICATE_ATTRIBUTES = %w[cn name description nTSecurityDescriptor msPKI-Certificate-Policy msPKI-Enrollment-Flag msPKI-RA-Signature msPKI-Template-Schema-Version pkiExtendedKeyUsage]
   CERTIFICATE_TEMPLATES_BASE = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'.freeze
-  CERTIFICATE_ENROLLMENT_EXTENDED_RIGHT = '0e10c968-78fb-11d2-90d4-00c04f79dc55'.freeze
-  CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT = 'a05b8cc2-17bc-4802-a710-e7c15ab866a2'.freeze
   CONTROL_ACCESS = 0x00000100
-
-  # LDAP_SERVER_SD_FLAGS constant definition, taken from https://ldapwiki.com/wiki/LDAP_SERVER_SD_FLAGS_OID
-  LDAP_SERVER_SD_FLAGS_OID = '1.2.840.113556.1.4.801'.freeze
-  OWNER_SECURITY_INFORMATION = 0x1
-  GROUP_SECURITY_INFORMATION = 0x2
-  DACL_SECURITY_INFORMATION = 0x4
-  SACL_SECURITY_INFORMATION = 0x8
 
   # This returns a list of SIDs that have the CERTIFICATE_ENROLLMENT_EXTENDED_RIGHT or CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT for the given ACL
   def enum_acl_aces(acl)
@@ -137,25 +128,19 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_sids_for_enroll(acl)
     allowed_sids = []
-    enum_acl_aces(acl) do |ace_type_name, ace|
-      # To decode the ObjectType we need to do another query to CN=Configuration,DC=daforest,DC=com
-      # and look at either schemaIDGUID or rightsGUID fields to see if they match this value.
-      if (object_type = ace[:body][:object_type]) && !(object_type == CERTIFICATE_ENROLLMENT_EXTENDED_RIGHT || object_type == CERTIFICATE_AUTOENROLLMENT_EXTENDED_RIGHT)
-        # If an object type was specified, only process the rest if it is one of these two (note that objects with no
-        # object types will be processed to make sure we can detect vulnerable templates post exploiting ESC4).
-        next
-      end
+    enum_acl_aces(acl) do |_ace_type_name, ace|
+      matcher = SecurityDescriptorMatcher::MultipleAny.new([
+        SecurityDescriptorMatcher::Allow.certificate_enrollment,
+        SecurityDescriptorMatcher::Allow.certificate_autoenrollment
+      ])
 
-      # Skip entry if it is not related to an extended access control right, where extended access control right is
-      # described as ADS_RIGHT_DS_CONTROL_ACCESS in the ObjectType field of ACCESS_ALLOWED_OBJECT_ACE. This is
-      # detailed further at https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-access_allowed_object_ace
-      next unless (ace[:body].access_mask.protocol & CONTROL_ACCESS) == CONTROL_ACCESS
+      next if matcher.ignore_ace?(ace)
 
-      if ace_type_name.match(/ALLOWED/)
-        allowed_sids << ace[:body][:sid]
-      end
+      matcher.apply_ace!(ace)
+      next unless matcher.matches?
+
+      allowed_sids << ace[:body][:sid]
     end
-
     map_sids_to_names(allowed_sids)
   end
 
@@ -163,16 +148,15 @@ class MetasploitModule < Msf::Auxiliary
   # The method checks the WriteOwner, WriteDacl and GenericWrite bits of the access_mask to see if the user or group has write permissions over the Certificate
   def get_sids_for_write(acl)
     allowed_sids = []
-
     enum_acl_aces(acl) do |_ace_type_name, ace|
-      # Look at WriteOwner, WriteDacl and GenericWrite to see if the user has write permissions over the Certificate
-      if !(ace[:body][:access_mask][:wo] == 1 || ace[:body][:access_mask][:wd] == 1 || ace[:body][:access_mask][:gw] == 1)
-        next
-      end
+      matcher = SecurityDescriptorMatcher::Allow.any(%i[WO WD GW])
+      next if matcher.ignore_ace?(ace)
+
+      matcher.apply_ace!(ace)
+      next unless matcher.matches?
 
       allowed_sids << ace[:body][:sid]
     end
-
     map_sids_to_names(allowed_sids)
   end
 
@@ -188,25 +172,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::BadConfig, "Could not compile the filter! Error was #{e}")
     end
 
-    # Set the value of LDAP_SERVER_SD_FLAGS_OID flag so everything but
-    # the SACL flag is set, as we need administrative privileges to retrieve
-    # the SACL from the ntSecurityDescriptor attribute on Windows AD LDAP servers.
-    #
-    # Note that without specifying the LDAP_SERVER_SD_FLAGS_OID control in this manner,
-    # the LDAP searchRequest will default to trying to grab all possible attributes of
-    # the ntSecurityDescriptor attribute, hence resulting in an attempt to retrieve the
-    # SACL even if the user is not an administrative user.
-    #
-    # Now one may think that we would just get the rest of the data without the SACL field,
-    # however in reality LDAP will cause that attribute to just be blanked out if a part of it
-    # cannot be retrieved, so we just will get nothing for the ntSecurityDescriptor attribute
-    # in these cases if the user doesn't have permissions to read the SACL.
-    all_but_sacl_flag = OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION
-    control_values = [all_but_sacl_flag].map(&:to_ber).to_ber_sequence.to_s.to_ber
-    controls = []
-    controls << [LDAP_SERVER_SD_FLAGS_OID.to_ber, true.to_ber, control_values].to_ber_sequence
-
-    returned_entries = @ldap.search(base: full_base_dn, filter: filter, attributes: attributes, controls: controls)
+    returned_entries = @ldap.search(base: full_base_dn, filter: filter, attributes: attributes, controls: [adds_build_ldap_sd_control])
     query_result_table = @ldap.get_operation_result.table
     validate_query_result!(query_result_table, filter)
     returned_entries
