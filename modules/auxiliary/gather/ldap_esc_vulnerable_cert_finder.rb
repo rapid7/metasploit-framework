@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
-      OptEnum.new('REPORT', [true, 'What templates to report (applies filtering to results)', 'all', %w[all vulnerable vulnerable-and-published vulnerable-and-enrollable]]),
+      OptEnum.new('REPORT', [true, 'What templates to report (applies filtering to results)', 'vulnerable-and-published', %w[all vulnerable vulnerable-and-published vulnerable-and-enrollable]]),
       OptBool.new('RUN_REGISTRY_CHECKS', [true, 'Authenticate to WinRM to query the registry values to enhance reporting for ESC9, ESC10 and ESC16. Must be a privileged user in order to query successfully', false]),
     ])
   end

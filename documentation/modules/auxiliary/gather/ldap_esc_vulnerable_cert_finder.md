@@ -240,15 +240,13 @@ if ($editFlags -band $EDITF_ATTRIBUTESUBJECTALTNAME2) {
 
 ## Options
 
-### REPORT_NONENROLLABLE
-If set to `True` then report any certificate templates that are vulnerable but which are not known to be enrollable.
-If set to `False` then skip over these certificate templates and only report on certificate templates
-that are both vulnerable and enrollable.
+### REPORT
+What templates to report (applies filtering to results).
 
-### REPORT_PRIVENROLLABLE
-If set to `True` then report certificate templates that are only enrollable by the Domain and Enterprise Admins groups.
-If set to `False` then skip over these certificate templates and only report on certificate templates that are
-enrollable by at least one additional user or group.
+* **all** - Report all certificate templates.
+* **vulnerable** - Report certificate templates where at least one misconfiguration is appears to be present.
+* **vulnerable-and-published** - Same as above, but omits templates that are not published by at least one CA server.
+* **vulnerable-and-enrollable** - Same as above, but omits templates that the user does not have permissions to enroll in.
 
 ## Scenarios
 
