@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('DMSA', [ false, 'Set to true if the account you are impersonating is a dMSA account' ]),
         OptString.new(
           'NTHASH', [
-            false, 
+            false,
             'The NT hash in hex string. Server must support RC4'
           ]
         ),
@@ -290,7 +290,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def print_dmsa_key_package_info(dmsa_key_package)
-    puts "dMSA Key Package:"
+    print_status("dMSA Key Package:")
 
     # Helper method to decode encryption type
     def decode_encryption_type(type)
@@ -306,23 +306,21 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    # Print current keys
-    puts "Current Keys:"
+    print_status("Current Keys:")
     dmsa_key_package.current_keys.each do |key_set|
       key_set.each do |key|
         type = decode_encryption_type(key[0][0])
         value = key[1][0]
-        puts "  Type: #{type}, Key: #{value.unpack1('H*')}"
+        print_good("  Type: #{type}, Key: #{value.unpack1('H*')}")
       end
     end
 
-    # Print previous keys
-    puts "Previous Keys:"
+    print_status("Previous Keys:")
     dmsa_key_package.previous_keys.each do |key_set|
       key_set.each do |key|
         type = decode_encryption_type(key[0][0])
         value = key[1][0]
-        puts "  Type: #{type}, Key: #{value.unpack1('H*')}"
+        print_good("  Type: #{type}, Key: #{value.unpack1('H*')}")
       end
     end
   end

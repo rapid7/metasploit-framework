@@ -32,11 +32,6 @@ module Rex
             # @param e_type [Symbol] The encryption type
             # @param dmsa [Boolean] Whether the request is for dMSA
             def initialize(key, impersonate, realm, nonce, e_type: Rex::Proto::Kerberos::Crypto::Encryption::AES256, dmsa: false)
-              # hex_key = "82DA67D0EFF7387F59038E7611EF18C0253797C15B7433F2ADE23418A31370F6"
-              # impersonate = "attacker_dMSA$"
-              # realm = "msf.local"
-              # nonce = 474497095
-              # key = [hex_key].pack("H*")
 
               self.user_id = S4UUserID.new(impersonate, realm, nonce, dmsa: dmsa)
               self.checksum = Rex::Proto::Kerberos::Model::Checksum.new(type: Rex::Proto::Kerberos::Crypto::Encryption::DES3_CBC_SHA1, checksum: get_checksum(key.value, user_id.encode))

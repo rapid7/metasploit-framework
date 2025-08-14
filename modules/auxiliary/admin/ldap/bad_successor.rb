@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Auxiliary
           'PAYLOAD' => 'windows/x64/meterpreter/reverse_tcp'
         },
         'DefaultTarget' => 0,
-        'DisclosureDate' => '2024-06-11',
+        'DisclosureDate' => '2025-05-21',
         'Notes' => {
           'Stability' => [ CRASH_SAFE, ],
           'SideEffects' => [ ARTIFACTS_ON_DISK, ],
@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  #TODO looks like the check method will be in a separate module - maybe? could be?
+  #TODO check method?
 
 
   # This will return a list of SIDs that can edit the template from which the ACL is derived.
