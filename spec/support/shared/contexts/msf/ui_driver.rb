@@ -27,7 +27,7 @@ RSpec.shared_context 'Msf::UIDriver' do
     @combined_output = []
   end
 
-  def capture_logging(target)
+  def capture_logging(target, capture_verbose: false)
     append_output = proc do |string = ''|
       lines = string.split("\n")
       @output ||= []
@@ -47,6 +47,11 @@ RSpec.shared_context 'Msf::UIDriver' do
     allow(target).to receive(:print_line, &append_output)
     allow(target).to receive(:print_status, &append_output)
     allow(target).to receive(:print_good, &append_output)
+
+    if capture_verbose
+      allow(target).to receive(:vprint_status, &append_output)
+      allow(target).to receive(:vprint_error, &append_error)
+    end
 
     allow(target).to receive(:print_warning, &append_error)
     allow(target).to receive(:print_error, &append_error)
