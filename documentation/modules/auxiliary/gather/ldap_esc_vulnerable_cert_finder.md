@@ -244,6 +244,8 @@ if ($editFlags -band $EDITF_ATTRIBUTESUBJECTALTNAME2) {
 What templates to report (applies filtering to results).
 
 * **all** - Report all certificate templates.
+* **published** - Report certificate templates that are published by at least one CA server.
+* **enrollable** - Same as above, but omits templates that the user does not have permissions to enroll in.
 * **vulnerable** - Report certificate templates where at least one misconfiguration is appears to be present.
 * **vulnerable-and-published** - Same as above, but omits templates that are not published by at least one CA server.
 * **vulnerable-and-enrollable** - Same as above, but omits templates that the user does not have permissions to enroll in.

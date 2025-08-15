@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
-      OptEnum.new('REPORT', [true, 'What templates to report (applies filtering to results)', 'vulnerable-and-published', %w[all vulnerable vulnerable-and-published vulnerable-and-enrollable]]),
+      OptEnum.new('REPORT', [true, 'What templates to report (applies filtering to results)', 'vulnerable-and-published', %w[all published enrollable vulnerable vulnerable-and-published vulnerable-and-enrollable]]),
       OptBool.new('RUN_REGISTRY_CHECKS', [true, 'Authenticate to WinRM to query the registry values to enhance reporting for ESC9, ESC10 and ESC16. Must be a privileged user in order to query successfully', false]),
     ])
   end
@@ -727,11 +727,15 @@ class MetasploitModule < Msf::Auxiliary
 
     if datastore['REPORT'] == 'vulnerable-and-enrollable'
       vulnerable.keep_if do |technique|
-        enroll_by_proxy.include?(technique) || (template[:permissions].include?('FULL CONTROL') || template[:permissions].include?('ENROLL')) && template[:ca_servers].values.any? { _1[:permissions].include?('REQUEST CERTIFICATES') }
+        enroll_by_proxy.include?(technique) || can_enroll?(template)
       end
     end
 
     [vulnerable, potentially_vulnerable]
+  end
+
+  def can_enroll?(template)
+    (template[:permissions].include?('FULL CONTROL') || template[:permissions].include?('ENROLL')) && template[:ca_servers].values.any? { _1[:permissions].include?('REQUEST CERTIFICATES') }
   end
 
   def print_vulnerable_cert_info
@@ -739,6 +743,10 @@ class MetasploitModule < Msf::Auxiliary
       case datastore['REPORT']
       when 'all'
         true
+      when 'published'
+        template[:ca_servers].present?
+      when 'enrollable'
+        can_enroll?(template)
       when 'vulnerable'
         template[:techniques].present?
       when 'vulnerable-and-published'
