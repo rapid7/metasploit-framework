@@ -18,7 +18,14 @@ Submit bugs and feature requests via the [GitHub Issues](https://github.com/rapi
 For information on writing modules, refer to the [API Documentation](https://docs.metasploit.com/api/).
 
 ## Support and Communication
-For questions and suggestions, join the Freenode IRC channel or contact the metasploit-hackers mailing list.
+For questions and suggestions, you can:
+
+- Join our [GitHub Discussions](https://github.com/rapid7/metasploit-framework/discussions) for community support and general questions
+- Join the [Metasploit Slack](https://join.slack.com/t/metasploit/shared_invite/zt-30i688it0-mJsFGT44IMtdeZi1DraamQ) for real-time chat
+- Submit [GitHub Issues](https://github.com/rapid7/metasploit-framework/issues) for bug reports and feature requests
+- Follow [@metasploit](https://x.com/metasploit) on X or [@metasploit@infosec.exchange](https://infosec.exchange/@metasploit) on Mastodon for updates
+
+**Note:** Some community members may still use IRC channels and the metasploit-hackers mailing list, though the primary support channels are now GitHub Discussions and Slack.
 
 ## Installing Metasploit
 
