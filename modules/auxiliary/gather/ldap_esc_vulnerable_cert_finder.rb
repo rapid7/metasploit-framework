@@ -651,6 +651,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def find_esc16_vuln_cert_templates
+    # if we were able to read the registry values and this OID is not explicitly disabled, then we know for certain the server is not vulnerable
+    return if @registry_values.present? && @registry_values[:disable_extension_list] && !@registry_values[:disable_extension_list].include?('1.3.6.1.4.1.311.25.2')
+
     esc16_raw_filter = '(&'\
      '(|'\
     "(mspki-certificate-name-flag:1.2.840.113556.1.4.804:=#{CT_FLAG_SUBJECT_ALT_REQUIRE_UPN})"\
@@ -809,7 +812,9 @@ class MetasploitModule < Msf::Auxiliary
       if potentially_vulnerable_techniques.include?('ESC10')
         print_warning('  Potentially vulnerable to: ESC10 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must be set to 0 or CertificateMappingMethods must be set to 4)')
       end
-      # TODO: need a warning here when ESC16 is potentially vulnerable
+      if potentially_vulnerable_techniques.include?('ESC16')
+        print_warning('  Potentially vulnerable to: ESC16 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must be set to either 0 or 1. If StrongCertificateBindingEnforcement is set to 2, ESC16 is exploitable if the active policy EditFlags has EDITF_ATTRIBUTESUBJECTALTNAME2 set.')
+      end
 
       print_status("  Permissions: #{hash[:permissions].join(', ')}")
 
@@ -1017,9 +1022,7 @@ class MetasploitModule < Msf::Auxiliary
 
       find_esc13_vuln_cert_templates
       find_esc15_vuln_cert_templates
-      if registry_values && registry_values[:disable_extension_list]&.include?('1.3.6.1.4.1.311.25.2')
-        find_esc16_vuln_cert_templates
-      end
+      find_esc16_vuln_cert_templates
 
       print_vulnerable_cert_info
 
