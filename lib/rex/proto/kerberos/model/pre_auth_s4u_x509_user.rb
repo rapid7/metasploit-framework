@@ -32,10 +32,8 @@ module Rex
             # @param e_type [Symbol] The encryption type
             # @param dmsa [Boolean] Whether the request is for dMSA
             def initialize(key, impersonate, realm, nonce, e_type: Rex::Proto::Kerberos::Crypto::Encryption::AES256, dmsa: false)
-
               self.user_id = S4UUserID.new(impersonate, realm, nonce, dmsa: dmsa)
               self.checksum = Rex::Proto::Kerberos::Model::Checksum.new(type: Rex::Proto::Kerberos::Crypto::Encryption::DES3_CBC_SHA1, checksum: get_checksum(key.value, user_id.encode))
-
             end
 
             # Encodes the PA-S4U-X509-USER structure into an ASN.1 String

