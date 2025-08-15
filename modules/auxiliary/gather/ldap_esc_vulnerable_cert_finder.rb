@@ -707,17 +707,41 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def reporting_split_techniques(template)
+    # these techniques are special in the sense that the exploit steps involve a different user performing the request
+    # meaning that whether or not we can issue them is irrelevant
+    enroll_by_proxy = %w[ESC9 ESC10 ESC16]
+    # technically ESC15 might be patched and we can't fingerprint that status but we live it in the "vulnerable" category
+
+    # when we have the registry values, we can tell the vulnerabilities for certain
+    if @registry_values.present?
+      potentially_vulnerable = []
+      vulnerable = template[:techniques].dup
+    else
+      potentially_vulnerable = template[:techniques] & enroll_by_proxy
+      vulnerable = template[:techniques] - potentially_vulnerable
+    end
+
+    if datastore['REPORT'] == 'vulnerable-and-enrollable'
+      vulnerable.keep_if do |technique|
+        enroll_by_proxy.include?(technique) || (template[:permissions].include?('FULL CONTROL') || template[:permissions].include?('ENROLL')) && template[:ca_servers].values.any? { _1[:permissions].include?('REQUEST CERTIFICATES') }
+      end
+    end
+
+    [vulnerable, potentially_vulnerable]
+  end
+
   def print_vulnerable_cert_info
-    filtered_certificate_details = @certificate_details.sort.to_h.select do |_key, details|
+    filtered_certificate_details = @certificate_details.sort.to_h.select do |_key, template|
       case datastore['REPORT']
       when 'all'
         true
       when 'vulnerable'
-        details[:techniques].present?
+        template[:techniques].present?
       when 'vulnerable-and-published'
-        details[:techniques].present? && details[:ca_servers].present?
+        template[:techniques].present? && template[:ca_servers].present?
       when 'vulnerable-and-enrollable'
-        (details[:permissions].include?('FULL CONTROL') || details[:permissions].include?('ENROLL')) && details[:ca_servers].values.any? { _1[:permissions].include?('REQUEST CERTIFICATES') }
+        !reporting_split_techniques(template).flatten.empty?
       end
     end
 
@@ -726,12 +750,13 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     filtered_certificate_details.each do |key, hash|
-      techniques = hash[:techniques].dup
-      techniques.delete('ESC3_TEMPLATE_2') unless any_esc3t1 # don't report ESC3_TEMPLATE_2 if there are no instances of ESC3
-      next unless techniques.present? || datastore['REPORT'] == 'all'
+      vulnerable_techniques, potentially_vulnerable_techniques = reporting_split_techniques(hash)
+      all_techniques = vulnerable_techniques + potentially_vulnerable_techniques
+      all_techniques.delete('ESC3_TEMPLATE_2') unless any_esc3t1 # don't report ESC3_TEMPLATE_2 if there are no instances of ESC3
+      next unless all_techniques.present? || datastore['REPORT'] == 'all'
 
       if db
-        techniques.each do |vuln|
+        all_techniques.each do |vuln|
           next if vuln == 'ESC3_TEMPLATE_2'
 
           prefix = "#{vuln}:"
@@ -772,24 +797,19 @@ class MetasploitModule < Msf::Auxiliary
       print_status("  Manager Approval: #{hash[:manager_approval] ? '%redRequired' : '%grnDisabled'}%clr")
       print_status("  Required Signatures: #{hash[:required_signatures] == 0 ? '%grn0' : '%red' + hash[:required_signatures].to_s}%clr")
 
-      potential_techniques = []
-      if @registry_values.blank?
-        potential_techniques << techniques.delete('ESC9') if techniques.include?('ESC9')
-        potential_techniques << techniques.delete('ESC10') if techniques.include?('ESC10')
-      end
-
-      if techniques.present?
-        print_good("  Vulnerable to: #{techniques.join(', ')}")
+      if vulnerable_techniques.present?
+        print_good("  Vulnerable to: #{vulnerable_techniques.join(', ')}")
       else
         print_status('  Vulnerable to: (none)')
       end
 
-      if potential_techniques.include?('ESC9')
+      if potentially_vulnerable_techniques.include?('ESC9')
         print_warning('  Potentially vulnerable to: ESC9 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must not be set to 2)')
       end
-      if potential_techniques.include?('ESC10')
+      if potentially_vulnerable_techniques.include?('ESC10')
         print_warning('  Potentially vulnerable to: ESC10 (the template is in a vulnerable configuration but in order to exploit registry key StrongCertificateBindingEnforcement must be set to 0 or CertificateMappingMethods must be set to 4)')
       end
+      # TODO: need a warning here when ESC16 is potentially vulnerable
 
       print_status("  Permissions: #{hash[:permissions].join(', ')}")
 
