@@ -72,25 +72,20 @@ class MetasploitModule < Msf::Auxiliary
   def windows_version_vulnerable?
     #TODO - should we just resolve the domain name of the RHOST value
     fqdn = datastore['DC_FQDM']
-    filter = "(&(objectClass=computer)(dNSHostName=#{fqdn}))"
-    attributes = ['operatingSystem', 'operatingSystemVersion']
-    version_info =  @ldap.search(base: "OU=Domain Controllers," + @base_dn, filter: filter, attributes: attributes)
+    filter = "(objectClass=domain)"
+    attributes = ['msds-behavior-version']
+    dc_functional_level =  @ldap.search(base: @base_dn, filter: filter, attributes: attributes)
 
-    raise Net::LDAP::Error "Unable to retrieve Windows version information for #{fqdn}" if version_info.blank?
+    raise Net::LDAP::Error "Unable to retrieve Windows version information for #{fqdn}" if dc_functional_level.blank?
 
-    #TODO - need to be sure we're only going to be receiving one result here
-    version_info = version_info.first
-    os = version_info[:operatingsystem].first
-    os_version = version_info[:operatingsystemversion].first
+    dc_functional_level = dc_functional_level.first
+    version = dc_functional_level["msds-behavior-version"].first
 
-    os_version =~ /\((\d+)\)/
-    build_number = Regexp.last_match(1)
-
-    unless build_number.to_i >= 26100 && os.include?('Windows Server 2025')
-      print_error("#{fqdn}: #{os} #{os_version}. This module only works against Windows Server 2025, build 26100 and later (currently unpatched).")
+    unless version.to_i == 10
+      print_error("This module only works against domains running at the Windows 2025 functional level.")
       return false
     end
-    print_good("#{fqdn} is running a vulnerable version of Windows: #{os} #{os_version}")
+    print_good("The domain is running at the Windows 2025 functional level, which is vulnerable to BadSuccessor.")
     true
   end
 
