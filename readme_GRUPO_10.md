@@ -1,6 +1,3 @@
-<<<<<<< Updated upstream
-Inicio Readme
-=======
 Inicio Readme
 
 <h1 align="center"> Introducción Metasploit </h1>
@@ -15,4 +12,3 @@ Inicio Readme
 [3] ¿Qué es Metasploit Framework y cómo funciona?. Disponible en: [https://ciberseguridad.com/herramientas/pruebas-penetracion/metasploit-framework/](https://ciberseguridad.com/herramientas/pruebas-penetracion/metasploit-framework/)
 [4] Metasploit. La herramienta esencial en Ciberseguridad. Disponible en: [https://www.campusciberseguridad.com/blog/metasploit-herramienta-esencial-ciberseguridad/](https://www.campusciberseguridad.com/blog/metasploit-herramienta-esencial-ciberseguridad/)
 [5] Pentesting con Metasploit: Evalúa la Seguridad de tus Sistemas. Disponible en: [https://lovtechnology.com/pentesting-con-metasploit-evalua-la-seguridad-de-tus-sistemas/](https://lovtechnology.com/pentesting-con-metasploit-evalua-la-seguridad-de-tus-sistemas/)
->>>>>>> Stashed changes
