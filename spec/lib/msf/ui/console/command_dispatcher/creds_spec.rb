@@ -18,6 +18,14 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
   it { is_expected.to respond_to :creds_add }
   it { is_expected.to respond_to :creds_search }
 
+  before(:each) do
+    # Replace the incremental database ID to ensure deterministic tests
+    allow_any_instance_of(Rex::Text::WrappedTable).to receive(:<<).and_wrap_original do |original, row|
+      row_without_id = ['id'] + row.dup[1..]
+      original.call row_without_id
+    end
+  end
+
   describe '#cmd_creds' do
     let(:username)            { 'thisuser' }
     let(:password)            { 'thispass' }
@@ -70,9 +78,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
               Credentials
               ===========
 
-              host  origin  service  public    private   realm  private_type  JtR Format  cracked_password
-              ----  ------  -------  ------    -------   -----  ------------  ----------  ----------------
-                                     thisuser  thispass         Password
+              id  host  origin  service  public    private   realm  private_type  JtR Format  cracked_password
+              --  ----  ------  -------  ------    -------   -----  ------------  ----------  ----------------
+              id                         thisuser  thispass         Password
 
             TABLE
           end
@@ -83,8 +91,8 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
               Credentials
               ===========
 
-              host  origin  service  public  private  realm  private_type  JtR Format  cracked_password
-              ----  ------  -------  ------  -------  -----  ------------  ----------  ----------------
+              id  host  origin  service  public  private  realm  private_type  JtR Format  cracked_password
+              --  ----  ------  -------  ------  -------  -----  ------------  ----------  ----------------
 
             TABLE
           end
@@ -96,9 +104,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 Credentials
                 ===========
 
-                host  origin  service  public  private        realm  private_type  JtR Format  cracked_password
-                ----  ------  -------  ------  -------        -----  ------------  ----------  ----------------
-                                               nonblank_pass         Password
+                id  host  origin  service  public  private        realm  private_type  JtR Format  cracked_password
+                --  ----  ------  -------  ------  -------        -----  ------------  ----------  ----------------
+                id                                 nonblank_pass         Password
 
               TABLE
             end
@@ -110,9 +118,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 Credentials
                 ===========
 
-                host  origin  service  public         private  realm  private_type  JtR Format  cracked_password
-                ----  ------  -------  ------         -------  -----  ------------  ----------  ----------------
-                                       nonblank_user                  Password
+                id  host  origin  service  public         private  realm  private_type  JtR Format  cracked_password
+                --  ----  ------  -------  ------         -------  -----  ------------  ----------  ----------------
+                id                         nonblank_user                  Password
 
               TABLE
             end
@@ -127,8 +135,8 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 Credentials
                 ===========
 
-                host  origin  service  public  private  realm  private_type  JtR Format  cracked_password
-                ----  ------  -------  ------  -------  -----  ------------  ----------  ----------------
+                id  host  origin  service  public  private  realm  private_type  JtR Format  cracked_password
+                --  ----  ------  -------  ------  -------  -----  ------------  ----------  ----------------
 
               TABLE
             end
@@ -140,8 +148,8 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 Credentials
                 ===========
 
-                host  origin  service  public  private  realm  private_type  JtR Format  cracked_password
-                ----  ------  -------  ------  -------  -----  ------------  ----------  ----------------
+                id  host  origin  service  public  private  realm  private_type  JtR Format  cracked_password
+                --  ----  ------  -------  ------  -------  -----  ------------  ----------  ----------------
 
               TABLE
             end
@@ -166,9 +174,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 Credentials
                 ===========
 
-                host  origin  service  public         private    realm  private_type        JtR Format  cracked_password
-                ----  ------  -------  ------         -------    -----  ------------        ----------  ----------------
-                                       this_username  some_hash         Nonreplayable hash              this_cracked_password
+                id  host  origin  service  public         private    realm  private_type        JtR Format  cracked_password
+                --  ----  ------  -------  ------         -------    -----  ------------        ----------  ----------------
+                id                         this_username  some_hash         Nonreplayable hash              this_cracked_password
               TABLE
             end
             it "should show the user given passwords on private column instead of cracked_password column" do
@@ -177,9 +185,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 Credentials
                 ===========
 
-                host  origin  service  public    private   realm  private_type  JtR Format  cracked_password
-                ----  ------  -------  ------    -------   -----  ------------  ----------  ----------------
-                                       thisuser  thispass         Password
+                id  host  origin  service  public    private   realm  private_type  JtR Format  cracked_password
+                --  ----  ------  -------  ------    -------   -----  ------------  ----------  ----------------
+                id                         thisuser  thispass         Password
 
               TABLE
             end
@@ -263,9 +271,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 Credentials
                 ===========
 
-                host  origin  service  public    private   realm  private_type  JtR Format  cracked_password
-                ----  ------  -------  ------    -------   -----  ------------  ----------  ----------------
-                                       thisuser  thispass         Password
+                id  host  origin  service  public    private   realm  private_type  JtR Format  cracked_password
+                --  ----  ------  -------  ------    -------   -----  ------------  ----------  ----------------
+                id                         thisuser  thispass         Password
 
               TABLE
             end
@@ -288,10 +296,10 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 Credentials
                 ===========
 
-                host  origin  service  public         private                realm  private_type  JtR Format  cracked_password
-                ----  ------  -------  ------         -------                -----  ------------  ----------  ----------------
-                                       thisuser       thispass                      Password
-                                       this_username  this_cracked_password         Password
+                id  host  origin  service  public         private                realm  private_type  JtR Format  cracked_password
+                --  ----  ------  -------  ------         -------                -----  ------------  ----------  ----------------
+                id                         thisuser       thispass                      Password
+                id                         this_username  this_cracked_password         Password
 
               TABLE
             end
@@ -305,9 +313,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 Credentials
                 ===========
 
-                host  origin  service  public    private                                                            realm  private_type  JtR Format  cracked_password
-                ----  ------  -------  ------    -------                                                            -----  ------------  ----------  ----------------
-                                       thisuser  1443d06412d8c0e6e72c57ef50f76a05:27c433245e4763d074d30a05aae0af2c         NTLM hash
+                id  host  origin  service  public    private                                                            realm  private_type  JtR Format  cracked_password
+                --  ----  ------  -------  ------    -------                                                            -----  ------------  ----------  ----------------
+                id                         thisuser  1443d06412d8c0e6e72c57ef50f76a05:27c433245e4763d074d30a05aae0af2c         NTLM hash
 
               TABLE
             end
@@ -321,9 +329,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 Credentials
                 ===========
 
-                host  origin  service  public    private  realm  private_type        JtR Format  cracked_password
-                ----  ------  -------  ------    -------  -----  ------------        ----------  ----------------
-                                       thisuser  asdf            Nonreplayable hash
+                id  host  origin  service  public    private  realm  private_type        JtR Format  cracked_password
+                --  ----  ------  -------  ------    -------  -----  ------------        ----------  ----------------
+                id                         thisuser  asdf            Nonreplayable hash
 
               TABLE
             end
@@ -338,9 +346,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
                 Credentials
                 ===========
 
-                host  origin  service  public  private                                                                                   realm  private_type  JtR Format  cracked_password
-                ----  ------  -------  ------  -------                                                                                   -----  ------------  ----------  ----------------
-                                               #{private_str}         Pkcs12 (pfx)
+                id  host  origin  service  public  private                                                                                   realm  private_type  JtR Format  cracked_password
+                --  ----  ------  -------  ------  -------                                                                                   -----  ------------  ----------  ----------------
+                id                                 #{private_str}         Pkcs12 (pfx)
 
               TABLE
             end
