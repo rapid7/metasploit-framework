@@ -269,12 +269,24 @@ jobs:
         working-directory: metasploit-payloads
 
       - name: Build Windows payloads via Visual Studio 2022 Build (Windows)
-        shell: cmd
+        shell: pwsh
         if: ${{ matrix.meterpreter.name == 'windows_meterpreter' && matrix.os == 'windows-2022' && inputs.build_metasploit_payloads }}
         run: |
-          cd c/meterpreter
-          git submodule init && git submodule update
-          make.bat
+          Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
+          dir
+          $InstallPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+          $WorkLoads = '--config "D:\a\metasploit-payloads\metasploit-payloads\metasploit-payloads\c\meterpreter\vs-configs\vs2022.vsconfig"'
+          $Arguments = ('/c', "vs_installer.exe", 'modify', '--installPath', "`"$InstallPath`"", $WorkLoads, '--quiet', '--norestart', '--nocache')
+          $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
+          if ($process.ExitCode -eq 0) {
+            Write-Host "components have been successfully added"
+          } else {
+            Write-Host "components were not installed"
+            exit 1
+          }
+          Set-Location "D:\a\metasploit-payloads\metasploit-payloads\metasploit-payloads\c\meterpreter"
+          Start-Process -FilePath cmd.exe -ArgumentList ('/c', 'git', 'submodule', 'init', '&&', 'git', 'submodule', 'update') -Wait -PassThru -WindowStyle Hidden
+          Start-Process -FilePath cmd.exe -ArgumentList ('/c', '"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat"', '&&', 'make.bat') -Wait -PassThru -WindowStyle Hidden
         working-directory: metasploit-payloads
 
       - name: Build Windows payloads via Visual Studio 2025 Build (Windows)
