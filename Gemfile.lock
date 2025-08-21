@@ -65,6 +65,7 @@ PATH
       openvas-omp
       ostruct
       packetfu
+      parallel
       patch_finder
       pcaprub
       pdf-reader
