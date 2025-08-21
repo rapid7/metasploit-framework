@@ -1,6 +1,9 @@
 #!/usr/bin/env ruby
 # -*- coding: binary -*-
 
+ENV['BUNDLE_GEMFILE'] ||= File.expand_path('Gemfile', __dir__)
+require 'bundler/setup'
+
 class MsfVenomError < StandardError; end
 class HelpError < StandardError; end
 class UsageError < MsfVenomError; end
