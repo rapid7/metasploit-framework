@@ -44,9 +44,9 @@ class MetasploitModule < Msf::Auxiliary
   def check_host(_ip)
     return Exploit::CheckCode::Unknown('Login failed, please check credentials') unless login(datastore['EMAIL'], datastore['PASSWORD'])
 
-    version_element = get_version
+    version = get_version
 
-    return Exploit::CheckCode::Detected unless version_element
+    return Exploit::CheckCode::Detected unless version
 
     return Exploit::CheckCode::Appears("Detected vulnerable version #{version}") if version <= Rex::Version.new('2.3.1')
 
