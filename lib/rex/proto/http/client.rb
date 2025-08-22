@@ -323,7 +323,7 @@ module Rex
             return res
           elsif supported_auths.include?('Negotiate') && (preferred_auth.nil? || preferred_auth == 'Kerberos')
             opts['provider'] = 'Negotiate'
-            temp_response = kerberos_auth(opts)
+            temp_response = kerberos_auth(opts, mechanism: Rex::Proto::Gss::Mechanism::SPNEGO)
             if temp_response.is_a? Rex::Proto::Http::Response
               res = temp_response
             end
@@ -411,16 +411,21 @@ module Rex
           end
         end
 
-        def kerberos_auth(opts = {})
+        def kerberos_auth(opts = {}, mechanism: Rex::Proto::Gss::Mechanism::KERBEROS)
           to = opts['timeout'] || 20
-          auth_result = kerberos_authenticator.authenticate(mechanism: Rex::Proto::Gss::Mechanism::KERBEROS)
+          auth_result = kerberos_authenticator.authenticate(mechanism: mechanism)
           gss_data = auth_result[:security_blob]
           gss_data_b64 = Rex::Text.encode_base64(gss_data)
 
           # Separate options for the auth requests
           auth_opts = opts.clone
           auth_opts['headers'] = opts['headers'].clone
-          auth_opts['headers']['Authorization'] = "Kerberos #{gss_data_b64}"
+          case mechanism
+          when Rex::Proto::Gss::Mechanism::KERBEROS
+            auth_opts['headers']['Authorization'] = "Kerberos #{gss_data_b64}"
+          when Rex::Proto::Gss::Mechanism::SPNEGO
+            auth_opts['headers']['Authorization'] = "Negotiate #{gss_data_b64}"
+          end
 
           if auth_opts['no_body_for_auth']
             auth_opts.delete('data')
