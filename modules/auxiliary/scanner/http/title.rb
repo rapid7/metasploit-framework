@@ -8,6 +8,8 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   # Scanner mixin should be near last
   include Msf::Auxiliary::Scanner
+  include Msf::Exploit::Remote::Kerberos::Ticket::Storage
+  include Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::Options
 
   def initialize
     super(
@@ -31,6 +33,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options(
       [
+        *kerberos_storage_options(protocol: 'HTTP'),
+        *kerberos_auth_options(protocol: 'HTTP', auth_methods: Msf::Exploit::Remote::AuthOption::HTTP_OPTIONS),
         OptString.new('HttpQueryString', [ false, 'The HTTP query string', nil ]),
         OptBool.new('FollowRedirect', [ false, 'Follow a HTTP redirect', false ]),
         OptInt.new('FollowRedirectDepth', [false, 'Follow HTTP redirect depth', 1]),
