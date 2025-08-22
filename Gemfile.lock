@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.4.80)
+    metasploit-framework (6.4.85)
       aarch64
       abbrev
       actionpack (~> 7.2.0)
@@ -65,6 +65,7 @@ PATH
       openvas-omp
       ostruct
       packetfu
+      parallel
       patch_finder
       pcaprub
       pdf-reader
@@ -683,4 +684,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   2.5.10
+   2.5.22

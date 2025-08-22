@@ -78,7 +78,7 @@ module Msf
       end
 
       def report_successful_login(public:, private:)
-        return super unless framework.features.enabled?(Msf::FeatureManager::SHOW_SUCCESSFUL_LOGINS) && datastore['ShowSuccessfulLogins'] && @report
+        return unless framework.features.enabled?(Msf::FeatureManager::SHOW_SUCCESSFUL_LOGINS) && datastore['ShowSuccessfulLogins'] && @report
 
         @report[rhost] ||= {}
         @report[rhost][:successful_logins] ||= []
@@ -86,6 +86,8 @@ module Msf
           public: public,
           private_data: private
         }
+
+        nil
       end
 
       # Creates a credential and adds to to the DB if one is present, then calls create_credential_login to

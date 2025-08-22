@@ -90,6 +90,22 @@ a normal user account by analyzing the objects in LDAP.
 1. Scroll down and select the `ESC3-Template2` certificate, and select `OK`.
 1. The certificate should now be available to be issued by the CA server.
 
+### Setting up a ESC8 Vulnerable Host
+1. Follow instructions for creating an AD CS enabled server
+1. Select Add Roles and Features
+1. Under "Select Server Roles" expand Active Directory Certificate Services and add `Certificate Enrollment Policy Web Service`, `Certificate Enrollment Web Service`, and `Certificate Authority Web Enrollment`.
+1. For each selection, accept the default for any pop-up.
+1. Accept the default features and install.
+1. When the installation is complete, click on the warning in the Dashboard for post-deployment configuration.
+1. Under Credentials, accept the default
+1. Under Role Services, select `Certificate Authority Web Enrollment`, `Certificate Enrollment Web Service`, and `Certificate Enrollment Policy Web Service`
+1. In CA for CES, accept the defaults
+1. In Authentication Types, accept the default integrated authentication
+1. In Service account for CES, select `Use built-in application pool identity`
+1. Accept default integrated authentication for CEP
+1. Select the domain certificate in Server Certificate (the one that starts with the domain name by default) if more than one appears.
+1. Accept the remaining defaults.
+
 ### Setting up a ESC9 Vulnerable Certificate Template
 1. Open up the run prompt and type in `certsrv`.
 1. In the window that appears you should see your list of certification authorities under `Certification Authority (Local)`.
@@ -240,15 +256,15 @@ if ($editFlags -band $EDITF_ATTRIBUTESUBJECTALTNAME2) {
 
 ## Options
 
-### REPORT_NONENROLLABLE
-If set to `True` then report any certificate templates that are vulnerable but which are not known to be enrollable.
-If set to `False` then skip over these certificate templates and only report on certificate templates
-that are both vulnerable and enrollable.
+### REPORT
+What templates to report (applies filtering to results).
 
-### REPORT_PRIVENROLLABLE
-If set to `True` then report certificate templates that are only enrollable by the Domain and Enterprise Admins groups.
-If set to `False` then skip over these certificate templates and only report on certificate templates that are
-enrollable by at least one additional user or group.
+* **all** - Report all certificate templates.
+* **published** - Report certificate templates that are published by at least one CA server.
+* **enrollable** - Same as above, but omits templates that the user does not have permissions to enroll in.
+* **vulnerable** - Report certificate templates where at least one misconfiguration is appears to be present.
+* **vulnerable-and-published** - Same as above, but omits templates that are not published by at least one CA server.
+* **vulnerable-and-enrollable** - Same as above, but omits templates that the user does not have permissions to enroll in.
 
 ## Scenarios
 
