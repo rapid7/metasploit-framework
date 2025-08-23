@@ -103,3 +103,7 @@ msf6 auxiliary(scanner/printer/escpos_tcp_command_injector) > run
 [*] Triggering cash drawer 2 times on 192.168.1.200...
 [+] Triggered cash drawer on 192.168.1.200
 
+
+This module has been tested against a physical Epson-compatible receipt printer and
+verified to print custom messages and trigger the cash drawer.
+For additional device compatibility, refer to the ESC/POS protocol documentation.
