@@ -41,9 +41,9 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(22),
-        OptPath.new('KEY_PATH', [false, 'Filename or directory of cleartext private keys. Filenames beginning with a dot, or ending in ".pub" will be skipped. Duplicate private keys will be ignored.']),
-        OptString.new('KEY_PASS', [false, 'Passphrase for SSH private key(s)']),
-        OptString.new('PRIVATE_KEY', [false, 'The string value of the private key that will be used. If you are using MSFConsole, this value should be set as file:PRIVATE_KEY_PATH. OpenSSH, RSA, DSA, and ECDSA private keys are supported.'])
+        OptPath.new('KEY_PATH', [true, 'Filename or directory of private keys. Filenames beginning with a dot, or ending in ".pub" will be skipped. Supports RSA, DSA, ECDSA, and ED25519 key formats.']),
+        OptString.new('KEY_PASS', [false, 'Passphrase for encrypted SSH private key(s). Required for password-protected keys.']),
+        OptString.new('PRIVATE_KEY', [false, '[DEPRECATED] The string value of a private key. This option is unreliable for multiline keys and should be avoided. Use KEY_PATH instead.'])
       ], self.class
     )
 
@@ -263,11 +263,16 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if @private_key.present?
-        data = Net::SSH::KeyFactory.load_data_private_key(@private_key, @password, false).to_s
-        if valid_key?(data)
-          @key_data << data
-        else
-          raise RuntimeError, "Invalid private key"
+        print_warning("PRIVATE_KEY option is deprecated and unreliable for multiline keys. Use KEY_PATH instead.")
+        begin
+          data = Net::SSH::KeyFactory.load_data_private_key(@private_key, @password, false).to_s
+          if valid_key?(data)
+            @key_data << data
+          else
+            @error_list << "PRIVATE_KEY: Invalid private key format or type"
+          end
+        rescue StandardError => e
+          @error_list << "PRIVATE_KEY: #{e.message}"
         end
       end
 
@@ -275,7 +280,38 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     def valid_key?(key_data)
-      !!(key_data.match(/BEGIN [RECD]SA PRIVATE KEY/) && !key_data.match(/Proc-Type:.*ENCRYPTED/))
+      # Skip password-protected keys if no password is provided
+      if key_data.match(/Proc-Type:.*ENCRYPTED/) && @password.blank?
+        print_warning("Skipping encrypted key: password required but KEY_PASS not provided")
+        return false
+      end
+      
+      # Try to load the key to validate its type and format
+      begin
+        key = Net::SSH::KeyFactory.load_data_private_key(key_data, @password, false)
+        
+        # Check if the key is one of the supported types
+        case key
+        when Net::SSH::Authentication::ED25519::PrivKey,
+             OpenSSL::PKey::RSA,
+             OpenSSL::PKey::DSA,
+             OpenSSL::PKey::EC
+          return true
+        else
+          print_warning("Skipping unsupported key type: #{key.class}")
+          return false
+        end
+      rescue OpenSSL::PKey::PKeyError, Net::SSH::Exception => e
+        if e.message.include?("decoding") || e.message.include?("bad decrypt")
+          print_warning("Skipping key: invalid format or incorrect password - #{e.message}")
+        else
+          print_warning("Skipping key: #{e.message}")
+        end
+        return false
+      rescue StandardError => e
+        print_warning("Skipping key: unexpected error - #{e.message}")
+        return false
+      end
     end
 
     def each
