@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
     datastore['RHOST']
   end
 
-  def session_setup(result, scanner, fingerprint, cred_core_private_id)
+  def session_setup(result, scanner, _fingerprint, cred_core_private_id)
     return unless scanner.ssh_socket
 
     # Create a new session
@@ -88,12 +88,12 @@ class MetasploitModule < Msf::Auxiliary
       'PASS_FILE' => nil,
       'USERNAME' => result.credential.public,
       'CRED_CORE_PRIVATE_ID' => cred_core_private_id,
-      'SSH_KEYFILE_B64' => [result.credential.private].pack("m*").gsub("\n", ""),
+      'SSH_KEYFILE_B64' => [result.credential.private].pack('m*').gsub("\n", ''),
       'KEY_PATH' => nil
     }
 
     s = start_session(self, nil, merge_me, false, sess.rstream, sess)
-    self.sockets.delete(scanner.ssh_socket.transport.socket)
+    sockets.delete(scanner.ssh_socket.transport.socket)
 
     # Set the session platform
     s.platform = scanner.get_platform(result.proof)
@@ -113,12 +113,12 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     print_status("#{ip}:#{rport} SSH - Testing Cleartext Keys")
 
-    if datastore["USER_FILE"].blank? && datastore["USERNAME"].blank?
-      validation_reason = "At least one of USER_FILE or USERNAME must be given"
+    if datastore['USER_FILE'].blank? && datastore['USERNAME'].blank?
+      validation_reason = 'At least one of USER_FILE or USERNAME must be given'
       raise Msf::OptionValidateError.new(
         {
-          "USER_FILE" => validation_reason,
-          "USERNAME" => validation_reason
+          'USER_FILE' => validation_reason,
+          'USERNAME' => validation_reason
         }
       )
     end
@@ -132,7 +132,7 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     unless keys.valid?
-      print_error("Files that failed to be read:")
+      print_error('Files that failed to be read:')
       keys.error_list.each do |err|
         print_line("\t- #{err}")
       end
@@ -150,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
       key_sources.append('PRIVATE_KEY')
     end
 
-    print_brute :level => :vstatus, :ip => ip, :msg => "Testing #{key_count} #{'key'.pluralize(key_count)} from #{key_sources.join(' and ')}"
+    print_brute level: :vstatus, ip: ip, msg: "Testing #{key_count} #{'key'.pluralize(key_count)} from #{key_sources.join(' and ')}"
     scanner = Metasploit::Framework::LoginScanner::SSH.new(
       configure_login_scanner(
         host: ip,
@@ -171,12 +171,12 @@ class MetasploitModule < Msf::Auxiliary
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-        module_fullname: self.fullname,
+        module_fullname: fullname,
         workspace_id: myworkspace_id
       )
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
+        print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
@@ -190,22 +190,22 @@ class MetasploitModule < Msf::Auxiliary
           end
         end
         if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
-          msg = "While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with"
+          msg = 'While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with'
           msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
-          msg << " device details so it can be handled in the future."
-          print_brute :level => :error, :ip => ip, :msg => msg
+          msg << ' device details so it can be handled in the future.'
+          print_brute level: :error, ip: ip, msg: msg
         end
         :next_user
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         if datastore['VERBOSE']
-          print_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
+          print_brute level: :verror, ip: ip, msg: "Could not connect: #{result.proof}"
         end
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
         invalidate_login(credential_data)
         :abort
       when Metasploit::Model::Login::Status::INCORRECT
         if datastore['VERBOSE']
-          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+          print_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}'"
         end
         invalidate_login(credential_data)
         scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
@@ -217,10 +217,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   class KeyCollection < Metasploit::Framework::CredentialCollection
-    attr_accessor :key_data
-    attr_accessor :key_path
-    attr_accessor :private_key
-    attr_accessor :error_list
+    attr_accessor :key_data, :key_path, :private_key, :error_list
 
     # Override CredentialCollection#has_privates?
     def has_privates?
@@ -236,19 +233,17 @@ class MetasploitModule < Msf::Auxiliary
       @key_data = Set.new
 
       unless @private_key.present? || @key_path.present?
-        raise RuntimeError, "No key path or key provided"
+        raise 'No key path or key provided'
       end
 
       if @key_path.present?
         if File.directory?(@key_path)
           @key_files ||= Dir.entries(@key_path).reject { |f| f =~ /^\x2e|\x2epub$/ }
           @key_files.each do |f|
-            begin
-              data = read_key(File.join(@key_path, f))
-              @key_data << data if valid_key?(data)
-            rescue StandardError => e
-              @error_list << "#{File.join(@key_path, f)}: #{e}"
-            end
+            data = read_key(File.join(@key_path, f))
+            @key_data << data if valid_key?(data)
+          rescue StandardError => e
+            @error_list << "#{File.join(@key_path, f)}: #{e}"
           end
         elsif File.file?(@key_path)
           begin
@@ -258,18 +253,18 @@ class MetasploitModule < Msf::Auxiliary
             @error_list << "#{@key_path} could not be read, #{e}"
           end
         else
-          raise RuntimeError, "Invalid key path"
+          raise 'Invalid key path'
         end
       end
 
       if @private_key.present?
-        print_warning("PRIVATE_KEY option is deprecated and unreliable for multiline keys. Use KEY_PATH instead.")
+        print_warning('PRIVATE_KEY option is deprecated and unreliable for multiline keys. Use KEY_PATH instead.')
         begin
           data = Net::SSH::KeyFactory.load_data_private_key(@private_key, @password, false).to_s
           if valid_key?(data)
             @key_data << data
           else
-            @error_list << "PRIVATE_KEY: Invalid private key format or type"
+            @error_list << 'PRIVATE_KEY: Invalid private key format or type'
           end
         rescue StandardError => e
           @error_list << "PRIVATE_KEY: #{e.message}"
@@ -282,14 +277,12 @@ class MetasploitModule < Msf::Auxiliary
     def valid_key?(key_data)
       # Skip password-protected keys if no password is provided
       if key_data.match(/Proc-Type:.*ENCRYPTED/) && @password.blank?
-        print_warning("Skipping encrypted key: password required but KEY_PASS not provided")
+        print_warning('Skipping encrypted key: password required but KEY_PASS not provided')
         return false
       end
-      
       # Try to load the key to validate its type and format
       begin
         key = Net::SSH::KeyFactory.load_data_private_key(key_data, @password, false)
-        
         # Check if the key is one of the supported types
         case key
         when Net::SSH::Authentication::ED25519::PrivKey,
@@ -302,7 +295,7 @@ class MetasploitModule < Msf::Auxiliary
           return false
         end
       rescue OpenSSL::PKey::PKeyError, Net::SSH::Exception => e
-        if e.message.include?("decoding") || e.message.include?("bad decrypt")
+        if e.message.include?('decoding') || e.message.include?('bad decrypt')
           print_warning("Skipping key: invalid format or incorrect password - #{e.message}")
         else
           print_warning("Skipping key: #{e.message}")
@@ -314,8 +307,8 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    def each
-      prepended_creds.each { |c| yield c }
+    def each(&block)
+      prepended_creds.each(&block)
 
       if @user_file.present?
         File.open(@user_file, 'rb') do |user_fd|
@@ -335,10 +328,8 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    def each_key
-      @key_data.each do |data|
-        yield data
-      end
+    def each_key(&block)
+      @key_data.each(&block)
     end
 
     def read_key(file_path)
