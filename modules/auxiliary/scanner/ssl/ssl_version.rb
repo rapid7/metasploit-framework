@@ -166,17 +166,77 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  # Analyze the certificate data format to determine appropriate MIME type
+  def certificate_mime_type(cert)
+    return 'text/plain' unless cert.is_a?(String)
+
+    # Check for PEM format
+    if cert.include?('-----BEGIN CERTIFICATE-----') && cert.include?('-----END CERTIFICATE-----')
+      'application/x-pem-file'
+    end
+
+    # Check for PKCS#12 format
+    if cert.include?('-----BEGIN PKCS12-----') && cert.include?('-----END PKCS12-----')
+      'application/x-pkcs12'
+    end
+
+    # Check for PKCS#8 format
+    if cert.include?('-----BEGIN PRIVATE KEY-----') || cert.include?('-----BEGIN ENCRYPTED PRIVATE KEY-----')
+      'application/pkcs8'
+    end
+
+    # Check for PKCS#7 format
+    if cert.include?('-----BEGIN PKCS7-----') || cert.include?('-----BEGIN CERTIFICATE-----')
+      'application/pkcs7-mime'
+    end
+
+    # Check for DER format
+    if cert.encoding == ::Encoding::ASCII_8BIT || cert.force_encoding('ASCII-8BIT').valid_encoding?
+      'application/x-x509-ca-cert'
+    end
+
+    # Check for OpenSSL text output
+    if cert.include?('Certificate:') && cert.include?('Subject:') && cert.include?('Issuer:')
+      'text/x-x509-certificate'
+    end
+
+    'application/x-x509-ca-cert'
+  end
+
+  # Map MIME types to appropriate certificate file extensions
+  def file_extension_for_mime_type(mime_type)
+    case mime_type
+    when 'application/x-pem-file'
+      '.pem'
+    when 'application/x-x509-ca-cert'
+      '.crt'
+    when 'application/x-pkcs12'
+      '.p12'
+    when 'application/pkcs8'
+      '.p8'
+    when 'application/pkcs7-mime'
+      '.p7c'
+    when 'text/x-x509-certificate'
+      '.txt'
+    else
+      '.crt'
+    end
+  end
+
   # Process certificate with enhanced analysis
   def process_certificate(ip, cert)
     print_cert(cert, ip)
 
+    # Determine certificate MIME type
+    mime_type = certificate_mime_type(cert.to_text)
+
     # Store certificate in loot with rex-sslscan metadata
     loot_cert = store_loot(
       'ssl.certificate.rex_sslscan',
-      'text/plain',
+      mime_type,
       ip,
       cert.to_text,
-      "ssl_cert_#{ip}_#{rport}.crt",
+      "ssl_cert_#{ip}_#{rport}.#{file_extension_for_mime_type(mime_type)}",
       "SSL Certificate from #{ip}:#{rport}"
     )
     print_good("Certificate saved to loot: #{loot_cert}")
