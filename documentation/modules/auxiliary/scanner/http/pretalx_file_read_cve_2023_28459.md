@@ -57,7 +57,9 @@ RUN chmod +x /usr/local/bin/pretalx && \
     cd /pretalx/src && \
     rm -f pretalx.cfg && \
     chown -R pretalxuser:pretalxuser /pretalx /data /public && \
-    rm -f /pretalx/src/data/.secret
+    rm -f /pretalx/src/data/.secret && \
+    cat /public/static/CACHE/css/main.* >> /pretalx/src/static.dist/common/scss/uncompressed.css && \
+    cat /public/static/CACHE/css/main.* >> /pretalx/src/pretalx/static/common/scss/uncompressed.css
 
 USER pretalxuser
 VOLUME ["/etc/pretalx", "/data", "/public"]
