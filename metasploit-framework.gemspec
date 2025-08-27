@@ -262,6 +262,9 @@ Gem::Specification.new do |spec|
   # When Ruby ships with `gem --version` 3.6.0 or higher by default this can be removed
   spec.add_runtime_dependency 'stringio', '3.1.1'
 
+  # Needed for caching validation
+  spec.add_runtime_dependency 'parallel'
+
   # Standard libraries: https://www.ruby-lang.org/en/news/2023/12/25/ruby-3-3-0-released/
   %w[
     abbrev

