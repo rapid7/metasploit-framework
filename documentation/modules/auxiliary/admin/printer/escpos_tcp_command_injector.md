@@ -1,5 +1,11 @@
 ## Vulnerable Application
 
+This module targets networked ESC/POS compatible printers that listen for raw commands on TCP port 9100.
+The vulnerability is a lack of authentication and access control on this port, allowing anyone with
+network access to send unauthenticated ESC/POS commands. The module exploits this by sending crafted
+command sequences to inject custom print jobs, trigger the cash drawer, or manipulate the paper feed,
+effectively taking control of the printer's physical functions.
+
 
 - **Printer Model:** Any Epson-compatible printer exposing the ESC/POS command set
 on TCP port 9100.
