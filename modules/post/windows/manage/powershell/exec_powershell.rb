@@ -118,6 +118,11 @@ class MetasploitModule < Msf::Post
     # Execute the powershell script
     print_status('Executing the script.')
     cmd_out = psh_exec(script)
+    if cmd_out.nil
+      error_msg = 'Powershell command returned a nil value; this could be because the command timed out.\n'
+      error_msg << 'You may want to increase the Powershell::Post::timeout value and try again.'
+      print_warning(error_msg)
+    end
     print_status(cmd_out.to_s)
 
     # That's it
