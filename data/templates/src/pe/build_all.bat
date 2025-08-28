@@ -1,14 +1,17 @@
 @echo off
 
+echo Compiling DLLs
+
 for /D %%d in (dll*) do (
   pushd "%%d"
-  build.bat
+  call build.bat
   popd
 )
 
-for /D %%d in (exe*) do (
-  pushd "%%d"
-  build.bat
+echo Compiling EXEs
+
+for /D %%e in (exe*) do (
+  pushd "%%e"
+  call build.bat
   popd
 )
-
