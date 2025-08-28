@@ -314,6 +314,13 @@ module Rex
               res = temp_response
             end
             return res
+          elsif supported_auths.include?('Kerberos') && (preferred_auth.nil? || preferred_auth == 'Kerberos') && kerberos_authenticator
+            opts['provider'] = 'Kerberos'
+            temp_response = kerberos_auth(opts, mechanism: Rex::Proto::Gss::Mechanism::KERBEROS)
+            if temp_response.is_a? Rex::Proto::Http::Response
+              res = temp_response
+            end
+            return res
           elsif supported_auths.include?('Negotiate') && (preferred_auth.nil? || preferred_auth == 'Negotiate')
             opts['provider'] = 'Negotiate'
             temp_response = negotiate_auth(opts)
@@ -321,7 +328,7 @@ module Rex
               res = temp_response
             end
             return res
-          elsif supported_auths.include?('Negotiate') && (preferred_auth.nil? || preferred_auth == 'Kerberos')
+          elsif supported_auths.include?('Negotiate') && (preferred_auth.nil? || preferred_auth == 'Kerberos') && kerberos_authenticator
             opts['provider'] = 'Negotiate'
             temp_response = kerberos_auth(opts, mechanism: Rex::Proto::Gss::Mechanism::SPNEGO)
             if temp_response.is_a? Rex::Proto::Http::Response
