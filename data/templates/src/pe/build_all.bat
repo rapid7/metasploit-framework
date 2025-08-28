@@ -5,3 +5,10 @@ for /D %%d in (dll*) do (
   build.bat
   popd
 )
+
+for /D %%d in (exe*) do (
+  pushd "%%d"
+  build.bat
+  popd
+)
+
