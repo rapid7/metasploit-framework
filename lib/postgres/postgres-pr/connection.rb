@@ -56,12 +56,12 @@ class Connection
     end
   end
 
-  def initialize(database, user, password=nil, uri = nil, proxies = nil)
+  def initialize(database, user, password=nil, uri = nil, proxies = nil, ssl = nil)
     uri ||= DEFAULT_URI
 
     @transaction_status = nil
     @params = { 'username' => user, 'database' => database }
-    establish_connection(uri, proxies)
+    establish_connection(uri, proxies, ssl)
 
     # Check if the password supplied is a Postgres-style md5 hash
     md5_hash_match = password.match(/^md5([a-f0-9]{32})$/)
@@ -231,7 +231,11 @@ class Connection
 
   def close
     raise "connection already closed" if @conn.nil?
-    @conn.shutdown
+    if @conn.respond_to?(:shutdown)
+      @conn.shutdown
+    elsif @conn.respond_to?(:close)
+      @conn.close
+    end
     @conn = nil
   end
 
@@ -343,16 +347,33 @@ class Connection
 
   # tcp://localhost:5432
   # unix:/tmp/.s.PGSQL.5432
-  def establish_connection(uri, proxies)
+  def establish_connection(uri, proxies, ssl = nil)
     u = URI.parse(uri)
     case u.scheme
     when 'tcp'
       @conn = Rex::Socket.create(
-      'PeerHost' => (u.host || DEFAULT_HOST).gsub(/[\[\]]/, ''),  # Strip any brackets off (IPv6)
-      'PeerPort' => (u.port || DEFAULT_PORT),
-      'proto' => 'tcp',
-      'Proxies' => proxies
-    )
+        'PeerHost' => (u.host || DEFAULT_HOST).gsub(/\[|\]/, ''),
+        'PeerPort' => (u.port || DEFAULT_PORT),
+        'proto' => 'tcp',
+        'Proxies' => proxies
+      )
+      if ssl
+        # Send SSLRequest packet
+        ssl_request = [8, 80877103].pack('N2')
+        @conn.write(ssl_request)
+        response = @conn.read(1)
+        if response == 'S'
+          ssl_context = OpenSSL::SSL::SSLContext.new
+          ssl_socket = OpenSSL::SSL::SSLSocket.new(@conn, ssl_context)
+          ssl_socket.sync_close = true
+          ssl_socket.connect
+          @conn = ssl_socket
+        elsif response == 'N'
+          # Server does not support SSL, continue with plain TCP
+        else
+          raise "Unexpected response to SSLRequest: #{response.inspect}"
+        end
+      end
     when 'unix'
       @conn = UNIXSocket.new(u.path)
     else

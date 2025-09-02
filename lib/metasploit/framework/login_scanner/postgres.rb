@@ -1,4 +1,6 @@
 require 'metasploit/framework/login_scanner/base'
+require 'metasploit/framework/login_scanner/rex_socket'
+require 'metasploit/framework/tcp/client'
 require 'postgres_msf'
 
 module Metasploit
@@ -10,6 +12,8 @@ module Metasploit
       # and attempting them. It then saves the results.
       class Postgres
         include Metasploit::Framework::LoginScanner::Base
+        include Metasploit::Framework::LoginScanner::RexSocket
+        include Metasploit::Framework::Tcp::Client
 
         # @returns [Boolean] If a login is successful and this attribute is true - a Msf::Db::PostgresPR::Connection instance is used as proof,
         #   and the socket is not immediately closed
@@ -45,7 +49,14 @@ module Metasploit
           pg_conn = nil
 
           begin
-            pg_conn = Msf::Db::PostgresPR::Connection.new(db_name,credential.public,credential.private,uri,proxies)
+            pg_conn = Msf::Db::PostgresPR::Connection.new(
+              db_name,
+              credential.public,
+              credential.private,
+              uri,
+              proxies,
+              ssl
+            )
           rescue ::RuntimeError => e
             case e.to_s.split("\t")[1]
               when "C3D000"
@@ -90,13 +101,15 @@ module Metasploit
 
           ::Metasploit::Framework::LoginScanner::Result.new(result_options)
         end
-      end
 
-      def set_sane_defaults
-        self.connection_timeout ||= 30
-        self.port               ||= DEFAULT_PORT
-      end
+        def set_sane_defaults
+          self.connection_timeout ||= 30
+          self.port               ||= DEFAULT_PORT
+          self.max_send_size      ||= 0
+          self.send_delay         ||= 0
+        end
 
+      end
     end
   end
 end
