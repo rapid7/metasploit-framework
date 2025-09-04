@@ -67,6 +67,7 @@ module Rex
           @tdsencryption          = framework_module.datastore['TDSENCRYPTION']       || false
           @hex2binary             = framework_module.datastore['HEX2BINARY']          || ''
 
+
           @domain_controller_rhost = framework_module.datastore['DomainControllerRhost'] || ''
           @rhost = rhost
           @rport = rport
@@ -453,15 +454,10 @@ module Rex
           prelogin_data = mssql_prelogin
 
           pkt = ''
-          pkt_hdr =  [
-              TYPE_TDS7_LOGIN, #type
-              STATUS_END_OF_MESSAGE, #status
-              0x0000, #length
-              0x0000, # SPID
-              0x01,   # PacketID (unused upon specification
-              # but ms network monitor still prefer 1 to decode correctly, wireshark don't care)
-              0x00   #Window
-          ]
+          pkt_hdr = MsTdsHeader.new(
+            packet_type: MsTdsType::TDS7_LOGIN,
+            packet_id: 1
+          )
 
           pkt << [
               0x00000000,   # Size
@@ -481,7 +477,6 @@ module Rex
           cname = Rex::Text.to_unicode( Rex::Text.rand_text_alpha(rand(8)+1) )
           aname = Rex::Text.to_unicode( Rex::Text.rand_text_alpha(rand(8)+1) ) #application and library name
           sname = Rex::Text.to_unicode( rhost )
-          dname = Rex::Text.to_unicode( db )
 
           workstation_name = Rex::Text.rand_text_alpha(rand(8)+1)
 
@@ -504,10 +499,10 @@ module Rex
           pkt << [0, 0].pack('vv') # User length offset must be 0
           pkt << [0, 0].pack('vv') # Password length offset must be 0
 
-          pkt << [idx, aname.length / 2].pack('vv')
+          pkt << [idx, aname.length / 2].pack('vv')  # AppName
           idx += aname.length
 
-          pkt << [idx, sname.length / 2].pack('vv')
+          pkt << [idx, sname.length / 2].pack('vv')  # ServerName
           idx += sname.length
 
           pkt << [0, 0].pack('vv') # unused
@@ -537,9 +532,9 @@ module Rex
           # Total packet length
           pkt[0, 4] = [pkt.length].pack('V')
 
-          pkt_hdr[2] = pkt.length + 8
+          pkt_hdr.packet_length += pkt.length
 
-          pkt = pkt_hdr.pack("CCnnCC") + pkt
+          pkt = pkt_hdr.to_binary_s + pkt
 
           # Rem : One have to set check_status to false here because sql server sp0 (and maybe above)
           # has a strange behavior that differs from the specifications
@@ -559,18 +554,13 @@ module Rex
           type3_blob = type3.serialize
 
           # Create an SSPIMessage
-          pkt_hdr = [
-            TYPE_SSPI_MESSAGE, #type
-            STATUS_END_OF_MESSAGE, #status
-            0x0000, #length
-            0x0000, # SPID
-            0x01, # PacketID
-            0x00 #Window
-          ]
+          pkt_hdr = MsTdsHeader.new(
+            type: MsTdsType::SSPI_MESSAGE,
+            packet_id: 1
+          )
+          pkt_hdr.packet_length += type3_blob.length
 
-          pkt_hdr[2] = type3_blob.length + 8
-
-          pkt = pkt_hdr.pack("CCnnCC") + type3_blob
+          pkt = pkt_hdr.to_binary_s + type3_blob
 
           if self.tdsencryption == true
             resp = mssql_ssl_send_recv(pkt, proxy)

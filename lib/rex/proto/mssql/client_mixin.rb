@@ -1,9 +1,12 @@
+require 'rex/proto/ms_tds'
+
 module Rex
 module Proto
 module MSSQL
 # A base mixin of useful mssql methods for parsing structures etc
 module ClientMixin
   include Msf::Module::UI::Message
+  include Rex::Proto::MsTds
   extend Forwardable
   def_delegators :@framework_module, :print_prefix, :print_status, :print_error, :print_good, :print_warning, :print_line
   # Encryption
@@ -26,11 +29,11 @@ module ClientMixin
   TYPE_PRE_LOGIN_MESSAGE           = 18 # (Client) pre-login with version > 7
 
   # Status
-  STATUS_NORMAL                  = 0x00
-  STATUS_END_OF_MESSAGE          = 0x01
-  STATUS_IGNORE_EVENT            = 0x02
-  STATUS_RESETCONNECTION         = 0x08 # TDS 7.1+
-  STATUS_RESETCONNECTIONSKIPTRAN = 0x10 # TDS 7.3+
+  STATUS_NORMAL                  = MsTdsStatus::NORMAL
+  STATUS_END_OF_MESSAGE          = MsTdsStatus::END_OF_MESSAGE
+  STATUS_IGNORE_EVENT            = MsTdsStatus::IGNORE_EVENT
+  STATUS_RESETCONNECTION         = MsTdsStatus::RESETCONNECTION
+  STATUS_RESETCONNECTIONSKIPTRAN = MsTdsStatus::RESECCONNECTIONTRAN
 
   # Mappings for ENVCHANGE types
   # See the TDS Specification here: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-tds/2b3eb7e5-d43d-4d1b-bf4d-76b9e3afc791
@@ -87,20 +90,12 @@ module ClientMixin
   end
 
   def mssql_prelogin_packet
-    pkt = ""
-    pkt_hdr = ""
     pkt_data_token = ""
     pkt_data = ""
 
-
-    pkt_hdr = [
-        TYPE_PRE_LOGIN_MESSAGE, #type
-        STATUS_END_OF_MESSAGE, #status
-        0x0000, #length
-        0x0000, # SPID
-        0x00, # PacketID
-        0x00 #Window
-    ]
+    pkt_hdr = MsTdsHeader.new(
+      packet_type: MsTdsType::PRE_LOGIN_MESSAGE
+    )
 
     version = [0x55010008, 0x0000].pack("Vv")
 
@@ -142,9 +137,9 @@ module ClientMixin
     pkt_data << instoptdata
     pkt_data << threadid
 
-    pkt_hdr[2] = pkt_data.length + 8
+    pkt_hdr.packet_length += pkt_data.length
 
-    pkt = pkt_hdr.pack('CCnnCC') + pkt_data
+    pkt = pkt_hdr.to_binary_s + pkt_data
     pkt
   end
 
