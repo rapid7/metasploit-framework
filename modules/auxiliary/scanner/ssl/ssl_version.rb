@@ -74,6 +74,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
+        OptString.new('SSLServerNameIndication', [ false, 'SSL/TLS Server Name Indication (SNI)', nil]),
         OptEnum.new('SSLVersion', [ true, 'SSL version to test', 'All', ['All'] + Array.new(OpenSSL::SSL::SSLContext.new.ciphers.length) { |i| (OpenSSL::SSL::SSLContext.new.ciphers[i][1]).to_s }.uniq.reverse]),
         OptEnum.new('SSLCipher', [ true, 'SSL cipher to test', 'All', ['All'] + Array.new(OpenSSL::SSL::SSLContext.new.ciphers.length) { |i| (OpenSSL::SSL::SSLContext.new.ciphers[i][0]).to_s }.uniq]),
       ]
@@ -471,8 +472,11 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       ctx = { 'Msf' => framework, 'MsfExploit' => self }
+      tls_server_name_indication = nil
+      tls_server_name_indication = datastore['SSLServerNameIndication'] if datastore['SSLServerNameIndication'].present?
+      tls_server_name_indication = datastore['RHOSTNAME'] if tls_server_name_indication.nil? && datastore['RHOSTNAME'].present?
       # Initialize rex-sslscan scanner
-      scanner = Rex::SSLScan::Scanner.new(ip, rport, ctx)
+      scanner = Rex::SSLScan::Scanner.new(ip, rport, ctx, tls_server_name_indication: tls_server_name_indication)
 
       # Perform the scan
       scan_result = scanner.scan
