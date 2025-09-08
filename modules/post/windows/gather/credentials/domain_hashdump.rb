@@ -40,7 +40,10 @@ class MetasploitModule < Msf::Post
               stdapi_fs_stat
             ]
           }
-        }
+        },
+        'References' => [
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING ]
+        ]
       )
     )
     deregister_options('SMBUser', 'SMBPass', 'SMBDomain')
