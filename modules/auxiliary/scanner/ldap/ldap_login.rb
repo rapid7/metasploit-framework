@@ -93,22 +93,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    ignore_public = ignore_private = false
-    case datastore['LDAP::Auth']
-    when Msf::Exploit::Remote::AuthOption::SCHANNEL
-      ignore_public = ignore_private = true
-    when Msf::Exploit::Remote::AuthOption::KERBEROS
-      ignore_private = !datastore['ANONYMOUS_LOGIN'] && !datastore['LDAPPassword']
-    end
-
-    cred_collection = build_credential_collection(
-      username: datastore['LDAPUsername'],
-      password: datastore['LDAPPassword'],
-      realm: datastore['LDAPDomain'],
-      anonymous_login: datastore['ANONYMOUS_LOGIN'],
-      blank_passwords: false,
-      ignore_public: ignore_public,
-      ignore_private: ignore_private
+    cred_collection = build_specific_credential_collection(
+      void_login: datastore['LDAP::Auth'] == Msf::Exploit::Remote::AuthOption::SCHANNEL,
+      no_password_login: datastore['LDAP::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS && !datastore['ANONYMOUS_LOGIN'] && !datastore['LDAPPassword']
     )
 
     pkcs12_storage = Msf::Exploit::Remote::Pkcs12::Storage.new(framework: framework, framework_module: self)
@@ -214,5 +201,26 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     start_session(self, nil, merge_me, false, my_session.rstream, my_session)
+  end
+
+  def build_specific_credential_collection(void_login:, no_password_login:)
+    if void_login
+      Metasploit::Framework::PrivateCredentialCollection.new({
+        nil_passwords: true
+      })
+    elsif no_password_login
+      Metasploit::Framework::CredentialCollection.new({
+        username: datastore['LDAPUsername'],
+        nil_passwords: true
+      })
+    else
+      build_credential_collection(
+        username: datastore['LDAPUsername'],
+        password: datastore['LDAPPassword'],
+        realm: datastore['DOMAIN'],
+        anonymous_login: datastore['ANONYMOUS_LOGIN'],
+        blank_passwords: false
+      )
+    end
   end
 end
