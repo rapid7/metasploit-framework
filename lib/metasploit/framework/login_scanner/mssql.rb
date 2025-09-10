@@ -93,7 +93,7 @@ module Metasploit
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             result_options[:proof] = e
           rescue => e
-            elog(e)
+            elog(e, error: e)
             result_options[:status] = Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
             result_options[:proof] = e
           end

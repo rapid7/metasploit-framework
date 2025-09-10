@@ -3,17 +3,41 @@ module Rex::Proto::MsTds
   class MsTdsLogin7 < BinData::Record
     endian :little
 
-    uint32  :packet_length
+    class << self
+      private
+
+      @@buffer_fields = []
+      @@buffer_field_types = {}
+
+      def buffer_field(field_name, encoding:, onlyif: true)
+        @@buffer_fields << field_name
+
+
+        uint16 "ib_#{field_name}".to_sym, initial_value: -> { buffer_field_offset(field_name) || 0 }, onlyif: onlyif
+        case encoding
+        when Encoding::ASCII_8BIT
+          @@buffer_field_types[field_name] = :uint8_array
+          uint16 "cb_#{field_name}".to_sym, initial_value: -> { send(field_name)&.length || 0 }, onlyif: onlyif
+        when Encoding::UTF_16LE
+          @@buffer_field_types[field_name] = :string16
+          uint16 "cch_#{field_name}".to_sym, initial_value: -> { send(field_name)&.length || 0 }, onlyif: onlyif
+        else
+          raise RuntimeError, "Unsupported encoding: #{encoding}"
+        end
+      end
+    end
+
+    uint32  :packet_length, initial_value: :num_bytes
     ms_tds_version  :tds_version, initial_value: MsTdsVersion::VERSION_7_1
     uint32  :packet_size
-    uint32  :client_prog_ver
-    uint32  :client_pid
+    uint32  :client_prog_ver, initial_value: 0x07
+    uint32  :client_pid, initial_value: -> { rand(1024+1) }
     uint32  :connection_id
 
     struct  :option_flags_1 do
-      bit1  :f_set_lang
+      bit1  :f_set_lang, initial_value: 1
       bit1  :f_database
-      bit1  :f_use_db
+      bit1  :f_use_db, initial_value: 1
       bit1  :f_dump_load
       bit2  :f_float
       bit1  :f_char
@@ -21,11 +45,11 @@ module Rex::Proto::MsTds
     end
 
     struct  :option_flags_2 do
-      bit1  :f_int_security
+      bit1  :f_int_security, initial_value: 1
       bit3  :f_user_type
       bit1  :f_tran_boundary
       bit1  :f_cache_connect
-      bit1  :f_odbc
+      bit1  :f_odbc, initial_value: 1
       bit1  :f_language
     end
 
@@ -49,37 +73,128 @@ module Rex::Proto::MsTds
     uint32  :client_lcid
 
     # Offset/Length pairs for variable-length data
-    uint16  :ib_hostname
-    uint16  :cch_hostname
-    uint16  :ib_username
-    uint16  :cch_username
-    uint16  :ib_password
-    uint16  :cch_password
-    uint16  :ib_app_name
-    uint16  :cch_app_name
-    uint16  :ib_server_name
-    uint16  :cch_server_name
-    uint16  :ib_unused
-    uint16  :cb_unused
-    uint16  :ib_extension, onlyif: -> { tds_version >= MsTdsVersion::VERSION_7_4 }
-    uint16  :cch_extension, onlyif: -> { tds_version >= MsTdsVersion::VERSION_7_4 }
-    uint16  :ib_clt_int_name
-    uint16  :cch_clt_int_name
-    uint16  :ib_language
-    uint16  :cch_language
-    uint16  :ib_database
-    uint16  :cch_database
+    buffer_field :hostname, encoding: Encoding::UTF_16LE
+    buffer_field :username, encoding: Encoding::UTF_16LE
+    buffer_field :password, encoding: Encoding::UTF_16LE
+    buffer_field :app_name, encoding: Encoding::UTF_16LE
+    buffer_field :server_name, encoding: Encoding::UTF_16LE
+    buffer_field :unused, encoding: Encoding::ASCII_8BIT
+    buffer_field :extension, encoding: Encoding::ASCII_8BIT, onlyif: -> { tds_version >= MsTdsVersion::VERSION_7_4 }
+    buffer_field :clt_int_name, encoding: Encoding::UTF_16LE
+    buffer_field :language, encoding: Encoding::UTF_16LE
+    buffer_field :database, encoding: Encoding::UTF_16LE
 
     # Client MAC address (6 bytes)
-    string  :client_id, length: 6
+    uint8_array  :client_id, initial_length: 6, initial_value: -> { Random.new.bytes(6).bytes }
 
     # More offset/length pairs
-    uint16  :ib_sspi
-    uint16  :cch_sspi
-    uint16  :ib_attach_db_file
-    uint16  :cch_attach_db_file
-    uint16  :ib_change_password, onlyif: -> { tds_version >= MsTdsVersion::VERSION_7_2 }
-    uint16  :cch_change_password, onlyif: -> { tds_version >= MsTdsVersion::VERSION_7_2 }
+    buffer_field :sspi, encoding: Encoding::ASCII_8BIT
+    buffer_field :attach_db_file, encoding: Encoding::UTF_16LE
+    buffer_field :change_password, encoding: Encoding::UTF_16LE, onlyif: -> { tds_version >= MsTdsVersion::VERSION_7_2 }
     uint32  :cb_sspi_long, onlyif: -> { tds_version >= MsTdsVersion::VERSION_7_2 }
+
+    string :buffer, initial_value: -> { build_buffer }, read_length: -> { packet_length - offset_of(buffer) }
+    hide   :buffer
+
+    def initialize_instance
+      value = super
+
+      self.server_name = self.hostname = Rex::Text.rand_text_alpha(rand(1..8))
+      self.clt_int_name = self.app_name = Rex::Text.rand_text_alpha(rand(1..8))
+
+      @@buffer_fields.each do |field_name|
+        parameter = get_parameter(field_name)
+        send("#{field_name}=", parameter) if parameter
+      end
+
+      value
+    end
+
+    def initialize_shared_instance
+      @@buffer_fields.each do |field_name|
+        define_field_accessors_for2(field_name)
+      end
+      super
+    end
+
+    def do_read(val)
+      value = super
+
+      @@buffer_fields.each do |field_name|
+        # the offset field's prefix is always ib_
+        next unless (field_offset = send("ib_#{field_name}")) > 0
+        # the size field's prefix depends on the data type, but it's always right after the offset
+        next unless (field_size = send(field_names[field_names.index("ib_#{field_name}".to_sym) + 1])) > 0
+
+        field_offset -= buffer.rel_offset
+        next unless field_offset >= 0
+
+        field_cls = BinData::RegisteredClasses.lookup(@@buffer_field_types[field_name])
+
+        case @@buffer_field_types[field_name]
+        when :string16
+          field_size *= 2
+          field_obj = field_cls.new(read_length: field_size)
+        when :uint8_array
+          field_obj = field_cls.new(read_until: :eof)
+        end
+
+        field_data = buffer[field_offset...(field_offset + field_size)]
+        instance_variable_set("@#{field_name}", field_obj.read(field_data))
+      end
+
+      value
+    end
+
+    def snapshot
+      snap = super
+      @@buffer_fields.each do |field_name|
+        snap[field_name] ||= send(field_name)&.snapshot
+      end
+      snap
+    end
+
+    private
+
+    def build_buffer
+      buf = ''
+      @@buffer_fields.each do |field_name|
+        field_value = send(field_name)
+        buf << field_value.to_binary_s if field_value
+      end
+      buf
+    end
+
+    def buffer_field_offset(field)
+      return nil unless instance_variable_get("@#{field}")
+
+      offset = buffer.rel_offset
+      @@buffer_fields.each do |field_name|
+        break if field_name == field
+
+        field_name = instance_variable_get("@#{field_name}")
+        offset += field_name.num_bytes if field_name
+      end
+
+      offset
+    end
+
+    def define_field_accessors_for2(field_name)
+      define_singleton_method(field_name) do
+        instance_variable_get("@#{field_name}")
+      rescue NameError
+        field_cls = BinData::RegisteredClasses.lookup(@@buffer_field_types[field_name])
+        field_cls.new
+      end
+
+      define_singleton_method("#{field_name}=") do |value|
+        field_cls = BinData::RegisteredClasses.lookup(@@buffer_field_types[field_name])
+        instance_variable_set("@#{field_name}", field_cls.new(value))
+      end
+
+      define_singleton_method("#{field_name}?") do
+        !send(field_name).nil?
+      end
+    end
   end
 end

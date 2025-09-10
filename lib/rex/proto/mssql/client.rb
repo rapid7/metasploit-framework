@@ -453,92 +453,33 @@ module Rex
         def login_ntlm(user, pass, db, domain_name)
           prelogin_data = mssql_prelogin
 
-          pkt = ''
           pkt_hdr = MsTdsHeader.new(
             packet_type: MsTdsType::TDS7_LOGIN,
             packet_id: 1
           )
 
-          pkt << [
-              0x00000000,   # Size
-              0x71000001,   # TDS Version
-              0x00000000,   # Dummy Size
-              0x00000007,   # Version
-              rand(1024+1), # PID
-              0x00000000,   # ConnectionID
-              0xe0,         # Option Flags 1
-              0x83,         # Option Flags 2
-              0x00,         # SQL Type Flags
-              0x00,         # Reserved Flags
-              0x00000000,   # Time Zone
-              0x00000000    # Collation
-          ].pack('VVVVVVCCCCVV')
-
-          cname = Rex::Text.to_unicode( Rex::Text.rand_text_alpha(rand(8)+1) )
-          aname = Rex::Text.to_unicode( Rex::Text.rand_text_alpha(rand(8)+1) ) #application and library name
-          sname = Rex::Text.to_unicode( rhost )
-
-          workstation_name = Rex::Text.rand_text_alpha(rand(8)+1)
+          new_pkt = MsTdsLogin7.new(server_name: rhost)
 
           ntlm_client = ::Net::NTLM::Client.new(
             user,
             pass,
-            workstation: workstation_name,
+            workstation: Rex::Text.rand_text_alpha(rand(1..8)),
             domain: domain_name,
           )
           type1 = ntlm_client.init_context
           # SQL 2012, at least, does not support KEY_EXCHANGE
           type1.flag &= ~ ::Net::NTLM::FLAGS[:KEY_EXCHANGE]
-          ntlmsspblob = type1.serialize
 
-          idx = pkt.size + 50 # lengths below
+          new_pkt.ib_language = new_pkt.offset_of(new_pkt.buffer) + new_pkt.buffer.num_bytes
+          new_pkt.ib_database = new_pkt.offset_of(new_pkt.buffer) + new_pkt.buffer.num_bytes
+          new_pkt.sspi = type1.serialize.bytes
 
-          pkt << [idx, cname.length / 2].pack('vv')
-          idx += cname.length
-
-          pkt << [0, 0].pack('vv') # User length offset must be 0
-          pkt << [0, 0].pack('vv') # Password length offset must be 0
-
-          pkt << [idx, aname.length / 2].pack('vv')  # AppName
-          idx += aname.length
-
-          pkt << [idx, sname.length / 2].pack('vv')  # ServerName
-          idx += sname.length
-
-          pkt << [0, 0].pack('vv') # unused
-
-          pkt << [idx, aname.length / 2].pack('vv')
-          idx += aname.length
-
-          pkt << [idx, 0].pack('vv') # locales
-
-          pkt << [idx, 0].pack('vv') #db
-
-          # ClientID (should be mac address)
-          pkt << Rex::Text.rand_text(6)
-
-          # NTLMSSP
-          pkt << [idx, ntlmsspblob.length].pack('vv')
-          idx += ntlmsspblob.length
-
-          pkt << [idx, 0].pack('vv') # AtchDBFile
-
-          pkt << cname
-          pkt << aname
-          pkt << sname
-          pkt << aname
-          pkt << ntlmsspblob
-
-          # Total packet length
-          pkt[0, 4] = [pkt.length].pack('V')
-
-          pkt_hdr.packet_length += pkt.length
-
-          pkt = pkt_hdr.to_binary_s + pkt
+          pkt_hdr.packet_length += new_pkt.num_bytes
+          pkt = pkt_hdr.to_binary_s + new_pkt.to_binary_s
 
           # Rem : One have to set check_status to false here because sql server sp0 (and maybe above)
           # has a strange behavior that differs from the specifications
-          # upon receiving the ntlm_negociate request it send an ntlm_challenge but the status flag of the tds packet header
+          # upon receiving the ntlm_negotiate request it send an ntlm_challenge but the status flag of the tds packet header
           # is set to STATUS_NORMAL and not STATUS_END_OF_MESSAGE, then internally it waits for the ntlm_authentification
           if tdsencryption == true
             proxy = TDSSSLProxy.new(sock, sslkeylogfile: sslkeylogfile)
