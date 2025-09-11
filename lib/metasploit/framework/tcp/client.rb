@@ -80,11 +80,6 @@ module Metasploit
             dossl = ssl
           end
 
-        # For Postgres, always connect with SSL disabled; SSL is enabled after the initial connection is made
-        if defined?(self) && self.class.name =~ /Postgres/
-          dossl = false
-        end
-
           nsock = Rex::Socket::Tcp.create(
               'PeerHost'      =>  opts['RHOST'] || rhost,
               'PeerHostname'  =>  opts['SSLServerNameIndication'] || opts['RHOSTNAME'],

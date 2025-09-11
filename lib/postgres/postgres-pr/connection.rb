@@ -358,13 +358,14 @@ class Connection
         'Proxies' => proxies
       )
       if ssl
-        # Send SSLRequest packet
-        ssl_request = [8, 80877103].pack('N2')
-        @conn.write(ssl_request)
+        ssl_request_message = SSLRequest.new(80877103)
+        @conn.write(ssl_request_message.dump)
         response = @conn.read(1)
         if response == 'S'
           ssl_context = OpenSSL::SSL::SSLContext.new
           ssl_socket = OpenSSL::SSL::SSLSocket.new(@conn, ssl_context)
+          # Ensure the underlying TCP socket is closed when the SSL socket is closed
+          # This prevents resource leaks and ensures proper cleanup of the connection
           ssl_socket.sync_close = true
           ssl_socket.connect
           @conn = ssl_socket
