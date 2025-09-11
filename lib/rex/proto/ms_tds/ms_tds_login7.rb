@@ -1,3 +1,5 @@
+require 'rex/text'
+
 module Rex::Proto::MsTds
   # see: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-tds/773a62b6-ee89-4c02-9e5e-344882630aac
   class MsTdsLogin7 < BinData::Record
@@ -9,17 +11,16 @@ module Rex::Proto::MsTds
       @@buffer_fields = []
       @@buffer_field_types = {}
 
-      def buffer_field(field_name, encoding:, onlyif: true)
+      def buffer_field(field_name, encoding:, onlyif: true, field_type: nil)
         @@buffer_fields << field_name
-
 
         uint16 "ib_#{field_name}".to_sym, initial_value: -> { buffer_field_offset(field_name) || 0 }, onlyif: onlyif
         case encoding
         when Encoding::ASCII_8BIT
-          @@buffer_field_types[field_name] = :uint8_array
+          @@buffer_field_types[field_name] = (field_type || :uint8_array)
           uint16 "cb_#{field_name}".to_sym, initial_value: -> { send(field_name)&.length || 0 }, onlyif: onlyif
         when Encoding::UTF_16LE
-          @@buffer_field_types[field_name] = :string16
+          @@buffer_field_types[field_name] = (field_type || :string16)
           uint16 "cch_#{field_name}".to_sym, initial_value: -> { send(field_name)&.length || 0 }, onlyif: onlyif
         else
           raise RuntimeError, "Unsupported encoding: #{encoding}"
@@ -45,7 +46,7 @@ module Rex::Proto::MsTds
     end
 
     struct  :option_flags_2 do
-      bit1  :f_int_security, initial_value: 1
+      bit1  :f_int_security
       bit3  :f_user_type
       bit1  :f_tran_boundary
       bit1  :f_cache_connect
@@ -75,7 +76,7 @@ module Rex::Proto::MsTds
     # Offset/Length pairs for variable-length data
     buffer_field :hostname, encoding: Encoding::UTF_16LE
     buffer_field :username, encoding: Encoding::UTF_16LE
-    buffer_field :password, encoding: Encoding::UTF_16LE
+    buffer_field :password, encoding: Encoding::UTF_16LE, field_type: :ms_tds_login7_password
     buffer_field :app_name, encoding: Encoding::UTF_16LE
     buffer_field :server_name, encoding: Encoding::UTF_16LE
     buffer_field :unused, encoding: Encoding::ASCII_8BIT
@@ -101,6 +102,7 @@ module Rex::Proto::MsTds
 
       self.server_name = self.hostname = Rex::Text.rand_text_alpha(rand(1..8))
       self.clt_int_name = self.app_name = Rex::Text.rand_text_alpha(rand(1..8))
+      self.language = self.database = ""
 
       @@buffer_fields.each do |field_name|
         parameter = get_parameter(field_name)
@@ -108,6 +110,16 @@ module Rex::Proto::MsTds
       end
 
       value
+    end
+
+    def assign(value)
+      super
+
+      @@buffer_fields.each do |field_name|
+        next unless value.key?(field_name)
+
+        send("#{field_name}=", value[field_name])
+      end
     end
 
     def initialize_shared_instance
@@ -122,17 +134,20 @@ module Rex::Proto::MsTds
 
       @@buffer_fields.each do |field_name|
         # the offset field's prefix is always ib_
-        next unless (field_offset = send("ib_#{field_name}")) > 0
+        field_offset = send("ib_#{field_name}")
         # the size field's prefix depends on the data type, but it's always right after the offset
-        next unless (field_size = send(field_names[field_names.index("ib_#{field_name}".to_sym) + 1])) > 0
+        field_size = send(field_names[field_names.index("ib_#{field_name}".to_sym) + 1])
 
         field_offset -= buffer.rel_offset
-        next unless field_offset >= 0
+        if field_offset < 0
+          instance_variable_set("@#{field_name}", nil)
+          next
+        end
 
         field_cls = BinData::RegisteredClasses.lookup(@@buffer_field_types[field_name])
 
         case @@buffer_field_types[field_name]
-        when :string16
+        when :string16, :ms_tds_login7_password
           field_size *= 2
           field_obj = field_cls.new(read_length: field_size)
         when :uint8_array
@@ -182,14 +197,15 @@ module Rex::Proto::MsTds
     def define_field_accessors_for2(field_name)
       define_singleton_method(field_name) do
         instance_variable_get("@#{field_name}")
-      rescue NameError
-        field_cls = BinData::RegisteredClasses.lookup(@@buffer_field_types[field_name])
-        field_cls.new
       end
 
       define_singleton_method("#{field_name}=") do |value|
-        field_cls = BinData::RegisteredClasses.lookup(@@buffer_field_types[field_name])
-        instance_variable_set("@#{field_name}", field_cls.new(value))
+        unless value.nil?
+          field_cls = BinData::RegisteredClasses.lookup(@@buffer_field_types[field_name])
+          value = field_cls.new(value)
+        end
+
+        instance_variable_set("@#{field_name}", value)
       end
 
       define_singleton_method("#{field_name}?") do

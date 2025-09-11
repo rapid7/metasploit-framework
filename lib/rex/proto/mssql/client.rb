@@ -458,7 +458,13 @@ module Rex
             packet_id: 1
           )
 
-          new_pkt = MsTdsLogin7.new(server_name: rhost)
+          pkt_body = MsTdsLogin7.new(
+            option_flags_2: {
+              f_int_security: 1
+            },
+            server_name: rhost,
+            database: db
+          )
 
           ntlm_client = ::Net::NTLM::Client.new(
             user,
@@ -470,12 +476,10 @@ module Rex
           # SQL 2012, at least, does not support KEY_EXCHANGE
           type1.flag &= ~ ::Net::NTLM::FLAGS[:KEY_EXCHANGE]
 
-          new_pkt.ib_language = new_pkt.offset_of(new_pkt.buffer) + new_pkt.buffer.num_bytes
-          new_pkt.ib_database = new_pkt.offset_of(new_pkt.buffer) + new_pkt.buffer.num_bytes
-          new_pkt.sspi = type1.serialize.bytes
+          pkt_body.sspi = type1.serialize.bytes
 
-          pkt_hdr.packet_length += new_pkt.num_bytes
-          pkt = pkt_hdr.to_binary_s + new_pkt.to_binary_s
+          pkt_hdr.packet_length += pkt_body.num_bytes
+          pkt = pkt_hdr.to_binary_s + pkt_body.to_binary_s
 
           # Rem : One have to set check_status to false here because sql server sp0 (and maybe above)
           # has a strange behavior that differs from the specifications
@@ -499,14 +503,13 @@ module Rex
             type: MsTdsType::SSPI_MESSAGE,
             packet_id: 1
           )
-          pkt_hdr.packet_length += type3_blob.length
 
+          pkt_hdr.packet_length += type3_blob.length
           pkt = pkt_hdr.to_binary_s + type3_blob
 
           if self.tdsencryption == true
             resp = mssql_ssl_send_recv(pkt, proxy)
             proxy.cleanup
-            proxy = nil
           else
             resp = mssql_send_recv(pkt)
           end
@@ -523,88 +526,26 @@ module Rex
         def login_sql(user, pass, db, domain_name)
           prelogin_data = mssql_prelogin
 
-          pkt = [
-              0x00000000,   # Dummy size
+          pkt_hdr = MsTdsHeader.new(
+            packet_type: MsTdsType::TDS7_LOGIN,
+            packet_id: 1
+          )
 
-              0x71000001,   # TDS Version
-              0x00000000,   # Size
-              0x00000007,   # Version
-              rand(1024+1), # PID
-              0x00000000,   # ConnectionID
-              0xe0,         # Option Flags 1
-              0x03,         # Option Flags 2
-              0x00,         # SQL Type Flags
-              0x00,         # Reserved Flags
-              0x00000000,   # Time Zone
-              0x00000000    # Collation
-          ].pack('VVVVVVCCCCVV')
+          pkt_body = MsTdsLogin7.new(
+            server_name: rhost,
+            database: db,
+            username: user,
+            password: pass
+          )
 
-
-          cname = Rex::Text.to_unicode( Rex::Text.rand_text_alpha(rand(8)+1) )
-          uname = Rex::Text.to_unicode( user )
-          pname = mssql_tds_encrypt( pass )
-          aname = Rex::Text.to_unicode( Rex::Text.rand_text_alpha(rand(8)+1) )
-          sname = Rex::Text.to_unicode( rhost )
-          dname = Rex::Text.to_unicode( db )
-
-          idx = pkt.size + 50 # lengths below
-
-          pkt << [idx, cname.length / 2].pack('vv')
-          idx += cname.length
-
-          pkt << [idx, uname.length / 2].pack('vv')
-          idx += uname.length
-
-          pkt << [idx, pname.length / 2].pack('vv')
-          idx += pname.length
-
-          pkt << [idx, aname.length / 2].pack('vv')
-          idx += aname.length
-
-          pkt << [idx, sname.length / 2].pack('vv')
-          idx += sname.length
-
-          pkt << [0, 0].pack('vv')
-
-          pkt << [idx, aname.length / 2].pack('vv')
-          idx += aname.length
-
-          pkt << [idx, 0].pack('vv')
-
-          pkt << [idx, dname.length / 2].pack('vv')
-          idx += dname.length
-
-          # The total length has to be embedded twice more here
-          pkt << [
-              0,
-              0,
-              0x12345678,
-              0x12345678
-          ].pack('vVVV')
-
-          pkt << cname
-          pkt << uname
-          pkt << pname
-          pkt << aname
-          pkt << sname
-          pkt << aname
-          pkt << dname
-
-          # Total packet length
-          pkt[0, 4] = [pkt.length].pack('V')
-
-          # Embedded packet lengths
-          pkt[pkt.index([0x12345678].pack('V')), 8] = [pkt.length].pack('V') * 2
-
-          # Packet header and total length including header
-          pkt = "\x10\x01" + [pkt.length + 8].pack('n') + [0].pack('n') + [1].pack('C') + "\x00" + pkt
+          pkt_hdr.packet_length += pkt_body.num_bytes
+          pkt = pkt_hdr.to_binary_s + pkt_body.to_binary_s
 
           if self.tdsencryption == true
             proxy = TDSSSLProxy.new(sock, sslkeylogfile: sslkeylogfile)
             proxy.setup_ssl
             resp = mssql_ssl_send_recv(pkt, proxy)
             proxy.cleanup
-            proxy = nil
           else
             resp = mssql_send_recv(pkt)
           end

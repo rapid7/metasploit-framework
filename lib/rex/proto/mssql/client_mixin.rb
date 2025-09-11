@@ -198,14 +198,6 @@ module ClientMixin
     resp
   end
 
-  #
-  # Encrypt a password according to the TDS protocol (encode)
-  #
-  def mssql_tds_encrypt(pass)
-    # Convert to unicode, swap 4 bits both ways, xor with 0xa5
-    Rex::Text.to_unicode(pass).unpack('C*').map {|c| (((c & 0x0f) << 4) + ((c & 0xf0) >> 4)) ^ 0xa5 }.pack("C*")
-  end
-
   def mssql_xpcmdshell(cmd, doprint=false, opts={})
     force_enable = false
     begin
