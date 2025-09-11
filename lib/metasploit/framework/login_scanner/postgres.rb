@@ -1,6 +1,4 @@
 require 'metasploit/framework/login_scanner/base'
-require 'metasploit/framework/login_scanner/rex_socket'
-require 'metasploit/framework/tcp/client'
 require 'postgres_msf'
 
 module Metasploit
@@ -12,8 +10,25 @@ module Metasploit
       # and attempting them. It then saves the results.
       class Postgres
         include Metasploit::Framework::LoginScanner::Base
-        include Metasploit::Framework::LoginScanner::RexSocket
-        include Metasploit::Framework::Tcp::Client
+
+        # @!attribute ssl
+        #   @return [Boolean] Whether the connection should use SSL
+        attr_accessor :ssl
+        # @!attribute ssl_version
+        #   @return [String] The version of SSL to implement
+        attr_accessor :ssl_version
+        # @!attribute ssl_verify_mode
+        #   @return [String] the SSL certification verification mechanism
+        attr_accessor :ssl_verify_mode
+        # @!attribute ssl_cipher
+        #   @return [String] The SSL cipher to use for the context
+        attr_accessor :ssl_cipher
+        # @!attribute max_send_size
+        #   @return [Integer] The max size of the data to encapsulate in a single packet
+        attr_accessor :max_send_size
+        # @!attribute send_delay
+        #   @return [Integer] The delay between sending packets
+        attr_accessor :send_delay
 
         # @returns [Boolean] If a login is successful and this attribute is true - a Msf::Db::PostgresPR::Connection instance is used as proof,
         #   and the socket is not immediately closed
