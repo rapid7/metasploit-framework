@@ -115,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Msf::Exploit::Failure::BadConfig, 'The SMBDomain option is required when using Kerberos authentication.') if datastore['SMBDomain'].blank?
       fail_with(Msf::Exploit::Failure::BadConfig, 'The DomainControllerRhost is required when using Kerberos authentication.') if datastore['DomainControllerRhost'].blank?
 
-      if !datastore['PASSWORD']
+      if datastore['SMBPass'].blank?
         # In case no password has been provided, we assume the user wants to use Kerberos tickets stored in cache
         # Write mode is still enable in case new TGS tickets are retrieved.
         ticket_storage = kerberos_ticket_storage({ read: true, write: true })
@@ -178,7 +178,7 @@ class MetasploitModule < Msf::Auxiliary
       realm: domain,
       username: datastore['SMBUser'],
       password: datastore['SMBPass'],
-      nil_passwords: datastore['SMB::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS && !datastore['PASSWORD']
+      nil_passwords: datastore['SMB::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS && datastore['SMBPass'].blank?
     )
     cred_collection = prepend_db_hashes(cred_collection)
 
