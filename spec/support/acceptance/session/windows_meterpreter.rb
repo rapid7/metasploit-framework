@@ -18,7 +18,26 @@ module Acceptance::Session
             MeterpreterDebugBuild: true
           }
         }
+      },
+      {
+        name: "windows/x64/meterpreter/reverse_tcp",
+        extension: ".exe",
+        platforms: [:windows],
+        execute_cmd: ["${payload_path}"],
+        executable: true,
+        generate_options: {
+          '-f': "exe"
+        },
+        datastore: {
+          global: {},
+          module: {
+            # Not supported by Windows Meterpreter
+            # MeterpreterTryToFork: false,
+            MeterpreterDebugBuild: true
+          }
+        }
       }
+
     ],
     module_tests: [
       {
