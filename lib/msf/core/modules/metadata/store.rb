@@ -56,7 +56,7 @@ module Msf::Modules::Metadata::Store
       retries +=1
 
       # Try to handle the scenario where the file is corrupted
-      if (retries < 2 && ::File.exist?(@path_to_user_metadata))
+      if retries < 2 && @path_to_user_metadata && ::File.exist?(@path_to_user_metadata)
         elog('Possible corrupt user metadata store, attempting restore')
         FileUtils.remove(@path_to_user_metadata)
         retry
