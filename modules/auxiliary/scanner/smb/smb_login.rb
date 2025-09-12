@@ -67,7 +67,7 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
-    options_to_deregister = %w[USERNAME PASSWORD CommandShellCleanupCommand AutoVerifySession]
+    options_to_deregister = %w[USERNAME PASSWORD CommandShellCleanupCommand AutoVerifySession KrbCacheMode]
 
     if framework.features.enabled?(Msf::FeatureManager::SMB_SESSION_TYPE)
       add_info('New in Metasploit 6.4 - The %grnCreateSession%clr option within this module can open an interactive session')
@@ -178,7 +178,7 @@ class MetasploitModule < Msf::Auxiliary
       realm: domain,
       username: datastore['SMBUser'],
       password: datastore['SMBPass'],
-      ignore_private: datastore['SMB::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS && !datastore['PASSWORD']
+      nil_passwords: datastore['SMB::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS && !datastore['PASSWORD']
     )
     cred_collection = prepend_db_hashes(cred_collection)
 
