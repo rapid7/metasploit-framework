@@ -972,9 +972,9 @@ RSpec.describe Msf::RhostsWalker do
       it 'enumerates postgres schemes' do
         postgres_mod.datastore['RHOSTS'] = 'postgres://postgres:@example.com "postgres://user:a b c@example.com/" "postgres://user:a b c@example.com:9001/database_name"'
         expected = [
-          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 5432, 'USERNAME' => 'postgres', 'PASSWORD' => '', 'DATABASE' => 'template1' },
-          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 5432, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'template1' },
-          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 9001, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'database_name' }
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 5432, 'SSL' => false, 'USERNAME' => 'postgres', 'PASSWORD' => '', 'DATABASE' => 'template1' },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 5432,'SSL' => false, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'template1' },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => '192.0.2.2', 'RPORT' => 9001, 'SSL' => false, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'database_name' }
         ]
         expect(each_error_for(postgres_mod)).to be_empty
         expect(each_host_for(postgres_mod)).to have_datastore_values(expected)
@@ -984,9 +984,9 @@ RSpec.describe Msf::RhostsWalker do
         postgres_mod.datastore['RHOSTS'] = 'postgres://postgres:@example.com "postgres://user:a b c@example.com/" "postgres://user:a b c@example.com:9001/database_name"'
         postgres_mod.datastore['PROXIES'] = 'socks5h:198.51.100.1:1080'
         expected = [
-          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => 'example.com', 'RPORT' => 5432, 'USERNAME' => 'postgres', 'PASSWORD' => '', 'DATABASE' => 'template1' },
-          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => 'example.com', 'RPORT' => 5432, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'template1' },
-          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => 'example.com', 'RPORT' => 9001, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'database_name' }
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => 'example.com', 'RPORT' => 5432, 'SSL' => false, 'USERNAME' => 'postgres', 'PASSWORD' => '', 'DATABASE' => 'template1' },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => 'example.com', 'RPORT' => 5432, 'SSL' => false, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'template1' },
+          { 'RHOSTNAME' => 'example.com', 'RHOSTS' => 'example.com', 'RPORT' => 9001, 'SSL' => false, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'database_name' }
         ]
         expect(each_error_for(postgres_mod)).to be_empty
         expect(each_host_for(postgres_mod)).to have_datastore_values(expected)
