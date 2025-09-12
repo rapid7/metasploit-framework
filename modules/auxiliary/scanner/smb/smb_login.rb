@@ -178,7 +178,7 @@ class MetasploitModule < Msf::Auxiliary
       realm: domain,
       username: datastore['SMBUser'],
       password: datastore['SMBPass'],
-      ignore_private: datastore['SMB::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS && !datastore['PASSWORD']
+      nil_passwords: datastore['SMB::Auth'] == Msf::Exploit::Remote::AuthOption::KERBEROS && !datastore['PASSWORD']
     )
     cred_collection = prepend_db_hashes(cred_collection)
 
