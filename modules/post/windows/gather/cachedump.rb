@@ -26,7 +26,8 @@ class MetasploitModule < Msf::Post
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
         'References' => [
-          ['URL', 'https://web.archive.org/web/20220407023137/https://lab.mediaservice.net/code/cachedump.rb']
+          ['URL', 'https://web.archive.org/web/20220407023137/https://lab.mediaservice.net/code/cachedump.rb'],
+          ['ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING]
         ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],

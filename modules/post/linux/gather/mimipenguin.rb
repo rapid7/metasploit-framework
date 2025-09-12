@@ -37,7 +37,8 @@ class MetasploitModule < Msf::Post
           [ 'URL', 'https://github.com/huntergregal/mimipenguin' ],
           [ 'URL', 'https://bugs.launchpad.net/ubuntu/+source/gnome-keyring/+bug/1772919' ],
           [ 'URL', 'https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1717490' ],
-          [ 'CVE', '2018-20781' ]
+          [ 'CVE', '2018-20781' ],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING ]
         ],
         'DisclosureDate' => '2018-05-23',
         'DefaultTarget' => 0,

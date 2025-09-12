@@ -30,7 +30,10 @@ class MetasploitModule < Msf::Post
               priv_passwd_get_sam_hashes
             ]
           }
-        }
+        },
+        'References' => [
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING ]
+        ]
       )
     )
   end

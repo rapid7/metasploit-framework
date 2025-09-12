@@ -37,7 +37,10 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_memory_write
             ]
           }
-        }
+        },
+        'References' => [
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING ]
+        ]
       )
     )
   end

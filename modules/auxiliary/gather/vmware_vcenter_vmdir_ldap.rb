@@ -29,7 +29,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['CVE', '2020-3952'],
-          ['URL', 'https://www.vmware.com/security/advisories/VMSA-2020-0006.html']
+          ['URL', 'https://www.vmware.com/security/advisories/VMSA-2020-0006.html'],
+          ['ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING]
         ],
         'DisclosureDate' => '2020-04-09', # Vendor advisory
         'License' => MSF_LICENSE,

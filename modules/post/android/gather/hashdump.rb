@@ -30,6 +30,7 @@ class MetasploitModule < Msf::Post
         'References' => [
           ['URL', 'https://www.pentestpartners.com/security-blog/cracking-android-passwords-a-how-to/'],
           ['URL', 'https://hashcat.net/forum/thread-2202.html'],
+          ['ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING],
         ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],

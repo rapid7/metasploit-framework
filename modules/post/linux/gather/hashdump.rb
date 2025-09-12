@@ -21,7 +21,10 @@ class MetasploitModule < Msf::Post
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [],
           'Reliability' => []
-        }
+        },
+        'References' => [
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING ]
+        ]
       )
     )
   end
