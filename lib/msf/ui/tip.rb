@@ -17,7 +17,7 @@ module Msf
         "View all productivity tips with the #{highlight('tips')} command",
         "Enable verbose logging with #{highlight('set VERBOSE true')}",
         "When in a module, use #{highlight('back')} to go back to the top level prompt",
-        "Tired of setting RHOSTS for modules? Try globally setting it with #{highlight('setg RHOSTS x.x.x.x')}",
+        "Tired of setting #{highlight('RHOSTS')} for modules? Try globally setting it with #{highlight('setg RHOSTS x.x.x.x')}",
         "Enable HTTP request and response logging with #{highlight('set HttpTrace true')}",
         "You can upgrade a shell to a Meterpreter session on many platforms using #{highlight('sessions -u <session_id>')}",
         "Open an interactive Ruby terminal with #{highlight('irb')}",
@@ -35,12 +35,23 @@ module Msf
         "Network adapter names can be used for IP options #{highlight('set LHOST eth0')}",
         "Use #{highlight('sessions -1')} to interact with the last opened session",
         "View missing module options with #{highlight('show missing')}",
-        "Start commands with a space to avoid saving them to history",
-        "You can pivot connections over sessions started with the ssh_login modules",
+        'Start commands with a space to avoid saving them to history',
+        'You can pivot connections over sessions started with the ssh_login modules',
         "Use the #{highlight('analyze')} command to suggest runnable modules for hosts",
-        "Set the current module's RHOSTS with database values using #{highlight('hosts -R')} or #{highlight('services -R')}",
-        "Use the 'capture' plugin to start multiple authentication-capturing and poisoning services",
-        "The #{highlight('use')} command supports fuzzy searching to try and select the intended module, e.g. #{highlight('use kerberos/get_ticket')} or #{highlight('use kerberos forge silver ticket')}"
+        "Set the current module's #{highlight('RHOSTS')} with database values using #{highlight('hosts -R')} or #{highlight('services -R')}",
+        "Use the #{highlight('capture')} plugin to start multiple authentication-capturing and poisoning services",
+        "The #{highlight('use')} command supports fuzzy searching to try and select the intended module, e.g., #{highlight('use kerberos/get_ticket')} or #{highlight('use kerberos forge silver ticket')}",
+        "Organize your work by creating workspaces with #{highlight('workspace -a <name>')}",
+        "Store discovered credentials for later use with #{highlight('creds')}",
+        "Keep track of findings and observations with #{highlight('notes')}",
+        "Add routes to pivot through a compromised host using #{highlight('route add <subnet> <session_id>')}",
+        "Run modules in the background with #{highlight('run -j')} so you can keep working",
+        "Stop all background jobs quickly with #{highlight('jobs -K')}",
+        "Export your database results with #{highlight('db_export -f xml <file>')}",
+        "Execute a command across all sessions with #{highlight('sessions -C <command>')}",
+        "Use #{highlight('post/multi/manage/autoroute')} to automatically add pivot routes",
+        "Use #{highlight('check')} before #{highlight('run')} to confirm if a target is vulnerable",
+        "Bind your reverse shell to a tunnel with #{highlight('set ReverseListenerBindAddress <tunnel_address>')} and #{highlight('set ReverseListenerBindPort <tunnel_port>')} (e.g., ngrok)"
       ].freeze
       private_constant :COMMON_TIPS
 
