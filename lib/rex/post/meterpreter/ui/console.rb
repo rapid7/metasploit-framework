@@ -25,9 +25,9 @@ class Console
   #
   def initialize(client)
     if (Rex::Compat.is_windows())
-      super("meterpreter")
+      super('meterpreter')
     else
-      super("%undmeterpreter%clr", '>', Msf::Config.meterpreter_history, nil, :meterpreter)
+      super('%undmeterpreter%clr', '>', Msf::Config.meterpreter_history, nil, :meterpreter)
     end
 
     # The meterpreter client context

@@ -519,6 +519,8 @@ module DispatcherShell
     # If output is disabled output will be nil
     output.reset_color if (output)
 
+    print("=~=~Start of output~=~=\n\r")
+
     if (method)
       entries = dispatcher_stack.length
 
@@ -566,6 +568,8 @@ module DispatcherShell
         unknown_command(method, line)
       end
     end
+
+    print("=~=~End of output~=~=\n\r")
 
     return cmd_status == :handled
   end
