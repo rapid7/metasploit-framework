@@ -69,7 +69,7 @@ RSpec.describe Msf::Exe::SegmentInjector do
       it 'should have all the right section names' do
         s_names = []
         exe.sections.collect {|s| s_names << s.name}
-        expect(s_names).to eq [".text", ".rdata", ".data", ".rsrc", ".text"]
+        expect(s_names).to eq [".text", ".rdata", ".data", ".reloc", ".text"]
       end
 
       it 'should have the last section set to RWX' do
