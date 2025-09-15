@@ -327,7 +327,7 @@ GEM
       mutex_m
       railties (~> 7.0)
       zeitwerk
-    metasploit-credential (6.0.16)
+    metasploit-credential (6.0.19)
       bigdecimal
       csv
       drb
@@ -340,7 +340,7 @@ GEM
       railties
       rex-socket
       rubyntlm
-      rubyzip
+      rubyzip (< 3.0.0)
     metasploit-model (5.0.4)
       activemodel (~> 7.0)
       activesupport (~> 7.0)
