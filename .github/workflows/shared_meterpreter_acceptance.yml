@@ -285,8 +285,10 @@ jobs:
             exit 1
           }
           Set-Location "D:\a\metasploit-payloads\metasploit-payloads\metasploit-payloads\c\meterpreter"
-          Invoke-Command -ScriptBlock { cmd.exe /c git submodule init && git submodule update }
-          Invoke-Command -ScriptBlock { cmd.exe /c "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" && make.bat }
+          $r = Invoke-Command -ScriptBlock { cmd.exe /c git submodule init && git submodule update }
+          Write-Host $r
+          $r = Invoke-Command -ScriptBlock { cmd.exe /c "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" && make.bat }
+          Write-Host $r
         working-directory: metasploit-payloads
 
       - name: Build Windows payloads via Visual Studio 2025 Build (Windows)
