@@ -16,12 +16,8 @@ module Msf
           [
             OptString.new(
               'AutoLoadExtensions',
-              [true, "Automatically load extensions on bootstrap, comma separated.", 'unhook,priv,stdapi']
-            ),
-            OptBool.new(
-              'AutoUnhookProcess',
-              [true, "Automatically load the unhook extension and unhook the process", false]
-            ),
+              [true, "Automatically load extensions on bootstrap, comma separated.", 'priv,stdapi']
+            )
           ],
           self.class
         )

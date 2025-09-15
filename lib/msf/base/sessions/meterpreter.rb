@@ -184,7 +184,9 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     # BEGIN: This should be removed on MSF 7
     # Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP (by default unhook is first, see meterpreter_options/windows.rb)
-    extensions.push('unhook') if datastore['AutoUnhookProcess'] && session.platform == 'windows'
+    # The unhook extension is broken. reference: https://github.com/rapid7/metasploit-framework/pull/20514
+
+    #extensions.push('unhook') if datastore['AutoUnhookProcess'] && session.platform == 'windows'
     extensions.push('stdapi') if datastore['AutoLoadStdapi']
     extensions.push('priv') if datastore['AutoLoadStdapi'] && session.platform == 'windows'
     extensions.push('android') if session.platform == 'android'
@@ -197,7 +199,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     extensions.each do |extension|
       begin
         console.run_single("load #{extension}")
-        console.run_single('unhook_pe') if extension == 'unhook'
+        # console.run_single('unhook_pe') if extension == 'unhook'
         session.load_session_info if extension == 'stdapi' && datastore['AutoSystemInfo']
       rescue => e
         print_warning("Failed loading extension #{extension}")
