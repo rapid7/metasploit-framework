@@ -343,35 +343,6 @@ module Rex
         def login_kerberos(user, pass, db, domain_name)
           prelogin_data = mssql_prelogin
 
-          pkt = ''
-          pkt_hdr =  [
-            TYPE_TDS7_LOGIN, #type
-            STATUS_END_OF_MESSAGE, #status
-            0x0000, #length
-            0x0000, # SPID
-            0x01,   # PacketID (unused upon specification
-            # but ms network monitor still prefer 1 to decode correctly, wireshark don't care)
-            0x00   #Window
-          ]
-
-          pkt << [
-            0x00000000,   # Size
-            0x71000001,   # TDS Version
-            0x00000000,   # Dummy Size
-            0x00000007,   # Version
-            rand(1024+1), # PID
-            0x00000000,   # ConnectionID
-            0xe0,         # Option Flags 1
-            0x83,         # Option Flags 2
-            0x00,         # SQL Type Flags
-            0x00,         # Reserved Flags
-            0x00000000,   # Time Zone
-            0x00000000    # Collation
-          ].pack('VVVVVVCCCCVV')
-
-          cname = Rex::Text.to_unicode( Rex::Text.rand_text_alpha(rand(8)+1) )
-          aname = Rex::Text.to_unicode( Rex::Text.rand_text_alpha(rand(8)+1) ) #application and library name
-          sname = Rex::Text.to_unicode( rhost )
           framework_module.fail_with(Msf::Exploit::Failure::BadConfig, 'The Mssql::Rhostname option is required when using kerberos authentication.') if @hostname.blank?
           kerberos_authenticator = Msf::Exploit::Remote::Kerberos::ServiceAuthenticator::MSSQL.new(
             host: @domain_controller_rhost,
@@ -387,52 +358,24 @@ module Rex
           )
 
           kerberos_result = kerberos_authenticator.authenticate
-          ssp_security_blob = kerberos_result[:security_blob]
 
-          idx = pkt.size + 50 # lengths below
+          pkt_hdr = MsTdsHeader.new(
+            packet_type: MsTdsType::TDS7_LOGIN,
+            packet_id: 1
+          )
 
-          pkt << [idx, cname.length / 2].pack('vv')
-          idx += cname.length
+          pkt_body = MsTdsLogin7.new(
+            option_flags_2: {
+              f_int_security: 1
+            },
+            server_name: rhost,
+            database: db
+          )
 
-          pkt << [0, 0].pack('vv') # User length offset must be 0
-          pkt << [0, 0].pack('vv') # Password length offset must be 0
+          pkt_body.sspi = kerberos_result[:security_blob].bytes
 
-          pkt << [idx, aname.length / 2].pack('vv')
-          idx += aname.length
-
-          pkt << [idx, sname.length / 2].pack('vv')
-          idx += sname.length
-
-          pkt << [0, 0].pack('vv') # unused
-
-          pkt << [idx, aname.length / 2].pack('vv')
-          idx += aname.length
-
-          pkt << [idx, 0].pack('vv') # locales
-
-          pkt << [idx, 0].pack('vv') #db
-
-          # ClientID (should be mac address)
-          pkt << Rex::Text.rand_text(6)
-
-          # SSP
-          pkt << [idx, ssp_security_blob.length].pack('vv')
-          idx += ssp_security_blob.length
-
-          pkt << [idx, 0].pack('vv') # AtchDBFile
-
-          pkt << cname
-          pkt << aname
-          pkt << sname
-          pkt << aname
-          pkt << ssp_security_blob
-
-          # Total packet length
-          pkt[0, 4] = [pkt.length].pack('V')
-
-          pkt_hdr[2] = pkt.length + 8
-
-          pkt = pkt_hdr.pack("CCnnCC") + pkt
+          pkt_hdr.packet_length += pkt_body.num_bytes
+          pkt = pkt_hdr.to_binary_s + pkt_body.to_binary_s
 
           # Rem : One have to set check_status to false here because sql server sp0 (and maybe above)
           # has a strange behavior that differs from the specifications
