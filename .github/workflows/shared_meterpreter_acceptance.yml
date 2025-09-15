@@ -285,8 +285,8 @@ jobs:
             exit 1
           }
           Set-Location "D:\a\metasploit-payloads\metasploit-payloads\metasploit-payloads\c\meterpreter"
-          Start-Process -FilePath cmd.exe -ArgumentList ('/c', 'git', 'submodule', 'init', '&&', 'git', 'submodule', 'update') -Wait -PassThru -WindowStyle Hidden
-          Start-Process -FilePath cmd.exe -ArgumentList ('/c', '"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat"', '&&', 'make.bat') -Wait -PassThru -WindowStyle Hidden
+          Invoke-Command -FilePath cmd.exe -ArgumentList ('/c', 'git', 'submodule', 'init', '&&', 'git', 'submodule', 'update')
+          Invoke-Command -FilePath cmd.exe -ArgumentList ('/c', '"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat"', '&&', 'make.bat')
         working-directory: metasploit-payloads
 
       - name: Build Windows payloads via Visual Studio 2025 Build (Windows)
