@@ -68,7 +68,10 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'References' => [
           ['URL', 'https://github.com/SecureAuthCorp/impacket/blob/master/examples/secretsdump.py'],
-          ['ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING],
+          ['ATT&CK', Mitre::Attack::Technique::T1003_002_SECURITY_ACCOUNT_MANAGER],
+          ['ATT&CK', Mitre::Attack::Technique::T1003_004_LSA_SECRETS],
+          ['ATT&CK', Mitre::Attack::Technique::T1003_005_CACHED_DOMAIN_CREDENTIALS],
+          ['ATT&CK', Mitre::Attack::Technique::T1003_006_DCSYNC]
         ],
         'Notes' => {
           'Reliability' => [],

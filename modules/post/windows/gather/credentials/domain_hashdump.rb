@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Post
           }
         },
         'References' => [
-          [ 'ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING ]
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_003_NTDS ]
         ]
       )
     )

@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => ['meterpreter'],
         'References' => [
           ['URL', 'https://web.archive.org/web/20220407023137/https://lab.mediaservice.net/code/cachedump.rb'],
-          ['ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING]
+          ['ATT&CK', Mitre::Attack::Technique::T1003_005_CACHED_DOMAIN_CREDENTIALS]
         ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],

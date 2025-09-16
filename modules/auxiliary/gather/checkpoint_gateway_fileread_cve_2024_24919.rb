@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://www.rapid7.com/blog/post/2024/05/30/etr-cve-2024-24919-check-point-security-gateway-information-disclosure/' ],
           # Publication of first proof-of-concept exploit
           [ 'URL', 'https://labs.watchtowr.com/check-point-wrong-check-point-cve-2024-24919/' ],
-          [ 'ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING ]
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_008_ETC_PASSWD_AND_ETC_SHADOW ]
         ]
       )
     )

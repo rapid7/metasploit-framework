@@ -34,7 +34,10 @@ class MetasploitModule < Msf::Post
               kiwi_exec_cmd
             ]
           }
-        }
+        },
+        'References' => [
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_001_LSASS_MEMORY ]
+        ]
       )
     )
   end

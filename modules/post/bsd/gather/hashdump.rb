@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Post
           'Reliability' => []
         },
         'References' => [
-          [ 'ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING ]
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_008_ETC_PASSWD_AND_ETC_SHADOW ]
         ]
       )
     )

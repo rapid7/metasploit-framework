@@ -45,7 +45,10 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_getpid
             ]
           }
-        }
+        },
+        'References' => [
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_001_LSASS_MEMORY ]
+        ]
       )
     )
     register_options([

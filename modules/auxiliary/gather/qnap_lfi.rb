@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://infosecwriteups.com/qnap-pre-auth-root-rce-affecting-450k-devices-on-the-internet-d55488d28a05'],
           ['URL', 'https://www.qnap.com/en-us/security-advisory/nas-201911-25'],
           ['URL', 'https://github.com/Imanfeng/QNAP-NAS-RCE'],
-          ['ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING]
+          ['ATT&CK', Mitre::Attack::Technique::T1003_008_ETC_PASSWD_AND_ETC_SHADOW]
         ],
         'DisclosureDate' => '2019-11-25', # Vendor advisory
         'Actions' => [

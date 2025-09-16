@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://www.fortiguard.com/psirt/FG-IR-18-384'],
           ['URL', 'https://i.blackhat.com/USA-19/Wednesday/us-19-Tsai-Infiltrating-Corporate-Intranet-Like-NSA.pdf'],
           ['URL', 'https://devco.re/blog/2019/08/09/attacking-ssl-vpn-part-2-breaking-the-Fortigate-ssl-vpn/'],
-          ['ATT&CK', Mitre::Attack::Technique::T1003_OS_CREDENTIAL_DUMPING]
+          ['ATT&CK', Mitre::Attack::Technique::T1003_008_ETC_PASSWD_AND_ETC_SHADOW]
         ],
         'Author' => [
           'Meh Chang', # discovery and PoC
