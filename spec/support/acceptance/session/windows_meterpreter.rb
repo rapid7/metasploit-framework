@@ -2,7 +2,7 @@ module Acceptance::Session
   WINDOWS_METERPRETER = {
     payloads: [
       {
-        name: "windows/x64/meterpreter_bind_tcp",
+        name: "windows/x64/meterpreter/reverse_tcp",
         extension: ".exe",
         platforms: [:windows],
         execute_cmd: ["${payload_path}"],
@@ -16,6 +16,24 @@ module Acceptance::Session
             # Not supported by Windows Meterpreter
             # MeterpreterTryToFork: false,
             MeterpreterDebugBuild: true
+          }
+        }
+      },
+      {
+        name: "windows/meterpreter/reverse_tcp",
+        extension: ".exe",
+        platforms: [:windows],
+        execute_cmd: ["${payload_path}"],
+        executable: true,
+        generate_options: {
+          '-f': "exe"
+        },
+        datastore: {
+          global: {},
+          module: {
+            # Not supported by Windows Meterpreter
+            # MeterpreterTryToFork: false,
+            MeterpreterDebugBuild: false
           }
         }
       }
