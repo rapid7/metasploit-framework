@@ -38,7 +38,7 @@ module Acceptance::Session
         }
       },
       {
-        name: "windows/x64/meterpreter/reverse_tcp",
+        name: "windows/x64/meterpreter/reverse_http",
         extension: ".exe",
         platforms: [:windows],
         execute_cmd: ["${payload_path}"],
