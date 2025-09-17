@@ -313,7 +313,7 @@ module Metasploit::Framework
       end
 
       each_user_pass_from_userpass_file do |user, pass|
-        yield Metasploit::Framework::Credential.new(public: user, private: pass, realm: realm)
+        yield Metasploit::Framework::Credential.new(public: user, private: pass, realm: realm, private_type: private_type(pass))
       end
 
       additional_privates.each do |add_private|
@@ -374,7 +374,7 @@ module Metasploit::Framework
       end
 
       each_user_pass_from_userpass_file do |user, pass|
-        yield Metasploit::Framework::Credential.new(public: user, private: pass, realm: realm)
+        yield Metasploit::Framework::Credential.new(public: user, private: pass, realm: realm, private_type: private_type(pass))
       end
 
       additional_publics.each do |add_public|
