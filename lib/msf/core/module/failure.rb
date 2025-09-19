@@ -59,7 +59,7 @@ module Msf::Module::Failure
       # Only include RHOST if it's a single valid host, not a multi-value string or file path
       rhost = self.datastore['RHOST'].to_s
       # Check if RHOST is not a file path and doesn't contain spaces (multiple hosts)
-      unless rhost.start_with?('file:') || rhost.include?(' ')
+      if Rex::Socket.is_ip_addr?(rhost)
         info[:host] = rhost
       end
     end
