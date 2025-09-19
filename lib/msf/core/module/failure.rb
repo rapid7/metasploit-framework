@@ -56,9 +56,10 @@ module Msf::Module::Failure
     info[:target_name] = self.target.name if self.respond_to?(:target)
 
     if self.datastore['RHOST'] && (self.options['RHOST'] || self.options['RHOSTS'])
-      # Don't try to save file paths as host addresses
-      rhost = self.datastore['RHOST']
-      unless rhost.to_s.start_with?('file:')
+      # Only include RHOST if it's a single valid host, not a multi-value string or file path
+      rhost = self.datastore['RHOST'].to_s
+      # Check if RHOST is not a file path and doesn't contain spaces (multiple hosts)
+      unless rhost.start_with?('file:') || rhost.include?(' ')
         info[:host] = rhost
       end
     end
