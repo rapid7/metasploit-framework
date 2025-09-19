@@ -56,9 +56,13 @@ module Msf::Module::Failure
     info[:target_name] = self.target.name if self.respond_to?(:target)
 
     if self.datastore['RHOST'] && (self.options['RHOST'] || self.options['RHOSTS'])
-      info[:host] = self.datastore['RHOST']
+      # Don't try to save file paths as host addresses
+      rhost = self.datastore['RHOST']
+      unless rhost.to_s.start_with?('file:')
+        info[:host] = rhost
+      end
     end
-
+    
     if self.datastore['RPORT'] and self.options['RPORT']
       info[:port] = self.datastore['RPORT']
       if self.class.ancestors.include?(Msf::Exploit::Remote::Tcp)
