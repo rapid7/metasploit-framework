@@ -58,7 +58,7 @@ module Msf::Module::Failure
     if self.datastore['RHOST'] && (self.options['RHOST'] || self.options['RHOSTS'])
       # Only include RHOST if it's a single valid host, not a multi-value string or file path
       rhost = self.datastore['RHOST'].to_s
-      # Check if RHOST is not a file path and doesn't contain spaces (multiple hosts)
+      # Check if RHOST is a valid IP address to avoid ActiveRecord issues on validation
       if Rex::Socket.is_ip_addr?(rhost)
         info[:host] = rhost
       end
