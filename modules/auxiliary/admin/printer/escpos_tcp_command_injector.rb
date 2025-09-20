@@ -5,18 +5,23 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'ESC/POS Printer Command Injector',
-      'Description' => %q{
-        This module exploits an unauthenticated ESC/POS command vulnerability in networked Epson-compatible printers.
-        You can print a custom message, trigger the attached cash drawer, or do both.
-      },
-      'Author'      => ['FutileSkills'],
-      'License'     => MSF_LICENSE,
-      'References'  => [
-        ['URL', 'https://github.com/futileskills/Security-Advisory']
-      ]
-    ))
+  super(update_info(info,
+    'Name'        => 'ESC/POS Printer Command Injector',
+    'Description' => %q{
+      This module exploits an unauthenticated ESC/POS command vulnerability in networked Epson-compatible printers.
+      You can print a custom message, trigger the attached cash drawer, or do both.
+    },
+    'Author'      => ['FutileSkills'],
+    'License'     => MSF_LICENSE,
+    'References'  => [
+      ['URL', 'https://github.com/futileskills/Security-Advisory']
+    ],
+    'Notes'       => {
+      'Stability'   => [Metasploit::Module::Stability::CRASH_SAFE],
+      'Reliability' => [Metasploit::Module::Reliability::REPEATABLE_SESSION],
+      'SideEffects' => [Metasploit::Module::SideEffects::IOC_IN_LOGS, Metasploit::Module::SideEffects::PHYSICAL_EFFECTS]
+    }
+  ))
 
     register_options(
       [
