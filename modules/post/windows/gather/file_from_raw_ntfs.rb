@@ -24,7 +24,8 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => ['meterpreter'],
         'Author' => ['Danil Bazin <danil.bazin[at]hsc.fr>'], # @danilbaz
         'References' => [
-          [ 'URL', 'http://www.amazon.com/System-Forensic-Analysis-Brian-Carrier/dp/0321268172/' ]
+          [ 'URL', 'http://www.amazon.com/System-Forensic-Analysis-Brian-Carrier/dp/0321268172/' ],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1003_003_NTDS ]
         ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],

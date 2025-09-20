@@ -44,6 +44,7 @@ on:
       - 'Gemfile.lock'
       - 'data/templates/**'
       - 'modules/payloads/**'
+      - 'lib/msf/base/sessions/**'
       - 'lib/msf/core/payload/**'
       - 'lib/msf/core/**'
       - 'test/modules/**'

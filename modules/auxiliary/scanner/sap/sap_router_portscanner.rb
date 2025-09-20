@@ -423,6 +423,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_warning('Warning: Service info could be inaccurate')
-    print(tbl)
+    print_line(tbl.to_s)
   end
 end

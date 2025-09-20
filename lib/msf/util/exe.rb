@@ -248,7 +248,7 @@ require 'digest/sha1'
       end
 
       # use
-      self.to_win32pe_exe_sub(framework, code, opts)
+      return self.to_win32pe_exe_sub(framework, code, opts)
     end
 
     # Allow the user to specify their own EXE template
@@ -630,7 +630,6 @@ require 'digest/sha1'
     opts[:exe_type] = :exe_sub
     exe_sub_method(code,opts)
   end
-
   # self.to_win64pe
   #
   # @param framework  [Msf::Framework]  The framework of you want to use
@@ -674,24 +673,10 @@ require 'digest/sha1'
   #
   # @return [String] Windows Service PE file
   def self.to_win32pe_service(framework, code, opts = {})
+    # Allow the user to specify their own service EXE template
     set_template_default(opts, "template_x86_windows_svc.exe")
-    if opts[:sub_method]
-      # Allow the user to specify their own service EXE template
-      opts[:exe_type] = :service_exe
-      return exe_sub_method(code,opts)
-    else
-      ENV['MSF_SERVICENAME'] = opts[:servicename]
-
-      opts[:framework] = framework
-      opts[:payload] = 'stdin'
-      opts[:encoder] = '@x86/service,'+(opts[:serviceencoder] || '')
-
-      # XXX This should not be required, it appears there is a dependency inversion
-      # See https://github.com/rapid7/metasploit-framework/pull/9851
-      venom_generator = Msf::PayloadGenerator.new(opts)
-      code_service = venom_generator.multiple_encode_payload(code)
-      return to_winpe_only(framework, code_service, opts)
-    end
+    opts[:exe_type] = :service_exe
+    exe_sub_method(code,opts)
   end
 
   # self.to_win64pe_service
