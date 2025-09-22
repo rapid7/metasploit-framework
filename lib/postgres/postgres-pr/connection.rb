@@ -56,12 +56,12 @@ class Connection
     end
   end
 
-  def initialize(database, user, password=nil, uri = nil, proxies = nil, ssl = nil)
+  def initialize(database, user, password=nil, uri = nil, proxies = nil, ssl = nil, ssl_opts = {})
     uri ||= DEFAULT_URI
 
     @transaction_status = nil
     @params = { 'username' => user, 'database' => database }
-    establish_connection(uri, proxies, ssl)
+    establish_connection(uri, proxies, ssl, ssl_opts)
 
     # Check if the password supplied is a Postgres-style md5 hash
     md5_hash_match = password.match(/^md5([a-f0-9]{32})$/)
@@ -347,30 +347,31 @@ class Connection
 
   # tcp://localhost:5432
   # unix:/tmp/.s.PGSQL.5432
-  def establish_connection(uri, proxies, ssl = nil)
+  def establish_connection(uri, proxies, ssl = nil, ssl_opts = {})
     u = URI.parse(uri)
     case u.scheme
     when 'tcp'
-      @conn = Rex::Socket.create(
+      params = Rex::Socket::Parameters.from_hash(
         'PeerHost' => (u.host || DEFAULT_HOST).gsub(/\[|\]/, ''),
         'PeerPort' => (u.port || DEFAULT_PORT),
         'proto' => 'tcp',
-        'Proxies' => proxies
+        'Proxies' => proxies,
+        'SSLVersion' => ssl_opts[:ssl_version],
+        'SSLVerifyMode' => ssl_opts[:ssl_verify_mode],
+        'SSLCipher' => ssl_opts[:ssl_cipher]
       )
+      @conn = Rex::Socket.create_param(params)
+
       if ssl
         ssl_request_message = SSLRequest.new(80877103)
         @conn.write(ssl_request_message.dump)
         response = @conn.read(1)
         if response == 'S'
-          ssl_context = OpenSSL::SSL::SSLContext.new
-          ssl_socket = OpenSSL::SSL::SSLSocket.new(@conn, ssl_context)
-          # Ensure the underlying TCP socket is closed when the SSL socket is closed
-          # This prevents resource leaks and ensures proper cleanup of the connection
-          ssl_socket.sync_close = true
-          ssl_socket.connect
-          @conn = ssl_socket
+          @conn.extend(Rex::Socket::SslTcp)
+          @conn.initsock_with_ssl_version(params, (params.ssl_version || Rex::Socket::Ssl::DEFAULT_SSL_VERSION))
         elsif response == 'N'
-          # Server does not support SSL, continue with plain TCP
+          # Server does not support SSL
+          raise "SSL connection requested but server at #{u.host}:#{u.port} does not support SSL"
         else
           raise "Unexpected response to SSLRequest: #{response.inspect}"
         end

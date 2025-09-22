@@ -64,13 +64,19 @@ module Metasploit
           pg_conn = nil
 
           begin
+            ssl_opts = {}
+            ssl_opts[:ssl_version] = ssl_version if ssl_version
+            ssl_opts[:ssl_verify_mode] = ssl_verify_mode if ssl_verify_mode
+            ssl_opts[:ssl_cipher] = ssl_cipher if ssl_cipher
+
             pg_conn = Msf::Db::PostgresPR::Connection.new(
               db_name,
               credential.public,
               credential.private,
               uri,
               proxies,
-              ssl
+              ssl,
+              ssl_opts
             )
           rescue ::RuntimeError => e
             case e.to_s.split("\t")[1]

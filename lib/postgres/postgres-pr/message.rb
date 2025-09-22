@@ -18,40 +18,6 @@ module Rex::IO::Stream
   end
 end
 
-# Monkeypatch for OpenSSL::SSL::SSLSocket to support read_exactly_n_bytes
-class OpenSSL::SSL::SSLSocket
-  # Reads exactly n bytes from the SSL socket.
-  #
-  # @param n [Integer] The number of bytes to read from the socket.
-  # @return [String] The read bytes. If the socket is closed before reading n bytes, raises EOFError.
-  # @raise [EOFError] If the socket is closed before reading n bytes.
-  def read_exactly_n_bytes(n)
-    buf = read(n)
-    raise EOFError if buf == nil
-    return buf if buf.size == n
-
-    n -= buf.size
-
-    while n > 0
-      str = read(n)
-      raise EOFError if str == nil
-      buf << str
-      n -= str.size
-    end
-    buf
-  end
-
-  # @return [String] The remote IP address that the Mysql server is running on
-  def peerhost
-    io.remote_address.ip_address
-  end
-
-  # @return [Integer] The remote port that the Mysql server is running on
-  def peerport
-    io.remote_address.ip_port
-  end
-end
-
 # Namespace for Metasploit branch.
 module Msf
 module Db
