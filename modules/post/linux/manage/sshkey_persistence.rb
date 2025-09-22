@@ -37,7 +37,10 @@ class MetasploitModule < Msf::Post
               stdapi_fs_separator
             ]
           }
-        }
+        },
+        'References' => [
+          [ 'ATT&CK', Mitre::Attack::Technique::T1021_REMOTE_SERVICES ]
+        ]
       )
     )
 

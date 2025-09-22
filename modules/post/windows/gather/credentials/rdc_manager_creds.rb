@@ -51,7 +51,10 @@ class MetasploitModule < Msf::Post
               stdapi_sys_process_memory_write
             ]
           }
-        }
+        },
+        'References' => [
+          [ 'ATT&CK', Mitre::Attack::Technique::T1021_REMOTE_SERVICES ]
+        ]
       )
     )
   end

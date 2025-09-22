@@ -26,7 +26,8 @@ class MetasploitModule < Msf::Auxiliary
         'jduck'
       ],
       'References' => [
-        [ 'CVE', '1999-0506'] # Weak password
+        [ 'CVE', '1999-0506'], # Weak password
+        [ 'ATT&CK', Mitre::Attack::Technique::T1021_REMOTE_SERVICES ]
       ],
       'License' => MSF_LICENSE
     )

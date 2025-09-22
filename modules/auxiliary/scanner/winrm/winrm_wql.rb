@@ -19,7 +19,10 @@ class MetasploitModule < Msf::Auxiliary
         winrm option must be set.
       },
       'Author' => [ 'thelightcosine' ],
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'References' => [
+        [ 'ATT&CK', Mitre::Attack::Technique::T1021_006_WINDOWS_REMOTE_MANAGEMENT ]
+      ]
     )
 
     register_options(
