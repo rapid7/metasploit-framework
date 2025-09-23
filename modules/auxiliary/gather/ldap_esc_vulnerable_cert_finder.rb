@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
       OptEnum.new('REPORT', [true, 'What templates to report (applies filtering to results)', 'vulnerable-and-published', %w[all published enrollable vulnerable vulnerable-and-published vulnerable-and-enrollable]]),
       OptBool.new('RUN_REGISTRY_CHECKS', [true, 'Authenticate to WinRM to query the registry values to enhance reporting for ESC9, ESC10 and ESC16. Must be a privileged user in order to query successfully', false]),
-      OptString.new('CA', [true, 'The name of the Certificate Authority you wish to preform the registry checks on'], conditions: %w[RUN_REGISTRY_CHECKS == true]),
+      OptString.new('CA', [false, 'The name of the Certificate Authority you wish to preform the registry checks on'], conditions: %w[RUN_REGISTRY_CHECKS == true]),
       OptInt.new('TIMEOUT', [false, 'The WinRM timeout when running registry checks', 20], conditions: %w[RUN_REGISTRY_CHECKS == true]),
     ])
   end
@@ -386,7 +386,6 @@ class MetasploitModule < Msf::Auxiliary
     query_ca_reg_values(ca_ip_address, domain, user)
   end
 
-  # Query registry values directly from the CA
   def query_ca_reg_values(ca_ip_address, domain, user)
     conn = create_winrm_connection(ca_ip_address, domain, user, datastore['TIMEOUT'])
     conn.shell(:powershell) do |shell|
@@ -394,7 +393,6 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  # Enumerate registry values for the module
   def enum_registry_values
     @registry_values ||= {}
     domain = adds_get_domain_info(@ldap)[:dns_name]
