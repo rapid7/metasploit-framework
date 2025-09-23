@@ -80,19 +80,6 @@ class MetasploitModule < Msf::Post
     # Make substitutions in script if needed
     script_in = make_subs(script_in, subs) unless subs.empty?
 
-    # Get target's computer name
-    computer_name = session.sys.config.sysinfo['Computer']
-
-    # Create unique log directory
-    log_dir = ::File.join(Msf::Config.log_directory, 'scripts', computer_name)
-    ::FileUtils.mkdir_p(log_dir)
-
-    # Define log filename
-    script_ext = ::File.extname(datastore['SCRIPT'])
-    script_base = ::File.basename(datastore['SCRIPT'], script_ext)
-    time_stamp = ::Time.now.strftime('%Y%m%d:%H%M%S')
-    log_file = ::File.join(log_dir, "#{script_base}-#{time_stamp}.txt")
-
     # Compress
     print_status('Compressing script contents.')
     compressed_script = compress_script(script_in, eof)
