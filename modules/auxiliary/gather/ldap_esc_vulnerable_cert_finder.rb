@@ -97,6 +97,8 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('BASE_DN', [false, 'LDAP base DN if you already have it']),
       OptEnum.new('REPORT', [true, 'What templates to report (applies filtering to results)', 'vulnerable-and-published', %w[all published enrollable vulnerable vulnerable-and-published vulnerable-and-enrollable]]),
       OptBool.new('RUN_REGISTRY_CHECKS', [true, 'Authenticate to WinRM to query the registry values to enhance reporting for ESC9, ESC10 and ESC16. Must be a privileged user in order to query successfully', false]),
+      OptString.new('CA', [true, 'The name of the Certificate Authority you wish to preform the registry checks on'], conditions: %w[RUN_REGISTRY_CHECKS == true]),
+      OptInt.new('TIMEOUT', [false, 'The WinRM timeout when running registry checks', 20], conditions: %w[RUN_REGISTRY_CHECKS == true]),
     ])
   end
 
@@ -349,32 +351,75 @@ class MetasploitModule < Msf::Auxiliary
     value
   end
 
-  def enum_registry_values
-    @registry_values ||= {}
-
-    endpoint = "http://#{datastore['RHOST']}:5985/wsman"
-    domain = adds_get_domain_info(@ldap)[:dns_name]
-    user = adds_get_current_user(@ldap)[:sAMAccountName].first.to_s
-    pass = datastore['LDAPPassword']
-    conn = WinRM::Connection.new(
+  def create_winrm_connection(host, domain, user, timeout)
+    endpoint = "http://#{host}:5985/wsman"
+    WinRM::Connection.new(
       endpoint: endpoint,
       domain: domain,
       user: user,
-      password: pass,
-      transport: :negotiate
+      password: datastore['LDAPPassword'],
+      transport: :negotiate,
+      operation_timeout: timeout
     )
+  end
 
-    begin
-      conn.shell(:powershell) do |shell|
-        @registry_values[:certificate_mapping_methods] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\Schannel', 'CertificateMappingMethods').to_i
-        @registry_values[:strong_certificate_binding_enforcement] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Kdc', 'StrongCertificateBindingEnforcement').to_i
+  def query_ca_policy_values(shell)
+    active_policy_name = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'Active')
+    disable_ext = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'DisableExtensionList', active_policy_name)
+    edit_flags = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'EditFlags', active_policy_name).to_i
+    { disable_extension_list: disable_ext, edit_flags: edit_flags }
+  end
 
-        active_policy_name = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'Active')
-        @registry_values[:disable_extension_list] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'DisableExtensionList', active_policy_name)
-        @registry_values[:edit_flags] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\*\\PolicyModules', 'EditFlags', active_policy_name).to_i
+  def query_dc_reg_values(ca_ip_address, domain, user)
+    conn = create_winrm_connection(datastore['RHOST'], domain, user, datastore['TIMEOUT'])
+    handled_locally = false
+    conn.shell(:powershell) do |shell|
+      @registry_values[:certificate_mapping_methods] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\Schannel', 'CertificateMappingMethods').to_i
+      @registry_values[:strong_certificate_binding_enforcement] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Kdc', 'StrongCertificateBindingEnforcement').to_i
+      if datastore['RHOST'] == ca_ip_address
+        @registry_values.merge!(query_ca_policy_values(shell))
+        handled_locally = true
       end
-    rescue StandardError => e
-      vprint_warning("Failed to query registry values: #{e.message}")
+    end
+    return if handled_locally
+
+    query_ca_reg_values(ca_ip_address, domain, user)
+  end
+
+  # Query registry values directly from the CA
+  def query_ca_reg_values(ca_ip_address, domain, user)
+    conn = create_winrm_connection(ca_ip_address, domain, user, datastore['TIMEOUT'])
+    conn.shell(:powershell) do |shell|
+      @registry_values.merge!(query_ca_policy_values(shell))
+    end
+  end
+
+  # Enumerate registry values for the module
+  def enum_registry_values
+    @registry_values ||= {}
+    domain = adds_get_domain_info(@ldap)[:dns_name]
+    user = adds_get_current_user(@ldap)[:sAMAccountName].first.to_s
+    ca_servers = adds_get_ca_servers(@ldap)
+    ca_entry = ca_servers.find { |ca| ca[:name].casecmp(datastore['CA']).zero? }
+    unless ca_entry
+      print_error("CA #{datastore['CA']} not found in LDAP. Checking registry values is unable to continue")
+      return
+    end
+
+    ca_dns_hostname = ca_entry[:dNSHostName]
+    ca_ip_address = Rex::Socket.getaddress(ca_dns_hostname, false)
+    unless ca_ip_address
+      print_error("Unable to resolve the DNS Host Name of the CA server: #{ca_dns_hostname}. Checking registry values is unable to continue")
+      return
+    end
+
+    query_dc_reg_values(ca_ip_address, domain, user)
+
+    if @registry_values.any?
+      print_good('Registry values:')
+      @registry_values.each do |key, value|
+        print_good("  #{key}=#{value}")
+      end
     end
 
     @registry_values
@@ -670,7 +715,7 @@ class MetasploitModule < Msf::Auxiliary
     return if esc_entries.empty?
 
     if @registry_values[:strong_certificate_binding_enforcement] && (@registry_values[:strong_certificate_binding_enforcement] == 0 || @registry_values[:strong_certificate_binding_enforcement] == 1)
-      # Scenario 1 -  StrongCertificateBindingEnforcement = 1 or 0 then it's the same as ESC9 - mark them all as vulnerable
+      # Scenario 1 - StrongCertificateBindingEnforcement = 1 or 0 then it's the same as ESC9 - mark them all as vulnerable
       esc_entries.each do |entry|
         certificate_symbol = entry[:cn][0].to_sym
 
@@ -979,6 +1024,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    fail_with(Failure::BadConfig, 'The CA option is required.') if datastore['CA'].blank? && datastore['RUN_REGISTRY_CHECKS']
     # Define our instance variables real quick.
     @base_dn = nil
     @ldap_objects = []
