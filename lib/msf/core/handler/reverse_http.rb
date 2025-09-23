@@ -199,7 +199,7 @@ module ReverseHttp
   end
 
   def all_uris
-    all = [luri]
+    all = ["#{luri}/"]
 
     if self.c2_profile
       uris = self.c2_profile.uris.map {|u| construct_luri(u)}
