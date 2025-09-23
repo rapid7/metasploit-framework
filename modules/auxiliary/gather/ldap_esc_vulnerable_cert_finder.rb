@@ -423,6 +423,8 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     @registry_values
+  rescue StandardError => e
+    vprint_warning("Failed to query registry values: #{e.message}")
   end
 
   def resolve_group_memberships(user_dn)
