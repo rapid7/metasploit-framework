@@ -121,7 +121,11 @@ class Client
   # encoding of data
   #
   def wrap_packet(raw_bytes)
-    self.c2_profile.wrap_outbound_get(raw_bytes) if self.c2_profile
+    if self.c2_profile
+      raw_bytes = self.c2_profile.wrap_outbound_get(raw_bytes)
+    end
+
+    raw_bytes
   end
 
   #
@@ -130,7 +134,11 @@ class Client
   # decoding of data
   #
   def unwrap_packet(raw_bytes)
-    self.c2_profile.unwrap_inbound_post(raw_bytes) if self.c2_profile
+    if self.c2_profile
+      self.c2_profile.unwrap_inbound_post(raw_bytes)
+    end
+
+    raw_bytes
   end
 
   #
