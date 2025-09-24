@@ -41,7 +41,7 @@ RSpec.describe Metasploit::Framework::LoginScanner::Postgres do
 
     context 'when there is no realm on the credential' do
       it 'uses template1 as the default realm' do
-        expect(Msf::Db::PostgresPR::Connection).to receive(:new).with('template1', 'root', 'toor', 'tcp://127.0.0.1:5432', nil, nil)
+        expect(Msf::Db::PostgresPR::Connection).to receive(:new).with('template1', 'root', 'toor', 'tcp://127.0.0.1:5432', nil, nil, {})
         login_scanner.attempt_login(cred_no_realm)
       end
     end
