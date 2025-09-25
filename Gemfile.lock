@@ -208,7 +208,7 @@ GEM
     bcrypt (3.1.20)
     bcrypt_pbkdf (1.1.1)
     benchmark (0.4.1)
-    bigdecimal (3.2.2)
+    bigdecimal (3.2.3)
     bindata (2.4.15)
     bootsnap (1.18.4)
       msgpack (~> 1.2)
@@ -487,9 +487,11 @@ GEM
       metasm
       rex-arch
       rex-text
-    rex-exploitation (0.1.41)
+    rex-exploitation (0.1.44)
+      bigdecimal
       jsobfu
       metasm
+      racc
       rex-arch
       rex-encoder
       rex-text
@@ -526,7 +528,7 @@ GEM
       bigdecimal
     rex-zip (0.1.6)
       rex-text
-    rexml (3.4.1)
+    rexml (3.4.4)
     rinda (0.2.0)
       drb
       forwardable
