@@ -204,10 +204,10 @@ class MetasploitModule < Msf::Auxiliary
 
     smbpass = ''
 
-    if datastore['LDAPUsername'] == datastore['TARGET_USERNAME']
-      smbpass = datastore['LDAPPassword']
-    elsif datastore['TARGET_PASSWORD'].present?
+    if datastore['TARGET_PASSWORD'].present?
       smbpass = datastore['TARGET_PASSWORD']
+    elsif datastore['LDAPUsername'] == datastore['TARGET_USERNAME']
+      smbpass = datastore['LDAPPassword']
     else
       # Call the shadow credentials module to add the device and get the cert path
       print_status("Adding shadow credentials for #{datastore['TARGET_USERNAME']}")
