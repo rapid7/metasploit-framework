@@ -103,103 +103,41 @@ module Msf
       # @return           [String]
       # @return           [NilClass]
       def self.to_executable(framework, arch, plat, code = '', opts = {})
+        # This code handles mettle stageless when LinuxMinKernel is 2.4+ because the code will be a elf or macho.
         if elf?(code) || macho?(code)
           return code
         end
-
-        if arch.index(ARCH_X86)
-
-          if plat.index(Msf::Module::Platform::Windows)
-            return to_win32pe(framework, code, opts)
-          end
-
-          if plat.index(Msf::Module::Platform::Linux)
-            return to_linux_x86_elf(framework, code)
-          end
-
-          if plat.index(Msf::Module::Platform::OSX)
-            return to_osx_x86_macho(framework, code)
-          end
-
-          if plat.index(Msf::Module::Platform::BSD)
-            return to_bsd_x86_elf(framework, code)
-          end
-
-          if plat.index(Msf::Module::Platform::Solaris)
-            return to_solaris_x86_elf(framework, code)
-          end
-
-          # XXX: Add remaining x86 systems here
+        
+        if plat.index(Msf::Module::Platform::Windows)
+          return to_win32pe(framework, code, opts)  if arch.index(ARCH_X86)
+          return to_win64pe(framework, code, opts)  if arch.index(ARCH_X86)
+        elsif plat.index(Msf::Module::Platform::Linux)
+          return to_linux_armle_elf(framework, code, opts)     if arch.index(ARCH_ARMLE)
+          return to_linux_armbe_elf(framework, code, opts)     if arch.index(ARCH_ARMBE)
+          return to_linux_aarch64_elf(framework, code, opts)   if arch.index(ARCH_AARCH64)
+          return to_linux_mipsbe_elf(framework, code, opts)    if arch.index(ARCH_MIPSBE)
+          return to_linux_mipsle_elf(framework, code, opts)    if arch.index(ARCH_MIPSLE)
+          return to_linux_mips64_elf(framework, code, opts)    if arch.index(ARCH_MIPS64)
+          return to_linux_ppc_elf(framework, code, opts)       if arch.index(ARCH_PPC)
+          return to_linux_ppc64le_elf(framework, code, opts)   if arch.index(ARCH_PPC64LE)
+          return to_linux_ppce500v2_elf(framework, code, opts) if arch.index(ARCH_PPCE500V2)
+          return to_linux_riscv32le_elf(framework, code, opts) if arch.index(ARCH_RISCV32LE)
+          return to_linux_riscv64le_elf(framework, code, opts) if arch.index(ARCH_RISCV64LE)
+          return to_linux_x86_elf(framework, code, opts)       if arch.index(ARCH_X86)
+          return to_linux_x64_elf(framework, code, opts)       if arch.index(ARCH_X64)
+          return to_linux_zarch_elf(framework, code, opts)     if arch.index(ARCH_ZARCH)
+        elsif plat.index(Msf::Module::Platform::OSX)
+          return to_osx_arm_macho(framework, code, opts)      if arch.index(ARCH_ARMLE)
+          return to_osx_aarch64_macho(framework, code, opts)  if arch.index(ARCH_AARCH64)
+          return to_osx_ppc_macho(framework, code, opts)      if arch.index(ARCH_PPC)
+          return to_osx_x86_macho(framework, code, opts)      if arch.index(ARCH_X86)
+          return to_osx_x64_macho(framework, code, opts)      if arch.index(ARCH_X64)
+        elsif plat.index(Msf::Module::Platform::BDS)
+          return to_bsd_x86_elf(framework, code, opts)  if arch.index(ARCH_X86)
+          return to_bsd_x64_elf(framework, code, opts)  if arch.index(ARCH_X64)
+        elsif plat.index(Msf::Module::Platform::Solaris)
+          return to_solaris_x86_elf(framework, code, opts)  if arch.index(ARCH_X86)
         end
-
-        if arch.index(ARCH_X64)
-          if plat.index(Msf::Module::Platform::Windows)
-            return to_win64pe(framework, code, opts)
-          end
-
-          if plat.index(Msf::Module::Platform::Linux)
-            return to_linux_x64_elf(framework, code, opts)
-          end
-
-          if plat.index(Msf::Module::Platform::OSX)
-            return to_osx_x64_macho(framework, code)
-          end
-
-          if plat.index(Msf::Module::Platform::BSD)
-            return to_bsd_x64_elf(framework, code)
-          end
-        end
-
-        if arch.index(ARCH_ARMLE)
-          if plat.index(Msf::Module::Platform::OSX)
-            return to_osx_arm_macho(framework, code)
-          end
-
-          if plat.index(Msf::Module::Platform::Linux)
-            return to_linux_armle_elf(framework, code)
-          end
-
-          # XXX: Add remaining ARMLE systems here
-        end
-
-        if arch.index(ARCH_AARCH64)
-          if plat.index(Msf::Module::Platform::Linux)
-            return to_linux_aarch64_elf(framework, code)
-          end
-
-          if plat.index(Msf::Module::Platform::OSX)
-            return to_osx_aarch64_macho(framework, code)
-          end
-
-          # XXX: Add remaining AARCH64 systems here
-        end
-
-        if arch.index(ARCH_PPC) && plat.index(Msf::Module::Platform::OSX)
-          return to_osx_ppc_macho(framework, code)
-        end
-        # XXX: Add PPC OS X and Linux here
-
-        if arch.index(ARCH_MIPSLE) && plat.index(Msf::Module::Platform::Linux)
-          return to_linux_mipsle_elf(framework, code)
-        end
-
-        if arch.index(ARCH_MIPSBE) && plat.index(Msf::Module::Platform::Linux)
-          return to_linux_mipsbe_elf(framework, code)
-        end
-
-        if arch.index(ARCH_MIPS64) && plat.index(Msf::Module::Platform::Linux)
-          return to_linux_mips64_elf(framework, code)
-        end
-
-        if arch.index(ARCH_RISCV32LE) && plat.index(Msf::Module::Platform::Linux)
-          return to_linux_riscv32le_elf(framework, code)
-        end
-        # TODO: Add remaining RISCV32LE systems here
-
-        if arch.index(ARCH_RISCV64LE) && plat.index(Msf::Module::Platform::Linux)
-          return to_linux_riscv64le_elf(framework, code)
-        end
-
         nil
       end
 
