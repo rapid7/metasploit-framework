@@ -34,6 +34,7 @@ This option lets us toggle whether or not Meterpreter commands that are missing 
 ### Colors
 
 Similar to the option used for `HttpTrace`. This lets us change the colors used to show valid, invalid and ignored options or incompatibilities. Unsetting this option results in no colored output.
+Defaults to `grn/red/blu`. Additional options are [here](https://github.com/rapid7/rex-text/blob/a72151d409cd812978f63ad0c330efbc8f44b977/lib/rex/text/color.rb#L13)
 
 ## Scenarios
 

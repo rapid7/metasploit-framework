@@ -45,9 +45,23 @@ class MetasploitModule < Msf::Post
         Msf::OptBool.new('ValidateArch', [true, 'Validate architecture', false]),
         Msf::OptBool.new('ValidatePlatform', [true, 'Validate platform', true]),
         Msf::OptBool.new('ValidateMeterpreterCommands', [true, 'Validate Meterpreter commands', false]),
+        # https://github.com/rapid7/rex-text/blob/a72151d409cd812978f63ad0c330efbc8f44b977/lib/rex/text/color.rb#L13
         Msf::OptString.new('Colors', [false, 'Valid, Invalid and Ignored colors for module checks (unset to disable)', 'grn/red/blu'])
       ]
     )
+  end
+
+  def valid_colors?(color_str = datastore['Colors'])
+    tokens = color_str.split('/')
+    tokens.each do |tok|
+      print_warning "#{tok} is unlikely to have any functionality for printing colors." if tok == 'clr'
+
+      unless Rex::Text::Color::SUPPORTED_FORMAT_CODES.include?("%#{tok}")
+        print_error "#{tok} is NOT valid color. Please see https://github.com/rapid7/rex-text/blob/a72151d409cd812978f63ad0c330efbc8f44b977/lib/rex/text/color.rb#L13 for valid color options"
+        return false
+      end
+    end
+    true
   end
 
   def all_platforms
@@ -78,8 +92,9 @@ class MetasploitModule < Msf::Post
   end
 
   def is_module_platform?(mod)
-    platform_obj = Msf::Module::Platform.find_platform session.platform
     return false if mod.target.nil?
+
+    platform_obj = Msf::Module::Platform.find_platform session.platform
 
     module_platforms = mod.target.platform ? mod.target.platform.platforms : mod.platform.platforms
     module_platforms.include? platform_obj
@@ -145,7 +160,11 @@ class MetasploitModule < Msf::Post
     print_status "Collecting persistence modules for #{session.session_type}..."
 
     setup_validation_options
-    setup_color_options
+    if valid_colors?
+      setup_color_options
+    else
+      fail_with(Failure::BadConfig, 'Colors options set incorrectly')
+    end
 
     # Collects persistence modules into an array
     @persistence_modules = []
