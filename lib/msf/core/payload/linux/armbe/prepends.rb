@@ -1,5 +1,5 @@
 #
-# Linux ppc prepends
+# Linux armbe prepends
 #
 module Msf::Payload::Linux::Armbe::Prepends
   include Msf::Payload::Linux::Prepends

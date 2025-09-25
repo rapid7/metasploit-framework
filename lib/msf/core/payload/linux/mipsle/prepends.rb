@@ -1,5 +1,5 @@
 #
-# Linux ppc prepends
+# Linux mipsle prepends
 #
 module Msf::Payload::Linux::Mipsle::Prepends
   include Msf::Payload::Linux::Prepends
