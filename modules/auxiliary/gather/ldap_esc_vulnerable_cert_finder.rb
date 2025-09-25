@@ -98,7 +98,7 @@ class MetasploitModule < Msf::Auxiliary
       OptEnum.new('REPORT', [true, 'What templates to report (applies filtering to results)', 'vulnerable-and-published', %w[all published enrollable vulnerable vulnerable-and-published vulnerable-and-enrollable]]),
       OptBool.new('RUN_REGISTRY_CHECKS', [true, 'Authenticate to WinRM to query the registry values to enhance reporting for ESC9, ESC10 and ESC16. Must be a privileged user in order to query successfully', false]),
       OptString.new('CA', [false, 'The name of the Certificate Authority you wish to preform the registry checks on'], conditions: %w[RUN_REGISTRY_CHECKS == true]),
-      OptInt.new('TIMEOUT', [false, 'The WinRM timeout when running registry checks', 20], conditions: %w[RUN_REGISTRY_CHECKS == true]),
+      OptInt.new('WINRM_TIMEOUT', [false, 'The WinRM timeout when running registry checks', 20], conditions: %w[RUN_REGISTRY_CHECKS == true]),
     ])
   end
 
@@ -371,7 +371,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def query_dc_reg_values(ca_ip_address, domain, user)
-    conn = create_winrm_connection(datastore['RHOST'], domain, user, datastore['TIMEOUT'])
+    conn = create_winrm_connection(datastore['RHOST'], domain, user, datastore['WINRM_TIMEOUT'])
     handled_locally = false
     conn.shell(:powershell) do |shell|
       @registry_values[:certificate_mapping_methods] = run_registry_command(shell, 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\Schannel', 'CertificateMappingMethods').to_i
@@ -384,13 +384,17 @@ class MetasploitModule < Msf::Auxiliary
     return if handled_locally
 
     query_ca_reg_values(ca_ip_address, domain, user)
+  ensure
+    shell.close if shell
   end
 
   def query_ca_reg_values(ca_ip_address, domain, user)
-    conn = create_winrm_connection(ca_ip_address, domain, user, datastore['TIMEOUT'])
+    conn = create_winrm_connection(ca_ip_address, domain, user, datastore['WINRM_TIMEOUT'])
     conn.shell(:powershell) do |shell|
       @registry_values.merge!(query_ca_policy_values(shell))
     end
+  ensure
+    shell.close if shell
   end
 
   def enum_registry_values
@@ -398,7 +402,16 @@ class MetasploitModule < Msf::Auxiliary
     domain = adds_get_domain_info(@ldap)[:dns_name]
     user = adds_get_current_user(@ldap)[:sAMAccountName].first.to_s
     ca_servers = adds_get_ca_servers(@ldap)
-    ca_entry = ca_servers.find { |ca| ca[:name].casecmp(datastore['CA']).zero? }
+    if ca_servers.empty?
+      print_warning('No Certificate Authority servers found in LDAP.')
+      return
+    else
+      ca_servers.each do |ca|
+        print_good("Found CA: #{ca[:name]} (#{ca[:dNSHostName]})")
+      end
+    end
+
+    ca_entry = ca_servers.find { |ca| ca[:name].casecmp?(datastore['CA']) }
     unless ca_entry
       print_error("CA #{datastore['CA']} not found in LDAP. Checking registry values is unable to continue")
       return
