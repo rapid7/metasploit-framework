@@ -6,7 +6,7 @@ ehdr:                            ; Elf32_Ehdr
   db    0x7F, "ELF", 1, 2, 1, 0  ;   e_ident
   db    0, 0, 0, 0,  0, 0, 0, 0  ;
   dw    0x0200                   ;   e_type       = ET_EXEC for an executable
-  dw    0x2800                   ;   e_machine    = AARCH64
+  dw    0x2800                   ;   e_machine    = ARM
   dd    0x01000000               ;   e_version
   dd    0x54800000               ;   e_entry
   dd    0x34000000               ;   e_phoff

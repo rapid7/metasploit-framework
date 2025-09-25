@@ -9,7 +9,7 @@ ehdr:                            ; Elf32_Ehdr
   db    0x7F, "ELF", 2, 1, 1, 0  ;   e_ident
   db    0, 0, 0, 0,  0, 0, 0, 0  ;
   dw    2                        ;   e_type       = ET_EXEC for an executable
-  dw    0x15                     ;   e_machine    = PowerPC
+  dw    0x15                     ;   e_machine    = PPC64
   dd    0                        ;   e_version
   dq    _start                   ;   e_entry
   dq    phdr - $$                ;   e_phoff
