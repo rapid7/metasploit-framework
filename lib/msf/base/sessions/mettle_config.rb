@@ -25,7 +25,7 @@ module Msf
             [
               OptEnum.new(
                 'PayloadLinuxMinKernel',
-                [true, 'Linux minimum kernel version for compatibility', '2.6+', ['2.6+', '3.17+']]
+                [true, 'Linux minimum kernel version for compatibility', '2.6', ['2.6', '3.17']]
               )
             ]
           )
