@@ -8,7 +8,7 @@ ehdr:                            ; Elf32_Ehdr
   db    0x7F, "ELF", 2, 2, 1, 0  ;   e_ident
   db    0, 0, 0, 0,  0, 0, 0, 0  ;
   dw    0x0200                   ;   e_type       = ET_EXEC for an executable
-  dw    0x1600                   ;   e_machine    = PowerPC
+  dw    0x1600                   ;   e_machine    = ZARCH
   dd    0x01000000               ;   e_version
   dq    0x7810000000000000       ;   e_entry
   dq    0x4000000000000000       ;   e_phoff
