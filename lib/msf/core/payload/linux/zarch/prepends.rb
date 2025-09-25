@@ -1,5 +1,5 @@
 #
-# Linux ppc prepends
+# Linux zarch prepends
 #
 module Msf::Payload::Linux::Zarch::Prepends
   include Msf::Payload::Linux::Prepends
