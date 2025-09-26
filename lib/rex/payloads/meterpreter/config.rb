@@ -91,8 +91,7 @@ private
     c2_tlv.add_tlv(MET::TLV_TYPE_C2_RETRY_TOTAL, opts[:retry_total])
     c2_tlv.add_tlv(MET::TLV_TYPE_C2_RETRY_WAIT, opts[:retry_wait])
 
-    url = "#{opts[:scheme]}://#{lhost}"
-    url << ":#{opts[:lport]}" if opts[:lport]
+    url = "#{opts[:scheme]}://#{Rex::Socket.to_authority(lhost, opts[:lport])}"
     url << "#{opts[:uri]}/" if opts[:uri]
     url << "?#{opts[:scope_id]}" if opts[:scope_id]
 
