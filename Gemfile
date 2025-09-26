@@ -3,6 +3,8 @@ source 'https://rubygems.org'
 #   spec.add_runtime_dependency '<name>', [<version requirements>]
 gemspec name: 'metasploit-framework'
 
+gem 'metasploit-credential', git: 'https://github.com/dwelch-r7/metasploit-credential', branch: 'fix-private-key-missing-fingerprint'
+
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests

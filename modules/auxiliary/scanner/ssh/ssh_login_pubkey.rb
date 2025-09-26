@@ -177,17 +177,20 @@ class MetasploitModule < Msf::Auxiliary
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
         print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}' '#{result.proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
-        credential_core = create_credential(credential_data)
-        credential_data[:core] = credential_core
-        create_credential_login(credential_data)
-        tmp_key = result.credential.private
-        ssh_key = SSHKey.new tmp_key
+        ssh_key = Net::SSH::KeyFactory.load_data_private_key(credential_data[:private_data], datastore['key_pass'], false)
+
+        begin
+          credential_core = create_credential(credential_data)
+          credential_data[:core] = credential_core
+          create_credential_login(credential_data)
+        rescue ::StandardError => e
+          print_error("Failed to create credential: #{e.class} #{e}")
+          credential_core = nil
+        end
+
         if datastore['CreateSession']
-          if credential_core.is_a? Metasploit::Credential::Core
-            session_setup(result, scanner, ssh_key.fingerprint, credential_core.private_id)
-          else
-            session_setup(result, scanner, ssh_key.fingerprint, nil)
-          end
+          cred_id = credential_core.is_a?(Metasploit::Credential::Core) ? credential_core.private_id : nil
+          session_setup(result, scanner, ssh_key.public_key.fingerprint, cred_id)
         end
         if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
           msg = "While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with"
@@ -224,7 +227,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # Override CredentialCollection#has_privates?
     def has_privates?
-      !@key_data.empty?
+      @key_data.present?
     end
 
     def realm
@@ -235,48 +238,61 @@ class MetasploitModule < Msf::Auxiliary
       @error_list = []
       @key_data = Set.new
 
-      unless @private_key.present? || @key_path.present?
+      if @private_key.present?
+        results = validate_private_key(@private_key)
+      elsif @key_path.present?
+        results = validate_key_path(@key_path)
+      else
+        @error_list << "No key path or key provided"
         raise RuntimeError, "No key path or key provided"
       end
 
-      if @key_path.present?
-        if File.directory?(@key_path)
-          @key_files ||= Dir.entries(@key_path).reject { |f| f =~ /^\x2e|\x2epub$/ }
-          @key_files.each do |f|
-            begin
-              data = read_key(File.join(@key_path, f))
-              @key_data << data if valid_key?(data)
-            rescue StandardError => e
-              @error_list << "#{File.join(@key_path, f)}: #{e}"
-            end
-          end
-        elsif File.file?(@key_path)
-          begin
-            data = read_key(@key_path)
-            @key_data << data if valid_key?(data)
-          rescue StandardError => e
-            @error_list << "#{@key_path} could not be read, #{e}"
-          end
-        else
-          raise RuntimeError, "Invalid key path"
-        end
+      if results[:key_data].present?
+        @key_data.merge(results[:key_data])
+      else
+        @error_list.concat(results[:error_list]) if results[:error_list].present?
       end
 
-      if @private_key.present?
-        data = Net::SSH::KeyFactory.load_data_private_key(@private_key, @password, false).to_s
-        if valid_key?(data)
-          @key_data << data
-        else
-          raise RuntimeError, "Invalid private key"
+      @key_data.present?
+    end
+
+    def validate_private_key(private_key)
+      key_data = Set.new
+      error_list = []
+      begin
+        if Net::SSH::KeyFactory.load_data_private_key(private_key, @password, false).present?
+          key_data << private_key
         end
+      rescue StandardError => e
+        error_list << "Error validating private key: #{e}"
+      end
+      {key_data: key_data, error_list: error_list}
+    end
+
+    def validate_key_path(key_path)
+      key_data = Set.new
+      error_list = []
+
+      if File.file?(key_path)
+        key_files = [key_path]
+      elsif File.directory?(key_path)
+        key_files = Dir.entries(key_path).reject { |f| f =~ /^\x2e|\x2epub$/ }.map { |f| File.join(key_path, f) }
+      else
+        return {key_data: nil, error: "#{key_path} Invalid key path"}
       end
 
-      !@key_data.empty?
+      key_files.each do |f|
+        begin
+          if read_key(f).present?
+            key_data << File.read(f)
+          end
+        rescue StandardError => e
+          error_list << "#{f}: #{e}"
+        end
+      end
+      {key_data: key_data, error_list: error_list}
     end
 
-    def valid_key?(key_data)
-      !!(key_data.match(/BEGIN [RECD]SA PRIVATE KEY/) && !key_data.match(/Proc-Type:.*ENCRYPTED/))
-    end
 
     def each
       prepended_creds.each { |c| yield c }
@@ -307,7 +323,7 @@ class MetasploitModule < Msf::Auxiliary
 
     def read_key(file_path)
       @cache ||= {}
-      @cache[file_path] ||= Net::SSH::KeyFactory.load_data_private_key(File.read(file_path), password, false, key_path).to_s
+      @cache[file_path] ||= Net::SSH::KeyFactory.load_private_key(file_path, password, false)
       @cache[file_path]
     end
   end
