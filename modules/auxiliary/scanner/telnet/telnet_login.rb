@@ -26,7 +26,8 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author' => 'egypt',
       'References' => [
-        [ 'CVE', '1999-0502'] # Weak password
+        [ 'CVE', '1999-0502'], # Weak password
+        [ 'ATT&CK', Mitre::Attack::Technique::T1021_REMOTE_SERVICES ]
       ],
       'License' => MSF_LICENSE
     )

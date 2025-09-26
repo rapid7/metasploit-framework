@@ -41,6 +41,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://github.com/worawit/MS17-010' ],
           [ 'URL', 'https://hitcon.org/2017/CMT/slide-files/d2_s2_r0.pdf' ],
           [ 'URL', 'https://blogs.technet.microsoft.com/srd/2017/06/29/eternal-champion-exploit-analysis/' ],
+          [ 'ATT&CK', Mitre::Attack::Technique::T1021_002_SMB_WINDOWS_ADMIN_SHARES ],
         ],
         'DisclosureDate' => '2017-03-14',
         'Notes' => {
