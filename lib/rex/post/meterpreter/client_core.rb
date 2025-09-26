@@ -357,7 +357,8 @@ class ClientCore < Extension
     # - we are running windows meterpreter with one of the stdapi namespace loaded (stdapi_net, stdapi_fs.... etc). 
     #   partial loading of the other namespace is still possible, we can load stdapi_net and stdapi_fs later.
     
-    unless commands.length > 0 && mod.downcase == 'stdapi'
+    skip_loading = commands.length > 0 && mod.downcase.index('stdapi_') != 0
+    unless skip_loading
       image = nil
       path = nil
       # If client.sys isn't setup, it's a Windows meterpreter
@@ -401,6 +402,11 @@ class ClientCore < Extension
           'UploadLibrary'    => true,
           'Extension'        => true,
           'SaveToDisk'       => opts['LoadFromDisk'])
+    end
+
+    if skip_loading && client.platform == 'windows'
+      error = Rex::Post::Meterpreter::ExtensionLoadError.new(name: mod.downcase)
+      raise error, "Loading \"#{mod.downcase}\" not possible due to the presence of already loaded portions of the extension.", caller
     end
 
     # wire the commands into the client
