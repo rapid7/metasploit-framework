@@ -100,14 +100,14 @@ private
     # if the transport URI is for a HTTP payload we need to add a stack
     # of other stuff that can only be set in MSF, not in the C2 profile
     if url.start_with?('http')
-      proxy_host = ''
+      proxy_url = ''
       if opts[:proxy_host] && opts[:proxy_port]
         prefix = 'http://'
         prefix = 'socks=' if opts[:proxy_type].to_s.downcase == 'socks'
-        proxy_host = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
+        proxy_url = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
       end
 
-      c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_HOST, proxy_host) unless (proxy_host || '').empty?
+      c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_URL, proxy_url) unless (proxy_url || '').empty?
       c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_USER, opts[:proxy_user]) unless (opts[:proxy_user] || '').empty?
       c2_tlv.add_tlv(MET::TLV_TYPE_C2_PROXY_PASS, opts[:proxy_pass]) unless (opts[:proxy_pass] || '').empty?
 

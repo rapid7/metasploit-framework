@@ -147,7 +147,7 @@ class ClientCore < Extension
     }
 
     response.each(TLV_TYPE_C2) { |t|
-      # TODO: Consider adding more informationt to the output for malleable profiles?
+      # TODO: Consider adding more information to the output for malleable profiles?
       # TLV_TYPE_C2_GET, TLV_TYPE_C2_POST, TLV_TYPE_C2_PREFIX, TLV_TYPE_C2_SUFFIX, TLV_TYPE_C2_ENC,
       # TLV_TYPE_C2_SKIP_COUNT, TLV_TYPE_C2_UUID_COOKIE, TLV_TYPE_C2_UUID_GET, TLV_TYPE_C2_UUID_HEADER
       # Not sure if this stuff is useful for this display though.
@@ -157,7 +157,7 @@ class ClientCore < Extension
         :retry_total    => t.get_tlv_value(TLV_TYPE_C2_RETRY_TOTAL),
         :retry_wait     => t.get_tlv_value(TLV_TYPE_C2_RETRY_WAIT),
         :ua             => t.get_tlv_value(TLV_TYPE_C2_UA),
-        :proxy_host     => t.get_tlv_value(TLV_TYPE_C2_PROXY_HOST),
+        :proxy_host     => t.get_tlv_value(TLV_TYPE_C2_PROXY_URL),
         :proxy_user     => t.get_tlv_value(TLV_TYPE_C2_PROXY_USER),
         :proxy_pass     => t.get_tlv_value(TLV_TYPE_C2_PROXY_PASS),
         :cert_hash      => t.get_tlv_value(TLV_TYPE_C2_CERT_HASH),
@@ -931,8 +931,8 @@ private
       if opts[:proxy_host] && opts[:proxy_port]
         prefix = 'http://'
         prefix = 'socks=' if opts[:proxy_type].to_s.downcase == 'socks'
-        proxy = "#{prefix}#{opts[:proxy_host]}:#{opts[:proxy_port]}"
-        c2_tlv.add_tlv(TLV_TYPE_C2_PROXY_HOST, proxy)
+        proxy = "#{prefix}#{Rex::Socket.to_authority(opts[:proxy_host], opts[:proxy_port])}"
+        c2_tlv.add_tlv(TLV_TYPE_C2_PROXY_URL, proxy)
 
         if opts[:proxy_user]
           c2_tlv.add_tlv(TLV_TYPE_C2_PROXY_USER, opts[:proxy_user])
