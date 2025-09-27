@@ -4,12 +4,12 @@ require 'resolv'
 require 'openssl'
 require 'net/http'
 require 'json'
+require 'digest/md5'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DNS::Enumeration
   include Msf::Auxiliary::Report
 
-  # Predefined list of User Agents for HTTP requests
   USER_AGENTS = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Safari/605.1.15',
@@ -20,25 +20,21 @@ class MetasploitModule < Msf::Auxiliary
     'Mozilla/5.0 (Linux; Android 11; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36',
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36',
     'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
-    'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:90.0) Gecko/20100101 Firefox/90.0',
+    'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:90.0) Gecko/20100101 Firefox/90.0'
   ]
 
-  # Predefined VHost list for enumeration
   VHOST_LIST = %w[dev staging api test beta mail www admin login]
 
-  # Predefined SSRF payloads (less sensitive)
   SSRF_PAYLOADS = [
     '/health',
     '/status',
     '/api/health',
     '/metrics',
-    '/info',
+    '/info'
   ]
 
-  # Common ports for dynamic scanning
-  COMMON_PORTS = [80, 8080, 8443, 8000, 8888]
+  COMMON_PORTS = [80, 443, 8080, 8443, 8000, 8888]
 
-  # Random headers for realistic traffic
   ACCEPT_LANGUAGES = ['en-US,en;q=0.9', 'zh-CN,zh;q=0.9', 'es-ES,es;q=0.9', 'fr-FR,fr;q=0.9']
   REFERERS = ['https://www.google.com/', 'https://www.bing.com/', '']
 
@@ -46,20 +42,20 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Cloudflare Bypass',
+        'Name'        => 'Cloudflare Bypass',
         'Description' => %q{
           This module is an upgraded version specifically targeting Cloudflare protection to find the real IP address of a target host.
           It leverages key leakage vectors including DNS history, subdomains, MX/SPF records, SSL certificates, SSRF exploitation, certificate fingerprints,
-          VHost enumeration, and dynamic port scanning. Optimized for 2025 methods with enhanced subdomain enumeration, rate limiting, and realistic HTTP headers.
-          Non-Cloudflare IPs are marked in green, and successful bypass results are highlighted in yellow with a mocking message.
-          Supports multiple fingerprint tags and strings for improved matching.
+          VHost enumeration, dynamic port scanning, email header analysis, Netcraft/DNSDumpster history, and favicon hash search. Optimized for 2025 methods
+          with enhanced subdomain enumeration, rate limiting, and realistic HTTP headers. Non-Cloudflare IPs are marked in green, and successful bypass results
+          are highlighted in yellow with a mocking message. Supports multiple fingerprint tags and strings for improved matching.
         },
-        'Author' => [
-          'ChillHack Hong Kong Web Development, Jake', # Upgraded version for Cloudflare bypass
+        'Author'      => [
+          'ChillHack Hong Kong Web Development, Jake',
           'Contact: info@chillhack.net',
           'Website: https://chillhack.net'
         ],
-        'References' => [
+        'References'  => [
           ['URL', 'https://citadelo.com/en/blog/cloudflare-how-to-do-it-right-and-do-not-reveal-your-real-ip/'],
           ['URL', 'https://brightdata.com/blog/web-data/bypass-cloudflare'],
           ['URL', 'https://www.zenrows.com/blog/bypass-cloudflare'],
@@ -69,9 +65,9 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://github.com/m0rtem/CloudFail'],
           ['URL', 'https://github.com/greycatz/CloudUnflare']
         ],
-        'License' => MSF_LICENSE,
-        'Notes' => {
-          'Stability' => [],
+        'License'     => MSF_LICENSE,
+        'Notes'       => {
+          'Stability'   => [],
           'Reliability' => [],
           'SideEffects' => [IOC_IN_LOGS]
         }
@@ -79,24 +75,28 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
-      OptString.new('HOSTNAME', [true, 'The hostname or domain name to find the real IP address', nil]),
-      OptString.new('COMPSTR', [false, 'Custom string for HTTP response comparison', nil]),
+      OptString.new('HOSTNAME',            [true,  'The hostname or domain name to find the real IP address', nil]),
+      OptString.new('COMPSTR',             [false, 'Custom string for HTTP response comparison', nil]),
       OptString.new('FINGERPRINT_STRINGS', [false, 'Comma-separated list of fingerprint strings for HTTP response comparison', nil]),
-      OptString.new('FINGERPRINT_TAGS', [true, 'Comma-separated list of HTML tags for fingerprinting', 'title,meta,h1']),
-      OptPath.new('IPBLACKLIST_FILE', [false, 'File containing IPs to blacklist, one per line', nil]),
-      OptString.new('Proxies', [false, 'Proxy chain of format type:host:port[,type:host:port][...]', nil]),
-      OptInt.new('RPORT', [true, 'Target TCP port for HTTP', 443]),
-      OptBool.new('SSL', [true, 'Use SSL/TLS for HTTP connections', true]),
-      OptInt.new('THREADS', [true, 'Threads for DNS enumeration', 4]),
-      OptString.new('URIPATH', [true, 'URI path for HTTP comparison', '/']),
-      OptPath.new('WORDLIST', [false, 'Wordlist for subdomain enumeration', ::File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')]),
-      OptString.new('USERAGENT', [false, 'Custom User-Agent for HTTP requests (if not set, a random one from the built-in list is used)', nil]),
-      OptPath.new('USERAGENT_FILE', [false, 'File containing additional User-Agents, one per line', nil]),
-      OptInt.new('HTTP_TIMEOUT', [true, 'HTTP request timeout', 10]),
-      OptBool.new('CHECK_MX', [true, 'Check MX and SPF records for IPs', true])
+      OptString.new('FINGERPRINT_TAGS',    [true,  'Comma-separated list of HTML tags for fingerprinting', 'title,meta,h1']),
+      OptPath.new('IPBLACKLIST_FILE',      [false, 'File containing IPs to blacklist, one per line', nil]),
+      OptString.new('Proxies',             [false, 'Proxy chain of format type:host:port[,type:host:port][...]', nil]),
+      OptInt.new('RPORT',                  [true,  'Target TCP port for HTTP', 443]),
+      OptBool.new('SSL',                   [true,  'Use SSL/TLS for HTTP connections', true]),
+      OptInt.new('THREADS',                [true,  'Threads for DNS enumeration', 4]),
+      OptString.new('URIPATH',             [true,  'URI path for HTTP comparison', '/']),
+      OptPath.new('WORDLIST',              [false, 'Wordlist for subdomain enumeration', ::File.join(Msf::Config.data_directory, 'wordlists', 'namelist.txt')]),
+      OptString.new('USERAGENT',           [false, 'Custom User-Agent for HTTP requests (if not set, a random one from the built-in list is used)', nil]),
+      OptPath.new('USERAGENT_FILE',        [false, 'File containing additional User-Agents, one per line', nil]),
+      OptInt.new('HTTP_TIMEOUT',           [true,  'HTTP request timeout', 10]),
+      OptBool.new('CHECK_MX',              [true,  'Check MX and SPF records for IPs', true]),
+      OptPath.new('EMAIL_HEADER_FILE',     [false, 'File containing email headers for IP extraction', nil]),
+      OptBool.new('CHECK_EMAIL_HEADER',    [false, 'Check email headers for IPs (requires EMAIL_HEADER_FILE)', false]),
+      OptBool.new('CHECK_NETCRAFT',        [false, 'Check Netcraft for historical DNS records', false]),
+      OptBool.new('CHECK_DNSDUMPSTER',     [false, 'Check DNSDumpster for historical DNS records', false]),
+      OptBool.new('CHECK_FAVICON_HASH',    [false, 'Check favicon hash via Shodan search', false])
     ])
 
-    # Set VERBOSE to true by default
     datastore['VERBOSE'] = true
   end
 
@@ -118,11 +118,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def select_user_agent
-    if datastore['USERAGENT']
-      datastore['USERAGENT']
-    else
-      load_user_agents.sample
-    end
+    datastore['USERAGENT'] || load_user_agents.sample
   end
 
   def random_headers
@@ -130,30 +126,26 @@ class MetasploitModule < Msf::Auxiliary
     referer = "https://#{datastore['HOSTNAME']}/" if referer.empty? && datastore['HOSTNAME']
     {
       'Accept-Language' => ACCEPT_LANGUAGES.sample,
-      'Referer' => referer
+      'Referer'         => referer
     }
   end
 
   def rate_limited_request(host, port, ssl, uri, vhost = nil, headers = {}, method = 'GET', data = nil)
-    sleep(rand(1.0..3.0)) # Random delay between 1-3 seconds
+    sleep(rand(1.0..3.0))
     headers = headers.merge(random_headers)
-    if method == 'POST'
-      http_post_request_raw(host, port, ssl, uri, vhost, data, headers)
-    else
-      http_get_request_raw(host, port, ssl, uri, vhost, headers)
-    end
+    method == 'POST' ? http_post_request_raw(host, port, ssl, uri, vhost, data, headers) : http_get_request_raw(host, port, ssl, uri, vhost, headers)
   end
 
   def http_get_request_raw(host, port, ssl, uri, vhost = nil, headers = {})
-    uri = uri + (uri.include?('?') ? '&' : '?') + "random=#{rand(1000000)}"
+    uri = uri + (uri.include?('?') ? '&' : '?') + "random=#{rand(1_000_000)}"
     begin
       cli = Rex::Proto::Http::Client.new(host, port, {}, ssl, nil, datastore['Proxies'])
       cli.connect
       request = cli.request_cgi({
         'method' => 'GET',
-        'uri' => uri,
-        'agent' => select_user_agent,
-        'vhost' => vhost || host
+        'uri'    => uri,
+        'agent'  => select_user_agent,
+        'vhost'  => vhost || host
       }.merge(headers))
       response = cli.send_recv(request, datastore['HTTP_TIMEOUT'])
       cli.close
@@ -170,10 +162,10 @@ class MetasploitModule < Msf::Auxiliary
       cli.connect
       request = cli.request_cgi({
         'method' => 'POST',
-        'uri' => uri,
-        'agent' => select_user_agent,
-        'vhost' => vhost || host,
-        'data' => data
+        'uri'    => uri,
+        'agent'  => select_user_agent,
+        'vhost'  => vhost || host,
+        'data'   => data
       }.merge(headers))
       response = cli.send_recv(request, datastore['HTTP_TIMEOUT'])
       cli.close
@@ -188,8 +180,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Fetching Cloudflare IP ranges...")
     response = rate_limited_request('www.cloudflare.com', 443, true, '/ips-v4')
     return [] if response.nil?
-    ranges = response.get_html_document.css('p').text.split("\n").map(&:strip).reject(&:empty?)
-    ranges
+    response.body.split("\n").map(&:strip).reject(&:empty?)
   rescue => e
     print_error("Failed to fetch Cloudflare IPs: #{e.message}")
     []
@@ -256,7 +247,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def viewdns_ip_history(domain)
     print_status("Querying ViewDNS.info for IP history of #{domain}...")
-    sleep(rand(5.0..10.0)) # Random delay to avoid rate limiting
+    sleep(rand(5.0..10.0))
     retries = 3
     begin
       response = rate_limited_request('viewdns.info', 443, true, "/iphistory/?domain=#{domain}")
@@ -278,7 +269,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def crtsh_search(domain)
     print_status("Querying crt.sh for SSL certificates of #{domain}...")
-    sleep(rand(5.0..10.0)) # Random delay to avoid rate limiting
+    sleep(rand(5.0..10.0))
     begin
       response = rate_limited_request('crt.sh', 443, true, "/?q=#{domain}&output=json")
       return [] if response.nil? || response.code != 200
@@ -324,9 +315,77 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def email_header_analysis
+    return [] unless datastore['CHECK_EMAIL_HEADER'] && datastore['EMAIL_HEADER_FILE'] && File.readable?(datastore['EMAIL_HEADER_FILE'])
+    print_status("Analyzing email headers from #{datastore['EMAIL_HEADER_FILE']}...")
+    begin
+      headers = File.read(datastore['EMAIL_HEADER_FILE'])
+      ips = headers.scan(/Received:.*?\[(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\]/).flatten.uniq
+      ips
+    rescue => e
+      print_error("Email header analysis error: #{e.message}")
+      []
+    end
+  end
+
+  def netcraft_history(domain)
+    return [] unless datastore['CHECK_NETCRAFT']
+    print_status("Querying Netcraft for historical DNS records of #{domain}...")
+    sleep(rand(5.0..10.0))
+    begin
+      response = rate_limited_request('sitereport.netcraft.com', 443, true, "/?url=#{domain}")
+      return [] if response.nil?
+      html = response.get_html_document
+      ips = html.css('table').map { |t| t.text[/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/] }.compact.uniq
+      ips
+    rescue => e
+      print_error("Netcraft history error: #{e.message}")
+      []
+    end
+  end
+
+  def dnsdumpster_history(domain)
+    return [] unless datastore['CHECK_DNSDUMPSTER']
+    print_status("Querying DNSDumpster for historical DNS records of #{domain}...")
+    sleep(rand(5.0..10.0))
+    begin
+      response = rate_limited_request('dnsdumpster.com', 443, true, '/')
+      return [] if response.nil?
+      csrf_token = response.get_html_document.at('input[name="csrfmiddlewaretoken"]')&.[]('value')
+      return [] unless csrf_token
+      response = rate_limited_request('dnsdumpster.com', 443, true, '/', nil, {}, 'POST', "csrfmiddlewaretoken=#{csrf_token}&targetip=#{domain}")
+      return [] if response.nil?
+      html = response.get_html_document
+      ips = html.css('td').map { |t| t.text[/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/] }.compact.uniq
+      ips
+    rescue => e
+      print_error("DNSDumpster history error: #{e.message}")
+      []
+    end
+  end
+
+  def favicon_hash_search(domain)
+    return [] unless datastore['CHECK_FAVICON_HASH']
+    print_status("Searching favicon hash for #{domain}...")
+    begin
+      response = rate_limited_request(domain, datastore['RPORT'], datastore['SSL'], '/favicon.ico')
+      return [] unless response && response.body
+      md5_hash = Digest::MD5.hexdigest(response.body)
+      shodan_url = "https://www.shodan.io/search?query=http.favicon.hash:#{md5_hash}"
+      response = rate_limited_request('www.shodan.io', 443, true, shodan_url)
+      return [] if response.nil? || response.code != 200
+      html = response.get_html_document
+      ips = html.css('.result').map { |r| r.text[/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/] }.compact.uniq
+      ips
+    rescue => e
+      print_error("Favicon hash search error: #{e.message}")
+      []
+    end
+  end
+
   def dns_bruteforce(domain, wordlist, threads)
-    sleep(rand(0.5..2.0)) # Rate limit DNS queries
-    super(domain, wordlist, [threads, 4].min) # Limit to 4 threads
+    sleep(rand(0.5..2.0))
+    super(domain, wordlist, [threads, 4].min)
   end
 
   def check_subdomain_status(subdomain)
@@ -344,43 +403,36 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_bypass(fingerprint_strings, fingerprint_tags, ip)
     print_status("Checking IP #{ip} for Cloudflare bypass...")
+    found = false
     COMMON_PORTS.each do |port|
+      ssl = (port == 443 || port == 8443)
       begin
-        response = rate_limited_request(ip, port, port == 443 ? datastore['SSL'] : false, datastore['URIPATH'], datastore['HOSTNAME'])
+        response = rate_limited_request(ip, port, ssl, datastore['URIPATH'], datastore['HOSTNAME'])
         next unless response
         headers = response.headers
-        if headers['Server']&.include?('cloudflare') || headers['CF-RAY']
-          next
-        end
+        next if headers['Server']&.include?('cloudflare') || headers['CF-RAY']
         print_good("Found non-Cloudflare IP: #{ip} on port #{port}")
         html = response.get_html_document
         body = response.body
-
-        # Check custom fingerprint strings
-        if fingerprint_strings && !fingerprint_strings.empty?
-          fingerprint_strings.each do |fingerprint|
-            if body.include?(fingerprint)
-              print_warning("Found real IP of the target: #{ip} on port #{port} (matched fingerprint: #{fingerprint})")
-              report_host(host: ip, name: datastore['HOSTNAME'])
-              return true
-            end
-          end
+        fingerprint_strings.each do |fingerprint|
+          next unless body.include?(fingerprint)
+          print_warning("Found real IP of the target: #{ip} on port #{port} (matched fingerprint: #{fingerprint})")
+          report_host(host: ip, name: datastore['HOSTNAME'])
+          found = true
         end
-
-        # Check fingerprint tags
         fingerprint_tags.each do |tag|
           content = html.at(tag)&.to_s
           next unless content
-          if fingerprint_strings.empty? && content
+          if fingerprint_strings.empty?
             print_warning("Found real IP of the target: #{ip} on port #{port} (matched tag: #{tag})")
             report_host(host: ip, name: datastore['HOSTNAME'])
-            return true
-          end
-          fingerprint_strings.each do |fingerprint|
-            if content.include?(fingerprint)
+            found = true
+          else
+            fingerprint_strings.each do |fingerprint|
+              next unless content.include?(fingerprint)
               print_warning("Found real IP of the target: #{ip} on port #{port} (matched tag: #{tag}, fingerprint: #{fingerprint})")
               report_host(host: ip, name: datastore['HOSTNAME'])
-              return true
+              found = true
             end
           end
         end
@@ -388,7 +440,7 @@ class MetasploitModule < Msf::Auxiliary
         print_error("Bypass check error for #{ip} on port #{port}: #{e.message}")
       end
     end
-    false
+    found
   end
 
   def run
@@ -402,39 +454,56 @@ class MetasploitModule < Msf::Auxiliary
 
     ip_list = []
 
-    # SSRF Exploitation
     ip_records = ssrf_exploitation(domain_name)
-    ip_list |= ip_records if ip_records && !ip_records.empty?
+    ip_list |= ip_records unless ip_records.empty?
     print_status("SSRF Exploitation: #{ip_records.count} IPs found")
 
-    # Certificate Fingerprint Search
     ip_records = certificate_fingerprint_search(domain_name)
-    ip_list |= ip_records if ip_records && !ip_records.empty?
+    ip_list |= ip_records unless ip_records.empty?
     print_status("Certificate Fingerprint: #{ip_records.count} IPs found")
 
-    # VHost Enumeration
     ip_records = vhost_enumeration(domain_name)
-    ip_list |= ip_records if ip_records && !ip_records.empty?
+    ip_list |= ip_records unless ip_records.empty?
     print_status("VHost Enumeration: #{ip_records.count} IPs found")
 
-    # DNS / Subdomain History
     ip_records = viewdns_ip_history(domain_name)
-    ip_list |= ip_records if ip_records && !ip_records.empty?
+    ip_list |= ip_records unless ip_records.empty?
     print_status("ViewDNS.info: #{ip_records.count} IPs found")
 
-    # SSL Certificates (crt.sh)
     ip_records = crtsh_search(domain_name)
-    ip_list |= ip_records if ip_records && !ip_records.empty?
+    ip_list |= ip_records unless ip_records.empty?
     print_status("crt.sh: #{ip_records.count} IPs found")
 
-    # MX/SPF Records
     if datastore['CHECK_MX']
       ip_records = get_mx_records(domain_name)
-      ip_list |= ip_records if ip_records && !ip_records.empty?
+      ip_list |= ip_records unless ip_records.empty?
       print_status("MX/SPF Records: #{ip_records.count} IPs found")
     end
 
-    # DNS Bruteforce
+    if datastore['CHECK_EMAIL_HEADER']
+      ip_records = email_header_analysis
+      ip_list |= ip_records unless ip_records.empty?
+      print_status("Email Header Analysis: #{ip_records.count} IPs found")
+    end
+
+    if datastore['CHECK_NETCRAFT']
+      ip_records = netcraft_history(domain_name)
+      ip_list |= ip_records unless ip_records.empty?
+      print_status("Netcraft History: #{ip_records.count} IPs found")
+    end
+
+    if datastore['CHECK_DNSDUMPSTER']
+      ip_records = dnsdumpster_history(domain_name)
+      ip_list |= ip_records unless ip_records.empty?
+      print_status("DNSDumpster History: #{ip_records.count} IPs found")
+    end
+
+    if datastore['CHECK_FAVICON_HASH']
+      ip_records = favicon_hash_search(domain_name)
+      ip_list |= ip_records unless ip_records.empty?
+      print_status("Favicon Hash Search: #{ip_records.count} IPs found")
+    end
+
     unless dns_wildcard_enabled?(domain_name)
       print_status("Starting DNS bruteforce enumeration...")
       ip_records = dns_bruteforce(domain_name, datastore['WORDLIST'], datastore['THREADS'])
@@ -442,9 +511,7 @@ class MetasploitModule < Msf::Auxiliary
         next unless ip && subdomain =~ /^[a-zA-Z0-9\-\.]+$/
         ip_list |= [ip]
         print_status("Found #{subdomain}: #{ip}")
-        if check_subdomain_status(subdomain)
-          print_good("Subdomain #{subdomain} not behind Cloudflare: #{ip}")
-        end
+        print_good("Subdomain #{subdomain} not behind Cloudflare: #{ip}") if check_subdomain_status(subdomain)
       end
       print_status("DNS Enumeration: #{ip_records.count} IPs found")
     end
@@ -457,9 +524,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Collected IPs before filtering: #{ip_list.join(', ')}")
     print_status("Filtering out Cloudflare and blacklisted IPs...")
     ip_blacklist = cloudflare_ips
-    if datastore['IPBLACKLIST_FILE'] && File.readable?(datastore['IPBLACKLIST_FILE'])
-      ip_blacklist |= File.readlines(datastore['IPBLACKLIST_FILE'], chomp: true)
-    end
+    ip_blacklist |= File.readlines(datastore['IPBLACKLIST_FILE'], chomp: true) if datastore['IPBLACKLIST_FILE'] && File.readable?(datastore['IPBLACKLIST_FILE'])
 
     records = ip_list.uniq.reject do |ip|
       next true unless ip =~ /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/
@@ -476,17 +541,14 @@ class MetasploitModule < Msf::Auxiliary
       print_bad('No IPs found after filtering.')
       return
     end
-    print_status("Total: #{records.count} IPs after filtering: #{records.join(', ')}")
 
+    print_status("Total: #{records.count} IPs after filtering: #{records.join(', ')}")
     print_status("Acquiring website fingerprint...")
     fingerprint_strings = datastore['FINGERPRINT_STRINGS']&.split(',')&.map(&:strip) || [datastore['COMPSTR']].compact
     fingerprint_tags = datastore['FINGERPRINT_TAGS']&.split(',')&.map(&:strip) || ['title']
-
     print_status("Checking potential IPs for direct connection...")
-    ret_value = false
-    records.each do |ip|
-      ret_value |= check_bypass(fingerprint_strings, fingerprint_tags, ip)
-    end
+
+    ret_value = records.any? { |ip| check_bypass(fingerprint_strings, fingerprint_tags, ip) }
 
     if ret_value
       print_status("Cloudflare thought it could hide, but we cracked it like an egg! Real IP exposed, baby! Jake & Grok say: 'Time to kick off the real hack!' 😎")
