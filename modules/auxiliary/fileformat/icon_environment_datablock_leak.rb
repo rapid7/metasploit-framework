@@ -4,7 +4,6 @@
 ##
 
 class MetasploitModule < Msf::Auxiliary
-  Rank = GoodRanking
 
   include Msf::Exploit::FILEFORMAT
   include Msf::Exploit::Remote::SMB::Server::Share
@@ -195,7 +194,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def validate_or_fail_unc!(path)
-    unless path.match(/^\\[^\]+\[^\]+$/)
+    unless path.match(/^\\\\[^\\]+\\[^\\]*$/)
       fail_with(Failure::BadConfig, 'UNC_PATH format invalid, expected \\server\share')
     end
   end
