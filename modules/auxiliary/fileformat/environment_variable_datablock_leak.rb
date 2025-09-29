@@ -41,8 +41,8 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2025-05-06',
         'Notes' => {
           'Stability' => [CRASH_SAFE],
-          'SideEffects' => [IOC_IN_LOGS, SCREEN_EFFECTS],
-          'Reliability' => [REPEATABLE_SESSION]
+          'SideEffects' => [ARTIFACTS_ON_DISK, SCREEN_EFFECTS],
+          'Reliability' => []
         }
       )
     )
