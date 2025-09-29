@@ -1,10 +1,7 @@
-This module generates a malicious Windows shortcut (LNK) file that exploits padding in the command line arguments to execute arbitrary commands. It leverages environment variables and inserts whitespace padding to concatenate and run the specified payload when the LNK is opened.
-
-The technique allows command execution without direct user interaction beyond opening the shortcut, making it useful for phishing or payload delivery scenarios.
-
 ## Vulnerable Application
 
-Windows systems where LNK files are processed, such as in Explorer or when shortcuts are executed. This can lead to arbitrary command execution via manipulated command line buffers.
+Windows systems where LNK files are processed, such as in Explorer or when shortcuts are executed.
+This can lead to arbitrary command execution via manipulated command line buffers.
 
 References:
 - [ZDI-CAN-25373](https://www.zerodayinitiative.com/advisories/ZDI-CAN-25373/)
@@ -17,26 +14,15 @@ Disclosure Date: 2025-07-19.
 ## Verification Steps
 
 1. Start msfconsole.
-2. Load the module: `use auxiliary/fileformat/windows_lnk_padding`.
-3. Set required options (e.g., FILENAME, COMMAND).
-4. Optionally customize DESCRIPTION, ICON_PATH, or BUFFER_SIZE.
-5. Execute the module: `run`.
-6. A malicious LNK file will be generated.
-7. Deliver the LNK file to the target Windows system.
-8. Open the LNK file to trigger command execution (e.g., launching calc.exe).
+1. Load the module: `use auxiliary/fileformat/windows_lnk_padding`.
+1. Optionally customize FILENAME, DESCRIPTION, ICON_PATH, or BUFFER_SIZE.
+1. Execute the module: `run`.
+1. A malicious LNK file will be generated.
+1. Deliver the LNK file to the target Windows system.
+1. Open the LNK file to trigger command execution (e.g., launching calc.exe).
 
 ## Options
 
-### FILENAME
-
-Specifies the name of the generated LNK file.
-
-Default: `poc.lnk`
-
-Example:
-```
-set FILENAME exploit.lnk
-```
 
 ### COMMAND
 
@@ -106,5 +92,3 @@ msf auxiliary(fileformat/windows_lnk_padding) > run
 [*] Target command: C:\\Windows\\System32\\calc.exe
 [*] Auxiliary module execution completed
 ```
-
-Deliver `calc.lnk` to the target (e.g., via email attachment or shared folder). When opened, it executes `calc.exe` using the padded command line. Monitor for execution side effects or adjust the COMMAND for more advanced payloads like downloading and running scripts.

