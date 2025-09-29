@@ -566,7 +566,9 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   def cmd_edit_help
     print_line('Edit a file on remote machine.')
-    print_line("Usage: edit file")
+    print_line("Usage: edit <file>")
+    print_line('The file is safely downloaded to a temporary location, edited locally,')
+    print_line('and then uploaded back to the remote path (atomic replace).')
     print_line
   end
 
@@ -575,32 +577,29 @@ class Console::CommandDispatcher::Stdapi::Fs
   # the contents to the remote machine after completion.
   #
   def cmd_edit(*args)
-    if args.empty? || args.include?('-h')
+    if args.include?('-h') || args.include?('-?')
       cmd_edit_help
       return true
     end
 
-    # Get a temporary file path
-    meterp_temp = Tempfile.new('meterp')
-    meterp_temp.binmode
-    temp_path = meterp_temp.path
-
-    client_path = args[0]
-    client_path = client.fs.file.expand_path(client_path) if client_path =~ path_expand_regex
-
-    # Try to download the file, but don't worry if it doesn't exist
-    client.fs.file.download_file(temp_path, client_path) rescue nil
-
-    # Spawn the editor (default to vi)
-    editor = Rex::Compat.getenv('EDITOR') || 'vi'
-
-    # If it succeeds, upload it to the remote side.
-    if (system("#{editor} #{temp_path}") == true)
-      client.fs.file.upload_file(client_path, temp_path)
+    if args.empty? || args.length > 1
+      print_error("Usage: edit <file>")
+      return false
     end
 
-    # Get rid of that pesky temporary file
-    ::File.delete(temp_path) rescue nil
+    path = args[0]
+
+    begin
+      client.fs.file.edit(path)
+      print_status("Edited #{path}")
+      return true
+    rescue ::Rex::Post::Meterpreter::RequestError => e
+      print_error("Failed to edit #{path}: #{e.message}")
+      return false
+    rescue ::Exception => e
+      print_error("An error occurred during edit: #{e.class} #{e}")
+      return false
+    end
   end
 
   alias :cmd_edit_tabs :cmd_cat_tabs
