@@ -81,7 +81,7 @@ served payload is the same.
 ### Dependent Options
 `FETCH_FILELESS` is an option that specifies a method to modify the fetch command to download the binary payload to
 memory rather than disk before execution, thus avoiding some HIDS and making forensics harder.  Currently, there are
-two options: `bash` and `python3.8+`.  Both of these require the target to be running Linux Kernel 3.17 or above.
+two options: `shell`, `shell-search` and `python3.8+`. All of these require the target to be running Linux Kernel 3.17 or above.
 This option is only available when the platform is Linux.
 
 `FETCH_FILENAME` is the name you'd like the executable payload saved as on the remote host.  This option is not
@@ -104,6 +104,16 @@ The remaining options will be the options available to you in the served payload
 `linux/x64/meterpreter/reverse_tcp` so our only added options are `LHOST` and `LPORT`.  If we had selected a different
 payload, we would see different options.
 
+### Fileless Execution
+
+For Linux payloads, we support **fileless ELF execution** - this option is enabled with `FETCH_FILELESS`. Currently, this option can be the following values: `python3.8+`, `shell-search`, and `shell`. The basic idea behind all of them is the same: execute the payload from an anonymous file handle, which should never touch a disk, thereby adding a layer of stealth. 
+
+The `shell-search` option searches for available anonymous file handles available on the system, copies the payload into the one it finds, and executes the payload from that handle. This method uses `POSIX` commands only so that it can be run in any shell. 
+
+The `shell` option uses a slightly different approach: it runs the assembly stub from a shell, creates an anonymous file handle inside of the shell process, copies the payload into a new handle, and then runs it. Finally, it will kill the original shell process, leaving the payload running as *orphan* process. This method uses a syscall `memfd_create` to create an anonymous file handle. 
+This option can be used in any Linux shell. 
+
+The `python3.8+` option uses the same technique as the `shell` option. However, it all happens in Python code. It will call the `os.memfd_create` function, which will create an anonymous file handle from the Python process. Then, it uses `os.system` to copy the payload into a new file handle and execute it. This option requires Python version 3.8 or higher on the target machine.
 ### Generating the Fetch Payload
 ```msf
 msf payload(cmd/linux/http/x64/meterpreter/reverse_tcp) > set FETCH_COMMAND WGET
