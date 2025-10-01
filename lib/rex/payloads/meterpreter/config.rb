@@ -92,7 +92,7 @@ private
     c2_tlv.add_tlv(MET::TLV_TYPE_C2_RETRY_WAIT, opts[:retry_wait])
 
     url = "#{opts[:scheme]}://#{Rex::Socket.to_authority(lhost, opts[:lport])}"
-    url << "#{opts[:uri]}/" if opts[:uri]
+    url << "/#{opts[:uri].delete_prefix('/').delete_suffix('/')}/" if opts[:uri]
     url << "?#{opts[:scope_id]}" if opts[:scope_id]
 
     c2_tlv.add_tlv(MET::TLV_TYPE_C2_URL, url)
