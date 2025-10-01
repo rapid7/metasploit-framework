@@ -104,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
 
   # TODO: Spencer to check all of these are still used and shouldn't be moved
   # Constants Definition
-  CERTIFICATE_ATTRIBUTES = %w[cn name description nTSecurityDescriptor msPKI-Certificate-Policy msPKI-Enrollment-Flag msPKI-RA-Signature msPKI-Template-Schema-Version pkiExtendedKeyUsage]
+  CERTIFICATE_ATTRIBUTES = %w[cn name description nTSecurityDescriptor msPKI-Certificate-Policy msPKI-Enrollment-Flag msPKI-RA-Signature msPKI-Template-Schema-Version pkiExtendedKeyUsage msPKI-Certificate-Name-Flag]
   CERTIFICATE_TEMPLATES_BASE = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration'.freeze
   CONTROL_ACCESS = 0x00000100
 
@@ -506,7 +506,7 @@ class MetasploitModule < Msf::Auxiliary
       ')'\
     ')'
 
-    esc9_templates = query_ldap_server(esc9_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
+    esc9_templates = query_ldap_server(esc9_raw_filter, CERTIFICATE_ATTRIBUTES + ['msPKI-Certificate-Name-Flag'], base_prefix: CERTIFICATE_TEMPLATES_BASE)
     esc9_templates.each do |template|
       certificate_symbol = template[:cn][0].to_sym
 
@@ -523,6 +523,7 @@ class MetasploitModule < Msf::Auxiliary
       if @registry_values[:strong_certificate_binding_enforcement].present?
         note += " Registry value: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}."
       end
+      @certificate_details[certificate_symbol][:certificate_name_flags] = template['mspki-certificate-name-flag']
       @certificate_details[certificate_symbol][:techniques] << 'ESC9'
       @certificate_details[certificate_symbol][:notes] << note
     end
@@ -544,7 +545,7 @@ class MetasploitModule < Msf::Auxiliary
   ')'\
   ')'
 
-    esc10_templates = query_ldap_server(esc10_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
+    esc10_templates = query_ldap_server(esc10_raw_filter, CERTIFICATE_ATTRIBUTES + ['msPKI-Certificate-Name-Flag'], base_prefix: CERTIFICATE_TEMPLATES_BASE)
     esc10_templates.each do |template|
       certificate_symbol = template[:cn][0].to_sym
 
@@ -562,7 +563,7 @@ class MetasploitModule < Msf::Auxiliary
       if @registry_values[:strong_certificate_binding_enforcement].present? && @registry_values[:certificate_mapping_methods].present?
         note += " Registry values: StrongCertificateBindingEnforcement=#{@registry_values[:strong_certificate_binding_enforcement]}, CertificateMappingMethods=#{@registry_values[:certificate_mapping_methods]}."
       end
-
+      @certificate_details[certificate_symbol][:certificate_name_flags] = template['mspki-certificate-name-flag']
       @certificate_details[certificate_symbol][:techniques] << 'ESC10'
       @certificate_details[certificate_symbol][:notes] << note
     end
@@ -724,7 +725,7 @@ class MetasploitModule < Msf::Auxiliary
       '(pkiextendedkeyusage=*)'\
     ')'
 
-    esc_entries = query_ldap_server(esc16_raw_filter, CERTIFICATE_ATTRIBUTES, base_prefix: CERTIFICATE_TEMPLATES_BASE)
+    esc_entries = query_ldap_server(esc16_raw_filter, CERTIFICATE_ATTRIBUTES + ['msPKI-Certificate-Name-Flag'], base_prefix: CERTIFICATE_TEMPLATES_BASE)
     return if esc_entries.empty?
 
     if @registry_values[:strong_certificate_binding_enforcement] && (@registry_values[:strong_certificate_binding_enforcement] == 0 || @registry_values[:strong_certificate_binding_enforcement] == 1)
