@@ -70,8 +70,7 @@ module ReverseHttp
         OptString.new('HttpUserAgent',
           'The user-agent that the payload should use for communication',
           default: Rex::UserAgent.random,
-          aliases: ['MeterpreterUserAgent'],
-          max_length: Rex::Payloads::Meterpreter::Config::UA_SIZE - 1
+          aliases: ['MeterpreterUserAgent']
         ),
         OptString.new('HttpServerName',
           'The server header that the handler will send in response to requests',
@@ -180,27 +179,48 @@ module ReverseHttp
     (ssl?) ? 'https' : 'http'
   end
 
+  def construct_luri(base_uri)
+    return nil unless base_uri
+
+    u = base_uri.dup
+
+    while u[-1] == '/'
+      u.chop!
+    end
+
+    u
+  end
+
   # The local URI for the handler.
   #
   # @return [String] Representation of the URI to listen on.
   def luri
-    l = datastore['LURI'] || ""
+    construct_luri(datastore['LURI'] || '')
+  end
 
-    if l && l.length > 0
-      # strip trailing slashes
-      while l[-1, 1] == '/'
-        l = l[0...-1]
-      end
+  def all_uris
+    all = ["#{luri}/"]
 
-      # make sure the luri has the prefix
-      if l[0, 1] != '/'
-        l = "/#{l}"
-      end
-
+    if self.c2_profile
+      uris = self.c2_profile.uris.map {|u| construct_luri(u)}
+      all.push(*uris)
     end
 
-    l.dup
+    all
   end
+
+  def c2_profile
+    unless @c2_profile_parsed
+      profile_path = datastore['MALLEABLEC2'] || ''
+      unless profile_path.empty?
+        parser = Msf::Payload::MalleableC2::Parser.new
+        @c2_profile_instance = parser.parse(profile_path)
+      end
+      c2_profile_parsed = true
+    end
+    @c2_profile_instance
+  end
+
 
   # Create an HTTP listener
   #
@@ -239,11 +259,15 @@ module ReverseHttp
     self.service.server_name = datastore['HttpServerName']
 
     # Add the new resource
-    service.add_resource((luri + "/").gsub("//", "/"),
-      'Proc' => Proc.new { |cli, req|
-        on_request(cli, req)
-      },
-      'VirtualDirectory' => true)
+    all_uris.each {|u|
+      #r = (u + "/").gsub("//", "/")
+      r = u.gsub("//", "/")
+      service.add_resource(r,
+        'Proc' => Proc.new { |cli, req|
+          on_request(cli, req)
+        },
+        'VirtualDirectory' => true)
+    }
 
     print_status("Started #{scheme.upcase} reverse handler on #{listener_uri(local_addr)}")
     lookup_proxy_settings
@@ -253,13 +277,47 @@ module ReverseHttp
     end
   end
 
+  def find_resource_id(cli, request)
+    if request.method == 'POST'
+      directive = self.c2_profile&.http_post&.client&.id&.parameter
+      cid = request.qstring[directive[0].args[0]] if directive && directive.length > 0
+      unless cid
+        directive = self.c2_profile&.http_post&.client&.id&.header
+        cid = request.headers[directive[0].args[0]] if directive && directive.length > 0
+      end
+    else
+      directive = self.c2_profile&.http_get&.client&.metadata&.parameter
+      cid = request.qstring[directive[0].args[0]] if directive && directive.length > 0
+      unless cid
+        directive = self.c2_profile&.http_get&.client&.metadata&.header
+        cid = request.headers[directive[0].args[0]] if directive && directive.length > 0
+      end
+    end
+
+    request.conn_id = cid || request.resource.split('?')[0].split('/').compact.last
+  end
+
+  def add_response_headers(req, resp)
+    if req.method == 'GET'
+      headers = self.c2_profile&.http_get&.server&.header || []
+      headers.each {|h| resp[h.args[0]] = h.args[1]}
+    elsif req.method == 'POST'
+      headers = self.c2_profile&.http_post&.server&.header || []
+      headers.each {|h| resp[h.args[0]] = h.args[1]}
+    end
+  end
+
   #
   # Removes the / handler, possibly stopping the service if no sessions are
   # active on sub-urls.
   #
   def stop_handler
     if self.service
-      self.service.remove_resource((luri + "/").gsub("//", "/"))
+      all_uris.each {|u|
+        #r = (u + "/").gsub("//", "/")
+        r = u.gsub("//", "/")
+        self.service.remove_resource(r)
+      }
       self.service.deref
       self.service = nil
     end
@@ -314,23 +372,27 @@ protected
   def on_request(cli, req)
     Thread.current[:cli] = cli
     resp = Rex::Proto::Http::Response.new
-    info = process_uri_resource(req.relative_resource)
-    uuid = info[:uuid]
+
+    req.conn_id = find_resource_id(cli, req) unless req.conn_id
+
+    if req.conn_id
+      info = process_uri_resource(req.conn_id)
+      uuid = info[:uuid]
+      conn_id = req.conn_id
+    end
 
     if uuid
       # Configure the UUID architecture and payload if necessary
       uuid.arch      ||= self.arch
       uuid.platform  ||= self.platform
 
-      conn_id = luri
+      request_summary = "#{luri} with UA '#{req.headers['User-Agent']}'"
+
       if info[:mode] && info[:mode] != :connect
-        conn_id << generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
-      else
-        conn_id << req.relative_resource
-        conn_id = conn_id.chomp('/')
+        conn_id = generate_uri_uuid(URI_CHECKSUM_CONN, uuid)
       end
 
-      request_summary = "#{conn_id} with UA '#{req.headers['User-Agent']}'"
+      conn_id.chomp!('/')
 
       # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
       if framework.db.active
@@ -368,16 +430,17 @@ protected
     # Process the requested resource.
     case info[:mode]
       when :init_connect
-        print_status("Redirecting stageless connection from #{request_summary}")
+        print_status("Redirecting stageless connection from #{request_summary} to #{conn_id}")
 
         # Handle the case where stageless payloads call in on the same URI when they
         # first connect. From there, we tell them to callback on a connect URI that
         # was generated on the fly. This means we form a new session for each.
 
         # Hurl a TLV back at the caller, and ignore the response
-        pkt = Rex::Post::Meterpreter::Packet.new(Rex::Post::Meterpreter::PACKET_TYPE_RESPONSE, Rex::Post::Meterpreter::COMMAND_ID_CORE_PATCH_URL)
-        pkt.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_TRANS_URL, conn_id + "/")
+        pkt = Rex::Post::Meterpreter::Packet.new(Rex::Post::Meterpreter::PACKET_TYPE_RESPONSE, Rex::Post::Meterpreter::COMMAND_ID_CORE_PATCH_UUID)
+        pkt.add_tlv(Rex::Post::Meterpreter::TLV_TYPE_C2_UUID, conn_id.gsub(/\//, ''))
         resp.body = pkt.to_r
+        resp.body = self.c2_profile.wrap_outbound_get(resp.body) if self.c2_profile
 
       when :init_python, :init_native, :init_java, :connect
         # TODO: at some point we may normalise these three cases into just :init
@@ -386,6 +449,7 @@ protected
           print_status("Attaching orphaned/stageless session...")
         else
           begin
+            # TODO: do we need to handle C2 profiles here?
             blob = self.generate_stage(url: url, uuid: uuid, uri: conn_id)
             blob = encode_stage(blob) if self.respond_to?(:encode_stage)
             # remove this when we make http payloads prepend stage sizes by default
@@ -406,7 +470,7 @@ protected
           end
         end
 
-        create_session(cli, {
+        session_opts = {
           :passive_dispatcher => self.service,
           :dispatch_ext       => [Rex::Post::Meterpreter::HttpPacketDispatcher],
           :conn_id            => conn_id,
@@ -416,9 +480,12 @@ protected
           :retry_total        => datastore['SessionRetryTotal'].to_i,
           :retry_wait         => datastore['SessionRetryWait'].to_i,
           :ssl                => ssl?,
-          :payload_uuid       => uuid
-        })
+          :payload_uuid       => uuid,
+          :c2_profile         => self.c2_profile,
+          :debug_build        => datastore['MeterpreterDebugBuild'] || false,
+        }
 
+        create_session(cli, session_opts)
       else
         unless [:unknown, :unknown_uuid, :unknown_uuid_url].include?(info[:mode])
           print_status("Unknown request to #{request_summary}")

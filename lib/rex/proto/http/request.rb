@@ -217,16 +217,16 @@ class Request < Packet
     str + super
   end
 
+  #
+  # Returns a hijacked version of the body that shoves the request's query string in as a
+  # replacement in cases where there is no body. YOLO! ¯\_(ツ)_/¯
+  #
   def body
     str = super || ''
-    if str.length > 0
-      return str
+    if str.length == 0 && PostRequests.include?(self.method)
+      str = param_tring
     end
-
-    if PostRequests.include?(self.method)
-      return param_string
-    end
-    ''
+    str
   end
 
   #
@@ -270,6 +270,11 @@ class Request < Packet
   #
   def meta_vars
   end
+
+  #
+  # An identifier associated with the incoming request, can be used to match requests with sessions.
+  #
+  attr_accessor :conn_id
 
   #
   # The method being used for the request (e.g. GET).

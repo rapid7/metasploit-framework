@@ -116,6 +116,32 @@ class Client
   end
 
   #
+  # Wrap the given packet data with any prefixes and suffixes that are stored in
+  # the associated C2 profile server configuration (if it exists) and handle
+  # encoding of data
+  #
+  def wrap_packet(raw_bytes)
+    if self.c2_profile
+      raw_bytes = self.c2_profile.wrap_outbound_get(raw_bytes)
+    end
+
+    raw_bytes
+  end
+
+  #
+  # Unwrap the given packet data from any prefixes and suffixes that are stored in
+  # the associated C2 profile client configuration (if it exists) and handle
+  # decoding of data
+  #
+  def unwrap_packet(raw_bytes)
+    if self.c2_profile
+      self.c2_profile.unwrap_inbound_post(raw_bytes)
+    end
+
+    raw_bytes
+  end
+
+  #
   # Initializes the meterpreter client instance
   #
   def init_meterpreter(sock,opts={})
@@ -132,6 +158,8 @@ class Client
     self.conn_id      = opts[:conn_id]
     self.url          = opts[:url]
     self.ssl          = opts[:ssl]
+
+    self.c2_profile = opts[:c2_profile]
 
     self.pivot_session = opts[:pivot_session]
     if self.pivot_session
@@ -499,6 +527,10 @@ class Client
   # The timestamp of the last received response
   #
   attr_accessor :last_checkin
+  #
+  # Reference to the c2 profile instance associated with this connection, if any.
+  #
+  attr_accessor :c2_profile
   #
   # Whether or not to use a debug build for loaded extensions
   #
