@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    begin
+  
       login
     rescue Msf::Exploit::Failed => e
       return Msf::Exploit::CheckCode::Unknown("Authentication failed: #{e.message}")
