@@ -117,6 +117,7 @@ msf6 auxiliary(gather/listmonk_env_disclosure) > run
 [+] Login successful
 [*] Executing template to extract environment variables...
 [+] Environment variable(s) extracted:
+
 my_secure_db_password123
 
 [*] Auxiliary module execution completed
@@ -147,6 +148,7 @@ msf6 auxiliary(gather/listmonk_env_disclosure) > run
 [+] Login successful
 [*] Executing template to extract environment variables...
 [+] Environment variable(s) extracted:
+
 listmonk_user
 my_secure_db_password123
 admin_secret_password
