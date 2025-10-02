@@ -1,11 +1,10 @@
-## Description
+## Vulnerable Application
+
 This module will scan given instances for an unauthenticated SQL injection
 within the CP Multi-View Calendar plugin v1.1.4 for Wordpress.
 
 ## References
 * [https://wordpress.org/plugins/cp-multi-view-calendar/]
-
-## Vulnerable Application
 
 ### Setup using Docksal
 Install [Docksal](https://docksal.io/)
@@ -86,13 +85,20 @@ pass: admin
 
 ## Verification Steps
 
-1. Do: ```use auxiliary/scanner/http/press_cp_calendar_sqli```
-2. Do: ```set RHOSTS [IP]```
-3. Do: ```set VHOST [HOSTNAME]```
-4. Do: ```run```
+1. Do: `use auxiliary/scanner/http/press_cp_calendar_sqli`
+2. Do: `set RHOSTS [IP]`
+3. Do: `set VHOST [HOSTNAME]`
+4. Do: `run`
 
 ## Options
 
-### TARGETURI**
 
-Target URI of the Wordpress instance
+## Scenarios
+
+```
+msf auxiliary(wordpress_cp_calendar_sqli) > run
+
+[+] 10.211.55.4:80 - Vulnerable to unauthenticated SQL injection within CP Multi-View Calendar 1.1.4 for Wordpress
+[*] Scanned 1 of 1 hosts (100% complete)
+[*] Auxiliary module execution completed
+```
