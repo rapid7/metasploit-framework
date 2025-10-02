@@ -508,7 +508,7 @@ GEM
       rex-random_identifier
       rex-text
       ruby-rc4
-    rex-random_identifier (0.1.20)
+    rex-random_identifier (0.1.21)
       bigdecimal
       rex-text
     rex-registry (0.1.6)
