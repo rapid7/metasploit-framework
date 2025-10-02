@@ -19,10 +19,6 @@ These are minimal privileges that can be assigned to non-admin users in multi-us
 installations, making this vulnerability particularly dangerous as it allows privilege escalation
 through environment variable disclosure.
 
-### Install ( Latest Version )
-
-Listmonk's latest version can be installed from https://listmonk.app/docs/installation/
-
 #### Docker Installation (Vulnerable Version)
 
 To install the vulnerable version, run the following command :
