@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'SideEffects' => [IOC_IN_LOGS],
-          'Reliability' => [REPEATABLE_SESSION]
+          'Reliability' => []
         }
       )
     )
