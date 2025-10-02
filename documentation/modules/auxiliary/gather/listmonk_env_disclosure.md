@@ -12,8 +12,8 @@ SMTP passwords, API keys, and admin credentials.
 ### Required Privileges
 
 For this exploit to work, the authenticated user must have the following privileges:
-- `campaigns:get` - Permission to view campaigns
-- `campaigns:get_all` - Permission to view all campaigns
+- `campaigns:get` - Permission to get and view campaigns belonging to permitted lists
+- `campaigns:get_all` - Permission to get and view campaigns across all lists
 
 These are minimal privileges that can be assigned to non-admin users in multi-user Listmonk
 installations, making this vulnerability particularly dangerous as it allows privilege escalation
