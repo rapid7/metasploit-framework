@@ -10,7 +10,7 @@ within the CP Multi-View Calendar plugin v1.1.4 for Wordpress.
 ### Setup using Docksal
 Install [Docksal](https://docksal.io/)
 
-Create a new Wordpress isntallation using `fin project create`
+Create a new Wordpress installation using `fin project create`
 
 ```
 ➜  ~ fin project create                  
@@ -72,8 +72,8 @@ Download the Wordpress plugin
 
 ```
 cd msf-wp/wp-content/plugins
-wget https://downloads.wordpress.org/plugin/cp-multi-view-calendar.1.4.32.zip
-unzip cp-multi-view-calendar.1.4.32.zip
+wget https://github.com/wp-plugins/cp-multi-view-calendar/archive/refs/tags/1.0.2.zip
+unzip 1.0.2.zip
 ```
 
 Login and click on DukaPress "Activate" Link
@@ -93,6 +93,6 @@ pass: admin
 
 ## Options
 
-**TARGETURI**
+### TARGETURI**
 
 Target URI of the Wordpress instance
