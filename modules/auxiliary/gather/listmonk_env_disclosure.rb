@@ -58,8 +58,9 @@ class MetasploitModule < Msf::Auxiliary
     return Msf::Exploit::CheckCode::Unknown('Connection failed') unless res
 
     if res.code == 200
-      begin
-        json = JSON.parse(res.body)
+        json = res.get_json_document
+        return Msf::Exploit::CheckCode::Unknown('Failed to parse version information') unless json
+        
         if json['version']
           version_string = json['version'].gsub(/^v/, '')
           version = Rex::Version.new(version_string)
