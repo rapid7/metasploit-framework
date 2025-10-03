@@ -222,25 +222,24 @@ In order to create a template vulnerable to ESC16 scenario 1, follow the first 1
 which is all the steps up to and excluding the `msPKI-Enrollment-Flag", 0x80000` powershell step which is how you set the `CT_FLAG_NO_SECURITY_EXTENSION`.
 Ensure that `StrongCertificateBindingEnforcement` is set to `0` or `1` (not `2`) by running the following command listed in `Configuring Windows to be Vulnerable to ESC9`
 
-### ESC16 Scenario 2
+#### ESC16 Scenario 2
 When a CA has the OID `1.3.6.1.4.1.311.25.2` added to its `policy\DisableExtensionList` and `StrongCertificateBindingEnforcement` is set to `2`, there is still a way to exploit the template.
 If the policy module's `EditFlags` has the `EDITF_ATTRIBUTESUBJECTALTNAME2` flag set (which is essentially ESC6), then the template is vulnerable to ESC16 scenario 2.
 
 Ensure the `EDITF_ATTRIBUTESUBJECTALTNAME2` flag is set by running following PowerShell command:
 ```powershell
-$EDITF_ATTRIBUTESUBJECTALTNAME2 = 0x00040000
-$activePolicyName = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\*\PolicyModules" -Name "Active").Active
-$editFlagsPath = "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\*\PolicyModules\$activePolicyName"
-$editFlags = (Get-ItemProperty -Path $editFlagsPath -Name "EditFlags").EditFlags
+certutil -setreg policy\EditFlags +EDITF_ATTRIBUTESUBJECTALTNAME2
+```
 
-if ($editFlags -band $EDITF_ATTRIBUTESUBJECTALTNAME2) {
-    Write-Output "The EDITF_ATTRIBUTESUBJECTALTNAME2 flag is already enabled."
-} else {
-    # Enable the flag by setting it in the EditFlags value
-    $newEditFlags = $editFlags -bor $EDITF_ATTRIBUTESUBJECTALTNAME2
-    Set-ItemProperty -Path $editFlagsPath -Name "EditFlags" -Value $newEditFlags
-    Write-Output "The EDITF_ATTRIBUTESUBJECTALTNAME2 flag has been enabled."
-}
+Then restart the Certificate Services service:
+```powershell
+net stop certsvc
+net start certsvc
+```
+
+Then vefify the flag is set by running:
+```powershell
+certutil -getreg policy\EditFlags
 ```
 
 ## Module usage
