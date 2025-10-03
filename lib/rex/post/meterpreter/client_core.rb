@@ -403,12 +403,6 @@ class ClientCore < Extension
           'Extension'        => true,
           'SaveToDisk'       => opts['LoadFromDisk'])
     end
-
-    if skip_loading && client.platform == 'windows'
-      error = Rex::Post::Meterpreter::ExtensionLoadError.new(name: mod.downcase)
-      raise error, "Loading \"#{mod.downcase}\" not possible due to the presence of already loaded portions of the extension.", caller
-    end
-
     # wire the commands into the client
     client.add_extension(mod, commands)
 
