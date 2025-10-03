@@ -176,9 +176,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     })
 
-    unless res
-      fail_with(Failure::Unreachable, 'Connection failed during preview')
-    end
+      fail_with(Failure::Unreachable, 'Connection failed during preview') unless res
 
     if res.code == 200
       extract_results(res.body)
