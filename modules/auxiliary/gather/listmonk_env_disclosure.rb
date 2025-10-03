@@ -112,9 +112,8 @@ class MetasploitModule < Msf::Auxiliary
       }
     })
 
-    unless res
-      fail_with(Failure::Unreachable, 'Connection failed during login')
-    end
+      fail_with(Failure::Unreachable, 'Connection failed during login') unless res
+   
 
     if res.code == 302
       @cookie = res.get_cookies if res.get_cookies
