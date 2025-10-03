@@ -178,11 +178,9 @@ class MetasploitModule < Msf::Auxiliary
 
       fail_with(Failure::Unreachable, 'Connection failed during preview') unless res
 
-    if res.code == 200
-      extract_results(res.body)
-    else
-      fail_with(Failure::Unknown, "Preview failed with code: #{res.code}")
-    end
+    fail_with(Failure::Unknown, "Preview failed with code: #{res.code}") unless res.code == 200
+   extract_results(res.body)
+    
   end
 
   def extract_results(html)
