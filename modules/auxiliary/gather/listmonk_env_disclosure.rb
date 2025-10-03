@@ -83,9 +83,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path, 'admin', 'login')
     })
 
-    unless res
-      fail_with(Failure::Unreachable, 'Connection failed')
-    end
+      fail_with(Failure::Unreachable, 'Connection failed') unless res
 
     nonce = res.body.match(/name="nonce"\s+value="([^"]+)"/)
     unless nonce
