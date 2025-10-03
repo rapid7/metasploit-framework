@@ -116,7 +116,7 @@ class MetasploitModule < Msf::Auxiliary
    
 
     if res.code == 302
-      @cookie = res.get_cookies if res.get_cookies
+      @cookie = res.get_cookies
       print_good('Login successful')
       return true
     else
