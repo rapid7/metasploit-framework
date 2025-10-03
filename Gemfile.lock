@@ -1,3 +1,23 @@
+GIT
+  remote: https://github.com/dwelch-r7/metasploit-credential
+  revision: 6edcd13a7553706a3da0128d7c2dff8291f201a8
+  branch: fix-private-key-missing-fingerprint
+  specs:
+    metasploit-credential (6.0.17)
+      bigdecimal
+      csv
+      drb
+      metasploit-concern
+      metasploit-model
+      metasploit_data_models (>= 5.0.0)
+      mutex_m
+      net-ssh
+      pg
+      railties
+      rex-socket
+      rubyntlm
+      rubyzip
+
 PATH
   remote: .
   specs:
@@ -43,7 +63,6 @@ PATH
       lru_redux
       metasm
       metasploit-concern
-      metasploit-credential
       metasploit-model
       metasploit-payloads (= 2.0.221)
       metasploit_data_models (>= 6.0.7)
@@ -327,20 +346,6 @@ GEM
       mutex_m
       railties (~> 7.0)
       zeitwerk
-    metasploit-credential (6.0.16)
-      bigdecimal
-      csv
-      drb
-      metasploit-concern
-      metasploit-model
-      metasploit_data_models (>= 5.0.0)
-      mutex_m
-      net-ssh
-      pg
-      railties
-      rex-socket
-      rubyntlm
-      rubyzip
     metasploit-model (5.0.4)
       activemodel (~> 7.0)
       activesupport (~> 7.0)
@@ -671,6 +676,7 @@ DEPENDENCIES
   fivemat
   license_finder (= 5.11.1)
   memory_profiler
+  metasploit-credential!
   metasploit-framework!
   octokit
   pry-byebug
