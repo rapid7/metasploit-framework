@@ -29,6 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           ['OSVDB', '25479'],
           ['URL', 'https://web.archive.org/web/20080102163013/http://secunia.com/advisories/20107/'],
           ['CVE', '2006-2369'],
+          ['ATT&CK', Mitre::Attack::Technique::T1021_005_VNC],
         ],
         'DisclosureDate' => '2006-05-15',
         'Notes' => {
