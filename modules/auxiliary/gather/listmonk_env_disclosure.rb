@@ -142,9 +142,7 @@ class MetasploitModule < Msf::Auxiliary
       }.to_json
     })
 
-    unless res
-      fail_with(Failure::Unreachable, 'Connection failed during campaign creation')
-    end
+      fail_with(Failure::Unreachable, 'Connection failed during campaign creation') unless res
 
     if res.code == 200
       begin
