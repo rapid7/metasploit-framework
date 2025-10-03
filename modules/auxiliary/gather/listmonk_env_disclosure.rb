@@ -86,9 +86,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Connection failed') unless res
 
     nonce = res.body.match(/name="nonce"\s+value="([^"]+)"/)
-    unless nonce
-      fail_with(Failure::UnexpectedReply, 'Could not extract nonce from login page')
-    end
+      fail_with(Failure::UnexpectedReply, 'Could not extract nonce from login page') unless nonce
 
     @cookie = res.get_cookies
 
