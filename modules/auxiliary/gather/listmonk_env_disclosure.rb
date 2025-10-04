@@ -43,11 +43,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    
     begin
-  	login
+      login
     rescue Msf::Exploit::Failed
-  	return Msf::Exploit::CheckCode::Unknown('Authentication failed')
+      return Msf::Exploit::CheckCode::Unknown('Authentication failed')
     end
     
     res = send_request_cgi({
@@ -59,6 +58,7 @@ class MetasploitModule < Msf::Auxiliary
     return Msf::Exploit::CheckCode::Unknown('Connection failed') unless res
 
     if res.code == 200
+      begin
         json = res.get_json_document
         return Msf::Exploit::CheckCode::Unknown('Failed to parse version information') unless json
         
@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
           version_string = json['version'].gsub(/^v/, '')
           version = Rex::Version.new(version_string)
           if version >= Rex::Version.new('4.0.0') && version < Rex::Version.new('5.0.2')
-		return Msf::Exploit::CheckCode::Appears("Listmonk version #{version_string} is vulnerable")
+            return Msf::Exploit::CheckCode::Appears("Listmonk version #{version_string} is vulnerable")
           else
             return Msf::Exploit::CheckCode::Safe("Listmonk version #{version_string} is patched")
           end
@@ -182,10 +182,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def extract_results(html)
-    paragraphs = html.scan(%r{<p[^>]*>(.*?)</p>}m).flatten
+     doc = Nokogiri::HTML(html)
+     wrap_div = doc.at('div[@class="wrap"]')
+     fail_with(Failure::UnexpectedReply, 'Could not find wrap div in response') unless wrap_div
 
-    if paragraphs.any?
-      results = paragraphs.length > 1 ? paragraphs[0...-1] : paragraphs
+     paragraphs = wrap_div.search('p').map(&:text).map(&:strip).reject(&:empty?)
+
+      if paragraphs.any?
+  	  results = paragraphs
 
       clean_results = []
       results.each do |p|
