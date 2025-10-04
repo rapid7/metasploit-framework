@@ -272,11 +272,12 @@ class MetasploitModule < Msf::Auxiliary
     login
 
     campaign_id = create_campaign
-
-    print_status('Executing template to extract environment variables...')
-    preview_campaign(campaign_id, payload)
-
-    # Clean up by deleting the campaign
-    delete_campaign(campaign_id)
+    begin
+      print_status('Executing template to extract environment variables...')
+      preview_campaign(campaign_id, payload)
+    ensure
+      # Clean up by deleting the campaign even if extraction fails
+      delete_campaign(campaign_id) if campaign_id
+    end
   end
 end
