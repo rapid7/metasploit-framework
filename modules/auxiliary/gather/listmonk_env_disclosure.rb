@@ -60,8 +60,8 @@ class MetasploitModule < Msf::Auxiliary
         if json['version']
           version_string = json['version'].gsub(/^v/, '')
           version = Rex::Version.new(version_string)
-          if version < Rex::Version.new('5.0.2')
-            return Msf::Exploit::CheckCode::Appears("Listmonk version #{version_string} is vulnerable")
+          if version >= Rex::Version.new('4.0.0') && version < Rex::Version.new('5.0.2')
+		return Msf::Exploit::CheckCode::Appears("Listmonk version #{version_string} is vulnerable")
           else
             return Msf::Exploit::CheckCode::Safe("Listmonk version #{version_string} is patched")
           end
