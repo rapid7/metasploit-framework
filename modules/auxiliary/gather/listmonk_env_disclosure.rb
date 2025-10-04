@@ -43,8 +43,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-    login
-
+    
+    begin
+  	login
+    rescue Msf::Exploit::Failed
+  	return Msf::Exploit::CheckCode::Unknown('Authentication failed')
+    end
+    
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'api', 'about'),
