@@ -1196,6 +1196,16 @@ class Console::CommandDispatcher::Core
         print_warning("The \"#{md}\" extension has already been loaded.")
         next
       end
+      
+      if extensions.include?('stdapi') && md.starts_with?('stdapi_')
+        print_error("Full extension of stdapi has already been loaded.")
+        next
+      end
+
+      if extensions.select { |e| e.starts_with?('stdapi_')}.any? && md == 'stdapi'
+        print_error("Partial extension of stdapi has already been loaded.")
+        next
+      end
 
       print("Loading extension #{md}...")
 
