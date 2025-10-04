@@ -38,7 +38,8 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('USERNAME', [true, 'Listmonk username']),
       OptString.new('PASSWORD', [true, 'Listmonk password']),
       OptString.new('ENVVAR', [false, 'Specific environment variable to read']),
-      OptPath.new('PAYLOAD_FILE', [false, 'Path to file containing template payload'])
+      OptPath.new('PAYLOAD_FILE', [false, 'Path to file containing template payload']),
+      OptString.new('CAMPAIGN_NAME', [false, 'Campaign name (random if not set)'])
     ])
   end
 
@@ -123,15 +124,18 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def create_campaign
+    # Use random campaign name to avoid collisions on re-runs and reduce fingerprinting
+    campaign_name = datastore['CAMPAIGN_NAME'] || Rex::Text.rand_text_alpha(8..12)
+    
     res = send_request_cgi({
       'method' => 'POST',
       'uri' => normalize_uri(target_uri.path, 'api', 'campaigns'),
       'keep_cookies' => true,
       'ctype' => 'application/json',
       'data' => {
-        'archiveSlug' => 'tmp',
-        'name' => 'tmp',
-        'subject' => 'tmp',
+        'archiveSlug' => campaign_name,
+        'name' => campaign_name,
+        'subject' => campaign_name,
         'lists' => [1],
         'from_email' => 'listmonk <noreply@listmonk.yoursite.com>',
         'content_type' => 'richtext',
