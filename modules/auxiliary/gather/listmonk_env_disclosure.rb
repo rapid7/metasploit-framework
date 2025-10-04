@@ -51,8 +51,7 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, 'api', 'about'),
-      'keep_cookies' => true
+      'uri' => normalize_uri(target_uri.path, 'api', 'about')
     })
 
     return Msf::Exploit::CheckCode::Unknown('Connection failed') unless res
@@ -82,8 +81,7 @@ class MetasploitModule < Msf::Auxiliary
   def get_nonce
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, 'admin', 'login'),
-      'keep_cookies' => true
+      'uri' => normalize_uri(target_uri.path, 'admin', 'login')
     })
 
     fail_with(Failure::Unreachable, 'Connection failed') unless res
@@ -128,7 +126,6 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi({
       'method' => 'POST',
       'uri' => normalize_uri(target_uri.path, 'api', 'campaigns'),
-      'keep_cookies' => true,
       'ctype' => 'application/json',
       'data' => {
         'archiveSlug' => campaign_name,
@@ -168,7 +165,6 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi({
       'method' => 'POST',
       'uri' => normalize_uri(target_uri.path, 'api', 'campaigns', campaign_id.to_s, 'preview'),
-      'keep_cookies' => true,
       'vars_post' => {
         'template_id' => '1',
         'content_type' => 'richtext',
@@ -196,8 +192,7 @@ class MetasploitModule < Msf::Auxiliary
   def delete_campaign(campaign_id)
     res = send_request_cgi({
       'method' => 'DELETE',
-      'uri' => normalize_uri(target_uri.path, 'api', 'campaigns', campaign_id.to_s),
-      'keep_cookies' => true
+      'uri' => normalize_uri(target_uri.path, 'api', 'campaigns', campaign_id.to_s)
     })
 
     if res && res.code == 200
