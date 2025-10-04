@@ -1,6 +1,6 @@
 ## Vulnerable Application
 
-This module exploits insecure Sprig template functions in Listmonk versions prior to v5.0.2.
+This module exploits insecure Sprig template functions in Listmonk versions >= v4.0.0 and < v5.0.2.
 The `env` and `expandenv` functions are enabled by default in campaign templates, allowing
 authenticated users with minimal campaign permissions to extract sensitive environment variables
 through the campaign preview functionality.
