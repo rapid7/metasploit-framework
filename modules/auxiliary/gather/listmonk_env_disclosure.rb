@@ -142,8 +142,10 @@ class MetasploitModule < Msf::Auxiliary
 
     if res.code == 200
       begin
-        parsed = JSON.parse(res.body)
-        campaign_id = parsed['data']['id']
+        parsed = res.get_json_document
+	fail_with(Failure::UnexpectedReply, 'Failed to parse campaign creation response') unless parsed
+
+	campaign_id = parsed['data']['id']
         vprint_status("Campaign created with ID: #{campaign_id}")
         return campaign_id
       rescue JSON::ParserError
