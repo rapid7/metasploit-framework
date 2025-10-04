@@ -57,21 +57,17 @@ class MetasploitModule < Msf::Auxiliary
     return Msf::Exploit::CheckCode::Unknown('Connection failed') unless res
 
     if res.code == 200
-      begin
-        json = res.get_json_document
-        return Msf::Exploit::CheckCode::Unknown('Failed to parse version information') unless json
+      json = res.get_json_document
+      return Msf::Exploit::CheckCode::Unknown('Failed to parse version information') unless json
 
-        if json['version']
-          version_string = json['version'].gsub(/^v/, '')
-          version = Rex::Version.new(version_string)
-          if version >= Rex::Version.new('4.0.0') && version < Rex::Version.new('5.0.2')
-            return Msf::Exploit::CheckCode::Appears("Listmonk version #{version_string} is vulnerable")
-          else
-            return Msf::Exploit::CheckCode::Safe("Listmonk version #{version_string} is patched")
-          end
+      if json['version']
+        version_string = json['version'].gsub(/^v/, '')
+        version = Rex::Version.new(version_string)
+        if version >= Rex::Version.new('4.0.0') && version < Rex::Version.new('5.0.2')
+          return Msf::Exploit::CheckCode::Appears("Listmonk version #{version_string} is vulnerable")
+        else
+          return Msf::Exploit::CheckCode::Safe("Listmonk version #{version_string} is patched")
         end
-      rescue JSON::ParserError
-        return Msf::Exploit::CheckCode::Unknown('Failed to parse version information')
       end
     end
 
@@ -146,16 +142,12 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Failure::Unreachable, 'Connection failed during campaign creation') unless res
 
     if res.code == 200
-      begin
-        parsed = res.get_json_document
-        fail_with(Failure::UnexpectedReply, 'Failed to parse campaign creation response') unless parsed
+      parsed = res.get_json_document
+      fail_with(Failure::UnexpectedReply, 'Failed to parse campaign creation response') unless parsed
 
-        campaign_id = parsed['data']['id']
-        vprint_status("Campaign created with ID: #{campaign_id}")
-        return campaign_id
-      rescue JSON::ParserError
-        fail_with(Failure::UnexpectedReply, 'Failed to parse campaign creation response')
-      end
+      campaign_id = parsed['data']['id']
+      vprint_status("Campaign created with ID: #{campaign_id}")
+      return campaign_id
     else
       fail_with(Failure::Unknown, "Failed to create campaign: #{res.code}")
     end
