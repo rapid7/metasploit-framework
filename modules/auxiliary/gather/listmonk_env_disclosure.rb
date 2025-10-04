@@ -185,6 +185,20 @@ class MetasploitModule < Msf::Auxiliary
     
   end
 
+  def delete_campaign(campaign_id)
+    res = send_request_cgi({
+      'method' => 'DELETE',
+      'uri' => normalize_uri(target_uri.path, 'api', 'campaigns', campaign_id.to_s),
+      'keep_cookies' => true
+    })
+
+    if res && res.code == 200
+      vprint_good("Campaign #{campaign_id} deleted successfully")
+    else
+      print_warning("Failed to delete campaign #{campaign_id}")
+    end
+  end
+
   def extract_results(html)
      doc = Nokogiri::HTML(html)
      wrap_div = doc.at('div[@class="wrap"]')
@@ -251,5 +265,8 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status('Executing template to extract environment variables...')
     preview_campaign(campaign_id, payload)
+    
+    # Clean up by deleting the campaign
+    delete_campaign(campaign_id)
   end
 end
