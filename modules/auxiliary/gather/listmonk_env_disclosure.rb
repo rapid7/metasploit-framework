@@ -43,11 +43,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-  
-      login
-    rescue Msf::Exploit::Failed => e
-      return Msf::Exploit::CheckCode::Unknown("Authentication failed: #{e.message}")
-    end
+    login
 
     res = send_request_cgi({
       'method' => 'GET',
@@ -115,7 +111,6 @@ class MetasploitModule < Msf::Auxiliary
     if res.code == 302
       @cookie = res.get_cookies
       print_good('Login successful')
-      return true
     else
       fail_with(Failure::NoAccess, "Login failed with code #{res.code}")
     end
