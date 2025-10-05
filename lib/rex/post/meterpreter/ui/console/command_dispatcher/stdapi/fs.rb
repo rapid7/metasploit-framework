@@ -566,16 +566,11 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   def cmd_edit_help
     print_line('Edit a file on remote machine.')
-    print_line("Usage: edit <file>")
-    print_line('The file is safely downloaded to a temporary location, edited locally,')
-    print_line('and then uploaded back to the remote path (atomic replace).')
+    print_line("Usage: edit file")
     print_line
   end
 
-  #
-  # Downloads a file to a temporary file, spawns and editor, and then uploads
-  # the contents to the remote machine after completion.
-  #
+def cmd_edit(*args)
   if args.empty? || args.length > 1 || args.include?('-h')
     cmd_edit_help
     return true
@@ -661,7 +656,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   true
 end
-
+  
   alias :cmd_edit_tabs :cmd_cat_tabs
 
   def cmd_ls_help
