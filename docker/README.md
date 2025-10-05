@@ -57,4 +57,4 @@ override.
 ```bash
 echo "COMPOSE_FILE=./docker-compose.yml:./docker-compose.override.yml:./docker-compose.local.override.yml" >> .env
 ```
-Now you should be able get reverse shells working
+Now you should be able to get reverse shells working
